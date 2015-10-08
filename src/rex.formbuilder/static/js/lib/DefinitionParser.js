@@ -12,13 +12,13 @@ var InstrumentTypeCatalog = require('./InstrumentTypeCatalog');
 var {ParsingError, UnsupportedConfigurationError} = require('./errors');
 var {Element, PageStart} = require('./elements');
 var {Calculation} = require('./calculations');
-var {isEmpty} = require('./util');
+var {isEmpty, isEmptyLocalization} = require('./util');
 var i18n = require('./i18n');
 var _ = i18n.gettext;
 
 
 class DefinitionParser {
-  constructor(instrument, form, calculations, locale) {
+  constructor(instrument, form, calculations) {
     // Make sure we got definitions.
     if (!instrument || !form) {
       throw new ParsingError(
@@ -68,17 +68,20 @@ class DefinitionParser {
 
     this.form = form;
     this.calculations = calculations;
-
-    this.locale = locale || i18n.getRex().config.locale;
   }
 
   getConfiguration() {
     var configuration = new Configuration();
-    configuration.title = this._getString(this.form.title)
-        || this.instrument.title;
     configuration.id = this.instrument.id;
     configuration.version = this.instrument.version;
-    configuration.locale = this.locale;
+    configuration.locale = this.form.defaultLocalization;
+    if (isEmptyLocalization(this.form.title)) {
+      configuration.title = {
+        [configuration.locale]: this.instrument.title
+      };
+    } else {
+      configuration.title = deepCopy(this.form.title);
+    }
     configuration.elements = [];
     configuration.calculations = [];
 
@@ -130,16 +133,6 @@ class DefinitionParser {
     }
 
     return configuration;
-  }
-
-  _getString(lso) {
-    if (lso) {
-      if (this.locale in lso) {
-        return lso[this.locale];
-      } else {
-        return lso[this.form.defaultLocalization];
-      }
-    }
   }
 }
 

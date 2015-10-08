@@ -11,12 +11,12 @@ var {Ajax, isEmpty} = require('../util');
 var Dispatcher = require('../Dispatcher');
 var constants = require('../constants');
 var SettingStore = require('./SettingStore');
+var I18NStore = require('./I18NStore');
 var {ErrorActions, SuccessActions} = require('../actions');
 var DefinitionParser = require('../DefinitionParser');
 var Configuration = require('../Configuration');
 var errors = require('../errors');
-var {gettext, getCurrentLocale} = require('../i18n');
-var _ = gettext;
+var _ = require('../i18n').gettext;
 
 
 var CHANGE_EVENT = 'change';
@@ -65,8 +65,10 @@ function draftToConfiguration() {
     configuration = new Configuration(
       'urn:' + draftSet.instrument_version.instrument.uid,
       '1.0',
-      draftSet.instrument_version.instrument.title,
-      getCurrentLocale()
+      {
+        [I18NStore.getCurrentLocale()]: draftSet.instrument_version.instrument.title
+      },
+      I18NStore.getCurrentLocale()
     );
   }
 
@@ -431,6 +433,25 @@ function getEventTargets() {
 }
 
 
+function getLocaleCoverage() {
+  var coverage = {
+    'total': 1
+  };
+  I18NStore.getSupportedLocales().forEach((locale) => {
+    coverage[locale.id] = isEmpty(_activeConfiguration.title[locale.id]) ? 0 : 1;
+  });
+
+  _activeConfiguration.elements.forEach((element) => {
+    var cov = element.getLocaleCoverage();
+    Object.keys(cov).forEach((key) => {
+      coverage[key] += cov[key];
+    });
+  });
+
+  return coverage
+}
+
+
 function getTags() {
   var tags = [];
   _activeConfiguration.elements.forEach((element) => {
@@ -470,6 +491,10 @@ var DraftSetStore = Object.assign({}, EventEmitter.prototype, {
 
   getEventTargets: function () {
     return getEventTargets();
+  },
+
+  getLocaleCoverage: function () {
+    return getLocaleCoverage();
   },
 
   getTags: function () {

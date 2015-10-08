@@ -6,7 +6,6 @@
 
 var Immutable = require('immutable');
 var React = require('react');
-var ReactForms = require('react-forms');
 var ReactSelect = require('react-select');
 
 

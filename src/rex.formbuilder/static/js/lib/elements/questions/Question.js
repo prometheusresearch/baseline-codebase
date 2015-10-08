@@ -13,8 +13,7 @@ var ELEMENT_TYPES = require('../types');
 var errors = require('../../errors');
 var properties = require('../../properties');
 var {isEmpty, isEmptyLocalization} = require('../../util');
-var {gettext, getCurrentLocale} = require('../../i18n');
-var _ = gettext;
+var _ = require('../../i18n').gettext;
 
 
 var QUESTION_PARSERS = [];
@@ -187,14 +186,62 @@ class Question extends Element {
     this.audio = objectPath.get(element, 'options.audio', {});
   }
 
+  getLocalizedProperties() {
+    var props = super.getLocalizedProperties();
+    props.required.push('text');
+    props.optional = props.optional.concat(['help', 'error', 'audio']);
+    return props;
+  }
+
+  getLocaleCoverage() {
+    var coverage = super.getLocaleCoverage();
+
+    this.events.forEach((event) => {
+      var text = objectPath.get(event, 'options.text', undefined);
+      if (!isEmptyLocalization(text)) {
+        Object.keys(coverage).forEach((key) => {
+          if (!isEmpty(text[key])) {
+            coverage[key]++;
+          }
+        });
+        coverage.total++;
+      }
+    });
+
+    return coverage;
+  }
+
+  checkValidity() {
+    super.checkValidity();
+
+    var {DraftSetStore} = require('../../stores');
+    var defaultLocale = DraftSetStore.getActiveConfiguration().locale;
+
+    this.events.forEach((event) => {
+      var text = objectPath.get(event, 'options.text', undefined);
+      if (!isEmptyLocalization(text)) {
+        if (isEmpty(text[defaultLocale])) {
+          throw new errors.ConfigurationError(_(
+            'A translation is missing in Event text for language "%(locale)s".', {
+              locale: defaultLocale
+            }
+          ));
+        }
+      }
+    });
+
+    return true;
+  }
+
   getWorkspaceComponent() {
+    var {DraftSetStore} = require('../../stores');
     return (
       <div className='rfb-workspace-item-details'>
         <div className='rfb-workspace-item-icon'>
           <span className='rfb-icon' />
         </div>
         <div className='rfb-workspace-item-content'>
-          <span>{this.text[getCurrentLocale()]}</span>
+          <span>{this.text[DraftSetStore.getActiveConfiguration().locale]}</span>
         </div>
       </div>
     );

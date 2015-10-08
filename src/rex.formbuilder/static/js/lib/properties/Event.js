@@ -87,7 +87,7 @@ class Event extends ReactForms.schema.MappingNode {
       }
       if (options.has('enumerations')) {
         var enumerations = options.get('enumerations');
-        hasEnums = enumerations ? (enumerations.count() > 0): false;
+        hasEnums = enumerations ? (enumerations.count() > 0) : false;
       }
     }
 

@@ -9,9 +9,9 @@ var deepCopy = require('deep-copy');
 
 var Question = require('./Question');
 var properties = require('../../properties');
-var {isEmptyLocalization} = require('../../util');
-var {gettext, getCurrentLocale} = require('../../i18n');
-var _ = gettext;
+var errors = require('../../errors');
+var {isEmptyLocalization, isEmpty} = require('../../util');
+var _ = require('../../i18n').gettext;
 
 
 class Enumeration extends Question {
@@ -51,6 +51,64 @@ class Enumeration extends Question {
     this.enumerations = [];
   }
 
+  getLocaleCoverage() {
+    var coverage = super.getLocaleCoverage();
+
+    this.enumerations.forEach((enumeration) => {
+      Object.keys(coverage).forEach((key) => {
+        if (!isEmpty(enumeration.text[key])) {
+          coverage[key]++;
+        }
+      });
+      coverage.total++;
+
+      ['help', 'audio'].forEach((prop) => {
+        if (!isEmptyLocalization(enumeration[prop])) {
+          Object.keys(coverage).forEach((key) => {
+            if (!isEmpty(enumeration[prop][key])) {
+              coverage[key]++;
+            }
+          });
+          coverage.total++;
+        }
+      });
+    });
+
+    return coverage;
+  }
+
+  checkValidity() {
+    super.checkValidity();
+
+    var {DraftSetStore} = require('../../stores');
+    var defaultLocale = DraftSetStore.getActiveConfiguration().locale;
+
+    this.enumerations.forEach((enumeration) => {
+      if (isEmpty(enumeration.text[defaultLocale])) {
+        throw new errors.ConfigurationError(_(
+          'A translation is missing in Enumeration text for language "%(locale)s".', {
+            locale: defaultLocale
+          }
+        ));
+      }
+
+      ['help', 'audio'].forEach((prop) => {
+        if (!isEmptyLocalization(enumeration[prop])) {
+          if (isEmpty(enumeration[prop][defaultLocale])) {
+            throw new errors.ConfigurationError(_(
+              'A translation is missing in Enumeration %(property)s for language "%(locale)s".', {
+                locale: defaultLocale,
+                property: prop
+              }
+            ));
+          }
+        }
+      });
+    });
+
+    return true;
+  }
+
   clone(exact, configurationScope) {
     var newElm = super.clone(exact, configurationScope);
     newElm.autoHotkeys = this.autoHotkeys;
@@ -79,11 +137,12 @@ class Enumeration extends Question {
       };
     });
 
+    var {I18NStore} = require('../../stores');
     Object.keys(field.type.enumerations).forEach((eid) => {
       var enumeration = enumerations.filter(e => e.id === eid)[0];
       if (!enumeration) {
         var text = {};
-        text[getCurrentLocale()] = eid;
+        text[I18NStore.getCurrentLocale()] = eid;
         enumerations.push({
           id: eid,
           text: text,

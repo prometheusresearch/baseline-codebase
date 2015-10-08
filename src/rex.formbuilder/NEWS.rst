@@ -8,9 +8,12 @@ REX.FORMBUILDER Change Log
 5.4.0 (2015-xx-xx)
 ==================
 
+* Added ability to set the defaultLocalization of a Form.
+* Added ability to provide localizations for text and audio properties.
+* Elements in the workspace now turn red when their configuration becomes
+  invalid.
 * Clicking outside modal dialogs no longer cancels them.
 * Fixed issue where audio help file config wasn't being cloned.
-
 
 
 5.3.0 (2015-09-30)

@@ -24,7 +24,7 @@ class DropDownMenu extends Enumeration {
     var cfg = Enumeration.getPropertyConfiguration();
 
     cfg.properties.basic = cfg.properties.basic.map((prop) => {
-      if (prop.name == 'enumerations') {
+      if (prop.name === 'enumerations') {
         return {
           name: 'enumerations',
           schema: properties.EnumerationList,

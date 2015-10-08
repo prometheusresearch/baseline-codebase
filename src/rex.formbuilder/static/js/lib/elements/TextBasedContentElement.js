@@ -10,8 +10,7 @@ var objectPath = require('object-path');
 
 var ContentElement = require('./ContentElement');
 var properties = require('../properties');
-var {gettext, getCurrentLocale} = require('../i18n');
-var _ = gettext;
+var _ = require('../i18n').gettext;
 
 
 class TextBasedContentElement extends ContentElement {
@@ -48,6 +47,12 @@ class TextBasedContentElement extends ContentElement {
     this.text = element.options.text;
   }
 
+  getLocalizedProperties() {
+    var props = super.getLocalizedProperties();
+    props.required.push('text');
+    return props;
+  }
+
   serialize(instrument, form, context) {
     context = context || this;
 
@@ -64,13 +69,14 @@ class TextBasedContentElement extends ContentElement {
   }
 
   getWorkspaceComponent() {
+    var {DraftSetStore} = require('../stores');
     return (
       <div className='rfb-workspace-item-details'>
         <div className='rfb-workspace-item-icon'>
           <span className='rfb-icon' />
         </div>
         <div className='rfb-workspace-item-content'>
-          <span>{this.text[getCurrentLocale()]}</span>
+          <span>{this.text[DraftSetStore.getActiveConfiguration().locale]}</span>
         </div>
       </div>
     );

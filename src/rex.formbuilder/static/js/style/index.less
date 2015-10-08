@@ -72,6 +72,10 @@
     content: "\e9ce";
 }
 
+.icon-locale:before {
+	content: "\e2a8";
+}
+
 
 html, body {
     height: 100%;
@@ -141,17 +145,22 @@ body {
     .rfb-menu-header-title-container {
         display: flex;
         align-items: center;
+        overflow-x: hidden;
+        white-space: nowrap;
 
         .rfb-menu-header-title {
             font-size: 2em;
             font-weight: bold;
             margin: 0;
+            text-overflow: ellipsis;
+            overflow: hidden;
         }
     }
 
     .rfb-menu-header-actions {
         flex-grow: 1;
         text-align: right;
+        white-space: nowrap;
 
         button {
             margin-left: 5px;
@@ -210,7 +219,7 @@ body {
         .rf-Field {
             margin-bottom: 0;
 
-            &.rf-Field--required span {
+            &.rf-Field--required > .rf-Field__label span {
                 &::before {
                     content: '* ';
                     color: red;
@@ -376,12 +385,6 @@ body {
     flex-direction: column;
     flex-grow: 1;
     overflow-y: hidden;
-
-    & > .rfb-menu-header {
-        .rfb-menu-header-title {
-            cursor: pointer;
-        }
-    }
 
     .rfb-draftset-container {
         display: flex;
@@ -553,7 +556,8 @@ body {
                     }
                 }
 
-                .rfb-toolbox-component-calculation-python-expression, .rfb-toolbox-component-calculation-python-callable {
+                .rfb-toolbox-component-calculation-python-expression,
+                .rfb-toolbox-component-calculation-python-callable {
                     .rfb-icon {
                         font-size: 1.5em;
 
@@ -594,12 +598,18 @@ body {
             }
         }
 
+        &.rfb-element-invalid {
+            color: red;
+            border-color: red !important;
+        }
+
         &:hover {
             border-color: lightblue;
         }
 
         .rfb-modal {
             cursor: auto;
+            color: initial;
         }
 
         & > div:first-child {
@@ -759,7 +769,8 @@ body {
         }
 
 
-        &.rfb-workspace-calculation-python-expression, &.rfb-workspace-calculation-python-callable {
+        &.rfb-workspace-calculation-python-expression,
+        &.rfb-workspace-calculation-python-callable {
             .rfb-workspace-item-icon .rfb-icon:before {
                 content: "\e606";
             }
@@ -788,6 +799,12 @@ body {
             text-align: left !important;
             margin-bottom: 0;
             min-width: auto !important;
+        }
+
+        tr {
+            &:nth-child(2n) {
+                background-color: #ccc;
+            }
         }
 
         td {
@@ -832,6 +849,18 @@ body {
                         display: block;
                     }
                 }
+
+                .rfb-audiosource {
+                    .rf-RepeatingFieldset,
+                    .rf-RepeatingFieldset__item,
+                    .rf-RepeatingFieldset__add {
+                        margin-left: 0;
+                    }
+
+                    .rf-Message {
+                        padding-left: 0 !important;
+                    }
+                }
             }
 
             &:last-child {
@@ -851,7 +880,7 @@ body {
         margin-bottom: 1em;
     }
 
-    .rf-RepeatingFieldset__add {
+    & > .rf-RepeatingFieldset__add {
         .rfb-button();
         color: black;
         font-size: 0.9em;
@@ -900,13 +929,6 @@ body {
         margin-bottom: 1em;
     }
 
-    .rfb-localizedtext {
-        .rf-Field {
-            width: 100% !important;
-            padding-left: 0 !important;
-        }
-    }
-
     .rfb-event-field {
         td:first-child {
             width: 25%;
@@ -920,6 +942,18 @@ body {
 
         .rfb-multiselect {
             width: 100%;
+        }
+
+        .rfb-localizedtext {
+            padding: 5px 0;
+
+            .rf-Field__label {
+                min-width: 80px;
+            }
+
+            input {
+                width: 75% !important;
+            }
         }
     }
 
@@ -996,7 +1030,6 @@ body {
         padding: 10px;
         display: flex;
 
-
         .rfb-toast-message {
             text-align: center;
 
@@ -1069,7 +1102,7 @@ body {
 }
 
 
-.rfb-property-editor-modal {
+.rfb-property-editor-modal, .rfb-form-settings-modal {
     h3 {
         margin-top: 0;
         margin-bottom: 0.75em;
@@ -1081,5 +1114,76 @@ body {
 .rfb-multiselect {
     display: inline-block;
     vertical-align: middle;
+}
+
+
+.rfb-localizedtext {
+    & > .rf-Message {
+        color: red;
+        padding-left: 125px !important;
+    }
+
+    .rfb-localizedtext-translations {
+        .rf-Label {
+            font-style: italic;
+            font-weight: normal;
+        }
+    }
+}
+
+
+.rfb-formlocalization {
+    .rf-Field__label {
+        vertical-align: top;
+    }
+
+    table {
+        display: inline-block;
+
+        th {
+            padding-right: 10px;
+        }
+
+        td {
+            padding-right: 10px;
+
+            .rfb-formlocalization-locale {
+                font-weight: normal;
+                margin-bottom: auto;
+                display: initial;
+            }
+        }
+    }
+
+    input[type=radio] {
+        width: auto !important;
+    }
+}
+
+
+.rfb-audiosource {
+    & > .rf-Message {
+        color: red;
+        padding-left: 113px !important;
+    }
+
+    .rf-RepeatingFieldset {
+        margin-left: 113px;
+    }
+
+    .rf-RepeatingFieldset__child {
+        width: 75%;
+
+        input {
+            width: 100% !important;
+        }
+    }
+
+    .rfb-audiosource-translations {
+        .rf-Label {
+            font-style: italic;
+            font-weight: normal;
+        }
+    }
 }
 

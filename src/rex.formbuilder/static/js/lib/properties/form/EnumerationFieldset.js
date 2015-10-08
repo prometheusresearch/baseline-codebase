@@ -47,13 +47,13 @@ var EnumerationFieldset = React.createClass({
           <ReactForms.Element
             value={value.get('text')}
             />
+        </td>
+        <td className="rfb-table-field-long">
           {value.node.children.has('help') &&
             <ReactForms.Element
               value={value.get('help')}
               />
           }
-        </td>
-        <td className="rfb-table-field-long">
           {value.node.children.has('audio') &&
             <ReactForms.Element
               value={value.get('audio')}

@@ -45,11 +45,11 @@ var RowFieldset = React.createClass({
           <ReactForms.Element
             value={value.get('text')}
             />
+        </td>
+        <td className="rfb-table-field-long">
           <ReactForms.Element
             value={value.get('help')}
             />
-        </td>
-        <td className="rfb-table-field-long">
           <ReactForms.Element
             value={value.get('audio')}
             />

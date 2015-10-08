@@ -45,6 +45,12 @@ class RepeatingGroup extends RecordList {
     this.removeLabel = {};
   }
 
+  getLocalizedProperties() {
+    var props = super.getLocalizedProperties();
+    props.optional = props.optional.concat(['addLabel', 'removeLabel']);
+    return props;
+  }
+
   parse(element, instrument, field) {
     super.parse(element, instrument, field);
 

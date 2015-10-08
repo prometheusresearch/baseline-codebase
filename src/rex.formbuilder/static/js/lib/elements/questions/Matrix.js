@@ -14,10 +14,9 @@ var SubFieldSerializationContext = require(
 var Question = require('./Question');
 var properties = require('../../properties');
 var errors = require('../../errors');
-var {isEmptyLocalization} = require('../../util');
+var {isEmptyLocalization, isEmpty} = require('../../util');
 var SubFieldContainer = require('../../gui/SubFieldContainer');
-var {gettext, getCurrentLocale} = require('../../i18n');
-var _ = gettext;
+var _ = require('../../i18n').gettext;
 
 
 class Matrix extends Question {
@@ -58,6 +57,32 @@ class Matrix extends Question {
     this.rows = [];
   }
 
+  getLocaleCoverage() {
+    var coverage = super.getLocaleCoverage();
+
+    this.rows.forEach((row) => {
+      Object.keys(coverage).forEach((key) => {
+        if (!isEmpty(row.text[key])) {
+          coverage[key]++;
+        }
+      });
+      coverage.total++;
+
+      ['help', 'audio'].forEach((prop) => {
+        if (!isEmptyLocalization(row[prop])) {
+          Object.keys(coverage).forEach((key) => {
+            if (!isEmpty(row[prop][key])) {
+              coverage[key]++;
+            }
+          });
+          coverage.total++;
+        }
+      });
+    });
+
+    return coverage;
+  }
+
   parse(element, instrument, field) {
     super.parse(element, instrument, field);
 
@@ -95,6 +120,7 @@ class Matrix extends Question {
   }
 
   getWorkspaceComponent() {
+    var {DraftSetStore} = require('../../stores');
     return (
       <div>
         <div className='rfb-workspace-item-details'>
@@ -102,7 +128,7 @@ class Matrix extends Question {
             <span className='rfb-icon' />
           </div>
           <div className='rfb-workspace-item-content'>
-            <span>{this.text[getCurrentLocale()]}</span>
+            <span>{this.text[DraftSetStore.getActiveConfiguration().locale]}</span>
           </div>
         </div>
         <SubFieldContainer
@@ -128,6 +154,8 @@ class Matrix extends Question {
   }
 
   checkValidity() {
+    super.checkValidity();
+
     if (this.questions.length < 1) {
       throw new errors.ConfigurationError(_(
         'Grids must contain at least one question.'
@@ -138,6 +166,32 @@ class Matrix extends Question {
         'Grids must contain at least one row.'
       ));
     }
+
+    var {DraftSetStore} = require('../../stores');
+    var defaultLocale = DraftSetStore.getActiveConfiguration().locale;
+
+    this.rows.forEach((row) => {
+      if (isEmpty(row.text[defaultLocale])) {
+        throw new errors.ConfigurationError(_(
+          'A translation is missing in Row text for language "%(locale)s".', {
+            locale: defaultLocale
+          }
+        ));
+      }
+
+      ['help', 'audio'].forEach((prop) => {
+        if (!isEmptyLocalization(row[prop])) {
+          if (isEmpty(row[prop][defaultLocale])) {
+            throw new errors.ConfigurationError(_(
+              'A translation is missing in Row %(property)s for language "%(locale)s".', {
+                locale: defaultLocale,
+                property: prop
+              }
+            ));
+          }
+        }
+      });
+    });
 
     return true;
   }
@@ -168,9 +222,9 @@ class Matrix extends Question {
     });
     // Ugly hack needed until we can alter the config properties available
     // for subfields.
-    field.type.columns.forEach((field) => {
-      delete field.explanation;
-      delete field.annotation;
+    field.type.columns.forEach((fld) => {
+      delete fld.explanation;
+      delete fld.annotation;
     });
 
     elm.options.rows = [];

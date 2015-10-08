@@ -8,9 +8,9 @@ var React = require('react');
 var classNames = require('classnames');
 
 var SerializationContext = require('../SerializationContext');
-var {ParsingError} = require('../errors');
+var {ParsingError, ConfigurationError} = require('../errors');
 var properties = require('../properties');
-var {isEmpty} = require('../util');
+var {isEmpty, isEmptyLocalization} = require('../util');
 var _ = require('../i18n').gettext;
 
 
@@ -128,7 +128,72 @@ class Element extends SerializationContext {
     return this.tags;
   }
 
+  getLocalizedProperties() {
+    return {
+      'required': [],
+      'optional': []
+    };
+  }
+
+  getLocaleCoverage() {
+    var {I18NStore} = require('../stores');
+    var locales = I18NStore.getSupportedLocales().map((locale) => {
+      return locale.id;
+    });
+    var coverage = {'total': 0};
+    locales.forEach((locale) => {
+      coverage[locale] = 0;
+    });
+
+    var props = this.getLocalizedProperties();
+    props.required.forEach((prop) => {
+      locales.forEach((locale) => {
+        if (!isEmpty(this[prop][locale])) {
+          coverage[locale]++;
+        }
+      });
+      coverage.total++;
+    });
+    props.optional.forEach((prop) => {
+      if (!isEmptyLocalization(this[prop])) {
+        locales.forEach((locale) => {
+          if (!isEmpty(this[prop][locale])) {
+            coverage[locale]++;
+          }
+        });
+        coverage.total++;
+      }
+    });
+
+    return coverage;
+  }
+
   checkValidity() {
+    var {DraftSetStore} = require('../stores');
+    var defaultLocale = DraftSetStore.getActiveConfiguration().locale;
+
+    var props = this.getLocalizedProperties();
+    props.required.forEach((prop) => {
+      if (isEmpty(this[prop][defaultLocale])) {
+        throw new ConfigurationError(_(
+          'A translation is missing for language "%(locale)s".', {
+            locale: defaultLocale
+          }
+        ));
+      }
+    });
+    props.optional.forEach((prop) => {
+      if (!isEmptyLocalization(this[prop])) {
+        if (isEmpty(this[prop][defaultLocale])) {
+          throw new ConfigurationError(_(
+            'A translation is missing for language "%(locale)s".', {
+              locale: defaultLocale
+            }
+          ));
+        }
+      }
+    });
+
     return true;
   }
 

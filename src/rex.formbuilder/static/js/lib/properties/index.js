@@ -26,6 +26,7 @@ var Row = require('./Row');
 var RowList = require('./RowList');
 var EventEnumerationList = require('./EventEnumerationList');
 var TagList = require('./TagList');
+var FormLocalization = require('./FormLocalization');
 
 
 module.exports = {
@@ -50,6 +51,7 @@ module.exports = {
   Row,
   RowList,
   EventEnumerationList,
-  TagList
+  TagList,
+  FormLocalization
 };
 

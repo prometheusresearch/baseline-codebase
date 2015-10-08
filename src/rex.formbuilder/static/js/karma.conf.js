@@ -39,6 +39,7 @@ module.exports = function (config) {
     ],
 
     files: [
+      'node_modules/babel-core/browser-polyfill.js',
       'test/index.js'
     ],
 

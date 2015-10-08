@@ -58,17 +58,17 @@ describe('DefinitionParser', function () {
     it('finds the title', function () {
       expect(
         (new DefinitionParser(INSTRUMENT, FORM)).getConfiguration().title
-      ).to.equal('The Instrument Title');
+      ).to.deep.equal({en: 'The Instrument Title'});
 
       var FORM2 = deepCopy(FORM);
       FORM2.title = {en: 'The Form Title'};
       expect(
         (new DefinitionParser(INSTRUMENT, FORM2)).getConfiguration().title
-      ).to.equal('The Form Title');
+      ).to.deep.equal({en: 'The Form Title'});
 
       expect(
-        (new DefinitionParser(INSTRUMENT, FORM2, null, 'fr')).getConfiguration().title
-      ).to.equal('The Form Title');
+        (new DefinitionParser(INSTRUMENT, FORM2, null)).getConfiguration().title
+      ).to.deep.equal({en: 'The Form Title'});
     });
 
     it('finds the id and version', function () {
@@ -78,8 +78,8 @@ describe('DefinitionParser', function () {
     });
 
     it('sets the locale', function () {
-      var configuration = (new DefinitionParser(INSTRUMENT, FORM, null, 'fr')).getConfiguration();
-      expect(configuration.locale).to.equal('fr');
+      var configuration = (new DefinitionParser(INSTRUMENT, FORM, null)).getConfiguration();
+      expect(configuration.locale).to.equal('en');
     });
 
     it('fails on unsupported elements', function () {

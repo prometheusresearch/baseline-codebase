@@ -215,10 +215,18 @@ var WorkspaceElement = React.createClass({
     var {isDragging} = this.getDragState(DraggableTypes.WORKSPACE_ELEMENT);
     isDragging |= this.state.isDragging;
 
+    var elementInvalid = false;
+    try {
+      this.props.element.checkValidity();
+    } catch (exc) {
+      elementInvalid = true;
+    }
+
     var classes = {
       'rfb-workspace-item': true,
       'rfb-dragging': isDragging,
-      'rfb-movable': this.canMove()
+      'rfb-movable': this.canMove(),
+      'rfb-element-invalid': elementInvalid
     };
     var typeId = this.props.element.constructor.getTypeID();
     if (typeId) {

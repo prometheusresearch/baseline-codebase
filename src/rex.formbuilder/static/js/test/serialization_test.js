@@ -16,7 +16,7 @@ describe('definition metadata', function () {
   var cfg, elm;
 
   beforeEach(function () {
-    cfg = new Configuration('my-id', '1.1', 'my title', 'en');
+    cfg = new Configuration('my-id', '1.1', {en: 'my title'}, 'en');
   });
 
   it('outputs instrument metadata', function () {
@@ -31,7 +31,7 @@ describe('definition metadata', function () {
     expect(form.instrument.id).to.equal('my-id');
     expect(form.instrument.version).to.equal('1.1');
     expect(form.defaultLocalization).to.equal('en');
-    expect(form.title.en).to.equal('my title');
+    expect(form.title.en).to.deep.equal('my title');
   });
 });
 

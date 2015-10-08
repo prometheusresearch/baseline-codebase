@@ -56,7 +56,7 @@ describe('Configuration', function () {
     var cfg;
 
     beforeEach(function () {
-      cfg = new Configuration('my-id', '1.1', 'my title', 'en');
+      cfg = new Configuration('my-id', '1.1', {'en': 'my title'}, 'en');
     });
 
     it('should pass on a good configuration', function () {

@@ -50,6 +50,12 @@ class Audio extends ContentElement {
     this.source = objectPath.get(element, 'options.source', {});
   }
 
+  getLocalizedProperties() {
+    var props = super.getLocalizedProperties();
+    props.required.push('source');
+    return props;
+  }
+
   serialize(instrument, form, context) {
     context = context || this;
 

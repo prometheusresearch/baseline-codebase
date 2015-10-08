@@ -11,6 +11,7 @@ var InstrumentStore = require('./InstrumentStore');
 var InstrumentVersionStore = require('./InstrumentVersionStore');
 var DraftSetStore = require('./DraftSetStore');
 var DraftInstrumentVersionStore = require('./DraftInstrumentVersionStore');
+var I18NStore = require('./I18NStore');
 
 
 module.exports = {
@@ -20,6 +21,7 @@ module.exports = {
   InstrumentStore,
   InstrumentVersionStore,
   DraftSetStore,
-  DraftInstrumentVersionStore
+  DraftInstrumentVersionStore,
+  I18NStore
 };
 

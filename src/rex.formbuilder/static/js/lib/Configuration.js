@@ -4,6 +4,8 @@
 
 'use strict';
 
+var deepCopy = require('deep-copy');
+
 var elements = require('./elements');
 var {ConfigurationError} = require('./errors');
 var {isEmpty} = require('./util');
@@ -29,7 +31,7 @@ class Configuration {
     var instrument = {
       id: this.id,
       version: this.version,
-      title: this.title,
+      title: this.title[this.locale],
       record: []
     };
     var form = {
@@ -38,10 +40,9 @@ class Configuration {
         version: this.version
       },
       defaultLocalization: this.locale,
-      title: {},
+      title: deepCopy(this.title),
       pages: []
     };
-    form.title[this.locale] = this.title;
 
     // Serialize the elements to the stubs.
     this.elements.forEach((element) => {
@@ -71,6 +72,14 @@ class Configuration {
   }
 
   checkValidity() {
+    if (isEmpty(this.title[this.locale])) {
+      throw new ConfigurationError(
+        _('The Form Title must have a translation for "%(locale)s"', {
+          locale: this.locale
+        })
+      );
+    }
+
     if (!this.elements || (this.elements.length < 2)) {
       throw new ConfigurationError(
         _('Configuration must contain at least two Elements.')

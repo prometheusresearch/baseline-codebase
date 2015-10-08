@@ -17,7 +17,7 @@ var CalculationWorkspace = require('./CalculationWorkspace');
 var MenuHeader = require('./MenuHeader');
 var EditTitleModal = require('./EditTitleModal');
 var ToasterMixin = require('./ToasterMixin');
-var {DraftSetActions, SettingActions, ErrorActions} = require('../actions');
+var {DraftSetActions, SettingActions, ErrorActions, I18NActions} = require('../actions');
 var {DraftSetStore} = require('../stores');
 var {ConfigurationError} = require('../errors');
 var i18n = require('../i18n');
@@ -46,7 +46,7 @@ var DraftSetEditor = React.createClass({
       editMode: MODE_FORM,
       configuration: null,
       instrumentVersion: null,
-      editingTitle: false,
+      editingSettings: false,
       publishing: false,
       modified: false,
       valid: false,
@@ -57,6 +57,7 @@ var DraftSetEditor = React.createClass({
 
   componentWillMount: function () {
     SettingActions.initialize(this.props);
+    I18NActions.initialize();
     if (this.props.uid) {
       DraftSetActions.activate(this.props.uid);
     }
@@ -166,26 +167,15 @@ var DraftSetEditor = React.createClass({
     ));
   },
 
-  onChangeTitle: function () {
+  onFormSettings: function () {
     this.setState({
-      editingTitle: true
+      editingSettings: true
     });
   },
 
-  onTitleEdit: function (newTitle) {
-    DraftSetActions.setAttributes({
-      title: newTitle
-    });
+  onSettingsDone: function () {
     this.setState({
-      editingTitle: false
-    });
-  },
-
-  onTitleCancel: function () {
-    this.setState({
-      editingTitle: false
-    }, () => {
-      this.refs.modalTitle.reset();
+      editingSettings: false
     });
   },
 
@@ -243,11 +233,17 @@ var DraftSetEditor = React.createClass({
       'rfb-button__disabled': !this.state.modified || !this.state.valid
     });
 
+    var formTitle = null;
+    if (this.state.configuration) {
+      formTitle = this.state.configuration.title[
+        this.state.configuration.locale
+      ];
+    }
+
     return (
       <div className="rfb-draftset-editor">
         <MenuHeader
-          onClick={this.onChangeTitle}
-          title={this.state.configuration && this.state.configuration.title}>
+          title={formTitle}>
           {this.props.instrumentMenuUrlTemplate &&
             this.state.instrumentVersion &&
             <button
@@ -255,6 +251,16 @@ var DraftSetEditor = React.createClass({
               onClick={this.onReturn}>
               <span className='rfb-icon icon-go-back' />
               {_('Return to Menu')}
+            </button>
+          }
+          {this.state.editMode === MODE_FORM &&
+            <button
+              disabled={!this.state.configuration}
+              className='rfb-button'
+              title={_('Edit the high-level Form settings')}
+              onClick={this.onFormSettings}>
+              <span className='rfb-icon icon-edit' />
+              {_('Form Settings')}
             </button>
           }
           <button
@@ -305,13 +311,14 @@ var DraftSetEditor = React.createClass({
             )}</p>
           </ConfirmationModal>
         </MenuHeader>
-        <EditTitleModal
-          ref='modalTitle'
-          visible={this.state.editingTitle}
-          title={this.state.configuration && this.state.configuration.title}
-          onComplete={this.onTitleEdit}
-          onCancel={this.onTitleCancel}
-          />
+        {this.state.configuration && this.state.editingSettings &&
+          <EditTitleModal
+            ref='modalSettings'
+            visible={this.state.editingSettings}
+            onComplete={this.onSettingsDone}
+            onCancel={this.onSettingsDone}
+            />
+        }
         {this.state.configFailure ?
           <div className="rfb-draftset-container">
             <TotalFailureModal visible={true}>

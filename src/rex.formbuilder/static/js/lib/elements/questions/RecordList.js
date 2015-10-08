@@ -16,8 +16,7 @@ var properties = require('../../properties');
 var errors = require('../../errors');
 var {isEmpty} = require('../../util');
 var SubFieldContainer = require('../../gui/SubFieldContainer');
-var {gettext, getCurrentLocale} = require('../../i18n');
-var _ = gettext;
+var _ = require('../../i18n').gettext;
 
 
 class RecordList extends Question {
@@ -82,6 +81,7 @@ class RecordList extends Question {
   }
 
   getWorkspaceComponent() {
+    var {DraftSetStore} = require('../../stores');
     return (
       <div>
         <div className='rfb-workspace-item-details'>
@@ -89,7 +89,7 @@ class RecordList extends Question {
             <span className='rfb-icon' />
           </div>
           <div className='rfb-workspace-item-content'>
-            <span>{this.text[getCurrentLocale()]}</span>
+            <span>{this.text[DraftSetStore.getActiveConfiguration().locale]}</span>
           </div>
         </div>
         <SubFieldContainer
@@ -108,6 +108,8 @@ class RecordList extends Question {
   }
 
   checkValidity() {
+    super.checkValidity();
+
     if (this.questions.length < 1) {
       throw new errors.ConfigurationError(_(
         'Repeating Groups must contain at least one question.'

@@ -127,7 +127,7 @@ function configureWebpack(config) {
     },
     {
       test: /\.style\.js$/,
-      loader: styling(ExtractTextPlugin.extract('style-loader', 'css-loader?modules&-minimize&localIdentName=[path][name]---[local]---[hash:base64:5]'), 'babel?stage=0')
+      loader: styling(ExtractTextPlugin.extract('style-loader', 'css-loader?modules&-minimize&localIdentName=[path][name]---[local]---[hash:base64:5]'), 'babel-loader?stage=0')
     },
 
     { test: /\.png$/, loader: 'url-loader?prefix=img/&limit=5000' },

@@ -16,7 +16,7 @@ from rex.core import MaybeVal, StrVal, MapVal, AnyVal
 from rex.port import Port
 from rex.widget import Field, FormFieldsetVal, responder, PortURL
 from rex.widget import formfield, dataspec
-from rex.widget.validate import DeferredVal
+from rex.widget.validate import DeferredVal, Deferred
 from rex.widget.port_support import PortSupport
 
 from ..action import Action
@@ -63,7 +63,8 @@ class EntityAction(Action):
         super(EntityAction, self).__init__(**values)
         with PortSupport.parameters({k: None
                                      for k in self.context_types[0].rows.keys()}):
-            self.fields = self.fields.resolve() if self.fields else self.fields
+            if self.fields and isinstance(self.fields, Deferred):
+                self.fields = self.fields.resolve()
             self.fields = self.reflect_fields(self.fields)
 
     @cached_property

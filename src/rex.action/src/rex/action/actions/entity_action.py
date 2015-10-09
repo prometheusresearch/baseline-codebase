@@ -29,7 +29,13 @@ __all__ = ('EntityAction',)
 class EntityAction(Action):
     """ Base class for actions which operate on an entity."""
 
-    dataspec_factory = NotImplemented
+    # Factory for dataspec.
+    # 
+    # By default it is set to :class:`rex.widget.dataspec.EntitySpec` but
+    # subclasses may override this to implement actions which work on #:
+    # collections (:class:`rex.widget.dataspec.CollectionSpec`) or any other
+    # custom dataspec.
+    dataspec_factory = dataspec.EntitySpec
 
     entity = Field(
         RowTypeVal(),
@@ -78,10 +84,15 @@ class EntityAction(Action):
             db=self.db)
 
     def bind_port(self):
+        """ Provide bindings for a port.
+
+        Subclasses can override this method if their with to bind port dataspec
+        to some values.
+        """
         return {}
 
     def create_port(self, fields=None, filters=None, mask=None):
-        """ Create a port for action.
+        """ Create a port for the action.
 
         The result of this method is cached as ``self.port`` property.
 
@@ -102,4 +113,3 @@ class EntityAction(Action):
             mask=mask,
             db=self.db)
         return annotate_port(self.domain, port)
-

@@ -310,7 +310,7 @@ let Form = React.createClass({
       )
     });
     NotificationCenter.showNotification(errorNotification);
-    this.props.onSubmitError();
+    this.props.onSubmitError({error: err});
   }
 });
 

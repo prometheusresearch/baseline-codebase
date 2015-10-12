@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.0.2 (2015-XX-XX)
+==================
+
+* Establish security context for upload and download handlers.
+
+
 1.0.1 (2015-03-11)
 ==================
 

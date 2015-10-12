@@ -4,7 +4,7 @@
 
 
 from rex.core import Error, guard, locate, StrVal, BoolVal
-from rex.web import authorize, trusted
+from rex.web import authorize, trusted, confine
 from rex.urlmap import Map
 from rex.port import Port
 from rex.attach import get_storage
@@ -57,19 +57,20 @@ class FileRenderer(object):
 
     def __call__(self, req):
         self.authorize(req)
-        try:
-            identity = req.query_string
-            data = self.port.produce(('*', identity)).data[0]
-            if not data:
-                raise HTTPNotFound()
-            handle_id = data[0][1]
-            if not handle_id:
-                raise HTTPNotFound()
-            handle = handle_id[0]
-            storage = get_storage()
-            return storage.route(handle)(req)
-        except Error, error:
-            return req.get_response(error)
+        with confine(req, self):
+            try:
+                identity = req.query_string
+                data = self.port.produce(('*', identity)).data[0]
+                if not data:
+                    raise HTTPNotFound()
+                handle_id = data[0][1]
+                if not handle_id:
+                    raise HTTPNotFound()
+                handle = handle_id[0]
+                storage = get_storage()
+                return storage.route(handle)(req)
+            except Error, error:
+                return req.get_response(error)
 
     def authorize(self, req):
         if not authorize(req, self.access):

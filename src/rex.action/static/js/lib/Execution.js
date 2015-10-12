@@ -78,7 +78,7 @@ export class Execution {
 function updateEntityInContext(context, prevEntity, nextEntity) {
   let nextContext = {};
   for (let key in context) {
-    if (!context.hasOwnProperty(key) || !context[key]) {
+    if (!context[key]) {
       continue;
     }
     let nextItem = updateEntity(context[key], prevEntity, nextEntity);

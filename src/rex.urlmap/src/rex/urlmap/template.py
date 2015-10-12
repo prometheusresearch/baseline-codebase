@@ -4,7 +4,7 @@
 
 
 from rex.core import Error, guard, MaybeVal, StrVal, BoolVal, MapVal
-from rex.web import authorize, trusted, render_to_response
+from rex.web import authorize, trusted, confine, render_to_response
 from .load import _merge
 from .map import Map
 from webob.exc import HTTPUnauthorized, HTTPForbidden
@@ -34,13 +34,14 @@ class TemplateRenderer(object):
     def __call__(self, req):
         # Check permissions.
         self.authorize(req)
-        # Parse the URL and prepare template arguments.
-        try:
-            context = self.parse(req)
-        except Error, error:
-            return req.get_response(error)
-        # Render the template.
-        return render_to_response(self.template, req, **context)
+        with confine(req, self):
+            # Parse the URL and prepare template arguments.
+            try:
+                context = self.parse(req)
+            except Error, error:
+                return req.get_response(error)
+            # Render the template.
+            return render_to_response(self.template, req, **context)
 
     def authorize(self, req):
         # Check access permissions.

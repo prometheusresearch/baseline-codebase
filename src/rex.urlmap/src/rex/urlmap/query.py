@@ -4,7 +4,7 @@
 
 
 from rex.core import Error, MaybeVal, StrVal, BoolVal, MapVal, locate
-from rex.web import authorize, trusted
+from rex.web import authorize, trusted, confine
 from rex.db import get_db
 from .map import Map
 from webob import Response
@@ -35,22 +35,24 @@ class QueryRenderer(object):
     def __call__(self, req):
         # Check permissions.
         self.authorize(req)
-        # Parse query parameters.
-        try:
-            parameters = self.parse(req)
-        except Error, error:
-            return req.get_response(error)
-        # Execute the query and render the output.
-        with self.db:
+        with confine(req, self):
+            # Parse query parameters.
             try:
-                product = htsql.core.cmd.act.produce(self.query, parameters)
-                format = htsql.core.fmt.accept.accept(req.environ)
-                headerlist = htsql.core.fmt.emit.emit_headers(format, product)
-                app_iter = list(htsql.core.fmt.emit.emit(format, product))
-            except htsql.core.error.HTTPError, error:
+                parameters = self.parse(req)
+            except Error, error:
                 return req.get_response(error)
-            resp = Response(headerlist=headerlist, app_iter=app_iter)
-        return resp
+            # Execute the query and render the output.
+            with self.db:
+                try:
+                    product = htsql.core.cmd.act.produce(self.query, parameters)
+                    format = htsql.core.fmt.accept.accept(req.environ)
+                    headerlist = htsql.core.fmt.emit.emit_headers(
+                            format, product)
+                    app_iter = list(htsql.core.fmt.emit.emit(format, product))
+                except htsql.core.error.HTTPError, error:
+                    return req.get_response(error)
+                resp = Response(headerlist=headerlist, app_iter=app_iter)
+            return resp
 
     def parse(self, req):
         parameters = {}

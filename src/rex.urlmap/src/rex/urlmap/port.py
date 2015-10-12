@@ -4,7 +4,7 @@
 
 
 from rex.core import Error, guard, MaybeVal, StrVal, BoolVal, MapVal, locate
-from rex.web import authorize, trusted
+from rex.web import authorize, trusted, confine
 from rex.db import get_db
 from rex.port import GrowVal, Port
 from .map import Map
@@ -28,10 +28,11 @@ class PortRenderer(object):
         # Check permissions.
         self.authorize(req)
         # Submit the request to the port.
-        try:
-            return self.port(req)
-        except Error, error:
-            return req.get_response(error)
+        with confine(req, self):
+            try:
+                return self.port(req)
+            except Error, error:
+                return req.get_response(error)
 
     def authorize(self, req):
         # Check access permissions.

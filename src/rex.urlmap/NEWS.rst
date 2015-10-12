@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.6.3 (2015-XX-XX)
+==================
+
+* Establish security context.
+
+
 2.6.2 (2015-04-23)
 ==================
 

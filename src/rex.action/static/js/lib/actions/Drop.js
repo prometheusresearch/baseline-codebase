@@ -81,8 +81,8 @@ export default class Drop extends React.Component {
     let {entity: {name, type}, context, onCommand, onClose} = this.props;
     let entity = context[name];
     this.props.data.delete({[type.name]: {id: entity.id}}).then(() => {
-      RexWidget.forceRefreshData();
       this.props.onEntityUpdate(entity, null);
+      RexWidget.forceRefreshData();
     });
   }
 

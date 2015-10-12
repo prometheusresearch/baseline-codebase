@@ -5,6 +5,7 @@
 
 from rex.core import (Extension, cached, Package, get_packages, Setting,
         get_settings, StrVal, ChoiceVal, MapVal)
+import contextlib
 
 
 class AccessSetting(Setting):
@@ -200,5 +201,13 @@ def authorize(req, access, default='authenticated'):
         auth_type = auth_type_map[access]
         req.environ['rex.access'][access] = auth_type()(req)
     return req.environ['rex.access'][access]
+
+
+@contextlib.contextmanager
+def confine(req, access, default='authenticated'):
+    """
+    Establishes execution context for the given request and permissions.
+    """
+    yield
 
 

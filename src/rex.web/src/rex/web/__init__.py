@@ -11,7 +11,7 @@ authorization mechanism.
 
 
 from .auth import (
-    authenticate, authorize, Authenticate, Authorize, AccessSetting)
+    authenticate, authorize, confine, Authenticate, Authorize, AccessSetting)
 from .command import Command, Parameter
 from .csrf import (
     trusted, retain_csrf_token, make_csrf_meta_tag, make_csrf_input_tag)
@@ -24,7 +24,7 @@ from .template import (
     get_jinja, render_to_response, HandleTemplate, jinja_filter_json,
     jinja_filter_urlencode, jinja_filter_url)
 from .ctl import (
-        HTTPHostGlobal, HTTPPortGlobal, UWSGIGlobal, ServeTask, WSGITask,
-        ServeUWSGITask, StartTask, StopTask, StatusTask)
+    HTTPHostGlobal, HTTPPortGlobal, UWSGIGlobal, ServeTask, WSGITask,
+    ServeUWSGITask, StartTask, StopTask, StatusTask)
 
 

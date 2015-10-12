@@ -4,7 +4,7 @@
 
 
 from rex.core import Error, guard
-from .auth import authorize
+from .auth import authorize, confine
 from .csrf import trusted
 from .handle import HandleLocation
 from webob.exc import HTTPUnauthorized, HTTPForbidden
@@ -77,12 +77,13 @@ class Command(HandleLocation):
 
     def __call__(self, req):
         self.authorize(req)
-        try:
-            arguments = self.parse(req)
-        except Error, error:
-            # Report the error in the response.
-            return req.get_response(error)
-        return self.render(req, **arguments)
+        with confine(req, self):
+            try:
+                arguments = self.parse(req)
+            except Error, error:
+                # Report the error in the response.
+                return req.get_response(error)
+            return self.render(req, **arguments)
 
     def authorize(self, req):
         # Checks if we have right permissions to execute the command.

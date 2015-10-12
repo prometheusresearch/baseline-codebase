@@ -16,6 +16,7 @@ Authentication and authorization
    :special-members: __call__
 .. autofunction:: authenticate
 .. autofunction:: authorize
+.. autofunction:: confine
 
 
 Routing and handlers

@@ -6,7 +6,7 @@
 from rex.core import (Setting, Extension, WSGI, get_packages, get_settings,
         MapVal, OMapVal, ChoiceVal, StrVal, Error, cached, autoreload)
 from .handle import HandleFile, HandleLocation, HandleError
-from .auth import authenticate, authorize
+from .auth import authenticate, authorize, confine
 from .path import PathMap, PathMask
 from .secret import encrypt, decrypt, sign, validate, a2b, b2a
 from webob import Request, Response
@@ -323,7 +323,8 @@ class StaticServer(object):
         if ext in self.file_handler_map:
             package_path = "%s:%s" % (self.package.name, local_path)
             handler = self.file_handler_map[ext](package_path)
-            return handler(req)
+            with confine(req, access):
+                return handler(req)
         else:
             if req.method not in ('GET', 'HEAD'):
                 raise HTTPMethodNotAllowed()

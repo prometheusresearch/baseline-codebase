@@ -20,7 +20,7 @@ from htsql.core.classify import classify
 
 from rex.core import Extension, Validate, Error, guard, Location
 from rex.core import RecordVal, MapVal, SeqVal, ChoiceVal, OneOfVal, UnionVal, ProxyVal, OnField
-from rex.core import AnyVal, StrVal, IntVal, BoolVal, MaybeVal
+from rex.core import AnyVal, StrVal, UStrVal, IntVal, BoolVal, MaybeVal
 from rex.port import Port, GrowVal
 from rex.db import get_db
 
@@ -336,8 +336,8 @@ class FormField(Extension):
         ('required', BoolVal(), False),
         ('width', MaybeUndefinedVal(OneOfVal(StrVal(), IntVal())), undefined),
         ('read_only', BoolVal(), False),
-        ('label', MaybeVal(StrVal()), None),
-        ('hint', MaybeVal(StrVal()), None),
+        ('label', MaybeVal(UStrVal()), None),
+        ('hint', MaybeVal(UStrVal()), None),
         ('widget', MaybeVal(FormWidgetSpecVal()), None),
     )
 
@@ -661,7 +661,7 @@ class StringFormField(FormField):
     type = 'string'
     fields = (
         ('pattern', MaybeVal(StrVal()), None),
-        ('error', MaybeVal(StrVal()), None),
+        ('error', MaybeVal(UStrVal()), None),
     )
 
 
@@ -678,7 +678,7 @@ class IntegerFormField(FormField):
 
     type = 'integer'
     fields = (
-        ('error', MaybeVal(StrVal()), None),
+        ('error', MaybeVal(UStrVal()), None),
     )
 
 
@@ -686,7 +686,7 @@ class NumberFormField(FormField):
 
     type = 'number'
     fields = (
-        ('error', MaybeVal(StrVal()), None),
+        ('error', MaybeVal(UStrVal()), None),
     )
 
 
@@ -742,7 +742,7 @@ class EnumFormField(FormField):
 
     _value_val = RecordVal(
         ('value', StrVal()),
-        ('label', MaybeVal(StrVal()), None),
+        ('label', MaybeVal(UStrVal()), None),
     )
 
     fields = (
@@ -759,7 +759,7 @@ class EntitySuggestionSpecVal(Validate):
 
     _validate = RecordVal(
         ('entity', StrVal()),
-        ('title', StrVal()),
+        ('title', UStrVal()),
         ('mask', StrVal(), None),
     )
 
@@ -816,7 +816,7 @@ class CalculatedFormField(FormField):
     type = 'calculation'
 
     fields = (
-        ('expression', StrVal()),
+        ('expression', UStrVal()),
     )
 
 

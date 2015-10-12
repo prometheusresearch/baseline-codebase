@@ -16,6 +16,9 @@ let Style = {
     color: '#666',
     padding: '2px 7px',
     margin: 0
+  },
+  value: {
+    whiteSpace: 'pre-line'
   }
 };
 
@@ -109,7 +112,7 @@ export default class ReadOnlyField extends React.Component {
               {label}
             </label>
           </VBox>}
-        <VBox size={inputSize} centerVertically>
+        <VBox size={inputSize} centerVertically style={Style.value}>
           {children}
         </VBox>
       </HBox>

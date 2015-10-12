@@ -127,7 +127,11 @@ let Make = React.createClass({
 
       @command(Types.ConfigurableEntity())
       default(props, context, entity) {
-        return {...context, [props.entity.name]: entity};
+        if (entity != null) {
+          return {...context, [props.entity.name]: entity};
+        } else {
+          return context;
+        }
       }
     }
   }

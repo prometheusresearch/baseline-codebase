@@ -10,7 +10,7 @@ This package provides database access to RexDB applications.
 
 from rex.core import (
         get_packages, Initialize, Error, StrVal, MaybeVal, MapVal, RecordVal)
-from rex.web import HandleFile, HandleLocation, authorize, get_jinja
+from rex.web import HandleFile, HandleLocation, authorize, confine, get_jinja
 from .database import get_db
 from webob import Response
 from webob.exc import HTTPUnauthorized, HTTPNotFound, HTTPMovedPermanently
@@ -56,7 +56,7 @@ class HandleHTSQLLocation(HandleLocation):
 
     def __call__(self, req):
         # Check if the request has access to the service.
-        if not authorize(req, self.package()):
+        if not authorize(req, self):
             raise HTTPUnauthorized()
         # Obtain HTSQL instance.
         gateway = None
@@ -84,7 +84,8 @@ class HandleHTSQLLocation(HandleLocation):
             req.path_info = path_info
             req.query_string = query_string
         # Gateway to HTSQL.
-        return req.get_response(db)
+        with confine(req, self):
+            return req.get_response(db)
 
 
 class HandleHTSQLFile(HandleFile):

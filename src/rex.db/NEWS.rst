@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+3.3.2 (2015-XX-XX)
+==================
+
+* Establish security context for ``/db/`` requests.
+
+
 3.3.1 (2015-07-31)
 ==================
 

@@ -120,6 +120,64 @@ The title of the link is stored in the column comment::
     title: Subject
     ';
 
+You can specify the default value for a link field.  For this to work,
+the target table must have an identity::
+
+    >>> driver("""
+    ... - { table: site }
+    ... - { column: site.code, type: text }
+    ... - { link: individual.site, default: main }
+    ... """)                                            # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Got ill-formed link value:
+        site[main]
+    While deploying link fact:
+        "<byte string>", line 4
+
+As well as the target row must exist::
+
+    >>> driver("""
+    ... - { identity: [site.code] }
+    ... - { link: individual.site, default: main }
+    ... """)                                            # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Cannot find link:
+        site[main]
+    While deploying link fact:
+        "<byte string>", line 3
+
+It is an error if the link value is malformed::
+
+    >>> driver("""
+    ... - { data: { code: main }, of: site }
+    ... - { link: individual.site, default: main.1 }
+    ... """)                                            # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Got ill-formed link value:
+        site[main.1]
+    While deploying link fact:
+        "<byte string>", line 3
+
+If the target row exists, the default value can be set::
+
+    >>> driver("""
+    ... { link: individual.site, default: main }
+    ... """)                                            # doctest: +ELLIPSIS
+    ALTER TABLE "individual" ADD COLUMN "site_id" "int4" NOT NULL DEFAULT 1;
+    ...
+    COMMENT ON COLUMN "individual"."site_id" IS '---
+    default: main
+    ';
+
+Unsetting the default value removes it::
+
+    >>> driver("""{ link: individual.site }""")
+    ALTER TABLE "individual" ALTER COLUMN "site_id" DROP DEFAULT;
+    COMMENT ON COLUMN "individual"."site_id" IS NULL;
+
 The driver cannot create the link if either the origin or the target
 table does not exist::
 

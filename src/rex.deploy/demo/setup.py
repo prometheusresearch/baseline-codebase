@@ -21,7 +21,7 @@ class demo(Command):
 
 setup(
     name='rex.deploy_demo',
-    version = "2.3.3",
+    version = "2.4.0",
     description="Demo package for testing rex.deploy",
     setup_requires=[
         'rex.setup',

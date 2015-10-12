@@ -17,7 +17,7 @@ import weakref
 import json
 from htsql.core.domain import (UntypedDomain, BooleanDomain, IntegerDomain,
         DecimalDomain, FloatDomain, TextDomain, DateDomain, TimeDomain,
-        DateTimeDomain, EnumDomain)
+        DateTimeDomain, EnumDomain, IdentityDomain)
 from htsql_rex_deploy.domain import JSONDomain
 
 
@@ -735,13 +735,13 @@ class LinkModel(Model):
     __slots__ = (
             'fk_image', 'uk_image', 'index_image',
             'table', 'label', 'target_table',
-            'is_required', 'is_unique', 'title')
+            'default', 'is_required', 'is_unique', 'title')
 
     is_link = True
 
     properties = [
             'table', 'label', 'target_table',
-            'is_required', 'is_unique', 'title']
+            'default', 'is_required', 'is_unique', 'title']
 
     class names(object):
         # Derives name for the column and auxiliary objects.
@@ -756,6 +756,33 @@ class LinkModel(Model):
             self.name = mangle(label, u'id')
             self.fk_name = mangle([table_label, label], u'fk')
             self.uk_name = mangle([table_label, label], u'uk')
+
+    class data(object):
+        # Converts HTSQL identity to FK value.
+
+        __slots__ = ('default', 'value')
+
+        def __init__(self, table, default):
+            if default is None:
+                self.default = None
+                self.value = None
+            else:
+                text = u"%s[%s]" % (table.label, default)
+                from .data import DataFact
+                identity = table.identity()
+                if identity is None:
+                    raise Error("Got ill-formed link value:", text)
+                domain = IdentityDomain(
+                        [DataFact._domain(field) for field in identity.fields])
+                try:
+                    items = domain.parse(default)
+                except ValueError:
+                    raise Error("Got ill-formed link value:", text)
+                value = DataFact._resolve(table, items)
+                if value is None:
+                    raise Error("Cannot find link:", text)
+                self.default = domain.dump(items)
+                self.value = value
 
     @staticmethod
     def name_to_label(name):
@@ -789,14 +816,15 @@ class LinkModel(Model):
 
     @classmethod
     def do_build(cls, table, label, target_table,
-                 is_required=True, is_unique=False, title=None):
+                 default=None, is_required=True, is_unique=False, title=None):
         # Creates a new link with the given properties.
         schema = table.schema
         names = cls.names(table.label, label)
+        data = cls.data(target_table, default)
         # Create the column and the foreign key constraint.
         type_image = target_table.id_image.type
         image = table.image.create_column(
-                names.name, type_image, is_required)
+                names.name, type_image, is_required, data.value)
         table.image.create_foreign_key(
                 names.fk_name, [image],
                 target_table.image, [target_table.id_image],
@@ -812,7 +840,9 @@ class LinkModel(Model):
         meta = uncomment(image)
         saved_label = label if label != cls.name_to_label(names.name) else None
         saved_title = title if title != names.title else None
-        if meta.update(label=saved_label, title=saved_title):
+        saved_default = data.default
+        if meta.update(label=saved_label, title=saved_title,
+                       default=saved_default):
             image.alter_comment(meta.dump())
         return cls(schema, image)
 
@@ -828,13 +858,14 @@ class LinkModel(Model):
         self.target_table = schema(self.fk_image.target)
         if not self.target_table:
             raise Error("Discovered link with unrecognized target:", self.label)
+        self.default = meta.default
         self.is_required = image.is_not_null
         self.is_unique = (len(image.unique_keys) > 0)
         self.uk_image = next(iter(image.unique_keys), None)
         self.title = meta.title
 
     def do_modify(self, table, label, target_table,
-                  is_required, is_unique, title):
+                  default, is_required, is_unique, title):
         # Updates the state of the link entity.
         assert table is self.table
         if target_table is not self.target_table:
@@ -847,6 +878,9 @@ class LinkModel(Model):
             self.index_image.alter_name(names.fk_name)
         if self.uk_image:
             self.uk_image.alter_name(names.uk_name)
+        # Update default value.
+        data = self.data(target_table, default)
+        self.image.alter_default(data.value)
         # Update other constraints.
         self.image.alter_is_not_null(is_required)
         if is_unique:
@@ -865,7 +899,9 @@ class LinkModel(Model):
         meta = uncomment(self.image)
         saved_label = label if label != self.name_to_label(names.name) else None
         saved_title = title if title != names.title else None
-        if meta.update(label=saved_label, title=saved_title):
+        saved_default = data.default
+        if meta.update(label=saved_label, title=saved_title,
+                       default=saved_default):
             self.image.alter_comment(meta.dump())
 
     def do_erase(self):

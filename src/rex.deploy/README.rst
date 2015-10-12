@@ -660,6 +660,10 @@ A link fact describes a link between two tables.
 `was`: ``<former_label>`` or [``<former_label>``]
     The previous name of the link.
 
+`default`: ``<default>``
+    The default value of the link.  The value must be a well-formed identity
+    value of the target table and the target row must exist in the database.
+
 `required`: ``true`` (default) or ``false``
     Indicates whether or not the link forbids ``NULL`` values.
 
@@ -690,6 +694,9 @@ Deploying when ``present`` is ``true``:
     ``FOREIGN KEY`` constraint from ``<table_label>.<label>_id`` to
     ``<target_table_label>.id``.  If the column and the constraint do not
     exist, they are created.
+
+    If ``<default>`` is set, find the corresponding row in the target table.
+    Use the ``id`` of the row as the default value of the column.
 
     Column ``<former_label>_id`` is renamed to ``<label>_id`` if the former
     exists and the latter does not.
@@ -757,6 +764,14 @@ Examples:
         link: individual
         of: sample
         present: false
+
+    #. Adding a link with default value::
+
+        link: site
+        of: study
+        default: main
+
+       This sets the default value for ``study.site`` to ``site[main]``.
 
     #. Adding a link that permits ``NULL`` values::
 

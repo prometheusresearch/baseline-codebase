@@ -405,13 +405,14 @@ class DataFact(Fact):
                 record.append(data)
             yield tuple(record)
 
-    def _domain(self, field):
+    @classmethod
+    def _domain(cls, field):
         # Determines HTSQL domain of the column.
 
         # FK column -> identity of the target table.
         if field.is_link:
             target = field.target_table
-            labels = [self._domain(identity_field)
+            labels = [cls._domain(identity_field)
                       for identity_field in target.identity().fields]
             return htsql.core.domain.IdentityDomain(labels)
         # Type image.
@@ -490,11 +491,12 @@ class DataFact(Fact):
             return data
         raise ValueError(repr(data))
 
-    def _resolve(self, table, items):
+    @classmethod
+    def _resolve(cls, table, items):
         # Finds a row by identity.
 
         # Pre-load table data if necessary.
-        self._fetch(table)
+        cls._fetch(table)
 
         # Determine the PK value.
         handle = []
@@ -502,7 +504,7 @@ class DataFact(Fact):
             if field.is_column:
                 handle.append(item)
             else:
-                item = self._resolve(field.target_table, item)
+                item = cls._resolve(field.target_table, item)
                 handle.append(item)
         handle = tuple(handle)
         # Find the row by PK.
@@ -513,7 +515,8 @@ class DataFact(Fact):
         else:
             return row[0]
 
-    def _fetch(self, table):
+    @classmethod
+    def _fetch(cls, table):
         # Pre-loads table data if necessary.
         driver = table.schema.driver
         if table.image.data is None:
@@ -521,12 +524,13 @@ class DataFact(Fact):
             table.image.select()
             driver.set_lock(was_locked)
 
-    def _invalidate(self, table):
+    @classmethod
+    def _invalidate(cls, table):
         # Invalidates table data.
         if table.image.data is not None:
             table.image.data.remove()
             for dependent in table.dependents():
                 if dependent.is_link and dependent.target_table is table:
-                    self._invalidate(dependent.table)
+                    cls._invalidate(dependent.table)
 
 

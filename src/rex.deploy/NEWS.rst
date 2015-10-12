@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.4.0 (2015-XX-XX)
+==================
+
+* Links may set the default value.
+
+
 2.3.3 (2015-09-30)
 ==================
 

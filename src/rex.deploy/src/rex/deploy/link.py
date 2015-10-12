@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import Error, BoolVal, OneOrSeqVal
+from rex.core import Error, BoolVal, UStrVal, OneOrSeqVal
 from .fact import Fact, LabelVal, QLabelVal, TitleVal
 from .model import model
 
@@ -19,6 +19,8 @@ class LinkFact(Fact):
     `target_table_label`: ``unicode`` or ``None``
         The name of the target table.  Must be ``None``
         if ``is_present`` is not set.
+    `default`: ``unicode`` or HTSQL ID
+        The default value for the link.
     `former_labels`: [``unicode``]
         Names that the link may have had in the past.
     `is_required`: ``bool`` or ``None``
@@ -39,6 +41,7 @@ class LinkFact(Fact):
             ('link', QLabelVal),
             ('of', LabelVal, None),
             ('to', LabelVal, None),
+            ('default', UStrVal, None),
             ('was', OneOrSeqVal(LabelVal), None),
             ('after', OneOrSeqVal(LabelVal), None),
             ('required', BoolVal, None),
@@ -50,7 +53,8 @@ class LinkFact(Fact):
     @classmethod
     def build(cls, driver, spec):
         if not spec.present:
-            for field in ['to', 'was', 'after', 'required', 'unique', 'title']:
+            for field in ['to', 'default', 'was', 'after',
+                          'required', 'unique', 'title']:
                 if getattr(spec, field) is not None:
                     raise Error("Got unexpected clause:", field)
         if u'.' in spec.link:
@@ -64,6 +68,7 @@ class LinkFact(Fact):
             if spec.of is None:
                 raise Error("Got missing table name")
         target_table_label = spec.to
+        default = spec.default
         if isinstance(spec.was, list):
             former_labels = spec.was
         elif spec.was:
@@ -83,19 +88,21 @@ class LinkFact(Fact):
         elif not isinstance(front_labels, list):
             front_labels = [front_labels]
         return cls(table_label, label, target_table_label,
+                    default=default,
                     former_labels=former_labels, is_required=is_required,
                     is_unique=is_unique, title=title, front_labels=front_labels,
                     is_present=is_present)
 
     def __init__(self, table_label, label, target_table_label=None,
-                 former_labels=[], is_required=None, is_unique=None,
-                 title=None, front_labels=[], is_present=True):
+                 default=None, former_labels=[], is_required=None,
+                 is_unique=None, title=None, front_labels=[], is_present=True):
         assert isinstance(table_label, unicode) and len(table_label) > 0
         assert isinstance(label, unicode) and len(label) > 0
         assert isinstance(is_present, bool)
         if is_present:
             assert (isinstance(target_table_label, unicode)
                     and len(target_table_label) > 0)
+            assert default is None or isinstance(default, unicode)
             assert (isinstance(former_labels, list) and
                     all(isinstance(former_label, unicode)
                         for former_label in former_labels))
@@ -112,6 +119,7 @@ class LinkFact(Fact):
                         for front_label in front_labels))
         else:
             assert target_table_label is None
+            assert default is None
             assert former_labels == []
             assert is_required is None
             assert is_unique is None
@@ -120,6 +128,7 @@ class LinkFact(Fact):
         self.table_label = table_label
         self.label = label
         self.target_table_label = target_table_label
+        self.default = default
         self.former_labels = former_labels
         self.is_required = is_required
         self.is_unique = is_unique
@@ -133,6 +142,8 @@ class LinkFact(Fact):
         args.append(repr(self.label))
         if self.target_table_label is not None:
             args.append(repr(self.target_table_label))
+        if self.default is not None:
+            args.append("default=%r" % self.default)
         if self.former_labels:
             args.append("former_labels=%r" % self.former_labels)
         if self.is_required is not None and self.is_required is not True:
@@ -171,6 +182,7 @@ class LinkFact(Fact):
                 link.modify(
                         label=self.label,
                         target_table=target_table,
+                        default=self.default,
                         is_required=self.is_required,
                         is_unique=self.is_unique,
                         title=self.title)
@@ -178,6 +190,7 @@ class LinkFact(Fact):
                 link = table.build_link(
                         label=self.label,
                         target_table=target_table,
+                        default=self.default,
                         is_required=self.is_required,
                         is_unique=self.is_unique,
                         title=self.title)

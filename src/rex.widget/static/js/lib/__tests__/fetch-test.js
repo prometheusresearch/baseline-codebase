@@ -3,20 +3,21 @@
  */
 
 import 'core-js/modules/es6.promise';
+
 import {fetch} from '../fetch';
 
 describe('fetch', function() {
 
-  let origFetch = window.fetch;
+  let origFetch = global.fetch;
 
   afterEach(function() {
-    if (window.fetch !== origFetch) {
-      window.fetch = origFetch;
+    if (global.fetch !== origFetch) {
+      global.fetch = origFetch;
     }
   });
 
   function mockFetch(response) {
-    window.fetch = function fetchMock(url, options) {
+    global.fetch = function fetchMock(url, options) {
       let promise = new Promise(function(resolve, reject) {
         resolve(response);
       });
@@ -31,7 +32,7 @@ describe('fetch', function() {
     });
     fetch('/path')
       .then(function(data) {
-        expect(data).toBe('ok');
+        assert(data === 'ok');
         done();
       })
       .catch(done);

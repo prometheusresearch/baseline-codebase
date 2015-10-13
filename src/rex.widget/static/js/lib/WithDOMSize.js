@@ -11,13 +11,25 @@ export default function WithDOMSize(Component) {
 
     static displayName = `WithDOMSize(${name})`;
 
+    static defaultProps = {
+
+      getDOMNode(component) {
+        return React.findDOMNode(component);
+      }
+    };
+
     constructor(props) {
       super(props);
       this.state = {DOMSize: null};
     }
 
     render() {
-      return <Component {...this.props} DOMSize={this.state.DOMSize} />;
+      return (
+        <Component
+          {...this.props}
+          DOMSize={this.state.DOMSize}
+          getDOMNode={undefined} />
+      );
     }
 
     componentDidMount() {
@@ -34,7 +46,7 @@ export default function WithDOMSize(Component) {
     }
 
     computeSize = () => {
-      let node = React.findDOMNode(this);
+      let node = this.props.getDOMNode(this);
       let {width, height} = node.getBoundingClientRect();
       this.setState({DOMSize: {width, height}});
     }

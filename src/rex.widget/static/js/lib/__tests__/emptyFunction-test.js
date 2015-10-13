@@ -2,24 +2,25 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import assert from 'power-assert';
 import emptyFunction from '../emptyFunction';
 
 describe('emptyFunction', function() {
 
   it('returns undefined', function() {
-    expect(emptyFunction()).toBe(undefined);
+    assert(emptyFunction() === undefined);
   });
 
   it('returns true', function() {
-    expect(emptyFunction.thatReturnsTrue()).toBe(true);
+    assert(emptyFunction.thatReturnsTrue() === true);
   });
 
   it('returns null', function() {
-    expect(emptyFunction.thatReturnsNull()).toBe(null);
+    assert(emptyFunction.thatReturnsNull() === null);
   });
 
   it('returns argument', function() {
-    expect(emptyFunction.thatReturnsArgument(1)).toBe(1);
+    assert(emptyFunction.thatReturnsArgument(1) === 1);
   });
 
 });

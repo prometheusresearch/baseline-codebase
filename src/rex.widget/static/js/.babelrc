@@ -1,0 +1,8 @@
+{
+  "env": {
+    "test": {
+      "stage": 0,
+      "plugins": ["babel-plugin-espower"]
+    }
+  }
+}

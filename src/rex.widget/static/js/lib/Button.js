@@ -4,7 +4,6 @@
 
 import React, {PropTypes} from 'react';
 import Stylesheet         from '@prometheusresearch/react-stylesheet';
-import cx                 from 'classnames';
 import Icon               from './Icon';
 import resolveURL         from './resolveURL';
 import * as qs            from './qs';

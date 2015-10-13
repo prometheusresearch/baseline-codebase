@@ -103,9 +103,10 @@ class WidgetVal(Validate):
 
     """
 
-    def __init__(self, widget_class=None, context=None):
+    def __init__(self, widget_class=None, package=None, context=None):
         super(WidgetVal, self).__init__()
         self.widget_class = widget_class
+        self.package = package
         self.context = context or {}
 
     def __call__(self, data):
@@ -126,7 +127,7 @@ class WidgetVal(Validate):
                 widget_class = data.__class__
                 data = data.values
                 data = self.validate_values(widget_class, data)
-                return widget_class.validated(**data)
+                return widget_class.validated(package=self.package, **data)
             else:
                 raise Error("Expected a widget")
 
@@ -264,7 +265,7 @@ class WidgetVal(Validate):
                     raise Error("Missing mandatory field:", validate.name) \
                             .wrap("Of widget:", widget_class.name)
         with guard('While parsing:', Location.from_node(node)):
-            widget = widget_class.validated(**values)
+            widget = widget_class.validated(package=self.package, **values)
             widget.location = location
             return widget
 

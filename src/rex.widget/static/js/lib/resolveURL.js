@@ -17,15 +17,15 @@ export default function resolveURL(url) {
   return url;
 }
 
-let _originalMountPoints = {};
+let _originalMountPoints = global.__MOUNT_POINTS__;
 
 export function mockMountPoints(mountPoints) {
-  _originalMountPoints = window.__MOUNT_POINTS__;
-  window.__MOUNT_POINTS__ = mountPoints;
+  _originalMountPoints = global.__MOUNT_POINTS__;
+  global.__MOUNT_POINTS__ = mountPoints;
 }
 
 export function unmockMountPoints() {
-  window.__MOUNT_POINTS__ = _originalMountPoints;
+  global.__MOUNT_POINTS__ = _originalMountPoints;
 }
 
 function resolvePackageMountPoint(_, pkg, path) {

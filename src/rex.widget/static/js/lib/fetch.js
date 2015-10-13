@@ -20,7 +20,7 @@ const OPTIONS = {
  */
 export function fetch(url, query = null) {
   url = prepareURL(url, query);
-  return window.fetch(url, OPTIONS)
+  return global.fetch(url, OPTIONS)
     .then(failOnHTTPError)
     .then(parseJSONResponse);
 }
@@ -28,7 +28,7 @@ export function fetch(url, query = null) {
 export function post(url, query = null, data = null) {
   url = prepareURL(url, query);
   let options = {...OPTIONS, body: data, method: 'post'};
-  return window.fetch(url, options)
+  return global.fetch(url, options)
     .then(failOnHTTPError)
     .then(parseJSONResponse);
 }

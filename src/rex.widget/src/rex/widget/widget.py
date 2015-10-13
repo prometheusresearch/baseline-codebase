@@ -117,13 +117,14 @@ class Widget(Extension):
     def signature(cls):
         return cls.name
 
-    def __init__(self, **values):
+    def __init__(self, package=None, **values):
         super(Widget, self).__init__()
         global _prevent_validation # pylint: disable=global-statement
         if not _prevent_validation:
             values = self._validate_values(self.__class__, values)
         else:
             _prevent_validation = False
+        self.package = package
         self.values = values
 
     def __clone__(self, **values):

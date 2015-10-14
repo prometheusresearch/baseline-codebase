@@ -7,22 +7,14 @@ import React              from 'react';
 import classNames         from 'classnames';
 import {isTouchDevice}    from './Environment';
 
-import {forceRefreshData as forceRefreshDataLegacy} from './DataSpecificationMixin';
-import {forceRefresh} from './data/DataComponent';
-
 if (isTouchDevice) {
   React.initializeTouchEvents(true);
 }
 
 import './TransitionableHandlers';
 
-function forceRefreshData() {
-  forceRefreshDataLegacy();
-  forceRefresh();
-}
-
 module.exports = window.RexWidget = {
-  forceRefreshData: forceRefreshData,
+  forceRefreshData: require('./forceRefreshData'),
   Authorized: require('./Authorized'),
   Autocomplete: require('./Autocomplete'),
   Button: require('./Button'),

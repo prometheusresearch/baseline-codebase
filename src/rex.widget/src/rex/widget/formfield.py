@@ -562,7 +562,7 @@ def _guess_label(key):
             .strip())
 
 
-def to_port(entity, fields, filters=None, mask=None, db=None):
+def to_port(entity, fields, filters=None, mask=None, parameters=None, db=None):
     """ Generate port from fieldset.
 
     :param entity: Name of the entity
@@ -573,9 +573,11 @@ def to_port(entity, fields, filters=None, mask=None, db=None):
     """
     fields = _remove_layout(fields)
     fields = _nest(fields)
-    return Port(
-        _to_port_query(entity, fields, filters=filters, mask=mask),
-        db=db)
+    grow = [_to_port_query(entity, fields, filters=filters, mask=mask)]
+    if parameters:
+        grow = [{'parameter': parameter}
+                for parameter, default in parameters.items()] + grow
+    return Port(grow, db=db)
 
 
 _grow_val = GrowVal()

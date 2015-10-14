@@ -2,6 +2,7 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import autobind     from 'autobind-decorator';
 import React        from 'react';
 import {EVENT_NAME} from './notifyLayoutChange';
 
@@ -45,7 +46,8 @@ export default function WithDOMSize(Component) {
       window.removeEventListener(EVENT_NAME, this.computeSize);
     }
 
-    computeSize = () => {
+    @autobind
+    computeSize() {
       let node = this.props.getDOMNode(this);
       let {width, height} = node.getBoundingClientRect();
       this.setState({DOMSize: {width, height}});

@@ -5,7 +5,7 @@
 
 let React             = require('react');
 let emptyFunction     = require('../emptyFunction');
-let forceRefreshData  = require('../DataSpecificationMixin').forceRefreshData;
+let forceRefreshData  = require('../forceRefreshData');
 let Query             = require('../Query');
 let Form              = require('./Form');
 let Fieldset          = require('./Fieldset');

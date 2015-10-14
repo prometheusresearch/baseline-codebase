@@ -12,7 +12,7 @@ import {VBox, HBox}       from '../Layout';
 import Icon               from '../Icon';
 import isString           from '../isString';
 import LoadingIndicator   from '../LoadingIndicator';
-import getByKeyPath       from '../getByKeyPath';
+import * as KeyPath       from '../KeyPath';
 
 @WithDOMSize
 @Stylesheet
@@ -84,6 +84,7 @@ export default class DataTableBase extends React.Component {
     headerHeight: 35,
     sort: {valueKey: null, asc: true},
     onSort: emptyFunction,
+    onSelect: emptyFunction,
   };
 
   static stylesheet = {
@@ -183,7 +184,7 @@ export default class DataTableBase extends React.Component {
           headerRenderer={this.headerRenderer}
           fixed={column.fixed}
           dataKey={column.valueKey}
-          label={column.label}
+          label={column.label || column.valueKey}
           columnData={column.valueKey === sort.valueKey ? {...column, sort} : column}
           isResizable={true}
           />
@@ -197,6 +198,8 @@ export default class DataTableBase extends React.Component {
           height={DOMSize.height}
           width={DOMSize.width}
           rowGetter={this.rowGetter}
+          rowClassNameGetter={this.rowClassNameGetter}
+          onRowClick={this.onRowClick}
           onScrollEnd={this.onScrollEnd}
           onColumnResizeEndCallback={this.onColumnResizeEndCallback}
           isColumnResizing={false}
@@ -222,7 +225,7 @@ export default class DataTableBase extends React.Component {
   headerRenderer(label, cellDataKey, columnData) {
     let {SortIndicator} = this.stylesheet;
     let {sort: {valueKey, asc}, onSort} = this.props;
-    let active = columnData.valueKey === valueKey;
+    let active = KeyPath.equals(columnData.valueKey, valueKey);
     let sort;
     if (active) {
       sort = {valueKey: columnData.valueKey, asc: !asc};
@@ -248,13 +251,27 @@ export default class DataTableBase extends React.Component {
   }
 
   @autobind
-  cellRenderer(cellData) {
+  cellRenderer(cellData, cellDataKey, rowData, rowIndex, columnData) {
+    let onCellClick;
+    if (this.props.onCellClick) {
+      onCellClick = this.props.onCellClick.bind(null, cellDataKey, cellData, rowData);
+    }
+    if (columnData.widget && columnData.widget.column) {
+      return React.cloneElement(columnData.widget.column, {cellData, onCellClick});
+    } else {
+      return (
+        <span title={cellData} onClick={onCellClick}>
+          {renderToString(cellData)}
+        </span>
+      );
+    }
+
     return cellData;
   }
 
   @autobind
   cellDataGetter(cellDataKey, rowData) {
-    return getByKeyPath(rowData, cellDataKey);
+    return KeyPath.get(cellDataKey, rowData);
   }
 
   @autobind
@@ -264,6 +281,15 @@ export default class DataTableBase extends React.Component {
     }
     let rowData = this.props.dataSet.data[rowIndex];
     return rowData;
+  }
+
+  @autobind
+  rowClassNameGetter(rowIndex) {
+    let {selected} = this.props;
+    let row = this.rowGetter(rowIndex);
+    if (row && row.id == selected) { // eslint-disable-line eqeqeq
+      return 'DataTable__row--selected';
+    }
   }
 
   @autobind
@@ -277,4 +303,20 @@ export default class DataTableBase extends React.Component {
       this.props.onPagination({top, skip: skip + top});
     }
   }
+
+  @autobind
+  onRowClick(e, rowIndex, row) {
+    let {selected, onSelect} = this.props;
+    if (row.id != selected) { // eslint-disable-line eqeqeq
+      onSelect(row.id, row);
+    }
+  }
+}
+
+/**
+ * Render null and undefined as empty string but get toString from any other
+ * object.
+ */
+function renderToString(value) {
+  return value == null ?  '' : String(value);
 }

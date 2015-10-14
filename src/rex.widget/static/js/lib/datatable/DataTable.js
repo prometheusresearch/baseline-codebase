@@ -22,18 +22,24 @@ export default class DataTable extends React.Component {
     super(props);
     this._rowIndexMax = null;
     this.state = {
+      columnWidth: {},
+      sort: props.sort || {valueKey: null, asc: true},
       pagination: {top: props.top, skip: 0},
       isPagination: false,
-      columnWidth: {},
       hasMore: true
     };
   }
 
   fetch() {
-    let {top, skip} = this.state.pagination;
-    return {
-      data: this.props.data.limit(top, skip)
-    };
+    let {
+      pagination: {top, skip},
+      sort: {valueKey, asc}
+    } = this.state;
+    let data = this.props.data.limit(top, skip);
+    if (valueKey) {
+      data = data.sort(valueKey, asc);
+    }
+    return {data};
   }
 
   render() {
@@ -43,6 +49,8 @@ export default class DataTable extends React.Component {
         pagination={this.state.pagination}
         hasMore={this.state.hasMore}
         onPagination={this.onPagination}
+        sort={this.state.sort}
+        onSort={this.onSort}
         dataSet={this.dataSet.data}
         data={undefined}
         />
@@ -55,6 +63,11 @@ export default class DataTable extends React.Component {
       pagination,
       isPagination: true
     });
+  }
+
+  @autobind
+  onSort(sort) {
+    this.setState({sort});
   }
 
   onData(key, data, prevData) {

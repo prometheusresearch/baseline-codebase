@@ -108,9 +108,11 @@ class EntityAction(Action):
         :rtype: :class:`rex.port.Port`
         """
         fields = fields or self.fields
+        parameters = {k: None for k in self.input.rows}
         port = formfield.to_port(
             self.entity.type.name, fields,
             filters=filters,
             mask=mask,
+            parameters=parameters,
             db=self.db)
         return annotate_port(self.domain, port)

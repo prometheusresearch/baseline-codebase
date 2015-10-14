@@ -22,6 +22,7 @@ export default function WithDOMSize(Component) {
     constructor(props) {
       super(props);
       this.state = {DOMSize: null};
+      this._timedOut = false;
     }
 
     render() {
@@ -50,7 +51,12 @@ export default function WithDOMSize(Component) {
     computeSize() {
       let node = this.props.getDOMNode(this);
       let {width, height} = node.getBoundingClientRect();
-      this.setState({DOMSize: {width, height}});
+      if (height === 0 && !this._timedOut) {
+        this._timedOut = true;
+        setTimeout(this.computeSize, 0);
+      } else {
+        this.setState({DOMSize: {width, height}});
+      }
     }
   };
 }

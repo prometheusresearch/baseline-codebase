@@ -3,10 +3,12 @@
  */
 'use strict';
 
-import React            from 'react';
-import classNames       from 'classnames';
-import {isTouchDevice}  from './Environment';
+import React              from 'react';
+import classNames         from 'classnames';
+import {isTouchDevice}    from './Environment';
 
+import {forceRefreshData as forceRefreshDataLegacy} from './DataSpecificationMixin';
+import {forceRefresh} from './data/DataComponent';
 
 if (isTouchDevice) {
   React.initializeTouchEvents(true);
@@ -14,7 +16,13 @@ if (isTouchDevice) {
 
 import './TransitionableHandlers';
 
+function forceRefreshData() {
+  forceRefreshDataLegacy();
+  forceRefresh();
+}
+
 module.exports = window.RexWidget = {
+  forceRefreshData: forceRefreshData,
   Authorized: require('./Authorized'),
   Autocomplete: require('./Autocomplete'),
   Button: require('./Button'),
@@ -29,7 +37,6 @@ module.exports = window.RexWidget = {
   DataTable: require('./DataTable'),
   DataTableWithSearch: require('./DataTableWithSearch'),
   emptyFunction: require('./emptyFunction'),
-  forceRefreshData: require('./DataSpecificationMixin').forceRefreshData,
   Forms: require('./forms'),
   Hoverable: require('./Hoverable'),
   Icon: require('./Icon'),

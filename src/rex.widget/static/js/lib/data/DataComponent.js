@@ -11,6 +11,28 @@ import DataSet          from './DataSet';
 const EMPTY_DATASET = new DataSet(null, null, false);
 const EMPTY_UPDATING_DATASET = new DataSet(null, null, true);
 
+const REGISTRY = [];
+
+function registerDataComponent(component) {
+  REGISTRY.push(component);
+}
+
+function unregisterDataComponent(component) {
+  let index = REGISTRY.indexOf(component);
+  invariant(
+    index > -1,
+    'trying to unregister data component which was not previously registered'
+  );
+  REGISTRY.splice(index, 1);
+}
+
+export function forceRefresh() {
+  REGISTRY.forEach(component => {
+    component.refresh(true);
+    component.forceUpdate();
+  });
+}
+
 export default function DataComponent(Component) {
 
   return class extends Component {
@@ -52,6 +74,8 @@ export default function DataComponent(Component) {
       if (super.componentDidMount) {
         super.componentDidMount();
       }
+
+      registerDataComponent(this);
     }
 
     componentWillUpdate(nextProps, nextState) {
@@ -60,35 +84,20 @@ export default function DataComponent(Component) {
       }
       let prevProps = this.props;
       let prevState = this.state;
+
       this.props = nextProps;
       this.state = nextState;
-      let nextDataSpec = this.fetch();
-      this.props = prevProps;
-      this.state = prevState;
-
-      for (let key in nextDataSpec) {
-        if (nextDataSpec.hasOwnProperty(key)) {
-          let task = nextDataSpec[key];
-          let prevTask = this.__dataSpec[key];
-          if (prevTask && prevTask.equals(task)) {
-            continue;
-          }
-          this._cancel(key);
-          this._fetch(key, task);
-        }
+      try {
+        this.refresh();
+      } finally {
+        this.props = prevProps;
+        this.state = prevState;
       }
-
-      for (let key in this.__dataSpec) {
-        if (this.__dataSpec.hasOwnProperty(key) && !nextDataSpec.hasOwnProperty(key)) {
-          this._cancel(key);
-          this._purge(key);
-        }
-      }
-
-      this.__dataSpec = nextDataSpec;
     }
 
     componentWillUnmount() {
+      unregisterDataComponent(this);
+
       if (super.componentWillUnmount) {
         super.componentWillUnmount();
       }
@@ -97,6 +106,31 @@ export default function DataComponent(Component) {
       this.__dataFetch = null;
       this.dataSet = {};
       this.data = {};
+    }
+
+    refresh(force = false) {
+      let dataSpec = this.fetch();
+
+      for (let key in dataSpec) {
+        if (dataSpec.hasOwnProperty(key)) {
+          let task = dataSpec[key];
+          let prevTask = this.__dataSpec[key];
+          if (!force && prevTask && prevTask.equals(task)) {
+            continue;
+          }
+          this._cancel(key);
+          this._fetch(key, task);
+        }
+      }
+
+      for (let key in this.__dataSpec) {
+        if (this.__dataSpec.hasOwnProperty(key) && !dataSpec.hasOwnProperty(key)) {
+          this._cancel(key);
+          this._purge(key);
+        }
+      }
+
+      this.__dataSpec = dataSpec;
     }
 
     _fetch(key, dataSpec) {

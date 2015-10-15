@@ -185,7 +185,7 @@ export default class DataTableBase extends React.Component {
           fixed={column.fixed}
           dataKey={column.valueKey}
           label={column.label || KeyPath.normalize(column.valueKey).join('.')}
-          columnData={column.valueKey === sort.valueKey ? {...column, sort} : column}
+          columnData={{...column, sort}}
           isResizable={true}
           />
       );
@@ -226,18 +226,8 @@ export default class DataTableBase extends React.Component {
     let {SortIndicator} = this.stylesheet;
     let {sort: {valueKey, asc}, onSort} = this.props;
     let active = KeyPath.equals(columnData.valueKey, valueKey);
-    let sort;
-    if (active) {
-      sort = {valueKey: columnData.valueKey, asc: !asc};
-    } else {
-      sort = {valueKey: columnData.valueKey, asc: true};
-    }
-    let icon;
-    if (active) {
-      icon = asc ? 'sort-by-attributes' : 'sort-by-attributes-alt';
-    } else {
-      icon = 'sort';
-    }
+    let sort = {valueKey: columnData.valueKey, asc: active ? !asc : true};
+    let icon = active ? (asc ? 'sort-by-attributes' : 'sort-by-attributes-alt') : 'sort';
     return (
       <HBox size={1}>
         <VBox size={1}>

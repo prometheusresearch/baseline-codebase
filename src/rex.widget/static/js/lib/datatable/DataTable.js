@@ -67,7 +67,11 @@ export default class DataTable extends React.Component {
 
   @autobind
   onSort(sort) {
-    this.setState({sort});
+    this.setState({
+      sort,
+      hasMore: true,
+      pagination: {skip: 0, top: this.props.top}
+    });
   }
 
   onData(key, data, prevData) {

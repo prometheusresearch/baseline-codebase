@@ -135,9 +135,9 @@ Validating/constructing actions with predefined id
   ...
   Error: action "id" is cannot be specified
   While parsing:
-      "<byte string>", line 2
+      "<string>", line 2
   While parsing:
-      "<byte string>", line 2
+      "<string>", line 2
 
 
 Constructing from YAML
@@ -161,7 +161,7 @@ Constructing from YAML
   Got:
       1
   While parsing:
-      "<byte string>", line 3
+      "<string>", line 3
   While validating field:
       id
   Of widget:
@@ -176,9 +176,9 @@ Constructing from YAML
   Error: unknown action type specified:
       unknown
   While parsing:
-      "<byte string>", line 2
+      "<string>", line 2
   While parsing:
-      "<byte string>", line 2
+      "<string>", line 2
 
   >>> validate.parse("""
   ... id: 1
@@ -187,7 +187,7 @@ Constructing from YAML
   ...
   Error: no action "type" specified
   While parsing:
-      "<byte string>", line 2
+      "<string>", line 2
 
   >>> validate.parse("1") # doctest: +ELLIPSIS
   Traceback (most recent call last):
@@ -196,7 +196,7 @@ Constructing from YAML
   Got:
       1
   While parsing:
-      "<byte string>", line 1
+      "<string>", line 1
 
   >>> dom.off()
   >>> rex.off()

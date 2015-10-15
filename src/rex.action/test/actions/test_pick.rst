@@ -26,8 +26,8 @@ In case fields are not specified, they are generated from port::
   ... """)
 
   >>> pick.fields # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  [StringFormField(value_key=['code'], label='Code'),
-   EnumFormField(value_key=['sex'], label='Sex', options=[...]),
+  [StringFormField(value_key=['code'], label=u'Code'),
+   EnumFormField(value_key=['sex'], label=u'Sex', options=[...]),
    EntityFormField(value_key=['mother'], ...),
    EntityFormField(value_key=['father'], ...),
    EntityFormField(value_key=['adopted_mother'], ...),
@@ -89,8 +89,7 @@ var to this filter::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-action/lib/actions/Pick",
-                {... {"*:__search__": ["~#statebinding", ["search"]]}]]}]]
+  ["~#widget", ["rex-action/lib/actions/Pick", ...]]
 
   >>> pick.port
   Port('''
@@ -128,7 +127,7 @@ If we provide ``mask`` HTSQL expression it is compiled into port's filter::
   >>> pick.port
   Port('''
   entity: individual
-  mask: sex='male'
+  mask: (sex='male')
   select: [code, sex, mother, father, adopted_mother, adopted_father]
   with:
   - calculation: meta:type
@@ -153,17 +152,17 @@ to those input variables::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-action/lib/actions/Pick",
-                {...  {"*:__mask__": ["~#contextbinding", [["individual"], false]]}]]}]]
+  ["~#widget", ["rex-action/lib/actions/Pick", ...]]
 
   >>> pick.port # doctest: +NORMALIZE_WHITESPACE
   Port('''
-  entity: study_enrollment
-  filters: ['__mask__($individual) := individual=$individual']
-  select: [study, individual, code, enrollment_date, participant_group]
-  with:
-  - calculation: meta:type
-    expression: '''study_enrollment'''
+  - parameter: individual
+  - entity: study_enrollment
+    mask: (individual=$individual)
+    select: [study, individual, code, enrollment_date, participant_group]
+    with:
+    - calculation: meta:type
+      expression: '''study_enrollment'''
   ''')
 
   >>> req = Request.blank('/?__to__=1.data', accept='application/json')
@@ -197,7 +196,7 @@ a mask::
   >>> action.port
   Port('''
   entity: individual
-  filters: ['__state__($_) := true()']
+  mask: (true())
   select: [code, sex, mother, father, adopted_mother, adopted_father]
   with:
   - calculation: meta:type

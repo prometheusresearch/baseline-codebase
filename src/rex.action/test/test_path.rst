@@ -151,7 +151,7 @@ Typechecking
   While type checking action at path:
       view-individual
   While parsing:
-      "<byte string>", line 2
+      "<string>", line 2
 
   >>> parse("""
   ... - pick-individual:
@@ -166,7 +166,7 @@ Typechecking
   While type checking action at path:
       view-individual
   While parsing:
-      "<byte string>", line 3
+      "<string>", line 3
 
   >>> parse("""
   ... - pick-individual:
@@ -193,7 +193,7 @@ Typechecking
   While type checking action at path:
       home -> view-individual
   While parsing:
-      "<byte string>", line 3
+      "<string>", line 3
 
   >>> parse("""
   ... - pick-individual:
@@ -216,7 +216,7 @@ Keys and types are different, fail::
   While type checking action at path:
       pick-study -> view-individual
   While parsing:
-      "<byte string>", line 3
+      "<string>", line 3
 
 Keys aren't same as types, fail::
 
@@ -233,7 +233,7 @@ Keys aren't same as types, fail::
   While type checking action at path:
       pick-mother -> view-individual
   While parsing:
-      "<byte string>", line 3
+      "<string>", line 3
 
 Keys aren't same as types, still match::
 
@@ -258,7 +258,7 @@ Same type, different key, fail::
   While type checking action at path:
       pick-individual -> view-mother
   While parsing:
-      "<byte string>", line 3
+      "<string>", line 3
 
 Same key, different types, fail::
 
@@ -275,7 +275,7 @@ Same key, different types, fail::
   While type checking action at path:
       pick-mother -> view-mother-study
   While parsing:
-      "<byte string>", line 3
+      "<string>", line 3
 
 Indexed types
 -------------
@@ -319,7 +319,7 @@ Same key, same entity, has enrolled, require recruited, fail::
   While type checking action at path:
       pick-enrolled-individual -> view-recruited-individual
   While parsing:
-      "<byte string>", line 3
+      "<string>", line 3
 
 Repeat
 ------
@@ -351,7 +351,7 @@ Repeat
   While type checking action at path:
       <repeat loop> -> pick-individual -> view-mother
   While parsing:
-      "<byte string>", line 4
+      "<string>", line 4
 
   >>> parse("""
   ... - repeat:
@@ -383,7 +383,7 @@ Repeat
   While type checking action at path:
       <repeat then> -> pick-individual -> view-mother
   While parsing:
-      "<byte string>", line 7
+      "<string>", line 7
 
   >>> parse("""
   ... - pick-individual:
@@ -397,4 +397,4 @@ Repeat
   Error: Repeat ends with a type which is incompatible with its beginning:
       Has "individual: study" but expected to have "individual: individual"
   While parsing:
-      "<byte string>", line 5
+      "<string>", line 5

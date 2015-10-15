@@ -91,7 +91,7 @@ You can also specify fields and see port generated from them::
        title=undefined,
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
        db=None,
-       fields=[StringFormField(value_key=['code'], label='Code')],
+       fields=[StringFormField(value_key=['code'], label=u'Code')],
        input=RecordType(rows={}, open=True))
 
   >>> view.port
@@ -121,7 +121,7 @@ context::
        title=undefined,
        entity=RowType(name='mother', type=EntityType(name='individual', state=None)), 
        db=None,
-       fields=[StringFormField(value_key=['code'], label='Code')],
+       fields=[StringFormField(value_key=['code'], label=u'Code')],
        input=RecordType(rows={}, open=True))
 
   >>> view.port

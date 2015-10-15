@@ -120,7 +120,7 @@ Row type::
   ...
   Error: Row type expects a single definition
   While parsing:
-      "<byte string>", line 2
+      "<string>", line 2
 
 Record type::
 
@@ -181,7 +181,7 @@ Record type::
   Error: Duplicate row name in type:
       individual
   While parsing:
-      "<byte string>", line 2
+      "<string>", line 2
 
 ::
 

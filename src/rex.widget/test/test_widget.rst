@@ -248,7 +248,7 @@ Widget composition
   >>> MyWidgetCompositionError.parse("""
   ... !<MyWidgetCompositionError>
   ... title: 42
-  ... """)
+  ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
   Error: Expected a string
@@ -259,7 +259,7 @@ Widget composition
   Of widget:
       MyWidget
   While parsing:
-      "<string>", line 2
+      "<...>", line 2
 
 Widget pointer
 --------------

@@ -131,6 +131,7 @@ class Widget(Extension):
         next_values = {}
         next_values.update(self.values)
         next_values.update(values)
+        next_values['package'] = self.package
         return self.__class__(**next_values)
 
     def __validated_clone__(self, **values):
@@ -189,7 +190,7 @@ class NullWidget(Widget):
 
     _singleton = None
 
-    def __new__(cls):
+    def __new__(cls, package=None):
         if cls._singleton is None:
             cls._singleton = Widget.__new__(cls)
         return cls._singleton

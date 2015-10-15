@@ -1,4 +1,13 @@
 
+- table: site
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+  - data: |
+      code
+      default
+
 - table: study
   with:
   - column: code
@@ -9,6 +18,8 @@
   - column: closed
     type: boolean
     default: false
+  - link: site
+    default: default
   - data: |
       code,title,closed
       fos,Family Obesity Study,false

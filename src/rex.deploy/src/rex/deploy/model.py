@@ -880,7 +880,8 @@ class LinkModel(Model):
             self.uk_image.alter_name(names.uk_name)
         # Update default value.
         data = self.data(target_table, default)
-        self.image.alter_default(data.value)
+        if data.default != self.default:
+            self.image.alter_default(data.value)
         # Update other constraints.
         self.image.alter_is_not_null(is_required)
         if is_unique:

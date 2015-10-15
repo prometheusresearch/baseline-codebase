@@ -1,3 +1,4 @@
+
 Widget
 ======
 
@@ -155,6 +156,7 @@ Group widget
   >>> encode(w, req)
   u'[null]'
 
+
 Nested widget hierarchy
 -----------------------
 
@@ -176,7 +178,7 @@ Nested widget hierarchy
   >>> encode(w, req) # doctest: +NORMALIZE_WHITESPACE
   u'["~#widget", ["ComplexWidget",
                   {"children": ["^0", ["rex-widget/MyWidget",
-                                       {"title": "title", "desc": "no desc", "computed": "computed!"}]]}]]'
+                                       {"desc": "no desc", "title": "title", "computed": "computed!"}]]}]]'
 
   >>> w = ComplexWidget(children=[MyWidget(title='title')])
 
@@ -187,7 +189,7 @@ Nested widget hierarchy
   >>> encode(w, req) # doctest: +NORMALIZE_WHITESPACE
   u'["~#widget", ["ComplexWidget",
                   {"children": [["^0", ["rex-widget/MyWidget",
-                                        {"title": "title", "desc": "no desc", "computed": "computed!"}]]]}]]'
+                                        {"desc": "no desc", "title": "title", "computed": "computed!"}]]]}]]'
 
 Widget composition
 ------------------
@@ -257,7 +259,7 @@ Widget composition
   Of widget:
       MyWidget
   While parsing:
-      "<byte string>", line 2
+      "<string>", line 2
 
 Widget pointer
 --------------

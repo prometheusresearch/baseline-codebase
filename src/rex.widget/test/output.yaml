@@ -25,7 +25,253 @@ tests:
     Creating database pgsql:///widget_demo.
     Deploying application database to pgsql:///widget_demo.
     Deploying rex.widget_demo.
+    # CREATE TABLE "todo" (
+        "id" "int4" NOT NULL
+    );
+    # CREATE SEQUENCE "todo_seq" OWNED BY "todo"."id";
+    # ALTER TABLE "todo" ALTER COLUMN "id" SET DEFAULT nextval('todo_seq'::regclass);
+    # ALTER TABLE "todo" ADD CONSTRAINT "todo_uk" UNIQUE ("id");
+    # ALTER TABLE "todo" ADD COLUMN "description" "text" NOT NULL;
+    # ALTER TABLE "todo" ADD COLUMN "completed" "bool" NOT NULL;
+    # ALTER TABLE "todo" ADD COLUMN "id_b80bb7" "int4" NOT NULL;
+    # COMMENT ON COLUMN "todo"."id_b80bb7" IS '---
+    label: id
+    ';
+    # ALTER TABLE "todo" ADD CONSTRAINT "todo_pk" PRIMARY KEY ("id_b80bb7"), CLUSTER ON "todo_pk";
+    # CREATE OR REPLACE FUNCTION "todo_pk"() RETURNS "trigger" LANGUAGE plpgsql AS '
+    BEGIN
+        IF NEW."id_b80bb7" IS NULL THEN
+            DECLARE
+                _offset int4;
+            BEGIN
+                SELECT max("id_b80bb7") INTO _offset
+                    FROM "todo";
+                NEW."id_b80bb7" := coalesce(_offset, 0) + 1;
+            END;
+        END IF;
+        RETURN NEW;
+    END;
+    ';
+    # CREATE TRIGGER "todo_pk" BEFORE INSERT ON "todo" FOR EACH ROW EXECUTE PROCEDURE "todo_pk"();
+    # COMMENT ON CONSTRAINT "todo_pk" ON "todo" IS '---
+    generators:
+    - offset
+    ';
+    # CREATE TABLE "individual" (
+        "id" "int4" NOT NULL
+    );
+    # CREATE SEQUENCE "individual_seq" OWNED BY "individual"."id";
+    # ALTER TABLE "individual" ALTER COLUMN "id" SET DEFAULT nextval('individual_seq'::regclass);
+    # ALTER TABLE "individual" ADD CONSTRAINT "individual_uk" UNIQUE ("id");
+    # ALTER TABLE "individual" ADD COLUMN "code" "text" NOT NULL;
+    # ALTER TABLE "individual" ADD CONSTRAINT "individual_pk" PRIMARY KEY ("code"), CLUSTER ON "individual_pk";
+    # CREATE OR REPLACE FUNCTION "individual_pk"() RETURNS "trigger" LANGUAGE plpgsql AS '
+    BEGIN
+        IF NEW."code" IS NULL THEN
+            DECLARE
+                _letters text[] := ''{A,B,C,D,E,F,G,H,J,K,L,M,N,P,Q,R,T,U,V,W,X,Y,Z}'';
+                _digits text[] := ''{0,1,2,3,4,5,6,7,8,9}'';
+            BEGIN
+                NEW."code" :=
+                    _letters[1 + trunc(random()*23)] ||
+                    _digits[1 + trunc(random()*10)] ||
+                    _digits[1 + trunc(random()*10)] ||
+                    _letters[1 + trunc(random()*23)] ||
+                    _digits[1 + trunc(random()*10)] ||
+                    _digits[1 + trunc(random()*10)] ||
+                    _digits[1 + trunc(random()*10)] ||
+                    _digits[1 + trunc(random()*10)];
+            END;
+        END IF;
+        RETURN NEW;
+    END;
+    ';
+    # CREATE TRIGGER "individual_pk" BEFORE INSERT ON "individual" FOR EACH ROW EXECUTE PROCEDURE "individual_pk"();
+    # COMMENT ON CONSTRAINT "individual_pk" ON "individual" IS '---
+    generators:
+    - random
+    ';
+    # CREATE TYPE "individual_sex_enum" AS ENUM ('not-known', 'male', 'female', 'not-applicable');
+    # ALTER TABLE "individual" ADD COLUMN "sex" "individual_sex_enum" NOT NULL DEFAULT 'not-known';
+    # COMMENT ON COLUMN "individual"."sex" IS '---
+    default: not-known
+    ';
+    # ALTER TABLE "individual" ADD COLUMN "mother_id" "int4";
+    # ALTER TABLE "individual" ADD CONSTRAINT "individual_mother_fk" FOREIGN KEY ("mother_id") REFERENCES "individual" ("id") ON DELETE SET DEFAULT;
+    # CREATE INDEX "individual_mother_fk" ON "individual" ("mother_id");
+    # ALTER TABLE "individual" ADD COLUMN "father_id" "int4";
+    # ALTER TABLE "individual" ADD CONSTRAINT "individual_father_fk" FOREIGN KEY ("father_id") REFERENCES "individual" ("id") ON DELETE SET DEFAULT;
+    # CREATE INDEX "individual_father_fk" ON "individual" ("father_id");
+    # ALTER TABLE "individual" ADD COLUMN "adopted_mother__id" "int4";
+    # ALTER TABLE "individual" ADD CONSTRAINT "individual__adopted_mother__fk" FOREIGN KEY ("adopted_mother__id") REFERENCES "individual" ("id") ON DELETE SET DEFAULT;
+    # CREATE INDEX "individual__adopted_mother__fk" ON "individual" ("adopted_mother__id");
+    # ALTER TABLE "individual" ADD COLUMN "adopted_father__id" "int4";
+    # ALTER TABLE "individual" ADD CONSTRAINT "individual__adopted_father__fk" FOREIGN KEY ("adopted_father__id") REFERENCES "individual" ("id") ON DELETE SET DEFAULT;
+    # CREATE INDEX "individual__adopted_father__fk" ON "individual" ("adopted_father__id");
+    # CREATE TABLE "identity" (
+        "id" "int4" NOT NULL
+    );
+    # CREATE SEQUENCE "identity_seq" OWNED BY "identity"."id";
+    # ALTER TABLE "identity" ALTER COLUMN "id" SET DEFAULT nextval('identity_seq'::regclass);
+    # ALTER TABLE "identity" ADD CONSTRAINT "identity_uk" UNIQUE ("id");
+    # ALTER TABLE "identity" ADD COLUMN "individual_id" "int4" NOT NULL;
+    # ALTER TABLE "identity" ADD CONSTRAINT "identity_individual_fk" FOREIGN KEY ("individual_id") REFERENCES "individual" ("id") ON DELETE SET DEFAULT;
+    # CREATE INDEX "identity_individual_fk" ON "identity" ("individual_id");
+    # ALTER TABLE "identity" ADD CONSTRAINT "identity_pk" PRIMARY KEY ("individual_id"), CLUSTER ON "identity_pk";
+    # ALTER TABLE "identity" DROP CONSTRAINT "identity_individual_fk";
+    # ALTER TABLE "identity" ADD CONSTRAINT "identity_individual_fk" FOREIGN KEY ("individual_id") REFERENCES "individual" ("id") ON DELETE CASCADE;
+    # ALTER TABLE "identity" ADD COLUMN "givenname" "text";
+    # COMMENT ON COLUMN "identity"."givenname" IS '---
+    title: Given Name
+    ';
+    # ALTER TABLE "identity" ADD COLUMN "middle" "text";
+    # COMMENT ON COLUMN "identity"."middle" IS '---
+    title: Middle Name
+    ';
+    # ALTER TABLE "identity" ADD COLUMN "surname" "text";
+    # ALTER TABLE "identity" ADD COLUMN "birthdate" "date";
+    # COMMENT ON COLUMN "identity"."birthdate" IS '---
+    title: Date of Birth
+    ';
+    # ALTER TABLE "identity" ADD COLUMN "notes" "text";
+    # ALTER TABLE "identity" ADD COLUMN "deathdate" "date";
+    # ALTER TABLE "identity" ADD COLUMN "deceased" "bool";
+    # CREATE TABLE "contact_info" (
+        "id" "int4" NOT NULL
+    );
+    # CREATE SEQUENCE "contact_info__seq" OWNED BY "contact_info"."id";
+    # ALTER TABLE "contact_info" ALTER COLUMN "id" SET DEFAULT nextval('contact_info__seq'::regclass);
+    # ALTER TABLE "contact_info" ADD CONSTRAINT "contact_info__uk" UNIQUE ("id");
+    # ALTER TABLE "contact_info" ADD COLUMN "individual_id" "int4" NOT NULL;
+    # ALTER TABLE "contact_info" ADD CONSTRAINT "contact_info__individual__fk" FOREIGN KEY ("individual_id") REFERENCES "individual" ("id") ON DELETE SET DEFAULT;
+    # CREATE INDEX "contact_info__individual__fk" ON "contact_info" ("individual_id");
+    # ALTER TABLE "contact_info" ADD CONSTRAINT "contact_info__pk" PRIMARY KEY ("individual_id"), CLUSTER ON "contact_info__pk";
+    # ALTER TABLE "contact_info" DROP CONSTRAINT "contact_info__individual__fk";
+    # ALTER TABLE "contact_info" ADD CONSTRAINT "contact_info__individual__fk" FOREIGN KEY ("individual_id") REFERENCES "individual" ("id") ON DELETE CASCADE;
+    # ALTER TABLE "contact_info" ADD COLUMN "cellphone" "text";
+    # ALTER TABLE "contact_info" ADD COLUMN "homephone" "text";
+    # ALTER TABLE "contact_info" ADD COLUMN "email" "text";
+    # ALTER TABLE "contact_info" ADD COLUMN "preferred_contact_method" "text";
+    # ALTER TABLE "contact_info" ADD COLUMN "preferred_contact_person" "text";
+    # ALTER TABLE "contact_info" ADD COLUMN "address" "text";
+    # ALTER TABLE "contact_info" ADD COLUMN "city" "text";
+    # CREATE TYPE "contact_info__state__enum" AS ENUM ('id', 'ak', 'al', 'ar', 'az', 'ca', 'co', 'ct', 'de', 'fl', 'ga', 'hi', 'ia', 'il', 'in', 'ks', 'ky', 'la', 'ma', 'md', 'me', 'mi', 'mn', 'mo', 'ms', 'mt', 'nc', 'nd', 'ne', 'nh', 'nj', 'nm', 'nv', 'ny', 'oh', 'ok', 'or', 'pa', 'ri', 'sc', 'sd', 'tn', 'tx', 'ut', 'va', 'vt', 'wa', 'wi', 'wv', 'wy');
+    # ALTER TABLE "contact_info" ADD COLUMN "state" "contact_info__state__enum";
+    # ALTER TABLE "contact_info" ADD COLUMN "zipcode" "text";
+    # CREATE TABLE "table_with_title" (
+        "id" "int4" NOT NULL
+    );
+    # CREATE SEQUENCE "table_with_title__seq" OWNED BY "table_with_title"."id";
+    # ALTER TABLE "table_with_title" ALTER COLUMN "id" SET DEFAULT nextval('table_with_title__seq'::regclass);
+    # ALTER TABLE "table_with_title" ADD CONSTRAINT "table_with_title__uk" UNIQUE ("id");
+    # ALTER TABLE "table_with_title" ADD COLUMN "title" "text" NOT NULL;
+    # ALTER TABLE "table_with_title" ADD COLUMN "id_b80bb7" "int4" NOT NULL;
+    # COMMENT ON COLUMN "table_with_title"."id_b80bb7" IS '---
+    label: id
+    ';
+    # ALTER TABLE "table_with_title" ADD CONSTRAINT "table_with_title__pk" PRIMARY KEY ("id_b80bb7"), CLUSTER ON "table_with_title__pk";
+    # CREATE OR REPLACE FUNCTION "table_with_title__pk"() RETURNS "trigger" LANGUAGE plpgsql AS '
+    BEGIN
+        IF NEW."id_b80bb7" IS NULL THEN
+            DECLARE
+                _offset int4;
+            BEGIN
+                SELECT max("id_b80bb7") INTO _offset
+                    FROM "table_with_title";
+                NEW."id_b80bb7" := coalesce(_offset, 0) + 1;
+            END;
+        END IF;
+        RETURN NEW;
+    END;
+    ';
+    # CREATE TRIGGER "table_with_title__pk" BEFORE INSERT ON "table_with_title" FOR EACH ROW EXECUTE PROCEDURE "table_with_title__pk"();
+    # COMMENT ON CONSTRAINT "table_with_title__pk" ON "table_with_title" IS '---
+    generators:
+    - offset
+    ';
+    # CREATE TABLE "table_with_link_to_table_with_title" (
+        "id" "int4" NOT NULL
+    );
+    # CREATE SEQUENCE "table_with_link_to_table_with_title__seq" OWNED BY "table_with_link_to_table_with_title"."id";
+    # ALTER TABLE "table_with_link_to_table_with_title" ALTER COLUMN "id" SET DEFAULT nextval('table_with_link_to_table_with_title__seq'::regclass);
+    # ALTER TABLE "table_with_link_to_table_with_title" ADD CONSTRAINT "table_with_link_to_table_with_title__uk" UNIQUE ("id");
+    # ALTER TABLE "table_with_link_to_table_with_title" ADD COLUMN "id_b80bb7" "int4" NOT NULL;
+    # COMMENT ON COLUMN "table_with_link_to_table_with_title"."id_b80bb7" IS '---
+    label: id
+    ';
+    # ALTER TABLE "table_with_link_to_table_with_title" ADD COLUMN "table_with_title__id" "int4" NOT NULL;
+    # ALTER TABLE "table_with_link_to_table_with_title" ADD CONSTRAINT "table_with_link_to_table_with_title__table_with_title__fk" FOREIGN KEY ("table_with_title__id") REFERENCES "table_with_title" ("id") ON DELETE SET DEFAULT;
+    # CREATE INDEX "table_with_link_to_table_with_title__table_with_title__fk" ON "table_with_link_to_table_with_title" ("table_with_title__id");
+    # ALTER TABLE "table_with_link_to_table_with_title" ADD CONSTRAINT "table_with_link_to_table_with_title__pk" PRIMARY KEY ("id_b80bb7"), CLUSTER ON "table_with_link_to_table_with_title__pk";
+    # CREATE OR REPLACE FUNCTION "table_with_link_to_table_with_title__pk"() RETURNS "trigger" LANGUAGE plpgsql AS '
+    BEGIN
+        IF NEW."id_b80bb7" IS NULL THEN
+            DECLARE
+                _offset int4;
+            BEGIN
+                SELECT max("id_b80bb7") INTO _offset
+                    FROM "table_with_link_to_table_with_title";
+                NEW."id_b80bb7" := coalesce(_offset, 0) + 1;
+            END;
+        END IF;
+        RETURN NEW;
+    END;
+    ';
+    # CREATE TRIGGER "table_with_link_to_table_with_title__pk" BEFORE INSERT ON "table_with_link_to_table_with_title" FOR EACH ROW EXECUTE PROCEDURE "table_with_link_to_table_with_title__pk"();
+    # COMMENT ON CONSTRAINT "table_with_link_to_table_with_title__pk" ON "table_with_link_to_table_with_title" IS '---
+    generators:
+    - offset
+    ';
+    # SELECT TRUE FROM pg_catalog.pg_tables
+    WHERE tablename= 't_boolean' AND schemaname = 'public';
+
+    # CREATE TABLE t_boolean (
+        "code"          VARCHAR(32) PRIMARY KEY,
+        "bool"          BOOLEAN
+    );
+    INSERT INTO t_boolean ("code", "bool") VALUES
+        ('1-true', TRUE),
+        ('2-false', FALSE),
+        ('3-null', NULL);
+
+    # SELECT TRUE FROM pg_catalog.pg_tables WHERE tablename= 't_datetime' AND schemaname = 'public';
+    # CREATE TABLE t_datetime (
+        "code"          VARCHAR(32) PRIMARY KEY,
+        "timestamp"     TIMESTAMP,
+        "timestamp_0"   TIMESTAMP(0),
+        "timestamptz"   TIMESTAMP WITH TIME ZONE,
+        "timestamptz_0" TIMESTAMP(0) WITH TIME ZONE
+    );
+
+    INSERT INTO t_datetime ("code", "timestamp", "timestamp_0", "timestamptz", "timestamptz_0") VALUES
+        ('1-regular', '2010-04-15 20:13:04.5', '2010-04-15 20:13:04', '2010-04-15 20:13:04.5 EDT', '2010-04-15 20:13:04 EDT'),
+        ('2-min', '4714-12-31 00:00:00.0 BC', '4714-12-31 00:00:00 BC', '4714-11-24 00:00:00.0 BC UTC', '4714-11-24 00:00:00 BC UTC'),
+        ('3-max', '294277-01-09 04:00:54.7', '294277-01-09 04:00:54', '294277-01-09 04:00:54.7 UTC', '294277-01-09 04:00:54 UTC'),
+        ('4-pinf', 'infinity', 'infinity', 'infinity', 'infinity'),
+        ('5-ninf', '-infinity', '-infinity', '-infinity', '-infinity'),
+        ('6-null', NULL, NULL, NULL, NULL);
+
+    # SELECT TRUE FROM pg_catalog.pg_tables WHERE tablename= 't_date' AND schemaname = 'public';
+    # CREATE TABLE t_date (
+        "code"          VARCHAR(32) PRIMARY KEY,
+        "date"          DATE
+    );
+
+    INSERT INTO t_date ("code", "date") VALUES
+        ('1-regular', '2010-04-15'),
+        ('2-min', '4714-11-24 BC'),
+        ('3-max', '5874897-12-31'),
+        ('4-pinf', 'infinity'),
+        ('5-ninf', '-infinity'),
+        ('6-null', NULL);
+
     Validating rex.widget_demo.
+    # SELECT TRUE FROM pg_catalog.pg_tables
+    WHERE tablename= 't_boolean' AND schemaname = 'public';
+
+    # SELECT TRUE FROM pg_catalog.pg_tables WHERE tablename= 't_datetime' AND schemaname = 'public';
+    # SELECT TRUE FROM pg_catalog.pg_tables WHERE tablename= 't_date' AND schemaname = 'public';
+    # Total time: 0:00:00.658115
     Done.
 - sh: npm install .
   stdout: |

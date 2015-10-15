@@ -12,6 +12,7 @@ tests:
 - sh: rex dropdb --config=./demo/rex.yaml
   ignore: true
 - sh: rex deploy --config=./demo/rex.yaml
+  ignore: true
 
 - doctest: README.rst
 - doctest: test/test_*.rst

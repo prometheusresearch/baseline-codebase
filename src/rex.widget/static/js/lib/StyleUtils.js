@@ -113,6 +113,8 @@ let touchAction = keyMirror({
 
 let none = 'none';
 
+let auto = 'auto';
+
 let whiteSpace = keyMirror({
   nowrap: true
 });
@@ -151,6 +153,7 @@ module.exports = {
   display,
   verticalAlign,
   none,
+  auto,
   touchAction,
   whiteSpace,
   textOverflow,

@@ -29,7 +29,7 @@ export function equals(a, b) {
   return true;
 }
 
-function normalize(keyPath) {
+export function normalize(keyPath) {
   if (keyPath === null) {
     return [];
   }

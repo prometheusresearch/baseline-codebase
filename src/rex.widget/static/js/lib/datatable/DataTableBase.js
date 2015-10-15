@@ -184,7 +184,7 @@ export default class DataTableBase extends React.Component {
           headerRenderer={this.headerRenderer}
           fixed={column.fixed}
           dataKey={column.valueKey}
-          label={column.label || column.valueKey}
+          label={column.label || KeyPath.normalize(column.valueKey).join('.')}
           columnData={column.valueKey === sort.valueKey ? {...column, sort} : column}
           isResizable={true}
           />

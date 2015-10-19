@@ -80,7 +80,7 @@ class EntityType extends ArgumentType {
   stringify(actionElement, entity) {
     invariant(
       Entity.isEntity(entity),
-      'Expected an entity'
+      'Expected an entity, got: %s', entity
     );
     let type = Entity.getEntityType(entity);
     let value = type + ':' + entity.id;
@@ -115,7 +115,7 @@ class ConfigurableEntityType extends ArgumentType {
   stringify(actionElement, entity) {
     invariant(
       Entity.isEntity(entity),
-      'Expected an entity'
+      'Expected an entity, got: %s', entity
     );
     let value = entity.id;
     let state = Entity.getEntityState(entity);

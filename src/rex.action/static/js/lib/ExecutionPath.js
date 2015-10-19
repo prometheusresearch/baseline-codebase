@@ -68,7 +68,7 @@ function _positionToPath(position) {
   if (position.index) {
     // TODO:
   }
-  if (position.command) {
+  if (hasCommand(position)) {
     let {commandName, args} = position.command;
     let command = ActionCommand.getCommand(position.element, commandName);
     let commandArgs = args.map((arg, idx) =>
@@ -80,4 +80,14 @@ function _positionToPath(position) {
     }
   }
   return segment;
+}
+
+function hasCommand(position) {
+  return (
+    position.command && (
+      position.command.args.length === 0 ||
+      position.command.args.length > 0 &&
+      position.command.args.some(arg => arg)
+    )
+  );
 }

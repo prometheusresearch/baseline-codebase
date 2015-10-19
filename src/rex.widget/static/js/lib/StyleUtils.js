@@ -31,6 +31,10 @@ function rgb(r, g, b) {
 }
 
 function border(width, style, color) {
+  if (color === undefined) {
+    color = style;
+    style = borderStyle.solid;
+  }
   return `${width}px ${style} ${color}`;
 }
 

@@ -8,7 +8,11 @@
 ==================
 
 * New API for updating existent data across the whole wizard contexts. Used by
-  "drop" and "edit" actions.
+  "drop" and "edit" actions::
+
+    this.props.onEntityUpdate(prevEntity, nextEntity)
+
+* Update pick to use new ``<DataTable />`` widget.
 
 0.5.0 (2015-09-30)
 ==================

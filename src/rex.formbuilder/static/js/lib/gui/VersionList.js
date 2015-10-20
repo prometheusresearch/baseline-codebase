@@ -35,6 +35,7 @@ var VersionList = React.createClass({
 
   componentDidMount: function () {
     InstrumentVersionStore.addChangeListener(this._onInstrumentVersionsChange);
+    this._onInstrumentVersionsChange();
   },
 
   componentWillUnmount: function () {

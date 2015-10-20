@@ -50,6 +50,7 @@ var DraftSetList = React.createClass({
     DraftInstrumentVersionStore.addCreateListener(
       this._onDraftInstrumentVersionCreate
     );
+    this._onDraftInstrumentVersionsChange();
   },
 
   componentWillUnmount: function () {

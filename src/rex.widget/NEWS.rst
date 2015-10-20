@@ -2,6 +2,15 @@
   Change Log
 **************
 
+1.3.0 (2015-10-XX)
+==================
+
+* Add new ``<DataTable />`` widget::
+
+    import DataTable from 'rex-widget/lib/datatable/DataTable'
+
+  with better behaviour regarding column resize.
+
 1.2.0 (2015-09-30)
 ==================
 

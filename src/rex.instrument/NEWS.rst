@@ -5,7 +5,7 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
-1.1.0 (2015-xx-xx)
+1.1.0 (2015-10-21)
 ==================
 
 * Updated all references of PRISMH to RIOS (including changing the dependency

@@ -4,7 +4,7 @@
 
 .. contents:: Table of Contents
 
-0.6.0 (2015-XX-XX)
+0.6.0 (2015-10-21)
 ==================
 
 * New API for updating existent data across the whole wizard contexts. Used by

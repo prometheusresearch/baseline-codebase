@@ -5,7 +5,7 @@ REX.MOBILE Change Log
 .. contents:: Table of Contents
 
 
-0.4.0 (2015-xx-xx)
+0.4.0 (2015-10-21)
 ==================
 
 * Updated all references of PRISMH to RIOS (including changing the dependency

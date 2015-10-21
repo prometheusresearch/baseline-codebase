@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.4.0 (2015-XX-XX)
+2.4.0 (2015-10-21)
 ==================
 
 * Links may set the default value.

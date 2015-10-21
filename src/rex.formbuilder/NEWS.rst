@@ -5,7 +5,7 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
-5.4.0 (2015-xx-xx)
+5.4.0 (2015-10-21)
 ==================
 
 * Added ability to set the defaultLocalization of a Form.

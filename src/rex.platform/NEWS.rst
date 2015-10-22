@@ -5,13 +5,15 @@
 .. contents:: Table of Contents
 
 
-4.10.0 (2015-XX-XX)
+4.10.0 (2015-10-22)
 ===================
 
 * HTSQL==2.3.3.20150930
+* HTSQL-PGSQL==2.3.3.20150930
 * rex.action==0.6.0
-* rex.instrument==1.1.0
+* rex.deploy==2.4.0
 * rex.forms==1.1.0
+* rex.instrument==1.1.0
 * rex.widget==1.3.0
 
 

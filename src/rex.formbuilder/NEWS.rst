@@ -10,6 +10,8 @@ REX.FORMBUILDER Change Log
 
 * The user is now redirected to the revision/draft list screen after publishing
   a Form from the editor screen.
+* Fixed issue where imported forms with questionable configurations could cause
+  failures when saving hotkeys.
 
 
 5.4.0 (2015-10-21)

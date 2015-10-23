@@ -185,7 +185,7 @@ class Enumeration extends Question {
       elm.options.enumerations.push(descr);
 
       if (enumeration.hotkey) {
-        hotkeys[enumeration.id] = enumeration.hotkey;
+        hotkeys[enumeration.id] = '' + enumeration.hotkey;
       }
     });
 

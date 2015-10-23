@@ -73,11 +73,13 @@ var DraftSetEditor = React.createClass({
   componentDidMount: function () {
     DraftSetStore.addChangeListener(this._onDraftSetChange);
     DraftSetStore.addConfigurationFailureListener(this._onConfigFailure);
+    DraftSetStore.addPublishListener(this._onPublish);
     window.addEventListener('beforeunload', this._onWindowUnload);
   },
 
   componentWillUnmount: function () {
     window.removeEventListener('beforeunload', this._onWindowUnload);
+    DraftSetStore.removePublishListener(this._onPublish);
     DraftSetStore.removeConfigurationFailureListener(this._onConfigFailure);
     DraftSetStore.removeChangeListener(this._onDraftSetChange);
   },
@@ -124,6 +126,10 @@ var DraftSetEditor = React.createClass({
     this.setState({
       configFailure: error.message
     });
+  },
+
+  _onPublish: function () {
+    this.onReturn();
   },
 
   onReturn: function () {

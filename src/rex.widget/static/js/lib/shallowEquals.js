@@ -12,6 +12,10 @@ export default function shallowEquals(a, b) {
   if (a == null && b != null || a != null && b == null) {
     return false;
   }
+  
+  if (a == null && b == a) {
+    return true;
+  }
 
   let keys = Object.keys(a);
   if (keys.length !== Object.keys(b).length) {

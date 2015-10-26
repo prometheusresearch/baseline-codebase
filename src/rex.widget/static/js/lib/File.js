@@ -3,31 +3,20 @@
  */
 
 import React       from 'react';
+import Stylesheet  from '@prometheusresearch/react-stylesheet';
 import Hoverable   from './Hoverable';
 import Icon        from './Icon';
 import {Box, HBox} from './Layout';
 import ProgressBar from './ProgressBar';
-import Style       from './File.module.css';
 
-@Hoverable
 /**
  * Can be called in a variety of ways to
  * upload, download, or delete an uploaded file.
  *
- * Renders a Box containing an HBox which contains:
- *
- * - an icon
- *   if **icon** is provided it is displayed, otherwise
- *   if **progress** is not 0 the "repeat" icon is displayed, otherwise
- *   if **required** is true or **hover** is false 
- *   the "ok" icon is displayed, otherwise
- *   the "remove" icon is displayed. 
- * - children or the filename or 'Remove file'
- *   if **children** is provided it is displayed, otherwise
- *   if **file.name** exists it is displayed, otherwise
- *   "Remove file" is displayed.
- * - a <Progress> widget
+ * Renders a file uploaded to a storage.
  */
+@Hoverable
+@Stylesheet
 export default class File extends React.Component {
 
   static propTypes = {
@@ -37,8 +26,8 @@ export default class File extends React.Component {
     hover: React.PropTypes.bool,
 
     /**
-     * The file object.  The 'name' attribute contains the filename. 
-     * When provided, **children** should not be. 
+     * The file object. The 'name' attribute contains the filename.
+     * When provided, **children** should not be.
      */
     file: React.PropTypes.object,
 
@@ -66,25 +55,38 @@ export default class File extends React.Component {
     onRemove: React.PropTypes.func,
 
     /**
-     * progress - a value between 0 and 1.
-     * Default is 0.
-     * 0 means no progress, 1 means completed. 
+     * A value between 0 (start) and 1 (end).
      */
     progress: React.PropTypes.number
   };
 
+  static stylesheet = {
+    Root: {
+      Component: HBox,
+      fontSize: '90%',
+      cursor: 'pointer',
+      top: 2,
+    },
+    Icon: {
+      Component: Icon,
+      marginRight: 5,
+      marginLeft: 5,
+      top: -2,
+    }
+  };
+
   render() {
+    let {Root, IconWrapper} = this.stylesheet;
     let {
       hover, file, icon, required, children,
       onRemove, progress, ...props
     } = this.props;
     return (
       <Box {...props}>
-        <HBox
+        <Root
           size={1}
-          className={Style.self}
           onClick={!required && !progress && onRemove}>
-          <Box centerVertically className={Style.icon}>
+          <IconWrapper centerVertically>
             {icon ?
               <Icon name={icon} /> :
               progress ?
@@ -92,13 +94,13 @@ export default class File extends React.Component {
               required || !hover ?
               <Icon name="ok" /> :
               <Icon name="remove" />}
-          </Box>
+          </IconWrapper>
           <Box centerVertically>
             {progress || required || !hover ?
               children || file.name :
               'Remove file'}
           </Box>
-        </HBox>
+        </Root>
         <ProgressBar progress={progress} />
       </Box>
     );

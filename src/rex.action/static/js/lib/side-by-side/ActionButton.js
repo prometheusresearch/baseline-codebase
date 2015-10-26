@@ -2,10 +2,11 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React, {PropTypes}               from 'react';
-import RexWidget                        from 'rex-widget';
-import {VBox}                           from 'rex-widget/lib/Layout';
-import {renderTitle, getIcon, getTitle} from '../actions';
+import React, {PropTypes}       from 'react';
+import RexWidget                from 'rex-widget';
+import {VBox}                   from 'rex-widget/lib/Layout';
+import ActionIcon               from '../ActionIcon';
+import ActionTitle              from '../ActionTitle';
 
 let {
   linearGradient, rgba, rgb, border, borderStyle
@@ -84,19 +85,11 @@ export default class ActionButton extends React.Component {
       flexDirection: alignLeft ? 'row' : 'row-reverse',
       ...extraStyle
     };
-    let title = showContext ?
-      renderTitle(position) :
-      getTitle(position.element);
-    let icon = getIcon(position.element);
     return (
       <HBox {...props} style={style} alignItems="right" onClick={this.onClick}>
-        {icon &&
-          <RexWidget.Icon
-            name={icon}
-            style={Style.icon}
-            />}
+        <ActionIcon position={position} style={Style.icon} />
         <VBox size={1}>
-          {title}
+          <ActionTitle position={position} noRichTitle={!showContext} />
         </VBox>
       </HBox>
     );

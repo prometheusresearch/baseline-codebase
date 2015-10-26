@@ -10,9 +10,7 @@ import {VBox, HBox}       from 'rex-widget/lib/Layout';
 import {translate3d}      from 'rex-widget/lib/StyleUtils';
 import WithDOMSize        from 'rex-widget/lib/WithDOMSize';
 
-import {getWidth}         from '../actions';
-import * as ActionCommand from '../ActionCommand';
-import * as Execution     from '../Execution';
+import * as Command       from '../execution/Command';
 import * as ExecutionPath from '../ExecutionPath';
 import Component          from '../StatefulComponent';
 import HistoryAware       from '../HistoryAware';
@@ -20,8 +18,21 @@ import HistoryAware       from '../HistoryAware';
 import Panel              from './Panel';
 import ActionPanel        from './ActionPanel';
 import ServicePanel       from './ServicePanel';
-import WizardBreadcrumb   from './WizardBreadcrumb';
+import Breadcrumb         from './Breadcrumb';
 import Style              from './Wizard.style';
+
+const DEFAULT_ACTION_WIDTH = 480;
+
+function getWidthAtPosition(position, defaultWidth = DEFAULT_ACTION_WIDTH) {
+  let element = position.element;
+  if (element.props.width) {
+    return element.props.width;
+  } else if (element.type.getDefaultProps) {
+    return element.type.getDefaultProps().width;
+  } else {
+    return defaultWidth;
+  }
+}
 
 @WithDOMSize
 @HistoryAware
@@ -71,7 +82,6 @@ export default class Wizard extends Component {
     if (props.disableHistory) {
       execution = ExecutionPath.fromPath(
         props.location.pathname,
-        props.actions,
         props.path,
         props.initialContext // initialContext can't be changed
       );
@@ -84,6 +94,7 @@ export default class Wizard extends Component {
   }
 
   render() {
+    console.log(this.props);
     let {location, breadcrumb} = this.props;
     let {metrics, execution} = this.state;
     if (metrics.size === null || location === null) {
@@ -135,7 +146,7 @@ export default class Wizard extends Component {
     let {metrics, execution} = this.state;
     return (
       <VBox className={Style.breadcrumb}>
-        <WizardBreadcrumb
+        <Breadcrumb
           execution={execution}
           metrics={metrics}
           onClick={this._onBreadcrumbClick}
@@ -157,10 +168,10 @@ export default class Wizard extends Component {
     ) {
       let execution = ExecutionPath.fromPath(
         nextProps.location.pathname,
-        nextProps.actions,
         nextProps.path,
         this.props.initialContext // initialContext can't be changed
       );
+      console.log(execution);
       let metrics = {...state.metrics, focus: execution.trace[1].keyPath};
       state = {...state, execution, metrics};
       if (this.props.DOMSize) {
@@ -216,8 +227,7 @@ export default class Wizard extends Component {
       let nextAction = state.execution.trace[nextActionIdx].keyPath;
       state = this._close(nextAction)(state);
     }
-    let execution = Execution.executeCommandAtCurrentPosition(
-        state.execution,
+    let execution = state.execution.executeCommandAtCurrentPosition(
         commandName,
         ...args);
     state = {...state, execution};
@@ -231,7 +241,7 @@ export default class Wizard extends Component {
   onContext(state, position, context) {
     return this.executeActionCommand(
       position,
-      ActionCommand.onContextCommand.name,
+      Command.onContextCommand.name,
       context
     )(state);
   }
@@ -249,7 +259,7 @@ export default class Wizard extends Component {
 
   @Component.command
   advanceTo(state, action, contextUpdate = {}) {
-    let execution = Execution.advance(state.execution, action, contextUpdate);
+    let execution = state.execution.advance(action, contextUpdate);
     state = {...state, execution};
     state = this.updateMetrics()(state);
     state = this.ensureIsInViewport(state.execution.position.keyPath)(state);
@@ -260,7 +270,7 @@ export default class Wizard extends Component {
   @Component.command
   replace(state, action, nextAction) {
     let idx = state.execution.indexOf(state.metrics.focus);
-    let execution = Execution.replace(state.execution, action, nextAction);
+    let execution = state.execution.replace(action, nextAction);
     let newFocus = execution.trace[idx] ?
       execution.trace[idx].keyPath:
       execution.position.keyPath;
@@ -302,7 +312,7 @@ export default class Wizard extends Component {
    */
   @Component.command
   _close(state, action) {
-    let execution = Execution.close(state.execution, action);
+    let execution = state.execution.close(action);
     state = {...state, execution};
     state = this.focus(execution.position.keyPath)(state);
     return state;
@@ -373,8 +383,8 @@ export default class Wizard extends Component {
 }
 
 function _computePanelMetrics(execution, position) {
-  var width = getWidth(position.element) || 300 // Panel.Style.self.minWidth;
-  if (Execution.getAlternativeActions(execution, position).length > 0) {
+  var width = getWidthAtPosition(position) || 300 // Panel.Style.self.minWidth;
+  if (execution.getAlternativeActions(position).length > 0) {
     width = width + 150; // Panel.Style.sidebar.width
   }
   return {width, action: position.keyPath};

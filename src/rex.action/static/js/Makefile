@@ -1,7 +1,7 @@
-BIN = node_modules/.bin
-
-test:
-	@$(BIN)/webtest
+BIN 					= node_modules/.bin
+TESTS					= lib/__tests__/Entity-test.js
+MOCHA_OPTIONS = --compilers js:babel/register
+MOCHA					= NODE_ENV=test node $(BIN)/mocha $(MOCHA_OPTIONS)
 
 lint::
 	@$(BIN)/eslint ./lib/
@@ -9,5 +9,8 @@ lint::
 lint-errors-only::
 	@$(BIN)/eslint --quiet ./lib/
 
-ci:
-	@$(BIN)/webtest --watch
+test::
+	@$(MOCHA) -- $(TESTS)
+
+ci::
+	@$(MOCHA) --watch -- $(TESTS)

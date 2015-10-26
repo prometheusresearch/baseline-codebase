@@ -6,7 +6,7 @@ import React            from 'react';
 import RexWidget        from 'rex-widget';
 import  {VBox, HBox}    from 'rex-widget/lib/Layout';
 import Style            from './Drop.module.css';
-import {command, Types} from '../ActionCommand';
+import {command, Types} from '../execution/Command';
 import {getEntityTitle} from '../Entity';
 
 export default class Drop extends React.Component {

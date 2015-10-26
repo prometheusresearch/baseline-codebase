@@ -6,8 +6,6 @@ import autobind       from 'autobind-decorator';
 import React          from 'react';
 import {VBox}         from 'rex-widget/lib/Layout';
 
-import * as Execution from '../Execution';
-
 import ActionButton   from './ActionButton';
 import ActionSidebar  from './ActionSidebar';
 import Panel          from './Panel';
@@ -17,20 +15,18 @@ export default class ActionPanel extends React.Component {
 
   render() {
     let {execution, position, onReplace, onClose, style} = this.props;
-    let sidebar = Execution
-      .getAlternativeActions(execution, position)
-      .map(pos =>
-        <VBox key={pos.keyPath}>
-          <ActionButton
-            align="right"
-            active={pos.keyPath === position.keyPath}
-            position={pos}
-            onClick={onReplace}
-            />
-          {pos.keyPath == position.keyPath && position.element.type.canRenderSidebar &&
-            <ActionSidebar action={pos.keyPath} />}
-        </VBox>
-      );
+    let sidebar = execution.getAlternativeActions(position).map(pos =>
+      <VBox key={pos.keyPath}>
+        <ActionButton
+          align="right"
+          active={pos.keyPath === position.keyPath}
+          position={pos}
+          onClick={onReplace}
+          />
+        {pos.keyPath == position.keyPath && position.element.type.canRenderSidebar &&
+          <ActionSidebar action={pos.keyPath} />}
+      </VBox>
+    );
     let action = React.cloneElement(position.element, {
       context: position.context,
       execution,

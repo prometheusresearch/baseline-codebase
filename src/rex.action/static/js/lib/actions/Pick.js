@@ -5,13 +5,15 @@
 import autobind             from 'autobind-decorator';
 import React                from 'react';
 import Stylesheet           from '@prometheusresearch/react-stylesheet';
+import {VBox, HBox}         from '@prometheusresearch/react-box';
 import RexWidget            from 'rex-widget';
 import DataTable            from 'rex-widget/lib/datatable/DataTable';
 import Port                 from 'rex-widget/lib/data/Port';
-import {VBox, HBox}         from 'rex-widget/lib/Layout';
-import {command, Types}     from '../ActionCommand';
+import Button               from '../ui/QuietButton';
+import {command, Types}     from '../execution/Command';
 import * as Entity          from '../Entity';
 import Title                from './Title';
+import Action               from '../Action';
 
 @Stylesheet
 export default class Pick extends React.Component {
@@ -27,12 +29,6 @@ export default class Pick extends React.Component {
   };
 
   static stylesheet = {
-    Root: VBox,
-    Title: VBox,
-    Header: {
-      Component: HBox,
-      padding: 10,
-    },
     Search: {
       Component: RexWidget.SearchInput,
       borderRadius: 0,
@@ -48,31 +44,18 @@ export default class Pick extends React.Component {
   }
 
   render() {
-    let {Root, Header, Search, Title} = this.stylesheet;
+    let {Search} = this.stylesheet;
     let {entity, sort, onClose, context, contextTypes} = this.props;
     let {search} = this.state;
     let title = this.constructor.getTitle(this.props);
     let selected = context[entity.name] ? context[entity.name].id : undefined;
     let data = Port(this.props.data.port.path)
-      .fetch(getContextParameters(contextTypes.input, context));
+      .params(getContextParameters(contextTypes.input, context));
     if (search) {
-      data = data.fetch({'*:__search__': search});
+      data = data.params({'*:__search__': search});
     }
     return (
-      <Root size={1}>
-        <Header>
-          <Title size={1}>
-            <h4>
-              {title}
-            </h4>
-          </Title>
-          {onClose
-            && <RexWidget.Button
-              quiet
-              icon="remove"
-              onClick={onClose}
-              />}
-        </Header>
+      <Action noPadding title={title} onClose={onClose}>
         {this.props.search &&
           <Search
             value={this.state.search}
@@ -89,7 +72,7 @@ export default class Pick extends React.Component {
           selected={selected}
           onSelect={this.onSelect}
           />
-      </Root>
+      </Action>
     );
   }
 

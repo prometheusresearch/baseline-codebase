@@ -2,38 +2,39 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React                            from 'react';
-import autobind                         from 'autobind-decorator';
-import ReactStylesheet                  from '@prometheusresearch/react-stylesheet';
-import {HBox}                           from '@prometheusresearch/react-box';
-import Icon                             from 'rex-widget/lib/Icon';
-import {getIcon, renderTitle, getTitle} from './actions';
+import React, {PropTypes}       from 'react';
+import autobind                 from 'autobind-decorator';
+import ReactStylesheet          from '@prometheusresearch/react-stylesheet';
+import {HBox}                   from '@prometheusresearch/react-box';
+import ButtonBase               from './ui/ButtonBase';
+import ActionIcon               from './ActionIcon';
+import ActionTitle              from './ActionTitle';
 
 @ReactStylesheet
 export default class ActionButton extends React.Component {
 
+  static propTypes = {
+    position: PropTypes.object,
+    active: PropTypes.bool,
+    showContext: PropTypes.bool,
+    onClick: PropTypes.func,
+  };
+
   static stylesheet = {
-    Self: HBox,
-    Icon: Icon,
+    Button: ButtonBase,
   };
 
   render() {
-    let {position, active, showContext, ...props} = this.props;
-    let icon = getIcon(position.element);
-    let title = showContext ?
-      renderTitle(position) :
-      getTitle(position.element);
-    let {Self, Icon} = this.stylesheet;
+    let {Button} = this.stylesheet;
+    let {position, showContext, ...props} = this.props;
+    let icon = ActionIcon.getIconAtPosition(position);
     return (
-      <Self {...props}
-        state={{active}}
-        Component="a"
-        aria-pressed={active}
-        role="button"
-        onClick={this._onClick}>
-        {icon && <Icon name={icon} />}
-        {title}
-      </Self>
+      <Button {...props} icon={icon} onClick={this._onClick}>
+        <ActionTitle
+          position={position}
+          noRichTitle={!showContext}
+          />
+      </Button>
     );
   }
 
@@ -42,4 +43,3 @@ export default class ActionButton extends React.Component {
     this.props.onClick(this.props.position.keyPath);
   }
 }
-

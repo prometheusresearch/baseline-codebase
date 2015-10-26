@@ -3,14 +3,15 @@
  */
 
 import React, {PropTypes}     from 'react';
-import Breadcrumb             from '../Breadcrumb';
-import {getIcon, renderTitle} from '../actions';
+import BreadcrumbBase         from '../ui/Breadcrumb';
+import ActionIcon             from '../ActionIcon';
+import ActionTitle            from '../ActionTitle';
 import ServicePanel           from './ServicePanel';
 
 /**
  * Breadcrumb which renders wizard's progress.
  */
-export default class WizardBreadcrumb extends React.Component {
+export default class Breadcrumb extends React.Component {
 
   static propTypes = {
     execution: PropTypes.object.isRequired,
@@ -25,7 +26,7 @@ export default class WizardBreadcrumb extends React.Component {
       .map(positionToBreadcrumbItem)
       .concat(SERVICE_PANE_BREADCRUMB_ITEM);
     return (
-      <Breadcrumb
+      <BreadcrumbBase
         active={visiblePosition}
         items={items}
         onClick={onClick}
@@ -42,7 +43,7 @@ const SERVICE_PANE_BREADCRUMB_ITEM = {
 function positionToBreadcrumbItem(position) {
   return {
     id: position.keyPath,
-    icon: getIcon(position.element),
-    title: renderTitle(position),
+    icon: ActionIcon.getIconAtPosition(position.element),
+    title: ActionTitle.getTitleAtPosition(position),
   };
 }

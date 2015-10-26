@@ -9,22 +9,8 @@ var {VBox, HBox}                = RexWidget.Layout;
 var DS                          = RexWidget.DataSpecification;
 var {overflow, boxShadow, rgb}  = RexWidget.StyleUtils;
 var Action                      = require('../Action');
-var {getEntityTitle}            = require('../Entity');
+var {getEntityTitle, isLoaded}  = require('../Entity');
 var Title                       = require('./Title');
-
-function isLoaded(entity) {
-  if (entity == null) {
-    return false;
-  }
-  for (let key in entity) {
-    if (entity.hasOwnProperty(key)) {
-      if (!(key === 'id' || key.indexOf('meta:') === 0)) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
 
 var View = React.createClass({
   mixins: [RexWidget.DataSpecificationMixin],

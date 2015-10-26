@@ -59,8 +59,7 @@ In case fields are not specified, they are generated from port::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-action/lib/actions/View",
-                {..., {"*": ["~#contextbinding", [["individual"], true]]}]]}]]
+  ["~#widget", ["rex-action/lib/actions/View", ...]]
 
   >>> print render_widget(view, Request.blank('/?__to__=1.data', accept='application/json')) # doctest: +ELLIPSIS
   200 OK

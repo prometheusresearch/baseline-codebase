@@ -2,14 +2,16 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import emptyFunction from 'empty/functionThatReturnsNull';
 import React         from 'react';
-import {Themeable}   from 'rethemeable';
+import Stylesheet    from '@prometheusresearch/react-stylesheet';
+import {VBox, HBox}  from '@prometheusresearch/react-box';
 import RexWidget     from 'rex-widget';
-import emptyFunction from 'rex-widget/lib/emptyFunction';
-import {VBox, HBox}  from 'rex-widget/lib/Layout';
-import Style         from './Action.module.css';
+import * as Style    from 'rex-widget/lib/StyleUtils';
+import * as Theme    from './ui/Theme';
+import Button        from './ui/QuietButton';
 
-@Themeable
+@Stylesheet
 export default class Action extends React.Component {
 
   static propTypes = {
@@ -39,37 +41,57 @@ export default class Action extends React.Component {
     renderFooter: React.PropTypes.func,
   };
 
-  static defaultTheme = Style;
-
   static defaultProps = {
-    renderFooter: emptyFunction.thatReturnsNull
+    renderFooter: emptyFunction
+  };
+
+  static stylesheet = {
+    Root: {
+      Component: VBox,
+      flex: 1,
+    },
+    Header: {
+      Component: HBox,
+      boxShadow: Theme.shadow.normal(),
+      padding: 10,
+    },
+    Content: {
+      Component: VBox,
+      padding: 10,
+      overflow: Style.auto,
+      flex: 1,
+      noPadding: {
+        padding: 0
+      }
+    },
+    Footer: {
+      Component: VBox,
+      boxShadow: Theme.shadow.normal(),
+      padding: 5,
+    },
+    Title: {
+      Component: VBox,
+      flex: 1
+    }
   };
 
   render() {
-    let {children, title, onClose} = this.props;
+    let {Root, Header, Content, Footer, Title} = this.stylesheet;
+    let {children, title, onClose, noPadding} = this.props;
     let footer = this.props.renderFooter();
     return (
-      <VBox size={1} className={this.theme.self}>
-        <HBox className={this.theme.header}>
-          {title &&
-            <VBox size={1}>
-              <h4>{title}</h4>
-            </VBox>}
+      <Root>
+        <Header>
+          {title && <Title><h4>{title}</h4></Title>}
           {onClose &&
-            <RexWidget.Button
-              quiet
+            <Button
               icon="remove"
               onClick={onClose}
               />}
-        </HBox>
-        <VBox size={1} className={this.theme.content}>
-          {children}
-        </VBox>
-        {footer &&
-          <VBox className={this.theme.footer}>
-            {footer}
-          </VBox>}
-      </VBox>
+        </Header>
+        <Content state={{noPadding}}>{children}</Content>
+        {footer && <Footer>{footer}</Footer>}
+      </Root>
     );
   }
 }

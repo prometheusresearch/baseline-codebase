@@ -7,7 +7,7 @@ var React               = require('react');
 var RexWidget           = require('rex-widget');
 var {VBox, HBox}        = RexWidget.Layout;
 var Action              = require('../Action');
-var {command, Types}    = require('../ActionCommand');
+var {command, Types}    = require('../execution/Command');
 
 var moment              = require('moment');
 var DatePicker          = require('@prometheusresearch/react-datetimepicker/lib/DatePicker');

@@ -9,7 +9,7 @@ class Instruction {
   }
 
   static is(obj) {
-    return obj instanceof this;
+    return obj.constructor === this;
   }
 }
 
@@ -23,9 +23,19 @@ export class Start extends Instruction {
 
 export class Execute extends Instruction {
 
-  constructor(action, then) {
+  constructor(action, then, element) {
     super(then);
     this.action = action;
+    this.element = element;
+  }
+}
+
+export class ExecuteWizard extends Instruction {
+
+  constructor(action, then, element) {
+    super(then);
+    this.action = action;
+    this.element = element;
   }
 }
 

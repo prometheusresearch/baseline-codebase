@@ -29,6 +29,7 @@ __all__ = (
     'TypeVal',
 
     'unify',
+    'intersect_record_types',
     'UnificationError',
     'KindError',
     'KindsDoNotMatch',
@@ -407,9 +408,13 @@ class RowTypeMismatch(UnificationError):
         self.type_b = type_b
 
 
+GLOBAL_ROWS = set(['USER'])
+
+
 def unify(type_a, type_b, label=None):
-    assert_is_type(type_a)
-    assert_is_type(type_b)
+    """ Try to unify ``type_a`` against ``type_b``."""
+    assert isinstance(type_a, Type), 'Expected a type, got: %s' % type_a
+    assert isinstance(type_b, Type), 'Expected a type, got: %s' % type_b
     if type_a is anytype or type_b is anytype:
         return
     kind_a = type(type_a)
@@ -420,7 +425,7 @@ def unify(type_a, type_b, label=None):
         raise InvalidRowTypeUsage()
     elif kind_a is RecordType:
         for label, typ in type_a.rows.items():
-            if label == 'USER':
+            if label in GLOBAL_ROWS:
                 continue
             other_typ = type_b.rows.get(label, NotImplemented)
             if other_typ is NotImplemented:
@@ -451,7 +456,19 @@ def unify(type_a, type_b, label=None):
         raise UnknownKind(kind_a, type_a, kind_b, type_b)
 
 
-def assert_is_type(maybe_type, kind=Type):
-    assert isinstance(maybe_type, kind), \
-        'Expected a %s, got: %s' % (maybe_type, kind.__name__)
-    return maybe_type
+def _intersect_record_types(a, b):
+    rows = {}
+    intersection = list(set(a.rows) & set(b.rows))
+    a_record = RecordType({name: a.rows[name] for name in intersection})
+    b_record = RecordType({name: b.rows[name] for name in intersection})
+    unify(a_record, b_record)
+    return a_record # b_record is equivalent here
+
+
+def intersect_record_types(record_types):
+    if len(record_types) == 0:
+        return RecordType.empty()
+    elif len(record_types) == 1:
+        return record_types[0]
+    else:
+        return reduce(_intersect_record_types, record_types)

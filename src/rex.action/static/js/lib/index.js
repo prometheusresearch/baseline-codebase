@@ -6,7 +6,7 @@ import WizardLink                   from './WizardLink';
 import Action                       from './Action';
 import {createEntity, isEntity}     from './Entity';
 
-import {command, Types as ArgTypes} from './ActionCommand';
+import {command, Types as ArgTypes} from './execution/Command';
 
 import Actions                      from './actions';
 import SideBySideWizard             from './side-by-side';

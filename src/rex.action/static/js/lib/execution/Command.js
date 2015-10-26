@@ -4,15 +4,15 @@
 
 import React            from 'react';
 import invariant        from 'invariant'
-import * as Entity      from './Entity';
-import notImplemented   from './notImplemented';
-import * as StringUtils from './StringUtils';
+import * as Entity      from '../Entity';
+import notImplemented   from '../notImplemented';
+import * as StringUtils from '../StringUtils';
 
 export function command(...argumentTypes) {
   return function command__decorate(target, key, desc) {
     return {
       ...desc,
-      value: new ActionCommand(desc.value, key, argumentTypes)
+      value: new Command(desc.value, key, argumentTypes)
     };
   }
 }
@@ -31,7 +31,7 @@ export function getCommand(actionElement, commandName) {
 }
 
 
-export class ActionCommand {
+export class Command {
 
   constructor(execute, name, argumentTypes) {
     this._execute = execute;
@@ -176,7 +176,7 @@ class ObjectArgument extends ArgumentType {
 let entityType = new EntityType();
 let valueType = new ValueType();
 
-export let onContextCommand = new ActionCommand(
+export let onContextCommand = new Command(
   function(props, context, update) {
     return {...context, ...update};
   },

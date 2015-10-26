@@ -2,39 +2,30 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import React            from 'react';
 import ReactStylesheet  from '@prometheusresearch/react-stylesheet';
 import {VBox, HBox}     from '@prometheusresearch/react-box';
-import React            from 'react';
+import style            from 'rex-widget/lib/StyleUtils';
 import {renderTitle}    from '../actions';
-import ActionButton     from './ActionButton';
+import ActionButton     from '../ActionButton';
+import Button           from '../ui/Button';
+import * as Theme       from '../ui/Theme';
 
 @ReactStylesheet
 export default class ContextToolbar extends React.Component {
 
   static stylesheet = {
     Self: {
-      background: 'white',
       Component: VBox,
-      boxShadow: '0px 2px 3px -1px #E2E2E2',
-      marginBottom: 10,
-      paddingBottom: 10,
-      paddingTop: 10,
+      background: Theme.color.primary.background,
+      boxShadow: Theme.shadow.light(),
+      marginBottom: Theme.margin.medium,
+      paddingBottom: Theme.margin.medium,
+      paddingTop: Theme.margin.medium,
     },
     Button: {
       Component: ActionButton,
-      Self: {
-        width: '100%',
-        background: 'white',
-        borderBottom: '1px solid #f1f1f1',
-        firstChild: {
-          borderTop: '1px solid #f1f1f1',
-        },
-        hover: {
-          textDecoration: 'none',
-          background: '#f1f1f1',
-          color: '#444',
-        }
-      }
+      Button: Button,
     }
   };
 

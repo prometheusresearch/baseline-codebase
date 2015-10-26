@@ -8,7 +8,7 @@
 """
 
 from rex.core import Setting, StrVal, RecordVal
-from .wizard import SideBySideWizard
+from .widget import Wizard
 
 
 class RexActionSetting(Setting):
@@ -25,7 +25,7 @@ class RexActionSetting(Setting):
     name = 'rex_action'
 
     _side_by_side_val = RecordVal(
-        ('breadcrumb', SideBySideWizard.breadcrumb.validate)
+        ('breadcrumb', Wizard.breadcrumb.validate)
     )
     _side_by_side_default = _side_by_side_val.record_type(breadcrumb='top')
 

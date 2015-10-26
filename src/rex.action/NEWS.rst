@@ -4,6 +4,15 @@
 
 .. contents:: Table of Contents
 
+0.7.0 (2015-XX-XX)
+==================
+
+* Unification of wizards and actions.
+
+* Actions can be mounted directly into URL mapping.
+
+* Lots of internal refactorings and clean-ups.
+
 0.6.0 (2015-10-21)
 ==================
 

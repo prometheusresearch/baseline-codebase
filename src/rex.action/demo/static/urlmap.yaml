@@ -1,432 +1,86 @@
 paths:
 
+  /labs/pick:
+    access: anybody
+    action:
+      type: pick
+      entity: lab
+
+  /labs/view:
+    access: anybody
+    action:
+      type: view
+      entity: lab
+
+  /individuals/make:
+    access: anybody
+    action:
+      type: make
+      entity: individual
+      submit_button: Make
+      fields:
+      - column:
+        - code
+        - sex
+      - row:
+        - column:
+          - mother
+          - father
+        - column:
+          - adopted_mother
+          - adopted_father
+
+  /individuals/pick:
+    access: anybody
+    action:
+      type: pick
+      entity: individual
+      fields:
+      - code
+      - identity.givenname
+      - identity.surname
+
+  /individuals/view:
+    access: anybody
+    action:
+      type: view
+      entity: individual
+      fields:
+      - code
+      - identity.givenname
+      - identity.surname
+      - sex
+
+  /individuals/wizard:
+    access: anybody
+    action:
+      type: wizard
+      title: Individuals
+      path:
+      - /individuals/make:
+      - /individuals/pick:
+
+  /individuals/edit:
+    access: anybody
+    action:
+      type: wizard
+      title: Individuals Edit
+      path:
+      - edit-individual:
+        - /individuals/view:
+
+      actions:
+        edit-individual:
+          type: edit
+          entity: individual
+
   /:
     access: anybody
-    widget: !<SideBySideWizard>
+    action:
+      type: wizard
       path:
-      - pick-lab:
-        - view-lab:
-        - drop-lab:
-      - repeat:
-          help:
-          - home:
-        then:
-        - about:
-     #- pick-date:
-     #- pick-or-make-study:
-     #  - view-study:
-     #  - edit-study:
-      - make-lab:
-      - home:
-        - make-individual:
-          - view-individual:
-        - make-study:
-        - pick-study:
-          - view-study:
-          - drop-study:
-          - edit-study:
-        - pick-individual:
-          - view-individual:
-          - pick-study-enrollment:
-        - pick-male:
-      - about:
-
-      states:
-        study:
-          editable:
-            title: Editable
-            expression: code = 'asaed'
-
-      actions:
-
-        pick-lab:
-          type: pick
-          entity: lab
-
-        view-lab:
-          type: view
-          entity: lab
-
-        drop-lab:
-          type: drop
-          entity: lab
-
-        make-lab:
-          type: make
-          entity: lab
-          query:
-            insert(lab := {
-              code := $code,
-              title := $title
-            })
-
-        pick-or-make-study:
-          type: alternative
-          title: Pick study
-          actions:
-          - id: pick-study
-            title: Pick existing study
-            type: pick
-            entity: study
-            search: title~$search
-            sort:
-              field: title
-            fields:
-            - code
-            - title
-            - description
-          - id: make-study
-            title: Make a new study
-            type: make
-            entity: study
-            fields:
-            - code
-            - lab
-            - type: note
-              value_key: title
-            - closed
-
-        home:
-          type: page
-          title: Home
-          icon: home
-          text: |
-            Welcome to Rex Wizard Demo application.
-
-        about:
-          type: page
-          title: About
-          text: |
-            About page
-
-        help:
-          type: page
-          title: Help
-          text: |
-            Help page
-
-        # study
-
-        pick-study:
-          type: pick
-          entity: study
-          search: title~$search
-          sort:
-            field: title
-          fields:
-          - code
-          - title
-          - description
-
-        view-study:
-          type: view
-          entity: study
-          fields:
-          - code
-          - type: entity
-            value_key: lab
-            data:
-              entity: lab
-              title: title
-          - title
-          - user
-          - closed
-
-        drop-study:
-          type: drop
-          entity: study
-
-        make-individual:
-          type: make
-          entity: individual
-          submit_button: Make
-          fields:
-          - column:
-            - code
-            - sex
-          - row:
-            - column:
-              - mother
-              - father
-            - column:
-              - adopted_mother
-              - adopted_father
-
-        make-study:
-          type: make
-          entity: study
-          fields:
-          - code
-          - lab
-          - type: note
-            value_key: title
-          - closed
-
-        edit-study:
-          type: edit
-          entity: study[editable]
-          fields:
-          - value_key: code
-          - value_key: title
-          value:
-            title: HOHOHO
-
-        # individual
-
-        pick-individual:
-          type: pick
-          entity: individual
-          fields:
-          - identity.givenname
-          - identity.surname
-
-        pick-male:
-          type: pick
-          entity: individual
-          title: Pick male
-          mask: sex = 'male'
-
-        pick-study-enrollment:
-          type: pick
-          entity: study_enrollment
-          mask: individual = $individual
-          input:
-          - individual: individual
-
-        view-individual:
-          type: view
-          entity: individual
-          fields:
-          - code
-          - identity.givenname
-          - identity.surname
-          - sex
-
-        pick-date:
-          type: pick-date
-          annotate_month: |
-            /identity?
-              year(birthdate)=$year&
-              month(birthdate)=$month
-            ^(date(birthdate) :as date){
-              date,
-              count(identity) :as value
-            }
-          annotate_year: |
-            /identity?
-              year(birthdate)=$year
-            ^(text(year(birthdate)) + '-' + text(month(birthdate)) :as date){
-              date,
-              count(identity) :as value
-            }
-
-  /side-by-side:
-    access: anybody
-    widget: !<SideBySideWizard>
-      path:
-      - pick-lab:
-        - view-lab:
-      - repeat:
-          help:
-          - home:
-        then:
-        - about:
-     #- pick-date:
-     #- pick-or-make-study:
-     #  - view-study:
-     #  - edit-study:
-      - make-lab:
-      - home:
-        - make-individual:
-          - view-individual:
-        - make-study:
-        - pick-study:
-          - view-study:
-          - edit-study:
-        - pick-individual:
-          - view-individual:
-          - pick-study-enrollment:
-        - pick-male:
-      - about:
-
-      states:
-        study:
-          editable:
-            title: Editable
-            expression: code = 'asaedited'
-
-      actions:
-
-        pick-lab:
-          type: pick
-          entity: lab
-
-        view-lab:
-          type: view
-          entity: lab
-
-        make-lab:
-          type: make
-          entity: lab
-          query:
-            insert(lab := {
-              code := $code,
-              title := $title
-            })
-
-        pick-or-make-study:
-          type: alternative
-          title: Pick study
-          actions:
-          - id: pick-study
-            title: Pick existing study
-            type: pick
-            entity: study
-            search: title~$search
-            sort:
-              field: title
-            fields:
-            - code
-            - title
-            - description
-          - id: make-study
-            title: Make a new study
-            type: make
-            entity: study
-            fields:
-            - code
-            - lab
-            - type: note
-              value_key: title
-            - closed
-
-        home:
-          type: page
-          title: Home
-          icon: home
-          text: |
-            Welcome to Rex Wizard Demo application.
-
-        about:
-          type: page
-          title: About
-          text: |
-            About page
-
-        help:
-          type: page
-          title: Help
-          text: |
-            Help page
-
-        # study
-
-        pick-study:
-          type: pick
-          entity: study
-          search: title~$search
-          sort:
-            field: title
-          fields:
-          - code
-          - title
-          - description
-
-        view-study:
-          type: view
-          entity: study
-          fields:
-          - code
-          - type: entity
-            value_key: lab
-            data:
-              entity: lab
-              title: title
-          - title
-          - user
-          - closed
-
-        make-individual:
-          type: make
-          entity: individual
-          submit_button: Make
-          fields:
-          - column:
-            - code
-            - sex
-          - row:
-            - column:
-              - mother
-              - father
-            - column:
-              - adopted_mother
-              - adopted_father
-
-        make-study:
-          type: make
-          entity: study
-          fields:
-          - code
-          - lab
-          - type: note
-            value_key: title
-          - closed
-
-        edit-study:
-          type: edit
-          entity: study[editable]
-          fields:
-          - value_key: code
-            read_only: true
-          - value_key: title
-          value:
-            title: HOHOHO
-
-        # individual
-
-        pick-individual:
-          type: pick
-          entity: individual
-          fields:
-          - identity.givenname
-          - identity.surname
-
-        pick-male:
-          type: pick
-          entity: individual
-          title: Pick male
-          mask: sex = 'male'
-
-        pick-study-enrollment:
-          type: pick
-          entity: study_enrollment
-          mask: individual = $individual
-          input:
-          - individual: individual
-
-        view-individual:
-          type: view
-          entity: individual
-          fields:
-          - code
-          - identity.givenname
-          - identity.surname
-          - sex
-
-        pick-date:
-          type: pick-date
-          annotate_month: |
-            /identity?
-              year(birthdate)=$year&
-              month(birthdate)=$month
-            ^(date(birthdate) :as date){
-              date,
-              count(identity) :as value
-            }
-          annotate_year: |
-            /identity?
-              year(birthdate)=$year
-            ^(text(year(birthdate)) + '-' + text(month(birthdate)) :as date){
-              date,
-              count(identity) :as value
-            }
+      - /individuals/wizard:
+        - /individuals/view:
+        - /individuals/edit:
+      - /labs/pick:
+        - /labs/view:

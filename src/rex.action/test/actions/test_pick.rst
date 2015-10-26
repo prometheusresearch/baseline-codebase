@@ -56,8 +56,7 @@ In case fields are not specified, they are generated from port::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-action/lib/actions/Pick",
-                {...  ["http://localhost/?__to__=1.data"]], {}]]}]]
+  ["~#widget", ["rex-action/lib/actions/Pick", ...]]
 
   >>> req = Request.blank('/?__to__=1.data', accept='application/json')
   >>> print render_widget(pick, req) # doctest: +ELLIPSIS

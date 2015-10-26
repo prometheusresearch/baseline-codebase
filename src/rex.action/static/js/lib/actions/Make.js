@@ -6,16 +6,11 @@
 import React                from 'react';
 import RexWidget            from 'rex-widget';
 import emptyFunction        from 'rex-widget/lib/emptyFunction';
-import {command, Types}     from '../ActionCommand';
+import {command, Types}     from '../execution/Command';
 import Action               from '../Action';
 import * as ObjectTemplate  from '../ObjectTemplate';
 import * as ContextUtils    from '../ContextUtils';
-
-let Style = {
-  submitButton: {
-    width: '25%'
-  }
-};
+import Button               from '../ui/SuccessButton';
 
 let Make = React.createClass({
   mixins: [RexWidget.DataSpecificationMixin],
@@ -62,15 +57,12 @@ let Make = React.createClass({
   renderFooter() {
     var {submitButton, icon} = this.props;
     return (
-      <RexWidget.Button
+      <Button
         onClick={this.onSubmit}
-        style={Style.submitButton}
-        success
-        icon={icon}
-        size="small"
-        align="center">
+        style={{width: 150, textAlign: 'center'}}
+        icon={icon}>
         {submitButton}
-      </RexWidget.Button>
+      </Button>
     );
   },
 

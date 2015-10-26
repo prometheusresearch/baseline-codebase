@@ -13,14 +13,15 @@ from htsql.core.error import Error as HTSQLError
 from htsql.core.syn.syntax import Syntax
 from htsql.core.syn.parse import parse
 
+from rex.core import (
+    Validate, Error, Location,
+    UStrVal, StrVal, MapVal, OneOfVal, RecordVal)
 from rex.db import get_db, Query, RexHTSQL
-from rex.core import Validate, Error, Location
-from rex.core import UStrVal, StrVal, MapVal, OneOfVal, RecordVal
 from rex.widget import TransitionableRecord
 
-from .typing import TypeVal
+from . import typing
 
-__all__ = ('RexDBVal', 'QueryVal', 'SyntaxVal')
+__all__ = ('RexDBVal', 'QueryVal', 'SyntaxVal', 'DomainVal')
 
 
 class RexDBVal(Validate):
@@ -67,3 +68,38 @@ class QueryVal(Validate):
         if isinstance(value, basestring):
             value = self._validate_full({'query': value})
         return Query(value.query, db=value.db)
+
+
+class _StateVal(Validate):
+    """ Validator for data model state definition.
+    """
+
+    _validate_state = RecordVal(
+        ('title', StrVal()),
+        ('expression', StrVal()),
+    )
+
+    _validate = MapVal(StrVal(), _validate_state)
+
+    def __call__(self, value):
+        value = self._validate(value)
+        return [typing.EntityTypeState(name=k, title=v.title, expression=v.expression)
+                for k, v in value.items()]
+
+
+class DomainVal(Validate):
+    """ Validator for data model domain with user-defined states."""
+
+    _validate = MapVal(StrVal(), _StateVal())
+
+    def __init__(self, name=None):
+        self.name = name
+
+    def __call__(self, value):
+        if isinstance(value, typing.Domain):
+            return value
+        value = self._validate(value)
+        entity_types = [typing.EntityType(name=typename, state=state)
+                        for typename, states in value.items()
+                        for state in states]
+        return typing.Domain(name=self.name, entity_types=entity_types)

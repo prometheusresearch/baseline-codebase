@@ -4,7 +4,6 @@
 
 import React          from 'react';
 import {VBox, HBox}   from 'rex-widget/lib/Layout';
-import * as Execution from '../Execution';
 import ActionButton   from './ActionButton';
 import Panel          from './Panel';
 import Style          from './ServicePanel.style';
@@ -15,7 +14,7 @@ export default class ServicePanel extends React.Component {
 
   render() {
     let {execution, wizard, ...props} = this.props;
-    let buttons = Execution.getNextActions(execution).map(position => 
+    let buttons = execution.getNextActions().map(position => 
       <ActionButton
         align="left"
         key={position.action}

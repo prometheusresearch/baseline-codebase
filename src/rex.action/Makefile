@@ -8,5 +8,7 @@ doc::
 test:
 	@pbbt test/input.yaml test/output.yaml
 
-test-fast: $(TESTS)
-	@python -m doctest $(TESTS)
+test-fast::
+	@$(foreach test, $(TESTS), \
+		echo 'Running $(test)'; \
+		python -m doctest $(test);)

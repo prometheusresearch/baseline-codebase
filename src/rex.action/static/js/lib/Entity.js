@@ -16,6 +16,10 @@ const STATE_ATTR_PREFIX = 'meta:state:';
  *    let individual = createEntity('individual', 'I0331DSS', {...})
  */
 export function createEntity(type, id, props, state) {
+  invariant(
+    id != null,
+    'id cannot be null or undefined'
+  );
   let entity = {
     [TYPE_ATTR]: type,
     [ID_ATTR]: id,
@@ -70,3 +74,22 @@ export function getEntityTitle(entity) {
   );
   return entity[TITLE_ATTR] || entity.__title__ || entity.title || null;
 }
+
+export function isLoaded(entity) {
+  invariant(
+    isEntity(entity) || entity == null,
+    'Expected an entity, got %s', entity
+  );
+  if (entity == null) {
+    return false;
+  }
+  for (let key in entity) {
+    if (entity.hasOwnProperty(key)) {
+      if (!(key === 'id' || key.indexOf('meta:') === 0)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+

@@ -10,77 +10,23 @@
 
 """
 
-from rex.core import Validate, Error, get_settings
-from rex.core import AnyVal, StrVal, MapVal, SeqVal, StrVal, RecordVal, ChoiceVal
+from rex.core import (
+    Validate, Error, get_settings, locate, guard,
+    AnyVal, StrVal, MapVal, SeqVal, StrVal, RecordVal, ChoiceVal)
 from rex.widget import Widget, Field
 from rex.widget.validate import DeferredVal, Deferred
+from rex.web import route
 
-from .path import PathVal
-from .typing import anytype, Domain, RecordType, RowType, EntityTypeState, EntityType
-from .action import ActionMapVal
+from .instruction import PathVal, Execute, Repeat, visit as visit_instruction
+from .action import ActionVal, ActionMapVal, ActionRenderer, Action
+from .validate import DomainVal
+from . import typing
 
-__all__ = ('Wizard',)
-
-
-class _StateVal(Validate):
-
-    _validate_state = RecordVal(
-        ('title', StrVal()),
-        ('expression', StrVal()),
-    )
-
-    _validate = MapVal(StrVal(), _validate_state)
-
-    def __call__(self, value):
-        value = self._validate(value)
-        return [EntityTypeState(name=k, title=v.title, expression=v.expression)
-                for k, v in value.items()]
+__all__ = ('Wizard', 'WizardBase', 'WizardWidgetBase')
 
 
-class _DomainVal(Validate):
-
-    _validate = MapVal(StrVal(), _StateVal())
-
-    def __init__(self, name=None):
-        self.name = name
-
-    def __call__(self, value):
-        value = self._validate(value)
-        entity_types = [EntityType(name=typename, state=state)
-                        for typename, states in value.items()
-                        for state in states]
-        return Domain(name=self.name, entity_types=entity_types)
-
-
-
-class WizardBase(Widget):
-    """ Widget which renders actions as panels side-by-side.
-
-    Example declaration as URL mapping entry::
-
-        paths:
-          /study-enrollment:
-            widget: !<Wizard>
-
-              path:
-              - home:
-                - pick-individual:
-                  - pick-study:
-                    - make-study-enrollment
-                - make-individual:
-
-              actions:
-                home: ...
-                pick-individual: ...
-                make-study-enrollment: ...
-                make-individual: ...
-
-    The only required parameter is ``actions`` which specify a tree of actions.
-    Tree of actions represents a set of possible transitions.
-
-    The initial step is the root and each leave represents an alternative final
-    step.
-    """
+class WizardWidgetBase(Widget):
+    """ Base class for widgets which render wizards."""
 
     path = Field(
         DeferredVal(),
@@ -90,6 +36,8 @@ class WizardBase(Widget):
 
     actions = Field(
         DeferredVal(ActionMapVal()),
+        default={},
+        transitionable=False,
         doc="""
         Wizard actions.
         """)
@@ -101,51 +49,182 @@ class WizardBase(Widget):
         """)
 
     states = Field(
-        _DomainVal('action-scoped'), default=None,
+        DomainVal('action-scoped'), default=None,
         transitionable=False,
         doc="""
         State definitions for entities inside the context.
         """)
 
     def __init__(self, **values):
-        super(WizardBase, self).__init__(**values)
+        super(WizardWidgetBase, self).__init__(**values)
         if isinstance(self.actions, Deferred):
-            with self.states or Domain.current():
-                actions = self.actions.resolve()
-                self.values['actions'] = actions
+            with self.states or typing.Domain.current():
+                self.actions = self.actions.resolve()
         if isinstance(self.path, Deferred):
-            if self.initial_context:
-                initial_context_type = RecordType([RowType(k, anytype) for k in self.initial_context])
+            validate_path = PathVal(self._resolve_action)
+            self.path = self.path.resolve(validate_path)
+
+    def _resolve_action(self, id):
+        if id in self.actions:
+            return self.actions[id]
+        else:
+            if id.startswith('/'):
+                handler = route('%s:%s' % (self.package.name, id))
             else:
-                initial_context_type = RecordType([])
-            validate_path = PathVal(self.actions, context_type=initial_context_type)
-            path = self.path.resolve(validate_path)
-            self.values['path'] = path
+                handler = route(id)
+            if handler is None or not isinstance(handler, ActionRenderer):
+                return None
+            return handler.action
+
+    def typecheck(self, context_type=None):
+        if context_type is None:
+            if self.initial_context:
+                context_type = typing.RecordType([
+                    typing.RowType(k, typing.anytype)
+                    for k in self.initial_context])
+            else:
+                context_type = typing.RecordType([])
+
+        for instruction in self.path.then:
+            self._typecheck(instruction, context_type, [])
+
+    def context(self):
+        input_nodes = self.path.then
+        output_nodes = []
+
+        def _find_output_nodes(instruction):
+            if not instruction.then and not isinstance(instruction, Repeat):
+                output_nodes.append(instruction)
+
+        visit_instruction(self.path, _find_output_nodes)
+
+        input = typing.intersect_record_types([
+            node.action_instance.context_types.input for node in input_nodes])
+        output = typing.intersect_record_types([
+            node.action_instance.context_types.output for node in output_nodes])
+
+        return input, output
+
+    def _typecheck(self, instruction, context_type, path):
+        if isinstance(instruction, Execute):
+            with guard('While parsing:', locate(instruction)):
+                action = self._resolve_action(instruction.action)
+                if action is None:
+                    raise Error('Unknown action found:', instruction.action)
+                input, output = action.context_types
+                assert isinstance(input, typing.Type), 'Expected a type, got: %s' % input
+                assert isinstance(output, typing.Type), 'Expected a type, got: %s' % output
+                try:
+                    action.typecheck(context_type)
+                except typing.KindsDoNotMatch as err:
+                    error = Error('Unification error:', 'type kinds do not match')
+                    error.wrap('One type is %s:' % _type_repr(err.kind_a), err.type_a)
+                    error.wrap('Another type is %s:' % _type_repr(err.kind_b), err.type_b)
+                    error = _wrap_unification_error(error, context_type, path, instruction.action)
+                    raise error
+                except typing.InvalidRowTypeUsage:
+                    error = Error('Row types are only valid within a record types')
+                    error = _wrap_unification_error(error, context_type, path, instruction.action)
+                    raise error
+                except typing.UnknownKind as err:
+                    error = Error('Unification error:', 'unknown kinds')
+                    error.wrap('One type of kind %s' % err.kind_a, err.type_a)
+                    error.wrap('Another type of kind %s' % err.kind_b, err.type_b)
+                    error = _wrap_unification_error(error, context_type, path, instruction.action)
+                    raise error
+                except typing.RecordTypeMissingKey as err:
+                    error = Error(
+                        'Action "%s" cannot be used here:' % instruction.action,
+                        'Context is missing "%s"' % err.type)
+                    error = _wrap_unification_error(error, context_type, path, instruction.action)
+                    raise error
+                except typing.RowTypeMismatch as err:
+                    error = Error(
+                        'Action "%s" cannot be used here:' % instruction.action,
+                        'Context has "%s" but expected to have "%s"' % (
+                            err.type_b, err.type_a))
+                    error = _wrap_unification_error(error, context_type, path, instruction.action)
+                    raise error
+                except typing.UnificationError as err:
+                    error = Error('Type unification error:', err)
+                    error = _wrap_unification_error(error, context_type, path, instruction.action)
+                    raise error
+
+            next_context_type = typing.RecordType.empty()
+            next_context_type.rows.update(context_type.rows)
+            next_context_type.rows.update(output.rows)
+
+            if instruction.then:
+                return [
+                    pair
+                    for next_instruction in instruction.then
+                    for pair in self._typecheck(next_instruction, next_context_type, path + [instruction.action])
+                ]
+            else:
+                return [(instruction, next_context_type)]
+
+        elif isinstance(instruction, Repeat):
+            end_types = self._typecheck(instruction.repeat, context_type, path + ['<repeat loop>'])
+            action = self._resolve_action(instruction.repeat.action)
+            if action is None:
+                raise Error('Unknown action found:', instruction.repeat.action)
+            repeat_invariant, _ = action.context_types
+            for end_instruction, end_type in end_types:
+                with guard('While parsing:', locate(end_instruction)):
+                    try:
+                        typing.unify(repeat_invariant, end_type)
+                    except typing.RecordTypeMissingKey as err:
+                        error = Error(
+                            'Repeat ends with a type which is incompatible with its beginning:',
+                            'Missing "%s"' % err.type)
+                        raise error
+                    except typing.RowTypeMismatch as err:
+                        error = Error(
+                            'Repeat ends with a type which is incompatible with its beginning:',
+                            'Has "%s" but expected to have "%s"' % (
+                                err.type_b, err.type_a))
+                        raise error
+                    except typing.UnificationError as err:
+                        error = Error('Type unification error:', err)
+                        error = _wrap_unification_error(error, context_type, path, instruction.action)
+                        raise error
+
+            if instruction.then:
+                return [
+                    self._typecheck(next_instruction, repeat_invariant, path + ['<repeat then>'])
+                    for next_instruction in instruction.then
+                ]
+            else:
+                return instruction, repeat_invariant
 
 
-class SideBySideWizard(WizardBase):
-
-    name = 'SideBySideWizard'
-    js_type = 'rex-action/lib/side-by-side/Wizard'
-
-    breadcrumb = Field(
-        ChoiceVal('bottom', 'top', 'none'),
-        default=None)
-
-    def __init__(self, **values):
-        super(SideBySideWizard, self).__init__(**values)
-        if self.breadcrumb is None:
-            settings = get_settings()
-            if hasattr(settings, 'rex_action'):
-                self.values['breadcrumb'] = settings.rex_action.side_by_side.breadcrumb
+def _wrap_unification_error(error, context_type, path, action):
+    if not context_type.rows:
+        context_repr = '<empty context>'
+    else:
+        context_repr = sorted(context_type.rows.items())
+        context_repr = ['%s: %s' % (k, v.type.key) for k, v in context_repr]
+        context_repr = '\n'.join(context_repr)
+    error.wrap('Context:', context_repr)
+    error.wrap('While type checking action at path:', ' -> '.join(path + [action]))
+    return error
 
 
-class Wizard(SideBySideWizard):
+def _type_repr(kind):
+    if hasattr(kind, 'type_name') and kind.type_name is not NotImplemented:
+        return kind.type_name
+    else:
+        return repr(kind)
 
-    name = 'Wizard'
+
+class WizardBase(WizardWidgetBase, Action):
+    """ Base class for wizards."""
 
 
-class SinglePageWizard(WizardBase):
+class Wizard(WizardBase):
+    """ Wizard which renders the last active action on an entire screen."""
 
-    name = 'SinglePageWizard'
+    name = 'wizard'
     js_type = 'rex-action/lib/single-page/Wizard'
+
+

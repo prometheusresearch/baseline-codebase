@@ -60,5 +60,5 @@ export default function HistoryAware(Component) {
     _onLocation(location) {
       this.setState({location});
     }
-  }
+  };
 }

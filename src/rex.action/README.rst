@@ -14,7 +14,7 @@ Overview
 ========
 
 This package provides a mechanism to define user interfaces by composing
-generic reusable actions together to form wizards.
+generic reusable actions together.
 
 This package is a part of the RexDB |R| platform for medical research data
 management.  RexDB is free software created by Prometheus Research, LLC and is
@@ -39,11 +39,12 @@ to form a simplest "select and view" wizard.
 
 Action definitions looks like::
 
-  - type: pick
-    id: pick-individual
+  pick-individual:
+    type: pick
     entity: individual
 
-  - type: view
+  view-individual:
+    type: view
     id: view-individual
     entity: individual
 
@@ -53,12 +54,15 @@ We specify that by defining a wizard *path*::
   - pick-individual:
     - view-individual:
 
-To make a wizard we put together actions and path in package's
-``static/urlmap.yaml`` through ``<Wizard>`` widget::
+To make a wizard we define a special action of type ``wizard``. Yes, wizards are
+actions too.
+
+All actions and wizards are defined within the application's URL mapping:
 
   paths:
     /wizard/individual:
-      widget: !<Wizard>
+      action:
+        type: wizard
 
         path:
         - pick-individual:
@@ -85,7 +89,8 @@ message. For example if we switch ``pick-individual`` and ``view-individual``::
 
   paths:
     /wizard/individual/incorrect:
-      widget: !<Wizard>
+      action:
+        type: wizard
         path:
         - view-individual:
           - pick-individual:
@@ -128,7 +133,8 @@ configuration::
 
   paths:
     /wizard/individual/incorrect:
-      widget: !<Wizard>
+      action:
+        type: wizard
         path:
         - pick-individual:
           - view-mother:
@@ -159,6 +165,43 @@ other built-in actions types: ``make``, ``edit``, ``drop`` and ``pick-date``.
 Developers can extend Rex Action by defining they own action types which are
 tailored to specific application needs.
 
+Global actions
+--------------
+
+Actions which are defined within wizard's ``actions`` parameter are called *local
+actions*. But sometimes you need to share actions between wizards. To do that
+you can define *global actions* directly in URL mapping::
+
+  /individual/pick:
+    action:
+      type: pick
+      entity: individual
+
+  /individual/view:
+    action:
+      type: view
+      entity: individual
+
+You can refer to actions by its path within the URL mapping::
+
+  /individual/wizard:
+    action:
+      type: wizard
+      path:
+      - /individual/pick:
+        - /individual/view:
+
+If you specify just a path the action will be looked up within the same package
+as the wizard is being defined. You can use full package path::
+
+  /individual/wizard:
+    action:
+      type: wizard
+      path:
+      - /individual/pick:
+        - /individual/view:
+        - package:/individual/extra-action
+
 Entity types and states
 -----------------------
 
@@ -172,50 +215,73 @@ There's a mechanism for that called *entity states*.
 
 When you define a wizard, simply add a ``states`` declaration in the form of::
 
-  widget: !<Wizard>
+  /wizard:
+    action:
+      type: wizard
 
-    states:
-      <entity name>:
-        <state name>:
-          title: <state title>
-          expression: <HTSQL expression which evaluates to boolean flag>
+      path: ...
+      actions: ...
+
+      states:
+        <entity name>:
+          <state name>:
+            title: <state title>
+            expression: <HTSQL expression which evaluates to boolean flag>
 
 For example::
 
-  widget: !<Wizard>
+  /wizard:
+    action:
+      type: wizard
 
-    states:
-      todo:
-        active:
-          title: Active items
-          expression: !completed
-        completed:
-          title: Completed items
-          expression: completed
+      path: ...
+      actions: ...
+
+      states:
+        todo:
+          active:
+            title: Active items
+            expression: !completed
+          completed:
+            title: Completed items
+            expression: completed
 
 
 Now you can define the following actions which mention corresponding states::
 
-    actions:
+    /wizard:
+      action:
+        type: wizard
 
-      pick-todo:
-        type: pick
-        entity: todo
+      actions:
 
-      view-todo:
-        type: view
-        entity: todo
+        pick-todo:
+          type: pick
+          entity: todo
 
-      complete-todo:
-        type: edit
-        entity: todo[active]
-        value:
-          completed: true
+        view-todo:
+          type: view
+          entity: todo
 
-    path:
-    - pick-todo:
-      - view-todo:
-      - complete-todo:
+        complete-todo:
+          type: edit
+          entity: todo[active]
+          value:
+            completed: true
+
+      path:
+      - pick-todo:
+        - view-todo:
+        - complete-todo:
+
+      states:
+        todo:
+          active:
+            title: Active items
+            expression: !completed
+          completed:
+            title: Completed items
+            expression: completed
 
 Note the ``todo[active]`` entity type of ``complete-todo`` action. It says that
 action can only be executed on todo which is in state ``active`` (defined above
@@ -225,10 +291,17 @@ On other hand, ``pick-todo`` allows both ``active`` and ``completed`` todo items
 to be picked. But you can define ``pick`` actions which can be restricted by
 states::
 
-    actions:
-      pick-active-todo:
-        type: pick
-        entity: todo[active]
+  /wizard:
+    action:
+      type: wizard
+
+      actions:
+        pick-active-todo:
+          type: pick
+          entity: todo[active]
+
+      states: ...
+      path: ...
 
 That way ``pick-active-todo`` action guarantees that only todo which are in
 ``active`` state can be picked.
@@ -303,19 +376,19 @@ We see that:
 
 Now we finally can define a wizard with our new action types::
 
-  paths:
-    /:
-      widget: !<Wizard>
-        path:
-        - pick-location:
-          - show-weather
-        actions:
-          show-weather:
-            type: show-weather
-            format: celsius
-          pick-location:
-            type: pick
-            entity: location
+  /weather-wizard:
+    action:
+      type: wizard
+      path:
+      - pick-location:
+        - show-weather
+      actions:
+        show-weather:
+          type: show-weather
+          format: celsius
+        pick-location:
+          type: pick
+          entity: location
 
 Site wide configuration
 =======================

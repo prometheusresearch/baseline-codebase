@@ -12,6 +12,7 @@ export default class PromiseMock {
   then(onComplete, onError) {
     this.onComplete = onComplete;
     this.onError = onError;
+    return this;
   }
 }
 

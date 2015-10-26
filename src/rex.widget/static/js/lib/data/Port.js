@@ -2,9 +2,9 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import autobind   from 'autobind-decorator';
-import {fetch}    from '../fetch';
-import valueOf    from '../valueOf';
+import autobind from 'autobind-decorator';
+import {fetch} from '../fetch';
+import shallowEquals from '../shallowEquals';
 
 const SORT_ASC = 'asc';
 const SORT_DESC = 'desc';
@@ -19,52 +19,55 @@ function sortParam(valueKey) {
   return `*.${valueKey}:sort`;
 }
 
-class Port {
+export class Port {
 
-  constructor(path, params) {
+  static fetch = fetch;
+
+  constructor(path, params = {}, expectSingleEntity = false) {
     this.path = path;
-    this.params = params;
+    this._params = params;
+    this._expectSingleEntity = expectSingleEntity;
   }
 
-  fetch(params) {
-    return new this.constructor(this.path, {...this.params, ...params});
+  getSingleEntity() {
+    return new this.constructor(this.path, this._params, true);
   }
 
-  limit(top, skip) {
-    return this.fetch({[TOP_PARAM]: top, [SKIP_PARAM]: skip});
+  params(params) {
+    return new this.constructor(this.path, {...this._params, ...params}, this._expectSingleEntity);
+  }
+
+  limit(top, skip = 0) {
+    return this.params({[TOP_PARAM]: top, [SKIP_PARAM]: skip});
   }
 
   sort(valueKey, asc = true) {
-    return this.fetch({[sortParam(valueKey)]: asc ? SORT_ASC : SORT_DESC});
+    return this.params({[sortParam(valueKey)]: asc ? SORT_ASC : SORT_DESC});
   }
 
   produce() {
-    return fetch(this.path, this.params).then(this._extractData);
+    return this.constructor.fetch(this.path, this._params).then(this._processData);
   }
 
   equals(other) {
-    if (this.constructor !== other.constructor) {
-      return false;
-    }
-    if (this.path !== other.path) {
-      return false;
-    }
-    let keys = Object.keys(this.params);
-    if (keys.length !== Object.keys(other.params).length) {
-      return false;
-    }
-    for (let i = 0; i < keys.length; i++) {
-      let key = keys[i];
-      if (valueOf(this.params[key]) !== valueOf(other.params[key])) {
-        return false;
-      }
-    }
-    return true;
+    return (
+      this.constructor === other.constructor &&
+      this.path === other.path &&
+      shallowEquals(this._params, other._params)
+    );
   }
 
-  _extractData(data) {
-    for (let key in data) {
-      return data[key];
+  @autobind
+  _processData(result) {
+    for (let key in result) {
+      let data = result[key];
+      if (this._expectSingleEntity) {
+        if (data.length > 1) {
+          throw new Error('expected a single entity to be returned from port');
+        }
+        data = data[0] || null;
+      }
+      return data;
     }
   }
 }

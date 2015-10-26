@@ -4,10 +4,54 @@
 
 export default class DataSet {
 
-  constructor(data, error, updating) {
+  constructor(name, data, error, hasMore, updating) {
+    this.name = name;
     this.data = data;
     this.error = error;
+    this.hasMore = hasMore;
     this.updating = updating;
+  }
+
+  get length() {
+    return this.data === null ? 0 : this.data.length;
+  }
+
+  setData(data) {
+    return new this.constructor(
+      this.name,
+      data,
+      this.error,
+      this.hasMore,
+      this.updating,
+    );
+  }
+
+  setUpdating(updating) {
+    if (this.updating === updating) {
+      return this;
+    } else {
+      return new this.constructor(
+        this.name,
+        this.data,
+        this.error,
+        this.hasMore,
+        updating,
+      );
+    }
+  }
+
+  setHasMore(hasMore) {
+    if (this.hasMore === hasMore) {
+      return this;
+    } else {
+      return new this.constructor(
+        this.name,
+        this.data,
+        this.error,
+        hasMore,
+        this.updating,
+      );
+    }
   }
 }
 

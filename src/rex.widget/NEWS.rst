@@ -2,6 +2,12 @@
   Change Log
 **************
 
+1.4.0 (2015-XX-XX)
+==================
+
+* New API for data fetching from ports and queries based on Higher-order
+  Components.
+
 1.3.0 (2015-10-21)
 ==================
 

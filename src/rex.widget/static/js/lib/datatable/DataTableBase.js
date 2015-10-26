@@ -22,18 +22,12 @@ export default class DataTableBase extends React.Component {
     /**
      * DataSet to render.
      */
-    dataSet: PropTypes.object,
+    data: PropTypes.object,
 
     /**
      * An array of column specifications.
      */
     columns: PropTypes.array,
-
-    /**
-     * If dataset is not a final dataset and datatable should expect more data
-     * to arrive.
-     */
-    hasMore: PropTypes.bool,
 
     /**
      * Current pagination position {top: ..., skip: ...}
@@ -157,7 +151,7 @@ export default class DataTableBase extends React.Component {
       minColumnWidth,
       columns,
       sort,
-      dataSet: {data, updating, error}
+      data: {data, updating, error}
     } = this.props;
     let {Root, ErrorInfo, LoadingPane} = this.stylesheet;
     if (!this.props.DOMSize) {
@@ -269,7 +263,7 @@ export default class DataTableBase extends React.Component {
     if (rowIndex > this._rowIndexMax) {
       this._rowIndexMax = rowIndex;
     }
-    let rowData = this.props.dataSet.data[rowIndex];
+    let rowData = this.props.data.data[rowIndex];
     return rowData;
   }
 
@@ -285,9 +279,8 @@ export default class DataTableBase extends React.Component {
   @autobind
   onScrollEnd() {
     let {
-      hasMore,
       pagination: {top, skip},
-      dataSet: {updating, data}
+      data: {updating, hasMore, data}
     } = this.props;
     if (data && data.length - this._rowIndexMax < 10 && !updating && hasMore) {
       this.props.onPagination({top, skip: skip + top});

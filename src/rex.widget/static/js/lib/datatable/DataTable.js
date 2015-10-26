@@ -4,84 +4,79 @@
 
 import React, {PropTypes} from 'react';
 import autobind           from 'autobind-decorator';
-import DataComponent      from '../data/DataComponent';
+import Fetch              from '../data/Fetch';
 import DataTableBase      from './DataTableBase';
 
-@DataComponent
-export default class DataTable extends React.Component {
 
-  static propTypes = {
-    data: PropTypes.object
-  };
+let DataSpec = {
 
-  static defaultProps = {
-    top: 50
-  };
-
-  constructor(props) {
-    super(props);
-    this._rowIndexMax = null;
-    this.state = {
-      columnWidth: {},
-      sort: props.sort || {valueKey: null, asc: true},
-      pagination: {top: props.top, skip: 0},
-      isPagination: false,
-      hasMore: true
-    };
-  }
-
-  fetch() {
-    let {
-      pagination: {top, skip},
-      sort: {valueKey, asc}
-    } = this.state;
-    let data = this.props.data.limit(top, skip);
+  fetch({data, pagination: {top, skip}, sort: {valueKey, asc}}) {
+    data = data.limit(top, skip);
     if (valueKey) {
       data = data.sort(valueKey, asc);
     }
     return {data};
+  },
+
+  update({pagination: {skip}}, data, prevData) {
+    if (data.length !== 0) {
+      data = data.setHasMore(true);
+    }
+    if (skip > 0) {
+      data = data.setData(prevData.data.concat(data.data));
+    }
+    return data;
   }
 
+};
+
+@Fetch(DataSpec)
+export default class DataTable extends React.Component {
+
+  static propTypes = {
+    /**
+     * Data fetch task.
+     */
+    data: PropTypes.object,
+
+    /**
+     * Pagination.
+     */
+    pagination: PropTypes.object,
+
+    /**
+     * Sorting.
+     */
+    sort: PropTypes.object,
+  };
+
+  static defaultProps = {
+    pagination: {top: 50, skip: 0},
+    sort: {valueKey: null, asc: true},
+  };
+
   render() {
+    let {dataParams: {pagination, sort}, data: {data}} = this.props;
     return (
       <DataTableBase
         {...this.props}
-        pagination={this.state.pagination}
-        hasMore={this.state.hasMore}
+        pagination={pagination}
         onPagination={this.onPagination}
-        sort={this.state.sort}
+        sort={sort}
         onSort={this.onSort}
-        dataSet={this.dataSet.data}
-        data={undefined}
+        data={data}
         />
     );
   }
 
   @autobind
   onPagination(pagination) {
-    this.setState({
-      pagination,
-      isPagination: true
-    });
+    this.props.setDataParams({pagination});
   }
 
   @autobind
   onSort(sort) {
-    this.setState({
-      sort,
-      hasMore: true,
-      pagination: {skip: 0, top: this.props.top}
-    });
-  }
-
-  onData(key, data, prevData) {
-    if (data.length === 0) {
-      this.setState({hasMore: false});
-    }
-    if (key === 'data' && prevData && this.state.isPagination) {
-      this.setState({isPagination: false});
-      data = prevData.concat(data);
-    }
-    return data;
+    let pagination = this.props.pagination;
+    this.props.setDataParams({sort, pagination});
   }
 }

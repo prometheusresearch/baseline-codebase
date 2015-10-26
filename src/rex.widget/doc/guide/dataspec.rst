@@ -1,5 +1,8 @@
 .. _guide-dataspec:
 
+.. warning::
+   This functionality is being deprecated in favor of Data Fetching API.
+
 Data Specifications
 ===================
 

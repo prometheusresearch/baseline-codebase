@@ -2,9 +2,15 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import valueOf from './valueOf';
+
 export default function shallowEquals(a, b) {
   if (a === b) {
     return true;
+  }
+
+  if (a == null && b != null || a != null && b == null) {
+    return false;
   }
 
   let keys = Object.keys(a);

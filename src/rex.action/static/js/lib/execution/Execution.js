@@ -27,7 +27,7 @@ export default class Execution {
       'Can only start wizard from a "Start" instruction'
     );
     let execution = new this([]);
-    let position = execution.createPosition(instruction);
+    let position = execution.createPosition(instruction, initialContext);
     execution.trace.push(position);
     if (tryAdvance) {
       execution = execution.advance();

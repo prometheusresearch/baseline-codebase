@@ -94,7 +94,6 @@ export default class Wizard extends Component {
   }
 
   render() {
-    console.log(this.props);
     let {location, breadcrumb} = this.props;
     let {metrics, execution} = this.state;
     if (metrics.size === null || location === null) {
@@ -171,7 +170,6 @@ export default class Wizard extends Component {
         nextProps.path,
         this.props.initialContext // initialContext can't be changed
       );
-      console.log(execution);
       let metrics = {...state.metrics, focus: execution.trace[1].keyPath};
       state = {...state, execution, metrics};
       if (this.props.DOMSize) {

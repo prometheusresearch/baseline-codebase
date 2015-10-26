@@ -65,7 +65,6 @@ var PickDate = React.createClass({
     var title = this.constructor.getTitle(this.props);
     this.__annotateMonthQueryIndex = buildIndex(this.data.annotateMonthQuery.data);
     this.__annotateYearQueryIndex = buildIndex(this.data.annotateYearQuery.data);
-    console
     return (
       <Action title={title} onClose={onClose} width={width}>
         <DatePicker

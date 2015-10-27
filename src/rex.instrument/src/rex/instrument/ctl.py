@@ -8,7 +8,7 @@ import sys
 from getpass import getuser
 
 from rex.core import Error, AnyVal
-from rex.ctl import Task, RexTask, argument, option
+from rex.ctl import Task, RexTask, argument, option, log
 from rex.ctl.common import pair
 
 from .errors import ValidationError
@@ -63,9 +63,9 @@ class InstrumentValidateTask(Task):
     def __call__(self):
         open_and_validate(self.definition)
 
-        print '"%s" contains a valid Common Instrument Definition.\n' % (
+        log('"%s" contains a valid Common Instrument Definition.\n' % (
             self.definition,
-        )
+        ))
 
 
 def output_forms(val):
@@ -274,9 +274,9 @@ class InstrumentStoreTask(RexTask, ImplementationContextReceiver):
             instrument = instrument_impl.get_by_uid(self.instrument_uid)
 
             if not instrument:
-                print 'An Instrument by "%s" does not exist; creating it.' % (
+                log('An Instrument by "%s" does not exist; creating it.' % (
                     self.instrument_uid,
-                )
+                ))
                 instrument = instrument_impl.create(
                     self.instrument_uid,
                     self.title or self.instrument_uid,
@@ -285,7 +285,7 @@ class InstrumentStoreTask(RexTask, ImplementationContextReceiver):
                         instrument_impl.CONTEXT_ACTION_CREATE,
                     ),
                 )
-            print 'Using Instrument: %s' % instrument
+            log('Using Instrument: %s' % instrument)
 
             instrumentversion_impl = \
                 get_implementation('instrumentversion')
@@ -297,7 +297,7 @@ class InstrumentStoreTask(RexTask, ImplementationContextReceiver):
                     instrument_version.published_by = self.published_by
                     instrument_version.date_published = get_current_datetime()
                     instrument_version.save()
-                    print 'Updated version: %s' % instrument_version.version
+                    log('Updated version: %s' % instrument_version.version)
                 else:
                     instrument_version = instrumentversion_impl.create(
                         instrument,
@@ -309,7 +309,7 @@ class InstrumentStoreTask(RexTask, ImplementationContextReceiver):
                             instrumentversion_impl.CONTEXT_ACTION_CREATE,
                         ),
                     )
-                    print 'Created version: %s' % instrument_version.version
+                    log('Created version: %s' % instrument_version.version)
             else:
                 instrument_version = instrumentversion_impl.create(
                     instrument,
@@ -320,5 +320,5 @@ class InstrumentStoreTask(RexTask, ImplementationContextReceiver):
                         instrumentversion_impl.CONTEXT_ACTION_CREATE,
                     ),
                 )
-                print 'Created version: %s' % instrument_version.version
+                log('Created version: %s' % instrument_version.version)
 

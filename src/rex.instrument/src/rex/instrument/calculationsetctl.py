@@ -5,7 +5,7 @@
 import sys
 
 from rex.core import Error, AnyVal
-from rex.ctl import Task, RexTask, argument, option
+from rex.ctl import Task, RexTask, argument, option, log
 
 from .errors import ValidationError
 from .interface import CalculationSet
@@ -92,9 +92,9 @@ class CalculationSetValidateTask(Task):
             instrument_file=self.instrument,
         )
 
-        print '"%s" contains a valid Common CalculationSet Definition.\n' % (
+        log('"%s" contains a valid Common CalculationSet Definition.\n' % (
             self.definition,
-        )
+        ))
 
 
 def output_forms(val):
@@ -217,7 +217,7 @@ class CalculationSetStoreTask(RexTask, ImplementationContextReceiver):
                 raise Error('Instrument "%s" does not exist.' % (
                     self.instrument_uid,
                 ))
-            print 'Using Instrument: %s' % instrument
+            log('Using Instrument: %s' % instrument)
 
             if not self.version:
                 instrument_version = instrument.latest_version
@@ -227,7 +227,7 @@ class CalculationSetStoreTask(RexTask, ImplementationContextReceiver):
                 raise Error('The desired version of "%s" does not exist.' % (
                     self.instrument_uid,
                 ))
-            print 'Instrument Version: %s' % instrument_version.version
+            log('Instrument Version: %s' % instrument_version.version)
 
             definition = open_and_validate(
                 self.definition,
@@ -243,7 +243,7 @@ class CalculationSetStoreTask(RexTask, ImplementationContextReceiver):
             if calculationset:
                 calculationset[0].definition = definition
                 calculationset[0].save()
-                print 'Updated existing CalculationSet'
+                log('Updated existing CalculationSet')
             else:
                 calculationset = calculationset_impl.create(
                     instrument_version,
@@ -253,7 +253,7 @@ class CalculationSetStoreTask(RexTask, ImplementationContextReceiver):
                         calculationset_impl.CONTEXT_ACTION_CREATE,
                     ),
                 )
-                print 'Created new CalculationSet'
+                log('Created new CalculationSet')
 
 
 class CalculationSetRetrieveTask(RexTask, CalculationSetOutputter):

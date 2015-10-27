@@ -9,6 +9,7 @@ REX.FORMS Change Log
 ==================
 
 * Adjusted <<Parameter>>'s handling of null values to follow specification.
+* Updated rex.ctl tasks to use log() function instead of print statements.
 
 
 1.1.0 (2015-10-21)

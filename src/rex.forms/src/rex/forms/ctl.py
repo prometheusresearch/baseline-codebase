@@ -6,7 +6,7 @@
 import sys
 
 from rex.core import Error, AnyVal
-from rex.ctl import Task, RexTask, argument, option
+from rex.ctl import Task, RexTask, argument, option, log
 from rex.instrument import InstrumentVersion
 from rex.instrument.ctl import \
     open_and_validate as open_and_validate_instrument, \
@@ -95,9 +95,9 @@ class FormsValidateTask(Task):
             instrument_file=self.instrument,
         )
 
-        print '"%s" contains a valid Web Form Configuration.\n' % (
+        log('"%s" contains a valid Web Form Configuration.\n' % (
             self.configuration,
-        )
+        ))
 
 
 def output_forms(val):
@@ -305,7 +305,7 @@ class FormsStoreTask(RexTask, ImplementationContextReceiver):
                 raise Error('Instrument "%s" does not exist.' % (
                     self.instrument_uid,
                 ))
-            print 'Using Instrument: %s' % instrument
+            log('Using Instrument: %s' % instrument)
 
             if not self.version:
                 instrument_version = instrument.latest_version
@@ -315,7 +315,7 @@ class FormsStoreTask(RexTask, ImplementationContextReceiver):
                 raise Error('The desired version of "%s" does not exist.' % (
                     self.instrument_uid,
                 ))
-            print 'Instrument Version: %s' % instrument_version.version
+            log('Instrument Version: %s' % instrument_version.version)
 
             configuration = open_and_validate(
                 self.configuration,
@@ -333,7 +333,7 @@ class FormsStoreTask(RexTask, ImplementationContextReceiver):
                 raise Error('Channel "%s" is not a web form channel.' % (
                     channel.uid,
                 ))
-            print 'Using Channel: %s' % channel
+            log('Using Channel: %s' % channel)
 
             form_impl = get_implementation('form', package_name='forms')
             form = form_impl.find(
@@ -344,7 +344,7 @@ class FormsStoreTask(RexTask, ImplementationContextReceiver):
             if form:
                 form[0].configuration = configuration
                 form[0].save()
-                print 'Updated existing Form'
+                log('Updated existing Form')
             else:
                 form = form_impl.create(
                     channel,
@@ -355,7 +355,7 @@ class FormsStoreTask(RexTask, ImplementationContextReceiver):
                         form_impl.CONTEXT_ACTION_CREATE,
                     ),
                 )
-                print 'Created new Form'
+                log('Created new Form')
 
 
 class InstrumentFormSkeleton(Task, FormOutputter):

@@ -6,7 +6,7 @@
 import sys
 
 from rex.core import Error, AnyVal
-from rex.ctl import Task, RexTask, argument, option
+from rex.ctl import Task, RexTask, argument, option, log
 from rex.instrument import InstrumentVersion
 from rex.instrument.ctl import \
     open_and_validate as open_and_validate_instrument, \
@@ -96,9 +96,9 @@ class MobileValidateTask(Task):
             instrument_file=self.instrument,
         )
 
-        print '"%s" contains a valid SMS Interaction Configuration.\n' % (
+        log('"%s" contains a valid SMS Interaction Configuration.\n' % (
             self.configuration,
-        )
+        ))
 
 
 def output_forms(val):
@@ -308,7 +308,7 @@ class MobileStoreTask(RexTask, ImplementationContextReceiver):
                 raise Error('Instrument "%s" does not exist.' % (
                     self.instrument_uid,
                 ))
-            print 'Using Instrument: %s' % instrument
+            log('Using Instrument: %s' % instrument)
 
             if not self.version:
                 instrument_version = instrument.latest_version
@@ -318,7 +318,7 @@ class MobileStoreTask(RexTask, ImplementationContextReceiver):
                 raise Error('The desired version of "%s" does not exist.' % (
                     self.instrument_uid,
                 ))
-            print 'Instrument Version: %s' % instrument_version.version
+            log('Instrument Version: %s' % instrument_version.version)
 
             configuration = open_and_validate(
                 self.configuration,
@@ -335,7 +335,7 @@ class MobileStoreTask(RexTask, ImplementationContextReceiver):
                 raise Error('Channel "%s" is not a mobile channel.' % (
                     channel.uid,
                 ))
-            print 'Using Channel: %s' % channel
+            log('Using Channel: %s' % channel)
 
             inter_impl = get_implementation(
                 'interaction',
@@ -349,7 +349,7 @@ class MobileStoreTask(RexTask, ImplementationContextReceiver):
             if interaction:
                 interaction[0].configuration = configuration
                 interaction[0].save()
-                print 'Updated existing Interaction'
+                log('Updated existing Interaction')
             else:
                 interaction = inter_impl.create(
                     channel,
@@ -360,7 +360,7 @@ class MobileStoreTask(RexTask, ImplementationContextReceiver):
                         inter_impl.CONTEXT_ACTION_CREATE,
                     ),
                 )
-                print 'Created new Interaction'
+                log('Created new Interaction')
 
 
 class InstrumentMobileSkeleton(Task, InteractionOutputter):

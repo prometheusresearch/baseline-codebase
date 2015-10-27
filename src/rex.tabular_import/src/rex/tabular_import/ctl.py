@@ -6,7 +6,7 @@
 import sys
 
 from rex.core import Error
-from rex.ctl import RexTask, argument, option
+from rex.ctl import RexTask, argument, option, log
 
 from .introspect import get_table_description
 from .load import import_tabular_data
@@ -135,8 +135,8 @@ class TabularImportTask(RexTask):
             except Exception as exc:
                 raise Error(unicode(exc))
             else:
-                print '%s records imported into %s' % (
+                log('%s records imported into %s' % (
                     num_imported,
                     self.table,
-                )
+                ))
 

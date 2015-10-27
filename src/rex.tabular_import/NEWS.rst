@@ -5,6 +5,12 @@ REX.TABULAR_IMPORT Change Log
 .. contents:: Table of Contents
 
 
+0.2.0 (2015-xx-xx)
+==================
+
+- Updated rex.ctl tasks to use log() function instead of print statements.
+
+
 0.1.1 (2015-10-21)
 ==================
 

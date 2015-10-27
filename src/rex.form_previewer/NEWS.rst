@@ -5,6 +5,12 @@ REX.FORM_PREVIEWER Change Log
 .. contents:: Table of Contents
 
 
+0.6.0 (2015-xx-xx)
+==================
+
+* Added support for specifying Form Parameter values.
+
+
 0.5.0 (2015-09-30)
 ==================
 

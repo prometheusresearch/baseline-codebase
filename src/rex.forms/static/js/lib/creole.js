@@ -40,21 +40,22 @@ var creole = React.createClass({
    *    <<Parameter name default>>
    *
    * If the specified <name> exists in the dictionary of parameters that the
-   * Form was initialized with, it will insert the parameter's value in place
-   * of the macro.
+   * Form was initialized with, and is it not null, it will insert the
+   * parameter's value in place of the macro.
    *
-   * If the <name> does not exist, but a <default> is specified, the <default>
-   * value is inserted in the macro's place.
+   * If the <name> does not exist (or is null), but a <default> is specified,
+   * the <default> value is inserted in the macro's place.
    *
-   * If the <name> does not exist, and no <default> is specified, then an empty
-   * string is inserted in the macro's place.
+   * If the <name> does not exist (or is null), and no <default> is specified,
+   * then an empty string is inserted in the macro's place.
    */
   substituteVariables: function (text) {
     text = text.replace(
       /<<Parameter ([a-z](?:[a-z0-9]|[_-](?![_-]))*[a-z0-9])\s*([^>]+)?>>/g,
       (macro, parameter, defaultValue) => {
-        if (parameter in this.props.parameters) {
-          return this.props.parameters[parameter];
+        var paramValue = this.props.parameters[parameter];
+        if ((paramValue !== null) && (paramValue !== undefined)) {
+          return paramValue;
         }
 
         if (defaultValue !== undefined) {

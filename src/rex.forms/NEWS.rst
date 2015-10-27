@@ -5,6 +5,12 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+1.2.0 (2015-xx-xx)
+==================
+
+* Adjusted <<Parameter>>'s handling of null values to follow specification.
+
+
 1.1.0 (2015-10-21)
 ==================
 

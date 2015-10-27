@@ -5,6 +5,15 @@
 .. contents:: Table of Contents
 
 
+4.11.0 (2015-xx-xx)
+===================
+
+* rex.instrument==1.2.0
+* rex.forms==1.2.0
+* rex.action==0.7.0
+* rex.widget==1.4.0
+
+
 4.10.0 (2015-10-22)
 ===================
 

@@ -33,7 +33,7 @@ setup(
         'rex.applet>=0.2,<3',
         'rex.widget>=1,<2',
         'rex.i18n>=0.4.2,<0.5',
-        'rex.form_previewer>=0.2,<0.6',
+        'rex.form_previewer>=0.2,<0.7',
     ],
     rex_init='rex.formbuilder',
     rex_static='static'

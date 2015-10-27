@@ -111,6 +111,15 @@ class DefinitionParser {
       });
     });
 
+    if (!isEmpty(this.form.parameters)) {
+      Object.keys(this.form.parameters).forEach((id) => {
+        configuration.parameters.push({
+          id: id,
+          type: this.form.parameters[id].type
+        });
+      });
+    }
+
     if (!isEmpty(this.calculations)) {
       this.calculations.calculations.forEach((calculation, index) => {
         var calc = null;

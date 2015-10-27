@@ -13,11 +13,12 @@ var _ = require('./i18n').gettext;
 
 
 class Configuration {
-  constructor(id, version, title, locale) {
+  constructor(id, version, title, locale, parameters) {
     this.id = id;
     this.version = version;
     this.title = title;
     this.locale = locale;
+    this.parameters = parameters || [];
 
     var page = new elements.PageStart();
     page.id = 'page1';
@@ -43,6 +44,15 @@ class Configuration {
       title: deepCopy(this.title),
       pages: []
     };
+
+    if (!isEmpty(this.parameters)) {
+      form.parameters = {};
+      this.parameters.forEach((param) => {
+        form.parameters[param.id] = {
+          type: param.type
+        }
+      });
+    }
 
     // Serialize the elements to the stubs.
     this.elements.forEach((element) => {

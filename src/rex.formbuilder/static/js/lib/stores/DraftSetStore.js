@@ -129,7 +129,8 @@ var CONFIG_ATTRIBUTES = [
   'id',
   'version',
   'title',
-  'locale'
+  'locale',
+  'parameters'
 ];
 
 function editAttributes(attributes) {

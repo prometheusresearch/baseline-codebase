@@ -15,7 +15,7 @@ var {DraftSetStore} = require('../stores');
 var _ = require('../i18n').gettext;
 
 
-var EditTitleModal = React.createClass({
+var FormSettingsModal = React.createClass({
   mixins: [
     ModalMixin
   ],
@@ -41,6 +41,9 @@ var EditTitleModal = React.createClass({
       locale: properties.FormLocalization.create({
         label: _('Default Language'),
         required: true
+      }),
+      parameters: properties.ParameterList.create({
+        label: _('Externally-Provided Parameters'),
       })
     });
   },
@@ -50,7 +53,8 @@ var EditTitleModal = React.createClass({
     if (!cfg) { return {}; }
     return {
       title: cfg.title,
-      locale: cfg.locale
+      locale: cfg.locale,
+      parameters: cfg.parameters
     };
   },
 
@@ -106,5 +110,5 @@ var EditTitleModal = React.createClass({
 });
 
 
-module.exports = EditTitleModal;
+module.exports = FormSettingsModal;
 

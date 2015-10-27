@@ -15,7 +15,7 @@ var ElementWorkspace = require('./ElementWorkspace');
 var CalculationToolbox = require('./CalculationToolbox');
 var CalculationWorkspace = require('./CalculationWorkspace');
 var MenuHeader = require('./MenuHeader');
-var EditTitleModal = require('./EditTitleModal');
+var FormSettingsModal = require('./FormSettingsModal');
 var ToasterMixin = require('./ToasterMixin');
 var {DraftSetActions, SettingActions, ErrorActions, I18NActions} = require('../actions');
 var {DraftSetStore} = require('../stores');
@@ -318,7 +318,7 @@ var DraftSetEditor = React.createClass({
           </ConfirmationModal>
         </MenuHeader>
         {this.state.configuration && this.state.editingSettings &&
-          <EditTitleModal
+          <FormSettingsModal
             ref='modalSettings'
             visible={this.state.editingSettings}
             onComplete={this.onSettingsDone}

@@ -27,6 +27,8 @@ var RowList = require('./RowList');
 var EventEnumerationList = require('./EventEnumerationList');
 var TagList = require('./TagList');
 var FormLocalization = require('./FormLocalization');
+var Parameter = require('./Parameter');
+var ParameterList = require('./ParameterList');
 
 
 module.exports = {
@@ -52,6 +54,8 @@ module.exports = {
   RowList,
   EventEnumerationList,
   TagList,
-  FormLocalization
+  FormLocalization,
+  Parameter,
+  ParameterList
 };
 

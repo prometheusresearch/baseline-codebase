@@ -12,6 +12,7 @@ REX.FORMBUILDER Change Log
   a Form from the editor screen.
 * Fixed issue where imported forms with questionable configurations could cause
   failures when saving hotkeys.
+* Added ability to configure external Form Parameters.
 
 
 5.4.0 (2015-10-21)

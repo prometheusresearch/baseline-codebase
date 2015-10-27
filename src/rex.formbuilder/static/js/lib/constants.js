@@ -47,6 +47,7 @@ var Constants = {
   RE_FIELD_ID: /^[a-z](?:[a-z0-9]|[_](?![_]))*[a-z0-9]$/,
   RE_ROW_ID: /^[a-z](?:[a-z0-9]|[_](?![_]))*[a-z0-9]$/,
   RE_ENUMERATION_ID: /^(?:[a-z0-9]{1,2}|[a-z0-9](?:[a-z0-9]|[_-](?![_-]))+[a-z0-9])$/,
+  RE_PARAMETER_ID: /^[a-z](?:[a-z0-9]|[_](?![_]))*[a-z0-9]$/,
   RE_HOTKEY: /^[0-9]$/
 };
 

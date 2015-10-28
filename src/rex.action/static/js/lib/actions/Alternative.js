@@ -2,13 +2,13 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import autobind        from 'autobind-decorator';
-import React           from 'react';
-import RexWidget       from 'rex-widget';
-import Action          from '../Action';
-import ActionButton    from '../side-by-side/ActionButton';
-import ActionIcon      from '../ActionIcon';
-import SidebarRenderer from '../SidebarRenderer';
+import autobind             from 'autobind-decorator';
+import React                from 'react';
+import RexWidget            from 'rex-widget';
+import Action               from '../Action';
+import ActionButton         from '../side-by-side/ActionButton';
+import {getIconAtPosition}  from '../ActionIcon';
+import SidebarRenderer      from '../SidebarRenderer';
 
 let {VBox} = RexWidget.Layout;
 let {linearGradient, border, borderStyle, rgb, insetBoxShadow} = RexWidget.StyleUtils;
@@ -81,6 +81,6 @@ export default class Alternative extends React.Component {
 
   static getIcon(props) {
     let Actions = require('../actions');
-    return ActionIcon.getIconAtPosition(props.actions[0]);
+    return getIconAtPosition(props.actions[0]);
   }
 }

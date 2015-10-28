@@ -5,7 +5,7 @@
 import React, {PropTypes} from 'react';
 import Icon               from 'rex-widget/lib/Icon';
 
-function getIconAtPosition(position) {
+export function getIconAtPosition(position) {
   if (position.element == null) {
     return null;
   }
@@ -28,8 +28,6 @@ export default class ActionIcon extends React.Component {
   static propTypes = {
     position: PropTypes.object.isRequired
   };
-
-  static getIconAtPosition = getIconAtPosition;
 
   render() {
     let {position, ...props} = this.props;

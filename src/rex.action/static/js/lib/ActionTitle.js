@@ -6,7 +6,7 @@ import React, {PropTypes} from 'react';
 import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
 import {VBox}             from '@prometheusresearch/react-box';
 
-function getTitleAtPosition(position) {
+export function getTitleAtPosition(position) {
   let {type: Component, props} = position.element;
   if (Component.getTitle) {
     return Component.getTitle(props);
@@ -44,8 +44,6 @@ export default class ActionTitle extends React.Component {
     },
   });
 
-  static getTitleAtPosition = getTitleAtPosition;
-
   render() {
     let {Primary, Secondary} = this.stylesheet;
     let {position, subTitle, titleOnly, noRichTitle, ...props} = this.props;
@@ -54,8 +52,10 @@ export default class ActionTitle extends React.Component {
         position.element.props,
         position.context
       );
-    } else if (subTitle) {
-      let title = getTitleAtPosition(position);
+    }
+
+    let title = getTitleAtPosition(position);
+    if (subTitle) {
       return (
         <VBox>
           <Primary>{title}</Primary>
@@ -63,7 +63,6 @@ export default class ActionTitle extends React.Component {
         </VBox>
       );
     } else {
-      let title = getTitleAtPosition(position);
       return <Primary>{title}</Primary>;
     }
   }

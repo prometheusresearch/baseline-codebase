@@ -4,8 +4,8 @@
 
 import React, {PropTypes}     from 'react';
 import BreadcrumbBase         from '../ui/Breadcrumb';
-import ActionIcon             from '../ActionIcon';
-import ActionTitle            from '../ActionTitle';
+import {getIconAtPosition}    from '../ActionIcon';
+import {getTitleAtPosition}   from '../ActionTitle';
 import ServicePanel           from './ServicePanel';
 
 /**
@@ -43,7 +43,7 @@ const SERVICE_PANE_BREADCRUMB_ITEM = {
 function positionToBreadcrumbItem(position) {
   return {
     id: position.keyPath,
-    icon: ActionIcon.getIconAtPosition(position.element),
-    title: ActionTitle.getTitleAtPosition(position),
+    icon: getIconAtPosition(position.element),
+    title: getTitleAtPosition(position),
   };
 }

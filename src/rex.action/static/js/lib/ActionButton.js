@@ -2,13 +2,13 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React, {PropTypes} from 'react';
-import autobind           from 'autobind-decorator';
-import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
-import {HBox}             from '@prometheusresearch/react-box';
-import ButtonBase         from './ui/ButtonBase';
-import ActionIcon         from './ActionIcon';
-import ActionTitle        from './ActionTitle';
+import React, {PropTypes}   from 'react';
+import autobind             from 'autobind-decorator';
+import * as Stylesheet      from '@prometheusresearch/react-stylesheet';
+import {HBox}               from '@prometheusresearch/react-box';
+import ButtonBase           from './ui/ButtonBase';
+import {getIconAtPosition}  from './ActionIcon';
+import ActionTitle          from './ActionTitle';
 
 @Stylesheet.styleable
 export default class ActionButton extends React.Component {
@@ -27,7 +27,7 @@ export default class ActionButton extends React.Component {
   render() {
     let {Button} = this.stylesheet;
     let {position, showContext, ...props} = this.props;
-    let icon = ActionIcon.getIconAtPosition(position);
+    let icon = getIconAtPosition(position);
     return (
       <Button {...props} icon={icon} onClick={this._onClick}>
         <ActionTitle

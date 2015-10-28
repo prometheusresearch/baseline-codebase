@@ -8,6 +8,8 @@
 =====
 
 * Updated assessment-import to commit all or nothing if record import failed.
+* Fixed sorting issue for the instrument templates.
+* Fixed regular expression for the check of float fields.
 
 0.2.0 (2015-09-30)
 ==================

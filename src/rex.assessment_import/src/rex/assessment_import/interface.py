@@ -350,14 +350,14 @@ class Assessment(object):
                 raise Error("Got null for required field.")
             return None
         if base_type == 'integer':
-            if not re.match(r'^\d+', str(value)):
+            if not re.match(r'^\d+$', str(value)):
                 raise Error(" Got unexpected value %(value)s for"
                             " %(base_type)s type."
                             % {'value': value, 'base_type': field.base_type}
                 )
             return int(value)
         if base_type == 'float':
-            if not re.match(r'^-?\d+\.(\d+)', str(value)):
+            if not re.match(r'^-?\d+(\.\d+)?$', str(value)):
                 raise Error(" Got unexpected value %(value)s of"
                             " %(base_type)s type."
                             % {'value': value, 'base_type': base_type}

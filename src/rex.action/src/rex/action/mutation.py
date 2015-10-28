@@ -81,7 +81,7 @@ class Mutation(object):
 
         # Fetch update entity assuming query returns id of the update entity.
         # XXX: coercion to str is neccessary, otherwise querying port fails
-        product = self.port.produce('individual=%s' % str(result.data.id))
+        product = self.port.produce('*=%s' % str(result.data.id))
 
         # See :class:`rex.db.Port` for more details
         with self.port.db:

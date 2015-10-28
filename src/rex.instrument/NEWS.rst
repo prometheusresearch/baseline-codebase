@@ -9,6 +9,8 @@ REX.INSTRUMENT Change Log
 ==================
 
 * Updated rex.ctl tasks to use log() function instead of print statements.
+* Secured the HTSQL calculation proessing logic to prevent against writes to
+  the database.
 
 
 1.1.0 (2015-10-21)

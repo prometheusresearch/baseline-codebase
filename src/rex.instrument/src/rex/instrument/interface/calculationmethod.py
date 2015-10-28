@@ -8,8 +8,8 @@ from importlib import import_module
 
 from htsql.core.domain import Record as HtsqlRecord
 from rios.core.validation.instrument import get_full_type_definition
-from rex.core import get_settings, Extension
-from rex.db import get_db
+from rex.core import get_settings, Extension, cached
+from rex.db import HTSQLVal, RexHTSQL
 
 from ..errors import InstrumentError
 from ..util import global_scope
@@ -299,6 +299,24 @@ class PythonCalculationMethod(CalculationMethod):
             )
 
 
+@cached
+def get_calculation_db():
+    """
+    Retrieves the HTSQL application instance where calculation expressions will
+    be executed.
+    """
+
+    configuration = HTSQLVal.merge(
+        {'rex': {}},
+        get_settings().htsql_extensions,
+        get_settings().db,
+    )
+    if 'tweak.etl' in configuration:
+        # Prevent any malicious calculations from doing writes to the database.
+        del configuration['tweak.etl']
+    return RexHTSQL(None, configuration)
+
+
 class HtsqlCalculationMethod(CalculationMethod):
     """
     Implements the HTSQL calculation method. Allows for calculations to be
@@ -346,9 +364,9 @@ class HtsqlCalculationMethod(CalculationMethod):
         parameters.update(self.flatten_assessment_data(assessment))
         parameters.update(previous_results)
 
-        db = get_db()
+        calc_db = get_calculation_db()
         try:
-            product = db.produce(options['expression'], **parameters)
+            product = calc_db.produce(options['expression'], **parameters)
             if isinstance(product.data, HtsqlRecord):
                 return product.data[0]
             elif isinstance(product.data, list) \

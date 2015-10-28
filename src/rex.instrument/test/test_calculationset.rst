@@ -66,7 +66,7 @@ and string-rendering methods::
 
     >>> calculationset.as_dict()
     {'instrument_version': {'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'published_by': u'sirius', 'version': 1, 'uid': u'notreal456', 'date_published': datetime.datetime(2015, 6, 9, 0, 0)}, 'uid': u'fake123'}
-    
+
     >>> calculationset.as_json()
     u'{"instrument_version": {"instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "published_by": "sirius", "version": 1, "uid": "notreal456", "date_published": "2015-06-09T00:00:00"}, "uid": "fake123"}'
 
@@ -317,6 +317,34 @@ with subclasses of CalculationScopeAddon::
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
     {'calc1': True, 'calc2': u'False', 'calc3': None}
+
+HTSQL calculation expressions don't allow ETL statements::
+
+    >>> CALCULATIONSET = {
+    ...     'instrument': {
+    ...         'id': 'urn:test-instrument',
+    ...         'version': '1.1'
+    ...     },
+    ...     'calculations': [
+    ...         {
+    ...           'id': 'calc1',
+    ...           'type': 'text',
+    ...           'method': 'htsql',
+    ...           'options': {
+    ...             'expression': '/{} :as individual/:insert'
+    ...           }
+    ...         }
+    ...     ]
+    ... }
+    >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
+    >>> calculationset.execute(assessment)
+    Traceback (most recent call last):
+        ...
+    InstrumentError: Unexpected htsql /{} :as individual/:insert: Found unknown function:
+        insert
+    While translating:
+        /{} :as individual/:insert
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 CalculationSet.execute(...) runs coerce_instrument_type(...) method to format
 values of some predefined types
@@ -795,7 +823,7 @@ or given object is not callable::
 execute(...) fails when application started with incorrect modules list defined
 by the setting instrument_calculationmethod_default_module_list::
 
-    >>> rex = Rex('__main__', 'rex.instrument_demo', 
+    >>> rex = Rex('__main__', 'rex.instrument_demo',
     ...     instrument_calculationmethod_default_module_list=['math1'])
     >>> rex.on()
 
@@ -804,6 +832,9 @@ by the setting instrument_calculationmethod_default_module_list::
     >>> calculationset = CalculationSet('fake123', 'calculation2', CALCULATIONSET)
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
-        ...    
+        ...
     InstrumentError: Got unexpected module math1 from setting 'instrument_calculationmethod_default_module_list'
 
+
+
+    >>> rex.off()

@@ -17,7 +17,9 @@ from htsql.core.fmt.accept import accept
 from htsql.core.fmt.emit import emit, emit_headers
 
 from webob import Response
-from webob.exc import HTTPError, HTTPMethodNotAllowed, HTTPBadRequest
+from webob.exc import (
+    HTTPError, HTTPMethodNotAllowed, HTTPBadRequest,
+    HTTPInternalServerError)
 
 from rex.core import Error
 from rex.web import authenticate

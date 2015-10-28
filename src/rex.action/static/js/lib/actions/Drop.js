@@ -4,10 +4,47 @@
 
 import React            from 'react';
 import RexWidget        from 'rex-widget';
-import  {VBox, HBox}    from 'rex-widget/lib/Layout';
-import Style            from './Drop.module.css';
+import {VBox, HBox}     from '@prometheusresearch/react-box';
+import * as Stylesheet  from '@prometheusresearch/react-stylesheet';
+import * as CSS         from '@prometheusresearch/react-stylesheet/css';
 import {command, Types} from '../execution/Command';
 import {getEntityTitle} from '../Entity';
+
+let stylesheet = Stylesheet.createStylesheet({
+  Root: {
+    Component: VBox,
+    flex: 1,
+    background: CSS.rgba(255, 226, 226, 0.4),
+    color: CSS.rgb(68, 22, 22),
+  },
+
+  Header: {
+    Component: HBox,
+    padding: 10,
+  },
+
+  Content: {
+    Component: VBox,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+  },
+
+  Title: {
+    Component: VBox,
+    flex: 1,
+  },
+
+  MessageBottom: {
+    marginTop: 10,
+    fontSize: '90%',
+  },
+
+  Message: {
+    fontSize: '90%',
+  }
+});
 
 export default class Drop extends React.Component {
 
@@ -29,25 +66,25 @@ export default class Drop extends React.Component {
     let {confirmDelay} = this.state;
     let title = this.constructor.getTitle(this.props);
     return (
-      <VBox size={1} className={Style.self}>
+      <stylesheet.Root>
         {title &&
-          <HBox className={Style.header}>
-            <VBox size={1} className={Style.title}>
+          <stylesheet.Header>
+            <stylesheet.Title>
               <h4>
                 {title}
               </h4>
-            </VBox>
+            </stylesheet.Title>
             {onClose &&
               <RexWidget.Button
                 quiet
                 icon="remove"
                 onClick={onClose}
                 />}
-          </HBox>}
-        <VBox size={1} centerVertically centerHorizontally className={Style.content}>
-          <VBox className={Style.message}>
+          </stylesheet.Header>}
+        <stylesheet.Content>
+          <stylesheet.Message>
             <div dangerouslySetInnerHTML={{__html: message}} />
-          </VBox>
+          </stylesheet.Message>
           <RexWidget.Button
             onClick={this.drop}
             disabled={confirmDelay > 0}
@@ -55,7 +92,7 @@ export default class Drop extends React.Component {
             icon="remove">
             Drop
           </RexWidget.Button>
-          <VBox style={Style.messageBottom}>
+          <stylesheet.MessageBottom>
             {confirmDelay > 0 ?
               <p>
                 Wait {confirmDelay} seconds
@@ -63,9 +100,9 @@ export default class Drop extends React.Component {
               <p>
                 Press button above to drop {entity.name}
               </p>}
-          </VBox>
-        </VBox>
-      </VBox>
+          </stylesheet.MessageBottom>
+        </stylesheet.Content>
+      </stylesheet.Root>
     );
   }
 

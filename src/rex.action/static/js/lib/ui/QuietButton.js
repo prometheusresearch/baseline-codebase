@@ -25,10 +25,6 @@ let activeColors = {
 export default ButtonBase.style({
   Root: {
     border: Style.none,
-    cursor: Style.cursor.pointer,
-    textAlign: Style.textAlign.left,
-    userSelect: Style.none,
-    WebkitUserSelect: Style.none,
     ...colors,
     ...Theme.buttonSize,
     hover: {

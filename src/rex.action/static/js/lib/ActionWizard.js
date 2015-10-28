@@ -3,14 +3,14 @@
  */
 
 import React, {PropTypes} from 'react';
-import ReactStylesheet    from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
 import {VBox}             from '@prometheusresearch/react-box';
 import style              from 'rex-widget/lib/StyleUtils';
 
-@ReactStylesheet
+@Stylesheet.styleable
 class ChromeRoot extends React.Component {
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     Wrapper: {
       Component: VBox,
       flex: 1,
@@ -24,7 +24,7 @@ class ChromeRoot extends React.Component {
       background: style.rgb(255, 255, 255),
       boxShadow: style.boxShadow(0, 0, 2, 1, style.rgb(204, 204, 204)),
     },
-  };
+  });
 
   render() {
     let {Wrapper, Action} = this.stylesheet;

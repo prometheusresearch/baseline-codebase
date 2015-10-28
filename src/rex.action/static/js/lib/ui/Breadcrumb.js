@@ -4,10 +4,10 @@
 
 import React, {PropTypes} from 'react/addons';
 import {HBox}             from '@prometheusresearch/react-box';
-import Stylesheet         from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
 import BreadcrumbItem     from './BreadcrumbItem';
 
-@Stylesheet
+@Stylesheet.styleable
 export default class Breadcrumb extends React.Component {
 
   static propTypes = {
@@ -16,7 +16,7 @@ export default class Breadcrumb extends React.Component {
     onClick: PropTypes.func,
   };
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     Self: {
       Component: HBox,
       borderTop: '1px solid #d2d2d2',
@@ -30,7 +30,7 @@ export default class Breadcrumb extends React.Component {
         top: 0
       }
     },
-  };
+  });
 
   render() {
     let {Self, Item} = this.stylesheet;

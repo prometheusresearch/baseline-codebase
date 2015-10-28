@@ -4,7 +4,7 @@
 
 import autobind             from 'autobind-decorator';
 import React                from 'react';
-import Stylesheet           from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet      from '@prometheusresearch/react-stylesheet';
 import {VBox, HBox}         from '@prometheusresearch/react-box';
 import RexWidget            from 'rex-widget';
 import DataTable            from 'rex-widget/lib/datatable/DataTable';
@@ -15,7 +15,7 @@ import * as Entity          from '../Entity';
 import Title                from './Title';
 import Action               from '../Action';
 
-@Stylesheet
+@Stylesheet.styleable
 export default class Pick extends React.Component {
 
   static propTypes = {
@@ -28,13 +28,13 @@ export default class Pick extends React.Component {
     width: 600
   };
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     Search: {
       Component: RexWidget.SearchInput,
       borderRadius: 0,
       border: 'none',
     }
-  };
+  });
 
   constructor(props) {
     super(props);

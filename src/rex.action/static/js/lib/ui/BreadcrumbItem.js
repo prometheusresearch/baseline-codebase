@@ -5,9 +5,9 @@
 import React, {PropTypes} from 'react/addons';
 import RexWidget          from 'rex-widget';
 import {HBox}             from '@prometheusresearch/react-box';
-import Stylesheet         from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
 
-@Stylesheet
+@Stylesheet.styleable
 export default class BreadcrumbItem extends React.Component {
 
   static propTypes = {
@@ -18,7 +18,7 @@ export default class BreadcrumbItem extends React.Component {
     active: PropTypes.bool,
   };
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     Self: {
       Component: HBox,
       top: 0,
@@ -48,7 +48,7 @@ export default class BreadcrumbItem extends React.Component {
         marginRight: 7,
       }
     },
-  };
+  });
 
   render() {
     let {Self, Icon} = this.stylesheet;

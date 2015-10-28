@@ -2,15 +2,15 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React, {PropTypes}       from 'react';
-import autobind                 from 'autobind-decorator';
-import ReactStylesheet          from '@prometheusresearch/react-stylesheet';
-import {HBox}                   from '@prometheusresearch/react-box';
-import ButtonBase               from './ui/ButtonBase';
-import ActionIcon               from './ActionIcon';
-import ActionTitle              from './ActionTitle';
+import React, {PropTypes} from 'react';
+import autobind           from 'autobind-decorator';
+import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
+import {HBox}             from '@prometheusresearch/react-box';
+import ButtonBase         from './ui/ButtonBase';
+import ActionIcon         from './ActionIcon';
+import ActionTitle        from './ActionTitle';
 
-@ReactStylesheet
+@Stylesheet.styleable
 export default class ActionButton extends React.Component {
 
   static propTypes = {
@@ -20,9 +20,9 @@ export default class ActionButton extends React.Component {
     onClick: PropTypes.func,
   };
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     Button: ButtonBase,
-  };
+  });
 
   render() {
     let {Button} = this.stylesheet;

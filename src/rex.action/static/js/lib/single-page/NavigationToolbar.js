@@ -2,16 +2,16 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import ReactStylesheet  from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet  from '@prometheusresearch/react-stylesheet';
 import {VBox, HBox}     from '@prometheusresearch/react-box';
 import React            from 'react';
 import ActionButton     from '../ActionButton';
 import SecondaryButton  from '../ui/SecondaryButton';
 
-@ReactStylesheet
+@Stylesheet.styleable
 export default class NavigationToolbar extends React.Component {
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     Self: {
       width: '100%',
       paddingTop: 10,
@@ -21,7 +21,7 @@ export default class NavigationToolbar extends React.Component {
       Component: ActionButton,
       Button: SecondaryButton
     }
-  };
+  });
 
   render() {
     let {execution, onReplace, onNext} = this.props;
@@ -48,10 +48,10 @@ export default class NavigationToolbar extends React.Component {
   }
 }
 
-@ReactStylesheet
+@Stylesheet.styleable
 class NextActionsToolbar extends React.Component {
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     Self: {
       Component: VBox,
       width: '100%',
@@ -63,7 +63,7 @@ class NextActionsToolbar extends React.Component {
         Component: SecondaryButton
       }
     }
-  };
+  });
 
   render() {
     let {execution, onClick} = this.props;

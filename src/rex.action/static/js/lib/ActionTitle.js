@@ -3,7 +3,7 @@
  */
 
 import React, {PropTypes} from 'react';
-import Stylesheet         from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
 import {VBox}             from '@prometheusresearch/react-box';
 
 function getTitleAtPosition(position) {
@@ -21,7 +21,7 @@ function getTitleAtPosition(position) {
   }
 }
 
-@Stylesheet
+@Stylesheet.styleable
 export default class ActionTitle extends React.Component {
 
   static propTypes = {
@@ -33,7 +33,7 @@ export default class ActionTitle extends React.Component {
     noRichTitle: PropTypes.bool,
   };
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     Primary: {
       Component: VBox,
     },
@@ -42,7 +42,7 @@ export default class ActionTitle extends React.Component {
       opacity: 0.7,
       fontSize: '90%',
     },
-  };
+  });
 
   static getTitleAtPosition = getTitleAtPosition;
 

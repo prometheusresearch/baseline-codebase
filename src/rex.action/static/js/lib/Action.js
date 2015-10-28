@@ -2,16 +2,16 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import emptyFunction from 'empty/functionThatReturnsNull';
-import React         from 'react';
-import Stylesheet    from '@prometheusresearch/react-stylesheet';
-import {VBox, HBox}  from '@prometheusresearch/react-box';
-import RexWidget     from 'rex-widget';
-import * as Style    from 'rex-widget/lib/StyleUtils';
-import * as Theme    from './ui/Theme';
-import Button        from './ui/QuietButton';
+import emptyFunction    from 'empty/functionThatReturnsNull';
+import React            from 'react';
+import * as Stylesheet  from '@prometheusresearch/react-stylesheet';
+import {VBox, HBox}     from '@prometheusresearch/react-box';
+import RexWidget        from 'rex-widget';
+import * as Style       from 'rex-widget/lib/StyleUtils';
+import * as Theme       from './ui/Theme';
+import Button           from './ui/QuietButton';
 
-@Stylesheet
+@Stylesheet.styleable
 export default class Action extends React.Component {
 
   static propTypes = {
@@ -45,7 +45,7 @@ export default class Action extends React.Component {
     renderFooter: emptyFunction
   };
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     Root: {
       Component: VBox,
       flex: 1,
@@ -73,7 +73,7 @@ export default class Action extends React.Component {
       Component: VBox,
       flex: 1
     }
-  };
+  });
 
   render() {
     let {Root, Header, Content, Footer, Title} = this.stylesheet;

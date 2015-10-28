@@ -3,7 +3,7 @@
  */
 
 import React, {PropTypes} from 'react';
-import ReactStylesheet from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet from '@prometheusresearch/react-stylesheet';
 import Icon from 'rex-widget/lib/Icon';
 import isString from 'rex-widget/lib/isString';
 import * as Style from 'rex-widget/lib/StyleUtils';
@@ -14,7 +14,7 @@ import * as Theme from './Theme';
  *
  * Button is clickable element with optional icon and/or caption.
  */
-@ReactStylesheet
+@Stylesheet.styleable
 export default class Button extends React.Component {
 
   static propTypes = {
@@ -43,13 +43,12 @@ export default class Button extends React.Component {
     size: 'normal'
   };
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     Root: {
       Component: 'button',
       cursor: Style.cursor.pointer,
       textAlign: Style.textAlign.left,
       fontSize: Theme.fontSize.element,
-      fontWeight: Style.fontWeight.bold,
       userSelect: Style.none,
       WebkitUserSelect: Style.none,
     },
@@ -58,7 +57,7 @@ export default class Button extends React.Component {
       display: Style.display.inlineBlock,
     },
     Icon: Icon,
-  };
+  });
 
   render() {
     let {Root, Caption, Icon} = this.stylesheet;

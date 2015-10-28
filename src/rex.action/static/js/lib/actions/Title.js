@@ -3,14 +3,14 @@
  */
 
 import React                from 'react';
-import Stylesheet           from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet      from '@prometheusresearch/react-stylesheet';
 import {VBox, HBox}         from 'rex-widget/lib/Layout';
 import * as Entity          from '../Entity';
 
-@Stylesheet
+@Stylesheet.styleable
 export default class Title extends React.Component {
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     Primary: {
       Component: VBox,
     },
@@ -19,7 +19,7 @@ export default class Title extends React.Component {
       opacity: 0.7,
       fontSize: '90%',
     },
-  };
+  });
 
   render() {
     let {entity, context, title} = this.props;

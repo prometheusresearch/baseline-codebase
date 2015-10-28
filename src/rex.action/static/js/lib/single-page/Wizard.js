@@ -3,7 +3,7 @@
  */
 
 import autobind           from 'autobind-decorator';
-import ReactStylesheet    from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
 import {VBox, HBox}       from '@prometheusresearch/react-box';
 import React              from 'react';
 import Execution          from '../execution/Execution';
@@ -12,7 +12,7 @@ import Sidebar            from './Sidebar';
 import ContextToolbar     from './ContextToolbar';
 import NavigationToolbar  from './NavigationToolbar';
 
-@ReactStylesheet
+@Stylesheet.styleable
 export default class Wizard extends React.Component {
 
   static defaultProps = {
@@ -20,13 +20,13 @@ export default class Wizard extends React.Component {
     icon: 'asterisk',
   };
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     ActionPanel: {
       Component: VBox,
       boxShadow: '-2px 0px 3px -1px #E2E2E2',
       flex: 1,
     }
-  }
+  });
 
   static renderTitle(props, context) {
     return props.title;

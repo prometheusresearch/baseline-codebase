@@ -3,7 +3,7 @@
  */
 
 import React            from 'react';
-import ReactStylesheet  from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet  from '@prometheusresearch/react-stylesheet';
 import {VBox, HBox}     from '@prometheusresearch/react-box';
 import style            from 'rex-widget/lib/StyleUtils';
 import {renderTitle}    from '../actions';
@@ -11,10 +11,10 @@ import ActionButton     from '../ActionButton';
 import Button           from '../ui/Button';
 import * as Theme       from '../ui/Theme';
 
-@ReactStylesheet
+@Stylesheet.styleable
 export default class ContextToolbar extends React.Component {
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     Self: {
       Component: VBox,
       background: Theme.color.primary.background,
@@ -27,7 +27,7 @@ export default class ContextToolbar extends React.Component {
       Component: ActionButton,
       Button: Button,
     }
-  };
+  });
 
   render() {
     let {execution, wizard, onClick} = this.props;

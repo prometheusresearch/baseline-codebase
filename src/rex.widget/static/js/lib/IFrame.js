@@ -3,7 +3,7 @@
  */
 
 import React, {PropTypes} from 'react';
-import Stylesheet         from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
 import cx                 from 'classnames';
 import * as qs            from './qs';
 import Style              from './StyleUtils';
@@ -13,7 +13,7 @@ import Style              from './StyleUtils';
  *
  * @public
  */
-@Stylesheet
+@Stylesheet.styleable
 export default class IFrame extends React.Component {
 
   static propTypes = {
@@ -62,7 +62,7 @@ export default class IFrame extends React.Component {
     width: '100%'
   };
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     Root: {
       Component: 'iframe',
       position: Style.position.absolute,
@@ -72,7 +72,7 @@ export default class IFrame extends React.Component {
       right: 0,
       border: Style.none,
     }
-  };
+  });
 
   render() {
     let {src, params, className, ...props} = this.props;

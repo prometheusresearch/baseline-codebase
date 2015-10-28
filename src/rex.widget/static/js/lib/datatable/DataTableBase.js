@@ -5,7 +5,7 @@
 import React, {PropTypes} from 'react';
 import autobind           from 'autobind-decorator';
 import {Column, Table}    from 'fixed-data-table';
-import Stylesheet         from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
 import emptyFunction      from '../emptyFunction';
 import WithDOMSize        from '../WithDOMSize';
 import {VBox, HBox}       from '../Layout';
@@ -15,7 +15,7 @@ import LoadingIndicator   from '../LoadingIndicator';
 import * as KeyPath       from '../KeyPath';
 
 @WithDOMSize
-@Stylesheet
+@Stylesheet.styleable
 export default class DataTableBase extends React.Component {
 
   static propTypes = {
@@ -81,7 +81,7 @@ export default class DataTableBase extends React.Component {
     onSelect: emptyFunction,
   };
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     Root: {
       Component: VBox,
       overflow: 'hidden',
@@ -133,7 +133,7 @@ export default class DataTableBase extends React.Component {
       bottom: 0,
       boxShadow: '0px -2px 4px 0px rgb(204, 204, 204)'
     }
-  };
+  });
 
   constructor(props) {
     super(props);

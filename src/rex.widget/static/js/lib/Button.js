@@ -3,7 +3,7 @@
  */
 
 import React, {PropTypes} from 'react';
-import Stylesheet         from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
 import Icon               from './Icon';
 import resolveURL         from './resolveURL';
 import * as qs            from './qs';
@@ -16,7 +16,7 @@ import * as Style         from './StyleUtils';
  *
  * @public
  */
-@Stylesheet
+@Stylesheet.styleable
 export default class Button extends React.Component {
 
   static propTypes = {
@@ -96,7 +96,7 @@ export default class Button extends React.Component {
     type: 'button'
   };
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     Root: {
       display: Style.display.inlineBlock,
       marginBottom: 0,
@@ -244,7 +244,7 @@ export default class Button extends React.Component {
         borderRadius: 2,
       },
     }
-  };
+  });
 
   render() {
     let {

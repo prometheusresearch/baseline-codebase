@@ -3,7 +3,7 @@
  */
 
 import React, {PropTypes} from 'react';
-import Stylesheet         from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
 import {VBox}             from './Layout';
 import Icon               from './Icon';
 import Style              from './StyleUtils';
@@ -13,7 +13,7 @@ import Style              from './StyleUtils';
  *
  * @public
  */
-@Stylesheet
+@Stylesheet.styleable
 export default class IconButton extends React.Component {
 
   static propTypes = {
@@ -32,7 +32,7 @@ export default class IconButton extends React.Component {
     onClick: PropTypes.func.isRequired
   };
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     Root: {
       width: '1em',
       height: '1em',
@@ -42,7 +42,7 @@ export default class IconButton extends React.Component {
         opacity: 1,
       }
     },
-  };
+  });
 
   render() {
     let {name, ...props} = this.props;

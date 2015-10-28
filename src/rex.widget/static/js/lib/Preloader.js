@@ -4,7 +4,7 @@
 
 import React, {PropTypes}               from 'react';
 import cx                               from 'classnames';
-import Stylesheet                       from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet                  from '@prometheusresearch/react-stylesheet';
 import {padding, fontWeight, textAlign} from './StyleUtils';
 import LoadingIndicator                 from './LoadingIndicator';
 
@@ -13,7 +13,7 @@ import LoadingIndicator                 from './LoadingIndicator';
  *
  * @public
  */
-@Stylesheet
+@Stylesheet.styleable
 export default class Preloader extends React.Component {
 
   static propTypes = {
@@ -28,7 +28,7 @@ export default class Preloader extends React.Component {
     className: PropTypes.string
   };
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     Root: {
       width: '100%',
       height: '100%',
@@ -41,7 +41,7 @@ export default class Preloader extends React.Component {
       padding: padding(6, 12),
     },
     LoadingIndicator,
-  };
+  });
 
   render() {
     let {caption, ...props} = this.props;

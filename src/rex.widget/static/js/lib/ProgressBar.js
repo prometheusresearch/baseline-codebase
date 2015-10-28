@@ -3,14 +3,14 @@
  */
 
 import React, {PropTypes} from 'react';
-import Stylesheet         from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
 import {Box}              from './Layout';
 import {rgb}              from './StyleUtils';
 
 /**
  * Progress bar component.
  */
-@Stylesheet
+@Stylesheet.styleable
 export default class ProgressBar extends React.Component {
 
   static propTypes = {
@@ -30,13 +30,13 @@ export default class ProgressBar extends React.Component {
     progress: 0
   };
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     Root: {
       Component: Box,
       height: 2,
       background: rgb(142, 142, 226),
     }
-  };
+  });
 
   render() {
     let {progress = 0, style, ...props} = this.props;

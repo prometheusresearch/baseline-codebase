@@ -2,12 +2,12 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React       from 'react';
-import Stylesheet  from '@prometheusresearch/react-stylesheet';
-import Hoverable   from './Hoverable';
-import Icon        from './Icon';
-import {Box, HBox} from './Layout';
-import ProgressBar from './ProgressBar';
+import React            from 'react';
+import * as Stylesheet  from '@prometheusresearch/react-stylesheet';
+import Hoverable        from './Hoverable';
+import Icon             from './Icon';
+import {Box, HBox}      from './Layout';
+import ProgressBar      from './ProgressBar';
 
 /**
  * Can be called in a variety of ways to
@@ -16,7 +16,7 @@ import ProgressBar from './ProgressBar';
  * Renders a file uploaded to a storage.
  */
 @Hoverable
-@Stylesheet
+@Stylesheet.styleable
 export default class File extends React.Component {
 
   static propTypes = {
@@ -60,7 +60,7 @@ export default class File extends React.Component {
     progress: React.PropTypes.number
   };
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     Root: {
       Component: HBox,
       fontSize: '90%',
@@ -73,7 +73,7 @@ export default class File extends React.Component {
       marginLeft: 5,
       top: -2,
     }
-  };
+  });
 
   render() {
     let {Root, IconWrapper} = this.stylesheet;

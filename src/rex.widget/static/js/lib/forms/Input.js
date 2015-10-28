@@ -3,15 +3,15 @@
  */
 
 import React                from 'react';
-import Stylesheet           from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet      from '@prometheusresearch/react-stylesheet';
 import {Input as BaseInput} from 'react-forms';
 
-@Stylesheet
 /**
  * Text input component.
  *
  * @public
  */
+@Stylesheet.styleable
 export default class Input extends React.Component {
 
   static propTypes = {
@@ -31,7 +31,7 @@ export default class Input extends React.Component {
     type: 'text'
   };
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.createStylesheet({
     Self: {
       Component: BaseInput,
       display: 'block',
@@ -56,7 +56,7 @@ export default class Input extends React.Component {
         outline: 'none',
       }
     }
-  };
+  });
 
   render() {
     let {error, ...props} = this.props;

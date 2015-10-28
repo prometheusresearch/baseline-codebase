@@ -65,7 +65,7 @@ class Instrument(FieldObjectAbstract):
         instrument_definition = json.loads(instrument_json,
                                            object_pairs_hook=OrderedDict
                                   )
-        instrument = Instrument(instrument_version.uid, instrument_definition)
+        instrument = Instrument(instrument_version, instrument_definition)
         templates = OrderedDict()
         templates[instrument.id] = instrument\
                                      .get_root_template(default_tpl_fields)
@@ -96,8 +96,9 @@ class Instrument(FieldObjectAbstract):
                                            }
         return context_template
 
-    def __init__(self, id, definition):
-        self.id = id
+    def __init__(self, version, definition):
+        self.id = version.uid
+        self.version = version
         self.title = definition.get('title')
         self.definition = definition
         self.fields = OrderedDict()
@@ -195,7 +196,7 @@ class Assessment(object):
         assessment_impl = get_implementation('assessment')
         assessment = assessment_impl.create(
                                 subject=subject,
-                                instrument_version=instrument.definition,
+                                instrument_version=instrument.version,
                                 data=assessment.data,
                                 evaluation_date=evaluation_date,
                                 implementation_context=assessment_context

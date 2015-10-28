@@ -18,6 +18,7 @@ class BaseLogging(object):
     def debug(self, msg, *args, **kwds):
         pass
 
+
 class BaseAssessmentTemplateExport(BaseLogging):
     """
     Base class with functionality to export an InstrumentVersion from the datastore
@@ -90,7 +91,7 @@ class BaseAssessmentImport(BaseLogging):
                 instrument_uid,
             ))
         instrument =  Instrument.create(instrument_version,
-                               default_template_fields)
+                                    default_template_fields)
         path = os.getcwd()
         if input_path:
             path = os.path.abspath(input_path)

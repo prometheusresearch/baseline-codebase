@@ -8,6 +8,8 @@ from copy import deepcopy
 from rex.core import Error
 from rex.instrument import InstrumentVersion
 from rex.instrument.util import get_implementation
+from rios.core.output import Instrument as InstrumentOutput, _get_struct
+from rios.core.output.common import get_json
 
 
 class FieldObjectAbstract(object):
@@ -54,21 +56,30 @@ class Instrument(FieldObjectAbstract):
 
     @classmethod
     def create(cls, instrument_version, default_tpl_fields):
-        instrument = Instrument(instrument_version)
+        instrument_json = get_json(
+                            InstrumentOutput(
+                                _get_struct(instrument_version.definition)
+                            ),
+                                pretty=True
+                          )
+        instrument_definition = json.loads(instrument_json,
+                                           object_pairs_hook=OrderedDict
+                                  )
+        instrument = Instrument(instrument_version.uid, instrument_definition)
         templates = OrderedDict()
         templates[instrument.id] = instrument\
                                      .get_root_template(default_tpl_fields)
-        for field_definition in instrument_version.definition['record']:
-            field = instrument.add_field(instrument_version.definition,
+        for field_definition in instrument_definition['record']:
+            field = instrument.add_field(instrument_definition,
                                          field_definition)
             templates = field.add_template(instrument.id,
                                            default_tpl_fields,
                                            templates)
         instrument.template.update(templates)
         assessment_impl = get_implementation('assessment')
-        assessment_data = assessment_impl.generate_empty_data(instrument
-                                                            .instrument_version
-                                                            .definition)
+        assessment_data = assessment_impl.generate_empty_data(
+                                                instrument.definition
+                                          )
         instrument.blank_assessment = assessment_data
         return instrument
 
@@ -85,10 +96,10 @@ class Instrument(FieldObjectAbstract):
                                            }
         return context_template
 
-    def __init__(self, instrument_version):
-        self.id = instrument_version.uid
-        self.title = instrument_version.definition.get('title')
-        self.instrument_version = instrument_version
+    def __init__(self, id, definition):
+        self.id = id
+        self.title = definition.get('title')
+        self.definition = definition
         self.fields = OrderedDict()
         self.template = OrderedDict()
         self.blank_assessment = OrderedDict()
@@ -184,7 +195,7 @@ class Assessment(object):
         assessment_impl = get_implementation('assessment')
         assessment = assessment_impl.create(
                                 subject=subject,
-                                instrument_version=instrument.instrument_version,
+                                instrument_version=instrument.definition,
                                 data=assessment.data,
                                 evaluation_date=evaluation_date,
                                 implementation_context=assessment_context

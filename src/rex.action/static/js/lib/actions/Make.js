@@ -16,8 +16,7 @@ let Make = React.createClass({
   mixins: [RexWidget.DataSpecificationMixin],
 
   dataSpecs: {
-    data: RexWidget.DataSpecification.entity(),
-    dataQuery: RexWidget.DataSpecification.entity()
+    dataMutation: RexWidget.DataSpecification.entity()
   },
 
   propTypes: {
@@ -27,7 +26,7 @@ let Make = React.createClass({
 
   render() {
     var {
-      useQuery, fields, entity,
+      fields, entity,
       submitButton, onClose, width, context, contextTypes
     } = this.props;
     var value = ObjectTemplate.render(this.props.value, context);
@@ -45,7 +44,7 @@ let Make = React.createClass({
           ref="form"
           entity={entity.type.name}
           fields={fields}
-          submitTo={useQuery ? this.dataSpecs.dataQuery : this.dataSpecs.data}
+          submitTo={this.dataSpecs.dataMutation}
           submitButton={null}
           onSubmitComplete={this.onSubmitComplete}
           value={value}
@@ -94,16 +93,6 @@ let Make = React.createClass({
   },
 
   onSubmitComplete(data) {
-    if (this.props.useQuery) {
-      let params = this.dataSpecs.data.produceParams().toJS();
-      params['*'] = data.id;
-      this.dataSpecs.data.port.produceEntity(params).then(data => this._onSubmitComplete(data));
-    } else {
-      this._onSubmitComplete(data);
-    }
-  },
-
-  _onSubmitComplete(data) {
     this.props.onSubmitComplete(data);
     var key = this.state.key + 1;
     this.setState({key});

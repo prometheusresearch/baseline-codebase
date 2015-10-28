@@ -15,6 +15,7 @@ from rex.widget import formfield, dataspec
 from rex.widget import Field, QueryURL, PortURL, responder
 
 from ..validate import SyntaxVal
+from ..mutation import Mutation
 from .entity_action import EntityAction
 
 __all__ = ('FormAction',)
@@ -44,31 +45,41 @@ class FormAction(EntityAction):
         Optional query which is used to persist data in database.
         """)
 
-    def __init__(self, **values):
-        super(FormAction, self).__init__(**values)
-        # XXX: This is hack to ensure we are b/c with actions which are
-        #      subclasses of Edit, Make and so on. Remove it when we fix those
-        #      usage sites.
-        if 'use_query' not in self.values:
-            self.values['use_query'] = self.query is not None
+    @cached_property
+    def mutation(self):
+        """ Define data mutation for the action."""
+        if self.query:
+            query = Query(self.query, self.db)
+            query.parameters = {f.value_key[0]: None for f in self._complete_fields}
+        else:
+            query = None
+        return Mutation(self.port, query=query)
+
+    @responder(
+        wrap=lambda self, url: dataspec.EntitySpec(url, {}),
+        url_type=PortURL)
+    def data_mutation(self, req):
+        """ Handle data mutation request."""
+        return self.mutation(req)
+
+    def create_port(self):
+        """ Override port creation and inject coplete list of fields."""
+        return super(FormAction, self).create_port(fields=self._complete_fields)
 
     @cached_property
     def _complete_fields(self):
+        """ Complete list of fields for form action.
+
+        A list of fields which contains both user defined fields and fields
+        which are inferred from initial form value.
+
+        We use this to construct form and query parameters.
+        """
         fields = create_fieldset_from_value(self.value).fields
         fields = formfield.enrich(fields, self.entity.type.name, db=self.db)
         fields = fields + self.fields
+        fields = remove_fields_layout(fields)
         return fields
-
-    @responder(
-        wrap=lambda self, url: dataspec.EntitySpec(url, self.bind_port()),
-        url_type=QueryURL)
-    def data_query(self, req):
-        query = Query(self.query, self.db)
-        query.parameters = {f.value_key[0]: None for f in self._complete_fields}
-        return query(req)
-
-    def create_port(self):
-        return super(FormAction, self).create_port(fields=self._complete_fields)
 
 
 def create_fieldset_from_value(value, _key=None):
@@ -87,3 +98,12 @@ def create_fieldset_from_value(value, _key=None):
     else:
         return formfield.StringFormField(value_key=_key)
 
+
+def remove_fields_layout(fields):
+    no_layout = []
+    for f in fields:
+        if isinstance(f, formfield.FormLayoutItem):
+            no_layout = no_layout + remove_fields_layout(f.fields)
+        else:
+            no_layout.append(f)
+    return no_layout

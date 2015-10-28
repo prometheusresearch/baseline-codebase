@@ -26,7 +26,8 @@ let Edit = React.createClass({
   },
 
   dataSpecs: {
-    data: RexWidget.DataSpecification.entity()
+    data: RexWidget.DataSpecification.entity(),
+    dataMutation: RexWidget.DataSpecification.entity()
   },
 
   fetchDataSpecs: {
@@ -74,7 +75,7 @@ let Edit = React.createClass({
       <RexWidget.Forms.ConfigurableEntityForm
         ref="form"
         context={ContextUtils.getMaskedContext(context, contextTypes.input)}
-        submitTo={this.dataSpecs.data}
+        submitTo={this.dataSpecs.dataMutation}
         submitButton={null}
         onSubmitComplete={this._onSubmitComplete.bind(null, context[entity.name])}
         initialValue={this.data.data.data}

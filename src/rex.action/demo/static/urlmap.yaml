@@ -17,18 +17,15 @@ paths:
     action:
       type: make
       entity: individual
-      submit_button: Make
+#     query: |
+#       /do(
+#         $id := insert(individual := { code := $code, sex := $sex }),
+#         { id := $id }
+#       )
       fields:
       - column:
         - code
         - sex
-      - row:
-        - column:
-          - mother
-          - father
-        - column:
-          - adopted_mother
-          - adopted_father
 
   /individuals/pick:
     access: anybody
@@ -73,6 +70,14 @@ paths:
         edit-individual:
           type: edit
           entity: individual
+          fields:
+          - code
+          - sex
+          query: |
+            /do(
+              $id := update(individual := { code := $code, sex := $sex }),
+              { id := $id }
+            )
 
   /:
     access: anybody
@@ -80,7 +85,12 @@ paths:
       type: wizard
       path:
       - /individuals/wizard:
+        - drop-individual:
         - /individuals/view:
         - /individuals/edit:
       - /labs/pick:
         - /labs/view:
+      actions:
+        drop-individual:
+          type: drop
+          entity: individual

@@ -4,14 +4,10 @@
 
 .. contents:: Table of Contents
 
-0.3.1 (2015-10-28)
-==================
-
-* Fixed Assessment.create.
-
 0.3.0 (2015-10-28)
 ==================
 
+* Fixed Assessment.create.
 * Updated assessment-import to commit all or nothing if record import failed.
 * Fixed sorting issue for the instrument templates.
 * Fixed regular expression for the check of float fields.

@@ -61,8 +61,7 @@ class Edit(FormAction):
         RecordTypeVal(), default=RecordType.empty())
 
     def bind_port(self):
-        keys = self.input.rows.keys() or [self.entity.name]
-        return {'*': ContextBinding(keys, is_join=True)}
+        return {'*': ContextBinding([self.entity.name], is_join=False)}
 
     def context(self):
         input = self.input if self.input.rows else RecordType([self.entity])

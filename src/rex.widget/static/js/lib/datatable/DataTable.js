@@ -56,7 +56,7 @@ export default class DataTable extends React.Component {
   };
 
   render() {
-    let {dataParams: {pagination, sort}, data: {data}} = this.props;
+    let {dataParams: {pagination, sort}, fetched: {data}} = this.props;
     return (
       <DataTableBase
         {...this.props}

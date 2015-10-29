@@ -154,7 +154,7 @@ export default function Fetch(fetch) {
         let {params, data} = this.state;
         ReactUpdates.batchedUpdates(() => {
           let dataSet = new DataSet(key, result, null, false, false);
-          dataSet = fetch.update({...this.props, params}, dataSet, data[key]);
+          dataSet = fetch.update({...this.props, ...params}, dataSet, data[key]);
           data = {...data, [key]: dataSet};
           this.setState({data});
         });
@@ -178,7 +178,7 @@ export default function Fetch(fetch) {
       }
     };
 
-    transferStaticProperties(Component, FetchContainer);
+    transferStaticProperties(Component, FetchContainer, ['defaultProps']);
 
     return FetchContainer;
   };

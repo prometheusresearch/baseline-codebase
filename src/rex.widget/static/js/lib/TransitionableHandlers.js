@@ -4,8 +4,8 @@
 
 import React                             from 'react';
 import * as Transitionable               from './Transitionable';
-import Port                              from './Port';
-import Query                             from './Query';
+import Port                              from './data/Port';
+import Query                             from './data/Query';
 import resolveURL                        from './resolveURL';
 import {Collection, Entity, prop, state} from './DataSpecification';
 

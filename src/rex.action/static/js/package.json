@@ -11,6 +11,7 @@
     "@prometheusresearch/react-datetimepicker": "^0.2.0",
     "@prometheusresearch/react-stylesheet": "^0.3.1",
     "autobind-decorator": "^1.2.0",
+    "element-resize-detector": "^1.0.1",
     "empty": "^0.10.1",
     "escape-regexp": "0.0.1",
     "history": "^1.9.1",

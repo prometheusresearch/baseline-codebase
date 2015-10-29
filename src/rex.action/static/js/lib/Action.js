@@ -2,6 +2,8 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import autobind         from 'autobind-decorator';
+import resizeDetector   from 'element-resize-detector';
 import emptyFunction    from 'empty/functionThatReturnsNull';
 import React            from 'react';
 import * as Stylesheet  from '@prometheusresearch/react-stylesheet';
@@ -65,8 +67,10 @@ export default class Action extends React.Component {
       }
     },
     Footer: {
-      boxShadow: Theme.shadow.normal(),
       padding: 5,
+      pinned: {
+        boxShadow: Theme.shadow.normal(),
+      }
     },
     Title: {
       Component: VBox,
@@ -74,9 +78,18 @@ export default class Action extends React.Component {
     }
   });
 
+  constructor(props) {
+    super(props);
+    this.state = {pinFooter: false};
+    this._contentRef = null;
+    this._contentMarkerRef = null;
+    this._resizeDetector = null;
+  }
+
   render() {
     let {Root, Header, Content, Footer, Title} = this.stylesheet;
     let {children, title, onClose, noPadding} = this.props;
+    let {pinFooter} = this.state;
     let footer = this.props.renderFooter();
     return (
       <Root>
@@ -88,9 +101,64 @@ export default class Action extends React.Component {
               onClick={onClose}
               />}
         </Header>
-        <Content state={{noPadding}}>{children}</Content>
-        {footer && <Footer>{footer}</Footer>}
+        <Content ref={this._onContentRef} state={{noPadding}}>
+          {children}
+          {footer && !pinFooter && <Footer>{footer}</Footer>}
+          <div style={{height: 0}} ref={this._onContentMarkerRef} />
+        </Content>
+        {footer && pinFooter && <Footer state={{pinned: pinFooter}}>{footer}</Footer>}
       </Root>
     );
+  }
+
+  componentDidMount() {
+    this._installContentResizeDetector();
+  }
+
+  componentWillUnmount() {
+    this._uninstallContentResizeDeterctor();
+  }
+
+  _installContentResizeDetector() {
+    if (this._contentRef && this._contentMarkerRef) {
+      let contentElem = React.findDOMNode(this._contentRef);
+      this._resizeDetector = resizeDetector();
+      this._resizeDetector.listenTo(contentElem, this._onContentResize);
+    }
+  }
+
+  _uninstallContentResizeDeterctor() {
+    if (this._resizeDetector && this._contentRef) {
+      let contentElem = React.findDOMNode(this._contentRef);
+      this._resizeDetector.uninstall(contentElem);
+      this._resizeDetector = null;
+    }
+  }
+
+  @autobind
+  _onContentResize() {
+    let contentElem = React.findDOMNode(this._contentRef);
+    let contentMarkerElem = React.findDOMNode(this._contentMarkerRef);
+    let contentMarkerBottom = contentMarkerElem.getBoundingClientRect().bottom;
+    let contentBottom = contentElem.getBoundingClientRect().bottom;
+    if (contentBottom - contentMarkerBottom > 50) {
+      if (this.state.pinFooter) {
+        this.setState({pinFooter: false});
+      }
+    } else {
+      if (!this.state.pinFooter) {
+        this.setState({pinFooter: true});
+      }
+    }
+  }
+
+  @autobind
+  _onContentRef(contentRef) {
+    this._contentRef = contentRef;
+  }
+
+  @autobind
+  _onContentMarkerRef(contentMarkerRef) {
+    this._contentMarkerRef = contentMarkerRef;
   }
 }

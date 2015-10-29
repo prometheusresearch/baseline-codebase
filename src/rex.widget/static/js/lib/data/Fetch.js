@@ -5,6 +5,7 @@
 import autobind from 'autobind-decorator';
 import React from 'react';
 import ReactUpdates from 'react/lib/ReactUpdates';
+import transferStaticProperties from '../lang/transferStaticProperties';
 import DataSet from './DataSet';
 import DataFetchTracker from './DataFetchTracker';
 import * as Registry from './DataComponentRegistry';
@@ -34,9 +35,13 @@ export default function Fetch(fetch) {
 
   return function decorateWithFetch(Component) {
 
-    return class extends React.Component {
+    let displayName = Component.displayName || Component.name;
+
+    let FetchContainer = class extends React.Component {
 
       static defaultProps = getDefaultProps(Component);
+
+      static displayName = `FetchContainer(${displayName})`;
 
       constructor(props) {
         super(props);
@@ -58,7 +63,7 @@ export default function Fetch(fetch) {
         return (
           <Component
             {...this.props}
-            data={this.state.data}
+            fetched={this.state.data}
             dataParams={this.state.params}
             setDataParams={this._onDataParams}
             />
@@ -172,5 +177,10 @@ export default function Fetch(fetch) {
         this.setState({data, params});
       }
     };
+
+    transferStaticProperties(Component, FetchContainer);
+
+    return FetchContainer;
   };
 }
+

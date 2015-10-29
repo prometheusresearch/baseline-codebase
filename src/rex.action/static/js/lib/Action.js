@@ -65,7 +65,6 @@ export default class Action extends React.Component {
       }
     },
     Footer: {
-      Component: VBox,
       boxShadow: Theme.shadow.normal(),
       padding: 5,
     },

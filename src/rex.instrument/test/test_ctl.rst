@@ -402,7 +402,7 @@ It fails if the structure violates the specification in any way::
 
     >>> ctl('calculationset-validate ./test/calculationsets/bad-calculation-type.json', expect=1)
     FATAL ERROR: The following problems were encountered when validating this CalculationSet:
-    calculations.0.type: "badtype" is not one of text, integer, float, boolean, enumeration, enumerationSet, date, time, dateTime
+    calculations.0.type: "badtype" is not one of text, integer, float, boolean, date, time, dateTime
     <BLANKLINE>
 
     >>> ctl('calculationset-validate ./test/calculationsets/bad-options-given-expression-and-callable.json', expect=1)

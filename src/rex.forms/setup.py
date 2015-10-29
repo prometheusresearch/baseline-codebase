@@ -34,7 +34,7 @@ setup(
         'rex.instrument>=1,<2',
         'rex.expression>=1.3,<2',
         'rex.i18n>=0.3,<0.5',
-        'rios.core>=0.5,<0.6',
+        'rios.core>=0.6,<0.7',
     ],
     rex_init='rex.forms',
     rex_static='static'

@@ -76,6 +76,7 @@ export default class DataTableBase extends React.Component {
     minColumnWidth: 90,
     rowHeight: 35,
     headerHeight: 35,
+    pagination: {top: 50, skip: 0},
     sort: {valueKey: null, asc: true},
     onSort: emptyFunction,
     onSelect: emptyFunction,

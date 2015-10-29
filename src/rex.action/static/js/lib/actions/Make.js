@@ -1,8 +1,8 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
+import autobind             from 'autobind-decorator';
 import React                from 'react';
 import RexWidget            from 'rex-widget';
 import emptyFunction        from 'rex-widget/lib/emptyFunction';
@@ -10,27 +10,34 @@ import {command, Types}     from '../execution/Command';
 import Action               from '../Action';
 import * as ObjectTemplate  from '../ObjectTemplate';
 import * as ContextUtils    from '../ContextUtils';
-import Button               from '../ui/SuccessButton';
+import SuccessButton        from '../ui/SuccessButton';
 
-let Make = React.createClass({
-  mixins: [RexWidget.DataSpecificationMixin],
+export default class Make extends React.Component {
 
-  dataSpecs: {
-    dataMutation: RexWidget.DataSpecification.entity()
-  },
-
-  propTypes: {
+  static propTypes = {
     context: React.PropTypes.object,
     onCommand: React.PropTypes.func,
-  },
+  };
+
+  static defaultProps = {
+    width: 400,
+    icon: 'plus',
+    onSubmitComplete: emptyFunction,
+    submitButton: 'Submit'
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = {key: 1};
+  }
 
   render() {
-    var {
+    let {
       fields, entity,
       submitButton, onClose, width, context, contextTypes
     } = this.props;
-    var value = ObjectTemplate.render(this.props.value, context);
-    var title = this.constructor.getTitle(this.props);
+    let value = ObjectTemplate.render(this.props.value, context);
+    let title = this.constructor.getTitle(this.props);
     return (
       <Action
         title={title}
@@ -44,39 +51,26 @@ let Make = React.createClass({
           ref="form"
           entity={entity.type.name}
           fields={fields}
-          submitTo={this.dataSpecs.dataMutation}
+          submitTo={this.props.dataMutation}
           submitButton={null}
           onSubmitComplete={this.onSubmitComplete}
           value={value}
           />
       </Action>
     );
-  },
+  }
 
+  @autobind
   renderFooter() {
-    var {submitButton, icon} = this.props;
+    let {submitButton, icon} = this.props;
     return (
-      <Button
+      <SuccessButton
         onClick={this.onSubmit}
-        style={{width: 150, textAlign: 'center'}}
         icon={icon}>
         {submitButton}
-      </Button>
+      </SuccessButton>
     );
-  },
-
-  getInitialState() {
-    return {key: 1};
-  },
-
-  getDefaultProps() {
-    return {
-      width: 400,
-      icon: 'plus',
-      onSubmitComplete: emptyFunction,
-      submitButton: 'Submit'
-    };
-  },
+  }
 
   getKey() {
     var contextKey = Object
@@ -84,38 +78,36 @@ let Make = React.createClass({
       .map(k => this.props.context[k])
       .join('__');
     return `${contextKey}__${this.state.key}`;
-  },
+  }
 
+  @autobind
   onSubmit(e) {
     e.preventDefault();
     e.stopPropagation();
     this.refs.form.submit();
-  },
+  }
 
+  @autobind
   onSubmitComplete(data) {
     this.props.onSubmitComplete(data);
     var key = this.state.key + 1;
     this.setState({key});
     this.props.onCommand('default', data);
-  },
+  }
 
-  statics: {
-    getTitle(props) {
-      return props.title || `Make ${props.entity.name}`;
-    },
+  static getTitle(props) {
+    return props.title || `Make ${props.entity.name}`;
+  }
 
-    commands: {
+  static commands = {
 
-      @command(Types.ConfigurableEntity())
-      default(props, context, entity) {
-        if (entity != null) {
-          return {...context, [props.entity.name]: entity};
-        } else {
-          return context;
-        }
+    @command(Types.ConfigurableEntity())
+    default(props, context, entity) {
+      if (entity != null) {
+        return {...context, [props.entity.name]: entity};
+      } else {
+        return context;
       }
     }
-  }
-});
-
-export default Make;
+  };
+}

@@ -2,6 +2,9 @@
 
 TESTS = $(wildcard test/*.rst) $(wildcard test/actions/*.rst)
 
+demo::
+	@make -C demo serve
+
 doc::
 	@sphinx-build doc doc/_build
 

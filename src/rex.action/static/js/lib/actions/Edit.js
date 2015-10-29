@@ -3,121 +3,100 @@
  */
 'use strict';
 
+import autobind             from 'autobind-decorator';
 import React                from 'react';
 import RexWidget            from 'rex-widget';
+import {Fetch}              from 'rex-widget/lib/data';
 import Action               from '../Action';
 import * as ObjectTemplate  from '../ObjectTemplate';
 import * as ContextUtils    from '../ContextUtils';
+import SuccessButton        from '../ui/SuccessButton';
 import {getEntityTitle}     from '../Entity';
 import Title                from './Title';
+import fetchEntity          from './fetchEntity';
 
-let Style = {
-  submitButton: {
-    width: '25%'
-  }
-};
+@Fetch(fetchEntity)
+export default class Edit extends React.Component {
 
-let Edit = React.createClass({
-  mixins: [RexWidget.DataSpecificationMixin],
-
-  propTypes: {
+  static propTypes = {
     context: React.PropTypes.object,
     onCommand: React.PropTypes.func,
-  },
+  };
 
-  dataSpecs: {
-    data: RexWidget.DataSpecification.entity(),
-    dataMutation: RexWidget.DataSpecification.entity()
-  },
-
-  fetchDataSpecs: {
-    data: true
-  },
+  static defaultProps = {
+    width: 400,
+    icon: 'pencil',
+    submitButton: 'Submit'
+  };
 
   render() {
-    var {onClose, width} = this.props;
-    var title = this.constructor.getTitle(this.props);
+    let {onClose, width, fetched} = this.props;
+    let title = this.constructor.getTitle(this.props);
     return (
       <Action
         width={width}
         onClose={onClose}
         title={title}
         renderFooter={this.renderFooter}>
-        {this.data.data.loaded ?
+        {!fetched.entity.updating ?
           this.renderForm() :
           <RexWidget.Preloader />}
       </Action>
     );
-  },
+  }
 
+  @autobind
   renderFooter() {
-    var {submitButton} = this.props;
+    let {submitButton, icon} = this.props;
     return (
-      <RexWidget.Button
-        style={Style.submitButton}
-        success
-        icon="ok"
-        size="small"
-        onClick={this._onSubmit}
-        align="center">
+      <SuccessButton icon={icon} onClick={this._onSubmit}>
         {submitButton}
-      </RexWidget.Button>
+      </SuccessButton>
     );
-  },
+  }
 
+  @autobind
   renderForm() {
-    var {entity, fields, value, context, contextTypes} = this.props;
+    let {entity, fields, value, context, contextTypes, fetched} = this.props;
     value = mergeDeepInto(
-      this.data.data.data,
+      fetched.entity.data,
       ObjectTemplate.render(value, context)
     );
     return (
       <RexWidget.Forms.ConfigurableEntityForm
         ref="form"
         context={ContextUtils.getMaskedContext(context, contextTypes.input)}
-        submitTo={this.dataSpecs.dataMutation}
+        submitTo={this.props.dataMutation}
         submitButton={null}
         onSubmitComplete={this._onSubmitComplete.bind(null, context[entity.name])}
-        initialValue={this.data.data.data}
+        initialValue={fetched.entity.data}
         value={value}
         entity={entity.type.name}
         fields={fields}
         />
     );
-  },
+  }
 
-  getDefaultProps() {
-    return {
-      width: 400,
-      icon: 'pencil',
-      submitButton: 'Submit'
-    };
-  },
-
+  @autobind
   _onSubmit(e) {
     e.preventDefault();
     e.stopPropagation();
     this.refs.form.submit();
-  },
+  }
 
+  @autobind
   _onSubmitComplete(prevEntity, nextEntity) {
     this.props.onEntityUpdate(prevEntity, nextEntity);
-  },
-
-  statics: {
-
-    renderTitle({entity, title = `Edit ${entity.name}`}, context) {
-      return <Title title={title} entity={entity} context={context} />;
-    },
-
-    getTitle(props) {
-      return props.title || `Edit ${props.entity.name}`;
-    }
-
   }
-});
 
-export default Edit;
+  static renderTitle({entity, title = `Edit ${entity.name}`}, context) {
+    return <Title title={title} entity={entity} context={context} />;
+  }
+
+  static getTitle(props) {
+    return props.title || `Edit ${props.entity.name}`;
+  }
+}
 
 function mergeDeepInto(a, b) {
   a = {...a};

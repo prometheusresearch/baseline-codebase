@@ -1,64 +1,46 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-var React                       = require('react');
-var RexWidget                   = require('rex-widget');
-var {VBox, HBox}                = RexWidget.Layout;
-var DS                          = RexWidget.DataSpecification;
-var {overflow, boxShadow, rgb}  = RexWidget.StyleUtils;
-var Action                      = require('../Action');
-var {getEntityTitle, isLoaded}  = require('../Entity');
-var Title                       = require('./Title');
+import React                       from 'react';
+import RexWidget                   from 'rex-widget';
+import Fetch                       from 'rex-widget/lib/data/Fetch';
+import Action                      from '../Action';
+import {getEntityTitle, isLoaded}  from '../Entity';
+import Title                       from './Title';
+import fetchEntity                 from './fetchEntity';
 
-var View = React.createClass({
-  mixins: [RexWidget.DataSpecificationMixin],
+@Fetch(fetchEntity)
+export default class View extends React.Component {
 
-  dataSpecs: {
-    data: DS.entity()
-  },
-
-  fetchDataSpecs: {
-    data: true
-  },
+  static defaultProps = {
+    icon: 'eye-open',
+    width: 400
+  };
 
   render() {
-    let {fields, entity, context, onClose, width} = this.props;
+    let {fields, entity, context, onClose, width, fetched} = this.props;
     let title = this.constructor.getTitle(this.props);
-    let {data} = this.data.data;
     return (
       <Action title={title} onClose={onClose} width={width}>
-        {isLoaded(data) ?
+        {!fetched.entity.updating ?
           <RexWidget.Forms.ConfigurableEntityForm
-            key={data.id}
+            key={fetched.entity.data.id}
             readOnly
             entity={entity.type.name}
-            value={data}
+            value={fetched.entity.data}
             fields={fields}
             /> :
             <RexWidget.Preloader />}
       </Action>
     );
-  },
-
-  getDefaultProps() {
-    return {
-      icon: 'eye-open',
-      width: 400
-    };
-  },
-
-  statics: {
-
-    renderTitle({entity, title = `View ${entity.name}`}, context) {
-      return <Title title={title} entity={entity} context={context} />;
-    },
-
-    getTitle(props) {
-      return props.title || `View ${props.entity.type.name}`;
-    }
   }
-});
 
-module.exports = View;
+  static renderTitle({entity, title = `View ${entity.name}`}, context) {
+    return <Title title={title} entity={entity} context={context} />;
+  }
+
+  static getTitle(props) {
+    return props.title || `View ${props.entity.type.name}`;
+  }
+}

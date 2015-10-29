@@ -32,7 +32,7 @@ setup(
         'rex.core>=1.9,<2',
         'rex.ctl>=2,<3',
         'rex.instrument>=1,<2',
-        'rios.core>=0.5,<0.6',
+        'rios.core>=0.6,<0.7',
     ],
     rex_init='rex.mobile',
 )

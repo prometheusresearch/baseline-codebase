@@ -117,6 +117,7 @@ export default class Wizard extends Component {
                   style={{zIndex: 1000}}
                   onReplace={this.scheduleCommand(this.replace, pos.keyPath)}
                   onEntityUpdate={this.scheduleCommand(this.entityUpdate)}
+                  onState={this.scheduleCommand(this.onState)}
                   onCommand={this.scheduleCommand(this.executeActionCommand)}
                   onContext={this.scheduleCommand(this.onContext)}
                   onClose={idx > 0 ?
@@ -242,6 +243,12 @@ export default class Wizard extends Component {
       Command.onContextCommand.name,
       context
     )(state);
+  }
+
+  @Component.command
+  onState(state, position, stateUpdate) {
+    let execution = state.execution.setState(position, stateUpdate);
+    return {...state, execution};
   }
 
   @Component.command

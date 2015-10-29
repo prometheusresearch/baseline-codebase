@@ -48,6 +48,8 @@ export default class Wizard extends React.Component {
     let action = React.cloneElement(execution.position.element, {
       key: execution.position.key,
       context: execution.position.context,
+      actionState: execution.position.state,
+      setActionState: this._onState.bind(null, execution.position),
       onCommand: this._onCommand.bind(null, execution.position),
       onContext: this._onContext.bind(null, execution.position),
       onEntityUpdate: this._onEntityUpdate,
@@ -116,6 +118,15 @@ export default class Wizard extends React.Component {
       execution = state.execution.executeCommandAtCurrentPosition(
         commandName,
         ...args);
+      return {...state, execution};
+    });
+  }
+
+  @autobind
+  _onState(position, stateUpdate) {
+    this.setState(state => {
+      let {execution} = state;
+      execution = execution.setState(position, stateUpdate);
       return {...state, execution};
     });
   }

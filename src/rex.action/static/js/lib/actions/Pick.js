@@ -35,21 +35,21 @@ export default class Pick extends React.Component {
     }
   });
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      search: null
-    };
-  }
-
   render() {
     let {Search} = this.stylesheet;
-    let {entity, sort, onClose, context, contextTypes} = this.props;
-    let {search} = this.state;
+    let {
+      entity,
+      sort,
+      onClose,
+      context,
+      contextTypes,
+      actionState: {search}
+    } = this.props;
     let title = this.constructor.getTitle(this.props);
     let selected = context[entity.name] ? context[entity.name].id : undefined;
     let data = Port(this.props.data.port.path)
       .params(getContextParameters(contextTypes.input, context));
+    console.log(search);
     if (search) {
       data = data.params({'*:__search__': search});
     }
@@ -57,7 +57,7 @@ export default class Pick extends React.Component {
       <Action noContentWrapper title={title} onClose={onClose}>
         {this.props.search &&
           <Search
-            value={this.state.search}
+            value={search}
             onChange={this.onSearch}
             throttleOnChange={500}
             />}
@@ -82,7 +82,8 @@ export default class Pick extends React.Component {
 
   @autobind
   onSearch(search) {
-    this.setState({search});
+    console.log('setActionState', search);
+    this.props.setActionState({search});
   }
 
   static renderTitle({entity, title = `Pick ${entity.name}`}, context) {

@@ -31,6 +31,8 @@ export default class ActionPanel extends React.Component {
       context: position.context,
       execution,
       onContext: this._onContext,
+      actionState: position.state,
+      setActionState: this._onState,
       onCommand: this._onCommand,
       onEntityUpdate: this.props.onEntityUpdate,
       onClose
@@ -50,6 +52,11 @@ export default class ActionPanel extends React.Component {
   @autobind
   _onContext(context) {
     this.props.onContext(this.props.position, context);
+  }
+
+  @autobind
+  _onState(stateUpdate) {
+    this.props.onState(this.props.position, stateUpdate);
   }
 
   @autobind

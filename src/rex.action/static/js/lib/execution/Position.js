@@ -19,18 +19,20 @@ export default class Position {
       instruction = instruction.repeat;
       index = 0;
     }
-    return new this(instruction, context, parent, index);
+    return new this(instruction, context, {}, parent, index);
   }
 
   constructor(
     instruction,
     context = {},
+    state = {},
     parent = null,
     index = null,
     command = null
   ) {
     this.instruction = instruction;
     this.context = context;
+    this.state = state;
     this.parent = parent;
     this.index = index;
     this.command = command;
@@ -52,6 +54,19 @@ export default class Position {
     return new Position(
       this.instruction,
       context,
+      this.state,
+      this.parent,
+      this.index,
+      this.command
+    );
+  }
+
+  setState(stateUpdate) {
+    let state = {...this.state, ...stateUpdate};
+    return new Position(
+      this.instruction,
+      this.context,
+      state,
       this.parent,
       this.index,
       this.command
@@ -67,6 +82,7 @@ export default class Position {
     return new Position(
       this.instruction,
       context,
+      this.state,
       this.parent,
       this.index,
       {commandName, args}

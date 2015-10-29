@@ -32,6 +32,7 @@ paths:
     action:
       type: pick
       entity: individual
+      search: code~$search
       fields:
       - code
       - identity.givenname
@@ -54,8 +55,8 @@ paths:
       type: wizard
       title: Individuals
       path:
-      - /individuals/make:
       - /individuals/pick:
+      - /individuals/make:
 
   /individuals/edit:
     access: anybody

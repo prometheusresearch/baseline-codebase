@@ -148,6 +148,13 @@ export default class Execution {
     }
   }
 
+  setState(position, stateUpdate) {
+    let idx = this.trace.indexOf(position);
+    let trace = this.trace.slice(0);
+    trace[idx] = this.trace[idx].setState(stateUpdate);
+    return new this.constructor(trace);
+  }
+
   /**
    * Get a list of alternative actions for a ``position``.
    */

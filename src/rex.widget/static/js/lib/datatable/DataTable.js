@@ -69,6 +69,13 @@ export default class DataTable extends React.Component {
     );
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (!this.props.data.equals(nextProps.data)) {
+      let pagination = this.props.pagination;
+      this.props.setDataParams({pagination});
+    }
+  }
+
   @autobind
   onPagination(pagination) {
     this.props.setDataParams({pagination});

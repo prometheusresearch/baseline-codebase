@@ -49,7 +49,6 @@ export default class Pick extends React.Component {
     let selected = context[entity.name] ? context[entity.name].id : undefined;
     let data = Port(this.props.data.port.path)
       .params(getContextParameters(contextTypes.input, context));
-    console.log(search);
     if (search) {
       data = data.params({'*:__search__': search});
     }
@@ -82,7 +81,6 @@ export default class Pick extends React.Component {
 
   @autobind
   onSearch(search) {
-    console.log('setActionState', search);
     this.props.setActionState({search});
   }
 

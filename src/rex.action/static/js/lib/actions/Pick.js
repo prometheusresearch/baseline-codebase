@@ -9,7 +9,6 @@ import {VBox, HBox}         from '@prometheusresearch/react-box';
 import RexWidget            from 'rex-widget';
 import DataTable            from 'rex-widget/lib/datatable/DataTable';
 import Port                 from 'rex-widget/lib/data/Port';
-import Button               from '../ui/QuietButton';
 import {command, Types}     from '../execution/Command';
 import * as Entity          from '../Entity';
 import Title                from './Title';
@@ -55,7 +54,7 @@ export default class Pick extends React.Component {
       data = data.params({'*:__search__': search});
     }
     return (
-      <Action noPadding title={title} onClose={onClose}>
+      <Action noContentWrapper title={title} onClose={onClose}>
         {this.props.search &&
           <Search
             value={this.state.search}

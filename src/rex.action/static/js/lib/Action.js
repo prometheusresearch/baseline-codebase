@@ -2,16 +2,21 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import autobind         from 'autobind-decorator';
-import resizeDetector   from 'element-resize-detector';
-import emptyFunction    from 'empty/functionThatReturnsNull';
-import React            from 'react';
-import * as Stylesheet  from '@prometheusresearch/react-stylesheet';
-import {VBox, HBox}     from '@prometheusresearch/react-box';
-import RexWidget        from 'rex-widget';
-import * as Style       from 'rex-widget/lib/StyleUtils';
-import * as Theme       from './ui/Theme';
-import Button           from './ui/QuietButton';
+import autobind             from 'autobind-decorator';
+import resizeDetector       from 'element-resize-detector';
+import emptyFunction        from 'empty/functionThatReturnsNull';
+import React                from 'react';
+import * as Stylesheet      from '@prometheusresearch/react-stylesheet';
+import * as CSS             from '@prometheusresearch/react-stylesheet/css';
+import {VBox, HBox}         from '@prometheusresearch/react-box';
+import RexWidget            from 'rex-widget';
+
+import {
+  QuietButton,
+  StickyFooterPanel,
+  Theme
+} from './ui';
+
 
 @Stylesheet.styleable
 export default class Action extends React.Component {
@@ -58,13 +63,7 @@ export default class Action extends React.Component {
       padding: 10,
     },
     Content: {
-      Component: VBox,
       padding: 10,
-      overflow: Style.auto,
-      flex: 1,
-      noPadding: {
-        padding: 0
-      }
     },
     Footer: {
       padding: 5,
@@ -78,87 +77,29 @@ export default class Action extends React.Component {
     }
   });
 
-  constructor(props) {
-    super(props);
-    this.state = {pinFooter: false};
-    this._contentRef = null;
-    this._contentMarkerRef = null;
-    this._resizeDetector = null;
-  }
-
   render() {
     let {Root, Header, Content, Footer, Title} = this.stylesheet;
-    let {children, title, onClose, noPadding} = this.props;
-    let {pinFooter} = this.state;
+    let {children, title, onClose, noContentWrapper} = this.props;
     let footer = this.props.renderFooter();
+    if (footer) {
+      footer = <Footer>{footer}</Footer>;
+    }
     return (
       <Root>
         <Header>
           {title && <Title><h4>{title}</h4></Title>}
           {onClose &&
-            <Button
+            <QuietButton
               icon="remove"
               onClick={onClose}
               />}
         </Header>
-        <Content ref={this._onContentRef} state={{noPadding}}>
-          {children}
-          {footer && !pinFooter && <Footer>{footer}</Footer>}
-          <div style={{height: 0}} ref={this._onContentMarkerRef} />
-        </Content>
-        {footer && pinFooter && <Footer state={{pinned: pinFooter}}>{footer}</Footer>}
+        <StickyFooterPanel footer={footer}>
+          {noContentWrapper ?
+            children :
+            <Content>{children}</Content>}
+        </StickyFooterPanel>
       </Root>
     );
-  }
-
-  componentDidMount() {
-    this._installContentResizeDetector();
-  }
-
-  componentWillUnmount() {
-    this._uninstallContentResizeDeterctor();
-  }
-
-  _installContentResizeDetector() {
-    if (this._contentRef && this._contentMarkerRef) {
-      let contentElem = React.findDOMNode(this._contentRef);
-      this._resizeDetector = resizeDetector();
-      this._resizeDetector.listenTo(contentElem, this._onContentResize);
-    }
-  }
-
-  _uninstallContentResizeDeterctor() {
-    if (this._resizeDetector && this._contentRef) {
-      let contentElem = React.findDOMNode(this._contentRef);
-      this._resizeDetector.uninstall(contentElem);
-      this._resizeDetector = null;
-    }
-  }
-
-  @autobind
-  _onContentResize() {
-    let contentElem = React.findDOMNode(this._contentRef);
-    let contentMarkerElem = React.findDOMNode(this._contentMarkerRef);
-    let contentMarkerBottom = contentMarkerElem.getBoundingClientRect().bottom;
-    let contentBottom = contentElem.getBoundingClientRect().bottom;
-    if (contentBottom - contentMarkerBottom > 50) {
-      if (this.state.pinFooter) {
-        this.setState({pinFooter: false});
-      }
-    } else {
-      if (!this.state.pinFooter) {
-        this.setState({pinFooter: true});
-      }
-    }
-  }
-
-  @autobind
-  _onContentRef(contentRef) {
-    this._contentRef = contentRef;
-  }
-
-  @autobind
-  _onContentMarkerRef(contentMarkerRef) {
-    this._contentMarkerRef = contentMarkerRef;
   }
 }

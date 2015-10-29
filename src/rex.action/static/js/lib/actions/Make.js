@@ -10,7 +10,7 @@ import {command, Types}     from '../execution/Command';
 import Action               from '../Action';
 import * as ObjectTemplate  from '../ObjectTemplate';
 import * as ContextUtils    from '../ContextUtils';
-import SuccessButton        from '../ui/SuccessButton';
+import {SuccessButton}      from '../ui';
 
 export default class Make extends React.Component {
 

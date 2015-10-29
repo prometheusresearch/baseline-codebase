@@ -2,11 +2,11 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React, {PropTypes}     from 'react';
-import BreadcrumbBase         from '../ui/Breadcrumb';
-import {getIconAtPosition}    from '../ActionIcon';
-import {getTitleAtPosition}   from '../ActionTitle';
-import ServicePanel           from './ServicePanel';
+import React, {PropTypes}             from 'react';
+import {Breadcrumb as BreadcrumbBase} from '../ui';
+import {getIconAtPosition}            from '../ActionIcon';
+import {getTitleAtPosition}           from '../ActionTitle';
+import ServicePanel                   from './ServicePanel';
 
 /**
  * Breadcrumb which renders wizard's progress.

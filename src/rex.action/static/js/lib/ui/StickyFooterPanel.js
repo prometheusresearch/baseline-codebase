@@ -1,0 +1,121 @@
+/**
+ * @copyright 2015, Prometheus Research, LLC
+ */
+
+import autobind             from 'autobind-decorator';
+import resizeDetector       from 'element-resize-detector';
+import React, {PropTypes}   from 'react';
+import * as Stylesheet      from '@prometheusresearch/react-stylesheet';
+import {VBox, HBox}         from '@prometheusresearch/react-box';
+
+@Stylesheet.styleable
+export default class StickyFooterPanel extends React.Component {
+
+  static propTypes = {
+    children: PropTypes.node,
+    footer: PropTypes.node,
+    stickThreshold: PropTypes.number,
+  };
+
+  static defaultProps = {
+    stickThreshold: 50,
+  };
+
+  static stylesheet = Stylesheet.createStylesheet({
+    Root: {
+      Component: VBox,
+      flex: 1,
+    },
+    Content: {
+      Component: VBox,
+      flex: 1,
+    },
+    Marker: {
+      Component: 'div',
+      height: 0,
+    }
+  });
+
+  constructor(props) {
+    super(props);
+    this.state = {pinnned: false};
+    this._contentRef = null;
+    this._contentMarkerRef = null;
+    this._resizeDetector = null;
+  }
+
+  render() {
+    let {Root, Content, Footer, Marker} = this.stylesheet;
+    let {children, footer} = this.props;
+    let {pinned} = this.state;
+    if (footer) {
+      footer = React.cloneElement(footer, {state: {...footer.props.state, pinned}});
+    }
+    return (
+      <Root>
+        <Content ref={this._onContentRef}>
+          {children}
+          {!pinned && footer}
+          <Marker ref={this._onContentMarkerRef} />
+        </Content>
+        {pinned && footer}
+      </Root>
+    );
+  }
+
+  componentDidMount() {
+    this._installContentResizeDetector();
+  }
+
+  componentWillUnmount() {
+    this._uninstallContentResizeDeterctor();
+  }
+
+  _installContentResizeDetector() {
+    if (this._contentRef && this._contentMarkerRef) {
+      let contentElem = React.findDOMNode(this._contentRef);
+      this._resizeDetector = resizeDetector();
+      this._resizeDetector.listenTo(contentElem, this._onContentResize);
+    }
+  }
+
+  _uninstallContentResizeDeterctor() {
+    if (this._resizeDetector && this._contentRef) {
+      this._resizeDetector.uninstall(this._contentElement);
+      this._resizeDetector = null;
+    }
+  }
+
+  @autobind
+  _onContentResize() {
+    let contentMarkerBottom = this._contentMarkerElement.getBoundingClientRect().bottom;
+    let contentBottom = this._contentElement.getBoundingClientRect().bottom;
+    if (contentBottom - contentMarkerBottom > this.props.stickThreshold) {
+      if (this.state.pinned) {
+        this.setState({pinned: false});
+      }
+    } else {
+      if (!this.state.pinned) {
+        this.setState({pinned: true});
+      }
+    }
+  }
+
+  get _contentElement() {
+    return React.findDOMNode(this._contentRef);
+  }
+
+  get _contentMarkerElement() {
+    return React.findDOMNode(this._contentMarkerRef);
+  }
+
+  @autobind
+  _onContentRef(contentRef) {
+    this._contentRef = contentRef;
+  }
+
+  @autobind
+  _onContentMarkerRef(contentMarkerRef) {
+    this._contentMarkerRef = contentMarkerRef;
+  }
+}

@@ -8,8 +8,7 @@ import {VBox, HBox}     from '@prometheusresearch/react-box';
 import style            from 'rex-widget/lib/StyleUtils';
 import {renderTitle}    from '../actions';
 import ActionButton     from '../ActionButton';
-import Button           from '../ui/Button';
-import * as Theme       from '../ui/Theme';
+import {Theme, Button}  from '../ui';
 
 @Stylesheet.styleable
 export default class ContextToolbar extends React.Component {

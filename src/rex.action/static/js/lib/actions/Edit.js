@@ -10,7 +10,7 @@ import {Fetch}              from 'rex-widget/lib/data';
 import Action               from '../Action';
 import * as ObjectTemplate  from '../ObjectTemplate';
 import * as ContextUtils    from '../ContextUtils';
-import SuccessButton        from '../ui/SuccessButton';
+import {SuccessButton}      from '../ui';
 import {getEntityTitle}     from '../Entity';
 import Title                from './Title';
 import fetchEntity          from './fetchEntity';

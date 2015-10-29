@@ -2,11 +2,11 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import * as Stylesheet  from '@prometheusresearch/react-stylesheet';
-import {VBox, HBox}     from '@prometheusresearch/react-box';
-import React            from 'react';
-import ActionButton     from '../ActionButton';
-import SecondaryButton  from '../ui/SecondaryButton';
+import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
+import {VBox, HBox}       from '@prometheusresearch/react-box';
+import React              from 'react';
+import ActionButton       from '../ActionButton';
+import {SecondaryButton}  from '../ui';
 
 @Stylesheet.styleable
 export default class NavigationToolbar extends React.Component {

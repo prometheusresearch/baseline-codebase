@@ -30,7 +30,7 @@ The basic usage example looks like::
   class Users extends React.Component {
 
     render() {
-      let users = this.props.data.users
+      let users = this.props.fetched.users
       if (users.updating) {
         return <Preloader />
       } else {
@@ -50,7 +50,7 @@ What happens here:
 * We apply ``Fetch`` decorator with ``UsersFetch`` function as argument to
   ``Users`` React component.
 
-* We use data from ``this.props.data`` prop injected by decorator to reference
+* We use data from ``this.props.fetched`` prop injected by decorator to reference
   the fetched data sets.
 
 Parametrized fetches
@@ -72,7 +72,7 @@ set data parameters::
   class User extends React.Component {
 
     render() {
-      let user = this.props.data.user
+      let user = this.props.fetched.user
       if (user.updating) {
         return <Preloader />
       } else {
@@ -125,7 +125,7 @@ parameters additional to props::
     }
 
     render() {
-      let users = this.props.data.users
+      let users = this.props.fetched.users
       if (users.updating) {
         return <Preloader />
       } else {

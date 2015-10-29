@@ -49,12 +49,12 @@ describe('Fetch', function() {
     renderer.render(<Component />);
     let output = renderer.getRenderOutput();
 
-    assert(output.props.data);
-    assert(output.props.data.item);
+    assert(output.props.fetched);
+    assert(output.props.fetched.item);
 
-    assert(output.props.data.item.data === null);
-    assert(output.props.data.item.error === null);
-    assert(output.props.data.item.updating);
+    assert(output.props.fetched.item.data === null);
+    assert(output.props.fetched.item.error === null);
+    assert(output.props.fetched.item.updating);
   });
 
   it('stops fetching after component is unmounted (on complete)', function() {
@@ -83,7 +83,7 @@ describe('Fetch', function() {
     component.componentDidMount();
     assert(component.render.callCount === 0);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, null, null, true);
+    assertDataSet(output.props.fetched.item, null, null, true);
 
     component.componentWillUnmount();
     assert(component.render.callCount === 0);
@@ -118,7 +118,7 @@ describe('Fetch', function() {
 
     assert(component.render.callCount === 0);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, null, null, true);
+    assertDataSet(output.props.fetched.item, null, null, true);
 
     component.componentWillUnmount();
     assert(component.render.callCount === 0);
@@ -153,13 +153,13 @@ describe('Fetch', function() {
 
     assert(component.render.callCount === 0);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, null, null, true);
+    assertDataSet(output.props.fetched.item, null, null, true);
 
     item.promise.onComplete('data');
 
     assert(component.render.callCount === 1);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, 'data', null, false);
+    assertDataSet(output.props.fetched.item, 'data', null, false);
 
     renderer.unmount();
   });
@@ -190,13 +190,13 @@ describe('Fetch', function() {
 
     assert(component.render.callCount === 0);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, null, null, true);
+    assertDataSet(output.props.fetched.item, null, null, true);
 
     item.promise.onError('error');
 
     assert(component.render.callCount === 1);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, null, 'error', false);
+    assertDataSet(output.props.fetched.item, null, 'error', false);
 
     renderer.unmount();
   });
@@ -227,26 +227,26 @@ describe('Fetch', function() {
 
     assert(component.render.callCount === 0);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, null, null, true);
+    assertDataSet(output.props.fetched.item, null, null, true);
 
     item.promise.onComplete('data');
 
     assert(component.render.callCount === 1);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, 'data', null, false);
+    assertDataSet(output.props.fetched.item, 'data', null, false);
 
     item = new DataProvider();
     output.props.setDataParams({});
 
     assert(component.render.callCount === 2);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, 'data', null, true);
+    assertDataSet(output.props.fetched.item, 'data', null, true);
 
     item.promise.onComplete('data2');
 
     assert(component.render.callCount === 3);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, 'data2', null, false);
+    assertDataSet(output.props.fetched.item, 'data2', null, false);
 
     renderer.unmount();
   });
@@ -277,7 +277,7 @@ describe('Fetch', function() {
 
     assert(component.render.callCount === 0);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, null, null, true);
+    assertDataSet(output.props.fetched.item, null, null, true);
 
     let prevItem = item;
     item = new DataProvider();
@@ -285,19 +285,19 @@ describe('Fetch', function() {
 
     assert(component.render.callCount === 1);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, null, null, true);
+    assertDataSet(output.props.fetched.item, null, null, true);
 
     item.promise.onComplete('data2');
 
     assert(component.render.callCount === 2);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, 'data2', null, false);
+    assertDataSet(output.props.fetched.item, 'data2', null, false);
 
     prevItem.promise.onComplete('data');
 
     assert(component.render.callCount === 2);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, 'data2', null, false);
+    assertDataSet(output.props.fetched.item, 'data2', null, false);
 
     renderer.unmount();
   });
@@ -328,7 +328,7 @@ describe('Fetch', function() {
 
     assert(component.render.callCount === 0);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, null, null, true);
+    assertDataSet(output.props.fetched.item, null, null, true);
 
     let prevItem = item;
     item = new DataProvider();
@@ -336,19 +336,19 @@ describe('Fetch', function() {
 
     assert(component.render.callCount === 1);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, null, null, true);
+    assertDataSet(output.props.fetched.item, null, null, true);
 
     prevItem.promise.onComplete('data');
 
     assert(component.render.callCount === 1);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, null, null, true);
+    assertDataSet(output.props.fetched.item, null, null, true);
 
     item.promise.onComplete('data2');
 
     assert(component.render.callCount === 2);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, 'data2', null, false);
+    assertDataSet(output.props.fetched.item, 'data2', null, false);
 
     renderer.unmount();
   });
@@ -383,13 +383,13 @@ describe('Fetch', function() {
 
     assert(component.render.callCount === 0);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, null, null, true);
+    assertDataSet(output.props.fetched.item, null, null, true);
 
     output.props.setDataParams({cancel: true});
 
     assert(component.render.callCount === 1);
     output = renderer.getRenderOutput();
-    assert(output.props.data.item === undefined);
+    assert(output.props.fetched.item === undefined);
 
     item.promise.onComplete('data');
     assert(component.render.callCount === 1);
@@ -421,13 +421,13 @@ describe('Fetch', function() {
 
     assert(component.render.callCount === 0);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, null, null, true);
+    assertDataSet(output.props.fetched.item, null, null, true);
 
     item.promise.onComplete('data');
 
     assert(component.render.callCount === 1);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, 'data', null, false);
+    assertDataSet(output.props.fetched.item, 'data', null, false);
 
     item = new DataProvider();
 
@@ -435,13 +435,13 @@ describe('Fetch', function() {
 
     assert(component.render.callCount === 3);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, 'data', null, true);
+    assertDataSet(output.props.fetched.item, 'data', null, true);
 
     item.promise.onComplete('data2');
 
     assert(component.render.callCount === 4);
     output = renderer.getRenderOutput();
-    assertDataSet(output.props.data.item, 'data2', null, false);
+    assertDataSet(output.props.fetched.item, 'data2', null, false);
 
     renderer.unmount();
   });

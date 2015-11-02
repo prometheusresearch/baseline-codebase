@@ -26,17 +26,17 @@ In case fields are not specified, they are generated from port::
   ... """)
 
   >>> edit # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Edit(icon=undefined,
-       width=undefined,
-       id='edit-individual',
-       title=undefined,
+  Edit(db=None,
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
-       db=None,
        fields=[...],
-       query=None,
-       value={},
+       icon=undefined,
+       id='edit-individual',
        input=RecordType(rows={}, open=True),
-       submit_button=undefined)
+       query=None,
+       submit_button=undefined,
+       title=undefined,
+       value={},
+       width=undefined)
 
   >>> input, output = edit.context_types
 
@@ -78,16 +78,17 @@ You can also specify fields and see port generated from them::
   ... """)
 
   >>> edit # doctest: +NORMALIZE_WHITESPACE
-  Edit(icon=undefined,
-       width=undefined,
-       id='edit-individual',
-       title=undefined,
-       entity=RowType(name='individual', type=EntityType(name='individual', state=None)),       db=None,
+  Edit(db=None,
+       entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
        fields=[StringFormField(value_key=['code'], label=u'Code')],
-       query=None,
-       value={},
+       icon=undefined,
+       id='edit-individual',
        input=RecordType(rows={}, open=True),
-       submit_button=undefined)
+       query=None,
+       submit_button=undefined,
+       title=undefined,
+       value={},
+       width=undefined)
 
   >>> edit.port
   Port('''

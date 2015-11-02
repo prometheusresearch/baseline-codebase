@@ -26,14 +26,14 @@ In case fields are not specified, they are generated from port::
   ... """)
 
   >>> view # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  View(icon=undefined,
-        width=undefined,
-        id='view-individual',
-        title=undefined,
-        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
-        db=None,
-        fields=[...],
-        input=RecordType(rows={}, open=True))
+  View(db=None,
+       entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
+       fields=[...],
+       icon=undefined,
+       id='view-individual',
+       input=RecordType(rows={}, open=True),
+       title=undefined,
+       width=undefined)
 
   >>> input, output = view.context_types
 
@@ -84,14 +84,14 @@ You can also specify fields and see port generated from them::
   ... """)
 
   >>> view # doctest: +NORMALIZE_WHITESPACE
-  View(icon=undefined,
-       width=undefined,
-       id='view-individual',
-       title=undefined,
+  View(db=None,
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
-       db=None,
        fields=[StringFormField(value_key=['code'], label=u'Code')],
-       input=RecordType(rows={}, open=True))
+       icon=undefined,
+       id='view-individual',
+       input=RecordType(rows={}, open=True),
+       title=undefined,
+       width=undefined)
 
   >>> view.port
   Port('''
@@ -114,14 +114,14 @@ context::
   ... """)
 
   >>> view # doctest: +NORMALIZE_WHITESPACE
-  View(icon=undefined,
-       width=undefined,
-       id='view-mother',
-       title=undefined,
+  View(db=None,
        entity=RowType(name='mother', type=EntityType(name='individual', state=None)), 
-       db=None,
        fields=[StringFormField(value_key=['code'], label=u'Code')],
-       input=RecordType(rows={}, open=True))
+       icon=undefined,
+       id='view-mother',
+       input=RecordType(rows={}, open=True),
+       title=undefined,
+       width=undefined)
 
   >>> view.port
   Port('''

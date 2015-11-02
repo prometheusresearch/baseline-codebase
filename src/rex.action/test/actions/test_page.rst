@@ -28,10 +28,10 @@ In case fields are not specified, they are generated from port::
 
   >>> page # doctest: +NORMALIZE_WHITESPACE
   Page(icon=undefined,
-       width=undefined,
        id='home',
+       text=RST(src=u'<p>Welcome to Rex Action!</p>', links={}),
        title=undefined,
-       text=RST(src=u'<p>Welcome to Rex Action!</p>', links={}))
+       width=undefined)
 
   >>> input, output = page.context_types
 

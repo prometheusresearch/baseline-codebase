@@ -26,17 +26,17 @@ In case fields are not specified, they are generated from port::
   ... """)
 
   >>> make # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Make(icon=undefined,
-       width=undefined, 
-       id='make-individual', 
-       title=undefined, 
+  Make(db=None, 
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)), 
-       db=None, 
        fields=[...], 
-       query=None, 
-       value={}, 
+       icon=undefined,
+       id='make-individual', 
        input=RecordType(rows={}, open=True), 
-       submit_button=undefined)
+       query=None, 
+       submit_button=undefined,
+       title=undefined, 
+       value={}, 
+       width=undefined)
 
   >>> input, output = make.context_types
 
@@ -85,17 +85,17 @@ You can also specify fields and see port generated from them::
   ... """)
 
   >>> make # doctest: +NORMALIZE_WHITESPACE
-  Make(icon=undefined,
-       width=undefined,
-       id='make-individual',
-       title=undefined,
+  Make(db=None,
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
-       db=None,
        fields=[StringFormField(value_key=['code'], label=u'Code')],
-       query=None,
-       value={}, 
+       icon=undefined,
+       id='make-individual',
        input=RecordType(rows={}, open=True),
-       submit_button=undefined)
+       query=None,
+       submit_button=undefined,
+       title=undefined,
+       value={}, 
+       width=undefined)
 
   >>> make.port
   Port('''

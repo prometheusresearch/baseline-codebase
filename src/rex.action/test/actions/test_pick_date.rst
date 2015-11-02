@@ -25,12 +25,12 @@ In case fields are not specified, they are generated from port::
   ... """)
 
   >>> pick_date # doctest: +NORMALIZE_WHITESPACE
-  PickDate(icon=undefined,
-           width=undefined,
+  PickDate(annotate_month=None,
+           annotate_year=None,
+           icon=undefined,
            id='pick-date',
            title=undefined,
-           annotate_month=None,
-           annotate_year=None)
+           width=undefined)
 
   >>> input, output = pick_date.context_types
 

@@ -26,14 +26,14 @@ In case fields are not specified, they are generated from port::
   ... """)
 
   >>> drop # doctest: +NORMALIZE_WHITESPACE
-  Drop(icon=undefined,
-       width=undefined,
-       id='drop-individual',
-       title=undefined,
-       message=RST(src=u'<p>You are about to drop an entity</p>', links={}),
+  Drop(confirm_delay=undefined,
+       db=None,
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
-       confirm_delay=undefined,
-       db=None)
+       icon=undefined,
+       id='drop-individual',
+       message=RST(src=u'<p>You are about to drop an entity</p>', links={}),
+       title=undefined,
+       width=undefined)
 
   >>> input, output = drop.context_types
 

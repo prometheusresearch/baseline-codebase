@@ -11,7 +11,7 @@ Wizard
 
   >>> from rex.action import setting
   >>> from rex.action.action import Action
-  >>> from rex.action.typing import EntityType
+  >>> from rex.action.typing import EntityType, RecordType
 
   >>> class MyAction(Action):
   ...
@@ -56,19 +56,19 @@ Wizard
   ...   second:
   ...     type: wanother
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Wizard(path=Start(then=[Execute(action='first',
+  Wizard(actions={'second': AnotherAction(...),
+                  'first': MyAction(...)},
+         icon=undefined,
+         id='wizard',
+         initial_context=None,
+         path=Start(then=[Execute(action='first',
                                   then=[Execute(action='second',
                                                 then=[],
                                                 action_instance=...)],
                     action_instance=...)]),
-         initial_context=None,
          states=None,
-         actions={'second': AnotherAction(...),
-                  'first': MyAction(...)},
-         icon=undefined,
-         width=undefined,
-         id='wizard',
-         title=undefined)
+         title=undefined,
+         width=undefined)
 
 ::
 
@@ -82,15 +82,15 @@ Wizard
   ...   second:
   ...     type: wanother
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Wizard(path=Start(then=[Execute(action='first', then=[], action_instance=...)]),
-         initial_context=None,
-         states=None,
-         actions={'second': AnotherAction(...),
+  Wizard(actions={'second': AnotherAction(...),
                   'first': MyAction(...)},
          icon=undefined,
-         width=undefined,
          id='wizard',
-         title=undefined)
+         initial_context=None,
+         path=Start(then=[Execute(action='first', then=[], action_instance=...)]),
+         states=None,
+         title=undefined,
+         width=undefined)
 
 ::
 
@@ -119,14 +119,14 @@ Wizard
   ...   first:
   ...     type: require-x
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Wizard(path=Start(then=[Execute(action='first', then=[], action_instance=RequireX(...))]),
-         initial_context={'x': 'value'},
-         states=None,
-         actions={'first': RequireX(...)},
+  Wizard(actions={'first': RequireX(...)},
          icon=undefined,
-         width=undefined,
          id='wizard',
-         title=undefined)
+         initial_context={'x': 'value'},
+         path=Start(then=[Execute(action='first', then=[], action_instance=RequireX(...))]),
+         states=None,
+         title=undefined,
+         width=undefined)
 
 ::
 
@@ -202,7 +202,7 @@ Typechecking
   >>> def typecheck(yaml):
   ...   path = path_val.parse(yaml)
   ...   wizard = Wizard(id='wizard', path=path, states=domain, actions=actions)
-  ...   wizard.typecheck()
+  ...   wizard.typecheck(context_type=RecordType.empty())
 
   >>> def validate(yaml):
   ...   val = ProxyVal()

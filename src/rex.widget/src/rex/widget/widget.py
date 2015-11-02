@@ -141,8 +141,10 @@ class Widget(Extension):
         return self.__class__.validated(**next_values)
 
     def __repr__(self):
+        fields = self._fields.items()
+        fields = sorted(fields, key=lambda (k, v): k)
         args = ['%s=%r' % (name, getattr(self, name))
-                for name, field in self._fields.items()
+                for name, field in fields
                 if isinstance(field, Field)]
         return "%s(%s)" % (self.__class__.__name__, ', '.join(args))
 

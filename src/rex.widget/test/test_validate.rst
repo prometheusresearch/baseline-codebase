@@ -77,7 +77,7 @@ Validating widgets
   ... !<Example>
   ... title: Title
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Example(title='Title', desc='Desc')
+  Example(desc='Desc', title='Title')
 
   >>> parse("""
   ... !<Another>
@@ -89,7 +89,7 @@ Validating widgets
   ... title: Title
   ... desc: Desc!
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Example(title='Title', desc='Desc!')
+  Example(desc='Desc!', title='Title')
 
   >>> parse("""
   ... - !<Example>
@@ -98,8 +98,8 @@ Validating widgets
   ... - !<Example>
   ...   title: Title2
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  GroupWidget(children=[Example(title='Title', desc='Desc!'),
-                        Example(title='Title2', desc='Desc')])
+  GroupWidget(children=[Example(desc='Desc!', title='Title'),
+                        Example(desc='Desc', title='Title2')])
 
 Slots
 -----
@@ -112,7 +112,7 @@ Slots
   ...   name: title
   ...   default: Title
   ... """)
-  Example(title='Title', desc='Desc')
+  Example(desc='Desc', title='Title')
 
   >>> w = parse("""
   ... !<Example>
@@ -138,7 +138,7 @@ Slots
   ...   name: title
   ...   default: Title
   ... """, context={'title': 'Title!'})
-  Example(title='Title!', desc='Desc')
+  Example(desc='Desc', title='Title!')
   >>> parse("""
   ... !<Example>
   ... title: !slot
@@ -262,7 +262,7 @@ Slots within widget values::
   ...     name: title
   ...     default: Title
   ... """)
-  ExamplePanel(children=Example(title='Title', desc='Desc'))
+  ExamplePanel(children=Example(desc='Desc', title='Title'))
 
   >>> parse("""
   ... !<ExamplePanel>
@@ -271,7 +271,7 @@ Slots within widget values::
   ...     name: title
   ...     default: Title
   ... """, context={'title': 'Override!'})
-  ExamplePanel(children=Example(title='Override!', desc='Desc'))
+  ExamplePanel(children=Example(desc='Desc', title='Override!'))
 
   >>> parse("""
   ... !<ExamplePanel>
@@ -306,7 +306,7 @@ Slots within widget values::
   ...     name: title
   ...     default: Title
   ... """)
-  ExamplePanelWithExample(children=Example(title='Title', desc='Desc'))
+  ExamplePanelWithExample(children=Example(desc='Desc', title='Title'))
 
   >>> parse("""
   ... !<ExamplePanelWithExample>
@@ -315,7 +315,7 @@ Slots within widget values::
   ...     name: title
   ...     default: Title
   ... """, context={'title': 'Override'})
-  ExamplePanelWithExample(children=Example(title='Override', desc='Desc'))
+  ExamplePanelWithExample(children=Example(desc='Desc', title='Override'))
 
   >>> parse("""
   ... !<ExamplePanelWithExample>
@@ -324,7 +324,7 @@ Slots within widget values::
   ...     name: title
   ...     default: Title
   ... """)
-  ExamplePanelWithExample(children=Example(title='Title', desc='Desc'))
+  ExamplePanelWithExample(children=Example(desc='Desc', title='Title'))
 
   >>> parse("""
   ... !<ExamplePanelWithExample>
@@ -333,7 +333,7 @@ Slots within widget values::
   ...     name: title
   ...     default: Title
   ... """, context={'title': 'Override'})
-  ExamplePanelWithExample(children=Example(title='Override', desc='Desc'))
+  ExamplePanelWithExample(children=Example(desc='Desc', title='Override'))
 
   >>> rex.cache.clear()
 
@@ -348,7 +348,7 @@ Slots within widget values::
   ...     name: title
   ...     default: Title
   ... """)
-  ExamplePanelWithMaybeUndefinedExample(children=Example(title='Title', desc='Desc'))
+  ExamplePanelWithMaybeUndefinedExample(children=Example(desc='Desc', title='Title'))
 
   >>> parse("""
   ... !<ExamplePanelWithMaybeUndefinedExample>
@@ -357,7 +357,7 @@ Slots within widget values::
   ...     name: title
   ...     default: Title
   ... """, context={'title': 'Override'})
-  ExamplePanelWithMaybeUndefinedExample(children=Example(title='Override', desc='Desc'))
+  ExamplePanelWithMaybeUndefinedExample(children=Example(desc='Desc', title='Override'))
 
   >>> parse("""
   ... !<ExamplePanelWithMaybeUndefinedExample>
@@ -366,7 +366,7 @@ Slots within widget values::
   ...     name: title
   ...     default: Title
   ... """)
-  ExamplePanelWithMaybeUndefinedExample(children=Example(title='Title', desc='Desc'))
+  ExamplePanelWithMaybeUndefinedExample(children=Example(desc='Desc', title='Title'))
 
   >>> parse("""
   ... !<ExamplePanelWithMaybeUndefinedExample>
@@ -375,7 +375,7 @@ Slots within widget values::
   ...     name: title
   ...     default: Title
   ... """, context={'title': 'Override'})
-  ExamplePanelWithMaybeUndefinedExample(children=Example(title='Override', desc='Desc'))
+  ExamplePanelWithMaybeUndefinedExample(children=Example(desc='Desc', title='Override'))
 
 Specify widget class
 --------------------
@@ -409,12 +409,12 @@ Specify widget class
   >>> WidgetVal(widget_class=Example).parse("""
   ... title: Title
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Example(title='Title', desc='Desc')
+  Example(desc='Desc', title='Title')
 
   >>> WidgetVal(widget_class=Example).parse("""
   ... !<Example> Title
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Example(title='Title', desc='Desc')
+  Example(desc='Desc', title='Title')
 
 Parsing null
 ------------
@@ -518,10 +518,10 @@ Validation
   GroupWidget(children=[NullWidget()])
 
   >>> v(Example(title='Title'))
-  Example(title='Title', desc='Desc')
+  Example(desc='Desc', title='Title')
 
   >>> v([Example(title='Title')])
-  GroupWidget(children=[Example(title='Title', desc='Desc')])
+  GroupWidget(children=[Example(desc='Desc', title='Title')])
 
   >>> v('string') # doctest: +ELLIPSIS
   Traceback (most recent call last):
@@ -541,7 +541,7 @@ Validation
   Of widget:
       Example
   While validating:
-      Example(title=42, desc='Desc')
+      Example(desc='Desc', title=42)
 
   >>> v = WidgetVal(widget_class=Example)
 
@@ -568,10 +568,10 @@ Validation
       [Another()]
 
   >>> v(Example(title='Title'))
-  Example(title='Title', desc='Desc')
+  Example(desc='Desc', title='Title')
 
   >>> v([Example(title='Title')])
-  GroupWidget(children=[Example(title='Title', desc='Desc')])
+  GroupWidget(children=[Example(desc='Desc', title='Title')])
 
 Cleanup
 -------

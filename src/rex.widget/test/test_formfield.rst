@@ -343,7 +343,7 @@ DateFormField
 
   >>> from_port(Port('t_date')) # doctest: +NORMALIZE_WHITESPACE
   [StringFormField(value_key=['code'], required=True, label=u'Code'),
-   DateFormField(value_key=['date'], label=u'Date', widget=DateField(max_date=None, min_date=None, format='YYYY-MM-DD'))]
+   DateFormField(value_key=['date'], label=u'Date', widget=DateField(format='YYYY-MM-DD', max_date=None, min_date=None))]
 
 Cleanup
 ```````
@@ -872,9 +872,9 @@ Working with YAML API::
   ... """)
 
   >>> fs # doctest: +NORMALIZE_WHITESPACE
-  [FormRow(size=undefined,
-           fields=[StringFormField(value_key=['code'])],
-           select_form_value=True)]
+  [FormRow(fields=[StringFormField(value_key=['code'])],
+           select_form_value=True,
+           size=undefined)]
 
   >>> to_port('individual', fs)
   Port('''
@@ -883,9 +883,9 @@ Working with YAML API::
   ''')
 
   >>> enrich(fs, Port('individual')) # doctest: +NORMALIZE_WHITESPACE
-  [FormRow(size=undefined,
-           fields=[StringFormField(value_key=['code'], label=u'Code')],
-           select_form_value=True)]
+  [FormRow(fields=[StringFormField(value_key=['code'], label=u'Code')],
+           select_form_value=True,
+           size=undefined)]
 
   >>> fs = parse("""
   ... - column:
@@ -894,9 +894,9 @@ Working with YAML API::
   ... """)
 
   >>> fs # doctest: +NORMALIZE_WHITESPACE
-  [FormColumn(size=undefined,
-              fields=[StringFormField(value_key=['code'])],
-              select_form_value=True)]
+  [FormColumn(fields=[StringFormField(value_key=['code'])],
+              select_form_value=True,
+              size=undefined)]
 
   >>> to_port('individual', fs)
   Port('''
@@ -905,9 +905,9 @@ Working with YAML API::
   ''')
 
   >>> enrich(fs, Port('individual')) # doctest: +NORMALIZE_WHITESPACE
-  [FormColumn(size=undefined,
-              fields=[StringFormField(value_key=['code'], label=u'Code')],
-              select_form_value=True)]
+  [FormColumn(fields=[StringFormField(value_key=['code'], label=u'Code')],
+              select_form_value=True,
+              size=undefined)]
 
   >>> fs = parse("""
   ... - column:
@@ -926,12 +926,12 @@ Working with YAML API::
   ''')
 
   >>> enrich(fs, Port('individual')) # doctest: +NORMALIZE_WHITESPACE
-  [FormColumn(size=undefined,
-              fields=[FormRow(size=undefined,
-                              fields=[StringFormField(value_key=['code'],
+  [FormColumn(fields=[FormRow(fields=[StringFormField(value_key=['code'],
                                       label=u'Code')],
-                              select_form_value=True)],
-              select_form_value=True)]
+                              select_form_value=True,
+                              size=undefined)],
+              select_form_value=True,
+              size=undefined)]
 
 Working with Python API::
 
@@ -947,12 +947,14 @@ Working with Python API::
   ...   StringFormField(value_key='id')
   ... ]},
   ... ]) # doctest: +NORMALIZE_WHITESPACE
-  [FormRow(size=undefined,
-           fields=[StringFormField(value_key=['code']),
-                   StringFormField(value_key=['id'])], select_form_value=True),
-   FormRow(size=undefined,
-           fields=[StringFormField(value_key=['code']),
-                   StringFormField(value_key=['id'])], select_form_value=True)]
+  [FormRow(fields=[StringFormField(value_key=['code']),
+                   StringFormField(value_key=['id'])],
+           select_form_value=True,
+           size=undefined),
+   FormRow(fields=[StringFormField(value_key=['code']),
+                   StringFormField(value_key=['id'])],
+           select_form_value=True,
+           size=undefined)]
 
 EntityFieldsetVal()
 -------------------

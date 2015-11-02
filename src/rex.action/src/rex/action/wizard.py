@@ -18,7 +18,7 @@ from rex.widget.validate import DeferredVal, Deferred
 from rex.web import route
 
 from .instruction import PathVal, Execute, Repeat, visit as visit_instruction
-from .action import ActionVal, ActionMapVal, ActionRenderer, Action
+from .action import ActionVal, ActionMapVal, ActionRenderer, ActionBase
 from .validate import DomainVal
 from . import typing
 
@@ -83,7 +83,8 @@ class WizardWidgetBase(Widget):
                     typing.RowType(k, typing.anytype)
                     for k in self.initial_context])
             else:
-                context_type = typing.RecordType([])
+                input, _ = self.context_types
+                context_type = input
 
         for instruction in self.path.then:
             self._typecheck(instruction, context_type, [])
@@ -217,7 +218,7 @@ def _type_repr(kind):
         return repr(kind)
 
 
-class WizardBase(WizardWidgetBase, Action):
+class WizardBase(WizardWidgetBase, ActionBase):
     """ Base class for wizards."""
 
 

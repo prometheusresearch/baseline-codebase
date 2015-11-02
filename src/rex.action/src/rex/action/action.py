@@ -30,7 +30,7 @@ from rex.urlmap import Map
 
 from .typing import Domain, Type, unify, RecordType
 
-__all__ = ('Action', 'ActionVal', 'ActionMapVal')
+__all__ = ('ActionBase', 'Action', 'ActionVal', 'ActionMapVal')
 
 
 class ActionMeta(Widget.__metaclass__):
@@ -51,39 +51,7 @@ class _action_sig(namedtuple('Action', ['name'])):
 ContextTypes = namedtuple('ContextTypes', ['input', 'output'])
 
 
-class Action(Widget):
-    """ Base class for actions.
-
-    Action is a reusable piece of UI which can be composed with other actions
-    into a wizard.
-
-    To define a new action type one should subclass :class:`Action` and provide
-    action type name, JavaScript module which contains implementation and a
-    configuration interface::
-
-        from rex.core import StrVal
-        from rex.widget import Field
-        from rex.action import Action
-
-        class PickDate(Action):
-
-            name = 'pick-date'
-            js_type = 'my-package/lib/pick-date'
-
-            entity = Field(
-                StrVal(),
-                doc='''
-                Name of the entity to show, should contain a ``date`` column of
-                type ``datetime``.
-                ''')
-
-    Then actions of this type could be declared in (``action.yaml``)::
-
-        - type: pick-date
-          id: pick-appointment
-          entity: appointment
-
-    """
+class ActionBase(Widget):
 
     __metaclass__ = ActionMeta
 
@@ -96,16 +64,16 @@ class Action(Widget):
         should be unique across an entire application.
         """)
 
-    title = Field(
-        StrVal(), default=undefined,
-        doc="""
-        Action title.
-        """)
-
     icon = Field(
         StrVal(), default=undefined,
         doc="""
         Action icon.
+        """)
+
+    title = Field(
+        StrVal(), default=undefined,
+        doc="""
+        Action title.
         """)
 
     width = Field(
@@ -116,7 +84,7 @@ class Action(Widget):
 
     def __init__(self, **values):
         self.domain = values.pop('__domain', None) or Domain.current()
-        super(Action, self).__init__(**values)
+        super(ActionBase, self).__init__(**values)
 
     def __clone__(self, **values):
         next_values = {}
@@ -141,9 +109,6 @@ class Action(Widget):
                 % (self.id, self.name.name), output)
         return ContextTypes(input, output)
 
-    def typecheck(self, context_type=RecordType([])):
-        unify(self.context_types.input, context_type)
-
     def context(self):
         """ Compute context specification for an action.
 
@@ -155,6 +120,9 @@ class Action(Widget):
         """
         raise NotImplementedError('%s.context()' % self.__class__.__name__)
 
+    def typecheck(self, context_type=None):
+        raise NotImplementedError('%s.typecheck()' % self.__class__.__name__)
+
     @classmethod
     def parse(cls, value):
         validate = ActionVal(action_class=cls)
@@ -164,7 +132,15 @@ class Action(Widget):
             return validate(value)
 
 
-@as_transitionable(Action, tag='widget')
+class Action(ActionBase):
+
+    def typecheck(self, context_type=None):
+        if context_type is None:
+            context_type = self.context_types.input
+        unify(self.context_types.input, context_type)
+
+
+@as_transitionable(ActionBase, tag='widget')
 def _format_Action(action, req, path): # pylint: disable=invalid-name
     js_type, props = _format_Widget(action, req, path)
     props['context_types'] = {
@@ -201,9 +177,9 @@ class ActionVal(Validate):
                 with guard("While parsing:", Location.from_node(type_node)):
                     action_type = self._validate_type.construct(loader, type_node)
                     action_sig = _action_sig(action_type)
-                    if action_sig not in Action.mapped():
+                    if action_sig not in ActionBase.mapped():
                         raise Error('unknown action type specified:', action_type)
-                action_class = Action.mapped()[action_sig]
+                action_class = ActionBase.mapped()[action_sig]
 
             if self.id is not None:
                 id_node, node = pop_mapping_key(node, 'id')
@@ -226,13 +202,13 @@ class ActionVal(Validate):
             raise Error('no action "type" specified')
         action_type = self._validate_type(action_type)
         action_sig = _action_sig(action_type)
-        if action_sig not in Action.mapped():
+        if action_sig not in ActionBase.mapped():
             raise Error('unknown action type specified:', action_type)
         if self.id is not None:
             if 'id' in value:
                 raise Error('action "id" is cannot be specified')
             value['id'] = self.id
-        action_class = Action.mapped()[action_sig]
+        action_class = ActionBase.mapped()[action_sig]
         if not issubclass(action_class, self.action_class):
             raise Error('action must be an instance of:', self.action_class)
         value = {k: v for (k, v) in value.items() if k != 'type'}
@@ -272,7 +248,6 @@ class ActionRenderer(object):
     def __init__(self, path, action, access, package):
         self.path = path
         self._action = action
-        self._typechecked = False
         self.access = access or package.name
         self.package = package
 
@@ -287,7 +262,7 @@ class ActionRenderer(object):
     def validate(self):
         # We force computed property so that action is instantiated and
         # validated.
-        self.action
+        self.action.typecheck()
 
     def __call__(self, request):
         from .wizard import WizardBase
@@ -298,11 +273,8 @@ class ActionRenderer(object):
             # TODO: check for context vars from query params and wrap into
             # ActionRenderer
             action = self.action
-            if not self._typechecked:
-                self._typechecked = True
-                self.action.typecheck()
             if not isinstance(self.action, WizardBase):
-                action = ActionWizard(action=self.action)
+                action = ActionWizard(action=action)
             return render(action, request)
         except Error, error:
             return request.get_response(error)

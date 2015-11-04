@@ -115,4 +115,5 @@ class EntityAction(Action):
             mask=mask,
             parameters=parameters,
             db=self.db)
-        return annotate_port(self.domain, port)
+        port = annotate_port(self.domain, port)
+        return port

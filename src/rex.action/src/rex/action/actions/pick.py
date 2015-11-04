@@ -40,8 +40,7 @@ class Pick(EntityAction):
 
     columns = Field(
         MaybeVal(SeqVal(ColumnVal())), default=None,
-        transitionable=False,
-        deprecated='Use "fields" instead')
+        transitionable=False)
 
     search = Field(
         StrVal(), default=None,

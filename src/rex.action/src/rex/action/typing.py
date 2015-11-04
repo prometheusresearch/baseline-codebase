@@ -271,6 +271,18 @@ class Domain(object):
         self.value_types = DEFAULT_VALUE_TYPES
         self.entity_types = {typ.key: typ for typ in entity_types}
 
+    def merge(self, domain):
+        if domain is None:
+            return self
+        next_domain = Domain(
+            name='%s + %s' % (self.name, domain.name),
+            entity_types=self.entity_types.values())
+        next_domain.entity_types.update({
+            typ.key: typ for typ
+                         in domain.entity_types.values()
+        })
+        return next_domain
+
     def get_type(self, type_name):
         if type_name == 'any':
             return anytype

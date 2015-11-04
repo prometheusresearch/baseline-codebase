@@ -18,7 +18,11 @@ from rex.core import Location, set_location, Validate, Error
 from rex.core import RecordVal, UnionVal, MapVal, StrVal, SeqVal, OnField
 from rex.widget import TransitionableRecord
 
-__all__ = ('Start', 'Execute', 'Repeat', 'InstructionVal', 'PathVal', 'visit')
+__all__ = (
+    'Start', 'Execute', 'ExecuteWizard', 'Repeat',
+    'InstructionVal', 'PathVal',
+    'visit', 'map',
+)
 
 
 class Start(TransitionableRecord):
@@ -61,6 +65,16 @@ def visit(instruction, visitor):
         visit(instruction.repeat, visitor)
     for next_instruction in instruction.then:
         visit(next_instruction, visitor)
+
+
+def map(instruction, mapper):
+    instruction = mapper(instruction)
+    instruction = instruction.__clone__(
+        then=[map(inst, mapper) for inst in instruction.then])
+    if isinstance(instruction, Repeat):
+        instruction = instruction.__clone__(
+            repeat=map(instruction.repeat, mapper))
+    return instruction
 
 
 class ValidateWithAction(Validate):

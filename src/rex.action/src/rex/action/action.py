@@ -84,20 +84,31 @@ class ActionBase(Widget):
 
     def __init__(self, **values):
         self.domain = values.pop('__domain', None) or Domain.current()
+        self._context_types = values.pop('__context_types', None)
         super(ActionBase, self).__init__(**values)
+
+    def with_domain(self, domain):
+        return self.__clone__(__domain=domain)
 
     def __clone__(self, **values):
         next_values = {}
         next_values.update({
             k: v
             for k, v in self.values.items()
-            if k == '__domain' or k in self._fields})
+            if k not in ('__domain', '__context_types') or k in self._fields})
         next_values.update(values)
-        next_values.update({'__domain': self.domain})
+        if 'package' not in next_values:
+            next_values.update({'package': self.package})
+        if '__domain' not in next_values:
+            next_values.update({'__domain': self.domain})
+        if '__context_types' not in next_values:
+            next_values.update({'__context_types': self._context_types})
         return self.__class__(**next_values)
 
     @cached_property
     def context_types(self):
+        if self._context_types:
+            return self._context_types
         input, output = self.context()
         if not isinstance(input, Type):
             raise Error(

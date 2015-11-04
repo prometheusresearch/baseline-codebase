@@ -10,6 +10,9 @@
 
 """
 
+import urlparse
+import cgi
+
 from rex.core import (
     Validate, Error, get_settings, locate, guard,
     AnyVal, StrVal, MapVal, SeqVal, StrVal, RecordVal, ChoiceVal)
@@ -17,8 +20,12 @@ from rex.widget import Widget, Field
 from rex.widget.validate import DeferredVal, Deferred
 from rex.web import route
 
-from .instruction import PathVal, Execute, Repeat, visit as visit_instruction
-from .action import ActionVal, ActionMapVal, ActionRenderer, ActionBase
+from .instruction import (
+    Start, Execute, Repeat,
+    PathVal,
+    visit as visit_instruction, map as map_instruction)
+from .action import (
+    ActionVal, ActionMapVal, ActionRenderer, ActionBase, ContextTypes)
 from .validate import DomainVal
 from . import typing
 
@@ -64,17 +71,37 @@ class WizardWidgetBase(Widget):
             validate_path = PathVal(self._resolve_action)
             self.path = self.path.resolve(validate_path)
 
-    def _resolve_action(self, id):
-        if id in self.actions:
-            return self.actions[id]
+    def _resolve_action(self, spec):
+        spec = urlparse.urlparse(spec)
+        if not spec.scheme and spec.path in self.actions:
+            action = self.actions[spec.path]
         else:
-            if id.startswith('/'):
-                handler = route('%s:%s' % (self.package.name, id))
+            if not spec.scheme:
+                handler = route('%s:%s' % (self.package.name, spec.path))
             else:
-                handler = route(id)
+                handler = route('%s:%s' % (spec.scheme, spec.path))
             if handler is None or not isinstance(handler, ActionRenderer):
-                return None
-            return handler.action
+                action = None
+            else:
+                action = handler.action
+        if action:
+            if spec.query:
+                input = typing.RecordType(
+                    dict(action.context_types.input.rows),
+                    action.context_types.input.open)
+                context_types = ContextTypes(
+                    input,
+                    action.context_types.output)
+                states = cgi.parse_qs(spec.query)
+                for name, type in states.items():
+                    if not name in action.context_types.input.rows:
+                        raise Error('invalid type refine')
+                    type = type[-1]
+                    type = self.states[type]
+                    context_types.input.rows[name] = typing.RowType(name, type)
+                action = action.__clone__(__context_types=context_types)
+            action = action.with_domain(action.domain.merge(self.states))
+        return action
 
     def typecheck(self, context_type=None):
         if context_type is None:
@@ -221,11 +248,19 @@ def _type_repr(kind):
 class WizardBase(WizardWidgetBase, ActionBase):
     """ Base class for wizards."""
 
+    def with_domain(self, domain):
+        def _map(inst):
+            if isinstance(inst, Start):
+                return inst
+            action_instance = inst.action_instance.with_domain(domain)
+            return inst.__clone__(action_instance=action_instance)
+        wizard = self.__clone__(__domain=domain)
+        wizard.path = map_instruction(wizard.path, _map)
+        return wizard
+
 
 class Wizard(WizardBase):
     """ Wizard which renders the last active action on an entire screen."""
 
     name = 'wizard'
     js_type = 'rex-action/lib/single-page/Wizard'
-
-

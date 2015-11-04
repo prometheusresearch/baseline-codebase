@@ -64,6 +64,8 @@ class QueryVal(Validate):
         _validate_full)
 
     def __call__(self, value):
+        if isinstance(value, Query):
+            return value
         value = self._validate(value)
         if isinstance(value, basestring):
             value = self._validate_full({'query': value})

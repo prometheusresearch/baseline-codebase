@@ -87,11 +87,16 @@ paths:
       path:
       - /individuals/wizard:
         - drop-individual:
-        - /individuals/view:
-        - /individuals/edit:
+        - /individuals/view?individual=individual[super]:
+        - /individuals/edit?individual=individual[super]:
       - /labs/pick:
         - /labs/view:
       actions:
         drop-individual:
           type: drop
           entity: individual
+      states:
+        individual:
+          super:
+            title: Super
+            expression: id() = 'A53Y9206'

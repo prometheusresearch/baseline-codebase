@@ -24,7 +24,7 @@ class demo(Command):
 
 setup(
     name='rex.ctl_demo',
-    version = "2.0.2",
+    version = "2.1.0",
     # Do not write `Summary` field to `PKG-INFO` file (for coverage testing):
     #description="Demo package for testing rex.ctl",
     package_dir={'': 'src'},

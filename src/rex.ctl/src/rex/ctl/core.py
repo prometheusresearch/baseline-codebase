@@ -19,6 +19,14 @@ import rlcompleter
 import yaml
 
 
+class QuietGlobal(Global):
+    """suppress non-error console output"""
+
+    name = 'quiet'
+    default = False
+    validate = BoolVal()
+
+
 class ProjectGlobal(Global):
     """primary package
 

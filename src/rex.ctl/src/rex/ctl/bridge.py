@@ -12,7 +12,8 @@ from cogs.core import (
         Environment, TaskSpec, SettingSpec, TopicSpec, ArgSpec, OptSpec,
         _to_name, _describe)
 from cogs.fs import cp, mv, rm, rmtree, mktree, exe, sh, pipe
-from cogs.log import COLORS, colorize, log, debug, warn, fail, prompt
+from cogs.log import (
+        COLORS, colorize, log as cogs_log, debug, warn, fail, prompt)
 from cogs.run import run, main
 
 
@@ -253,5 +254,11 @@ class Topic(object):
 
     #: The topic name.
     name = None
+
+
+def log(msg="", *args, **kwds):
+    """Display a message."""
+    if not env.quiet:
+        cogs_log(msg, *args, **kwds)
 
 

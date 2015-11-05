@@ -19,7 +19,7 @@ class HelloTask(Task):
 
     def __call__(self):
         name = self.name or os.environ.get('USER', 'nobody')
-        print "Hello, %s!" % name.capitalize()
+        log("Hello, %s!" % name.capitalize())
 
 class WriteHelloTask(Task):
 
@@ -52,7 +52,7 @@ class HelloWithConfigurationTask(Task):
 
     def __call__(self):
         name = self.name or env.default_hello_name
-        print "Hello, %s!" % name.capitalize()
+        log("Hello, %s!" % name.capitalize())
 
 class InitTask(RexTask):
     """initialize the database"""

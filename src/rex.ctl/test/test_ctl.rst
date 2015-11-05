@@ -160,6 +160,13 @@ You may get more information from a command if you enable debug output::
     # Total time: ...
     Done.
 
+You may be able to silence non-error output from a command if you enable quiet
+mode::
+
+    >>> ctl("hello Billy")
+    Hello, Billy!
+    >>> ctl("hello Billy --quiet")
+
 
 Using ``Ctl`` interface
 =======================

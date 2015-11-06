@@ -12,7 +12,7 @@ from rex.core import Initialize, get_packages
 from rex.web import get_routes
 
 from .action import Action, ActionRenderer
-from .widget import Wizard
+from .widget import Wizard, SinglePageWizard
 from .actions import View, Make, Page, Pick, Edit
 from .validate import RexDBVal
 from . import setting

@@ -17,7 +17,7 @@ from rex.widget import Widget, Field
 from .action import ActionVal
 from .wizard import WizardWidgetBase
 
-__all__ = ('Wizard', 'ActionWizard')
+__all__ = ('Wizard', 'SinglePageWizard', 'ActionWizard')
 
 
 class Wizard(WizardWidgetBase):
@@ -36,6 +36,13 @@ class Wizard(WizardWidgetBase):
             settings = get_settings()
             if hasattr(settings, 'rex_action'):
                 self.breadcrumb = settings.rex_action.side_by_side.breadcrumb
+
+
+class SinglePageWizard(WizardWidgetBase):
+    """ Wizard widget which renders all active actions side by side."""
+
+    name = 'SinglePageWizard'
+    js_type = 'rex-action/lib/single-page/Wizard'
 
 
 class ActionWizard(Widget):

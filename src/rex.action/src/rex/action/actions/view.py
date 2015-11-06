@@ -57,3 +57,6 @@ class View(EntityAction):
     def context(self):
         input = self.input if self.input.rows else self.domain.record(self.entity)
         return input, self.domain.record()
+
+    def bind_port(self):
+        return {'*': ContextBinding([self.entity.name], is_join=False)}

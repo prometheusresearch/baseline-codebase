@@ -67,8 +67,8 @@ export default class File extends React.Component {
       cursor: 'pointer',
       top: 2,
     },
-    Icon: {
-      Component: Icon,
+    IconWrapper: {
+      Component: Box,
       marginRight: 5,
       marginLeft: 5,
       top: -2,

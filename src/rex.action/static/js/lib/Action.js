@@ -68,17 +68,25 @@ export default class Action extends React.Component {
     Footer: {
       padding: 5,
       pinned: {
+        zIndex: 1000,
+        background: Theme.color.primary.background,
         boxShadow: Theme.shadow.normal(),
       }
     },
     Title: {
       Component: VBox,
       flex: 1
-    }
+    },
+    ContentContainer: {
+      Component: StickyFooterPanel,
+      Content: {
+        overflow: 'auto',
+      }
+    },
   });
 
   render() {
-    let {Root, Header, Content, Footer, Title} = this.stylesheet;
+    let {Root, Header, Content, ContentContainer, Footer, Title} = this.stylesheet;
     let {children, title, onClose, noContentWrapper} = this.props;
     let footer = this.props.renderFooter();
     if (footer) {
@@ -94,11 +102,11 @@ export default class Action extends React.Component {
               onClick={onClose}
               />}
         </Header>
-        <StickyFooterPanel footer={footer}>
+        <ContentContainer footer={footer}>
           {noContentWrapper ?
             children :
             <Content>{children}</Content>}
-        </StickyFooterPanel>
+        </ContentContainer>
       </Root>
     );
   }

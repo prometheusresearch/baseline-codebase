@@ -157,6 +157,13 @@ export default class Button extends React.Component {
           borderColor: Theme.button.active.borderColor || '#8c8c8c',
           backgroundImage: CSS.none,
         },
+
+        disabled: {
+          cursor: 'not-allowed',
+          color: Theme.button.disabled.textColor || '#888888',
+          backgroundColor: Theme.button.disabled.backgroundColor || '#e6e6e6',
+          borderColor: Theme.button.disabled.borderColor || CSS.color.transparent,
+        },
       },
 
       success: {
@@ -164,24 +171,31 @@ export default class Button extends React.Component {
         backgroundColor: Theme.successButton.backgroundColor || '#5cb85c',
         borderWidth: 1,
         borderStyle: CSS.border.solid,
-        borderColor: Theme.button.hover.borderColor || '#4cae4c',
+        borderColor: Theme.successButton.hover.borderColor || '#4cae4c',
 
         hover: {
           color: Theme.successButton.hover.textColor || '#ffffff',
           backgroundColor: Theme.successButton.hover.backgroundColor || '#449d44',
-          borderColor: Theme.button.hover.borderColor || '#398439',
+          borderColor: Theme.successButton.hover.borderColor || '#398439',
         },
 
         focus: {
           color: Theme.successButton.focus.textColor || '#ffffff',
           backgroundColor: Theme.successButton.focus.backgroundColor || '#449d44',
-          borderColor: Theme.button.hover.borderColor || '#398439',
+          borderColor: Theme.successButton.hover.borderColor || '#398439',
         },
 
         active: {
           color: Theme.successButton.active.textColor || '#ffffff',
           backgroundColor: Theme.successButton.active.backgroundColor || '#398439',
-          borderColor: Theme.button.hover.borderColor || '#255625',
+          borderColor: Theme.successButton.hover.borderColor || '#255625',
+        },
+
+        disabled: {
+          cursor: 'not-allowed',
+          color: Theme.successButton.disabled.textColor || '#888888',
+          backgroundColor: Theme.successButton.disabled.backgroundColor || '#e6e6e6',
+          borderColor: Theme.successButton.disabled.borderColor || CSS.color.transparent,
         },
       },
 
@@ -190,25 +204,33 @@ export default class Button extends React.Component {
         backgroundColor: Theme.dangerButton.backgroundColor || '#d9534f',
         borderWidth: 1,
         borderStyle: CSS.border.solid,
-        borderColor: Theme.button.hover.borderColor || '#d43f3a',
+        borderColor: Theme.dangerButton.hover.borderColor || '#d43f3a',
 
         hover: {
           color: Theme.dangerButton.hover.textColor || '#ffffff',
           backgroundColor: Theme.dangerButton.hover.backgroundColor || '#c9302c',
-          borderColor: Theme.button.hover.borderColor || '#ac2925',
+          borderColor: Theme.dangerButton.hover.borderColor || '#ac2925',
         },
 
         focus: {
           color: Theme.dangerButton.focus.textColor || '#ffffff',
           backgroundColor: Theme.dangerButton.hover.backgroundColor || '#c9302c',
-          borderColor: Theme.button.hover.borderColor || '#761c19',
+          borderColor: Theme.dangerButton.hover.borderColor || '#761c19',
         },
 
         active: {
           color: Theme.dangerButton.active.textColor || '#ffffff',
           backgroundColor: Theme.dangerButton.active.backgroundColor || '#ac2925',
-          borderColor: Theme.button.hover.borderColor || '#761c19',
+          borderColor: Theme.dangerButton.hover.borderColor || '#761c19',
         },
+
+        disabled: {
+          cursor: 'not-allowed',
+          color: Theme.dangerButton.disabled.textColor || '#888888',
+          backgroundColor: Theme.dangerButton.disabled.backgroundColor || '#e6e6e6',
+          borderColor: Theme.dangerButton.disabled.borderColor || CSS.color.transparent,
+        },
+
       },
 
       link: {
@@ -223,6 +245,10 @@ export default class Button extends React.Component {
           color: '#2a6496',
           textDecoration: CSS.textDecoration.underline,
         },
+
+        disabled: {
+          cursor: 'not-allowed',
+        },
       },
 
       quiet: {
@@ -233,21 +259,28 @@ export default class Button extends React.Component {
         borderColor: Theme.quietButton.borderColor || CSS.color.transparent,
 
         hover: {
-          color: Theme.dangerButton.hover.textColor || '#888888',
-          backgroundColor: Theme.dangerButton.hover.backgroundColor || '#e6e6e6',
-          borderColor: Theme.button.hover.borderColor || CSS.color.transparent,
+          color: Theme.quietButton.hover.textColor || '#888888',
+          backgroundColor: Theme.quietButton.hover.backgroundColor || '#e6e6e6',
+          borderColor: Theme.quietButton.hover.borderColor || CSS.color.transparent,
         },
 
         active: {
-          color: Theme.dangerButton.hover.textColor || '#888888',
-          backgroundColor: Theme.dangerButton.hover.backgroundColor || '#e6e6e6',
-          borderColor: Theme.button.hover.borderColor || CSS.color.transparent,
+          color: Theme.quietButton.hover.textColor || '#888888',
+          backgroundColor: Theme.quietButton.hover.backgroundColor || '#e6e6e6',
+          borderColor: Theme.quietButton.hover.borderColor || CSS.color.transparent,
         },
 
         focus: {
-          color: Theme.dangerButton.hover.textColor || '#888888',
-          backgroundColor: Theme.dangerButton.hover.backgroundColor || '#e6e6e6',
-          borderColor: Theme.button.hover.borderColor || CSS.color.transparent,
+          color: Theme.quietButton.hover.textColor || '#888888',
+          backgroundColor: Theme.quietButton.hover.backgroundColor || '#e6e6e6',
+          borderColor: Theme.quietButton.hover.borderColor || CSS.color.transparent,
+        },
+
+        disabled: {
+          cursor: 'not-allowed',
+          color: Theme.quietButton.disabled.textColor || '#888888',
+          backgroundColor: Theme.quietButton.disabled.backgroundColor || '#e6e6e6',
+          borderColor: Theme.quietButton.disabled.borderColor || CSS.color.transparent,
         },
 
       },
@@ -276,6 +309,7 @@ export default class Button extends React.Component {
       text,
       children = this.props.text,
       href, params,
+      disabled,
       ...props
     } = this.props;
 
@@ -296,8 +330,10 @@ export default class Button extends React.Component {
     return (
       <Root
         {...props}
+        disabled={disabled}
         Component={Component}
         state={{
+          disabled,
           success, danger, link, quiet,
           small: size === 'small',
           extraSmall: size === 'extraSmall',

@@ -3,28 +3,60 @@
  */
 
 
-import ButtonBase from './ButtonBase';
-import * as Style from 'rex-widget/lib/StyleUtils';
-import * as Theme from './Theme';
+import ButtonBase   from './ButtonBase';
+import * as Style   from 'rex-widget/lib/StyleUtils';
+import WidgetTheme  from 'rex-widget/lib/Theme';
+import * as Theme   from './Theme';
 
 let colors = {
-  background: Theme.color.primary.background,
-  color: Theme.color.primary.text,
+  background: (
+    WidgetTheme.button.backgroundColor ||
+    Theme.color.primary.background
+  ),
+  color: (
+    WidgetTheme.button.textColor ||
+    Theme.color.primary.text
+  ),
+  borderColor: (
+    WidgetTheme.button.borderColor ||
+    Theme.color.primary.border
+  ),
 };
 
 let hoverColors = {
-  background: Theme.color.primary.backgroundHover,
-  color: Theme.color.primary.textHover,
+  background: (
+    WidgetTheme.button.hover.backgroundColor ||
+    Theme.color.primary.backgroundHover
+  ),
+  color: (
+    WidgetTheme.button.hover.textColor ||
+    Theme.color.primary.textHover
+  ),
+  borderColor: (
+    WidgetTheme.button.hover.borderColor ||
+    Theme.color.primary.border
+  ),
 };
 
 let activeColors = {
-  background: Theme.color.primary.backgroundActive,
-  color: Theme.color.primary.textActive,
+  background: (
+    WidgetTheme.button.active.backgroundColor ||
+    Theme.color.primary.backgroundActive
+  ),
+  color: (
+    WidgetTheme.button.active.textColor ||
+    Theme.color.primary.textActive
+  ),
+  borderColor: (
+    WidgetTheme.button.active.borderColor ||
+    Theme.color.primary.border
+  ),
 };
 
 export default ButtonBase.style({
   Root: {
-    border: Style.border(1, Theme.color.primary.border),
+    borderWidth: 1,
+    borderStyle: Style.borderStyle.solid,
     boxShadow: Theme.shadow.light(),
     ...colors,
     ...Theme.buttonSize,

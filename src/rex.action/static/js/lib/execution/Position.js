@@ -201,6 +201,11 @@ export default class Position {
           this.index
         );
         if (Instruction.ExecuteWizard.is(position.instruction)) {
+          // If wizard itself is allowed
+          if (!position.isAllowed) {
+            continue;
+          }
+          // Flatten wizard root positions.
           let rootPosition = Position.create(
             position.element.props.path,
             position.context,

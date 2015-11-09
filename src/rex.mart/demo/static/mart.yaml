@@ -1,0 +1,107 @@
+definitions:
+  # An empty Mart
+  - id: empty
+
+  # Copy an existing DB
+  - id: just_copy
+    base:
+      type: copy
+      target: mart_demo
+
+  # A Mart that just has empty tables
+  - id: just_deploy
+    deploy: !include simple_deploy.yaml
+
+  # Make a table and put some data in it
+  - id: some_data
+    deploy: !include simple_deploy.yaml
+    post_deploy_scripts:
+      - script: !include/str simple_etl.htsql
+        type: htsql
+
+  # Make a table and put some data in it with multiple scripts/statements
+  - id: some_more_data
+    deploy: !include simple_deploy.yaml
+    post_deploy_scripts:
+      - script: !include/str simple_etl.htsql
+        type: htsql
+      - script: !include/str multiple_etl.htsql
+        type: htsql
+
+  # Make a table and put some data in it with SQL
+  - id: some_sql_data
+    deploy: !include simple_deploy.yaml
+    post_deploy_scripts:
+      - script: !include/str simple_etl.sql
+        type: sql
+
+  # Make a table and put some data in it with multiple SQL scripts/statements
+  - id: some_more_sql_data
+    deploy: !include simple_deploy.yaml
+    post_deploy_scripts:
+      - script: !include/str simple_etl.sql
+        type: sql
+      - script: !include/str multiple_etl.sql
+        type: sql
+
+  # Load a table with various scripts in both ETL phases
+  - id: both_etl_phases
+    deploy: !include simple_deploy.yaml
+    post_deploy_scripts:
+      - script: !include/str simple_etl.htsql
+        type: htsql
+      - script: !include/str multiple_etl.sql
+        type: sql
+    post_assessment_scripts:
+      - script: !include/str multiple_etl.htsql
+        type: htsql
+      - script: !include/str simple_etl.sql
+        type: sql
+
+  # Make a table and put some data in it using script parameters
+  - id: some_data_with_params
+    deploy: !include simple_deploy.yaml
+    post_deploy_scripts:
+      - script: !include/str params_etl.htsql
+        type: htsql
+        parameters:
+          var1: 'foo'
+          var2: 'bar'
+      - script: !include/str params_etl.sql
+        type: sql
+        parameters:
+          var1: 'baz'
+          var2: 'blah'
+
+  # Load an existing database
+  - id: existing
+    base:
+      type: existing
+      target: mart_demo
+    deploy: !include simple_deploy.yaml
+    post_deploy_scripts:
+      - script: !include/str simple_etl.htsql
+        type: htsql
+
+  # Load a missing existing database
+  - id: existing_missing
+    base:
+      type: existing
+      target: a_db_that_doesnt_exist
+    deploy: !include simple_deploy.yaml
+    post_deploy_scripts:
+      - script: !include/str simple_etl.htsql
+        type: htsql
+
+  - id: broken_htsql
+    deploy: !include simple_deploy.yaml
+    post_deploy_scripts:
+      - script: !include/str broken_simple_etl.htsql
+        type: htsql
+
+  - id: broken_sql
+    deploy: !include simple_deploy.yaml
+    post_deploy_scripts:
+      - script: !include/str broken_simple_etl.sql
+        type: sql
+

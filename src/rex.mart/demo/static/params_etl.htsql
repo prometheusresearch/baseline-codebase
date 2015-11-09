@@ -1,0 +1,4 @@
+/{$OWNER :as col1} :as foo/:insert
+/{$var1 :as col1} :as foo/:insert
+/{$var2 :as col1} :as foo/:insert
+

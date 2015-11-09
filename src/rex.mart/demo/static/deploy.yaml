@@ -1,0 +1,18 @@
+- table: people
+  with:
+    - column: code
+      type: integer
+    - identity:
+      - code
+    - column: firstname
+      type: text
+    - column: lastname
+      type: text
+    - data: |
+        code,firstname,lastname
+        1,John,Smith
+        2,Bob,Rogers
+        3,Tom,Brady
+        4,Mary,Cooper
+        5,Some,Body
+

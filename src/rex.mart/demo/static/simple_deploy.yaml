@@ -1,0 +1,7 @@
+- table: foo
+  with:
+    - column: col1
+      type: text
+    - identity:
+      - col1
+

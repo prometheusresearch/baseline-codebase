@@ -1,0 +1,6 @@
+/people{
+        first_name :as col1
+    } :as foo
+    /:rexdb
+    /:insert
+

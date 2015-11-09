@@ -1,0 +1,14 @@
+# Load the people.firstname column into foo
+/people{
+        upper(firstname) :as col1
+    } :as foo
+    /:rexdb
+    /:insert
+
+# Load the people.lastname column into foo
+/people{
+        lastname :as col1
+    } :as foo
+    /:rexdb
+    /:insert
+

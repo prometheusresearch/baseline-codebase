@@ -1,0 +1,49 @@
+# This table contains records describing all Marts created by this application
+# instance
+- table: rexmart_inventory
+  with:
+    # A unique integer identifying a Mart
+    - column: code
+      type: integer
+    - identity:
+        - code: offset
+
+    # The ID of the definition used to create this Mart
+    - column: definition
+      type: text
+
+    # The owner of the Mart (null meaning the Mart is accessible by anyone)
+    - column: owner
+      type: text
+      required: false
+
+    # The name of the database in the hosting cluster that the Mart is
+    # contained in
+    - column: name
+      type: text
+
+    # The status of the Mart
+    - column: status
+      type:
+        - creation        # Initial database creation is occurring
+        - deployment      # Table structures are being created
+        - post_deployment # First phase of ETL scripts are being executed
+        - assessment      # Assessments are being loaded
+        - post_assessment # Second phase of ETL scripts are being executed
+        - processing      # Post-Processors are executing
+        - complete        # Mart is complete and ready for use
+      default: creation
+
+    # The times measuring the creation of the Mart
+    - column: date_creation_started
+      type: datetime
+    - column: date_creation_completed
+      type: datetime
+      required: false
+
+    # Indicates whether or not this Mart should be presevered during automated
+    # Mart culling.
+    - column: pinned
+      type: boolean
+      default: false
+

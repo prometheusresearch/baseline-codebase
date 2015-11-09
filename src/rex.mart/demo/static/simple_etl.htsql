@@ -1,0 +1,7 @@
+# Load the people.firstname column into foo
+/people{
+        firstname :as col1
+    } :as foo
+    /:rexdb
+    /:insert
+

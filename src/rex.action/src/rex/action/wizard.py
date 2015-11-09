@@ -14,6 +14,7 @@ import urlparse
 import cgi
 
 from rex.core import (
+    Record,
     Validate, Error, get_settings, locate, guard,
     AnyVal, StrVal, MapVal, SeqVal, StrVal, RecordVal, ChoiceVal)
 from rex.widget import Widget, Field
@@ -26,7 +27,9 @@ from .instruction import (
     visit as visit_instruction, map as map_instruction)
 from .action import (
     ActionVal, ActionMapVal, ActionRenderer, ActionBase, ContextTypes)
-from .validate import DomainVal
+from .validate import (
+    DomainVal,
+    ActionReference, LocalActionReference, GlobalActionReference)
 from . import typing
 
 __all__ = ('Wizard', 'WizardBase', 'WizardWidgetBase')
@@ -71,36 +74,36 @@ class WizardWidgetBase(Widget):
             validate_path = PathVal(self._resolve_action)
             self.path = self.path.resolve(validate_path)
 
-    def _resolve_action(self, spec):
-        spec = urlparse.urlparse(spec)
-        if not spec.scheme and spec.path in self.actions:
-            action = self.actions[spec.path]
-        else:
-            if not spec.scheme:
-                handler = route('%s:%s' % (self.package.name, spec.path))
+    def _resolve_action(self, ref):
+        ref = ActionReference.validate(ref)
+        if isinstance(ref, LocalActionReference):
+            if not ref.id in self.actions:
+                return None
+            action = self.actions[ref.id]
+        elif isinstance(ref, GlobalActionReference):
+            if not ref.package:
+                handler = route('%s:%s' % (self.package.name, ref.id))
             else:
-                handler = route('%s:%s' % (spec.scheme, spec.path))
+                handler = route('%s:%s' % (ref.package, ref.id))
             if handler is None or not isinstance(handler, ActionRenderer):
-                action = None
+                return None
             else:
                 action = handler.action
-        if action:
-            if spec.query:
-                input = typing.RecordType(
-                    dict(action.context_types.input.rows),
-                    action.context_types.input.open)
-                context_types = ContextTypes(
-                    input,
-                    action.context_types.output)
-                states = cgi.parse_qs(spec.query)
-                for name, type in states.items():
-                    if not name in action.context_types.input.rows:
-                        raise Error('invalid type refine')
-                    type = type[-1]
-                    type = self.states[type]
-                    context_types.input.rows[name] = typing.RowType(name, type)
-                action = action.__clone__(__context_types=context_types)
-            action = action.with_domain(action.domain.merge(self.states))
+
+        if ref.query:
+            input = typing.RecordType(
+                dict(action.context_types.input.rows),
+                action.context_types.input.open)
+            context_types = ContextTypes(
+                input,
+                action.context_types.output)
+            for name, type in ref.query.items():
+                if not name in action.context_types.input.rows:
+                    raise Error('invalid type refine')
+                type = self.states[type]
+                context_types.input.rows[name] = typing.RowType(name, type)
+            action = action.__clone__(__context_types=context_types)
+        action = action.with_domain(action.domain.merge(self.states))
         return action
 
     def typecheck(self, context_type=None):

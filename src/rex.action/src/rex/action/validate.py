@@ -8,13 +8,15 @@
 """
 
 import re
+import urlparse
+import cgi
 
 from htsql.core.error import Error as HTSQLError
 from htsql.core.syn.syntax import Syntax
 from htsql.core.syn.parse import parse
 
 from rex.core import (
-    Validate, Error, Location,
+    Record, Validate, Error, Location,
     UStrVal, StrVal, MapVal, OneOfVal, RecordVal)
 from rex.db import get_db, Query, RexHTSQL
 from rex.widget import TransitionableRecord
@@ -105,3 +107,44 @@ class DomainVal(Validate):
                         for typename, states in value.items()
                         for state in states]
         return typing.Domain(name=self.name, entity_types=entity_types)
+
+
+class ActionReferenceVal(Validate):
+    """ Validator for :class:`ActionReference`."""
+
+    _validate = StrVal()
+
+    def __call__(self, value):
+        if isinstance(value, ActionReference):
+            return value
+        value = self._validate(value)
+        value = urlparse.urlparse(value)
+        if value.query:
+            query = cgi.parse_qs(value.query)
+            query = {k: v[0] for k, v in query.items()}
+        else:
+            query = {}
+        if not value.path.startswith('/') and not value.scheme:
+            return LocalActionReference(value.path, query)
+        elif not value.scheme:
+            return GlobalActionReference(None, value.path, query)
+        else:
+            return GlobalActionReference(value.scheme, value.path, query)
+
+
+class ActionReference(object):
+    """ Reference to an action."""
+
+    validate = ActionReferenceVal()
+
+
+class LocalActionReference(
+        ActionReference,
+        Record.make('LocalActionReference', ['id', 'query'])):
+    """ Reference to a local action."""
+
+
+class GlobalActionReference(
+        ActionReference,
+        Record.make('GlobalActionReference', ['package', 'id', 'query'])):
+    """ Reference to a global action."""

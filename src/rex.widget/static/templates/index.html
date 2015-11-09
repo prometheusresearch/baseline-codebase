@@ -86,6 +86,7 @@
     var __MOUNT_PREFIX__ = "{{ REQUEST.script_name }}";
     var __REX_WIDGET_MOUNT_PREFIX__ = "{{ REQUEST.environ['rex.mount']['rex.widget'] }}";
     var __REX_WIDGET__;
+    var __REX_WIDGET_THEME__ = JSON.stringify({{ theme }});
   </script>
   {% if bundle.js %}
   <script src="{{ bundle.js|url }}"></script>

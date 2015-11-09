@@ -4,10 +4,11 @@
 
 import React, {PropTypes} from 'react';
 import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
+import * as CSS           from '@prometheusresearch/react-stylesheet/css';
 import Icon               from './Icon';
 import resolveURL         from './resolveURL';
 import * as qs            from './qs';
-import * as Style         from './StyleUtils';
+import Theme              from './Theme';
 
 /**
  * May be rendered as an <a> or a <button>.
@@ -98,147 +99,168 @@ export default class Button extends React.Component {
 
   static stylesheet = Stylesheet.createStylesheet({
     Root: {
-      display: Style.display.inlineBlock,
+      display: CSS.display.inlineBlock,
       marginBottom: 0,
-      fontWeight: Style.fontWeight.normal,
-      textAlign: Style.textAlign.center,
-      verticalAlign: Style.verticalAlign.middle,
-      touchAction: Style.touchAction.manipulation,
-      cursor: Style.cursor.pointer,
-      backgroundImage: Style.none,
-      whiteSpace: Style.whiteSpace.nowrap,
-      padding: Style.padding(6, 12),
+      fontWeight: CSS.fontWeight.normal,
+      textAlign: CSS.textAlign.center,
+      verticalAlign: CSS.verticalAlign.middle,
+      touchAction: CSS.touchAction.manipulation,
+      cursor: CSS.cursor.pointer,
+      backgroundImage: CSS.none,
+      whiteSpace: CSS.whiteSpace.nowrap,
+      padding: CSS.padding(6, 12),
       fontSize: 14,
       lineHeight: 1.428571429,
       borderRadius: 2,
-      userSelect: Style.none,
-      textOverflow: Style.textOverflow.ellipsis,
-      overflow: Style.overflow.hidden,
+      userSelect: CSS.none,
+      textOverflow: CSS.textOverflow.ellipsis,
+      overflow: CSS.overflow.hidden,
 
       focus: {
         outline: ['thin dotted', '1px auto -webkit-focus-ring-color'],
         outlineOffset: -2,
-        textDecoration: Style.none,
+        textDecoration: CSS.none,
       },
 
       active: {
         outline: ['thin dotted', '1px auto -webkit-focus-ring-color'],
         outlineOffset: -2,
-        textDecoration: Style.none,
+        textDecoration: CSS.none,
       },
 
       hover: {
-        textDecoration: Style.none
+        textDecoration: CSS.none
       },
 
       default: {
-        color: '#333333',
-        backgroundColor: '#ffffff',
-        border: '1px solid #cccccc',
+        color: Theme.button.textColor || '#333333',
+        backgroundColor: Theme.button.backgroundColor || '#ffffff',
+        borderWidth: 1,
+        borderStyle: CSS.border.solid,
+        borderColor: Theme.button.borderColor || '#cccccc',
 
         hover: {
-          color: '#333333',
-          backgroundColor: '#e6e6e6',
-          borderColor: '#adadad',
+          color: Theme.button.hover.textColor || '#333333',
+          backgroundColor: Theme.button.hover.backgroundColor || '#e6e6e6',
+          borderColor: Theme.button.hover.borderColor || '#adadad',
         },
 
         focus: {
-          color: '#333333',
-          backgroundColor: '#e6e6e6',
-          borderColor: '#8c8c8c',
+          color: Theme.button.focus.textColor || '#333333',
+          backgroundColor: Theme.button.focus.backgroundColor || '#e6e6e6',
+          borderColor: Theme.button.focus.borderColor || '#8c8c8c',
         },
 
         active: {
-          color: '#333333',
-          backgroundColor: '#d4d4d4',
-          borderColor: '#8c8c8c',
-          backgroundImage: Style.none,
+          color: Theme.button.active.textColor || '#333333',
+          backgroundColor: Theme.button.active.backgroundColor || '#d4d4d4',
+          borderColor: Theme.button.active.borderColor || '#8c8c8c',
+          backgroundImage: CSS.none,
         },
       },
 
       success: {
-        color: '#ffffff',
-        backgroundColor: '#5cb85c',
-        border: Style.border(1, Style.borderStyle.solid, '#4cae4c'),
+        color: Theme.successButton.textColor || '#ffffff',
+        backgroundColor: Theme.successButton.backgroundColor || '#5cb85c',
+        borderWidth: 1,
+        borderStyle: CSS.border.solid,
+        borderColor: Theme.button.hover.borderColor || '#4cae4c',
 
         hover: {
-          color: '#ffffff',
-          backgroundColor: '#449d44',
-          borderColor: '#398439',
+          color: Theme.successButton.hover.textColor || '#ffffff',
+          backgroundColor: Theme.successButton.hover.backgroundColor || '#449d44',
+          borderColor: Theme.button.hover.borderColor || '#398439',
         },
 
         focus: {
-          color: '#ffffff',
-          backgroundColor: '#449d44',
-          borderColor: '#398439',
+          color: Theme.successButton.focus.textColor || '#ffffff',
+          backgroundColor: Theme.successButton.focus.backgroundColor || '#449d44',
+          borderColor: Theme.button.hover.borderColor || '#398439',
         },
 
         active: {
-          color: '#ffffff',
-          backgroundColor: '#398439',
-          borderColor: '#255625',
+          color: Theme.successButton.active.textColor || '#ffffff',
+          backgroundColor: Theme.successButton.active.backgroundColor || '#398439',
+          borderColor: Theme.button.hover.borderColor || '#255625',
         },
       },
 
       danger: {
-        color: '#ffffff',
-        backgroundColor: '#d9534f',
-        border: Style.border(1, Style.borderStyle.solid, '#d43f3a'),
+        color: Theme.dangerButton.textColor || '#ffffff',
+        backgroundColor: Theme.dangerButton.backgroundColor || '#d9534f',
+        borderWidth: 1,
+        borderStyle: CSS.border.solid,
+        borderColor: Theme.button.hover.borderColor || '#d43f3a',
 
         hover: {
-          color: '#ffffff',
-          backgroundColor: '#c9302c',
-          borderColor: '#ac2925',
+          color: Theme.dangerButton.hover.textColor || '#ffffff',
+          backgroundColor: Theme.dangerButton.hover.backgroundColor || '#c9302c',
+          borderColor: Theme.button.hover.borderColor || '#ac2925',
         },
 
         focus: {
-          color: '#ffffff',
-          backgroundColor: '#c9302c',
-          borderColor: '#761c19',
+          color: Theme.dangerButton.focus.textColor || '#ffffff',
+          backgroundColor: Theme.dangerButton.hover.backgroundColor || '#c9302c',
+          borderColor: Theme.button.hover.borderColor || '#761c19',
         },
 
         active: {
-          color: '#ffffff',
-          backgroundColor: '#ac2925',
-          borderColor: '#761c19',
+          color: Theme.dangerButton.active.textColor || '#ffffff',
+          backgroundColor: Theme.dangerButton.active.backgroundColor || '#ac2925',
+          borderColor: Theme.button.hover.borderColor || '#761c19',
         },
       },
 
       link: {
-        borderColor: Style.color.transparent,
-        backgroundColor: Style.color.transparent,
-        boxShadow: Style.none,
+        borderColor: CSS.color.transparent,
+        backgroundColor: CSS.color.transparent,
+        boxShadow: CSS.none,
         color: '#428bca',
-        fontWeight: Style.fontWeight.normal,
+        fontWeight: CSS.fontWeight.normal,
         borderRadius: 0,
 
         hover: {
           color: '#2a6496',
-          textDecoration: Style.textDecoration.underline,
+          textDecoration: CSS.textDecoration.underline,
         },
       },
 
       quiet: {
-        background: Style.color.transparent,
-        color: '#888',
-        border: Style.border(1, Style.borderStyle.solid, Style.color.transparent),
+        background: Theme.quietButton.backgroundColor || CSS.color.transparent,
+        color: Theme.quietButton.textColor || '#888888',
+        borderWidth: 1,
+        borderStyle: CSS.border.solid,
+        borderColor: Theme.quietButton.borderColor || CSS.color.transparent,
 
         hover: {
+          color: Theme.dangerButton.hover.textColor || '#888888',
+          backgroundColor: Theme.dangerButton.hover.backgroundColor || '#e6e6e6',
+          borderColor: Theme.button.hover.borderColor || CSS.color.transparent,
         },
 
         active: {
+          color: Theme.dangerButton.hover.textColor || '#888888',
+          backgroundColor: Theme.dangerButton.hover.backgroundColor || '#e6e6e6',
+          borderColor: Theme.button.hover.borderColor || CSS.color.transparent,
         },
+
+        focus: {
+          color: Theme.dangerButton.hover.textColor || '#888888',
+          backgroundColor: Theme.dangerButton.hover.backgroundColor || '#e6e6e6',
+          borderColor: Theme.button.hover.borderColor || CSS.color.transparent,
+        },
+
       },
 
       small: {
-        padding: Style.padding(5, 10),
+        padding: CSS.padding(5, 10),
         fontSize: 12,
         lineHeight: 1.5,
         borderRadius: 2,
       },
 
       extraSmall: {
-        padding: Style.padding(1, 5),
+        padding: CSS.padding(1, 5),
         fontSize: 12,
         lineHeight: 1.5,
         borderRadius: 2,

@@ -13,7 +13,7 @@ from json import dumps
 from webob import Response
 from webob.exc import HTTPBadRequest
 
-from rex.core import get_packages
+from rex.core import get_packages, get_settings
 from rex.db import get_db
 from rex.web import render_to_response
 
@@ -85,8 +85,10 @@ def render(widget, request, template='rex.widget:/templates/index.html'):
                 'unable to locate responder via __to__ pointer')
         return widget.respond(request)
     else:
+        settings = get_settings()
         accept = request.accept.best_match(['text/html', 'application/json'])
         payload = encode(widget, request)
+        theme = encode(settings.rex_widget.theme, request)
         if accept == 'application/json':
             return Response(payload, content_type='application/json')
         else:
@@ -95,4 +97,5 @@ def render(widget, request, template='rex.widget:/templates/index.html'):
                 template, request,
                 user=dumps(dumps(user)),
                 bundle=find_bundle(),
+                theme=theme,
                 payload=payload)

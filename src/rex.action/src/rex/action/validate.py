@@ -119,17 +119,22 @@ class ActionReferenceVal(Validate):
             return value
         value = self._validate(value)
         value = urlparse.urlparse(value)
-        if value.query:
-            query = cgi.parse_qs(value.query)
+        package = value.scheme
+        path = value.path
+        query = value.query
+        if ':' in path and not package:
+            package, path = path.split(':', 1)
+        if query:
+            query = cgi.parse_qs(query)
             query = {k: v[0] for k, v in query.items()}
         else:
             query = {}
-        if not value.path.startswith('/') and not value.scheme:
-            return LocalActionReference(value.path, query)
-        elif not value.scheme:
-            return GlobalActionReference(None, value.path, query)
+        if not path.startswith('/') and not package:
+            return LocalActionReference(path, query)
+        elif not package:
+            return GlobalActionReference(None, path, query)
         else:
-            return GlobalActionReference(value.scheme, value.path, query)
+            return GlobalActionReference(package, path, query)
 
 
 class ActionReference(object):

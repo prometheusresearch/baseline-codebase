@@ -36,6 +36,12 @@ ActionReference
   >>> ActionReference.validate('pkg:/global-action')
   GlobalActionReference(package='pkg', id='/global-action', query={})
 
+  >>> ActionReference.validate('pkg_x:/global-action')
+  GlobalActionReference(package='pkg_x', id='/global-action', query={})
+
+  >>> ActionReference.validate('pkg.x:/global-action')
+  GlobalActionReference(package='pkg.x', id='/global-action', query={})
+
   >>> ActionReference.validate('pkg:/global-action?x=y')
   GlobalActionReference(package='pkg', id='/global-action', query={'x': 'y'})
 

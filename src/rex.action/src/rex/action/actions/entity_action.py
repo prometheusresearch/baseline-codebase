@@ -20,7 +20,7 @@ from rex.widget.validate import DeferredVal, Deferred
 from rex.widget.port_support import PortSupport
 
 from ..action import Action
-from ..typing import RowTypeVal, annotate_port
+from ..typing import RecordTypeVal, RecordType, RowTypeVal, annotate_port
 from ..validate import RexDBVal
 
 __all__ = ('EntityAction',)
@@ -42,6 +42,9 @@ class EntityAction(Action):
         doc="""
         Name of a table in database.
         """)
+
+    input = Field(
+        RecordTypeVal(), default=RecordType.empty())
 
     db = Field(
         RexDBVal(), default=None,

@@ -35,6 +35,7 @@ R43MH099826.
    guide/index
    migration_guide
    cookbook
+   theming
    py_reference
    js_reference
    changes

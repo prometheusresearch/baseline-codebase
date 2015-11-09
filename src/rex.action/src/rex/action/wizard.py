@@ -82,6 +82,10 @@ class WizardWidgetBase(Widget):
             action = self.actions[ref.id]
         elif isinstance(ref, GlobalActionReference):
             if not ref.package:
+                if not self.package:
+                    raise Error(
+                        'Package name is missing, use pkg:path syntax',
+                        ref.id)
                 handler = route('%s:%s' % (self.package.name, ref.id))
             else:
                 handler = route('%s:%s' % (ref.package, ref.id))

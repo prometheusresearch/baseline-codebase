@@ -16,7 +16,7 @@ Init
 
 ::
 
-  >>> rex = Rex('-')
+  >>> rex = Rex('-', 'rex.widget', db='pgsql:widget_demo')
   >>> rex.on()
 
 Widget

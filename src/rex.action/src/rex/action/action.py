@@ -21,7 +21,9 @@ from rex.core import (
     MaybeVal, StrVal, IntVal, SeqVal, MapVal, OMapVal, AnyVal,
     cached, guard)
 from rex.web import authorize
-from rex.widget import Widget, WidgetVal, Field, undefined, as_transitionable
+from rex.widget import (
+    Widget, WidgetVal, Field,
+    undefined, as_transitionable, TransitionableRecord)
 from rex.widget.widget import _format_Widget
 from rex.widget.validate import DeferredVal, Deferred
 from rex.widget.util import add_mapping_key, pop_mapping_key
@@ -48,7 +50,10 @@ class _action_sig(namedtuple('Action', ['name'])):
         return hash((self.__class__.__name__, self.name))
 
 
-ContextTypes = namedtuple('ContextTypes', ['input', 'output'])
+class ContextTypes(TransitionableRecord):
+    __transit_tag__ = 'map'
+
+    fields = ('input', 'output')
 
 
 class ActionBase(Widget):
@@ -87,9 +92,6 @@ class ActionBase(Widget):
         self._context_types = values.pop('__context_types', None)
         super(ActionBase, self).__init__(**values)
 
-    def with_domain(self, domain):
-        return self.__clone__(__domain=domain)
-
     def __clone__(self, **values):
         next_values = {}
         next_values.update({
@@ -104,6 +106,14 @@ class ActionBase(Widget):
         if '__context_types' not in next_values:
             next_values.update({'__context_types': self._context_types})
         return self.__class__(**next_values)
+
+    def with_domain(self, domain):
+        """ Override typing domain."""
+        return self.__clone__(__domain=domain)
+
+    def with_context_types(self, context_types):
+        """ Override context types."""
+        return self.__clone__(__context_types=context_types)
 
     @cached_property
     def context_types(self):

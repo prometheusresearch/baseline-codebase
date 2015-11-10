@@ -26,7 +26,7 @@ from .instruction import (
     PathVal,
     visit as visit_instruction, map as map_instruction)
 from .action import (
-    ActionVal, ActionMapVal, ActionRenderer, ActionBase, ContextTypes)
+    ActionVal, ActionMapVal, ActionRenderer, ActionBase)
 from .validate import (
     DomainVal,
     ActionReference, LocalActionReference, GlobalActionReference)
@@ -75,40 +75,12 @@ class WizardWidgetBase(Widget):
             self.path = self.path.resolve(validate_path)
 
     def _resolve_action(self, ref):
-        ref = ActionReference.validate(ref)
-        if isinstance(ref, LocalActionReference):
-            if not ref.id in self.actions:
-                return None
-            action = self.actions[ref.id]
-        elif isinstance(ref, GlobalActionReference):
-            if not ref.package:
-                if not self.package:
-                    raise Error(
-                        'Package name is missing, use pkg:path syntax',
-                        ref.id)
-                handler = route('%s:%s' % (self.package.name, ref.id))
-            else:
-                handler = route('%s:%s' % (ref.package, ref.id))
-            if handler is None or not isinstance(handler, ActionRenderer):
-                return None
-            else:
-                action = handler.action
-
-        if ref.query:
-            input = typing.RecordType(
-                dict(action.context_types.input.rows),
-                action.context_types.input.open)
-            context_types = ContextTypes(
-                input,
-                action.context_types.output)
-            for name, type in ref.query.items():
-                if not name in action.context_types.input.rows:
-                    raise Error('invalid type refine')
-                type = self.states[type]
-                context_types.input.rows[name] = typing.RowType(name, type)
-            action = action.__clone__(__context_types=context_types)
-        action = action.with_domain(action.domain.merge(self.states))
-        return action
+        return resolve_action_reference(
+            ref,
+            actions=self.actions,
+            package=self.package,
+            domain=self.states,
+        )
 
     def typecheck(self, context_type=None):
         if context_type is None:
@@ -250,6 +222,63 @@ def _type_repr(kind):
         return kind.type_name
     else:
         return repr(kind)
+
+
+def resolve_action_reference(ref, actions=None, package=None, domain=None):
+    """ Resolve action reference to action instance.
+
+    :param ref: Action reference
+    :keyword actions: Local actions bindings
+    :keyword package: Current package
+    :keyword domain: Current domain
+    :returns: Action instance for a reference
+    """
+    action = None
+
+    actions = actions or {}
+    domain = domain or typing.Domain.current()
+
+    ref = ActionReference.validate(ref)
+
+    if isinstance(ref, LocalActionReference):
+        if not actions:
+            raise Error('Local actions are not allowed in this configuration')
+        if not ref.id in actions:
+            raise Error('Found unknown local action reference:', ref.id)
+        action = actions[ref.id]
+
+    elif isinstance(ref, GlobalActionReference):
+        if not ref.package:
+            if not package:
+                raise Error(
+                    'Package name is missing, use pkg:path syntax',
+                    ref)
+            handler = route('%s:%s' % (package.name, ref.id))
+        else:
+            handler = route('%s:%s' % (ref.package, ref.id))
+
+        if handler is None:
+            raise Error(
+                'Cannot resolve global action reference:',
+                ref)
+        elif not isinstance(handler, ActionRenderer):
+            raise Error(
+                'Action reference resolves to handler of a non-action type:',
+                ref)
+        else:
+            action = handler.action
+
+    if action is None:
+        raise Error('Cannot resolve action reference:', ref)
+
+    if ref.query:
+        rows = {name: domain[type] for name, type in ref.query.items()}
+        input = action.context_types.input.override(rows)
+        context_types = action.context_types.__clone__(input=input)
+        action = action.with_context_types(context_types)
+
+    action = action.with_domain(action.domain.merge(domain))
+    return action
 
 
 class WizardBase(WizardWidgetBase, ActionBase):

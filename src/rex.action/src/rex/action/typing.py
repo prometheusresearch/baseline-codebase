@@ -197,6 +197,20 @@ class RecordType(Type):
             rows = {row.name: row for row in rows}
         super(RecordType, self).__init__(rows=rows, open=open)
 
+    def override(self, rows):
+        if isinstance(rows, self.__class__):
+            rows = rows.rows
+        next_rows = dict(self.rows)
+        for k, v in rows.items():
+            if not k in next_rows:
+                raise Erorr(
+                    'Invalid record type override:',
+                    '%s key is not present in the original type' % k)
+            if not isinstance(v, RowType):
+                v = RowType(k, v)
+            next_rows[k] = v
+        return self.__class__(next_rows, open=self.open)
+
     @property
     def key(self):
         rows = [row.key for _, row in sorted(self.rows.items())]

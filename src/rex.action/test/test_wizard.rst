@@ -10,8 +10,18 @@ Wizard
 ::
 
   >>> from rex.action import setting
-  >>> from rex.action.action import Action
-  >>> from rex.action.typing import EntityType, RecordType
+  >>> from rex.action.action import Action, Field
+  >>> from rex.action.typing import EntityType, RecordType, RecordTypeVal
+
+  >>> class MockAction(Action):
+  ...   name = 'mock'
+  ...
+  ...   input = Field(RecordTypeVal(), default=RecordType.empty())
+  ...   output = Field(RecordTypeVal(), default=RecordType.empty())
+  ...
+  ...   def context(self):
+  ...     return self.input, self.output
+
 
   >>> class MyAction(Action):
   ...
@@ -154,9 +164,174 @@ Wizard
   EntityType(name='individual',
              state=EntityTypeState(name='recruited',
                                    title='Recruited individuals',
-                                   expression='exist(study_enrollment.individual = id())', input=None))
+                                   expression='exist(study_enrollment.individual = id())',                                    input=None))
+
+::
 
   >>> rex.off()
+
+Action resolution
+-----------------
+
+::
+
+  >>> from rex.core import Rex, SandboxPackage
+
+  >>> def parse(yaml, other=None):
+  ...   package = SandboxPackage()
+  ...   other_package = SandboxPackage('other')
+  ...   package.rewrite('/urlmap.yaml', yaml)
+  ...   if other:
+  ...     other_package.rewrite('/urlmap.yaml', other)
+  ...   rex = Rex('-', 'rex.action', package, other_package, db='pgsql:action_demo')
+  ...   rex.on()
+  ...   rex.off()
+
+::
+
+  >>> parse("""
+  ... paths:
+  ...   /:
+  ...     action:
+  ...       type: wizard
+  ...       path:
+  ...       - local-action:
+  ...       actions:
+  ...         local-action:
+  ...           type: mock
+  ... """)
+
+  >>> parse("""
+  ... paths:
+  ...   /:
+  ...     action:
+  ...       type: wizard
+  ...       path:
+  ...       - x-local-action:
+  ...       actions:
+  ...         local-action:
+  ...           type: mock
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Found unknown local action reference:
+      x-local-action
+  While parsing:
+      "...", line 5
+  While initializing RexDB application:
+      -
+      rex.action
+      SandboxPackage()
+      SandboxPackage('other')
+  With parameters:
+      db: 'pgsql:action_demo'
+
+  >>> parse("""
+  ... paths:
+  ...   /:
+  ...     action:
+  ...       type: wizard
+  ...       path:
+  ...       - local-action:
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Local actions are not allowed in this configuration
+  While parsing:
+      "...", line 5
+  While initializing RexDB application:
+      -
+      rex.action
+      SandboxPackage()
+      SandboxPackage('other')
+  With parameters:
+      db: 'pgsql:action_demo'
+
+  >>> parse("""
+  ... paths:
+  ...   /action:
+  ...     action:
+  ...       type: mock
+  ...   /:
+  ...     action:
+  ...       type: wizard
+  ...       path:
+  ...       - /x-action:
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Cannot resolve global action reference:
+      /x-action
+  While parsing:
+      "...", line 8
+  While initializing RexDB application:
+      -
+      rex.action
+      SandboxPackage()
+      SandboxPackage('other')
+  With parameters:
+      db: 'pgsql:action_demo'
+
+  >>> parse("""
+  ... paths:
+  ...   /action:
+  ...     query:
+  ...       true()
+  ...   /:
+  ...     action:
+  ...       type: wizard
+  ...       path:
+  ...       - /action:
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Action reference resolves to handler of a non-action type:
+      /action
+  While parsing:
+      "...", line 8
+  While initializing RexDB application:
+      -
+      rex.action
+      SandboxPackage()
+      SandboxPackage('other')
+  With parameters:
+      db: 'pgsql:action_demo'
+
+  >>> parse("""
+  ... paths:
+  ...   /:
+  ...     action:
+  ...       type: wizard
+  ...       path:
+  ...       - other:/action:
+  ... """, """
+  ... paths:
+  ...   /action:
+  ...     action:
+  ...       type: mock
+  ... """) # doctest: +ELLIPSIS
+
+  >>> parse("""
+  ... paths:
+  ...   /:
+  ...     action:
+  ...       type: wizard
+  ...       path:
+  ...       - other:/action:
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Cannot resolve global action reference:
+      other;/action
+  While parsing:
+      "...", line 5
+  While initializing RexDB application:
+      -
+      rex.action
+      SandboxPackage()
+      SandboxPackage('other')
+  With parameters:
+      db: 'pgsql:action_demo'
 
 Typechecking
 ------------
@@ -169,19 +344,6 @@ Typechecking
 
 ::
 
-  >>> from rex.action import Action, Field, Wizard
-  >>> from rex.action.action import ActionVal
-  >>> from rex.action.typing import RecordTypeVal, RecordType
-
-  >>> class MockAction(Action):
-  ...   name = 'mock'
-  ...
-  ...   input = Field(RecordTypeVal(), default=RecordType.empty())
-  ...   output = Field(RecordTypeVal(), default=RecordType.empty())
-  ...
-  ...   def context(self):
-  ...     return self.input, self.output
-
   >>> def typecheck(yaml):
   ...   wizard = Wizard.parse(yaml)
   ...   wizard.typecheck(context_type=RecordType.empty())
@@ -190,6 +352,7 @@ Basic cases
 ~~~~~~~~~~~
 
   >>> typecheck("""
+  ... id: wizard
   ... path:
   ... - pick-individual:
   ... actions:
@@ -200,34 +363,10 @@ Basic cases
   ... """)
 
   >>> typecheck("""
+  ... id: wizard
   ... path:
   ... - view-individual:
   ... actions:
-  ...   view-individual:
-  ...     type: mock
-  ...     input:
-  ...     - individual: individual
-  ... """) # doctest: +ELLIPSIS
-  Traceback (most recent call last):
-  ...
-  Error: Action "view-individual" cannot be used here:
-      Context is missing "individual: individual"
-  Context:
-      <empty context>
-  While type checking action at path:
-      view-individual
-  While parsing:
-      "<...>", line 3
-
-  >>> typecheck("""
-  ... path:
-  ... - pick-individual:
-  ... - view-individual:
-  ... actions:
-  ...   pick-individual:
-  ...     type: mock
-  ...     output:
-  ...     - individual: individual
   ...   view-individual:
   ...     type: mock
   ...     input:
@@ -245,6 +384,33 @@ Basic cases
       "<...>", line 4
 
   >>> typecheck("""
+  ... id: wizard
+  ... path:
+  ... - pick-individual:
+  ... - view-individual:
+  ... actions:
+  ...   pick-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual
+  ...   view-individual:
+  ...     type: mock
+  ...     input:
+  ...     - individual: individual
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Action "view-individual" cannot be used here:
+      Context is missing "individual: individual"
+  Context:
+      <empty context>
+  While type checking action at path:
+      view-individual
+  While parsing:
+      "<...>", line 5
+
+  >>> typecheck("""
+  ... id: wizard
   ... path:
   ... - pick-individual:
   ...   - pick-individual:
@@ -256,6 +422,7 @@ Basic cases
   ... """) # doctest: +ELLIPSIS
 
   >>> typecheck("""
+  ... id: wizard
   ... path:
   ... - pick-individual:
   ...   - view-individual:
@@ -271,6 +438,7 @@ Basic cases
   ... """) # doctest: +ELLIPSIS
 
   >>> typecheck("""
+  ... id: wizard
   ... path:
   ... - home:
   ...   - view-individual:
@@ -291,9 +459,10 @@ Basic cases
   While type checking action at path:
       home -> view-individual
   While parsing:
-      "<...>", line 4
+      "<...>", line 5
 
   >>> typecheck("""
+  ... id: wizard
   ... path:
   ... - pick-individual:
   ...   - home:
@@ -312,6 +481,7 @@ Basic cases, different keys
 Keys and types are different, fail::
 
   >>> typecheck("""
+  ... id: wizard
   ... path:
   ... - pick-study:
   ...   - view-individual:
@@ -334,11 +504,12 @@ Keys and types are different, fail::
   While type checking action at path:
       pick-study -> view-individual
   While parsing:
-      "<...>", line 4
+      "<...>", line 5
 
 Keys aren't same as types, fail::
 
   >>> typecheck("""
+  ... id: wizard
   ... path:
   ... - pick-mother:
   ...   - view-individual:
@@ -361,11 +532,12 @@ Keys aren't same as types, fail::
   While type checking action at path:
       pick-mother -> view-individual
   While parsing:
-      "<...>", line 4
+      "<...>", line 5
 
 Keys aren't same as types, still match::
 
   >>> typecheck("""
+  ... id: wizard
   ... path:
   ... - pick-mother:
   ...   - view-mother:
@@ -383,6 +555,7 @@ Keys aren't same as types, still match::
 Same type, different key, fail::
 
   >>> typecheck("""
+  ... id: wizard
   ... path:
   ... - pick-individual:
   ...   - view-mother:
@@ -405,9 +578,10 @@ Same type, different key, fail::
   While type checking action at path:
       pick-individual -> view-mother
   While parsing:
-      "<...>", line 4
+      "<...>", line 5
 
   >>> typecheck("""
+  ... id: wizard
   ... path:
   ... - pick-mother:
   ...   - view-mother-study:
@@ -430,7 +604,7 @@ Same type, different key, fail::
   While type checking action at path:
       pick-mother -> view-mother-study
   While parsing:
-      "<...>", line 4
+      "<...>", line 5
 
 Indexed types
 ~~~~~~~~~~~~~
@@ -438,6 +612,7 @@ Indexed types
 Same key, same entity, has any state, require recruited state, fail::
 
   >>> typecheck("""
+  ... id: wizard
   ... path:
   ... - pick-individual:
   ...   - view-recruited-individual:
@@ -460,6 +635,7 @@ Same key, same entity, has any state, require recruited state, fail::
 Same key, same entity, has recruited, require any state, success::
 
   >>> typecheck("""
+  ... id: wizard
   ... path:
   ... - pick-recruited-individual:
   ...   - view-individual:
@@ -482,6 +658,7 @@ Same key, same entity, has recruited, require any state, success::
 Same key, same entity, has recruited, require recruited, success::
 
   >>> typecheck("""
+  ... id: wizard
   ... path:
   ... - pick-recruited-individual:
   ...   - view-recruited-individual:
@@ -504,6 +681,7 @@ Same key, same entity, has recruited, require recruited, success::
 Same key, same entity, has enrolled, require recruited, fail::
 
   >>> typecheck("""
+  ... id: wizard
   ... path:
   ... - pick-enrolled-individual:
   ...   - view-recruited-individual:
@@ -534,7 +712,7 @@ Same key, same entity, has enrolled, require recruited, fail::
   While type checking action at path:
       pick-enrolled-individual -> view-recruited-individual
   While parsing:
-      "<...>", line 4
+      "<...>", line 5
 
 Repeat
 ~~~~~~
@@ -542,6 +720,7 @@ Repeat
 ::
 
   >>> typecheck("""
+  ... id: wizard
   ... path:
   ... - repeat:
   ...     pick-individual:
@@ -559,6 +738,7 @@ Repeat
   ... """) # doctest: +NORMALIZE_WHITESPACE
 
   >>> typecheck("""
+  ... id: wizard
   ... path:
   ... - repeat:
   ...     pick-individual:
@@ -583,9 +763,10 @@ Repeat
   While type checking action at path:
       <repeat loop> -> pick-individual -> view-mother
   While parsing:
-      "<...>", line 5
+      "<...>", line 6
 
   >>> typecheck("""
+  ... id: wizard
   ... path:
   ... - repeat:
   ...     pick-individual:
@@ -605,6 +786,7 @@ Repeat
   ... """) # doctest: +NORMALIZE_WHITESPACE
 
   >>> typecheck("""
+  ... id: wizard
   ... path:
   ... - repeat:
   ...     pick-individual:
@@ -635,9 +817,10 @@ Repeat
   While type checking action at path:
       <repeat then> -> pick-individual -> view-mother
   While parsing:
-      "<...>", line 8
+      "<...>", line 9
 
   >>> typecheck("""
+  ... id: wizard
   ... path:
   ... - pick-individual:
   ...   - repeat:
@@ -663,7 +846,7 @@ Repeat
   Error: Repeat ends with a type which is incompatible with its beginning:
       Has "individual: study" but expected to have "individual: individual"
   While parsing:
-      "<...>", line 6
+      "<...>", line 7
 
 ::
 

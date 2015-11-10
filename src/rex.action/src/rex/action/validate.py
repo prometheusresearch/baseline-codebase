@@ -9,6 +9,7 @@
 
 import re
 import urlparse
+import urllib
 import cgi
 
 from htsql.core.error import Error as HTSQLError
@@ -153,3 +154,14 @@ class GlobalActionReference(
         ActionReference,
         Record.make('GlobalActionReference', ['package', 'id', 'query'])):
     """ Reference to a global action."""
+
+    def __repr__(self):
+        rep = self.id
+        if self.query:
+            rep = '%s?%s' % (rep, urllib.urlencode(query)) 
+        if self.package:
+            rep = '%s;%s' % (self.package, rep)
+        return rep
+
+    __unicode__ = __repr__
+    __str__ = __repr__

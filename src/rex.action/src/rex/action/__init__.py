@@ -15,6 +15,7 @@ from .action import Action, ActionRenderer
 from .widget import Wizard, SinglePageWizard
 from .actions import View, Make, Page, Pick, Edit
 from .validate import RexDBVal
+from .mutation import Mutation
 from . import setting
 
 class InitializeRexAction(Initialize):

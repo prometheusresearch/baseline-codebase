@@ -519,7 +519,7 @@ class GrowEntity(Grow):
             if self.name in parent:
                 raise Error("Got entity that has already been added:",
                             self.name)
-            arm = arm_class(arm_arc, arms, mask, filters)
+            arm = arm_class(arm_arc, arms, mask, filters, parent.parameters)
         except Error, error:
             location = locate(self)
             if location is not None:
@@ -562,10 +562,14 @@ class GrowCalculation(Grow):
             # its domain.
             try:
                 state = BindingState(RootBinding(VoidSyntax()))
-                # We have to supply $USER (TODO: other variables too?).
+                # We have to supply $USER and other variables.
                 recipe = LiteralRecipe(None, UntypedDomain())
                 scope = DefineReferenceBinding(state.scope, u"USER", recipe,
                         state.scope.syntax)
+                for name, value in sorted(parent.parameters.items()):
+                    recipe = LiteralRecipe(value.data, value.domain)
+                    scope = DefineReferenceBinding(
+                            scope, name, recipe, scope.syntax)
                 state.push_scope(scope)
                 if isinstance(parent.node, TableNode):
                     recipe = prescribe(parent.arc, state.scope)

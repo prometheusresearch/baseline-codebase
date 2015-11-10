@@ -314,6 +314,23 @@ There are many ways a free parameter can be specified::
       default: true
     ''')
 
+Parameters can be used not only in filters, but also in calculated fields::
+
+    >>> Port("""
+    ... - $age := 0
+    ... - individual
+    ... - individual.age := $age
+    ... """)
+    Port('''
+    - parameter: age
+      default: 0
+    - entity: individual
+      select: [code, sex, mother, father]
+      with:
+      - calculation: age
+        expression: $age
+    ''')
+
 
 Errors while parsing YAML
 =========================

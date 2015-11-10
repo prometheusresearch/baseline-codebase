@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.1.1 (2015-XX-XX)
+==================
+
+* Fixed global parameters to work in calculated attributes.
+
+
 1.1.0 (2015-09-30)
 ==================
 

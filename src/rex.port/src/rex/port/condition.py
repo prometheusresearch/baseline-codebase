@@ -200,7 +200,8 @@ class ReferenceCondition(object):
                 continue
             arguments = embed([arm.parameters.get(name)])
             condition = cls(arm, state, name, arguments)
-            return condition(binding, scope)
+            binding = condition(binding, scope)
+        return binding
 
     def __init__(self, arm, state, name, arguments):
         self.arm = arm

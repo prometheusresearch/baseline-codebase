@@ -660,14 +660,18 @@ A port may configure and use parameters other than ``$USER``::
     >>> parameterized_port = Port("""
     ... - parameter: $SEX
     ...   default: male
+    ... - parameter: $AGE
+    ...   default: 0
     ... - entity: individual
     ...   mask: sex=$SEX
+    ... - calculation: individual.age
+    ...   expression: $AGE
     ... """)
 
-    >>> parameterized_port.produce()                # doctest: +ELLIPSIS
-    <Product {({[1001], '1001', 'male', null, null}, {[1003], '1003', 'male', [1000], [1001]}, ...)}>
+    >>> parameterized_port.produce()                    # doctest: +ELLIPSIS
+    <Product {({[1001], '1001', 'male', null, null, 0}, {[1003], '1003', 'male', [1000], [1001], 0}, ...)}>
 
-    >>> parameterized_port.produce(SEX='female')    # doctest: +ELLIPSIS
-    <Product {({[1000], '1000', 'female', null, null}, {[1002], '1002', 'female', [1000], [1001]}, ...)}>
+    >>> parameterized_port.produce(SEX='female', AGE=3) # doctest: +ELLIPSIS
+    <Product {({[1000], '1000', 'female', null, null, 3}, {[1002], '1002', 'female', [1000], [1001], 3}, ...)}>
 
 

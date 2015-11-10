@@ -152,7 +152,7 @@ class TableArm(Arm):
 
     kind = 'entity'
 
-    def __init__(self, arc, arms, mask, filters):
+    def __init__(self, arc, arms, mask, filters, parameters={}):
         assert isinstance(arc, (TableArc, ChainArc))
         assert isinstance(mask, maybe(Mask))
         assert isinstance(filters, listof(tupleof(unicode, Filter)))
@@ -161,6 +161,7 @@ class TableArm(Arm):
         self.mask = mask
         self.filters = collections.OrderedDict(filters)
         self.domain = identify(arc.target)
+        self.parameters = parameters
 
     def grow(self, arms=[], mask=None, filters=[]):
         assert isinstance(arms, listof(tupleof(unicode, Arm)))
@@ -199,34 +200,35 @@ class TrunkArm(TableArm):
     kind = 'trunk entity'
     is_plural = True
 
-    def __init__(self, table, arms, mask, filters):
+    def __init__(self, table, arms, mask, filters, parameters={}):
         assert isinstance(table, (TableArc, TableEntity))
         arc = table if isinstance(table, TableArc) else TableArc(table)
-        super(TrunkArm, self).__init__(arc, arms, mask, filters)
+        super(TrunkArm, self).__init__(arc, arms, mask, filters, parameters)
+
 
 class BranchArm(TableArm):
 
     kind = 'branch entity'
     is_plural = True
 
-    def __init__(self, join, arms, mask, filters):
+    def __init__(self, join, arms, mask, filters, parameters={}):
         assert (isinstance(join, ChainArc) or
                 isinstance(join, ReverseJoin) and not join.is_contracting)
         arc = join if isinstance(join, ChainArc) \
               else ChainArc(join.origin, [join])
-        super(BranchArm, self).__init__(arc, arms, mask, filters)
+        super(BranchArm, self).__init__(arc, arms, mask, filters, parameters)
 
 
 class FacetArm(TableArm):
 
     kind = 'facet entity'
 
-    def __init__(self, join, arms, mask, filters):
+    def __init__(self, join, arms, mask, filters, parameters={}):
         assert (isinstance(join, ChainArc) or
                 isinstance(join, ReverseJoin) and join.is_contracting)
         arc = join if isinstance(join, ChainArc) \
               else ChainArc(join.origin, [join])
-        super(FacetArm, self).__init__(arc, arms, mask, filters)
+        super(FacetArm, self).__init__(arc, arms, mask, filters, parameters)
 
 
 class ColumnArm(Arm):

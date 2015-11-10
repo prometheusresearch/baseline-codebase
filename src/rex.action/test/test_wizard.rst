@@ -156,84 +156,57 @@ Wizard
                                    title='Recruited individuals',
                                    expression='exist(study_enrollment.individual = id())', input=None))
 
+  >>> rex.off()
+
 Typechecking
 ------------
 
 ::
 
-  >>> from rex.action.action import ContextTypes
-  >>> from rex.action.typing import EntityType, EntityTypeState, Domain
-
-  >>> domain = Domain(entity_types=[
-  ...   EntityType('individual', state=EntityTypeState('recruited', None)),
-  ...   EntityType('individual', state=EntityTypeState('enrolled', None)),
-  ... ])
-
-  >>> class MockAction(Action):
-  ...
-  ...   def __init__(self, id, input={}, output={}):
-  ...     self.values = {}
-  ...     self.id = id
-  ...     self.context_types = ContextTypes(domain.record(**input), domain.record(**output))
-  ...
-  ...   def __repr__(self):
-  ...     return '<MockAction %s>' % self.id
-
-  >>> from rex.action.instruction import PathVal
-
-  >>> def resolve_from(mapping): return lambda id: mapping[id]
-
-  >>> actions = {
-  ...   'pick-individual': MockAction('pick-individual', input={}, output={'individual': 'individual'}),
-  ...   'pick-recruited-individual': MockAction('pick-individual', input={}, output={'individual': 'individual[recruited]'}),
-  ...   'pick-enrolled-individual': MockAction('pick-individual', input={}, output={'individual': 'individual[enrolled]'}),
-  ...   'pick-mother': MockAction('pick-mother', input={}, output={'mother': 'individual'}),
-  ...   'pick-study': MockAction('pick-study', input={}, output={'study': 'study'}),
-  ...   'pick-study-as-individual': MockAction('pick-study', input={}, output={'individual': 'study'}),
-  ...   'view-individual': MockAction('view-individual', input={'individual': 'individual'}, output={}),
-  ...   'view-recruited-individual': MockAction('view-individual', input={'individual': 'individual[recruited]'}, output={}),
-  ...   'view-mother': MockAction('view-mother', input={'mother': 'individual'}, output={}),
-  ...   'view-mother-study': MockAction('view-mother-study', input={'mother': 'study'}, output={}),
-  ...   'home': MockAction('home', input={}, output={}),
-  ... }
-
-  >>> path_val = PathVal(resolve_from(actions))
-
-  >>> def typecheck(yaml):
-  ...   path = path_val.parse(yaml)
-  ...   wizard = Wizard(id='wizard', path=path, states=domain, actions=actions)
-  ...   wizard.typecheck(context_type=RecordType.empty())
-
-  >>> def validate(yaml):
-  ...   val = ProxyVal()
-  ...   val_item = OMapVal(StrVal(), val)
-  ...   val.set(MaybeVal(val_item))
-  ...   obj = val.parse(yaml)
-  ...   return path_val(obj)
+  >>> from rex.core import Rex
+  >>> rex = Rex('-')
+  >>> rex.on()
 
 ::
 
+  >>> from rex.action import Action, Field, Wizard
+  >>> from rex.action.action import ActionVal
+  >>> from rex.action.typing import RecordTypeVal, RecordType
+
+  >>> class MockAction(Action):
+  ...   name = 'mock'
+  ...
+  ...   input = Field(RecordTypeVal(), default=RecordType.empty())
+  ...   output = Field(RecordTypeVal(), default=RecordType.empty())
+  ...
+  ...   def context(self):
+  ...     return self.input, self.output
+
+  >>> def typecheck(yaml):
+  ...   wizard = Wizard.parse(yaml)
+  ...   wizard.typecheck(context_type=RecordType.empty())
+
+Basic cases
+~~~~~~~~~~~
+
   >>> typecheck("""
+  ... path:
   ... - pick-individual:
+  ... actions:
+  ...   pick-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual
   ... """)
 
   >>> typecheck("""
+  ... path:
   ... - view-individual:
-  ... """) # doctest: +ELLIPSIS
-  Traceback (most recent call last):
-  ...
-  Error: Action "view-individual" cannot be used here:
-      Context is missing "individual: individual"
-  Context:
-      <empty context>
-  While type checking action at path:
-      view-individual
-  While parsing:
-      "<...>", line 2
-
-  >>> typecheck("""
-  ... - pick-individual:
-  ... - view-individual:
+  ... actions:
+  ...   view-individual:
+  ...     type: mock
+  ...     input:
+  ...     - individual: individual
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -247,18 +220,67 @@ Typechecking
       "<...>", line 3
 
   >>> typecheck("""
+  ... path:
+  ... - pick-individual:
+  ... - view-individual:
+  ... actions:
+  ...   pick-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual
+  ...   view-individual:
+  ...     type: mock
+  ...     input:
+  ...     - individual: individual
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Action "view-individual" cannot be used here:
+      Context is missing "individual: individual"
+  Context:
+      <empty context>
+  While type checking action at path:
+      view-individual
+  While parsing:
+      "<...>", line 4
+
+  >>> typecheck("""
+  ... path:
   ... - pick-individual:
   ...   - pick-individual:
-  ... """) # doctest: +NORMALIZE_WHITESPACE
+  ... actions:
+  ...   pick-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual
+  ... """) # doctest: +ELLIPSIS
 
   >>> typecheck("""
+  ... path:
   ... - pick-individual:
   ...   - view-individual:
-  ... """) # doctest: +NORMALIZE_WHITESPACE
+  ... actions:
+  ...   pick-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual
+  ...   view-individual:
+  ...     type: mock
+  ...     input:
+  ...     - individual: individual
+  ... """) # doctest: +ELLIPSIS
 
   >>> typecheck("""
+  ... path:
   ... - home:
   ...   - view-individual:
+  ... actions:
+  ...   home:
+  ...     type: mock
+  ...   view-individual:
+  ...     type: mock
+  ...     input:
+  ...     - individual: individual
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -269,18 +291,39 @@ Typechecking
   While type checking action at path:
       home -> view-individual
   While parsing:
-      "<...>", line 3
+      "<...>", line 4
 
   >>> typecheck("""
+  ... path:
   ... - pick-individual:
   ...   - home:
-  ... """) # doctest: +NORMALIZE_WHITESPACE
+  ... actions:
+  ...   home:
+  ...     type: mock
+  ...   pick-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual
+  ... """) # doctest: +ELLIPSIS
+
+Basic cases, different keys
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Keys and types are different, fail::
 
   >>> typecheck("""
+  ... path:
   ... - pick-study:
   ...   - view-individual:
+  ... actions:
+  ...   view-individual:
+  ...     type: mock
+  ...     input:
+  ...     - individual: individual
+  ...   pick-study:
+  ...     type: mock
+  ...     output:
+  ...     - study: study 
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -291,13 +334,23 @@ Keys and types are different, fail::
   While type checking action at path:
       pick-study -> view-individual
   While parsing:
-      "<...>", line 3
+      "<...>", line 4
 
 Keys aren't same as types, fail::
 
   >>> typecheck("""
+  ... path:
   ... - pick-mother:
   ...   - view-individual:
+  ... actions:
+  ...   pick-mother:
+  ...     type: mock
+  ...     output:
+  ...     - mother: individual
+  ...   view-individual:
+  ...     type: mock
+  ...     input:
+  ...     - individual: individual
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -308,20 +361,40 @@ Keys aren't same as types, fail::
   While type checking action at path:
       pick-mother -> view-individual
   While parsing:
-      "<...>", line 3
+      "<...>", line 4
 
 Keys aren't same as types, still match::
 
   >>> typecheck("""
+  ... path:
   ... - pick-mother:
   ...   - view-mother:
+  ... actions:
+  ...   pick-mother:
+  ...     type: mock
+  ...     output:
+  ...     - mother: individual
+  ...   view-mother:
+  ...     type: mock
+  ...     input:
+  ...     - mother: individual
   ... """) # doctest: +NORMALIZE_WHITESPACE
 
 Same type, different key, fail::
 
   >>> typecheck("""
+  ... path:
   ... - pick-individual:
   ...   - view-mother:
+  ... actions:
+  ...   pick-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual
+  ...   view-mother:
+  ...     type: mock
+  ...     input:
+  ...     - mother: individual
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -332,13 +405,21 @@ Same type, different key, fail::
   While type checking action at path:
       pick-individual -> view-mother
   While parsing:
-      "<...>", line 3
-
-Same key, different types, fail::
+      "<...>", line 4
 
   >>> typecheck("""
+  ... path:
   ... - pick-mother:
   ...   - view-mother-study:
+  ... actions:
+  ...   pick-mother:
+  ...     type: mock
+  ...     output:
+  ...     - mother: individual
+  ...   view-mother-study:
+  ...     type: mock
+  ...     input:
+  ...     - mother: study 
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -349,7 +430,7 @@ Same key, different types, fail::
   While type checking action at path:
       pick-mother -> view-mother-study
   While parsing:
-      "<...>", line 3
+      "<...>", line 4
 
 Indexed types
 ~~~~~~~~~~~~~
@@ -357,29 +438,92 @@ Indexed types
 Same key, same entity, has any state, require recruited state, fail::
 
   >>> typecheck("""
+  ... path:
   ... - pick-individual:
   ...   - view-recruited-individual:
+  ... actions:
+  ...   pick-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual
+  ...   view-recruited-individual:
+  ...     type: mock
+  ...     input:
+  ...     - individual: individual[recruited]
+  ... states:
+  ...   individual:
+  ...     recruited:
+  ...       title: Recruited
+  ...       expression: true()
   ... """) # doctest: +NORMALIZE_WHITESPACE
 
 Same key, same entity, has recruited, require any state, success::
 
   >>> typecheck("""
+  ... path:
   ... - pick-recruited-individual:
   ...   - view-individual:
+  ... actions:
+  ...   pick-recruited-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual[recruited]
+  ...   view-individual:
+  ...     type: mock
+  ...     input:
+  ...     - individual: individual
+  ... states:
+  ...   individual:
+  ...     recruited:
+  ...       title: Recruited
+  ...       expression: true()
   ... """) # doctest: +NORMALIZE_WHITESPACE
 
 Same key, same entity, has recruited, require recruited, success::
 
   >>> typecheck("""
+  ... path:
   ... - pick-recruited-individual:
   ...   - view-recruited-individual:
+  ... actions:
+  ...   pick-recruited-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual[recruited]
+  ...   view-recruited-individual:
+  ...     type: mock
+  ...     input:
+  ...     - individual: individual[recruited]
+  ... states:
+  ...   individual:
+  ...     recruited:
+  ...       title: Recruited
+  ...       expression: true()
   ... """) # doctest: +NORMALIZE_WHITESPACE
 
 Same key, same entity, has enrolled, require recruited, fail::
 
   >>> typecheck("""
+  ... path:
   ... - pick-enrolled-individual:
   ...   - view-recruited-individual:
+  ... actions:
+  ...   pick-enrolled-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual[enrolled]
+  ...   view-recruited-individual:
+  ...     type: mock
+  ...     input:
+  ...     - individual: individual[recruited]
+  ... states:
+  ...   individual:
+  ...     recruited:
+  ...       title: Recruited
+  ...       expression: true()
+  ...     enrolled:
+  ...       title: Recruited
+  ...       expression: true()
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -390,7 +534,7 @@ Same key, same entity, has enrolled, require recruited, fail::
   While type checking action at path:
       pick-enrolled-individual -> view-recruited-individual
   While parsing:
-      "<...>", line 3
+      "<...>", line 4
 
 Repeat
 ~~~~~~
@@ -398,17 +542,37 @@ Repeat
 ::
 
   >>> typecheck("""
+  ... path:
   ... - repeat:
   ...     pick-individual:
   ...     - view-individual:
   ...   then:
+  ... actions:
+  ...   pick-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual
+  ...   view-individual:
+  ...     type: mock
+  ...     input:
+  ...     - individual: individual
   ... """) # doctest: +NORMALIZE_WHITESPACE
 
   >>> typecheck("""
+  ... path:
   ... - repeat:
   ...     pick-individual:
   ...     - view-mother:
   ...   then:
+  ... actions:
+  ...   pick-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual
+  ...   view-mother:
+  ...     type: mock
+  ...     input:
+  ...     - mother: individual
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -419,24 +583,48 @@ Repeat
   While type checking action at path:
       <repeat loop> -> pick-individual -> view-mother
   While parsing:
-      "<...>", line 4
+      "<...>", line 5
 
   >>> typecheck("""
+  ... path:
   ... - repeat:
   ...     pick-individual:
   ...     - view-individual:
   ...   then:
   ...   - pick-individual:
   ...     - view-individual:
+  ... actions:
+  ...   pick-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual
+  ...   view-individual:
+  ...     type: mock
+  ...     input:
+  ...     - individual: individual
   ... """) # doctest: +NORMALIZE_WHITESPACE
 
   >>> typecheck("""
+  ... path:
   ... - repeat:
   ...     pick-individual:
   ...     - view-individual:
   ...   then:
   ...   - pick-individual:
   ...     - view-mother:
+  ... actions:
+  ...   pick-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual
+  ...   view-individual:
+  ...     type: mock
+  ...     input:
+  ...     - individual: individual
+  ...   view-mother:
+  ...     type: mock
+  ...     input:
+  ...     - mother: individual
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -447,21 +635,35 @@ Repeat
   While type checking action at path:
       <repeat then> -> pick-individual -> view-mother
   While parsing:
-      "<...>", line 7
+      "<...>", line 8
 
   >>> typecheck("""
+  ... path:
   ... - pick-individual:
   ...   - repeat:
   ...       view-individual:
   ...       - pick-study-as-individual:
   ...     then:
+  ... actions:
+  ...   pick-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual
+  ...   view-individual:
+  ...     type: mock
+  ...     input:
+  ...     - individual: individual
+  ...   pick-study-as-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: study
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
   Error: Repeat ends with a type which is incompatible with its beginning:
       Has "individual: study" but expected to have "individual: individual"
   While parsing:
-      "<...>", line 5
+      "<...>", line 6
 
 ::
 

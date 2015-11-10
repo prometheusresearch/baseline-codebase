@@ -104,7 +104,7 @@ class ActionBase(Widget):
         if '__domain' not in next_values:
             next_values.update({'__domain': self.domain})
         if '__context_types' not in next_values:
-            next_values.update({'__context_types': self._context_types})
+            next_values.update({'__context_types': self.context_types})
         return self.__class__(**next_values)
 
     def with_domain(self, domain):

@@ -7,6 +7,7 @@
 
 """
 
+from cached_property import cached_property
 from webob.exc import HTTPUnauthorized
 
 from rex.urlmap import Map
@@ -30,7 +31,7 @@ class MapWidget(Map):
 
     def __call__(self, spec, path, context):
         access = spec.access or self.package.name
-        widget = spec.widget.resolve(WidgetVal(context=spec.slots))
+        widget = lambda: spec.widget.resolve(WidgetVal(context=spec.slots))
         return WidgetRenderer(path, widget, access)
 
     def override(self, spec, override_spec):
@@ -50,8 +51,15 @@ class WidgetRenderer(object):
 
     def __init__(self, path, widget, access):
         self.path = path
-        self.widget = widget
+        self._widget = widget
         self.access = access
+
+    @cached_property
+    def widget(self):
+        return self._widget()
+
+    def validate(self):
+        self.widget
 
     def __call__(self, request):
         if not authorize(request, self.access):

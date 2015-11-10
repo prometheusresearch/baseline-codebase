@@ -7,6 +7,9 @@
 
 """
 
+from rex.core import Initialize, get_packages
+from rex.web import get_routes
+
 from .validate import WidgetVal
 from .widget import (
     Widget, NullWidget, GroupWidget, WidgetComposition)
@@ -43,3 +46,13 @@ from .formfield import (
     CompositeFormField,
     Fieldset,
     List)
+
+class InitializeRexWidget(Initialize):
+
+    def __call__(self):
+        for package in get_packages():
+            routes = get_routes(package)
+            for route in routes:
+                handler = routes[route]
+                if isinstance(handler, rex.widget.map.WidgetRenderer):
+                    handler.validate()

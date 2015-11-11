@@ -35,7 +35,7 @@ setup(
         'rex.i18n==0.4.4',
         'rex.instrument==1.2.0',
         'rex.logging==1.0.0',
-        'rex.port==1.1.0',
+        'rex.port==1.1.1',
         'rex.restful==1.0.0',
         'rex.urlmap==2.6.2',
         'rex.web==3.5.0',

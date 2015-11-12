@@ -14,7 +14,9 @@ from collections import Mapping
 
 from werkzeug.local import LocalStack
 
+from htsql.core.classify import classify
 from htsql.core.syn.parse import parse as parse_htsql
+
 from rex.port import Port
 from rex.port.grow import GrowCalculation
 from rex.port.arm import TrunkArm, FacetArm
@@ -363,11 +365,28 @@ def annotate_port(domain, port):
             if isinstance(arm, (TrunkArm, FacetArm)):
                 typ = domain[arm.table.name]
                 tree = grow_type_info(tree, path, typ)
+                tree = grow_title_info(tree, path, arm)
                 for state in domain.get_states_for_type(typ.name).values():
                     tree = grow_state_info(tree, path, state)
 
 
     return Port(tree=tree, db=port.db)
+
+
+def _get_title_column(table_node, columns_to_try=('__title__', 'title')):
+    for column in columns_to_try:
+        for label in classify(table_node):
+            if label.name == column:
+                return column
+    return 'id()'
+
+
+def grow_title_info(tree, path, arm):
+    title_column = _get_title_column(arm.arc.target)
+    expression = parse_htsql(title_column)
+    grow = GrowCalculation(u'meta:title', path, expression)
+    tree = grow(tree)
+    return tree
 
 
 def grow_type_info(tree, path, typ):

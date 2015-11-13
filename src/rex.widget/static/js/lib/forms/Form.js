@@ -11,6 +11,7 @@ import {VBox}                   from '../Layout';
 import {Port}                   from '../data/Port';
 import {Query}                  from '../data/Query';
 import {Mutation}               from '../data/Mutation';
+import {Request}                from '../data/Request';
 import * as NotificationCenter  from '../NotificationCenter';
 
 let FormStyle = {
@@ -275,6 +276,10 @@ let Form = React.createClass({
           .then(this.onSubmitComplete, this.onSubmitError);
       }
     } else if (submitTo instanceof Query) {
+      submitTo
+        .produce(valueToSubmit)
+        .then(this.onSubmitComplete, this.onSubmitError);
+    } else if (submitTo instanceof Request) {
       submitTo
         .produce(valueToSubmit)
         .then(this.onSubmitComplete, this.onSubmitError);

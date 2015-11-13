@@ -6,9 +6,20 @@
 let React             = require('react');
 let emptyFunction     = require('../emptyFunction');
 let forceRefreshData  = require('../forceRefreshData');
-let Query             = require('../Query');
 let Form              = require('./Form');
 let Fieldset          = require('./Fieldset');
+
+import {Port}         from '../data/Port';
+import {Mutation}     from '../data/Mutation';
+
+function needExtract(submitTo) {
+  return (
+    (submitTo instanceof Port) ||
+    (submitTo instanceof Mutation) ||
+    (submitTo.port instanceof Port) ||
+    (submitTo.port instanceof Mutation)
+  );
+}
 
 /**
  * Form which operates on a single entity within the port response.
@@ -72,7 +83,7 @@ let EntityForm = React.createClass({
   transformValueOnSubmit(value) {
     if (this.props.transformValueOnSubmit) {
       return this.props.transformValueOnSubmit(value);
-    } else if (this.props.submitTo.port instanceof Query) {
+    } else if (!needExtract(this.props.submitTo)) {
       return value[this.props.entity][0];
     } else {
       return value;
@@ -81,10 +92,10 @@ let EntityForm = React.createClass({
 
   onSubmitComplete(data) {
     forceRefreshData();
-    if (this.props.submitTo.port instanceof Query) {
-      this.props.onSubmitComplete(data);
-    } else {
+    if (needExtract(this.props.submitTo)) {
       this.props.onSubmitComplete(data[this.props.entity][0]);
+    } else {
+      this.props.onSubmitComplete(data);
     }
   },
 

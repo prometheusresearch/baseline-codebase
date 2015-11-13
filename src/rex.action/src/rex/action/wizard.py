@@ -13,6 +13,8 @@
 import urlparse
 import cgi
 
+from cached_property import cached_property
+
 from rex.core import (
     Record,
     Validate, Error, get_settings, locate, guard,
@@ -68,7 +70,7 @@ class WizardWidgetBase(Widget):
     def __init__(self, **values):
         super(WizardWidgetBase, self).__init__(**values)
         if isinstance(self.actions, Deferred):
-            with self.states or typing.Domain.current():
+            with self.domain or typing.Domain.current():
                 self.actions = self.actions.resolve()
         if isinstance(self.path, Deferred):
             validate_path = PathVal(self._resolve_action)
@@ -79,8 +81,12 @@ class WizardWidgetBase(Widget):
             ref,
             actions=self.actions,
             package=self.package,
-            domain=self.states,
+            domain=self.domain,
         )
+
+    @cached_property
+    def domain(self):
+        return self.states or typing.Domain.current()
 
     def typecheck(self, context_type=None):
         if context_type is None:

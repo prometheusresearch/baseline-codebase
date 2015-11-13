@@ -23,9 +23,6 @@ let Select = React.createClass({
   },
 
   onChange(value) {
-    if (value === null) {
-      value = undefined;
-    }
     this.props.onChange(value);
   }
 });

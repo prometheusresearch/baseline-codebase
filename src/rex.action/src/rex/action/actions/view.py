@@ -13,7 +13,7 @@ from rex.widget import dataspec
 
 from ..dataspec import ContextBinding
 from ..typing import RecordTypeVal, RecordType
-from .entity_action import EntityAction
+from .entity_action import _EntityAction as EntityAction
 
 __all__ = ('View',)
 

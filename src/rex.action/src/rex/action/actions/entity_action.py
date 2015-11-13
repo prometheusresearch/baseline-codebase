@@ -26,7 +26,7 @@ from ..validate import RexDBVal
 __all__ = ('EntityAction',)
 
 
-class EntityAction(Action):
+class _EntityAction(Action):
     """ Base class for actions which operate on an entity."""
 
     # Factory for dataspec.
@@ -36,6 +36,95 @@ class EntityAction(Action):
     # collections (:class:`rex.widget.dataspec.CollectionSpec`) or any other
     # custom dataspec.
     dataspec_factory = dataspec.EntitySpec
+
+    entity = Field(
+        RowTypeVal(),
+        doc="""
+        Name of a table in database.
+        """)
+
+    input = Field(
+        RecordTypeVal(), default=RecordType.empty())
+
+    db = Field(
+        RexDBVal(), default=None,
+        transitionable=False,
+        doc="""
+        Database to use.
+        """)
+
+    fields = Field(
+        DeferredVal(FormFieldsetVal()), default=None,
+        doc="""
+        A list of fields to show.
+
+        If not specified then it will be generated automatically based on the
+        data schema.
+        """)
+
+    def __init__(self, **values):
+        super(_EntityAction, self).__init__(**values)
+        with PortSupport.parameters({k: None
+                                     for k in self.context_types[0].rows.keys()}):
+            if self.fields and isinstance(self.fields, Deferred):
+                self.fields = self.fields.resolve()
+            self.fields = self.reflect_fields(self.fields)
+
+    @cached_property
+    def port(self):
+        return self.create_port()
+
+    @responder(
+        wrap=lambda self, url: self.dataspec_factory(url, self.bind_port()),
+        url_type=PortURL)
+    def data(self, req):
+        return self.port(req)
+
+    def reflect_fields(self, fields=None):
+        """ Reflect fields from database."""
+        return formfield.enrich(
+            fields,
+            self.entity.type.name,
+            db=self.db)
+
+    def bind_port(self):
+        """ Provide bindings for a port.
+
+        Subclasses can override this method if their with to bind port dataspec
+        to some values.
+        """
+        return {}
+
+    def create_port(self, fields=None, filters=None, mask=None, entity=None):
+        """ Create a port for the action.
+
+        The result of this method is cached as ``self.port`` property.
+
+        This method is usually used by subclasses to override how port is
+        created.
+
+        :keyword fields: A fieldset which is used to create a port.
+                         If not provided then ``self.fields`` will be used.
+        :type fields: [:class:`rex.widget.formfield.Fieldset`]
+
+        :returns: A newly created port
+        :rtype: :class:`rex.port.Port`
+        """
+        entity = entity or self.entity.type.name
+        fields = fields or self.fields
+        parameters = {k: None for k in self.input.rows}
+        port = formfield.to_port(
+            entity, fields,
+            filters=filters,
+            mask=mask,
+            parameters=parameters,
+            db=self.db)
+        port = annotate_port(self.domain, port)
+        return port
+
+
+class EntityAction(Action):
+    """ Base class for actions which operate on an entity."""
 
     entity = Field(
         RowTypeVal(),
@@ -74,9 +163,7 @@ class EntityAction(Action):
     def port(self):
         return self.create_port()
 
-    @responder(
-        wrap=lambda self, url: self.dataspec_factory(url, self.bind_port()),
-        url_type=PortURL)
+    @responder(url_type=PortURL)
     def data(self, req):
         return self.port(req)
 
@@ -87,15 +174,7 @@ class EntityAction(Action):
             self.entity.type.name,
             db=self.db)
 
-    def bind_port(self):
-        """ Provide bindings for a port.
-
-        Subclasses can override this method if their with to bind port dataspec
-        to some values.
-        """
-        return {}
-
-    def create_port(self, fields=None, filters=None, mask=None):
+    def create_port(self, fields=None, filters=None, mask=None, entity=None):
         """ Create a port for the action.
 
         The result of this method is cached as ``self.port`` property.
@@ -110,10 +189,11 @@ class EntityAction(Action):
         :returns: A newly created port
         :rtype: :class:`rex.port.Port`
         """
-        fields = fields or self.fields
+        entity = entity or self.entity.type.name
+        fields = self.fields if fields is None else fields
         parameters = {k: None for k in self.input.rows}
         port = formfield.to_port(
-            self.entity.type.name, fields,
+            entity, fields,
             filters=filters,
             mask=mask,
             parameters=parameters,

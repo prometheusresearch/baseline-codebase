@@ -12,16 +12,15 @@ from cached_property import cached_property
 from rex.core import StrVal, AnyVal, MapVal
 from rex.db import Query
 from rex.widget import formfield, dataspec
-from rex.widget import Field, QueryURL, PortURL, responder
+from rex.widget import Field, QueryURL, PortURL, MutationURL, responder, Mutation
 
 from ..validate import SyntaxVal
-from ..mutation import Mutation
-from .entity_action import EntityAction
+from .entity_action import _EntityAction, EntityAction
 
 __all__ = ('FormAction',)
 
 
-class FormAction(EntityAction):
+class _FormAction(_EntityAction):
     """ Base class for actions which represent an entity form."""
 
     dataspec_factory = dataspec.EntitySpec
@@ -64,7 +63,7 @@ class FormAction(EntityAction):
 
     def create_port(self):
         """ Override port creation and inject coplete list of fields."""
-        return super(FormAction, self).create_port(fields=self._complete_fields)
+        return super(_FormAction, self).create_port(fields=self._complete_fields)
 
     @cached_property
     def _complete_fields(self):
@@ -107,3 +106,63 @@ def remove_fields_layout(fields):
         else:
             no_layout.append(f)
     return no_layout
+
+
+class FormAction(EntityAction):
+    """ Base class for actions which represent an entity form."""
+
+    value = Field(
+        MapVal(StrVal(), AnyVal()), default={},
+        doc="""
+        An initial value.
+
+        It could reference data from the current context via ``$name``
+        references::
+
+            study: $study
+            individual: $individual
+
+        """)
+
+    query = Field(
+        SyntaxVal(), default=None, transitionable=False,
+        doc="""
+        Optional query which is used to persist data in database.
+        """)
+
+    @cached_property
+    def mutation(self):
+        """ Define data mutation for the action."""
+        return Mutation(self.port, query=self.create_query())
+
+    @responder(url_type=MutationURL)
+    def data_mutation(self, req):
+        """ Handle data mutation request."""
+        return self.mutation(req)
+
+    def create_query(self):
+        if self.query:
+            query = Query(self.query, self.db)
+            query.parameters = {f.value_key[0]: None for f in self._complete_fields}
+            return query
+        else:
+            return None
+
+    def create_port(self):
+        """ Override port creation and inject coplete list of fields."""
+        return super(FormAction, self).create_port(fields=self._complete_fields)
+
+    @cached_property
+    def _complete_fields(self):
+        """ Complete list of fields for form action.
+
+        A list of fields which contains both user defined fields and fields
+        which are inferred from initial form value.
+
+        We use this to construct form and query parameters.
+        """
+        fields = create_fieldset_from_value(self.value).fields
+        fields = formfield.enrich(fields, self.entity.type.name, db=self.db)
+        fields = fields + self.fields
+        fields = remove_fields_layout(fields)
+        return fields

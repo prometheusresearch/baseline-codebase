@@ -13,7 +13,7 @@ from rex.widget import Field, undefined
 
 from ..dataspec import ContextBinding
 from ..typing import RecordTypeVal, RecordType
-from .form_action import FormAction
+from .form_action import _FormAction as FormAction
 
 __all__ = ('Edit',)
 

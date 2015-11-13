@@ -15,7 +15,7 @@ from rex.core import StrVal
 from rex.widget import Field, undefined
 
 from ..typing import RecordTypeVal, RecordType
-from .form_action import FormAction
+from .form_action import _FormAction as FormAction
 
 __all__ = ('Make',)
 

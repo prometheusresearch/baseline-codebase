@@ -60,6 +60,7 @@ export class Port {
 
   equals(other) {
     return (
+      other &&
       this.constructor === other.constructor &&
       this.path === other.path &&
       shallowEquals(this._params, other._params)

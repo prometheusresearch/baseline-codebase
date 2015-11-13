@@ -20,7 +20,7 @@ export default class View extends React.Component {
 
   render() {
     let {fields, entity, context, onClose, width, fetched} = this.props;
-    let title = this.constructor.getTitle(this.props);
+    let title = this.constructor.renderTitle(this.props, context);
     return (
       <Action title={title} onClose={onClose} width={width}>
         {!fetched.entity.updating ?

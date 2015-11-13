@@ -30,8 +30,8 @@ export default class Edit extends React.Component {
   };
 
   render() {
-    let {onClose, width, fetched} = this.props;
-    let title = this.constructor.getTitle(this.props);
+    let {onClose, width, fetched, context} = this.props;
+    let title = this.constructor.renderTitle(this.props, context);
     return (
       <Action
         width={width}

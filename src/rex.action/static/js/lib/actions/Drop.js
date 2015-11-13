@@ -7,6 +7,7 @@ import RexWidget        from 'rex-widget';
 import {VBox, HBox}     from '@prometheusresearch/react-box';
 import * as Stylesheet  from '@prometheusresearch/react-stylesheet';
 import * as CSS         from '@prometheusresearch/react-stylesheet/css';
+import Title            from './Title';
 import {command, Types} from '../execution/Command';
 import {getEntityTitle} from '../Entity';
 
@@ -62,9 +63,9 @@ export default class Drop extends React.Component {
   }
 
   render() {
-    let {width, message, entity, onClose} = this.props;
+    let {width, message, entity, onClose, context} = this.props;
     let {confirmDelay} = this.state;
-    let title = this.constructor.getTitle(this.props);
+    let title = this.constructor.renderTitle(this.props, context);
     return (
       <stylesheet.Root>
         {title &&
@@ -132,9 +133,7 @@ export default class Drop extends React.Component {
   }
 
   static renderTitle({entity, title = `Drop ${entity.name}`}, context) {
-    return entity.name in context ?
-      `${title}: ${getEntityTitle(context[entity.name])}` :
-      title;
+    return <Title title={title} context={context} entity={entity} />;
   }
 
   static getTitle(props) {

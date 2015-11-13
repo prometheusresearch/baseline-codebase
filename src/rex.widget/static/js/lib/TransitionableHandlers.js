@@ -6,6 +6,7 @@ import React                             from 'react';
 import * as Transitionable               from './Transitionable';
 import Port                              from './data/Port';
 import Query                             from './data/Query';
+import Mutation                          from './data/Mutation';
 import resolveURL                        from './resolveURL';
 import {Collection, Entity, prop, state} from './DataSpecification';
 
@@ -28,6 +29,10 @@ Transitionable.register('port', function decode_port(payload) { // eslint-disabl
 
 Transitionable.register('query', function decode_query(payload) { // eslint-disable-line camelcase
   return new Query(resolveURL(payload[0]));
+});
+
+Transitionable.register('mutation', function decode_mutation(payload) { // eslint-disable-line camelcase
+  return new Mutation(resolveURL(payload[0]));
 });
 
 Transitionable.register('collection', function decode_query(payload) { // eslint-disable-line camelcase, max-len

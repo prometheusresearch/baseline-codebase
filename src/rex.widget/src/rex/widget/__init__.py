@@ -24,9 +24,10 @@ from .column import ColumnVal
 from .keypath import KeyPathVal
 from .formfield import (
     FormField, FormFieldVal, FormFieldsetVal, EntityFieldsetVal)
-from .url import URL, PortURL, QueryURL, URLVal
+from .url import URL, PortURL, QueryURL, URLVal, MutationURL
 from .param import ParamVal
 from .rst import RSTVal
+from .mutation import Mutation
 
 from .util import undefined, MaybeUndefinedVal
 

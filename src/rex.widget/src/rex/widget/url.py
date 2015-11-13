@@ -16,7 +16,7 @@ from rex.web import url_for
 
 from .transitionable import TransitionableRecord
 
-__all__ = ('URL', 'PortURL', 'QueryURL', 'URLVal')
+__all__ = ('URL', 'PortURL', 'QueryURL', 'MutationURL', 'URLVal')
 
 
 class URL(TransitionableRecord):
@@ -63,6 +63,13 @@ class QueryURL(URL):
     """
 
     __transit_tag__ = 'query'
+
+
+class MutationURL(URL):
+    """ URL for mutation.
+    """
+
+    __transit_tag__ = 'mutation'
 
 
 class URLVal(Validate):

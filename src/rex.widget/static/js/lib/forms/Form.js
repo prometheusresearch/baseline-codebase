@@ -8,8 +8,9 @@ import Fieldset                 from './Fieldset';
 import emptyFunction            from '../emptyFunction';
 import Button                   from '../Button';
 import {VBox}                   from '../Layout';
-import Port                     from '../Port';
-import Query                    from '../Query';
+import {Port}                   from '../data/Port';
+import {Query}                  from '../data/Query';
+import {Mutation}               from '../data/Mutation';
 import * as NotificationCenter  from '../NotificationCenter';
 
 let FormStyle = {
@@ -243,7 +244,7 @@ let Form = React.createClass({
 
   submit() {
     let {value} = this.state;
-    let {submitTo, onSubmit} = this.props;
+    let {submitTo, onSubmit, insert} = this.props;
     let nextValue = value.update(
       onSubmit({...submitTo.produceParams().toJS(), ...value.value}),
       true);
@@ -263,20 +264,47 @@ let Form = React.createClass({
       this.props.progressNotification);
     this.setState({submitInProgress: true});
     let valueToSubmit = this.props.transformValueOnSubmit(nextValue.value);
-    if (submitTo.port instanceof Port) {
-      if (this.props.insert) {
-        submitTo.port
+    if (submitTo instanceof Port) {
+      if (insert) {
+        submitTo
           .insert(valueToSubmit)
           .then(this.onSubmitComplete, this.onSubmitError);
       } else {
-        submitTo.port
+        submitTo
           .replace(this.props.initialValue || this.props.value, valueToSubmit)
           .then(this.onSubmitComplete, this.onSubmitError);
       }
-    } else if (submitTo.port instanceof Query) {
-      submitTo.port
+    } else if (submitTo instanceof Query) {
+      submitTo
         .produce(valueToSubmit)
         .then(this.onSubmitComplete, this.onSubmitError);
+    } else if (submitTo instanceof Mutation) {
+      if (insert) {
+        submitTo
+          .execute(valueToSubmit)
+          .then(this.onSubmitComplete, this.onSubmitError);
+      } else {
+        submitTo
+          .execute(valueToSubmit, this.props.initialValue || this.props.value)
+          .then(this.onSubmitComplete, this.onSubmitError);
+      }
+    } else {
+      // Legacy code-path to support data specification
+      if (submitTo.port instanceof Port) {
+        if (insert) {
+          submitTo.port
+            .insert(valueToSubmit)
+            .then(this.onSubmitComplete, this.onSubmitError);
+        } else {
+          submitTo.port
+            .replace(this.props.initialValue || this.props.value, valueToSubmit)
+            .then(this.onSubmitComplete, this.onSubmitError);
+        }
+      } else if (submitTo.port instanceof Query) {
+        submitTo.port
+          .produce(valueToSubmit)
+          .then(this.onSubmitComplete, this.onSubmitError);
+      }
     }
   },
 

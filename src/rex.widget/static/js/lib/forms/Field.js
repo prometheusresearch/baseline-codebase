@@ -175,7 +175,7 @@ let Field = React.createClass({
       e.stopPropagation();
       value = e.target.value;
       if (value === '') {
-        value = undefined;
+        value = null;
       }
     } else {
       value = e;

@@ -3,6 +3,7 @@
  */
 
 import autobind           from 'autobind-decorator';
+import emptyFunction      from 'empty/function'
 import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
 import {VBox, HBox}       from '@prometheusresearch/react-box';
 import React              from 'react';
@@ -18,6 +19,7 @@ export default class Wizard extends React.Component {
   static defaultProps = {
     title: 'Wizard',
     icon: 'asterisk',
+    renderTopSidebarItem: emptyFunction,
   };
 
   static stylesheet = Stylesheet.createStylesheet({
@@ -58,6 +60,7 @@ export default class Wizard extends React.Component {
     return (
       <HBox flex={1}>
         <Sidebar width={300}>
+          {this.props.renderTopSidebarItem()}
           {execution.trace.length > 2 &&
             <ContextToolbar
               execution={execution}

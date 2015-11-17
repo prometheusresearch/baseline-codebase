@@ -42,7 +42,7 @@ class Constraint(object):
                     path, operator = path.split(':', 1)
                 else:
                     operator = None
-                arguments = urllib.unquote(arguments)
+                arguments = urllib.unquote_plus(arguments)
                 if arguments:
                     arguments = [arguments]
                 else:

@@ -8,7 +8,7 @@ import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
 import {VBox, HBox}       from '@prometheusresearch/react-box';
 import React              from 'react';
 import Execution          from '../execution/Execution';
-import Command            from '../execution/Command';
+import * as Command       from '../execution/Command';
 import Sidebar            from './Sidebar';
 import ContextToolbar     from './ContextToolbar';
 import NavigationToolbar  from './NavigationToolbar';

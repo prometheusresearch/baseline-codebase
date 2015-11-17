@@ -138,7 +138,7 @@ class BaseAssessmentImport(BaseLogging):
                 assessment_id = row.get('assessment_id')
                 if not assessment_id:
                     error_text = "Unexpected import data, `assessment_id` not found" \
-                              " trougth the row #`%(i)s` of the %(filepath)s." \
+                              " through the row #`%(i)s` of the %(filepath)s." \
                               % {'i': i, 'filepath': root_assessment_filepath}
                     if tolerant:
                         self.warn(error_text)

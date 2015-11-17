@@ -30,7 +30,7 @@ from rex.widget.util import add_mapping_key, pop_mapping_key
 from rex.widget.render import render
 from rex.urlmap import Map
 
-from .typing import Domain, Type, unify, RecordType
+from . import typing
 
 __all__ = ('ActionBase', 'Action', 'ActionVal', 'ActionMapVal')
 
@@ -88,9 +88,13 @@ class ActionBase(Widget):
         """)
 
     def __init__(self, **values):
-        self.domain = values.pop('__domain', None) or Domain.current()
+        self._domain = values.pop('__domain', None)
         self._context_types = values.pop('__context_types', None)
         super(ActionBase, self).__init__(**values)
+
+    @property
+    def domain(self):
+        return self._domain or typing.Domain.current()
 
     def __clone__(self, **values):
         next_values = {}
@@ -120,11 +124,11 @@ class ActionBase(Widget):
         if self._context_types:
             return self._context_types
         input, output = self.context()
-        if not isinstance(input, Type):
+        if not isinstance(input, typing.Type):
             raise Error(
                 'Action "%s" of type "%s" does specified incorrect input type:'\
                 % (self.id, self.name.name), input)
-        if not isinstance(output, Type):
+        if not isinstance(output, typing.Type):
             raise Error(
                 'Action "%s" of type "%s" does specified incorrect output type:'\
                 % (self.id, self.name.name), output)
@@ -158,7 +162,7 @@ class Action(ActionBase):
     def typecheck(self, context_type=None):
         if context_type is None:
             context_type = self.context_types.input
-        unify(self.context_types.input, context_type)
+        typing.unify(self.context_types.input, context_type)
 
 
 @as_transitionable(ActionBase, tag='widget')

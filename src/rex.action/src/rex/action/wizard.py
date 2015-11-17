@@ -290,6 +290,10 @@ def resolve_action_reference(ref, actions=None, package=None, domain=None):
 class WizardBase(WizardWidgetBase, ActionBase):
     """ Base class for wizards."""
 
+    @cached_property
+    def domain(self):
+        return self.states or typing.Domain.current()
+
     def with_domain(self, domain):
         def _map(inst):
             if isinstance(inst, Start):

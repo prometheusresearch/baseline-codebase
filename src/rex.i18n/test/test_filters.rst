@@ -83,7 +83,7 @@ the currently active locale and currently active timezone::
     >>> filters.format_time(dt)
     u'1:46:00 PM'
     >>> filters.format_timedelta(dt)
-    u'5 years'
+    u'6 years'
     >>> filters.format_timedelta(td)
     u'2 hours'
     >>> ctx.reset()
@@ -103,7 +103,7 @@ the currently active locale and currently active timezone::
     >>> filters.format_time(dt)
     u'15:46:00'
     >>> filters.format_timedelta(dt)
-    u'5 ann\xe9es'
+    u'6 ann\xe9es'
     >>> filters.format_timedelta(td)
     u'2 heures'
     >>> ctx.reset()

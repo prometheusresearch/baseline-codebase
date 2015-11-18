@@ -22,28 +22,28 @@ ActionReference
   >>> from rex.action.validate import ActionReference
 
   >>> ActionReference.validate('local-action')
-  LocalActionReference(id='local-action', query={})
+  local-action
 
   >>> ActionReference.validate('local-action?x=y')
-  LocalActionReference(id='local-action', query={'x': 'y'})
+  local-action?x=y
 
   >>> ActionReference.validate('/global-action')
-  GlobalActionReference(package=None, id='/global-action', query={})
+  /global-action
 
   >>> ActionReference.validate('/global-action?x=y')
-  GlobalActionReference(package=None, id='/global-action', query={'x': 'y'})
+  /global-action?x=y
 
   >>> ActionReference.validate('pkg:/global-action')
-  GlobalActionReference(package='pkg', id='/global-action', query={})
+  pkg:/global-action
 
   >>> ActionReference.validate('pkg_x:/global-action')
-  GlobalActionReference(package='pkg_x', id='/global-action', query={})
+  pkg_x:/global-action
 
   >>> ActionReference.validate('pkg.x:/global-action')
-  GlobalActionReference(package='pkg.x', id='/global-action', query={})
+  pkg.x:/global-action
 
   >>> ActionReference.validate('pkg:/global-action?x=y')
-  GlobalActionReference(package='pkg', id='/global-action', query={'x': 'y'})
+  pkg:/global-action?x=y
 
 RexDBVal
 --------

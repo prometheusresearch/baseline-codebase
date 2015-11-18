@@ -149,6 +149,15 @@ class LocalActionReference(
         Record.make('LocalActionReference', ['id', 'query'])):
     """ Reference to a local action."""
 
+    def __repr__(self):
+        rep = self.id
+        if self.query:
+            rep = '%s?%s' % (rep, urllib.urlencode(self.query))
+        return rep
+
+    __unicode__ = __repr__
+    __str__ = __repr__
+
 
 class GlobalActionReference(
         ActionReference,
@@ -158,9 +167,9 @@ class GlobalActionReference(
     def __repr__(self):
         rep = self.id
         if self.query:
-            rep = '%s?%s' % (rep, urllib.urlencode(query)) 
+            rep = '%s?%s' % (rep, urllib.urlencode(self.query))
         if self.package:
-            rep = '%s;%s' % (self.package, rep)
+            rep = '%s:%s' % (self.package, rep)
         return rep
 
     __unicode__ = __repr__

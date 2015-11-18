@@ -12,6 +12,10 @@
 * rex.forms==1.2.0
 * rex.action==0.7.0
 * rex.widget==1.4.0
+* rex.applet==2.3.0
+* rex.port==1.1.1
+* rex.ctl==2.1.0
+* rex.i18n==0.4.5
 
 
 4.10.0 (2015-10-22)

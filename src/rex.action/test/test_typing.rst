@@ -225,8 +225,12 @@ Annotate port with type information
     with:
     - calculation: meta:type
       expression: '''identity'''
+    - calculation: meta:title
+      expression: id()
   - calculation: meta:type
     expression: '''individual'''
+  - calculation: meta:title
+    expression: id()
   - calculation: meta:state:recruited
     expression: true()
   - calculation: meta:state:enrolled

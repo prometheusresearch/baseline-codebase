@@ -88,13 +88,13 @@ class ActionBase(Widget):
         """)
 
     def __init__(self, **values):
-        self._domain = values.pop('__domain', None)
+        self._domain = values.pop('__domain', typing.Domain.current())
         self._context_types = values.pop('__context_types', None)
         super(ActionBase, self).__init__(**values)
 
     @property
     def domain(self):
-        return self._domain or typing.Domain.current()
+        return self._domain
 
     def __clone__(self, **values):
         next_values = {}

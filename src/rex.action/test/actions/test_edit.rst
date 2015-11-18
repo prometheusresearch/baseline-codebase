@@ -53,6 +53,8 @@ In case fields are not specified, they are generated from port::
   with:
   - calculation: meta:type
     expression: '''individual'''
+  - calculation: meta:title
+    expression: id()
   ''')
 
   >>> print render_widget(edit, Request.blank('/?__to__=1.data', accept='application/json')) # doctest: +ELLIPSIS
@@ -97,6 +99,8 @@ You can also specify fields and see port generated from them::
   with:
   - calculation: meta:type
     expression: '''individual'''
+  - calculation: meta:title
+    expression: id()
   ''')
 
 Edit's initial value is also used to generate port::
@@ -123,8 +127,12 @@ Edit's initial value is also used to generate port::
     with:
     - calculation: meta:type
       expression: '''identity'''
+    - calculation: meta:title
+      expression: id()
   - calculation: meta:type
     expression: '''individual'''
+  - calculation: meta:title
+    expression: id()
   ''')
 
 Cleanup

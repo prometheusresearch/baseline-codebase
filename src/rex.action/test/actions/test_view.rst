@@ -52,6 +52,8 @@ In case fields are not specified, they are generated from port::
   with:
   - calculation: meta:type
     expression: '''individual'''
+  - calculation: meta:title
+    expression: id()
   ''')
 
   >>> print render_widget(view, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
@@ -100,6 +102,8 @@ You can also specify fields and see port generated from them::
   with:
   - calculation: meta:type
     expression: '''individual'''
+  - calculation: meta:title
+    expression: id()
   ''')
 
 You can specify view action for entities which have custom labels within the
@@ -130,6 +134,8 @@ context::
   with:
   - calculation: meta:type
     expression: '''individual'''
+  - calculation: meta:title
+    expression: id()
   ''')
 
 Cleanup

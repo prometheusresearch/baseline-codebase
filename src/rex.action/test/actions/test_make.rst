@@ -53,6 +53,8 @@ In case fields are not specified, they are generated from port::
   with:
   - calculation: meta:type
     expression: '''individual'''
+  - calculation: meta:title
+    expression: id()
   ''')
 
   >>> print render_widget(make, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
@@ -104,6 +106,8 @@ You can also specify fields and see port generated from them::
   with:
   - calculation: meta:type
     expression: '''individual'''
+  - calculation: meta:title
+    expression: id()
   ''')
 
 Value also used to generate port::
@@ -131,8 +135,12 @@ Value also used to generate port::
     with:
     - calculation: meta:type
       expression: '''identity'''
+    - calculation: meta:title
+      expression: id()
   - calculation: meta:type
     expression: '''individual'''
+  - calculation: meta:title
+    expression: id()
   ''')
 
 Port propagates its input parameters so ports of fieldset::

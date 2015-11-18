@@ -322,7 +322,7 @@ Action resolution
   Traceback (most recent call last):
   ...
   Error: Cannot resolve global action reference:
-      other;/action
+      other:/action
   While parsing:
       "...", line 5
   While initializing RexDB application:

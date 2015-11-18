@@ -48,6 +48,8 @@ In case fields are not specified, they are generated from port::
   with:
   - calculation: meta:type
     expression: '''individual'''
+  - calculation: meta:title
+    expression: id()
   ''')
 
   >>> req = Request.blank('/', accept='application/json')
@@ -98,6 +100,8 @@ var to this filter::
   with:
   - calculation: meta:type
     expression: '''individual'''
+  - calculation: meta:title
+    expression: id()
   ''')
 
   >>> req = Request.blank('/?__to__=1.data', accept='application/json')
@@ -131,6 +135,8 @@ If we provide ``mask`` HTSQL expression it is compiled into port's filter::
   with:
   - calculation: meta:type
     expression: '''individual'''
+  - calculation: meta:title
+    expression: id()
   ''')
 
 If we provide ``input`` fields with context requirements then ``mask`` can refer
@@ -162,6 +168,8 @@ to those input variables::
     with:
     - calculation: meta:type
       expression: '''study_enrollment'''
+    - calculation: meta:title
+      expression: id()
   ''')
 
   >>> req = Request.blank('/?__to__=1.data', accept='application/json')
@@ -200,6 +208,8 @@ a mask::
   with:
   - calculation: meta:type
     expression: '''individual'''
+  - calculation: meta:title
+    expression: id()
   - calculation: meta:state:editable
     expression: true()
   ''')

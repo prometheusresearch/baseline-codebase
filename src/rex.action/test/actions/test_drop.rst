@@ -50,6 +50,8 @@ In case fields are not specified, they are generated from port::
   with:
   - calculation: meta:type
     expression: '''individual'''
+  - calculation: meta:title
+    expression: id()
   ''')
 
   >>> print render_widget(drop, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE

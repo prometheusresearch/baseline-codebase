@@ -33,13 +33,13 @@ It takes one optional argument specifying the root path of the project::
     >>> ctl('i18n-extract ./test/sandbox')
     extracting messages from test/sandbox/src/rex/__init__.py
     extracting messages from test/sandbox/src/rex/i18n_demo.py
-    extracting messages from test/sandbox/static/template/bar.txt (extensions="jinja2.ext.do,jinja2.ext.loopcontrols")
-    extracting messages from test/sandbox/static/template/foo.html (extensions="jinja2.ext.do,jinja2.ext.loopcontrols")
-    extracting messages from test/sandbox/static/templates/bar.txt (extensions="jinja2.ext.do,jinja2.ext.loopcontrols")
-    extracting messages from test/sandbox/static/templates/foo.html (extensions="jinja2.ext.do,jinja2.ext.loopcontrols")
-    extracting messages from test/sandbox/static/www/bar.css_t (extensions="jinja2.ext.do,jinja2.ext.loopcontrols")
-    extracting messages from test/sandbox/static/www/foo.js_t (extensions="jinja2.ext.do,jinja2.ext.loopcontrols")
-    extracting messages from test/sandbox/static/www/index.html (extensions="jinja2.ext.do,jinja2.ext.loopcontrols")
+    extracting messages from test/sandbox/static/template/bar.txt (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
+    extracting messages from test/sandbox/static/template/foo.html (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
+    extracting messages from test/sandbox/static/templates/bar.txt (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
+    extracting messages from test/sandbox/static/templates/foo.html (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
+    extracting messages from test/sandbox/static/www/bar.css_t (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
+    extracting messages from test/sandbox/static/www/foo.js_t (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
+    extracting messages from test/sandbox/static/www/index.html (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
     writing PO template file to ./test/sandbox/static/i18n/backend.pot
     extracting messages from test/sandbox/static/js/lib/foo.jsx
     extracting messages from test/sandbox/static/js/lib/index.js
@@ -51,18 +51,30 @@ It also takes an option that specifies which gettext domain to operate on::
     >>> ctl('i18n-extract ./test/sandbox --domain=backend')
     extracting messages from test/sandbox/src/rex/__init__.py
     extracting messages from test/sandbox/src/rex/i18n_demo.py
-    extracting messages from test/sandbox/static/template/bar.txt (extensions="jinja2.ext.do,jinja2.ext.loopcontrols")
-    extracting messages from test/sandbox/static/template/foo.html (extensions="jinja2.ext.do,jinja2.ext.loopcontrols")
-    extracting messages from test/sandbox/static/templates/bar.txt (extensions="jinja2.ext.do,jinja2.ext.loopcontrols")
-    extracting messages from test/sandbox/static/templates/foo.html (extensions="jinja2.ext.do,jinja2.ext.loopcontrols")
-    extracting messages from test/sandbox/static/www/bar.css_t (extensions="jinja2.ext.do,jinja2.ext.loopcontrols")
-    extracting messages from test/sandbox/static/www/foo.js_t (extensions="jinja2.ext.do,jinja2.ext.loopcontrols")
-    extracting messages from test/sandbox/static/www/index.html (extensions="jinja2.ext.do,jinja2.ext.loopcontrols")
+    extracting messages from test/sandbox/static/template/bar.txt (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
+    extracting messages from test/sandbox/static/template/foo.html (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
+    extracting messages from test/sandbox/static/templates/bar.txt (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
+    extracting messages from test/sandbox/static/templates/foo.html (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
+    extracting messages from test/sandbox/static/www/bar.css_t (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
+    extracting messages from test/sandbox/static/www/foo.js_t (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
+    extracting messages from test/sandbox/static/www/index.html (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
     writing PO template file to ./test/sandbox/static/i18n/backend.pot
 
     >>> ctl('i18n-extract ./test/sandbox --domain=doesntexist', expect=1)
     FATAL ERROR: invalid value for option --domain: doesntexist is not a valid domain
     <BLANKLINE>
+
+
+It will fail if there's a Jinja template with broken syntax::
+
+    >>> ctl('i18n-extract ./test/broken_sandbox --domain=backend', expect=1) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    extracting messages from test/broken_sandbox/src/rex/__init__.py
+    extracting messages from test/broken_sandbox/src/rex/i18n_demo.py
+    extracting messages from test/broken_sandbox/static/template/bar.txt (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
+    extracting messages from test/broken_sandbox/static/template/broken.html (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
+    Traceback (most recent call last):
+        ...
+    TemplateSyntaxError: unexpected '}'
 
 
 i18n-init

@@ -5,7 +5,14 @@ REX.I18N Change Log
 .. contents:: Table of Contents
 
 
-0.4.4 (2014-09-30)
+0.4.5 (2015-11-18)
+==================
+
+* Fixed an issue where extracting strings from Jinja templates with invalid
+  syntax would silently fail.
+
+
+0.4.4 (2015-09-30)
 ==================
 
 * Updated tools for JavaScript string extraction.

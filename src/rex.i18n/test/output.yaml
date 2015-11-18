@@ -6,5 +6,7 @@ suite: rex.i18n
 tests:
 - sh: cp -r ./demo ./test/sandbox
   stdout: ''
+- sh: cp -r ./demo ./test/broken_sandbox
+  stdout: ''
 - sh: pip install --quiet --editable ./demo
   stdout: ''

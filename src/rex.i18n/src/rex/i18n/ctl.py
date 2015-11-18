@@ -36,14 +36,19 @@ BABEL_MAPPERS = dict([(d, '') for d in ALL_DOMAINS])
 BABEL_MAPPERS[DOMAIN_BACKEND] = """[python: src/**.py]
 [jinja2: static/template/**.*]
 extensions=jinja2.ext.do,jinja2.ext.loopcontrols
+silent=false
 [jinja2: static/templates/**.*]
 extensions=jinja2.ext.do,jinja2.ext.loopcontrols
+silent=false
 [jinja2: static/www/**.html]
 extensions=jinja2.ext.do,jinja2.ext.loopcontrols
+silent=false
 [jinja2: static/www/**.js_t]
 extensions=jinja2.ext.do,jinja2.ext.loopcontrols
+silent=false
 [jinja2: static/www/**.css_t]
 extensions=jinja2.ext.do,jinja2.ext.loopcontrols
+silent=false
 """
 
 BABEL_MAPPERS[DOMAIN_FRONTEND] = """[jsx: static/js/lib/**.js]

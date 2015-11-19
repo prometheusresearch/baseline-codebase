@@ -1,0 +1,15 @@
+syntax: glob
+.*.sw?
+*.orig
+*.pyc
+*.pyo
+*.egg-info
+build
+dist
+node_modules
+bower_components
+sandbox
+bootstrap
+jquery
+bundle
+*.v.*

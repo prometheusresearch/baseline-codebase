@@ -32,7 +32,7 @@ class Parameter extends ReactForms.schema.MappingNode {
       }),
 
       type: ChoiceProperty.create({
-        label: _('Label'),
+        label: _('Type'),
         required: true,
         choices: [
           {

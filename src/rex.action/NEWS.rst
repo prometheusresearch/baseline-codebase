@@ -4,7 +4,7 @@
 
 .. contents:: Table of Contents
 
-0.7.0 (2015-XX-XX)
+0.7.0 (2015-11-20)
 ==================
 
 * Unification of wizards and actions.

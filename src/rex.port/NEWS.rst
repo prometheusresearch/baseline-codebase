@@ -9,6 +9,7 @@
 ==================
 
 * Fixed global parameters to work in calculated attributes.
+* Fixed unquoting parameters.
 
 
 1.1.0 (2015-09-30)

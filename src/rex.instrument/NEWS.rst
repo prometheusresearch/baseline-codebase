@@ -5,7 +5,7 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
-1.2.0 (2015-xx-xx)
+1.2.0 (2015-11-20)
 ==================
 
 * Updated rex.ctl tasks to use log() function instead of print statements.

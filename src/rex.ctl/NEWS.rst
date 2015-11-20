@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.1.0 (2015-XX-XX)
+2.1.0 (2015-11-20)
 ==================
 
 * Added ``rex --quiet`` parameter to suppress console output.

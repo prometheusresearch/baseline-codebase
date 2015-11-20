@@ -5,7 +5,7 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
-5.5.0 (2015-xx-xx)
+5.5.0 (2015-11-20)
 ==================
 
 * The user is now redirected to the revision/draft list screen after publishing

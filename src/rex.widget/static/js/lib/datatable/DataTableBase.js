@@ -13,6 +13,9 @@ import Icon               from '../Icon';
 import isString           from '../isString';
 import LoadingIndicator   from '../LoadingIndicator';
 import * as KeyPath       from '../KeyPath';
+import TouchableArea      from '../TouchableArea';
+import ZyngaScroller      from '../Scroller';
+import {isTouchDevice}    from '../Environment';
 
 @WithDOMSize
 @Stylesheet.styleable
@@ -140,8 +143,14 @@ export default class DataTableBase extends React.Component {
     super(props);
     this._rowIndexMax = null;
     this.state = {
-      columnWidth: {}
+      columnWidth: {},
+      left: 0,
+      top: 0
     };
+    this.scroller = null;
+    if (isTouchDevice) {
+      this.scroller = new ZyngaScroller(this.onTouchScroll);
+    }
   }
 
   render() {
@@ -152,11 +161,12 @@ export default class DataTableBase extends React.Component {
       minColumnWidth,
       columns,
       sort,
+      style,
       data: {data, updating, error}
     } = this.props;
     let {Root, ErrorInfo, LoadingPane} = this.stylesheet;
     if (!this.props.DOMSize) {
-      return <Root size={1} />;
+      return <Root style={style} size={1} />;
     }
     let rowsCount = data ? data.length : 0;
     let columnElements = [];
@@ -186,8 +196,20 @@ export default class DataTableBase extends React.Component {
       );
     }
     return (
-      <Root size={1}>
+      <TouchableArea
+        element={Root}
+        size={1}
+        scroller={isTouchDevice ? this.scroller : undefined}
+        style={{...style, cursor: 'pointer'}}>
         <Table
+          onContentHeightChange={
+            isTouchDevice ?
+              this.onContentDimensionsChange :
+              undefined}
+          scrollTop={isTouchDevice ? this.state.top : undefined}
+          scrollLeft={isTouchDevice ? this.state.left : undefined}
+          overflowX={isTouchDevice ? 'hidden' : 'auto'}
+          overflowY={isTouchDevice ? 'hidden' : 'auto'}
           headerHeight={headerHeight}
           rowHeight={rowHeight}
           height={DOMSize.height}
@@ -205,8 +227,27 @@ export default class DataTableBase extends React.Component {
           <LoadingIndicator />
         </LoadingPane>
         {error && <ErrorInfo>{error.message}</ErrorInfo>}
-      </Root>
+      </TouchableArea>
     );
+  }
+
+  @autobind
+  onTouchScroll(left, top) {
+    if (isTouchDevice) {
+      this.setState({left, top});
+    }
+  }
+
+  @autobind
+  onContentDimensionsChange(contentHeight, contentWidth) {
+    if (isTouchDevice) {
+      this.scroller.setDimensions(
+        this.props.DOMSize.width,
+        this.props.DOMSize.height,
+        contentWidth,
+        contentHeight
+      );
+    }
   }
 
   @autobind

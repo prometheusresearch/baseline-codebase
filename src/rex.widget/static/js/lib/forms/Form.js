@@ -246,9 +246,17 @@ let Form = React.createClass({
   submit() {
     let {value} = this.state;
     let {submitTo, onSubmit, insert} = this.props;
-    let nextValue = value.update(
-      onSubmit({...submitTo.produceParams().toJS(), ...value.value}),
-      true);
+
+    let nextValue;
+    // Legacy code-path to support data specification
+    if (typeof submitTo.produceParams === 'function') {
+      nextValue = value.update(
+        onSubmit({...submitTo.produceParams().toJS(), ...value.value}),
+        true);
+    } else {
+      nextValue = value;
+    }
+
     if (nextValue.completeErrorList.length > 0) {
       this.setState({
         value: Value(

@@ -9,6 +9,7 @@
   top-level widget in an application. Can be used to implement app-wide UI
   features like navigation bars, footers and so on.
 
+* ``Mutation`` now can be configured with params via ``.params()`` method.
 
 1.4.2 (2015-11-23)
 ==================

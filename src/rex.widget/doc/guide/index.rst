@@ -9,4 +9,5 @@
    dataspec
    state
    formfield
+   chrome
    ../transitionable

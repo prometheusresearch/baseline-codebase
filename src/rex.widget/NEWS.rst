@@ -2,6 +2,14 @@
   Change Log
 **************
 
+1.5.0 (2015-XX-XX)
+==================
+
+* New Chrome widget feature. Allows to specify a widget which wraps every
+  top-level widget in an application. Can be used to implement app-wide UI
+  features like navigation bars, footers and so on.
+
+
 1.4.2 (2015-11-23)
 ==================
 

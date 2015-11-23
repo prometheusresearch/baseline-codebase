@@ -15,6 +15,7 @@ from .widget import (
     Widget, NullWidget, GroupWidget, WidgetComposition)
 from .field import Field, computed_field, responder
 from .render import render as render_widget
+from .chrome import Chrome
 
 from .transitionable import encode, as_transitionable
 from .transitionable import Transitionable, TransitionableRecord

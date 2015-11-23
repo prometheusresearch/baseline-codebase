@@ -103,17 +103,24 @@ class WidgetVal(Validate):
 
     """
 
-    def __init__(self, widget_class=None, package=None, context=None):
+    def __init__(self,
+            widget_class=None,
+            package=None,
+            context=None,
+            single=False):
         super(WidgetVal, self).__init__()
         self.widget_class = widget_class
         self.package = package
         self.context = context or {}
+        self.single = single
 
     def __call__(self, data):
         with guard("While validating:", repr(data)):
             if data is None:
                 return NullWidget()
             elif isinstance(data, list):
+                if self.single:
+                    raise Error('Only single widget is allowed in this context')
                 return GroupWidget.validated(
                     children=[self(item) for item in data])
             elif isinstance(data, Widget):
@@ -182,6 +189,8 @@ class WidgetVal(Validate):
                     pairs = [(None, value)]
         elif isinstance(node, yaml.SequenceNode):
             if node.tag == u'tag:yaml.org,2002:seq':
+                if self.single:
+                    raise Error('Only single widget is allowed in this context')
                 return GroupWidget.validated(
                     children=[self.construct(loader, item)
                               for item in node.value])

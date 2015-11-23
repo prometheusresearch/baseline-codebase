@@ -114,3 +114,39 @@ MaybeUndefinedVal
 
   >>> v(undefined)
   undefined
+
+WidgetClassReference
+--------------------
+
+::
+
+  >>> from rex.widget.util import WidgetClassReference
+  >>> validate = WidgetClassReference()
+
+  >>> validate(None) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Expected a string
+  Got:
+      None
+
+  >>> validate('rexx.widget') # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Cannot import module:
+      rexx
+
+  >>> validate('rex.widget.X') # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Cannot get widget class in module:
+      X class in rex.widget module
+
+  >>> validate('rex.widget.formfield') # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: The value is not a widget class:
+      <module 'rex.widget.formfield' from '...'>
+
+  >>> validate('rex.widget.Chrome') # doctest: +ELLIPSIS
+  rex.widget.chrome.Chrome

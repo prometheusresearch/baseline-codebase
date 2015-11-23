@@ -19,6 +19,7 @@ from rex.web import render_to_response
 
 from .keypath import KeyPathVal
 from .transitionable import encode, select
+from .chrome import get_chrome
 
 __all__ = ('render',)
 
@@ -52,7 +53,9 @@ def find_bundle():
 validate_widget_path = KeyPathVal(allow_empty=True)
 
 
-def render(widget, request, template='rex.widget:/templates/index.html'):
+def render(widget, request,
+        template='rex.widget:/templates/index.html',
+        no_chrome=False):
     """ Render ``widget`` in the context of a given ``request``.
 
     Can be used by WSGI applications to generate responses from widgets::
@@ -73,6 +76,12 @@ def render(widget, request, template='rex.widget:/templates/index.html'):
     :param request: WSGI request
     :type request: :class:`webob.Request`
 
+    :keyword template: Template to use (as a package spec ``pkg.module:/path``)
+    :type template: str
+
+    :keyword no_chrome: If ``True`` do not wrap widget in chrome
+    :type no_chrome: bool
+
     :return: WSGI response
     :rtype: :class:`webob.Response`
     """
@@ -87,6 +96,9 @@ def render(widget, request, template='rex.widget:/templates/index.html'):
     else:
         settings = get_settings()
         accept = request.accept.best_match(['text/html', 'application/json'])
+        if not no_chrome:
+            Chrome = get_chrome()
+            widget = Chrome(content=widget)
         payload = encode(widget, request)
         theme = encode(settings.rex_widget.theme, request)
         if accept == 'application/json':

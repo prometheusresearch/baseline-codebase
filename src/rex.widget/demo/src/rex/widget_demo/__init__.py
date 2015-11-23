@@ -9,7 +9,7 @@
 
 from rex.core import StrVal, SeqVal
 from rex.widget import (
-    Widget, WidgetVal, Field,
+    Widget, WidgetVal, Field, Chrome,
     EntitySpecVal, CollectionSpecVal,
     FormFieldVal, ColumnVal)
 
@@ -60,6 +60,11 @@ class App(Widget):
         doc="""
         A set of fields to show in todo info.
         """)
+
+
+class DemoChrome(Chrome):
+
+    js_type = 'rex-widget-demo/lib/DemoChrome'
 
 
 class DemoPage(Widget):

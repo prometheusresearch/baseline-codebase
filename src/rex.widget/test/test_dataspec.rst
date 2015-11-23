@@ -54,9 +54,7 @@ Data specifications
   Content-Type: application/json; charset=UTF-8
   ...
   <BLANKLINE>
-  ["~#widget", ["Test", {"command": ["~#entity", [["~#query", ["http://localhost/command"]], {}]],
-                         "collection": ["~#collection", [["~#port", ["http://localhost/port"]], {}]],
-                         "entity": ["^2", [["^3", ["http://localhost/query"]], {}]]}]]
+  ["~#widget", ["rex-widget/lib/Chrome", {"content": ["^0", ["Test", {"command": ["~#entity", [["~#query", ["http://localhost/command"]], {}]], "collection": ["~#collection", [["~#port", ["http://localhost/port"]], {}]], "entity": ["^3", [["^4", ["http://localhost/query"]], {}]]}]], "title": null}]]
 
   >>> rex.off()
 
@@ -88,6 +86,5 @@ Data specifications
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["Test", {"command": ["~#entity", [["~#query", ["http://localhost/secondary/command"]], {}]],
-                         "collection": ["~#collection", [["~#port", ["http://localhost/secondary/port"]], {}]],
-                         "entity": ["^2", [["^3", ["http://localhost/secondary/query"]], {}]]}]]
+  ["~#widget", ["rex-widget/lib/Chrome",
+                {"content": ["^0", ["Test", {"command": ["~#entity", [["~#query", ["http://localhost/secondary/command"]], {}]], "collection": ["~#collection", [["~#port", ["http://localhost/secondary/port"]], {}]], "entity": ["^3", [["^4", ["http://localhost/secondary/query"]], {}]]}]], "title": null}]]

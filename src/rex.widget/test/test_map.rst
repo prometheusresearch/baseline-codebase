@@ -45,7 +45,9 @@ Test URL mapping bindings
   Content-Type: application/json; charset=UTF-8
   ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/Screen", {"title": "OK"}]]
+  ["~#widget", ["rex-widget/lib/Chrome",
+                {"content": ["^0", ["rex-widget/Screen", {"title": "OK"}]],
+                 "^2": "OK"}]]
 
 It authorizes requests::
 
@@ -96,7 +98,9 @@ Overrides
   Content-Type: application/json; charset=UTF-8
   ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/Screen", {"title": "Page title"}]]
+  ["~#widget", ["rex-widget/lib/Chrome",
+                {"content": ["^0", ["rex-widget/Screen", {"title": "Page title"}]],
+                 "^2": "Page title"}]]
 
   >>> rex.off()
 
@@ -131,7 +135,10 @@ Overrides
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/Screen", {"title": "overriden"}]]
+  ["~#widget", ["rex-widget/lib/Chrome",
+                {"content": ["^0", ["rex-widget/Screen",
+                                    {"title": "overriden"}]],
+                 "^2": "overriden"}]]
 
 Override entire widget::
 
@@ -164,7 +171,10 @@ Override entire widget::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/Screen", {"title": "New page title"}]]
+  ["~#widget", ["rex-widget/lib/Chrome",
+                {"content": ["^0", ["rex-widget/Screen",
+                                    {"title": "New page title"}]],
+                 "^2": "New page title"}]]
 
 Override access::
 

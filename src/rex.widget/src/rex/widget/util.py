@@ -9,11 +9,12 @@
 
 
 import re
+import importlib
 from collections import MutableMapping, OrderedDict
 
 import yaml
 
-from rex.core import Validate, AnyVal
+from rex.core import Error, Validate, AnyVal, StrVal
 
 from .transitionable import Transitionable, as_transitionable
 
@@ -167,3 +168,33 @@ def add_mapping_key(node, key, value):
         start_mark=node.start_mark,
         end_mark=node.end_mark,
         flow_style=node.flow_style)
+
+
+class WidgetClassReference(Validate):
+
+    _validate = StrVal()
+
+    def __call__(self, value):
+        value = self._validate(value)
+        if not '.' in value:
+            raise Error(
+                'Invalid widget class reference:',
+                'should be in form "pkg.module.WidgetClass"')
+        module, cls = value.rsplit('.', 1)
+        try:
+            module = importlib.import_module(module)
+        except ImportError:
+            raise Error(
+                'Cannot import module:',
+                module)
+        if not hasattr(module, cls):
+            raise Error(
+                'Cannot get widget class in module:',
+                '%s class in %s module' % (cls, module.__name__))
+        cls = getattr(module, cls)
+        from rex.widget.widget import Widget
+        if not isinstance(cls, type) or not issubclass(cls, Widget):
+            raise Error(
+                'The value is not a widget class:',
+                repr(cls))
+        return cls

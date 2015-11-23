@@ -2,3 +2,5 @@ project: rex.widget_demo
 debug: true
 parameters:
   db: pgsql:widget_demo
+  rex_widget:
+    chrome: rex.widget_demo.DemoChrome

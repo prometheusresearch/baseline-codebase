@@ -7,10 +7,11 @@
 
 """
 
-from rex.core import Setting, RecordVal, StrVal, RecordVal
+from rex.core import Setting, RecordVal, StrVal, RecordVal, Validate, Error
 
 from .transitionable import as_transitionable
-from .util import PropsContainer
+from .util import PropsContainer, WidgetClassReference
+from .chrome import Chrome
 
 
 def _encode_record_type(value, req, path):
@@ -87,10 +88,15 @@ class RexWidgetSetting(Setting):
         quiet_button=element_color_default,
     )
 
+    _chrome_val = WidgetClassReference()
+    _chrome_default = Chrome
+
     validate = RecordVal(
-        ('theme', _theme_val, _theme_default)
+        ('theme', _theme_val, _theme_default),
+        ('chrome', _chrome_val, _chrome_default),
     )
 
     default = validate.record_type(
-        theme=_theme_default
+        theme=_theme_default,
+        chrome=_chrome_default
     )

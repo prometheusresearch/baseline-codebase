@@ -2,7 +2,12 @@
   Change Log
 **************
 
-1.4.0 (2015-XX-XX)
+1.4.1 (2015-11-23)
+==================
+
+* Fix scrolling on touch devices for datatable widget.
+
+1.4.0 (2015-11-20)
 ==================
 
 * New API for data fetching from ports and queries based on Higher-order

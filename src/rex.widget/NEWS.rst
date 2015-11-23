@@ -2,6 +2,11 @@
   Change Log
 **************
 
+1.4.2 (2015-11-23)
+==================
+
+* Fix pagination on touch devices for datatable widget.
+
 1.4.1 (2015-11-23)
 ==================
 

@@ -18,6 +18,11 @@
 * New API for data fetching from ports and queries based on Higher-order
   Components.
 
+1.3.1 (2015-11-23)
+==================
+
+* Fix scrolling on touch devices for datatable widget.
+
 1.3.0 (2015-10-21)
 ==================
 

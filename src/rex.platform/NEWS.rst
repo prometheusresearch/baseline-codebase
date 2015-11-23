@@ -4,6 +4,11 @@
 
 .. contents:: Table of Contents
 
+4.11.1 (2015-11-23)
+===================
+
+* rex.widget==1.4.2 (DataTable IPad-related fix)
+
 
 4.11.0 (2015-11-20)
 ===================

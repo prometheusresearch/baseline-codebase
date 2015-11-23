@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name='rex.platform',
-    version='4.11.0',
+    version='4.11.1',
     description='RexDB Capstone Project',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',
@@ -39,7 +39,7 @@ setup(
         'rex.restful==1.0.0',
         'rex.urlmap==2.6.2',
         'rex.web==3.5.0',
-        'rex.widget==1.4.0',
+        'rex.widget==1.4.2',
     ],
 )
 

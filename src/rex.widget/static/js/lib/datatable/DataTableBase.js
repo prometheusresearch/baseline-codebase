@@ -235,6 +235,7 @@ export default class DataTableBase extends React.Component {
   onTouchScroll(left, top) {
     if (isTouchDevice) {
       this.setState({left, top});
+      this.onScrollEnd();
     }
   }
 

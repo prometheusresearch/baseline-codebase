@@ -85,6 +85,9 @@ def render(widget, request,
     :return: WSGI response
     :rtype: :class:`webob.Response`
     """
+    if not no_chrome:
+        Chrome = get_chrome()
+        widget = Chrome(content=widget)
     if '__to__' in request.GET:
         widget_path = request.GET.pop('__to__')
         widget_path = validate_widget_path(widget_path)
@@ -96,9 +99,6 @@ def render(widget, request,
     else:
         settings = get_settings()
         accept = request.accept.best_match(['text/html', 'application/json'])
-        if not no_chrome:
-            Chrome = get_chrome()
-            widget = Chrome(content=widget)
         payload = encode(widget, request)
         theme = encode(settings.rex_widget.theme, request)
         if accept == 'application/json':

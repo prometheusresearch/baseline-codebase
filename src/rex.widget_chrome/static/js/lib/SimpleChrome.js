@@ -3,11 +3,12 @@
  */
 'use strict';
 
-import Chrome from 'rex-widget/lib/Chrome';
+import React from 'react';
+import RexWidget from 'rex-widget';
+import Chrome       from 'rex-widget/lib/Chrome';
+import {VBox, HBox} from '@prometheusresearch/react-box';
 
-var React         = require('react');
-var RexWidget     = require('rex-widget');
-var {VBox, HBox}   = RexWidget.Layout;
+
 var Navigation    = require('./Navigation');
 var Sidebar       = require('./Sidebar');
 var PersonalMenu  = require('./PersonalMenu');

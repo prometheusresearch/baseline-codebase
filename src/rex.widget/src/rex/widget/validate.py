@@ -271,8 +271,10 @@ class WidgetVal(Validate):
                 if validate.has_default:
                     values[attribute] = validate.default
                 else:
-                    raise Error("Missing mandatory field:", validate.name) \
-                            .wrap("Of widget:", widget_class.name)
+                    error = Error("Missing mandatory field:", validate.name)
+                    error.wrap("Of widget:", widget_class.name)
+                    error.wrap("While parsing:", location)
+                    raise error
         with guard('While parsing:', Location.from_node(node)):
             widget = widget_class.validated(package=self.package, **values)
             widget.location = location

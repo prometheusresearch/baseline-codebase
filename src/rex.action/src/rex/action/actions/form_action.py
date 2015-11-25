@@ -148,9 +148,14 @@ class FormAction(EntityAction):
         else:
             return None
 
-    def create_port(self):
+    def create_port(self, fields=None, filters=None, mask=None, entity=None):
         """ Override port creation and inject coplete list of fields."""
-        return super(FormAction, self).create_port(fields=self._complete_fields)
+        if fields is None:
+            fields = self._complete_fields
+        return super(FormAction, self).create_port(fields=fields,
+                                                   filters=filters,
+                                                   mask=mask,
+                                                   entity=entity)
 
     @cached_property
     def _complete_fields(self):

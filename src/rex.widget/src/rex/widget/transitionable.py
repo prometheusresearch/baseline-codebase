@@ -23,7 +23,8 @@ from transit.write_handlers import WriteHandler as BaseWriteHandler
 __all__ = (
     'Transitionable', 'TransitionableRecord',
     'as_transitionable', 'register_transitionable',
-    'encode')
+    'encode', 'select', 'SelectError'
+)
 
 
 NOOP_TAG = '---'
@@ -146,6 +147,10 @@ class WriteHandler(BaseWriteHandler):
 _handlers = WriteHandler()
 
 
+class SelectError(LookupError):
+    """ Error while selecting the subpart of the transitionable."""
+
+
 def select(obj, req, path):
     return _select(obj, req, path, [])
 
@@ -161,9 +166,17 @@ def _select(obj, req, path, _path):
     else:
         rep = handler.rep(obj)
     if tag == 'map':
-        return _select(rep[x], req, xs, _path + [x])
+        try:
+            rep = rep[x]
+        except KeyError:
+            raise SelectError(x)
+        return _select(rep, req, xs, _path + [x])
     elif tag == 'array':
-        return _select(rep[x], req, xs, _path + [x])
+        try:
+            rep = rep[x]
+        except KeyError:
+            raise SelectError(x)
+        return _select(rep, req, xs, _path + [x])
     elif tag in marshal_dispatch and not tag == NOOP_TAG:
         return _select(rep, req, xs, _path)
     else:

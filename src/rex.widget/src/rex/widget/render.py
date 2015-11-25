@@ -18,7 +18,7 @@ from rex.db import get_db
 from rex.web import render_to_response
 
 from .keypath import KeyPathVal
-from .transitionable import encode, select
+from .transitionable import encode, select, SelectError
 from .chrome import get_chrome
 
 __all__ = ('render',)
@@ -55,6 +55,7 @@ validate_widget_path = KeyPathVal(allow_empty=True)
 
 def render(widget, request,
         template='rex.widget:/templates/index.html',
+        title=None,
         no_chrome=False):
     """ Render ``widget`` in the context of a given ``request``.
 
@@ -87,11 +88,14 @@ def render(widget, request,
     """
     if not no_chrome:
         Chrome = get_chrome()
-        widget = Chrome(content=widget)
+        widget = Chrome(content=widget, title=title)
     if '__to__' in request.GET:
         widget_path = request.GET.pop('__to__')
         widget_path = validate_widget_path(widget_path)
-        widget = select(widget, request, widget_path)
+        try:
+            widget = select(widget, request, widget_path)
+        except SelectError:
+            raise HTTPBadRequest('invalid widget selector (__to__)')
         if not hasattr(widget, 'respond'):
             raise HTTPBadRequest(
                 'unable to locate responder via __to__ pointer')

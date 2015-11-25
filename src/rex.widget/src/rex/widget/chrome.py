@@ -38,5 +38,5 @@ class Chrome(Widget):
 
     def __init__(self, **values):
         super(Chrome, self).__init__(**values)
-        if self.content and hasattr(self.content, 'title'):
+        if not self.title and self.content and hasattr(self.content, 'title'):
             self.title = self.content.title

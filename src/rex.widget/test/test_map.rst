@@ -70,6 +70,24 @@ It authorizes requests::
   <BLANKLINE>
   <BLANKLINE>
 
+It allows to specify title::
+
+  >>> pkg.rewrite('urlmap.yaml', """
+  ... paths:
+  ...   /page:
+  ...     widget: !<Screen>
+  ...       title: OK
+  ...     title: Title
+  ...     access: anybody
+  ... """)
+
+  >>> print Request.blank('/page', accept='application/json').get_response(rex) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  200 OK
+  Content-Type: application/json; charset=UTF-8
+  Content-Length: ...
+  <BLANKLINE>
+  ["~#widget", ["rex-widget/lib/Chrome", {"content": ["^0", ["rex-widget/Screen", {"title": "OK"}]], "^2": "Title"}]]
+
 Cleanup::
 
   >>> rex.off()
@@ -208,6 +226,37 @@ Override access::
   <BLANKLINE>
   401 Unauthorized
   ...
+
+Override title::
+
+  >>> pkg = SandboxPackage(name='base')
+  >>> extension_pkg = SandboxPackage(name='main')
+
+  >>> pkg.rewrite('/urlmap/base.yaml', """
+  ... paths:
+  ...   /page:
+  ...     title: Base Title
+  ...     widget: !<Screen>
+  ...       title: OK
+  ...     access: anybody
+  ...
+  ... """)
+
+  >>> extension_pkg.rewrite('/urlmap.yaml', """
+  ... include: base:/urlmap/base.yaml
+  ... paths:
+  ...   /page: !override
+  ...     title: Custom Title
+  ... """)
+
+  >>> rex = Rex(extension_pkg, pkg, '-', 'rex.widget_demo')
+
+  >>> print Request.blank('/page', accept='application/json').get_response(rex) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  200 OK
+  Content-Type: application/json; charset=UTF-8
+  Content-Length: ...
+  <BLANKLINE>
+  ["~#widget", ["rex-widget/lib/Chrome", {"content": ["^0", ["rex-widget/Screen", {"title": "OK"}]], "^2": "Custom Title"}]]
 
 ::
 

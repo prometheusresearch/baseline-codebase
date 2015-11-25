@@ -25,6 +25,7 @@ class MapWidget(Map):
 
     fields = [
         ('widget', DeferredVal()),
+        ('title', StrVal(), None),
         ('access', StrVal(), None),
         ('slots', MapVal(StrVal(), DeferredVal()), {}),
     ]
@@ -32,11 +33,13 @@ class MapWidget(Map):
     def __call__(self, spec, path, context):
         access = spec.access or self.package.name
         widget = lambda: spec.widget.resolve(WidgetVal(context=spec.slots))
-        return WidgetRenderer(path, widget, access)
+        return WidgetRenderer(path, widget, spec.title, access)
 
     def override(self, spec, override_spec):
         if override_spec.widget is not None:
             spec = spec.__clone__(widget=override_spec.widget)
+        if override_spec.title is not None:
+            spec = spec.__clone__(title=override_spec.title)
         if override_spec.access is not None:
             spec = spec.__clone__(access=override_spec.access)
         if override_spec.slots is not None:
@@ -49,9 +52,10 @@ class MapWidget(Map):
 
 class WidgetRenderer(object):
 
-    def __init__(self, path, widget, access):
+    def __init__(self, path, widget, title, access):
         self.path = path
         self._widget = widget
+        self.title = title
         self.access = access
 
     @cached_property
@@ -65,6 +69,6 @@ class WidgetRenderer(object):
         if not authorize(request, self.access):
             raise HTTPUnauthorized()
         try:
-            return render(self.widget, request)
+            return render(self.widget, request, title=self.title)
         except Error, error:
             return request.get_response(error)

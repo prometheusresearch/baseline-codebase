@@ -31,7 +31,7 @@ export default class Chrome extends React.Component {
 
   _setDocumentTitle() {
     let {title} = this.props;
-    if (title !== null && title !== this._documentTitle) {
+    if (title != null && title !== this._documentTitle) {
       document.title = title;
       this._documentTitle = title;
     }

@@ -12,6 +12,9 @@ from .setting import (
         DBVal, HTSQLVal, DBSetting, GatewaysSetting, HTSQLExtensionsSetting)
 from .handle import jinja_global_htsql, Query
 from .database import RexHTSQL, Mask, get_db
+from .auth import (
+        UserQuerySetting, AutoUserQuerySetting, AccessQueriesSetting,
+        AccessMasksSetting)
 from .ctl import ShellTask, QueryTask, GraphDBTask, DatabaseAccessTopic
 
 

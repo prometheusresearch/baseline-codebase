@@ -17,6 +17,7 @@ This package implements database access based on HTSQL_.  It provides:
 * access to the HTSQL service;
 * support for canned HTSQL queries;
 * ability to make HTSQL queries in commands and templates.
+* authentication and authorization with database queries.
 
 This package is a part of the RexDB |R| platform for medical research data
 management.  RexDB is free software created by Prometheus Research, LLC and is
@@ -527,5 +528,72 @@ of masks for the given HTTP request::
 Here we allow the users to only see studies for which they have a respective
 record in ``study_access`` table.  We also completely hide the ``identity``
 table unless the current user has the ``phi_access`` role.
+
+
+Authentication and authorization
+================================
+
+:mod:`rex.db` provides several configuration parameters that let you validate
+user permissions with HTSQL queries.
+
+The ``user_query`` parameter is an HTSQL query that checks if the user is
+authenticated with the application.
+
+The user name is passed to the query as the `$USER` variable.  If the user is
+known to the application, the query must return any non-empty value; otherwise,
+it can return `FALSE` or `NULL`.
+
+A simple example::
+
+    user_query: $USER!='Nobody'
+
+A more realistic example::
+
+    user_query: user[$USER].(is_null(expires)|expires>now())
+
+Parameter ``auto_user_query`` works like ``user_query``, but lets you return
+the name under which the user should be known to the application.
+
+The ``auto_user_query`` query is executed if the application failed to find the
+user in the database with the ``user_query`` query.  It means it could be
+configured to add a new user entry to the database.
+
+In this example, we authenticate all unregistered users under a single guest
+account::
+
+    auto_user_query: guest
+
+In this example, we add a new user entry to the database::
+
+    auto_user_query:
+      do(insert(user:={remote_user:=$USER,auto:=true}), $USER)
+
+Parameter ``access_queries`` allows you to declare new permissions and map
+them to HTSQL queries.  Each query is executed when we need to check if
+the user has the respective permission.
+
+Example::
+
+    access_queries:
+      admin: $USER='xi'
+
+A more realistic example::
+
+    access_queries:
+      system_admin: user[$USER].system_admin
+      lab_admin: user[$USER].exists(lab_x_user.lab_admin)
+      recruiter: user[$USER].exists(study_x_user.recruit_participants)
+
+Parameter ``access_masks`` lets you specify table masks for individual
+permissions.  The masks are applied when the user accesses a resource
+that requires the respective permission.
+
+Example::
+
+    access_masks:
+      lab_admin: lab?exists(lab_x_user.user.remote_user=$USER)
+      recruiter:
+      - study?exists(study_x_user.(recruit_participants&user.remote_user=$USER))
+      - measure_type?status='active'
 
 

@@ -40,6 +40,10 @@ Configuration
 .. autoclass:: DBSetting
 .. autoclass:: HTSQLExtensionsSetting
 .. autoclass:: GatewaysSetting
+.. autoclass:: UserQuerySetting
+.. autoclass:: AutoUserQuerySetting
+.. autoclass:: AccessQueriesSetting
+.. autoclass:: AccessMasksSetting
 
 
 Utilities

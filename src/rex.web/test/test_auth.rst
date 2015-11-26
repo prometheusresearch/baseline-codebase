@@ -83,3 +83,46 @@ return the cached value::
     >>> demo.off()
 
 
+``confine()``
+=============
+
+By implementing the ``Confine`` interface, you can define a context manager
+that is activated when any handler is executed.  The context manager may depend
+upon the incoming request and the permission of the handler.
+
+Let us define a context manager that overrides the server name::
+
+    >>> from rex.web import Confine
+    >>> import contextlib
+
+    >>> class ConfineQueryString(Confine):
+    ...     priority = 'query-string'
+    ...     access = 'anybody'
+    ...     @contextlib.contextmanager
+    ...     def __call__(self, req):
+    ...         host = req.environ['HTTP_HOST']
+    ...         req.environ['HTTP_HOST'] = 'localhost:8088'
+    ...         yield
+    ...         req.environ['HTTP_HOST'] = host
+
+Now define a command that prints its URL::
+
+    >>> from rex.web import Command
+    >>> from webob import Response
+
+    >>> class URLCommand(Command):
+    ...     path = '/url'
+    ...     access = 'anybody'
+    ...     def render(self, req):
+    ...         return Response(req.url, content_type='text/plain')
+
+We can verify if the server name was actually overridden::
+
+    >>> main = Rex('__main__', 'rex.web')
+    >>> req = Request.blank('/url')
+    >>> print req.get_response(main)        # doctest: +ELLIPSIS
+    200 OK
+    ...
+    http://localhost:8088/url
+
+

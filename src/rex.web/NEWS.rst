@@ -8,7 +8,8 @@
 3.6.0 (2015-XX-XX)
 ==================
 
-* Added ability to establish security context with ``confine()``.
+* Added ability to establish permission-specific execution context with
+  ``confine()``.
 
 
 3.5.0 (2015-06-12)

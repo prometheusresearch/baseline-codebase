@@ -11,7 +11,8 @@ authorization mechanism.
 
 
 from .auth import (
-    authenticate, authorize, confine, Authenticate, Authorize, AccessSetting)
+    authenticate, authorize, confine, Authenticate, Authorize, Confine,
+    AccessSetting)
 from .command import Command, Parameter
 from .csrf import (
     trusted, retain_csrf_token, make_csrf_meta_tag, make_csrf_input_tag)

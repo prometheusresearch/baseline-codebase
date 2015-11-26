@@ -144,6 +144,33 @@ class AuthorizeNobody(Authorize):
         return False
 
 
+class Confine(Extension):
+    """
+    Interface for establishing execution context for a specific permission.
+
+    `access`
+        The permission name.
+    """
+
+    # Set this value to provide a context manager for one specific permission.
+    access = None
+
+    @classmethod
+    def enabled(cls):
+        return (cls is not Confine)
+
+    def __init__(self, access):
+        self.access = access
+
+    def __call__(self, req):
+        """
+        Returns a context manager.
+
+        Implementations must override this method.
+        """
+        raise NotImplementedError("%s.__call__()" % self.__class__.__name__)
+
+
 def authenticate(req):
     """
     Returns the user who performed the request or ``None``.
@@ -156,18 +183,9 @@ def authenticate(req):
     return req.environ['rex.user']
 
 
-def authorize(req, access, default='authenticated'):
-    """
-    Returns whether the request has the given permission.
+def _resolve_access(access, default='authenticated'):
+    # Determines the permission name by a package or a handler.
 
-    `access` is one of:
-
-    - the name of the permission;
-    - the name of a package or a :class:`rex.core.Package` object, which implies
-      package permission defined with the ``access`` setting;
-    - an object with attributes ``access`` or ``package`` containing
-      respectively the permission name or the package that owns the object.
-    """
     # Maybe the permission name is set by the `access` or `package` attributes?
     for attr in ('access', 'package'):
         value = getattr(access, attr, None)
@@ -191,6 +209,22 @@ def authorize(req, access, default='authenticated'):
     if access is None:
         access = default
     assert isinstance(access, str), repr(access)
+    return access
+
+
+def authorize(req, access, default='authenticated'):
+    """
+    Returns whether the request has the given permission.
+
+    `access` is one of:
+
+    - the name of the permission;
+    - the name of a package or a :class:`rex.core.Package` object, which implies
+      package permission defined with the ``access`` setting;
+    - an object with attributes ``access`` or ``package`` containing
+      respectively the permission name or the package that owns the object.
+    """
+    access = _resolve_access(access, default)
     # Since authorization could be expensive (e.g. database access),
     # we cache the result in `environ['rex.access']`.
     if 'rex.access' not in req.environ:
@@ -203,11 +237,28 @@ def authorize(req, access, default='authenticated'):
     return req.environ['rex.access'][access]
 
 
-@contextlib.contextmanager
 def confine(req, access, default='authenticated'):
     """
     Establishes execution context for the given request and permissions.
     """
+    access = _resolve_access(access, default)
+    managers = []
+    for confine_type in Confine.ordered():
+        if confine_type.access is None or confine_type.access == access:
+            confine = confine_type(access)
+            manager = confine(req)
+            if manager is not None:
+                managers.append(manager)
+    if len(managers) == 0:
+        return _empty_manager()
+    elif len(managers) == 1:
+        return managers[0]
+    else:
+        return contextlib.nested(*managers)
+
+
+@contextlib.contextmanager
+def _empty_manager():
     yield
 
 

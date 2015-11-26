@@ -14,6 +14,8 @@ Authentication and authorization
    :special-members: __call__
 .. autoclass:: rex.web.Authorize
    :special-members: __call__
+.. autoclass:: rex.web.Confine
+   :special-members: __call__
 .. autofunction:: authenticate
 .. autofunction:: authorize
 .. autofunction:: confine

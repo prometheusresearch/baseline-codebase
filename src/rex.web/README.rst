@@ -553,6 +553,12 @@ permissions.  For example, :mod:`rex.web_demo` has the following access file
 - /*.png        : anybody
 - /*            : nobody
 
+You can define any permission-specific execution context by implementing the
+`rex.web.Confine` interface.  The implementation takes a ``Request`` object and
+must return a respective context manager that is activated when the handler is
+being executed.  Each handler is responsible for establishing its execution
+context by calling `rex.web.confine` function.
+
 
 CSRF protection
 ===============

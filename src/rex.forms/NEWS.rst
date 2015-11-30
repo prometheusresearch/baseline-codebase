@@ -5,6 +5,13 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+1.2.1 (2016-xx-xx)
+==================
+
+* Fixed issue that prevented entering decimal numbers in float fields that have
+  fail events being triggered.
+
+
 1.2.0 (2015-11-20)
 ==================
 

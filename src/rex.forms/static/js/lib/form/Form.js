@@ -164,8 +164,10 @@ var Form = React.createClass({
       if (failed) {
         value = value.get(name).get('value');
         value = value
-          .updateValidation({
-            validation: {failure: failed.message, forceError: true}
+          .update({
+            value: value.value,
+            serialized: value.serialized,
+            validation: {validation: {failure: failed.message, forceError: true}}
           })
           .root();
       } else if (validation.isFailure(value.get(name).get('value').validation)) {

@@ -82,7 +82,7 @@ var Page = React.createClass({
         name,
         ref: element.options.fieldId,
         onNext: this.onNext,
-        disabled: disabled || events.isDisabled(name) || events.isCalculated(name),
+        disabled: disabled || events.isDisabled(name),
         hidden: hidden || events.isHidden(name)
       });
 

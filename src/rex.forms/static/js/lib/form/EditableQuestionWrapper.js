@@ -27,7 +27,7 @@ var EditableQuestionWrapper = React.createClass({
   },
 
   renderToolbar: function() {
-    if (this.props.calculated || this.props.disabled) {
+    if (this.props.disabled) {
       return <div className="rex-forms-EditableQuestionWrapper__toolbar" />;
     } else {
       return (

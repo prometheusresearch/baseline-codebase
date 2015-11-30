@@ -151,27 +151,13 @@ var Form = React.createClass({
     var events = this.formEvents();
     this.getEventExecutionContext().forEachField((name) => {
       if (/\./.test(name)) {
-        // TODO: For the time being, we don't allow calculations or failures of
-        // subfields.
+        // TODO: For the time being, we don't allow failures of subfields.
         return;
       }
       if (!(name in value.schema.children)) {
         // If it's a name we don't recognize at this level, we'll ignore it,
         // assuming it's a subfield.
         return;
-      }
-
-      if (events.isCalculated(name, value)) {
-        var newValue = events.calculate(name, value);
-
-        if (newValue !== undefined
-            && (!value.value[name] || !value.value[name].value !== newValue)) {
-
-          value = value
-            .get(name).get('value')
-            .updateValue(newValue)
-            .root();
-        }
       }
 
       var failed = events.isFailed(name, value);

@@ -196,8 +196,7 @@ var FormEntry = React.createClass({
     var answers = questions.filter((q) => {
       return validation.isSuccess(value.validation.children[q])
         || events.isHidden(q)
-        || events.isDisabled(q)
-        || events.isCalculated(q);
+        || events.isDisabled(q);
     });
     return Math.floor((answers.length / questions.length) * 100);
   }

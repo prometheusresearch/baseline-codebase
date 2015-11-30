@@ -95,7 +95,6 @@ var FormOverview = React.createClass({
         disabled
         || this.props.readOnly
         || events.isDisabled(name)
-        || events.isCalculated(name)
       );
 
       hidden = hidden || events.isHidden(name);

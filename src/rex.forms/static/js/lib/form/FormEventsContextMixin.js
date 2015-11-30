@@ -37,9 +37,7 @@ var FormEventsContextMixin = {
       isHidden: this.isHiddenByEvents,
       isEnumerationHidden: this.isEnumerationHiddenByEvents,
       isDisabled: this.isDisabledByEvents,
-      isFailed: this.isFailedByEvents,
-      isCalculated: this.isCalculatedByEvents,
-      calculate: this.calculateByEvents
+      isFailed: this.isFailedByEvents
     };
   },
 
@@ -116,29 +114,6 @@ var FormEventsContextMixin = {
     }
 
     return false;
-  },
-
-  isCalculatedByEvents: function(targetID, scopedValue) {
-    return this._hasLiveEvents(targetID, 'calculate', scopedValue);
-  },
-
-  calculateByEvents: function(targetID, scopedValue) {
-    var resolver = this.getIdentifierResolver(scopedValue);
-    var events = this.getEventExecutionContext().getLiveEvents(
-      targetID,
-      'calculate',
-      resolver
-    );
-
-    for (var i = 0; i < events.length; i++) {
-      var options = events[i].options || {};
-      var calculation = options.calculation;
-
-      return this.getEventExecutionContext().evaluate(
-        calculation,
-        resolver
-      );
-    }
   },
 
   /**

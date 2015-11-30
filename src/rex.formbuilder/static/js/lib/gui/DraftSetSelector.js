@@ -67,7 +67,7 @@ var DraftSetSelector = React.createClass({
           <button
             className="rfb-button"
             onClick={this.props.onReturn}>
-            <span className='rfb-icon icon-go-back' />
+            <span className="rfb-icon icon-go-back" />
             {_('Go Back to Instruments')}
           </button>
         </MenuHeader>

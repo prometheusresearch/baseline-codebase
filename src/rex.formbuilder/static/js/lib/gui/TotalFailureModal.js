@@ -16,8 +16,8 @@ var TotalFailureModalInner = React.createClass({
 
   renderModalContent: function () {
     return (
-      <div className='rfb-total-failure-modal'>
-        <div className='rfb-total-failure-message'>
+      <div className="rfb-total-failure-modal">
+        <div className="rfb-total-failure-message">
           {this.props.children}
         </div>
       </div>

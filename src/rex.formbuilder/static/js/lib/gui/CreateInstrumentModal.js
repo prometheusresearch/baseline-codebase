@@ -61,19 +61,19 @@ var CreateInstrumentModal = React.createClass({
     return (
       <div>
         <Form
-          component='div'
+          component="div"
           schema={this.getSchema()}
-          ref='form'
+          ref="form"
           />
-        <div className='rfb-modal-actions'>
+        <div className="rfb-modal-actions">
           <button
-            className='rfb-button'
+            className="rfb-button"
             onClick={this.onSubmit}>
             {_('Create')}
           </button>
           {this.props.onCancel &&
             <button
-              className='rfb-button'
+              className="rfb-button"
               onClick={this.props.onCancel}>
               {_('Cancel')}
             </button>

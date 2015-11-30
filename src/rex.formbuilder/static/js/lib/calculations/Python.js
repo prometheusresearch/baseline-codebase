@@ -27,11 +27,11 @@ class Python extends Calculation {
 
   getWorkspaceComponent() {
     return (
-      <div className='rfb-workspace-item-details'>
-        <div className='rfb-workspace-item-icon'>
-          <span className='rfb-icon' />
+      <div className="rfb-workspace-item-details">
+        <div className="rfb-workspace-item-icon">
+          <span className="rfb-icon" />
         </div>
-        <div className='rfb-workspace-item-description'>
+        <div className="rfb-workspace-item-description">
           {this.id}
         </div>
       </div>

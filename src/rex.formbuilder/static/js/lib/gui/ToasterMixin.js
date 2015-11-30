@@ -81,7 +81,7 @@ var ToasterMixin = {
 
   removeToast: function (toast) {
     var toasts = this.state.toasts.slice(),
-        toastIndex = toasts.indexOf(toast);
+      toastIndex = toasts.indexOf(toast);
 
     if (toastIndex > -1) {
       toasts.splice(toastIndex, 1);

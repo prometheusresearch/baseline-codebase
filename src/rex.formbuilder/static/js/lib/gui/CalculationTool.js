@@ -40,7 +40,7 @@ var CalculationTool = React.createClass({
             };
           },
 
-        endDrag: function (component, effect) {
+          endDrag: function (component, effect) {
             if (!effect) {
               DraftSetActions.deleteCalculation(
                 component.state.pendingCalculation

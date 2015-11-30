@@ -45,7 +45,7 @@ var VersionTile = React.createClass({
 
   render: function () {
     return (
-      <tr className='rfb-version-tile'>
+      <tr className="rfb-version-tile">
         <td onClick={this.props.onClick}>
           {this.props.version.uid}
           </td>
@@ -55,18 +55,18 @@ var VersionTile = React.createClass({
         <td onClick={this.props.onClick}>
           {this.props.version.published_by}
         </td>
-        <td className='rfb-tile-actions'>
+        <td className="rfb-tile-actions">
           <button
-            className='rfb-button rfb-icon-button'
+            className="rfb-button rfb-icon-button"
             title={_('Preview this Revision')}
             onClick={this.props.onPreview}>
-            <span className='rfb-icon icon-view' />
+            <span className="rfb-icon icon-view" />
           </button>
           <button
-            className='rfb-button rfb-icon-button'
+            className="rfb-button rfb-icon-button"
             title={_('Clone this Revision into a New Draft')}
             onClick={this.onClone}>
-            <span className='rfb-icon icon-clone' />
+            <span className="rfb-icon icon-clone" />
           </button>
           <ConfirmationModal
             visible={this.state.cloning}

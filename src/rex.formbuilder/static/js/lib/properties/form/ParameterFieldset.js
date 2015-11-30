@@ -46,7 +46,7 @@ var ParameterFieldset = React.createClass({
         <td className="rfb-table-field-short">
           <button
             onClick={this.props.onRemove}
-            className='rf-RepeatingFieldset__remove'>
+            className="rf-RepeatingFieldset__remove">
             &times;
           </button>
         </td>

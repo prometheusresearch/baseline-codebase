@@ -87,19 +87,19 @@ var FormSettingsModal = React.createClass({
       <div>
         <h3>{_('Form Settings')}</h3>
         <Form
-          component='div'
+          component="div"
           schema={this.getSchema()}
           defaultValue={this.getValue()}
-          ref='form'
+          ref="form"
           />
-        <div className='rfb-modal-actions'>
+        <div className="rfb-modal-actions">
           <button
-            className='rfb-button'
+            className="rfb-button"
             onClick={this.onSubmit}>
             {_('Update')}
           </button>
           <button
-            className='rfb-button'
+            className="rfb-button"
             onClick={this.onCancel}>
             {_('Cancel')}
           </button>

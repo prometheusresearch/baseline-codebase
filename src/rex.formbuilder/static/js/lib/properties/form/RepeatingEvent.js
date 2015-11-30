@@ -41,9 +41,9 @@ var RepeatingEvent = React.createClass({
     var events = this.buildEvents();
 
     return (
-      <div className='rfb-repeating-event-fieldset'>
+      <div className="rfb-repeating-event-fieldset">
         <Label
-          className='rf-RepeatingFieldset__label'
+          className="rf-RepeatingFieldset__label"
           label={label || value.node.props.get('label')}
           hint={hint || value.node.props.get('hint')}
           />
@@ -60,7 +60,7 @@ var RepeatingEvent = React.createClass({
         }
         <button
           onClick={this.onAdd}
-          className='rf-RepeatingFieldset__add'>
+          className="rf-RepeatingFieldset__add">
           {_('Add Event')}
         </button>
       </div>

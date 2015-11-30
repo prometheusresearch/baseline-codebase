@@ -59,7 +59,7 @@ var ModalMixin = {
       <div
         className={classes}>
         <div
-          className='rfb-modal-content'>
+          className="rfb-modal-content">
           {content}
         </div>
       </div>

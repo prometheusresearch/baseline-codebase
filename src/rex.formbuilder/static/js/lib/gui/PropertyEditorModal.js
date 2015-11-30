@@ -53,19 +53,19 @@ var PropertyEditorModalInner = React.createClass({
       <div>
         <h3>{this.props.element.constructor.getName()}</h3>
         <PropertyEditor
-          ref='editor'
+          ref="editor"
           element={this.props.element}
           />
 
-        <div className='rfb-modal-actions'>
+        <div className="rfb-modal-actions">
           <button
-            className='rfb-button'
+            className="rfb-button"
             onClick={this.onSubmit}>
             {_('Update')}
           </button>
           {this.props.canCancel &&
             <button
-              className='rfb-button'
+              className="rfb-button"
               onClick={this.onCancel}>
               {_('Cancel')}
             </button>
@@ -85,7 +85,7 @@ var PropertyEditorModal = React.createClass({
   render: function () {
     return (
       <PropertyEditorModalInner
-        ref='inner'
+        ref="inner"
         canCancel={!this.props.element.forceEdit}
         {...this.props}
         />

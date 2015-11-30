@@ -22,18 +22,18 @@ var ConfirmationModalInner = React.createClass({
 
   renderModalContent: function () {
     return (
-      <div className='rfb-confirmation-modal'>
-        <div className='rfb-confirmation-message'>
+      <div className="rfb-confirmation-modal">
+        <div className="rfb-confirmation-message">
           {this.props.children}
         </div>
-        <div className='rfb-modal-actions'>
+        <div className="rfb-modal-actions">
           <button
-            className='rfb-button'
+            className="rfb-button"
             onClick={this.props.onAccept}>
             {_('Yes')}
           </button>
           <button
-            className='rfb-button'
+            className="rfb-button"
             onClick={this.props.onReject}>
             {_('No')}
           </button>

@@ -41,9 +41,9 @@ var RepeatingRow = React.createClass({
     var rows = this.buildRows();
 
     return (
-      <div className='rfb-repeating-row-fieldset'>
+      <div className="rfb-repeating-row-fieldset">
         <Label
-          className='rf-RepeatingFieldset__label'
+          className="rf-RepeatingFieldset__label"
           label={label || value.node.props.get('label')}
           hint={hint || value.node.props.get('hint')}
           />
@@ -60,7 +60,7 @@ var RepeatingRow = React.createClass({
         }
         <button
           onClick={this.onAdd}
-          className='rf-RepeatingFieldset__add'>
+          className="rf-RepeatingFieldset__add">
           {_('Add Row')}
         </button>
       </div>

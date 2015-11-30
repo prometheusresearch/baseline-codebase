@@ -35,7 +35,7 @@ var LocaleChoiceTable = React.createClass({
             <input
               id={id}
               checked={locale.id === this.props.value}
-              type='radio'
+              type="radio"
               name={this._rootNodeID}
               value={locale.id}
               onChange={this.onChange.bind(null, locale.id)}
@@ -43,7 +43,7 @@ var LocaleChoiceTable = React.createClass({
           </td>
           <td>
             <label
-              className='rfb-formlocalization-locale'
+              className="rfb-formlocalization-locale"
               htmlFor={id}>
               {locale.name.current}
             </label>
@@ -82,7 +82,7 @@ class FormLocalization extends ReactForms.schema.ScalarNode {
     props.locales = I18NStore.getSupportedLocales();
     props.component = (
       <ReactForms.Field
-        className='rfb-formlocalization'
+        className="rfb-formlocalization"
         />
     );
     props.input = (

@@ -72,7 +72,7 @@ var DraftSetTile = React.createClass({
 
   render: function () {
     return (
-      <tr className='rfb-draftset-tile'>
+      <tr className="rfb-draftset-tile">
         <td>
           {formatDateTime(this.props.draft.date_created)}
         </td>
@@ -89,24 +89,24 @@ var DraftSetTile = React.createClass({
           {this.props.draft.parent_instrument_version &&
             this.props.draft.parent_instrument_version.uid}
         </td>
-        <td className='rfb-tile-actions'>
+        <td className="rfb-tile-actions">
           <button
-            className='rfb-button rfb-icon-button'
+            className="rfb-button rfb-icon-button"
             title={_('Edit this Draft')}
             onClick={this.props.onClick}>
-            <span className='rfb-icon icon-edit' />
+            <span className="rfb-icon icon-edit" />
           </button>
           <button
-            className='rfb-button rfb-icon-button'
+            className="rfb-button rfb-icon-button"
             title={_('Preview this Draft')}
             onClick={this.props.onPreview}>
-            <span className='rfb-icon icon-view' />
+            <span className="rfb-icon icon-view" />
           </button>
           <button
-            className='rfb-button rfb-icon-button'
+            className="rfb-button rfb-icon-button"
             title={_('Clone this Draft')}
             onClick={this.onClone}>
-            <span className='rfb-icon icon-clone' />
+            <span className="rfb-icon icon-clone" />
           </button>
           <ConfirmationModal
             visible={this.state.cloning}
@@ -115,10 +115,10 @@ var DraftSetTile = React.createClass({
             <p>{_('Are you sure you want to create a copy of this Draft?')}</p>
           </ConfirmationModal>
           <button
-            className='rfb-button rfb-icon-button'
+            className="rfb-button rfb-icon-button"
             title={_('Publish this Draft')}
             onClick={this.onPublish}>
-            <span className='rfb-icon icon-publish' />
+            <span className="rfb-icon icon-publish" />
           </button>
           <ConfirmationModal
             visible={this.state.publishing}
@@ -131,10 +131,10 @@ var DraftSetTile = React.createClass({
             )}</p>
           </ConfirmationModal>
           <button
-            className='rfb-button rfb-icon-button'
+            className="rfb-button rfb-icon-button"
             title={_('Delete this Draft')}
             onClick={this.onDelete}>
-            <span className='rfb-icon icon-delete' />
+            <span className="rfb-icon icon-delete" />
           </button>
           <ConfirmationModal
             visible={this.state.deleting}

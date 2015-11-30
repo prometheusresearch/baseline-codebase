@@ -41,9 +41,9 @@ var RepeatingParameter = React.createClass({
     var parameters = this.buildParameters();
 
     return (
-      <div className='rfb-repeating-parameter-fieldset'>
+      <div className="rfb-repeating-parameter-fieldset">
         <Label
-          className='rf-RepeatingFieldset__label'
+          className="rf-RepeatingFieldset__label"
           label={label || value.node.props.get('label')}
           hint={hint || value.node.props.get('hint')}
           />
@@ -60,7 +60,7 @@ var RepeatingParameter = React.createClass({
         }
         <button
           onClick={this.onAdd}
-          className='rf-RepeatingFieldset__add'>
+          className="rf-RepeatingFieldset__add">
           {_('Add Parameter')}
         </button>
       </div>

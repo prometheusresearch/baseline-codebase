@@ -41,9 +41,9 @@ var RepeatingEnumeration = React.createClass({
     var enumerations = this.buildEnumerations();
 
     return (
-      <div className='rfb-repeating-enumeration-fieldset'>
+      <div className="rfb-repeating-enumeration-fieldset">
         <Label
-          className='rf-RepeatingFieldset__label'
+          className="rf-RepeatingFieldset__label"
           label={label || value.node.props.get('label')}
           hint={hint || value.node.props.get('hint')}
           />
@@ -60,7 +60,7 @@ var RepeatingEnumeration = React.createClass({
         }
         <button
           onClick={this.onAdd}
-          className='rf-RepeatingFieldset__add'>
+          className="rf-RepeatingFieldset__add">
           {_('Add Choice')}
         </button>
       </div>

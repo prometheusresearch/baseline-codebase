@@ -44,72 +44,72 @@ class Ajax {
     }
 
     return fetch(
-        url,
-        {
-          credentials: 'same-origin',
-          headers: {
-            'Accept': 'application/json'
-          }
+      url,
+      {
+        credentials: 'same-origin',
+        headers: {
+          'Accept': 'application/json'
         }
-      )
-      .then(checkStatus)
-      .then(parseJSON)
+      }
+    )
+    .then(checkStatus)
+    .then(parseJSON)
     ;
   }
 
   post(url, data) {
     //console.debug('POST', url, data);
     return fetch(
-        this.baseUrl + url,
-        {
-          method: 'POST',
-          credentials: 'same-origin',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        }
-      )
-      .then(checkStatus)
-      .then(parseJSON)
+      this.baseUrl + url,
+      {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      }
+    )
+    .then(checkStatus)
+    .then(parseJSON)
     ;
   }
 
   put(url, data) {
     //console.debug('PUT', url, data);
     return fetch(
-        this.baseUrl + url,
-        {
-          method: 'PUT',
-          credentials: 'same-origin',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        }
-      )
-      .then(checkStatus)
-      .then(parseJSON)
+      this.baseUrl + url,
+      {
+        method: 'PUT',
+        credentials: 'same-origin',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      }
+    )
+    .then(checkStatus)
+    .then(parseJSON)
     ;
   }
 
   delete(url) {
     return fetch(
-        this.baseUrl + url,
-        {
-          method: 'DELETE',
-          credentials: 'same-origin',
-          headers: {
-            'Accept': 'application/json'
-          }
+      this.baseUrl + url,
+      {
+        method: 'DELETE',
+        credentials: 'same-origin',
+        headers: {
+          'Accept': 'application/json'
         }
-      )
-      .then(checkStatus)
-      .then(function () {
-        return null;
-      })
+      }
+    )
+    .then(checkStatus)
+    .then(function () {
+      return null;
+    })
     ;
   }
 }

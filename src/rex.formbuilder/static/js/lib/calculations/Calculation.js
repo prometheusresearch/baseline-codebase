@@ -122,7 +122,7 @@ class Calculation {
 
     return (
       <div className={classes}>
-        <span className='rfb-icon' />
+        <span className="rfb-icon" />
         {this.getName()}
       </div>
     );
@@ -141,8 +141,8 @@ class Calculation {
 
   getWorkspaceComponent() {
     return (
-      <div className='rfb-workspace-item-details'>
-        <div className='rfb-workspace-item-content'>
+      <div className="rfb-workspace-item-details">
+        <div className="rfb-workspace-item-content">
           <p>{this.constructor.getName()}</p>
         </div>
       </div>

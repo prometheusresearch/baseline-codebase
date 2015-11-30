@@ -65,9 +65,9 @@ var EventFieldset = React.createClass({
     classes = classNames(classes);
 
     return (
-      <tr className='rfb-event-fieldset'>
+      <tr className="rfb-event-fieldset">
         <td>
-          <table className='rfb-event'>
+          <table className="rfb-event">
             <tbody>
               {this.buildField('action', value.get('action'))}
               {this.buildField('trigger', value.get('trigger'))}
@@ -86,7 +86,7 @@ var EventFieldset = React.createClass({
         <td>
           <button
             onClick={this.props.onRemove}
-            className='rf-RepeatingFieldset__remove'>
+            className="rf-RepeatingFieldset__remove">
             &times;
           </button>
         </td>

@@ -66,7 +66,7 @@ var MultiSelect = React.createClass({
     }
 
     return (
-      <div className='rfb-multiselect'>
+      <div className="rfb-multiselect">
         <ReactSelect
           allowCreate={this.props.allowCreate}
           options={this.props.choices}

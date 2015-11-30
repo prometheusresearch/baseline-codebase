@@ -107,12 +107,12 @@ var InstrumentSelector = React.createClass({
           <button
             className="rfb-button"
             onClick={this.onCreateNew}>
-            <span className='rfb-icon icon-new' />
+            <span className="rfb-icon icon-new" />
             {_('Create New Instrument')}
           </button>
         </MenuHeader>
         <CreateInstrumentModal
-          ref='modal'
+          ref="modal"
           visible={this.state.creating}
           onComplete={this.onCreateComplete}
           onCancel={this.onCreateCancel}

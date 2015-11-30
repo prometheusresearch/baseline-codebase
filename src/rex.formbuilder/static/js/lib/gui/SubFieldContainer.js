@@ -71,7 +71,7 @@ var SubFieldContainer = React.createClass({
     return (
       <div
         {...this.dropTargetFor(DraggableTypes.ELEMENT_TYPE)}
-        className='rfb-subfield-container'>
+        className="rfb-subfield-container">
         {this.buildSubFields()}
       </div>
     );

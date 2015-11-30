@@ -214,10 +214,8 @@ var DraftSetEditor = React.createClass({
 
       workspace = (
         <div className="rfb-draftset-container">
-          <ElementToolbox
-            />
-          <ElementWorkspace
-            />
+          <ElementToolbox />
+          <ElementWorkspace />
         </div>
       );
     } else if (this.state.editMode === MODE_CALCULATIONS) {
@@ -227,10 +225,8 @@ var DraftSetEditor = React.createClass({
 
       workspace = (
         <div className="rfb-draftset-container">
-          <CalculationToolbox
-            />
-          <CalculationWorkspace
-            />
+          <CalculationToolbox />
+          <CalculationWorkspace />
         </div>
       );
     }
@@ -253,24 +249,24 @@ var DraftSetEditor = React.createClass({
           {this.props.instrumentMenuUrlTemplate &&
             this.state.instrumentVersion &&
             <button
-              className='rfb-button'
+              className="rfb-button"
               onClick={this.onReturn}>
-              <span className='rfb-icon icon-go-back' />
+              <span className="rfb-icon icon-go-back" />
               {_('Return to Menu')}
             </button>
           }
           {this.state.editMode === MODE_FORM &&
             <button
               disabled={!this.state.configuration}
-              className='rfb-button'
+              className="rfb-button"
               title={_('Edit the high-level Form settings')}
               onClick={this.onFormSettings}>
-              <span className='rfb-icon icon-edit' />
+              <span className="rfb-icon icon-edit" />
               {_('Form Settings')}
             </button>
           }
           <button
-            className='rfb-button'
+            className="rfb-button"
             title={toggleTitle}
             onClick={this.onModeSwitch}>
             <span className={toggleClasses} />
@@ -283,27 +279,27 @@ var DraftSetEditor = React.createClass({
               || _('Save the current state of this Draft to the database')
             }
             onClick={this.onSave}>
-            <span className='rfb-icon icon-save' />
+            <span className="rfb-icon icon-save" />
             {_('Save')}
           </button>
           {this.props.formPreviewerUrlTemplate &&
             <button
               disabled={this.state.modified || !this.state.valid}
-              className='rfb-button'
+              className="rfb-button"
               title={_('Explore a rendered, interactive view of this Draft')}
               onClick={this.onPreview}>
-              <span className='rfb-icon icon-view' />
+              <span className="rfb-icon icon-view" />
               {_('Preview Form')}
             </button>
           }
           <button
             disabled={this.state.modified || !this.state.valid}
-            className='rfb-button'
+            className="rfb-button"
             title={
               _('Publish the current state of this Draft for use by end-users')
             }
             onClick={this.onPublish}>
-            <span className='rfb-icon icon-publish' />
+            <span className="rfb-icon icon-publish" />
             {_('Publish')}
           </button>
           <ConfirmationModal
@@ -319,7 +315,7 @@ var DraftSetEditor = React.createClass({
         </MenuHeader>
         {this.state.configuration && this.state.editingSettings &&
           <FormSettingsModal
-            ref='modalSettings'
+            ref="modalSettings"
             visible={this.state.editingSettings}
             onComplete={this.onSettingsDone}
             onCancel={this.onSettingsDone}

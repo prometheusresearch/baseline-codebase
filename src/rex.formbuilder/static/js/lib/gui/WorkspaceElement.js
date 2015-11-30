@@ -243,25 +243,25 @@ var WorkspaceElement = React.createClass({
         )}
         className={classes}>
         {this.props.element.getWorkspaceComponent()}
-        <div className='rfb-workspace-item-tools'>
+        <div className="rfb-workspace-item-tools">
           <button
-            className='rfb-button rfb-icon-button'
+            className="rfb-button rfb-icon-button"
             title={_('Edit this Element\'s Properties')}
             onClick={this.onEdit}>
-            <span className='rfb-icon icon-edit' />
+            <span className="rfb-icon icon-edit" />
           </button>
           <button
-            className='rfb-button rfb-icon-button'
+            className="rfb-button rfb-icon-button"
             title={_('Clone this Element')}
             onClick={this.onClone}>
-            <span className='rfb-icon icon-clone' />
+            <span className="rfb-icon icon-clone" />
           </button>
           <button
-            className='rfb-button rfb-icon-button'
+            className="rfb-button rfb-icon-button"
             disabled={this.props.fixed}
             title={this.props.fixed ? _('You Cannot Delete this Element') : _('Delete this Element')}
             onClick={this.onDelete}>
-            <span className='rfb-icon icon-delete' />
+            <span className="rfb-icon icon-delete" />
           </button>
           <ConfirmationModal
             visible={this.state.deleting}
@@ -272,7 +272,7 @@ var WorkspaceElement = React.createClass({
         </div>
         {this.state.editing &&
           <PropertyEditorModal
-            ref='modal'
+            ref="modal"
             element={this.props.element}
             visible={this.state.editing}
             onComplete={this.onCompleteEditing}

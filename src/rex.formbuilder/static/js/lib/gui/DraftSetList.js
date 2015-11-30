@@ -110,7 +110,7 @@ var DraftSetList = React.createClass({
             <button
               className="rfb-button"
               onClick={this.onNewDraft}>
-              <span className='rfb-icon icon-new' />
+              <span className="rfb-icon icon-new" />
               {_('Create New Draft')}
             </button>
           }

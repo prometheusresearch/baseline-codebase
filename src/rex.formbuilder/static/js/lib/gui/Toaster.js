@@ -39,16 +39,16 @@ var Toaster = React.createClass({
           key={idx}
           onClick={toast.onClick}
           className={classes}>
-          <div className='rfb-toast-message'>
+          <div className="rfb-toast-message">
             {toast.message}
             {toast.additional &&
-              <div className='rfb-toast-additional'>
+              <div className="rfb-toast-additional">
                 {toast.additional}
               </div>}
             </div>
           <div
             onClick={toast.onDismiss}
-            className='rfb-toast-control'>
+            className="rfb-toast-control">
             &times;
           </div>
         </div>
@@ -58,7 +58,7 @@ var Toaster = React.createClass({
 
   render: function () {
     return (
-      <div className='rfb-toaster'>
+      <div className="rfb-toaster">
         {this.buildToasts()}
       </div>
     );

@@ -40,7 +40,7 @@ var ElementTool = React.createClass({
             };
           },
 
-        endDrag: function (component, effect) {
+          endDrag: function (component, effect) {
             if (!effect) {
               DraftSetActions.deleteElement(component.state.pendingElement);
             } else {

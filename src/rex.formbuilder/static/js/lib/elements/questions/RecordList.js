@@ -84,11 +84,11 @@ class RecordList extends Question {
     var {DraftSetStore} = require('../../stores');
     return (
       <div>
-        <div className='rfb-workspace-item-details'>
-          <div className='rfb-workspace-item-icon'>
-            <span className='rfb-icon' />
+        <div className="rfb-workspace-item-details">
+          <div className="rfb-workspace-item-icon">
+            <span className="rfb-icon" />
           </div>
-          <div className='rfb-workspace-item-content'>
+          <div className="rfb-workspace-item-content">
             <span>{this.text[DraftSetStore.getActiveConfiguration().locale]}</span>
           </div>
         </div>

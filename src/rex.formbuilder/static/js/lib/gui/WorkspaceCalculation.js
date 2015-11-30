@@ -209,21 +209,21 @@ var WorkspaceCalculation = React.createClass({
         )}
         className={classes}>
         {this.props.calculation.getWorkspaceComponent()}
-        <div className='rfb-workspace-item-tools'>
+        <div className="rfb-workspace-item-tools">
           <button
-            className='rfb-button rfb-icon-button'
+            className="rfb-button rfb-icon-button"
             onClick={this.onEdit}>
-            <span className='rfb-icon icon-edit' />
+            <span className="rfb-icon icon-edit" />
           </button>
           <button
-            className='rfb-button rfb-icon-button'
+            className="rfb-button rfb-icon-button"
             onClick={this.onClone}>
-            <span className='rfb-icon icon-clone' />
+            <span className="rfb-icon icon-clone" />
           </button>
           <button
-            className='rfb-button rfb-icon-button'
+            className="rfb-button rfb-icon-button"
             onClick={this.onDelete}>
-            <span className='rfb-icon icon-delete' />
+            <span className="rfb-icon icon-delete" />
           </button>
           <ConfirmationModal
             visible={this.state.deleting}
@@ -234,7 +234,7 @@ var WorkspaceCalculation = React.createClass({
         </div>
         {this.state.editing &&
           <PropertyEditorModal
-            ref='modal'
+            ref="modal"
             element={this.props.calculation}
             visible={this.state.editing}
             onComplete={this.onCompleteEditing}

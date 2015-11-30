@@ -89,7 +89,7 @@ var VersionList = React.createClass({
             <button
               onClick={this.onViewCurrent}
               className="rfb-button">
-              <span className='rfb-icon icon-view' />
+              <span className="rfb-icon icon-view" />
               {_('View Current Revision')}
             </button>
           }

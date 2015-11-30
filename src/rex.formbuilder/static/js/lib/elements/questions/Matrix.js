@@ -153,8 +153,8 @@ class Matrix extends Question {
     return super.getEventTargets().concat(subfields);
   }
 
-  checkValidity() {
-    super.checkValidity();
+  checkValidity(defaultLocale) {
+    super.checkValidity(defaultLocale);
 
     if (this.questions.length < 1) {
       throw new errors.ConfigurationError(_(
@@ -166,9 +166,6 @@ class Matrix extends Question {
         'Grids must contain at least one row.'
       ));
     }
-
-    var {DraftSetStore} = require('../../stores');
-    var defaultLocale = DraftSetStore.getActiveConfiguration().locale;
 
     this.rows.forEach((row) => {
       if (isEmpty(row.text[defaultLocale])) {

@@ -168,10 +168,7 @@ class Element extends SerializationContext {
     return coverage;
   }
 
-  checkValidity() {
-    var {DraftSetStore} = require('../stores');
-    var defaultLocale = DraftSetStore.getActiveConfiguration().locale;
-
+  checkValidity(defaultLocale) {
     var props = this.getLocalizedProperties();
     props.required.forEach((prop) => {
       if (isEmpty(this[prop][defaultLocale])) {

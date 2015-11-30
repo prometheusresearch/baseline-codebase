@@ -77,11 +77,8 @@ class Enumeration extends Question {
     return coverage;
   }
 
-  checkValidity() {
-    super.checkValidity();
-
-    var {DraftSetStore} = require('../../stores');
-    var defaultLocale = DraftSetStore.getActiveConfiguration().locale;
+  checkValidity(defaultLocale) {
+    super.checkValidity(defaultLocale);
 
     this.enumerations.forEach((enumeration) => {
       if (isEmpty(enumeration.text[defaultLocale])) {

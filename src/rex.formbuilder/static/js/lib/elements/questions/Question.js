@@ -211,11 +211,8 @@ class Question extends Element {
     return coverage;
   }
 
-  checkValidity() {
-    super.checkValidity();
-
-    var {DraftSetStore} = require('../../stores');
-    var defaultLocale = DraftSetStore.getActiveConfiguration().locale;
+  checkValidity(defaultLocale) {
+    super.checkValidity(defaultLocale);
 
     this.events.forEach((event) => {
       var text = objectPath.get(event, 'options.text', undefined);

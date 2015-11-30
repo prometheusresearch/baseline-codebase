@@ -28,7 +28,8 @@ var WorkspaceElement = React.createClass({
   propTypes: {
     element: React.PropTypes.object.isRequired,
     fixed: React.PropTypes.bool,
-    isSubField: React.PropTypes.bool
+    isSubField: React.PropTypes.bool,
+    locale: React.PropTypes.string.isRequired
   },
 
   getDefaultProps: function () {
@@ -217,7 +218,7 @@ var WorkspaceElement = React.createClass({
 
     var elementInvalid = false;
     try {
-      this.props.element.checkValidity();
+      this.props.element.checkValidity(this.props.locale);
     } catch (exc) {
       elementInvalid = true;
     }

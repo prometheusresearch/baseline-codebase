@@ -106,7 +106,7 @@ class Configuration {
     var sawFieldBasedElement = false;
 
     this.elements.forEach((element, idx) => {
-      element.checkValidity();
+      element.checkValidity(this.locale);
 
       if (element instanceof elements.Questions.Question) {
         sawFieldBasedElement = true;

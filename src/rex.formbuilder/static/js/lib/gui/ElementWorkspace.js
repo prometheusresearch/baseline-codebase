@@ -12,8 +12,10 @@ var {DraftSetStore} = require('../stores');
 
 var ElementWorkspace = React.createClass({
   getInitialState: function () {
+    var cfg = DraftSetStore.getActiveConfiguration();
     return {
-      elements: DraftSetStore.getActiveElements()
+      elements: DraftSetStore.getActiveElements(),
+      locale: cfg ? cfg.locale : null
     };
   },
 
@@ -26,8 +28,10 @@ var ElementWorkspace = React.createClass({
   },
 
   _onDraftSetChange: function () {
+    var cfg = DraftSetStore.getActiveConfiguration();
     this.setState({
-      elements: DraftSetStore.getActiveElements()
+      elements: DraftSetStore.getActiveElements(),
+      locale: cfg ? cfg.locale : null
     });
   },
 
@@ -38,6 +42,7 @@ var ElementWorkspace = React.createClass({
           key={element.EID}
           element={element}
           fixed={idx === 0}
+          locale={this.state.locale}
           />
       );
     });

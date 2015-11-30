@@ -107,8 +107,8 @@ class RecordList extends Question {
     return super.getEventTargets().concat(subfields);
   }
 
-  checkValidity() {
-    super.checkValidity();
+  checkValidity(defaultLocale) {
+    super.checkValidity(defaultLocale);
 
     if (this.questions.length < 1) {
       throw new errors.ConfigurationError(_(

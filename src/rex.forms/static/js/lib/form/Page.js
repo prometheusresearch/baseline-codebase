@@ -113,7 +113,12 @@ var Page = React.createClass({
     var questions = this.props.page.elements.filter((el) => {
       return el.type === 'question';
     });
+    var events = this.formEvents();
     var next = utils.findAfter(questions, (q) => q.options.fieldId, name);
+    while (next && (events.isDisabled(next) || events.isHidden(next))) {
+      next = utils.findAfter(questions, (q) => q.options.fieldId, next);
+    }
+
     if (next) {
       this.refs[next].focus();
     } else {

@@ -1,6 +1,6 @@
 {
   "name": "rex-forms-demo",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "main": "index.js",
   "peerDependencies": {
     "bootstrap": "^3.0.0",

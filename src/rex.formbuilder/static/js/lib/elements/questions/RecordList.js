@@ -80,8 +80,7 @@ class RecordList extends Question {
     });
   }
 
-  getWorkspaceComponent() {
-    var {DraftSetStore} = require('../../stores');
+  getWorkspaceComponent(defaultLocale) {
     return (
       <div>
         <div className="rfb-workspace-item-details">
@@ -89,11 +88,12 @@ class RecordList extends Question {
             <span className="rfb-icon" />
           </div>
           <div className="rfb-workspace-item-content">
-            <span>{this.text[DraftSetStore.getActiveConfiguration().locale]}</span>
+            <span>{this.text[defaultLocale]}</span>
           </div>
         </div>
         <SubFieldContainer
           subFields={this.questions}
+          locale={defaultLocale}
           />
       </div>
     );

@@ -18,7 +18,8 @@ var SubFieldContainer = React.createClass({
   ],
 
   propTypes: {
-    subFields: React.PropTypes.arrayOf(React.PropTypes.object)
+    subFields: React.PropTypes.arrayOf(React.PropTypes.object),
+    locale: React.PropTypes.string
   },
 
   getDefaultProps: function () {
@@ -62,6 +63,7 @@ var SubFieldContainer = React.createClass({
           key={element.EID}
           element={element}
           isSubField={true}
+          locale={this.props.locale}
           />
       );
     });

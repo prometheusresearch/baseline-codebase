@@ -243,7 +243,7 @@ var WorkspaceElement = React.createClass({
           DraggableTypes.ELEMENT_TYPE
         )}
         className={classes}>
-        {this.props.element.getWorkspaceComponent()}
+        {this.props.element.getWorkspaceComponent(this.props.locale)}
         <div className="rfb-workspace-item-tools">
           <button
             className="rfb-button rfb-icon-button"

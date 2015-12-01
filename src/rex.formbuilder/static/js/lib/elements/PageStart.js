@@ -33,8 +33,8 @@ class PageStart extends ContentElement {
     return _('Page Start');
   }
 
-  static getPropertyConfiguration() {
-    var cfg = ContentElement.getPropertyConfiguration();
+  static getPropertyConfiguration(isSubElement) {
+    var cfg = ContentElement.getPropertyConfiguration(isSubElement);
     cfg.properties.basic.unshift(
       {
         name: 'id',

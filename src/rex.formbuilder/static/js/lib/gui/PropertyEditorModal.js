@@ -18,12 +18,14 @@ var PropertyEditorModalInner = React.createClass({
 
   propTypes: {
     element: React.PropTypes.object.isRequired,
+    isSubElement: React.PropTypes.bool,
     onComplete: React.PropTypes.func
   },
 
   getDefaultProps: function () {
     return {
       onComplete: function () {},
+      isSubElement: false,
       className: 'rfb-property-editor-modal'
     };
   },
@@ -55,6 +57,7 @@ var PropertyEditorModalInner = React.createClass({
         <PropertyEditor
           ref="editor"
           element={this.props.element}
+          isSubElement={this.props.isSubElement}
           />
 
         <div className="rfb-modal-actions">

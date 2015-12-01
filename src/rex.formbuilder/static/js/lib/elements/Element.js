@@ -42,8 +42,8 @@ class Element extends SerializationContext {
     return ELEMENTS;
   }
 
-  static getPropertyConfiguration() {
-    return {
+  static getPropertyConfiguration(isSubElement) {
+    var cfg = {
       categories: [
         {
           id: 'basic',
@@ -59,15 +59,19 @@ class Element extends SerializationContext {
 
       properties: {
         basic: [],
-        advanced: [
-          {
-            name: 'tags',
-            label: _('Tags'),
-            schema: properties.TagList
-          }
-        ]
+        advanced: []
       }
     };
+
+    if (!isSubElement) {
+      cfg.properties.advanced.push({
+        name: 'tags',
+        label: _('Tags'),
+        schema: properties.TagList
+      });
+    }
+
+    return cfg;
   }
 
   static getTypeID() {
@@ -110,7 +114,7 @@ class Element extends SerializationContext {
     this.tags = element.tags || this.tags;
   }
 
-  getWorkspaceComponent() {
+  getWorkspaceComponent(defaultLocale) {
     return (
       <div className="rfb-workspace-item-details">
         <div className="rfb-workspace-item-content">

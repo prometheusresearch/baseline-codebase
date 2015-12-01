@@ -20,7 +20,7 @@ class ContentElement extends Element {
     return Element.registerElement(type, parser);
   }
 
-  getWorkspaceComponent() {
+  getWorkspaceComponent(defaultLocale) {
     return (
       <div className="rfb-workspace-item-details">
         <div className="rfb-workspace-item-icon">

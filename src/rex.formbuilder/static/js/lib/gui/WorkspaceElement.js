@@ -275,6 +275,7 @@ var WorkspaceElement = React.createClass({
           <PropertyEditorModal
             ref="modal"
             element={this.props.element}
+            isSubElement={this.props.isSubField}
             visible={this.state.editing}
             onComplete={this.onCompleteEditing}
             onCancel={this.onCancelEditing}

@@ -5,6 +5,12 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
+5.5.1 (2016-xx-xx)
+==================
+
+* Fixed erroneous display of tags property on recordList & matrix subfields.
+
+
 5.5.0 (2015-11-20)
 ==================
 

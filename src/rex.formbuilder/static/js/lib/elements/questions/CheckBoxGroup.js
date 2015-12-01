@@ -22,8 +22,8 @@ class CheckBoxGroup extends Enumeration {
     return 'question-checkboxgroup';
   }
 
-  static getPropertyConfiguration() {
-    var cfg = Enumeration.getPropertyConfiguration();
+  static getPropertyConfiguration(isSubElement) {
+    var cfg = Enumeration.getPropertyConfiguration(isSubElement);
     cfg.properties.advanced.unshift(
       {
         name: 'horizontal',

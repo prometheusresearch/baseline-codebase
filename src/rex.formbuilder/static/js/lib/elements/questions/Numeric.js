@@ -14,8 +14,8 @@ var _ = require('../../i18n').gettext;
 
 
 class Numeric extends Question {
-  static getPropertyConfiguration() {
-    var cfg = Question.getPropertyConfiguration();
+  static getPropertyConfiguration(isSubElement) {
+    var cfg = Question.getPropertyConfiguration(isSubElement);
     cfg.properties.advanced.unshift(
       {
         name: 'range',

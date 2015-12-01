@@ -20,8 +20,8 @@ class LongText extends Text {
     return 'question-long-text';
   }
 
-  static getPropertyConfiguration() {
-    var cfg = Text.getPropertyConfiguration();
+  static getPropertyConfiguration(isSubElement) {
+    var cfg = Text.getPropertyConfiguration(isSubElement);
     cfg.properties.advanced.unshift(
       {
         name: 'height',

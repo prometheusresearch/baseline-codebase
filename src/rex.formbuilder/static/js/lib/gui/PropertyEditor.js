@@ -12,7 +12,14 @@ var deepMerge = require('n-deep-merge');
 
 var PropertyEditor = React.createClass({
   propTypes: {
-    element: React.PropTypes.object.isRequired
+    element: React.PropTypes.object.isRequired,
+    isSubElement: React.PropTypes.bool
+  },
+
+  getDefaultProps: function () {
+    return {
+      isSubElement: false
+    };
   },
 
   getInitialState: function () {
@@ -40,13 +47,17 @@ var PropertyEditor = React.createClass({
 
   componentWillMount: function () {
     this.setConfigState(
-      this.props.element.constructor.getPropertyConfiguration()
+      this.props.element.constructor.getPropertyConfiguration(
+        this.props.isSubElement
+      )
     );
   },
 
   componentWillReceiveProps: function (nextProps) {
     this.setConfigState(
-      nextProps.element.constructor.getPropertyConfiguration()
+      nextProps.element.constructor.getPropertyConfiguration(
+        this.props.isSubElement
+      )
     );
   },
 
@@ -128,7 +139,9 @@ var PropertyEditor = React.createClass({
   },
 
   reset: function () {
-    var config = this.props.element.constructor.getPropertyConfiguration();
+    var config = this.props.element.constructor.getPropertyConfiguration(
+      this.props.isSubElement
+    );
 
     this.setConfigState(config);
 
@@ -193,7 +206,9 @@ var PropertyEditor = React.createClass({
   },
 
   render: function () {
-    var config = this.props.element.constructor.getPropertyConfiguration();
+    var config = this.props.element.constructor.getPropertyConfiguration(
+      this.props.isSubElement
+    );
 
     return (
       <div className='rfb-property-editor rfb-tabs'>

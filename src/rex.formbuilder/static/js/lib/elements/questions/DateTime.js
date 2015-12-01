@@ -22,8 +22,8 @@ class DateTime extends Question {
     return 'question-datetime';
   }
 
-  static getPropertyConfiguration() {
-    var cfg = Question.getPropertyConfiguration();
+  static getPropertyConfiguration(isSubElement) {
+    var cfg = Question.getPropertyConfiguration(isSubElement);
     cfg.properties.advanced.unshift(
       {
         name: 'range',

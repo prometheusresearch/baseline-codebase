@@ -20,8 +20,8 @@ class RadioButtonGroup extends Enumeration {
     return 'question-radiobuttongroup';
   }
 
-  static getPropertyConfiguration() {
-    var cfg = Enumeration.getPropertyConfiguration();
+  static getPropertyConfiguration(isSubElement) {
+    var cfg = Enumeration.getPropertyConfiguration(isSubElement);
     cfg.properties.advanced.unshift(
       {
         name: 'horizontal',

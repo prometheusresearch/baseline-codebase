@@ -22,8 +22,8 @@ class RepeatingGroup extends RecordList {
     return 'question-repeatinggroup';
   }
 
-  static getPropertyConfiguration() {
-    var cfg = RecordList.getPropertyConfiguration();
+  static getPropertyConfiguration(isSubElement) {
+    var cfg = RecordList.getPropertyConfiguration(isSubElement);
     cfg.properties.advanced.unshift(
       {
         name: 'addLabel',

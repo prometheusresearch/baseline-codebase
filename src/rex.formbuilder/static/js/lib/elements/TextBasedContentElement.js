@@ -14,8 +14,8 @@ var _ = require('../i18n').gettext;
 
 
 class TextBasedContentElement extends ContentElement {
-  static getPropertyConfiguration() {
-    var cfg = ContentElement.getPropertyConfiguration();
+  static getPropertyConfiguration(isSubElement) {
+    var cfg = ContentElement.getPropertyConfiguration(isSubElement);
     cfg.properties.basic.push(
       {
         name: 'text',
@@ -68,15 +68,14 @@ class TextBasedContentElement extends ContentElement {
     };
   }
 
-  getWorkspaceComponent() {
-    var {DraftSetStore} = require('../stores');
+  getWorkspaceComponent(defaultLocale) {
     return (
       <div className="rfb-workspace-item-details">
         <div className="rfb-workspace-item-icon">
           <span className="rfb-icon" />
         </div>
         <div className="rfb-workspace-item-content">
-          <span>{this.text[DraftSetStore.getActiveConfiguration().locale]}</span>
+          <span>{this.text[defaultLocale]}</span>
         </div>
       </div>
     );

@@ -21,8 +21,8 @@ class Audio extends ContentElement {
     return 'audio';
   }
 
-  static getPropertyConfiguration() {
-    var cfg = ContentElement.getPropertyConfiguration();
+  static getPropertyConfiguration(isSubElement) {
+    var cfg = ContentElement.getPropertyConfiguration(isSubElement);
     cfg.properties.basic.push(
       {
         name: 'source',

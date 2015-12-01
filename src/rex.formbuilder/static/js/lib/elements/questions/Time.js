@@ -22,8 +22,8 @@ class Time extends Question {
     return 'question-time';
   }
 
-  static getPropertyConfiguration() {
-    var cfg = Question.getPropertyConfiguration();
+  static getPropertyConfiguration(isSubElement) {
+    var cfg = Question.getPropertyConfiguration(isSubElement);
     cfg.properties.advanced.unshift(
       {
         name: 'range',

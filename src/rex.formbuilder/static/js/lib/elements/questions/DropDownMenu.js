@@ -20,8 +20,8 @@ class DropDownMenu extends Enumeration {
     return 'question-dropdown';
   }
 
-  static getPropertyConfiguration() {
-    var cfg = Enumeration.getPropertyConfiguration();
+  static getPropertyConfiguration(isSubElement) {
+    var cfg = Enumeration.getPropertyConfiguration(isSubElement);
 
     cfg.properties.basic = cfg.properties.basic.map((prop) => {
       if (prop.name === 'enumerations') {

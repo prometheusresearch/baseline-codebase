@@ -39,11 +39,16 @@ class MultiChoiceProperty extends ReactForms.schema.ArrayNode {
       return choice.value;
     });
 
-    value.forEach((val) => {
-      if (allowedChoices.indexOf(val) < 0) {
-        error = new Error(_('"%(value)s" is not a valid choice.', {value: val}));
-      }
-    });
+    if (value) {
+      value.forEach((val) => {
+        if (allowedChoices.indexOf(val) < 0) {
+          error = new Error(
+            _('"%(value)s" is not a valid choice.', {value: val})
+          );
+        }
+      });
+    }
+
     if (error) {
       return error;
     }

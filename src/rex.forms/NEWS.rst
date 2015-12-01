@@ -5,7 +5,7 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
-1.2.1 (2016-xx-xx)
+1.2.1 (2015-12-01)
 ==================
 
 * Fixed issue that prevented entering decimal numbers in float fields that have

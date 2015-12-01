@@ -25,7 +25,7 @@ var Sidebar = React.createClass({
 
     return (
       <VBox {...this.props}
-        size={1}
+        flex={1}
         className="ra-AppletPage-sidebar"
         style={this.styleSidebar}>
         <ul className="nav nav-pills nav-stacked">

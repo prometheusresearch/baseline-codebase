@@ -41,7 +41,7 @@ var NavigationBanner = React.createClass({
         <div
             style={styleInnerBox}
             title={hint}>
-          <HBox margin={padding} size={1}>
+          <HBox margin={padding} flex={1}>
             <VBox centerVertically>
               {children}
             </VBox>

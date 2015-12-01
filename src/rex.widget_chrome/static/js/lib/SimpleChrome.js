@@ -27,52 +27,50 @@ var SimpleChrome = React.createClass({
          applicationHeaderTextcolorHover,
          personalMenuLinks,
          ...props} = this.props;
-    var contentStyle = {margin: 0};
+    var contentStyle = {
+      margin: 0
+    };
     var {sidebarOpen, personalMenuOpen} = this.state;
     var locations = this.getLocations();
 
     return (
       <Chrome {...props}>
-        <VBox {...props} className="ra-AppletPage" title={undefined}>
-          <Navigation
-            applicationTitle={applicationTitle}
-            onApplicationTitleClick={this.toggleSidebar}
-            username={username}
-            onUsernameClick={this.togglePersonalMenu}
-            bannerText={applicationBanner}
-            title={this.props.title}
-            sidebarOpen={sidebarOpen}
-            height={50}
-            style={{backgroundColor: applicationHeaderBgcolor}}
-            styleButton={{color: applicationHeaderTextcolor}}
-            styleButtonHover={{
-              color: applicationHeaderTextcolorHover,
-              backgroundColor: applicationHeaderBgcolorHover
-            }}
-            styleBanner={{color: applicationHeaderTextcolor}}
+        <Navigation
+          applicationTitle={applicationTitle}
+          onApplicationTitleClick={this.toggleSidebar}
+          username={username}
+          onUsernameClick={this.togglePersonalMenu}
+          bannerText={applicationBanner}
+          title={this.props.title}
+          sidebarOpen={sidebarOpen}
+          height={50}
+          style={{backgroundColor: applicationHeaderBgcolor}}
+          styleButton={{color: applicationHeaderTextcolor}}
+          styleButtonHover={{
+            color: applicationHeaderTextcolorHover,
+            backgroundColor: applicationHeaderBgcolorHover
+          }}
+          styleBanner={{color: applicationHeaderTextcolor}}
+          />
+        <HBox flex="1" {...contentStyle}>
+          {this.props.content}
+        </HBox>
+        {sidebarOpen &&
+          <Sidebar
+            menu={[]}
+            onClickOutside={this.toggleSidebar}
+            />}
+        {personalMenuOpen &&
+          <PersonalMenu
+            links={personalMenuLinks}
             />
-          <HBox size={1} {...contentStyle}>
-            <VBox size={5}>
-              {this.props.content}
-            </VBox>
-          </HBox>
-          {sidebarOpen &&
-            <Sidebar
-              menu={[]}
-              onClickOutside={this.toggleSidebar}
-              />}
-          {personalMenuOpen &&
-            <PersonalMenu
-              links={personalMenuLinks}
-              />
-          }
-        </VBox>
+        }
       </Chrome>
     );
   },
 
   getDefaultProps() {
-    return {size: 1};
+    return {flex: 1};
   },
 
   getInitialState() {

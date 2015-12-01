@@ -44,7 +44,7 @@ var NavigationButton = React.createClass({
              fontSize: '100%',
              textDecoration: 'none'
            }}}>
-          <HBox margin={padding} size={1}>
+          <HBox margin={padding} flex={1}>
             {icon &&
               <VBox centerVertically style={{margin: `0 ${padding}px 0 0`}}>
                 <Icon name={icon} style={{top: -1}} />

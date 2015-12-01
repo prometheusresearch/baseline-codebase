@@ -33,7 +33,7 @@ var PersonalMenu = React.createClass({
 
     return (
       <VBox {...props}
-        size={1}
+        flex={1}
         style={this.styleMenu}
         className="ra-AppletPage-personalMenu">
         <ul className="nav nav-pills nav-stacked">

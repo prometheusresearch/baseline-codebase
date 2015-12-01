@@ -4,6 +4,12 @@
 
 .. contents:: Table of Contents
 
+0.4.0
+=====
+
+* Added --format option for the rex assessment-import task, excepted csv or xls
+  values; csv is the default value.
+
 0.3.0 (2015-10-28)
 ==================
 

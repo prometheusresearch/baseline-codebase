@@ -4,7 +4,7 @@ import codecs
 from collections import OrderedDict
 
 from rex.core import Error, get_settings
-from rex.ctl import RexTask, argument, option, warn, log
+from rex.ctl import RexTask, argument, option, warn, log, debug
 from rex.instrument.util import get_implementation
 from .interface import Instrument, Assessment
 from .base import BaseAssessmentTemplateExport, BaseAssessmentImport
@@ -55,13 +55,21 @@ class AssessmentTemplateExportTask(CtlLogging, BaseAssessmentTemplateExport, Rex
             hint='the directory to keep generated csv files write to;'
             ' if not specified, current directory is used',
         )
+        format = option(
+            None,
+            str,
+            default='csv',
+            value_name='FORMAT',
+            hint='the format of output files one of csv or xls is expected;'
+            ' csv is the default value',
+        )
 
     def __init__(self, *args, **kwargs):
         super(AssessmentTemplateExportTask, self).__init__(*args, **kwargs)
 
     def __call__(self):
         with self.make():
-            self.start(self.instrument_uid, self.version, self.output)
+            self.start(self.instrument_uid, self.version, self.output, self.format)
 
 
 class AssessmentImportTask(CtlLogging, BaseAssessmentImport, RexTask):
@@ -95,7 +103,20 @@ class AssessmentImportTask(CtlLogging, BaseAssessmentImport, RexTask):
             hint='the directory contained assessments data stored in csv files;'
             ' if not specified, current directory is used',
         )
+        format = option(
+            None,
+            str,
+            default='csv',
+            value_name='FORMAT',
+            hint='the format of input files one of csv or xls is expected;'
+            ' csv is the default value',
+        )
 
     def __call__(self):
         with self.make():
-            self.start(self.instrument_uid, self.version, self.input, tolerant=True)
+            self.start(self.instrument_uid,
+                       self.version,
+                       self.input,
+                       tolerant=True,
+                       format=self.format
+            )

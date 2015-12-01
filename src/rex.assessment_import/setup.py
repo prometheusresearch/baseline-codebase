@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.assessment_import',
-    version='0.3.2',
+    version='0.4.0',
     description='Assessment Import Tools',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',
@@ -12,7 +12,9 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     install_requires=[
-       'rex.instrument', 
+       'xlrd',
+       'xlwt',
+       'rex.instrument',
     ],
     entry_points={
         'rex.ctl': [

@@ -230,7 +230,7 @@ class Assessment(object):
         if not subject_id:
             raise Error("`subject` is expected.")
         subject_impl = get_implementation('subject')
-        subject = subject_impl.get_by_uid(subject_id)
+        subject = subject_impl.get_by_uid(unicode(subject_id))
         if not subject:
             raise Error("Subject `%(subject_id)s` not found in the data storage."
                         % {'subject_id': subject_id}
@@ -351,10 +351,10 @@ class Assessment(object):
                 raise Error("Got null for required field.")
             return None
         if base_type == 'integer':
-            if not re.match(r'^\d+$', str(value)):
+            if not re.match(r'^\d+(\.0)?$', str(value)):
                 raise Error(" Got unexpected value %(value)s for"
                             " %(base_type)s type."
-                            % {'value': value, 'base_type': field.base_type}
+                            % {'value': value, 'base_type': base_type}
                 )
             return int(value)
         if base_type == 'float':

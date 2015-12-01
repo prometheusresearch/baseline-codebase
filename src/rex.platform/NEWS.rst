@@ -8,7 +8,7 @@
 4.12.0 (2016-xx-xx)
 ===================
 
-* rex.forms==1.2.1
+* rex.forms==1.2.2
 * rex.widget==1.5.0
 * rex.action==0.8.0
 

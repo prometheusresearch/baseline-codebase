@@ -291,7 +291,7 @@ class Domain(object):
         if domain is None:
             return self
         next_domain = Domain(
-            name='%s + %s' % (self.name, domain.name),
+            name=self.name,
             entity_types=self.entity_types.values())
         next_domain.entity_types.update({
             typ.key: typ for typ

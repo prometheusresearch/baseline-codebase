@@ -77,14 +77,16 @@ class WizardWidgetBase(Widget):
             self.path = self.path.resolve(validate_path)
 
     def _resolve_action(self, ref):
-        return resolve_action_reference(
+        action = resolve_action_reference(
             ref,
             actions=self.actions,
             package=self.package,
             domain=self.domain,
         )
+        self.states = self.domain.merge(action.domain)
+        return action
 
-    @cached_property
+    @property
     def domain(self):
         return self.states or typing.Domain.current()
 
@@ -290,7 +292,7 @@ def resolve_action_reference(ref, actions=None, package=None, domain=None):
 class WizardBase(WizardWidgetBase, ActionBase):
     """ Base class for wizards."""
 
-    @cached_property
+    @property
     def domain(self):
         return self.states or typing.Domain.current()
 

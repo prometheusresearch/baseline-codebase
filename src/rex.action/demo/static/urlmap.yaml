@@ -66,8 +66,18 @@ paths:
       path:
       - edit-individual:
         - /individuals/view:
+        - drop-individual:
+
+      states:
+        individual:
+          x:
+            title: X
+            expression: id() = 'A11Z1814'
 
       actions:
+        drop-individual:
+          type: drop
+          entity: individual[x]
         edit-individual:
           type: edit
           entity: individual
@@ -88,7 +98,7 @@ paths:
       - /individuals/wizard:
         - drop-individual:
         - /individuals/view?individual=individual[super]:
-        - /individuals/edit?individual=individual[super]:
+        - /individuals/edit:
       - /labs/pick:
         - /labs/view:
       actions:
@@ -99,4 +109,4 @@ paths:
         individual:
           super:
             title: Super
-            expression: id() = 'A53Y9206'
+            expression: id() = 'A11Z1814'

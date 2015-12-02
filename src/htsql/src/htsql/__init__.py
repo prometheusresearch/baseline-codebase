@@ -47,7 +47,7 @@ To execute a raw HTSQL request, run::
 """
 
 
-__version__ = '2.3.3.20150930'
+__version__ = '2.3.3.20151202'
 __copyright__ = """Copyright (c) 2006-2015, Prometheus Research, LLC"""
 __license__ = """
 This is free software: you are free to change and redistribute it.

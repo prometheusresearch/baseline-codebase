@@ -12,7 +12,7 @@ from webob.exc import HTTPUnauthorized
 
 from rex.urlmap import Map
 from rex.core import Error, StrVal, MapVal
-from rex.web import authorize
+from rex.web import authorize, confine
 
 from .validate import WidgetVal, DeferredVal
 from .render import render
@@ -69,6 +69,7 @@ class WidgetRenderer(object):
         if not authorize(request, self.access):
             raise HTTPUnauthorized()
         try:
-            return render(self.widget, request, title=self.title)
+            with confine(request, self):
+                return render(self.widget, request, title=self.title)
         except Error, error:
             return request.get_response(error)

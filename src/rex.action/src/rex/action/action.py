@@ -20,7 +20,7 @@ from rex.core import (
     Location, Error, Validate, autoreload, get_packages,
     MaybeVal, StrVal, IntVal, SeqVal, MapVal, OMapVal, AnyVal,
     cached, guard)
-from rex.web import authorize
+from rex.web import authorize, confine
 from rex.widget import (
     Widget, WidgetVal, Field,
     undefined, as_transitionable, TransitionableRecord)
@@ -300,6 +300,7 @@ class ActionRenderer(object):
             action = self.action
             if not isinstance(self.action, WizardBase):
                 action = ActionWizard(action=action)
-            return render(action, request)
+            with confine(request, self):
+                return render(action, request)
         except Error, error:
             return request.get_response(error)

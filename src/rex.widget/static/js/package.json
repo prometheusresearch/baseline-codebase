@@ -15,7 +15,7 @@
     ]
   },
   "dependencies": {
-    "@prometheusresearch/react-autocomplete": "^0.2.1",
+    "@prometheusresearch/react-autocomplete": "^0.2.2",
     "@prometheusresearch/react-box": "^0.2.0",
     "@prometheusresearch/react-datetimepicker": "^0.2.0",
     "@prometheusresearch/react-stylesheet": "^0.3.1",

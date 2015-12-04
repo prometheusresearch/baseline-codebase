@@ -19,10 +19,10 @@ def purge_mart(code):
     :type code: str
     """
 
-    db = get_management_db()
+    database = get_management_db()
 
     # Get the name of the Mart
-    data = db.produce(
+    data = database.produce(
         '/rexmart_inventory[$code]{name}',
         code=code,
     )
@@ -37,7 +37,7 @@ def purge_mart(code):
         cluster.drop(name)
 
     # Remove the Mart from the inventory
-    db.produce(
+    database.produce(
         '/rexmart_inventory[$code]{id()}/:delete',
         code=code,
     )

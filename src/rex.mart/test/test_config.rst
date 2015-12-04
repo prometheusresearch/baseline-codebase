@@ -19,7 +19,7 @@ describe all Mart definitions available in the current instance::
 
     >>> rex = LatentRex('rex.mart_demo')
     >>> with rex:
-    ...     pass #pprint(get_all_definitions())
+    ...     pass  # TODO pprint(get_all_definitions())
 
 
 
@@ -33,7 +33,7 @@ specific Mart definition if it is available::
 
     >>> rex = LatentRex('rex.mart_demo')
     >>> with rex:
-    ...     pass #pprint(get_definition('foo'))
+    ...     pass  # TODO pprint(get_definition('foo'))
 
 
     >>> with rex:

@@ -16,3 +16,19 @@
         4,Mary,Cooper
         5,Some,Body
 
+- table: subject
+  with:
+    - data: ./deploy/subject.csv
+
+- table: instrument
+  with:
+    - data: ./deploy/instrument.csv
+
+- table: instrumentversion
+  with:
+    - data: ./deploy/instrumentversion.csv
+
+- table: assessment
+  with:
+    - data: ./deploy/assessment.csv
+

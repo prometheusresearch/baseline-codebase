@@ -16,6 +16,7 @@ setup(
     install_requires=[
         'rex.deploy',
         'rex.mart',
+        'rex.instrument_demo',
     ],
     rex_init='rex.mart_demo',
     rex_static='static',

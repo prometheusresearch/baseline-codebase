@@ -10,6 +10,7 @@ from datetime import datetime
 
 from rex.core import Error, get_settings
 
+from .assessments import AssessmentLoader
 from .config import get_definition
 from .connections import get_management_db, get_hosting_cluster, \
     get_mart_etl_db, get_sql_connection
@@ -73,7 +74,7 @@ class MartCreator(object):
         self.start_date = None
         self.code = None
         self.name = None
-        self.db = None
+        self.database = None
 
         self.definition = get_definition(definition)
         if not self.definition:
@@ -106,12 +107,11 @@ class MartCreator(object):
                 self.name = self.establish_name()
 
                 # Creation
-                self.create_database()
+                self.create_mart()
 
                 # Deployment
                 self._update_status('deployment')
                 self.deploy_structures()
-                self.db = get_mart_etl_db(self.name)
 
                 # Post Deployment ETL
                 self._update_status('post_deployment')
@@ -120,7 +120,7 @@ class MartCreator(object):
 
                 # Assessment ETL
                 self._update_status('assessment')
-                # TODO load assessments
+                self.load_assessments()
 
                 # Post Assessment ETL
                 self._update_status('post_assessment')
@@ -149,16 +149,16 @@ class MartCreator(object):
                 raise exc_info[0], exc_info[1], exc_info[2]
 
             finally:
-                self.cleanup()
+                self.close_mart()
 
         return {
             'code': self.code,
             'name': self.name,
         }
 
-    def _do_update(self, query, **parameters):
-        db = get_management_db()
-        db.produce(query, **parameters)
+    def _do_update(self, query, **parameters):  # pylint: disable=no-self-use
+        database = get_management_db()
+        database.produce(query, **parameters)
 
     def _update_status(self, status):
         with guarded('While updating inventory status:', status):
@@ -178,8 +178,8 @@ class MartCreator(object):
 
     def create_inventory(self):
         with guarded('While creating inventory record'):
-            db = get_management_db()
-            data = db.produce(
+            database = get_management_db()
+            data = database.produce(
                 HTSQL_CREATE_INVENTORY,
                 definition=self.definition['id'],
                 owner=self.owner,
@@ -209,7 +209,7 @@ class MartCreator(object):
 
         return name
 
-    def create_database(self):
+    def create_mart(self):
         cluster = get_hosting_cluster()
         if self.definition['base']['type'] in ('fresh', 'copy'):
             to_clone = None
@@ -232,20 +232,28 @@ class MartCreator(object):
                 self.definition['base']['type'],
             ))
 
+    def _do_deploy(self, facts):
+        cluster = get_hosting_cluster()
+        driver = cluster.drive(self.name)
+        driver(facts)
+        driver.commit()
+        driver.close()
+        if self.database:
+            self.close_mart()
+            self.connect_mart()
+
     def deploy_structures(self):
         if not self.definition['deploy']:
             return
 
         with guarded('While Deploying structures'):
-            cluster = get_hosting_cluster()
-            driver = cluster.drive(self.name)
-            driver(self.definition['deploy'])
-            driver.commit()
-            driver.close()
+            self._do_deploy(self.definition['deploy'])
 
     def execute_etl(self, scripts):
         if not scripts:
             return
+
+        self.connect_mart()
 
         for idx, script in enumerate(scripts):
             idx_label = '#%s' % (idx + 1,)
@@ -260,11 +268,11 @@ class MartCreator(object):
                 with guarded('While executing HTSQL script:', idx_label):
                     for statement in statements:
                         with guarded('While executing statement:', statement):
-                            self.db.produce(statement, **parameters)
+                            self.database.produce(statement, **parameters)
 
             elif script['type'] == 'sql':
                 with guarded('While executing SQL script:', idx_label):
-                    with get_sql_connection(self.db) as sql:
+                    with get_sql_connection(self.database) as sql:
                         cursor = sql.cursor()
                         try:
                             cursor.execute(script['script'], parameters)
@@ -276,9 +284,28 @@ class MartCreator(object):
                     script['type'],
                 ))
 
-    def cleanup(self):
+    def load_assessments(self):
+        if not self.definition['assessments']:
+            return
+
+        for idx, assessment in enumerate(self.definition['assessments']):
+            with guarded('While processing Assessment:', '#%s' % (idx + 1,)):
+                self.connect_mart()
+                loader = AssessmentLoader(assessment, self.database)
+
+                with guarded('While deploying Assessment structures'):
+                    self._do_deploy(loader.get_deploy_facts())
+
+                with guarded('While loading Assessments'):
+                    loader.load(self.database)
+
+    def connect_mart(self):
+        if not self.database:
+            self.database = get_mart_etl_db(self.name)
+
+    def close_mart(self):
         # Force collection of the HTSQL instance to try to avoid corrupting
         # future instances.
-        self.db = None
+        self.database = None
         gc.collect()
 

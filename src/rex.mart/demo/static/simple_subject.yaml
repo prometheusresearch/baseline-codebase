@@ -1,0 +1,9 @@
+- table: subject
+  with:
+    - column: uid
+      type: text
+    - identity: [uid]
+    - column: mobile_tn
+      type: text
+      required: false
+

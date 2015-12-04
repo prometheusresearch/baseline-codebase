@@ -65,8 +65,17 @@ Copy an existing DB::
     >>> db_exists(mc.name)
     True
     >>> db_inventory(mc.name)
+    assessment: 21
+    channel: 5
+    draftinstrumentversion: 2
+    entry: 10
+    instrument: 19
+    instrumentversion: 21
     people: 5
     rexmart_inventory: 1
+    subject: 7
+    task: 7
+    user: 2
     >>> db_status(mc.name)
     Definition: just_copy
     Status: complete
@@ -179,14 +188,71 @@ Load data into an existing database::
     >>> db_exists(mc.name)
     True
     >>> db_inventory(mc.name)
+    assessment: 21
+    channel: 5
+    draftinstrumentversion: 2
+    entry: 10
     foo: 5
+    instrument: 19
+    instrumentversion: 21
     people: 5
     rexmart_inventory: 1
+    subject: 7
+    task: 7
+    user: 2
     >>> db_status(mc.name)
     Definition: existing
     Status: complete
     Owner: test
     Dates: True True
+
+You can load Assessments into the Mart::
+
+    >>> mc = MartCreator('test', 'simple_assessment')
+    >>> mart = mc()
+    >>> db_exists(mc.name)
+    True
+    >>> db_inventory(mc.name)
+    mart1: 8
+    >>> db_status(mc.name)
+    Definition: simple_assessment
+    Status: complete
+    Owner: test
+    Dates: True True
+    >>> purge_mart(mc.code)
+
+You can load Assessments into the Mart and link the table to other tables in
+the Mart::
+
+    >>> mc = MartCreator('test', 'linked_assessment')
+    >>> mart = mc()
+    >>> db_exists(mc.name)
+    True
+    >>> db_inventory(mc.name)
+    mart1: 8
+    subject: 5
+    >>> db_status(mc.name)
+    Definition: linked_assessment
+    Status: complete
+    Owner: test
+    Dates: True True
+    >>> purge_mart(mc.code)
+
+    >>> mc = MartCreator('test', 'linked_assessment_alltypes')
+    >>> mart = mc()
+    >>> db_exists(mc.name)
+    True
+    >>> db_inventory(mc.name)
+    alltypes: 5
+    alltypes_matrix_field: 4
+    alltypes_recordlist_field: 7
+    subject: 5
+    >>> db_status(mc.name)
+    Definition: linked_assessment_alltypes
+    Status: complete
+    Owner: test
+    Dates: True True
+    >>> purge_mart(mc.code)
 
 You can tell the creator to not mark the Mart as complete after processing is
 done::

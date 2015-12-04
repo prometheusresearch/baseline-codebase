@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import Setting, StrVal, MaybeVal, Error
+from rex.core import Setting, StrVal, MaybeVal, Error, IntVal
 from rex.db import DBVal, GatewaysSetting, HTSQLExtensionsSetting
 
 
@@ -13,6 +13,7 @@ __all__ = (
     'MartHtsqlExtensionsSetting',
     'MartEtlHtsqlGatewaysSetting',
     'MartEtlHtsqlExtensionsSetting',
+    'MartMaxColumnsSetting',
 )
 
 
@@ -96,4 +97,16 @@ class MartEtlHtsqlExtensionsSetting(HTSQLExtensionsSetting):
     default = {
         'tweak.meta': {},
     }
+
+
+class MartMaxColumnsSetting(Setting):
+    """
+    Specifies the maximum number of columns an Assessment-based table can have.
+
+    If not specified, defaults to 1000.
+    """
+
+    name = 'mart_max_columns'
+    validate = IntVal(min_bound=1)
+    default = 1000
 

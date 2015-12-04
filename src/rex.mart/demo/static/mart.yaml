@@ -93,15 +93,78 @@ definitions:
       - script: !include/str simple_etl.htsql
         type: htsql
 
+  # Definition with a broken HTSQL ETL script
   - id: broken_htsql
     deploy: !include simple_deploy.yaml
     post_deploy_scripts:
       - script: !include/str broken_simple_etl.htsql
         type: htsql
 
+  # Definition with a broken SQL ETL script
   - id: broken_sql
     deploy: !include simple_deploy.yaml
     post_deploy_scripts:
       - script: !include/str broken_simple_etl.sql
         type: sql
+
+  # Load a Mart with a single set of Assessments
+  - id: simple_assessment
+    assessments:
+      - instrument: mart1
+        selector: |
+          /assessment{
+            id() :as assessment_uid
+          }.filter(
+            instrumentversion.instrument='mart1'
+          )/:rexdb
+
+  # Load a Mart with a table and an Assessment and link them
+  - id: linked_assessment
+    deploy: !include simple_subject.yaml
+    post_deploy_scripts:
+      - script: !include/str subject.htsql
+        type: htsql
+    assessments:
+      - instrument: mart1
+        selector: |
+          /assessment{
+            id() :as assessment_uid,
+            subject.id() :as subject
+          }.filter(
+            instrumentversion.instrument='mart1'
+          )/:rexdb
+        parental_relationship:
+          type: branch
+          parent: subject
+
+  # Load a Mart with a table and a (more complicated) Assessment and link them
+  - id: linked_assessment_alltypes
+    deploy: !include simple_subject.yaml
+    post_deploy_scripts:
+      - script: !include/str subject.htsql
+        type: htsql
+    assessments:
+      - instrument: alltypes
+        selector: |
+          /assessment{
+            id() :as assessment_uid,
+            subject.id() :as subject,
+            evaluation_date
+          }.filter(
+            instrumentversion.instrument='alltypes'
+          )/:rexdb
+        parental_relationship:
+          type: branch
+          parent: subject
+
+  # Definition with a broken Assessment selector
+  - id: broken_selector
+    assessments:
+      - instrument: mart1
+        selector: |
+          /assessment{
+            id()
+          }.filter(
+            instrumentversion.instrument='mart1'
+          )/:rexdb
 

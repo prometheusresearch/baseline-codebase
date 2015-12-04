@@ -6,13 +6,22 @@
 from collections import Counter
 
 from rex.core import Error, StrVal, RecordVal, MaybeVal, ChoiceVal, SeqVal, \
-    MapVal, guard
+    MapVal, guard, OneOrSeqVal, OneOfVal
 from rex.deploy import Driver
+
+from .util import make_safe_token, RESTR_SAFE_TOKEN
 
 
 __all__ = (
+    'MartBaseTypeVal',
     'MartBaseVal',
+    'EtlScriptTypeVal',
     'EtlScriptVal',
+    'IdentifiableTypeVal',
+    'ParentalRelationshipVal',
+    'ParentalRelationshipTypeVal',
+    'MetadataFieldVal',
+    'AssessmentDefinitionVal',
     'DefinitionVal',
     'MartConfigurationVal',
 )
@@ -31,7 +40,24 @@ class FullyValidatingRecordVal(RecordVal):
         return self(data)
 
 
+class NormalizedOneOrSeqVal(OneOrSeqVal):
+    def __call__(self, data):
+        value = super(NormalizedOneOrSeqVal, self).__call__(data)
+        if not isinstance(value, list):
+            value = [value]
+        return value
+
+    def construct(self, loader, node):
+        data = super(NormalizedOneOrSeqVal, self).construct(loader, node)
+        # pylint: disable=not-callable
+        return self(data)
+
+
 class MartBaseTypeVal(ChoiceVal):
+    """
+    Parses/Validates the allowable values for ``base.type`` properties.
+    """
+
     def __init__(self):
         super(MartBaseTypeVal, self).__init__(
             'fresh',
@@ -55,7 +81,7 @@ class MartBaseVal(FullyValidatingRecordVal):
 
             # The token to use as part of the name of the database that is
             # created.
-            ('name_token', MaybeVal(StrVal(r'^[a-z_][0-9a-z_]*$')), None),
+            ('name_token', MaybeVal(StrVal(RESTR_SAFE_TOKEN)), None),
         )
 
     def __call__(self, data):
@@ -92,6 +118,10 @@ DEFAULT_MART_BASE = MartBaseVal().record_type(
 
 
 class EtlScriptTypeVal(ChoiceVal):
+    """
+    Parses/Validates the allowable values for script ``type`` properties.
+    """
+
     def __init__(self):
         super(EtlScriptTypeVal, self).__init__(
             'htsql',
@@ -127,6 +157,205 @@ class EtlScriptVal(FullyValidatingRecordVal):
         return value
 
 
+class IdentifiableTypeVal(ChoiceVal):
+    """
+    Parses/Validates the allowable values for assessment ``identifiable``
+    properties.
+    """
+
+    def __init__(self):
+        super(IdentifiableTypeVal, self).__init__(
+            'any',
+            'only',
+            'none',
+        )
+
+
+class ParentalRelationshipTypeVal(ChoiceVal):
+    """
+    Parses/Validates the allowable values for assessment parental relationship
+    ``type`` properties.
+    """
+
+    def __init__(self):
+        super(ParentalRelationshipTypeVal, self).__init__(
+            'trunk',
+            'facet',
+            'branch',
+            'cross',
+            'ternary',
+        )
+
+
+class ParentalRelationshipVal(FullyValidatingRecordVal):
+    """
+    Parses/Validates the ``parental_relationship`` property within an
+    Assessment definition.
+    """
+
+    def __init__(self):
+        super(ParentalRelationshipVal, self).__init__(
+            # The relationship type.
+            ('type', ParentalRelationshipTypeVal),
+
+            # The parent table(s) to hang the Assessment off of.
+            ('parent', NormalizedOneOrSeqVal(StrVal), []),
+        )
+
+    def __call__(self, data):
+        value = super(ParentalRelationshipVal, self).__call__(data)
+
+        with guard('While validating field:', 'parent'):
+            with guard('Got:', repr(value.parent)):
+                if value.type == 'trunk' and len(value.parent) > 0:
+                    raise Error(
+                        'Relationship type "trunk" cannot have any parents',
+                    )
+
+                elif value.type in ('facet', 'branch') \
+                        and len(value.parent) != 1:
+                    raise Error(
+                        'Relationship type "%s" must have exactly one'
+                        ' parent' % (
+                            value.type,
+                        ),
+                    )
+
+                elif value.type in ('cross', 'ternary') \
+                        and len(value.parent) < 2:
+                    raise Error(
+                        'Relationship type "%s" must have at least two'
+                        ' parents' % (
+                            value.type,
+                        ),
+                    )
+
+        return value
+
+
+DEFAULT_PARENTAL_RELATIONSHIP = ParentalRelationshipVal().record_type(
+    type='trunk',
+    parent=[],
+)
+
+
+METADATA_TYPES = {
+    'language': 'text',
+    'application': 'text',
+    'dateCompleted': 'dateTime',
+    'timeTaken': 'integer',
+}
+
+
+class MetadataFieldVal(OneOfVal):
+    """
+    Parses/Validates a single Metadata Field filter.
+    """
+
+    def __init__(self):
+        super(MetadataFieldVal, self).__init__(
+            StrVal(),
+            MapVal(
+                StrVal,
+                ChoiceVal(
+                    'text',
+                    'integer',
+                    'float',
+                    'boolean',
+                    'date',
+                    'time',
+                    'dateTime',
+                ),
+            ),
+        )
+
+    def __call__(self, data):
+        value = super(MetadataFieldVal, self).__call__(data)
+
+        if isinstance(value, basestring):
+            value = {value: METADATA_TYPES.get(value, 'text')}
+
+        if len(value) > 1:
+            raise Error('Mapping can only contain one element')
+
+        name = value.keys()[0]
+        if name == 'calculations':
+            raise Error(
+                'CalculationSet results are handled by the calculations'
+                ' property'
+            )
+
+        if name in METADATA_TYPES \
+                and value.values()[0] != METADATA_TYPES[name]:
+            raise Error(
+                'Cannot redefine the standard type for "%s"' % (
+                    name,
+                )
+            )
+
+        return value
+
+
+class AssessmentDefinitionVal(FullyValidatingRecordVal):
+    """
+    Parses/Validates a single Assessment definition.
+    """
+
+    def __init__(self):
+        super(AssessmentDefinitionVal, self).__init__(
+            # The Instrument(s) that define the structure of the Assessments.
+            ('instrument', NormalizedOneOrSeqVal(StrVal)),
+
+            # The name of the table to store the Assessments in.
+            ('name', StrippedStrVal(RESTR_SAFE_TOKEN), None),
+
+            # The HTSQL statement that will require the assessment_uid of the
+            # Assessments to load into the table, as well as any other fields
+            # to augment the table with.
+            ('selector', StrippedStrVal),
+
+            # Defines how/if this table is parented to another.
+            (
+                'parental_relationship',
+                ParentalRelationshipVal,
+                DEFAULT_PARENTAL_RELATIONSHIP,
+            ),
+
+            # Indicates whether/how to filter the Instrument fields based on
+            # their identifiable flag in the Instrument.
+            ('identifiable', IdentifiableTypeVal, 'any'),
+
+            # The fields from the Instrument(s) to include.
+            ('fields', MaybeVal(NormalizedOneOrSeqVal(StrVal)), []),
+
+            # The calculations from the CalculationSet to include.
+            ('calculations', MaybeVal(NormalizedOneOrSeqVal(StrVal)), []),
+
+            # The Assessment-level metadata fields to include.
+            ('meta', MaybeVal(NormalizedOneOrSeqVal(MetadataFieldVal)), None),
+        )
+
+    def __call__(self, data):
+        value = super(AssessmentDefinitionVal, self).__call__(data)
+
+        if not value.name and value.instrument:
+            # Default the name to be the same as the instrument.
+            with guard('While validating field:', 'name'):
+                name = make_safe_token(value.instrument[0])
+                value = value.__clone__(name=name)
+
+        # Make sure that we're actually including something from the Assessment
+        if value.fields is None \
+                and value.calculations is None \
+                and not value.meta:
+            raise Error(
+                'Definition does not include any fields, calculations, or'
+                ' metadata'
+            )
+
+        return value
+
+
 class DefinitionVal(FullyValidatingRecordVal):
     """
     Parses/Validates a single Mart definition.
@@ -135,7 +364,7 @@ class DefinitionVal(FullyValidatingRecordVal):
     def __init__(self):
         super(DefinitionVal, self).__init__(
             # A unique identifier used to refer to this definition.
-            ('id', StrVal(r'^[a-z_][0-9a-z_]*$')),
+            ('id', StrVal(RESTR_SAFE_TOKEN)),
 
             # A human-readable label for this definition used for display in
             # GUIs.
@@ -153,6 +382,9 @@ class DefinitionVal(FullyValidatingRecordVal):
             # The ETL scripts to execute after the rex.deploy configuration is
             # applied.
             ('post_deploy_scripts', SeqVal(EtlScriptVal), []),
+
+            # The Assessments to load into the Mart.
+            ('assessments', SeqVal(AssessmentDefinitionVal), []),
 
             # The ETL scripts to execute after the Assessments have been
             # loaded.
@@ -175,6 +407,19 @@ class DefinitionVal(FullyValidatingRecordVal):
                 name_token='%s_' % (value.id,),
             )
             value = value.__clone__(base=new_base)
+
+        # Make sure we're not trying to load multiple assessment definitions
+        # into the same table
+        with guard('While validating field:', 'assessments'):
+            names = [assessment.name for assessment in value.assessments]
+            dupe_names = set([name for name in names if names.count(name) > 1])
+            if dupe_names:
+                raise Error(
+                    'Assessment Names (%s) cannot be duplicated within a'
+                    ' Definition' % (
+                        ', '.join(list(dupe_names)),
+                    )
+                )
 
         return value
 

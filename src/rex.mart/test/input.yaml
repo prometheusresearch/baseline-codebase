@@ -15,7 +15,12 @@ tests:
   - sh: rex deploy --quiet rex.mart_demo
 
   - doctest: README.rst
-  - doctest: test/test_*.rst
+  - doctest: test/test_config.rst
+  - doctest: test/test_util.rst
+  - doctest: test/test_validators.rst
+  - doctest: test/test_fields.rst
+  - doctest: test/test_tables.rst
+  - doctest: test/test_creation.rst
 
   - coverage-check: 90.0
   - coverage-report: ./build/coverage

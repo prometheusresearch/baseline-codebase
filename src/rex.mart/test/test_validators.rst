@@ -159,6 +159,366 @@ EtlScriptVal validates script entries in Mart Definitions::
         parameters
 
 
+ParentalRelationshipVal
+=======================
+
+ParentalRelationshipVal validates the ``parental_relationship`` of Asssessment
+Definitions::
+
+    >>> from rex.mart import ParentalRelationshipVal
+    >>> val = ParentalRelationshipVal()
+
+    >>> val({'type': 'trunk'})
+    Record(type='trunk', parent=[])
+
+    >>> val({'type': 'facet', 'parent': 'foo'})
+    Record(type='facet', parent=['foo'])
+
+    >>> val({'type': 'branch', 'parent': 'foo'})
+    Record(type='branch', parent=['foo'])
+
+    >>> val({'type': 'facet', 'parent': ['foo']})
+    Record(type='facet', parent=['foo'])
+
+    >>> val({'type': 'branch', 'parent': ['foo']})
+    Record(type='branch', parent=['foo'])
+
+    >>> val({'type': 'cross', 'parent': ['foo', 'bar']})
+    Record(type='cross', parent=['foo', 'bar'])
+
+    >>> val({'type': 'ternary', 'parent': ['foo', 'bar']})
+    Record(type='ternary', parent=['foo', 'bar'])
+
+    >>> val({'type': 'trunk', 'parent': 'foo'})
+    Traceback (most recent call last):
+        ...
+    Error: Relationship type "trunk" cannot have any parents
+    Got:
+        ['foo']
+    While validating field:
+        parent
+
+    >>> val({'type': 'facet'})
+    Traceback (most recent call last):
+        ...
+    Error: Relationship type "facet" must have exactly one parent
+    Got:
+        []
+    While validating field:
+        parent
+
+    >>> val({'type': 'facet', 'parent': ['foo', 'bar']})
+    Traceback (most recent call last):
+        ...
+    Error: Relationship type "facet" must have exactly one parent
+    Got:
+        ['foo', 'bar']
+    While validating field:
+        parent
+
+    >>> val({'type': 'branch'})
+    Traceback (most recent call last):
+        ...
+    Error: Relationship type "branch" must have exactly one parent
+    Got:
+        []
+    While validating field:
+        parent
+
+    >>> val({'type': 'branch', 'parent': ['foo', 'bar']})
+    Traceback (most recent call last):
+        ...
+    Error: Relationship type "branch" must have exactly one parent
+    Got:
+        ['foo', 'bar']
+    While validating field:
+        parent
+
+    >>> val({'type': 'cross'})
+    Traceback (most recent call last):
+        ...
+    Error: Relationship type "cross" must have at least two parents
+    Got:
+        []
+    While validating field:
+        parent
+
+    >>> val({'type': 'cross', 'parent': 'foo'})
+    Traceback (most recent call last):
+        ...
+    Error: Relationship type "cross" must have at least two parents
+    Got:
+        ['foo']
+    While validating field:
+        parent
+
+    >>> val({'type': 'ternary'})
+    Traceback (most recent call last):
+        ...
+    Error: Relationship type "ternary" must have at least two parents
+    Got:
+        []
+    While validating field:
+        parent
+
+    >>> val({'type': 'ternary', 'parent': 'foo'})
+    Traceback (most recent call last):
+        ...
+    Error: Relationship type "ternary" must have at least two parents
+    Got:
+        ['foo']
+    While validating field:
+        parent
+
+
+AssessmentDefinitionVal
+=======================
+
+AssessmentDefinitionVal validates a single Assessment Definition::
+
+    >>> from rex.mart import AssessmentDefinitionVal
+    >>> val = AssessmentDefinitionVal()
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ... }
+    >>> val(assessment)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None)
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'name': 'bar',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ... }
+    >>> val(assessment)
+    Record(instrument=['foo'], name='bar', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None)
+
+    >>> assessment = {
+    ...     'instrument': '0FoO',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ... }
+    >>> val(assessment)
+    Record(instrument=['0FoO'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None)
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'parental_relationship': {
+    ...         'type': 'facet',
+    ...         'parent': 'footable',
+    ...     },
+    ... }
+    >>> val(assessment)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='facet', parent=['footable']), identifiable='any', fields=[], calculations=[], meta=None)
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'identifiable': 'none',
+    ... }
+    >>> val(assessment)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='none', fields=[], calculations=[], meta=None)
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'fields': None,
+    ... }
+    >>> val(assessment)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=None, calculations=[], meta=None)
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'fields': 'bar',
+    ... }
+    >>> val(assessment)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=['bar'], calculations=[], meta=None)
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'fields': [
+    ...         'bar',
+    ...         'baz',
+    ...     ],
+    ... }
+    >>> val(assessment)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=['bar', 'baz'], calculations=[], meta=None)
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'calculations': None,
+    ... }
+    >>> val(assessment)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=None, meta=None)
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'calculations': 'bar',
+    ... }
+    >>> val(assessment)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=['bar'], meta=None)
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'calculations': [
+    ...         'bar',
+    ...         'baz',
+    ...     ],
+    ... }
+    >>> val(assessment)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=['bar', 'baz'], meta=None)
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'meta': 'bar',
+    ... }
+    >>> val(assessment)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'bar': 'text'}])
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'meta': [
+    ...         'bar',
+    ...         'baz',
+    ...     ],
+    ... }
+    >>> val(assessment)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'bar': 'text'}, {'baz': 'text'}])
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'meta': [
+    ...         'bar',
+    ...         {'baz': 'boolean'},
+    ...     ],
+    ... }
+    >>> val(assessment)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'bar': 'text'}, {'baz': 'boolean'}])
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'meta': {'bar': 'boolean'},
+    ... }
+    >>> val(assessment)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'bar': 'boolean'}])
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'meta': 'timeTaken',
+    ... }
+    >>> val(assessment)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'timeTaken': 'integer'}])
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'meta': [
+    ...         'calculations',
+    ...     ],
+    ... }
+    >>> val(assessment)
+    Traceback (most recent call last):
+        ...
+    Error: CalculationSet results are handled by the calculations property
+    While validating sequence item
+        #1
+    While validating field:
+        meta
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'meta': [
+    ...         {'application': 'boolean'},
+    ...     ],
+    ... }
+    >>> val(assessment)
+    Traceback (most recent call last):
+        ...
+    Error: Cannot redefine the standard type for "application"
+    While validating sequence item
+        #1
+    While validating field:
+        meta
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'meta': {'bar': 'boolean', 'baz': 'text'},
+    ... }
+    >>> val(assessment)
+    Traceback (most recent call last):
+        ...
+    Error: Mapping can only contain one element
+    While validating field:
+        meta
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ... }
+    >>> val(assessment)
+    Traceback (most recent call last):
+        ...
+    Error: Missing mandatory field:
+        selector
+
+    >>> assessment = {
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ... }
+    >>> val(assessment)
+    Traceback (most recent call last):
+        ...
+    Error: Missing mandatory field:
+        instrument
+
+    >>> assessment = {
+    ...     'instrument': '1234567890',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ... }
+    >>> val(assessment)
+    Traceback (most recent call last):
+        ...
+    Error: Cannot make a safe token out of "1234567890"
+    While validating field:
+        name
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'parental_relationship': 'trunk',
+    ... }
+    >>> val(assessment)
+    Traceback (most recent call last):
+        ...
+    Error: Expected a JSON object
+    Got:
+        'trunk'
+    While validating field:
+        parental_relationship
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'fields': None,
+    ...     'calculations': None,
+    ... }
+    >>> val(assessment)
+    Traceback (most recent call last):
+        ...
+    Error: Definition does not include any fields, calculations, or metadata
+
+
 DefinitionVal
 =============
 
@@ -171,28 +531,28 @@ DefinitionVal validates a single Mart Definition::
     ...     'id': 'foo'
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
     ...     'label': '',
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
     ...     'label': 'My Label',
     ... }
     >>> val(definition)
-    Record(id='foo', label='My Label', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], post_assessment_scripts=[])
+    Record(id='foo', label='My Label', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
     ...     'description': 'This is a database'
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description='This is a database', base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description='This is a database', base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -201,7 +561,7 @@ DefinitionVal validates a single Mart Definition::
     ...     },
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -211,7 +571,7 @@ DefinitionVal validates a single Mart Definition::
     ...     },
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='custom_token_'), deploy=None, post_deploy_scripts=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='custom_token_'), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -232,11 +592,11 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='copy', target='bar', name_token='foo_'), deploy=[{'table': 'my_table', 'with': [{'column': 'my_column', 'type': 'text'}]}], post_deploy_scripts=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='copy', target='bar', name_token='foo_'), deploy=[{'table': 'my_table', 'with': [{'column': 'my_column', 'type': 'text'}]}], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = "{id: foo, base: {type: copy, target: bar}, deploy: [{table: my_table, with: [{column: my_column, type: text}]}]}"
     >>> val.parse(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='copy', target='bar', name_token='foo_'), deploy=[{'table': 'my_table', 'with': [{'column': 'my_column', 'type': 'text'}]}], post_deploy_scripts=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='copy', target='bar', name_token='foo_'), deploy=[{'table': 'my_table', 'with': [{'column': 'my_column', 'type': 'text'}]}], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -278,7 +638,7 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[Record(script='/blah/:merge', type='htsql', parameters={}), Record(script='/foo/:insert', type='htsql', parameters={})], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[Record(script='/blah/:merge', type='htsql', parameters={}), Record(script='/foo/:insert', type='htsql', parameters={})], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -290,7 +650,40 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], post_assessment_scripts=[Record(script='/foo/:insert', type='htsql', parameters={})])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[Record(script='/foo/:insert', type='htsql', parameters={})])
+
+    >>> definition = {
+    ...     'id': 'foo',
+    ...     'assessments': [
+    ...         {
+    ...             'instrument': 'foo',
+    ...             'selector': '/measure{id() :as assessment_uid}',
+    ...         },
+    ...     ],
+    ... }
+    >>> val(definition)
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], assessments=[Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None)], post_assessment_scripts=[])
+
+    >>> definition = {
+    ...     'id': 'foo',
+    ...     'assessments': [
+    ...         {
+    ...             'instrument': 'foo',
+    ...             'selector': '/measure{id() :as assessment_uid}',
+    ...         },
+    ...         {
+    ...             'instrument': 'blah',
+    ...             'name': 'foo',
+    ...             'selector': '/measure{id() :as assessment_uid}',
+    ...         },
+    ...     ],
+    ... }
+    >>> val(definition)
+    Traceback (most recent call last):
+        ...
+    Error: Assessment Names (foo) cannot be duplicated within a Definition
+    While validating field:
+        assessments
 
 
 MartConfigurationVal
@@ -308,7 +701,7 @@ MartConfigurationVal will validate the contents of an entire ``mart.yaml``::
     Record(definitions=[])
 
     >>> val({'definitions': [{'id': 'foo'}, {'id': 'bar'}]})
-    Record(definitions=[Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], post_assessment_scripts=[]), Record(id='bar', label='bar', description=None, base=Record(type='fresh', target=None, name_token='bar_'), deploy=None, post_deploy_scripts=[], post_assessment_scripts=[])])
+    Record(definitions=[Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[]), Record(id='bar', label='bar', description=None, base=Record(type='fresh', target=None, name_token='bar_'), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])])
 
     >>> val({'definitions': [{'id': 'foo'}, {'id': 'foo'}]})
     Traceback (most recent call last):

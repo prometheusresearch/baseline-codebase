@@ -51,7 +51,7 @@ class MapWidget(Map):
             slots.update(spec.slots)
             slots.update(override_spec.slots)
             spec = spec.__clone__(slots=slots)
-        if override_spec.no_chrome != spec.no_chrome
+        if override_spec.no_chrome != spec.no_chrome:
             spec = spec.__clone__(access=override_spec.no_chrome)
         return spec
 

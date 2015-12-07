@@ -80,6 +80,6 @@ class WidgetRenderer(object):
                 return render(
                     self.widget, request,
                     title=self.title,
-                    no_chrome=no_chrome)
+                    no_chrome=self.no_chrome)
         except Error, error:
             return request.get_response(error)

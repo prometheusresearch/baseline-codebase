@@ -11,7 +11,7 @@ from cached_property import cached_property
 from webob.exc import HTTPUnauthorized
 
 from rex.urlmap import Map
-from rex.core import Error, StrVal, MapVal
+from rex.core import Error, StrVal, MapVal, BoolVal
 from rex.web import authorize, confine
 
 from .validate import WidgetVal, DeferredVal
@@ -26,6 +26,7 @@ class MapWidget(Map):
     fields = [
         ('widget', DeferredVal()),
         ('title', StrVal(), None),
+        ('no_chrome', BoolVal(), False),
         ('access', StrVal(), None),
         ('slots', MapVal(StrVal(), DeferredVal()), {}),
     ]
@@ -33,7 +34,10 @@ class MapWidget(Map):
     def __call__(self, spec, path, context):
         access = spec.access or self.package.name
         widget = lambda: spec.widget.resolve(WidgetVal(context=spec.slots))
-        return WidgetRenderer(path, widget, spec.title, access)
+        return WidgetRenderer(
+            path, widget, access,
+            title=spec.title,
+            no_chrome=spec.no_chrome)
 
     def override(self, spec, override_spec):
         if override_spec.widget is not None:
@@ -47,16 +51,19 @@ class MapWidget(Map):
             slots.update(spec.slots)
             slots.update(override_spec.slots)
             spec = spec.__clone__(slots=slots)
+        if override_spec.no_chrome != spec.no_chrome
+            spec = spec.__clone__(access=override_spec.no_chrome)
         return spec
 
 
 class WidgetRenderer(object):
 
-    def __init__(self, path, widget, title, access):
+    def __init__(self, path, widget, access, title=None, no_chrome=False):
         self.path = path
         self._widget = widget
-        self.title = title
         self.access = access
+        self.title = title
+        self.no_chrome = no_chrome
 
     @cached_property
     def widget(self):
@@ -70,6 +77,9 @@ class WidgetRenderer(object):
             raise HTTPUnauthorized()
         try:
             with confine(request, self):
-                return render(self.widget, request, title=self.title)
+                return render(
+                    self.widget, request,
+                    title=self.title,
+                    no_chrome=no_chrome)
         except Error, error:
             return request.get_response(error)

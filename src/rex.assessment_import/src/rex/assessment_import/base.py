@@ -124,12 +124,13 @@ class AssessmentXLSTemplateOutput(AssessmentTemplateOutput):
 
     def __call__(self, instrument, output_path):
         workbook = xlwt.Workbook()
-        for (obj_id, template) in instrument.template.items():
-            sheet = workbook.add_sheet(obj_id)
+        for idx, (obj_id, template) in enumerate(instrument.template.items()):
+            sheet = workbook.add_sheet(str(idx))
+            sheet.row(0).write(0, obj_id)
             for (idx, key) in enumerate(template.keys()):
-                sheet.row(0).write(idx, key)
+                sheet.row(1).write(idx, key)
                 value = template[key]['description']
-                sheet.row(1).write(idx, value)
+                sheet.row(2).write(idx, value)
         workbook.save(os.path.join(output_path, '%s.xls' % instrument.id))
 
 
@@ -349,10 +350,18 @@ class AssessmentXLSImporter(AssessmentImporter):
     def start_import(self, workbook):
         success_import = True
         imported = []
-        if self.instrument.id not in workbook.sheet_names():
-            raise Error("Sheet `%s` is expected." % self.instrument.id)
-        sheet = workbook.sheet_by_name(self.instrument.id)
-        for row_idx in range(1, sheet.nrows):
+        sheet = workbook.sheets()[0]
+        if sheet.cell_value(0, 0) != self.instrument.id:
+            raise Error("instrument.id is expected as a value of"
+                        " sheet[1].cell(0, 0)"
+            )
+        if sheet.nrows < 3:
+            raise Error("Sheet[0] has to keep at least 3 rows;"
+                        " where 1st row - a sheet name,"
+                        " 2nd - data header,  3rd - data."
+            )
+
+        for row_idx in range(2, sheet.nrows):
             row = self.get_row(sheet, row_idx)
             try:
                 assessment = self.import_assessment(row, workbook)
@@ -381,28 +390,40 @@ class AssessmentXLSImporter(AssessmentImporter):
 
     def make_assessment_data(self, assessment_id, workbook):
         assessment_data = OrderedDict()
-        for sheet_name in workbook.sheet_names():
-            if sheet_name == self.instrument.id:
+        for idx, sheet in enumerate(workbook.sheets()):
+            if idx == 0:
                 continue
-            sheet = workbook.sheet_by_name(sheet_name)
+            if sheet.nrows < 3:
+                raise Error("Sheet[0] has to keep at least 3 rows;"
+                            " where 1st row - a sheet name,"
+                            " 2nd - data header,  3rd - data."
+                )
             header = self.sheet_header(sheet)
+            record_id = sheet.cell_value(0, 0)
+            if not record_id or record_id not in self.instrument.template:
+                raise Error("Unexpected sheet # %(sheet_num)s,"
+                            " record.id is expected as a value of cell(0, 0)."
+                            %  {'sheet_num': sheet_idx}
+                )
             if 'assessment_id' not in header:
-                raise Error("Not found `assessment_id` trough"
-                    " `%(sheet_name)s`."
-                    % {'sheet_name': sheet_name}
+                raise Error("Not found `assessment_id` trough sheet"
+                            " # %(sheet_num)s of record `%(record_id)s`."
+                            % {'sheet_num': sheet_idx,
+                               'record_id': record_id
+                              }
                 )
             record = []
             col_idx = header.index('assessment_id')
-            for row_idx in range(1, sheet.nrows):
+            for row_idx in range(2, sheet.nrows):
                 if sheet.cell_value(row_idx, col_idx) == assessment_id:
                     row = self.get_row(sheet, row_idx)
                     record.append(row)
-            assessment_data[sheet_name] = record
+            assessment_data[record_id] = record
         return assessment_data
 
     def get_row(self, sheet, row_idx):
-        headers = dict( (i, sheet.cell_value(0, i) ) for i in range(sheet.ncols) )
+        headers = dict( (i, sheet.cell_value(1, i) ) for i in range(sheet.ncols) )
         return dict( (headers[j], sheet.cell_value(row_idx, j)) for j in headers )
 
     def sheet_header(self, sheet):
-        return [ sheet.cell_value(0, i) for i in range(sheet.ncols) ]
+        return [ sheet.cell_value(1, i) for i in range(sheet.ncols) ]

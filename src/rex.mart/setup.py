@@ -33,6 +33,8 @@ setup(
         'rex.db>=3,<4',
         'rex.deploy>=2,<3',
         'rex.instrument>=1.3,<2',
+        'rex.web>=3.4,<4',
+        'rex.restful>=1,<2',
         'rios.core>=0.6,<0.7',
     ],
     rex_init='rex.mart',

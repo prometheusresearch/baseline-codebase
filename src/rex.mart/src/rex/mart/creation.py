@@ -14,6 +14,7 @@ from .assessments import AssessmentLoader
 from .config import get_definition
 from .connections import get_management_db, get_hosting_cluster, \
     get_mart_etl_db, get_sql_connection
+from .mart import Mart
 from .purging import purge_mart
 from .util import extract_htsql_statements, guarded
 
@@ -138,6 +139,8 @@ class MartCreator(object):
                 if not leave_incomplete:
                     self._update_status('complete')
 
+                return self._get_mart()
+
             except:
                 exc_info = sys.exc_info()
                 if self.code and purge_on_failure:
@@ -150,11 +153,14 @@ class MartCreator(object):
 
             finally:
                 self.close_mart()
+                self.code = None
+                self.name = None
+                self.start_date = None
 
-        return {
-            'code': self.code,
-            'name': self.name,
-        }
+    def _get_mart(self):
+        database = get_management_db()
+        data = database.produce('/rexmart_inventory[$code]', code=self.code)
+        return Mart.from_record(data[0])
 
     def _do_update(self, query, **parameters):  # pylint: disable=no-self-use
         database = get_management_db()

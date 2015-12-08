@@ -1,0 +1,102 @@
+***********
+Permissions
+***********
+
+
+Set up the environment::
+
+    >>> from datetime import datetime
+    >>> from rex.core import Rex
+    >>> rex = Rex('rex.mart_demo')
+    >>> rex.on()
+
+    >>> from rex.mart import MartAccessPermissions, Mart, MartCreator
+    >>> permissions = MartAccessPermissions
+
+
+The default behavior of the ``user_can_access_definition`` method is to always
+return True::
+
+    >>> permissions.user_can_access_definition('test', 'empty')
+    True
+    >>> permissions.user_can_access_definition('test', 'doesntexist')
+    True
+    >>> permissions.user_can_access_definition('doesntexist', 'empty')
+    True
+
+
+The default behavior of the ``user_can_access_mart`` method is to return True
+if the owner of the Mart is the same as the user::
+
+    >>> mc = MartCreator('test', 'empty')
+    >>> mart = mc()
+    >>> permissions.user_can_access_mart('test', mart.code)
+    True
+    >>> permissions.user_can_access_mart('someoneelse', mart.code)
+    False
+
+    >>> mart = Mart(999, 'empty', 'test', 'dbname', datetime.now(), datetime.now(), False)
+    >>> permissions.user_can_access_mart('test', mart)
+    True
+    >>> permissions.user_can_access_mart('someoneelse', mart)
+    False
+
+
+The default behavior of the ``user_can_manage_mart`` method is to mimic the
+behavior of the ``user_can_access_mart``::
+
+    >>> mc = MartCreator('test', 'empty')
+    >>> mart = mc()
+    >>> permissions.user_can_manage_mart('test', mart.code)
+    True
+    >>> permissions.user_can_manage_mart('someoneelse', mart.code)
+    False
+
+    >>> mart = Mart(999, 'empty', 'test', 'dbname', datetime.now(), datetime.now(), False)
+    >>> permissions.user_can_manage_mart('test', mart)
+    True
+    >>> permissions.user_can_manage_mart('someoneelse', mart)
+    False
+
+
+The default behavior of the ``get_definitions_for_user`` method is to return
+definitions that pass the ``user_can_access_definition`` method::
+
+    >>> definitions = permissions.get_definitions_for_user('test')
+    >>> [defn['id'] for defn in definitions]
+    ['empty', 'just_copy', 'just_deploy', 'some_data', 'some_more_data', 'some_sql_data', 'some_more_sql_data', 'both_etl_phases', 'some_data_with_params', 'existing', 'existing_missing', 'broken_htsql', 'broken_sql', 'simple_assessment', 'linked_assessment', 'linked_assessment_alltypes', 'broken_selector']
+
+    >>> definitions = permissions.get_definitions_for_user('someoneelse')
+    >>> [defn['id'] for defn in definitions]
+    ['empty', 'just_copy', 'just_deploy', 'some_data', 'some_more_data', 'some_sql_data', 'some_more_sql_data', 'both_etl_phases', 'some_data_with_params', 'existing', 'existing_missing', 'broken_htsql', 'broken_sql', 'simple_assessment', 'linked_assessment', 'linked_assessment_alltypes', 'broken_selector']
+
+
+The default behavior of the ``get_mart`` method is to retrieve the Mart and
+use the ``user_can_access_mart`` method to make judgements about access::
+
+    >>> mc = MartCreator('test', 'empty')
+    >>> mart = mc()
+    >>> permissions.get_mart(123456, 'test') is None
+    True
+    >>> permissions.get_mart(mart.code, 'test')  # doctest: +ELLIPSIS
+    Mart(code=..., definition=u'empty', owner=u'test')
+    >>> permissions.get_mart(mart.code, 'someoneelse')
+    False
+
+
+The default behavior of the ``get_marts_for_user`` method is to retrieve the
+Marts and use the ``user_can_access_mart`` and ``user_can_access_definition``
+method to make judgements about access::
+
+    >>> marts = permissions.get_marts_for_user('test')
+    >>> len(marts) > 0
+    True
+
+    >>> marts = permissions.get_marts_for_user('test', definition_id='empty')
+    >>> len(marts) > 0
+    True
+
+
+
+    >>> rex.off()
+

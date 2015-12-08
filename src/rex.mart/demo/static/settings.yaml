@@ -1,2 +1,5 @@
 db: pgsql:mart_demo
 
+mount:
+  rex.mart: /
+

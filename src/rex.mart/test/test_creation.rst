@@ -8,7 +8,7 @@ Set up the environment::
     >>> from rex.core import Rex
     >>> rex = Rex('rex.mart_demo')
     >>> rex.on()
-    >>> from rex.mart import MartCreator, purge_mart
+    >>> from rex.mart import MartCreator
 
 Some tools for testing::
 
@@ -18,7 +18,7 @@ Some tools for testing::
     ...     return cluster.exists(name)
     >>> def db_inventory(name, detailed=False):
     ...     db = get_mart_db(name)
-    ...     tables = db.produce('meta(/table)')
+    ...     tables = db.produce("/meta(/table?name!='rexmart_inventory')")
     ...     if not tables:
     ...         print 'No tables found'
     ...         return
@@ -47,24 +47,23 @@ A simple, empty Mart::
 
     >>> mc = MartCreator('test', 'empty')
     >>> mart = mc()
-    >>> db_exists(mc.name)
+    >>> db_exists(mart.name)
     True
-    >>> db_inventory(mc.name)
+    >>> db_inventory(mart.name)
     No tables found
-    >>> db_status(mc.name)
+    >>> db_status(mart.name)
     Definition: empty
     Status: complete
     Owner: test
     Dates: True True
-    >>> purge_mart(mc.code)
 
 Copy an existing DB::
 
     >>> mc = MartCreator('test', 'just_copy')
     >>> mart = mc()
-    >>> db_exists(mc.name)
+    >>> db_exists(mart.name)
     True
-    >>> db_inventory(mc.name)
+    >>> db_inventory(mart.name)
     assessment: 21
     channel: 5
     draftinstrumentversion: 2
@@ -72,99 +71,92 @@ Copy an existing DB::
     instrument: 19
     instrumentversion: 21
     people: 5
-    rexmart_inventory: 1
     subject: 7
     task: 7
     user: 2
-    >>> db_status(mc.name)
+    >>> db_status(mart.name)
     Definition: just_copy
     Status: complete
     Owner: test
     Dates: True True
-    >>> purge_mart(mc.code)
 
 Make a table and transfer some data into it::
 
     >>> mc = MartCreator('test', 'some_data')
     >>> mart = mc()
-    >>> db_exists(mc.name)
+    >>> db_exists(mart.name)
     True
-    >>> db_inventory(mc.name)
+    >>> db_inventory(mart.name)
     foo: 5
-    >>> db_status(mc.name)
+    >>> db_status(mart.name)
     Definition: some_data
     Status: complete
     Owner: test
     Dates: True True
-    >>> purge_mart(mc.code)
 
 Make a table and transfer some data into it with multiple scripts/statements::
 
     >>> mc = MartCreator('test', 'some_more_data')
     >>> mart = mc()
-    >>> db_exists(mc.name)
+    >>> db_exists(mart.name)
     True
-    >>> db_inventory(mc.name)
+    >>> db_inventory(mart.name)
     foo: 15
-    >>> db_status(mc.name)
+    >>> db_status(mart.name)
     Definition: some_more_data
     Status: complete
     Owner: test
     Dates: True True
-    >>> purge_mart(mc.code)
 
 Make a table and load some data into it with SQL::
 
     >>> mc = MartCreator('test', 'some_sql_data')
     >>> mart = mc()
-    >>> db_exists(mc.name)
+    >>> db_exists(mart.name)
     True
-    >>> db_inventory(mc.name)
+    >>> db_inventory(mart.name)
     foo: 1
-    >>> db_status(mc.name)
+    >>> db_status(mart.name)
     Definition: some_sql_data
     Status: complete
     Owner: test
     Dates: True True
-    >>> purge_mart(mc.code)
 
 Make a table and load some data into it with multiple SQL scripts/statements::
 
     >>> mc = MartCreator('test', 'some_more_sql_data')
     >>> mart = mc()
-    >>> db_exists(mc.name)
+    >>> db_exists(mart.name)
     True
-    >>> db_inventory(mc.name)
+    >>> db_inventory(mart.name)
     foo: 4
-    >>> db_status(mc.name)
+    >>> db_status(mart.name)
     Definition: some_more_sql_data
     Status: complete
     Owner: test
     Dates: True True
-    >>> purge_mart(mc.code)
 
 Make a table and load it with data using both ETL phases::
 
     >>> mc = MartCreator('test', 'both_etl_phases')
     >>> mart = mc()
-    >>> db_exists(mc.name)
+    >>> db_exists(mart.name)
     True
-    >>> db_inventory(mc.name)
+    >>> db_inventory(mart.name)
     foo: 19
-    >>> db_status(mc.name)
+    >>> db_status(mart.name)
     Definition: both_etl_phases
     Status: complete
     Owner: test
     Dates: True True
-    >>> purge_mart(mc.code)
 
 Make a table and load it with data using script parameters::
 
     >>> mc = MartCreator('test', 'some_data_with_params')
     >>> mart = mc()
-    >>> db_exists(mc.name)
+    >>> db_exists(mart.name)
     True
-    >>> db_inventory(mc.name, detailed=True)
+    >>> db_inventory(mart.name, detailed=True)
     foo: 6
     (u'bar',)
     (u'baz',)
@@ -172,22 +164,21 @@ Make a table and load it with data using script parameters::
     (u'foo',)
     (u'some_data_with_params',)
     (u'test',)
-    >>> db_status(mc.name)
+    >>> db_status(mart.name)
     Definition: some_data_with_params
     Status: complete
     Owner: test
     Dates: True True
-    >>> purge_mart(mc.code)
 
 Load data into an existing database::
 
     >>> mc = MartCreator('test', 'existing')
     >>> mart = mc()
-    >>> mc.name
-    'mart_demo'
-    >>> db_exists(mc.name)
+    >>> mart.name
+    u'mart_demo'
+    >>> db_exists(mart.name)
     True
-    >>> db_inventory(mc.name)
+    >>> db_inventory(mart.name)
     assessment: 21
     channel: 5
     draftinstrumentversion: 2
@@ -196,11 +187,10 @@ Load data into an existing database::
     instrument: 19
     instrumentversion: 21
     people: 5
-    rexmart_inventory: 1
     subject: 7
     task: 7
     user: 2
-    >>> db_status(mc.name)
+    >>> db_status(mart.name)
     Definition: existing
     Status: complete
     Owner: test
@@ -210,65 +200,61 @@ You can load Assessments into the Mart::
 
     >>> mc = MartCreator('test', 'simple_assessment')
     >>> mart = mc()
-    >>> db_exists(mc.name)
+    >>> db_exists(mart.name)
     True
-    >>> db_inventory(mc.name)
+    >>> db_inventory(mart.name)
     mart1: 8
-    >>> db_status(mc.name)
+    >>> db_status(mart.name)
     Definition: simple_assessment
     Status: complete
     Owner: test
     Dates: True True
-    >>> purge_mart(mc.code)
 
 You can load Assessments into the Mart and link the table to other tables in
 the Mart::
 
     >>> mc = MartCreator('test', 'linked_assessment')
     >>> mart = mc()
-    >>> db_exists(mc.name)
+    >>> db_exists(mart.name)
     True
-    >>> db_inventory(mc.name)
+    >>> db_inventory(mart.name)
     mart1: 8
     subject: 5
-    >>> db_status(mc.name)
+    >>> db_status(mart.name)
     Definition: linked_assessment
     Status: complete
     Owner: test
     Dates: True True
-    >>> purge_mart(mc.code)
 
     >>> mc = MartCreator('test', 'linked_assessment_alltypes')
     >>> mart = mc()
-    >>> db_exists(mc.name)
+    >>> db_exists(mart.name)
     True
-    >>> db_inventory(mc.name)
+    >>> db_inventory(mart.name)
     alltypes: 5
     alltypes_matrix_field: 4
     alltypes_recordlist_field: 7
     subject: 5
-    >>> db_status(mc.name)
+    >>> db_status(mart.name)
     Definition: linked_assessment_alltypes
     Status: complete
     Owner: test
     Dates: True True
-    >>> purge_mart(mc.code)
 
 You can tell the creator to not mark the Mart as complete after processing is
 done::
 
     >>> mc = MartCreator('test', 'some_data')
     >>> mart = mc(leave_incomplete=True)
-    >>> db_exists(mc.name)
+    >>> db_exists(mart.name)
     True
-    >>> db_inventory(mc.name)
+    >>> db_inventory(mart.name)
     foo: 5
-    >>> db_status(mc.name)
+    >>> db_status(mart.name)
     Definition: some_data
     Status: processing
     Owner: test
     Dates: True True
-    >>> purge_mart(mc.code)
 
 
 It complains if you specify a definition that doesn't exist::
@@ -287,7 +273,6 @@ It complains if you try to load into an existing database that doesn't exist::
     Error: Database "a_db_that_doesnt_exist" does not exist
     While creating Mart database:
         existing_missing
-    >>> purge_mart(mc.code)
 
 It complains if an HTSQL statement is bad::
 
@@ -313,7 +298,6 @@ It complains if an HTSQL statement is bad::
     While executing Post-Deployment Scripts
     While creating Mart database:
         broken_htsql
-    >>> #purge_mart(mc.code)
 
 It complains if a SQL statement is bad::
 
@@ -330,7 +314,6 @@ It complains if a SQL statement is bad::
     While executing Post-Deployment Scripts
     While creating Mart database:
         broken_sql
-    >>> purge_mart(mc.code)
 
 
 

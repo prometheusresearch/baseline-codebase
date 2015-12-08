@@ -12,10 +12,9 @@
     - column: definition
       type: text
 
-    # The owner of the Mart (null meaning the Mart is accessible by anyone)
+    # The owner of the Mart
     - column: owner
       type: text
-      required: false
 
     # The name of the database in the hosting cluster that the Mart is
     # contained in

@@ -10,3 +10,5 @@ tests:
   stdout: ''
 - sh: rex deploy --quiet rex.mart_demo
   stdout: ''
+- py: from-rex.core-import-rex
+  stdout: ''

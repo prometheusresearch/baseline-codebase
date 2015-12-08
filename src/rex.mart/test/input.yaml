@@ -15,13 +15,29 @@ tests:
   - sh: rex deploy --quiet rex.mart_demo
 
   - doctest: README.rst
-  - doctest: test/test_config.rst
-  - doctest: test/test_util.rst
-  - doctest: test/test_validators.rst
-  - doctest: test/test_fields.rst
-  - doctest: test/test_tables.rst
-  - doctest: test/test_creation.rst
+  - doctest: test/test_*.rst
+  #- doctest: test/test_config.rst
+  #- doctest: test/test_util.rst
+  #- doctest: test/test_validators.rst
+  #- doctest: test/test_fields.rst
+  #- doctest: test/test_tables.rst
+  #- doctest: test/test_creation.rst
+  #- doctest: test/test_commands.rst
+  #- doctest: test/test_purging.rst
+  #- doctest: test/test_permissions.rst
+  #- doctest: test/test_mart.rst
 
   - coverage-check: 90.0
   - coverage-report: ./build/coverage
+
+  # Clean up any stray Marts left behind by testing
+  - py: |
+      from rex.core import Rex
+      from rex.db import get_db
+      from rex.mart import purge_mart
+      with Rex('rex.mart_demo'):
+        for rec in get_db().produce('/rexmart_inventory{code, name}'):
+          if rec.name == 'mart_demo':
+            continue
+          purge_mart(rec.code)
 

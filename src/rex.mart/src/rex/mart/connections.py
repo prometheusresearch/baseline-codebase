@@ -50,7 +50,7 @@ def get_mart_db(name):
     :rtype: rex.db.RexHTSQL
     """
 
-    uri = get_hosting_db_uri().clone(database=name)
+    uri = get_hosting_db_uri().clone(database=str(name))
 
     extensions = {}
     extensions.update(get_settings().mart_htsql_extensions)
@@ -71,7 +71,7 @@ def get_mart_etl_db(name):
     :rtype: rex.db.RexHTSQL
     """
 
-    uri = get_hosting_db_uri().clone(database=name)
+    uri = get_hosting_db_uri().clone(database=str(name))
 
     gateways = {}
     gateways.update(get_settings().mart_etl_htsql_gateways)

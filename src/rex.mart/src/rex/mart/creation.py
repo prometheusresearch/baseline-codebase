@@ -76,12 +76,17 @@ class MartCreator(object):
         self.code = None
         self.name = None
         self.database = None
+        self.logger = None
 
         self.definition = get_definition(definition)
         if not self.definition:
             raise Error('Unknown definition "%s"' % (definition,))
 
-    def __call__(self, purge_on_failure=True, leave_incomplete=False):
+    def __call__(
+            self,
+            purge_on_failure=True,
+            leave_incomplete=False,
+            logger=None):
         """
         Executes the creation of a Mart database.
 
@@ -95,6 +100,10 @@ class MartCreator(object):
             inventory record after creating the Mart; if not specified,
             defaults to False, which means it **will** be marked ``complete``
         :type leave_incomplete: bool
+        :param logger:
+            the function to call to output a message about the progress of the
+            creation
+        :type logger: function
         :returns:
             a dict with the ``name`` of the newly-created Mart, as well as the
             ``code`` of the associated inventory record
@@ -104,6 +113,8 @@ class MartCreator(object):
             try:
                 # Setup
                 self.start_date = datetime.now()
+                self.logger = logger
+                self.log('Mart creation began: %s' % (self.start_date,))
                 self.code = self.create_inventory()
                 self.name = self.establish_name()
 
@@ -116,8 +127,10 @@ class MartCreator(object):
 
                 # Post Deployment ETL
                 self._update_status('post_deployment')
+                self.log('Executing Post-Deployment ETL...')
                 with guarded('While executing Post-Deployment Scripts'):
                     self.execute_etl(self.definition['post_deploy_scripts'])
+                self.log('...ETL complete')
 
                 # Assessment ETL
                 self._update_status('assessment')
@@ -125,10 +138,12 @@ class MartCreator(object):
 
                 # Post Assessment ETL
                 self._update_status('post_assessment')
+                self.log('Executing Post-Assessment ETL...')
                 with guarded('While executing Post-Assessment Scripts'):
                     self.execute_etl(
                         self.definition['post_assessment_scripts'],
                     )
+                self.log('...ETL complete')
 
                 # Post-Processors
                 self._update_status('processing')
@@ -139,7 +154,14 @@ class MartCreator(object):
                 if not leave_incomplete:
                     self._update_status('complete')
 
-                return self._get_mart()
+                mart = self._get_mart()
+                self.log('Mart creation complete: %s' % (
+                    mart.date_creation_completed,
+                ))
+                self.log('Mart creation duration: %s' % (
+                    mart.date_creation_completed - mart.date_creation_started,
+                ))
+                return mart
 
             except:
                 exc_info = sys.exc_info()
@@ -156,6 +178,12 @@ class MartCreator(object):
                 self.code = None
                 self.name = None
                 self.start_date = None
+                self.logger = None
+
+    def log(self, msg):
+        if not self.logger:
+            return
+        self.logger(msg)
 
     def _get_mart(self):
         database = get_management_db()
@@ -218,14 +246,17 @@ class MartCreator(object):
     def create_mart(self):
         cluster = get_hosting_cluster()
         if self.definition['base']['type'] in ('fresh', 'copy'):
+            self.log('Creating database: %s' % (self.name,))
             to_clone = None
             if self.definition['base']['type'] == 'copy':
                 to_clone = self.definition['base']['target']
+                self.log('Cloning: %s' % (to_clone,))
 
             with guarded('While creating database:', self.name):
                 cluster.create(self.name, template=to_clone)
 
         elif self.definition['base']['type'] == 'existing':
+            self.log('Using existing database: %s' % (self.name,))
             if not cluster.exists(self.name):
                 raise Error(
                     'Database "%s" does not exist' % (
@@ -252,6 +283,7 @@ class MartCreator(object):
         if not self.definition['deploy']:
             return
 
+        self.log('Deploying structures...')
         with guarded('While Deploying structures'):
             self._do_deploy(self.definition['deploy'])
 
@@ -263,6 +295,10 @@ class MartCreator(object):
 
         for idx, script in enumerate(scripts):
             idx_label = '#%s' % (idx + 1,)
+            self.log('%s script %s...' % (
+                script['type'].upper(),
+                idx_label,
+            ))
 
             parameters = {}
             parameters.update(script['parameters'])
@@ -295,15 +331,23 @@ class MartCreator(object):
             return
 
         for idx, assessment in enumerate(self.definition['assessments']):
-            with guarded('While processing Assessment:', '#%s' % (idx + 1,)):
+            idx_label = '#%s' % (idx + 1,)
+            self.log('Processing Assessment %s' % (idx_label,))
+
+            with guarded('While processing Assessment:', idx_label):
                 self.connect_mart()
                 loader = AssessmentLoader(assessment, self.database)
 
                 with guarded('While deploying Assessment structures'):
+                    self.log('...deploying structures')
                     self._do_deploy(loader.get_deploy_facts())
 
                 with guarded('While loading Assessments'):
-                    loader.load(self.database)
+                    self.log('...loading Assessments')
+                    num_loaded = loader.load(self.database)
+                    self.log('...complete (%s Assessments loaded)' % (
+                        num_loaded,
+                    ))
 
     def connect_mart(self):
         if not self.database:

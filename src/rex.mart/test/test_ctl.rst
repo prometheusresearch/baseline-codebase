@@ -1,0 +1,277 @@
+*************
+REX.CTL Tasks
+*************
+
+
+Set up the environment::
+
+    >>> from rex.ctl import ctl, Ctl
+    >>> import os
+    >>> os.environ['REX_PROJECT'] = 'rex.mart_demo'
+    >>> os.environ['REX_PARAMETERS'] = '{"db": "pgsql:mart_demo"}'
+
+    >>> def no_timestamp_ctl(cmd, input='', expect=0):
+    ...     ctl = Ctl(cmd, input)
+    ...     output = ctl.wait(expect=expect)
+    ...     print '\n'.join([
+    ...         line[27:] if not line.startswith('FATAL ERROR') else line
+    ...         for line in output.splitlines()
+    ...     ])
+
+
+mart-create
+===========
+
+The ``mart-create`` task allows you to create Mart databases from the
+command line::
+
+    >>> ctl('help mart-create')
+    MART-CREATE - create Mart database(s)
+    Usage: rex mart-create [<project>]
+    <BLANKLINE>
+    The mart-create task will create the specified Mart databases. You specify
+    the Marts to create by either using a combination of the --owner and
+    --definition options, or by using the --runlist option in combination with
+    a RunList file.
+    <BLANKLINE>
+    When using the --owner/--definition option combination, this task will
+    create a Mart for every unique combination of owners and definitions that
+    were specified.
+    <BLANKLINE>
+    Options:
+      --require=PACKAGE        : include an additional parameter
+      --set=PARAM=VALUE        : set a configuration parameter
+      -o/--owner=OWNER         : The owner to assign to the Mart. This option may be repeated to create Marts for multiple owners.
+      -d/--definition=DEFINITION : The ID of the Definition to use when creating the Mart. This option may be repeated to create multiple types of Marts.
+      -r/--runlist=RUNLIST     : The Mart RunList that details the batch creation of multiple Mart databases. If this option is specified, the --owner and --definition options cannot be used.
+      --halt-on-failure        : Indicates whether or not the failure to create a single Mart will cause the task to immediately stop. If not specified, the task will attempt to create all specified Marts, regardless of failures.
+      --keep-on-failure        : Indicates whether or not the databases of failed Mart creations should be kept. If not specified, failed Marts will automatically have their databases deleted.
+      --leave-incomplete       : Indiciates whether or not to leave the status of Marts open. If not specified, Marts will automatically be marked as "complete", meaning they can be accessed by front-end users.
+    <BLANKLINE>
+
+    >>> no_timestamp_ctl('mart-create --owner=foo --definition=some_data')  # doctest: +ELLIPSIS
+    Starting Mart creation for owner=foo, definition=some_data
+    Mart creation began: ...
+    Creating database: mart_some_data_...
+    Deploying structures...
+    Executing Post-Deployment ETL...
+    HTSQL script #1...
+    ...ETL complete
+    Executing Post-Assessment ETL...
+    ...ETL complete
+    Mart creation complete: ...
+    Mart creation duration: ...
+
+    >>> no_timestamp_ctl('mart-create --owner=foo --owner=bar --definition=some_data --definition=empty')  # doctest: +ELLIPSIS
+    Starting Mart creation for owner=foo, definition=some_data
+    Mart creation began: ...
+    Creating database: mart_some_data_...
+    Deploying structures...
+    Executing Post-Deployment ETL...
+    HTSQL script #1...
+    ...ETL complete
+    Executing Post-Assessment ETL...
+    ...ETL complete
+    Mart creation complete: ...
+    Mart creation duration: ...
+    Starting Mart creation for owner=foo, definition=empty
+    Mart creation began: ...
+    Creating database: mart_empty_...
+    Executing Post-Deployment ETL...
+    ...ETL complete
+    Executing Post-Assessment ETL...
+    ...ETL complete
+    Mart creation complete: ...
+    Mart creation duration: ...
+    Starting Mart creation for owner=bar, definition=some_data
+    Mart creation began: ...
+    Creating database: mart_some_data_...
+    Deploying structures...
+    Executing Post-Deployment ETL...
+    HTSQL script #1...
+    ...ETL complete
+    Executing Post-Assessment ETL...
+    ...ETL complete
+    Mart creation complete: ...
+    Mart creation duration: ...
+    Starting Mart creation for owner=bar, definition=empty
+    Mart creation began: ...
+    Creating database: mart_empty_...
+    Executing Post-Deployment ETL...
+    ...ETL complete
+    Executing Post-Assessment ETL...
+    ...ETL complete
+    Mart creation complete: ...
+    Mart creation duration: ...
+
+    >>> no_timestamp_ctl('mart-create --runlist=./test/runlist1.yaml')  # doctest: +ELLIPSIS
+    Starting Mart creation for owner=foo, definition=empty
+    Mart creation began: ...
+    Creating database: mart_empty_...
+    Executing Post-Deployment ETL...
+    ...ETL complete
+    Executing Post-Assessment ETL...
+    ...ETL complete
+    Mart creation complete: ...
+    Mart creation duration: ...
+    Starting Mart creation for owner=foo, definition=broken_sql
+    Mart creation began: ...
+    Creating database: mart_broken_sql_...
+    Deploying structures...
+    Executing Post-Deployment ETL...
+    SQL script #1...
+    Mart creation for Record(owner='foo', definition='broken_sql', halt_on_failure=False, purge_on_failure=True, leave_incomplete=False) failed: Got an error from the database driver:
+        relation "blah" does not exist
+        LINE 1: insert into blah (col1) values('stuff');
+                            ^
+    While executing SQL script:
+        #1
+    While executing Post-Deployment Scripts
+    While creating Mart database:
+        broken_sql
+    Starting Mart creation for owner=bar, definition=some_data
+    Mart creation began: ...
+    Creating database: mart_some_data_...
+    Deploying structures...
+    Executing Post-Deployment ETL...
+    HTSQL script #1...
+    ...ETL complete
+    Executing Post-Assessment ETL...
+    ...ETL complete
+    Mart creation complete: ...
+    Mart creation duration: ...
+
+    >>> no_timestamp_ctl('mart-create --runlist=./test/runlist2.yaml', expect=1)  # doctest: +ELLIPSIS
+    Starting Mart creation for owner=foo, definition=empty
+    Mart creation began: ...
+    Creating database: mart_empty_...
+    Executing Post-Deployment ETL...
+    ...ETL complete
+    Executing Post-Assessment ETL...
+    ...ETL complete
+    Mart creation complete: ...
+    Mart creation duration: ...
+    Starting Mart creation for owner=foo, definition=broken_sql
+    Mart creation began: ...
+    Creating database: mart_broken_sql_...
+    Deploying structures...
+    Executing Post-Deployment ETL...
+    SQL script #1...
+    Mart creation for Record(owner='foo', definition='broken_sql', halt_on_failure=True, purge_on_failure=True, leave_incomplete=False) failed: Got an error from the database driver:
+        relation "blah" does not exist
+        LINE 1: insert into blah (col1) values('stuff');
+                            ^
+    While executing SQL script:
+        #1
+    While executing Post-Deployment Scripts
+    While creating Mart database:
+        broken_sql
+    FATAL ERROR: Halting RunList due to creation error
+    <BLANKLINE>
+
+    >>> ctl('mart-create --runlist=./test/doesntexist.yaml', expect=1)  # doctest: +ELLIPSIS
+    FATAL ERROR: Could not open "./test/doesntexist.yaml": [Errno 2] No such file or directory: './test/doesntexist.yaml'
+    <BLANKLINE>
+
+    >>> no_timestamp_ctl('mart-create --owner=foo --definition=just_deploy')  # doctest: +ELLIPSIS
+    Skipping Mart creation for owner=foo, definition=just_deploy (owner not allowed to access definition)
+
+    >>> ctl('mart-create', expect=1)  # doctest: +ELLIPSIS
+    FATAL ERROR: You must specify at least one owner and definition
+    <BLANKLINE>
+
+    >>> ctl('mart-create --owner=foo', expect=1)  # doctest: +ELLIPSIS
+    FATAL ERROR: You must specify at least one owner and definition
+    <BLANKLINE>
+
+    >>> ctl('mart-create --owner=foo --definition=bar', expect=1)  # doctest: +ELLIPSIS
+    FATAL ERROR: "bar" is not a valid definition
+    <BLANKLINE>
+
+    >>> ctl('mart-create --owner=foo --runlist=bar', expect=1)  # doctest: +ELLIPSIS
+    FATAL ERROR: Cannot specify both a runlist and owner/definition combinations
+    <BLANKLINE>
+
+
+mart-shell
+==========
+
+The ``mart-shell`` task opens an HTSQL console to the specified Mart database::
+
+    >>> ctl('help mart-shell')
+    MART-SHELL - open HTSQL shell to Mart database
+    Usage: rex mart-shell [<project>] <code-name-owner>
+    <BLANKLINE>
+    The mart-shell task opens an HTSQL shell to the specified Mart database.
+    <BLANKLINE>
+    If the first argument to this task is an integer, then a connection is
+    opened to the Mart whose ID/code is that integer.
+    <BLANKLINE>
+    If the first argument to this task is a string, then a connection is opened
+    to the Mart whose database name is that string.
+    <BLANKLINE>
+    If you use the --reference option, the first argument will be treated as
+    the owner, and the reference will specify which of their Marts to open.
+    <BLANKLINE>
+    Options:
+      --require=PACKAGE        : include an additional parameter
+      --set=PARAM=VALUE        : set a configuration parameter
+      -r/--reference=REFERENCE : Specifies which of the owner's Mart databases to connect to. It must be in the form <DEFINITION_ID>@latest or <DEFINITION_ID>@<NUMBER>, where <NUMBER> is the index of the Marts of that Definition for the user (foo@1 would be the most recent foo Mart created, etc).
+    <BLANKLINE>
+
+    >>> ctl('mart-shell foo --reference=some_data@latest', input='/count(foo)')
+     | count(foo) |
+    -+------------+-
+     |          5 |
+    <BLANKLINE>
+
+    >>> ctl('mart-shell foo --reference=some_data@2', input='/count(foo)')
+     | count(foo) |
+    -+------------+-
+     |          5 |
+    <BLANKLINE>
+
+    >>> ctl('mart-shell foo --reference=some_data', input='/count(foo)', expect=1)
+    FATAL ERROR: The reference must be in the form <DEFINITION>@latest or <DEFINITION>@<NUMBER>
+    <BLANKLINE>
+
+    >>> ctl('mart-shell foo --reference=some_data@blah', input='/count(foo)', expect=1)
+    FATAL ERROR: The reference must be in the form <DEFINITION>@latest or <DEFINITION>@<NUMBER>
+    <BLANKLINE>
+
+    >>> ctl('mart-shell foo --reference=broken_sql@latest', input='/count(foo)', expect=1)
+    FATAL ERROR: No matching Marts found
+    <BLANKLINE>
+
+    >>> ctl('mart-shell foo --reference=some_data@999', input='/count(foo)', expect=1)
+    FATAL ERROR: No matching Marts found
+    <BLANKLINE>
+
+
+    >>> from rex.core import Rex
+    >>> from rex.mart import MartAccessPermissions
+    >>> with Rex('rex.mart_demo'):
+    ...     marts = MartAccessPermissions.top().get_marts_for_user('foo', definition_id='some_data')
+
+    >>> ctl('mart-shell %s' % (marts[0].code,), input='/count(foo)')
+     | count(foo) |
+    -+------------+-
+     |          5 |
+    <BLANKLINE>
+
+    >>> ctl('mart-shell %s' % (str(marts[0].name),), input='/count(foo)')
+     | count(foo) |
+    -+------------+-
+     |          5 |
+    <BLANKLINE>
+
+    >>> ctl('mart-shell doesntexist', input='/count(foo)', expect=1)
+    FATAL ERROR: No Mart exists with code/name "doesntexist"
+    <BLANKLINE>
+
+
+
+
+    >>> del os.environ['REX_PROJECT']
+    >>> del os.environ['REX_PARAMETERS']
+

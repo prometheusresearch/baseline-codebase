@@ -6,7 +6,7 @@
 from collections import Counter
 
 from rex.core import Error, StrVal, RecordVal, MaybeVal, ChoiceVal, SeqVal, \
-    MapVal, guard, OneOrSeqVal, OneOfVal
+    MapVal, guard, OneOrSeqVal, OneOfVal, BoolVal
 from rex.deploy import Driver
 
 from .util import make_safe_token, RESTR_SAFE_TOKEN
@@ -24,6 +24,8 @@ __all__ = (
     'AssessmentDefinitionVal',
     'DefinitionVal',
     'MartConfigurationVal',
+    'RunListEntryVal',
+    'RunListVal',
 )
 
 
@@ -470,4 +472,40 @@ class MartConfigurationVal(FullyValidatingRecordVal):
             )
 
         return value
+
+
+class RunListEntryVal(FullyValidatingRecordVal):
+    """
+    Parses/Validates a RunList entry
+    """
+
+    def __init__(self):
+        super(RunListEntryVal, self).__init__(
+            # The owner to assign the to Mart
+            ('owner', StrVal()),
+
+            # The Definition to use in the creation of the Mart
+            ('definition', StrVal()),
+
+            # Indicates whether or not to stop processing the runlist if this
+            # entry fails
+            ('halt_on_failure', BoolVal(), False),
+
+            # Indicates whether or not to purge the database if this entry
+            # fails
+            ('purge_on_failure', BoolVal(), True),
+
+            # Indicates whether or not to leave the status of this Mart should
+            # be set to complete when creation is complete
+            ('leave_incomplete', BoolVal(), False),
+        )
+
+
+class RunListVal(SeqVal):
+    """
+    Parses/Validates an entire RunList
+    """
+
+    def __init__(self):
+        super(RunListVal, self).__init__(RunListEntryVal)
 

@@ -25,6 +25,7 @@ class AssessmentLoader(object):
     def load(self, database):
         assessment_impl = Assessment.get_implementation()
 
+        num_assessments = 0
         selected = database.produce(self.definition['selector'])
         for i in range(0, len(selected), 100):
             # Retrieve a batch of Assessments from the datastore
@@ -70,4 +71,8 @@ class AssessmentLoader(object):
                     if idx == 0:
                         # Remember the ID of the record we just inserted
                         primary_id = result[0]
+
+                num_assessments += 1
+
+        return num_assessments
 

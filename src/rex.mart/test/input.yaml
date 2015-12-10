@@ -26,6 +26,7 @@ tests:
   #- doctest: test/test_purging.rst
   #- doctest: test/test_permissions.rst
   #- doctest: test/test_mart.rst
+  #- doctest: test/test_ctl.rst
 
   - coverage-check: 90.0
   - coverage-report: ./build/coverage

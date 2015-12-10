@@ -1,0 +1,8 @@
+- owner: foo
+  definition: empty
+- owner: foo
+  definition: broken_sql
+  halt_on_failure: true
+- owner: bar
+  definition: some_data
+

@@ -1,0 +1,7 @@
+- owner: foo
+  definition: empty
+- owner: foo
+  definition: broken_sql
+- owner: bar
+  definition: some_data
+

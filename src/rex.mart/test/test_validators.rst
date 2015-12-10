@@ -713,3 +713,54 @@ MartConfigurationVal will validate the contents of an entire ``mart.yaml``::
         ...
     Error: Multiple definitions attempt to write to the same existing database(s): my_target
 
+
+RunListEntryVal
+===============
+
+RunListEntryVal will validate a single RunList entry::
+
+    >>> from rex.mart import RunListEntryVal
+    >>> val = RunListEntryVal()
+
+    >>> val({'owner': 'test', 'definition': 'some_def'})
+    Record(owner='test', definition='some_def', halt_on_failure=False, purge_on_failure=True, leave_incomplete=False)
+
+    >>> val({'owner': 'test', 'definition': 'some_def', 'halt_on_failure': True})
+    Record(owner='test', definition='some_def', halt_on_failure=True, purge_on_failure=True, leave_incomplete=False)
+
+    >>> val({'owner': 'test', 'definition': 'some_def', 'purge_on_failure': False})
+    Record(owner='test', definition='some_def', halt_on_failure=False, purge_on_failure=False, leave_incomplete=False)
+
+    >>> val({'owner': 'test', 'definition': 'some_def', 'leave_incomplete': True})
+    Record(owner='test', definition='some_def', halt_on_failure=False, purge_on_failure=True, leave_incomplete=True)
+
+    >>> val({'owner': 'test'})
+    Traceback (most recent call last):
+        ...
+    Error: Missing mandatory field:
+        definition
+
+    >>> val({'definition': 'some_def'})
+    Traceback (most recent call last):
+        ...
+    Error: Missing mandatory field:
+        owner
+
+
+RunListVal
+==========
+
+RunListVal will validate the entire contents of a RunList file::
+
+    >>> from rex.mart import RunListVal
+    >>> val = RunListVal()
+
+    >>> val([])
+    []
+
+    >>> val([{'owner': 'test', 'definition': 'some_def'}])
+    [Record(owner='test', definition='some_def', halt_on_failure=False, purge_on_failure=True, leave_incomplete=False)]
+
+    >>> val([{'owner': 'test', 'definition': 'some_def'}, {'owner': 'someoneelse', 'definition': 'other'}])
+    [Record(owner='test', definition='some_def', halt_on_failure=False, purge_on_failure=True, leave_incomplete=False), Record(owner='someoneelse', definition='other', halt_on_failure=False, purge_on_failure=True, leave_incomplete=False)]
+

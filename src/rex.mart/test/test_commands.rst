@@ -75,7 +75,7 @@ This API will return all Definitions the user has access to::
      u'post_assessment_scripts': [],
      u'post_deploy_scripts': []}
     >>> [defn['id'] for defn in resp.json['definitions']]
-    [u'empty', u'some_data', u'some_more_data']
+    [u'empty', u'some_data', u'some_more_data', u'broken_sql']
 
 
 Definition Mart Listing API

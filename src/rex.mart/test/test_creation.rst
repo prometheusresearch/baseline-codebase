@@ -18,7 +18,7 @@ Some tools for testing::
     ...     return cluster.exists(name)
     >>> def db_inventory(name, detailed=False):
     ...     db = get_mart_db(name)
-    ...     tables = db.produce("/meta(/table?name!='rexmart_inventory')")
+    ...     tables = db.produce("/meta(/table?name!={'rexmart_inventory','asynctask_queue'})")
     ...     if not tables:
     ...         print 'No tables found'
     ...         return

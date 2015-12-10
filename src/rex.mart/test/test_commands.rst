@@ -92,6 +92,40 @@ definition::
     3
 
 
+Mart Creation API
+=================
+
+If enabled, this API will submit asynchronous tasks to initiate Mart creation::
+
+    >>> req = Request.blank('/definition/just_deploy', remote_user='test', method='POST')
+    >>> req.headers['Content-Type'] = 'application/json'
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    401 Unauthorized
+    ...
+
+    >>> req = Request.blank('/definition/some_data', remote_user='test', method='POST')
+    >>> req.headers['Content-Type'] = 'application/json'
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    403 Forbidden
+    ...
+
+    >>> rex.off()
+    >>> rex2 = Rex('rex.mart_demo', mart_allow_runtime_creation=True)
+    >>> rex2.on()
+
+    >>> req = Request.blank('/definition/some_data', remote_user='test', method='POST')
+    >>> req.headers['Content-Type'] = 'application/json'
+    >>> print req.get_response(rex2)  # doctest: +ELLIPSIS
+    202 Accepted
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: 97
+    <BLANKLINE>
+    {"purge_on_failure": true, "leave_incomplete": false, "owner": "test", "definition": "some_data"}
+
+    >>> rex2.off()
+    >>> rex.on()
+
+
 Mart-Specific APIs
 ==================
 

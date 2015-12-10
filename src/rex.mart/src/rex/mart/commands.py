@@ -7,10 +7,12 @@ import urllib
 
 from functools import partial
 
-from rex.core import IntVal, StrVal, OneOfVal, RecordVal, BoolVal, Error
-from rex.restful import RestfulLocation, SimpleResource
+from rex.core import IntVal, StrVal, OneOfVal, RecordVal, BoolVal, Error, \
+    get_settings
+from rex.restful import RestfulLocation
 from rex.web import HandleLocation, authenticate, Parameter
-from webob.exc import HTTPUnauthorized, HTTPNotFound, HTTPMethodNotAllowed
+from webob.exc import HTTPUnauthorized, HTTPNotFound, HTTPMethodNotAllowed, \
+    HTTPForbidden
 
 from .connections import get_mart_db
 from .permissions import MartAccessPermissions
@@ -21,6 +23,7 @@ __all__ = (
     'SpecificMartLocation',
     'SpecificMartApiLocation',
     'DefinitionResource',
+    'DefinitionDetailResource',
     'DefinitionMartLocation',
     'DefinitionMartApiLocation',
 )
@@ -51,23 +54,16 @@ class MartResource(RestfulLocation):
         return response
 
 
-class DefinitionResource(SimpleResource):
+class DefinitionResource(RestfulLocation):
     """
     A Resource API endpoint that returns a list of all Definitions the current
-    user is allowed to access, or, if a Definition ID is specified, returns a
-    list of all Marts of the specified Definition ID the user is allowed to
-    access.
+    user is allowed to access.
     """
 
     #:
-    base_path = '/definition'
-    #:
-    path = '/definition/{definition_id}'
-    parameters = (
-        Parameter('definition_id', StrVal()),
-    )
+    path = '/definition'
 
-    def list(self, request, **params):
+    def retrieve(self, request, **params):
         user = authenticate(request)
         mart_access = MartAccessPermissions.top()
         definitions = mart_access.get_definitions_for_user(user)
@@ -78,6 +74,57 @@ class DefinitionResource(SimpleResource):
             ],
         }
         return response
+
+
+class DefinitionDetailResource(RestfulLocation):
+    """
+    A Resource API that returns a list of all Marts of the specified Definition
+    ID the user is allowed to access, or requests the creation of a new Mart.
+    """
+
+    #:
+    path = '/definition/{definition_id}'
+    parameters = (
+        Parameter('definition_id', StrVal()),
+    )
+
+    # HACK: Overriding a private RestfulLocation interface
+    def _get_method_handler(self, request):
+        implementation, default_status = \
+            super(DefinitionDetailResource, self)._get_method_handler(request)
+
+        if request.method == 'POST':
+            default_status = 202
+
+        return implementation, default_status
+
+    create_payload_validator = RecordVal(
+        ('purge_on_failure', BoolVal(), True),
+        ('leave_incomplete', BoolVal(), False),
+    )
+
+    def create(self, request, definition_id, **params):
+        user = authenticate(request)
+
+        if not MartAccessPermissions.top().user_can_access_definition(
+                user,
+                definition_id):
+            raise HTTPUnauthorized
+        if not get_settings().mart_allow_runtime_creation:
+            raise HTTPForbidden()
+
+        payload = request.payload._asdict()
+        payload['owner'] = user
+        payload['definition'] = definition_id
+
+        from rex.asynctask import get_transport
+        transport = get_transport()
+        transport.submit_task(
+            get_settings().mart_runtime_creation_queue,
+            payload,
+        )
+
+        return payload
 
     def retrieve(self, request, definition_id, **params):
         user = authenticate(request)

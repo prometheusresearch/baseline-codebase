@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import Setting, StrVal, MaybeVal, Error, IntVal
+from rex.core import Setting, StrVal, MaybeVal, Error, IntVal, BoolVal
 from rex.db import DBVal, GatewaysSetting, HTSQLExtensionsSetting
 
 
@@ -14,6 +14,8 @@ __all__ = (
     'MartEtlHtsqlGatewaysSetting',
     'MartEtlHtsqlExtensionsSetting',
     'MartMaxColumnsSetting',
+    'MartAllowRuntimeCreationSetting',
+    'MartRuntimeCreationQueueSetting',
 )
 
 
@@ -109,4 +111,30 @@ class MartMaxColumnsSetting(Setting):
     name = 'mart_max_columns'
     validate = IntVal(min_bound=1)
     default = 1000
+
+
+class MartAllowRuntimeCreationSetting(Setting):
+    """
+    Specifies whether or not to allow users to request the creation of Marts at
+    runtime.
+
+    If not specified, defaults to ``False``.
+    """
+
+    name = 'mart_allow_runtime_creation'
+    validate = BoolVal()
+    default = False
+
+
+class MartRuntimeCreationQueueSetting(Setting):
+    """
+    Specifies the rex.asynctask queue to drop messages in when Mart creation
+    requests are received.
+
+    If not specified, defaults to ``rexmart_create``.
+    """
+
+    name = 'mart_runtime_creation_queue'
+    validate = StrVal()
+    default = 'rexmart_create'
 

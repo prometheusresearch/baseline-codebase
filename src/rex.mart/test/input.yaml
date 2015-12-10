@@ -27,6 +27,7 @@ tests:
   #- doctest: test/test_permissions.rst
   #- doctest: test/test_mart.rst
   #- doctest: test/test_ctl.rst
+  #- doctest: test/test_workers.rst
 
   - coverage-check: 90.0
   - coverage-report: ./build/coverage

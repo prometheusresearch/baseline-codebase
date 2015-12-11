@@ -30,7 +30,7 @@ var SimpleChrome = React.createClass({
     var contentStyle = {
       margin: 0
     };
-    var {sidebarOpen, personalMenuOpen} = this.state;
+    var {sidebarOpen, personalMenuOpen, itemOpen} = this.state;
     var locations = this.getLocations();
 
     return (
@@ -58,6 +58,8 @@ var SimpleChrome = React.createClass({
         {sidebarOpen &&
           <Sidebar
             menu={[]}
+            itemOpen={itemOpen}
+            onToggleItem={this.toggleItem}
             onClickOutside={this.toggleSidebar}
             />}
         {personalMenuOpen &&
@@ -77,6 +79,7 @@ var SimpleChrome = React.createClass({
     return {
       sidebarOpen: false,
       personalMenuOpen: false,
+      itemOpen: LocalStorage.getStorage().get('itemOpen', {})
     }
   },
 
@@ -92,6 +95,14 @@ var SimpleChrome = React.createClass({
   togglePersonalMenu() {
     var personalMenuOpen = !this.state.personalMenuOpen;
     this.setState({personalMenuOpen});
+  },
+
+  toggleItem(itemId) {
+    var itemOpen = {};
+    itemOpen[itemId] = !this.state.itemOpen[itemId];
+    itemOpen = {...this.state.itemOpen, ...itemOpen};
+    LocalStorage.getStorage().set('itemOpen', itemOpen);
+    this.setState({itemOpen: itemOpen});
   }
 
 

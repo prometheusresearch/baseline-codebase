@@ -22,6 +22,7 @@ var Sidebar = React.createClass({
   },
 
   render() {
+    var {menu, itemOpen, onToggleItem, ...props} = this.props;
 
     return (
       <VBox {...this.props}
@@ -29,8 +30,41 @@ var Sidebar = React.createClass({
         className="ra-AppletPage-sidebar"
         style={this.styleSidebar}>
         <ul className="nav nav-pills nav-stacked">
-          <li>Item 1</li> 
-          <li>Item 2</li> 
+          {menu.map(item1 =>
+            <li className={cx({
+                  "ra-AppletPage-sidebar-level1": true,
+                  disabled: !item1.permitted
+                })}
+                role="presentation"
+                key={item1.id}>
+              <SidebarLink
+                onClick={onToggleItem.bind(null, item1.id)}
+                icon={appletOpen[item1.id] && item1.permitted ?
+                      'menu-down' : 'menu-right'}
+                text={item1.title}
+                style={{fontWeight: 'bold'}}
+                />
+              {itemOpen[item1.id] && item1.permitted &&
+                <ul className="nav nav-pills nav-stacked">
+                  {item1.items.map((item2) =>
+                    <li className={cx({
+                          "ra-AppletPage-sidebar-level2": true,
+                          disabled: !item2.permitted
+                        })}
+                        style={{marginLeft: 15}}
+                        role="presentation"
+                        key={item2.id}>
+                      <SidebarLink
+                        href={item2.url}
+                        title={item2.title}
+                        text={item2.title}
+                        />
+                    </li>
+                  )}
+                </ul>
+              }
+            </li>
+          )}
         </ul>
       </VBox>
     );

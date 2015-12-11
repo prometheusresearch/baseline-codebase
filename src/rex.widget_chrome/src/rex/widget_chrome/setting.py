@@ -111,3 +111,13 @@ class PersonalMenuLinks(Setting):
         ('url', StrVal()),
     ))
 
+class UsernameExpression(Setting):
+    """
+    HTSQL expression to be evaluated in `user` table context.
+    Supposed to return the displayable name of the currently logged user.
+    Defaults to: remote_user
+    """
+
+    name = 'username_expression'
+    default = 'remote_user'
+    validate = StrVal()

@@ -39,7 +39,7 @@ var Sidebar = React.createClass({
                 key={item1.id}>
               <SidebarLink
                 onClick={onToggleItem.bind(null, item1.id)}
-                icon={appletOpen[item1.id] && item1.permitted ?
+                icon={itemOpen[item1.id] && item1.permitted ?
                       'menu-down' : 'menu-right'}
                 text={item1.title}
                 style={{fontWeight: 'bold'}}

@@ -1,8 +1,9 @@
 
 from rex.core import RecordVal, AnyVal, StrVal, MapVal, SeqVal, MaybeVal, \
-                     BoolVal, ChoiceVal
+                     BoolVal, ChoiceVal, Record
 from rex.core import get_packages, cached, get_settings
 from rex.web import get_routes, authorize, url_for
+from rex.db import get_db, Query
 
 from rex.widget import (Chrome,
     Widget, NullWidget, WidgetVal,
@@ -48,11 +49,9 @@ class SimpleChrome(Chrome):
 
     @computed_field
     def username(self, request):
-        try:
-            from rex.db_user import get_username
-            return get_username(request) or request.remote_user
-        except ImportError:
-            return request.remote_user
+        query = get_settings().username_query
+        with get_db():
+            return Query(query).produce().data
 
     @computed_field
     def user_profile_url(self, request):
@@ -74,3 +73,70 @@ class SimpleChrome(Chrome):
                 'url': get_settings().application_logout_url,
             })
         return links
+
+    @computed_field
+    def menu(self, req):
+        Item = Record.make('Item', ('title', 'url'))
+        menu = get_settings().main_menu
+        ret = []
+        for item1 in menu:
+            ret.append({
+                'id': item1.title.replace(' ', '-'),
+                'title': item1.title,
+                'permitted': True,
+                'items': []
+            })
+            items = ret[-1]['items']
+            for item2 in item1.items:
+                if isinstance(item2, (str, unicode)):
+                    item2 = Item(title=None, url=item2)
+                handler = get_handler(item2.url)
+                assert handler is not None, 'Cannot find URL'
+                title = item2.title or get_title(handler) or 'Untitled'
+                items.append({
+                    'id': item2.url,
+                    'title': title,
+                    'permitted': authorize(req, handler),
+                    'url': url_for(req, item2.url)
+                })
+            ret[-1]['permitted'] = any([i['permitted']
+                                        for i in ret[-1]['items']])
+        return ret
+
+def get_title(handler):
+    if hasattr(handler, 'title'):
+        return handler.title
+    if hasattr(handler, 'action'):
+        return handler.action.title
+
+def get_handler(url):
+    package_name, url = url.split(':', 1)
+    package = get_packages().get(package_name)
+    routes = get_routes(package)
+    for location, handler in iter_pathmap_tree(routes.tree):
+        if location == url:
+            return handler
+    return None
+
+
+def iter_pathmap_tree(tree, _prefix=''):
+    """ Iterate over :mod:`rex.web` routing tree and yield (path, handler)
+    pairs.
+
+    TODO: this function belongs to rex.web package
+    """
+    if not _prefix.endswith('/'):
+        _prefix += '/'
+    for k, v in tree.items():
+        k = k or ''
+        if not isinstance(k, str):
+            continue
+        prefix = '%s%s' % (_prefix, k)
+        if isinstance(v, dict):
+            for seg in iter_pathmap_tree(v, _prefix=prefix):
+                yield seg
+        else:
+            if len(prefix) > 1 and prefix.endswith('/'):
+                prefix = prefix[:-1]
+            for _, handler in v:
+                yield prefix, handler

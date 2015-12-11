@@ -1,5 +1,5 @@
 
-from rex.core import Setting, StrVal, MapVal, SeqVal, RecordVal
+from rex.core import Setting, StrVal, MapVal, SeqVal, RecordVal, OneOfVal
 
 class ApplicationTitle(Setting):
     """Customizable application title. Defaults to 'RexDB'"""
@@ -113,11 +113,27 @@ class PersonalMenuLinks(Setting):
 
 class UsernameExpression(Setting):
     """
-    HTSQL expression to be evaluated in `user` table context.
+    HTSQL query to get the user name.
     Supposed to return the displayable name of the currently logged user.
-    Defaults to: remote_user
+    Defaults to: $USER
     """
 
-    name = 'username_expression'
-    default = 'remote_user'
+    name = 'username_query'
+    default = '$USER'
     validate = StrVal()
+
+
+class MainMenu(Setting):
+    """
+    Main menu.
+    """
+
+    name = 'main_menu'
+    default = []
+    validate = SeqVal(RecordVal(
+        ('title', StrVal()),
+        ('items', SeqVal(OneOfVal(StrVal(), RecordVal(
+            ('title', StrVal()),
+            ('url', StrVal()),
+        ))))
+    ))

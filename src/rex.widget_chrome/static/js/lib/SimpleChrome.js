@@ -7,6 +7,7 @@ import React from 'react';
 import RexWidget from 'rex-widget';
 import Chrome       from 'rex-widget/lib/Chrome';
 import {VBox, HBox} from '@prometheusresearch/react-box';
+import LocalStorage from './LocalStorage';
 
 
 var Navigation    = require('./Navigation');
@@ -26,6 +27,7 @@ var SimpleChrome = React.createClass({
          applicationHeaderTextcolor,
          applicationHeaderTextcolorHover,
          personalMenuLinks,
+         menu,
          ...props} = this.props;
     var contentStyle = {
       margin: 0
@@ -57,7 +59,7 @@ var SimpleChrome = React.createClass({
         </HBox>
         {sidebarOpen &&
           <Sidebar
-            menu={[]}
+            menu={menu}
             itemOpen={itemOpen}
             onToggleItem={this.toggleItem}
             onClickOutside={this.toggleSidebar}

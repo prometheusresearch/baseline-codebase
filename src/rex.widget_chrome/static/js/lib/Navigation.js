@@ -36,11 +36,21 @@ var Navigation = React.createClass({
     return (
       <HBox {...props} style={{...this.style, ...style}}>
         <NavigationButton
+          key="logo"
           style={{...this.styleApplicationTitle, ...styleButton}}
           styleHover={styleButtonHover}
           onClick={onApplicationTitleClick}
           icon={sidebarOpen ? 'menu-down' : 'menu-right'}>
           {applicationTitle}
+        </NavigationButton>
+        <NavigationButton
+          style={styleButton}
+          styleHover={{background: 'inherit'}}
+          key="title"
+          padding={5}
+          margin="0 40px"
+        >
+        {title}
         </NavigationButton>
         <HBox aligned="right">
           <NavigationButton

@@ -21,7 +21,6 @@ setup(
     namespace_packages=['rex'],
     install_requires=[
         'rex.web >=3.1, <4',
-        'rex.deploy >=2.0, <3',
         'rex.widget >=1, <2',
     ],
     rex_init='rex.widget_chrome',

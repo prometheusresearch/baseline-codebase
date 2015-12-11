@@ -24,6 +24,7 @@ from .validators import RunListVal
 __all__ = (
     'MartCreateTask',
     'MartShellTask',
+    'MartPurgeTask',
 )
 
 
@@ -307,4 +308,147 @@ class MartShellTask(RexTask):
             ))
 
         return get_mart_db(mart.name)
+
+
+class MartPurgeTask(RexTask):
+    """
+    purge Mart database(s)
+
+    The mart-purge task will delete the specified Mart databases from the
+    system.
+
+    You can specify the Mart(s) to purge using the --owner, --definition,
+    --name, --code, and --all options. Using more than one option type will
+    act as a logical AND operation when filtering the list of Marts. Using an
+    option more than once will act as a logical OR operation between all values
+    specified for that option.
+    """
+
+    name = 'mart-purge'
+
+    class options(object):  # noqa
+        owner = option(
+            'o',
+            str,
+            default=(),
+            plural=True,
+            hint='The owner of the Mart(s) to purge. This option may be'
+            ' repeated to specify multiple owners.',
+        )
+
+        definition = option(
+            'd',
+            str,
+            default=(),
+            plural=True,
+            hint='The Definition ID of the Mart(s) to purge. This option may'
+            ' be repeated to specify multiple Definitions.',
+        )
+
+        name = option(
+            'n',
+            str,
+            default=(),
+            plural=True,
+            hint='The name of the Mart database(s) to purge. This option may'
+            ' be repeated to specify multiple databases.',
+        )
+
+        code = option(
+            'c',
+            str,
+            default=(),
+            plural=True,
+            hint='The unique Code/ID of the Mart(s) to purge. This option may'
+            ' be repeated to specify multiple Marts.',
+        )
+
+        all = option(
+            'a',
+            str,
+            hint='Indicates that ALL Marts in the system should be purged'
+            ' (regardless of any other criteria specified).',
+        )
+
+        force_accept = option(
+            'f',
+            str,
+            hint='Indicates that the Marts should be purged immediately'
+            ' without prompting the user for confirmation.',
+        )
+
+    def __call__(self):
+        with self.make():
+            marts = self.find_eligible_marts()
+            if not marts:
+                log('No Marts found matching the specified criteria.')
+                return
+
+            log('You are about to purge %s Marts from the system:' % (
+                len(marts),
+            ))
+            for mart in marts:
+                log('  %s' % (self.format_mart(mart),))
+
+            if not self.should_proceed():
+                log('Purge aborted.')
+                return
+
+            for mart in marts:
+                log('Purging %s...' % (self.format_mart(mart),))
+                mart.purge()
+
+            log('Purge complete.')
+
+    def find_eligible_marts(self):
+        if not any([
+                self.owner,
+                self.definition,
+                self.name,
+                self.code,
+                self.all]):
+            raise Error('You must specify some selection criteria')
+
+        query = '/rexmart_inventory'
+        parameters = {}
+        if not self.all:
+            if self.owner:
+                query += '.filter(owner=$owner)'
+                parameters.update({'owner': self.owner})
+            if self.definition:
+                query += '.filter(definition=$definition)'
+                parameters.update({'definition': self.definition})
+            if self.name:
+                query += '.filter(name=$name)'
+                parameters.update({'name': self.name})
+            if self.code:
+                query += '.filter(code=$code)'
+                parameters.update({'code': self.code})
+        query += '.sort(code)'
+
+        marts = []
+        data = get_management_db().produce(query, **parameters)
+        for record in data:
+            marts.append(Mart.from_record(record))
+
+        return marts
+
+    def should_proceed(self):
+        if self.force_accept:
+            return True
+
+        response = raw_input('Are you sure you want to continue? (y/N): ')
+        if response and response.lower()[0] == 'y':
+            return True
+
+        return False
+
+    def format_mart(self, mart):
+        # pylint: disable=no-self-use
+        return '#%s: %s (owner=%s, definition=%s)' % (
+            mart.code,
+            mart.name,
+            mart.owner,
+            mart.definition_id,
+        )
 

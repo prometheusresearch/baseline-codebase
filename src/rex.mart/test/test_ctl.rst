@@ -270,6 +270,82 @@ The ``mart-shell`` task opens an HTSQL console to the specified Mart database::
     <BLANKLINE>
 
 
+mart-purge
+==========
+
+The ``mart-purge`` will delete the specified Mart(s) from the system::
+
+    >>> ctl('help mart-purge')
+    MART-PURGE - purge Mart database(s)
+    Usage: rex mart-purge [<project>]
+    <BLANKLINE>
+    The mart-purge task will delete the specified Mart databases from the
+    system.
+    <BLANKLINE>
+    You can specify the Mart(s) to purge using the --owner, --definition,
+    --name, --code, and --all options. Using more than one option type will
+    act as a logical AND operation when filtering the list of Marts. Using an
+    option more than once will act as a logical OR operation between all values
+    specified for that option.
+    <BLANKLINE>
+    Options:
+      --require=PACKAGE        : include an additional parameter
+      --set=PARAM=VALUE        : set a configuration parameter
+      -o/--owner=OWNER         : The owner of the Mart(s) to purge. This option may be repeated to specify multiple owners.
+      -d/--definition=DEFINITION : The Definition ID of the Mart(s) to purge. This option may be repeated to specify multiple Definitions.
+      -n/--name=NAME           : The name of the Mart database(s) to purge. This option may be repeated to specify multiple databases.
+      -c/--code=CODE           : The unique Code/ID of the Mart(s) to purge. This option may be repeated to specify multiple Marts.
+      -a/--all                 : Indicates that ALL Marts in the system should be purged (regardless of any other criteria specified).
+      -f/--force-accept        : Indicates that the Marts should be purged immediately without prompting the user for confirmation.
+    <BLANKLINE>
+
+    >>> ctl('mart-purge --owner=foo', input='N')  # doctest: +ELLIPSIS
+    You are about to purge 5 Marts from the system:
+      #...: mart_some_data_... (owner=foo, definition=some_data)
+      #...: mart_some_data_... (owner=foo, definition=some_data)
+      #...: mart_empty_... (owner=foo, definition=empty)
+      #...: mart_empty_... (owner=foo, definition=empty)
+      #...: mart_empty_... (owner=foo, definition=empty)
+    Are you sure you want to continue? (y/N): Purge aborted.
+
+    >>> ctl('mart-purge --owner=foo --definition=some_data', input='N')  # doctest: +ELLIPSIS
+    You are about to purge 2 Marts from the system:
+      #...: mart_some_data_... (owner=foo, definition=some_data)
+      #...: mart_some_data_... (owner=foo, definition=some_data)
+    Are you sure you want to continue? (y/N): Purge aborted.
+
+    >>> ctl('mart-purge --owner=foo --definition=some_data --force-accept')  # doctest: +ELLIPSIS
+    You are about to purge 2 Marts from the system:
+      #...: mart_some_data_... (owner=foo, definition=some_data)
+      #...: mart_some_data_... (owner=foo, definition=some_data)
+    Purging #...: mart_some_data_... (owner=foo, definition=some_data)...
+    Purging #...: mart_some_data_... (owner=foo, definition=some_data)...
+    Purge complete.
+
+    >>> ctl('mart-purge --owner=foo --definition=some_data --force-accept')  # doctest: +ELLIPSIS
+    No Marts found matching the specified criteria.
+
+    >>> ctl('mart-purge --owner=foo --definition=empty', input='Y')  # doctest: +ELLIPSIS
+    You are about to purge 3 Marts from the system:
+      #...: mart_empty_... (owner=foo, definition=empty)
+      #...: mart_empty_... (owner=foo, definition=empty)
+      #...: mart_empty_... (owner=foo, definition=empty)
+    Are you sure you want to continue? (y/N): Purging #...: mart_empty_... (owner=foo, definition=empty)...
+    Purging #...: mart_empty_... (owner=foo, definition=empty)...
+    Purging #...: mart_empty_... (owner=foo, definition=empty)...
+    Purge complete.
+
+    >>> ctl('mart-purge --name=doesntexist')
+    No Marts found matching the specified criteria.
+
+    >>> ctl('mart-purge --code=9999')
+    No Marts found matching the specified criteria.
+
+    >>> ctl('mart-purge', expect=1)
+    FATAL ERROR: You must specify some selection criteria
+    <BLANKLINE>
+
+
 
 
     >>> del os.environ['REX_PROJECT']

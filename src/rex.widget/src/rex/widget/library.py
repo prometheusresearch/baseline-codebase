@@ -11,7 +11,7 @@ from rex.core import StrVal, BoolVal, SeqVal, MapVal, AnyVal
 
 from .widget import Widget
 from .validate import WidgetVal
-from .field import Field
+from .field import Field, computed_field
 from .util import undefined, MaybeUndefinedVal
 from .column import ColumnVal
 from .param import ParamVal
@@ -167,3 +167,21 @@ class DateField(Widget):
         doc="""
         The latest date that may be set
         """)
+
+
+class IFrame(Widget):
+
+    name = 'IFrame'
+    js_type = 'rex-widget/lib/library/IFrame'
+
+    transfer_request_params = Field(BoolVal(), default=False)
+    src = Field(URLVal())
+
+    @computed_field
+    def query_string(self, request):
+        return request.query_string
+
+    @computed_field
+    def request_params(self, request):
+        return dict((pair for pair in request.params.items())) \
+               if self.transfer_request_params else {}

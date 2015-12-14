@@ -4,6 +4,7 @@
 
 
 import sys
+import traceback
 
 from datetime import datetime
 
@@ -103,11 +104,11 @@ class MartCreateTask(RexTask):
             for entry in runlist:
                 try:
                     self.execute(entry)
-                except Error as exc:
+                except Error:
                     self.execution_error(
-                        'Mart creation for %r failed: %s' % (
+                        'Mart creation for %r failed:\n%s' % (
                             entry,
-                            exc,  # TODO stack trace?
+                            traceback.format_exc(),
                         )
                     )
                     if entry.halt_on_failure:

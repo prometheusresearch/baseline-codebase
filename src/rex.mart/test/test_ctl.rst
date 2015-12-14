@@ -13,10 +13,19 @@ Set up the environment::
     >>> def no_timestamp_ctl(cmd, input='', expect=0):
     ...     ctl = Ctl(cmd, input)
     ...     output = ctl.wait(expect=expect)
-    ...     print '\n'.join([
+    ...     stripped_lines = [
     ...         line[27:] if not line.startswith('FATAL ERROR') else line
     ...         for line in output.splitlines()
-    ...     ])
+    ...     ]
+    ...     filtered_lines = []
+    ...     i = 0
+    ...     while i < len(stripped_lines):
+    ...         if stripped_lines[i].startswith('  File "'):
+    ...             i += 2
+    ...             continue
+    ...         filtered_lines.append(stripped_lines[i])
+    ...         i += 1
+    ...     print '\n'.join(filtered_lines)
 
 
 mart-create
@@ -120,7 +129,9 @@ command line::
     Deploying structures...
     Executing Post-Deployment ETL...
     SQL script #1...
-    Mart creation for Record(owner='foo', definition='broken_sql', halt_on_failure=False, purge_on_failure=True, leave_incomplete=False) failed: Got an error from the database driver:
+    Mart creation for Record(owner='foo', definition='broken_sql', halt_on_failure=False, purge_on_failure=True, leave_incomplete=False) failed:
+    Traceback (most recent call last):
+    Error: Got an error from the database driver:
         relation "blah" does not exist
         LINE 1: insert into blah (col1) values('stuff');
                             ^
@@ -157,7 +168,9 @@ command line::
     Deploying structures...
     Executing Post-Deployment ETL...
     SQL script #1...
-    Mart creation for Record(owner='foo', definition='broken_sql', halt_on_failure=True, purge_on_failure=True, leave_incomplete=False) failed: Got an error from the database driver:
+    Mart creation for Record(owner='foo', definition='broken_sql', halt_on_failure=True, purge_on_failure=True, leave_incomplete=False) failed:
+    Traceback (most recent call last):
+    Error: Got an error from the database driver:
         relation "blah" does not exist
         LINE 1: insert into blah (col1) values('stuff');
                             ^

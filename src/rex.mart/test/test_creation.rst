@@ -241,6 +241,30 @@ the Mart::
     Owner: test
     Dates: True True
 
+You can load Assessments into the Mart and peform calculations on their
+contents::
+
+    >>> mc = MartCreator('test', 'calculated_assessment')
+    >>> mart = mc()
+    >>> db_exists(mart.name)
+    True
+    >>> db_inventory(mart.name, detailed=True)
+    mart1: 8
+    (u'martassessment1', u'mart11', u'MARTASSESSMENT1-1', u'MARTASSESSMENT1-2', u'MARTASSESSMENT1-3', u'foo1')
+    (u'martassessment2', u'mart11', u'MARTASSESSMENT2-1', u'MARTASSESSMENT2-2', u'MARTASSESSMENT2-3', u'foo2')
+    (u'martassessment3', u'mart11', u'MARTASSESSMENT3-1', u'MARTASSESSMENT3-2', u'MARTASSESSMENT3-3', u'foo3')
+    (u'martassessment4', u'mart11', u'MARTASSESSMENT4-1', u'MARTASSESSMENT4-2', u'MARTASSESSMENT4-3', u'foo4')
+    (u'martassessment5', u'mart11', u'MARTASSESSMENT5-1', u'MARTASSESSMENT5-2', u'MARTASSESSMENT5-3', u'foo5')
+    (u'martassessment6', u'mart11', u'MARTASSESSMENT6-1', u'MARTASSESSMENT6-2', u'MARTASSESSMENT6-3', u'foo6')
+    (u'martassessment7', u'mart11', u'MARTASSESSMENT7-1', u'MARTASSESSMENT7-2', u'MARTASSESSMENT7-3', u'foo7')
+    (u'martassessment8', u'mart11', u'MARTASSESSMENT8-1', u'MARTASSESSMENT8-2', u'MARTASSESSMENT8-3', u'foo8')
+    >>> db_status(mart.name)
+    Definition: calculated_assessment
+    Status: complete
+    Owner: test
+    Dates: True True
+
+
 You can tell the creator to not mark the Mart as complete after processing is
 done::
 

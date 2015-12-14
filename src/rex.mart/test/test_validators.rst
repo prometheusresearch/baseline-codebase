@@ -284,7 +284,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     'selector': '/measure{id() :as assessment_uid}',
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -292,14 +292,14 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     'selector': '/measure{id() :as assessment_uid}',
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name='bar', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None)
+    Record(instrument=['foo'], name='bar', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': '0FoO',
     ...     'selector': '/measure{id() :as assessment_uid}',
     ... }
     >>> val(assessment)
-    Record(instrument=['0FoO'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None)
+    Record(instrument=['0FoO'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -310,7 +310,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     },
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='facet', parent=['footable']), identifiable='any', fields=[], calculations=[], meta=None)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='facet', parent=['footable']), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -318,7 +318,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     'identifiable': 'none',
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='none', fields=[], calculations=[], meta=None)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='none', fields=[], calculations=[], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -326,7 +326,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     'fields': None,
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=None, calculations=[], meta=None)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=None, calculations=[], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -334,7 +334,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     'fields': 'bar',
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=['bar'], calculations=[], meta=None)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=['bar'], calculations=[], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -345,7 +345,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     ],
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=['bar', 'baz'], calculations=[], meta=None)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=['bar', 'baz'], calculations=[], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -353,7 +353,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     'calculations': None,
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=None, meta=None)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=None, meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -361,7 +361,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     'calculations': 'bar',
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=['bar'], meta=None)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=['bar'], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -372,7 +372,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     ],
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=['bar', 'baz'], meta=None)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=['bar', 'baz'], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -380,7 +380,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     'meta': 'bar',
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'bar': 'text'}])
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'bar': 'text'}], post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -391,7 +391,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     ],
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'bar': 'text'}, {'baz': 'text'}])
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'bar': 'text'}, {'baz': 'text'}], post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -402,7 +402,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     ],
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'bar': 'text'}, {'baz': 'boolean'}])
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'bar': 'text'}, {'baz': 'boolean'}], post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -410,7 +410,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     'meta': {'bar': 'boolean'},
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'bar': 'boolean'}])
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'bar': 'boolean'}], post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -418,7 +418,66 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     'meta': 'timeTaken',
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'timeTaken': 'integer'}])
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'timeTaken': 'integer'}], post_load_calculations=[])
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'post_load_calculations': {
+    ...         'name': 'postcalc1',
+    ...         'type': 'text',
+    ...         'expression': 'upper(assessment_uid)',
+    ...     },
+    ... }
+    >>> val(assessment)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[Record(name='postcalc1', type='text', expression='upper(assessment_uid)')])
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'post_load_calculations': [
+    ...         {'name': 'postcalc1', 'type': 'text', 'expression': 'upper(assessment_uid)'},
+    ...         {'name': 'postcalc2', 'type': 'text', 'expression': 'upper(assessment_uid)'},
+    ...     ],
+    ... }
+    >>> val(assessment)
+    Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[Record(name='postcalc1', type='text', expression='upper(assessment_uid)'), Record(name='postcalc2', type='text', expression='upper(assessment_uid)')])
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'post_load_calculations': {
+    ...         'name': 'postcalc1',
+    ...         'type': 'something',
+    ...         'expression': 'upper(assessment_uid)',
+    ...     },
+    ... }
+    >>> val(assessment)
+    Traceback (most recent call last):
+        ...
+    Error: Expected one of:
+        text, integer, float, boolean, date, time, dateTime
+    Got:
+        'something'
+    While validating field:
+        type
+    While validating field:
+        post_load_calculations
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'post_load_calculations': [
+    ...         {'name': 'postcalc1', 'type': 'text', 'expression': 'upper(assessment_uid)'},
+    ...         {'name': 'postcalc1', 'type': 'text', 'expression': 'upper(assessment_uid)'},
+    ...     ],
+    ... }
+    >>> val(assessment)
+    Traceback (most recent call last):
+        ...
+    Error: Calculation Names (postcalc1) cannot be duplicated within an Assessment
+    While validating field:
+        post_load_calculations
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -662,7 +721,7 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], assessments=[Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None)], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], assessments=[Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',

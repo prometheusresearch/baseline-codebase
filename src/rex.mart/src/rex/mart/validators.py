@@ -20,7 +20,9 @@ __all__ = (
     'IdentifiableTypeVal',
     'ParentalRelationshipVal',
     'ParentalRelationshipTypeVal',
+    'DataTypeVal',
     'MetadataFieldVal',
+    'PostLoadCalculationsVal',
     'AssessmentDefinitionVal',
     'DefinitionVal',
     'MartConfigurationVal',
@@ -241,6 +243,23 @@ DEFAULT_PARENTAL_RELATIONSHIP = ParentalRelationshipVal().record_type(
 )
 
 
+class DataTypeVal(ChoiceVal):
+    """
+    Parses/Validates the allowable values for fields that indicate data types.
+    """
+
+    def __init__(self):
+        super(DataTypeVal, self).__init__(
+            'text',
+            'integer',
+            'float',
+            'boolean',
+            'date',
+            'time',
+            'dateTime',
+        )
+
+
 METADATA_TYPES = {
     'language': 'text',
     'application': 'text',
@@ -259,15 +278,7 @@ class MetadataFieldVal(OneOfVal):
             StrVal(),
             MapVal(
                 StrVal,
-                ChoiceVal(
-                    'text',
-                    'integer',
-                    'float',
-                    'boolean',
-                    'date',
-                    'time',
-                    'dateTime',
-                ),
+                DataTypeVal,
             ),
         )
 
@@ -296,6 +307,24 @@ class MetadataFieldVal(OneOfVal):
             )
 
         return value
+
+
+class PostLoadCalculationsVal(FullyValidatingRecordVal):
+    """
+    Parses/Validates the configuration of a post-load Assessment Calculation.
+    """
+
+    def __init__(self):
+        super(PostLoadCalculationsVal, self).__init__(
+            # The name of the calculation.
+            ('name', StrippedStrVal(RESTR_SAFE_TOKEN)),
+
+            # The type of the resulting calculation.
+            ('type', DataTypeVal),
+
+            # The HTSQL expression that calculates the value.
+            ('expression', StrippedStrVal),
+        )
 
 
 class AssessmentDefinitionVal(FullyValidatingRecordVal):
@@ -335,6 +364,13 @@ class AssessmentDefinitionVal(FullyValidatingRecordVal):
 
             # The Assessment-level metadata fields to include.
             ('meta', MaybeVal(NormalizedOneOrSeqVal(MetadataFieldVal)), None),
+
+            # The Assessment-specific calculations to execute aft
+            (
+                'post_load_calculations',
+                NormalizedOneOrSeqVal(PostLoadCalculationsVal),
+                [],
+            ),
         )
 
     def __call__(self, data):
@@ -343,8 +379,8 @@ class AssessmentDefinitionVal(FullyValidatingRecordVal):
         if not value.name and value.instrument:
             # Default the name to be the same as the instrument.
             with guard('While validating field:', 'name'):
-                name = make_safe_token(value.instrument[0])
-                value = value.__clone__(name=name)
+                safe_name = make_safe_token(value.instrument[0])
+                value = value.__clone__(name=safe_name)
 
         # Make sure that we're actually including something from the Assessment
         if value.fields is None \
@@ -354,6 +390,17 @@ class AssessmentDefinitionVal(FullyValidatingRecordVal):
                 'Definition does not include any fields, calculations, or'
                 ' metadata'
             )
+
+        with guard('While validating field:', 'post_load_calculations'):
+            names = [calc.name for calc in value.post_load_calculations]
+            dupe_names = set([name for name in names if names.count(name) > 1])
+            if dupe_names:
+                raise Error(
+                    'Calculation Names (%s) cannot be duplicated within an'
+                    ' Assessment' % (
+                        ', '.join(list(dupe_names)),
+                    )
+                )
 
         return value
 

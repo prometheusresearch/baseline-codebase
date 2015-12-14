@@ -326,6 +326,9 @@ class PrimaryTable(MappingTable):
             database,
             parental_fields=self.definition['parental_relationship']['parent']
         )
+        self._add_calculation_fields(
+            self.definition['post_load_calculations'],
+        )
         self._add_instruments(self.definition['instrument'])
         self._add_meta_fields(self.definition['meta'])
         self._segment_fields()
@@ -420,6 +423,17 @@ class PrimaryTable(MappingTable):
                     ', '.join(list(dupe_fields)),
                 )
             )
+
+    def _add_calculation_fields(self, calculations):
+        for calculation in calculations:
+            fake_field = {
+                'id': calculation['name'],
+                'type': {
+                    'base': calculation['type'],
+                },
+            }
+            mapped_field = make_field(fake_field)
+            self.add_field(mapped_field)
 
     def _add_instruments(self, instruments):
         inst_impl = Instrument.get_implementation()
@@ -590,12 +604,26 @@ class PrimaryTable(MappingTable):
                 self.add_field(mapped_field)
 
     def _segment_fields(self):
+        segments = []
+
         field_ids = self.fields.keys()
         max_size = get_settings().mart_max_columns
-        segments = [
-            field_ids[i:(i + max_size)]
-            for i in xrange(0, len(field_ids), max_size)
-        ]
+
+        primary_data_fields = max_size - 2  # two UID fields
+        primary_data_fields -= len(
+            self.definition['parental_relationship']['parent']
+        )
+        primary_data_fields -= len(self.definition['post_load_calculations'])
+        additional_data_fields = max_size - 1  # link to primary
+
+        if primary_data_fields > 0:
+            segments.append(field_ids[:primary_data_fields])
+            start = primary_data_fields
+        else:
+            start = 0
+        for i in xrange(start, len(field_ids), additional_data_fields):
+            segments.append(field_ids[i:(i + additional_data_fields)])
+
         for idx, segment in enumerate(segments[1:]):
             name = '%s_%s' % (
                 self.name,
@@ -635,4 +663,28 @@ class PrimaryTable(MappingTable):
             ))
 
         return statements
+
+    def get_calculation_statements(self):
+        if not self.definition['post_load_calculations']:
+            return []
+
+        defines = []
+        assigns = []
+        for calculation in self.definition['post_load_calculations']:
+            defines.append('$%s := %s' % (
+                calculation['name'],
+                calculation['expression'],
+            ))
+            assigns.append('$%s :as %s' % (
+                calculation['name'],
+                calculation['name'],
+            ))
+
+        statement = '/%s.define(%s){id(), %s}/:update' % (
+            self.table_name,
+            ', '.join(defines),
+            ', '.join(assigns),
+        )
+
+        return [statement]
 

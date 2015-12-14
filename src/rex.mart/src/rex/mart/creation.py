@@ -345,9 +345,15 @@ class MartCreator(object):
                 with guarded('While loading Assessments'):
                     self.log('...loading Assessments')
                     num_loaded = loader.load(self.database)
-                    self.log('...complete (%s Assessments loaded)' % (
+                    self.log('...%s Assessments loaded' % (
                         num_loaded,
                     ))
+
+                with guarded('While performing Assessment calculations'):
+                    self.log('...performing calculations')
+                    loader.do_calculations(self.database)
+
+                self.log('...complete')
 
     def connect_mart(self):
         if not self.database:

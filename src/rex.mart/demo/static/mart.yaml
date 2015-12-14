@@ -157,6 +157,27 @@ definitions:
           type: branch
           parent: subject
 
+  # Load a Mart with some post-load calculations
+  - id: calculated_assessment
+    assessments:
+      - instrument: mart1
+        selector: |
+          /assessment{
+            id() :as assessment_uid
+          }.filter(
+            instrumentversion.instrument='mart1'
+          )/:rexdb
+        post_load_calculations:
+          - name: postcalc1
+            type: text
+            expression: upper(assessment_uid) + '-1'
+          - name: postcalc2
+            type: text
+            expression: upper(assessment_uid) + '-2'
+          - name: postcalc3
+            type: text
+            expression: upper(assessment_uid) + '-3'
+
   # Definition with a broken Assessment selector
   - id: broken_selector
     assessments:

@@ -76,3 +76,10 @@ class AssessmentLoader(object):
 
         return num_assessments
 
+    def do_calculations(self, database):
+        if not self.definition['post_load_calculations']:
+            return
+
+        for statement in self.mapping.get_calculation_statements():
+            database.produce(statement)
+

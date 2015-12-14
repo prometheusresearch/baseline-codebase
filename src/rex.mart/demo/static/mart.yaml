@@ -1,26 +1,26 @@
 definitions:
-  # An empty Mart
   - id: empty
 
-  # Copy an existing DB
   - id: just_copy
+    description: Copy an existing DB
     base:
       type: copy
       target: mart_demo
 
-  # A Mart that just has empty tables
   - id: just_deploy
+    label: Just Deploy
+    description: A Mart that just has empty tables
     deploy: !include simple_deploy.yaml
 
-  # Make a table and put some data in it
   - id: some_data
+    description: Make a table and put some data in it
     deploy: !include simple_deploy.yaml
     post_deploy_scripts:
       - script: !include/str simple_etl.htsql
         type: htsql
 
-  # Make a table and put some data in it with multiple scripts/statements
   - id: some_more_data
+    description: Make a table and put some data in it with multiple scripts/statements
     deploy: !include simple_deploy.yaml
     post_deploy_scripts:
       - script: !include/str simple_etl.htsql
@@ -28,15 +28,15 @@ definitions:
       - script: !include/str multiple_etl.htsql
         type: htsql
 
-  # Make a table and put some data in it with SQL
   - id: some_sql_data
+    description: Make a table and put some data in it with SQL
     deploy: !include simple_deploy.yaml
     post_deploy_scripts:
       - script: !include/str simple_etl.sql
         type: sql
 
-  # Make a table and put some data in it with multiple SQL scripts/statements
   - id: some_more_sql_data
+    description: Make a table and put some data in it with multiple SQL scripts/statements
     deploy: !include simple_deploy.yaml
     post_deploy_scripts:
       - script: !include/str simple_etl.sql
@@ -44,8 +44,8 @@ definitions:
       - script: !include/str multiple_etl.sql
         type: sql
 
-  # Load a table with various scripts in both ETL phases
   - id: both_etl_phases
+    description: Load a table with various scripts in both ETL phases
     deploy: !include simple_deploy.yaml
     post_deploy_scripts:
       - script: !include/str simple_etl.htsql
@@ -58,8 +58,8 @@ definitions:
       - script: !include/str simple_etl.sql
         type: sql
 
-  # Make a table and put some data in it using script parameters
   - id: some_data_with_params
+    description: Make a table and put some data in it using script parameters
     deploy: !include simple_deploy.yaml
     post_deploy_scripts:
       - script: !include/str params_etl.htsql
@@ -73,8 +73,8 @@ definitions:
           var1: 'baz'
           var2: 'blah'
 
-  # Load an existing database
   - id: existing
+    description: Load an existing database
     base:
       type: existing
       target: mart_demo
@@ -83,8 +83,8 @@ definitions:
       - script: !include/str simple_etl.htsql
         type: htsql
 
-  # Load a missing existing database
   - id: existing_missing
+    description: Load a missing existing database
     base:
       type: existing
       target: a_db_that_doesnt_exist
@@ -93,22 +93,22 @@ definitions:
       - script: !include/str simple_etl.htsql
         type: htsql
 
-  # Definition with a broken HTSQL ETL script
   - id: broken_htsql
+    description: Definition with a broken HTSQL ETL script
     deploy: !include simple_deploy.yaml
     post_deploy_scripts:
       - script: !include/str broken_simple_etl.htsql
         type: htsql
 
-  # Definition with a broken SQL ETL script
   - id: broken_sql
+    description: Definition with a broken SQL ETL script
     deploy: !include simple_deploy.yaml
     post_deploy_scripts:
       - script: !include/str broken_simple_etl.sql
         type: sql
 
-  # Load a Mart with a single set of Assessments
   - id: simple_assessment
+    description: Load a Mart with a single set of Assessments
     assessments:
       - instrument: mart1
         selector: |
@@ -118,8 +118,8 @@ definitions:
             instrumentversion.instrument='mart1'
           )/:rexdb
 
-  # Load a Mart with a table and an Assessment and link them
   - id: linked_assessment
+    description: Load a Mart with a table and an Assessment and link them
     deploy: !include simple_subject.yaml
     post_deploy_scripts:
       - script: !include/str subject.htsql
@@ -137,8 +137,8 @@ definitions:
           type: branch
           parent: subject
 
-  # Load a Mart with a table and a (more complicated) Assessment and link them
   - id: linked_assessment_alltypes
+    description: Load a Mart with a table and a (more complicated) Assessment and link them
     deploy: !include simple_subject.yaml
     post_deploy_scripts:
       - script: !include/str subject.htsql
@@ -157,8 +157,8 @@ definitions:
           type: branch
           parent: subject
 
-  # Load a Mart with some post-load calculations
   - id: calculated_assessment
+    description: Load a Mart with some post-load calculations
     assessments:
       - instrument: mart1
         selector: |
@@ -178,8 +178,8 @@ definitions:
             type: text
             expression: upper(assessment_uid) + '-3'
 
-  # Definition with a broken Assessment selector
   - id: broken_selector
+    description: Definition with a broken Assessment selector
     assessments:
       - instrument: mart1
         selector: |

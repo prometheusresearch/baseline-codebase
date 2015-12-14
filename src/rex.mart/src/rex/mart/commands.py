@@ -14,6 +14,7 @@ from rex.web import HandleLocation, authenticate, Parameter
 from webob.exc import HTTPUnauthorized, HTTPNotFound, HTTPMethodNotAllowed, \
     HTTPForbidden
 
+from .config import get_definition
 from .connections import get_mart_db
 from .permissions import MartAccessPermissions
 
@@ -54,6 +55,14 @@ class MartResource(RestfulLocation):
         return response
 
 
+def render_definition(definition):
+    return {
+        'id': definition['id'],
+        'label': definition['label'],
+        'description': definition['description'],
+    }
+
+
 class DefinitionResource(RestfulLocation):
     """
     A Resource API endpoint that returns a list of all Definitions the current
@@ -69,7 +78,7 @@ class DefinitionResource(RestfulLocation):
         definitions = mart_access.get_definitions_for_user(user)
         response = {
             'definitions': [
-                definition
+                render_definition(definition)
                 for definition in definitions
             ],
         }
@@ -134,6 +143,7 @@ class DefinitionDetailResource(RestfulLocation):
             definition_id=definition_id,
         )
         response = {
+            'definition': render_definition(get_definition(definition_id)),
             'marts': [
                 mart.as_dict()
                 for mart in marts

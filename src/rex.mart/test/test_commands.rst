@@ -65,17 +65,17 @@ This API will return all Definitions the user has access to::
 
     >>> req = Request.blank('/definition', remote_user='test')
     >>> resp = req.get_response(rex)
-    >>> pprint(resp.json['definitions'][0])  # doctest: +ELLIPSIS
-    {u'assessments': [],
-     u'base': {u'name_token': u'empty_', u'target': None, u'type': u'fresh'},
-     u'deploy': None,
-     u'description': None,
-     u'id': u'empty',
-     u'label': u'empty',
-     u'post_assessment_scripts': [],
-     u'post_deploy_scripts': []}
-    >>> [defn['id'] for defn in resp.json['definitions']]
-    [u'empty', u'some_data', u'some_more_data', u'broken_sql']
+    >>> pprint(resp.json)
+    {u'definitions': [{u'description': None, u'id': u'empty', u'label': u'empty'},
+                      {u'description': u'Make a table and put some data in it',
+                       u'id': u'some_data',
+                       u'label': u'some_data'},
+                      {u'description': u'Make a table and put some data in it with multiple scripts/statements',
+                       u'id': u'some_more_data',
+                       u'label': u'some_more_data'},
+                      {u'description': u'Definition with a broken SQL ETL script',
+                       u'id': u'broken_sql',
+                       u'label': u'broken_sql'}]}
 
 
 Definition Mart Listing API
@@ -86,6 +86,10 @@ definition::
 
     >>> req = Request.blank('/definition/some_data', remote_user='test')
     >>> resp = req.get_response(rex)
+    >>> pprint(resp.json['definition'])
+    {u'description': u'Make a table and put some data in it',
+     u'id': u'some_data',
+     u'label': u'some_data'}
     >>> len(resp.json['marts'])
     3
     >>> len([mart for mart in resp.json['marts'] if mart['definition'] == 'some_data'])

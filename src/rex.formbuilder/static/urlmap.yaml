@@ -1,13 +1,11 @@
 paths:
   /:
-    widget: !<I18NAppletPage>
-      title: FormBuilder
-      children:
-        - !<InstrumentMenu>
+    title: FormBuilder
+    widget: !<I18NWidget>
+      content: !<InstrumentMenu>
 
   /edit:
-    widget: !<I18NAppletPage>
-      title: Edit a Form
-      children:
-        - !<DraftSetEditor>
+    title: Edit a Form
+    widget: !<I18NWidget>
+      content: !<DraftSetEditor>
 

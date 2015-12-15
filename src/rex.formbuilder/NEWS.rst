@@ -4,10 +4,10 @@ REX.FORMBUILDER Change Log
 
 .. contents:: Table of Contents
 
-
-5.5.1 (2016-xx-xx)
+5.6.0 (2015-XX-XX)
 ==================
 
+* Removed rex.applet dependency
 * Fixed erroneous display of tags property on recordList & matrix subfields.
 
 

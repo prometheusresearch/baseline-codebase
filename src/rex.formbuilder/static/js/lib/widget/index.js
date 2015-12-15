@@ -8,7 +8,7 @@ var InstrumentMenu = require('./InstrumentMenu');
 var DraftSetEditor = require('./DraftSetEditor');
 
 var I18NPage = require('./I18NPage');
-var I18NAppletPage = require('./I18NAppletPage');
+var I18NWidget = require('./I18NWidget');
 
 
 module.exports = {
@@ -16,6 +16,6 @@ module.exports = {
   DraftSetEditor,
 
   I18NPage,
-  I18NAppletPage
+  I18NWidget
 };
 

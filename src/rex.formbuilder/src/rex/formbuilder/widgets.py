@@ -3,10 +3,9 @@
 #
 
 
-from rex.applet import AppletPage
 from rex.i18n import get_locale_identifier
 from rex.instrument import Channel
-from rex.widget import Widget, Field, URLVal, computed_field
+from rex.widget import Widget, WidgetVal, Field, URLVal, computed_field
 
 
 __all__ = (
@@ -116,15 +115,18 @@ class DraftSetEditorWidget(Widget):
         ]
 
 
-# TODO Move this someplace better; either in rex.applet or rex.i18n
-class I18NAppletPage(AppletPage):
+class I18NWidget(Widget):
     """
-    Represents a top-level AppletPage Widget that will automatically initialize
+    Represents a top-level Widget that will automatically initialize
     the rex.i18n framework.
     """
 
-    name = 'I18NAppletPage'
-    js_type = 'rex-formbuilder/lib/widget/I18NAppletPage'
+    name = 'I18NWidget'
+    js_type = 'rex-formbuilder/lib/widget/I18NWidget'
+
+    content = Field(WidgetVal(),
+        doc='Functional widget to be rendered'
+    )
 
     i18n_base_url = Field(
         URLVal(),

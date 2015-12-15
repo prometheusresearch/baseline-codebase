@@ -24,7 +24,6 @@ setup(
         'HTSQL-PGSQL==2.3.3.20151202',
         'COGS==0.4.0',
         'rex.action==0.8.0',
-        'rex.applet==2.4.0',
         'rex.setup==3.1.1',
         'rex.core==1.11.2',
         'rex.ctl==2.1.0',

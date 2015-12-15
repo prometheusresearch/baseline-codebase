@@ -82,10 +82,11 @@ class _EntityAction(Action):
 
     def reflect_fields(self, fields=None):
         """ Reflect fields from database."""
-        return formfield.enrich(
-            fields,
-            self.entity.type.name,
-            db=self.db)
+        if fields:
+            port = formfield.to_port(self.entity.type.name, fields, db=self.db)
+        else:
+            port = Port(self.entity.type.name, db=self.db)
+        return formfield.enrich(fields, port, db=self.db)
 
     def bind_port(self):
         """ Provide bindings for a port.
@@ -169,10 +170,11 @@ class EntityAction(Action):
 
     def reflect_fields(self, fields=None):
         """ Reflect fields from database."""
-        return formfield.enrich(
-            fields,
-            self.entity.type.name,
-            db=self.db)
+        if fields:
+            port = formfield.to_port(self.entity.type.name, fields, db=self.db)
+        else:
+            port = Port(self.entity.type.name, db=self.db)
+        return formfield.enrich(fields, port, db=self.db)
 
     def create_port(self, fields=None, filters=None, mask=None, entity=None):
         """ Create a port for the action.

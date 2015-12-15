@@ -86,6 +86,10 @@ class MartBaseVal(FullyValidatingRecordVal):
             # The token to use as part of the name of the database that is
             # created.
             ('name_token', MaybeVal(StrVal(RESTR_SAFE_TOKEN)), None),
+
+            # The static name to use for the database instead of the generated,
+            # unique one.
+            ('fixed_name', StrVal(RESTR_SAFE_TOKEN), None),
         )
 
     def __call__(self, data):
@@ -111,6 +115,13 @@ class MartBaseVal(FullyValidatingRecordVal):
                         'Base type "existing" cannot have a name token'
                     )
 
+        with guard('While validating field:', 'fixed_name'):
+            with guard('Got:', repr(value.fixed_name)):
+                if value.type == 'existing' and value.fixed_name is not None:
+                    raise Error(
+                        'Base type "existing" cannot have a fixed name'
+                    )
+
         return value
 
 
@@ -118,6 +129,7 @@ DEFAULT_MART_BASE = MartBaseVal().record_type(
     type='fresh',
     target=None,
     name_token=None,
+    fixed_name=None,
 )
 
 

@@ -150,6 +150,7 @@ class MartCreator(object):
                 # TODO run post-processors
 
                 # Mark things complete
+                self.rename_db()
                 self._update_date_completed()
                 if not leave_incomplete:
                     self._update_status('complete')
@@ -194,6 +195,14 @@ class MartCreator(object):
         database = get_management_db()
         database.produce(query, **parameters)
 
+    def _update_name(self, name):
+        with guarded('While updating inventory name:', name):
+            self._do_update(
+                HTSQL_UPDATE_NAME,
+                code=self.code,
+                name=name,
+            )
+
     def _update_status(self, status):
         with guarded('While updating inventory status:', status):
             self._do_update(
@@ -234,14 +243,50 @@ class MartCreator(object):
             name_parts.append(self.start_date.strftime('%Y%m%d%H%M%S'))
             name = ''.join(name_parts)
 
-        with guarded('While updating inventory name:', name):
-            self._do_update(
-                HTSQL_UPDATE_NAME,
-                code=self.code,
-                name=name,
-            )
-
+        self._update_name(name)
         return name
+
+    def rename_db(self):
+        if not self.definition['base']['fixed_name']:
+            return
+        fixed_name = self.definition['base']['fixed_name']
+
+        with guarded('While purging previous fixed-name database'):
+            database = get_management_db()
+            data = database.produce(
+                '/rexmart_inventory{code, owner}?name=$name',
+                name=fixed_name,
+            )
+            if len(data) > 1:  # pragma: no cover
+                raise Error(
+                    'Multiple inventory records have a name of "%s"; unsure'
+                    ' what to do' % (
+                        fixed_name,
+                    )
+                )
+            elif data:
+                if data[0].owner == self.owner:
+                    self.log('Purging previous database named "%s"...' % (
+                        fixed_name,
+                    ))
+                    purge_mart(data[0].code)
+                else:
+                    raise Error(
+                        'Cannot set name of Mart to "%s" because a Mart with'
+                        ' that name already exists owned by "%s"' % (
+                            fixed_name,
+                            data[0].owner,
+                        )
+                    )
+
+        with guarded('While renaming database'):
+            self.log('Renaming database to: %s' % (
+                fixed_name,
+            ))
+            cluster = get_hosting_cluster()
+            cluster.rename(fixed_name, self.name)
+            self._update_name(fixed_name)
+            self.name = fixed_name
 
     def create_mart(self):
         cluster = get_hosting_cluster()

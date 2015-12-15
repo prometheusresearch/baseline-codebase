@@ -12,16 +12,19 @@ MartBaseVal validates the ``base`` of Mart Definitions::
     >>> val = MartBaseVal()
 
     >>> val({'type': 'fresh'})
-    Record(type='fresh', target=None, name_token=None)
+    Record(type='fresh', target=None, name_token=None, fixed_name=None)
 
     >>> val({'type': 'copy', 'target': 'foo'})
-    Record(type='copy', target='foo', name_token=None)
+    Record(type='copy', target='foo', name_token=None, fixed_name=None)
 
     >>> val({'type': 'existing', 'target': 'bar'})
-    Record(type='existing', target='bar', name_token=None)
+    Record(type='existing', target='bar', name_token=None, fixed_name=None)
 
     >>> val({'type': 'fresh', 'name_token': 'foo'})
-    Record(type='fresh', target=None, name_token='foo')
+    Record(type='fresh', target=None, name_token='foo', fixed_name=None)
+
+    >>> val({'type': 'fresh', 'fixed_name': 'foo'})
+    Record(type='fresh', target=None, name_token=None, fixed_name='foo')
 
     >>> val({'type': 'fresh', 'target': 'baz'})
     Traceback (most recent call last):
@@ -68,6 +71,15 @@ MartBaseVal validates the ``base`` of Mart Definitions::
         'foo'
     While validating field:
         name_token
+
+    >>> val({'type': 'existing', 'target': 'bar', 'fixed_name': 'foo'})
+    Traceback (most recent call last):
+        ...
+    Error: Base type "existing" cannot have a fixed name
+    Got:
+        'foo'
+    While validating field:
+        fixed_name
 
 
 EtlScriptVal
@@ -590,28 +602,28 @@ DefinitionVal validates a single Mart Definition::
     ...     'id': 'foo'
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
     ...     'label': '',
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
     ...     'label': 'My Label',
     ... }
     >>> val(definition)
-    Record(id='foo', label='My Label', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='My Label', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
     ...     'description': 'This is a database'
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description='This is a database', base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description='This is a database', base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -620,7 +632,7 @@ DefinitionVal validates a single Mart Definition::
     ...     },
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -630,7 +642,7 @@ DefinitionVal validates a single Mart Definition::
     ...     },
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='custom_token_'), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='custom_token_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -651,11 +663,11 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='copy', target='bar', name_token='foo_'), deploy=[{'table': 'my_table', 'with': [{'column': 'my_column', 'type': 'text'}]}], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='copy', target='bar', name_token='foo_', fixed_name=None), deploy=[{'table': 'my_table', 'with': [{'column': 'my_column', 'type': 'text'}]}], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = "{id: foo, base: {type: copy, target: bar}, deploy: [{table: my_table, with: [{column: my_column, type: text}]}]}"
     >>> val.parse(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='copy', target='bar', name_token='foo_'), deploy=[{'table': 'my_table', 'with': [{'column': 'my_column', 'type': 'text'}]}], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='copy', target='bar', name_token='foo_', fixed_name=None), deploy=[{'table': 'my_table', 'with': [{'column': 'my_column', 'type': 'text'}]}], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -697,7 +709,7 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[Record(script='/blah/:merge', type='htsql', parameters={}), Record(script='/foo/:insert', type='htsql', parameters={})], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), deploy=None, post_deploy_scripts=[Record(script='/blah/:merge', type='htsql', parameters={}), Record(script='/foo/:insert', type='htsql', parameters={})], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -709,7 +721,7 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[Record(script='/foo/:insert', type='htsql', parameters={})])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[Record(script='/foo/:insert', type='htsql', parameters={})])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -721,7 +733,7 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], assessments=[Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -760,7 +772,7 @@ MartConfigurationVal will validate the contents of an entire ``mart.yaml``::
     Record(definitions=[])
 
     >>> val({'definitions': [{'id': 'foo'}, {'id': 'bar'}]})
-    Record(definitions=[Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_'), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[]), Record(id='bar', label='bar', description=None, base=Record(type='fresh', target=None, name_token='bar_'), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])])
+    Record(definitions=[Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[]), Record(id='bar', label='bar', description=None, base=Record(type='fresh', target=None, name_token='bar_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])])
 
     >>> val({'definitions': [{'id': 'foo'}, {'id': 'foo'}]})
     Traceback (most recent call last):

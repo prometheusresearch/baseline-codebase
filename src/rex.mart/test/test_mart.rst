@@ -32,7 +32,10 @@ The Mart object is an encapsulation of the information about a Mart database::
     u'empty'
     >>> pprint(mart.definition)
     {'assessments': [],
-     'base': {'name_token': 'empty_', 'target': None, 'type': 'fresh'},
+     'base': {'fixed_name': None,
+              'name_token': 'empty_',
+              'target': None,
+              'type': 'fresh'},
      'deploy': None,
      'description': None,
      'id': 'empty',

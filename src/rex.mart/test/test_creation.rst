@@ -80,6 +80,40 @@ Copy an existing DB::
     Owner: test
     Dates: True True
 
+Create a Mart that always ends up with the same database name::
+
+    >>> mc = MartCreator('test', 'fixed_name')
+    >>> mart1 = mc()
+    >>> mart1.name
+    u'a_fixed_name_mart'
+    >>> db_exists(mart1.name)
+    True
+    >>> db_inventory(mart1.name)
+    foo: 5
+    >>> db_status(mart1.name)
+    Definition: fixed_name
+    Status: complete
+    Owner: test
+    Dates: True True
+
+    >>> mart2 = mc()
+    >>> mart2.name
+    u'a_fixed_name_mart'
+    >>> db_exists(mart2.name)
+    True
+    >>> db_inventory(mart2.name)
+    foo: 5
+    >>> db_status(mart2.name)
+    Definition: fixed_name
+    Status: complete
+    Owner: test
+    Dates: True True
+
+    >>> mart1.name == mart2.name
+    True
+    >>> mart1.code == mart2.code
+    False
+
 Make a table and transfer some data into it::
 
     >>> mc = MartCreator('test', 'some_data')
@@ -297,6 +331,18 @@ It complains if you try to load into an existing database that doesn't exist::
     Error: Database "a_db_that_doesnt_exist" does not exist
     While creating Mart database:
         existing_missing
+
+It complains if you try to create a fixed-name Mart when someone else already
+has a Mart with that name::
+
+    >>> mc = MartCreator('someoneelse', 'fixed_name')
+    >>> mart = mc()
+    Traceback (most recent call last):
+        ...
+    Error: Cannot set name of Mart to "a_fixed_name_mart" because a Mart with that name already exists owned by "test"
+    While purging previous fixed-name database
+    While creating Mart database:
+        fixed_name
 
 It complains if an HTSQL statement is bad::
 

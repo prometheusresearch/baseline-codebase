@@ -83,6 +83,16 @@ definitions:
       - script: !include/str simple_etl.htsql
         type: htsql
 
+  - id: fixed_name
+    description: Create Marts with the same database name every time
+    base:
+      type: fresh
+      fixed_name: a_fixed_name_mart
+    deploy: !include simple_deploy.yaml
+    post_deploy_scripts:
+      - script: !include/str simple_etl.htsql
+        type: htsql
+
   - id: existing_missing
     description: Load a missing existing database
     base:

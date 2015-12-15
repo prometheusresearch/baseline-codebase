@@ -3,6 +3,7 @@
 #
 
 
+import gc
 import sys
 import traceback
 
@@ -111,6 +112,12 @@ class MartCreateTask(RexTask):
                             traceback.format_exc(),
                         )
                     )
+
+                    # Do what we can to force a cleanup of broken HTSQL
+                    # instances that may be stuck in tracebacks, etc.
+                    sys.exc_clear()
+                    gc.collect()
+
                     if entry.halt_on_failure:
                         raise Error('Halting RunList due to creation error')
 

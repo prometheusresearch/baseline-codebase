@@ -380,7 +380,29 @@ Enrich field from port
 
   >>> test_enrich('individual', """
   ... - code
+  ... - value_key: sex
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+  [StringFormField(value_key=['code'], label=u'Code'),
+   EnumFormField(value_key=['sex'], label=u'Sex',
+                 options=[Record(value='not-known', label=u'Not Known'),
+                          Record(value='male', label=u'Male'),
+                          Record(value='female', label=u'Female'),
+                          Record(value='not-applicable', label=u'Not Applicable')])]
+
+  >>> test_enrich('individual', """
+  ... - code
   ... - identity.sex
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+  [StringFormField(value_key=['code'], label=u'Code'),
+   EnumFormField(value_key=['identity', 'sex'], label=u'Sex',
+                 options=[Record(value='not-known', label=u'Not Known'),
+                          Record(value='male', label=u'Male'),
+                          Record(value='female', label=u'Female'),
+                          Record(value='not-applicable', label=u'Not Applicable')])]
+
+  >>> test_enrich('individual', """
+  ... - code
+  ... - value_key: identity.sex
   ... """) # doctest: +NORMALIZE_WHITESPACE
   [StringFormField(value_key=['code'], label=u'Code'),
    EnumFormField(value_key=['identity', 'sex'], label=u'Sex',

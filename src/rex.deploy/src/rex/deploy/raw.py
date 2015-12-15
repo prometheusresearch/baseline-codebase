@@ -88,6 +88,7 @@ class RawFact(Fact):
                 raise Error("Discovered failed assertion:",
                             self.check_sql or self.check_sql_path)
             driver.submit(action_sql)
+            driver.reset()
 
     def _load(self, sql, sql_path):
         if sql is not None:

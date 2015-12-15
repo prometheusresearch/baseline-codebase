@@ -57,10 +57,9 @@ In case fields are not specified, they are generated from port::
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
-  <BLANKLINE>
-  ["~#widget", ["rex-action/lib/actions/Pick", ...]]
+  ...
 
-  >>> req = Request.blank('/?__to__=1.data', accept='application/json')
+  >>> req = Request.blank('/?__to__=1.content.1.data', accept='application/json')
   >>> print render_widget(pick, req) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/javascript
@@ -89,8 +88,7 @@ var to this filter::
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
-  <BLANKLINE>
-  ["~#widget", ["rex-action/lib/actions/Pick", ...]]
+  ...
 
   >>> pick.port
   Port('''
@@ -104,7 +102,7 @@ var to this filter::
     expression: id()
   ''')
 
-  >>> req = Request.blank('/?__to__=1.data', accept='application/json')
+  >>> req = Request.blank('/?__to__=1.content.1.data', accept='application/json')
   >>> print render_widget(pick, req) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   200 OK
   Content-Type: application/javascript
@@ -156,8 +154,7 @@ to those input variables::
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
-  <BLANKLINE>
-  ["~#widget", ["rex-action/lib/actions/Pick", ...]]
+  ...
 
   >>> pick.port # doctest: +NORMALIZE_WHITESPACE
   Port('''
@@ -172,7 +169,7 @@ to those input variables::
       expression: id()
   ''')
 
-  >>> req = Request.blank('/?__to__=1.data', accept='application/json')
+  >>> req = Request.blank('/?__to__=1.content.1.data', accept='application/json')
   >>> print render_widget(pick, req) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   200 OK
   Content-Type: application/javascript

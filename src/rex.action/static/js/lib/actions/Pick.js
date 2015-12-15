@@ -11,8 +11,9 @@ import DataTable            from 'rex-widget/lib/datatable/DataTable';
 import Port                 from 'rex-widget/lib/data/Port';
 import {command, Types}     from '../execution/Command';
 import * as Entity          from '../Entity';
-import Title                from './Title';
 import Action               from '../Action';
+import applyContext         from '../applyContext';
+import Title                from './Title';
 
 @Stylesheet.styleable
 export default class Pick extends React.Component {
@@ -48,7 +49,7 @@ export default class Pick extends React.Component {
     let title = this.constructor.getTitle(this.props);
     let selected = context[entity.name] ? context[entity.name].id : undefined;
     let data = Port(this.props.data.port.path)
-      .params(getContextParameters(contextTypes.input, context));
+    data = applyContext(data, contextTypes.input, context);
     if (search) {
       data = data.params({'*:__search__': search});
     }
@@ -103,15 +104,4 @@ export default class Pick extends React.Component {
       }
     }
   };
-}
-
-function getContextParameters(input, context) {
-  let parameters = {};
-  for (let key in input.rows) {
-    if (input.rows.hasOwnProperty(key)) {
-      let value = context[key];
-      parameters[':' + key] = Entity.isEntity(value) ? value.id : value;
-    }
-  }
-  return parameters;
 }

@@ -19,7 +19,7 @@ from rex.core import RecordVal, UnionVal, MapVal, StrVal, SeqVal, OnField
 from rex.widget import TransitionableRecord
 
 __all__ = (
-    'Start', 'Execute', 'ExecuteWizard', 'Repeat',
+    'Start', 'Execute', 'IncludeWizard', 'Repeat', 'Replace',
     'InstructionVal', 'PathVal',
     'visit', 'map',
 )
@@ -41,10 +41,19 @@ class Execute(TransitionableRecord):
     __transit_tag__ = 'rex:action:execute'
 
 
-class ExecuteWizard(Execute):
+class IncludeWizard(Execute):
     """ Execute action."""
 
-    __transit_tag__ = 'rex:action:execute_wizard'
+    __transit_tag__ = 'rex:action:include_wizard'
+
+
+class Replace(TransitionableRecord):
+
+    fields = ('replace', 'instruction')
+
+    __transit_tag__ = 'rex:action:replace'
+
+    then = []
 
 
 class Repeat(TransitionableRecord):
@@ -68,12 +77,17 @@ def visit(instruction, visitor):
 
 
 def map(instruction, mapper):
-    instruction = mapper(instruction)
-    instruction = instruction.__clone__(
-        then=[map(inst, mapper) for inst in instruction.then])
-    if isinstance(instruction, Repeat):
+    return _map(instruction, mapper, [])
+
+def _map(instruction, mapper, ancestors):
+    instruction = mapper(instruction, ancestors)
+    if isinstance(instruction, (Start, IncludeWizard, Execute)):
+        ancestors = ancestors + [instruction]
         instruction = instruction.__clone__(
-            repeat=map(instruction.repeat, mapper))
+            then=[_map(inst, mapper, ancestors) for inst in instruction.then])
+    elif isinstance(instruction, Repeat):
+        instruction = instruction.__clone__(
+            repeat=_map(instruction.repeat, mapper, ancestors))
     return instruction
 
 
@@ -102,7 +116,8 @@ class ThenVal(ValidateWithAction):
     def _validate(self):
         return SeqVal(UnionVal(
             ExecuteVal(self.resolve_action).variant,
-            RepeatVal(self.resolve_action).variant, 
+            RepeatVal(self.resolve_action).variant,
+            ReplaceVal(self.resolve_action).variant,
             ExecuteShortcutVal(self.resolve_action)))
 
     def _check(self, value):
@@ -146,16 +161,16 @@ class BaseInstructionVal(ValidateWithAction):
 
 
 class ExecuteVal(BaseInstructionVal):
-    """ Validator for :class:`Execute` action."""
+    """ Validator for :class:`Execute` instruction."""
 
-    instruction_type = (Execute, ExecuteWizard)
+    instruction_type = (Execute, IncludeWizard)
     instruction_match = OnField('action')
 
     def create_instruction(self, action=None, then=None):
         from .wizard import WizardBase as Wizard
         action_instance = self.resolve_action(action)
         if isinstance(action_instance, Wizard):
-            return ExecuteWizard(
+            return IncludeWizard(
                 action=action,
                 then=then,
                 action_instance=action_instance)
@@ -173,8 +188,24 @@ class ExecuteVal(BaseInstructionVal):
         )
 
 
+class ReplaceVal(BaseInstructionVal):
+    """ Validator for :class:`Replace` instruction."""
+
+    instruction_type = Replace
+    instruction_match = OnField('replace')
+
+    def create_instruction(self, replace=None):
+        return Replace(replace=replace, instruction=None)
+
+    @cached_property
+    def instruction_validator(self):
+        return RecordVal(
+            ('replace', StrVal()),
+        )
+
+
 class RepeatVal(BaseInstructionVal):
-    """ Validator for :class:`Repeat` action."""
+    """ Validator for :class:`Repeat` instruction."""
 
     instruction_type = Repeat
     instruction_match = OnField('repeat')
@@ -183,7 +214,7 @@ class RepeatVal(BaseInstructionVal):
     def instruction_validator(self):
         instruction_val = UnionVal(
             ExecuteVal(self.resolve_action).variant,
-            RepeatVal(self.resolve_action).variant, 
+            RepeatVal(self.resolve_action).variant,
             ExecuteShortcutVal(self.resolve_action))
         return RecordVal(
             ('repeat', instruction_val),
@@ -201,7 +232,7 @@ class ExecuteShortcutVal(ValidateWithAction):
         action, then = value.iteritems().next()
         action_instance = self.resolve_action(action)
         if isinstance(action_instance, Wizard):
-            return ExecuteWizard(
+            return IncludeWizard(
                 action=action,
                 then=then,
                 action_instance=action_instance)
@@ -236,7 +267,8 @@ class InstructionVal(ValidateWithAction):
     def __call__(self, value):
         validate = UnionVal(
             ExecuteVal(self.resolve_action).variant,
-            RepeatVal(self.resolve_action).variant, 
+            RepeatVal(self.resolve_action).variant,
+            ReplaceVal(self.resolve_action).variant,
             ExecuteShortcutVal(self.resolve_action))
         return validate(value)
 
@@ -246,14 +278,58 @@ class PathVal(Validate):
     def __init__(self, resolve_action):
         self.resolve_action = resolve_action
 
+    def _attach_references_mapper(self, instruction, path):
+        if isinstance(instruction, Replace):
+            delegate_instruction = resolve_reference(instruction.replace, path)
+            if not isinstance(delegate_instruction, Execute):
+                raise Error(
+                    'Replace %s should point to another action, got:' % instruction.replace,
+                    delegate_instruction.__class__.__name__)
+            return instruction.__clone__(instruction=delegate_instruction)
+        else:
+            return instruction
+
+    def _attach_references(self, path):
+        return map(path, self._attach_references_mapper)
+
     def __call__(self, value):
         if isinstance(value, Start):
             return value
         validate = ThenVal(self.resolve_action)
-        instructions = validate(value)
-        return Start(then=instructions)
+        path = validate(value)
+        path = Start(then=path)
+        path = self._attach_references(path)
+        return path
 
     def construct(self, loader, node):
         validate = ThenVal(self.resolve_action)
-        instructions = validate.construct(loader, node)
-        return Start(then=instructions)
+        path = validate.construct(loader, node)
+        path = Start(then=path)
+        path = self._attach_references(path)
+        return path
+
+
+def resolve_reference(reference, path):
+    if not isinstance(reference, list):
+        reference = reference.split('/')
+    stack = path[:]
+    for segment in reference:
+        if not segment:
+            continue
+        elif segment == '.':
+            continue
+        elif segment == '..':
+            stack.pop()
+        else:
+            top = stack[-1]
+            for action in top.then:
+                if not isinstance(action, Execute):
+                    continue
+                if action.action == segment:
+                    stack.append(action)
+                    break
+            if top == stack[-1]:
+                raise Error('Invalid reference:', '/'.join(reference))
+        if not stack:
+            raise Error('Invalid reference:', '/'.join(reference))
+    return stack[-1]

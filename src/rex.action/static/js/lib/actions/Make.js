@@ -11,6 +11,7 @@ import Action               from '../Action';
 import * as ObjectTemplate  from '../ObjectTemplate';
 import * as ContextUtils    from '../ContextUtils';
 import {SuccessButton}      from '../ui';
+import applyContext         from '../applyContext';
 
 export default class Make extends React.Component {
 
@@ -51,7 +52,7 @@ export default class Make extends React.Component {
           ref="form"
           entity={entity.type.name}
           fields={fields}
-          submitTo={this.props.dataMutation}
+          submitTo={applyContext(this.props.dataMutation.port, contextTypes.input, context)}
           submitButton={null}
           onSubmitComplete={this.onSubmitComplete}
           value={value}

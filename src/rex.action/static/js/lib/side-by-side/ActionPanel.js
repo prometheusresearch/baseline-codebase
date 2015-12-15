@@ -14,24 +14,24 @@ import Style          from './ActionPanel.style';
 export default class ActionPanel extends React.Component {
 
   render() {
-    let {execution, position, onReplace, onClose, style} = this.props;
-    let sidebar = execution.getAlternativeActions(position).map(pos =>
+    let {graph, node, onReplace, onClose, style} = this.props;
+    let sidebar = graph.siblingActions(node).map(pos =>
       <VBox key={pos.keyPath}>
         <ActionButton
           align="right"
-          active={pos.keyPath === position.keyPath}
-          position={pos}
+          active={pos.keyPath === node.keyPath}
+          node={pos}
           onClick={onReplace}
           />
-        {pos.keyPath == position.keyPath && position.element.type.canRenderSidebar &&
+        {pos.keyPath == node.keyPath && node.element.type.canRenderSidebar &&
           <ActionSidebar action={pos.keyPath} />}
       </VBox>
     );
-    let action = React.cloneElement(position.element, {
-      context: position.context,
-      execution,
+    let action = React.cloneElement(node.element, {
+      context: node.context,
+      graph,
       onContext: this._onContext,
-      actionState: position.state,
+      actionState: node.state,
       setActionState: this._onState,
       onCommand: this._onCommand,
       onEntityUpdate: this.props.onEntityUpdate,
@@ -40,8 +40,8 @@ export default class ActionPanel extends React.Component {
     return (
       <Panel
         {...this.props}
-        style={{...style, width: position.element.props.width}}
-        action={position.keyPath}
+        style={{...style, width: node.element.props.width}}
+        action={node.keyPath}
         sidebar={sidebar}
         theme={Style}>
         {action}
@@ -51,17 +51,18 @@ export default class ActionPanel extends React.Component {
 
   @autobind
   _onContext(context) {
-    this.props.onContext(this.props.position, context);
+    this.props.onContext(this.props.node, context);
   }
 
   @autobind
   _onState(stateUpdate) {
-    this.props.onState(this.props.position, stateUpdate);
+    this.props.onState(this.props.node, stateUpdate);
   }
 
   @autobind
   _onCommand(commandName, ...args) {
-    this.props.onCommand(this.props.position, commandName, ...args);
+    return getIconAtNode(props.actions[0]);
+    this.props.onCommand(this.props.node, commandName, ...args);
   }
 
 }

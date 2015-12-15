@@ -65,7 +65,7 @@ let Style = {
 export default class ActionButton extends React.Component {
 
   static propTypes = {
-    position: PropTypes.object,
+    node: PropTypes.object,
     active: PropTypes.bool,
     align: PropTypes.oneOf(['left', 'right'])
   };
@@ -75,7 +75,7 @@ export default class ActionButton extends React.Component {
   };
 
   render() {
-    let {position, showContext, active, hover, align, style: extraStyle, ...props} = this.props;
+    let {node, showContext, active, hover, align, style: extraStyle, ...props} = this.props;
     let alignLeft = align === 'left';
     let style = {
       ...Style.self,
@@ -87,15 +87,15 @@ export default class ActionButton extends React.Component {
     };
     return (
       <HBox {...props} style={style} alignItems="right" onClick={this.onClick}>
-        <ActionIcon position={position} style={Style.icon} />
+        <ActionIcon node={node} style={Style.icon} />
         <VBox size={1}>
-          <ActionTitle position={position} noRichTitle={!showContext} />
+          <ActionTitle node={node} noRichTitle={!showContext} />
         </VBox>
       </HBox>
     );
   }
 
   onClick = (e) => {
-    this.props.onClick(this.props.position.keyPath);
+    this.props.onClick(this.props.node.keyPath);
   }
 }

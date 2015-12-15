@@ -18,7 +18,7 @@ from cached_property import cached_property
 
 from rex.core import (
     Location, Error, Validate, autoreload, get_packages,
-    MaybeVal, StrVal, IntVal, SeqVal, MapVal, OMapVal, AnyVal,
+    MaybeVal, StrVal, IntVal, SeqVal, MapVal, OMapVal, OneOfVal, AnyVal,
     cached, guard)
 from rex.web import authorize, confine
 from rex.widget import (
@@ -31,6 +31,7 @@ from rex.widget.render import render
 from rex.urlmap import Map
 
 from . import typing
+from .validate import ActionReferenceVal, GlobalActionReference
 
 __all__ = ('ActionBase', 'Action', 'ActionVal', 'ActionMapVal')
 
@@ -115,8 +116,9 @@ class ActionBase(Widget):
         """ Override typing domain."""
         return self.__clone__(__domain=domain)
 
-    def with_context_types(self, context_types):
-        """ Override context types."""
+    def refine_input(self, input):
+        input = self.context_types.input.refine(input)
+        context_types = self.context_types.__clone__(input=input)
         return self.__clone__(__context_types=context_types)
 
     @cached_property
@@ -126,11 +128,11 @@ class ActionBase(Widget):
         input, output = self.context()
         if not isinstance(input, typing.Type):
             raise Error(
-                'Action "%s" of type "%s" does specified incorrect input type:'\
+                'Action "%s" of type "%s" specified incorrect input type:'\
                 % (self.id, self.name.name), input)
         if not isinstance(output, typing.Type):
             raise Error(
-                'Action "%s" of type "%s" does specified incorrect output type:'\
+                'Action "%s" of type "%s" specified incorrect output type:'\
                 % (self.id, self.name.name), output)
         return ContextTypes(input, output)
 
@@ -246,14 +248,19 @@ class ActionMapVal(Validate):
     _validate_pre = MapVal(StrVal(), DeferredVal(validate=AnyVal()))
     _validate_id = StrVal()
 
+    def _validate_action_value(self, id):
+        return OneOfVal(
+            ActionReferenceVal(reference_type=GlobalActionReference),
+            ActionVal(id=id))
+
     def construct(self, loader, node):
         mapping = self._validate_pre.construct(loader, node)
-        return {k: v.resolve(validate=ActionVal(id=k))
+        return {k: v.resolve(validate=self._validate_action_value(k))
                 for k, v in mapping.items()}
 
     def __call__(self, value):
         mapping = self._validate_pre(value)
-        return {k: v.resolve(validate=ActionVal(id=k))
+        return {k: v.resolve(validate=self._validate_action_value(k))
                 for k, v in mapping.items()}
 
 

@@ -27,17 +27,6 @@ paths:
         - code
         - sex
 
-  /individuals/pick:
-    access: anybody
-    action:
-      type: pick
-      entity: individual
-      search: code~$search
-      fields:
-      - code
-      - identity.givenname
-      - identity.surname
-
   /individuals/view:
     access: anybody
     action:
@@ -49,14 +38,29 @@ paths:
       - identity.surname
       - sex
 
-  /individuals/wizard:
+  /individuals/pick-make:
     access: anybody
     action:
       type: wizard
       title: Individuals
       path:
-      - /individuals/pick:
-      - /individuals/make:
+      - pick-individual:
+      - make-individual:
+        - replace: ../pick-individual
+      actions:
+        make-individual: /individuals/make
+        view-individual: /individuals/view
+        view-lab: /labs/view
+        pick-lab: /labs/pick
+        pick-individual:
+          type: pick
+          entity: individual
+          search: code~$search
+          fields:
+          - code
+          - identity.givenname
+          - identity.surname
+
 
   /individuals/edit:
     access: anybody
@@ -65,16 +69,11 @@ paths:
       title: Individuals Edit
       path:
       - edit-individual:
-        - /individuals/view:
+        - view-individual:
         - drop-individual:
 
-      states:
-        individual:
-          x:
-            title: X
-            expression: id() = 'A11Z1814'
-
       actions:
+        view-individual: /individuals/view
         drop-individual:
           type: drop
           entity: individual[x]
@@ -90,18 +89,29 @@ paths:
               { id := $id }
             )
 
+      states:
+        individual:
+          x:
+            title: Super
+            expression: id() = 'A11Z1814'
+
   /:
     access: anybody
     action:
       type: wizard
       path:
-      - /individuals/wizard:
+      - pick-make-individual:
         - drop-individual:
-        - /individuals/view?individual=individual[super]:
-        - /individuals/edit:
-      - /labs/pick:
-        - /labs/view:
+        - view-individual:
+        - edit-individual:
+      - pick-lab:
+        - view-lab:
       actions:
+        pick-lab: /labs/pick
+        view-lab: /labs/view
+        pick-make-individual: /individuals/pick-make
+        view-individual: /individuals/view?individual=individual[super]
+        edit-individual: /individuals/edit
         drop-individual:
           type: drop
           entity: individual

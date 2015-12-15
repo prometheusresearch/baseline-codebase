@@ -5,11 +5,11 @@
 import React, {PropTypes} from 'react';
 import Icon               from 'rex-widget/lib/Icon';
 
-export function getIconAtPosition(position) {
-  if (position.element == null) {
+export function getIconAtNode(node) {
+  if (node.element == null) {
     return null;
   }
-  let {type: Component, props} = position.element;
+  let {type: Component, props} = node.element;
   if (Component.getIcon) {
     return Component.getIcon(props);
   } else if (props.icon) {
@@ -26,12 +26,12 @@ export function getIconAtPosition(position) {
 export default class ActionIcon extends React.Component {
 
   static propTypes = {
-    position: PropTypes.object.isRequired
+    node: PropTypes.object.isRequired
   };
 
   render() {
-    let {position, ...props} = this.props;
-    let name = getIconAtPosition(position);
+    let {node, ...props} = this.props;
+    let name = getIconAtNode(node);
     return name ? <Icon {...props} name={name} /> : null;
   }
 }

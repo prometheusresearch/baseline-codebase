@@ -11,7 +11,7 @@ import {translate3d}      from 'rex-widget/lib/StyleUtils';
 import WithDOMSize        from 'rex-widget/lib/WithDOMSize';
 
 import * as Command       from '../execution/Command';
-import * as ExecutionPath from '../ExecutionPath';
+import * as GraphPath from '../GraphPath';
 import Component          from '../StatefulComponent';
 import HistoryAware       from '../HistoryAware';
 
@@ -23,8 +23,8 @@ import Style              from './Wizard.style';
 
 const DEFAULT_ACTION_WIDTH = 480;
 
-function getWidthAtPosition(position, defaultWidth = DEFAULT_ACTION_WIDTH) {
-  let element = position.element;
+function getWidthAtNode(node, defaultWidth = DEFAULT_ACTION_WIDTH) {
+  let element = node.element;
   if (element.props.width) {
     return element.props.width;
   } else if (element.type.getDefaultProps) {
@@ -72,30 +72,30 @@ export default class Wizard extends Component {
   constructor(props) {
     super(props);
     this._pushedPath = null;
-    let execution = null;
+    let graph = null;
     let metrics = {
       size: null,
       focus: null,
       translateX: 0,
-      visiblePosition: []
+      visibleNode: []
     };
     if (props.disableHistory) {
-      execution = ExecutionPath.fromPath(
+      graph = GraphPath.fromPath(
         props.location.pathname,
         props.path,
         props.initialContext // initialContext can't be changed
       );
-      metrics = {...metrics, focus: execution.trace[1].keyPath};
+      metrics = {...metrics, focus: graph.trace[1].keyPath};
     }
     this.state = {
-      execution,
+      graph,
       metrics
     };
   }
 
   render() {
     let {location, breadcrumb} = this.props;
-    let {metrics, execution} = this.state;
+    let {metrics, graph} = this.state;
     if (metrics.size === null || location === null) {
       return <VBox className={Style.self} />;
     } else {
@@ -107,12 +107,12 @@ export default class Wizard extends Component {
               size={1}
               className={Style.itemsCanvas}
               style={{transform: translate3d(-metrics.translateX, 0, 0)}}>
-              {execution.trace.slice(1).map((pos, idx) =>
+              {graph.trace.slice(1).map((pos, idx) =>
                 <ActionPanel
-                  execution={execution}
-                  position={pos}
+                  graph={graph}
+                  node={pos}
                   key={pos.key}
-                  active={metrics.visiblePosition.indexOf(pos.keyPath) > -1}
+                  active={metrics.visibleNode.indexOf(pos.keyPath) > -1}
                   className={Style.item}
                   style={{zIndex: 1000}}
                   onReplace={this.scheduleCommand(this.replace, pos.keyPath)}
@@ -127,11 +127,11 @@ export default class Wizard extends Component {
                   />)}
               <ServicePanel
                 key="service"
-                active={metrics.visiblePosition.indexOf(ServicePanel.id) > -1}
+                active={metrics.visibleNode.indexOf(ServicePanel.id) > -1}
                 className={Style.item}
                 onFocus={this.scheduleCommand(this.ensureIsInViewport)}
                 style={{zIndex: 999}}
-                execution={execution}
+                graph={graph}
                 wizard={this}
                 />
             </HBox>
@@ -143,11 +143,11 @@ export default class Wizard extends Component {
   }
 
   renderBreadcrumb() {
-    let {metrics, execution} = this.state;
+    let {metrics, graph} = this.state;
     return (
       <VBox className={Style.breadcrumb}>
         <Breadcrumb
-          execution={execution}
+          graph={graph}
           metrics={metrics}
           onClick={this._onBreadcrumbClick}
           />
@@ -166,22 +166,22 @@ export default class Wizard extends Component {
       nextProps.location.action === 'POP' &&
       nextProps.location.pathname !== this.props.location.pathname
     ) {
-      let execution = ExecutionPath.fromPath(
+      let graph = GraphPath.fromPath(
         nextProps.location.pathname,
         nextProps.path,
         this.props.initialContext // initialContext can't be changed
       );
-      let metrics = {...state.metrics, focus: execution.trace[1].keyPath};
-      state = {...state, execution, metrics};
+      let metrics = {...state.metrics, focus: graph.trace[1].keyPath};
+      state = {...state, graph, metrics};
       if (this.props.DOMSize) {
         state = this.setSize(this.props.DOMSize)(state);
-        state = this.ensureIsInViewport(state.execution.position.keyPath)(state);
+        state = this.ensureIsInViewport(state.graph.node.keyPath)(state);
       }
     }
     if (nextProps.DOMSize !== this.props.DOMSize) {
       if (this.props.DOMSize === null && nextProps.DOMSize) {
         state = this.setSize(nextProps.DOMSize)(state);
-        state = this.ensureIsInViewport(state.execution.position.keyPath)(state);
+        state = this.ensureIsInViewport(state.graph.node.keyPath)(state);
       } else {
         state = this.setSize(nextProps.DOMSize)(state);
       }
@@ -189,11 +189,11 @@ export default class Wizard extends Component {
     return state;
   }
 
-  _pushExecutionToPath(execution) {
+  _pushGraphToPath(graph) {
     if (this.props.disableHistory) {
       return;
     }
-    let path = ExecutionPath.toPath(execution);
+    let path = GraphPath.toPath(graph);
     if (this._pushedPath !== path) {
       this._pushedPath = path;
       this.props.history.pushState(null, path);
@@ -202,8 +202,8 @@ export default class Wizard extends Component {
 
   @autobind
   _onBreadcrumbClick(action) {
-    let {execution, metrics} = this.state;
-    let actions = execution.trace.map(pos => pos.keyPath);
+    let {graph, metrics} = this.state;
+    let actions = graph.trace.map(pos => pos.keyPath);
     if (this.isInViewport(this.state, action)) {
       let focusIdx = actions.indexOf(metrics.focus);
       let idx = actions.indexOf(action);
@@ -218,71 +218,71 @@ export default class Wizard extends Component {
   }
 
   @Component.command
-  executeActionCommand(state, position, commandName, ...args) {
-    // if position from which command originates differs from the current
-    // execution position then close all further action panels.
-    if (state.execution.position.keyPath !== position.keyPath) {
-      let nextActionIdx = state.execution.indexOf(position.keyPath) + 1;
-      let nextAction = state.execution.trace[nextActionIdx].keyPath;
+  executeActionCommand(state, node, commandName, ...args) {
+    // if node from which command originates differs from the current
+    // graph node then close all further action panels.
+    if (state.graph.node.keyPath !== node.keyPath) {
+      let nextActionIdx = state.graph.indexOf(node.keyPath) + 1;
+      let nextAction = state.graph.trace[nextActionIdx].keyPath;
       state = this._close(nextAction)(state);
     }
-    let execution = state.execution.executeCommandAtCurrentPosition(
+    let graph = state.graph.executeCommandAtCurrentNode(
         commandName,
         ...args);
-    state = {...state, execution};
+    state = {...state, graph};
     state = this.updateMetrics()(state);
-    state = this.ensureIsInViewport(state.execution.position.keyPath)(state);
-    this._pushExecutionToPath(execution);
+    state = this.ensureIsInViewport(state.graph.node.keyPath)(state);
+    this._pushGraphToPath(graph);
     return state;
   }
 
   @Component.command
-  onContext(state, position, context) {
+  onContext(state, node, context) {
     return this.executeActionCommand(
-      position,
+      node,
       Command.onContextCommand.name,
       context
     )(state);
   }
 
   @Component.command
-  onState(state, position, stateUpdate) {
-    let execution = state.execution.setState(position, stateUpdate);
-    return {...state, execution};
+  onState(state, node, stateUpdate) {
+    let graph = state.graph.setState(node, stateUpdate);
+    return {...state, graph};
   }
 
   @Component.command
   entityUpdate(state, prevEntity, nextEntity) {
-    let {execution} = state;
-    execution = execution.updateEntity(prevEntity, nextEntity);
-    state = {...state, execution};
-    state = this.updateMetrics(state.execution.position.keyPath)(state);
-    state = this.ensureIsInViewport(state.execution.position.keyPath)(state);
-    this._pushExecutionToPath(state.execution);
+    let {graph} = state;
+    graph = graph.updateEntity(prevEntity, nextEntity);
+    state = {...state, graph};
+    state = this.updateMetrics(state.graph.node.keyPath)(state);
+    state = this.ensureIsInViewport(state.graph.node.keyPath)(state);
+    this._pushGraphToPath(state.graph);
     return state;
   }
 
   @Component.command
   advanceTo(state, action, contextUpdate = {}) {
-    let execution = state.execution.advance(action, contextUpdate);
-    state = {...state, execution};
+    let graph = state.graph.advance(action, contextUpdate);
+    state = {...state, graph};
     state = this.updateMetrics()(state);
-    state = this.ensureIsInViewport(state.execution.position.keyPath)(state);
-    this._pushExecutionToPath(state.execution);
+    state = this.ensureIsInViewport(state.graph.node.keyPath)(state);
+    this._pushGraphToPath(state.graph);
     return state;
   }
 
   @Component.command
   replace(state, action, nextAction) {
-    let idx = state.execution.indexOf(state.metrics.focus);
-    let execution = state.execution.replace(action, nextAction);
-    let newFocus = execution.trace[idx] ?
-      execution.trace[idx].keyPath:
-      execution.position.keyPath;
-    state = {...state, execution};
+    let idx = state.graph.indexOf(state.metrics.focus);
+    let graph = state.graph.replace(action, nextAction);
+    let newFocus = graph.trace[idx] ?
+      graph.trace[idx].keyPath:
+      graph.node.keyPath;
+    state = {...state, graph};
     state = this.focus(newFocus)(state);
     state = this.ensureIsInViewport(nextAction)(state);
-    this._pushExecutionToPath(state.execution);
+    this._pushGraphToPath(state.graph);
     return state;
   }
 
@@ -297,8 +297,8 @@ export default class Wizard extends Component {
   @Component.command
   updateMetrics(state, focus) {
     focus = focus || state.metrics.focus;
-    let panels = state.execution.trace.slice(1)
-      .map(position => _computePanelMetrics(state.execution, position))
+    let panels = state.graph.trace.slice(1)
+      .map(node => _computePanelMetrics(state.graph, node))
       .concat({action: ServicePanel.id, width: 150});
     let metrics = _computeCanvasMetrics(panels, focus, state.metrics.size);
     return {...state, metrics};
@@ -307,7 +307,7 @@ export default class Wizard extends Component {
   @Component.command
   close(state, action) {
     state = this._close(action)(state);
-    this._pushExecutionToPath(state.execution);
+    this._pushGraphToPath(state.graph);
     return state;
   }
 
@@ -317,9 +317,9 @@ export default class Wizard extends Component {
    */
   @Component.command
   _close(state, action) {
-    let execution = state.execution.close(action);
-    state = {...state, execution};
-    state = this.focus(execution.position.keyPath)(state);
+    let graph = state.graph.close(action);
+    state = {...state, graph};
+    state = this.focus(graph.node.keyPath)(state);
     return state;
   }
 
@@ -328,7 +328,7 @@ export default class Wizard extends Component {
    */
   @Component.command
   ensureIsInViewport(state, action) {
-    let actions = state.execution.trace
+    let actions = state.graph.trace
       .map(pos => pos.keyPath)
       .concat(ServicePanel.id);
     let idx = actions.indexOf(action);
@@ -357,7 +357,7 @@ export default class Wizard extends Component {
    */
   @autobind
   isInViewport(state, keyPath) {
-    return state.metrics.visiblePosition.indexOf(keyPath) > -1;
+    return state.metrics.visibleNode.indexOf(keyPath) > -1;
   }
 
   /**
@@ -365,8 +365,8 @@ export default class Wizard extends Component {
    */
   @Component.command
   moveFocus(state, delta) {
-    let {execution, metrics} = state;
-    let actions = execution.trace.map(pos => pos.keyPath);
+    let {graph, metrics} = state;
+    let actions = graph.trace.map(pos => pos.keyPath);
     let idx = actions.indexOf(metrics.focus);
     let nextIdx = idx + delta;
     if (nextIdx >= 0 && nextIdx < actions.length) {
@@ -381,18 +381,18 @@ export default class Wizard extends Component {
     let metrics = {...state.metrics, size};
     state = {...state, metrics};
     state = this.updateMetrics(undefined)(state);
-    state = this.ensureIsInViewport(state.execution.position.keyPath)(state);
+    state = this.ensureIsInViewport(state.graph.node.keyPath)(state);
     return state;
   }
 
 }
 
-function _computePanelMetrics(execution, position) {
-  var width = getWidthAtPosition(position) || 300 // Panel.Style.self.minWidth;
-  if (execution.getAlternativeActions(position).length > 0) {
+function _computePanelMetrics(graph, node) {
+  var width = getWidthAtNode(node) || 300 // Panel.Style.self.minWidth;
+  if (graph.siblingActions(node).length > 0) {
     width = width + 150; // Panel.Style.sidebar.width
   }
-  return {width, action: position.keyPath};
+  return {width, action: node.keyPath};
 }
 
 function _computeCanvasMetrics(panels, focus, size) {
@@ -400,7 +400,7 @@ function _computeCanvasMetrics(panels, focus, size) {
   let seenWidth = 0;
   let scrollToIdx;
   let translateX = 0;
-  let visiblePosition = [];
+  let visibleNode = [];
 
   for (let i = 0; i < panels.length; i++) {
     let panel = panels[i];
@@ -411,7 +411,7 @@ function _computeCanvasMetrics(panels, focus, size) {
     if (widthToDistribute !== undefined) {
       widthToDistribute = widthToDistribute - panel.width;
       if (widthToDistribute >= 0) {
-        visiblePosition.push(panel.action);
+        visibleNode.push(panel.action);
       } else {
         break;
       }
@@ -429,7 +429,7 @@ function _computeCanvasMetrics(panels, focus, size) {
   return {
     focus,
     translateX,
-    visiblePosition,
+    visibleNode,
     size
   };
 }

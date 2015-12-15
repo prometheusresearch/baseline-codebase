@@ -14,6 +14,7 @@ import {SuccessButton}      from '../ui';
 import {getEntityTitle}     from '../Entity';
 import Title                from './Title';
 import fetchEntity          from './fetchEntity';
+import applyContext         from '../applyContext';
 
 @Fetch(fetchEntity)
 export default class Edit extends React.Component {

@@ -29,14 +29,14 @@ export default class ContextToolbar extends React.Component {
   });
 
   render() {
-    let {execution, wizard, onClick} = this.props;
+    let {graph, wizard, onClick} = this.props;
     let {Self, Button} = this.stylesheet;
-    let buttons = execution.trace.slice(1, -1).map(position =>
+    let buttons = graph.trace.slice(1, -1).map(node =>
       <Button
         showContext
         onClick={onClick}
-        position={position}
-        key={position.keyPath}
+        node={node}
+        key={node.keyPath}
         />
     );
     return <Self>{buttons}</Self>;

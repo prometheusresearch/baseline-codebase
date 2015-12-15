@@ -7,7 +7,7 @@ import React                from 'react';
 import RexWidget            from 'rex-widget';
 import Action               from '../Action';
 import ActionButton         from '../side-by-side/ActionButton';
-import {getIconAtPosition}  from '../ActionIcon';
+import {getIconAtNode}  from '../ActionIcon';
 import SidebarRenderer      from '../SidebarRenderer';
 
 let {VBox} = RexWidget.Layout;
@@ -81,6 +81,6 @@ export default class Alternative extends React.Component {
 
   static getIcon(props) {
     let Actions = require('../actions');
-    return getIconAtPosition(props.actions[0]);
+    return getIconAtNode(props.actions[0]);
   }
 }

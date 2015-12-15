@@ -39,8 +39,12 @@ Transitionable.register('rex:action:execute', function decode_type_record(payloa
   return new Instruction.Execute(payload[0], payload[1], payload[2]);
 });
 
-Transitionable.register('rex:action:execute_wizard', function decode_type_record(payload) {
-  return new Instruction.ExecuteWizard(payload[0], payload[1], payload[2]);
+Transitionable.register('rex:action:include_wizard', function decode_type_record(payload) {
+  return new Instruction.IncludeWizard(payload[0], payload[1], payload[2]);
+});
+
+Transitionable.register('rex:action:replace', function decode_type_record(payload) {
+  return new Instruction.Replace(payload[0]);
 });
 
 Transitionable.register('rex:action:repeat', function decode_type_record(payload) {

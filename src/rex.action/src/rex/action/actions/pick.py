@@ -12,8 +12,7 @@ from rex.port import Port
 from rex.widget import Field, ColumnVal, undefined
 from rex.widget import dataspec
 
-from ..dataspec import ContextBinding
-from ..typing import RecordTypeVal, RecordType
+from .. import typing
 from .entity_action import _EntityAction as EntityAction
 
 __all__ = ('Pick',)
@@ -68,7 +67,7 @@ class Pick(EntityAction):
         """)
 
     input = Field(
-        RecordTypeVal(), default=RecordType.empty(),
+        typing.RecordTypeVal(), default=typing.RecordType.empty(),
         doc="""
         Context requirements.
 
@@ -112,7 +111,7 @@ class Pick(EntityAction):
         return port
 
     def context(self):
-        return self.input, RecordType([self.entity])
+        return self.input, typing.RecordType([self.entity])
 
 
 def expr_and(exprs):

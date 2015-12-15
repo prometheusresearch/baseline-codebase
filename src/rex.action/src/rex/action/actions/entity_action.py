@@ -112,7 +112,7 @@ class _EntityAction(Action):
         """
         entity = entity or self.entity.type.name
         fields = fields or self.fields
-        parameters = {k: None for k in self.input.rows}
+        parameters = {k: None for k in self.context_types.input.rows}
         port = formfield.to_port(
             entity, fields,
             filters=filters,

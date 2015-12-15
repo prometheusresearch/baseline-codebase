@@ -188,8 +188,11 @@ You can refer to actions by its path within the URL mapping::
     action:
       type: wizard
       path:
-      - /individual/pick:
-        - /individual/view:
+      - pick-individual:
+        - view-individual:
+      actions:
+        pick-individual: /individual/pick
+        view-individual: /individual/view
 
 If you specify just a path the action will be looked up within the same package
 as the wizard is being defined. You can use full package path::
@@ -198,9 +201,13 @@ as the wizard is being defined. You can use full package path::
     action:
       type: wizard
       path:
-      - /individual/pick:
-        - /individual/view:
-        - package:/individual/extra-action
+      - pick-individual:
+        - view-individual:
+        - extra-individual-action:
+      actions:
+        pick-individual: /individual/pick
+        view-individual: /individual/view
+        extra-individual-action: package:/individual/extra-action
 
 Entity types and states
 -----------------------

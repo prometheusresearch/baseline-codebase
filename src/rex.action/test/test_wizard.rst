@@ -214,29 +214,8 @@ Action resolution
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Found unknown local action reference:
+  Error: Found unknown action reference:
       x-local-action
-  While parsing:
-      "...", line 5
-  While initializing RexDB application:
-      -
-      rex.action
-      SandboxPackage()
-      SandboxPackage('other')
-  With parameters:
-      db: 'pgsql:action_demo'
-
-  >>> parse("""
-  ... paths:
-  ...   /:
-  ...     action:
-  ...       type: wizard
-  ...       path:
-  ...       - local-action:
-  ... """) # doctest: +ELLIPSIS
-  Traceback (most recent call last):
-  ...
-  Error: Local actions are not allowed in this configuration
   While parsing:
       "...", line 5
   While initializing RexDB application:
@@ -256,7 +235,9 @@ Action resolution
   ...     action:
   ...       type: wizard
   ...       path:
-  ...       - /x-action:
+  ...       - name:
+  ...       actions:
+  ...         name: /x-action
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -281,7 +262,9 @@ Action resolution
   ...     action:
   ...       type: wizard
   ...       path:
-  ...       - /action:
+  ...       - name:
+  ...       actions:
+  ...         name: /action
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -303,7 +286,9 @@ Action resolution
   ...     action:
   ...       type: wizard
   ...       path:
-  ...       - other:/action:
+  ...       - other-action:
+  ...       actions:
+  ...         other-action: other:/action
   ... """, """
   ... paths:
   ...   /action:
@@ -317,7 +302,9 @@ Action resolution
   ...     action:
   ...       type: wizard
   ...       path:
-  ...       - other:/action:
+  ...       - other-action:
+  ...       actions:
+  ...         other-action: other:/action
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
@@ -847,6 +834,82 @@ Repeat
       Has "individual: study" but expected to have "individual: individual"
   While parsing:
       "<...>", line 7
+
+Replace
+~~~~~~~
+
+::
+
+  >>> typecheck("""
+  ... id: wizard
+  ... path:
+  ... - pick-individual:
+  ... - make-individual:
+  ...   - replace: ../pick-individual
+  ... actions:
+  ...   pick-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual
+  ...   make-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual
+  ... """) # doctest: +ELLIPSIS
+
+  >>> typecheck("""
+  ... id: wizard
+  ... path:
+  ... - pick-individual:
+  ...   - view-individual:
+  ... - make-individual:
+  ...   - replace: ../pick-individual/view-individual
+  ... actions:
+  ...   pick-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual
+  ...   view-individual:
+  ...     type: mock
+  ...     input:
+  ...     - individual: individual
+  ...   make-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual
+  ... """) # doctest: +ELLIPSIS
+
+  >>> typecheck("""
+  ... id: wizard
+  ... path:
+  ... - pick-lab:
+  ...   - view-lab:
+  ... - make-individual:
+  ...   - replace: ../pick-lab/view-lab
+  ... actions:
+  ...   pick-lab:
+  ...     type: mock
+  ...     output:
+  ...     - lab: lab
+  ...   view-lab:
+  ...     type: mock
+  ...     input:
+  ...     - lab: lab
+  ...   make-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Action "view-lab" cannot be used here:
+      Context is missing "lab: lab"
+  Context:
+      individual: individual
+  While type checking action at path:
+      make-individual -> <replace ../pick-lab/view-lab> -> view-lab
+  While parsing:
+      "<string>", line 5
 
 ::
 

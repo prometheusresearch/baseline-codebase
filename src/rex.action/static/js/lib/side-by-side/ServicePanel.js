@@ -13,12 +13,12 @@ export default class ServicePanel extends React.Component {
   static id = 'rex.action/service';
 
   render() {
-    let {execution, wizard, ...props} = this.props;
-    let buttons = execution.getNextActions().map(position => 
+    let {graph, wizard, ...props} = this.props;
+    let buttons = graph.nextActions().map(node => 
       <ActionButton
         align="left"
-        key={position.action}
-        position={position}
+        key={node.action}
+        node={node}
         onClick={wizard.scheduleCommand(wizard.advanceTo)}
         />
     );

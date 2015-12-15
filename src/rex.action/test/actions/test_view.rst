@@ -47,23 +47,23 @@ In case fields are not specified, they are generated from port::
 
   >>> view.port
   Port('''
-  entity: individual
-  select: [code, sex, mother, father, adopted_mother, adopted_father]
-  with:
-  - calculation: meta:type
-    expression: '''individual'''
-  - calculation: meta:title
-    expression: id()
+  - parameter: individual
+  - entity: individual
+    select: [code, sex, mother, father, adopted_mother, adopted_father]
+    with:
+    - calculation: meta:type
+      expression: '''individual'''
+    - calculation: meta:title
+      expression: id()
   ''')
 
   >>> print render_widget(view, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
-  <BLANKLINE>
-  ["~#widget", ["rex-action/lib/actions/View", ...]]
+  ...
 
-  >>> print render_widget(view, Request.blank('/?__to__=1.data', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(view, Request.blank('/?__to__=1.content.1.data', accept='application/json')) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"
@@ -97,13 +97,14 @@ You can also specify fields and see port generated from them::
 
   >>> view.port
   Port('''
-  entity: individual
-  select: [code]
-  with:
-  - calculation: meta:type
-    expression: '''individual'''
-  - calculation: meta:title
-    expression: id()
+  - parameter: individual
+  - entity: individual
+    select: [code]
+    with:
+    - calculation: meta:type
+      expression: '''individual'''
+    - calculation: meta:title
+      expression: id()
   ''')
 
 You can specify view action for entities which have custom labels within the
@@ -129,13 +130,14 @@ context::
 
   >>> view.port
   Port('''
-  entity: individual
-  select: [code]
-  with:
-  - calculation: meta:type
-    expression: '''individual'''
-  - calculation: meta:title
-    expression: id()
+  - parameter: mother
+  - entity: individual
+    select: [code]
+    with:
+    - calculation: meta:type
+      expression: '''individual'''
+    - calculation: meta:title
+      expression: id()
   ''')
 
 Cleanup

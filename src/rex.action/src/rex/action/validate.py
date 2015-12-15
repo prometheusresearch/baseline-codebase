@@ -115,6 +115,10 @@ class ActionReferenceVal(Validate):
 
     _validate = StrVal()
 
+    def __init__(self, reference_type=None):
+        self.reference_type = reference_type
+        super(ActionReferenceVal, self).__init__()
+
     def __call__(self, value):
         if isinstance(value, ActionReference):
             return value
@@ -131,11 +135,18 @@ class ActionReferenceVal(Validate):
         else:
             query = {}
         if not path.startswith('/') and not package:
-            return LocalActionReference(path, query)
+            reference = LocalActionReference(path, query)
         elif not package:
-            return GlobalActionReference(None, path, query)
+            reference = GlobalActionReference(None, path, query)
         else:
-            return GlobalActionReference(package, path, query)
+            reference = GlobalActionReference(package, path, query)
+        if not isinstance(reference, self.reference_type or ActionReference):
+            error = Error(
+                'Expected action reference of type:',
+                self.reference_type.name)
+            error.wrap('But got:', type(reference).name)
+            raise error
+        return reference
 
 
 class ActionReference(object):
@@ -143,11 +154,15 @@ class ActionReference(object):
 
     validate = ActionReferenceVal()
 
+    name = NotImplemented
+
 
 class LocalActionReference(
         ActionReference,
         Record.make('LocalActionReference', ['id', 'query'])):
     """ Reference to a local action."""
+
+    name = 'local action reference'
 
     def __repr__(self):
         rep = self.id
@@ -163,6 +178,8 @@ class GlobalActionReference(
         ActionReference,
         Record.make('GlobalActionReference', ['package', 'id', 'query'])):
     """ Reference to a global action."""
+
+    name = 'global action reference'
 
     def __repr__(self):
         rep = self.id

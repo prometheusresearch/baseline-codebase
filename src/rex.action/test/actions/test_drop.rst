@@ -60,7 +60,7 @@ In case fields are not specified, they are generated from port::
   Content-Length: ...
   <BLANKLINE>
 
-  >>> print render_widget(drop, Request.blank('/?__to__=1.data', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(drop, Request.blank('/?__to__=1.content.1.data', accept='application/json')) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"

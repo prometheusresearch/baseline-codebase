@@ -4,9 +4,9 @@
 
 import React, {PropTypes} from 'react';
 import * as Stylesheet from '@prometheusresearch/react-stylesheet';
+import * as CSS from '@prometheusresearch/react-stylesheet/css';
 import Icon from 'rex-widget/lib/Icon';
 import isString from 'rex-widget/lib/isString';
-import * as Style from 'rex-widget/lib/StyleUtils';
 import * as Theme from './Theme';
 
 /**
@@ -46,21 +46,26 @@ export default class Button extends React.Component {
   static stylesheet = Stylesheet.createStylesheet({
     Root: {
       Component: 'button',
-      cursor: Style.cursor.pointer,
-      textAlign: Style.textAlign.left,
+      cursor: CSS.cursor.pointer,
+      textAlign: CSS.textAlign.left,
       fontSize: Theme.fontSize.element,
-      userSelect: Style.none,
-      WebkitUserSelect: Style.none,
+      userSelect: CSS.none,
+      WebkitUserSelect: CSS.none,
     },
     Caption: {
       Component: 'div',
-      display: Style.display.inlineBlock,
+      display: CSS.display.inlineBlock,
+      maxWidth: '90%',
     },
     Icon: Icon,
+    IconWrapper: {
+      Component: 'div',
+      display: CSS.display.inlineBlock,
+    },
   });
 
   render() {
-    let {Root, Caption, Icon} = this.stylesheet;
+    let {Root, Caption, Icon, IconWrapper} = this.stylesheet;
     let {children, icon, active, size, ...props} = this.props;
     let state = {
       active,
@@ -77,7 +82,7 @@ export default class Button extends React.Component {
     }
     return (
       <Root {...props} state={state} aria-pressed={active} role="button">
-        {icon}
+        <IconWrapper>{icon}</IconWrapper>
         {caption}
       </Root>
     );

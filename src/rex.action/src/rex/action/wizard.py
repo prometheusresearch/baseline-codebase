@@ -24,14 +24,14 @@ from rex.widget.validate import DeferredVal, Deferred
 from rex.web import route
 
 from .instruction import (
-    Start, Execute, Repeat,
+    Start, Execute, Repeat, Replace,
     PathVal,
     visit as visit_instruction, map as map_instruction)
 from .action import (
-    ActionVal, ActionMapVal, ActionRenderer, ActionBase)
+    ActionMapVal, ActionRenderer, ActionBase)
 from .validate import (
     DomainVal,
-    ActionReference, LocalActionReference, GlobalActionReference)
+    ActionReferenceVal, LocalActionReference, GlobalActionReference)
 from . import typing
 
 __all__ = ('Wizard', 'WizardBase', 'WizardWidgetBase')
@@ -48,7 +48,6 @@ class WizardWidgetBase(Widget):
 
     actions = Field(
         DeferredVal(ActionMapVal()),
-        default={},
         transitionable=False,
         doc="""
         Wizard actions.
@@ -70,7 +69,7 @@ class WizardWidgetBase(Widget):
     def __init__(self, **values):
         super(WizardWidgetBase, self).__init__(**values)
         if isinstance(self.actions, Deferred):
-            with self.domain or typing.Domain.current():
+            with self.domain:
                 self.actions = self.actions.resolve()
         if isinstance(self.path, Deferred):
             validate_path = PathVal(self._resolve_action)
@@ -114,104 +113,135 @@ class WizardWidgetBase(Widget):
         visit_instruction(self.path, _find_output_nodes)
 
         input = typing.intersect_record_types([
-            node.action_instance.context_types.input for node in input_nodes])
+            node.action_instance.context_types.input
+            for node in input_nodes
+            if isinstance(node, Execute)
+        ])
         output = typing.intersect_record_types([
-            node.action_instance.context_types.output for node in output_nodes])
+            node.action_instance.context_types.output
+            for node in output_nodes
+            if isinstance(node, Execute)
+        ])
 
         return input, output
 
-    def _typecheck(self, instruction, context_type, path):
-        if isinstance(instruction, Execute):
-            with guard('While parsing:', locate(instruction)):
-                action = self._resolve_action(instruction.action)
-                if action is None:
-                    raise Error('Unknown action found:', instruction.action)
-                input, output = action.context_types
-                assert isinstance(input, typing.Type), 'Expected a type, got: %s' % input
-                assert isinstance(output, typing.Type), 'Expected a type, got: %s' % output
+    def _typecheck_execute(self, instruction, context_type, path, recurse=True):
+        with guard('While parsing:', locate(instruction)):
+            action = self._resolve_action(instruction.action)
+            if action is None:
+                raise Error('Unknown action found:', instruction.action)
+            input, output = action.context_types
+            try:
+                action.typecheck(context_type)
+            except typing.KindsDoNotMatch as err:
+                error = Error('Unification error:', 'type kinds do not match')
+                error.wrap('One type is %s:' % \
+                            _type_repr(err.kind_a), err.type_a)
+                error.wrap('Another type is %s:' % \
+                            _type_repr(err.kind_b), err.type_b)
+                error = _wrap_unification_error(
+                        error, context_type, path, instruction.action)
+                raise error
+            except typing.InvalidRowTypeUsage:
+                error = Error('Row types are only valid within a record types')
+                error = _wrap_unification_error(
+                        error, context_type, path, instruction.action)
+                raise error
+            except typing.UnknownKind as err:
+                error = Error('Unification error:', 'unknown kinds')
+                error.wrap('One type of kind %s' % \
+                            err.kind_a, err.type_a)
+                error.wrap('Another type of kind %s' % \
+                            err.kind_b, err.type_b)
+                error = _wrap_unification_error(
+                        error, context_type, path, instruction.action)
+                raise error
+            except typing.RecordTypeMissingKey as err:
+                error = Error(
+                    'Action "%s" cannot be used here:' % instruction.action,
+                    'Context is missing "%s"' % err.type)
+                error = _wrap_unification_error(
+                        error, context_type, path, instruction.action)
+                raise error
+            except typing.RowTypeMismatch as err:
+                error = Error(
+                    'Action "%s" cannot be used here:' % instruction.action,
+                    'Context has "%s" but expected to have "%s"' % (
+                        err.type_b, err.type_a))
+                error = _wrap_unification_error(
+                        error, context_type, path, instruction.action)
+                raise error
+            except typing.UnificationError as err:
+                error = Error('Type unification error:', err)
+                error = _wrap_unification_error(
+                        error, context_type, path, instruction.action)
+                raise error
+
+        next_context_type = typing.RecordType.empty()
+        next_context_type.rows.update(context_type.rows)
+        next_context_type.rows.update(output.rows)
+
+        if recurse and instruction.then:
+            return [
+                pair
+                for next_instruction in instruction.then
+                for pair in self._typecheck(
+                    next_instruction, next_context_type, path + [instruction.action])
+            ]
+        else:
+            return [(instruction, next_context_type)]
+
+    def _typecheck_repeat(self, instruction, context_type, path, recurse=True):
+        end_types = self._typecheck(
+                instruction.repeat, context_type, path + ['<repeat loop>'])
+        action = self._resolve_action(instruction.repeat.action)
+        if action is None:
+            raise Error('Unknown action found:', instruction.repeat.action)
+        repeat_invariant, _ = action.context_types
+        for end_instruction, end_type in end_types:
+            with guard('While parsing:', locate(end_instruction)):
                 try:
-                    action.typecheck(context_type)
-                except typing.KindsDoNotMatch as err:
-                    error = Error('Unification error:', 'type kinds do not match')
-                    error.wrap('One type is %s:' % _type_repr(err.kind_a), err.type_a)
-                    error.wrap('Another type is %s:' % _type_repr(err.kind_b), err.type_b)
-                    error = _wrap_unification_error(error, context_type, path, instruction.action)
-                    raise error
-                except typing.InvalidRowTypeUsage:
-                    error = Error('Row types are only valid within a record types')
-                    error = _wrap_unification_error(error, context_type, path, instruction.action)
-                    raise error
-                except typing.UnknownKind as err:
-                    error = Error('Unification error:', 'unknown kinds')
-                    error.wrap('One type of kind %s' % err.kind_a, err.type_a)
-                    error.wrap('Another type of kind %s' % err.kind_b, err.type_b)
-                    error = _wrap_unification_error(error, context_type, path, instruction.action)
-                    raise error
+                    typing.unify(repeat_invariant, end_type)
                 except typing.RecordTypeMissingKey as err:
                     error = Error(
-                        'Action "%s" cannot be used here:' % instruction.action,
-                        'Context is missing "%s"' % err.type)
-                    error = _wrap_unification_error(error, context_type, path, instruction.action)
+                        'Repeat ends with a type which is incompatible with its beginning:',
+                        'Missing "%s"' % err.type)
                     raise error
                 except typing.RowTypeMismatch as err:
                     error = Error(
-                        'Action "%s" cannot be used here:' % instruction.action,
-                        'Context has "%s" but expected to have "%s"' % (
+                        'Repeat ends with a type which is incompatible with its beginning:',
+                        'Has "%s" but expected to have "%s"' % (
                             err.type_b, err.type_a))
-                    error = _wrap_unification_error(error, context_type, path, instruction.action)
                     raise error
                 except typing.UnificationError as err:
                     error = Error('Type unification error:', err)
                     error = _wrap_unification_error(error, context_type, path, instruction.action)
                     raise error
 
-            next_context_type = typing.RecordType.empty()
-            next_context_type.rows.update(context_type.rows)
-            next_context_type.rows.update(output.rows)
+        if instruction.then:
+            return [
+                self._typecheck(next_instruction, repeat_invariant, path + ['<repeat then>'])
+                for next_instruction in instruction.then
+            ]
+        else:
+            return instruction, repeat_invariant
 
-            if instruction.then:
-                return [
-                    pair
-                    for next_instruction in instruction.then
-                    for pair in self._typecheck(next_instruction, next_context_type, path + [instruction.action])
-                ]
-            else:
-                return [(instruction, next_context_type)]
+    def _typecheck_replace(self, instruction, context_type, path, recurse=True):
+        path = path + ['<replace %s>' % instruction.replace]
+        self._typecheck(
+            instruction.instruction, context_type, path, recurse=False)
+        return []
 
+    def _typecheck(self, instruction, context_type, path, recurse=True):
+        if isinstance(instruction, Execute):
+            return self._typecheck_execute(
+                instruction, context_type, path, recurse=recurse)
+        elif isinstance(instruction, Replace):
+            return self._typecheck_replace(
+                instruction, context_type, path, recurse=recurse)
         elif isinstance(instruction, Repeat):
-            end_types = self._typecheck(instruction.repeat, context_type, path + ['<repeat loop>'])
-            action = self._resolve_action(instruction.repeat.action)
-            if action is None:
-                raise Error('Unknown action found:', instruction.repeat.action)
-            repeat_invariant, _ = action.context_types
-            for end_instruction, end_type in end_types:
-                with guard('While parsing:', locate(end_instruction)):
-                    try:
-                        typing.unify(repeat_invariant, end_type)
-                    except typing.RecordTypeMissingKey as err:
-                        error = Error(
-                            'Repeat ends with a type which is incompatible with its beginning:',
-                            'Missing "%s"' % err.type)
-                        raise error
-                    except typing.RowTypeMismatch as err:
-                        error = Error(
-                            'Repeat ends with a type which is incompatible with its beginning:',
-                            'Has "%s" but expected to have "%s"' % (
-                                err.type_b, err.type_a))
-                        raise error
-                    except typing.UnificationError as err:
-                        error = Error('Type unification error:', err)
-                        error = _wrap_unification_error(error, context_type, path, instruction.action)
-                        raise error
-
-            if instruction.then:
-                return [
-                    self._typecheck(next_instruction, repeat_invariant, path + ['<repeat then>'])
-                    for next_instruction in instruction.then
-                ]
-            else:
-                return instruction, repeat_invariant
-
+            return self._typecheck_repeat(
+                instruction, context_type, path, recurse=recurse)
 
 def _wrap_unification_error(error, context_type, path, action):
     if not context_type.rows:
@@ -232,6 +262,9 @@ def _type_repr(kind):
         return repr(kind)
 
 
+local_action_ref_val = ActionReferenceVal(reference_type=LocalActionReference)
+
+
 def resolve_action_reference(ref, actions=None, package=None, domain=None):
     """ Resolve action reference to action instance.
 
@@ -246,44 +279,38 @@ def resolve_action_reference(ref, actions=None, package=None, domain=None):
     actions = actions or {}
     domain = domain or typing.Domain.current()
 
-    ref = ActionReference.validate(ref)
+    ref = local_action_ref_val(ref)
 
-    if isinstance(ref, LocalActionReference):
-        if not actions:
-            raise Error('Local actions are not allowed in this configuration')
-        if not ref.id in actions:
-            raise Error('Found unknown local action reference:', ref.id)
-        action = actions[ref.id]
+    if not ref.id in actions:
+        raise Error('Found unknown action reference:', ref.id)
 
-    elif isinstance(ref, GlobalActionReference):
-        if not ref.package:
+    action = actions[ref.id]
+
+    if isinstance(action, GlobalActionReference):
+        global_ref = action
+        if not global_ref.package:
             if not package:
                 raise Error(
                     'Package name is missing, use pkg:path syntax',
-                    ref)
-            handler = route('%s:%s' % (package.name, ref.id))
+                    global_ref)
+            handler = route('%s:%s' % (package.name, global_ref.id))
         else:
-            handler = route('%s:%s' % (ref.package, ref.id))
+            handler = route('%s:%s' % (global_ref.package, global_ref.id))
 
         if handler is None:
             raise Error(
                 'Cannot resolve global action reference:',
-                ref)
+                global_ref)
         elif not isinstance(handler, ActionRenderer):
             raise Error(
                 'Action reference resolves to handler of a non-action type:',
-                ref)
+                global_ref)
         else:
-            action = handler.action
+            action = handler.action.__clone__(id=ref.id)
 
-    if action is None:
-        raise Error('Cannot resolve action reference:', ref)
-
-    if ref.query:
-        rows = {name: domain[type] for name, type in ref.query.items()}
-        input = action.context_types.input.override(rows)
-        context_types = action.context_types.__clone__(input=input)
-        action = action.with_context_types(context_types)
+        if global_ref.query:
+            refine = {name: domain[type] for name, type in global_ref.query.items()}
+            action = action.refine_input(refine)
 
     action = action.with_domain(action.domain.merge(domain))
     return action
@@ -297,14 +324,21 @@ class WizardBase(WizardWidgetBase, ActionBase):
         return self.states or typing.Domain.current()
 
     def with_domain(self, domain):
-        def _map(inst):
-            if isinstance(inst, Start):
+        def _map(inst, _ancestors):
+            if isinstance(inst, (Start, Replace)):
                 return inst
             action_instance = inst.action_instance.with_domain(domain)
             return inst.__clone__(action_instance=action_instance)
         wizard = self.__clone__(__domain=domain)
         wizard.path = map_instruction(wizard.path, _map)
         return wizard
+
+    def refine_input(self, input):
+        path = self.path.__clone__(then=[
+            inst.__clone__(action_instance=inst.action_instance.refine_input(input))
+            for inst in self.path.then
+        ])
+        return self.__clone__(path=path)
 
 
 class Wizard(WizardBase):

@@ -61,10 +61,9 @@ In case fields are not specified, they are generated from port::
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
-  <BLANKLINE>
-  ["~#widget", ["rex-action/lib/actions/Make", ...]]
+  ...
 
-  >>> print render_widget(make, Request.blank('/?__to__=1.data', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(make, Request.blank('/?__to__=1.content.1.data', accept='application/json')) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"

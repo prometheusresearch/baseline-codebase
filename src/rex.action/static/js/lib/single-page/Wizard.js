@@ -2,16 +2,16 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import autobind           from 'autobind-decorator';
-import emptyFunction      from 'empty/function'
-import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
-import {VBox, HBox}       from '@prometheusresearch/react-box';
-import React              from 'react';
-import Execution          from '../execution/Execution';
-import * as Command       from '../execution/Command';
-import Sidebar            from './Sidebar';
-import ContextToolbar     from './ContextToolbar';
-import NavigationToolbar  from './NavigationToolbar';
+import autobind from 'autobind-decorator';
+import emptyFunction from 'empty/function'
+import * as Stylesheet from '@prometheusresearch/react-stylesheet';
+import {VBox, HBox} from '@prometheusresearch/react-box';
+import React from 'react';
+import Graph from '../execution/Graph';
+import * as Command from '../execution/Command';
+import Sidebar from './Sidebar';
+import ContextToolbar from './ContextToolbar';
+import NavigationToolbar from './NavigationToolbar';
 
 @Stylesheet.styleable
 export default class Wizard extends React.Component {
@@ -41,19 +41,19 @@ export default class Wizard extends React.Component {
   constructor(props) {
     super(props);
     let {path, initialContext} = props;
-    let execution = Execution.create(path, initialContext);
-    this.state = {execution};
+    let graph = Graph.create(path, initialContext);
+    this.state = {graph};
   }
 
   render() {
-    let {execution} = this.state;
-    let action = React.cloneElement(execution.position.element, {
-      key: execution.position.key,
-      context: execution.position.context,
-      actionState: execution.position.state,
-      setActionState: this._onState.bind(null, execution.position),
-      onCommand: this._onCommand.bind(null, execution.position),
-      onContext: this._onContext.bind(null, execution.position),
+    let {graph} = this.state;
+    let action = React.cloneElement(graph.node.element, {
+      key: graph.node.key,
+      context: graph.node.context,
+      actionState: graph.node.state,
+      setActionState: this._onState.bind(null, graph.node),
+      onCommand: this._onCommand.bind(null, graph.node),
+      onContext: this._onContext.bind(null, graph.node),
       onEntityUpdate: this._onEntityUpdate,
     });
     let {ActionPanel} = this.stylesheet;
@@ -61,15 +61,15 @@ export default class Wizard extends React.Component {
       <HBox flex={1}>
         <Sidebar width={300}>
           {this.props.renderTopSidebarItem()}
-          {execution.trace.length > 2 &&
+          {graph.trace.length > 2 &&
             <ContextToolbar
-              execution={execution}
+              graph={graph}
               onClick={this._onReturn}
               />}
           <NavigationToolbar
-            onReplace={this._onReplace.bind(null, execution.position.keyPath)}
+            onReplace={this._onReplace.bind(null, graph.node.keyPath)}
             onNext={this._onNext}
-            execution={execution}
+            graph={graph}
             />
         </Sidebar>
         <ActionPanel flex={1}>
@@ -82,70 +82,70 @@ export default class Wizard extends React.Component {
   @autobind
   _onNext(action) {
     this.setState(state => ({
-      execution: state.execution.advance(action)
+      graph: state.graph.advance(action)
     }));
   }
 
   @autobind
   _onReturn(action) {
     this.setState(state => ({
-      execution: state.execution.returnToAction(action)
+      graph: state.graph.returnTo(action)
     }));
   }
 
   @autobind
   _onReplace(action, nextAction) {
     this.setState(state => ({
-      execution: state.execution.replace(action, nextAction, false)
+      graph: state.graph.replace(action, nextAction, false)
     }));
   }
 
   @autobind
   _onClose(action) {
     this.setState(state => ({
-      execution: state.execution.close(action)
+      graph: state.graph.close(action)
     }));
   }
 
   @autobind
-  _onCommand(position, commandName, ...args) {
+  _onCommand(node, commandName, ...args) {
     this.setState(state => {
-      let {execution} = state;
-      // if position from which command originates differs from the current
-      // execution position then close all further action panels.
-      if (state.execution.position.keyPath !== position.keyPath) {
-        let nextActionIdx = state.execution.indexOf(position.keyPath) + 1;
-        let nextAction = state.execution.trace[nextActionIdx].keyPath;
-        execution = execution.close(nextAction);
+      let {graph} = state;
+      // if node from which command originates differs from the current
+      // graph node then close all further action panels.
+      if (state.graph.node.keyPath !== node.keyPath) {
+        let nextActionIdx = state.graph.indexOf(node.keyPath) + 1;
+        let nextAction = state.graph.trace[nextActionIdx].keyPath;
+        graph = graph.close(nextAction);
       }
-      execution = state.execution.executeCommandAtCurrentPosition(
+      graph = state.graph.executeCommandAtCurrentNode(
         commandName,
         ...args);
-      return {...state, execution};
+      return {...state, graph};
     });
   }
 
   @autobind
-  _onState(position, stateUpdate) {
+  _onState(node, stateUpdate) {
     this.setState(state => {
-      let {execution} = state;
-      execution = execution.setState(position, stateUpdate);
-      return {...state, execution};
+      let {graph} = state;
+      graph = graph.setState(node, stateUpdate);
+      return {...state, graph};
     });
   }
 
   @autobind
-  _onContext(position, context) {
+  _onContext(node, context) {
     let commandName = Command.onContextCommand.name;
-    return this._onCommand(position, commandName, context)
+    return this._onCommand(node, commandName, context)
   }
 
   @autobind
   _onEntityUpdate(prevEntity, nextEntity) {
     this.setState(state => {
-      let {execution} = state;
-      execution = execution.updateEntity(prevEntity, nextEntity);
-      return {...state, execution};
+      let {graph} = state;
+      graph = graph.updateEntity(prevEntity, nextEntity);
+      return {...state, graph};
     });
   }
 

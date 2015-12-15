@@ -7,14 +7,14 @@ import autobind             from 'autobind-decorator';
 import * as Stylesheet      from '@prometheusresearch/react-stylesheet';
 import {HBox}               from '@prometheusresearch/react-box';
 import ButtonBase           from './ui/ButtonBase';
-import {getIconAtPosition}  from './ActionIcon';
+import {getIconAtNode}  from './ActionIcon';
 import ActionTitle          from './ActionTitle';
 
 @Stylesheet.styleable
 export default class ActionButton extends React.Component {
 
   static propTypes = {
-    position: PropTypes.object,
+    node: PropTypes.object,
     active: PropTypes.bool,
     showContext: PropTypes.bool,
     onClick: PropTypes.func,
@@ -26,12 +26,12 @@ export default class ActionButton extends React.Component {
 
   render() {
     let {Button} = this.stylesheet;
-    let {position, showContext, ...props} = this.props;
-    let icon = getIconAtPosition(position);
+    let {node, showContext, ...props} = this.props;
+    let icon = getIconAtNode(node);
     return (
       <Button {...props} icon={icon} onClick={this._onClick}>
         <ActionTitle
-          position={position}
+          node={node}
           noRichTitle={!showContext}
           />
       </Button>
@@ -40,6 +40,6 @@ export default class ActionButton extends React.Component {
 
   @autobind
   _onClick() {
-    this.props.onClick(this.props.position.keyPath);
+    this.props.onClick(this.props.node.keyPath);
   }
 }

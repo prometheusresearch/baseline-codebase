@@ -45,6 +45,25 @@ ActionReference
   >>> ActionReference.validate('pkg:/global-action?x=y')
   pkg:/global-action?x=y
 
+  >>> from rex.action.validate import ActionReferenceVal, LocalActionReference
+
+  >>> validate_local = ActionReferenceVal(reference_type=LocalActionReference)
+
+  >>> validate_local('local-action')
+  local-action
+
+  >>> validate_local('local-action?x=y')
+  local-action?x=y
+
+  >>> validate_local('pkg:/action') # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Expected action reference of type:
+      local action reference
+  But got:
+      global action reference
+
+
 RexDBVal
 --------
 

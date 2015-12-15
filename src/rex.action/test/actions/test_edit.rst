@@ -48,16 +48,17 @@ In case fields are not specified, they are generated from port::
 
   >>> edit.port
   Port('''
-  entity: individual
-  select: [code, sex, mother, father, adopted_mother, adopted_father]
-  with:
-  - calculation: meta:type
-    expression: '''individual'''
-  - calculation: meta:title
-    expression: id()
+  - parameter: individual
+  - entity: individual
+    select: [code, sex, mother, father, adopted_mother, adopted_father]
+    with:
+    - calculation: meta:type
+      expression: '''individual'''
+    - calculation: meta:title
+      expression: id()
   ''')
 
-  >>> print render_widget(edit, Request.blank('/?__to__=1.data', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(edit, Request.blank('/?__to__=1.content.1.data', accept='application/json')) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"
@@ -94,13 +95,14 @@ You can also specify fields and see port generated from them::
 
   >>> edit.port
   Port('''
-  entity: individual
-  select: [code]
-  with:
-  - calculation: meta:type
-    expression: '''individual'''
-  - calculation: meta:title
-    expression: id()
+  - parameter: individual
+  - entity: individual
+    select: [code]
+    with:
+    - calculation: meta:type
+      expression: '''individual'''
+    - calculation: meta:title
+      expression: id()
   ''')
 
 Edit's initial value is also used to generate port::
@@ -119,20 +121,21 @@ Edit's initial value is also used to generate port::
 
   >>> make.port
   Port('''
-  entity: individual
-  select: [code, sex]
-  with:
-  - entity: identity
-    select: [givenname]
+  - parameter: individual
+  - entity: individual
+    select: [code, sex]
     with:
+    - entity: identity
+      select: [givenname]
+      with:
+      - calculation: meta:type
+        expression: '''identity'''
+      - calculation: meta:title
+        expression: id()
     - calculation: meta:type
-      expression: '''identity'''
+      expression: '''individual'''
     - calculation: meta:title
       expression: id()
-  - calculation: meta:type
-    expression: '''individual'''
-  - calculation: meta:title
-    expression: id()
   ''')
 
 Cleanup

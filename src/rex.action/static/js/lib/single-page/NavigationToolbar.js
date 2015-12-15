@@ -7,6 +7,7 @@ import {VBox, HBox}       from '@prometheusresearch/react-box';
 import React              from 'react';
 import ActionButton       from '../ActionButton';
 import {SecondaryButton}  from '../ui';
+import * as Instruction   from '../execution/Instruction';
 
 @Stylesheet.styleable
 export default class NavigationToolbar extends React.Component {
@@ -24,22 +25,22 @@ export default class NavigationToolbar extends React.Component {
   });
 
   render() {
-    let {execution, onReplace, onNext} = this.props;
+    let {graph, onReplace, onNext} = this.props;
     let {Self, Button} = this.stylesheet;
-    let buttons = execution.getAlternativeActions().map(pos => {
-      let active = pos.keyPath === execution.position.keyPath;
+    let buttons = graph.siblingActions().map(pos => {
+      let active = pos.keyPath === graph.node.keyPath;
       return (
         <VBox key={pos.keyPath}>
           <Button
             size="normal"
             active={active}
-            position={pos}
+            node={pos}
             noRichTitle={!active}
             onClick={onReplace} />
           {active &&
             <NextActionsToolbar
               onClick={onNext}
-              execution={execution}
+              graph={graph}
               />}
         </VBox>
       );
@@ -66,15 +67,17 @@ class NextActionsToolbar extends React.Component {
   });
 
   render() {
-    let {execution, onClick} = this.props;
+    let {graph, onClick} = this.props;
     let {Self, Button} = this.stylesheet;
-    let buttons = execution.getNextActions().map(position =>
-      <Button
-        onClick={onClick}
-        key={position.action}
-        position={position}
-        />
-    );
+    let buttons = graph.nextActions()
+      .filter(node => !Instruction.Replace.is(node.instruction))
+      .map(node =>
+        <Button
+          onClick={onClick}
+          key={node.action}
+          node={node}
+          />
+      );
     return (
       <Self>
         {buttons}

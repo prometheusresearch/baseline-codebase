@@ -2,7 +2,7 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-class Instruction {
+export class Instruction {
 
   constructor(then) {
     this.then = then;
@@ -30,12 +30,20 @@ export class Execute extends Instruction {
   }
 }
 
-export class ExecuteWizard extends Instruction {
+export class IncludeWizard extends Instruction {
 
   constructor(action, then, element) {
     super(then);
     this.action = action;
     this.element = element;
+  }
+}
+
+export class Replace extends Instruction {
+
+  constructor(replace) {
+    super([]);
+    this.replace = replace;
   }
 }
 

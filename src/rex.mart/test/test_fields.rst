@@ -555,6 +555,37 @@ IdentityField
     {u'test': datetime.datetime(2015, 5, 22, 12, 34, 56)}
 
 
+JsonField
+=========
+
+::
+
+    >>> field = JsonField('test')
+
+    >>> field.get_value_mapping(None)
+    {u'test': 'null'}
+    >>> field.get_value_mapping('foo')
+    {u'test': '"foo"'}
+    >>> field.get_value_mapping(u'foo')
+    {u'test': '"foo"'}
+    >>> field.get_value_mapping(1)
+    {u'test': '1'}
+    >>> field.get_value_mapping(1.23)
+    {u'test': '1.23'}
+    >>> field.get_value_mapping(Decimal('1.23'))
+    {u'test': '1.23'}
+    >>> field.get_value_mapping(True)
+    {u'test': 'true'}
+    >>> field.get_value_mapping(False)
+    {u'test': 'false'}
+    >>> field.get_value_mapping(DATE)
+    {u'test': '"2015-05-22"'}
+    >>> field.get_value_mapping(TIME)
+    {u'test': '"12:34:56"'}
+    >>> field.get_value_mapping(DATETIME)
+    {u'test': '"2015-05-22T12:34:56.000Z"'}
+
+
 Errors
 ======
 

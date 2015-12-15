@@ -188,6 +188,34 @@ definitions:
             type: text
             expression: upper(assessment_uid) + '-3'
 
+  - id: select_json
+    description: An Assessment selector that includes a JSON field
+    deploy:
+      - table: driver
+        with:
+          - column: assessment_uid
+            type: text
+          - column: a_json_field
+            type: json
+          - column: a_fake_json_field
+            type: text
+          - identity: [assessment_uid]
+    post_deploy_scripts:
+      - script: |
+          /assessment{
+              uid :as assessment_uid,
+              string(calculation) :as a_json_field,
+              data :as a_fake_json_field
+            }.filter(
+              instrumentversion.instrument='mart8'
+            ) :as driver
+            /:rexdb
+            /:insert
+        type: htsql
+    assessments:
+      - instrument: mart8
+        selector: /driver
+
   - id: broken_selector
     description: Definition with a broken Assessment selector
     assessments:

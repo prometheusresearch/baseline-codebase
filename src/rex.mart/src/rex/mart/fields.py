@@ -3,6 +3,8 @@
 #
 
 
+import json
+
 from copy import deepcopy
 from types import NoneType
 from decimal import Decimal
@@ -11,7 +13,9 @@ from datetime import date, time, datetime
 from htsql.core.domain import BooleanDomain, IntegerDomain, FloatDomain, \
     DecimalDomain, TextDomain, EnumDomain, DateDomain, TimeDomain, \
     DateTimeDomain, OpaqueDomain, IdentityDomain
+from htsql_rex_deploy.domain import JSONDomain
 from rex.core import Error
+from rex.restful.serializer import RestfulJSONEncoder
 
 from .util import make_safe_token
 
@@ -19,6 +23,7 @@ from .util import make_safe_token
 __all__ = (
     'SimpleField',
     'IdentityField',
+    'JsonField',
     'TextField',
     'IntegerField',
     'FloatField',
@@ -123,6 +128,16 @@ class IdentityField(SimpleField):
     def get_value_mapping(self, value, instrument_version=None):
         return {
             self.target_name: value,
+        }
+
+
+class JsonField(SimpleField):
+    target_type = 'json'
+    default_coercers = {}
+
+    def get_value_mapping(self, value, instrument_version=None):
+        return {
+            self.target_name: json.dumps(value, cls=RestfulJSONEncoder),
         }
 
 
@@ -372,6 +387,7 @@ FIELD_TYPE_MAPPINGS = {
     'enumeration': EnumerationField,
     'enumerationSet': EnumerationSetField,
     'identity': IdentityField,
+    'json': JsonField,
 }
 
 
@@ -404,6 +420,7 @@ HTSQL_DOMAIN_TYPES = {
     DateTimeDomain: 'dateTime',
     OpaqueDomain: 'text',
     IdentityDomain: 'identity',
+    JSONDomain: 'json',
 }
 
 

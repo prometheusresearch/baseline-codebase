@@ -355,6 +355,36 @@ A case where we select a bunch of extra fields::
       'type': 'date'},
      {'column': u'foo', 'of': u'mart1', 'required': False, 'type': 'text'}]
 
+A case where we select some JSON-ish fields::
+
+    >>> definition = AssessmentDefinitionVal()({
+    ...     'instrument': 'mart8',
+    ...     'selector': "/assessment{uid :as assessment_uid, calculation :as a_json_field, data :as a_fake_json_field}.filter(instrumentversion.instrument='mart8')",
+    ... })
+    >>> table = PrimaryTable(definition, get_management_db())
+    >>> pprint(table.get_deploy_facts())
+    [{'table': u'mart8'},
+     {'column': 'assessment_uid',
+      'of': u'mart8',
+      'required': True,
+      'type': 'text'},
+     {'identity': ['assessment_uid'], 'of': u'mart8'},
+     {'column': 'instrument_version_uid',
+      'of': u'mart8',
+      'required': True,
+      'type': 'text'},
+     {'column': u'a_json_field',
+      'of': u'mart8',
+      'required': False,
+      'type': 'json'},
+     {'column': u'a_fake_json_field',
+      'of': u'mart8',
+      'required': False,
+      'type': 'text'},
+     {'column': u'foo', 'of': u'mart8', 'required': False, 'type': 'text'},
+     {'column': u'calc1', 'of': u'mart8', 'required': False, 'type': 'integer'},
+     {'column': u'calc2', 'of': u'mart8', 'required': False, 'type': 'integer'}]
+
 A case where the fields are filtered::
 
     >>> definition = AssessmentDefinitionVal()({

@@ -64,7 +64,7 @@ Copy an existing DB::
     >>> db_exists(mart.name)
     True
     >>> db_inventory(mart.name)
-    assessment: 21
+    assessment: 22
     channel: 5
     draftinstrumentversion: 2
     entry: 10
@@ -213,7 +213,7 @@ Load data into an existing database::
     >>> db_exists(mart.name)
     True
     >>> db_inventory(mart.name)
-    assessment: 21
+    assessment: 22
     channel: 5
     draftinstrumentversion: 2
     entry: 10
@@ -298,6 +298,20 @@ contents::
     Owner: test
     Dates: True True
 
+Your Assessment selector can include JSON-ish fields::
+
+    >>> mc = MartCreator('test', 'select_json')
+    >>> mart = mc()
+    >>> db_exists(mart.name)
+    True
+    >>> db_inventory(mart.name)
+    driver: 1
+    mart8: 1
+    >>> db_status(mart.name)
+    Definition: select_json
+    Status: complete
+    Owner: test
+    Dates: True True
 
 You can tell the creator to not mark the Mart as complete after processing is
 done::

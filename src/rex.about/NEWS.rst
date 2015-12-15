@@ -4,6 +4,11 @@ REX.ABOUT Change Log
 
 .. contents:: Table of Contents
 
+0.2.0 (2015-12-15)
+==================
+
+* Removed rex.applet dependency
+
 
 0.1.1 (2015-09-03)
 ==================

@@ -57,6 +57,9 @@
   - column: deceased
     type: boolean
     required: false
+  - column: sex
+    type: [not-known, male, female, not-applicable]
+
 
 - table: contact_info
   with:

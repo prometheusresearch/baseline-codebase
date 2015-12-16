@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.restful',
-    version='1.0.0',
+    version='1.1.0',
     description='A framework for providing RESTful services in a RexDB app.',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',

@@ -289,8 +289,8 @@ class RestfulLocation(Command):
             kwargs.update(arguments)
 
             response = implementation(request, **kwargs)
-        except HTTPException, exc:
 
+        except HTTPException, exc:
             response = {
                 'error': unicode(exc),
             }
@@ -300,19 +300,35 @@ class RestfulLocation(Command):
                 status = 500
 
         if not isinstance(response, Response):
-            serializer = self.get_response_serializer(request)
-
-            if response is not None:
-                response = serializer.serialize(response)
-
-            response = Response(
-                response,
-                status=status,
-                content_type=serializer.mime_type,
-            )
+            response = self.make_response(request, response)
+            response.status = status
 
         self._log_response(response)
         return response
+
+    def make_response(self, request, response_payload):
+        """
+        Creates a Response object that contains the serialized payload.
+
+        This method is invoked when the main request handler method returns
+        something that is not a Response.
+
+        :param request: the Request object to generate the Response for
+        :type request: webob.Request
+        :param response_payload:
+            the payload to serialize and return in the Response
+        :rtype: webob.Response
+        """
+
+        serializer = self.get_response_serializer(request)
+
+        if response_payload is not None:
+            response_payload = serializer.serialize(response_payload)
+
+        return Response(
+            response_payload,
+            content_type=serializer.mime_type,
+        )
 
     def _log_request(self, request):
         self._request_logger.debug(u'%s %s' % (

@@ -179,6 +179,20 @@ header, or by adding a ``format`` querystring parameter::
     <BLANKLINE>
     {"foo": "42"}
 
+Implementations can override the default response status codes using by
+generating their own Response object with the ``make_response()`` method and
+altering the status (or headers, etc)::
+
+    >>> req = Request.blank('/status/123')
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    ### RETRIEVING BAR 123
+    203 Non-Authoritative Information
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: 14
+    X-Test-Header: hello!
+    <BLANKLINE>
+    {"bar": "123"}
+
 Sending an empty body will be interpreted as an empty dictionary::
 
     >>> req = Request.blank('/foo/42', method='POST')

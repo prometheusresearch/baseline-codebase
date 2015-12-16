@@ -5,6 +5,15 @@ REX.RESTFUL Change Log
 .. contents:: Table of Contents
 
 
+1.1.0 (2015-xx-xx)
+==================
+
+* Added a ``make_response`` method to RestfulLocation to allow implementations
+  to generate their own, serialized Response object that can be returned. This
+  allows implementations to alter things like the response status code, add
+  HTTP headers, etc.
+
+
 1.0.0 (2015-09-30)
 ==================
 

@@ -44,6 +44,22 @@ class ReadOnlyResource(RestfulLocation):
         return {'bar': bar_id}
 
 
+class StatusResource(RestfulLocation):
+    path = '/status/{bar_id}'
+    access = 'anybody'
+
+    parameters = (
+        Parameter('bar_id', StrVal()),
+    )
+
+    def retrieve(self, request, bar_id, **kwargs):
+        print '### RETRIEVING BAR %s' % bar_id
+        response = self.make_response(request, {'bar': bar_id})
+        response.status = 203
+        response.headers['X-Test-Header'] = 'hello!'
+        return response
+
+
 class FailingResource(RestfulLocation):
     path = '/fail'
     access = 'anybody'

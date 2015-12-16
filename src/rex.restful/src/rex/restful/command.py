@@ -344,6 +344,7 @@ class RestfulLocation(Command):
             self._request_logger.info(request.body)
 
     def _log_response(self, response):
+        self._response_logger.debug(response.status)
         for name, value in response.headers.items():
             self._response_logger.debug(u'%s: %s' % (
                 name,

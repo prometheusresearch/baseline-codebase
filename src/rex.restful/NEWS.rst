@@ -12,6 +12,7 @@ REX.RESTFUL Change Log
   to generate their own, serialized Response object that can be returned. This
   allows implementations to alter things like the response status code, add
   HTTP headers, etc.
+* Added status code to response logging.
 
 
 1.0.0 (2015-09-30)

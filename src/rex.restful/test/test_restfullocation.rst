@@ -381,6 +381,7 @@ request and response headers and body for easier debugging::
     INFO:rex.restful.wire.request:{"happy": true, "bar": "baz"}
     ### UPDATING FOO 42
     ###   PAYLOAD: {u'bar': u'baz', u'happy': True}
+    DEBUG:rex.restful.wire.response:202 Accepted
     DEBUG:rex.restful.wire.response:Content-Type: application/x-yaml
     DEBUG:rex.restful.wire.response:Content-Length: 12
     INFO:rex.restful.wire.response:{foo: '42'}

@@ -41,7 +41,6 @@ __all__ = (
 
 class SimpleField(object):
     name = None
-    target_name = None
     target_type = None
     version_mapping = None
     type_mapping = None
@@ -56,10 +55,18 @@ class SimpleField(object):
 
     def __init__(self, name, instrument_version=None):
         self.name = unicode(name)
-        self.target_name = make_safe_token(name)
+        self._target_name = make_safe_token(name)
+        self._forced_target_name = None
         self.version_mapping = {}
         if instrument_version:
             self.version_mapping[instrument_version] = self.target_type
+
+    @property
+    def target_name(self):
+        return self._forced_target_name or self._target_name
+
+    def force_target_name(self, name):
+        self._forced_target_name = name
 
     def map_assessment_value(self, value, instrument_version):
         if value['value'] is None:

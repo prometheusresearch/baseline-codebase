@@ -6,7 +6,7 @@
 from collections import Counter
 
 from rex.core import Error, StrVal, RecordVal, MaybeVal, ChoiceVal, SeqVal, \
-    MapVal, guard, OneOrSeqVal, OneOfVal, BoolVal
+    MapVal, guard, OneOrSeqVal, OneOfVal, BoolVal, get_settings
 from rex.deploy import Driver
 
 from .util import make_safe_token, RESTR_SAFE_TOKEN
@@ -120,6 +120,14 @@ class MartBaseVal(FullyValidatingRecordVal):
                 if value.type == 'existing' and value.fixed_name is not None:
                     raise Error(
                         'Base type "existing" cannot have a fixed name'
+                    )
+
+                max_length = get_settings().mart_max_name_length
+                if value.fixed_name and len(value.fixed_name) > max_length:
+                    raise Error(
+                        'Fixed name cannot be longer than %s characters' % (
+                            max_length,
+                        )
                     )
 
         return value
@@ -388,11 +396,22 @@ class AssessmentDefinitionVal(FullyValidatingRecordVal):
     def __call__(self, data):
         value = super(AssessmentDefinitionVal, self).__call__(data)
 
-        if not value.name and value.instrument:
-            # Default the name to be the same as the instrument.
-            with guard('While validating field:', 'name'):
+        with guard('While validating field:', 'name'):
+            if not value.name and value.instrument:
+                # Default the name to be the same as the instrument.
                 safe_name = make_safe_token(value.instrument[0])
                 value = value.__clone__(name=safe_name)
+
+            elif value.name:
+                with guard('Got:', value.name):
+                    max_length = get_settings().mart_max_name_length
+                    max_length -= 3  # reserve room for numbering
+                    if len(value.name) > max_length:
+                        raise Error(
+                            'Name cannot be longer than %s characters' % (
+                                max_length,
+                            )
+                        )
 
         # Make sure that we're actually including something from the Assessment
         if value.fields is None \
@@ -465,9 +484,24 @@ class DefinitionVal(FullyValidatingRecordVal):
         if not value.base.name_token and value.base.type != 'existing':
             # Default the name_token to be based off the ID.
             new_base = value.base.__clone__(
-                name_token='%s_' % (value.id,),
+                name_token='%s_' % (make_safe_token(value.id),),
             )
             value = value.__clone__(base=new_base)
+
+        if value.base.name_token:
+            system_name_length = 25  # code, spacer, datetime
+            system_name_length += len(get_settings().mart_name_prefix)
+            max_name_length = \
+                get_settings().mart_max_name_length - system_name_length
+            with guard('While validating field:', 'base.name_token'):
+                with guard('Got:', value.base.name_token):
+                    if len(value.base.name_token) > max_name_length:
+                        raise Error(
+                            'Name Token cannot exceed %s characters in'
+                            ' length' % (
+                                max_name_length,
+                            )
+                        )
 
         # Make sure we're not trying to load multiple assessment definitions
         # into the same table

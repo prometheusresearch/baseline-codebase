@@ -8,7 +8,7 @@ import sys
 
 from contextlib import contextmanager
 
-from rex.core import Error
+from rex.core import Error, get_settings
 
 
 __all__ = (
@@ -111,12 +111,12 @@ def make_safe_token(token):
     :rtype: str
     """
 
-    safe_token = unicode(token).lower()
+    safe_token = unicode(token).lower().replace('-', '_')
     if not RE_SAFE_TOKEN.match(safe_token):
         safe_token = RE_CLEAN_TOKEN.sub(u'', safe_token)
         while not RE_SAFE_TOKEN.match(safe_token):
             safe_token = safe_token[1:]
             if not safe_token:
                 raise Error('Cannot make a safe token out of "%s"' % (token,))
-    return safe_token
+    return safe_token[:get_settings().mart_max_name_length]
 

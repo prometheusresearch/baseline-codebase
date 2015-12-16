@@ -88,3 +88,42 @@ payload::
     ...     print "All's well"
     All's well
 
+
+make_safe_token
+===============
+
+::
+
+    >>> from rex.core import Rex
+    >>> rex = Rex('rex.mart_demo')
+    >>> rex.on()
+
+    >>> from rex.mart import make_safe_token
+
+    >>> make_safe_token('foo')
+    u'foo'
+
+    >>> make_safe_token('FOO')
+    u'foo'
+
+    >>> make_safe_token('foo-bar')
+    u'foo_bar'
+
+    >>> make_safe_token('fOo-Bar#baZ')
+    u'foo_barbaz'
+
+    >>> make_safe_token('fOo-B@r#baZ')
+    u'foo_brbaz'
+
+    >>> make_safe_token('qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm')
+    u'qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopa'
+
+    >>> make_safe_token('%^$#%&^%&*&')
+    Traceback (most recent call last):
+        ...
+    Error: Cannot make a safe token out of "%^$#%&^%&*&"
+
+
+
+    >>> rex.off()
+

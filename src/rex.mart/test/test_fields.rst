@@ -5,6 +5,9 @@ Assessment Fields
 
 Set up the environment::
 
+    >>> from rex.core import Rex
+    >>> rex = Rex('rex.mart_demo')
+    >>> rex.on()
     >>> from rex.mart.fields import *
     >>> from pprint import pprint
     >>> from types import NoneType
@@ -616,4 +619,9 @@ Map an Assessment value from an unexpected InstrumentVersion::
     Traceback (most recent call last):
         ...
     Error: Unknown InstrumentVersion encountered
+
+
+
+
+    >>> rex.off()
 

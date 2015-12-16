@@ -33,6 +33,31 @@ class MappingTable(object):
     def add_field(self, field):
         merge_field_into(self.fields, field)
 
+    def ensure_unique_fieldnames(self):
+        field_names = [
+            field.target_name
+            for field in self.fields.itervalues()
+        ]
+        dupe_names = set([
+            name
+            for name in field_names
+            if field_names.count(name) > 1
+        ])
+
+        for dupe_name in dupe_names:
+            cnt = 1
+            base_name = dupe_name[:get_settings().mart_max_name_length - 3]
+
+            for field in self.fields.itervalues():
+                if field.target_name != dupe_name:
+                    continue
+
+                field.force_target_name('%s_%s' % (
+                    base_name,
+                    cnt,
+                ))
+                cnt += 1
+
     def get_field_facts(self, exclude_fields=None):
         facts = []
 
@@ -120,22 +145,32 @@ class MappingTable(object):
 
 
 class ChildTable(MappingTable):  # pylint: disable=abstract-method
-    def __init__(self, name, parent_name):
+    def __init__(self, name, parent):
         super(ChildTable, self).__init__(name)
-        self.parent_name = parent_name
+        self.parent = parent
+        self._table_name = None
 
     @property
     def table_name(self):
-        return '%s_%s' % (
-            self.parent_name,
-            self.name,
-        )
+        if not self._table_name:
+            name = '%s_%s' % (
+                self.parent.table_name,
+                self.name,
+            )
+            if len(name) > get_settings().mart_max_name_length:
+                name = '%s_%s' % (
+                    self.parent.table_name,
+                    self.parent.get_child_index(),
+                )
+            self._table_name = name
+
+        return self._table_name
 
     @property
     def statement_skeleton(self):
         return '/{{$PRIMARY_TABLE_ID :as {1}, %s}} :as {0}/:insert'.format(
             self.table_name,
-            self.parent_name,
+            self.parent.table_name,
         )
 
 
@@ -148,26 +183,20 @@ class FacetTable(ChildTable):
         })
 
         facts.append({
-            'link': self.parent_name,
+            'link': self.parent.table_name,
             'of': self.table_name,
             'required': True,
         })
         facts.append({
-            'identity': [self.parent_name],
+            'identity': [self.parent.table_name],
             'of': self.table_name,
         })
 
         facts.extend(self.get_field_facts(
-            exclude_fields=[self.parent_name],
+            exclude_fields=[self.parent.table_name],
         ))
 
         return facts
-
-
-class SegmentedPrimaryTable(FacetTable):
-    @property
-    def table_name(self):
-        return self.name
 
 
 class MatrixTable(FacetTable):
@@ -236,7 +265,7 @@ class BranchTable(ChildTable):
         })
 
         facts.append({
-            'link': self.parent_name,
+            'link': self.parent.table_name,
             'of': self.table_name,
             'required': True,
         })
@@ -248,14 +277,14 @@ class BranchTable(ChildTable):
         })
         facts.append({
             'identity': [
-                self.parent_name,
+                self.parent.table_name,
                 {'record_uid': 'offset'},
             ],
             'of': self.table_name,
         })
 
         facts.extend(self.get_field_facts(
-            exclude_fields=[self.parent_name, 'record_uid'],
+            exclude_fields=[self.parent.table_name, 'record_uid'],
         ))
 
         return facts
@@ -320,6 +349,7 @@ class PrimaryTable(MappingTable):
         self.definition = definition
         super(PrimaryTable, self).__init__(self.definition['name'])
         self.children = OrderedDict()
+        self._child_idx = 2
 
         self._add_selector_fields(
             self.definition['selector'],
@@ -332,6 +362,7 @@ class PrimaryTable(MappingTable):
         self._add_instruments(self.definition['instrument'])
         self._add_meta_fields(self.definition['meta'])
         self._segment_fields()
+        self.ensure_unique_fieldnames()
 
     def get_deploy_facts(self):
         facts = []
@@ -535,6 +566,11 @@ class PrimaryTable(MappingTable):
         )
         self.add_field(mapped_field)
 
+    def get_child_index(self):
+        idx = self._child_idx
+        self._child_idx += 1
+        return idx
+
     def _add_instrument_recordlist(self, field, instrument_version):
         if field['id'] in self.fields:
             raise Error(
@@ -551,7 +587,7 @@ class PrimaryTable(MappingTable):
                 self.is_field_allowed,
             )
         else:
-            table = RecordListTable(field['id'], self.name)
+            table = RecordListTable(field['id'], self)
             table.merge(field, instrument_version, self.is_field_allowed)
             if len(table.fields) > 0:
                 self.children[field['id']] = table
@@ -572,7 +608,7 @@ class PrimaryTable(MappingTable):
                 self.is_field_allowed,
             )
         else:
-            table = MatrixTable(field['id'], self.name)
+            table = MatrixTable(field['id'], self)
             table.merge(field, instrument_version, self.is_field_allowed)
             if len(table.fields) > 0:
                 self.children[field['id']] = table
@@ -624,16 +660,19 @@ class PrimaryTable(MappingTable):
         for i in xrange(start, len(field_ids), additional_data_fields):
             segments.append(field_ids[i:(i + additional_data_fields)])
 
-        for idx, segment in enumerate(segments[1:]):
-            name = '%s_%s' % (
-                self.name,
-                (idx + 2),
-            )
-            child = SegmentedPrimaryTable(name, self.name)
-            self.children[name] = child
+        for segment in segments[1:]:
+            idx = self.get_child_index()
+            child = FacetTable(idx, self)
+            self.children['SEGMENT_%s' % (idx,)] = child
 
             for field_id in segment:
                 child.fields[field_id] = self.fields.pop(field_id)
+
+    def ensure_unique_fieldnames(self):
+        super(PrimaryTable, self).ensure_unique_fieldnames()
+
+        for child in self.children.itervalues():
+            child.ensure_unique_fieldnames()
 
     @property
     def statement_skeleton(self):

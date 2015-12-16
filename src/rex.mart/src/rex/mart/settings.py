@@ -14,6 +14,7 @@ __all__ = (
     'MartEtlHtsqlGatewaysSetting',
     'MartEtlHtsqlExtensionsSetting',
     'MartMaxColumnsSetting',
+    'MartMaxNameLengthSetting',
     'MartAllowRuntimeCreationSetting',
     'MartRuntimeCreationQueueSetting',
 )
@@ -111,6 +112,19 @@ class MartMaxColumnsSetting(Setting):
     name = 'mart_max_columns'
     validate = IntVal(min_bound=1)
     default = 1000
+
+
+class MartMaxNameLengthSetting(Setting):
+    """
+    Specifies the maximum number of characters the name of an object (table,
+    column, etc) in the databse can be.
+
+    If not specified, defaults to 63.
+    """
+
+    name = 'mart_max_name_length'
+    validate = IntVal(min_bound=1)
+    default = 63
 
 
 class MartAllowRuntimeCreationSetting(Setting):

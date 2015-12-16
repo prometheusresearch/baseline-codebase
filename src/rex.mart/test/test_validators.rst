@@ -3,6 +3,13 @@ Validators
 **********
 
 
+Set up the environment::
+
+    >>> from rex.core import Rex
+    >>> rex = Rex('rex.mart_demo')
+    >>> rex.on()
+
+
 MartBaseVal
 ===========
 
@@ -81,6 +88,14 @@ MartBaseVal validates the ``base`` of Mart Definitions::
     While validating field:
         fixed_name
 
+    >>> val({'type': 'fresh', 'fixed_name': 'qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm'})
+    Traceback (most recent call last):
+        ...
+    Error: Fixed name cannot be longer than 63 characters
+    Got:
+        'qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm'
+    While validating field:
+        fixed_name
 
 EtlScriptVal
 ============
@@ -567,6 +582,20 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     >>> assessment = {
     ...     'instrument': 'foo',
     ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'name': 'qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm',
+    ... }
+    >>> val(assessment)
+    Traceback (most recent call last):
+        ...
+    Error: Name cannot be longer than 60 characters
+    Got:
+        qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm
+    While validating field:
+        name
+
+    >>> assessment = {
+    ...     'instrument': 'foo',
+    ...     'selector': '/measure{id() :as assessment_uid}',
     ...     'parental_relationship': 'trunk',
     ... }
     >>> val(assessment)
@@ -602,28 +631,28 @@ DefinitionVal validates a single Mart Definition::
     ...     'id': 'foo'
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
     ...     'label': '',
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
     ...     'label': 'My Label',
     ... }
     >>> val(definition)
-    Record(id='foo', label='My Label', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='My Label', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
     ...     'description': 'This is a database'
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description='This is a database', base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description='This is a database', base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -632,7 +661,7 @@ DefinitionVal validates a single Mart Definition::
     ...     },
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -663,11 +692,11 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='copy', target='bar', name_token='foo_', fixed_name=None), deploy=[{'table': 'my_table', 'with': [{'column': 'my_column', 'type': 'text'}]}], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='copy', target='bar', name_token=u'foo_', fixed_name=None), deploy=[{'table': 'my_table', 'with': [{'column': 'my_column', 'type': 'text'}]}], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = "{id: foo, base: {type: copy, target: bar}, deploy: [{table: my_table, with: [{column: my_column, type: text}]}]}"
     >>> val.parse(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='copy', target='bar', name_token='foo_', fixed_name=None), deploy=[{'table': 'my_table', 'with': [{'column': 'my_column', 'type': 'text'}]}], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='copy', target='bar', name_token=u'foo_', fixed_name=None), deploy=[{'table': 'my_table', 'with': [{'column': 'my_column', 'type': 'text'}]}], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -709,7 +738,7 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), deploy=None, post_deploy_scripts=[Record(script='/blah/:merge', type='htsql', parameters={}), Record(script='/foo/:insert', type='htsql', parameters={})], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), deploy=None, post_deploy_scripts=[Record(script='/blah/:merge', type='htsql', parameters={}), Record(script='/foo/:insert', type='htsql', parameters={})], assessments=[], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -721,7 +750,7 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[Record(script='/foo/:insert', type='htsql', parameters={})])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[Record(script='/foo/:insert', type='htsql', parameters={})])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -733,7 +762,7 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[Record(instrument=['foo'], name=u'foo', selector='/measure{id() :as assessment_uid}', parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])], post_assessment_scripts=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -756,6 +785,22 @@ DefinitionVal validates a single Mart Definition::
     While validating field:
         assessments
 
+    >>> definition = {
+    ...     'id': 'foo',
+    ...     'base': {
+    ...         'type': 'fresh',
+    ...         'name_token': 'qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm',
+    ...     },
+    ... }
+    >>> val(definition)
+    Traceback (most recent call last):
+        ...
+    Error: Name Token cannot exceed 33 characters in length
+    Got:
+        qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm
+    While validating field:
+        base.name_token
+
 
 MartConfigurationVal
 ====================
@@ -772,7 +817,7 @@ MartConfigurationVal will validate the contents of an entire ``mart.yaml``::
     Record(definitions=[])
 
     >>> val({'definitions': [{'id': 'foo'}, {'id': 'bar'}]})
-    Record(definitions=[Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[]), Record(id='bar', label='bar', description=None, base=Record(type='fresh', target=None, name_token='bar_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])])
+    Record(definitions=[Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[]), Record(id='bar', label='bar', description=None, base=Record(type='fresh', target=None, name_token=u'bar_', fixed_name=None), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])])
 
     >>> val({'definitions': [{'id': 'foo'}, {'id': 'foo'}]})
     Traceback (most recent call last):
@@ -834,4 +879,9 @@ RunListVal will validate the entire contents of a RunList file::
 
     >>> val([{'owner': 'test', 'definition': 'some_def'}, {'owner': 'someoneelse', 'definition': 'other'}])
     [Record(owner='test', definition='some_def', halt_on_failure=False, purge_on_failure=True, leave_incomplete=False), Record(owner='someoneelse', definition='other', halt_on_failure=False, purge_on_failure=True, leave_incomplete=False)]
+
+
+
+
+    >>> rex.off()
 

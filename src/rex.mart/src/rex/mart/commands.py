@@ -97,16 +97,6 @@ class DefinitionDetailResource(RestfulLocation):
         Parameter('definition_id', StrVal()),
     )
 
-    # HACK: Overriding a private RestfulLocation interface
-    def _get_method_handler(self, request):
-        implementation, default_status = \
-            super(DefinitionDetailResource, self)._get_method_handler(request)
-
-        if request.method == 'POST':
-            default_status = 202
-
-        return implementation, default_status
-
     create_payload_validator = RecordVal(
         ('purge_on_failure', BoolVal(), True),
         ('leave_incomplete', BoolVal(), False),
@@ -133,7 +123,9 @@ class DefinitionDetailResource(RestfulLocation):
             payload,
         )
 
-        return payload
+        response = self.make_response(request, payload)
+        response.status = 202
+        return response
 
     def retrieve(self, request, definition_id, **params):
         user = authenticate(request)

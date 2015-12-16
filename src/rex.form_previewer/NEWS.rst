@@ -4,10 +4,17 @@ REX.FORM_PREVIEWER Change Log
 
 .. contents:: Table of Contents
 
+
 0.7.0 (2015-XX-XX)
 ==================
 
 * Removed rex.applet dependency
+
+
+0.6.1 (2012-12-16)
+==================
+
+* Rebuilt package to include fixes in rex.forms JS.
 
 
 0.6.0 (2015-11-20)

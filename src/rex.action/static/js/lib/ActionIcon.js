@@ -3,7 +3,7 @@
  */
 
 import React, {PropTypes} from 'react';
-import Icon               from 'rex-widget/lib/Icon';
+import {Icon} from 'rex-widget/ui';
 
 export function getIconAtNode(node) {
   if (node.element == null) {

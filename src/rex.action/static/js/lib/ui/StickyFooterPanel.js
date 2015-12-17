@@ -2,13 +2,15 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import autobind             from 'autobind-decorator';
-import resizeDetector       from 'element-resize-detector';
-import React, {PropTypes}   from 'react';
-import * as Stylesheet      from '@prometheusresearch/react-stylesheet';
-import {VBox, HBox}         from '@prometheusresearch/react-box';
+import autobind from 'autobind-decorator';
+import resizeDetector from 'element-resize-detector';
+import React, {PropTypes} from 'react';
+import ReactDOM from 'react-dom';
 
-@Stylesheet.styleable
+import * as Stylesheet from 'rex-widget/stylesheet';
+import {VBox, HBox} from 'rex-widget/layout';
+
+@Stylesheet.attach
 export default class StickyFooterPanel extends React.Component {
 
   static propTypes = {
@@ -21,7 +23,7 @@ export default class StickyFooterPanel extends React.Component {
     stickThreshold: 50,
   };
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Root: {
       Component: VBox,
       flex: 1,
@@ -49,7 +51,7 @@ export default class StickyFooterPanel extends React.Component {
     let {children, footer} = this.props;
     let {pinned} = this.state;
     if (footer) {
-      footer = React.cloneElement(footer, {state: {...footer.props.state, pinned}});
+      footer = React.cloneElement(footer, {variant: {...footer.props.variant, pinned}});
     }
     return (
       <Root>
@@ -73,7 +75,7 @@ export default class StickyFooterPanel extends React.Component {
 
   _installContentResizeDetector() {
     if (this._contentRef && this._contentMarkerRef) {
-      let contentElem = React.findDOMNode(this._contentRef);
+      let contentElem = ReactDOM.findDOMNode(this._contentRef);
       this._resizeDetector = resizeDetector();
       this._resizeDetector.listenTo(contentElem, this._onContentResize);
     }
@@ -102,11 +104,11 @@ export default class StickyFooterPanel extends React.Component {
   }
 
   get _contentElement() {
-    return React.findDOMNode(this._contentRef);
+    return ReactDOM.findDOMNode(this._contentRef);
   }
 
   get _contentMarkerElement() {
-    return React.findDOMNode(this._contentMarkerRef);
+    return ReactDOM.findDOMNode(this._contentMarkerRef);
   }
 
   @autobind

@@ -3,13 +3,10 @@
   "version": "0.8.0",
   "main": "./lib/index.js",
   "rex": {
-    "bundleAll": true,
-    "style": "./style/index.less"
+    "bundleAll": true
   },
   "dependencies": {
-    "@prometheusresearch/react-box": "^0.2.0",
     "@prometheusresearch/react-datetimepicker": "^0.2.0",
-    "@prometheusresearch/react-stylesheet": "^0.3.1",
     "autobind-decorator": "^1.2.0",
     "element-resize-detector": "^1.0.1",
     "empty": "^0.10.1",
@@ -22,7 +19,8 @@
     "styling": "^0.4.0"
   },
   "peerDependencies": {
-    "react": "^0.13.0"
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0"
   },
   "devDependencies": {
     "@prometheusresearch/webtest": "^0.1.4",

@@ -3,8 +3,9 @@
  */
 
 import React, {PropTypes} from 'react';
-import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
-import {VBox}             from '@prometheusresearch/react-box';
+
+import * as Stylesheet from 'rex-widget/stylesheet';
+import {VBox} from 'rex-widget/layout';
 
 export function getTitleAtNode(node) {
   let {type: Component, props} = node.element;
@@ -21,7 +22,7 @@ export function getTitleAtNode(node) {
   }
 }
 
-@Stylesheet.styleable
+@Stylesheet.attach
 export default class ActionTitle extends React.Component {
 
   static propTypes = {
@@ -33,7 +34,7 @@ export default class ActionTitle extends React.Component {
     noRichTitle: PropTypes.bool,
   };
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Primary: {
       Component: VBox,
     },

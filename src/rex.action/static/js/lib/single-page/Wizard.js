@@ -4,16 +4,21 @@
 
 import autobind from 'autobind-decorator';
 import emptyFunction from 'empty/function'
-import * as Stylesheet from '@prometheusresearch/react-stylesheet';
-import {VBox, HBox} from '@prometheusresearch/react-box';
+import {createLocation} from 'history';
+import createHistory from 'history/lib/createHashHistory';
 import React from 'react';
+
+import * as Stylesheet from 'rex-widget/stylesheet';
+import {VBox, HBox} from 'rex-widget/layout';
+
 import Graph from '../execution/Graph';
+import * as GraphPath from '../GraphPath';
 import * as Command from '../execution/Command';
 import Sidebar from './Sidebar';
 import ContextToolbar from './ContextToolbar';
 import NavigationToolbar from './NavigationToolbar';
 
-@Stylesheet.styleable
+@Stylesheet.attach
 export default class Wizard extends React.Component {
 
   static defaultProps = {
@@ -22,7 +27,7 @@ export default class Wizard extends React.Component {
     renderTopSidebarItem: emptyFunction,
   };
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     ActionPanel: {
       Component: VBox,
       boxShadow: '-2px 0px 3px -1px #E2E2E2',
@@ -41,7 +46,13 @@ export default class Wizard extends React.Component {
   constructor(props) {
     super(props);
     let {path, initialContext} = props;
-    let graph = Graph.create(path, initialContext);
+    this._initialContext = initialContext;
+    this._history = createHistory();
+    this._historyStopListen = null;
+
+    let location = null;
+    this._history.listen(loc => location = loc)();
+    let graph = GraphPath.fromPath(location.pathname, path, this._initialContext);
     this.state = {graph};
   }
 
@@ -77,6 +88,37 @@ export default class Wizard extends React.Component {
         </ActionPanel>
       </HBox>
     );
+  }
+
+  componentDidMount() {
+    this._historyStopListen = this._history.listen(this._onLocation);
+  }
+
+  componentDidUpdate(_prevProps, prevState) {
+    if (prevState.graph !== this.state.graph) {
+      let path = GraphPath.toPath(this.state.graph);
+      this._history.pushState(null, path);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this._historyStopListen) {
+      this._historyStopListen();
+    }
+    this._history = null;
+    this._historyStopListen = null;
+  }
+
+  @autobind
+  _onLocation(location) {
+    if (location.action === 'POP') {
+      let graph = GraphPath.fromPath(
+        location.pathname,
+        this.props.path,
+        this._initialContext
+      );
+      this.setState({graph});
+    }
   }
 
   @autobind

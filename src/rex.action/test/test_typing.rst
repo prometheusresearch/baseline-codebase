@@ -122,6 +122,48 @@ Row type::
   While parsing:
       "<...>", line 2
 
+Row type disallows some of row names::
+
+  >>> validate.parse("""
+  ... user
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Invalid name for a rowtype (you need to pick another one):
+      user
+  While parsing:
+      "<string>", line 2
+
+  >>> validate.parse("""
+  ... USER
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Invalid name for a rowtype (you need to pick another one):
+      USER
+  While parsing:
+      "<string>", line 2
+
+  >>> validate.parse("""
+  ... UsEr
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Invalid name for a rowtype (you need to pick another one):
+      UsEr
+  While parsing:
+      "<string>", line 2
+
+  >>> validate.parse("""
+  ... user: user
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Invalid name for a rowtype (you need to pick another one):
+      user
+  While parsing:
+      "<string>", line 2
+
 Record type::
 
   >>> from rex.action.typing import RecordTypeVal

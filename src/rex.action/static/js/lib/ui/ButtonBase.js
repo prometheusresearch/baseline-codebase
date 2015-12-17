@@ -3,10 +3,12 @@
  */
 
 import React, {PropTypes} from 'react';
-import * as Stylesheet from '@prometheusresearch/react-stylesheet';
-import * as CSS from '@prometheusresearch/react-stylesheet/css';
-import Icon from 'rex-widget/lib/Icon';
+
+import * as Stylesheet from 'rex-widget/stylesheet';
+import * as CSS from 'rex-widget/css';
+import {Icon} from 'rex-widget/ui';
 import isString from 'rex-widget/lib/isString';
+
 import * as Theme from './Theme';
 
 /**
@@ -14,7 +16,7 @@ import * as Theme from './Theme';
  *
  * Button is clickable element with optional icon and/or caption.
  */
-@Stylesheet.styleable
+@Stylesheet.attach
 export default class Button extends React.Component {
 
   static propTypes = {
@@ -43,7 +45,7 @@ export default class Button extends React.Component {
     size: 'normal'
   };
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Root: {
       Component: 'button',
       cursor: CSS.cursor.pointer,
@@ -67,21 +69,21 @@ export default class Button extends React.Component {
   render() {
     let {Root, Caption, Icon, IconWrapper} = this.stylesheet;
     let {children, icon, active, size, ...props} = this.props;
-    let state = {
+    let variant = {
       active,
       small: size === 'small',
       normal: size === 'normal',
       large: size === 'large',
     };
     if (isString(icon)) {
-      icon = <Icon name={icon} state={{hasCaption: !!children}} />;
+      icon = <Icon name={icon} variant={{hasCaption: !!children}} />;
     }
     let caption;
     if (children) {
       caption = <Caption>{children}</Caption>;
     }
     return (
-      <Root {...props} state={state} aria-pressed={active} role="button">
+      <Root {...props} variant={variant} aria-pressed={active} role="button">
         <IconWrapper>{icon}</IconWrapper>
         {caption}
       </Root>

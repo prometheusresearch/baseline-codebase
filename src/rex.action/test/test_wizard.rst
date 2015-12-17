@@ -76,7 +76,7 @@ Wizard
                                                 then=[],
                                                 action_instance=...)],
                     action_instance=...)]),
-         states=None,
+         states=<Domain default>,
          title=undefined,
          width=undefined)
 
@@ -98,7 +98,7 @@ Wizard
          id='wizard',
          initial_context=None,
          path=Start(then=[Execute(action='first', then=[], action_instance=...)]),
-         states=None,
+         states=<Domain default>,
          title=undefined,
          width=undefined)
 
@@ -134,7 +134,7 @@ Wizard
          id='wizard',
          initial_context={'x': 'value'},
          path=Start(then=[Execute(action='first', then=[], action_instance=RequireX(...))]),
-         states=None,
+         states=<Domain default>,
          title=undefined,
          width=undefined)
 

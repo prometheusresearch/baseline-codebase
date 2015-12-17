@@ -2,15 +2,17 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import autobind         from 'autobind-decorator';
-import * as Stylesheet  from '@prometheusresearch/react-stylesheet';
-import {VBox, HBox}     from '@prometheusresearch/react-box';
-import React            from 'react';
+import autobind from 'autobind-decorator';
+import React from 'react';
 
-@Stylesheet.styleable
+import * as Stylesheet from 'rex-widget/stylesheet';
+import {VBox, HBox} from 'rex-widget/layout';
+
+
+@Stylesheet.attach
 export default class Sidebar extends React.Component {
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Self: {
       Component: VBox,
       background: '#fafafa',

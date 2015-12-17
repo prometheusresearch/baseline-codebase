@@ -2,18 +2,19 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React            from 'react';
-import * as Stylesheet  from '@prometheusresearch/react-stylesheet';
-import {VBox, HBox}     from '@prometheusresearch/react-box';
-import style            from 'rex-widget/lib/StyleUtils';
-import {renderTitle}    from '../actions';
-import ActionButton     from '../ActionButton';
-import {Theme, Button}  from '../ui';
+import React from 'react';
 
-@Stylesheet.styleable
+import * as Stylesheet  from 'rex-widget/stylesheet';
+import {VBox, HBox} from 'rex-widget/layout';
+
+import {renderTitle} from '../actions';
+import ActionButton from '../ActionButton';
+import {Theme, Button} from '../ui';
+
+@Stylesheet.attach
 export default class ContextToolbar extends React.Component {
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Self: {
       Component: VBox,
       background: Theme.color.primary.background,

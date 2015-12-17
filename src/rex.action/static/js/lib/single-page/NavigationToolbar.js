@@ -2,17 +2,19 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
-import {VBox, HBox}       from '@prometheusresearch/react-box';
-import React              from 'react';
-import ActionButton       from '../ActionButton';
-import {SecondaryButton}  from '../ui';
-import * as Instruction   from '../execution/Instruction';
+import React from 'react';
 
-@Stylesheet.styleable
+import * as Stylesheet from 'rex-widget/stylesheet';
+import {VBox, HBox} from 'rex-widget/layout';
+
+import ActionButton from '../ActionButton';
+import {SecondaryButton} from '../ui';
+import * as Instruction from '../execution/Instruction';
+
+@Stylesheet.attach
 export default class NavigationToolbar extends React.Component {
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Self: {
       width: '100%',
       paddingTop: 10,
@@ -49,10 +51,10 @@ export default class NavigationToolbar extends React.Component {
   }
 }
 
-@Stylesheet.styleable
+@Stylesheet.attach
 class NextActionsToolbar extends React.Component {
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Self: {
       Component: VBox,
       width: '100%',

@@ -3,26 +3,27 @@
  */
 
 import React, {PropTypes} from 'react';
-import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
-import {VBox}             from '@prometheusresearch/react-box';
-import style              from 'rex-widget/lib/StyleUtils';
 
-@Stylesheet.styleable
+import * as Stylesheet from 'rex-widget/stylesheet';
+import * as CSS from 'rex-widget/css';
+import {VBox} from 'rex-widget/layout';
+
+@Stylesheet.attach
 class ChromeRoot extends React.Component {
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Wrapper: {
       Component: VBox,
       flex: 1,
-      background: style.rgb(244, 244, 244),
+      background: CSS.rgb(244, 244, 244),
     },
     Action: {
       Component: VBox,
       flex: 1,
       width: 800,
-      margin: style.margin(0, style.auto),
-      background: style.rgb(255, 255, 255),
-      boxShadow: style.boxShadow(0, 0, 2, 1, style.rgb(204, 204, 204)),
+      margin: CSS.margin(0, CSS.auto),
+      background: CSS.rgb(255, 255, 255),
+      boxShadow: CSS.boxShadow(0, 0, 2, 1, CSS.rgb(204, 204, 204)),
     },
   });
 
@@ -39,20 +40,20 @@ class ChromeRoot extends React.Component {
   }
 }
 
-@ReactStylesheet
+@Stylesheet.attach
 export default class ActionWizard extends React.Component {
 
   static propTypes = {
     noChrome: PropTypes.bool
   };
 
-  static stylesheet = {
+  static stylesheet = Stylesheet.create({
     Root: {
       Component: VBox,
       flex: 1
     },
     ChromeRoot,
-  };
+  });
 
   render() {
     let {ChromeRoot, Root} = this.stylesheet;

@@ -2,12 +2,14 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React, {PropTypes} from 'react/addons';
-import {HBox}             from '@prometheusresearch/react-box';
-import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
-import BreadcrumbItem     from './BreadcrumbItem';
+import React, {PropTypes} from 'react';
 
-@Stylesheet.styleable
+import {HBox} from 'rex-widget/layout';
+import * as Stylesheet from 'rex-widget/stylesheet';
+
+import BreadcrumbItem from './BreadcrumbItem';
+
+@Stylesheet.attach
 export default class Breadcrumb extends React.Component {
 
   static propTypes = {
@@ -16,7 +18,7 @@ export default class Breadcrumb extends React.Component {
     onClick: PropTypes.func,
   };
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Self: {
       Component: HBox,
       borderTop: '1px solid #d2d2d2',

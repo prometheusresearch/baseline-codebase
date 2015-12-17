@@ -4,18 +4,20 @@
 
 import autobind             from 'autobind-decorator';
 import React                from 'react';
-import * as Stylesheet      from '@prometheusresearch/react-stylesheet';
-import {VBox, HBox}         from '@prometheusresearch/react-box';
+
 import RexWidget            from 'rex-widget';
-import DataTable            from 'rex-widget/lib/datatable/DataTable';
-import Port                 from 'rex-widget/lib/data/Port';
+import * as Stylesheet      from 'rex-widget/stylesheet';
+import {VBox, HBox}         from 'rex-widget/layout';
+import {DataTable}          from 'rex-widget/datatable';
+import {port}               from 'rex-widget/data';
+
 import {command, Types}     from '../execution/Command';
 import * as Entity          from '../Entity';
 import Action               from '../Action';
 import applyContext         from '../applyContext';
 import Title                from './Title';
 
-@Stylesheet.styleable
+@Stylesheet.attach
 export default class Pick extends React.Component {
 
   static propTypes = {
@@ -28,7 +30,7 @@ export default class Pick extends React.Component {
     width: 600
   };
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Search: {
       Component: RexWidget.SearchInput,
       borderRadius: 0,
@@ -44,11 +46,12 @@ export default class Pick extends React.Component {
       onClose,
       context,
       contextTypes,
+      searchPlaceholder,
       actionState: {search}
     } = this.props;
     let title = this.constructor.getTitle(this.props);
     let selected = context[entity.name] ? context[entity.name].id : undefined;
-    let data = Port(this.props.data.port.path)
+    let data = port(this.props.data.port.path)
     data = applyContext(data, contextTypes.input, context);
     if (search) {
       data = data.params({'*:__search__': search});
@@ -57,6 +60,7 @@ export default class Pick extends React.Component {
       <Action noContentWrapper title={title} onClose={onClose}>
         {this.props.search &&
           <Search
+            placeholder={searchPlaceholder}
             value={search}
             onChange={this.onSearch}
             throttleOnChange={500}

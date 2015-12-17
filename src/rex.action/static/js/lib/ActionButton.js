@@ -4,13 +4,13 @@
 
 import React, {PropTypes}   from 'react';
 import autobind             from 'autobind-decorator';
-import * as Stylesheet      from '@prometheusresearch/react-stylesheet';
-import {HBox}               from '@prometheusresearch/react-box';
+import * as Stylesheet      from 'rex-widget/stylesheet';
+import {HBox}               from 'rex-widget/layout';
 import ButtonBase           from './ui/ButtonBase';
 import {getIconAtNode}  from './ActionIcon';
 import ActionTitle          from './ActionTitle';
 
-@Stylesheet.styleable
+@Stylesheet.attach
 export default class ActionButton extends React.Component {
 
   static propTypes = {
@@ -20,7 +20,7 @@ export default class ActionButton extends React.Component {
     onClick: PropTypes.func,
   };
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Button: ButtonBase,
   });
 

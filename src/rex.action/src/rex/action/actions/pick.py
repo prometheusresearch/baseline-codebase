@@ -52,6 +52,12 @@ class Pick(EntityAction):
 
         """)
 
+    search_placeholder = Field(
+        StrVal(), default=undefined,
+        doc="""
+        Placeholder which is used for searchbox.
+        """)
+
     mask = Field(
         StrVal(), default=None,
         doc="""

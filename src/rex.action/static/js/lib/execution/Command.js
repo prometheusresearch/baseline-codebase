@@ -113,6 +113,9 @@ class ConfigurableEntityType extends ArgumentType {
   }
 
   stringify(actionElement, entity) {
+    if (entity === null) {
+      return '';
+    }
     invariant(
       Entity.isEntity(entity),
       'Expected an entity, got: %s', entity
@@ -127,6 +130,9 @@ class ConfigurableEntityType extends ArgumentType {
   }
 
   parse(actionElement, value) {
+    if (value === '') {
+      return null;
+    }
     let type = actionElement.props[this.propName];
     invariant(
       type,

@@ -2,7 +2,7 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React  from 'react/addons';
+import React  from 'react';
 import Action from '../Action';
 
 export default class Page extends React.Component {

@@ -83,7 +83,12 @@ class _EntityAction(Action):
     def reflect_fields(self, fields=None):
         """ Reflect fields from database."""
         if fields:
-            port = formfield.to_port(self.entity.type.name, fields, db=self.db)
+            parameters = {k: None for k in self.context_types[0].rows.keys()}
+            port = formfield.to_port(
+                self.entity.type.name,
+                fields,
+                parameters=parameters,
+                db=self.db)
         else:
             port = Port(self.entity.type.name, db=self.db)
         return formfield.enrich(fields, port, db=self.db)
@@ -171,7 +176,12 @@ class EntityAction(Action):
     def reflect_fields(self, fields=None):
         """ Reflect fields from database."""
         if fields:
-            port = formfield.to_port(self.entity.type.name, fields, db=self.db)
+            parameters = {k: None for k in self.context_types[0].rows.keys()}
+            port = formfield.to_port(
+                self.entity.type.name,
+                fields,
+                parameters=parameters,
+                db=self.db)
         else:
             port = Port(self.entity.type.name, db=self.db)
         return formfield.enrich(fields, port, db=self.db)

@@ -2,15 +2,17 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React                from 'react';
-import * as Stylesheet      from '@prometheusresearch/react-stylesheet';
-import {VBox, HBox}         from 'rex-widget/lib/Layout';
-import * as Entity          from '../Entity';
+import React from 'react';
 
-@Stylesheet.styleable
+import * as Stylesheet from 'rex-widget/stylesheet';
+import {VBox} from 'rex-widget/layout';
+
+import * as Entity from '../Entity';
+
+@Stylesheet.attach
 export default class Title extends React.Component {
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Primary: {
       Component: VBox,
     },

@@ -175,17 +175,26 @@ class RowTypeVal(Validate):
 
     _validate_type = TypeVal()
     _validate = OneOfVal(_validate_type, MapVal(StrVal(), _validate_type))
+    _invalid_names = set(['user'])
+
+    def _validate_name(self, name):
+        if name.lower() in self._invalid_names:
+            error = Error(
+                'Invalid name for a rowtype (you need to pick another one):',
+                name)
+            raise error
+        return name
 
     def __call__(self, value):
         if isinstance(value, RowType):
             return value
         value = self._validate(value)
         if isinstance(value, Type):
-            return RowType(name=value.name, type=value)
+            return RowType(name=self._validate_name(value.name), type=value)
         if len(value) != 1:
             raise Error('Row type expects a single definition')
         name, typ = value.iteritems().next()
-        return RowType(name=name, type=typ)
+        return RowType(name=self._validate_name(name), type=typ)
 
 
 class RecordType(Type):

@@ -51,10 +51,9 @@ export default class Node {
     if (Start.is(this.instruction)) {
       return this;
     }
-    let maskedContext = maskContext(context, this.contextTypes);
     return new this.constructor(
       this.instruction,
-      maskedContext,
+      context,
       this.state,
       this.parent,
       this.index,
@@ -344,7 +343,9 @@ function resolveNodeByReference(node, reference) {
       'Invalid action reference: %s', reference
     );
   }
-  return currentNode.setContext(context);
+  context = {...currentNode.context, ...context}
+  context = maskContext(context, currentNode.contextTypes);
+  return currentNode.replaceContext(context);
 }
 
 /**

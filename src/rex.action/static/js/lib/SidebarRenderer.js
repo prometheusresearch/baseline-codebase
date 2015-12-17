@@ -3,7 +3,7 @@
  */
 
 import invariant from 'invariant';
-import React     from 'react';
+import ReactDOM from 'react-dom';
 
 export default function SidebarRenderer(Component) {
   return class extends Component {
@@ -21,7 +21,7 @@ export default function SidebarRenderer(Component) {
     _renderSidebar() {
       this._node = this._node || document.getElementById(`${this.props.id}__sidebar`);
       if (this._node) {
-        React.render(this.renderSidebar(), this._node);
+        ReactDOM.render(this.renderSidebar(), this._node);
       }
     }
 

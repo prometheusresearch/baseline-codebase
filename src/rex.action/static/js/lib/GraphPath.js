@@ -52,7 +52,6 @@ export function fromPath(path, instruction, initialContext) {
  * Serialize ``graph`` object to string suitable to be used as path.
  */
 export function toPath(graph) {
-    return graph.advance();
   return '/' + StringUtils.joinWithSlash(graph.trace.slice(1).map(_nodeToPath));
 }
 

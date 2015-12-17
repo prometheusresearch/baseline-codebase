@@ -3,15 +3,17 @@
  */
 
 import React            from 'react';
+
 import RexWidget        from 'rex-widget';
-import {VBox, HBox}     from '@prometheusresearch/react-box';
-import * as Stylesheet  from '@prometheusresearch/react-stylesheet';
-import * as CSS         from '@prometheusresearch/react-stylesheet/css';
+import {VBox, HBox}     from 'rex-widget/layout';
+import * as Stylesheet  from 'rex-widget/stylesheet';
+import * as CSS         from 'rex-widget/css';
+
 import Title            from './Title';
 import {command, Types} from '../execution/Command';
 import {getEntityTitle} from '../Entity';
 
-let stylesheet = Stylesheet.createStylesheet({
+let stylesheet = Stylesheet.create({
   Root: {
     Component: VBox,
     flex: 1,

@@ -6,10 +6,10 @@ import autobind             from 'autobind-decorator';
 import resizeDetector       from 'element-resize-detector';
 import emptyFunction        from 'empty/functionThatReturnsNull';
 import React                from 'react';
-import * as Stylesheet      from '@prometheusresearch/react-stylesheet';
-import * as CSS             from '@prometheusresearch/react-stylesheet/css';
-import {VBox, HBox}         from '@prometheusresearch/react-box';
-import RexWidget            from 'rex-widget';
+
+import {VBox, HBox}         from 'rex-widget/layout';
+import * as Stylesheet      from 'rex-widget/stylesheet';
+import * as CSS             from 'rex-widget/css';
 
 import {
   QuietButton,
@@ -18,14 +18,14 @@ import {
 } from './ui';
 
 
-@Stylesheet.styleable
+@Stylesheet.attach
 export default class Action extends React.Component {
 
   static propTypes = {
     /**
      * Action title.
      */
-    title: React.PropTypes.string,
+    title: React.PropTypes.node,
 
     /**
      * Content area.
@@ -52,7 +52,7 @@ export default class Action extends React.Component {
     renderFooter: emptyFunction
   };
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Root: {
       Component: VBox,
       flex: 1,
@@ -60,7 +60,7 @@ export default class Action extends React.Component {
     Header: {
       Component: HBox,
       boxShadow: Theme.shadow.normal(),
-      padding: 10,
+      padding: '20px 10px',
     },
     Content: {
       padding: 10,
@@ -75,6 +75,7 @@ export default class Action extends React.Component {
     },
     Title: {
       Component: VBox,
+      fontWeight: 'bold',
       flex: 1
     },
     ContentContainer: {
@@ -95,7 +96,7 @@ export default class Action extends React.Component {
     return (
       <Root>
         <Header>
-          {title && <Title><h4>{title}</h4></Title>}
+          {title && <Title>{title}</Title>}
           {onClose &&
             <QuietButton
               icon="remove"

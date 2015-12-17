@@ -2,12 +2,13 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React, {PropTypes} from 'react/addons';
-import RexWidget          from 'rex-widget';
-import {HBox}             from '@prometheusresearch/react-box';
-import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
+import React, {PropTypes} from 'react';
 
-@Stylesheet.styleable
+import {Icon} from 'rex-widget/ui';
+import {HBox} from 'rex-widget/layout';
+import * as Stylesheet from 'rex-widget/stylesheet';
+
+@Stylesheet.attach
 export default class BreadcrumbItem extends React.Component {
 
   static propTypes = {
@@ -18,7 +19,7 @@ export default class BreadcrumbItem extends React.Component {
     active: PropTypes.bool,
   };
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Self: {
       Component: HBox,
       top: 0,
@@ -42,7 +43,7 @@ export default class BreadcrumbItem extends React.Component {
       }
     },
     Icon: {
-      Component: RexWidget.Icon,
+      Component: Icon,
       top: -1,
       hasTitle: {
         marginRight: 7,
@@ -54,9 +55,9 @@ export default class BreadcrumbItem extends React.Component {
     let {Self, Icon} = this.stylesheet;
     let {item, onClick, style, active, ...props} = this.props;
     return (
-      <Self {...props} state={{active}} onClick={onClick.bind(null, item.id)}>
+      <Self {...props} variant={{active}} onClick={onClick.bind(null, item.id)}>
         {item.icon &&
-          <Icon name={item.icon} state={{hasTitle: item.title}} />}
+          <Icon name={item.icon} variant={{hasTitle: item.title}} />}
         {item.title}
       </Self>
     );

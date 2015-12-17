@@ -17,7 +17,7 @@
     }
   },
   "peerDependencies": {
-    "react": "^0.13.0"
+    "react": "^0.14.0"
   },
   "dependencies": {
     "immutable": "^3.7.4",
@@ -30,11 +30,11 @@
     "dot-qs": "0.2.0",
     "classnames": "^2.1.2",
     "react-select": "^0.5.5",
-    "react-dnd": "prometheusresearch/react-dnd#npm_react_hack",
-    "react-forms": "prometheusresearch/react-forms#master"
+    "react-dnd": "prometheusresearch/react-dnd#0.9.6-react-0.14",
+    "react-forms": "prometheusresearch/react-forms#1.0.0"
   },
   "devDependencies": {
-    "react": "^0.13.0",
+    "react": "^0.14.0",
     "webpack": "1.9.x",
     "node-libs-browser": "0.5.x",
     "istanbul-instrumenter-loader": "~0.1.3",

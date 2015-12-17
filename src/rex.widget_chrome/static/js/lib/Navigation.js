@@ -3,7 +3,7 @@
  */
 'use strict';
 
-var React             = require('react/addons');
+var React             = require('react');
 var RexWidget         = require('rex-widget');
 var {VBox, HBox}      = RexWidget.Layout;
 var NavigationButton  = require('./NavigationButton');

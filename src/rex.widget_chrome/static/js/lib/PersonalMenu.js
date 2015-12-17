@@ -5,7 +5,7 @@
 'use strict';
 
 
-var React = require('react/addons');
+var React = require('react');
 var RexWidget = require('rex-widget');
 var {VBox} = RexWidget.Layout;
 

@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.1.2 (2015-12-XX)
+==================
+
+* Another fix for global parameters.
+
+
 1.1.1 (2015-11-20)
 ==================
 

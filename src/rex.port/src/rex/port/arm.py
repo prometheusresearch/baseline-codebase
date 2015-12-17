@@ -170,7 +170,8 @@ class TableArm(Arm):
         arms = self.arms.items()+arms
         mask = self.mask.merge(mask) if self.mask is not None else mask
         filters = self.filters.items()+filters
-        return self.__class__(self.arc, arms, mask, filters)
+        parameters = self.parameters.copy()
+        return self.__class__(self.arc, arms, mask, filters, parameters)
 
     def to_yaml(self, name):
         mapping = collections.OrderedDict()

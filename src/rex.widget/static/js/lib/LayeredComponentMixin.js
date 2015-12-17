@@ -2,7 +2,7 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React from 'react';
+import ReactDOM from 'react-dom';
 
 export default {
 
@@ -24,7 +24,7 @@ export default {
   },
 
   _renderLayer() {
-    React.render(this.renderLayer(), this._layer);
+    ReactDOM.render(this.renderLayer(), this._layer);
 
     if (this.layerDidMount) {
       this.layerDidMount(this._layer);
@@ -36,6 +36,6 @@ export default {
       this.layerWillUnmount(this._layer);
     }
 
-    React.unmountComponentAtNode(this._layer);
+    ReactDOM.unmountComponentAtNode(this._layer);
   }
 };

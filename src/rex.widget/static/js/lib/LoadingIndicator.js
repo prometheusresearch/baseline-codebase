@@ -3,7 +3,7 @@
  */
 
 import React                from 'react';
-import * as Stylesheet      from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet      from 'react-stylesheet';
 import loadingIndicatorImg  from '../img/loading-indicator.gif';
 import {textAlign}          from './StyleUtils';
 

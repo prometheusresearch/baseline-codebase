@@ -55,7 +55,6 @@ export default class ConfigurableEntityForm extends React.Component {
         schema={this._schema}
         submitButton={readOnly ? null : submitButton}>
         <FormColumn
-          selectFormValue
           fields={fields}
           fieldProps={{readOnly}}
           />

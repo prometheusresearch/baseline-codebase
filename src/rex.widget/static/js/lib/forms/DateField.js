@@ -7,6 +7,7 @@ import  React               from 'react';
 import  BaseDateTimePicker  from '@prometheusresearch/react-datetimepicker';
 import  Field               from './Field';
 import  ReadOnlyField       from './ReadOnlyField';
+import {WithFormValue} from 'react-forms';
 
 const ISO_FORMAT = "YYYY-MM-DD";
 
@@ -33,6 +34,7 @@ class DatePicker extends React.Component {
  *
  * @public
  */
+@WithFormValue
 export default class DateField extends React.Component {
 
   static propTypes = {
@@ -60,6 +62,7 @@ export default class DateField extends React.Component {
 
   render() {
     let {format, formValue, readOnly, minDate, maxDate,
+      select, selectFormValue,
       ...props} = this.props;
     if (readOnly) {
       let value = formValue.value;

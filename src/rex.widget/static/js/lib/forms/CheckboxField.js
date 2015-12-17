@@ -6,6 +6,7 @@
 let React                   = require('react');
 let Field                   = require('./Field');
 let ReadOnlyField           = require('./ReadOnlyField');
+import {WithFormValue} from 'react-forms';
 
 let CheckboxStyle = {
   self: {
@@ -54,7 +55,7 @@ let CheckboxField = React.createClass({
   },
 
   render() {
-    let {readOnly, formValue, ...props} = this.props;
+    let {readOnly, formValue, select, selectFormValue, ...props} = this.props;
     if (readOnly) {
       return (
         <ReadOnlyField {...props} formValue={formValue}>
@@ -71,4 +72,4 @@ let CheckboxField = React.createClass({
   }
 });
 
-module.exports = CheckboxField;
+module.exports = WithFormValue(CheckboxField);

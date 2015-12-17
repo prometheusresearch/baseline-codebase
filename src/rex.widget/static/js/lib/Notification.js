@@ -4,7 +4,7 @@
 
 import React              from 'react';
 import {boxShadow, rgba}  from './StyleUtils';
-import Icon               from './Icon';
+import Icon               from './ui/Icon';
 import {Box, HBox}       from './Layout';
 
 let NotificationStyle = {

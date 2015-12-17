@@ -3,9 +3,9 @@
  */
 
 import React, {PropTypes} from 'react';
-import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet    from 'react-stylesheet';
+import Icon               from './ui/Icon';
 import {VBox}             from './Layout';
-import Icon               from './Icon';
 import Style              from './StyleUtils';
 
 /**

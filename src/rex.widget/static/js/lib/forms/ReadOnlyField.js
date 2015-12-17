@@ -4,6 +4,7 @@
 
 import React, {PropTypes} from 'react';
 import {VBox, HBox}       from '../Layout';
+import {WithFormValue}    from 'react-forms';
 
 let Style = {
   self: {
@@ -31,6 +32,7 @@ let Style = {
  *
  * @public
  */
+@WithFormValue
 export default class ReadOnlyField extends React.Component {
 
   static propTypes = {

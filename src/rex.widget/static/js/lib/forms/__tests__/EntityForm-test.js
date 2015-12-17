@@ -4,7 +4,7 @@
 'use strict';
 
 var React             = require('react');
-var {TestUtils}       = require('react/addons').addons;
+var TestUtils         = require('react-addons-test-utils');
 var PortMock          = require('../../PortMock');
 var DataSpecification = require('../../DataSpecification');
 var Fieldset          = require('../Fieldset');
@@ -12,12 +12,10 @@ var EntityForm        = require('../EntityForm');
 var Field             = require('../Field');
 var Input             = require('../Input');
 
-console.log(Object.keys(require('react/addons').addons));
-
 function findInputs(form) {
   var inputs = {};
   TestUtils.scryRenderedComponentsWithType(form, Input).forEach(input => {
-    inputs[input._owner.props.selectFormValue] = input;
+    inputs[input._owner.props.select] = input;
   });
   return inputs;
 }
@@ -65,8 +63,8 @@ describe('EntityForm', function() {
     }
     var form = TestUtils.renderIntoDocument(
       <Form insert schema={schema}>
-        <Field selectFormValue="first_name" />
-        <Field selectFormValue="last_name" />
+        <Field select="first_name" />
+        <Field select="last_name" />
       </Form>
     );
     form.inputs.first_name.props.onChange('first');
@@ -98,8 +96,8 @@ describe('EntityForm', function() {
     }
     var form = TestUtils.renderIntoDocument(
       <Form value={{first_name: 'x'}} schema={schema}>
-        <Field selectFormValue="first_name" />
-        <Field selectFormValue="last_name" />
+        <Field select="first_name" />
+        <Field select="last_name" />
       </Form>
     );
     form.inputs.first_name.props.onChange('first');
@@ -142,9 +140,9 @@ describe('EntityForm', function() {
     }
     var form = TestUtils.renderIntoDocument(
       <Form value={{id: 'x'}} schema={schema}>
-        <Fieldset selectFormValue="facet">
-          <Field selectFormValue="first_name" />
-          <Field selectFormValue="last_name" />
+        <Fieldset select="facet">
+          <Field select="first_name" />
+          <Field select="last_name" />
         </Fieldset>
       </Form>
     );
@@ -191,9 +189,9 @@ describe('EntityForm', function() {
     }
     var form = TestUtils.renderIntoDocument(
       <Form value={{id: 'x'}} schema={schema}>
-        <Fieldset selectFormValue="facet">
-          <Field selectFormValue="first_name" />
-          <Field selectFormValue="last_name" />
+        <Fieldset select="facet">
+          <Field select="first_name" />
+          <Field select="last_name" />
         </Fieldset>
       </Form>
     );

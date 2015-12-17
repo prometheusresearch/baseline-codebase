@@ -3,10 +3,10 @@
  */
 'use strict';
 
-let {batchedUpdates}  = require('react/addons').addons;
-let Emitter           = require('component-emitter');
-let invariant         = require('./invariant');
-let qs                = require('./qs');
+import {unstable_batchedUpdates as batchedUpdates} from 'react-dom';
+import Emitter from 'component-emitter';
+import invariant from 'invariant';
+import * as qs from './qs';
 
 let EVENT_NAME = 'change';
 

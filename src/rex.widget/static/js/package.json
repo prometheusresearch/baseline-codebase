@@ -3,7 +3,8 @@
   "version": "1.5.0",
   "main": "lib/index.js",
   "peerDependencies": {
-    "react": "^0.13.0"
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0"
   },
   "rex": {
     "bundleAll": true,
@@ -16,23 +17,24 @@
   },
   "dependencies": {
     "@prometheusresearch/react-autocomplete": "^0.2.2",
-    "@prometheusresearch/react-box": "^0.2.0",
+    "@prometheusresearch/react-box": "^0.3.0",
     "@prometheusresearch/react-datetimepicker": "^0.2.0",
-    "@prometheusresearch/react-stylesheet": "^0.3.1",
     "autobind-decorator": "^1.3.2",
     "bootstrap": "3.3.5",
     "bootstrap-datepicker": "^1.3.0",
     "classnames": "^2.1.2",
     "component-emitter": "1.1.2",
     "dot-qs": "0.2.0",
-    "fixed-data-table": "^0.4.0",
+    "fixed-data-table": "^0.5.0",
     "flat": "1.2.1",
     "immutable": "^3.7.4",
     "invariant": "^2.1.0",
     "keymirror": "^0.1.1",
+    "normalize.css": "^3.0.3",
     "object-assign": "^1.0.0",
     "qs": "^4.0.0",
-    "react-forms": "prometheusresearch/react-forms#a5efe69",
+    "react-forms": "2.0.0-beta2",
+    "react-stylesheet": "^0.6.0",
     "rethemeable": "^2.0.1",
     "styling": "^0.4.0",
     "transit-js": "^0.8.795"
@@ -46,7 +48,9 @@
     "jsdom": "^6.5.1",
     "mocha": "^2.3.3",
     "power-assert": "^1.1.0",
-    "react": "^0.13.0",
+    "react": "^0.14.0",
+    "react-addons-test-utils": "^0.14.3",
+    "react-dom": "^0.14.0",
     "sinon": "^1.17.1",
     "webpack": "*"
   }

@@ -3,9 +3,9 @@
  */
 
 import React            from 'react';
-import * as Stylesheet  from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet  from 'react-stylesheet';
 import Hoverable        from './Hoverable';
-import Icon             from './Icon';
+import Icon             from './ui/Icon';
 import {Box, HBox}      from './Layout';
 import ProgressBar      from './ProgressBar';
 

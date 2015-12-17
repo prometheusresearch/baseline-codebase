@@ -2,14 +2,16 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import Style from './DataTableBase.css';
+
 import React, {PropTypes} from 'react';
 import autobind           from 'autobind-decorator';
 import {Column, Table}    from 'fixed-data-table';
-import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet    from 'react-stylesheet';
 import emptyFunction      from '../emptyFunction';
 import WithDOMSize        from '../WithDOMSize';
 import {VBox, HBox}       from '../Layout';
-import Icon               from '../Icon';
+import Icon               from '../ui/Icon';
 import isString           from '../isString';
 import LoadingIndicator   from '../LoadingIndicator';
 import * as KeyPath       from '../KeyPath';
@@ -188,7 +190,7 @@ export default class DataTableBase extends React.Component {
           cellRenderer={this.cellRenderer}
           headerRenderer={this.headerRenderer}
           fixed={column.fixed}
-          dataKey={column.valueKey}
+          dataKey={column.valueKey.join('.')}
           label={column.label || KeyPath.normalize(column.valueKey).join('.')}
           columnData={{...column, sort}}
           isResizable={true}
@@ -223,7 +225,7 @@ export default class DataTableBase extends React.Component {
           rowsCount={rowsCount}>
           {columnElements}
         </Table>
-        <LoadingPane state={{visible: updating}}>
+        <LoadingPane variant={{visible: updating}}>
           <LoadingIndicator />
         </LoadingPane>
         {error && <ErrorInfo>{error.message}</ErrorInfo>}
@@ -315,7 +317,7 @@ export default class DataTableBase extends React.Component {
     let {selected} = this.props;
     let row = this.rowGetter(rowIndex);
     if (row && row.id == selected) { // eslint-disable-line eqeqeq
-      return 'DataTable__row--selected';
+      return Style.rowSelected;
     }
   }
 

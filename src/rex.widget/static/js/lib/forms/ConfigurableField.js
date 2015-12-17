@@ -92,7 +92,7 @@ let ConfigurableField = React.createClass({
         key: field.valueKey,
         label: field.label,
         hint: field.hint,
-        selectFormValue: field.valueKey,
+        select: field.valueKey,
         formValue: formValue,
         readOnly: readOnly
       });
@@ -101,7 +101,7 @@ let ConfigurableField = React.createClass({
         key: field.valueKey,
         label: field.label,
         hint: field.hint,
-        selectFormValue: field.valueKey,
+        select: field.valueKey,
         formValue: formValue
       });
     } else if (readOnly && field.widget && isReactElement(field.widget.show)) {
@@ -109,7 +109,7 @@ let ConfigurableField = React.createClass({
         key: field.valueKey,
         label: field.label,
         hint: field.hint,
-        selectFormValue: field.valueKey,
+        select: field.valueKey,
         formValue: formValue
       });
     } else if (readOnly && FIELDS_WITH_READONLY_MODE.indexOf(field.type) === -1) {
@@ -118,7 +118,7 @@ let ConfigurableField = React.createClass({
           key={field.valueKey}
           label={field.label}
           hint={field.hint}
-          selectFormValue={field.valueKey}
+          select={field.valueKey}
           formValue={formValue}
           />
       );
@@ -130,7 +130,7 @@ let ConfigurableField = React.createClass({
           key={field.valueKey}
           label={field.label}
           hint={field.hint}
-          selectFormValue={field.valueKey}
+          select={field.valueKey}
           formValue={formValue}
           minDate={field.minDate}
           maxDate={field.maxDate}
@@ -142,7 +142,7 @@ let ConfigurableField = React.createClass({
           key={field.valueKey}
           label={field.label}
           hint={field.hint}
-          selectFormValue={field.valueKey}
+          select={field.valueKey}
           formValue={formValue}
           readOnly={readOnly}
           />
@@ -153,7 +153,7 @@ let ConfigurableField = React.createClass({
           key={field.valueKey}
           label={field.label}
           hint={field.hint}
-          selectFormValue={field.valueKey}
+          select={field.valueKey}
           formValue={formValue}
           storage={field.storage}
           download={field.download}
@@ -166,7 +166,7 @@ let ConfigurableField = React.createClass({
           key={field.valueKey}
           label={field.label}
           hint={field.hint}
-          selectFormValue={field.valueKey}
+          select={field.valueKey}
           formValue={formValue}
           options={field.options || field.values}
           readOnly={readOnly}
@@ -178,7 +178,7 @@ let ConfigurableField = React.createClass({
           key={field.valueKey}
           label={field.label}
           hint={field.hint}
-          selectFormValue={field.valueKey}
+          select={field.valueKey}
           formValue={formValue}
           dataSpec={field.data}
           readOnly={readOnly}
@@ -190,7 +190,7 @@ let ConfigurableField = React.createClass({
           key={field.valueKey}
           label={field.label}
           hint={field.hint}
-          selectFormValue={field.valueKey}
+          select={field.valueKey}
           formValue={formValue}
           />
       );
@@ -200,7 +200,7 @@ let ConfigurableField = React.createClass({
           key={field.valueKey}
           label={field.label}
           hint={field.hint}
-          selectFormValue={field.valueKey}
+          select={field.valueKey}
           formValue={formValue}
           />
       );
@@ -210,7 +210,7 @@ let ConfigurableField = React.createClass({
           key={field.valueKey}
           label={field.label}
           hint={field.hint}
-          selectFormValue={field.valueKey}
+          select={field.valueKey}
           formValue={formValue}
           />
       );
@@ -221,7 +221,7 @@ let ConfigurableField = React.createClass({
           label={field.label}
           hint={field.hint}
           formValue={formValue}
-          selectFormValue={field.valueKey}>
+          select={field.valueKey}>
           {field.fields.map(f => <ConfigurableField field={f} />)}
         </Fieldset>
       );
@@ -232,8 +232,8 @@ let ConfigurableField = React.createClass({
           label={field.label}
           hint={field.hint}
           formValue={formValue}
-          selectFormValue={field.valueKey}>
-          {field.fields.map(f => <ConfigurableField field={f} selectFormValue={f.valueKey} />)}
+          select={field.valueKey}>
+          {field.fields.map(f => <ConfigurableField field={f} select={f.valueKey} />)}
         </RepeatingFieldset>
       );
     default:
@@ -243,7 +243,7 @@ let ConfigurableField = React.createClass({
           label={field.label}
           hint={field.hint}
           formValue={formValue}
-          selectFormValue={field.valueKey}
+          select={field.valueKey}
           />
       );
     }

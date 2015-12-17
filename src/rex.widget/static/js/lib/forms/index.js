@@ -23,5 +23,6 @@ module.exports = {
   RepeatingFieldset: require('./RepeatingFieldset'),
   SelectField: require('./SelectField'),
   TextareaField: require('./TextareaField'),
-  Value: require('react-forms').Value
+  Value: require('react-forms').Value,
+  WithFormValue: require('react-forms').WithFormValue,
 };

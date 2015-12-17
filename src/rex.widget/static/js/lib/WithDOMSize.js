@@ -4,6 +4,7 @@
 
 import autobind     from 'autobind-decorator';
 import React        from 'react';
+import ReactDOM     from 'react-dom';
 import {EVENT_NAME} from './notifyLayoutChange';
 
 export default function WithDOMSize(Component) {
@@ -15,7 +16,7 @@ export default function WithDOMSize(Component) {
     static defaultProps = {
 
       getDOMNode(component) {
-        return React.findDOMNode(component);
+        return ReactDOM.findDOMNode(component);
       }
     };
 

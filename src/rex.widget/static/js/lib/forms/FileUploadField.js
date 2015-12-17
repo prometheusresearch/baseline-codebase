@@ -13,6 +13,7 @@ import resolveURL     from '../resolveURL';
 import FileDownload   from '../FileDownload';
 import Field          from './Field';
 import ReadOnlyField  from './ReadOnlyField';
+import {WithFormValue} from 'react-forms';
 
 function uploadFile(url, file, onProgress) {
   url = resolveURL(url);
@@ -151,6 +152,7 @@ let FileUploadInput = React.createClass({
  *
  * @public
  */
+@WithFormValue
 export default class FileUploadField extends React.Component {
 
   static propTypes = {
@@ -182,7 +184,7 @@ export default class FileUploadField extends React.Component {
   render() {
     let {
       className, storage, download, readOnly,
-      formValue, ...props
+      formValue, select, selectFormValue, ...props
     } = this.props;
     if (!readOnly) {
       let required = formValue.schema && formValue.schema.required;

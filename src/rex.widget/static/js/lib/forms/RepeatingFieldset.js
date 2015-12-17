@@ -7,6 +7,7 @@ import React, {PropTypes} from 'react';
 import {VBox, HBox}       from '../Layout';
 import Button             from '../Button';
 import Fieldset           from './Fieldset';
+import {WithFormValue}    from 'react-forms';
 
 let RepeatingFieldsetStyle = {
   errors: {
@@ -26,6 +27,7 @@ let RepeatingFieldsetStyle = {
  *
  * @public
  */
+@WithFormValue
 export default class RepeatingFieldset extends React.Component {
 
   static propTypes = {

@@ -3,7 +3,7 @@
  */
 
 import React                from 'react';
-import * as Stylesheet      from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet      from 'react-stylesheet';
 import {Input as BaseInput} from 'react-forms';
 
 /**
@@ -61,6 +61,6 @@ export default class Input extends React.Component {
   render() {
     let {error, ...props} = this.props;
     let {Self} = this.stylesheet;
-    return <Self {...this.props} state={{error}} />;
+    return <Self {...this.props} variant={{error}} />;
   }
 }

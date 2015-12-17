@@ -3,6 +3,7 @@
  */
 
 import React          from 'react';
+import ReactDOM       from 'react-dom';
 import Notification   from './Notification';
 
 let _notificationID = 0;
@@ -105,7 +106,7 @@ function _initializeLayer() {
   }
   let element = document.createElement('div');
   document.body.appendChild(element);
-  _layer = React.render(<NotificationLayer />, element);
+  _layer = ReactDOM.render(<NotificationLayer />, element);
   return _layer;
 }
 

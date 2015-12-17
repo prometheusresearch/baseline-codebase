@@ -3,9 +3,9 @@
  */
 
 import React, {PropTypes} from 'react';
-import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
-import * as CSS           from '@prometheusresearch/react-stylesheet/css';
-import Icon               from './Icon';
+import * as Stylesheet    from 'react-stylesheet';
+import * as CSS           from 'react-stylesheet/css';
+import Icon               from './ui/Icon';
 import resolveURL         from './resolveURL';
 import * as qs            from './qs';
 import Theme              from './Theme';
@@ -332,7 +332,7 @@ export default class Button extends React.Component {
         {...props}
         disabled={disabled}
         Component={Component}
-        state={{
+        variant={{
           disabled,
           success, danger, link, quiet,
           small: size === 'small',

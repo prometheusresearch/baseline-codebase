@@ -3,6 +3,8 @@
  */
 'use strict';
 
+import './index.css';
+
 import React              from 'react';
 import classNames         from 'classnames';
 import {isTouchDevice}    from './Environment';
@@ -31,8 +33,8 @@ module.exports = window.RexWidget = {
   emptyFunction: require('./emptyFunction'),
   Forms: require('./forms'),
   Hoverable: require('./Hoverable'),
-  Icon: require('./Icon'),
   IconButton: require('./IconButton'),
+  Icon: require('./ui/Icon'),
   IFrame: require('./IFrame'),
   Info: require('./Info'),
   Layout: require('./Layout'),
@@ -50,7 +52,5 @@ module.exports = window.RexWidget = {
   Select: require('./Select'),
   ShowPreloader: require('./ShowPreloader'),
   StyleUtils: require('./StyleUtils'),
-  Tab: require('./Tab'),
-  Tabs: require('./Tabs'),
   Transitionable: require('./Transitionable'),
 };

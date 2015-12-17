@@ -5,7 +5,7 @@
 import {flatten} from 'flat';
 import qs        from 'dot-qs';
 
-export {parse}   from 'dot-qs';
+export let parse  = qs.parse;
 
 export function stringify(obj, options = {}) {
   obj = flatten(obj);

@@ -5,6 +5,32 @@
 1.5.0 (2015-XX-XX)
 ==================
 
+* BREAKING CHANGE: ``RexWidget.Tabs`` and ``RexWidget.Tab`` are removed.
+
+  Use::
+
+    import {TabList, Tab} from 'rex-widget/ui'
+
+  or::
+
+    import {PillList, Pill} from 'rex-widget/ui'
+
+  instead. Interface is similar but there were few props renamed:
+
+  * ``active`` to ``selected``
+  * ``onActive`` to ``onSelected``
+  * ``buttonsPosition`` to ``position``
+  * ``buttonsStyle`` is removed, use either ``<TabList />`` or ``<PillList />``
+    to control tab list appearance.
+
+* BREAKING CHANGE: ``RexWidget.Icon`` is removed.
+
+  Use::
+
+    import {Icon} from 'rex-widget/ui'
+
+  instead.
+
 * New Chrome widget feature. Allows to specify a widget which wraps every
   top-level widget in an application. Can be used to implement app-wide UI
   features like navigation bars, footers and so on.

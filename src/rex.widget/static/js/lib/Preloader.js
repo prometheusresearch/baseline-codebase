@@ -3,8 +3,7 @@
  */
 
 import React, {PropTypes}               from 'react';
-import cx                               from 'classnames';
-import * as Stylesheet                  from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet                  from 'react-stylesheet';
 import {padding, fontWeight, textAlign} from './StyleUtils';
 import LoadingIndicator                 from './LoadingIndicator';
 

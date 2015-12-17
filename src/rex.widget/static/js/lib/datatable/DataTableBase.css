@@ -1,0 +1,5 @@
+@import '~fixed-data-table/dist/fixed-data-table.css';
+
+:local(.rowSelected) .public_fixedDataTableCell_main {
+  background-color: #FFFCA3;
+}

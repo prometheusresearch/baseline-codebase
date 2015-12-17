@@ -3,11 +3,13 @@
  */
 'use strict';
 
+import classNames from './datatable/DataTableBase.css';
+
 import React                   from 'react';
-import {Column, Table}         from './vendor/fixed-data-table/FixedDataTableRoot';
+import {Column, Table}         from 'fixed-data-table';
+import Icon                    from './ui/Icon';
 import ZyngaScroller           from './Scroller';
 import {Box, LayoutAwareMixin} from './Layout';
-import Icon                    from './Icon';
 import emptyFunction           from './emptyFunction';
 import PersistentStateMixin    from './PersistentStateMixin';
 import TouchableArea           from './TouchableArea';
@@ -332,7 +334,7 @@ let DataTable = React.createClass({
     let {selected} = this.props;
     let row = this._rowGetter(rowIndex);
     if (row && row.id == selected) { // eslint-disable-line eqeqeq
-      return 'DataTable__row--selected';
+      return classNames.rowSelected;
     }
   },
 

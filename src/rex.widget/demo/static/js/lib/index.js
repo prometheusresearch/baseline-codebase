@@ -5,26 +5,51 @@ var RexWidget    = require('rex-widget');
 var {HBox, VBox} = RexWidget.Layout;
 var TodoList     = require('./TodoList');
 
+import {PillList, TabList, Pill, Tab} from 'rex-widget/lib/ui';
+
 var App = RexWidget.createWidgetClass({
 
   render() {
     return (
       <VBox size={1} centerHorizontally>
-        <VBox size={1} width={600}>
-          <VBox centerHorizontally>
-            <h1>{this.props.title}</h1>
+        <HBox size={1} width={1000}>
+          <VBox size={1}>
+            <PillList selected="nope">
+              <Pill id="nope">Hello</Pill>
+              <Pill id="nope2">Hello</Pill>
+            </PillList>
+            <PillList selected="nope" position="bottom">
+              <Pill id="nope">Hello</Pill>
+              <Pill id="nope2">Hello</Pill>
+            </PillList>
+            <PillList selected="nope" position="left">
+              <Pill id="nope">Hello</Pill>
+              <Pill id="nope2">Hello</Pill>
+            </PillList>
+            <PillList selected="nope" position="right">
+              <Pill id="nope">Hello</Pill>
+              <Pill id="nope2">Hello</Pill>
+            </PillList>
           </VBox>
-          <TodoList
-            list={this.props.list}
-            item={this.props.item}
-            columns={this.props.columns}
-            fields={this.props.fields}
-            renderToolbar={this.renderToolbar}
-            />
-          <VBox centerHorizontally style={{marginTop: 10}}>
-            <p>{this.props.footerText}</p>
+          <VBox size={1}>
+            <TabList selected="nope">
+              <Tab title="Nope" id="nope">Hello</Tab>
+              <Tab title="Another" id="nope2">Hello</Tab>
+            </TabList>
+            <TabList position="bottom" selected="nope">
+              <Tab title="Nope" id="nope">Hello</Tab>
+              <Tab title="Another" id="nope2">Hello</Tab>
+            </TabList>
+            <TabList position="left" selected="nope">
+              <Tab title="Nope" id="nope">Hello</Tab>
+              <Tab title="Another" id="nope2">Hello</Tab>
+            </TabList>
+            <TabList position="right" selected="nope">
+              <Tab title="Nope" id="nope">Hello</Tab>
+              <Tab title="Another" id="nope2">Hello</Tab>
+            </TabList>
           </VBox>
-        </VBox>
+        </HBox>
       </VBox>
     );
   },

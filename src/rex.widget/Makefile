@@ -1,3 +1,6 @@
+demo::
+	@$(MAKE) -C ./demo
+
 doc::
 	@sphinx-build doc doc/_build
 

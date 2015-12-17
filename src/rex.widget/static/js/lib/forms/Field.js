@@ -7,6 +7,8 @@ let React           = require('react');
 let {HBox, VBox}    = require('../Layout');
 let Input           = require('./Input');
 
+import {WithFormValue} from 'react-forms';
+
 let FieldStyle = {
   self: {
     marginBottom: 5
@@ -189,5 +191,7 @@ let Field = React.createClass({
   }
 
 });
+
+Field = WithFormValue(Field);
 
 module.exports = Field;

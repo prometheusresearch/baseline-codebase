@@ -3,7 +3,7 @@
  */
 
 import React, {PropTypes} from 'react';
-import * as Stylesheet    from '@prometheusresearch/react-stylesheet';
+import * as Stylesheet    from 'react-stylesheet';
 import cx                 from 'classnames';
 import * as qs            from './qs';
 import Style              from './StyleUtils';

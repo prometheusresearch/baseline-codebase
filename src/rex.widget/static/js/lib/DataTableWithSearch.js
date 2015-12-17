@@ -47,10 +47,14 @@ let DataTableWithSearch = React.createClass({
 
   render() {
     let {searchPlaceholder, children, ...props} = this.props;
-    children = React.cloneElement(children, {
-      ...props,
-      dataSpec: this.dataSpecs.dataSpec
-    });
+    if (!children) {
+      children = <DataTable {...props} dataSpec={this.dataSpecs.dataSpec} />;
+    } else {
+      children = React.cloneElement(children, {
+        ...props,
+        dataSpec: this.dataSpecs.dataSpec
+      });
+    }
     return (
       <Layout.VBox childrenMargin={10} size={1}>
         <SearchInput
@@ -63,12 +67,6 @@ let DataTableWithSearch = React.createClass({
         {children}
       </Layout.VBox>
     );
-  },
-
-  getDefaultProps() {
-    return {
-      children: <DataTable />
-    };
   },
 
   getInitialState() {

@@ -9,6 +9,7 @@ import BaseSelect              from '../Select';
 import Preloader               from '../Preloader';
 import Field                   from './Field';
 import ReadOnlyField           from './ReadOnlyField';
+import {WithFormValue} from 'react-forms';
 
 let {collection} = DataSpecification;
 
@@ -77,7 +78,7 @@ let SelectField = React.createClass({
   },
 
   render() {
-    let {noEmptyValue, formValue, readOnly, options, ...props} = this.props;
+    let {noEmptyValue, formValue, readOnly, options, select, selectFormValue, ...props} = this.props;
     let {dataSpec: data} = this.data;
     if (readOnly) {
       let value;
@@ -120,5 +121,7 @@ function findByValue(options, value) {
     }
   }
 }
+
+SelectField = WithFormValue(SelectField);
 
 export default SelectField;

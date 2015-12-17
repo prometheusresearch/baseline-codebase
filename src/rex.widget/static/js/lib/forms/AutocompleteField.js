@@ -9,6 +9,7 @@ let DataSpecificationMixin  = require('../DataSpecificationMixin');
 let {collection, prop}      = require('../DataSpecification');
 let Field                   = require('./Field');
 let ReadOnlyField           = require('./ReadOnlyField');
+import {WithFormValue} from 'react-forms';
 
 /**
  *  AutocompleteField component.
@@ -19,6 +20,7 @@ let ReadOnlyField           = require('./ReadOnlyField');
  *
  * @public
  */
+@WithFormValue
 export default class AutocompleteField extends React.Component {
 
   static propTypes = {
@@ -63,6 +65,7 @@ export default class AutocompleteField extends React.Component {
     let {
       dataSpec, readOnly, formValue,
       valueAttribute, titleAttribute, style,
+      select, selectFormValue,
       ...props
     } = this.props;
     if (readOnly) {

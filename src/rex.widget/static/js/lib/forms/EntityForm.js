@@ -66,7 +66,7 @@ let EntityForm = React.createClass({
         value={formValue}
         transformValueOnSubmit={this.transformValueOnSubmit}
         onSubmitComplete={this.onSubmitComplete}>
-        <Fieldset selectFormValue={[entity, 0]}>
+        <Fieldset select={[entity, 0]}>
           {children}
         </Fieldset>
       </Form>

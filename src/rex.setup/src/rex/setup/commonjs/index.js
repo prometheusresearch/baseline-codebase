@@ -110,6 +110,9 @@ function configureWebpack(config) {
 
   set(config, 'output.path', process.cwd());
   set(config, 'output.filename', 'bundle.js');
+  unshift(config, 'module.noParse', [
+      /vendor/,
+  ]);
   unshift(config, 'module.loaders', [
     {
       test: /\.less$/,
@@ -229,7 +232,8 @@ function injectDefaultLoaders(packageMeta, packageDirname, filename) {
     return [
       {
         test: /\.js$/,
-        loader: 'babel-loader?stage=0'
+        loader: 'babel-loader?stage=0',
+        exclude: /vendor/,
       }
     ];
   } else {

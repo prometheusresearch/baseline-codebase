@@ -5,10 +5,11 @@
 .. contents:: Table of Contents
 
 
-2.6.3 (2015-XX-XX)
+2.7.0 (2015-XX-XX)
 ==================
 
 * Establish security context.
+* Allow mappers to alter the mount path.
 
 
 2.6.2 (2015-04-23)

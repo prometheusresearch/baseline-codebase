@@ -4,6 +4,7 @@
 
 
 from rex.core import Extension, RecordVal
+from rex.web import PathMask
 
 
 class Map(Extension):
@@ -72,5 +73,13 @@ class Map(Extension):
         This method may be overriden by implementations.
         """
         return spec
+
+    def mask(self, path):
+        """
+        Converts a URL to a path mask.
+
+        This method may be overriden by implementations.
+        """
+        return PathMask(path)
 
 

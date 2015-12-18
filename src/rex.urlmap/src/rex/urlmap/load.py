@@ -129,7 +129,11 @@ class LoadMap(object):
             map = self.map_by_record_type[type(handle_spec)]
             path = map.mask(path)
             handler = map(handle_spec, path, map_spec.context)
-            segment_map.add(path, handler)
+            if isinstance(path, list):
+                for path in path:
+                    segment_map.add(path, handler)
+            else:
+                segment_map.add(path, handler)
 
         return segment_map
 

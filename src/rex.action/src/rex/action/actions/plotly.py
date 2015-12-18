@@ -19,30 +19,130 @@ __all__ = ('Plotly',)
 
 
 class Plotly(Action):
-    """ Plotly action."""
+    """ Draw plots with plotly library.
+
+    Basic usage example::
+
+        type: plotly
+        title: Gender
+
+        plot:
+            type: bar
+            name: Gender (All participant)
+
+        query: |
+            /individual^sex{sex :as x, count(^) :as y}
+
+    This plots a barchart using data from ``query`` field.
+
+    The ``plot`` field is a Plotly configuration for a plot (you can find docs
+    about possible parameters at `https://plot.ly/javascript/reference`_).
+
+    The ``query`` field is an HTSQL query which returns data to plot. Note that
+    ``x`` and ``y`` are required for ``barchar`` plot type as specified in
+    plotly docs at `https://plot.ly/javascript/reference`_.
+
+    More sophisticated example which renders multiple datasets at once::
+
+          type: plotly
+          title: Gender (Bar Chart, multiple traces)
+
+          layout:
+            barmode: group
+
+          plot:
+            all:
+              type: bar
+              name: All
+            recruited:
+              type: bar
+              name: Recruited
+            enrolled:
+              type: bar
+              name: Enrolled
+
+          query: |
+            {
+              all := /individual^sex{sex :as x, count(^) :as y},
+              recruited := /study_recruitment^individual.sex{sex :as x, count(^) :as y},
+              enrolled := /study_enrollment^individual.sex{sex :as x, count(^) :as y}
+            }
+
+    Note here we defined multiple queries in ``query`` field and multiple plot
+    configurations in ``plot`` fields. Each plot key must correspond to query
+    key.
+
+    Another example which renders a plot using a query which refers to a context
+    variable::
+
+          type: plotly
+          title: Gender By Study Recruitment
+
+          input:
+          - study: study
+
+          plot:
+            type: pie
+
+          query: |
+            /study_recruitment?study=$study^individual.sex{sex :as label, count(^) :as value}
+
+
+    Note that to refer to context variables in ``query`` we need to define
+    ``input`` field with context requirements.
+    """
 
     name = 'plotly'
     js_type = 'rex-action/lib/actions/Plotly'
 
     input = Field(
-        RecordTypeVal(), default=RecordType.empty())
+        RecordTypeVal(), default=RecordType.empty(),
+        doc="""
+        Type of context required for action.
+
+        You would want to use it if you refer to some variables from context in
+        ``query``, for example::
+
+                query: /study?id()=$study{code :as x, ...}
+                input:
+                - study: study
+        """)
 
     query = Field(
         SyntaxVal(), transitionable=False,
         doc="""
-        Query data for plot.
+        HTSQL query which produces data for plot.
+
+        There are requirements which are imposed by specified plot type in
+        ``plot`` field.
+
+        For example for ``barchart`` plot type where should be ``x`` and ``y``
+        fields present in dataset. For ``pie`` - ``labels`` and ``values``.
+
+        Consult Plotly docs at `https://plot.ly/javascript/reference`_ for more
+        info.
         """)
 
     plot = Field(
         AnyVal(), default={},
         doc="""
-        Plot.ly layout config.
+        Plot configuration.
+
+        Consult Plotly docs at `https://plot.ly/javascript/reference`_ for more
+        info.
+
+        Note that ``data array`` attributes are specified through ``query``
+        field as they need to be fetched from database with HTSQL query and not
+        specified in configuration as static values.
         """)
 
     layout = Field(
         AnyVal(), default={},
         doc="""
-        Plot.ly layout config.
+        Layout configuration.
+
+        Consult Plotly docs at `https://plot.ly/javascript/reference`_ for more
+        info (Layout section specifically).
         """)
 
     @responder(url_type=QueryURL)

@@ -36,7 +36,7 @@ setup(
         'rex.logging==1.0.0',
         'rex.port==1.1.2',
         'rex.restful==1.0.0',
-        'rex.urlmap==2.6.3',
+        'rex.urlmap==2.7.0',
         'rex.web==3.6.0',
         'rex.widget==1.5.0',
     ],

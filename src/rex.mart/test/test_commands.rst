@@ -12,17 +12,17 @@ Set up the environment::
     >>> rex.on()
 
     >>> from rex.mart import MartCreator, purge_mart
-    >>> mc = MartCreator('test', 'empty')
+    >>> mc = MartCreator('cmdtest', 'empty')
     >>> _ = mc()
     >>> empty_mart = mc()
-    >>> mc = MartCreator('test', 'some_data')
+    >>> mc = MartCreator('cmdtest', 'some_data')
     >>> _ = mc(); _ = mc()
     >>> some_data_mart = mc()
     >>> mc = MartCreator('otheruser', 'empty')
     >>> empty_mart_other = mc()
     >>> mc = MartCreator('otheruser', 'some_data')
     >>> some_data_mart_other = mc()
-    >>> mc = MartCreator('test', 'just_deploy')
+    >>> mc = MartCreator('cmdtest', 'just_deploy')
     >>> _ = mc()
 
 
@@ -31,15 +31,15 @@ Mart Listing API
 
 This API will return all Marts the user has access to::
 
-    >>> req = Request.blank('/mart', remote_user='test')
+    >>> req = Request.blank('/mart', remote_user='cmdtest')
     >>> resp = req.get_response(rex)
     >>> pprint(resp.json['marts'][0])  # doctest: +ELLIPSIS
     {u'code': ...,
      u'date_creation_completed': u'...',
      u'date_creation_started': u'...',
-     u'definition': u'empty',
-     u'name': u'mart_empty_...',
-     u'owner': u'test',
+     u'definition': u'some_data',
+     u'name': u'mart_some_data_...',
+     u'owner': u'cmdtest',
      u'pinned': False}
     >>> len(resp.json['marts'])
     5
@@ -63,7 +63,7 @@ Definition Listing API
 
 This API will return all Definitions the user has access to::
 
-    >>> req = Request.blank('/definition', remote_user='test')
+    >>> req = Request.blank('/definition', remote_user='cmdtest')
     >>> resp = req.get_response(rex)
     >>> pprint(resp.json)
     {u'definitions': [{u'description': None, u'id': u'empty', u'label': u'empty'},
@@ -84,7 +84,7 @@ Definition Mart Listing API
 This API will return the Marts the user has access to for the specified
 definition::
 
-    >>> req = Request.blank('/definition/some_data', remote_user='test')
+    >>> req = Request.blank('/definition/some_data', remote_user='cmdtest')
     >>> resp = req.get_response(rex)
     >>> pprint(resp.json['definition'])
     {u'description': u'Make a table and put some data in it',
@@ -101,13 +101,13 @@ Mart Creation API
 
 If enabled, this API will submit asynchronous tasks to initiate Mart creation::
 
-    >>> req = Request.blank('/definition/just_deploy', remote_user='test', method='POST')
+    >>> req = Request.blank('/definition/just_deploy', remote_user='cmdtest', method='POST')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     401 Unauthorized
     ...
 
-    >>> req = Request.blank('/definition/some_data', remote_user='test', method='POST')
+    >>> req = Request.blank('/definition/some_data', remote_user='cmdtest', method='POST')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     403 Forbidden
@@ -117,14 +117,14 @@ If enabled, this API will submit asynchronous tasks to initiate Mart creation::
     >>> rex2 = Rex('rex.mart_demo', mart_allow_runtime_creation=True)
     >>> rex2.on()
 
-    >>> req = Request.blank('/definition/some_data', remote_user='test', method='POST')
+    >>> req = Request.blank('/definition/some_data', remote_user='cmdtest', method='POST')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> print req.get_response(rex2)  # doctest: +ELLIPSIS
     202 Accepted
     Content-Type: application/json; charset=UTF-8
-    Content-Length: 97
+    Content-Length: 100
     <BLANKLINE>
-    {"purge_on_failure": true, "leave_incomplete": false, "owner": "test", "definition": "some_data"}
+    {"purge_on_failure": true, "leave_incomplete": false, "owner": "cmdtest", "definition": "some_data"}
 
     >>> rex2.off()
     >>> rex.on()
@@ -137,18 +137,18 @@ Accessing the HTSQL endpoint for a specific Mart::
 
     >>> mart_path = '/mart/' + str(some_data_mart.code)
 
-    >>> req = Request.blank(mart_path, remote_user='test')
+    >>> req = Request.blank(mart_path, remote_user='cmdtest')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     301 Moved Permanently
     ...
 
-    >>> req = Request.blank(mart_path + '/', remote_user='test')
+    >>> req = Request.blank(mart_path + '/', remote_user='cmdtest')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
 
-    >>> req = Request.blank(mart_path + "/foo?col1={'Bob','John'}", remote_user='test')
+    >>> req = Request.blank(mart_path + "/foo?col1={'Bob','John'}", remote_user='cmdtest')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/plain; charset=UTF-8
@@ -164,7 +164,7 @@ Accessing the HTSQL endpoint for a specific Mart::
     <BLANKLINE>
     <BLANKLINE>
 
-    >>> req = Request.blank(mart_path + '/', remote_user='test', method='POST')
+    >>> req = Request.blank(mart_path + '/', remote_user='cmdtest', method='POST')
     >>> req.body = "/foo?col1={'Bob','John'}"
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     200 OK
@@ -181,7 +181,7 @@ Accessing the HTSQL endpoint for a specific Mart::
     <BLANKLINE>
     <BLANKLINE>
 
-    >>> req = Request.blank(mart_path + '/', remote_user='test', method='POST')
+    >>> req = Request.blank(mart_path + '/', remote_user='cmdtest', method='POST')
     >>> req.body = "/foo"
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     200 OK
@@ -201,29 +201,29 @@ Accessing the HTSQL endpoint for a specific Mart::
     <BLANKLINE>
     <BLANKLINE>
 
-    >>> req = Request.blank('/mart/foo/foo', remote_user='test')
+    >>> req = Request.blank('/mart/foo/foo', remote_user='cmdtest')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     404 Not Found
     ...
 
-    >>> req = Request.blank('/mart/999/foo', remote_user='test')
+    >>> req = Request.blank('/mart/999/foo', remote_user='cmdtest')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     404 Not Found
     ...
 
-    >>> req = Request.blank('/mart/%s/foo' % (empty_mart_other.code,), remote_user='test')
+    >>> req = Request.blank('/mart/%s/foo' % (empty_mart_other.code,), remote_user='cmdtest')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     401 Unauthorized
     ...
 
-    >>> req = Request.blank(mart_path + '/', remote_user='test', method='DELETE')
+    >>> req = Request.blank(mart_path + '/', remote_user='cmdtest', method='DELETE')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
 Accessing the details API for a Mart::
 
-    >>> req = Request.blank(mart_path + '/_api', remote_user='test', method='GET')
+    >>> req = Request.blank(mart_path + '/_api', remote_user='cmdtest', method='GET')
     >>> resp = req.get_response(rex)
     >>> pprint(resp.json)  # doctest: +ELLIPSIS
     {u'code': ...,
@@ -231,22 +231,22 @@ Accessing the details API for a Mart::
      u'date_creation_started': u'...',
      u'definition': u'some_data',
      u'name': u'mart_some_data_...',
-     u'owner': u'test',
+     u'owner': u'cmdtest',
      u'pinned': False}
 
-    >>> req = Request.blank('/mart/999/_api', remote_user='test', method='GET')
+    >>> req = Request.blank('/mart/999/_api', remote_user='cmdtest', method='GET')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     404 Not Found
     ...
 
-    >>> req = Request.blank('/mart/%s/_api' % (some_data_mart_other.code,), remote_user='test', method='GET')
+    >>> req = Request.blank('/mart/%s/_api' % (some_data_mart_other.code,), remote_user='cmdtest', method='GET')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     401 Unauthorized
     ...
 
 Update attributes of a Mart::
 
-    >>> req = Request.blank(mart_path + '/_api', remote_user='test', method='PUT')
+    >>> req = Request.blank(mart_path + '/_api', remote_user='cmdtest', method='PUT')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{"pinned": true}'
     >>> resp = req.get_response(rex)
@@ -256,7 +256,7 @@ Update attributes of a Mart::
      u'date_creation_started': u'...',
      u'definition': u'some_data',
      u'name': u'mart_some_data_...',
-     u'owner': u'test',
+     u'owner': u'cmdtest',
      u'pinned': True}
 
     >>> req.body = '{"pinned": false}'
@@ -267,7 +267,7 @@ Update attributes of a Mart::
      u'date_creation_started': u'...',
      u'definition': u'some_data',
      u'name': u'mart_some_data_...',
-     u'owner': u'test',
+     u'owner': u'cmdtest',
      u'pinned': False}
 
 
@@ -278,18 +278,18 @@ Accessing the HTSQL endpoint for the latest Mart::
 
     >>> mart_path = '/definition/some_data/latest'
 
-    >>> req = Request.blank(mart_path, remote_user='test')
+    >>> req = Request.blank(mart_path, remote_user='cmdtest')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     301 Moved Permanently
     ...
 
-    >>> req = Request.blank(mart_path + '/', remote_user='test')
+    >>> req = Request.blank(mart_path + '/', remote_user='cmdtest')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
 
-    >>> req = Request.blank(mart_path + "/foo?col1={'Bob','John'}", remote_user='test')
+    >>> req = Request.blank(mart_path + "/foo?col1={'Bob','John'}", remote_user='cmdtest')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/plain; charset=UTF-8
@@ -305,7 +305,7 @@ Accessing the HTSQL endpoint for the latest Mart::
     <BLANKLINE>
     <BLANKLINE>
 
-    >>> req = Request.blank(mart_path + '/', remote_user='test', method='POST')
+    >>> req = Request.blank(mart_path + '/', remote_user='cmdtest', method='POST')
     >>> req.body = "/foo?col1={'Bob','John'}"
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     200 OK
@@ -322,24 +322,24 @@ Accessing the HTSQL endpoint for the latest Mart::
     <BLANKLINE>
     <BLANKLINE>
 
-    >>> req = Request.blank('/definition/some_more_data/latest/', remote_user='test')
+    >>> req = Request.blank('/definition/some_more_data/latest/', remote_user='cmdtest')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     404 Not Found
     ...
 
-    >>> req = Request.blank('/definition/just_deploy/latest/', remote_user='test')
+    >>> req = Request.blank('/definition/just_deploy/latest/', remote_user='cmdtest')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     401 Unauthorized
     ...
 
-    >>> req = Request.blank(mart_path + '/', remote_user='test', method='DELETE')
+    >>> req = Request.blank(mart_path + '/', remote_user='cmdtest', method='DELETE')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
 Accessing the details API for a Mart::
 
-    >>> req = Request.blank(mart_path + '/_api', remote_user='test', method='GET')
+    >>> req = Request.blank(mart_path + '/_api', remote_user='cmdtest', method='GET')
     >>> resp = req.get_response(rex)
     >>> pprint(resp.json)  # doctest: +ELLIPSIS
     {u'code': ...,
@@ -347,23 +347,23 @@ Accessing the details API for a Mart::
      u'date_creation_started': u'...',
      u'definition': u'some_data',
      u'name': u'mart_some_data_...',
-     u'owner': u'test',
+     u'owner': u'cmdtest',
      u'pinned': False}
     >>> latest_some_data = resp.json
 
-    >>> req = Request.blank('/definition/some_more_data/latest/_api', remote_user='test', method='GET')
+    >>> req = Request.blank('/definition/some_more_data/latest/_api', remote_user='cmdtest', method='GET')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     404 Not Found
     ...
 
-    >>> req = Request.blank('/definition/just_deploy/latest/_api', remote_user='test', method='GET')
+    >>> req = Request.blank('/definition/just_deploy/latest/_api', remote_user='cmdtest', method='GET')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     401 Unauthorized
     ...
 
 Update attributes of a Mart::
 
-    >>> req = Request.blank(mart_path + '/_api', remote_user='test', method='PUT')
+    >>> req = Request.blank(mart_path + '/_api', remote_user='cmdtest', method='PUT')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{"pinned": true}'
     >>> resp = req.get_response(rex)
@@ -373,7 +373,7 @@ Update attributes of a Mart::
      u'date_creation_started': u'...',
      u'definition': u'some_data',
      u'name': u'mart_some_data_...',
-     u'owner': u'test',
+     u'owner': u'cmdtest',
      u'pinned': True}
 
     >>> req.body = '{"pinned": false}'
@@ -384,10 +384,10 @@ Update attributes of a Mart::
      u'date_creation_started': u'...',
      u'definition': u'some_data',
      u'name': u'mart_some_data_...',
-     u'owner': u'test',
+     u'owner': u'cmdtest',
      u'pinned': False}
 
-    >>> req = Request.blank('/definition/empty/latest/_api', remote_user='test', method='PUT')
+    >>> req = Request.blank('/definition/empty/latest/_api', remote_user='cmdtest', method='PUT')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{"pinned": true}'
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
@@ -402,18 +402,18 @@ Accessing the HTSQL endpoint for the latest Mart::
 
     >>> mart_path = '/definition/some_data/2'
 
-    >>> req = Request.blank(mart_path, remote_user='test')
+    >>> req = Request.blank(mart_path, remote_user='cmdtest')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     301 Moved Permanently
     ...
 
-    >>> req = Request.blank(mart_path + '/', remote_user='test')
+    >>> req = Request.blank(mart_path + '/', remote_user='cmdtest')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
 
-    >>> req = Request.blank(mart_path + "/foo?col1={'Bob','John'}", remote_user='test')
+    >>> req = Request.blank(mart_path + "/foo?col1={'Bob','John'}", remote_user='cmdtest')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/plain; charset=UTF-8
@@ -429,7 +429,7 @@ Accessing the HTSQL endpoint for the latest Mart::
     <BLANKLINE>
     <BLANKLINE>
 
-    >>> req = Request.blank(mart_path + '/', remote_user='test', method='POST')
+    >>> req = Request.blank(mart_path + '/', remote_user='cmdtest', method='POST')
     >>> req.body = "/foo?col1={'Bob','John'}"
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     200 OK
@@ -446,24 +446,24 @@ Accessing the HTSQL endpoint for the latest Mart::
     <BLANKLINE>
     <BLANKLINE>
 
-    >>> req = Request.blank('/definition/some_data/99/', remote_user='test')
+    >>> req = Request.blank('/definition/some_data/99/', remote_user='cmdtest')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     404 Not Found
     ...
 
-    >>> req = Request.blank('/definition/just_deploy/2/', remote_user='test')
+    >>> req = Request.blank('/definition/just_deploy/2/', remote_user='cmdtest')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     401 Unauthorized
     ...
 
-    >>> req = Request.blank(mart_path + '/', remote_user='test', method='DELETE')
+    >>> req = Request.blank(mart_path + '/', remote_user='cmdtest', method='DELETE')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
 Accessing the details API for a Mart::
 
-    >>> req = Request.blank(mart_path + '/_api', remote_user='test', method='GET')
+    >>> req = Request.blank(mart_path + '/_api', remote_user='cmdtest', method='GET')
     >>> resp = req.get_response(rex)
     >>> pprint(resp.json)  # doctest: +ELLIPSIS
     {u'code': ...,
@@ -471,19 +471,19 @@ Accessing the details API for a Mart::
      u'date_creation_started': u'...',
      u'definition': u'some_data',
      u'name': u'mart_some_data_...',
-     u'owner': u'test',
+     u'owner': u'cmdtest',
      u'pinned': False}
     >>> resp.json['code'] < latest_some_data['code']
     True
 
-    >>> req = Request.blank('/definition/some_data/99/_api', remote_user='test', method='GET')
+    >>> req = Request.blank('/definition/some_data/99/_api', remote_user='cmdtest', method='GET')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     404 Not Found
     ...
 
 Update attributes of a Mart::
 
-    >>> req = Request.blank(mart_path + '/_api', remote_user='test', method='PUT')
+    >>> req = Request.blank(mart_path + '/_api', remote_user='cmdtest', method='PUT')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{"pinned": true}'
     >>> resp = req.get_response(rex)
@@ -493,7 +493,7 @@ Update attributes of a Mart::
      u'date_creation_started': u'...',
      u'definition': u'some_data',
      u'name': u'mart_some_data_...',
-     u'owner': u'test',
+     u'owner': u'cmdtest',
      u'pinned': True}
 
     >>> req.body = '{"pinned": false}'
@@ -504,10 +504,10 @@ Update attributes of a Mart::
      u'date_creation_started': u'...',
      u'definition': u'some_data',
      u'name': u'mart_some_data_...',
-     u'owner': u'test',
+     u'owner': u'cmdtest',
      u'pinned': False}
 
-    >>> req = Request.blank('/definition/empty/1/_api', remote_user='test', method='PUT')
+    >>> req = Request.blank('/definition/empty/1/_api', remote_user='cmdtest', method='PUT')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{"pinned": true}'
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
@@ -522,49 +522,49 @@ Purge APIs
 
 Purging a Mart from the system::
 
-    >>> req = Request.blank('/definition/some_data', remote_user='test')
+    >>> req = Request.blank('/definition/some_data', remote_user='cmdtest')
     >>> resp = req.get_response(rex)
     >>> len(resp.json['marts'])
     3
 
 
-    >>> req = Request.blank('/definition/some_data/2/_api', remote_user='test', method='DELETE')
+    >>> req = Request.blank('/definition/some_data/2/_api', remote_user='cmdtest', method='DELETE')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     204 No Content
     Content-Type: application/json; charset=UTF-8
     Content-Length: 0
 
-    >>> req = Request.blank('/definition/some_data', remote_user='test')
+    >>> req = Request.blank('/definition/some_data', remote_user='cmdtest')
     >>> resp = req.get_response(rex)
     >>> len(resp.json['marts'])
     2
 
 
-    >>> req = Request.blank('/mart/%s/_api' % (some_data_mart.code,), remote_user='test', method='DELETE')
+    >>> req = Request.blank('/mart/%s/_api' % (some_data_mart.code,), remote_user='cmdtest', method='DELETE')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     204 No Content
     Content-Type: application/json; charset=UTF-8
     Content-Length: 0
 
-    >>> req = Request.blank('/definition/some_data', remote_user='test')
+    >>> req = Request.blank('/definition/some_data', remote_user='cmdtest')
     >>> resp = req.get_response(rex)
     >>> len(resp.json['marts'])
     1
 
 
-    >>> req = Request.blank('/definition/some_data/latest/_api', remote_user='test', method='DELETE')
+    >>> req = Request.blank('/definition/some_data/latest/_api', remote_user='cmdtest', method='DELETE')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     204 No Content
     Content-Type: application/json; charset=UTF-8
     Content-Length: 0
 
-    >>> req = Request.blank('/definition/some_data', remote_user='test')
+    >>> req = Request.blank('/definition/some_data', remote_user='cmdtest')
     >>> resp = req.get_response(rex)
     >>> len(resp.json['marts'])
     0
 
 
-    >>> req = Request.blank('/definition/empty/latest/_api', remote_user='test', method='DELETE')
+    >>> req = Request.blank('/definition/empty/latest/_api', remote_user='cmdtest', method='DELETE')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     401 Unauthorized
     ...

@@ -16,6 +16,7 @@ from .connections import get_management_db, get_hosting_cluster, \
     get_mart_etl_db, get_sql_connection
 from .mart import Mart
 from .purging import purge_mart
+from .quota import MartQuota
 from .util import extract_htsql_statements, guarded
 
 
@@ -109,6 +110,14 @@ class MartCreator(object):
             ``code`` of the associated inventory record
         """
 
+        if not MartQuota.top().can_create_mart(self.owner, self.definition):
+            raise Error(
+                'Creating a "%s" Mart for "%s" would exceed their quota' % (
+                    self.definition['id'],
+                    self.owner,
+                )
+            )
+
         with guarded('While creating Mart database:', self.definition['id']):
             try:
                 # Setup
@@ -162,6 +171,10 @@ class MartCreator(object):
                 self.log('Mart creation duration: %s' % (
                     mart.date_creation_completed - mart.date_creation_started,
                 ))
+
+                # Clean up old Marts to stay within quota
+                MartQuota.top().reap_marts(self.owner, self.definition)
+
                 return mart
 
             except:

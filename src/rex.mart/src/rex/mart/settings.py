@@ -17,6 +17,8 @@ __all__ = (
     'MartMaxNameLengthSetting',
     'MartAllowRuntimeCreationSetting',
     'MartRuntimeCreationQueueSetting',
+    'MartMaxMartsPerOwnerSetting',
+    'MartDefaultMaxMartsPerOwnerDefinitionSetting',
 )
 
 
@@ -151,4 +153,29 @@ class MartRuntimeCreationQueueSetting(Setting):
     name = 'mart_runtime_creation_queue'
     validate = StrVal()
     default = 'rexmart_create'
+
+
+class MartMaxMartsPerOwnerSetting(Setting):
+    """
+    Specifies the maximum number of Marts an owner can have in the system.
+
+    If not specified, defaults to 10.
+    """
+
+    name = 'mart_max_marts_per_owner'
+    validate = IntVal(min_bound=1)
+    default = 10
+
+
+class MartDefaultMaxMartsPerOwnerDefinitionSetting(Setting):
+    """
+    Specifies the default value to use in place of the ``quota.per_owner``
+    property of a Mart definition, if no value is provided.
+
+    If not specified, defaults to 3.
+    """
+
+    name = 'mart_default_max_marts_per_owner_definition'
+    validate = IntVal(min_bound=1)
+    default = 3
 

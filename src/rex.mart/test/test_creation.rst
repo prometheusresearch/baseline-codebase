@@ -349,6 +349,8 @@ It complains if you try to load into an existing database that doesn't exist::
 It complains if you try to create a fixed-name Mart when someone else already
 has a Mart with that name::
 
+    >>> mc = MartCreator('test', 'fixed_name')
+    >>> mart = mc()
     >>> mc = MartCreator('someoneelse', 'fixed_name')
     >>> mart = mc()
     Traceback (most recent call last):

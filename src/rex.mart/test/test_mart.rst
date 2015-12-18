@@ -21,10 +21,10 @@ Set up the environment::
 
 The Mart object is an encapsulation of the information about a Mart database::
 
-    >>> mc = MartCreator('test', 'empty')
+    >>> mc = MartCreator('marttest', 'empty')
     >>> mart = mc()
     >>> mart   # doctest: +ELLIPSIS
-    Mart(code=..., definition=u'empty', owner=u'test')
+    Mart(code=..., definition=u'empty', owner=u'marttest')
 
     >>> isinstance(mart.code, int)
     True
@@ -41,9 +41,10 @@ The Mart object is an encapsulation of the information about a Mart database::
      'id': 'empty',
      'label': 'empty',
      'post_assessment_scripts': [],
-     'post_deploy_scripts': []}
+     'post_deploy_scripts': [],
+     'quota': {'per_owner': 3}}
     >>> mart.owner
-    u'test'
+    u'marttest'
     >>> isinstance(mart.name, basestring)
     True
     >>> isinstance(mart.date_creation_started, datetime)
@@ -83,7 +84,7 @@ The Mart object is an encapsulation of the information about a Mart database::
      'date_creation_started': ...,
      'definition': u'empty',
      'name': u'mart_empty_...',
-     'owner': u'test',
+     'owner': u'marttest',
      'pinned': False}
 
     >>> mart.purge()
@@ -92,7 +93,7 @@ The Mart object is an encapsulation of the information about a Mart database::
     True
 
 
-    >>> mart = Mart(999, 'fakedefn', 'test', 'dbname', datetime.now(), datetime.now(), False)
+    >>> mart = Mart(999, 'fakedefn', 'marttest', 'dbname', datetime.now(), datetime.now(), False)
     >>> mart.definition is None
     True
 

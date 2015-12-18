@@ -6,7 +6,7 @@
 from collections import Counter
 
 from rex.core import Error, StrVal, RecordVal, MaybeVal, ChoiceVal, SeqVal, \
-    MapVal, guard, OneOrSeqVal, OneOfVal, BoolVal, get_settings
+    MapVal, guard, OneOrSeqVal, OneOfVal, BoolVal, get_settings, IntVal
 from rex.deploy import Driver
 
 from .util import make_safe_token, RESTR_SAFE_TOKEN
@@ -15,6 +15,7 @@ from .util import make_safe_token, RESTR_SAFE_TOKEN
 __all__ = (
     'MartBaseTypeVal',
     'MartBaseVal',
+    'QuotaVal',
     'EtlScriptTypeVal',
     'EtlScriptVal',
     'IdentifiableTypeVal',
@@ -139,6 +140,29 @@ DEFAULT_MART_BASE = MartBaseVal().record_type(
     name_token=None,
     fixed_name=None,
 )
+
+
+class QuotaVal(FullyValidatingRecordVal):
+    """
+    Parses/Validates the ``quota`` property within a Mart definition.
+    """
+
+    def __init__(self):
+        super(QuotaVal, self).__init__(
+            # Maximum number of instances per owner.
+            ('per_owner', IntVal(min_bound=1), None),
+        )
+
+    def __call__(self, data):
+        value = super(QuotaVal, self).__call__(data)
+
+        if value.per_owner is None:
+            value = value.__clone__(
+                per_owner=get_settings()
+                .mart_default_max_marts_per_owner_definition,
+            )
+
+        return value
 
 
 class EtlScriptTypeVal(ChoiceVal):
@@ -456,6 +480,10 @@ class DefinitionVal(FullyValidatingRecordVal):
             # What to use as the starting point for the Mart.
             ('base', MartBaseVal, DEFAULT_MART_BASE),
 
+            # Quota settings that limit how many instances of this definition
+            # can exist.
+            ('quota', MaybeVal(QuotaVal), None),
+
             # The rex.deploy configuration to apply to the Mart.
             ('deploy', MaybeVal(SeqVal(MapVal)), None),
 
@@ -487,6 +515,9 @@ class DefinitionVal(FullyValidatingRecordVal):
                 name_token='%s_' % (make_safe_token(value.id),),
             )
             value = value.__clone__(base=new_base)
+
+        if not value.quota:
+            value = value.__clone__(quota=QuotaVal()({}))
 
         if value.base.name_token:
             system_name_length = 25  # code, spacer, datetime

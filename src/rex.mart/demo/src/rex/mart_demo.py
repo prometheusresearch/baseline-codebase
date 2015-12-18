@@ -4,6 +4,8 @@ from rex.mart import MartAccessPermissions, Mart
 class DemoMartAccessPermissions(MartAccessPermissions):
     @classmethod
     def user_can_access_definition(cls, user, definition_or_id):
+        if user == 'test':
+            return True
         allowed = ('some_data', 'some_more_data', 'empty', 'broken_sql')
         if isinstance(definition_or_id, basestring):
             return definition_or_id in allowed

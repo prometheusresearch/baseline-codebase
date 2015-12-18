@@ -7,7 +7,15 @@ import React        from 'react';
 import ReactDOM     from 'react-dom';
 import {EVENT_NAME} from './notifyLayoutChange';
 
-export default function WithDOMSize(Component) {
+const DEFAULT_OPTIONS = {};
+
+export default function WithDOMSize(Component, options = DEFAULT_OPTIONS) {
+  if (typeof Component !== 'function' && options === DEFAULT_OPTIONS) {
+    options = Component;
+    return function WithDOMSize_decorator(Component) {
+      return WithDOMSize(Component, options);
+    };
+  }
   let name = Component.displayName || Component.name;
   return class extends React.Component {
 
@@ -52,7 +60,7 @@ export default function WithDOMSize(Component) {
     computeSize() {
       let node = this.props.getDOMNode(this);
       let {width, height} = node.getBoundingClientRect();
-      if (height === 0 && !this._timedOut) {
+      if ((options.forceAsync || height === 0) && !this._timedOut) {
         this._timedOut = true;
         setTimeout(this.computeSize, 0);
       } else {

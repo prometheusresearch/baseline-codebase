@@ -4,12 +4,12 @@
 
 import {isEntity} from './Entity';
 
-export default function applyContext(producible, input, context) {
+export default function applyContext(producible, input, context, options = {}) {
   let params = {};
   for (let key in input.rows) {
     if (input.rows.hasOwnProperty(key)) {
       let value = context[key];
-      params[':' + key] = isEntity(value) ? value.id : value;
+      params[options.query ? key : (':' + key)] = isEntity(value) ? value.id : value;
     }
   }
   return producible.params(params);

@@ -63,6 +63,8 @@ export default class Action extends React.Component {
       padding: '20px 10px',
     },
     Content: {
+      Component: VBox,
+      flex: 1,
       padding: 10,
     },
     Footer: {

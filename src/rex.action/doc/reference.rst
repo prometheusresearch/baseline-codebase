@@ -45,10 +45,10 @@ Edit
 .. autoclass:: rex.action.actions.edit.Edit
    :show-inheritance:
 
-Alternative
------------
+Plotly
+------
 
-.. autoclass:: rex.action.actions.alternative.Alternative
+.. autoclass:: rex.action.actions.plotly.Plotly
    :show-inheritance:
 
 Wizard

@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import Extension, RecordVal
+from rex.core import Extension, RecordVal, Error
 from rex.web import PathMask
 
 
@@ -65,6 +65,16 @@ class Map(Extension):
                             for key, value in vars(override_spec).items()
                             if value is not None)
         return spec.__clone__(**replacements)
+
+    def override_at(self, spec, override_spec, path, override_path):
+        """
+        Updates a ``urlmap.yaml`` entry with ``!override`` data.
+
+        This method may be overriden by implementations.
+        """
+        if path != override_path:
+            return None
+        return self.override(spec, override_spec)
 
     def abspath(self, spec, current_package, current_directory):
         """

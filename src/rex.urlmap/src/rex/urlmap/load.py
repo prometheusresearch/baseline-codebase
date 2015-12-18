@@ -127,13 +127,13 @@ class LoadMap(object):
         for path in sorted(map_spec.paths):
             handle_spec = map_spec.paths[path]
             map = self.map_by_record_type[type(handle_spec)]
-            path = map.mask(path)
-            handler = map(handle_spec, path, map_spec.context)
-            if isinstance(path, list):
-                for path in path:
-                    segment_map.add(path, handler)
+            mask = map.mask(path)
+            handler = map(handle_spec, mask, map_spec.context)
+            if isinstance(mask, list):
+                for mask in mask:
+                    segment_map.add(mask, handler)
             else:
-                segment_map.add(path, handler)
+                segment_map.add(mask, handler)
 
         return segment_map
 
@@ -178,10 +178,12 @@ class LoadMap(object):
         # Merge `base_spec` and `include_spec`.
         context = _merge(base_spec.context, include_spec.context)
         paths = base_spec.paths.copy()
+        path_by_spec = {}
         # URL cache for detecting duplicate URLs.
         seen = PathMap()
         for path in paths:
             seen.add(path, paths[path])
+            path_by_spec[id(paths[path])] = path
         for path in sorted(include_spec.paths):
             handle_spec = include_spec.paths[path]
             # Validate the URL.
@@ -204,21 +206,39 @@ class LoadMap(object):
                     error.wrap("And previously in:", locate(seen[mask]))
                     raise error
                 paths[path] = handle_spec
-                seen.add(path, handle_spec)
+                mask = mapper.mask(path)
+                if isinstance(mask, list):
+                    for mask in mask:
+                        seen.add(mask, handle_spec)
+                else:
+                    seen.add(mask, handle_spec)
+                path_by_spec[id(handle_spec)] = path
             else:
                 # Merge `!override` records.
-                if path not in paths:
+                if path not in seen:
                     error = Error("Detected orphaned override:", path)
                     error.wrap("Defined in:", locate(handle_spec))
                     raise error
-                handle_spec = self._override(path, paths[path], handle_spec)
+                base_handle_spec = seen[path]
+                base_path = path_by_spec[id(base_handle_spec)]
+                handle_spec = self._override(
+                        base_path, base_handle_spec, path, handle_spec)
                 mapper = self.map_by_record_type[type(handle_spec)]
                 handle_spec = mapper.abspath(handle_spec, current_package,
                                              current_directory)
                 paths[path] = handle_spec
+                path_by_spec[id(handle_spec)] = base_path
+                update = PathMap()
+                mask = mapper.mask(path)
+                if isinstance(mask, list):
+                    for mask in mask:
+                        update.add(mask, handle_spec)
+                else:
+                    update.add(mask, handle_spec)
+                seen.update(update)
         return base_spec.__clone__(context=context, paths=paths)
 
-    def _override(self, path, handle_spec, override_spec):
+    def _override(self, base_path, handle_spec, override_path, override_spec):
         # Merges fields defined in an `!override` record onto `handle_spec`.
         map = self.map_by_record_type[type(handle_spec)]
         # Reject mis-typed `!override` entries.
@@ -226,10 +246,16 @@ class LoadMap(object):
             if value is not None:
                 if key not in map.validate.fields:
                     error = Error("Detected invalid override"
-                                  " of %s:" % map.key, path)
+                                  " of %s:" % map.key, base_path)
                     error.wrap("Defined in:", locate(override_spec))
                     raise error
-        handle_spec = map.override(handle_spec, override_spec)
+        handle_spec = map.override_at(
+                handle_spec, override_spec, base_path, override_path)
+        if handle_spec is None:
+            error = Error(
+                    "Detected invalid override of %s:" % map.key, base_path)
+            error.wrap("Defined in:", locate(override_spec))
+            raise error
         return handle_spec
 
 

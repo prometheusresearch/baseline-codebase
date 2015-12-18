@@ -406,6 +406,30 @@ Orphaned overrides are detected and reported::
         "/.../urlmap.yaml", line 3
     ...
 
+Some mappers may allow overriding of nested URLs, but it is not allowed for
+any handlers predefined by ``rex.urlmap``::
+
+    >>> sandbox.rewrite('/urlmap/base.yaml', """
+    ... paths:
+    ...   /data/individual/$id:
+    ...     port: individual
+    ... """)
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... include: ./urlmap/base.yaml
+    ... paths:
+    ...   /data/individual/measure: !override
+    ...     port: measure
+    ... """)
+    >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Detected invalid override of port:
+        /data/individual/$id
+    Defined in:
+        "/.../urlmap.yaml", line 4
+    ...
+
 
 Embedding settings
 ==================

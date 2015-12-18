@@ -1,5 +1,5 @@
 
-db: pgsql:study_demo
+db: pgsql:action_demo
 htsql_extensions:
     rex_deploy:
 access:

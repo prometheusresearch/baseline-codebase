@@ -12,7 +12,6 @@
 
 from collections import namedtuple, OrderedDict
 
-from webob.exc import HTTPUnauthorized, HTTPBadRequest
 import yaml
 from cached_property import cached_property
 
@@ -20,20 +19,15 @@ from rex.core import (
     Location, Error, Validate, autoreload, get_packages,
     MaybeVal, StrVal, IntVal, SeqVal, MapVal, OMapVal, OneOfVal, AnyVal,
     cached, guard)
-from rex.web import authorize, confine, PathMask
 from rex.widget import (
     Widget, WidgetVal, Field,
     undefined, as_transitionable, TransitionableRecord)
 from rex.widget.widget import _format_Widget
-from rex.widget.validate import DeferredVal, Deferred
 from rex.widget.util import add_mapping_key, pop_mapping_key
-from rex.widget.render import render
-from rex.urlmap import Map
 
 from . import typing
-from .validate import ActionReferenceVal, GlobalActionReference
 
-__all__ = ('ActionBase', 'Action', 'ActionVal', 'ActionMapVal')
+__all__ = ('ActionBase', 'Action', 'ActionVal')
 
 
 class ActionMeta(Widget.__metaclass__):
@@ -242,97 +236,3 @@ class ActionVal(Validate):
         return action_class(package=self.package, **value)
 
 
-class ActionMapVal(Validate):
-    """ Validator for a mapping from action ids to actions."""
-
-    _validate_pre = MapVal(StrVal(), DeferredVal(validate=AnyVal()))
-    _validate_id = StrVal()
-
-    def _validate_action_value(self, id):
-        return OneOfVal(
-            ActionReferenceVal(reference_type=GlobalActionReference),
-            ActionVal(id=id))
-
-    def construct(self, loader, node):
-        mapping = self._validate_pre.construct(loader, node)
-        return {k: v.resolve(validate=self._validate_action_value(k))
-                for k, v in mapping.items()}
-
-    def __call__(self, value):
-        mapping = self._validate_pre(value)
-        return {k: v.resolve(validate=self._validate_action_value(k))
-                for k, v in mapping.items()}
-
-
-class MapAction(Map):
-
-    fields = [
-        ('action', DeferredVal()),
-        ('access', StrVal(), None),
-    ]
-
-    def mask(self, path):
-        if path.endswith('/'):
-            sub_path = '%s@/{path:*}' % path
-        else:
-            sub_path = '%s/@/{path:*}' % path
-        return [
-            PathMask(path),
-            PathMask(sub_path),
-        ]
-
-    def __call__(self, spec, path, context):
-        return ActionRenderer(path, spec.action, spec.access, self.package)
-
-
-def match(mask, request):
-    try:
-        return mask(request.path_info)
-    except ValueError:
-        return None
-
-
-class ActionRenderer(object):
-
-    def __init__(self, path, action, access, package):
-        self.path = path
-        self._action = action
-        self.access = access or package.name
-        self.package = package
-
-    @cached_property
-    def action(self):
-        if isinstance(self._action, Deferred):
-            action_id = '%s:%s' % (self.package.name, self.path)
-            return self._action.resolve(ActionVal(package=self.package, id=action_id))
-        else:
-            return self._action
-
-    def validate(self):
-        # We force computed property so that action is instantiated and
-        # validated.
-        self.action.typecheck()
-
-    def __call__(self, request):
-        from .wizard import WizardBase
-        from .widget import ActionWizard
-        if not authorize(request, self.access):
-            raise HTTPUnauthorized()
-        try:
-            # TODO: check for context vars from query params and wrap into
-            # ActionRenderer
-            action = self.action
-            if not isinstance(self.action, WizardBase):
-                action = ActionWizard(action=action)
-            with confine(request, self):
-                own, via_path = self.path
-                params = match(own, request)
-                if params is not None:
-                    return render(action, request)
-                params = match(via_path, request)
-                if params is not None:
-                    return render(action, request, path=params['path'])
-                raise HTTPBadRequest()
-
-        except Error, error:
-            return request.get_response(error)

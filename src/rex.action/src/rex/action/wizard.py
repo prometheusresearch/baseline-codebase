@@ -27,10 +27,10 @@ from .instruction import (
     Start, Execute, Repeat, Replace,
     PathVal,
     visit as visit_instruction, map as map_instruction)
-from .action import (
-    ActionMapVal, ActionRenderer, ActionBase)
+from .action import ActionBase
 from .validate import (
     DomainVal,
+    ActionMapVal,
     ActionReferenceVal, LocalActionReference, GlobalActionReference)
 from . import typing
 
@@ -274,6 +274,9 @@ def resolve_action_reference(ref, actions=None, package=None, domain=None):
     :keyword domain: Current domain
     :returns: Action instance for a reference
     """
+    # Prevent circular imports
+    from .map import ActionRenderer
+
     action = None
 
     actions = actions or {}

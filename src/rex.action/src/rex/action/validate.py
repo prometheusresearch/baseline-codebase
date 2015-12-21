@@ -18,10 +18,12 @@ from htsql.core.syn.parse import parse
 
 from rex.core import (
     Record, Validate, Error, Location,
-    UStrVal, StrVal, MapVal, OneOfVal, RecordVal)
+    AnyVal, UStrVal, StrVal, MapVal, OneOfVal, RecordVal)
 from rex.db import get_db, Query, RexHTSQL
 from rex.widget import TransitionableRecord
+from rex.widget.validate import DeferredVal, Deferred
 
+from .action import ActionVal
 from . import typing
 
 __all__ = ('RexDBVal', 'QueryVal', 'SyntaxVal', 'DomainVal')
@@ -191,3 +193,26 @@ class GlobalActionReference(
 
     __unicode__ = __repr__
     __str__ = __repr__
+
+
+class ActionMapVal(Validate):
+    """ Validator for a mapping from action ids to actions."""
+
+    _validate_pre = MapVal(StrVal(), DeferredVal(validate=AnyVal()))
+    _validate_id = StrVal()
+
+    def _validate_action_value(self, id):
+        return OneOfVal(
+            ActionReferenceVal(reference_type=GlobalActionReference),
+            ActionVal(id=id))
+
+    def construct(self, loader, node):
+        mapping = self._validate_pre.construct(loader, node)
+        return {k: v.resolve(validate=self._validate_action_value(k))
+                for k, v in mapping.items()}
+
+    def __call__(self, value):
+        mapping = self._validate_pre(value)
+        return {k: v.resolve(validate=self._validate_action_value(k))
+                for k, v in mapping.items()}
+

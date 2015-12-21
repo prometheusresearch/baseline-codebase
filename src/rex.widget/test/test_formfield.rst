@@ -244,7 +244,7 @@ EntityFormField::
      "required": false,
      "label": null,
      "readOnly": false,
-     "data": ["~#collection", [["~#port", ["http://localhost/?__to__="]], {}]]}'
+     "data": ["~#collection", [["~#port", ["http://localhost/@/"]], {}]]}'
 
 NoteFormField::
 

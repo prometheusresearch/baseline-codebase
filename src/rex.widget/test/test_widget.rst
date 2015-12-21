@@ -286,9 +286,13 @@ Widget pointer
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/lib/Chrome", {"content": ["^0", ["WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/?__to__=1.content"]]}]], "title": null}]]
+  ["~#widget", ["rex-widget/lib/Chrome", {"content": ["^0", ["WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/@/1.content"]]}]], "title": null}]]
 
-  >>> print render_widget(w, Request.blank('/?__to__=1.content', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(
+  ...   w,
+  ...   Request.blank('/@/1.content', accept='application/json'),
+  ...   path='1.content',
+  ... ) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -302,9 +306,13 @@ Widget pointer
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/lib/Chrome", {"content": ["^0", ["ComplexWidget", {"children": ["^0", ["WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/?__to__=1.content.1.children"]]}]]}]], "title": null}]]
+  ["~#widget", ["rex-widget/lib/Chrome", {"content": ["^0", ["ComplexWidget", {"children": ["^0", ["WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/@/1.content.1.children"]]}]]}]], "title": null}]]
 
-  >>> print render_widget(w, Request.blank('/?__to__=1.content.1.children', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(
+  ...   w,
+  ...   Request.blank('/@/1.content.1.children', accept='application/json'),
+  ...   path='1.content.1.children',
+  ... ) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -318,9 +326,13 @@ Widget pointer
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/lib/Chrome", {"content": ["^0", ["ComplexWidget", {"children": [["^0", ["WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/?__to__=1.content.1.children.0"]]}]]]}]], "title": null}]]
+  ["~#widget", ["rex-widget/lib/Chrome", {"content": ["^0", ["ComplexWidget", {"children": [["^0", ["WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/@/1.content.1.children.0"]]}]]]}]], "title": null}]]
 
-  >>> print render_widget(w, Request.blank('/?__to__=1.content.1.children.0', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(
+  ...   w,
+  ...   Request.blank('/@/1.content.1.children.0', accept='application/json'),
+  ...   path='1.content.1.children.0',
+  ... ) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -344,7 +356,7 @@ Pointer to field::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/lib/Chrome", {"content": ["^0", ["WidgetWithFieldPointer", {"pointer": ["~#url", ["http://localhost/?__to__=1.content.1.pointer"]]}]], "title": null}]]
+  ["~#widget", ["rex-widget/lib/Chrome", {"content": ["^0", ["WidgetWithFieldPointer", {"pointer": ["~#url", ["http://localhost/@/1.content.1.pointer"]]}]], "title": null}]]
 
 Pointer with wrapper::
 
@@ -366,7 +378,7 @@ Pointer with wrapper::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/lib/Chrome", {"content": ["^0", ["WidgetWithWrappedPointer", {"pointer": [["~#url", ["http://localhost/?__to__=1.content.1.pointer"]]]}]], "title": null}]]
+  ["~#widget", ["rex-widget/lib/Chrome", {"content": ["^0", ["WidgetWithWrappedPointer", {"pointer": [["~#url", ["http://localhost/@/1.content.1.pointer"]]]}]], "title": null}]]
 
 
 Responder field
@@ -400,9 +412,13 @@ Responder field
                 {"content": ["^0",
                              ["WidgetWithResponder",
                               {"title": "Hi",
-                               "data": ["~#url", ["http://localhost/?__to__=1.content.1.data"]]}]], "^2": "Hi"}]]
+                               "data": ["~#url", ["http://localhost/@/1.content.1.data"]]}]], "^2": "Hi"}]]
 
-  >>> print render_widget(w, Request.blank('/?__to__=1.content.1.data', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(
+  ...   w,
+  ...   Request.blank('/@/1.content.1.data', accept='application/json'),
+  ...   path='1.content.1.data',
+  ... ) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -437,9 +453,13 @@ Responder field
                 {"content": ["^0",
                              ["WidgetWithPortResponder",
                               {"title": "Hi",
-                               "data": ["~#port", ["http://localhost/?__to__=1.content.1.data"]]}]], "^2": "Hi"}]]
+                               "data": ["~#port", ["http://localhost/@/1.content.1.data"]]}]], "^2": "Hi"}]]
 
-  >>> print render_widget(w, Request.blank('/?__to__=1.content.1.data', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> print render_widget(
+  ...   w,
+  ...   Request.blank('/@/1.content.1.data', accept='application/json'),
+  ...   path='1.content.1.data',
+  ... ) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: 15
@@ -466,9 +486,13 @@ Responder field
                 {"content": ["^0",
                             ["WidgetWithPortResponder",
                             {"title": "ok",
-                             "data": ["~#port", ["http://localhost/?__to__=1.content.1.data"]]}]], "^2": "ok"}]]
+                             "data": ["~#port", ["http://localhost/@/1.content.1.data"]]}]], "^2": "ok"}]]
 
-  >>> print render_widget(w, Request.blank('/?__to__=1.content.1.data', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> print render_widget(
+  ...   w,
+  ...   Request.blank('/@/1.content.1.data', accept='application/json'),
+  ...   path='1.content.1.data',
+  ... ) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: 15

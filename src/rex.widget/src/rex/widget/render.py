@@ -55,6 +55,7 @@ validate_widget_path = KeyPathVal(allow_empty=True)
 
 def render(widget, request,
         template='rex.widget:/templates/index.html',
+        path=None,
         title=None,
         no_chrome=False):
     """ Render ``widget`` in the context of a given ``request``.
@@ -89,16 +90,14 @@ def render(widget, request,
     if not no_chrome:
         Chrome = get_chrome()
         widget = Chrome(content=widget, title=title)
-    if '__to__' in request.GET:
-        widget_path = request.GET.pop('__to__')
-        widget_path = validate_widget_path(widget_path)
+    if path:
+        path = validate_widget_path(path)
         try:
-            widget = select(widget, request, widget_path)
+            widget = select(widget, request, path)
         except SelectError:
-            raise HTTPBadRequest('invalid widget selector (__to__)')
+            raise HTTPBadRequest('invalid selector')
         if not hasattr(widget, 'respond'):
-            raise HTTPBadRequest(
-                'unable to locate responder via __to__ pointer')
+            raise HTTPBadRequest('unable to locate responder via selector')
         return widget.respond(request)
     else:
         settings = get_settings()

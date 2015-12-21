@@ -8,11 +8,11 @@
 """
 
 from cached_property import cached_property
-from webob.exc import HTTPUnauthorized
+from webob.exc import HTTPUnauthorized, HTTPBadRequest
 
 from rex.urlmap import Map
 from rex.core import Error, StrVal, MapVal, BoolVal
-from rex.web import authorize, confine
+from rex.web import authorize, confine, PathMask
 
 from .validate import WidgetVal, DeferredVal
 from .render import render
@@ -55,6 +55,23 @@ class MapWidget(Map):
             spec = spec.__clone__(access=override_spec.no_chrome)
         return spec
 
+    def mask(self, path):
+        if path.endswith('/'):
+            sub_path = '%s@/{path:*}' % path
+        else:
+            sub_path = '%s/@/{path:*}' % path
+        return [
+            PathMask(path),
+            PathMask(sub_path),
+        ]
+
+
+def match(mask, request):
+    try:
+        return mask(request.path_info)
+    except ValueError:
+        return None
+
 
 class WidgetRenderer(object):
 
@@ -77,9 +94,18 @@ class WidgetRenderer(object):
             raise HTTPUnauthorized()
         try:
             with confine(request, self):
-                return render(
-                    self.widget, request,
-                    title=self.title,
-                    no_chrome=self.no_chrome)
+                own, via_path = self.path
+                params = match(own, request)
+                if params is not None:
+                    return render(
+                        self.widget, request,
+                        title=self.title,
+                        no_chrome=self.no_chrome)
+                params = match(via_path, request)
+                if params is not None:
+                    return render(
+                        self.widget, request,
+                        path=params['path'])
+                raise HTTPBadRequest()
         except Error, error:
             return request.get_response(error)

@@ -56,6 +56,8 @@ Validating widgets
       title
   Of widget:
       Example
+  While parsing:
+      "<string>", line 2
 
   >>> parse("""
   ... !<Example>

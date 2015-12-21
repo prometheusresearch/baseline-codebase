@@ -38,7 +38,9 @@ class Pointer(Transitionable):
         if not self.to_field:
             path = path[:-2]
         path = KeyPathVal.to_string(path)
-        url = self.url_type(req.path_url, params={'__to__': path})
+        origin = req.path_url[:req.path_url.find('/@/')]
+        path = '%s/@/%s' % (origin, path)
+        url = self.url_type(path)
         if self.wrap:
             return self.wrap(self.widget, url)
         else:

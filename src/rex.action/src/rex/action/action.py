@@ -12,7 +12,7 @@
 
 from collections import namedtuple, OrderedDict
 
-from webob.exc import HTTPUnauthorized
+from webob.exc import HTTPUnauthorized, HTTPBadRequest
 import yaml
 from cached_property import cached_property
 
@@ -20,7 +20,7 @@ from rex.core import (
     Location, Error, Validate, autoreload, get_packages,
     MaybeVal, StrVal, IntVal, SeqVal, MapVal, OMapVal, OneOfVal, AnyVal,
     cached, guard)
-from rex.web import authorize, confine
+from rex.web import authorize, confine, PathMask
 from rex.widget import (
     Widget, WidgetVal, Field,
     undefined, as_transitionable, TransitionableRecord)
@@ -271,8 +271,25 @@ class MapAction(Map):
         ('access', StrVal(), None),
     ]
 
+    def mask(self, path):
+        if path.endswith('/'):
+            sub_path = '%s@/{path:*}' % path
+        else:
+            sub_path = '%s/@/{path:*}' % path
+        return [
+            PathMask(path),
+            PathMask(sub_path),
+        ]
+
     def __call__(self, spec, path, context):
         return ActionRenderer(path, spec.action, spec.access, self.package)
+
+
+def match(mask, request):
+    try:
+        return mask(request.path_info)
+    except ValueError:
+        return None
 
 
 class ActionRenderer(object):
@@ -308,6 +325,14 @@ class ActionRenderer(object):
             if not isinstance(self.action, WizardBase):
                 action = ActionWizard(action=action)
             with confine(request, self):
-                return render(action, request)
+                own, via_path = self.path
+                params = match(own, request)
+                if params is not None:
+                    return render(action, request)
+                params = match(via_path, request)
+                if params is not None:
+                    return render(action, request, path=params['path'])
+                raise HTTPBadRequest()
+
         except Error, error:
             return request.get_response(error)

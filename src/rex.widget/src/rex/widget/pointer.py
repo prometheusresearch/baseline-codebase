@@ -38,7 +38,12 @@ class Pointer(Transitionable):
         if not self.to_field:
             path = path[:-2]
         path = KeyPathVal.to_string(path)
-        origin = req.path_url[:req.path_url.find('/@/')]
+        if '/@/' in req.path_url:
+            origin = req.path_url[:req.path_url.find('/@/') + 1]
+        elif req.path_url.endswith('/'):
+            origin = req.path_url[:-1]
+        else:
+            origin = req.path_url
         path = '%s/@/%s' % (origin, path)
         url = self.url_type(path)
         if self.wrap:

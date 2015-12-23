@@ -150,3 +150,24 @@ WidgetClassReference
 
   >>> validate('rex.widget.Chrome') # doctest: +ELLIPSIS
   rex.widget.chrome.Chrome
+
+product_to_pojo
+---------------
+
+::
+
+  >>> from rex.core import Rex
+  >>> from rex.port import Port
+
+  >>> rex = Rex('-', 'rex.widget_demo')
+  >>> rex.on()
+
+  >>> from rex.widget.util import product_to_pojo
+
+  >>> port = Port('individual')
+  >>> product = port.produce((u'*', 'NONSENSEID'))
+
+  >>> product_to_pojo(product)
+  {u'individual': []}
+
+  >>> rex.off()

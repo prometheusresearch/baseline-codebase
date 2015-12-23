@@ -10,10 +10,15 @@
 
 import re
 import importlib
+import json
 from collections import MutableMapping, OrderedDict
 
 import yaml
+from htsql.core.cmd.act import produce
+from htsql.core.fmt.accept import accept
+from htsql.core.fmt.emit import emit, emit_headers
 
+from rex.db import get_db
 from rex.core import Error, Validate, AnyVal, StrVal
 
 from .transitionable import Transitionable, as_transitionable
@@ -198,3 +203,9 @@ class WidgetClassReference(Validate):
                 'The value is not a widget class:',
                 repr(cls))
         return cls
+
+
+def product_to_pojo(product, db=None):
+    with get_db(db):
+        data = ''.join(emit('application/json', product))
+        return json.loads(data)

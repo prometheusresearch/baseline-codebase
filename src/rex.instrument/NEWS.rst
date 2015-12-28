@@ -5,6 +5,13 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
+1.3.0 (2015-xx-xx)
+==================
+
+* Added a ``bulk_retrieve()`` method to Assessment to facilitate features in
+  the new ``rex.mart``.
+
+
 1.2.0 (2015-11-20)
 ==================
 

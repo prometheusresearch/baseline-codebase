@@ -269,6 +269,23 @@ class DemoAssessment(Assessment):
         ]
 
     @classmethod
+    def bulk_retrieve(cls, uids):
+        db = get_db()
+        with db:
+            data = db.produce(
+                "/assessment{uid, instrumentversion.uid :as iv, data}.filter(uid=$uids).filter(status='completed').sort(uid)",
+                uids=uids,
+            )
+        return [
+            cls.BulkAssessment(
+                uid=unicode(d.uid),
+                data=d.data,
+                instrument_version_uid=unicode(d.iv),
+            )
+            for d in data
+        ]
+
+    @classmethod
     def create(cls, subject, instrument_version, data=None, evaluation_date=None, implementation_context=None):
         return cls(
             'fake_assessment_1',

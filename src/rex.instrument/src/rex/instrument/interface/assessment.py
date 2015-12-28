@@ -3,6 +3,7 @@
 #
 
 
+from collections import namedtuple
 from copy import deepcopy
 from datetime import datetime, date
 
@@ -223,6 +224,38 @@ class Assessment(
         :raises:
             DataStoreError if there was an error reading from the datastore
         :rtype: list of Assessments
+        """
+
+        raise NotImplementedError()
+
+    BulkAssessment = namedtuple(
+        'BulkAssessment',
+        [
+            'uid',
+            'data',
+            'instrument_version_uid',
+        ],
+    )
+
+    @classmethod
+    def bulk_retrieve(cls, uids):
+        """
+        Intended for usage in applications like RexMart, this method will
+        retrieve a barebones set of properties for multiple Assessments in one
+        execution. This is a much faster and lightweight method for retrieving
+        multiple, complete, known, Assessments when you only need very basic
+        information and functionality about them.
+
+        This method returns a list of namedtuples that have the following
+        properties:
+        * uid
+        * data
+        * instrument_version_uid
+
+        :param uids:
+            the UIDs of the Assessments to retrieve from the datastore
+        :type uids: list
+        :rtype: list of Assessment.BulkAssessment
         """
 
         raise NotImplementedError()

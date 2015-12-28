@@ -5,6 +5,12 @@ REX.MOBILE Change Log
 .. contents:: Table of Contents
 
 
+0.6.0 (2015-xx-xx)
+==================
+
+* Updated rios.core dependency.
+
+
 0.5.0 (2015-11-20)
 ==================
 

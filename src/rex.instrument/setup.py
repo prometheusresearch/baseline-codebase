@@ -31,7 +31,7 @@ setup(
     install_requires=[
         'rex.core>=1.4,<2',
         'rex.ctl>=2,<3',
-        'rios.core>=0.6,<0.7',
+        'rios.core>=0.7,<0.8',
         'pytz>=0a',
     ],
     rex_init='rex.instrument',

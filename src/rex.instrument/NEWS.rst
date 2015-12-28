@@ -10,6 +10,7 @@ REX.INSTRUMENT Change Log
 
 * Added a ``bulk_retrieve()`` method to Assessment to facilitate features in
   the new ``rex.mart``.
+* Updated rios.core dependency.
 
 
 1.2.0 (2015-11-20)

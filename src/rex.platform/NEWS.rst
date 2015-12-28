@@ -8,9 +8,11 @@
 4.12.0 (2016-xx-xx)
 ===================
 
-* rex.forms==1.2.2
+* rex.instrument==1.3.0
+* rex.forms==1.3.0
 * rex.widget==1.5.0
 * rex.action==0.8.0
+* rex.restful==1.1.0
 * HTSQL==2.3.3.20151202
 * HTSQL-PGSQL==2.3.3.20151202
 

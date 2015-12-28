@@ -248,9 +248,9 @@ class Assessment(
 
         This method returns a list of namedtuples that have the following
         properties:
-        * uid
-        * data
-        * instrument_version_uid
+        * uid  (str)
+        * data  (dict)
+        * instrument_version_uid  (str)
 
         :param uids:
             the UIDs of the Assessments to retrieve from the datastore

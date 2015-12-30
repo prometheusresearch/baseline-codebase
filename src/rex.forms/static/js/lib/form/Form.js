@@ -231,11 +231,18 @@ var Form = React.createClass({
       }
     });
 
-    return makeAssessment(
+    var assessment = makeAssessment(
       value.value,
       this.props.instrument,
       valueOverlay
     );
+
+    if (!assessment.meta) {
+      assessment.meta = {};
+    }
+    assessment.meta.language = this.props.locale;
+
+    return assessment;
   },
 
   onComplete: function() {

@@ -10,6 +10,7 @@ REX.FORMS Change Log
 
 * Fixed issue that caused auto-tabbing to focus disabled or hidden fields.
 * Updated rios.core dependency.
+* The locale metadata property is now set on Assessments.
 
 
 1.2.1 (2015-12-01)

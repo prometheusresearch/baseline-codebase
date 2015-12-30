@@ -100,6 +100,11 @@ class Calculation {
             schema: properties.SimpleDataType,
             label: _('Resulting Data Type'),
             required: true
+          },
+          {
+            name: 'identifiable',
+            label: _('Identifiable'),
+            schema: properties.Bool
           }
         ],
         advanced: []
@@ -131,12 +136,14 @@ class Calculation {
   constructor() {
     this.id = null;
     this.type = null;
+    this.identifiable = false;
     this.CID = CALCULATION_COUNTER++;
   }
 
   parse(calculation) {
     this.id = calculation.id;
     this.type = calculation.type;
+    this.identifiable = calculation.identifiable || false;
   }
 
   getWorkspaceComponent() {
@@ -164,6 +171,10 @@ class Calculation {
       id: this.id,
       type: this.type
     };
+
+    if (this.identifiable) {
+      calc.identifiable = true;
+    }
 
     calculations.calculations.push(calc);
 
@@ -199,6 +210,7 @@ class Calculation {
     }
 
     newElm.type = this.type;
+    newElm.identifiable = this.identifiable;
 
     if (exact) {
       newElm.CID = this.CID;

@@ -50,9 +50,10 @@ HTSQL_UPDATE_NAME = '''/rexmart_inventory{
 )
 /:update'''
 
-HTSQL_UPDATE_DATE_COMPLETED = '''/rexmart_inventory{
+HTSQL_UPDATE_COMPLETION_DETAILS = '''/rexmart_inventory{
     id(),
-    date_creation_completed:=$date_completed
+    date_creation_completed:=$date_completed,
+    size:=$size
 }.filter(
     code=$code
 )
@@ -160,7 +161,7 @@ class MartCreator(object):
 
                 # Mark things complete
                 self.rename_db()
-                self._update_date_completed()
+                self._update_completion_details()
                 if not leave_incomplete:
                     self._update_status('complete')
 
@@ -170,6 +171,9 @@ class MartCreator(object):
                 ))
                 self.log('Mart creation duration: %s' % (
                     mart.date_creation_completed - mart.date_creation_started,
+                ))
+                self.log('Mart database size: %s' % (
+                    mart.size,
                 ))
 
                 # Clean up old Marts to stay within quota
@@ -224,12 +228,25 @@ class MartCreator(object):
                 status=status,
             )
 
-    def _update_date_completed(self):
+    def _update_completion_details(self):
+        size = None
+        with guarded('While retrieving database size'):
+            with get_sql_connection(get_management_db()) as sql:
+                cursor = sql.cursor()
+                try:
+                    cursor.execute('select pg_database_size(%s)', (self.name,))
+                    rec = cursor.fetchone()
+                    if rec:
+                        size = rec[0]
+                finally:
+                    cursor.close()
+
         with guarded('While updating inventory date'):
             self._do_update(
-                HTSQL_UPDATE_DATE_COMPLETED,
+                HTSQL_UPDATE_COMPLETION_DETAILS,
                 code=self.code,
                 date_completed=datetime.now(),
+                size=size,
             )
 
     def create_inventory(self):

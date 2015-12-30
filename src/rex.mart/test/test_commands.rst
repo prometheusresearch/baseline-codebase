@@ -40,7 +40,8 @@ This API will return all Marts the user has access to::
      u'definition': u'some_data',
      u'name': u'mart_some_data_...',
      u'owner': u'cmdtest',
-     u'pinned': False}
+     u'pinned': False,
+     u'size': ...}
     >>> len(resp.json['marts'])
     5
     >>> len([mart for mart in resp.json['marts'] if mart['definition'] == 'some_data'])
@@ -232,7 +233,8 @@ Accessing the details API for a Mart::
      u'definition': u'some_data',
      u'name': u'mart_some_data_...',
      u'owner': u'cmdtest',
-     u'pinned': False}
+     u'pinned': False,
+     u'size': ...}
 
     >>> req = Request.blank('/mart/999/_api', remote_user='cmdtest', method='GET')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
@@ -257,7 +259,8 @@ Update attributes of a Mart::
      u'definition': u'some_data',
      u'name': u'mart_some_data_...',
      u'owner': u'cmdtest',
-     u'pinned': True}
+     u'pinned': True,
+     u'size': ...}
 
     >>> req.body = '{"pinned": false}'
     >>> resp = req.get_response(rex)
@@ -268,7 +271,8 @@ Update attributes of a Mart::
      u'definition': u'some_data',
      u'name': u'mart_some_data_...',
      u'owner': u'cmdtest',
-     u'pinned': False}
+     u'pinned': False,
+     u'size': ...}
 
 
 "Latest" Mart APIs
@@ -348,7 +352,8 @@ Accessing the details API for a Mart::
      u'definition': u'some_data',
      u'name': u'mart_some_data_...',
      u'owner': u'cmdtest',
-     u'pinned': False}
+     u'pinned': False,
+     u'size': ...}
     >>> latest_some_data = resp.json
 
     >>> req = Request.blank('/definition/some_more_data/latest/_api', remote_user='cmdtest', method='GET')
@@ -374,7 +379,8 @@ Update attributes of a Mart::
      u'definition': u'some_data',
      u'name': u'mart_some_data_...',
      u'owner': u'cmdtest',
-     u'pinned': True}
+     u'pinned': True,
+     u'size': ...}
 
     >>> req.body = '{"pinned": false}'
     >>> resp = req.get_response(rex)
@@ -385,7 +391,8 @@ Update attributes of a Mart::
      u'definition': u'some_data',
      u'name': u'mart_some_data_...',
      u'owner': u'cmdtest',
-     u'pinned': False}
+     u'pinned': False,
+     u'size': ...}
 
     >>> req = Request.blank('/definition/empty/latest/_api', remote_user='cmdtest', method='PUT')
     >>> req.headers['Content-Type'] = 'application/json'
@@ -472,7 +479,8 @@ Accessing the details API for a Mart::
      u'definition': u'some_data',
      u'name': u'mart_some_data_...',
      u'owner': u'cmdtest',
-     u'pinned': False}
+     u'pinned': False,
+     u'size': ...}
     >>> resp.json['code'] < latest_some_data['code']
     True
 
@@ -494,7 +502,8 @@ Update attributes of a Mart::
      u'definition': u'some_data',
      u'name': u'mart_some_data_...',
      u'owner': u'cmdtest',
-     u'pinned': True}
+     u'pinned': True,
+     u'size': ...}
 
     >>> req.body = '{"pinned": false}'
     >>> resp = req.get_response(rex)
@@ -505,7 +514,8 @@ Update attributes of a Mart::
      u'definition': u'some_data',
      u'name': u'mart_some_data_...',
      u'owner': u'cmdtest',
-     u'pinned': False}
+     u'pinned': False,
+     u'size': ...}
 
     >>> req = Request.blank('/definition/empty/1/_api', remote_user='cmdtest', method='PUT')
     >>> req.headers['Content-Type'] = 'application/json'

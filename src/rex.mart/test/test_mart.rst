@@ -53,6 +53,10 @@ The Mart object is an encapsulation of the information about a Mart database::
     True
     >>> mart.pinned
     False
+    >>> isinstance(mart.size, int)
+    True
+    >>> mart.size > 0
+    True
 
     >>> mart.pinned = True
     >>> mart.pinned
@@ -85,7 +89,8 @@ The Mart object is an encapsulation of the information about a Mart database::
      'definition': u'empty',
      'name': u'mart_empty_...',
      'owner': u'marttest',
-     'pinned': False}
+     'pinned': False,
+     'size': ...}
 
     >>> mart.purge()
     >>> mart = get_mart(mart.code)
@@ -93,7 +98,7 @@ The Mart object is an encapsulation of the information about a Mart database::
     True
 
 
-    >>> mart = Mart(999, 'fakedefn', 'marttest', 'dbname', datetime.now(), datetime.now(), False)
+    >>> mart = Mart(999, 'fakedefn', 'marttest', 'dbname', datetime.now(), datetime.now(), False, 123)
     >>> mart.definition is None
     True
 

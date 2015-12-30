@@ -40,6 +40,11 @@
       type: datetime
       required: false
 
+    # The size of the Mart database on disk
+    - column: size
+      type: integer
+      required: false
+
     # Indicates whether or not this Mart should be presevered during automated
     # Mart culling.
     - column: pinned

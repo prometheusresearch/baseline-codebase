@@ -38,6 +38,7 @@ Some tools for testing::
     ...     print 'Definition: %s' % data[0].definition
     ...     print 'Status: %s' % data[0].status
     ...     print 'Owner: %s' % data[0].owner
+    ...     print 'Has Size: %s' % (data[0].size > 0 if data[0].size is not None else False,)
     ...     print 'Dates: %s %s' % (
     ...         bool(data[0].date_creation_started),
     ...         bool(data[0].date_creation_completed),
@@ -55,6 +56,7 @@ A simple, empty Mart::
     Definition: empty
     Status: complete
     Owner: test
+    Has Size: True
     Dates: True True
 
 Copy an existing DB::
@@ -78,6 +80,7 @@ Copy an existing DB::
     Definition: just_copy
     Status: complete
     Owner: test
+    Has Size: True
     Dates: True True
 
 Create a Mart that always ends up with the same database name::
@@ -94,6 +97,7 @@ Create a Mart that always ends up with the same database name::
     Definition: fixed_name
     Status: complete
     Owner: test
+    Has Size: True
     Dates: True True
 
     >>> mart2 = mc()
@@ -107,6 +111,7 @@ Create a Mart that always ends up with the same database name::
     Definition: fixed_name
     Status: complete
     Owner: test
+    Has Size: True
     Dates: True True
 
     >>> mart1.name == mart2.name
@@ -126,6 +131,7 @@ Make a table and transfer some data into it::
     Definition: some_data
     Status: complete
     Owner: test
+    Has Size: True
     Dates: True True
 
 Make a table and transfer some data into it with multiple scripts/statements::
@@ -140,6 +146,7 @@ Make a table and transfer some data into it with multiple scripts/statements::
     Definition: some_more_data
     Status: complete
     Owner: test
+    Has Size: True
     Dates: True True
 
 Make a table and load some data into it with SQL::
@@ -154,6 +161,7 @@ Make a table and load some data into it with SQL::
     Definition: some_sql_data
     Status: complete
     Owner: test
+    Has Size: True
     Dates: True True
 
 Make a table and load some data into it with multiple SQL scripts/statements::
@@ -168,6 +176,7 @@ Make a table and load some data into it with multiple SQL scripts/statements::
     Definition: some_more_sql_data
     Status: complete
     Owner: test
+    Has Size: True
     Dates: True True
 
 Make a table and load it with data using both ETL phases::
@@ -182,6 +191,7 @@ Make a table and load it with data using both ETL phases::
     Definition: both_etl_phases
     Status: complete
     Owner: test
+    Has Size: True
     Dates: True True
 
 Make a table and load it with data using script parameters::
@@ -202,6 +212,7 @@ Make a table and load it with data using script parameters::
     Definition: some_data_with_params
     Status: complete
     Owner: test
+    Has Size: True
     Dates: True True
 
 Load data into an existing database::
@@ -228,6 +239,7 @@ Load data into an existing database::
     Definition: existing
     Status: complete
     Owner: test
+    Has Size: True
     Dates: True True
 
 You can load Assessments into the Mart::
@@ -242,6 +254,7 @@ You can load Assessments into the Mart::
     Definition: simple_assessment
     Status: complete
     Owner: test
+    Has Size: True
     Dates: True True
 
 You can load Assessments into the Mart and link the table to other tables in
@@ -258,6 +271,7 @@ the Mart::
     Definition: linked_assessment
     Status: complete
     Owner: test
+    Has Size: True
     Dates: True True
 
     >>> mc = MartCreator('test', 'linked_assessment_alltypes')
@@ -273,6 +287,7 @@ the Mart::
     Definition: linked_assessment_alltypes
     Status: complete
     Owner: test
+    Has Size: True
     Dates: True True
 
 You can load Assessments into the Mart and peform calculations on their
@@ -296,6 +311,7 @@ contents::
     Definition: calculated_assessment
     Status: complete
     Owner: test
+    Has Size: True
     Dates: True True
 
 Your Assessment selector can include JSON-ish fields::
@@ -311,6 +327,7 @@ Your Assessment selector can include JSON-ish fields::
     Definition: select_json
     Status: complete
     Owner: test
+    Has Size: True
     Dates: True True
 
 You can tell the creator to not mark the Mart as complete after processing is
@@ -326,6 +343,7 @@ done::
     Definition: some_data
     Status: processing
     Owner: test
+    Has Size: True
     Dates: True True
 
 

@@ -38,6 +38,7 @@ class Mart(object):
             record.date_creation_started,
             record.date_creation_completed,
             record.pinned,
+            record.size,
         )
 
     def __init__(
@@ -48,7 +49,8 @@ class Mart(object):
             name,
             date_creation_started,
             date_creation_completed,
-            pinned):
+            pinned,
+            size):
         self._code = code
         self._definition_id = definition_id
         self._owner = owner
@@ -56,6 +58,7 @@ class Mart(object):
         self._date_creation_started = date_creation_started
         self._date_creation_completed = date_creation_completed
         self._pinned = pinned
+        self._size = size
 
     @property
     def code(self):
@@ -154,6 +157,16 @@ class Mart(object):
             )
         self._pinned = value
 
+    @property
+    def size(self):
+        """
+        The size of the database that contains the Mart in bytes. Read only.
+
+        :rtype: int
+        """
+
+        return self._size
+
     def purge(self):
         """
         Deletes the Mart and its associated inventory record from the system.
@@ -176,6 +189,7 @@ class Mart(object):
             'date_creation_started': self.date_creation_started,
             'date_creation_completed': self.date_creation_completed,
             'pinned': self.pinned,
+            'size': self.size,
         }
 
     def __repr__(self):

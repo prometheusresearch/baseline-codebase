@@ -12,6 +12,9 @@ var {isEmpty} = require('./util');
 var _ = require('./i18n').gettext;
 
 
+var GENERATOR = 'RexDBFormBuilder/5';
+
+
 class Configuration {
   constructor(id, version, title, locale, parameters) {
     this.id = id;
@@ -32,6 +35,9 @@ class Configuration {
     var instrument = {
       id: this.id,
       version: this.version,
+      meta: {
+        generator: GENERATOR
+      },
       title: this.title[this.locale],
       record: []
     };
@@ -39,6 +45,9 @@ class Configuration {
       instrument: {
         id: this.id,
         version: this.version
+      },
+      meta: {
+        generator: GENERATOR
       },
       defaultLocalization: this.locale,
       title: deepCopy(this.title),
@@ -65,6 +74,9 @@ class Configuration {
         instrument: {
           id: this.id,
           version: this.version
+        },
+        meta: {
+          generator: GENERATOR
         },
         calculations: []
       };

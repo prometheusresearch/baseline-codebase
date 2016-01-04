@@ -91,7 +91,7 @@ class SimpleChrome(Chrome):
                 if isinstance(item2, (str, unicode)):
                     item2 = Item(title=None, url=item2)
                 handler = get_handler(item2.url)
-                assert handler is not None, 'Cannot find URL'
+                assert handler is not None, 'Cannot find URL: %s' % item2.url
                 title = item2.title or get_title(handler) or 'Untitled'
                 items.append({
                     'id': item2.url,

@@ -33,7 +33,12 @@ var CreateInstrumentModal = React.createClass({
     return Mapping({
       code: Scalar({
         label: _('Unique Code'),
-        required: true
+        required: true,
+        validate: function (schema, value) {
+          if (value && (value.length < 3)) {
+            return new Error(_('Codes must be at least three characters long'));
+          }
+        }
       }),
 
       title: Scalar({

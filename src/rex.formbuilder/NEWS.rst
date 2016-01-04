@@ -11,6 +11,7 @@ REX.FORMBUILDER Change Log
 * Removed rex.applet dependency
 * Fixed erroneous display of tags property on recordList & matrix subfields.
 * Added support for "identifiable" property on calculations.
+* Fixed Instrument Creation form to require codes > 2 characters.
 
 
 5.5.0 (2015-11-20)

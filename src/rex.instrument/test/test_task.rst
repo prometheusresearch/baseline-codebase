@@ -227,6 +227,12 @@ method can then be used to merge the Assessment Data in the Entries together::
     ...         'q_blah': {
     ...             'value': ['red', 'green']
     ...         }
+    ...     },
+    ...     'meta': {
+    ...         'application': 'SomeApp/1.0',
+    ...         'dateCompleted': '2010-01-01T12:34:56',
+    ...         'foo': 'bar',
+    ...         'calculations': {'calc1': 2}
     ...     }
     ... }
     >>> instrument = Instrument('fake123', 'fake123', 'My Instrument Title')
@@ -244,7 +250,7 @@ equivalent to the Entries' data::
     >>> task.get_discrepancies(entries=entries)
     {}
     >>> task.solve_discrepancies({}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'my answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'my answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
 
 Only given one Entry, it should yield no discrepancies and a solution that is
 equivalent to the one Entry's data::
@@ -252,7 +258,7 @@ equivalent to the one Entry's data::
     >>> task.get_discrepancies(entries=[entry1])
     {}
     >>> task.solve_discrepancies({}, entries=[entry1])
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'value': 'my answer'}, 'q_foo': {'value': 45}, 'q_blah': {'value': ['red', 'green']}}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar', 'calculations': {'calc1': 2}}, 'values': {'q_fake': {'value': 'my answer'}, 'q_foo': {'value': 45}, 'q_blah': {'value': ['red', 'green']}}}
 
 One entry with a different value should be spotted and solved appropriately::
 
@@ -260,11 +266,11 @@ One entry with a different value should be spotted and solved appropriately::
     >>> task.get_discrepancies(entries=entries)
     {'q_fake': {u'entry444': 'my answer', u'entry333': 'my answer', u'entry555': 'a different answer'}}
     >>> task.solve_discrepancies({}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'my answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'my answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
     >>> task.solve_discrepancies({'q_fake': 'the answer'}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'the answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'the answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
     >>> task.solve_discrepancies({'q_fake': None}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': None}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': None}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
 
     >>> entry2.data['values']['q_blah']['value'] = ['blue']
     >>> task.get_discrepancies(entries=entries)
@@ -274,13 +280,26 @@ If a field only has one explanation in the group, use it in the solution::
 
     >>> entry2.data['values']['q_fake']['explanation'] = 'Because I said so.'
     >>> task.solve_discrepancies({}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': 'Because I said so.', 'annotation': None, 'value': 'my answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar'}, 'values': {'q_fake': {'explanation': 'Because I said so.', 'annotation': None, 'value': 'my answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
 
 If a field as more than one explanation in the group, merge them::
 
     >>> entry3.data['values']['q_fake']['explanation'] = 'Why not?'
     >>> task.solve_discrepancies({}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'explanation': u'2014-05-22 12:34:56 / joe: Because I said so.\n\n2014-05-22 12:34:56 / jim: Why not?', 'annotation': None, 'value': 'my answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar'}, 'values': {'q_fake': {'explanation': u'2014-05-22 12:34:56 / joe: Because I said so.\n\n2014-05-22 12:34:56 / jim: Why not?', 'annotation': None, 'value': 'my answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+
+If the metadata values are different, they'll be merged appropriately::
+
+    >>> entry2.data = deepcopy(entry1.data)
+    >>> entry3.data = deepcopy(entry1.data)
+    >>> entry2.data['meta']['application'] = 'OtherApp/2.1 SomeApp/1.0'
+    >>> entry2.data['meta']['foo'] = 'baz'
+    >>> entry2.data['meta']['dateCompleted'] = 'broken'
+    >>> entry3.data['meta']['happy'] = 'yup'
+    >>> entry3.data['meta']['dateCompleted'] = '2015-05-05T11:34:55'
+    >>> task.solve_discrepancies({}, entries=entries)['meta']
+    {'application': 'SomeApp/1.0 OtherApp/2.1', 'dateCompleted': '2015-05-05T11:34:55', 'foo': 'bar', 'happy': 'yup'}
+
 
 Set up tests with recordList fields::
 
@@ -328,6 +347,9 @@ Set up tests with recordList fields::
     >>> entry1.data['values'] = deepcopy(RECORD_VALUES)
     >>> entry2.data['values'] = deepcopy(RECORD_VALUES)
     >>> entry3.data['values'] = deepcopy(RECORD_VALUES)
+    >>> del entry1.data['meta']
+    >>> del entry2.data['meta']
+    >>> del entry3.data['meta']
 
 Discrepancies of simple fields should be spotted in the sub-records of a
 recordList field::

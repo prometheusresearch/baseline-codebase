@@ -11,6 +11,8 @@ REX.INSTRUMENT Change Log
 * Added a ``bulk_retrieve()`` method to Assessment to facilitate features in
   the new ``rex.mart``.
 * Updated rios.core dependency.
+* Fixed discrepancy solving so that document-level metadata is no longer lost,
+  but is instead merged/retained appropriately.
 
 
 1.2.0 (2015-11-20)

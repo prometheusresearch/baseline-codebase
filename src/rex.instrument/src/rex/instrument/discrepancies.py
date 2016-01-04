@@ -3,6 +3,8 @@
 #
 
 
+from datetime import datetime
+
 from rios.core.validation.instrument import TYPES_SIMPLE
 
 from .interface import InstrumentVersion
@@ -240,7 +242,64 @@ def solve_discrepancies(
         if solved is not None:
             solution['values'][field['id']] = solved
 
+    meta = merge_metadata(entries)
+    if meta:
+        solution['meta'] = meta
+
     return solution
+
+
+def merge_metadata(entries):
+    meta = {}
+
+    sources = [
+        entry.data.get('meta', {})
+        for entry in entries
+    ]
+    properties = set([
+        prop
+        for source in sources
+        for prop in source.keys()
+    ])
+
+    for prop in properties:
+        values = []
+        for source in sources:
+            if prop in source:
+                values.append(source[prop])
+
+        if prop == 'application':
+            # Merge all the tokens into one string.
+            tokens = []
+            for value in values:
+                tokens.extend(value.split())
+            if tokens:
+                tokens = set(tokens)
+                meta[prop] = ' '.join(list(tokens))
+
+        elif prop == 'dateCompleted':
+            # Take the latest date.
+            dates = []
+            for value in values:
+                try:
+                    parsed_date = datetime.strptime(value, '%Y-%m-%dT%H:%M:%S')
+                except ValueError:
+                    pass
+                else:
+                    dates.append(parsed_date)
+            if dates:
+                dates = sorted(dates)
+                meta[prop] = dates[-1].strftime('%Y-%m-%dT%H:%M:%S')
+
+        elif prop == 'calculations':
+            # Can't merge these; they'll be recalculated later anyway.
+            continue
+
+        else:
+            # Just use the first one we found.
+            meta[prop] = values[0]
+
+    return meta
 
 
 def _solve_field_discrepancies(

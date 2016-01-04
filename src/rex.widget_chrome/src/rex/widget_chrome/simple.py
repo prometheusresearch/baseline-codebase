@@ -114,7 +114,7 @@ def get_handler(url):
     package = get_packages().get(package_name)
     routes = get_routes(package)
     for location, handler in iter_pathmap_tree(routes.tree):
-        if location == url:
+        if location == url or location + '/' == url:
             return handler
     return None
 

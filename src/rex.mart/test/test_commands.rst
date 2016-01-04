@@ -403,7 +403,7 @@ Update attributes of a Mart::
 
 
 "Indexed" Mart APIs
-==================
+===================
 
 Accessing the HTSQL endpoint for the latest Mart::
 

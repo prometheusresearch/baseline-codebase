@@ -5,7 +5,7 @@
 
 from htsql.core.adapter import adapt
 from htsql.core.domain import Domain
-from htsql.core.tr.dump import DumpToDomain
+from htsql.core.tr.dump import DumpToDomain, DumpByDomain
 from htsql.core.tr.fn.dump import DumpFunction
 from ..domain import JSONDomain
 from .signature import (REMatchesSig, FTMatchesSig, FTQueryMatchesSig,
@@ -21,6 +21,14 @@ class DumpToJSON(DumpToDomain):
 
     def __call__(self):
         self.format("CAST ({base} AS JSON)", base=self.base)
+
+
+class DumpJSON(DumpByDomain):
+
+    adapt(JSONDomain)
+
+    def __call__(self):
+        self.format("{value:literal}::JSON", value=self.domain.dump(self.value))
 
 
 class DumpJSONGet(DumpFunction):

@@ -9,6 +9,7 @@
 ==================
 
 * Reset schema cache after executing a raw DDL fact.
+* Added SQL serializer for JSON values.
 
 
 2.4.0 (2015-10-21)

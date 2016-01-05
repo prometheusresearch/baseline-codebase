@@ -148,8 +148,8 @@ to the database::
 
     >>> q = Query('''
     ...     do(
-    ...         $family_id := insert(family:={code:='01'}),
-    ...         $individual_id := insert(individual:={family:=$family_id, code:='1000'}),
+    ...         $family_id := insert(family:={code:='1000'}),
+    ...         $individual_id := insert(individual:={family:=$family_id, code:='01'}),
     ...         $sample_id := insert(
     ...             sample:={
     ...                 individual:=$individual_id,
@@ -161,7 +161,7 @@ to the database::
      +-----------+--------------------+
      | id()      | Other              |
     -+-----------+--------------------+-
-     | 01.1000.S | {                  |
+     | 1000.01.S | {                  |
      :           :   "errors": [      :
      :           :     -0.3,          :
      :           :     0.12           :
@@ -179,7 +179,7 @@ In JSON format, JSON data is serialized as a native JSON object::
     {
       "sample": [
         {
-          "0": "01.1000.S",
+          "0": "1000.01.S",
           "other": {
             "errors": [
               -0.3,
@@ -205,6 +205,38 @@ untyped JSON literals::
       "2": {}
     }
 
+JSON objects can be passed to queries as parameters::
+
+    >>> q = Query('''
+    ...     do(
+    ...         $sample_id := insert(
+    ...             sample:={
+    ...                 individual:='1000.01',
+    ...                 code:='T',
+    ...                 other:=$other}),
+    ...         sample[$sample_id]{id(), other}) ''')
+    >>> print q.format('txt',
+    ...     other={
+    ...         "type": "speed",
+    ...         "value": 5,
+    ...         "errors": [-0.3, 0.12],
+    ...         "notes": None,
+    ...         "set": False})                  # doctest: +NORMALIZE_WHITESPACE
+     | Assessment                     |
+     +-----------+--------------------+
+     | id()      | Other              |
+    -+-----------+--------------------+-
+     | 1000.01.T | {                  |
+     :           :   "errors": [      :
+     :           :     -0.3,          :
+     :           :     0.12           :
+     :           :   ],               :
+     :           :   "notes": null,   :
+     :           :   "set": false,    :
+     :           :   "type": "speed", :
+     :           :   "value": 5       :
+     :           : }                  :
+
 You can extract values from a JSON object using ``json_get()`` and
 ``json_get_json()`` functions::
 
@@ -219,6 +251,35 @@ You can extract values from a JSON object using ``json_get()`` and
       "0": true
     }
 
+You can also use JSON arrays and objects with ``for()`` and ``with()``
+commands::
+
+    >>> q = Query('''
+    ...     with($input,
+    ...         for($family_data := $families,
+    ...             with($family_data,
+    ...                 do(
+    ...                     $family := insert(family:={code:=$code}),
+    ...                     for($individual_data := $individuals,
+    ...                         with($individual_data,
+    ...                             insert(individual:={family:=$family, code:=$code, sex:=$sex}))),
+    ...                     family[$family]{code, /individual})))) ''')
+    >>> print q.format('txt',
+    ...     input={ "families": [
+    ...         { "code": "2000", "individuals": [{"code":"01", "sex":"male"}, {"code":"02", "sex":"female"}] },
+    ...         { "code": "2001", "individuals": [{"code":"01", "sex":"male"}] },
+    ...         { "code": "2002", "individuals": [] }]})                # doctest: +NORMALIZE_WHITESPACE
+     | Family                                                            |
+     +------+------------------------------------------------------------+
+     |      | Subject                                                    |
+     |      +--------+------------+--------+--------------+--------------+
+     | Code | Family | Subject ID | Sex    | Birth Mother | Birth Father |
+    -+------+--------+------------+--------+--------------+--------------+-
+     | 2000 | 2000   | 01         | male   |              |              |
+     :      | 2000   | 02         | female |              |              |
+     | 2001 | 2001   | 01         | male   |              |              |
+     | 2002 |        :            :        :              :              :
+
 You can access JSON data through ports::
 
     >>> from rex.port import Port
@@ -228,7 +289,7 @@ You can access JSON data through ports::
     ... select: [individual, code, other]
     ... ''')
 
-    >>> sample = json_port.produce(('sample', '01.1000.S')).data.sample[0]
+    >>> sample = json_port.produce(('sample', '1000.01.S')).data.sample[0]
 
     >>> import json
     >>> print json.dumps(sample.other, sort_keys=True)
@@ -301,7 +362,7 @@ Use function ``join()`` to concatenate a set of strings::
     >>> print q.format('txt')                                       # doctest: +NORMALIZE_WHITESPACE
      | join(family.code,', ') |
     -+------------------------+-
-     | 01                     |
+     | 1000, 2000, 2001, 2002 |
 
 As with other aggregate functions, the first argument could be wrapped
 in a selector::
@@ -310,7 +371,7 @@ in a selector::
     >>> print q.format('txt')                                       # doctest: +NORMALIZE_WHITESPACE
      | join(family{code},', ') |
     -+-------------------------+-
-     | 01                      |
+     | 1000, 2000, 2001, 2002  |
 
 The selector must contain one element::
 

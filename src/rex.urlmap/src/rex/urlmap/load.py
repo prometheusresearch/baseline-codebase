@@ -4,8 +4,9 @@
 
 
 from rex.core import (
-        get_packages, get_settings, ValidatingLoader, StrVal, MapVal,
-        OneOrSeqVal, RecordVal, UnionVal, OnMatch, locate, Location, Error,
+        get_packages, get_settings, Validate, ValidatingLoader, StrVal, MapVal, AnyVal,
+        OneOrSeqVal, RecordVal, UnionVal, OnMatch,
+        set_location, locate, Location, Error,
         guard)
 from rex.web import PathMask, PathMap
 from .map import Map
@@ -26,6 +27,68 @@ def _merge(*contexts):
     return merged
 
 
+class Deferred(object):
+    """ Object which defers either validation or construction."""
+
+    def resolve(self, validate=None):
+        """ Resolve deferred value.
+
+        If ``validate`` is passed then it is used instead of validator supplied
+        at construction time.
+        """
+        raise NotImplementedError(
+                '%s.resolve(validate=None) is not implemented' % \
+                self.__class__.__name__)
+
+
+class DeferredConstruction(Deferred):
+    """ Deferred construction."""
+
+    __slots__ = ('loader', 'node', 'validate')
+
+    def __init__(self, loader, node, validate):
+        self.loader = loader
+        self.node = node
+        self.validate = validate
+
+    def resolve(self, validate=None):
+        validate = validate or self.validate or AnyVal()
+        return validate.construct(self.loader, self.node)
+
+
+class DeferredVal(Validate):
+    """ Validator which produces deferred values."""
+
+    def __init__(self, validate=None):
+        self.validate = validate
+
+    def construct(self, loader, node):
+        value = DeferredConstruction(loader, node, self.validate)
+        set_location(value, Location.from_node(node))
+        return value
+
+
+class TaggedCollectionVal(Validate):
+
+    def __init__(self, tag, value):
+        self.tag = tag
+        self.value = value
+
+    def construct(self, loader, node):
+        if node.tag == self.tag:
+            if isinstance(node, yaml.ScalarNode) and node.value == u'':
+                node = yaml.ScalarNode(u'tag:yaml.org,2002:null', node.value,
+                        node.start_mark, node.end_mark, node.style)
+            elif isinstance(node, yaml.MappingNode):
+                node = yaml.MappingNode(u'tag:yaml.org,2002:map', node.value,
+                        node.start_mark, node.end_mark, node.flow_style)
+            elif isinstance(node, yaml.SequenceNode):
+                node = yaml.SequenceNode(u'tag:yaml.org,2002:seq', node.value,
+                        node.start_mark, node.end_mark, node.flow_style)
+            return self.value.construct(loader, node)
+        return super(TaggedCollectionVal, self).construct(loader, node)
+
+
 class OnTag(OnMatch):
 
     def __init__(self, tag):
@@ -39,30 +102,6 @@ class OnTag(OnMatch):
 
     def __repr__(self):
         return "%s(%r)" % (self.__class__.__name__, self.tag)
-
-
-class TaggedRecordVal(RecordVal):
-    # Like `RecordVal`, but expects a special YAML tag.
-
-    def __init__(self, tag, *fields):
-        super(TaggedRecordVal, self).__init__(*fields)
-        self.tag = tag
-
-    def construct(self, loader, node):
-        if node.tag == self.tag:
-            # Rewrite the node for `RecordVal`.
-            if (isinstance(node, yaml.ScalarNode) and
-                    node.value == u''):
-                node = yaml.ScalarNode(u'tag:yaml.org,2002:null', node.value,
-                        node.start_mark, node.end_mark, node.style)
-            elif isinstance(node, yaml.MappingNode):
-                node = yaml.MappingNode(u'tag:yaml.org,2002:map', node.value,
-                        node.start_mark, node.end_mark, node.flow_style)
-        return super(TaggedRecordVal, self).construct(loader, node)
-
-    def __repr__(self):
-        return "%s(%r, %r)" % (self.__class__.__name__, self.tag,
-                               ", ".join(repr(field) for field in self.fields))
 
 
 class MapLoader(ValidatingLoader):
@@ -104,14 +143,14 @@ class LoadMap(object):
                     override_field_set.add(field.name)
             handle_pairs.append((map_type.key, map_type.validate))
             self.map_by_record_type[map_type.record_type] = map_type(package)
-        override_val = TaggedRecordVal(u'!override', override_fields)
+        override_val = TaggedCollectionVal(u'!override', DeferredVal())
         handle_val = UnionVal(
                 (OnTag(override_val.tag), override_val),
                 *handle_pairs)
         self.validate = RecordVal([
                 ('include', OneOrSeqVal(StrVal(r'[/0-9A-Za-z:._-]+')), None),
                 ('context', MapVal(StrVal(r'[A-Za-z_][0-9A-Za-z_]*')), {}),
-                ('paths', MapVal(StrVal(r'/[${}/0-9A-Za-z:._-]*'),
+                ('paths', MapVal(StrVal(r'/[@${}/0-9A-Za-z:._-]*'),
                                  handle_val), {})])
 
     def __call__(self):
@@ -129,11 +168,7 @@ class LoadMap(object):
             map = self.map_by_record_type[type(handle_spec)]
             mask = map.mask(path)
             handler = map(handle_spec, mask, map_spec.context)
-            if isinstance(mask, list):
-                for mask in mask:
-                    segment_map.add(mask, handler)
-            else:
-                segment_map.add(mask, handler)
+            add_handler(segment_map, mask, handler)
 
         return segment_map
 
@@ -182,7 +217,10 @@ class LoadMap(object):
         # URL cache for detecting duplicate URLs.
         seen = PathMap()
         for path in paths:
-            seen.add(path, paths[path])
+            handle_spec = paths[path]
+            mapper = self.map_by_record_type.get(type(handle_spec))
+            mask = mapper.mask(path)
+            add_handler(seen, mask, handle_spec)
             path_by_spec[id(paths[path])] = path
         for path in sorted(include_spec.paths):
             handle_spec = include_spec.paths[path]
@@ -207,11 +245,7 @@ class LoadMap(object):
                     raise error
                 paths[path] = handle_spec
                 mask = mapper.mask(path)
-                if isinstance(mask, list):
-                    for mask in mask:
-                        seen.add(mask, handle_spec)
-                else:
-                    seen.add(mask, handle_spec)
+                add_handler(seen, mask, handle_spec)
                 path_by_spec[id(handle_spec)] = path
             else:
                 # Merge `!override` records.
@@ -226,15 +260,11 @@ class LoadMap(object):
                 mapper = self.map_by_record_type[type(handle_spec)]
                 handle_spec = mapper.abspath(handle_spec, current_package,
                                              current_directory)
-                paths[path] = handle_spec
+                paths[base_path] = handle_spec
                 path_by_spec[id(handle_spec)] = base_path
                 update = PathMap()
-                mask = mapper.mask(path)
-                if isinstance(mask, list):
-                    for mask in mask:
-                        update.add(mask, handle_spec)
-                else:
-                    update.add(mask, handle_spec)
+                mask = mapper.mask(base_path)
+                add_handler(update, mask, handle_spec)
                 seen.update(update)
         return base_spec.__clone__(context=context, paths=paths)
 
@@ -242,13 +272,13 @@ class LoadMap(object):
         # Merges fields defined in an `!override` record onto `handle_spec`.
         map = self.map_by_record_type[type(handle_spec)]
         # Reject mis-typed `!override` entries.
-        for key, value in sorted(vars(override_spec).items()):
-            if value is not None:
-                if key not in map.validate.fields:
-                    error = Error("Detected invalid override"
-                                  " of %s:" % map.key, base_path)
-                    error.wrap("Defined in:", locate(override_spec))
-                    raise error
+
+        try:
+            override_spec = override_spec.resolve(map.validate_override)
+        except Error as error:
+            error.wrap("While processing override of %s:" % map.key, base_path)
+            raise error
+
         handle_spec = map.override_at(
                 handle_spec, override_spec, base_path, override_path)
         if handle_spec is None:
@@ -259,9 +289,16 @@ class LoadMap(object):
         return handle_spec
 
 
+def add_handler(path_map, mask, handler):
+    """ Associate ``handler`` with ``mask`` within the ``path_map``."""
+    if isinstance(mask, list):
+        for mask in mask:
+            path_map.add(mask, handler)
+    else:
+        path_map.add(mask, handler)
+
+
 def load_map(package, open=open):
     # Parses `urlmap.yaml` file.
     load = LoadMap(package, open=open)
     return load()
-
-

@@ -23,6 +23,7 @@ class Map(Extension):
 
     fields = None
     validate = None
+    validate_override = None
     key = None
     record_type = None
 
@@ -32,6 +33,10 @@ class Map(Extension):
             cls.validate = RecordVal(cls.fields)
             cls.key = next(iter(cls.validate.fields))
             cls.record_type = cls.validate.record_type
+            if cls.validate_override is None:
+                cls.validate_override = RecordVal([
+                    (field.name, field.validate, None)
+                    for field in cls.validate.fields.values()])
 
     @classmethod
     def enabled(cls):

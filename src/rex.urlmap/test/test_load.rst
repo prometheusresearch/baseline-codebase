@@ -228,6 +228,7 @@ Empty overrides are accepted::
 But ill-formed overrides are rejected::
 
     >>> sandbox.rewrite('/urlmap.yaml', """
+    ... include: ./urlmap/base.yaml
     ... paths:
     ...   /: !override []
     ... """)
@@ -237,6 +238,19 @@ But ill-formed overrides are rejected::
     Error: Expected a mapping
     Got:
         a sequence
+    ...
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... include: ./urlmap/base.yaml
+    ... paths:
+    ...   /: !override "scalar override"
+    ... """)
+    >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Expected a mapping
+    Got:
+        scalar override
     ...
 
 HTSQL queries and ports can be overriden too.  With HTSQL queries,
@@ -320,11 +334,15 @@ or a port or a query with template data::
     >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Detected invalid override of template:
+    Error: Got unexpected field:
+        port
+    While parsing:
+        "/.../urlmap.yaml", line 5
+    While processing override of template:
         /individual
-    Defined in:
-        "/.../urlmap.yaml", line 4
-    ...
+    While initializing RexDB application:
+        SandboxPackage()
+        rex.urlmap_demo
 
     >>> sandbox.rewrite('/urlmap.yaml', """
     ... include: ./urlmap/base.yaml
@@ -336,11 +354,15 @@ or a port or a query with template data::
     >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Detected invalid override of query:
+    Error: Got unexpected field:
+        context
+    While parsing:
+        "/.../urlmap.yaml", line 5
+    While processing override of query:
         /data/total
-    Defined in:
-        "/.../urlmap.yaml", line 4
-    ...
+    While initializing RexDB application:
+        SandboxPackage()
+        rex.urlmap_demo
 
     >>> sandbox.rewrite('/urlmap.yaml', """
     ... include: ./urlmap/base.yaml
@@ -352,11 +374,15 @@ or a port or a query with template data::
     >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Detected invalid override of port:
+    Error: Got unexpected field:
+        context
+    While parsing:
+        "/.../urlmap.yaml", line 5
+    While processing override of port:
         /data/individual
-    Defined in:
-        "/.../urlmap.yaml", line 4
-    ...
+    While initializing RexDB application:
+        SandboxPackage()
+        rex.urlmap_demo
 
 You can override the gateway database for queries and ports, but
 specifying an unknown gateway will raise an error::

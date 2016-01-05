@@ -1463,7 +1463,10 @@ class LiteralCode(Code):
         self.value = value
 
     def __basis__(self):
-        return (self.value, self.domain)
+        if not isinstance(self.value, (list, dict)):
+            return (self.value, self.domain)
+        else:
+            return (repr(self.value), self.domain)
 
     def __str__(self):
         # The actual value is often more helpful than the expression

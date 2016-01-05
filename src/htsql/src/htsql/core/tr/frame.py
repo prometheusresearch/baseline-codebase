@@ -424,7 +424,10 @@ class LiteralPhrase(Phrase):
         self.value = value
 
     def __basis__(self):
-        return (self.value, self.domain)
+        if not isinstance(self.value, (list, dict)):
+            return (self.value, self.domain)
+        else:
+            return (repr(self.value), self.domain)
 
 
 class NullPhrase(LiteralPhrase):

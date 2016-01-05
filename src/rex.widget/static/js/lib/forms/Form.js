@@ -297,8 +297,12 @@ let Form = React.createClass({
           .execute(valueToSubmit)
           .then(this.onSubmitComplete, this.onSubmitError);
       } else {
+        let prevValue = this.props.initialValue || this.props.value;
+        if (prevValue) {
+          prevValue = this.props.transformValueOnSubmit(prevValue);
+        }
         submitTo
-          .execute(valueToSubmit, this.props.initialValue || this.props.value)
+          .execute(valueToSubmit, prevValue)
           .then(this.onSubmitComplete, this.onSubmitError);
       }
     } else {

@@ -83,6 +83,8 @@ let EntityForm = React.createClass({
   transformValueOnSubmit(value) {
     if (this.props.transformValueOnSubmit) {
       return this.props.transformValueOnSubmit(value);
+    } else if (this.props.submitTo instanceof Mutation) {
+      return value[this.props.entity][0];
     } else if (!needExtract(this.props.submitTo)) {
       return value[this.props.entity][0];
     } else {

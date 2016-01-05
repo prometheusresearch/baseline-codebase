@@ -5,7 +5,8 @@
 import autobind             from 'autobind-decorator';
 import React                from 'react';
 import RexWidget            from 'rex-widget';
-import {Fetch}              from 'rex-widget/lib/data';
+import {Fetch}              from 'rex-widget/data';
+import {VBox}               from 'rex-widget/layout'
 import Action               from '../Action';
 import * as ObjectTemplate  from '../ObjectTemplate';
 import * as ContextUtils    from '../ContextUtils';
@@ -69,6 +70,7 @@ export default class EditCross extends React.Component {
       fetched.entity.data,
       ObjectTemplate.render(value, context)
     );
+    console.log(fetched.entity.data);
     return (
       <RexWidget.Forms.ConfigurableEntityForm
         ref="form"
@@ -76,7 +78,6 @@ export default class EditCross extends React.Component {
         submitTo={this.props.dataMutation}
         submitButton={null}
         onSubmitComplete={this._onSubmitComplete.bind(null, context[entity.name])}
-        initialValue={fetched.entity.data}
         value={value}
         entity={entity.type.name}
         fields={fields}

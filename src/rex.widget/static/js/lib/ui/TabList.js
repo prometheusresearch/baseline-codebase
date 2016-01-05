@@ -26,6 +26,8 @@ export default TabListBase.style({
     },
   },
   Button: {
+    fontWeight: 300,
+    fontSize: '90%',
     padding: 10,
     color: color,
     hover: {

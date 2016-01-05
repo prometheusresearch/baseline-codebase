@@ -2,5 +2,20 @@ project: rex.widget_demo
 debug: true
 parameters:
   db: pgsql:widget_demo
+  htsql_extensions:
+      rex_deploy:
+  access:
+      rex.widget_demo: anybody
+      rex.widget: anybody
   rex_widget:
-    chrome: rex.widget_demo.DemoChrome
+    chrome: rex.widget_demo.Chrome
+  rex_widget_demo:
+    menu:
+    - title: Home
+      href: rex.widget_demo:/
+    - title: Layout
+      href: rex.widget_demo:/layout
+    - title: UI
+      href: rex.widget_demo:/ui
+    - title: Forms
+      href: rex.widget_demo:/forms

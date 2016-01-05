@@ -4,5 +4,6 @@
 
 export {
   styleable as attach,
-  createStylesheet as create
+  createStylesheet as create,
+  styleComponent as apply,
 } from 'react-stylesheet';

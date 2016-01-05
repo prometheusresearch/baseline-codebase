@@ -1,5 +1,31 @@
 @import '~fixed-data-table/dist/fixed-data-table.css';
 
+.public_fixedDataTable_main {
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.public_fixedDataTableCell_main {
+  font-size: 90%;
+}
+
+.public_fixedDataTable_header .public_fixedDataTableCell_main {
+  font-weight: 400;
+  font-size: 85%;
+  background: #FFFFFF;
+}
+.public_fixedDataTable_header,
+.public_fixedDataTable_header .public_fixedDataTableCell_main {
+  background-image: none;
+  border-right-color: #FFF;
+}
+
+.public_fixedDataTable_header:hover,
+.public_fixedDataTable_header:hover .public_fixedDataTableCell_main {
+  border-right-color: #d3d3d3;
+}
+
 :local(.rowSelected) .public_fixedDataTableCell_main {
   background-color: #FFFCA3;
 }

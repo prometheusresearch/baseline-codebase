@@ -1,6 +1,0 @@
-db: pgsql:widget_demo
-htsql_extensions:
-    rex_deploy:
-access:
-    rex.widget_demo: anybody
-    rex.widget: anybody

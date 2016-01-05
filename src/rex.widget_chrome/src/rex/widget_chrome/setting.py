@@ -9,22 +9,6 @@ class ApplicationTitle(Setting):
     validate = StrVal()
 
 
-class Applets(Setting):
-    """Ordered list of applets displayed by application in navigation"""
-
-    name = 'applets'
-    default = None
-    validate = SeqVal()
-
-
-class AppletTitles(Setting):
-    """Customizable title per each applet."""
-
-    name = 'applet_titles'
-    default = {}
-    validate = MapVal(StrVal(), StrVal())
-
-
 class ApplicationLogoutUrl(Setting):
     """Logout URL to be used by application."""
 

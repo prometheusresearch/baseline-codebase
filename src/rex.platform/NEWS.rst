@@ -13,8 +13,8 @@
 * rex.widget==1.5.0
 * rex.action==0.8.0
 * rex.restful==1.1.0
-* HTSQL==2.3.3.20151202
-* HTSQL-PGSQL==2.3.3.20151202
+* HTSQL==2.3.3.20160105
+* HTSQL-PGSQL==2.3.3.20160105
 
 
 4.11.2 (2015-12-01)

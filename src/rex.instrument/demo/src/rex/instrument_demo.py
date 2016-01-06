@@ -5,7 +5,7 @@
 
 from datetime import datetime
 
-from rex.core import IntVal
+from rex.core import IntVal, AnyVal
 from rex.db import get_db
 
 from rex.instrument.interface import *
@@ -279,7 +279,7 @@ class DemoAssessment(Assessment):
         return [
             cls.BulkAssessment(
                 uid=unicode(d.uid),
-                data=d.data,
+                data=AnyVal().parse(d.data),
                 instrument_version_uid=unicode(d.iv),
             )
             for d in data

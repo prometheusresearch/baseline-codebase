@@ -158,8 +158,11 @@ class ChildTable(MappingTable):  # pylint: disable=abstract-method
                 self.name,
             )
             if len(name) > get_settings().mart_max_name_length:
+                name = name[:get_settings().mart_max_name_length - 3]
+                if name.endswith('_'):
+                    name = name[:-1]
                 name = '%s_%s' % (
-                    self.parent.table_name,
+                    name,
                     self.parent.get_child_index(),
                 )
             self._table_name = name

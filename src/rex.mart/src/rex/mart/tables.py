@@ -419,7 +419,12 @@ class PrimaryTable(MappingTable):
 
     def _add_selector_fields(self, selector, database, parental_fields=None):
         with database:
-            info = analyze(selector)
+            selector_params = {}
+            selector_params.update(selector['parameters'])
+            selector_params['INSTRUMENT'] = 'unknown'
+            selector_params['DEFINITION'] = 'unknown'
+            selector_params['OWNER'] = 'unknown'
+            info = analyze(selector['query'], **selector_params)
 
         selected_fields = []
         for field in info.meta.domain.item_domain.fields:

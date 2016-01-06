@@ -250,10 +250,18 @@ name
 selector
     This property specifies an HTSQL query that will be run in the Mart that
     will identify the UIDs of the Assessments that should be loaded into the
-    database. This query must return at least one column that is named
-    ``assessment_uid`` (which is where the UIDs should be). Any other columns
-    returned by this query will automatically be appened to the base Assessment
-    table. This property is required.
+    database. This property is required. It must either be a string containing
+    the query, or a mapping that accepts two properties:
+
+    * query: The HTSQL query. This property is required.
+    * parameters: This property is a mapping that allows you to specify
+      variables that will be made available to your query. Regardless of what
+      is specified in this property, your query will always have access to
+      three variables: ``OWNER``, ``DEFINITION``, and ``INSTRUMENT``.
+
+    The query must return at least one column that is named ``assessment_uid``
+    (which is where the UIDs should be). Any other columns returned by this
+    query will automatically be appened to the base Assessment table.
 
 parental_relationship
     This property is mapping that describes how to relate the base Assessment

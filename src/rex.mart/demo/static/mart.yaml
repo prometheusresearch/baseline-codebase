@@ -136,13 +136,14 @@ definitions:
         type: htsql
     assessments:
       - instrument: mart1
-        selector: |
-          /assessment{
-            id() :as assessment_uid,
-            subject.id() :as subject
-          }.filter(
-            instrumentversion.instrument='mart1'
-          )/:rexdb
+        selector:
+          query: |
+            /assessment{
+              id() :as assessment_uid,
+              subject.id() :as subject
+            }.filter(
+              instrumentversion.instrument=$INSTRUMENT
+            )/:rexdb
         parental_relationship:
           type: branch
           parent: subject

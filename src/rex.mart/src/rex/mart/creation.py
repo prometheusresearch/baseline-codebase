@@ -362,6 +362,17 @@ class MartCreator(object):
         with guarded('While Deploying structures'):
             self._do_deploy(self.definition['deploy'])
 
+    def get_query_params(self, params=None):
+        query_params = {}
+
+        if params:
+            query_params.update(params)
+
+        query_params['OWNER'] = self.owner
+        query_params['DEFINITION'] = self.definition['id']
+
+        return query_params
+
     def execute_etl(self, scripts):
         if not scripts:
             return
@@ -375,24 +386,21 @@ class MartCreator(object):
                 idx_label,
             ))
 
-            parameters = {}
-            parameters.update(script['parameters'])
-            parameters['OWNER'] = self.owner
-            parameters['DEFINITION'] = self.definition['id']
+            params = self.get_query_params(script['parameters'])
 
             if script['type'] == 'htsql':
                 statements = extract_htsql_statements(script['script'])
                 with guarded('While executing HTSQL script:', idx_label):
                     for statement in statements:
                         with guarded('While executing statement:', statement):
-                            self.database.produce(statement, **parameters)
+                            self.database.produce(statement, **params)
 
             elif script['type'] == 'sql':
                 with guarded('While executing SQL script:', idx_label):
                     with get_sql_connection(self.database) as sql:
                         cursor = sql.cursor()
                         try:
-                            cursor.execute(script['script'], parameters)
+                            cursor.execute(script['script'], params)
                         finally:
                             cursor.close()
 
@@ -411,7 +419,8 @@ class MartCreator(object):
 
             with guarded('While processing Assessment:', idx_label):
                 self.connect_mart()
-                loader = AssessmentLoader(assessment, self.database)
+                params = self.get_query_params()
+                loader = AssessmentLoader(assessment, self.database, params)
 
                 with guarded('While deploying Assessment structures'):
                     self.log('...deploying structures')

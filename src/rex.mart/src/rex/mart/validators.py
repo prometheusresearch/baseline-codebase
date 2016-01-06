@@ -353,6 +353,54 @@ class MetadataFieldVal(OneOfVal):
         return value
 
 
+class SelectorVal(FullyValidatingRecordVal):
+    """
+    Parses/Validates an Assessment selector.
+    """
+
+    def __init__(self):
+        super(SelectorVal, self).__init__(
+            # The HTSQL query
+            ('query', StrippedStrVal()),
+
+            # Parameters to pass into this query
+            ('parameters', MapVal(), {}),
+        )
+
+    def __call__(self, data):
+        value = super(SelectorVal, self).__call__(data)
+
+        with guard('While validating field:', 'query'):
+            with guard('Got:', repr(value.query)):
+                if len(value.query) == 0:
+                    raise Error('Selector querys cannot be empty')
+
+        return value
+
+
+class AlternateSelectorVal(OneOfVal):
+    """
+    Parses/Validates an Assessment selector.
+    """
+
+    def __init__(self):
+        super(AlternateSelectorVal, self).__init__(
+            StrippedStrVal(),
+            SelectorVal(),
+        )
+
+    def __call__(self, data):
+        value = super(AlternateSelectorVal, self).__call__(data)
+
+        if isinstance(value, basestring):
+            value = SelectorVal()({
+                'query': value,
+                'parameters': {},
+            })
+
+        return value
+
+
 class PostLoadCalculationsVal(FullyValidatingRecordVal):
     """
     Parses/Validates the configuration of a post-load Assessment Calculation.
@@ -384,10 +432,10 @@ class AssessmentDefinitionVal(FullyValidatingRecordVal):
             # The name of the table to store the Assessments in.
             ('name', StrippedStrVal(RESTR_SAFE_TOKEN), None),
 
-            # The HTSQL statement that will require the assessment_uid of the
+            # The HTSQL query that will require the assessment_uid of the
             # Assessments to load into the table, as well as any other fields
             # to augment the table with.
-            ('selector', StrippedStrVal),
+            ('selector', AlternateSelectorVal),
 
             # Defines how/if this table is parented to another.
             (

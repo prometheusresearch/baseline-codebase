@@ -15,8 +15,9 @@ __all__ = (
 
 
 class AssessmentLoader(object):
-    def __init__(self, definition, database):
+    def __init__(self, definition, database, parameters=None):
         self.definition = definition
+        self.parameters = parameters or {}
         self.mapping = PrimaryTable(self.definition, database)
 
     def get_deploy_facts(self):
@@ -26,7 +27,15 @@ class AssessmentLoader(object):
         assessment_impl = Assessment.get_implementation()
 
         num_assessments = 0
-        selected = database.produce(self.definition['selector'])
+        selector_params = {}
+        selector_params.update(self.definition['selector']['parameters'])
+        selector_params.update(self.parameters)
+        selector_params['INSTRUMENT'] = self.definition['instrument']
+        selected = database.produce(
+            self.definition['selector']['query'],
+            **selector_params
+        )
+
         for i in range(0, len(selected), 100):
             # Retrieve a batch of Assessments from the datastore
             selected_value_map = dict([

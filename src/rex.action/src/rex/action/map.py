@@ -67,8 +67,7 @@ class ActionRenderer(object):
     def validate(self):
         # We force computed property so that action is instantiated and
         # validated.
-        #self.action.typecheck()
-        pass
+        self.action.typecheck()
 
     def __call__(self, request):
         if not authorize(request, self.access):

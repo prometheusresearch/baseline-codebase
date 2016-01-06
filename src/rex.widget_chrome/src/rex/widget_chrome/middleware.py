@@ -23,11 +23,11 @@ class SignupRedirect(Pipe):
             profile_url += ('?' if '?' not in profile_url else '&') \
                            + 'return_to=' + quote(root_url)
             query = get_settings().username_query
-            with get_db():
+            with get_db().isolate():
                 username = Query(query).produce().data
             if root_url == req.url \
             and query != UsernameQuery.default \
-            and username == user:
+            and (username == user or username is None):
                 return Response(status=302, location=profile_url)
         return self.handle(req)
 

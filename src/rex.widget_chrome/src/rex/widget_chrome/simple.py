@@ -51,7 +51,7 @@ class SimpleChrome(Chrome):
     def username(self, request):
         query = get_settings().username_query
         with get_db():
-            return Query(query).produce().data
+            return Query(query).produce().data or request.remote_user
 
     @computed_field
     def user_profile_url(self, request):

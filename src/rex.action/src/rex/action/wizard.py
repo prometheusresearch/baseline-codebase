@@ -118,9 +118,11 @@ class WizardWidgetBase(Widget):
 
         def refetch(entity, params=None):
             params = params or {}
-            params_defs = [param_def(name) for name in params]
+            params_defs = [param_def(name) for name in params
+                           if not name.lower() == 'user']
             params_bind = {k: v.id if is_entity(v) else v
-                           for k, v in params.items()}
+                           for k, v in params.items()
+                           if not k.lower() == 'user'}
             port = Port(params_defs + [{'entity': entity.type, 'select': []}])
             port = typing.annotate_port(self.states, port)
             product = port.produce((u'*', entity.id), **params_bind)
@@ -365,7 +367,7 @@ def resolve_action_reference(ref, actions=None, package=None, domain=None):
                 'Action reference resolves to handler of a non-action type:',
                 global_ref)
         else:
-            action = handler.action.__clone__(id=ref.id)
+            action = handler.action.__validated_clone__(id=ref.id)
 
         if global_ref.query:
             refine = {name: domain[type] for name, type in global_ref.query.items()}
@@ -388,7 +390,7 @@ class WizardBase(WizardWidgetBase, ActionBase):
                 return inst
             action_instance = inst.action_instance.with_domain(domain)
             return inst.__clone__(action_instance=action_instance)
-        wizard = self.__clone__(__domain=domain)
+        wizard = self.__validated_clone__(__domain=domain)
         wizard.path = map_instruction(wizard.path, _map)
         return wizard
 
@@ -397,7 +399,7 @@ class WizardBase(WizardWidgetBase, ActionBase):
             inst.__clone__(action_instance=inst.action_instance.refine_input(input))
             for inst in self.path.then
         ])
-        return self.__clone__(path=path)
+        return self.__validated_clone__(path=path)
 
 
 class Wizard(WizardBase):

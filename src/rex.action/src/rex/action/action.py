@@ -91,7 +91,7 @@ class ActionBase(Widget):
     def domain(self):
         return self._domain
 
-    def __clone__(self, **values):
+    def _clone_values(self, values):
         next_values = {}
         next_values.update({
             k: v
@@ -104,16 +104,22 @@ class ActionBase(Widget):
             next_values.update({'__domain': self.domain})
         if '__context_types' not in next_values:
             next_values.update({'__context_types': self.context_types})
-        return self.__class__(**next_values)
+        return next_values
+
+    def __clone__(self, **values):
+        return self.__class__(**self._clone_values(values))
+
+    def __validated_clone__(self, **values):
+        return self.validated(**self._clone_values(values))
 
     def with_domain(self, domain):
         """ Override typing domain."""
-        return self.__clone__(__domain=domain)
+        return self.__validated_clone__(__domain=domain)
 
     def refine_input(self, input):
         input = self.context_types.input.refine(input)
         context_types = self.context_types.__clone__(input=input)
-        return self.__clone__(__context_types=context_types)
+        return self.__validated_clone__(__context_types=context_types)
 
     @cached_property
     def context_types(self):

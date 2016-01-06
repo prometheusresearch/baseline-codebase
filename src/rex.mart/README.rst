@@ -486,7 +486,82 @@ TBD
 Web APIs
 ========
 
-TBD
+The ``rex.mart`` package exposes a collection of RESTful APIs as well as HTSQL
+endpoints that allow web-based applications to access and operate on Marts in
+the system.
+
+/definition
+-----------
+
+A GET will retrieve a collection listing all Definitions the calling user has
+access to.
+
+/definition/{definition_id}
+---------------------------
+
+A GET will retrieve details about the specified Definition, as well as a list
+of Marts that were created with that Definition that the user has access to.
+
+A POST will request that a Mart be created using the specified Definition. The
+POST body allows an object with two optional parameters:
+
+* purge_on_failure: Whether or not to purge the remnants of the Mart if
+  creation fails at any point. Defaults to ``true``.
+* leave_incomplete: Whether or not to leave the status of the Mart as not
+  "complete" when the creation has actually completed. Defaults to ``false``.
+
+/definition/{definition_id}/{latest_or_index}
+---------------------------------------------
+
+An HTSQL endpoint that is connected to the Mart described by the path
+parameters:
+
+* definition_id: The ID of the Definition that was used to create the Mart
+* latest_or_index: Either the literal string "latest" which indicates that you
+  want to access to most recent Mart created with this Definition; or, a
+  positive integer that serves as a reverse index into the list of Marts
+  created with this Definition, where 1 is the most recent Mart, 2 is the next
+  most recent, and so on.
+
+/definition/{definition_id}/{latest_or_index}/_api
+--------------------------------------------------
+
+A GET will retrieve details about the specified Mart.
+
+A PUT will allow you to update properties of the specified Mart. The PUT body
+allows an object with one parameter:
+
+* pinned: Indicates whether or not the specified Mart should be marked as
+  "pinned".
+
+A DELETE will purge the specified Mart from the system.
+
+The "specified Mart" is selected following the same rules as the
+``/definition/{definition_id}/{latest_or_index}`` endpoint.
+
+/mart
+-----
+
+A GET will retrieve a collection listing all Marts the calling user has access
+to.
+
+/mart/{mart_id}
+---------------
+
+An HTSQL endpoint that is connected to the specified Mart.
+
+/mart/{mart_id}/_api
+--------------------
+
+A GET will retrieve details about the specified Mart.
+
+A PUT will allow you to update properties of the specified Mart. The PUT body
+allows an object with one parameter:
+
+* pinned: Indicates whether or not the specified Mart should be marked as
+  "pinned".
+
+A DELETE will purge the specified Mart from the system.
 
 
 Customization

@@ -73,12 +73,15 @@ class MartCreator(object):
         :type definition: str
         """
 
-        self.owner = owner or None
+        self.owner = owner
         self.start_date = None
         self.code = None
         self.name = None
         self.database = None
         self.logger = None
+
+        if not self.owner:
+            raise Error('No owner specified')
 
         self.definition = get_definition(definition)
         if not self.definition:

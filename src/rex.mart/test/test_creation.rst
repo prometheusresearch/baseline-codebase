@@ -347,6 +347,18 @@ done::
     Dates: True True
 
 
+It complains if you don't specify an owner::
+
+    >>> mc = MartCreator(None, 'some_data')
+    Traceback (most recent call last):
+        ...
+    Error: No owner specified
+
+    >>> mc = MartCreator('', 'some_data')
+    Traceback (most recent call last):
+        ...
+    Error: No owner specified
+
 It complains if you specify a definition that doesn't exist::
 
     >>> mc = MartCreator('test', 'doesntexist')

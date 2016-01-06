@@ -8,6 +8,9 @@ __all__ = (
 )
 
 
+# pylint: disable=wrong-import-position
+
+
 try:
     from rex.asynctask import AsyncTaskWorker
 except ImportError:  # pragma: no cover

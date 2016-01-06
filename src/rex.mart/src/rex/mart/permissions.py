@@ -22,6 +22,10 @@ class MartAccessPermissions(Extension):
     """
 
     @classmethod
+    def signature(cls):
+        return 'mart'
+
+    @classmethod
     def user_can_access_mart(cls, user, mart_or_id):
         """
         Identifies whether or not a user can access a Mart.

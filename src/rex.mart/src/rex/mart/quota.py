@@ -29,6 +29,10 @@ class MartQuota(Extension):
     """
 
     @classmethod
+    def signature(cls):
+        return 'mart'
+
+    @classmethod
     def get_mart_counts(cls, owner, definition_id=None):
         """
         Returns a collection of Mart tallies:

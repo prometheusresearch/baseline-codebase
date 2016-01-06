@@ -31,6 +31,7 @@ pylint:
     max-args: 10
     max-attributes: 20
     max-parents: 10
+    max-locals: 20
 
 pyflakes:
   disable:

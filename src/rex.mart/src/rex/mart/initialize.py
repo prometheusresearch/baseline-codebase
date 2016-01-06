@@ -18,6 +18,10 @@ class MartInitialize(Initialize):
     Initializes the rex.mart package and validates all configurations.
     """
 
+    @classmethod
+    def signature(cls):
+        return 'mart'
+
     def __call__(self):
         # Load all the definitions and cache them.
         get_all_definitions()

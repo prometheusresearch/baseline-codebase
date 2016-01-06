@@ -3,7 +3,6 @@
 #
 
 
-from rex.core import AnyVal
 from rex.instrument import Assessment
 
 from .tables import PrimaryTable

@@ -7,12 +7,13 @@ import urllib
 
 from functools import partial
 
+from webob.exc import HTTPUnauthorized, HTTPNotFound, HTTPMethodNotAllowed, \
+    HTTPForbidden
+
 from rex.core import IntVal, StrVal, OneOfVal, RecordVal, BoolVal, Error, \
     get_settings
 from rex.restful import RestfulLocation
 from rex.web import HandleLocation, authenticate, Parameter
-from webob.exc import HTTPUnauthorized, HTTPNotFound, HTTPMethodNotAllowed, \
-    HTTPForbidden
 
 from .config import get_definition
 from .connections import get_mart_db
@@ -30,7 +31,7 @@ __all__ = (
 )
 
 
-# pylint: disable=unused-argument,no-self-use
+# pylint: disable=unused-argument,no-self-use,abstract-method
 
 
 class MartResource(RestfulLocation):

@@ -186,7 +186,7 @@ class MartCreator(object):
                 if self.code and purge_on_failure:
                     try:
                         purge_mart(self.code)
-                    except:  # pylint: disable=pointless-except,bare-except
+                    except:  # pylint: disable=bare-except
                         # Be quiet so the original exception can raised
                         pass
                 raise exc_info[0], exc_info[1], exc_info[2]

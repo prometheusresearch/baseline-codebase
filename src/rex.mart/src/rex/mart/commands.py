@@ -18,6 +18,7 @@ from rex.web import HandleLocation, authenticate, Parameter
 from .config import get_definition
 from .connections import get_mart_db
 from .permissions import MartAccessPermissions
+from .quota import MartQuota
 
 
 __all__ = (
@@ -111,7 +112,14 @@ class DefinitionDetailResource(RestfulLocation):
                 definition_id):
             raise HTTPUnauthorized
         if not get_settings().mart_allow_runtime_creation:
-            raise HTTPForbidden()
+            raise HTTPForbidden('Runtime Mart creation is not allowed')
+
+        definition = get_definition(definition_id)
+        if not MartQuota.top().can_create_mart(user, definition):
+            raise HTTPForbidden(
+                'Creating a Mart of this Definition would violate your'
+                ' Quota'
+            )
 
         payload = request.payload._asdict()
         payload['owner'] = user

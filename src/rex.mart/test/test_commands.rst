@@ -127,6 +127,12 @@ If enabled, this API will submit asynchronous tasks to initiate Mart creation::
     <BLANKLINE>
     {"purge_on_failure": true, "leave_incomplete": false, "owner": "cmdtest", "definition": "some_data"}
 
+    >>> req = Request.blank('/definition/some_more_data', remote_user='cmdtest', method='POST')
+    >>> req.headers['Content-Type'] = 'application/json'
+    >>> print req.get_response(rex2)  # doctest: +ELLIPSIS
+    403 Forbidden
+    ...
+
     >>> rex2.off()
     >>> rex.on()
 

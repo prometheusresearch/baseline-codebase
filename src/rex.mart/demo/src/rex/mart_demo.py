@@ -1,4 +1,4 @@
-from rex.mart import MartAccessPermissions, Mart
+from rex.mart import MartAccessPermissions, Mart, MartQuota
 
 
 class DemoMartAccessPermissions(MartAccessPermissions):
@@ -19,4 +19,12 @@ class DemoMartAccessPermissions(MartAccessPermissions):
             if not mart_or_id:
                 return False
         return mart_or_id.definition_id == 'some_data'
+
+
+class DemoMartQuota(MartQuota):
+    @classmethod
+    def can_create_mart(cls, owner, definition):
+        if owner == 'cmdtest' and definition['id'] == 'some_more_data':
+            return False
+        return MartQuota.can_create_mart(owner, definition)
 

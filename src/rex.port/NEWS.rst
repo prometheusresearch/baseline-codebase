@@ -5,10 +5,11 @@
 .. contents:: Table of Contents
 
 
-1.1.2 (2015-12-XX)
+1.2.0 (2016-XX-XX)
 ==================
 
 * Another fix for global parameters.
+* Allow direct links as entities.
 
 
 1.1.1 (2015-11-20)

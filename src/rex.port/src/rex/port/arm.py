@@ -232,6 +232,17 @@ class FacetArm(TableArm):
         super(FacetArm, self).__init__(arc, arms, mask, filters, parameters)
 
 
+class JoinArm(TableArm):
+
+    kind = 'join entity'
+
+    def __init__(self, join, arms, mask, filters, parameters={}):
+        assert isinstance(join, ChainArc) or isinstance(join, DirectJoin)
+        arc = join if isinstance(join, ChainArc) \
+              else ChainArc(join.origin, [join])
+        super(JoinArm, self).__init__(arc, arms, mask, filters, parameters)
+
+
 class ColumnArm(Arm):
 
     kind = 'column'

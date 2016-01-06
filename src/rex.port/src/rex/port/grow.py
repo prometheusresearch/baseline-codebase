@@ -7,8 +7,8 @@ from rex.core import (Validate, AnyVal, UStrVal, ProxyVal, SeqVal, OneOrSeqVal,
         RecordVal, UnionVal, OnScalar, OnField, Location, set_location, locate,
         Error, guard)
 from rex.db import get_db
-from .arm import (RootArm, TableArm, TrunkArm, BranchArm, FacetArm, ColumnArm,
-        LinkArm, SyntaxArm, Filter, Mask)
+from .arm import (RootArm, TableArm, TrunkArm, BranchArm, FacetArm, JoinArm,
+        ColumnArm, LinkArm, SyntaxArm, Filter, Mask)
 from htsql.core.error import Error as HTSQLError
 from htsql.core.model import (HomeNode, TableNode, TableArc, ChainArc,
         ColumnArc, SyntaxArc)
@@ -483,6 +483,11 @@ class GrowEntity(Grow):
                     arm_class = FacetArm
                 else:
                     arm_class = BranchArm
+            elif (isinstance(arm_arc, ChainArc) and
+                  len(arm_arc.joins) == 1 and
+                  arm_arc.joins[0].is_direct):
+                [join] = arm_arc.joins
+                arm_class = JoinArm
             else:
                 raise Error("Got unknown entity:", self.name)
             # Find columns and links.

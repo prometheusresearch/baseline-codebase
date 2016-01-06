@@ -4,8 +4,8 @@
 
 
 from rex.core import Extension, cached, Error, guard
-from .arm import (TableArm, TrunkArm, BranchArm, FacetArm, ColumnArm, LinkArm,
-        SyntaxArm)
+from .arm import (TableArm, TrunkArm, BranchArm, FacetArm, JoinArm, ColumnArm,
+        LinkArm, SyntaxArm)
 from .constraint import ConstraintSet, reserved_parameters
 from htsql.core.util import to_name
 from htsql.core.error import Error as HTSQLError
@@ -353,7 +353,7 @@ class NullCondition(Condition):
     # Implements `is_null`.
 
     operator = 'null'
-    kind = (FacetArm, ColumnArm, LinkArm, SyntaxArm)
+    kind = (FacetArm, JoinArm, ColumnArm, LinkArm, SyntaxArm)
 
     def __call__(self, binding, scope):
         if not self.arguments:

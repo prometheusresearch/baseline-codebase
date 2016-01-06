@@ -183,6 +183,24 @@ An entity may include other entities and calculated fields::
     - calculation: num_participation
       expression: count(participation)
 
+Regular links can also be used as nested entities::
+
+    >>> individual_port = Port("""
+    ... entity: individual
+    ... select: [code, sex]
+    ... with:
+    ... - mother
+    ... - father
+    ... """)
+    >>> print individual_port
+    entity: individual
+    select: [code, sex]
+    with:
+    - entity: mother
+      select: [code, sex, mother, father]
+    - entity: father
+      select: [code, sex, mother, father]
+
 One can also use path notation::
 
     >>> individual_port = Port("""

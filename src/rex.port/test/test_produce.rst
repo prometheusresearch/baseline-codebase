@@ -105,6 +105,23 @@ Nested entities are supported::
        ({[1000.(fos.mother).1], [fos.mother], '1'},)},
       ...)}
 
+Links can also serve as nested entities::
+
+    >>> individual_parents_port = Port("""
+    ... entity: individual
+    ... select: [code, sex]
+    ... with:
+    ... - entity: mother
+    ...   select: [code, sex]
+    ... - entity: father
+    ...   select: [code, sex]
+    ... """)
+    >>> print individual_parents_port.produce() # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    {({[1000], '1000', 'female', null, null},
+      {[1001], '1001', 'male', null, null},
+      {[1002], '1002', 'female', {[1000], '1000', 'female'}, {[1001], '1001', 'male'}},
+      ...)}
+
 An entity may have an unconditional filter::
 
     >>> father_port = Port("individual?exists(individual_via_father)")
@@ -259,6 +276,11 @@ A constraint on a nested singular entity is applied to the containing record::
       {[1046], '1046', 'male', [1042], [1045],
        {[1046], 'Oscar', 'Argenbright', '1971-06-06'},
        ({[1046.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)})}
+
+    >>> print individual_parents_port.produce("individual.mother.code=1000")        # doctest: +NORMALIZE_WHITESPACE
+    {({[1002], '1002', 'female', {[1000], '1000', 'female'}, {[1001], '1001', 'male'}},
+      {[1003], '1003', 'male', {[1000], '1000', 'female'}, {[1001], '1001', 'male'}},
+      {[1004], '1004', 'male', {[1000], '1000', 'female'}, {[1001], '1001', 'male'}})}
 
 However a constraint on a nested plural entity is applied to itself::
 
@@ -447,7 +469,7 @@ branch entities::
     Traceback (most recent call last):
       ...
     Error: Got unexpected arm type:
-        expected facet entity, column, link or calculation; got branch entity
+        expected facet entity, join entity, column, link or calculation; got branch entity
     While applying constraint:
         individual.participation:null
 

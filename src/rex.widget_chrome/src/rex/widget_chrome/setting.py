@@ -95,7 +95,7 @@ class PersonalMenuLinks(Setting):
         ('url', StrVal()),
     ))
 
-class UsernameExpression(Setting):
+class UsernameQuery(Setting):
     """
     HTSQL query to get the user name.
     Supposed to return the displayable name of the currently logged user.

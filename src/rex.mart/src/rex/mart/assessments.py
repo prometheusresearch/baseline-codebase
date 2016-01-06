@@ -40,7 +40,7 @@ class AssessmentLoader(object):
             for assessment in assessments:
                 # Map the Assessment into a series of HTSQL statements
                 statements = self.mapping.get_statements_for_assessment(
-                    AnyVal().parse(assessment.data),
+                    assessment.data,
                     assessment.instrument_version_uid,
                     selected_value_map[assessment.uid],
                 )

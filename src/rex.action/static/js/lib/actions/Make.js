@@ -94,6 +94,7 @@ export default class Make extends React.Component {
     var key = this.state.key + 1;
     this.setState({key});
     this.props.onCommand('default', data);
+    this.props.refetch();
   }
 
   static getTitle(props) {

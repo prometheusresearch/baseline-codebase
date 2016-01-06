@@ -3,9 +3,9 @@ Wizard
 
 ::
 
+  >>> import json
+  >>> from webob import Request
   >>> from rex.core import Rex
-  >>> rex = Rex('-')
-  >>> rex.on()
 
 ::
 
@@ -50,6 +50,10 @@ Wizard
   ...
   ...   def context(self):
   ...     return self.domain.record(), self.domain.record(x='x')
+
+  >>> rex = Rex('-', 'rex.action_demo')
+  >>> rex.on()
+
 
 ::
 
@@ -114,7 +118,7 @@ Wizard
   ... """)
 
   >>> from rex.widget import encode
-  >>> encode(w, None) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  >>> encode(w, Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   u'["~#widget", ["rex-action/lib/single-page/Wizard", ...]]'
 
 ::
@@ -154,7 +158,7 @@ Wizard
   ...   individual:
   ...     recruited:
   ...       title: Recruited individuals
-  ...       expression: exist(study_enrollment.individual = id())
+  ...       expression: exists(study_enrollment.individual = id())
   ... """) # doctest: +NORMALIZE_WHITESPACE
 
   >>> w.states
@@ -164,7 +168,53 @@ Wizard
   EntityType(name='individual',
              state=EntityTypeState(name='recruited',
                                    title='Recruited individuals',
-                                   expression='exist(study_enrollment.individual = id())',                                    input=None))
+                                   expression='exists(study_enrollment.individual = id())',                                    input=None))
+
+Context refetch::
+
+  >>> w = Wizard.parse("""
+  ... id: wizard
+  ... path:
+  ... - first:
+  ...   - second:
+  ... actions:
+  ...   first:
+  ...     type: wmy
+  ...   second:
+  ...     type: wanother
+  ... states:
+  ...   individual:
+  ...     recruited:
+  ...       title: Recruited individuals
+  ...       expression: exists(study_enrollment.individual = id())
+  ... """)
+
+  >>> refetch = lambda ctx: w.data.respond(Request.blank('/', body=json.dumps(ctx)))
+
+  >>> print refetch({}) # doctest: +ELLIPSIS
+  200 OK
+  Content-Type: application/json; charset=UTF-8
+  Content-Length: ...
+  <BLANKLINE>
+  {}
+
+  >>> print refetch({'x': {'y': '34'}}) # doctest: +ELLIPSIS
+  200 OK
+  Content-Type: application/json; charset=UTF-8
+  Content-Length: ...
+  <BLANKLINE>
+  {"x":{"y":"34"}}
+
+  >>> print refetch({
+  ...   'x': {
+  ...     'y': {'type': 'individual', 'id': 'C49Z4843'}
+  ...   }
+  ... }) # doctest: +ELLIPSIS
+  200 OK
+  Content-Type: application/json; charset=UTF-8
+  Content-Length: 107
+  <BLANKLINE>
+  {"x":{"y":{"meta:title":"C49Z4843","id":"C49Z4843","meta:type":"individual","meta:state:recruited":false}}}
 
 ::
 

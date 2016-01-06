@@ -8,10 +8,12 @@ import {createLocation} from 'history';
 import createHistory from 'history/lib/createHashHistory';
 import React from 'react';
 
+import {post} from 'rex-widget/lib/fetch'
 import * as Stylesheet from 'rex-widget/stylesheet';
 import {VBox, HBox} from 'rex-widget/layout';
 
 import Graph from '../execution/Graph';
+import {isEntity, getEntityType} from '../Entity';
 import * as GraphPath from '../GraphPath';
 import * as Command from '../execution/Command';
 import Sidebar from './Sidebar';
@@ -66,6 +68,7 @@ export default class Wizard extends React.Component {
       onCommand: this._onCommand.bind(null, graph.node),
       onContext: this._onContext.bind(null, graph.node),
       onEntityUpdate: this._onEntityUpdate,
+      refetch: this._refetch,
     });
     let {ActionPanel} = this.stylesheet;
     return (
@@ -107,6 +110,44 @@ export default class Wizard extends React.Component {
     }
     this._history = null;
     this._historyStopListen = null;
+  }
+
+  @autobind
+  _refetch() {
+    let graph = this.state.graph;
+    let data = {};
+    graph.trace.forEach(node => {
+      data[node.keyPath] = {};
+      Object.keys(node.context).forEach(key => {
+        let value = node.context[key];
+        data[node.keyPath][key] = isEntity(value) ?
+          {id: value.id, type: getEntityType(value)} :
+          value;
+      });
+    });
+    post(this.props.data, null, JSON.stringify(data))
+      .then(this._onRefetchComplete, this._onRefetchError);
+  }
+
+  @autobind
+  _onRefetchComplete(data) {
+    let trace = [];
+    for (let i = 0; i < this.state.graph.trace.length; i++) {
+      let node = this.state.graph.trace[i];
+      node = node.setContext(data[node.keyPath]);
+      if (!node.isAllowed) {
+        break;
+      }
+      trace.push(node);
+    }
+    let graph = new Graph(trace);
+    graph = graph.advance();
+    this.setState({graph});
+  }
+
+  @autobind
+  _onRefetchError(err) {
+    console.error(err);
   }
 
   @autobind

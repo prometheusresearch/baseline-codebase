@@ -70,7 +70,7 @@ export default class EditCross extends React.Component {
       fetched.entity.data,
       ObjectTemplate.render(value, context)
     );
-    console.log(fetched.entity.data);
+
     return (
       <RexWidget.Forms.ConfigurableEntityForm
         ref="form"

@@ -13,15 +13,19 @@
 import urlparse
 import cgi
 
+from webob import Response
 from cached_property import cached_property
 
 from rex.core import (
     Record,
     Validate, Error, get_settings, locate, guard,
+    OneOfVal, RecordVal, IntVal, MaybeVal,
     AnyVal, StrVal, MapVal, SeqVal, StrVal, RecordVal, ChoiceVal)
-from rex.widget import Widget, Field
+from rex.widget import Widget, Field, responder
 from rex.widget.validate import DeferredVal, Deferred
+from rex.widget.util import product_to_pojo
 from rex.web import route
+from rex.port import Port
 
 from .instruction import (
     Start, Execute, Repeat, Replace,
@@ -35,6 +39,24 @@ from .validate import (
 from . import typing
 
 __all__ = ('Wizard', 'WizardBase', 'WizardWidgetBase')
+
+
+validate_entity = RecordVal(
+    ('type', StrVal()),
+    ('id', StrVal()))
+
+validate_context = MapVal(
+    StrVal(),
+    OneOfVal(MaybeVal(StrVal()), MaybeVal(IntVal()), validate_entity))
+
+validate_req = MapVal(
+    StrVal(),
+    validate_context)
+
+
+def is_entity(obj):
+    """ Check if ``obj`` is being an entity."""
+    return isinstance(obj, validate_entity.record_type)
 
 
 class WizardWidgetBase(Widget):
@@ -84,6 +106,40 @@ class WizardWidgetBase(Widget):
         )
         self.states = self.domain.merge(action.domain)
         return action
+
+    @responder
+    def data(self, req):
+
+        def is_entity(v):
+            return isinstance(v, validate_entity.record_type)
+
+        def param_def(name):
+            return {'parameter': name, 'default': None}
+
+        def refetch(entity, params=None):
+            params = params or {}
+            params_defs = [param_def(name) for name in params]
+            params_bind = {k: v.id if is_entity(v) else v
+                           for k, v in params.items()}
+            port = Port(params_defs + [{'entity': entity.type, 'select': []}])
+            port = typing.annotate_port(self.states, port)
+            product = port.produce((u'*', entity.id), **params_bind)
+            data = product_to_pojo(product)[entity.type]
+            return data[0] if data else None
+
+        data = validate_req(req.json_body)
+
+        update = {}
+        for id, context in data.items():
+            next_context = {}
+            for k, v in context.items():
+                if is_entity(v):
+                    next_context[k] = refetch(v, params=context)
+                else:
+                    next_context[k] = v
+            update[id] = next_context
+
+        return Response(json=update)
 
     @property
     def domain(self):

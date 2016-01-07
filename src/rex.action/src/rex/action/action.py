@@ -239,6 +239,9 @@ class ActionVal(Validate):
         if not issubclass(action_class, self.action_class):
             raise Error('action must be an instance of:', self.action_class)
         value = {k: v for (k, v) in value.items() if k != 'type'}
-        return action_class(package=self.package, **value)
+        validate = WidgetVal(package=self.package, widget_class=action_class).validate_values
+        value = validate(action_class, value)
+        value['package'] = self.package
+        return action_class._configuration(action_class, value)
 
 

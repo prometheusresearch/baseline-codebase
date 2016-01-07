@@ -30,7 +30,7 @@ class _EntityAction(Action):
     """ Base class for actions which operate on an entity."""
 
     # Factory for dataspec.
-    # 
+    #
     # By default it is set to :class:`rex.widget.dataspec.EntitySpec` but
     # subclasses may override this to implement actions which work on #:
     # collections (:class:`rex.widget.dataspec.CollectionSpec`) or any other
@@ -63,6 +63,16 @@ class _EntityAction(Action):
         """)
 
     class Configuration(Action.Configuration):
+
+        def override(self, action, values):
+            fields = values['fields']
+            input = values.get('input') or action.input
+            parameters = {k: None for k in input.rows.keys()}
+            with PortSupport.parameters(parameters):
+                if fields and isinstance(fields, Deferred):
+                    fields = fields.resolve()
+            values['fields'] = fields
+            return action.__validated_clone__(**values)
 
         def __call__(self, action_class, values):
             entity = values['entity']

@@ -100,7 +100,7 @@ class ActionRenderer(object):
             action_id = '%s:%s' % (self.package.name, self.path)
             action = self._action.resolve(ActionVal(package=self.package, id=action_id))
             if self.override:
-                action = action.override(self.override)
+                action = action._configuration._apply_override(action, self.override)
             return action
         else:
             return self._action

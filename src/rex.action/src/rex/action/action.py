@@ -52,7 +52,6 @@ class ContextTypes(TransitionableRecord):
     fields = ('input', 'output')
 
 
-_no_override_sentinel = object()
 
 
 class ActionBase(Widget):
@@ -90,30 +89,6 @@ class ActionBase(Widget):
         self._domain = values.pop('__domain', typing.Domain.current())
         self._context_types = values.pop('__context_types', None)
         super(ActionBase, self).__init__(**values)
-
-    def override(self, override):
-        if isinstance(override, basestring):
-            override = self.validate_override.parse(override)
-        elif isinstance(override, Deferred):
-            override = override.resolve(self.validate_override)
-        else:
-            override = self.validate_override(override)
-        return self.apply_override(override)
-
-    @cached_property
-    def validate_override(self):
-        fields = [
-            (name, field.validate, _no_override_sentinel)
-            for name, field in self._fields.items()
-            if isinstance(field, Field) and name not in ('id',)
-        ]
-        validate = RecordVal(fields)
-        return validate
-
-    def apply_override(self, override):
-        override = {k: v for k, v in override._asdict().items()
-                         if v is not _no_override_sentinel}
-        return self.__clone__(**override)
 
     @property
     def domain(self):
@@ -188,6 +163,33 @@ class ActionBase(Widget):
 
 
 class Action(ActionBase):
+
+    class Configuration(ActionBase.Configuration):
+
+        _no_override_sentinel = object()
+
+        @cached_property
+        def _override_validator(self):
+            fields = [
+                (field.name, field.validate, self._no_override_sentinel)
+                for field in self.fields.values()
+                if field.name not in ('id',)
+            ]
+            return RecordVal(fields)
+
+        def _apply_override(self, action, override):
+            if isinstance(override, basestring):
+                override = self._override_validator.parse(override)
+            elif isinstance(override, Deferred):
+                override = override.resolve(self._override_validator)
+            else:
+                override = self._override_validator(override)
+            override = {k: v for k, v in override._asdict().items()
+                        if v is not self._no_override_sentinel}
+            return self.override(action, override)
+
+        def override(self, action, override):
+            return action.__validated_clone__(**override)
 
     def typecheck(self, context_type=None):
         if context_type is None:

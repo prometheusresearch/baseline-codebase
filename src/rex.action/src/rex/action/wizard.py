@@ -27,7 +27,7 @@ from rex.widget.util import product_to_pojo
 from rex.web import route
 from rex.port import Port
 
-from .action import ActionBase
+from .action import ActionBase, ActionVal
 from .validate import (
     DomainVal,
     ActionMapVal,
@@ -380,15 +380,29 @@ def resolve_action_reference(ref, actions=None, package=None, domain=None):
 class WizardBase(WizardWidgetBase, ActionBase):
     """ Base class for wizards."""
 
-    def override(self, override):
-        actions = dict(self.actions)
-        for k, v in override.items():
-            if not k in actions:
-                raise Error('Unknown action override:', k)
-            for v in v:
-                actions[k] = actions[k].override(v)
-        path = instruction.override(self.path, actions)
-        return self.__validated_clone__(path=path, actions=actions)
+    class Configuration(ActionBase.Configuration):
+
+        _no_override_sentinel = object()
+
+        @cached_property
+        def _override_validator(self):
+            return MapVal(StrVal(), SeqVal(DeferredVal()))
+
+        def _apply_override(self, wizard, override):
+            if isinstance(override, basestring):
+                override = self._override_validator.parse(override)
+            elif isinstance(override, Deferred):
+                override = override.resolve(self._override_validator)
+            else:
+                override = self._override_validator(override)
+            actions = dict(wizard._constructed_actions)
+            for k, v in override.items():
+                if not k in actions:
+                    raise Error('Unknown action override:', k)
+                for v in v:
+                    actions[k] = actions[k]._configuration._apply_override(actions[k], v)
+            path = instruction.override(wizard.path, actions)
+            return wizard.__validated_clone__(path=path, actions=actions)
 
     @property
     def domain(self):

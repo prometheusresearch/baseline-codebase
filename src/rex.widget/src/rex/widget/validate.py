@@ -140,7 +140,7 @@ class WidgetVal(Validate):
 
     def validate_values(self, widget_class, data):
         record_fields = [(RecordField(f.name, f.validate, f.default), f)
-                         for f in widget_class._fields.values()
+                         for f in widget_class._configuration.fields.values()
                          if isinstance(f, Field)]
         field_by_name = {f.name: (v, f) for v, f in record_fields}
         values = {}
@@ -230,7 +230,7 @@ class WidgetVal(Validate):
                 error.wrap("While parsing:", location)
                 raise error
         record_fields = [(RecordField(f.name, f.validate, f.default), f)
-                         for f in widget_class._fields.values()
+                         for f in widget_class._configuration.fields.values()
                          if isinstance(f, Field)]
         field_by_name = {f.name: (v, f) for v, f in record_fields}
         fields_with_no_defaults = [f for f, _ in record_fields
@@ -276,7 +276,8 @@ class WidgetVal(Validate):
                     error.wrap("While parsing:", location)
                     raise error
         with guard('While parsing:', Location.from_node(node)):
-            widget = widget_class.validated(package=self.package, **values)
+            values['package'] = self.package
+            widget = widget_class._configuration(widget_class, values)
             widget.location = location
             return widget
 

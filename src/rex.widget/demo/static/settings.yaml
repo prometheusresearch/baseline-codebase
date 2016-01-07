@@ -1,0 +1,3 @@
+db: pgsql:widget_demo
+htsql_extensions:
+    rex_deploy:

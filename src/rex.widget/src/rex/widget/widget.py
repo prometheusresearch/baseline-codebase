@@ -9,7 +9,7 @@
 
 from collections import OrderedDict
 
-from rex.core import ProxyVal, SeqVal
+from rex.core import ProxyVal, SeqVal, RecordField
 from rex.core import Extension
 
 from .transitionable import as_transitionable
@@ -34,6 +34,7 @@ class WidgetMeta(Extension.__metaclass__): # pylint: disable=no-init
                                 if issubclass(base, Widget)
                                 for f in base._fields.items()])
         cls._fields.update(fields)
+        cls._configuration = cls.Configuration(cls._fields)
         return cls
 
 
@@ -91,6 +92,14 @@ class Widget(Extension):
     _validate = ProxyVal()
     _validate_values = ProxyVal()
     _fields = OrderedDict()
+
+    class Configuration(object):
+
+        def __init__(self, fields):
+            self.fields = fields
+
+        def __call__(self, widget_class, values):
+            return widget_class.validated(**values)
 
     @classmethod
     def parse(cls, value):

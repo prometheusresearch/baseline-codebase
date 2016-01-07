@@ -26,6 +26,42 @@ from ..validate import RexDBVal
 __all__ = ('EntityAction',)
 
 
+class Configuration(Action.Configuration):
+
+    def _reflect_fields(self, db, entity, input, fields):
+        parameters = {k: None for k in input.rows.keys()}
+        with PortSupport.parameters(parameters):
+            if fields and isinstance(fields, Deferred):
+                fields = fields.resolve()
+            if fields:
+                port = formfield.to_port(
+                    entity.type.name,
+                    fields,
+                    parameters=parameters,
+                    db=db)
+            else:
+                port = Port(entity.type.name, db=db)
+            fields = formfield.enrich(fields, port, db=db)
+        return fields
+
+    def override(self, action, values):
+        if 'fields' in values:
+            entity = values.get('entity') or action.entity
+            db = values.get('db') or action.db
+            fields = values['fields']
+            input = values.get('input') or action.input
+            values['fields'] = self._reflect_fields(db, entity, input, fields)
+        return action.__validated_clone__(**values)
+
+    def __call__(self, action_class, values):
+        entity = values['entity']
+        db = values['db']
+        fields = values['fields']
+        input = values['input']
+        values['fields'] = self._reflect_fields(db, entity, input, fields)
+        return action_class.validated(**values)
+
+
 class _EntityAction(Action):
     """ Base class for actions which operate on an entity."""
 
@@ -36,6 +72,8 @@ class _EntityAction(Action):
     # collections (:class:`rex.widget.dataspec.CollectionSpec`) or any other
     # custom dataspec.
     dataspec_factory = dataspec.EntitySpec
+
+    Configuration = Configuration
 
     entity = Field(
         RowTypeVal(),
@@ -61,39 +99,6 @@ class _EntityAction(Action):
         If not specified then it will be generated automatically based on the
         data schema.
         """)
-
-    class Configuration(Action.Configuration):
-
-        def override(self, action, values):
-            fields = values['fields']
-            input = values.get('input') or action.input
-            parameters = {k: None for k in input.rows.keys()}
-            with PortSupport.parameters(parameters):
-                if fields and isinstance(fields, Deferred):
-                    fields = fields.resolve()
-            values['fields'] = fields
-            return action.__validated_clone__(**values)
-
-        def __call__(self, action_class, values):
-            entity = values['entity']
-            db = values['db']
-            fields = values['fields']
-            input = values['input']
-            parameters = {k: None for k in input.rows.keys()}
-            with PortSupport.parameters(parameters):
-                if fields and isinstance(fields, Deferred):
-                    fields = fields.resolve()
-                if fields:
-                    port = formfield.to_port(
-                        entity.type.name,
-                        fields,
-                        parameters=parameters,
-                        db=db)
-                else:
-                    port = Port(entity.type.name, db=db)
-                fields = formfield.enrich(fields, port, db=db)
-            values['fields'] = fields
-            return action_class.validated(**values)
 
     @cached_property
     def port(self):
@@ -144,28 +149,7 @@ class _EntityAction(Action):
 class EntityAction(Action):
     """ Base class for actions which operate on an entity."""
 
-    class Configuration(Action.Configuration):
-
-        def __call__(self, action_class, values):
-            entity = values['entity']
-            db = values['db']
-            fields = values['fields']
-            input = values['input']
-            parameters = {k: None for k in input.rows.keys()}
-            with PortSupport.parameters(parameters):
-                if fields and isinstance(fields, Deferred):
-                    fields = fields.resolve()
-                if fields:
-                    port = formfield.to_port(
-                        entity.type.name,
-                        fields,
-                        parameters=parameters,
-                        db=db)
-                else:
-                    port = Port(entity.type.name, db=db)
-                fields = formfield.enrich(fields, port, db=db)
-            values['fields'] = fields
-            return action_class.validated(**values)
+    Configuration = Configuration
 
     entity = Field(
         RowTypeVal(),

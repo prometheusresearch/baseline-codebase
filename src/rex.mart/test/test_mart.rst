@@ -91,6 +91,10 @@ The Mart object is an encapsulation of the information about a Mart database::
      'owner': u'marttest',
      'pinned': False,
      'size': ...}
+    >>> isinstance(mart.as_dict(json_safe=True)['date_creation_started'], str)
+    True
+    >>> isinstance(mart.as_dict(json_safe=True)['date_creation_completed'], str)
+    True
 
     >>> mart.purge()
     >>> mart = get_mart(mart.code)

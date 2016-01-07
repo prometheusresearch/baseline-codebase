@@ -172,14 +172,20 @@ class Mart(object):
 
         purge_mart(self.code)
 
-    def as_dict(self):
+    def as_dict(self, json_safe=False):
         """
         Creates a dictionary representation of the data in this object.
+
+        :param json_safe:
+            indicates whether or not the values stored in resulting dict should
+            be compatible with the default JSON encoder. If not specified,
+            defaults to True
+        :type json_safe: bool
 
         :rtype: dict
         """
 
-        return {
+        result = {
             'code': self.code,
             'definition': self.definition_id,
             'owner': self.owner,
@@ -189,6 +195,14 @@ class Mart(object):
             'pinned': self.pinned,
             'size': self.size,
         }
+
+        if json_safe:
+            result['date_creation_started'] = \
+                result['date_creation_started'].strftime('%Y-%m-%dT%H:%M:%S')
+            result['date_creation_completed'] = \
+                result['date_creation_completed'].strftime('%Y-%m-%dT%H:%M:%S')
+
+        return result
 
     def __repr__(self):
         return 'Mart(code=%r, definition=%r, owner=%r)' % (

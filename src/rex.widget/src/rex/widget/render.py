@@ -89,7 +89,7 @@ def render(widget, request,
     """
     if not no_chrome:
         Chrome = get_chrome()
-        widget = Chrome(content=widget, title=title)
+        widget = Chrome.validated(content=widget, title=title)
     if path:
         path = validate_widget_path(path)
         try:

@@ -37,10 +37,6 @@ class Pick(EntityAction):
     js_type = 'rex-action/lib/actions/Pick'
     dataspec_factory = dataspec.CollectionSpec
 
-    columns = Field(
-        MaybeVal(SeqVal(ColumnVal())), default=None,
-        transitionable=False)
-
     search = Field(
         StrVal(), default=None,
         doc="""
@@ -91,12 +87,6 @@ class Pick(EntityAction):
         Specifies that action ``pick-individual`` is only available when context
         has keys ``mother`` and ``father`` of type ``individual``.
         """)
-
-
-    def __init__(self, **values):
-        super(Pick, self).__init__(**values)
-        if self.fields is None and self.columns is not None:
-            self.fields = self.reflect_fields(self.columns)
 
     def create_port(self):
         filters = []

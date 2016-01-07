@@ -3,7 +3,7 @@
 #
 
 
-from .config import get_all_definitions
+from .config import get_definition
 from .connections import get_management_db
 from .purging import purge_mart
 
@@ -88,9 +88,7 @@ class Mart(object):
         :rtype: dict
         """
 
-        for defn in get_all_definitions():
-            if defn['id'] == self.definition_id:
-                return defn
+        return get_definition(self.definition_id)
 
     @property
     def owner(self):

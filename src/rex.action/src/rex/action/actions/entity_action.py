@@ -62,13 +62,28 @@ class _EntityAction(Action):
         data schema.
         """)
 
-    def __init__(self, **values):
-        super(_EntityAction, self).__init__(**values)
-        with PortSupport.parameters({k: None
-                                     for k in self.context_types[0].rows.keys()}):
-            if self.fields and isinstance(self.fields, Deferred):
-                self.fields = self.fields.resolve()
-            self.fields = self.reflect_fields(self.fields)
+    class Configuration(Action.Configuration):
+
+        def __call__(self, action_class, values):
+            entity = values['entity']
+            db = values['db']
+            fields = values['fields']
+            input = values['input']
+            parameters = {k: None for k in input.rows.keys()}
+            with PortSupport.parameters(parameters):
+                if fields and isinstance(fields, Deferred):
+                    fields = fields.resolve()
+                if fields:
+                    port = formfield.to_port(
+                        entity.type.name,
+                        fields,
+                        parameters=parameters,
+                        db=db)
+                else:
+                    port = Port(entity.type.name, db=db)
+                fields = formfield.enrich(fields, port, db=db)
+            values['fields'] = fields
+            return action_class.validated(**values)
 
     @cached_property
     def port(self):
@@ -79,19 +94,6 @@ class _EntityAction(Action):
         url_type=PortURL)
     def data(self, req):
         return self.port(req)
-
-    def reflect_fields(self, fields=None):
-        """ Reflect fields from database."""
-        if fields:
-            parameters = {k: None for k in self.context_types[0].rows.keys()}
-            port = formfield.to_port(
-                self.entity.type.name,
-                fields,
-                parameters=parameters,
-                db=self.db)
-        else:
-            port = Port(self.entity.type.name, db=self.db)
-        return formfield.enrich(fields, port, db=self.db)
 
     def bind_port(self):
         """ Provide bindings for a port.
@@ -132,6 +134,29 @@ class _EntityAction(Action):
 class EntityAction(Action):
     """ Base class for actions which operate on an entity."""
 
+    class Configuration(Action.Configuration):
+
+        def __call__(self, action_class, values):
+            entity = values['entity']
+            db = values['db']
+            fields = values['fields']
+            input = values['input']
+            parameters = {k: None for k in input.rows.keys()}
+            with PortSupport.parameters(parameters):
+                if fields and isinstance(fields, Deferred):
+                    fields = fields.resolve()
+                if fields:
+                    port = formfield.to_port(
+                        entity.type.name,
+                        fields,
+                        parameters=parameters,
+                        db=db)
+                else:
+                    port = Port(entity.type.name, db=db)
+                fields = formfield.enrich(fields, port, db=db)
+            values['fields'] = fields
+            return action_class.validated(**values)
+
     entity = Field(
         RowTypeVal(),
         doc="""
@@ -157,14 +182,6 @@ class EntityAction(Action):
         data schema.
         """)
 
-    def __init__(self, **values):
-        super(EntityAction, self).__init__(**values)
-        with PortSupport.parameters({k: None
-                                     for k in self.context_types[0].rows.keys()}):
-            if self.fields and isinstance(self.fields, Deferred):
-                self.fields = self.fields.resolve()
-            self.fields = self.reflect_fields(self.fields)
-
     @cached_property
     def port(self):
         return self.create_port()
@@ -172,19 +189,6 @@ class EntityAction(Action):
     @responder(url_type=PortURL)
     def data(self, req):
         return self.port(req)
-
-    def reflect_fields(self, fields=None):
-        """ Reflect fields from database."""
-        if fields:
-            parameters = {k: None for k in self.context_types[0].rows.keys()}
-            port = formfield.to_port(
-                self.entity.type.name,
-                fields,
-                parameters=parameters,
-                db=self.db)
-        else:
-            port = Port(self.entity.type.name, db=self.db)
-        return formfield.enrich(fields, port, db=self.db)
 
     def create_port(self, fields=None, filters=None, mask=None, entity=None):
         """ Create a port for the action.

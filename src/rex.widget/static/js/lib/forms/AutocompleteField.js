@@ -81,7 +81,7 @@ export default class AutocompleteField extends React.Component {
       );
     } else {
       let titleDataSpec = dataSpec.merge(this._populateParameters());
-      let queryDataSpec = dataSpec.port.path.indexOf('/@/') > -1 ?
+      let queryDataSpec = dataSpec.port.path.indexOf('/@@/') > -1 ?
         titleDataSpec.merge({'query': true}) :
         titleDataSpec;
       return (

@@ -150,6 +150,10 @@ _handlers = WriteHandler()
 class SelectError(LookupError):
     """ Error while selecting the subpart of the transitionable."""
 
+    def __init__(self, key):
+        self.key = key
+        LookupError.__init__(self, str(key))
+
 
 def select(obj, req, path):
     return _select(obj, req, path, [])
@@ -174,6 +178,10 @@ def _select(obj, req, path, _path):
     elif tag == 'array':
         try:
             rep = rep[x]
+        except TypeError:
+            raise SelectError(x)
+        except IndexError:
+            raise SelectError(x)
         except KeyError:
             raise SelectError(x)
         return _select(rep, req, xs, _path + [x])

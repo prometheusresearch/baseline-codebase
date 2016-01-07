@@ -94,8 +94,9 @@ def render(widget, request,
         path = validate_widget_path(path)
         try:
             widget = select(widget, request, path)
-        except SelectError:
-            raise HTTPBadRequest('invalid selector')
+        except SelectError as err:
+            raise HTTPBadRequest('invalid path "%s" at key "%s"' % \
+                                 ('.'.join(str(segment) for segment in path), err.key))
         if not hasattr(widget, 'respond'):
             raise HTTPBadRequest('unable to locate responder via selector')
         return widget.respond(request)

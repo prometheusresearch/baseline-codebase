@@ -7,6 +7,7 @@
 
 """
 
+from contextlib import contextmanager
 from collections import OrderedDict
 
 from rex.core import ProxyVal, SeqVal, RecordField
@@ -41,7 +42,19 @@ class WidgetMeta(Extension.__metaclass__): # pylint: disable=no-init
         return cls
 
 
-_prevent_validation = False
+_suppress_validation = False
+_global_suppress_validation = False
+
+
+@contextmanager
+def suppress_validation():
+    """ Suppress validation."""
+    global _global_suppress_validation # pylint: disable=global-statement
+    _global_suppress_validation = True
+    try:
+        yield
+    finally:
+        _global_suppress_validation = False
 
 
 class Widget(Extension):
@@ -114,12 +127,12 @@ class Widget(Extension):
 
     @classmethod
     def validated(cls, **values):
-        global _prevent_validation # pylint: disable=global-statement
-        _prevent_validation = True
+        global _suppress_validation # pylint: disable=global-statement
+        _suppress_validation = True
         try:
             return cls(**values)
         finally:
-            _prevent_validation = False
+            _suppress_validation = False
 
     @classmethod
     def enabled(cls):
@@ -131,11 +144,11 @@ class Widget(Extension):
 
     def __init__(self, package=None, **values):
         super(Widget, self).__init__()
-        global _prevent_validation # pylint: disable=global-statement
-        if not _prevent_validation:
+        global _suppress_validation # pylint: disable=global-statement
+        if not _suppress_validation and not _global_suppress_validation:
             values = self._validate_values(self.__class__, values)
         else:
-            _prevent_validation = False
+            _suppress_validation = False
         self.package = package
         self.values = values
 

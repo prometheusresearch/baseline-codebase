@@ -25,14 +25,10 @@ class MapAction(Map):
 
     fields = [
         ('action', DeferredVal()),
-        ('override', MapVal(AnyVal(), AnyVal()), {}),
+        ('override', AnyVal(), None),
         ('access', StrVal(), None),
     ]
 
-    validate_override_self = RecordVal([
-        (pair[0], pair[1], None) for pair in fields
-    ])
-    validate_pre = MapVal(StrVal(), DeferredVal())
     validate_override = DeferredVal()
 
     def mask(self, path):
@@ -47,7 +43,9 @@ class MapAction(Map):
 
     def override_at(self, spec, override_spec, path, override_path):
         if path == override_path:
-            spec = spec.__clone__(override=(spec.override or []) + [override_spec])
+            override = spec.override or []
+            override = override + [override_spec]
+            spec = spec.__clone__(override=override)
             return spec
 
         _, _, via_action = self.mask(path)
@@ -55,12 +53,9 @@ class MapAction(Map):
         params = match(via_action, override_path)
         if params is not None:
             key = params['action']
-            override = dict(spec.override)
-            if key in override:
-                override[key] = override[key][:]
-            else:
-                override[key] = []
-            override[key].append(override_spec)
+            override = spec.override or {}
+            override = dict(override)
+            override.setdefault(key, []).append(override_spec)
             spec = spec.__clone__(override=override)
             return spec
 

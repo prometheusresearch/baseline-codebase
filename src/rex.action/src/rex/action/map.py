@@ -10,7 +10,7 @@
 from cached_property import cached_property
 from webob.exc import HTTPUnauthorized, HTTPBadRequest
 
-from rex.core import StrVal, Error
+from rex.core import StrVal, Error, AnyVal, MapVal, RecordVal
 from rex.widget.validate import DeferredVal, Deferred
 from rex.widget.render import render
 from rex.urlmap import Map
@@ -24,35 +24,73 @@ class MapAction(Map):
 
     fields = [
         ('action', DeferredVal()),
+        ('override', MapVal(AnyVal(), AnyVal()), {}),
         ('access', StrVal(), None),
     ]
 
+    validate_override_self = RecordVal([
+        (pair[0], pair[1], None) for pair in fields
+    ])
+    validate_override = DeferredVal()
+
     def mask(self, path):
-        if path.endswith('/'):
-            sub_path = '%s@/{path:*}' % path
-        else:
-            sub_path = '%s/@/{path:*}' % path
+        origin = path
+        if origin.endswith('/'):
+            origin = origin[:-1]
         return [
             PathMask(path),
-            PathMask(sub_path),
+            PathMask('%s/@@/{path:*}' % origin),
+            PathMask('%s/@/{action:*}' % origin),
         ]
 
+    def override_at(self, spec, override_spec, path, override_path):
+        if path == override_path:
+            override_spec = override_spec.resolve(self.validate_override_self)
+            return self.override(spec, override_spec)
+
+        _, _, via_action = self.mask(path)
+
+        params = match(via_action, override_path)
+        if params is not None:
+            key = params['action']
+            override = dict(spec.override)
+            if key in override:
+                override[key] = override[key][:]
+            else:
+                override[key] = []
+            override[key].append(override_spec)
+            spec = spec.__clone__(override=override)
+            return spec
+
+        raise Error('Invalid action override at path:', override_path)
+
+    def override(self, spec, override_spec):
+        if override_spec.access is not None:
+            spec = spec.__clone__(access=override_spec.access)
+        return spec
+
     def __call__(self, spec, path, context):
-        return ActionRenderer(path, spec.action, spec.access, self.package)
+        return ActionRenderer(
+            path,
+            spec.action,
+            spec.override,
+            spec.access,
+            self.package)
 
 
-def match(mask, request):
+def match(mask, path):
     try:
-        return mask(request.path_info)
+        return mask(path)
     except ValueError:
         return None
 
 
 class ActionRenderer(object):
 
-    def __init__(self, path, action, access, package):
+    def __init__(self, path, action, override, access, package):
         self.path = path
         self._action = action
+        self.override = override
         self.access = access or package.name
         self.package = package
 
@@ -60,7 +98,10 @@ class ActionRenderer(object):
     def action(self):
         if isinstance(self._action, Deferred):
             action_id = '%s:%s' % (self.package.name, self.path)
-            return self._action.resolve(ActionVal(package=self.package, id=action_id))
+            action = self._action.resolve(ActionVal(package=self.package, id=action_id))
+            if self.override:
+                action = action.override(self.override)
+            return action
         else:
             return self._action
 
@@ -79,11 +120,11 @@ class ActionRenderer(object):
             if not isinstance(self.action, WizardBase):
                 action = ActionWizard(action=action)
             with confine(request, self):
-                own, via_path = self.path
-                params = match(own, request)
+                own, via_path, _ = self.path
+                params = match(own, request.path_info)
                 if params is not None:
                     return render(action, request)
-                params = match(via_path, request)
+                params = match(via_path, request.path_info)
                 if params is not None:
                     return render(action, request, path=params['path'])
                 raise HTTPBadRequest()

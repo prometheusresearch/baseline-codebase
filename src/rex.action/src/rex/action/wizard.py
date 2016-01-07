@@ -27,16 +27,13 @@ from rex.widget.util import product_to_pojo
 from rex.web import route
 from rex.port import Port
 
-from .instruction import (
-    Start, Execute, Repeat, Replace,
-    PathVal,
-    visit as visit_instruction, map as map_instruction)
 from .action import ActionBase
 from .validate import (
     DomainVal,
     ActionMapVal,
     ActionReferenceVal, LocalActionReference, GlobalActionReference)
 from . import typing
+from . import instruction
 
 __all__ = ('Wizard', 'WizardBase', 'WizardWidgetBase')
 
@@ -90,22 +87,25 @@ class WizardWidgetBase(Widget):
 
     def __init__(self, **values):
         super(WizardWidgetBase, self).__init__(**values)
+        self._constructed_actions = {}
         if isinstance(self.actions, Deferred):
             with self.domain:
                 self.actions = self.actions.resolve()
         if isinstance(self.path, Deferred):
-            validate_path = PathVal(self._resolve_action)
+            validate_path = instruction.PathVal(self._resolve_action)
             self.path = self.path.resolve(validate_path)
 
     def _resolve_action(self, ref):
-        action = resolve_action_reference(
-            ref,
-            actions=self.actions,
-            package=self.package,
-            domain=self.domain,
-        )
-        self.states = self.domain.merge(action.domain)
-        return action
+        if not ref in self._constructed_actions:
+            action = resolve_action_reference(
+                ref,
+                actions=self.actions,
+                package=self.package,
+                domain=self.domain,
+            )
+            self.states = self.domain.merge(action.domain)
+            self._constructed_actions[ref] = action
+        return self._constructed_actions[ref]
 
     @responder
     def data(self, req):
@@ -157,37 +157,37 @@ class WizardWidgetBase(Widget):
                 input, _ = self.context_types
                 context_type = input
 
-        for instruction in self.path.then:
-            self._typecheck(instruction, context_type, [])
+        for inst in self.path.then:
+            self._typecheck(inst, context_type, [])
 
     def context(self):
         input_nodes = self.path.then
         output_nodes = []
 
-        def _find_output_nodes(instruction):
-            if not instruction.then and not isinstance(instruction, Repeat):
-                output_nodes.append(instruction)
+        def _find_output_nodes(inst):
+            if not inst.then and not isinstance(inst, instruction.Repeat):
+                output_nodes.append(inst)
 
-        visit_instruction(self.path, _find_output_nodes)
+        instruction.visit(self.path, _find_output_nodes)
 
         input = typing.intersect_record_types([
             node.action_instance.context_types.input
             for node in input_nodes
-            if isinstance(node, Execute)
+            if isinstance(node, instruction.Execute)
         ])
         output = typing.intersect_record_types([
             node.action_instance.context_types.output
             for node in output_nodes
-            if isinstance(node, Execute)
+            if isinstance(node, instruction.Execute)
         ])
 
         return input, output
 
-    def _typecheck_execute(self, instruction, context_type, path, recurse=True):
-        with guard('While parsing:', locate(instruction)):
-            action = self._resolve_action(instruction.action)
+    def _typecheck_execute(self, inst, context_type, path, recurse=True):
+        with guard('While parsing:', locate(inst)):
+            action = self._resolve_action(inst.action)
             if action is None:
-                raise Error('Unknown action found:', instruction.action)
+                raise Error('Unknown action found:', inst.action)
             input, output = action.context_types
             try:
                 action.typecheck(context_type)
@@ -198,12 +198,12 @@ class WizardWidgetBase(Widget):
                 error.wrap('Another type is %s:' % \
                             _type_repr(err.kind_b), err.type_b)
                 error = _wrap_unification_error(
-                        error, context_type, path, instruction.action)
+                        error, context_type, path, inst.action)
                 raise error
             except typing.InvalidRowTypeUsage:
                 error = Error('Row types are only valid within a record types')
                 error = _wrap_unification_error(
-                        error, context_type, path, instruction.action)
+                        error, context_type, path, inst.action)
                 raise error
             except typing.UnknownKind as err:
                 error = Error('Unification error:', 'unknown kinds')
@@ -212,49 +212,49 @@ class WizardWidgetBase(Widget):
                 error.wrap('Another type of kind %s' % \
                             err.kind_b, err.type_b)
                 error = _wrap_unification_error(
-                        error, context_type, path, instruction.action)
+                        error, context_type, path, inst.action)
                 raise error
             except typing.RecordTypeMissingKey as err:
                 error = Error(
-                    'Action "%s" cannot be used here:' % instruction.action,
+                    'Action "%s" cannot be used here:' % inst.action,
                     'Context is missing "%s"' % err.type)
                 error = _wrap_unification_error(
-                        error, context_type, path, instruction.action)
+                        error, context_type, path, inst.action)
                 raise error
             except typing.RowTypeMismatch as err:
                 error = Error(
-                    'Action "%s" cannot be used here:' % instruction.action,
+                    'Action "%s" cannot be used here:' % inst.action,
                     'Context has "%s" but expected to have "%s"' % (
                         err.type_b, err.type_a))
                 error = _wrap_unification_error(
-                        error, context_type, path, instruction.action)
+                        error, context_type, path, inst.action)
                 raise error
             except typing.UnificationError as err:
                 error = Error('Type unification error:', err)
                 error = _wrap_unification_error(
-                        error, context_type, path, instruction.action)
+                        error, context_type, path, inst.action)
                 raise error
 
         next_context_type = typing.RecordType.empty()
         next_context_type.rows.update(context_type.rows)
         next_context_type.rows.update(output.rows)
 
-        if recurse and instruction.then:
+        if recurse and inst.then:
             return [
                 pair
-                for next_instruction in instruction.then
+                for next_instruction in inst.then
                 for pair in self._typecheck(
-                    next_instruction, next_context_type, path + [instruction.action])
+                    next_instruction, next_context_type, path + [inst.action])
             ]
         else:
-            return [(instruction, next_context_type)]
+            return [(inst, next_context_type)]
 
-    def _typecheck_repeat(self, instruction, context_type, path, recurse=True):
+    def _typecheck_repeat(self, inst, context_type, path, recurse=True):
         end_types = self._typecheck(
-                instruction.repeat, context_type, path + ['<repeat loop>'])
-        action = self._resolve_action(instruction.repeat.action)
+                inst.repeat, context_type, path + ['<repeat loop>'])
+        action = self._resolve_action(inst.repeat.action)
         if action is None:
-            raise Error('Unknown action found:', instruction.repeat.action)
+            raise Error('Unknown action found:', inst.repeat.action)
         repeat_invariant, _ = action.context_types
         for end_instruction, end_type in end_types:
             with guard('While parsing:', locate(end_instruction)):
@@ -273,33 +273,33 @@ class WizardWidgetBase(Widget):
                     raise error
                 except typing.UnificationError as err:
                     error = Error('Type unification error:', err)
-                    error = _wrap_unification_error(error, context_type, path, instruction.action)
+                    error = _wrap_unification_error(error, context_type, path, inst.action)
                     raise error
 
-        if instruction.then:
+        if inst.then:
             return [
                 self._typecheck(next_instruction, repeat_invariant, path + ['<repeat then>'])
-                for next_instruction in instruction.then
+                for next_instruction in inst.then
             ]
         else:
-            return instruction, repeat_invariant
+            return inst, repeat_invariant
 
-    def _typecheck_replace(self, instruction, context_type, path, recurse=True):
-        path = path + ['<replace %s>' % instruction.replace]
+    def _typecheck_replace(self, inst, context_type, path, recurse=True):
+        path = path + ['<replace %s>' % inst.replace]
         self._typecheck(
-            instruction.instruction, context_type, path, recurse=False)
+            inst.instruction, context_type, path, recurse=False)
         return []
 
-    def _typecheck(self, instruction, context_type, path, recurse=True):
-        if isinstance(instruction, Execute):
+    def _typecheck(self, inst, context_type, path, recurse=True):
+        if isinstance(inst, instruction.Execute):
             return self._typecheck_execute(
-                instruction, context_type, path, recurse=recurse)
-        elif isinstance(instruction, Replace):
+                inst, context_type, path, recurse=recurse)
+        elif isinstance(inst, instruction.Replace):
             return self._typecheck_replace(
-                instruction, context_type, path, recurse=recurse)
-        elif isinstance(instruction, Repeat):
+                inst, context_type, path, recurse=recurse)
+        elif isinstance(inst, instruction.Repeat):
             return self._typecheck_repeat(
-                instruction, context_type, path, recurse=recurse)
+                inst, context_type, path, recurse=recurse)
 
 def _wrap_unification_error(error, context_type, path, action):
     if not context_type.rows:
@@ -380,18 +380,26 @@ def resolve_action_reference(ref, actions=None, package=None, domain=None):
 class WizardBase(WizardWidgetBase, ActionBase):
     """ Base class for wizards."""
 
+    def override(self, override):
+        actions = dict(self.actions)
+        for k, v in override.items():
+            if not k in actions:
+                raise Error('Unknown action override:', k)
+            for v in v:
+                actions[k] = actions[k].override(v)
+        path = instruction.override(self.path, actions)
+        return self.__validated_clone__(path=path, actions=actions)
+
     @property
     def domain(self):
         return self.states or typing.Domain.current()
 
     def with_domain(self, domain):
-        def _map(inst, _ancestors):
-            if isinstance(inst, (Start, Replace)):
-                return inst
-            action_instance = inst.action_instance.with_domain(domain)
-            return inst.__clone__(action_instance=action_instance)
+        actions = {
+            ref: action.with_domain(domain)
+            for ref, action in self._constructed_actions.items()}
         wizard = self.__validated_clone__(__domain=domain)
-        wizard.path = map_instruction(wizard.path, _map)
+        wizard._constructed_actions = actions
         return wizard
 
     def refine_input(self, input):

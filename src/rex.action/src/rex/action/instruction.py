@@ -91,6 +91,15 @@ def _map(instruction, mapper, ancestors):
     return instruction
 
 
+def override(instruction, actions):
+    def _override(instruction, ancestors):
+        if isinstance(instruction, Execute) and instruction.action in actions:
+            action_instance = actions[instruction.action]
+            instruction = instruction.__clone__(action_instance=action_instance)
+        return instruction
+    return map(instruction, _override)
+
+
 class ValidateWithAction(Validate):
 
     def __init__(self, resolve_action):

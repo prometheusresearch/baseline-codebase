@@ -16,7 +16,7 @@ import yaml
 from cached_property import cached_property
 
 from rex.core import (
-    Location, Error, Validate, autoreload, get_packages,
+    Location, Error, Validate, autoreload, get_packages, RecordVal,
     MaybeVal, StrVal, IntVal, SeqVal, MapVal, OMapVal, OneOfVal, AnyVal,
     cached, guard)
 from rex.widget import (
@@ -24,6 +24,7 @@ from rex.widget import (
     undefined, as_transitionable, TransitionableRecord)
 from rex.widget.widget import _format_Widget
 from rex.widget.util import add_mapping_key, pop_mapping_key
+from rex.widget.validate import DeferredVal, Deferred
 
 from . import typing
 
@@ -49,6 +50,9 @@ class ContextTypes(TransitionableRecord):
     __transit_tag__ = 'map'
 
     fields = ('input', 'output')
+
+
+_no_override_sentinel = object()
 
 
 class ActionBase(Widget):
@@ -86,6 +90,30 @@ class ActionBase(Widget):
         self._domain = values.pop('__domain', typing.Domain.current())
         self._context_types = values.pop('__context_types', None)
         super(ActionBase, self).__init__(**values)
+
+    def override(self, override):
+        if isinstance(override, basestring):
+            override = self.validate_override.parse(override)
+        elif isinstance(override, Deferred):
+            override = override.resolve(self.validate_override)
+        else:
+            override = self.validate_override(override)
+        return self.apply_override(override)
+
+    @cached_property
+    def validate_override(self):
+        fields = [
+            (name, field.validate, _no_override_sentinel)
+            for name, field in self._fields.items()
+            if isinstance(field, Field) and name not in ('id',)
+        ]
+        validate = RecordVal(fields)
+        return validate
+
+    def apply_override(self, override):
+        override = {k: v for k, v in override._asdict().items()
+                         if v is not _no_override_sentinel}
+        return self.__clone__(**override)
 
     @property
     def domain(self):
@@ -215,7 +243,6 @@ class ActionVal(Validate):
                     error.wrap("While parsing:", Location.from_node(id_node))
                     raise error
                 node = add_mapping_key(node, 'id', self.id)
-
 
         construct = WidgetVal(package=self.package, widget_class=action_class).construct
         return construct(loader, node)

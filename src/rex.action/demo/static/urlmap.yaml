@@ -1,16 +1,6 @@
+include:
+- base.yaml
 paths:
-
-  /labs/pick:
-    access: anybody
-    action:
-      type: pick
-      entity: lab
-
-  /labs/view:
-    access: anybody
-    action:
-      type: view
-      entity: lab
 
   /individuals/make:
     access: anybody
@@ -37,30 +27,6 @@ paths:
       - identity.givenname
       - identity.surname
       - sex
-
-  /individuals/pick-make:
-    access: anybody
-    action:
-      type: wizard
-      title: Individuals
-      path:
-      - pick-individual:
-      - make-individual:
-        - replace: ../pick-individual
-      actions:
-        make-individual: /individuals/make
-        view-individual: /individuals/view
-        view-lab: /labs/view
-        pick-lab: /labs/pick
-        pick-individual:
-          type: pick
-          entity: individual
-          search: code~$search
-          search_placeholder: Search by code or name
-          fields:
-          - code
-          - identity.givenname
-          - identity.surname
 
 
   /individuals/edit:
@@ -101,6 +67,7 @@ paths:
     action:
       type: wizard
       path:
+      - plab:
       - pick-make-individual:
         - drop-individual:
         - view-individual:
@@ -108,6 +75,12 @@ paths:
       - pick-lab:
         - view-lab:
       actions:
+        plab:
+          type: pick
+          entity: lab
+          fields:
+          - code
+          - title
         pick-lab: /labs/pick
         view-lab: /labs/view
         pick-make-individual: /individuals/pick-make
@@ -122,3 +95,20 @@ paths:
           super:
             title: Super
             expression: id() = 'A11Z1814'
+
+  /@/plab: !override
+    fields:
+    - code
+
+  /@/view-lab: !override
+    fields:
+    - value_key: code
+      label: CODE
+
+  /labs/pick: !override
+    fields:
+    - code
+
+  /individuals/pick-make/@/pick-individual: !override
+    fields:
+    - code

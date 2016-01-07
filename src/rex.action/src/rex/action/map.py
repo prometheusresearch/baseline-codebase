@@ -16,9 +16,10 @@ from rex.widget.render import render
 from rex.urlmap import Map
 from rex.web import authorize, confine, PathMask
 
-from .action import ActionVal
+from .action import ActionBase, ActionVal, _action_sig
 from .wizard import WizardBase
 from .widget import ActionWizard
+
 
 class MapAction(Map):
 
@@ -31,6 +32,7 @@ class MapAction(Map):
     validate_override_self = RecordVal([
         (pair[0], pair[1], None) for pair in fields
     ])
+    validate_pre = MapVal(StrVal(), DeferredVal())
     validate_override = DeferredVal()
 
     def mask(self, path):
@@ -45,8 +47,8 @@ class MapAction(Map):
 
     def override_at(self, spec, override_spec, path, override_path):
         if path == override_path:
-            override_spec = override_spec.resolve(self.validate_override_self)
-            return self.override(spec, override_spec)
+            spec = spec.__clone__(override=(spec.override or []) + [override_spec])
+            return spec
 
         _, _, via_action = self.mask(path)
 
@@ -65,7 +67,7 @@ class MapAction(Map):
         raise Error('Invalid action override at path:', override_path)
 
     def override(self, spec, override_spec):
-        if override_spec.access is not None:
+        if hasattr(override_spec, 'access') and override_spec.access is not None:
             spec = spec.__clone__(access=override_spec.access)
         return spec
 
@@ -100,7 +102,11 @@ class ActionRenderer(object):
             action_id = '%s:%s' % (self.package.name, self.path)
             action = self._action.resolve(ActionVal(package=self.package, id=action_id))
             if self.override:
-                action = action._configuration._apply_override(action, self.override)
+                if isinstance(self.override, list):
+                    for override in self.override:
+                        action = action._configuration._apply_override(action, override)
+                else:
+                    action = action._configuration._apply_override(action, self.override)
             return action
         else:
             return self._action

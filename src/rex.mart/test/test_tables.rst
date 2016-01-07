@@ -331,7 +331,7 @@ A case where we select a bunch of extra fields::
 
     >>> definition = AssessmentDefinitionVal()({
     ...     'instrument': 'mart1',
-    ...     'selector': "/assessment{uid :as assessment_uid, status, evaluation_date}.filter(instrumentversion.instrument='mart1')",
+    ...     'selector': "/assessment{uid :as assessment_uid, id() :as other_id, status, evaluation_date}.filter(instrumentversion.instrument='mart1')",
     ... })
     >>> table = PrimaryTable(definition, get_management_db())
     >>> pprint(table.get_deploy_facts())
@@ -345,6 +345,7 @@ A case where we select a bunch of extra fields::
       'of': u'mart1',
       'required': True,
       'type': 'text'},
+     {'column': u'other_id', 'of': u'mart1', 'required': False, 'type': 'text'},
      {'column': u'status',
       'of': u'mart1',
       'required': False,

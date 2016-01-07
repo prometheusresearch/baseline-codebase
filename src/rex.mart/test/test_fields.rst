@@ -527,37 +527,6 @@ EnumerationSetField
     >>> run_merge_tests({'base': 'enumerationSet', 'enumerations': {'foo':{},'baz':{}}}, ENUMSET_MERGE_VECTORS)
 
 
-IdentityField
-=============
-
-::
-
-    >>> field = IdentityField('test')
-
-    >>> field.get_value_mapping(None)
-    {u'test': None}
-    >>> field.get_value_mapping('foo')
-    {u'test': 'foo'}
-    >>> field.get_value_mapping(u'foo')
-    {u'test': u'foo'}
-    >>> field.get_value_mapping(1)
-    {u'test': 1}
-    >>> field.get_value_mapping(1.23)
-    {u'test': 1.23}
-    >>> field.get_value_mapping(Decimal('1.23'))
-    {u'test': Decimal('1.23')}
-    >>> field.get_value_mapping(True)
-    {u'test': True}
-    >>> field.get_value_mapping(False)
-    {u'test': False}
-    >>> field.get_value_mapping(DATE)
-    {u'test': datetime.date(2015, 5, 22)}
-    >>> field.get_value_mapping(TIME)
-    {u'test': datetime.time(12, 34, 56)}
-    >>> field.get_value_mapping(DATETIME)
-    {u'test': datetime.datetime(2015, 5, 22, 12, 34, 56)}
-
-
 JsonField
 =========
 

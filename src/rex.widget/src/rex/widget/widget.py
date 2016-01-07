@@ -34,7 +34,10 @@ class WidgetMeta(Extension.__metaclass__): # pylint: disable=no-init
                                 if issubclass(base, Widget)
                                 for f in base._fields.items()])
         cls._fields.update(fields)
-        cls._configuration = cls.Configuration(cls._fields)
+        cls._configuration = cls.Configuration({
+            field.name: field
+            for field in cls._fields.values()
+            if isinstance(field, Field)})
         return cls
 
 

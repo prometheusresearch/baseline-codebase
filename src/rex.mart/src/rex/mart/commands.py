@@ -275,9 +275,26 @@ class MartLocation(HandleLocation):
 
     def __call__(self, request):
         mart = self.get_mart(request)
-        database = get_mart_db(str(mart.name))
+
+        htsql = get_mart_db(str(mart.name))
+
+        # If the tweak.shell extension is enabled for this HTSQL instance,
+        # then we need to set an appropriate value for the server_root
+        # property so that the shell can find its static assets.
+        server_root = None
+        if hasattr(htsql, 'tweak') and hasattr(htsql.tweak, 'shell'):
+            base_path = self.get_base_path(request)
+            idx = request.path_url.find(base_path)
+            server_root = request.path_url[:(idx + len(base_path))]
+            htsql.tweak.shell.server_root = server_root
+
         proxied_request = self.proxy_request(request)
-        return proxied_request.get_response(database)
+        response = proxied_request.get_response(htsql)
+
+        if get_settings().debug and server_root:
+            response.headers['X-Htsql-Shell-Root'] = server_root
+
+        return response
 
     def proxy_request(self, request):
         proxy = request.copy()
@@ -309,6 +326,15 @@ class MartLocation(HandleLocation):
             raise HTTPNotFound()
         return args
 
+    def get_base_path(self, request):
+        return self.split_url(request)[0]
+
+    def get_query(self, request):
+        return self.split_url(request)[1]
+
+    def split_url(self, request):
+        raise NotImplementedError()
+
 
 class SpecificMartLocation(MartLocation):
     """
@@ -332,10 +358,10 @@ class SpecificMartLocation(MartLocation):
 
         return mart
 
-    def get_query(self, request):
+    def split_url(self, request):
         # pylint: disable=no-self-use
         idx = 6 + request.path_info[6:].index('/')
-        return request.path_info[idx:]
+        return request.path_info[:idx], request.path_info[idx:]
 
 
 class DefinitionMartLocation(MartLocation):
@@ -370,12 +396,12 @@ class DefinitionMartLocation(MartLocation):
                 raise HTTPNotFound()
             return marts[args.latest_or_index - 1]
 
-    def get_query(self, request):
+    def split_url(self, request):
         # pylint: disable=no-self-use
-        start = 0
+        idx = 0
         hits = 4
-        while start >= 0 and hits > 1:
-            start = request.path_info.find('/', (start + 1))
+        while idx >= 0 and hits > 1:
+            idx = request.path_info.find('/', (idx + 1))
             hits -= 1
-        return request.path_info[start:]
+        return request.path_info[:idx], request.path_info[idx:]
 

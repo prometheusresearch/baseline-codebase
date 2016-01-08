@@ -155,6 +155,18 @@ Accessing the HTSQL endpoint for a specific Mart::
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
 
+    >>> rex.off()
+    >>> rex2 = Rex('rex.mart_demo', debug=True, mart_htsql_extensions={'tweak.shell': {}})
+    >>> rex2.on()
+    >>> req = Request.blank(mart_path + '/', remote_user='cmdtest')
+    >>> print req.get_response(rex2)  # doctest: +ELLIPSIS
+    200 OK
+    Content-Type: text/plain; charset=UTF-8
+    Vary: Accept
+    X-Htsql-Shell-Root: http://localhost/mart/5
+    >>> rex2.off()
+    >>> rex.on()
+
     >>> req = Request.blank(mart_path + "/foo?col1={'Bob','John'}", remote_user='cmdtest')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     200 OK

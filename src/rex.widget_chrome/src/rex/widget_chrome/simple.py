@@ -77,7 +77,7 @@ class SimpleChrome(Chrome):
     @computed_field
     def menu(self, req):
         Item = Record.make('Item', ('title', 'url'))
-        menu = get_settings().main_menu
+        menu = get_settings().menu
         ret = []
         for item1 in menu:
             ret.append({

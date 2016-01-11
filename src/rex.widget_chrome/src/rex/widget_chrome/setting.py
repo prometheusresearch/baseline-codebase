@@ -1,5 +1,5 @@
 
-from rex.core import Setting, StrVal, MapVal, SeqVal, RecordVal, OneOfVal
+from rex.core import Setting, StrVal, MapVal, SeqVal, RecordVal, MaybeVal
 
 class ApplicationTitle(Setting):
     """Customizable application title. Defaults to 'RexDB'"""
@@ -112,12 +112,13 @@ class MainMenu(Setting):
     Main menu.
     """
 
-    name = 'main_menu'
+    name = 'menu'
     default = []
     validate = SeqVal(RecordVal(
         ('title', StrVal()),
-        ('items', SeqVal(OneOfVal(StrVal(), RecordVal(
-            ('title', StrVal()),
+        ('items', SeqVal(RecordVal(
+            ('title', MaybeVal(StrVal()), None),
             ('url', StrVal()),
-        ))))
+            ('access', StrVal()),
+        )))
     ))

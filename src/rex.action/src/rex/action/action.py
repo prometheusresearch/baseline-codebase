@@ -52,8 +52,6 @@ class ContextTypes(TransitionableRecord):
     fields = ('input', 'output')
 
 
-
-
 class ActionBase(Widget):
 
     __metaclass__ = ActionMeta

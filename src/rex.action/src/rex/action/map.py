@@ -7,6 +7,7 @@
 
 """
 
+import yaml
 from cached_property import cached_property
 from webob.exc import HTTPUnauthorized, HTTPBadRequest
 
@@ -16,7 +17,7 @@ from rex.widget.render import render
 from rex.urlmap import Map
 from rex.web import authorize, confine, PathMask
 
-from .action import ActionBase, ActionVal, _action_sig
+from .action import ActionBase, ActionVal
 from .wizard import WizardBase
 from .widget import ActionWizard
 
@@ -42,46 +43,60 @@ class MapAction(Map):
         ]
 
     def override_at(self, spec, override_spec, path, override_path):
+
+        action_val = ActionVal(
+            package=self.package,
+            id='%s:%s' % (self.package.name, path[0]))
+
+        def make_override(spec):
+            if is_replace_override_spec(override_spec):
+                return lambda action: \
+                    spec.resolve(action_val)
+            else:
+                return lambda action: \
+                    action._configuration._apply_override(action, spec)
+
         if path == override_path:
             override = spec.override or []
-            override = override + [override_spec]
-            spec = spec.__clone__(override=override)
-            return spec
+            return spec.__clone__(override=override + [make_override(override_spec)])
 
-        _, _, via_action = self.mask(path)
+        _, _, action_path = self.mask(path)
 
-        params = match(via_action, override_path)
+        params = match(action_path, override_path)
         if params is not None:
             key = params['action']
-            override = spec.override or {}
-            override = dict(override)
-            override.setdefault(key, []).append(override_spec)
-            spec = spec.__clone__(override=override)
-            return spec
+            if spec.override:
+                override_actions = dict(spec.override.override_actions)
+            else:
+                override_actions = {}
+            override_actions.setdefault(key, []).append(make_override(override_spec))
+            override = lambda action: \
+                action._configuration._apply_override(action, override_actions)
+            setattr(override, 'override_actions', override_actions)
+            return spec.__clone__(override=override)
 
         raise Error('Invalid action override at path:', override_path)
 
-    def override(self, spec, override_spec):
-        if hasattr(override_spec, 'access') and override_spec.access is not None:
-            spec = spec.__clone__(access=override_spec.access)
-        return spec
-
     def __call__(self, spec, path, context):
 
-        def create_action():
-            id = '%s:%s' % (self.package.name, path[0])
-            action = spec.action.resolve(ActionVal(package=self.package, id=id))
+        action_val = ActionVal(
+            package=self.package,
+            id='%s:%s' % (self.package.name, path[0]))
+
+        def _create_action():
+            print '%s:%s' % (self.package.name, path[0])
+            action = spec.action.resolve(action_val)
             if spec.override:
                 if isinstance(spec.override, list):
                     for override in spec.override:
-                        action = action._configuration._apply_override(action, override)
+                        action = override(action)
                 else:
-                    action = action._configuration._apply_override(action, spec.override)
+                    action = spec.override(action)
             return action
 
         return ActionRenderer(
             path,
-            create_action,
+            _create_action,
             spec.access,
             self.package)
 
@@ -91,6 +106,15 @@ def match(mask, path):
         return mask(path)
     except ValueError:
         return None
+
+
+def is_replace_override_spec(override):
+    is_type_field = lambda node: (
+        isinstance(node, yaml.ScalarNode) and
+        node.tag == 'tag:yaml.org,2002:str' and
+        node.value == 'type'
+    )
+    return any(is_type_field(key_node) for key_node, _ in override.node.value)
 
 
 class ActionRenderer(object):

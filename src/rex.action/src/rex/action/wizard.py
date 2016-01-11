@@ -382,25 +382,13 @@ class WizardBase(WizardWidgetBase, ActionBase):
 
     class Configuration(ActionBase.Configuration):
 
-        _no_override_sentinel = object()
-
-        @cached_property
-        def _override_validator(self):
-            return MapVal(StrVal(), SeqVal(DeferredVal()))
-
         def _apply_override(self, wizard, override):
-            if isinstance(override, basestring):
-                override = self._override_validator.parse(override)
-            elif isinstance(override, Deferred):
-                override = override.resolve(self._override_validator)
-            else:
-                override = self._override_validator(override)
             actions = dict(wizard._constructed_actions)
             for k, v in override.items():
                 if not k in actions:
                     raise Error('Unknown action override:', k)
                 for v in v:
-                    actions[k] = actions[k]._configuration._apply_override(actions[k], v)
+                    actions[k] = v(actions[k])
             path = instruction.override(wizard.path, actions)
             return wizard.__validated_clone__(path=path, actions=actions)
 

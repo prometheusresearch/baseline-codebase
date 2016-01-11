@@ -67,10 +67,21 @@ class MapAction(Map):
         return spec
 
     def __call__(self, spec, path, context):
+
+        def create_action():
+            id = '%s:%s' % (self.package.name, path[0])
+            action = spec.action.resolve(ActionVal(package=self.package, id=id))
+            if spec.override:
+                if isinstance(spec.override, list):
+                    for override in spec.override:
+                        action = action._configuration._apply_override(action, override)
+                else:
+                    action = action._configuration._apply_override(action, spec.override)
+            return action
+
         return ActionRenderer(
             path,
-            spec.action,
-            spec.override,
+            create_action,
             spec.access,
             self.package)
 
@@ -84,31 +95,20 @@ def match(mask, path):
 
 class ActionRenderer(object):
 
-    def __init__(self, path, action, override, access, package):
+    def __init__(self, path, action, access, package):
         self.path = path
         self._action = action
-        self.override = override
         self.access = access or package.name
         self.package = package
 
     @cached_property
     def action(self):
-        if isinstance(self._action, Deferred):
-            action_id = '%s:%s' % (self.package.name, self.path)
-            action = self._action.resolve(ActionVal(package=self.package, id=action_id))
-            if self.override:
-                if isinstance(self.override, list):
-                    for override in self.override:
-                        action = action._configuration._apply_override(action, override)
-                else:
-                    action = action._configuration._apply_override(action, self.override)
-            return action
-        else:
+        if isinstance(self._action, ActionBase):
             return self._action
+        else:
+            return self._action()
 
     def validate(self):
-        # We force computed property so that action is instantiated and
-        # validated.
         self.action.typecheck()
 
     def __call__(self, request):

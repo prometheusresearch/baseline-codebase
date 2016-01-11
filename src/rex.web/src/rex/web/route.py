@@ -239,7 +239,7 @@ class RoutingTable(object):
             return handle(req)
         # Redirect to `<path>/` if there is a handler.
         if handle_map.completes(req.path_info):
-            raise HTTPMovedPermanently(add_slash=True)
+            return HTTPMovedPermanently(add_slash=True)
         # Delegate the request to the fallback.
         return self.fallback(req)
 
@@ -346,9 +346,6 @@ class StaticServer(object):
                     accept_ranges='bytes',
                     cache_control='private',
                     conditional_response=True)
-
-        # If file not found, delegate to the fallback or return 404.
-        return self.fallback(req)
 
 
 class CommandDispatcher(object):

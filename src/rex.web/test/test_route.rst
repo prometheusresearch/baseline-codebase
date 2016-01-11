@@ -488,6 +488,11 @@ slash is added using a redirect, but only if the directory contains
 
 Files and directories that start with ``_`` or ``.`` are effectively hidden::
 
+    >>> req = Request.blank('/.hidden.txt')
+    >>> print req.get_response(static)      # doctest: +ELLIPSIS
+    404 Not Found
+    ...
+
     >>> req = Request.blank('/_hidden.txt')
     >>> print req.get_response(static)      # doctest: +ELLIPSIS
     404 Not Found

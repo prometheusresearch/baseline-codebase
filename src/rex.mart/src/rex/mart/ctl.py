@@ -12,7 +12,7 @@ from datetime import datetime
 from htsql.ctl import HTSQL_CTL
 from htsql.ctl.error import ScriptError
 from rex.db.ctl import RexShellRoutine
-from rex.core import Error
+from rex.core import Error, get_packages
 from rex.ctl import RexTask, argument, option, log
 
 from .config import get_all_definitions
@@ -71,7 +71,9 @@ class MartCreateTask(RexTask):
             default=None,
             hint='The Mart RunList that details the batch creation of multiple'
             ' Mart databases. If this option is specified, the --owner and'
-            ' --definition options cannot be used.',
+            ' --definition options cannot be used. To reference a runlist'
+            ' file that is embedded in a RexDB package, use the notation'
+            ' "some.package:/path/to/runlist.yaml"',
         )
 
         halt_on_failure = option(
@@ -130,8 +132,13 @@ class MartCreateTask(RexTask):
 
         validator = RunListVal()
         if self.runlist:
+            if ':' in self.runlist:
+                open_func = get_packages().open
+            else:
+                open_func = open
+
             try:
-                runlist = open(self.runlist, 'r').read()
+                runlist = open_func(self.runlist).read()
             except Exception as exc:
                 raise Error(
                     'Could not open "%s": %s' % (

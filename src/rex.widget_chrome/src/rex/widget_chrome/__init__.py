@@ -5,3 +5,4 @@
 from .setting import *
 from .middleware import *
 from .simple import *
+from .error import *

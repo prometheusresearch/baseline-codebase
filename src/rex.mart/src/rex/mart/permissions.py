@@ -150,14 +150,13 @@ class MartAccessPermissions(Extension):
                 definition_id):
             return False
 
-        statement = '/rexmart_inventory.filter(owner=$user)'
+        statement = \
+            '/rexmart_inventory.filter(owner=$user&status=\'complete\')'
         parameters = {'user': user}
         if definition_id:
             statement += '.filter(definition=$definition)'
             parameters.update({'definition': definition_id})
-            statement += '.sort(definition, date_creation_completed-)'
-        else:
-            statement += '.sort(date_creation_completed-)'
+        statement += '.sort(date_creation_completed-)'
 
         data = get_management_db().produce(statement, **parameters)
         marts = []

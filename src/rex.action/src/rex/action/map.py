@@ -84,7 +84,6 @@ class MapAction(Map):
             id='%s:%s' % (self.package.name, path[0]))
 
         def _create_action():
-            print '%s:%s' % (self.package.name, path[0])
             action = spec.action.resolve(action_val)
             if spec.override:
                 if isinstance(spec.override, list):

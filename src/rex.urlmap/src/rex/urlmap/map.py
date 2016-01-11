@@ -7,6 +7,31 @@ from rex.core import Extension, RecordVal, Error
 from rex.web import PathMask
 
 
+class Override(Extension):
+    """
+    External overrides for access control and other properties.
+
+    `package`
+        The package responsible for the URLs.
+    """
+
+    def __init__(self, package):
+        self.package = package
+
+    @classmethod
+    def enabled(cls):
+        return (cls is not Override)
+
+    def __call__(self, path, spec):
+        """
+        Returns updated handler configuration or ``None`` to
+        disable the handler.
+
+        Must be overridden in subclasses.
+        """
+        return spec
+
+
 class Map(Extension):
     """
     Interface for parsing ``urlmap.yaml`` entries.

@@ -11,7 +11,7 @@ file.
 
 # Register the `Route` implementation.
 from .route import RouteURLMap
-from .map import Map
+from .map import Map, Override
 from .template import TemplateRenderer
 from .query import QueryRenderer
 from .port import PortRenderer

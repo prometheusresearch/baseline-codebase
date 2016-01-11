@@ -12,5 +12,7 @@ Adding new entry types
 
 .. autoclass:: Map
    :special-members: __call__
+.. autoclass:: Override
+   :special-members: __call__
 
 

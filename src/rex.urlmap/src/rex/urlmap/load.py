@@ -9,7 +9,7 @@ from rex.core import (
         set_location, locate, Location, Error,
         guard)
 from rex.web import PathMask, PathMap
-from .map import Map
+from .map import Map, Override
 import os
 import yaml
 
@@ -152,6 +152,8 @@ class LoadMap(object):
                 ('context', MapVal(StrVal(r'[A-Za-z_][0-9A-Za-z_]*')), {}),
                 ('paths', MapVal(StrVal(r'/[@${}/0-9A-Za-z:._-]*'),
                                  handle_val), {})])
+        self.overrides = [
+                override_type(package) for override_type in Override.ordered()]
 
     def __call__(self):
         # Generates a request handler from `urlmap.yaml` configuration.
@@ -165,6 +167,13 @@ class LoadMap(object):
         segment_map = PathMap()
         for path in sorted(map_spec.paths):
             handle_spec = map_spec.paths[path]
+            # Apply external overrides.
+            for override in self.overrides:
+                handle_spec = override(path, handle_spec)
+                if handle_spec is None:
+                    break
+            if handle_spec is None:
+                continue
             map = self.map_by_record_type[type(handle_spec)]
             mask = map.mask(path)
             handler = map(handle_spec, mask, map_spec.context)
@@ -302,3 +311,5 @@ def load_map(package, open=open):
     # Parses `urlmap.yaml` file.
     load = LoadMap(package, open=open)
     return load()
+
+

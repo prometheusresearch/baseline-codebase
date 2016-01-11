@@ -10,6 +10,7 @@
 
 * Establish security context.
 * Allow mappers to alter the mount path.
+* Added ``Override`` interface.
 
 
 2.6.2 (2015-04-23)

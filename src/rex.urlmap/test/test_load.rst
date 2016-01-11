@@ -457,6 +457,60 @@ any handlers predefined by ``rex.urlmap``::
     ...
 
 
+``Override`` interface
+======================
+
+Another way to override urlmap entries is to implement the ``Override``
+interface.  An ``Override`` implementation may alter or disable any handler
+created by ``rex.urlmap``.
+
+In this example, we disable one handler completely and set ``nobody`` access
+permission on another handler::
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... include: [./urlmap/study.yaml, ./urlmap/individual.yaml]
+    ... """)
+
+    >>> req = Request.blank('/study')
+    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+
+    >>> req = Request.blank('/individual')
+    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+
+    >>> from rex.urlmap import Override
+
+    >>> class OverrideStudy(Override):
+    ...     priority = 'study'
+    ...     def __call__(self, path, spec):
+    ...         if self.package.name == 'sandbox' and path == '/study':
+    ...             return None
+    ...         return spec
+
+    >>> class OverrideIndividual(Override):
+    ...     priority = 'individual'
+    ...     after = ['study']
+    ...     def __call__(self, path, spec):
+    ...         if self.package.name == 'sandbox' and path == '/individual':
+    ...             spec = spec.__clone__(access='nobody')
+    ...         return spec
+
+    >>> override_demo.reset()
+
+    >>> req = Request.blank('/study')
+    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    404 Not Found
+    ...
+
+    >>> req = Request.blank('/individual')
+    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    401 Unauthorized
+    ...
+
+
 Embedding settings
 ==================
 

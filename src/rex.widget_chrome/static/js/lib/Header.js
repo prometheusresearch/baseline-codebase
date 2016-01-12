@@ -357,17 +357,19 @@ export default class Header extends React.Component {
             {itemsFirst}
           </style.Navigation>
           <style.ApplicationMenu>
-            <style.HeaderButton
-              href={resolveURL(userProfileUrl)}
-              icon="user"
-              variant={{small: true}}>
-              {username}
-            </style.HeaderButton>
-            <style.HeaderButton
-              href={resolveURL(applicationLogoutUrl)}
-              icon="log-out"
-              variant={{small: true}}
-              />
+            {userProfileUrl &&
+              <style.HeaderButton
+                href={resolveURL(userProfileUrl)}
+                icon="user"
+                variant={{small: true}}>
+                {username}
+              </style.HeaderButton>}
+            {applicationLogoutUrl &&
+              <style.HeaderButton
+                href={resolveURL(applicationLogoutUrl)}
+                icon="log-out"
+                variant={{small: true}}
+                />}
           </style.ApplicationMenu>
         </style.Top>
       </layout.VBox>

@@ -4,8 +4,7 @@
 
 from .setting import *
 from .middleware import *
-from .simple import *
 from .access import *
 from .error import *
-
+from .chrome import Chrome
 

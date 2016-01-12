@@ -106,10 +106,11 @@ class UsernameQuery(Setting):
     default = '$USER'
     validate = StrVal()
 
+from rex.core import Validate, RecordVal, OneOfVal
 
-class MainMenu(Setting):
+class Menu(Setting):
     """
-    Main menu.
+    Menu settings.
     """
 
     name = 'menu'

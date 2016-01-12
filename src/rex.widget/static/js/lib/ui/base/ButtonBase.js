@@ -84,7 +84,7 @@ export default class ButtonBase extends React.Component {
       ...variant,
     };
     if (isString(icon)) {
-      icon = <Icon name={icon} variant={{hasCaption: !!children}} />;
+      icon = <Icon name={icon} />;
     }
     let caption;
     if (children) {
@@ -97,7 +97,10 @@ export default class ButtonBase extends React.Component {
         variant={variant}
         aria-pressed={active}
         role="button">
-        <IconWrapper>{icon}</IconWrapper>
+        {icon &&
+          <IconWrapper variant={{hasCaption: !!children}}>
+            {icon}
+          </IconWrapper>}
         {caption}
       </Root>
     );

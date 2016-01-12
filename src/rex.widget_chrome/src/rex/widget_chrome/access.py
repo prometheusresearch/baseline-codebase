@@ -31,7 +31,6 @@ class InitializeMenu(Initialize):
     def __call__(self):
         menu = get_settings().menu
         access_map = Authorize.mapped()
-        print access_map.keys()
         for level1 in menu:
             for item in level1.items:
                 handler = route(item.url)

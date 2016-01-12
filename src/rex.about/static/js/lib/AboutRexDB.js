@@ -7,7 +7,7 @@
 var React = require('react');
 
 var RexWidget = require('rex-widget');
-var {Tab, Tabs} = RexWidget;
+var {Tab, TabList} = require('rex-widget/ui');
 var {fetch} = require('rex-widget/lib/fetch');
 
 var PackageList = require('./PackageList');
@@ -42,9 +42,9 @@ var AboutRexDB = RexWidget.createWidgetClass({
     return (
       <div className="about-rexdb">
         <h1>{this.props.heading}</h1>
-        <Tabs
-          active={this.state.activeTab.value}
-          onActive={this.state.activeTab.update}
+        <TabList
+          selected={this.state.activeTab.value}
+          onSelected={this.state.activeTab.update}
           >
           <Tab
             id="overview"
@@ -89,7 +89,7 @@ var AboutRexDB = RexWidget.createWidgetClass({
               className="rexdb-license"
               />
           </Tab>
-        </Tabs>
+        </TabList>
       </div>
     );
   }

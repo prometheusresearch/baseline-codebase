@@ -212,7 +212,7 @@ export default class Field extends React.Component {
     if (value !== null) {
       formValue = formValue.removeError(error, true);
       formValue = formValue.addError({
-        message: value,
+        message: String(value),
         rexWidgetError: true,
       });
     } else {

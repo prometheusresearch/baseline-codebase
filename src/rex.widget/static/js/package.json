@@ -33,7 +33,7 @@
     "normalize.css": "^3.0.3",
     "object-assign": "^1.0.0",
     "qs": "^4.0.0",
-    "react-forms": "2.0.0-beta2",
+    "react-forms": "2.0.0-beta6",
     "react-icons": "^1.0.3",
     "react-stylesheet": "^0.6.1",
     "rethemeable": "^2.0.1",

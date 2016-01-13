@@ -1,13 +1,13 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-let React           = require('react');
-let {HBox, VBox}    = require('../Layout');
-let Input           = require('./Input');
-
+import debounce from 'lodash/function/debounce';
+import autobind from 'autobind-decorator';
+import React from 'react';
 import {WithFormValue} from 'react-forms';
+import {HBox, VBox} from '../../layout';
+import Input from './Input';
 
 let FieldStyle = {
   self: {
@@ -44,9 +44,10 @@ let FieldStyle = {
  *
  * @public
  */
-let Field = React.createClass({
+@WithFormValue
+export default class Field extends React.Component {
 
-  propTypes: {
+  static propTypes = {
     /**
      * The field label.
      */
@@ -107,7 +108,22 @@ let Field = React.createClass({
      * See React Forms docs for more info.
      */
     formValue: React.PropTypes.object
-  },
+  };
+
+  static defaultProps = {
+    serialize: (value) => (value),
+    deserialize: (value) => (value),
+    labelSize: 2,
+    inputSize: 5
+  };
+
+  constructor(props) {
+    super(props);
+    this._validateStart = debounce(this._validateStart, 500);
+    this.state = {
+      dirty: false
+    };
+  }
 
   render() {
     let {label, hint, children, onChange, labelSize, inputSize,
@@ -125,7 +141,7 @@ let Field = React.createClass({
       <VBox {...props} onBlur={this.onBlur} style={FieldStyle.self}>
         <HBox>
           {label &&
-            <VBox size={labelSize}>
+            <VBox flex={labelSize}>
               <label style={FieldStyle.label}>
                 {label}
                 {schema && schema.isRequired ?
@@ -137,7 +153,7 @@ let Field = React.createClass({
                   {hint}
                 </div>}
             </VBox>}
-          <VBox size={inputSize}>
+          <VBox flex={inputSize}>
             {children}
             {showErrors && errorList.length > 0 &&
               <VBox style={FieldStyle.errorList}>
@@ -148,29 +164,16 @@ let Field = React.createClass({
         </HBox>
       </VBox>
     );
-  },
+  }
 
-  getDefaultProps() {
-    return {
-      serialize: (value) => (value),
-      deserialize: (value) => (value),
-      labelSize: 2,
-      inputSize: 5
-    };
-  },
-
-  getInitialState() {
-    return {
-      dirty: false
-    };
-  },
-
+  @autobind
   onBlur() {
     if (!this.state.dirty) {
       this.setState({dirty: true});
     }
-  },
+  }
 
+  @autobind
   onChange(onChange, e) {
     let value;
     if (e && e.target && e.target.value !== undefined) {
@@ -188,10 +191,39 @@ let Field = React.createClass({
       onChange(value);
     }
     this.props.formValue.update(value);
+    if (this.props.validate) {
+      this._validateStart(value);
+    }
   }
 
-});
+  _validateStart(value) {
+    this.props.validate.produce({value}).then(
+      this._onValidateComplete,
+      this._onValidateError);
+  }
 
-Field = WithFormValue(Field);
+  @autobind
+  _onValidateComplete(value) {
+    let firstKey = Object.keys(value)[0];
+    value = value[firstKey];
 
-module.exports = Field;
+    let formValue = this.props.formValue;
+    let error = formValue.errorList.find(error => error.rexWidgetError);
+    if (value !== null) {
+      formValue = formValue.removeError(error, true);
+      formValue = formValue.addError({
+        message: value,
+        rexWidgetError: true,
+      });
+    } else {
+      formValue = formValue.removeError(error);
+    }
+  }
+
+  @autobind
+  _onValidateError(error) {
+    // FIXME: What to do? Render into errorList?
+    console.error(error);
+  }
+
+}

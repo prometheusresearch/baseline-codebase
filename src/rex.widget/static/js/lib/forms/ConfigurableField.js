@@ -94,7 +94,8 @@ let ConfigurableField = React.createClass({
         hint: field.hint,
         select: field.valueKey,
         formValue: formValue,
-        readOnly: readOnly
+        readOnly: readOnly,
+        validate: field.validate,
       });
     } else if (!readOnly && field.widget && isReactElement(field.widget.edit)) {
       return React.cloneElement(field.widget.edit, {
@@ -102,7 +103,8 @@ let ConfigurableField = React.createClass({
         label: field.label,
         hint: field.hint,
         select: field.valueKey,
-        formValue: formValue
+        formValue: formValue,
+        validate: field.validate,
       });
     } else if (readOnly && field.widget && isReactElement(field.widget.show)) {
       return React.cloneElement(field.widget.show, {
@@ -110,7 +112,8 @@ let ConfigurableField = React.createClass({
         label: field.label,
         hint: field.hint,
         select: field.valueKey,
-        formValue: formValue
+        formValue: formValue,
+        validate: field.validate,
       });
     } else if (readOnly && FIELDS_WITH_READONLY_MODE.indexOf(field.type) === -1) {
       return (
@@ -134,6 +137,7 @@ let ConfigurableField = React.createClass({
           formValue={formValue}
           minDate={field.minDate}
           maxDate={field.maxDate}
+          validate={field.validate}
           />
       );
     case 'bool':
@@ -145,6 +149,7 @@ let ConfigurableField = React.createClass({
           select={field.valueKey}
           formValue={formValue}
           readOnly={readOnly}
+          validate={field.validate}
           />
       );
     case 'file':
@@ -158,6 +163,7 @@ let ConfigurableField = React.createClass({
           storage={field.storage}
           download={field.download}
           readOnly={readOnly}
+          validate={field.validate}
           />
       );
     case 'enum':
@@ -170,6 +176,7 @@ let ConfigurableField = React.createClass({
           formValue={formValue}
           options={field.options || field.values}
           readOnly={readOnly}
+          validate={field.validate}
           />
       );
     case 'entity':
@@ -182,6 +189,7 @@ let ConfigurableField = React.createClass({
           formValue={formValue}
           dataSpec={field.data}
           readOnly={readOnly}
+          validate={field.validate}
           />
       );
     case 'integer':
@@ -192,6 +200,7 @@ let ConfigurableField = React.createClass({
           hint={field.hint}
           select={field.valueKey}
           formValue={formValue}
+          validate={field.validate}
           />
       );
     case 'number':
@@ -202,6 +211,7 @@ let ConfigurableField = React.createClass({
           hint={field.hint}
           select={field.valueKey}
           formValue={formValue}
+          validate={field.validate}
           />
       );
     case 'calculation':
@@ -212,6 +222,7 @@ let ConfigurableField = React.createClass({
           hint={field.hint}
           select={field.valueKey}
           formValue={formValue}
+          validate={field.validate}
           />
       );
     case 'fieldset':
@@ -244,6 +255,7 @@ let ConfigurableField = React.createClass({
           hint={field.hint}
           formValue={formValue}
           select={field.valueKey}
+          validate={field.validate}
           />
       );
     }

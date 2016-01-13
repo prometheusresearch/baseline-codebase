@@ -3,7 +3,7 @@
  */
 
 import React, {PropTypes}       from 'react';
-import {Value}                  from 'react-forms';
+import {createValue} from 'react-forms';
 import Fieldset                 from './Fieldset';
 import emptyFunction            from '../emptyFunction';
 import Button                   from '../Button';
@@ -203,12 +203,12 @@ let Form = React.createClass({
   getInitialState() {
     return {
       submitInProgress: false,
-      value: Value(
-        this.props.schema,
-        this.props.value,
-        this.onChange,
-        {context: this.props.context}
-      )
+      value: createValue({
+        schema: this.props.schema,
+        value: this.props.value,
+        onChange: this.onChange,
+        params: {context: this.props.context},
+      })
     };
   },
 
@@ -224,21 +224,15 @@ let Form = React.createClass({
   componentWillReceiveProps(nextProps) {
     let value = this.state.value;
     if (nextProps.schema !== this.props.schema) {
-      value = Value(
-        nextProps.schema,
-        value.value,
-        this.onChange,
-        value.params
-      );
+      value = value.createRoot({
+        schema: nextProps.schema,
+      });
       this.setState({value});
     }
     if (nextProps.context !== this.props.context) {
-      value = Value(
-        value.schema,
-        value.value,
-        this.onChange,
-        {...value.params, context: nextProps.context}
-      );
+      value = value.createRoot({
+        params: {...value.params, context: nextProps.context},
+      });
       this.setState({value});
     }
   },
@@ -259,12 +253,9 @@ let Form = React.createClass({
 
     if (nextValue.completeErrorList.length > 0) {
       this.setState({
-        value: Value(
-          value.schema,
-          value.value,
-          value.onChange,
-          {forceShowErrors: true},
-          value.completeErrorList)
+        value: value.createRoot({
+          params: {forceShowErrors: true},
+        })
       });
 
       return;

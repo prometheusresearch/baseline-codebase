@@ -22,11 +22,11 @@ from rex.core import Extension, Validate, Error, guard, Location
 from rex.core import RecordVal, MapVal, SeqVal, ChoiceVal, OneOfVal, UnionVal, ProxyVal, OnField
 from rex.core import AnyVal, StrVal, UStrVal, IntVal, BoolVal, MaybeVal
 from rex.port import Port, GrowVal
-from rex.db import get_db
+from rex.db import get_db, Query
 
 from .widget import Widget
 from .field import Field
-from .url import URLVal, PortURL
+from .url import URLVal, PortURL, QueryURL
 from .util import PropsContainer, undefined, MaybeUndefinedVal, pop_mapping_key
 from .transitionable import as_transitionable
 from .pointer import Pointer
@@ -283,6 +283,31 @@ class FormWidgetSpecVal(Validate):
 FormWidgetSpec = FormWidgetSpecVal._validate_spec.record_type
 
 
+class QueryValidator(object):
+
+    def __init__(self, expression):
+        self.expression = expression
+        self._query = Query(expression)
+        self._query.parameters = {'value': None}
+
+    def respond(self, req):
+        return self._query(req)
+
+@as_transitionable(QueryValidator)
+def _format_QueryValidator(value, req, path):
+    return Pointer(value, url_type=QueryURL, to_field=True)
+
+
+class QueryValidatorVal(Validate):
+
+    _validate = StrVal()
+
+    def __call__(self, value):
+        if isinstance(value, QueryValidator):
+            return value
+        return QueryValidator(value)
+
+
 _prevent_validation = False
 
 
@@ -323,7 +348,7 @@ class FormField(Extension):
             _prevent_validation = False
         self.values = values
         for k, v in self.values.items():
-            if not k == 'widget':
+            if not k in ('widget', 'validate'):
                 setattr(self, k, v)
         if not self.values.get('widget') and self.widget is not None:
             if isinstance(self.widget, types.MethodType):
@@ -339,6 +364,7 @@ class FormField(Extension):
         ('label', MaybeVal(UStrVal()), None),
         ('hint', MaybeVal(UStrVal()), None),
         ('widget', MaybeVal(FormWidgetSpecVal()), None),
+        ('validate', MaybeVal(QueryValidatorVal()), None),
     )
 
     def validate(self, values):

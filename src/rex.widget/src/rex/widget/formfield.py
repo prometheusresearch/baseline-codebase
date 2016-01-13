@@ -288,7 +288,7 @@ class QueryValidator(object):
     def __init__(self, expression):
         self.expression = expression
         self._query = Query(expression)
-        self._query.parameters = {'value': None}
+        self._query.parameters = {'value': None, 'id': None}
 
     def respond(self, req):
         return self._query(req)

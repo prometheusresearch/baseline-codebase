@@ -119,7 +119,7 @@ export default class Field extends React.Component {
 
   constructor(props) {
     super(props);
-    this._validateStart = debounce(this._validateStart, 500);
+    this._validate = debounce(this._validate, 500);
     this.state = {
       dirty: false
     };
@@ -192,12 +192,16 @@ export default class Field extends React.Component {
     }
     this.props.formValue.update(value);
     if (this.props.validate) {
-      this._validateStart(value);
+      this._validate(value);
     }
   }
 
-  _validateStart(value) {
-    this.props.validate.produce({value}).then(
+  _validate(value) {
+    let id = null;
+    if (this.props.formValue.parent) {
+      id = this.props.formValue.parent.value.id || null;
+    }
+    this.props.validate.produce({value, id}).then(
       this._onValidateComplete,
       this._onValidateError);
   }

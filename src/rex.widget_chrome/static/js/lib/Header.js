@@ -99,8 +99,11 @@ let style = stylesheet.create({
   HeaderMenu: {
     Component: layout.VBox,
     position: 'absolute',
+    background: Theme.headerMenu.background,
     zIndex: 1000,
     minWidth: 200,
+    paddingTop: 10,
+    paddingBottom: 10,
   },
 
   SubNavigation: {

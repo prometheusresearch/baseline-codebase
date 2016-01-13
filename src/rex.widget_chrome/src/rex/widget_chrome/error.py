@@ -23,17 +23,15 @@ class HandleError(BaseHandleError):
     code = '*'
 
     def widget(self, req):
-        import sys
-        print dir(self.error)
-        import traceback
-        traceback.print_exc()
         return Error(code=self.error.code,
                      title=self.error.title,
                      explanation=self.error.explanation,
                      url=req.url)
 
     def __call__(self, req):
-        return render_widget(self.widget(req), req)
+        response = render_widget(self.widget(req), req)
+        response.status = self.error.code
+        return response
 
 
 

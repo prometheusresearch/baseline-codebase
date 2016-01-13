@@ -212,16 +212,16 @@ function makeStylesheet(stylesheet) {
       attachTop: {borderTop: CSS.none},
       attachBottom: {borderBottom: CSS.none},
 
-      groupVertically: {
-        firtChild: {
+      groupHorizontally: {
+        firstChild: {
           borderRight: CSS.none,
         },
         lastChild: {
-          borderRight: CSS.none,
+          borderLeft: CSS.none,
         }
       },
-      groupHorizontally: {
-        firtChild: {
+      groupVertically: {
+        firstChild: {
           borderBottom: CSS.none,
         },
         lastChild: {

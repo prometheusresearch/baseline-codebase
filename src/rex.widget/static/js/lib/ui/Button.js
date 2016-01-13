@@ -8,7 +8,7 @@ import * as Theme from '../Theme';
 import ButtonBase from './base/ButtonBase';
 
 let defaultTextSize = {
-  small: '80%',
+  small: '85%',
   normal: '90%',
   large: '100%',
 };
@@ -28,7 +28,7 @@ let defaultWidth = {
 let stylesheet = {
   raised: true,
 
-  textWidth: 300,
+  textWidth: 400,
   textSize: defaultTextSize,
 
   text: CSS.rgb(173),
@@ -43,14 +43,14 @@ let stylesheet = {
   backgroundActive: CSS.rgb(241),
   backgroundDisabled: CSS.rgb(255),
 
-  border: CSS.rgb(234),
-  borderHover: CSS.rgb(224),
+  border: CSS.rgb(204),
+  borderHover: CSS.rgb(204),
   borderFocus: CSS.rgb(204),
   borderActive: CSS.rgb(224),
   borderDisabled: '#ececec',
 
-  shadow: '#ddd',
-  shadowHover: '#ddd',
+  shadow: '#b7b7b7',
+  shadowHover: '#b7b7b7',
   shadowFocus: '#b7b7b7',
   shadowActive: '#ddd',
   shadowDisabled: '#ddd',
@@ -211,9 +211,28 @@ function makeStylesheet(stylesheet) {
       attachRight: {borderRight: CSS.none},
       attachTop: {borderTop: CSS.none},
       attachBottom: {borderBottom: CSS.none},
+
+      groupVertically: {
+        firtChild: {
+          borderRight: CSS.none,
+        },
+        lastChild: {
+          borderRight: CSS.none,
+        }
+      },
+      groupHorizontally: {
+        firtChild: {
+          borderBottom: CSS.none,
+        },
+        lastChild: {
+          borderTop: CSS.none,
+        }
+      },
     },
 
-    Icon: {
+    IconWrapper: {
+      position: 'relative',
+      top: -1,
       hasCaption: {
         marginRight: 10,
       }

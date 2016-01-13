@@ -23,7 +23,8 @@ class HandleError(BaseHandleError):
     code = '*'
 
     def widget(self, req):
-        explanation = '%s\n\n%s' % (self.error.explanation, self.error.message)
+        explanation = '%s\n\n%s' % (self.error.explanation,
+                                    self.error.message or '')
         return Error(code=self.error.code,
                      title=self.error.title,
                      explanation=explanation,

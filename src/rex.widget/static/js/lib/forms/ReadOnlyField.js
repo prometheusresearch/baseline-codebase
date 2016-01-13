@@ -15,6 +15,7 @@ let Style = {
   label: {
     textAlign: 'right',
     color: '#666',
+    fontWeight: 700,
     padding: '2px 7px',
     margin: 0
   },

@@ -20,6 +20,7 @@ let FieldStyle = {
   label: {
     color: '#666',
     fontSize: '90%',
+    fontWeight: 700,
     textAlign: 'right',
     padding: '0px 7px',
     paddingTop: '10px',

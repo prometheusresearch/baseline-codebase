@@ -12,8 +12,8 @@ export default class Error extends React.Component {
     return (
       <div style={{padding: '10px'}}>
         <h1>{code} {title}</h1>
-        <p>{explanation}</p>
-        <p> <strong>{url}</strong> </p>
+        <p style={{fontSize: '90%', fontWeight: 'bold'}}>{url}</p>
+        <p style={{marginTop: 10, whiteSpace: 'pre'}}>{explanation}</p>
       </div>
     );
   }

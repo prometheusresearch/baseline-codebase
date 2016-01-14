@@ -187,7 +187,6 @@ export default class Field extends React.Component {
       value = e;
     }
     value = this.props.deserialize(value);
-    this.setState({dirty: true});
     if (onChange) {
       onChange(value);
     }
@@ -195,6 +194,7 @@ export default class Field extends React.Component {
     if (this.props.validate) {
       this._validate(value);
     }
+    this.setState({dirty: true});
   }
 
   _validate(value) {

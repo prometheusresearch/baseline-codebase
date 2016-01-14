@@ -10,6 +10,7 @@ export Icon from './Icon';
 export ButtonBase from './base/ButtonBase';
 export Button from './Button';
 export SuccessButton from './SuccessButton';
+export DangerButton from './DangerButton';
 export QuietButton from './QuietButton';
 export FlatButton from './FlatButton';
 export SecondaryButton from './SecondaryButton';

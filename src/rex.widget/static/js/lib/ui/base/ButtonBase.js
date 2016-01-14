@@ -31,7 +31,7 @@ export default class ButtonBase extends React.Component {
     /**
      * Button's icon.
      */
-    icon: PropTypes.string,
+    icon: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
 
     /**
      * Button's caption.

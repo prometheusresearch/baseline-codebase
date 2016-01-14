@@ -74,6 +74,39 @@ function SuccessButtonDemo() {
   );
 }
 
+function DangerButtonDemo() {
+  return (
+    <SubSection title="<DangerButton />">
+      <p>
+        There's <Code children="<DangerButton />" /> variant:
+      </p>
+      <CodeDemo code={`
+        <ui.DangerButton size="small">Remove</ui.DangerButton>
+        <ui.DangerButton>Remove</ui.DangerButton>
+        <ui.DangerButton size="large">Remove</ui.DangerButton>
+        `}>
+        <div style={{marginBottom: 5}}>
+          <ui.DangerButton size="small">Remove</ui.DangerButton>
+        </div>
+        <div style={{marginBottom: 5}}>
+          <ui.DangerButton>Remove</ui.DangerButton>
+        </div>
+        <div style={{marginBottom: 5}}>
+          <ui.DangerButton size="large">Remove</ui.DangerButton>
+        </div>
+      </CodeDemo>
+      <p>
+        With <Code>disabled</Code> variant as well:
+      </p>
+      <CodeDemo code={`
+        <ui.DangerButton disabled>Remove</ui.DangerButton>
+        `}>
+        <ui.DangerButton disabled>Remove</ui.DangerButton>
+      </CodeDemo>
+    </SubSection>
+  );
+}
+
 function FlatButtonDemo() {
   return (
     <SubSection title="<FlatButton />">
@@ -290,6 +323,7 @@ export default function UIPage() {
         <SecondaryButton />
         <SecondaryQuietButton />
         <SuccessButtonDemo />
+        <DangerButtonDemo />
         <GroupingButtonDemo />
       </Section>
 

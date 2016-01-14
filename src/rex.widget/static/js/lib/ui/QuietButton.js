@@ -29,4 +29,3 @@ export default Button.style({
   shadowFocus: CSS.none,
   shadowActive: CSS.none,
 });
-

@@ -207,10 +207,66 @@ function makeStylesheet(stylesheet) {
           boxShadow: CSS.none,
         }
       },
-      attachLeft: {borderLeft: CSS.none},
-      attachRight: {borderRight: CSS.none},
-      attachTop: {borderTop: CSS.none},
-      attachBottom: {borderBottom: CSS.none},
+      attachLeft: {
+        borderLeft: CSS.none,
+        hover: {
+          borderLeft: CSS.none,
+        },
+        focus: {
+          borderLeft: CSS.none,
+        },
+        active: {
+          borderLeft: CSS.none,
+        },
+        disabled: {
+          borderLeft: CSS.none,
+        },
+      },
+      attachRight: {
+        borderRight: CSS.none,
+        hover: {
+          borderRight: CSS.none,
+        },
+        focus: {
+          borderRight: CSS.none,
+        },
+        active: {
+          borderRight: CSS.none,
+        },
+        disabled: {
+          borderRight: CSS.none,
+        },
+      },
+      attachTop: {
+        borderTop: CSS.none,
+        hover: {
+          borderTop: CSS.none,
+        },
+        focus: {
+          borderTop: CSS.none,
+        },
+        active: {
+          borderTop: CSS.none,
+        },
+        disabled: {
+          borderTop: CSS.none,
+        },
+      },
+      attachBottom: {
+        borderBottom: CSS.none,
+        hover: {
+          borderBottom: CSS.none,
+        },
+        focus: {
+          borderBottom: CSS.none,
+        },
+        active: {
+          borderBottom: CSS.none,
+        },
+        disabled: {
+          borderBottom: CSS.none,
+        },
+      },
 
       groupHorizontally: {
         borderRight: CSS.none,

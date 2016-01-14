@@ -161,7 +161,7 @@ let ConfigurableField = React.createClass({
           select={field.valueKey}
           formValue={formValue}
           storage={field.storage}
-          download={field.download}
+          column={field.column}
           readOnly={readOnly}
           validate={field.validate}
           />

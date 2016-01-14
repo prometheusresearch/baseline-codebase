@@ -23,6 +23,7 @@ from rex.core import RecordVal, MapVal, SeqVal, ChoiceVal, OneOfVal, UnionVal, P
 from rex.core import AnyVal, StrVal, UStrVal, IntVal, BoolVal, MaybeVal
 from rex.port import Port, GrowVal
 from rex.db import get_db, Query
+from rex.file.map import FileRenderer
 
 from .widget import Widget
 from .field import Field
@@ -754,12 +755,43 @@ class DatetimeFormField(FormField):
         return DatetimeField(format=self.format)
 
 
+class FileColumn(object):
+
+    def __init__(self, column):
+        self.column = column
+
+    def respond(self, req):
+        table = self.column
+        link = 'file'
+        if '.' in table:
+            table, link = table.split('.')
+        port = Port({'entity': table, 'select': [link]})
+        # auth is already checked at the widget level
+        return FileRenderer(port, 'anybody', False)(req)
+
+
+@as_transitionable(FileColumn)
+def _format_FileColumn(value, req, path):
+    return Pointer(value, to_field=True)
+
+
+class FileColumnVal(Validate):
+
+    _validate = StrVal()
+
+    def __call__(self, value):
+        if isinstance(value, FileColumn):
+            return value
+        value = self._validate(value)
+        return FileColumn(value)
+
 
 class FileFormField(FormField):
 
     type = 'file'
+
     fields = (
-        ('download', URLVal()),
+        ('column', FileColumnVal()),
         ('storage', URLVal(), 'rex.file:/'),
     )
 

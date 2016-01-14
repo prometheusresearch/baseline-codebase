@@ -57,7 +57,7 @@ let FileUploadInput = React.createClass({
   },
 
   render() {
-    let {value, required, download, ownerRecordID, ...props} = this.props;
+    let {value, required, column, ownerRecordID, ...props} = this.props;
     let {file, progress, error} = this.state;
     // the case when we need to render a file stored in storage
     let renderStoredFile = !file && value;
@@ -78,7 +78,7 @@ let FileUploadInput = React.createClass({
           renderStoredFile ?
           <StoredFile
             file={file}
-            download={download}
+            download={column}
             ownerRecordID={ownerRecordID}
             /> :
           file ?
@@ -183,7 +183,7 @@ export default class FileUploadField extends React.Component {
 
   render() {
     let {
-      className, storage, download, readOnly,
+      className, storage, column, readOnly,
       formValue, select, selectFormValue, ...props
     } = this.props;
     if (!readOnly) {
@@ -192,7 +192,7 @@ export default class FileUploadField extends React.Component {
         <FileUploadInput
           ownerRecordID={this._getOwnerRecordID()}
           storage={storage}
-          download={download}
+          download={column}
           required={required}
           />
       );
@@ -205,13 +205,12 @@ export default class FileUploadField extends React.Component {
         </Field>
       );
     } else {
-      console.log(formValue.value);
       return (
         <ReadOnlyField {...props} formValue={formValue}>
           <FileDownload
             file={formValue.value}
             ownerRecordID={this._getOwnerRecordID()}
-            download={download}
+            download={column}
             />
         </ReadOnlyField>
       );

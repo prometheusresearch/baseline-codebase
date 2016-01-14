@@ -18,13 +18,13 @@ function makeTheme(params) {
       boxShadow: css.boxShadow(0, 1, 0, 0, params.primaryColor.darkenByRatio(0.2).toCSS()),
       textShadow: css.textShadow(0, 1, 0, params.primaryColor.darkenByRatio(0.4).toCSS()),
       hover: {
-        background: params.primaryColor.lightenByRatio(0.4).toCSS()
+        background: params.secondaryColor.darkenByRatio(0.2).toCSS()
       }
     },
     headerMenu: {
-      background: params.primaryColor.lightenByRatio(0.4).toCSS(),
+      background: params.secondaryColor.darkenByRatio(0.2).toCSS(),
       hover: {
-        background: params.primaryColor.lightenByRatio(0.5).toCSS(),
+        background: params.secondaryColor.darkenByRatio(0.1).toCSS(),
       }
     },
     subHeader: {

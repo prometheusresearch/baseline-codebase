@@ -5,8 +5,8 @@
 import * as css from 'rex-widget/css';
 
 const companyColors = {
-  prometheusDarkBlue: css.color('#004E94'),
-  prometheusLighterBlue: css.color('#0094CD'),
+  prometheusDarkBlue: css.createColor('#004E94'),
+  prometheusLighterBlue: css.createColor('#0094CD'),
 };
 
 function makeTheme(params) {

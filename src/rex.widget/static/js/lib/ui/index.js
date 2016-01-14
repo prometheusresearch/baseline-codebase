@@ -26,3 +26,5 @@ export PillList from './PillList';
 export {default as Pill} from './base/TabBase';
 export Panel from './Panel';
 export SecondaryPanel from './SecondaryPanel';
+
+export dispatchResizeEvent from './dispatchResizeEvent';

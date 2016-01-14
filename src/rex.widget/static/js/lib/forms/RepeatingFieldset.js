@@ -46,6 +46,11 @@ export default class RepeatingFieldset extends React.Component {
     label: PropTypes.string,
 
     /**
+     * The read-only flag.
+     */
+    readOnly: PropTypes.bool,
+
+    /**
      * The text of the Add Button.
      */
     addButtonText: PropTypes.string,
@@ -73,7 +78,7 @@ export default class RepeatingFieldset extends React.Component {
 
   render() {
     let {
-      baseIndex, children, formValue, label,
+      baseIndex, children, formValue, label, readOnly,
       addButtonText, removeButtonText, ...props
     } = this.props;
     let minItems = formValue.schema.minItems || 0;
@@ -84,7 +89,7 @@ export default class RepeatingFieldset extends React.Component {
     let fieldsets = items.map((item, idx) =>
       <Fieldset formValue={formValue.select(idx + baseIndex)} key={idx + baseIndex}>
         <HBox>
-          <VBox style={{marginRight: 10}}>
+        {!readOnly && <VBox style={{marginRight: 10}}>
             <Button
               quiet
               size="small"
@@ -93,7 +98,7 @@ export default class RepeatingFieldset extends React.Component {
               text={removeButtonText}
               onClick={this.removeItem.bind(null, idx + baseIndex)}
               />
-          </VBox>
+          </VBox>}
           <VBox size={1}>
             {children}
           </VBox>
@@ -114,11 +119,11 @@ export default class RepeatingFieldset extends React.Component {
             {formValue.errorList.map((error, idx) =>
               <VBox key={idx}>{error.message}</VBox>)}
           </VBox>}
-        <VBox>
+        {!readOnly && <VBox>
           <Button quiet icon="plus" onClick={this.addItem}>
             {addButtonText}
           </Button>
-        </VBox>
+        </VBox>}
       </VBox>
     );
   }

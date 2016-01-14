@@ -19,7 +19,7 @@ let RepeatingFieldset = require('./RepeatingFieldset');
 let FileUploadField   = require('./FileUploadField');
 
 
-let FIELDS_WITH_READONLY_MODE = ['entity', 'bool', 'enum', 'file'];
+let FIELDS_WITH_READONLY_MODE = ['entity', 'bool', 'enum', 'file', 'list'];
 
 /**
  * ConfigurableField component.
@@ -241,10 +241,13 @@ let ConfigurableField = React.createClass({
         <RepeatingFieldset
           key={field.valueKey}
           label={field.label}
+          readOnly={readOnly}
           hint={field.hint}
           formValue={formValue}
           select={field.valueKey}>
-          {field.fields.map(f => <ConfigurableField field={f} select={f.valueKey} />)}
+          {field.fields.map(f => <ConfigurableField field={f}
+                                   select={f.valueKey}
+                                   readOnly={readOnly}/>)}
         </RepeatingFieldset>
       );
     default:

@@ -213,11 +213,33 @@ function makeStylesheet(stylesheet) {
       attachBottom: {borderBottom: CSS.none},
 
       groupHorizontally: {
-        firstChild: {
+        borderRight: CSS.none,
+        hover: {
+          borderRight: CSS.none,
+        },
+        focus: {
+          borderRight: CSS.none,
+        },
+        active: {
+          borderRight: CSS.none,
+        },
+        disabled: {
           borderRight: CSS.none,
         },
         lastChild: {
-          borderLeft: CSS.none,
+          borderRight: CSS.border(1, stylesheet.border),
+          hover: {
+            borderRight: CSS.border(1, stylesheet.borderHover),
+          },
+          focus: {
+            borderRight: CSS.border(1, stylesheet.borderFocus),
+          },
+          active: {
+            borderRight: CSS.border(1, stylesheet.borderActive),
+          },
+          disabled: {
+            borderRight: CSS.border(1, stylesheet.borderDisabled),
+          }
         }
       },
       groupVertically: {

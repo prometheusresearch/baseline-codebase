@@ -20,6 +20,7 @@
     "@prometheusresearch/react-box": "^0.4.0",
     "@prometheusresearch/react-datetimepicker": "^0.2.0",
     "autobind-decorator": "^1.3.2",
+    "color-js": "^1.0.3",
     "bootstrap": "3.3.5",
     "bootstrap-datepicker": "^1.3.0",
     "classnames": "^2.1.2",

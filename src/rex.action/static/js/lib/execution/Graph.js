@@ -86,7 +86,14 @@ export default class Graph {
         graph = graph.close();
       } else {
         let nextNode = graph.node.then
-          .filter(p => p.action === segment && p.isAllowed)[0];
+          .filter(n => {
+            if (n.parent && Instruction.IncludeWizard.is(n.parent.instruction)) {
+              return n.parent.action === segment;
+            } else {
+              return n.action === segment;
+            }
+          })
+          .filter(n => n.isAllowed)[0];
         if (!nextNode) {
           return graph;
         }
@@ -174,7 +181,6 @@ export default class Graph {
           nextNode.instruction.replace,
           currentNode.context
         );
-        console.log(graph);
         return graph;
       } else {
         invariant(

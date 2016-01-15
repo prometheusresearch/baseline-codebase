@@ -333,9 +333,15 @@ function resolveNodeByReference(node, reference) {
       let nextNodes = currentNode.then;
       // TODO: Allow to traverse replace actions, now we filter them out not to
       // fail into infinte recursion.
-      nextNodes = nextNodes.filter(n => !Replace.is(n));
+      nextNodes = nextNodes.filter(n => !Replace.is(n.instruction));
       // TODO: Fail on crossing wizard boundaries.
-      nextNodes = nextNodes.filter(n => n.action === segment);
+      nextNodes = nextNodes.filter(n => {
+        if (n.parent && IncludeWizard.is(n.parent.instruction)) {
+          return n.parent.action === segment
+        } else {
+          return n.action === segment
+        }
+      });
       currentNode = nextNodes[0];
     }
     invariant(

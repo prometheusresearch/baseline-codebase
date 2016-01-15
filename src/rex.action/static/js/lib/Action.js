@@ -10,6 +10,7 @@ import React                from 'react';
 import {VBox, HBox}         from 'rex-widget/layout';
 import * as Stylesheet      from 'rex-widget/stylesheet';
 import * as CSS             from 'rex-widget/css';
+import {contextTypes} from './ActionContext';
 
 import {
   QuietButton,
@@ -52,13 +53,15 @@ export default class Action extends React.Component {
     renderFooter: emptyFunction
   };
 
+  static contextTypes = contextTypes;
+
   static stylesheet = Stylesheet.create({
     Root: {
       Component: VBox,
       flex: 1,
     },
     Header: {
-      Component: HBox,
+      Component: VBox,
       boxShadow: Theme.shadow.normal(),
       padding: '20px 10px',
     },
@@ -66,6 +69,10 @@ export default class Action extends React.Component {
       Component: VBox,
       flex: 1,
       padding: 10,
+    },
+    Toolbar: {
+      Component: VBox,
+      marginTop: 10
     },
     Footer: {
       padding: 5,
@@ -89,8 +96,17 @@ export default class Action extends React.Component {
   });
 
   render() {
-    let {Root, Header, Content, ContentContainer, Footer, Title} = this.stylesheet;
-    let {children, title, onClose, noContentWrapper} = this.props;
+    let {
+      Root,
+      Header,
+      Content,
+      ContentContainer,
+      Footer,
+      Title,
+      Toolbar
+    } = this.stylesheet;
+    let {children, toolbar, title, onClose, noContentWrapper} = this.props;
+    toolbar = toolbar || this.context.toolbar;
     let footer = this.props.renderFooter();
     if (footer) {
       footer = <Footer>{footer}</Footer>;
@@ -98,12 +114,15 @@ export default class Action extends React.Component {
     return (
       <Root>
         <Header>
-          {title && <Title>{title}</Title>}
-          {onClose &&
-            <QuietButton
-              icon="remove"
-              onClick={onClose}
-              />}
+          <HBox>
+            {title && <Title>{title}</Title>}
+            {onClose &&
+              <QuietButton
+                icon="remove"
+                onClick={onClose}
+                />}
+          </HBox>
+          {toolbar && <Toolbar>{toolbar}</Toolbar>}
         </Header>
         <ContentContainer footer={footer}>
           {noContentWrapper ?

@@ -43,9 +43,11 @@ paths:
         view-individual: /individuals/view
         drop-individual:
           type: drop
+          title: Drop
           entity: individual[x]
         edit-individual:
           type: edit
+          title: Edit
           entity: individual
           fields:
           - code
@@ -67,27 +69,28 @@ paths:
     action:
       type: wizard
       path:
-      - plab:
-      - pick-make-individual:
-        - drop-individual:
-        - view-individual:
-        - edit-individual:
       - pick-lab:
         - view-lab:
+        - edit-lab:
+        - drop-lab:
+        - make-lab:
+          - replace: ../../pick-lab
       actions:
-        plab:
-          type: pick
-          entity: lab
-          fields:
-          - code
-          - title
         pick-lab: /labs/pick
         view-lab: /labs/view
+        make-lab:
+          type: make
+          entity: lab
+        edit-lab: /labs/edit
+        drop-lab:
+          type: drop
+          entity: lab
         pick-make-individual: /individuals/pick-make
         view-individual: /individuals/view?individual=individual[super]
         edit-individual: /individuals/edit
         drop-individual:
           type: drop
+          title: Drop
           entity: individual
 
       states:
@@ -95,20 +98,3 @@ paths:
           super:
             title: Super
             expression: id() = 'A11Z1814'
-
-  /@/plab: !override
-    fields:
-    - code
-
-  /@/view-lab: !override
-    fields:
-    - value_key: code
-      label: CODE
-
-  /labs/pick: !override
-    fields:
-    - code
-
-  /individuals/pick-make/@/pick-individual: !override
-    fields:
-    - code

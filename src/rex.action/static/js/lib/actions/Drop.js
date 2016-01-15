@@ -2,14 +2,15 @@
  * @copyright 2015, Prometheus Research, LL);
  */
 
-import React            from 'react';
+import React from 'react';
 
-import RexWidget        from 'rex-widget';
-import {VBox, HBox}     from 'rex-widget/layout';
-import * as Stylesheet  from 'rex-widget/stylesheet';
-import * as CSS         from 'rex-widget/css';
+import RexWidget from 'rex-widget';
+import {VBox, HBox} from 'rex-widget/layout';
+import * as Stylesheet from 'rex-widget/stylesheet';
+import * as ui from 'rex-widget/ui';
+import * as CSS from 'rex-widget/css';
 
-import Title            from './Title';
+import Title from './Title';
 import {command, Types} from '../execution/Command';
 import {getEntityTitle} from '../Entity';
 
@@ -54,7 +55,8 @@ export default class Drop extends React.Component {
   static defaultProps = {
     width: 400,
     icon: 'remove',
-    confirmDelay: 3
+    confirmDelay: 3,
+    kind: 'danger',
   };
 
   constructor(props) {
@@ -88,13 +90,12 @@ export default class Drop extends React.Component {
           <stylesheet.Message>
             <div dangerouslySetInnerHTML={{__html: message}} />
           </stylesheet.Message>
-          <RexWidget.Button
+          <ui.DangerButton
             onClick={this.drop}
             disabled={confirmDelay > 0}
-            danger
             icon="remove">
             Drop
-          </RexWidget.Button>
+          </ui.DangerButton>
           <stylesheet.MessageBottom>
             {confirmDelay > 0 ?
               <p>

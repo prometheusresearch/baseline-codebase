@@ -81,7 +81,7 @@ export default ButtonBase.style({
     },
   },
 
-  Icon: {
+  IconWrapper: {
     hasCaption: {
       marginRight: Theme.margin.medium
     }

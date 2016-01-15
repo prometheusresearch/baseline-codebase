@@ -26,10 +26,10 @@ export default class ActionButton extends React.Component {
 
   render() {
     let {Button} = this.stylesheet;
-    let {node, showContext, ...props} = this.props;
+    let {node, showContext, active, ...props} = this.props;
     let icon = getIconAtNode(node);
     return (
-      <Button {...props} icon={icon} onClick={this._onClick}>
+      <Button {...props} variant={{active}} icon={icon} onClick={this._onClick}>
         <ActionTitle
           node={node}
           noRichTitle={!showContext}

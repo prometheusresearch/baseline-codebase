@@ -6,17 +6,17 @@
 import autobind             from 'autobind-decorator';
 import React                from 'react';
 import RexWidget            from 'rex-widget';
-import {Fetch}              from 'rex-widget/lib/data';
+import * as ui from 'rex-widget/ui';
+import * as data from 'rex-widget/data';
 import Action               from '../Action';
 import * as ObjectTemplate  from '../ObjectTemplate';
 import * as ContextUtils    from '../ContextUtils';
-import {SuccessButton}      from '../ui';
 import {getEntityTitle}     from '../Entity';
 import Title                from './Title';
 import fetchEntity          from './fetchEntity';
 import applyContext         from '../applyContext';
 
-@Fetch(fetchEntity)
+@data.Fetch(fetchEntity)
 export default class Edit extends React.Component {
 
   static propTypes = {
@@ -50,9 +50,9 @@ export default class Edit extends React.Component {
   renderFooter() {
     let {submitButton, icon} = this.props;
     return (
-      <SuccessButton icon={icon} onClick={this._onSubmit}>
+      <ui.SuccessButton icon={icon} onClick={this._onSubmit}>
         {submitButton}
-      </SuccessButton>
+      </ui.SuccessButton>
     );
   }
 

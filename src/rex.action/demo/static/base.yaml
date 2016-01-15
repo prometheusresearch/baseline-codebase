@@ -1,0 +1,43 @@
+paths:
+
+  /labs/view:
+    access: anybody
+    action:
+      type: view
+      entity: lab
+
+  /labs/edit:
+    access: anybody
+    action:
+      type: edit
+      entity: lab
+
+  /labs/pick:
+    access: anybody
+    action:
+      type: pick
+      entity: lab
+
+  /individuals/pick-make:
+    access: anybody
+    action:
+      type: wizard
+      title: Individuals
+      path:
+      - pick-individual:
+        - make-individual:
+          - replace: ../../pick-individual
+      actions:
+        make-individual: /individuals/make
+        view-individual: /individuals/view
+        view-lab: /labs/view
+        pick-lab: /labs/pick
+        pick-individual:
+          type: pick
+          entity: individual
+          search: code~$search
+          search_placeholder: Search by code or name
+          fields:
+          - code
+          - identity.givenname
+          - identity.surname

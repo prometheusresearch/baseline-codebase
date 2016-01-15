@@ -37,34 +37,39 @@ export default class ActionTitle extends React.Component {
   static stylesheet = Stylesheet.create({
     Primary: {
       Component: VBox,
+      noWrap: {
+        whiteSpace: 'nowrap',
+      }
     },
     Secondary: {
       Component: VBox,
       opacity: 0.7,
       fontSize: '90%',
+      noWrap: {
+        whiteSpace: 'nowrap',
+      }
     },
   });
 
   render() {
     let {Primary, Secondary} = this.stylesheet;
-    let {node, subTitle, titleOnly, noRichTitle, ...props} = this.props;
+    let {node, subTitle, titleOnly, noRichTitle, noWrap, ...props} = this.props;
     if (node.element.type.renderTitle && !noRichTitle) {
       return node.element.type.renderTitle(
         node.element.props,
         node.context
       );
     }
-
     let title = getTitleAtNode(node);
     if (subTitle) {
       return (
         <VBox>
-          <Primary>{title}</Primary>
-          <Secondary>{subTitle}</Secondary>
+          <Primary variant={{noWrap}}>{title}</Primary>
+          <Secondary variant={{noWrap}}>{subTitle}</Secondary>
         </VBox>
       );
     } else {
-      return <Primary>{title}</Primary>;
+      return <Primary variant={{noWrap}}>{title}</Primary>;
     }
   }
 }

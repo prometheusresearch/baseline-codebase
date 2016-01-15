@@ -174,6 +174,7 @@ export default class Graph {
           nextNode.instruction.replace,
           currentNode.context
         );
+        console.log(graph);
         return graph;
       } else {
         invariant(
@@ -260,7 +261,6 @@ export default class Graph {
       nextTrace.push(nextNode);
     }
     let nextGraph = new this.constructor(nextTrace);
-    nextGraph = nextGraph.advance();
     return nextGraph;
   }
 

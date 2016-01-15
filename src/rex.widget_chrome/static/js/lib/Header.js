@@ -31,6 +31,7 @@ let style = stylesheet.create({
   Navigation: {
     Component: layout.HBox,
     alignItems: 'flex-end',
+    flex: 1,
   },
 
   HeaderButton: {
@@ -104,6 +105,7 @@ let style = stylesheet.create({
     minWidth: 200,
     paddingTop: 10,
     paddingBottom: 10,
+    boxShadow: css.boxShadow(0, 8, 16, 0, css.rgba(0, 0, 0, 0.2)),
   },
 
   SubNavigation: {
@@ -113,7 +115,7 @@ let style = stylesheet.create({
     color: Theme.subHeader.text,
     border: css.display.block,
     height: Theme.subHeader.height,
-    justifyContent: 'center',
+    paddingLeft: 20,
     width: '100%',
     collapsed: {
       height: 5
@@ -135,11 +137,12 @@ let style = stylesheet.create({
       color: Theme.subHeader.text,
       background: Theme.subHeader.background,
       border: css.none,
-      height: Theme.subHeader.height - 1,
+      height: Theme.subHeader.height,
       padding: css.padding(0, 15),
-      marginRight: 10,
+      borderTop: css.border(3, Theme.subHeader.background),
+      borderBottom: css.border(3, Theme.subHeader.background),
       open: {
-        background: Theme.subHeader.hover.background
+        borderBottom: css.border(3, Theme.header.background),
       },
       focus: {
         outline: css.none,

@@ -189,6 +189,26 @@ definitions:
             type: text
             expression: upper(assessment_uid) + '-3'
 
+  - id: overlap_names_assessment
+    description: Load an Assessment that has field names that overlap special column names
+    deploy: !include simple_subject.yaml
+    post_deploy_scripts:
+      - script: !include/str subject.htsql
+        type: htsql
+    assessments:
+      - instrument: mart12
+        selector:
+          query: |
+            /assessment{
+              id() :as assessment_uid,
+              subject.id() :as subject
+            }.filter(
+              instrumentversion.instrument=$INSTRUMENT
+            )/:rexdb
+        parental_relationship:
+          type: branch
+          parent: subject
+
   - id: select_json
     description: An Assessment selector that includes a JSON field
     deploy:

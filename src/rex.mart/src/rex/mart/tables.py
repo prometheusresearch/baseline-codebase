@@ -22,6 +22,8 @@ Statement = namedtuple('Statement', ['htsql', 'parameters'])
 
 
 class MappingTable(object):
+    reserved_column_names = []
+
     def __init__(self, name):
         self.name = name
         self.fields = OrderedDict()
@@ -34,6 +36,14 @@ class MappingTable(object):
         merge_field_into(self.fields, field)
 
     def ensure_unique_fieldnames(self):
+        if self.reserved_column_names:
+            base_name_len = get_settings().mart_max_name_length - 4
+            for field in self.fields.itervalues():
+                if field.target_name in self.reserved_column_names:
+                    field.force_target_name('%s_src' % (
+                        field.target_name[:base_name_len],
+                    ))
+
         field_names = [
             field.target_name
             for field in self.fields.itervalues()
@@ -58,11 +68,11 @@ class MappingTable(object):
                 ))
                 cnt += 1
 
-    def get_field_facts(self, exclude_fields=None):
+    def get_field_facts(self, exclude_columns=None):
         facts = []
 
         for field in self.fields.itervalues():
-            if exclude_fields and field.name in exclude_fields:
+            if exclude_columns and field.target_name in exclude_columns:
                 continue
             facts.extend(field.get_deploy_facts(self.table_name))
 
@@ -151,6 +161,12 @@ class ChildTable(MappingTable):  # pylint: disable=abstract-method
         self._table_name = None
 
     @property
+    def reserved_column_names(self):
+        return [
+            self.parent.table_name,
+        ]
+
+    @property
     def table_name(self):
         if not self._table_name:
             name = '%s_%s' % (
@@ -196,7 +212,7 @@ class FacetTable(ChildTable):
         })
 
         facts.extend(self.get_field_facts(
-            exclude_fields=[self.parent.table_name],
+            exclude_columns=[self.parent.table_name],
         ))
 
         return facts
@@ -260,6 +276,12 @@ class MatrixTable(FacetTable):
 
 
 class BranchTable(ChildTable):
+    @property
+    def reserved_column_names(self):
+        names = super(BranchTable, self).reserved_column_names[:]
+        names.append('record_seq')
+        return names
+
     def get_deploy_facts(self):
         facts = []
 
@@ -273,7 +295,7 @@ class BranchTable(ChildTable):
             'required': True,
         })
         facts.append({
-            'column': 'record_uid',
+            'column': 'record_seq',
             'type': 'integer',
             'of': self.table_name,
             'required': True,
@@ -281,13 +303,13 @@ class BranchTable(ChildTable):
         facts.append({
             'identity': [
                 self.parent.table_name,
-                {'record_uid': 'offset'},
+                {'record_seq': 'offset'},
             ],
             'of': self.table_name,
         })
 
         facts.extend(self.get_field_facts(
-            exclude_fields=[self.parent.table_name, 'record_uid'],
+            exclude_columns=[self.parent.table_name, 'record_seq'],
         ))
 
         return facts
@@ -348,6 +370,11 @@ class RecordListTable(BranchTable):
 
 
 class PrimaryTable(MappingTable):
+    reserved_column_names = [
+        'assessment_uid',
+        'instrument_version_uid',
+    ]
+
     def __init__(self, definition, database):
         self.definition = definition
         super(PrimaryTable, self).__init__(self.definition['name'])
@@ -408,7 +435,7 @@ class PrimaryTable(MappingTable):
         })
 
         facts.extend(self.get_field_facts(
-            exclude_fields=parents + [
+            exclude_columns=parents + [
                 'assessment_uid',
                 'instrument_version_uid',
             ],

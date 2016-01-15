@@ -66,12 +66,12 @@ Copy an existing DB::
     >>> db_exists(mart.name)
     True
     >>> db_inventory(mart.name)
-    assessment: 22
+    assessment: 23
     channel: 5
     draftinstrumentversion: 2
     entry: 10
-    instrument: 19
-    instrumentversion: 21
+    instrument: 20
+    instrumentversion: 22
     people: 5
     subject: 7
     task: 7
@@ -224,13 +224,13 @@ Load data into an existing database::
     >>> db_exists(mart.name)
     True
     >>> db_inventory(mart.name)
-    assessment: 22
+    assessment: 23
     channel: 5
     draftinstrumentversion: 2
     entry: 10
     foo: 5
-    instrument: 19
-    instrumentversion: 21
+    instrument: 20
+    instrumentversion: 22
     people: 5
     subject: 7
     task: 7

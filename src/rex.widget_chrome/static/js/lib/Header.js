@@ -139,10 +139,10 @@ let style = stylesheet.create({
       border: css.none,
       height: Theme.subHeader.height,
       padding: css.padding(0, 15),
-      borderTop: css.border(3, Theme.subHeader.background),
-      borderBottom: css.border(3, Theme.subHeader.background),
+      borderTop: css.border(4, Theme.subHeader.background),
+      borderBottom: css.border(4, Theme.subHeader.background),
       open: {
-        borderBottom: css.border(3, Theme.header.background),
+        borderBottom: css.border(4, Theme.header.background),
       },
       focus: {
         outline: css.none,

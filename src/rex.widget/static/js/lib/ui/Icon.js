@@ -56,7 +56,7 @@ const ICONS = {
   'th': require('babel-loader!react-icons/fa/th'),
   'th-list': require('babel-loader!react-icons/fa/th-list'),
   'ok': require('babel-loader!react-icons/fa/check'),
-  'remove': require('babel-loader!react-icons/fa/times-circle-o'),
+  'remove': require('babel-loader!react-icons/fa/times-circle'),
   'zoom-in': require('babel-loader!react-icons/fa/search-plus'),
   'zoom-out': require('babel-loader!react-icons/fa/search-minus'),
   'off': require('babel-loader!react-icons/fa/power-off'),

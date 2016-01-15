@@ -28,9 +28,9 @@ export default Button.style({
   borderActive: CSS.rgb(173, 48, 48),
   borderDisabled: CSS.rgb(226, 135, 135),
 
-  shadow: CSS.rgb(154, 49, 49),
-  shadowFocus: CSS.rgb(109, 34, 34),
-  shadowHover: CSS.rgb(109, 34, 34),
-  shadowActive: CSS.rgb(109, 34, 34),
+  shadow: CSS.rgb(142, 31, 31),
+  shadowFocus: CSS.rgb(70, 21, 20),
+  shadowHover: CSS.rgb(70, 21, 20),
+  shadowActive: CSS.rgb(70, 21, 20),
 });
 

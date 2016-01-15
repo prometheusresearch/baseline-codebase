@@ -7,36 +7,9 @@ import autobind from 'autobind-decorator';
 import React from 'react';
 import {WithFormValue} from 'react-forms';
 import {HBox, VBox} from '../../layout';
+import * as layout from '../../layout';
+import * as Stylesheet from '../../stylesheet';
 import Input from './Input';
-
-let FieldStyle = {
-  self: {
-    marginBottom: 5
-  },
-  requiredTag: {
-    color: 'red',
-    marginLeft: 3
-  },
-  label: {
-    color: '#666',
-    fontSize: '90%',
-    fontWeight: 700,
-    textAlign: 'right',
-    padding: '0px 7px',
-    paddingTop: '10px',
-    margin: 0
-  },
-  hint: {
-    fontSize: '75%',
-    padding: '0px 7px',
-    textAlign: 'right'
-  },
-  errorList: {
-    marginTop: 3,
-    color: 'red',
-    fontSize: '80%'
-  }
-};
 
 /**
  * Field component.
@@ -46,7 +19,44 @@ let FieldStyle = {
  * @public
  */
 @WithFormValue
+@Stylesheet.attach
 export default class Field extends React.Component {
+
+  static stylesheet = Stylesheet.create({
+    Root: {
+      Component: layout.VBox,
+      marginBottom: 5,
+    },
+    Required: {
+      Component: 'span',
+      color: 'red',
+      marginLeft: 3,
+      width: 5,
+      display: 'inline-block',
+    },
+    ErrorList: {
+      Component: layout.VBox,
+      marginTop: 3,
+      color: 'red',
+      fontSize: '80%'
+    },
+    Label: {
+      Component: 'label',
+      color: '#666',
+      fontSize: '90%',
+      fontWeight: 700,
+      textAlign: 'right',
+      padding: '0px 7px',
+      paddingTop: '10px',
+      margin: 0
+    },
+    Hint: {
+      Component: 'div',
+      fontSize: '75%',
+      padding: '0px 7px',
+      textAlign: 'right'
+    },
+  });
 
   static propTypes = {
     /**
@@ -127,6 +137,7 @@ export default class Field extends React.Component {
   }
 
   render() {
+    let {Root, Required, ErrorList, Label, Hint} = this.constructor.stylesheet;
     let {label, hint, children, onChange, labelSize, inputSize,
       serialize, ...props} = this.props;
     let {dirty} = this.state;
@@ -139,31 +150,26 @@ export default class Field extends React.Component {
         onChange: this.onChange.bind(null, onChange)
       });
     return (
-      <VBox {...props} onBlur={this.onBlur} style={FieldStyle.self}>
+      <Root {...props} onBlur={this.onBlur}>
         <HBox>
           {label &&
             <VBox flex={labelSize}>
-              <label style={FieldStyle.label}>
+              <Label>
                 {label}
-                {schema && schema.isRequired ?
-                  <span style={FieldStyle.requiredTag}>*</span> :
-                  null}
-              </label>
-              {hint &&
-                <div style={FieldStyle.hint}>
-                  {hint}
-                </div>}
+                <Required>{schema && schema.isRequired ? '*' : null}</Required>
+              </Label>
+              {hint && <Hint>{hint}</Hint>}
             </VBox>}
           <VBox flex={inputSize}>
             {children}
             {showErrors && errorList.length > 0 &&
-              <VBox style={FieldStyle.errorList}>
+              <ErrorList>
                 {errorList.map((error, idx) =>
                   <VBox key={idx}>{error.message}</VBox>)}
-              </VBox>}
+              </ErrorList>}
           </VBox>
         </HBox>
-      </VBox>
+      </Root>
     );
   }
 

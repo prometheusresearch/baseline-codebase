@@ -76,6 +76,7 @@ export default class Action extends React.Component {
     },
     Footer: {
       padding: 5,
+      flexShrink: 0,
       pinned: {
         zIndex: 1000,
         background: Theme.color.primary.background,

@@ -374,7 +374,10 @@ export default function UIPage() {
                 <ui.SuccessButton>OK</ui.SuccessButton>
               </layout.VBox>
               <layout.VBox marginRight={5}>
-                <ui.Button>Cancel</ui.Button>
+                <ui.DangerButton>Cancel</ui.DangerButton>
+              </layout.VBox>
+              <layout.VBox marginRight={5}>
+                <ui.Button>Hm...</ui.Button>
               </layout.VBox>
             </layout.HBox>
           </ui.Panel>

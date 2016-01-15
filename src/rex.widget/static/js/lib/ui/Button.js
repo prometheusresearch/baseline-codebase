@@ -31,10 +31,10 @@ let stylesheet = {
   textWidth: 400,
   textSize: defaultTextSize,
 
-  text: CSS.rgb(173),
-  textHover: CSS.rgb(130),
-  textFocus: CSS.rgb(154),
-  textActive: CSS.rgb(173),
+  text: CSS.rgb(130),
+  textHover: CSS.rgb(100),
+  textFocus: CSS.rgb(100),
+  textActive: CSS.rgb(100),
   textDisabled: '#dadada',
 
   background: CSS.rgb(255),
@@ -43,10 +43,10 @@ let stylesheet = {
   backgroundActive: CSS.rgb(241),
   backgroundDisabled: CSS.rgb(255),
 
-  border: CSS.rgb(204),
-  borderHover: CSS.rgb(204),
-  borderFocus: CSS.rgb(204),
-  borderActive: CSS.rgb(224),
+  border: CSS.rgb(180),
+  borderHover: CSS.rgb(180),
+  borderFocus: CSS.rgb(180),
+  borderActive: CSS.rgb(200),
   borderDisabled: '#ececec',
 
   shadow: '#b7b7b7',

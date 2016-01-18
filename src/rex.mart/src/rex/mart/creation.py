@@ -9,6 +9,7 @@ import sys
 from datetime import datetime
 
 from rex.core import Error, get_settings
+from rex.deploy import model as deploy_model
 
 from .assessments import AssessmentLoader
 from .config import get_definition
@@ -491,18 +492,18 @@ class ProcessorInterface(object):
         self._creator.connect_mart()
         return self._creator.database
 
-    def get_catalog(self):
+    def get_deploy_model(self):
         """
-        Retrieves a rex.deploy Catalog for the Mart database.
+        Retrieves a rex.deploy Model for the Mart database.
 
-        :rtype: rex.deploy.image.CatalogImage
+        :rtype: rex.deploy.image.ModelSchema
         """
 
         cluster = get_hosting_cluster()
         driver = cluster.drive(self._creator.name)
-        catalog = driver.get_catalog()
+        model = deploy_model(driver)
         driver.close()
-        return catalog
+        return model
 
     def get_assessment_mappings(self):
         """

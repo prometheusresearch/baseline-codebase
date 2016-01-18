@@ -7,7 +7,6 @@ from csv import DictReader
 from StringIO import StringIO
 
 from rex.core import Error, StrVal, MaybeVal
-from rex.deploy import uncomment
 
 from ..fields import EnumerationSetField
 from .base import Processor
@@ -19,27 +18,6 @@ __all__ = (
 
 
 # pylint: disable=no-self-use
-
-
-DEPLOY_TYPE_MAPPING = {
-    'bool': 'boolean',
-    'int2': 'integer',
-    'int4': 'integer',
-    'int8': 'integer',
-    'numeric': 'float',
-    'float4': 'float',
-    'float8': 'float',
-    'bpchar': 'text',
-    'varchar': 'text',
-    'text': 'text',
-    'date': 'date',
-    'time': 'time',
-    'timetz': 'time',
-    'timestamp': 'datetime',
-    'timestamptz': 'datetime',
-    'json': 'json',
-    'jsonb': 'json',
-}
 
 
 class CsvVal(StrVal):
@@ -105,27 +83,26 @@ class DataDictionaryProcessor(Processor):
     def execute(self, options, interface):
         tables = dict()
 
-        # Extract basic information from rex.deploy catalog
-        catalog = interface.get_catalog()
-        deploy_tables = catalog.schemas['public'].tables
-        for name in deploy_tables.keys():
-            table_meta = uncomment(deploy_tables[name])
-            table = Table(name)
-            table.title = table_meta.title
-            tables[name] = table
+        # Extract basic information from rex.deploy model
+        model = interface.get_deploy_model()
+        for table_model in model.tables():
+            table = Table(table_model.label)
+            table.title = table_model.title
+            tables[table.name] = table
 
-            columns = deploy_tables[name].columns
-            for name in columns.keys():
-                if name == 'id':
-                    continue
-                col_meta = uncomment(columns[name])
-                col = Column(col_meta.label or name)
-                col.title = col_meta.title
-                col.datatype = self.get_deploy_type(columns[name].type)
-                col.enumerations = self.get_deploy_enumerations(
-                    columns[name].type,
-                )
-                table.columns[col_meta.label or name] = col
+            for field_model in table_model.fields():
+                column = Column(field_model.label)
+                column.title = field_model.title
+                if field_model.is_link:
+                    column.datatype = 'link'
+                else:
+                    datatype = field_model.type
+                    if isinstance(datatype, list):
+                        column.datatype = 'enumeration'
+                        column.enumerations = datatype
+                    else:
+                        column.datatype = datatype
+                table.columns[column.name] = column
 
         # Extract information out of the Instrument definitions
         def extract_mapping_info(mapping):
@@ -205,30 +182,6 @@ class DataDictionaryProcessor(Processor):
 
             if column.datatype != 'enumeration':
                 column.enumerations = []
-
-    def get_deploy_type(self, type_image):
-        while type_image.is_domain:  # pragma: no cover
-            type_image = type_image.base_type
-
-        if type_image.is_enum:
-            return 'enumeration'
-
-        elif type_image.schema.name != 'pg_catalog':
-            return None
-
-        else:
-            return DEPLOY_TYPE_MAPPING.get(type_image.name)
-
-    def get_deploy_enumerations(self, type_image):
-        while type_image.is_domain:  # pragma: no cover
-            type_image = type_image.base_type
-
-        enumerations = []
-
-        if type_image.is_enum:
-            enumerations = type_image.labels[:]
-
-        return enumerations
 
     def get_base_facts(self, options):
         facts = []

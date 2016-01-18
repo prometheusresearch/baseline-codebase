@@ -11,7 +11,32 @@ const MESSAGES = [];
 
 const BEFOREUNLOAD_EVENT = 'beforeunload';
 
-export default class PreventNavigation extends React.Component {
+/**
+ * Component which marks a UI as one which require a confirm dialog before
+ * navigating away.
+ *
+ * Use like:
+ *
+ *    import {ConfirmNavigation} from 'rex-action'
+ *
+ *    <ConfirmNavigation message="Form is not submitted" />
+ *
+ * In router code:
+ *
+ *    import {confirmNavigation} from 'rex-action'
+ *
+ *    if (confirmNavigation()) {
+ *      // change router state here
+ *    }
+ *
+ * The last part is actually implemented by Rex Action router.
+ *
+ * The machinery for `"beforeunload"` event is also present if any
+ * `<ConfirmNavigation />` is in the DOM.
+ *
+ * @public
+ */
+export default class ConfirmNavigation extends React.Component {
 
   static propTypes = {
     message: React.PropTypes.string.isRequired

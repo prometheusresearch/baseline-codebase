@@ -22,7 +22,7 @@ import * as Instruction from '../execution/Instruction';
 import {getTitleAtNode} from '../ActionTitle';
 import {getIconAtNode} from '../ActionIcon';
 import ActionContext from '../ActionContext';
-import {confirmNavigation} from '../PreventNavigation';
+import {confirmNavigation} from '../ConfirmNavigation';
 
 import Breadcrumb from './Breadcrumb';
 import Sidebar from './Sidebar';

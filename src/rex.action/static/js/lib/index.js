@@ -15,6 +15,8 @@ import Wizard                       from './Wizard';
 
 import './TransitionableHandlers';
 
+export ConfirmNavigation from './ConfirmNavigation';
+
 export {
   WizardLink,
   Action,

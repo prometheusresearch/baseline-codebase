@@ -12,6 +12,7 @@ tests:
   - sh: pip install --quiet --editable ./demo
 
   - sh: rex dropdb --quiet rex.mart_demo
+  - sh: rex dropdb --quiet rex.mart_demo --set=db=pgsql:a_fixed_name_mart
   - sh: rex deploy --quiet rex.mart_demo
 
   - doctest: README.rst

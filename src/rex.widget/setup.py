@@ -26,6 +26,8 @@ setup(
         'rex.core               >= 1.6,   < 2',
         'rex.port               >= 1.1,   < 2',
         'rex.web                >= 3.0,   < 4',
+        'rex.db                 >= 3.0,   < 4',
+        'rex.file               >= 1.0,   < 2',
         'rex.urlmap             >= 2.5,   < 3',
         'docutils               >= 0.12,  < 0.13',
         'transit-python         == 0.8.250',

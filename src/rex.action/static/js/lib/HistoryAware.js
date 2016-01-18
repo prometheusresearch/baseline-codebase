@@ -4,8 +4,7 @@
 
 import React            from 'react';
 import autobind         from 'autobind-decorator';
-import {createLocation} from 'history';
-import createHistory    from 'history/lib/createHashHistory';
+import {createLocation, getHistory} from './History';
 
 export default function HistoryAware(Component) {
 
@@ -26,7 +25,7 @@ export default function HistoryAware(Component) {
       };
 
       if (!props.disableHistory) {
-        this._history = createHistory();
+        this._history = getHistory();
       }
     }
 

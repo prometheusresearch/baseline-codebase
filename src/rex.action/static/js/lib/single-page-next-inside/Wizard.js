@@ -22,6 +22,7 @@ import * as Instruction from '../execution/Instruction';
 import {getTitleAtNode} from '../ActionTitle';
 import {getIconAtNode} from '../ActionIcon';
 import ActionContext from '../ActionContext';
+import {confirmNavigation} from '../PreventNavigation';
 
 import Breadcrumb from './Breadcrumb';
 import Sidebar from './Sidebar';
@@ -235,35 +236,35 @@ export default class Wizard extends React.Component {
 
   @autobind
   _onNext(action) {
-    this.setState(state => ({
+    this.setStateConfirmed(state => ({
       graph: state.graph.advance(action)
     }));
   }
 
   @autobind
   _onReturn(action) {
-    this.setState(state => ({
+    this.setStateConfirmed(state => ({
       graph: state.graph.returnTo(action)
     }));
   }
 
   @autobind
   _onReplace(action, nextAction) {
-    this.setState(state => ({
+    this.setStateConfirmed(state => ({
       graph: state.graph.replace(action, nextAction, false)
     }));
   }
 
   @autobind
   _onClose(action) {
-    this.setState(state => ({
+    this.setStateConfirmed(state => ({
       graph: state.graph.close(action)
     }));
   }
 
   @autobind
   _onCommand(node, commandName, ...args) {
-    this.setState(state => {
+    this.setStateConfirmed(state => {
       let {graph} = state;
       // if node from which command originates differs from the current
       // graph node then close all further action panels.
@@ -301,6 +302,12 @@ export default class Wizard extends React.Component {
       graph = graph.updateEntity(prevEntity, nextEntity);
       return {...state, graph};
     });
+  }
+
+  setStateConfirmed(setter) {
+    if (confirmNavigation()) {
+      this.setState(setter);
+    }
   }
 
 }

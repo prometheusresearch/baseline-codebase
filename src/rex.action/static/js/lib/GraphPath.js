@@ -30,7 +30,7 @@ export function fromPath(path, instruction, initialContext) {
 
     // advance to the action
     let keyPath = graph.node.then.find(pos => pos.action === action).keyPath;
-    graph = graph.advance(keyPath, undefined, false);
+    graph = graph.advance(keyPath);
 
     // execute action command if any
     if (args || commandName) {

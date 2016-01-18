@@ -19,8 +19,8 @@ describe all Mart definitions available in the current instance::
 
     >>> rex = LatentRex('rex.mart_demo')
     >>> with rex:
-    ...     pass  # TODO pprint(get_all_definitions())
-
+    ...     print [defn['id'] for defn in get_all_definitions()]
+    ['empty', 'just_copy', 'just_deploy', 'some_data', 'some_more_data', 'some_sql_data', 'some_more_sql_data', 'both_etl_phases', 'some_data_with_params', 'existing', 'fixed_name', 'existing_missing', 'broken_htsql', 'broken_sql', 'simple_assessment', 'linked_assessment', 'linked_assessment_alltypes', 'calculated_assessment', 'overlap_names_assessment', 'select_json', 'broken_selector', 'datadictionary_deployment', 'datadictionary_assessment', 'datadictionary_alltypes']
 
 
 get_definition
@@ -33,8 +33,28 @@ specific Mart definition if it is available::
 
     >>> rex = LatentRex('rex.mart_demo')
     >>> with rex:
-    ...     pass  # TODO pprint(get_definition('foo'))
-
+    ...     pprint(get_definition('just_deploy'))
+    {'assessments': [],
+     'base': {'fixed_name': None,
+              'name_token': 'just_deploy_',
+              'target': None,
+              'type': 'fresh'},
+     'deploy': [{'table': 'foo',
+                 'title': 'Foo Bars',
+                 'with': [{'column': 'col1',
+                           'title': 'The First Column',
+                           'type': 'text'},
+                          {'identity': ['col1']},
+                          {'column': 'col2',
+                           'required': False,
+                           'type': ['foo', 'bar', 'baz']}]}],
+     'description': 'A Mart that just has empty tables',
+     'id': 'just_deploy',
+     'label': 'Just Deploy',
+     'post_assessment_scripts': [],
+     'post_deploy_scripts': [],
+     'processors': [],
+     'quota': {'per_owner': 3}}
 
     >>> with rex:
     ...     pprint(get_definition('doesntexist'))

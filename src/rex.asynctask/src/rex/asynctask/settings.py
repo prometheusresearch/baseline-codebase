@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import Setting, MapVal, StrVal, ChoiceVal, IntVal
+from rex.core import Setting, MapVal, StrVal, ChoiceVal, IntVal, MaybeVal
 
 from .worker import AsyncTaskWorker
 
@@ -23,7 +23,8 @@ class AsyncTaskTransportSetting(Setting):
     """
 
     name = 'asynctask_transport'
-    validate = StrVal()
+    validate = MaybeVal(StrVal())
+    default = None
 
 
 class AsyncTaskWorkersSetting(Setting):

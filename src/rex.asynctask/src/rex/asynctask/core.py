@@ -5,7 +5,7 @@
 
 from urlparse import urlparse
 
-from rex.core import cached, get_settings
+from rex.core import cached, get_settings, Error
 
 from .transports import AsyncTransport
 
@@ -29,6 +29,8 @@ def get_transport(uri=None):
     """
 
     uri = uri or get_settings().asynctask_transport
+    if not uri:
+        raise Error('Asynctask transport not specified')
 
     parts = urlparse(uri)
     transport = AsyncTransport.mapped().get(parts.scheme)

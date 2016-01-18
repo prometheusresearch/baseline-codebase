@@ -14,7 +14,8 @@ var {InstrumentVersionStore} = require('../stores');
 
 var VersionList = React.createClass({
   propTypes: {
-    onPreviewSelected: React.PropTypes.func
+    onPreviewSelected: React.PropTypes.func,
+    style: React.PropTypes.object
   },
 
   getInitialState: function () {
@@ -82,7 +83,7 @@ var VersionList = React.createClass({
 
   render: function () {
     return (
-      <div className="rfb-versions-list">
+      <div className="rfb-versions-list" style={this.props.style}>
         <MenuHeader
           title={_('Published Revisions')}>
           {(this.state.versions.length > 0) &&

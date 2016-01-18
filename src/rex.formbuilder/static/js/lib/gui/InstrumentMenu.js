@@ -22,9 +22,17 @@ var InstrumentMenu = React.createClass({
     apiBaseUrl: React.PropTypes.string.isRequired,
     instrumentMenuUrlTemplate: React.PropTypes.string,
     draftSetEditorUrlTemplate: React.PropTypes.string.isRequired,
+    draftSetSelectorVerticalView: React.PropTypes.bool,
     formPreviewerUrlTemplate: React.PropTypes.string.isRequired,
     uid: React.PropTypes.string,
-    channels: React.PropTypes.arrayOf(React.PropTypes.string)
+    onDraftSelected: React.PropTypes.func,
+    channels: React.PropTypes.arrayOf(React.PropTypes.string),
+  },
+
+  getDefaultProps: function () {
+    return {
+      draftSetSelectorVerticalView: false
+    };
   },
 
   getInitialState: function () {
@@ -74,15 +82,19 @@ var InstrumentMenu = React.createClass({
   },
 
   render: function () {
+    let {instrumentMenuUrlTemplate,
+         draftSetSelectorVerticalView} = this.props;
     return (
       <div className="rfb-instrument-menu">
         {this.state.instrument ?
           <DraftSetSelector
             apiBaseUrl={this.props.apiBaseUrl}
             instrument={this.state.instrument}
-            onReturn={this.onReturn}
+            onReturn={instrumentMenuUrlTemplate ? this.onReturn:null}
+            onDraftSelected={this.props.onDraftSelected}
             draftSetEditorUrlTemplate={this.props.draftSetEditorUrlTemplate}
             formPreviewerUrlTemplate={this.props.formPreviewerUrlTemplate}
+            verticalView={draftSetSelectorVerticalView}
             />
           :
           <InstrumentSelector

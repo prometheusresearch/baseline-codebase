@@ -19,7 +19,9 @@ var DraftSetSelector = React.createClass({
     apiBaseUrl: React.PropTypes.string.isRequired,
     instrument: React.PropTypes.object.isRequired,
     onReturn: React.PropTypes.func,
+    onDraftSelected: React.PropTypes.func,
     draftSetEditorUrlTemplate: React.PropTypes.string.isRequired,
+    verticalView: React.PropTypes.bool,
     formPreviewerUrlTemplate: React.PropTypes.string.isRequired
   },
 
@@ -27,6 +29,12 @@ var DraftSetSelector = React.createClass({
     return {
       hasPublishedVersions: false
     };
+  },
+
+  getDefaultProps: function () {
+    return {
+      verticalView: false
+    }
   },
 
   componentDidMount: function () {
@@ -48,8 +56,13 @@ var DraftSetSelector = React.createClass({
   },
 
   onSelected: function (draft) {
-    var editorUrl = format(this.props.draftSetEditorUrlTemplate, draft);
-    window.location = editorUrl;
+    if (this.props.onDraftSelected) {
+      this.props.onDraftSelected(draft);
+    }
+    if(this.props.draftSetEditorUrlTemplate) {
+      var editorUrl = format(this.props.draftSetEditorUrlTemplate, draft);
+      window.location = editorUrl;
+    }
   },
 
   onPreview: function (uid, category) {
@@ -60,24 +73,35 @@ var DraftSetSelector = React.createClass({
   },
 
   render: function () {
+    let {verticalView} = this.props;
+    let listStyle = !verticalView ? {} : {
+      width: 'auto',
+      display: 'block',
+      marginTop: '15px',
+      marginBottom: '15px'
+    };
     return (
       <div className="rfb-draftset-selector">
         <MenuHeader
           title={this.props.instrument.title}>
-          <button
-            className="rfb-button"
-            onClick={this.props.onReturn}>
-            <span className="rfb-icon icon-go-back" />
-            {_('Go Back to Instruments')}
-          </button>
+          {this.props.onReturn &&
+            <button
+              className="rfb-button"
+              onClick={this.props.onReturn}>
+              <span className="rfb-icon icon-go-back" />
+              {_('Go Back to Instruments')}
+            </button>
+          }
         </MenuHeader>
         <DraftSetList
           onDraftSelected={this.onSelected}
           onPreviewSelected={this.onPreview}
           allowNewDrafts={!this.state.hasPublishedVersions}
+          style={listStyle}
           />
         <VersionList
           onPreviewSelected={this.onPreview}
+          style={listStyle}
           />
       </div>
     );

@@ -17,7 +17,8 @@ var DraftSetList = React.createClass({
   propTypes: {
     onDraftSelected: React.PropTypes.func,
     onPreviewSelected: React.PropTypes.func,
-    allowNewDrafts: React.PropTypes.bool
+    allowNewDrafts: React.PropTypes.bool,
+    style: React.PropTypes.object
   },
 
   getDefaultProps: function () {
@@ -103,7 +104,7 @@ var DraftSetList = React.createClass({
 
   render: function () {
     return (
-      <div className="rfb-draftset-list">
+      <div className="rfb-draftset-list" style={this.props.style}>
         <MenuHeader
           title={_('Drafts')}>
           {this.props.allowNewDrafts &&

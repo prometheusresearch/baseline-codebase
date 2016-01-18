@@ -12,6 +12,7 @@ REX.MART Examples/Tests
    test_fields
    test_mart
    test_permissions
+   test_processors
    test_purging
    test_quota
    test_tables

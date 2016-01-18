@@ -38,6 +38,8 @@ class Processor(Extension):
     @classmethod
     def sanitize(cls):
         for option in cls.options:
+            if not isinstance(option, (tuple, list)):
+                raise Error('Option must be a tuple/list', option)
             if len(option) not in (2, 3):
                 raise Error('Invalid Processor Option', option)
             if not isinstance(option[0], basestring):

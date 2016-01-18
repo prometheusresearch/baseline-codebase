@@ -22,7 +22,7 @@ class MartAccessPermissions(Extension):
     """
 
     @classmethod
-    def signature(cls):
+    def signature(cls):  # pragma: no cover
         return 'mart'
 
     @classmethod

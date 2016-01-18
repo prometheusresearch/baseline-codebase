@@ -19,7 +19,7 @@ class MartInitialize(Initialize):
     """
 
     @classmethod
-    def signature(cls):
+    def signature(cls):  # pragma: no cover
         return 'mart'
 
     def __call__(self):

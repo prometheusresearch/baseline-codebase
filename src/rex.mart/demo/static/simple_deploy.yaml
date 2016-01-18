@@ -1,7 +1,15 @@
 - table: foo
+  title: Foo Bars
   with:
     - column: col1
       type: text
+      title: The First Column
     - identity:
       - col1
+    - column: col2
+      type:
+        - foo
+        - bar
+        - baz
+      required: false
 

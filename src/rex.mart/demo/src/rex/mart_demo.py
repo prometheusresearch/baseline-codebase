@@ -1,4 +1,11 @@
-from rex.mart import MartAccessPermissions, Mart, MartQuota
+#
+# Copyright (c) 2015, Prometheus Research, LLC
+#
+
+
+from rex.core import StrVal
+
+from rex.mart import MartAccessPermissions, Mart, MartQuota, Processor
 
 
 class DemoMartAccessPermissions(MartAccessPermissions):
@@ -27,4 +34,29 @@ class DemoMartQuota(MartQuota):
         if owner == 'cmdtest' and definition['id'] == 'some_more_data':
             return False
         return MartQuota.can_create_mart(owner, definition)
+
+    @classmethod
+    def reap_marts(cls, owner, definition):
+        if owner == 'test':
+            return []
+        return MartQuota.reap_marts(owner, definition)
+
+
+class MyProcessor(Processor):
+    name = 'myproc'
+
+    def execute(self, options, interface):
+        pass
+
+
+class OtherProcessor(Processor):
+    name = 'otherproc'
+
+    options = (
+        ('foo', StrVal()),
+        ('bar', StrVal(), None),
+    )
+
+    def execute(self, options, interface):
+        pass
 

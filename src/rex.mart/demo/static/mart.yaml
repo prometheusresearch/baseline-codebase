@@ -248,3 +248,55 @@ definitions:
             instrumentversion.instrument='mart1'
           )/:rexdb
 
+  - id: datadictionary_deployment
+    description: A mart with an empty table and a data dictionary
+    deploy: !include simple_deploy.yaml
+    processors:
+      - id: datadictionary
+        options:
+          table_descriptions: |
+            name,title,description
+            foo,,A Description
+            doesntexist,Does Not Exist,
+          column_descriptions: |
+            table,name,title,description
+            foo,col2,,Test Description
+            doesntexist,col1,
+            foo,doesntexist,Blah
+
+  - id: datadictionary_assessment
+    description: A mart with an Assessment and a data dictionary
+    deploy: !include simple_deploy.yaml
+    assessments:
+      - instrument: mart1
+        selector: |
+          /assessment{
+            id() :as assessment_uid,
+            subject.id() :as 'My Cool Field'
+          }.filter(
+            instrumentversion.instrument=$INSTRUMENT
+          )/:rexdb
+    processors:
+      - id: datadictionary
+        options:
+          table_descriptions: |
+            name,title,description
+            foo,,CUSTOM FOO DESCRIPTION!
+          column_descriptions: |
+            table,name,title,description,source,datatype
+            foo,col2,Title Number 2,,THE SOURCE
+            mart1,assessment_uid,,the UID of the Assessment,,code
+
+  - id: datadictionary_alltypes
+    description: A mart with a more involved Assessment and data dictionary
+    assessments:
+      - instrument: alltypes
+        selector: |
+          /assessment{
+            id() :as assessment_uid
+          }.filter(
+            instrumentversion.instrument=$INSTRUMENT
+          )/:rexdb
+    processors:
+      - id: datadictionary
+

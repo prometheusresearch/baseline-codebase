@@ -694,6 +694,109 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     Error: Definition does not include any fields, calculations, or metadata
 
 
+ProcessorVal
+============
+
+ProessorVal validates a single Processor definition::
+
+    >>> from rex.mart import ProcessorVal
+    >>> val = ProcessorVal()
+
+    >>> proc = {
+    ...     'id': 'myproc',
+    ... }
+    >>> val(proc)
+    Record(id='myproc', options={})
+
+    >>> proc = {
+    ...     'id': 'otherproc',
+    ...     'options': {
+    ...         'foo': 'bar',
+    ...     },
+    ... }
+    >>> val(proc)
+    Record(id='otherproc', options={'foo': 'bar', 'bar': None})
+
+    >>> proc = {
+    ...     'id': 'otherproc',
+    ...     'options': {
+    ...         'foo': 'bar',
+    ...         'bar': 'baz',
+    ...     },
+    ... }
+    >>> val(proc)
+    Record(id='otherproc', options={'foo': 'bar', 'bar': 'baz'})
+
+    >>> proc = {
+    ...     'id': 'doesntexist',
+    ... }
+    >>> val(proc)
+    Traceback (most recent call last):
+        ...
+    Error: Unknown Processor ID
+    Got:
+        doesntexist
+    While validating field:
+        id
+
+    >>> proc = {
+    ...     'options': {
+    ...         'foo': 'bar',
+    ...     },
+    ... }
+    >>> val(proc)
+    Traceback (most recent call last):
+        ...
+    Error: Missing mandatory field:
+        id
+
+    >>> proc = {
+    ...     'id': 'otherproc',
+    ...     'options': {
+    ...         'bar': 'baz',
+    ...     },
+    ... }
+    >>> val(proc)
+    Traceback (most recent call last):
+        ...
+    Error: Missing Processor Option
+        foo
+    While validating field:
+        options
+
+    >>> proc = {
+    ...     'id': 'otherproc',
+    ...     'options': {
+    ...         'foo': 123,
+    ...     },
+    ... }
+    >>> val(proc)
+    Traceback (most recent call last):
+        ...
+    Error: Expected a string
+    Got:
+        123
+    While validating field:
+        foo
+    While validating field:
+        options
+
+    >>> proc = {
+    ...     'id': 'otherproc',
+    ...     'options': {
+    ...         'foo': 'bar',
+    ...         'fake': 123,
+    ...     },
+    ... }
+    >>> val(proc)
+    Traceback (most recent call last):
+        ...
+    Error: Unknown Processor Options
+        fake
+    While validating field:
+        options
+
+
 DefinitionVal
 =============
 
@@ -706,35 +809,35 @@ DefinitionVal validates a single Mart Definition::
     ...     'id': 'foo'
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[])
 
     >>> definition = {
     ...     'id': 'foo',
     ...     'label': '',
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[])
 
     >>> definition = {
     ...     'id': 'foo',
     ...     'label': 'My Label',
     ... }
     >>> val(definition)
-    Record(id='foo', label='My Label', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='My Label', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[])
 
     >>> definition = {
     ...     'id': 'foo',
     ...     'description': 'This is a database'
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description='This is a database', base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description='This is a database', base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[])
 
     >>> definition = {
     ...     'id': 'foo',
     ...     'quota': None
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -743,7 +846,7 @@ DefinitionVal validates a single Mart Definition::
     ...     }
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=5), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=5), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -752,7 +855,7 @@ DefinitionVal validates a single Mart Definition::
     ...     },
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -762,7 +865,7 @@ DefinitionVal validates a single Mart Definition::
     ...     },
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='custom_token_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='custom_token_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -783,11 +886,11 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='copy', target='bar', name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=[{'table': 'my_table', 'with': [{'column': 'my_column', 'type': 'text'}]}], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='copy', target='bar', name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=[{'table': 'my_table', 'with': [{'column': 'my_column', 'type': 'text'}]}], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[])
 
     >>> definition = "{id: foo, base: {type: copy, target: bar}, deploy: [{table: my_table, with: [{column: my_column, type: text}]}]}"
     >>> val.parse(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='copy', target='bar', name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=[{'table': 'my_table', 'with': [{'column': 'my_column', 'type': 'text'}]}], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='copy', target='bar', name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=[{'table': 'my_table', 'with': [{'column': 'my_column', 'type': 'text'}]}], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -829,7 +932,7 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[Record(script='/blah/:merge', type='htsql', parameters={}), Record(script='/foo/:insert', type='htsql', parameters={})], assessments=[], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[Record(script='/blah/:merge', type='htsql', parameters={}), Record(script='/foo/:insert', type='htsql', parameters={})], assessments=[], post_assessment_scripts=[], processors=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -841,7 +944,7 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[Record(script='/foo/:insert', type='htsql', parameters={})])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[Record(script='/foo/:insert', type='htsql', parameters={})], processors=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -853,7 +956,7 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])], post_assessment_scripts=[])
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])], post_assessment_scripts=[], processors=[])
 
     >>> definition = {
     ...     'id': 'foo',
@@ -892,6 +995,23 @@ DefinitionVal validates a single Mart Definition::
     While validating field:
         base.name_token
 
+    >>> definition = {
+    ...     'id': 'foo',
+    ...     'processors': [
+    ...         {
+    ...             'id': 'myproc',
+    ...         },
+    ...         {
+    ...             'id': 'otherproc',
+    ...             'options': {
+    ...                 'foo': 'bar',
+    ...             },
+    ...         },
+    ...     ],
+    ... }
+    >>> val(definition)
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[Record(id='myproc', options={}), Record(id='otherproc', options={'foo': 'bar', 'bar': None})])
+
 
 MartConfigurationVal
 ====================
@@ -908,7 +1028,7 @@ MartConfigurationVal will validate the contents of an entire ``mart.yaml``::
     Record(definitions=[])
 
     >>> val({'definitions': [{'id': 'foo'}, {'id': 'bar'}]})
-    Record(definitions=[Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[]), Record(id='bar', label='bar', description=None, base=Record(type='fresh', target=None, name_token=u'bar_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[])])
+    Record(definitions=[Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[]), Record(id='bar', label='bar', description=None, base=Record(type='fresh', target=None, name_token=u'bar_', fixed_name=None), quota=Record(per_owner=3), deploy=None, post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[])])
 
     >>> val({'definitions': [{'id': 'foo'}, {'id': 'foo'}]})
     Traceback (most recent call last):

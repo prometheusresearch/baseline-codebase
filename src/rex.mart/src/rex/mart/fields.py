@@ -57,6 +57,9 @@ class SimpleField(object):
         self._target_name = make_safe_token(name)
         self._forced_target_name = None
         self.version_mapping = {}
+        self.title = None
+        self.description = None
+        self.source = None
         if instrument_version:
             self.version_mapping[instrument_version] = self.target_type
 
@@ -446,7 +449,10 @@ def make_field_from_htsql(htsql_field):
             [None] * len(htsql_field.domain.labels),
         ))
 
-    return make_field(field_def)
+    field = make_field(field_def)
+    if htsql_field.header and htsql_field.header != htsql_field.tag:
+        field.title = htsql_field.header
+    return field
 
 
 LOWEST_COMMON_FIELD_TYPES = {

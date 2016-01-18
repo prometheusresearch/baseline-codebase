@@ -42,6 +42,7 @@ The Mart object is an encapsulation of the information about a Mart database::
      'label': 'empty',
      'post_assessment_scripts': [],
      'post_deploy_scripts': [],
+     'processors': [],
      'quota': {'per_owner': 3}}
     >>> mart.owner
     u'marttest'

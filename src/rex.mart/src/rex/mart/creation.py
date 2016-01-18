@@ -15,6 +15,7 @@ from .config import get_definition
 from .connections import get_management_db, get_hosting_cluster, \
     get_mart_etl_db, get_sql_connection
 from .mart import Mart
+from .processors import Processor
 from .purging import purge_mart
 from .quota import MartQuota
 from .util import extract_htsql_statements, guarded
@@ -22,6 +23,7 @@ from .util import extract_htsql_statements, guarded
 
 __all__ = (
     'MartCreator',
+    'ProcessorInterface',
 )
 
 
@@ -79,6 +81,7 @@ class MartCreator(object):
         self.name = None
         self.database = None
         self.logger = None
+        self.assessment_mappings = []
 
         if not self.owner:
             raise Error('No owner specified')
@@ -160,7 +163,7 @@ class MartCreator(object):
 
                 # Post-Processors
                 self._update_status('processing')
-                # TODO run post-processors
+                self.execute_processors(self.definition['processors'])
 
                 # Mark things complete
                 self.rename_db()
@@ -200,6 +203,7 @@ class MartCreator(object):
                 self.name = None
                 self.start_date = None
                 self.logger = None
+                self.assessment_mappings = []
 
     def log(self, msg):
         if not self.logger:
@@ -424,6 +428,7 @@ class MartCreator(object):
                 self.connect_mart()
                 params = self.get_query_params()
                 loader = AssessmentLoader(assessment, self.database, params)
+                self.assessment_mappings.append(loader.mapping)
 
                 with guarded('While deploying Assessment structures'):
                     self.log('...deploying structures')
@@ -451,4 +456,82 @@ class MartCreator(object):
         # future instances.
         self.database = None
         gc.collect()
+
+    def execute_processors(self, processors):
+        if not processors:
+            return
+
+        interface = ProcessorInterface(self)
+        for processor in processors:
+            with guarded('While executing Processor:', processor['id']):
+                self.log('Executing Processor %s...' % (processor['id'],))
+                Processor.mapped()[processor['id']]()(
+                    processor['options'],
+                    interface,
+                )
+                self.log('...complete')
+
+
+class ProcessorInterface(object):
+    """
+    A proxy object that is given to Processors in order to interact with the
+    main MartCreator object.
+    """
+
+    def __init__(self, creator):
+        self._creator = creator
+
+    def get_htsql(self):
+        """
+        Retrieves an HTSQL connection to the Mart database.
+
+        :rtype: rex.db.RexHTSQL
+        """
+
+        self._creator.connect_mart()
+        return self._creator.database
+
+    def get_catalog(self):
+        """
+        Retrieves a rex.deploy Catalog for the Mart database.
+
+        :rtype: rex.deploy.image.CatalogImage
+        """
+
+        cluster = get_hosting_cluster()
+        driver = cluster.drive(self._creator.name)
+        catalog = driver.get_catalog()
+        driver.close()
+        return catalog
+
+    def get_assessment_mappings(self):
+        """
+        Retrieves the Assessment mappings generated to create the Assessment
+        tables in this Mart.
+
+        :rtype: rex.mart.tables.PrimaryTable
+        """
+
+        return self._creator.assessment_mappings
+
+    def deploy_facts(self, facts):
+        """
+        Executes the specified list of rex.deploy facts in the Mart database.
+
+        :param facts: the facts to execute
+        :type facts: list
+        """
+
+        # pylint: disable=protected-access
+        self._creator._do_deploy(facts)
+
+    def log(self, message):
+        """
+        Outputs a message to the Mart creation log.
+
+        :param message: the message to output
+        :type message: str
+        """
+
+        self._creator.log(message)
 

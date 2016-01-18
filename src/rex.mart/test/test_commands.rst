@@ -172,14 +172,14 @@ Accessing the HTSQL endpoint for a specific Mart::
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
-    Content-Length: 62
+    Content-Length: 176
     <BLANKLINE>
-     | Foo  |
-     +------+
-     | Col1 |
-    -+------+-
-     | Bob  |
-     | John |
+     | Foo Bars                |
+     +------------------+------+
+     | The First Column | Col2 |
+    -+------------------+------+-
+     | Bob              |      |
+     | John             |      |
     <BLANKLINE>
     <BLANKLINE>
 
@@ -189,14 +189,14 @@ Accessing the HTSQL endpoint for a specific Mart::
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
-    Content-Length: 62
+    Content-Length: 176
     <BLANKLINE>
-     | Foo  |
-     +------+
-     | Col1 |
-    -+------+-
-     | Bob  |
-     | John |
+     | Foo Bars                |
+     +------------------+------+
+     | The First Column | Col2 |
+    -+------------------+------+-
+     | Bob              |      |
+     | John             |      |
     <BLANKLINE>
     <BLANKLINE>
 
@@ -206,17 +206,17 @@ Accessing the HTSQL endpoint for a specific Mart::
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
-    Content-Length: 92
+    Content-Length: 263
     <BLANKLINE>
-     | Foo  |
-     +------+
-     | Col1 |
-    -+------+-
-     | Bob  |
-     | John |
-     | Mary |
-     | Some |
-     | Tom  |
+     | Foo Bars                |
+     +------------------+------+
+     | The First Column | Col2 |
+    -+------------------+------+-
+     | Bob              |      |
+     | John             |      |
+     | Mary             |      |
+     | Some             |      |
+     | Tom              |      |
     <BLANKLINE>
     <BLANKLINE>
 
@@ -316,14 +316,14 @@ Accessing the HTSQL endpoint for the latest Mart::
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
-    Content-Length: 62
+    Content-Length: 176
     <BLANKLINE>
-     | Foo  |
-     +------+
-     | Col1 |
-    -+------+-
-     | Bob  |
-     | John |
+     | Foo Bars                |
+     +------------------+------+
+     | The First Column | Col2 |
+    -+------------------+------+-
+     | Bob              |      |
+     | John             |      |
     <BLANKLINE>
     <BLANKLINE>
 
@@ -333,14 +333,14 @@ Accessing the HTSQL endpoint for the latest Mart::
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
-    Content-Length: 62
+    Content-Length: 176
     <BLANKLINE>
-     | Foo  |
-     +------+
-     | Col1 |
-    -+------+-
-     | Bob  |
-     | John |
+     | Foo Bars                |
+     +------------------+------+
+     | The First Column | Col2 |
+    -+------------------+------+-
+     | Bob              |      |
+     | John             |      |
     <BLANKLINE>
     <BLANKLINE>
 
@@ -443,14 +443,14 @@ Accessing the HTSQL endpoint for the latest Mart::
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
-    Content-Length: 62
+    Content-Length: 176
     <BLANKLINE>
-     | Foo  |
-     +------+
-     | Col1 |
-    -+------+-
-     | Bob  |
-     | John |
+     | Foo Bars                |
+     +------------------+------+
+     | The First Column | Col2 |
+    -+------------------+------+-
+     | Bob              |      |
+     | John             |      |
     <BLANKLINE>
     <BLANKLINE>
 
@@ -460,14 +460,14 @@ Accessing the HTSQL endpoint for the latest Mart::
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
-    Content-Length: 62
+    Content-Length: 176
     <BLANKLINE>
-     | Foo  |
-     +------+
-     | Col1 |
-    -+------+-
-     | Bob  |
-     | John |
+     | Foo Bars                |
+     +------------------+------+
+     | The First Column | Col2 |
+    -+------------------+------+-
+     | Bob              |      |
+     | John             |      |
     <BLANKLINE>
     <BLANKLINE>
 

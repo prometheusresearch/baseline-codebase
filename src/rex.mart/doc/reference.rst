@@ -22,6 +22,11 @@ Extensions
    :show-inheritance:
    :special-members: __call__
 
+.. autoclass:: rex.mart.processors.Processor
+   :members:
+   :inherited-members:
+   :show-inheritance:
+
 
 Mart APIs
 =========

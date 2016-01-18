@@ -3,6 +3,7 @@ REX.MART Usage Guide
 ********************
 
 .. contents:: Table of Contents
+   :depth: 2
 
 
 Overview
@@ -350,6 +351,22 @@ The ``post_assessment_scripts`` property functions exactly like the
 executed after the Assessment ETL phase.
 
 
+processors
+``````````
+The ``processors`` property contains a list of processor definitions that
+specify the Python Post-Processors to execute upon the Mart. Each processor
+definition in the list is a mapping that accepts the following properties:
+
+id
+    This property identifies which Post-Processor to execute. This property is
+    required.
+
+options
+    This property is a mapping that allows you to specify options to pass into
+    the execution of the Processor. The options allowed here vary from
+    Processor to Processor.
+
+
 Application Settings
 ====================
 
@@ -588,6 +605,49 @@ MartAccessPermissions
     of ``rex.mart``. This allows you to change the rules that define what Marts
     and/or Mart Definitions can be accessed by users of the application.
 
+Processor
+    By implementing this Extension, you can create a new Post-Processor that
+    can be invoked by Mart Definitions.
+
 Read the API documentation for more information on the methods that can be
 overridden.
+
+
+Built-In Post-Processors
+========================
+
+datadictionary
+--------------
+The ``datadictionary`` Processor will generate a set of tables that includes
+metadata about the tables and columns that were created in the Mart.
+
+This Processor accepts the following options:
+
+``table_name_tables``
+    The name of the table that will contain metadata records about Mart tables.
+    Defaults to ``datadictionary_table``.
+
+``table_name_columns``
+    The name of the table that will contain metadata records about Mart
+    columns. Defaults to ``datadictionary_column``.
+
+``table_name_enumerations``
+    The name of the table that will contain metadata records about enumeration
+    values used in this Mart. Defaults to ``datadictionary_enumeration``.
+
+``table_descriptions``
+    A CSV-formatted string that contains table metadata that will override the
+    automatically-discovered metadata. Expects input like::
+
+        name,title,description
+        mytable,My Table,A table containing things
+        othertable,,My Description
+
+``column_descriptions``
+    A CSV-formatted string that contains column metadata that will override the
+    automatically-discovered metadata. Expects input like::
+
+        table,name,title,description,source,datatype
+        mytable,mycolumn,My Column,A column for stuff,Special Database,text
+        othertable,othercol,,Primary column for flags,Nowhere,
 

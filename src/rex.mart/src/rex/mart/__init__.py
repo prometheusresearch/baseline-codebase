@@ -11,6 +11,7 @@ from .ctl import *
 from .initialize import *
 from .mart import *
 from .permissions import *
+from .processors import *
 from .purging import *
 from .quota import *
 from .settings import *

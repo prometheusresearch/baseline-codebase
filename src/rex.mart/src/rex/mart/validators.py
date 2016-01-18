@@ -9,6 +9,7 @@ from rex.core import Error, StrVal, RecordVal, MaybeVal, ChoiceVal, SeqVal, \
     MapVal, guard, OneOrSeqVal, OneOfVal, BoolVal, get_settings, IntVal
 from rex.deploy import Driver
 
+from .processors import Processor
 from .util import make_safe_token, RESTR_SAFE_TOKEN
 
 
@@ -25,6 +26,7 @@ __all__ = (
     'MetadataFieldVal',
     'PostLoadCalculationsVal',
     'AssessmentDefinitionVal',
+    'ProcessorVal',
     'DefinitionVal',
     'MartConfigurationVal',
     'RunListEntryVal',
@@ -508,6 +510,37 @@ class AssessmentDefinitionVal(FullyValidatingRecordVal):
         return value
 
 
+class ProcessorVal(FullyValidatingRecordVal):
+    """
+    Parses/Validates a Processor entry in a Mart definition.
+    """
+
+    def __init__(self):
+        super(ProcessorVal, self).__init__(
+            # The ID of the processor to execute.
+            ('id', StrippedStrVal),
+
+            # Options to pass into this processor.
+            ('options', MapVal(), {}),
+        )
+
+    def __call__(self, data):
+        value = super(ProcessorVal, self).__call__(data)
+
+        with guard('While validating field:', 'id'):
+            with guard('Got:', value.id):
+                if value.id not in Processor.mapped():
+                    raise Error('Unknown Processor ID')
+
+        with guard('While validating field:', 'options'):
+            options = Processor.mapped()[value.id].validate_options(
+                value.options,
+            )
+            value = value.__clone__(options=options)
+
+        return value
+
+
 class DefinitionVal(FullyValidatingRecordVal):
     """
     Parses/Validates a single Mart definition.
@@ -545,6 +578,9 @@ class DefinitionVal(FullyValidatingRecordVal):
             # The ETL scripts to execute after the Assessments have been
             # loaded.
             ('post_assessment_scripts', SeqVal(EtlScriptVal), []),
+
+            # The Processors to execute after the final ETL phase.
+            ('processors', SeqVal(ProcessorVal), []),
         )
 
     def __call__(self, data):

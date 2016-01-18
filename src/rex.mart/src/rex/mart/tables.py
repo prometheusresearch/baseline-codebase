@@ -26,6 +26,8 @@ class MappingTable(object):
 
     def __init__(self, name):
         self.name = name
+        self.title = None
+        self.description = None
         self.fields = OrderedDict()
 
     @property
@@ -159,6 +161,7 @@ class ChildTable(MappingTable):  # pylint: disable=abstract-method
         super(ChildTable, self).__init__(name)
         self.parent = parent
         self._table_name = None
+        self.original_name = name
 
     @property
     def reserved_column_names(self):
@@ -219,6 +222,17 @@ class FacetTable(ChildTable):
 
 
 class MatrixTable(FacetTable):
+    @property
+    def title(self):
+        return '%s (%s fields)' % (
+            self.parent.title,
+            self.original_name,
+        )
+
+    @title.setter
+    def title(self, value):
+        pass
+
     def merge(self, field, instrument_version, field_filter):
         if field['type']['base'] != 'matrix':  # pragma: no cover
             raise Error(
@@ -246,6 +260,9 @@ class MatrixTable(FacetTable):
                     name=name,
                     instrument_version=instrument_version.uid,
                 )
+                if col.get('description'):
+                    mapped_field.description = col['description']
+                mapped_field.source = 'RIOS Instrument'
                 self.add_field(mapped_field)
 
     def get_value_mapping(
@@ -316,6 +333,17 @@ class BranchTable(ChildTable):
 
 
 class RecordListTable(BranchTable):
+    @property
+    def title(self):
+        return '%s (%s fields)' % (
+            self.parent.title,
+            self.original_name,
+        )
+
+    @title.setter
+    def title(self, value):
+        pass
+
     def merge(self, field, instrument_version, field_filter):
         if field['type']['base'] != 'recordList':  # pragma: no cover
             raise Error(
@@ -340,6 +368,9 @@ class RecordListTable(BranchTable):
                 subfield,
                 instrument_version=instrument_version.uid,
             )
+            if subfield.get('description'):
+                mapped_field.description = subfield['description']
+            mapped_field.source = 'RIOS Instrument'
             self.add_field(mapped_field)
 
     def get_statements_for_assessment(
@@ -416,6 +447,7 @@ class PrimaryTable(MappingTable):
             'of': self.name,
             'type': 'text',
             'required': True,
+            'title': 'Assessment UID',
         })
 
         identity = parents[:]
@@ -432,6 +464,7 @@ class PrimaryTable(MappingTable):
             'of': self.name,
             'type': 'text',
             'required': True,
+            'title': 'InstrumentVersion UID',
         })
 
         facts.extend(self.get_field_facts(
@@ -459,6 +492,7 @@ class PrimaryTable(MappingTable):
         selected_fields = []
         for field in info.meta.domain.item_domain.fields:
             mapped_field = make_field_from_htsql(field)
+            mapped_field.source = 'RexMart Calculation'
             selected_fields.append(mapped_field.name)
             if mapped_field.name != 'assessment_uid':
                 self.add_field(mapped_field)
@@ -499,6 +533,7 @@ class PrimaryTable(MappingTable):
                 },
             }
             mapped_field = make_field(fake_field)
+            mapped_field.source = 'RexMart Calculation'
             self.add_field(mapped_field)
 
     def _add_instruments(self, instruments):
@@ -528,6 +563,10 @@ class PrimaryTable(MappingTable):
                 self._add_instrument_fields(version)
                 if calculations:
                     self._add_calculationset_fields(calculations[0])
+
+                self.title = version.definition['title']
+                if version.definition.get('description'):
+                    self.description = version.definition['description']
 
     def is_field_allowed(self, name, identifiable):
         if self.definition['fields'] is None:
@@ -599,6 +638,9 @@ class PrimaryTable(MappingTable):
             field,
             instrument_version=instrument_version.uid,
         )
+        if field.get('description'):
+            mapped_field.description = field['description']
+        mapped_field.source = 'RIOS Instrument'
         self.add_field(mapped_field)
 
     def get_child_index(self):
@@ -626,6 +668,7 @@ class PrimaryTable(MappingTable):
             table.merge(field, instrument_version, self.is_field_allowed)
             if len(table.fields) > 0:
                 self.children[field['id']] = table
+            table.description = field.get('description')
 
     def _add_instrument_matrix(self, field, instrument_version):
         if field['id'] in self.fields:
@@ -647,6 +690,7 @@ class PrimaryTable(MappingTable):
             table.merge(field, instrument_version, self.is_field_allowed)
             if len(table.fields) > 0:
                 self.children[field['id']] = table
+            table.description = field.get('description')
 
     def _add_calculationset_fields(self, calculationset):
         for calc in calculationset.definition['calculations']:
@@ -659,6 +703,9 @@ class PrimaryTable(MappingTable):
                 'identifiable': calc.get('identifiable', False),
             }
             mapped_field = make_field(field)
+            if calc.get('description'):
+                mapped_field.description = calc['description']
+            mapped_field.source = 'RIOS Calculation Set'
             self.add_field(mapped_field)
 
     def _add_meta_fields(self, meta_fields):
@@ -698,6 +745,9 @@ class PrimaryTable(MappingTable):
         for segment in segments[1:]:
             idx = self.get_child_index()
             child = FacetTable(idx, self)
+            child.title = '%s (Additional Fields)' % (self.title,)
+            child.description = \
+                'Additional fields that didn\'t fit in in the base table.'
             self.children['SEGMENT_%s' % (idx,)] = child
 
             for field_id in segment:

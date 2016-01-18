@@ -8,6 +8,7 @@ REX.MART Examples/Tests
    test_config
    test_creation
    test_ctl
+   test_datadictionary
    test_fields
    test_mart
    test_permissions

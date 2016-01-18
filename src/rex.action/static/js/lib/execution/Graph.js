@@ -6,6 +6,7 @@ import invariant          from 'invariant';
 import {quote}            from '../StringUtils';
 import * as Entity        from '../Entity';
 import * as Instruction   from './Instruction';
+import * as Command from './Command';
 import Node from './Node';
 
 const INITIAL_CONTEXT = {
@@ -98,7 +99,10 @@ export default class Graph {
           return graph;
         }
         if (contextUpdate) {
-          nextNode = nextNode.setContext(contextUpdate);
+          nextNode = nextNode.executeCommand(
+            Command.onContextCommand.name,
+            contextUpdate
+          );
         }
         graph = graph._appendAtCurrentNode(nextNode);
       }

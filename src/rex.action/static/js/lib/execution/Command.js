@@ -156,6 +156,9 @@ class ObjectArgument extends ArgumentType {
     for (let k in object) {
       if (object.hasOwnProperty(k)) {
         let v = object[k];
+        if (v == null) {
+          continue;
+        }
         if (Entity.isEntity(v)) {
           v = '~' + entityType.stringify(actionElement, v);
         }

@@ -49,7 +49,7 @@ export default class Pick extends React.Component {
       searchPlaceholder,
       actionState: {search}
     } = this.props;
-    let title = this.constructor.getTitle(this.props);
+    let title = this.constructor.renderTitle(this.props, this.props.context);
     let selected = context[entity.name] ? context[entity.name].id : undefined;
     let data = port(this.props.data.port.path)
     data = applyContext(data, contextTypes.input, context);

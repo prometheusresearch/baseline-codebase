@@ -2,4 +2,5 @@ mount:
   rex.formbuilder: /
 
 db: pgsql:formbuilder_demo
+attach_dir: /tmp
 

@@ -147,7 +147,7 @@ It is possible to configure more than one mask::
      | me   | Mechanical Engineering | eng         |
 
 To avoid expensive filters, you can use replace them with query variables defined
-with `user_properties` parameter::
+with `htsql_environment` parameter::
 
     >>> north = Rex('__main__', 'rex.db',
     ...     db="sqlite:./sandbox/db_demo.sqlite",
@@ -156,7 +156,7 @@ with `user_properties` parameter::
     ...     access_masks=
     ...         {'north': ["school?in(code,$USER_SCHOOLS)",
     ...                    "department?in(school.code,$USER_SCHOOLS)"]},
-    ...     user_properties=
+    ...     htsql_environment=
     ...         {'user_schools': "/school.filter(campus='north').code"})
 
     >>> req = Request.blank('/db/department', remote_user="Alice")

@@ -8,8 +8,8 @@
 3.4.0 (2015-XX-XX)
 ==================
 
-* Added parameters ``user_query``, ``auto_user_query``, ``user_properties``,
-  ``access_queries``, ``access_masks``.
+* Added parameters ``user_query``, ``auto_user_query``, ``access_queries``,
+  ``access_masks``. ``htsql_environment``.
 * Establish security context for ``/db/`` requests.
 
 

@@ -210,7 +210,7 @@ def get_db(name=None):
         gateways = dict((key, get_db(key))
                         for key in sorted(settings.gateways)
                         if settings.gateways[key])
-        properties = settings.user_properties
+        properties = settings.htsql_environment
         configuration = HTSQLVal.merge(
                 {'rex': {
                     'gateways': gateways,

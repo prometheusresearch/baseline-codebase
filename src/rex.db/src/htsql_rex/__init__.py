@@ -276,9 +276,8 @@ class LookupReferenceInRoot(Lookup):
             if session is not None:
                 session = unicode(session)
             return LiteralRecipe(session, TextDomain())
-        elif self.probe.key in context.app.rex.properties:
-            if context.env.session_properties is None:
-                return LiteralRecipe(None, TextDomain())
+        elif self.probe.key in context.app.rex.properties and \
+                context.env.session_properties is not None:
             if self.probe.key not in context.env.session_properties:
                 syntax = context.app.rex.properties[self.probe.key]
                 product = produce(syntax)

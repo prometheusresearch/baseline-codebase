@@ -84,23 +84,31 @@ var InstrumentMenu = React.createClass({
   render: function () {
     let {instrumentMenuUrlTemplate,
          draftSetSelectorVerticalView} = this.props;
+
+    let display = null;
+    if (this.state.instrument) {
+      display = (
+        <DraftSetSelector
+          apiBaseUrl={this.props.apiBaseUrl}
+          instrument={this.state.instrument}
+          onReturn={instrumentMenuUrlTemplate ? this.onReturn:null}
+          onDraftSelected={this.props.onDraftSelected}
+          draftSetEditorUrlTemplate={this.props.draftSetEditorUrlTemplate}
+          formPreviewerUrlTemplate={this.props.formPreviewerUrlTemplate}
+          verticalView={draftSetSelectorVerticalView}
+          />
+      );
+    } else if (!this.props.uid) {
+      display = (
+        <InstrumentSelector
+          onInstrumentSelected={this.onInstrumentSelected}
+          />
+      );
+    }
+
     return (
       <div className="rfb-instrument-menu">
-        {this.state.instrument ?
-          <DraftSetSelector
-            apiBaseUrl={this.props.apiBaseUrl}
-            instrument={this.state.instrument}
-            onReturn={instrumentMenuUrlTemplate ? this.onReturn:null}
-            onDraftSelected={this.props.onDraftSelected}
-            draftSetEditorUrlTemplate={this.props.draftSetEditorUrlTemplate}
-            formPreviewerUrlTemplate={this.props.formPreviewerUrlTemplate}
-            verticalView={draftSetSelectorVerticalView}
-            />
-          :
-          <InstrumentSelector
-            onInstrumentSelected={this.onInstrumentSelected}
-            />
-        }
+        {display}
         {this.renderToaster()}
       </div>
     );

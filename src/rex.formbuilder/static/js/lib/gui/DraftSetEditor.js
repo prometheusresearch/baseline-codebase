@@ -38,7 +38,8 @@ var DraftSetEditor = React.createClass({
     uid: React.PropTypes.string,
     channels: React.PropTypes.arrayOf(React.PropTypes.string),
     instrumentMenuUrlTemplate: React.PropTypes.string,
-    formPreviewerUrlTemplate: React.PropTypes.string
+    formPreviewerUrlTemplate: React.PropTypes.string,
+    onModified: React.PropTypes.func
   },
 
   getInitialState: function () {
@@ -64,9 +65,11 @@ var DraftSetEditor = React.createClass({
   },
 
   componentWillReceiveProps: function (nextProps) {
-    SettingActions.initialize(nextProps);
-    if (this.props.uid) {
-      DraftSetActions.activate(nextProps.uid);
+    if (this.props.uid != nextProps.uid) {
+      SettingActions.initialize(nextProps);
+      if (this.props.uid) {
+        DraftSetActions.activate(nextProps.uid);
+      }
     }
   },
 
@@ -86,9 +89,7 @@ var DraftSetEditor = React.createClass({
 
   _onWindowUnload: function (event) {
     if (this.state.modified) {
-      var msg = _(
-        'You\'ve made changes to this Draft, but haven\'t saved them yet.'
-      );
+      let msg = getUnsavedMessage();
       event.returnValue = msg;
       return msg;
     }
@@ -114,12 +115,14 @@ var DraftSetEditor = React.createClass({
     }
 
     this.setState({
-      instrumentVersion: draftSet.instrument_version,
-      configuration: cfg,
-      modified: DraftSetStore.activeIsModified(),
-      valid: valid,
-      validityError: validityError
-    });
+        instrumentVersion: draftSet.instrument_version,
+        configuration: cfg,
+        modified: DraftSetStore.activeIsModified(),
+        valid: valid,
+        validityError: validityError
+      },
+      () => this.props.onModified && this.props.onModified(this.state.modified)
+    );
   },
 
   _onConfigFailure: function (error) {
@@ -342,6 +345,11 @@ var DraftSetEditor = React.createClass({
   }
 });
 
+function getUnsavedMessage() {
+  return _('You\'ve made changes to this Draft, but haven\'t saved them yet.');
+}
+
+DraftSetEditor.getUnsavedMessage = getUnsavedMessage;
 
 module.exports = DraftSetEditor;
 

@@ -11,7 +11,7 @@ none so far.
 
 from htsql.core.addon import Addon, Variable, Parameter
 from htsql.core.application import Environment, Application
-from htsql.core.validator import NameVal, ClassVal, MapVal
+from htsql.core.validator import StrVal, NameVal, ClassVal, MapVal
 from htsql.core.adapter import Adapter, adapt, call
 from htsql.core.context import context
 from htsql.core.error import Error
@@ -23,7 +23,7 @@ from htsql.core.classify import relabel, classify
 from htsql.core.syn.syntax import (Syntax, IntegerSyntax, IdentifierSyntax,
         FilterSyntax)
 from htsql.core.syn.parse import parse
-from htsql.core.cmd.act import Act, ProduceAction, analyze, act
+from htsql.core.cmd.act import Act, ProduceAction, produce, analyze, act
 from htsql.core.cmd.command import Command
 from htsql.core.cmd.summon import Summon, SummonJSON, recognize
 from htsql.core.tr.lookup import (Lookup, Probe, ReferenceProbe,
@@ -31,10 +31,12 @@ from htsql.core.tr.lookup import (Lookup, Probe, ReferenceProbe,
         prescribe)
 from htsql.core.tr.binding import (Recipe, LiteralRecipe, ChainRecipe, Binding,
         RootBinding, TableBinding, ChainBinding, SieveBinding,
-        ImplicitCastBinding)
+        ImplicitCastBinding, LiteralBinding)
 from htsql.core.tr.bind import (BindByFreeTable, BindByAttachedTable,
         BindByRecipe)
 from htsql.core.tr.decorate import decorate_void
+from htsql.core.tr.signature import Signature, Slot, IsInSig
+from htsql.core.tr.fn.bind import BindFunction, BindAmong
 from htsql.core.fmt.accept import AcceptJSON
 from htsql.core.fmt.format import JSONFormat
 from htsql.core.fmt.json import (EmitJSON, to_json, DomainToRaw, JS_MAP,
@@ -129,7 +131,9 @@ class SessionGuard(object):
         self.session = session
 
     def __enter__(self):
-        context.env.push(session=LazySession(self.session))
+        context.env.push(
+                session=LazySession(self.session),
+                session_properties={})
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
         context.env.pop()
@@ -272,6 +276,15 @@ class LookupReferenceInRoot(Lookup):
             if session is not None:
                 session = unicode(session)
             return LiteralRecipe(session, TextDomain())
+        elif self.probe.key in context.app.rex.properties:
+            if context.env.session_properties is None:
+                return LiteralRecipe(None, TextDomain())
+            if self.probe.key not in context.env.session_properties:
+                syntax = context.app.rex.properties[self.probe.key]
+                product = produce(syntax)
+                recipe = LiteralRecipe(product.data, product.domain)
+                context.env.session_properties[self.probe.key] = recipe
+            return context.env.session_properties[self.probe.key]
         return super(LookupReferenceInRoot, self).__call__()
 
 
@@ -282,6 +295,8 @@ class LookupReferenceSetInRoot(Lookup):
     def __call__(self):
         references = super(LookupReferenceSetInRoot, self).__call__()
         references.add(u'user')
+        for key in context.app.rex.properties:
+            references.add(key)
         return references
 
 
@@ -454,6 +469,37 @@ class BindBySieve(BindByRecipe):
         return SieveBinding(self.state.scope, filter, self.syntax)
 
 
+class InSig(Signature):
+
+    slots = [
+            Slot('lop'),
+            Slot('rops', is_mandatory=False, is_singular=False)
+    ]
+
+
+class BindIn(BindAmong):
+
+    call('in')
+    signature = InSig
+
+    def correlate(self, lop, rops):
+        if not rops:
+            return LiteralBinding(
+                    self.state.scope, False, BooleanDomain(), self.syntax)
+        if len(rops) == 1:
+            rop = rops[0]
+            if isinstance(rop, LiteralBinding) and \
+                    isinstance(rop.domain, ListDomain):
+                rops = [LiteralBinding(
+                            rop.base, item, rop.domain.item_domain, rop.syntax)
+                        for item in (rop.value or [])]
+                return self.correlate(lop, rops)
+        self.signature = IsInSig
+        binding = super(BindIn, self).correlate(lop, rops)
+        self.signature = InSig
+        return binding
+
+
 class RexSummonGateway(SummonGateway, Summon):
     pass
 
@@ -619,16 +665,23 @@ class RexAddon(Addon):
     variables = [
             Variable('session'),
             Variable('masks'),
+            Variable('session_properties'),
     ]
 
     parameters = [
-            Parameter('gateways', MapVal(NameVal(), ClassVal(Application)),
-                      default={}),
+            Parameter(
+                'gateways',
+                MapVal(NameVal(), ClassVal(Application)),
+                default={}),
+            Parameter(
+                'properties',
+                MapVal(NameVal(), StrVal()),
+                default={}),
     ]
 
     def __init__(self, app, attributes):
         super(RexAddon, self).__init__(app, attributes)
-        self.functions = {}
+        self.gateway_adapters = {}
         for name in sorted(self.gateways):
             instance = self.gateways[name]
             class_name = "Summon%s" % name.title().replace('_', '').encode('utf-8')
@@ -637,6 +690,6 @@ class RexAddon(Addon):
                 'instance': instance,
             }
             summon_class = type(class_name, (RexSummonGateway,), namespace)
-            self.functions[name] = summon_class
+            self.gateway_adapters[name] = summon_class
 
 

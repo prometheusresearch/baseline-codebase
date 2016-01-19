@@ -52,6 +52,35 @@ class AutoUserQuerySetting(Setting):
     validate = MaybeVal(StrVal)
 
 
+class UserPropertiesSetting(Setting):
+    """
+    Configures user-specific query variables.
+
+    The `user_properties` parameter is a mapping from variable names
+    to HTSQL queries.  When a variable is used in an HTSQL expression,
+    the variable is substituted with the result of the respective query.
+
+    Example::
+
+        user_properties:
+            user_site:
+                user[$USER].site.code
+            user_site_studies:
+                /user[$USER].site.site_x_study.study.code
+    """
+
+    name = 'user_properties'
+
+    default = {}
+    validate = MapVal(StrVal, MaybeVal(StrVal))
+
+    def merge(self, old_value, new_value):
+        value = {}
+        value.update(self.validate(old_value))
+        value.update(self.validate(new_value))
+        return value
+
+
 class AccessQueriesSetting(Setting):
     """
     Parameter `access_queries` maps permission names to HTSQL queries.

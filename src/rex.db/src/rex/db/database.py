@@ -210,9 +210,13 @@ def get_db(name=None):
         gateways = dict((key, get_db(key))
                         for key in sorted(settings.gateways)
                         if settings.gateways[key])
-        configuration = HTSQLVal.merge({'rex': {'gateways': gateways}},
-                                       settings.htsql_extensions,
-                                       settings.db)
+        properties = settings.user_properties
+        configuration = HTSQLVal.merge(
+                {'rex': {
+                    'gateways': gateways,
+                    'properties': properties}},
+                settings.htsql_extensions,
+                settings.db)
     else:
         gateway = settings.gateways.get(name)
         if not gateway:

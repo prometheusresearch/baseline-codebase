@@ -146,4 +146,30 @@ It is possible to configure more than one mask::
      | ee   | Electrical Engineering | eng         |
      | me   | Mechanical Engineering | eng         |
 
+To avoid expensive filters, you can use replace them with query variables defined
+with `user_properties` parameter::
+
+    >>> north = Rex('__main__', 'rex.db',
+    ...     db="sqlite:./sandbox/db_demo.sqlite",
+    ...     access={'rex.db': 'north'},
+    ...     access_queries={'north': "true"},
+    ...     access_masks=
+    ...         {'north': ["school?in(code,$USER_SCHOOLS)",
+    ...                    "department?in(school.code,$USER_SCHOOLS)"]},
+    ...     user_properties=
+    ...         {'user_schools': "/school.filter(campus='north').code"})
+
+    >>> req = Request.blank('/db/department', remote_user="Alice")
+    >>> print req.get_response(north)           # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+     | department                                  |
+     +------+------------------------+-------------+
+     | code | name                   | school_code |
+    -+------+------------------------+-------------+-
+     | be   | Bioengineering         | eng         |
+     | comp | Computer Science       | eng         |
+     | ee   | Electrical Engineering | eng         |
+     | me   | Mechanical Engineering | eng         |
+
 

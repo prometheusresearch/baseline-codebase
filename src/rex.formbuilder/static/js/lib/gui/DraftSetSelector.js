@@ -20,7 +20,7 @@ var DraftSetSelector = React.createClass({
     instrument: React.PropTypes.object.isRequired,
     onReturn: React.PropTypes.func,
     onDraftSelected: React.PropTypes.func,
-    draftSetEditorUrlTemplate: React.PropTypes.string.isRequired,
+    draftSetEditorUrlTemplate: React.PropTypes.string,
     verticalView: React.PropTypes.bool,
     formPreviewerUrlTemplate: React.PropTypes.string.isRequired
   },
@@ -59,7 +59,7 @@ var DraftSetSelector = React.createClass({
     if (this.props.onDraftSelected) {
       this.props.onDraftSelected(draft);
     }
-    if(this.props.draftSetEditorUrlTemplate) {
+    if (this.props.draftSetEditorUrlTemplate) {
       var editorUrl = format(this.props.draftSetEditorUrlTemplate, draft);
       window.location = editorUrl;
     }

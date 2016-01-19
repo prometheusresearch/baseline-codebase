@@ -21,7 +21,7 @@ var InstrumentMenu = React.createClass({
   propTypes: {
     apiBaseUrl: React.PropTypes.string.isRequired,
     instrumentMenuUrlTemplate: React.PropTypes.string,
-    draftSetEditorUrlTemplate: React.PropTypes.string.isRequired,
+    draftSetEditorUrlTemplate: React.PropTypes.string,
     draftSetSelectorVerticalView: React.PropTypes.bool,
     formPreviewerUrlTemplate: React.PropTypes.string.isRequired,
     uid: React.PropTypes.string,

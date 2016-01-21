@@ -685,3 +685,17 @@ Please note that the table and column names that are specified in these index
 definitions must be the actual names of the objects in the PostgreSQL database,
 rather than the HTSQL-imposed labels that they may have.
 
+
+Known Issues
+============
+
+As this tool is still under development, it is likely that bugs or other
+deficiencies will be encountered. At present, there are two known issues:
+
+* The explanation and annotation fields in RIOS Assessments are not currently
+  being transferred into Mart databases.
+* If there is an enumerationSet field ID defined in a RIOS Instrument that,
+  when concatenated with one or more of its enumeration IDs results in a field
+  name that is too long for PostgreSQL to handle (typically 63 characters), it
+  will crash the building of the Mart.
+

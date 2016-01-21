@@ -5,4 +5,5 @@
 
 from .base import *
 from .datadictionary import *
+from .index import *
 

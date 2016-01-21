@@ -3,8 +3,9 @@
 #
 
 
-from rex.core import cached, get_packages, Record, Error, get_settings
+from rex.core import cached, get_packages, Error, get_settings
 
+from .util import record_to_dict
 from .validators import MartConfigurationVal
 
 
@@ -20,19 +21,6 @@ __all__ = (
 #: The name/path to the rex.mart configuration file within a package's static
 #: directory.
 MART_CONFIGURATION_FILE = 'mart.yaml'
-
-
-def record_to_dict(rec):
-    result = {}
-    for field in rec._fields:
-        result[field] = rec[field]
-        if isinstance(result[field], Record):
-            result[field] = record_to_dict(result[field])
-        elif isinstance(result[field], list):
-            for i in range(len(result[field])):
-                if isinstance(result[field][i], Record):
-                    result[field][i] = record_to_dict(result[field][i])
-    return result
 
 
 @cached

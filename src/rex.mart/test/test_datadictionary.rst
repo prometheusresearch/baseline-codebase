@@ -22,7 +22,7 @@ This processor accepts a variety of options::
     ...     'id': 'datadictionary',
     ... }
     >>> val(proc)
-    Record(id='datadictionary', options={'table_descriptions': None, 'table_name_tables': 'datadictionary_table', 'table_name_columns': 'datadictionary_column', 'column_descriptions': None, 'table_name_enumerations': 'datadictionary_enumeration'})
+    Record(id='datadictionary', options={'table_name_columns': 'datadictionary_column', 'table_name_tables': 'datadictionary_table', 'table_descriptions': None, 'column_descriptions': None, 'table_name_enumerations': 'datadictionary_enumeration'})
 
     >>> proc = {
     ...     'id': 'datadictionary',
@@ -31,7 +31,7 @@ This processor accepts a variety of options::
     ...     },
     ... }
     >>> val(proc)
-    Record(id='datadictionary', options={'table_descriptions': None, 'table_name_tables': 'foo', 'table_name_columns': 'datadictionary_column', 'column_descriptions': None, 'table_name_enumerations': 'datadictionary_enumeration'})
+    Record(id='datadictionary', options={'table_name_columns': 'datadictionary_column', 'table_name_tables': 'foo', 'table_descriptions': None, 'column_descriptions': None, 'table_name_enumerations': 'datadictionary_enumeration'})
 
     >>> proc = {
     ...     'id': 'datadictionary',
@@ -40,7 +40,7 @@ This processor accepts a variety of options::
     ...     },
     ... }
     >>> val(proc)
-    Record(id='datadictionary', options={'table_descriptions': 'name,title,description\ntable,Title,Description', 'table_name_tables': 'datadictionary_table', 'table_name_columns': 'datadictionary_column', 'column_descriptions': None, 'table_name_enumerations': 'datadictionary_enumeration'})
+    Record(id='datadictionary', options={'table_name_columns': 'datadictionary_column', 'table_name_tables': 'datadictionary_table', 'table_descriptions': 'name,title,description\ntable,Title,Description', 'column_descriptions': None, 'table_name_enumerations': 'datadictionary_enumeration'})
 
     >>> proc = {
     ...     'id': 'datadictionary',

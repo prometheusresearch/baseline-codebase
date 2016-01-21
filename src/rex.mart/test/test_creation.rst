@@ -431,6 +431,19 @@ Definitions can invoke post-processors::
     Has Size: True
     Dates: True True
 
+    >>> mc = MartCreator('test', 'index_processor')
+    >>> mart = mc()
+    >>> db_exists(mart.name)
+    True
+    >>> db_inventory(mart.name)
+    foo: 0
+    >>> db_status(mart.name)
+    Definition: index_processor
+    Status: complete
+    Owner: test
+    Has Size: True
+    Dates: True True
+
 You can tell the creator to not mark the Mart as complete after processing is
 done::
 

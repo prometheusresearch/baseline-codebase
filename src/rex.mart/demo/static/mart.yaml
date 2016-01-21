@@ -300,3 +300,21 @@ definitions:
     processors:
       - id: datadictionary
 
+  - id: index_processor
+    description: A mart with an empty table that uses the index processor
+    deploy: !include simple_deploy.yaml
+    processors:
+      - id: index
+        options:
+          indexes:
+            - table: foo
+              columns: col2
+            - table: foo
+              columns:
+                - col1
+                - col2
+              unique: true
+            - table: foo
+              columns: (upper(col1))
+              partial: col2 = 'foo'
+

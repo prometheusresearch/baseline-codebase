@@ -651,3 +651,37 @@ This Processor accepts the following options:
         mytable,mycolumn,My Column,A column for stuff,Special Database,text
         othertable,othercol,,Primary column for flags,Nowhere,
 
+index
+-----
+The ``index`` Processor will create the specified indexes in the Mart database.
+
+This Processor accepts the following options:
+
+``indexes``
+    This is a list of index definitions, where each definition is a mapping
+    that accepts the following properties:
+
+    ``table``
+        The name of the table to apply the index to. This property is required.
+
+    ``columns``
+        A list of the column(s) and/or expressions on the table to apply the
+        index to. Expressions must be enclosed in parentheses. This property
+        is required.
+
+    ``unique``
+        A boolean indicating whether or not to enforce uniqueness on the values
+        in the index. Defaults to ``false``.
+
+    ``partial``
+        This property contains the predicate of the WHERE clause to use if you
+        want the index to be partial. Defaults to ``null`` (meaning that the
+        index will NOT be partial). See the `PostgreSQL documentation`_ for
+        more information about partial indexes.
+
+        .. _`PostgreSQL documentation`: http://www.postgresql.org/docs/current/static/sql-createindex.html
+
+Please note that the table and column names that are specified in these index
+definitions must be the actual names of the objects in the PostgreSQL database,
+rather than the HTSQL-imposed labels that they may have.
+

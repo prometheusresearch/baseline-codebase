@@ -10,6 +10,7 @@ REX.MART Examples/Tests
    test_ctl
    test_datadictionary
    test_fields
+   test_index
    test_mart
    test_permissions
    test_processors

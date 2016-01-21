@@ -9,11 +9,12 @@ from rex.core import Error, StrVal, RecordVal, MaybeVal, ChoiceVal, SeqVal, \
     MapVal, guard, OneOrSeqVal, OneOfVal, BoolVal, get_settings, IntVal
 from rex.deploy import Driver
 
-from .processors import Processor
-from .util import make_safe_token, RESTR_SAFE_TOKEN
+from .util import make_safe_token, RESTR_SAFE_TOKEN, record_to_dict
 
 
 __all__ = (
+    'FullyValidatingRecordVal',
+    'NormalizedOneOrSeqVal',
     'MartBaseTypeVal',
     'MartBaseVal',
     'QuotaVal',
@@ -41,6 +42,12 @@ class StrippedStrVal(StrVal):
 
 
 class FullyValidatingRecordVal(RecordVal):
+    """
+    An enhanced version of the ``RecordVal`` validator that will always fully
+    validate its subkeys whether the validator is invoke via YAML parsing or
+    through direct value validation.
+    """
+
     def construct(self, loader, node):
         data = super(FullyValidatingRecordVal, self).construct(loader, node)
         # pylint: disable=not-callable
@@ -48,6 +55,11 @@ class FullyValidatingRecordVal(RecordVal):
 
 
 class NormalizedOneOrSeqVal(OneOrSeqVal):
+    """
+    An enhanced version of the ``OneOrSeqVal`` validator that will always
+    result in a list value.
+    """
+
     def __call__(self, data):
         value = super(NormalizedOneOrSeqVal, self).__call__(data)
         if not isinstance(value, list):
@@ -527,6 +539,8 @@ class ProcessorVal(FullyValidatingRecordVal):
     def __call__(self, data):
         value = super(ProcessorVal, self).__call__(data)
 
+        from .processors import Processor
+
         with guard('While validating field:', 'id'):
             with guard('Got:', value.id):
                 if value.id not in Processor.mapped():
@@ -536,7 +550,7 @@ class ProcessorVal(FullyValidatingRecordVal):
             options = Processor.mapped()[value.id].validate_options(
                 value.options,
             )
-            value = value.__clone__(options=options)
+            value = value.__clone__(options=record_to_dict(options))
 
         return value
 

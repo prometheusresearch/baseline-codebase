@@ -8,7 +8,7 @@ import sys
 
 from contextlib import contextmanager
 
-from rex.core import Error, get_settings
+from rex.core import Error, get_settings, Record
 
 
 __all__ = (
@@ -16,6 +16,7 @@ __all__ = (
     'guarded',
     'RESTR_SAFE_TOKEN',
     'make_safe_token',
+    'record_to_dict',
 )
 
 
@@ -119,4 +120,32 @@ def make_safe_token(token):
             if not safe_token:
                 raise Error('Cannot make a safe token out of "%s"' % (token,))
     return safe_token[:get_settings().mart_max_name_length]
+
+
+def record_to_dict(rec):
+    """
+    Recursively converts a rex.core.Record structure into regular dict obkects.
+
+    :param rec: the Record to convert
+    :type rec: rex.core.Record
+    :rtype: dict
+    """
+
+    result = {}
+
+    if isinstance(rec, Record):
+        all_fields = rec._fields
+    elif isinstance(rec, dict):
+        all_fields = rec.keys()
+
+    for field in all_fields:
+        result[field] = rec[field]
+        if isinstance(result[field], (dict, Record)):
+            result[field] = record_to_dict(result[field])
+        elif isinstance(result[field], list):
+            for i in range(len(result[field])):
+                if isinstance(result[field][i], (dict, Record)):
+                    result[field][i] = record_to_dict(result[field][i])
+
+    return result
 

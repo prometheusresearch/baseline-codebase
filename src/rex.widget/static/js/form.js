@@ -2,4 +2,4 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-module.exports = require('./lib/forms');
+module.exports = require('./lib/form');

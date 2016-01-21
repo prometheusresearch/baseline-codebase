@@ -26,7 +26,7 @@ from rex.db import get_db, Query
 from rex.file.map import FileRenderer
 
 from .widget import Widget
-from .field import Field
+from .field import Field, responder
 from .url import URLVal, PortURL, QueryURL
 from .util import PropsContainer, undefined, MaybeUndefinedVal, pop_mapping_key
 from .transitionable import as_transitionable
@@ -101,7 +101,7 @@ class FormRow(FormLayoutItem):
     """ Form row.
     """
 
-    js_type = 'rex-widget/lib/forms/FormRow'
+    js_type = 'rex-widget/lib/form/FormRow'
 
 
 class FormRowVal(FormLayoutItemVal):
@@ -118,7 +118,7 @@ class FormColumn(FormLayoutItem):
     """ Form column.
     """
 
-    js_type = 'rex-widget/lib/forms/FormColumn'
+    js_type = 'rex-widget/lib/form/FormColumn'
 
 
 class FormColumnVal(FormLayoutItemVal):
@@ -819,7 +819,8 @@ class EntitySuggestionSpecVal(Validate):
 
     _validate = RecordVal(
         ('entity', StrVal()),
-        ('title', UStrVal()),
+        ('title', UStrVal(), 'title'),
+        ('select', SeqVal(StrVal()), []),
         ('mask', StrVal(), None),
     )
 
@@ -828,13 +829,33 @@ class EntitySuggestionSpecVal(Validate):
         return value
 
 
-class EntityFormField(FormField, PortSupport):
+class EntityFormField(FormField):
 
     type = 'entity'
 
     fields = (
-        ('data', OneOfVal(EntitySuggestionSpecVal(), CollectionSpecVal())),
+        ('data', EntitySuggestionSpecVal()),
     )
+
+    def widget(self):
+        return EntityFormFieldWidget(
+            entity=self.data.entity,
+            title=self.data.title,
+            select=self.data.select,
+            mask=self.data.mask)
+
+
+class EntityFormFieldWidget(Widget, PortSupport):
+
+    js_type = 'rex-widget/lib/form/AutocompleteField'
+
+    entity = Field(StrVal(), transitionable=False)
+
+    title = Field(StrVal(), default=None, transitionable=False)
+
+    mask = Field(StrVal(), default=None, transitionable=False)
+
+    select = Field(SeqVal(StrVal()), default=[], transitionable=False)
 
     @cached_property
     def query_port(self):
@@ -844,30 +865,25 @@ class EntityFormField(FormField, PortSupport):
     def title_port(self):
         return self._create_port(masked=False)
 
-    def respond(self, req):
+    @responder(url_type=PortURL)
+    def data(self, req):
         query = req.GET.pop('query', False)
         if query:
             return self.query_port(req)
         else:
             return self.title_port(req)
 
-    def __call__(self):
-        values = super(EntityFormField, self).__call__()
-        if isinstance(values.data, EntitySuggestionSpecVal._validate.record_type):
-            values.data = CollectionSpec(Pointer(self, url_type=PortURL), {})
-        return values
-
     def _create_port(self, masked=True):
         port = {
-            'entity': self.data.entity,
-            'select': ['id'],
+            'entity': self.entity,
+            'select': ['id'] + self.select,
             'with': [{
                 'calculation': 'title',
-                'expression': self.data.title
+                'expression': self.title
             }],
         }
-        if masked and self.data.mask:
-            port['mask'] = self.data.mask
+        if masked and self.mask:
+            port['mask'] = self.mask
         return self.create_port(port)
 
 

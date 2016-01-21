@@ -1,14 +1,12 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
-'use strict';
 
-let React                   = require('react');
-let Autocomplete            = require('../Autocomplete');
-let DataSpecificationMixin  = require('../DataSpecificationMixin');
-let {collection, prop}      = require('../DataSpecification');
-let Field                   = require('./Field');
-let ReadOnlyField           = require('./ReadOnlyField');
+import React from 'react';
+import Autocomplete from '../Autocomplete';
+import Field from './Field';
+import ReadOnlyField from './ReadOnlyField';
+import {Fetch} from '../../data';
 import {WithFormValue} from 'react-forms';
 
 /**
@@ -25,21 +23,17 @@ export default class AutocompleteField extends React.Component {
 
   static propTypes = {
 
-    /**
-     * The **dataSpec** is an instance of ``class DataSpecification``.
-     * It describes which database entity to query.
-     */
-    dataSpec: React.PropTypes.object,
+    data: React.PropTypes.object,
 
     /**
-     * When ``true``, the title of the entity (from dataSpec) 
-     * is feteched and displayed; 
-     * otherwise the <Autocomplete> widget is displayed. 
+     * When ``true``, the title of the entity (from data)
+     * is feteched and displayed;
+     * otherwise the <Autocomplete> widget is displayed.
      */
     readOnly: React.PropTypes.bool,
 
     /**
-     * The initial value of the field.  
+     * The initial value of the field.
      * The **formValue** is passed to <Field>.
      */
     formValue: React.PropTypes.object,
@@ -58,14 +52,30 @@ export default class AutocompleteField extends React.Component {
      * Has **resultList** property which contains a css attribute object
      * used to style the <Autocomplete> widget.
      */
-    style: React.PropTypes.object
+    style: React.PropTypes.object,
+
+    Input: React.PropTypes.func,
+
+    View: React.PropTypes.func,
+  };
+
+  static defaultProps = {
+    Input: Autocomplete,
+    View: function View({data, titleAttribute}) {
+      if (data) {
+        return <div>{data[titleAttribute]}</div>;
+      } else {
+        return <noscript />;
+      }
+    }
   };
 
   render() {
     let {
-      dataSpec, readOnly, formValue,
+      data, readOnly, formValue,
       valueAttribute, titleAttribute, style,
       select, selectFormValue,
+      Input, View,
       ...props
     } = this.props;
     if (readOnly) {
@@ -73,23 +83,24 @@ export default class AutocompleteField extends React.Component {
         <ReadOnlyField {...props} formValue={formValue}>
           {formValue.value &&
             <EntityTitle
-              dataSpec={dataSpec}
+              View={View}
+              data={data}
               titleAttribute={titleAttribute}
               value={formValue.value}
               />}
         </ReadOnlyField>
       );
     } else {
-      let titleDataSpec = dataSpec.merge(this._populateParameters());
-      let queryDataSpec = dataSpec.port.path.indexOf('/@@/') > -1 ?
-        titleDataSpec.merge({'query': true}) :
+      let titleDataSpec = data.params(this._populateParameters());
+      let queryDataSpec = data.path.indexOf('/@@/') > -1 ?
+        titleDataSpec.params({'query': true}) :
         titleDataSpec;
       return (
         <Field {...props} data={undefined} formValue={formValue}>
-          <Autocomplete
+          <Input
             style={{resultList: style && style.resultList}}
-            dataSpec={queryDataSpec}
-            titleDataSpec={titleDataSpec}
+            data={queryDataSpec}
+            titleData={titleDataSpec}
             valueAttribute={valueAttribute}
             titleAttribute={titleAttribute}
             />
@@ -115,30 +126,21 @@ export default class AutocompleteField extends React.Component {
   }
 }
 
-let EntityTitle = React.createClass({
-  mixins: [DataSpecificationMixin],
+function fetchEntity({data, value}) {
+  return {
+    entity: data.params({'*': value}).getSingleEntity()
+  };
+}
 
-  dataSpecs: {
-    dataSpec: collection({'*': prop('value')})
-  },
+@Fetch(fetchEntity)
+class EntityTitle extends React.Component {
 
-  fetchDataSpecs: {
-    dataSpec: true
-  },
+  static defaultProps = {
+    titleAttribute: 'title'
+  };
 
   render() {
-    let {titleAttribute} = this.props;
-    let {data} = this.data.dataSpec;
-    if (data) {
-      return <div>{data[0][titleAttribute]}</div>;
-    } else {
-      return null;
-    }
-  },
-
-  getDefaultProps() {
-    return {
-      titleAttribute: 'title'
-    };
+    let {titleAttribute, fetched: {entity}, View} = this.props;
+    return <View data={entity.data} titleAttribute={titleAttribute} />;
   }
-});
+}

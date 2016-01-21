@@ -2,8 +2,8 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import keyMirror  from 'keymirror';
-import isString   from './isString';
+import keyMirror from 'keymirror';
+import {isString} from './lang';
 
 function boxShadow(offsetX, offsetY, blurRadius, spreadRadius, color) {
   return `${offsetX}px ${offsetY}px ${blurRadius}px ${spreadRadius}px ${color}`;

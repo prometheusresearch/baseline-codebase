@@ -6,6 +6,7 @@ import autobind from 'autobind-decorator';
 import invariant from 'invariant';
 import {fetch, post} from '../fetch';
 import shallowEquals from '../shallowEquals';
+import {isArray} from '../lang';
 
 const SORT_ASC = 'asc';
 const SORT_DESC = 'desc';
@@ -14,7 +15,7 @@ const TOP_PARAM = '*:top';
 const SKIP_PARAM = '*:skip';
 
 function sortParam(valueKey) {
-  if (Array.isArray(valueKey)) {
+  if (isArray(valueKey)) {
     valueKey = valueKey.join('.');
   }
   return `*.${valueKey}:sort`;

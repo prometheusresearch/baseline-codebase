@@ -5,4 +5,3 @@
 export Box              from './Box';
 export VBox             from './VBox';
 export HBox             from './HBox';
-export LayoutAwareMixin from './LayoutAwareMixin';

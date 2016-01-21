@@ -2,7 +2,7 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import isArray from './isArray';
+import {isArray} from './lang';
 
 export function get(keyPath, obj) {
   keyPath = normalize(keyPath);

@@ -4,8 +4,7 @@
 
 import React                from 'react';
 import * as Stylesheet      from 'react-stylesheet';
-import loadingIndicatorImg  from '../img/loading-indicator.gif';
-import {textAlign}          from './StyleUtils';
+import loadingIndicatorImg  from '../../img/loading-indicator.gif';
 
 /**
  * Loading indicator component.
@@ -23,7 +22,7 @@ export default class LoadingIndicator extends React.Component {
   static stylesheet = Stylesheet.createStylesheet({
     Root: {
       width: '100%',
-      textAlign: textAlign.center,
+      textAlign: 'center',
     }
   });
 

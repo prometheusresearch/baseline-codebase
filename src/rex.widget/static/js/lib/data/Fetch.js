@@ -24,16 +24,16 @@ function update(params, data, prevData) {
   return data;
 }
 
-export default function Fetch(fetch) {
+export default function Fetch(Component, fetch) {
 
-  if (typeof fetch === 'function') {
-    fetch = {
-      fetch,
-      update,
-    };
-  }
+  function decorateWithFetch(Component) {
 
-  return function decorateWithFetch(Component) {
+    if (typeof fetch === 'function') {
+      fetch = {
+        fetch,
+        update,
+      };
+    }
 
     let displayName = Component.displayName || Component.name;
 
@@ -181,6 +181,13 @@ export default function Fetch(fetch) {
     transferStaticProperties(Component, FetchContainer, ['defaultProps']);
 
     return FetchContainer;
-  };
+  }
+
+  if (Component && fetch) {
+    return decorateWithFetch(Component);
+  } else {
+    fetch = Component;
+    return decorateWithFetch;
+  }
 }
 

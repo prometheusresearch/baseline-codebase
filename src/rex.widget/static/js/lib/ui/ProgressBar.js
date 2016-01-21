@@ -1,16 +1,16 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 20156 Prometheus Research, LLC
  */
 
 import React, {PropTypes} from 'react';
-import * as Stylesheet    from 'react-stylesheet';
-import {Box}              from './Layout';
-import {rgb}              from './StyleUtils';
+import * as stylesheet from '../../stylesheet';
+import {VBox} from '../../layout';
+import {rgb} from '../../css';
 
 /**
  * Progress bar component.
  */
-@Stylesheet.styleable
+@stylesheet.attach
 export default class ProgressBar extends React.Component {
 
   static propTypes = {
@@ -30,9 +30,9 @@ export default class ProgressBar extends React.Component {
     progress: 0
   };
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = stylesheet.create({
     Root: {
-      Component: Box,
+      Component: VBox,
       height: 2,
       background: rgb(142, 142, 226),
     }
@@ -44,7 +44,7 @@ export default class ProgressBar extends React.Component {
     return (
       <Root
         {...props}
-        style={{...style, width: `${progress * 100}%`}}
+        width={`${progress * 100}%`}
         />
     );
   }

@@ -1,9 +1,9 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
 
 import React, {PropTypes} from 'react';
-import File               from './File';
+import File from './File';
 
 /**
  * Renders a <File> widget with an anchor <a> whose ``href``
@@ -11,7 +11,7 @@ import File               from './File';
  */
 export default class StoredFile extends React.Component {
 
-  propTypes = {
+  static propTypes = {
     /**
      * The file object to download.
      * The 'name' attribute contains the filename.

@@ -1,10 +1,11 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
 
-import React                from 'react';
-import * as Stylesheet      from 'react-stylesheet';
+import React from 'react';
 import {Input as BaseInput} from 'react-forms';
+
+import * as stylesheet from '../../stylesheet';
 import * as css from '../../css';
 
 /**
@@ -12,7 +13,7 @@ import * as css from '../../css';
  *
  * @public
  */
-@Stylesheet.styleable
+@stylesheet.attach
 export default class Input extends React.Component {
 
   static propTypes = {
@@ -32,7 +33,7 @@ export default class Input extends React.Component {
     type: 'text'
   };
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = stylesheet.create({
     Root: {
       Component: BaseInput,
       display: 'block',
@@ -57,14 +58,20 @@ export default class Input extends React.Component {
         outline: css.none,
       },
       noBorder: {
-        border: css.none
+        border: css.none,
+        focus: {
+          border: css.none,
+        },
+        error: {
+          border: css.none,
+        }
       }
     }
   });
 
   render() {
-    let {error, ...props} = this.props;
+    let {error, variant, ...props} = this.props;
     let {Root} = this.stylesheet;
-    return <Root {...this.props} variant={{error}} />;
+    return <Root {...this.props} variant={{...variant, error}} />;
   }
 }

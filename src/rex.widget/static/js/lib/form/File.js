@@ -2,12 +2,10 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React            from 'react';
-import * as Stylesheet  from 'react-stylesheet';
-import Hoverable        from './Hoverable';
-import Icon             from './ui/Icon';
-import {Box, HBox}      from './Layout';
-import ProgressBar      from './ProgressBar';
+import React from 'react';
+import * as stylesheet  from '../../stylesheet';
+import {Icon, Hoverable, ProgressBar} from '../../ui';
+import {VBox, HBox} from '../../layout';
 
 /**
  * Can be called in a variety of ways to
@@ -16,7 +14,7 @@ import ProgressBar      from './ProgressBar';
  * Renders a file uploaded to a storage.
  */
 @Hoverable
-@Stylesheet.styleable
+@stylesheet.attach
 export default class File extends React.Component {
 
   static propTypes = {
@@ -60,7 +58,7 @@ export default class File extends React.Component {
     progress: React.PropTypes.number
   };
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = stylesheet.create({
     Root: {
       Component: HBox,
       fontSize: '90%',
@@ -68,7 +66,7 @@ export default class File extends React.Component {
       top: 2,
     },
     IconWrapper: {
-      Component: Box,
+      Component: VBox,
       marginRight: 5,
       marginLeft: 5,
       top: -2,
@@ -82,11 +80,11 @@ export default class File extends React.Component {
       onRemove, progress, ...props
     } = this.props;
     return (
-      <Box {...props}>
+      <VBox {...props}>
         <Root
           size={1}
           onClick={!required && !progress && onRemove}>
-          <IconWrapper centerVertically>
+          <IconWrapper justifyContent="center">
             {icon ?
               <Icon name={icon} /> :
               progress ?
@@ -95,14 +93,14 @@ export default class File extends React.Component {
               <Icon name="ok" /> :
               <Icon name="remove" />}
           </IconWrapper>
-          <Box centerVertically>
+          <VBox justifyContent="center">
             {progress || required || !hover ?
               children || file.name :
               'Remove file'}
-          </Box>
+          </VBox>
         </Root>
         <ProgressBar progress={progress} />
-      </Box>
+      </VBox>
     );
   }
 }

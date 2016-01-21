@@ -5,15 +5,13 @@
 import Style from './DataTableBase.css';
 
 import React, {PropTypes} from 'react';
-import autobind           from 'autobind-decorator';
-import {Column, Table}    from 'fixed-data-table';
-import * as Stylesheet    from 'react-stylesheet';
-import emptyFunction      from '../emptyFunction';
-import WithDOMSize        from '../WithDOMSize';
-import {VBox, HBox}       from '../Layout';
-import Icon               from '../ui/Icon';
-import isString           from '../isString';
-import LoadingIndicator   from '../LoadingIndicator';
+import {Column, Table} from 'fixed-data-table';
+import * as Stylesheet from 'react-stylesheet';
+import emptyFunction from '../emptyFunction';
+import WithDOMSize from '../WithDOMSize';
+import {VBox, HBox} from '../../layout';
+import {isString, autobind} from '../../lang';
+import {LoadingIndicator, Icon} from '../ui';
 import * as KeyPath       from '../KeyPath';
 import TouchableArea      from '../TouchableArea';
 import ZyngaScroller      from '../Scroller';
@@ -115,6 +113,7 @@ export default class DataTableBase extends React.Component {
       cursor: 'pointer',
       color: '#bbb',
       fontSize: '70%',
+      justifyContent: 'center',
 
       hover: {
         color: '#666'
@@ -168,7 +167,7 @@ export default class DataTableBase extends React.Component {
     } = this.props;
     let {Root, ErrorInfo, LoadingPane} = this.stylesheet;
     if (!this.props.DOMSize) {
-      return <Root style={style} size={1} />;
+      return <Root style={style} flex={1} />;
     }
     let rowsCount = data ? data.length : 0;
     let columnElements = [];
@@ -200,7 +199,7 @@ export default class DataTableBase extends React.Component {
     return (
       <TouchableArea
         element={Root}
-        size={1}
+        flex={1}
         scroller={isTouchDevice ? this.scroller : undefined}
         style={{...style, cursor: 'pointer'}}>
         <Table
@@ -268,14 +267,16 @@ export default class DataTableBase extends React.Component {
     let sort = {valueKey: columnData.valueKey, asc: active ? !asc : true};
     let icon = active ? (asc ? 'sort-by-attributes' : 'sort-by-attributes-alt') : 'sort';
     return (
-      <HBox size={1}>
-        <VBox size={1}>
-          {label}
-        </VBox>
-        <SortIndicator onClick={onSort.bind(null, sort)} centerVertically>
-          <Icon name={icon} />
-        </SortIndicator>
-      </HBox>
+      <div>
+        <HBox flex={1}>
+          <VBox flex={1}>
+            {label}
+          </VBox>
+          <SortIndicator onClick={onSort.bind(null, sort)}>
+            <Icon name={icon} />
+          </SortIndicator>
+        </HBox>
+      </div>
     );
   }
 

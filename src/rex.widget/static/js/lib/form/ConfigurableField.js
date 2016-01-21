@@ -14,7 +14,6 @@ let NumberField       = require('./NumberField');
 let DateField         = require('./DateField');
 let CheckboxField     = require('./CheckboxField');
 let SelectField       = require('./SelectField');
-let AutocompleteField = require('./AutocompleteField');
 let RepeatingFieldset = require('./RepeatingFieldset');
 let FileUploadField   = require('./FileUploadField');
 
@@ -175,19 +174,6 @@ let ConfigurableField = React.createClass({
           select={field.valueKey}
           formValue={formValue}
           options={field.options || field.values}
-          readOnly={readOnly}
-          validate={field.validate}
-          />
-      );
-    case 'entity':
-      return (
-        <AutocompleteField
-          key={field.valueKey}
-          label={field.label}
-          hint={field.hint}
-          select={field.valueKey}
-          formValue={formValue}
-          dataSpec={field.data}
           readOnly={readOnly}
           validate={field.validate}
           />

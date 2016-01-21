@@ -4,7 +4,7 @@
 
 import React, {PropTypes}               from 'react';
 import * as Stylesheet                  from 'react-stylesheet';
-import {padding, fontWeight, textAlign} from './StyleUtils';
+import {padding, fontWeight, textAlign} from '../StyleUtils';
 import LoadingIndicator                 from './LoadingIndicator';
 
 /**

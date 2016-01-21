@@ -53,5 +53,9 @@ export default class DataSet {
       );
     }
   }
+
+  static fromData(data) {
+    return new DataSet('dataset', data, null, false, false);
+  }
 }
 

@@ -6,6 +6,9 @@ export Hoverable from './Hoverable';
 export Focusable from './Focusable';
 
 export Icon from './Icon';
+export LoadingIndicator from './LoadingIndicator';
+export Preloader from './Preloader';
+export ProgressBar from './ProgressBar';
 
 export ButtonBase from './base/ButtonBase';
 export Button from './Button';

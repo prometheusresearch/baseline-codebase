@@ -6,7 +6,7 @@ import React                   from 'react';
 import DataSpecificationMixin  from '../DataSpecificationMixin';
 import DataSpecification       from '../DataSpecification';
 import BaseSelect              from '../Select';
-import Preloader               from '../Preloader';
+import {Preloader} from '../ui';
 import Field                   from './Field';
 import ReadOnlyField           from './ReadOnlyField';
 import {WithFormValue} from 'react-forms';

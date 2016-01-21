@@ -35,17 +35,6 @@ class Text(Widget):
         """)
 
 
-class DataGrid(Widget):
-
-    name = 'DataGrid'
-    js_type = 'rex-widget/lib/library/DataGrid'
-
-    columns = Field(SeqVal(ColumnVal()))
-    data = Field(MaybeUndefinedVal(CollectionSpecVal()), default=undefined)
-    with_search_filter = Field(BoolVal(), default=False)
-    search_placeholder = Field(MaybeUndefinedVal(StrVal()), default=undefined)
-
-
 class Info(Widget):
 
     name = 'Info'
@@ -98,7 +87,7 @@ class Form(Widget):
     """ Form widget."""
 
     name = 'Form'
-    js_type = 'rex-widget/lib/forms/ConfigurableEntityForm'
+    js_type = 'rex-widget/lib/form/ConfigurableEntityForm'
 
     entity = Field(
         StrVal(),
@@ -128,13 +117,13 @@ class Form(Widget):
 class TextareaField(Widget):
 
     name = 'TextareaField'
-    js_type = 'rex-widget/lib/forms/TextareaField'
+    js_type = 'rex-widget/lib/form/TextareaField'
 
 
 class DatetimeField(Widget):
 
     name = 'DatetimeField'
-    js_type = 'rex-widget/lib/forms/DatetimeField'
+    js_type = 'rex-widget/lib/form/DatetimeField'
 
     format = Field(
         StrVal(), default='YYYY-MM-DD HH:MM:SS',
@@ -147,7 +136,7 @@ class DatetimeField(Widget):
 class DateField(Widget):
 
     name = 'DateField'
-    js_type = 'rex-widget/lib/forms/DateField'
+    js_type = 'rex-widget/lib/form/DateField'
 
     format = Field(
         StrVal(), default='YYYY-MM-DD',

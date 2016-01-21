@@ -1,18 +1,17 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-import React          from 'react';
-import cx             from 'classnames';
-import {Box, HBox}    from '../Layout';
-import Button         from '../Button';
-import File           from '../File';
-import StoredFile     from '../StoredFile';
-import resolveURL     from '../resolveURL';
-import FileDownload   from '../FileDownload';
-import Field          from './Field';
-import ReadOnlyField  from './ReadOnlyField';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import {Box, HBox} from '../Layout';
+import Button from '../Button';
+import File from './File';
+import resolveURL from '../resolveURL';
+import StoredFile from './StoredFile';
+import FileDownload from './FileDownload';
+import Field from './Field';
+import ReadOnlyField from './ReadOnlyField';
 import {WithFormValue} from 'react-forms';
 
 function uploadFile(url, file, onProgress) {
@@ -125,7 +124,7 @@ let FileUploadInput = React.createClass({
 
   onClick(e) {
     e.stopPropagation();
-    this.refs.underlying.getDOMNode().click()
+    ReactDOM.findDOMNode(this.refs.underlying).click();
   },
 
   onRemove() {
@@ -197,10 +196,7 @@ export default class FileUploadField extends React.Component {
           />
       );
       return (
-        <Field
-          {...props}
-          formValue={formValue}
-          className={cx('rw-FileUploadField', className)}>
+        <Field {...props} formValue={formValue}>
           {input}
         </Field>
       );

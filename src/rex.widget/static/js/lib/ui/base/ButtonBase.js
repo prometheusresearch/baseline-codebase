@@ -6,7 +6,7 @@ import React, {PropTypes} from 'react';
 
 import * as Stylesheet from '../../Stylesheet';
 import * as CSS from '../../CSS';
-import isString from '../../isString';
+import {isString} from '../../lang';
 import Icon from '../Icon';
 
 /**

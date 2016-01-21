@@ -4,6 +4,7 @@
 
 import moment    from 'moment';
 import invariant from 'invariant';
+import {isArray} from '../lang';
 
 export function generateSchemaFromFields(fields) {
   let schema = {
@@ -191,7 +192,7 @@ function _growSchema(schema, keyPath, grow) {
 }
 
 function _toKeyPath(keyPath) {
-  if (Array.isArray(keyPath)) {
+  if (isArray(keyPath)) {
     return keyPath.slice(0);
   } else {
     return keyPath.split('.').filter(Boolean);

@@ -6,6 +6,7 @@ import autobind             from 'autobind-decorator';
 import React                from 'react';
 import RexWidget            from 'rex-widget';
 import {SuccessButton}      from 'rex-widget/ui';
+import * as form from 'rex-widget/form';
 import emptyFunction        from 'rex-widget/lib/emptyFunction';
 import {command, Types}     from '../execution/Command';
 import Action               from '../Action';
@@ -46,7 +47,7 @@ export default class Make extends React.Component {
         width={width}
         onClose={onClose}
         renderFooter={this.renderFooter}>
-        <RexWidget.Forms.ConfigurableEntityForm
+        <form.ConfigurableEntityForm
           insert
           context={ContextUtils.getMaskedContext(context, contextTypes.input)}
           key={this.getKey()}

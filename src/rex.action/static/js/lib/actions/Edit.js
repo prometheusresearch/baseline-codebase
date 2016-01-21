@@ -1,20 +1,21 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-import autobind             from 'autobind-decorator';
-import React                from 'react';
-import RexWidget            from 'rex-widget';
+import autobind from 'autobind-decorator';
+import React from 'react';
+
+import * as form from 'rex-widget/form';
 import * as ui from 'rex-widget/ui';
 import * as data from 'rex-widget/data';
-import Action               from '../Action';
-import * as ObjectTemplate  from '../ObjectTemplate';
-import * as ContextUtils    from '../ContextUtils';
-import {getEntityTitle}     from '../Entity';
-import Title                from './Title';
-import fetchEntity          from './fetchEntity';
-import applyContext         from '../applyContext';
+
+import Action from '../Action';
+import * as ObjectTemplate from '../ObjectTemplate';
+import * as ContextUtils from '../ContextUtils';
+import {getEntityTitle} from '../Entity';
+import Title from './Title';
+import fetchEntity from './fetchEntity';
+import applyContext from '../applyContext';
 
 @data.Fetch(fetchEntity)
 export default class Edit extends React.Component {
@@ -41,7 +42,7 @@ export default class Edit extends React.Component {
         renderFooter={this.renderFooter}>
         {!fetched.entity.updating ?
           this.renderForm() :
-          <RexWidget.Preloader />}
+          <ui.Preloader />}
       </Action>
     );
   }
@@ -64,7 +65,7 @@ export default class Edit extends React.Component {
       ObjectTemplate.render(value, context)
     );
     return (
-      <RexWidget.Forms.ConfigurableEntityForm
+      <form.ConfigurableEntityForm
         ref="form"
         context={ContextUtils.getMaskedContext(context, contextTypes.input)}
         submitTo={this.props.dataMutation}

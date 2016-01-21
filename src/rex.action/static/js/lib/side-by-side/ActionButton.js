@@ -7,6 +7,7 @@ import RexWidget                from 'rex-widget';
 import {VBox}                   from 'rex-widget/lib/Layout';
 import ActionIcon               from '../ActionIcon';
 import ActionTitle              from '../ActionTitle';
+import {Hoverable} from 'rex-widget/ui';
 
 let {
   linearGradient, rgba, rgb, border, borderStyle
@@ -61,7 +62,7 @@ let Style = {
   }
 };
 
-@RexWidget.Hoverable
+@Hoverable
 export default class ActionButton extends React.Component {
 
   static propTypes = {

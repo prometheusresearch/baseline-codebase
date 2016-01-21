@@ -3,9 +3,10 @@
  */
 
 import React from 'react';
-import RexWidget from 'rex-widget';
 import {Fetch} from 'rex-widget/data';
-import {VBox } from 'rex-widget/layout';
+import {Preloader} from 'rex-widget/ui';
+import * as form from 'rex-widget/form';
+import {VBox} from 'rex-widget/layout';
 import Action from '../Action';
 import {getEntityTitle, isLoaded} from '../Entity';
 import Title from './Title';
@@ -24,14 +25,14 @@ export default class ViewCross extends React.Component {
     let title = this.constructor.renderTitle(this.props, context);
     let children;
     if (fetched.entity.updating) {
-      children = <RexWidget.Preloader />;
+      children = <Preloader />;
     } else if (fetched.entity.data === null) {
       children = (
         <VBox flex={1} alignItems="center" justifyContent="center">No data</VBox>
       );
     } else {
       children = (
-        <RexWidget.Forms.ConfigurableEntityForm
+        <form.ConfigurableEntityForm
           key={fetched.entity.data.id}
           readOnly
           entity={entity.type.name}

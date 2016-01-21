@@ -11,7 +11,7 @@ import {Fetch} from 'rex-widget/lib/data';
 import {VBox} from '@prometheusresearch/react-box';
 import Action from '../Action';
 import applyContext from '../applyContext';
-import BasePreloader from 'rex-widget/lib/Preloader';
+import {Preloader as BasePreloader} from 'rex-widget/ui';
 
 function fetchPlotData({data, context, contextTypes}) {
   data = applyContext(data, contextTypes.input, context, {query: true});

@@ -7,7 +7,7 @@ import React, {PropTypes} from 'react';
 import * as Stylesheet from 'rex-widget/stylesheet';
 import * as CSS from 'rex-widget/css';
 import {Icon} from 'rex-widget/ui';
-import isString from 'rex-widget/lib/isString';
+import {isString} from 'rex-widget/lang';
 
 import * as Theme from './Theme';
 

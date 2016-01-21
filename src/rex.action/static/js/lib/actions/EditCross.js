@@ -4,8 +4,8 @@
 
 import autobind             from 'autobind-decorator';
 import React                from 'react';
-import RexWidget            from 'rex-widget';
 import {Fetch}              from 'rex-widget/data';
+import * as form from 'rex-widget/form';
 import {VBox}               from 'rex-widget/layout'
 import Action               from '../Action';
 import * as ObjectTemplate  from '../ObjectTemplate';
@@ -34,7 +34,7 @@ export default class EditCross extends React.Component {
     let title = this.constructor.renderTitle(this.props, context);
     let children;
     if (fetched.entity.updating) {
-      children = <RexWidget.Preloader />;
+      children = <ui.Preloader />;
     } else if (fetched.entity.data === null) {
       children = (
         <VBox flex={1} alignItems="center" justifyContent="center">No data</VBox>
@@ -72,7 +72,7 @@ export default class EditCross extends React.Component {
     );
 
     return (
-      <RexWidget.Forms.ConfigurableEntityForm
+      <form.ConfigurableEntityForm
         ref="form"
         context={ContextUtils.getMaskedContext(context, contextTypes.input)}
         submitTo={this.props.dataMutation}

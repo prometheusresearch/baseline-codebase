@@ -3,12 +3,13 @@
  */
 
 import React                       from 'react';
-import RexWidget                   from 'rex-widget';
-import Fetch                       from 'rex-widget/lib/data/Fetch';
 import Action                      from '../Action';
 import {getEntityTitle, isLoaded}  from '../Entity';
 import Title                       from './Title';
 import fetchEntity                 from './fetchEntity';
+import * as ui from 'rex-widget/ui';
+import {Fetch} from 'rex-widget/data';
+import * as form from 'rex-widget/form';
 
 @Fetch(fetchEntity)
 export default class View extends React.Component {
@@ -24,14 +25,14 @@ export default class View extends React.Component {
     return (
       <Action title={title} onClose={onClose} width={width}>
         {!fetched.entity.updating ?
-          <RexWidget.Forms.ConfigurableEntityForm
+          <form.ConfigurableEntityForm
             key={fetched.entity.data.id}
             readOnly
             entity={entity.type.name}
             value={fetched.entity.data}
             fields={fields}
             /> :
-            <RexWidget.Preloader />}
+            <ui.Preloader />}
       </Action>
     );
   }

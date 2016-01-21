@@ -1,23 +1,24 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
 
-import autobind             from 'autobind-decorator';
-import React                from 'react';
+import React from 'react';
 
-import RexWidget            from 'rex-widget';
-import * as Stylesheet      from 'rex-widget/stylesheet';
-import {VBox, HBox}         from 'rex-widget/layout';
-import {DataTable}          from 'rex-widget/datatable';
-import {port}               from 'rex-widget/data';
+import {autobind} from 'rex-widget/lang';
+import {SearchInput} from 'rex-widget/form';
+import * as stylesheet from 'rex-widget/stylesheet';
+import * as ui from 'rex-widget/ui';
+import {VBox, HBox} from 'rex-widget/layout';
+import {DataTable} from 'rex-widget/datatable';
+import {port} from 'rex-widget/data';
 
-import {command, Types}     from '../execution/Command';
-import * as Entity          from '../Entity';
-import Action               from '../Action';
-import applyContext         from '../applyContext';
-import Title                from './Title';
+import {command, Types} from '../execution/Command';
+import * as Entity from '../Entity';
+import Action from '../Action';
+import applyContext from '../applyContext';
+import Title from './Title';
 
-@Stylesheet.attach
+@stylesheet.attach
 export default class Pick extends React.Component {
 
   static propTypes = {
@@ -30,16 +31,7 @@ export default class Pick extends React.Component {
     width: 600
   };
 
-  static stylesheet = Stylesheet.create({
-    Search: {
-      Component: RexWidget.SearchInput,
-      borderRadius: 0,
-      border: 'none',
-    }
-  });
-
   render() {
-    let {Search} = this.stylesheet;
     let {
       entity,
       sort,
@@ -59,11 +51,10 @@ export default class Pick extends React.Component {
     return (
       <Action noContentWrapper title={title} onClose={onClose}>
         {this.props.search &&
-          <Search
-            placeholder={searchPlaceholder}
+          <SearchInput
             value={search}
             onChange={this.onSearch}
-            throttleOnChange={500}
+            placeholder={searchPlaceholder}
             />}
         <DataTable
           sort={sort ? {

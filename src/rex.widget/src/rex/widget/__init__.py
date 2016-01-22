@@ -20,7 +20,6 @@ from .chrome import Chrome
 from .transitionable import encode, as_transitionable
 from .transitionable import Transitionable, TransitionableRecord
 
-from .dataspec import EntitySpecVal, CollectionSpecVal
 from .column import ColumnVal
 from .keypath import KeyPathVal
 from .formfield import (

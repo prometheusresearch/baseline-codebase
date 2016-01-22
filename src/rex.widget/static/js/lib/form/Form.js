@@ -46,7 +46,6 @@ let Form = React.createClass({
     onChange: PropTypes.func,
 
     /**
-     * An instance of ``class DataSpecification``.
      * The data specification to submit the form value to.
      */
     submitTo: PropTypes.object,
@@ -241,15 +240,7 @@ let Form = React.createClass({
     let {value} = this.state;
     let {submitTo, onSubmit, insert} = this.props;
 
-    let nextValue;
-    // Legacy code-path to support data specification
-    if (typeof submitTo.produceParams === 'function') {
-      nextValue = value.update(
-        onSubmit({...submitTo.produceParams().toJS(), ...value.value}),
-        true);
-    } else {
-      nextValue = value;
-    }
+    let nextValue = value;
 
     if (nextValue.completeErrorList.length > 0) {
       this.setState({

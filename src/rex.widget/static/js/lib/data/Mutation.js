@@ -10,21 +10,21 @@ export class Mutation {
 
   constructor(path, params) {
     this.path = path;
-    this.params = params;
+    this._params = params;
   }
 
   execute(data, prevData = null) {
     let formData = new FormData();
     formData.append('old', JSON.stringify([prevData]));
     formData.append('new', JSON.stringify([data]));
-    return this.constructor.post(this.path, this.params, formData);
+    return this.constructor.post(this.path, this._params, formData);
   }
 
   params(params) {
-    return new this.constructor(this.path, {...this.params, ...params});
+    return new this.constructor(this.path, {...this._params, ...params});
   }
 }
 
 export default function mutation(path, params = {}) {
-  return new Mutation(path, params = {});
+  return new Mutation(path, params);
 }

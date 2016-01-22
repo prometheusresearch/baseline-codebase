@@ -17,7 +17,6 @@ from .column import ColumnVal
 from .param import ParamVal
 from .url import URLVal
 from .formfield import FormFieldVal, FormFieldsetVal
-from .dataspec import EntitySpecVal, CollectionSpecVal
 from .rst import RSTVal
 
 __all__ = ('DataGrid',)
@@ -33,15 +32,6 @@ class Text(Widget):
         doc="""
         Text in ReStructuredText format.
         """)
-
-
-class Info(Widget):
-
-    name = 'Info'
-    js_type = 'rex-widget/lib/Info'
-
-    data = Field(MaybeUndefinedVal(EntitySpecVal()), default=undefined)
-    fields = Field(SeqVal(FormFieldVal()))
 
 
 class Link(Widget):

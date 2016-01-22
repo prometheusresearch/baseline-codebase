@@ -31,7 +31,6 @@ from .url import URLVal, PortURL, QueryURL
 from .util import PropsContainer, undefined, MaybeUndefinedVal, pop_mapping_key
 from .transitionable import as_transitionable
 from .pointer import Pointer
-from .dataspec import CollectionSpecVal, CollectionSpec
 from .keypath import KeyPathVal
 from .validate import WidgetVal
 from .port_support import PortSupport

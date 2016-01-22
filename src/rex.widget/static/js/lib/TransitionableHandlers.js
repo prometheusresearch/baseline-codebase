@@ -1,12 +1,11 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
 
-import React                             from 'react';
-import * as Transitionable               from './Transitionable';
-import {port, query, mutation, request}  from './data';
-import resolveURL                        from './resolveURL';
-import {Collection, Entity, prop, state} from './DataSpecification';
+import React from 'react';
+import * as Transitionable from './Transitionable';
+import {port, query, mutation, request} from './data';
+import resolveURL from './resolveURL';
 
 Transitionable.register('undefined', function decode_widget() { // eslint-disable-line camelcase
   return undefined;
@@ -35,21 +34,4 @@ Transitionable.register('mutation', function decode_mutation(payload) { // eslin
 
 Transitionable.register('request_url', function decode_request_url(payload) { // eslint-disable-line camelcase
   return request(resolveURL(payload[0]));
-});
-
-
-Transitionable.register('collection', function decode_query(payload) { // eslint-disable-line camelcase, max-len
-  return new Collection(payload[0], payload[1]);
-});
-
-Transitionable.register('entity', function decode_query(payload) { // eslint-disable-line camelcase
-  return new Entity(payload[0], payload[1]);
-});
-
-Transitionable.register('propbinding', function decode_query(payload) { // eslint-disable-line camelcase, max-len
-  return prop(payload[0]);
-});
-
-Transitionable.register('statebinding', function decode_query(payload) { // eslint-disable-line camelcase, max-len
-  return state(payload[0]);
 });

@@ -15,9 +15,7 @@ import {Mutation}     from '../data/Mutation';
 function needExtract(submitTo) {
   return (
     (submitTo instanceof Port) ||
-    (submitTo instanceof Mutation) ||
-    (submitTo.port instanceof Port) ||
-    (submitTo.port instanceof Mutation)
+    (submitTo instanceof Mutation)
   );
 }
 
@@ -55,15 +53,34 @@ let EntityForm = React.createClass({
   },
 
   render() {
-    let {children, entity, schema, value, ...props} = this.props;
-    let formValue = makeEntityValue(entity, value);
-    let formSchema = makeEntitySchema(entity, schema);
+    let {
+      children,
+      entity,
+      schema,
+      value,
+      initialValue,
+      ...props
+    } = this.props;
     return (
       <Form
         {...props}
         ref="form"
-        schema={formSchema}
-        value={formValue}
+        schema={{
+          type: 'object',
+          properties: {
+            [entity]: {
+              type: 'array',
+              items: schema
+            },
+          },
+          required: [entity]
+        }}
+        value={{
+          [entity]: [value]
+        }}
+        initialValue={{
+          [entity]: [initialValue]
+        }}
         transformValueOnSubmit={this.transformValueOnSubmit}
         onSubmitComplete={this.onSubmitComplete}>
         <Fieldset select={[entity, 0]}>
@@ -83,9 +100,7 @@ let EntityForm = React.createClass({
   transformValueOnSubmit(value) {
     if (this.props.transformValueOnSubmit) {
       return this.props.transformValueOnSubmit(value);
-    } else if (this.props.submitTo instanceof Mutation) {
-      return value[this.props.entity][0];
-    } else if (!needExtract(this.props.submitTo)) {
+    } else if (needExtract(this.props.submitTo)) {
       return value[this.props.entity][0];
     } else {
       return value;
@@ -107,15 +122,6 @@ let EntityForm = React.createClass({
 });
 
 function makeEntitySchema(entity, schema) {
-  let portSchema = {
-    type: 'object',
-    properties: {},
-    required: [entity]
-  };
-  portSchema.properties[entity] = {
-    type: 'array',
-    items: schema
-  };
   return portSchema;
 }
 

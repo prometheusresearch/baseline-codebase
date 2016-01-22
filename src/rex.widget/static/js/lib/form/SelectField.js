@@ -1,10 +1,8 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
 
-import React                   from 'react';
-import DataSpecificationMixin  from '../DataSpecificationMixin';
-import DataSpecification       from '../DataSpecification';
+import React from 'react';
 import Select from '../Select';
 import {Preloader} from '../../ui';
 import {Fetch} from '../../data';

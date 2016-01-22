@@ -10,7 +10,7 @@ import {VBox}               from 'rex-widget/layout'
 import Action               from '../Action';
 import * as ObjectTemplate  from '../ObjectTemplate';
 import * as ContextUtils    from '../ContextUtils';
-import {SuccessButton}      from '../ui';
+import * as ui from 'rex-widget/ui';
 import {getEntityTitle}     from '../Entity';
 import Title                from './Title';
 import fetchCrossEntity from './fetchCrossEntity';
@@ -57,9 +57,9 @@ export default class EditCross extends React.Component {
   renderFooter() {
     let {submitButton, icon} = this.props;
     return (
-      <SuccessButton icon={icon} onClick={this._onSubmit}>
+      <ui.SuccessButton icon={icon} onClick={this._onSubmit}>
         {submitButton}
-      </SuccessButton>
+      </ui.SuccessButton>
     );
   }
 

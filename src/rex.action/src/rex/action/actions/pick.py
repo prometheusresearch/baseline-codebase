@@ -13,7 +13,7 @@ from rex.widget import Field, ColumnVal, undefined
 from rex.widget import dataspec
 
 from .. import typing
-from .entity_action import _EntityAction as EntityAction
+from .entity_action import EntityAction
 
 __all__ = ('Pick',)
 

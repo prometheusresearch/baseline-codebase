@@ -54,7 +54,7 @@ export default class Make extends React.Component {
           ref="form"
           entity={entity.type.name}
           fields={fields}
-          submitTo={applyContext(this.props.dataMutation.port, contextTypes.input, context)}
+          submitTo={applyContext(this.props.dataMutation, contextTypes.input, context)}
           submitButton={null}
           onSubmitComplete={this.onSubmitComplete}
           value={value}

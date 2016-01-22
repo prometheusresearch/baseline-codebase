@@ -15,70 +15,9 @@ from rex.widget import formfield, dataspec
 from rex.widget import Field, QueryURL, PortURL, MutationURL, responder, Mutation
 
 from ..validate import SyntaxVal
-from .entity_action import _EntityAction, EntityAction
+from .entity_action import EntityAction
 
 __all__ = ('FormAction',)
-
-
-class _FormAction(_EntityAction):
-    """ Base class for actions which represent an entity form."""
-
-    dataspec_factory = dataspec.EntitySpec
-
-    value = Field(
-        MapVal(StrVal(), AnyVal()), default={},
-        doc="""
-        An initial value.
-
-        It could reference data from the current context via ``$name``
-        references::
-
-            study: $study
-            individual: $individual
-
-        """)
-
-    query = Field(
-        SyntaxVal(), default=None, transitionable=False,
-        doc="""
-        Optional query which is used to persist data in database.
-        """)
-
-    @cached_property
-    def mutation(self):
-        """ Define data mutation for the action."""
-        if self.query:
-            query = Query(self.query, self.db)
-            query.parameters = {f.value_key[0]: None for f in self._complete_fields}
-        else:
-            query = None
-        return Mutation(self.port, query=query)
-
-    @responder(
-        wrap=lambda self, url: dataspec.EntitySpec(url, {}),
-        url_type=PortURL)
-    def data_mutation(self, req):
-        """ Handle data mutation request."""
-        return self.mutation(req)
-
-    def create_port(self):
-        """ Override port creation and inject coplete list of fields."""
-        return super(_FormAction, self).create_port(fields=self._complete_fields)
-
-    @cached_property
-    def _complete_fields(self):
-        """ Complete list of fields for form action.
-
-        A list of fields which contains both user defined fields and fields
-        which are inferred from initial form value.
-
-        We use this to construct form and query parameters.
-        """
-        fields = create_fieldset_from_value(self.value).fields
-        fields = formfield.enrich(fields, self.entity.type.name, db=self.db)
-        fields = fields + self.fields
-        fields = remove_fields_layout(fields)
-        return fields
 
 
 def create_fieldset_from_value(value, _key=None):

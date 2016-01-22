@@ -6,11 +6,6 @@ import * as Transitionable  from 'rex-widget/lib/Transitionable';
 import * as Instruction     from './execution/Instruction';
 import * as Typing          from './Typing';
 
-Transitionable.register('contextbinding', function decode_query(payload) {
-  // TODO: remove me
-  return null;
-});
-
 Transitionable.register('type:any', function decode_type_any() {
   return Typing.anytype;
 });

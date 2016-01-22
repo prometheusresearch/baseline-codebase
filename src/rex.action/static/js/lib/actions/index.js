@@ -7,5 +7,4 @@ export Pick     from './Pick';
 export View     from './View';
 export Make     from './Make';
 export Drop     from './Drop';
-export PickDate from './PickDate';
 

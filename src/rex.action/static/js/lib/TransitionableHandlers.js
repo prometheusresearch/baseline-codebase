@@ -4,11 +4,11 @@
 
 import * as Transitionable  from 'rex-widget/lib/Transitionable';
 import * as Instruction     from './execution/Instruction';
-import {ContextBinding}     from './DataSpecification';
 import * as Typing          from './Typing';
 
 Transitionable.register('contextbinding', function decode_query(payload) {
-  return new ContextBinding(payload[0], payload[1]);
+  // TODO: remove me
+  return null;
 });
 
 Transitionable.register('type:any', function decode_type_any() {

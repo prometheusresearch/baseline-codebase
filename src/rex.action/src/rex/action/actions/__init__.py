@@ -15,7 +15,6 @@ from .pick import Pick
 from .edit import Edit
 from .edit_cross import EditCross
 from .drop import Drop
-from .pick_date import PickDate
 from .alternative import Alternative
 from .form_action import FormAction
 from .entity_action import EntityAction

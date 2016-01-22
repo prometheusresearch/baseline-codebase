@@ -5,28 +5,12 @@
 import React                   from 'react';
 import DataSpecificationMixin  from '../DataSpecificationMixin';
 import DataSpecification       from '../DataSpecification';
-import BaseSelect              from '../Select';
-import {Preloader} from '../ui';
-import Field                   from './Field';
-import ReadOnlyField           from './ReadOnlyField';
+import Select from '../Select';
+import {Preloader} from '../../ui';
+import {Fetch} from '../../data';
+import Field from './Field';
+import ReadOnlyField from './ReadOnlyField';
 import {WithFormValue} from 'react-forms';
-
-let {collection} = DataSpecification;
-
-let Select = React.createClass({
-
-  propTypes: {
-    onChange: React.PropTypes.func,
-  },
-
-  render() {
-    return <BaseSelect {...this.props} onChange={this.onChange} />;
-  },
-
-  onChange(value) {
-    this.props.onChange(value);
-  }
-});
 
 /**
  * Renders a <Field> with a <Select>
@@ -34,18 +18,12 @@ let Select = React.createClass({
  *
  * @public
  */
-let SelectField = React.createClass({
-  mixins: [DataSpecificationMixin],
+@Fetch(function fetch({data, options}) {
+  return options ? {} : {data};
+})
+export default class SelectField extends React.Component {
 
-  dataSpecs: {
-    dataSpec: collection()
-  },
-
-  fetchDataSpecs: {
-    dataSpec: true
-  },
-
-  propTypes: {
+  static propTypes = {
 
     /**
      * Set to false, if you want an empty value in the drop-down list.
@@ -75,30 +53,38 @@ let SelectField = React.createClass({
      * Each element in the list must have an id and a title.
      */
     options: React.PropTypes.array
-  },
+  };
 
   render() {
-    let {noEmptyValue, formValue, readOnly, options, select, selectFormValue, ...props} = this.props;
-    let {dataSpec: data} = this.data;
+    let {
+      noEmptyValue,
+      formValue,
+      readOnly,
+      options,
+      select,
+      selectFormValue,
+      fetched: {data},
+      ...props
+    } = this.props;
     if (readOnly) {
       let value;
       if (formValue.value) {
         if (options) {
           value = findByValue(options, formValue.value);
-        } else if (data.loading) {
+        } else if (data.updating) {
           value = <Preloader />;
         } else {
           value = findByValue(data.data, formValue.value);
         }
       }
       return (
-        <ReadOnlyField {...props} formValue={formValue} dataSpec={undefined}>
+        <ReadOnlyField {...props} formValue={formValue}>
           {value}
         </ReadOnlyField>
       );
     } else {
       return (
-        <Field {...props} formValue={formValue} dataSpec={undefined}>
+        <Field {...props} formValue={formValue}>
           <Select
             options={(options || []).map(v => ({id: v.value || v.id,
                                                 title: v.label || v.title}))}
@@ -109,7 +95,7 @@ let SelectField = React.createClass({
       );
     }
   }
-});
+}
 
 function findByValue(options, value) {
   if (!options) {
@@ -121,7 +107,3 @@ function findByValue(options, value) {
     }
   }
 }
-
-SelectField = WithFormValue(SelectField);
-
-export default SelectField;

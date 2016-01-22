@@ -11,7 +11,6 @@ from cached_property import cached_property
 
 from rex.port import Port
 from rex.widget import Field, responder, PortURL
-from rex.widget import dataspec
 
 from .. import typing
 from .entity_action import EntityAction

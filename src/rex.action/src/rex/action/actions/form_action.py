@@ -11,7 +11,7 @@ from cached_property import cached_property
 
 from rex.core import StrVal, AnyVal, MapVal
 from rex.db import Query
-from rex.widget import formfield, dataspec
+from rex.widget import formfield
 from rex.widget import Field, QueryURL, PortURL, MutationURL, responder, Mutation
 
 from ..validate import SyntaxVal

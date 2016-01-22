@@ -15,7 +15,7 @@ from webob.exc import HTTPBadRequest
 from rex.core import MaybeVal, StrVal, MapVal, AnyVal
 from rex.port import Port
 from rex.widget import Field, FormFieldsetVal, responder, PortURL
-from rex.widget import formfield, dataspec
+from rex.widget import formfield
 from rex.widget.validate import DeferredVal, Deferred
 from rex.widget.port_support import PortSupport
 

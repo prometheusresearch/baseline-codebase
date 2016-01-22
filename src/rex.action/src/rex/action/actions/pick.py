@@ -10,7 +10,6 @@
 from rex.core import StrVal, SeqVal, MaybeVal, BoolVal, RecordVal
 from rex.port import Port
 from rex.widget import Field, ColumnVal, undefined
-from rex.widget import dataspec
 
 from .. import typing
 from .entity_action import EntityAction
@@ -35,7 +34,6 @@ class Pick(EntityAction):
 
     name = 'pick'
     js_type = 'rex-action/lib/actions/Pick'
-    dataspec_factory = dataspec.CollectionSpec
 
     search = Field(
         StrVal(), default=None,

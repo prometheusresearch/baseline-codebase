@@ -9,9 +9,7 @@
 
 from rex.port import Port
 from rex.widget import Field, responder, PortURL
-from rex.widget import dataspec
 
-from ..dataspec import ContextBinding
 from ..typing import RecordTypeVal, RecordType
 from .entity_action import EntityAction
 
@@ -49,7 +47,6 @@ class View(EntityAction):
 
     name = 'view'
     js_type = 'rex-action/lib/actions/View'
-    dataspec_factory = dataspec.EntitySpec
 
     input = Field(
         RecordTypeVal(), default=RecordType.empty())

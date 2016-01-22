@@ -11,7 +11,6 @@ from rex.core import StrVal
 from rex.port import Port
 from rex.widget import Field, undefined
 
-from ..dataspec import ContextBinding
 from ..typing import RecordTypeVal, RecordType
 from .form_action import FormAction
 

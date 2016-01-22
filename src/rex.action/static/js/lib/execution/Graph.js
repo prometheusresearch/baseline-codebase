@@ -87,13 +87,12 @@ export default class Graph {
         graph = graph.close();
       } else {
         let nextNode = graph.node.then
-          .filter(n => {
-            if (n.parent && Instruction.IncludeWizard.is(n.parent.instruction)) {
-              return n.parent.action === segment;
-            } else {
-              return n.action === segment;
-            }
-          })
+          .filter(n =>
+            (n.action === segment) ||
+            (n.parent &&
+             Instruction.IncludeWizard.is(n.parent.instruction) &&
+             n.parent.action === segment)
+          )
           .filter(n => n.isAllowed)[0];
         if (!nextNode) {
           return graph;

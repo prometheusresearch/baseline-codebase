@@ -147,10 +147,11 @@ export default class Field extends React.Component {
       children ?  React.Children.only(children) : <Input />, {
         error: showErrors && errorList.length > 0,
         value: serialize(value),
-        onChange: this.onChange.bind(null, onChange)
+        onChange: this.onChange.bind(null, onChange),
+        onBlur: this.onBlur,
       });
     return (
-      <Root {...props} onBlur={this.onBlur}>
+      <Root {...props}>
         <HBox>
           {label &&
             <VBox flex={labelSize}>

@@ -1,12 +1,14 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
 
-import autobind               from 'autobind-decorator';
-import React                  from 'react';
-import AutocompleteBase       from '@prometheusresearch/react-autocomplete/lib/themed/Bootstrap';
-import IconButton             from './IconButton';
-import {VBox}                 from './Layout';
+import React from 'react';
+import AutocompleteBase from '@prometheusresearch/react-autocomplete';
+import {autobind} from '../lang';
+import Input from './form/Input';
+import IconButton from './IconButton';
+import * as layout from '../layout';
+import * as css from '../css';
 import * as stylesheet from '../stylesheet';
 
 /**
@@ -58,15 +60,92 @@ export default class Autocomplete extends React.Component {
   };
 
   static stylesheet = stylesheet.create({
+    Root: {
+      Component: layout.HBox,
+      alignItems: 'center'
+    },
     IconButton: {
       Component: IconButton,
       Root: {
         position: 'absolute',
-        top: 10,
+        top: 7,
         right: 10,
       }
     },
-    Autocomplete: AutocompleteBase
+    Autocomplete: {
+      Component: AutocompleteBase,
+      Root: {
+        flex: 1,
+      },
+      Input: {
+        display: 'block',
+        width: '100%',
+        height: 34,
+        padding: css.padding(6, 12),
+        fontSize: '14px',
+        lineHeight: 1.42857143,
+        color: '#555',
+        backgroundColor: '#fff',
+        backgroundImage: css.none,
+        border: css.border(1, '#ccc'),
+        borderRadius: 2,
+        boxShadow: css.insetBoxShadow(0, 1, 1, css.rgba(0, 0,0 , 0.075)),
+        transition: 'border-color ease-in-out .15s,box-shadow ease-in-out .15s',
+        error: {
+          border: css.border(1, 'red'),
+        },
+        focus: {
+          border: css.border(1, '#888'),
+          boxShadow: css.insetBoxShadow(0, 1, 1, css.rgba(0, 0, 0, 0.075)),
+          outline: css.none,
+        },
+      },
+      ResultList: {
+        Root: {
+          margin: 0,
+          width: '100%',
+          maxHeight: 200,
+          overflow: 'auto',
+          minWidth: 160,
+          padding: css.padding(5, 0),
+          fontSize: '14px',
+          textAlign: 'left',
+          listStyle: css.none,
+          backgroundColor: '#fff',
+          backgroundClip: 'padding-box',
+          border: css.border(1, css.rgba(0, 0, 0, 0.15)),
+          borderRadius: 2,
+          boxShadow: css.boxShadow(0, 6, 12, css.rgba(0, 0, 0, 0.175)),
+          focus: {
+            outline: css.none,
+          }
+        },
+        Result: {
+          Root: {
+            display: 'block',
+            padding: css.padding(5, 20),
+            clear: 'both',
+            fontWeight: '400',
+            lineHeight: '1.42857143',
+            color: '#333',
+            whiteSpace: 'nowrap',
+            userSelect: css.none,
+            WebkitUserSelect: css.none,
+            focus: {
+              outline: css.none,
+              color: '#262626',
+              textDecoration: css.none,
+              backgroundColor: '#f5f5f5'
+            },
+            hover: {
+              color: '#262626',
+              textDecoration: css.none,
+              backgroundColor: '#f5f5f5'
+            }
+          }
+        }
+      }
+    }
   });
 
   static defaultProps = {
@@ -82,11 +161,12 @@ export default class Autocomplete extends React.Component {
   }
 
   render() {
-    let {value} = this.props;
-    let {IconButton, Autocomplete} = this.stylesheet;
+    let {value, ...props} = this.props;
+    let {Root, IconButton, Autocomplete} = this.stylesheet;
     return (
-      <VBox>
+      <Root>
         <Autocomplete
+          {...props}
           ref="underlying"
           value={{...(value === null ? null : this.state.value), id: value}}
           search={this._search}
@@ -101,7 +181,7 @@ export default class Autocomplete extends React.Component {
             name="triangle-bottom"
             onClick={this._open}
             />}
-      </VBox>
+      </Root>
     );
   }
 

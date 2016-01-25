@@ -219,7 +219,11 @@ let ConfigurableField = React.createClass({
           hint={field.hint}
           formValue={formValue}
           select={field.valueKey}>
-          {field.fields.map(f => <ConfigurableField field={f} />)}
+          {field.fields.map(f =>
+            <ConfigurableField
+              key={f.valueKey}
+              field={f}
+              />)}
         </Fieldset>
       );
     case 'list':
@@ -231,9 +235,13 @@ let ConfigurableField = React.createClass({
           hint={field.hint}
           formValue={formValue}
           select={field.valueKey}>
-          {field.fields.map(f => <ConfigurableField field={f}
-                                   select={f.valueKey}
-                                   readOnly={readOnly}/>)}
+          {field.fields.map(f =>
+              <ConfigurableField
+                key={f.valueKey}
+                field={f}
+                select={f.valueKey}
+                readOnly={readOnly}
+                />)}
         </RepeatingFieldset>
       );
     default:

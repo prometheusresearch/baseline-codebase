@@ -25,10 +25,6 @@ export default class RepeatingFieldset extends React.Component {
 
   static propTypes = {
     /**
-     * The starting index for the data array in formValue
-     */
-    baseIndex: PropTypes.number,
-    /**
      * The data to display.
      */
     formValue: PropTypes.object,
@@ -65,7 +61,6 @@ export default class RepeatingFieldset extends React.Component {
   };
 
   static defaultProps = {
-    baseIndex: 0,
     addButtonText: 'Add',
   };
 
@@ -109,21 +104,14 @@ export default class RepeatingFieldset extends React.Component {
 
   render() {
     let {
-      baseIndex, children, formValue, label, readOnly,
+      children, formValue, label, readOnly,
       addButtonText, removeButtonText, ...props
     } = this.props;
     let {Root, Label, ErrorList, Item, ItemToolbar, Required} = this.stylesheet;
     let schema = formValue.schema || {};
-    let minItems = schema.minItems || 0;
     let items = formValue.value || [];
-    if (baseIndex) {
-      items = items.slice(baseIndex);
-    }
-    if (items.length < minItems) {
-      items = items.concat(arrayFromLength(minItems - items.length));
-    }
     let fieldsets = items.map((item, idx) =>
-      <Fieldset formValue={formValue.select(idx + baseIndex)} key={idx + baseIndex}>
+      <Fieldset formValue={formValue.select(idx)} key={idx}>
         <Item>
           {!readOnly &&
             <ItemToolbar>
@@ -131,8 +119,7 @@ export default class RepeatingFieldset extends React.Component {
                 quiet
                 size="small"
                 icon={<CloseIcon />}
-                style={{visibility: items.length > minItems ? undefined : 'hidden'}}
-                onClick={this.removeItem.bind(null, idx + baseIndex)}>
+                onClick={this.removeItem.bind(null, idx)}>
                 {removeButtonText}
               </QuietButton>
             </ItemToolbar>}
@@ -167,22 +154,10 @@ export default class RepeatingFieldset extends React.Component {
     );
   }
 
-  get value() {
-    let {schema = {}, value = []} = this.props.formValue;
-    let minItems = schema.minItems || 0;
-    if (value.length < minItems) {
-      value = value.concat(
-        arrayFromLength(minItems - value.length,
-        this.props.defaultValue));
-    }
-    return value;
-  }
-
   @autobind
   addItem() {
     let {formValue} = this.props;
-    let value = this.value.slice(0);
-    console.log(value);
+    let value = (formValue.value || []).slice(0);
     let defaultValue = this.props.defaultValue;
     if (defaultValue === undefined) {
       defaultValue = formValue.schema.defaultItem;
@@ -194,7 +169,7 @@ export default class RepeatingFieldset extends React.Component {
   @autobind
   removeItem(idx) {
     let {formValue} = this.props;
-    let value = this.value.slice(0);
+    let value = (formValue.value || []).slice(0);
     value.splice(idx, 1);
     formValue.update(value);
   }

@@ -62,7 +62,8 @@ function _fieldToSchema(field) {
     return {
       type: 'array',
       items: generateSchemaFromFields(field.fields),
-      isRequired: !!field.required
+      minItems: field.required ? 1 : 0,
+      format: Validation.array,
     };
   case 'date':
     return {

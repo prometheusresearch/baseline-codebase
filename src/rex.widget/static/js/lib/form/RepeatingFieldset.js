@@ -70,7 +70,8 @@ export default class RepeatingFieldset extends React.Component {
   static stylesheet = Stylesheet.create({
     Root: {
       Component: VBox,
-      marginBottom: 5
+      marginBottom: 15,
+      marginTop: 15,
     },
     Label: {
       Component: 'label',
@@ -82,14 +83,26 @@ export default class RepeatingFieldset extends React.Component {
     },
     ErrorList: {
       Component: VBox,
-      marginTop: 3,
+      marginTop: 10,
+      marginBottom: 10,
       color: 'red',
-      fontSize: '90%'
+      fontSize: '80%'
+    },
+    Required: {
+      Component: 'span',
+      color: 'red',
+      marginLeft: 3,
+      width: 5,
+      display: 'inline-block',
     },
     Item: {
-      Component: HBox,
+      Component: VBox,
       marginBottom: 5,
     },
+    ItemToolbar: {
+      marginBottom: 5,
+      alignSelf: 'flex-end',
+    }
   });
 
   render() {
@@ -97,16 +110,21 @@ export default class RepeatingFieldset extends React.Component {
       baseIndex, children, formValue, label, readOnly,
       addButtonText, removeButtonText, ...props
     } = this.props;
-    let {Root, Label, ErrorList, Item} = this.stylesheet;
-    let minItems = formValue.schema.minItems || 0;
-    let items = (formValue.value || []).slice(baseIndex);
+    let {Root, Label, ErrorList, Item, ItemToolbar, Required} = this.stylesheet;
+    let schema = formValue.schema || {};
+    let minItems = schema.minItems || 0;
+    let items = formValue.value || [];
+    if (baseIndex) {
+      items = items.slice(baseIndex);
+    }
     if (items.length < minItems) {
       items = items.concat(arrayFromLength(minItems - items.length));
     }
     let fieldsets = items.map((item, idx) =>
       <Fieldset formValue={formValue.select(idx + baseIndex)} key={idx + baseIndex}>
         <Item>
-          {!readOnly && <VBox style={{marginRight: 10}}>
+          {!readOnly &&
+            <ItemToolbar>
               <QuietButton
                 quiet
                 size="small"
@@ -115,7 +133,7 @@ export default class RepeatingFieldset extends React.Component {
                 onClick={this.removeItem.bind(null, idx + baseIndex)}>
                 {removeButtonText}
               </QuietButton>
-            </VBox>}
+            </ItemToolbar>}
             <VBox flex={1}>
               {children}
             </VBox>
@@ -127,6 +145,7 @@ export default class RepeatingFieldset extends React.Component {
         {label &&
           <Label>
             {label}
+            <Required>{schema && schema.isRequired ? '*' : null}</Required>
           </Label>}
         <VBox>
           {fieldsets}
@@ -146,35 +165,43 @@ export default class RepeatingFieldset extends React.Component {
     );
   }
 
+  get value() {
+    let {schema = {}, value = []} = this.props.formValue;
+    let minItems = schema.minItems || 0;
+    if (value.length < minItems) {
+      value = value.concat(
+        arrayFromLength(minItems - value.length,
+        this.props.defaultValue));
+    }
+    return value;
+  }
+
   @autobind
   addItem() {
     let {formValue} = this.props;
-    let value = formValue.value ?
-      formValue.value.slice(0) :
-      [];
+    let value = this.value.slice(0);
+    console.log(value);
     let defaultValue = this.props.defaultValue;
     if (defaultValue === undefined) {
       defaultValue = formValue.schema.defaultItem;
     }
     value.push(defaultValue);
-    formValue.set(value);
+    formValue.update(value);
   }
 
   @autobind
   removeItem(idx) {
     let {formValue} = this.props;
-    let value = formValue.value ?
-      formValue.value.slice(0) :
-      [];
+    let value = this.value.slice(0);
     value.splice(idx, 1);
-    formValue.set(value);
+    formValue.update(value);
   }
 }
 
-function arrayFromLength(length) {
+function arrayFromLength(length, value = undefined) {
   let result = [];
   for (let i = 0; i < length; i++) {
-    result.push(undefined);
+    result.push(value);
   }
   return result;
 }

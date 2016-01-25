@@ -78,6 +78,7 @@ export default class Graph {
     if (!Array.isArray(reference)) {
       reference = reference.split('/').filter(Boolean);
     }
+    let wasContextUpdated = false;
     let graph = this;
     for (let i = 0; i < reference.length; i++) {
       let segment = reference[i];
@@ -92,12 +93,25 @@ export default class Graph {
             (n.parent &&
              Instruction.IncludeWizard.is(n.parent.instruction) &&
              n.parent.action === segment)
-          )
-          .filter(n => n.isAllowed)[0];
+          )[0];
+
         if (!nextNode) {
           return graph;
         }
-        if (contextUpdate) {
+        // We try to postpone context update untill it is required
+        if (!nextNode.isAllowed && !wasContextUpdated && contextUpdate) {
+          wasContextUpdated = true;
+          nextNode = nextNode.executeCommand(
+            Command.onContextCommand.name,
+            contextUpdate
+          );
+          if (!nextNode.isAllowed) {
+            return graph;
+          }
+        }
+        // If we didn't apply context update we do it at the last iteration
+        if (i === reference.length - 1 && !wasContextUpdated) {
+          wasContextUpdated = true;
           nextNode = nextNode.executeCommand(
             Command.onContextCommand.name,
             contextUpdate
@@ -270,6 +284,7 @@ export default class Graph {
       nextTrace.push(nextNode);
     }
     let nextGraph = new this.constructor(nextTrace);
+    nextGraph = nextGraph.advance();
     return nextGraph;
   }
 

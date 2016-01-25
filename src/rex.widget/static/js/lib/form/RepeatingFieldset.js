@@ -3,12 +3,14 @@
  */
 
 import React, {PropTypes} from 'react';
+import {WithFormValue} from 'react-forms';
+import CloseIcon from 'react-icons/lib/fa/close';
+
 import {autobind} from '../../lang';
 import {VBox, HBox} from '../../layout';
 import {QuietButton, Button} from '../../ui';
 import * as Stylesheet from '../../stylesheet';
 import Fieldset from './Fieldset';
-import {WithFormValue} from 'react-forms';
 
 /**
  * RepeatingFieldset component.
@@ -128,7 +130,7 @@ export default class RepeatingFieldset extends React.Component {
               <QuietButton
                 quiet
                 size="small"
-                icon="remove"
+                icon={<CloseIcon />}
                 style={{visibility: items.length > minItems ? undefined : 'hidden'}}
                 onClick={this.removeItem.bind(null, idx + baseIndex)}>
                 {removeButtonText}

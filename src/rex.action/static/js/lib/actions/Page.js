@@ -10,7 +10,7 @@ export default class Page extends React.Component {
   static defaultProps = {
     width: 480,
     title: 'Page',
-    icon: 'file'
+    icon: 'bookmark'
   }
 
   render() {

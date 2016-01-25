@@ -15,7 +15,7 @@ import * as form from 'rex-widget/form';
 export default class View extends React.Component {
 
   static defaultProps = {
-    icon: 'eye-open',
+    icon: 'file',
     width: 400
   };
 

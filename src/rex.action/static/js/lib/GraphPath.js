@@ -56,7 +56,13 @@ export function fromPath(path, instruction, initialContext) {
  * Serialize ``graph`` object to string suitable to be used as path.
  */
 export function toPath(graph) {
-  return '/' + StringUtils.joinWithSlash(graph.trace.slice(1).map(_nodeToPath));
+  let path = '/' + StringUtils.joinWithSlash(graph.trace.slice(1).map(_nodeToPath));
+
+  // Line below is to workaround needless encoding of single quote ' into %27 in
+  // Firefox.
+  path = path.replace(/'/g, '%27');
+
+  return path;
 }
 
 function _nodeToPath(node) {

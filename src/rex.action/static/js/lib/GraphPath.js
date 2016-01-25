@@ -12,6 +12,10 @@ const PARSE_SEGMENT = /^([a-zA-Z\-\_]+)(?:\.([a-zA-Z_]+))?(?:\[([^\]]+)\])?$/;
  * Deserialize ``graph`` object from string.
  */
 export function fromPath(path, instruction, initialContext) {
+  // Line below is to workaround needless encoding of single quote ' into %27 in
+  // Firefox.
+  path = path.replace(/\%27/g, "'");
+
   let segments = StringUtils.splitBySlash(path).filter(Boolean);
 
   let graph = Graph.create(instruction, initialContext, false);

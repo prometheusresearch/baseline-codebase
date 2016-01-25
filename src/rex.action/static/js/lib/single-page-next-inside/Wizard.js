@@ -123,6 +123,7 @@ export default class Wizard extends React.Component {
     this._initialContext = initialContext;
     this._history = createHistory();
     this._historyStopListen = null;
+    this._replaceHistoryState = true;
 
     let location = null;
     this._history.listen(loc => location = loc)();
@@ -173,7 +174,12 @@ export default class Wizard extends React.Component {
   componentDidUpdate(_prevProps, prevState) {
     if (prevState.graph !== this.state.graph) {
       let path = GraphPath.toPath(this.state.graph);
-      this._history.pushState(null, path);
+      if (this._replaceHistoryState) {
+        this._replaceHistoryState = false;
+        this._history.replaceState(null, path);
+      } else {
+        this._history.pushState(null, path);
+      }
     }
   }
 
@@ -224,14 +230,19 @@ export default class Wizard extends React.Component {
 
   @autobind
   _onLocation(location) {
-    if (location.action === 'POP') {
-      let graph = GraphPath.fromPath(
-        location.pathname,
-        this.props.path,
-        this._initialContext
-      );
-      this.setState({graph});
+    if (location.action !== 'POP') {
+      return;
     }
+    let path = GraphPath.toPath(this.state.graph);
+    if (path === location.pathname) {
+      return;
+    }
+    let graph = GraphPath.fromPath(
+      location.pathname,
+      this.props.path,
+      this._initialContext
+    );
+    this.setState({graph});
   }
 
   @autobind

@@ -1,5 +1,5 @@
 /**
- * @jsx React.DOM
+ * @copyright 2016, Prometheus Research, LLC
  */
 
 import React, {PropTypes} from 'react';

@@ -78,8 +78,8 @@ export default class Graph {
     if (!Array.isArray(reference)) {
       reference = reference.split('/').filter(Boolean);
     }
-    let wasContextUpdated = false;
     let graph = this;
+    let wasContextUpdated = false;
     for (let i = 0; i < reference.length; i++) {
       let segment = reference[i];
       if (segment === '.') {
@@ -87,6 +87,13 @@ export default class Graph {
       } else if (segment === '..') {
         graph = graph.close();
       } else {
+        if (contextUpdate && !wasContextUpdated && graph.trace.length > 1) {
+          wasContextUpdated = true;
+          graph = graph.executeCommandAtCurrentNodeAndNoAdvance(
+            Command.onContextCommand.name,
+            contextUpdate
+          );
+        }
         let nextNode = graph.node.then
           .filter(n =>
             (n.action === segment) ||
@@ -94,28 +101,11 @@ export default class Graph {
              Instruction.IncludeWizard.is(n.parent.instruction) &&
              n.parent.action === segment)
           )[0];
-
         if (!nextNode) {
           return graph;
         }
-        // We try to postpone context update untill it is required
-        if (!nextNode.isAllowed && !wasContextUpdated && contextUpdate) {
-          wasContextUpdated = true;
-          nextNode = nextNode.executeCommand(
-            Command.onContextCommand.name,
-            contextUpdate
-          );
-          if (!nextNode.isAllowed) {
-            return graph;
-          }
-        }
-        // If we didn't apply context update we do it at the last iteration
-        if (i === reference.length - 1 && !wasContextUpdated) {
-          wasContextUpdated = true;
-          nextNode = nextNode.executeCommand(
-            Command.onContextCommand.name,
-            contextUpdate
-          );
+        if (!nextNode.isAllowed) {
+          return graph;
         }
         graph = graph._appendAtCurrentNode(nextNode);
       }

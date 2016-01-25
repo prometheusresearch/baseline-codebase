@@ -197,6 +197,28 @@ class ExecuteVal(BaseInstructionVal):
         )
 
 
+class InstructionPointerVal(Validate):
+
+    _validate = StrVal()
+
+    RELATIVE_NAV_TOKENS = frozenset(['.', '..'])
+
+    def __call__(self, value):
+        value = self._validate(value)
+        relative = True
+        for segment in value.split('/'):
+            if not segment:
+                continue
+            if relative and not segment in self.RELATIVE_NAV_TOKENS:
+                relative = False
+                continue
+            if not relative and segment in self.RELATIVE_NAV_TOKENS:
+                raise Error(
+                    'Invalid replace pointer:',
+                    '"." or ".." can be present at leading positions only')
+        return value
+
+
 class ReplaceVal(BaseInstructionVal):
     """ Validator for :class:`Replace` instruction."""
 
@@ -209,7 +231,7 @@ class ReplaceVal(BaseInstructionVal):
     @cached_property
     def instruction_validator(self):
         return RecordVal(
-            ('replace', StrVal()),
+            ('replace', InstructionPointerVal()),
         )
 
 

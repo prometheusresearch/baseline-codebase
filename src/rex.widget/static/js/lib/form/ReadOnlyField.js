@@ -8,8 +8,8 @@ import {WithFormValue}    from 'react-forms';
 
 let Style = {
   self: {
-    marginBottom: 2,
-    marginTop: 2,
+    marginBottom: 5,
+    marginTop: 5,
     fontSize: '90%'
   },
   label: {

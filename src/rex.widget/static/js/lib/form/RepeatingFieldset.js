@@ -2,23 +2,13 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import autobind           from 'autobind-decorator';
 import React, {PropTypes} from 'react';
-import {VBox, HBox}       from '../Layout';
-import Button             from '../Button';
-import Fieldset           from './Fieldset';
-import {WithFormValue}    from 'react-forms';
-
-let RepeatingFieldsetStyle = {
-  errors: {
-    marginTop: 3,
-    color: 'red',
-    fontSize: '90%'
-  },
-  label: {
-    marginBottom: 10
-  }
-};
+import {autobind} from '../../lang';
+import {VBox, HBox} from '../../layout';
+import {QuietButton, Button} from '../../ui';
+import * as Stylesheet from '../../stylesheet';
+import Fieldset from './Fieldset';
+import {WithFormValue} from 'react-forms';
 
 /**
  * RepeatingFieldset component.
@@ -28,6 +18,7 @@ let RepeatingFieldsetStyle = {
  * @public
  */
 @WithFormValue
+@Stylesheet.attach
 export default class RepeatingFieldset extends React.Component {
 
   static propTypes = {
@@ -76,11 +67,37 @@ export default class RepeatingFieldset extends React.Component {
     addButtonText: 'Add',
   };
 
+  static stylesheet = Stylesheet.create({
+    Root: {
+      Component: VBox,
+      marginBottom: 5
+    },
+    Label: {
+      Component: 'label',
+      color: '#666',
+      fontSize: '90%',
+      fontWeight: 700,
+      margin: 0,
+      marginBottom: 15,
+    },
+    ErrorList: {
+      Component: VBox,
+      marginTop: 3,
+      color: 'red',
+      fontSize: '90%'
+    },
+    Item: {
+      Component: HBox,
+      marginBottom: 5,
+    },
+  });
+
   render() {
     let {
       baseIndex, children, formValue, label, readOnly,
       addButtonText, removeButtonText, ...props
     } = this.props;
+    let {Root, Label, ErrorList, Item} = this.stylesheet;
     let minItems = formValue.schema.minItems || 0;
     let items = (formValue.value || []).slice(baseIndex);
     if (items.length < minItems) {
@@ -88,43 +105,44 @@ export default class RepeatingFieldset extends React.Component {
     }
     let fieldsets = items.map((item, idx) =>
       <Fieldset formValue={formValue.select(idx + baseIndex)} key={idx + baseIndex}>
-        <HBox>
-        {!readOnly && <VBox style={{marginRight: 10}}>
-            <Button
-              quiet
-              size="small"
-              icon="remove"
-              style={{visibility: items.length > minItems ? undefined : 'hidden'}}
-              text={removeButtonText}
-              onClick={this.removeItem.bind(null, idx + baseIndex)}
-              />
-          </VBox>}
-          <VBox size={1}>
-            {children}
-          </VBox>
-        </HBox>
+        <Item>
+          {!readOnly && <VBox style={{marginRight: 10}}>
+              <QuietButton
+                quiet
+                size="small"
+                icon="remove"
+                style={{visibility: items.length > minItems ? undefined : 'hidden'}}
+                onClick={this.removeItem.bind(null, idx + baseIndex)}>
+                {removeButtonText}
+              </QuietButton>
+            </VBox>}
+            <VBox flex={1}>
+              {children}
+            </VBox>
+        </Item>
       </Fieldset>
     );
     return (
-      <VBox>
+      <Root>
         {label &&
-          <label style={RepeatingFieldsetStyle.label}>
+          <Label>
             {label}
-          </label>}
+          </Label>}
         <VBox>
           {fieldsets}
         </VBox>
         {formValue.errorList.length > 0 &&
-          <VBox style={RepeatingFieldsetStyle.errors}>
+          <ErrorList>
             {formValue.errorList.map((error, idx) =>
               <VBox key={idx}>{error.message}</VBox>)}
-          </VBox>}
-        {!readOnly && <VBox>
-          <Button quiet icon="plus" onClick={this.addItem}>
-            {addButtonText}
-          </Button>
-        </VBox>}
-      </VBox>
+          </ErrorList>}
+        {!readOnly &&
+          <div>
+            <Button icon="plus" size="small" onClick={this.addItem}>
+              {addButtonText}
+            </Button>
+          </div>}
+      </Root>
     );
   }
 

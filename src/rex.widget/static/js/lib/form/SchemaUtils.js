@@ -4,7 +4,7 @@
 
 import moment    from 'moment';
 import invariant from 'invariant';
-import {isArray} from '../lang';
+import {isArray, toSnakeCase} from '../lang';
 
 export function generateSchemaFromFields(fields) {
   let schema = {
@@ -63,6 +63,8 @@ function _fieldToSchema(field) {
       type: 'array',
       items: generateSchemaFromFields(field.fields),
       minItems: field.required ? 1 : 0,
+      uniqueBy: field.uniqueBy,
+      uniqueByError: field.uniqueByError,
       format: Validation.array,
     };
   case 'date':
@@ -239,5 +241,24 @@ export let Validation = {
       return `should not be before ${node.minDate.format(node.datetimeFormat)}`;
     }
     return true;
-  }
+  },
+
+  array(value, node) {
+    if (node.uniqueBy) {
+      let uniqueBy = toSnakeCase(node.uniqueBy);
+      let seen = {};
+      for (let i = 0; i < value.length; i++) {
+        let item = value[i];
+        if (item == null) {
+          continue;
+        }
+        let key = item[uniqueBy];
+        seen[key] = (seen[key] || 0) + 1;
+        if (seen[key] > 1) {
+          return node.uniqueByError || `"${uniqueBy}" field is not unique`;
+        }
+      }
+    }
+    return true;
+  },
 };

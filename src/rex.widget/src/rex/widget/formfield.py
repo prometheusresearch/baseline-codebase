@@ -924,4 +924,6 @@ class List(CompositeFormField):
 
     fields = (
         ('fields', FormFieldsetVal()),
+        ('unique_by', MaybeUndefinedVal(StrVal()), undefined),
+        ('unique_by_error', MaybeUndefinedVal(StrVal()), undefined),
     )

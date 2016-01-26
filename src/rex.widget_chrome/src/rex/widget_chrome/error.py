@@ -31,6 +31,9 @@ class HandleError(BaseHandleError):
                      url=req.url)
 
     def __call__(self, req):
+        accept = req.headers.get('Accept')
+        if accept == 'application/json' and self.error.json:
+            return self.error
         response = render_widget(self.widget(req), req)
         response.status = self.error.code
         return response

@@ -204,11 +204,24 @@ export default class Field extends React.Component {
   }
 
   _validate(value) {
-    let id = null;
-    if (this.props.formValue.parent) {
-      id = this.props.formValue.parent.value.id || null;
+    let formValue = this.props.formValue;
+    let context = this.props.formValue.params.context;
+    let params = {};
+    for (let key in context) {
+      if (context.hasOwnProperty(key)) {
+        let value = context[key];
+        if (value['meta:type'] !== undefined) {
+          params[key] = value.id;
+        } else {
+          params[key] = value;
+        }
+      }
     }
-    this.props.validate.produce({value, id}).then(
+    if (this.props.formValue.parent) {
+      params.id = this.props.formValue.parent.value.id || null;
+    }
+    params.value = value;
+    this.props.validate.produce(params).then(
       this._onValidateComplete,
       this._onValidateError);
   }

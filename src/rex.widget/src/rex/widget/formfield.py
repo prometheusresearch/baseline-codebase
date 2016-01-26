@@ -33,7 +33,7 @@ from .transitionable import as_transitionable
 from .pointer import Pointer
 from .keypath import KeyPathVal
 from .validate import WidgetVal
-from .port_support import PortSupport
+from .port_support import PortSupport, get_parameters
 
 __all__ = ('FormField', 'FormFieldVal', 'FormFieldsetVal',
            'validate', 'enrich', 'from_port', 'to_port')
@@ -287,11 +287,15 @@ class QueryValidator(object):
 
     def __init__(self, expression):
         self.expression = expression
-        self._query = Query(expression)
-        self._query.parameters = {'value': None, 'id': None}
+        self.parameters = get_parameters()
+
+        self.query = Query(self.expression)
+        self.query.parameters = {}
+        self.query.parameters.update(self.parameters)
+        self.query.parameters.update({'value': None, 'id': None})
 
     def respond(self, req):
-        return self._query(req)
+        return self.query(req)
 
 @as_transitionable(QueryValidator)
 def _format_QueryValidator(value, req, path):

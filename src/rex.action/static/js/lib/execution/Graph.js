@@ -253,10 +253,12 @@ export default class Graph {
    * Perform an entity update.
    */
   updateEntity(prevEntity, nextEntity) {
+    let graph = this.advance();
+    let trace = graph.trace;
     let nextTrace = [];
 
-    for (let i = 0; i < this.trace.length; i++) {
-      let node = this.trace[i];
+    for (let i = 0; i < trace.length; i++) {
+      let node = trace[i];
       let nextContext = updateEntityInContext(
         node.context,
         prevEntity,
@@ -273,9 +275,7 @@ export default class Graph {
       }
       nextTrace.push(nextNode);
     }
-    let nextGraph = new this.constructor(nextTrace);
-    nextGraph = nextGraph.advance();
-    return nextGraph;
+    return new this.constructor(nextTrace);
   }
 
 }

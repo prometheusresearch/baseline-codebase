@@ -1,12 +1,11 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
 
 import React, {PropTypes} from 'react';
-import * as Stylesheet    from '../stylesheet';
-import cx                 from 'classnames';
-import * as qs            from './qs';
-import Style              from './StyleUtils';
+import * as Stylesheet from '../../stylesheet';
+import * as css from '../../css';
+import * as qs from '../qs';
 
 /**
  * Render an iframe.
@@ -64,12 +63,12 @@ export default class IFrame extends React.Component {
   static stylesheet = Stylesheet.create({
     Root: {
       Component: 'iframe',
-      position: Style.position.absolute,
+      position: css.position.absolute,
       top: 0,
       bottom: 0,
       left: 0,
       right: 0,
-      border: Style.none,
+      border: css.none,
     }
   });
 
@@ -82,7 +81,6 @@ export default class IFrame extends React.Component {
       <this.constructor.stylesheet.Root
         {...props}
         src={src}
-        className={cx(Style.self, className)}
         />
     );
   }

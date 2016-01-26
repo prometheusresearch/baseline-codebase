@@ -1,10 +1,9 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
 
-import autobind from 'autobind-decorator';
 import React from 'react';
-import emptyFunction from '../emptyFunction';
+import {autobind, emptyFunction} from '../lang';
 
 export default function Hoverable(Component) {
   let displayName = Component.displayName || Component.name;

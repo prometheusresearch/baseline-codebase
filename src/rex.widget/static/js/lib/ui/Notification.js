@@ -1,11 +1,11 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
 
-import React              from 'react';
-import {boxShadow, rgba}  from './StyleUtils';
-import Icon               from './ui/Icon';
-import {Box, HBox}       from './Layout';
+import React from 'react';
+import {boxShadow, rgba} from '../../css';
+import {VBox, HBox} from '../../layout';
+import Icon from './Icon';
 
 let NotificationStyle = {
   self: {
@@ -113,12 +113,12 @@ export default class Notification extends React.Component {
       <div {...props} style={style} id={undefined}>
         <HBox>
           {icon &&
-            <Box style={NotificationStyle.icon} size={1}>
+            <VBox style={NotificationStyle.icon} flex={1}>
               <Icon name={icon} />
-            </Box>}
-          <Box size={10}>
+            </VBox>}
+          <VBox flex={10}>
             {children || text}
-          </Box>
+          </VBox>
         </HBox>
       </div>
     );

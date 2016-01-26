@@ -1,9 +1,9 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
 
 import React from 'react';
-import BaseIFrame from '../IFrame';
+import {IFrame as BaseIFrame} from '../ui';
 
 export default class IFrame extends React.Component {
   render() {

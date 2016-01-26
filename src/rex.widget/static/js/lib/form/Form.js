@@ -2,17 +2,24 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React, {PropTypes}       from 'react';
+import React, {PropTypes} from 'react';
 import {createValue} from 'react-forms';
-import Fieldset                 from './Fieldset';
-import emptyFunction            from '../emptyFunction';
-import Button                   from '../Button';
-import {VBox}                   from '../Layout';
-import {Port}                   from '../data/Port';
-import {Query}                  from '../data/Query';
-import {Mutation}               from '../data/Mutation';
-import {Request}                from '../data/Request';
-import * as NotificationCenter  from '../NotificationCenter';
+
+import {emptyFunction} from '../../lang';
+import {
+  SuccessButton,
+  DangerButton,
+  showNotification,
+  removeNotification,
+  Notification
+} from '../../ui';
+import {VBox} from '../../layout';
+import {Port} from '../data/Port';
+import {Query} from '../data/Query';
+import {Mutation} from '../data/Mutation';
+import {Request} from '../data/Request';
+
+import Fieldset from './Fieldset';
 
 let FormStyle = {
   controls: {
@@ -165,7 +172,7 @@ let Form = React.createClass({
   getDefaultProps() {
     return {
       submitButton: (
-        <Button success>Submit</Button>
+        <SuccessButton>Submit</SuccessButton>
       ),
       onChange: emptyFunction.thatReturnsArgument,
       onUpdate: emptyFunction.thatReturnsArgument,
@@ -174,7 +181,7 @@ let Form = React.createClass({
       onSubmitError: emptyFunction,
       transformValueOnSubmit: emptyFunction.thatReturnsArgument,
       progressNotification: (
-        <NotificationCenter.Notification
+        <Notification
           kind="info"
           text="Data saving is in progress"
           icon="cog"
@@ -182,14 +189,14 @@ let Form = React.createClass({
           />
       ),
       completeNotification: (
-        <NotificationCenter.Notification
+        <Notification
           kind="success"
           text="Data saved successfully"
           icon="ok"
           />
       ),
       errorNotification: (
-        <NotificationCenter.Notification
+        <Notification
           kind="danger"
           text="There was an error while submitting data to server"
           icon="remove"
@@ -251,7 +258,7 @@ let Form = React.createClass({
 
       return;
     }
-    this._progressNotification = NotificationCenter.showNotification(
+    this._progressNotification = showNotification(
       this.props.progressNotification);
     this.setState({submitInProgress: true});
     let valueToSubmit = this.props.transformValueOnSubmit(nextValue.value);
@@ -320,14 +327,14 @@ let Form = React.createClass({
 
   onSubmitComplete(data) {
     this.setState({submitInProgress: false});
-    NotificationCenter.removeNotification(this._progressNotification);
-    NotificationCenter.showNotification(this.props.completeNotification);
+    removeNotification(this._progressNotification);
+    showNotification(this.props.completeNotification);
     this.props.onSubmitComplete(data);
   },
 
   onSubmitError(err) {
     this.setState({submitInProgress: false});
-    NotificationCenter.removeNotification(this._progressNotification);
+    removeNotification(this._progressNotification);
     let errorNotification = React.cloneElement(this.props.errorNotification, {
       children: (
         <div>
@@ -336,7 +343,7 @@ let Form = React.createClass({
         </div>
       )
     });
-    NotificationCenter.showNotification(errorNotification);
+    showNotification(errorNotification);
     this.props.onSubmitError({error: err});
   }
 });
@@ -368,9 +375,9 @@ let ErrorRenderer = React.createClass({
         </div>
         {error.stack && !showDetails &&
           <div style={ErrorRendererStyle.controls}>
-            <Button danger size="small" quiet onClick={this.onClick}>
+            <DangerButton size="small" onClick={this.onClick}>
               Show details
-            </Button>
+            </DangerButton>
           </div>}
         {error.stack && showDetails &&
           <div style={ErrorRendererStyle.stack}>

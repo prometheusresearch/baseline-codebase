@@ -5,8 +5,8 @@
 import React from 'react';
 import AutocompleteBase from '@prometheusresearch/react-autocomplete';
 import {autobind} from '../lang';
+import {IconButton} from './ui';
 import Input from './form/Input';
-import IconButton from './IconButton';
 import * as layout from '../layout';
 import * as css from '../css';
 import * as stylesheet from '../stylesheet';
@@ -225,7 +225,7 @@ export default class Autocomplete extends React.Component {
       this.props.onChange(value.id);
       this.setState({value});
     } else {
-      this.props.onChange(undefined);
+      this.props.onChange(null);
       this.setState({value: null});
     }
   }

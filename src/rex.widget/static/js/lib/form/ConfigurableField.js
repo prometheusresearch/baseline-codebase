@@ -4,7 +4,7 @@
 'use strict';
 
 let React             = require('react');
-let {VBox}            = require('../Layout');
+let {VBox}            = require('../../layout');
 let isReactElement    = require('../isReactElement');
 let Fieldset          = require('./Fieldset');
 let ReadOnlyField     = require('./ReadOnlyField');
@@ -77,7 +77,7 @@ let ConfigurableField = React.createClass({
   render() {
     let {size} = this.props;
     return (
-      <VBox size={size}>
+      <VBox flex={size}>
         {this.renderField()}
       </VBox>
     );

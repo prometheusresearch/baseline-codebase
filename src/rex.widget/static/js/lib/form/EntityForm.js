@@ -1,16 +1,15 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
-'use strict';
 
-let React             = require('react');
-let emptyFunction     = require('../emptyFunction');
-let forceRefreshData  = require('../forceRefreshData');
-let Form              = require('./Form');
-let Fieldset          = require('./Fieldset');
+import React from 'react';
 
-import {Port}         from '../data/Port';
-import {Mutation}     from '../data/Mutation';
+import {forceRefreshData} from '../data';
+import {emptyFunction} from '../lang';
+import {Port} from '../data/Port';
+import {Mutation} from '../data/Mutation';
+import Form from './Form';
+import Fieldset from './Fieldset';
 
 function needExtract(submitTo) {
   return (

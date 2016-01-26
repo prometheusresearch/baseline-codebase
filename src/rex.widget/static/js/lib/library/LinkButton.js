@@ -3,7 +3,7 @@
  */
 
 import React, {PropTypes} from 'react';
-import Button             from '../Button';
+import {Button}           from '../ui';
 import populateParams     from './populateParams';
 
 /**

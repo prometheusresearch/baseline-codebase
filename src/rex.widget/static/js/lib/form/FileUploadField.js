@@ -4,8 +4,8 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Box, HBox} from '../Layout';
-import Button from '../Button';
+import {VBox, HBox} from '../../layout';
+import {Button} from '../../ui';
 import File from './File';
 import resolveURL from '../resolveURL';
 import StoredFile from './StoredFile';
@@ -65,15 +65,15 @@ let FileUploadInput = React.createClass({
     }
     return (
       <HBox {...props} onChange={undefined} storage={undefined}>
-        <Box>
-          <Button type="button" disabled={progress} icon="hdd" onClick={this.onClick}>
+        <VBox>
+          <Button disabled={progress} icon="hdd" onClick={this.onClick}>
             Choose file
           </Button>
-        </Box>
+        </VBox>
         {error ?
-          <Box centerVertically margin="0 0 0 10px" size={1}>
-            <Box style={this.styleError}>{error.message}</Box>
-          </Box> :
+          <VBox justifyContent="center" margin="0 0 0 10px" flex={1}>
+            <VBox style={this.styleError}>{error.message}</VBox>
+          </VBox> :
           renderStoredFile ?
           <StoredFile
             file={file}
@@ -89,9 +89,9 @@ let FileUploadInput = React.createClass({
             file={file}
             onRemove={this.onRemove}
             /> :
-          <Box centerVertically margin="0 0 0 10px" size={1}>
-            <Box style={this.stylePlaceholder}>No file choosen</Box>
-          </Box>}
+          <VBox justifyContent="center" margin="0 0 0 10px" flex={1}>
+            <VBox style={this.stylePlaceholder}>No file choosen</VBox>
+          </VBox>}
         <input
           ref="underlying"
           style={this.styleInput}

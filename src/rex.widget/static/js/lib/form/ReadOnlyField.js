@@ -3,7 +3,7 @@
  */
 
 import React, {PropTypes} from 'react';
-import {VBox, HBox}       from '../Layout';
+import {VBox, HBox}       from '../../layout';
 import {WithFormValue}    from 'react-forms';
 
 let Style = {
@@ -110,12 +110,12 @@ export default class ReadOnlyField extends React.Component {
     return (
       <HBox style={{...Style.self, ...(style && style.self)}}>
         {label &&
-          <VBox size={labelSize} centerVertically>
+          <VBox flex={labelSize} justifyContent="center">
             <label style={{...Style.label, ...(style && style.label)}}>
               {label}
             </label>
           </VBox>}
-        <VBox size={inputSize} centerVertically style={Style.value}>
+        <VBox flex={inputSize} justifyContent="center" style={Style.value}>
           {children}
         </VBox>
       </HBox>

@@ -1,12 +1,11 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
 
 import React, {PropTypes} from 'react';
-import * as Stylesheet    from '../stylesheet';
-import Icon               from './ui/Icon';
-import {VBox}             from './Layout';
-import Style              from './StyleUtils';
+import * as Stylesheet from '../../stylesheet';
+import * as css from '../../css';
+import Icon from './Icon';
 
 /**
  * Icon component which behaves like a button.
@@ -36,7 +35,7 @@ export default class IconButton extends React.Component {
       width: '1em',
       height: '1em',
       opacity: 0.2,
-      cursor: Style.cursor.pointer,
+      cursor: css.cursor.pointer,
       hover: {
         opacity: 1,
       }

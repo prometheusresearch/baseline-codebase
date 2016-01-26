@@ -2,9 +2,8 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import autobind from 'autobind-decorator';
 import React from 'react';
-import emptyFunction from '../emptyFunction';
+import {emptyFunction, autobind} from '../lang';
 
 export default function Focusable(Component) {
   let displayName = Component.displayName || Component.name;

@@ -1,10 +1,10 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
 
-import React          from 'react';
-import ReactDOM       from 'react-dom';
-import Notification   from './Notification';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Notification from './Notification';
 
 let _notificationID = 0;
 
@@ -123,5 +123,3 @@ export function removeNotification(notificationId) {
   let layer = _initializeLayer();
   layer.removeNotification(notificationId);
 }
-
-export {Notification};

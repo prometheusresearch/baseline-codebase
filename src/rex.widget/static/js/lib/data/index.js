@@ -9,3 +9,5 @@ export port from './Port';
 export query from './Query';
 export mutation from './Mutation';
 export request from './Request';
+
+export forceRefreshData from './forceRefreshData';

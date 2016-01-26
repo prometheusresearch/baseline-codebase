@@ -2,9 +2,8 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import autobind from 'autobind-decorator';
-import emptyFunction from 'empty/function';
 import React, {PropTypes} from 'react';
+import {autobind, emptyFunction} from '../../../lang';
 import {VBox, HBox} from '../../../layout';
 import * as Stylesheet from '../../../stylesheet';
 import * as CSS from '../../../css';

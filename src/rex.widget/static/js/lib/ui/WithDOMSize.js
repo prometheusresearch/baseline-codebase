@@ -1,11 +1,10 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
 
-import autobind     from 'autobind-decorator';
-import React        from 'react';
-import ReactDOM     from 'react-dom';
-import {EVENT_NAME} from './notifyLayoutChange';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import {autobind} from '../lang';
 
 const DEFAULT_OPTIONS = {};
 
@@ -48,12 +47,10 @@ export default function WithDOMSize(Component, options = DEFAULT_OPTIONS) {
         this.computeSize();
       }
       window.addEventListener('resize', this.computeSize);
-      window.addEventListener(EVENT_NAME, this.computeSize);
     }
 
     componentWillUnmount() {
       window.removeEventListener('resize', this.computeSize);
-      window.removeEventListener(EVENT_NAME, this.computeSize);
     }
 
     @autobind

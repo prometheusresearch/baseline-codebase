@@ -4,7 +4,7 @@
 
 import React, {PropTypes} from 'react';
 import BaseSelect         from './BaseSelect';
-import {VBox}             from './Layout';
+import {VBox}             from '../layout';
 
 /**
  * Renders a <VBox> with a <BaseSelect>.

@@ -4,7 +4,7 @@
 
 import moment             from 'moment';
 import React              from 'react';
-import BaseDateTimePicker from '@prometheusresearch/react-datetimepicker';
+import DatetimeInput from './DatetimeInput';
 import Field              from './Field';
 import ReadOnlyField      from './ReadOnlyField';
 import {WithFormValue} from 'react-forms';
@@ -26,7 +26,7 @@ class DateTimePicker extends React.Component {
       }
     }
     return (
-      <BaseDateTimePicker
+      <DatetimeInput
         format={ISO_FORMAT}
         inputFormat={format}
         dateTime={value}

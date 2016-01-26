@@ -12,7 +12,6 @@ import * as Stylesheet from 'rex-widget/stylesheet';
 import * as layout from 'rex-widget/layout';
 import * as ui from 'rex-widget/ui';
 
-import ActionButton from '../ActionButton';
 import ActionTitle, {getTitleAtNode} from '../ActionTitle';
 import ActionIcon  from '../ActionIcon';
 

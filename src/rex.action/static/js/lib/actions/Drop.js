@@ -4,8 +4,8 @@
 
 import React from 'react';
 
-import RexWidget from 'rex-widget';
 import {VBox, HBox} from 'rex-widget/layout';
+import {forceRefreshData} from 'rex-widget/data';
 import * as Stylesheet from 'rex-widget/stylesheet';
 import * as ui from 'rex-widget/ui';
 import * as CSS from 'rex-widget/css';
@@ -80,8 +80,7 @@ export default class Drop extends React.Component {
               </h4>
             </stylesheet.Title>
             {onClose &&
-              <RexWidget.Button
-                quiet
+              <ui.QuietButton
                 icon="remove"
                 onClick={onClose}
                 />}
@@ -123,7 +122,7 @@ export default class Drop extends React.Component {
     let entity = context[name];
     this.props.data.delete({[type.name]: {id: entity.id}}).then(() => {
       this.props.onEntityUpdate(entity, null);
-      RexWidget.forceRefreshData();
+      forceRefreshData();
     });
   }
 

@@ -35,7 +35,7 @@ from .validate import (
 from . import typing
 from . import instruction
 
-__all__ = ('Wizard', 'WizardBase', 'WizardWidgetBase')
+__all__ = ('WizardBase', 'WizardWidgetBase')
 
 
 validate_entity = RecordVal(
@@ -410,7 +410,6 @@ class WizardBase(WizardWidgetBase, ActionBase):
             for inst in self.path.then
         ])
         return self.__validated_clone__(path=path)
-
 
 class Wizard(WizardBase):
     """ Wizard which renders the last active action on an entire screen."""

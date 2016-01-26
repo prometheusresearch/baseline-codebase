@@ -2,17 +2,15 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import autobind             from 'autobind-decorator';
-import React                from 'react';
-import RexWidget            from 'rex-widget';
-import {SuccessButton}      from 'rex-widget/ui';
+import React from 'react';
+import {SuccessButton} from 'rex-widget/ui';
 import * as form from 'rex-widget/form';
-import emptyFunction        from 'rex-widget/lib/emptyFunction';
-import {command, Types}     from '../execution/Command';
-import Action               from '../Action';
-import * as ObjectTemplate  from '../ObjectTemplate';
-import * as ContextUtils    from '../ContextUtils';
-import applyContext         from '../applyContext';
+import {emptyFunction, autobind} from 'rex-widget/lang';
+import {command, Types} from '../execution/Command';
+import Action from '../Action';
+import * as ObjectTemplate from '../ObjectTemplate';
+import * as ContextUtils from '../ContextUtils';
+import applyContext from '../applyContext';
 
 export default class Make extends React.Component {
 

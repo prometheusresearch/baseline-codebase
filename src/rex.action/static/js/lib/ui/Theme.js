@@ -2,44 +2,44 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import Style, {boxShadow, insetBoxShadow, rgb} from 'rex-widget/lib/StyleUtils';
+import * as css from 'rex-widget/css';
 
 export let color = {
-  shadowLight: rgb(204),
+  shadowLight: css.rgb(204),
 
   primary: {
-    text: rgb(136),
-    textHover: rgb(68),
-    textActive: rgb(68),
+    text: css.rgb(136),
+    textHover: css.rgb(68),
+    textActive: css.rgb(68),
 
-    background: rgb(255),
-    backgroundHover: rgb(241),
-    backgroundActive: rgb(241),
+    background: css.rgb(255),
+    backgroundHover: css.rgb(241),
+    backgroundActive: css.rgb(241),
 
-    border: rgb(241),
+    border: css.rgb(241),
   },
 
   secondary: {
-    text: rgb(136),
-    textHover: rgb(68),
-    textActive: rgb(241),
+    text: css.rgb(136),
+    textHover: css.rgb(68),
+    textActive: css.rgb(241),
 
-    background: rgb(250),
-    backgroundHover: rgb(241),
-    backgroundActive: rgb(177)
+    background: css.rgb(250),
+    backgroundHover: css.rgb(241),
+    backgroundActive: css.rgb(177)
   },
 
   success: {
-    text: rgb(255),
-    textHover: rgb(250),
-    textActive: rgb(250),
+    text: css.rgb(255),
+    textHover: css.rgb(250),
+    textActive: css.rgb(250),
 
-    background: rgb(92, 184, 92),
-    backgroundHover: rgb(81, 164, 81),
-    backgroundActive: rgb(81, 164, 81),
+    background: css.rgb(92, 184, 92),
+    backgroundHover: css.rgb(81, 164, 81),
+    backgroundActive: css.rgb(81, 164, 81),
 
-    border: rgb(76, 174, 76),
-    shadow: rgb(57, 114, 57),
+    border: css.rgb(76, 174, 76),
+    shadow: css.rgb(57, 114, 57),
   },
 };
 
@@ -59,34 +59,34 @@ export let margin = {
 
 export let shadow = {
   light(shadowColor = color.shadowLight) {
-    return boxShadow(0, 0, 2, -1, shadowColor);
+    return css.boxShadow(0, 0, 2, -1, shadowColor);
   },
 
   normal(shadowColor = color.shadowLight) {
-    return boxShadow(0, 0, 5, -1, shadowColor);
+    return css.boxShadow(0, 0, 5, -1, shadowColor);
   },
 
   deepInset(shadowColor = color.shadowLight) {
-    return insetBoxShadow(0, 0, 10, 0, shadowColor);
+    return css.insetBoxShadow(0, 0, 10, 0, shadowColor);
   },
 };
 
 export let buttonSize = {
   normal: {
-    padding: Style.padding(margin.medium, margin.large),
-    fontWeight: Style.fontWeight.bold,
+    padding: css.padding(margin.medium, margin.large),
+    fontWeight: css.fontWeight.bold,
     fontSize: fontSize.element.normal,
   },
 
   small: {
-    padding: Style.padding(margin.small, margin.medium),
-    fontWeight: Style.fontWeight.bold,
+    padding: css.padding(margin.small, margin.medium),
+    fontWeight: css.fontWeight.bold,
     fontSize: fontSize.element.small,
   },
 
   large: {
-    padding: Style.padding(margin.large, margin.large * 2),
-    fontWeight: Style.fontWeight.bold,
+    padding: css.padding(margin.large, margin.large * 2),
+    fontWeight: css.fontWeight.bold,
     fontSize: fontSize.element.large,
   },
 };

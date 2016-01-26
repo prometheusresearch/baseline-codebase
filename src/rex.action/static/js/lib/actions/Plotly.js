@@ -2,16 +2,15 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import autobind from 'autobind-decorator';
 import React from 'react';
 import ReactDOM from 'react-dom';
+import autobind from 'rex-widget/lang';
 import Plotly from '../vendor/plotly';
-import WithDOMSize from 'rex-widget/lib/WithDOMSize';
-import {Fetch} from 'rex-widget/lib/data';
-import {VBox} from '@prometheusresearch/react-box';
+import {WithDOMSize, Preloader as BasePreloader} from 'rex-widget/ui';
+import {Fetch} from 'rex-widget/data';
+import {VBox} from 'rex-widget/layout';
 import Action from '../Action';
 import applyContext from '../applyContext';
-import {Preloader as BasePreloader} from 'rex-widget/ui';
 
 function fetchPlotData({data, context, contextTypes}) {
   data = applyContext(data, contextTypes.input, context, {query: true});

@@ -80,6 +80,8 @@ class AsyncTransport(Extension):
         :rtype: bool
         """
 
+        # pylint: disable=no-self-use
+
         if RE_QUEUE_NAME.match(name):
             return True
         return False
@@ -113,6 +115,8 @@ class AsyncTransport(Extension):
         :returns: JSON-encoded string
         """
 
+        # pylint: disable=no-self-use
+
         payload = AsyncTransport._PAYLOAD_VALIDATOR(payload) or {}
         payload = json.dumps(payload)
         return payload
@@ -126,6 +130,8 @@ class AsyncTransport(Extension):
         :type payload: JSON-encoded string
         :rtype: dict
         """
+
+        # pylint: disable=no-self-use
 
         if isinstance(payload, basestring):
             payload = json.loads(payload)

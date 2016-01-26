@@ -51,7 +51,7 @@ class AsyncTaskWorker(Extension):
         while not check_for_termination(conn):
             payload = transport.get_task(queue_name)
             if payload is not None:
-                self.logger.debug('Got payload: %r' % (payload,))
+                self.logger.debug('Got payload: %r', payload)
                 try:
                     self.process(payload)
                 except Exception:  # pylint: disable=broad-except
@@ -78,6 +78,8 @@ class AsyncTaskWorker(Extension):
 
         :rtype: int
         """
+
+        # pylint: disable=no-self-use
 
         return get_settings().asynctask_workers_poll_interval
 

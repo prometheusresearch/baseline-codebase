@@ -66,9 +66,8 @@ class AsyncTaskWorkerTask(RexTask):
                     for queue_name, process in self._workers.items():
                         if not process.is_alive():
                             self.logger.error(
-                                'Worker for queue %s died; restarting...' % (
-                                    queue_name,
-                                )
+                                'Worker for queue %s died; restarting...',
+                                queue_name,
                             )
                             self.build_worker(
                                 queue_name,

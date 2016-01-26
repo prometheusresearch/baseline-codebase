@@ -3,7 +3,8 @@
  */
 
 
-import * as CSS from '../CSS';
+import * as CSS from '../../css';
+import * as Stylesheet from '../../stylesheet';
 import * as Theme from '../Theme';
 import ButtonBase from './base/ButtonBase';
 
@@ -318,10 +319,10 @@ function makeStylesheet(stylesheet) {
   };
 }
 
-let Button = ButtonBase.style(makeStylesheet(stylesheet));
+let Button = Stylesheet.style(ButtonBase, makeStylesheet(stylesheet));
 
 Button.style = function style(stylesheet) {
-  return ButtonBase.style(makeStylesheet(stylesheet));
+  return Stylesheet.style(ButtonBase, makeStylesheet(stylesheet));
 }
 
 export default Button;

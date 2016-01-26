@@ -3,8 +3,8 @@
  */
 
 import React, {PropTypes} from 'react';
-import * as Stylesheet    from 'react-stylesheet';
-import * as CSS           from 'react-stylesheet/css';
+import * as Stylesheet    from '../stylesheet';
+import * as CSS           from '../css';
 import Icon               from './ui/Icon';
 import resolveURL         from './resolveURL';
 import * as qs            from './qs';
@@ -17,7 +17,6 @@ import Theme              from './Theme';
  *
  * @public
  */
-@Stylesheet.styleable
 export default class Button extends React.Component {
 
   static propTypes = {
@@ -97,7 +96,7 @@ export default class Button extends React.Component {
     type: 'button'
   };
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Root: {
       display: CSS.display.inlineBlock,
       marginBottom: 0,
@@ -326,7 +325,7 @@ export default class Button extends React.Component {
 
     let Component = href ? 'a' : 'button';
 
-    let {Root} = this.stylesheet;
+    let {Root} = this.constructor.stylesheet;
     return (
       <Root
         {...props}

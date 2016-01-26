@@ -2,11 +2,12 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import {VBox} from '@prometheusresearch/react-box';
-import * as CSS from 'react-stylesheet/css';
+import {VBox} from '../../layout';
+import * as css from '../../css';
+import {style} from '../../stylesheet';
 
-export default VBox.style({
+export default style(VBox, {
   background: 'white',
-  boxShadow: CSS.boxShadow(0, 1, 0, 0, '#dddddd'),
-  border: CSS.border(1, '#e2e2e2'),
+  boxShadow: css.boxShadow(0, 1, 0, 0, '#dddddd'),
+  border: css.border(1, '#e2e2e2'),
 });

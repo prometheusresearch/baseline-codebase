@@ -16,7 +16,6 @@ import * as stylesheet from '../stylesheet';
  *
  * @public
  */
-@stylesheet.attach
 export default class Autocomplete extends React.Component {
 
   static propTypes = {
@@ -162,7 +161,7 @@ export default class Autocomplete extends React.Component {
 
   render() {
     let {value, ...props} = this.props;
-    let {Root, IconButton, Autocomplete} = this.stylesheet;
+    let {Root, IconButton, Autocomplete} = this.constructor.stylesheet;
     return (
       <Root>
         <Autocomplete

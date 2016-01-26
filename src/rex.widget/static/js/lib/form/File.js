@@ -14,7 +14,6 @@ import {VBox, HBox} from '../../layout';
  * Renders a file uploaded to a storage.
  */
 @Hoverable
-@stylesheet.attach
 export default class File extends React.Component {
 
   static propTypes = {
@@ -74,7 +73,7 @@ export default class File extends React.Component {
   });
 
   render() {
-    let {Root, IconWrapper} = this.stylesheet;
+    let {Root, IconWrapper} = this.constructor.stylesheet;
     let {
       hover, file, icon, required, children,
       onRemove, progress, ...props

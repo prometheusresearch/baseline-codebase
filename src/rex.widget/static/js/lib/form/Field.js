@@ -19,7 +19,6 @@ import Input from './Input';
  * @public
  */
 @WithFormValue
-@Stylesheet.attach
 export default class Field extends React.Component {
 
   static stylesheet = Stylesheet.create({

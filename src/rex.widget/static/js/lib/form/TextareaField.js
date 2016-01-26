@@ -14,7 +14,6 @@ import * as css from '../../css';
  *
  * @public
  */
-@Stylesheet.attach
 export default class TextareaField extends React.Component {
 
   static propTypes = {
@@ -54,7 +53,7 @@ export default class TextareaField extends React.Component {
 
   render() {
     let {readOnly, ...props} = this.props;
-    let {Input} = this.stylesheet;
+    let {Input} = this.constructor.stylesheet;
     if (readOnly) {
       return <ReadOnlyField {...props} />;
     } else {

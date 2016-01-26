@@ -3,7 +3,7 @@
  */
 
 import React, {PropTypes} from 'react';
-import * as Stylesheet    from 'react-stylesheet';
+import * as Stylesheet    from '../stylesheet';
 import Icon               from './ui/Icon';
 import {VBox}             from './Layout';
 import Style              from './StyleUtils';
@@ -13,7 +13,6 @@ import Style              from './StyleUtils';
  *
  * @public
  */
-@Stylesheet.styleable
 export default class IconButton extends React.Component {
 
   static propTypes = {
@@ -32,7 +31,7 @@ export default class IconButton extends React.Component {
     onClick: PropTypes.func.isRequired
   };
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Root: {
       width: '1em',
       height: '1em',
@@ -46,7 +45,7 @@ export default class IconButton extends React.Component {
 
   render() {
     let {name, ...props} = this.props;
-    let {Root} = this.stylesheet;
+    let {Root} = this.constructor.stylesheet;
     return (
       <Root {...props} role="button">
         <Icon

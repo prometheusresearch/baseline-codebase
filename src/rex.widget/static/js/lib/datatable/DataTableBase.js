@@ -6,7 +6,7 @@ import Style from './DataTableBase.css';
 
 import React, {PropTypes} from 'react';
 import {Column, Table} from 'fixed-data-table';
-import * as Stylesheet from 'react-stylesheet';
+import * as Stylesheet from '../../stylesheet';
 import emptyFunction from '../emptyFunction';
 import WithDOMSize from '../WithDOMSize';
 import {VBox, HBox} from '../../layout';
@@ -18,7 +18,6 @@ import ZyngaScroller      from '../Scroller';
 import {isTouchDevice}    from '../Environment';
 
 @WithDOMSize
-@Stylesheet.styleable
 export default class DataTableBase extends React.Component {
 
   static propTypes = {
@@ -85,7 +84,7 @@ export default class DataTableBase extends React.Component {
     onSelect: emptyFunction,
   };
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Root: {
       Component: VBox,
       overflow: 'hidden',
@@ -165,7 +164,7 @@ export default class DataTableBase extends React.Component {
       style,
       data: {data, updating, error}
     } = this.props;
-    let {Root, ErrorInfo, LoadingPane} = this.stylesheet;
+    let {Root, ErrorInfo, LoadingPane} = this.constructor.stylesheet;
     if (!this.props.DOMSize) {
       return <Root style={style} flex={1} />;
     }
@@ -261,7 +260,7 @@ export default class DataTableBase extends React.Component {
 
   @autobind
   headerRenderer(label, cellDataKey, columnData) {
-    let {SortIndicator} = this.stylesheet;
+    let {SortIndicator} = this.constructor.stylesheet;
     let {sort: {valueKey, asc}, onSort} = this.props;
     let active = KeyPath.equals(columnData.valueKey, valueKey);
     let sort = {valueKey: columnData.valueKey, asc: active ? !asc : true};

@@ -15,7 +15,7 @@ function isEmpty(value) {
   return value == null || value == '';
 }
 
-let IconButton = stylesheet.apply(Icon, {
+let IconButton = stylesheet.style(Icon, {
   opacity: 0.5,
   cursor: 'pointer',
   focus: {
@@ -28,7 +28,7 @@ let IconButton = stylesheet.apply(Icon, {
   }
 });
 
-let Root = stylesheet.apply(HBox, {
+let Root = stylesheet.style(HBox, {
   padding: css.padding(5, 20),
   alignItems: 'center',
 });

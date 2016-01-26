@@ -3,7 +3,7 @@
  */
 
 import React                from 'react';
-import * as Stylesheet      from 'react-stylesheet';
+import * as Stylesheet      from '../../stylesheet';
 import loadingIndicatorImg  from '../../img/loading-indicator.gif';
 
 /**
@@ -16,10 +16,9 @@ import loadingIndicatorImg  from '../../img/loading-indicator.gif';
  *
  * A widget can choose to render this widget while its data is loading.
  */
-@Stylesheet.styleable
 export default class LoadingIndicator extends React.Component {
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Root: {
       width: '100%',
       textAlign: 'center',
@@ -27,7 +26,7 @@ export default class LoadingIndicator extends React.Component {
   });
 
   render() {
-    let {Root} = this.stylesheet;
+    let {Root} = this.constructor.stylesheet;
     return (
       <Root>
         <img src={__PUBLIC_PATH__ + loadingIndicatorImg} />

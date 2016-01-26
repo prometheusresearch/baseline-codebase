@@ -3,10 +3,9 @@
  */
 
 import React, {PropTypes} from 'react';
-import {VBox} from '@prometheusresearch/react-box';
-import * as Stylesheet from 'react-stylesheet';
+import {VBox} from '../../../layout';
+import * as Stylesheet from '../../../stylesheet';
 
-@Stylesheet.styleable
 export default class TabBase extends React.Component {
 
   static propTypes = {
@@ -15,13 +14,13 @@ export default class TabBase extends React.Component {
     className: PropTypes.string,
   };
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Root: VBox
   });
 
   render() {
     let  {children, ...props} = this.props;
-    let {Root} = this.stylesheet;
+    let {Root} = this.constructor.stylesheet;
     return (
       <Root {...props} title={undefined} id={undefined}>
         {children}

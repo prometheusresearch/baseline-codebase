@@ -3,27 +3,28 @@
  */
 
 import TabListBase from './base/TabListBase';
-import * as CSS from 'react-stylesheet/css';
+import * as css from '../../css';
+import {style} from '../../stylesheet';
 
 let color = '#444444';
 let linkColor = '#428bca';
-let border = CSS.border(1, '#dddddd');
+let border = css.border(1, '#dddddd');
 let hoverBackgroundColor = '#eeeeee';
 let buttonMargin = 3;
 
 
-export default TabListBase.style({
+export default style(TabListBase, {
   Button: {
     fontWeight: 300,
     fontSize: '90%',
     padding: 10,
     color: color,
     hover: {
-      textDecoration: CSS.none,
+      textDecoration: css.none,
       color: color,
     },
     focus: {
-      textDecoration: CSS.none,
+      textDecoration: css.none,
       color: color,
     },
     positionTop: {
@@ -33,7 +34,7 @@ export default TabListBase.style({
       marginRight: buttonMargin,
     },
     positionLeft: {
-      textAlign: CSS.textAlign.right,
+      textAlign: css.textAlign.right,
       marginBottom: buttonMargin,
     },
     positionRight: {
@@ -48,7 +49,7 @@ export default TabListBase.style({
     },
     notSelected: {
       color: linkColor,
-      cursor: CSS.cursor.pointer,
+      cursor: css.cursor.pointer,
       hover: {
         backgroundColor: hoverBackgroundColor,
       },

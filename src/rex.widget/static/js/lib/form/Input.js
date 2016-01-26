@@ -13,7 +13,6 @@ import * as css from '../../css';
  *
  * @public
  */
-@stylesheet.attach
 export default class Input extends React.Component {
 
   static propTypes = {
@@ -71,7 +70,7 @@ export default class Input extends React.Component {
 
   render() {
     let {error, variant, ...props} = this.props;
-    let {Root} = this.stylesheet;
+    let {Root} = this.constructor.stylesheet;
     return <Root {...this.props} variant={{...variant, error}} />;
   }
 }

@@ -20,7 +20,6 @@ import Fieldset from './Fieldset';
  * @public
  */
 @WithFormValue
-@Stylesheet.attach
 export default class RepeatingFieldset extends React.Component {
 
   static propTypes = {
@@ -107,7 +106,7 @@ export default class RepeatingFieldset extends React.Component {
       children, formValue, label, readOnly,
       addButtonText, removeButtonText, ...props
     } = this.props;
-    let {Root, Label, ErrorList, Item, ItemToolbar, Required} = this.stylesheet;
+    let {Root, Label, ErrorList, Item, ItemToolbar, Required} = this.constructor.stylesheet;
     let schema = formValue.schema || {};
     let items = formValue.value || [];
     let fieldsets = items.map((item, idx) =>

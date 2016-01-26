@@ -10,7 +10,6 @@ import {rgb} from '../../css';
 /**
  * Progress bar component.
  */
-@stylesheet.attach
 export default class ProgressBar extends React.Component {
 
   static propTypes = {
@@ -40,7 +39,7 @@ export default class ProgressBar extends React.Component {
 
   render() {
     let {progress = 0, style, ...props} = this.props;
-    let {Root} = this.stylesheet;
+    let {Root} = this.constructor.stylesheet;
     return (
       <Root
         {...props}

@@ -3,8 +3,8 @@
  */
 
 import React, {PropTypes}               from 'react';
-import * as Stylesheet                  from 'react-stylesheet';
-import {padding, fontWeight, textAlign} from '../StyleUtils';
+import * as Stylesheet                  from '../../stylesheet';
+import {padding, fontWeight, textAlign} from '../../css';
 import LoadingIndicator                 from './LoadingIndicator';
 
 /**
@@ -12,7 +12,6 @@ import LoadingIndicator                 from './LoadingIndicator';
  *
  * @public
  */
-@Stylesheet.styleable
 export default class Preloader extends React.Component {
 
   static propTypes = {
@@ -27,7 +26,7 @@ export default class Preloader extends React.Component {
     className: PropTypes.string
   };
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Root: {
       width: '100%',
       height: '100%',
@@ -44,7 +43,7 @@ export default class Preloader extends React.Component {
 
   render() {
     let {caption, ...props} = this.props;
-    let {Root, Caption, LoadingIndicator} = this.stylesheet;
+    let {Root, Caption, LoadingIndicator} = this.constructor.stylesheet;
     return (
       <Root {...props}>
         <LoadingIndicator />

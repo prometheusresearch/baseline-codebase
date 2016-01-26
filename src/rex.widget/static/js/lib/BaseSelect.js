@@ -27,7 +27,6 @@ let sentinel = '__empty_value_sentinel__';
  *
  * Any **options** appear next in the list followed by any items in **data**.
  */
-@Stylesheet.attach
 export default class Select extends React.Component {
 
   static propTypes = {
@@ -113,7 +112,7 @@ export default class Select extends React.Component {
 
   render() {
     let {emptyValue, titleForEmpty, noEmptyValue, quiet, value, ...props} = this.props;
-    let {Root} = this.stylesheet;
+    let {Root} = this.constructor.stylesheet;
     let options = this.props.options ? this.props.options : [];
     let data = this.props.data ? (this.props.data.data || []) : [];
 

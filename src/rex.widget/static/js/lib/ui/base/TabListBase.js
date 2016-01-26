@@ -5,11 +5,10 @@
 import autobind from 'autobind-decorator';
 import emptyFunction from 'empty/function';
 import React, {PropTypes} from 'react';
-import {VBox, HBox} from '@prometheusresearch/react-box';
-import * as Stylesheet from 'react-stylesheet';
-import * as CSS from 'react-stylesheet/css';
+import {VBox, HBox} from '../../../layout';
+import * as Stylesheet from '../../../stylesheet';
+import * as CSS from '../../../css';
 
-@Stylesheet.styleable
 export default class TabListBase extends React.Component {
 
   static propTypes = {
@@ -27,7 +26,7 @@ export default class TabListBase extends React.Component {
     onSelected: emptyFunction,
   };
 
-  static stylesheet = Stylesheet.createStylesheet({
+  static stylesheet = Stylesheet.create({
     Root: {
       Component: VBox,
       positionTop: {
@@ -84,7 +83,7 @@ export default class TabListBase extends React.Component {
       children, size, className, selected,
       position, ...props
     } = this.props;
-    let {Button, Content, ButtonList, Root} = this.stylesheet;
+    let {Button, Content, ButtonList, Root} = this.constructor.stylesheet;
     let variant = {
       positionTop: position === 'top',
       positionRight: position === 'right',

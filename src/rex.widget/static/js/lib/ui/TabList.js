@@ -3,14 +3,15 @@
  */
 
 import TabListBase from './base/TabListBase';
-import * as CSS from 'react-stylesheet/css';
+import * as CSS from '../../css';
+import {style} from '../../stylesheet';
 
 let color = '#444444';
 let linkColor = '#428bca';
 let border = CSS.border(1, '#dddddd');
 let hoverBackgroundColor = '#eeeeee';
 
-export default TabListBase.style({
+export default style(TabListBase, {
   ButtonList: {
     positionTop: {
       borderBottom: border,

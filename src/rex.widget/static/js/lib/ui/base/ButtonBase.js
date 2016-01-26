@@ -4,8 +4,8 @@
 
 import React, {PropTypes} from 'react';
 
-import * as Stylesheet from '../../Stylesheet';
-import * as CSS from '../../CSS';
+import * as Stylesheet from '../../../stylesheet';
+import * as CSS from '../../../css';
 import {isString} from '../../lang';
 import Icon from '../Icon';
 
@@ -14,7 +14,6 @@ import Icon from '../Icon';
  *
  * Button is clickable element with optional icon and/or caption.
  */
-@Stylesheet.attach
 export default class ButtonBase extends React.Component {
 
   static propTypes = {
@@ -64,7 +63,7 @@ export default class ButtonBase extends React.Component {
   });
 
   render() {
-    let {Root, Caption, Icon, IconWrapper} = this.stylesheet;
+    let {Root, Caption, Icon, IconWrapper} = this.constructor.stylesheet;
     let {
       children, icon,
       disabled, active, size,

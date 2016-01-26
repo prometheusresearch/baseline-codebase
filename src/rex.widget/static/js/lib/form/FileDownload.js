@@ -11,7 +11,6 @@ import StoredFile from './StoredFile';
 /**
  * Use this widget to retrieve a stored file.
  */
-@stylesheet.attach
 export default class FileDownload extends React.Component {
 
   static propTypes = {
@@ -49,7 +48,7 @@ export default class FileDownload extends React.Component {
 
   render() {
     let {file, download, ownerRecordID, ...props} = this.props;
-    let {Root, Placeholder, PlaceholderWrapper} = this.stylesheet;
+    let {Root, Placeholder, PlaceholderWrapper} = this.constructor.stylesheet;
     return (
       <Root {...props} onChange={undefined} storage={undefined}>
         {file ?

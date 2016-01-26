@@ -2,49 +2,47 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-'use strict';
+import React from 'react';
 
-var React = require('react');
+import {Tab, TabList} from 'rex-widget/ui';
+import {fetch} from 'rex-widget/lib/fetch';
 
-var RexWidget = require('rex-widget');
-var {Tab, TabList} = require('rex-widget/ui');
-var {fetch} = require('rex-widget/lib/fetch');
+import PackageList from './PackageList';
 
-var PackageList = require('./PackageList');
+export default class AboutRexDB extends React.Component {
 
-
-var AboutRexDB = RexWidget.createWidgetClass({
-  getInitialState: function () {
-    return {
-      activeTab: RexWidget.cell('overview'),
+  constructor(props) {
+    super(props);
+    this.state = {
+      activeTab: 'overview',
       environment: {}
     };
-  },
+  }
 
-  componentWillMount: function () {
+  componentWillMount() {
     fetch(this.props.environmentData)
       .then(res => this.setState({environment: res}));
-  },
+  }
 
-  getLicense: function() {
+  getLicense() {
     return {
       '__html': this.props.license
     };
-  },
+  }
 
-  getOverview: function() {
+  getOverview() {
     return {
       '__html': this.props.overview
     };
-  },
+  }
 
-  render: function () {
+  render() {
     return (
       <div className="about-rexdb">
         <h1>{this.props.heading}</h1>
         <TabList
-          selected={this.state.activeTab.value}
-          onSelected={this.state.activeTab.update}
+          selected={this.state.activeTab}
+          onSelected={activeTab => this.setState({activeTab})}
           >
           <Tab
             id="overview"
@@ -93,8 +91,4 @@ var AboutRexDB = RexWidget.createWidgetClass({
       </div>
     );
   }
-});
-
-
-module.exports = AboutRexDB;
-
+}

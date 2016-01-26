@@ -135,7 +135,7 @@ class Serializer(Extension):
 
 
 class RestfulJSONEncoder(json.JSONEncoder):
-    # pylint: disable=E0202
+    # pylint: disable=method-hidden
     def default(self, obj):
         if isinstance(obj, datetime):
             parts = obj.utctimetuple()
@@ -165,8 +165,6 @@ RE_DATETIME = re.compile(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z)?$')
 
 
 def get_date_or_string(value):
-    # pylint: disable=W0704
-
     if RE_DATETIME.match(value):
         try:
             return parse_date(value, ignoretz=True)
@@ -197,6 +195,8 @@ def restful_json_decoder(value):
 
     results = []
     for key, val in pairs:
+        # pylint: disable=redefined-variable-type
+
         if isinstance(val, basestring):
             val = get_date_or_string(val)
 
@@ -224,6 +224,7 @@ class JsonSerializer(Serializer):
     mime_type = 'application/json'
 
     def __init__(self, deserialize_datetimes=True, **kwargs):
+        super(JsonSerializer, self).__init__(**kwargs)
         self.deserialize_datetimes = deserialize_datetimes
 
     def serialize(self, value):
@@ -248,6 +249,7 @@ class YamlSerializer(Serializer):
     mime_type = 'application/x-yaml'
 
     def __init__(self, deserialize_datetimes=True, **kwargs):
+        super(YamlSerializer, self).__init__(**kwargs)
         self.deserialize_datetimes = deserialize_datetimes
 
     def serialize(self, value):

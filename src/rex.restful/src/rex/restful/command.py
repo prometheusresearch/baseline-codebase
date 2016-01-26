@@ -19,7 +19,6 @@ __all__ = (
 )
 
 
-# pylint: disable=W0223
 class RestfulLocation(Command):
     """
     This is the base class for the core functionality of rex.restful.
@@ -291,6 +290,7 @@ class RestfulLocation(Command):
             response = implementation(request, **kwargs)
 
         except HTTPException, exc:
+            # pylint: disable=redefined-variable-type
             response = {
                 'error': unicode(exc),
             }
@@ -331,25 +331,28 @@ class RestfulLocation(Command):
         )
 
     def _log_request(self, request):
-        self._request_logger.debug(u'%s %s' % (
+        self._request_logger.debug(
+            u'%s %s',
             request.method,
             request.path_qs,
-        ))
+        )
         for name, value in request.headers.items():
-            self._request_logger.debug(u'%s: %s' % (
+            self._request_logger.debug(
+                u'%s: %s',
                 name,
                 value,
-            ))
+            )
         if request.body:
             self._request_logger.info(request.body)
 
     def _log_response(self, response):
         self._response_logger.debug(response.status)
         for name, value in response.headers.items():
-            self._response_logger.debug(u'%s: %s' % (
+            self._response_logger.debug(
+                u'%s: %s',
                 name,
                 value,
-            ))
+            )
         if response.body:
             self._response_logger.info(response.body)
 
@@ -371,8 +374,9 @@ class RestfulLocation(Command):
 
         return implementation, default_status
 
-    # pylint: disable=W0613
     def _options_handler(self, request, **kwargs):
+        # pylint: disable=unused-argument
+
         allowed = ['OPTIONS']
 
         for meth, func_name in RestfulLocation._METHOD_MAP.items():

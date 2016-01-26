@@ -10,7 +10,6 @@ import ReactDOM from 'react-dom';
 import * as Stylesheet from 'rex-widget/stylesheet';
 import {VBox, HBox} from 'rex-widget/layout';
 
-@Stylesheet.attach
 export default class StickyFooterPanel extends React.Component {
 
   static propTypes = {
@@ -47,7 +46,7 @@ export default class StickyFooterPanel extends React.Component {
   }
 
   render() {
-    let {Root, Content, Footer, Marker} = this.stylesheet;
+    let {Root, Content, Footer, Marker} = this.constructor.stylesheet;
     let {children, footer} = this.props;
     let {pinned} = this.state;
     if (footer) {

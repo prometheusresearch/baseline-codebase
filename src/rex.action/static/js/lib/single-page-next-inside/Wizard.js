@@ -92,7 +92,6 @@ function Toolbar({graph, onClick}) {
   return <layout.HBox wrap="wrap">{buttonGroups}</layout.HBox>
 }
 
-@Stylesheet.attach
 export default class Wizard extends React.Component {
 
   static defaultProps = {
@@ -144,7 +143,7 @@ export default class Wizard extends React.Component {
       refetch: this._refetch,
       toolbar: <Toolbar graph={graph} onClick={this._onNext} />,
     });
-    let {ActionPanel} = this.stylesheet;
+    let {ActionPanel} = this.constructor.stylesheet;
     return (
       <layout.VBox flex={1} direction="column-reverse">
         <layout.HBox flex={1}>

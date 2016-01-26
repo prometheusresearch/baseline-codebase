@@ -9,7 +9,6 @@ import * as Stylesheet from 'rex-widget/stylesheet';
 import {VBox, HBox} from 'rex-widget/layout';
 
 
-@Stylesheet.attach
 export default class Sidebar extends React.Component {
 
   static stylesheet = Stylesheet.create({
@@ -21,7 +20,7 @@ export default class Sidebar extends React.Component {
 
   render() {
     let {children, ...props} = this.props;
-    let {Self} = this.stylesheet;
+    let {Self} = this.constructor.stylesheet;
     return (
       <Self {...props}>
         {children}

@@ -22,7 +22,6 @@ export function getTitleAtNode(node) {
   }
 }
 
-@Stylesheet.attach
 export default class ActionTitle extends React.Component {
 
   static propTypes = {
@@ -52,7 +51,7 @@ export default class ActionTitle extends React.Component {
   });
 
   render() {
-    let {Primary, Secondary} = this.stylesheet;
+    let {Primary, Secondary} = this.constructor.stylesheet;
     let {node, subTitle, titleOnly, noRichTitle, noWrap, ...props} = this.props;
     if (node.element.type.renderTitle && !noRichTitle) {
       return node.element.type.renderTitle(

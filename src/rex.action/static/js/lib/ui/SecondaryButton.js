@@ -4,6 +4,7 @@
 
 
 import ButtonBase from './ButtonBase';
+import * as Stylesheet from 'rex-widget/stylesheet';
 import * as Style from 'rex-widget/lib/StyleUtils';
 import * as Theme from './Theme';
 
@@ -17,7 +18,7 @@ let activeColors = {
   color: Theme.color.secondary.textActive,
 };
 
-export default ButtonBase.style({
+export default Stylesheet.style(ButtonBase, {
   Root: {
     border: Style.none,
     background: Theme.color.secondary.background,

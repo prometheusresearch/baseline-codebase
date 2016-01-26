@@ -8,7 +8,6 @@ import * as Stylesheet from 'rex-widget/stylesheet';
 import * as CSS from 'rex-widget/css';
 import {VBox} from 'rex-widget/layout';
 
-@Stylesheet.attach
 class ChromeRoot extends React.Component {
 
   static stylesheet = Stylesheet.create({
@@ -28,7 +27,7 @@ class ChromeRoot extends React.Component {
   });
 
   render() {
-    let {Wrapper, Action} = this.stylesheet;
+    let {Wrapper, Action} = this.constructor.stylesheet;
     let {children} = this.props;
     return (
       <Wrapper>
@@ -40,7 +39,6 @@ class ChromeRoot extends React.Component {
   }
 }
 
-@Stylesheet.attach
 export default class ActionWizard extends React.Component {
 
   static propTypes = {
@@ -56,7 +54,7 @@ export default class ActionWizard extends React.Component {
   });
 
   render() {
-    let {ChromeRoot, Root} = this.stylesheet;
+    let {ChromeRoot, Root} = this.constructor.stylesheet;
     let {action, noChrome} = this.props;
     action = React.cloneElement(this.props.action, {
       context: {}

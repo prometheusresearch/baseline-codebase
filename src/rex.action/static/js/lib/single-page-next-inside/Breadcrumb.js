@@ -12,11 +12,11 @@ import * as css from 'rex-widget/css';
 import ActionTitle from '../ActionTitle';
 import {getIconAtNode} from '../ActionIcon';
 
-let BreadcrumbButtonWrapper = Stylesheet.apply(layout.HBox, {
+let BreadcrumbButtonWrapper = Stylesheet.style(layout.HBox, {
   paddingLeft: 15
 });
 
-let BreadcrumbButton = Stylesheet.apply(ui.ButtonBase, {
+let BreadcrumbButton = Stylesheet.style(ui.ButtonBase, {
   Root: {
     fontSize: '85%',
     fontWeight: 700,
@@ -45,7 +45,7 @@ let BreadcrumbButton = Stylesheet.apply(ui.ButtonBase, {
   }
 });
 
-let BreadcrumbTriangle = Stylesheet.apply('div', {
+let BreadcrumbTriangle = Stylesheet.style('div', {
   content: '',
   position: css.position.absolute,
   top: 21,
@@ -60,7 +60,7 @@ let BreadcrumbTriangle = Stylesheet.apply('div', {
   borderLeftColor: 'inherit',
 });
 
-let BreadcrumbRoot = Stylesheet.apply(layout.HBox, {
+let BreadcrumbRoot = Stylesheet.style(layout.HBox, {
   background: css.rgb(255),
   boxShadow: css.boxShadow(0, 1, 1, 0, css.rgb(204)),
 });

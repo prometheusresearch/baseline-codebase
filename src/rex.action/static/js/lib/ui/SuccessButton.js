@@ -4,6 +4,7 @@
 
 
 import ButtonBase   from './ButtonBase';
+import * as Stylesheet from 'rex-widget/stylesheet';
 import * as Style   from 'rex-widget/lib/StyleUtils';
 import WidgetTheme  from 'rex-widget/lib/Theme';
 import * as Theme   from './Theme';
@@ -54,7 +55,7 @@ let activeColors = {
   ),
 };
 
-export default ButtonBase.style({
+export default Stylesheet.style(ButtonBase, {
   Root: {
     borderWidth: 1,
     borderStyle: Style.borderStyle.solid,

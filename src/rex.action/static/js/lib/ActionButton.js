@@ -10,7 +10,6 @@ import ButtonBase           from './ui/ButtonBase';
 import {getIconAtNode}  from './ActionIcon';
 import ActionTitle          from './ActionTitle';
 
-@Stylesheet.attach
 export default class ActionButton extends React.Component {
 
   static propTypes = {
@@ -25,7 +24,7 @@ export default class ActionButton extends React.Component {
   });
 
   render() {
-    let {Button} = this.stylesheet;
+    let {Button} = this.constructor.stylesheet;
     let {node, showContext, active, ...props} = this.props;
     let icon = getIconAtNode(node);
     return (

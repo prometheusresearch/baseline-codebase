@@ -11,7 +11,6 @@ import ActionButton from '../ActionButton';
 import {SecondaryButton} from '../ui';
 import * as Instruction from '../execution/Instruction';
 
-@Stylesheet.attach
 export default class NavigationToolbar extends React.Component {
 
   static stylesheet = Stylesheet.create({
@@ -28,7 +27,7 @@ export default class NavigationToolbar extends React.Component {
 
   render() {
     let {graph, onReplace, onNext} = this.props;
-    let {Self, Button} = this.stylesheet;
+    let {Self, Button} = this.constructor.stylesheet;
     let buttons = graph.siblingActions().map(pos => {
       let active = pos.keyPath === graph.node.keyPath;
       return (
@@ -51,7 +50,6 @@ export default class NavigationToolbar extends React.Component {
   }
 }
 
-@Stylesheet.attach
 class NextActionsToolbar extends React.Component {
 
   static stylesheet = Stylesheet.create({
@@ -70,7 +68,7 @@ class NextActionsToolbar extends React.Component {
 
   render() {
     let {graph, onClick} = this.props;
-    let {Self, Button} = this.stylesheet;
+    let {Self, Button} = this.constructor.stylesheet;
     let buttons = graph.nextActions()
       .filter(node => !Instruction.Replace.is(node.instruction))
       .map(node =>

@@ -18,7 +18,6 @@ import Action from '../Action';
 import applyContext from '../applyContext';
 import Title from './Title';
 
-@stylesheet.attach
 export default class Pick extends React.Component {
 
   static propTypes = {

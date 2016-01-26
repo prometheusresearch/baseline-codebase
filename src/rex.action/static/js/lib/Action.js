@@ -19,7 +19,6 @@ import {
 } from './ui';
 
 
-@Stylesheet.attach
 export default class Action extends React.Component {
 
   static propTypes = {
@@ -105,7 +104,7 @@ export default class Action extends React.Component {
       Footer,
       Title,
       Toolbar
-    } = this.stylesheet;
+    } = this.constructor.stylesheet;
     let {children, toolbar, title, onClose, noContentWrapper} = this.props;
     toolbar = toolbar || this.context.toolbar;
     let footer = this.props.renderFooter();

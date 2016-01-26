@@ -16,7 +16,6 @@ import * as Theme from './Theme';
  *
  * Button is clickable element with optional icon and/or caption.
  */
-@Stylesheet.attach
 export default class Button extends React.Component {
 
   static propTypes = {
@@ -67,7 +66,7 @@ export default class Button extends React.Component {
   });
 
   render() {
-    let {Root, Caption, Icon, IconWrapper} = this.stylesheet;
+    let {Root, Caption, Icon, IconWrapper} = this.constructor.stylesheet;
     let {children, icon, active, size, ...props} = this.props;
     let variant = {
       active,

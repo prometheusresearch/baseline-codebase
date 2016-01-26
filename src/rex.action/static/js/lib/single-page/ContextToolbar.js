@@ -11,7 +11,6 @@ import {renderTitle} from '../actions';
 import ActionButton from '../ActionButton';
 import {Theme, Button} from '../ui';
 
-@Stylesheet.attach
 export default class ContextToolbar extends React.Component {
 
   static stylesheet = Stylesheet.create({
@@ -31,7 +30,7 @@ export default class ContextToolbar extends React.Component {
 
   render() {
     let {graph, wizard, onClick} = this.props;
-    let {Self, Button} = this.stylesheet;
+    let {Self, Button} = this.constructor.stylesheet;
     let buttons = graph.trace.slice(1, -1).map(node =>
       <Button
         showContext

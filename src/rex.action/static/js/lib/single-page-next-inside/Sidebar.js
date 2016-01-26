@@ -18,7 +18,7 @@ import ActionIcon  from '../ActionIcon';
 
 const SIDEBAR_COLLAPSED_KEY = 'rex.action.sidebar.collapsed';
 
-let SidebarRoot = Stylesheet.apply(layout.VBox, {
+let SidebarRoot = Stylesheet.style(layout.VBox, {
   background: '#efefef',
   width: 250,
   padding: css.padding(10, 0),
@@ -27,7 +27,7 @@ let SidebarRoot = Stylesheet.apply(layout.VBox, {
   }
 });
 
-let SidebarButton = Stylesheet.apply(ui.ButtonBase, {
+let SidebarButton = Stylesheet.style(ui.ButtonBase, {
   Root: {
     height: 48,
     minHeight: 48,

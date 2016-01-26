@@ -20,7 +20,6 @@ import Sidebar from './Sidebar';
 import ContextToolbar from './ContextToolbar';
 import NavigationToolbar from './NavigationToolbar';
 
-@Stylesheet.attach
 export default class Wizard extends React.Component {
 
   static defaultProps = {
@@ -70,7 +69,7 @@ export default class Wizard extends React.Component {
       onEntityUpdate: this._onEntityUpdate,
       refetch: this._refetch,
     });
-    let {ActionPanel} = this.stylesheet;
+    let {ActionPanel} = this.constructor.stylesheet;
     return (
       <HBox flex={1}>
         <Sidebar width={300}>

@@ -8,7 +8,6 @@ import {Icon} from 'rex-widget/ui';
 import {HBox} from 'rex-widget/layout';
 import * as Stylesheet from 'rex-widget/stylesheet';
 
-@Stylesheet.attach
 export default class BreadcrumbItem extends React.Component {
 
   static propTypes = {
@@ -52,7 +51,7 @@ export default class BreadcrumbItem extends React.Component {
   });
 
   render() {
-    let {Self, Icon} = this.stylesheet;
+    let {Self, Icon} = this.constructor.stylesheet;
     let {item, onClick, style, active, ...props} = this.props;
     return (
       <Self {...props} variant={{active}} onClick={onClick.bind(null, item.id)}>

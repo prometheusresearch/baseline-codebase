@@ -9,7 +9,6 @@ import * as Stylesheet from 'rex-widget/stylesheet';
 
 import BreadcrumbItem from './BreadcrumbItem';
 
-@Stylesheet.attach
 export default class Breadcrumb extends React.Component {
 
   static propTypes = {
@@ -35,7 +34,7 @@ export default class Breadcrumb extends React.Component {
   });
 
   render() {
-    let {Self, Item} = this.stylesheet;
+    let {Self, Item} = this.constructor.stylesheet;
     let items = this.props.items.map((item, idx) =>
       <Item
         key={idx}

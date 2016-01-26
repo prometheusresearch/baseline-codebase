@@ -9,7 +9,6 @@ import {VBox} from 'rex-widget/layout';
 
 import * as Entity from '../Entity';
 
-@Stylesheet.attach
 export default class Title extends React.Component {
 
   static stylesheet = Stylesheet.create({
@@ -25,7 +24,7 @@ export default class Title extends React.Component {
 
   render() {
     let {entity, context, title} = this.props;
-    let {Primary, Secondary} = this.stylesheet;
+    let {Primary, Secondary} = this.constructor.stylesheet;
     if (entity.name in context) {
       let entityTitle = Entity.getEntityTitle(context[entity.name]);
       if (entityTitle === null) {

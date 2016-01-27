@@ -11,7 +11,7 @@ Set up the environment::
 
 It won't do anything if there's no implementation of the interface::
 
-    >>> rex = Rex('__main__', 'rex.instrument')
+    >>> rex = Rex('__main__', 'rex.instrument', db='pgsql:instrument_demo')
 
 
 If there is an implementation, it will iterate through all InstrumentVersion

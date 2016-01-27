@@ -14,7 +14,7 @@ abstract interface classes, which, of course, are mostly useless::
     >>> from rex.core import Rex, get_settings
     >>> from rex.instrument.interface import *
 
-    >>> test = Rex('__main__', 'rex.instrument')
+    >>> test = Rex('__main__', 'rex.instrument', db='pgsql:instrument_demo')
     >>> test.on()
     >>> get_settings().instrument_implementation
     Record(user=rex.instrument.interface.user.User, subject=rex.instrument.interface.subject.Subject, instrument=rex.instrument.interface.instrument.Instrument, instrumentversion=rex.instrument.interface.instrumentversion.InstrumentVersion, assessment=rex.instrument.interface.assessment.Assessment, draftinstrumentversion=rex.instrument.interface.draftinstrumentversion.DraftInstrumentVersion, channel=rex.instrument.interface.channel.Channel, task=rex.instrument.interface.task.Task, entry=rex.instrument.interface.entry.Entry, calculationset=rex.instrument.interface.calculationset.CalculationSet, resultset=rex.instrument.interface.resultset.ResultSet, draftcalculationset=rex.instrument.interface.draftcalculationset.DraftCalculationSet)

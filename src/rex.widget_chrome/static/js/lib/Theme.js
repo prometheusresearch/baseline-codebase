@@ -9,7 +9,7 @@ const companyColors = {
   prometheusLighterBlue: css.createColor('#0094CD'),
 };
 
-function makeTheme(params) {
+export function makeTheme(params) {
   let header = {
     height: 50,
     background: params.primaryColor.toCSS(),
@@ -42,6 +42,14 @@ function makeTheme(params) {
 }
 
 export default makeTheme({
-  primaryColor: companyColors.prometheusDarkBlue,
-  secondaryColor: companyColors.prometheusLighterBlue,
+  primaryColor: (
+    __REX_WIDGET_CHROME_THEME__.header_primary_color ?
+      css.createColor(__REX_WIDGET_CHROME_THEME__.header_primary_color) :
+      companyColors.prometheusDarkBlue
+  ),
+  secondaryColor: (
+    __REX_WIDGET_CHROME_THEME__.header_secondary_color ?
+      css.createColor(__REX_WIDGET_CHROME_THEME__.header_secondary_color) :
+      companyColors.prometheusLighterBlue
+  ),
 });

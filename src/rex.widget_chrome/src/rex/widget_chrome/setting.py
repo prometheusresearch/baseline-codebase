@@ -1,5 +1,9 @@
+from rex.core import (
+    Setting, StrVal, MapVal, SeqVal, RecordVal, MaybeVal,
+    Validate, OneOfVal)
 
-from rex.core import Setting, StrVal, MapVal, SeqVal, RecordVal, MaybeVal
+
+color_val = StrVal(pattern=r'(?i)^#[0-9a-f]{3}|#[0-9a-f]{6}$')
 
 class ApplicationTitle(Setting):
     """Customizable application title. Defaults to 'RexDB'"""
@@ -17,7 +21,6 @@ class ApplicationLogoutUrl(Setting):
     validate = StrVal()
 
 
-ColorVal = StrVal(pattern=r'(?i)^#[0-9a-f]{3}|#[0-9a-f]{6}$')
 
 class ApplicationBanner(Setting):
     """
@@ -29,46 +32,24 @@ class ApplicationBanner(Setting):
     validate = StrVal()
 
 
-class ApplicationHeaderBgcolor(Setting):
+class HeaderPrimaryColor(Setting):
     """
-    Background color of the page header. Example value: #000000
-    """
-
-    name = 'application_header_bgcolor'
-    default = '#000000'
-    validate = ColorVal
-
-
-class ApplicationHeaderBgcolorHover(Setting):
-    """
-    Background color of the page header when mouse over the link.
-    Example value: #555555
+    Primary color for application chrome header.
     """
 
-    name = 'application_header_bgcolor_hover'
-    default = '#555555'
-    validate = ColorVal
+    name = 'header_primary_color'
+    default = None
+    validate = MaybeVal(color_val)
 
 
-class ApplicationHeaderTextcolor(Setting):
+class HeaderSecondaryColor(Setting):
     """
-    Background color of the page header. Example value: #000000
-    """
-
-    name = 'application_header_textcolor'
-    default = '#FFFFFF'
-    validate = ColorVal
-
-
-class ApplicationHeaderTextcolorHover(Setting):
-    """
-    Background color of the page header when mouse over the link.
-    Example value: #555555
+    Secondary color for application chrome header.
     """
 
-    name = 'application_header_textcolor_hover'
-    default = '#FFFFFF'
-    validate = ColorVal
+    name = 'header_secondary_color'
+    default = None
+    validate = MaybeVal(color_val)
 
 
 class UserProfileUrl(Setting):
@@ -82,19 +63,6 @@ class UserProfileUrl(Setting):
     validate = StrVal()
 
 
-class PersonalMenuLinks(Setting):
-    """
-    A list of label/url records that defines what links to show in the
-    "Personal Menu" (upper right corner of navbar).
-    """
-
-    name = 'personal_menu_links'
-    default = []
-    validate = SeqVal(RecordVal(
-        ('label', StrVal()),
-        ('url', StrVal()),
-    ))
-
 class UsernameQuery(Setting):
     """
     HTSQL query to get the user name.
@@ -106,11 +74,10 @@ class UsernameQuery(Setting):
     default = '$USER'
     validate = StrVal()
 
-from rex.core import Validate, RecordVal, OneOfVal
 
 class Menu(Setting):
     """
-    Menu settings.
+    Application menu.
     """
 
     name = 'menu'

@@ -222,21 +222,26 @@ export default class Field extends React.Component {
     }
     params.value = value;
     this.props.validate.produce(params).then(
-      this._onValidateComplete,
+      this._onValidateComplete.bind(null, value),
       this._onValidateError);
   }
 
   @autobind
-  _onValidateComplete(value) {
-    let firstKey = Object.keys(value)[0];
-    value = value[firstKey];
-
+  _onValidateComplete(value, result) {
     let formValue = this.props.formValue;
+
+    if (value !== formValue.value) {
+      return;
+    }
+
+    let firstKey = Object.keys(result)[0];
+    result = result[firstKey];
+
     let error = formValue.errorList.find(error => error.rexWidgetError);
-    if (value !== null) {
+    if (result !== null) {
       formValue = formValue.removeError(error, true);
       formValue = formValue.addError({
-        message: String(value),
+        message: String(result),
         rexWidgetError: true,
       });
     } else {

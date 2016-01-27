@@ -9,11 +9,12 @@
 
 from collections import namedtuple
 from json import dumps
+import pkg_resources
 
 from webob import Response
 from webob.exc import HTTPBadRequest
 
-from rex.core import get_packages, get_settings
+from rex.core import get_packages, get_settings, Extension
 from rex.db import get_db
 from rex.web import render_to_response
 
@@ -22,6 +23,27 @@ from .transitionable import encode, select, SelectError
 from .chrome import get_chrome
 
 __all__ = ('render',)
+
+
+class Bootstrap(Extension):
+
+    name = None
+
+    @classmethod
+    def sanitize(cls):
+        assert cls.name is None or isinstance(cls.name, str)
+
+    @classmethod
+    def enabled(cls):
+        return cls.name is not None
+
+    @classmethod
+    def signature(cls):
+        return cls.name
+
+    def __call__(self, req):
+        raise NotImplementedError("%s.__call__()"
+                                  % self.__class__.__name__)
 
 
 Bundle = namedtuple('Bundle', ['root', 'js', 'css'])
@@ -42,11 +64,18 @@ def find_bundle():
         js_exists = package.exists(BUNDLE_PATHS.js)
         css_exists = package.exists(BUNDLE_PATHS.css)
         if root_exists and (js_exists or css_exists):
+            dist = pkg_resources.get_distribution(package.name)
             root = '%s:%s' % (package.name, BUNDLE_PATHS.root[len(www):])
             if css_exists:
-                css = '%s:%s' % (package.name, BUNDLE_PATHS.css[len(www):])
+                css = '%s:%s?v=%s' % (
+                    package.name,
+                    BUNDLE_PATHS.css[len(www):],
+                    dist.version)
             if js_exists:
-                js = '%s:%s' % (package.name, BUNDLE_PATHS.js[len(www):])
+                js = '%s:%s?v=%s' % (
+                    package.name,
+                    BUNDLE_PATHS.js[len(www):],
+                    dist.version)
             return Bundle(root=root, js=js, css=css)
 
 
@@ -110,9 +139,11 @@ def render(widget, request,
             return Response(payload, content_type='application/json')
         else:
             user = get_db().produce('$USER').data
+            bootstrap = [item() for item in Bootstrap.all()]
             return render_to_response(
                 template, request,
                 user=dumps(dumps(user)),
                 bundle=find_bundle(),
                 theme=theme,
+                bootstrap=bootstrap,
                 payload=payload)

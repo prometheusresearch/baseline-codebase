@@ -14,7 +14,7 @@ from .validate import WidgetVal
 from .widget import (
     Widget, NullWidget, GroupWidget, WidgetComposition, suppress_validation)
 from .field import Field, computed_field, responder
-from .render import render as render_widget
+from .render import render as render_widget, Bootstrap
 from .chrome import Chrome
 
 from .transitionable import encode, as_transitionable

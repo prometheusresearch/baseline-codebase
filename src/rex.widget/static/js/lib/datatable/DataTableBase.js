@@ -172,12 +172,16 @@ export default class DataTableBase extends React.Component {
 
     let columnWidth = Math.max(Math.floor(DOMSize.width / columns.length), minColumnWidth);
     for (let i = 0; i < columns.length; i++) {
-      let column = columns[i];
+      let column = {...columns[i]};
       if (isString(column)) {
         column = {
           valueKey: column,
-          label: column
+          label: column,
+          sortable: true,
         };
+      }
+      if (column.sortable === undefined) {
+        column.sortable = true;
       }
       columnElements.push(
         <Column
@@ -270,9 +274,10 @@ export default class DataTableBase extends React.Component {
           <VBox flex={1}>
             {label}
           </VBox>
-          <SortIndicator onClick={onSort.bind(null, sort)}>
-            <Icon name={icon} />
-          </SortIndicator>
+          {columnData.sortable &&
+            <SortIndicator onClick={onSort.bind(null, sort)}>
+              <Icon name={icon} />
+            </SortIndicator>}
         </HBox>
       </div>
     );

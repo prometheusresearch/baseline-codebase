@@ -88,6 +88,9 @@
     var __REX_WIDGET__;
     var __REX_WIDGET_THEME__ = JSON.stringify({{ theme }});
   </script>
+  {% for render in bootstrap %}
+    {{ render(REQUEST) }}
+  {% endfor %}
   {% if bundle.js %}
   <script src="{{ bundle.js|url }}"></script>
   {% endif %}

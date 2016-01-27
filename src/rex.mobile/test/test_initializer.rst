@@ -11,7 +11,7 @@ Set up the environment::
 
 It won't do anything if there's no implementation of the interface::
 
-    >>> rex = Rex('__main__', 'rex.mobile')
+    >>> rex = Rex('__main__', 'rex.mobile', db='pgsql:mobile_demo')
 
 
 If there is an implementation, it will iterate through all Interaction

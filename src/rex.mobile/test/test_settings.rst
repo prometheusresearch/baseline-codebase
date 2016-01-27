@@ -14,7 +14,7 @@ abstract interface classes, which, of course, are mostly useless::
     >>> from rex.core import Rex, get_settings
     >>> from rex.mobile.interface import *
 
-    >>> test = Rex('__main__', 'rex.mobile')
+    >>> test = Rex('__main__', 'rex.mobile', db='pgsql:mobile_demo')
     >>> test.on()
     >>> get_settings().mobile_implementation
     Record(interaction=rex.mobile.interface.interaction.Interaction)

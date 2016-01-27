@@ -14,7 +14,7 @@ abstract interface classes, which, of course, are mostly useless::
     >>> from rex.core import Rex, get_settings
     >>> from rex.forms.interface import *
 
-    >>> test = Rex('__main__', 'rex.forms')
+    >>> test = Rex('__main__', 'rex.forms', db='pgsql:forms_demo')
     >>> test.on()
     >>> get_settings().forms_implementation
     Record(form=rex.forms.interface.form.Form, draftform=rex.forms.interface.draftform.DraftForm)

@@ -211,10 +211,12 @@ def get_db(name=None):
                         for key in sorted(settings.gateways)
                         if settings.gateways[key])
         properties = settings.htsql_environment
+        timeout = settings.query_timeout
         configuration = HTSQLVal.merge(
                 {'rex': {
                     'gateways': gateways,
-                    'properties': properties}},
+                    'properties': properties,
+                    'timeout': timeout }},
                 settings.htsql_extensions,
                 settings.db)
     else:

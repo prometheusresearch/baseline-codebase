@@ -9,7 +9,7 @@
 ==================
 
 * Added parameters ``user_query``, ``auto_user_query``, ``access_queries``,
-  ``access_masks``. ``htsql_environment``.
+  ``access_masks``. ``htsql_environment``, ``query_timeout``.
 * Establish security context for ``/db/`` requests.
 
 

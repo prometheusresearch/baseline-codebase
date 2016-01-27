@@ -4,8 +4,8 @@
 
 
 from rex.core import (
-        Setting, Error, Validate, StrVal, MaybeVal, MapVal, UnionVal, OnScalar,
-        OnField)
+        Setting, Error, Validate, UIntVal, StrVal, MaybeVal, MapVal, UnionVal,
+        OnScalar, OnField)
 from htsql.core.util import DB
 
 
@@ -207,5 +207,25 @@ class HTSQLExtensionsSetting(Setting):
     validate = MaybeVal(MapVal(StrVal, MaybeVal(MapVal(StrVal))))
     default = None
     merge = HTSQLVal.merge
+
+
+class QueryTimeoutSetting(Setting):
+    """
+    Limit on the query execution time (in seconds).
+
+    This parameter sets the upper limit on the query execution time.
+    The query is aborted if the execution time exceeds the limit.
+
+    Example:
+
+        query_timeout: 120
+
+    By default, this parameter is unset.  The timeout is only enforced
+    on PostgreSQL databases.
+    """
+
+    name = 'query_timeout'
+    validate = MaybeVal(UIntVal())
+    default = None
 
 

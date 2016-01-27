@@ -40,6 +40,7 @@ Configuration
 .. autoclass:: DBSetting
 .. autoclass:: HTSQLExtensionsSetting
 .. autoclass:: GatewaysSetting
+.. autoclass:: QueryTimeoutSetting
 .. autoclass:: UserQuerySetting
 .. autoclass:: AutoUserQuerySetting
 .. autoclass:: AccessQueriesSetting

@@ -11,7 +11,7 @@ none so far.
 
 from htsql.core.addon import Addon, Variable, Parameter
 from htsql.core.application import Environment, Application
-from htsql.core.validator import StrVal, NameVal, ClassVal, MapVal
+from htsql.core.validator import StrVal, UIntVal, NameVal, ClassVal, MapVal
 from htsql.core.adapter import Adapter, adapt, call
 from htsql.core.context import context
 from htsql.core.error import Error
@@ -54,14 +54,20 @@ class LazyConnection(object):
     def __call__(self):
         if self.connection is None:
             self.connection = connect()
-            if (context.app.htsql.db.engine == 'pgsql' and
-                self.session is not None):
-                session = self.session()
-                if session:
+            if context.app.htsql.db.engine == 'pgsql':
+                if self.session is not None:
+                    session = self.session()
+                    if session:
+                        cursor = self.connection.cursor()
+                        cursor.execute("""
+                            SELECT set_config('rex.session', %s, TRUE);
+                        """, (session,))
+                if context.app.rex.timeout:
                     cursor = self.connection.cursor()
                     cursor.execute("""
-                        SELECT set_config('rex.session', %s, TRUE);
-                    """, (session,))
+                        SET SESSION STATEMENT_TIMEOUT TO %s;
+                    """ % (context.app.rex.timeout*1000))
+
         return self.connection
 
     def up(self):
@@ -676,6 +682,10 @@ class RexAddon(Addon):
                 'properties',
                 MapVal(NameVal(), StrVal()),
                 default={}),
+            Parameter(
+                'timeout',
+                UIntVal(is_nullable=True),
+                default=None),
     ]
 
     def __init__(self, app, attributes):

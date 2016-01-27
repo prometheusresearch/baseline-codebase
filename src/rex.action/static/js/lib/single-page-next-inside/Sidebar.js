@@ -97,7 +97,7 @@ export default class Sidebar extends React.Component {
     );
     return (
       <SidebarRoot variant={{collapsed}}>
-        <layout.VBox flex={1} overflow="auto">
+        <layout.VBox flex={1} style={{overflowX: 'hidden', overflowY: 'auto'}}>
           {buttons}
         </layout.VBox>
         <ui.SecondaryQuietButton

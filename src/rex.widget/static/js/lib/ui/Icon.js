@@ -31,7 +31,7 @@ export default class Icon extends React.Component {
   render() {
     let {name, ...props} = this.props;
     let Component = ICONS[name];
-    return <Component aria-hidden {...props} />;
+    return Component ? <Component aria-hidden {...props} /> : null;
   }
 }
 

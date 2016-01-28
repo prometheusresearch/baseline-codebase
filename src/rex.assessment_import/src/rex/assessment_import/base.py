@@ -3,9 +3,10 @@ import os
 import csv
 import xlrd
 import xlwt
+import traceback
 
 from collections import OrderedDict
-from rex.ctl import RexTask, warn, log, debug
+from rex.ctl import env, RexTask, warn, log as base_log, debug
 from rex.instrument.util import get_implementation
 from rex.core import Extension, Error, get_settings
 from .interface import Instrument, Assessment
@@ -14,22 +15,14 @@ from .interface import Instrument, Assessment
 class BaseLogging(object):
 
     def log(self, msg="", *args, **kwds):
-        log(msg, *args, **kwds)
+        if not getattr(env, 'quiet', True):
+            base_log(msg, *args, **kwds)
 
     def warn(self, msg, *args, **kwds):
         warn(msg, *args, **kwds)
 
     def debug(self, msg, *args, **kwds):
         debug(msg, *args, **kwds)
-#
-#    def log(self, msg="", *args, **kwds):
-#        pass
-#
-#    def warn(self, msg, *args, **kwds):
-#        pass
-#
-#    def debug(self, msg, *args, **kwds):
-#        pass
 
 
 class BaseAssessmentTemplateExport(BaseLogging):
@@ -261,7 +254,8 @@ class AssessmentCSVImporter(AssessmentImporter):
         with open(base_path, 'rU') as base_file:
             try:
                 reader = csv.DictReader(base_file)
-            except Exception, exc:
+            except Exception:
+                exc = traceback.format_exc()
                 raise Error("Unexpected assessment file %(filepath)s."
                             % {'filepath': base_path},
                             exc
@@ -277,7 +271,8 @@ class AssessmentCSVImporter(AssessmentImporter):
                     if not self.tolerant:
                         raise Error(msg)
                     self.warn(msg)
-                except Exception, exc:
+                except Exception:
+                    exc = traceback.format_exc()
                     success_import = False
                     self.warn(str(exc))
                     if not self.tolerant:
@@ -295,7 +290,8 @@ class AssessmentCSVImporter(AssessmentImporter):
             with open(rec_file, 'rU') as _file:
                 try:
                     reader = csv.DictReader(_file)
-                except Exception, exc:
+                except Exception:
+                    exc = traceback.format_exc()
                     raise Error("Got unexpected csv file `%(filepath)s`."
                                 % {'filepath': rec_file}, exc
                     )
@@ -376,7 +372,8 @@ class AssessmentXLSImporter(AssessmentImporter):
                 if not self.tolerant:
                     raise Error(msg)
                 self.warn(msg)
-            except Exception, exc:
+            except Exception:
+                exc = traceback.format_exc()
                 success_import = False
                 self.warn(str(exc))
                 if not self.tolerant:

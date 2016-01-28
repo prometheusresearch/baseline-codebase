@@ -1,6 +1,7 @@
 import json
 import re
 import datetime
+import traceback
 
 from collections import OrderedDict
 from copy import deepcopy
@@ -253,7 +254,8 @@ class Assessment(object):
             validate = parameter['validator']
             try:
                 validate(param_value)
-            except Exception, exc:
+            except Exception:
+                exc = traceback.format_exc()
                 raise Error("Assessment parameter"
                     " `%(param_name)s` got unexpected value `%(param_value)s`."
                     % {'param_name': param_name,
@@ -273,7 +275,8 @@ class Assessment(object):
                 evaluation_date = datetime.datetime.strptime(evaluation_date,
                                                              '%Y-%m-%d'
                                                     )
-            except Exception, exc:
+            except Exception:
+                exc = traceback.format_exc()
                 raise Error("Got unexpected value `%(value)s` of the assessment"
                         " `date`" % {'value': evaluation_date}, exc)
         return evaluation_date.date()
@@ -335,7 +338,8 @@ class Assessment(object):
                                             base_type=field.base_type,
                                             required=field.required,
                                             enumerations=field.enumerations)
-            except Exception, exc:
+            except Exception:
+                exc = traceback.format_exc()
                 raise Error("Unable to define a value of field %(field)s."
                     % {'field': field.id}, exc
                 )

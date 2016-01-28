@@ -506,7 +506,15 @@ class BindIn(BindAmong):
 
 
 class RexSummonGateway(SummonGateway, Summon):
-    pass
+
+    @classmethod
+    def __enabled__(component):
+        if not super(RexSummonGateway, component).__enabled__():
+            return False
+        if not (component is RexSummonGateway or
+                component in context.app.rex.gateway_adapters):
+            return False
+        return True
 
 
 class RexActGateway(ActGateway, Act):
@@ -690,7 +698,7 @@ class RexAddon(Addon):
 
     def __init__(self, app, attributes):
         super(RexAddon, self).__init__(app, attributes)
-        self.gateway_adapters = {}
+        self.gateway_adapters = set()
         for name in sorted(self.gateways):
             instance = self.gateways[name]
             class_name = "Summon%s" % name.title().replace('_', '').encode('utf-8')
@@ -699,6 +707,6 @@ class RexAddon(Addon):
                 'instance': instance,
             }
             summon_class = type(class_name, (RexSummonGateway,), namespace)
-            self.gateway_adapters[name] = summon_class
+            self.gateway_adapters.add(summon_class)
 
 

@@ -81,8 +81,9 @@ class Mutation(object):
             raise HTTPInternalServerError('Query configured incorrectly')
 
         # Fetch update entity assuming query returns id of the update entity.
-        # XXX: coercion to str is neccessary, otherwise querying port fails
-        product = self.port.produce('*=%s' % str(result.data.id))
+        params = {k[1:]: v for k, v in req.GET.items() if k.startswith(':')}
+        # Coercion to str is neccessary, otherwise querying port fails
+        product = self.port.produce('*=%s' % str(result.data.id), **params)
 
         # See :class:`rex.db.Port` for more details
         with self.port.db:

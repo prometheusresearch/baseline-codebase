@@ -122,7 +122,7 @@ class Query(object):
                               MapVal(StrVal(), MaybeVal(StrVal())),
                               {})])
 
-    def __init__(self, path_or_query, db=None):
+    def __init__(self, path_or_query, db=None, parameters=None):
         self.path_or_query = path_or_query
         self.db = db
         # If the input is a path to `.htsql` file, parse the file.
@@ -134,7 +134,10 @@ class Query(object):
         # Otherwise, treat the input as an HTSQL query.
         else:
             self.query = path_or_query
-            self.parameters = None
+            self.parameters = {}
+        if parameters:
+            self.parameters.update(parameters)
+
 
     def get_db(self):
         """ Get configured HTSQL database instance."""

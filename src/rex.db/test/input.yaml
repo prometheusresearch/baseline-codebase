@@ -15,7 +15,7 @@ tests:
     connection.executescript(sql)
     connection.commit()
 
-- rmdir: ./build/coverate
+- rmdir: ./build/coverage
 - mkdir: ./build/coverage
 - coverage: setup.cfg
   auto-data: true

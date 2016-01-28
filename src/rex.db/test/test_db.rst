@@ -432,6 +432,22 @@ formatter::
     }
     <BLANKLINE>
 
+We can also initialize ``Query`` with HTSQL passed as an argument::
+
+    >>> with demo:
+    ...     print Query('count(instructor)').produce()
+    0
+
+We can pass parameters as keyword argument::
+
+    >>> with demo:
+    ...     print Query('2+2=$result', parameters={'result': 4}).produce()
+    true
+
+    >>> with demo:
+    ...     print Query('2+2=$result', parameters={'result': 4}).produce(result=5)
+    false
+
 ``Query`` object can be used to query data from a specific gateway::
 
     >>> gateway = Rex('rex.db_demo', './test/data/gateway/',

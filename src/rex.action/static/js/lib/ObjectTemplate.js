@@ -32,7 +32,7 @@ function renderObject(template, context) {
       continue;
     }
     let item = template[key];
-    if (item[0] === '$') {
+    if (item && item[0] === '$') {
       let value = getByKeyPath(context, item.substr(1));
       if (isEntity(value)) {
         value = value.id;

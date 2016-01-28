@@ -64,11 +64,15 @@ export default class Edit extends React.Component {
       fetched.entity.data,
       ObjectTemplate.render(value, context)
     );
+    let submitTo = applyContext(
+        this.props.dataMutation,
+        contextTypes.input,
+        context);
     return (
       <form.ConfigurableEntityForm
         ref="form"
         context={ContextUtils.getMaskedContext(context, contextTypes.input)}
-        submitTo={this.props.dataMutation}
+        submitTo={submitTo}
         submitButton={null}
         onSubmitComplete={this._onSubmitComplete.bind(null, context[entity.name])}
         initialValue={fetched.entity.data}

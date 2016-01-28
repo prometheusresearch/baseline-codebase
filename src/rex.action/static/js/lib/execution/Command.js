@@ -66,11 +66,19 @@ class ArgumentType {
 class ValueType extends ArgumentType {
 
   stringify(actionElement, value) {
-    return value;
+    if (value == null) {
+      return '~';
+    } else {
+      return String(value);
+    }
   }
 
   parse(actionElement, value) {
-    return value;
+    if (value === '~') {
+      return null;
+    } else {
+      return value;
+    }
   }
 
 }
@@ -78,6 +86,9 @@ class ValueType extends ArgumentType {
 class EntityType extends ArgumentType {
 
   stringify(actionElement, entity) {
+    if (entity == null) {
+      return '';
+    }
     invariant(
       Entity.isEntity(entity),
       'Expected an entity, got: %s', entity
@@ -93,6 +104,9 @@ class EntityType extends ArgumentType {
   }
 
   parse(actionElement, value) {
+    if (value === '') {
+      return null;
+    }
     let [type, value2] = value.split(':');
     if (value2.indexOf('!') > -1) {
       let [id, stateKeys] = value2.split('!');
@@ -113,7 +127,7 @@ class ConfigurableEntityType extends ArgumentType {
   }
 
   stringify(actionElement, entity) {
-    if (entity === null) {
+    if (entity == null) {
       return '';
     }
     invariant(

@@ -26,7 +26,7 @@ setup(
     install_requires=[
         'rex.web>=2,<4',
         'rex.urlmap>=2,<3',
-        'rex.widget>=1.5,<2',
+        'rex.widget>=1.5,<3',
     ],
     rex_init='rex.about',
     rex_static='static',

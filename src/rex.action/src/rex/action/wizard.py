@@ -44,7 +44,7 @@ validate_entity = RecordVal(
 
 validate_context = MapVal(
     StrVal(),
-    OneOfVal(MaybeVal(StrVal()), MaybeVal(IntVal()), validate_entity))
+    OneOfVal(validate_entity, AnyVal()))
 
 validate_req = MapVal(
     StrVal(),

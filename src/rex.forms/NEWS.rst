@@ -5,7 +5,7 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
-1.3.0 (2015-xx-xx)
+1.3.0 (2016-01-29)
 ==================
 
 * Fixed issue that caused auto-tabbing to focus disabled or hidden fields.

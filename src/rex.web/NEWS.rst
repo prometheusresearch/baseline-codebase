@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-3.6.0 (2015-XX-XX)
+3.6.0 (2016-01-29)
 ==================
 
 * Added ability to establish permission-specific execution context with

@@ -25,7 +25,7 @@ setup(
 
         'rex.setup              >= 3.1,    < 4',
         'rex.core               >= 1.6,    < 2',
-        'rex.widget             >= 1.5,    < 2',
+        'rex.widget             >= 2,      < 3',
     ],
     rex_init='rex.action',
     rex_static='static',

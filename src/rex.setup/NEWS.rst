@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+3.1.2 (2016-01-29)
+==================
+
+* Do not bundle vendor librariies.
+
+
 3.1.1 (2015-09-30)
 ==================
 

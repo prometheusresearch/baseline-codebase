@@ -5,7 +5,7 @@ REX.ASYNCTASK Change Log
 .. contents:: Table of Contents
 
 
-0.3.0 (2016-xx-xx)
+0.3.0 (2016-01-29)
 ==================
 
 * The ``asynctask_transport`` is no longer required, but the

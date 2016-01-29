@@ -5,12 +5,14 @@
 .. contents:: Table of Contents
 
 
-3.4.0 (2015-XX-XX)
+3.4.0 (2016-01-29)
 ==================
 
 * Added parameters ``user_query``, ``auto_user_query``, ``access_queries``,
   ``access_masks``. ``htsql_environment``, ``query_timeout``.
 * Establish security context for ``/db/`` requests.
+* Fixed an issue with duplicate gateway handlers.
+* ``Query``: added ability to specify parameters.
 
 
 3.3.1 (2015-07-31)

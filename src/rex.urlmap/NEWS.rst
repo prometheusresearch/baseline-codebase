@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.7.0 (2015-XX-XX)
+2.7.0 (2016-01-29)
 ==================
 
 * Establish security context.

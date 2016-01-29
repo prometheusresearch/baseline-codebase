@@ -5,7 +5,7 @@ REX.RESTFUL Change Log
 .. contents:: Table of Contents
 
 
-1.1.0 (2015-xx-xx)
+1.1.0 (2016-01-29)
 ==================
 
 * Added a ``make_response`` method to RestfulLocation to allow implementations

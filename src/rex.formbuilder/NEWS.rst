@@ -5,7 +5,7 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
-5.6.0 (2015-XX-XX)
+5.6.0 (2016-01-29)
 ==================
 
 * Removed rex.applet dependency

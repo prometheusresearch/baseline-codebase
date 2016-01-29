@@ -438,7 +438,13 @@ We can also initialize ``Query`` with HTSQL passed as an argument::
     ...     print Query('count(instructor)').produce()
     0
 
-We can pass parameters as keyword argument::
+Query can be parametrized::
+
+    >>> with demo:
+    ...     print Query('2+2=$result').produce({'result': 4})
+    true
+
+We can pass parameters default values as keyword argument::
 
     >>> with demo:
     ...     print Query('2+2=$result', parameters={'result': 4}).produce()

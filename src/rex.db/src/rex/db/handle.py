@@ -134,9 +134,15 @@ class Query(object):
         # Otherwise, treat the input as an HTSQL query.
         else:
             self.query = path_or_query
-            self.parameters = {}
+            # ``None`` means we don't do any parameter validation before
+            # executing query
+            self.parameters = None
+
         if parameters:
-            self.parameters.update(parameters)
+            if self.parameters is None:
+                self.parameters = parameters
+            else:
+                self.parameters.update(parameters)
 
 
     def get_db(self):

@@ -2,7 +2,7 @@
   Change Log
 **************
 
-1.5.0 (2015-XX-XX)
+2.0.0 (2015-XX-XX)
 ==================
 
 * BREAKING CHANGE: ``RexWidget.Tabs`` and ``RexWidget.Tab`` are removed.

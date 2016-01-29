@@ -5,7 +5,7 @@ REX.FORM_PREVIEWER Change Log
 .. contents:: Table of Contents
 
 
-0.7.0 (2015-XX-XX)
+0.7.0 (2016-01-29)
 ==================
 
 * Removed rex.applet dependency

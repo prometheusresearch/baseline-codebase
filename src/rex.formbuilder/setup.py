@@ -30,7 +30,7 @@ setup(
         'rex.expression>=1.5,<2',
         'rex.forms>=1.3,<2',
         'rex.restful>=1,<2',
-        'rex.widget>=1,<2',
+        'rex.widget>=1,<3',
         'rex.i18n>=0.4.2,<0.5',
         'rex.form_previewer>=0.2,<0.8',
     ],

@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.4.1 (2015-12-XX)
+2.4.1 (2016-01-29)
 ==================
 
 * Reset schema cache after executing a raw DDL fact.

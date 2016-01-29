@@ -14,7 +14,7 @@ const PARSE_SEGMENT = /^([a-zA-Z\-\_]+)(?:\.([a-zA-Z_]+))?(?:\[([^\]]+)\])?$/;
 export function fromPath(path, instruction, initialContext) {
   // Line below is to workaround needless encoding of single quote ' into %27 in
   // Firefox.
-  path = path.replace(/\%27/g, "'");
+  path = decodeURIComponent(path);
 
   let segments = StringUtils.splitBySlash(path).filter(Boolean);
 
@@ -57,11 +57,6 @@ export function fromPath(path, instruction, initialContext) {
  */
 export function toPath(graph) {
   let path = '/' + StringUtils.joinWithSlash(graph.trace.slice(1).map(_nodeToPath));
-
-  // Line below is to workaround needless encoding of single quote ' into %27 in
-  // Firefox.
-  path = path.replace(/'/g, '%27');
-
   return path;
 }
 

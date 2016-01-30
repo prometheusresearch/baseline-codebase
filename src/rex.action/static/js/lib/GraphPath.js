@@ -8,13 +8,18 @@ import * as Command       from './execution/Command';
 
 const PARSE_SEGMENT = /^([a-zA-Z\-\_]+)(?:\.([a-zA-Z_]+))?(?:\[([^\]]+)\])?$/;
 
+function isFirefox() {
+  return navigator.userAgent.search('Firefox') > -1;
+}
+
 /**
  * Deserialize ``graph`` object from string.
  */
 export function fromPath(path, instruction, initialContext) {
-  // Line below is to workaround needless encoding of single quote ' into %27 in
-  // Firefox.
-  path = decodeURIComponent(path);
+  // We need a workaround as FF doesn't behave consistently.
+  if (isFirefox()) {
+    path = decodeURIComponent(path);
+  }
 
   let segments = StringUtils.splitBySlash(path).filter(Boolean);
 
@@ -57,6 +62,10 @@ export function fromPath(path, instruction, initialContext) {
  */
 export function toPath(graph) {
   let path = '/' + StringUtils.joinWithSlash(graph.trace.slice(1).map(_nodeToPath));
+  // We need a workaround as FF doesn't behave consistently.
+  if (isFirefox()) {
+    path = encodeURIComponent(path);
+  }
   return path;
 }
 

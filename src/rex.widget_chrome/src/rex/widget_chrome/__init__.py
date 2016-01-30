@@ -10,7 +10,7 @@ from rex.widget import Bootstrap
 from .setting import *
 from .middleware import *
 from .access import *
-from .error import *
+#from .error import *
 from .chrome import Chrome
 
 class ChromeThemeBootstrap(Bootstrap):

@@ -2,10 +2,37 @@
   Change Log
 **************
 
-2.0.0 (2015-XX-XX)
+2.0.0 (2016-01-31)
 ==================
 
-* BREAKING CHANGE: ``RexWidget.Tabs`` and ``RexWidget.Tab`` are removed.
+* **BREAKING CHANGE:** Rex Widget now exposes most of the functionality through
+  ES6 Modules::
+
+    import {Button} from 'rex-widget/ui'
+
+  instead of::
+
+    var RexWidget = require('rex-widget')
+    var Button = RexWidget.Button
+
+  previously.
+
+  Details of the new API comes soon with the updated docs and demo.
+
+* **BREAKING CHANGE:** ``<Button />`` component was re-made from scratch and
+  feature different style architecture. Button variants are different
+  components::
+
+    <SuccessButton />
+
+  instead of::
+
+    <Button type="success" />
+
+  previously.
+
+* **BREAKING CHANGE**: ``<Tabs />`` and ``<Tab />`` were reimplemented with the
+  new API.
 
   Use::
 
@@ -23,7 +50,7 @@
   * ``buttonsStyle`` is removed, use either ``<TabList />`` or ``<PillList />``
     to control tab list appearance.
 
-* BREAKING CHANGE: ``RexWidget.Icon`` is removed.
+* **BREAKING CHANGE**: ``RexWidget.Icon`` was removed.
 
   Use::
 
@@ -31,11 +58,39 @@
 
   instead.
 
-* New Chrome widget feature. Allows to specify a widget which wraps every
-  top-level widget in an application. Can be used to implement app-wide UI
-  features like navigation bars, footers and so on.
+* **BREAKING CHANGE**: ``RexWidget.Layout.VBox`` and ``RexWidget.Layout.HBox``
+  were removed and replaced with ``rex-widget/layout`` API.
+
+* **BREAKING CHANGE**: ``RexWidget.DataTable`` was removed.
+
+  Use::
+
+    import {DataTable} from 'rex-widget/datatable'
+
+  instead.
+
+* **BREAKING CHANGE**: Data specification API was removed and replaced with the
+  new data API residing in ``rex-widget/data`` module.
+
+* **BREAKING CHANGE**: Bootstrap CSS library was removed. Application which base
+  their styles on Bootstrap should include it in their dependencies.
+
+* New stylesheet API residing in ``rex-widget/stylesheet`` module.
+
+* New helper API for CSS generation residing in ``rex-widget/css`` module.
+
+* New Chrome widget feature. Allows to specify a widget which
+  wraps every top-level widget in an application. Can be used to implement
+  app-wide UI features like navigation bars, footers and so on.
+
+* New layout primitives based on flexbox residing in ``rex-widget/layout``
+  module.
 
 * ``Mutation`` now can be configured with params via ``.params()`` method.
+
+* ``autobind`` decorator exposed through ``rex-widget/lang`` module::
+
+      import {autobind} from 'rex-widget/lang'
 
 1.4.2 (2015-11-23)
 ==================

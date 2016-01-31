@@ -4,8 +4,18 @@
 
 .. contents:: Table of Contents
 
-0.8.0 (2015-XX-XX)
+0.8.0 (2016-01-31)
 ==================
+
+* Port to Rex Widget 2.0.0.
+
+* New layout for wizards.
+
+* Override mechanism for wizards and actions.
+
+* Better Firefox compatibility.
+
+* Various bug fixes.
 
 0.7.0 (2015-11-20)
 ==================

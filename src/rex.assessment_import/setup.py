@@ -21,7 +21,7 @@ setup(
             'instrument = rex.assessment_import.ctl'
         ],
     },
-    rex_init='rex.assessment_import', 
+    rex_init='rex.assessment_import',
     rex_static='static',
-) 
+)
 

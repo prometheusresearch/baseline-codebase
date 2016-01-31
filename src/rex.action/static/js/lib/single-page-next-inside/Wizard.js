@@ -27,6 +27,10 @@ import {confirmNavigation} from '../ConfirmNavigation';
 import Breadcrumb from './Breadcrumb';
 import Sidebar from './Sidebar';
 
+function isFirefox() {
+  return navigator.userAgent.search('Firefox') > -1;
+}
+
 function groupBy(array, keyFunc) {
   let result = [];
   let currentArray = [];
@@ -233,7 +237,7 @@ export default class Wizard extends React.Component {
       return;
     }
     let path = GraphPath.toPath(this.state.graph);
-    if (path === location.pathname) {
+    if (path === (isFirefox() ? decodeURIComponent(location.pathname) : location.pathname)) {
       return;
     }
     let graph = GraphPath.fromPath(

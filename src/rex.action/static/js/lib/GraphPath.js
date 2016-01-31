@@ -63,9 +63,6 @@ export function fromPath(path, instruction, initialContext) {
 export function toPath(graph) {
   let path = '/' + StringUtils.joinWithSlash(graph.trace.slice(1).map(_nodeToPath));
   // We need a workaround as FF doesn't behave consistently.
-  if (isFirefox()) {
-    path = encodeURIComponent(path);
-  }
   return path;
 }
 

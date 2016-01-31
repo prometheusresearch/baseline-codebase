@@ -5,16 +5,23 @@
 .. contents:: Table of Contents
 
 
-4.12.0 (2016-xx-xx)
+4.12.0 (2016-01-31)
 ===================
 
-* rex.instrument==1.3.0
-* rex.forms==1.3.0
-* rex.widget==1.5.0
-* rex.action==0.8.0
-* rex.restful==1.1.0
 * HTSQL==2.3.3.20160105
 * HTSQL-PGSQL==2.3.3.20160105
+* rex.action==0.8.0
+* rex.setup==3.1.2
+* rex.db==3.4.0
+* rex.deploy==2.4.1
+* rex.forms==1.3.0
+* rex.instrument==1.3.0
+* rex.port==1.2.0
+* rex.restful==1.1.0
+* rex.urlmap==2.7.0
+* rex.web==3.6.0
+* rex.widget==2.0.0
+* rex.file==1.0.2
 
 
 4.11.2 (2015-12-01)

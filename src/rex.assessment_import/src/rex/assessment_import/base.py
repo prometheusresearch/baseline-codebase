@@ -261,24 +261,32 @@ class AssessmentCSVImporter(AssessmentImporter):
                             exc
                 )
             for (idx, row) in enumerate(reader):
+                error = ("Unable to import `%(idx)s` row"
+                         " of the `%(base_path)s`: %(error)s"
+                )
                 try:
                     assessment = self.import_assessment(row, input_files)
                     imported.append(assessment)
                 except Error, exc:
-                    msg = "Unable to import `%(idx)s` row" \
-                          " of the `%(base_path)s`: %(error)s" \
-                          % {'idx': idx, 'base_path': base_path, 'error': exc}
+                    msg = error % {'idx': idx,
+                                   'base_path': base_path,
+                                   'error': exc
+                    }
                     if not self.tolerant:
                         raise Error(msg)
                     self.warn(msg)
                 except Exception:
                     exc = traceback.format_exc()
+                    msg = error % {'idx': idx,
+                                   'base_path': base_path,
+                                   'error': exc
+                    }
                     success_import = False
-                    self.warn(str(exc))
+                    self.warn(msg)
                     if not self.tolerant:
                         self.warn("Import failed.")
                         self.rollback(imported)
-                        raise Error("Nothing was imported.")
+                        raise Error("Nothing was imported.", msg)
                 else:
                     self.log("Import finished, assessment `%(id)s` generated."
                              % {'id': assessment.uid}
@@ -359,27 +367,32 @@ class AssessmentXLSImporter(AssessmentImporter):
 
         for row_idx in range(2, sheet.nrows):
             row = self.get_row(sheet, row_idx)
+            error = ("Unable to import `%(idx)s` row"
+                      " of the `%(instrument)s`: %(error)s"
+            )
             try:
                 assessment = self.import_assessment(row, workbook)
                 imported.append(assessment)
             except Error, exc:
-                msg = "Unable to import `%(idx)s` row" \
-                      " of the `%(instrument)s`: %(error)s" \
-                      % {'idx': row_idx,
-                         'instrument': self.instrument.id,
-                         'error': exc
+                msg = error % {'idx': row_idx,
+                               'instrument': self.instrument.id,
+                               'error': exc
                       }
                 if not self.tolerant:
                     raise Error(msg)
                 self.warn(msg)
             except Exception:
                 exc = traceback.format_exc()
+                msg = error % {'idx': row_idx,
+                               'instrument': self.instrument.id,
+                               'error': exc
+                      }
                 success_import = False
-                self.warn(str(exc))
+                self.warn(msg)
                 if not self.tolerant:
                     self.warn("Import failed.")
                     self.rollback(imported)
-                    raise Error("Nothing was imported.")
+                    raise Error("Nothing was imported.", msg)
             else:
                 self.log("Import finished, assessment `%(id)s` generated."
                          % {'id': assessment.uid}

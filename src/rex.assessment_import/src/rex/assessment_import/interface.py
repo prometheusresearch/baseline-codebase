@@ -254,7 +254,14 @@ class Assessment(object):
             validate = parameter['validator']
             try:
                 validate(param_value)
-            except Exception:
+            except Error, exc:
+                raise Error("Assessment parameter"
+                    " `%(param_name)s` got unexpected value `%(param_value)s`."
+                    % {'param_name': param_name,
+                       'param_value': param_value
+                    }, exc
+                )
+            except Exception, exc:
                 exc = traceback.format_exc()
                 raise Error("Assessment parameter"
                     " `%(param_name)s` got unexpected value `%(param_value)s`."
@@ -275,6 +282,9 @@ class Assessment(object):
                 evaluation_date = datetime.datetime.strptime(evaluation_date,
                                                              '%Y-%m-%d'
                                                     )
+            except Error, exc:
+                raise Error("Got unexpected value `%(value)s` of the assessment"
+                        " `date`" % {'value': evaluation_date}, exc)
             except Exception:
                 exc = traceback.format_exc()
                 raise Error("Got unexpected value `%(value)s` of the assessment"
@@ -338,6 +348,10 @@ class Assessment(object):
                                             base_type=field.base_type,
                                             required=field.required,
                                             enumerations=field.enumerations)
+            except Error, exc:
+                raise Error("Unable to define a value of field %(field)s."
+                    % {'field': field.id}, exc
+                )
             except Exception:
                 exc = traceback.format_exc()
                 raise Error("Unable to define a value of field %(field)s."

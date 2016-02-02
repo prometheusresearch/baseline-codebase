@@ -2,7 +2,7 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import getByKeyPath   from 'rex-widget/lib/getByKeyPath';
+import * as KeyPath from 'rex-widget/lib/KeyPath';
 import invariant      from 'invariant';
 import isPlainObject  from 'lodash/lang/isPlainObject';
 import isArray        from 'lodash/lang/isArray';
@@ -33,7 +33,7 @@ function renderObject(template, context) {
     }
     let item = template[key];
     if (item && item[0] === '$') {
-      let value = getByKeyPath(context, item.substr(1));
+      let value = KeyPath.get(item.substr(1), context);
       if (isEntity(value)) {
         value = value.id;
       }

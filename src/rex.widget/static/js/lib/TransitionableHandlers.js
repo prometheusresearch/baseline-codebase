@@ -3,6 +3,7 @@
  */
 
 import React from 'react';
+import generateFunction from 'generate-function';
 import * as Transitionable from './Transitionable';
 import {port, query, mutation, request} from './data';
 import resolveURL from './resolveURL';
@@ -15,6 +16,22 @@ Transitionable.register('widget', function decode_widget(payload) { // eslint-di
   let type = __require__(payload[0]);
   return React.createElement(type, payload[1]);
 });
+
+Transitionable.register('formfield', function decode_widget(payload) { // eslint-disable-line camelcase
+  let formfield = {...payload};
+  if (formfield.hideIf) {
+    formfield.hideIf = _compileHideIf(formfield.hideIf);
+  }
+  return formfield;
+});
+
+function _compileHideIf(expression) {
+  let func = generateFunction();
+  func(`function hideIf($value, $fields) {`);
+  func(`return (${expression});`);
+  func(`}`);
+  return func.toFunction({});
+}
 
 Transitionable.register('url', function decode_url(payload) { // eslint-disable-line camelcase
   return resolveURL(payload[0]);

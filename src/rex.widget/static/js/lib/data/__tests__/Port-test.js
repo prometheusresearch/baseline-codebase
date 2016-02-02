@@ -23,7 +23,10 @@ describe('Port', function() {
     let promise = port.produce();
     assert(this.Port.fetch.callCount === 1);
     assert(this.Port.fetch.firstCall.args[0] === 'path');
-    assert.deepEqual(this.Port.fetch.firstCall.args[1], {a: 1});
+    assert.deepEqual(this.Port.fetch.firstCall.args[1], {
+      a: 1,
+      ':FORMAT': 'application/json',
+    });
     assert(promise.onComplete({key: 'data'}) === 'data');
   });
 
@@ -32,7 +35,10 @@ describe('Port', function() {
     let promise = port.getSingleEntity().produce();
     assert(this.Port.fetch.callCount === 1);
     assert(this.Port.fetch.firstCall.args[0] === 'path');
-    assert.deepEqual(this.Port.fetch.firstCall.args[1], {a: 1});
+    assert.deepEqual(this.Port.fetch.firstCall.args[1], {
+      a: 1,
+      ':FORMAT': 'application/json',
+    });
     assert(promise.onComplete({key: ['data']}) === 'data');
   });
 
@@ -41,7 +47,10 @@ describe('Port', function() {
     let promise = port.params({a: 1}).produce();
     assert(this.Port.fetch.callCount === 1);
     assert(this.Port.fetch.firstCall.args[0] === 'path');
-    assert.deepEqual(this.Port.fetch.firstCall.args[1], {a: 1});
+    assert.deepEqual(this.Port.fetch.firstCall.args[1], {
+      a: 1,
+      ':FORMAT': 'application/json',
+    });
   });
 
   it('allows to set limit parameters via .limit(top, limit)', function() {
@@ -49,7 +58,10 @@ describe('Port', function() {
     let promise = port.limit(10, 20).produce();
     assert(this.Port.fetch.callCount === 1);
     assert(this.Port.fetch.firstCall.args[0] === 'path');
-    assert.deepEqual(this.Port.fetch.firstCall.args[1], {'*:skip': 20, '*:top': 10});
+    assert.deepEqual(this.Port.fetch.firstCall.args[1], {
+      '*:skip': 20, '*:top': 10,
+      ':FORMAT': 'application/json',
+    });
   });
 
   it('allows to set limit parameters via .limit(top)', function() {
@@ -57,7 +69,10 @@ describe('Port', function() {
     let promise = port.limit(10).produce();
     assert(this.Port.fetch.callCount === 1);
     assert(this.Port.fetch.firstCall.args[0] === 'path');
-    assert.deepEqual(this.Port.fetch.firstCall.args[1], {'*:skip': 0, '*:top': 10});
+    assert.deepEqual(this.Port.fetch.firstCall.args[1], {
+      '*:skip': 0, '*:top': 10,
+      ':FORMAT': 'application/json',
+    });
   });
 
   it('allows to set desc sort parameters via .sort(field, false)', function() {
@@ -65,7 +80,10 @@ describe('Port', function() {
     let promise = port.sort('field', false).produce();
     assert(this.Port.fetch.callCount === 1);
     assert(this.Port.fetch.firstCall.args[0] === 'path');
-    assert.deepEqual(this.Port.fetch.firstCall.args[1], {'*.field:sort': 'desc'});
+    assert.deepEqual(this.Port.fetch.firstCall.args[1], {
+      '*.field:sort': 'desc',
+      ':FORMAT': 'application/json',
+    });
   });
 
   it('allows to set asc sort parameters via .sort(field, true)', function() {
@@ -73,7 +91,10 @@ describe('Port', function() {
     let promise = port.sort('field', true).produce();
     assert(this.Port.fetch.callCount === 1);
     assert(this.Port.fetch.firstCall.args[0] === 'path');
-    assert.deepEqual(this.Port.fetch.firstCall.args[1], {'*.field:sort': 'asc'});
+    assert.deepEqual(this.Port.fetch.firstCall.args[1], {
+      '*.field:sort': 'asc',
+      ':FORMAT': 'application/json',
+    });
   });
 
   it('allows to set asc sort parameters via .sort(field)', function() {
@@ -81,7 +102,10 @@ describe('Port', function() {
     let promise = port.sort('field').produce();
     assert(this.Port.fetch.callCount === 1);
     assert(this.Port.fetch.firstCall.args[0] === 'path');
-    assert.deepEqual(this.Port.fetch.firstCall.args[1], {'*.field:sort': 'asc'});
+    assert.deepEqual(this.Port.fetch.firstCall.args[1], {
+      '*.field:sort': 'asc',
+      ':FORMAT': 'application/json',
+    });
   });
 
 });

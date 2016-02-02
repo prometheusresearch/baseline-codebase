@@ -85,6 +85,17 @@ let ConfigurableField = React.createClass({
 
   renderField() {
     let {field, formValue, readOnly} = this.props;
+
+    if (field.hideIf) {
+      let hide = field.hideIf(
+        formValue.value,
+        formValue.parent ? formValue.parent.value : null,
+      );
+      if (hide) {
+        return null;
+      }
+    }
+
     readOnly = field.readOnly || readOnly;
     if (isReactElement(field.widget)) {
       return React.cloneElement(field.widget, {

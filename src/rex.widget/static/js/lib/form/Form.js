@@ -156,7 +156,7 @@ let Form = React.createClass({
     }
     return (
       <VBox>
-        <Fieldset {...props} formValue={value}>
+        <Fieldset {...props} formValue={value} onChange={undefined}>
           {children}
         </Fieldset>
         {submitButton &&
@@ -315,7 +315,7 @@ let Form = React.createClass({
   },
 
   onChange(value) {
-    value = value.update(this.props.onChange(value.value, this.state.value.value), true);
+    value = value.update(this.props.onChange(value.value, this.state.value.value, value), true);
     this.setState({value});
   },
 
@@ -369,7 +369,7 @@ let ErrorRenderer = React.createClass({
     let {error, ...props} = this.props;
     let {showDetails} = this.state;
     return (
-      <div {...props}>
+      <div {...props} onChange={undefined}>
         <div>
           {error.message ? error.message : error.toString()}
         </div>

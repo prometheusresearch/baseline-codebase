@@ -2,22 +2,61 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import moment    from 'moment';
+import moment from 'moment';
 import invariant from 'invariant';
-import {isArray, toSnakeCase} from '../lang';
+import {isArray} from '../lang';
+import * as KeyPath from '../KeyPath';
+import * as Validation from './Validation';
 
-export function generateSchemaFromFields(fields) {
+export function fromFields(fields, keyPath = []) {
   let schema = {
     type: 'object',
     properties: {},
-    required: []
+    required: [],
   };
   fields = _removeLayout(fields);
   for (let i = 0; i < fields.length; i++) {
     let field = fields[i];
-    _growSchema(schema, _toKeyPath(field.valueKey), _fieldToSchema(field));
+    let localKeyPath = KeyPath.normalize(field.valueKey);
+    _growSchema(
+      schema,
+      localKeyPath.slice(0),
+      _fieldToSchema(field, localKeyPath)
+    );
   }
+  _aggregateSchema(schema);
   return schema;
+}
+
+function _prefixHideIfItem(item, key) {
+  return {
+    ...item,
+    keyPathPattern: [key].concat(item.keyPathPattern),
+  };
+}
+
+function _aggregateSchema(schema, keyPath = []) {
+  schema.hideIfList = [];
+
+  if (schema.type === 'object') {
+    let keys = Object.keys(schema.properties);
+    for (let i = 0; i < keys.length; i++) {
+      let key = keys[i];
+      let prop = schema.properties[key];
+      _aggregateSchema(prop, keyPath.concat(key));
+      schema.hideIfList = schema.hideIfList.concat(
+        prop.hideIfList.map(item => _prefixHideIfItem(item, key)));
+
+    }
+  } else if (schema.type === 'array') {
+      _aggregateSchema(schema.items);
+      schema.hideIfList = schema.hideIfList.concat(
+        schema.items.hideIfList.map(item => _prefixHideIfItem(item, '*')));
+  }
+
+  if (schema.hideIf) {
+    schema.hideIfList.push({hideIf: schema.hideIf, keyPathPattern: []});
+  }
 }
 
 function _removeLayout(fields) {
@@ -53,15 +92,19 @@ function _dateConstraint(value) {
 }
 
 function _fieldToSchema(field) {
+  let defaultAttributes = {
+    hideIf: field.hideIf,
+  };
   switch (field.type) {
   case 'fieldset':
-    let schema = generateSchemaFromFields(field.fields);
+    let schema = fromFields(field.fields);
     schema.isRequired = !!field.required;
     return schema;
   case 'list':
     return {
+      ...defaultAttributes,
       type: 'array',
-      items: generateSchemaFromFields(field.fields),
+      items: fromFields(field.fields),
       minItems: field.required ? 1 : 0,
       uniqueBy: field.uniqueBy,
       uniqueByError: field.uniqueByError,
@@ -69,6 +112,7 @@ function _fieldToSchema(field) {
     };
   case 'date':
     return {
+      ...defaultAttributes,
       type: 'string',
       format: Validation.date,
       datetimeFormat: field.format,
@@ -78,6 +122,7 @@ function _fieldToSchema(field) {
     };
   case 'datetime':
     return {
+      ...defaultAttributes,
       type: 'string',
       format: Validation.datetime,
       datetimeFormat: field.format,
@@ -85,36 +130,42 @@ function _fieldToSchema(field) {
     };
   case 'bool':
     return {
+      ...defaultAttributes,
       type: 'boolean',
       format: Validation.bool,
       isRequired: false
     };
   case 'file':
     return {
+      ...defaultAttributes,
       type: 'string',
       format: Validation.file,
       isRequired: !!field.required
     };
   case 'enum':
     return {
+      ...defaultAttributes,
       type: 'string',
       format: Validation.enum,
       isRequired: !!field.required
     };
   case 'entity':
     return {
+      ...defaultAttributes,
       type: 'string',
       format: Validation.entity,
       isRequired: !!field.required
     };
   case 'integer':
     return {
+      ...defaultAttributes,
       type: 'integer',
       format: Validation.integer,
       isRequired: !!field.required
     };
   case 'number':
     return {
+      ...defaultAttributes,
       type: 'number',
       format: Validation.number,
       isRequired: !!field.required
@@ -122,6 +173,7 @@ function _fieldToSchema(field) {
   case 'string':
   default:
     return {
+      ...defaultAttributes,
       type: 'string',
       format: Validation.string,
       formatPattern: field.pattern,
@@ -176,89 +228,22 @@ function _growSchema(schema, keyPath, grow) {
     } else {
       return _mergeScalarSchema(schema, grow);
     }
-  }
-  let key = keyPath.shift();
-  if (schema) {
-    invariant(
-      schema.type === 'object',
-      'Schema should be an object schema'
-    );
   } else {
-    schema = {type: 'object', properties: {}, required: []};
-  }
-  schema.properties[key] = _growSchema(schema.properties[key], keyPath, grow);
-  if (schema.properties[key].isRequired) {
-    schema.required = schema.required || [];
-    schema.required.push(key);
-  }
-  return schema;
-}
-
-function _toKeyPath(keyPath) {
-  if (isArray(keyPath)) {
-    return keyPath.slice(0);
-  } else {
-    return keyPath.split('.').filter(Boolean);
-  }
-}
-
-let DATETIME_ISO_FORMAT = 'YYYY-MM-DD HH:mm:ss';
-let DATE_ISO_FORMAT = 'YYYY-MM-DD';
-
-export let Validation = {
-  string(value, node) {
-    if (node.formatPattern) {
-      if (new RegExp(node.formatPattern).exec(value) === null) {
-        return node.formatError || 'does not match the pattern';
-      }
-    }
-    return true;
-  },
-
-  datetime(value, node) {
-    let date = moment(value, DATETIME_ISO_FORMAT, true);
-    if (!date.isValid()) {
-      date = moment(value, DATE_ISO_FORMAT, true);
-      if (date.isValid()) {
-        return true;
-      } else {
-        return `should be in ${node.datetimeFormat} format`;
-      }
+    keyPath = keyPath.slice(0);
+    let key = keyPath.shift();
+    if (schema) {
+      invariant(
+        schema.type === 'object',
+        'Schema should be an object schema'
+      );
     } else {
-      return true;
+      schema = {type: 'object', properties: {}, required: []};
     }
-  },
-
-  date(value, node) {
-    let date = moment(value, DATE_ISO_FORMAT, true);
-    if (!date.isValid()) {
-      return `should be in ${node.datetimeFormat} format`;
+    schema.properties[key] = _growSchema(schema.properties[key], keyPath, grow);
+    if (schema.properties[key].isRequired) {
+      schema.required = schema.required || [];
+      schema.required.push(key);
     }
-    if (node.maxDate && date.isAfter(node.maxDate)) {
-      return `should not be after ${node.maxDate.format(node.datetimeFormat)}`;
-    }
-    if (node.minDate && date.isBefore(node.minDate)) {
-      return `should not be before ${node.minDate.format(node.datetimeFormat)}`;
-    }
-    return true;
-  },
-
-  array(value, node) {
-    if (node.uniqueBy) {
-      let uniqueBy = toSnakeCase(node.uniqueBy);
-      let seen = {};
-      for (let i = 0; i < value.length; i++) {
-        let item = value[i];
-        if (item == null) {
-          continue;
-        }
-        let key = item[uniqueBy];
-        seen[key] = (seen[key] || 0) + 1;
-        if (seen[key] > 1) {
-          return node.uniqueByError || `"${uniqueBy}" field is not unique`;
-        }
-      }
-    }
-    return true;
-  },
-};
+    return schema;
+  }
+}

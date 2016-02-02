@@ -369,6 +369,7 @@ class FormField(Extension):
         ('hint', MaybeVal(UStrVal()), None),
         ('widget', MaybeVal(FormWidgetSpecVal()), None),
         ('validate', MaybeVal(QueryValidatorVal()), None),
+        ('hide_if', MaybeVal(StrVal()), None),
     )
 
     def validate(self, values):
@@ -414,7 +415,7 @@ class FormField(Extension):
         return '%s(%s)' % (self.__class__.__name__, ', '.join(args))
 
 
-@as_transitionable(FormField)
+@as_transitionable(FormField, tag='formfield')
 def _format_FormField(field, req, path): # pylint: disable=invalid-name
     values = field()
     if isinstance(values, FormField):

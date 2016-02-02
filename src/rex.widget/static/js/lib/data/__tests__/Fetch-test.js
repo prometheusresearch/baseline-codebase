@@ -433,13 +433,13 @@ describe('Fetch', function() {
 
     renderer.render(<Component item={item} />);
 
-    assert(component.render.callCount === 3);
+    assert(component.render.callCount === 2);
     output = renderer.getRenderOutput();
     assertDataSet(output.props.fetched.item, 'data', null, true);
 
     item.promise.onComplete('data2');
 
-    assert(component.render.callCount === 4);
+    assert(component.render.callCount === 3);
     output = renderer.getRenderOutput();
     assertDataSet(output.props.fetched.item, 'data2', null, false);
 

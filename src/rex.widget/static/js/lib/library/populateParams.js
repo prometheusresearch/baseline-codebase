@@ -1,9 +1,10 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
  */
-'use strict';
 
-function populateParams(params, context) {
+import * as KeyPath from '../KeyPath';
+
+export default function populateParams(params, context) {
   let nextParams = {};
   for (let key in params) {
     if (!params.hasOwnProperty(key)) {
@@ -12,7 +13,7 @@ function populateParams(params, context) {
     let param = params[key];
     let value;
     if (param.contextRef) {
-      value = getByKeyPath(context, param.contextRef);
+      value = KeyPath.get(param.contextRef, context);
     } else {
       value = param.value;
     }
@@ -23,15 +24,3 @@ function populateParams(params, context) {
   }
   return nextParams;
 }
-
-function getByKeyPath(obj, keyPath) {
-  for (let i = 0; i < keyPath.length; i++) {
-    if (!obj) {
-      return obj;
-    }
-    obj = obj[keyPath[i]];
-  }
-  return obj;
-}
-
-module.exports = populateParams;

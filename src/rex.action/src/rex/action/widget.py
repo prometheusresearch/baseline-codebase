@@ -29,3 +29,7 @@ class ActionWizard(Widget):
         doc="""
         Action to render.
         """)
+
+    @property
+    def title(self):
+        return self.action.title if hasattr(self.action, 'title') else None

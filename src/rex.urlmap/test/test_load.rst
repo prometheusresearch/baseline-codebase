@@ -38,6 +38,7 @@ Parsing paths
     Traceback (most recent call last):
       ...
     Error: Expected one of:
+        !copy record
         !override record
         template record
         query record
@@ -508,6 +509,67 @@ permission on another handler::
     >>> req = Request.blank('/individual')
     >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     401 Unauthorized
+    ...
+
+
+Copying handlers
+================
+
+Sometimes you may need to provide the same page under several URLs.  To avoid
+duplicating the entire page configuration, use ``!copy`` handler::
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... paths:
+    ...   /data/individual:
+    ...     port: individual
+    ...     access: anybody
+    ...   /data/individuals:
+    ...     !copy /data/individual
+    ... """)
+
+    >>> req = Request.blank('/data/individual')
+    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+
+    >>> req = Request.blank('/data/individuals')
+    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+
+It is an error to copy a handler of an unknown URL::
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... paths:
+    ...   /data/inidividuals:
+    ...     !copy /data/individual
+    ... """)
+
+    >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Detected orphaned copy:
+        /data/inidividuals
+    Defined in:
+        "/.../urlmap.yaml", line 4
+    ...
+
+It is also an error if the ``!copy`` configuration is malformed::
+
+    >>> sandbox.rewrite('/urlmap.yaml', """
+    ... paths:
+    ...   /data/inidividuals: !copy
+    ...     port: individual
+    ... """)
+
+    >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Expected a tagged !copy string
+    Got:
+        a mapping
+    While parsing:
+        "/.../urlmap.yaml", line 3
     ...
 
 

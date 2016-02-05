@@ -4,10 +4,9 @@
 
 
 from rex.core import (
-        get_packages, get_settings, Validate, ValidatingLoader, StrVal, MapVal, AnyVal,
-        OneOrSeqVal, RecordVal, UnionVal, OnMatch,
-        set_location, locate, Location, Error,
-        guard)
+        get_packages, get_settings, Validate, ValidatingLoader, StrVal, MapVal,
+        AnyVal, OneOrSeqVal, RecordVal, UnionVal, OnMatch, Record,
+        set_location, locate, Location, Error, guard)
 from rex.web import PathMask, PathMap
 from .map import Map, Override
 import os
@@ -66,6 +65,29 @@ class DeferredVal(Validate):
         value = DeferredConstruction(loader, node, self.validate)
         set_location(value, Location.from_node(node))
         return value
+
+
+class TaggedStrVal(StrVal):
+
+    def __init__(self, tag, pattern=None):
+        super(TaggedStrVal, self).__init__(pattern)
+        self.tag = tag
+        self.record_type = Record.make(
+                tag.encode('utf-8').replace('!', '').capitalize(), ['data'])
+
+    def construct(self, loader, node):
+        location = Location.from_node(node)
+        with guard("While parsing:", location):
+            if node.tag == self.tag and isinstance(node, yaml.ScalarNode):
+                data = loader.construct_scalar(node)
+                data = self.record_type(self(data))
+                set_location(data, location)
+                return data
+            error = Error("Expected a tagged %s string" % self.tag)
+            error.wrap("Got:", node.value
+                               if isinstance(node, yaml.ScalarNode)
+                               else "a %s" % node.id)
+            raise error
 
 
 class TaggedCollectionVal(Validate):
@@ -143,8 +165,11 @@ class LoadMap(object):
                     override_field_set.add(field.name)
             handle_pairs.append((map_type.key, map_type.validate))
             self.map_by_record_type[map_type.record_type] = map_type(package)
+        copy_val = TaggedStrVal(u'!copy', r'/[@${}/0-9A-Za-z:._-]*')
+        self.copy_record_type = copy_val.record_type
         override_val = TaggedCollectionVal(u'!override', DeferredVal())
         handle_val = UnionVal(
+                (OnTag(copy_val.tag), copy_val),
                 (OnTag(override_val.tag), override_val),
                 *handle_pairs)
         self.validate = RecordVal([
@@ -231,7 +256,16 @@ class LoadMap(object):
             mask = mapper.mask(path)
             add_handler(seen, mask, handle_spec)
             path_by_spec[id(paths[path])] = path
-        for path in sorted(include_spec.paths):
+        # Arrange paths so that `!copy` entries are at the end.
+        include_paths = [
+                path
+                for path, flag in
+                    sorted([
+                        (path, isinstance(
+                                    include_spec.paths[path],
+                                    self.copy_record_type))
+                        for path in include_spec.paths])]
+        for path in include_paths:
             handle_spec = include_spec.paths[path]
             # Validate the URL.
             try:
@@ -240,6 +274,16 @@ class LoadMap(object):
                 error = Error("Detected ill-formed path:", path)
                 error.wrap("While parsing:", locate(handle_spec))
                 raise error
+            # Copy `!copy` entries.
+            if isinstance(handle_spec, self.copy_record_type):
+                copy_path = handle_spec.data
+                if copy_path not in paths:
+                    error = Error("Detected orphaned copy:", path)
+                    error.wrap("Defined in:", locate(handle_spec))
+                    raise error
+                base_handle_spec = paths[copy_path]
+                handle_spec = base_handle_spec.__clone__(
+                        **vars(base_handle_spec))
             # Get the mapper that generates the handler for this record type.
             mapper = self.map_by_record_type.get(type(handle_spec))
             if mapper is not None:

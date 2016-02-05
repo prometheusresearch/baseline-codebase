@@ -333,6 +333,12 @@ get::
         title: Human research subjects
         query: /individual{code, first_name+' '+last_name :as title}
 
+Sometimes you may need to render the same page under more than one URL.  To
+enable it without copying the complete configuration, use ``!copy`` directive.
+For example, to make ``/individuals`` URL a clone of ``/individual``, add::
+
+    /individuals: !copy /individual
+
 
 Embedding settings values
 =========================
@@ -665,5 +671,23 @@ unchanged.
 
 In the second ``!override`` definition, we add a nested ``identity`` record and
 a list of ``participation`` records to each ``individual`` record.
+
+
+Copy handler
+============
+
+A copy handler allows you to clone configuration of an existing handler.  This
+lets you provide the same page under several URLs without duplicating the
+entire page configuration.
+
+The copy definition contains the path of the handler to copy.  For example::
+
+    paths:
+
+      /data/individual:
+        port: individual
+
+      /data/individuals:
+        !copy /data/individual
 
 

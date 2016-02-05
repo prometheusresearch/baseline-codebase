@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.8.0 (2016-XX-XX)
+==================
+
+* Added support for ``!copy`` entries.
+
+
 2.7.0 (2016-01-29)
 ==================
 

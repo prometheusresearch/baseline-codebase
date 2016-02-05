@@ -5,6 +5,13 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
+5.6.1 (2016-xx-xx)
+==================
+
+* Fixed an issue where publishing a form would show a confusing error if the
+  screen was not configured to return to another URL.
+
+
 5.6.0 (2016-01-29)
 ==================
 

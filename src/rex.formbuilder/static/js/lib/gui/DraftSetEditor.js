@@ -136,6 +136,9 @@ var DraftSetEditor = React.createClass({
   },
 
   onReturn: function () {
+    if (!this.props.instrumentMenuUrlTemplate) {
+      return;
+    }
     window.location = format(
       this.props.instrumentMenuUrlTemplate,
       {uid: this.state.instrumentVersion.instrument.uid}

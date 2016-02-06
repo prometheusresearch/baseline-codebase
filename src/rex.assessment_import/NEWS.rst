@@ -4,7 +4,7 @@
 
 .. contents:: Table of Contents
 
-0.4.1 (2016-02-02)
+0.4.1 (2016-02-06)
 ==================
 
 * Updated error messages to show traceback for unknown fialures.

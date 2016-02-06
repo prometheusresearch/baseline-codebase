@@ -2,6 +2,21 @@
   Change Log
 **************
 
+2.1.0 (2016-02-06)
+==================
+
+* Add preview for conditional form fields functionality.
+
+  All form fields now accept ``hide_if`` field which allow to specify a
+  JavaScript boolean expression which hides a corresponding field. JavaScript
+  expression has access to the current form field value and a value of the
+  fieldset the current field is in::
+
+    - type: string
+      value_key: city
+      hide_if: $fields.country != 'Russia'
+
+
 2.0.0 (2016-01-31)
 ==================
 

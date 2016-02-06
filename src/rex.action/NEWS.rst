@@ -4,6 +4,12 @@
 
 .. contents:: Table of Contents
 
+0.8.1 (2016-02-06)
+==================
+
+* Fix to expose action title to chrome in case a single action is mounted in URL
+  mapping.
+
 0.8.0 (2016-01-31)
 ==================
 

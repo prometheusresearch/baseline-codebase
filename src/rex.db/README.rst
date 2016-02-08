@@ -568,9 +568,9 @@ In this example, we add a new user entry to the database::
     auto_user_query:
       do(insert(user:={remote_user:=$USER,auto:=true}), $USER)
 
-Parameter ``access_queries`` allows you to declare new permissions and map
-them to HTSQL queries.  Each query is executed when we need to check if
-the user has the respective permission.
+Parameter ``access_queries`` allows you to declare new permissions and map them
+to HTSQL queries.  Each query is executed when we need to check if the user has
+the respective permission.
 
 Example::
 
@@ -585,8 +585,8 @@ A more realistic example::
       recruiter: user[$USER].exists(study_x_user.recruit_participants)
 
 Parameter ``access_masks`` lets you specify table masks for individual
-permissions.  The masks are applied when the user accesses a resource
-that requires the respective permission.
+permissions.  The masks are applied when the user accesses a resource that
+requires the respective permission.
 
 Example::
 
@@ -596,4 +596,21 @@ Example::
       - study?exists(study_x_user.(recruit_participants&user.remote_user=$USER))
       - measure_type?status='active'
 
+Mask filters with aggregates are expensive to evaluate.  To improve
+performance, you can replace complex conditions with predicates on
+query variables defined with ``htsql_environment`` setting.
+
+For example, let we define variable ``$user_lab_codes`` by::
+
+    htsql_environment:
+      user_lab_codes: /user[$USER].lab_x_user.lab.code
+
+The we can update the mask on ``lab_admin`` replacing an expensive filter
+``exists(lab_x_user.user.remote_user=$USER)`` with::
+
+    access_masks:
+      lab_admin: lab?in(code,$USER_LAB_CODES)
+
+Variables defined with ``htsql_environment`` are evaluated on demand no more
+than once per request.
 

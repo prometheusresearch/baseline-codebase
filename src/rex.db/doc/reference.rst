@@ -45,6 +45,7 @@ Configuration
 .. autoclass:: AutoUserQuerySetting
 .. autoclass:: AccessQueriesSetting
 .. autoclass:: AccessMasksSetting
+.. autoclass:: HTSQLEnvironmentSetting
 
 
 Utilities

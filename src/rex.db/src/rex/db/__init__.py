@@ -15,7 +15,7 @@ from .handle import jinja_global_htsql, Query
 from .database import RexHTSQL, Mask, get_db
 from .auth import (
         UserQuerySetting, AutoUserQuerySetting, AccessQueriesSetting,
-        AccessMasksSetting)
+        AccessMasksSetting, HTSQLEnvironmentSetting)
 from .ctl import ShellTask, QueryTask, GraphDBTask, DatabaseAccessTopic
 
 

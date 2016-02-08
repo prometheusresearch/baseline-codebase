@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+3.4.1 (2016-XX-XX)
+==================
+
+* Minor documentation updates.
+
+
 3.4.0 (2016-01-29)
 ==================
 

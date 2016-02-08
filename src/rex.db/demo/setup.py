@@ -29,7 +29,7 @@ class demo(Command):
 
 setup(
     name='rex.db_demo',
-    version = "3.4.0",
+    version = "3.4.1",
     description="Demo package for testing rex.db",
     package_dir={'': 'src'},
     packages=find_packages('src'),

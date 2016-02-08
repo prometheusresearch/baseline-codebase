@@ -218,7 +218,7 @@ class QueryTimeoutSetting(Setting):
 
     Example:
 
-        query_timeout: 120
+        query_timeout:: 120
 
     By default, this parameter is unset.  The timeout is only enforced
     on PostgreSQL databases.

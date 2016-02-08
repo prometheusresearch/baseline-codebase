@@ -216,9 +216,9 @@ class QueryTimeoutSetting(Setting):
     This parameter sets the upper limit on the query execution time.
     The query is aborted if the execution time exceeds the limit.
 
-    Example:
+    Example::
 
-        query_timeout:: 120
+        query_timeout: 120
 
     By default, this parameter is unset.  The timeout is only enforced
     on PostgreSQL databases.

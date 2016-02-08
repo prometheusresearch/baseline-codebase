@@ -106,8 +106,6 @@ To get a list of parameters of the application use ``rex settings``::
 
     >>> ctl("settings rex.ctl_demo")            # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     access:
-    db*:
-      'pgsql:ctl_demo'
     ...
 
     >>> ctl("settings rex.ctl_demo --verbose")  # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS

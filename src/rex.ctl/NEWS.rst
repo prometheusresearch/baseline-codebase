@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.1.1 (2015-XX-XX)
+==================
+
+* Updated some tests.
+
+
 2.1.0 (2015-11-20)
 ==================
 

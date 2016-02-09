@@ -17,6 +17,7 @@ from .actions import View, Make, Page, Pick, Edit
 from .validate import RexDBVal
 from .wizard import Wizard
 from . import setting
+from . import doc
 
 class InitializeRexAction(Initialize):
 

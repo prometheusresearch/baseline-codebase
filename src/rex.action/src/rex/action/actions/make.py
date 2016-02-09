@@ -54,6 +54,10 @@ class Make(FormAction):
     name = 'make'
     js_type = 'rex-action/lib/actions/Make'
 
+    class Introspection(FormAction.Introspection):
+        info_js_type = 'rex-action/lib/doc/MakeActionInfo'
+        detailed_info_js_type = 'rex-action/lib/doc/MakeDetailedActionInfo'
+
     submit_button = Field(
         StrVal(), default=undefined,
         doc="""

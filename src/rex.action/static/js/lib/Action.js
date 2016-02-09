@@ -3,7 +3,6 @@
  */
 
 import autobind             from 'autobind-decorator';
-import resizeDetector       from 'element-resize-detector';
 import emptyFunction        from 'empty/functionThatReturnsNull';
 import React                from 'react';
 
@@ -58,6 +57,8 @@ export default class Action extends React.Component {
     Root: {
       Component: VBox,
       flex: 1,
+      overflow: 'hidden',
+      flexDirection: 'column-reverse',
     },
     Header: {
       Component: VBox,
@@ -105,7 +106,10 @@ export default class Action extends React.Component {
       Title,
       Toolbar
     } = this.constructor.stylesheet;
-    let {children, toolbar, title, onClose, noContentWrapper} = this.props;
+    let {
+      children, toolbar, extraToolbar,
+      title, onClose, noContentWrapper, noHeader
+    } = this.props;
     toolbar = toolbar || this.context.toolbar;
     let footer = this.props.renderFooter();
     if (footer) {
@@ -113,22 +117,24 @@ export default class Action extends React.Component {
     }
     return (
       <Root>
-        <Header>
-          <HBox>
-            {title && <Title>{title}</Title>}
-            {onClose &&
-              <QuietButton
-                icon="remove"
-                onClick={onClose}
-                />}
-          </HBox>
+        {noContentWrapper ?
+          children :
+          <ContentContainer footer={footer}>
+            <Content>{children}</Content>
+          </ContentContainer>}
+        {!noHeader &&
+          <Header>
+            <HBox>
+              {title && <Title>{title}</Title>}
+              {onClose &&
+                <QuietButton
+                  icon="remove"
+                  onClick={onClose}
+                  />}
+            </HBox>
           {toolbar && <Toolbar>{toolbar}</Toolbar>}
-        </Header>
-        <ContentContainer footer={footer}>
-          {noContentWrapper ?
-            children :
-            <Content>{children}</Content>}
-        </ContentContainer>
+          {extraToolbar && <Toolbar>{extraToolbar}</Toolbar>}
+          </Header>}
       </Root>
     );
   }

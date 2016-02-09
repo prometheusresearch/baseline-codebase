@@ -27,6 +27,7 @@ from rex.widget.util import add_mapping_key, pop_mapping_key
 from rex.widget.validate import DeferredVal, Deferred
 
 from . import typing
+from . import introspection
 
 __all__ = ('ActionBase', 'Action', 'ActionVal')
 
@@ -56,6 +57,9 @@ class ActionBase(Widget):
 
     __metaclass__ = ActionMeta
 
+    #: Action introspection interface
+    Introspection = introspection.ActionIntrospection
+
     id = Field(
         StrVal(),
         doc="""
@@ -77,6 +81,15 @@ class ActionBase(Widget):
         Action title.
         """)
 
+    doc = Field(
+        StrVal(), default=undefined,
+        transitionable=False,
+        doc="""
+        Action doc string.
+
+        It is not available in the browser.
+        """)
+
     width = Field(
         IntVal(), default=undefined,
         doc="""
@@ -84,8 +97,10 @@ class ActionBase(Widget):
         """)
 
     def __init__(self, **values):
+        self.source_location = None
         self._domain = values.pop('__domain', typing.Domain.current())
         self._context_types = values.pop('__context_types', None)
+        self._introspection = None
         super(ActionBase, self).__init__(**values)
 
     @property
@@ -108,10 +123,16 @@ class ActionBase(Widget):
         return next_values
 
     def __clone__(self, **values):
-        return self.__class__(**self._clone_values(values))
+        action = self.__class__(**self._clone_values(values))
+        if self._introspection:
+            action._introspection = self._introspection.transfer(action)
+        return action
 
     def __validated_clone__(self, **values):
-        return self.validated(**self._clone_values(values))
+        action = self.validated(**self._clone_values(values))
+        if self._introspection:
+            action._introspection = self._introspection.transfer(action)
+        return action
 
     def with_domain(self, domain):
         """ Override typing domain."""

@@ -27,6 +27,10 @@ class Drop(Action):
     name = 'drop'
     js_type = 'rex-action/lib/actions/Drop'
 
+    class Introspection(Action.Introspection):
+        info_js_type = 'rex-action/lib/doc/DropActionInfo'
+        detailed_info_js_type = 'rex-action/lib/doc/DropDetailedActionInfo'
+
     entity = Field(
         RowTypeVal(),
         doc="""

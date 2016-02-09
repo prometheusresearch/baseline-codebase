@@ -26,6 +26,16 @@ from ..validate import RexDBVal
 __all__ = ('EntityAction',)
 
 
+class Introspection(Action.Introspection):
+
+    def info(self, *args, **kwargs):
+        info = super(Introspection, self).info(*args, **kwargs)
+        info.update({
+            'entity': self.action.entity.type.name
+        })
+        return info
+
+
 class Configuration(Action.Configuration):
 
     def _reflect_fields(self, db, entity, input, fields):
@@ -67,6 +77,7 @@ class EntityAction(Action):
     """ Base class for actions which operate on an entity."""
 
     Configuration = Configuration
+    Introspection = Introspection
 
     entity = Field(
         RowTypeVal(),

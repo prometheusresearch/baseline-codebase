@@ -11,7 +11,9 @@ import yaml
 from cached_property import cached_property
 from webob.exc import HTTPUnauthorized, HTTPBadRequest
 
-from rex.core import StrVal, Error, AnyVal, MapVal, RecordVal
+from rex.core import (
+    StrVal, Error, AnyVal, MapVal, RecordVal,
+    set_location, Location)
 from rex.widget.validate import DeferredVal, Deferred
 from rex.widget.render import render
 from rex.urlmap import Map
@@ -31,6 +33,13 @@ class MapAction(Map):
     ]
 
     validate_override = DeferredVal()
+
+    @classmethod
+    def is_main_path(self, path):
+        return (
+            '@@' not in path.text and
+            '@' not in path.text
+        )
 
     def mask(self, path):
         origin = path
@@ -79,12 +88,14 @@ class MapAction(Map):
 
     def __call__(self, spec, path, context):
 
-        action_val = ActionVal(
-            package=self.package,
-            id='%s:%s' % (self.package.name, path[0]))
+        id = '%s:%s' % (self.package.name, path[0])
+
+        action_val = ActionVal(package=self.package, id=id)
 
         def _create_action():
             action = spec.action.resolve(action_val)
+            action._introspection = action.Introspection(
+                action, id, spec.access, spec.action.source_location)
             if spec.override:
                 if isinstance(spec.override, list):
                     for override in spec.override:

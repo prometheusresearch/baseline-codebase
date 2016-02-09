@@ -34,6 +34,7 @@ from .validate import (
     ActionReferenceVal, LocalActionReference, GlobalActionReference)
 from . import typing
 from . import instruction
+from . import introspection
 
 __all__ = ('WizardBase', 'WizardWidgetBase')
 
@@ -391,6 +392,8 @@ class WizardBase(WizardWidgetBase, ActionBase):
                     actions[k] = v(actions[k])
             path = instruction.override(wizard.path, actions)
             return wizard.__validated_clone__(path=path, actions=actions)
+
+    Introspection = introspection.WizardIntrospection
 
     @property
     def domain(self):

@@ -1,0 +1,19 @@
+paths:
+
+  /doc:
+    action:
+      type: wizard
+
+      path:
+      - list-action:
+        - view-action:
+
+      actions:
+        list-action:
+          type: doc-list-action
+          title: List of actions
+          icon: list
+        view-action:
+          type: doc-view-action
+          title: View Action
+          icon: file

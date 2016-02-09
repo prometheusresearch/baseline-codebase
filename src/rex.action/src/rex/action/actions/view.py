@@ -48,6 +48,10 @@ class View(EntityAction):
     name = 'view'
     js_type = 'rex-action/lib/actions/View'
 
+    class Introspection(EntityAction.Introspection):
+        info_js_type = 'rex-action/lib/doc/ViewActionInfo'
+        detailed_info_js_type = 'rex-action/lib/doc/ViewDetailedActionInfo'
+
     input = Field(
         RecordTypeVal(), default=RecordType.empty())
 

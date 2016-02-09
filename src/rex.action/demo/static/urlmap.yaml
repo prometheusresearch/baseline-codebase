@@ -3,7 +3,7 @@ include:
 paths:
 
   /individuals/make:
-    access: anybody
+    access: nobody
     action:
       type: make
       entity: individual

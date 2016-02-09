@@ -1,6 +1,7 @@
 paths:
 
   /doc:
+    access: nobody
     action:
       type: wizard
 

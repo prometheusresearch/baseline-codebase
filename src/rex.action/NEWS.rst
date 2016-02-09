@@ -4,6 +4,11 @@
 
 .. contents:: Table of Contents
 
+0.9.0 (2016-02-XX)
+==================
+
+* Add introspection API.
+
 0.8.1 (2016-02-06)
 ==================
 

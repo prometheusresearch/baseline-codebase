@@ -9,7 +9,11 @@ from .sql import (sql_select_database, sql_create_database, sql_drop_database,
         sql_rename_database)
 import htsql.core.util
 import datetime
-import psycopg2, psycopg2.extensions
+import psycopg2, psycopg2.extensions, psycopg2.extras
+
+
+if hasattr(psycopg2.extras, 'register_default_json'):
+    psycopg2.extras.register_default_json(loads=lambda x: x)
 
 
 class Cluster(object):

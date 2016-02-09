@@ -110,7 +110,9 @@ class WizardIntrospection(ActionIntrospection):
         return instruction
 
     def info(self, debug=False, detailed=False):
-        info = super(WizardIntrospection, self).info(detailed=detailed)
+        info = super(WizardIntrospection, self).info(
+                detailed=detailed,
+                debug=debug)
         if detailed:
             path = instruction.map(self.action.path, self._introspect_path)
             info.update({

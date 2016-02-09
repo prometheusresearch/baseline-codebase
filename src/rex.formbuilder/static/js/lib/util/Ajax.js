@@ -5,8 +5,9 @@
 'use strict';
 
 var React = require('react');
-var merge = require('n-deep-merge');
 var dotQs = require('dot-qs');
+
+var merge = require('./merge');
 
 
 var DEFAULT_OPTIONS = {

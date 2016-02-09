@@ -5,7 +5,14 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
-5.6.1 (2016-xx-xx)
+5.6.2 (2016-xx-xx)
+==================
+
+* Fixed an issue where zero wouldn't be saved as un upper or lower numeric
+  constraint bounds.
+
+
+5.6.1 (2016-02-06)
 ==================
 
 * Fixed an issue where publishing a form would show a confusing error if the

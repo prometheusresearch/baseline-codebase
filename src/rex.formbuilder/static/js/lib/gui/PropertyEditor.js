@@ -7,7 +7,8 @@
 var React = require('react');
 var classNames = require('classnames');
 var ReactForms = require('react-forms');
-var deepMerge = require('n-deep-merge');
+
+var {merge} = require('../util');
 
 
 var PropertyEditor = React.createClass({
@@ -129,7 +130,7 @@ var PropertyEditor = React.createClass({
     var properties = {};
 
     this.state.tabs.forEach((category) => {
-      properties = deepMerge(
+      properties = merge(
         properties,
         this.marshalFormValue(this.refs[category])
       );

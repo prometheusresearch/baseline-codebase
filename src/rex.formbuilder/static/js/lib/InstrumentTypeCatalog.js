@@ -4,12 +4,10 @@
 
 'use strict';
 
-var merge = require('n-deep-merge');
-
+var {merge} = require('./util');
 var {ParsingError} = require('./errors');
 var {INSTRUMENT_BASE_TYPES} = require('./InstrumentTypes');
 var _ = require('./i18n').gettext;
-
 
 
 class InstrumentTypeCatalog {

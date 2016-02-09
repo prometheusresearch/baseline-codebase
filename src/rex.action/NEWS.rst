@@ -9,6 +9,9 @@
 
 * Add introspection API.
 
+* ``page`` action type now can specify ``input`` (similar to ``make`` and
+  others). That allows to show ``page`` only if something is in context.
+
 0.8.1 (2016-02-06)
 ==================
 

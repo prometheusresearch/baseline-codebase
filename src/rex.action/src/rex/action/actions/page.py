@@ -11,6 +11,7 @@ from rex.core import StrVal
 from rex.widget import Field, RSTVal
 
 from ..action import Action
+from ..typing import RecordTypeVal, RecordType
 
 __all__ = ('Page',)
 
@@ -46,5 +47,8 @@ class Page(Action):
         references which will be resolved to actual URLs.
         """)
 
+    input = Field(
+        RecordTypeVal(), default=RecordType.empty())
+
     def context(self):
-        return self.domain.record(), self.domain.record()
+        return self.input, self.domain.record()

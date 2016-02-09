@@ -2,6 +2,14 @@
   Change Log
 **************
 
+2.2.0 (2016-02-XX)
+==================
+
+* ``Request`` now can be used to request data in transit encoding via
+  ``asTransitionable()`` method.
+
+* Bug fixes for ``<TabList />`` styles to be consistent with other UI elements.
+
 2.1.0 (2016-02-06)
 ==================
 

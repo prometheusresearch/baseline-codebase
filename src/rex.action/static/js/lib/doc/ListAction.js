@@ -45,7 +45,7 @@ export default class ListAction extends React.Component {
     let {search} = this.state;
     if (search.value) {
       if (!match(search.pattern, info.props.info.path) &&
-          !match(search.pattern, info.props.info.title)) {
+          !match(search.pattern, info.props.info.title, false)) {
         return null;
       }
     }
@@ -75,6 +75,6 @@ export default class ListAction extends React.Component {
   }
 }
 
-function match(pattern, value) {
-  return value ? pattern.test(value) : true;
+function match(pattern, value, fallback = true) {
+  return value ? pattern.test(value) : fallback;
 }

@@ -44,7 +44,7 @@ var Fieldset = React.createClass({
             hint={hint || value.node.props.get('hint')}
             />}
         {value.map((value, key) => <Element key={key} value={value} />)}
-        {validation.isFailure && isDirty &&
+        {validation.isFailure &&
           <Message>{validation.error}</Message>}
         {externalValidation.isFailure && isDirty &&
           <Message>{externalValidation.error}</Message>}

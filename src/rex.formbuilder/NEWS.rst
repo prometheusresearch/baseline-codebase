@@ -10,6 +10,7 @@ REX.FORMBUILDER Change Log
 
 * Fixed an issue where zero wouldn't be saved as un upper or lower numeric
   constraint bounds.
+* Fixed an issue where ranged properties weren't displaying error messages.
 
 
 5.6.1 (2016-02-06)

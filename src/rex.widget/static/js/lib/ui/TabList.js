@@ -7,7 +7,6 @@ import * as CSS from '../../css';
 import {style} from '../../stylesheet';
 
 let color = '#444444';
-let linkColor = '#428bca';
 let border = CSS.border(1, '#dddddd');
 let hoverBackgroundColor = '#eeeeee';
 
@@ -51,6 +50,7 @@ export default style(TabListBase, {
       right: 1,
     },
     selected: {
+      fontWeight: 400,
       backgroundColor: '#ffffff',
       positionTop: {
         borderTop: border,
@@ -74,7 +74,7 @@ export default style(TabListBase, {
       },
     },
     notSelected: {
-      color: linkColor,
+      color: color,
       cursor: CSS.cursor.pointer,
       hover: {
         backgroundColor: hoverBackgroundColor,

@@ -2,8 +2,9 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import {stringify}  from 'qs';
-import resolveURL   from './resolveURL';
+import {stringify} from 'qs';
+import resolveURL from './resolveURL';
+import * as Transitionable from './Transitionable';
 
 const OPTIONS = {
   credentials: 'same-origin',
@@ -18,19 +19,29 @@ const OPTIONS = {
  * @param {String} url
  * @param {Object} query
  */
-export function fetch(url, query = null) {
+export function fetch(url, query = null, options = {}) {
   url = prepareURL(url, query);
-  return global.fetch(url, OPTIONS)
-    .then(failOnHTTPError)
-    .then(parseJSONResponse);
+  let promise = global.fetch(url, OPTIONS)
+    .then(failOnHTTPError);
+  if (options.useTransit) {
+    promise = promise.then(parseTransitResponse);
+  } else {
+    promise = promise.then(parseJSONResponse);
+  }
+  return promise;
 }
 
-export function post(url, query = null, data = null) {
+export function post(url, query = null, data = null, options = {}) {
   url = prepareURL(url, query);
-  let options = {...OPTIONS, body: data, method: 'post'};
-  return global.fetch(url, options)
-    .then(failOnHTTPError)
-    .then(parseJSONResponse);
+  let fetchParams = {...OPTIONS, body: data, method: 'post'};
+  let promise = global.fetch(url, fetchParams)
+    .then(failOnHTTPError);
+  if (options.useTransit) {
+    promise = promise.then(parseTransitResponse);
+  } else {
+    promise = promise.then(parseJSONResponse);
+  }
+  return promise;
 }
 
 function filterQuery(query) {
@@ -70,3 +81,6 @@ function parseJSONResponse(response) {
   return response.json();
 }
 
+function parseTransitResponse(response) {
+  return response.text().then(data => Transitionable.decode(data));
+}

@@ -10,18 +10,35 @@ export class Request {
   static fetch = fetch;
   static post = post;
 
-  constructor(path, params, data = null) {
+  constructor(path, params, data = null, transitionable = false) {
     this.path = path;
     this._params = params;
     this._data = data;
+    this._transitionable = transitionable;
+  }
+
+  asTransitionable() {
+    return new this.constructor(
+      this.path,
+      this._params,
+      this._data,
+      true);
   }
 
   params(params) {
-    return new this.constructor(this.path, {...this._params, ...params}, this._data);
+    return new this.constructor(
+      this.path,
+      {...this._params, ...params},
+      this._data,
+      this._transitionable);
   }
 
   data(data) {
-    return new this.constructor(this.path, this._params, data);
+    return new this.constructor(
+      this.path,
+      this._params,
+      data,
+      this._transitionable);
   }
 
   produce(params) {
@@ -30,9 +47,16 @@ export class Request {
       ...params
     };
     if (this._data !== null) {
-      return this.constructor.post(this.path, query, this._data);
+      return this.constructor.post(
+        this.path,
+        query,
+        this._data,
+        {useTransit: this._transitionable});
     } else {
-      return this.constructor.fetch(this.path, query);
+      return this.constructor.fetch(
+        this.path,
+        query,
+        {useTransit: this._transitionable});
     }
   }
 
@@ -42,6 +66,7 @@ export class Request {
       this.constructor === other.constructor &&
       this._data === other._data &&
       this.path === other.path &&
+      this._transitionable === other._transitionable &&
       shallowEquals(this._params, other._params)
     );
   }

@@ -13,12 +13,16 @@ import sys
 import types
 import contextlib
 import yaml
+from collections import namedtuple
 
-from rex.core import ValidatingLoader, Error, Location, guard
+from cached_property import cached_property
+
+from rex.core import ValidatingLoader, Error, Location, guard, set_location
 from rex.core import Validate, StrVal, RecordVal, RecordField, AnyVal
 
 from .widget import Widget, GroupWidget, NullWidget
 from .field import Field
+from .transitionable import as_transitionable
 
 __all__ = ('WidgetVal', 'Deferred', 'DeferredVal')
 
@@ -37,6 +41,19 @@ class Deferred(object):
                 self.__class__.__name__)
 
 
+SourceLocation = namedtuple('SourceLocation', ['name', 'line', 'column'])
+
+@as_transitionable(SourceLocation, tag='map')
+def _format_SourceLocation(location, req, path):
+    return location._asdict()
+
+SourceLocationRange = namedtuple('SourceLocationRange', ['name', 'start', 'end'])
+
+@as_transitionable(SourceLocationRange, tag='map')
+def _format_SourceLocationRange(location, req, path):
+    return location._asdict()
+
+
 class DeferredConstruction(Deferred):
     """ Deferred construction."""
 
@@ -51,11 +68,26 @@ class DeferredConstruction(Deferred):
         validate = validate or self.validate or AnyVal()
         return validate.construct(self.loader, self.node)
 
+    @cached_property
+    def source_location(self):
+        start_loc = SourceLocation(
+            self.node.start_mark.name,
+            self.node.start_mark.line,
+            self.node.start_mark.column)
+        end_loc = SourceLocation(
+            self.node.end_mark.name,
+            self.node.end_mark.line,
+            self.node.end_mark.column)
+        return SourceLocationRange(start_loc.name, start_loc, end_loc)
+
 
 class DeferredValidation(Deferred):
     """ Deferred validation."""
 
     __slots__ = ('value', 'validate')
+
+    location = None
+    end_location = None
 
     def __init__(self, value, validate):
         self.value = value

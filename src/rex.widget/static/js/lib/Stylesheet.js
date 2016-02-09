@@ -4,7 +4,8 @@
 
 import {
   create as createImpl,
-  style as styleImpl
+  style as styleImpl,
+  override as overrideImpl
 } from 'react-stylesheet';
 import {
   style as styleDOM
@@ -16,4 +17,8 @@ export function style(Component, spec, options) {
 
 export function create(spec, options) {
   return createImpl(spec, {styleDOM, ...options});
+}
+
+export function override(stylesheet, override, options) {
+  return overrideImpl(stylesheet, override, {style, styleDOM, ...options});
 }

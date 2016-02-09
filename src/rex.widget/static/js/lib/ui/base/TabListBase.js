@@ -82,6 +82,8 @@ export default class TabListBase extends React.Component {
       children, size, className, selected,
       position, ...props
     } = this.props;
+    // Filter out null and/or undefined values
+    children = children.filter(Boolean);
     let {Button, Content, ButtonList, Root} = this.constructor.stylesheet;
     let variant = {
       positionTop: position === 'top',

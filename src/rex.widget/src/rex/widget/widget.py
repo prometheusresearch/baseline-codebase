@@ -17,7 +17,7 @@ from .transitionable import as_transitionable
 from .field import FieldBase, Field
 from .util import PropsContainer
 
-__all__ = ('Widget', 'GroupWidget', 'NullWidget',)
+__all__ = ('Widget', 'GroupWidget', 'NullWidget', 'RawWidget')
 
 
 class WidgetMeta(Extension.__metaclass__): # pylint: disable=no-init
@@ -226,3 +226,33 @@ class NullWidget(Widget):
 @as_transitionable(NullWidget, tag='_')
 def _format_NullWidget(widget, req, path): # pylint: disable=invalid-name
     return None
+
+
+class RawWidget(object):
+
+    __slots__ = ('js_type', 'values')
+
+    def __init__(self, js_type, values):
+        self.js_type = js_type
+        self.values = values
+
+@as_transitionable(RawWidget, tag='widget')
+def _format_RawWidget(widget, req, path): # pylint: disable=invalid-name
+    return widget.js_type, PropsContainer(widget.values)
+
+
+def raw_widget(*args, **kwargs):
+    if len(args) < 1:
+        raise TypeError(
+            "At least one position arg should be used to define "
+            "'js_type'")
+    elif len(args) == 1:
+        js_type = args[0]
+        values = {}
+    elif len(args) == 2:
+        js_type = args[0]
+        values = dict(args[1])
+    else:
+        raise TypeError("Too many positional arguments provided")
+    values.update(kwargs)
+    return RawWidget(js_type, values)

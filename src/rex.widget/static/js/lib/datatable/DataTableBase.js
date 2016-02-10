@@ -338,8 +338,8 @@ export default class DataTableBase extends React.Component {
 
   @autobind
   onRowClick(e, rowIndex, row) {
-    let {selected, onSelect} = this.props;
-    if (row.id != selected) { // eslint-disable-line eqeqeq
+    let {allowReselect, selected, onSelect} = this.props;
+    if (allowReselect || row.id != selected) { // eslint-disable-line eqeqeq
       onSelect(row.id, row);
     }
   }

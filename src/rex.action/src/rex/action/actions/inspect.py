@@ -18,9 +18,9 @@ from webob.exc import HTTPBadRequest
 from rex.widget import (
     Field, computed_field, responder, RequestURL, transitionable)
 
-from .action import Action
-from . import typing
-from . import introspection
+from ..action import Action
+from .. import typing
+from .. import introspection
 
 __all__ = ('ActionList', 'ViewAction')
 
@@ -29,8 +29,8 @@ class ListAction(Action):
     """ List of actions active in an application.
     """
 
-    name = 'doc-list-action'
-    js_type = 'rex-action/lib/doc/ListAction'
+    name = 'inspect-list-action'
+    js_type = 'rex-action/lib/inspect/ListAction'
 
     @computed_field
     def actions(self):
@@ -50,8 +50,8 @@ class ViewAction(Action):
     """ View action.
     """
 
-    name = 'doc-view-action'
-    js_type = 'rex-action/lib/doc/ViewAction'
+    name = 'inspect-view-action'
+    js_type = 'rex-action/lib/inspect/ViewAction'
 
     @responder(url_type=RequestURL)
     def action(self, req):

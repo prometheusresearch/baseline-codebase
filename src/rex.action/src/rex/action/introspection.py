@@ -29,8 +29,8 @@ class ActionIntrospection(object):
     """ Action introspection interface.
     """
 
-    info_js_type = 'rex-action/lib/doc/ActionInfo'
-    detailed_info_js_type = 'rex-action/lib/doc/DetailedActionInfo'
+    info_js_type = 'rex-action/lib/inspect/ActionInfo'
+    detailed_info_js_type = 'rex-action/lib/inspect/DetailedActionInfo'
 
     def __init__(self, action, path=None, access=None, location=None):
         self.action = action
@@ -96,8 +96,8 @@ class WizardIntrospection(ActionIntrospection):
     """ Wizard introspection interface.
     """
 
-    info_js_type = 'rex-action/lib/doc/WizardInfo'
-    detailed_info_js_type = 'rex-action/lib/doc/DetailedWizardInfo'
+    info_js_type = 'rex-action/lib/inspect/WizardInfo'
+    detailed_info_js_type = 'rex-action/lib/inspect/DetailedWizardInfo'
 
     def _introspect_path(self, instruction, ancestors):
         if hasattr(instruction, 'action_instance'):

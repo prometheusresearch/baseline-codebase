@@ -1,7 +1,7 @@
 paths:
 
-  /doc:
-    access: nobody
+  /inspect:
+    #access: nobody
     action:
       type: wizard
 
@@ -11,10 +11,10 @@ paths:
 
       actions:
         list-action:
-          type: doc-list-action
+          type: inspect-list-action
           title: List of actions
           icon: list
         view-action:
-          type: doc-view-action
+          type: inspect-view-action
           title: View Action
           icon: file

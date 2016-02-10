@@ -28,8 +28,8 @@ class Drop(Action):
     js_type = 'rex-action/lib/actions/Drop'
 
     class Introspection(Action.Introspection):
-        info_js_type = 'rex-action/lib/doc/DropActionInfo'
-        detailed_info_js_type = 'rex-action/lib/doc/DropDetailedActionInfo'
+        info_js_type = 'rex-action/lib/inspect/DropActionInfo'
+        detailed_info_js_type = 'rex-action/lib/inspect/DropDetailedActionInfo'
 
     entity = Field(
         RowTypeVal(),

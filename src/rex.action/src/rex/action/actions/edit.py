@@ -51,8 +51,8 @@ class Edit(FormAction):
     js_type = 'rex-action/lib/actions/Edit'
 
     class Introspection(FormAction.Introspection):
-        info_js_type = 'rex-action/lib/doc/EditActionInfo'
-        detailed_info_js_type = 'rex-action/lib/doc/EditDetailedActionInfo'
+        info_js_type = 'rex-action/lib/inspect/EditActionInfo'
+        detailed_info_js_type = 'rex-action/lib/inspect/EditDetailedActionInfo'
 
 
     submit_button = Field(

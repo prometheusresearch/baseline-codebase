@@ -19,3 +19,5 @@ from .alternative import Alternative
 from .form_action import FormAction
 from .entity_action import EntityAction
 from .plotly import Plotly
+
+from . import inspect

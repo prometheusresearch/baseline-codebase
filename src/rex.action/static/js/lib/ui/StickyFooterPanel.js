@@ -4,7 +4,6 @@
 
 import autobind from 'autobind-decorator';
 import {addResizeListener, removeResizeListener} from '../vendor/detectElementResize';
-import resizeDetector from 'element-resize-detector';
 import React, {PropTypes} from 'react';
 import ReactDOM from 'react-dom';
 

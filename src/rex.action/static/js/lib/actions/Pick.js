@@ -47,14 +47,20 @@ export default class Pick extends React.Component {
     if (search) {
       data = data.params({'*:__search__': search});
     }
+    let extraToolbar = (
+      this.props.search &&
+        <SearchInput
+          value={search}
+          onChange={this.onSearch}
+          placeholder={searchPlaceholder}
+          />
+    );
     return (
-      <Action noContentWrapper title={title} onClose={onClose}>
-        {this.props.search &&
-          <SearchInput
-            value={search}
-            onChange={this.onSearch}
-            placeholder={searchPlaceholder}
-            />}
+      <Action
+        extraToolbar={extraToolbar}
+        noContentWrapper
+        title={title}
+        onClose={onClose}>
         <DataTable
           allowReselect
           sort={sort ? {

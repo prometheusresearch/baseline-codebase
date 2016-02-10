@@ -56,6 +56,7 @@ export default class Pick extends React.Component {
             placeholder={searchPlaceholder}
             />}
         <DataTable
+          allowReselect
           sort={sort ? {
             valueKey: sort.field,
             asc: sort.asc,

@@ -7,7 +7,6 @@
   },
   "dependencies": {
     "autobind-decorator": "^1.2.0",
-    "element-resize-detector": "^1.0.1",
     "empty": "^0.10.1",
     "escape-regexp": "0.0.1",
     "history": "^1.9.1",

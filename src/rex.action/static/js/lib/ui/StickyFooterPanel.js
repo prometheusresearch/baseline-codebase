@@ -3,6 +3,7 @@
  */
 
 import autobind from 'autobind-decorator';
+import {addResizeListener, removeResizeListener} from '../vendor/detectElementResize';
 import resizeDetector from 'element-resize-detector';
 import React, {PropTypes} from 'react';
 import ReactDOM from 'react-dom';
@@ -42,7 +43,6 @@ export default class StickyFooterPanel extends React.Component {
     this.state = {pinnned: false};
     this._contentRef = null;
     this._contentMarkerRef = null;
-    this._resizeDetector = null;
   }
 
   render() {
@@ -75,15 +75,14 @@ export default class StickyFooterPanel extends React.Component {
   _installContentResizeDetector() {
     if (this._contentRef && this._contentMarkerRef) {
       let contentElem = ReactDOM.findDOMNode(this._contentRef);
-      this._resizeDetector = resizeDetector();
-      this._resizeDetector.listenTo(contentElem, this._onContentResize);
+      addResizeListener(contentElem, this._onContentResize);
     }
   }
 
   _uninstallContentResizeDeterctor() {
-    if (this._resizeDetector && this._contentRef) {
-      this._resizeDetector.uninstall(this._contentElement);
-      this._resizeDetector = null;
+    if (this._contentRef) {
+      let contentElem = ReactDOM.findDOMNode(this._contentRef);
+      removeResizeListener(contentElem, this._onContentResize);
     }
   }
 
@@ -91,6 +90,10 @@ export default class StickyFooterPanel extends React.Component {
   _onContentResize() {
     let contentMarkerBottom = this._contentMarkerElement.getBoundingClientRect().bottom;
     let contentBottom = this._contentElement.getBoundingClientRect().bottom;
+    console.log(
+      '_onContentResize',
+      contentBottom, contentMarkerBottom, this.props.stickThreshold
+      );
     if (contentBottom - contentMarkerBottom > this.props.stickThreshold) {
       if (this.state.pinned) {
         this.setState({pinned: false});

@@ -67,7 +67,6 @@ export default class Action extends React.Component {
     },
     Content: {
       Component: VBox,
-      flex: 1,
       padding: 10,
     },
     Toolbar: {

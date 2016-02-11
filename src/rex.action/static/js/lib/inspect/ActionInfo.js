@@ -53,6 +53,8 @@ export default class ActionInfo extends React.Component {
     Type: {
       fontSize: '80%',
       padding: css.padding(3, 5),
+      color: '#fff',
+      background: '#aaa',
     },
     IconWrapper: {
       fontSize: '70%',
@@ -80,7 +82,7 @@ export default class ActionInfo extends React.Component {
           <layout.HBox>
             {info.access === 'nobody' &&
               <IconWrapper title="Access set to 'nobody'"><LockIcon /></IconWrapper>}
-            <Path title={routeTitle}>{info.path}</Path>
+            <Path title={routeTitle}>{info.path || info.id}</Path>
           </layout.HBox>
         </layout.VBox>
         <layout.HBox>
@@ -99,7 +101,7 @@ export default class ActionInfo extends React.Component {
 
   @autobind
   onClick() {
-    this.props.onSelect(this.props.info.path);
+    this.props.onSelect(this.props.info.path, this.props.info);
   }
 }
 

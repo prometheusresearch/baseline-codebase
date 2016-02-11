@@ -5,6 +5,7 @@
 import React from 'react';
 
 import {override} from 'rex-widget/stylesheet';
+import {autobind} from 'rex-widget/lang';
 import * as ui from 'rex-widget/ui';
 import * as layout from 'rex-widget/layout';
 
@@ -33,26 +34,38 @@ function WizardDiagram({instruction, level, onSelect}) {
   );
 }
 
-export default function DetailedWizardInfo({info, onSelect, ...props}) {
-  let tabList = (
-    <ui.Tab id="diagram" title="Diagram">
-      <layout.VBox padding={10}>
-        <WizardDiagram
-          level={0}
-          instruction={info.wizardPath}
-          onSelect={onSelect}
-          />
-      </layout.VBox>
-    </ui.Tab>
-  );
-  return (
-    <DetailedActionInfo
-      {...props}
-      info={info}
-      defaultTab="diagram"
-      tabList={tabList}
-      stylesheet={stylesheet}
-      />
-  );
+export default class DetailedWizardInfo extends React.Component {
+
+  render() {
+    let {info, ...props} = this.props;
+    let tabList = (
+      <ui.Tab id="diagram" title="Diagram">
+        <layout.VBox padding={10}>
+          <WizardDiagram
+            level={0}
+            instruction={info.wizardPath}
+            onSelect={this.onSelect}
+            />
+        </layout.VBox>
+      </ui.Tab>
+    );
+    return (
+      <DetailedActionInfo
+        {...props}
+        info={info}
+        defaultTab="diagram"
+        tabList={tabList}
+        stylesheet={stylesheet}
+        />
+    );
+  }
+
+  @autobind
+  onSelect(path, info) {
+    if (path === null) {
+      path = `${this.props.info.path}/@/${info.id}`;
+    }
+    this.props.onSelect(path, info);
+  }
 }
 

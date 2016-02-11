@@ -14,11 +14,12 @@ from collections import OrderedDict
 
 from cached_property import cached_property
 
-from rex.core import get_packages, get_settings, cached
+from rex.core import get_packages, get_settings, autoreload
 from rex.web import get_routes
 from rex.widget import raw_widget
 
 from . import instruction
+from . import validate
 
 __all__ = (
     'ActionIntrospection', 'WizardIntrospection',
@@ -49,6 +50,10 @@ class ActionIntrospection(object):
             location=location)
 
     @property
+    def id(self):
+        return self.action.id
+
+    @property
     def title(self):
         return self.action.title or None
 
@@ -71,6 +76,7 @@ class ActionIntrospection(object):
     def info(self, debug=False, detailed=False):
         return {
             'path': self.path,
+            'id': self.id,
             'access': self.access,
             'type': self.type,
             'title': self.title,
@@ -140,10 +146,8 @@ def get_indent(line):
     return len(line) - len(line.lstrip())
 
 
-@cached
-def introspect_actions():
-    """ List all actions in a current application.
-    """
+@autoreload
+def _introspect_actions(open=open):
     def _generate():
         for package in get_packages():
             routes = get_routes(package)
@@ -155,14 +159,33 @@ def introspect_actions():
                 if '@' in path.text:
                     continue
                 path = '%s:%s' % (package.name, path.text)
+
+                if not handler.action._introspection:
+                    continue
                 yield path, handler.action._introspection
+
+                if hasattr(handler.action, 'actions'):
+                    for id, action in handler.action.actions.items():
+                        if isinstance(action, validate.ActionReference):
+                            continue
+                        if not action._introspection:
+                            continue
+                        yield '%s/@/%s' % (path, id), action._introspection
 
     actions = OrderedDict(item for item in _generate())
     return actions
 
 
+def introspect_actions():
+    """ List all actions in a current application.
+    """
+    return OrderedDict(
+        (path, action)
+        for path, action in _introspect_actions().items()
+        if not '@' in path)
+
 def introspect_action(path):
     """ Get introspection info for an action specified by a ``path`` it is
     mounted in URL mapping.
     """
-    return introspect_actions().get(path)
+    return _introspect_actions().get(path)

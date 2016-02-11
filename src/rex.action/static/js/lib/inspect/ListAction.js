@@ -62,7 +62,7 @@ export default class ListAction extends React.Component {
   }
 
   @autobind
-  onSelect(path) {
+  onSelect(path, info) {
     this.props.onContext({path});
   }
 

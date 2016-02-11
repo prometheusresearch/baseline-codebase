@@ -23,7 +23,6 @@ from rex.db import get_db, Query, RexHTSQL
 from rex.widget import TransitionableRecord
 from rex.widget.validate import DeferredVal, Deferred
 
-from .action import ActionVal
 from . import typing
 
 __all__ = ('RexDBVal', 'QueryVal', 'SyntaxVal', 'DomainVal')
@@ -202,14 +201,21 @@ class ActionMapVal(Validate):
     _validate_id = StrVal()
 
     def _validate_action_value(self, id):
+        from .action import ActionVal
         return OneOfVal(
             ActionReferenceVal(reference_type=GlobalActionReference),
             ActionVal(id=id))
 
     def construct(self, loader, node):
         mapping = self._validate_pre.construct(loader, node)
-        return {k: v.resolve(validate=self._validate_action_value(k))
-                for k, v in mapping.items()}
+        result = {}
+        for k, v in mapping.items():
+            action = v.resolve(validate=self._validate_action_value(k))
+            if not isinstance(action, GlobalActionReference):
+                action._introspection = action.Introspection(
+                    action, location=v.source_location)
+            result[k] = action
+        return result
 
     def __call__(self, value):
         mapping = self._validate_pre(value)

@@ -6,6 +6,7 @@
 from rex.core import Error, BoolVal, SeqVal, OneOrSeqVal, locate
 from .fact import Fact, FactVal, LabelVal, TitleVal
 from .model import model
+import collections
 
 
 class TableFact(Fact):
@@ -127,6 +128,23 @@ class TableFact(Fact):
         if self.related is not None:
             args.append("related=%r" % self.related)
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
+
+    def to_yaml(self, full=True):
+        mapping = collections.OrderedDict()
+        mapping['table'] = self.label
+        if self.former_labels:
+            mapping['was'] = self.former_labels
+        if self.is_reliable is False:
+            mapping['reliable'] = self.is_reliable
+        if self.title is not None:
+            mapping['title'] = self.title
+        if self.is_present is False:
+            mapping['present'] = self.is_present
+        if full and self.related:
+            mapping['with'] = [
+                    item.to_yaml(full=False)
+                    for item in self.related]
+        return mapping
 
     def __call__(self, driver):
         schema = model(driver)

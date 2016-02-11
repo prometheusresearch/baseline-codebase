@@ -6,6 +6,7 @@
 from rex.core import Error, MaybeVal, UChoiceVal, SeqVal
 from .fact import Fact, LabelVal, QLabelVal, PairVal
 from .model import model
+import collections
 
 
 class IdentityFact(Fact):
@@ -68,6 +69,19 @@ class IdentityFact(Fact):
         if any(generator is not None for generator in self.generators):
             args.append(repr(self.generators))
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
+
+    def to_yaml(self, full=True):
+        mapping = collections.OrderedDict()
+        items = []
+        for label, generator in zip(self.labels, self.generators):
+            if generator is not None:
+                items.append({label: generator})
+            else:
+                items.append(label)
+        mapping['identity'] = items
+        if full:
+            mapping['of'] = self.table_label
+        return mapping
 
     def __call__(self, driver):
         schema = model(driver)

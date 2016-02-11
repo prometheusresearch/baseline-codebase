@@ -17,14 +17,22 @@ Start with creating a test database and a driver::
 
 Link facts are denoted by field ``link``::
 
-    >>> driver.parse("""{ link: sample.individual }""")
+    >>> fact = driver.parse("""{ link: sample.individual }""")
+    >>> fact
     LinkFact(u'sample', u'individual', u'individual')
+    >>> print fact
+    link: individual
+    of: sample
 
 The origin of the link could be set as a prefix of the ``link`` field
 or as a separate ``of`` field::
 
-    >>> driver.parse("""{ link: individual, of: sample }""")
+    >>> fact = driver.parse("""{ link: individual, of: sample }""")
+    >>> fact
     LinkFact(u'sample', u'individual', u'individual')
+    >>> print fact
+    link: individual
+    of: sample
 
 It is an error if ``link`` has no prefix and ``of`` is not specified.
 It is also an error if they are both specified::
@@ -47,32 +55,63 @@ It is also an error if they are both specified::
 The target of the link could be omitted if its name coincides with
 the link name.  Otherwise, it could be set using ``to`` field::
 
-    >>> driver.parse("""{ link: individual.mother, to: individual }""")
+    >>> fact = driver.parse("""{ link: individual.mother, to: individual }""")
+    >>> fact
     LinkFact(u'individual', u'mother', u'individual')
+    >>> print fact
+    link: mother
+    of: individual
+    to: individual
 
 You can indicate any old names of the link using ``was`` clause::
 
-    >>> driver.parse("""{ link: measure.individual, was: subject }""")
+    >>> fact = driver.parse("""{ link: measure.individual, was: subject }""")
+    >>> fact
     LinkFact(u'measure', u'individual', u'individual', former_labels=[u'subject'])
+    >>> print fact
+    link: individual
+    of: measure
+    was: [subject]
 
-    >>> driver.parse("""{ link: individual.birth_mother, was: [parent, mother], to: individual }""")
+    >>> fact = driver.parse("""{ link: individual.birth_mother, was: [parent, mother], to: individual }""")
+    >>> fact
     LinkFact(u'individual', u'birth_mother', u'individual', former_labels=[u'parent', u'mother'])
+    >>> print fact
+    link: birth_mother
+    of: individual
+    to: individual
+    was: [parent, mother]
 
 By default, a link does not permit ``NULL`` values.  Turn off flag
 ``required`` to allow ``NULL`` values::
 
-    >>> driver.parse("""{ link: sample.individual, required: false }""")
+    >>> fact = driver.parse("""{ link: sample.individual, required: false }""")
+    >>> fact
     LinkFact(u'sample', u'individual', u'individual', is_required=False)
+    >>> print fact
+    link: individual
+    of: sample
+    required: false
 
 You can explicitly specify the link title::
 
-    >>> driver.parse("""{ link: sample.individual, title: Subject }""")
+    >>> fact = driver.parse("""{ link: sample.individual, title: Subject }""")
+    >>> fact
     LinkFact(u'sample', u'individual', u'individual', title=u'Subject')
+    >>> print fact
+    link: individual
+    of: sample
+    title: Subject
 
 Turn off flag ``present`` to indicate that the link should not exist::
 
-    >>> driver.parse("""{ link: individual.code, present: false }""")
+    >>> fact = driver.parse("""{ link: individual.code, present: false }""")
+    >>> fact
     LinkFact(u'individual', u'code', is_present=False)
+    >>> print fact
+    link: code
+    of: individual
+    present: false
 
 Field ``present: false`` cannot coexist with other link parameters::
 

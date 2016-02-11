@@ -6,6 +6,7 @@
 from rex.core import Error, BoolVal, UStrVal, OneOrSeqVal
 from .fact import Fact, LabelVal, QLabelVal, TitleVal
 from .model import model
+import collections
 
 
 class LinkFact(Fact):
@@ -157,6 +158,29 @@ class LinkFact(Fact):
         if not self.is_present:
             args.append("is_present=%r" % self.is_present)
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
+
+    def to_yaml(self, full=True):
+        mapping = collections.OrderedDict()
+        mapping['link'] = self.label
+        if full:
+            mapping['of'] = self.table_label
+        if self.target_table_label not in (None, self.label):
+            mapping['to'] = self.target_table_label
+        if self.former_labels:
+            mapping['was'] = self.former_labels
+        if full and self.front_labels:
+            mapping['after'] = self.front_labels
+        if self.default is not None:
+            mapping['default'] = self.default
+        if self.is_required is False:
+            mapping['required'] = self.is_required
+        if self.is_unique is True:
+            mapping['unique'] = self.is_unique
+        if self.title is not None:
+            mapping['title'] = self.title
+        if self.is_present is False:
+            mapping['present'] = self.is_present
+        return mapping
 
     def __call__(self, driver):
         schema = model(driver)

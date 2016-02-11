@@ -17,8 +17,12 @@ Start with creating a test database and a driver::
 
 Identity fact is denoted by field ``identity``::
 
-    >>> driver.parse("""{ identity: [individual.code] }""")
+    >>> fact = driver.parse("""{ identity: [individual.code] }""")
+    >>> fact
     IdentityFact(u'individual', [u'code'])
+    >>> print fact
+    identity: [code]
+    of: individual
 
 The identity should have at least one label::
 
@@ -32,8 +36,12 @@ The identity should have at least one label::
 The table of the identity constraint could be set either as a prefix
 of identity label or as a separate ``of`` field::
 
-    >>> driver.parse("""{ identity: [code], of: individual }""")
+    >>> fact = driver.parse("""{ identity: [code], of: individual }""")
+    >>> fact
     IdentityFact(u'individual', [u'code'])
+    >>> print fact
+    identity: [code]
+    of: individual
 
 It is an error of the table of the identity is not set or set
 multiple times::
@@ -55,15 +63,27 @@ multiple times::
 
 Identity label could be supplied with an associated generator::
 
-    >>> driver.parse("""{ identity: [code: random], of: individual }""")
+    >>> fact = driver.parse("""{ identity: [code: random], of: individual }""")
+    >>> fact
     IdentityFact(u'individual', [u'code'], [u'random'])
+    >>> print fact
+    identity:
+    - {code: random}
+    of: individual
 
 When you provide an identity specification as a YAML structure, specify the
 column and the generator as a pair::
 
-    >>> driver.parse({ 'identity': ['individual', {'measure_type': None}, ('code', 'offset')],
-    ...                 'of': 'measure' })
+    >>> fact = driver.parse({ 'identity': ['individual', {'measure_type': None}, ('code', 'offset')],
+    ...                       'of': 'measure' })
+    >>> fact
     IdentityFact(u'measure', [u'individual', u'measure_type', u'code'], [None, None, u'offset'])
+    >>> print fact
+    identity:
+    - individual
+    - measure_type
+    - {code: offset}
+    of: measure
 
 Ill-formed generators are rejected::
 

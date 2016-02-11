@@ -17,14 +17,24 @@ Start with creating a test database and a driver::
 
 Column facts are denoted by field ``column``::
 
-    >>> driver.parse("""{ column: individual.code, type: text }""")
+    >>> fact = driver.parse("""{ column: individual.code, type: text }""")
+    >>> fact
     ColumnFact(u'individual', u'code', u'text')
+    >>> print fact
+    column: code
+    of: individual
+    type: text
 
 The table of the column could be set in the ``column`` field
 or as a separate ``of`` field::
 
-    >>> driver.parse("""{ column: code, of: individual, type: text }""")
+    >>> fact = driver.parse("""{ column: code, of: individual, type: text }""")
+    >>> fact
     ColumnFact(u'individual', u'code', u'text')
+    >>> print fact
+    column: code
+    of: individual
+    type: text
 
 If the table is not set or set twice, an error is raised::
 
@@ -45,17 +55,34 @@ If the table is not set or set twice, an error is raised::
 
 You could indicate possible old names of the column using ``was`` field::
 
-    >>> driver.parse("""{ column: identity.last_name, was: [surname], type: text }""")
+    >>> fact = driver.parse("""{ column: identity.last_name, was: [surname], type: text }""")
+    >>> fact
     ColumnFact(u'identity', u'last_name', u'text', former_labels=[u'surname'])
+    >>> print fact
+    column: last_name
+    of: identity
+    was: [surname]
+    type: text
 
-    >>> driver.parse("""{ column: identity.date_of_birth, was: [dob, birth], type: date }""")
+    >>> fact = driver.parse("""{ column: identity.date_of_birth, was: [dob, birth], type: date }""")
+    >>> fact
     ColumnFact(u'identity', u'date_of_birth', u'date', former_labels=[u'dob', u'birth'])
+    >>> print fact
+    column: date_of_birth
+    of: identity
+    was: [dob, birth]
+    type: date
 
 The ``type`` field is the name of the column type or a list of labels
 of ``ENUM`` type::
 
-    >>> driver.parse("""{ column: individual.sex, type: [male, female] }""")
+    >>> fact = driver.parse("""{ column: individual.sex, type: [male, female] }""")
+    >>> fact
     ColumnFact(u'individual', u'sex', [u'male', u'female'])
+    >>> print fact
+    column: sex
+    of: individual
+    type: [male, female]
 
 It is an error if the type is not specified or the type name is not recognized
 or ``ENUM`` labels are not specified correctly::
@@ -85,8 +112,14 @@ or ``ENUM`` labels are not specified correctly::
 
 You can set the default value of the column::
 
-    >>> driver.parse("""{ column: study.closed, type: boolean, default: false }""")
+    >>> fact = driver.parse("""{ column: study.closed, type: boolean, default: false }""")
+    >>> fact
     ColumnFact(u'study', u'closed', u'boolean', default=False)
+    >>> print fact
+    column: closed
+    of: study
+    type: boolean
+    default: false
 
 The default value must be compatible with the column type::
 
@@ -101,24 +134,47 @@ The default value must be compatible with the column type::
 By default, a column does not permit ``NULL`` values.  Turn off flag
 ``required`` to allow ``NULL`` values::
 
-    >>> driver.parse("""{ column: individual.code, type: text, required: false }""")
+    >>> fact = driver.parse("""{ column: individual.code, type: text, required: false }""")
+    >>> fact
     ColumnFact(u'individual', u'code', u'text', is_required=False)
+    >>> print fact
+    column: code
+    of: individual
+    type: text
+    required: false
 
 You can also declare that the column value must be unique across all rows in
 the table::
 
-    >>> driver.parse("""{ column: user.email, type: text, unique: true }""")
+    >>> fact = driver.parse("""{ column: user.email, type: text, unique: true }""")
+    >>> fact
     ColumnFact(u'user', u'email', u'text', is_unique=True)
+    >>> print fact
+    column: email
+    of: user
+    type: text
+    unique: true
 
 Use field ``title`` to specify the column title::
 
-    >>> driver.parse("""{ column: individual.code, type: text, title: Individual ID }""")
+    >>> fact = driver.parse("""{ column: individual.code, type: text, title: Individual ID }""")
+    >>> fact
     ColumnFact(u'individual', u'code', u'text', title=u'Individual ID')
+    >>> print fact
+    column: code
+    of: individual
+    type: text
+    title: Individual ID
 
 Turn off flag ``present`` to indicate that the column should not exist::
 
-    >>> driver.parse("""{ column: individual.code, present: false }""")
+    >>> fact = driver.parse("""{ column: individual.code, present: false }""")
+    >>> fact
     ColumnFact(u'individual', u'code', is_present=False)
+    >>> print fact
+    column: code
+    of: individual
+    present: false
 
 Field ``present: false`` cannot coexist with other column parameters::
 

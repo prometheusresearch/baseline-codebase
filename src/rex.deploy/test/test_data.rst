@@ -17,18 +17,28 @@ Start with creating a test database and a driver::
 
 Field ``data`` denotes a data fact::
 
-    >>> driver.parse("""{ data: ./deploy/individual.csv }""")
+    >>> fact = driver.parse("""{ data: ./deploy/individual.csv }""")
+    >>> fact
     DataFact(u'individual', data_path='./deploy/individual.csv')
+    >>> print fact
+    data: ./deploy/individual.csv
+    of: individual
 
 You could either specify the path to a data file or embed input data::
 
-    >>> driver.parse("""
+    >>> fact = driver.parse("""
     ... data: |
     ...   code,name
     ...   asdl,Autism Spectrum Disorder Lab
     ... of: study
     ... """)
+    >>> fact
     DataFact(u'study', data='code,name\nasdl,Autism Spectrum Disorder Lab\n')
+    >>> print fact
+    data: |
+      code,name
+      asdl,Autism Spectrum Disorder Lab
+    of: study
 
 If the ``of`` field omitted, the table name is inferred from the file name.  If
 you embed input data in ``data`` field, you must provide the table name via

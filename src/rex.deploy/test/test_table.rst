@@ -17,32 +17,58 @@ We start with creating a test database and a ``Driver`` instance::
 
 Field ``table`` denotes a table fact::
 
-    >>> driver.parse("""{ table: individual }""")
+    >>> fact = driver.parse("""{ table: individual }""")
+
+    >>> fact
     TableFact(u'individual')
+    >>> print fact
+    table: individual
 
 You could indicate possible old names of the table using ``was`` field::
 
-    >>> driver.parse("""{ table: individual, was: subject }""")
+    >>> fact = driver.parse("""{ table: individual, was: subject }""")
+    >>> fact
     TableFact(u'individual', former_labels=[u'subject'])
+    >>> print fact
+    table: individual
+    was: [subject]
 
-    >>> driver.parse("""{ table: measure, was: [assessment, test] }""")
+    >>> fact = driver.parse("""{ table: measure, was: [assessment, test] }""")
+    >>> fact
     TableFact(u'measure', former_labels=[u'assessment', u'test'])
+    >>> print fact
+    table: measure
+    was: [assessment, test]
 
 Use field ``table`` to specify the table title::
 
-    >>> driver.parse("""{ table: individual, title: Test Subjects }""")
+    >>> fact = driver.parse("""{ table: individual, title: Test Subjects }""")
+    >>> fact
     TableFact(u'individual', title=u'Test Subjects')
+    >>> print fact
+    table: individual
+    title: Test Subjects
 
 Turn off field ``reliable`` to create a fast, but not crash-safe table::
 
-    >>> driver.parse("""{ table: history, reliable: false }""")
+    >>> fact = driver.parse("""{ table: history, reliable: false }""")
+    >>> fact
     TableFact(u'history', is_reliable=False)
+    >>> print fact
+    table: history
+    reliable: false
 
 Use field ``with`` to list facts to deployed together with the table fact::
 
-    >>> driver.parse("""{ table: individual,
-    ...                   with: [{ column: code, type: text}] }""")
+    >>> fact = driver.parse("""{ table: individual,
+    ...                          with: [{ column: code, type: text}] }""")
+    >>> fact
     TableFact(u'individual', related=[ColumnFact(u'individual', u'code', u'text')])
+    >>> print fact
+    table: individual
+    with:
+    - column: code
+      type: text
 
 Nested facts must deploy columns, links or data of the table being deployed::
 
@@ -66,8 +92,12 @@ Nested facts must deploy columns, links or data of the table being deployed::
 
 Turn off flag ``present`` to indicate that the table is to be deleted::
 
-    >>> driver.parse("""{ table: individual, present: false }""")
+    >>> fact = driver.parse("""{ table: individual, present: false }""")
+    >>> fact
     TableFact(u'individual', is_present=False)
+    >>> print fact
+    table: individual
+    present: false
 
 You cannot combine ``present: false`` with the ``was``, ``reliable``, ``title``
 or ``with`` fields::

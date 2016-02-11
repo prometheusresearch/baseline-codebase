@@ -17,20 +17,29 @@ Start with creating a test database and a driver::
 
 Field ``sql`` denotes a raw SQL fact::
 
-    >>> driver.parse("""{ sql: ./deploy/study_history.sql, unless: ./deploy/study_history_check.sql }""")
+    >>> fact = driver.parse("""{ sql: ./deploy/study_history.sql, unless: ./deploy/study_history_check.sql }""")
+    >>> fact
     RawFact(action_sql_path='./deploy/study_history.sql', check_sql_path='./deploy/study_history_check.sql')
-
+    >>> print fact
+    sql: ./deploy/study_history.sql
+    unless: ./deploy/study_history_check.sql
 
 You could either specify the path to a SQL file or embed SQL directly::
 
-    >>> driver.parse("""
+    >>> fact = driver.parse("""
     ... sql: |
     ...   CREATE INDEX study_title_idx ON study USING gin(to_tsvector('english', title));
     ... unless: |
     ...   SELECT TRUE FROM pg_catalog.pg_class WHERE relname = 'study_title_idx';
-    ... """)                # doctest: +NORMALIZE_WHITESPACE
+    ... """)
+    >>> fact            # doctest: +NORMALIZE_WHITESPACE
     RawFact(action_sql="CREATE INDEX study_title_idx ON study USING gin(to_tsvector('english', title));\n",
             check_sql="SELECT TRUE FROM pg_catalog.pg_class WHERE relname = 'study_title_idx';\n")
+    >>> print fact
+    sql: |
+      CREATE INDEX study_title_idx ON study USING gin(to_tsvector('english', title));
+    unless: |
+      SELECT TRUE FROM pg_catalog.pg_class WHERE relname = 'study_title_idx';
 
 
 Executing SQL

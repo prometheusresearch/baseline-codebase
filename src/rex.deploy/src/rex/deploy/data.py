@@ -18,6 +18,7 @@ import htsql.core.util
 import htsql_rex_deploy
 import psycopg2.tz
 import json
+import collections
 
 
 class _skip_type(object):
@@ -114,6 +115,15 @@ class DataFact(Fact):
         if not self.is_present:
             args.append("is_present=%r" % self.is_present)
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
+
+    def to_yaml(self, full=True):
+        mapping = collections.OrderedDict()
+        mapping['data'] = self.data if self.data is not None else self.data_path
+        if full:
+            mapping['of'] = self.table_label
+        if self.is_present is False:
+            mapping['present'] = False
+        return mapping
 
     def __call__(self, driver):
         # Ensures that the table contains the given data.

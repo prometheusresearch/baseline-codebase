@@ -9,6 +9,7 @@
 ==================
 
 * Added support for psycopg2 >= 2.5.
+* Support for serializing facts in YAML.
 
 
 2.4.1 (2016-01-29)

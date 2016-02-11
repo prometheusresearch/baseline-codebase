@@ -9,8 +9,42 @@ from rex.core import (LatentRex, get_rex, Extension, Validate, UStrVal,
 from .introspect import introspect
 import sys
 import inspect
+import decimal
+import collections
 import psycopg2
 import yaml
+
+
+class FactDumper(yaml.Dumper):
+
+    def represent_str(self, data):
+        data = data.decode('utf-8', 'replace')
+        style = None
+        if data.endswith('\n'):
+            style = '|'
+        return self.represent_scalar(u'tag:yaml.org,2002:str', data, style=style)
+
+    def represent_unicode(self, data):
+        style = None
+        if data.endswith(u'\n'):
+            style = '|'
+        return self.represent_scalar(u'tag:yaml.org,2002:str', data, style=style)
+
+    def represent_decimal(self, data):
+        return self.represent_scalar(u'tag:yaml.org,2002:float', unicode(data))
+
+    def represent_ordered_dict(self, data):
+        return self.represent_mapping(u'tag:yaml.org,2002:map', data.items(),
+                                      flow_style=False)
+
+FactDumper.add_representer(
+        str, FactDumper.represent_str)
+FactDumper.add_representer(
+        unicode, FactDumper.represent_unicode)
+FactDumper.add_representer(
+        decimal.Decimal, FactDumper.represent_decimal)
+FactDumper.add_representer(
+        collections.OrderedDict, FactDumper.represent_ordered_dict)
 
 
 class FactVal(Validate):
@@ -424,5 +458,11 @@ class Fact(Extension):
 
     def __repr__(self):
         return "%s()" % self.__class__.__name__
+
+    def __str__(self):
+        return yaml.dump(self.to_yaml(), Dumper=FactDumper).rstrip()
+
+    def to_yaml(self, full=True):
+        raise NotImplementedError("%s.to_yaml()" % self.__class__.__name__)
 
 

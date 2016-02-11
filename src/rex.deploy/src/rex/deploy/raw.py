@@ -7,6 +7,7 @@ from rex.core import Error, StrVal
 from .fact import Fact
 import re
 import os.path
+import collections
 
 
 class RawFact(Fact):
@@ -73,6 +74,14 @@ class RawFact(Fact):
         if self.check_sql_path is not None:
             args.append("check_sql_path=%r" % self.check_sql_path)
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
+
+    def to_yaml(self, full=True):
+        mapping = collections.OrderedDict()
+        mapping['sql'] = self.action_sql if self.action_sql is not None \
+                else self.action_sql_path
+        mapping['unless'] = self.check_sql if self.check_sql is not None \
+                else self.check_sql_path
+        return mapping
 
     def __call__(self, driver):
         # Prepare SQL.

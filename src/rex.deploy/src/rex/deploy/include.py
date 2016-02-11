@@ -38,6 +38,9 @@ class IncludeFact(Fact):
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__, self.path)
 
+    def to_yaml(self, full=True):
+        return {'include': self.path}
+
     def __call__(self, driver):
         cwd = driver.cwd
         driver.chdir(os.path.dirname(self.path))

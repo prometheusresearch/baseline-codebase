@@ -63,7 +63,8 @@ export default class ListAction extends React.Component {
 
   @autobind
   onSelect(path, info) {
-    this.props.onContext({path});
+    let {output} = this.props;
+    this.props.onContext({[output]: path});
   }
 
   @autobind
@@ -75,7 +76,8 @@ export default class ListAction extends React.Component {
     this.setState({search});
   }
 
-  static renderTitle({title}, {path}) {
+  static renderTitle({title, output}, context) {
+    let path = context[output];
     let {Primary, Secondary} = Title.stylesheet;
     return (
       <layout.VBox>

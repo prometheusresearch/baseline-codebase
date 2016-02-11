@@ -15,6 +15,7 @@ from cached_property import cached_property
 from webob import Response
 from webob.exc import HTTPBadRequest
 
+from rex.core import StrVal
 from rex.widget import (
     Field, computed_field, responder, RequestURL, transitionable)
 
@@ -32,6 +33,9 @@ class ListAction(Action):
     name = 'inspect-list-action'
     js_type = 'rex-action/lib/inspect/ListAction'
 
+
+    output = Field(StrVal(), default='path')
+
     @computed_field
     def actions(self):
         info = introspection.introspect_actions().values()
@@ -40,15 +44,19 @@ class ListAction(Action):
                 if info]
 
     def context(self):
+        output = {self.output: typing.ValueType('path')}
         return (
             self.domain.record(),
-            self.domain.record(path=typing.ValueType('path'))
+            self.domain.record(**output)
         )
 
 
 class ViewAction(Action):
     """ View action.
     """
+
+    input = Field(StrVal(), default='path')
+    output = Field(StrVal(), default='path')
 
     name = 'inspect-view-action'
     js_type = 'rex-action/lib/inspect/ViewAction'
@@ -67,7 +75,9 @@ class ViewAction(Action):
             content_type='application/json')
 
     def context(self):
+        input = {self.input: typing.ValueType('path')}
+        output = {self.output: typing.ValueType('path')}
         return (
-            self.domain.record(path=typing.ValueType('path')),
-            self.domain.record()
+            self.domain.record(**input),
+            self.domain.record(**output)
         )

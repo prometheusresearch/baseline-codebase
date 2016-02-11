@@ -7,14 +7,25 @@ paths:
 
       path:
       - list-action:
-        - view-action:
+        - repeat:
+            view-action:
+              - view-next-action:
 
       actions:
         list-action:
           type: inspect-list-action
-          title: List of actions
+          title: Actions
           icon: list
+          output: path
         view-action:
           type: inspect-view-action
-          title: View Action
+          title: Action
           icon: file
+          input: path
+          output: next_path
+        view-next-action:
+          type: inspect-view-action
+          title: Action
+          icon: file
+          input: next_path
+          output: path

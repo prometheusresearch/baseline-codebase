@@ -7,10 +7,12 @@ import React from 'react'
 import Action from '../Action';
 import {autobind, emptyFunction} from 'rex-widget/lang';
 import {Fetch} from 'rex-widget/data';
+import Title from '../actions/Title';
 import * as ui from 'rex-widget/ui';
 import * as layout from 'rex-widget/layout';
 
-@Fetch(function fetchAction({context: {path}, action}) {
+@Fetch(function fetchAction({context, action, input}) {
+  let path = context[input];
   return {
     action: action.params({path}).asTransitionable()
   };
@@ -31,7 +33,19 @@ export default class ViewAction extends React.Component {
   @autobind
   onSelect(path) {
     if (path) {
-      this.props.onContext({path});
+      let {output} = this.props;
+      this.props.onContext({[output]: path});
     }
+  }
+
+  static renderTitle({title, input}, context) {
+    let path = context[input];
+    let {Primary, Secondary} = Title.stylesheet;
+    return (
+      <layout.VBox>
+        <Primary>{title}</Primary>
+        {path && <Secondary>{path}</Secondary>}
+      </layout.VBox>
+    );
   }
 }

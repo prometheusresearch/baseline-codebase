@@ -25,6 +25,9 @@ function WizardDiagram({instruction, level, onSelect}) {
       onSelect={onSelect}
       />
   );
+  if (children.length > 0) {
+    children = <layout.VBox marginTop={7}>{children}</layout.VBox>
+  }
   return (
     <layout.VBox left={13} marginBottom={7}>
       {instruction.element ?

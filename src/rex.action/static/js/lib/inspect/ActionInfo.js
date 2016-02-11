@@ -22,10 +22,12 @@ export default class ActionInfo extends React.Component {
   static stylesheet = stylesheet.create({
     Root: {
       Component: ActionPanel,
-      Root: {
+      Header: {
         hover: {
           background: '#f1f1f1',
         },
+      },
+      Root: {
         selected: {
           background: '#eaeaea',
         }

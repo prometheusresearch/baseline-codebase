@@ -82,7 +82,13 @@ class FormAction(EntityAction):
     def create_query(self):
         if self.query:
             query = Query(self.query, self.db)
-            query.parameters = {f.value_key[0]: None for f in self._complete_fields}
+            query.parameters = {}
+            query.parameters.update({
+                k: None for k in self.input.rows
+            })
+            query.parameters.update({
+                f.value_key[0]: None for f in self._complete_fields
+            })
             return query
         else:
             return None

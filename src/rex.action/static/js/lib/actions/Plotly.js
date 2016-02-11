@@ -4,7 +4,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import autobind from 'rex-widget/lang';
+import {autobind} from 'rex-widget/lang';
 import Plotly from '../vendor/plotly';
 import {WithDOMSize, Preloader as BasePreloader} from 'rex-widget/ui';
 import {Fetch} from 'rex-widget/data';

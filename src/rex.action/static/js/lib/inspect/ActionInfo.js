@@ -65,7 +65,7 @@ export default class ActionInfo extends React.Component {
   });
 
   render() {
-    let {info, selected, title = this.props.info.title, type} = this.props;
+    let {info, selected, title = this.props.info.title, type, children} = this.props;
     let {
       Root, Content, Header,
       Path, Title, Doc,
@@ -91,7 +91,7 @@ export default class ActionInfo extends React.Component {
       </Header>
     );
     return (
-      <Root onClick={this.onClick} variant={{selected}} header={header} />
+      <Root onClick={this.onClick} variant={{selected}} header={header}>{children}</Root>
     );
   }
 

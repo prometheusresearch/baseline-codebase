@@ -17,19 +17,21 @@ let stylesheet = override(DetailedActionInfo.stylesheet, {
 });
 
 function WizardDiagram({instruction, level, onSelect}) {
+  let children = instruction.then.map((instruction, idx) =>
+    <WizardDiagram
+      key={instruction.action || idx}
+      instruction={instruction}
+      level={level + 1}
+      onSelect={onSelect}
+      />
+  );
   return (
-    <layout.VBox left={10 * (level - 1)}>
-      {instruction.element &&
-        <layout.VBox marginBottom={5}>
-          {React.cloneElement(instruction.element, {onSelect})}
-        </layout.VBox>}
-      {instruction.then.map((instruction, idx) =>
-        <WizardDiagram
-          key={instruction.action || idx}
-          instruction={instruction}
-          level={level + 1}
-          onSelect={onSelect}
-          />)}
+    <layout.VBox left={13} marginBottom={7}>
+      {instruction.element ?
+        React.cloneElement(instruction.element, {onSelect, children}) :
+        <ui.Panel paddingTop={7}>
+          {children}
+        </ui.Panel>}
     </layout.VBox>
   );
 }

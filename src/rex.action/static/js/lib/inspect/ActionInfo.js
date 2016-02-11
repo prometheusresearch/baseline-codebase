@@ -13,16 +13,6 @@ import * as layout from 'rex-widget/layout';
 import LockIcon from 'babel!react-icons/fa/lock';
 import ActionPanel from './ui/ActionPanel';
 
-let DefaultActionPanel = stylesheet.style(ActionPanel, {
-  Root: {
-    border: css.border(1, '#777'),
-  },
-  Header: {
-    color: '#fff',
-    background: '#777',
-  }
-});
-
 export default class ActionInfo extends React.Component {
 
   static defaultProps = {
@@ -30,10 +20,21 @@ export default class ActionInfo extends React.Component {
   };
 
   static stylesheet = stylesheet.create({
-    Root: DefaultActionPanel,
+    Root: {
+      Component: ActionPanel,
+      Root: {
+        hover: {
+          background: '#f1f1f1',
+        },
+        selected: {
+          background: '#eaeaea',
+        }
+      }
+    },
     Header: {
       Component: layout.HBox,
       justifyContent: 'space-between',
+      alignItems: 'flex-start',
     },
     Content: {
       Component: layout.VBox,
@@ -50,8 +51,8 @@ export default class ActionInfo extends React.Component {
       marginBottom: 5,
     },
     Type: {
-      textTransform: 'uppercase',
-      fontSize: '70%',
+      fontSize: '80%',
+      padding: css.padding(3, 5),
     },
     IconWrapper: {
       fontSize: '70%',

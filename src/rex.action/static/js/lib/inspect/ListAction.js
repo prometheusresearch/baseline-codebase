@@ -5,6 +5,7 @@
 import React from 'react'
 
 import Action from '../Action';
+import Title from '../actions/Title';
 import {autobind} from 'rex-widget/lang';
 import * as form from 'rex-widget/form';
 import * as layout from 'rex-widget/layout';
@@ -72,6 +73,16 @@ export default class ListAction extends React.Component {
       pattern: new RegExp(value, 'i')
     };
     this.setState({search});
+  }
+
+  static renderTitle({title}, {path}) {
+    let {Primary, Secondary} = Title.stylesheet;
+    return (
+      <layout.VBox>
+        <Primary>{title}</Primary>
+        {path && <Secondary>{path}</Secondary>}
+      </layout.VBox>
+    );
   }
 }
 

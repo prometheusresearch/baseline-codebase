@@ -10,14 +10,9 @@ import * as css from 'rex-widget/css';
 import ActionInfo from './ActionInfo';
 
 let stylesheet = override(ActionInfo.stylesheet, {
-  Root: {
-    Root: {
-      border: css.border(1, '#5cb85c'),
-    },
-    Header: {
-      color: '#fff',
-      background: '#5cb85c',
-    }
+  Type: {
+    color: '#fff',
+    background: '#5cb85c',
   }
 });
 

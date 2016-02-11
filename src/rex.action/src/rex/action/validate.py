@@ -47,7 +47,7 @@ class SyntaxVal(UStrVal):
 
     def __call__(self, data):
         if isinstance(data, Syntax):
-            return data
+            return str(data)
         data = super(SyntaxVal, self).__call__(data)
         try:
             with get_db():

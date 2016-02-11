@@ -69,6 +69,10 @@ paths:
     action:
       type: wizard
       path:
+      - form:
+        - view-individual:
+      - pick-individual:
+        - edit-individual-form:
       - pick-lab:
         - view-lab:
         - edit-lab:
@@ -76,6 +80,20 @@ paths:
         - make-lab:
           - replace: ../../pick-lab
       actions:
+        form:
+          type: form
+          entity: individual
+          fields:
+          - type: string
+            label: Code
+            value_key: code
+          query: |
+            do (
+              $id := insert(individual := {
+                code := $code
+              }),
+              { id := $id }
+            )
         pick-lab: /labs/pick
         view-lab: /labs/view
         make-lab:
@@ -86,7 +104,31 @@ paths:
           type: drop
           entity: lab
         pick-make-individual: /individuals/pick-make
-        view-individual: /individuals/view?individual=individual[super]
+        view-individual: /individuals/view
+        pick-individual:
+          type: pick
+          entity: individual
+        edit-individual-form:
+          type: form
+          fields:
+          - type: string
+            label: Code
+            value_key: individual.0.code
+          - type: string
+            label: Sex
+            value_key: individual.0.sex
+          input:
+          - individual: individual
+          value: |
+            /individual[$individual]{code,sex}
+          query: |
+            /do(
+              $_individual := top(individual.filter(id()=$individual)).id(),
+              update(individual := {
+                $_individual,
+                code := $code
+              })
+            )
         edit-individual: /individuals/edit
         drop-individual:
           type: drop

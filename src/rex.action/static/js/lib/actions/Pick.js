@@ -57,8 +57,8 @@ export default class Pick extends React.Component {
     );
     return (
       <Action
-        extraToolbar={extraToolbar}
         noContentWrapper
+        extraToolbar={extraToolbar}
         title={title}
         onClose={onClose}>
         <DataTable

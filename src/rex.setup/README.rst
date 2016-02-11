@@ -37,7 +37,6 @@ To use :mod:`rex.setup`, add the following lines to ``setup.py``::
 
     setup(
         ...
-        setup_requires=['rex.setup'],
         rex_init='...',
         rex_static='...',
         rex_bundle={...},
@@ -62,7 +61,6 @@ To use :mod:`rex.setup`, add the following lines to ``setup.py``::
         setup(
             name='rex.setup_demo',
             ...
-            setup_requires=['rex.setup'],
             rex_init='rex.setup_demo',
         )
 
@@ -82,7 +80,6 @@ To use :mod:`rex.setup`, add the following lines to ``setup.py``::
         setup(
             name='rex.setup_demo',
             ...
-            setup_requires=['rex.setup'],
             rex_static='static',
         )
 
@@ -108,7 +105,6 @@ To use :mod:`rex.setup`, add the following lines to ``setup.py``::
         setup(
             name='rex.setup_demo',
             ...
-            setup_requires=['rex.setup'],
             rex_static='static',
             rex_bundle={
                 './www/jquery': [
@@ -360,7 +356,6 @@ pack, use ``rex_bundle`` directive in ``setup.py``::
         setup(
             name='rex.setup_demo',
             ...
-            setup_requires=['rex.setup'],
             rex_static='static',
             rex_bundle={
                 './www/bundle': [

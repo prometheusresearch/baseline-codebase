@@ -23,11 +23,11 @@ tests:
     stdout: ''
   - sh: ./bin/pip install -q ./src/rex.setup_demo
     stdout: ''
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-3.1.2-py2.7.egg-info/rex_init.txt
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-3.1.3-py2.7.egg-info/rex_init.txt
     data: rex.setup_demo
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-3.1.2-py2.7.egg-info/rex_static.txt
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-3.1.3-py2.7.egg-info/rex_static.txt
     data: /home/andrey/rs/src/rex.setup/sandbox/share/rex/rex.setup_demo
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-3.1.2-py2.7.egg-info/rex_bundle.txt
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-3.1.3-py2.7.egg-info/rex_bundle.txt
     data: |
       {
         "./www/bootstrap": [
@@ -156,11 +156,11 @@ tests:
     stdout: ''
   - sh: ../../bin/python setup.py -q sdist --format=zip
     stdout: ''
-  - sh: unzip -q ./src/rex.setup_demo/dist/rex.setup_demo-3.1.2.zip
+  - sh: unzip -q ./src/rex.setup_demo/dist/rex.setup_demo-3.1.3.zip
     stdout: ''
-  - sh: ls -R ./rex.setup_demo-3.1.2
+  - sh: ls -R ./rex.setup_demo-3.1.3
     stdout: |
-      ./rex.setup_demo-3.1.2:
+      ./rex.setup_demo-3.1.3:
       PKG-INFO
       README
       setup.cfg
@@ -168,15 +168,15 @@ tests:
       src
       static
 
-      ./rex.setup_demo-3.1.2/src:
+      ./rex.setup_demo-3.1.3/src:
       rex
       rex.setup_demo.egg-info
 
-      ./rex.setup_demo-3.1.2/src/rex:
+      ./rex.setup_demo-3.1.3/src/rex:
       __init__.py
       setup_demo.py
 
-      ./rex.setup_demo-3.1.2/src/rex.setup_demo.egg-info:
+      ./rex.setup_demo-3.1.3/src/rex.setup_demo.egg-info:
       PKG-INFO
       SOURCES.txt
       dependency_links.txt
@@ -186,19 +186,19 @@ tests:
       rex_static.txt
       top_level.txt
 
-      ./rex.setup_demo-3.1.2/static:
+      ./rex.setup_demo-3.1.3/static:
       js
       www
 
-      ./rex.setup_demo-3.1.2/static/js:
+      ./rex.setup_demo-3.1.3/static/js:
       lib
       package.json
 
-      ./rex.setup_demo-3.1.2/static/js/lib:
+      ./rex.setup_demo-3.1.3/static/js/lib:
       index.js
       index.less
 
-      ./rex.setup_demo-3.1.2/static/www:
+      ./rex.setup_demo-3.1.3/static/www:
       _access.yaml
       bootstrap
       bundle
@@ -206,29 +206,29 @@ tests:
       index.html
       jquery
 
-      ./rex.setup_demo-3.1.2/static/www/bootstrap:
+      ./rex.setup_demo-3.1.3/static/www/bootstrap:
       LICENSE
       css
       fonts
       js
 
-      ./rex.setup_demo-3.1.2/static/www/bootstrap/css:
+      ./rex.setup_demo-3.1.3/static/www/bootstrap/css:
       bootstrap-theme.css
       bootstrap-theme.min.css
       bootstrap.css
       bootstrap.min.css
 
-      ./rex.setup_demo-3.1.2/static/www/bootstrap/fonts:
+      ./rex.setup_demo-3.1.3/static/www/bootstrap/fonts:
       glyphicons-halflings-regular.eot
       glyphicons-halflings-regular.svg
       glyphicons-halflings-regular.ttf
       glyphicons-halflings-regular.woff
 
-      ./rex.setup_demo-3.1.2/static/www/bootstrap/js:
+      ./rex.setup_demo-3.1.3/static/www/bootstrap/js:
       bootstrap.js
       bootstrap.min.js
 
-      ./rex.setup_demo-3.1.2/static/www/bundle:
+      ./rex.setup_demo-3.1.3/static/www/bundle:
       448c34a56d699c29117adc64c43affeb.woff2
       89889688147bd7575d6327160d64e760.svg
       bundle.css
@@ -239,7 +239,7 @@ tests:
       f4769f9bdb7466be65088239c12046d1.eot
       fa2772327f55d8198301fdb8bcfc8158.woff
 
-      ./rex.setup_demo-3.1.2/static/www/doc:
+      ./rex.setup_demo-3.1.3/static/www/doc:
       Makefile
       _sources
       _static
@@ -266,10 +266,10 @@ tests:
       sphinxmanual.cls
       tabulary.sty
 
-      ./rex.setup_demo-3.1.2/static/www/doc/_sources:
+      ./rex.setup_demo-3.1.3/static/www/doc/_sources:
       index.txt
 
-      ./rex.setup_demo-3.1.2/static/www/doc/_static:
+      ./rex.setup_demo-3.1.3/static/www/doc/_static:
       ajax-loader.gif
       basic.css
       comment-bright.png
@@ -293,7 +293,7 @@ tests:
       up.png
       websupport.js
 
-      ./rex.setup_demo-3.1.2/static/www/jquery:
+      ./rex.setup_demo-3.1.3/static/www/jquery:
       MIT-LICENSE.txt
       jquery-1.10.2.js
       jquery-1.10.2.min.js
@@ -320,7 +320,7 @@ tests:
   - sh: ../../bin/python setup.py -q bdist_wheel
     stdout: |
       Skipping installation of build/bdist.linux-x86_64/wheel/rex/__init__.py (namespace package)
-  - sh: ./bin/pip install -q ./src/rex.setup_demo/dist/rex.setup_demo-3.1.2-py2-none-any.whl
+  - sh: ./bin/pip install -q ./src/rex.setup_demo/dist/rex.setup_demo-3.1.3-py2-none-any.whl
     stdout: ''
   - sh: ls ./lib/python2.7/site-packages/rex
     stdout: |

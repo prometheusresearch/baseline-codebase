@@ -5,10 +5,16 @@
 .. contents:: Table of Contents
 
 
+3.1.3 (2016-XX-XX)
+==================
+
+* README: do not use ``setup_requires``.
+
+
 3.1.2 (2016-01-29)
 ==================
 
-* Do not bundle vendor librariies.
+* Do not bundle vendor libraries.
 
 
 3.1.1 (2015-09-30)

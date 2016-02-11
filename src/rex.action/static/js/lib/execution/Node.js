@@ -73,6 +73,8 @@ export default class Node {
     } else if (Replace.is(this.instruction)) {
       let node = resolveNodeByReference(this, this.instruction.replace);
       return node;
+    } else if (Repeat.is(this.instruction)) {
+      return this;
     } else {
       invariant(false, 'Node is not concrete');
     }
@@ -235,7 +237,7 @@ export default class Node {
     // Handle case where we are "exiting" from the current node.
     // This might be the case for wizard inclusion or repeat group.
     if (this.instruction.then.length === 0 && this.parent) {
-      if (Repeat.is(this.instruction)) {
+      if (Repeat.is(this.parent.instruction)) {
         let thenExit = this.parent._thenWithContext(context);
         let thenLoop = [
           this.constructor.create(
@@ -303,7 +305,7 @@ function realizeNode(node) {
     );
     return flatten(startNode.then.map(realizeNode));
   } else if (Repeat.is(node.instruction)) {
-    node = Node.create(instruction.repeat, node.context, node, 0);
+    node = Node.create(node.instruction.repeat, node.context, node, 0);
     return realizeNode(node);
   } else {
     invariant(

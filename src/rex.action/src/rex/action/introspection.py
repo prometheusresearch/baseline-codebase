@@ -74,9 +74,9 @@ class ActionIntrospection(object):
             'access': self.access,
             'type': self.type,
             'title': self.title,
-            'location': self.location if debug else None,
+            'location': self.location,
             'doc': self.doc if detailed else None,
-            'source': self.source if detailed and debug else None,
+            'source': self.source if detailed  else None,
         }
 
     def info_widget(self):

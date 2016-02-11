@@ -57,9 +57,15 @@ class Mutation(object):
                     'invalid request payload, "new" field should'
                     ' contain a valid JSON object with a single key with'
                     ' a non-empty list as a value')
-        params = params[0]
-        params = {k: v for k, v in params.items()
-                  if not k.startswith('meta:') and k != 'id'}
+        params = {}
+        params.update({
+            k[1:]: v for k, v in req.GET.items()
+            if k.startswith(':')
+        })
+        params.update({
+            k: v for k, v in params[0].items()
+            if not k.startswith('meta:') and k != 'id'
+        })
         return self.query._merge(params)
 
     def __call__(self, req):

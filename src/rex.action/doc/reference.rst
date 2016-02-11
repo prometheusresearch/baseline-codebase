@@ -45,6 +45,18 @@ Edit
 .. autoclass:: rex.action.actions.edit.Edit
    :show-inheritance:
 
+Drop
+----
+
+.. autoclass:: rex.action.actions.drop.Drop
+   :show-inheritance:
+
+Form
+----
+
+.. autoclass:: rex.action.actions.form.Form
+   :show-inheritance:
+
 Plotly
 ------
 

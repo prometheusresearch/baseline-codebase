@@ -42,13 +42,13 @@ class MapAction(Map):
         )
 
     def mask(self, path):
-        origin = path
-        if origin.endswith('/'):
-            origin = origin[:-1]
+        sanitized_path = path
+        if sanitized_path.endswith('/'):
+            sanitized_path = sanitized_path[:-1]
         return [
             PathMask(path),
-            PathMask('%s/@@/{path:*}' % origin),
-            PathMask('%s/@/{action:*}' % origin),
+            PathMask('%s/@@/{path:*}' % sanitized_path),
+            PathMask('%s/@/{action:*}' % sanitized_path),
         ]
 
     def override_at(self, spec, override_spec, path, override_path):

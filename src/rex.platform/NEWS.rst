@@ -12,6 +12,8 @@
 * rex.deploy==2.5.0
 * rex.urlmap==2.8.0
 * rex.widget==2.2.0
+* HTSQL==2.3.3.20160210
+* HTSQL-PGSQL==2.3.3.20160210
 
 
 4.12.1 (2016-02-06)

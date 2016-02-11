@@ -8,23 +8,15 @@ import {isArray} from '../lang';
 import * as KeyPath from '../KeyPath';
 import * as Validation from './Validation';
 
-export function fromFields(fields, keyPath = []) {
+export function fromFields(fields) {
   let schema = {
     type: 'object',
     properties: {},
     required: [],
   };
   fields = _removeLayout(fields);
-  for (let i = 0; i < fields.length; i++) {
-    let field = fields[i];
-    let localKeyPath = KeyPath.normalize(field.valueKey);
-    _growSchema(
-      schema,
-      localKeyPath.slice(0),
-      _fieldToSchema(field, localKeyPath)
-    );
-  }
-  _aggregateSchema(schema);
+  schema = _growSchemaWithFields(schema, fields);
+  schema = _aggregateSchema(schema);
   return schema;
 }
 
@@ -57,6 +49,8 @@ function _aggregateSchema(schema, keyPath = []) {
   if (schema.hideIf) {
     schema.hideIfList.push({hideIf: schema.hideIf, keyPathPattern: []});
   }
+
+  return schema;
 }
 
 function _removeLayout(fields) {
@@ -96,20 +90,33 @@ function _fieldToSchema(field) {
     hideIf: field.hideIf,
   };
   switch (field.type) {
-  case 'fieldset':
-    let schema = fromFields(field.fields);
+  case 'fieldset': {
+    let schema = {
+      type: 'object',
+      properties: {},
+      required: [],
+    };
+    schema = _growSchemaWithFields(schema, field.fields);
     schema.isRequired = !!field.required;
     return schema;
-  case 'list':
-    return {
+  }
+  case 'list': {
+    let schema = {
       ...defaultAttributes,
       type: 'array',
-      items: fromFields(field.fields),
+      items: {
+        type: 'object',
+        properties: {},
+        required: [],
+      },
       minItems: field.required ? 1 : 0,
       uniqueBy: field.uniqueBy,
       uniqueByError: field.uniqueByError,
       format: Validation.array,
     };
+    schema.items = _growSchemaWithFields(schema.items, field.fields)
+    return schema;
+  }
   case 'date':
     return {
       ...defaultAttributes,
@@ -219,7 +226,20 @@ function _mergeRequired(a, b) {
   return merged;
 }
 
-function _growSchema(schema, keyPath, grow) {
+function _growSchemaWithFields(schema, fields) {
+  for (let i = 0; i < fields.length; i++) {
+    let field = fields[i];
+    let localKeyPath = KeyPath.normalize(field.valueKey);
+    _growSchemaWithField(
+      schema,
+      localKeyPath.slice(0),
+      _fieldToSchema(field, localKeyPath)
+    );
+  }
+  return schema;
+}
+
+function _growSchemaWithField(schema, keyPath, grow) {
   if (keyPath.length === 0) {
     if (schema && schema.type === 'object') {
       return _mergeObjectSchema(schema, grow);
@@ -231,19 +251,50 @@ function _growSchema(schema, keyPath, grow) {
   } else {
     keyPath = keyPath.slice(0);
     let key = keyPath.shift();
-    if (schema) {
-      invariant(
-        schema.type === 'object',
-        'Schema should be an object schema'
-      );
+    if (isNumeric(key)) {
+      if (schema) {
+        invariant(
+          schema.type === 'array',
+          'Schema should be an array schema'
+        );
+      } else {
+        schema = {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {},
+            required: []
+          }
+        };
+      }
+      _growSchemaWithField(schema.items, keyPath, grow);
     } else {
-      schema = {type: 'object', properties: {}, required: []};
-    }
-    schema.properties[key] = _growSchema(schema.properties[key], keyPath, grow);
-    if (schema.properties[key].isRequired) {
-      schema.required = schema.required || [];
-      schema.required.push(key);
+      if (schema) {
+        invariant(
+          schema.type === 'object',
+          'Schema should be an object schema'
+        );
+      } else {
+        schema = {
+          type: 'object',
+          properties: {},
+          required: []
+        };
+      }
+      schema.properties[key] = _growSchemaWithField(
+        schema.properties[key],
+        keyPath,
+        grow
+      );
+      if (schema.properties[key].isRequired) {
+        schema.required = schema.required || [];
+        schema.required.push(key);
+      }
     }
     return schema;
   }
+}
+
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
 }

@@ -5,6 +5,7 @@
 export AutocompleteField from './AutocompleteField';
 export CheckboxField from './CheckboxField';
 export ConfigurableEntityForm from './ConfigurableEntityForm';
+export ConfigurableForm from './ConfigurableForm';
 export ConfigurableField from './ConfigurableField';
 export DateField from './DateField';
 export DatetimeField from './DatetimeField';

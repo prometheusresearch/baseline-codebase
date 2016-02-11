@@ -274,7 +274,7 @@ let Form = React.createClass({
       }
     } else if (submitTo instanceof Query) {
       submitTo
-        .produce(valueToSubmit)
+        .execute(valueToSubmit)
         .then(this.onSubmitComplete, this.onSubmitError);
     } else if (submitTo instanceof Request) {
       submitTo
@@ -308,7 +308,7 @@ let Form = React.createClass({
         }
       } else if (submitTo.port instanceof Query) {
         submitTo.port
-          .produce(valueToSubmit)
+          .execute(valueToSubmit)
           .then(this.onSubmitComplete, this.onSubmitError);
       }
     }

@@ -33,7 +33,9 @@ class Mutation(object):
     Query is used to mutate db and then port to re-fetch the needed data.
     """
 
-    def __init__(self, port, query=None):
+    def __init__(self, port=None, query=None):
+        if not port and not query:
+            raise TypeError('Either port or query should be provided')
         self.port = port
         self.query = query
 
@@ -83,8 +85,12 @@ class Mutation(object):
         except (Error, HTTPError), error:
             return req.get_response(error)
 
+        if not self.port:
+            return Response(json=None)
+
         if not hasattr(result.data, 'id'):
-            raise HTTPInternalServerError('Query configured incorrectly')
+            raise HTTPInternalServerError(
+                'query should return a record with an id field: { id := ...  }')
 
         # Fetch update entity assuming query returns id of the update entity.
         params = {k[1:]: v for k, v in req.GET.items() if k.startswith(':')}

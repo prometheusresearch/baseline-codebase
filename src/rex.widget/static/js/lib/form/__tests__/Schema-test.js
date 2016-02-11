@@ -180,6 +180,56 @@ describe('Schema', function() {
         });
     });
 
+    it('generates schema from a single nested field (with array)', function() {
+      let fields = [
+        {
+          type: 'string',
+          hideIf: 'xxx',
+          valueKey: ['a', '0', 'b']
+        }
+      ];
+      assert.deepEqual(
+        Schema.fromFields(fields), {
+          type: 'object',
+          properties: {
+            a: {
+              type : 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  b: {
+                    type: 'string',
+                    isRequired: false,
+                    format: Validation.string,
+                    formatError: undefined,
+                    formatPattern: undefined,
+                    hideIf: 'xxx',
+                    hideIfList: [{
+                      hideIf: 'xxx',
+                      keyPathPattern: [],
+                    }],
+                  }
+                },
+                hideIfList: [{
+                  hideIf: 'xxx',
+                  keyPathPattern: ['b'],
+                }],
+                required: [],
+              },
+              hideIfList: [{
+                hideIf: 'xxx',
+                keyPathPattern: ['*', 'b'],
+              }],
+            }
+          },
+          required: [],
+          hideIfList: [{
+            hideIf: 'xxx',
+            keyPathPattern: ['a', '*', 'b'],
+          }],
+        });
+    });
+
     it('generates schema from a single nested field (required field)', function() {
       let fields = [
         {

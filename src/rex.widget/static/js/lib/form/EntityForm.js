@@ -120,14 +120,4 @@ let EntityForm = React.createClass({
   }
 });
 
-function makeEntitySchema(entity, schema) {
-  return portSchema;
-}
-
-function makeEntityValue(entity, value) {
-  let portValue = {};
-  portValue[entity] = [value];
-  return portValue;
-}
-
 module.exports = EntityForm;

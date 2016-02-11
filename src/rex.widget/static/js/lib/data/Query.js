@@ -2,12 +2,13 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import {fetch} from '../fetch';
+import {fetch, post} from '../fetch';
 import shallowEquals from '../shallowEquals';
 
 export class Query {
 
   static fetch = fetch;
+  static post = post;
 
   constructor(path, params) {
     this.path = path;
@@ -24,6 +25,14 @@ export class Query {
       ...params
     };
     return this.constructor.fetch(this.path, query);
+  }
+
+  execute(params) {
+    let data = {
+      ...this._params,
+      ...params
+    };
+    return this.constructor.post(this.path, undefined, data);
   }
 
   produceCollection(params) {

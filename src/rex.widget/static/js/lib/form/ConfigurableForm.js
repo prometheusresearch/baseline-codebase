@@ -5,20 +5,19 @@
 import React from 'react';
 import {autobind, emptyFunction} from '../../lang';
 import * as Schema from './Schema';
-import EntityForm from './EntityForm';
+import Form from './Form';
 import FormColumn from './FormColumn';
 import filterFormValue from './filterFormValue';
-
 
 /**
  * Form which has fieldset configurable through URL mapping.
  *
  * @public
  */
-export default class ConfigurableEntityForm extends React.Component {
+export default class ConfigurableForm extends React.Component {
 
   static propTypes = {
-    ...EntityForm.PropTypes,
+    ...Form.PropTypes,
 
     /**
      * An array of form field specifications.
@@ -56,7 +55,7 @@ export default class ConfigurableEntityForm extends React.Component {
   render() {
     let {fields, readOnly, layout, submitButton, ...props} = this.props;
     return (
-      <EntityForm
+      <Form
         {...props}
         ref="form"
         schema={this._schema}
@@ -66,7 +65,7 @@ export default class ConfigurableEntityForm extends React.Component {
           fields={fields}
           fieldProps={{readOnly}}
           />
-      </EntityForm>
+      </Form>
     );
   }
 
@@ -78,12 +77,7 @@ export default class ConfigurableEntityForm extends React.Component {
 
   @autobind
   onChange(value, prevValue) {
-    let {entity} = this.props;
-    let valueToFilter = value[entity][0];
-    let filteredValue = filterFormValue(valueToFilter, this._schema.hideIfList);
-    if (valueToFilter !== filteredValue) {
-      value = {[entity]: [filteredValue]};
-    }
+    value = filterFormValue(value, this._schema.hideIfList);
     return this.props.onChange(value, prevValue);
   }
 

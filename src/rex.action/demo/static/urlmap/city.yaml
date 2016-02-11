@@ -1,0 +1,33 @@
+paths:
+
+  /city:
+    access: anybody
+    action:
+      type: wizard
+      title: City
+      path:
+      - pick-city:
+        - view-city:
+      actions:
+        view-city:
+          type: view-city
+          title: View City
+        pick-city:
+          type: pick-city
+          title: Cities
+          cities:
+          - id: shanghai
+            name: Shanghai
+            population: 24256800
+          - id: prague
+            name: Prague
+            population: 1500000
+          - id: beijing
+            name: Beijing
+            population: 2151600
+          - id: new-haven
+            name: New Haven
+            population: 150000
+          - id: new-york
+            name: New York
+            population: 8000000

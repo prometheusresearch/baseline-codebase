@@ -2,6 +2,7 @@
   with:
   - column: code
     type: text
+    required: true
   - identity: [code: random]
   - column: sex
     type: [not-known, male, female, not-applicable]
@@ -12,36 +13,12 @@
   - link: father
     to: individual
     required: false
-  - link: adopted_mother
-    to: individual
-    required: false
-  - link: adopted_father
-    to: individual
-    required: false
 
 - table: identity
   with:
   - link: individual
   - identity: [individual]
   - column: fullname
-    type: text
-    required: false
-  - column: givenname
-    type: text
-    required: false
-    title: Given Name
-  - column: middle
-    type: text
-    required: false
-  - column: preferred_name
-    type: text
-    title: Preferred Name
-    required: false
-  - column: middle_name
-    type: text
-    title: Middle Name
-    required: false
-  - column: surname
     type: text
     required: false
   - column: birthdate
@@ -57,17 +34,6 @@
   - column: deceased
     type: boolean
     required: false
-
-
-- table: user
-  with:
-  - column: remote_user
-    type: text
-  - identity: [remote_user]
-  - column: site_admin
-    type: boolean
-    required: true
-    default: false
 
 - table: lab
   with:
@@ -85,44 +51,78 @@
   - link: lab
   - column: title
     type: text
-  - column: irb_number
-    type: text 
-    required: false
   - column: start_date
-    type: date 
-    required: false
-  - link: user 
+    type: date
     required: false
   - column: description
-    type: text 
-    required: false
-  - column: overall_target_enrollment
-    type: integer 
-    required: false
-  - column: closed
-    type: boolean
-    default: false
-
-- table: participant_group
-  with:
-  - link: study
-  - column: code
     type: text
-  - identity: [study, code]
-  - column: target_enrollment
+    required: false
+  - column: target_enrollments
     type: integer
     required: false
+  - column: is_configured
+    type: boolean
+    default: true
 
 - table: study_enrollment
   with:
   - link: study
   - link: individual
   - column: code
-    type: text
+    type: integer
   - identity: [study, individual, code: offset]
-  - column: enrollment_date
+  - column: date
     type: date
     required: false
-  - link: participant_group
+
+
+- table: study_recruitment
+  with:
+  - link: study
+  - link: individual
+  - identity: [study, individual]
+  - column: date
+    type: date
     required: false
 
+
+# Data
+- of: individual
+  data: |
+    code,sex,mother,father
+    john,male,,
+    jane,female,,
+    alice,female,jane,john
+    bob,male,jane,john
+
+- of: identity
+  data: |
+    individual,fullname,birthdate
+    john,John Doe,1980-01-02
+    jane,John Doe,1981-02-03
+    alice,Alice Doe,2005-03-04
+    bob,Bob Doe,2007-04-27
+
+- of: lab
+  data: |
+    code,title
+    frankenstein,Frankenstein's Lab
+    jurassic,Jurassic Park Cloning Place
+    batcave,The Batcave
+
+- of: study
+  data: |
+    lab,code,title,description,is_configured
+    frankenstein,homunculus,Homunculus,Is it possible?,true
+    jurassic,dino-clone,Cloning dinosaurs,Let's do it!,true
+    jurassic,sheep-clone,Cloning sheep,Let's start with Dolly,true
+    batcave,batmobile,Batmobile,Inventing Batmobile,false
+    batcave,batpod,Batmobile,Inventing Batpod,false
+
+- of: study_recruitment
+  data: |
+    study,individual,date
+    homunculus,bob,1999-01-01
+    dino-clone,alice,
+    dino-clone,bob,
+    homunculus,alice,2010-01-01

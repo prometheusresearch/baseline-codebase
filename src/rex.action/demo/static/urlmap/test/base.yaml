@@ -17,8 +17,6 @@ paths:
     action:
       type: pick
       entity: lab
-      doc: |
-        Pick a lab.
 
   /individuals/pick-make:
     access: anybody

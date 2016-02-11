@@ -1,3 +1,10 @@
-{% set css_files = css_files + ['_static/overrides.css'] %}
-{% set script_files = script_files + ['_static/bundle.js'] %}
+{% set css_files = css_files + [
+    '_static/overrides.css',
+    '_static/highlightjs/styles/solarized-light.css',
+] %}
+{% set script_files = script_files + [
+    '_static/bundle.js',
+    '_static/highlightjs/highlight.pack.js',
+    '_static/init_highlight.js'
+] %}
 {% extends "!layout.html" %}

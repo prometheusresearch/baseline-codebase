@@ -1,0 +1,16 @@
+paths:
+
+  /plotly:
+    action:
+      title: plotly
+      type: wizard
+      path:
+      - minimal:
+      actions:
+        minimal:
+          title: Minimal Configuration
+          type: plotly
+          plot:
+            type: pie
+          query: |
+            /individual^sex{label := sex, value := count(individual)}

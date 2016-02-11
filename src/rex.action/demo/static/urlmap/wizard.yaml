@@ -1,0 +1,217 @@
+paths:
+
+  /wizard:
+    action:
+      type: wizard
+      title: wizard
+      path:
+      - simple:
+      - icon:
+      - use-states:
+        - configure-study:
+        - view-study:
+        - pick-recruited:
+      - states-context:
+        - pick-individual:
+          - view-recruited:
+          - view-non-recruited:
+      - use-replace:
+        - view:
+          - edit:
+            - replace: ../../view
+        - make:
+          - replace: ../../use-replace/view
+      - included:
+      states:
+        study:
+          configured:
+            title: Configured
+            expression: is_configured
+          non-configured:
+            title: Not Configured
+            expression: "!is_configured"
+        individual:
+          recruited:
+            title: Recruited into Study
+            expression: exists(study_recruitment.study=$study)
+          non-recruited:
+            title: Not recruited into Study
+            expression: "!exists(study_recruitment.study=$study)"
+      actions:
+        simple:
+          title: Simple Action
+          type: page
+          text: |
+            This is very simple action of type `page`. It permits you to
+            show some **ReST**-formmatted text on the screen as well as assign
+            the *title*. See help on **Rest** here_.
+
+            .. _here: http://docutils.sourceforge.net/docs/user/rst/quickref.html
+
+        icon:
+          title: Changing Icon
+          type: page
+          icon: question-sign
+          text: |
+            You can change icon as well as you change the *title*. Possible
+            values for the *icon* field can be found here.
+
+        use-states:
+          title: Using States
+          type: pick
+          entity: study
+          fields:
+          - code
+          - title
+          - value_key: configured
+            label: Configured?
+            type: calculation
+            expression: if(is_configured, 'Yes', 'No')
+
+        configure-study:
+          title: Configure Study
+          type: edit
+          entity: study[non-configured]
+
+        pick-recruited:
+          title: Recruited Participants
+          type: pick
+          entity: individual
+          input:
+          - study[configured]
+          fields:
+          - code
+          - identity.fullname
+          mask: exists(study_recruitment?study=$study)
+
+        view-study:
+          title: View Configured Study
+          type: view
+          entity: study[configured]
+          fields:
+          - code
+          - title
+          - value_key: participants
+            label: "# of Participants Recruited"
+            type: calculation
+            expression: count(study_recruitment)
+
+        states-context:
+          title: Using States w/ Context
+          type: pick
+          entity: study[configured]
+          fields:
+          - code
+          - title
+
+        pick-individual:
+          title: Individuals
+          type: pick
+          entity: individual
+          input:
+          - study
+          fields:
+          - code
+          - identity.fullname
+          - value_key: is_recruited
+            label: Is Recruited?
+            type: calculation
+            expression: if(exists(study_recruitment?study=$study), 'Yes', 'No')
+
+        view-recruited:
+          title: Recruited Individual
+          type: view
+          entity: individual[recruited]
+          input:
+          - study
+          - individual[recruited] # FIXME!
+          fields:
+          - code
+          - identity.fullname
+          - value_key: comment
+            label: Comment
+            type: calculation
+            expression: |
+              'This individual is recruited to the "'
+              + @study[$study].title + '" study.'
+
+        view-non-recruited:
+          title: Individual Is Not Recruited
+          type: view
+          entity: individual[non-recruited]
+          input:
+          - study
+          - individual[non-recruited] # FIXME!
+          fields:
+          - code
+          - identity.fullname
+          - value_key: comment
+            label: Comment
+            type: calculation
+            expression: |
+              'This individual is NOT recruited to the "'
+              + @study[$study].title + '" study.'
+
+        use-replace:
+          title: Using Replace
+          type: pick
+          entity: lab
+
+        make:
+          title: Pick-Make
+          type: make
+          entity: lab
+
+        view:
+          title: View Lab
+          type: view
+          entity: lab
+
+        edit:
+          title: View-Edit
+          type: edit
+          entity: lab
+
+        included: rex.action_demo:/wizard/included
+
+
+
+  /wizard/included:
+    access: nobody
+    action:
+      type: wizard
+      path:
+      - pick-study:
+        - view-study:
+        - subwizard:
+
+      actions:
+        pick-study:
+          title: Included Wizard
+          type: pick
+          entity: study
+
+        view-study: rex.action_demo:/wizard/included/action
+        subwizard: rex.action_demo:/wizard/included/subwizard
+
+  /wizard/included/action:
+    access: nobody
+    action:
+      title: View Study (Included)
+      type: view
+      entity: study
+
+  /wizard/included/subwizard:
+    access: nobody
+    action:
+      type: wizard
+      path:
+      - pick-individual:
+      actions:
+        pick-individual:
+          title: Recruited Individuals
+          type: pick
+          entity: individual
+          input:
+          - study
+          mask: exists(study_recruitment.study=$study)

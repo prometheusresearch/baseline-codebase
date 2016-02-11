@@ -1,0 +1,27 @@
+{
+  "name": "rex-action-demo",
+  "version": "0.9.0",
+  "main": "./lib/index.js",
+  "rex": {
+    "bundleAll": true
+  },
+  "dependencies": {
+    "rex-action": "^0.8.0",
+    "rex-widget-chrome": "^0.8.0"
+  },
+  "peerDependencies": {
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0"
+  },
+  "devDependencies": {
+    "@prometheusresearch/webtest": "^0.1.4",
+    "babel": "^5.8.23",
+    "babel-eslint": "^4.1.3",
+    "babel-plugin-espower": "^1.0.0",
+    "eslint": "^1.6.0",
+    "eslint-plugin-react": "^3.5.1",
+    "mocha": "^2.3.3",
+    "power-assert": "^1.1.0",
+    "webpack": "^1.10.0"
+  }
+}

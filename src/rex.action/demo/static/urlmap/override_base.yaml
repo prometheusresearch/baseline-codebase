@@ -1,0 +1,8 @@
+paths:
+
+  /override/global-action:
+    action:
+      type: pick
+      entity: individual
+      title: Global action override
+

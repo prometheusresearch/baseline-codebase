@@ -2,10 +2,53 @@
 db: pgsql:action_demo
 htsql_extensions:
     rex_deploy:
+
 access:
     rex.widget: anybody
     rex.action_demo: anybody
     rex.action: anybody
+
+
 rex_action:
   side_by_side:
     breadcrumb: bottom
+
+rex_widget:
+  chrome: rex.action_demo.DemoChrome
+
+application_title: Rex.Action Demo
+
+
+menu:
+- title: Home
+  items:
+  - access: anybody
+    title: Home
+    url: rex.action_demo:/
+    wizard_source: example/home
+  - access: anybody
+    title: Inspect
+    url: rex.action:/inspect
+- title: Standard Actions
+  items:
+  - access: anybody
+    title: wizard
+    url: rex.action_demo:/wizard
+  - access: anybody
+    title: pick
+    url: rex.action_demo:/pick
+  - access: anybody
+    title: make
+    url: rex.action_demo:/make
+  - access: anybody
+    title: edit
+    url: rex.action_demo:/edit
+  - access: anybody
+    title: view
+    url: rex.action_demo:/view
+  - access: anybody
+    title: drop
+    url: rex.action_demo:/drop
+  - access: anybody
+    title: plotly
+    url: rex.action_demo:/plotly

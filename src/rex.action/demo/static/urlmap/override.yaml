@@ -1,0 +1,45 @@
+include:
+- override_base.yaml
+
+paths:
+
+  /override:
+    action:
+      type: wizard
+      path:
+      - override-local-action:
+      - override-global-action:
+
+      actions:
+        override-local-action:
+          type: pick
+          entity: individual
+          title: Local action override
+        override-global-action: /override/global-action
+
+
+  /override2:
+    action:
+      type: wizard
+      path:
+      - override-global-action:
+      actions:
+        override-global-action: /override/global-action
+
+  # This is a local action override, note how we reference local action by name
+  # within a wizard.
+  /override/@/override-local-action: !override
+    title: My New Title
+    fields:
+    - code
+    - sex
+
+  #/override/@/override-global-action: !override
+  #  title: My Global Override
+  #  type: pick
+  #  entity: lab
+
+  /override/global-action: !override
+    title: My Action
+    fields:
+    - code

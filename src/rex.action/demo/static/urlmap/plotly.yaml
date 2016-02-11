@@ -6,11 +6,71 @@ paths:
       type: wizard
       path:
       - minimal:
+      - use-plot:
+      - use-layout:
+      - multiple-datasets:
+      - use-context:
+        - use-context-plotly:
       actions:
         minimal:
           title: Minimal Configuration
+          type: plotly
+          query: |
+            /individual{x := ceil(random() * 12.4), y := ceil(random() * 6)}
+        use-plot:
+          title: Using Plot
           type: plotly
           plot:
             type: pie
           query: |
             /individual^sex{label := sex, value := count(individual)}
+        use-layout:
+          title: Using Layout
+          type: plotly
+          type: plotly
+          plot:
+            type: pie
+          layout:
+            title: Individuals grouped by sex
+            paper_bgcolor: '#0f8f0f'
+          query: |
+            /individual^sex{label := sex, value := count(individual)}
+        multiple-datasets:
+          title: Multiple Datasets
+          type: plotly
+          layout:
+            barmode: group
+          plot:
+            all:
+              type: bar
+              name: All
+            recruited:
+              type: bar
+              name: Recruited
+          query: |
+            {
+              all := /individual^sex{x := sex, y := count(^)},
+              recruited := /study_recruitment^individual.sex{
+                x := sex,
+                y := count(^)
+              },
+            }
+        use-context:
+          title: Using Context
+          type: pick
+          entity: lab
+        use-context-plotly:
+          title: Individuals by sex
+          type: plotly
+          input:
+          - lab
+          plot:
+            type: pie
+          query: |
+            /study_recruitment
+              .filter(study.lab=$lab)
+              ^individual.sex
+              {
+                label := string(sex) + ' in ' + @lab[$lab].title,
+                value := count(^)
+              }

@@ -89,10 +89,6 @@ export default class StickyFooterPanel extends React.Component {
   _onContentResize() {
     let contentMarkerBottom = this._contentMarkerElement.getBoundingClientRect().bottom;
     let contentBottom = this._contentElement.getBoundingClientRect().bottom;
-    console.log(
-      '_onContentResize',
-      contentBottom, contentMarkerBottom, this.props.stickThreshold
-      );
     if (contentBottom - contentMarkerBottom > this.props.stickThreshold) {
       if (this.state.pinned) {
         this.setState({pinned: false});

@@ -1,0 +1,31 @@
+paths:
+
+  /form:
+    action:
+      title: form
+      type: wizard
+      path:
+      - minimal:
+      actions:
+        minimal:
+          title: Minimal Configuration
+          type: form
+          value: |
+            top(individual){code, sex}
+          fields:
+          - value_key: individual.code
+            type: string
+            label: Code
+          - value_key: individual.sex
+            label: Sex
+            type: enum
+            options:
+            - value: male
+              label: Male
+            - value: female
+              label: Female
+            - value: not-known
+              label: Not Known
+            - value: not-applicable
+              label: Not Applicable
+

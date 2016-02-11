@@ -6,6 +6,7 @@ include:
 - urlmap/pick.yaml
 - urlmap/make.yaml
 - urlmap/edit.yaml
+- urlmap/form.yaml
 - urlmap/view.yaml
 - urlmap/drop.yaml
 - urlmap/plotly.yaml

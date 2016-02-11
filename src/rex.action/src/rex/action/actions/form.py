@@ -15,7 +15,7 @@ from rex.db import Query
 from rex.port import Port
 from rex.widget import (
     Field, undefined, FormFieldsetVal, responder, QueryURL,
-    Mutation, MutationURL)
+    Mutation, MutationURL, computed_field)
 from rex.widget.validate import DeferredVal, Deferred
 from rex.widget.port_support import PortSupport
 
@@ -96,6 +96,7 @@ class Form(Action):
 
     query = Field(
         SyntaxVal(), transitionable=False,
+        default=None,
         doc="""
         Query which is used to persist data in database.
         """)
@@ -136,6 +137,10 @@ class Form(Action):
         doc="""
         Text for submit button.
         """)
+
+    @computed_field
+    def read_only(self, req):
+        return self.query is None
 
     @cached_property
     def mutation(self):

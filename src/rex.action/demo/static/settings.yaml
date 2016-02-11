@@ -44,6 +44,9 @@ menu:
     title: edit
     url: rex.action_demo:/edit
   - access: anybody
+    title: form
+    url: rex.action_demo:/form
+  - access: anybody
     title: view
     url: rex.action_demo:/view
   - access: anybody

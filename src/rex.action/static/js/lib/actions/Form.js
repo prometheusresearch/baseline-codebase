@@ -53,17 +53,20 @@ export default class Form extends React.Component {
 
   @autobind
   renderFooter() {
-    let {submitButton, icon} = this.props;
+    let {readOnly, submitButton, icon} = this.props;
     return (
-      <ui.SuccessButton icon={icon} onClick={this._onSubmit}>
-        {submitButton}
-      </ui.SuccessButton>
+      readOnly ?
+        null :
+        <ui.SuccessButton icon={icon} onClick={this._onSubmit}>
+          {submitButton}
+        </ui.SuccessButton>
     );
   }
 
   @autobind
   renderForm() {
-    let {dataMutation, fields, context, contextTypes, fetched} = this.props;
+    let {dataMutation, fields, context, contextTypes, fetched,
+         readOnly} = this.props;
     let submitTo = applyContext(
         dataMutation,
         contextTypes.input,
@@ -71,6 +74,7 @@ export default class Form extends React.Component {
     return (
       <form.ConfigurableForm
         ref="form"
+        readOnly={readOnly}
         context={ContextUtils.getMaskedContext(context, contextTypes.input)}
         submitTo={submitTo}
         submitButton={null}

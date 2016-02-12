@@ -1,0 +1,44 @@
+paths:
+
+  /override/global1:
+    action:
+      type: wizard
+      path:
+      - info:
+      - included:
+      actions:
+        info:
+          type: page
+          title: Info
+          text: |
+            This wizard includes the subwizard from the
+            *rex.action_demo:/override/included* path. Later on in the code
+            that path gets overridden with something totally different. See
+            what happens with this wizard and the one at **Override >
+            Global Action 2**.
+        included: rex.action_demo:/override/included
+
+
+  /override/global2:
+    action:
+      type: wizard
+      path:
+      - info:
+      - included:
+      actions:
+        info:
+          type: page
+          title: Info
+          text: |
+            This wizard includes the subwizard from the
+            *rex.action_demo:/override/included* path. Later on in the code
+            that path gets overridden with something totally different. See
+            what happens with this wizard and the one at **Override >
+            Global Action 1**.
+        included: rex.action_demo:/override/included
+
+
+  /override/included: !override
+    type: pick
+    title: Override with Pick
+    entity: study

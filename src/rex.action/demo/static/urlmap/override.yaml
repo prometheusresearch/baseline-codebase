@@ -1,45 +1,60 @@
-include:
-- override_base.yaml
-
 paths:
 
-  /override:
+  /override/local: !copy /wizard
+
+  /override/local/@/simple: !override
+    title: Overriding Whole Action
+    type: page
+    text: |
+      As you may have guessed this wizard is the complete copy of the
+      **Standard Actions > wizard** example with several actions being
+      overridden.
+
+  /override/local/@/icon: !override
+    title: Overriding Title/Icon
+    icon: heart
+
+  /override/local/@/use-states: !override
+    title: Overriding Fields
+    fields:
+    - code
+    - value_key: configured
+      label: Configured?
+      type: calculation
+      expression: if(is_configured, 'Yes / Да / Sí / 是', 'No / Нет / No / 没有')
+    - value_key: enrollments
+      label: Recruitments
+      type: calculation
+      expression: count(study_recruitment)
+
+#  /override/local/@/states-context: !override
+#    title: Overriding with Wizard
+#    type: wizard
+#    path:
+#    - page1:
+#    actions:
+#      page1:
+#        title: Page 1
+#        type: page
+#        text: Hello, world!
+
+  /override/included:
     action:
       type: wizard
       path:
-      - override-local-action:
-      - override-global-action:
-
+      - front-page:
+        - page1:
+        - page2:
       actions:
-        override-local-action:
-          type: pick
-          entity: individual
-          title: Local action override
-        override-global-action: /override/global-action
-
-
-  /override2:
-    action:
-      type: wizard
-      path:
-      - override-global-action:
-      actions:
-        override-global-action: /override/global-action
-
-  # This is a local action override, note how we reference local action by name
-  # within a wizard.
-  /override/@/override-local-action: !override
-    title: My New Title
-    fields:
-    - code
-    - sex
-
-  #/override/@/override-global-action: !override
-  #  title: My Global Override
-  #  type: pick
-  #  entity: lab
-
-  /override/global-action: !override
-    title: My Action
-    fields:
-    - code
+        front-page:
+          type: page
+          title: Front Page
+          text: Front Page
+        page1:
+          type: page
+          title: Page 1
+          text: Page 1
+        page2:
+          type: page
+          title: Page 2
+          text: Page 2

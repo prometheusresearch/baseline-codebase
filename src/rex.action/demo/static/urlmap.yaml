@@ -11,3 +11,7 @@ include:
 - urlmap/view.yaml
 - urlmap/drop.yaml
 - urlmap/plotly.yaml
+
+# Override
+- urlmap/override.yaml
+- urlmap/override_global.yaml

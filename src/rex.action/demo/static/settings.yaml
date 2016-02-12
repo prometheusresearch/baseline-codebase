@@ -58,3 +58,14 @@ menu:
   - access: anybody
     title: plotly
     url: rex.action_demo:/plotly
+- title: Override
+  items:
+  - access: anybody
+    title: Local Actions
+    url: rex.action_demo:/override/local
+  - access: anybody
+    title: Global Action 1
+    url: rex.action_demo:/override/global1
+  - access: anybody
+    title: Global Action 2
+    url: rex.action_demo:/override/global2

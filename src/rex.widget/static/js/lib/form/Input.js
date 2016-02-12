@@ -83,7 +83,7 @@ export default class Input extends React.Component {
 
   @autobind
   onChange(value) {
-    if (value === '') {
+    if (value === '' || value === undefined) {
       value = null;
     }
     this.props.onChange(value);

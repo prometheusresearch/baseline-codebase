@@ -61,6 +61,9 @@ export default class TabListBase extends React.Component {
     },
     Button: {
       Component: 'a',
+      userSelect: CSS.none,
+      WebkitUserSelect: CSS.none,
+      cursor: 'default',
       position: CSS.position.relative,
       positionTop: {
         display: CSS.display.inlineBlock,

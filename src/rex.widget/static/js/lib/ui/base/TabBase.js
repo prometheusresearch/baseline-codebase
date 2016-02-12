@@ -15,7 +15,10 @@ export default class TabBase extends React.Component {
   };
 
   static stylesheet = Stylesheet.create({
-    Root: VBox
+    Root: {
+      Component: VBox,
+      overflow: 'auto',
+    }
   });
 
   render() {

@@ -114,7 +114,7 @@ export default class TabListBase extends React.Component {
         <ButtonList variant={variant}>
           {buttonList}
         </ButtonList>
-        <Content variant={variant} overflow="auto" flex={1}>
+        <Content variant={variant} flex={1}>
           {content}
         </Content>
       </Root>

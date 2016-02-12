@@ -5,6 +5,7 @@
 import React from 'react';
 import {Input as BaseInput} from 'react-forms';
 
+import {autobind} from '../../lang';
 import * as stylesheet from '../../stylesheet';
 import * as css from '../../css';
 
@@ -71,6 +72,20 @@ export default class Input extends React.Component {
   render() {
     let {error, variant, ...props} = this.props;
     let {Root} = this.constructor.stylesheet;
-    return <Root {...this.props} variant={{...variant, error}} />;
+    return (
+      <Root
+        {...this.props}
+        variant={{...variant, error}}
+        onChange={this.onChange}
+        />
+    );
+  }
+
+  @autobind
+  onChange(value) {
+    if (value === '') {
+      value = null;
+    }
+    this.props.onChange(value);
   }
 }

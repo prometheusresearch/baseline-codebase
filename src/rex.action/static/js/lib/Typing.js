@@ -7,12 +7,20 @@ export class Type {
   match() {
     throw new Error('not implemented');
   }
+
+  format() {
+    return '<unknown type>';
+  }
 }
 
 class AnyType extends Type {
 
   match(value) {
     return true;
+  }
+
+  format() {
+    return '<any>';
   }
 }
 
@@ -27,6 +35,10 @@ export class ValueType extends Type {
 
   match() {
     return true;
+  }
+
+  format() {
+    return this.name;
   }
 }
 
@@ -46,6 +58,12 @@ export class EntityType extends Type {
         !this.state
       )
     );
+  }
+
+  format() {
+    return this.state ?
+      `${this.name}[${this.state.name}]` :
+      this.name;
   }
 }
 

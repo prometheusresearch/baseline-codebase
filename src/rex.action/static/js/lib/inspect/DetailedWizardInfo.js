@@ -11,6 +11,7 @@ import * as layout from 'rex-widget/layout';
 
 import WizardInfo from './WizardInfo';
 import DetailedActionInfo from './DetailedActionInfo';
+import Documentation from './Documentation';
 
 let stylesheet = override(DetailedActionInfo.stylesheet, {
   HeaderInfo: WizardInfo,
@@ -29,7 +30,7 @@ function WizardDiagram({instruction, level, onSelect}) {
     children = <layout.VBox marginTop={7}>{children}</layout.VBox>
   }
   return (
-    <layout.VBox left={level > 0 ? 13 : 0} marginBottom={7}>
+    <layout.VBox flex={1} left={level > 0 ? 13 : 0} marginBottom={7}>
       {instruction.element ?
         React.cloneElement(instruction.element, {
           onSelect,
@@ -45,17 +46,31 @@ function WizardDiagram({instruction, level, onSelect}) {
 
 export default class DetailedWizardInfo extends React.Component {
 
+  constructor(props) {
+    super(props);
+    this.state = {selected: {path: null, info: null}};
+  }
+
   render() {
     let {info, ...props} = this.props;
+    let {selected} = this.state;
     let tabList = (
-      <ui.Tab id="diagram" title="Diagram" flex={1}>
-        <layout.VBox paddingTop={10} paddingBottom={10} width="40%">
-          <WizardDiagram
-            level={0}
-            instruction={info.wizardPath}
-            onSelect={this.onSelect}
-            />
-        </layout.VBox>
+      <ui.Tab id="diagram" title="Diagram" flex={1} overflow="hidden">
+        <layout.HBox justifyContent="space-between" flex={1}>
+          <layout.VBox paddingTop={10} paddingBottom={10} width="50%" overflow="auto">
+            <layout.VBox width="80%">
+              <WizardDiagram
+                level={0}
+                instruction={info.wizardPath}
+                onSelect={this.onSelect}
+                />
+            </layout.VBox>
+          </layout.VBox>
+          {selected.info &&
+            <layout.VBox width="50%">
+              <Documentation info={selected.info} />
+            </layout.VBox>}
+        </layout.HBox>
       </ui.Tab>
     );
     return (
@@ -74,7 +89,7 @@ export default class DetailedWizardInfo extends React.Component {
     if (path === null) {
       path = `${this.props.info.path}/@/${info.id}`;
     }
-    this.props.onSelect(path, info);
+    this.setState({selected: {path, info}});
   }
 }
 

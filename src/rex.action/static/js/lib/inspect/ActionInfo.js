@@ -76,7 +76,7 @@ export default class ActionInfo extends React.Component {
     } = this.props;
     let {
       Root, Content, Header,
-      Path, Title, Doc,
+      Path, Title,
       Type, IconWrapper, Source
     } = this.stylesheet;
     let routeTitle = info.location ?

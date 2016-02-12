@@ -65,6 +65,10 @@ class ActionIntrospection(object):
     def type(self):
         return self.action.__class__.name.name
 
+    @property
+    def context_types(self):
+        return self.action.context_types
+
     @cached_property
     def source(self):
         """ A snippet of configuration which leads to the introspectable action.
@@ -77,6 +81,10 @@ class ActionIntrospection(object):
         return {
             'path': self.path,
             'id': self.id,
+            'contextTypes': {
+                'input': self.context_types.input,
+                'output': self.context_types.output,
+            },
             'access': self.access,
             'type': self.type,
             'title': self.title,

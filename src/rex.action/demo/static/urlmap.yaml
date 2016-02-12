@@ -3,6 +3,7 @@ include:
 
 # Standard actions
 - urlmap/wizard.yaml
+- urlmap/page.yaml
 - urlmap/pick.yaml
 - urlmap/make.yaml
 - urlmap/edit.yaml

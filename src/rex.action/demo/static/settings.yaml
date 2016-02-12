@@ -35,6 +35,9 @@ menu:
     title: wizard
     url: rex.action_demo:/wizard
   - access: anybody
+    title: page
+    url: rex.action_demo:/page
+  - access: anybody
     title: pick
     url: rex.action_demo:/pick
   - access: anybody

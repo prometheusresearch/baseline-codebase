@@ -6,16 +6,46 @@ paths:
       type: wizard
       path:
       - minimal:
+      - save-data:
+      - use-context:
+        - pick-study:
+          - add-recruitment:
+            - view-recruitment:
       actions:
         minimal:
           title: Minimal Configuration
           type: form
           value: |
-            top(individual){code, sex}
+            {
+              num_lab := count(lab),
+              num_study := count(study),
+              num_individual := count(individual),
+            }
+          fields:
+          - value_key: num_lab
+            label: "# of Labs"
+          - value_key: num_study
+            label: "# of Studies"
+          - value_key: num_individual
+            label: "# of Individuals"
+
+        save-data:
+          title: Saving Data
+          type: form
+          value: |
+            top(individual){
+              code,
+              sex,
+              identity{fullname, birthdate}
+            }
           fields:
           - value_key: individual.code
             type: string
             label: Code
+            read_only: true
+          - value_key: individual.identity.fullname
+            type: string
+            label: Name
           - value_key: individual.sex
             label: Sex
             type: enum
@@ -28,4 +58,84 @@ paths:
               label: Not Known
             - value: not-applicable
               label: Not Applicable
+          - value_key: individual.identity.birthdate
+            type: date
+            label: Birth Date
+          query: |
+            with($individual, do(
+              $_individual := update(individual[$code]{id(), sex := $sex}),
+              with($identity,
+                update(identity[$_individual]{id(),
+                  fullname := $fullname,
+                  birthdate := $birthdate,
+                })
+              ),
+              {id := $_individual}
+            ))
+
+        use-context:
+          title: Using Context
+          type: pick
+          entity: individual
+
+        pick-study:
+          title: Pick Study
+          type: pick
+          entity: study
+
+        view-recruitment:
+          title: View Study Recruitment
+          type: view
+          entity: study_recruitment
+
+        add-recruitment:
+          title: Recruit Individual
+          type: form
+          entity: study_recruitment
+          input:
+          - individual
+          - study
+          value: |
+            {
+              study := $study,
+              individual := $individual,
+              is_recruited := exists(study_recruitment?
+                                     individual=$individual&study=$study),
+              study_recruitment := top(study_recruitment?
+                                       individual=$individual&study=$study){
+                date
+              }
+            }
+          fields:
+          - value_key: study
+            label: Study
+            type: entity
+            data:
+              entity: study
+              title: title
+            read_only: true
+          - value_key: individual
+            label: Individual
+            type: entity
+            data:
+              entity: individual
+              title: if(is_null(identity.fullname), code, identity.fullname)
+            read_only: true
+          - value_key: is_recruited
+            type: bool
+            label: Is Already Recruited?
+            read_only: true
+          - value_key: study_recruitment.date
+            type: date
+            label: Recruitment Date
+          query: |
+            /do(
+              $_id := with($study_recruitment, merge(study_recruitment := {
+                study := $study,
+                individual := $individual,
+                date := $date
+              })),
+              {id := $_id}
+            )
+
 

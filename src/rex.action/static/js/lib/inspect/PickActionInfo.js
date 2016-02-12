@@ -17,8 +17,8 @@ let stylesheet = override(ActionInfo.stylesheet, {
 });
 
 export default function PickActionInfo({info, ...props}) {
-  let type = `${info.type} ${info.entity}`;
-  let title = info.title || `Pick ${info.entity}`;
+  let type = `${info.type} ${info.entity.format()}`;
+  let title = info.title || `Pick ${info.entity.name}`;
   return (
     <ActionInfo
       {...props}

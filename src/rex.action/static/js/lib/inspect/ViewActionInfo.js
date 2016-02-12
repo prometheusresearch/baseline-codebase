@@ -17,8 +17,8 @@ let stylesheet = override(ActionInfo.stylesheet, {
 });
 
 export default function ViewActionInfo({info, ...props}) {
-  let type = `${info.type} ${info.entity}`;
-  let title = info.title || `View ${info.entity}`;
+  let type = `${info.type} ${info.entity.format()}`;
+  let title = info.title || `View ${info.entity.name}`;
   return (
     <ActionInfo
       {...props}

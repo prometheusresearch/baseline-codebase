@@ -31,7 +31,7 @@ class Introspection(Action.Introspection):
     def info(self, *args, **kwargs):
         info = super(Introspection, self).info(*args, **kwargs)
         info.update({
-            'entity': self.action.entity.type.name
+            'entity': self.action.entity.type,
         })
         return info
 

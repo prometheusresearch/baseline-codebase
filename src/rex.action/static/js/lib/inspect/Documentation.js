@@ -26,17 +26,23 @@ let defaultStylesheet = stylesheet.create({
     fontSize: '90%',
     color: '#999',
   },
+  SectionHeader: {
+    fontWeight: 'bold',
+    fontSize: '110%',
+    marginBottom: 10,
+  }
 });
 
 export default function Documentation({
     info: {doc, contextTypes},
     stylesheet = defaultStylesheet}) {
-  let {Root, Code, CodeDeemphasized} = stylesheet;
+  let {Root, Code, CodeDeemphasized, SectionHeader} = stylesheet;
   let inputKeys = Object.keys(contextTypes.input.rows);
   let outputKeys = Object.keys(contextTypes.output.rows);
   return (
     <Root>
       <layout.VBox marginBottom={10}>
+        <SectionHeader>Context</SectionHeader>
         <layout.VBox>
           <p>This action <strong>requires</strong> the following from context:</p>
           <layout.VBox padding={5}>
@@ -60,7 +66,10 @@ export default function Documentation({
           </layout.VBox>
         </layout.VBox>
       </layout.VBox>
-      {doc}
+      <layout.VBox>
+        <SectionHeader>Documentation</SectionHeader>
+        {doc || 'No documentation provided'}
+      </layout.VBox>
     </Root>
   );
 }

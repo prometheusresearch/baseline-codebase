@@ -1282,6 +1282,45 @@ generating a valid SQL name from a list of fragments and an optional suffix::
     >>> mangle([u'individual', u'mother'], u'fk')
     u'individual_mother_fk'
 
+:mod:`rex.deploy` also provides high-level API for introspecting and
+manipulating database schemas.  To start using it, one needs to create
+a schema object::
+
+    >>> from rex.deploy import model
+
+    >>> with demo:
+    ...     schema = model()
+
+    >>> print schema            # doctest: +ELLIPSIS
+    - table: appointment
+    - table: appointment_type
+    ...
+    - table: appointment
+      with:
+      - link: appointment_type
+      - column: code
+    ...
+
+Using this schema object, we can find any table by name::
+
+    >>> individual_table = schema.table(u'individual')
+    >>> print individual_table
+    table: individual
+
+Similarly, a table object allows you to find any field by name::
+
+    >>> print individual_table.column(u'sex')
+    column: sex
+    of: individual
+    type: [not-known, male, female, not-applicable]
+    default: not-known
+
+    >>> print individual_table.link(u'mother')
+    link: mother
+    of: individual
+    to: individual
+    required: false
+
 
 HTSQL functions
 ===============

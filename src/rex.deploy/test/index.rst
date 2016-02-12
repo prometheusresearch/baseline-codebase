@@ -12,6 +12,7 @@
    test_identity
    test_link
    test_meta
+   test_model
    test_raw
    test_sql
    test_table

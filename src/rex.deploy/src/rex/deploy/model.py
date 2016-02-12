@@ -4,7 +4,8 @@
 
 
 from rex.core import Record, Error, Extension, LatentRex, get_rex
-from .fact import Fact, FactVal, LabelVal, TitleVal, label_to_title
+from .fact import (
+        FactDumper, Driver, Fact, FactVal, LabelVal, TitleVal, label_to_title)
 from .meta import uncomment
 from .sql import (mangle, sql_value, sql_name, sql_cast,
         plpgsql_primary_key_procedure, plpgsql_integer_random_key,
@@ -12,6 +13,7 @@ from .sql import (mangle, sql_value, sql_name, sql_cast,
         plpgsql_text_offset_key)
 from .image import (TableImage, ColumnImage, UniqueKeyImage, CASCADE,
         SET_DEFAULT, BEFORE, INSERT)
+from .cluster import Cluster, get_cluster
 import datetime
 import weakref
 import json
@@ -19,6 +21,7 @@ from htsql.core.domain import (UntypedDomain, BooleanDomain, IntegerDomain,
         DecimalDomain, FloatDomain, TextDomain, DateDomain, TimeDomain,
         DateTimeDomain, EnumDomain, IdentityDomain)
 from htsql_rex_deploy.domain import JSONDomain
+import yaml
 
 
 class Signal(object):
@@ -41,7 +44,9 @@ class Signal(object):
 
 
 class Model(Extension):
-    # Represents high-level entities: tables, fields, identities.
+    """
+    Represents high-level entities: tables, fields, identities.
+    """
 
     __slots__ = ('owner', 'image')
 
@@ -82,7 +87,9 @@ class Model(Extension):
 
     @property
     def schema(self):
-        # The schema model.
+        """
+        The schema model.
+        """
         return self.owner()
 
     def state(self):
@@ -91,11 +98,15 @@ class Model(Extension):
                                  for property in self.properties))
 
     def dependents(self):
-        # Entities that gets deleted when this object is deleted.
+        """
+        Entities that gets deleted when this object is deleted.
+        """
         return []
 
     def modify(self, **kwds):
-        # Alters the entity state.
+        """
+        Alters the entity state.
+        """
         old = self.state()
         new = old.__clone__(**kwds)
         # Notify the dependent entities.
@@ -115,7 +126,9 @@ class Model(Extension):
                 dependent.do_react(self, signal, old, new)
 
     def erase(self):
-        # Removes the entity.
+        """
+        Removes the entity.
+        """
         old = self.state()
         # Notify the dependent objects.
         dependents = self.dependents()
@@ -155,8 +168,23 @@ class Model(Extension):
     def do_react(self, master, signal, old, new):
         raise NotImplementedError()
 
+    def fact(self):
+        """
+        Returns the fact that can be used to reconstruct the entity.
+        """
+        raise NotImplementedError()
+
+    def to_yaml(self):
+        return self.fact().to_yaml()
+
+    def __str__(self):
+        return yaml.dump(self.to_yaml(), Dumper=FactDumper).rstrip()
+
 
 class ModelSchema(object):
+    """
+    Container for all model objects.
+    """
 
     __slots__ = (
             'driver', 'image', 'system_image', 'image_to_entity',
@@ -204,6 +232,9 @@ class ModelSchema(object):
             return ModelClass(self, image)
 
     def tables(self):
+        """
+        Lists all tables in the schema.
+        """
         tables = []
         for table_image in self.image.tables:
             if u'id' not in table_image:
@@ -214,10 +245,34 @@ class ModelSchema(object):
         return tables
 
     def table(self, label):
+        """
+        Finds the table by name.
+        """
         return TableModel.find(self, label)
 
     def build_table(self, **kwds):
+        """
+        Creates a new table.
+        """
         return TableModel.do_build(self, **kwds)
+
+    def facts(self):
+        """
+        Returns a list of facts that reproduce the schema.
+        """
+        facts = []
+        tables = self.tables()
+        for table in tables:
+            facts.append(table.fact())
+        for table in tables:
+            facts.append(table.fact(with_related=True))
+        return facts
+
+    def to_yaml(self):
+        return [fact.to_yaml() for fact in self.facts()]
+
+    def __str__(self):
+        return yaml.dump(self.to_yaml(), Dumper=FactDumper).rstrip()
 
 
 class ConstraintModel(Model):
@@ -229,7 +284,9 @@ class ConstraintModel(Model):
 
 
 class TableModel(Model):
-    # Wraps a database table.
+    """
+    Wraps a database table.
+    """
 
     __slots__ = (
             'id_image', 'uk_image', 'seq_image',
@@ -334,7 +391,9 @@ class TableModel(Model):
             self.image.drop()
 
     def fields(self):
-        # List of columns and links.
+        """
+        Lists table columns and links.
+        """
         fields = []
         for column_image in self.image.columns:
             field = self.schema(column_image)
@@ -343,7 +402,9 @@ class TableModel(Model):
         return fields
 
     def identity(self):
-        # Table identity.
+        """
+        Returns the table identity.
+        """
         return self.schema(self.image.primary_key)
 
     def constraints(self, ModelClass=None):
@@ -360,7 +421,9 @@ class TableModel(Model):
         return constraints[0] if constraints else None
 
     def dependents(self):
-        # List of dependent entities.
+        """
+        Lists all dependent entities.
+        """
         dependents = []
         # Links referring to the table.
         for foreign_key_image in self.image.referring_foreign_keys:
@@ -387,36 +450,64 @@ class TableModel(Model):
         return dependents
 
     def column(self, label):
-        # Column by name.
+        """
+        Finds the column by name.
+        """
         return ColumnModel.find(self, label)
 
     def link(self, label):
-        # Link by name.
+        """
+        Finds the link by name.
+        """
         return LinkModel.find(self, label)
 
     def build_column(self, **kwds):
-        # Creates a new column.
+        """
+        Creates a new column.
+        """
         return ColumnModel.do_build(self, **kwds)
 
     def build_link(self, **kwds):
-        # Creates a new link.
+        """
+        Creates a new link.
+        """
         return LinkModel.do_build(self, **kwds)
 
     def build_identity(self, **kwds):
-        # Creates table identity.
+        """
+        Creates table identity.
+        """
         return IdentityModel.do_build(self, **kwds)
 
     def move_after(self, field, other_fields):
-        # Move a field after the given set of fields.
+        """
+        Moves a field after the given set of fields.
+        """
         position = field.image.position
         for other_field in other_fields:
             if other_field.image.position > position:
                 field.image.alter_position(len(field.image.table.columns)-1)
                 break
 
+    def fact(self, with_related=False):
+        from .table import TableFact
+        related = None
+        if with_related:
+            related = [field.fact() for field in self.fields()]
+            identity = self.identity()
+            if identity is not None:
+                related.append(identity.fact())
+        return TableFact(
+                self.label,
+                is_reliable=self.is_reliable,
+                title=self.title,
+                related=related)
+
 
 class ColumnModel(Model):
-    # Wraps a database column.
+    """
+    Wraps a table column.
+    """
 
     __slots__ = (
             'uk_image', 'enum_image',
@@ -713,7 +804,8 @@ class ColumnModel(Model):
             self.remove()
 
     def dependents(self):
-        # Column dependencies.
+        """Column dependencies.
+        """
         dependents = []
         # The table identity if the column belongs to the primary key.
         if self.image in (self.image.table.primary_key or []):
@@ -728,9 +820,21 @@ class ColumnModel(Model):
                     dependents.append(constraint)
         return dependents
 
+    def fact(self):
+        from .column import ColumnFact
+        return ColumnFact(
+                self.table.label, self.label,
+                type=self.type,
+                default=self.default,
+                is_required=self.is_required,
+                is_unique=self.is_unique,
+                title=self.title)
+
 
 class LinkModel(Model):
-    # Represents a column with a foreign key constraint.
+    """
+    Represents a column with a foreign key constraint.
+    """
 
     __slots__ = (
             'fk_image', 'uk_image', 'index_image',
@@ -935,7 +1039,9 @@ class LinkModel(Model):
             self.remove()
 
     def dependents(self):
-        # Entities that depend on the link.
+        """
+        Entities that depend on the link.
+        """
         dependents = []
         # Add the identity if the link belongs to it.
         if self.image in (self.image.table.primary_key or []):
@@ -950,9 +1056,20 @@ class LinkModel(Model):
                     dependents.append(constraint)
         return dependents
 
+    def fact(self):
+        from .link import LinkFact
+        return LinkFact(
+                self.table.label, self.label, self.target_table.label,
+                default=self.default,
+                is_required=self.is_required,
+                is_unique=self.is_unique,
+                title=self.title)
+
 
 class IdentityModel(Model):
-    # Wraps the primary key.
+    """
+    Wraps the primary key.
+    """
 
     __slots__ = (
             'trigger_image', 'procedure_image',
@@ -1170,8 +1287,22 @@ class IdentityModel(Model):
             return None
         return plpgsql_primary_key_procedure(*source)
 
+    def fact(self):
+        from .identity import IdentityFact
+        return IdentityFact(
+                self.table.label,
+                [field.label for field in self.fields],
+                generators=self.generators)
 
-def model(driver):
+
+def model(driver=None):
+    """
+    Returns the schema for the given database driver.
+    """
+    if driver is None:
+        driver = get_cluster()
+    if isinstance(driver, Cluster):
+        driver = driver.drive()
     return ModelSchema(driver)
 
 

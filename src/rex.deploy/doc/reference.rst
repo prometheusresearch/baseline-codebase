@@ -74,6 +74,18 @@ Entity metadata
 .. autoclass:: PrimaryKeyMeta
 
 
+Entity objects
+==============
+
+.. autofunction:: model
+.. autoclass:: Model
+.. autoclass:: ModelSchema
+.. autoclass:: TableModel
+.. autoclass:: ColumnModel
+.. autoclass:: LinkModel
+.. autoclass:: IdentityModel
+
+
 SQL serialization
 =================
 

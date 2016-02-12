@@ -22,8 +22,8 @@ from .image import (make_catalog, Image, IndexedImage, NamedImage, ImageList,
         TriggerImage, DataImage, BEFORE, AFTER, INSERT, UPDATE, DELETE,
         INSERT_UPDATE, INSERT_DELETE, UPDATE_DELETE, INSERT_UPDATE_DELETE)
 from .meta import Meta, TableMeta, ColumnMeta, PrimaryKeyMeta, uncomment
-from .model import (model, TableModel, ColumnModel, LinkModel, IdentityModel,
-        ConstraintModel)
+from .model import (model, ModelSchema, Model, TableModel, ColumnModel,
+        LinkModel, IdentityModel, ConstraintModel)
 from .introspect import introspect
 from .link import LinkFact
 from .raw import RawFact

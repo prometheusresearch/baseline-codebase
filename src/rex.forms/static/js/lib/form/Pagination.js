@@ -23,8 +23,8 @@ var Pagination = React.createClass({
     var currentPage = this.props.navigation.currentPage;
     var enabledPages = this.props.navigation.enabledPages;
 
-    var links = this.props.navigation.pages.map((page, index) => {
-      index = index + 1;
+    var links = this.props.navigation.pages.map((page) => {
+      var index = page.original_index + 1;
       var disabled = enabledPages.indexOf(page) === -1;
       var active = page.id === currentPage.id;
 

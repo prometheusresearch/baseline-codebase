@@ -10,6 +10,8 @@ REX.FORMS Change Log
 
 * Added question position information to the reconciliation component to help
   users identify which question on the original Form has the discrepancy.
+* Page navigation bar now shows the actual page numbers instead of always
+  numbering sequentially from 1.
 
 
 1.3.0 (2016-01-29)

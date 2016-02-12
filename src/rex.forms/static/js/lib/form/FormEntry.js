@@ -24,7 +24,10 @@ var FormEntryPagesMixin = {
   },
 
   getPages: function() {
-    return this.props.form.pages;
+    return this.props.form.pages.map((page, idx) => {
+      page.original_index = idx;
+      return page;
+    });
   },
 
   getPage: function(id, withIndex) {

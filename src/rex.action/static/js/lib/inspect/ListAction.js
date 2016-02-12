@@ -53,6 +53,7 @@ export default class ListAction extends React.Component {
     info = React.cloneElement(info, {
       onSelect: this.onSelect,
       selected: this.props.context.path === path,
+      selectable: true,
     })
     return (
       <layout.VBox key={path} marginBottom={5}>

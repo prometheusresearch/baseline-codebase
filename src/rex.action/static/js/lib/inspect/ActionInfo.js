@@ -23,9 +23,11 @@ export default class ActionInfo extends React.Component {
     Root: {
       Component: ActionPanel,
       Header: {
-        hover: {
-          background: '#f1f1f1',
-        },
+        selectable: {
+          hover: {
+            background: '#f1f1f1',
+          },
+        }
       },
       Root: {
         selected: {
@@ -67,7 +69,10 @@ export default class ActionInfo extends React.Component {
   });
 
   render() {
-    let {info, selected, title = this.props.info.title, type, children} = this.props;
+    let {
+      info, selected, selectable,
+      title = this.props.info.title, type, children
+    } = this.props;
     let {
       Root, Content, Header,
       Path, Title, Doc,
@@ -77,7 +82,7 @@ export default class ActionInfo extends React.Component {
       `${info.location.name}:${info.location.start.line}` :
       undefined;
     let header = (
-      <Header>
+      <Header variant={{selected, selectable}}>
         <layout.VBox marginRight={10}>
           {title &&
             <Title>{title}</Title>}
@@ -93,7 +98,9 @@ export default class ActionInfo extends React.Component {
       </Header>
     );
     return (
-      <Root onClick={this.onClick} variant={{selected}} header={header}>{children}</Root>
+      <Root onClick={this.onClick} variant={{selected, selectable}} header={header}>
+        {children}
+      </Root>
     );
   }
 

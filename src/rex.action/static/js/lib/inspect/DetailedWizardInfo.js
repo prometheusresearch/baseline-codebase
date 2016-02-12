@@ -31,7 +31,11 @@ function WizardDiagram({instruction, level, onSelect}) {
   return (
     <layout.VBox left={13} marginBottom={7}>
       {instruction.element ?
-        React.cloneElement(instruction.element, {onSelect, children}) :
+        React.cloneElement(instruction.element, {
+          onSelect,
+          children,
+          selectable: true,
+        }) :
         <ui.Panel paddingTop={7}>
           {children}
         </ui.Panel>}

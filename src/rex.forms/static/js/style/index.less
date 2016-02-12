@@ -711,13 +711,21 @@
   padding-top: 3px;
   padding-left: 3px;
 
-  p {
+  .title {
     font-weight: bold;
     margin-bottom: 0;
   }
 
+  .subtitle {
+    font-style: italic;
+    font-size: 0.8em;
+    opacity: 0.8;
+    margin-left: 2ch;
+    margin-bottom: 0;
+  }
+
   &.rex-forms-Discrepancy__required {
-    p {
+    .title {
       .rex-forms-required-mixin();
     }
   }

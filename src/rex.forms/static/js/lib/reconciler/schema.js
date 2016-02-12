@@ -195,7 +195,14 @@ class SchemaBuilder {
       for (var j = 0; j < this.form.pages[i].elements.length; j += 1) {
         if (this.form.pages[i].elements[j].type === 'question') {
           if (this.form.pages[i].elements[j].options.fieldId === field.id) {
-            return this.form.pages[i].elements[j].options;
+            var question = this.form.pages[i].elements[j].options || {};
+            question.position = {
+              id: field.id,
+              page_number: i,
+              position_on_page: j,
+              page_elements: this.form.pages[i].elements.length,
+            };
+            return question;
           }
         }
       }

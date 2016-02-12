@@ -111,16 +111,43 @@ var DiscrepancyTitle = React.createClass({
     });
     return (
       <div className={classes}>
-        <p>
+        <p className="title">
           <localized>{this.props.title}</localized>
           {this.props.complete &&
             <span className="rex-forms-Discrepancy__complete"></span>
           }
         </p>
+        {this.props.subtitle &&
+          <p className="subtitle">{this.props.subtitle}</p>
+        }
       </div>
     );
   }
 });
+
+
+function makePositionDescription(position) {
+  var desc = '';
+  var vars = {
+    page: position.page_number + 1,
+    field: position.id
+  };
+
+  if (position.page_elements < 3) {
+    desc = _('On Page %(page)s (%(field)s)', vars);
+  } else {
+    var relative_position = position.position_on_page / position.page_elements;
+    if (relative_position <= 0.33) {
+      desc = _('Top of Page %(page)s (%(field)s)', vars);
+    } else if (relative_position >= 0.66) {
+      desc = _('Bottom of Page %(page)s (%(field)s)', vars);
+    } else {
+      desc = _('Middle of Page %(page)s (%(field)s)', vars);
+    }
+  }
+
+  return desc;
+}
 
 
 var DiscrepancyChoices = React.createClass({
@@ -320,10 +347,20 @@ var SimpleDiscrepancy = React.createClass({
     return this.state.complete && this.isValid();
   },
 
+  getSubtitle: function () {
+    if (this.value().schema.props.question.position) {
+      return makePositionDescription(
+        this.value().schema.props.question.position
+      );
+    }
+    return null;
+  },
+
   render: function () {
     var schema = this.value().schema,
       question = schema.props.question,
-      discrepancy = schema.props.discrepancy;
+      discrepancy = schema.props.discrepancy,
+      fieldId = schema.props.name;
 
     var widget = determineWidgetType(
       this.getWidgetTypes(), this.getReadOnlyWidgetTypes(),
@@ -343,6 +380,7 @@ var SimpleDiscrepancy = React.createClass({
         <div className="rex-forms-Discrepancy__inner">
           <DiscrepancyTitle
             title={question.text}
+            subtitle={this.getSubtitle()}
             required={schema.props.required}
             complete={this.isComplete()}
             />
@@ -424,7 +462,16 @@ var ParentDiscrepancyMixin = {
     }, true);
 
     return childrenStatus;
-  }
+  },
+
+  getSubtitle: function () {
+    if (this.value().schema.props.question.position) {
+      return makePositionDescription(
+        this.value().schema.props.question.position
+      );
+    }
+    return null;
+  },
 };
 
 
@@ -489,6 +536,7 @@ var RecordListDiscrepancy = React.createClass({
         <div className='rex-forms-RecordListDiscrepancy__inner'>
           <DiscrepancyTitle
             title={question.text}
+            subtitle={this.getSubtitle()}
             required={schema.props.required}
             complete={this.isComplete()}
             />
@@ -615,6 +663,7 @@ var MatrixDiscrepancy = React.createClass({
         <div className='rex-forms-MatrixDiscrepancy__inner'>
           <DiscrepancyTitle
             title={question.text}
+            subtitle={this.getSubtitle()}
             complete={this.isComplete()}
             />
           {rows}

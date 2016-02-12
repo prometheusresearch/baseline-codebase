@@ -5,6 +5,13 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+1.4.0 (2016-xx-xx)
+==================
+
+* Added question position information to the reconciliation component to help
+  users identify which question on the original Form has the discrepancy.
+
+
 1.3.0 (2016-01-29)
 ==================
 

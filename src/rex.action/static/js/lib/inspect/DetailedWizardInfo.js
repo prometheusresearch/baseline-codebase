@@ -29,7 +29,7 @@ function WizardDiagram({instruction, level, onSelect}) {
     children = <layout.VBox marginTop={7}>{children}</layout.VBox>
   }
   return (
-    <layout.VBox left={13} marginBottom={7}>
+    <layout.VBox left={level > 0 ? 13 : 0} marginBottom={7}>
       {instruction.element ?
         React.cloneElement(instruction.element, {
           onSelect,
@@ -49,7 +49,7 @@ export default class DetailedWizardInfo extends React.Component {
     let {info, ...props} = this.props;
     let tabList = (
       <ui.Tab id="diagram" title="Diagram" flex={1}>
-        <layout.VBox padding={10} width="40%">
+        <layout.VBox paddingTop={10} paddingBottom={10} width="40%">
           <WizardDiagram
             level={0}
             instruction={info.wizardPath}

@@ -4,6 +4,7 @@ paths:
     #access: nobody
     action:
       type: wizard
+      title: Rex Action Introspection
 
       path:
       - list-action:

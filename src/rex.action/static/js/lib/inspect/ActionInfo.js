@@ -24,6 +24,7 @@ export default class ActionInfo extends React.Component {
       Component: ActionPanel,
       Header: {
         selectable: {
+          cursor: 'pointer',
           hover: {
             background: '#f1f1f1',
           },

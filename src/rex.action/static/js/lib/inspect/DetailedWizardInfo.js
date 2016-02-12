@@ -48,8 +48,8 @@ export default class DetailedWizardInfo extends React.Component {
   render() {
     let {info, ...props} = this.props;
     let tabList = (
-      <ui.Tab id="diagram" title="Diagram">
-        <layout.VBox padding={10}>
+      <ui.Tab id="diagram" title="Diagram" flex={1}>
+        <layout.VBox padding={10} width="40%">
           <WizardDiagram
             level={0}
             instruction={info.wizardPath}

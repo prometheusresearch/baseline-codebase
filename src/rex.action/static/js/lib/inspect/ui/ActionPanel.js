@@ -15,7 +15,6 @@ export default class ActionPanel extends React.Component {
     Root: ui.Panel,
     Header: {
       Component: layout.VBox,
-      cursor: 'pointer',
       padding: 5,
       fontWeight: 'bold',
     },

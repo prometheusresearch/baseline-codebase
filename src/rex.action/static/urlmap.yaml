@@ -1,7 +1,7 @@
 paths:
 
   /inspect:
-    #access: nobody
+    access: nobody
     action:
       type: wizard
       title: Rex Action Introspection

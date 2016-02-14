@@ -126,6 +126,9 @@ var DiscrepancyTitle = React.createClass({
 });
 
 
+var POSITION_TOP = 1 / 3;
+var POSITION_BOTTOM = 2 / 3;
+
 function makePositionDescription(position) {
   var desc = '';
   var vars = {
@@ -137,9 +140,9 @@ function makePositionDescription(position) {
     desc = _('On Page %(page)s (%(field)s)', vars);
   } else {
     var relative_position = position.position_on_page / position.page_elements;
-    if (relative_position <= 0.33) {
+    if (relative_position <= POSITION_TOP) {
       desc = _('Top of Page %(page)s (%(field)s)', vars);
-    } else if (relative_position >= 0.66) {
+    } else if (relative_position >= POSITION_BOTTOM) {
       desc = _('Bottom of Page %(page)s (%(field)s)', vars);
     } else {
       desc = _('Middle of Page %(page)s (%(field)s)', vars);

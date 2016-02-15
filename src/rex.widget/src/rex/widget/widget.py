@@ -11,7 +11,7 @@ from contextlib import contextmanager
 from collections import OrderedDict
 
 from rex.core import ProxyVal, SeqVal, RecordField
-from rex.core import Extension
+from rex.core import Extension, Error
 
 from .transitionable import as_transitionable
 from .field import FieldBase, Field
@@ -43,18 +43,6 @@ class WidgetMeta(Extension.__metaclass__): # pylint: disable=no-init
 
 
 _suppress_validation = False
-_global_suppress_validation = False
-
-
-@contextmanager
-def suppress_validation():
-    """ Suppress validation."""
-    global _global_suppress_validation # pylint: disable=global-statement
-    _global_suppress_validation = True
-    try:
-        yield
-    finally:
-        _global_suppress_validation = False
 
 
 class Widget(Extension):
@@ -123,7 +111,7 @@ class Widget(Extension):
         if isinstance(value, basestring) or hasattr(value, 'read'):
             return validate.parse(value)
         else:
-            return validate(value)
+            raise Error('Cannot parse a widget from:', repr(value))
 
     @classmethod
     def validated(cls, **values):
@@ -145,7 +133,7 @@ class Widget(Extension):
     def __init__(self, package=None, **values):
         super(Widget, self).__init__()
         global _suppress_validation # pylint: disable=global-statement
-        if not _suppress_validation and not _global_suppress_validation:
+        if not _suppress_validation:
             values = self._validate_values(self.__class__, values)
         else:
             _suppress_validation = False

@@ -12,7 +12,7 @@ from rex.web import get_routes
 
 from .validate import WidgetVal
 from .widget import (
-    Widget, NullWidget, GroupWidget, WidgetComposition, raw_widget, suppress_validation)
+    Widget, NullWidget, GroupWidget, WidgetComposition, raw_widget)
 from .field import Field, computed_field, responder
 from .render import render as render_widget, Bootstrap
 from .chrome import Chrome

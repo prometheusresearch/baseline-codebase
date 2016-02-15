@@ -103,6 +103,15 @@ Widget
   ... """)
   MyWidget(desc='no desc', title='OK')
 
+Widget can only be parsed from stream or a string repr::
+
+  >>> MyWidget.parse({'title': 'OK'}) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Cannot parse a widget from:
+      {'title': 'OK'}
+
+
 Widget with non-transitionable field
 ------------------------------------
 
@@ -260,6 +269,22 @@ Widget composition
       MyWidget
   While parsing:
       "<...>", line 2
+
+Raw widgets
+-----------
+
+::
+
+  >>> from rex.widget import raw_widget
+
+  >>> encode(raw_widget('type', {'key': 'value'}), Request.blank('/'))
+  u'["~#widget", ["type", {"key": "value"}]]'
+
+  >>> encode(raw_widget('type', key='value'), Request.blank('/'))
+  u'["~#widget", ["type", {"key": "value"}]]'
+
+  >>> encode(raw_widget('type', {'a': 'b'}, key='value'), Request.blank('/'))
+  u'["~#widget", ["type", {"a": "b", "key": "value"}]]'
 
 Widget pointer
 --------------

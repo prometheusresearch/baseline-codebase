@@ -16,14 +16,6 @@ Init
 
 ::
 
-  >>> rex = Rex('-', 'rex.widget', db='pgsql:widget_demo')
-  >>> rex.on()
-
-Widget
-------
-
-::
-
   >>> class MyWidget(Widget):
   ...
   ...   name = 'MyWidget'
@@ -36,6 +28,14 @@ Widget
   ...   @computed_field
   ...   def computed(self, req):
   ...     return 'computed!'
+
+  >>> rex = Rex('-', 'rex.widget_demo')
+  >>> rex.on()
+
+Widget
+------
+
+::
 
   >>> MyWidget in Widget.all()
   True

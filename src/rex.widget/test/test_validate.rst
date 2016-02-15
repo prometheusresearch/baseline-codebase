@@ -17,8 +17,10 @@ DeferredVal
   >>> val(deferred) is deferred
   True
 
-  >>> deferred.source_location
-  SourceLocationRange(name='<string>', start=SourceLocation(name='<string>', line=0, column=0), end=SourceLocation(name='<string>', line=0, column=1))
+  >>> deferred.source_location.start.line
+  0
+  >>> deferred.source_location.end.line
+  0
 
   >>> deferred.resolve()
   1

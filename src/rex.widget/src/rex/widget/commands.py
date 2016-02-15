@@ -29,8 +29,9 @@ class Authorized(Command):
     _IS_PACKAGE_URL = re.compile(r'^[a-zA-Z0-9_\-\.]+:.+$')
 
     def render(self, req, access):
-        if access.startswith('http:') or access.startswith('https:') \
-        or access.startswith('/'):
+        if access.startswith('http:') \
+                or access.startswith('https:') \
+                or access.startswith('/'):
             # assuming we always resolve URLs to the same app instance
             if not access.startswith(req.host_url):
                 access = req.host_url + access

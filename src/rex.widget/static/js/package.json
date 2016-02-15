@@ -34,7 +34,7 @@
     "normalize.css": "^3.0.3",
     "object-assign": "^1.0.0",
     "qs": "^4.0.0",
-    "react-forms": "2.0.0-beta10",
+    "react-forms": "2.0.0-beta11",
     "react-icons": "^1.0.3",
     "react-stylesheet": "^0.7.1",
     "react-dom-stylesheet": "^0.1.2",

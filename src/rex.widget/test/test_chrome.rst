@@ -10,15 +10,15 @@ configured chrome widget::
   >>> from rex.core import Rex
   >>> from rex.widget.chrome import get_chrome
 
-  >>> with Rex('-', 'rex.widget', db='pgsql:widget_demo'):
+  >>> with Rex('rex.widget', db='pgsql:widget_demo',
+  ...                        attach_dir='./demo/static/attachments/'):
   ...   get_chrome()
   rex.widget.chrome.Chrome
 
-  >>> with Rex('-', 'rex.widget_demo', 'rex.widget',
-  ...          rex_widget={'chrome': 'rex.widget_demo.DemoChrome'},
-  ...          db='pgsql:widget_demo'):
+  >>> with Rex('rex.widget_demo', 'rex.widget',
+  ...          rex_widget={'chrome': 'rex.widget_demo.Chrome'}):
   ...   get_chrome()
-  rex.widget_demo.DemoChrome
+  rex.widget_demo.Chrome
 
 Chrome
 ------

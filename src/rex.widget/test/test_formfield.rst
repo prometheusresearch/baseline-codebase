@@ -42,16 +42,6 @@ Defining a new built-in type
   >>> f
   MyFormField(value_key=['a'], prop='Prop')
 
-  >>> encode(f, None) # doctest: +NORMALIZE_WHITESPACE
-  u'{"valueKey": ["a"],
-     "widget": null,
-     "hint": null,
-     "required": false,
-     "label": null,
-     "readOnly": false,
-     "prop": "Prop",
-     "type": "my"}'
-
 Set width::
 
   >>> v.parse("""
@@ -113,16 +103,6 @@ Defining a new alias form field type
 
   >>> f
   MyFormFieldAlias(value_key=['a'], xprop='Prop')
-
-  >>> encode(f, None) # doctest: +NORMALIZE_WHITESPACE
-  u'{"valueKey": ["a"],
-     "widget": null,
-     "hint": null,
-     "required": false,
-     "label": null,
-     "readOnly": false,
-     "prop": "Prop",
-     "type": "my"}'
 
   >>> rex.off()
 
@@ -200,17 +180,6 @@ EnumFormField::
                 options=[Record(value='male', label=u'Male'),
                          Record(value='female', label=u'Female')])
 
-  >>> encode(f, None) # doctest: +NORMALIZE_WHITESPACE
-  u'{"valueKey": ["sex"],
-     "widget": null,
-     "hint": null,
-     "required": false,
-     "label": null,
-     "readOnly": false,
-     "type": "enum",
-     "options": [{"value": "male", "^4": "Male"},
-                 {"^8": "female", "^4": "Female"}]}'
-
 EntityFormField::
 
   >>> f = v.parse("""
@@ -222,12 +191,9 @@ EntityFormField::
   ... """)
 
   >>> f # doctest: +NORMALIZE_WHITESPACE
-  EntityFormField(value_key=['individual'],
-                  data=Record(entity='individual',
-                              title=u'identity.givenname',
-                              mask=None))
+  EntityFormField(value_key=['individual'], widget=EntityFormFieldWidget(entity='individual', mask=None, select=[], title='identity.givenname'), data=Record(entity='individual', title=u'identity.givenname', select=[], mask=None))
 
-  >>> f.query_port
+  >>> f.widget().query_port
   Port('''
   entity: individual
   select: []
@@ -235,16 +201,6 @@ EntityFormField::
   - calculation: title
     expression: identity.givenname
   ''')
-
-  >>> encode(f, Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE
-  u'{"valueKey": ["individual"],
-     "widget": null,
-     "hint": null,
-     "type": "entity",
-     "required": false,
-     "label": null,
-     "readOnly": false,
-     "data": ["~#collection", [["~#port", ["http://localhost/@/"]], {}]]}'
 
 NoteFormField::
 
@@ -255,17 +211,6 @@ NoteFormField::
 
   >>> f
   NoteFormField(value_key=['individual'], widget=TextareaField())
-
-  >>> encode(f, Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE
-  u'{"valueKey": ["individual"],
-     "widget": ["~#widget", ["rex-widget/lib/forms/TextareaField", {}]],
-     "hint": null,
-     "pattern": null,
-     "required": false,
-     "label": null,
-     "readOnly": false,
-     "error": null,
-     "type": "note"}'
 
   >>> rex.off()
 
@@ -282,19 +227,11 @@ Generating a fieldset from port definition
 
   >>> from_port(Port("individual")) # doctest: +NORMALIZE_WHITESPACE
   [StringFormField(value_key=['code'], label=u'Code'),
-   EnumFormField(value_key=['sex'], label=u'Sex',
-                 options=[Record(value='not-known', label=u'Not Known'),
-                          Record(value='male', label=u'Male'),
-                          Record(value='female', label=u'Female'),
-                          Record(value='not-applicable', label=u'Not Applicable')]),
-   EntityFormField(value_key=['mother'], label=u'Mother',
-                   data=Record(entity='individual', title=u'id()', mask=None)),
-   EntityFormField(value_key=['father'], label=u'Father',
-                   data=Record(entity='individual', title=u'id()', mask=None)),
-   EntityFormField(value_key=['adopted_mother'], label=u'Adopted Mother',
-                   data=Record(entity='individual', title=u'id()', mask=None)),
-   EntityFormField(value_key=['adopted_father'], label=u'Adopted Father',
-                   data=Record(entity='individual', title=u'id()', mask=None))]
+   EnumFormField(value_key=['sex'], label=u'Sex', options=[Record(value='not-known', label=u'Not Known'), Record(value='male', label=u'Male'), Record(value='female', label=u'Female'), Record(value='not-applicable', label=u'Not Applicable')]),
+   EntityFormField(value_key=['mother'], label=u'Mother', widget=EntityFormFieldWidget(entity='individual', mask=None, select=[], title='id()'), data=Record(entity='individual', title=u'id()', select=[], mask=None)),
+   EntityFormField(value_key=['father'], label=u'Father', widget=EntityFormFieldWidget(entity='individual', mask=None, select=[], title='id()'), data=Record(entity='individual', title=u'id()', select=[], mask=None)),
+   EntityFormField(value_key=['adopted_mother'], label=u'Adopted Mother', widget=EntityFormFieldWidget(entity='individual', mask=None, select=[], title='id()'), data=Record(entity='individual', title=u'id()', select=[], mask=None)),
+   EntityFormField(value_key=['adopted_father'], label=u'Adopted Father', widget=EntityFormFieldWidget(entity='individual', mask=None, select=[], title='id()'), data=Record(entity='individual', title=u'id()', select=[], mask=None))]
 
   >>> from_port(Port("""
   ... entity: individual
@@ -424,10 +361,9 @@ Enrich field from port
   ... """)
 
   >>> fields # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], label=u'Code'),
-   EntityFormField(value_key=['mother'], label=u'Mother', data=Record(entity='individual', title=u'id()', mask=None))]
+  [StringFormField(value_key=['code'], label=u'Code'), EntityFormField(value_key=['mother'], label=u'Mother', widget=EntityFormFieldWidget(entity='individual', mask=None, select=[], title='id()'), data=Record(entity='individual', title=u'id()', select=[], mask=None))]
 
-  >>> fields[1].query_port
+  >>> fields[1].widget().query_port
   Port('''
   entity: individual
   select: []
@@ -439,16 +375,14 @@ Enrich field from port
   >>> fields = test_enrich('table_with_link_to_table_with_title', """
   ... - table_with_title
   ... """)
-  
-  >>> fields # doctest: +NORMALIZE_WHITESPACE
-  [EntityFormField(value_key=['table_with_title'],
-                   required=True,
-                   label=u'Table With Title',
-                   data=Record(entity='table_with_title',
-                               title=u'title',
-                               mask=None))]
 
-  >>> fields[0].query_port
+  >>> fields # doctest: +NORMALIZE_WHITESPACE
+  [EntityFormField(value_key=['table_with_title'], required=True,
+                   label=u'Table With Title',
+                   widget=EntityFormFieldWidget(entity='table_with_title', mask=None, select=[], title='title'),
+                   data=Record(entity='table_with_title', title='title', select=[], mask=None))]
+
+  >>> fields[0].widget().query_port
   Port('''
   entity: table_with_title
   select: [id]
@@ -457,7 +391,7 @@ Enrich field from port
     expression: title
   ''')
 
-  >>> fields[0].query_port.produce()
+  >>> fields[0].widget().query_port.produce()
   <Product {()}>
 
   >>> rex.off()
@@ -1014,7 +948,9 @@ We can specify entity in when defining a validator::
                             Record(value='female', label=u'Female'),
                             Record(value='not-applicable', label=u'Not Applicable')]),
      StringFormField(value_key=['identity', 'givenname']),
-     EntityFormField(value_key=['mother'], label=u'Mother', data=Record(entity='individual', title=u'id()', mask=None))]
+     EntityFormField(value_key=['mother'], label=u'Mother',
+                     widget=EntityFormFieldWidget(entity='individual', mask=None, select=[], title='id()'),
+                     data=Record(entity='individual', title=u'id()', select=[], mask=None))]
 
     >>> parse("""
     ... - value_key: sex
@@ -1043,7 +979,15 @@ Alternatively we can supply entity name in YAML::
                             Record(value='female', label=u'Female'),
                             Record(value='not-applicable', label=u'Not Applicable')]),
      StringFormField(value_key=['identity', 'givenname']),
-     EntityFormField(value_key=['mother'], label=u'Mother', data=Record(entity='individual', title=u'id()', mask=None))]
+     EntityFormField(value_key=['mother'], label=u'Mother',
+                     widget=EntityFormFieldWidget(entity='individual',
+                                                  mask=None,
+                                                  select=[],
+                                                  title='id()'),
+                     data=Record(entity='individual',
+                                 title=u'id()',
+                                 select=[],
+                                 mask=None))]
 
 Cleanup::
 

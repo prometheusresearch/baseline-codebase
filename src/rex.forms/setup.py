@@ -18,7 +18,7 @@ setup(
     classifiers=[
         'Programming Language :: Python :: 2.7',
     ],
-    url='https://bitbucket.org/rexdb/rex.forms-provisional',
+    url='https://bitbucket.org/rexdb/rex.forms',
     package_dir={'': 'src'},
     packages=find_packages('src'),
     include_package_data=True,

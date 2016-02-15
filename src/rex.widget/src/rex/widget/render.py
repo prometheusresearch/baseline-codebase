@@ -126,8 +126,7 @@ def render(widget, request,
         except SelectError as err:
             raise HTTPBadRequest('invalid path "%s" at key "%s"' % \
                                  ('.'.join(str(segment) for segment in path), err.key))
-        if not hasattr(widget, 'respond'):
-            print widget
+        if not hasattr(widget, 'respond') or not callable(widget.respond):
             raise HTTPBadRequest('unable to locate responder via selector')
         return widget.respond(request)
     else:

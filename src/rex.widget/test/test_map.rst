@@ -50,6 +50,66 @@ Test rex.widget.map
   <BLANKLINE>
   "ok"
 
+Overrides
+---------
+
+::
+
+  >>> pkg.rewrite('/urlmap/base.yaml', '''
+  ... paths:
+  ...   /w:
+  ...     widget: !<MappedWidget>
+  ...     access: anybody
+  ... ''')
+
+  >>> pkg.rewrite('/urlmap.yaml', '''
+  ... include:
+  ... - /urlmap/base.yaml
+  ... paths:
+  ...   /w: !override
+  ...     no_chrome: true
+  ... ''')
+
+  >>> print Request.blank(
+  ...   '/w',
+  ...   accept='application/json').get_response(rex) # doctest: +ELLIPSIS
+  200 OK
+  Content-Type: application/json; charset=UTF-8
+  Content-Length: ...
+  <BLANKLINE>
+  ["~#widget", ["mapped-widget", {...}]]
+
+  >>> pkg.rewrite('/urlmap.yaml', '''
+  ... include:
+  ... - /urlmap/base.yaml
+  ... paths:
+  ...   /w: !override
+  ...     access: nobody
+  ... ''')
+
+  >>> print Request.blank(
+  ...   '/w',
+  ...   accept='application/json').get_response(rex) # doctest: +ELLIPSIS
+  401 Unauthorized
+  ...
+
+  >>> pkg.rewrite('/urlmap.yaml', '''
+  ... include:
+  ... - /urlmap/base.yaml
+  ... paths:
+  ...   /w: !override
+  ...     title: NEWTITLE
+  ... ''')
+
+  >>> print Request.blank(
+  ...   '/w',
+  ...   accept='application/json').get_response(rex) # doctest: +ELLIPSIS
+  200 OK
+  Content-Type: application/json; charset=UTF-8
+  Content-Length: 171
+  <BLANKLINE>
+  ["~#widget", ["rex-widget/lib/Chrome", {..., "title": "NEWTITLE"}]]
+
 ::
 
   >>> rex.off()

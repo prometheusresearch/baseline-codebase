@@ -97,7 +97,7 @@ WidgetVal
   Of widget:
       Example
   While parsing:
-      "<string>", line 2
+      "<...>", line 2
 
   >>> parse("""
   ... !<Example>

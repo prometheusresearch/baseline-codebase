@@ -30,7 +30,7 @@ def set_parameters(parameters):
         yield
     finally:
         _stack.pop()
-        
+
 
 class PortSupport(object):
 
@@ -51,4 +51,3 @@ class PortSupport(object):
                       for parameter, default
                       in self.port_parameters.items()]
         return Port(parameters + [port])
-            

@@ -28,6 +28,7 @@ from .url import URL, PortURL, QueryURL, URLVal, MutationURL, RequestURL
 from .param import ParamVal
 from .rst import RSTVal
 from .mutation import Mutation
+from .port_support import PortSupport
 
 from .util import undefined, MaybeUndefinedVal
 

@@ -1,5 +1,43 @@
-Validating widgets
-==================
+Test rex.widget.validate
+========================
+
+DeferredVal
+-----------
+
+::
+
+  >>> from rex.widget.validate import DeferredVal
+
+  >>> val = DeferredVal()
+  >>> deferred = val.parse('1')
+
+  >>> deferred # doctest: +ELLIPSIS
+  <rex.widget.validate.DeferredConstruction object at ...>
+
+  >>> val(deferred) is deferred
+  True
+
+  >>> deferred.source_location
+  SourceLocationRange(name='<string>', start=SourceLocation(name='<string>', line=0, column=0), end=SourceLocation(name='<string>', line=0, column=1))
+
+  >>> deferred.resolve()
+  1
+
+  >>> deferred = val(1)
+  >>> deferred # doctest: +ELLIPSIS
+  <rex.widget.validate.DeferredValidation object at ...>
+
+  >>> val(deferred) is deferred
+  True
+
+  >>> deferred.source_location is None
+  True
+
+  >>> deferred.resolve()
+  1
+
+WidgetVal
+---------
 
 ::
 

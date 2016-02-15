@@ -86,8 +86,7 @@ class DeferredValidation(Deferred):
 
     __slots__ = ('value', 'validate')
 
-    location = None
-    end_location = None
+    source_location = None
 
     def __init__(self, value, validate):
         self.value = value

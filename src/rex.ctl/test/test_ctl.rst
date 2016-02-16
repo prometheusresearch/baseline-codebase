@@ -213,14 +213,17 @@ parameter::
 You can start a long-running process too.  For example, you can start the
 development HTTP server::
 
-    >>> serve_ctl = Ctl("serve rex.ctl_demo")
+    >>> import random
+    >>> random_port = random.randrange(8000, 9000)
+
+    >>> serve_ctl = Ctl("serve rex.ctl_demo --port=%s" % random_port)
 
 You can now make a query::
 
     >>> import urllib
     >>> output = None
     >>> while not output:
-    ...     try: output = urllib.urlopen('http://127.0.0.1:8080/')
+    ...     try: output = urllib.urlopen('http://127.0.0.1:%s/' % random_port)
     ...     except IOError: pass
     >>> print output.read()
     <!DOCTYPE html>
@@ -229,7 +232,7 @@ You can now make a query::
 To stop the server, use ``rex.ctl.Ctl.stop()``::
 
     >>> print serve_ctl.stop()                  # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
-    Serving rex.ctl_demo on 127.0.0.1:8080
+    Serving rex.ctl_demo on 127.0.0.1:8...
     localhost - - [...] "GET / HTTP/1.0" 200 55
 
 

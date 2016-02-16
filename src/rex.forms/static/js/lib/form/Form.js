@@ -173,7 +173,7 @@ var Form = React.createClass({
       } else if (validation.isFailure(value.get(name).get('value').validation)) {
         value = value.get(name).get('value');
         value = value
-          .updateValue(value.value)
+          .update(value)
           .root();
       }
     });

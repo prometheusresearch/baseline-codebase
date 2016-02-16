@@ -12,6 +12,8 @@ REX.FORMS Change Log
   users identify which question on the original Form has the discrepancy.
 * Page navigation bar now shows the actual page numbers instead of always
   numbering sequentially from 1.
+* Fixed more issues that prevented entering decimal numbers in float fields
+  where multiple validation events/contraints are in play.
 
 
 1.3.0 (2016-01-29)

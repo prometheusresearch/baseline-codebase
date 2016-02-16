@@ -9,6 +9,7 @@
 ===================
 
 * rex.action==0.9.0
+* rex.ctl==2.1.1
 * rex.deploy==2.5.0
 * rex.forms==1.4.0
 * rex.urlmap==2.8.0

@@ -2,7 +2,8 @@ BIN           = ./node_modules/.bin
 TESTS         = \
                 lib/__tests__/*-test.js \
                 lib/data/__tests__/*-test.js \
-                lib/form/__tests__/*-test.js
+                lib/form/__tests__/*-test.js \
+                lib/ui/base/__tests__/*-test.js
 MOCHA_OPTS    = --compilers js:babel/register
 MOCHA         = NODE_ENV=test $(BIN)/mocha $(MOCHA_OPTS)
 COV_OPTS      = --check-coverage --require babel/register --all --root lib
@@ -12,7 +13,7 @@ test::
 	@$(MOCHA) -- $(TESTS)
 
 test-cov::
-	$(COV) -- $(TESTS)
+	@$(COV) -- $(TESTS)
 
 ci::
 	@$(MOCHA) --watch -- $(TESTS)

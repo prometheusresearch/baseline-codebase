@@ -9,5 +9,6 @@ doc/_build/
 dist
 www/bundle/*
 node_modules
+coverage
 bower_components
 *.v.*

@@ -1,4 +1,4 @@
-from rex.core import Initialize, get_settings, cached
+from rex.core import Initialize, get_settings, cached, get_packages
 from rex.web import route, Authorize
 from rex.urlmap import Override
 from rex.action.map import ActionRenderer
@@ -37,10 +37,15 @@ class InitializeMenu(Initialize):
                 if is_external(item.url):
                     continue
                 handler = route(item.url)
-                assert handler is not None, \
+                assert handler is not None or self.is_static_file(item.url), \
                        ('Cannot find handler for the URL: %s. '
                         'Check your "menu" setting.') % item.url
                 access = access_map.get(item.access)
                 assert access is not None, \
                        ('Permission "%s" for the URL: %s cannot be found. '
                         'Check your "menu" setting.') % (item.access, item.url)
+
+    def is_static_file(self, url):
+        package_name, file = url.split(':', 1)
+        package = get_packages()[package_name]
+        return package.exists('/www' + file)

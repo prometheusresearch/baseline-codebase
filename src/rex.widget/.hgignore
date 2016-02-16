@@ -9,6 +9,6 @@ doc/_build/
 dist
 www/bundle/*
 node_modules
-coverage
+.nyc_output
 bower_components
 *.v.*

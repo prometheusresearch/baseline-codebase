@@ -6,6 +6,12 @@
     "react": "^0.14.0",
     "react-dom": "^0.14.0"
   },
+  "nyc": {
+    "exclude": [
+      "**/__tests__/*-test.js",
+      "**/vendor/*.js"
+    ]
+  },
   "rex": {
     "bundleAll": true,
     "loaders": [
@@ -50,9 +56,9 @@
     "babel-plugin-espower": "^1.0.0",
     "eslint": "^1.5.1",
     "eslint-plugin-react": "^3.4.2",
-    "isparta": "^3.5.3",
     "jsdom": "^6.5.1",
     "mocha": "^2.3.3",
+    "nyc": "^5.6.0",
     "power-assert": "^1.1.0",
     "react": "^0.14.0",
     "react-addons-test-utils": "^0.14.3",

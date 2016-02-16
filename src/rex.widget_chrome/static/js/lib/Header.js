@@ -201,6 +201,7 @@ class SubNavigation extends React.Component {
         <style.SubHeaderButton
           key={key}
           href={item.url ? resolveURL(item.url) : item.url}
+          target={item.new_window ? '_blank' : undefined}
           onMouseEnter={this.onMouseEnter.bind(null, key)}
           onMouseLeave={this.onMouseLeave.bind(null, key)}
           variant={{open: open ? open === key : item.open}}>
@@ -267,7 +268,8 @@ class TopNavigationButton extends React.Component {
               item.permitted ?
                 <style.HeaderMenuButton
                   key={itemKey(item)}
-                  href={item.url ? resolveURL(item.url) : item.url}>
+                  href={item.url ? resolveURL(item.url) : item.url}
+                  target={item.new_window ? '_blank' : undefined}>
                   {item.title}
                 </style.HeaderMenuButton> :
                 null)}

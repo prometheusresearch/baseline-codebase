@@ -12,7 +12,7 @@ from rex.widget import (
     Widget, NullWidget, WidgetVal,
     Field, URLVal, computed_field, WidgetComposition
 )
-
+from .url import is_external
 
 class Chrome(BaseChrome):
     js_type = 'rex-widget-chrome/lib/Chrome'
@@ -40,13 +40,21 @@ class Chrome(BaseChrome):
         Item = Record.make('Item', ('title', 'url'))
         if isinstance(item2, (str, unicode)):
             item2 = Item(title=None, url=item2)
-        handler = route(item2.url)
-        title = item2.title or title_from_handler(handler) or 'Untitled'
+        if is_external(item2.url):
+            title = item2.title or 'Untitled'
+            url = item2.url
+            permitted = True
+        else:
+            handler = route(item2.url)
+            title = item2.title or title_from_handler(handler) or 'Untitled'
+            url = url_for(req, item2.url)
+            permitted = authorize(req, handler)
         return {
             'id': item2.url,
             'title': title,
-            'permitted': authorize(req, handler),
-            'url': url_for(req, item2.url)
+            'url': url,
+            'permitted': permitted,
+            'new_window': item2.new_window,
         }
 
     @computed_field

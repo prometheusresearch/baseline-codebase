@@ -1,6 +1,6 @@
 from rex.core import (
     Setting, StrVal, MapVal, SeqVal, RecordVal, MaybeVal,
-    Validate, OneOfVal)
+    Validate, OneOfVal, BoolVal)
 
 
 color_val = StrVal(pattern=r'(?i)^#[0-9a-f]{3}|#[0-9a-f]{6}$')
@@ -87,6 +87,7 @@ class Menu(Setting):
         ('items', SeqVal(RecordVal(
             ('title', MaybeVal(StrVal()), None),
             ('url', StrVal()),
+            ('new_window', BoolVal(), False),
             ('access', StrVal()),
         )))
     ))

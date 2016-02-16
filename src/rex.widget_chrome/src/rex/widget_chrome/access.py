@@ -3,6 +3,7 @@ from rex.web import route, Authorize
 from rex.urlmap import Override
 from rex.action.map import ActionRenderer
 from rex.widget.map import WidgetRenderer
+from .url import is_external
 
 
 @cached
@@ -33,13 +34,12 @@ class InitializeMenu(Initialize):
         access_map = Authorize.mapped()
         for level1 in menu:
             for item in level1.items:
+                if is_external(item.url):
+                    continue
                 handler = route(item.url)
                 assert handler is not None, \
                        ('Cannot find handler for the URL: %s. '
                         'Check your "menu" setting.') % item.url
-                #assert isinstance(handler, (ActionRenderer, WidgetRenderer)), \
-                #       ('Wrong handler for the URL: %s. '
-                #        'Check your "menu" setting.') % item.url
                 access = access_map.get(item.access)
                 assert access is not None, \
                        ('Permission "%s" for the URL: %s cannot be found. '

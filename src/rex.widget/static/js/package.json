@@ -50,6 +50,7 @@
     "babel-plugin-espower": "^1.0.0",
     "eslint": "^1.5.1",
     "eslint-plugin-react": "^3.4.2",
+    "isparta": "^3.5.3",
     "jsdom": "^6.5.1",
     "mocha": "^2.3.3",
     "power-assert": "^1.1.0",

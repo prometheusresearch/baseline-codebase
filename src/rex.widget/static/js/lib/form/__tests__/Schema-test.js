@@ -2,6 +2,7 @@
  * @copyright 2016, Prometheus Research, LLC
  */
 
+import assert from 'power-assert';
 import * as Schema from '../Schema';
 import * as Validation from '../Validation';
 import {Schema as RFSchema} from 'react-forms';

@@ -2,11 +2,12 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import Sinon          from 'sinon';
-import React          from 'react';
-import TestUtils      from 'react/lib/ReactTestUtils';
-import Fetch          from '../Fetch';
-import PromiseMock    from './PromiseMock';
+import assert from 'power-assert';
+import Sinon from 'sinon';
+import React from 'react';
+import TestUtils from 'react/lib/ReactTestUtils';
+import Fetch from '../Fetch';
+import PromiseMock from './PromiseMock';
 
 function assertDataSet(dataSet, data, error, updating) {
   assert(dataSet.data === data);

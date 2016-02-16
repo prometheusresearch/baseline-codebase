@@ -2,6 +2,7 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import assert from 'power-assert';
 import Sinon from 'sinon';
 import {Port as BasePort} from '../Port';
 import PromiseMock from './PromiseMock';

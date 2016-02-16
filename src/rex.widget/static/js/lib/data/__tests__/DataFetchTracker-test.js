@@ -2,6 +2,7 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import assert from 'power-assert';
 import Sinon            from 'sinon';
 import DataFetchTracker from '../DataFetchTracker';
 import PromiseMock      from './PromiseMock';

@@ -2,6 +2,7 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import assert from 'power-assert';
 import Sinon from 'sinon';
 import {Query as BaseQuery} from '../Query';
 import PromiseMock from './PromiseMock';

@@ -2,6 +2,7 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import assert from 'power-assert';
 import resolveURL, {mockMountPoints, unmockMountPoints} from '../resolveURL';
 
 describe('resolveURL', function() {

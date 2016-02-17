@@ -5,9 +5,8 @@ import {Action} from 'rex-action';
 export default class Hello extends React.Component {
 
   render() {
-    let {title, onClose} = this.props;
     return (
-      <Action title={title} onClose={onClose}>
+      <Action title={this.props.title}>
         <div>Hello, world!</div>
       </Action>
     );

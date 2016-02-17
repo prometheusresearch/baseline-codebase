@@ -35,7 +35,10 @@ setup(
     rex_bundle={
         './www/bundle': [
             'webpack:rex-action'
-        ]
+        ],
+        './www/doc': [
+            'doc:html',
+        ],
     }
 )
 

@@ -11,14 +11,16 @@ def source_url_map():
     ret = {}
     for level1 in menu:
         for item in level1.items:
-            ret[item.url] = (item.wizard_source, item.action_source)
+            ret[item.url] = (item.inspect,
+                             item.wizard_source,
+                             item.action_source)
     return ret
 
 def doc_url(req, url):
     if url is None:
         return None
     package = get_packages()[0]
-    return url_for(req, '%s:/doc/%s.html' % (package.name, url))
+    return url_for(req, '%s:/doc/%s' % (package.name, url))
 
 def pkg_url(req):
     mount = req.environ['rex.mount']
@@ -29,7 +31,7 @@ def pkg_url(req):
     assert False, 'Package not found for URL: %s' % url
 
 def get_sources(req):
-    return source_url_map().get(pkg_url(req), (None, {}))
+    return source_url_map().get(pkg_url(req), (False, None, {}))
 
 
 class DemoChrome(Chrome):
@@ -39,12 +41,21 @@ class DemoChrome(Chrome):
 
     @computed_field
     def wizard_source(self, req):
-        wizard_source, _ = get_sources(req)
+        _, wizard_source, _ = get_sources(req)
         return doc_url(req, wizard_source)
 
     @computed_field
     def action_source(self, req):
-        _, action_source = get_sources(req)
+        _, _, action_source = get_sources(req)
         return dict([
             (id, doc_url(req, url)) for id, url in action_source.items()
         ])
+
+    @computed_field
+    def inspect_url(self, req):
+        inspect, _, _ = get_sources(req)
+        if inspect:
+            url = pkg_url(req)
+            return ('action/inspect#/list-action.context[path=%s]/view-action'
+                    % url.replace('/', '\\/'))
+        return None

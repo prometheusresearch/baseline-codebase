@@ -25,10 +25,18 @@ menu:
   - access: anybody
     title: Home
     url: rex.action_demo:/
-    wizard_source: example/home
+    wizard_source: demo/home.html
   - access: anybody
     title: Inspect
     url: rex.action:/inspect
+  - access: anybody
+    title: Demo Documentation
+    url: rex.action_demo:/doc
+    new_window: true
+  - access: anybody
+    title: Rex Action Documentation
+    url: rex.action:/doc
+    new_window: true
 - title: Standard Actions
   items:
   - access: anybody

@@ -3,15 +3,15 @@
 ****************************
 
 This is the collection of examples with related comments to let you better
-understand `rex.action` capabilities.
+understand the `rex.action` capabilities.
 
 .. toctree::
 
-   example/home
-   example/hello
-   example/trivial
-   example/override
-   example/replace
+   demo/home
+   demo/hello
+   demo/trivial
+   demo/override
+   demo/replace
 
 
 

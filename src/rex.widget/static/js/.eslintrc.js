@@ -5,15 +5,15 @@ module.exports = {
         "es6": true,
         "node": true
     },
+    "globals": {
+        "__PUBLIC_PATH__": true,
+        "__require__": true,
+        "__REX_WIDGET_THEME__": true,
+        "__REX_WIDGET_MOUNT_PREFIX__": true,
+        "__MOUNT_POINTS__": true
+    },
     "parser": "babel-eslint",
     "extends": "eslint:recommended",
-//  "parserOptions": {
-//      "ecmaFeatures": {
-//          "experimentalObjectRestSpread": true,
-//          "jsx": true
-//      },
-//      "sourceType": "module"
-//  },
     "plugins": [
         "react"
     ],

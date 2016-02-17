@@ -18,13 +18,13 @@ let defaultHeight = {
   small: undefined,
   normal: undefined,
   large: undefined,
-}
+};
 
 let defaultWidth = {
   small: undefined,
   normal: undefined,
   large: undefined,
-}
+};
 
 let stylesheet = {
   raised: true,
@@ -323,6 +323,6 @@ let Button = Stylesheet.style(ButtonBase, makeStylesheet(stylesheet));
 
 Button.style = function style(stylesheet) {
   return Stylesheet.style(ButtonBase, makeStylesheet(stylesheet));
-}
+};
 
 export default Button;

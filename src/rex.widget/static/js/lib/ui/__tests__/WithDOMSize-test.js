@@ -2,13 +2,14 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import assert             from 'power-assert';
 import React              from 'react';
 import WithDOMSize        from '../WithDOMSize';
 import notifyLayoutChange from '../notifyLayoutChange';
 
 describe('WithDOMSize', function() {
 
-  let component = null;
+  let component = null; // eslint-disable-line no-unused-vars
   let node = null;
   let trace = null;
   let rect = null;

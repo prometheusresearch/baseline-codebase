@@ -84,16 +84,16 @@ describe('Schema', function() {
               format: Validation.string,
               formatError: undefined,
               formatPattern: undefined,
-              hideIf: "$value == 1",
+              hideIf: '$value == 1',
               hideIfList: [{
-                hideIf: "$value == 1",
+                hideIf: '$value == 1',
                 keyPathPattern: [],
               }],
             }
           },
           required: ['a'],
           hideIfList: [{
-            hideIf: "$value == 1",
+            hideIf: '$value == 1',
             keyPathPattern: ['a'],
           }],
         });
@@ -528,7 +528,7 @@ describe('Schema', function() {
               items: {
                 hideIfList: [
                   {
-                    hideIf: "xxx",
+                    hideIf: 'xxx',
                     keyPathPattern: ['c'],
                   }
                 ],

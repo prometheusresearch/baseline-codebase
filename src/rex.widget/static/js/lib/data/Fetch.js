@@ -20,7 +20,7 @@ function getDefaultProps(Component) {
   }
 }
 
-function update(params, data, prevData) {
+function update(params, data) {
   return data;
 }
 
@@ -43,7 +43,7 @@ export default function Fetch(Component, fetch) {
 
       static displayName = `FetchContainer(${displayName})`;
 
-      constructor(props) {
+      constructor(props) { // eslint-disable-line constructor-super
         super(props);
         let data = {};
 
@@ -51,12 +51,12 @@ export default function Fetch(Component, fetch) {
         this._spec = fetch.fetch(this.props);
 
         for (let key in this._spec) {
-          if (this._spec.hasOwnProperty(key)) {
+          if (this._spec.hasOwnProperty(key)) { // eslint-disable-line no-this-before-super
             data[key] = new DataSet(key, null, null, true, true);
           }
         }
 
-        this.state = {data, params: {}};
+        this.state = {data, params: {}}; // eslint-disable-line no-this-before-super
       }
 
       render() {

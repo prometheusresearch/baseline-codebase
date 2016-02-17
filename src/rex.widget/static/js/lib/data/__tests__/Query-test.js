@@ -12,16 +12,16 @@ describe('Query', function() {
 
   beforeEach(function() {
     this.Query = class extends BaseQuery {
-      static fetch(path, params) {
+      static fetch() {
         return new PromiseMock();
       }
-    }
+    };
     Sinon.spy(this.Query, 'fetch');
   });
 
   it('fetches collection', function() {
     let port = new this.Query('path', {a: 1});
-    let promise = port.produce();
+    port.produce();
     assert(this.Query.fetch.callCount === 1);
     assert(this.Query.fetch.firstCall.args[0] === 'path');
     assert.deepEqual(this.Query.fetch.firstCall.args[1], {a: 1});
@@ -29,7 +29,7 @@ describe('Query', function() {
 
   it('allows to set parameters via .params()', function() {
     let port = new this.Query('path');
-    let promise = port.params({a: 1}).produce();
+    port.params({a: 1}).produce();
     assert(this.Query.fetch.callCount === 1);
     assert(this.Query.fetch.firstCall.args[0] === 'path');
     assert.deepEqual(this.Query.fetch.firstCall.args[1], {a: 1});

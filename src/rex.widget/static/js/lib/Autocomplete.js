@@ -6,7 +6,6 @@ import React from 'react';
 import AutocompleteBase from '@prometheusresearch/react-autocomplete';
 import {autobind} from '../lang';
 import {IconButton} from './ui';
-import Input from './form/Input';
 import * as layout from '../layout';
 import * as css from '../css';
 import * as stylesheet from '../stylesheet';
@@ -248,7 +247,7 @@ export default class Autocomplete extends React.Component {
 
   @autobind
   _onRequestValueError(err) {
-    console.error(err);
+    console.error(err); // eslint-disable-line no-console
   }
 
   @autobind
@@ -274,7 +273,7 @@ export default class Autocomplete extends React.Component {
 
   @autobind
   _onRequestOptionsError(err) {
-    console.error(err);
+    console.error(err); // eslint-disable-line no-console
   }
 
   @autobind

@@ -9,7 +9,7 @@ import Field               from './Field';
 import ReadOnlyField       from './ReadOnlyField';
 import {WithFormValue} from 'react-forms';
 
-const ISO_FORMAT = "YYYY-MM-DD";
+const ISO_FORMAT = 'YYYY-MM-DD';
 
 class DatePicker extends React.Component {
 

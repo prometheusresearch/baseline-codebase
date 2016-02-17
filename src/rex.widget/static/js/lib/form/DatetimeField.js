@@ -9,8 +9,8 @@ import Field              from './Field';
 import ReadOnlyField      from './ReadOnlyField';
 import {WithFormValue} from 'react-forms';
 
-const ISO_FORMAT = "YYYY-MM-DD HH:mm:ss";
-const ISO_FORMAT_NO_TIME = "YYYY-MM-DD";
+const ISO_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+const ISO_FORMAT_NO_TIME = 'YYYY-MM-DD';
 
 class DateTimePicker extends React.Component {
 
@@ -21,7 +21,7 @@ class DateTimePicker extends React.Component {
       if (!date.isValid()) {
         date = moment(value, ISO_FORMAT_NO_TIME, true);
         if (date.isValid()) {
-            value = date.format(ISO_FORMAT);
+          value = date.format(ISO_FORMAT);
         }
       }
     }

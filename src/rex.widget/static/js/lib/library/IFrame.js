@@ -20,4 +20,4 @@ export default class IFrame extends React.Component {
       window.REQUEST_PARAMS = requestParams;
     }
   }
-};
+}

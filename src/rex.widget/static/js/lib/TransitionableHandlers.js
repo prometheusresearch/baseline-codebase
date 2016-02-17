@@ -27,9 +27,11 @@ Transitionable.register('formfield', function decode_widget(payload) { // eslint
 
 function _compileHideIf(expression) {
   let func = generateFunction();
+  /* eslint-disable quotes */
   func(`function hideIf($value, $fields) {`);
   func(`return (${expression});`);
   func(`}`);
+  /* eslint-enable quotes */
   return func.toFunction({});
 }
 

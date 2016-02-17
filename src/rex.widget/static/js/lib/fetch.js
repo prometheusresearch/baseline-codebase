@@ -72,7 +72,7 @@ function failOnHTTPError(response) {
     return response;
   } else {
     let error = new Error(response.statusText);
-    error.response = response
+    error.response = response;
     throw error;
   }
 }

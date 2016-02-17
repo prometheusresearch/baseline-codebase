@@ -1,6 +1,7 @@
 /**
  * @copyright 2016, Prometheus Research, LLC
  */
+/* eslint-disable quotes */
 
 import generateFunction from 'generate-function';
 import {isArray} from '../lang';

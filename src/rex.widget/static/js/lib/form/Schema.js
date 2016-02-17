@@ -4,7 +4,6 @@
 
 import moment from 'moment';
 import invariant from 'invariant';
-import {isArray} from '../lang';
 import * as KeyPath from '../KeyPath';
 import * as Validation from './Validation';
 
@@ -41,9 +40,9 @@ function _aggregateSchema(schema, keyPath = []) {
 
     }
   } else if (schema.type === 'array') {
-      _aggregateSchema(schema.items);
-      schema.hideIfList = schema.hideIfList.concat(
-        schema.items.hideIfList.map(item => _prefixHideIfItem(item, '*')));
+    _aggregateSchema(schema.items);
+    schema.hideIfList = schema.hideIfList.concat(
+      schema.items.hideIfList.map(item => _prefixHideIfItem(item, '*')));
   }
 
   if (schema.hideIf) {
@@ -81,7 +80,7 @@ function _dateConstraint(value) {
   case 'yesterday':
     return moment().subtract(1, 'day');
   default:
-    return moment(value, DATE_ISO_FORMAT, true);
+    return moment(value, Validation.DATE_ISO_FORMAT, true);
   }
 }
 
@@ -114,7 +113,7 @@ function _fieldToSchema(field) {
       uniqueByError: field.uniqueByError,
       format: Validation.array,
     };
-    schema.items = _growSchemaWithFields(schema.items, field.fields)
+    schema.items = _growSchemaWithFields(schema.items, field.fields);
     return schema;
   }
   case 'date':

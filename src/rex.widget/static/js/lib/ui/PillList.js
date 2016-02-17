@@ -8,7 +8,6 @@ import {style} from '../../stylesheet';
 
 let color = '#444444';
 let linkColor = '#428bca';
-let border = css.border(1, '#dddddd');
 let hoverBackgroundColor = '#eeeeee';
 let buttonMargin = 3;
 

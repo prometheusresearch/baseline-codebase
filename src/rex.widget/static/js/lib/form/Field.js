@@ -205,7 +205,7 @@ export default class Field extends React.Component {
 
   _validate(value) {
     let formValue = this.props.formValue;
-    let context = this.props.formValue.params.context;
+    let context = formValue.params.context;
     let params = {};
     for (let key in context) {
       if (context.hasOwnProperty(key)) {
@@ -217,8 +217,8 @@ export default class Field extends React.Component {
         }
       }
     }
-    if (this.props.formValue.parent) {
-      params.id = this.props.formValue.parent.value.id || null;
+    if (formValue.parent) {
+      params.id = formValue.parent.value.id || null;
     }
     params.value = value;
     this.props.validate.produce(params).then(
@@ -252,7 +252,7 @@ export default class Field extends React.Component {
   @autobind
   _onValidateError(error) {
     // FIXME: What to do? Render into errorList?
-    console.error(error);
+    console.error(error); // eslint-disable-line no-console
   }
 
 }

@@ -41,7 +41,7 @@ describe('<TabListBase />', function() {
       </TabListBase>
     );
     root = renderer.getRenderOutput();
-    let [_, {props: {children: nextContent}}] = root.props.children;
+    let {props: {children: nextContent}} = root.props.children[1];
     assert(nextContent.type === Tab);
     assert(nextContent.props.id === 'nope');
   });

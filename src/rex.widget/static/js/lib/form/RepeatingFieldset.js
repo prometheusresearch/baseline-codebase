@@ -7,7 +7,7 @@ import {WithFormValue} from 'react-forms';
 import CloseIcon from 'react-icons/lib/fa/close';
 
 import {autobind} from '../../lang';
-import {VBox, HBox} from '../../layout';
+import {VBox} from '../../layout';
 import {QuietButton, Button} from '../../ui';
 import * as Stylesheet from '../../stylesheet';
 import Fieldset from './Fieldset';
@@ -172,14 +172,6 @@ export default class RepeatingFieldset extends React.Component {
     value.splice(idx, 1);
     formValue.update(value);
   }
-}
-
-function arrayFromLength(length, value = undefined) {
-  let result = [];
-  for (let i = 0; i < length; i++) {
-    result.push(value);
-  }
-  return result;
 }
 
 module.exports = RepeatingFieldset;

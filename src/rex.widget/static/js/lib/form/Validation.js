@@ -5,8 +5,8 @@
 import moment from 'moment';
 import {toSnakeCase} from '../lang';
 
-const DATETIME_ISO_FORMAT = 'YYYY-MM-DD HH:mm:ss';
-const DATE_ISO_FORMAT = 'YYYY-MM-DD';
+export const DATETIME_ISO_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+export const DATE_ISO_FORMAT = 'YYYY-MM-DD';
 
 export function string(value, node) {
   if (node.formatPattern) {
@@ -15,7 +15,7 @@ export function string(value, node) {
     }
   }
   return true;
-};
+}
 
 export function datetime(value, node) {
   let date = moment(value, DATETIME_ISO_FORMAT, true);

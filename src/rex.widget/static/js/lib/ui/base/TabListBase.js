@@ -4,7 +4,7 @@
 
 import React, {PropTypes} from 'react';
 import {autobind, emptyFunction} from '../../../lang';
-import {VBox, HBox} from '../../../layout';
+import {VBox} from '../../../layout';
 import * as Stylesheet from '../../../stylesheet';
 import * as CSS from '../../../css';
 

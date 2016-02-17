@@ -245,7 +245,7 @@ let Form = React.createClass({
 
   submit() {
     let {value} = this.state;
-    let {submitTo, onSubmit, insert} = this.props;
+    let {submitTo, insert} = this.props;
 
     let nextValue = value;
 

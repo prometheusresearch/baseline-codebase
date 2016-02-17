@@ -3,7 +3,6 @@
  */
 
 import autobind from 'autobind-decorator';
-import invariant from 'invariant';
 import {fetch, post} from '../fetch';
 import shallowEquals from '../shallowEquals';
 import {isArray} from '../lang';

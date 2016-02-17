@@ -10,7 +10,7 @@ function makeDeprecatedComponentMixin(message, componentName) {
     componentWillMount() {
       if (!warned) {
         warned = true;
-        console.warn(`Component <${componentName || this.type.displayName} /> is deprecated: ${message}`); // eslint-disable-line max-len
+        console.warn(`Component <${componentName || this.type.displayName} /> is deprecated: ${message}`); // eslint-disable-line no-console
       }
     }
   };
@@ -28,7 +28,7 @@ function DeprecatedComponent(message, componentName) {
       },
 
     });
-  }
+  };
 }
 
 module.exports = DeprecatedComponent;

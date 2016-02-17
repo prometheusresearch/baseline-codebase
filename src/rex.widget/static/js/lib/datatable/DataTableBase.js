@@ -298,8 +298,6 @@ export default class DataTableBase extends React.Component {
         </span>
       );
     }
-
-    return cellData;
   }
 
   @autobind

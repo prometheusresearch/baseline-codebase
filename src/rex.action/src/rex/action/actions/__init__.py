@@ -14,7 +14,6 @@ from .pick import Pick
 from .edit import Edit
 from .drop import Drop
 from .form import Form
-from .alternative import Alternative
 from .form_action import FormAction
 from .entity_action import EntityAction
 from .plotly import Plotly

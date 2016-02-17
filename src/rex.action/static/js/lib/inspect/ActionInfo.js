@@ -8,7 +8,7 @@ import {autobind, emptyFunction} from 'rex-widget/lang';
 import * as css from 'rex-widget/css';
 import * as stylesheet from 'rex-widget/stylesheet';
 import * as layout from 'rex-widget/layout';
-import LockIcon from 'babel!react-icons/fa/lock';
+import LockIcon from 'react-icons/lib/fa/lock';
 import ActionPanel from './ui/ActionPanel';
 
 export default class ActionInfo extends React.Component {

@@ -10,7 +10,8 @@ module.exports = {
         "__require__": true,
         "__REX_WIDGET_THEME__": true,
         "__REX_WIDGET_MOUNT_PREFIX__": true,
-        "__MOUNT_POINTS__": true
+        "__MOUNT_POINTS__": true,
+        "__REX_USER__": true
     },
     "parser": "babel-eslint",
     "extends": "eslint:recommended",
@@ -25,10 +26,22 @@ module.exports = {
         "react/self-closing-comp": 2,
         "jsx-quotes": [2, "prefer-double"],
         "comma-dangle": [
-          1,
-          "only-multiline"
+            1,
+            "only-multiline"
         ],
-        "indent": [2, 2, {"SwitchCase": 1}],
+        "indent": [
+            2,
+            2,
+            {"SwitchCase": 1}
+        ],
+        "no-unused-vars": [
+            2,
+            {
+                "args": "after-used",
+                "argsIgnorePattern": "^_",
+                "varsIgnorePattern": "^_"
+            }
+        ],
         "linebreak-style": [
             2,
             "unix"

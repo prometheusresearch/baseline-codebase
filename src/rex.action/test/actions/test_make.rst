@@ -154,28 +154,6 @@ Value also used to generate port::
     expression: id()
   ''')
 
-Port propagates its input parameters so ports of fieldset::
-
-  >>> make = Action.parse("""
-  ... type: make
-  ... id: make-individual
-  ... entity: individual
-  ... input:
-  ... - mother: individual
-  ... fields:
-  ... - value_key: mother
-  ... """)
-  
-  >>> make.fields[0].widget().query_port
-  Port('''
-  - parameter: mother
-  - entity: individual
-    select: []
-    with:
-    - calculation: title
-      expression: id()
-  ''')
-
 Cleanup
 -------
 

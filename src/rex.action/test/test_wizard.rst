@@ -969,7 +969,7 @@ Replace
   While type checking action at path:
       make-individual -> <replace ../pick-lab/view-lab> -> view-lab
   While parsing:
-      "<string>", line 5
+      "<...>", line 5
 
 ::
 

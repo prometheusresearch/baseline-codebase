@@ -135,7 +135,7 @@ Row type disallows some of row names::
   Error: Invalid name for a rowtype (you need to pick another one):
       user
   While parsing:
-      "<string>", line 2
+      "<...>", line 2
 
   >>> validate.parse("""
   ... USER
@@ -145,7 +145,7 @@ Row type disallows some of row names::
   Error: Invalid name for a rowtype (you need to pick another one):
       USER
   While parsing:
-      "<string>", line 2
+      "<...>", line 2
 
   >>> validate.parse("""
   ... UsEr
@@ -155,7 +155,7 @@ Row type disallows some of row names::
   Error: Invalid name for a rowtype (you need to pick another one):
       UsEr
   While parsing:
-      "<string>", line 2
+      "<...>", line 2
 
   >>> validate.parse("""
   ... user: user
@@ -165,7 +165,7 @@ Row type disallows some of row names::
   Error: Invalid name for a rowtype (you need to pick another one):
       user
   While parsing:
-      "<string>", line 2
+      "<...>", line 2
 
 Record type::
 

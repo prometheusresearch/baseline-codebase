@@ -28,10 +28,7 @@ module.exports = {
           1,
           "only-multiline"
         ],
-        "indent": [
-            2,
-            2
-        ],
+        "indent": [2, 2, {"SwitchCase": 1}],
         "linebreak-style": [
             2,
             "unix"

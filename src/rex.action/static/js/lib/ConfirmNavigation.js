@@ -2,7 +2,6 @@
  * @copyright 2016, Prometheus Research, LLC
  */
 
-import autobind from 'autobind-decorator';
 import React from 'react';
 
 import {getHistory} from './History';
@@ -80,7 +79,7 @@ export default class ConfirmNavigation extends React.Component {
   }
 
   isAllowed() {
-    return MESSAGES.indexOf(message) === -1;
+    return MESSAGES.indexOf(this._message) === -1;
   }
 }
 

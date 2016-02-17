@@ -2,15 +2,13 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import autobind             from 'autobind-decorator';
-import emptyFunction        from 'empty/functionThatReturnsNull';
-import React                from 'react';
+import React from 'react';
 
-import {VBox, HBox}         from 'rex-widget/layout';
-import * as Stylesheet      from 'rex-widget/stylesheet';
-import * as CSS             from 'rex-widget/css';
+import {emptyFunction} from 'rex-widget/lang';
+import {VBox, HBox} from 'rex-widget/layout';
+import * as stylesheet from 'rex-widget/stylesheet';
+
 import {contextTypes} from './ActionContext';
-
 import {
   QuietButton,
   StickyFooterPanel,
@@ -53,7 +51,7 @@ export default class Action extends React.Component {
 
   static contextTypes = contextTypes;
 
-  static stylesheet = Stylesheet.create({
+  static stylesheet = stylesheet.create({
     Root: {
       Component: VBox,
       flex: 1,

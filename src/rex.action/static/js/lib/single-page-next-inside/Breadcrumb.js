@@ -66,6 +66,10 @@ let BreadcrumbRoot = Stylesheet.style(layout.HBox, {
 });
 
 export default function Breadcrumb({graph, onClick}) {
+  let style = {
+    left: 'calc(100% + 2px)',
+    borderLeftColor: css.rgb(100)
+  };
   let buttons = graph.trace.slice(1, -1).map(node =>
     <BreadcrumbButtonWrapper key={node.keyPath}>
       <BreadcrumbButton
@@ -73,11 +77,7 @@ export default function Breadcrumb({graph, onClick}) {
         icon={getIconAtNode(node)}>
         <ActionTitle noWrap node={node} />
       </BreadcrumbButton>
-      <BreadcrumbTriangle style={{
-          left: 'calc(100% + 2px)',
-          borderLeftColor: css.rgb(100)
-        }}
-        />
+      <BreadcrumbTriangle style={style} />
       <BreadcrumbTriangle
         style={{borderLeftColor: css.rgb(255)}}
         />

@@ -2,9 +2,8 @@
  * @copyright 2016, Prometheus Research, LLC
  */
 
-import React from 'react'
+import React from 'react';
 
-import {autobind} from 'rex-widget/lang';
 import * as stylesheet from 'rex-widget/stylesheet';
 import * as layout from 'rex-widget/layout';
 

@@ -35,7 +35,7 @@ export default class Make extends React.Component {
   render() {
     let {
       fields, entity,
-      submitButton, onClose, width, context, contextTypes
+      onClose, width, context, contextTypes
     } = this.props;
     let value = ObjectTemplate.render(this.props.value, context);
     let title = this.constructor.getTitle(this.props);

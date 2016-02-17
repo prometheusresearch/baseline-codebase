@@ -6,14 +6,9 @@ import React from 'react';
 
 import {autobind} from 'rex-widget/lang';
 import {SearchInput} from 'rex-widget/form';
-import * as stylesheet from 'rex-widget/stylesheet';
-import * as ui from 'rex-widget/ui';
-import {VBox, HBox} from 'rex-widget/layout';
 import {DataTable} from 'rex-widget/datatable';
-import {port} from 'rex-widget/data';
 
 import {command, Types} from '../execution/Command';
-import * as Entity from '../Entity';
 import Action from '../Action';
 import applyContext from '../applyContext';
 import Title from './Title';

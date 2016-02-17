@@ -2,10 +2,10 @@
  * @copyright 2016, Prometheus Research, LLC
  */
 
-import React from 'react'
+import React from 'react';
 
 import Action from '../Action';
-import {autobind, emptyFunction} from 'rex-widget/lang';
+import {autobind} from 'rex-widget/lang';
 import {Fetch} from 'rex-widget/data';
 import Title from '../actions/Title';
 import * as ui from 'rex-widget/ui';

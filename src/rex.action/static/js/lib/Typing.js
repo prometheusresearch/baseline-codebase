@@ -15,7 +15,7 @@ export class Type {
 
 class AnyType extends Type {
 
-  match(value) {
+  match(value) { // eslint-disable-line no-unused-vars
     return true;
   }
 

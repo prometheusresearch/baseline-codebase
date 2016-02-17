@@ -2,7 +2,7 @@
  * @copyright 2016, Prometheus Research, LLC
  */
 
-import React from 'react'
+import React from 'react';
 
 import Action from '../Action';
 import Title from '../actions/Title';
@@ -54,7 +54,7 @@ export default class ListAction extends React.Component {
       onSelect: this.onSelect,
       selected: this.props.context.path === path,
       selectable: true,
-    })
+    });
     return (
       <layout.VBox key={path} marginBottom={5}>
         {info}
@@ -63,7 +63,7 @@ export default class ListAction extends React.Component {
   }
 
   @autobind
-  onSelect(path, info) {
+  onSelect(path) {
     let {output} = this.props;
     this.props.onContext({[output]: path});
   }

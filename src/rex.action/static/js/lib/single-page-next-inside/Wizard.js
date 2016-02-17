@@ -3,16 +3,14 @@
  */
 
 import autobind from 'autobind-decorator';
-import emptyFunction from 'empty/function'
-import {createLocation} from 'history';
+import emptyFunction from 'empty/function';
 import createHistory from 'history/lib/createHashHistory';
 import React from 'react';
 
-import {post} from 'rex-widget/lib/fetch'
+import {post} from 'rex-widget/lib/fetch';
 import * as Stylesheet from 'rex-widget/stylesheet';
 import * as layout  from 'rex-widget/layout';
 import * as ui from 'rex-widget/ui';
-import * as css from 'rex-widget/css';
 
 import Graph from '../execution/Graph';
 import {isEntity, getEntityType} from '../Entity';
@@ -93,7 +91,7 @@ function Toolbar({graph, onClick}) {
             />)}
       </layout.HBox>
     );
-  return <layout.HBox wrap="wrap">{buttonGroups}</layout.HBox>
+  return <layout.HBox wrap="wrap">{buttonGroups}</layout.HBox>;
 }
 
 export default class Wizard extends React.Component {
@@ -112,8 +110,8 @@ export default class Wizard extends React.Component {
     }
   });
 
-  static renderTitle(props, context) {
-    return props.title;
+  static renderTitle({title}) {
+    return title;
   }
 
   static getTitle(props) {
@@ -228,7 +226,7 @@ export default class Wizard extends React.Component {
 
   @autobind
   _onRefetchError(err) {
-    console.error(err);
+    console.error(err); // eslint-disable-line no-console
   }
 
   @autobind
@@ -306,7 +304,7 @@ export default class Wizard extends React.Component {
   @autobind
   _onContext(node, context) {
     let commandName = Command.onContextCommand.name;
-    return this._onCommand(node, commandName, context)
+    return this._onCommand(node, commandName, context);
   }
 
   @autobind

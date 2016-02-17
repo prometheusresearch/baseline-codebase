@@ -40,7 +40,7 @@ function WizardDiagram({instruction, level, onSelect}) {
       />
   );
   if (children.length > 0) {
-    children = <layout.VBox marginTop={7}>{children}</layout.VBox>
+    children = <layout.VBox marginTop={7}>{children}</layout.VBox>;
   }
 
   let element;

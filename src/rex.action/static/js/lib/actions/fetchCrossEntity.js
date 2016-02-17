@@ -10,7 +10,7 @@ function makeCrossID(context, input) {
   return `${context[first].id}.${context[second].id}`;
 }
 
-export default function fetchCrossEntity({entity, data, context, contextTypes}) {
+export default function fetchCrossEntity({data, context, contextTypes}) {
   let id = makeCrossID(context, contextTypes.input);
   data = data.params({'*': id}).getSingleEntity();
   data = applyContext(data, contextTypes.input, context);

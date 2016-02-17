@@ -278,17 +278,6 @@ export default class Node {
 }
 
 /**
- * Check if node is a realized one.
- *
- * Realized nodes are those who can be part of the execution state and have
- * UI representaion (such as replace or execute). Virtual nodes are the
- * opposite — they cannot be represented in UI and thus must be realized.
- */
-function isRealizedNode(node) {
-  return Execute.is(node.instruction) || Replace.is(node.instruction);
-}
-
-/**
  * Realize node into an array of realized nodes.
  */
 function realizeNode(node) {
@@ -350,7 +339,7 @@ function resolveNodeByReference(node, reference) {
       'Invalid action reference: %s', reference
     );
   }
-  context = {...currentNode.context, ...context}
+  context = {...currentNode.context, ...context};
   context = maskContext(context, currentNode.contextTypes);
   return currentNode.replaceContext(context);
 }

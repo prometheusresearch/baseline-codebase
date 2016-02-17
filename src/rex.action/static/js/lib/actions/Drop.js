@@ -11,8 +11,6 @@ import * as ui from 'rex-widget/ui';
 import * as CSS from 'rex-widget/css';
 
 import Title from './Title';
-import {command, Types} from '../execution/Command';
-import {getEntityTitle} from '../Entity';
 
 let stylesheet = Stylesheet.create({
   Root: {
@@ -67,7 +65,7 @@ export default class Drop extends React.Component {
   }
 
   render() {
-    let {width, message, entity, onClose, context} = this.props;
+    let {message, entity, onClose, context} = this.props;
     let {confirmDelay} = this.state;
     let title = this.constructor.renderTitle(this.props, context);
     return (
@@ -118,7 +116,7 @@ export default class Drop extends React.Component {
   }
 
   drop = () => {
-    let {entity: {name, type}, context, onCommand, onClose} = this.props;
+    let {entity: {name, type}, context} = this.props;
     let entity = context[name];
     this.props.data.delete({[type.name]: {id: entity.id}}).then(() => {
       this.props.onEntityUpdate(entity, null);

@@ -6,12 +6,11 @@ import autobind             from 'autobind-decorator';
 import React                from 'react';
 import {Fetch}              from 'rex-widget/data';
 import * as form from 'rex-widget/form';
-import {VBox}               from 'rex-widget/layout'
+import {VBox}               from 'rex-widget/layout';
 import Action               from '../Action';
 import * as ObjectTemplate  from '../ObjectTemplate';
 import * as ContextUtils    from '../ContextUtils';
 import * as ui from 'rex-widget/ui';
-import {getEntityTitle}     from '../Entity';
 import Title                from './Title';
 import fetchCrossEntity from './fetchCrossEntity';
 

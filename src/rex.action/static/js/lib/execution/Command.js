@@ -3,7 +3,7 @@
  */
 
 import React            from 'react';
-import invariant        from 'invariant'
+import invariant        from 'invariant';
 import * as Entity      from '../Entity';
 import notImplemented   from '../notImplemented';
 import * as StringUtils from '../StringUtils';
@@ -14,7 +14,7 @@ export function command(...argumentTypes) {
       ...desc,
       value: new Command(desc.value, key, argumentTypes)
     };
-  }
+  };
 }
 
 export function getCommand(actionElement, commandName) {

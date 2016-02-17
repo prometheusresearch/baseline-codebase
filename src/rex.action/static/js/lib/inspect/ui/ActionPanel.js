@@ -5,7 +5,6 @@
 import React from 'react';
 
 import * as ui from 'rex-widget/ui';
-import * as css from 'rex-widget/css';
 import * as stylesheet from 'rex-widget/stylesheet';
 import * as layout from 'rex-widget/layout';
 

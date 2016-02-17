@@ -2,11 +2,9 @@
  * @copyright 2016, Prometheus Research, LLC
  */
 
-import React from 'react'
+import React from 'react';
 
-import Action from '../Action';
 import {autobind, emptyFunction} from 'rex-widget/lang';
-import * as ui from 'rex-widget/ui';
 import * as css from 'rex-widget/css';
 import * as stylesheet from 'rex-widget/stylesheet';
 import * as layout from 'rex-widget/layout';
@@ -41,11 +39,6 @@ export default class ActionInfo extends React.Component {
       justifyContent: 'space-between',
       alignItems: 'flex-start',
     },
-    Content: {
-      Component: layout.VBox,
-      padding: 10,
-      overflow: 'auto',
-    },
     Path: {
       fontSize: '70%',
       fontWeight: 'normal',
@@ -75,9 +68,9 @@ export default class ActionInfo extends React.Component {
       title = this.props.info.title, type, children
     } = this.props;
     let {
-      Root, Content, Header,
+      Root, Header,
       Path, Title,
-      Type, IconWrapper, Source
+      Type, IconWrapper,
     } = this.stylesheet;
     let routeTitle = info.location ?
       `${info.location.name}:${info.location.start.line}` :

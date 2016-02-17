@@ -5,7 +5,6 @@
 import React from 'react';
 
 import {override} from 'rex-widget/stylesheet';
-import * as css from 'rex-widget/css';
 
 import ActionInfo from './ActionInfo';
 
@@ -17,8 +16,8 @@ let stylesheet = override(ActionInfo.stylesheet, {
 });
 
 export default function DropActionInfo({info, ...props}) {
-  let type = `${info.type}`;
-  let title = info.title || `Drop`;
+  let type = info.type;
+  let title = info.title || 'Drop';
   return (
     <ActionInfo
       {...props}

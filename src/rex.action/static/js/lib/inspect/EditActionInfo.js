@@ -5,7 +5,6 @@
 import React from 'react';
 
 import {override} from 'rex-widget/stylesheet';
-import * as css from 'rex-widget/css';
 
 import ActionInfo from './ActionInfo';
 

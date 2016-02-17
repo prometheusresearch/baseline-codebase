@@ -4,7 +4,6 @@
 
 import React                       from 'react';
 import Action                      from '../Action';
-import {getEntityTitle, isLoaded}  from '../Entity';
 import Title                       from './Title';
 import fetchEntity                 from './fetchEntity';
 import * as ui from 'rex-widget/ui';

@@ -2,7 +2,7 @@
  * @copyright 2016, Prometheus Research, LLC
  */
 
-import React from 'react'
+import React from 'react';
 
 import {autobind} from 'rex-widget/lang';
 import * as stylesheet from 'rex-widget/stylesheet';
@@ -11,41 +11,6 @@ import * as ui from 'rex-widget/ui';
 import ActionInfo from './ActionInfo';
 import SourceLocation from './SourceLocation';
 import Documentation from './Documentation';
-
-let Code = stylesheet.style('span', {
-  fontFamily: 'Menlo, Monaco, monospace',
-  whiteSpace: 'pre',
-  fontSize: '90%',
-});
-
-function Context({info: {contextTypes: {input, output}}, ...props}) {
-  let inputKeys = Object.keys(input.rows);
-  let outputKeys = Object.keys(output.rows);
-  return (
-    <layout.VBox>
-      {inputKeys.length > 0 &&
-        <layout.VBox>
-          This action requires the following from context:
-          <layout.VBox padding={5}>
-            {inputKeys.map(key =>
-              <Code key={key}>
-                {key}: {input.rows[key].type.format()}
-              </Code>)}
-          </layout.VBox>
-        </layout.VBox>}
-      {outputKeys.length > 0 &&
-        <layout.VBox>
-          This action adds the following to context:
-          <layout.VBox padding={5}>
-            {outputKeys.map(key =>
-              <Code key={key}>
-                {key}: {output.rows[key].type.format()}
-              </Code>)}
-          </layout.VBox>
-        </layout.VBox>}
-    </layout.VBox>
-  );
-}
 
 class SourceListing extends React.Component {
 

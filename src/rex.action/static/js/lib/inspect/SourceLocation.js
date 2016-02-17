@@ -2,7 +2,7 @@
  * @copyright 2016, Prometheus Research, LLC
  */
 
-import React from 'react'
+import React from 'react';
 import * as stylesheet from 'rex-widget/stylesheet';
 
 let defaultStylesheet = stylesheet.create({

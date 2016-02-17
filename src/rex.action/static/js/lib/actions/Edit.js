@@ -12,7 +12,6 @@ import * as data from 'rex-widget/data';
 import Action from '../Action';
 import * as ObjectTemplate from '../ObjectTemplate';
 import * as ContextUtils from '../ContextUtils';
-import {getEntityTitle} from '../Entity';
 import Title from './Title';
 import fetchEntity from './fetchEntity';
 import applyContext from '../applyContext';

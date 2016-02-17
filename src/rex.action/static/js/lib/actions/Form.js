@@ -12,7 +12,6 @@ import * as data from 'rex-widget/data';
 import Action from '../Action';
 import * as ObjectTemplate from '../ObjectTemplate';
 import * as ContextUtils from '../ContextUtils';
-import Title from './Title';
 import applyContext from '../applyContext';
 
 @data.Fetch(function fetchInitialValue({dataValue, value, contextTypes, context}) {
@@ -65,8 +64,7 @@ export default class Form extends React.Component {
 
   @autobind
   renderForm() {
-    let {dataMutation, fields, context, contextTypes, fetched,
-         readOnly} = this.props;
+    let {dataMutation, fields, context, contextTypes, readOnly} = this.props;
     let submitTo = applyContext(
         dataMutation,
         contextTypes.input,
@@ -104,11 +102,11 @@ export default class Form extends React.Component {
     refetch();
   }
 
-  static renderTitle({title = `Form`}, context) {
+  static renderTitle({title = 'Form'}, _context) {
     return <span>{title}</span>;
   }
 
   static getTitle({title}) {
-    return title || `Form`;
+    return title || 'Form';
   }
 }

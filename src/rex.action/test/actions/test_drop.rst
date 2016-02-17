@@ -3,6 +3,9 @@ View action
 
 ::
 
+  >>> import tempfile
+  >>> attach_dir = tempfile.mkdtemp(suffix='rex-action-test')
+
   >>> from webob import Request
 
   >>> from rex.core import Rex
@@ -14,7 +17,7 @@ Init
 
 ::
 
-  >>> rex = Rex('-', 'rex.action_demo')
+  >>> rex = Rex('-', 'rex.action_demo', attach_dir=attach_dir)
   >>> rex.on()
 
 In case fields are not specified, they are generated from port::
@@ -28,6 +31,7 @@ In case fields are not specified, they are generated from port::
   >>> drop # doctest: +NORMALIZE_WHITESPACE
   Drop(confirm_delay=undefined,
        db=None,
+       doc=undefined,
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
        icon=undefined,
        id='drop-individual',
@@ -46,7 +50,7 @@ In case fields are not specified, they are generated from port::
   >>> drop.port
   Port('''
   entity: individual
-  select: [code, sex, mother, father, adopted_mother, adopted_father]
+  select: [code, sex, mother, father]
   with:
   - calculation: meta:type
     expression: '''individual'''
@@ -54,13 +58,20 @@ In case fields are not specified, they are generated from port::
     expression: id()
   ''')
 
-  >>> print render_widget(drop, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> print render_widget(
+  ...   drop,
+  ...   Request.blank('/', accept='application/json'),
+  ...   no_chrome=True) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
 
-  >>> print render_widget(drop, Request.blank('/?__to__=1.content.1.data', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(
+  ...   drop,
+  ...   Request.blank('/', accept='application/json'),
+  ...   path='1.data',
+  ...   no_chrome=True) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"

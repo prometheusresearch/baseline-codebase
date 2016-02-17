@@ -3,6 +3,9 @@ Edit action
 
 ::
 
+  >>> import tempfile
+  >>> attach_dir = tempfile.mkdtemp(suffix='rex-action-test')
+
   >>> from webob import Request
 
   >>> from rex.core import Rex
@@ -14,7 +17,7 @@ Init
 
 ::
 
-  >>> rex = Rex('-', 'rex.action_demo')
+  >>> rex = Rex('-', 'rex.action_demo', attach_dir=attach_dir)
   >>> rex.on()
 
 In case fields are not specified, they are generated from port::
@@ -27,6 +30,7 @@ In case fields are not specified, they are generated from port::
 
   >>> edit # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Edit(db=None,
+       doc=undefined,
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
        fields=[...],
        icon=undefined,
@@ -50,7 +54,7 @@ In case fields are not specified, they are generated from port::
   Port('''
   - parameter: individual
   - entity: individual
-    select: [code, sex, mother, father, adopted_mother, adopted_father]
+    select: [code, sex, mother, father]
     with:
     - calculation: meta:type
       expression: '''individual'''
@@ -58,7 +62,11 @@ In case fields are not specified, they are generated from port::
       expression: id()
   ''')
 
-  >>> print render_widget(edit, Request.blank('/?__to__=1.content.1.data', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(
+  ...   edit,
+  ...   Request.blank('/', accept='application/json'),
+  ...   path='1.data',
+  ...   no_chrome=True) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"
@@ -82,6 +90,7 @@ You can also specify fields and see port generated from them::
 
   >>> edit # doctest: +NORMALIZE_WHITESPACE
   Edit(db=None,
+       doc=undefined,
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
        fields=[StringFormField(value_key=['code'], label=u'Code')],
        icon=undefined,
@@ -114,7 +123,7 @@ Edit's initial value is also used to generate port::
   ... value:
   ...   sex: female
   ...   identity:
-  ...     givenname: Andrey
+  ...     fullname: Andrey
   ... fields:
   ... - value_key: code
   ... """)
@@ -126,7 +135,7 @@ Edit's initial value is also used to generate port::
     select: [code, sex]
     with:
     - entity: identity
-      select: [givenname]
+      select: [fullname]
       with:
       - calculation: meta:type
         expression: '''identity'''

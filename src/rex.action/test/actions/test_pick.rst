@@ -3,6 +3,9 @@ Pick action
 
 ::
 
+  >>> import tempfile
+  >>> attach_dir = tempfile.mkdtemp(suffix='rex-action-test')
+
   >>> from webob import Request
 
   >>> from rex.core import Rex
@@ -14,7 +17,7 @@ Init
 
 ::
 
-  >>> rex = Rex('-', 'rex.action_demo')
+  >>> rex = Rex('-', 'rex.action_demo', attach_dir=attach_dir)
   >>> rex.on()
 
 In case fields are not specified, they are generated from port::
@@ -29,9 +32,7 @@ In case fields are not specified, they are generated from port::
   [StringFormField(value_key=['code'], label=u'Code'),
    EnumFormField(value_key=['sex'], label=u'Sex', options=[...]),
    EntityFormField(value_key=['mother'], ...),
-   EntityFormField(value_key=['father'], ...),
-   EntityFormField(value_key=['adopted_mother'], ...),
-   EntityFormField(value_key=['adopted_father'], ...)]
+   EntityFormField(value_key=['father'], ...)]
 
   >>> input, output = pick.context_types
 
@@ -44,7 +45,7 @@ In case fields are not specified, they are generated from port::
   >>> pick.port
   Port('''
   entity: individual
-  select: [code, sex, mother, father, adopted_mother, adopted_father]
+  select: [code, sex, mother, father]
   with:
   - calculation: meta:type
     expression: '''individual'''
@@ -53,14 +54,14 @@ In case fields are not specified, they are generated from port::
   ''')
 
   >>> req = Request.blank('/', accept='application/json')
-  >>> print render_widget(pick, req) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> print render_widget(pick, req, no_chrome=True) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   ...
 
-  >>> req = Request.blank('/?__to__=1.content.1.data', accept='application/json')
-  >>> print render_widget(pick, req) # doctest: +ELLIPSIS
+  >>> req = Request.blank('/', accept='application/json')
+  >>> print render_widget(pick, req, no_chrome=True, path='1.data') # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"
@@ -84,7 +85,7 @@ var to this filter::
   ... """)
 
   >>> req = Request.blank('/', accept='application/json')
-  >>> print render_widget(pick, req) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> print render_widget(pick, req, no_chrome=True) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
@@ -94,7 +95,7 @@ var to this filter::
   Port('''
   entity: individual
   filters: ['__search__($search) := identity.givename~$search']
-  select: [code, sex, mother, father, adopted_mother, adopted_father]
+  select: [code, sex, mother, father]
   with:
   - calculation: meta:type
     expression: '''individual'''
@@ -102,8 +103,8 @@ var to this filter::
     expression: id()
   ''')
 
-  >>> req = Request.blank('/?__to__=1.content.1.data', accept='application/json')
-  >>> print render_widget(pick, req) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  >>> req = Request.blank('/', accept='application/json')
+  >>> print render_widget(pick, req, no_chrome=True, path='1.data') # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"
@@ -129,7 +130,7 @@ If we provide ``mask`` HTSQL expression it is compiled into port's filter::
   Port('''
   entity: individual
   mask: (sex='male')
-  select: [code, sex, mother, father, adopted_mother, adopted_father]
+  select: [code, sex, mother, father]
   with:
   - calculation: meta:type
     expression: '''individual'''
@@ -150,7 +151,7 @@ to those input variables::
   ... """)
 
   >>> req = Request.blank('/', accept='application/json')
-  >>> print render_widget(pick, req) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> print render_widget(pick, req, no_chrome=True) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
@@ -161,7 +162,7 @@ to those input variables::
   - parameter: individual
   - entity: study_enrollment
     mask: (individual=$individual)
-    select: [study, individual, code, enrollment_date, participant_group]
+    select: [study, individual, code, date]
     with:
     - calculation: meta:type
       expression: '''study_enrollment'''
@@ -169,8 +170,8 @@ to those input variables::
       expression: id()
   ''')
 
-  >>> req = Request.blank('/?__to__=1.content.1.data', accept='application/json')
-  >>> print render_widget(pick, req) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  >>> req = Request.blank('/', accept='application/json')
+  >>> print render_widget(pick, req, no_chrome=True, path='1.data') # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"
@@ -201,7 +202,7 @@ a mask::
   Port('''
   entity: individual
   mask: (true())
-  select: [code, sex, mother, father, adopted_mother, adopted_father]
+  select: [code, sex, mother, father]
   with:
   - calculation: meta:type
     expression: '''individual'''

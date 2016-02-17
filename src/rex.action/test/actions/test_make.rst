@@ -3,6 +3,9 @@ Make action
 
 ::
 
+  >>> import tempfile
+  >>> attach_dir = tempfile.mkdtemp(suffix='rex-action-test')
+
   >>> from webob import Request
 
   >>> from rex.core import Rex
@@ -14,7 +17,7 @@ Init
 
 ::
 
-  >>> rex = Rex('-', 'rex.action_demo')
+  >>> rex = Rex('-', 'rex.action_demo', attach_dir=attach_dir)
   >>> rex.on()
 
 In case fields are not specified, they are generated from port::
@@ -27,6 +30,7 @@ In case fields are not specified, they are generated from port::
 
   >>> make # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Make(db=None, 
+       doc=undefined,
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)), 
        fields=[...], 
        icon=undefined,
@@ -49,7 +53,7 @@ In case fields are not specified, they are generated from port::
   >>> make.port
   Port('''
   entity: individual
-  select: [code, sex, mother, father, adopted_mother, adopted_father]
+  select: [code, sex, mother, father]
   with:
   - calculation: meta:type
     expression: '''individual'''
@@ -57,13 +61,20 @@ In case fields are not specified, they are generated from port::
     expression: id()
   ''')
 
-  >>> print render_widget(make, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> print render_widget(
+  ...   make,
+  ...   Request.blank('/', accept='application/json'),
+  ...   no_chrome=True) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   ...
 
-  >>> print render_widget(make, Request.blank('/?__to__=1.content.1.data', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(
+  ...   make,
+  ...   Request.blank('/', accept='application/json'),
+  ...   no_chrome=True,
+  ...   path='1.data') # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"
@@ -87,6 +98,7 @@ You can also specify fields and see port generated from them::
 
   >>> make # doctest: +NORMALIZE_WHITESPACE
   Make(db=None,
+       doc=undefined,
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
        fields=[StringFormField(value_key=['code'], label=u'Code')],
        icon=undefined,
@@ -119,7 +131,7 @@ Value also used to generate port::
   ...   code: code
   ...   sex: female
   ...   identity:
-  ...     givenname: Andrey
+  ...     fullname: Andrey
   ... fields:
   ... - value_key: code
   ... """)
@@ -130,7 +142,7 @@ Value also used to generate port::
   select: [code, sex]
   with:
   - entity: identity
-    select: [givenname]
+    select: [fullname]
     with:
     - calculation: meta:type
       expression: '''identity'''
@@ -154,7 +166,7 @@ Port propagates its input parameters so ports of fieldset::
   ... - value_key: mother
   ... """)
   
-  >>> make.fields[0].query_port
+  >>> make.fields[0].widget().query_port
   Port('''
   - parameter: mother
   - entity: individual

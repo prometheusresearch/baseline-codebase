@@ -3,6 +3,9 @@ URL mapping integration
 
 ::
 
+  >>> import tempfile
+  >>> attach_dir = tempfile.mkdtemp(suffix='rex-action-test')
+
   >>> from webob import Request
   >>> from rex.core import Rex, SandboxPackage
   >>> from rex.core import StrVal
@@ -24,7 +27,7 @@ URL mapping integration
   ...           type: pick
   ...           entity: individual
   ... """)
-  >> rex = Rex(pkg, '-', 'rex.action_demo')
+  >> rex = Rex(pkg, '-', 'rex.action_demo', attach_dir=attach_dir)
   >> rex.on()
 
 ::
@@ -121,7 +124,7 @@ Overrides
   ...     entity: study
   ... """)
 
-  >>> rex = Rex(extension_pkg, pkg, '-', 'rex.action_demo')
+  >>> rex = Rex(extension_pkg, pkg, '-', 'rex.action_demo', attach_dir=attach_dir)
 
   >>> print Request.blank('/page/@@/1.content.1.path.0.0.2.1.data', accept='application/json').get_response(rex) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   200 OK

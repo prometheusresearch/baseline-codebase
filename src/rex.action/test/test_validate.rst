@@ -7,10 +7,14 @@ Init
 
 ::
 
+  >>> import tempfile
+  >>> attach_dir = tempfile.mkdtemp(suffix='rex-action-test')
+
   >>> from rex.core import Rex
   >>> rex = Rex(
   ...   'rex.action_demo',
-  ...   gateways={'gateway': 'pgsql:action_demo'}
+  ...   gateways={'gateway': 'pgsql:action_demo'},
+  ...   attach_dir=attach_dir
   ... )
   >>> rex.on()
 

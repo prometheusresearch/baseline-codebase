@@ -3,6 +3,9 @@ Page action
 
 ::
 
+  >>> import tempfile
+  >>> attach_dir = tempfile.mkdtemp(suffix='rex-action-test')
+
   >>> from webob import Request
 
   >>> from rex.core import Rex
@@ -14,7 +17,7 @@ Init
 
 ::
 
-  >>> rex = Rex('-', 'rex.action_demo')
+  >>> rex = Rex('-', 'rex.action_demo', attach_dir=attach_dir)
   >>> rex.on()
 
 In case fields are not specified, they are generated from port::
@@ -27,8 +30,10 @@ In case fields are not specified, they are generated from port::
   ... """)
 
   >>> page # doctest: +NORMALIZE_WHITESPACE
-  Page(icon=undefined,
+  Page(doc=undefined,
+       icon=undefined,
        id='home',
+       input=RecordType(rows={}, open=True),
        text=RST(src=u'<p>Welcome to Rex Action!</p>', links={}),
        title=undefined,
        width=undefined)
@@ -41,7 +46,10 @@ In case fields are not specified, they are generated from port::
   >>> output
   RecordType(rows={}, open=True)
 
-  >>> print render_widget(page, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print render_widget(
+  ...   page,
+  ...   Request.blank('/', accept='application/json'),
+  ...   no_chrome=True) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...

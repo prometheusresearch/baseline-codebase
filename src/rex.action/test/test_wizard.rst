@@ -3,6 +3,9 @@ Wizard
 
 ::
 
+  >>> import tempfile
+  >>> attach_dir = tempfile.mkdtemp(suffix='rex-action-test')
+
   >>> import json
   >>> from webob import Request
   >>> from rex.core import Rex
@@ -51,7 +54,7 @@ Wizard
   ...   def context(self):
   ...     return self.domain.record(), self.domain.record(x='x')
 
-  >>> rex = Rex('-', 'rex.action_demo')
+  >>> rex = Rex('-', 'rex.action_demo', attach_dir=attach_dir)
   >>> rex.on()
 
 
@@ -72,6 +75,7 @@ Wizard
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Wizard(actions={'second': AnotherAction(...),
                   'first': MyAction(...)},
+         doc=undefined,
          icon=undefined,
          id='wizard',
          initial_context=None,
@@ -98,6 +102,7 @@ Wizard
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Wizard(actions={'second': AnotherAction(...),
                   'first': MyAction(...)},
+         doc=undefined,
          icon=undefined,
          id='wizard',
          initial_context=None,
@@ -119,7 +124,7 @@ Wizard
 
   >>> from rex.widget import encode
   >>> encode(w, Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  u'["~#widget", ["rex-action/lib/single-page/Wizard", ...]]'
+  u'["~#widget", ["rex-action/.../Wizard", ...]]'
 
 ::
 
@@ -134,6 +139,7 @@ Wizard
   ...     type: require-x
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Wizard(actions={'first': RequireX(...)},
+         doc=undefined,
          icon=undefined,
          id='wizard',
          initial_context={'x': 'value'},
@@ -212,9 +218,9 @@ Context refetch::
   ... }) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/json; charset=UTF-8
-  Content-Length: 107
+  Content-Length: ...
   <BLANKLINE>
-  {"x":{"y":{"meta:title":"C49Z4843","id":"C49Z4843","meta:type":"individual","meta:state:recruited":false}}}
+  {"x":{"y":null}}
 
 ::
 
@@ -233,7 +239,7 @@ Action resolution
   ...   package.rewrite('/urlmap.yaml', yaml)
   ...   if other:
   ...     other_package.rewrite('/urlmap.yaml', other)
-  ...   rex = Rex('-', 'rex.action', package, other_package, db='pgsql:action_demo')
+  ...   rex = Rex('-', 'rex.action', package, other_package, db='pgsql:action_demo', attach_dir=attach_dir)
   ...   rex.on()
   ...   rex.off()
 
@@ -274,6 +280,7 @@ Action resolution
       SandboxPackage()
       SandboxPackage('other')
   With parameters:
+      attach_dir: '...'
       db: 'pgsql:action_demo'
 
   >>> parse("""
@@ -301,6 +308,7 @@ Action resolution
       SandboxPackage()
       SandboxPackage('other')
   With parameters:
+      attach_dir: '...'
       db: 'pgsql:action_demo'
 
   >>> parse("""
@@ -328,6 +336,7 @@ Action resolution
       SandboxPackage()
       SandboxPackage('other')
   With parameters:
+      attach_dir: '...'
       db: 'pgsql:action_demo'
 
   >>> parse("""
@@ -368,6 +377,7 @@ Action resolution
       SandboxPackage()
       SandboxPackage('other')
   With parameters:
+      attach_dir: '...'
       db: 'pgsql:action_demo'
 
 Typechecking

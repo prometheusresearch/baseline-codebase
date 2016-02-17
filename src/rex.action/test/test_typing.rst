@@ -3,6 +3,9 @@ Typing
 
 Currently active application domain is accessible through ``Domain.current()``::
 
+  >>> import tempfile
+  >>> attach_dir = tempfile.mkdtemp(suffix='rex-action-test')
+
   >>> from rex.action.typing import Domain
 
   >>> Domain.current() # doctest: +ELLIPSIS
@@ -235,7 +238,7 @@ Annotate port with type information
 ::
 
   >>> from rex.core import Rex
-  >>> app = Rex('-', 'rex.action_demo')
+  >>> app = Rex('-', 'rex.action_demo', attach_dir=attach_dir)
 
   >>> dom = Domain(entity_types=[
   ...   EntityType('individual', state=EntityTypeState('recruited', 'true()')),
@@ -259,11 +262,10 @@ Annotate port with type information
   >>> annotate_port(dom, port)
   Port('''
   entity: individual
-  select: [code, sex, mother, father, adopted_mother, adopted_father]
+  select: [code, sex, mother, father]
   with:
   - entity: identity
-    select: [fullname, givenname, middle, preferred_name, middle_name, surname, birthdate,
-      notes, deathdate, deceased]
+    select: [fullname, birthdate, notes, deathdate, deceased]
     with:
     - calculation: meta:type
       expression: '''identity'''

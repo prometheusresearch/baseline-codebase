@@ -10,7 +10,7 @@
 from cached_property import cached_property
 from webob.exc import HTTPBadRequest
 
-from rex.core import StrVal, OneOfVal, MapVal, AnyVal
+from rex.core import Error, StrVal, OneOfVal, MapVal, AnyVal
 from rex.db import Query
 from rex.port import Port
 from rex.widget import (
@@ -82,6 +82,11 @@ class Form(Action):
             values['fields'] = self._resolve_fields(input, fields)
             return action_class.validated(**values)
 
+    def __init__(self, **values):
+        super(Form, self).__init__(**values)
+        if self.value is None and self.query is None:
+            raise Error('Either value or query should be provided')
+
     input = Field(
         RecordTypeVal(), default=RecordType.empty())
 
@@ -145,11 +150,15 @@ class Form(Action):
     @cached_property
     def mutation(self):
         """ Define data mutation for the action."""
+        if self._data_query is None:
+            return None
         return Mutation(port=self._port, query=self._data_query)
 
     @responder(url_type=MutationURL)
     def data_mutation(self, req):
         """ Handle data mutation request."""
+        if self.mutation is None:
+            raise HTTPBadRequest('form action is configured as read-only')
         return self.mutation(req)
 
     @responder(url_type=QueryURL)
@@ -180,6 +189,8 @@ class Form(Action):
 
     @cached_property
     def _data_query(self):
+        if self.query is None:
+            return None
         return self._create_query(self.query, define_fields=True)
 
     def _create_query(self, query, define_fields=False):

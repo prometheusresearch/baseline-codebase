@@ -11,3 +11,4 @@ www/doc/*
 node_modules
 bower_components
 doc/_build
+.nyc_output

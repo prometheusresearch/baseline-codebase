@@ -281,6 +281,9 @@ tests:
 - sh: make test-cov
   stdout: |
     OK
+- sh: make lint
+  stdout: |
+    OK
 - sh: rex dropdb --config=./demo/rex.yaml
   stdout: |
     Dropping database pgsql:///widget_demo_test.

@@ -1,0 +1,36 @@
+/school{
+        code,
+        name,
+        campus
+    }
+    /:rexdb
+    /:insert
+
+/department{
+        code,
+        name,
+        school_code.id() :as school_code
+    }
+    /:rexdb
+    /:insert
+
+/program{
+        school_code.id() :as school_code,
+        code,
+        title,
+        degree,
+        part_of_code
+    }
+    /:rexdb
+    /:insert
+
+/course{
+        department_code.id() :as department_code,
+        no,
+        title,
+        credits,
+        description
+    }
+    /:rexdb
+    /:insert
+

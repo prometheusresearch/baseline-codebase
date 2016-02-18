@@ -1,0 +1,22 @@
+# Users/Permissions
+user_query: true()
+
+# Chrome
+rex_widget:
+  chrome: rex.widget_chrome.Chrome
+application_title: RexMartActions Demo
+username_query: $USER
+user_profile_url: rex.mart_actions_demo:/
+application_logout_url: rex.mart_actions_demo:/
+
+# Menuing
+menu:
+  - title: Home
+    items:
+      - url: rex.mart_actions_demo:/
+        access: authenticated
+      - url: rex.mart_actions_demo:/simple-marts
+        access: authenticated
+      - url: rex.mart_actions_demo:/tiered-marts
+        access: authenticated
+

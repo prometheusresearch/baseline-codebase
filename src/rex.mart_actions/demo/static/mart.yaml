@@ -1,0 +1,17 @@
+definitions:
+  - id: schools
+    description: The basic school data
+    deploy: !include mart/school_deploy.yaml
+    post_deploy_scripts:
+      - script: !include/str mart/school_etl.htsql
+        type: htsql
+
+  - id: schools_with_dict
+    description: The basic school data w/ a data dictionary
+    deploy: !include mart/school_deploy.yaml
+    post_deploy_scripts:
+      - script: !include/str mart/school_etl.htsql
+        type: htsql
+    processors:
+      - id: datadictionary
+

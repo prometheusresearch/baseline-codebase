@@ -1,0 +1,61 @@
+paths:
+  /:
+    action:
+      type: page
+      title: Home
+      text: |
+        Welcome to the RexMartAction Demo System!
+
+        This demo is a lot more useful if you have at least a handful of Marts
+        created in its environment. To do so, run commands like these a few
+        times::
+
+          rex mart-create -o test -d schools
+          rex mart-create -o test -d schools_with_dict
+
+        (Assuming the user you're logging in with is ``test``)
+
+  /simple-marts:
+    action:
+      type: wizard
+      title: RexMarts (Simple Nav)
+
+      path:
+        - choose-mart:
+          - view-mart:
+          - console:
+          - dictionary:
+
+      actions:
+        choose-mart:
+          type: mart-pick
+          title: Choose a Mart
+
+        view-mart:
+          type: mart-view
+          title: Mart Details
+
+        console: rex.mart_actions:/console
+        dictionary: rex.mart_actions:/dictionary
+
+  /tiered-marts:
+    action:
+      type: wizard
+      title: RexMarts (Tiered Nav)
+
+      path:
+        - choose-definition:
+          - view-definition:
+          - choose-mart:
+
+      actions:
+        choose-definition:
+          type: mart-pick-definition
+          title: Choose a Type of Mart to Explore
+
+        view-definition:
+          type: mart-view-definition
+          title: Definition Details
+
+        choose-mart: /simple-marts
+

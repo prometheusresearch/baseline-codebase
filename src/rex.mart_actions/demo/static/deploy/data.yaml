@@ -1,0 +1,15 @@
+- table: school
+  with:
+  - data: school.csv
+
+- table: department
+  with:
+  - data: department.csv
+
+- table: program
+  with:
+  - data: program.csv
+
+- table: course
+  with:
+  - data: course.csv

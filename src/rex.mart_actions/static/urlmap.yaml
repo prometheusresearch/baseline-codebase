@@ -1,0 +1,46 @@
+paths:
+  /console:
+    action:
+      type: mart-htsql-console
+      title: HTSQL Console
+
+  /dictionary:
+    action:
+      type: wizard
+      title: Data Dictionary
+
+      path:
+        - browse-by-table:
+          - view-table:
+          - browse-table-columns:
+            - view-column:
+            - browse-column-enumerations:
+        - browse-by-column:
+          - view-column:
+          - browse-column-enumerations:
+
+      actions:
+        browse-by-table:
+          type: mart-dictionary-pick-table
+          title: Browse Tables
+
+        browse-table-columns:
+          type: mart-dictionary-pick-table-column
+          title: Table Columns
+
+        browse-by-column:
+          type: mart-dictionary-pick-column
+          title: Browse Columns
+
+        view-table:
+          type: mart-dictionary-view-table
+          title: Table Details
+
+        view-column:
+          type: mart-dictionary-view-column
+          title: Column Details
+
+        browse-column-enumerations:
+          type: mart-dictionary-pick-enumeration
+          title: Column Enumerations
+

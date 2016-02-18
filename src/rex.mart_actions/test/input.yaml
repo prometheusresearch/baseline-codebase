@@ -1,0 +1,22 @@
+#
+# Copyright (c) 2016, Prometheus Research, LLC
+#
+
+title: REX.MART_ACTIONS
+tests:
+  - rmdir: ./build/coverage
+  - mkdir: ./build/coverage
+  - coverage: setup.cfg
+    auto-data: true
+
+  - sh: pip install --quiet --editable ./demo
+
+  - sh: rex dropdb --quiet rex.mart_actions_demo
+  - sh: rex deploy --quiet rex.mart_actions_demo
+
+  - doctest: README.rst
+  - doctest: test/test_*.rst
+
+  - coverage-check: 90.0
+  - coverage-report: ./build/coverage
+

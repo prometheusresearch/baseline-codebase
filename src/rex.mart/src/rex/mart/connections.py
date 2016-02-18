@@ -43,31 +43,45 @@ def get_hosting_cluster():
     return Cluster(get_hosting_db_uri())
 
 
-def get_mart_db(name):
+def get_mart_db(name, extensions=None):
     """
     Returns an HTSQL instance connected to the specified Mart database.
 
+    :param name: the name of the Mart database to connect to
+    :type name: str
+    :param extensions:
+        the HTSQL extensions to enable/configure, in addition to those defined
+        by the ``mart_htsql_extension`` setting
+    :type extensions: dict
     :rtype: rex.db.RexHTSQL
     """
 
     uri = get_hosting_db_uri().clone(database=str(name))
 
-    extensions = {}
-    extensions.update(get_settings().mart_htsql_extensions)
-    extensions.update({
+    ext = {}
+    ext.update(get_settings().mart_htsql_extensions)
+    ext.update({
         'rex_deploy': {},
         'tweak.meta': {},
     })
+    if isinstance(extensions, dict):
+        ext.update(extensions)
 
-    return RexHTSQL(uri, extensions)
+    return RexHTSQL(uri, ext)
 
 
-def get_mart_etl_db(name):
+def get_mart_etl_db(name, extensions=None):
     """
     Returns an HTSQL instance connected to the specified Mart database. This
     instance is configured specifically for use in the ETL phases of Mart
     creation.
 
+    :param name: the name of the Mart database to connect to
+    :type name: str
+    :param extensions:
+        the HTSQL extensions to enable/configure, in addition to those defined
+        by the ``mart_etl_htsql_extension`` setting
+    :type extensions: dict
     :rtype: rex.db.RexHTSQL
     """
 
@@ -79,17 +93,19 @@ def get_mart_etl_db(name):
         'rexdb': get_management_db_uri(),
     })
 
-    extensions = {}
-    extensions.update(get_settings().mart_etl_htsql_extensions)
-    extensions.update({
+    ext = {}
+    ext.update(get_settings().mart_etl_htsql_extensions)
+    ext.update({
         'rex_deploy': {},
         'tweak.etl': {},
         'tweak.gateway': {
             'gateways': gateways,
         },
     })
+    if isinstance(extensions, dict):
+        ext.update(extensions)
 
-    return RexHTSQL(uri, extensions)
+    return RexHTSQL(uri, ext)
 
 
 @contextmanager

@@ -9,6 +9,7 @@
 ==================
 
 * Minor documentation updates.
+* Do not apply masks when checking permissions.
 
 
 3.4.0 (2016-01-29)

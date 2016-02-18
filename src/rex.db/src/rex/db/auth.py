@@ -220,7 +220,8 @@ def authorize_by_query(user, access):
     settings = get_settings()
     query = settings.access_queries[access]
     db = get_db()
-    product = db.produce(query, USER=user)
-    return bool(product.data)
+    with db.isolate(), db.transaction():
+        product = db.produce(query, USER=user)
+        return bool(product.data)
 
 

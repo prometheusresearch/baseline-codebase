@@ -177,3 +177,14 @@ PathVal
   ...
   Error: Invalid reference:
       ../../x-pick-individual
+
+  >>> parse_path("""
+  ... - home:
+  ...   - pick-individual:
+  ...   - make-individual:
+  ...     - replace: ../../../x-pick-individual
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+  Traceback (most recent call last):
+  ...
+  Error: Invalid reference:
+      ../../../x-pick-individual

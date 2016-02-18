@@ -8,7 +8,7 @@ Setup::
   >>> from webob import Request
   >>> from rex.core import Error, Rex
   >>> from rex.port import Port
-  >>> from rex.action import Action
+  >>> from rex.action import Action, override
 
   >>> attach_dir = tempfile.mkdtemp(suffix='rex-action-test')
   >>> app = Rex('-', 'rex.action_demo', attach_dir=attach_dir)
@@ -244,6 +244,27 @@ Invalid configuration
   Error: Either value or query should be provided
   While parsing:
       "<...>", line 2
+
+Overrides
+---------
+
+::
+
+  >>> action = Action.parse('''
+  ... id: form
+  ... type: form
+  ... fields:
+  ... - code
+  ... - identity.fullname
+  ... input:
+  ... - ind: individual
+  ... value:
+  ...   individual: $ind
+  ... ''') # doctest: +ELLIPSIS
+
+  >>> override(action, {'fields': ['code']}).fields
+  [StringFormField(value_key=['code'])]
+
 
 Teardown::
 

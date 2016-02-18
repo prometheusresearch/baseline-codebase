@@ -28,6 +28,9 @@ ActionReference
   >>> ActionReference.validate('local-action')
   local-action
 
+  >>> ActionReference.validate(ActionReference.validate('local-action'))
+  local-action
+
   >>> ActionReference.validate('local-action?x=y')
   local-action?x=y
 
@@ -81,6 +84,30 @@ RexDBVal
   >>> db = validate('gateway')
   >>> db is get_db('gateway')
   True
+
+QueryVal
+--------
+
+::
+
+  >>> from rex.action.validate import QueryVal
+
+  >>> validate = QueryVal()
+
+  >>> validate('/individual')
+  Query('/individual')
+
+  >>> validate('(individual') # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Failed to match the value against any of the following:
+  ...
+
+  >>> validate(validate('/individual'))
+  Query('/individual')
+
+  >>> validate({'query': '/individual'})
+  Query('/individual')
 
 Cleanup
 -------

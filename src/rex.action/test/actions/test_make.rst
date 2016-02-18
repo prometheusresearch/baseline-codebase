@@ -54,6 +54,17 @@ In case fields are not specified, they are generated from port::
     expression: id()
   ''')
 
+  >>> make.mutation.port
+  Port('''
+  entity: individual
+  select: [code, sex, mother, father]
+  with:
+  - calculation: meta:type
+    expression: '''individual'''
+  - calculation: meta:title
+    expression: id()
+  ''')
+
   >>> print render_widget(
   ...   make,
   ...   Request.blank('/', accept='application/json'),
@@ -179,6 +190,31 @@ Query
 
   >>> make.mutation.query
   Query('insert(individual:={code:=$code})')
+
+Fields with layout
+------------------
+
+::
+
+  >>> make = Action.parse("""
+  ... type: make
+  ... id: make-individual
+  ... entity: individual
+  ... fields:
+  ... - row:
+  ...   - value_key: code
+  ... """)
+
+  >>> make.port
+  Port('''
+  entity: individual
+  select: [code]
+  with:
+  - calculation: meta:type
+    expression: '''individual'''
+  - calculation: meta:title
+    expression: id()
+  ''')
 
 Cleanup
 -------

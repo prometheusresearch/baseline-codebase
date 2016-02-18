@@ -19,7 +19,7 @@ from rex.widget.render import render
 from rex.urlmap import Map
 from rex.web import authorize, confine, PathMask
 
-from .action import ActionBase, ActionVal
+from .action import ActionBase, ActionVal, override as override_action
 from .wizard import WizardBase
 from .widget import ActionWizard
 
@@ -59,11 +59,9 @@ class MapAction(Map):
 
         def make_override(spec):
             if is_replace_override_spec(override_spec):
-                return lambda action: \
-                    spec.resolve(action_val)
+                return lambda action: spec.resolve(action_val)
             else:
-                return lambda action: \
-                    action._configuration._apply_override(action, spec)
+                return lambda action: override_action(action, spec)
 
         if path == override_path:
             override = spec.override or []
@@ -79,8 +77,7 @@ class MapAction(Map):
             else:
                 override_actions = {}
             override_actions.setdefault(key, []).append(make_override(override_spec))
-            override = lambda action: \
-                action._configuration._apply_override(action, override_actions)
+            override = lambda action: override_action(action, override_actions)
             setattr(override, 'override_actions', override_actions)
             return spec.__clone__(override=override)
 

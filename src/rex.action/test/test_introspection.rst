@@ -7,6 +7,7 @@ Test rex.action.introspection
   >>> from webob import Request
   >>> from rex.core import SandboxPackage, Rex
   >>> from rex.action import introspection
+  >>> from rex.web import route
 
   >>> attach_dir = tempfile.mkdtemp(suffix='rex-action-test')
   >>> pkg = SandboxPackage('main')
@@ -95,6 +96,14 @@ Introspecting wizard::
    ('title', None),
    ('type', 'wizard'),
    ('wizardPath', Start(...))]
+
+Cloned action still has introspection available::
+
+  >>> action = route('main:/introspectable_action').action
+  >>> introspection.introspect_action(action) is not None
+  True
+  >>> introspection.introspect_action(action.__clone__()) is not None
+  True
 
 ::
 

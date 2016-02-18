@@ -148,6 +148,10 @@ class ActionBase(Widget):
         if self._context_types:
             return self._context_types
         input, output = self.context()
+        if isinstance(input, dict):
+            input = self.domain.record(**input)
+        if isinstance(output, dict):
+            output = self.domain.record(**output)
         if not isinstance(input, typing.Type):
             raise Error(
                 'Action "%s" of type "%s" specified incorrect input type:'\
@@ -178,7 +182,7 @@ class ActionBase(Widget):
         if isinstance(value, basestring) or hasattr(value, 'read'):
             return validate.parse(value)
         else:
-            return validate(value)
+            raise Error('Cannot parse an action from:', repr(value))
 
 
 class Action(ActionBase):
@@ -293,3 +297,5 @@ class ActionVal(Validate):
         return action_class._configuration(action_class, value)
 
 
+def override(action, values):
+    return action._configuration._apply_override(action, values)

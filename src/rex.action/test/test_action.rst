@@ -18,14 +18,14 @@ Test rex.action.action
   ...   name = 'my'
   ...
   ...   def context(self):
-  ...     return self.domain.record(), self.domain.record()
+  ...     return {}, {}
 
   >>> class AnotherAction(Action):
   ...
   ...   name = 'another'
   ...
   ...   def context(self):
-  ...     return self.domain.record(), self.domain.record()
+  ...     return {}, {}
 
   >>> Action.all() # doctest: +NORMALIZE_WHITESPACE
   [__main__.MyAction,
@@ -197,6 +197,39 @@ Constructing from YAML
       1
   While parsing:
       "<...>", line 1
+
+Invalid actions
+---------------
+
+::
+
+  >>> class InvalidAction(Action):
+  ...   name = 'invalid'
+  ...
+  ...   def context(self):
+  ...     return 1, {}
+
+  >>> InvalidAction(id='id').context_types # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Action "id" of type "invalid" specified incorrect input type:
+      1
+
+  >>> class InvalidAction(Action):
+  ...   name = 'invalid'
+  ...
+  ...   def context(self):
+  ...     return {}, 1
+  >>> InvalidAction(id='id').context_types # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Action "id" of type "invalid" specified incorrect output type:
+      1
+
+Cleanup
+-------
+
+::
 
   >>> dom.off()
   >>> rex.off()

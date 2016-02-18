@@ -196,4 +196,7 @@ def introspect_action(path):
     """ Get introspection info for an action specified by a ``path`` it is
     mounted in URL mapping.
     """
-    return _introspect_actions().get(path)
+    if isinstance(path, basestring):
+        return _introspect_actions().get(path)
+    elif hasattr(path, '_introspection') and path._introspection:
+        return path._introspection

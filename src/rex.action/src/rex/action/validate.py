@@ -44,12 +44,15 @@ class RexDBVal(Validate):
 class SyntaxVal(UStrVal):
     # Verifies if the input is a valid HTSQL expression.
 
+    def __init__(self, db=None):
+        self.db = db
+
     def __call__(self, data):
         if isinstance(data, Syntax):
             return str(data)
         data = super(SyntaxVal, self).__call__(data)
         try:
-            with get_db():
+            with get_db(self.db):
                 syntax = parse(data)
         except HTSQLError, exc:
             raise Error("Failed to parse an HTSQL expression:", str(exc))
@@ -60,7 +63,7 @@ class QueryVal(Validate):
     """ Validator to reference HTSQL queries."""
 
     _validate_full = RecordVal(
-        ('query', SyntaxVal()),
+        ('query', StrVal()),
         ('db', RexDBVal(), None))
 
     _validate = OneOfVal(
@@ -73,7 +76,8 @@ class QueryVal(Validate):
         value = self._validate(value)
         if isinstance(value, basestring):
             value = self._validate_full({'query': value})
-        return Query(value.query, db=value.db)
+        query = SyntaxVal(value.db)(value.query)
+        return Query(query, db=value.db)
 
 
 class _StateVal(Validate):

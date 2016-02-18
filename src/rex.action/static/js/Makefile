@@ -1,6 +1,6 @@
 BIN           = ./node_modules/.bin
 TESTS         = \
-                lib/__tests__/Entity-test.js
+                lib/__tests__/*-test.js
 MOCHA_OPTS    = --compilers js:babel/register
 MOCHA         = NODE_ENV=test $(BIN)/mocha $(MOCHA_OPTS)
 COV_OPTS      = --check-coverage --require babel/register --all --root lib

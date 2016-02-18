@@ -20,6 +20,9 @@ Init
   >>> rex = Rex('-', 'rex.action_demo', attach_dir=attach_dir)
   >>> rex.on()
 
+Field reflection
+----------------
+
 In case fields are not specified, they are generated from port::
 
   >>> make = Action.parse("""
@@ -28,26 +31,16 @@ In case fields are not specified, they are generated from port::
   ... entity: individual
   ... """)
 
-  >>> make # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Make(db=None, 
-       doc=undefined,
-       entity=RowType(name='individual', type=EntityType(name='individual', state=None)), 
-       fields=[...], 
-       icon=undefined,
-       id='make-individual', 
-       input=RecordType(rows={}, open=True), 
-       query=None, 
-       submit_button=undefined,
-       title=undefined, 
-       value={}, 
-       width=undefined)
+  >>> make.fields # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  [StringFormField(value_key=['code'], ...),
+   EnumFormField(value_key=['sex'], ...),
+   EntityFormField(value_key=['mother'], ...),
+   EntityFormField(value_key=['father'], ...)]
 
-  >>> input, output = make.context_types
-
-  >>> input
+  >>> make.context_types.input
   RecordType(rows={}, open=True)
 
-  >>> output
+  >>> make.context_types.output
   RecordType(rows={'individual': RowType(name='individual', type=EntityType(name='individual', state=None))}, open=True)
 
   >>> make.port
@@ -86,6 +79,9 @@ In case fields are not specified, they are generated from port::
   }
   <BLANKLINE>
 
+Port generation
+---------------
+
 You can also specify fields and see port generated from them::
 
   >>> make = Action.parse("""
@@ -96,19 +92,8 @@ You can also specify fields and see port generated from them::
   ... - value_key: code
   ... """)
 
-  >>> make # doctest: +NORMALIZE_WHITESPACE
-  Make(db=None,
-       doc=undefined,
-       entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
-       fields=[StringFormField(value_key=['code'], label=u'Code')],
-       icon=undefined,
-       id='make-individual',
-       input=RecordType(rows={}, open=True),
-       query=None,
-       submit_button=undefined,
-       title=undefined,
-       value={}, 
-       width=undefined)
+  >>> make.fields # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  [StringFormField(value_key=['code'], ...)]
 
   >>> make.port
   Port('''
@@ -153,6 +138,47 @@ Value also used to generate port::
   - calculation: meta:title
     expression: id()
   ''')
+
+  >>> make.mutation.port
+  Port('''
+  entity: individual
+  select: [code, sex]
+  with:
+  - entity: identity
+    select: [fullname]
+    with:
+    - calculation: meta:type
+      expression: '''identity'''
+    - calculation: meta:title
+      expression: id()
+  - calculation: meta:type
+    expression: '''individual'''
+  - calculation: meta:title
+    expression: id()
+  ''')
+
+Query
+-----
+
+::
+
+  >>> make = Action.parse("""
+  ... type: make
+  ... id: make-individual
+  ... entity: individual
+  ... value:
+  ...   code: code
+  ...   sex: female
+  ...   identity:
+  ...     fullname: Andrey
+  ... fields:
+  ... - value_key: code
+  ... query: |
+  ...   insert(individual := { code := $code })
+  ... """)
+
+  >>> make.mutation.query
+  Query('insert(individual:={code:=$code})')
 
 Cleanup
 -------

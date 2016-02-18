@@ -27,7 +27,7 @@ setup(
         'rex.setup==3.1.2',
         'rex.core==1.11.2',
         'rex.ctl==2.1.1',
-        'rex.db==3.4.0',
+        'rex.db==3.4.1',
         'rex.deploy==2.5.0',
         'rex.expression==1.5.2',
         'rex.forms==1.4.0',

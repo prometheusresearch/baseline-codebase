@@ -101,7 +101,7 @@
       var __stylesheet__ = document.getElementById('__stylesheet__');
 
       if (window.RexWidget === undefined) {
-        throw new Error('include rex-widget bower package in your application');
+        throw new Error('include rex-widget package in your application');
       }
 
       __REX_WIDGET__ = RexWidget.Transitionable.decode(JSON.stringify({{ payload }}));

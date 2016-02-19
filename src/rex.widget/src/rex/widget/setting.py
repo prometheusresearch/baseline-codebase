@@ -7,7 +7,8 @@
 
 """
 
-from rex.core import Setting, RecordVal, StrVal, RecordVal, Validate, Error
+from rex.core import (Setting, RecordVal, StrVal, RecordVal, Validate, Error,
+                      BoolVal)
 
 from .transitionable import as_transitionable
 from .util import PropsContainer, WidgetClassReference
@@ -94,9 +95,11 @@ class RexWidgetSetting(Setting):
     validate = RecordVal(
         ('theme', _theme_val, _theme_default),
         ('chrome', _chrome_val, _chrome_default),
+        ('warn_incompatible_browser', BoolVal(), True),
     )
 
     default = validate.record_type(
         theme=_theme_default,
-        chrome=_chrome_default
+        chrome=_chrome_default,
+        warn_incompatible_browser=True,
     )

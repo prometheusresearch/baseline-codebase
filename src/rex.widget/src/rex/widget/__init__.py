@@ -49,6 +49,8 @@ from .formfield import (
     Fieldset,
     List)
 
+from .browser_detect import *
+
 class InitializeRexWidget(Initialize):
 
     def __call__(self):

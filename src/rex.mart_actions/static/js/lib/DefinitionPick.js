@@ -35,7 +35,7 @@ export default class DefinitionPick extends React.Component {
     if (definitions.updating) {
       return <Preloader />;
     }
-    let data = DataSet.fromData(definitions.data);
+    let data = DataSet.fromData(definitions.data.definitions);
 
     let columns = [
       {

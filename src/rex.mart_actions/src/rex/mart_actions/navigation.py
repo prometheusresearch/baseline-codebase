@@ -47,7 +47,7 @@ class MartPickAction(MartAction):
                 definition_id=definition_id):
             marts.append(mart.as_dict(json_safe=True))
 
-        return Response(json=marts)
+        return Response(json={'marts': marts})
 
 
 class DefinitionPickAction(MartAction):
@@ -97,7 +97,7 @@ class DefinitionPickAction(MartAction):
             cmp=lambda x, y: cmp(x['label'].lower(), y['label'].lower()),
         )
 
-        return Response(json=definitions)
+        return Response(json={'definitions': definitions})
 
 
 class MartViewAction(MartAction):

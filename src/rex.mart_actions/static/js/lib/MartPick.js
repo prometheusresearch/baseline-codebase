@@ -41,7 +41,7 @@ export default class MartPick extends React.Component {
       return <Preloader />;
     }
     let data = DataSet.fromData(
-      marts.data.map((mart) => {
+      marts.data.marts.map((mart) => {
         let newMart = {...mart};
         newMart.id = newMart.code;
         newMart.pinned_pretty = newMart.pinned ? 'Yes' : 'No';

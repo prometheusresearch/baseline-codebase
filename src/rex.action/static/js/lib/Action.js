@@ -105,7 +105,8 @@ export default class Action extends React.Component {
     } = this.constructor.stylesheet;
     let {
       children, toolbar, extraToolbar,
-      title, onClose, noContentWrapper, noHeader
+      title, onClose, noContentWrapper, noHeader,
+      contentStyle
     } = this.props;
     toolbar = toolbar || this.context.toolbar;
     let footer = this.props.renderFooter();
@@ -117,7 +118,7 @@ export default class Action extends React.Component {
         {noContentWrapper ?
           children :
           <ContentContainer footer={footer}>
-            <Content>{children}</Content>
+            <Content style={contentStyle}>{children}</Content>
           </ContentContainer>}
         {!noHeader &&
           <Header>

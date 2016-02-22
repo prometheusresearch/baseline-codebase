@@ -14,6 +14,24 @@ import Title from './Title';
 import prettyBytes from './prettyBytes';
 
 
+function prettifyMart(mart) {
+  let newMart = {...mart};
+  newMart.id = newMart.code;
+  newMart.pinned_pretty = newMart.pinned ? 'Yes' : 'No';
+  newMart.size_pretty = prettyBytes(newMart.size);
+  newMart.can_manage_pretty = newMart.can_manage ? 'Yes' : 'No';
+  return newMart;
+}
+
+function prettifyColumn(column) {
+  let newColumn = {...column};
+  if (['pinned', 'size', 'can_manage'].indexOf(newColumn.valueKey[0]) > -1) {
+    newColumn.valueKey[0] = newColumn.valueKey[0] + '_pretty';
+  }
+  return newColumn;
+}
+
+
 @Fetch(function ({marts, context}) {
   if (context.mart_definition) {
     marts = marts.params({definition: context.mart_definition});
@@ -33,41 +51,17 @@ export default class MartPick extends React.Component {
   }
 
   render() {
-    let {title, onClose} = this.props;
+    let {title, onClose, fields} = this.props;
     let {marts} = this.props.fetched;
     let {mart_definition} = this.props.context;
 
     if (marts.updating) {
       return <Preloader />;
     }
-    let data = DataSet.fromData(
-      marts.data.marts.map((mart) => {
-        let newMart = {...mart};
-        newMart.id = newMart.code;
-        newMart.pinned_pretty = newMart.pinned ? 'Yes' : 'No';
-        newMart.size_pretty = prettyBytes(newMart.size);
-        return newMart;
-      })
-    );
 
-    let columns = [
-      {
-        valueKey: ['date_creation_completed'],
-        label: 'Date Created'
-      },
-      {
-        valueKey: ['owner'],
-        label: 'Owner'
-      },
-      {
-        valueKey: ['pinned_pretty'],
-        label: 'Pinned'
-      },
-      {
-        valueKey: ['size_pretty'],
-        label: 'Size'
-      }
-    ];
+    let data = DataSet.fromData(marts.data.marts.map(prettifyMart));
+
+    let columns = fields.map(prettifyColumn);
     if (!mart_definition) {
       columns.unshift({
         valueKey: ['definition'],

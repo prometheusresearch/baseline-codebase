@@ -13,6 +13,21 @@ import {autobind} from 'rex-widget/lang';
 import Title from './Title';
 
 
+function prettifyDefinition(definition) {
+  let newDef = {...definition};
+  newDef.can_generate_pretty = newDef.can_generate ? 'Yes' : 'No';
+  return newDef;
+}
+
+function prettifyColumn(column) {
+  let newColumn = {...column};
+  if (['can_generate'].indexOf(newColumn.valueKey[0]) > -1) {
+    newColumn.valueKey[0] = newColumn.valueKey[0] + '_pretty';
+  }
+  return newColumn;
+}
+
+
 @Fetch(function ({definitions}) {
   return {definitions};
 })
@@ -29,28 +44,16 @@ export default class DefinitionPick extends React.Component {
   }
 
   render() {
-    let {title, onClose} = this.props;
+    let {title, onClose, fields} = this.props;
     let {definitions} = this.props.fetched;
 
     if (definitions.updating) {
       return <Preloader />;
     }
+
     let data = DataSet.fromData(definitions.data.definitions);
 
-    let columns = [
-      {
-        valueKey: ['label'],
-        label: 'Name'
-      },
-      {
-        valueKey: ['description'],
-        label: 'Description'
-      },
-      {
-        valueKey: ['num_marts'],
-        label: '# Marts'
-      }
-    ];
+    let columns = fields.map(prettifyColumn);
 
     return (
       <Action

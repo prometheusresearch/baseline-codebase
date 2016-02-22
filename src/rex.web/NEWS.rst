@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+3.7.0 (2016-XX-XX)
+==================
+
+* Export ``encrypt_and_sign`` and ``validate_and_decrypt``.
+
+
 3.6.0 (2016-01-29)
 ==================
 

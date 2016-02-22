@@ -60,6 +60,13 @@ CSRF protection
 .. autofunction:: make_csrf_input_tag
 
 
+Encryption
+==========
+
+.. autofunction:: encrypt_and_sign
+.. autofunction:: validate_and_decrypt
+
+
 Templates
 =========
 

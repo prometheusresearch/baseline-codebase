@@ -8,7 +8,7 @@ from rex.core import (Setting, Extension, WSGI, get_packages, get_settings,
 from .handle import HandleFile, HandleLocation, HandleError
 from .auth import authenticate, authorize, confine
 from .path import PathMap, PathMask
-from .secret import encrypt, decrypt, sign, validate, a2b, b2a
+from .secret import encrypt_and_sign, validate_and_decrypt
 from webob import Request, Response
 from webob.exc import (WSGIHTTPException, HTTPNotFound, HTTPUnauthorized,
         HTTPMovedPermanently, HTTPMethodNotAllowed)
@@ -123,7 +123,7 @@ class PipeSession(Pipe):
         session = {}
         if self.SESSION_COOKIE in req.cookies:
             session_cookie = req.cookies[self.SESSION_COOKIE]
-            session_json = decrypt(validate(a2b(session_cookie)))
+            session_json = validate_and_decrypt(session_cookie)
             if session_json is not None:
                 session = json.loads(session_json)
                 assert isinstance(session, dict)
@@ -146,7 +146,7 @@ class PipeSession(Pipe):
                                    path=req.script_name+'/')
             else:
                 session_json = json.dumps(new_session)
-                session_cookie = b2a(sign(encrypt(session_json)))
+                session_cookie = encrypt_and_sign(session_json)
                 assert len(session_cookie) < 4096, \
                         "session data is too large"
                 resp.set_cookie(self.SESSION_COOKIE,

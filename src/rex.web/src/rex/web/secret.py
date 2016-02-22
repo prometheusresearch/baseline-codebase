@@ -126,3 +126,17 @@ def a2b(text):
         return None
 
 
+def encrypt_and_sign(text):
+    """
+    Encrypts and signs a message and converts it to a cookie-safe value.
+    """
+    return b2a(sign(encrypt(text)))
+
+
+def validate_and_decrypt(text):
+    """
+    Validates and decrypt a signed and encrypted message.
+    """
+    return decrypt(validate(a2b(text)))
+
+

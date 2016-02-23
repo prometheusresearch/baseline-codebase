@@ -211,11 +211,14 @@ class DefinitionPickAction(MartAction):
             ),
         )
 
+    def get_definitions(self, user):  # pylint: disable=no-self-use
+        return get_accessible_definitions(user)
+
     @responder(url_type=RequestURL)
     def definitions(self, request):  # pylint: disable=no-self-use
         user = authenticate(request)
 
-        definitions = get_accessible_definitions(user)
+        definitions = self.get_definitions(user)
 
         return Response(json={'definitions': definitions})
 

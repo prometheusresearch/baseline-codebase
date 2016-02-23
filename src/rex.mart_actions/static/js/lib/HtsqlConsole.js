@@ -9,6 +9,7 @@ import ReactDOM from 'react-dom';
 import {Action} from 'rex-action';
 import {IFrame} from 'rex-widget/ui';
 import {Preloader} from 'rex-widget/ui';
+import resolveURL from 'rex-widget/lib/resolveURL';
 
 
 export default class HtsqlConsole extends React.Component {
@@ -24,8 +25,8 @@ export default class HtsqlConsole extends React.Component {
   }
 
   render() {
-    let {title, onClose, apiBaseUrl} = this.props;
-    let htsqlUrl = apiBaseUrl + 'mart/' + this.props.context.mart + '/shell()';
+    let {title, onClose, context} = this.props;
+    let htsqlUrl = resolveURL('rex.mart:/mart/' + context.mart + '/shell()');
 
     return (
       <div>

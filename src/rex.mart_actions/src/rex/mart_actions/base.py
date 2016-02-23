@@ -15,11 +15,7 @@ __all__ = (
 
 
 class MartAction(Action):
-    # pylint: disable=,no-self-use
-
-    @computed_field
-    def api_base_url(self, request):
-        return url_for(request, 'rex.mart:/')
+    # pylint: disable=no-self-use
 
     def get_mart(self, request, mart_id=None):
         access = MartAccessPermissions.top()

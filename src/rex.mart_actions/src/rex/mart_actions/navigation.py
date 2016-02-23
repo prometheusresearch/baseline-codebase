@@ -249,8 +249,6 @@ class DefinitionViewAction(MartAction):
               label: Description
             - value_key: num_marts
               label: Number of Marts Available
-            - value_key: can_generate
-              label: Can Manually Create?
             """)
 
     def context(self):

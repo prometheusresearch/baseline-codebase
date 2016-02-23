@@ -293,7 +293,7 @@ improve it. If you didn't have custom permissions configured and only used
 Otherwise, if your permissions are based on some data from the database and the
 current `$USER` value, please refer to `rex.db`'s `Authentication and
 Authorization
-<https://doc.rexdb.org/rex.db/latest/guide.html#authentication-and-authorization>`
+<https://doc.rexdb.org/rex.db/latest/guide.html#authentication-and-authorization>`_
 section.
 
 After you're done with this you may remove `auth.py` from the source code and

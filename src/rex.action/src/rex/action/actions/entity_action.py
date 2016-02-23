@@ -54,18 +54,14 @@ class Configuration(Action.Configuration):
             fields = formfield.enrich(fields, port, db=db)
         return fields
 
-    def _reconcile_input(self, entity, input):
-        result = RecordType({})
-        result.rows.update(input.rows)
-        if not entity.name in result.rows:
-            result.rows.update({entity.name: entity})
-        return result
+    def reconcile_input(self, entity, input):
+        return input
 
     def override(self, action, values):
         if 'fields' in values:
             entity = values.get('entity') or action.entity
             input = values.get('input') or action.input
-            input = self._reconcile_input(entity, input)
+            input = self.reconcile_input(entity, input)
             db = values.get('db') or action.db
             fields = values['fields']
             values['fields'] = self._reflect_fields(db, entity, input, fields)
@@ -74,7 +70,7 @@ class Configuration(Action.Configuration):
     def __call__(self, action_class, values):
         entity = values['entity']
         input = values['input']
-        input = self._reconcile_input(entity, input)
+        input = self.reconcile_input(entity, input)
         db = values['db']
         fields = values['fields']
         values['fields'] = self._reflect_fields(db, entity, input, fields)

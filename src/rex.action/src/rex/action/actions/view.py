@@ -52,9 +52,18 @@ class View(EntityAction):
         info_js_type = 'rex-action/lib/inspect/ViewActionInfo'
         detailed_info_js_type = 'rex-action/lib/inspect/ViewDetailedActionInfo'
 
+    class Configuration(EntityAction.Configuration):
+
+        def reconcile_input(self, entity, input):
+            if not entity.name in input.rows:
+                input = RecordType(input.rows.values() + [entity])
+            return input
+
     input = Field(
         RecordTypeVal(), default=RecordType.empty())
 
     def context(self):
-        input = self.input if self.input.rows else self.domain.record(self.entity)
+        input = self.input
+        if not self.entity.name in input.rows:
+            input = RecordType(input.rows.values() + [self.entity])
         return input, self.domain.record()

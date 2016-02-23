@@ -54,6 +54,12 @@ class Edit(FormAction):
         info_js_type = 'rex-action/lib/inspect/EditActionInfo'
         detailed_info_js_type = 'rex-action/lib/inspect/EditDetailedActionInfo'
 
+    class Configuration(FormAction.Configuration):
+
+        def reconcile_input(self, entity, input):
+            if not entity.name in input.rows:
+                input = RecordType(input.rows.values() + [entity])
+            return input
 
     submit_button = Field(
         StrVal(), default=undefined,
@@ -65,5 +71,7 @@ class Edit(FormAction):
         RecordTypeVal(), default=RecordType.empty())
 
     def context(self):
-        input = self.input if self.input.rows else RecordType([self.entity])
+        input = self.input
+        if not self.entity.name in input.rows:
+            input = RecordType(input.rows.values() + [self.entity])
         return input, RecordType([self.entity])

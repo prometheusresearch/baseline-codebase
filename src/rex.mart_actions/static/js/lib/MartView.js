@@ -152,7 +152,7 @@ export default class MartView extends React.Component {
     let message = 'Mart #' + this.props.context.mart + ' has been ';
     message += pinned ? 'pinned.' : 'unpinned.';
 
-    put(url, null, {pinned}, {jsonify_data: true}).then(
+    put(url, null, {pinned}, {jsonifyData: true}).then(
       () => {
         forceRefreshData();
         showNotification(

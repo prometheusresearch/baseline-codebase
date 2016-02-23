@@ -350,6 +350,7 @@ class FormField(Extension):
             values = self.validate(values)
         else:
             _prevent_validation = False
+        self.parameters = get_parameters()
         self.values = values
         for k, v in self.values.items():
             if not k in ('widget', 'validate'):
@@ -385,13 +386,17 @@ class FormField(Extension):
         next_values = {}
         next_values.update(self.values)
         next_values.update(values)
-        return self.__class__(**next_values)
+        field = self.__class__(**next_values)
+        field.parameters = self.parameters
+        return field
 
     def __validated_clone__(self, **values):
         next_values = {}
         next_values.update(self.values)
         next_values.update(values)
-        return self.__class__.validated(**next_values)
+        field = self.__class__.validated(**next_values)
+        field.parameters = self.parameters
+        return field
 
     def __merge__(self, other):
         allowed_keys = set(f[0] for f in self.__class__._default_fields + self.__class__.fields)
@@ -417,7 +422,8 @@ class FormField(Extension):
 
 @as_transitionable(FormField, tag='formfield')
 def _format_FormField(field, req, path): # pylint: disable=invalid-name
-    values = field()
+    with PortSupport.parameters(field.parameters):
+        values = field()
     if isinstance(values, FormField):
         return _format_FormField(values, req, path)
     else:

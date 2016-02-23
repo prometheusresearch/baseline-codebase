@@ -10,6 +10,7 @@ Introduction
    :maxdepth: 3
 
    guide
+   migration/index
 
 
 Components

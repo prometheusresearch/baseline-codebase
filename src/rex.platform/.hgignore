@@ -6,3 +6,9 @@ syntax: glob
 *.egg-info
 build
 dist
+www/bundle/*
+www/doc/*
+node_modules
+bower_components
+doc/_build
+.nyc_output

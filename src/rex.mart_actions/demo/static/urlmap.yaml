@@ -35,7 +35,10 @@ paths:
           type: mart-view
           title: Mart Details
 
-        console: rex.mart_actions:/console
+        console:
+          type: mart-htsql-console
+          title: HTSQL Console
+
         dictionary: rex.mart_actions:/dictionary
 
   /tiered-marts:

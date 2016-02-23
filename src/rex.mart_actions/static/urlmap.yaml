@@ -1,9 +1,4 @@
 paths:
-  /console:
-    action:
-      type: mart-htsql-console
-      title: HTSQL Console
-
   /dictionary:
     action:
       type: wizard

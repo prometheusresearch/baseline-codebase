@@ -185,8 +185,7 @@ export default class MartView extends React.Component {
     let url = 'rex.mart:/mart/' + this.props.context.mart + '/_api';
     del(url).then(
       () => {
-        // TODO
-        alert('TODO - Navigate back upstream');
+        this.props.onContext({mart: null});
       }
     );
   }

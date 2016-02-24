@@ -23,6 +23,7 @@ paths:
       path:
         - choose-mart:
           - view-mart:
+            - replace: ../../choose-mart
           - console:
           - dictionary:
 

@@ -92,7 +92,6 @@ export default class Edit extends React.Component {
   @autobind
   _onSubmitComplete(prevEntity, nextEntity) {
     this.props.onEntityUpdate(prevEntity, nextEntity);
-    this.props.refetch();
   }
 
   static renderTitle({entity, title = `Edit ${entity.name}`}, context) {

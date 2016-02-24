@@ -269,8 +269,16 @@ export default class Graph {
         break;
       }
       if (nextNode.command !== null) {
-        let args = nextNode.command.args.map(arg => // eslint-disable-line no-loop-func
-          updateEntity(arg, prevEntity, nextEntity));
+        let args;
+        // special case for onContextCommand which require specifics for arg
+        // processing
+        if (nextNode.command.commandName === Command.onContextCommand.name) {
+          args = nextNode.command.args.map(arg => // eslint-disable-line no-loop-func
+            updateEntityInContext(arg, prevEntity, nextEntity));
+        } else {
+          args = nextNode.command.args.map(arg => // eslint-disable-line no-loop-func
+            updateEntity(arg, prevEntity, nextEntity));
+        }
         nextNode = nextNode.reExecuteCommand(...args);
       }
       nextTrace.push(nextNode);

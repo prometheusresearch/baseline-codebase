@@ -142,7 +142,7 @@ export default class Wizard extends React.Component {
       onCommand: this._onCommand.bind(null, graph.node),
       onContext: this._onContext.bind(null, graph.node),
       onEntityUpdate: this._onEntityUpdate,
-      refetch: this._refetch,
+      refetch: () => this._refetch(),
       toolbar: <Toolbar graph={graph} onClick={this._onNext} />,
     });
     let {ActionPanel} = this.constructor.stylesheet;
@@ -193,8 +193,7 @@ export default class Wizard extends React.Component {
   }
 
   @autobind
-  _refetch() {
-    let graph = this.state.graph;
+  _refetch(graph = this.state.graph) {
     let data = {};
     graph.trace.forEach(node => {
       data[node.keyPath] = {};
@@ -312,6 +311,7 @@ export default class Wizard extends React.Component {
     this.setState(state => {
       let {graph} = state;
       graph = graph.updateEntity(prevEntity, nextEntity);
+      this._refetch(graph);
       return {...state, graph};
     });
   }

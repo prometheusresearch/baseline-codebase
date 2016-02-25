@@ -14,10 +14,19 @@ class WarnIncompatibleBrowser(Bootstrap):
 
     def __call__(self, req):
         ua = UserAgent(req.environ)
-        if ua.platform == 'ipad' \
-        or ua.browser == 'firefox' and ua.version > '38' \
-        or ua.browser == 'chrome' and ua.version > '30':
+        if allowed(ua):
             return ''
         res = render_to_response('rex.widget:/templates/warn_browser.html', req)
         return ''.join(res.body)
+
+
+def allowed(ua):
+    # Workaround for werkzeug which can't parase Edge UA at the moment.
+    if 'Edge/' in ua.string:
+        return False
+    return (
+        ua.platform == 'ipad' or
+        ua.browser == 'firefox' and ua.version > '38' or
+        ua.browser == 'chrome' and ua.version > '30'
+    )
 

@@ -19,6 +19,7 @@ __all__ = (
     'MartRuntimeCreationQueueSetting',
     'MartMaxMartsPerOwnerSetting',
     'MartDefaultMaxMartsPerOwnerDefinitionSetting',
+    'MartHtsqlCacheDepthSetting',
 )
 
 
@@ -178,4 +179,16 @@ class MartDefaultMaxMartsPerOwnerDefinitionSetting(Setting):
     name = 'mart_default_max_marts_per_owner_definition'
     validate = IntVal(min_bound=1)
     default = 3
+
+
+class MartHtsqlCacheDepthSetting(Setting):
+    """
+    Specifies how deep HTSQL connection caches should be.
+
+    If not specified, defaults to 20.
+    """
+
+    name = 'mart_htsql_cache_depth'
+    validate = IntVal(min_bound=1)
+    default = 20
 

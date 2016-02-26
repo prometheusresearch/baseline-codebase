@@ -438,6 +438,10 @@ set to adjust various attributes of its execution.
     the Mart creation tasks that result from the requests of the front-end
     application.
 
+``mart_htsql_cache_depth``
+    This setting specifies how many HTSQL connections will be cached by the
+    web API. If not specified, defaults to ``20``.
+
 
 Command-Line Tools
 ==================

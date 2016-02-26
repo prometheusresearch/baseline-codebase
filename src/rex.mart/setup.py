@@ -36,6 +36,7 @@ setup(
         'rex.web>=3.4,<4',
         'rex.restful>=1.1,<2',
         'rios.core>=0.7,<0.8',
+        'cachetools>=1,<2',
     ],
     rex_init='rex.mart',
     rex_static='static',

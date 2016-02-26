@@ -7,11 +7,13 @@ import urllib
 
 from functools import partial
 
+from cachetools import LRUCache
+
 from webob.exc import HTTPUnauthorized, HTTPNotFound, HTTPMethodNotAllowed, \
     HTTPForbidden
 
 from rex.core import IntVal, StrVal, OneOfVal, RecordVal, BoolVal, Error, \
-    get_settings
+    get_settings, get_rex
 from rex.restful import RestfulLocation
 from rex.web import HandleLocation, authenticate, Parameter
 
@@ -276,7 +278,13 @@ class MartLocation(HandleLocation):
     def __call__(self, request):
         mart = self.get_mart(request)
 
-        htsql = get_mart_db(str(mart.name))
+        rex = get_rex()
+        if not hasattr(rex, 'mart_databases'):
+            rex.mart_databases = LRUCache(
+                maxsize=get_settings().mart_htsql_cache_depth,
+                missing=get_mart_db,
+            )
+        htsql = rex.mart_databases[str(mart.name)]
 
         # If the tweak.shell extension is enabled for this HTSQL instance,
         # then we need to set an appropriate value for the server_root

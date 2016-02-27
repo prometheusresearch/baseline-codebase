@@ -3,7 +3,20 @@
   "version": "0.1.0",
   "main": "./lib/index.js",
   "rex": {
-    "bundleAll": true
+    "bundleAll": true,
+    "loaders": [
+      {
+        "test": "lib/**/*.pegjs",
+        "loader": "pegjs-loader"
+      },
+      {
+        "test": "lib/**/*.js",
+        "loader": "babel-loader?stage=0"
+      }
+    ]
+  },
+  "dependencies": {
+    "pegjs-loader": "^0.1.1"
   },
   "peerDependencies": {
     "react": "^0.14.0",

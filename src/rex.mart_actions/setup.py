@@ -26,10 +26,11 @@ setup(
     install_requires=[
         'rex.core>=1.4,<2',
         'rex.web>=3,<4',
-        'rex.urlmap>=2.4,<3',
         'rex.widget>=2,<3',
         'rex.action>=0.9,<0.10',
         'rex.mart>=0.2,<0.3',
+        'htsql_excel>=0.1,<0.2',
+        'cachetools>=1,<2',
     ],
     rex_init='rex.mart_actions',
     rex_static='static',

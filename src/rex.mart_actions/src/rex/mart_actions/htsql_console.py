@@ -3,23 +3,33 @@
 #
 
 
-from rex.action.typing import ValueType
+from rex.core import get_settings
 
-from .base import MartAction
+from .filter import MartFilteredAction
+from .tool import MartTool
 
 
 __all__ = (
+    'HtsqlMartTool',
     'HtsqlConsoleMartAction',
 )
 
 
-class HtsqlConsoleMartAction(MartAction):
+class HtsqlMartTool(MartTool):
+    name = 'htsql'
+
+    @classmethod
+    def is_enabled_for_mart(cls, mart):
+        return 'tweak.shell' in get_settings().mart_htsql_extensions
+
+
+class HtsqlConsoleMartAction(MartFilteredAction):
+    """
+    A screen that provides the HTSQL Web Console attached to a Mart.
+    """
+
     name = 'mart-htsql-console'
     js_type = 'rex-mart-actions/lib/HtsqlConsole'
-
-    def context(self):
-        return (
-            self.domain.record(mart=ValueType('number')),
-            self.domain.record(),
-        )
+    tool = 'htsql'
+    additional_input = {'mart': 'number'}
 

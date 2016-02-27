@@ -5,14 +5,18 @@
 
 from webob.exc import HTTPMethodNotAllowed
 
-from rex.action.typing import ValueType
+from rex.action import typing
 from rex.core import StrVal
-from rex.widget import formfield, FormFieldsetVal, responder, PortURL, Field
+from rex.widget import formfield, FormFieldsetVal, responder, PortURL, Field, \
+    RSTVal
 
 from .base import MartAction
+from .filter import MartIntroAction
+from .tool import MartTool
 
 
 __all__ = (
+    'DictionaryIntroAction',
     'DictionaryPickTableMartAction',
     'DictionaryPickTableColumnMartAction',
     'DictionaryPickColumnMartAction',
@@ -20,6 +24,43 @@ __all__ = (
     'DictionaryViewTableMartAction',
     'DictionaryViewColumnMartAction',
 )
+
+
+class DictionaryMartTool(MartTool):
+    name = 'dictionary'
+
+    @classmethod
+    def is_enabled_for_mart(cls, mart):
+        for processor in mart.definition.get('processors', []):
+            if processor['id'] == 'datadictionary':
+                return True
+        return False
+
+
+DEFAULT_INTRO_TEXT = RSTVal()("""
+This tool allows you to explore the columns and tables that are contained
+within this RexMart database.
+
+Use the buttons above to begin exploring.
+""")
+
+
+class DictionaryIntroAction(MartIntroAction):
+    """
+    The primary entry point for the Data Dictionary tool.
+    """
+
+    name = 'mart-dictionary'
+    tool = 'dictionary'
+
+    def __init__(self, **values):
+        super(DictionaryIntroAction, self).__init__(**values)
+        if not self.title:
+            self.title = 'Data Dictionary'
+        if not self.icon:
+            self.icon = 'book'
+        if not self.text:
+            self.text = DEFAULT_INTRO_TEXT
 
 
 class DictionaryPickMartAction(MartAction):
@@ -82,7 +123,7 @@ class DictionaryPickTableMartAction(DictionaryPickMartAction):
     one to see more information.
     """
 
-    name = 'mart-dictionary-pick-table'
+    name = 'mart-dictionary-tables'
     js_type = 'rex-mart-actions/lib/DictionaryPickTable'
 
     def __init__(self, **values):
@@ -103,14 +144,7 @@ class DictionaryPickTableMartAction(DictionaryPickMartAction):
             self.table = 'datadictionary_table'
 
     def context(self):
-        return (
-            self.domain.record(
-                mart=ValueType('number'),
-            ),
-            self.domain.record(
-                mart_table=ValueType('text'),
-            ),
-        )
+        return {'mart': typing.number}, {'mart_table': typing.string}
 
 
 class DictionaryPickTableColumnMartAction(DictionaryPickMartAction):
@@ -119,7 +153,7 @@ class DictionaryPickTableColumnMartAction(DictionaryPickMartAction):
     can select one to see more information.
     """
 
-    name = 'mart-dictionary-pick-table-column'
+    name = 'mart-dictionary-table-columns'
     js_type = 'rex-mart-actions/lib/DictionaryPickTableColumn'
 
     def __init__(self, **values):
@@ -153,15 +187,14 @@ class DictionaryPickTableColumnMartAction(DictionaryPickMartAction):
         return 'table=$mart_table'
 
     def context(self):
-        return (
-            self.domain.record(
-                mart=ValueType('number'),
-                mart_table=ValueType('text'),
-            ),
-            self.domain.record(
-                mart_column=ValueType('text'),
-            ),
-        )
+        ictx = {
+            'mart': typing.number,
+            'mart_table': typing.string,
+        }
+        octx = {
+            'mart_column': typing.string,
+        }
+        return ictx, octx
 
 
 class DictionaryPickColumnMartAction(DictionaryPickMartAction):
@@ -170,7 +203,7 @@ class DictionaryPickColumnMartAction(DictionaryPickMartAction):
     see more information.
     """
 
-    name = 'mart-dictionary-pick-column'
+    name = 'mart-dictionary-columns'
     js_type = 'rex-mart-actions/lib/DictionaryPickColumn'
 
     def __init__(self, **values):
@@ -201,14 +234,7 @@ class DictionaryPickColumnMartAction(DictionaryPickMartAction):
             self.table = 'datadictionary_column'
 
     def context(self):
-        return (
-            self.domain.record(
-                mart=ValueType('number'),
-            ),
-            self.domain.record(
-                mart_column=ValueType('text'),
-            ),
-        )
+        return {'mart': typing.number}, {'mart_column': typing.string}
 
 
 class DictionaryViewTableMartAction(DictionaryPickTableMartAction):
@@ -216,7 +242,7 @@ class DictionaryViewTableMartAction(DictionaryPickTableMartAction):
     Displays the details about a table in the Data Dictionary.
     """
 
-    name = 'mart-dictionary-view-table'
+    name = 'mart-dictionary-table-details'
     js_type = 'rex-mart-actions/lib/DictionaryViewTable'
 
     def __init__(self, **values):
@@ -237,13 +263,12 @@ class DictionaryViewTableMartAction(DictionaryPickTableMartAction):
             """)
 
     def context(self):
-        return (
-            self.domain.record(
-                mart=ValueType('number'),
-                mart_table=ValueType('text'),
-            ),
-            self.domain.record(),
-        )
+        ictx = {
+            'mart': typing.number,
+            'mart_table': typing.string,
+        }
+        octx = {}
+        return ictx, octx
 
 
 class DictionaryViewColumnMartAction(DictionaryPickColumnMartAction):
@@ -251,7 +276,7 @@ class DictionaryViewColumnMartAction(DictionaryPickColumnMartAction):
     Displays the details about a column in the Data Dictionary.
     """
 
-    name = 'mart-dictionary-view-column'
+    name = 'mart-dictionary-column-details'
     js_type = 'rex-mart-actions/lib/DictionaryViewColumn'
 
     def __init__(self, **values):
@@ -280,13 +305,12 @@ class DictionaryViewColumnMartAction(DictionaryPickColumnMartAction):
             """)
 
     def context(self):
-        return (
-            self.domain.record(
-                mart=ValueType('number'),
-                mart_column=ValueType('text'),
-            ),
-            self.domain.record(),
-        )
+        ictx = {
+            'mart': typing.number,
+            'mart_column': typing.string,
+        }
+        octx = {}
+        return ictx, octx
 
 
 class DictionaryPickEnumerationMartAction(DictionaryPickMartAction):
@@ -295,7 +319,7 @@ class DictionaryPickEnumerationMartAction(DictionaryPickMartAction):
     the user can select one to see more information.
     """
 
-    name = 'mart-dictionary-pick-enumeration'
+    name = 'mart-dictionary-enumerations'
     js_type = 'rex-mart-actions/lib/DictionaryPickEnumeration'
 
     def __init__(self, **values):
@@ -319,13 +343,12 @@ class DictionaryPickEnumerationMartAction(DictionaryPickMartAction):
         return 'column=$mart_column'
 
     def context(self):
-        return (
-            self.domain.record(
-                mart=ValueType('number'),
-                mart_column=ValueType('text'),
-            ),
-            self.domain.record(
-                mart_enumeration=ValueType('text'),
-            ),
-        )
+        ictx = {
+            'mart': typing.number,
+            'mart_column': typing.string,
+        }
+        octx = {
+            'mart_enumeration': typing.string,
+        }
+        return ictx, octx
 

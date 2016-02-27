@@ -5,13 +5,14 @@
 
 from webob import Response
 
-from rex.action.typing import ValueType
+from rex.action import typing
 from rex.core import get_settings
 from rex.mart import MartAccessPermissions
 from rex.web import authenticate
 from rex.widget import responder, RequestURL, FormFieldsetVal, Field
 
 from .base import MartAction
+from .tool import MartTool
 
 
 __all__ = (
@@ -51,19 +52,27 @@ class MartPickAction(MartAction):
             """)
 
     def context(self):
-        return (
-            self.domain.record(),
-            self.domain.record(
-                mart=ValueType('number'),
-            ),
-        )
+        ictx = {}
+        octx = {'mart': typing.number}
+        octx.update(self.get_all_definition_context_types())
+        octx.update(self.get_all_tool_context_types())
+        return ictx, octx
 
-    @responder(url_type=RequestURL)
-    def marts(self, request):  # pylint: disable=no-self-use
-        user = authenticate(request)
+    def get_marts(self, user, definition_id=None):
+        """
+        Retrieves the Marts that will be displayed in the pick list.
+
+        :param user: the User who is viewing the pick list
+        :type user: str
+        :param definition_id:
+            the ID of the definition that the Marts must be made from
+        :type definition_id: str
+        :rtype: list of dicts
+        """
+
+        # pylint: disable=no-self-use
+
         permissions = MartAccessPermissions.top()
-
-        definition_id = request.GET.get('definition') or None
 
         marts = []
         for mart in permissions.get_marts_for_user(
@@ -74,7 +83,17 @@ class MartPickAction(MartAction):
                 user,
                 mart,
             )
+            mart_dict['tools'] = MartTool.get_tools_for_mart(mart)
             marts.append(mart_dict)
+
+        return marts
+
+    @responder(url_type=RequestURL)
+    def marts(self, request):  # pylint: disable=no-self-use
+        user = authenticate(request)
+        definition_id = request.GET.get('definition') or None
+
+        marts = self.get_marts(user, definition_id=definition_id)
 
         return Response(json={'marts': marts})
 
@@ -84,7 +103,7 @@ class MartViewAction(MartAction):
     Displays the details about a specific Mart database.
     """
 
-    name = 'mart-view'
+    name = 'mart-details'
     js_type = 'rex-mart-actions/lib/MartView'
 
     fields = Field(
@@ -116,12 +135,7 @@ class MartViewAction(MartAction):
             """)
 
     def context(self):
-        return (
-            self.domain.record(
-                mart=ValueType('number'),
-            ),
-            self.domain.record(),
-        )
+        return {'mart': typing.number}, {}
 
     @responder(url_type=RequestURL)
     def data(self, request):  # pylint: disable=no-self-use
@@ -135,6 +149,7 @@ class MartViewAction(MartAction):
                 user,
                 mart,
             )
+            mart_dict['tools'] = MartTool.get_tools_for_mart(mart)
         else:
             mart_dict = {}
 
@@ -182,7 +197,7 @@ class DefinitionPickAction(MartAction):
     Displays the list of Definitions available to a user.
     """
 
-    name = 'mart-pick-definition'
+    name = 'mart-definition-pick'
     js_type = 'rex-mart-actions/lib/DefinitionPick'
 
     fields = Field(
@@ -204,14 +219,20 @@ class DefinitionPickAction(MartAction):
             """)
 
     def context(self):
-        return (
-            self.domain.record(),
-            self.domain.record(
-                mart_definition=ValueType('text'),
-            ),
-        )
+        ictx = {}
+        octx = {'mart_definition': typing.string}
+        octx.update(self.get_all_definition_context_types())
+        return ictx, octx
 
     def get_definitions(self, user):  # pylint: disable=no-self-use
+        """
+        Retrieves the Definitions that will be displayed in the pick list.
+
+        :param user: the User who is viewing the pick list
+        :type user: str
+        :rtype: list of dict
+        """
+
         return get_accessible_definitions(user)
 
     @responder(url_type=RequestURL)
@@ -228,7 +249,7 @@ class DefinitionViewAction(MartAction):
     Displays details about a specific Definition.
     """
 
-    name = 'mart-view-definition'
+    name = 'mart-definition-details'
     js_type = 'rex-mart-actions/lib/DefinitionView'
 
     fields = Field(
@@ -252,12 +273,7 @@ class DefinitionViewAction(MartAction):
             """)
 
     def context(self):
-        return (
-            self.domain.record(
-                mart_definition=ValueType('text'),
-            ),
-            self.domain.record(),
-        )
+        return {'mart_definition': typing.string}, {}
 
     @responder(url_type=RequestURL)
     def data(self, request):  # pylint: disable=no-self-use

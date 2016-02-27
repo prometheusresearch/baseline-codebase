@@ -10,11 +10,14 @@ paths:
         created in its environment. To do so, run commands like these a few
         times::
 
-          rex mart-create -o test -d schools
-          rex mart-create -o test -d schools_with_dict
+          rex mart-create -o test -d schools -d schools_with_dict
 
         (Assuming the user you're logging in with is ``test``)
 
+  #
+  # A simple Mart exploration path, where the opening is just a list of Marts
+  # to choose from.
+  #
   /simple-marts:
     action:
       type: wizard
@@ -24,24 +27,181 @@ paths:
         - choose-mart:
           - view-mart:
             - replace: ../../choose-mart
+          - guide-schools-intro:
+            - repeat:
+                - guide-schools-filter-by-campus:
+                - guide-schools-filter-by-name:
+                - guide-schools-project:
+              then:
+                - guide-schools-export:
+          - guide-courses-intro:
+            - repeat:
+                - guide-courses-filter:
+                - guide-courses-project:
+              then:
+                - guide-courses-export:
           - console:
           - dictionary:
+            - dictionary-browse-by-table:
+              - dictionary-browse-table-columns:
+                - dictionary-view-column:
+                - dictionary-browse-column-enumerations:
+              - dictionary-view-table:
+            - dictionary-browse-by-column:
+              - dictionary-view-column:
+              - dictionary-browse-column-enumerations:
 
       actions:
+        #
+        # Navigation Actions
+        #
+
         choose-mart:
           type: mart-pick
           title: Choose a Mart
 
         view-mart:
-          type: mart-view
+          type: mart-details
           title: Mart Details
+
+
+        #
+        # HTSQL Tool
+        #
 
         console:
           type: mart-htsql-console
           title: HTSQL Console
 
-        dictionary: rex.mart_actions:/dictionary
 
+        #
+        # Data Dictionary Tool
+        #
+
+        dictionary:
+          type: mart-dictionary
+
+        dictionary-browse-by-table:
+          type: mart-dictionary-tables
+          title: Browse Tables
+
+        dictionary-browse-table-columns:
+          type: mart-dictionary-table-columns
+          title: Table Columns
+
+        dictionary-browse-by-column:
+          type: mart-dictionary-columns
+          title: Browse Columns
+
+        dictionary-view-table:
+          type: mart-dictionary-table-details
+          title: Table Details
+
+        dictionary-view-column:
+          type: mart-dictionary-column-details
+          title: Column Details
+
+        dictionary-browse-column-enumerations:
+          type: mart-dictionary-enumerations
+          title: Column Enumerations
+
+
+        #
+        # Guide: Schools
+        #
+
+        guide-schools-intro:
+          type: mart-guide
+          text: Explore schools and their campuses.
+          title: School Guide
+          definition: schools
+
+        guide-schools-filter-by-campus:
+          type: mart-guide-filter
+          title: Filter by campus
+          icon: list
+
+          definition: schools
+          table: school
+
+          filters:
+          - title: South Campus
+            expression: campus='south'
+          - title: Old Campus
+            expression: campus='old'
+
+        guide-schools-filter-by-name:
+          type: mart-guide-filter
+          title: Filter by name
+          icon: list
+
+          definition: schools
+          table: school
+
+          filters:
+          - title: Name
+            expression: name
+          - title: Code
+            expression: code
+
+        guide-schools-project:
+          type: mart-guide-project
+          title: Choose columns
+          icon: list
+
+          definition: schools
+          table: school
+
+        guide-schools-export:
+          type: mart-guide-export
+
+          definition: schools
+          table: school
+
+
+        #
+        # Guide: Courses
+        #
+
+        guide-courses-intro:
+          type: mart-guide
+          text: Explore the available courses.
+          title: Course Guide
+          definition: schools_with_dict
+
+        guide-courses-filter:
+          type: mart-guide-filter
+          title: Filter stuff
+          icon: list
+
+          definition: schools_with_dict
+          table: course
+
+          filters:
+          - title: Title
+            expression: title
+          - title: Full Credit
+            expression: credits >= 3
+
+        guide-courses-export:
+          type: mart-guide-export
+
+          definition: schools_with_dict
+          table: course
+
+        guide-courses-project:
+          type: mart-guide-project
+          title: Choose columns
+          icon: list
+
+          definition: schools_with_dict
+          table: course
+
+
+  #
+  # A slightly more organized exploration path where the user first chooses a
+  # definition type, then are shown Marts of that definition to choose from.
+  #
   /tiered-marts:
     action:
       type: wizard
@@ -49,16 +209,16 @@ paths:
 
       path:
         - choose-definition:
-          - view-definition:
           - choose-mart:
+          - view-definition:
 
       actions:
         choose-definition:
-          type: mart-pick-definition
+          type: mart-definition-pick
           title: Choose a Type of Mart to Explore
 
         view-definition:
-          type: mart-view-definition
+          type: mart-definition-details
           title: Definition Details
 
         choose-mart: /simple-marts

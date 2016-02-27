@@ -12,6 +12,7 @@ import {autobind} from 'rex-widget/lang';
 
 import Title from './Title';
 import prettyBytes from './prettyBytes';
+import {getDefinitionContext, getToolContext} from './context';
 
 
 function prettifyMart(mart) {
@@ -45,9 +46,12 @@ export default class MartPick extends React.Component {
 
   @autobind
   onSelect(martId, mart) {
-    this.props.onContext({
-      mart: martId
-    });
+    let newContext = {
+      ...getDefinitionContext(this.props.context, mart.definition),
+      ...getToolContext(this.props.context, mart.tools)
+    };
+    newContext['mart'] = martId;
+    this.props.onContext(newContext);
   }
 
   render() {

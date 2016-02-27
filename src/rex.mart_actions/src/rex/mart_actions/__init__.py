@@ -5,7 +5,9 @@
 
 from .base import *
 from .dictionary import *
-# from .guide import *
+from .filter import *
+from .guide import *
 from .htsql_console import *
 from .navigation import *
+from .tool import *
 

@@ -11,6 +11,7 @@ import {DataTableBase} from 'rex-widget/datatable';
 import {autobind} from 'rex-widget/lang';
 
 import Title from './Title';
+import {getDefinitionContext} from './context';
 
 
 function prettifyDefinition(definition) {
@@ -38,9 +39,9 @@ export default class DefinitionPick extends React.Component {
 
   @autobind
   onSelect(definitionId, definition) {
-    this.props.onContext({
-      mart_definition: definitionId
-    });
+    let newContext = getDefinitionContext(this.props.context, definitionId);
+    newContext['mart_definition'] = definitionId;
+    this.props.onContext(newContext);
   }
 
   render() {
@@ -51,7 +52,9 @@ export default class DefinitionPick extends React.Component {
       return <Preloader />;
     }
 
-    let data = DataSet.fromData(definitions.data.definitions);
+    let data = DataSet.fromData(
+      definitions.data.definitions.map(prettifyDefinition)
+    );
 
     let columns = fields.map(prettifyColumn);
 

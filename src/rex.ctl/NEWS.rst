@@ -5,10 +5,10 @@
 .. contents:: Table of Contents
 
 
-2.1.1 (2015-XX-XX)
+2.1.1 (2016-02-29)
 ==================
 
-* Updated some tests.
+* Fixed test breakups.
 
 
 2.1.0 (2015-11-20)

@@ -5,7 +5,7 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
-5.6.2 (2016-xx-xx)
+5.6.2 (2016-02-29)
 ==================
 
 * Fixed an issue where zero wouldn't be saved as un upper or lower numeric

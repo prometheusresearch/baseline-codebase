@@ -2,7 +2,7 @@
   Change Log
 **************
 
-0.2.0 (2016-XX-XX)
+0.2.0 (2016-02-29)
 ==================
 
 * Added support for the external URLs in the menu
@@ -13,3 +13,4 @@
 ==================
 
 * Initial release.
+

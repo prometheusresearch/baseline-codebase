@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-4.13.0 (2016-xx-xx)
+4.13.0 (2016-02-29)
 ===================
 
 * rex.action==0.9.0
@@ -14,6 +14,7 @@
 * rex.forms==1.4.0
 * rex.urlmap==2.8.0
 * rex.widget==2.2.0
+* rex.widget_chrome==0.2.0
 * HTSQL==2.3.3.20160216
 * HTSQL-PGSQL==2.3.3.20160216
 

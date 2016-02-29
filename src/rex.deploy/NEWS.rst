@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.5.0 (2016-xx-xx)
+2.5.0 (2016-02-29)
 ==================
 
 * Added support for psycopg2 >= 2.5.

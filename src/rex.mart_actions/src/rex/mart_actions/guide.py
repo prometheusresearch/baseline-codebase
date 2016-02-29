@@ -3,32 +3,36 @@
 #
 
 
-from webob import Response
-
 from htsql.core import domain
 
 from rex.action import typing
-from rex.core import get_settings, Validate, Error
+from rex.core import Validate, Error
 from rex.core import RecordVal, SeqVal, StrVal, OneOfVal
 from rex.mart import MartAccessPermissions
 from rex.web import authenticate
-from rex.widget import responder, RequestURL, Field, computed_field, raw_widget
-from rex.db import Query
+from rex.widget import Field, computed_field, raw_widget
 
 from .base import MartAction
 from .filter import MartIntroAction
 from .tool import MartTool
 
 
-def reflect_table_fields(db, table):
-    product = db.produce('/%s/:describe' % table)
+__all__ = (
+    'GuideIntroAction',
+    'GuideFilterAction',
+    'GuideProjectAction',
+    'GuideExportAction',
+)
+
+
+def reflect_table_fields(database, table):
+    product = database.produce('/%s/:describe' % table)
     fields = product.meta.domain.item_domain.fields
     validate_column = ColumnVal()
     return [validate_column(f.tag) for f in fields]
 
 
 class FilterVal(Validate):
-
     _validate = RecordVal(
         ('title', StrVal(), None),
         ('hint', StrVal(), None),
@@ -40,7 +44,6 @@ class FilterVal(Validate):
 
 
 class ColumnVal(Validate):
-
     _validate_record = RecordVal(
         ('title', StrVal(), None),
         ('expression', StrVal()),
@@ -54,7 +57,6 @@ class ColumnVal(Validate):
         if isinstance(value, basestring):
             value = {'title': value, 'expression': value}
         return self._validate(value)
-
 
 
 class GuideMartTool(MartTool):
@@ -76,7 +78,6 @@ class GuideIntroAction(MartIntroAction):
 
 
 class GuideAction(MartAction):
-
     definition = Field(
         StrVal(),
         doc="""
@@ -91,27 +92,49 @@ class GuideAction(MartAction):
 
     @computed_field
     def table_fields(self, req):
-        mart  = self.get_mart_for_reflection(req)
+        mart = self.get_mart_for_reflection(req)
         if not mart:
             return None
-        db = self.get_mart_db(mart)
-        return reflect_table_fields(db, self.table)
+        database = self.get_mart_db(mart)
+        return reflect_table_fields(database, self.table)
 
     def get_mart_for_reflection(self, req):
         user = authenticate(req)
         permissions = MartAccessPermissions.top()
-        marts = permissions.get_marts_for_user(user, definition_id=self.definition)
+        marts = permissions.get_marts_for_user(
+            user,
+            definition_id=self.definition,
+        )
         return marts[0] if marts else None
 
     def context(self):
-        input = {'mart': typing.number}
-        input.update({self.get_definition_context(self.definition): typing.anytype})
-        output = {}
-        return input, output
+        ictx = {'mart': typing.number}
+        ictx.update({
+            self.get_definition_context(self.definition): typing.anytype,
+        })
+        octx = {}
+        return ictx, octx
 
 
-class FilterDataset(GuideAction):
-    """ Filter dataset."""
+FILTERS = {
+    domain.BooleanDomain: {
+        'widget': 'rex-mart-actions/lib/guide/filter/BooleanFilter',
+    },
+    domain.TextDomain: {
+        'widget': 'rex-mart-actions/lib/guide/filter/TextFilter',
+    },
+    domain.EnumDomain: {
+        'widget': 'rex-mart-actions/lib/guide/filter/EnumFilter',
+        'props': lambda d: {'labels': d.labels},
+    },
+}
+
+
+class GuideFilterAction(GuideAction):
+    """
+    Allows a user to choose from a list of configured filters to apply to their
+    query.
+    """
 
     name = 'mart-guide-filter'
     js_type = 'rex-mart-actions/lib/guide/FilterDataset'
@@ -125,43 +148,46 @@ class FilterDataset(GuideAction):
 
     @computed_field
     def filter_elements(self, req):
-        mart  = self.get_mart_for_reflection(req)
+        mart = self.get_mart_for_reflection(req)
         if not mart:
             return None
-        db = self.get_mart_db(mart)
-        compiled = []
+
+        database = self.get_mart_db(mart)
         query = '/%s{%s}/:describe' % (
             self.table,
-            ', '.join(f.expression for f in self.filters))
-        meta = db.produce(query).meta.domain.item_domain
-        for field, filter in zip(meta.fields, self.filters):
-            dom = field.domain
-            if isinstance(dom, domain.BooleanDomain):
-                filter_widget = raw_widget(
-                    'rex-mart-actions/lib/guide/filter/BooleanFilter',
-                    title=filter.title,
-                    expression=filter.expression)
-            elif isinstance(dom, domain.EnumDomain):
-                filter_widget = raw_widget(
-                    'rex-mart-actions/lib/guide/filter/EnumFilter',
-                    title=filter.title,
-                    expression=filter.expression,
-                    labels=dom.labels)
-            elif isinstance(dom, domain.TextDomain):
-                filter_widget = raw_widget(
-                    'rex-mart-actions/lib/guide/filter/TextFilter',
-                    title=filter.title,
-                    expression=filter.expression)
-            else:
+            ', '.join(f.expression for f in self.filters),
+        )
+        meta = database.produce(query).meta.domain.item_domain
+
+        compiled = []
+        for field, filt in zip(meta.fields, self.filters):
+            cfg = FILTERS.get(field.domain.__class__)
+            if not cfg:
                 raise Error(
                     'filter expression type is not currently supported:',
-                    filter.expression)
-            compiled.append(filter_widget)
+                    filt.expression,
+                )
+
+            props = {
+                'title': filt.title,
+                'expression': filt.expression,
+            }
+            if cfg.get('props'):
+                props.update(cfg['props'](field.domain))
+
+            widget = raw_widget(
+                cfg['widget'],
+                **props
+            )
+            compiled.append(widget)
+
         return compiled
 
 
-class ProjectDataset(GuideAction):
-    """ Project dataset."""
+class GuideProjectAction(GuideAction):
+    """
+    Allows a user to select the columns to return in their query.
+    """
 
     name = 'mart-guide-project'
     js_type = 'rex-mart-actions/lib/guide/ProjectDataset'
@@ -175,15 +201,17 @@ class ProjectDataset(GuideAction):
 
     @computed_field
     def all_fields(self, req):
-        mart  = self.get_mart_for_reflection(req)
+        mart = self.get_mart_for_reflection(req)
         if not mart:
             return None
-        db = self.get_mart_db(mart)
-        return reflect_table_fields(db, self.table) + self.fields
+        database = self.get_mart_db(mart)
+        return reflect_table_fields(database, self.table) + self.fields
 
 
-class ExportDataset(GuideAction):
-    """ Project dataset."""
+class GuideExportAction(GuideAction):
+    """
+    Allows a user to download the results of their query as a file.
+    """
 
     name = 'mart-guide-export'
     js_type = 'rex-mart-actions/lib/guide/ExportDataset'

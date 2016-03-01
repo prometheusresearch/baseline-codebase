@@ -5,6 +5,14 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
+5.6.3 (2016-xx-xx)
+==================
+
+* Fixed an issue where FireFox would highlight the float range constraint
+  input boxes when you entered a float value, even though there was nothing
+  wrong.
+
+
 5.6.2 (2016-02-29)
 ==================
 

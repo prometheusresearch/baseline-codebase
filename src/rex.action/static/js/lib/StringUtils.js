@@ -8,7 +8,7 @@ export function makeEscape(character) {
   let re = new RegExp(escapeRegExp(character), 'g');
 
   function escape(string) {
-    return string.replace(re, '\\$&');
+    return String(string).replace(re, '\\$&');
   }
 
   return escape;

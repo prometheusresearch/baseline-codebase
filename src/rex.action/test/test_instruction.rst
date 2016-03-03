@@ -47,28 +47,28 @@ Parsing "repeat path"::
 
   >>> parse_instruction("""
   ... repeat:
-  ...   action: pick-individual
+  ... - action: pick-individual
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  Repeat(repeat=Execute(action='pick-individual', then=[], action_instance='pick-individual'),
+  Repeat(repeat=[Execute(action='pick-individual', then=[], action_instance='pick-individual')],
          then=[])
 
   >>> parse_instruction("""
   ... action: make-individual
   ... then:
   ... - repeat:
-  ...     action: pick-individual
+  ...   - action: pick-individual
   ... """) # doctest: +NORMALIZE_WHITESPACE
   Execute(action='make-individual',
-          then=[Repeat(repeat=Execute(action='pick-individual', then=[], action_instance='pick-individual'), then=[])],
+          then=[Repeat(repeat=[Execute(action='pick-individual', then=[], action_instance='pick-individual')], then=[])],
           action_instance='make-individual')
 
   >>> parse_instruction("""
   ... repeat:
-  ...   action: pick-individual
+  ... - action: pick-individual
   ... then:
   ... - action: export-individual
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  Repeat(repeat=Execute(action='pick-individual', then=[], action_instance='pick-individual'),
+  Repeat(repeat=[Execute(action='pick-individual', then=[], action_instance='pick-individual')],
          then=[Execute(action='export-individual', then=[], action_instance='export-individual')])
 
 Parsing "execute action" shortcuts::
@@ -97,11 +97,11 @@ Parsing "execute action" shortcuts::
 
   >>> parse_instruction("""
   ... repeat:
-  ...   pick-individual:
+  ... - pick-individual:
   ... then:
   ... - filter-individual:
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  Repeat(repeat=Execute(action='pick-individual', then=[], action_instance='pick-individual'),
+  Repeat(repeat=[Execute(action='pick-individual', then=[], action_instance='pick-individual')],
          then=[Execute(action='filter-individual', then=[], action_instance='filter-individual')])
 
 Parsing replace::

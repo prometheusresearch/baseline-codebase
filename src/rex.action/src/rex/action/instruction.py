@@ -14,8 +14,8 @@
 
 from cached_property import cached_property
 
-from rex.core import Location, set_location, Validate, Error
-from rex.core import RecordVal, UnionVal, MapVal, StrVal, SeqVal, OnField
+from rex.core import Location, locate, set_location, Validate, Error
+from rex.core import RecordVal, UnionVal, MapVal, StrVal, SeqVal, OnField, OneOfVal
 from rex.widget import TransitionableRecord
 
 __all__ = (
@@ -25,7 +25,17 @@ __all__ = (
 )
 
 
-class Start(TransitionableRecord):
+class Instruction(TransitionableRecord):
+
+    def __clone__(self, **values):
+        inst = super(Instruction, self).__clone__(**values)
+        location = locate(self)
+        if location:
+            set_location(inst, location)
+        return inst
+
+
+class Start(Instruction):
     """ Start of the wizard execution."""
 
     fields = ('then',)
@@ -33,7 +43,7 @@ class Start(TransitionableRecord):
     __transit_tag__ = 'rex:action:start'
 
 
-class Execute(TransitionableRecord):
+class Execute(Instruction):
     """ Execute action."""
 
     fields = ('action', 'then', 'action_instance')
@@ -47,7 +57,7 @@ class IncludeWizard(Execute):
     __transit_tag__ = 'rex:action:include_wizard'
 
 
-class Replace(TransitionableRecord):
+class Replace(Instruction):
 
     fields = ('replace', 'instruction')
 
@@ -56,7 +66,7 @@ class Replace(TransitionableRecord):
     then = []
 
 
-class Repeat(TransitionableRecord):
+class Repeat(Instruction):
     """ Repeat execution path."""
 
     fields = ('repeat', 'then')
@@ -71,7 +81,8 @@ class Repeat(TransitionableRecord):
 def visit(instruction, visitor):
     visitor(instruction)
     if isinstance(instruction, Repeat):
-        visit(instruction.repeat, visitor)
+        for next_instruction in instruction.repeat:
+            visit(next_instruction, visitor)
     for next_instruction in instruction.then:
         visit(next_instruction, visitor)
 
@@ -81,13 +92,15 @@ def map(instruction, mapper):
 
 def _map(instruction, mapper, ancestors):
     instruction = mapper(instruction, ancestors)
-    if isinstance(instruction, (Start, IncludeWizard, Execute)):
+    if isinstance(instruction, Repeat):
+        instruction = instruction.__clone__(
+            repeat=[_map(inst, mapper, ancestors) for inst in instruction.repeat],
+        )
+    if isinstance(instruction, (Start, IncludeWizard, Execute, Repeat)):
         ancestors = ancestors + [instruction]
         instruction = instruction.__clone__(
-            then=[_map(inst, mapper, ancestors) for inst in instruction.then])
-    elif isinstance(instruction, Repeat):
-        instruction = instruction.__clone__(
-            repeat=_map(instruction.repeat, mapper, ancestors))
+            then=[_map(inst, mapper, ancestors) for inst in instruction.then]
+        )
     return instruction
 
 
@@ -137,9 +150,10 @@ class ThenVal(ValidateWithAction):
                     raise Error('Found duplicate action:', instruction.action)
                 seen.add(instruction.action)
             elif isinstance(instruction, Repeat):
-                if instruction.repeat.action in seen:
-                    raise Error('Found duplicate action:', instruction.repeat.action)
-                seen.add(instruction.repeat.action)
+                for instruction in instruction.repeat:
+                    if instruction.action in seen:
+                        raise Error('Found duplicate action:', instruction.action)
+                    seen.add(instruction.action)
         return value
 
 
@@ -235,6 +249,25 @@ class ReplaceVal(BaseInstructionVal):
         )
 
 
+class RepeatSectionVal(ValidateWithAction):
+
+    @cached_property
+    def validator(self):
+        return ThenVal(self.resolve_action)
+
+    def __call__(self, value):
+        value = self.validator(value)
+        if not value:
+            raise Error('Nothing to repeat:', 'Provide at least one action')
+        return value
+
+    def construct(self, loader, node):
+        value = self.validator.construct(loader, node)
+        if not value:
+            raise Error('Nothing to repeat:', 'Provide at least one action')
+        return value
+
+
 class RepeatVal(BaseInstructionVal):
     """ Validator for :class:`Repeat` instruction."""
 
@@ -243,12 +276,8 @@ class RepeatVal(BaseInstructionVal):
 
     @cached_property
     def instruction_validator(self):
-        instruction_val = UnionVal(
-            ExecuteVal(self.resolve_action).variant,
-            RepeatVal(self.resolve_action).variant,
-            ExecuteShortcutVal(self.resolve_action))
         return RecordVal(
-            ('repeat', instruction_val),
+            ('repeat', RepeatSectionVal(self.resolve_action)),
             ('then', ThenVal(self.resolve_action), [])
         )
 

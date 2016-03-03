@@ -770,7 +770,7 @@ Repeat
   ... id: wizard
   ... path:
   ... - repeat:
-  ...     pick-individual:
+  ...   - pick-individual:
   ...     - view-individual:
   ...   then:
   ... actions:
@@ -788,7 +788,7 @@ Repeat
   ... id: wizard
   ... path:
   ... - repeat:
-  ...     pick-individual:
+  ...   - pick-individual:
   ...     - view-mother:
   ...   then:
   ... actions:
@@ -816,7 +816,7 @@ Repeat
   ... id: wizard
   ... path:
   ... - repeat:
-  ...     pick-individual:
+  ...   - pick-individual:
   ...     - view-individual:
   ...   then:
   ...   - pick-individual:
@@ -836,7 +836,7 @@ Repeat
   ... id: wizard
   ... path:
   ... - repeat:
-  ...     pick-individual:
+  ...   - pick-individual:
   ...     - view-individual:
   ...   then:
   ...   - pick-individual:
@@ -871,7 +871,7 @@ Repeat
   ... path:
   ... - pick-individual:
   ...   - repeat:
-  ...       view-individual:
+  ...     - view-individual:
   ...       - pick-study-as-individual:
   ...     then:
   ... actions:

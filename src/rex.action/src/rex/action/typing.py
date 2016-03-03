@@ -29,6 +29,9 @@ __all__ = (
     'EntityType',
     'ValueType',
     'TypeVal',
+    'anytype',
+    'string',
+    'number',
 
     'unify',
     'intersect_record_types',
@@ -95,6 +98,10 @@ class ValueType(Type):
 
     def __transit_format__(self, req, path):
         return self.name
+
+
+string = ValueType('string')
+number = ValueType('number')
 
 
 class EntityType(Type):

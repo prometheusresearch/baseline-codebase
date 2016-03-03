@@ -251,12 +251,23 @@ class WizardWidgetBase(Widget):
             return [(inst, next_context_type)]
 
     def _typecheck_repeat(self, inst, context_type, path, recurse=True):
-        end_types = self._typecheck(
-                inst.repeat, context_type, path + ['<repeat loop>'])
-        action = self._resolve_action(inst.repeat.action)
-        if action is None:
-            raise Error('Unknown action found:', inst.repeat.action)
-        repeat_invariant, _ = action.context_types
+        end_types = [
+            pair
+            for repeat_inst in inst.repeat
+            for pair in self._typecheck(
+                repeat_inst, context_type, path + ['<repeat loop>'])
+        ]
+
+        actions = [self._resolve_action(item.action) for item in inst.repeat]
+        if None in actions:
+            raise Error('Unknown action found', inst.repeat)
+
+        repeat_invariant = typing.intersect_record_types([
+            action.context_types.input
+            for action, repeat_inst in zip(actions, inst.repeat)
+            if isinstance(repeat_inst, instruction.Execute)
+        ])
+
         for end_instruction, end_type in end_types:
             with guard('While parsing:', locate(end_instruction)):
                 try:
@@ -279,11 +290,12 @@ class WizardWidgetBase(Widget):
 
         if inst.then:
             return [
-                self._typecheck(next_instruction, repeat_invariant, path + ['<repeat then>'])
+                pair
                 for next_instruction in inst.then
+                for pair in self._typecheck(next_instruction, repeat_invariant, path + ['<repeat then>'])
             ]
         else:
-            return inst, repeat_invariant
+            return [(inst, repeat_invariant)]
 
     def _typecheck_replace(self, inst, context_type, path, recurse=True):
         path = path + ['<replace %s>' % inst.replace]
@@ -301,6 +313,10 @@ class WizardWidgetBase(Widget):
         elif isinstance(inst, instruction.Repeat):
             return self._typecheck_repeat(
                 inst, context_type, path, recurse=recurse)
+        elif isinstance(inst, instruction.Start):
+            return [pair
+                    for item in inst.then
+                    for pair in self._typecheck(item, context_type, path)]
 
 def _wrap_unification_error(error, context_type, path, action):
     if not context_type.rows:

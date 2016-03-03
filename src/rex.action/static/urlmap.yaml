@@ -9,7 +9,7 @@ paths:
       path:
       - list-action:
         - repeat:
-            view-action:
+          - view-action:
               - view-next-action:
 
       actions:

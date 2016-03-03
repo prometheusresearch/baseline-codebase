@@ -67,14 +67,13 @@ export default class Node {
     if (
       Start.is(this.instruction) ||
       IncludeWizard.is(this.instruction) ||
-      Execute.is(this.instruction)
+      Execute.is(this.instruction) ||
+      Repeat.is(this.instruction)
     ) {
       return this;
     } else if (Replace.is(this.instruction)) {
       let node = resolveNodeByReference(this, this.instruction.replace);
       return node;
-    } else if (Repeat.is(this.instruction)) {
-      return this;
     } else {
       invariant(false, 'Node is not concrete');
     }
@@ -239,15 +238,14 @@ export default class Node {
     if (this.instruction.then.length === 0 && this.parent) {
       if (Repeat.is(this.parent.instruction)) {
         let thenExit = this.parent._thenWithContext(context);
-        let thenLoop = [
+        let thenLoop = this.parent.instruction.repeat.map(inst =>
           this.constructor.create(
-            this.parent.instruction.repeat,
+            inst,
             context,
             this.parent,
             this.index + 1,
             this,
-          )
-        ];
+          ));
         return thenLoop.concat(thenExit);
       } else if (IncludeWizard.is(this.parent.instruction)) {
         let thenExit = this.parent._thenWithContext(context);
@@ -294,8 +292,8 @@ function realizeNode(node) {
     );
     return flatten(startNode.then.map(realizeNode));
   } else if (Repeat.is(node.instruction)) {
-    node = Node.create(node.instruction.repeat, node.context, node, 0);
-    return realizeNode(node);
+    return flatten(node.instruction.repeat.map(n =>
+      realizeNode(Node.create(n, node.context, node, 0))));
   } else {
     invariant(
       false,

@@ -139,8 +139,9 @@ export default class Wizard extends React.Component {
       context: graph.node.context,
       actionState: graph.node.state,
       setActionState: this._onState.bind(null, graph.node),
-      onCommand: this._onCommand.bind(null, graph.node),
+      onCommand: this._onCommand.bind(null, true, graph.node),
       onContext: this._onContext.bind(null, graph.node),
+      onContextNoAdvance: this._onContextNoAdvance.bind(null, graph.node),
       onEntityUpdate: this._onEntityUpdate,
       refetch: () => this._refetch(),
       toolbar: <Toolbar graph={graph} onClick={this._onNext} />,
@@ -274,7 +275,7 @@ export default class Wizard extends React.Component {
   }
 
   @autobind
-  _onCommand(node, commandName, ...args) {
+  _onCommand(advance, node, commandName, ...args) {
     this.setStateConfirmed(state => {
       let {graph} = state;
       // if node from which command originates differs from the current
@@ -284,9 +285,15 @@ export default class Wizard extends React.Component {
         let nextAction = state.graph.trace[nextActionIdx].keyPath;
         graph = graph.close(nextAction);
       }
-      graph = state.graph.executeCommandAtCurrentNode(
-        commandName,
-        ...args);
+      if (advance) {
+        graph = state.graph.executeCommandAtCurrentNode(
+          commandName,
+          ...args);
+      } else {
+        graph = state.graph.executeCommandAtCurrentNodeAndNoAdvance(
+          commandName,
+          ...args);
+      }
       return {...state, graph};
     });
   }
@@ -303,7 +310,13 @@ export default class Wizard extends React.Component {
   @autobind
   _onContext(node, context) {
     let commandName = Command.onContextCommand.name;
-    return this._onCommand(node, commandName, context);
+    return this._onCommand(true, node, commandName, context);
+  }
+
+  @autobind
+  _onContextNoAdvance(node, context) {
+    let commandName = Command.onContextCommand.name;
+    return this._onCommand(false, node, commandName, context);
   }
 
   @autobind

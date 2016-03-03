@@ -654,6 +654,36 @@ class PIntVal(IntVal):
                                 if self.max_bound is not None else "")
 
 
+class FloatVal(Validate):
+    """
+    Accepts a float or an integer value, or a numeric string; returns a float
+    value.
+    """
+
+    def __call__(self, data):
+        with guard("Got:", repr(data)):
+            if isinstance(data, (str, unicode, int, long)):
+                try:
+                    data = float(data)
+                except ValueError:
+                    raise Error("Expected a float value")
+            if not isinstance(data, float):
+                raise Error("Expected a float value")
+        return data
+
+    def construct(self, loader, node):
+        with guard("While parsing:", Location.from_node(node)):
+            if not (isinstance(node, yaml.ScalarNode) and
+                    (node.tag == u'tag:yaml.org,2002:int' or
+                     node.tag == u'tag:yaml.org,2002:float')):
+                error = Error("Expected a float value")
+                error.wrap("Got:", node.value
+                                   if isinstance(node, yaml.ScalarNode)
+                                   else "a %s" % node.id)
+                raise error
+            return self(loader.construct_yaml_float(node))
+
+
 class SeqVal(Validate):
     """
     Accepts lists or serialized JSON arrays.

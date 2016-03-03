@@ -522,6 +522,55 @@ respectively::
         -1
 
 
+``FloatVal``
+============
+
+``FloatVal`` accepts float (or integer) values.  Numeric strings are also
+accepted and converted to float::
+
+    >>> from rex.core import FloatVal
+    >>> float_val = FloatVal()
+    >>> float_val
+    FloatVal()
+    >>> float_val(0.5)
+    0.5
+    >>> float_val(5)
+    5.0
+    >>> float_val(5L)
+    5.0
+    >>> float_val('5e-1')
+    0.5
+    >>> float_val('5')
+    5.0
+    >>> float_val('NaN')
+    nan
+    >>> float_val('Inf')
+    inf
+    >>> float_val('-Inf')
+    -inf
+    >>> float_val('127.0.0.1')
+    Traceback (most recent call last):
+      ...
+    Error: Expected a float value
+    Got:
+        '127.0.0.1'
+
+``IntVal`` can parse YAML documents::
+
+    >>> float_val.parse(""" 0.5 """)
+    0.5
+    >>> float_val.parse(""" 5 """)
+    5.0
+    >>> float_val.parse(""" 127.0.0.1 """)
+    Traceback (most recent call last):
+      ...
+    Error: Expected a float value
+    Got:
+        127.0.0.1
+    While parsing:
+        "<byte string>", line 1
+
+
 ``SeqVal``
 ==========
 

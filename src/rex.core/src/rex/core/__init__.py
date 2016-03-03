@@ -21,10 +21,10 @@ from .package import (
 from .setting import Setting, SettingCollection, get_settings
 from .validate import (
     ValidatingLoader, Validate, AnyVal, ProxyVal, MaybeVal, OneOfVal, StrVal,
-    UStrVal, ChoiceVal, UChoiceVal, BoolVal, IntVal, UIntVal, PIntVal, SeqVal,
-    OneOrSeqVal, MapVal, OMapVal, RecordVal, SwitchVal, UnionVal, OnMatch,
-    OnScalar, OnSeq, OnMap, OnField, Record, RecordField, Location,
-    set_location, locate)
+    UStrVal, ChoiceVal, UChoiceVal, BoolVal, IntVal, UIntVal, PIntVal,
+    FloatVal, SeqVal, OneOrSeqVal, MapVal, OMapVal, RecordVal, SwitchVal,
+    UnionVal, OnMatch, OnScalar, OnSeq, OnMap, OnField, Record, RecordField,
+    Location, set_location, locate)
 from .wsgi import WSGI, get_wsgi
 
 

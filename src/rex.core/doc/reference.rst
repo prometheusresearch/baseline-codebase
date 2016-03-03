@@ -85,6 +85,7 @@ Validators
 .. autoclass:: rex.core.IntVal
 .. autoclass:: rex.core.UIntVal
 .. autoclass:: rex.core.PIntVal
+.. autoclass:: rex.core.FloatVal
 .. autoclass:: rex.core.SeqVal
 .. autoclass:: rex.core.OneOrSeqVal
 .. autoclass:: rex.core.MapVal

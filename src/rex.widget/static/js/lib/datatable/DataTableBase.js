@@ -318,7 +318,7 @@ export default class DataTableBase extends React.Component {
   rowClassNameGetter(rowIndex) {
     let {selected} = this.props;
     let row = this.rowGetter(rowIndex);
-    if (row && row.id == selected) { // eslint-disable-line eqeqeq
+    if (row && row.id !== undefined && row.id == selected) { // eslint-disable-line eqeqeq
       return Style.rowSelected;
     }
   }

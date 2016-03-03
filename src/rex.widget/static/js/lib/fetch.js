@@ -32,15 +32,43 @@ export function fetch(url, query = null, options = {}) {
 }
 
 export function post(url, query = null, data = null, options = {}) {
+  let opts = {...options, method: 'post'};
+  return fetchData(url, query, data, opts);
+}
+
+export function put(url, query = null, data = null, options = {}) {
+  let opts = {...options, method: 'put'};
+  return fetchData(url, query, data, opts);
+}
+
+export function del(url, query = null, data = null, options = {}) {
+  let opts = {...options, method: 'delete'};
+  if (typeof(opts.skipResponseParsing) === 'undefined') {
+    opts.skipResponseParsing = true;
+  }
+  return fetchData(url, query, data, opts);
+}
+
+function fetchData(url, query = null, data = null, options = {}) {
   url = prepareURL(url, query);
-  let fetchParams = {...OPTIONS, body: data, method: 'post'};
+
+  let fetchParams = {...OPTIONS, body: data, method: options.method || 'post'};
+  if (data && options.jsonifyData) {
+    fetchParams.body = JSON.stringify(data);
+    fetchParams.headers['Content-Type'] = 'application/json';
+  }
+
   let promise = global.fetch(url, fetchParams)
     .then(failOnHTTPError);
-  if (options.useTransit) {
-    promise = promise.then(parseTransitResponse);
-  } else {
-    promise = promise.then(parseJSONResponse);
+
+  if (!options.skipResponseParsing) {
+    if (options.useTransit) {
+      promise = promise.then(parseTransitResponse);
+    } else {
+      promise = promise.then(parseJSONResponse);
+    }
   }
+
   return promise;
 }
 

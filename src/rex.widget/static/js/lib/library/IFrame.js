@@ -7,7 +7,7 @@ import {IFrame as BaseIFrame} from '../ui';
 
 export default class IFrame extends React.Component {
   render() {
-    var {src, queryString} = this.props;
+    let  {src, queryString} = this.props;
     if (queryString) {
       src += '?' + queryString;
     }
@@ -15,7 +15,7 @@ export default class IFrame extends React.Component {
   }
 
   componentDidMount() {
-    var {transferRequestParams, requestParams} = this.props;
+    let {transferRequestParams, requestParams} = this.props;
     if (transferRequestParams) {
       window.REQUEST_PARAMS = requestParams;
     }

@@ -6,6 +6,9 @@
     "react": "^0.14.0",
     "react-dom": "^0.14.0"
   },
+  "eslintConfig": {
+    "extends": "prometheusresearch"
+  },
   "nyc": {
     "exclude": [
       "**/__tests__/*-test.js",
@@ -53,10 +56,9 @@
   },
   "devDependencies": {
     "babel": "^5.8.35",
-    "babel-eslint": "^4.1.8",
     "babel-plugin-espower": "^1.0.0",
-    "eslint": "^2.1.0",
-    "eslint-plugin-react": "^3.16.1",
+    "eslint": "^2.2.0",
+    "eslint-config-prometheusresearch": "^0.1.0",
     "jsdom": "^6.5.1",
     "mocha": "^2.3.3",
     "nyc": "^5.6.0",

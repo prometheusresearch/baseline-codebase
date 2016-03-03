@@ -29,7 +29,7 @@ let IconButton = stylesheet.style(Icon, {
 });
 
 let Root = stylesheet.style(HBox, {
-  padding: css.padding(5, 20),
+  padding: css.padding(5, 10),
   alignItems: 'center',
 });
 
@@ -74,7 +74,7 @@ export default class SearchInput extends React.Component {
 
   @autobind
   clear() {
-    this.props.onChange('');
+    this.props.onChange(null);
     this.focus();
   }
 

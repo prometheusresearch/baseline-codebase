@@ -20,7 +20,7 @@ function getDefaultProps(Component) {
   }
 }
 
-function update(params, data) {
+function update(params, data, _prevData, _key) {
   return data;
 }
 
@@ -154,7 +154,7 @@ export default function Fetch(Component, fetch) {
         let {params, data} = this.state;
         ReactUpdates.batchedUpdates(() => {
           let dataSet = new DataSet(key, result, null, false, false);
-          dataSet = fetch.update({...this.props, ...params}, dataSet, data[key]);
+          dataSet = fetch.update({...this.props, ...params}, dataSet, data[key], key);
           data = {...data, [key]: dataSet};
           this.setState({data});
         });

@@ -137,135 +137,135 @@ let ConfigurableField = React.createClass({
       );
     }
     switch (field.type) {
-    case 'date':
-      return (
-        <DateField
-          key={field.valueKey}
-          label={field.label}
-          hint={field.hint}
-          select={field.valueKey}
-          formValue={formValue}
-          minDate={field.minDate}
-          maxDate={field.maxDate}
-          validate={field.validate}
-          />
-      );
-    case 'bool':
-      return (
-        <CheckboxField
-          key={field.valueKey}
-          label={field.label}
-          hint={field.hint}
-          select={field.valueKey}
-          formValue={formValue}
-          readOnly={readOnly}
-          validate={field.validate}
-          />
-      );
-    case 'file':
-      return (
-        <FileUploadField
-          key={field.valueKey}
-          label={field.label}
-          hint={field.hint}
-          select={field.valueKey}
-          formValue={formValue}
-          storage={field.storage}
-          column={field.column}
-          readOnly={readOnly}
-          validate={field.validate}
-          />
-      );
-    case 'enum':
-      return (
-        <SelectField
-          key={field.valueKey}
-          label={field.label}
-          hint={field.hint}
-          select={field.valueKey}
-          formValue={formValue}
-          options={field.options || field.values}
-          readOnly={readOnly}
-          validate={field.validate}
-          />
-      );
-    case 'integer':
-      return (
-        <IntegerField
-          key={field.valueKey}
-          label={field.label}
-          hint={field.hint}
-          select={field.valueKey}
-          formValue={formValue}
-          validate={field.validate}
-          />
-      );
-    case 'number':
-      return (
-        <NumberField
-          key={field.valueKey}
-          label={field.label}
-          hint={field.hint}
-          select={field.valueKey}
-          formValue={formValue}
-          validate={field.validate}
-          />
-      );
-    case 'calculation':
-      return (
-        <ReadOnlyField
-          key={field.valueKey}
-          label={field.label}
-          hint={field.hint}
-          select={field.valueKey}
-          formValue={formValue}
-          validate={field.validate}
-          />
-      );
-    case 'fieldset':
-      return (
-        <Fieldset
-          key={field.valueKey}
-          label={field.label}
-          hint={field.hint}
-          formValue={formValue}
-          select={field.valueKey}>
-          {field.fields.map(f =>
-            <ConfigurableField
-              key={f.valueKey}
-              field={f}
-              />)}
-        </Fieldset>
-      );
-    case 'list':
-      return (
-        <RepeatingFieldset
-          key={field.valueKey}
-          label={field.label}
-          readOnly={readOnly}
-          hint={field.hint}
-          formValue={formValue}
-          select={field.valueKey}>
-          {field.fields.map(f =>
+      case 'date':
+        return (
+          <DateField
+            key={field.valueKey}
+            label={field.label}
+            hint={field.hint}
+            select={field.valueKey}
+            formValue={formValue}
+            minDate={field.minDate}
+            maxDate={field.maxDate}
+            validate={field.validate}
+            />
+        );
+      case 'bool':
+        return (
+          <CheckboxField
+            key={field.valueKey}
+            label={field.label}
+            hint={field.hint}
+            select={field.valueKey}
+            formValue={formValue}
+            readOnly={readOnly}
+            validate={field.validate}
+            />
+        );
+      case 'file':
+        return (
+          <FileUploadField
+            key={field.valueKey}
+            label={field.label}
+            hint={field.hint}
+            select={field.valueKey}
+            formValue={formValue}
+            storage={field.storage}
+            column={field.column}
+            readOnly={readOnly}
+            validate={field.validate}
+            />
+        );
+      case 'enum':
+        return (
+          <SelectField
+            key={field.valueKey}
+            label={field.label}
+            hint={field.hint}
+            select={field.valueKey}
+            formValue={formValue}
+            options={field.options || field.values}
+            readOnly={readOnly}
+            validate={field.validate}
+            />
+        );
+      case 'integer':
+        return (
+          <IntegerField
+            key={field.valueKey}
+            label={field.label}
+            hint={field.hint}
+            select={field.valueKey}
+            formValue={formValue}
+            validate={field.validate}
+            />
+        );
+      case 'number':
+        return (
+          <NumberField
+            key={field.valueKey}
+            label={field.label}
+            hint={field.hint}
+            select={field.valueKey}
+            formValue={formValue}
+            validate={field.validate}
+            />
+        );
+      case 'calculation':
+        return (
+          <ReadOnlyField
+            key={field.valueKey}
+            label={field.label}
+            hint={field.hint}
+            select={field.valueKey}
+            formValue={formValue}
+            validate={field.validate}
+            />
+        );
+      case 'fieldset':
+        return (
+          <Fieldset
+            key={field.valueKey}
+            label={field.label}
+            hint={field.hint}
+            formValue={formValue}
+            select={field.valueKey}>
+            {field.fields.map(f =>
               <ConfigurableField
                 key={f.valueKey}
                 field={f}
-                select={f.valueKey}
-                readOnly={readOnly}
                 />)}
-        </RepeatingFieldset>
-      );
-    default:
-      return (
-        <Field
-          key={field.valueKey}
-          label={field.label}
-          hint={field.hint}
-          formValue={formValue}
-          select={field.valueKey}
-          validate={field.validate}
-          />
-      );
+          </Fieldset>
+        );
+      case 'list':
+        return (
+          <RepeatingFieldset
+            key={field.valueKey}
+            label={field.label}
+            readOnly={readOnly}
+            hint={field.hint}
+            formValue={formValue}
+            select={field.valueKey}>
+            {field.fields.map(f =>
+                <ConfigurableField
+                  key={f.valueKey}
+                  field={f}
+                  select={f.valueKey}
+                  readOnly={readOnly}
+                  />)}
+          </RepeatingFieldset>
+        );
+      default:
+        return (
+          <Field
+            key={field.valueKey}
+            label={field.label}
+            hint={field.hint}
+            formValue={formValue}
+            select={field.valueKey}
+            validate={field.validate}
+            />
+        );
     }
   },
 

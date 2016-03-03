@@ -12,7 +12,7 @@ describe('Schema', function() {
   describe('fromFields', function() {
 
     it('generates schema from a single field', function() {
-      var fields = [
+      let fields = [
         {
           type: 'string',
           valueKey: 'a'
@@ -38,7 +38,7 @@ describe('Schema', function() {
     });
 
     it('generates schema from a single field (required field)', function() {
-      var fields = [
+      let fields = [
         {
           type: 'string',
           valueKey: 'a',
@@ -65,7 +65,7 @@ describe('Schema', function() {
     });
 
     it('generates schema from a single field (hideIf expression)', function() {
-      var fields = [
+      let fields = [
         {
           type: 'string',
           valueKey: 'a',
@@ -100,7 +100,7 @@ describe('Schema', function() {
     });
 
     it('generates schema from multiple fields', function() {
-      var fields = [
+      let fields = [
         {
           type: 'string',
           valueKey: 'a'
@@ -266,7 +266,7 @@ describe('Schema', function() {
     });
 
     it('generates schema from multiple nested fields (required fields)', function() {
-      var fields = [
+      let fields = [
         {
           type: 'string',
           valueKey: ['a', 'b'],
@@ -314,7 +314,7 @@ describe('Schema', function() {
     });
 
     it('generates schema from multiple nested fields (hideIf)', function() {
-      var fields = [
+      let fields = [
         {
           type: 'string',
           valueKey: ['a', 'b'],
@@ -368,7 +368,7 @@ describe('Schema', function() {
     });
 
     it('generates schema from multiple nested fields (different roots)', function() {
-      var fields = [
+      let fields = [
         {
           type: 'string',
           valueKey: ['a', 'b']
@@ -417,7 +417,7 @@ describe('Schema', function() {
     });
 
     it('generates schema from a fieldset', function() {
-      var fields = [
+      let fields = [
         {
           type: 'fieldset',
           valueKey: ['a'],
@@ -455,7 +455,7 @@ describe('Schema', function() {
     });
 
     it('generates schema from a fieldset (required fieldset)', function() {
-      var fields = [
+      let fields = [
         {
           type: 'fieldset',
           valueKey: ['a'],
@@ -494,7 +494,7 @@ describe('Schema', function() {
     });
 
     it('generates schema from a list fieldset', function() {
-      var fields = [
+      let fields = [
         {
           type: 'list',
           valueKey: ['a'],
@@ -563,7 +563,7 @@ describe('Schema', function() {
     });
 
     it('generates schema from a nested field and a fieldset', function() {
-      var fields = [
+      let fields = [
         {
           type: 'string',
           valueKey: ['a', 'b']
@@ -612,7 +612,7 @@ describe('Schema', function() {
     });
 
     it('generates schema from a nested field and a fieldset (required)', function() {
-      var fields = [
+      let fields = [
         {
           type: 'string',
           valueKey: ['a', 'b'],
@@ -663,7 +663,7 @@ describe('Schema', function() {
     });
 
     it('generates schema from a fieldset and a nested field', function() {
-      var fields = [
+      let fields = [
         {
           type: 'fieldset',
           valueKey: ['a'],
@@ -716,7 +716,7 @@ describe('Schema', function() {
     });
 
     it('generates schema from a fieldset and a nested field (required fields)', function() {
-      var fields = [
+      let fields = [
         {
           type: 'fieldset',
           valueKey: ['a'],
@@ -771,7 +771,7 @@ describe('Schema', function() {
     });
 
     it('generates schema from multiple fieldsets', function() {
-      var fields = [
+      let fields = [
         {
           type: 'fieldset',
           valueKey: ['a'],
@@ -830,7 +830,7 @@ describe('Schema', function() {
     });
 
     it('generates schema from multiple fieldsets (required fields)', function() {
-      var fields = [
+      let fields = [
         {
           type: 'fieldset',
           valueKey: ['a'],

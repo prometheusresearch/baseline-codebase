@@ -73,14 +73,14 @@ function _dateConstraint(value) {
     return undefined;
   }
   switch(value) {
-  case 'today':
-    return moment(); // .startOf('day');
-  case 'tomorrow':
-    return moment().add(1, 'day');
-  case 'yesterday':
-    return moment().subtract(1, 'day');
-  default:
-    return moment(value, Validation.DATE_ISO_FORMAT, true);
+    case 'today':
+      return moment(); // .startOf('day');
+    case 'tomorrow':
+      return moment().add(1, 'day');
+    case 'yesterday':
+      return moment().subtract(1, 'day');
+    default:
+      return moment(value, Validation.DATE_ISO_FORMAT, true);
   }
 }
 
@@ -89,103 +89,103 @@ function _fieldToSchema(field) {
     hideIf: field.hideIf,
   };
   switch (field.type) {
-  case 'fieldset': {
-    let schema = {
-      type: 'object',
-      properties: {},
-      required: [],
-    };
-    schema = _growSchemaWithFields(schema, field.fields);
-    schema.isRequired = !!field.required;
-    return schema;
-  }
-  case 'list': {
-    let schema = {
-      ...defaultAttributes,
-      type: 'array',
-      items: {
+    case 'fieldset': {
+      let schema = {
         type: 'object',
         properties: {},
         required: [],
-      },
-      minItems: field.required ? 1 : 0,
-      uniqueBy: field.uniqueBy,
-      uniqueByError: field.uniqueByError,
-      format: Validation.array,
-    };
-    schema.items = _growSchemaWithFields(schema.items, field.fields);
-    return schema;
-  }
-  case 'date':
-    return {
-      ...defaultAttributes,
-      type: 'string',
-      format: Validation.date,
-      datetimeFormat: field.format,
-      minDate: _dateConstraint(field.minDate),
-      maxDate: _dateConstraint(field.maxDate),
-      isRequired: !!field.required
-    };
-  case 'datetime':
-    return {
-      ...defaultAttributes,
-      type: 'string',
-      format: Validation.datetime,
-      datetimeFormat: field.format,
-      isRequired: !!field.required
-    };
-  case 'bool':
-    return {
-      ...defaultAttributes,
-      type: 'boolean',
-      format: Validation.bool,
-      isRequired: false
-    };
-  case 'file':
-    return {
-      ...defaultAttributes,
-      type: 'string',
-      format: Validation.file,
-      isRequired: !!field.required
-    };
-  case 'enum':
-    return {
-      ...defaultAttributes,
-      type: 'string',
-      format: Validation.enum,
-      isRequired: !!field.required
-    };
-  case 'entity':
-    return {
-      ...defaultAttributes,
-      type: 'string',
-      format: Validation.entity,
-      isRequired: !!field.required
-    };
-  case 'integer':
-    return {
-      ...defaultAttributes,
-      type: 'integer',
-      format: Validation.integer,
-      isRequired: !!field.required
-    };
-  case 'number':
-    return {
-      ...defaultAttributes,
-      type: 'number',
-      format: Validation.number,
-      isRequired: !!field.required
-    };
-  case 'string':
-  default:
-    return {
-      ...defaultAttributes,
-      type: 'string',
-      format: Validation.string,
-      formatPattern: field.pattern,
-      formatError: field.error,
-      isRequired: !!field.required
-    };
+      };
+      schema = _growSchemaWithFields(schema, field.fields);
+      schema.isRequired = !!field.required;
+      return schema;
+    }
+    case 'list': {
+      let schema = {
+        ...defaultAttributes,
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {},
+          required: [],
+        },
+        minItems: field.required ? 1 : 0,
+        uniqueBy: field.uniqueBy,
+        uniqueByError: field.uniqueByError,
+        format: Validation.array,
+      };
+      schema.items = _growSchemaWithFields(schema.items, field.fields);
+      return schema;
+    }
+    case 'date':
+      return {
+        ...defaultAttributes,
+        type: 'string',
+        format: Validation.date,
+        datetimeFormat: field.format,
+        minDate: _dateConstraint(field.minDate),
+        maxDate: _dateConstraint(field.maxDate),
+        isRequired: !!field.required
+      };
+    case 'datetime':
+      return {
+        ...defaultAttributes,
+        type: 'string',
+        format: Validation.datetime,
+        datetimeFormat: field.format,
+        isRequired: !!field.required
+      };
+    case 'bool':
+      return {
+        ...defaultAttributes,
+        type: 'boolean',
+        format: Validation.bool,
+        isRequired: false
+      };
+    case 'file':
+      return {
+        ...defaultAttributes,
+        type: 'string',
+        format: Validation.file,
+        isRequired: !!field.required
+      };
+    case 'enum':
+      return {
+        ...defaultAttributes,
+        type: 'string',
+        format: Validation.enum,
+        isRequired: !!field.required
+      };
+    case 'entity':
+      return {
+        ...defaultAttributes,
+        type: 'string',
+        format: Validation.entity,
+        isRequired: !!field.required
+      };
+    case 'integer':
+      return {
+        ...defaultAttributes,
+        type: 'integer',
+        format: Validation.integer,
+        isRequired: !!field.required
+      };
+    case 'number':
+      return {
+        ...defaultAttributes,
+        type: 'number',
+        format: Validation.number,
+        isRequired: !!field.required
+      };
+    case 'string':
+    default:
+      return {
+        ...defaultAttributes,
+        type: 'string',
+        format: Validation.string,
+        formatPattern: field.pattern,
+        formatError: field.error,
+        isRequired: !!field.required
+      };
   }
 }
 

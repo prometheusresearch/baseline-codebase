@@ -11,7 +11,7 @@ const DEFAULT_OPTIONS = {};
 export default function WithDOMSize(Component, options = DEFAULT_OPTIONS) {
   if (typeof Component !== 'function' && options === DEFAULT_OPTIONS) {
     options = Component;
-    return function WithDOMSize_decorator(Component) {
+    return function WithDOMSize_decorator(Component) { // eslint-disable-line camelcase
       return WithDOMSize(Component, options);
     };
   }

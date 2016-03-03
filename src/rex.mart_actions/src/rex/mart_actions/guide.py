@@ -20,7 +20,7 @@ from .tool import MartTool
 __all__ = (
     'GuideIntroAction',
     'GuideFilterAction',
-    'GuideProjectAction',
+    'GuideChooseColumnsAction',
     'GuideExportAction',
 )
 
@@ -184,13 +184,13 @@ class GuideFilterAction(GuideAction):
         return compiled
 
 
-class GuideProjectAction(GuideAction):
+class GuideChooseColumnsAction(GuideAction):
     """
     Allows a user to select the columns to return in their query.
     """
 
-    name = 'mart-guide-project'
-    js_type = 'rex-mart-actions/lib/guide/ProjectDataset'
+    name = 'mart-guide-columns'
+    js_type = 'rex-mart-actions/lib/guide/ChooseColumns'
 
     fields = Field(
         SeqVal(ColumnVal()), default=[],

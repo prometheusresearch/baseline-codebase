@@ -31,13 +31,13 @@ paths:
             - repeat:
                 - guide-schools-filter-by-campus:
                 - guide-schools-filter-by-name:
-                - guide-schools-project:
+                - guide-schools-columns:
               then:
                 - guide-schools-export:
           - guide-courses-intro:
             - repeat:
                 - guide-courses-filter:
-                - guide-courses-project:
+                - guide-courses-columns:
               then:
                 - guide-courses-export:
           - console:
@@ -144,8 +144,8 @@ paths:
           - title: Code
             expression: code
 
-        guide-schools-project:
-          type: mart-guide-project
+        guide-schools-columns:
+          type: mart-guide-columns
           title: Choose columns
           icon: list
 
@@ -189,8 +189,8 @@ paths:
           definition: schools_with_dict
           table: course
 
-        guide-courses-project:
-          type: mart-guide-project
+        guide-courses-columns:
+          type: mart-guide-columns
           title: Choose columns
           icon: list
 

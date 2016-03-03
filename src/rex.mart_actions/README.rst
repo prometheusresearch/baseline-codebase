@@ -187,7 +187,7 @@ queries on tables in Mart databases.
                    from. This is a list of mappings that have two properties;
                    ``title`` and ``expression``.
 
-``mart-guide-project``
+``mart-guide-columns``
     :Purpose: Allows the user to select which columns should be returned by the
               query.
     :Input: * mart - The ID of the Mart to connect to.

@@ -4,7 +4,7 @@
 
 export ExportDataset from './ExportDataset';
 export FilterDataset from './FilterDataset';
-export ProjectDataset from './ProjectDataset';
+export ChooseColumns from './ChooseColumns';
 
 export QueryAction from './QueryAction';
 

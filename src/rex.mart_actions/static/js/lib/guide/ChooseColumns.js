@@ -16,7 +16,7 @@ import QueryAction from './QueryAction';
 import QueryFieldSelector from './QueryFieldSelector';
 
 @QueryAction
-export default class FilterDataset extends React.Component {
+export default class ChooseColumns extends React.Component {
 
   constructor(props) {
     super(props);

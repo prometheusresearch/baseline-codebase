@@ -320,6 +320,46 @@ A case with all data types::
       'required': False,
       'type': 'text'}]
 
+A case with enumeration fields with hyphens::
+
+    >>> definition = AssessmentDefinitionVal()({
+    ...     'instrument': 'mart13',
+    ...     'selector': "/assessment{uid :as assessment_uid}.filter(instrumentversion.instrument='mart13')",
+    ... })
+    >>> table = PrimaryTable(definition, get_management_db())
+    >>> pprint(table.get_deploy_facts())
+    [{'table': u'mart13'},
+     {'column': 'assessment_uid',
+      'of': u'mart13',
+      'required': True,
+      'title': 'Assessment UID',
+      'type': 'text'},
+     {'identity': ['assessment_uid'], 'of': u'mart13'},
+     {'column': 'instrument_version_uid',
+      'of': u'mart13',
+      'required': True,
+      'title': 'InstrumentVersion UID',
+      'type': 'text'},
+     {'column': u'enum_with_hyphens',
+      'of': u'mart13',
+      'required': False,
+      'type': ['baz-baz', 'foo', 'bar']},
+     {'column': u'enumset_with_hyphens_baz_baz',
+      'default': False,
+      'of': u'mart13',
+      'required': False,
+      'type': 'boolean'},
+     {'column': u'enumset_with_hyphens_foo',
+      'default': False,
+      'of': u'mart13',
+      'required': False,
+      'type': 'boolean'},
+     {'column': u'enumset_with_hyphens_bar',
+      'default': False,
+      'of': u'mart13',
+      'required': False,
+      'type': 'boolean'}]
+
 A case with multiple Instruments being merged::
 
     >>> definition = AssessmentDefinitionVal()({

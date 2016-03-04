@@ -392,12 +392,12 @@ EnumerationField
 
 ::
 
-    >>> field = EnumerationField('test', enumerations=['foo','bar','baz'])
+    >>> field = EnumerationField('test', enumerations=['foo','bar','baz-baz'])
     >>> pprint(field.get_deploy_facts('some_table'))
     [{'column': u'test',
       'of': 'some_table',
       'required': False,
-      'type': ['foo', 'bar', 'baz']}]
+      'type': ['foo', 'bar', 'baz-baz']}]
 
     >>> field.get_value_mapping(None)
     {u'test': None}
@@ -408,39 +408,39 @@ EnumerationField
     >>> field.get_value_mapping('blah')
     Traceback (most recent call last):
         ...
-    Error: Cannot cast value to type "enumeration(foo,bar,baz): 'blah'
+    Error: Cannot cast value to type "enumeration(foo,bar,baz-baz): 'blah'
     >>> field.get_value_mapping(1)
     Traceback (most recent call last):
         ...
-    Error: Cannot cast value to type "enumeration(foo,bar,baz): 1
+    Error: Cannot cast value to type "enumeration(foo,bar,baz-baz): 1
     >>> field.get_value_mapping(1.23)
     Traceback (most recent call last):
         ...
-    Error: Cannot cast value to type "enumeration(foo,bar,baz): 1.23
+    Error: Cannot cast value to type "enumeration(foo,bar,baz-baz): 1.23
     >>> field.get_value_mapping(Decimal('1.23'))
     Traceback (most recent call last):
         ...
-    Error: Cannot cast value to type "enumeration(foo,bar,baz): Decimal('1.23')
+    Error: Cannot cast value to type "enumeration(foo,bar,baz-baz): Decimal('1.23')
     >>> field.get_value_mapping(True)
     Traceback (most recent call last):
         ...
-    Error: Cannot cast value to type "enumeration(foo,bar,baz): True
+    Error: Cannot cast value to type "enumeration(foo,bar,baz-baz): True
     >>> field.get_value_mapping(False)
     Traceback (most recent call last):
         ...
-    Error: Cannot cast value to type "enumeration(foo,bar,baz): False
+    Error: Cannot cast value to type "enumeration(foo,bar,baz-baz): False
     >>> field.get_value_mapping(DATE)
     Traceback (most recent call last):
         ...
-    Error: Cannot cast value to type "enumeration(foo,bar,baz): datetime.date(2015, 5, 22)
+    Error: Cannot cast value to type "enumeration(foo,bar,baz-baz): datetime.date(2015, 5, 22)
     >>> field.get_value_mapping(TIME)
     Traceback (most recent call last):
         ...
-    Error: Cannot cast value to type "enumeration(foo,bar,baz): datetime.time(12, 34, 56)
+    Error: Cannot cast value to type "enumeration(foo,bar,baz-baz): datetime.time(12, 34, 56)
     >>> field.get_value_mapping(DATETIME)
     Traceback (most recent call last):
         ...
-    Error: Cannot cast value to type "enumeration(foo,bar,baz): datetime.datetime(2015, 5, 22, 12, 34, 56)
+    Error: Cannot cast value to type "enumeration(foo,bar,baz-baz): datetime.datetime(2015, 5, 22, 12, 34, 56)
 
     >>> ENUM_MERGE_VECTORS = (
     ...     ({'base': 'enumeration', 'enumerations': {'foo':{},'bar':{}}}, 'bar', 'bar'),
@@ -453,7 +453,7 @@ EnumerationSetField
 
 ::
 
-    >>> field = EnumerationSetField('test', enumerations=['foo','bar','baz'])
+    >>> field = EnumerationSetField('test', enumerations=['foo','bar','baz-baz'])
     >>> pprint(field.get_deploy_facts('some_table'))
     [{'column': u'test_foo',
       'default': False,
@@ -465,7 +465,7 @@ EnumerationSetField
       'of': 'some_table',
       'required': False,
       'type': 'boolean'},
-     {'column': u'test_baz',
+     {'column': u'test_baz_baz',
       'default': False,
       'of': 'some_table',
       'required': False,
@@ -480,43 +480,43 @@ EnumerationSetField
     >>> field.get_value_mapping('blah')
     Traceback (most recent call last):
         ...
-    Error: Cannot cast value to type "enumerationSet(foo,bar,baz): 'blah'
+    Error: Cannot cast value to type "enumerationSet(foo,bar,baz-baz): 'blah'
     >>> field.get_value_mapping(1)
     Traceback (most recent call last):
         ...
-    Error: Cannot cast value to type "enumerationSet(foo,bar,baz): 1
+    Error: Cannot cast value to type "enumerationSet(foo,bar,baz-baz): 1
     >>> field.get_value_mapping(1.23)
     Traceback (most recent call last):
         ...
-    Error: Cannot cast value to type "enumerationSet(foo,bar,baz): 1.23
+    Error: Cannot cast value to type "enumerationSet(foo,bar,baz-baz): 1.23
     >>> field.get_value_mapping(Decimal('1.23'))
     Traceback (most recent call last):
         ...
-    Error: Cannot cast value to type "enumerationSet(foo,bar,baz): Decimal('1.23')
+    Error: Cannot cast value to type "enumerationSet(foo,bar,baz-baz): Decimal('1.23')
     >>> field.get_value_mapping(True)
     Traceback (most recent call last):
         ...
-    Error: Cannot cast value to type "enumerationSet(foo,bar,baz): True
+    Error: Cannot cast value to type "enumerationSet(foo,bar,baz-baz): True
     >>> field.get_value_mapping(False)
     Traceback (most recent call last):
         ...
-    Error: Cannot cast value to type "enumerationSet(foo,bar,baz): False
+    Error: Cannot cast value to type "enumerationSet(foo,bar,baz-baz): False
     >>> field.get_value_mapping(DATE)
     Traceback (most recent call last):
         ...
-    Error: Cannot cast value to type "enumerationSet(foo,bar,baz): datetime.date(2015, 5, 22)
+    Error: Cannot cast value to type "enumerationSet(foo,bar,baz-baz): datetime.date(2015, 5, 22)
     >>> field.get_value_mapping(TIME)
     Traceback (most recent call last):
         ...
-    Error: Cannot cast value to type "enumerationSet(foo,bar,baz): datetime.time(12, 34, 56)
+    Error: Cannot cast value to type "enumerationSet(foo,bar,baz-baz): datetime.time(12, 34, 56)
     >>> field.get_value_mapping(DATETIME)
     Traceback (most recent call last):
         ...
-    Error: Cannot cast value to type "enumerationSet(foo,bar,baz): datetime.datetime(2015, 5, 22, 12, 34, 56)
+    Error: Cannot cast value to type "enumerationSet(foo,bar,baz-baz): datetime.datetime(2015, 5, 22, 12, 34, 56)
     >>> field.get_value_mapping(['foo'])
     {u'test_foo': True}
-    >>> field.get_value_mapping(['foo', 'baz'])
-    {u'test_foo': True, u'test_baz': True}
+    >>> field.get_value_mapping(['foo', 'baz-baz'])
+    {u'test_baz_baz': True, u'test_foo': True}
     >>> field.get_value_mapping(('foo', 'bar'))
     {u'test_foo': True, u'test_bar': True}
 

@@ -12,6 +12,8 @@ REX.MART Change Log
   get_mart_db() and get_mart_etl_db() functions.
 - Added HTSQL connection caching to the web endpoint, as well as an associated
   ``mart_htsql_cache_depth`` setting.
+- Fixed an issue that prevented the creation of Marts that included Instruments
+  with enumerationSet fields that had enumerations with hyphens.
 
 
 0.1.0 (2016-01-29)

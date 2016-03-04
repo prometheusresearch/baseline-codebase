@@ -318,3 +318,14 @@ definitions:
               columns: (upper(col1))
               partial: col2 = 'foo'
 
+  - id: enum_hyphens
+    description: Load Assessments that have enumeration/enumerationSet fields with hyphen'ed values
+    assessments:
+      - instrument: mart13
+        selector: |
+          /assessment{
+            id() :as assessment_uid
+          }.filter(
+            instrumentversion.instrument=$INSTRUMENT
+          )/:rexdb
+

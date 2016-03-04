@@ -66,12 +66,12 @@ Copy an existing DB::
     >>> db_exists(mart.name)
     True
     >>> db_inventory(mart.name)
-    assessment: 23
+    assessment: 24
     channel: 5
     draftinstrumentversion: 2
     entry: 10
-    instrument: 20
-    instrumentversion: 22
+    instrument: 21
+    instrumentversion: 23
     people: 5
     subject: 7
     task: 7
@@ -224,13 +224,13 @@ Load data into an existing database::
     >>> db_exists(mart.name)
     True
     >>> db_inventory(mart.name)
-    assessment: 23
+    assessment: 24
     channel: 5
     draftinstrumentversion: 2
     entry: 10
     foo: 5
-    instrument: 20
-    instrumentversion: 22
+    instrument: 21
+    instrumentversion: 23
     people: 5
     subject: 7
     task: 7
@@ -456,6 +456,22 @@ done::
     >>> db_status(mart.name)
     Definition: some_data
     Status: processing
+    Owner: test
+    Has Size: True
+    Dates: True True
+
+You can load Instruments/Assessments that have enumeration fields with hyphens
+in their name::
+
+    >>> mc = MartCreator('test', 'enum_hyphens')
+    >>> mart = mc()
+    >>> db_exists(mart.name)
+    True
+    >>> db_inventory(mart.name)
+    mart13: 1
+    >>> db_status(mart.name)
+    Definition: enum_hyphens
+    Status: complete
     Owner: test
     Has Size: True
     Dates: True True

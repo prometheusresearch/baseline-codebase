@@ -51,8 +51,14 @@ let stylesheet = Stylesheet.create({
 });
 
 
-@Fetch(function ({data, context}) {
-  data = data.params({mart: context.mart});
+@Fetch(function ({data, entity, context}) {
+  let martId;
+  if (entity) {
+    martId = context[entity.name].id;
+  } else {
+    martId = context.mart;
+  }
+  data = data.params({mart: martId});
   return {data};
 })
 export default class MartView extends React.Component {
@@ -147,9 +153,19 @@ export default class MartView extends React.Component {
     );
   }
 
+  getMartId() {
+    let id;
+    if (this.props.entity) {
+      id = this.props.context[this.props.entity.name].id;
+    } else {
+      id = this.props.context.mart;
+    }
+    return id;
+  }
+
   onSetPinned(pinned) {
-    let url = 'rex.mart:/mart/' + this.props.context.mart + '/_api';
-    let message = 'Mart #' + this.props.context.mart + ' has been ';
+    let url = 'rex.mart:/mart/' + this.getMartId() + '/_api';
+    let message = 'Mart #' + this.getMartId() + ' has been ';
     message += pinned ? 'pinned.' : 'unpinned.';
 
     put(url, null, {pinned}, {jsonifyData: true}).then(
@@ -182,7 +198,7 @@ export default class MartView extends React.Component {
 
   @autobind
   onDelete() {
-    let url = 'rex.mart:/mart/' + this.props.context.mart + '/_api';
+    let url = 'rex.mart:/mart/' + this.getMartId() + '/_api';
     del(url).then(
       () => {
         this.props.onContext({mart: null});
@@ -207,11 +223,17 @@ export default class MartView extends React.Component {
     }
   }
 
-  static renderTitle({title}, {mart}) {
+  static renderTitle({title, entity}, context) {
+    let martId;
+    if (entity) {
+      martId = context[entity.name].id;
+    } else {
+      martId = context.mart;
+    }
     return (
       <Title
         title={title}
-        subtitle={'#' + mart}
+        subtitle={'#' + martId}
         />
     );
   }

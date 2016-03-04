@@ -109,7 +109,13 @@ class MartViewAction(MartAction):
     fields = Field(
         FormFieldsetVal(),
         default=None,
-        doc='The fields of the Mart object to display'
+        doc='The fields of the Mart object to display',
+    )
+
+    entity = Field(
+        typing.RowTypeVal(),
+        default=None,
+        doc='The entity containing the ID of the Mart to display',
     )
 
     def __init__(self, **values):
@@ -135,7 +141,13 @@ class MartViewAction(MartAction):
             """)
 
     def context(self):
-        return {'mart': typing.number}, {}
+        if self.entity:
+            return (
+                self.domain.record(self.entity),
+                self.domain.record(),
+            )
+        else:
+            return {'mart': typing.number}, {}
 
     @responder(url_type=RequestURL)
     def data(self, request):  # pylint: disable=no-self-use

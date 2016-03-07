@@ -1,7 +1,8 @@
 /school{
         code,
         name,
-        campus
+        campus,
+        degree
     }
     /:rexdb
     /:insert

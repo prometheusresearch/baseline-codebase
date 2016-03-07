@@ -20,6 +20,10 @@ let style = stylesheet.create({
       background: '#EEE'
     }
   },
+  Check: {
+    marginRight: '5px',
+    lineHeight: '90%'
+  },
   Label: {
     Component: VBox,
     flex: 1,
@@ -33,10 +37,10 @@ export default class CheckboxButton extends React.Component {
     let {value, label} = this.props;
     return (
       <style.Root  onClick={this.onClick}>
-        <style.Label>{label}</style.Label>
-        <VBox>
+        <style.Check>
           <input type="checkbox" checked={value} onChange={emptyFunction} />
-        </VBox>
+        </style.Check>
+        <style.Label>{label}</style.Label>
       </style.Root>
     );
   }

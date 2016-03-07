@@ -9,6 +9,12 @@
   - column: campus
     type: text
     required: false
+  - column: degree
+    type:
+      - undergraduate
+      - graduate
+      - both
+    required: false
 
 - table: department
   with:

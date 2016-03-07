@@ -125,10 +125,14 @@ paths:
           table: school
 
           filters:
+          - title: Name
+            expression: name
           - title: South Campus
             expression: campus='south'
           - title: Old Campus
             expression: campus='old'
+          - title: Degree
+            expression: degree
 
         guide-schools-filter-by-name:
           type: mart-guide-filter
@@ -157,6 +161,10 @@ paths:
 
           definition: schools
           table: school
+
+          fields:
+            - title: Capital Name
+              expression: upper(name)
 
 
         #

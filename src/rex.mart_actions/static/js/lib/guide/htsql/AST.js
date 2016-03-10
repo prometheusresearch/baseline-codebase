@@ -7,11 +7,6 @@ function unparse(obj) {
 }
 
 export class Node {
-
-  get type() {
-    return this.constructor.name;
-  }
-
   unparse() {
     throw new Error('not implemented');
   }
@@ -26,9 +21,9 @@ export class Node {
 }
 
 export class Aggregation extends Node {
-
   constructor(name, args, refine) {
     super();
+    this.type = 'Aggregation';
     this.name = name;
     this.args = args;
     this.refine = refine;
@@ -40,9 +35,9 @@ export class Aggregation extends Node {
 }
 
 export class Collection extends Node {
-
   constructor(name, refine) {
     super();
+    this.type = 'Collection';
     this.name = name;
     this.refine = refine;
   }
@@ -73,22 +68,22 @@ export class Collection extends Node {
 }
 
 export class MethodCall extends Node {
-
   constructor(name, args) {
     super();
+    this.type = 'MethodCall';
     this.name = name;
     this.args = args;
   }
-  
+
   unparse() {
     return `.${unparse(this.name)}(${this.args})`;
   }
 }
 
 export class Projection extends Node {
-
   constructor(fields) {
     super();
+    this.type = 'Projection';
     this.fields = fields;
   }
 
@@ -99,9 +94,9 @@ export class Projection extends Node {
 }
 
 export class Record extends Node {
-
   constructor(name, projection) {
     super();
+    this.type = 'Record';
     this.name = name;
     this.projection = projection;
   }
@@ -112,9 +107,9 @@ export class Record extends Node {
 }
 
 export class Field extends Node {
-
   constructor(field) {
     super();
+    this.type = 'Field';
     this.field = field;
   }
 
@@ -124,9 +119,9 @@ export class Field extends Node {
 }
 
 export class Alias extends Node {
-
   constructor(field, alias) {
     super();
+    this.type = 'Alias';
     this.field = field;
     this.alias = alias;
   }
@@ -137,9 +132,9 @@ export class Alias extends Node {
 }
 
 export class Format extends Node {
-
   constructor(collection, format) {
     super();
+    this.type = 'Format';
     this.collection = collection;
     this.format = format;
   }
@@ -148,3 +143,4 @@ export class Format extends Node {
     return `${unparse(this.collection)}/:${this.format}`;
   }
 }
+

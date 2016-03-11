@@ -73,7 +73,7 @@ function removeFieldFromProjection(projection, field) {
 
 function addFieldToProjection(projection, field, alias) {
   let node = new AST.Field(field);
-  if (alias) {
+  if (alias && (field !== alias)) {
     node = new AST.Alias(node, alias);
   }
   let fields = projection.fields.concat(node);

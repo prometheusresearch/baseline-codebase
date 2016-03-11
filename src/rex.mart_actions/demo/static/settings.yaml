@@ -20,3 +20,5 @@ menu:
       - url: rex.mart_actions_demo:/tiered-marts
         access: authenticated
 
+db: pgsql:mart_actions_demo
+

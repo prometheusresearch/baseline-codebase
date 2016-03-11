@@ -36,6 +36,7 @@ pylint:
 pyflakes:
   disable:
     - F403
+    - F401
 
 frosted:
   disable:

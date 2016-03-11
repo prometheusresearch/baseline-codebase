@@ -7,16 +7,12 @@ from copy import deepcopy
 
 from rex.core import Extension, Error, guard
 
+from ..util import REQUIRED
+
 
 __all__ = (
     'Processor',
 )
-
-
-class RequiredType(object):
-    pass
-
-REQUIRED = RequiredType()
 
 
 class Processor(Extension):

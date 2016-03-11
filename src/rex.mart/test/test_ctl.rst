@@ -55,7 +55,8 @@ command line::
       -r/--runlist=RUNLIST     : The Mart RunList that details the batch creation of multiple Mart databases. If this option is specified, the --owner and --definition options cannot be used. To reference a runlist file that is embedded in a RexDB package, use the notation "some.package:/path/to/runlist.yaml"
       --halt-on-failure        : Indicates whether or not the failure to create a single Mart will cause the task to immediately stop. If not specified, the task will attempt to create all specified Marts, regardless of failures.
       --keep-on-failure        : Indicates whether or not the databases of failed Mart creations should be kept. If not specified, failed Marts will automatically have their databases deleted.
-      --leave-incomplete       : Indiciates whether or not to leave the status of Marts open. If not specified, Marts will automatically be marked as "complete", meaning they can be accessed by front-end users.
+      --leave-incomplete       : Indicates whether or not to leave the status of Marts open. If not specified, Marts will automatically be marked as "complete", meaning they can be accessed by front-end users.
+      -p/--param=PARAM=VALUE   : Sets a Mart creation parameter value.
     <BLANKLINE>
 
     >>> no_timestamp_ctl('mart-create --owner=foo --definition=some_data')  # doctest: +ELLIPSIS
@@ -118,6 +119,36 @@ command line::
     Mart creation duration: ...
     Mart database size: ...
 
+    >>> no_timestamp_ctl('mart-create --owner=foo --definition=some_parameters --param=bar=42 --param=foo=hello')  # doctest: +ELLIPSIS
+    Starting Mart creation for owner=foo, definition=some_parameters
+    Mart creation began: ...
+    Parameters: foo='hello', bar=42
+    Creating database: mart_some_parameters_...
+    Deploying structures...
+    Executing Post-Deployment ETL...
+    HTSQL script #1...
+    SQL script #2...
+    ...ETL complete
+    Processing Assessment #1
+    ...deploying structures
+    ...loading Assessments
+    ...8 Assessments loaded
+    ...performing calculations
+    ...complete
+    Executing Post-Assessment ETL...
+    HTSQL script #1...
+    SQL script #2...
+    ...ETL complete
+    Mart creation complete: ...
+    Mart creation duration: ...
+    Mart database size: ...
+
+    >>> no_timestamp_ctl('mart-create --owner=foo --definition=some_parameters')  # doctest: +ELLIPSIS
+    Starting Mart creation for owner=foo, definition=some_parameters
+    Mart creation for Record(owner='foo', definition='some_parameters', halt_on_failure=False, purge_on_failure=True, leave_incomplete=False, parameters={}) failed:
+    Traceback (most recent call last):
+    Error: Missing required parameter "bar"
+
     >>> no_timestamp_ctl('mart-create --runlist=./test/runlist1.yaml')  # doctest: +ELLIPSIS
     Starting Mart creation for owner=foo, definition=empty
     Mart creation began: ...
@@ -135,7 +166,7 @@ command line::
     Deploying structures...
     Executing Post-Deployment ETL...
     SQL script #1...
-    Mart creation for Record(owner='foo', definition='broken_sql', halt_on_failure=False, purge_on_failure=True, leave_incomplete=False) failed:
+    Mart creation for Record(owner='foo', definition='broken_sql', halt_on_failure=False, purge_on_failure=True, leave_incomplete=False, parameters={}) failed:
     Traceback (most recent call last):
     Error: Got an error from the database driver:
         relation "blah" does not exist
@@ -176,7 +207,7 @@ command line::
     Deploying structures...
     Executing Post-Deployment ETL...
     SQL script #1...
-    Mart creation for Record(owner='foo', definition='broken_sql', halt_on_failure=True, purge_on_failure=True, leave_incomplete=False) failed:
+    Mart creation for Record(owner='foo', definition='broken_sql', halt_on_failure=True, purge_on_failure=True, leave_incomplete=False, parameters={}) failed:
     Traceback (most recent call last):
     Error: Got an error from the database driver:
         relation "blah" does not exist
@@ -345,9 +376,10 @@ The ``mart-purge`` will delete the specified Mart(s) from the system::
     <BLANKLINE>
 
     >>> ctl('mart-purge --owner=foo', input='N')  # doctest: +ELLIPSIS
-    You are about to purge 5 Marts from the system:
+    You are about to purge 6 Marts from the system:
       #...: mart_some_data_... (owner=foo, definition=some_data)
       #...: mart_some_data_... (owner=foo, definition=some_data)
+      #...: mart_some_parameters_... (owner=foo, definition=some_parameters)
       #...: mart_empty_... (owner=foo, definition=empty)
       #...: mart_empty_... (owner=foo, definition=empty)
       #...: mart_empty_... (owner=foo, definition=empty)

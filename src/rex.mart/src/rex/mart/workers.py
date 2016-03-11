@@ -31,5 +31,6 @@ else:
                 purge_on_failure=payload.purge_on_failure,
                 leave_incomplete=payload.leave_incomplete,
                 logger=self.logger.info,
+                parameters=payload.parameters,
             )
 

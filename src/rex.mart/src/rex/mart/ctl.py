@@ -14,6 +14,7 @@ from htsql.ctl.error import ScriptError
 from rex.db.ctl import RexShellRoutine
 from rex.core import Error, get_packages
 from rex.ctl import RexTask, argument, option, log
+from rex.ctl.common import pair
 
 from .config import get_all_definitions
 from .connections import get_mart_db, get_management_db
@@ -96,9 +97,18 @@ class MartCreateTask(RexTask):
         leave_incomplete = option(
             None,
             bool,
-            hint='Indiciates whether or not to leave the status of Marts open.'
+            hint='Indicates whether or not to leave the status of Marts open.'
             ' If not specified, Marts will automatically be marked as'
             ' "complete", meaning they can be accessed by front-end users.',
+        )
+
+        param = option(
+            'p',
+            pair,
+            default=[],
+            plural=True,
+            value_name='PARAM=VALUE',
+            hint='Sets a Mart creation parameter value.',
         )
 
     def __call__(self):
@@ -155,16 +165,23 @@ class MartCreateTask(RexTask):
                     'You must specify at least one owner and definition'
                 )
 
+            params = {
+                key: value
+                for key, value in self.param
+            }
             entries = []
             for owner in self.owner:
                 for definition in self.definition:
-                    entries.append({
+                    entry = {
                         'owner': owner,
                         'definition': definition,
                         'halt_on_failure': self.halt_on_failure,
                         'purge_on_failure': not self.keep_on_failure,
                         'leave_incomplete': self.leave_incomplete,
-                    })
+                    }
+                    if params:
+                        entry['parameters'] = params
+                    entries.append(entry)
 
             runlist = validator(entries)  # pylint: disable=not-callable
 
@@ -203,6 +220,7 @@ class MartCreateTask(RexTask):
             purge_on_failure=entry.purge_on_failure,
             leave_incomplete=entry.leave_incomplete,
             logger=self.execution_log,
+            parameters=entry.parameters,
         )
 
     def _execution_output(self, msg, writer):

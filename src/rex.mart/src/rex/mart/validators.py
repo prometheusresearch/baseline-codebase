@@ -6,10 +6,12 @@
 from collections import Counter
 
 from rex.core import Error, StrVal, RecordVal, MaybeVal, ChoiceVal, SeqVal, \
-    MapVal, guard, OneOrSeqVal, OneOfVal, BoolVal, get_settings, IntVal
+    MapVal, guard, OneOrSeqVal, OneOfVal, BoolVal, get_settings, IntVal, \
+    AnyVal, FloatVal
 from rex.deploy import Driver
+from rex.restful import DateVal, TimeVal, DateTimeVal
 
-from .util import make_safe_token, RESTR_SAFE_TOKEN, record_to_dict
+from .util import make_safe_token, RESTR_SAFE_TOKEN, record_to_dict, REQUIRED
 
 
 __all__ = (
@@ -18,6 +20,7 @@ __all__ = (
     'MartBaseTypeVal',
     'MartBaseVal',
     'QuotaVal',
+    'ParameterVal',
     'EtlScriptTypeVal',
     'EtlScriptVal',
     'IdentifiableTypeVal',
@@ -179,6 +182,38 @@ class QuotaVal(FullyValidatingRecordVal):
         return value
 
 
+class ParameterVal(FullyValidatingRecordVal):
+    """
+    Parses/Validates a parameter entry in a Mart definition.
+    """
+
+    def __init__(self):
+        super(ParameterVal, self).__init__(
+            # The name of the parameter.
+            ('name', StrVal(r'[a-zA-Z][a-zA-Z0-9_]*')),
+
+            # The datatype of the value received by the parameter.
+            ('type', DataTypeVal),
+
+            # The default value of the parameter, if not specified.
+            ('default', MaybeVal(AnyVal), REQUIRED),
+        )
+
+    def __call__(self, data):
+        value = super(ParameterVal, self).__call__(data)
+
+        if value.default != REQUIRED:
+            with guard('While validating field:', 'default'):
+                if value.default is not None:
+                    value = value.__clone__(
+                        default=DataTypeVal.get_validator(value.type)(
+                            value.default,
+                        ),
+                    )
+
+        return value
+
+
 class EtlScriptTypeVal(ChoiceVal):
     """
     Parses/Validates the allowable values for script ``type`` properties.
@@ -306,6 +341,16 @@ class DataTypeVal(ChoiceVal):
     Parses/Validates the allowable values for fields that indicate data types.
     """
 
+    VALIDATORS = {
+        'text': StrVal,
+        'integer': IntVal,
+        'float': FloatVal,
+        'boolean': BoolVal,
+        'date': DateVal,
+        'time': TimeVal,
+        'dateTime': DateTimeVal,
+    }
+
     def __init__(self):
         super(DataTypeVal, self).__init__(
             'text',
@@ -316,6 +361,10 @@ class DataTypeVal(ChoiceVal):
             'time',
             'dateTime',
         )
+
+    @classmethod
+    def get_validator(cls, data_type):
+        return cls.VALIDATORS[data_type]()
 
 
 METADATA_TYPES = {
@@ -582,6 +631,10 @@ class DefinitionVal(FullyValidatingRecordVal):
             # The rex.deploy configuration to apply to the Mart.
             ('deploy', MaybeVal(SeqVal(MapVal)), None),
 
+            # General parameters that can be passed into the creation process
+            # so they're available to all HTSQL/SQL configuration properties.
+            ('parameters', SeqVal(ParameterVal), []),
+
             # The ETL scripts to execute after the rex.deploy configuration is
             # applied.
             ('post_deploy_scripts', SeqVal(EtlScriptVal), []),
@@ -640,6 +693,18 @@ class DefinitionVal(FullyValidatingRecordVal):
             if dupe_names:
                 raise Error(
                     'Assessment Names (%s) cannot be duplicated within a'
+                    ' Definition' % (
+                        ', '.join(list(dupe_names)),
+                    )
+                )
+
+        # Make sure we're not defining duplicate parameters.
+        with guard('While validating field:', 'parameters'):
+            names = [param.name for param in value.parameters]
+            dupe_names = set([name for name in names if names.count(name) > 1])
+            if dupe_names:
+                raise Error(
+                    'Parameter Names (%s) cannot be duplicated within a'
                     ' Definition' % (
                         ', '.join(list(dupe_names)),
                     )
@@ -720,6 +785,9 @@ class RunListEntryVal(FullyValidatingRecordVal):
             # Indicates whether or not to leave the status of this Mart should
             # be set to complete when creation is complete
             ('leave_incomplete', BoolVal(), False),
+
+            # The parameters to pass in during the creation of the Mart
+            ('parameters', MapVal(), {}),
         )
 
 

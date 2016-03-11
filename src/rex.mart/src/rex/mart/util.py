@@ -17,6 +17,7 @@ __all__ = (
     'RESTR_SAFE_TOKEN',
     'make_safe_token',
     'record_to_dict',
+    'REQUIRED',
 )
 
 
@@ -148,4 +149,12 @@ def record_to_dict(rec):
                     result[field][i] = record_to_dict(result[field][i])
 
     return result
+
+
+class RequiredType(object):
+    def __repr__(self):
+        return 'REQUIRED'
+
+#: A flag value that indicates a parameter/property is required.
+REQUIRED = RequiredType()
 

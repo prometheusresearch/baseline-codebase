@@ -6,6 +6,7 @@
 import gc
 import sys
 
+from copy import deepcopy
 from datetime import datetime
 
 from rex.core import Error, get_settings
@@ -19,7 +20,8 @@ from .mart import Mart
 from .processors import Processor
 from .purging import purge_mart
 from .quota import MartQuota
-from .util import extract_htsql_statements, guarded
+from .util import extract_htsql_statements, guarded, REQUIRED
+from .validators import DataTypeVal
 
 
 __all__ = (
@@ -83,6 +85,7 @@ class MartCreator(object):
         self.database = None
         self.logger = None
         self.assessment_mappings = []
+        self.parameters = {}
 
         if not self.owner:
             raise Error('No owner specified')
@@ -95,7 +98,8 @@ class MartCreator(object):
             self,
             purge_on_failure=True,
             leave_incomplete=False,
-            logger=None):
+            logger=None,
+            parameters=None):
         """
         Executes the creation of a Mart database.
 
@@ -113,10 +117,15 @@ class MartCreator(object):
             the function to call to output a message about the progress of the
             creation
         :type logger: function
+        :param parameters:
+            the values to the parameters defined in the Mart Definition
+        :type parameters: dict
         :returns:
             a dict with the ``name`` of the newly-created Mart, as well as the
             ``code`` of the associated inventory record
         """
+
+        self.parameters = self.validate_parameters(parameters)
 
         if not MartQuota.top().can_create_mart(self.owner, self.definition):
             raise Error(
@@ -132,6 +141,15 @@ class MartCreator(object):
                 self.start_date = datetime.now()
                 self.logger = logger
                 self.log('Mart creation began: %s' % (self.start_date,))
+                if self.parameters:
+                    self.log(
+                        'Parameters: %s' % (
+                            ', '.join([
+                                '%s=%r' % (key, value)
+                                for key, value in self.parameters.items()
+                            ]),
+                        )
+                    )
                 self.code = self.create_inventory()
                 self.name = self.establish_name()
 
@@ -199,12 +217,49 @@ class MartCreator(object):
                 raise exc_info[0], exc_info[1], exc_info[2]
 
             finally:
-                self.close_mart()
+                self.start_date = None
                 self.code = None
                 self.name = None
-                self.start_date = None
+                self.close_mart()
                 self.logger = None
                 self.assessment_mappings = []
+                self.parameters = {}
+
+    def validate_parameters(self, parameters):
+        """
+        Validates a set of parameters against those expected in this
+        MartCreator's definition, and returns the validated/normalized values.
+
+        :param parameters: the parameters to validate
+        :type parameters: dict
+        :rtype: dict
+        """
+
+        parameters = deepcopy(parameters or {})
+        validated = {}
+
+        for param in self.definition['parameters']:
+            if param['name'] in parameters:
+                with guarded('While validating parameter:', param['name']):
+                    validator = DataTypeVal.get_validator(param['type'])
+                    validated[param['name']] = validator(
+                        parameters.pop(param['name']),
+                    )
+
+            elif param['default'] is not REQUIRED:
+                validated[param['name']] = param['default']
+
+            else:
+                raise Error('Missing required parameter "%s"' % (
+                    param['name'],
+                ))
+
+        if parameters.keys():
+            raise Error('Unknown parameters: %s' % (
+                ', '.join(parameters.keys()),
+            ))
+
+        return validated
 
     def log(self, msg):
         if not self.logger:
@@ -375,6 +430,8 @@ class MartCreator(object):
 
         if params:
             query_params.update(params)
+
+        query_params.update(self.parameters)
 
         query_params['OWNER'] = self.owner
         query_params['DEFINITION'] = self.definition['id']

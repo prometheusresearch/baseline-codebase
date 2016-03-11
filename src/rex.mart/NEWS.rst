@@ -14,6 +14,9 @@ REX.MART Change Log
   ``mart_htsql_cache_depth`` setting.
 - Fixed an issue that prevented the creation of Marts that included Instruments
   with enumerationSet fields that had enumerations with hyphens.
+- Added the ability to define Mart Definition Parameters that can/must be
+  supplied during the creation of Mart and are made available to all the
+  queries within a Definition.
 
 
 0.1.0 (2016-01-29)

@@ -329,3 +329,45 @@ definitions:
             instrumentversion.instrument=$INSTRUMENT
           )/:rexdb
 
+  - id: some_parameters
+    description: Shows everywhere that the parameters can be used
+    parameters:
+      - name: foo
+        type: text
+        default: somefoo
+      - name: bar
+        type: integer
+    deploy: !include simple_deploy.yaml
+    post_deploy_scripts:
+      - script: !include/str params2_etl.htsql
+        type: htsql
+        parameters:
+          prefix: h1
+      - script: !include/str params2_etl.sql
+        type: sql
+        parameters:
+          prefix: s1
+    assessments:
+      - instrument: mart1
+        selector: |
+          /assessment{
+            id() :as assessment_uid,
+            $foo :as param_foo,
+            $bar :as param_bar
+          }.filter(
+            instrumentversion.instrument=$INSTRUMENT
+          )/:rexdb
+        post_load_calculations:
+          - name: postcalc1
+            type: text
+            expression: upper(assessment_uid) + '-' + $foo
+    post_assessment_scripts:
+      - script: !include/str params2_etl.htsql
+        type: htsql
+        parameters:
+          prefix: h2
+      - script: !include/str params2_etl.sql
+        type: sql
+        parameters:
+          prefix: s2
+

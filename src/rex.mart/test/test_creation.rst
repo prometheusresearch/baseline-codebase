@@ -476,6 +476,61 @@ in their name::
     Has Size: True
     Dates: True True
 
+Definitions can accept parameters that are passed to HTSQL/SQL statements::
+
+    >>> mc = MartCreator('test', 'some_parameters')
+    >>> mart = mc(parameters={'foo': 'blah', 'bar': 123})
+    >>> db_exists(mart.name)
+    True
+    >>> db_inventory(mart.name, detailed=['foo', 'mart1'])
+    foo: 12
+    (u'h1123', None)
+    (u'h1blah', None)
+    (u'h1test', None)
+    (u'h2123', None)
+    (u'h2blah', None)
+    (u'h2test', None)
+    (u's1123', None)
+    (u's1blah', None)
+    (u's1some_parameters', None)
+    (u's2123', None)
+    (u's2blah', None)
+    (u's2some_parameters', None)
+    mart1: 8
+    (u'martassessment1', u'mart11', u'blah', 123, u'MARTASSESSMENT1-blah', u'foo1')
+    (u'martassessment2', u'mart11', u'blah', 123, u'MARTASSESSMENT2-blah', u'foo2')
+    (u'martassessment3', u'mart11', u'blah', 123, u'MARTASSESSMENT3-blah', u'foo3')
+    (u'martassessment4', u'mart11', u'blah', 123, u'MARTASSESSMENT4-blah', u'foo4')
+    (u'martassessment5', u'mart11', u'blah', 123, u'MARTASSESSMENT5-blah', u'foo5')
+    (u'martassessment6', u'mart11', u'blah', 123, u'MARTASSESSMENT6-blah', u'foo6')
+    (u'martassessment7', u'mart11', u'blah', 123, u'MARTASSESSMENT7-blah', u'foo7')
+    (u'martassessment8', u'mart11', u'blah', 123, u'MARTASSESSMENT8-blah', u'foo8')
+    >>> db_status(mart.name)
+    Definition: some_parameters
+    Status: complete
+    Owner: test
+    Has Size: True
+    Dates: True True
+
+    >>> mart = mc(parameters={'foo': 'blah'})
+    Traceback (most recent call last):
+        ...
+    Error: Missing required parameter "bar"
+
+    >>> mart = mc(parameters={'bar': 'blah'})
+    Traceback (most recent call last):
+        ...
+    Error: Expected an integer
+    Got:
+        'blah'
+    While validating parameter:
+        bar
+
+    >>> mart = mc(parameters={'bar': 123, 'baz': 'hello'})
+    Traceback (most recent call last):
+        ...
+    Error: Unknown parameters: baz
+
 
 It complains if you don't specify an owner::
 

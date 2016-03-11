@@ -10,15 +10,16 @@ from functools import partial
 from cachetools import LRUCache
 
 from webob.exc import HTTPUnauthorized, HTTPNotFound, HTTPMethodNotAllowed, \
-    HTTPForbidden
+    HTTPForbidden, HTTPBadRequest
 
 from rex.core import IntVal, StrVal, OneOfVal, RecordVal, BoolVal, Error, \
-    get_settings, get_rex
+    get_settings, get_rex, MapVal
 from rex.restful import RestfulLocation
 from rex.web import HandleLocation, authenticate, Parameter
 
 from .config import get_definition
 from .connections import get_mart_db
+from .creation import MartCreator
 from .permissions import MartAccessPermissions
 from .quota import MartQuota
 
@@ -104,6 +105,7 @@ class DefinitionDetailResource(RestfulLocation):
     create_payload_validator = RecordVal(
         ('purge_on_failure', BoolVal(), True),
         ('leave_incomplete', BoolVal(), False),
+        ('parameters', MapVal(), {}),
     )
 
     def create(self, request, definition_id, **params):
@@ -112,9 +114,15 @@ class DefinitionDetailResource(RestfulLocation):
         if not MartAccessPermissions.top().user_can_access_definition(
                 user,
                 definition_id):
-            raise HTTPUnauthorized
+            raise HTTPUnauthorized()
         if not get_settings().mart_allow_runtime_creation:
             raise HTTPForbidden('Runtime Mart creation is not allowed')
+
+        creator = MartCreator(user, definition_id)
+        try:
+            creator.validate_parameters(request.payload.parameters)
+        except Error as exc:
+            raise HTTPBadRequest(unicode(exc))
 
         definition = get_definition(definition_id)
         if not MartQuota.top().can_create_mart(user, definition):

@@ -1,0 +1,4 @@
+/{$prefix + $OWNER :as col1} :as foo/:insert
+/{$prefix + $foo :as col1} :as foo/:insert
+/{$prefix + string($bar) :as col1} :as foo/:insert
+

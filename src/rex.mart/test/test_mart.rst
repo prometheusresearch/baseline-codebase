@@ -40,6 +40,7 @@ The Mart object is an encapsulation of the information about a Mart database::
      'description': None,
      'id': 'empty',
      'label': 'empty',
+     'parameters': [],
      'post_assessment_scripts': [],
      'post_deploy_scripts': [],
      'processors': [],

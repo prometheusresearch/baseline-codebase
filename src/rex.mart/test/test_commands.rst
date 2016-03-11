@@ -76,7 +76,10 @@ This API will return all Definitions the user has access to::
                        u'label': u'some_more_data'},
                       {u'description': u'Definition with a broken SQL ETL script',
                        u'id': u'broken_sql',
-                       u'label': u'broken_sql'}]}
+                       u'label': u'broken_sql'},
+                      {u'description': u'Shows everywhere that the parameters can be used',
+                       u'id': u'some_parameters',
+                       u'label': u'some_parameters'}]}
 
 
 Definition Mart Listing API
@@ -123,9 +126,28 @@ If enabled, this API will submit asynchronous tasks to initiate Mart creation::
     >>> print req.get_response(rex2)  # doctest: +ELLIPSIS
     202 Accepted
     Content-Type: application/json; charset=UTF-8
-    Content-Length: 100
+    Content-Length: 118
     <BLANKLINE>
-    {"purge_on_failure": true, "leave_incomplete": false, "owner": "cmdtest", "definition": "some_data"}
+    {"purge_on_failure": true, "leave_incomplete": false, "parameters": {}, "owner": "cmdtest", "definition": "some_data"}
+
+    >>> req = Request.blank('/definition/some_parameters', remote_user='cmdtest', method='POST')
+    >>> req.headers['Content-Type'] = 'application/json'
+    >>> req.body = '{"parameters": {"bar": 333}}'
+    >>> print req.get_response(rex2)  # doctest: +ELLIPSIS
+    202 Accepted
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: 134
+    <BLANKLINE>
+    {"purge_on_failure": true, "leave_incomplete": false, "parameters": {"bar": 333}, "owner": "cmdtest", "definition": "some_parameters"}
+
+    >>> req = Request.blank('/definition/some_parameters', remote_user='cmdtest', method='POST')
+    >>> req.headers['Content-Type'] = 'application/json'
+    >>> print req.get_response(rex2)  # doctest: +ELLIPSIS
+    400 Bad Request
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: 47
+    <BLANKLINE>
+    {"error": "Missing required parameter \"bar\""}
 
     >>> req = Request.blank('/definition/some_more_data', remote_user='cmdtest', method='POST')
     >>> req.headers['Content-Type'] = 'application/json'

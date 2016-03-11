@@ -28,7 +28,7 @@ setup(
         ],
     },
     install_requires=[
-        'rex.core>=1.4,<2',
+        'rex.core>=1.12,<2',
         'rex.ctl>=2,<3',
         'rex.db>=3,<4',
         'rex.deploy>=2,<3',

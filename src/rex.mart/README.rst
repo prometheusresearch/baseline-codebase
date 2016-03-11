@@ -194,6 +194,35 @@ deploy
 The ``deploy`` property contains a list of ``rex.deploy`` Facts that will be
 executed as part of the Deployment phase.
 
+parameters
+``````````
+The ``parameters`` section defines a list of parameters that can be supplied
+during the creation of Mart. These parameters are made available as variables
+in the HTSQL/SQL queries defined by the ``post_deploy_scripts`` and
+``post_assessment_scripts`` properties, as well as the HTSQL
+queries/expressions defined in the ``selector`` and ``post_load_calculations``
+properties of an ``assessment``. Each definition in the list is a mapping that
+accepts the following properties:
+
+name
+    The name of the parameter that will be passed through to the queries. This
+    property is required and is case sensitive.
+
+type
+    The datatype of the value that will be collected by this parameter.
+    Incoming values are automatically validated prior to passing them to the
+    queries. This property is required.
+
+    The possible datatypes that can be specified here are: ``text``,
+    ``integer``, ``float``, ``boolean``, ``date``, ``time``, ``dateTime``.
+
+default
+    The default value to associate with this parameter if it is not passed into
+    the Mart Creation process. This property is optional, and if not specified,
+    the parameter is assumed to be required, and will cause failures if the
+    Mart Creation process does not receive this parameter.
+
+
 post_deploy_scripts
 ```````````````````
 The ``post_deploy_scripts`` contains a list of script definitions that specify
@@ -459,6 +488,8 @@ mart-create
 
         $ rex mart-create --owner=someuser --owner=otheruser --definition=my_definition
 
+        $ rex mart-create --owner=someuser --definition=other_definition --param=foo=bar
+
         $ rex mart-create --runlist=path/to/runlist.yaml
 
     RunList files are YAML files that are lists of mappings that describe the
@@ -484,6 +515,9 @@ mart-create
         Indicates whether or not to leave the status of this Mart in an
         incomplete status after creating it. If not specified, defaults to
         ``False``.
+
+    parameters
+        The mapping of Mart Definition creation parameters to their values.
 
 mart-shell
     This task will open an HTSQL shell to the specified Mart database. You can

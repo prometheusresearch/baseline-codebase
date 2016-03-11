@@ -406,7 +406,7 @@ class PrimaryTable(MappingTable):
         'instrument_version_uid',
     ]
 
-    def __init__(self, definition, database):
+    def __init__(self, definition, database, selector_parameters=None):
         self.definition = definition
         super(PrimaryTable, self).__init__(self.definition['name'])
         self.children = OrderedDict()
@@ -415,7 +415,8 @@ class PrimaryTable(MappingTable):
         self._add_selector_fields(
             self.definition['selector'],
             database,
-            parental_fields=self.definition['parental_relationship']['parent']
+            parental_fields=self.definition['parental_relationship']['parent'],
+            parameters=selector_parameters or {},
         )
         self._add_calculation_fields(
             self.definition['post_load_calculations'],
@@ -480,14 +481,15 @@ class PrimaryTable(MappingTable):
 
         return facts
 
-    def _add_selector_fields(self, selector, database, parental_fields=None):
+    def _add_selector_fields(
+            self,
+            selector,
+            database,
+            parental_fields=None,
+            parameters=None):
         with database:
-            selector_params = {}
-            selector_params.update(selector['parameters'])
-            selector_params['INSTRUMENT'] = 'unknown'
-            selector_params['DEFINITION'] = 'unknown'
-            selector_params['OWNER'] = 'unknown'
-            info = analyze(selector['query'], **selector_params)
+            parameters = parameters or {}
+            info = analyze(selector['query'], **parameters)
 
         selected_fields = []
         for field in info.meta.domain.item_domain.fields:

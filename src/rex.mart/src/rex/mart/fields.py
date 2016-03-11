@@ -12,7 +12,7 @@ from datetime import date, time, datetime
 
 from htsql.core.domain import BooleanDomain, IntegerDomain, FloatDomain, \
     DecimalDomain, TextDomain, EnumDomain, DateDomain, TimeDomain, \
-    DateTimeDomain, OpaqueDomain, IdentityDomain, ID
+    DateTimeDomain, OpaqueDomain, IdentityDomain, ID, UntypedDomain
 from htsql_rex_deploy.domain import JSONDomain
 from rex.core import Error
 from rex.restful.serializer import RestfulJSONEncoder
@@ -423,6 +423,7 @@ HTSQL_DOMAIN_TYPES = {
     OpaqueDomain: 'text',
     IdentityDomain: 'text',
     JSONDomain: 'json',
+    UntypedDomain: 'text',
 }
 
 

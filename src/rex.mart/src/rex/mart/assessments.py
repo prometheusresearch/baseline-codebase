@@ -17,22 +17,29 @@ class AssessmentLoader(object):
     def __init__(self, definition, database, parameters=None):
         self.definition = definition
         self.parameters = parameters or {}
-        self.mapping = PrimaryTable(self.definition, database)
+        self.mapping = PrimaryTable(
+            self.definition,
+            database,
+            selector_parameters=self.get_selector_params(),
+        )
 
     def get_deploy_facts(self):
         return self.mapping.get_deploy_facts()
+
+    def get_selector_params(self):
+        params = {}
+        params.update(self.definition['selector']['parameters'])
+        params.update(self.parameters)
+        params['INSTRUMENT'] = self.definition['instrument']
+        return params
 
     def load(self, database):
         assessment_impl = Assessment.get_implementation()
 
         num_assessments = 0
-        selector_params = {}
-        selector_params.update(self.definition['selector']['parameters'])
-        selector_params.update(self.parameters)
-        selector_params['INSTRUMENT'] = self.definition['instrument']
         selected = database.produce(
             self.definition['selector']['query'],
-            **selector_params
+            **self.get_selector_params()
         )
 
         for i in range(0, len(selected), 100):
@@ -88,6 +95,10 @@ class AssessmentLoader(object):
         if not self.definition['post_load_calculations']:
             return
 
+        params = {}
+        params.update(self.parameters)
+        params['INSTRUMENT'] = self.definition['instrument']
+
         for statement in self.mapping.get_calculation_statements():
-            database.produce(statement)
+            database.produce(statement, **params)
 

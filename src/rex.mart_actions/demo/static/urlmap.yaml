@@ -119,7 +119,6 @@ paths:
         guide-schools-filter-by-campus:
           type: mart-guide-filter
           title: Filter by campus
-          icon: list
 
           definition: schools
           table: school
@@ -139,7 +138,6 @@ paths:
         guide-schools-filter-by-name:
           type: mart-guide-filter
           title: Filter by name
-          icon: list
 
           definition: schools
           table: school
@@ -153,7 +151,6 @@ paths:
         guide-schools-columns:
           type: mart-guide-columns
           title: Choose columns
-          icon: list
 
           definition: schools
           table: school
@@ -182,7 +179,6 @@ paths:
         guide-courses-filter:
           type: mart-guide-filter
           title: Filter stuff
-          icon: list
 
           definition: schools_with_dict
           table: course
@@ -198,7 +194,6 @@ paths:
         guide-courses-columns:
           type: mart-guide-columns
           title: Choose columns
-          icon: list
 
           definition: schools_with_dict
           table: course

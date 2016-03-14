@@ -13,6 +13,9 @@ import QueryAction from './QueryAction';
 
 @QueryAction
 export default class FilterDataset extends React.Component {
+  static defaultProps = {
+    icon: 'filter'
+  };
 
   render() {
     let {title, filterElements, query, onQueryUpdate, db} = this.props;

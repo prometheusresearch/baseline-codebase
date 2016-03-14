@@ -17,6 +17,9 @@ import QueryFieldSelector from './QueryFieldSelector';
 
 @QueryAction
 export default class ChooseColumns extends React.Component {
+  static defaultProps = {
+    icon: 'list'
+  };
 
   constructor(props) {
     super(props);

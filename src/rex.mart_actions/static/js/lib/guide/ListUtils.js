@@ -18,13 +18,13 @@ function findProjection(query) {
 function fieldToColumn(field) {
   if (field instanceof AST.Alias) {
     return {
-      valueKey: [field.field.field],
-      label: field.alias,
+      valueKey: [field.alias],
+      label: field.alias
     };
   } else {
     return {
       valueKey: [field.field],
-      label: field.field,
+      label: field.field
     };
   }
 }

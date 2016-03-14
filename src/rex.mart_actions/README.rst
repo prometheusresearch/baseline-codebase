@@ -211,7 +211,9 @@ queries on tables in Mart databases.
                  **fields**: The list of additional, expression-based columns
                  that the user can choose from (in addition to all the normal
                  columns on the table). This is a list of mappings that two
-                 properties: ``title`` and ``expression``.
+                 properties: ``title`` and ``expression``. The ``expression``
+                 must resolve to a scalar value -- nested record sets are not
+                 currently supported.
 
 ``mart-guide-export``
     :Purpose: Allows the user to export the results of the query they've
@@ -228,7 +230,9 @@ queries on tables in Mart databases.
                  be added to the exported file, but will not be added to the
                  guided query itself (e.g., the query being displayed in the
                  preview panes). This is a list of mappings that have two
-                 properties: ``title`` and ``expression``.
+                 properties: ``title`` and ``expression``. Unlike the fields in
+                 the Column Chooser action, these expressions can resolve to
+                 either scalar or plural values.
 
 Typically, these actions will be arranged as::
 

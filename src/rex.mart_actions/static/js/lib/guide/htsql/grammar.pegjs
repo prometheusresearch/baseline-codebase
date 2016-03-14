@@ -62,8 +62,12 @@ StringLiteral "string"
       return value.join('')
     }
 
+AliasName
+  = StringLiteral
+  / Identifier
+
 Alias "alias"
-  = _ ":as" _ alias:StringLiteral {
+  = _ ":as" _ alias:AliasName {
        return alias;
     }
 
@@ -78,7 +82,7 @@ Field "field"
     }
 
 Identifier "identifier"
-  = identifier:[a-zA-Z_]+ {
+  = identifier:[a-zA-Z0-9_]+ {
       return identifier.join('');
     }
 

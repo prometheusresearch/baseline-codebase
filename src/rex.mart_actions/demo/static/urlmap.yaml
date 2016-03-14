@@ -191,12 +191,6 @@ paths:
           - title: Full Credit
             expression: credits >= 3
 
-        guide-courses-export:
-          type: mart-guide-export
-
-          definition: schools_with_dict
-          table: course
-
         guide-courses-columns:
           type: mart-guide-columns
           title: Choose columns
@@ -204,6 +198,25 @@ paths:
 
           definition: schools_with_dict
           table: course
+
+          fields:
+            - title: Department Name
+              expression: department_code.name
+            - department_code.code
+            - title: Degree
+              expression: department_code.school_code.degree
+
+        guide-courses-export:
+          type: mart-guide-export
+
+          definition: schools_with_dict
+          table: course
+
+          fields:
+            - title: Campus
+              expression: department_code.school_code.campus
+            - title: Departments
+              expression: /department_code.school_code.department
 
 
   #

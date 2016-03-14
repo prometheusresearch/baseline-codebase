@@ -60,7 +60,7 @@ export default class ExportDataset extends React.Component {
         </HBox>
         {fields && fields.length > 0 &&
           <div>
-            <h5>Select fields for export:</h5>
+            <h5>Include the following additional fields in the export:</h5>
             <QueryFieldSelector
               fields={fields}
               query={this.query}

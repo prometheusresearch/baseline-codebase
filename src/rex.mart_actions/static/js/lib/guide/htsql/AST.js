@@ -127,7 +127,7 @@ export class Alias extends Node {
   }
 
   unparse() {
-    return `${unparse(this.field)} :as '${this.alias}'`;
+    return `${unparse(this.field)} :as ${this.alias}`;
   }
 }
 

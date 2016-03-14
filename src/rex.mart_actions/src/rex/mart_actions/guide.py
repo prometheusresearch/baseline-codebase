@@ -3,11 +3,13 @@
 #
 
 
+import re
+
 from htsql.core import domain
 
 from rex.action import typing
 from rex.core import Validate, Error
-from rex.core import RecordVal, SeqVal, StrVal, OneOfVal
+from rex.core import RecordVal, SeqVal, StrVal
 from rex.mart import MartAccessPermissions
 from rex.web import authenticate
 from rex.widget import Field, computed_field, raw_widget
@@ -43,20 +45,29 @@ class FilterVal(Validate):
         return self._validate(value)
 
 
+RE_SAFE_TITLE = re.compile(r'^[a-zA-Z_][a-zA-Z0-9_]*$')
+
+
 class ColumnVal(Validate):
     _validate_record = RecordVal(
         ('title', StrVal(), None),
         ('expression', StrVal()),
     )
 
-    _validate = OneOfVal(StrVal(), _validate_record)
-
     def __call__(self, value):
-        if isinstance(value, self._validate_record.record_type):
-            return value
         if isinstance(value, basestring):
             value = {'title': value, 'expression': value}
-        return self._validate(value)
+        value = self._validate_record(value)
+
+        if not RE_SAFE_TITLE.match(value.title):
+            value = value.__clone__(title=self.clean_title(value.title))
+
+        return value
+
+    def clean_title(self, title):  # pylint: disable=no-self-use
+        title = re.sub(r'^[^a-zA-Z_]+', '', title)
+        title = re.sub(r'[^a-zA-Z0-9_]', '_', title)
+        return title
 
 
 class GuideMartTool(MartTool):

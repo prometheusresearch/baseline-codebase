@@ -2,10 +2,10 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import assert             from 'power-assert';
-import React              from 'react';
-import WithDOMSize        from '../WithDOMSize';
-import notifyLayoutChange from '../notifyLayoutChange';
+import assert from 'power-assert';
+import React  from 'react';
+import ReactDOM  from 'react-dom';
+import WithDOMSize from '../WithDOMSize';
 
 describe('WithDOMSize', function() {
 
@@ -38,7 +38,7 @@ describe('WithDOMSize', function() {
   });
 
   afterEach(function() {
-    React.unmountComponentAtNode(node);
+    ReactDOM.unmountComponentAtNode(node);
     document.body.removeChild(node);
     node = null;
     component = null;
@@ -47,28 +47,14 @@ describe('WithDOMSize', function() {
   });
 
   it('measures DOM node and renders underlying component with metrics provided', function() {
-    component = React.render(<Component getDOMNode={getDOMNode} />, node);
+    component = ReactDOM.render(<Component getDOMNode={getDOMNode} />, node);
     assert(trace.length === 2);
     assert(trace[0] === null);
     assert.deepEqual(trace[1], {width: 640, height: 480});
-  });
-
-  it('re-renders on layout change', function() {
-    component = React.render(<Component getDOMNode={getDOMNode} />, node);
-    assert(trace.length === 2);
-    assert(trace[0] === null);
-    assert.deepEqual(trace[1], {width: 640, height: 480});
-
-    rect.width = 100;
-    rect.height = 100;
-    notifyLayoutChange();
-
-    assert(trace.length === 3);
-    assert.deepEqual(trace[2], {width: 100, height: 100});
   });
 
   it('re-renders on window resize', function() {
-    component = React.render(<Component getDOMNode={getDOMNode} />, node);
+    component = ReactDOM.render(<Component getDOMNode={getDOMNode} />, node);
     assert(trace.length === 2);
     assert(trace[0] === null);
     assert.deepEqual(trace[1], {width: 640, height: 480});

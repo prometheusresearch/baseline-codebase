@@ -2,7 +2,8 @@
         code,
         name,
         campus,
-        degree
+        degree,
+        date_opened
     }
     /:rexdb
     /:insert

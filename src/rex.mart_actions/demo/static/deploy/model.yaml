@@ -15,6 +15,9 @@
       - graduate
       - both
     required: false
+  - column: date_opened
+    type: date
+    required: false
 
 - table: department
   with:

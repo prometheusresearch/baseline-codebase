@@ -133,6 +133,8 @@ paths:
             expression: campus='old'
           - title: Degree
             expression: degree
+          - title: Date Opened
+            expression: date_opened
 
         guide-schools-filter-by-name:
           type: mart-guide-filter
@@ -186,10 +188,12 @@ paths:
           table: course
 
           filters:
-          - title: Title
-            expression: title
-          - title: Full Credit
-            expression: credits >= 3
+            - title: Title
+              expression: title
+            - title: Full Credit
+              expression: credits >= 3
+            - title: Course Number
+              expression: no
 
         guide-courses-columns:
           type: mart-guide-columns

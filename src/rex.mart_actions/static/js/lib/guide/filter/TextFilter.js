@@ -41,18 +41,19 @@ export default class TextFilter extends React.Component {
 
   get value() {
     let {expression, query} = this.props;
-    let value = F.getValue(query, expression);
+    let value = F.getValue(query, expression, '~');
     return F.unquote(value);
   }
 
   @autobind
   onChange(value) {
     let {expression, query, onQueryUpdate} = this.props;
+    let op = '~';
     if (value) {
-      query = F.remove(query, expression);
-      query = F.apply(query, expression, '~', F.quote(value));
+      query = F.remove(query, expression, op);
+      query = F.apply(query, expression, op, F.quote(value));
     } else {
-      query = F.remove(query, expression);
+      query = F.remove(query, expression, op);
     }
     onQueryUpdate(query);
   }

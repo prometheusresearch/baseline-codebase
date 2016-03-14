@@ -8,7 +8,7 @@ export function getValueList(query, expression, op = '') {
   let refine = query.refine
     .filter(node => isFilterByExpression(node, expression, op));
   if (refine.length > 0) {
-    return refine.map(item => item.args.substring(expression.length + 1));
+    return refine.map(item => item.args.substring(expression.length + op.length));
   } else {
     return [];
   }

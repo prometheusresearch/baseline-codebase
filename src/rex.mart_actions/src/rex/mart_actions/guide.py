@@ -138,6 +138,21 @@ FILTERS = {
         'widget': 'rex-mart-actions/lib/guide/filter/EnumFilter',
         'props': lambda d: {'labels': d.labels},
     },
+    domain.IntegerDomain: {
+        'widget': 'rex-mart-actions/lib/guide/filter/NumericFilter',
+    },
+    domain.FloatDomain: {
+        'widget': 'rex-mart-actions/lib/guide/filter/NumericFilter',
+    },
+    domain.DecimalDomain: {
+        'widget': 'rex-mart-actions/lib/guide/filter/NumericFilter',
+    },
+    domain.DateDomain: {
+        'widget': 'rex-mart-actions/lib/guide/filter/DateFilter',
+    },
+    domain.DateTimeDomain: {
+        'widget': 'rex-mart-actions/lib/guide/filter/DateFilter',
+    },
 }
 
 

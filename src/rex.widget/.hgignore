@@ -10,5 +10,6 @@ dist
 www/bundle/*
 node_modules
 .nyc_output
+coverage
 bower_components
 *.v.*

@@ -15,6 +15,9 @@ test::
 test-cov::
 	@$(COV) -- $(TESTS)
 
+report-cov::
+	@$(BIN)/nyc report -r html
+
 ci::
 	@$(MOCHA) --watch -- $(TESTS)
 

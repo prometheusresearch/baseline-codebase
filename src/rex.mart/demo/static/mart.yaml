@@ -12,6 +12,11 @@ definitions:
     description: A Mart that just has empty tables
     deploy: !include simple_deploy.yaml
 
+  - id: just_deploy_includes
+    label: Just Deploy (w/ Includes)
+    description: A Mart that just has empty tables using a deploy configuration that has include statements
+    deploy: !include indirect_simple_deploy.yaml
+
   - id: some_data
     description: Make a table and put some data in it
     deploy: !include simple_deploy.yaml

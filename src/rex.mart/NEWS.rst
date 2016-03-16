@@ -17,6 +17,8 @@ REX.MART Change Log
 - Added the ability to define Mart Definition Parameters that can/must be
   supplied during the creation of Mart and are made available to all the
   queries within a Definition.
+- Fixed issues with the ability to use the ``include`` fact within the
+  rex.deploy configurations.
 
 
 0.1.0 (2016-01-29)

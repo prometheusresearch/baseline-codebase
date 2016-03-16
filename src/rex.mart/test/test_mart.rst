@@ -30,7 +30,7 @@ The Mart object is an encapsulation of the information about a Mart database::
     True
     >>> mart.definition_id
     u'empty'
-    >>> pprint(mart.definition)
+    >>> pprint(mart.definition)  # doctest: +ELLIPSIS
     {'assessments': [],
      'base': {'fixed_name': None,
               'name_token': 'empty_',
@@ -44,7 +44,8 @@ The Mart object is an encapsulation of the information about a Mart database::
      'post_assessment_scripts': [],
      'post_deploy_scripts': [],
      'processors': [],
-     'quota': {'per_owner': 3}}
+     'quota': {'per_owner': 3},
+     'source_file': '.../rex.mart_demo/mart.yaml'}
     >>> mart.owner
     u'marttest'
     >>> isinstance(mart.name, basestring)

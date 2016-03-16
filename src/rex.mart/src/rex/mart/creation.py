@@ -4,6 +4,7 @@
 
 
 import gc
+import os
 import sys
 
 from copy import deepcopy
@@ -407,9 +408,11 @@ class MartCreator(object):
                 self.definition['base']['type'],
             ))
 
-    def _do_deploy(self, facts):
+    def _do_deploy(self, facts, working_dir=None):
         cluster = get_hosting_cluster()
         driver = cluster.drive(self.name)
+        if working_dir:
+            driver.chdir(working_dir)
         driver(facts)
         driver.commit()
         driver.close()
@@ -423,7 +426,10 @@ class MartCreator(object):
 
         self.log('Deploying structures...')
         with guarded('While Deploying structures'):
-            self._do_deploy(self.definition['deploy'])
+            self._do_deploy(
+                self.definition['deploy'],
+                working_dir=os.path.dirname(self.definition['source_file']),
+            )
 
     def get_query_params(self, params=None):
         query_params = {}

@@ -35,12 +35,16 @@ def get_all_definitions():
     definitions = []
     for package in reversed(get_packages()):
         if package.exists(MART_CONFIGURATION_FILE):
-            cfg = validator.parse(package.open(MART_CONFIGURATION_FILE))
+            definitions_path = package.abspath(MART_CONFIGURATION_FILE)
+            cfg = validator.parse(open(definitions_path))
             if cfg.definitions:
-                definitions += [
+                defns = [
                     record_to_dict(defn)
                     for defn in cfg.definitions
                 ]
+                for defn in defns:
+                    defn['source_file'] = definitions_path
+                definitions += defns
 
     dids = [defn['id'] for defn in definitions]
     dupe_dids = set([did for did in dids if dids.count(did) > 1])

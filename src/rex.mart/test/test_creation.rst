@@ -531,6 +531,21 @@ Definitions can accept parameters that are passed to HTSQL/SQL statements::
         ...
     Error: Unknown parameters: baz
 
+Your rex.deploy configuration can use include statements::
+
+    >>> mc = MartCreator('test', 'just_deploy_includes')
+    >>> mart = mc()
+    >>> db_exists(mart.name)
+    True
+    >>> db_inventory(mart.name)
+    foo: 0
+    >>> db_status(mart.name)
+    Definition: just_deploy_includes
+    Status: complete
+    Owner: test
+    Has Size: True
+    Dates: True True
+
 
 It complains if you don't specify an owner::
 

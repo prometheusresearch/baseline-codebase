@@ -92,6 +92,10 @@ HTSQL Console
 
 ``mart-htsql-console``
     :Purpose: Provides a web-based HTSQL console connected to a Mart database.
+              This action, much like ``mart-guide-export``, can be used as an
+              endpoint for `Guided Queries`_. It will be pre-populated with the
+              query that is built from the user's filtering and column
+              selections.
     :Input: **mart**: The ID of the Mart to connect to.
 
             **mart_tool:htsql**: A flag that enables this tool so that it shows

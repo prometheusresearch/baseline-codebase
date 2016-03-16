@@ -26,7 +26,19 @@ export default class HtsqlConsole extends React.Component {
 
   render() {
     let {title, onClose, context} = this.props;
-    let htsqlUrl = resolveURL('rex.mart:/mart/' + context.mart + '/shell()');
+
+    let {query} = context;
+    if (query) {
+      if (!query.startsWith('/')) {
+        query = '/' + query;
+      }
+    } else {
+      query = '';
+    }
+
+    let htsqlUrl = resolveURL(
+      'rex.mart:/mart/' + context.mart + '/shell(' + query + ')'
+    );
 
     return (
       <div>

@@ -40,6 +40,7 @@ paths:
                 - guide-courses-columns:
               then:
                 - guide-courses-export:
+                - console:
           - console:
           - dictionary:
             - dictionary-browse-by-table:

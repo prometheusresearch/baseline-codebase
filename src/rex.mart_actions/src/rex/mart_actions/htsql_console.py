@@ -31,5 +31,4 @@ class HtsqlConsoleMartAction(MartFilteredAction):
     name = 'mart-htsql-console'
     js_type = 'rex-mart-actions/lib/HtsqlConsole'
     tool = 'htsql'
-    additional_input = {'mart': 'number'}
 

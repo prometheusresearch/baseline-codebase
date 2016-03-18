@@ -72,7 +72,9 @@ class MartFilteredAction(MartAction):
         super(MartFilteredAction, self).__init__(**values)
 
         if not self.input or not self.input.rows:
-            rows = []
+            rows = [{
+                'mart': 'number',
+            }]
 
             if self.definition:
                 rows.append({

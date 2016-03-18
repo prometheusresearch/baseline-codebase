@@ -154,7 +154,7 @@ class FileLinkConstraintModel(ConstraintModel):
                     u"%s.%s" % (self.link.table.label, self.link.label))
             self.procedure_image.alter_source(source)
         if signal.after_erase and \
-                (master is self.link or master is self.link_table):
+                (master is self.link or master is self.link.table):
             if self.image:
                 self.image.drop()
             if self.procedure_image:

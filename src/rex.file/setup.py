@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.file',
-    version = "1.0.2",
+    version = "1.0.3",
     description="Associating attachments with database records",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",

@@ -75,6 +75,14 @@ export default function QueryAction(Component) {
       }
     }
 
+    componentDidMount() {
+      // This makes sure that the query is put into the context, even if the
+      // user hasn't done anything to change the default query yet.
+      if (!this.props.context.query) {
+        this.props.onContextNoAdvance({query: this.query.unparse()});
+      }
+    }
+
     _initializeQuery(props) {
       let {
         context: {query, mart},

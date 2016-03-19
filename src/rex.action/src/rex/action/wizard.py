@@ -267,11 +267,14 @@ class WizardWidgetBase(Widget):
             for action, repeat_inst in zip(actions, inst.repeat)
             if isinstance(repeat_inst, instruction.Execute)
         ])
+        next_context_type = typing.RecordType.empty()
+        next_context_type.rows.update(context_type.rows)
+        next_context_type.rows.update(repeat_invariant.rows)
 
         for end_instruction, end_type in end_types:
             with guard('While parsing:', locate(end_instruction)):
                 try:
-                    typing.unify(repeat_invariant, end_type)
+                    typing.unify(next_context_type, end_type)
                 except typing.RecordTypeMissingKey as err:
                     error = Error(
                         'Repeat ends with a type which is incompatible with its beginning:',
@@ -292,10 +295,10 @@ class WizardWidgetBase(Widget):
             return [
                 pair
                 for next_instruction in inst.then
-                for pair in self._typecheck(next_instruction, repeat_invariant, path + ['<repeat then>'])
+                for pair in self._typecheck(next_instruction, next_context_type, path + ['<repeat then>'])
             ]
         else:
-            return [(inst, repeat_invariant)]
+            return [(inst, next_context_type)]
 
     def _typecheck_replace(self, inst, context_type, path, recurse=True):
         path = path + ['<replace %s>' % inst.replace]

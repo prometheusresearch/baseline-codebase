@@ -40,7 +40,7 @@ setup(
         'rex.web==3.6.0',
         'rex.widget==2.3.0',
         'rex.widget_chrome==0.2.0',
-        'rex.file==1.0.2',
+        'rex.file==1.0.3',
     ],
 )
 

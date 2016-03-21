@@ -138,3 +138,160 @@ Overrides
       ...
     ]
   }
+
+::
+
+  >>> pkg = SandboxPackage(name='base')
+  >>> extension_pkg = SandboxPackage(name='main')
+
+  >>> pkg.rewrite('/urlmap/base.yaml', """
+  ... paths:
+  ...   /page:
+  ...     access: anybody
+  ...     action:
+  ...       type: wizard
+  ...       path:
+  ...       - included:
+  ...       actions:
+  ...         included: /included
+  ...
+  ...   /included:
+  ...     action:
+  ...       type: wizard
+  ...       path:
+  ...       - simple:
+  ...       actions:
+  ...         simple:
+  ...           type: pick
+  ...           entity: individual
+  ... """)
+
+  >>> extension_pkg.rewrite('/urlmap.yaml', """
+  ... include: base:/urlmap/base.yaml
+  ... paths:
+  ...   /included/@/simple: !override
+  ...     entity: study
+  ... """)
+
+  >>> rex = Rex(extension_pkg, pkg, '-', 'rex.action_demo', attach_dir=attach_dir)
+
+  >>> print Request.blank(
+  ...   '/page/@@/1.content.1.path.0.0.2.1.path.0.0.2.1.data',
+  ...   accept='application/json'
+  ... ).get_response(rex) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  200 OK
+  Content-Type: application/javascript
+  Content-Disposition: inline; filename="_.js"
+  Vary: Accept
+  Content-Length: ...
+  <BLANKLINE>
+  {
+    "study": [
+      ...
+    ]
+  }
+
+::
+
+  >>> pkg = SandboxPackage(name='base')
+  >>> extension_pkg = SandboxPackage(name='main')
+
+  >>> pkg.rewrite('/urlmap.yaml', """
+  ... paths:
+  ...   /page:
+  ...     access: anybody
+  ...     action:
+  ...       type: wizard
+  ...       path:
+  ...       - included:
+  ...       actions:
+  ...         included: /included
+  ...
+  ...   /included:
+  ...     action:
+  ...       type: wizard
+  ...       path:
+  ...       - simple:
+  ...       actions:
+  ...         simple:
+  ...           type: pick
+  ...           entity: individual
+  ... """)
+
+  >>> extension_pkg.rewrite('/urlmap.yaml', """
+  ... include: base:/urlmap.yaml
+  ... paths:
+  ...   /included/@/simple: !override
+  ...     entity: study
+  ... """)
+
+  >>> rex = Rex(extension_pkg, pkg, '-', 'rex.action_demo', attach_dir=attach_dir)
+
+  >>> print Request.blank(
+  ...   '/page/@@/1.content.1.path.0.0.2.1.path.0.0.2.1.data',
+  ...   accept='application/json'
+  ... ).get_response(rex) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  200 OK
+  Content-Type: application/javascript
+  Content-Disposition: inline; filename="_.js"
+  Vary: Accept
+  Content-Length: ...
+  <BLANKLINE>
+  {
+    "study": [
+      ...
+    ]
+  }
+
+::
+
+  >>> pkg = SandboxPackage(name='base')
+  >>> extension_pkg = SandboxPackage(name='main')
+
+  >>> pkg.rewrite('/urlmap/base.yaml', """
+  ... paths:
+  ...   /included:
+  ...     action:
+  ...       type: wizard
+  ...       path:
+  ...       - simple:
+  ...       actions:
+  ...         simple:
+  ...           type: pick
+  ...           entity: individual
+  ... """)
+
+  >>> extension_pkg.rewrite('/urlmap.yaml', """
+  ... include: base:/urlmap/base.yaml
+  ... paths:
+  ...   /included/@/simple: !override
+  ...     entity: study
+  ...
+  ...   /page:
+  ...     access: anybody
+  ...     action:
+  ...       type: wizard
+  ...       path:
+  ...       - included:
+  ...       actions:
+  ...         included: /included
+  ...
+  ... """)
+
+  >>> rex = Rex(extension_pkg, pkg, '-', 'rex.action_demo', attach_dir=attach_dir)
+
+  >>> print Request.blank(
+  ...   '/page/@@/1.content.1.path.0.0.2.1.path.0.0.2.1.data',
+  ...   accept='application/json'
+  ... ).get_response(rex) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  200 OK
+  Content-Type: application/javascript
+  Content-Disposition: inline; filename="_.js"
+  Vary: Accept
+  Content-Length: ...
+  <BLANKLINE>
+  {
+    "study": [
+      ...
+    ]
+  }

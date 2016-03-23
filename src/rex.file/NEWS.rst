@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.0.3 (2016-XX-XX)
+1.0.3 (2016-03-23)
 ==================
 
 * Fixed a bug on removing a file link.

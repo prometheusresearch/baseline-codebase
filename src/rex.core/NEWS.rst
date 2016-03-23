@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.12.0 (2016-XX-XX)
+1.12.0 (2016-03-23)
 ===================
 
 * Added ``FloatVal`` validator.

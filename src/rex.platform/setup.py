@@ -9,7 +9,7 @@ from setuptools import setup
 setup(
     name='rex.platform',
     version='5.0.0',
-    description='RexDB Capstone Project',
+    description='RexDB Core Platform Libraries',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',
     author_email='contact@prometheusresearch.com',
@@ -30,7 +30,7 @@ setup(
         'rex.db==3.4.1',
         'rex.deploy==2.5.0',
         'rex.expression==1.5.2',
-        'rex.forms==1.4.0',
+        'rex.forms==1.4.1',
         'rex.i18n==0.4.5',
         'rex.instrument==1.3.0',
         'rex.logging==1.0.0',

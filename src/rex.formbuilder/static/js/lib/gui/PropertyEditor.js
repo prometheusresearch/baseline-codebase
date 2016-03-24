@@ -108,15 +108,15 @@ var PropertyEditor = React.createClass({
   marshalFormValue: function (form) {
     var value = form.getValue().toJS();
 
-    function clean(v) {
+    function clean(v, purgeUndefined) {
       for (var key in v) {
-        if (v[key] === undefined) {
+        if ((v[key] === undefined) && purgeUndefined) {
           // If someone happens to click into an empty field, and then
           // click out of it, react-forms still could send us the key
           // with nothing in it. We don't want that.
           delete v[key];
         } else if (typeof v[key] === 'object') {
-          clean(v[key]);
+          clean(v[key], true);
         }
       }
     }

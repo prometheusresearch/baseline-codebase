@@ -21,21 +21,6 @@ value. If the expression evaluates to any other value, then the ``action`` will
 be ignored.
 
 
-Calculation Expressions
-=======================
-
-You can use REXL to define a formula to use to calculate the value of a field
-in a Form. When a field's value is being driven by such a calculation, the
-user will not be able to manually manipulate the value.
-
-Currently, only `Simple Fields`_ can be the targets of calculations.
-
-When writing calculation expressions, make sure that the value that they
-produce is of the same data type as the field the value is being placed in,
-otherwise you will cause Form validation errors that the user will not be able
-to address.
-
-
 Field Identifiers
 =================
 

@@ -8,7 +8,7 @@ REX.FORMS Change Log
 1.4.1 (2016-xx-xx)
 ==================
 
-*
+* Updated documentation in support of rex.platform LTS release.
 
 
 1.4.0 (2016-02-29)

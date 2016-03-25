@@ -13,6 +13,7 @@ REX.FORMBUILDER Change Log
   wrong.
 * Fixed an issue that prevented the removal of pattern constraints on text
   questions.
+* Boolean fields now allow you to set hotkeys for the true & false choices.
 
 
 5.6.2 (2016-02-29)

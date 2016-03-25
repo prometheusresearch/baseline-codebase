@@ -177,6 +177,13 @@ body {
         .rf-Fieldset {
             margin-bottom: 0;
 
+            & > .rf-Fieldset__label {
+                min-width: 125px;
+                text-align: right;
+                display: inline-block;
+                font-weight: bold;
+            }
+
             & > .rf-Field {
                 padding: 0.5em;
             }
@@ -184,7 +191,13 @@ body {
             &.rf-Fieldset--invalid {
                 color: red;
 
-                .rf-Message {
+                .rf-Field--invalid .rf-Message {
+                    margin-left: 145px;
+                    display: inline-block;
+                    padding-left: 0;
+                }
+
+                & > .rf-Message {
                     margin-left: 145px;
                 }
             }

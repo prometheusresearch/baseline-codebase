@@ -29,6 +29,8 @@ var TagList = require('./TagList');
 var FormLocalization = require('./FormLocalization');
 var Parameter = require('./Parameter');
 var ParameterList = require('./ParameterList');
+var Hotkey = require('./Hotkey');
+var BooleanHotkeys = require('./BooleanHotkeys');
 
 
 module.exports = {
@@ -56,6 +58,8 @@ module.exports = {
   TagList,
   FormLocalization,
   Parameter,
-  ParameterList
+  ParameterList,
+  Hotkey,
+  BooleanHotkeys
 };
 

@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.mart_actions',
-    version='0.1.0',
+    version='0.2.0',
     description='A collection of RexAction actions and wizards for exploring'
     'RexMart databases.',
     long_description=open('README.rst', 'r').read(),
@@ -27,7 +27,7 @@ setup(
         'rex.core>=1.4,<2',
         'rex.web>=3,<4',
         'rex.widget>=2.3,<3',
-        'rex.action>=0.10,<0.11',
+        'rex.action>=0.11,<0.12',
         'rex.mart>=0.2,<0.3',
         'htsql_excel>=0.1,<0.2',
         'cachetools>=1,<2',

@@ -2,6 +2,17 @@
   Change Log
 **************
 
+2.4.0 (2016-03-XX)
+==================
+
+* [FEATURE] Add support for fieldsets to render its fields in read only mode.
+
+* [FEATURE] Add test comprehensive suite.
+
+* [FEATURE] Add test utils (`rex-widget/testutils` module).
+
+* [BUGFIX] Fix transitionable decoding for widgets to be compatible with ES2015 modules.
+
 
 2.3.0 (2016-03-23)
 ==================

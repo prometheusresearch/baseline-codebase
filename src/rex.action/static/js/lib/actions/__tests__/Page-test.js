@@ -1,19 +1,25 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
 
-import assert from 'power-assert';
 import React from 'react';
-import TestUtils from 'react/lib/ReactTestUtils';
+import {createRenderer} from 'rex-widget/testutils';
+
 import Page from '../Page';
 import Action from '../../Action';
 
-describe('Page', function() {
+describe('rex-action/actions', function() {
+  describe('Page', function() {
 
-  it('renders an action with text', function() {
-    let renderer = TestUtils.createRenderer();
-    renderer.render(<Page text="HELLO" />);
-    let element = renderer.getRenderOutput();
-    assert(element.type === Action);
+    let renderer;
+
+    beforeEach(function() {
+      renderer = createRenderer();
+    });
+
+    it('renders an action with text', function() {
+      renderer.render(<Page text="HELLO" />);
+      renderer.assertElementWithTypeProps(Action);
+    });
   });
 });

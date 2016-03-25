@@ -49,17 +49,17 @@ class ArgumentType {
 
   @notImplemented
   parse(_actionElement, _value) {
-
+    /* istanbul ignore next */
   }
 
   @notImplemented
   stringify(_actionElement, _value) {
-
+    /* istanbul ignore next */
   }
 
   @notImplemented
   check(_actionElement, _value) {
-
+    /* istanbul ignore next */
   }
 }
 
@@ -163,7 +163,7 @@ class ConfigurableEntityType extends ArgumentType {
   }
 }
 
-class ObjectArgument extends ArgumentType {
+export class ObjectArgument extends ArgumentType {
 
   stringify(actionElement, object) {
     let value = [];

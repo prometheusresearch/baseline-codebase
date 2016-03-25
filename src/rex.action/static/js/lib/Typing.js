@@ -2,11 +2,12 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import notImplemented from './notImplemented';
+
 export class Type {
 
-  match() {
-    throw new Error('not implemented');
-  }
+  @notImplemented
+  match() {}
 
   format() {
     return '<unknown type>';
@@ -52,6 +53,7 @@ export class EntityType extends Type {
 
   match(value) {
     return (
+      value &&
       typeof value === 'object' &&
       value['meta:type'] === this.name && (
         this.state && value[`meta:state:${this.state.name}`] ||
@@ -90,6 +92,9 @@ export class RecordType extends Type {
   }
 
   match(value) {
+    if (!value) {
+      return false;
+    }
     for (let key in this.rows) {
       if (this.rows.hasOwnProperty(key)) {
         if (value[key] == null) {

@@ -10,8 +10,8 @@ import {DataTable} from 'rex-widget/datatable';
 
 import {command, Types} from '../execution/Command';
 import Action from '../Action';
-import applyContext from '../applyContext';
 import Title from './Title';
+import * as ContextUtils from '../ContextUtils';
 
 export default class Pick extends React.Component {
 
@@ -38,7 +38,7 @@ export default class Pick extends React.Component {
     } = this.props;
     let title = this.constructor.renderTitle(this.props, this.props.context);
     let selected = context[entity.name] ? context[entity.name].id : undefined;
-    data = applyContext(data, contextTypes.input, context);
+    data = data.params(ContextUtils.contextToParams(context, contextTypes.input));
     if (search) {
       data = data.params({'*:__search__': search});
     }

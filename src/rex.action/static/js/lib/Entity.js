@@ -74,22 +74,3 @@ export function getEntityTitle(entity) {
   );
   return entity[TITLE_ATTR] || entity.__title__ || entity.title || null;
 }
-
-export function isLoaded(entity) {
-  invariant(
-    isEntity(entity) || entity == null,
-    'Expected an entity, got %s', entity
-  );
-  if (entity == null) {
-    return false;
-  }
-  for (let key in entity) {
-    if (entity.hasOwnProperty(key)) {
-      if (!(key === 'id' || key.indexOf('meta:') === 0)) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-

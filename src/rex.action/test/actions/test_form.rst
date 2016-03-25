@@ -38,6 +38,9 @@ Value can be specified as HTSQL query::
   ...   /individual[$ind]
   ... ''') # doctest: +ELLIPSIS
 
+  >>> action.read_only.computator(action, None)
+  True
+
   >>> action.context_types.input
   RecordType(rows={'ind': RowType(name='ind', type=EntityType(name='individual', state=None))}, open=True)
 
@@ -110,6 +113,9 @@ Writable configuration without entity
 
   >>> action.context_types.input
   RecordType(rows={'ind': RowType(name='ind', type=EntityType(name='individual', state=None))}, open=True)
+
+  >>> action.read_only.computator(action, None)
+  False
 
   >>> action.context_types.output
   RecordType(rows={}, open=True)

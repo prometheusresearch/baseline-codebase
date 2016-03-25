@@ -12,21 +12,18 @@ import * as data from 'rex-widget/data';
 import Action from '../Action';
 import * as ObjectTemplate from '../ObjectTemplate';
 import * as ContextUtils from '../ContextUtils';
-import applyContext from '../applyContext';
 
-@data.Fetch(function fetchInitialValue({dataValue, value, contextTypes, context}) {
-  let spec = {};
-  if (typeof value === 'string') {
-    spec.value = applyContext(dataValue, contextTypes.input, context, {query: true});
-  }
-  return spec;
-})
-export default class Form extends React.Component {
+export class Form extends React.Component {
 
   static defaultProps = {
     icon: 'pencil',
     submitButton: 'Submit'
   };
+
+  constructor(props) {
+    super(props);
+    this._form = null;
+  }
 
   render() {
     let {onClose, fetched, context} = this.props;
@@ -65,13 +62,11 @@ export default class Form extends React.Component {
   @autobind
   renderForm() {
     let {dataMutation, fields, context, contextTypes, readOnly} = this.props;
-    let submitTo = applyContext(
-        dataMutation,
-        contextTypes.input,
-        context);
+    let submitTo = dataMutation.params(
+        ContextUtils.contextToParams(context, contextTypes.input));
     return (
       <form.ConfigurableForm
-        ref="form"
+        ref={this._onForm}
         readOnly={readOnly}
         context={ContextUtils.getMaskedContext(context, contextTypes.input)}
         submitTo={submitTo}
@@ -84,10 +79,15 @@ export default class Form extends React.Component {
   }
 
   @autobind
+  _onForm(form) {
+    this._form = form;
+  }
+
+  @autobind
   _onSubmit(e) {
     e.preventDefault();
     e.stopPropagation();
-    this.refs.form.submit();
+    this._form.submit();
   }
 
   @autobind
@@ -110,3 +110,12 @@ export default class Form extends React.Component {
     return title || 'Form';
   }
 }
+
+export default data.Fetch(function fetchInitialValue({dataValue, value, contextTypes, context}) {
+  let spec = {};
+  if (typeof value === 'string') {
+    spec.value = dataValue.params(
+      ContextUtils.contextToParams(context, contextTypes.input, {query: true}));
+  }
+  return spec;
+})(Form);

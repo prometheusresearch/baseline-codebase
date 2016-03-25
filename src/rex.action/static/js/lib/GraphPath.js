@@ -1,13 +1,22 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
 
-import * as StringUtils   from './StringUtils';
-import Graph          from './execution/Graph';
-import * as Command       from './execution/Command';
+import {
+  Graph,
+  Command
+} from './execution';
+
+import {
+  splitBySlash,
+  splitByComma,
+  joinWithSlash,
+  joinWithComma
+} from './StringUtils';
 
 const PARSE_SEGMENT = /^([a-zA-Z\-\_]+)(?:\.([a-zA-Z_]+))?(?:\[([^\]]+)\])?$/;
 
+/* istanbul ignore next */
 function isFirefox() {
   return navigator.userAgent.search('Firefox') > -1;
 }
@@ -18,10 +27,11 @@ function isFirefox() {
 export function fromPath(path, instruction, initialContext) {
   // We need a workaround as FF doesn't behave consistently.
   if (isFirefox()) {
+    /* istanbul ignore next */
     path = decodeURIComponent(path);
   }
 
-  let segments = StringUtils.splitBySlash(path).filter(Boolean);
+  let segments = splitBySlash(path).filter(Boolean);
 
   let graph = Graph.create(instruction, initialContext, false);
 
@@ -47,7 +57,7 @@ export function fromPath(path, instruction, initialContext) {
       let command = Command.getCommand(
           graph.node.element,
           commandName);
-      args = StringUtils.splitByComma(args);
+      args = splitByComma(args);
       args = args.map((arg, idx) =>
         command.argumentTypes[idx].parse(graph.node.element, arg));
       graph = graph.executeCommandAtCurrentNodeAndNoAdvance(commandName, ...args);
@@ -61,7 +71,7 @@ export function fromPath(path, instruction, initialContext) {
  * Serialize ``graph`` object to string suitable to be used as path.
  */
 export function toPath(graph) {
-  let path = '/' + StringUtils.joinWithSlash(graph.trace.slice(1).map(_nodeToPath));
+  let path = '/' + joinWithSlash(graph.trace.slice(1).map(_nodeToPath));
   // We need a workaround as FF doesn't behave consistently.
   return path;
 }
@@ -77,9 +87,9 @@ function _nodeToPath(node) {
     let commandArgs = args.map((arg, idx) =>
         command.argumentTypes[idx].stringify(node.element, arg));
     if (commandName === 'default') {
-      segment = segment + `[${StringUtils.joinWithComma(commandArgs)}]`;
+      segment = segment + `[${joinWithComma(commandArgs)}]`;
     } else {
-      segment = segment + `.${commandName}[${StringUtils.joinWithComma(commandArgs)}]`;
+      segment = segment + `.${commandName}[${joinWithComma(commandArgs)}]`;
     }
   }
   return segment;

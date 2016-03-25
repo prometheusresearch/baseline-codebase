@@ -4,8 +4,8 @@
 
 import autobind from 'autobind-decorator';
 import React from 'react';
-import AngleLeftIcon from 'babel-loader!react-icons/fa/angle-double-left';
-import AngleRightIcon from 'babel-loader!react-icons/fa/angle-double-right';
+import AngleLeftIcon from 'react-icons/lib/fa/angle-double-left';
+import AngleRightIcon from 'react-icons/lib/fa/angle-double-right';
 
 import * as css from 'rex-widget/css';
 import * as Stylesheet from 'rex-widget/stylesheet';

@@ -10,7 +10,6 @@ import {command, Types} from '../execution/Command';
 import Action from '../Action';
 import * as ObjectTemplate from '../ObjectTemplate';
 import * as ContextUtils from '../ContextUtils';
-import applyContext from '../applyContext';
 
 export default class Make extends React.Component {
 
@@ -25,10 +24,12 @@ export default class Make extends React.Component {
     kind: 'success',
     onSubmitComplete: emptyFunction,
     submitButton: 'Submit',
+    value: {},
   };
 
   constructor(props) {
     super(props);
+    this._form = null;
     this.state = {key: 1};
   }
 
@@ -49,10 +50,10 @@ export default class Make extends React.Component {
           insert
           context={ContextUtils.getMaskedContext(context, contextTypes.input)}
           key={this.getKey()}
-          ref="form"
+          ref={this._onForm}
           entity={entity.type.name}
           fields={fields}
-          submitTo={applyContext(this.props.dataMutation, contextTypes.input, context)}
+          submitTo={this.props.dataMutation.params(ContextUtils.contextToParams(context, contextTypes.input))}
           submitButton={null}
           onSubmitComplete={this.onSubmitComplete}
           value={value}
@@ -73,8 +74,13 @@ export default class Make extends React.Component {
     );
   }
 
+  @autobind
+  _onForm(form) {
+    this._form = form;
+  }
+
   getKey() {
-    var contextKey = Object
+    let contextKey = Object
       .keys(this.props.contextTypes.input)
       .map(k => this.props.context[k])
       .join('__');
@@ -85,13 +91,13 @@ export default class Make extends React.Component {
   onSubmit(e) {
     e.preventDefault();
     e.stopPropagation();
-    this.refs.form.submit();
+    this._form.submit();
   }
 
   @autobind
   onSubmitComplete(data) {
     this.props.onSubmitComplete(data);
-    var key = this.state.key + 1;
+    let key = this.state.key + 1;
     this.setState({key});
     this.props.onCommand('default', data);
     this.props.refetch();

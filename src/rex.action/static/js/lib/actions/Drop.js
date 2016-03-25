@@ -112,7 +112,7 @@ export default class Drop extends React.Component {
   }
 
   componentWillUnmount() {
-    clearTimeout(this._countdown);
+    clearInterval(this._countdown);
   }
 
   drop = () => {
@@ -127,7 +127,7 @@ export default class Drop extends React.Component {
   countdown = () => {
     let confirmDelay = this.state.confirmDelay - 1;
     if (confirmDelay === 0) {
-      clearTimeout(this._countdown);
+      clearInterval(this._countdown);
     }
     this.setState({confirmDelay});
   }

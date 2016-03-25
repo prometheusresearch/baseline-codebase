@@ -10,88 +10,20 @@ import React from 'react';
 import {post} from 'rex-widget/lib/fetch';
 import * as Stylesheet from 'rex-widget/stylesheet';
 import * as layout  from 'rex-widget/layout';
-import * as ui from 'rex-widget/ui';
 
-import Graph from '../execution/Graph';
 import {isEntity, getEntityType} from '../Entity';
 import * as GraphPath from '../GraphPath';
-import * as Command from '../execution/Command';
-import * as Instruction from '../execution/Instruction';
-import {getTitleAtNode} from '../ActionTitle';
-import {getIconAtNode} from '../ActionIcon';
+import {Command} from '../execution';
 import ActionContext from '../ActionContext';
 import {confirmNavigation} from '../ConfirmNavigation';
 
 import Breadcrumb from './Breadcrumb';
 import Sidebar from './Sidebar';
+import Toolbar from './Toolbar';
 
+/* istanbul ignore next */
 function isFirefox() {
   return navigator.userAgent.search('Firefox') > -1;
-}
-
-function groupBy(array, keyFunc) {
-  let result = [];
-  let currentArray = [];
-  let currentKey = {}; // sentinel
-  for (let i = 0; i < array.length; i++) {
-    let item = array[i];
-    let key = keyFunc(item);
-    if (key === currentKey) {
-      currentArray.push(item);
-    } else {
-      if (currentArray.length > 0) {
-        result.push(currentArray);
-      }
-      currentArray = [item];
-      currentKey = key;
-    }
-  }
-  if (currentArray.length > 0) {
-    result.push(currentArray);
-  }
-  return result;
-}
-
-function NextActionButton({node, onClick, groupHorizontally}) {
-  let Button;
-  switch (node.element.props.kind) {
-    case 'success':
-      Button = ui.SuccessButton;
-      break;
-    case 'danger':
-      Button = ui.DangerButton;
-      break;
-    default:
-      Button = ui.Button;
-  }
-  return (
-    <Button
-      size="small"
-      onClick={onClick.bind(null, node.keyPath)}
-      icon={getIconAtNode(node)}
-      variant={{groupHorizontally}}>
-      {getTitleAtNode(node)}
-    </Button>
-  );
-}
-
-function Toolbar({graph, onClick}) {
-  let nodes = groupBy(
-    graph.nextActions().filter(node => !Instruction.Replace.is(node.instruction)),
-    node => node.element.props.kind);
-  let buttonGroups = nodes
-    .map((nodes, idx) =>
-      <layout.HBox marginRight={5} marginBottom={5} key={idx}>
-        {nodes.map(node =>
-          <NextActionButton
-            key={node.keyPath}
-            node={node}
-            groupHorizontally={nodes.length > 1}
-            onClick={onClick}
-            />)}
-      </layout.HBox>
-    );
-  return <layout.HBox wrap="wrap">{buttonGroups}</layout.HBox>;
 }
 
 export default class Wizard extends React.Component {
@@ -100,6 +32,7 @@ export default class Wizard extends React.Component {
     title: 'Wizard',
     icon: 'asterisk',
     renderTopSidebarItem: emptyFunction,
+    createHistory,
   };
 
   static stylesheet = Stylesheet.create({
@@ -120,7 +53,7 @@ export default class Wizard extends React.Component {
 
   constructor(props) {
     super(props);
-    let {path, initialContext} = props;
+    let {path, initialContext, createHistory} = props;
     this._initialContext = initialContext;
     this._history = createHistory();
     this._historyStopListen = null;
@@ -220,7 +153,7 @@ export default class Wizard extends React.Component {
       }
       trace.push(node);
     }
-    let graph = new Graph(trace);
+    let graph = this.state.graph.replaceTrace(trace);
     this.setState({graph});
   }
 
@@ -264,13 +197,6 @@ export default class Wizard extends React.Component {
   _onReplace(action, nextAction) {
     this.setStateConfirmed(state => ({
       graph: state.graph.replace(action, nextAction, false)
-    }));
-  }
-
-  @autobind
-  _onClose(action) {
-    this.setStateConfirmed(state => ({
-      graph: state.graph.close(action)
     }));
   }
 

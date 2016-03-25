@@ -10,10 +10,11 @@ import {WithDOMSize, Preloader as BasePreloader} from 'rex-widget/ui';
 import {Fetch} from 'rex-widget/data';
 import {VBox} from 'rex-widget/layout';
 import Action from '../Action';
-import applyContext from '../applyContext';
+import * as ContextUtils from '../ContextUtils';
 
 function fetchPlotData({data, context, contextTypes}) {
-  data = applyContext(data, contextTypes.input, context, {query: true});
+  data = data.params(
+    ContextUtils.contextToParams(context, contextTypes.input, {query: true}));
   return {data};
 }
 

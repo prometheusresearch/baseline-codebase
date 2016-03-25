@@ -10,8 +10,7 @@ import * as ui from 'rex-widget/ui';
 import {Fetch} from 'rex-widget/data';
 import * as form from 'rex-widget/form';
 
-@Fetch(fetchEntity)
-export default class View extends React.Component {
+export class View extends React.Component {
 
   static defaultProps = {
     icon: 'file',
@@ -44,3 +43,5 @@ export default class View extends React.Component {
     return props.title || `View ${props.entity.type.name}`;
   }
 }
+
+export default Fetch(fetchEntity)(View);

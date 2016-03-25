@@ -437,4 +437,4 @@ class Wizard(WizardBase):
     """ Wizard which renders the last active action on an entire screen."""
 
     name = 'wizard'
-    js_type = 'rex-action/lib/single-page-next-inside/Wizard'
+    js_type = 'rex-action/lib/wizard/Wizard'

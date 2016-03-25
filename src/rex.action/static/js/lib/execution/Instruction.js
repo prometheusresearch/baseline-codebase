@@ -9,7 +9,7 @@ export class Instruction {
   }
 
   static is(obj) {
-    return obj.constructor === this;
+    return obj && obj.constructor === this;
   }
 }
 

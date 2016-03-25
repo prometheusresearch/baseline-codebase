@@ -44,6 +44,10 @@ export default class Graph {
     this.trace = trace;
   }
 
+  replaceTrace(trace) {
+    new Graph(trace);
+  }
+
   createNode(instruction, context = {}, parent = null, index = null, command = null) {
     return Node.create(instruction, context, parent, index, command);
   }
@@ -74,7 +78,7 @@ export default class Graph {
     return new this.constructor(trace);
   }
 
-  advanceToReference(reference, contextUpdate = null) {
+  _advanceToReference(reference, contextUpdate = null) {
     if (!Array.isArray(reference)) {
       reference = reference.split('/').filter(Boolean);
     }
@@ -184,7 +188,7 @@ export default class Graph {
       if (Instruction.Execute.is(nextNode.instruction)) {
         graph = graph._appendAtCurrentNode(nextNode);
       } else if (Instruction.Replace.is(nextNode.instruction)) {
-        graph = graph.advanceToReference(
+        graph = graph._advanceToReference(
           nextNode.instruction.replace,
           currentNode.context
         );
@@ -268,7 +272,7 @@ export default class Graph {
       if (!nextNode.isAllowed) {
         break;
       }
-      if (nextNode.command !== null) {
+      if (nextNode.command != null) {
         let args;
         // special case for onContextCommand which require specifics for arg
         // processing

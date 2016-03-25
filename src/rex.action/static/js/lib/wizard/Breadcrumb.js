@@ -16,7 +16,7 @@ let BreadcrumbButtonWrapper = Stylesheet.style(layout.HBox, {
   paddingLeft: 15
 });
 
-let BreadcrumbButton = Stylesheet.style(ui.ButtonBase, {
+export let BreadcrumbButton = Stylesheet.style(ui.ButtonBase, {
   Root: {
     fontSize: '85%',
     fontWeight: 700,

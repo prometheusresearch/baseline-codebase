@@ -14,10 +14,8 @@ import * as ObjectTemplate from '../ObjectTemplate';
 import * as ContextUtils from '../ContextUtils';
 import Title from './Title';
 import fetchEntity from './fetchEntity';
-import applyContext from '../applyContext';
 
-@data.Fetch(fetchEntity)
-export default class Edit extends React.Component {
+export class Edit extends React.Component {
 
   static propTypes = {
     context: React.PropTypes.object,
@@ -27,8 +25,14 @@ export default class Edit extends React.Component {
   static defaultProps = {
     width: 400,
     icon: 'pencil',
-    submitButton: 'Submit'
+    submitButton: 'Submit',
+    value: {}
   };
+
+  constructor(props) {
+    super(props);
+    this._form = null;
+  }
 
   render() {
     let {onClose, width, fetched, context} = this.props;
@@ -63,13 +67,11 @@ export default class Edit extends React.Component {
       fetched.entity.data,
       ObjectTemplate.render(value, context)
     );
-    let submitTo = applyContext(
-        this.props.dataMutation,
-        contextTypes.input,
-        context);
+    let submitTo = this.props.dataMutation.params(
+      ContextUtils.contextToParams(context, contextTypes.input));
     return (
       <form.ConfigurableEntityForm
-        ref="form"
+        ref={this._onForm}
         context={ContextUtils.getMaskedContext(context, contextTypes.input)}
         submitTo={submitTo}
         submitButton={null}
@@ -83,10 +85,15 @@ export default class Edit extends React.Component {
   }
 
   @autobind
+  _onForm(form) {
+    this._form = form;
+  }
+
+  @autobind
   _onSubmit(e) {
     e.preventDefault();
     e.stopPropagation();
-    this.refs.form.submit();
+    this._form.submit();
   }
 
   @autobind
@@ -103,9 +110,11 @@ export default class Edit extends React.Component {
   }
 }
 
+export default data.Fetch(fetchEntity)(Edit);
+
 function mergeDeepInto(a, b) {
   a = {...a};
-  for (var k in b) {
+  for (let k in b) {
     if (b.hasOwnProperty(k)) {
       if (typeof b[k] === 'object') {
         a[k] = mergeDeepInto(a[k], b[k]);

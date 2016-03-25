@@ -8,7 +8,7 @@ import * as Stylesheet from 'rex-widget/stylesheet';
 import * as CSS from 'rex-widget/css';
 import {VBox} from 'rex-widget/layout';
 
-class ChromeRoot extends React.Component {
+export class ChromeRoot extends React.Component {
 
   static stylesheet = Stylesheet.create({
     Wrapper: {

@@ -20,6 +20,8 @@ export default class StickyFooterPanel extends React.Component {
 
   static defaultProps = {
     stickThreshold: 50,
+    addResizeListener: addResizeListener,
+    removeResizeListener: removeResizeListener,
   };
 
   static stylesheet = Stylesheet.create({
@@ -39,7 +41,7 @@ export default class StickyFooterPanel extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {pinnned: false};
+    this.state = {pinned: false};
     this._contentRef = null;
     this._contentMarkerRef = null;
   }
@@ -74,14 +76,14 @@ export default class StickyFooterPanel extends React.Component {
   _installContentResizeDetector() {
     if (this._contentRef && this._contentMarkerRef) {
       let contentElem = ReactDOM.findDOMNode(this._contentRef);
-      addResizeListener(contentElem, this._onContentResize);
+      this.props.addResizeListener(contentElem, this._onContentResize);
     }
   }
 
   _uninstallContentResizeDeterctor() {
     if (this._contentRef) {
       let contentElem = ReactDOM.findDOMNode(this._contentRef);
-      removeResizeListener(contentElem, this._onContentResize);
+      this.props.removeResizeListener(contentElem, this._onContentResize);
     }
   }
 

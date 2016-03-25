@@ -11,8 +11,10 @@
   },
   "nyc": {
     "exclude": [
-      "**/__tests__/*-test.js",
-      "**/vendor/*.js"
+      "**/__tests__/*.js",
+      "**/coverage/*.js",
+      "**/vendor/*.js",
+      "*.js"
     ]
   },
   "rex": {
@@ -37,28 +39,32 @@
     "dot-qs": "0.2.0",
     "fixed-data-table": "^0.5.0",
     "flat": "1.2.1",
+    "generate-function": "^2.0.0",
+    "immupdate": "^0.1.3",
     "immutable": "^3.7.4",
     "invariant": "^2.1.0",
     "keymirror": "^0.1.1",
+    "lodash": "^3.10.1",
     "normalize.css": "^3.0.3",
     "object-assign": "^1.0.0",
     "qs": "^4.0.0",
-    "react-forms": "2.0.0-beta11",
-    "react-icons": "^1.0.3",
-    "react-stylesheet": "^0.7.1",
     "react-dom-stylesheet": "^0.1.2",
+    "react-forms": "2.0.0-beta12",
+    "react-icons": "^1.0.3",
+    "react-stylesheet": "^0.8.2",
     "rethemeable": "^2.0.1",
     "styling": "^0.4.0",
     "to-snake-case": "^1.0.0",
-    "transit-js": "^0.8.795",
-    "immupdate": "^0.1.3",
-    "generate-function": "^2.0.0"
+    "transit-js": "^0.8.795"
   },
   "devDependencies": {
     "babel": "^5.8.35",
     "babel-plugin-espower": "^1.0.0",
     "eslint": "^2.2.0",
     "eslint-config-prometheusresearch": "^0.1.0",
+    "estraverse-fb": "^1.3.1",
+    "indent-string": "^2.1.0",
+    "inspect-react-element": "^1.1.1",
     "jsdom": "^6.5.1",
     "mocha": "^2.3.3",
     "nyc": "^6.0.0",
@@ -66,6 +72,7 @@
     "react": "^0.14.0",
     "react-addons-test-utils": "^0.14.3",
     "react-dom": "^0.14.0",
+    "react-shallow-testutils": "^1.0.0",
     "sinon": "^1.17.1"
   }
 }

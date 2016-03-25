@@ -13,8 +13,12 @@ export class Mutation {
     this._params = params;
   }
 
+  prepareFormData() {
+    return new FormData();
+  }
+
   execute(data, prevData = null) {
-    let formData = new FormData();
+    let formData = this.prepareFormData();
     formData.append('old', JSON.stringify([prevData]));
     formData.append('new', JSON.stringify([data]));
     return this.constructor.post(this.path, this._params, formData);

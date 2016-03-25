@@ -81,6 +81,7 @@ export default class Authorized extends React.Component {
 }
 
 let PERMISSIONS_API_ENDPOINT;
+/* istanbul ignore next */
 if (typeof __REX_WIDGET_MOUNT_PREFIX__ !== 'undefined') {
   PERMISSIONS_API_ENDPOINT = `${__REX_WIDGET_MOUNT_PREFIX__}/authorized`;
 } else {
@@ -108,6 +109,9 @@ function checkAccessTo(access) {
       .then(response => {
         let {authorized} = response;
         _access[access] = authorized;
+      }, error => {
+        /* istanbul ignore next */
+        console.error(error); // eslint-disable-line no-console
       });
   }
   return result;

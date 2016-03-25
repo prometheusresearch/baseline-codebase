@@ -136,7 +136,6 @@ function makeStylesheet(stylesheet) {
     },
   };
 
-
   let colors = {
     background: Theme.button.backgroundColor || stylesheet.background,
     color: Theme.button.textColor || stylesheet.text,
@@ -319,10 +318,14 @@ function makeStylesheet(stylesheet) {
   };
 }
 
-let Button = Stylesheet.style(ButtonBase, makeStylesheet(stylesheet));
+let Button = Stylesheet.style(
+  ButtonBase,
+  makeStylesheet(stylesheet),
+  {displayName: 'Button'}
+);
 
-Button.style = function style(stylesheet) {
-  return Stylesheet.style(ButtonBase, makeStylesheet(stylesheet));
+Button.style = function style(stylesheet, options) {
+  return Stylesheet.style(ButtonBase, makeStylesheet(stylesheet), options);
 };
 
 export default Button;

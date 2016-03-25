@@ -58,6 +58,34 @@ describe('Fetch', function() {
     assert(output.props.fetched.item.updating);
   });
 
+  it('starts fetching data on componentDidMount (used as a wrapper)', function() {
+
+    function fetch() {
+      return {item: new DataProvider};
+    }
+
+    class Component extends React.Component {
+
+      render() {
+        return null;
+      }
+    }
+
+    let XComponent = Fetch(Component, fetch);
+
+    let renderer = TestUtils.createRenderer();
+    renderer.render(<XComponent />);
+    let output = renderer.getRenderOutput();
+
+    assert(output.props.fetched);
+    assert(output.props.fetched.item);
+
+    assert(output.props.fetched.item.data === null);
+    assert(output.props.fetched.item.error === null);
+    assert(output.props.fetched.item.updating);
+  });
+
+
   it('stops fetching after component is unmounted (on complete)', function() {
 
     let item = new DataProvider();

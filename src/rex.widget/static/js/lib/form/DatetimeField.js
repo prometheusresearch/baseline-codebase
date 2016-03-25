@@ -2,17 +2,17 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import moment             from 'moment';
-import React              from 'react';
+import moment from 'moment';
+import React from 'react';
 import DatetimeInput from './DatetimeInput';
-import Field              from './Field';
-import ReadOnlyField      from './ReadOnlyField';
+import Field from './Field';
+import ReadOnlyField from './ReadOnlyField';
 import {WithFormValue} from 'react-forms';
 
 const ISO_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 const ISO_FORMAT_NO_TIME = 'YYYY-MM-DD';
 
-class DateTimePicker extends React.Component {
+export class DatetimePicker extends React.Component {
 
   render() {
     let {value, format, ...props} = this.props;
@@ -43,8 +43,7 @@ class DateTimePicker extends React.Component {
  *
  * @public
  */
-@WithFormValue
-export default class DatetimeField extends React.Component {
+export class DatetimeField extends React.Component {
 
   static defaultProps = {
     format: 'YYYY-MM-DD HH:mm:ss'
@@ -88,9 +87,11 @@ export default class DatetimeField extends React.Component {
     } else {
       return (
         <Field {...props} formValue={formValue}>
-          <DateTimePicker format={format} />
+          <DatetimePicker format={format} />
         </Field>
       );
     }
   }
 }
+
+export default WithFormValue(DatetimeField);

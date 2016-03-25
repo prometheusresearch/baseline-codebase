@@ -4,6 +4,7 @@
 
 import transit from 'transit-js';
 
+/* istanbul ignore next */
 let _readerConfig = {
 
   handlers: {},
@@ -41,6 +42,7 @@ let _readerConfig = {
 /**
  * Decode transit payload into object model.
  */
+/* istanbul ignore next */
 export function decode(string) {
   let reader = transit.reader('json', _readerConfig);
   return reader.read(string);
@@ -49,6 +51,7 @@ export function decode(string) {
 /**
  * Register decode handler for a tag.
  */
+/* istanbul ignore next */
 export function register(tag, handler) {
   _readerConfig.handlers[tag] = handler;
 }

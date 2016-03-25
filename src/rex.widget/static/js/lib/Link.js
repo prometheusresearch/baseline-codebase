@@ -1,26 +1,10 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
 
-import React      from 'react';
-import * as qs    from './qs';
+import React from 'react';
+import * as qs from './qs';
 import resolveURL from './resolveURL';
-
-function interpolateLinkParams(link, name, value) {
-  if (!link) {
-    return link;
-  }
-  let {params, href} = link.props;
-  let nextParams = {};
-  for (let n in params) {
-    if (params[n] === `$${name}`) {
-      nextParams[n] = value;
-    } else {
-      nextParams[n] = params[n];
-    }
-  }
-  return React.cloneElement(link, {href, params: nextParams});
-}
 
 /**
  * Renders an anchor <a>
@@ -39,11 +23,6 @@ export default class Link extends React.Component {
     href: React.PropTypes.string.isRequired,
 
     /**
-     * the children to display inside the anchor.
-     */
-    children: React.PropTypes.element,
-
-    /**
      * (optional) querystring parameters.
      * If provided, this object will be "flattened" into a string
      * which is prepended with '?' and then appended to the href url.
@@ -52,13 +31,11 @@ export default class Link extends React.Component {
   };
 
   render() {
-    let {href, children, params, ...props} = this.props;
+    let {href, params, ...props} = this.props;
     href = resolveURL(href);
     if (params) {
-      href = href + '?' + qs.stringify(params);
+      href = `${href}?${qs.stringify(params)}`;
     }
-    return <a {...props} href={href}>{children}</a>;
+    return <a {...props} href={href} />;
   }
-
-  static interpolateLinkParams = interpolateLinkParams;
 }

@@ -3,34 +3,34 @@
  */
 
 import Button from './Button';
-import * as CSS from '../CSS';
+import * as css from '../../css';
+import * as stylesheet from '../../stylesheet';
 
-export default Button.style({
+export default stylesheet.style(Button, {
   raised: true,
 
   textWidth: 400,
 
-  text: CSS.rgb(255),
-  textHover: CSS.rgb(255),
-  textFocus: CSS.rgb(255),
-  textActive: CSS.rgb(255),
-  textDisabled: CSS.rgb(255),
+  text: css.rgb(255),
+  textHover: css.rgb(255),
+  textFocus: css.rgb(255),
+  textActive: css.rgb(255),
+  textDisabled: css.rgb(255),
 
-  background: CSS.rgb(210, 77, 77),
-  backgroundHover: CSS.rgb(173, 48, 48),
-  backgroundFocus: CSS.rgb(173, 48, 48),
-  backgroundActive: CSS.rgb(173, 48, 48),
-  backgroundDisabled: CSS.rgb(226, 135, 135),
+  background: css.rgb(210, 77, 77),
+  backgroundHover: css.rgb(173, 48, 48),
+  backgroundFocus: css.rgb(173, 48, 48),
+  backgroundActive: css.rgb(173, 48, 48),
+  backgroundDisabled: css.rgb(226, 135, 135),
 
-  border: CSS.rgb(210, 77, 77),
-  borderHover: CSS.rgb(173, 48, 48),
-  borderFocus: CSS.rgb(173, 48, 48),
-  borderActive: CSS.rgb(173, 48, 48),
-  borderDisabled: CSS.rgb(226, 135, 135),
+  border: css.rgb(210, 77, 77),
+  borderHover: css.rgb(173, 48, 48),
+  borderFocus: css.rgb(173, 48, 48),
+  borderActive: css.rgb(173, 48, 48),
+  borderDisabled: css.rgb(226, 135, 135),
 
-  shadow: CSS.rgb(142, 31, 31),
-  shadowFocus: CSS.rgb(70, 21, 20),
-  shadowHover: CSS.rgb(70, 21, 20),
-  shadowActive: CSS.rgb(70, 21, 20),
-});
-
+  shadow: css.rgb(142, 31, 31),
+  shadowFocus: css.rgb(70, 21, 20),
+  shadowHover: css.rgb(70, 21, 20),
+  shadowActive: css.rgb(70, 21, 20),
+}, {displayName: 'DangerButton'});

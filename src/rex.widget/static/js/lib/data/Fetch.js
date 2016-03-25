@@ -39,6 +39,8 @@ export default function Fetch(Component, fetch) {
 
     let FetchContainer = class extends React.Component {
 
+      static Component = Component;
+
       static defaultProps = getDefaultProps(Component);
 
       static displayName = `FetchContainer(${displayName})`;
@@ -97,6 +99,7 @@ export default function Fetch(Component, fetch) {
         let data = {};
         for (let key in spec) {
           if (!spec.hasOwnProperty(key)) {
+            /* istanbul ignore next */
             continue;
           }
           if (!force && spec[key].equals(this._spec[key])) {
@@ -114,9 +117,11 @@ export default function Fetch(Component, fetch) {
 
         for (let key in this._spec) {
           if (!this._spec.hasOwnProperty(key)) {
+            /* istanbul ignore next */
             continue;
           }
           if (spec.hasOwnProperty(key)) {
+            /* istanbul ignore next */
             continue;
           }
           if (this._tracker[key]) {
@@ -132,6 +137,7 @@ export default function Fetch(Component, fetch) {
       _cancelAll() {
         for (let key in this._tracker) {
           if (!this._tracker.hasOwnProperty(key)) {
+            /* istanbul ignore next */
             continue;
           }
           this._tracker[key].cancel();

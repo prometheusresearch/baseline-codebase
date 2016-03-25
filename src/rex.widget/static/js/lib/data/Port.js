@@ -149,6 +149,9 @@ export class Port {
     return this.replace({id: entity.id}, entity, params, options);
   }
 
+  inspect() {
+    return `${this.constructor.name} { path: ${this.path} }`;
+  }
 }
 
 export function isPort(obj) {

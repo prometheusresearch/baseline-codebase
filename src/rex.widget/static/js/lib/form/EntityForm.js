@@ -5,7 +5,7 @@
 import React from 'react';
 
 import {forceRefreshData} from '../data';
-import {emptyFunction} from '../lang';
+import {autobind, emptyFunction} from '../lang';
 import {Port} from '../data/Port';
 import {Mutation} from '../data/Mutation';
 import Form from './Form';
@@ -23,9 +23,9 @@ function needExtract(submitTo) {
  *
  * @public
  */
-let EntityForm = React.createClass({
+export default class EntityForm extends React.Component {
 
-  propTypes: {
+  static propTypes = {
     ...Form.PropTypes,
 
     /**
@@ -48,8 +48,18 @@ let EntityForm = React.createClass({
      *
      * Callback which fires after form submit is complete.
      */
-    onSubmitComplete: React.PropTypes.func
-  },
+    onSubmitComplete: React.PropTypes.func,
+  };
+
+  static defaultProps = {
+    onSubmitComplete: emptyFunction,
+    value: {}
+  };
+
+  constructor(props) {
+    super(props);
+    this._form = null;
+  }
 
   render() {
     let {
@@ -63,7 +73,7 @@ let EntityForm = React.createClass({
     return (
       <Form
         {...props}
-        ref="form"
+        ref={this.onForm}
         schema={{
           type: 'object',
           properties: {
@@ -87,15 +97,14 @@ let EntityForm = React.createClass({
         </Fieldset>
       </Form>
     );
-  },
+  }
 
-  getDefaultProps() {
-    return {
-      onSubmitComplete: emptyFunction,
-      value: {}
-    };
-  },
+  @autobind
+  onForm(form) {
+    this._form = form;
+  }
 
+  @autobind
   transformValueOnSubmit(value) {
     if (this.props.transformValueOnSubmit) {
       return this.props.transformValueOnSubmit(value);
@@ -104,8 +113,9 @@ let EntityForm = React.createClass({
     } else {
       return value;
     }
-  },
+  }
 
+  @autobind
   onSubmitComplete(data) {
     forceRefreshData();
     if (needExtract(this.props.submitTo)) {
@@ -113,11 +123,10 @@ let EntityForm = React.createClass({
     } else {
       this.props.onSubmitComplete(data);
     }
-  },
-
-  submit() {
-    return this.refs.form.submit();
   }
-});
 
-module.exports = EntityForm;
+  @autobind
+  submit() {
+    return this._form.submit();
+  }
+}

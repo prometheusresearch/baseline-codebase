@@ -18,8 +18,7 @@ import {WithFormValue} from 'react-forms';
  *
  * @public
  */
-@WithFormValue
-export default class AutocompleteField extends React.Component {
+export class AutocompleteField extends React.Component {
 
   static propTypes = {
 
@@ -133,7 +132,7 @@ function fetchEntity({data, value}) {
 }
 
 @Fetch(fetchEntity)
-class EntityTitle extends React.Component {
+export class EntityTitle extends React.Component {
 
   static defaultProps = {
     titleAttribute: 'title'
@@ -144,3 +143,5 @@ class EntityTitle extends React.Component {
     return <View data={entity.data} titleAttribute={titleAttribute} />;
   }
 }
+
+export default WithFormValue(AutocompleteField);

@@ -18,8 +18,7 @@ import Input from './Input';
  *
  * @public
  */
-@WithFormValue
-export default class Field extends React.Component {
+export class Field extends React.Component {
 
   static stylesheet = Stylesheet.create({
     Root: {
@@ -124,12 +123,13 @@ export default class Field extends React.Component {
     serialize: (value) => (value),
     deserialize: (value) => (value),
     labelSize: 2,
-    inputSize: 5
+    inputSize: 5,
+    debounceValidation: 500,
   };
 
   constructor(props) {
     super(props);
-    this._validate = debounce(this._validate, 500);
+    this._validate = debounce(this._validate, props.debounceValidation);
     this.state = {
       dirty: false
     };
@@ -252,7 +252,10 @@ export default class Field extends React.Component {
   @autobind
   _onValidateError(error) {
     // FIXME: What to do? Render into errorList?
+    /* istanbul ignore next */
     console.error(error); // eslint-disable-line no-console
   }
 
 }
+
+export default WithFormValue(Field);

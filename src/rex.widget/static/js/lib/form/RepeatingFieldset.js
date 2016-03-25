@@ -19,8 +19,7 @@ import Fieldset from './Fieldset';
  *
  * @public
  */
-@WithFormValue
-export default class RepeatingFieldset extends React.Component {
+export class RepeatingFieldset extends React.Component {
 
   static propTypes = {
     /**
@@ -159,7 +158,11 @@ export default class RepeatingFieldset extends React.Component {
     let value = (formValue.value || []).slice(0);
     let defaultValue = this.props.defaultValue;
     if (defaultValue === undefined) {
-      defaultValue = formValue.schema.defaultItem;
+      if (formValue.schema) {
+        defaultValue = formValue.schema.defaultItem;
+      } else {
+        defaultValue = {};
+      }
     }
     value.push(defaultValue);
     formValue.update(value);
@@ -174,4 +177,4 @@ export default class RepeatingFieldset extends React.Component {
   }
 }
 
-module.exports = RepeatingFieldset;
+export default WithFormValue(RepeatingFieldset);

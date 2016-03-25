@@ -51,6 +51,7 @@ export default class ConfigurableEntityForm extends React.Component {
   constructor(props) {
     super(props);
     this._schema = Schema.fromFields(this.props.fields);
+    this._form = null;
   }
 
   render() {
@@ -58,7 +59,7 @@ export default class ConfigurableEntityForm extends React.Component {
     return (
       <EntityForm
         {...props}
-        ref="form"
+        ref={this.onForm}
         schema={this._schema}
         onChange={this.onChange}
         submitButton={readOnly ? null : submitButton}>
@@ -70,8 +71,8 @@ export default class ConfigurableEntityForm extends React.Component {
     );
   }
 
-  componentWillReceiveProps({fields, schema}) {
-    if (schema !== this.props.schema || fields !== this.props.fields) {
+  componentWillReceiveProps({fields}) {
+    if (fields !== this.props.fields) {
       this._schema = Schema.fromFields(fields);
     }
   }
@@ -88,7 +89,12 @@ export default class ConfigurableEntityForm extends React.Component {
   }
 
   @autobind
+  onForm(form) {
+    this._form = form;
+  }
+
+  @autobind
   submit() {
-    return this.refs.form.submit();
+    return this._form.submit();
   }
 }

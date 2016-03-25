@@ -27,7 +27,7 @@ let sentinel = '__empty_value_sentinel__';
  *
  * Any **options** appear next in the list followed by any items in **data**.
  */
-export default class Select extends React.Component {
+export default class BaseSelect extends React.Component {
 
   static propTypes = {
     /**

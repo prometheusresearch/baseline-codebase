@@ -230,9 +230,7 @@ let Form = React.createClass({
   componentWillReceiveProps(nextProps) {
     let value = this.state.value;
     if (nextProps.schema !== this.props.schema) {
-      value = value.createRoot({
-        schema: nextProps.schema,
-      });
+      value = value.setSchema(nextProps.schema);
       this.setState({value});
     }
     if (nextProps.context !== this.props.context) {
@@ -292,23 +290,6 @@ let Form = React.createClass({
         }
         submitTo
           .execute(valueToSubmit, prevValue)
-          .then(this.onSubmitComplete, this.onSubmitError);
-      }
-    } else {
-      // Legacy code-path to support data specification
-      if (submitTo.port instanceof Port) {
-        if (insert) {
-          submitTo.port
-            .insert(valueToSubmit)
-            .then(this.onSubmitComplete, this.onSubmitError);
-        } else {
-          submitTo.port
-            .replace(this.props.initialValue || this.props.value, valueToSubmit)
-            .then(this.onSubmitComplete, this.onSubmitError);
-        }
-      } else if (submitTo.port instanceof Query) {
-        submitTo.port
-          .execute(valueToSubmit)
           .then(this.onSubmitComplete, this.onSubmitError);
       }
     }

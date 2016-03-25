@@ -11,7 +11,7 @@ import {WithFormValue} from 'react-forms';
 
 const ISO_FORMAT = 'YYYY-MM-DD';
 
-class DatePicker extends React.Component {
+export class DatePicker extends React.Component {
 
   render() {
     let {value, format, minDate, maxDate, ...props} = this.props;
@@ -34,8 +34,7 @@ class DatePicker extends React.Component {
  *
  * @public
  */
-@WithFormValue
-export default class DateField extends React.Component {
+export class DateField extends React.Component {
 
   static propTypes = {
     /**
@@ -93,3 +92,5 @@ export default class DateField extends React.Component {
     }
   }
 }
+
+export default WithFormValue(DateField);

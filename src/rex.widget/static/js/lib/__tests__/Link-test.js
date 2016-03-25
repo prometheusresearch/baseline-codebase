@@ -38,6 +38,12 @@ describe('Link', function() {
     assert(element.props.href === './');
   });
 
+  it('renders an anchor element with a path with params', function() {
+    let element = render(<Link href="./" params={{a: 'b'}} />);
+    assert(element.type === 'a');
+    assert(element.props.href === './?a=b');
+  });
+
   it('renders an anchor element with an absolute path', function() {
     let element = render(<Link href="/path" />);
     assert(element.type === 'a');

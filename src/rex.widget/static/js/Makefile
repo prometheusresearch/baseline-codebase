@@ -2,7 +2,9 @@ BIN           = ./node_modules/.bin
 TESTS         = \
                 lib/__tests__/*-test.js \
                 lib/data/__tests__/*-test.js \
+                lib/datatable/__tests__/*-test.js \
                 lib/form/__tests__/*-test.js \
+                lib/lang/__tests__/*-test.js \
                 lib/ui/__tests__/*-test.js \
                 lib/ui/base/__tests__/*-test.js
 MOCHA_OPTS    = --compilers js:babel/register --require ./lib/__tests__/setup.js
@@ -17,7 +19,7 @@ test-cov::
 	@$(COV) -- $(TESTS)
 
 report-cov::
-	@$(BIN)/nyc report -r html
+	@$(COV) -- $(TESTS) || $(BIN)/nyc report -r html
 
 ci::
 	@$(MOCHA) --watch -- $(TESTS)

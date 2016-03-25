@@ -33,8 +33,7 @@ let Style = {
  *
  * @public
  */
-@WithFormValue
-export default class ReadOnlyField extends React.Component {
+export class ReadOnlyField extends React.Component {
 
   static propTypes = {
     /**
@@ -133,3 +132,5 @@ function renderValue(value) {
     return String(value);
   }
 }
+
+export default WithFormValue(ReadOnlyField);

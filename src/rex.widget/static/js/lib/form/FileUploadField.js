@@ -1,5 +1,5 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
 
 import React from 'react';
@@ -7,39 +7,14 @@ import ReactDOM from 'react-dom';
 import {VBox, HBox} from '../../layout';
 import {Button} from '../../ui';
 import File from './File';
-import resolveURL from '../resolveURL';
 import StoredFile from './StoredFile';
 import FileDownload from './FileDownload';
 import Field from './Field';
 import ReadOnlyField from './ReadOnlyField';
 import {WithFormValue} from 'react-forms';
+import uploadFile from '../upload';
 
-function uploadFile(url, file, onProgress) {
-  url = resolveURL(url);
-  return new Promise(function(resolve, reject) {
-    let data = new FormData();
-    data.append('file', file);
-    let xhr = new XMLHttpRequest();
-    xhr.open('POST', url, true);
-    xhr.onload = resolve;
-    xhr.onerror = reject;
-    if (onProgress) {
-      xhr.upload.onprogress = function(e) {
-        if (e.lengthComputable) {
-          let progress = e.loaded / e.total;
-          onProgress(progress);
-        }
-      };
-    }
-    try {
-      xhr.send(data);
-    } catch(err) {
-      reject(err);
-    }
-  });
-}
-
-let FileUploadInput = React.createClass({
+export let FileUploadInput = React.createClass({
 
   styleInput: {
     display: 'none'
@@ -53,6 +28,10 @@ let FileUploadInput = React.createClass({
   styleError: {
     fontSize: '90%',
     color: 'rgb(234, 69, 69)'
+  },
+
+  getDefaultProps() {
+    return {uploadFile};
   },
 
   render() {
@@ -117,7 +96,7 @@ let FileUploadInput = React.createClass({
       file,
       error: null
     });
-    uploadFile(this.props.storage, file, this._onUploadProgress)
+    this.props.uploadFile(this.props.storage, file, this._onUploadProgress)
       .then(response => JSON.parse(response.target.responseText))
       .then(this._onUploadComplete, this._onUploadError);
   },
@@ -151,8 +130,7 @@ let FileUploadInput = React.createClass({
  *
  * @public
  */
-@WithFormValue
-export default class FileUploadField extends React.Component {
+export class FileUploadField extends React.Component {
 
   static propTypes = {
     /**
@@ -218,3 +196,5 @@ export default class FileUploadField extends React.Component {
     return record ? record.id : undefined;
   }
 }
+
+export default WithFormValue(FileUploadField);

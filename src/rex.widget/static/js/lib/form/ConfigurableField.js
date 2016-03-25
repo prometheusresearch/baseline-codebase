@@ -1,25 +1,26 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
-'use strict';
 
-let React             = require('react');
-let {VBox}            = require('../../layout');
-let isReactElement    = require('../isReactElement');
-let Fieldset          = require('./Fieldset');
-let ReadOnlyField     = require('./ReadOnlyField');
-let Field             = require('./Field');
-let IntegerField      = require('./IntegerField');
-let NumberField       = require('./NumberField');
-let DateField         = require('./DateField');
-let CheckboxField     = require('./CheckboxField');
-let SelectField       = require('./SelectField');
-let RepeatingFieldset = require('./RepeatingFieldset');
-let FileUploadField   = require('./FileUploadField');
+import React from 'react';
+
+import {VBox} from '../../layout';
+import isReactElement from '../isReactElement';
+
+import Fieldset from './Fieldset';
+import ReadOnlyField from './ReadOnlyField';
+import Field from './Field';
+import IntegerField from './IntegerField';
+import NumberField from './NumberField';
+import DateField from './DateField';
+import CheckboxField from './CheckboxField';
+import SelectField from './SelectField';
+import RepeatingFieldset from './RepeatingFieldset';
+import FileUploadField from './FileUploadField';
 
 
-let FIELDS_WITH_READONLY_MODE = ['entity', 'bool', 'enum', 'file', 'list',
-                                 'fieldset'];
+const FIELDS_WITH_READONLY_MODE = ['entity', 'bool', 'enum', 'file', 'list',
+                                   'fieldset'];
 
 /**
  * ConfigurableField component.
@@ -278,4 +279,4 @@ let ConfigurableField = React.createClass({
   }
 });
 
-module.exports = ConfigurableField;
+export default ConfigurableField;

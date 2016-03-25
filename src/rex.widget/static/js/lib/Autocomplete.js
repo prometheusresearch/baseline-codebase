@@ -148,11 +148,13 @@ export default class Autocomplete extends React.Component {
 
   static defaultProps = {
     titleAttribute: 'title',
-    valueAttribute: 'id'
+    valueAttribute: 'id',
+    debounce: 300,
   };
 
   constructor(props) {
     super(props);
+    this._searchTimer = null;
     this.state = {
       value: null
     };
@@ -181,10 +183,6 @@ export default class Autocomplete extends React.Component {
             />}
       </Root>
     );
-  }
-
-  componentWillMount() {
-    this._searchTimer = null;
   }
 
   componentDidMount() {
@@ -247,6 +245,7 @@ export default class Autocomplete extends React.Component {
 
   @autobind
   _onRequestValueError(err) {
+    /* istanbul ignore next */
     console.error(err); // eslint-disable-line no-console
   }
 
@@ -273,6 +272,7 @@ export default class Autocomplete extends React.Component {
 
   @autobind
   _onRequestOptionsError(err) {
+    /* istanbul ignore next */
     console.error(err); // eslint-disable-line no-console
   }
 
@@ -286,7 +286,7 @@ export default class Autocomplete extends React.Component {
         result => cb(null, result),
         err => cb(err)
       );
-    }, 300);
+    }, this.props.debounce);
   }
 
 }

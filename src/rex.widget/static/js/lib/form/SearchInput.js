@@ -15,7 +15,7 @@ function isEmpty(value) {
   return value == null || value == '';
 }
 
-let IconButton = stylesheet.style(Icon, {
+export let IconButton = stylesheet.style(Icon, {
   opacity: 0.5,
   cursor: 'pointer',
   focus: {

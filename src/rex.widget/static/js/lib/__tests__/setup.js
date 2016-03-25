@@ -11,6 +11,10 @@ let window = document.defaultView;
 global.assert = assert;
 global.document = document;
 global.window = window;
+global.__PUBLIC_PATH__ = '/';
+global.requestAnimationFrame = function(callback) {
+  setTimeout(callback, 0);
+}
 
 propagateToGlobal(window);
 
@@ -25,3 +29,11 @@ function propagateToGlobal(window) {
     global[key] = window[key];
   }
 }
+
+require.extensions['.gif'] = function() {
+  return 'url';
+};
+
+require.extensions['.css'] = function() {
+  return 'css-url';
+};

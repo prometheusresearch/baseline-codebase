@@ -19,7 +19,7 @@ let NotificationLayerStyle = {
   }
 };
 
-let NotificationLayer = React.createClass({
+export let NotificationLayer = React.createClass({
 
   render() {
     let notifications = this.state.notifications.map(notification =>
@@ -110,16 +110,16 @@ function _initializeLayer() {
   return _layer;
 }
 
-export function showNotification(notification) {
+export function showNotification(notification, getLayer = _initializeLayer) {
   if (!notification.props && !notification.type) {
     notification = <Notification {...notification} />;
   }
-  let layer = _initializeLayer();
+  let layer = getLayer();
   let notificationId = layer.showNotification(notification);
   return notificationId;
 }
 
-export function removeNotification(notificationId) {
-  let layer = _initializeLayer();
+export function removeNotification(notificationId, getLayer = _initializeLayer) {
+  let layer = getLayer();
   layer.removeNotification(notificationId);
 }

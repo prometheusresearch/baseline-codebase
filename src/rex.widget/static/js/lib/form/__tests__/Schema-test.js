@@ -5,7 +5,6 @@
 import assert from 'power-assert';
 import * as Schema from '../Schema';
 import * as Validation from '../Validation';
-import {Schema as RFSchema} from 'react-forms';
 
 describe('Schema', function() {
 
@@ -892,62 +891,4 @@ describe('Schema', function() {
 
   });
 
-  describe('Validation', function() {
-
-    describe('string', function() {
-
-      it('plain node', function() {
-        let schema = {
-          type: 'string',
-          format: Validation.string
-        };
-        let validate = RFSchema.Schema(schema);
-        assert.deepEqual(
-          validate('x'),
-          []
-        );
-        assert.deepEqual(
-          validate(42),
-          [{field: 'data', message: 'is the wrong type', schema}]
-        );
-      });
-
-      it('with pattern', function() {
-        let schema = {
-          type: 'string',
-          format: Validation.string,
-          formatPattern: '[0-9]+'
-        };
-        let validate = RFSchema.Schema(schema);
-        assert.deepEqual(
-          validate('x'),
-          [{ field : 'data', message : 'does not match the pattern', schema }]
-        );
-        assert.deepEqual(
-          validate('42'),
-          []
-        );
-      });
-
-      it('with pattern and error message', function() {
-        let schema = {
-          type: 'string',
-          format: Validation.string,
-          formatPattern: '[0-9]+',
-          formatError: 'should be a number',
-        };
-        let validate = RFSchema.Schema(schema);
-        assert.deepEqual(
-          validate('x'),
-          [{ field : 'data', message : 'should be a number', schema }]
-        );
-        assert.deepEqual(
-          validate('42'),
-          []
-        );
-      });
-
-    });
-
-  });
 });

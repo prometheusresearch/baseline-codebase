@@ -1,26 +1,20 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
-'use strict';
 
-let React                   = require('react');
-let Field                   = require('./Field');
-let ReadOnlyField           = require('./ReadOnlyField');
+import React from 'react';
 import {WithFormValue} from 'react-forms';
 
-let CheckboxStyle = {
-  self: {
-    marginTop: 9
-  }
-};
+import Field from './Field';
+import ReadOnlyField from './ReadOnlyField';
 
-let Checkbox = React.createClass({
+export let Checkbox = React.createClass({
 
   render() {
     return (
       <input
         type="checkbox"
-        style={CheckboxStyle.self}
+        style={{marginTop: 9}}
         checked={this.props.value}
         onChange={this.onChange} 
         />
@@ -38,7 +32,7 @@ let Checkbox = React.createClass({
  *
  * @public
  */
-let CheckboxField = React.createClass({
+export let CheckboxField = React.createClass({
 
   propTypes: {
     /**
@@ -51,7 +45,7 @@ let CheckboxField = React.createClass({
      * A form value object whose **value** property contains 
      * the initial value of the checkbox.
      */
-    formValue: React.PropTypes.object
+    formValue: React.PropTypes.object.isRequired,
   },
 
   render() {
@@ -72,4 +66,4 @@ let CheckboxField = React.createClass({
   }
 });
 
-module.exports = WithFormValue(CheckboxField);
+export default WithFormValue(CheckboxField);

@@ -8,7 +8,7 @@ import Fetch              from '../data/Fetch';
 import DataTableBase      from './DataTableBase';
 
 
-let DataSpec = {
+export let DataSpec = {
 
   fetch({data, pagination: {top, skip}, sort: {valueKey, asc}}) {
     data = data.limit(top, skip);
@@ -30,8 +30,7 @@ let DataSpec = {
 
 };
 
-@Fetch(DataSpec)
-export default class DataTable extends React.Component {
+export class DataTable extends React.Component {
 
   static propTypes = {
     /**
@@ -87,3 +86,5 @@ export default class DataTable extends React.Component {
     this.props.setDataParams({sort, pagination});
   }
 }
+
+export default Fetch(DataSpec)(DataTable);

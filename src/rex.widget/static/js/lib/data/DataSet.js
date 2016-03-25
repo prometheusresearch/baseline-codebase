@@ -42,6 +42,7 @@ export default class DataSet {
 
   setHasMore(hasMore) {
     if (this.hasMore === hasMore) {
+      /* istanbul ignore next */
       return this;
     } else {
       return new this.constructor(

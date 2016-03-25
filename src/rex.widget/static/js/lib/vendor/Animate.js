@@ -41,7 +41,7 @@ if (!global.core) {
   core.effect = {};
 }
 
-core.effect.Animate = {
+window.core.effect.Animate = {
 
   /**
     * A requestAnimationFrame wrapper / polyfill.

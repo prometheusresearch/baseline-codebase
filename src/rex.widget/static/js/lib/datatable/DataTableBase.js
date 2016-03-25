@@ -9,26 +9,25 @@ import {Column, Table} from 'fixed-data-table';
 import * as Stylesheet from '../../stylesheet';
 import WithDOMSize from '../ui/WithDOMSize';
 import {VBox, HBox} from '../../layout';
-import {emptyFunction, isString, autobind} from '../../lang';
+import {emptyFunction, autobind} from '../../lang';
 import {LoadingIndicator, Icon} from '../ui';
 import * as KeyPath       from '../KeyPath';
 import TouchableArea      from '../TouchableArea';
 import ZyngaScroller      from '../Scroller';
 import {isTouchDevice}    from '../Environment';
 
-@WithDOMSize
-export default class DataTableBase extends React.Component {
+export class DataTableBase extends React.Component {
 
   static propTypes = {
     /**
      * DataSet to render.
      */
-    data: PropTypes.object,
+    data: PropTypes.object.isRequired,
 
     /**
      * An array of column specifications.
      */
-    columns: PropTypes.array,
+    columns: PropTypes.array.isRequired,
 
     /**
      * Current pagination position {top: ..., skip: ...}
@@ -81,6 +80,7 @@ export default class DataTableBase extends React.Component {
     sort: {valueKey: null, asc: true},
     onSort: emptyFunction,
     onSelect: emptyFunction,
+    selectedRowClassName: Style.rowSelected
   };
 
   static stylesheet = Stylesheet.create({
@@ -173,13 +173,6 @@ export default class DataTableBase extends React.Component {
     let columnWidth = Math.max(Math.floor(DOMSize.width / columns.length), minColumnWidth);
     for (let i = 0; i < columns.length; i++) {
       let column = {...columns[i]};
-      if (isString(column)) {
-        column = {
-          valueKey: column,
-          label: column,
-          sortable: true,
-        };
-      }
       if (column.sortable === undefined) {
         column.sortable = true;
       }
@@ -319,7 +312,7 @@ export default class DataTableBase extends React.Component {
     let {selected} = this.props;
     let row = this.rowGetter(rowIndex);
     if (row && row.id !== undefined && row.id == selected) { // eslint-disable-line eqeqeq
-      return Style.rowSelected;
+      return this.props.selectedRowClassName;
     }
   }
 
@@ -350,3 +343,5 @@ export default class DataTableBase extends React.Component {
 function renderToString(value) {
   return value == null ?  '' : String(value);
 }
+
+export default WithDOMSize(DataTableBase);

@@ -59,7 +59,8 @@ describe('WithDOMSize', function() {
     assert(trace[0] === null);
     assert.deepEqual(trace[1], {width: 640, height: 480});
 
-    let event = new Event('resize');
+    let event = document.createEvent('UIEvents');
+    event.initUIEvent('resize', true, false, window, 0);
     window.dispatchEvent(event);
 
     assert(trace.length === 3);

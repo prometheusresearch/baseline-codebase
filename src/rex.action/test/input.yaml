@@ -26,8 +26,7 @@ tests:
 - coverage-check: 90.0
 - coverage-report: ./build/coverage
 
-- sh: npm install .
-  cd: static/js
+- sh: python setup.py develop_commonjs
   ignore: true
 - sh: make lint
   cd: static/js

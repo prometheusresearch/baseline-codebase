@@ -6,9 +6,9 @@ TESTS         = \
                 lib/execution/__tests__/*-test.js \
                 lib/wizard/__tests__/*-test.js
 MOCHA_OPTS    = --compilers js:babel/register --require ./lib/__tests__/setup.js
-MOCHA         = NODE_ENV=test $(BIN)/mocha $(MOCHA_OPTS)
+MOCHA         = NODE_PATH=$(CURDIR)/node_modules NODE_ENV=test $(BIN)/mocha $(MOCHA_OPTS)
 COV_OPTS      = --check-coverage --require babel/register --all --root lib
-COV           = NODE_ENV=test $(BIN)/nyc $(COV_OPTS) $(BIN)/_mocha --require ./lib/__tests__/setup.js
+COV           = NODE_PATH=$(CURDIR)/node_modules NODE_ENV=test $(BIN)/nyc $(COV_OPTS) $(BIN)/_mocha --require ./lib/__tests__/setup.js
 
 test::
 	@$(MOCHA) -- $(TESTS)

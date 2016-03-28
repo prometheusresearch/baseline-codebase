@@ -45,7 +45,7 @@ export default class Graph {
   }
 
   replaceTrace(trace) {
-    new Graph(trace);
+    return new Graph(trace);
   }
 
   createNode(instruction, context = {}, parent = null, index = null, command = null) {

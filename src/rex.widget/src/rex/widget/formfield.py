@@ -491,7 +491,7 @@ def from_port(port, field_val=FormFieldVal()):
 
 
 def _from_arm(arm, db, field_val, value_key='__root__', label='Root'):
-    if arm.kind in ('facet entity', 'trunk entity', 'branch entity', 'root'):
+    if arm.kind in ('facet entity', 'trunk entity', 'branch entity', 'join entity', 'root'):
         fields = [_from_arm(v, db, field_val, value_key=k, label=_guess_label(k))
                   for k, v in arm.items()
                   if not k.startswith('meta:')]

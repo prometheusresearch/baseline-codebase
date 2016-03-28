@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import {spy, stub, createRenderer, assert} from '../../../testutils';
+import {createRenderer} from '../../../testutils';
 
 import Fieldset from '../Fieldset';
 import {Fieldset as FieldsetBase} from 'react-forms';
@@ -31,4 +31,4 @@ describe('rex-widget/form', function() {
     });
   });
 
-})
+});

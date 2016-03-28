@@ -42,5 +42,11 @@ setup(
         'rex.widget_chrome==0.2.0',
         'rex.file==1.0.3',
     ],
+    rex_static='static',
+    rex_bundle={
+        './www/bundle': [
+            'webpack:'
+        ]
+    }
 )
 

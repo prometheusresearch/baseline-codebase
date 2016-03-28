@@ -1,0 +1,19 @@
+application_title: RexPlatform Demo
+
+htsql_extensions:
+  rex_deploy: {}
+
+auto_user_query: "'User'"
+
+menu:
+- title: Menu
+  items:
+  - title: Start
+    access: authenticated
+    url: rex.platform_demo:/
+  - title: About
+    access: authenticated
+    url: rex.platform_demo:/about
+
+rex_widget:
+  chrome: rex.widget_chrome.Chrome

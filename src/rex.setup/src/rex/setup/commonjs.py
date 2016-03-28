@@ -135,7 +135,7 @@ def setup_commonjs():
             for key, value in sorted(env.items()):
                 if key == 'NODE_PATH':
                     # For some reason Node fails if NODE_PATH contains dups
-                    stream.write('if [ "${0}" != "{1}"]; then export {0}="${0}:{1}"; fi\n'.format(key, value))
+                    stream.write('if [ "${0}" != "{1}" ]; then export {0}="${0}:{1}"; fi\n'.format(key, value))
                 else:
                     stream.write('export {0}="{1}"\n'.format(key, value))
             stream.write('exec {} "$@"\n'.format(real_path))

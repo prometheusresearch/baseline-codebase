@@ -259,7 +259,7 @@ def package_metadata(dist):
 
 
 def package_shrinkwrap(dist):
-    return _read_package_metadata(dist, 'npm-shrinkwrap.json')
+    return _read_package_metadata(dist, 'shrinkwrap.json')
 
 
 def _read_package_metadata(dist, filename):

@@ -26,7 +26,7 @@ tests:
 - coverage-check: 90.0
 - coverage-report: ./build/coverage
 
-- sh: python setup.py develop_commonjs
+- sh: python setup.py develop_commonjs --package-location ./static/js
   ignore: true
 - sh: make lint
   cd: static/js

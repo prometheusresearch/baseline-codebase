@@ -10,6 +10,11 @@
 
 * README: do not use ``setup_requires``.
 
+* Allow override $NODE_PATH environment variable for Node.js.
+
+* Add suppport for npm-shrinkwrap.json file within js packages. If it's present
+  then installation will be driven by it instead of package.json per the normal
+  npm behaviour.
 
 3.1.2 (2016-01-29)
 ==================

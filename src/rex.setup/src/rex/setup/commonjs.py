@@ -255,7 +255,15 @@ def package_metadata(dist):
     :return: Component metdata
     :rtype: dict
     """
-    filename = package_filename(dist, 'package.json')
+    return _read_package_metadata(dist, 'package.json')
+
+
+def package_shrinkwrap(dist):
+    return _read_package_metadata(dist, 'npm-shrinkwrap.json')
+
+
+def _read_package_metadata(dist, filename):
+    filename = package_filename(dist, filename)
     if not filename:
         return None, None
     with open(filename, 'r') as stream:
@@ -270,6 +278,7 @@ def package_metadata(dist):
                     "ill-formed JSON in %s: %s" % (filename, exc))
         else:
             return filename, meta
+
 
 
 def validate_package_metadata(filename, meta, expected_name, expected_version):
@@ -356,8 +365,11 @@ class Sandbox(object):
     def create(self):
         rm(self.directory)
         os.mkdir(self.directory)
-        with open(os.path.join(self.directory, 'package.json'), 'w') as f:
-            f.write(json.dumps(self.meta))
+        for name, value in self.meta.items():
+            if value is None:
+                continue
+            with open(os.path.join(self.directory, name), 'w') as f:
+                f.write(json.dumps(value))
 
     def remove(self):
         rm(self.directory)
@@ -381,18 +393,27 @@ def install_package(dist, skip_if_installed=False, execute=dummy_execute,
     execute(bootstrap, (), 'Bootstrapping CommonJS environment')
     python_dependencies = collect_dependencies(dist)
 
+    _, shrinkwrap = package_shrinkwrap(dist)
     _, meta = package_metadata(dist)
 
     dependencies = {}
     dependencies.update(meta.get('dependencies', {}))
     dependencies.update(meta.get('peerDependencies', {}))
-    dependencies.update({jsname: jspath for (_, jsname, jspath) in python_dependencies})
+
+    for _, jsname, jspath in python_dependencies:
+        dependencies[jsname] = jspath
+        # this is dependent on shrinkwrap format
+        if jsname in shrinkwrap['dependencies']:
+            shrinkwrap['dependencies'][jsname]['resolved'] = jspath
 
     sandbox_meta = {
-        'name': meta.get('name', 'rex-setup-synthetic-package'),
-        'version': meta.get('version', '1.0.0'),
-        'dependencies': dependencies,
-        'devDependencies': meta.get('devDependencies', {})
+        'package.json': {
+            'name': meta.get('name', 'rex-setup-synthetic-package'),
+            'version': meta.get('version', '1.0.0'),
+            'dependencies': dependencies,
+            'devDependencies': meta.get('devDependencies', {})
+        },
+        'npm-shrinkwrap.json': shrinkwrap,
     }
 
     with Sandbox(dest, sandbox_meta, execute=execute) as sandbox:
@@ -416,8 +437,12 @@ def install_package(dist, skip_if_installed=False, execute=dummy_execute,
 
         dest_node_modules = os.path.join(dest, 'node_modules')
         sandbox_node_modules = os.path.join(sandbox, 'node_modules')
-        execute(rm, (dest_node_modules,), 'Removing %s' % dest_node_modules)
-        execute(shutil.move, (sandbox_node_modules, dest_node_modules), 'Moving %s to %s' % (sandbox_node_modules, dest_node_modules))
+        execute(
+            rm, (dest_node_modules,),
+            'Removing %s' % dest_node_modules)
+        execute(
+            shutil.move, (sandbox_node_modules, dest_node_modules),
+            'Moving %s to %s' % (sandbox_node_modules, dest_node_modules))
 
 
 def collect_dependencies(dist):

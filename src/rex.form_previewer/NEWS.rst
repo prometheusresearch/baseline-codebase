@@ -5,6 +5,12 @@ REX.FORM_PREVIEWER Change Log
 .. contents:: Table of Contents
 
 
+0.8.0 (2016-xx-xx)
+==================
+
+* Added support for lookupText widgets.
+
+
 0.7.1 (2016-02-29)
 ==================
 

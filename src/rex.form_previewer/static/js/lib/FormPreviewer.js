@@ -57,7 +57,8 @@ var FormPreviewer = React.createClass({
     completeUrl: React.PropTypes.string.isRequired,
     instrumentId: React.PropTypes.string.isRequired,
     category: React.PropTypes.string.isRequired,
-    localResourcePrefix: React.PropTypes.string
+    localResourcePrefix: React.PropTypes.string,
+    lookupApiPrefix: React.PropTypes.string
   },
 
   getDefaultProps: function () {
@@ -270,6 +271,7 @@ var FormPreviewer = React.createClass({
             onComplete={this.onComplete}
             localResourcePrefix={this.props.localResourcePrefix}
             parameters={this.state.parameters}
+            lookupApiPrefix={this.props.lookupApiPrefix}
             />
         }
         {this.state.processing &&

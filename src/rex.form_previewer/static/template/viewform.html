@@ -16,6 +16,7 @@
     var RETURN_URL = {{ return_url|json }};
     var RESOURCE_PREFIX = {{ SETTINGS.forms_local_resource_prefix|json }};
     var COMPLETE_URL = '{{ MOUNT['rex.form_previewer'] }}/complete';
+    var LOOKUP_URL = '{{ MOUNT['rex.forms'] }}/lookup';
 
     $(function () {
         Rex.FormPreviewer.renderForm({
@@ -30,7 +31,8 @@
             completeUrl: COMPLETE_URL,
             instrumentId: INSTRUMENT_ID,
             category: CATEGORY,
-            localResourcePrefix: RESOURCE_PREFIX
+            localResourcePrefix: RESOURCE_PREFIX,
+            lookupApiPrefix: LOOKUP_URL
         });
     });
 </script>

@@ -1,0 +1,16 @@
+{
+  "name": "pkg",
+  "version": "0.0.0",
+  "dependencies": {
+    "esprima": {
+      "version": "2.2.0",
+      "from": "esprima@2.2.0",
+      "resolved": "https://registry.npmjs.org/esprima/-/esprima-2.2.0.tgz"
+    },
+    "json-loader": {
+      "version": "0.5.4",
+      "from": "json-loader@*",
+      "resolved": "https://registry.npmjs.org/json-loader/-/json-loader-0.5.4.tgz"
+    }
+  }
+}

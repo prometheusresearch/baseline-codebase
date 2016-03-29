@@ -16,6 +16,9 @@
   then installation will be driven by it instead of package.json per the normal
   npm behaviour.
 
+* Make ``develop_commonjs`` command always install npm packages into source
+  location.
+
 3.1.2 (2016-01-29)
 ==================
 

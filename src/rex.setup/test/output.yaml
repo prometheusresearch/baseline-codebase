@@ -248,6 +248,7 @@ tests:
       genindex.html
       index.doctree
       index.html
+      newfloat.sty
       objects.inv
       python.ist
       search.html
@@ -381,6 +382,29 @@ tests:
   - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     stdout: |
       PASSED!
+- suite: js_basic_shrinkwrap
+  tests:
+  - sh: virtualenv -q --system-site-packages --never-download ./sandbox
+    stdout: ''
+  - sh: ./bin/pip install -q -e ..
+    stdout: ''
+  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/basic_shrinkwrap ./src/pkg'
+    stdout: ''
+  - sh: ./bin/pip install -q ./src/pkg
+    stdout: ''
+  - sh: ls ./share/rex/pkg/www/bundle
+    stdout: |
+      bundle.js
+      bundle.js.map
+  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
+    stdout: |
+      2.2.0
+      PASSED!
+  - sh: find sandbox '(' -wholename 'rex.setup_demo/static/www/jquery' -o -wholename
+      'rex.setup_demo/static/www/bootstrap' -o -wholename 'rex.setup_demo/static/www/doc'
+      -o -wholename 'static/www/bundle' -o -name node_modules -o -name bower_components
+      ')' -exec rm -rf '{}' ';'
+    stdout: ''
 - suite: js_rex_bundle_all
   tests:
   - sh: virtualenv -q --system-site-packages --never-download ./sandbox

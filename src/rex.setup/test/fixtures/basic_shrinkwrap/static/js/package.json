@@ -1,0 +1,9 @@
+{
+  "name": "pkg",
+  "version": "0.0.0",
+  "main": "./lib/index.js",
+  "dependencies": {
+    "esprima": ">= 2",
+    "json-loader": "^0.5.4"
+  }
+}

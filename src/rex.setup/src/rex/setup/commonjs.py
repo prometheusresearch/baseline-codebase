@@ -25,11 +25,14 @@ class install_commonjs(setuptools.Command):
     description = "install commonjs package"
 
     npm_install_production = True
+    force_npm_link = False
 
-    user_options = []
+    user_options = [
+        ('package-location=', None, 'Package location.')
+    ]
 
     def initialize_options(self):
-        pass
+        self.package_location = None
 
     def finalize_options(self):
         pass
@@ -49,6 +52,8 @@ class install_commonjs(setuptools.Command):
         install_package(
                 dist,
                 execute=self.execute,
+                dest=self.package_location,
+                force_npm_link=self.force_npm_link,
                 npm_install_production=self.npm_install_production)
 
 
@@ -57,6 +62,7 @@ class develop_commonjs(install_commonjs):
     description = "install commonjs package in development mode"
 
     npm_install_production = False
+    force_npm_link = True
 
 
 def dummy_execute(func, args, message=None):
@@ -376,6 +382,8 @@ class Sandbox(object):
 
 
 def install_package(dist, skip_if_installed=False, execute=dummy_execute,
+        dest=None,
+        force_npm_link=False,
         npm_install_production=True):
     if not isinstance(dist, pkg_resources.Distribution):
         req = dist
@@ -383,7 +391,7 @@ def install_package(dist, skip_if_installed=False, execute=dummy_execute,
             req = pkg_resources.Requirement.parse(req)
         dist = get_distribution(req)
     req = to_requirement(dist)
-    dest  = package_filename(dist)
+    dest = dest or package_filename(dist)
     if not dest:
         return
     if skip_if_installed and os.path.exists(os.path.join(dest, 'node_modules')):
@@ -403,7 +411,7 @@ def install_package(dist, skip_if_installed=False, execute=dummy_execute,
     for _, jsname, jspath in python_dependencies:
         dependencies[jsname] = jspath
         # this is dependent on shrinkwrap format
-        if jsname in shrinkwrap['dependencies']:
+        if shrinkwrap and jsname in shrinkwrap['dependencies']:
             shrinkwrap['dependencies'][jsname]['resolved'] = jspath
 
     sandbox_meta = {
@@ -427,7 +435,7 @@ def install_package(dist, skip_if_installed=False, execute=dummy_execute,
                     'Executing npm install')
         for pyname, jsname, jspath in python_dependencies:
             is_dev_install = os.path.islink(static_filename(pyname))
-            if is_dev_install:
+            if is_dev_install or force_npm_link:
                 for path in ('lib', 'style', 'package.json'):
                     installed_path = os.path.join(sandbox, 'node_modules', jsname, path)
                     src_path = os.path.join(jspath, path)

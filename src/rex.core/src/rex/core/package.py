@@ -200,6 +200,11 @@ class PackageCollection(object):
 
         # Otherwise, it is a requirement or a module name.
         try:
+            # setuptools>=20.0 refuses to parse names that start with `_`;
+            # which breaks using '__main__' as a package.
+            if (isinstance(key, str) and
+                    (key.startswith('_') or key.endswith('_'))):
+                raise pkg_resources.ResolutionError
             dist = pkg_resources.get_distribution(key)
         except ValueError:
             raise Error("Got ill-formed requirement:", key)

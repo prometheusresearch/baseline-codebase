@@ -1,0 +1,72 @@
+- table: user
+  with:
+  - column: remote_user
+    type: text
+  - identity: [remote_user]
+  - column: identity
+    type: json
+    required: false
+  - column: admin
+    type: boolean
+    required: false
+  - column: viewer
+    type: boolean
+    required: false
+
+- table: school
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+  - column: name
+    type: text
+    required: false
+  - column: campus
+    type: text
+    required: false
+
+- table: department
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+  - column: name
+    type: text
+    required: false
+  - link: school_code
+    to: school
+    required: false
+
+- table: program
+  with:
+  - link: school_code
+    to: school
+  - column: code
+    type: text
+  - identity: [school_code, code]
+  - column: title
+    type: text
+    required: false
+  - column: degree
+    type: text
+    required: false
+  - column: part_of_code
+    type: text
+    required: false
+
+- table: course
+  with:
+  - link: department_code
+    to: department
+  - column: no
+    type: integer
+  - identity: [department_code, no]
+  - column: title
+    type: text
+    required: false
+  - column: credits
+    type: integer
+    required: false
+  - column: description
+    type: text
+    required: false

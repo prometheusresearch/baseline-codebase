@@ -1,21 +1,14 @@
+include:
+- urlmap/school_admin/urlmap.yaml
+- urlmap/school_viewer/urlmap.yaml
+
 paths:
 
   /:
     action:
-      title: "RexPlatform Demo 5.x"
       type: page
+      title: Home
       text: |
-        Welcome to RexPlatform Demo
-        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        Welcome to the RexPlatform Demo System
 
-        To begin, select a group and task from the menu at the top of the screen.
-
-  /about:
-    action:
-      title: About
-      type: page
-      text: |
-        About
-        ~~~~~
-
-        This is a minimal application made with RexPlatform 5.x.
+        **Description**

@@ -1,0 +1,41 @@
+school_code,code,title,degree,part_of_code
+art,gart,Post Baccalaureate in Art History,pb,
+art,uhist,Bachelor of Arts in Art History,ba,
+art,ustudio,Bachelor of Arts in Studio Art,ba,
+bus,gecon,Master of Arts in Economics,ma,
+bus,pacc,Graduate Certificate in Accounting,ct,
+bus,pbusad,Certificate in Business Administration,ct,
+bus,uacct,B.S. in Accounting,bs,
+bus,ubusad,Bachelor of Business Administration,bs,
+bus,uecon,Bachelor of Arts in Economics,ba,gecon
+edu,gedlead,Master of Arts in Education Leadership,ma,
+edu,gedu,M.S. in Education,ms,
+edu,glited,Master of Arts in Literacy Education,ma,
+edu,gtch,Master of Arts in Teaching,ma,
+edu,psci,Certificate in Science Teaching,ct,
+edu,umath,Bachelor of Arts in Math Education,ba,
+edu,usci,Bachelor of Arts in Science Education,ba,
+eng,gbe,M.S. in Bioengineering,ms,
+eng,gbuseng,M.S. in Business and Engineering,ms,
+eng,gee,M.S. in Electrical Engineering,ms,
+eng,gme,M.S. in Mechanical Engineering,ms,
+eng,ubio,B.S. in Bioengineering,bs,gbe
+eng,ucompsci,B.S. in Computer Science,bs,
+eng,uelec,B.S. in Electrical Engineering,bs,gee
+eng,umech,B.S. in Mechanical Engineering,bs,gme
+la,gengl,Master of Arts in English,ma,
+la,glang,Master of Arts in Modern Languages,ma,
+la,gscitch,Master of Arts in Science Teaching,ma,
+la,psciwri,Science Writing,ct,
+la,uengl,Bachelor of Arts in English,ba,gengl
+la,uhist,Bachelor of Arts in History,ba,
+la,upolisci,Bachelor of Arts in Political Science,ba,
+la,upsych,Bachelor of Arts in Psychology,ba,
+la,uspan,Bachelor of Arts in Spanish,ba,
+ns,gmth,Masters of Science in Mathematics,ms,pmth
+ns,pmth,Doctorate of Science in Mathematics,ph,
+ns,uastro,Bachelor of Science in Astronomy,bs,
+ns,uchem,Bachelor of Science in Chemistry,bs,
+ns,umth,Bachelor of Science in Mathematics,bs,gmth
+ns,uphys,Bachelor of Science in Physics,bs,
+ph,phd,Honorary PhD,,

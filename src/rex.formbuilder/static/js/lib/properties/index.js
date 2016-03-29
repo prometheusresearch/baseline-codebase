@@ -31,6 +31,7 @@ var Parameter = require('./Parameter');
 var ParameterList = require('./ParameterList');
 var Hotkey = require('./Hotkey');
 var BooleanHotkeys = require('./BooleanHotkeys');
+var LongText = require('./LongText');
 
 
 module.exports = {
@@ -60,6 +61,7 @@ module.exports = {
   Parameter,
   ParameterList,
   Hotkey,
-  BooleanHotkeys
+  BooleanHotkeys,
+  LongText
 };
 

@@ -253,6 +253,7 @@ body {
                 min-width: 125px;
                 display: inline-block;
                 text-align: right;
+                vertical-align: top;
 
                 &::after {
                     content: ':';
@@ -262,6 +263,12 @@ body {
             input {
                 width: 50%;
                 display: inline-block;
+            }
+
+            textarea {
+                width: 50%;
+                display: inline-block;
+                height: 5em;
             }
 
             &.rf-Field--invalid {

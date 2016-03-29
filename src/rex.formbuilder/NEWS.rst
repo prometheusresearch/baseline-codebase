@@ -5,7 +5,7 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
-5.6.3 (2016-xx-xx)
+5.7.0 (2016-xx-xx)
 ==================
 
 * Fixed an issue where FireFox would highlight the float range constraint
@@ -14,6 +14,8 @@ REX.FORMBUILDER Change Log
 * Fixed an issue that prevented the removal of pattern constraints on text
   questions.
 * Boolean fields now allow you to set hotkeys for the true & false choices.
+* Added a new Lookup Text question element that provides support for using the
+  lookupText widget on text questions.
 
 
 5.6.2 (2016-02-29)

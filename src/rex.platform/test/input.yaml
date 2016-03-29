@@ -1,0 +1,11 @@
+#
+# Copyright (c) 2016, Prometheus Research, LLC
+#
+
+title: REX.PLATFORM
+tests:
+
+- sh: test -f static/www/bundle/bundle.js
+  ignore: true
+- sh: test -f static/www/bundle/bundle.css
+  ignore: true

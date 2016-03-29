@@ -6,8 +6,6 @@
 
    authoring
    data-api
-   dataspec
-   state
    formfield
    chrome
    ../transitionable

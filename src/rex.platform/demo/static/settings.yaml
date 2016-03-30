@@ -14,6 +14,10 @@ access_queries:
   admin: user[$USER].admin
   viewer: user[$USER].viewer
 
+access_masks:
+  viewer:
+  - school?!is_null(campus)
+
 menu:
 - title: Home
   items:

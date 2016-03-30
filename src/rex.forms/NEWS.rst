@@ -5,7 +5,7 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
-1.4.1 (2016-xx-xx)
+1.4.1 (2016-03-30)
 ==================
 
 * Updated documentation in support of rex.platform LTS release.

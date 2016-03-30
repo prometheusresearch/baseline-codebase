@@ -8,8 +8,18 @@ allows to specify what data React components need and how they want to fetch it.
 
 Widgets like ``<DataTable />`` use Data Fetching API under the hood.
 
-Usage
------
+Data Fetching API is exposed through the ``rex-widget/data`` ES2015 module. You
+can either import only needed parts of it::
+
+  import {Fetch, port} from 'rex-widget/data';
+
+  port('myapp:/port').produce().then(result => ...)
+
+Or import an entire module as a namespace::
+
+  import * as data from 'rex-widget/data';
+
+  data.port('myapp:/port').produce().then(result => ...)
 
 Basic usage
 ```````````
@@ -17,8 +27,8 @@ Basic usage
 The basic usage example looks like::
 
   import React from 'react'
-  import Preloader from 'rex-widget/lib/Preloader'
-  import {Fetch, port} from 'rex-widget/lib/data'
+  import {Preloader} from 'rex-widget/ui'
+  import {Fetch, port} from 'rex-widget/data'
 
   function UsersFetch(params) {
     return {
@@ -42,7 +52,7 @@ The basic usage example looks like::
 
 What happens here:
 
-* We import ``Fetch`` and ``port`` from ``rex-widget/lib/data`` module.
+* We import ``Fetch`` and ``port`` from ``rex-widget/data`` module.
 
 * We define ``UsersFetch`` function which specify what data to fetch using
   ``port`` data provider.
@@ -147,9 +157,6 @@ parameters additional to props::
 As you can see we call ``this.props.setDataParams`` when button is clicked which
 updates data parameters and data re-fetches with different sort direction
 
-Reference API
--------------
-
 Port
 ````
 
@@ -159,7 +166,7 @@ which should be passed to it.
 To create a port simply call factory function with URL spec (package and path
 separated by colon) as argument::
 
-  import {port} from 'rex-widget/lib/data'
+  import {port} from 'rex-widget/data'
 
   let p = port('pkg:/path')
 
@@ -191,7 +198,7 @@ for data (like HTSQL query endpoint in Rex applications).
 To create a port simply call factory function with URL spec (package and path
 separated by colon) as argument::
 
-  import {query} from 'rex-widget/lib/data'
+  import {query} from 'rex-widget/data'
 
   q = query('pkg:/path')
 
@@ -206,6 +213,41 @@ which returns a `ES6 Promise`_::
     data => { ... },
     error => { ... }
   )
+
+Request
+```````
+
+Request object represents an arbitrary XHR request to server endpoint (for
+example Rex Web command).
+
+To create a port simply call factory function with URL spec (package and path
+separated by colon) as argument::
+
+  import {request} from 'rex-widget/data'
+
+  r = request('pkg:/request')
+
+You can apply parameters to query using ``params(params)`` method::
+
+  r = r.params({search: 'search term'})
+
+Finally to start fetching data from query you need to call ``produce()`` method
+which returns a `ES6 Promise`_::
+
+  r.produce().then(
+    data => { ... },
+    error => { ... }
+  )
+
+By defaults it fires ``GET`` request to server. If you set some data using
+``data()`` method then it will fire ``POST`` request instead::
+
+  request('...')
+    .data(...)
+    .produce().then(
+      data => { ... },
+      error => { ... }
+    )
 
 Fetch
 `````
@@ -258,3 +300,58 @@ It has the following attributes:
 * ``updating`` is a boolean value indicating if data is being updated at the
   moment. Usually React components should render some sort of preloader when
   ``updating`` is ``true``.
+
+Exposing ports/queries/commands through a widget
+````````````````````````````````````````````````
+
+Usually ports (or queries, commands) are made specifically to be used with some
+widget. In that case it is useful to collocate port definition with widget
+definition or even make port definition based on some fields widget configured
+with.
+
+Rex Widget provides a way to expose port through the widget fields mechanism.
+For that we need to use ``@responder(url_type)`` with a corresponding
+``url_type``.
+
+For example we can define a widget which has port configured based on its fields
+and exposed through ``data`` field::
+
+  from rex.widget import Widget
+  from rex.widget import responder, PortURL
+
+  class MyWidget(Widget):
+
+    def __init__(self, **values):
+      super(MyWidget, self).__init__(**values)
+      self._port = Port({'entity': 'school'})
+
+    @responder(PortURL)
+    def data(self, req):
+      return self._port(req)
+
+Then in JavaScript::
+
+  import React from 'react'
+  import {Fetch} from 'rex-widget/data'
+
+  function MyWidgetFetch({data}) {
+    return {
+      data: data
+    }
+  }
+
+  @Fetch(MyWidgetFetch)
+  class MyWidget extends React.Component {
+
+    render() {
+      let data = this.props.fetched.data;
+      ...
+    }
+  }
+
+Note that we used ``data`` prop to fetch data from the port. We don't even need
+to know the URL where port is exposed at.
+
+Similarly we can use ``rex.widget.QueryURL`` and ``rex.widget.RequestURL`` as
+URL type argument to ``@responder()`` decorator to expose ``rex.db.Query`` and
+to write arbitrary Python code to handle request.

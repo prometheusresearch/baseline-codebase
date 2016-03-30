@@ -5,7 +5,7 @@
 .. toctree::
 
    authoring
-   data-api
+   data
    formfield
    chrome
    transitionable

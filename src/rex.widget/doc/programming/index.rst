@@ -8,4 +8,4 @@
    data-api
    formfield
    chrome
-   ../transitionable
+   transitionable

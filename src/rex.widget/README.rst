@@ -30,12 +30,12 @@ R43MH099826.
 .. |R| unicode:: 0xAE .. registered trademark sign
 
 .. toctree::
+   :maxdepth: 2
 
-   overview
-   guide/index
-   migration_guide
+   configuration/index
+   programming/index
    cookbook
-   theming
+   migration/index
    py_reference
    js_reference
    changes

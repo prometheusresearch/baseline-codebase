@@ -21,7 +21,6 @@ Components
    :maxdepth: 2
 
    rex.action/index
-   rex.applet/index
    rex.core/index
    rex.ctl/index
    rex.db/index
@@ -36,6 +35,7 @@ Components
    rex.urlmap/index
    rex.web/index
    rex.widget/index
+   rex.widget_chrome/index
 
 
 Release notes

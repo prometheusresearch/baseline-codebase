@@ -22,7 +22,7 @@ setup(
     install_requires=[
         'rex.core >=1.11, <2',
         'rex.urlmap >=2.7, <3',
-        'rex.action >=0.8, <1',
+        'rex.action >=1, <2',
         'rex.web >=3.6, <4',
         'rex.widget >=1.5, <3',
     ],

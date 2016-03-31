@@ -2,7 +2,7 @@
   Change Log
 **************
 
-2.4.0 (2016-03-XX)
+2.4.0 (2016-03-31)
 ==================
 
 * Add support for fieldsets to render its fields in read only mode.

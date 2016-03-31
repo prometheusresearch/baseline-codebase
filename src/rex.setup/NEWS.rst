@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-3.1.3 (2016-XX-XX)
+3.1.3 (2016-03-31)
 ==================
 
 * README: do not use ``setup_requires``.
@@ -18,6 +18,7 @@
 
 * Make ``develop_commonjs`` command always install npm packages into source
   location.
+
 
 3.1.2 (2016-01-29)
 ==================

@@ -85,6 +85,13 @@ installation, use ``apt-get`` to install the following packages:
 * texlive
 * xzdec
 
+To build PDF documentation, you need to install LaTeX and additional TeX
+libraries:
+
+* texlive-latex-recommended
+* texlive-latex-extra
+* texlive-fonts-recommended
+
 If you've previously installed ``pip`` and/or ``virtualenv`` using the system
 packages (``python-pip``, ``python-virtualenv``), it's **highly** recommended
 that you uninstall them and instead install the newest ``pip`` directly from
@@ -97,13 +104,6 @@ of ``pip``::
     $ sudo pip install pyasn1 ndg-httpsclient virtualenv
 
 .. _`PyPA`: https://www.pypa.io
-
-Now that LaTeX is installed, you should execute the following commands to
-install a series of additional TeX libraries that support features that are
-commonly used in RexDB handbooks and documentation::
-
-    $ tlmgr init-usertree
-    $ tlmgr install titlesec framed threeparttable wrapfig multirow courier helvetic capt-of needspace eqparbox environ trimspaces upquote
 
 
 Mac OSX

@@ -7,6 +7,7 @@
    authoring
    layout
    ui
+   styling
    data
    formfield
    chrome

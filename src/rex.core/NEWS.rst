@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.12.1 (2016-03-29)
+1.12.1 (2016-03-31)
 ===================
 
 * Fixed using module names as Rex packages with ``setuptools>=20.0``.

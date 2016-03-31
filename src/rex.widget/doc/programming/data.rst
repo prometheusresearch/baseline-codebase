@@ -1,7 +1,7 @@
 .. _data-api:
 
-Data Fetching API
-=================
+Data API
+========
 
 Rex Widget provides Data Fetching API for React components. Data Fetching API
 allows to specify what data React components need and how they want to fetch it.

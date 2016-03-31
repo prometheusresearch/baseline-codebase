@@ -11,15 +11,10 @@ Core API
 .. autoclass:: rex.widget.Widget
 .. autoclass:: rex.widget.Field
 .. autofunction:: rex.widget.computed_field
+.. autofunction:: rex.widget.responder
 .. autoclass:: rex.widget.WidgetVal
 .. autoclass:: rex.widget.WidgetComposition
 .. autofunction:: rex.widget.render_widget
-
-Data specification validators API
----------------------------------
-
-.. autoclass:: rex.widget.EntitySpecVal
-.. autoclass:: rex.widget.CollectionSpecVal
 
 URL validators API
 ------------------

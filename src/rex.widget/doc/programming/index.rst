@@ -5,6 +5,8 @@
 .. toctree::
 
    authoring
+   layout
+   ui
    data
    formfield
    chrome

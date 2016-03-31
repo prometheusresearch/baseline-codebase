@@ -1,7 +1,7 @@
 .. _guide-authoring:
 
-Authoring new widgets
-=====================
+Creating new widgets
+====================
 
 Rex Widget allows the set of available widgets to be extended.  This can be used
 by library developers who want to provide their own sets of widgets or by

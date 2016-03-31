@@ -10,3 +10,9 @@ master_doc = 'index'
 default_role = 'obj'
 autodoc_default_flags = ['members']
 autodoc_member_order = 'bysource'
+
+latex_documents = [
+    (master_doc, 'rexwidget_chrome.tex', u'rex.widget\\_chrome', u'', 'manual'),
+]
+
+

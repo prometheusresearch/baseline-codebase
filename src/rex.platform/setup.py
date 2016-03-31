@@ -39,7 +39,7 @@ setup(
         'rex.urlmap==2.8.0',
         'rex.web==3.7.0',
         'rex.widget==2.4.0',
-        'rex.widget_chrome==0.2.0',
+        'rex.widget_chrome==1.0.0',
         'rex.file==1.0.3',
     ],
     rex_static='static',

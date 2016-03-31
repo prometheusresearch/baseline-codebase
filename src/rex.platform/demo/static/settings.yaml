@@ -1,5 +1,7 @@
 application_title: RexPlatform Demo
 
+db: pgsql:platform_demo
+
 htsql_extensions:
   tweak.override:
     field-labels:

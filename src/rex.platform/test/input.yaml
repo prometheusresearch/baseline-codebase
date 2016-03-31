@@ -1,11 +1,20 @@
 #
-# Copyright (c) 2016, Prometheus Research, LLC
+# Copyright (c) 2014, Prometheus Research, LLC
 #
 
 title: REX.PLATFORM
 tests:
 
-- sh: test -f static/www/bundle/bundle.js
+- sh: pip install -q -e ./demo
   ignore: true
-- sh: test -f static/www/bundle/bundle.css
+- sh: rex dropdb rex.platform_demo
+  ignore: true
+- sh: rex deploy rex.platform_demo
+  ignore: true
+
+- doctest: test/test_*.rst
+
+- sh: rex dropdb rex.platform_demo
+  ignore: true
+- sh: pip uninstall -q -y rex.platform_demo
   ignore: true

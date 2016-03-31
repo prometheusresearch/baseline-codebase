@@ -91,6 +91,10 @@ This is an example project directory structure::
             deploy.yaml
             urlmap.yaml
 
+
+Further information regarding setting up a RexDB solution package can be found in the
+:doc:`rex.core/guide`.
+
 Setup.py File
 -------------
 
@@ -109,8 +113,144 @@ This is an example setup.py file::
         rex_static='static',
     )
 
+Further information regarding the setup.py file of a RexDB solution package can be found in the 
+:doc:`rex.core/guide`.
+
 Configuration Examples
 ======================
+
+Database Deployment
+-------------------
+
+This is an example static/deploy.yaml file::
+
+    - include: deploy/model.yaml
+    - include: deploy/data.yaml
+
+In this example, two additional deploy files are referenced.
+
+This is an example of the deploy/model.yaml that deploys the 
+database schema::
+
+    - table: user
+      with:
+      - column: remote_user
+        type: text
+      - identity: [remote_user]
+      - column: identity
+        type: json
+        required: false
+      - column: admin
+        type: boolean
+        required: false
+      - column: viewer
+        type: boolean
+        required: false
+    
+    - table: school
+      with:
+      - column: code
+        type: text
+      - identity: [code]
+      - column: name
+        type: text
+        required: false
+      - column: campus
+        type: text
+        required: false
+    
+    - table: department
+      with:
+      - column: code
+        type: text
+      - identity: [code]
+      - column: name
+        type: text
+        required: false
+      - link: school_code
+        to: school
+        required: false
+    
+    - table: program
+      with:
+      - link: school_code
+        to: school
+      - column: code
+        type: text
+      - identity: [school_code, code]
+      - column: title
+        type: text
+        required: false
+      - column: degree
+        type: text
+        required: false
+      - column: part_of_code
+        type: text
+        required: false
+    
+    - table: course
+      with:
+      - link: department_code
+        to: department
+      - column: no
+        type: integer
+      - identity: [department_code, no]
+      - column: title
+        type: text
+        required: false
+      - column: credits
+        type: integer
+        required: false
+      - column: description
+        type: text
+        required: false
+
+In this example five tables are declared; user, school, department, 
+program, and course.  Each table has several columns declared.
+
+Further information regarding RexDeploy can be found in the
+:doc:`rex.deploy/guide`.
+
+Application Settings
+--------------------
+
+This is an example static/settings.yaml file::
+
+    application_title: RexPlatform Demo
+    
+    htsql_extensions:
+      tweak.override:
+        field-labels:
+          school.__title__: (name)
+          department.__title__: (name)
+      rex_deploy: {}
+    
+    auto_user_query: "'User'"
+    user_query: true()
+    
+    access_queries:
+      admin: user[$USER].admin
+      viewer: user[$USER].viewer
+    
+    access_masks:
+      viewer:
+      - school?!is_null(campus)
+    
+    menu:
+    - title: Home
+      items:
+      - url: rex.platform_demo:/
+        access: anybody
+    - title: Schools
+      items:
+      - url: rex.platform_demo:/school_admin
+        access: admin
+      - url: rex.platform_demo:/school_viewer
+        access: viewer
+    
+    rex_widget:
+      chrome: rex.widget_chrome.Chrome
+
 
 Permissions and Menus
 ---------------------
@@ -134,9 +274,8 @@ In this example, the "admin" permission can be accessed by a current
 user, whose user identity (i.e. email) is found in the user table and for whose
 record has a true value for the admin boolean flag.
 
-Further information regarding Access Queries can be found in the 
-`Authentication and Authorization section of the rex.db documentation
-<https://doc.rexdb.org/rex.db/latest/guide.html#authentication-and-authorization>`_.
+Further information regarding Access Queries can be found in the
+:doc:`rex.db/guide` in the section "Authentication and Authorization".
 
 Access Masks
 ~~~~~~~~~~~
@@ -153,7 +292,10 @@ settings.yaml file of a package.  This is an example of an access mask::
 In this example, the "viewer" permission can only access school records where
 the campus attribute is not null.
 
-Main Menu
+Further information regarding Access Masks can be found in the 
+:doc:`rex.db/guide` in the section "Authentication and Authorization".
+
+Menu
 ~~~~~~~~
 
 A configuration analyst can configure groups and items that will be displayed in
@@ -162,23 +304,26 @@ location) in the system, which will most likely be a RexAction wizard, but could
 also be a custom widget or data access port.  This configuration is found in the
 settings.yaml file of a package.  This is an example of a main menu::
 
-    main_menu:
-    - title: Recruit Participants
+    menu:
+    - title: Home
       items:
-      - rex.study:/recruitment-admin/
-      - rex.study:/recruitment-admin/manage-families
-    - title: Enroll Participants
+      - url: rex.platform_demo:/
+        access: anybody
+    - title: Schools
       items:
-      - rex.study:/enrollment-admin/
-      - rex.study:/enrollment-admin/appointment
-      - rex.study:/enrollment-admin/participants
+      - url: rex.platform_demo:/school_admin
+        access: admin
+      - url: rex.platform_demo:/school_viewer
+        access: viewer
 
-In this example, the main menu will display two groups; Recruit Participants and
-Enroll Participants.  Within the Recruit Participant Group, two items will be
-displayed corresponding to the configuration in the /recruitment-admin/ and
-/recruitment-admin/manage-families paths of the rex.study package.  These two
-paths map to wizards that are contained within the urlmap.yaml file (or
-corresponding linked files) of the rex.study package.
+In this example, the main menu will display two groups; Home and
+Schools.  Within the Home Group, There is a single item that any user
+can access that maps onto the / path.  Within the Schools Group, there
+are two items that map onto these paths; /school_admin and /school_viewer.
+Each of these items are assigned to different permissions (admin and viewer)
+
+Further information regarding the application menu can be found in the
+:doc:`rex.widget_chrome/configuration/index`.
 
 RexAction
 ---------
@@ -188,6 +333,123 @@ data-driven screens called "wizards" that are composed of "actions" and attach
 the newly configured wizard to a particular path (URL location) in the
 application.  This path can then be referenced by the aforementioned menu
 configuration for user accessibility.
+
+Here is the example urlmap.yaml file from our demo package::
+
+    include:
+    - urlmap/school_admin/urlmap.yaml
+    - urlmap/school_viewer/urlmap.yaml
+    
+    paths:
+    
+      /:
+        action:
+          type: page
+          title: Home
+          text: |
+            Welcome to the RexPlatform Demo System
+    
+            **Description**
+
+In this example, references are included to two other files that contain
+additional urlmap RexAction configuration.  There is a single path declared 
+here for the root path (/) of the application.  This root path is a single 
+RexAction page action.
+
+Here is a example of the urlmap/school_admin/urlmap.yaml file referenced 
+in the primary urlmap.yaml file::
+
+    paths:
+    
+      /school_admin:
+         action:
+           type: wizard
+           title: School Admin
+           path:
+             - pick-school:
+               - edit-school:
+               - drop-school:
+               - make-school: 
+           actions:
+    
+             pick-school:
+               type: pick
+               title: Pick School
+               entity: school
+    
+             edit-school:
+               type: edit
+               title: Edit School
+               entity: school
+    
+             drop-school:
+               type: drop
+               title: Drop School
+               entity: school
+    
+             make-school:
+               type: make
+               title: Make School
+               entity: school
+
+Here is a example of the urlmap/school_viewer/urlmap.yaml file referenced 
+in the primary urlmap.yaml file::
+
+    paths:
+    
+      /school_viewer:
+        action:
+          type: wizard
+          title: School Viewer
+          path:
+            - pick-school:
+              - view-school:
+              - pick-department:
+                - view-department:
+            - view-chart:
+          actions:
+        
+            pick-school:
+              type: pick
+              title: Pick School
+              entity: school
+        
+            view-school:
+              type: view
+              title: Edit School
+              entity: school
+        
+            view-chart:
+              type: plotly
+              title: View Chart
+              plot:
+                type: bar
+                name: Count of Courses per School
+              query: |
+                /school{name :as x, count(department.course) :as y}
+              layout:
+                xaxis:
+                  title: School
+                yaxis:
+                  title: Count of Courses
+    
+            pick-department:
+                type: pick
+                title: Pick Department
+                entity: department
+                input:
+                - school: school
+                mask: school_code=$school
+                fields:
+                - name
+    
+            view-department:
+                type: view
+                title: View Department
+                entity: department
+
+Further information regarding the RexAction can be found in the
+:doc:`rex.action/index`.
 
 Wizard
 ~~~~~
@@ -214,10 +476,10 @@ these predefined templates.
 Types of Actions
 
 * Page - A page action displays arbitrary title and text.  It can be used for
-example to compose help pages.
+  example to compose help pages.
 * Pick - A page action shows a list of records in database.  This is a generic
-action which displays a list of records in database as a configurable datatable.
- Each item in the list can be selected by clicking on it.
+  action which displays a list of records in database as a configurable datatable.
+  Each item in the list can be selected by clicking on it.
 * Make - A make action renders a form to create a new entity.
 * View - A view actions displays information about a specified entity.
 * Edit - An edit action renders a form to edit a new entity.

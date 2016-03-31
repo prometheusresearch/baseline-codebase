@@ -323,7 +323,7 @@ are two items that map onto these paths; /school_admin and /school_viewer.
 Each of these items are assigned to different permissions (admin and viewer)
 
 Further information regarding the application menu can be found in the
-:doc:`rex.widget_chrome/configuration/index`.
+:doc:`rex.widget_chrome/guide`.
 
 RexAction
 ---------

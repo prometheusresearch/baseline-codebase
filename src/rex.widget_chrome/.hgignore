@@ -13,3 +13,4 @@ bootstrap
 jquery
 bundle
 *.v.*
+doc/_build

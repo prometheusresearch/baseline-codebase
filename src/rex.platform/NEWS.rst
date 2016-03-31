@@ -5,14 +5,18 @@
 .. contents:: Table of Contents
 
 
-5.0.0 LTS (2016-XX-XX)
+5.0.0 LTS (2016-03-31)
 ======================
 
+* HTSQL==2.3.3.20160326
+* HTSQL-PGSQL==2.3.3.20160326
+* rex.action==1.0.0
+* rex.setup==3.1.3
 * rex.core==1.12.1
 * rex.forms==1.4.1
 * rex.web==3.7.0
-* HTSQL==2.3.3.20160326
-* HTSQL-PGSQL==2.3.3.20160326
+* rex.widget==2.4.0
+* rex.widget_chrome==1.0.0
 
 
 4.14.0 (2016-03-23)

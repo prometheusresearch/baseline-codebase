@@ -4,7 +4,7 @@
 
 .. contents:: Table of Contents
 
-1.0.0 (2016-03-XX)
+1.0.0 (2016-03-31)
 ==================
 
 * [FEATURE] Add a test suite for JS code.

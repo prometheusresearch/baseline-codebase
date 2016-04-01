@@ -51,7 +51,7 @@ class LookupCommand(Command):
 
 
 class PreviewCalculationCommand(Command):
-    path = '/calculate/{instrumentversion_id}'
+    path = '/calculate/instrument/{instrumentversion_id}'
     parameters = (
         Parameter('instrumentversion_id', StrVal()),
         Parameter('data', StrVal()),
@@ -88,7 +88,7 @@ class PreviewCalculationCommand(Command):
             ),
         })
 
-    def get_results(self, instrument_version, calculation_set, data):
+    def get_results(self, instrument_version, calculation_set, data, assessment=None):
         if not calculation_set:
             return {}
 
@@ -104,14 +104,55 @@ class PreviewCalculationCommand(Command):
 
         # Make some temporary objects so we can execute the calcs.
         subject = Subject.get_implementation()('fake')
-        assessment = assessment_impl(
-            'fake',
-            subject,
-            instrument_version,
-            data,
-            status=assessment_impl.STATUS_COMPLETE,
-        )
+        if not assessment:
+            assessment = assessment_impl(
+                'fake',
+                subject,
+                instrument_version,
+                data,
+                status=assessment_impl.STATUS_COMPLETE,
+            )
+        else:
+            assessment.data = data
+            assessment.status = assessment_impl.STATUS_COMPLETE
 
         # Execute the calculations
         return calculation_set.execute(assessment=assessment)
+
+
+class PreviewCalculationAssessmentCommand(PreviewCalculationCommand):
+    path = '/calculate/assessment/{assessment_id}'
+    parameters = (
+        Parameter('assessment_id', StrVal()),
+        Parameter('data', StrVal()),
+    )
+
+    def render(self, request, assessment_id, data):
+        # pylint: disable=arguments-differ
+
+        # Get the User
+        login = authenticate(request)
+        user = User.get_implementation().get_by_login(login)
+        if not user:
+            raise HTTPUnauthorized()
+
+        # Parse the Assessment Data
+        try:
+            data = json.loads(data)
+        except ValueError as exc:
+            raise HTTPBadRequest(exc.message)
+
+        # Get the Assessment
+        assessment = user.get_object_by_uid(assessment_id, 'assessment')
+        if not assessment:
+            raise HTTPNotFound()
+
+        return Response(json={
+            'results': self.get_results(
+                assessment.instrument_version,
+                assessment.instrument_version.calculation_set,
+                data,
+                assessment=assessment,
+            ),
+        })
 

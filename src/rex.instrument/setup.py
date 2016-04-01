@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.instrument',
-    version='1.3.0',
+    version='1.4.0',
     description='Class interfaces and framework for using EDC components',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',
@@ -17,7 +17,7 @@ setup(
     classifiers=[
         'Programming Language :: Python :: 2.7',
     ],
-    url='https://bitbucket.org/rexdb/rex.instrument-provisional',
+    url='https://bitbucket.org/rexdb/rex.instrument',
     package_dir={'': 'src'},
     packages=find_packages('src'),
     include_package_data=True,

@@ -347,6 +347,24 @@ class DraftInstrumentVersion(
         # pylint: disable=attribute-defined-outside-init
         self._date_modified = value
 
+    @memoized_property
+    def calculation_set(self):
+        """
+        The CalculationSet associated with this DraftInstrumentVersion. Read
+        only.
+
+        :rtype: CalculationSet
+        """
+
+        from .draftcalculationset import DraftCalculationSet
+        calcs = DraftCalculationSet.get_implementation().find(
+            draft_instrument_version=self.uid,
+            limit=1,
+        )
+        if calcs:
+            return calcs[0]
+        return None
+
     def modify(self, user):
         """
         Updates the DraftInstrumentVersions's modified_by and date_modified

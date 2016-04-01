@@ -6,3 +6,4 @@ assessment4,subject1,simple1,completed,,"{""instrument"":{""id"": ""urn:test-ins
 assessment5,subject1,simple1,in-progress,,"{}"
 assessment6,subject1,disabled1,in-progress,,"{}"
 assessment7,subject1,disabled1,in-progress,,"{}"
+assessment9,subject1,calculation1,in-progress,,"{}"

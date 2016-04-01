@@ -409,6 +409,23 @@ class InstrumentVersion(
         # pylint: disable=attribute-defined-outside-init
         self._date_published = value
 
+    @memoized_property
+    def calculation_set(self):
+        """
+        The CalculationSet associated with this InstrumentVersion. Read only.
+
+        :rtype: CalculationSet
+        """
+
+        from .calculationset import CalculationSet
+        calcs = CalculationSet.get_implementation().find(
+            instrument_version=self.uid,
+            limit=1,
+        )
+        if calcs:
+            return calcs[0]
+        return None
+
     def validate(self):
         """
         Validates that this definition is a legal Common Instrument

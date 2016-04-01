@@ -149,6 +149,17 @@ both readable and writable::
     True
 
 
+There's also a read-only property named ``calculation_set`` that is a reference
+to the associated CalculationSet object, if there is one::
+
+    >>> div.calculation_set is None
+    True
+
+    >>> div = DraftInstrumentVersion.get_implementation().get_by_uid('draftiv1')
+    >>> div.calculation_set
+    DemoDraftCalculationSet(u'draftiv1', DemoDraftInstrumentVersion(u'draftiv1', DemoInstrument(u'simple', u'Simple Instrument')))
+
+
 DraftInstrumentVersions can be checked for equality. Note that equality is only
 defined as being the same class with the same UID::
 

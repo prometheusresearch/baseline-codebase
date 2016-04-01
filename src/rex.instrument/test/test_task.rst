@@ -300,6 +300,18 @@ If the metadata values are different, they'll be merged appropriately::
     >>> task.solve_discrepancies({}, entries=entries)['meta']
     {'application': 'SomeApp/1.0 OtherApp/2.1', 'dateCompleted': '2015-05-05T11:34:55', 'foo': 'bar', 'happy': 'yup'}
 
+If the arrays for enumerationSet values are the same, but in different orders,
+they should not trigger a discrepancy::
+
+    >>> entry2.data = deepcopy(entry1.data)
+    >>> entry3.data = deepcopy(entry1.data)
+    >>> entry2.data['values']['q_blah']['value'] = ['green', 'red']
+    >>> task.get_discrepancies(entries=entries)
+    {}
+
+    >>> entry2.data['values']['q_blah']['value'] = ['green']
+    >>> task.get_discrepancies(entries=entries)
+    {'q_blah': {u'entry444': ['green'], u'entry333': ['red', 'green'], u'entry555': ['red', 'green']}}
 
 Set up tests with recordList fields::
 

@@ -92,8 +92,8 @@ a dict equivalent::
     {'record': [{'type': 'text', 'id': 'q_fake'}], 'version': '1.1', 'id': 'urn:test-instrument', 'title': 'A Different Title'}
 
 
-Entries have date_modified, modified_by, status, and memo properties which are
-both readable and writable::
+InstrumentVersions have date_modified, modified_by, status, and memo properties
+which are both readable and writable::
 
     >>> iv = InstrumentVersion('notreal456', instrument, INSTRUMENT, 1, 'bob', datetime(2014, 5, 22))
 
@@ -114,6 +114,17 @@ both readable and writable::
     >>> iv.published_by = 'jay'
     >>> iv.published_by
     u'jay'
+
+
+There's also a read-only property named ``calculation_set`` that is a reference
+to the associated CalculationSet object, if there is one::
+
+    >>> iv.calculation_set is None
+    True
+
+    >>> iv = InstrumentVersion.get_implementation().get_by_uid('calculation1')
+    >>> iv.calculation_set
+    DemoCalculationSet(u'calculation1', DemoInstrumentVersion(u'calculation1', DemoInstrument(u'calculation', u'Calculation Instrument'), 1))
 
 
 There's a static method on InstrumentVersion named ``validate_definition()``

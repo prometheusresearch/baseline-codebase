@@ -5,6 +5,13 @@
 .. contents:: Table of Contents
 
 
+5.1.0 (2016-xx-xx)
+==================
+
+* rex.instrument==1.4.0
+* rex.forms==1.5.0
+
+
 5.0.0 LTS (2016-03-31)
 ======================
 

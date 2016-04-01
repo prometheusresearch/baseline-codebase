@@ -12,6 +12,7 @@
   },
   "peerDependencies": {
     "react": "^0.10.0",
+    "jquery": "^2.0.0",
     "bootstrap": "^3.0.0"
   },
   "dependencies": {

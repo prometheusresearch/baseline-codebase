@@ -58,7 +58,8 @@ var FormPreviewer = React.createClass({
     instrumentId: React.PropTypes.string.isRequired,
     category: React.PropTypes.string.isRequired,
     localResourcePrefix: React.PropTypes.string,
-    lookupApiPrefix: React.PropTypes.string
+    lookupApiPrefix: React.PropTypes.string,
+    calculationApiPrefix: React.PropTypes.string
   },
 
   getDefaultProps: function () {
@@ -272,6 +273,7 @@ var FormPreviewer = React.createClass({
             localResourcePrefix={this.props.localResourcePrefix}
             parameters={this.state.parameters}
             lookupApiPrefix={this.props.lookupApiPrefix}
+            calculationApiPrefix={this.props.calculationApiPrefix}
             />
         }
         {this.state.processing &&

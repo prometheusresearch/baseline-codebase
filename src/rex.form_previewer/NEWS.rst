@@ -9,6 +9,7 @@ REX.FORM_PREVIEWER Change Log
 ==================
 
 * Added support for lookupText widgets.
+* Added support for previewing calculations during data entry.
 
 
 0.7.1 (2016-02-29)

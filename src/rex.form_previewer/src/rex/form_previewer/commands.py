@@ -8,13 +8,14 @@ import json
 from datetime import datetime
 
 from webob import Response
-from webob.exc import HTTPNotFound, HTTPBadRequest
+from webob.exc import HTTPNotFound, HTTPBadRequest, HTTPUnauthorized
 
 from rex.core import StrVal, ChoiceVal, get_settings
 from rex.instrument import DraftInstrumentVersion, InstrumentError, User, \
     CalculationSet, DraftCalculationSet, InstrumentVersion, Assessment, \
     Subject
 from rex.instrument.util import to_json
+from rex.forms import commands as forms_commands
 from rex.web import Command, Parameter, render_to_response, authenticate
 
 
@@ -22,6 +23,7 @@ __all__ = (
     'ViewFormCommand',
     'RootViewFormCommand',
     'CompleteFormCommand',
+    'PreviewCalculationCommand',
 )
 
 
@@ -341,4 +343,66 @@ class CompleteFormCommand(BaseViewFormCommand):
                 ('Content-type', 'application/json'),
             ],
         )
+
+
+class PreviewCalculationCommand(forms_commands.PreviewCalculationCommand):
+    path = '/calculate/{category}/{instrumentversion_id}'
+    parameters = (
+        Parameter('category', ChoiceVal('draft', 'published'), 'draft'),
+        Parameter('instrumentversion_id', StrVal()),
+        Parameter('data', StrVal()),
+    )
+
+    def render(self, request, instrumentversion_id, data, category):
+        user = get_instrument_user(request)
+        if not user:
+            raise HTTPUnauthorized()
+
+        # Parse the Assessment Data
+        try:
+            data = json.loads(data)
+        except ValueError as exc:
+            raise HTTPBadRequest(exc.message)
+
+        # Get the InstrumentVersion
+        instrument_version = calculation_set = None
+        if category == 'published':
+            instrument_version = user.get_object_by_uid(
+                instrumentversion_id,
+                'instrumentversion',
+            )
+            if instrument_version:
+                calculation_set = instrument_version.calculation_set
+
+        else:
+            div = user.get_object_by_uid(
+                instrumentversion_id,
+                'draftinstrumentversion',
+            )
+            if div:
+                instrument_version = InstrumentVersion.get_implementation()(
+                    'fake',
+                    div.instrument,
+                    div.definition,
+                    1,
+                    'fake',
+                    datetime.now(),
+                )
+                if div.calculation_set:
+                    calculation_set = CalculationSet.get_implementation()(
+                        'fake',
+                        instrument_version,
+                        div.calculation_set.definition,
+                    )
+
+        if not instrument_version:
+            raise HTTPNotFound()
+
+        return Response(json={
+            'results': self.get_results(
+                instrument_version,
+                calculation_set,
+                data,
+            ),
+        })
 

@@ -3,6 +3,7 @@
   "version": "1.5.0",
   "main": "index.js",
   "peerDependencies": {
+    "jquery": "^2.0.0",
     "bootstrap": "^3.0.0",
     "react": "^0.10.0",
     "envify": "~1.2.0"

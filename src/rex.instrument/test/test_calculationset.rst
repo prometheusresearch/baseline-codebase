@@ -346,6 +346,29 @@ HTSQL calculation expressions don't allow ETL statements::
         /{} :as individual/:insert
         ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+CalculationSet.execute() handles situations where the calculations return
+Decimal values::
+
+    >>> CALCULATIONSET = {
+    ...     'instrument': {
+    ...         'id': 'urn:test-instrument',
+    ...         'version': '1.1'
+    ...     },
+    ...     'calculations': [
+    ...         {
+    ...           'id': 'calc1',
+    ...           'type': 'float',
+    ...           'method': 'htsql',
+    ...           'options': {
+    ...             'expression': '4/5'
+    ...           }
+    ...         }
+    ...     ]
+    ... }
+    >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
+    >>> calculationset.execute(assessment)
+    {'calc1': 0.8}
+
 CalculationSet.execute(...) runs coerce_instrument_type(...) method to format
 values of some predefined types
 (date, time, dateTime, integer, text, enumeration); result of other calculation

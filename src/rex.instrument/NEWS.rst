@@ -13,6 +13,8 @@ REX.INSTRUMENT Change Log
   orders.
 * Added a ``calculation_set`` property to the InstrumentVersion and
   DraftInstrumentVersion classes.
+* Fixed an issue that caused calculations to fail to save when HTSQL
+  unexpectedly returned Decimals instead of floats.
 
 
 1.3.0 (2016-01-29)

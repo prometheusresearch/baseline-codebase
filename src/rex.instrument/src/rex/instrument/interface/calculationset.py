@@ -7,6 +7,7 @@ import datetime
 import re
 
 from copy import deepcopy
+from decimal import Decimal
 from rios.core import validate_calculationset, \
     ValidationError as RiosValidationError
 
@@ -61,7 +62,7 @@ def coerce_instrument_type(result, instrument_type):
         result = int(result)
 
     elif instrument_type == 'float':
-        if isinstance(result, basestring):
+        if isinstance(result, (basestring, Decimal)):
             try:
                 result = float(result)
             except ValueError:

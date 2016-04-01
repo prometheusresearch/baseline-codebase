@@ -14,6 +14,7 @@ var widgetTypes = {
 
   'text': [
     'inputText',
+    'lookupText',
     'textArea'
   ],
 

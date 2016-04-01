@@ -54,6 +54,10 @@
   .btn();
   .btn-success();
 }
+.rex-forms-Form__calculate {
+  .btn();
+  .btn-default();
+}
 
 .rex-forms-Form__info {
   padding: @padding;
@@ -122,6 +126,62 @@
 .rex-forms-NavigationButton {
   .btn();
   .btn-default();
+}
+
+.rex-forms-FormContent {
+  display: flex;
+  align-items: center;
+
+  .rex-forms-FormEntry {
+    flex-grow: 1;
+  }
+
+  .rex-forms-CalculationResults {
+    position: fixed;
+    top: 5px;
+    right: 5px;
+    padding: 1em 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-left: 20px;
+    text-align: center;
+    background-color: white;
+    max-width: 25%;
+
+    [dir='rtl'] & {
+      right: auto !important;
+      left: 5px;
+    }
+
+    h3 {
+      margin-top: 0;
+    }
+
+    table {
+        text-align: initial;
+        margin: 0 auto;
+
+        .calcname {
+            font-weight: bold;
+            padding-right: 5px;
+            text-align: right;
+
+            &::after {
+                content: ':';
+            }
+        }
+
+        .calcvalue {
+            padding-left: 5px;
+        }
+    }
+
+    .rex-forms-CalculationResults__close {
+      .btn();
+      .btn-default();
+      margin-top: 1em;
+    }
+  }
 }
 
 
@@ -443,6 +503,27 @@
 .rex-forms-readOnlyExplanation,
 .rex-forms-readOnlyAnnotation {
   padding-bottom: 10px;
+}
+
+.rex-forms-lookupText {
+    .rex-forms-lookupText__suggestions {
+        position: absolute;
+        background-color: white;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+        padding: 5px;
+        margin-top: 1px;
+
+        li {
+            list-style: none;
+            cursor: pointer;
+
+            &:hover {
+                background-color: #cccccc;
+            }
+        }
+    }
+
 }
 
 

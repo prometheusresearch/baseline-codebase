@@ -3,6 +3,8 @@
 #
 
 
+from copy import deepcopy
+
 from rex.core import Setting, RecordVal, StrVal, BoolVal, MapVal, SeqVal, \
     ChoiceVal
 
@@ -123,4 +125,15 @@ class FormsPresentationAdaptorsSetting(Setting):
         adaptors = PresentationAdaptor.mapped().keys()
         validator = MapVal(StrVal(), SeqVal(ChoiceVal(adaptors)))
         return validator(data)
+
+    def merge(self, old_value, new_value):  # pylint: disable=no-self-use
+        merged = deepcopy(old_value)
+
+        for key, value in new_value.items():
+            if key in merged:
+                merged[key] += value
+            else:
+                merged[key] = deepcopy(value)
+
+        return merged
 

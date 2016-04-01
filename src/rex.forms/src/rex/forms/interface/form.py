@@ -40,6 +40,37 @@ class Form(
     )
 
     @classmethod
+    def _validate_custom_widgets(
+            cls,
+            configuration,
+            instrument_definition=None):
+        for page in configuration['pages']:
+            for element in page['elements']:
+                if element['type'] != 'question':
+                    continue
+
+                widget = element['options'].get('widget', {})
+                if widget.get('type') == 'lookupText':
+                    if not widget.get('options', {}).get('query'):
+                        raise ValidationError(
+                            'Widget configuration for %s is missing query' % (
+                                element['options']['fieldId'],
+                            )
+                        )
+
+                elif element['options'].get('questions'):
+                    for question in element['options']['questions']:
+                        widget = question.get('widget', {})
+                        if widget.get('type') == 'lookupText':
+                            if not widget.get('options', {}).get('query'):
+                                raise ValidationError(
+                                    'Widget configuration for %s is missing'
+                                    ' query' % (
+                                        question['fieldId'],
+                                    )
+                                )
+
+    @classmethod
     def validate_configuration(cls, configuration, instrument_definition=None):
         """
         Validates that the specified configuration is a legal Web Form
@@ -97,6 +128,11 @@ class Form(
                 ))
             raise ValidationError('\n'.join(msg))
 
+        cls._validate_custom_widgets(
+            configuration,
+            instrument_definition=instrument_definition,
+        )
+
     @classmethod
     def get_by_uid(cls, uid, user=None):
         """
@@ -140,7 +176,7 @@ class Form(
         if not isinstance(task, Task):
             task = Task.get_implementation().get_by_uid(task)
             if not task:
-                 return None
+                return None
 
         forms = cls.find(
             channel=channel,
@@ -419,6 +455,8 @@ class Form(
         :type locale: string
         :rtype: unicode
         """
+
+        # pylint: disable=arguments-differ
 
         if self.configuration and 'title' in self.configuration:
             locale = str(locale)

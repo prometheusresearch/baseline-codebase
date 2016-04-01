@@ -577,12 +577,12 @@ It accepts options that dictate the various properties of the output format::
           text:
             en: q_enumerationset
           enumerations:
-          - id: foo
-            text:
-              en: foo
           - id: bar
             text:
               en: bar
+          - id: foo
+            text:
+              en: foo
 
     >>> ctl('instrument-formskeleton ./test/forms/instruments/constraint_enumerations_null.json --pretty --format=YAML')
     instrument:
@@ -609,12 +609,12 @@ It accepts options that dictate the various properties of the output format::
           text:
             en: q_enumerationset
           enumerations:
-          - id: foo
-            text:
-              en: foo
           - id: bar
             text:
               en: bar
+          - id: foo
+            text:
+              en: foo
 
     >>> ctl('instrument-formskeleton ./test/forms/instruments/matrix.json --pretty --format=YAML')
     instrument:
@@ -686,4 +686,74 @@ It accepts options that dictate the various properties of the output format::
           fieldId: q_happy
           text:
             en: q_happy
+
+    >>> ctl('instrument-formskeleton ./test/forms/instruments/constraint_enumerations_numeric.json --pretty --format=YAML')
+    instrument:
+      id: urn:test-instrument
+      version: '1.1'
+    defaultLocalization: en
+    title:
+      en: Some Enumerations
+    pages:
+    - id: page1
+      elements:
+      - type: question
+        options:
+          fieldId: q_enumeration
+          text:
+            en: q_enumeration
+          enumerations:
+          - id: '0'
+            text:
+              en: '0'
+          - id: '1'
+            text:
+              en: '1'
+          - id: '2'
+            text:
+              en: '2'
+          widget:
+            type: radioGroup
+            options:
+              hotkeys:
+                '0': '0'
+                '1': '1'
+                '2': '2'
+      - type: question
+        options:
+          fieldId: q_enumerationset
+          text:
+            en: q_enumerationset
+          enumerations:
+          - id: '0'
+            text:
+              en: '0'
+          - id: '1'
+            text:
+              en: '1'
+          - id: '2'
+            text:
+              en: '2'
+          widget:
+            type: checkGroup
+            options:
+              hotkeys:
+                '0': '0'
+                '1': '1'
+                '2': '2'
+      - type: question
+        options:
+          fieldId: q_enumeration2
+          text:
+            en: q_enumeration2
+          enumerations:
+          - id: '1'
+            text:
+              en: '1'
+          - id: bar
+            text:
+              en: bar
+          - id: foo
+            text:
+              en: foo
 

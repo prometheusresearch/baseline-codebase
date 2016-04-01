@@ -3,6 +3,7 @@
  */
 'use strict';
 
+var $                      = require('jquery');
 var React                  = require('react');
 var ReactForms             = require('react-forms');
 var validation             = ReactForms.validation;
@@ -15,6 +16,8 @@ var FormLocalizerMixin     = require('./FormLocalizerMixin');
 var WidgetConfiguration    = require('./WidgetConfiguration');
 var _                      = require('../localization')._;
 var resourcer              = require('../resourcer');
+var lookup                 = require('../lookup');
+var CalculationResults     = require('./CalculationResults');
 
 
 var Form = React.createClass({
@@ -23,7 +26,8 @@ var Form = React.createClass({
     ReactForms.FormMixin,
     FormEventsContextMixin,
     WidgetConfiguration.ContextMixin,
-    resourcer.ResourcerMixin
+    resourcer.ResourcerMixin,
+    lookup.LookupProviderMixin
   ],
 
   propTypes: {
@@ -37,7 +41,9 @@ var Form = React.createClass({
     showOverviewOnCompletion: React.PropTypes.bool,
     readOnly: React.PropTypes.bool,
     subtitle: React.PropTypes.string,
-    localResourcePrefix: React.PropTypes.string
+    localResourcePrefix: React.PropTypes.string,
+    lookupApiPrefix: React.PropTypes.string,
+    calculationApiPrefix: React.PropTypes.string
   },
 
   render: function() {
@@ -77,7 +83,15 @@ var Form = React.createClass({
 
     return (
       <div className="rex-forms-Form">
-        {form}
+        <div className="rex-forms-FormContent">
+          {form}
+          {this.state.showCalculations &&
+            <CalculationResults
+              results={this.state.calculationResults}
+              onClose={this.onCloseCalculationResults}
+              />
+          }
+        </div>
         {!this.props.readOnly &&
           <div className="rex-forms-Form__toolbar clearfix">
             <button
@@ -87,6 +101,15 @@ var Form = React.createClass({
               className="rex-forms-Form__complete">
               {buttonLabel}
             </button>
+            {this.props.calculationApiPrefix &&
+              <button
+                disabled={!isValid}
+                onClick={this.onPreviewCalculations}
+                type="button"
+                className="rex-forms-Form__calculate">
+                {_('Preview Calculations')}
+              </button>
+            }
           </div>}
       </div>
     );
@@ -131,7 +154,9 @@ var Form = React.createClass({
     return {
       showOverview: false,
       completed: false,
-      commitedValue: null
+      commitedValue: null,
+      showCalculations: false,
+      calculationResults: null
     };
   },
 
@@ -263,6 +288,39 @@ var Form = React.createClass({
     }
   },
 
+  onPreviewCalculations: function () {
+    this.setState({
+      showCalculations: true,
+      calculationResults: null
+    });
+    $.ajax({
+      url: this.props.calculationApiPrefix,
+      method: 'POST',
+      data: {
+        data: JSON.stringify(this.getAssessment(this.value()))
+      },
+      success: (response) => {
+        this.setState({
+          calculationResults: response.results
+        });
+      },
+      error: () => {
+        this.setState({
+          calculationResults: {
+            ERR: _('There was an error when executing the calculations.')
+          }
+        });
+      }
+    });
+  },
+
+  onCloseCalculationResults: function () {
+    this.setState({
+      showCalculations: false,
+      calculationResults: null
+    });
+  },
+
   valueUpdated: function(value) {
     var isValid = this.isValid(value);
     var assessment = this.getAssessment(value);
@@ -276,6 +334,10 @@ var Form = React.createClass({
 
   getLocalResourcePrefix: function () {
     return this.props.localResourcePrefix;
+  },
+
+  getLookupApiPrefix: function () {
+    return this.props.lookupApiPrefix;
   }
 });
 

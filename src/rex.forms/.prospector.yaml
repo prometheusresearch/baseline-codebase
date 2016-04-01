@@ -19,8 +19,6 @@ pylint:
     - abstract-class-not-used
     - abstract-class-little-used
     - no-init
-    # Only disable the following rule until pylint can better handle namespaces
-    - import-error
   enable:
     - fixme
 
@@ -34,6 +32,7 @@ pylint:
 pyflakes:
   disable:
     - F403
+    - F401
 
 frosted:
   disable:

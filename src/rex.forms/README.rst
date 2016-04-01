@@ -167,3 +167,39 @@ containing the Instrument definition.
 
     rex instrument-formskeleton <definition>
 
+
+Custom RIOS Web Form Widgets
+============================
+
+This package includes implementations of custom widgets that go beyond those
+defined by the `RIOS`_ Web Form Configuration specification.
+
+lookupText
+----------
+This widget is for ``text`` questions. It allows the Form author to provide an
+HTSQL query that will be used to display a dynamic lookup table that is
+displayed to the end user to help them fill in the value for the field. As the
+user types into the text box, their input will be fed to the query as a
+variable that can be used to limit the displayed options to those that match
+what they've typed in. When/If the user clicks on an option, the value
+associated with that option will be placed into the text field.
+
+This widget accepts two properties in its ``options``:
+
+* ``query``: This property is required and must contain an HTSQL query that
+  should be executed as the user types into the text box. This query must
+  return two fields: one labelled ``label`` that contains the description of
+  the value to display to the user, and one labelled ``value`` which contains
+  the value that will be placed in the text box when/if the user clicks on it.
+  This query will receive one variable, ``$search`` which contains the value
+  the user has currently entered into the text box.
+* ``width``: Like the ``inputText`` widget, this property defines the size of
+  the text box. Allows ``small``, ``medium``, or ``large``. This property is
+  optional, and if not specified, defaults to ``medium``.
+
+**Note:** This widget does not restrict the user's input to those values
+returned by the query. The user is allowed to enter any value that passes the
+constraints defined by the Instrument. The automatic lookup functionality
+provided by this widget is only meant to help the user find a good value to
+enter -- not limit their values.
+

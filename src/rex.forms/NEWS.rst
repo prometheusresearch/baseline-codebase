@@ -5,6 +5,20 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+1.5.0 (2016-xx-xx)
+==================
+
+* The instrument-formskeleton task now sorts the lists of enumerations by their
+  ID.
+* The instrument-formskeleton task now automatically assigns hotkeys to
+  enumerations if all the enumerations in the list have IDs of 0-9.
+* Added a new ``lookupText`` widget that can show a list of suggested values
+  based on what the user has entered into the text box.
+* Added an optional feature to Form entry that allows the user to see a preview
+  of what the CalculationSet results would be based on the current state of the
+  Form.
+
+
 1.4.1 (2016-03-30)
 ==================
 

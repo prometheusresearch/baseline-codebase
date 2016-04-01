@@ -3,6 +3,7 @@
 #
 
 
+import string
 import sys
 
 from rex.core import Error, AnyVal
@@ -439,15 +440,35 @@ class InstrumentFormSkeleton(Task, FormOutputter):
         )
 
         if 'enumerations' in type_def:
-            opts['enumerations'] = [
-                {
-                    'id': key,
-                    'text': self._text(
-                        defn.get('description', key) if defn else key
-                    )
+            opts['enumerations'] = sorted(
+                [
+                    {
+                        'id': key,
+                        'text': self._text(
+                            defn.get('description', key) if defn else key
+                        )
+                    }
+                    for key, defn in type_def['enumerations'].items()
+                ],
+                key=lambda x: x['id'],
+            )
+
+            hotkeys = {}
+            if len(opts['enumerations']) <= 10:
+                for enum in opts['enumerations']:
+                    if len(enum['id']) == 1 and enum['id'] in string.digits:
+                        hotkeys[enum['id']] = enum['id']
+            if len(hotkeys) == len(opts['enumerations']):
+                if type_def['base'] == 'enumerationSet':
+                    widget_type = 'checkGroup'
+                else:
+                    widget_type = 'radioGroup'
+                opts['widget'] = {
+                    'type': widget_type,
+                    'options': {
+                        'hotkeys': hotkeys,
+                    }
                 }
-                for key, defn in type_def['enumerations'].items()
-            ]
 
         if 'rows' in type_def:
             opts['rows'] = [

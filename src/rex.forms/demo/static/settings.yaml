@@ -5,10 +5,15 @@ forms_implementation:
 forms_presentation_adaptors:
   chan135:
     - demo
+  lookupchannel:
+    - lookup
 
 db: pgsql:forms_demo
 
 htsql_extensions:
   tweak.etl:
   rex_deploy:
+
+mount:
+  rex.forms: /
 

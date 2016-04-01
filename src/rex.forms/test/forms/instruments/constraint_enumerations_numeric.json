@@ -1,0 +1,41 @@
+{
+    "id": "urn:test-instrument",
+    "version": "1.1",
+    "title": "Some Enumerations",
+    "record": [
+        {
+            "id": "q_enumeration",
+            "type": {
+                "base": "enumeration",
+                "enumerations": {
+                    "1": {},
+                    "0": {},
+                    "2": {}
+                }
+            }
+        },
+        {
+            "id": "q_enumerationset",
+            "type": {
+                "base": "enumerationSet",
+                "enumerations": {
+                    "1": {},
+                    "0": {},
+                    "2": {}
+                }
+            }
+        },
+        {
+            "id": "q_enumeration2",
+            "type": {
+                "base": "enumeration",
+                "enumerations": {
+                    "foo": {},
+                    "bar": {},
+                    "1": {}
+                }
+            }
+        }
+    ]
+}
+

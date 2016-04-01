@@ -51,3 +51,21 @@ The setting can be specified by multiple apps and will be merged::
     rex.forms_demo.DemoDraftForm
     >>> test.off()
 
+
+forms_presentation_adaptors
+===========================
+
+When specified in more than one place, this setting's values will be merged::
+
+    >>> test = Rex('__main__', 'rex.forms_demo')
+    >>> test.on()
+    >>> get_settings().forms_presentation_adaptors
+    {'chan135': ['demo'], 'lookupchannel': ['lookup']}
+    >>> test.off()
+
+    >>> test = Rex('__main__', 'rex.forms_demo', forms_presentation_adaptors={'chan135': ['lookup'], 'somethingelse': ['demo']})
+    >>> test.on()
+    >>> get_settings().forms_presentation_adaptors
+    {'chan135': ['demo', 'lookup'], 'somethingelse': ['demo'], 'lookupchannel': ['lookup']}
+    >>> test.off()
+

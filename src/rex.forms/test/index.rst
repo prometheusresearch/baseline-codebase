@@ -9,4 +9,6 @@ REX.FORMS Examples/Tests
     test_settings
     test_ctl
     test_initializer
+    test_lookup
+    test_previewcal
 

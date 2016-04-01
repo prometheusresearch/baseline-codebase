@@ -13,6 +13,7 @@ var recordList           = require('./recordList');
 var textArea             = require('./textArea');
 var inputText            = require('./inputText');
 var inputDateTime        = require('./inputDateTime');
+var lookupText           = require('./lookupText');
 var matrix               = require('./matrix');
 var value                = require('./value');
 var enumeratedValue      = require('./enumeratedValue');
@@ -39,6 +40,8 @@ var defaultWidgetMap = {
   timePicker: inputDateTime,
   dateTimePicker: inputDateTime,
 
+  lookupText,
+
   recordList,
   matrix,
 
@@ -56,6 +59,8 @@ var defaultWidgetMap = {
   readOnlyDatePicker: value,
   readOnlyTimePicker: value,
   readOnlyDateTimePicker: value,
+
+  readOnlyLookupText: value,
 
   readOnlyRecordList: readOnlyRecordList,
   readOnlyMatrix: readOnlyMatrix

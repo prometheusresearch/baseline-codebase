@@ -14,6 +14,7 @@ var readOnlyWidgetTypes = {
 
   'text': [
     'readOnlyInputText',
+    'readOnlyLookupText',
     'readOnlyTextArea'
   ],
 

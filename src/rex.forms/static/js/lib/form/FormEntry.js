@@ -176,14 +176,23 @@ var FormEntry = React.createClass({
               />
           }
         </PageNavigation>
-        <Page page={currentPage.page} />
-        <PageNavigation navigation={navigation}>
+        <Page
+          page={currentPage.page}
+          onNext={this.onNextPage}
+          />
+        <PageNavigation
+          ref='bottomNav'
+          navigation={navigation}>
           {navigation.pages.length > 1 &&
             <Pagination navigation={navigation} />
           }
         </PageNavigation>
       </div>
     );
+  },
+
+  onNextPage: function () {
+    this.refs.bottomNav.focusButton('next');
   },
 
   /**

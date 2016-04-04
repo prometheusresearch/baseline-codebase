@@ -16,6 +16,14 @@ var PageNavigation = React.createClass({
     percentComplete: React.PropTypes.number
   },
 
+  focusButton: function (button) {
+    if ((button === 'next') && this.refs.next) {
+      this.refs.next.focus();
+    } else if ((button === 'previous') && this.refs.previous) {
+      this.refs.previous.focus();
+    }
+  },
+
   render: function () {
     var around = this.pagesAround();
     var enabledAround = this.enabledPagesAround();
@@ -27,6 +35,7 @@ var PageNavigation = React.createClass({
               <NavigationButton
                 disabled={!enabledAround.prev}
                 onClick={this.prevPage}
+                ref='previous'
                 label={_('Previous Page')} /> : null}
           </div>
           <div className="col-sm-2 rex-forms-PageNavigation__info">
@@ -42,6 +51,7 @@ var PageNavigation = React.createClass({
               <NavigationButton
                 disabled={!enabledAround.next}
                 onClick={this.nextPage}
+                ref='next'
                 label={_('Next Page')}
               />
             }

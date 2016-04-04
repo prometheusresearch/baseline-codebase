@@ -17,6 +17,8 @@ REX.FORMS Change Log
 * Added an optional feature to Form entry that allows the user to see a preview
   of what the CalculationSet results would be based on the current state of the
   Form.
+* Pressing tab while on the last Question of a Page will now place focus on the
+  "Next Page" button, if it exists.
 
 
 1.4.1 (2016-03-30)

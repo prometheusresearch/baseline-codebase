@@ -56,7 +56,7 @@ var WidgetMixin = {
     );
 
     return (
-      <div className={className}>
+      <div className={className} onKeyDown={this.onKeyDown}>
         {label}
         <div className="rex-forms-Widget__input">
           {input}
@@ -153,6 +153,14 @@ var WidgetMixin = {
   next: function() {
     // let's not do that in the same tick as "focus" DOM event is synchronous
     setTimeout(this.props.onNext, 0);
+  },
+
+  onKeyDown: function (event) {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.next();
+    }
   },
 
   focus: function() {

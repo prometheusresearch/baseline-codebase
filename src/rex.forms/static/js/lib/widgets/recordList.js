@@ -52,8 +52,10 @@ var recordList = React.createClass({
         <div>
           <button
             type="button"
+            ref='addRecord'
             className="rex-forms-recordList__add"
             disabled={this.props.disabled}
+            onKeyDown={this.onButtonKeyDown}
             onClick={this.onAdd}>{addText}</button>
         </div>
       </div>
@@ -89,6 +91,8 @@ var recordList = React.createClass({
   focus: function() {
     if (this.value().value.length > 0) {
       this.refs[0].focus();
+    } else {
+      this.refs.addRecord.getDOMNode().focus();
     }
   },
 
@@ -98,12 +102,25 @@ var recordList = React.createClass({
     if (next) {
       this.refs[next].focus();
     } else {
-      this.props.onNext(this.props.name);
+      this.refs.addRecord.getDOMNode().focus();
+    }
+  },
+
+  onButtonKeyDown: function (event) {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      event.stopPropagation();
+      this.props.onNext();
     }
   },
 
   onAdd: function () {
     this.add();
+
+    // Focus the new record
+    setTimeout(() => {
+      this.refs[this.value().value.length - 1].focus();
+    }, 1);
   }
 });
 

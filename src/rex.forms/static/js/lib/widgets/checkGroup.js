@@ -46,13 +46,6 @@ var checkGroup = React.createClass({
     this.onChange(nextValue);
   },
 
-  onKeyDown: function(e) {
-    if (e.key === 'Tab') {
-      e.stopPropagation();
-      this.next();
-    }
-  },
-
   /**
    * Render enumeration descriptor
    *

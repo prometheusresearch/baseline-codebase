@@ -12,6 +12,10 @@ var NavigationButton = React.createClass({
     label: React.PropTypes.string.isRequired
   },
 
+  focus: function () {
+    this.getDOMNode().focus();
+  },
+
   render: function() {
     return this.transferPropsTo(
       <button

@@ -33,7 +33,7 @@ setup(
         'rex.ctl>=2,<3',
         'rex.db>=3,<4',
         'rex.web>=2,<4',
-        'rex.instrument>=1,<2',
+        'rex.instrument>=1.4,<2',
         'rex.expression>=1.3,<2',
         'rex.i18n>=0.3,<0.5',
         'rios.core>=0.7,<0.8',

@@ -8,6 +8,7 @@ import {Preloader} from '../../ui';
 import {Fetch} from '../../data';
 import Field from './Field';
 import ReadOnlyField from './ReadOnlyField';
+import {WithFormValue} from 'react-forms';
 
 /**
  * Renders a <Field> with a <Select>
@@ -18,6 +19,7 @@ import ReadOnlyField from './ReadOnlyField';
 @Fetch(function fetch({data, options}) {
   return options ? {} : {data};
 })
+@WithFormValue
 export default class SelectField extends React.Component {
 
   static propTypes = {

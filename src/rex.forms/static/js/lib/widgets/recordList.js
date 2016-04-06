@@ -29,11 +29,19 @@ var recordList = React.createClass({
     return {};
   },
 
+  getInitialState: function () {
+    return {
+      dirty: false
+    };
+  },
+
   render: function() {
     var records = this.renderRecords();
-    var error = this.renderError();
+    var error = this.state.dirty ? this.renderError() : null;
+    var required = this.value().schema.props.nonEmpty;
     var className = cx(
       'rex-forms-Widget',
+      required ? 'rex-forms-recordList--required' : null,
       'rex-forms-recordList',
       'rex-forms-recordList-' + this.props.name,
       error ? 'rex-forms-Widget--error' : null,
@@ -45,10 +53,9 @@ var recordList = React.createClass({
 
     return (
       <div className={className}>
-        {this.renderLabel()}
+        {this.renderLabel(null, 'rex-forms-recordList--header')}
         {this.renderHelp()}
         {records}
-        {error}
         <div>
           <button
             type="button"
@@ -58,6 +65,7 @@ var recordList = React.createClass({
             onKeyDown={this.onButtonKeyDown}
             onClick={this.onAdd}>{addText}</button>
         </div>
+        {error}
       </div>
     );
   },
@@ -116,6 +124,7 @@ var recordList = React.createClass({
 
   onAdd: function () {
     this.add();
+    this.setState({dirty: true});
 
     // Focus the new record
     setTimeout(() => {

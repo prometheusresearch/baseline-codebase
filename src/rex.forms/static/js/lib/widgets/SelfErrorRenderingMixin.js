@@ -4,6 +4,7 @@
 
 'use strict';
 
+var React = require('react');
 var localized = require('../localized');
 
 /**

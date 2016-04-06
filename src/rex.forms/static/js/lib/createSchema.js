@@ -202,7 +202,12 @@ class SchemaBuilder {
 
   buildRecordListProperty(field, type) {
     var innerSchema = this.builderFor(type.record).build();
-    return List({name: 'value', instrumentType: type}, innerSchema);
+    return List({
+      name: 'value',
+      instrumentType: type,
+      nonEmpty: field.required || false,
+      validate: validators.getForInstrumentType(type)
+    }, innerSchema);
   }
 
   buildMatrixProperty(field, type) {

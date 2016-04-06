@@ -78,13 +78,18 @@ var Question = React.createClass({
 
   renderAnnotation: function() {
     var options = {};
-    var Widget = this.props.readOnly ? 
+    var Widget = this.props.readOnly ?
       widgetMap.readOnlyAnnotation :
       widgetMap.annotation;
     var value = this.value();
-    var valueEntered = value.get('value').value !== null;
 
-    if (!valueEntered && value.schema.children.annotation) {
+    var val = value.get('value').value;
+    var noValueEntered = (
+      (val === null)
+      || (Array.isArray(val) && val.length == 0)
+    );
+
+    if (noValueEntered && value.schema.children.annotation) {
       return Widget({
         name: 'annotation',
         required: value.schema.props.annotation === 'required',

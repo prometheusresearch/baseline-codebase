@@ -19,6 +19,10 @@ REX.FORMS Change Log
   Form.
 * Pressing tab while on the last Question of a Page will now place focus on the
   "Next Page" button, if it exists.
+* Fixed issues where constraints (required, length, etc) weren't being enforced
+  for recordList questions.
+* Fixed an issue that prevented the Annotation field for recordList questions
+  from not being presented.
 
 
 1.4.1 (2016-03-30)

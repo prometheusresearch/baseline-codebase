@@ -16,12 +16,12 @@ var AudioPlayer = require('../AudioPlayer');
  */
 var LabelRenderingMixin = {
 
-  renderLabel: function(htmlFor) {
+  renderLabel: function(htmlFor, className) {
     if (this.props.noLabel) {
       return null;
     }
     return this.props.options.text ? (
-      <div>
+      <div className={className}>
         <label
             htmlFor={htmlFor}
             className="control-label rex-forms-Widget__label">

@@ -7,7 +7,7 @@ import React from 'react';
 import {createValue} from 'react-forms';
 import TestUtils from 'react-addons-test-utils';
 
-import SelectField from '../SelectField';
+import {SelectField} from '../SelectField';
 import Select from '../../Select';
 import {Preloader} from '../../ui';
 import {DataSet} from '../../data';
@@ -19,7 +19,7 @@ describe('<SelectField />', function() {
   it('renders in input mode', function() {
     let renderer = TestUtils.createRenderer();
     renderer.render(
-      <SelectField.Component
+      <SelectField
         fetched={{data: null}}
         options={[{value: 'male', label: 'Male'}]}
         />
@@ -33,7 +33,7 @@ describe('<SelectField />', function() {
     let formValue = createValue({value: 'male'});
     let renderer = TestUtils.createRenderer();
     renderer.render(
-      <SelectField.Component
+      <SelectField
         fetched={{data: null}}
         options={[{value: 'male', label: 'Male'}]}
         formValue={formValue}
@@ -51,7 +51,7 @@ describe('<SelectField />', function() {
     let data = DataSet.fromData([{value: 'male', label: 'Male'}]);
     data.updating = true;
     renderer.render(
-      <SelectField.Component
+      <SelectField
         fetched={{data}}
         formValue={formValue}
         readOnly
@@ -62,7 +62,7 @@ describe('<SelectField />', function() {
     assert(root.props.children.type === Preloader);
     data.updating = false;
     renderer.render(
-      <SelectField.Component
+      <SelectField
         fetched={{data}}
         formValue={formValue}
         readOnly

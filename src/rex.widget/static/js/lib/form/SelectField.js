@@ -16,11 +16,7 @@ import {WithFormValue} from 'react-forms';
  *
  * @public
  */
-@Fetch(function fetch({data, options}) {
-  return options ? {} : {data};
-})
-@WithFormValue
-export default class SelectField extends React.Component {
+export class SelectField extends React.Component {
 
   static propTypes = {
 
@@ -106,3 +102,9 @@ function findByValue(options, value) {
     }
   }
 }
+
+function fetch({data, options}) {
+  return options ? {} : {data};
+}
+
+export default Fetch(fetch)(WithFormValue(SelectField));

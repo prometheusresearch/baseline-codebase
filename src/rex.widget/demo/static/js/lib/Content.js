@@ -3,16 +3,16 @@
  */
 
 import React from 'react';
-import * as Layout from 'rex-widget/layout';
-import * as Stylesheet from 'rex-widget/stylesheet';
-import * as CSS from 'rex-widget/css';
+import * as layout from 'rex-widget/layout';
+import * as stylesheet from 'rex-widget/stylesheet';
+import * as css from 'rex-widget/css';
 import * as ui from 'rex-widget/ui';
 
-let _Section = Stylesheet.apply(Layout.VBox, {
+let _Section = stylesheet.style(layout.VBox, {
   marginBottom: 100
 });
 
-let _SectionTitle = Stylesheet.apply('h2', {
+let _SectionTitle = stylesheet.style('h2', {
   fontSize: '16pt',
   fontWeight: 900,
   margin: 0,
@@ -28,11 +28,11 @@ export function Section({title, children, ...props}) {
   );
 }
 
-let _SubSection = Stylesheet.apply(Layout.VBox, {
+let _SubSection = stylesheet.style(layout.VBox, {
   marginBottom: 50
 });
 
-let _SubSectionTitle = Stylesheet.apply('h3', {
+let _SubSectionTitle = stylesheet.style('h3', {
   fontSize: '12pt',
   fontWeight: 700,
   margin: 0,
@@ -48,7 +48,7 @@ export function SubSection({title, children, ...props}) {
   );
 }
 
-let _CodeBlock = Stylesheet.apply('div', {
+let _CodeBlock = stylesheet.style('div', {
   fontFamily: 'Menlo, Monaco, monospace',
   fontSize: '80%',
   background: '#f5f5f5',
@@ -56,10 +56,10 @@ let _CodeBlock = Stylesheet.apply('div', {
   lineHeight: '1.4em',
   padding: 15,
   whiteSpace: 'pre',
-  borderTop: CSS.border(1, '#ddd'),
-  borderBottom: CSS.border(1, '#ddd'),
+  borderTop: css.border(1, '#ddd'),
+  borderBottom: css.border(1, '#ddd'),
   noBorder: {
-    border: CSS.none,
+    border: css.none,
   }
 });
 
@@ -84,10 +84,10 @@ export function CodeBlock({children, noBorder}) {
   );
 }
 
-let _Code = Stylesheet.apply('code', {
+let _Code = stylesheet.style('code', {
   fontFamily: 'Menlo, Monaco, monospace',
   fontSize: '85%',
-  color: CSS.rgb(116),
+  color: css.rgb(116),
   whiteSpace: 'pre',
   padding: '2px 4px',
 });
@@ -100,8 +100,8 @@ export function Code({children}) {
   );
 }
 
-let _CodeDemo = Stylesheet.apply(Layout.VBox, {
-  borderBottom: CSS.border(1, '#ddd'),
+let _CodeDemo = stylesheet.style(layout.VBox, {
+  borderBottom: css.border(1, '#ddd'),
 });
 
 export function CodeDemo({code, secondary, children, ...props}) {

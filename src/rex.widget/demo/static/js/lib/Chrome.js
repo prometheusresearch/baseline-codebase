@@ -1,56 +1,56 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2016, Prometheus Research, LLC
  */
 
 import React from 'react';
 import ChromeBase from 'rex-widget/lib/Chrome';
 import resolveURL from 'rex-widget/lib/resolveURL';
-import * as UI from 'rex-widget/ui';
-import * as Layout  from 'rex-widget/layout';
-import * as CSS from 'rex-widget/css';
-import * as Stylesheet from 'rex-widget/stylesheet';
+import * as ui from 'rex-widget/ui';
+import * as layout  from 'rex-widget/layout';
+import * as css from 'rex-widget/css';
+import * as stylesheet from 'rex-widget/stylesheet';
 
-let Header = Stylesheet.apply(UI.Panel, {
+let Header = stylesheet.style(ui.Panel, {
   flexDirection: 'row',
   background: '#BB4848',
   color: '#FFFFFF',
-  border: CSS.none,
+  border: css.none,
   padding: 20,
 });
 
-let Title = Stylesheet.apply('div', {
+let Title = stylesheet.style('div', {
   fontSize: '20pt',
   fontWeight: 900,
 });
 
-let Menu = Stylesheet.apply(Layout.HBox, {
+let Menu = stylesheet.style(layout.HBox, {
   flex: 1,
   justifyContent: 'flex-end',
 });
 
-let _MenuButton = Stylesheet.apply(UI.ButtonBase, {
+let _MenuButton = stylesheet.style(ui.ButtonBase, {
   Root: {
     Component: 'a',
-    cursor: CSS.cursor.pointer,
+    cursor: css.cursor.pointer,
     fontWeight: 400,
     color: 'white',
     fontSize: '90%',
     padding: '10px 10px',
     textTransform: 'uppercase',
     background: '#BB4848',
-    border: CSS.none,
-    borderBottom: CSS.border(2, '#BB4848'),
+    border: css.none,
+    borderBottom: css.border(2, '#BB4848'),
     hover: {
-      borderBottom: CSS.border(2, '#C76D6D'),
+      borderBottom: css.border(2, '#C76D6D'),
     },
     focus: {
-      outline: CSS.none,
-      borderBottom: CSS.border(2, '#C76D6D'),
+      outline: css.none,
+      borderBottom: css.border(2, '#C76D6D'),
     },
     active: {
-      borderBottom: CSS.border(2, 'white'),
+      borderBottom: css.border(2, 'white'),
       hover: {
-        borderBottom: CSS.border(2, 'white'),
+        borderBottom: css.border(2, 'white'),
       }
     }
   }
@@ -62,7 +62,7 @@ function MenuButton({href = '/', ...props}) {
   return <_MenuButton {...props} active={active} href={href} tabIndex={-1} />;
 }
 
-let ContentWrapper = Stylesheet.apply(Layout.VBox, {
+let ContentWrapper = stylesheet.style(layout.VBox, {
   width: 800,
   padding: 25,
   margin: '0 auto',

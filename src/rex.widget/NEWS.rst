@@ -5,6 +5,21 @@
 2.5.0 (2016-XX-XX)
 ==================
 
+* Add ``entity-list`` form field type. Works the same as ``entity`` but renders
+  as a checkbox group and returns a list of identifiers::
+
+    - type: entity-list
+      value_key: individual
+      data: ...
+
+* Add alternative widget for ``entity`` form field type to render a radio button
+  group. Use by specifying ``using`` param::
+
+    - type: entity
+      value_key: individual
+      data: ...
+      using: radio-group
+
 2.4.0 (2016-03-31)
 ==================
 

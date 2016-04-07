@@ -111,6 +111,9 @@ function _initializeLayer() {
 }
 
 export function showNotification(notification, getLayer = _initializeLayer) {
+  if (notification === null) {
+    return null;
+  }
   if (!notification.props && !notification.type) {
     notification = <Notification {...notification} />;
   }
@@ -120,6 +123,9 @@ export function showNotification(notification, getLayer = _initializeLayer) {
 }
 
 export function removeNotification(notificationId, getLayer = _initializeLayer) {
+  if (notificationId === null) {
+    return;
+  }
   let layer = getLayer();
   layer.removeNotification(notificationId);
 }

@@ -8,6 +8,7 @@ import Field from './Field';
 import ReadOnlyField from './ReadOnlyField';
 import {Fetch} from '../../data';
 import {WithFormValue} from 'react-forms';
+import contextParams from './contextParams';
 
 /**
  *  AutocompleteField component.
@@ -90,7 +91,7 @@ export class AutocompleteField extends React.Component {
         </ReadOnlyField>
       );
     } else {
-      let titleDataSpec = data.params(this._populateParameters());
+      let titleDataSpec = data.params(contextParams(formValue.params.context));
       let queryDataSpec = data.path.indexOf('/@@/') > -1 ?
         titleDataSpec.params({'query': true}) :
         titleDataSpec;
@@ -108,21 +109,6 @@ export class AutocompleteField extends React.Component {
     }
   }
 
-  _populateParameters() {
-    let context = this.props.formValue.params.context;
-    let populatedParameters = {};
-    for (let key in context) {
-      if (context.hasOwnProperty(key)) {
-        let value = context[key];
-        if (value['meta:type'] !== undefined) {
-          populatedParameters[':' + key] = value.id;
-        } else {
-          populatedParameters[':' + key] = value;
-        }
-      }
-    }
-    return populatedParameters;
-  }
 }
 
 function fetchEntity({data, value}) {

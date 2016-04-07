@@ -162,6 +162,14 @@ function _fieldToSchema(field) {
         format: Validation.entity,
         isRequired: !!field.required
       };
+    case 'entity-list':
+      return {
+        ...defaultAttributes,
+        type: 'array',
+        items: {type: 'any'},
+        minItems: field.minItems !== undefined ? field.minItems : field.required ? 1 : 0,
+        maxItems: field.maxItems,
+      };
     case 'integer':
       return {
         ...defaultAttributes,

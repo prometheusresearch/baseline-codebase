@@ -7,7 +7,8 @@ import React from 'react';
 import TestUtils from 'react-addons-test-utils';
 import {createValue} from 'react-forms';
 
-import {Checkbox, CheckboxField} from '../CheckboxField';
+import {CheckboxField} from '../CheckboxField';
+import Checkbox from '../Checkbox';
 import Field from '../Field';
 import ReadOnlyField from '../ReadOnlyField';
 

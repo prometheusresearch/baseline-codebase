@@ -11,6 +11,8 @@ export DateField from './DateField';
 export DatetimeField from './DatetimeField';
 export EntityForm from './EntityForm';
 export Field from './Field';
+export RadioGroupField from './RadioGroupField';
+export CheckboxGroupField from './CheckboxGroupField';
 export Fieldset from './Fieldset';
 export Form from './Form';
 export Input from './Input';

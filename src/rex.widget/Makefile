@@ -1,4 +1,6 @@
 demo::
+	@pip install -e demo
+	@rex deploy rex.widget_demo
 	@$(MAKE) -C ./demo
 
 doc::

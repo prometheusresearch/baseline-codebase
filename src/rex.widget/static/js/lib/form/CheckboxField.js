@@ -7,24 +7,7 @@ import {WithFormValue} from 'react-forms';
 
 import Field from './Field';
 import ReadOnlyField from './ReadOnlyField';
-
-export let Checkbox = React.createClass({
-
-  render() {
-    return (
-      <input
-        type="checkbox"
-        style={{marginTop: 9}}
-        checked={this.props.value}
-        onChange={this.onChange} 
-        />
-    );
-  },
-
-  onChange(e) {
-    this.props.onChange(e.target.checked);
-  }
-});
+import Checkbox from './Checkbox';
 
 /**
  * Renders a <Field> with an <input> of type="checkbox" or
@@ -32,9 +15,9 @@ export let Checkbox = React.createClass({
  *
  * @public
  */
-export let CheckboxField = React.createClass({
+export class CheckboxField extends React.Component {
 
-  propTypes: {
+  static propTypes = {
     /**
      * When ``true``, a <ReadOnlyField> is displayed;
      * otherwise an <input type="checkbox" ... /> widget is displayed.
@@ -42,11 +25,11 @@ export let CheckboxField = React.createClass({
     readOnly: React.PropTypes.bool,
 
     /**
-     * A form value object whose **value** property contains 
-     * the initial value of the checkbox.
+     * A form value object whose **value** property contains the initial value
+     * of the checkbox.
      */
     formValue: React.PropTypes.object.isRequired,
-  },
+  };
 
   render() {
     let {readOnly, formValue, select, selectFormValue, ...props} = this.props;
@@ -59,11 +42,11 @@ export let CheckboxField = React.createClass({
     } else {
       return (
         <Field {...props} formValue={formValue} data={undefined}>
-          <Checkbox />
+          <Checkbox style={{marginTop: 9}} />
         </Field>
       );
     }
   }
-});
+}
 
 export default WithFormValue(CheckboxField);

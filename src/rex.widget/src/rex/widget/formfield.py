@@ -839,33 +839,66 @@ class EntitySuggestionSpecVal(Validate):
         return value
 
 
+class EntityListFormField(FormField):
+
+    type = 'entity-list'
+
+    fields = (
+        ('data', EntitySuggestionSpecVal()),
+        ('using', ChoiceVal('checkbox-group'), 'checkbox-group'),
+    )
+
+    def widget(self):
+        if self.using == 'checkbox-group':
+            return CheckboxGroup(_data=self.data)
+
+
+class CheckboxGroup(Widget, PortSupport):
+
+    js_type = 'rex-widget/lib/form/CheckboxGroupField'
+
+    _data = Field(AnyVal(), transitionable=False)
+
+    @cached_property
+    def _port(self):
+        desc = {
+            'entity': self._data.entity,
+            'select': ['id'] + self._data.select,
+            'with': [{
+                'calculation': 'title',
+                'expression': self._data.title
+            }],
+        }
+        if self._data.mask:
+            desc['mask'] = self._data.mask
+        return self.create_port(desc)
+
+    @responder(url_type=PortURL)
+    def options(self, req):
+        return self._port(req)
+
+
 class EntityFormField(FormField):
 
     type = 'entity'
 
     fields = (
         ('data', EntitySuggestionSpecVal()),
+        ('using', ChoiceVal('autocomplete', 'radio-group'), 'autocomplete'),
     )
 
     def widget(self):
-        return EntityFormFieldWidget(
-            entity=self.data.entity,
-            title=self.data.title,
-            select=self.data.select,
-            mask=self.data.mask)
+        if self.using == 'autocomplete':
+            return AutocompleteField(_data=self.data)
+        elif self.using == 'radio-group':
+            return RadioGroupField(_data=self.data)
 
 
-class EntityFormFieldWidget(Widget, PortSupport):
+class AutocompleteField(Widget, PortSupport):
 
     js_type = 'rex-widget/lib/form/AutocompleteField'
 
-    entity = Field(StrVal(), transitionable=False)
-
-    title = Field(StrVal(), default=None, transitionable=False)
-
-    mask = Field(StrVal(), default=None, transitionable=False)
-
-    select = Field(SeqVal(StrVal()), default=[], transitionable=False)
+    _data = Field(AnyVal(), transitionable=False)
 
     @cached_property
     def query_port(self):
@@ -885,16 +918,41 @@ class EntityFormFieldWidget(Widget, PortSupport):
 
     def _create_port(self, masked=True):
         port = {
-            'entity': self.entity,
-            'select': ['id'] + self.select,
+            'entity': self._data.entity,
+            'select': ['id'] + self._data.select,
             'with': [{
                 'calculation': 'title',
-                'expression': self.title
+                'expression': self._data.title
             }],
         }
-        if masked and self.mask:
-            port['mask'] = self.mask
+        if masked and self._data.mask:
+            port['mask'] = self._data.mask
         return self.create_port(port)
+
+
+class RadioGroupField(Widget, PortSupport):
+
+    js_type = 'rex-widget/lib/form/RadioGroupField'
+
+    _data = Field(AnyVal(), transitionable=False)
+
+    @cached_property
+    def _port(self):
+        desc = {
+            'entity': self._data.entity,
+            'select': ['id'] + self._data.select,
+            'with': [{
+                'calculation': 'title',
+                'expression': self._data.title
+            }],
+        }
+        if self._data.mask:
+            desc['mask'] = self._data.mask
+        return self.create_port(desc)
+
+    @responder(url_type=PortURL)
+    def options(self, req):
+        return self._port(req)
 
 
 class CalculatedFormField(FormField):

@@ -179,7 +179,10 @@ class Form(Action):
             return None
         parameters = [{'parameter': k, 'default': None}
                       for k in self.context_types.input.rows]
-        port = Port(parameters + [self.entity.type.name])
+        port = Port(parameters + [{
+            'entity': self.entity.type.name,
+            'select':[]
+        }])
         port = annotate_port(self.domain, port)
         return port
 

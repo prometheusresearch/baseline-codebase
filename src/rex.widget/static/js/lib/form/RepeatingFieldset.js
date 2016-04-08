@@ -159,7 +159,7 @@ export class RepeatingFieldset extends React.Component {
     let defaultValue = this.props.defaultValue;
     if (defaultValue === undefined) {
       if (formValue.schema) {
-        defaultValue = formValue.schema.defaultItem;
+        defaultValue = formValue.schema.defaultItem || {};
       } else {
         defaultValue = {};
       }

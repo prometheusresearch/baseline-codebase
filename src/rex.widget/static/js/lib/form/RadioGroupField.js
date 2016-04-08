@@ -95,4 +95,4 @@ export function fetch({options, formValue}) {
 
 let FetchOptions = Fetch(fetch);
 
-export default FetchOptions(WithFormValue(RadioGroupField));
+export default WithFormValue(FetchOptions(RadioGroupField));

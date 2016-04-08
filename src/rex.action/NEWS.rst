@@ -4,6 +4,12 @@
 
 .. contents:: Table of Contents
 
+1.0.1 (2016-04-XX)
+==================
+
+* [FIX] JSON encoding of wizards now features more compact form thus preventing
+  huge byte sizes which were causing performance issues.
+
 1.0.0 (2016-03-31)
 ==================
 

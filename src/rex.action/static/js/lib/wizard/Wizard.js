@@ -53,7 +53,7 @@ export default class Wizard extends React.Component {
 
   constructor(props) {
     super(props);
-    let {path, initialContext, createHistory} = props;
+    let {path, actions, initialContext, createHistory} = props;
     this._initialContext = initialContext;
     this._history = createHistory();
     this._historyStopListen = null;
@@ -61,7 +61,7 @@ export default class Wizard extends React.Component {
 
     let location = null;
     this._history.listen(loc => location = loc)();
-    let graph = GraphPath.fromPath(location.pathname, path, this._initialContext);
+    let graph = GraphPath.fromPath(location.pathname, path, actions, this._initialContext);
     this.state = {graph};
   }
 
@@ -174,6 +174,7 @@ export default class Wizard extends React.Component {
     let graph = GraphPath.fromPath(
       location.pathname,
       this.props.path,
+      this.props.actions,
       this._initialContext
     );
     this.setState({graph});

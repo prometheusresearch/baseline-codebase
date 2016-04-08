@@ -21,13 +21,13 @@ export default class Graph {
   /**
    * Start wizard.
    */
-  static create(instruction, initialContext, tryAdvance = true) {
+  static create(instruction, actions, initialContext, tryAdvance = true) {
     initialContext = {...INITIAL_CONTEXT, ...initialContext};
     invariant(
       Instruction.Start.is(instruction),
       'Can only start wizard from a "Start" instruction'
     );
-    let graph = new this([]);
+    let graph = new this([], actions);
     let node = graph.createNode(instruction, initialContext);
     graph.trace.push(node);
     if (tryAdvance) {
@@ -40,16 +40,17 @@ export default class Graph {
     return graph;
   }
 
-  constructor(trace) {
+  constructor(trace, actions) {
     this.trace = trace;
+    this.actions = actions;
   }
 
   replaceTrace(trace) {
-    return new Graph(trace);
+    return new Graph(trace, this.actions);
   }
 
   createNode(instruction, context = {}, parent = null, index = null, command = null) {
-    return Node.create(instruction, context, parent, index, command);
+    return Node.create(this.actions, instruction, context, parent, index, command);
   }
 
   /**

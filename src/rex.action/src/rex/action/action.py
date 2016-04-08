@@ -98,6 +98,7 @@ class ActionBase(Widget):
 
     def __init__(self, **values):
         self.source_location = None
+        self.uid = None
         self._domain = values.pop('__domain', typing.Domain.current())
         self._context_types = values.pop('__context_types', None)
         self._introspection = None
@@ -126,12 +127,14 @@ class ActionBase(Widget):
         action = self.__class__(**self._clone_values(values))
         if self._introspection:
             action._introspection = self._introspection.transfer(action)
+        action.uid = self.uid
         return action
 
     def __validated_clone__(self, **values):
         action = self.validated(**self._clone_values(values))
         if self._introspection:
             action._introspection = self._introspection.transfer(action)
+        action.uid = self.uid
         return action
 
     def with_domain(self, domain):

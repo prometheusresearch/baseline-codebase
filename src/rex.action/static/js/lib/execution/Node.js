@@ -14,11 +14,12 @@ import {Start, Execute, IncludeWizard, Repeat, Replace} from './Instruction';
  */
 export default class Node {
 
-  static create(instruction, context = {}, parent = null, index = null, prev = null) {
-    return new this(instruction, context, {}, parent, index, null, prev);
+  static create(actions, instruction, context = {}, parent = null, index = null, prev = null) {
+    return new this(actions, instruction, context, {}, parent, index, null, prev);
   }
 
   constructor(
+    actions,
     instruction,
     context = {},
     state = {},
@@ -27,6 +28,7 @@ export default class Node {
     command = null,
     prev = null,
   ) {
+    this.actions = actions;
     this.instruction = instruction;
     this.context = context;
     this.state = state;
@@ -52,6 +54,7 @@ export default class Node {
       return this;
     }
     return new this.constructor(
+      this.actions,
       this.instruction,
       context,
       this.state,
@@ -96,6 +99,7 @@ export default class Node {
    */
   replaceState(state) {
     return new this.constructor(
+      this.actions,
       this.instruction,
       this.context,
       state,
@@ -113,6 +117,7 @@ export default class Node {
     let command = Command.getCommand(this.element, commandName);
     let context = command.execute(this.element.props, this.context, ...args);
     return new this.constructor(
+      this.actions,
       this.instruction,
       context,
       this.state,
@@ -153,11 +158,13 @@ export default class Node {
    */
   @memoize
   get element() {
+    let node;
     if (this._isConcreteNode) {
-      return this.instruction.element;
+      node = this;
     } else {
-      return this._concreteNode.element;
+      node = this._concreteNode;
     }
+    return this.actions[node.instruction.id];
   }
 
   /**
@@ -240,6 +247,7 @@ export default class Node {
         let thenExit = this.parent._thenWithContext(context);
         let thenLoop = this.parent.instruction.repeat.map(inst =>
           this.constructor.create(
+            this.actions,
             inst,
             context,
             this.parent,
@@ -261,6 +269,7 @@ export default class Node {
 
       for (let i = 0; i < this.instruction.then.length; i++) {
         let node = this.constructor.create(
+          this.actions,
           this.instruction.then[i],
           context,
           this.parent,
@@ -285,6 +294,7 @@ function realizeNode(node) {
     // TODO: handle type refinements on wizard level, we are not using them
     // right now
     let startNode = Node.create(
+      node.actions,
       node.element.props.path,
       node.context,
       node,
@@ -293,7 +303,7 @@ function realizeNode(node) {
     return flatten(startNode.then.map(realizeNode));
   } else if (Repeat.is(node.instruction)) {
     return flatten(node.instruction.repeat.map(n =>
-      realizeNode(Node.create(n, node.context, node, 0))));
+      realizeNode(Node.create(node.actions, n, node.context, node, 0))));
   } else {
     invariant(
       false,

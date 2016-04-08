@@ -10,6 +10,7 @@
 
 """
 
+import hashlib
 import urlparse
 import cgi
 
@@ -22,12 +23,13 @@ from rex.core import (
     OneOfVal, RecordVal, IntVal, MaybeVal,
     AnyVal, StrVal, MapVal, SeqVal, StrVal, RecordVal, ChoiceVal)
 from rex.widget import Widget, Field, responder
+from rex.widget.transitionable import as_transitionable
 from rex.widget.validate import DeferredVal, Deferred
 from rex.widget.util import product_to_pojo
 from rex.web import route
 from rex.port import Port
 
-from .action import ActionBase, ActionVal
+from .action import ActionBase, ActionVal, _format_Action
 from .validate import (
     DomainVal,
     ActionMapVal,
@@ -93,7 +95,10 @@ class WizardWidgetBase(Widget):
             with self.domain:
                 self.actions = self.actions.resolve()
         if isinstance(self.path, Deferred):
-            validate_path = instruction.PathVal(self._resolve_action)
+            validate_path = instruction.PathVal(
+                self.uid or self.id,
+                self._resolve_action
+            )
             self.path = self.path.resolve(validate_path)
 
     def _resolve_action(self, ref):
@@ -104,6 +109,8 @@ class WizardWidgetBase(Widget):
                 package=self.package,
                 domain=self.domain,
             )
+            if isinstance(action, WizardBase):
+                action.included = True
             self.states = self.domain.merge(action.domain)
             self._constructed_actions[ref] = action
         return self._constructed_actions[ref]
@@ -389,16 +396,16 @@ def resolve_action_reference(ref, actions=None, package=None, domain=None):
         else:
             action = handler.action.__validated_clone__(id=ref.id)
 
-        if global_ref.query:
-            refine = {name: domain[type] for name, type in global_ref.query.items()}
-            action = action.refine_input(refine)
-
     action = action.with_domain(action.domain.merge(domain))
     return action
 
 
 class WizardBase(WizardWidgetBase, ActionBase):
     """ Base class for wizards."""
+
+    def __init__(self, *args, **kwargs):
+        super(WizardBase, self).__init__(*args, **kwargs)
+        self.included = False
 
     class Configuration(ActionBase.Configuration):
 
@@ -433,8 +440,28 @@ class WizardBase(WizardWidgetBase, ActionBase):
         ])
         return self.__validated_clone__(path=path)
 
+
 class Wizard(WizardBase):
     """ Wizard which renders the last active action on an entire screen."""
 
     name = 'wizard'
     js_type = 'rex-action/lib/wizard/Wizard'
+
+
+def _collect_actions(wizard):
+    actions = {}
+    for key, action in wizard._constructed_actions.items():
+        key = '%s@%s' % (wizard.uid or wizard.id, key)
+        key = hashlib.md5(key).hexdigest()
+        actions[key] = action
+        if isinstance(action, WizardBase):
+            actions.update(_collect_actions(action))
+    return actions
+
+
+@as_transitionable(WizardBase, tag='widget')
+def _format_Wizard(wizard, req, path): # pylint: disable=invalid-name
+    js_type, props = _format_Action(wizard, req, path)
+    if not wizard.included:
+        props['actions'] = _collect_actions(wizard)
+    return js_type, props

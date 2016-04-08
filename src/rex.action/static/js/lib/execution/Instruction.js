@@ -23,8 +23,9 @@ export class Start extends Instruction {
 
 export class Execute extends Instruction {
 
-  constructor(action, then, element) {
+  constructor(id, action, then, element) {
     super(then);
+    this.id = id;
     this.action = action;
     this.element = element;
   }
@@ -32,8 +33,9 @@ export class Execute extends Instruction {
 
 export class IncludeWizard extends Instruction {
 
-  constructor(action, then, element) {
+  constructor(id, action, then, element) {
     super(then);
+    this.id = id;
     this.action = action;
     this.element = element;
   }

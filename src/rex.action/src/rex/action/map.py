@@ -91,6 +91,7 @@ class MapAction(Map):
 
         def _create_action():
             action = spec.action.resolve(action_val)
+            action.uid = id
             action._introspection = action.Introspection(
                 action, id, spec.access, spec.action.source_location)
             if spec.override:

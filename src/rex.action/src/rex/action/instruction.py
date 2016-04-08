@@ -12,6 +12,7 @@
 
 """
 
+import hashlib
 from cached_property import cached_property
 
 from rex.core import Location, locate, set_location, Validate, Error
@@ -34,6 +35,13 @@ class Instruction(TransitionableRecord):
             set_location(inst, location)
         return inst
 
+    def __transit_format__(self, req, path):
+        return [
+            getattr(self, field)
+            for field in self._fields
+            if field != 'action_instance'
+        ] # pylint: disable=no-member
+
 
 class Start(Instruction):
     """ Start of the wizard execution."""
@@ -46,7 +54,7 @@ class Start(Instruction):
 class Execute(Instruction):
     """ Execute action."""
 
-    fields = ('action', 'then', 'action_instance')
+    fields = ('id', 'action', 'then', 'action_instance')
 
     __transit_tag__ = 'rex:action:execute'
 
@@ -115,7 +123,8 @@ def override(instruction, actions):
 
 class ValidateWithAction(Validate):
 
-    def __init__(self, resolve_action):
+    def __init__(self, id, resolve_action):
+        self.id = id
         self.resolve_action = resolve_action
 
 
@@ -137,10 +146,10 @@ class ThenVal(ValidateWithAction):
     @cached_property
     def _validate(self):
         return SeqVal(UnionVal(
-            ExecuteVal(self.resolve_action).variant,
-            RepeatVal(self.resolve_action).variant,
-            ReplaceVal(self.resolve_action).variant,
-            ExecuteShortcutVal(self.resolve_action)))
+            ExecuteVal(self.id, self.resolve_action).variant,
+            RepeatVal(self.id, self.resolve_action).variant,
+            ReplaceVal(self.id, self.resolve_action).variant,
+            ExecuteShortcutVal(self.id, self.resolve_action)))
 
     def _check(self, value):
         seen = set()
@@ -207,7 +216,7 @@ class ExecuteVal(BaseInstructionVal):
     def instruction_validator(self):
         return RecordVal(
             ('action', StrVal()),
-            ('then', ThenVal(self.resolve_action), [])
+            ('then', ThenVal(self.id, self.resolve_action), [])
         )
 
 
@@ -253,7 +262,7 @@ class RepeatSectionVal(ValidateWithAction):
 
     @cached_property
     def validator(self):
-        return ThenVal(self.resolve_action)
+        return ThenVal(self.id, self.resolve_action)
 
     def __call__(self, value):
         value = self.validator(value)
@@ -277,8 +286,8 @@ class RepeatVal(BaseInstructionVal):
     @cached_property
     def instruction_validator(self):
         return RecordVal(
-            ('repeat', RepeatSectionVal(self.resolve_action)),
-            ('then', ThenVal(self.resolve_action), [])
+            ('repeat', RepeatSectionVal(self.id, self.resolve_action)),
+            ('then', ThenVal(self.id, self.resolve_action), [])
         )
 
 
@@ -291,20 +300,24 @@ class ExecuteShortcutVal(ValidateWithAction):
             raise Error('only mappings of a single key are allowed')
         action, then = value.iteritems().next()
         action_instance = self.resolve_action(action)
+        id = '%s@%s' % (self.id, action)
+        id = hashlib.md5(id).hexdigest()
         if isinstance(action_instance, Wizard):
             return IncludeWizard(
+                id=id,
                 action=action,
                 then=then,
                 action_instance=action_instance)
         else:
             return Execute(
+                id=id,
                 action=action,
                 then=then,
                 action_instance=action_instance)
 
     @cached_property
     def _validate(self):
-        return MapVal(StrVal(), ThenVal(self.resolve_action))
+        return MapVal(StrVal(), ThenVal(self.id, self.resolve_action))
 
     def __call__(self, value):
         if isinstance(value, Execute):
@@ -321,21 +334,19 @@ class ExecuteShortcutVal(ValidateWithAction):
 
 class InstructionVal(ValidateWithAction):
 
-    def __init__(self, resolve_action):
-        self.resolve_action = resolve_action
-
     def __call__(self, value):
         validate = UnionVal(
-            ExecuteVal(self.resolve_action).variant,
-            RepeatVal(self.resolve_action).variant,
-            ReplaceVal(self.resolve_action).variant,
-            ExecuteShortcutVal(self.resolve_action))
+            ExecuteVal(self.id, self.resolve_action).variant,
+            RepeatVal(self.id, self.resolve_action).variant,
+            ReplaceVal(self.id, self.resolve_action).variant,
+            ExecuteShortcutVal(self.id, self.resolve_action))
         return validate(value)
 
 
 class PathVal(Validate):
 
-    def __init__(self, resolve_action):
+    def __init__(self, id, resolve_action):
+        self.id = id
         self.resolve_action = resolve_action
 
     def _attach_references_mapper(self, instruction, path):
@@ -355,14 +366,14 @@ class PathVal(Validate):
     def __call__(self, value):
         if isinstance(value, Start):
             return value
-        validate = ThenVal(self.resolve_action)
+        validate = ThenVal(self.id, self.resolve_action)
         path = validate(value)
         path = Start(then=path)
         path = self._attach_references(path)
         return path
 
     def construct(self, loader, node):
-        validate = ThenVal(self.resolve_action)
+        validate = ThenVal(self.id, self.resolve_action)
         path = validate.construct(loader, node)
         path = Start(then=path)
         path = self._attach_references(path)

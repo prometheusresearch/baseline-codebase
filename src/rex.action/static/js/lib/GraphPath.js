@@ -24,7 +24,7 @@ function isFirefox() {
 /**
  * Deserialize ``graph`` object from string.
  */
-export function fromPath(path, instruction, initialContext) {
+export function fromPath(path, instruction, actions, initialContext) {
   // We need a workaround as FF doesn't behave consistently.
   if (isFirefox()) {
     /* istanbul ignore next */
@@ -33,7 +33,7 @@ export function fromPath(path, instruction, initialContext) {
 
   let segments = splitBySlash(path).filter(Boolean);
 
-  let graph = Graph.create(instruction, initialContext, false);
+  let graph = Graph.create(instruction, actions, initialContext, false);
 
   if (segments.length === 0) {
     graph = graph.advance();

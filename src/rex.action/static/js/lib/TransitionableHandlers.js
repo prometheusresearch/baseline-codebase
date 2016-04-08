@@ -38,12 +38,12 @@ Transitionable.register('rex:action:start', function decode_type_record(payload)
 
 /* istanbul ignore next */
 Transitionable.register('rex:action:execute', function decode_type_record(payload) {
-  return new Instruction.Execute(payload[0], payload[1], payload[2]);
+  return new Instruction.Execute(payload[0], payload[1], payload[2], payload[3]);
 });
 
 /* istanbul ignore next */
 Transitionable.register('rex:action:include_wizard', function decode_type_record(payload) {
-  return new Instruction.IncludeWizard(payload[0], payload[1], payload[2]);
+  return new Instruction.IncludeWizard(payload[0], payload[1], payload[2], payload[3]);
 });
 
 /* istanbul ignore next */

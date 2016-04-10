@@ -450,6 +450,11 @@ class Wizard(WizardBase):
 
 def _collect_actions(wizard):
     actions = {}
+    # Check if actions are constructed and if not then force them to be
+    # constructed by typechecking. This is needed to make sure things work after
+    # reloads.
+    if not wizard._constructed_actions:
+        wizard.typecheck()
     for key, action in wizard._constructed_actions.items():
         key = '%s@%s' % (wizard.uid or wizard.id, key)
         key = hashlib.md5(key).hexdigest()

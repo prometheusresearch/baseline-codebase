@@ -14,7 +14,7 @@ lint::
 
 test-fast::
 	@$(foreach test, \
-		$(wildcard test/*.rst), \
+		$(wildcard test/formfield/*.rst) $(wildcard test/*.rst), \
 		echo 'Running $(test)'; \
 		python -m doctest $(test);)
 

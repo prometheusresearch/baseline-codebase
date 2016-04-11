@@ -15,27 +15,31 @@ let Label = stylesheet.style('span', {
 
 export let primitiveValueStrategy = {
 
-  findIndex(value, id) {
+  findIndex(value, option) {
     if (!value) {
       return -1;
     }
-    return value.indexOf(id);
+    return value.indexOf(option.id);
   },
 
-  isChecked(value, id) {
-    return this.findIndex(value, id) > -1;
+  optionToValue(option) {
+    return option.id;
   },
 
-  update(value, id, checked) {
+  isChecked(value, option) {
+    return this.findIndex(value, option) > -1;
+  },
+
+  update(value, option, checked) {
     value = value || [];
     value = value.slice(0);
-    let idx = this.findIndex(value, id);
+    let idx = this.findIndex(value, option);
     if (checked) {
       invariant(
         idx === -1,
         'Duplicate id added'
       );
-      value.push(id);
+      value.push(this.optionToValue(option));
     } else {
       invariant(
         idx > -1,
@@ -51,12 +55,17 @@ export let primitiveValueStrategy = {
 export let entityValueStrategy = {
   ...primitiveValueStrategy,
 
-  findIndex(value, id) {
+  findIndex(value, option) {
     if (!value) {
       return -1;
+    } else {
+      return value.findIndex(item => item.id === option.id);
     }
-    return value.findIndex(item => item.id === id);
-  }
+  },
+
+  optionToValue(option) {
+    return {id: option.id};
+  },
 
 };
 
@@ -81,25 +90,25 @@ export default class CheckboxGroup extends React.Component {
   }
 
   renderOption(option) {
-    let checked = this.props.valueStrategy.isChecked(this.props.value, option.id);
+    let checked = this.props.valueStrategy.isChecked(this.props.value, option);
     return (
       <HBox key={option.id} alignItems="center" marginBottom={2}>
         <Checkbox
           value={checked}
-          onChange={this.onChange.bind(this, option.id)}
+          onChange={this.onChange.bind(this, option)}
           />
         <Label
           style={{marginLeft: 9}}
-          onClick={this.onChange.bind(this, option.id, !checked)}>
+          onClick={this.onChange.bind(this, option, !checked)}>
           {option.title}
         </Label>
       </HBox>
     );
   }
 
-  onChange(id, checked) {
+  onChange(option, checked) {
     let {value, valueStrategy} = this.props;
-    value = valueStrategy.update(value, id, checked);
+    value = valueStrategy.update(value, option, checked);
     this.props.onChange(value);
   }
 }

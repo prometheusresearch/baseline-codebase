@@ -5,12 +5,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {autobind} from 'rex-widget/lang';
-import Plotly from '../vendor/plotly';
 import {WithDOMSize, Preloader as BasePreloader} from 'rex-widget/ui';
 import {Fetch} from 'rex-widget/data';
 import {VBox} from 'rex-widget/layout';
 import Action from '../Action';
 import * as ContextUtils from '../ContextUtils';
+
+function loadPlotly() {
+  return new Promise(resolve =>
+    require.ensure(['../vendor/plotly'], require =>
+      resolve(require('../vendor/plotly'))));
+}
 
 function fetchPlotData({data, context, contextTypes}) {
   data = data.params(
@@ -75,6 +80,7 @@ export default class Plot extends React.Component {
 
   constructor(props) {
     super(props);
+    this.state = {plotly: null};
     this._plotElement = null;
   }
 
@@ -82,7 +88,7 @@ export default class Plot extends React.Component {
     let {fetched: {data}, DOMSize, ...props} = this.props;
     return (
       <Action {...props} flex={1}>
-        {data.updating ?
+        {data.updating || this.state.plotly === null ?
           <Preloader /> :
           <VBox flex={1} ref={this._onPlotElement} />}
       </Action>
@@ -94,7 +100,10 @@ export default class Plot extends React.Component {
   }
 
   componentDidMount() {
-    this.plot();
+    loadPlotly().then(plotly => {
+      this.setState({plotly});
+      this.forceUpdate();
+    });
   }
 
   @autobind
@@ -124,7 +133,7 @@ export default class Plot extends React.Component {
       displaylogo: false,
     };
     let node = ReactDOM.findDOMNode(this._plotElement);
-    Plotly.newPlot(node, dataSpec, layoutSpec, options);
-    Plotly.Plots.resize(node);
+    this.state.plotly.newPlot(node, dataSpec, layoutSpec, options);
+    this.state.plotly.Plots.resize(node);
   }
 }

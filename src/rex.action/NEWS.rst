@@ -10,6 +10,15 @@
 * [FIX] JSON encoding of wizards now features more compact form thus preventing
   huge byte sizes which were causing performance issues.
 
+* [FIX] Wrap buttons in toolbars.
+
+* [FEATURE] Action kind now can be specified in configuration on a per-action
+  basis.
+
+  Action kind is a value (``success``, ``danger`` or ``normal``) which controls
+  how action is represented in UI. For example action of kind ``success`` will
+  have green coloured buttons in a toolbar.
+
 1.0.0 (2016-03-31)
 ==================
 

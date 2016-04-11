@@ -230,6 +230,11 @@ The following additional parameters are available:
   **mask** (optional)
     HTSQL expression which will be used as a mask for table.
 
+**plain** (optional: default: ``false``)
+  Allows to change form field mode to work on a list of plain identifiers rather
+  than a list of objects with attrinbute id. This maybe useful when the handler
+  of the form is an HTSQL query rather than a port.
+
 calculation
 ~~~~~~~~~~~
 

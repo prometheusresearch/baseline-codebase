@@ -10,7 +10,10 @@ import {Preloader} from '../../ui';
 import Field from './Field';
 import ReadOnlyField from './ReadOnlyField';
 import contextParams from './contextParams';
-import CheckboxGroup from './CheckboxGroup';
+import CheckboxGroup, {
+  primitiveValueStrategy,
+  entityValueStrategy
+} from './CheckboxGroup';
 
 export function TitleList({value, options}) {
   value = value || [];
@@ -46,6 +49,12 @@ export class CheckboxGroupField extends React.Component {
     formValue: React.PropTypes.object.isRequired,
 
     /**
+     * If form field should operate on a plain list of ids rather than a list of
+     * objects with id attribute.
+     */
+    plain: React.PropTypes.bool,
+
+    /**
      * Either an array of options or a producible which returns a list of
      * objects with `id` and `title` attributes.
      */
@@ -56,7 +65,7 @@ export class CheckboxGroupField extends React.Component {
   };
 
   render() {
-    let {readOnly, formValue, options, fetched, ...props} = this.props;
+    let {readOnly, formValue, options, fetched, plain, ...props} = this.props;
     let updating = false;
 
     if (!Array.isArray(options)) {
@@ -73,11 +82,12 @@ export class CheckboxGroupField extends React.Component {
         </ReadOnlyField>
       );
     } else {
+      let valueStrategy = plain ? primitiveValueStrategy : entityValueStrategy;
       return (
         <Field {...props} formValue={formValue}>
           {updating ?
             <Preloader style={{marginTop: 9}} /> :
-            <CheckboxGroup options={options} />}
+            <CheckboxGroup valueStrategy={valueStrategy} options={options} />}
         </Field>
       );
     }

@@ -634,12 +634,14 @@ def _to_port_query(entity, fields, filters=None, mask=None):
     for field in fields:
         assert len(field.value_key) == 1
         key = field.value_key[0]
+        if isinstance(field, EntityListFormField):
+            grow['with'].append({'entity': key, 'select': ['id']})
         if isinstance(field, (List, Fieldset)):
             grow['with'].append(_to_port_query(key, field.fields))
         elif isinstance(field, CalculatedFormField):
             grow['with'].append('%s := %s' % (key, field.expression))
         else:
-            grow['select'].append(field.value_key[0])
+            grow['select'].append(key)
     return _grow_val(grow)
 
 
@@ -845,12 +847,13 @@ class EntityListFormField(FormField):
 
     fields = (
         ('data', EntitySuggestionSpecVal()),
+        ('plain', MaybeUndefinedVal(BoolVal()), undefined),
         ('using', ChoiceVal('checkbox-group'), 'checkbox-group'),
     )
 
     def widget(self):
         if self.using == 'checkbox-group':
-            return CheckboxGroup(_data=self.data)
+            return CheckboxGroup(_data=self.data, plain=self.plain)
 
 
 class CheckboxGroup(Widget, PortSupport):
@@ -858,6 +861,7 @@ class CheckboxGroup(Widget, PortSupport):
     js_type = 'rex-widget/lib/form/CheckboxGroupField'
 
     _data = Field(AnyVal(), transitionable=False)
+    plain = Field(BoolVal(), default=undefined)
 
     @cached_property
     def _port(self):

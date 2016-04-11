@@ -32,6 +32,9 @@ export class Edit extends React.Component {
   constructor(props) {
     super(props);
     this._form = null;
+    this.state = {
+      submitInProgress: false
+    };
   }
 
   render() {
@@ -54,7 +57,10 @@ export class Edit extends React.Component {
   renderFooter() {
     let {submitButton, icon} = this.props;
     return (
-      <ui.SuccessButton icon={icon} onClick={this._onSubmit}>
+      <ui.SuccessButton
+        icon={icon}
+        disabled={this.state.submitInProgress}
+        onClick={this._onSubmit}>
         {submitButton}
       </ui.SuccessButton>
     );
@@ -75,7 +81,9 @@ export class Edit extends React.Component {
         context={ContextUtils.getMaskedContext(context, contextTypes.input)}
         submitTo={submitTo}
         submitButton={null}
-        onSubmitComplete={this._onSubmitComplete.bind(null, context[entity.name])}
+        onBeforeSubmit={this.onBeforeSubmit}
+        onSubmitError={this.onSubmitError}
+        onSubmitComplete={this.onSubmitComplete.bind(null, context[entity.name])}
         initialValue={fetched.entity.data}
         value={value}
         entity={entity.type.name}
@@ -97,8 +105,19 @@ export class Edit extends React.Component {
   }
 
   @autobind
-  _onSubmitComplete(prevEntity, nextEntity) {
+  onBeforeSubmit(value) {
+    this.setState({submitInProgress: true});
+  }
+
+  @autobind
+  onSubmitComplete(prevEntity, nextEntity) {
+    this.setState({submitInProgress: false});
     this.props.onEntityUpdate(prevEntity, nextEntity);
+  }
+
+  @autobind
+  onSubmitError() {
+    this.setState({submitInProgress: false});
   }
 
   static renderTitle({entity, title = `Edit ${entity.name}`}, context) {

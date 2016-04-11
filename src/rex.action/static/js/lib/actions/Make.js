@@ -30,7 +30,10 @@ export default class Make extends React.Component {
   constructor(props) {
     super(props);
     this._form = null;
-    this.state = {key: 1};
+    this.state = {
+      key: 1,
+      submitInProgress: false
+    };
   }
 
   render() {
@@ -55,6 +58,8 @@ export default class Make extends React.Component {
           fields={fields}
           submitTo={this.props.dataMutation.params(ContextUtils.contextToParams(context, contextTypes.input))}
           submitButton={null}
+          onBeforeSubmit={this.onBeforeSubmit}
+          onSubmitError={this.onSubmitError}
           onSubmitComplete={this.onSubmitComplete}
           value={value}
           />
@@ -67,6 +72,7 @@ export default class Make extends React.Component {
     let {submitButton, icon} = this.props;
     return (
       <SuccessButton
+        disabled={this.state.submitInProgress}
         onClick={this.onSubmit}
         icon={icon}>
         {submitButton}
@@ -95,12 +101,22 @@ export default class Make extends React.Component {
   }
 
   @autobind
+  onBeforeSubmit(value) {
+    this.setState({submitInProgress: true});
+  }
+
+  @autobind
   onSubmitComplete(data) {
     this.props.onSubmitComplete(data);
     let key = this.state.key + 1;
-    this.setState({key});
+    this.setState({key, submitInProgress: false});
     this.props.onCommand('default', data);
     this.props.refetch();
+  }
+
+  @autobind
+  onSubmitError() {
+    this.setState({submitInProgress: false});
   }
 
   static getTitle(props) {

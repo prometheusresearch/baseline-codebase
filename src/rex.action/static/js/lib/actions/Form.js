@@ -23,6 +23,9 @@ export class Form extends React.Component {
   constructor(props) {
     super(props);
     this._form = null;
+    this.state = {
+      submitInProgress: false
+    };
   }
 
   render() {
@@ -53,7 +56,10 @@ export class Form extends React.Component {
     return (
       readOnly ?
         null :
-        <ui.SuccessButton icon={icon} onClick={this._onSubmit}>
+        <ui.SuccessButton
+          icon={icon}
+          onClick={this._onSubmit}
+          disabled={this.state.submitInProgress}>
           {submitButton}
         </ui.SuccessButton>
     );
@@ -91,7 +97,12 @@ export class Form extends React.Component {
   }
 
   @autobind
-  _onSubmitComplete(value) {
+  onBeforeSubmit(value) {
+    this.setState({submitInProgress: true});
+  }
+
+  @autobind
+  onSubmitComplete(value) {
     let {entity, refetch, onContext} = this.props;
     if (value !== null && entity) {
       value = value[entity.type.name][0];
@@ -99,7 +110,13 @@ export class Form extends React.Component {
         [entity.name]: value
       });
     }
+    this.setState({submitInProgress: false});
     refetch();
+  }
+
+  @autobind
+  onSubmitError() {
+    this.setState({submitInProgress: false});
   }
 
   static renderTitle({title = 'Form'}, _context) {

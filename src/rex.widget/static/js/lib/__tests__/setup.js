@@ -12,6 +12,7 @@ global.assert = assert;
 global.document = document;
 global.window = window;
 global.__PUBLIC_PATH__ = '/';
+global.__webpack_public_path__ = '/';
 global.requestAnimationFrame = function(callback) {
   setTimeout(callback, 0);
 }

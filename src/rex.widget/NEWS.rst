@@ -7,6 +7,8 @@
 
 * Configure webpack for code splitting.
 
+* Add ``onBeforeSubmit`` callback to ``<Form />``.
+
 * Add ``entity-list`` form field type. Works the same as ``entity`` but renders
   as a checkbox group and returns a list of identifiers::
 

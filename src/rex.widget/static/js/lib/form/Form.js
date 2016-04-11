@@ -78,11 +78,8 @@ let Form = React.createClass({
      * func
      *
      * Callback which fires on form submit.
-     *
-     * This callback can alter form value before submitting it to server by
-     * returning a new value. Value will be revalidated.
      */
-    onSubmit: PropTypes.func,
+    onBeforeSubmit: PropTypes.func,
 
     /**
      * func
@@ -176,7 +173,7 @@ let Form = React.createClass({
       ),
       onChange: emptyFunction.thatReturnsArgument,
       onUpdate: emptyFunction.thatReturnsArgument,
-      onSubmit: emptyFunction.thatReturnsArgument,
+      onBeforeSubmit: emptyFunction.thatReturnsArgument,
       onSubmitComplete: emptyFunction,
       onSubmitError: emptyFunction,
       transformValueOnSubmit: emptyFunction.thatReturnsArgument,
@@ -243,12 +240,11 @@ let Form = React.createClass({
 
   submit() {
     let {value} = this.state;
-    let {submitTo, insert} = this.props;
+    let {submitTo, insert, onBeforeSubmit, transformValueOnSubmit} = this.props;
 
-    let nextValue = value;
-
-    if (nextValue.completeErrorList.length > 0) {
+    if (value.completeErrorList.length > 0) {
       this.setState({
+        // Note that we use value from state, not the modified one.
         value: value.createRoot({
           params: {forceShowErrors: true},
         })
@@ -256,32 +252,37 @@ let Form = React.createClass({
 
       return;
     }
+
+    onBeforeSubmit(value.value, value);
+
     this._progressNotification = showNotification(
       this.props.progressNotification);
+
     this.setState({submitInProgress: true});
-    let valueToSubmit = this.props.transformValueOnSubmit(nextValue.value);
+
+    let dataValue = transformValueOnSubmit(value.value);
     if (submitTo instanceof Port) {
       if (insert) {
         submitTo
-          .insert(valueToSubmit)
+          .insert(dataValue)
           .then(this.onSubmitComplete, this.onSubmitError);
       } else {
         submitTo
-          .replace(this.props.initialValue || this.props.value, valueToSubmit)
+          .replace(this.props.initialValue || this.props.value, dataValue)
           .then(this.onSubmitComplete, this.onSubmitError);
       }
     } else if (submitTo instanceof Query) {
       submitTo
-        .execute(valueToSubmit)
+        .execute(dataValue)
         .then(this.onSubmitComplete, this.onSubmitError);
     } else if (submitTo instanceof Request) {
       submitTo
-        .produce(valueToSubmit)
+        .produce(dataValue)
         .then(this.onSubmitComplete, this.onSubmitError);
     } else if (submitTo instanceof Mutation) {
       if (insert) {
         submitTo
-          .execute(valueToSubmit)
+          .execute(dataValue)
           .then(this.onSubmitComplete, this.onSubmitError);
       } else {
         let prevValue = this.props.initialValue || this.props.value;
@@ -289,7 +290,7 @@ let Form = React.createClass({
           prevValue = this.props.transformValueOnSubmit(prevValue);
         }
         submitTo
-          .execute(valueToSubmit, prevValue)
+          .execute(dataValue, prevValue)
           .then(this.onSubmitComplete, this.onSubmitError);
       }
     }

@@ -29,7 +29,7 @@ export default class LoadingIndicator extends React.Component {
     let {Root} = this.constructor.stylesheet;
     return (
       <Root>
-        <img src={__PUBLIC_PATH__ + loadingIndicatorImg} />
+        <img src={loadingIndicatorImg} />
       </Root>
     );
   }

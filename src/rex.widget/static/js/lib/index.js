@@ -2,6 +2,8 @@
  * @copyright 2016, Prometheus Research, LLC
  */
 
+__webpack_public_path__ = window.__PUBLIC_PATH__;
+
 import './index.css';
 
 import React              from 'react';

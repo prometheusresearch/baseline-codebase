@@ -61,7 +61,7 @@ export default class Action extends React.Component {
     Header: {
       Component: VBox,
       boxShadow: Theme.shadow.normal(),
-      padding: '20px 10px',
+      padding: '10px 10px',
     },
     Content: {
       Component: VBox,
@@ -69,7 +69,7 @@ export default class Action extends React.Component {
     },
     Toolbar: {
       Component: VBox,
-      marginTop: 10
+      marginTop: 5,
     },
     Footer: {
       padding: 5,

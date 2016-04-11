@@ -1,6 +1,6 @@
 {
   "name": "rex-setup",
-  "version": "3.1.2",
+  "version": "3.1.4",
   "main": "./index.js",
   "peerDependencies": {
     "webpack": "1.12.x",

@@ -110,9 +110,9 @@ module.exports = function introspectionLoader(source) {
   }.bind(this));
 }
 
-const TEST_FILENAME_RE = /\/__tests__\//;
-const VENDOR_FILENAME_RE = /\/vendor\//;
-const JS_RE = /\.js$/;
+var TEST_FILENAME_RE = /\/__tests__\//;
+var VENDOR_FILENAME_RE = /\/vendor\//;
+var JS_RE = /\.js$/;
 
 function shouldIgnoreFile(filename) {
   return (

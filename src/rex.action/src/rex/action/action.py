@@ -16,8 +16,8 @@ import yaml
 from cached_property import cached_property
 
 from rex.core import (
-    Location, Error, Validate, autoreload, get_packages, RecordVal,
-    MaybeVal, StrVal, IntVal, SeqVal, MapVal, OMapVal, OneOfVal, AnyVal,
+    Location, Error, Validate, autoreload, get_packages, RecordVal, MaybeVal,
+    ChoiceVal, StrVal, IntVal, SeqVal, MapVal, OMapVal, OneOfVal, AnyVal,
     cached, guard)
 from rex.widget import (
     Widget, WidgetVal, Field,
@@ -94,6 +94,16 @@ class ActionBase(Widget):
         IntVal(), default=undefined,
         doc="""
         Action width.
+        """)
+
+    kind = Field(
+        ChoiceVal('normal', 'success', 'danger'), default=undefined,
+        doc="""
+        Kind of the action.
+
+        Used for styling action and its action buttons accordingly. For example
+        actions of kine ``danger`` will have corresponding buttons coloured red
+        in toolbars.
         """)
 
     def __init__(self, **values):

@@ -86,7 +86,7 @@ module.exports = function introspectionLoader(source) {
           } else {
             var deps = ';';
             files.forEach(function(file) {
-              if (file === this.resourcePath || /__tests__/.exec(file) || !/\.js$/.exec(file)) {
+              if (file === this.resourcePath || shouldIgnoreFile(file)) {
                 return;
               }
 
@@ -108,4 +108,16 @@ module.exports = function introspectionLoader(source) {
       }
     }
   }.bind(this));
+}
+
+const TEST_FILENAME_RE = /\/__tests__\//;
+const VENDOR_FILENAME_RE = /\/vendor\//;
+const JS_RE = /\.js$/;
+
+function shouldIgnoreFile(filename) {
+  return (
+    TEST_FILENAME_RE.exec(file) ||
+    VENDOR_FILENAME_RE.exec(file) ||
+    !JS_RE.exec(file)
+  );
 }

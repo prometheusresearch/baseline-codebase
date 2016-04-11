@@ -5,6 +5,8 @@
 2.5.0 (2016-XX-XX)
 ==================
 
+* Configure webpack for code splitting.
+
 * Add ``entity-list`` form field type. Works the same as ``entity`` but renders
   as a checkbox group and returns a list of identifiers::
 

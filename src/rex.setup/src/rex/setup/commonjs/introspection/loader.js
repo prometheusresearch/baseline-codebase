@@ -116,8 +116,8 @@ var JS_RE = /\.js$/;
 
 function shouldIgnoreFile(filename) {
   return (
-    TEST_FILENAME_RE.exec(file) ||
-    VENDOR_FILENAME_RE.exec(file) ||
-    !JS_RE.exec(file)
+    TEST_FILENAME_RE.exec(filename) ||
+    VENDOR_FILENAME_RE.exec(filename) ||
+    !JS_RE.exec(filename)
   );
 }

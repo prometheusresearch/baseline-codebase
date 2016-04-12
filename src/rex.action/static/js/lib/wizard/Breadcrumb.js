@@ -4,6 +4,7 @@
 
 import React from 'react';
 
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import * as stylesheet from 'rex-widget/stylesheet';
 import * as layout  from 'rex-widget/layout';
 import * as ui from 'rex-widget/ui';
@@ -11,6 +12,37 @@ import * as css from 'rex-widget/css';
 
 import ActionTitle from '../ActionTitle';
 import {getIconAtNode} from '../ActionIcon';
+
+import * as TransitionStyle from './BreadcrumbTransition.module.css';
+
+class SingleChild extends React.Component {
+  render() {
+    let children = React.Children.toArray(this.props.children);
+    return children[0] || null;
+  }
+}
+
+function TransitionGroup({name, style, ...props}) {
+  let transitionName = {
+    enter: style[name + 'Enter'],
+    enterActive: style[name + 'EnterActive'],
+    leave: style[name + 'Leave'],
+    leaveActive: style[name + 'LeaveActive'],
+  };
+  return <ReactCSSTransitionGroup {...props} transitionName={transitionName} />;
+}
+
+function OpacityTransition({...props}) {
+  return (
+    <TransitionGroup
+      {...props}
+      name="appear"
+      style={TransitionStyle}
+      transitionEnterTimeout={300}
+      transitionLeaveTimeout={300}
+      />
+  );
+}
 
 let BreadcrumbButtonWrapper = stylesheet.style(layout.HBox, {
   paddingLeft: 15,
@@ -85,7 +117,13 @@ export class Breadcrumb extends React.Component {
     let {graph} = this.props;
     let nodes = graph.trace.slice(1, -1);
     let buttons = nodes.map(this.renderButton, this);
-    return <BreadcrumbRoot>{buttons}</BreadcrumbRoot>;
+    return (
+      <OpacityTransition
+        component={BreadcrumbRoot}
+        transitionLeave={false}>
+        {buttons}
+      </OpacityTransition>
+    );
   }
 
   renderButton(node, idx, nodes) {
@@ -99,9 +137,11 @@ export class Breadcrumb extends React.Component {
         <BreadcrumbButton
           onClick={onClick.bind(null, node.keyPath)}
           icon={getIconAtNode(node)}>
-          {showTitle
-            ? <ActionTitle noWrap node={node} />
-            : null}
+          <OpacityTransition component={SingleChild} transitionLeave={false}>
+            {showTitle
+              ? <ActionTitle noWrap node={node} />
+              : null}
+          </OpacityTransition>
         </BreadcrumbButton>
         <BreadcrumbTriangle variant={{first: true}} />
         <BreadcrumbTriangle variant={{second: true}} />

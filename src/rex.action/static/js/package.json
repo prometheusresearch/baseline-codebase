@@ -27,6 +27,7 @@
     "invariant": "^2.1.1",
     "lodash": "^3.10.1",
     "memoize-decorator": "^1.0.2",
+    "react-addons-css-transition-group": "^0.14.8",
     "rethemeable": "^2.0.0",
     "styling": "^0.4.0"
   },

@@ -50,6 +50,8 @@ export default class ButtonBase extends React.Component {
       textAlign: CSS.textAlign.left,
       userSelect: CSS.none,
       WebkitUserSelect: CSS.none,
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
     },
     Caption: {
       Component: 'div',

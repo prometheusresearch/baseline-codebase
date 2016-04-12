@@ -77,7 +77,7 @@ export default class Action extends React.Component {
       pinned: {
         zIndex: 1000,
         background: Theme.color.primary.background,
-        boxShadow: Theme.shadow.normal(),
+        boxShadow: Theme.shadow.light(),
       }
     },
     Title: {

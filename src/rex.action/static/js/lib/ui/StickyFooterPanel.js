@@ -3,12 +3,16 @@
  */
 
 import autobind from 'autobind-decorator';
-import {addResizeListener, removeResizeListener} from '../vendor/detectElementResize';
 import React, {PropTypes} from 'react';
 import ReactDOM from 'react-dom';
 
-import * as Stylesheet from 'rex-widget/stylesheet';
+import * as stylesheet from 'rex-widget/stylesheet';
 import {VBox} from 'rex-widget/layout';
+
+import {
+  addResizeListener,
+  removeResizeListener
+} from '../vendor/detectElementResize';
 
 export default class StickyFooterPanel extends React.Component {
 
@@ -24,7 +28,7 @@ export default class StickyFooterPanel extends React.Component {
     removeResizeListener: removeResizeListener,
   };
 
-  static stylesheet = Stylesheet.create({
+  static stylesheet = stylesheet.create({
     Root: {
       Component: VBox,
       flex: 1,
@@ -55,8 +59,8 @@ export default class StickyFooterPanel extends React.Component {
     }
     return (
       <Root>
-        <Content ref={this._onContentRef}>
-          {children}
+        <Content>
+          <div ref={this._onContentRef}>{children}</div>
           {!pinned && footer}
           <Marker ref={this._onContentMarkerRef} />
         </Content>
@@ -75,22 +79,20 @@ export default class StickyFooterPanel extends React.Component {
 
   _installContentResizeDetector() {
     if (this._contentRef && this._contentMarkerRef) {
-      let contentElem = ReactDOM.findDOMNode(this._contentRef);
-      this.props.addResizeListener(contentElem, this._onContentResize);
+      this.props.addResizeListener(this._contentElement, this._onContentResize);
     }
   }
 
   _uninstallContentResizeDeterctor() {
     if (this._contentRef) {
-      let contentElem = ReactDOM.findDOMNode(this._contentRef);
-      this.props.removeResizeListener(contentElem, this._onContentResize);
+      this.props.removeResizeListener(this._contentElement, this._onContentResize);
     }
   }
 
   @autobind
   _onContentResize() {
-    let contentMarkerBottom = this._contentMarkerElement.getBoundingClientRect().bottom;
     let contentBottom = this._contentElement.getBoundingClientRect().bottom;
+    let contentMarkerBottom = this._contentMarkerElement.getBoundingClientRect().bottom;
     if (contentBottom - contentMarkerBottom > this.props.stickThreshold) {
       if (this.state.pinned) {
         this.setState({pinned: false});

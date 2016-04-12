@@ -77,7 +77,9 @@ export class Form extends React.Component {
         context={ContextUtils.getMaskedContext(context, contextTypes.input)}
         submitTo={submitTo}
         submitButton={null}
-        onSubmitComplete={this._onSubmitComplete}
+        onBeforeSubmit={this.onBeforeSubmit}
+        onSubmitComplete={this.onSubmitComplete}
+        onSubmitError={this.onSubmitError}
         value={this.initialValue}
         fields={fields}
         />
@@ -103,15 +105,16 @@ export class Form extends React.Component {
 
   @autobind
   onSubmitComplete(value) {
-    let {entity, refetch, onContext} = this.props;
-    if (value !== null && entity) {
-      value = value[entity.type.name][0];
-      onContext({
-        [entity.name]: value
-      });
-    }
-    this.setState({submitInProgress: false});
-    refetch();
+    this.setState({submitInProgress: false}, () => {
+      let {entity, refetch, onContext} = this.props;
+      if (value !== null && entity) {
+        value = value[entity.type.name][0];
+        onContext({
+          [entity.name]: value
+        });
+      }
+      refetch();
+    });
   }
 
   @autobind

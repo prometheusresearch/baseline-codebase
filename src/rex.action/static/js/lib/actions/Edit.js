@@ -111,8 +111,9 @@ export class Edit extends React.Component {
 
   @autobind
   onSubmitComplete(prevEntity, nextEntity) {
-    this.setState({submitInProgress: false});
-    this.props.onEntityUpdate(prevEntity, nextEntity);
+    this.setState({submitInProgress: false}, () => {
+      this.props.onEntityUpdate(prevEntity, nextEntity);
+    });
   }
 
   @autobind

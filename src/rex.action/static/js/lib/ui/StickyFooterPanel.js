@@ -4,7 +4,8 @@
 
 import autobind from 'autobind-decorator';
 import React, {PropTypes} from 'react';
-import ReactDOM from 'react-dom';
+import {findDOMNode} from 'react-dom';
+import cloneElementWithRef from '../cloneElementWithRef';
 
 import * as stylesheet from 'rex-widget/stylesheet';
 import {VBox} from 'rex-widget/layout';
@@ -42,6 +43,7 @@ export default class StickyFooterPanel extends React.Component {
   constructor(props) {
     super(props);
     this.state = {pinned: false};
+    this._footerRef = null;
     this._contentRef = null;
     this._contentWrapperRef = null;
   }
@@ -51,7 +53,10 @@ export default class StickyFooterPanel extends React.Component {
     let {children, footer} = this.props;
     let {pinned} = this.state;
     if (footer) {
-      footer = React.cloneElement(footer, {variant: {...footer.props.variant, pinned}});
+      footer = cloneElementWithRef(footer, {
+        variant: {...footer.props.variant, pinned},
+        ref: this._onFooterRef,
+      });
     }
     return (
       <Root>
@@ -90,6 +95,10 @@ export default class StickyFooterPanel extends React.Component {
   _onContentResize() {
     let contentBottom = this._contentElement.getBoundingClientRect().bottom;
     let contentWrapperBottom = this._contentWrapperElement.getBoundingClientRect().bottom;
+    if (this._footerRef && !this.state.pinned) {
+      let footerHeight = this._footerElement.getBoundingClientRect().height;
+      contentWrapperBottom = contentWrapperBottom - footerHeight;
+    }
     if (contentWrapperBottom - contentBottom > this.props.stickThreshold) {
       if (this.state.pinned) {
         this.setState({pinned: false});
@@ -102,11 +111,20 @@ export default class StickyFooterPanel extends React.Component {
   }
 
   get _contentElement() {
-    return ReactDOM.findDOMNode(this._contentRef);
+    return this._contentRef ? findDOMNode(this._contentRef) : null;
   }
 
   get _contentWrapperElement() {
-    return ReactDOM.findDOMNode(this._contentWrapperRef);
+    return this._contentWrapperRef ? findDOMNode(this._contentWrapperRef) : null;
+  }
+
+  get _footerElement() {
+    return this._footerRef ? findDOMNode(this._footerRef) : null;
+  }
+
+  @autobind
+  _onFooterRef(footerRef) {
+    this._footerRef = footerRef;
   }
 
   @autobind

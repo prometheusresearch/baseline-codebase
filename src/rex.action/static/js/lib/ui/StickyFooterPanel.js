@@ -36,10 +36,6 @@ export default class StickyFooterPanel extends React.Component {
     Content: {
       Component: VBox,
       flex: 1,
-    },
-    Marker: {
-      Component: 'div',
-      height: 0,
     }
   });
 
@@ -47,11 +43,11 @@ export default class StickyFooterPanel extends React.Component {
     super(props);
     this.state = {pinned: false};
     this._contentRef = null;
-    this._contentMarkerRef = null;
+    this._contentWrapperRef = null;
   }
 
   render() {
-    let {Root, Content, Marker} = this.constructor.stylesheet;
+    let {Root, Content} = this.constructor.stylesheet;
     let {children, footer} = this.props;
     let {pinned} = this.state;
     if (footer) {
@@ -59,10 +55,9 @@ export default class StickyFooterPanel extends React.Component {
     }
     return (
       <Root>
-        <Content>
+        <Content ref={this._onContentWrapperRef}>
           <div ref={this._onContentRef}>{children}</div>
           {!pinned && footer}
-          <Marker ref={this._onContentMarkerRef} />
         </Content>
         {pinned && footer}
       </Root>
@@ -78,22 +73,24 @@ export default class StickyFooterPanel extends React.Component {
   }
 
   _installContentResizeDetector() {
-    if (this._contentRef && this._contentMarkerRef) {
+    if (this._contentRef && this._onContentWrapperRef) {
       this.props.addResizeListener(this._contentElement, this._onContentResize);
+      this.props.addResizeListener(this._contentWrapperElement, this._onContentResize);
     }
   }
 
   _uninstallContentResizeDeterctor() {
-    if (this._contentRef) {
+    if (this._contentRef && this._onContentWrapperRef) {
       this.props.removeResizeListener(this._contentElement, this._onContentResize);
+      this.props.removeResizeListener(this._contentWrapperElement, this._onContentResize);
     }
   }
 
   @autobind
   _onContentResize() {
     let contentBottom = this._contentElement.getBoundingClientRect().bottom;
-    let contentMarkerBottom = this._contentMarkerElement.getBoundingClientRect().bottom;
-    if (contentBottom - contentMarkerBottom > this.props.stickThreshold) {
+    let contentWrapperBottom = this._contentWrapperElement.getBoundingClientRect().bottom;
+    if (contentWrapperBottom - contentBottom > this.props.stickThreshold) {
       if (this.state.pinned) {
         this.setState({pinned: false});
       }
@@ -108,8 +105,8 @@ export default class StickyFooterPanel extends React.Component {
     return ReactDOM.findDOMNode(this._contentRef);
   }
 
-  get _contentMarkerElement() {
-    return ReactDOM.findDOMNode(this._contentMarkerRef);
+  get _contentWrapperElement() {
+    return ReactDOM.findDOMNode(this._contentWrapperRef);
   }
 
   @autobind
@@ -118,7 +115,7 @@ export default class StickyFooterPanel extends React.Component {
   }
 
   @autobind
-  _onContentMarkerRef(contentMarkerRef) {
-    this._contentMarkerRef = contentMarkerRef;
+  _onContentWrapperRef(contentWrapperRef) {
+    this._contentWrapperRef = contentWrapperRef;
   }
 }

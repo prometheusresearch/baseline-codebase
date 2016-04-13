@@ -18,6 +18,10 @@ class Chrome(BaseChrome):
     js_type = 'rex-widget-chrome/lib/Chrome'
 
     @computed_field
+    def manage_content(self, request):
+        return get_settings().chrome_magic
+
+    @computed_field
     def site_root(self, request):
         package_name = get_packages()[0].name
         return url_for(request, '%s:/' % package_name)

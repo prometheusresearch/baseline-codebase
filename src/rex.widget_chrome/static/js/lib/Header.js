@@ -304,6 +304,7 @@ export default class Header extends React.Component {
       applicationTitle,
       applicationLogoutUrl,
       siteRoot,
+      location,
       ...props
     } = this.props;
 
@@ -314,19 +315,19 @@ export default class Header extends React.Component {
 
     for (let i = 0; i < menu.length; i++) {
       let itemFirst = menu[i];
-      selectedFirst = isCurrentLocation(itemFirst.url);
+      selectedFirst = isCurrentLocation(location, itemFirst.url);
 
       if (itemFirst.items) {
         for (let j = 0; j < itemFirst.items.length; j++) {
           let itemSecond = itemFirst.items[j];
-          let selectedSecond = isCurrentLocation(itemSecond.url);
+          let selectedSecond = isCurrentLocation(location, itemSecond.url);
           selectedFirst = selectedFirst || selectedSecond;
         }
 
         if (selectedFirst) {
           itemsSecond = itemFirst.items.map(item => ({
             ...item,
-            open: isCurrentLocation(item.url)
+            open: isCurrentLocation(location, item.url)
           }));
         }
       }
@@ -385,12 +386,11 @@ export default class Header extends React.Component {
   }
 }
 
-function isCurrentLocation(href) {
-  let {protocol, host, pathname} = window.location;
+function isCurrentLocation(location, href) {
   if (href) {
     href = resolveURL(href);
   }
-  return `${protocol}//${host}${pathname}` === href;
+  return location.href === href;
 }
 
 function itemKey(item) {

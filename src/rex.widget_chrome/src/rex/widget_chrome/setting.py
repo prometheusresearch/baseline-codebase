@@ -75,6 +75,17 @@ class UsernameQuery(Setting):
     validate = StrVal()
 
 
+class ChromeMagic(Setting):
+    """
+    Make chrome magically reload content instead of reloading of an entire page
+    on navigation.
+    """
+
+    name = 'chrome_magic'
+    default = False
+    validate = BoolVal()
+
+
 class Menu(Setting):
     """
     Application menu.

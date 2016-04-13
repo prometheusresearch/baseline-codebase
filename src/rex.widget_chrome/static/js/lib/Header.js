@@ -23,7 +23,7 @@ let style = stylesheet.create({
     color: Theme.header.text,
     border: css.none,
     height: Theme.header.height,
-    justifyContent: 'space-between',
+    justifyContent: 'center',
   },
 
   Bottom: layout.HBox,
@@ -47,18 +47,18 @@ let style = stylesheet.create({
     Root: {
       Component: 'a',
       cursor: css.cursor.pointer,
-      fontWeight: 700,
-      fontSize: '11pt',
+      fontWeight: 400,
+      fontSize: '12pt',
       position: 'relative',
       textShadow: Theme.header.textShadow,
-      height: Theme.header.height - 10,
+      height: Theme.header.height,
       color: Theme.header.text,
       background: Theme.header.background,
       border: css.none,
-      padding: css.padding(10, 10),
+      padding: css.padding(20, 30),
       selected: {
         background: Theme.subHeader.background,
-        height: Theme.header.height - 10 + 1,
+        height: Theme.header.height,
         top: 1,
       },
       open: {
@@ -71,8 +71,7 @@ let style = stylesheet.create({
         outline: css.none,
       },
       small: {
-        height: 'auto',
-        fontSize: '9pt',
+        fontSize: '12pt',
       }
     }
   },
@@ -82,12 +81,12 @@ let style = stylesheet.create({
     Root: {
       Component: 'a',
       cursor: css.cursor.pointer,
-      fontWeight: 700,
+      fontWeight: 400,
       fontSize: '9pt',
       color: Theme.header.text,
       background: Theme.headerMenu.background,
       border: css.none,
-      padding: css.padding(10, 10),
+      padding: css.padding(10, 10, 10, 30),
       focus: {
         outline: css.none,
       },
@@ -115,7 +114,7 @@ let style = stylesheet.create({
     color: Theme.subHeader.text,
     border: css.display.block,
     height: Theme.subHeader.height,
-    paddingLeft: 20,
+    paddingLeft: 208,
     width: '100%',
     collapsed: {
       height: 5
@@ -130,7 +129,7 @@ let style = stylesheet.create({
       alignItems: 'center',
       textDecoration: 'none',
       cursor: 'pointer',
-      fontWeight: 700,
+      fontWeight: 400,
       textShadow: Theme.subHeader.textShadow,
       fontSize: '10pt',
       position: 'relative',
@@ -138,11 +137,11 @@ let style = stylesheet.create({
       background: Theme.subHeader.background,
       border: css.none,
       height: Theme.subHeader.height,
-      padding: css.padding(0, 15),
+      padding: css.padding(0, 25),
       borderTop: css.border(4, Theme.subHeader.background),
       borderBottom: css.border(4, Theme.subHeader.background),
       open: {
-        borderBottom: css.border(4, Theme.header.background),
+        borderBottom: css.border(5, Theme.header.background),
       },
       focus: {
         outline: css.none,
@@ -164,7 +163,7 @@ let style = stylesheet.create({
     Component: 'a',
     alignSelf: 'center',
     fontSize: '19pt',
-    fontWeight: 900,
+    fontWeight: 700,
     cursor: css.cursor.default,
     textShadow: Theme.header.textShadow,
     margin: 0,
@@ -175,7 +174,7 @@ let style = stylesheet.create({
 
   ApplicationMenu: {
     Component: layout.HBox,
-    alignItems: 'flex-end',
+    alignItems: 'flex-start',
     marginRight: 5
   }
 

@@ -15,7 +15,7 @@ export function makeTheme(params) {
     background: params.primaryColor.toCSS(),
     text: '#FFFFFF',
     boxShadow: css.boxShadow(0, 1, 0, 0, params.primaryColor.darkenByRatio(0.2).toCSS()),
-    textShadow: css.textShadow(0, 1, 0, params.primaryColor.darkenByRatio(0.4).toCSS()),
+//    textShadow: css.textShadow(0, 1, 0, params.primaryColor.darkenByRatio(0.4).toCSS()),
       // #337BBB
     hover: {
       background: params.primaryColor.lightenByRatio(0.2).saturateByRatio(0.3).toCSS()
@@ -28,11 +28,11 @@ export function makeTheme(params) {
     }
   };
   let subHeader = {
-    height: 35,
+    height: 40,
     background: params.secondaryColor.toCSS(),
     text: '#FFFFFF',
     boxShadow: css.boxShadow(0, 1, 0, 0, params.secondaryColor.darkenByRatio(0.2).toCSS()),
-    textShadow: css.textShadow(0, 1, 0, params.secondaryColor.darkenByRatio(0.4).toCSS()),
+//    textShadow: css.textShadow(0, 1, 0, params.secondaryColor.darkenByRatio(0.4).toCSS()),
     hover: {
       background: `radial-gradient(ellipse at 50% 55%, ${params.secondaryColor.lightenByRatio(0.6).toCSS()} 0%, ${params.secondaryColor.toCSS()} 70%)`,
 

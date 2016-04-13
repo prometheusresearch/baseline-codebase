@@ -24,8 +24,9 @@ export default class DynamicPageContent extends React.Component {
   };
 
   render() {
+    let justifyContent = this.state.updating ? 'center' : undefined;
     return (
-      <VBox flex={1} key={getLocation().href} justifyContent="center">
+      <VBox flex={1} key={getLocation().href} justifyContent={justifyContent}>
         {this.state.updating ? <LoadingIndicator /> : this.state.content}
       </VBox>
     );

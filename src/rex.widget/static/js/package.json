@@ -7,7 +7,10 @@
     "react-dom": "^0.14.0"
   },
   "eslintConfig": {
-    "extends": "prometheusresearch"
+    "extends": "prometheusresearch",
+    "globals": {
+      "__webpack_public_path__": true
+    }
   },
   "nyc": {
     "exclude": [

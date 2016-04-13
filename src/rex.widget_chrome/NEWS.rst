@@ -2,6 +2,12 @@
   Change Log
 **************
 
+1.1.0 (2016-XX-XX)
+==================
+
+* Add ``magic_chrome`` setting to make page content reloading without reloading
+  of an entire page.
+
 1.0.0 (2016-03-31)
 ==================
 

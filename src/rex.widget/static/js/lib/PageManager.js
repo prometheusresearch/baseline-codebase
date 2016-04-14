@@ -15,6 +15,13 @@ let _location = {
   href: getHrefFromWindowLocation(window.location),
 };
 
+window.addEventListener('popstate', function() {
+  _location = {
+    href: getHrefFromWindowLocation(window.location),
+  };
+  _emitter.emit(PAGE_CHANGE, {..._location});
+});
+
 export function subscribeLocationChange(listener) {
   _emitter.on(PAGE_CHANGE, listener);
 }
@@ -28,7 +35,7 @@ export function getLocation() {
 }
 
 export function updateLocation(location) {
-  history.pushState([], '', location.href);
+  window.history.pushState([], '', location.href);
   _location = location;
   _emitter.emit(PAGE_CHANGE, {...location});
 }

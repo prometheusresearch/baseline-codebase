@@ -3,6 +3,8 @@ db: pgsql:action_demo
 htsql_extensions:
     rex_deploy:
 
+chrome_magic: true
+
 access:
     rex.widget: anybody
     rex.action_demo: anybody

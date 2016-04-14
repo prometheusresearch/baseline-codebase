@@ -7,7 +7,7 @@ deploy pyshell shell:
 	rex $@ $(OPTIONS) $(APP)
 
 serve:
-	rex serve --watch $(OPTIONS) $(APP)
+	rex serve --watch-package rex.action_demo $(OPTIONS) $(APP)
 
 doc:
 	rm -rf static/www/doc && pip install -e .

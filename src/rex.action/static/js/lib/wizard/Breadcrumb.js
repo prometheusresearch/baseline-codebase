@@ -45,7 +45,8 @@ function OpacityTransition({...props}) {
 }
 
 let BreadcrumbButtonWrapper = stylesheet.style(layout.HBox, {
-  paddingLeft: 15,
+  paddingLeft: 10,
+  paddingRight: 10,
   maxWidth: '20%',
 });
 
@@ -80,13 +81,13 @@ let BreadcrumbRoot = stylesheet.style(layout.HBox, {
 
 export let BreadcrumbButton = stylesheet.style(ui.ButtonBase, {
   Root: {
-    fontSize: '85%',
-    fontWeight: 700,
+    fontSize: '80%',
+    fontWeight: 500,
     color: css.rgb(100),
     border: css.rgb(204),
     background: css.rgb(255),
     height: 50,
-    padding: css.padding(0, 10),
+    padding: css.padding(10, 10),
     focus: {
       outline: css.none,
     },
@@ -98,6 +99,8 @@ export let BreadcrumbButton = stylesheet.style(ui.ButtonBase, {
     verticalAlign: 'middle',
   },
   IconWrapper: {
+    display: 'none', // trying to turn off the breadcrumb icons. 
+    // Would also like to turn off the transition to 'icon only' breadcrumb view, at least for the first 10 breadcrumb items.
     position: css.position.relative,
     top: -1,
     verticalAlign: 'middle',
@@ -110,7 +113,7 @@ export let BreadcrumbButton = stylesheet.style(ui.ButtonBase, {
 export class Breadcrumb extends React.Component {
 
   static defaultProps = {
-    collapseAfter: 4,
+    collapseAfter: 10,
   };
 
   render() {

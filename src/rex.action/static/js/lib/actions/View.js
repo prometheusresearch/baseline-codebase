@@ -25,6 +25,7 @@ export class View extends React.Component {
         {!fetched.entity.updating ?
           <form.ConfigurableEntityForm
             key={fetched.entity.data.id}
+            disableValidation
             readOnly
             entity={entity.type.name}
             value={fetched.entity.data}

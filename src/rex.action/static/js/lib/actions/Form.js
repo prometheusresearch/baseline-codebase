@@ -75,6 +75,7 @@ export class Form extends React.Component {
       <form.ConfigurableForm
         ref={this._onForm}
         readOnly={readOnly}
+        disableValidation={readOnly}
         context={ContextUtils.getMaskedContext(context, contextTypes.input)}
         submitTo={submitTo}
         submitButton={null}

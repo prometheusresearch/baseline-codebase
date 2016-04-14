@@ -23,7 +23,7 @@ from rex.widget import (
     Widget, WidgetVal, Field,
     undefined, as_transitionable, TransitionableRecord)
 from rex.widget.widget import _format_Widget
-from rex.widget.util import add_mapping_key, pop_mapping_key
+from rex.widget.util import add_mapping_key, pop_mapping_key, IconVal
 from rex.widget.validate import DeferredVal, Deferred
 
 from . import typing
@@ -70,7 +70,7 @@ class ActionBase(Widget):
         """)
 
     icon = Field(
-        StrVal(), default=undefined,
+        IconVal(), default=undefined,
         doc="""
         Action icon.
         """)

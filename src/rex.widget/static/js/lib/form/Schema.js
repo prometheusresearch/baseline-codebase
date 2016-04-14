@@ -185,7 +185,6 @@ function _fieldToSchema(field) {
         isRequired: !!field.required
       };
     case 'string':
-    default:
       return {
         ...defaultAttributes,
         type: 'string',
@@ -193,6 +192,12 @@ function _fieldToSchema(field) {
         formatPattern: field.pattern,
         formatError: field.error,
         isRequired: !!field.required
+      };
+    default:
+      return {
+        ...defaultAttributes,
+        type: 'any',
+        isRequired: !!field.required,
       };
   }
 }

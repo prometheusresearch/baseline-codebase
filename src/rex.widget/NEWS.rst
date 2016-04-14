@@ -24,6 +24,9 @@
       data: ...
       using: radio-group
 
+* By default uknown form fields now defaults to type ``any`` in form validation
+  schema.
+
 2.4.0 (2016-03-31)
 ==================
 

@@ -87,6 +87,7 @@ export class DataTableBase extends React.Component {
     Root: {
       Component: VBox,
       overflow: 'hidden',
+      margin: '20px 19px 0px 20px',
     },
     LoadingPane: {
       Component: VBox,

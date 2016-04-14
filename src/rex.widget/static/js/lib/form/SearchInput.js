@@ -23,14 +23,21 @@ export let IconButton = stylesheet.style(Icon, {
   },
   hoverable: {
     hover: {
-      opacity: 1
+      opacity: 0.7
     }
   }
 });
 
 let Root = stylesheet.style(HBox, {
-  padding: css.padding(5, 10),
+  padding: css.padding(0, 10),
+  opacity: 0.5,
+  margin: css.margin(10,0),
+  border: css.border(1,'#666'),
+  borderRadius: 2,
   alignItems: 'center',
+  focus: {
+    opacity: 1
+  },
 });
 
 export default class SearchInput extends React.Component {
@@ -50,7 +57,7 @@ export default class SearchInput extends React.Component {
     let {placeholder, debounce, value, onChange} = this.props;
     let {focus} = this.state;
     return (
-      <Root>
+      <Root variant={{focus}} onClick={this.focus}>
         <IconButton name="search" variant={{focus}} onClick={this.focus} />
         <Input
           ref={this.onInputRef}

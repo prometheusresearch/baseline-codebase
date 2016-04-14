@@ -25,6 +25,11 @@ export default class ConfigurableForm extends React.Component {
     fields: React.PropTypes.array.isRequired,
 
     /**
+     * Disable validation.
+     */
+    disableValidation: React.PropTypes.bool,
+
+    /**
      * When ``true``, no submit button is rendered.
      */
     readOnly: React.PropTypes.bool,
@@ -49,8 +54,12 @@ export default class ConfigurableForm extends React.Component {
 
   constructor(props) {
     super(props);
-    this._schema = Schema.fromFields(this.props.fields);
+    this._schema = null;
     this._form = null;
+
+    if (!this.props.disableValidation) {
+      this._schema = Schema.fromFields(this.props.fields);
+    }
   }
 
   render() {

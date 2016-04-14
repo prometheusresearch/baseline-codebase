@@ -24,7 +24,7 @@ export default class StickyFooterPanel extends React.Component {
   };
 
   static defaultProps = {
-    stickThreshold: 50,
+    stickThreshold: 1000,
     addResizeListener: addResizeListener,
     removeResizeListener: removeResizeListener,
   };
@@ -36,6 +36,7 @@ export default class StickyFooterPanel extends React.Component {
     },
     Content: {
       Component: VBox,
+      paddingLeft: 10,
       flex: 1,
     }
   });

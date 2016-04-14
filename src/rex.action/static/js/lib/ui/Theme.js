@@ -59,11 +59,11 @@ export let margin = {
 
 export let shadow = {
   light(shadowColor = color.shadowLight) {
-    return css.boxShadow(0, 0, 2, 0, shadowColor);
+    return css.boxShadow(0, 0, 1, 0, shadowColor);
   },
 
   normal(shadowColor = color.shadowLight) {
-    return css.boxShadow(0, 0, 5, 0, shadowColor);
+    return css.boxShadow(0, 0, 2, 0, shadowColor);
   },
 
   deepInset(shadowColor = color.shadowLight) {

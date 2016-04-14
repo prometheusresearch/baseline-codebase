@@ -74,6 +74,7 @@ export default class Make extends React.Component {
       <SuccessButton
         disabled={this.state.submitInProgress}
         onClick={this.onSubmit}
+        style={{width: '210px', height: '40px', fontSize: '95%'}}
         icon={icon}>
         {submitButton}
       </SuccessButton>

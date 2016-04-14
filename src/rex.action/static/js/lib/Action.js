@@ -60,24 +60,23 @@ export default class Action extends React.Component {
     },
     Header: {
       Component: VBox,
-      boxShadow: Theme.shadow.normal(),
-      padding: '10px 10px',
+      boxShadow: Theme.shadow.light(),
+      padding: '20px',
     },
     Content: {
       Component: VBox,
-      padding: 10,
+      padding: 20,
     },
     Toolbar: {
       Component: VBox,
-      marginTop: 5,
+      marginTop: 10,
     },
     Footer: {
-      padding: 5,
+      padding: '10px 20px',
       flexShrink: 0,
       pinned: {
         zIndex: 1000,
-        background: Theme.color.primary.background,
-        boxShadow: Theme.shadow.light(),
+        boxShadow: Theme.shadow.normal(),
       }
     },
     Title: {

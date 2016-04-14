@@ -59,6 +59,7 @@ export class Edit extends React.Component {
     return (
       <ui.SuccessButton
         icon={icon}
+        style={{width: '210px', height: '40px', fontSize: '95%'}}
         disabled={this.state.submitInProgress}
         onClick={this._onSubmit}>
         {submitButton}

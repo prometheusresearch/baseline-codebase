@@ -38,7 +38,6 @@ export default class Wizard extends React.Component {
   static stylesheet = Stylesheet.create({
     ActionPanel: {
       Component: layout.VBox,
-      boxShadow: '-2px 0px 3px -1px #E2E2E2',
       flex: 1,
     }
   });

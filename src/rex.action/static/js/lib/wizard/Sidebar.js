@@ -18,8 +18,9 @@ import ActionIcon  from '../ActionIcon';
 const SIDEBAR_COLLAPSED_KEY = 'rex.action.sidebar.collapsed';
 
 let SidebarRoot = Stylesheet.style(layout.VBox, {
-  background: '#efefef',
+  background: '#ffffff',
   width: 250,
+  boxShadow: '0px 0px 1px 2px #E2E2E2',
   padding: css.padding(10, 0),
   collapsed: {
     width: 'auto',
@@ -32,23 +33,19 @@ let SidebarButton = Stylesheet.style(ui.ButtonBase, {
     minHeight: 48,
     fontSize: '90%',
     background: 'transparent',
-    padding: css.padding(15, 15),
+    padding: css.padding(15, 20),
     border: css.border(1, 'transparent'),
-    color: '#888',
+    color: '#646464',
     whiteSpace: 'nowrap',
     hover: {
-      background: '#eaeaea',
       color: '#333',
     },
     active: {
-      color: '#333',
+      color: '#0094CD', //would like this color to be whatever subheaderTheme color is (as defined in rex.widget_chrome)
       fontWeight: 700,
       background: 'white',
-      border: css.border(1, '#e2e2e2'),
-      boxShadow: css.boxShadow(0, 1, 1, 0, '#dddddd'),
       hover: {
-        background: 'white',
-        color: '#333',
+        color: '#0094CD', //as well as this color
       }
     },
     focus: {
@@ -57,7 +54,7 @@ let SidebarButton = Stylesheet.style(ui.ButtonBase, {
   },
   IconWrapper: {
     hasCaption: {
-      marginRight: 10
+      marginRight: 15
     }
   }
 });
@@ -101,7 +98,8 @@ export default class Sidebar extends React.Component {
           {buttons}
         </layout.VBox>
         <ui.SecondaryQuietButton
-          size="small"
+          style={{backgroundColor: 'white', color: '#0094CD', border: css.none}}
+          size="medium"
           title="Toggle sidebar"
           onClick={this.toggle}
           icon={collapsed ? <AngleRightIcon /> : <AngleLeftIcon />}

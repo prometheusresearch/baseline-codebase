@@ -99,8 +99,6 @@ export let BreadcrumbButton = stylesheet.style(ui.ButtonBase, {
     verticalAlign: 'middle',
   },
   IconWrapper: {
-    display: 'none', // trying to turn off the breadcrumb icons. 
-    // Would also like to turn off the transition to 'icon only' breadcrumb view, at least for the first 10 breadcrumb items.
     position: css.position.relative,
     top: -1,
     verticalAlign: 'middle',
@@ -139,7 +137,7 @@ export class Breadcrumb extends React.Component {
       <BreadcrumbButtonWrapper key={node.keyPath}>
         <BreadcrumbButton
           onClick={onClick.bind(null, node.keyPath)}
-          icon={getIconAtNode(node)}>
+          icon={showTitle ? null : getIconAtNode(node)}>
           <OpacityTransition component={SingleChild} transitionLeave={false}>
             {showTitle
               ? <ActionTitle noWrap node={node} />

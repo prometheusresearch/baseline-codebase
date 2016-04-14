@@ -102,6 +102,14 @@ export let BreadcrumbButton = stylesheet.style(ui.ButtonBase, {
     hover: {
       color: css.rgb(0),
     },
+    current: {
+      fontWeight: 'bold',
+      color: '#0094CD',
+      cursor: 'default',
+      hover: {
+        color: '#0094CD',
+      }
+    }
   },
   Caption: {
     verticalAlign: 'middle',
@@ -129,11 +137,11 @@ export class Breadcrumb extends React.Component {
 
   render() {
     let {graph} = this.props;
-    let nodes = graph.trace.slice(1, -1);
+    let nodes = graph.trace.slice(1);
     if (this.state.collapsed && nodes.length > 6) {
-      nodes = nodes.slice(0, 3)
+      nodes = nodes.slice(0, 2)
         .concat(_COLLAPSED)
-        .concat(nodes.slice(nodes.length - 3));
+        .concat(nodes.slice(nodes.length - 4));
     }
     let buttons = nodes.map(this.renderButton, this);
     return (
@@ -156,15 +164,18 @@ export class Breadcrumb extends React.Component {
       );
     } else {
       let {onClick} = this.props;
+      let current = idx === nodes.length - 1;
       return (
         <BreadcrumbButtonWrapper key={node.keyPath}>
-          <BreadcrumbButton onClick={onClick.bind(null, node.keyPath)}>
+          <BreadcrumbButton
+            variant={{current}}
+            onClick={onClick.bind(null, node.keyPath)}>
             <OpacityTransition component={SingleChild} transitionLeave={false}>
               <ActionTitle noWrap node={node} />
             </OpacityTransition>
           </BreadcrumbButton>
-          <BreadcrumbTriangle variant={{first: true}} />
-          <BreadcrumbTriangle variant={{second: true}} />
+          {!current && <BreadcrumbTriangle variant={{first: true}} />}
+          {!current && <BreadcrumbTriangle variant={{second: true}} />}
         </BreadcrumbButtonWrapper>
       );
     }

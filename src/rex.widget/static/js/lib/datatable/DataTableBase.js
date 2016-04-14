@@ -7,6 +7,7 @@ import Style from './DataTableBase.css';
 import React, {PropTypes} from 'react';
 import {Column, Table} from 'fixed-data-table';
 import * as Stylesheet from '../../stylesheet';
+import * as css from '../../css';
 import WithDOMSize from '../ui/WithDOMSize';
 import {VBox, HBox} from '../../layout';
 import {emptyFunction, autobind} from '../../lang';
@@ -91,19 +92,19 @@ export class DataTableBase extends React.Component {
     },
     LoadingPane: {
       Component: VBox,
-      background: 'white',
+      background: css.rgba(230, 0.9),
       position: 'absolute',
       zIndex: 1000,
-      height: 35,
-      left: 0,
-      right: 0,
-      boxShadow: '0px -2px 4px 0px rgb(204, 204, 204)',
+      height: 30,
+      width: 100,
+      left: 'calc(50% - 50px)',
       justifyContent: 'center',
-      bottom: -35,
+      bottom: 0,
       opacity: 0,
-      transition: ['opacity 0.3s', 'bottom 0.3s'],
+      transition: 'opacity 0.3s, bottom 0.3s',
+      borderRadius: 13,
       visible: {
-        bottom: 0,
+        bottom: 10,
         opacity: 100
       }
     },

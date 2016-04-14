@@ -82,9 +82,10 @@ let BreadcrumbTriangle = stylesheet.style('div', {
   },
 });
 
-let BreadcrumbRoot = stylesheet.style(layout.HBox, {
+let BreadcrumbRoot = stylesheet.style(layout.VBox, {
   background: css.rgb(255),
   boxShadow: css.boxShadow(0, 1, 1, 0, css.rgb(204)),
+  overflow: 'hidden',
 });
 
 export let BreadcrumbButton = stylesheet.style(ui.ButtonBase, {
@@ -132,7 +133,11 @@ export class Breadcrumb extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {collapsed: false};
+    this._ghost = null;
+    this.state = {
+      collapsed: null,
+      calculateCollapsed: true
+    };
   }
 
   render() {
@@ -144,12 +149,16 @@ export class Breadcrumb extends React.Component {
         .concat(nodes.slice(nodes.length - 4));
     }
     let buttons = nodes.map(this.renderButton, this);
+    let ghostButtons = graph.trace.slice(1).map(this.renderButton, this);
     return (
-      <OpacityTransition
-        component={BreadcrumbRoot}
-        transitionLeave={false}>
-        {buttons}
-      </OpacityTransition>
+      <BreadcrumbRoot>
+        <OpacityTransition component={layout.HBox} transitionLeave={false}>
+          {buttons}
+        </OpacityTransition>
+        <layout.HBox ref={this._onGhost} height={0} style={{visibility: 'hidden'}}>
+          {ghostButtons}
+        </layout.HBox>
+      </BreadcrumbRoot>
     );
   }
 
@@ -182,32 +191,34 @@ export class Breadcrumb extends React.Component {
   }
 
   componentDidUpdate() {
-    if (this.props.DOMSize) {
+    if (this.props.DOMSize && this.state.calculateCollapsed) {
       this._checkOverflow();
     }
   }
 
-  componentWillReceiveProps() {
-    this.setState({collapsed: false});
+  componentWillReceiveProps({graph, DOMSize}) {
+    this.setState({calculateCollapsed: true});
+  }
+
+  @autobind
+  _onGhost(ghost) {
+    this._ghost = findDOMNode(ghost);
   }
 
   _checkOverflow() {
-    let root = findDOMNode(this);
     let rootWidth = this.props.DOMSize.width;
     let seenWidth = 0;
-    for (let i = 0; i < root.childNodes.length; i++) {
-      let child = root.childNodes[i];
-      if (child.id === _COLLAPSED) {
-        continue;
-      }
+    for (let i = 0; i < this._ghost.childNodes.length; i++) {
+      let child = this._ghost.childNodes[i];
       seenWidth = seenWidth + child.offsetWidth;
       if (seenWidth > rootWidth) {
         if (!this.state.collapsed) {
-          this.setState({collapsed: true});
+          this.setState({collapsed: true, calculateCollapsed: false});
         }
         return;
       }
     }
+    this.setState({collapsed: false, calculateCollapsed: false});
   }
 
 }

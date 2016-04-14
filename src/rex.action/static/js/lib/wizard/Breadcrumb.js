@@ -3,8 +3,10 @@
  */
 
 import React from 'react';
+import {findDOMNode} from 'react-dom';
 
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import {autobind} from 'rex-widget/lang';
 import * as stylesheet from 'rex-widget/stylesheet';
 import * as layout  from 'rex-widget/layout';
 import * as ui from 'rex-widget/ui';
@@ -48,6 +50,12 @@ let BreadcrumbButtonWrapper = stylesheet.style(layout.HBox, {
   paddingLeft: 10,
   paddingRight: 10,
   maxWidth: '20%',
+});
+
+let BreadcrumbMore = stylesheet.style(layout.VBox, {
+  alignSelf: 'center',
+  padding: css.padding(0, 10),
+  cursor: 'default',
 });
 
 let BreadcrumbTriangle = stylesheet.style('div', {
@@ -108,15 +116,25 @@ export let BreadcrumbButton = stylesheet.style(ui.ButtonBase, {
   }
 });
 
+// sentinel to mark nodes which needs to be collapsed
+const _COLLAPSED = '<COLLAPSED BREADCRUMB>';
+
+@ui.WithDOMSize
 export class Breadcrumb extends React.Component {
 
-  static defaultProps = {
-    collapseAfter: 10,
-  };
+  constructor(props) {
+    super(props);
+    this.state = {collapsed: false};
+  }
 
   render() {
     let {graph} = this.props;
     let nodes = graph.trace.slice(1, -1);
+    if (this.state.collapsed && nodes.length > 6) {
+      nodes = nodes.slice(0, 3)
+        .concat(_COLLAPSED)
+        .concat(nodes.slice(nodes.length - 3));
+    }
     let buttons = nodes.map(this.renderButton, this);
     return (
       <OpacityTransition
@@ -128,27 +146,59 @@ export class Breadcrumb extends React.Component {
   }
 
   renderButton(node, idx, nodes) {
-    let {onClick, collapseAfter} = this.props;
-    let showTitle = (
-      nodes.length <= collapseAfter ||
-      nodes.length > collapseAfter && nodes.length - idx <= collapseAfter
-    );
-    return (
-      <BreadcrumbButtonWrapper key={node.keyPath}>
-        <BreadcrumbButton
-          onClick={onClick.bind(null, node.keyPath)}
-          icon={showTitle ? null : getIconAtNode(node)}>
-          <OpacityTransition component={SingleChild} transitionLeave={false}>
-            {showTitle
-              ? <ActionTitle noWrap node={node} />
-              : null}
-          </OpacityTransition>
-        </BreadcrumbButton>
-        <BreadcrumbTriangle variant={{first: true}} />
-        <BreadcrumbTriangle variant={{second: true}} />
-      </BreadcrumbButtonWrapper>
-    );
+    if (node === _COLLAPSED) {
+      return (
+        <BreadcrumbButtonWrapper key={_COLLAPSED} id={_COLLAPSED}>
+          <BreadcrumbMore>...</BreadcrumbMore>
+          <BreadcrumbTriangle variant={{first: true}} />
+          <BreadcrumbTriangle variant={{second: true}} />
+        </BreadcrumbButtonWrapper>
+      );
+    } else {
+      let {onClick} = this.props;
+      return (
+        <BreadcrumbButtonWrapper key={node.keyPath}>
+          <BreadcrumbButton onClick={onClick.bind(null, node.keyPath)}>
+            <OpacityTransition component={SingleChild} transitionLeave={false}>
+              <ActionTitle noWrap node={node} />
+            </OpacityTransition>
+          </BreadcrumbButton>
+          <BreadcrumbTriangle variant={{first: true}} />
+          <BreadcrumbTriangle variant={{second: true}} />
+        </BreadcrumbButtonWrapper>
+      );
+    }
   }
+
+  componentDidUpdate() {
+    if (this.props.DOMSize) {
+      this._checkOverflow();
+    }
+  }
+
+  componentWillReceiveProps() {
+    this.setState({collapsed: false});
+  }
+
+  _checkOverflow() {
+    let root = findDOMNode(this);
+    let rootWidth = this.props.DOMSize.width;
+    let seenWidth = 0;
+    for (let i = 0; i < root.childNodes.length; i++) {
+      let child = root.childNodes[i];
+      if (child.id === _COLLAPSED) {
+        continue;
+      }
+      seenWidth = seenWidth + child.offsetWidth;
+      if (seenWidth > rootWidth) {
+        if (!this.state.collapsed) {
+          this.setState({collapsed: true});
+        }
+        return;
+      }
+    }
+  }
+
 }
 
 export default Breadcrumb;

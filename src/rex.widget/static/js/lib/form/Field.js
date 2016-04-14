@@ -10,6 +10,7 @@ import {HBox, VBox} from '../../layout';
 import * as layout from '../../layout';
 import * as Stylesheet from '../../stylesheet';
 import Input from './Input';
+import ErrorList from './ErrorList';
 
 /**
  * Field component.
@@ -31,12 +32,6 @@ export class Field extends React.Component {
       marginLeft: 3,
       width: 5,
       display: 'inline-block',
-    },
-    ErrorList: {
-      Component: layout.VBox,
-      marginTop: 3,
-      color: 'red',
-      fontSize: '80%'
     },
     Label: {
       Component: 'label',
@@ -136,7 +131,7 @@ export class Field extends React.Component {
   }
 
   render() {
-    let {Root, Required, ErrorList, Label, Hint} = this.constructor.stylesheet;
+    let {Root, Required, Label, Hint} = this.constructor.stylesheet;
     let {label, hint, children, onChange, labelSize, inputSize,
       serialize, ...props} = this.props;
     let {dirty} = this.state;
@@ -163,10 +158,7 @@ export class Field extends React.Component {
           <VBox flex={inputSize}>
             {children}
             {showErrors && errorList.length > 0 &&
-              <ErrorList>
-                {errorList.map((error, idx) =>
-                  <VBox key={idx}>{error.message}</VBox>)}
-              </ErrorList>}
+              <ErrorList errorList={errorList} />}
           </VBox>
         </HBox>
       </Root>

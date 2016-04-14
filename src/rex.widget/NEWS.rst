@@ -27,6 +27,8 @@
 * By default uknown form fields now defaults to type ``any`` in form validation
   schema.
 
+* Show validation errors for read only felds.
+
 2.4.0 (2016-03-31)
 ==================
 

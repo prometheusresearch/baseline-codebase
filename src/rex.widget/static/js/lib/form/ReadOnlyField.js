@@ -5,6 +5,7 @@
 import React, {PropTypes} from 'react';
 import {VBox, HBox}       from '../../layout';
 import {WithFormValue}    from 'react-forms';
+import ErrorList from './ErrorList';
 
 let Style = {
   self: {
@@ -116,6 +117,8 @@ export class ReadOnlyField extends React.Component {
           </VBox>}
         <VBox flex={inputSize} justifyContent="center" style={Style.value}>
           {children}
+          {formValue.errorList.length > 0 &&
+            <ErrorList errorList={formValue.errorList} />}
         </VBox>
       </HBox>
     );

@@ -10,6 +10,8 @@ import * as Stylesheet from 'rex-widget/stylesheet';
 import * as ui from 'rex-widget/ui';
 import * as CSS from 'rex-widget/css';
 
+import Action from '../Action';
+
 import Title from './Title';
 
 let stylesheet = Stylesheet.create({
@@ -18,19 +20,23 @@ let stylesheet = Stylesheet.create({
     flex: 1,
     background: CSS.rgba(255, 226, 226, 0.4),
     color: CSS.rgb(68, 22, 22),
+    paddingBottom: 20,
+    paddingTop: 5,
+    maxWidth: 400,
+    boxShadow: "0px 1px 2px 0px rgb(200, 200, 200)",
   },
 
   Header: {
     Component: HBox,
-    padding: 10,
+    paddingTop: 1,
   },
 
   Content: {
     Component: VBox,
     flex: 1,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     justifyContent: 'center',
-    padding: 10,
+    paddingLeft: 20,
   },
 
   Title: {
@@ -39,7 +45,7 @@ let stylesheet = Stylesheet.create({
   },
 
   MessageBottom: {
-    marginTop: 10,
+    paddingBottom: 10,
     fontSize: '90%',
   },
 
@@ -69,41 +75,36 @@ export default class Drop extends React.Component {
     let {confirmDelay} = this.state;
     let title = this.constructor.renderTitle(this.props, context);
     return (
+     <Action title={title}>
       <stylesheet.Root>
-        {title &&
-          <stylesheet.Header>
-            <stylesheet.Title>
-              <h4>
-                {title}
-              </h4>
-            </stylesheet.Title>
             {onClose &&
               <ui.QuietButton
                 icon="remove"
                 onClick={onClose}
                 />}
-          </stylesheet.Header>}
         <stylesheet.Content>
           <stylesheet.Message>
-            <div dangerouslySetInnerHTML={{__html: message}} />
+            <p>You are about to delete a {entity.name}.</p>
+            <b> This action cannot be undone.</b>
           </stylesheet.Message>
+          <stylesheet.MessageBottom>
+            {confirmDelay > 0 ?
+              <p>
+                Wait {confirmDelay} seconds...
+              </p> :
+              <p>
+               Press the button below to permanently delete this record.
+              </p>}
+          </stylesheet.MessageBottom>
           <ui.DangerButton
             onClick={this.drop}
             disabled={confirmDelay > 0}
             icon="remove">
-            Drop
+            Delete {entity.name}
           </ui.DangerButton>
-          <stylesheet.MessageBottom>
-            {confirmDelay > 0 ?
-              <p>
-                Wait {confirmDelay} seconds
-              </p> :
-              <p>
-                Press button above to drop {entity.name}
-              </p>}
-          </stylesheet.MessageBottom>
         </stylesheet.Content>
       </stylesheet.Root>
+     </Action>
     );
   }
 

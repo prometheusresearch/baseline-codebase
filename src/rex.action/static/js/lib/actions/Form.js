@@ -9,6 +9,7 @@ import * as form from 'rex-widget/form';
 import * as ui from 'rex-widget/ui';
 import * as data from 'rex-widget/data';
 
+import SubmitButton from '../ui/SubmitButton';
 import Action from '../Action';
 import * as ObjectTemplate from '../ObjectTemplate';
 import * as ContextUtils from '../ContextUtils';
@@ -56,12 +57,12 @@ export class Form extends React.Component {
     return (
       readOnly ?
         null :
-        <ui.SuccessButton
+        <SubmitButton
           icon={icon}
           onClick={this._onSubmit}
           disabled={this.state.submitInProgress}>
           {submitButton}
-        </ui.SuccessButton>
+        </SubmitButton>
     );
   }
 

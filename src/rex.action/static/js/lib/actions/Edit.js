@@ -9,6 +9,7 @@ import * as form from 'rex-widget/form';
 import * as ui from 'rex-widget/ui';
 import * as data from 'rex-widget/data';
 
+import SubmitButton from '../ui/SubmitButton';
 import Action from '../Action';
 import * as ObjectTemplate from '../ObjectTemplate';
 import * as ContextUtils from '../ContextUtils';
@@ -57,13 +58,12 @@ export class Edit extends React.Component {
   renderFooter() {
     let {submitButton, icon} = this.props;
     return (
-      <ui.SuccessButton
+      <SubmitButton
         icon={icon}
-        style={{width: '210px', height: '40px', fontSize: '95%'}}
         disabled={this.state.submitInProgress}
         onClick={this._onSubmit}>
         {submitButton}
-      </ui.SuccessButton>
+      </SubmitButton>
     );
   }
 

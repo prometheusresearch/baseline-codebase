@@ -99,7 +99,7 @@ export default class Sidebar extends React.Component {
         </layout.VBox>
         <ui.SecondaryQuietButton
           style={{backgroundColor: 'white', color: '#0094CD', border: css.none}}
-          size="medium"
+          size="normal"
           title="Toggle sidebar"
           onClick={this.toggle}
           icon={collapsed ? <AngleRightIcon /> : <AngleLeftIcon />}

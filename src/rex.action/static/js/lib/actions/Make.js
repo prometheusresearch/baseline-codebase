@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import {SuccessButton} from 'rex-widget/ui';
+import SubmitButton from '../ui/SubmitButton';
 import * as form from 'rex-widget/form';
 import {emptyFunction, autobind} from 'rex-widget/lang';
 import {command, Types} from '../execution/Command';
@@ -71,13 +71,12 @@ export default class Make extends React.Component {
   renderFooter() {
     let {submitButton, icon} = this.props;
     return (
-      <SuccessButton
+      <SubmitButton
         disabled={this.state.submitInProgress}
         onClick={this.onSubmit}
-        style={{width: '210px', height: '40px', fontSize: '95%'}}
         icon={icon}>
         {submitButton}
-      </SuccessButton>
+      </SubmitButton>
     );
   }
 

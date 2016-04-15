@@ -16,10 +16,13 @@ let _location = {
 };
 
 window.addEventListener('popstate', function() {
-  console.log('popstate', getHrefFromWindowLocation(window.location));
-  _location = {
+  let nextLocation = {
     href: getHrefFromWindowLocation(window.location),
   };
+  if (nextLocation.href === _location.href) {
+    return;
+  }
+  _location = nextLocation;
   _emitter.emit(PAGE_CHANGE, {..._location});
 });
 

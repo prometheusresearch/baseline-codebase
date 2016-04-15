@@ -84,6 +84,7 @@ export default class Graph {
       reference = reference.split('/').filter(Boolean);
     }
     let graph = this;
+    let firstNodeSeen = false;
     let wasContextUpdated = false;
     for (let i = 0; i < reference.length; i++) {
       let segment = reference[i];
@@ -92,7 +93,7 @@ export default class Graph {
       } else if (segment === '..') {
         graph = graph.close();
       } else {
-        if (contextUpdate && !wasContextUpdated && graph.trace.length > 1) {
+        if (contextUpdate && !wasContextUpdated && firstNodeSeen) {
           wasContextUpdated = true;
           graph = graph.executeCommandAtCurrentNodeAndNoAdvance(
             Command.onContextCommand.name,
@@ -113,6 +114,7 @@ export default class Graph {
           return graph;
         }
         graph = graph._appendAtCurrentNode(nextNode);
+        firstNodeSeen = true;
       }
     }
     return graph;

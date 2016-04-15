@@ -18,13 +18,17 @@ import {
 export default class StickyFooterPanel extends React.Component {
 
   static propTypes = {
+    mode: PropTypes.oneOf(['sticky', 'floating']),
+
     children: PropTypes.node,
+
     footer: PropTypes.node,
+
     stickThreshold: PropTypes.number,
   };
 
   static defaultProps = {
-    stickThreshold: 1000,
+    stickThreshold: 50,
     addResizeListener: addResizeListener,
     removeResizeListener: removeResizeListener,
   };
@@ -34,7 +38,8 @@ export default class StickyFooterPanel extends React.Component {
       Component: VBox,
       flex: 1,
     },
-    Content: {
+    Content: 'div',
+    ContentWrapper: {
       Component: VBox,
       paddingLeft: 10,
       flex: 1,
@@ -43,39 +48,62 @@ export default class StickyFooterPanel extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {pinned: false};
+    this.state = {sticky: this.props.mode === 'sticky'};
     this._footerRef = null;
     this._contentRef = null;
     this._contentWrapperRef = null;
   }
 
   render() {
-    let {Root, Content} = this.constructor.stylesheet;
-    let {children, footer} = this.props;
-    let {pinned} = this.state;
+    let {Root, Content, ContentWrapper} = this.constructor.stylesheet;
+    let {children, footer, mode} = this.props;
+    let {sticky} = this.state;
     if (footer) {
       footer = cloneElementWithRef(footer, {
-        variant: {...footer.props.variant, pinned},
+        variant: {...footer.props.variant, sticky},
         ref: this._onFooterRef,
       });
     }
     return (
       <Root>
-        <Content ref={this._onContentWrapperRef}>
-          <div ref={this._onContentRef}>{children}</div>
-          {!pinned && footer}
-        </Content>
-        {pinned && footer}
+        <ContentWrapper ref={this._onContentWrapperRef}>
+          {mode !== undefined ?
+            children :
+            <Content ref={this._onContentRef}>{children}</Content>}
+          {!sticky && footer}
+        </ContentWrapper>
+        {sticky && footer}
       </Root>
     );
   }
 
   componentDidMount() {
-    this._installContentResizeDetector();
+    if (this.props.mode === undefined) {
+      this._installContentResizeDetector();
+    }
   }
 
   componentWillUnmount() {
-    this._uninstallContentResizeDeterctor();
+    if (this.props.mode === undefined) {
+      this._uninstallContentResizeDeterctor();
+    }
+  }
+
+  componentWillReceiveProps({mode}) {
+    if (mode !== this.props.mode) {
+      this.setState({sticky: mode === 'sticky'});
+    }
+  }
+
+  componentDidUpdate({mode}) {
+    if (mode !== this.props.mode) {
+      if (this.props.mode === undefined) {
+        this._installContentResizeDetector();
+        this._onContentResize();
+      } else {
+        this._uninstallContentResizeDeterctor();
+      }
+    }
   }
 
   _installContentResizeDetector() {
@@ -96,17 +124,17 @@ export default class StickyFooterPanel extends React.Component {
   _onContentResize() {
     let contentBottom = this._contentElement.getBoundingClientRect().bottom;
     let contentWrapperBottom = this._contentWrapperElement.getBoundingClientRect().bottom;
-    if (this._footerRef && !this.state.pinned) {
+    if (this._footerRef && !this.state.sticky) {
       let footerHeight = this._footerElement.getBoundingClientRect().height;
       contentWrapperBottom = contentWrapperBottom - footerHeight;
     }
     if (contentWrapperBottom - contentBottom > this.props.stickThreshold) {
-      if (this.state.pinned) {
-        this.setState({pinned: false});
+      if (this.state.sticky) {
+        this.setState({sticky: false});
       }
     } else {
-      if (!this.state.pinned) {
-        this.setState({pinned: true});
+      if (!this.state.sticky) {
+        this.setState({sticky: true});
       }
     }
   }

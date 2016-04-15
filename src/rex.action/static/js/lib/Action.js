@@ -74,7 +74,7 @@ export default class Action extends React.Component {
     Footer: {
       padding: '10px 20px',
       flexShrink: 0,
-      pinned: {
+      sticky: {
         zIndex: 1000,
         boxShadow: Theme.shadow.normal(),
       }
@@ -116,7 +116,7 @@ export default class Action extends React.Component {
       <Root>
         {noContentWrapper ?
           children :
-          <ContentContainer footer={footer}>
+          <ContentContainer mode="sticky" footer={footer}>
             <Content style={contentStyle}>{children}</Content>
           </ContentContainer>}
         {!noHeader &&

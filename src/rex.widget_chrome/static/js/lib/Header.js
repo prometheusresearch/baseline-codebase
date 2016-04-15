@@ -55,7 +55,7 @@ let style = stylesheet.create({
       color: Theme.header.text,
       background: Theme.header.background,
       border: css.none,
-      padding: css.padding(20, 30),
+      padding: css.padding(20, 20),
       selected: {
         background: Theme.subHeader.background,
         height: Theme.header.height,

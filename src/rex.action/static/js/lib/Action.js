@@ -86,7 +86,7 @@ export default class Action extends React.Component {
     },
     ContentContainer: {
       Component: StickyFooterPanel,
-      Content: {
+      ContentWrapper: {
         overflow: 'auto',
       }
     },

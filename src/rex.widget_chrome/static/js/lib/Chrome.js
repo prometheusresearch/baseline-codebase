@@ -8,6 +8,7 @@ import {
   Chrome as BaseChrome,
   DynamicPageContent,
   getLocation,
+  updateLocation,
   subscribeLocationChange,
   unsubscribeLocationChange
 } from 'rex-widget/page';
@@ -49,7 +50,11 @@ export default class Chrome extends React.Component {
       <BaseChrome title={activeMenuItem ? activeMenuItem.title : title} {...props}>
         <layout.VBox flex={1} direction="column-reverse">
           <style.Content>
-            <DynamicPageContent shouldHandle={this.shouldHandle} content={content} />
+            <DynamicPageContent
+              content={content}
+              onNavigation={this.onNavigation}
+              location={location}
+              />
           </style.Content>
           <Header
             key={location.href}
@@ -68,12 +73,15 @@ export default class Chrome extends React.Component {
     );
   }
 
-  shouldHandle = (href) => {
+  onNavigation = (href) => {
     if (!this.props.manageContent) {
-      return false;
+      return;
     }
     let item = findMenuItem(this.props.menu, href);
-    return item !== null;
+    if (item === null) {
+      return;
+    }
+    updateLocation({href});
   }
 
   onLocationChange = (location) => {

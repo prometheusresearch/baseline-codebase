@@ -56,7 +56,6 @@ export default class Wizard extends React.Component {
     this._initialContext = initialContext;
     this._history = createHistory();
     this._historyStopListen = null;
-    this._replaceHistoryState = true;
 
     let location = null;
     this._history.listen(loc => location = loc)();
@@ -108,10 +107,7 @@ export default class Wizard extends React.Component {
   componentDidUpdate(_prevProps, prevState) {
     if (prevState.graph !== this.state.graph) {
       let path = GraphPath.toPath(this.state.graph);
-      if (this._replaceHistoryState) {
-        this._replaceHistoryState = false;
-        this._history.replaceState(null, path);
-      } else {
+      if (path !== GraphPath.toPath(prevState.graph)) {
         this._history.pushState(null, path);
       }
     }

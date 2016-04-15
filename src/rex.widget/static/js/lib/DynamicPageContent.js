@@ -6,7 +6,6 @@ import React from 'react';
 import {VBox} from '../layout';
 import {LoadingIndicator} from '../ui';
 import {fetch} from './fetch';
-import {updateLocation, getLocation} from './PageManager';
 
 function yes() {
   return true;
@@ -15,7 +14,7 @@ function yes() {
 export default class DynamicPageContent extends React.Component {
 
   static defaultProps = {
-    shouldHandle: yes,
+    location: React.PropTypes.object.isRequired,
   };
 
   state = {
@@ -24,16 +23,25 @@ export default class DynamicPageContent extends React.Component {
   };
 
   render() {
+    let {location} = this.props;
     let justifyContent = this.state.updating ? 'center' : undefined;
     return (
-      <VBox flex={1} key={getLocation().href} justifyContent={justifyContent}>
+      <VBox flex={1} key={location.href} justifyContent={justifyContent}>
         {this.state.updating ? <LoadingIndicator /> : this.state.content}
       </VBox>
     );
   }
 
+  componentWillReceiveProps({location}) {
+    if (location.href !== this.props.location.href) {
+      this.setState({updating: true});
+      fetch(location.href, {}, {useTransit: true}).then(
+        this.onPageFetched.bind(null, location.href),
+        this.onPageError);
+    }
+  }
+
   onPageFetched = (href, page) => {
-    updateLocation({href});
     setTimeout(() => {
       this.setState({
         content: page.props.content,
@@ -52,14 +60,9 @@ export default class DynamicPageContent extends React.Component {
     if (!href) {
       return;
     }
-    if (!this.props.shouldHandle(href)) {
-      return;
-    }
     event.preventDefault();
     event.stopPropagation();
-    this.setState({updating: true});
-    fetch(href, {}, {useTransit: true})
-      .then(this.onPageFetched.bind(null, href), this.onPageError);
+    this.props.onNavigation(href);
   };
 
   componentDidMount() {

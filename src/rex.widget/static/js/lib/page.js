@@ -8,6 +8,7 @@ export DynamicPageContent from './DynamicPageContent';
 export {
   getLocation,
   subscribeLocationChange,
-  unsubscribeLocationChange
+  unsubscribeLocationChange,
+  updateLocation
 } from './PageManager';
 

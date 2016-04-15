@@ -107,7 +107,9 @@ export default class Wizard extends React.Component {
   componentDidUpdate(_prevProps, prevState) {
     if (prevState.graph !== this.state.graph) {
       let path = GraphPath.toPath(this.state.graph);
-      if (path !== GraphPath.toPath(prevState.graph)) {
+      if (path === GraphPath.toPath(prevState.graph)) {
+        this._history.replaceState(null, path);
+      } else {
         this._history.pushState(null, path);
       }
     }

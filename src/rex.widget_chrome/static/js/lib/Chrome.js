@@ -75,13 +75,14 @@ export default class Chrome extends React.Component {
 
   onNavigation = (href) => {
     if (!this.props.manageContent) {
-      return;
+      return false;
     }
     let item = findMenuItem(this.props.menu, href);
     if (item === null) {
-      return;
+      return false;
     }
     updateLocation({href});
+    return true;
   }
 
   onLocationChange = (location) => {

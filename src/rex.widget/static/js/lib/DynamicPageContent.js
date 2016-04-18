@@ -7,10 +7,6 @@ import {VBox} from '../layout';
 import {LoadingIndicator} from '../ui';
 import {fetch} from './fetch';
 
-function yes() {
-  return true;
-}
-
 export default class DynamicPageContent extends React.Component {
 
   static defaultProps = {

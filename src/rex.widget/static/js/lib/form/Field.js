@@ -6,7 +6,6 @@ import debounce from 'lodash/function/debounce';
 import autobind from 'autobind-decorator';
 import React from 'react';
 import {WithFormValue} from 'react-forms';
-import {HBox, VBox} from '../../layout';
 import * as layout from '../../layout';
 import * as Stylesheet from '../../stylesheet';
 import Input from './Input';
@@ -150,9 +149,9 @@ export class Field extends React.Component {
       });
     return (
       <Root {...props}>
-        <VBox>
+        <layout.VBox>
           {label &&
-            <VBox flex={labelSize}>
+            <layout.VBox flex={labelSize}>
               <Label>
                 {label}
                 <Required>{schema && schema.isRequired ? '*' : null}</Required>
@@ -160,11 +159,11 @@ export class Field extends React.Component {
                   <ErrorList errorList={errorList} />}
               </Label>
               {hint && <Hint>{hint}</Hint>} 
-            </VBox>}
-          <VBox flex={inputSize}>
+            </layout.VBox>}
+          <layout.VBox flex={inputSize}>
             {children}
-          </VBox>
-        </VBox>
+          </layout.VBox>
+        </layout.VBox>
       </Root>
     );
   }

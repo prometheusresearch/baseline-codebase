@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import {VBox, HBox} from '../../layout';
+import {VBox} from '../../layout';
 import {style} from '../../stylesheet';
 
 let ErrorContainer =  style(VBox, {

@@ -75,17 +75,6 @@ class UsernameQuery(Setting):
     validate = StrVal()
 
 
-class ChromeMagic(Setting):
-    """
-    Make chrome magically reload content instead of reloading of an entire page
-    on navigation.
-    """
-
-    name = 'chrome_magic'
-    default = False
-    validate = BoolVal()
-
-
 class Menu(Setting):
     """
     Application menu.
@@ -102,3 +91,21 @@ class Menu(Setting):
             ('access', StrVal()),
         )))
     ))
+
+
+class RexWidgetChromeSetting(Setting):
+    """
+    Rex Widget Chrome configuration.
+    """
+
+    name = 'rex_widget_chrome'
+
+    validate = RecordVal(
+        ('magic', BoolVal(), False),
+        ('hide_second_tier_menu', BoolVal(), False)
+    )
+
+    default = validate.record_type(
+        magic=False,
+        hide_second_tier_menu=False
+    )

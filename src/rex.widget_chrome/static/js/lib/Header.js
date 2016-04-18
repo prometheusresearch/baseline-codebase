@@ -92,7 +92,13 @@ let style = stylesheet.create({
       },
       hover: {
         background: Theme.headerMenu.hover.background
-      }
+      },
+      selected:{
+        background: Theme.subHeader.background,
+        hover: {
+          background: Theme.subHeader.background,
+        }
+      },
     }
   },
 
@@ -243,7 +249,8 @@ class TopNavigationButton extends React.Component {
       children,
       title,
       hover,
-      selected,
+      selectedFirst,
+      selectedSecond,
       onClick,
       href,
       items,
@@ -258,7 +265,7 @@ class TopNavigationButton extends React.Component {
         <style.HeaderButton
           href={href}
           onClick={onClick}
-          variant={{open, selected}}>
+          variant={{open, selected: selectedFirst}}>
           {title}
         </style.HeaderButton>
         {open &&
@@ -268,6 +275,7 @@ class TopNavigationButton extends React.Component {
                 <style.HeaderMenuButton
                   key={itemKey(item)}
                   href={item.url ? resolveURL(item.url) : item.url}
+                  variant={{selected: selectedSecond === item.url}}
                   target={item.new_window ? '_blank' : undefined}>
                   {item.title}
                 </style.HeaderMenuButton> :
@@ -304,6 +312,7 @@ export default class Header extends React.Component {
       applicationLogoutUrl,
       siteRoot,
       location,
+      hideSecondTierMenu,
       ...props
     } = this.props;
 
@@ -314,13 +323,16 @@ export default class Header extends React.Component {
 
     for (let i = 0; i < menu.length; i++) {
       let itemFirst = menu[i];
+      let selectedSecond = null;
       selectedFirst = isCurrentLocation(location, itemFirst.url);
 
       if (itemFirst.items) {
         for (let j = 0; j < itemFirst.items.length; j++) {
           let itemSecond = itemFirst.items[j];
-          let selectedSecond = isCurrentLocation(location, itemSecond.url);
-          selectedFirst = selectedFirst || selectedSecond;
+          if (isCurrentLocation(location, itemSecond.url)) {
+            selectedFirst = true;
+            selectedSecond = itemSecond.url;
+          }
         }
 
         if (selectedFirst) {
@@ -337,7 +349,8 @@ export default class Header extends React.Component {
             key={itemKey(itemFirst)}
             items={itemFirst.items}
             href={itemFirst.url}
-            selected={selectedFirst}
+            selectedFirst={selectedFirst}
+            selectedSecond={selectedSecond}
             title={itemFirst.title}
             />
         );
@@ -348,9 +361,10 @@ export default class Header extends React.Component {
 
     return (
       <layout.VBox direction="column-reverse">
-        <style.Bottom>
-          <SubNavigation items={itemsSecond} />
-        </style.Bottom>
+        {!hideSecondTierMenu &&
+          <style.Bottom>
+            <SubNavigation items={itemsSecond} />
+          </style.Bottom>}
         <style.Top>
           <style.ApplicationLogo>
             <style.ApplicationTitle href={resolveURL(siteRoot)}>

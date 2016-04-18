@@ -44,6 +44,7 @@ export default class Chrome extends React.Component {
       applicationTitle,
       applicationLogoutUrl,
       content,
+      settings,
       menu,
       siteRoot,
       ...props
@@ -70,6 +71,7 @@ export default class Chrome extends React.Component {
             applicationBanner={applicationBanner}
             applicationTitle={applicationTitle}
             applicationLogoutUrl={applicationLogoutUrl}
+            hideSecondTierMenu={settings.hideSecondTierMenu}
             />
         </layout.VBox>
       </BaseChrome>
@@ -92,7 +94,7 @@ export default class Chrome extends React.Component {
   }
 
   onNavigation = (href) => {
-    if (!this.props.manageContent) {
+    if (!this.props.settings.manageContent) {
       return false;
     }
     let item = findMenuItem(this.props.menu, href);

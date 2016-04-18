@@ -18,8 +18,12 @@ class Chrome(BaseChrome):
     js_type = 'rex-widget-chrome/lib/Chrome'
 
     @computed_field
-    def manage_content(self, request):
-        return get_settings().chrome_magic
+    def settings(self):
+        settings = get_settings().rex_widget_chrome
+        return {
+            'manageContent': settings.magic,
+            'hideSecondTierMenu': settings.hide_second_tier_menu,
+        }
 
     @computed_field
     def site_root(self, request):

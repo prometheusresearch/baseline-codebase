@@ -12,15 +12,14 @@ import groupBy from '../groupArrayBy';
 import {getTitleAtNode} from '../ActionTitle';
 import {getIconAtNode} from '../ActionIcon';
 
-export function ToolbarButton({node, attach, onClick, groupHorizontally}) {
+export function ToolbarButton({node, onClick, groupHorizontally}) {
   let Button = buttonForNode(node);
   return (
     <Button
       size="small"
+      style={{marginRight: 5}}
       onClick={onClick.bind(null, node.keyPath)}
-      icon={getIconAtNode(node)}
-      attach={attach}
-      variant={{groupHorizontally}}>
+      icon={getIconAtNode(node)}>
       {getTitleAtNode(node)}
     </Button>
   );
@@ -43,22 +42,9 @@ export default function Toolbar({graph, onClick}) {
     node => node.element.props.kind);
   let buttonGroups = nodes
     .map((nodes, idx) => {
-      let borderLeft = '1px solid #eee';
-      if (nodes.length > 0) {
-        let button = buttonForNode(nodes[0]);
-        if (
-          button.stylesheet &&
-          button.stylesheet.Root &&
-          button.stylesheet.Root.stylesheet &&
-          button.stylesheet.Root.stylesheet.style
-        ) {
-          borderLeft = button.stylesheet.Root.stylesheet.style.base.border;
-        }
-      }
       return (
         <layout.HBox
           key={idx}
-          style={{borderLeft}}
           wrap="wrap"
           marginRight={5}
           marginBottom={5}
@@ -67,7 +53,6 @@ export default function Toolbar({graph, onClick}) {
             <ToolbarButton
               key={node.keyPath}
               node={node}
-              attach={{left: true}}
               onClick={onClick}
               />)}
         </layout.HBox>

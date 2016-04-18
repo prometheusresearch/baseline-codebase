@@ -264,3 +264,6 @@ The following additional parameters are available:
 
 **fields** (required)
   A list of form fields with the list.
+
+**layout** (optional, oneof ``horizontal``, ``vertical``, default: ``horizontal``)
+  Form field layout.

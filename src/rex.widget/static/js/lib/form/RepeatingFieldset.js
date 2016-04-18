@@ -104,29 +104,50 @@ export class RepeatingFieldset extends React.Component {
   render() {
     let {
       children, formValue, label, readOnly,
-      addButtonText, removeButtonText, ...props
+      addButtonText, removeButtonText, layout , ...props
     } = this.props;
     let {Root, Label, ErrorList, Item, ItemToolbar, Required} = this.constructor.stylesheet;
     let schema = formValue.schema || {};
     let items = formValue.value || [];
-    let fieldsets = items.map((item, idx) =>
-      <Fieldset formValue={formValue.select(idx)} key={idx}>
-        <Item>
-         <HBox>
-          {children}
-          {!readOnly &&
-            <ItemToolbar>
-              <DangerButton
-                size="small"
-                icon={<CloseIcon />}
-                onClick={this.removeItem.bind(null, idx)}>
-                {removeButtonText}
-              </DangerButton>
-            </ItemToolbar>}
-            </HBox>
-        </Item>
-      </Fieldset>
-    );
+    let fieldsets = items.map((item, idx) => {
+      let content;
+      if (layout === 'vertical') {
+        content = (
+          <VBox>
+            {!readOnly &&
+              <ItemToolbar>
+                <DangerButton
+                  size="small"
+                  icon={<CloseIcon />}
+                  onClick={this.removeItem.bind(null, idx)}>
+                  {removeButtonText}
+                </DangerButton>
+              </ItemToolbar>}
+            {children}
+          </VBox>
+        );
+      } else {
+        content = (
+          <HBox>
+            {children}
+            {!readOnly &&
+              <ItemToolbar>
+                <DangerButton
+                  size="small"
+                  icon={<CloseIcon />}
+                  onClick={this.removeItem.bind(null, idx)}>
+                  {removeButtonText}
+                </DangerButton>
+              </ItemToolbar>}
+          </HBox>
+        );
+      }
+      return (
+        <Fieldset formValue={formValue.select(idx)} key={idx}>
+          <Item>{content}</Item>
+        </Fieldset>
+      );
+    });
     return (
       <Root>
         {label &&

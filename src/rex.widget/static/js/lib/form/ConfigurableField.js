@@ -248,6 +248,7 @@ let ConfigurableField = React.createClass({
             readOnly={readOnly}
             hint={field.hint}
             formValue={formValue}
+            layout={field.layout}
             select={field.valueKey}>
             {field.fields.map(f =>
                 <ConfigurableField

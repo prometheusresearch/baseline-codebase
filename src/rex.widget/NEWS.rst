@@ -5,18 +5,18 @@
 2.5.0 (2016-XX-XX)
 ==================
 
-* Configure webpack for code splitting.
+* [FEATURE] Configure webpack for code splitting.
 
-* Add ``onBeforeSubmit`` callback to ``<Form />``.
+* [FEATURE] Add ``onBeforeSubmit`` callback to ``<Form />``.
 
-* Add ``entity-list`` form field type. Works the same as ``entity`` but renders
+* [FEATURE] Add ``entity-list`` form field type. Works the same as ``entity`` but renders
   as a checkbox group and returns a list of identifiers::
 
     - type: entity-list
       value_key: individual
       data: ...
 
-* Add alternative widget for ``entity`` form field type to render a radio button
+* [FEATURE] Add alternative widget for ``entity`` form field type to render a radio button
   group. Use by specifying ``using`` param::
 
     - type: entity
@@ -24,10 +24,12 @@
       data: ...
       using: radio-group
 
-* By default uknown form fields now defaults to type ``any`` in form validation
+* [FEATURE] By default uknown form fields now defaults to type ``any`` in form validation
   schema.
 
-* Show validation errors for read only felds.
+* [FEATURE] Show validation errors for read only felds.
+
+* [FEATURE] Various UI improvements and fixes.
 
 2.4.0 (2016-03-31)
 ==================

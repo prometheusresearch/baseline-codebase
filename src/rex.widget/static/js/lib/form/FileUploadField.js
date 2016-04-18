@@ -35,7 +35,7 @@ export let FileUploadInput = React.createClass({
   },
 
   render() {
-    let {value, required, column, ownerRecordID, ...props} = this.props;
+    let {value, required, download, ownerRecordID, ...props} = this.props;
     let {file, progress, error} = this.state;
     // the case when we need to render a file stored in storage
     let renderStoredFile = !file && value;
@@ -55,14 +55,16 @@ export let FileUploadInput = React.createClass({
           </VBox> :
           renderStoredFile ?
           <StoredFile
+            justifyContent="center"
             file={file}
-            download={column}
+            download={download}
             ownerRecordID={ownerRecordID}
             /> :
           file ?
           <File
             size={1}
             margin="0 0 0 10px"
+            justifyContent="center"
             required={required}
             progress={progress}
             file={file}

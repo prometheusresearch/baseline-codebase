@@ -136,6 +136,7 @@ export default class MartView extends React.Component {
         <div>
           <ConfigurableEntityForm
             key={fetched.data.data.id}
+            disableValidation
             readOnly
             entity={'Mart'}
             value={fetched.data.data}

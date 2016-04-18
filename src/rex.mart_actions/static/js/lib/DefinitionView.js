@@ -77,6 +77,7 @@ export default class DefinitionView extends React.Component {
         <div>
           <ConfigurableEntityForm
             key={fetched.data.data.id}
+            disableValidation
             readOnly
             entity={'Mart Definition'}
             value={fetched.data.data}

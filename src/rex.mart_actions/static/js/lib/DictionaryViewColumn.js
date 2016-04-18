@@ -31,6 +31,7 @@ export default class DictionaryViewColumn extends React.Component {
         {!fetched.entity.updating ?
           <form.ConfigurableEntityForm
             key={fetched.entity.data.id}
+            disableValidation
             readOnly
             entity={context.mart_column}
             value={fetched.entity.data}

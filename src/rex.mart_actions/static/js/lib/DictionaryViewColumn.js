@@ -8,6 +8,7 @@ import {Action} from 'rex-action';
 import * as ui from 'rex-widget/ui';
 import {Fetch} from 'rex-widget/data';
 import * as form from 'rex-widget/form';
+import Title from './Title';
 
 
 @Fetch(function ({data, context, contextTypes}) {

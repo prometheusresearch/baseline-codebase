@@ -19,7 +19,7 @@ from cached_property import cached_property
 
 from rex.core import (
     Record,
-    Validate, Error, get_settings, locate, guard,
+    Validate, Error, locate, guard,
     OneOfVal, RecordVal, IntVal, MaybeVal,
     AnyVal, StrVal, MapVal, SeqVal, StrVal, RecordVal, ChoiceVal)
 from rex.widget import Widget, Field, responder

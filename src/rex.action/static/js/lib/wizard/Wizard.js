@@ -78,6 +78,10 @@ export default class Wizard extends React.Component {
       toolbar: <Toolbar graph={graph} onClick={this._onNext} />,
     });
     let {ActionPanel} = this.constructor.stylesheet;
+    let showBreadcrumb = (
+      this.props.settings.includePageBreadcrumbItem ||
+      graph.trace.length > 2
+    );
     return (
       <layout.VBox flex={1} direction="column-reverse">
         <layout.HBox flex={1}>
@@ -91,8 +95,9 @@ export default class Wizard extends React.Component {
             </ActionContext>
           </ActionPanel>
         </layout.HBox>
-        {graph.trace.length > 2 &&
+        {showBreadcrumb &&
           <Breadcrumb
+            includePageBreadcrumbItem={this.props.settings.includePageBreadcrumbItem}
             graph={graph}
             onClick={this._onReturn}
             />}

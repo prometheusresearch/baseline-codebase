@@ -16,11 +16,12 @@ import yaml
 from cached_property import cached_property
 
 from rex.core import (
+    get_settings,
     Location, Error, Validate, autoreload, get_packages, RecordVal, MaybeVal,
     ChoiceVal, StrVal, IntVal, SeqVal, MapVal, OMapVal, OneOfVal, AnyVal,
     cached, guard)
 from rex.widget import (
-    Widget, WidgetVal, Field,
+    Widget, WidgetVal, Field, computed_field,
     undefined, as_transitionable, TransitionableRecord)
 from rex.widget.widget import _format_Widget
 from rex.widget.util import add_mapping_key, pop_mapping_key, IconVal
@@ -117,6 +118,13 @@ class ActionBase(Widget):
     @property
     def domain(self):
         return self._domain
+
+    @computed_field
+    def settings(self, req):
+        settings = get_settings().rex_action
+        return {
+            'includePageBreadcrumbItem': settings.include_page_breadcrumb_item,
+        }
 
     def _clone_values(self, values):
         next_values = {}

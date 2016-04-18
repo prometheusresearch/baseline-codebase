@@ -10,8 +10,6 @@
 
 """
 
-from rex.core import ChoiceVal, get_settings
-
 from rex.widget import Widget, Field
 
 from .action import ActionVal

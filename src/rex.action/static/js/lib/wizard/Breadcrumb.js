@@ -7,6 +7,7 @@ import {findDOMNode} from 'react-dom';
 
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import {autobind} from 'rex-widget/lang';
+import {pageContextTypes} from 'rex-widget/page';
 import * as stylesheet from 'rex-widget/stylesheet';
 import * as layout  from 'rex-widget/layout';
 import * as ui from 'rex-widget/ui';
@@ -110,6 +111,9 @@ export let BreadcrumbButton = stylesheet.style(ui.ButtonBase, {
       hover: {
         color: '#0094CD',
       }
+    },
+    page: {
+      fontWeight: 'bold',
     }
   },
   Caption: {
@@ -131,6 +135,8 @@ const _COLLAPSED = '<COLLAPSED BREADCRUMB>';
 @ui.WithDOMSize
 export class Breadcrumb extends React.Component {
 
+  static contextTypes = pageContextTypes;
+
   constructor(props) {
     super(props);
     this._ghost = null;
@@ -141,15 +147,19 @@ export class Breadcrumb extends React.Component {
   }
 
   render() {
-    let {graph} = this.props;
-    let nodes = graph.trace.slice(1);
+    let {graph, includePageBreadcrumbItem} = this.props;
+    let allNodes = graph.trace.slice(1).map(node => ({node}));
+    if (includePageBreadcrumbItem) {
+      allNodes = this.context.navigationStack.map(page => ({page})).concat(allNodes);
+    }
+    let nodes = allNodes;
     if (this.state.collapsed && nodes.length > 6) {
-      nodes = nodes.slice(0, 2)
-        .concat(_COLLAPSED)
+      nodes = nodes.slice(0, includePageBreadcrumbItem ? 3 : 2)
+        .concat({collapsed: true})
         .concat(nodes.slice(nodes.length - 4));
     }
     let buttons = nodes.map(this.renderButton, this);
-    let ghostButtons = graph.trace.slice(1).map(this.renderButton, this);
+    let ghostButtons = allNodes.map(this.renderButton, this);
     return (
       <BreadcrumbRoot>
         <OpacityTransition component={layout.HBox} transitionLeave={false}>
@@ -162,8 +172,9 @@ export class Breadcrumb extends React.Component {
     );
   }
 
-  renderButton(node, idx, nodes) {
-    if (node === _COLLAPSED) {
+  renderButton({node, page, collapsed}, idx, items) {
+    let {onClick} = this.props;
+    if (collapsed) {
       return (
         <BreadcrumbButtonWrapper key={_COLLAPSED} id={_COLLAPSED}>
           <BreadcrumbMore>...</BreadcrumbMore>
@@ -171,9 +182,20 @@ export class Breadcrumb extends React.Component {
           <BreadcrumbTriangle variant={{second: true}} />
         </BreadcrumbButtonWrapper>
       );
-    } else {
-      let {onClick} = this.props;
-      let current = idx === nodes.length - 1;
+    } else if (page) {
+      return (
+        <BreadcrumbButtonWrapper key={page.url}>
+          <BreadcrumbButton
+            variant={{page: true}}
+            onClick={onClick.bind(null, items.find(item => item.node).node.keyPath)}>
+            {page.title}
+          </BreadcrumbButton>
+          <BreadcrumbTriangle variant={{first: true}} />
+          <BreadcrumbTriangle variant={{second: true}} />
+        </BreadcrumbButtonWrapper>
+      );
+    } else if (node) {
+      let current = idx === items.length - 1;
       return (
         <BreadcrumbButtonWrapper key={node.keyPath}>
           <BreadcrumbButton

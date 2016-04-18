@@ -7,7 +7,7 @@
 
 """
 
-from rex.core import Setting, AnyVal
+from rex.core import Setting, AnyVal, RecordVal, BoolVal
 
 
 class RexActionSetting(Setting):
@@ -17,5 +17,8 @@ class RexActionSetting(Setting):
 
     name = 'rex_action'
 
-    validate = AnyVal()
-    default = None
+    validate = RecordVal(
+        ('include_page_breadcrumb_item', BoolVal(), False)
+    )
+    default = validate.record_type(
+        include_page_breadcrumb_item=False)

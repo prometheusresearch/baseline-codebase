@@ -163,6 +163,24 @@ StringFormField::
   StringFormField(value_key=['ok'],
                   widget=Record(edit=undefined, show=undefined, column=TextareaField()))
 
+  >>> f1 = v.parse("""
+  ... type: string
+  ... value_key: ok
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+
+  >>> f2 = v.parse("""
+  ... type: string
+  ... value_key: ok
+  ... required: true
+  ... widget:
+  ...   column: !<TextareaField>
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+
+  >>> f1.__merge__(f2) # doctest: +NORMALIZE_WHITESPACE
+  StringFormField(value_key=['ok'],
+                  required=True,
+                  widget=Record(edit=undefined, show=undefined, column=TextareaField()))
+
 EnumFormField::
 
   >>> f = v.parse("""

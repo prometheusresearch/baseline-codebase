@@ -8,7 +8,6 @@ import * as ui from 'rex-widget/ui';
 import * as layout from 'rex-widget/layout';
 
 import * as Instruction from '../execution/Instruction';
-import groupBy from '../groupArrayBy';
 import {getTitleAtNode} from '../ActionTitle';
 import {getIconAtNode} from '../ActionIcon';
 
@@ -17,12 +16,24 @@ export function ToolbarButton({node, onClick, groupHorizontally}) {
   return (
     <Button
       size="small"
-      style={{marginRight: 5}}
+      style={{marginRight: 5, marginBottom: 5}}
       onClick={onClick.bind(null, node.keyPath)}
       icon={getIconAtNode(node)}>
       {getTitleAtNode(node)}
     </Button>
   );
+}
+
+export default function Toolbar({graph, onClick}) {
+  let nodes = graph.nextActions().filter(node => !Instruction.Replace.is(node.instruction));
+  let buttons = nodes.map(node =>
+    <ToolbarButton
+      key={node.keyPath}
+      node={node}
+      onClick={onClick}
+      />
+  );
+  return <layout.HBox wrap="wrap">{buttons}</layout.HBox>;
 }
 
 function buttonForNode(node) {
@@ -36,27 +47,3 @@ function buttonForNode(node) {
   }
 }
 
-export default function Toolbar({graph, onClick}) {
-  let nodes = groupBy(
-    graph.nextActions().filter(node => !Instruction.Replace.is(node.instruction)),
-    node => node.element.props.kind);
-  let buttonGroups = nodes
-    .map((nodes, idx) => {
-      return (
-        <layout.HBox
-          key={idx}
-          wrap="wrap"
-          marginRight={5}
-          marginBottom={5}
-          maxWidth="100%">
-          {nodes.map(node =>
-            <ToolbarButton
-              key={node.keyPath}
-              node={node}
-              onClick={onClick}
-              />)}
-        </layout.HBox>
-      )
-    });
-  return <layout.HBox wrap="wrap">{buttonGroups}</layout.HBox>;
-}

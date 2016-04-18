@@ -8,11 +8,11 @@ import {VBox} from '../../layout';
 import {style} from '../../stylesheet';
 
 let Label = style('label', {
-  color: '#666',
-  fontSize: '90%',
+  color: '#000',
+  fontSize: '100%',
   fontWeight: 700,
   margin: 0,
-  marginBottom: 15,
+  marginBottom: 20,
 });
 
 export default function Fieldset({label, ...props}) {

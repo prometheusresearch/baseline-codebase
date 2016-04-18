@@ -42,7 +42,7 @@ export default class Input extends React.Component {
       padding: css.padding(6, 12),
       fontSize: '14px',
       lineHeight: 1.42857143,
-      color: '#555',
+      color: '#000',
       backgroundColor: '#fff',
       backgroundImage: css.none,
       border: css.border(1, '#ccc'),

@@ -4,7 +4,7 @@
 
 import React from 'react';
 
-import {VBox} from '../../layout';
+import {HBox, VBox} from '../../layout';
 import isReactElement from '../isReactElement';
 
 import Fieldset from './Fieldset';

@@ -72,15 +72,15 @@ function makeStylesheet(stylesheet) {
       padding: CSS.padding(4, 10),
       fontWeight: stylesheet.textWidth,
       fontSize: textSize.small || textSize,
-      boxShadow: CSS.boxShadow(0, 2, 1, 0, stylesheet.shadow),
+      boxShadow: CSS.boxShadow(0, 1, 1, 0, stylesheet.shadow),
       focus: {
-        boxShadow: CSS.boxShadow(0, 2, 1, 0, stylesheet.shadowFocus),
+        boxShadow: CSS.boxShadow(0, 1, 1, 0, stylesheet.shadowFocus),
       },
       hover: {
-        boxShadow: CSS.boxShadow(0, 2, 1, 0, stylesheet.shadowHover),
+        boxShadow: CSS.boxShadow(0, 1, 1, 0, stylesheet.shadowHover),
       },
       active: {
-        boxShadow: CSS.insetBoxShadow(0, 2, 1, 0, stylesheet.shadowActive),
+        boxShadow: CSS.insetBoxShadow(0, 1, 1, 0, stylesheet.shadowActive),
         paddingTop: stylesheet.raised ? 6 : 4,
         paddingBottom: stylesheet.raised ? 2 : 4,
       },
@@ -95,15 +95,15 @@ function makeStylesheet(stylesheet) {
       padding: CSS.padding(8, 15),
       fontWeight: stylesheet.textWidth,
       fontSize: textSize.normal || textSize,
-      boxShadow: CSS.boxShadow(0, 2, 1, 0, stylesheet.shadow),
+      boxShadow: CSS.boxShadow(0, 1, 1, 0, stylesheet.shadow),
       focus: {
-        boxShadow: CSS.boxShadow(0, 2, 1, 0, stylesheet.shadowFocus),
+        boxShadow: CSS.boxShadow(0, 1, 1, 0, stylesheet.shadowFocus),
       },
       hover: {
-        boxShadow: CSS.boxShadow(0, 2, 1, 0, stylesheet.shadowHover),
+        boxShadow: CSS.boxShadow(0, 1, 1, 0, stylesheet.shadowHover),
       },
       active: {
-        boxShadow: CSS.insetBoxShadow(0, 2, 1, 0, stylesheet.shadowActive),
+        boxShadow: CSS.insetBoxShadow(0, 1, 1, 0, stylesheet.shadowActive),
         paddingTop: stylesheet.raised ? 10 : 8,
         paddingBottom: stylesheet.raised ? 6 : 8,
       },

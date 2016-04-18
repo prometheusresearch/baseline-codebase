@@ -24,30 +24,34 @@ export class Field extends React.Component {
   static stylesheet = Stylesheet.create({
     Root: {
       Component: layout.VBox,
-      marginBottom: 5,
+      marginBottom: 10,
+      marginLeft: 20,
+      marginRight: 20,
     },
     Required: {
-      Component: 'span',
+      Component: layout.HBox,
       color: 'red',
       marginLeft: 3,
       width: 5,
-      display: 'inline-block',
     },
     Label: {
-      Component: 'label',
-      color: '#666',
-      fontSize: '90%',
-      fontWeight: 700,
-      textAlign: 'right',
+      Component: layout.HBox,
+      color: '#888',
+      fontSize: '14px',
+      fontWeight: 400,
+      textAlign: 'left',
       padding: '0px 7px',
-      paddingTop: '10px',
-      margin: 0
+      paddingTop: 10,
+      paddingBottom: 5,
+      marginLeft: -7,
     },
     Hint: {
       Component: 'div',
       fontSize: '75%',
       padding: '0px 7px',
-      textAlign: 'right'
+      textAlign: 'left',
+      marginLeft: '-7px',
+      marginBottom: '5px',
     },
   });
 
@@ -146,21 +150,21 @@ export class Field extends React.Component {
       });
     return (
       <Root {...props}>
-        <HBox>
+        <VBox>
           {label &&
             <VBox flex={labelSize}>
               <Label>
                 {label}
                 <Required>{schema && schema.isRequired ? '*' : null}</Required>
+                {showErrors && errorList.length > 0 &&
+                  <ErrorList errorList={errorList} />}
               </Label>
-              {hint && <Hint>{hint}</Hint>}
+              {hint && <Hint>{hint}</Hint>} 
             </VBox>}
           <VBox flex={inputSize}>
             {children}
-            {showErrors && errorList.length > 0 &&
-              <ErrorList errorList={errorList} />}
           </VBox>
-        </HBox>
+        </VBox>
       </Root>
     );
   }

@@ -7,8 +7,8 @@ import {WithFormValue} from 'react-forms';
 import CloseIcon from 'react-icons/lib/fa/close';
 
 import {autobind} from '../../lang';
-import {VBox} from '../../layout';
-import {QuietButton, Button} from '../../ui';
+import {HBox, VBox} from '../../layout';
+import {DangerButton, Button} from '../../ui';
 import * as Stylesheet from '../../stylesheet';
 import Fieldset from './Fieldset';
 
@@ -66,18 +66,18 @@ export class RepeatingFieldset extends React.Component {
     Root: {
       Component: VBox,
       marginBottom: 15,
-      marginTop: 15,
+      marginTop: 20,
     },
     Label: {
       Component: 'label',
-      color: '#666',
-      fontSize: '90%',
+      color: '#000',
+      fontSize: '100%',
       fontWeight: 700,
-      margin: 0,
+      marginTop: 15,
       marginBottom: 15,
     },
     ErrorList: {
-      Component: VBox,
+      Component: HBox,
       marginTop: 10,
       marginBottom: 10,
       color: 'red',
@@ -92,10 +92,11 @@ export class RepeatingFieldset extends React.Component {
     },
     Item: {
       Component: VBox,
-      marginBottom: 5,
+      marginBottom: 9,
     },
     ItemToolbar: {
-      marginBottom: 5,
+      marginBottom: 14,
+      marginRight: 21,
       alignSelf: 'flex-end',
     }
   });
@@ -111,19 +112,18 @@ export class RepeatingFieldset extends React.Component {
     let fieldsets = items.map((item, idx) =>
       <Fieldset formValue={formValue.select(idx)} key={idx}>
         <Item>
+         <HBox>
+          {children}
           {!readOnly &&
             <ItemToolbar>
-              <QuietButton
-                quiet
+              <DangerButton
                 size="small"
                 icon={<CloseIcon />}
                 onClick={this.removeItem.bind(null, idx)}>
                 {removeButtonText}
-              </QuietButton>
+              </DangerButton>
             </ItemToolbar>}
-            <VBox flex={1}>
-              {children}
-            </VBox>
+            </HBox>
         </Item>
       </Fieldset>
     );
@@ -144,8 +144,8 @@ export class RepeatingFieldset extends React.Component {
           </ErrorList>}
         {!readOnly &&
           <div>
-            <Button icon="plus" size="small" onClick={this.addItem}>
-              {addButtonText}
+            <Button icon="plus" size="normal" onClick={this.addItem} style={{marginTop: 20}}>
+              {addButtonText} {label}
             </Button>
           </div>}
       </Root>

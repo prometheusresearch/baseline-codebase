@@ -9,16 +9,17 @@ import ErrorList from './ErrorList';
 
 let Style = {
   self: {
-    marginBottom: 5,
-    marginTop: 5,
-    fontSize: '90%'
+    marginBottom: 15,
+    fontWeight: 400,
+    marginTop: 10,
+    marginLeft: 20,
+    fontSize: '14px'
   },
   label: {
-    textAlign: 'right',
-    color: '#666',
-    fontWeight: 700,
-    padding: '2px 7px',
-    margin: 0
+    textAlign: 'left',
+    color: '#888',
+    fontWeight: 400,
+    fontSize: '14px',
   },
   value: {
     whiteSpace: 'pre-line'
@@ -110,12 +111,12 @@ export class ReadOnlyField extends React.Component {
     return (
       <HBox style={{...Style.self, ...(style && style.self)}}>
         {label &&
-          <VBox flex={labelSize} justifyContent="center">
+          <VBox flex={labelSize} justifyContent="flex-start">
             <label style={{...Style.label, ...(style && style.label)}}>
               {label}
             </label>
           </VBox>}
-        <VBox flex={inputSize} justifyContent="center" style={Style.value}>
+        <VBox flex={inputSize} justifyContent="flex-start" style={Style.value}>
           {children}
           {formValue.errorList.length > 0 &&
             <ErrorList errorList={formValue.errorList} />}

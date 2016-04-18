@@ -56,6 +56,9 @@ export default class DynamicPageContent extends React.Component {
   }
 
   hijackLinkClick = (event) => {
+    if (!isMainClick(event)) {
+      return;
+    }
     let href = getHrefFromEventTarget(event.target);
     if (!href) {
       return;
@@ -73,6 +76,16 @@ export default class DynamicPageContent extends React.Component {
   componentWillUnmount() {
     document.removeEventListener('click', this.hijackLinkClick);
   }
+}
+
+function isMainClick(event) {
+  return (
+    event.button === 0 &&
+    !event.metaKey &&
+    !event.altKey &&
+    !event.ctrlkey &&
+    !event.shiftKey
+  );
 }
 
 function getHrefFromEventTarget(element) {

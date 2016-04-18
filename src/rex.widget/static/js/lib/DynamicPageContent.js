@@ -60,9 +60,10 @@ export default class DynamicPageContent extends React.Component {
     if (!href) {
       return;
     }
-    event.preventDefault();
-    event.stopPropagation();
-    this.props.onNavigation(href);
+    if (this.props.onNavigation(href)) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
   };
 
   componentDidMount() {

@@ -10,7 +10,8 @@ import {
   getLocation,
   updateLocation,
   subscribeLocationChange,
-  unsubscribeLocationChange
+  unsubscribeLocationChange,
+  pageContextTypes
 } from 'rex-widget/page';
 import * as layout from 'rex-widget/layout';
 import * as stylesheet from 'rex-widget/stylesheet';
@@ -24,6 +25,8 @@ let style = stylesheet.create({
 });
 
 export default class Chrome extends React.Component {
+
+  static childContextTypes = pageContextTypes;
 
   constructor(props) {
     super(props);
@@ -73,6 +76,21 @@ export default class Chrome extends React.Component {
     );
   }
 
+  getChildContext() {
+    let {activeMenuItem: {title, url}} = this.state;
+    return {
+      navigationStack: [{title, url}]
+    };
+  }
+
+  componentDidMount() {
+    subscribeLocationChange(this.onLocationChange);
+  }
+
+  componentWillUnmount() {
+    unsubscribeLocationChange(this.onLocationChange);
+  }
+
   onNavigation = (href) => {
     if (!this.props.manageContent) {
       return false;
@@ -88,14 +106,6 @@ export default class Chrome extends React.Component {
   onLocationChange = (location) => {
     let activeMenuItem = findMenuItem(this.props.menu, location.href);
     this.setState({location, activeMenuItem});
-  }
-
-  componentDidMount() {
-    subscribeLocationChange(this.onLocationChange);
-  }
-
-  componentWillUnmount() {
-    unsubscribeLocationChange(this.onLocationChange);
   }
 }
 

@@ -120,7 +120,6 @@ export class Field extends React.Component {
   static defaultProps = {
     serialize: (value) => (value),
     deserialize: (value) => (value),
-    label: ' ',
     labelSize: 2,
     inputSize: 5,
     debounceValidation: 500,
@@ -151,16 +150,15 @@ export class Field extends React.Component {
     return (
       <Root {...props}>
         <layout.VBox>
-          {label &&
-            <layout.VBox flex={labelSize}>
-              <Label>
-                {label}
-                <Required>{schema && schema.isRequired ? '*' : null}</Required>
-                {showErrors && errorList.length > 0 &&
-                  <ErrorList errorList={errorList} />}
-              </Label>
-              {hint && <Hint>{hint}</Hint>} 
-            </layout.VBox>}
+          <layout.VBox flex={labelSize}>
+            <Label>
+              {label}
+              <Required>{schema && schema.isRequired ? '*' : null}</Required>
+              {showErrors && errorList.length > 0 &&
+                <ErrorList errorList={errorList} />}
+            </Label>
+            {hint && <Hint>{hint}</Hint>} 
+          </layout.VBox>
           <layout.VBox flex={inputSize}>
             {children}
           </layout.VBox>

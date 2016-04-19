@@ -106,7 +106,7 @@ describe('rex-widget/form', function() {
         </RepeatingFieldset>
       );
 
-      let closeButtons = renderer.findAllWithElement(<ui.QuietButton />);
+      let closeButtons = renderer.findAllWithElement(<ui.DangerButton />);
       assert(closeButtons.length === 2);
 
       closeButtons[1].props.onClick();

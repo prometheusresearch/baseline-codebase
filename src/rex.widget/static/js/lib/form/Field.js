@@ -120,6 +120,7 @@ export class Field extends React.Component {
   static defaultProps = {
     serialize: (value) => (value),
     deserialize: (value) => (value),
+    label: ' ',
     labelSize: 2,
     inputSize: 5,
     debounceValidation: 500,

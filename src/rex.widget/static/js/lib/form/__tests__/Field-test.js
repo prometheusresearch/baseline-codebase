@@ -11,6 +11,7 @@ import {createValue} from 'react-forms';
 
 import {Field} from '../Field';
 import Input from '../Input';
+import ErrorList from '../ErrorList';
 
 describe('rex-widget/form', function() {
 
@@ -30,13 +31,13 @@ describe('rex-widget/form', function() {
         <Field formValue={formValue.select('num')} />
       );
       let root = renderer.getRenderOutput();
-      assert(findAllWithType(root, Field.stylesheet.ErrorList).length === 0);
+      assert(findAllWithType(root, ErrorList).length === 0);
       let input = findWithType(root, Input);
       assert(input);
       assert(input.props.onBlur);
       input.props.onBlur();
       root = renderer.getRenderOutput();
-      assert(findAllWithType(root, Field.stylesheet.ErrorList).length === 1);
+      assert(findAllWithType(root, ErrorList).length === 1);
     });
 
     it('marks field as dirty (onChange)', function() {
@@ -46,13 +47,13 @@ describe('rex-widget/form', function() {
         <Field formValue={formValue.select('num')} />
       );
       let root = renderer.getRenderOutput();
-      assert(findAllWithType(root, Field.stylesheet.ErrorList).length === 0);
+      assert(findAllWithType(root, ErrorList).length === 0);
       let input = findWithType(root, Input);
       assert(input);
       assert(input.props.onChange);
       input.props.onChange('yyy');
       root = renderer.getRenderOutput();
-      assert(findAllWithType(root, Field.stylesheet.ErrorList).length === 1);
+      assert(findAllWithType(root, ErrorList).length === 1);
     });
 
     it('is compatible with DOM input', function() {
@@ -64,7 +65,7 @@ describe('rex-widget/form', function() {
         </Field>
       );
       let root = renderer.getRenderOutput();
-      assert(findAllWithType(root, Field.stylesheet.ErrorList).length === 0);
+      assert(findAllWithType(root, ErrorList).length === 0);
       let input = findWithType(root, 'input');
       assert(input);
       assert(input.props.onChange);
@@ -74,7 +75,7 @@ describe('rex-widget/form', function() {
       };
       input.props.onChange(event);
       root = renderer.getRenderOutput();
-      assert(findAllWithType(root, Field.stylesheet.ErrorList).length === 1);
+      assert(findAllWithType(root, ErrorList).length === 1);
       assert(event.stopPropagation.calledOnce);
     });
 
@@ -102,7 +103,7 @@ describe('rex-widget/form', function() {
           />
       );
       let root = renderer.getRenderOutput();
-      assert(findAllWithType(root, Field.stylesheet.ErrorList).length === 0);
+      assert(findAllWithType(root, ErrorList).length === 0);
       let input = findWithType(root, Input);
       input.props.onChange(42);
       setTimeout(() => {

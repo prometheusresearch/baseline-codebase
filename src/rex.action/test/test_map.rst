@@ -14,8 +14,8 @@ URL mapping integration
 
 ::
 
-  >> pkg = SandboxPackage()
-  >> pkg.rewrite('urlmap.yaml', """
+  >>> pkg = SandboxPackage()
+  >>> pkg.rewrite('urlmap.yaml', """
   ... paths:
   ...   /page:
   ...     access: anybody
@@ -28,12 +28,12 @@ URL mapping integration
   ...           type: pick
   ...           entity: individual
   ... """)
-  >> rex = Rex(pkg, '-', 'rex.action_demo', attach_dir=attach_dir)
-  >> rex.on()
+  >>> rex = Rex(pkg, '-', 'rex.action_demo', attach_dir=attach_dir)
+  >>> rex.on()
 
 ::
 
-  >> print Request.blank('/page').get_response(rex) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  >>> print Request.blank('/page').get_response(rex) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   ...
@@ -47,14 +47,14 @@ URL mapping integration
   </body>
   </html>
 
-  >> print Request.blank('/page', accept='application/json').get_response(rex) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  >>> print Request.blank('/page', accept='application/json').get_response(rex) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   200 OK
   Content-Type: application/json; charset=UTF-8
   ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/lib/Chrome", ...]]
+  ["~#widget", ...]
 
-  >> print Request.blank('/page/@@/1.content.1.path.0.0.action_instance.1.fields.3', accept='application/json').get_response(rex) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  >>> print Request.blank('/page/@@/1.content.1.actions.2306d33a20b822b4b1f18bd6405b7ad3.1.fields.3.widget.1.data', accept='application/json').get_response(rex) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   200 OK
   ...
   <BLANKLINE>

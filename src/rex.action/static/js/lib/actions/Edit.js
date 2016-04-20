@@ -106,7 +106,7 @@ export class Edit extends React.Component {
   }
 
   @autobind
-  onBeforeSubmit(value) {
+  onBeforeSubmit(_value) {
     this.setState({submitInProgress: true});
   }
 

@@ -101,7 +101,7 @@ export class Form extends React.Component {
   }
 
   @autobind
-  onBeforeSubmit(value) {
+  onBeforeSubmit(_value) {
     this.setState({submitInProgress: true});
   }
 

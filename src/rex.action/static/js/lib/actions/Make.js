@@ -101,7 +101,7 @@ export default class Make extends React.Component {
   }
 
   @autobind
-  onBeforeSubmit(value) {
+  onBeforeSubmit(_value) {
     this.setState({submitInProgress: true});
   }
 

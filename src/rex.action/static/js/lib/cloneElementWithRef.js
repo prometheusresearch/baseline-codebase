@@ -13,13 +13,11 @@ export default function cloneElementWithRef(element, config, ...children) {
   }
 
   if (typeof originalRef !== 'function') {
-    if (__DEV__) {
-      console.warn(
-        'Cloning an element with a ref that will be overwritten because it ' +
-        'is not a function. Use a composable callback-style ref instead. ' +
-        'Ignoring ref: ' + originalRef,
-      );
-    }
+    console.warn( // eslint-disable-line no-console
+      'Cloning an element with a ref that will be overwritten because it ' +
+      'is not a function. Use a composable callback-style ref instead. ' +
+      'Ignoring ref: ' + originalRef,
+    );
     return React.cloneElement(element, config, ...children);
   }
 

@@ -11,7 +11,7 @@ import * as Instruction from '../execution/Instruction';
 import {getTitleAtNode} from '../ActionTitle';
 import {getIconAtNode} from '../ActionIcon';
 
-export function ToolbarButton({node, onClick, groupHorizontally}) {
+export function ToolbarButton({node, onClick}) {
   let Button = buttonForNode(node);
   return (
     <Button

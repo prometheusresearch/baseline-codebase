@@ -14,7 +14,6 @@ import * as ui from 'rex-widget/ui';
 import * as css from 'rex-widget/css';
 
 import ActionTitle from '../ActionTitle';
-import {getIconAtNode} from '../ActionIcon';
 
 import * as TransitionStyle from './BreadcrumbTransition.module.css';
 
@@ -218,7 +217,7 @@ export class Breadcrumb extends React.Component {
     }
   }
 
-  componentWillReceiveProps({graph, DOMSize}) {
+  componentWillReceiveProps() {
     this.setState({calculateCollapsed: true});
   }
 

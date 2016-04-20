@@ -23,7 +23,7 @@ let stylesheet = Stylesheet.create({
     paddingBottom: 20,
     paddingTop: 5,
     maxWidth: 400,
-    boxShadow: "0px 1px 2px 0px rgb(200, 200, 200)",
+    boxShadow: '0px 1px 2px 0px rgb(200, 200, 200)',
   },
 
   Header: {
@@ -71,17 +71,17 @@ export default class Drop extends React.Component {
   }
 
   render() {
-    let {message, entity, onClose, context} = this.props;
+    let {entity, onClose, context} = this.props;
     let {confirmDelay} = this.state;
     let title = this.constructor.renderTitle(this.props, context);
     return (
      <Action title={title}>
       <stylesheet.Root>
-            {onClose &&
-              <ui.QuietButton
-                icon="remove"
-                onClick={onClose}
-                />}
+        {onClose &&
+          <ui.QuietButton
+            icon="remove"
+            onClick={onClose}
+            />}
         <stylesheet.Content>
           <stylesheet.Message>
             <p>You are about to delete a {entity.name}.</p>

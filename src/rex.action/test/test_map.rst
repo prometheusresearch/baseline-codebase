@@ -9,6 +9,7 @@ URL mapping integration
   >>> from webob import Request
   >>> from rex.core import Rex, SandboxPackage
   >>> from rex.core import StrVal
+  >>> from rex.web import route
   >>> from rex.widget import Widget, Field
 
 ::
@@ -125,19 +126,14 @@ Overrides
   ... """)
 
   >>> rex = Rex(extension_pkg, pkg, '-', 'rex.action_demo', attach_dir=attach_dir)
+  >>> rex.on()
 
-  >>> print Request.blank('/page/@@/1.content.1.path.0.0.2.1.data', accept='application/json').get_response(rex) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  200 OK
-  Content-Type: application/javascript
-  Content-Disposition: inline; filename="_.js"
-  Vary: Accept
-  Content-Length: ...
-  <BLANKLINE>
-  {
-    "study": [
-      ...
-    ]
-  }
+  >>> action = route('main:/page').action
+  >>> action.typecheck()
+  >>> action.path.then[0].action_instance.entity
+  RowType(name='study', type=EntityType(name='study', state=None))
+
+  >>> rex.off()
 
 ::
 
@@ -174,22 +170,14 @@ Overrides
   ... """)
 
   >>> rex = Rex(extension_pkg, pkg, '-', 'rex.action_demo', attach_dir=attach_dir)
+  >>> rex.on()
 
-  >>> print Request.blank(
-  ...   '/page/@@/1.content.1.path.0.0.2.1.path.0.0.2.1.data',
-  ...   accept='application/json'
-  ... ).get_response(rex) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  200 OK
-  Content-Type: application/javascript
-  Content-Disposition: inline; filename="_.js"
-  Vary: Accept
-  Content-Length: ...
-  <BLANKLINE>
-  {
-    "study": [
-      ...
-    ]
-  }
+  >>> action = route('main:/page').action
+  >>> action.typecheck()
+  >>> action.path.then[0].action_instance.path.then[0].action_instance.entity
+  RowType(name='study', type=EntityType(name='study', state=None))
+
+  >>> rex.off()
 
 ::
 
@@ -226,22 +214,14 @@ Overrides
   ... """)
 
   >>> rex = Rex(extension_pkg, pkg, '-', 'rex.action_demo', attach_dir=attach_dir)
+  >>> rex.on()
 
-  >>> print Request.blank(
-  ...   '/page/@@/1.content.1.path.0.0.2.1.path.0.0.2.1.data',
-  ...   accept='application/json'
-  ... ).get_response(rex) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  200 OK
-  Content-Type: application/javascript
-  Content-Disposition: inline; filename="_.js"
-  Vary: Accept
-  Content-Length: ...
-  <BLANKLINE>
-  {
-    "study": [
-      ...
-    ]
-  }
+  >>> action = route('main:/page').action
+  >>> action.typecheck()
+  >>> action.path.then[0].action_instance.path.then[0].action_instance.entity
+  RowType(name='study', type=EntityType(name='study', state=None))
+
+  >>> rex.off()
 
 ::
 
@@ -279,19 +259,11 @@ Overrides
   ... """)
 
   >>> rex = Rex(extension_pkg, pkg, '-', 'rex.action_demo', attach_dir=attach_dir)
+  >>> rex.on()
 
-  >>> print Request.blank(
-  ...   '/page/@@/1.content.1.path.0.0.2.1.path.0.0.2.1.data',
-  ...   accept='application/json'
-  ... ).get_response(rex) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  200 OK
-  Content-Type: application/javascript
-  Content-Disposition: inline; filename="_.js"
-  Vary: Accept
-  Content-Length: ...
-  <BLANKLINE>
-  {
-    "study": [
-      ...
-    ]
-  }
+  >>> action = route('main:/page').action
+  >>> action.typecheck()
+  >>> action.path.then[0].action_instance.path.then[0].action_instance.entity
+  RowType(name='study', type=EntityType(name='study', state=None))
+
+  >>> rex.off()

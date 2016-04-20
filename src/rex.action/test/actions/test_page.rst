@@ -34,6 +34,7 @@ In case fields are not specified, they are generated from port::
        icon=undefined,
        id='home',
        input=RecordType(rows={}, open=True),
+       kind=undefined,
        text=RST(src=u'<p>Welcome to Rex Action!</p>', links={}),
        title=undefined,
        width=undefined)

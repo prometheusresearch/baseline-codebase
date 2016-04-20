@@ -35,6 +35,7 @@ In case fields are not specified, they are generated from port::
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
        icon=undefined,
        id='drop-individual',
+       kind=undefined,
        message=RST(src=u'<p>You are about to drop an entity</p>', links={}),
        title=undefined,
        width=undefined)

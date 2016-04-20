@@ -217,10 +217,6 @@ Writable configuration with entity
     "individual": [
       {
         "id": "ok",
-        "code": "ok",
-        "sex": "male",
-        "mother": null,
-        "father": null,
         "meta:type": "individual",
         "meta:title": "ok"
       }

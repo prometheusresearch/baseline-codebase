@@ -36,6 +36,7 @@ In case fields are not specified, they are generated from port::
        icon=undefined,
        id='view-individual',
        input=RecordType(rows={}, open=True),
+       kind=undefined,
        title=undefined,
        width=undefined)
 
@@ -104,6 +105,7 @@ You can also specify fields and see port generated from them::
        icon=undefined,
        id='view-individual',
        input=RecordType(rows={}, open=True),
+       kind=undefined,
        title=undefined,
        width=undefined)
 
@@ -138,6 +140,7 @@ context::
        icon=undefined,
        id='view-mother',
        input=RecordType(rows={}, open=True),
+       kind=undefined,
        title=undefined,
        width=undefined)
 

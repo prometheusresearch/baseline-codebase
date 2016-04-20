@@ -44,8 +44,8 @@ describe('rex-action/ui', function() {
           getBoundingClientRect() { return {height: 20}; }
         })
 
-        .onCall(8).returns({}) // unmount
-        .onCall(9).returns({}) // unmount
+        .onCall(8).returns({})  // unmount
+        .onCall(9).returns({}); // unmount
     });
 
     afterEach(function() {

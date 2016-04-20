@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import {createRenderer, assert, spy} from 'rex-widget/testutils';
+import {createRenderer, assert} from 'rex-widget/testutils';
 import SingleChild from '../SingleChild';
 
 describe('rex-action/ui', function() {

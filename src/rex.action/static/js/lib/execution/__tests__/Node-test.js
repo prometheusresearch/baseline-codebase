@@ -63,7 +63,7 @@ describe('rex-action/execution', function() {
       let actions = {
         id: {props: {contextTypes: {input}}}
       };
-      let instruction = new Instruction.Execute('id', 'id', [])
+      let instruction = new Instruction.Execute('id', 'id', []);
       let node = Node.create(actions, instruction);
       assert(node.isAllowed);
       assert(input.match.calledOnce);

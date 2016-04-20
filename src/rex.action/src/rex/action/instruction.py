@@ -201,13 +201,17 @@ class ExecuteVal(BaseInstructionVal):
     def create_instruction(self, action=None, then=None):
         from .wizard import WizardBase as Wizard
         action_instance = self.resolve_action(action)
+        id = '%s@%s' % (self.id, action)
+        id = hashlib.md5(id).hexdigest()
         if isinstance(action_instance, Wizard):
             return IncludeWizard(
+                id=id,
                 action=action,
                 then=then,
                 action_instance=action_instance)
         else:
             return Execute(
+                id=id,
                 action=action,
                 then=then,
                 action_instance=action_instance)

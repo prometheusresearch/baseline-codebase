@@ -11,7 +11,7 @@ import {
 } from 'rex-widget/testutils';
 
 import {ConfigurableEntityForm as Form} from 'rex-widget/form';
-import * as ui from 'rex-widget/ui';
+import SubmitButton from '../../ui/SubmitButton';
 import {Edit} from '../Edit';
 import Action from '../../Action';
 import * as Entity from '../../Entity';
@@ -55,7 +55,7 @@ describe('rex-action/actions', function() {
       let action = renderer.findWithTypeProps(Action);
       assert(action.props.renderFooter);
       let footer = action.props.renderFooter();
-      let button = findWithTypeProps(footer, ui.SuccessButton);
+      let button = findWithTypeProps(footer, SubmitButton);
       assert(button.props.onClick);
       let event = {
         preventDefault: spy(),

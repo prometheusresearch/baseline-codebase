@@ -14,15 +14,9 @@ import * as ui from 'rex-widget/ui';
 import * as css from 'rex-widget/css';
 
 import ActionTitle from '../ActionTitle';
+import SingleChild from '../ui/SingleChild';
 
 import * as TransitionStyle from './BreadcrumbTransition.module.css';
-
-class SingleChild extends React.Component {
-  render() {
-    let children = React.Children.toArray(this.props.children);
-    return children[0] || null;
-  }
-}
 
 function TransitionGroup({name, style, ...props}) {
   let transitionName = {
@@ -131,7 +125,6 @@ export let BreadcrumbButton = stylesheet.style(ui.ButtonBase, {
 // sentinel to mark nodes which needs to be collapsed
 const _COLLAPSED = '<COLLAPSED BREADCRUMB>';
 
-@ui.WithDOMSize
 export class Breadcrumb extends React.Component {
 
   static contextTypes = pageContextTypes;
@@ -244,4 +237,4 @@ export class Breadcrumb extends React.Component {
 
 }
 
-export default Breadcrumb;
+export default ui.WithDOMSize(Breadcrumb);

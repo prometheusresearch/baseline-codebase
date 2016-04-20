@@ -13,6 +13,7 @@ import {
 import Make from '../Make';
 import Action from '../../Action';
 import * as Entity from '../../Entity';
+import SubmitButton from '../../ui/SubmitButton';
 import * as ui from 'rex-widget/ui';
 import * as form from 'rex-widget/form';
 
@@ -52,7 +53,7 @@ describe('rex-action/actions', function() {
       let action = renderer.findWithTypeProps(Action);
       assert(action.props.renderFooter);
       let footer = action.props.renderFooter();
-      let button = findWithTypeProps(footer, ui.SuccessButton);
+      let button = findWithTypeProps(footer, SubmitButton);
       assert(button.props.onClick);
       let eventStub = {
         preventDefault: spy(),

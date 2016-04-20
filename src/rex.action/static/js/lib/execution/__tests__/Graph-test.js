@@ -210,6 +210,7 @@ describe('rex-action/execution', function() {
     });
 
     it('.executeCommandAtCurrentNode()', function() {
+      let actions = {};
       let nextNode = {
         isAllowed: true,
         then: [],
@@ -230,7 +231,7 @@ describe('rex-action/execution', function() {
       let instruction = new Instruction.Start([
         new Instruction.Execute('action')
       ]);
-      let graph = Graph.create(instruction, {}, false);
+      let graph = Graph.create(instruction, actions, {}, false);
       assert(graph.node.keyPath === 'root');
       assert.deepEqual(graph.node.context, undefined);
       graph = graph.executeCommandAtCurrentNode('context', {a: 42});
@@ -240,6 +241,7 @@ describe('rex-action/execution', function() {
     });
 
     it('.executeCommandAtCurrentNodeAndNoAdvance()', function() {
+      let actions = {};
       let nextNode = {
         isAllowed: true,
         then: [],
@@ -260,7 +262,7 @@ describe('rex-action/execution', function() {
       let instruction = new Instruction.Start([
         new Instruction.Execute('action')
       ]);
-      let graph = Graph.create(instruction, {}, false);
+      let graph = Graph.create(instruction, actions, {}, false);
       assert(graph.node.keyPath === 'root');
       assert(graph.trace.length === 1);
       assert.deepEqual(graph.node.context, undefined);
@@ -272,6 +274,7 @@ describe('rex-action/execution', function() {
     });
 
     it('.advance()', function() {
+      let actions = {};
       let nextNode = {
         isAllowed: true,
         then: [],
@@ -288,7 +291,7 @@ describe('rex-action/execution', function() {
       let instruction = new Instruction.Start([
         new Instruction.Execute('next')
       ]);
-      let graph = Graph.create(instruction, {}, false);
+      let graph = Graph.create(instruction, actions, {}, false);
       assert(graph.node.keyPath === 'root');
       assert(graph.trace.length === 1);
       assert.deepEqual(graph.node.context, undefined);
@@ -340,6 +343,7 @@ describe('rex-action/execution', function() {
     });
 
     it('.advance(next)', function() {
+      let actions = {};
       let nextNode1 = {
         isAllowed: true,
         then: [],
@@ -363,7 +367,7 @@ describe('rex-action/execution', function() {
         new Instruction.Execute('next1'),
         new Instruction.Execute('next2')
       ]);
-      let graph = Graph.create(instruction, {}, false);
+      let graph = Graph.create(instruction, actions, {}, false);
       assert(graph.node.keyPath === 'root');
       assert(graph.trace.length === 1);
       assert.deepEqual(graph.node.context, undefined);
@@ -374,6 +378,7 @@ describe('rex-action/execution', function() {
     });
 
     it('.advance(next, contextUpdate)', function() {
+      let actions = {};
       let nextNode1 = {
         isAllowed: true,
         then: [],
@@ -400,7 +405,7 @@ describe('rex-action/execution', function() {
         new Instruction.Execute('next1'),
         new Instruction.Execute('next2')
       ]);
-      let graph = Graph.create(instruction, {}, false);
+      let graph = Graph.create(instruction, actions, {}, false);
       assert(graph.node.keyPath === 'root');
       assert(graph.trace.length === 1);
       assert.deepEqual(graph.node.context, undefined);

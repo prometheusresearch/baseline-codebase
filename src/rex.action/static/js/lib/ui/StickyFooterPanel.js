@@ -107,7 +107,7 @@ export default class StickyFooterPanel extends React.Component {
   }
 
   _installContentResizeDetector() {
-    if (this._contentRef && this._onContentWrapperRef) {
+    if (this._contentRef && this._contentWrapperRef) {
       this.props.addResizeListener(this._contentElement, this._onContentResize);
       this.props.addResizeListener(this._contentWrapperElement, this._onContentResize);
     }

@@ -33,6 +33,7 @@ export default class Wizard extends React.Component {
     icon: 'asterisk',
     renderTopSidebarItem: emptyFunction,
     createHistory,
+    settings: {},
   };
 
   static stylesheet = Stylesheet.create({

@@ -124,13 +124,14 @@ describe('rex-widget', function() {
         });
         let path = '/';
         let instruction = {};
+        let actions = {};
         let initialContext = {};
-        let result = fromPath(path, instruction, initialContext);
+        let result = fromPath(path, instruction, actions, initialContext);
         assert(result === graph);
         assert(Graph.create.calledOnce);
         assert.deepEqual(
           Graph.create.lastCall.args,
-          [instruction, initialContext, false]
+          [instruction, initialContext, actions, false]
         );
         assert(graph.advance.calledOnce);
         assert(graph.advance.lastCall.args[0] === undefined);
@@ -146,13 +147,14 @@ describe('rex-widget', function() {
         });
         let path = '/action';
         let instruction = {};
+        let actions = {};
         let initialContext = {};
-        let result = fromPath(path, instruction, initialContext);
+        let result = fromPath(path, instruction, actions, initialContext);
         assert(result === graph);
         assert(Graph.create.calledOnce);
         assert.deepEqual(
           Graph.create.lastCall.args,
-          [instruction, initialContext, false]
+          [instruction, initialContext, actions, false]
         );
         assert(graph.advance.calledOnce);
         assert(graph.advance.lastCall.args[0] === 'action');
@@ -169,13 +171,14 @@ describe('rex-widget', function() {
         });
         let path = '/action/next-action';
         let instruction = {};
+        let actions = {};
         let initialContext = {};
-        let result = fromPath(path, instruction, initialContext);
+        let result = fromPath(path, instruction, actions, initialContext);
         assert(result === graph);
         assert(Graph.create.calledOnce);
         assert.deepEqual(
           Graph.create.lastCall.args,
-          [instruction, initialContext, false]
+          [instruction, initialContext, actions, false]
         );
         assert(graph.advance.calledTwice);
         assert(graph.advance.firstCall.args[0] === 'action');
@@ -192,13 +195,14 @@ describe('rex-widget', function() {
         });
         let path = '/action[command]';
         let instruction = {};
+        let actions = {};
         let initialContext = {};
-        let result = fromPath(path, instruction, initialContext);
+        let result = fromPath(path, instruction, actions, initialContext);
         assert(result === graph);
         assert(Graph.create.calledOnce);
         assert.deepEqual(
           Graph.create.lastCall.args,
-          [instruction, initialContext, false]
+          [instruction, actions, initialContext, false]
         );
         assert(graph.advance.calledOnce);
         assert(graph.advance.firstCall.args[0] === 'action');

@@ -65,10 +65,6 @@ export let shadow = {
   normal(shadowColor = color.shadowLight) {
     return css.boxShadow(0, 0, 2, 0, shadowColor);
   },
-
-  deepInset(shadowColor = color.shadowLight) {
-    return css.insetBoxShadow(0, 0, 10, 0, shadowColor);
-  },
 };
 
 export let buttonSize = {

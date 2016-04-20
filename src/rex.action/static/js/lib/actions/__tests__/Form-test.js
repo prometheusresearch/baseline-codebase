@@ -11,7 +11,7 @@ import {
 } from 'rex-widget/testutils';
 
 import {ConfigurableForm} from 'rex-widget/form';
-import {SuccessButton} from 'rex-widget/ui';
+import SubmitButton from '../../ui/SubmitButton';
 import {Form} from '../Form';
 import Action from '../../Action';
 
@@ -46,7 +46,7 @@ describe('rex-action/actions', function() {
       let form = renderer.findWithTypeProps(ConfigurableForm);
       form.ref(formInstanceStub);
       let footer = renderer.instance.renderFooter();
-      let button = findWithTypeProps(footer, SuccessButton);
+      let button = findWithTypeProps(footer, SubmitButton);
       assert(button.props.onClick);
       let eventStub = {
         preventDefault: spy(),

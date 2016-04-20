@@ -14,14 +14,14 @@ describe('rex-action/execution', function() {
 
     it('can be created', function() {
       let instruction = new Instruction.Execute();
-      let node = Node.create(instruction, {a: 1});
+      let node = Node.create({}, instruction, {a: 1});
       assert.deepEqual(node.context, {a: 1});
       assert(node.instruction === instruction);
     });
 
     it('can update the context', function() {
       let instruction = new Instruction.Execute();
-      let node = Node.create(instruction, {a: 1});
+      let node = Node.create({}, instruction, {a: 1});
       assert.deepEqual(node.context, {a: 1});
       assert(node.instruction === instruction);
       node = node.setContext({b: 2});
@@ -31,7 +31,7 @@ describe('rex-action/execution', function() {
 
     it('can replace the context', function() {
       let instruction = new Instruction.Execute();
-      let node = Node.create(instruction, {a: 1});
+      let node = Node.create({}, instruction, {a: 1});
       assert.deepEqual(node.context, {a: 1});
       assert(node.instruction === instruction);
       node = node.replaceContext({b: 2});
@@ -41,7 +41,7 @@ describe('rex-action/execution', function() {
 
     it('can replace the state', function() {
       let instruction = new Instruction.Execute();
-      let node = Node.create(instruction);
+      let node = Node.create({}, instruction);
       assert.deepEqual(node.state, {});
       node = node.replaceState({b: 2});
       assert.deepEqual(node.state, {b: 2});
@@ -49,7 +49,7 @@ describe('rex-action/execution', function() {
 
     it('can update the state', function() {
       let instruction = new Instruction.Execute();
-      let node = Node.create(instruction);
+      let node = Node.create({}, instruction);
       assert.deepEqual(node.state, {});
       node = node.setState({a: 1});
       node = node.setState({b: 2});
@@ -60,23 +60,29 @@ describe('rex-action/execution', function() {
       let input = {
         match: stub().returns(true)
       };
-      let instruction = new Instruction.Execute(
-        'id', [], {props: {contextTypes: {input}}});
-      let node = Node.create(instruction);
+      let actions = {
+        id: {props: {contextTypes: {input}}}
+      };
+      let instruction = new Instruction.Execute('id', 'id', [])
+      let node = Node.create(actions, instruction);
       assert(node.isAllowed);
       assert(input.match.calledOnce);
     });
 
     it('can execute command', function() {
-
+      let actions = {
+        action: {props: {p: 2}}
+      };
       let command = {
-        execute() { return {a: 1}; }
+        execute() {
+          return {a: 1};
+        }
       };
       spy(command, 'execute');
       stub(Command, 'getCommand').returns(command);
 
-      let instruction = new Instruction.Execute('action', [], {props: {p: 2}});
-      let node = Node.create(instruction);
+      let instruction = new Instruction.Execute('action', 'action', []);
+      let node = Node.create(actions, instruction);
       let nextNode = node.executeCommand('commandName', 1, 2);
 
       assert(Command.getCommand.calledOnce);
@@ -84,7 +90,7 @@ describe('rex-action/execution', function() {
       assert(command.execute.calledOnce);
       assert.deepEqual(
         command.execute.firstCall.args,
-        [instruction.element.props, node.context, 1, 2]
+        [actions.action.props, node.context, 1, 2]
       );
 
       assert.deepEqual(nextNode.command, {commandName: 'commandName', args: [1, 2]});
@@ -94,14 +100,17 @@ describe('rex-action/execution', function() {
     });
 
     it('can re-execute command', function() {
+      let actions = {
+        action: {props: {p: 2}}
+      };
       let command = {
         execute(props, context, a) { return {a}; }
       };
       spy(command, 'execute');
       stub(Command, 'getCommand').returns(command);
 
-      let instruction = new Instruction.Execute('action', [], {props: {p: 2}});
-      let node = Node.create(instruction);
+      let instruction = new Instruction.Execute('action', 'action', []);
+      let node = Node.create(actions, instruction);
       node = node.executeCommand('commandName', 1);
       assert.deepEqual(node.context, {a: 1});
       node = node.reExecuteCommand(42);
@@ -113,12 +122,13 @@ describe('rex-action/execution', function() {
     describe('.then', function() {
 
       it('can provide a list of further nodes', function() {
+        let actions = {};
         let thenInstructions = [
-          new Instruction.Execute('action1', []),
-          new Instruction.Execute('action2', []),
+          new Instruction.Execute('action1', 'action1', []),
+          new Instruction.Execute('action2', 'action2', []),
         ];
-        let instruction = new Instruction.Execute('root', thenInstructions);
-        let node = Node.create(instruction);
+        let instruction = new Instruction.Execute('root', 'root', thenInstructions);
+        let node = Node.create(actions, instruction);
         let then = node.then;
         assert(then.length === 2);
         assert(then[0].instruction === thenInstructions[0]);
@@ -128,46 +138,55 @@ describe('rex-action/execution', function() {
       });
 
       it('enter wizard', function() {
-        let thenInstructions = [
-          new Instruction.IncludeWizard('', [], {
+        let actions = {
+          wizard: {
             props: {
               path: new Instruction.Start([
-                new Instruction.Execute('x', thenInstructions)
+                new Instruction.Execute('x', 'x', thenInstructions)
               ])
             }
-          })
+          }
+        };
+        let thenInstructions = [
+          new Instruction.IncludeWizard('wizard', '', [])
         ];
-        let instruction = new Instruction.Execute('root', thenInstructions);
-        let node = Node.create(instruction);
+        let instruction = new Instruction.Execute('root', 'root', thenInstructions);
+        let node = Node.create(actions, instruction);
         let then = node.then;
         assert(then.length === 1);
-        assert(then[0].instruction === thenInstructions[0].element.props.path.then[0]);
+        assert(then[0].instruction === actions.wizard.props.path.then[0]);
       });
 
       it('returns from wizard', function() {
-        let exit = new Instruction.Execute('exit', []);
-        let thenInstructions = [
-          new Instruction.IncludeWizard('', [exit], {
+        let actions = {
+          include: {
             props: {
               path: new Instruction.Start([
-                new Instruction.Execute('enter', [])
+                new Instruction.Execute('enter', 'enter', [])
               ])
             }
-          })
+          }
+        };
+        let exit = new Instruction.Execute('exit', 'exit', []);
+        let thenInstructions = [
+          new Instruction.IncludeWizard('include', '', [exit])
         ];
-        let instruction = new Instruction.Execute('root', thenInstructions);
-        let node = Node.create(instruction);
+        let instruction = new Instruction.Execute('root', 'root', thenInstructions);
+        let node = Node.create(actions, instruction);
         let then = node.then[0].then;
         assert(then.length === 1);
         assert(then[0].instruction.action === 'exit');
       });
 
       it('follows replace', function() {
-        let instruction = new Instruction.Execute('root', [
-          new Instruction.Execute('target', [], {props: {contextTypes: {rows: {}}}}),
+        let actions = {
+          start: {props: {contextTypes: {rows: {}}}}
+        };
+        let instruction = new Instruction.Execute('root', 'root', [
+          new Instruction.Execute('start', 'target', [], {props: {contextTypes: {rows: {}}}}),
           new Instruction.Replace('./target'),
         ]);
-        let node = Node.create(instruction);
+        let node = Node.create(actions, instruction);
         let then = node.then;
         assert(then.length === 2);
         assert(then[0]._concreteNode.instruction.action === 'target');

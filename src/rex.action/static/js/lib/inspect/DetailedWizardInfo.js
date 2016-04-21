@@ -30,11 +30,12 @@ let Label = stylesheet.style('span', {
   marginRight: 5,
 });
 
-function WizardDiagram({instruction, level, onSelect}) {
+function WizardDiagram({actions, instruction, level, onSelect}) {
   let children = instruction.then.map((instruction, idx) =>
     <WizardDiagram
       key={instruction.action || idx}
       instruction={instruction}
+      actions={actions}
       level={level + 1}
       onSelect={onSelect}
       />
@@ -52,8 +53,8 @@ function WizardDiagram({instruction, level, onSelect}) {
     );
   } else if (Instruction.Execute.is(instruction) ||
              Instruction.IncludeWizard.is(instruction)) {
-    element = React.cloneElement(instruction.element, {
-      onSelect: onSelect.bind(null, instruction.element),
+    element = React.cloneElement(actions[instruction.id], {
+      onSelect: onSelect.bind(null, actions[instruction.id]),
       children,
       selectable: true,
     });
@@ -94,6 +95,7 @@ export default class DetailedWizardInfo extends React.Component {
               <WizardDiagram
                 level={0}
                 instruction={info.wizardPath}
+                actions={info.wizardActions}
                 onSelect={this.onSelect}
                 />
             </layout.VBox>

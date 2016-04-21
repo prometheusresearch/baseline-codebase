@@ -113,24 +113,28 @@ class WizardIntrospection(ActionIntrospection):
     info_js_type = 'rex-action/lib/inspect/WizardInfo'
     detailed_info_js_type = 'rex-action/lib/inspect/DetailedWizardInfo'
 
-    def _introspect_path(self, instruction, ancestors):
-        if hasattr(instruction, 'action_instance'):
-            action_introspection = instruction.action_instance._introspection
-            if action_introspection is None:
-                action_introspection = instruction.action_instance.Introspection(
-                    instruction.action_instance)
-            instruction = instruction.__clone__(
-                action_instance=action_introspection.info_widget())
-        return instruction
-
     def info(self, debug=False, detailed=False):
         info = super(WizardIntrospection, self).info(
                 detailed=detailed,
                 debug=debug)
         if detailed:
-            path = instruction.map(self.action.path, self._introspect_path)
+
+            def _introspect_path(instruction):
+                if hasattr(instruction, 'action_instance'):
+                    action_introspection = instruction.action_instance._introspection
+                    if action_introspection is None:
+                        action_introspection = instruction.action_instance.Introspection(
+                            instruction.action_instance)
+                    actions[instruction.id] = action_introspection.info_widget()
+
+            path = self.action.path
+            actions = {}
+
+            instruction.visit(self.action.path, _introspect_path)
+
             info.update({
-                'wizardPath': path
+                'wizardPath': path,
+                'wizardActions': actions,
             })
         return info
 

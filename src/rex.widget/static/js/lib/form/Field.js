@@ -6,7 +6,7 @@ import debounce from 'lodash/function/debounce';
 import autobind from 'autobind-decorator';
 import React from 'react';
 import {WithFormValue} from 'react-forms';
-import * as layout from '../../layout';
+import {VBox, HBox} from '../../layout';
 import * as Stylesheet from '../../stylesheet';
 import Input from './Input';
 import ErrorList from './ErrorList';
@@ -22,19 +22,19 @@ export class Field extends React.Component {
 
   static stylesheet = Stylesheet.create({
     Root: {
-      Component: layout.VBox,
+      Component: VBox,
       marginBottom: 10,
       marginLeft: 20,
       marginRight: 20,
     },
     Required: {
-      Component: layout.HBox,
+      Component: HBox,
       color: 'red',
       marginLeft: 3,
       width: 5,
     },
     Label: {
-      Component: layout.HBox,
+      Component: HBox,
       color: '#888',
       fontSize: '14px',
       fontWeight: 400,
@@ -52,6 +52,10 @@ export class Field extends React.Component {
       marginLeft: '-7px',
       marginBottom: '5px',
     },
+    InputWrapper: {
+      Component: VBox,
+      justifyContent: 'center',
+    }
   });
 
   static propTypes = {
@@ -69,6 +73,11 @@ export class Field extends React.Component {
      * The input element to use.
      */
     children: React.PropTypes.element,
+
+    /**
+     *
+     */
+    layout: React.PropTypes.oneOf(['horizontal', 'vertical']),
 
     /**
      * func
@@ -123,6 +132,7 @@ export class Field extends React.Component {
     labelSize: 2,
     inputSize: 5,
     debounceValidation: 500,
+    layout: 'vertical',
   };
 
   constructor(props) {
@@ -134,9 +144,11 @@ export class Field extends React.Component {
   }
 
   render() {
-    let {Root, Required, Label, Hint} = this.constructor.stylesheet;
-    let {label, hint, children, onChange, labelSize, inputSize,
-      serialize, ...props} = this.props;
+    let {Root, Required, Label, Hint, InputWrapper} = this.constructor.stylesheet;
+    let {
+      label, hint, children, onChange, labelSize, inputSize,
+      serialize, layout, ...props
+    } = this.props;
     let {dirty} = this.state;
     let {value, errorList, params, schema} = this.props.formValue;
     let showErrors = dirty || params.forceShowErrors;
@@ -149,8 +161,8 @@ export class Field extends React.Component {
       });
     return (
       <Root {...props}>
-        <layout.VBox>
-          <layout.VBox flex={labelSize}>
+        <VBox direction={layout === 'vertical' ? 'column' : 'row'}>
+          <VBox flex={labelSize}>
             <Label>
               {label}
               <Required>{schema && schema.isRequired ? '*' : null}</Required>
@@ -158,11 +170,11 @@ export class Field extends React.Component {
                 <ErrorList errorList={errorList} />}
             </Label>
             {hint && <Hint>{hint}</Hint>} 
-          </layout.VBox>
-          <layout.VBox flex={inputSize}>
+          </VBox>
+          <InputWrapper flex={inputSize}>
             {children}
-          </layout.VBox>
-        </layout.VBox>
+          </InputWrapper>
+        </VBox>
       </Root>
     );
   }

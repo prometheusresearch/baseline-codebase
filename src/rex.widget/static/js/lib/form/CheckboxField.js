@@ -1,5 +1,5 @@
 /**
- * @copyright 2016, Prometheus Research, LLC
+ * @copyright 2016-present, Prometheus Research, LLC
  */
 
 import React from 'react';
@@ -41,8 +41,11 @@ export class CheckboxField extends React.Component {
       );
     } else {
       return (
-        <Field {...props} formValue={formValue} data={undefined}>
-          <Checkbox style={{marginTop: 9}} />
+        <Field
+          {...props}
+          layout="horizontal"
+          formValue={formValue}>
+          <Checkbox style={{marginTop: 5}} />
         </Field>
       );
     }

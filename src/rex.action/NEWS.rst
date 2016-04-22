@@ -4,7 +4,8 @@
 
 .. contents:: Table of Contents
 
-1.1.0 (2016-04-XX)
+
+1.1.0 (2016-04-22)
 ==================
 
 * [FEATURE] Breadcrumb now hides items in the middle in case of visual overflow.
@@ -27,6 +28,7 @@
   huge byte sizes which were causing performance issues.
 
 * [FIX] Wrap buttons in toolbars.
+
 
 1.0.0 (2016-03-31)
 ==================

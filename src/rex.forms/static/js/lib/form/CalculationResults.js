@@ -47,7 +47,9 @@ var CalculationResults = React.createClass({
     return (
       <div className="rex-forms-CalculationResults">
         <h3>{_('Calculations Preview')}</h3>
-        {results}
+        <div className="rex-forms-CalculationResults__results">
+          {results}
+        </div>
         <button
           className="rex-forms-CalculationResults__close"
           onClick={this.props.onClose}>

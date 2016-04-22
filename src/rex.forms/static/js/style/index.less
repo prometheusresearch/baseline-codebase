@@ -157,23 +157,27 @@
       margin-top: 0;
     }
 
-    table {
-        text-align: initial;
-        margin: 0 auto;
+    .rex-forms-CalculationResults__results {
+      overflow-x: auto;
 
-        .calcname {
-            font-weight: bold;
-            padding-right: 5px;
-            text-align: right;
+      table {
+          text-align: initial;
+          margin: 0 auto;
 
-            &::after {
-                content: ':';
-            }
-        }
+          .calcname {
+              font-weight: bold;
+              padding-right: 5px;
+              text-align: right;
 
-        .calcvalue {
-            padding-left: 5px;
-        }
+              &::after {
+                  content: ':';
+              }
+          }
+
+          .calcvalue {
+              padding-left: 5px;
+          }
+      }
     }
 
     .rex-forms-CalculationResults__close {

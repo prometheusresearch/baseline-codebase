@@ -2,7 +2,8 @@
   Change Log
 **************
 
-2.5.0 (2016-XX-XX)
+
+2.5.0 (2016-04-22)
 ==================
 
 * [FEATURE] Configure webpack for code splitting.
@@ -30,6 +31,7 @@
 * [FEATURE] Show validation errors for read only felds.
 
 * [FEATURE] Various UI improvements and fixes.
+
 
 2.4.0 (2016-03-31)
 ==================

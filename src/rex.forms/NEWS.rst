@@ -5,7 +5,7 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
-1.5.0 (2016-xx-xx)
+1.5.0 (2016-04-22)
 ==================
 
 * The instrument-formskeleton task now sorts the lists of enumerations by their

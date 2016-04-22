@@ -5,8 +5,11 @@
 1.1.0 (2016-XX-XX)
 ==================
 
-* Add ``magic_chrome`` setting to make page content reloading without reloading
-  of an entire page.
+* [FEATURE] Add ``rex_widget_chrome.magic`` setting to make page content
+  reloading without reloading of an entire page.
+
+* [FEATURE] Add ``hide_second_tier_menu`` setting to make the second tier menu
+  hidden.
 
 1.0.0 (2016-03-31)
 ==================

@@ -5,11 +5,15 @@
 .. contents:: Table of Contents
 
 
-5.1.0 (2016-xx-xx)
+5.1.0 (2016-04-22)
 ==================
 
+* rex.setup==3.1.4
+* rex.action==1.1.0
 * rex.instrument==1.4.0
 * rex.forms==1.5.0
+* rex.widget==2.5.0
+* rex.widget_chrome==1.1.0
 * HTSQL==2.3.3.20160412
 
 

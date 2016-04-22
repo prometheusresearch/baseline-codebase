@@ -4,13 +4,15 @@
 
 .. contents:: Table of Contents
 
-1.0.1 (2016-04-XX)
+1.1.0 (2016-04-XX)
 ==================
 
-* [FIX] JSON encoding of wizards now features more compact form thus preventing
-  huge byte sizes which were causing performance issues.
+* [FEATURE] Breadcrumb now hides items in the middle in case of visual overflow.
 
-* [FIX] Wrap buttons in toolbars.
+* [FEATURE] Breadcrumb now shows the current page item and the current screen
+  item.
+
+* [FEATURE] Code split plotly into a separate chunk.
 
 * [FEATURE] Action kind now can be specified in configuration on a per-action
   basis.
@@ -18,6 +20,13 @@
   Action kind is a value (``success``, ``danger`` or ``normal``) which controls
   how action is represented in UI. For example action of kind ``success`` will
   have green coloured buttons in a toolbar.
+
+* [FIX] Fix replace not to apply context at the wrong place.
+
+* [FIX] JSON encoding of wizards now features more compact form thus preventing
+  huge byte sizes which were causing performance issues.
+
+* [FIX] Wrap buttons in toolbars.
 
 1.0.0 (2016-03-31)
 ==================

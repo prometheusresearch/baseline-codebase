@@ -95,6 +95,7 @@ Introspecting wizard::
    ('source', '...'),
    ('title', None),
    ('type', 'wizard'),
+   ('wizardActions', {...}),
    ('wizardPath', Start(...))]
 
 Cloned action still has introspection available::

@@ -5,7 +5,7 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
-5.7.0 (2016-xx-xx)
+5.7.0 (2016-04-22)
 ==================
 
 * Fixed an issue where FireFox would highlight the float range constraint

@@ -2,7 +2,8 @@
   Change Log
 **************
 
-1.1.0 (2016-XX-XX)
+
+1.1.0 (2016-04-22)
 ==================
 
 * [FEATURE] Add ``rex_widget_chrome.magic`` setting to make page content
@@ -11,10 +12,12 @@
 * [FEATURE] Add ``hide_second_tier_menu`` setting to make the second tier menu
   hidden.
 
+
 1.0.0 (2016-03-31)
 ==================
 
 * Depend on Rex Action 1.0.0.
+
 
 0.2.0 (2016-02-29)
 ==================

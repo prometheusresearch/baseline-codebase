@@ -4,11 +4,13 @@
 
 .. contents:: Table of Contents
 
-3.1.4 (2016-04-XX)
+
+3.1.4 (2016-04-22)
 ==================
 
 * Do not include vendored JS libraries in JS bundles automatically. This allows
   applications to implement custom code loading for vendored code.
+
 
 3.1.3 (2016-03-31)
 ==================

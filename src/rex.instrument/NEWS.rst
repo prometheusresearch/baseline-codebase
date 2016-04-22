@@ -5,7 +5,7 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
-1.4.0 (2016-xx-xx)
+1.4.0 (2016-04-22)
 ==================
 
 * Fixed an issue where the values for enumerationSet questions were considered

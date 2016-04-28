@@ -15,7 +15,7 @@ setup(
     namespace_packages=['rex'],
     install_requires=[
         'rex.assessment_import >=0.4',
-        'rex.instrument_demo >=1.2',
+        'rex.instrument_demo',
     ],
     rex_init='rex.assessment_import_demo',
     rex_static='static',

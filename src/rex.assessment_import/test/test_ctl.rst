@@ -117,7 +117,8 @@ One of csv or xls --format is expected::
     Import finished, assessment fake_assessment_1 generated.
 
     >>> book = xlwt.Workbook()
-    >>> sheet = book.add_sheet('simple1')
+    >>> sheet = book.add_sheet('1')
+    >>> sheet.row(0).write(0, 'simple1')
     >>> assessment_data = {
     ...                     'subject': 'subject1',
     ...                     'assessment_id': '1',
@@ -125,9 +126,9 @@ One of csv or xls --format is expected::
     ...                     'q_fake': None
     ...                   }
     >>> for (idx, key) in enumerate(assessment_data.keys()):
-    ...     sheet.row(0).write(idx, key)
+    ...     sheet.row(1).write(idx, key)
     ...     value = assessment_data[key]
-    ...     sheet.row(1).write(idx, value)
+    ...     sheet.row(2).write(idx, value)
     >>> book.save('./build/sandbox/simple1.xls')
 
     >>> ctl('assessment-import --project=rex.assessment_import_demo simple --input ./build/sandbox/simple1.xls --format xls')

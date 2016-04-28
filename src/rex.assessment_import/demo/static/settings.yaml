@@ -6,3 +6,5 @@ access:
 
 db: pgsql:assessment_import_demo
 
+instrument_implementation:
+  assessment: rex.assessment_import_demo.DemoAssessment

@@ -4,6 +4,11 @@
 
 .. contents:: Table of Contents
 
+0.4.2
+=====
+
+* Fixed tests.
+
 0.4.1 (2016-02-06)
 ==================
 

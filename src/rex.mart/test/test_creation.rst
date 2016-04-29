@@ -66,7 +66,7 @@ Copy an existing DB::
     >>> db_exists(mart.name)
     True
     >>> db_inventory(mart.name)
-    assessment: 24
+    assessment: 25
     channel: 5
     draftinstrumentversion: 2
     entry: 10
@@ -74,7 +74,7 @@ Copy an existing DB::
     instrumentversion: 23
     people: 5
     subject: 7
-    task: 7
+    task: 8
     user: 2
     >>> db_status(mart.name)
     Definition: just_copy
@@ -224,7 +224,7 @@ Load data into an existing database::
     >>> db_exists(mart.name)
     True
     >>> db_inventory(mart.name)
-    assessment: 24
+    assessment: 25
     channel: 5
     draftinstrumentversion: 2
     entry: 10
@@ -233,7 +233,7 @@ Load data into an existing database::
     instrumentversion: 23
     people: 5
     subject: 7
-    task: 7
+    task: 8
     user: 2
     >>> db_status(mart.name)
     Definition: existing

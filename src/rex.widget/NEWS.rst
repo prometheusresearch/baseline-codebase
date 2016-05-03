@@ -8,6 +8,10 @@
 * [FIX] Move hint under the input in form fields to prevent misalignment in
   horizontal layouts.
 
+* [FIX] Show hint for <RepeatingFieldset /> and <Fieldset /> components.
+
+* [FIX] <RepeatingFieldset /> now render required sign if it's provided.
+
 2.5.0 (2016-04-22)
 ==================
 

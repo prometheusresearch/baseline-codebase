@@ -11,6 +11,8 @@ import {HBox, VBox} from '../../layout';
 import {DangerButton, Button} from '../../ui';
 import * as Stylesheet from '../../stylesheet';
 import Fieldset from './Fieldset';
+import {FieldsetHeader} from './ui';
+import ErrorList from './ErrorList';
 
 /**
  * RepeatingFieldset component.
@@ -68,28 +70,8 @@ export class RepeatingFieldset extends React.Component {
       marginBottom: 15,
       marginTop: 20,
     },
-    Label: {
-      Component: 'label',
-      color: '#000',
-      fontSize: '100%',
-      fontWeight: 700,
-      marginTop: 15,
-      marginBottom: 15,
-    },
-    ErrorList: {
-      Component: HBox,
-      marginTop: 10,
-      marginBottom: 10,
-      color: 'red',
-      fontSize: '80%'
-    },
-    Required: {
-      Component: 'span',
-      color: 'red',
-      marginLeft: 3,
-      width: 5,
-      display: 'inline-block',
-    },
+    Header: FieldsetHeader,
+    ErrorList: ErrorList,
     Item: {
       Component: VBox,
       marginBottom: 9,
@@ -103,10 +85,13 @@ export class RepeatingFieldset extends React.Component {
 
   render() {
     let {
-      children, formValue, label, readOnly,
+      children, formValue, label, hint, readOnly,
       addButtonText, removeButtonText, layout , ...props
     } = this.props;
-    let {Root, Label, ErrorList, Item, ItemToolbar, Required} = this.constructor.stylesheet;
+    let {
+      Root, Header, ErrorList,
+      Item, ItemToolbar
+    } = this.constructor.stylesheet;
     let schema = formValue.schema || {};
     let items = formValue.value || [];
     let fieldsets = items.map((item, idx) => {
@@ -150,19 +135,16 @@ export class RepeatingFieldset extends React.Component {
     });
     return (
       <Root>
-        {label &&
-          <Label>
-            {label}
-            <Required>{schema && schema.isRequired ? '*' : null}</Required>
-          </Label>}
+        <Header
+          label={label}
+          hint={hint}
+          isRequired={schema && schema.isRequired}
+          />
         <VBox>
           {fieldsets}
         </VBox>
         {formValue.errorList.length > 0 &&
-          <ErrorList>
-            {formValue.errorList.map((error, idx) =>
-              <VBox key={idx}>{error.message}</VBox>)}
-          </ErrorList>}
+          <ErrorList errorList={formValue.errorList} />}
         {!readOnly &&
           <div>
             <Button icon="plus" size="normal" onClick={this.addItem} style={{marginTop: 20}}>

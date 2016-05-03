@@ -10,6 +10,7 @@ import {VBox, HBox} from '../../layout';
 import * as Stylesheet from '../../stylesheet';
 import Input from './Input';
 import ErrorList from './ErrorList';
+import {RequiredSign, Hint} from './ui';
 
 /**
  * Field component.
@@ -27,12 +28,6 @@ export class Field extends React.Component {
       marginLeft: 20,
       marginRight: 20,
     },
-    Required: {
-      Component: HBox,
-      color: 'red',
-      marginLeft: 3,
-      width: 5,
-    },
     Label: {
       Component: HBox,
       color: '#888',
@@ -44,12 +39,7 @@ export class Field extends React.Component {
       paddingBottom: 5,
       marginLeft: -7,
     },
-    Hint: {
-      Component: 'div',
-      fontSize: '75%',
-      textAlign: 'left',
-      marginTop: '5px',
-    },
+    Hint: Hint,
     InputWrapper: {
       Component: VBox,
       justifyContent: 'center',
@@ -142,7 +132,7 @@ export class Field extends React.Component {
   }
 
   render() {
-    let {Root, Required, Label, Hint, InputWrapper} = this.constructor.stylesheet;
+    let {Root, Label, Hint, InputWrapper} = this.constructor.stylesheet;
     let {
       label, hint, children, onChange, labelSize, inputSize,
       serialize, layout, ...props
@@ -163,7 +153,7 @@ export class Field extends React.Component {
           <VBox flex={labelSize}>
             <Label>
               {label}
-              <Required>{schema && schema.isRequired ? '*' : null}</Required>
+              {schema && schema.isRequired && <RequiredSign />}
               {showErrors && errorList.length > 0 &&
                 <ErrorList errorList={errorList} />}
             </Label>

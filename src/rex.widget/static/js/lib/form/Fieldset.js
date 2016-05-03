@@ -5,21 +5,17 @@
 import React from 'react';
 import {Fieldset as FieldsetBase} from 'react-forms';
 import {VBox} from '../../layout';
-import {style} from '../../stylesheet';
+import {FieldsetHeader} from './ui';
 
-let Label = style('label', {
-  color: '#000',
-  fontSize: '100%',
-  fontWeight: 700,
-  margin: 0,
-  marginBottom: 20,
-});
-
-export default function Fieldset({label, ...props}) {
+export default function Fieldset({label, hint, schema, ...props}) {
   return (
     <VBox>
-      {label && <Label>{label}</Label>}
-      <FieldsetBase {...props} />
+      <FieldsetHeader
+        label={label}
+        hint={hint}
+        isRequired={schema && schema.isRequired}
+        />
+      <FieldsetBase {...props} schema={schema} />
     </VBox>
   );
 }

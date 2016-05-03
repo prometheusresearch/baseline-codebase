@@ -12,7 +12,9 @@ let ErrorContainer =  style(VBox, {
   fontSize: '80%'
 });
 
-let Error = VBox;
+let Error = style(VBox, {
+  marginRight: 7
+});
 
 export default function ErrorList({errorList}) {
   return (

@@ -114,6 +114,7 @@ function _fieldToSchema(field) {
         format: Validation.array,
       };
       schema.items = _growSchemaWithFields(schema.items, field.fields);
+      schema.isRequired = !!field.required;
       return schema;
     }
     case 'date':

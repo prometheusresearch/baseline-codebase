@@ -6,6 +6,7 @@ import React from 'react';
 import {createRenderer} from '../../../testutils';
 
 import Fieldset from '../Fieldset';
+import {FieldsetHeader} from '../ui';
 import {Fieldset as FieldsetBase} from 'react-forms';
 
 describe('rex-widget/form', function() {
@@ -21,13 +22,12 @@ describe('rex-widget/form', function() {
     it('renders', function() {
       renderer.render(<Fieldset />);
       renderer.assertElementWithTypeProps(FieldsetBase);
-      renderer.assertNoElementWithTypeProps('label');
     });
 
     it('renders with label', function() {
       renderer.render(<Fieldset label="Hello" />);
       renderer.assertElementWithTypeProps(FieldsetBase);
-      renderer.assertElementWithTypeProps('label');
+      renderer.assertElementWithTypeProps(FieldsetHeader);
     });
   });
 

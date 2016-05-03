@@ -524,6 +524,7 @@ describe('Schema', function() {
                   keyPathPattern: ['*', 'c'],
                 }
               ],
+              isRequired: false,
               items: {
                 hideIfList: [
                   {

@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name='rex.platform',
-    version='5.1.0',
+    version='5.1.1',
     description='RexDB Core Platform Libraries',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',
@@ -38,7 +38,7 @@ setup(
         'rex.restful==1.1.0',
         'rex.urlmap==2.8.0',
         'rex.web==3.7.0',
-        'rex.widget==2.5.0',
+        'rex.widget==2.5.1',
         'rex.widget_chrome==1.1.0',
         'rex.file==1.0.3',
     ],

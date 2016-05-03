@@ -7,8 +7,6 @@ __webpack_public_path__ = window.__PUBLIC_PATH__;
 import './index.css';
 import './TransitionableHandlers';
 
-import React from 'react';
-
 module.exports = window.RexWidget = {
   Authorized: require('./Authorized'),
   Autocomplete: require('./Autocomplete'),

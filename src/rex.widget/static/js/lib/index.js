@@ -5,15 +5,9 @@
 __webpack_public_path__ = window.__PUBLIC_PATH__;
 
 import './index.css';
-
-import React              from 'react';
-import {isTouchDevice}    from './Environment';
-
-if (isTouchDevice) {
-  React.initializeTouchEvents(true);
-}
-
 import './TransitionableHandlers';
+
+import React from 'react';
 
 module.exports = window.RexWidget = {
   Authorized: require('./Authorized'),

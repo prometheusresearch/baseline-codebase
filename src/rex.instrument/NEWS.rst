@@ -5,6 +5,13 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
+1.5.0 (2016-xx-xx)
+==================
+
+* The base implementation of ``Task.start_entry()`` will now create an
+  Assessment if one does not exist before creating the Entry.
+
+
 1.4.0 (2016-04-22)
 ==================
 

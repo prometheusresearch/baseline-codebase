@@ -500,6 +500,14 @@ class Task(
                 'This Task does not allow an additional Preliminary Entry.'
             )
 
+        if not self.assessment:
+            assessment_impl = Assessment.get_implementation()
+            self._assessment = assessment_impl.create(
+                self.subject,
+                self.instrument_version,
+            )
+            forget_memoized_property(self, 'assessment')
+
         entry_impl = get_implementation('entry')
         entry = entry_impl.create(
             self.assessment,

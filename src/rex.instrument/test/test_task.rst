@@ -106,7 +106,7 @@ Tasks have a property to retrieve the InstrumentVersion they're associated with:
     InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1)
 
 
-Tasks have a proeprty to set or retrieve the Assessment they're associated with::
+Tasks have a property to set or retrieve the Assessment they're associated with::
 
     >>> task = Task('bar999', subject, instrument, 100, assessment)
     >>> task.assessment
@@ -170,6 +170,18 @@ readable and writable::
     Traceback (most recent call last):
         ...
     ValueError: "now" is not a valid Due Date
+
+
+The start_entry() method will create an Entry for the associated Assessment
+(creating the Assessment first, if one does not exist)::
+
+    >>> task = Task('foo123', subject, Instrument.get_implementation().get_by_uid('simple'), 42)
+    >>> task.assessment is None
+    True
+    >>> task.start_entry(user)
+    DemoEntry(u'fake_entry_1', DemoAssessment(u'fake_assessment_1', Subject(u'fake123'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1)), u'preliminary')
+    >>> task.assessment
+    DemoAssessment(u'fake_assessment_1', Subject(u'fake123'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
 
 
 Tasks have a num_required_entries property which is readable only::

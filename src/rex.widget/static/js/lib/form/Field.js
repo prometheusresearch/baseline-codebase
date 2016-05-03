@@ -47,10 +47,8 @@ export class Field extends React.Component {
     Hint: {
       Component: 'div',
       fontSize: '75%',
-      padding: '0px 7px',
       textAlign: 'left',
-      marginLeft: '-7px',
-      marginBottom: '5px',
+      marginTop: '5px',
     },
     InputWrapper: {
       Component: VBox,
@@ -169,10 +167,10 @@ export class Field extends React.Component {
               {showErrors && errorList.length > 0 &&
                 <ErrorList errorList={errorList} />}
             </Label>
-            {hint && <Hint>{hint}</Hint>} 
           </VBox>
           <InputWrapper flex={inputSize}>
             {children}
+            {hint && <Hint>{hint}</Hint>}
           </InputWrapper>
         </VBox>
       </Root>

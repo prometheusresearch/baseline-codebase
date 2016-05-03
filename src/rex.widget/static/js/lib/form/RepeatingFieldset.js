@@ -95,9 +95,9 @@ export class RepeatingFieldset extends React.Component {
       marginBottom: 9,
     },
     ItemToolbar: {
-      marginBottom: 14,
+      marginTop: 35,
       marginRight: 21,
-      alignSelf: 'flex-end',
+      alignSelf: 'flex-start',
     }
   });
 

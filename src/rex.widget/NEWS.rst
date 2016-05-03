@@ -2,6 +2,11 @@
   Change Log
 **************
 
+2.5.0 (2016-05-XX)
+==================
+
+* [FIX] Move hint under the input in form fields to prevent misalignment in
+  horizontal layouts.
 
 2.5.0 (2016-04-22)
 ==================

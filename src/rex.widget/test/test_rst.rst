@@ -35,7 +35,11 @@ RSTVal()
 
 ::
 
-  >>> rex = Rex('-')
+  >>> mount = {
+  ...   'rex.widget_demo': '/widget_demo',
+  ... }
+
+  >>> rex = Rex('-', 'rex.widget_demo')
   >>> rex.on()
 
   >>> rst = v("""
@@ -46,5 +50,23 @@ RSTVal()
 
   >>> encode(rst, Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE
   u'"<p>Hello, <em>world</em>! <a class=\\"reference external\\" href=\\"http://www.python.org/\\">Python</a></p>"'
+
+  >>> rst = v("""
+  ... Hello, *world*! Python_
+  ...
+  ... .. _Python: rex.widget_demo:/
+  ... """)
+
+  >>> encode(rst, Request.blank('/', environ={'rex.mount': mount})) # doctest: +NORMALIZE_WHITESPACE
+  u'"<p>Hello, <em>world</em>! <a class=\\"reference external\\" href=\\"/widget_demo/\\">Python</a></p>"'
+
+  >>> rst = v("""
+  ... Hello, *world*! MESSAGEME_
+  ...
+  ... .. _MESSAGEME: mailto:me@example.com
+  ... """)
+
+  >>> encode(rst, Request.blank('/', environ={'rex.mount': mount})) # doctest: +NORMALIZE_WHITESPACE
+  u'"<p>Hello, <em>world</em>! <a class=\\"reference external\\" href=\\"mailto:me@example.com\\">MESSAGEME</a></p>"'
 
   >>> rex.off()

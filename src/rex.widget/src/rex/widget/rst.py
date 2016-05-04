@@ -27,7 +27,13 @@ class RST(TransitionableRecord):
     _find_links = re.compile(r'__\$(\d+)__')
 
     def __transit_format__(self, req, path):
-        return self._find_links.sub(lambda m: url_for(req, self.links[m.group()]), self.src)
+        def _replace_link_match(m):
+            link = self.links[m.group()]
+            if link.startswith('mailto:'):
+                return link
+            else:
+                return url_for(req, link)
+        return self._find_links.sub(_replace_link_match, self.src)
 
 
 class _HTMLTranslator(docutils.writers.html4css1.HTMLTranslator):

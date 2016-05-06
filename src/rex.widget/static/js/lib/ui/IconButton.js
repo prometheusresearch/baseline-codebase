@@ -5,6 +5,7 @@
 import React, {PropTypes} from 'react';
 import * as Stylesheet from '../../stylesheet';
 import * as css from '../../css';
+import {VBox} from '../../layout';
 import Icon from './Icon';
 
 /**
@@ -32,6 +33,8 @@ export default class IconButton extends React.Component {
 
   static stylesheet = Stylesheet.create({
     Root: {
+      Component: VBox,
+      justifyContent: 'center',
       width: '1em',
       height: '1em',
       opacity: 0.2,
@@ -43,11 +46,12 @@ export default class IconButton extends React.Component {
   });
 
   render() {
-    let {name, ...props} = this.props;
+    let {name, icon: IconComponent, ...props} = this.props;
     let {Root} = this.constructor.stylesheet;
+    IconComponent = IconComponent || Icon;
     return (
       <Root {...props} role="button">
-        <Icon
+        <IconComponent
           name={name}
           aria-hidden={false}
           />

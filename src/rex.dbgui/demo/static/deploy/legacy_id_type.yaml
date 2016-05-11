@@ -1,0 +1,7 @@
+- table: legacy_id_type
+  with:
+  - column: code
+    type: integer
+  - identity: [code: offset]
+  - column: title
+    type: text

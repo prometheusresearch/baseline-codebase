@@ -1,0 +1,15 @@
+syntax: glob
+.*.sw?
+*.orig
+*.pyc
+*.pyo
+*.egg-info
+build
+doc/_build/
+dist
+www/bundle/*
+node_modules
+.nyc_output
+coverage
+bower_components
+*.v.*

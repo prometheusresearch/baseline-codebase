@@ -1,0 +1,5 @@
+- table: consent_type_x_requirement
+  with:
+  - link: requirement
+  - link: consent_type
+  - identity: [requirement, consent_type]

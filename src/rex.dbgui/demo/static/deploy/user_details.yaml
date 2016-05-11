@@ -1,0 +1,12 @@
+- table: user_details
+  with:
+  - link: user
+  - identity: [user]
+  - column: name
+    type: text
+  - column: email
+    type: text
+    required: false
+  - column: phone
+    type: text
+    required: false

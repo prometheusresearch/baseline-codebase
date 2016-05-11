@@ -1,0 +1,23 @@
+- table: measure_type_revision_draft
+  with:
+  - link: measure_type
+  - column: code
+    type: integer
+  - identity: [measure_type, code: offset]
+  - link: parent_measure_type_revision
+    to: measure_type_revision
+    required: false
+  - column: json
+    type: json
+    required: false
+  - column: calculation_json
+    type: json
+    required: false
+  - column: created_by
+    type: text
+  - column: date_created
+    type: datetime
+  - column: modified_by
+    type: text
+  - column: date_modified
+    type: datetime

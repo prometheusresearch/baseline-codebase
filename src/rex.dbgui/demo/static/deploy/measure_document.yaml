@@ -1,0 +1,7 @@
+- table: measure_document
+  with:
+  - link: measure
+  - column: code
+    type: integer
+  - identity: [measure, code: offset]
+  - file: document

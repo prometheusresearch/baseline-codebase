@@ -1,0 +1,10 @@
+- table: requirement_list
+  with:
+  - link: study
+    present: false
+  - link: study_version
+  - column: code
+    present: false
+  - link: participant_group
+  - link: time_period
+  - identity: [study_version, participant_group, time_period]

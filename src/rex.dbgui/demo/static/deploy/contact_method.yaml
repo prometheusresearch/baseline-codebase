@@ -1,0 +1,24 @@
+- table: contact_method
+  with:
+  - link: contact_info
+  - column: code
+    type: integer
+  - identity: [contact_info, code: offset]
+  - column: contact_type
+    type: [work_phone, cell_phone, home_phone, e-mail]
+    title: Contact method
+  - column: contact
+    type: text
+    title: Contact number or e-mail
+  - column: message_ok
+    title: Ok to leave message
+    type: boolean
+    default: false
+  - column: contact_notes
+    type: text
+    title: Notes
+    required: false
+  - column: preferred_contact
+    type: boolean
+    default: false
+    title: Preferred contact method

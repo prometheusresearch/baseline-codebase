@@ -1,0 +1,8 @@
+- table: measure_todo_fulfillment
+  with:
+  - link: todo
+  - identity: [todo]
+  - link: measure
+  - column: num_required_entries
+    type: integer
+  - link: acquire_channel

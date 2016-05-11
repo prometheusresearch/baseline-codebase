@@ -1,0 +1,38 @@
+- table: identity
+  with:
+  - link: individual
+  - identity: [individual]
+  - column: fullname
+    type: text
+    required: false
+  - column: givenname
+    type: text
+    required: false
+    title: Given Name
+  - column: middle
+    type: text
+    required: false
+  - column: preferred_name
+    type: text
+    title: Preferred Name
+    required: false
+  - column: middle_name
+    type: text
+    title: Middle Name
+    required: false
+  - column: surname
+    type: text
+    required: false
+  - column: birthdate
+    type: date
+    required: false
+    title: Date of Birth
+  - column: notes
+    type: text
+    required: false
+  - column: deathdate
+    type: date
+    required: false
+  - column: deceased
+    type: boolean
+    required: false

@@ -1,0 +1,7 @@
+- table: measure_annotation_comment_type
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+  - column: title
+    type: text

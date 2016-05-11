@@ -1,0 +1,7 @@
+- table: condition
+  with:
+  - link: individual
+  - link: disorder
+  - column: code
+    type: text
+  - identity: [individual, disorder, code]

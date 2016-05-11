@@ -1,0 +1,13 @@
+- table: asset_type
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+  - data: |
+      code
+      measure
+      sample
+      consent
+      appointment
+      communication
+      other

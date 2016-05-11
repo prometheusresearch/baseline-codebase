@@ -1,0 +1,11 @@
+- table: study_recruitment
+  with:
+  - link: study
+  - link: individual
+  - identity: [study, individual]
+  - column: recruitment_date
+    type: date
+    required: false
+  - column: call_list_status
+    type: [on-call-list, removed]
+    default: on-call-list

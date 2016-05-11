@@ -1,0 +1,15 @@
+- table: measure_type_revision
+  with:
+  - link: measure_type
+  - column: revision
+    type: integer
+  - identity: [measure_type, revision: offset]
+  - column: json
+    type: json
+  - column: published_by
+    type: text
+  - column: date_published
+    type: datetime
+  - column: calculation_json
+    type: json
+    required: false

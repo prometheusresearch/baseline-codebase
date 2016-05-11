@@ -1,0 +1,8 @@
+- table: case_role
+  with:
+  - link: case_type
+  - column: code
+    type: text
+  - identity: [case_type, code]
+  - column: title
+    type: text

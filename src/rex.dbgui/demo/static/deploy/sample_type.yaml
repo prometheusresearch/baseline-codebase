@@ -1,0 +1,7 @@
+- table: sample_type
+  with:
+  - column: code
+    type: text
+  - column: title
+    type: text
+  - identity: [code]

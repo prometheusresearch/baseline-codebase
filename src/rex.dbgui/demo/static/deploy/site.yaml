@@ -1,0 +1,10 @@
+- table: site
+  with:
+  - column: code
+    type: text
+  - identity: [code: offset]
+  - column: title
+    type: text
+  - data: |
+      code,title
+      default,RexDB

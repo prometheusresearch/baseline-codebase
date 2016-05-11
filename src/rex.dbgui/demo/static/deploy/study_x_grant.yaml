@@ -1,0 +1,5 @@
+- table: study_x_grant
+  with:
+  - link: study
+  - link: grant
+  - identity: [study, grant]

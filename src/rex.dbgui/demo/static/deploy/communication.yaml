@@ -1,0 +1,27 @@
+- table: communication
+  with:
+  - link: individual
+  - link: communication_type
+  - column: code
+    type: text
+  - identity: [individual, communication_type, code: random]
+  - link: study
+    required: false
+  - column: notes
+    type: text
+    required: false
+  - link: user
+    required: false
+  - column: contact_datetime
+    type: datetime
+    required: false
+  - column: followup_needed
+    type: boolean
+    required: false
+    default: false
+  - link: who_followup_needed
+    to: user
+    required: false
+  - column: why_followup_needed
+    type: text
+    required: false

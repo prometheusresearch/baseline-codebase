@@ -1,0 +1,15 @@
+- table: visit
+  with:
+  - link: individual
+  - column: code
+    type: integer
+  - identity: [individual, code: offset]
+  - column: title
+    type: text
+  - link: study_enrollment
+    required: false
+  - link: time_period
+    required: false
+  - link: initial_study_version
+    to: study_version
+    required: false

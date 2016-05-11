@@ -1,0 +1,5 @@
+- table: consent_type_x_todo
+  with:
+  - link: consent_type
+  - link: todo
+  - identity: [consent_type, todo]

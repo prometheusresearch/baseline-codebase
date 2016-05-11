@@ -1,0 +1,97 @@
+#
+# Postgres trigger for audit of transactional CRUD operations
+#
+
+# User/Site
+- include: deploy/site.yaml
+- include: deploy/user.yaml
+- include: deploy/user_access.yaml
+- include: deploy/user_details.yaml
+
+# Individual
+- include: deploy/individual.yaml
+- include: deploy/identity.yaml
+- include: deploy/relationship_type.yaml
+- include: deploy/relationship.yaml
+- include: deploy/contact_info.yaml
+- include: deploy/contact_method.yaml
+- include: deploy/legacy_id_type.yaml
+- include: deploy/legacy_identifier.yaml
+- include: deploy/case_type.yaml
+- include: deploy/case.yaml
+- include: deploy/case_role.yaml
+- include: deploy/case_x_individual.yaml
+- include: deploy/disorder.yaml
+- include: deploy/condition.yaml
+
+# Asset Types
+- include: deploy/asset_type.yaml
+- include: deploy/measure_type.yaml
+- include: deploy/measure_type_revision.yaml
+- include: deploy/sample_type.yaml
+- include: deploy/consent_type.yaml
+- include: deploy/communication_type.yaml
+
+# Acquire
+- include: deploy/acquire_channel.yaml
+- include: deploy/measure_type_revision_channel.yaml
+- include: deploy/measure_type_revision_draft.yaml
+- include: deploy/measure_type_revision_chl_draft.yaml
+- include: deploy/survey_identity.yaml
+
+# Labs
+- include: deploy/lab.yaml
+- include: deploy/lab_x_user.yaml
+
+# Study Configuration
+- include: deploy/study.yaml
+- include: deploy/study_x_user.yaml
+- include: deploy/site_x_study.yaml
+- include: deploy/study_version.yaml
+- include: deploy/participant_group.yaml
+- include: deploy/time_period.yaml
+- include: deploy/requirement_list.yaml
+- include: deploy/requirement.yaml
+- include: deploy/measure_type_revision_x_requirement.yaml
+- include: deploy/sample_type_x_requirement.yaml
+- include: deploy/consent_type_x_requirement.yaml
+
+# Assets
+- include: deploy/measure.yaml
+- include: deploy/measure_entry.yaml
+- include: deploy/measure_document.yaml
+- include: deploy/measure_annotation_score.yaml
+- include: deploy/measure_annotation_comment_type.yaml
+- include: deploy/measure_annotation.yaml
+- include: deploy/measure_annotation_comment.yaml
+- include: deploy/sample.yaml
+- include: deploy/tube.yaml
+- include: deploy/tube_usage.yaml
+- include: deploy/consent.yaml
+- include: deploy/consent_form.yaml
+
+# Grant
+- include: deploy/grant.yaml
+- include: deploy/study_x_grant.yaml
+
+# Appoinments
+- include: deploy/appointment_room.yaml
+- include: deploy/appointment.yaml
+
+# Study Enrollment
+- include: deploy/study_recruitment.yaml
+- include: deploy/study_enrollment.yaml
+- include: deploy/visit.yaml
+- include: deploy/visit_migration_fail.yaml
+- include: deploy/visit_x_appointment.yaml
+- include: deploy/todo.yaml
+- include: deploy/todo_migration_fail.yaml
+- include: deploy/measure_type_revision_x_todo.yaml
+- include: deploy/measure_todo_fulfillment.yaml
+- include: deploy/sample_type_x_todo.yaml
+- include: deploy/sample_todo_fulfillment.yaml
+- include: deploy/consent_type_x_todo.yaml
+- include: deploy/consent_todo_fulfillment.yaml
+- include: deploy/communication.yaml
+- include: deploy/study_case.yaml
+- include: deploy/individual_notes.yaml  #TODO: check if we're using it?

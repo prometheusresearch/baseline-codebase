@@ -1,0 +1,7 @@
+- table: case_x_individual
+  with:
+  - link: case
+  - link: individual
+  - identity: [case, individual]
+  - link: case_role
+    required: false

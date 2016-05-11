@@ -1,0 +1,15 @@
+{
+  "name": "dbgui",
+  "version": "4.0.0",
+  "main": "./lib/index.js",
+  "rex": {
+    "bundleAll": true
+  },
+  "dependencies": {
+  },
+  "peerDependencies": {
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0",
+    "react-addons-update": "^0.14.0"
+  }
+}

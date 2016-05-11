@@ -1,0 +1,15 @@
+- table: measure_annotation
+  with:
+  - link: measure
+  - link: user
+  - column: code
+    type: integer
+  - identity: [measure, user, code: offset]
+  - link: measure_annotation_score
+    required: false
+  - column: datetime
+    type: datetime
+    default: now()
+  - column: memo
+    type: text
+    required: false

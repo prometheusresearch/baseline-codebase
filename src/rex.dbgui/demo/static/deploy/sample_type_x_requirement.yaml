@@ -1,0 +1,5 @@
+- table: sample_type_x_requirement
+  with:
+  - link: requirement
+  - link: sample_type
+  - identity: [requirement, sample_type]

@@ -1,0 +1,9 @@
+- table: appointment_room
+  with:
+  - column: code
+    type: integer
+  - identity: [code: offset]
+  - column: title
+    type: text
+  - column: color
+    type: text

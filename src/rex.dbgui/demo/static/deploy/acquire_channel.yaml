@@ -1,0 +1,13 @@
+- table: acquire_channel
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+  - column: title
+    type: text
+  - column: presentation_type
+    type: [form, sms]
+  - data: |
+      code,title,presentation_type
+      entry,RexEntry,form
+      survey,RexSurvey,form

@@ -1,0 +1,21 @@
+- table: tube
+  with:
+  - link: sample
+  - column: code
+    type: integer
+  - identity: [sample, code: offset]
+  - column: volume_amount
+    type: decimal
+    required: false
+  - column: volume_unit
+    type: [ml, ul]
+    required: false
+  - column: concentration_amount
+    type: decimal
+    required: false
+  - column: concentration_unit
+    type: [ng-ul]
+    required: false
+  - column: location_memo
+    type: text
+    required: false

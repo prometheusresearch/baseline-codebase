@@ -1,0 +1,33 @@
+
+- table: study
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+  - link: lab
+  - column: title
+    type: text
+  - column: irb_number
+    type: text
+    required: false
+  - column: start_date
+    type: date
+    required: false
+  - link: user
+    required: false
+  - column: description
+    type: text
+    required: false
+  - column: overall_target_enrollment
+    type: integer
+    required: false
+  - column: closed
+    type: boolean
+    default: false
+  - link: site_configured
+    default: default
+    to: site
+  - column: ideal_visit_date_calculation
+    type: [birthdate, study-enrollment]
+    required: false
+    default: study-enrollment

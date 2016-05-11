@@ -1,0 +1,20 @@
+- table: sample
+  with:
+  - link: sample_type
+  - link: individual
+  - column: code
+    type: integer
+  - column: code_text
+    type: text
+    required: false
+    unique: true
+  - column: date_collected
+    type: datetime
+    required: false
+  - link: collected_by
+    to: user
+    required: false
+  - identity: [individual, sample_type , code: offset]
+  - link: derived_from
+    to: sample
+    required: false

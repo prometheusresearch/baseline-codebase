@@ -1,0 +1,14 @@
+- table: study_version
+  with:
+  - link: study
+  - column: version
+    type: integer
+  - identity: [study, version: offset]
+  - column: note
+    type: text
+    required: false
+
+- link: config_version
+  of: study
+  to: study_version
+  required: false

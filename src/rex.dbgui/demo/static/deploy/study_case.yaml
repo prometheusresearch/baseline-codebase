@@ -1,0 +1,5 @@
+- table: study_case
+  with:
+  - link: study
+  - link: case
+  - identity: [study, case]

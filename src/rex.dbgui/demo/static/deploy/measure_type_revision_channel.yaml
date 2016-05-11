@@ -1,0 +1,7 @@
+- table: measure_type_revision_channel
+  with:
+  - link: measure_type_revision
+  - link: acquire_channel
+  - identity: [measure_type_revision, acquire_channel]
+  - column: json
+    type: json

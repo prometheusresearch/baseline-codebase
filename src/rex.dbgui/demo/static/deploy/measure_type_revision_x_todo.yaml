@@ -1,0 +1,5 @@
+- table: measure_type_revision_x_todo
+  with:
+  - link: measure_type_revision
+  - link: todo
+  - identity: [measure_type_revision, todo]

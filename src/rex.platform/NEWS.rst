@@ -4,10 +4,13 @@
 
 .. contents:: Table of Contents
 
+
 5.2.0 (2016-XX-XX)
 ==================
 
 * HTSQL==2.3.3.20160506
+* rex.instrument==1.5.0
+* rex.widget==2.6.0
 
 
 5.1.1 (2016-05-04)

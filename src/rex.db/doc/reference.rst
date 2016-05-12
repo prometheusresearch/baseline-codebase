@@ -52,6 +52,10 @@ Utilities
 =========
 
 .. autoclass:: DBVal
+.. autoclass:: SyntaxVal
+.. autofunction:: decode_htsql
+.. autofunction:: scan_htsql
+.. autofunction:: parse_htsql
 
 
 ``rex`` HTSQL addon

@@ -16,6 +16,7 @@ from .database import RexHTSQL, Mask, get_db
 from .auth import (
         UserQuerySetting, AutoUserQuerySetting, AccessQueriesSetting,
         AccessMasksSetting, HTSQLEnvironmentSetting)
+from .parse import decode_htsql, scan_htsql, parse_htsql, SyntaxVal
 from .ctl import ShellTask, QueryTask, GraphDBTask, DatabaseAccessTopic
 
 

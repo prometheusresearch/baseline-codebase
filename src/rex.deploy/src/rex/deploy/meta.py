@@ -3,10 +3,13 @@
 #
 
 
-from rex.core import UStrVal, UChoiceVal, MaybeVal, SeqVal, RecordVal, Error
-from .fact import LabelVal, TitleVal
+from rex.core import (
+        Location, set_location, UStrVal, UChoiceVal, MaybeVal, SeqVal,
+        RecordVal, Error)
+from .fact import LabelVal, TitleVal, AliasVal, AliasSpec, FactDumper
 from .image import TableImage, ColumnImage, UniqueKeyImage
 import operator
+import collections
 import yaml
 
 
@@ -87,9 +90,10 @@ class Meta(object):
                     documents.extend(self.extra)
                 else:
                     documents.append(self.extra)
-            text = yaml.safe_dump_all(documents,
-                                      explicit_start=True,
-                                      default_flow_style=False)
+            text = yaml.dump_all(documents,
+                                 Dumper=FactDumper,
+                                 explicit_start=True,
+                                 default_flow_style=False)
         # Otherwise, just store the extra content.
         else:
             text = self.extra
@@ -124,6 +128,7 @@ class TableMeta(Meta):
     fields = [
             ('label', LabelVal, None),
             ('title', TitleVal, None),
+            ('aliases', SeqVal(AliasVal), []),
     ]
 
 

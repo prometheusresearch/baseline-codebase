@@ -6,7 +6,9 @@
 from htsql.core.cache import once
 from htsql.core.entity import TableEntity, ColumnEntity
 from htsql.core.model import ColumnArc, ChainArc
-from htsql.core.classify import CallTable, CallColumn, CallChain, OrderTable
+from htsql.core.model import SyntaxArc, TableNode
+from htsql.core.classify import (
+        TraceTable, CallTable, CallColumn, CallChain, CallSyntax, OrderTable)
 from .introspect import get_image
 
 
@@ -29,12 +31,38 @@ def get_meta(entity):
         raise NotImplementedError(repr(entity))
 
 
+@once
+def get_syntax_arcs(node):
+    syntax_arcs = {}
+    meta = get_meta(node.table)
+    for spec in meta.aliases:
+        label = spec.label
+        parameters = None
+        if spec.parameters is not None:
+            parameters = [(name, True) for name in spec.parameters]
+        arity = -1 if parameters is None else len(parameters)
+        syntax = spec.body
+        arc = SyntaxArc(node, parameters, syntax)
+        syntax_arcs[label, arity] = arc
+    return syntax_arcs
+
+
 class DominateOverride(object):
 
     @classmethod
     def __dominates__(component, other):
         return (issubclass(component, other) or
                 other.__module__.startswith('htsql.tweak.override.'))
+
+
+class DeployTraceTable(DominateOverride, TraceTable):
+
+    def __call__(self):
+        for arc in super(DeployTraceTable, self).__call__():
+            yield arc
+        syntax_arcs = get_syntax_arcs(self.node)
+        for key in sorted(syntax_arcs):
+            yield syntax_arcs[key]
 
 
 class DeployCallTable(DominateOverride, CallTable):
@@ -98,6 +126,19 @@ class DeployCallChain(DominateOverride, CallChain):
         if not is_direct and link_label:
             label = u"%s %s %s" % (target_label, self.path_word, link_label)
             yield label, 1
+
+
+class DeployCallSyntax(DominateOverride, CallSyntax):
+
+    def __call__(self):
+        if isinstance(self.arc.origin, TableNode):
+            syntax_arcs = get_syntax_arcs(self.arc.origin)
+            for key in sorted(syntax_arcs):
+                if syntax_arcs[key] is self.arc:
+                    name, arity = key
+                    yield name, 5
+        for name, weight in super(DeployCallSyntax, self).__call__():
+            yield name, weight
 
 
 class OrderTableWithLinks(DominateOverride, OrderTable):

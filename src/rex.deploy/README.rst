@@ -796,6 +796,88 @@ Examples:
        Note that a self-referential link must allow ``NULL`` values.
 
 
+Alias fact
+==========
+
+An alias fact defines a calculated field.
+
+`alias`:
+    The name of the alias *or* the full alias definition.
+
+    Can be specified in one of the following forms:
+
+    * ``<label>``
+    * ``<table_label>.<label>``
+    * ``<label>($<parameter>, ...)``
+    * ``<label> := <expression>``
+
+`of`: ``<table_label>``
+    The name of the table.
+
+    You don't need to specify this clause if the table name is set in the
+    ``alias`` clause or if the column is defined in a ``with`` clause of a
+    table fact.
+
+`parameters`: [``<label>``] *or* ``null`` (default)
+    For parameterized calculations, a list of formal parameters.
+
+`expression`: ``<expression>`` or ``null`` (default)
+    The definition of the alias.
+
+`present`: ``true`` (default) or ``false``
+    Indicates whether the alias exists.
+
+Deploying when ``present`` is ``true``:
+
+    Ensures that table ``<table_label>`` contains an up-to-date
+    definition of an alias ``<label>``.
+
+    It is an error if table ``<table_label>`` does not exist.
+
+Deploying when ``present`` is ``false``:
+
+    Ensures that ``<table_label>`` does not have an alias called ``<label>``.
+    If table metadata contains a definition of the alias, it is removed.
+
+    It is *not* an error if table ``<table_label>`` does not exist.
+
+Examples:
+
+    #. Adding a calculated field to to a table::
+
+        alias: size
+        of: family
+        expression: count(individual)
+
+       This example can also be written as follows::
+
+        alias: family.size := count(individual)
+
+       When the column is defined in a ``with`` clause, ``of`` could be
+       omitted::
+
+        table: study
+        with:
+        - alias: size := count(individual)
+
+    #. Adding a calculated field with parameters::
+
+        alias: individual_by_sex
+        of: family
+        parameters: [sex]
+        expression: individual?sex=$sex
+
+       This example can also be written as follows::
+
+        alias: family.individual_by_sex($sex) := individual?sex=$sex
+
+    #. Removing a calculated field::
+
+        alias: size
+        of: study
+        present: false
+
+
 Identity fact
 =============
 

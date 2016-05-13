@@ -5,7 +5,8 @@
 
 from rex.core import Record, Error, Extension, LatentRex, get_rex
 from .fact import (
-        FactDumper, Driver, Fact, FactVal, LabelVal, TitleVal, label_to_title)
+        FactDumper, Driver, Fact, FactVal, LabelVal, TitleVal, AliasSpec,
+        label_to_title)
 from .meta import uncomment
 from .sql import (mangle, sql_value, sql_name, sql_cast,
         plpgsql_primary_key_procedure, plpgsql_integer_random_key,
@@ -290,11 +291,11 @@ class TableModel(Model):
 
     __slots__ = (
             'id_image', 'uk_image', 'seq_image',
-            'label', 'is_reliable', 'title')
+            'label', 'is_reliable', 'title', 'aliases')
 
     is_table = True
 
-    properties = ['label', 'is_reliable', 'title']
+    properties = ['label', 'is_reliable', 'title', 'aliases']
 
     class names(object):
         # Derives names for database objects and the table title.
@@ -356,6 +357,7 @@ class TableModel(Model):
         self.label = meta.label or image.name
         self.is_reliable = (not image.is_unlogged)
         self.title = meta.title
+        self.aliases = meta.aliases
         if not (u'id' in image and image[u'id'].unique_keys):
             raise Error("Discovered table without surrogate key:", self.label)
         # Surrogate key column.
@@ -365,7 +367,7 @@ class TableModel(Model):
         # Sequence on the `id` column.
         self.seq_image = next(iter(self.id_image.sequences), None)
 
-    def do_modify(self, label, is_reliable, title):
+    def do_modify(self, label, is_reliable, title, aliases):
         # Updates the state of the table entity.
         # Refresh names.
         names = self.names(label)
@@ -382,7 +384,10 @@ class TableModel(Model):
         meta = uncomment(self.image)
         saved_label = label if label != names.name else None
         saved_title = title if title != names.title else None
-        if meta.update(label=saved_label, title=saved_title):
+        if meta.update(
+                label=saved_label,
+                title=saved_title,
+                aliases=aliases):
             self.image.alter_comment(meta.dump())
 
     def do_erase(self):
@@ -479,6 +484,29 @@ class TableModel(Model):
         """
         return IdentityModel.do_build(self, **kwds)
 
+    def enable_alias(self, name, parameters, body):
+        """
+        Adds or replaces a calculated field.
+        """
+        new_spec = AliasSpec(None, name, parameters, body)
+        aliases = [new_spec]
+        for spec in self.aliases:
+            if spec.key() != new_spec.key():
+                aliases.append(spec)
+        aliases.sort(key=(lambda s: s.key()))
+        return self.modify(aliases=aliases)
+
+    def disable_alias(self, name, parameters):
+        """
+        Removes a calculated field.
+        """
+        old_spec = AliasSpec(None, name, parameters, None)
+        aliases = []
+        for spec in self.aliases:
+            if spec.key() != old_spec.key():
+                aliases.append(spec)
+        return self.modify(aliases=aliases)
+
     def move_after(self, field, other_fields):
         """
         Moves a field after the given set of fields.
@@ -491,12 +519,20 @@ class TableModel(Model):
 
     def fact(self, with_related=False):
         from .table import TableFact
+        from .alias import AliasFact
         related = None
         if with_related:
             related = [field.fact() for field in self.fields()]
             identity = self.identity()
             if identity is not None:
                 related.append(identity.fact())
+            for spec in self.aliases:
+                alias_fact = AliasFact(
+                        table_label=self.label,
+                        label=spec.label,
+                        parameters=spec.parameters,
+                        body=spec.body)
+                related.append(alias_fact)
         return TableFact(
                 self.label,
                 is_reliable=self.is_reliable,

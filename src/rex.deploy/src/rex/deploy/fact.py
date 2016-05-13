@@ -6,13 +6,46 @@
 from rex.core import (LatentRex, get_rex, Extension, Validate, UStrVal,
         MaybeVal, OneOrSeqVal, RecordVal, UnionVal, Error, guard, Location,
         locate, set_location)
+from rex.db import SyntaxVal, RexHTSQL
 from .introspect import introspect
+from htsql.core.util import DB
+from htsql.core.syn.syntax import (
+        Syntax, AssignSyntax, ComposeSyntax, ReferenceSyntax, IdentifierSyntax,
+        FunctionSyntax)
 import sys
 import inspect
 import decimal
 import collections
 import psycopg2
 import yaml
+
+
+class AliasSpec(object):
+
+    def __init__(self, table_label, label, parameters, body):
+        self.table_label = table_label
+        self.label = label
+        self.parameters = parameters
+        self.body = body
+
+    def key(self):
+        return (self.table_label,
+                self.label,
+                len(self.parameters) if self.parameters is not None else -1)
+
+    def __str__(self):
+        chunks = []
+        if self.table_label is not None:
+            chunks.append(".%s" % self.table_label.encode('utf-8'))
+        chunks.append(self.label.encode('utf-8'))
+        if self.parameters is not None:
+            chunks.append(
+                    "(%s)" %
+                    ",".join(["$%s" % parameter.encode('utf-8')
+                              for parameter in self.parameters]))
+        if self.body is not None:
+            chunks.append(" := %s" % self.body)
+        return "".join(chunks)
 
 
 class FactDumper(yaml.Dumper):
@@ -37,6 +70,9 @@ class FactDumper(yaml.Dumper):
         return self.represent_mapping(u'tag:yaml.org,2002:map', data.items(),
                                       flow_style=False)
 
+    def represent_alias(self, data):
+        return self.represent_unicode(unicode(data))
+
 FactDumper.add_representer(
         str, FactDumper.represent_str)
 FactDumper.add_representer(
@@ -45,6 +81,8 @@ FactDumper.add_representer(
         decimal.Decimal, FactDumper.represent_decimal)
 FactDumper.add_representer(
         collections.OrderedDict, FactDumper.represent_ordered_dict)
+FactDumper.add_representer(
+        AliasSpec, FactDumper.represent_alias)
 
 
 class FactVal(Validate):
@@ -144,6 +182,58 @@ class PairVal(Validate):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
 
+class AliasVal(SyntaxVal):
+
+    def __call__(self, data):
+        if isinstance(data, AliasSpec):
+            return data
+        syntax = super(AliasVal, self).__call__(data)
+        # Parse `<parent>.<name>($<parameters>,...) := expression`.
+        spec = self._as_spec(syntax)
+        if spec is None:
+            raise Error(
+                    "Expected an alias definition; got:",
+                    str(syntax))
+        return spec
+
+    @classmethod
+    def _as_spec(cls, syntax):
+        if isinstance(syntax, AssignSyntax):
+            expression = syntax.rarm
+            syntax = syntax.larm
+            if not (1 <= len(syntax.larms) <= 2 and
+                    all([isinstance(arm, IdentifierSyntax)
+                         for arm in syntax.larms]) and
+                    (syntax.rarms is None or
+                     all([isinstance(arm, ReferenceSyntax)
+                          for arm in syntax.rarms]))):
+                return None
+            parent_name = None
+            if len(syntax.larms) == 2:
+                parent_name = syntax.larms[0].name
+            name = syntax.larms[-1].name
+            parameters = None
+            if syntax.rarms is not None:
+                parameters = [arm.name for arm in syntax.rarms]
+            return AliasSpec(parent_name, name, parameters, expression)
+        parent_name = None
+        if isinstance(syntax, ComposeSyntax):
+            if not isinstance(syntax.larm, IdentifierSyntax):
+                return None
+            parent_name = syntax.larm.name
+            syntax = syntax.rarm
+        if not isinstance(syntax, (IdentifierSyntax, FunctionSyntax)):
+            return None
+        name = syntax.name
+        parameters = None
+        if isinstance(syntax, FunctionSyntax):
+            if not all([isinstance(arm, ReferenceSyntax)
+                        for arm in syntax.arms]):
+                return None
+            parameters = [arm.name for arm in syntax.arms]
+        return AliasSpec(parent_name, name, parameters, None)
+
+
 def label_to_title(label):
     """
     Makes a title out of an entity label.
@@ -191,6 +281,8 @@ class Driver(object):
         self.is_locked = False
         # Cursor output.
         self._rows = None
+        # Cached HTSQL instance.
+        self._htsql = None
 
     def chdir(self, directory):
         """Sets the current working directory."""
@@ -313,6 +405,7 @@ class Driver(object):
         """
         if self.is_locked:
             raise Error("Detected inconsistent data model:", sql)
+        self._htsql = None
         cursor = self.connection.cursor()
         try:
             self.log_sql("{}", sql)
@@ -347,6 +440,15 @@ class Driver(object):
             rows = self._rows
             self._rows = []
             return rows
+
+    def get_htsql(self, *args, **kwds):
+        if self._htsql is None:
+            self._htsql = RexHTSQL(
+                    DB(engine='pgsql', database=self.connection.dsn),
+                    {'rex': {'connection': self.connection}},
+                    {'rex_deploy': {}},
+                    *args, **kwds)
+        return self._htsql
 
     def __call__(self, facts, is_locked=None):
         """

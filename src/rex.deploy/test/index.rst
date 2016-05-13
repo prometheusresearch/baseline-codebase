@@ -4,6 +4,7 @@
 
 .. toctree::
 
+   test_alias
    test_cluster
    test_column
    test_ctl

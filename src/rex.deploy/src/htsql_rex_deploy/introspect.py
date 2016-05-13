@@ -3,6 +3,7 @@
 #
 
 
+from htsql.core.context import context
 from htsql.core.cache import once
 from htsql.core.entity import make_catalog
 from htsql.core.connect import connect
@@ -20,7 +21,11 @@ def get_image():
     connection = connect()
     driver = Driver(connection)
     catalog = driver.get_catalog()
-    connection.close()
+    # Close the connection unless we own it.
+    if context.app.rex.connection is None:
+        connection.close()
+    else:
+        connection.release()
     return catalog
 
 

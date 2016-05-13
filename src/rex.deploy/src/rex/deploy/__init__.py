@@ -8,6 +8,7 @@ This package provides database schema management.
 """
 
 
+from .alias import AliasFact
 from .cluster import Cluster, get_cluster, deploy
 from .column import ColumnFact
 from .ctl import CreateDBTask, DropDBTask, DumpDBTask, LoadDBTask, DeployTask

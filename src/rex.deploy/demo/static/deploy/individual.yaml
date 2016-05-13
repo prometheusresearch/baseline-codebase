@@ -19,6 +19,8 @@
   - link: adopted_father
     to: individual
     required: false
+  - alias: title
+    expression: code+' ('+switch(sex,'male','M','female','F','NA')+')'
   - data: individual.csv
 
 - table: identity

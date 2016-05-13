@@ -15,6 +15,7 @@ Facts
 .. autoclass:: TableFact
 .. autoclass:: ColumnFact
 .. autoclass:: LinkFact
+.. autoclass:: AliasFact
 .. autoclass:: IdentityFact
 .. autoclass:: DataFact
 .. autodata:: SKIP

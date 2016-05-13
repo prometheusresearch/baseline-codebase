@@ -1456,4 +1456,5 @@ PostgreSQL functions:
 ``random()``
     Random value in the range from 0 to 1.
 
+:mod:`rex.deploy` also provides an identity-to-text conversion operation.
 

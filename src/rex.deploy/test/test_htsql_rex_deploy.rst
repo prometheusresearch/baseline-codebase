@@ -415,6 +415,39 @@ Function ``random()`` generates a random value::
     >>> 0 <= r <= 1
     True
 
+
+Identity Conversion
+===================
+
+``rex.deploy`` provides identity to text conversion, which could be used to
+find records by incomplete identifier::
+
+    >>> q = Query(''' /sample{id(), age, height, salary, birth, sleep}?text(id())~'.T' ''')
+    >>> print q.format('txt')                                       # doctest: +NORMALIZE_WHITESPACE
+     | Assessment                                                |
+     +-----------+-----+--------+--------+------------+----------+
+     | id()      | Age | Height | Salary | Birth      | Sleep    |
+    -+-----------+-----+--------+--------+------------+----------+-
+     | 1000.01.T |   0 |    0.0 |      0 | 2016-05-13 | 00:00:00 |
+
+``rex.deploy`` correctly wraps nested identifier with parentheses::
+
+    >>> q = Query(''' text(id(1001, id(id('demographics-form'), 1), 1)) ''')
+    >>> print q.produce()
+    '1001.(demographics-form.1).1'
+
+It also correctly escapes text components::
+
+    >>> q = Query(''' text(id('Patrick O''Brian')) ''')
+    >>> print q.produce()
+    '''Patrick O''''Brian'''
+
+Null components are converted to null strings::
+
+    >>> q = Query(''' text(id(null, 1)) ''')
+    >>> print q.produce()
+    null
+
 Finally we delete the test database::
 
     >>> demo.off()

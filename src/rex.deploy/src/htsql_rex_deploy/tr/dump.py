@@ -8,7 +8,8 @@ from htsql.core.domain import Domain
 from htsql.core.tr.dump import DumpToDomain, DumpByDomain
 from htsql.core.tr.fn.dump import DumpFunction
 from ..domain import JSONDomain
-from .signature import (REMatchesSig, FTMatchesSig, FTQueryMatchesSig,
+from .signature import (
+        EscapeIdentitySig, REMatchesSig, FTMatchesSig, FTQueryMatchesSig,
         FTHeadlineSig, FTQueryHeadlineSig, FTRankSig, FTQueryRankSig, JoinSig,
         AbsSig, SignSig, CeilSig, FloorSig, DivSig, ModSig, ExpSig, PowSig,
         LnSig, Log10Sig, LogSig, PiSig, ACosSig, ASinSig, ATanSig, ATan2Sig,
@@ -221,5 +222,12 @@ class DumpRandom(DumpFunction):
 
     adapt(RandomSig)
     template = "RANDOM()"
+
+
+class DumpEscapeIdentity(DumpFunction):
+
+    adapt(EscapeIdentitySig)
+    template = "(CASE WHEN {op} ~ '^[0-9A-Za-z_-]+$' THEN {op}" \
+               " ELSE '''' || REPLACE({op}, '''', '''''') || '''' END)"
 
 

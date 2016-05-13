@@ -9,6 +9,7 @@
 ==================
 
 * Support for calculated fields.
+* Identity-to-text conversion.
 
 
 2.5.0 (2016-02-29)

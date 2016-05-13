@@ -3,6 +3,6 @@
 #
 
 
-from . import bind, dump, encode, lookup, signature
+from . import bind, dump, encode, lookup, reduce, signature
 
 

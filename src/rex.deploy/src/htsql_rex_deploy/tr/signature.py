@@ -5,6 +5,15 @@
 
 from htsql.core.tr.signature import (
         Signature, Slot, NullarySig, UnarySig, BinarySig)
+from htsql.core.tr.fn.signature import ConcatenateSig
+
+
+class NullableConcatenateSig(ConcatenateSig):
+    pass
+
+
+class EscapeIdentitySig(UnarySig):
+    pass
 
 
 class REMatchesSig(BinarySig):

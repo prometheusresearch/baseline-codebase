@@ -9,6 +9,7 @@
 ==================
 
 * Added a validator for parsing HTSQL expressions.
+* Support for connection passthrough.
 
 
 3.4.1 (2016-02-18)

@@ -12,10 +12,10 @@ none so far.
 from htsql.core.addon import Addon, Variable, Parameter
 from htsql.core.application import Environment, Application
 from htsql.core.validator import StrVal, UIntVal, NameVal, ClassVal, MapVal
-from htsql.core.adapter import Adapter, adapt, call
+from htsql.core.adapter import Adapter, adapt, call, rank
 from htsql.core.context import context
 from htsql.core.error import Error
-from htsql.core.connect import Transact, connect
+from htsql.core.connect import Transact, TransactionGuard, Connect, connect
 from htsql.core.domain import (ListDomain, RecordDomain, TextDomain,
         BooleanDomain, EnumDomain, Product)
 from htsql.core.model import Node, HomeNode, TableNode, TableArc, ChainArc
@@ -42,6 +42,23 @@ from htsql.core.fmt.format import JSONFormat
 from htsql.core.fmt.json import (EmitJSON, to_json, DomainToRaw, JS_MAP,
         JS_SEQ, JS_END)
 from htsql.tweak.gateway.command import SummonGateway, ActGateway
+
+
+class RexConnect(Connect):
+
+    rank(2.0)
+
+    @classmethod
+    def __enabled__(component):
+        if not hasattr(context.app, 'rex') or \
+                context.app.rex.connection is None:
+            return False
+        return super(RexConnect, component).__enabled__()
+
+    def open(self):
+        if context.app.rex.connection is not None:
+            return context.app.rex.connection
+        return super(RexConnect, self).open()
 
 
 class LazyConnection(object):
@@ -107,13 +124,23 @@ class LazyTransactionGuard(object):
             env.pop()
 
 
-class LazyTransact(Transact):
+class PassthroughTransactionGuard(TransactionGuard):
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        if self.connection is None:
+            context.env.connection.release()
+            context.env.pop()
+
+
+class RexTransact(Transact):
 
     def __init__(self, is_lazy=False):
         self.is_lazy = is_lazy
 
     def __call__(self):
-        return LazyTransactionGuard(self.is_lazy)
+        if context.app.rex.connection is None:
+            return LazyTransactionGuard(self.is_lazy)
+        return PassthroughTransactionGuard()
 
 
 class LazySession(object):
@@ -682,6 +709,10 @@ class RexAddon(Addon):
     ]
 
     parameters = [
+            Parameter(
+                'connection',
+                ClassVal(object),
+                default=None),
             Parameter(
                 'gateways',
                 MapVal(NameVal(), ClassVal(Application)),

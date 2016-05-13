@@ -352,3 +352,32 @@ Unaffected fields must identify a row uniquely::
                                         ^^^^^
 
 
+Connection passthrough
+======================
+
+You can pass a database connection from one HTSQL application to another using
+the ``connection`` parameter of the ``rex`` addon.
+
+You start with acquiring a database connection::
+
+    >>> from rex.db import get_db
+    >>> with demo:
+    ...    db = get_db()
+
+    >>> connection = db.connect()
+
+Next, we create a new HTSQL instance::
+
+    >>> from rex.db import RexHTSQL
+
+    >>> db_connected = RexHTSQL('sqlite:-', {'rex': {'connection': connection}})
+
+Then, you can run queries against the connected instance, which should be
+done in a transaction context of the parent instance::
+
+    >>> with db, db.transaction():
+    ...     with db_connected:
+    ...         print db_connected.produce('count(program)')
+    40
+
+

@@ -1,0 +1,66 @@
+@import "~bootstrap/less/bootstrap.less";
+@icon-font-path: "~bootstrap/fonts/";
+@import "~rex-forms/style/index.less";
+
+
+.rfd-Menu {
+    margin: 20px;
+}
+
+.rfd-Demo {
+    margin: 20px;
+}
+
+.rfd-Toolbar {
+    display: flex;
+    margin-bottom: 10px;
+
+    .rfd-Toolbar__return {
+        flex-grow: 1;
+    }
+
+    .rfd-Toolbar__options {
+        display: flex;
+
+        div {
+            margin: 0 10px;
+
+            input[type=checkbox] {
+                margin-right: 5px;
+            }
+        }
+    }
+}
+
+.rfd-Workspace {
+    display: flex;
+
+    .rfd-Form {
+        flex-grow: 1;
+    }
+
+    .rfd-AssessmentViewer {
+        min-width: 15%;
+        max-width: 25%;
+        margin-left: 20px;
+        overflow: auto;
+    }
+}
+
+.rfd-AssessmentViewer {
+    .well();
+
+    p {
+        font-family: monospace;
+        white-space: pre;
+        font-size: 0.8em;
+
+    }
+
+    &.rfd-AssessmentViewer--invalid {
+        p {
+            color: red;
+        }
+    }
+}
+

@@ -1,24 +1,13 @@
 <!doctype html>
 <html>
   <head>
-    <title>{{title}}</title>
+    <title>rex.forms_demo</title>
     <link rel="stylesheet" href="{{ MOUNT['rex.forms_demo'] }}/bundle/bundle.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>;
+    <script src="{{ MOUNT['rex.forms_demo'] }}/bundle/bundle.js"></script>
   </head>
   <body>
-    <div class="wrapper">
-      <header>
-        <h1>{{title}}</h1>
-      </header>
-      {% block body %}
-      <div id="form"></div>
-      <div id="assessment"></div>
-      {% endblock %}
-    </div>
-    <script src="{{ MOUNT['rex.forms_demo'] }}/bundle/bundle.js"></script>
-    <script>
-      {% block script %}{% endblock %}
-    </script>
+    <div id="main"></div>
+    {% block body %}{% endblock %}
   </body>
 </html>
 

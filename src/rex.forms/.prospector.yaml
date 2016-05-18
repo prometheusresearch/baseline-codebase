@@ -4,8 +4,8 @@ test-warnings: true
 
 ignore-patterns:
   - ^doc/conf\.py$
-  - ^demo/.*$
   - ^static/js/.*$
+  - ^demo/static/.*$
 
 pep8:
   disable:

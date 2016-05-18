@@ -31,24 +31,24 @@ Typically an app would have these implementations specified in its
     >>> test = Rex('__main__', 'rex.forms_demo')
     >>> test.on()
     >>> get_settings().forms_implementation
-    Record(form=rex.forms_demo.DemoForm, draftform=rex.forms_demo.DemoDraftForm)
+    Record(form=rex.forms_demo.interface.DemoForm, draftform=rex.forms_demo.interface.DemoDraftForm)
     >>> Form.get_implementation()
-    rex.forms_demo.DemoForm
+    rex.forms_demo.interface.DemoForm
     >>> DraftForm.get_implementation()
-    rex.forms_demo.DemoDraftForm
+    rex.forms_demo.interface.DemoDraftForm
     >>> test.off()
 
 
 The setting can be specified by multiple apps and will be merged::
 
-    >>> test = Rex('__main__', 'rex.forms_demo', forms_implementation={'form': 'rex.forms_demo.OtherDemoForm'})
+    >>> test = Rex('__main__', 'rex.forms_demo', forms_implementation={'form': 'rex.forms_demo.interface.OtherDemoForm'})
     >>> test.on()
     >>> get_settings().forms_implementation
-    Record(form=rex.forms_demo.OtherDemoForm, draftform=rex.forms_demo.DemoDraftForm)
+    Record(form=rex.forms_demo.interface.OtherDemoForm, draftform=rex.forms_demo.interface.DemoDraftForm)
     >>> Form.get_implementation()
-    rex.forms_demo.OtherDemoForm
+    rex.forms_demo.interface.OtherDemoForm
     >>> DraftForm.get_implementation()
-    rex.forms_demo.DemoDraftForm
+    rex.forms_demo.interface.DemoDraftForm
     >>> test.off()
 
 

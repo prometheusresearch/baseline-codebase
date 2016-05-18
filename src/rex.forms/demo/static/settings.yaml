@@ -1,6 +1,6 @@
 forms_implementation:
-  form: rex.forms_demo.DemoForm
-  draftform: rex.forms_demo.DemoDraftForm
+  form: rex.forms_demo.interface.DemoForm
+  draftform: rex.forms_demo.interface.DemoDraftForm
 
 forms_presentation_adaptors:
   chan135:
@@ -16,4 +16,9 @@ htsql_extensions:
 
 mount:
   rex.forms: /
+
+i18n_supported_locales:
+  - en
+  - es
+  - ar
 

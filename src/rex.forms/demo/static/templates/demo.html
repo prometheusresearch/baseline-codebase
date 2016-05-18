@@ -1,0 +1,17 @@
+{% extends "rex.forms_demo:/templates/base.html" %}
+
+{% block body %}
+<script type="text/javascript">
+    RexFormsDemo.renderDemo(
+        {
+            demo: {{ demo|json }},
+            mountPoint: {{ MOUNT['rex.forms_demo']|json }},
+            lookupApiUrl: '{{ MOUNT['rex.forms'] }}/lookup',
+            initialLocale: '{{ CURRENT_LOCALE }}',
+            availableLocales: {{ SUPPORTED_LOCALES|list|json }}
+        },
+        document.getElementById('main')
+    );
+</script>
+{% endblock %}
+

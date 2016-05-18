@@ -5,6 +5,12 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+1.6.0 (2016-xx-xx)
+==================
+
+* Fixed issue with display of non-text/non-numeric calculations results.
+
+
 1.5.0 (2016-04-22)
 ==================
 

@@ -23,10 +23,17 @@ var CalculationResults = React.createClass({
           <table>
             <tbody>
               {keys.sort().map((key) => {
+                var value = this.props.results[key];
+                if (value === null) {
+                  value = 'null';
+                } else {
+                  value = value.toString();
+                }
+
                 return (
                   <tr key={key}>
                     <td className="calcname">{key}</td>
-                    <td className="calcvalue">{this.props.results[key]}</td>
+                    <td className="calcvalue">{value}</td>
                   </tr>
                 );
               })}

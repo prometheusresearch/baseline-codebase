@@ -1,0 +1,37 @@
+id: urn:localization
+version: '1.0'
+title: Localization
+record:
+  - id: q1
+    type: text
+  - id: q2
+    type: text
+  - id: q3
+    type: integer
+  - id: q4
+    type:
+      base: enumeration
+      enumerations:
+        red:
+        blue:
+        green:
+  - id: q5
+    type:
+      base: matrix
+      rows:
+        - id: row1
+        - id: row2
+      columns:
+        - id: col1
+          type: text
+        - id: col2
+          type: integer
+  - id: q6
+    type:
+      base: recordList
+      record:
+        - id: subfield1
+          type: text
+        - id: subfield2
+          type: integer
+

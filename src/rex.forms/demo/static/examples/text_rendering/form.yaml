@@ -1,0 +1,158 @@
+instrument:
+  id: urn:text-rendering
+  version: '1.0'
+defaultLocalization: en
+title:
+  en: An Exercise in Various Text Rendering Options
+parameters:
+  a_string:
+    type: text
+  a_number:
+    type: numeric
+  a_boolean:
+    type: boolean
+pages:
+  - id: questions
+    elements:
+      - type: header
+        options:
+          text:
+            en: Question Text, Help, and Errors
+      - type: question
+        options:
+          fieldId: q1
+          text:
+            en: This question has help text.
+          help:
+            en: This is helpful text.
+      - type: question
+        options:
+          fieldId: q2
+          text:
+            en: This question has error text.
+          error:
+            en: You done messed up now.
+      - type: question
+        options:
+          fieldId: q3
+          text:
+            en: This question has both help and error text.
+          help:
+            en: You should enter an integer (like <<Parameter a_number>>).
+          error:
+            en: You done messed up now.
+      - type: question
+        options:
+          fieldId: q4
+          text:
+            en: This question has both **help** and **error** text the contains //markup//.
+          help:
+            en: This is **//helpful text//**.
+          error:
+            en: You done **messed up** now.
+      - type: question
+        options:
+          fieldId: q5
+          text:
+            en: It's <<Parameter a_boolean>>, enumeration choices can have markup and help, as well.
+          enumerations:
+            - id: foo
+              text:
+                en: The //Foo// Description
+            - id: bar
+              text:
+                en: A Bar
+              help:
+                en: This is helpful text.
+            - id: baz
+              text:
+                en: Some **Bazzy** Thing
+              help:
+                en: This is **more** //helpful// text.
+      - type: question
+        options:
+          fieldId: q6
+          text:
+            en: Matrix rows can have help text, and columns can have help and error text.
+          rows:
+            - id: row1
+              text:
+                en: First Row
+              help:
+                en: Some helpful **hints**.
+            - id: row2
+              text:
+                en: Second Row
+          questions:
+            - fieldId: col1
+              text:
+                en: Enter some text.
+              help:
+                en: Any text will do.
+            - fieldId: col2
+              text:
+                en: Pick a number.
+              error:
+                en: You //keep// doing things wrong.
+
+  - id: non_questions
+    elements:
+      - type: header
+        options:
+          text:
+            en: '[[http://www.google.com|Headers]] Can Have //Markup//'
+      - type: text
+        options:
+          text:
+            en: The a_string parameter contains "<<Parameter a_string>>"
+      - type: divider
+      - type: text
+        options:
+          text:
+            en: |
+              [[http://en.wikipedia.org/wiki/Lorem_ipsum|Lorem ipsum]] dolor
+              sit amet, consectetur adipiscing elit.  Donec dignissim felis
+              lectus, at aliquam tortor vulputate nec. Nullam dui dui, rutrum
+              ut enim quis, fringilla rutrum nulla. Proin sem odio, posuere ac
+              sodales at, fermentum ut nunc. Nam sodales mi quis felis accumsan
+              egestas. Etiam in turpis non lacus posuere interdum. Vivamus ut
+              enim lobortis, congue sapien in, egestas metus. Vestibulum id
+              arcu non tellus convallis suscipit nec quis risus. Cras ornare
+              ornare mattis. Phasellus malesuada purus elit, eget cursus orci
+              dictum at. Vivamus vitae euismod risus.
+
+              # Phasellus vehicula sem massa, nec molestie dolor tristique et.
+              # Praesent nec tempor justo, ac dapibus justo.
+              ## Morbi sollicitudin viverra hendrerit.
+
+              Pellentesque euismod facilisis leo at tempus.  **Mauris a ipsum
+              tempor**, porta tellus vel, ultrices velit.  Nulla facilisi.
+              Quisque id facilisis ante, ac egestas urna.  Nullam pretium
+              sagittis nunc eu congue. Proin quis arcu eget tortor bibendum
+              semper. Sed sit amet cursus risus. Morbi dignissim neque nec
+              viverra laoreet. Duis ultrices lorem sit amet risus egestas, eget
+              sagittis eros suscipit. //**Vestibulum**// sed orci eget dui
+              rhoncus vestibulum sed placerat ante. Vivamus ornare elit non
+              ligula vehicula dictum consequat vitae nisl. Cras sagittis
+              iaculis eros, lobortis consequat nulla mollis id.  Suspendisse
+              semper lectus posuere vehicula pulvinar. Vivamus quis convallis
+              sapien, in iaculis mi. //Fusce lobortis//, ipsum sit amet
+              consectetur semper, purus magna ultrices risus, et malesuada nisi
+              ipsum rutrum libero.
+
+              * Donec semper elit a ligula egestas, at congue ante euismod.
+              * Nam facilisis quam elementum, congue enim et, scelerisque arcu.
+              ** Morbi a luctus tortor.
+              * Pellentesque pellentesque, risus in tincidunt elementum, felis ipsum euismod sapien, eget vestibulum sapien massa ut turpis.
+
+              ===Sed lacus lectus, scelerisque ut turpis at, tincidunt vehicula massa.===
+
+              Vivamus adipiscing nec tortor id posuere. Quisque et lectus non
+              dolor porta iaculis. Proin pellentesque mattis dictum. Nam ac
+              nisl arcu. Nunc felis elit, dictum vel massa sed, viverra ornare
+              diam.
+
+              |=Header1 |=Header2 |
+              |this     |is       |
+              |a        |table    |
+

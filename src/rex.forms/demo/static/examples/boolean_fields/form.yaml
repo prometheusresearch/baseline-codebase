@@ -1,0 +1,170 @@
+instrument:
+  id: urn:boolean-fields
+  version: '1.0'
+defaultLocalization: en
+pages:
+  - id: page1
+    elements:
+      - type: header
+        options:
+          text:
+            en: Constraints
+      - type: question
+        options:
+          fieldId: plain
+          text:
+            en: No constraints.
+      - type: question
+        options:
+          fieldId: required
+          text:
+            en: This is required.
+
+  - id: page2
+    elements:
+      - type: header
+        options:
+          text:
+            en: Widget Configurations
+      - type: question
+        options:
+          fieldId: q1
+          text:
+            en: Default widget.
+      - type: question
+        options:
+          fieldId: q2
+          text:
+            en: Radio group.
+          widget:
+            type: radioGroup
+      - type: question
+        options:
+          fieldId: q3
+          text:
+            en: Radio group w/ autoHotkeys.
+          widget:
+            type: radioGroup
+            options:
+              autoHotkeys: true
+      - type: question
+        options:
+          fieldId: q4
+          text:
+            en: Radio group w/ one hotkey.
+          widget:
+            type: radioGroup
+            options:
+              hotkeys:
+                'true': '3'
+      - type: question
+        options:
+          fieldId: q5
+          text:
+            en: Radio group w/ hotkeys.
+          widget:
+            type: radioGroup
+            options:
+              hotkeys:
+                'true': '3'
+                'false': '6'
+      - type: question
+        options:
+          fieldId: q6
+          text:
+            en: Radio group w/ hotkeys and autoHotkeys.
+          widget:
+            type: radioGroup
+            options:
+              hotkeys:
+                'true': '3'
+                'false': '6'
+              autoHotkeys: true
+      - type: question
+        options:
+          fieldId: q7
+          text:
+            en: Radio group (horizontal).
+          widget:
+            type: radioGroup
+            options:
+              orientation: horizontal
+      - type: question
+        options:
+          fieldId: q8
+          text:
+            en: Radio group (vertical).
+          widget:
+            type: radioGroup
+            options:
+              orientation: vertical
+      - type: question
+        options:
+          fieldId: q9
+          text:
+            en: Radio group w/ hotkeys and horizontal.
+          widget:
+            type: radioGroup
+            options:
+              hotkeys:
+                'true': '3'
+                'false': '6'
+              orientation: horizontal
+
+  - id: page3
+    elements:
+      - type: header
+        options:
+          text:
+            en: Explanations/Annotations
+      - type: question
+        options:
+          fieldId: explanation_opt
+          text:
+            en: Optional explanation.
+      - type: question
+        options:
+          fieldId: required_explanation_opt
+          text:
+            en: This is required, with optional explanation.
+      - type: question
+        options:
+          fieldId: explanation_req
+          text:
+            en: Required explanation.
+      - type: question
+        options:
+          fieldId: required_explanation_req
+          text:
+            en: This is required, with required explanation.
+      - type: question
+        options:
+          fieldId: annotation_opt
+          text:
+            en: Optional annotation.
+      - type: question
+        options:
+          fieldId: annotation_req
+          text:
+            en: Required annotation.
+      - type: question
+        options:
+          fieldId: exp_opt_ann_opt
+          text:
+            en: Optional explanation, optional annotation.
+      - type: question
+        options:
+          fieldId: exp_req_ann_opt
+          text:
+            en: Required explanation, optional annotation.
+      - type: question
+        options:
+          fieldId: exp_opt_ann_req
+          text:
+            en: Optional explanation, required annotation.
+      - type: question
+        options:
+          fieldId: exp_req_ann_req
+          text:
+            en: Required explanation, required annotation.
+

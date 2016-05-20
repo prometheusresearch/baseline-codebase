@@ -1,0 +1,229 @@
+instrument:
+  id: urn:events
+  version: '1.0'
+defaultLocalization: en
+pages:
+  - id: page1
+    elements:
+      - type: question
+        options:
+          fieldId: single
+          text:
+            en: 'Do the following to the next Question:'
+          enumerations:
+            - id: hidden
+              text:
+                en: Hide
+            - id: disabled
+              text:
+                en: Disable
+            - id: failed
+              text:
+                en: Fail
+          events:
+            - trigger: single=='hidden'
+              action: hide
+              targets:
+                - single_target
+            - trigger: single=='disabled'
+              action: disable
+              targets:
+                - single_target
+            - trigger: single=='failed'
+              action: fail
+              targets:
+                - single_target
+              options:
+                text:
+                  en: This has been forcefully failed.
+      - type: question
+        options:
+          fieldId: single_target
+          text:
+            en: A Question
+
+      - type: divider
+
+      - type: question
+        options:
+          fieldId: tagged
+          text:
+            en: 'Do the following to next three Elements:'
+          enumerations:
+            - id: hidden
+              text:
+                en: Hide
+            - id: disabled
+              text:
+                en: Disable
+            - id: failed
+              text:
+                en: Fail
+          events:
+            - trigger: tagged=='hidden'
+              action: hide
+              targets:
+                - group1
+            - trigger: tagged=='disabled'
+              action: disable
+              targets:
+                - group1
+            - trigger: tagged=='failed'
+              action: fail
+              targets:
+                - group1
+              options:
+                text:
+                  en: This has been forcefully failed.
+
+      - type: header
+        options:
+          text:
+            en: This is a Header
+        tags:
+          - group1
+      - type: text
+        options:
+          text:
+            en: This is a Text Block
+        tags:
+          - group1
+      - type: question
+        options:
+          fieldId: tagged_target
+          text:
+            en: Question 4
+        tags:
+          - group1
+
+      - type: divider
+        tags:
+          - group1
+
+      - type: question
+        options:
+          fieldId: page
+          text:
+            en: 'Do the following to next Page:'
+          enumerations:
+            - id: hidden
+              text:
+                en: Hide
+            - id: disabled
+              text:
+                en: Disable
+            - id: failed
+              text:
+                en: Fail
+          events:
+            - trigger: page=='hidden'
+              action: hide
+              targets:
+                - page2
+            - trigger: page=='disabled'
+              action: disable
+              targets:
+                - page2
+            - trigger: page=='failed'
+              action: fail
+              targets:
+                - page2
+              options:
+                text:
+                  en: This has been forcefully failed.
+
+  - id: page2
+    elements:
+      - type: header
+        options:
+          text:
+            en: This is a Header
+      - type: text
+        options:
+          text:
+            en: This is a Text block
+      - type: question
+        options:
+          fieldId: page_target
+          text:
+            en: This is a Question
+
+  - id: page3
+    elements:
+      - type: question
+        options:
+          fieldId: hideenum_single
+          text:
+            en: 'Hide this Choice in the next Question:'
+          events:
+            - trigger: hideenum_single=='red'
+              action: hideEnumeration
+              targets:
+                - hideenum_single_target
+              options:
+                enumerations:
+                  - red
+            - trigger: hideenum_single=='blue'
+              action: hideEnumeration
+              targets:
+                - hideenum_single_target
+              options:
+                enumerations:
+                  - blue
+            - trigger: hideenum_single=='green'
+              action: hideEnumeration
+              targets:
+                - hideenum_single_target
+              options:
+                enumerations:
+                  - green
+      - type: question
+        options:
+          fieldId: hideenum_single_target
+          text:
+            en: An Enumeration Question
+
+      - type: divider
+
+      - type: question
+        options:
+          fieldId: hideenum_tagged
+          text:
+            en: 'Hide these Choices in the next two Questions:'
+          events:
+            - trigger: hideenum_tagged.red==true()
+              action: hideEnumeration
+              targets:
+                - group2
+              options:
+                enumerations:
+                  - red
+            - trigger: hideenum_tagged.blue==true()
+              action: hideEnumeration
+              targets:
+                - group2
+              options:
+                enumerations:
+                  - blue
+            - trigger: hideenum_tagged.green==true()
+              action: hideEnumeration
+              targets:
+                - group2
+              options:
+                enumerations:
+                  - green
+      - type: question
+        options:
+          fieldId: hideenum_tagged_target1
+          text:
+            en: An Enumeration Question
+        tags:
+          - group2
+      - type: question
+        options:
+          fieldId: hideenum_tagged_target2
+          text:
+            en: An EnumerationSet Question
+        tags:
+          - group2
+

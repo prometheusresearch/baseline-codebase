@@ -13,7 +13,10 @@ from webob.exc import HTTPNotFound
 
 from rex.core import StrVal, MapVal, AnyVal
 from rex.instrument import Instrument, InstrumentVersion, Assessment, \
-    Subject, CalculationSet, InstrumentError
+    Subject, CalculationSet, InstrumentError, \
+    ValidationError as InstrumentValidationError
+from rex.forms import PresentationAdaptor, Form, \
+    ValidationError as FormValidationError
 from rex.web import Command, Parameter, render_to_response
 
 
@@ -44,7 +47,8 @@ def get_demos(directory, demo_id=None):
 
         demo['instrument'] = load_config_file(path, 'instrument')
         demo['form'] = load_config_file(path, 'form')
-        demo['calculationset'] = load_config_file(path, 'calculationset')
+        if not demo['instrument'] or not demo['form']:
+            continue
 
         if 'title' in demo['form']:
             demo['title'] = demo['form']['title'][
@@ -53,9 +57,33 @@ def get_demos(directory, demo_id=None):
         else:
             demo['title'] = demo['instrument']['title']
 
+        demo['parameters'] = load_config_file(path, 'parameters') or {}
+
+        demo['calculationset'] = load_config_file(path, 'calculationset')
         calc_mod_path = os.path.join(path, 'calculationset.py')
         demo['calculation_module'] = calc_mod_path \
             if os.path.exists(calc_mod_path) else None
+
+        demo['validation_errors'] = None
+        try:
+            InstrumentVersion.validate_definition(demo['instrument'])
+            Form.validate_configuration(
+                demo['form'],
+                instrument_definition=demo['instrument'],
+            )
+            if demo['calculationset']:
+                CalculationSet.validate_definition(
+                    demo['calculationset'],
+                    instrument_definition=demo['instrument'],
+                )
+        except (InstrumentValidationError, FormValidationError) as exc:
+            demo['validation_errors'] = str(exc)
+        else:
+            demo['form'] = PresentationAdaptor.adapt_form(
+                'demoapp',
+                demo['instrument'],
+                demo['form'],
+            )
 
         demos[demo['id']] = demo
 
@@ -163,7 +191,7 @@ class CalculationCommand(BaseCommand):
             globals()[demo['id']] = module
         try:
             results = calculationset.execute(assessment)
-        except IntrumentError as exc:
+        except InstrumentError as exc:
             return Response(json={
                 'results': {
                     'ERR': unicode(exc),

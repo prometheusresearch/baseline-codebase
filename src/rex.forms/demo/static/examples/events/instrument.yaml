@@ -1,0 +1,51 @@
+id: urn:events
+version: '1.0'
+title: Form Events
+types:
+  action_enum:
+    base: enumeration
+    enumerations:
+      hidden:
+      disabled:
+      failed:
+  basic_enum:
+    base: enumeration
+    enumerations:
+      red:
+      blue:
+      green:
+  basic_enumset:
+    base: enumerationSet
+    enumerations:
+      red:
+      blue:
+      green:
+record:
+  - id: single
+    type: action_enum
+  - id: single_target
+    type: text
+    explanation: optional
+    annotation: optional
+
+  - id: tagged
+    type: action_enum
+  - id: tagged_target
+    type: basic_enum
+
+  - id: page
+    type: action_enum
+  - id: page_target
+    type: integer
+
+  - id: hideenum_single
+    type: basic_enum
+  - id: hideenum_single_target
+    type: basic_enum
+  - id: hideenum_tagged
+    type: basic_enumset
+  - id: hideenum_tagged_target1
+    type: basic_enum
+  - id: hideenum_tagged_target2
+    type: basic_enumset
+

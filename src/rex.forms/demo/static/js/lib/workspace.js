@@ -90,6 +90,7 @@ var Workspace = React.createClass({
             ref='form'
             instrument={this.props.demo.instrument}
             form={this.props.demo.form}
+            parameters={this.props.demo.parameters}
             locale={this.props.options.locale}
             showOverviewOnCompletion={showOverviewOnCompletion}
             showOverview={showOverview}

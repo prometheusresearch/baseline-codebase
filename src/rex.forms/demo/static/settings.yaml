@@ -7,6 +7,8 @@ forms_presentation_adaptors:
     - demo
   lookupchannel:
     - lookup
+  demoapp:
+    - lookup
 
 db: pgsql:forms_demo
 
@@ -16,6 +18,9 @@ htsql_extensions:
 
 mount:
   rex.forms: /
+
+access:
+  rex.forms: anybody
 
 i18n_supported_locales:
   - en

@@ -28,8 +28,11 @@ var Menu = React.createClass({
     }).map((id) => {
       var demo = this.props.demos[id];
       return (
-        <li key={demo.id}>
+        <li className='rfd-MenuItem' key={demo.id}>
           <a href={this.props.mountPoint + '/demo/' + demo.id}>{demo.title}</a>
+          {demo.validation_errors &&
+            <span className='rfd-MenuItem__invalid' title={demo.validation_errors}>INVALID</span>
+          }
         </li>
       );
     });

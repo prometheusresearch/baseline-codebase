@@ -1,0 +1,159 @@
+instrument:
+  id: urn:matrix-fields
+  version: '1.0'
+defaultLocalization: en
+pages:
+  - id: page1
+    elements:
+      - type: header
+        options:
+          text:
+            en: Constraints
+      - type: question
+        options:
+          fieldId: plain
+          text:
+            en: No constraints.
+          rows: &rows
+            - id: row2
+              text:
+                en: The "Second" Row
+            - id: row1
+              text:
+                en: Row1
+          questions: &questions
+            - fieldId: col1
+              text:
+                en: The first column
+            - fieldId: col2
+              text:
+                en: Another column
+      - type: question
+        options:
+          fieldId: required
+          text:
+            en: This is required.
+          rows: *rows
+          questions: *questions
+      - type: question
+        options:
+          fieldId: row_required
+          text:
+            en: One row is required to be populated.
+          rows: *rows
+          questions: *questions
+      - type: question
+        options:
+          fieldId: column_required
+          text:
+            en: One column is required to be populated.
+          rows: *rows
+          questions: *questions
+      - type: question
+        options:
+          fieldId: both_required
+          text:
+            en: A row and a column are required.
+          rows: *rows
+          questions: *questions
+
+  - id: page2
+    elements:
+      - type: header
+        options:
+          text:
+            en: Widget Configurations
+      - type: question
+        options:
+          fieldId: q1
+          text:
+            en: Default widget.
+          rows: *rows
+          questions: *questions
+      - type: question
+        options:
+          fieldId: q2
+          text:
+            en: Default display.
+          rows: *rows
+          questions: *questions
+          widget:
+            type: matrix
+
+  - id: page3
+    elements:
+      - type: header
+        options:
+          text:
+            en: Explanations/Annotations
+      - type: question
+        options:
+          fieldId: explanation_opt
+          text:
+            en: Optional explanation.
+          rows: *rows
+          questions: *questions
+      - type: question
+        options:
+          fieldId: required_explanation_opt
+          text:
+            en: This is required, with optional explanation.
+          rows: *rows
+          questions: *questions
+      - type: question
+        options:
+          fieldId: explanation_req
+          text:
+            en: Required explanation.
+          rows: *rows
+          questions: *questions
+      - type: question
+        options:
+          fieldId: required_explanation_req
+          text:
+            en: This is required, with required explanation.
+          rows: *rows
+          questions: *questions
+      - type: question
+        options:
+          fieldId: annotation_opt
+          text:
+            en: Optional annotation.
+          rows: *rows
+          questions: *questions
+      - type: question
+        options:
+          fieldId: annotation_req
+          text:
+            en: Required annotation.
+          rows: *rows
+          questions: *questions
+      - type: question
+        options:
+          fieldId: exp_opt_ann_opt
+          text:
+            en: Optional explanation, optional annotation.
+          rows: *rows
+          questions: *questions
+      - type: question
+        options:
+          fieldId: exp_req_ann_opt
+          text:
+            en: Required explanation, optional annotation.
+          rows: *rows
+          questions: *questions
+      - type: question
+        options:
+          fieldId: exp_opt_ann_req
+          text:
+            en: Optional explanation, required annotation.
+          rows: *rows
+          questions: *questions
+      - type: question
+        options:
+          fieldId: exp_req_ann_req
+          text:
+            en: Required explanation, required annotation.
+          rows: *rows
+          questions: *questions
+

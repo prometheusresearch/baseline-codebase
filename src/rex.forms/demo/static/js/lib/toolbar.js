@@ -14,6 +14,7 @@ var Toolbar = React.createClass({
     initialLocale: React.PropTypes.string.isRequired,
     availableLocales: React.PropTypes.array.isRequired,
     mountPoint: React.PropTypes.string.isRequired,
+    demo: React.PropTypes.object.isRequired,
     onChange: React.PropTypes.func
   },
 
@@ -52,6 +53,13 @@ var Toolbar = React.createClass({
         <div className='rfd-Toolbar__return'>
           <a href={this.props.mountPoint + '/'}>← Go Back</a>
         </div>
+        {this.props.demo.validation_errors &&
+          <div className='rfd-Toolbar__invalid'>
+            <span title={this.props.demo.validation_errors}>
+              INVALID CONFIGURATION
+            </span>
+          </div>
+        }
         <div className='rfd-Toolbar__options'>
           <div>
             <label

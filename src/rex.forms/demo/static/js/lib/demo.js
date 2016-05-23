@@ -37,6 +37,7 @@ var Demo = React.createClass({
           onChange={this.onChangeOptions}
           initialLocale={this.props.initialLocale}
           availableLocales={this.props.availableLocales}
+          demo={this.props.demo}
           />
         <Workspace
           mountPoint={this.props.mountPoint}

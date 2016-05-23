@@ -44,8 +44,37 @@ record:
     type: basic_enum
   - id: hideenum_tagged
     type: basic_enumset
+  - id: disableenum_tagged
+    type: basic_enumset
   - id: hideenum_tagged_target1
     type: basic_enum
   - id: hideenum_tagged_target2
     type: basic_enumset
+
+  - id: matrix_cell
+    type: action_enum
+  - id: matrix_target
+    type:
+      base: matrix
+      rows:
+        - id: row1
+        - id: row2
+      columns:
+        - id: col1
+          type: text
+        - id: col2
+          type: text
+
+  - id: recordlist_subfield
+    type: action_enum
+  - id: recordlist_target
+    type:
+      base: recordList
+      record:
+        - id: subfield1
+          type: integer
+        - id: subfield2
+          type: text
+        - id: subfield3
+          type: basic_enum
 

@@ -189,7 +189,7 @@ pages:
         options:
           fieldId: hideenum_tagged
           text:
-            en: 'Hide these Choices in the next two Questions:'
+            en: 'Hide these Choices in the next Target Questions:'
           events:
             - trigger: hideenum_tagged.red==true()
               action: hideEnumeration
@@ -214,16 +214,171 @@ pages:
                   - green
       - type: question
         options:
+          fieldId: disableenum_tagged
+          text:
+            en: 'Disable the next Target Questions by selecting two or more choices here:'
+          events:
+            - trigger: length(disableenum_tagged)>1
+              action: disable
+              targets:
+                - hideenum_tagged_target1
+                - hideenum_tagged_target2
+      - type: question
+        options:
           fieldId: hideenum_tagged_target1
           text:
-            en: An Enumeration Question
+            en: Target Enumeration Question
         tags:
           - group2
       - type: question
         options:
           fieldId: hideenum_tagged_target2
           text:
-            en: An EnumerationSet Question
+            en: Target EnumerationSet Question
         tags:
           - group2
+
+  - id: page4
+    elements:
+      - type: question
+        options:
+          fieldId: matrix_cell
+          text:
+            en: 'Do the following to the first cell in the Matrix Question:'
+          enumerations:
+            - id: hidden
+              text:
+                en: Hide
+            - id: disabled
+              text:
+                en: Disable
+            - id: failed
+              text:
+                en: Fail
+          events:
+            - trigger: matrix_cell=='hidden'
+              action: hide
+              targets:
+                - matrix_target.row1.col1
+            - trigger: matrix_cell=='disabled'
+              action: disable
+              targets:
+                - matrix_target.row1.col1
+            - trigger: matrix_cell=='failed'
+              action: fail
+              targets:
+                - matrix_target.row1.col1
+              options:
+                text:
+                  en: This has been forcefully failed.
+      - type: question
+        options:
+          fieldId: matrix_target
+          text:
+            en: Target Matrix
+          rows:
+            - id: row1
+              text:
+                en: Row 1
+            - id: row2
+              text:
+                en: Row 2
+          questions:
+            - fieldId: col1
+              text:
+                en: Column 1
+              events:
+                - trigger: matrix_target.row1.col2=='foo'|matrix_target.row2.col2=='foo'
+                  action: disable
+            - fieldId: col2
+              text:
+                en: Column 2
+              help:
+                en: If you type "hello" in this column, you'll see a nice message.
+              events:
+                - trigger: "!(matrix_target.row1.col2=='hello'|matrix_target.row2.col2=='hello')"
+                  action: hide
+                  targets:
+                    - hello
+      - type: text
+        options:
+          text:
+            en: Hello to you too!
+        tags:
+          - hello
+
+  - id: page5
+    elements:
+      - type: question
+        options:
+          fieldId: recordlist_subfield
+          text:
+            en: 'Do the following to the first subfield in the RecordList Question:'
+          enumerations:
+            - id: hidden
+              text:
+                en: Hide
+            - id: disabled
+              text:
+                en: Disable
+            - id: failed
+              text:
+                en: Fail
+          events:
+            - trigger: recordlist_subfield=='hidden'
+              action: hide
+              targets:
+                - recordlist_target.subfield1
+            - trigger: recordlist_subfield=='disabled'
+              action: disable
+              targets:
+                - recordlist_target.subfield1
+            - trigger: recordlist_subfield=='failed'
+              action: fail
+              targets:
+                - recordlist_target.subfield1
+              options:
+                text:
+                  en: This has been forcefully failed.
+      - type: question
+        options:
+          fieldId: recordlist_target
+          text:
+            en: Target RecordList
+          questions:
+            - fieldId: subfield1
+              text:
+                en: Subfield 1
+              events:
+                - trigger: subfield1>5
+                  action: disable
+                  targets:
+                    - subfield2
+            - fieldId: subfield2
+              text:
+                en: Subfield 2
+            - fieldId: subfield3
+              text:
+                en: Subfield 3
+          events:
+            - trigger: length(recordlist_target.subfield1)<=1
+              action: hide
+              targets:
+                - length_rl
+            - trigger: "!exists(recordlist_target.subfield3='red')"
+              action: hide
+              targets:
+                - red_rl
+      - type: text
+        options:
+          text:
+            en: There are more than one records in the Target RecordList
+        tags:
+          - length_rl
+      - type: text
+        options:
+          text:
+            en: At least one record chose "red".
+        tags:
+          - red_rl
 

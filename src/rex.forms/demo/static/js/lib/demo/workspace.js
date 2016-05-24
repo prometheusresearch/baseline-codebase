@@ -8,7 +8,7 @@ var React = require('react');
 var {Form} = require('rex-forms');
 var RexI18N = require('rex-i18n');
 
-var AssessmentViewer = require('./assessmentviewer');
+var JsonViewer = require('../jsonviewer');
 var {MODE_EDITOR, MODE_REVIEWER, MODE_VIEWER} = require('./constants');
 
 
@@ -105,8 +105,8 @@ var Workspace = React.createClass({
             />
         </div>
         {this.props.options.showAssessment &&
-          <AssessmentViewer
-            assessment={this.state.assessment}
+          <JsonViewer
+            object={this.state.assessment}
             isValid={this.state.isValid}
             />
         }

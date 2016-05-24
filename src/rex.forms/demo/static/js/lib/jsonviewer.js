@@ -7,22 +7,22 @@
 var React = require('react');
 
 
-var AssessmentViewer = React.createClass({
+var JsonViewer = React.createClass({
   propTypes: {
-    assessment: React.PropTypes.object.isRequired,
+    object: React.PropTypes.object.isRequired,
     isValid: React.PropTypes.bool.isRequired
   },
 
   render: function () {
-    var classes = 'rfd-AssessmentViewer';
+    var classes = 'rfd-JsonViewer';
     if (!this.props.isValid) {
-      classes += ' rfd-AssessmentViewer--invalid';
+      classes += ' rfd-JsonViewer--invalid';
     }
 
     return (
       <div className={classes}>
         <p>
-          {JSON.stringify(this.props.assessment, null, 2)}
+          {JSON.stringify(this.props.object, null, 2)}
         </p>
       </div>
     );
@@ -30,5 +30,5 @@ var AssessmentViewer = React.createClass({
 });
 
 
-module.exports = AssessmentViewer;
+module.exports = JsonViewer;
 

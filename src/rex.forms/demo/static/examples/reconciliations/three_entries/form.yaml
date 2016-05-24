@@ -1,0 +1,33 @@
+instrument:
+  id: urn:three
+  version: '1.0'
+defaultLocalization: en
+pages:
+  - id: page1
+    elements:
+      - type: question
+        options:
+          fieldId: foo
+          text:
+            en: This is a Text Question
+      - type: question
+        options:
+          fieldId: bar
+          text:
+            en: This is an Enumeration Question
+          enumerations:
+            - id: green
+              text:
+                en: Green
+            - id: red
+              text:
+                en: Red
+            - id: blue
+              text:
+                en: Blue
+      - type: question
+        options:
+          fieldId: baz
+          text:
+            en: This is a Boolean Question
+

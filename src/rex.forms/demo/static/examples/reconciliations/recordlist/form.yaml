@@ -1,0 +1,20 @@
+instrument:
+  id: urn:recordlist
+  version: '1.0'
+defaultLocalization: en
+pages:
+  - id: page1
+    elements:
+      - type: question
+        options:
+          fieldId: foo
+          text:
+            en: This is a RecordList Question
+          questions:
+            - fieldId: subfield1
+              text:
+                en: First Subfield
+            - fieldId: subfield2
+              text:
+                en: Second Subfield
+

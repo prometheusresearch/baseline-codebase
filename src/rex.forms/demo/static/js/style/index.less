@@ -5,6 +5,11 @@
 
 .rfd-Menu {
     margin: 20px;
+    display: flex;
+
+    .rfd-Menu-Demos, .rfd-Menu-Recons {
+        width: 50%;
+    }
 
     .rfd-MenuItem__invalid {
         color: red;
@@ -13,7 +18,7 @@
     }
 }
 
-.rfd-Demo {
+.rfd-Demo, .rfd-Recon {
     margin: 20px;
 }
 
@@ -47,11 +52,11 @@
 .rfd-Workspace {
     display: flex;
 
-    .rfd-Form {
+    .rfd-Form, .rfd-Reconciler {
         flex-grow: 1;
     }
 
-    .rfd-AssessmentViewer {
+    .rfd-JsonViewer {
         min-width: 15%;
         max-width: 25%;
         margin-left: 20px;
@@ -59,7 +64,7 @@
     }
 }
 
-.rfd-AssessmentViewer {
+.rfd-JsonViewer {
     .well();
 
     p {
@@ -69,7 +74,7 @@
 
     }
 
-    &.rfd-AssessmentViewer--invalid {
+    &.rfd-JsonViewer--invalid {
         p {
             color: red;
         }

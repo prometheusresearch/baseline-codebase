@@ -24,70 +24,11 @@ __all__ = (
     'MenuCommand',
     'DemoCommand',
     'CalculationCommand',
+    'ReconCommand',
 )
 
 
 # pylint: disable=abstract-method
-
-
-def get_demos(directory, demo_id=None):
-    demos = {}
-
-    for path in os.listdir(directory):
-        demo = {
-            'id': path,
-        }
-
-        if demo_id and path != demo_id:
-            continue
-
-        path = os.path.join(directory, path)
-        if not os.path.isdir(path):
-            continue
-
-        demo['instrument'] = load_config_file(path, 'instrument')
-        demo['form'] = load_config_file(path, 'form')
-        if not demo['instrument'] or not demo['form']:
-            continue
-
-        if 'title' in demo['form']:
-            demo['title'] = demo['form']['title'][
-                demo['form']['defaultLocalization']
-            ]
-        else:
-            demo['title'] = demo['instrument']['title']
-
-        demo['parameters'] = load_config_file(path, 'parameters') or {}
-
-        demo['calculationset'] = load_config_file(path, 'calculationset')
-        calc_mod_path = os.path.join(path, 'calculationset.py')
-        demo['calculation_module'] = calc_mod_path \
-            if os.path.exists(calc_mod_path) else None
-
-        demo['validation_errors'] = None
-        try:
-            InstrumentVersion.validate_definition(demo['instrument'])
-            Form.validate_configuration(
-                demo['form'],
-                instrument_definition=demo['instrument'],
-            )
-            if demo['calculationset']:
-                CalculationSet.validate_definition(
-                    demo['calculationset'],
-                    instrument_definition=demo['instrument'],
-                )
-        except (InstrumentValidationError, FormValidationError) as exc:
-            demo['validation_errors'] = str(exc)
-        else:
-            demo['form'] = PresentationAdaptor.adapt_form(
-                'demoapp',
-                demo['instrument'],
-                demo['form'],
-            )
-
-        demos[demo['id']] = demo
-
-    return demos
 
 
 def load_config_file(directory, base_name):
@@ -103,6 +44,103 @@ def load_config_file(directory, base_name):
         return AnyVal().parse(config_file.read())
 
 
+def get_config(path):
+    cfg = {}
+
+    cfg['instrument'] = load_config_file(path, 'instrument')
+    cfg['form'] = load_config_file(path, 'form')
+    if not cfg['instrument'] or not cfg['form']:
+        return None
+
+    if 'title' in cfg['form']:
+        cfg['title'] = cfg['form']['title'][
+            cfg['form']['defaultLocalization']
+        ]
+    else:
+        cfg['title'] = cfg['instrument']['title']
+
+    cfg['validation_errors'] = None
+    try:
+        InstrumentVersion.validate_definition(cfg['instrument'])
+        Form.validate_configuration(
+            cfg['form'],
+            instrument_definition=cfg['instrument'],
+        )
+    except (InstrumentValidationError, FormValidationError) as exc:
+        cfg['validation_errors'] = str(exc)
+    else:
+        cfg['form'] = PresentationAdaptor.adapt_form(
+            'cfgapp',
+            cfg['instrument'],
+            cfg['form'],
+        )
+
+    cfg['parameters'] = load_config_file(path, 'parameters') or {}
+
+    return cfg
+
+
+def get_demos(directory, demo_id=None):
+    demos = {}
+
+    for path in os.listdir(directory):
+        if demo_id and path != demo_id:
+            continue
+
+        full_path = os.path.join(directory, path)
+        if not os.path.isdir(full_path):
+            continue
+
+        demo = get_config(full_path)
+        if demo is None:
+            continue
+        demo['id'] = path
+
+        demo['calculationset'] = load_config_file(path, 'calculationset')
+        calc_mod_path = os.path.join(path, 'calculationset.py')
+        demo['calculation_module'] = calc_mod_path \
+            if os.path.exists(calc_mod_path) else None
+
+        if not demo['validation_errors'] and demo['calculationset']:
+            try:
+                CalculationSet.validate_definition(
+                    demo['calculationset'],
+                    instrument_definition=demo['instrument'],
+                )
+            except InstrumentValidationError as exc:
+                demo['validation_errors'] = str(exc)
+
+        demos[demo['id']] = demo
+
+    return demos
+
+
+def get_recons(directory, recon_id=None):
+    recons = {}
+
+    for path in os.listdir(directory):
+        if recon_id and path != recon_id:
+            continue
+
+        full_path = os.path.join(directory, path)
+        if not os.path.isdir(full_path):
+            continue
+
+        recon = get_config(full_path)
+        if recon is None:
+            continue
+        recon['id'] = path
+
+        recon['discrepancies'] = load_config_file(full_path, 'discrepancies')
+        recon['entries'] = load_config_file(full_path, 'entries')
+        if not recon['discrepancies'] or not recon['entries']:
+            continue
+
+        recons[recon['id']] = recon
+
+    return recons
+
+
 class BaseCommand(Command):
     access = 'anybody'
 
@@ -114,7 +152,8 @@ class MenuCommand(BaseCommand):
         return render_to_response(
             'rex.forms_demo:/templates/menu.html',
             request,
-            demos=get_demos(self.package().abspath('examples')),
+            demos=get_demos(self.package().abspath('examples/forms')),
+            recons=get_recons(self.package().abspath('examples/reconciliations')),
         )
 
 
@@ -127,7 +166,7 @@ class DemoCommand(BaseCommand):
     def render(self, request, demo_id):
         # pylint: disable=arguments-differ
 
-        demos = get_demos(self.package().abspath('examples'), demo_id)
+        demos = get_demos(self.package().abspath('examples/forms'), demo_id)
         if not demos:
             raise HTTPNotFound()
 
@@ -148,7 +187,7 @@ class CalculationCommand(BaseCommand):
     def render(self, request, demo_id, data):
         # pylint: disable=arguments-differ,unused-argument
 
-        demos = get_demos(self.package().abspath('examples'), demo_id)
+        demos = get_demos(self.package().abspath('examples/forms'), demo_id)
         if not demos:
             raise HTTPNotFound()
         demo = demos[demo_id]
@@ -202,4 +241,27 @@ class CalculationCommand(BaseCommand):
                 del globals()[demo['id']]
 
         return Response(json={'results': results})
+
+
+class ReconCommand(BaseCommand):
+    path = '/recon/{recon_id}'
+    parameters = [
+        Parameter('recon_id', StrVal()),
+    ]
+
+    def render(self, request, recon_id):
+        # pylint: disable=arguments-differ
+
+        recons = get_recons(
+            self.package().abspath('examples/reconciliations'),
+            recon_id,
+        )
+        if not recons:
+            raise HTTPNotFound()
+
+        return render_to_response(
+            'rex.forms_demo:/templates/recon.html',
+            request,
+            recon=recons[recon_id],
+        )
 

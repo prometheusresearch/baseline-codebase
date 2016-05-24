@@ -5,6 +5,7 @@
     RexFormsDemo.renderMenu(
         {
             demos: {{ demos|json }},
+            recons: {{ recons|json }},
             mountPoint: {{ MOUNT['rex.forms_demo']|json }}
         },
         document.getElementById('main')

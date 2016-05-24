@@ -1,0 +1,16 @@
+id: urn:simple
+version: '1.0'
+title: Simple Example
+record:
+  - id: foo
+    type: text
+  - id: bar
+    type:
+      base: enumeration
+      enumerations:
+        red:
+        green:
+        blue:
+  - id: baz
+    type: boolean
+

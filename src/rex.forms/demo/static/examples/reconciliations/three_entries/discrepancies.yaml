@@ -1,0 +1,13 @@
+foo:
+  entry1: hello
+  entry2: goodbye
+  entry3: goodbye
+bar:
+  entry1: red
+  entry2: blue
+  entry3: green
+baz:
+  entry1: true
+  entry2: false
+  entry3: true
+

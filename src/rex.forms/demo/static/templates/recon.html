@@ -1,0 +1,16 @@
+{% extends "rex.forms_demo:/templates/base.html" %}
+
+{% block body %}
+<script type="text/javascript">
+    RexFormsDemo.renderRecon(
+        {
+            recon: {{ recon|json }},
+            mountPoint: {{ MOUNT['rex.forms_demo']|json }},
+            initialLocale: '{{ CURRENT_LOCALE }}',
+            availableLocales: {{ SUPPORTED_LOCALES|list|json }}
+        },
+        document.getElementById('main')
+    );
+</script>
+{% endblock %}
+

@@ -18,8 +18,6 @@ Make sure all the Commands are available::
     >>> for signature, impl in Command.mapped().items():
     ...     if signature.startswith('i18n'):
     ...         print '%s: %s' % (signature, impl)
-    i18n_cldr_common: rex.i18n.commands.GetLocaleCommonCommand
-    i18n_cldr_locale: rex.i18n.commands.GetLocaleDetailCommand
     i18n_switch_locale: rex.i18n.commands.SwitchLocaleCommand
     i18n_locales: rex.i18n.commands.GetActiveLocalesCommand
     i18n_translations: rex.i18n.commands.GetTranslationsCommand
@@ -112,62 +110,6 @@ a 400 error::
     >>> req = Request.blank('/translations/ar')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     400 Bad Request
-    ...
-
-
-GetLocaleCommon
-===============
-
-The GetLocaleCommon command will return a JSON array containing the common
-portions of the CLDR data used by all locales::
-
-    >>> req = Request.blank('/locale')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
-    200 OK
-    Content-type: application/json
-    Content-Length: ...
-    Set-Cookie: ...
-    <BLANKLINE>
-    ...
-
-
-GetLocaleDetail
-===============
-
-The GetLocaleDetail command will return a JSON array containing the
-locale-specific portions of the CLDR data::
-
-    >>> req = Request.blank('/locale/en')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
-    200 OK
-    Content-type: application/json
-    Content-Length: ...
-    Set-Cookie: ...
-    <BLANKLINE>
-    ...
-
-If you specify a locale that is not configured in the system, you will receive
-a 400 error::
-
-    >>> req = Request.blank('/locale/ar')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
-    400 Bad Request
-    ...
-
-If you specify a locale that *is* configured in the system, but does not have
-CLDR data available, you will receive the CLDR data for English::
-
-    >>> req = Request.blank('/locale/fil')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
-    200 OK
-    Content-type: application/json
-    Content-Length: ...
-    Last-Modified: ...
-    Set-Cookie: ...
-    <BLANKLINE>
-    [{
-      "main": {
-        "en": {
     ...
 
 

@@ -5,6 +5,13 @@ REX.I18N Change Log
 .. contents:: Table of Contents
 
 
+0.5.0 (2016-xx-xx)
+==================
+
+* Removed the embedded CLDR dataset.
+* Removed the ``/locale`` and ``/locale/{locale}`` web APIs.
+
+
 0.4.5 (2015-11-18)
 ==================
 

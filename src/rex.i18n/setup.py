@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.i18n',
-    version='0.4.5',
+    version='0.5.0',
     description='An Internationalization framework for rex.web applications.',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',
@@ -42,11 +42,5 @@ setup(
     ],
     rex_init='rex.i18n',
     rex_static='static',
-    rex_bundle={
-        './cldr': [
-            'http://unicode.org/Public/cldr/25/json.zip'
-            '#md5=b9c226b76393abe0715f0f6c1063d736',
-        ],
-    },
 )
 

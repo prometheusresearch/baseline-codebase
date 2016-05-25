@@ -34,7 +34,7 @@ setup(
         'rex.core>=1.9,<2',
         'rex.ctl>=2,<3',
         'rex.web>=3.1,<4',
-        'babel>=1,<2',
+        'babel>=2,<3',
         'speaklater>=1.3,<2',
         'pytz>=0a',
         'pyexecjs==1.1.0',

@@ -101,11 +101,11 @@ It takes one required argument indicating the locale to initialize, and one
 optional argument specifying the root path of the project::
 
     >>> ctl('i18n-init fr ./test/sandbox')
-    creating catalog './test/sandbox/static/i18n/fr/LC_MESSAGES/backend.po' based on './test/sandbox/static/i18n/backend.pot'
-    creating catalog './test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.po' based on './test/sandbox/static/i18n/frontend.pot'
+    creating catalog ./test/sandbox/static/i18n/fr/LC_MESSAGES/backend.po based on ./test/sandbox/static/i18n/backend.pot
+    creating catalog ./test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.po based on ./test/sandbox/static/i18n/frontend.pot
 
     >>> ctl('i18n-init es ./test/sandbox --domain=frontend')
-    creating catalog './test/sandbox/static/i18n/es/LC_MESSAGES/frontend.po' based on './test/sandbox/static/i18n/frontend.pot'
+    creating catalog ./test/sandbox/static/i18n/es/LC_MESSAGES/frontend.po based on ./test/sandbox/static/i18n/frontend.pot
 
 
 i18n-update
@@ -131,22 +131,22 @@ It takes one optional argument specifying the root path of the project::
 
     >>> output = Ctl('i18n-update ./test/sandbox').wait()
     >>> print '\n'.join([o for o in sorted(output.split('\n')) if o])
-    updating catalog './test/sandbox/static/i18n/es/LC_MESSAGES/frontend.po' based on './test/sandbox/static/i18n/frontend.pot'
-    updating catalog './test/sandbox/static/i18n/fr/LC_MESSAGES/backend.po' based on './test/sandbox/static/i18n/backend.pot'
-    updating catalog './test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.po' based on './test/sandbox/static/i18n/frontend.pot'
+    updating catalog ./test/sandbox/static/i18n/es/LC_MESSAGES/frontend.po based on ./test/sandbox/static/i18n/frontend.pot
+    updating catalog ./test/sandbox/static/i18n/fr/LC_MESSAGES/backend.po based on ./test/sandbox/static/i18n/backend.pot
+    updating catalog ./test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.po based on ./test/sandbox/static/i18n/frontend.pot
 
 
 It also accepts options indicating which locale and/or domain to update::
 
     >>> ctl('i18n-update ./test/sandbox --domain=backend')
-    updating catalog './test/sandbox/static/i18n/fr/LC_MESSAGES/backend.po' based on './test/sandbox/static/i18n/backend.pot'
+    updating catalog ./test/sandbox/static/i18n/fr/LC_MESSAGES/backend.po based on ./test/sandbox/static/i18n/backend.pot
 
     >>> ctl('i18n-update ./test/sandbox --locale=fr')
-    updating catalog './test/sandbox/static/i18n/fr/LC_MESSAGES/backend.po' based on './test/sandbox/static/i18n/backend.pot'
-    updating catalog './test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.po' based on './test/sandbox/static/i18n/frontend.pot'
+    updating catalog ./test/sandbox/static/i18n/fr/LC_MESSAGES/backend.po based on ./test/sandbox/static/i18n/backend.pot
+    updating catalog ./test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.po based on ./test/sandbox/static/i18n/frontend.pot
 
     >>> ctl('i18n-update ./test/sandbox --locale=fr --domain=frontend')
-    updating catalog './test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.po' based on './test/sandbox/static/i18n/frontend.pot'
+    updating catalog ./test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.po based on ./test/sandbox/static/i18n/frontend.pot
 
 
 i18n-compile
@@ -172,24 +172,24 @@ It takes one optional argument specifying the root path of the project::
 
     >>> output = Ctl('i18n-compile ./test/sandbox').wait()
     >>> print '\n'.join([o for o in sorted(output.split('\n')) if o])
-    compiling catalog './test/sandbox/static/i18n/es/LC_MESSAGES/frontend.po' to './test/sandbox/static/i18n/es/LC_MESSAGES/frontend.mo'
-    compiling catalog './test/sandbox/static/i18n/fr/LC_MESSAGES/backend.po' to './test/sandbox/static/i18n/fr/LC_MESSAGES/backend.mo'
-    compiling catalog './test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.po' to './test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.mo'
+    compiling catalog ./test/sandbox/static/i18n/es/LC_MESSAGES/frontend.po to ./test/sandbox/static/i18n/es/LC_MESSAGES/frontend.mo
+    compiling catalog ./test/sandbox/static/i18n/fr/LC_MESSAGES/backend.po to ./test/sandbox/static/i18n/fr/LC_MESSAGES/backend.mo
+    compiling catalog ./test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.po to ./test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.mo
 
 
 It also accepts options indicating which locale and/or domain to update::
 
     >>> ctl('i18n-compile ./test/sandbox --domain=backend')
-    compiling catalog './test/sandbox/static/i18n/fr/LC_MESSAGES/backend.po' to './test/sandbox/static/i18n/fr/LC_MESSAGES/backend.mo'
+    compiling catalog ./test/sandbox/static/i18n/fr/LC_MESSAGES/backend.po to ./test/sandbox/static/i18n/fr/LC_MESSAGES/backend.mo
 
     >>> ctl('i18n-compile ./test/sandbox --locale=fr')
-    compiling catalog './test/sandbox/static/i18n/fr/LC_MESSAGES/backend.po' to './test/sandbox/static/i18n/fr/LC_MESSAGES/backend.mo'
-    compiling catalog './test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.po' to './test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.mo'
+    compiling catalog ./test/sandbox/static/i18n/fr/LC_MESSAGES/backend.po to ./test/sandbox/static/i18n/fr/LC_MESSAGES/backend.mo
+    compiling catalog ./test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.po to ./test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.mo
 
     >>> ctl('i18n-compile ./test/sandbox --locale=es')
     There was a failure when trying to compile domain: backend
-    compiling catalog './test/sandbox/static/i18n/es/LC_MESSAGES/frontend.po' to './test/sandbox/static/i18n/es/LC_MESSAGES/frontend.mo'
+    compiling catalog ./test/sandbox/static/i18n/es/LC_MESSAGES/frontend.po to ./test/sandbox/static/i18n/es/LC_MESSAGES/frontend.mo
 
     >>> ctl('i18n-compile ./test/sandbox --locale=fr --domain=frontend')
-    compiling catalog './test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.po' to './test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.mo'
+    compiling catalog ./test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.po to ./test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.mo
 

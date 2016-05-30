@@ -30,7 +30,8 @@ def get_path(wizard):
 def action(table_name, type, **kwds):
     constructor = wizard_val if type == 'wizard' else action_val
     kwds['type'] = type
-    kwds['id'] = '%s-%s' % (type, table_name)
+    if 'id' not in kwds:
+        kwds['id'] = '%s-%s' % (type, table_name)
     if type != 'wizard':
         kwds['entity'] = table_name
     return constructor(kwds)
@@ -64,16 +65,15 @@ def record_wizard(table_name):
     edit = action(table_name, type='edit')
     return [(view, [(edit, '../../..' + replace(table_name))] + facets(table_name))]
 
-def fields(table_name, prefix, skip=[]):
+def fields(table_name, prefix='', skip=[]):
     skip_dict = dict([(f.label, True) for f in skip])
-    table = model().table(table_name)
+    schema = model()
+    table = schema.table(table_name)
     ret = []
-    print table
-    print table.schema
     for f in table.fields():
         if f.label in skip_dict:
             continue
-        ret.append(f.label)
+        ret.append(prefix + f.label)
     return ret
 
 def facets(table_name, skip_links_to=[]):
@@ -85,9 +85,11 @@ def facets(table_name, skip_links_to=[]):
         and identity[0].is_link \
         and identity[0].target_table.label == table_name:
             tables.append((table, identity[0]))
-    view_facet = lambda table, skip: action(table_name,
-        title='View %s' % table.title,
-        fields=fields(table_name, prefix=table_name, skip=[skip])
+    view_facet = lambda table, skip: action(table_name, 'view',
+        id='view-%s' % table.label,
+        title='View %s' % (table.title or table.label),
+        fields=fields(table.label, prefix=table.label + '.', skip=[skip])
     )
-    return [view_facet(t, s)
+    ret = [(view_facet(t, s), None)
             for t, s in sorted(tables, key=lambda x: x[0].title)]
+    return ret

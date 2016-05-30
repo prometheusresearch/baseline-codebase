@@ -2,13 +2,14 @@
 from rex.core import cached, OMapVal
 from rex.action.action import ActionVal
 from rex.action.wizard import Wizard
+from rex.deploy import model
 
 action_val = ActionVal()
 wizard_val = ActionVal(action_class=Wizard)
 
 @cached
 def get_wizard(table_name):
-    wizard = table(table_name)
+    wizard = table_wizard(table_name)
     flatten = lambda l: reduce(lambda a, b: a + flatten(b)
                                if isinstance(b, (list, tuple))
                                else a + [b], l, [])
@@ -34,10 +35,10 @@ def action(table_name, type, **kwds):
         kwds['entity'] = table_name
     return constructor(kwds)
 
-def table(table_name):
+def table_wizard(table_name):
     [(pick_action, _)] = pick(table_name)
     [(make_action, _)] = make(table_name)
-    return [(pick_action, record(table_name) + [
+    return [(pick_action, record_wizard(table_name) + [
         (make_action, '../..' + replace(table_name))
     ])]
 
@@ -57,8 +58,36 @@ def make(table_name):
         action(table_name, type='make'),
     None)]
 
-def record(table_name):
+def record_wizard(table_name):
     #TODO: generate fields replacing entity with links
     view = action(table_name, type='view')
     edit = action(table_name, type='edit')
-    return [(view, [(edit, '../../..' + replace(table_name))])]
+    return [(view, [(edit, '../../..' + replace(table_name))] + facets(table_name))]
+
+def fields(table_name, prefix, skip=[]):
+    skip_dict = dict([(f.label, True) for f in skip])
+    table = model().table(table_name)
+    ret = []
+    print table
+    print table.schema
+    for f in table.fields():
+        if f.label in skip_dict:
+            continue
+        ret.append(f.label)
+    return ret
+
+def facets(table_name, skip_links_to=[]):
+    schema = model()
+    tables = []
+    for table in schema.tables():
+        identity = table.identity().fields
+        if len(identity) == 1 \
+        and identity[0].is_link \
+        and identity[0].target_table.label == table_name:
+            tables.append((table, identity[0]))
+    view_facet = lambda table, skip: action(table_name,
+        title='View %s' % table.title,
+        fields=fields(table_name, prefix=table_name, skip=[skip])
+    )
+    return [view_facet(t, s)
+            for t, s in sorted(tables, key=lambda x: x[0].title)]

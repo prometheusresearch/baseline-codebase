@@ -423,12 +423,12 @@ Identity Conversion
 find records by incomplete identifier::
 
     >>> q = Query(''' /sample{id(), age, height, salary, birth, sleep}?text(id())~'.T' ''')
-    >>> print q.format('txt')                                       # doctest: +NORMALIZE_WHITESPACE
+    >>> print q.format('txt')                                       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
      | Assessment                                                |
      +-----------+-----+--------+--------+------------+----------+
      | id()      | Age | Height | Salary | Birth      | Sleep    |
     -+-----------+-----+--------+--------+------------+----------+-
-     | 1000.01.T |   0 |    0.0 |      0 | 2016-05-13 | 00:00:00 |
+     | 1000.01.T |   0 |    0.0 |      0 | .........  | 00:00:00 |
 
 ``rex.deploy`` correctly wraps nested identifier with parentheses::
 

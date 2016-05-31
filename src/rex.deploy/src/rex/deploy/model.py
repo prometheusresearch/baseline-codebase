@@ -412,6 +412,18 @@ class TableModel(Model):
         """
         return self.schema(self.image.primary_key)
 
+    def backlinks(self):
+        """
+        Lists links into the table (including self-referential links).
+        """
+        links = []
+        for foreign_key_image in self.image.referring_foreign_keys:
+            for column_image in foreign_key_image.origin_columns:
+                field = self.schema(column_image)
+                if field:
+                    links.append(field)
+        return links
+
     def constraints(self, ModelClass=None):
         constraints = []
         for trigger_image in self.image.triggers:
@@ -1003,6 +1015,35 @@ class LinkModel(Model):
         self.is_unique = (len(image.unique_keys) > 0)
         self.uk_image = next(iter(image.unique_keys), None)
         self.title = meta.title
+
+    def backlink_label(self):
+        """
+        Returns the name of the reverse link.
+        """
+        # The backlink has one of the forms:
+        #   <target_table>.<table>
+        #   <target_table>.<table>_via_<link>
+        # The first form is used unless it conflicts with any existing fields
+        # or other backlinks.
+        short_label = self.table.label
+        long_label = u"%s_via_%s" % (self.table.label, self.label)
+        primary_key = self.image.table.primary_key or []
+        for field in self.target_table.fields():
+            if field.label == short_label:
+                return long_label
+        for alias in self.target_table.aliases:
+            if alias.label == short_label and alias.parameters is None:
+                return long_label
+        for other_link in self.target_table.backlinks():
+            if other_link is self:
+                continue
+            if other_link.table is not self.table:
+                continue
+            if (self.image in primary_key and
+                    other_link.image not in primary_key):
+                continue
+            return long_label
+        return short_label
 
     def do_modify(self, table, label, target_table,
                   default, is_required, is_unique, title):

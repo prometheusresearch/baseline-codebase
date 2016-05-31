@@ -72,6 +72,14 @@ A table object allows you to create columns, links and table identity::
     to: individual
     required: false
 
+    >>> father_link = individual_table.build_link(
+    ...     label=u"father", target_table=individual_table, is_required=False)
+    >>> print father_link
+    link: father
+    of: individual
+    to: individual
+    required: false
+
     >>> sex_column = individual_table.build_column(
     ...     label=u"sex", type=[u"male", u"female"], is_required=False)
     >>> print sex_column
@@ -85,6 +93,26 @@ A table object allows you to create columns, links and table identity::
     identity: [code]
     of: individual
 
+    >>> individual_link = measure_table.build_link(
+    ...     label=u"individual", target_table=individual_table)
+    >>> print individual_link
+    link: individual
+    of: measure
+
+    >>> key_column = measure_table.build_column(label=u"key", type="text")
+    >>> print key_column
+    column: key
+    of: measure
+    type: text
+
+    >>> measure_identity = measure_table.build_identity(
+    ...     fields=[individual_link, key_column], generators=[None, u'random'])
+    >>> print measure_identity
+    identity:
+    - individual
+    - {key: random}
+    of: measure
+
     >>> print schema
     - table: individual
     - table: measure
@@ -95,11 +123,21 @@ A table object allows you to create columns, links and table identity::
       - link: mother
         to: individual
         required: false
+      - link: father
+        to: individual
+        required: false
       - column: sex
         type: [male, female]
         required: false
       - identity: [code]
     - table: measure
+      with:
+      - link: individual
+      - column: key
+        type: text
+      - identity:
+        - individual
+        - {key: random}
 
 You can now list all fields, or find a field by name, or get the identity
 object::
@@ -110,6 +148,10 @@ object::
     of: individual
     type: text
     link: mother
+    of: individual
+    to: individual
+    required: false
+    link: father
     of: individual
     to: individual
     required: false
@@ -133,9 +175,20 @@ object::
     identity: [code]
     of: individual
 
+For a table, you can also find all links that refer to that table as well
+as the name of the reverse link::
+
+    >>> for backlink in individual_table.backlinks():
+    ...     print "%s.%s" % (backlink.target_table.label, backlink.backlink_label())
+    individual.individual_via_mother
+    individual.individual_via_father
+    individual.measure
+
 It is also possible to modify or delete table fields or a table itself::
 
-    >>> mother_link.modify(label=u"father")
+    >>> mother_link.modify(label=u"mother_or_adopted_mother")
+
+    >>> father_link.erase()
 
     >>> sex_column.erase()
 
@@ -147,7 +200,7 @@ It is also possible to modify or delete table fields or a table itself::
       with:
       - column: code
         type: text
-      - link: father
+      - link: mother_or_adopted_mother
         to: individual
         required: false
       - identity: [code]

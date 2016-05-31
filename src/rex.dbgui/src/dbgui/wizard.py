@@ -8,6 +8,10 @@ action_val = ActionVal()
 wizard_val = ActionVal(action_class=Wizard)
 
 @cached
+def get_schema():
+    return model()
+
+@cached
 def get_wizard(table_name):
     wizard = table_wizard(table_name)
     flatten = lambda l: reduce(lambda a, b: a + flatten(b)
@@ -36,11 +40,12 @@ def action(table_name, type, **kwds):
         kwds['entity'] = table_name
     return constructor(kwds)
 
-def table_wizard(table_name):
-    [(pick_action, _)] = pick(table_name)
-    [(make_action, _)] = make(table_name)
-    return [(pick_action, record_wizard(table_name) + [
-        (make_action, '../..' + replace(table_name))
+def table_wizard(table_name, skip=[], mask=None, input=[]):
+    value, field_list = fields(table_name, '', skip)
+    pick = action(table_name, type='pick', fields=field_list, mask=mask, input=input)
+    make = action(table_name, type='make', fields=field_list, value=value)
+    return [(pick, record_wizard(table_name, skip=skip) + [
+        (make, '../..' + replace(table_name))
     ])]
 
 def replace(table_name, with_pick=True):
@@ -49,47 +54,64 @@ def replace(table_name, with_pick=True):
         ret = ('/pick-%s' % table_name) + ret
     return ret
 
-def pick(table_name):
-    return [(
-        action(table_name, type='pick'),
-    None)]
-
-def make(table_name):
-    return [(
-        action(table_name, type='make'),
-    None)]
-
-def record_wizard(table_name):
+def record_wizard(table_name, fields_table=None, field_prefix='', skip=[]):
+    if fields_table is None:
+        fields_table = table_name
+    print table_name, fields_table, field_prefix
     #TODO: generate fields replacing entity with links
-    view = action(table_name, type='view')
-    edit = action(table_name, type='edit')
-    return [(view, [(edit, '../../..' + replace(table_name))] + facets(table_name))]
-
-def fields(table_name, prefix='', skip=[]):
-    skip_dict = dict([(f.label, True) for f in skip])
-    schema = model()
-    table = schema.table(table_name)
-    ret = []
-    for f in table.fields():
-        if f.label in skip_dict:
-            continue
-        ret.append(prefix + f.label)
-    return ret
-
-def facets(table_name, skip_links_to=[]):
-    schema = model()
-    tables = []
+    _, field_list = fields(fields_table, field_prefix, skip + [table_name])
+    id = lambda t: '%s-%s' % (t, fields_table)
+    title = lambda t: '%s %s' % (t.title(), fields_table)
+    view = action(table_name,
+        id=id('view'),
+        title=title('view'),
+        type='view',
+        fields=field_list
+    )
+    edit = action(table_name,
+        id=id('edit'),
+        title=title('edit'),
+        type='edit',
+        fields=field_list
+    )
+    end = ('../../..'  + replace(fields_table)) if not field_prefix \
+          else '../..' + replace(fields_table, with_pick=False)
+    next = [(edit, end)]
+    ret = [(view, next)]
+    # facets
+    schema = get_schema()
+    facets = []
     for table in schema.tables():
         identity = table.identity().fields
         if len(identity) == 1 \
         and identity[0].is_link \
-        and identity[0].target_table.label == table_name:
-            tables.append((table, identity[0]))
-    view_facet = lambda table, skip: action(table_name, 'view',
-        id='view-%s' % table.label,
-        title='View %s' % (table.title or table.label),
-        fields=fields(table.label, prefix=table.label + '.', skip=[skip])
-    )
-    ret = [(view_facet(t, s), None)
-            for t, s in sorted(tables, key=lambda x: x[0].title)]
+        and identity[0].target_table.label == fields_table:
+            next.extend(record_wizard(table_name,
+                fields_table=table.label,
+                field_prefix=field_prefix + table.label + '.',
+                skip=skip
+            ))
+            continue
+        links = [f for f in identity
+                   if f.is_link and f.target_table.label == fields_table]
+        if len(links) == 1:
+            ret.extend(table_wizard(table.label,
+                mask='%s=$%s' % (fields_table, fields_table),
+                input=[fields_table],
+                skip=skip + [fields_table]
+            ))
     return ret
+
+def fields(table_name, prefix='', skip=[]):
+    schema = get_schema()
+    table = schema.table(table_name)
+    value = {}
+    for f in table.identity().fields:
+        if f.is_link and f.target_table.label in skip:
+            value[f.label] = '$' + f.target_table.label
+    ret = []
+    for f in table.fields():
+        if f.label in value:
+            continue
+        ret.append(prefix + f.label)
+    return value, ret

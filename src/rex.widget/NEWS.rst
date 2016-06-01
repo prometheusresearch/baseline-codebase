@@ -2,7 +2,7 @@
   Change Log
 **************
 
-2.6.0 (2016-XX-XX)
+2.6.0 (2016-06-01)
 ==================
 
 * [FEATURE] Allow <IconButton /> with custom icons.

@@ -12,7 +12,7 @@ setup(
     include_package_data=True,
     packages=find_packages('src'),
     install_requires=[
-        'rex.platform >= 5.2.0',
+        'rex.platform >= 5.3.0',
 
         # list unversioned dependencies (pinned in rex.platform)
         'rex.widget',

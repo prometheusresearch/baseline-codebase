@@ -4,8 +4,8 @@
 
 .. contents:: Table of Contents
 
-0.4.2
-=====
+0.4.2 (2016-06-01)
+==================
 
 * Fixed parameters checking
 * Fixed tests.

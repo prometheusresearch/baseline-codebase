@@ -7,21 +7,20 @@ from rex.widget import render_widget
 
 from .wizard import get_wizard
 
-class HandleTable(HandleLocation):
+class HandleDBGUI(HandleLocation):
 
-    PREFIX = '/table/'
-    path = '%s**' % PREFIX
+    path = '/**'
 
     def __call__(self, req):
-        req.path_info_pop()
+        if req.path_info == '/':
+            return self.render_root(req)
+        else:
+            return self.render_table(req)
+
+    def render_root(self, req):
+        return Response(body='DBGUI root')
+
+    def render_table(self, req):
         table = req.path_info_pop()
-        wizard = get_wizard(table)
-        if wizard is None:
-            raise HTTPNotFound("table '%s' not found" % table)
-        segment = req.path_info_peek()
-        if segment == '@@':
-            req.path_info_pop()
-        print 'script name', req.script_name
-        print 'Path', req.path_info
-        return render_widget(wizard, req, path=req.path_info[1:])
+        return get_wizard(table).render(req)
 

@@ -3,6 +3,7 @@ from rex.core import cached, OMapVal
 from rex.action.action import ActionVal
 from rex.action.wizard import Wizard
 from rex.deploy import model
+from rex.widget import render_widget
 
 action_val = ActionVal()
 wizard_val = ActionVal(action_class=Wizard)
@@ -13,23 +14,88 @@ def get_schema():
 
 @cached
 def get_wizard(table_name):
-    wizard = table_wizard(table_name)
-    flatten = lambda l: reduce(lambda a, b: a + flatten(b)
-                               if isinstance(b, (list, tuple))
-                               else a + [b], l, [])
-    actions = dict([(a.id, a.get_action()) for a in flatten(wizard)
-                    if a and not isinstance(a, (str, unicode))])
-    path = get_path(wizard)
-    return action(table_name, type='wizard', actions=actions, path=path)
+    return WizardProxy.get_wizard(table_name)
 
-def get_path(wizard):
-    dict1 = lambda x,y: dict([(x, y)])
-    if wizard is None:
-        return None
-    elif isinstance(wizard, (str, unicode)):
-        return [{'replace': wizard}]
-    else:
-        return [dict1(k.id, get_path(v)) for k, v in wizard]
+
+class WizardProxy(object):
+
+    wizard_val = ActionVal(action_class=Wizard)
+
+    def __init__(self, table, path, actions):
+        self.table = table
+        self.path = path
+        self.actions = actions
+        self.wizard = self.wizard_val(dict(
+            id=table,
+            type='wizard',
+            title='Wizard: %s' % table,
+            path=path,
+            actions=dict([(a.id, a.get_action()) for a in actions])
+        ))
+
+    def render(self, req):
+        segment = req.path_info_peek()
+        if segment == '@@':
+            req.path_info_pop()
+        return render_widget(self.wizard, req, path=req.path_info[1:])
+
+
+    @classmethod
+    def get_wizard(cls, table):
+        wizard = cls.table_wizard(table)
+        flatten = lambda l: reduce(lambda a, b: a + flatten(b)
+                                   if isinstance(b, (list, tuple))
+                                   else a + [b], l, [])
+        actions = [a for a in flatten(wizard)
+                     if a and not isinstance(a, (str, unicode))]
+        path = cls.get_path(wizard)
+        return cls(table=table, path=path, actions=actions)
+
+    @classmethod
+    def get_path(cls, wizard):
+        dict1 = lambda x,y: dict([(x, y)])
+        if wizard is None:
+            return None
+        elif isinstance(wizard, (str, unicode)):
+            return [{'replace': wizard}]
+        else:
+            return [dict1(k.id, cls.get_path(v)) for k, v in wizard]
+
+    @classmethod
+    def table_wizard(cls, table_name, context=[], mask=None):
+        pick = Pick(table_name, context=context, mask=mask)
+        make = Make(table_name, context=context)
+        return [(pick, cls.record_wizard(table_name, context=context) + [
+            (make, make.replace())
+        ])]
+
+    @classmethod
+    def record_wizard(cls, table_name, context=[]):
+        #TODO: generate fields replacing entity with links
+        view = View(table_name, context)
+        edit = Edit(table_name, context)
+        next = [(edit, edit.replace())]
+        ret = [(view, next)]
+        schema = get_schema()
+        facets = []
+        for table in schema.tables():
+            identity = table.identity().fields
+            if len(identity) == 1 \
+            and identity[0].is_link \
+            and identity[0].target_table.label == table_name:
+                next.extend(cls.record_wizard(
+                    table.label,
+                    context=context + [table_name]
+                ))
+                continue
+            links = [f for f in identity
+                       if f.is_link and f.target_table.label == table_name]
+            if len(links) == 1 and links[0] not in context:
+                ret.extend(cls.table_wizard(table.label,
+                    mask='%s=$%s' % (table_name, table_name),
+                    context=context + [table_name]
+                ))
+        return ret
 
 def action(table_name, type, **kwds):
     constructor = wizard_val if type == 'wizard' else action_val
@@ -40,59 +106,6 @@ def action(table_name, type, **kwds):
         kwds['entity'] = table_name
     return constructor(kwds)
 
-def table_wizard(table_name, context=[], mask=None):
-    pick = Pick(table_name, context=context, mask=mask)
-    make = Make(table_name, context=context)
-    return [(pick, record_wizard(table_name, context=context) + [
-        (make, make.replace())
-    ])]
-
-def replace(table_name, with_pick=True):
-    ret = '/view-%s' % table_name
-    if with_pick:
-        ret = ('/pick-%s' % table_name) + ret
-    return ret
-
-def record_wizard(table_name, context=[]):
-    #TODO: generate fields replacing entity with links
-    view = View(table_name, context)
-    edit = Edit(table_name, context)
-    next = [(edit, edit.replace())]
-    ret = [(view, next)]
-    schema = get_schema()
-    facets = []
-    for table in schema.tables():
-        identity = table.identity().fields
-        if len(identity) == 1 \
-        and identity[0].is_link \
-        and identity[0].target_table.label == table_name:
-            next.extend(record_wizard(
-                table.label,
-                context=context + [table_name]
-            ))
-            continue
-        links = [f for f in identity
-                   if f.is_link and f.target_table.label == table_name]
-        if len(links) == 1 and links[0] not in context:
-            ret.extend(table_wizard(table.label,
-                mask='%s=$%s' % (table_name, table_name),
-                context=context + [table_name]
-            ))
-    return ret
-
-def fields(table_name, prefix='', skip=[]):
-    schema = get_schema()
-    table = schema.table(table_name)
-    value = {}
-    for f in table.identity().fields:
-        if f.is_link and f.target_table.label in skip:
-            value[f.label] = '$' + f.target_table.label
-    ret = []
-    for f in table.fields():
-        if f.label in value:
-            continue
-        ret.append(prefix + f.label)
-    return value, ret
 
 
 class ActionProxy(object):

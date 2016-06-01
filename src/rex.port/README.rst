@@ -3,9 +3,6 @@
 ************************
 
 .. contents:: Table of Contents
-.. role:: mod(literal)
-.. role:: class(literal)
-.. role:: func(literal)
 
 
 Overview
@@ -824,11 +821,45 @@ that includes a set of records with subrecords.  For example::
                 {[3003], 'Vincent', 'Harald', '1979-03-13'},
                 ({[3003.(fos.unaffected-sib).1], [fos.unaffected-sib], '1'},)})}>
 
-    >>> individual_port.delete([{'id': '2000'}, {'id': '2001'}, {'id': '2002'}, {'id': '2003'},
-    ...                         {'id': '3000'}, {'id': '3001'}, {'id': '3002'}, {'id': '3003'}])
-    <Product {()}>
+
+Ports in HTSQL Queries
+======================
+
+A port can be used in HTSQL queries to insert, update or delete records.  To
+enable this feature, we need to declare a port as an HTSQL command::
+
+    >>> individual_cmd = individual_port.declare('individual_port')
+
+We can enable this command using a ``with`` clause.  For example, to insert
+data, we can write::
+
+    >>> with demo_db, individual_cmd:
+    ...     data = demo_db.produce('''
+    ...         individual_port($new)
+    ...     ''', new={'individual': {'code': '4000', 'sex': 'male'}})
+    >>> print data
+    {({[4000], '4000', 'male', null, null, null, ()},)}
+
+To update data, we can pass both old and new data slices::
+
+    >>> with demo_db, individual_cmd:
+    ...     data = demo_db.produce('''
+    ...         individual_port($old, $new)
+    ...     ''', old={'individual': {'id': '4000', 'sex': 'male'}},
+    ...          new={'individual': {'id': '4000', 'sex': 'female', 'identity': {'surname': 'Murdoch'}}})
+    >>> print data
+    {({[4000], '4000', 'female', null, null, {[4000], null, 'Murdoch', null}, ()},)}
+
+To delete data, we need to pass an empty new data slice::
+
+    >>> with demo_db, individual_cmd:
+    ...     data = demo_db.produce('''
+    ...         individual_port($old, null)
+    ...     ''', old={'individual': [{'id': '2000'}, {'id': '2001'}, {'id': '2002'}, {'id': '2003'},
+    ...                              {'id': '3000'}, {'id': '3001'}, {'id': '3002'}, {'id': '3003'}, {'id': '4000'}]})
+    >>> print data
+    {()}
 
 
 .. _JSON Pointer: http://tools.ietf.org/html/draft-ietf-appsawg-json-pointer-09
-
 

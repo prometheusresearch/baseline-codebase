@@ -1,4 +1,5 @@
 
 htsql_extensions:
     tweak.etl:
+    rex_port:
 

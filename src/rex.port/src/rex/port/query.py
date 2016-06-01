@@ -10,6 +10,7 @@ from .grow import Grow
 from .constraint import ConstraintSet
 from .produce import produce, describe
 from .replace import replace
+from htsql_rex_port import named_ports
 from htsql.core.connect import transaction
 from htsql.core.fmt.accept import accept
 from htsql.core.fmt.emit import emit, emit_headers
@@ -152,5 +153,13 @@ class Port(object):
             headerlist = emit_headers(format, product)
             app_iter = list(emit(format, product))
             return Response(headerlist=headerlist, app_iter=app_iter)
+
+    def declare(self, name):
+        """
+        Converts the port to an HTSQL command with the given name.
+
+        Must be used as an argument of a ``with`` clause.
+        """
+        return named_ports(**{name: self})
 
 

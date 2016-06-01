@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.port',
-    version = "1.2.0",
+    version = "1.3.0",
     description="Database querying and CRUD operations",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -24,6 +24,9 @@ setup(
         'rex.web >=2.1, <4',
         'rex.db >=2.1, <4',
     ],
+    entry_points = {
+        'htsql.addons': ['rex_port = htsql_rex_port:PortAddon'],
+    },
     rex_init='rex.port',
     rex_static='static',
 )

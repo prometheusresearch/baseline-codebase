@@ -210,10 +210,10 @@ class Assessment(object):
         template = self.instrument.template.get(tpl_obj_id)
         notfound = []
         data_fields = deepcopy(data)
-        for name in template:
+        for name, config in template.items():
             if name in data:
                 data_fields.pop(name)
-            else:
+            elif config['required']:
                 notfound.append(name)
         if data_fields:
             raise Error("Assessment data related to the `%(tpl_id)s`"
@@ -251,25 +251,26 @@ class Assessment(object):
                             " creation is undefined trough the import data."
                             % {'param_name': param_name}
                 )
-            validate = parameter['validator']
-            try:
-                validate(param_value)
-            except Error, exc:
-                raise Error("Assessment parameter"
-                    " `%(param_name)s` got unexpected value `%(param_value)s`."
-                    % {'param_name': param_name,
-                       'param_value': param_value
-                    }, exc
-                )
-            except Exception, exc:
-                exc = traceback.format_exc()
-                raise Error("Assessment parameter"
-                    " `%(param_name)s` got unexpected value `%(param_value)s`."
-                    % {'param_name': param_name,
-                       'param_value': param_value
-                    }, exc
-                )
-            context[param_name] = param_value
+            if param_value not in (None,''):
+                validate = parameter['validator']
+                try:
+                    validate(param_value)
+                except Error, exc:
+                    raise Error("Assessment parameter"
+                        " `%(param_name)s` got unexpected value `%(param_value)s`."
+                        % {'param_name': param_name,
+                           'param_value': param_value
+                        }, exc
+                    )
+                except Exception, exc:
+                    exc = traceback.format_exc()
+                    raise Error("Assessment parameter"
+                        " `%(param_name)s` got unexpected value `%(param_value)s`."
+                        % {'param_name': param_name,
+                           'param_value': param_value
+                        }, exc
+                    )
+                context[param_name] = param_value
         return context
 
     def get_date(self, row):

@@ -9,4 +9,5 @@
 - include: deploy/consent.yaml
 - include: deploy/requirement.yaml
 - include: deploy/appointment.yaml
+- include: deploy/note.yaml
 

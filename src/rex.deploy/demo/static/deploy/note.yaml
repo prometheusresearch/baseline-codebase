@@ -1,0 +1,13 @@
+
+- table: note
+  with:
+  - column: code
+    type: integer
+  - identity: [code: random]
+  - column: title
+    type: text
+    required: false
+  - column: body
+    type: text
+    required: false
+

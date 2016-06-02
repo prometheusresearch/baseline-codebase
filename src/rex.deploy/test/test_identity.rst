@@ -192,9 +192,9 @@ values, a trigger is created::
     >>> driver("""{ identity: [individual.code: random] }""")       # doctest: +ELLIPSIS
     CREATE OR REPLACE FUNCTION "individual_pk"() RETURNS "trigger" LANGUAGE plpgsql AS '
     BEGIN
-        IF NEW."code" IS NULL THEN
+        WHILE NEW."code" IS NULL LOOP
             ...
-        END IF;
+        END LOOP;
         RETURN NEW;
     END;
     ';

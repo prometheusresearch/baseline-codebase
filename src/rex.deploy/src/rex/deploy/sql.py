@@ -606,9 +606,19 @@ def plpgsql_primary_key_procedure(*parts):
 @sql_template
 def plpgsql_integer_random_key(table_name, name):
     """
-    IF NEW.{{ name|n }} IS NULL THEN
-        NEW.{{ name|n }} := trunc((random()*999999999) + 1);
-    END IF;
+    WHILE NEW.{{ name|n }} IS NULL LOOP
+        DECLARE
+            _key int4;
+        BEGIN
+            _key := trunc((random()*999999999) + 1);
+            PERFORM id
+                FROM {{ table_name|n }}
+                WHERE {{ name|n }} = _key;
+            IF NOT FOUND THEN
+                NEW.{{ name|n }} := _key;
+            END IF;
+        END;
+    END LOOP;
     """
 
 
@@ -619,12 +629,13 @@ def plpgsql_text_random_key(table_name, name):
     # set digits = "0123456789"
     # set one_letter = "_letters[1 + trunc(random()*%s)]" % letters|length
     # set one_digit = "_digits[1 + trunc(random()*%s)]" % digits|length
-    IF NEW.{{ name|n }} IS NULL THEN
+    WHILE NEW.{{ name|n }} IS NULL LOOP
         DECLARE
             _letters text[] := '{{ '{' + (letters|join(',')) + '}' }}';
             _digits text[] := '{{ '{' + (digits|join(',')) + '}' }}';
+            _key text;
         BEGIN
-            NEW.{{ name|n }} :=
+            _key :=
                 {{ one_letter }} ||
                 {{ one_digit }} ||
                 {{ one_digit }} ||
@@ -633,8 +644,14 @@ def plpgsql_text_random_key(table_name, name):
                 {{ one_digit }} ||
                 {{ one_digit }} ||
                 {{ one_digit }};
+            PERFORM id
+                FROM {{ table_name|n }}
+                WHERE {{ name|n }} = _key;
+            IF NOT FOUND THEN
+                NEW.{{ name|n }} := _key;
+            END IF;
         END;
-    END IF;
+    END LOOP;
     """
 
 

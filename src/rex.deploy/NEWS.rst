@@ -11,6 +11,7 @@
 * Support for calculated fields.
 * Identity-to-text conversion.
 * Added backlink introspection.
+* Fixed duplicate random keys.
 
 
 2.5.0 (2016-02-29)

@@ -318,9 +318,9 @@ identity trigger will be rebuilt::
     COMMENT ON COLUMN "individual"."ident" IS NULL;
     CREATE OR REPLACE FUNCTION "individual_pk"() RETURNS "trigger" LANGUAGE plpgsql AS '
     BEGIN
-        IF NEW."ident" IS NULL THEN
+        WHILE NEW."ident" IS NULL LOOP
             ...
-        END IF;
+        END LOOP;
         RETURN NEW;
     END;
     ';

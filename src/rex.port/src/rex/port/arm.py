@@ -3,13 +3,14 @@
 #
 
 
+from rex.core import Error
 from htsql.core.util import to_name, maybe, listof, tupleof
 from htsql.core.domain import Value, IdentityDomain
 from htsql.core.entity import (TableEntity, ColumnEntity, DirectJoin,
         ReverseJoin)
-from htsql.core.model import (HomeNode, Arc, TableArc, ChainArc, ColumnArc,
-        SyntaxArc)
-from htsql.core.classify import classify, localize
+from htsql.core.model import (HomeNode, TableNode, Arc, TableArc, ChainArc,
+        ColumnArc, SyntaxArc)
+from htsql.core.classify import classify, localize, relabel
 from htsql.core.syn.syntax import Syntax
 import collections
 import decimal
@@ -38,7 +39,17 @@ ArmDumper.add_representer(collections.OrderedDict,
 
 def identify(node):
     arcs = localize(node)
-    assert arcs is not None
+    if arcs is None:
+        node_name = None
+        if isinstance(node, TableNode):
+            node_arc = TableArc(node.table)
+            node_labels = relabel(node_arc)
+            if node_labels:
+                node_name = node_labels[0].name
+        if node_name is not None:
+            raise Error("Detected table without identity:", node_name)
+        else:
+            raise Error("Detected table without identity")
     fields = []
     for arc in arcs:
         if isinstance(arc, ChainArc):

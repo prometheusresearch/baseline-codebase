@@ -9,6 +9,7 @@
 ==================
 
 * Added ability to use port CRUD interface in HTSQL queries.
+* Report an error when a table lacks identity.
 
 
 1.2.0 (2016-01-29)

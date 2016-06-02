@@ -12,6 +12,7 @@
 * Identity-to-text conversion.
 * Added backlink introspection.
 * Fixed duplicate random keys.
+* Prohibit self-referential mandatory links and identity loops.
 
 
 2.5.0 (2016-02-29)

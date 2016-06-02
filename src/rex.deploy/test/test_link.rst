@@ -236,6 +236,29 @@ table does not exist::
     While deploying link fact:
         "<byte string>", line 1
 
+If the link is self-referential, it must be optional::
+
+    >>> driver("""{ link: individual.mother, to: individual }""")
+    Traceback (most recent call last):
+      ...
+    Error: Detected self-referential mandatory link:
+        mother
+    While deploying link fact:
+        "<byte string>", line 1
+
+    >>> driver("""{ link: individual.mother, to: individual, required: false }""")
+    ALTER TABLE "individual" ADD COLUMN "mother_id" "int4";
+    ALTER TABLE "individual" ADD CONSTRAINT "individual_mother_fk" FOREIGN KEY ("mother_id") REFERENCES "individual" ("id") ON DELETE SET DEFAULT;
+    CREATE INDEX "individual_mother_fk" ON "individual" ("mother_id");
+
+    >>> driver("""{ link: individual.mother, to: individual }""")
+    Traceback (most recent call last):
+      ...
+    Error: Detected self-referential mandatory link:
+        mother
+    While deploying link fact:
+        "<byte string>", line 1
+
 An error is raised if the target table has no ``id`` column::
 
     >>> driver.submit("""CREATE TABLE family (familyid int4 NOT NULL);""")
@@ -259,7 +282,6 @@ If the link column exists, the driver verifies that is has a correct type and
     ALTER TABLE "sample" DROP CONSTRAINT "sample_individual_fk";
     ALTER TABLE "sample" ADD CONSTRAINT "sample_individual_fk" FOREIGN KEY ("individual_id") REFERENCES "individual" ("id") ON DELETE SET DEFAULT;
     ALTER TABLE "sample" ALTER COLUMN "individual_id" DROP NOT NULL;
-
 
 Similarly, it may apply a ``UNIQUE`` constraint::
 

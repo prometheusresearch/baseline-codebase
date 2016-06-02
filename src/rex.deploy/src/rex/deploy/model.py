@@ -969,6 +969,9 @@ class LinkModel(Model):
     @classmethod
     def do_build(cls, table, label, target_table,
                  default=None, is_required=True, is_unique=False, title=None):
+        # Prohibit self-referential non-optional links.
+        if table is target_table and is_required:
+            raise Error("Detected self-referential mandatory link:", label)
         # Creates a new link with the given properties.
         schema = table.schema
         names = cls.names(table.label, label)
@@ -1051,6 +1054,9 @@ class LinkModel(Model):
         assert table is self.table
         if target_table is not self.target_table:
             raise Error("Discovered link with mismatched target:", label)
+        # Prohibit self-referential non-optional links.
+        if table is target_table and is_required:
+            raise Error("Detected self-referential mandatory link:", label)
         # Refresh names.
         names = self.names(table.label, label)
         self.image.alter_name(names.name)
@@ -1183,6 +1189,13 @@ class IdentityModel(Model):
         for field in fields:
             if not field.is_required:
                 raise Error("Discovered nullable field:", field.label)
+        # Prevent identity cycles.
+        for field in fields:
+            if field.is_link:
+                for loop in cls._identity_loops([field]):
+                    raise Error(
+                            "Discovered identity loop:",
+                            u".".join([entity.label for entity in loop]))
         # Create the `PRIMARY KEY` constraint.
         schema = table.schema
         names = cls.names(table.label)
@@ -1205,6 +1218,19 @@ class IdentityModel(Model):
             meta.update(generators=generators)
             image.alter_comment(meta.dump())
         return cls(schema, image)
+
+    @classmethod
+    def _identity_loops(cls, links):
+        # Loops for identity loops with the given prefix.
+        table = links[-1].target_table
+        if any([table is link.table for link in links]):
+            yield links
+        identity = table.identity()
+        if identity is not None:
+            for field in identity.fields:
+                if field.is_link:
+                    for loop in cls._identity_loops(links+[field]):
+                        yield loop
 
     def __init__(self, schema, image):
         super(IdentityModel, self).__init__(schema, image)
@@ -1240,6 +1266,13 @@ class IdentityModel(Model):
             for field in fields:
                 if not field.is_required:
                     raise Error("Discovered nullable field:", field.label)
+            # Prevent identity cycles.
+            for field in fields:
+                if field.is_link:
+                    for loop in self._identity_loops([field]):
+                        raise Error(
+                                "Discovered identity loop:",
+                                u".".join([entity.label for entity in loop]))
             # Rebuild the constraint.
             self.image.drop()
             self.image = table.image.create_primary_key(

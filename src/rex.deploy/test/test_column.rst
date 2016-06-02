@@ -280,7 +280,7 @@ constraint cannot be a part of the ``PRIMARY KEY`` of the table::
 You cannot create a column if there is already a link with the same name::
 
     >>> driver("""
-    ... - { link: individual.mother, to: individual }
+    ... - { link: individual.mother, to: individual, required: false }
     ... - { column: individual.mother, type: integer }
     ... """)
     Traceback (most recent call last):

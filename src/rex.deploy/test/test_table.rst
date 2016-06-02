@@ -326,8 +326,8 @@ If a table has links into it, the links are dropped first::
     >>> driver("""
     ... - { table: identity }
     ... - { link: identity.individual }
-    ... - { link: individual.mother, to: individual }
-    ... - { link: individual.father, to: individual }
+    ... - { link: individual.mother, to: individual, required: false }
+    ... - { link: individual.father, to: individual, required: false }
     ... """)            # doctest: +ELLIPSIS
     CREATE TABLE "identity" ...
     >>> driver("""{ table: individual, present: false }""")

@@ -142,6 +142,40 @@ Notably, the identity columns must have ``NOT NULL`` constraint::
     >>> driver("""{ identity: [individual.code] }""")
     ALTER TABLE "individual" ADD CONSTRAINT "individual_pk" PRIMARY KEY ("code"), CLUSTER ON "individual_pk";
 
+The driver also prohibits identities with cycles::
+
+    >>> driver("""
+    ... - { table: left }
+    ... - { table: right }
+    ... - { column: left.code, type: text }
+    ... - { column: right.code, type: text }
+    ... - { link: left.right }
+    ... - { link: right.left }
+    ... """)                                            # doctest: +ELLIPSIS
+    CREATE TABLE "left" ...
+
+    >>> driver("""
+    ... - { identity: [left.right] }
+    ... - { identity: [right.left] }
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Discovered identity loop:
+        left.right
+    While deploying identity fact:
+        "<byte string>", line 3
+
+    >>> driver("""
+    ... - { identity: [right.code] }
+    ... - { identity: [right.left] }
+    ... """)
+    Traceback (most recent call last):
+      ...
+    Error: Discovered identity loop:
+        left.right
+    While deploying identity fact:
+        "<byte string>", line 3
+
 Table identity may include both columns and links.  Respective ``FOREIGN KEY``
 constraints are set to ``ON DELETE CASCADE``::
 

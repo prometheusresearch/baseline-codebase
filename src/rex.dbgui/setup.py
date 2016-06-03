@@ -1,29 +1,29 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='dbgui',
+    name='rex.dbgui',
     version='4.0.0',
     description='Database management application',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',
     license='AGPLv3',
-    url='https://bitbucket.org/prometheus/dbgui',
+    url='https://bitbucket.org/rexdb/rex.dbgui',
     package_dir={'': 'src'},
     include_package_data=True,
     packages=find_packages('src'),
+    namespace_packages=['rex'],
     install_requires=[
-        'rex.platform >= 5.3.0',
-
-        # list unversioned dependencies (pinned in rex.platform)
-        'rex.widget',
-        'rex.widget_chrome',
-        'rex.action',
+        'rex.db >=3.5, <4',
+        'rex.deploy >=2.6, <3',
+        'rex.web >=3.7, <4',
+        'rex.widget >=2.6, <3',
+        'rex.action >=1.1, <2',
     ],
-    rex_init='dbgui',
+    rex_init='rex.dbgui',
     rex_static='static',
     rex_bundle={
         './www/bundle': [
-            'webpack:dbgui'
+            'webpack:rex-dbgui'
         ]
     }
 )

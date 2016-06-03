@@ -216,4 +216,20 @@ class View(ActionProxy):
 
     def __init__(self, table, context=[], **kwds):
         super(View, self).__init__(table, 'view', context, **kwds)
-        self.value = None
+
+    def get_fields_value(self, table_name, prefix='', context=[]):
+        fields, _ = super(View, self).get_fields_value(table_name, prefix,
+                                                       context)
+        schema = get_schema()
+        table = schema.table(table_name)
+        for index, field in enumerate(fields):
+            link = table.link(field[len(prefix):])
+            if link is not None:
+                fields[index] = dict(
+                    value_key=field,
+                    type='dbgui_entity',
+                    data=dict(
+                        entity=link.target_table.label
+                    )
+                )
+        return fields, None

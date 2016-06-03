@@ -1,5 +1,5 @@
 {
-  "name": "dbgui",
+  "name": "rex-dbgui",
   "version": "4.0.0",
   "main": "./lib/index.js",
   "rex": {

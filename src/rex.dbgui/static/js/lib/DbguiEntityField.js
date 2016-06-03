@@ -2,19 +2,24 @@
 import React from 'react';
 import {ReadOnlyField, AutocompleteField} from 'rex-widget/form';
 
-export class DbguiEntityField extends React.Component {
+export default class DbguiEntityField extends React.Component {
   render() {
-
-    let {readOnly, formValue} = this.props;
-    if (readOnly) {
+    let {table, ...props} = this.props;
+    let {readOnly, formValue} = props;
+    let {value} = formValue;
+    if (readOnly && value) {
+      let id = table.replace('_', '-');
+      let href = `${__MOUNT_POINTS__['rex.dbgui']}/${table}#`
+                 + `/pick-${id}[${value}]`
+                 + `/view-${id}`;
       return (
-        <ReadOnlyField {...this.props}>
-          Hello
+        <ReadOnlyField {...props}>
+          <a href={href}>{value}</a>
         </ReadOnlyField>
       );
     }
     else {
-      return <AutocompleteField {...this.props}/>;
+      return <AutocompleteField {...props}/>;
     }
   }
 }

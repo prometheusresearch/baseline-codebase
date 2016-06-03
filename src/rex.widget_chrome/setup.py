@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.widget_chrome',
-    version='1.1.0',
+    version='1.1.1',
     description='Applet definition for the RexDB platform',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',

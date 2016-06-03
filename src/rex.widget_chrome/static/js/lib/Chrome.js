@@ -79,10 +79,12 @@ export default class Chrome extends React.Component {
   }
 
   getChildContext() {
-    let {activeMenuItem: {title, url}} = this.state;
-    return {
-      navigationStack: [{title, url}]
-    };
+    let {activeMenuItem} = this.state;
+    let navigationStack = [];
+    if (activeMenuItem) {
+      navigationStack.push(activeMenuItem);
+    }
+    return {navigationStack};
   }
 
   componentDidMount() {

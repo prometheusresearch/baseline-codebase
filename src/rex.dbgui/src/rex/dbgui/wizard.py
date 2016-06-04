@@ -75,7 +75,6 @@ class WizardProxy(object):
         next = [(edit, edit.replace())]
         ret = [(view, next)]
         schema = get_schema()
-        facets = []
         for table in schema.tables():
             identity = table.identity().fields
             if len(identity) == 1 \
@@ -89,11 +88,21 @@ class WizardProxy(object):
             links = [f for f in identity
                        if f.is_link and f.target_table.label == table_name]
             if len(links) == 1 and links[0] not in context:
-                ret.extend(cls.table_wizard(table.label,
+                if view._is_facet:
+                    mask = '%s.%s=$%s' % (links[0].label,
+                                          view.entity.values()[0],
+                                          view.entity.keys()[0])
+                    next.extend(cls.table_wizard(table.label,
+                        mask=mask,
+                        context=context
+                    ))
+                else:
                     mask='%s=$%s' % (links[0].label,
-                                     entity(table_name).keys()[0]),
-                    context=context + [table_name]
-                ))
+                                     entity(table_name).keys()[0])
+                    ret.extend(cls.table_wizard(table.label,
+                        mask=mask,
+                        context=context + [table_name]
+                    ))
         return ret
 
 def entity(table_name):
@@ -109,6 +118,8 @@ class ActionProxy(object):
 
     def __init__(self, table, type, context=[], **kwds):
         self.entity, field_prefix = self.get_base_entity(table, context)
+        self._is_facet = table != self.entity
+        self._table = table
         self.entity = entity(self.entity)
         self.id = '%s-%s' % (type, table.replace('_', '-'))
         self.type = type
@@ -118,7 +129,6 @@ class ActionProxy(object):
         self.input = [entity(item) for item in context]
         for attr, value in kwds.items():
             setattr(self, attr, value)
-        self._is_facet = table != self.entity
 
     def get_base_entity(self, table_name, context):
         schema = get_schema()
@@ -151,9 +161,18 @@ class ActionProxy(object):
         table = schema.table(table_name)
         value = {}
         for field in table.identity().fields:
-            if field.is_link and field.target_table.label in context:
-                value[field.label] = \
-                        '$' + entity(field.target_table.label).keys()[0]
+            if field.is_link:
+                parent = field.target_table.label
+                while True:
+                    if parent in context:
+                        value[field.label] = '$' + entity(parent).keys()[0]
+                        break
+                    parent_identity = schema.table(parent).identity().fields
+                    if len(parent_identity) == 1 \
+                    and parent_identity[0].is_link:
+                        parent = parent_identity[0].target_table.label
+                    else:
+                        break
         fields = []
         for field in table.fields():
             if field.label in value:

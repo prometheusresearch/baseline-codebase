@@ -5,8 +5,6 @@ from rex.action.wizard import Wizard
 from rex.deploy import model
 from rex.widget import render_widget
 
-action_val = ActionVal()
-wizard_val = ActionVal(action_class=Wizard)
 
 @cached
 def get_schema():
@@ -92,20 +90,17 @@ class WizardProxy(object):
                        if f.is_link and f.target_table.label == table_name]
             if len(links) == 1 and links[0] not in context:
                 ret.extend(cls.table_wizard(table.label,
-                    mask='%s=$%s' % (table_name, table_name),
+                    mask='%s=$%s' % (links[0].label,
+                                     entity(table_name).keys()[0]),
                     context=context + [table_name]
                 ))
         return ret
 
-def action(table_name, type, **kwds):
-    constructor = wizard_val if type == 'wizard' else action_val
-    kwds['type'] = type
-    if 'id' not in kwds:
-        kwds['id'] = '%s-%s' % (type, table_name)
-    if type != 'wizard':
-        kwds['entity'] = table_name
-    return constructor(kwds)
-
+def entity(table_name):
+    if table_name == 'user':
+        return {'_user': 'user'}
+    else:
+        return dict([(table_name, table_name)])
 
 
 class ActionProxy(object):
@@ -114,12 +109,13 @@ class ActionProxy(object):
 
     def __init__(self, table, type, context=[], **kwds):
         self.entity, field_prefix = self.get_base_entity(table, context)
+        self.entity = entity(self.entity)
         self.id = '%s-%s' % (type, table.replace('_', '-'))
         self.type = type
         self.title = '%s %s' % (type.title(), table)
         self.fields, self.value = self.get_fields_value(table, field_prefix,
                                                         context)
-        self.input = context
+        self.input = [entity(item) for item in context]
         for attr, value in kwds.items():
             setattr(self, attr, value)
         self._is_facet = table != self.entity
@@ -156,7 +152,8 @@ class ActionProxy(object):
         value = {}
         for field in table.identity().fields:
             if field.is_link and field.target_table.label in context:
-                value[field.label] = '$' + field.target_table.label
+                value[field.label] = \
+                        '$' + entity(field.target_table.label).keys()[0]
         fields = []
         for field in table.fields():
             if field.label in value:

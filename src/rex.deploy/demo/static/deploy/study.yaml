@@ -15,6 +15,7 @@
   - identity: [code]
   - column: title
     type: text
+    unique: true
   - column: closed
     type: boolean
     default: false

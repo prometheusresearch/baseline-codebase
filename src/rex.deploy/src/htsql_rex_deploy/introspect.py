@@ -15,18 +15,25 @@ from .domain import JSONDomain
 
 
 @once
-def get_image():
-    # Returns `rex.deploy` catalog image.
-    from rex.deploy import Driver
+def get_model():
+    # Returns `rex.deploy` schema model.
+    from rex.deploy import Driver, ModelSchema
     connection = connect()
     driver = Driver(connection)
-    catalog = driver.get_catalog()
+    schema = ModelSchema(driver)
     # Close the connection unless we own it.
     if context.app.rex.connection is None:
         connection.close()
     else:
         connection.release()
-    return catalog
+    return schema
+
+
+@once
+def get_image():
+    # Returns `rex.deploy` catalog image.
+    schema = get_model()
+    return schema.driver.get_catalog()
 
 
 class IntrospectDeploy(IntrospectPGSQL):

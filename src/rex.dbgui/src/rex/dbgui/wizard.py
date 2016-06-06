@@ -14,6 +14,12 @@ def get_schema():
 def get_wizard(table_name):
     return WizardProxy.get_wizard(table_name)
 
+def create_wizard(config):
+    validator = ActionVal(action_class=Wizard)
+    config['id'] = config.get('title', 'id')
+    config['type'] = 'wizard'
+    return validator(config)
+
 
 class WizardProxy(object):
 
@@ -50,20 +56,22 @@ class WizardProxy(object):
         return cls(table=table, path=path, actions=actions)
 
     @classmethod
-    def get_path(cls, wizard):
+    def get_path(cls, path):
         dict1 = lambda x,y: dict([(x, y)])
-        if wizard is None:
+        if path is None:
             return None
-        elif isinstance(wizard, (str, unicode)):
-            return [{'replace': wizard}]
+        elif isinstance(path, (str, unicode)):
+            return [{'replace': path}]
         else:
-            return [dict1(k.id, cls.get_path(v)) for k, v in wizard]
+            return [dict1(k.id, cls.get_path(v)) for k, v in path]
 
     @classmethod
     def table_wizard(cls, table_name, context=[], mask=None):
         pick = Pick(table_name, context=context, mask=mask)
         make = Make(table_name, context=context)
+        #drop = Drop(table_name)
         return [(pick, cls.record_wizard(table_name, context=context) + [
+         #   (drop, None),
             (make, make.replace())
         ])]
 
@@ -210,6 +218,7 @@ class Pick(ActionProxy):
                 continue
             fields.append(field.label)
         self.fields = fields
+        self.search = 'string(id)~$search'
 
 
 class Make(ActionProxy):
@@ -249,3 +258,11 @@ class View(ActionProxy):
                     )
                 )
         return fields, None
+
+class Drop(ActionProxy):
+
+    def __init__(self, table, context=[], **kwds):
+        super(Drop, self).__init__(table, 'drop', context, **kwds)
+
+    def get_fields_value(self, table_name, prefix='', context=[]):
+        return None, None

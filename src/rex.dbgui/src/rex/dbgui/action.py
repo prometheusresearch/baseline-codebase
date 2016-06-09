@@ -1,7 +1,9 @@
 
-from .wizard import get_schema
+from .wizard import get_schema, table_wizard
 from rex.action import Action, typing
-from rex.widget import computed_field
+from rex.widget import computed_field, responder, RequestURL
+import yaml
+from webob import Response
 
 
 class PickTableWizard(Action):
@@ -16,7 +18,8 @@ class PickTableWizard(Action):
     @computed_field
     def tables(self, req):
         ret = []
-        for table in get_schema().tables():
+        schema = get_schema()
+        for table in schema.tables():
             ret.append({'id': table.label, 'title': table.label})
         return ret
 
@@ -29,3 +32,15 @@ class ViewTableWizard(Action):
     def context(self):
         return (self.domain.record(table=typing.ValueType('text')),
                 self.domain.record())
+
+    @responder(url_type=RequestURL)
+    def dump(self, req):
+        table = req.GET.get('table')
+        ret = {}
+        if table:
+            ret['dump'] = yaml.safe_dump(table_wizard(table).dump,
+                                         indent=2,
+                                         default_flow_style=False)
+        return Response(json=ret)
+
+

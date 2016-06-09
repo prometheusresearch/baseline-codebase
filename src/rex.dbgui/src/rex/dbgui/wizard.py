@@ -4,38 +4,60 @@ from rex.action.action import ActionVal
 from rex.action.wizard import Wizard
 from rex.deploy import model
 from rex.widget import render_widget
-
+from cached_property import cached_property
 
 @cached
 def get_schema():
     return model()
 
 @cached
-def get_wizard(table_name):
-    return WizardProxy.get_wizard(table_name)
+def table_wizard(table_name):
+    return WizardProxy.table_wizard(table_name)
 
-def create_wizard(config):
-    validator = ActionVal(action_class=Wizard)
-    config['id'] = config.get('title', 'id')
-    config['type'] = 'wizard'
-    return validator(config)
+def root_wizard():
+    pick_table = ActionProxy(
+        id='pick-table-wizard',
+        type='pick-table-wizard',
+        title='Pick Table'
+    )
+    view_table = ActionProxy(
+        id='view-table-wizard',
+        type='view-table-wizard',
+        title='Table Wizard'
+    )
+    return WizardProxy.from_path('dbgui', 'DBGUI', 
+                                 [(pick_table, [(view_table, None)])])
 
 
 class WizardProxy(object):
 
     wizard_val = ActionVal(action_class=Wizard)
 
-    def __init__(self, table, path, actions):
-        self.table = table
+    def __init__(self, id, title, path, actions):
+        self.id = id
+        self.title = title
         self.path = path
         self.actions = actions
-        self.wizard = self.wizard_val(dict(
-            id=table,
+
+    @cached_property
+    def wizard(self):
+        return self.wizard_val(dict(
+            id=self.id,
             type='wizard',
-            title='Wizard: %s' % table,
-            path=path,
-            actions=dict([(a.id, a.get_action()) for a in actions])
+            title=self.title,
+            path=self.path,
+            actions=dict([(a.id, a.action) for a in self.actions])
         ))
+
+    @cached_property
+    def dump(self):
+        ret = {}
+        for key, value in vars(self).items():
+            if key == 'actions':
+                ret[key] = dict([(a.id, a.dump) for a in value])
+            elif value is not None and not key.startswith('_'):
+                ret[key] = value
+        return ret
 
     def render(self, req):
         segment = req.path_info_peek()
@@ -45,38 +67,43 @@ class WizardProxy(object):
 
 
     @classmethod
-    def get_wizard(cls, table):
-        wizard = cls.table_wizard(table)
+    def table_wizard(cls, table):
+        return cls.from_path(table, 'DBGUI: %s' % table, cls.table_path(table))
+
+    @classmethod
+    def from_path(cls, id, title, path):
         flatten = lambda l: reduce(lambda a, b: a + flatten(b)
                                    if isinstance(b, (list, tuple))
                                    else a + [b], l, [])
-        actions = [a for a in flatten(wizard)
+        actions = [a for a in flatten(path)
                      if a and not isinstance(a, (str, unicode))]
-        path = cls.get_path(wizard)
-        return cls(table=table, path=path, actions=actions)
+        return cls(id=id,
+                   title=title,
+                   path=cls.extract_path(path), 
+                   actions=actions)
 
     @classmethod
-    def get_path(cls, path):
+    def extract_path(cls, path):
         dict1 = lambda x,y: dict([(x, y)])
         if path is None:
             return None
         elif isinstance(path, (str, unicode)):
             return [{'replace': path}]
         else:
-            return [dict1(k.id, cls.get_path(v)) for k, v in path]
+            return [dict1(k.id, cls.extract_path(v)) for k, v in path]
 
     @classmethod
-    def table_wizard(cls, table_name, context=[], mask=None):
+    def table_path(cls, table_name, context=[], mask=None):
         pick = Pick(table_name, context=context, mask=mask)
         make = Make(table_name, context=context)
-        #drop = Drop(table_name)
-        return [(pick, cls.record_wizard(table_name, context=context) + [
-         #   (drop, None),
+        drop = Drop(table_name)
+        return [(pick, cls.record_path(table_name, context=context) + [
+           (drop, None),
             (make, make.replace())
         ])]
 
     @classmethod
-    def record_wizard(cls, table_name, context=[]):
+    def record_path(cls, table_name, context=[]):
         #TODO: generate fields replacing entity with links
         view = View(table_name, context)
         edit = Edit(table_name, context)
@@ -88,7 +115,7 @@ class WizardProxy(object):
             if len(identity) == 1 \
             and identity[0].is_link \
             and identity[0].target_table.label == table_name:
-                next.extend(cls.record_wizard(
+                next.extend(cls.record_path(
                     table.label,
                     context=context + [table_name]
                 ))
@@ -100,41 +127,69 @@ class WizardProxy(object):
                     mask = '%s.%s=$%s' % (links[0].label,
                                           view.entity.values()[0],
                                           view.entity.keys()[0])
-                    next.extend(cls.table_wizard(table.label,
+                    next.extend(cls.table_path(table.label,
                         mask=mask,
                         context=context
                     ))
                 else:
-                    mask='%s=$%s' % (links[0].label,
-                                     entity(table_name).keys()[0])
-                    ret.extend(cls.table_wizard(table.label,
+                    mask='%s=%s' % (links[0].label, to_ref(table_name))
+                    ret.extend(cls.table_path(table.label,
                         mask=mask,
                         context=context + [table_name]
                     ))
         return ret
 
-def entity(table_name):
-    if table_name == 'user':
+def to_complete_entity(entity):
+    if entity == 'user':
         return {'_user': 'user'}
     else:
-        return dict([(table_name, table_name)])
+        return dict([(entity, entity)])
+
+def to_ref(table):
+    return '$' + to_complete_entity(table).keys()[0]
 
 
 class ActionProxy(object):
 
     action_val = ActionVal()
 
+    def __init__(self, id, type, title):
+        self.id = id
+        self.type = type
+        self.title = title
+
+    def get_params(self):
+        return dict([
+            (k, v) for k, v in vars(self).items()
+                   if v is not None and not k.startswith('_')
+        ])
+
+    @cached_property
+    def action(self):
+        return self.action_val(self.get_params())
+
+    @cached_property
+    def dump(self):
+        dump = {}
+        dump.update(self.get_params())
+        del dump['id']
+        return dump
+
+
+class TableActionProxy(ActionProxy):
+
     def __init__(self, table, type, context=[], **kwds):
+        super(TableActionProxy, self).__init__(
+            id='%s-%s' % (type, table.replace('_', '-')),
+            type=type,
+            title='%s %s' % (type.title(), table)
+        )
         self.entity, field_prefix = self.get_base_entity(table, context)
         self._is_facet = table != self.entity
-        self._table = table
-        self.entity = entity(self.entity)
-        self.id = '%s-%s' % (type, table.replace('_', '-'))
-        self.type = type
-        self.title = '%s %s' % (type.title(), table)
+        self.entity = to_complete_entity(self.entity)
         self.fields, self.value = self.get_fields_value(table, field_prefix,
                                                         context)
-        self.input = [entity(item) for item in context]
+        self.input = [to_complete_entity(item) for item in context]
         for attr, value in kwds.items():
             setattr(self, attr, value)
 
@@ -173,7 +228,7 @@ class ActionProxy(object):
                 parent = field.target_table.label
                 while True:
                     if parent in context:
-                        value[field.label] = '$' + entity(parent).keys()[0]
+                        value[field.label] = to_ref(parent) 
                         break
                     parent_identity = schema.table(parent).identity().fields
                     if len(parent_identity) == 1 \
@@ -188,10 +243,6 @@ class ActionProxy(object):
             fields.append(prefix + field.label)
         return fields, value or None
 
-    def get_action(self):
-        action_params = dict([(k, v) for k, v in vars(self).items()
-                              if v is not None and not k.startswith('_')])
-        return self.action_val(action_params)
 
     def replace(self):
         view = 'view' + self.id[len(self.type):]
@@ -200,12 +251,14 @@ class ActionProxy(object):
                else '../../' + view
 
 
-class Pick(ActionProxy):
+class Pick(TableActionProxy):
 
     def __init__(self, table, context=[], **kwds):
         super(Pick, self).__init__(table, 'pick', context, **kwds)
-        self.value = None
-        # prettify fields
+        self.search = 'string(id)~$search'
+        self.search_placeholder = 'Search by ID'
+
+    def get_fields_value(self, table, prefix='', context=[]):
         fields = [dict(
             value_key='id',
             label='id()',
@@ -217,11 +270,10 @@ class Pick(ActionProxy):
             if field.is_link and field.target_table.label in context:
                 continue
             fields.append(field.label)
-        self.fields = fields
-        self.search = 'string(id)~$search'
+        return fields, None
 
 
-class Make(ActionProxy):
+class Make(TableActionProxy):
 
     def __init__(self, table, context=[], **kwds):
         super(Make, self).__init__(table, 'make', context, **kwds)
@@ -231,13 +283,13 @@ class Make(ActionProxy):
         return super(Make, self).replace()[3:]
 
 
-class Edit(ActionProxy):
+class Edit(TableActionProxy):
 
     def __init__(self, table, context=[], **kwds):
         super(Edit, self).__init__(table, 'edit', context, **kwds)
 
 
-class View(ActionProxy):
+class View(TableActionProxy):
 
     def __init__(self, table, context=[], **kwds):
         super(View, self).__init__(table, 'view', context, **kwds)
@@ -259,10 +311,12 @@ class View(ActionProxy):
                 )
         return fields, None
 
-class Drop(ActionProxy):
+
+class Drop(TableActionProxy):
 
     def __init__(self, table, context=[], **kwds):
         super(Drop, self).__init__(table, 'drop', context, **kwds)
+        self.input = None
 
     def get_fields_value(self, table_name, prefix='', context=[]):
         return None, None

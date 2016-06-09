@@ -38,7 +38,7 @@ class ViewTableWizard(Action):
         table = req.GET.get('table')
         ret = {}
         if table:
-            ret['dump'] = yaml.safe_dump(table_wizard(table).dump,
+            ret['dump'] = yaml.safe_dump(table_wizard(table),
                                          indent=2,
                                          default_flow_style=False)
         return Response(json=ret)

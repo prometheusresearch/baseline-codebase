@@ -1,9 +1,9 @@
 
 from rex.core import cached, OMapVal
 from rex.action.action import ActionVal
-from rex.action.wizard import Wizard
+from rex.action.wizard import Wizard as BaseWizard
 from rex.deploy import model
-from rex.widget import render_widget
+from rex.widget import render_widget, computed_field
 from cached_property import cached_property
 import yaml
 from functools import partial
@@ -27,13 +27,21 @@ def root_wizard():
         type='view-table-wizard',
         title='Table Wizard'
     )
-    return WizardProxy.from_path('dbgui', 'DBGUI', 
+    return WizardProxy.from_path('dbgui', 'DBGUI',
                                  [(pick_table, [(view_table, None)])])
+
+class DBGUIWizard(BaseWizard):
+
+    name = 'dbgui_wizard'
+
+    @computed_field
+    def base_url(self, req):
+        return req.script_name
 
 
 class WizardProxy(object):
 
-    wizard_val = ActionVal(action_class=Wizard)
+    wizard_val = ActionVal(action_class=DBGUIWizard)
     order = ['id', 'type', 'title', 'path', 'actions']
 
     def __init__(self, id, title, path, actions):
@@ -45,13 +53,14 @@ class WizardProxy(object):
 
     @cached_property
     def wizard(self):
-        return self.wizard_val(dict(
+        ret = self.wizard_val(dict(
             id=self.id,
-            type='wizard',
+            type='dbgui_wizard',
             title=self.title,
             path=self.path,
             actions=dict([(a.id, a.action) for a in self.actions])
         ))
+        return ret
 
 
     def render(self, req):
@@ -74,7 +83,7 @@ class WizardProxy(object):
                      if a and not isinstance(a, (str, unicode))]
         return cls(id=id,
                    title=title,
-                   path=cls.extract_path(path), 
+                   path=cls.extract_path(path),
                    actions=actions)
 
     @classmethod
@@ -321,7 +330,9 @@ def represent_wizard(dumper, wizard):
     mapping = lambda l: yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', l)
     ret = []
     for key, value in sorted(vars(wizard).items(), key=sort_key(wizard)):
-        if value is not None and not key.startswith('_'):
+        if key not in wizard.order:
+            continue
+        if value is not None:
             node_key = dumper.represent_data(key)
             if key == 'actions':
                 actions = []
@@ -341,7 +352,9 @@ def represent_wizard(dumper, wizard):
 def represent_action(dumper, action):
     ret = []
     for key, value in sorted(vars(action).items(), key=sort_key(action)):
-        if value not in (None, []) and not key.startswith('_') and key != 'id':
+        if key not in action.order:
+            continue
+        if value not in (None, []):
             if key == 'fields':
                 value = [v['value_key']
                          if isinstance(v, dict) and v['type'] == 'dbgui_entity'

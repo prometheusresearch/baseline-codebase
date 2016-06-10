@@ -13,6 +13,9 @@ import {SearchInput} from 'rex-widget/form';
   }
 })
 export default class ViewTableWizard extends React.Component {
+  static contextTypes = {
+    baseUrl: React.PropTypes.string
+  };
 
   render() {
     let {title, onClose, context} = this.props;
@@ -40,8 +43,8 @@ export default class ViewTableWizard extends React.Component {
 
   @autobind
   runWizard() {
-    let url = `${__MOUNT_POINTS__['rex.dbgui']}/${this.props.context.table}`;
-    window.open(url);
+    let url = `${this.context.baseUrl}/${this.props.context.table}`;
+    window.location.href = url;
   }
 
 }

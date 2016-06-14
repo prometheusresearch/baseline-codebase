@@ -10,7 +10,7 @@ from datetime import datetime
 from webob import Response
 from webob.exc import HTTPBadRequest, HTTPFound
 
-from rex.core import get_settings, StrVal, get_packages
+from rex.core import get_settings, StrVal
 from rex.web import Command, Parameter
 
 from .core import KEY_LOCALE, DOMAIN_FRONTEND, get_json_translations, \

@@ -1,0 +1,22 @@
+{%- from 'rex.i18n:/template/macros.html' import polyfill -%}
+<!doctype html>
+<html>
+  <head>
+    <title>rex.i18n_demo</title>
+    {{ polyfill() }}
+    <link rel="stylesheet" href="{{ MOUNT['rex.i18n_demo'] }}/bundle/bundle.css">
+    <script src="{{ MOUNT['rex.i18n_demo'] }}/bundle/bundle.js"></script>
+  </head>
+  <body>
+    <div id="main"></div>
+    <script type="text/javascript">
+      RexI18NDemo.renderDemo(
+        {
+          locales: {{ SUPPORTED_LOCALES|list|json }}
+        },
+        document.getElementById('main')
+      );
+    </script>
+  </body>
+</html>
+

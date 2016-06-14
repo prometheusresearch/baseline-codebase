@@ -1,10 +1,9 @@
 /*
- * Copyright (c) 2015, Prometheus Research, LLC
+ * Copyright (c) 2016, Prometheus Research, LLC
  */
 
-'use strict';
 
-var testsContext = require.context('.', true, /_spec$/);
+var testsContext = require.context('.', true, /-test$/);
 
 testsContext.keys().forEach(testsContext);
 

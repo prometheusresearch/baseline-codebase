@@ -26,19 +26,15 @@ setup(
         'rex.ctl': [
             'i18n = rex.i18n.ctl',
         ],
-        'babel.extractors': [
-            'jsx = rex.i18n.extractors:extract_jsx',
-        ],
     },
     install_requires=[
+        'rex.setup>=3.2,<4',
         'rex.core>=1.9,<2',
         'rex.ctl>=2,<3',
         'rex.web>=3.1,<4',
         'babel>=2,<3',
         'speaklater>=1.3,<2',
         'pytz>=0a',
-        'pyexecjs==1.1.0',
-        'pyreact==0.5.2',
     ],
     rex_init='rex.i18n',
     rex_static='static',

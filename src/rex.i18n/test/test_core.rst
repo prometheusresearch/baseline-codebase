@@ -78,13 +78,13 @@ translations for the current locale::
 
     >>> tx = get_translations()
     >>> tx
-    <RexTranslations: "rex.i18n_demo 1.0.0">
+    <RexTranslations: "rex.i18n_demo 0.5.0">
     >>> tx.domain
     'backend'
 
     >>> tx = get_translations('es', 'frontend')
     >>> tx
-    <RexTranslations: "rex.i18n_demo 1.0.0">
+    <RexTranslations: "rex.i18n_demo 0.5.0">
     >>> tx.domain
     'frontend'
 
@@ -96,10 +96,10 @@ This function will return a JSON-encoded version of a Translations object
 suitable for use by client-side JavaScript libraries::
 
     >>> get_json_translations('fr', 'backend')
-    {'backend': {'': {'lang': 'fr', 'domain': 'backend', 'plural_forms': 'nplurals=2; plural=(n > 1)'}, u'apple': [None, u'pomme'], u'%(num)s banana': [None, u'%(num)s banane', u'%(num)s bananes']}}
+    {'backend': {'': {'lang': 'fr', 'domain': 'backend', 'plural_forms': 'nplurals=2; plural=(n > 1)'}, u'apple': [u'pomme'], u'%(num)s banana': [u'%(num)s banane', u'%(num)s bananes']}}
 
     >>> get_json_translations('es', 'backend')
-    {'backend': {'': {'lang': 'es', 'domain': 'backend', 'plural_forms': 'nplurals=2; plural=(n != 1)'}, u'apple': [None, ''], u'%(num)s banana': [None, u'%(num)s banana', u'%(num)s bananas']}}
+    {'backend': {'': {'lang': 'es', 'domain': 'backend', 'plural_forms': 'nplurals=2; plural=(n != 1)'}, u'apple': [''], u'%(num)s banana': [u'%(num)s banana', u'%(num)s bananas']}}
 
 
 gettext

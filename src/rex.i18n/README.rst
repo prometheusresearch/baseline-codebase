@@ -135,22 +135,60 @@ you can use in your templates:
 Localizing JavaScript Code
 ==========================
 
-The JavaScript module included in this package exposes an object named
-``RexI18N``. This object, when initialized with the desired locale, will load
+The JavaScript module included in this package exposes a class named
+``RexI18N``. This class, when initialized with the desired locale, will load
 the necessary information from the server and expose functions that can be used
 in your code to perform various localization tasks.
 
 To translate strings, the object has ``gettext`` and ``ngettext`` methods. To
 format date/time values, the object has ``formatDate``, ``formatTime``, and
 ``formatDateTime`` methods. To format numeric values, the object has
-``formatNumber``, ``formatDecimal``, and ``formatPercent`` methods. See the API
-documentation for more details on the options these methods will accept.
+``formatNumber``, ``formatDecimal``, and ``formatPercent`` methods.
 
-Note that there is a Jinja macro named ``setup`` in the
-``rex.i18n:/template/macros.html`` file that will set up the default
-configuration of the ``RexI18N`` object that can be used in simpler situations.
-Be sure to use this macro before any JavaScript bundles from RexDB applications
-are imported.
+There is also a set of React components that are exported by this library that
+wrap the RexI18N class to make accessing its functionality more natural in a
+React/JSX environment. The ``FormatNumber``, ``FormatDecimal``,
+``FormatPercent``, and ``FormatCurrency`` components will format and display
+numeric values. The ``FormatDate``, ``FormatTime``, and ``FormatDateTime``
+components will format and display date/time values.
+
+A class decorator also exists named ``InjectI18N`` that will automatically
+inject a a prop into the React.Component it wraps. This prop is named
+``RexI18N`` and is an instance of the ``RexI18N`` class described above. This
+instance can be used in the logic of your component to perform any necessary
+localization. It's particularly useful for getting access to the ``gettext``
+and ``ngettext`` methods for string localization.
+
+All of the ``Format*`` components, as well as any component wrapped by the
+``InjectI18N`` decorator, must be a descendent of the ``Provider`` component.
+The ``Provider`` component will automatically instantiate the ``RexI18N``
+object and inject it into the context of any child components that want to
+access it. This component takes a number of props:
+
+* locale: The locale that should be used by any localization components or
+  functions that are children of this component. Defaults to ``en``.
+* baseUrl: The mount point of the ``rex.i18n`` package. Defaults to ``/i18n``.
+* onLoad: A function that will be called when the ``RexI18N`` finishes loading
+  the necessary configuration and translations.
+
+A brief example of using these components::
+
+    import {Provider, FormatNumber} from 'rex-i18n';
+
+    class MyApp extends React.Component {
+        render() {
+            return (
+                <Provider locale='fr'>
+                    <p>This is a number: <FormatNumber value={123456.789} /></p>
+                </Provider>
+            );
+        }
+    }
+
+For applications that need to support a wider range of browsers than the RexDB
+platform supports by default, there is a Jinja macro named ``polyfill()`` in
+the ``rex.i18n:/template/macros.html`` file that will attempt to polyfill the
+Intl and fetch() APIs to allow this library to operate.
 
 
 Settings
@@ -330,4 +368,14 @@ For more information on these files, their format, and their use, please read
 the `Gettext documentation`_.
 
 .. _`Gettext documentation`: https://www.gnu.org/software/gettext/manual/html_node/index.html
+
+
+CLDR Data
+=========
+
+This package makes use of data from the `Unicode Common Locale Data
+Repository`_ (CLDR) to peform localization of dates/times, numbers, and
+currencies. For more information about this project, visit their site.
+
+.. _`Unicode Common Locale Data Repository`: http://cldr.unicode.org/
 

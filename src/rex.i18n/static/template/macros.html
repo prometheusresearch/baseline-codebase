@@ -1,10 +1,4 @@
-{% macro setup(locale=None, base_url=None) %}
-<script type="text/javascript">
-    window.Rex = window.Rex || {};
-    window.Rex.I18N_DEFAULT_LOCALE = '{{ locale or CURRENT_LOCALE }}';
-    window.Rex.I18N_DEFAULT_CONFIG = {
-        baseUrl: '{{ base_url or MOUNT['rex.i18n'] }}'
-    };
-</script>
-{% endmacro %}
+{% macro polyfill() -%}
+<script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=fetch,Intl.~locale.{{ SUPPORTED_LOCALES|map('first')|join(',Intl.~locale.') }}"></script>
+{%- endmacro %}
 

@@ -1,30 +1,19 @@
 /*
- * Copyright (c) 2014, Prometheus Research, LLC
+ * Copyright (c) 2016, Prometheus Research, LLC
  */
-
-'use strict';
-
-var webpackConfig = require('rex-setup').configureWebpack({});
-//var webpackConfig = require('./webpack.config');
 
 
 module.exports = function (config) {
-  'use strict';
-
   config.set({
     plugins: [
       require('karma-webpack'),
-      require('karma-jasmine'),
-      require('karma-jasmine-ajax'),
+      require('karma-mocha'),
       require('karma-sourcemap-loader'),
-      require('karma-phantomjs-launcher'),
-      require('karma-phantomjs-shim')
+      require('karma-coverage')
     ],
 
     frameworks: [
-      'jasmine-ajax',
-      'jasmine',
-      'phantomjs-shim'
+      'mocha'
     ],
 
     files: [
@@ -38,19 +27,45 @@ module.exports = function (config) {
       ]
     },
 
-    webpack: webpackConfig,
+    webpack: {
+      devtool: 'inline-source-map',
+      module: {
+        loaders: [
+          {
+            test: /\.json$/,
+            loader: 'json-loader'
+          },
+          {
+            test: /\.js$/,
+            exclude: /(test|node_modules)\//,
+            loader: 'istanbul-instrumenter'
+          },
+          {
+            test: /\.js$/,
+            exclude: /node_modules\//,
+            loader: 'babel-loader?presets=prometheusresearch'
+          }
+        ]
+      }
+    },
     /*webpackMiddleware: {
       noInfo: true,
       quiet: true
     },*/
 
-    browsers: [
-      'PhantomJS'
-    ],
+    browsers: [],
 
     reporters: [
-      'progress'
-    ]
+      'progress',
+      'coverage'
+    ],
+
+    coverageReporter: {
+      reporters: [
+        { type: 'html' },
+        { type: 'text' }
+      ]
+    }
   });
 };
 

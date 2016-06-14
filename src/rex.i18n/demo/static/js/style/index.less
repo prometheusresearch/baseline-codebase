@@ -1,0 +1,29 @@
+@import '~react-datetime/css/react-datetime.css';
+
+.rid-Demo {
+    display: flex;
+    flex-direction: column;
+
+    .rid-Demo__input {
+        text-align: center;
+        padding: 1em;
+
+        span {
+            font-weight: bold;
+            padding-right: 10px;
+        }
+
+        .rdt {
+            display: inline-block;
+        }
+    }
+
+    .rid-Demo__output {
+        display: flex;
+
+        .rid-NumberDemo, .rid-DateDemo, .rid-StringDemo {
+            flex-grow: 1;
+        }
+    }
+}
+

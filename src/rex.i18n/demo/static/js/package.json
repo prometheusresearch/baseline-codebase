@@ -1,0 +1,14 @@
+{
+  "name": "rex-i18n-demo",
+  "version": "0.5.0",
+  "main": "lib/index.js",
+  "rex": {
+    "bundleAll": true
+  },
+  "dependencies": {
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0",
+    "react-datetime": "^2.2.1"
+  }
+}
+

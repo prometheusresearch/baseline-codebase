@@ -5,8 +5,9 @@
 
 import threading
 
-from babel.support import Translations, NullTranslations
 from gettext import GNUTranslations
+
+from babel.support import Translations, NullTranslations
 from speaklater import make_lazy_string
 
 from rex.core import get_settings, get_packages, cached
@@ -350,17 +351,17 @@ def get_json_translations(locale, domain):
             # This is a pluralized string
             key, idx = key
             values = contents.get(key, [None])
-            if len(values) <= (idx + 1):
+            if len(values) <= idx:
                 # The array isn't big enough for the index we're working with;
                 # extend it.
-                values.extend([None] * ((idx + 2) - len(values)))
+                values.extend([None] * ((idx + 1) - len(values)))
 
-            values[idx + 1] = val
+            values[idx] = val
             val = values
         else:
             if key == val:
                 val = ''
-            val = [None, val]
+            val = [val]  # pylint: disable=redefined-variable-type
 
         contents[key] = val
 
@@ -434,13 +435,14 @@ def lazy_gettext(string, **variables):
 
 # If rex.widget is in use, register a JSON encoder to handle lazy strings.
 try:
-    # pylint: disable=W0611
     import rex.widget
 except ImportError:  # pragma: no cover
     pass
 else:
     from rex.widget import as_transitionable
     from speaklater import _LazyString
+
     @as_transitionable(_LazyString, tag='s')
     def _format_LazyString(v, req, path):
         return unicode(v)
+

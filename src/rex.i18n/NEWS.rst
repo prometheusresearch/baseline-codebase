@@ -10,6 +10,15 @@ REX.I18N Change Log
 
 * Removed the embedded CLDR dataset.
 * Removed the ``/locale`` and ``/locale/{locale}`` web APIs.
+* Refactored the base JavaScript I18N class library. It is now based on a
+  combination of the Intl API and the moment library, rather than the
+  Globalize library.
+* Added a collection of React components to facilitate integration with React-
+  based apps.
+* Implemented a simplistic demo application to show usage of the React
+  components.
+* Removed the ``setup()`` Jinja macro and added a ``polyfill()`` macro.
+* Rewrote the string extraction process for JavaScript code.
 
 
 0.4.5 (2015-11-18)

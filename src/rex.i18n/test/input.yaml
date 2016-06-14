@@ -10,12 +10,14 @@ tests:
     auto-data: true
 
   - rmdir: ./test/sandbox
-  - sh: cp -r ./demo ./test/sandbox
+  - sh: rsync -av --exclude=*/node_modules/* ./demo/ ./test/sandbox
+    ignore: true
   - rmdir: ./test/sandbox/static/i18n
-  - rm: ./test/sandbox/static/template/broken.html
 
   - rmdir: ./test/broken_sandbox
-  - sh: cp -r ./demo ./test/broken_sandbox
+  - sh: rsync -av --exclude=*/node_modules/* ./demo/ ./test/broken_sandbox
+    ignore: true
+  - sh: cp ./test/broken.html ./test/broken_sandbox/static/template/
   - rmdir: ./test/broken_sandbox/static/i18n
 
   - sh: pip install --quiet --editable ./demo

@@ -1,0 +1,35 @@
+# Arabic translations for rex.i18n_demo.
+# Copyright (C) 2016 UNKNOWN
+# This file is distributed under the same license as the rex.i18n_demo
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2016.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: rex.i18n_demo 0.5.0\n"
+"Report-Msgid-Bugs-To: UNKNOWN\n"
+"POT-Creation-Date: 2016-06-12 14:42-0400\n"
+"PO-Revision-Date: 2016-06-12 14:43-0400\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: ar\n"
+"Language-Team: ar <LL@li.org>\n"
+"Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n>=3 "
+"&& n<=10 ? 3 : n>=11 && n<=99 ? 4 : 5)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.3.4\n"
+
+msgid "apple"
+msgstr ""
+
+#, python-format
+msgid "%(num)s banana"
+msgid_plural "%(num)s bananas"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+msgstr[4] ""
+msgstr[5] ""
+

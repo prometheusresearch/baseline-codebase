@@ -1,58 +1,62 @@
-'use strict';
+/*
+ * Copyright (c) 2016, Prometheus Research, LLC
+ */
 
 
-var i18n = require('../lib');
+import {expect} from 'chai';
+
+import * as i18n from '../lib/instances';
 
 
 describe('setDefaultLocale / getDefaultLocale', function () {
   it('should have "en" as the initial default', function () {
-    expect(i18n.getDefaultLocale()).toBe('en');
+    expect(i18n.getDefaultLocale()).to.equal('en');
   });
 
   it('should allow us to set a new default', function () {
     i18n.setDefaultLocale('fr');
-    expect(i18n.getDefaultLocale()).toBe('fr');
+    expect(i18n.getDefaultLocale()).to.equal('fr');
     i18n.setDefaultLocale();
-    expect(i18n.getDefaultLocale()).toBe('en');
+    expect(i18n.getDefaultLocale()).to.equal('en');
   });
 });
 
 
 describe('setDefaultConfiguration / getDefaultConfiguration / updateDefaultConfiguration', function () {
   it('should have an empty default', function () {
-    expect(i18n.getDefaultConfiguration()).toEqual({});
+    expect(i18n.getDefaultConfiguration()).to.deep.equal({});
   });
 
   it('should allow us to set a new default', function () {
-    var test = {
+    let test = {
       baseUrl: '/foo'
     };
 
     i18n.setDefaultConfiguration(test);
-    expect(i18n.getDefaultConfiguration()).toEqual(test);
+    expect(i18n.getDefaultConfiguration()).to.deep.equal(test);
     i18n.setDefaultConfiguration({});
-    expect(i18n.getDefaultConfiguration()).toEqual({});
+    expect(i18n.getDefaultConfiguration()).to.deep.equal({});
   });
 
   it('should allow us to do partial updates', function () {
-    var test = {
+    let test = {
       baseUrl: '/foo'
     };
-    var test2 = {
+    let test2 = {
       localeUrl: '/bar'
     };
 
     i18n.setDefaultConfiguration(test);
-    expect(i18n.getDefaultConfiguration()).toEqual(test);
+    expect(i18n.getDefaultConfiguration()).to.deep.equal(test);
 
     i18n.updateDefaultConfiguration(test2);
-    expect(i18n.getDefaultConfiguration()).toEqual({
+    expect(i18n.getDefaultConfiguration()).to.deep.equal({
       baseUrl: '/foo',
       localeUrl: '/bar'
     });
 
     i18n.setDefaultConfiguration({});
-    expect(i18n.getDefaultConfiguration()).toEqual({});
+    expect(i18n.getDefaultConfiguration()).to.deep.equal({});
   });
 });
 

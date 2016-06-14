@@ -4,16 +4,18 @@
 
 
 import os
-import pkg_resources
 import re
 
 from email import message_from_string
-from tempfile import NamedTemporaryFile
+
+import pkg_resources
 
 from babel.messages.frontend import CommandLineInterface
 
-from rex.core import Error
-from rex.ctl import Task, argument, option
+from rex.core import Error, get_packages
+from rex.ctl import Task, argument, option, log
+from rex.ctl.common import make_rex
+from rex.setup import commonjs
 
 from .core import ALL_DOMAINS, DOMAIN_BACKEND, DOMAIN_FRONTEND, \
     get_locale_identifier
@@ -31,31 +33,6 @@ __all__ = (
 # pylint: disable=E1101,C0103
 
 
-BABEL_MAPPERS = dict([(d, '') for d in ALL_DOMAINS])
-
-BABEL_MAPPERS[DOMAIN_BACKEND] = """[python: src/**.py]
-[jinja2: static/template/**.*]
-extensions=jinja2.ext.do,jinja2.ext.loopcontrols
-silent=false
-[jinja2: static/templates/**.*]
-extensions=jinja2.ext.do,jinja2.ext.loopcontrols
-silent=false
-[jinja2: static/www/**.html]
-extensions=jinja2.ext.do,jinja2.ext.loopcontrols
-silent=false
-[jinja2: static/www/**.js_t]
-extensions=jinja2.ext.do,jinja2.ext.loopcontrols
-silent=false
-[jinja2: static/www/**.css_t]
-extensions=jinja2.ext.do,jinja2.ext.loopcontrols
-silent=false
-"""
-
-BABEL_MAPPERS[DOMAIN_FRONTEND] = """[jsx: static/js/lib/**.js]
-[jsx: static/js/lib/**.jsx]
-"""
-
-
 def check_domain(domain):
     if domain in ALL_DOMAINS:
         return domain
@@ -63,6 +40,8 @@ def check_domain(domain):
 
 
 class I18NTask(Task):
+    # pylint: disable=abstract-method
+
     class options(object):  # noqa
         domain = option(
             None,
@@ -95,31 +74,34 @@ class I18NExtractTask(I18NTask):
         project_path = argument(str, default=os.getcwd())
 
     def __call__(self):
-        base_args = ['pybabel', 'extract', '--no-location']
-        base_args.append('--keyword=lazy_gettext')
-        base_args.extend(self.get_package_metadata())
+        if DOMAIN_BACKEND in self.domain:
+            self.extract_backend()
+        if DOMAIN_FRONTEND in self.domain:
+            self.extract_frontend()
 
-        for domain in self.domain:
-            args = base_args[:]
+    def extract_backend(self):
+        args = ['pybabel', 'extract', '--no-location']
+        args.append('--keyword=lazy_gettext')
+        args.extend([
+            '--%s=%s' % (key, val)
+            for key, val in self.get_package_metadata().items()
+        ])
+        with make_rex('rex.i18n'):
+            args.append('--mapping=%s' % (
+                get_packages().abspath('rex.i18n:/babel_extract.ini'),
+            ))
 
-            config_file = NamedTemporaryFile(delete=False)
-            config_file.write(BABEL_MAPPERS[domain])
-            config_file.close()
-            args.append('--mapping=%s' % config_file.name)
+        pot_dir, pot_file = self.get_pot_location(DOMAIN_BACKEND)
+        if not os.path.exists(pot_dir):
+            os.makedirs(pot_dir)
+        args.append('--output=%s' % pot_file)
 
-            pot_dir, pot_file = self.get_pot_location(domain)
-            if not os.path.exists(pot_dir):
-                os.makedirs(pot_dir)
-            args.append('--output=%s' % pot_file)
+        args.append(self.project_path)
 
-            args.append(self.project_path)
-
-            CommandLineInterface().run(args)
-
-            os.remove(config_file.name)
+        CommandLineInterface().run(args)
 
     def get_package_metadata(self):
-        metadata = []
+        metadata = {}
 
         setup = os.path.join(self.project_path, 'setup.py')
 
@@ -134,12 +116,12 @@ class I18NExtractTask(I18NTask):
             if match:
                 package_name = match.groups()[0]
 
-                metadata.append('--project=%s' % package_name)
+                metadata['project'] = package_name
 
                 try:
                     dist = pkg_resources.get_distribution(package_name)
 
-                    metadata.append('--version=%s' % dist.version)
+                    metadata['version'] = dist.version
 
                     try:
                         pkg_info = dist.get_metadata('PKG-INFO')
@@ -149,23 +131,39 @@ class I18NExtractTask(I18NTask):
                         pkg_info = message_from_string(pkg_info)
 
                         if 'Author' in pkg_info:
-                            metadata.append(
-                                '--copyright-holder=%s' % (
-                                    pkg_info['Author'],
-                                ),
-                            )
+                            metadata['copyright-holder'] = pkg_info['Author']
                         if 'Author-Email' in pkg_info:
-                            metadata.append(
-                                '--msgid-bugs-address=%s' % (
-                                    pkg_info['Author-Email'],
-                                ),
-                            )
+                            metadata['msgid-bugs-address'] = \
+                                pkg_info['Author-Email']
 
-                # pylint: disable=W0704
                 except pkg_resources.DistributionNotFound:  # pragma: no cover
                     pass
 
         return metadata
+
+    def extract_frontend(self):
+        # Make sure the node environment is ready.
+        commonjs.bootstrap()
+        commonjs.npm(['install', '--global', 'gettext-parser'])
+
+        with make_rex('rex.i18n'):
+            args = [
+                get_packages().abspath('rex.i18n:/js_extractor/index.js'),
+                os.path.join(self.project_path, 'static/js'),
+            ]
+
+        pot_dir, pot_file = self.get_pot_location(DOMAIN_FRONTEND)
+        if not os.path.exists(pot_dir):
+            os.makedirs(pot_dir)
+        args.append(pot_file)
+
+        metadata = self.get_package_metadata()
+        project = metadata['project']
+        if metadata.get('version'):
+            project = '%s %s' % (project, metadata['version'])
+        args.append(project)
+
+        print commonjs.node(args)
 
 
 class I18NInitTask(I18NTask):
@@ -305,8 +303,9 @@ class I18NCompileTask(I18NTask):
             try:
                 CommandLineInterface().run(args)
             except:  # pylint: disable=W0702
-                print \
+                log(
                     'There was a failure when trying to compile domain: %s' % (
                         domain,
                     )
+                )
 

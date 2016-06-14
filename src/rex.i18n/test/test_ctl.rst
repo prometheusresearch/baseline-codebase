@@ -44,6 +44,7 @@ It takes one optional argument specifying the root path of the project::
     extracting messages from test/sandbox/static/js/lib/foo.jsx
     extracting messages from test/sandbox/static/js/lib/index.js
     writing PO template file to ./test/sandbox/static/i18n/frontend.pot
+    <BLANKLINE>
 
 
 It also takes an option that specifies which gettext domain to operate on::

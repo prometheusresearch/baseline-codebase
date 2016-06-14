@@ -17,6 +17,11 @@ setup(
         'rex.i18n',
     ],
     rex_init='rex.i18n_demo',
-    rex_static='static'
+    rex_static='static',
+    rex_bundle={
+        './www/bundle': [
+            'webpack:rex-i18n-demo',
+        ],
+    },
 )
 

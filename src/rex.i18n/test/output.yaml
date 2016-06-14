@@ -4,9 +4,171 @@
 ---
 suite: rex.i18n
 tests:
-- sh: cp -r ./demo ./test/sandbox
-  stdout: ''
-- sh: cp -r ./demo ./test/broken_sandbox
+- sh: rsync -av --exclude=*/node_modules/* ./demo/ ./test/sandbox
+  stdout: |
+    building file list ... done
+    created directory ./test/sandbox
+    ./
+    setup.py
+    setup.pyc
+    src/
+    src/rex.i18n_demo.egg-info/
+    src/rex.i18n_demo.egg-info/PKG-INFO
+    src/rex.i18n_demo.egg-info/SOURCES.txt
+    src/rex.i18n_demo.egg-info/dependency_links.txt
+    src/rex.i18n_demo.egg-info/namespace_packages.txt
+    src/rex.i18n_demo.egg-info/requires.txt
+    src/rex.i18n_demo.egg-info/rex_bundle.txt
+    src/rex.i18n_demo.egg-info/rex_init.txt
+    src/rex.i18n_demo.egg-info/rex_static.txt
+    src/rex.i18n_demo.egg-info/top_level.txt
+    src/rex/
+    src/rex/__init__.py
+    src/rex/__init__.pyc
+    src/rex/i18n_demo.py
+    src/rex/i18n_demo.pyc
+    static/
+    static/settings.yaml
+    static/i18n/
+    static/i18n/backend.pot
+    static/i18n/frontend.pot
+    static/i18n/ar/
+    static/i18n/ar/LC_MESSAGES/
+    static/i18n/ar/LC_MESSAGES/backend.mo
+    static/i18n/ar/LC_MESSAGES/backend.po
+    static/i18n/ar/LC_MESSAGES/frontend.mo
+    static/i18n/ar/LC_MESSAGES/frontend.po
+    static/i18n/es/
+    static/i18n/es/LC_MESSAGES/
+    static/i18n/es/LC_MESSAGES/backend.mo
+    static/i18n/es/LC_MESSAGES/backend.po
+    static/i18n/es/LC_MESSAGES/frontend.mo
+    static/i18n/es/LC_MESSAGES/frontend.po
+    static/i18n/fr/
+    static/i18n/fr/LC_MESSAGES/
+    static/i18n/fr/LC_MESSAGES/backend.mo
+    static/i18n/fr/LC_MESSAGES/backend.po
+    static/i18n/fr/LC_MESSAGES/frontend.mo
+    static/i18n/fr/LC_MESSAGES/frontend.po
+    static/js/
+    static/js/gettext.po
+    static/js/package.json
+    static/js/lib/
+    static/js/lib/foo.jsx
+    static/js/lib/index.js
+    static/js/node_modules/
+    static/js/style/
+    static/js/style/index.less
+    static/template/
+    static/template/bar.txt
+    static/template/foo.html
+    static/templates/
+    static/templates/bar.txt
+    static/templates/foo.html
+    static/test_i18n_files/
+    static/test_i18n_files/es/
+    static/test_i18n_files/es/LC_MESSAGES/
+    static/test_i18n_files/es/LC_MESSAGES/test.mo
+    static/test_i18n_files/es/LC_MESSAGES/test.po
+    static/test_i18n_files/fr/
+    static/test_i18n_files/fr/LC_MESSAGES/
+    static/test_i18n_files/fr/LC_MESSAGES/test.mo
+    static/test_i18n_files/fr/LC_MESSAGES/test.po
+    static/www/
+    static/www/_access.yaml
+    static/www/bar.css_t
+    static/www/foo.js_t
+    static/www/index.html
+    static/www/bundle/
+    static/www/bundle/bundle.css
+    static/www/bundle/bundle.js
+    static/www/bundle/bundle.js.map
+
+    sent 8293230 bytes  received 1270 bytes  16589000.00 bytes/sec
+    total size is 8288257  speedup is 1.00
+- sh: rsync -av --exclude=*/node_modules/* ./demo/ ./test/broken_sandbox
+  stdout: |
+    building file list ... done
+    created directory ./test/broken_sandbox
+    ./
+    setup.py
+    setup.pyc
+    src/
+    src/rex.i18n_demo.egg-info/
+    src/rex.i18n_demo.egg-info/PKG-INFO
+    src/rex.i18n_demo.egg-info/SOURCES.txt
+    src/rex.i18n_demo.egg-info/dependency_links.txt
+    src/rex.i18n_demo.egg-info/namespace_packages.txt
+    src/rex.i18n_demo.egg-info/requires.txt
+    src/rex.i18n_demo.egg-info/rex_bundle.txt
+    src/rex.i18n_demo.egg-info/rex_init.txt
+    src/rex.i18n_demo.egg-info/rex_static.txt
+    src/rex.i18n_demo.egg-info/top_level.txt
+    src/rex/
+    src/rex/__init__.py
+    src/rex/__init__.pyc
+    src/rex/i18n_demo.py
+    src/rex/i18n_demo.pyc
+    static/
+    static/settings.yaml
+    static/i18n/
+    static/i18n/backend.pot
+    static/i18n/frontend.pot
+    static/i18n/ar/
+    static/i18n/ar/LC_MESSAGES/
+    static/i18n/ar/LC_MESSAGES/backend.mo
+    static/i18n/ar/LC_MESSAGES/backend.po
+    static/i18n/ar/LC_MESSAGES/frontend.mo
+    static/i18n/ar/LC_MESSAGES/frontend.po
+    static/i18n/es/
+    static/i18n/es/LC_MESSAGES/
+    static/i18n/es/LC_MESSAGES/backend.mo
+    static/i18n/es/LC_MESSAGES/backend.po
+    static/i18n/es/LC_MESSAGES/frontend.mo
+    static/i18n/es/LC_MESSAGES/frontend.po
+    static/i18n/fr/
+    static/i18n/fr/LC_MESSAGES/
+    static/i18n/fr/LC_MESSAGES/backend.mo
+    static/i18n/fr/LC_MESSAGES/backend.po
+    static/i18n/fr/LC_MESSAGES/frontend.mo
+    static/i18n/fr/LC_MESSAGES/frontend.po
+    static/js/
+    static/js/gettext.po
+    static/js/package.json
+    static/js/lib/
+    static/js/lib/foo.jsx
+    static/js/lib/index.js
+    static/js/node_modules/
+    static/js/style/
+    static/js/style/index.less
+    static/template/
+    static/template/bar.txt
+    static/template/foo.html
+    static/templates/
+    static/templates/bar.txt
+    static/templates/foo.html
+    static/test_i18n_files/
+    static/test_i18n_files/es/
+    static/test_i18n_files/es/LC_MESSAGES/
+    static/test_i18n_files/es/LC_MESSAGES/test.mo
+    static/test_i18n_files/es/LC_MESSAGES/test.po
+    static/test_i18n_files/fr/
+    static/test_i18n_files/fr/LC_MESSAGES/
+    static/test_i18n_files/fr/LC_MESSAGES/test.mo
+    static/test_i18n_files/fr/LC_MESSAGES/test.po
+    static/www/
+    static/www/_access.yaml
+    static/www/bar.css_t
+    static/www/foo.js_t
+    static/www/index.html
+    static/www/bundle/
+    static/www/bundle/bundle.css
+    static/www/bundle/bundle.js
+    static/www/bundle/bundle.js.map
+
+    sent 8293230 bytes  received 1270 bytes  5529666.67 bytes/sec
+    total size is 8288257  speedup is 1.00
+- sh: cp ./test/broken.html ./test/broken_sandbox/static/template/
   stdout: ''
 - sh: pip install --quiet --editable ./demo
   stdout: ''

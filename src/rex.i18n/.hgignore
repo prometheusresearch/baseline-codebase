@@ -3,9 +3,9 @@
 syntax: glob
 build
 dist
-static/cldr
-static/js/bower_components
 static/js/node_modules
+static/js/coverage
 test/sandbox
 test/broken_sandbox
+demo/static/www/bundle
 

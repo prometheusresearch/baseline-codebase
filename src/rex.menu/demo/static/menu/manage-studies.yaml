@@ -1,0 +1,35 @@
+title: Manage Studies
+type: wizard
+
+path:
+- pick-study:
+  - view-study:
+  - make-study:
+    - replace: ../../pick-study/view-study
+
+actions:
+
+  view-study:
+    type: view
+    title: View Study
+    entity: study
+    fields: &study-fields
+    - value_key: code
+      label: Code
+    - value_key: title
+      label: Title
+
+  pick-study:
+    type: pick
+    title: Select Study
+    entity: study
+    mask: '!closed'
+    fields: *study-fields
+
+  make-study:
+    type: make
+    title: New Study
+    entity: study
+    fields: *study-fields
+    submit_button: Add Study
+

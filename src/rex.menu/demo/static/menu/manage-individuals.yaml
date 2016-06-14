@@ -1,0 +1,54 @@
+title: Manage Individuals
+type: wizard
+
+path:
+- pick-individual:
+  - view-individual:
+  - make-individual:
+    - replace: ../../pick-individual/view-individual
+  - help:
+
+actions:
+
+  help:
+    type: page
+    title: Help
+    icon: question-sign
+    text: |
+      **Help on Managing Individuals**
+
+  view-individual:
+    type: view
+    title: View Individual
+    entity: individual
+    fields: &individual-fields
+    - value_key: code
+      label: RexID
+    - value_key: first_name
+      label: First Name
+    - value_key: last_name
+      label: Last Name
+    - value_key: sex
+      label: Sex
+    - value_key: mother
+      label: Mother
+    - value_key: father
+      label: Father
+
+  pick-individual:
+    type: pick
+    title: Select Individual
+    entity: individual
+    search: |
+      code~$search|
+      first_name~$search|
+      last_name~$search
+    fields: *individual-fields
+
+  make-individual:
+    type: make
+    title: New Individual
+    entity: individual
+    fields: *individual-fields
+    submit_button: Add Individual
+

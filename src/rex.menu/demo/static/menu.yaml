@@ -1,0 +1,45 @@
+
+menu:
+
+- title: Home
+  items:
+
+  - title: Start
+    path: /
+    access: anybody
+    action:
+      title: Welcome!
+      type: page
+      text: |
+        Welcome to ``rex.menu`` demo!
+
+  - title: My Account
+    action: /menu/my-account.yaml
+
+- title: Individuals
+  access: phi_access
+  items:
+
+  - title: Manage individuals
+    path: /individual
+    action: rex.menu_demo:/menu/manage-individuals.yaml
+
+- title: Studies
+  items:
+
+  - title: Manage studies
+    path: /study
+    action: rex.menu_demo:/menu/manage-studies.yaml
+
+  - title: Closed studies
+    path: /study/closed
+    action: rex.menu_demo:/menu/closed-studies.yaml
+
+- title: Users
+  access: user_access
+  items:
+
+  - title: Manage Users
+    path: /user
+    action: rex.menu_demo:/menu/manage-users.yaml
+

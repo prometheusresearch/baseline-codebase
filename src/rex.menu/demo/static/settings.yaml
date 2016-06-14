@@ -1,0 +1,14 @@
+
+db: pgsql:menu_demo
+
+htsql_extensions:
+  rex_deploy:
+
+user_query: user[$USER]
+
+access_queries:
+  user_access: user[$USER].user_access
+  phi_access: user[$USER].phi_access
+
+attach_dir: .
+

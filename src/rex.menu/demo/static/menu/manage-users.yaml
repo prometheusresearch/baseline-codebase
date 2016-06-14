@@ -1,0 +1,39 @@
+title: Manage Users
+type: wizard
+
+path:
+- pick-user:
+  - view-user:
+  - make-user:
+    - replace: ../../pick-user/view-user
+
+actions:
+
+  view-user:
+    type: view
+    title: View User
+    entity:
+      remote_user: user
+    fields: &user-fields
+    - value_key: email
+      label: Email
+    - value_key: user_access
+      label: Can manage users
+    - value_key: phi_access
+      label: Can access PHI
+
+  pick-user:
+    type: pick
+    title: Select User
+    entity:
+      remote_user: user
+    fields: *user-fields
+
+  make-user:
+    type: make
+    title: New User
+    entity:
+      remote_user: user
+    fields: *user-fields
+    submit_button: Add User
+

@@ -1,0 +1,19 @@
+title: Closed Studies
+type: wizard
+
+path:
+- pick-study:
+
+actions:
+
+  pick-study:
+    title: Pick Study
+    type: pick
+    entity: study
+    mask: closed
+    fields:
+    - value_key: code
+      label: Code
+    - value_key: title
+      label: Title
+

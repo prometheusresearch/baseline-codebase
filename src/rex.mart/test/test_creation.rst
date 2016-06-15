@@ -463,14 +463,14 @@ done::
 You can load Instruments/Assessments that have enumeration fields with hyphens
 in their name::
 
-    >>> mc = MartCreator('test', 'enum_hyphens')
+    >>> mc = MartCreator('test', 'enum_values')
     >>> mart = mc()
     >>> db_exists(mart.name)
     True
     >>> db_inventory(mart.name)
     mart13: 1
     >>> db_status(mart.name)
-    Definition: enum_hyphens
+    Definition: enum_values
     Status: complete
     Owner: test
     Has Size: True

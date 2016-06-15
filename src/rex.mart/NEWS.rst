@@ -5,6 +5,13 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
+0.2.1 (2016-xx-xx)
+==================
+
+- Fixed an issue that prevented the creation of Assessment tables that included
+  enumerationSet fields with purely numeric enumerations.
+
+
 0.2.0 (2016-03-23)
 ==================
 

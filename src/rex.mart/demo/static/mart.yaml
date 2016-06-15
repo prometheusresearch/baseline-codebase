@@ -323,8 +323,8 @@ definitions:
               columns: (upper(col1))
               partial: col2 = 'foo'
 
-  - id: enum_hyphens
-    description: Load Assessments that have enumeration/enumerationSet fields with hyphen'ed values
+  - id: enum_values
+    description: Load Assessments that have enumeration/enumerationSet values with atypical enumeration choices
     assessments:
       - instrument: mart13
         selector: |

@@ -336,7 +336,7 @@ class EnumerationSetField(EnumerationField):
     }
 
     def get_enum_target_name(self, enum):
-        return '%s_%s' % (self.target_name, make_safe_token(enum))
+        return '%s_%s' % (self.target_name, make_safe_token(enum, trim=False))
 
     def get_deploy_facts(self, table_name):
         return [

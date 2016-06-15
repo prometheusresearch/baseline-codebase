@@ -103,7 +103,7 @@ RE_SAFE_TOKEN = re.compile(RESTR_SAFE_TOKEN)
 RE_CLEAN_TOKEN = re.compile(r'[^a-z0-9_]')
 
 
-def make_safe_token(token):
+def make_safe_token(token, trim=True):
     """
     Massages the given token so that it is safe for use as the name of an
     object in the database.
@@ -116,6 +116,8 @@ def make_safe_token(token):
     safe_token = unicode(token).lower().replace('-', '_')
     if not RE_SAFE_TOKEN.match(safe_token):
         safe_token = RE_CLEAN_TOKEN.sub(u'', safe_token)
+        if not trim:
+            return safe_token
         while not RE_SAFE_TOKEN.match(safe_token):
             safe_token = safe_token[1:]
             if not safe_token:

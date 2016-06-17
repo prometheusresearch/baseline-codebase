@@ -5,7 +5,7 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
-0.2.1 (2016-xx-xx)
+0.2.1 (2016-06-17)
 ==================
 
 - Fixed an issue that prevented the creation of Assessment tables that included

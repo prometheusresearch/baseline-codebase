@@ -5,7 +5,13 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
-1.5.0 (2016-xx-xx)
+1.6.0 (2016-xx-xx)
+==================
+
+* Updated rios.core dependency.
+
+
+1.5.0 (2016-06-01)
 ==================
 
 * The base implementation of ``Task.start_entry()`` will now create an

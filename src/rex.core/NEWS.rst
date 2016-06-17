@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.13.0 (2016-XX-XX)
+===================
+
+* ``!include`` YAML tag now supports package resources.
+
+
 1.12.1 (2016-03-31)
 ===================
 

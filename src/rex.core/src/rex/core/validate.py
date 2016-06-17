@@ -168,6 +168,7 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
 
     def construct_object(self, node, deep=False):
         if node.tag == u'!include':
+            location = Location.from_node(node)
             stream = self.include(node)
             loader = self.__class__(stream, self.validate,
                                     self.master, self.open)
@@ -179,7 +180,8 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
                 node = yaml.ScalarNode(u"tag:yaml.org,2002:null", u"",
                                        mark, mark, u'')
             stream.close()
-            return loader.construct_document(node)
+            with guard("While processing !include directive:", location):
+                return loader.construct_document(node)
         if node.tag == u'!include/str':
             with self.include(node) as stream:
                 value = stream.read()
@@ -192,6 +194,8 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
         return super(ValidatingLoader, self).construct_object(node, deep)
 
     def include(self, node):
+        from .context import get_rex
+        from .package import get_packages
         if not isinstance(node, yaml.ScalarNode):
             raise yaml.constructor.ConstructorError(None, None,
                     "expected a file name, but found %s" % node.id,
@@ -202,12 +206,29 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
                     node.start_mark)
         basename = getattr(self.stream, 'name', None)
         filename = node.value.encode('utf-8')
+        if ':' in filename:
+            if not get_rex:
+                raise yaml.constructor.ConstructorError(None, None,
+                        "cannot read a static resource without"
+                        " an active Rex application",
+                        node.start_mark)
+            packages = get_packages()
+            package_name, local_path = filename.split(':', 1)
+            if not (package_name in packages and packages[package_name].static):
+                raise yaml.constructor.ConstructorError(None, None,
+                        "cannot find a static resource: %s" % filename,
+                        node.start_mark)
+            basename = packages[package_name].static+'/'
+            filename = local_path
+            if filename.startswith('/'):
+                filename = filename[1:]
         if not os.path.isabs(filename):
             if not basename:
                 raise yaml.constructor.ConstructorError(None, None,
                         "unable to resolve relative path: %s" % filename,
                         node.start_mark)
-            filename = os.path.join(os.path.dirname(basename), filename)
+            filename = os.path.normpath(
+                    os.path.join(os.path.dirname(basename), filename))
         try:
             stream = self.open(filename)
         except IOError:

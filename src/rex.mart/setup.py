@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.mart',
-    version='0.2.1',
+    version='0.2.2',
     description='Core backend functionality for the RexMart suite of tools',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',
@@ -35,7 +35,7 @@ setup(
         'rex.instrument>=1.3,<2',
         'rex.web>=3.4,<4',
         'rex.restful>=1.1,<2',
-        'rios.core>=0.7,<0.8',
+        'rios.core>=0.7,<0.9',
         'cachetools>=1,<2',
     ],
     rex_init='rex.mart',

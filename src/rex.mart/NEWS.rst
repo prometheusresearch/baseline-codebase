@@ -5,6 +5,12 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
+0.2.2 (2016-xx-xx)
+==================
+
+- Update rios.core dependency.
+
+
 0.2.1 (2016-06-17)
 ==================
 

@@ -9,6 +9,7 @@ REX.FORMS Change Log
 ==================
 
 * Fixed issue with display of non-text/non-numeric calculations results.
+* Updated rios.core dependency.
 
 
 1.5.0 (2016-04-22)

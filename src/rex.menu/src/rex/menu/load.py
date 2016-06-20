@@ -5,56 +5,43 @@
 
 from rex.core import (
         autoreload, get_packages, Validate, AnyVal, MaybeVal, StrVal, SeqVal,
-        RecordVal, Error, set_location, locate, Location, Error, guard)
+        RecordVal, UnionVal, BoolVal, ProxyVal, Error, set_location, locate,
+        Location, Error, guard)
 from rex.web import PathMask, PathMap, authorize, confine
 from rex.action import ActionRenderer
 from rex.action.action import ActionVal
+from .menu import Menu
 from webob.exc import HTTPUnauthorized
 import collections
 import re
 
 
-class MenuBar(collections.namedtuple('MenuBar', ['menus'])):
+class MenuItem(object):
 
-    __slots__ = ()
+    def __init__(self, title, handler=None, items=[], new_window=False):
+        if isinstance(handler, list) and items == []:
+            items = handler
+            handler = None
+        self.title = title
+        self.handler = handler
+        self.items = items
+        self.new_window = new_window
+        self.route = PathMap()
+        if handler is not None:
+            for mask in handler.masks():
+                self.route.add(mask, handler)
+        for item in items:
+            self.route.update(item.route)
 
-    def __iter__(self):
-        return iter(self.menus)
-
-
-class Menu(collections.namedtuple('Menu', ['title', 'items'])):
-
-    __slots__ = ()
-
-    def __iter__(self):
-        return iter(self.items)
-
-
-class MenuItem(
-        collections.namedtuple(
-            'MenuItem',
-            ['title', 'path', 'access', 'action'])):
-
-    __slots__ = ()
-
-    def __call__(self, req):
-        if not authorize(req, self):
-            raise HTTPUnauthorized()
-        with confine(req, self):
-            path_masks = self.path_masks()
-            renderer = ActionRenderer(
-                    path_masks, self.action, self.access, None)
-            return renderer(req)
-
-    def path_masks(self):
-        sanitized_path = self.path
-        if sanitized_path.endswith('/'):
-            sanitized_path = sanitized_path[:-1]
-        return [
-            PathMask(self.path),
-            PathMask('%s/@@/{path:*}' % sanitized_path),
-            PathMask('%s/@/{action:*}' % sanitized_path),
-        ]
+    def __repr__(self):
+        args = [self.title]
+        if self.handler:
+            args.append(repr(self.handler))
+        if self.items:
+            args.append(repr(self.items))
+        if self.new_window:
+            args.append("new_window=%r" % self.new_window)
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
 
 class PathVal(StrVal):
@@ -90,6 +77,29 @@ class LoadMenu(object):
 
     def __init__(self, open=open):
         self.open = open
+        self.menu_by_record_type = {}
+        item_validate = ProxyVal()
+        items_validate = SeqVal(item_validate)
+        menu_pairs = []
+        for menu_type in Menu.all():
+            menu_validate = RecordVal(
+                    (menu_type.key, menu_type.validate),
+                    ('title', StrVal),
+                    ('path', MaybeVal(PathVal), None),
+                    ('access', MaybeVal(StrVal), None),
+                    ('new_window', BoolVal, False),
+                    ('items', items_validate, []))
+            menu_pairs.append((menu_type.key, menu_validate))
+            self.menu_by_record_type[menu_validate.record_type] = menu_type
+        menu_pairs.append(RecordVal(
+                ('title', StrVal),
+                ('path', MaybeVal(PathVal), None),
+                ('access', MaybeVal(StrVal), None),
+                ('items', items_validate, [])))
+        item_validate.set(UnionVal(*menu_pairs))
+        self.validate = RecordVal(
+                ('access', MaybeVal(StrVal), None),
+                ('menu', items_validate, []))
 
     def __call__(self):
         # Locates and parses ``menu.yaml``.
@@ -123,42 +133,42 @@ class LoadMenu(object):
         # Build the menu.
         menus = []
         seen = PathMap()
-        for menu_spec in spec.menu:
-            menu_title = menu_spec.title
-            menu_items = []
-            for item_spec in menu_spec.items:
-                title = item_spec.title
-                path = item_spec.path or \
-                        self._title_to_path(menu_spec.title, item_spec.title)
-                mask = PathMask(path)
-                access = item_spec.access or \
-                        menu_spec.access or spec.access or 'authenticated'
-                action = item_spec.action
-                if mask in seen:
-                    error = Error("Detected duplicate or ambiguous path:", mask)
-                    error.wrap("Defined in:", locate(item_spec))
-                    error.wrap("And previously in:", locate(seen[mask]))
-                    raise error
-                seen.add(mask, item_spec)
-                menu_item = MenuItem(title, path, access, action)
-                menu_items.append(menu_item)
-            menu = Menu(menu_title, menu_items)
-            menus.append(menu)
-        return MenuBar(menus)
+        items = []
+        for item_spec in spec.menu:
+            item = self.build(item_spec, '', spec.access or 'authenticated', seen)
+            items.append(item)
+        return MenuItem('', None, items)
+
+    def build(self, spec, base_path, base_access, seen):
+        title = spec.title
+        handler = None
+        path = spec.path or (base_path + '/' + self._title_to_path(spec.title))
+        access = spec.access or base_access
+        items = []
+        if type(spec) in self.menu_by_record_type:
+            menu_type = self.menu_by_record_type[type(spec)]
+            mask = PathMask(path)
+            if mask in seen:
+                error = Error("Detected duplicate or ambiguous path:", mask)
+                error.wrap("Defined in:", locate(spec))
+                error.wrap("And previously in:", locate(seen[mask]))
+                raise error
+            seen.add(mask, spec)
+            value = getattr(spec, menu_type.key)
+            handler = menu_type(path, access, value)
+        for item_spec in spec.items:
+            item = self.build(item_spec, path, access, seen)
+            items.append(item)
+        return MenuItem(title, handler, items)
 
     @staticmethod
-    def _title_to_path(menu_title, item_title):
-        menu_segment = \
-                re.sub('[^0-9a-zA-Z]+', ' ', menu_title) \
-                .strip().replace(' ', '-').lower() or '-'
-        item_segment = \
-                re.sub('[^0-9a-zA-Z]+', ' ', item_title) \
-                .strip().replace(' ', '-').lower() or '-'
-        return '/%s/%s' % (menu_segment, item_segment)
+    def _title_to_path(title):
+        return (re.sub('[^0-9a-zA-Z]+', ' ', title) \
+                .strip().replace(' ', '-').lower() or '-')
 
 
 @autoreload
-def load_menu(open=open):
+def get_menu(open=open):
     # Parses `menu.yaml` file.
     load = LoadMenu(open=open)
     return load()

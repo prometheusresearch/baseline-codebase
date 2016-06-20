@@ -5,7 +5,8 @@
 
 from rex.core import autoreload
 from rex.web import Pipe, PathMap
-from .load import LoadMenu
+from .load import get_menu
+from webob.exc import HTTPMovedPermanently
 
 
 class PipeMenu(Pipe):
@@ -15,20 +16,10 @@ class PipeMenu(Pipe):
     before = 'routing'
 
     def __call__(self, req):
-        route = get_menu_map()
-        handle = route.get(req.path_info)
+        menu = get_menu()
+        handle = menu.route.get(req.path_info)
+        if handle is None and menu.route.completes(req.path_info):
+            return HTTPMovedPermanently(add_slash=True)
         return (handle or self.handle)(req)
-
-
-@autoreload
-def get_menu_map(open=open):
-    load_menu = LoadMenu(open=open)
-    bar = load_menu()
-    map = PathMap()
-    for menu in bar:
-        for item in menu:
-            for mask in item.path_masks():
-                map.add(mask, item)
-    return map
 
 

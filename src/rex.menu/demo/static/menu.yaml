@@ -25,6 +25,11 @@ menu:
     action: !include
       rex.menu_demo:/menu/manage-individuals.yaml
 
+  - title: Explore
+    path: /explore
+    widget: !<IFrame>
+     src: rex.db:/
+
 - title: Studies
   items:
 
@@ -46,4 +51,10 @@ menu:
     path: /user
     action: !include
       rex.menu_demo:/menu/manage-users.yaml
+
+- title: Search
+  access: anybody
+  external: http://google.com/
+  new_window: true
+
 

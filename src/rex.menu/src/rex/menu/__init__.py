@@ -9,13 +9,14 @@ This package creates a hierarchical menu of URLs and URL handlers.
 
 
 from rex.core import Initialize
-from .load import load_menu
-from .route import get_menu_map
+from .load import get_menu
+from .route import PipeMenu
+from .menu import Menu
 
 
 class InitializeMenu(Initialize):
 
     def __call__(self):
-        get_menu_map()
+        get_menu()
 
 

@@ -95,6 +95,7 @@ class LoadMenu(object):
                 ('title', StrVal),
                 ('path', MaybeVal(PathVal), None),
                 ('access', MaybeVal(StrVal), None),
+                ('new_window', BoolVal, False),
                 ('items', items_validate, [])))
         item_validate.set(UnionVal(*menu_pairs))
         self.validate = RecordVal(
@@ -145,6 +146,7 @@ class LoadMenu(object):
         path = spec.path or (base_path + '/' + self._title_to_path(spec.title))
         access = spec.access or base_access
         items = []
+        new_window = spec.new_window
         if type(spec) in self.menu_by_record_type:
             menu_type = self.menu_by_record_type[type(spec)]
             mask = PathMask(path)
@@ -159,7 +161,7 @@ class LoadMenu(object):
         for item_spec in spec.items:
             item = self.build(item_spec, path, access, seen)
             items.append(item)
-        return MenuItem(title, handler, items)
+        return MenuItem(title, handler, items, new_window=new_window)
 
     @staticmethod
     def _title_to_path(title):

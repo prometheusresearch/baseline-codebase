@@ -5,8 +5,7 @@
 
 from rex.core import (
         autoreload, get_packages, Validate, AnyVal, MaybeVal, StrVal, SeqVal,
-        RecordVal, Error, set_location, locate, Location, Error, guard,
-        UnionVal, OnScalar, OnMap)
+        RecordVal, Error, set_location, locate, Location, Error, guard)
 from rex.web import PathMask, PathMap, authorize, confine
 from rex.action import ActionRenderer
 from rex.action.action import ActionVal
@@ -72,9 +71,7 @@ class PathVal(StrVal):
 class LoadMenu(object):
     # Parses `urlmap.yaml` file.
 
-    action_validate = UnionVal(
-            (OnScalar, StrVal),
-            (OnMap, ActionVal(id='')))
+    action_validate = ActionVal(id='')
 
     item_validate = RecordVal(
             ('title', StrVal),
@@ -118,8 +115,10 @@ class LoadMenu(object):
             spec = self.validate({})
         else:
             [menu_package] = menu_packages
-            with self.open(menu_package.abspath('menu.yaml')) as stream:
-                spec = self.validate.parse(stream, open=self.open)
+            path = menu_package.abspath('menu.yaml')
+            with guard("While loading application menu:", path):
+                with self.open(path) as stream:
+                    spec = self.validate.parse(stream, open=self.open)
 
         # Build the menu.
         menus = []
@@ -135,26 +134,6 @@ class LoadMenu(object):
                 access = item_spec.access or \
                         menu_spec.access or spec.access or 'authenticated'
                 action = item_spec.action
-                # Read the action definition from a file.
-                if isinstance(action, str):
-                    if ':' in action:
-                        package_name, action_path = action.split(':', 1)
-                    else:
-                        package_name = menu_package.name
-                        action_path = action
-                    with guard("While loading menu action:", locate(item_spec)):
-                        if package_name not in packages:
-                            raise Error(
-                                    "Detected invalid package name:",
-                                    package_name)
-                        action_package = packages[package_name]
-                        if not action_package.exists(action_path):
-                            raise Error(
-                                    "Detected invalid path:", action)
-                        action_path = action_package.abspath(action_path)
-                        with self.open(action_path) as stream:
-                            validate = ActionVal(id='')
-                            action = validate.parse(stream, open=open)
                 if mask in seen:
                     error = Error("Detected duplicate or ambiguous path:", mask)
                     error.wrap("Defined in:", locate(item_spec))

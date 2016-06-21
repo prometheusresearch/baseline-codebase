@@ -118,6 +118,19 @@ A requirement could be one of the following:
     Package('rex.core_demo', modules=set(['rex.core_demo']), static='./demo/rex.core_demo/static')
     PythonPackage('rex.core', modules=set([..., 'rex.core', ...]))
 
+It is possible to prevent a package from being included into the package
+collection even if the package is a part of the dependency tree::
+
+    >>> Package.disable('rex.core')
+
+    >>> with Rex('__main__', 'rex.core_demo'):
+    ...     for package in get_packages():
+    ...         print package       # doctest: +ELLIPSIS
+    ModulePackage('__main__', modules=set(['__main__']))
+    PythonPackage('rex.core_demo', modules=set(['rex.core_demo']), static='/.../share/rex/rex.core_demo')
+
+    >>> Package.disable_reset()
+
 An exception is raised if the package name is ill-formed or unknown::
 
     >>> Rex('rex.bro ken')

@@ -26,6 +26,37 @@ class Package(object):
         Directory containing static files of the package.
     """
 
+    # Maps a module name to a set of packages disabled by the module.
+    disable_map = {}
+
+    @classmethod
+    def disable(cls, name, module=None):
+        """
+        Disables the given package.
+
+        This prevents the package from being included with the application
+        even if the package is a part of the dependency tree.
+
+        `name`
+            Name of the package to disable.
+        `module`
+            The module which disables the package; if not set,
+            use the module of the caller.
+        """
+        if module is None:
+            module = sys._getframe(1).f_globals['__name__']
+        cls.disable_map.setdefault(module, set())
+        cls.disable_map[module].add(name)
+
+    @classmethod
+    def disable_reset(cls, module=None):
+        """
+        Reenables all the packages disabled by the given module.
+        """
+        if module is None:
+            module = sys._getframe(1).f_globals['__name__']
+        cls.disable_map.pop(module, None)
+
     def __init__(self, name, modules=set(), static=None):
         self.name = name
         self.modules = modules
@@ -173,6 +204,15 @@ class PackageCollection(object):
         for requirement in reversed(requirements):
             packages.extend(cls._build_package_tree(requirement, seen))
         packages.reverse()
+        # Filter out disabled packages.
+        disabled = set()
+        for module in Package.disable_map:
+            if any([module in package.modules for package in packages]):
+                disabled.update(Package.disable_map[module])
+        packages = [
+                package
+                for package in packages
+                if package.name not in disabled]
         return cls(packages)
 
     @classmethod

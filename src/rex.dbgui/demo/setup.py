@@ -1,14 +1,14 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='dbgui_demo',
+    name='rex.dbgui_demo',
     version='4.0.0',
     description='Database management application / Demo',
     maintainer='Prometheus Research, LLC',
     license='AGPLv3',
-    url='https://bitbucket.org/prometheus/dbgui',
+    url='https://bitbucket.org/rexdb/rex.dbgui',
     install_requires=[
-        'dbgui'
+        'rex.dbgui'
     ],
     rex_static='static',
 )

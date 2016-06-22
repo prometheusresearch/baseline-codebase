@@ -153,6 +153,12 @@ class Extension(object):
                 matches.append(
                         "%s.%s"
                         % (subclass.__module__, subclass.__class__.__name__))
+                if isinstance(subclass.priority, str):
+                    matches.append(subclass.priority)
+                if isinstance(subclass.priority, list):
+                    for priority in subclass.priority:
+                        if isinstance(priority, str):
+                            matches.append(priority)
                 if subclass.signature.__func__ is not \
                         Extension.signature.__func__:
                     matches.append(subclass.signature())
@@ -223,6 +229,36 @@ class Extension(object):
     #: Signature of implementation that should preceed the given implementation.
     before = None
 
+    # Maps a module name and an interface to an ordered list of signatures.
+    precedence_map = {}
+
+    @classmethod
+    def precedence(cls, order, module=None):
+        """
+        Declares precedence order for implementations of the interface.
+
+        `order`
+            A list of signatures in the precedence order.
+        `module`
+            The module which defines the precedence order; if not set,
+            use the module of the caller.
+        """
+        if module is None:
+            module = sys._getframe(1).f_globals['__name__']
+        key = (cls, module)
+        cls.precedence_map.setdefault(key, [])
+        cls.precedence_map[key].append(order)
+
+    @classmethod
+    def precedence_reset(cls, module=None):
+        """
+        Reenables disabled extensions.
+        """
+        if module is None:
+            module = sys._getframe(1).f_globals['__name__']
+        key = (cls, module)
+        cls.precedence_map.pop(key, None)
+
     @classmethod
     @cached
     def ordered(cls, package=None):
@@ -266,6 +302,20 @@ class Extension(object):
                             order[extension].append(other)
                         else:
                             order[other].append(extension)
+        # Enforce `precedence` conditions.
+        packages = get_packages()
+        for key in cls.precedence_map:
+            interface, module = key
+            if module in packages.modules and issubclass(interface, cls):
+                for precedence in cls.precedence_map[key]:
+                    previous = None
+                    for extension in precedence:
+                        if isinstance(extension, str):
+                            extension = signatures.get(extension)
+                        if extension in extensions:
+                            if previous is not None:
+                                order[extension].append(previous)
+                            previous = extension
         # Sort the extensions.
         return toposort(extensions, order)
 

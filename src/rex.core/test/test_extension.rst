@@ -249,9 +249,22 @@ Priority loops are detected::
       ...
     AssertionError: order has cycles: [__main__.Hello, __main__.Hi, __main__.Howdy, __main__.Hello]
 
-You can achieve the same effect using ``Extension.priority`` attribute::
+Another way to declare priority order is to use ``Extension.precedence``
+method::
 
     >>> Hi.after = Hi.before = Howdy.after = []
+    >>> Greet.precedence([Howdy, Hi, Hello])
+    >>> main.reset()
+
+    >>> with main:
+    ...     print Greet.ordered()
+    [__main__.Howdy, __main__.Hi, __main__.Hello]
+
+    >>> Greet.precedence_reset()
+    >>> main.reset()
+
+You can achieve the same effect using ``Extension.priority`` attribute::
+
     >>> Howdy.priority = 10
     >>> Hi.priority = 20
     >>> Hello.priority = 30
@@ -272,5 +285,17 @@ signature that could be used with ``after`` and ``before``::
     >>> with main:
     ...     print Greet.ordered()
     [__main__.Howdy, __main__.Hi, __main__.Hello]
+
+When priorities are string values, they could be used in
+``Extension.precedence`` calls::
+
+    >>> Hi.after = Hi.before = None
+    >>> Hi.priority = 'hi'
+    >>> main.reset()
+    >>> Greet.precedence(['hi', 'howdy', 'hello'])
+
+    >>> with main:
+    ...     print Greet.ordered()
+    [__main__.Hi, __main__.Howdy, __main__.Hello]
 
 

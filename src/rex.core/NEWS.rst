@@ -10,6 +10,7 @@
 
 * ``!include`` YAML tag now supports package resources.
 * Added ability to disable specific packages and extensions.
+* Ability to specify precedence for ordered extensions.
 
 
 1.12.1 (2016-03-31)

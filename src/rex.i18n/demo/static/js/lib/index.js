@@ -40,19 +40,19 @@ class LocaleSelector extends React.Component {
 @InjectI18N
 class StringDemoOutput extends React.Component {
   render() {
-    let _ = this.props.RexI18N.gettext;
-    let ngettext = this.props.RexI18N.ngettext;
+    let _ = this.getI18N().gettext;
+    let ngettext = this.getI18N().ngettext;
 
-    let gt = this.props.RexI18N.gettext('Variable gettext');
+    let gt = this.getI18N().gettext('Variable gettext');
     let agt = _('Variable Aliased gettext');
-    let ngt = this.props.RexI18N.ngettext('Variable ngettext Single', 'Variable ngettext Plural', this.props.count);
+    let ngt = this.getI18N().ngettext('Variable ngettext Single', 'Variable ngettext Plural', this.props.count);
     let angt = ngettext('Variable Aliased ngettext Single', 'Variable Aliased ngettext Plural', this.props.count);
 
     return (
       <div>
-        <p>{this.props.RexI18N.gettext('Inline gettext')}</p>
+        <p>{this.getI18N().gettext('Inline gettext')}</p>
         <p>{_('Inline Aliased gettext')}</p>
-        <p>{this.props.RexI18N.ngettext('Inline ngettext Single', 'Inline ngettext Plural', this.props.count)}</p>
+        <p>{this.getI18N().ngettext('Inline ngettext Single', 'Inline ngettext Plural', this.props.count)}</p>
         <p>{ngettext('Inline Aliased ngettext Single', 'Inline Aliased ngettext Plural', this.props.count)}</p>
         <p>{gt}</p>
         <p>{agt}</p>

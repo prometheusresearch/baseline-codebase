@@ -6,12 +6,14 @@
 import invariant from 'invariant';
 
 import {ProviderContext} from './context';
+import componentName from './componentName';
 
 
 export default function I18NContexted(WrappedComponent) {
+  let name = componentName(WrappedComponent) || 'I18NContexted';
+
   class ContextedComponent extends WrappedComponent {
     constructor(props, context) {
-      let name = WrappedComponent.displayName || WrappedComponent.name || 'wrapped';
       invariant(
         context.RexI18N,
         `The ${name} component can only be used as a descendant of the I18N Provider component.`
@@ -24,6 +26,8 @@ export default function I18NContexted(WrappedComponent) {
     ...WrappedComponent.contextTypes,
     ...ProviderContext
   };
+
+  ContextedComponent.displayName = name;
 
   return ContextedComponent;
 }

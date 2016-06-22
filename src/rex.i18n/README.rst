@@ -152,12 +152,11 @@ React/JSX environment. The ``FormatNumber``, ``FormatDecimal``,
 numeric values. The ``FormatDate``, ``FormatTime``, and ``FormatDateTime``
 components will format and display date/time values.
 
-A class decorator also exists named ``InjectI18N`` that will automatically
-inject a a prop into the React.Component it wraps. This prop is named
-``RexI18N`` and is an instance of the ``RexI18N`` class described above. This
-instance can be used in the logic of your component to perform any necessary
-localization. It's particularly useful for getting access to the ``gettext``
-and ``ngettext`` methods for string localization.
+A class decorator also exists named ``InjectI18N`` that will augment your
+component class with two methods: ``getI18N`` (for accessing the current
+``RexI18N`` instance) and ``_`` (an alias to ``RexI18N.gettext``). These
+methods can be used in the logic of your component to perform any necessary
+localization.
 
 All of the ``Format*`` components, as well as any component wrapped by the
 ``InjectI18N`` decorator, must be a descendent of the ``Provider`` component.

@@ -190,6 +190,10 @@ export default class I18N {
     );
   }
 
+  getLanguage() {
+    return this.config.locale.split(/[\-_]/, 1);
+  }
+
   isRightToLeft() {
     return RTL_LOCALES.indexOf(this.config.locale.substring(0, 2)) > -1;
   }

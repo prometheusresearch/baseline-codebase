@@ -38,7 +38,7 @@ setup(
         'rex.restful==1.1.0',
         'rex.urlmap==2.8.0',
         'rex.web==3.7.0',
-        'rex.widget==2.6.0',
+        'rex.widget==2.7.0',
         'rex.widget_chrome==1.1.1',
         'rex.file==1.0.3',
         'rex.dbgui==4.0.0',

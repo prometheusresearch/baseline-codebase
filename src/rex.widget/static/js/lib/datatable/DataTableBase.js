@@ -181,7 +181,7 @@ export class DataTableBase extends React.Component {
       columnElements.push(
         <Column
           key={column.valueKey}
-          width={this.state.columnWidth[column.valueKey] || columnWidth}
+          width={this.state.columnWidth[column.valueKey] || column.width || columnWidth}
           cellDataGetter={this.cellDataGetter}
           cellRenderer={this.cellRenderer}
           headerRenderer={this.headerRenderer}

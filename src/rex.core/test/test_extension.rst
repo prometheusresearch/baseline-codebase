@@ -173,6 +173,50 @@ diamond inheritance::
     ...     print Greet.all()
     [__main__.Hello, __main__.Howdy, __main__.Hi]
 
+    >>> main.reset()
+
+
+``Extension.disable()``
+=======================
+
+Sometimes it is necessary to disable an implementation without changing its
+source code.  You can do it using class method ``Extension.disable()``.
+
+For example, let us disable the ``Howdy`` and ``Hi`` implementations of the
+``Greet`` interface::
+
+    >>> Greet.disable(Howdy)
+
+    >>> Hi.disable()
+
+    >>> with main:
+    ...     print Greet.all()
+    [__main__.Hello]
+
+    >>> Greet.disable_reset()
+    >>> Hi.disable_reset()
+    >>> main.reset()
+
+You can also disable an extension by name, or even by its signature::
+
+    >>> Setting.disable('DebugSetting', module='rex.core_demo')
+    >>> Setting.disable('demo_folder', module='rex.core_demo')
+
+    >>> demo.reset()
+    >>> with demo:
+    ...     print Setting.all()
+    []
+
+Since the settings are disabled by ``rex.core_demo`` package, it does not
+affect the applications that do not include ``rex.core_demo``::
+
+    >>> with main:
+    ...     print Setting.all()
+    [rex.core.setting.DebugSetting]
+
+    >>> Setting.disable_reset(module='rex.core_demo')
+    >>> demo.reset()
+
 
 ``Extension.ordered()``
 =======================

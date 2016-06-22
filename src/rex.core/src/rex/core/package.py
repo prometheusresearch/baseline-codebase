@@ -34,8 +34,8 @@ class Package(object):
         """
         Disables the given package.
 
-        This prevents the package from being included with the application
-        even if the package is a part of the dependency tree.
+        This method prevents the package from being included with
+        the application even if the package is a part of the dependency tree.
 
         `name`
             Name of the package to disable.

@@ -5,6 +5,7 @@
 
 from .cache import cached
 from .package import get_packages, Package
+import sys
 
 
 class Extension(object):
@@ -36,6 +37,39 @@ class Extension(object):
 
         def __repr__(cls):
             return "%s.%s" % (cls.__module__, cls.__name__)
+
+    # Maps a module name and an interface to a set of disabled implementations.
+    disable_map = {}
+
+    @classmethod
+    def disable(cls, extension=None, module=None):
+        """
+        Disables the given implementation.
+
+        `extension`
+            Extension type, or its name, or its signature;  If not set,
+            disable the class that called this method.
+        `module`
+            The module which disables the implementation; if not set,
+            use the module of the caller.
+        """
+        if extension is None:
+            extension = cls
+        if module is None:
+            module = sys._getframe(1).f_globals['__name__']
+        key = (cls, module)
+        cls.disable_map.setdefault(key, set())
+        cls.disable_map[key].add(extension)
+
+    @classmethod
+    def disable_reset(cls, module=None):
+        """
+        Reenables disabled extensions.
+        """
+        if module is None:
+            module = sys._getframe(1).f_globals['__name__']
+        key = (cls, module)
+        cls.disable_map.pop(key, None)
 
     @classmethod
     def sanitize(cls):
@@ -77,12 +111,13 @@ class Extension(object):
         on the fly.
         """
         # Determine modules that may contain extensions.
+        packages = get_packages()
         if package is None:
-            modules = get_packages().modules
-        elif not isinstance(package, Package):
-            modules = get_packages()[package].modules
-        else:
+            modules = packages.modules
+        elif isinstance(package, Package):
             modules = package.modules
+        else:
+            modules = packages[package].modules
         # Find all subclasses of `cls`.
         subclasses = [cls]
         # Used to weed out duplicates (due to diamond inheritance).
@@ -98,11 +133,33 @@ class Extension(object):
                     subclasses.append(subclass)
                     seen.add(subclass)
             idx += 1
-        # Filter out abstract classes and implementations not included
-        # with the active application; return the rest.
-        return [subclass for subclass in subclasses
-                         if subclass.__module__ in modules and
-                            subclass.enabled()]
+        # Find disabled implementations.
+        disabled = set()
+        for key in cls.disable_map:
+            interface, module = key
+            if module in packages.modules and issubclass(interface, cls):
+                disabled.update(cls.disable_map[key])
+        # Filter out abstract classes, disabled implementations and
+        # implementations not included with the active application.
+        implementations = []
+        for subclass in subclasses:
+            if not subclass.enabled():
+                continue
+            if subclass.__module__ not in modules:
+                continue
+            if disabled:
+                matches = [subclass]
+                matches.append(subclass.__name__)
+                matches.append(
+                        "%s.%s"
+                        % (subclass.__module__, subclass.__class__.__name__))
+                if subclass.signature.__func__ is not \
+                        Extension.signature.__func__:
+                    matches.append(subclass.signature())
+                if any([match in matches for match in disabled]):
+                    continue
+            implementations.append(subclass)
+        return implementations
 
     @classmethod
     @cached

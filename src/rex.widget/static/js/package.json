@@ -52,7 +52,7 @@
     "object-assign": "^1.0.0",
     "qs": "^4.0.0",
     "react-dom-stylesheet": "^0.1.2",
-    "react-forms": "2.0.0-beta12",
+    "react-forms": "2.0.0-beta19",
     "react-icons": "^1.0.6",
     "react-stylesheet": "^0.8.2",
     "rethemeable": "^2.0.1",

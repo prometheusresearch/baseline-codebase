@@ -387,13 +387,3 @@ the `Gettext documentation`_.
 
 .. _`Gettext documentation`: https://www.gnu.org/software/gettext/manual/html_node/index.html
 
-
-CLDR Data
-=========
-
-This package makes use of data from the `Unicode Common Locale Data
-Repository`_ (CLDR) to peform localization of dates/times, numbers, and
-currencies. For more information about this project, visit their site.
-
-.. _`Unicode Common Locale Data Repository`: http://cldr.unicode.org/
-

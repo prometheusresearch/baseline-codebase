@@ -156,13 +156,15 @@ A class decorator also exists named ``InjectI18N`` that will augment your
 component class with two methods: ``getI18N`` (for accessing the current
 ``RexI18N`` instance) and ``_`` (an alias to ``RexI18N.gettext``). These
 methods can be used in the logic of your component to perform any necessary
-localization.
+localization. Similar functionality exists for any Stateless Functional
+Components you write, simply wrap your function declaration with a call to the
+``inject`` function from this library.
 
 All of the ``Format*`` components, as well as any component wrapped by the
-``InjectI18N`` decorator, must be a descendent of the ``Provider`` component.
-The ``Provider`` component will automatically instantiate the ``RexI18N``
-object and inject it into the context of any child components that want to
-access it. This component takes a number of props:
+``InjectI18N`` decorator or ``inject`` function, must be a descendent of the
+``Provider`` component.  The ``Provider`` component will automatically
+instantiate the ``RexI18N`` object and inject it into the context of any child
+components that want to access it. This component takes a number of props:
 
 * locale: The locale that should be used by any localization components or
   functions that are children of this component. Defaults to ``en``.
@@ -172,12 +174,29 @@ access it. This component takes a number of props:
 
 A brief example of using these components::
 
-    import {Provider, FormatNumber} from 'rex-i18n';
+    import {Provider, FormatNumber, InjectI18N, inject} from 'rex-i18n';
+
+    @InjectI18N
+    class MyComponent extends React.Component {
+        render() {
+            return (
+                <p>{this._('My localized string')}</p>
+            );
+        }
+    }
+
+    let MyFunctionalComponent = inject(function (props) {
+        return (
+            <p>{this._('My other localized string')}</p>
+        );
+    });
 
     class MyApp extends React.Component {
         render() {
             return (
                 <Provider locale='fr'>
+                    <MyComponent />
+                    <MyFunctionalComponent />
                     <p>This is a number: <FormatNumber value={123456.789} /></p>
                 </Provider>
             );

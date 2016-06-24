@@ -8,7 +8,7 @@ import ReactDOM from 'react-dom';
 import DateTime from 'react-datetime';
 
 import {
-  Provider, InjectI18N,
+  Provider, InjectI18N, inject,
   FormatNumber, FormatDecimal, FormatPercent, FormatCurrency,
   FormatDate, FormatTime, FormatDateTime
 } from 'rex-i18n';
@@ -65,6 +65,17 @@ class StringDemoOutput extends React.Component {
 }
 
 
+let FunctionalStringDemoOutput = inject(function(props) {
+  return (
+    <div>
+      <p>{this._('Functional Inline gettext')}</p>
+      <p>{this.getI18N().ngettext('Functional Inline ngettext Single', 'Functional Inline ngettext Plural', props.count)}</p>
+      <p>{this._('You entered: %(param)s', {param: props.param})}</p>
+    </div>
+  );
+});
+
+
 class StringDemo extends React.Component {
   constructor(props) {
     super(props);
@@ -88,6 +99,10 @@ class StringDemo extends React.Component {
             onChange={this.onLocaleChange.bind(this)}
             />
           <StringDemoOutput
+            count={this.props.count}
+            param={this.props.param}
+            />
+          <FunctionalStringDemoOutput
             count={this.props.count}
             param={this.props.param}
             />

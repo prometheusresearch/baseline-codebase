@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rex.i18n_demo 0.5.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-06-12 18:42+0000\n"
+"POT-Creation-Date: 2016-06-24 15:21+0000\n"
 "PO-Revision-Date: 2016-06-12 14:43-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -59,7 +59,17 @@ msgid_plural "Inline Aliased ngettext Plural"
 msgstr[0] "SPANISH Inline Aliased ngettext Single"
 msgstr[1] "SPANISH Inline Aliased ngettext Plural"
 
-#: lib/index.js:61
+#: lib/index.js:71
+msgid "Functional Inline gettext"
+msgstr "SPANISH Functional Inline gettext"
+
+#: lib/index.js:72
+msgid "Functional Inline ngettext Single"
+msgid_plural "Functional Inline ngettext Plural"
+msgstr[0] "SPANISH Functional Inline ngettext Single"
+msgstr[1] "SPANISH Functional Inline ngettext Plural"
+
+#: lib/index.js:73
 #, python-format
 msgid "You entered: %(param)s"
 msgstr "SPANISH You entered: %(param)s"

@@ -5,6 +5,7 @@
 
 export Provider from './Provider';
 export InjectI18N from './InjectI18N';
+export inject from './inject';
 
 export FormatNumber from './FormatNumber';
 export FormatDecimal from './FormatDecimal';

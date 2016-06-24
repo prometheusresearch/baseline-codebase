@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rex.i18n_demo 0.5.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2016-06-12 18:42+0000\n"
+"POT-Creation-Date: 2016-06-24 15:21+0000\n"
 "PO-Revision-Date: 2016-06-12 14:43-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: ar\n"
@@ -76,7 +76,21 @@ msgstr[3] "ARABIC Inline Aliased ngettext Plural"
 msgstr[4] "ARABIC Inline Aliased ngettext Plural"
 msgstr[5] "ARABIC Inline Aliased ngettext Plural"
 
-#: lib/index.js:61
+#: lib/index.js:71
+msgid "Functional Inline gettext"
+msgstr "ARABIC Functional Inline gettext"
+
+#: lib/index.js:72
+msgid "Functional Inline ngettext Single"
+msgid_plural "Functional Inline ngettext Plural"
+msgstr[0] "ARABIC Functional Inline ngettext Single"
+msgstr[1] "ARABIC Functional Inline ngettext Single"
+msgstr[2] "ARABIC Functional Inline ngettext Plural"
+msgstr[3] "ARABIC Functional Inline ngettext Plural"
+msgstr[4] "ARABIC Functional Inline ngettext Plural"
+msgstr[5] "ARABIC Functional Inline ngettext Plural"
+
+#: lib/index.js:73
 #, python-format
 msgid "You entered: %(param)s"
 msgstr "ARABIC You entered: %(param)s"

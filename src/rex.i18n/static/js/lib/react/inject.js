@@ -8,7 +8,7 @@ import invariant from 'invariant';
 import {ProviderContext} from './context';
 
 
-export default function inject(functionalComponent) {
+export default function inject(functionalComponent, extraContextTypes = {}) {
   function injectedComponent(props = {}, context = {}) {
     invariant(
       context.RexI18N,
@@ -30,7 +30,8 @@ export default function inject(functionalComponent) {
   let currentContext = functionalComponent.contextTypes || {};
   injectedComponent.contextTypes = {
     ...currentContext,
-    ...ProviderContext
+    ...ProviderContext,
+    ...extraContextTypes
   };
 
   return injectedComponent;

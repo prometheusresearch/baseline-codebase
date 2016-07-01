@@ -27,8 +27,14 @@ setup(
     install_requires=[
         'rex.menu',
         'rex.deploy',
+        'rex.widget_chrome',
     ],
     cmdclass={'demo': demo},
     rex_static='static',
+    rex_bundle={
+        './www/bundle': [
+            'webpack:'
+        ],
+    }
 )
 

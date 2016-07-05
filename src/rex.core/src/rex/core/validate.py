@@ -5,12 +5,61 @@
 
 from .error import Error, guard
 import re
+import os
 import os.path
 import collections
+import threading
+import functools
 import keyword
 import weakref
 import json
 import yaml
+
+
+class IncludeLoader(object):
+
+    def __init__(self, LoaderClass):
+        self.LoaderClass = LoaderClass
+        self.stats = {}
+        self.stats_version = 0
+        self.stats_lock = threading.RLock()
+        self.result = None
+
+    def open(self, path, _open=open):
+        # Opens the file; saves its stats.
+        stream = _open(path)
+        path = os.path.abspath(path)
+        if path not in self.stats:
+            stat = os.fstat(stream.fileno())
+            self.stats[path] = (stat.st_mtime, stat.st_size)
+        return stream
+
+    def __call__(self, filename, validate, master, open):
+        open = functools.partial(self.open, _open=open)
+        with self.stats_lock:
+            if self.stats_version > 0:
+                stats = {}
+                for path in self.stats.keys():
+                    try:
+                        stat = os.stat(path)
+                        stats[path] = (stat.st_mtime, stat.st_size)
+                    except OSError:
+                        pass
+                if stats == self.stats:
+                    return self.result
+                else:
+                    self.stats = stats
+            self.stats_version += 1
+            stream = open(filename)
+            loader = self.LoaderClass(stream, validate, master, open)
+            node = loader.get_single_node()
+            if node is None:
+                mark = yaml.Mark(loader.stream_name, 0, 0, 0, None, None)
+                node = yaml.ScalarNode(
+                        u"tag:yaml.org,2002:null", u"", mark, mark, u'')
+            stream.close()
+            self.result = loader.construct_document(node)
+            return self.result
 
 
 class Location(object):
@@ -168,23 +217,16 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
 
     def construct_object(self, node, deep=False):
         if node.tag == u'!include':
-            location = Location.from_node(node)
-            stream = self.include(node)
-            loader = self.__class__(stream, self.validate,
-                                    self.master, self.open)
-            # Ensure the stream contains no or one YAML document; load it.
-            node = loader.get_single_node()
-            # If the stream contain no documents, make a fake !!null document.
-            if node is None:
-                mark = yaml.Mark(loader.stream_name, 0, 0, 0, None, None)
-                node = yaml.ScalarNode(u"tag:yaml.org,2002:null", u"",
-                                       mark, mark, u'')
-            stream.close()
-            with guard("While processing !include directive:", location):
-                return loader.construct_document(node)
+            return self.cached_include(node)
         if node.tag == u'!include/str':
-            with self.include(node) as stream:
-                value = stream.read()
+            filename = self.include_path(node)
+            try:
+                stream = self.open(filename)
+            except IOError:
+                raise yaml.constructor.ConstructorError(None, None,
+                        "unable to open file: %s" % filename, node.start_mark)
+            value = stream.read()
+            stream.close()
             node = yaml.ScalarNode(u"tag:yaml.org,2002:str", value,
                                    node.start_mark, node.end_mark, u'')
         if node.tag == u'!setting':
@@ -193,7 +235,7 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
             return self.validate.construct(self, node)
         return super(ValidatingLoader, self).construct_object(node, deep)
 
-    def include(self, node):
+    def include_path(self, node):
         from .context import get_rex
         from .package import get_packages
         if not isinstance(node, yaml.ScalarNode):
@@ -229,12 +271,24 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
                         node.start_mark)
             filename = os.path.normpath(
                     os.path.join(os.path.dirname(basename), filename))
-        try:
-            stream = self.open(filename)
-        except IOError:
+        return filename
+
+    def cached_include(self, node):
+        from .context import get_rex
+        location = Location.from_node(node)
+        filename = self.include_path(node)
+        if not os.path.isfile(filename):
             raise yaml.constructor.ConstructorError(None, None,
                     "unable to open file: %s" % filename, node.start_mark)
-        return stream
+        if get_rex:
+            cache = get_rex().cache
+            cache_key = (filename, self.validate, self.master)
+            loader = cache.set_default_cb(
+                    cache_key, lambda: IncludeLoader(self.__class__))
+        else:
+            loader = IncludeLoader(self.__class__)
+        with guard("While processing !include directive:", location):
+            return loader(filename, self.validate, self.master, self.open)
 
     def setting(self, node):
         from .context import get_rex

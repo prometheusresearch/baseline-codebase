@@ -9,6 +9,7 @@
 ===================
 
 * ``!include`` YAML tag now supports package resources.
+* ``!include`` content is cached.
 * Added ability to disable specific packages and extensions.
 * Ability to specify precedence for ordered extensions.
 

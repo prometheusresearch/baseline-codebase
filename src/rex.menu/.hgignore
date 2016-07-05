@@ -7,3 +7,4 @@ syntax: glob
 build
 dist
 demo/static/www/bundle
+demo/static/js/node_modules

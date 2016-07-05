@@ -24,12 +24,15 @@ setup(
     name='rex.menu_demo',
     version = "1.0.0",
     description="Demo package for testing rex.menu",
+    package_dir={'': 'src'},
+    packages=find_packages('src'),
     install_requires=[
         'rex.menu',
         'rex.deploy',
         'rex.widget_chrome',
     ],
     cmdclass={'demo': demo},
+    rex_init='rex.menu_demo',
     rex_static='static',
     rex_bundle={
         './www/bundle': [

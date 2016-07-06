@@ -34,8 +34,7 @@ export default class Input extends React.Component {
   };
 
   static stylesheet = stylesheet.create({
-    Root: {
-      Component: BaseInput,
+    Root: stylesheet.styleDOM(BaseInput, {
       display: 'block',
       width: '100%',
       height: 34,
@@ -66,7 +65,7 @@ export default class Input extends React.Component {
           border: css.none,
         }
       }
-    }
+    })
   });
 
   render() {

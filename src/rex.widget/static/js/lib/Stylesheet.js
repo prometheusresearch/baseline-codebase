@@ -8,17 +8,22 @@ import {
   override as overrideImpl
 } from 'react-stylesheet';
 import {
-  style as styleDOM
+  style as styleHostComponent
 } from 'react-dom-stylesheet';
 
+export let styleDOM = styleHostComponent;
+
 export function style(Component, spec, options) {
-  return styleImpl(Component, spec, {styleDOM, ...options});
+  options = {styleHostComponent, ...options};
+  return styleImpl(Component, spec, options);
 }
 
 export function create(spec, options) {
-  return createImpl(spec, {styleDOM, ...options});
+  options = {style, styleHostComponent, ...options};
+  return createImpl(spec, options);
 }
 
 export function override(stylesheet, override, options) {
-  return overrideImpl(stylesheet, override, {style, styleDOM, ...options});
+  options = {style, styleHostComponent, ...options};
+  return overrideImpl(stylesheet, override, options);
 }

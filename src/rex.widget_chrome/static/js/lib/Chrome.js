@@ -2,7 +2,6 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import autobind from 'autobind-decorator';
 import React from 'react';
 import {
   Chrome as BaseChrome,

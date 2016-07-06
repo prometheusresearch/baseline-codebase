@@ -178,6 +178,9 @@ class LocalActionReference(
     __unicode__ = __repr__
     __str__ = __repr__
 
+    def __hash__(self):
+        return hash(self.id)
+
 
 class GlobalActionReference(
         ActionReference,
@@ -193,6 +196,9 @@ class GlobalActionReference(
         if self.package:
             rep = '%s:%s' % (self.package, rep)
         return rep
+
+    def __hash__(self):
+        return hash((self.package, self.id))
 
     __unicode__ = __repr__
     __str__ = __repr__

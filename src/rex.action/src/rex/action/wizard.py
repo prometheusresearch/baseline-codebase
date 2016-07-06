@@ -18,6 +18,7 @@ from webob import Response
 from cached_property import cached_property
 
 from rex.core import (
+    get_packages, autoreload,
     Record,
     Validate, Error, locate, guard,
     OneOfVal, RecordVal, IntVal, MaybeVal,
@@ -383,7 +384,7 @@ def resolve_action_reference(ref, actions=None, package=None, domain=None):
                     global_ref)
             handler = route('%s:%s' % (package.name, global_ref.id))
         else:
-            handler = route('%s:%s' % (global_ref.package, global_ref.id))
+            return load_action(global_ref)
 
         if handler is None:
             raise Error(
@@ -398,6 +399,21 @@ def resolve_action_reference(ref, actions=None, package=None, domain=None):
 
     action = action.with_domain(action.domain.merge(domain))
     return action
+
+
+@autoreload
+def load_action(ref, open=open):
+    packages = get_packages()
+    with guard('While loading action:', ref):
+        if ref.package not in packages:
+            raise Error('Invalid package name:', ref.package)
+        package = packages[ref.package]
+        if not package.exists(ref.id):
+            raise Error('Invalid path:', ref)
+        filename = package.abspath(ref.id)
+        with open(filename) as stream:
+            validate = ActionVal(id=ref.id)
+            return validate.parse(stream, open=open)
 
 
 class WizardBase(WizardWidgetBase, ActionBase):

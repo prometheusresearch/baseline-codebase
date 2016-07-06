@@ -14,6 +14,8 @@ export default class Provider extends React.Component {
   constructor(props, context) {
     super(props, context);
 
+    this._didForceUpdate = null;
+
     if (this.context.RexI18N) {
       if (this.context.RexI18N.config.locale === this.props.locale) {
         // If there's an instance already in our context for the same locale,
@@ -50,7 +52,10 @@ export default class Provider extends React.Component {
       this.props.onLoad(i18n);
     }
     if (this._mounted) {
-      this.forceUpdate();
+      this._didForceUpdate = false;
+      this.forceUpdate(() => {
+        this._didForceUpdate = true;
+      });
     }
   }
 
@@ -70,13 +75,15 @@ export default class Provider extends React.Component {
         baseUrl: nextProps.baseUrl || this.state.RexI18N.config.baseUrl,
         translationsUrl: nextProps.translationsUrl || this.state.RexI18N.config.translationsUrl
       };
+      this._didForceUpdate = null;
       this.state = {RexI18N: getInstance(nextProps.locale, options)};
     }
   }
 
   getChildContext() {
     return {
-      RexI18N: this.state.RexI18N
+      RexI18N: this.state.RexI18N,
+      RexI18NUpdated: (this._didForceUpdate === false)
     };
   }
 

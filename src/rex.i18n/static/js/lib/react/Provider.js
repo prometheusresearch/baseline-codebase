@@ -10,17 +10,23 @@ import {getInstance} from '../instances';
 import {ProviderContext} from './context';
 
 
+function makeKey(i18n) {
+  return `i18n-${i18n.config.locale}-${i18n.isLoaded ? '1' : '0'}`;
+}
+
+
 export default class Provider extends React.Component {
   constructor(props, context) {
     super(props, context);
-
-    this._didForceUpdate = null;
 
     if (this.context.RexI18N) {
       if (this.context.RexI18N.config.locale === this.props.locale) {
         // If there's an instance already in our context for the same locale,
         // just use it.
-        this.state = {RexI18N: this.context.RexI18N};
+        this.state = {
+          RexI18N: this.context.RexI18N,
+          key: makeKey(this.context.RexI18N)
+        };
       } else {
         // If there's an instance already in the context, but it's for a
         // different locale, then make a new one and use that.
@@ -30,7 +36,11 @@ export default class Provider extends React.Component {
           baseUrl: this.props.baseUrl || this.context.RexI18N.config.baseUrl,
           translationsUrl: this.props.translationsUrl || this.context.RexI18N.config.translationsUrl
         };
-        this.state = {RexI18N: getInstance(this.props.locale, options)};
+        let instance = getInstance(this.props.locale, options);
+        this.state = {
+          RexI18N: instance,
+          key: makeKey(instance)
+        };
       }
     } else {
       // An instance doesn't yet exist, make one.
@@ -42,7 +52,11 @@ export default class Provider extends React.Component {
           options[opt] = this.props[opt];
         }
       });
-      this.state = {RexI18N: getInstance(this.props.locale, options)};
+      let instance = getInstance(this.props.locale, options);
+      this.state = {
+        RexI18N: instance,
+        key: makeKey(instance)
+      };
     }
   }
 
@@ -51,12 +65,9 @@ export default class Provider extends React.Component {
     if (this.props.onLoad) {
       this.props.onLoad(i18n);
     }
-    if (this._mounted) {
-      this._didForceUpdate = false;
-      this.forceUpdate(() => {
-        this._didForceUpdate = true;
-      });
-    }
+    this.setState({
+      key: makeKey(i18n)
+    });
   }
 
   componentDidMount() {
@@ -75,20 +86,23 @@ export default class Provider extends React.Component {
         baseUrl: nextProps.baseUrl || this.state.RexI18N.config.baseUrl,
         translationsUrl: nextProps.translationsUrl || this.state.RexI18N.config.translationsUrl
       };
-      this._didForceUpdate = null;
-      this.state = {RexI18N: getInstance(nextProps.locale, options)};
+      let instance = getInstance(nextProps.locale, options);
+      this.state = {
+        RexI18N: instance,
+        key: makeKey(instance)
+      };
     }
   }
 
   getChildContext() {
     return {
-      RexI18N: this.state.RexI18N,
-      RexI18NUpdated: (this._didForceUpdate === false)
+      RexI18N: this.state.RexI18N
     };
   }
 
   render() {
-    return React.Children.only(this.props.children);
+    let child = React.Children.only(this.props.children);
+    return React.cloneElement(child, {key: this.state.key});
   }
 }
 

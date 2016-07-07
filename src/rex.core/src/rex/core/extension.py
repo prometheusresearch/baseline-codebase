@@ -143,8 +143,6 @@ class Extension(object):
         # implementations not included with the active application.
         implementations = []
         for subclass in subclasses:
-            if not subclass.enabled():
-                continue
             if subclass.__module__ not in modules:
                 continue
             if disabled:
@@ -165,7 +163,9 @@ class Extension(object):
                 if any([match in matches for match in disabled]):
                     continue
             implementations.append(subclass)
-        return implementations
+        return [implementation
+                for implementation in implementations
+                if implementation.enabled()]
 
     @classmethod
     @cached

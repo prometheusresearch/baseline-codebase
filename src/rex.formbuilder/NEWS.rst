@@ -5,6 +5,13 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
+5.8.0 (2016-xx-xx)
+==================
+
+* Added  ``formbuilder-pick-draft`` and ``formbuilder-edit-draft`` action types
+  for use in rex.action wizards.
+
+
 5.7.0 (2016-04-22)
 ==================
 

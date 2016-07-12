@@ -31,6 +31,7 @@ setup(
         'rex.forms>=1.5,<2',
         'rex.restful>=1,<2',
         'rex.widget>=1,<3',
+        'rex.action>=1,<2',
         'rex.i18n>=0.4.2,<0.5',
         'rex.form_previewer>=0.2,<0.9',
     ],

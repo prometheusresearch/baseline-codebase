@@ -29,6 +29,7 @@ setup(
         'rex.db                 >= 3.0,   < 4',
         'rex.file               >= 1.0,   < 2',
         'rex.urlmap             >= 2.5,   < 3',
+        'rex.menu               >= 1.0,   < 2',
         'docutils               >= 0.12,  < 0.13',
         'transit-python         == 0.8.250',
         'cached-property        >= 1,     < 2',

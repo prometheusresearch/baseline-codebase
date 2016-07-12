@@ -34,6 +34,7 @@ from .util import undefined, MaybeUndefinedVal
 
 import rex.widget.library
 import rex.widget.map
+import rex.widget.menu
 import rex.widget.commands
 import rex.widget.setting
 

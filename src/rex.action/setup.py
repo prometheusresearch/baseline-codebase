@@ -27,6 +27,7 @@ setup(
         'rex.core               >= 1.6,    < 2',
         'rex.widget             >= 2.4,    < 3',
         'rex.urlmap             >= 2.8,    < 3',
+        'rex.menu               >= 1.0,    < 2',
         'rex.db                 >= 3.4,    < 4',
         'rex.deploy             >= 2.4,    < 3',
     ],

@@ -18,6 +18,8 @@ from .validate import RexDBVal
 from .wizard import Wizard
 from . import setting
 
+import rex.action.menu
+
 class InitializeRexAction(Initialize):
 
     def __call__(self):

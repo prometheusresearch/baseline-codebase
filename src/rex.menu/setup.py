@@ -21,8 +21,6 @@ setup(
     install_requires=[
         'rex.core >=1.13, <2',
         'rex.web >=3.7, <4',
-        'rex.widget >=2.6, <3',
-        'rex.action >=1.1, <2',
     ],
     rex_init='rex.menu',
 )

@@ -8,8 +8,6 @@ from rex.core import (
         RecordVal, UnionVal, BoolVal, ProxyVal, Error, set_location, locate,
         Location, Error, guard)
 from rex.web import PathMask, PathMap, authorize, confine
-from rex.action import ActionRenderer
-from rex.action.action import ActionVal
 from .menu import Menu
 from webob.exc import HTTPUnauthorized
 import collections
@@ -58,13 +56,10 @@ class PathVal(StrVal):
 class LoadMenu(object):
     # Parses `urlmap.yaml` file.
 
-    action_validate = ActionVal(id='')
-
     item_validate = RecordVal(
             ('title', StrVal),
             ('path', MaybeVal(PathVal), None),
-            ('access', MaybeVal(StrVal), None),
-            ('action', action_validate))
+            ('access', MaybeVal(StrVal), None))
 
     menu_validate = RecordVal(
             ('title', StrVal),

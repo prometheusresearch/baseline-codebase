@@ -49,26 +49,30 @@ export default class Header extends React.Component {
         }
 
         if (selectedFirst && !hideSecondTierMenu) {
-          itemsSecond = itemFirst.items.map(item =>
-            <Nav.SecondaryButton
-              variant={{open: selectedSecond === item.url}}
-              href={item.url}
-              key={item.url}>
-              {item.title}
-            </Nav.SecondaryButton>
-          );
+          itemsSecond = itemFirst.items
+            .filter(item => item.permitted)
+            .map(item =>
+              <Nav.SecondaryButton
+                variant={{open: selectedSecond === item.url}}
+                href={item.url}
+                key={item.url}>
+                {item.title}
+              </Nav.SecondaryButton>
+            );
         }
       }
 
       if (itemFirst.permitted) {
-        let items = itemFirst.items.map(item =>
-          <Nav.PrimaryMenuItem
-            key={item.url}
-            href={item.url}
-            variant={{selected: selectedSecond === item.url}}>
-            {item.title}
-          </Nav.PrimaryMenuItem>
-        );
+        let items = itemFirst.items
+          .filter(item => item.permitted)
+          .map(item =>
+            <Nav.PrimaryMenuItem
+              key={item.url}
+              href={item.url}
+              variant={{selected: selectedSecond === item.url}}>
+              {item.title}
+            </Nav.PrimaryMenuItem>
+          );
         itemsFirst.push(
           <Nav.PrimaryMenu
             key={itemKey(itemFirst)}

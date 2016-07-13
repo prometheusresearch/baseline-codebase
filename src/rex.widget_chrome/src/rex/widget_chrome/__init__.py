@@ -12,6 +12,7 @@ from .middleware import *
 from .access import *
 #from .error import *
 from .chrome import Chrome
+from .menu import Chrome as MenuChrome
 
 class ChromeThemeBootstrap(Bootstrap):
 

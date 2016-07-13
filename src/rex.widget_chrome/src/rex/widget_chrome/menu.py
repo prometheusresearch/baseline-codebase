@@ -12,6 +12,7 @@ from rex.widget import (
     Widget, NullWidget, WidgetVal,
     Field, URLVal, computed_field, WidgetComposition
 )
+from rex.menu import get_menu
 from .url import is_external
 
 class Chrome(BaseChrome):
@@ -32,8 +33,8 @@ class Chrome(BaseChrome):
 
     @computed_field
     def menu(self, req):
-        menu = get_settings().menu
-        return [self.menu1_item(req, item) for item in menu]
+        menu = get_menu()
+        return [self.menu1_item(req, item) for item in menu.items]
 
     def menu1_item(self, req, item1):
         items = [self.menu2_item(req, item) for item in item1.items]
@@ -48,21 +49,25 @@ class Chrome(BaseChrome):
         Item = Record.make('Item', ('title', 'url'))
         if isinstance(item2, (str, unicode)):
             item2 = Item(title=None, url=item2)
-        if is_external(item2.url):
-            title = item2.title or 'Untitled'
-            url = item2.url
-            permitted = True
+        if item2.handler:
+            handler = item2.handler
+            if is_external(handler.path):
+                title = item2.title or 'Untitled'
+                url = handler.path
+                permitted = True
+            else:
+                title = item2.title or title_from_handler(handler) or 'Untitled'
+                package_name = get_packages()[0].name
+                url = url_for(req, '%s:%s' % (package_name, handler.path))
+                permitted = authorize(req, handler)
         else:
-            handler = route(item2.url)
-            title = item2.title or title_from_handler(handler) or 'Untitled'
-            url = url_for(req, item2.url)
-            permitted = authorize(req, handler)
+            raise Error('Handler is required for 2nd level menu items, see')
         return {
-            'id': item2.url,
+            'id': item2.handler.path,
             'title': title,
             'url': url,
             'permitted': permitted,
-            'new_window': item2.new_window,
+            'new_window': False,
         }
 
     @computed_field

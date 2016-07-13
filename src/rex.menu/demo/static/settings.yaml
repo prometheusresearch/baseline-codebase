@@ -13,4 +13,4 @@ access_queries:
 attach_dir: .
 
 rex_widget:
-  chrome: rex.widget_chrome.Chrome
+  chrome: rex.widget_chrome.MenuChrome

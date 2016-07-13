@@ -2,6 +2,11 @@
   Change Log
 **************
 
+1.2.0 (XXXX-XX-XX)
+==================
+
+* [FEATURE] Add ``rex.widget_chrome.MenuChrome`` which use ``rex.menu`` to get
+  navigation structure.
 
 1.1.0 (2016-04-22)
 ==================

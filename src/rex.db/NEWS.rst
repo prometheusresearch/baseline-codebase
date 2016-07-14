@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-3.5.0 (2016-XX-XX)
+3.5.0 (2016-07-13)
 ==================
 
 * Added a validator for parsing HTSQL expressions.

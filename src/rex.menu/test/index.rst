@@ -4,5 +4,5 @@
 
 .. toctree::
 
-   test_load
+   test_menu
 

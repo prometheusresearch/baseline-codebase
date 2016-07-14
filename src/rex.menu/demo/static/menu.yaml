@@ -28,13 +28,13 @@ menu:
   - title: Explore
     path: /explore
     widget: !<IFrame>
-     src: rex.db:/
+      src: rex.db:/
 
 - title: Studies
   items:
 
   - title: Manage studies
-    path: /study
+    path: /study/
     action: !include
       rex.menu_demo:/menu/manage-studies.yaml
 

@@ -29,6 +29,8 @@ setup(
     install_requires=[
         'rex.menu',
         'rex.deploy',
+        'rex.widget',
+        'rex.action',
         'rex.widget_chrome',
     ],
     cmdclass={'demo': demo},

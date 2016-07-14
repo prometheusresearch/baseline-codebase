@@ -9,8 +9,20 @@ from webob.exc import HTTPUnauthorized, HTTPTemporaryRedirect
 
 
 class Menu(Extension):
+    """
+    Registers a new type of a page handler for use in menu definitions.
 
+    `path`
+        The URL under which the page is defined in the menu.
+    `access`
+        Access permissions.
+    `value`
+        Custom page data.
+    """
+
+    #: Field name that is used to recognize the type of the page.
     key = None
+    #: Validator for this field.
     validate = None
 
     @classmethod
@@ -28,15 +40,26 @@ class Menu(Extension):
         self.mask = PathMask(self.path)
 
     def __call__(self, req):
+        """
+        Renders the page.
+        """
         if not authorize(req, self):
             raise HTTPUnauthorized()
         with confine(req, self):
             return self.render(req)
 
     def masks(self):
+        """
+        Returns a list of path masks handled by the page.
+        """
         return [self.mask]
 
     def render(self, req):
+        """
+        Renders the page assuming the request passes access control.
+
+        Must be overridden in subclasses.
+        """
         raise NotImplementedError()
 
     def __repr__(self):

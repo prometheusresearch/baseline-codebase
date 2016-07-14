@@ -10,10 +10,11 @@ from webob.exc import HTTPMovedPermanently
 
 
 class PipeMenu(Pipe):
+    # Handles HTTP requests to menu resources.
 
     priority = 'menu'
-    after = 'transaction'
-    before = 'routing'
+    after = ['error', 'transaction']
+    before = ['routing']
 
     def __call__(self, req):
         menu = get_menu()

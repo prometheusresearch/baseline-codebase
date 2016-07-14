@@ -6,4 +6,7 @@
 
 .. automodule:: rex.menu
 
+.. autofunction:: get_menu
+.. autoclass:: MenuItem
+.. autoclass:: Menu
 

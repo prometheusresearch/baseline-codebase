@@ -9,7 +9,7 @@ from setuptools import setup, find_packages
 setup(
     name='rex.menu',
     version = "1.0.0",
-    description="Organizes URL handlers in a hierarchical structure",
+    description="Organizes a hierarchical catalog of application pages",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
     maintainer_email="contact@prometheusresearch.com",

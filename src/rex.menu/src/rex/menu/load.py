@@ -15,6 +15,20 @@ import re
 
 
 class MenuItem(object):
+    """
+    An entry in the hierarchical catalog of application pages.
+
+    `title`
+        The name of the page.
+    `handler`
+        The page renderer.
+    `items`
+        A list of subordinate menu items.
+    `new_window`
+        Indicates whether the page should be opened in a new window.
+    `route`
+        Routing table of the current and all subordinate entries.
+    """
 
     def __init__(self, title, handler=None, items=[], new_window=False):
         if isinstance(handler, list) and items == []:
@@ -31,8 +45,11 @@ class MenuItem(object):
         for item in items:
             self.route.update(item.route)
 
+    def __iter__(self):
+        return iter(self.items)
+
     def __repr__(self):
-        args = [self.title]
+        args = [repr(self.title)]
         if self.handler:
             args.append(repr(self.handler))
         if self.items:
@@ -54,7 +71,7 @@ class PathVal(StrVal):
 
 
 class LoadMenu(object):
-    # Parses `urlmap.yaml` file.
+    # Parses `menu.yaml` file.
 
     item_validate = RecordVal(
             ('title', StrVal),
@@ -73,6 +90,7 @@ class LoadMenu(object):
     def __init__(self, open=open):
         self.open = open
         self.menu_by_record_type = {}
+        # Generate `menu.yaml` validator.
         item_validate = ProxyVal()
         items_validate = SeqVal(item_validate)
         menu_pairs = []
@@ -136,6 +154,7 @@ class LoadMenu(object):
         return MenuItem('', None, items)
 
     def build(self, spec, base_path, base_access, seen):
+        # Creates a `MenuItem` object from the given YAML record.
         title = spec.title
         handler = None
         path = spec.path or (base_path + '/' + self._title_to_path(spec.title))
@@ -160,13 +179,16 @@ class LoadMenu(object):
 
     @staticmethod
     def _title_to_path(title):
+        # Generates a URL from the title.
         return (re.sub('[^0-9a-zA-Z]+', ' ', title) \
                 .strip().replace(' ', '-').lower() or '-')
 
 
 @autoreload
 def get_menu(open=open):
-    # Parses `menu.yaml` file.
+    """
+    Loads the application menu.
+    """
     load = LoadMenu(open=open)
     return load()
 

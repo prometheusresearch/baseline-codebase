@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import Setting, RecordVal, StrVal, IntVal, BoolVal
+from rex.core import Setting, RecordVal, StrVal, BoolVal
 
 from .interface import Interaction
 

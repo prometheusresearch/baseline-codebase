@@ -40,7 +40,8 @@ class MobileInitialize(Initialize):
                 interaction.validate()
             except ValidationError as exc:
                 raise Error(
-                    'Interaction "%s" contains an invalid configuration: %s' % (
+                    'Interaction "%s" contains an invalid configuration:'
+                    ' %s' % (
                         interaction.uid,
                         exc.message,
                     )

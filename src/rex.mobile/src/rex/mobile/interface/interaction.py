@@ -198,7 +198,7 @@ class Interaction(
         if not isinstance(task, Task):
             task = Task.get_implementation().get_by_uid(task)
             if not task:
-                 return None
+                return None
 
         interactions = cls.find(
             channel=channel,

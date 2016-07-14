@@ -5,7 +5,7 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
-1.6.0 (2016-xx-xx)
+1.6.0 (2016-07-14)
 ==================
 
 * Updated rios.core dependency.

@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.6.0 (2016-XX-XX)
+2.6.0 (2016-07-13)
 ==================
 
 * Support for calculated fields.

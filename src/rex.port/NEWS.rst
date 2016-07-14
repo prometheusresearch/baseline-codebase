@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.3.0 (2016-XX-XX)
+1.3.0 (2016-07-13)
 ==================
 
 * Added ability to use port CRUD interface in HTSQL queries.

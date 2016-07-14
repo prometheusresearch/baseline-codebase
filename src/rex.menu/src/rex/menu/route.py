@@ -13,7 +13,7 @@ class PipeMenu(Pipe):
     # Handles HTTP requests to menu resources.
 
     priority = 'menu'
-    after = ['error', 'transaction']
+    after = ['error', 'transaction', 'i18n']
     before = ['routing']
 
     def __call__(self, req):

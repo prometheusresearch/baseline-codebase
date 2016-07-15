@@ -10,15 +10,18 @@
 
 To start a development HTTP server, you can use ``rex serve`` task::
 
+    >>> import random
+    >>> random_port = random.randrange(8000, 8100)
+
     >>> from rex.ctl import Ctl, ctl
 
-    >>> serve_ctl = Ctl("serve rex.web_demo")
+    >>> serve_ctl = Ctl("serve rex.web_demo --port=%s" % random_port)
 
-The server starts at http://localhost:8080/.  We can now make a request::
+The server starts on localhost at the given port.  We can now make a request::
 
     >>> import urllib, time
 
-    >>> def get(path, port=8080):
+    >>> def get(path, port=random_port):
     ...     tries = 0
     ...     while tries < 100:
     ...         try:
@@ -33,53 +36,54 @@ The server starts at http://localhost:8080/.  We can now make a request::
 We can stop the server and display the accumulated output::
 
     >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
-    Serving rex.web_demo on 127.0.0.1:8080
+    Serving rex.web_demo on 127.0.0.1:8...
     localhost - - [...] "GET /ping HTTP/1.0" 200 5
 
 To set the server address, use parameters ``--host`` and ``--port``::
 
-    >>> serve_ctl = Ctl("serve rex.web_demo -h 127.0.0.1 -p 8088")
+    >>> serve_ctl = Ctl("serve rex.web_demo -h 127.0.0.1 -p %s" % random_port)
 
-    >>> print get('/ping', port=8088)
+    >>> print get('/ping')
     PONG!
 
     >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
-    Serving rex.web_demo on 127.0.0.1:8088
+    Serving rex.web_demo on 127.0.0.1:8...
     localhost - - [...] "GET /ping HTTP/1.0" 200 5
 
 The server reports unhandled exceptions::
 
-    >>> serve_ctl = Ctl("serve rex.web_demo")
+    >>> serve_ctl = Ctl("serve rex.web_demo --port=%s" % random_port)
 
     >>> print get('/error')         # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
-    A server error occurred.  Please contact the administrator.
+    The server encountered an unexpected condition which prevented it from fulfilling the request.
 
     >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
-    Serving rex.web_demo on 127.0.0.1:8080
+    Serving rex.web_demo on 127.0.0.1:8...
     ----------------------------------------------------------------------
-    [...] localhost => http://localhost:8080/error
+    [...] localhost => http://localhost:8.../error
     Traceback (most recent call last):
       ...
     RuntimeError: some unexpected problem occurred
-    localhost - - [...] "GET /error HTTP/1.0" 500 59
+    localhost - - [...] "GET /error HTTP/1.0" 500 95
 
 If ``--debug`` is enabled, the exception traceback is displayed
 in the response::
 
-    >>> serve_ctl = Ctl("serve rex.web_demo --debug")
+    >>> serve_ctl = Ctl("serve rex.web_demo --port=%s --debug" % random_port)
 
     >>> print get('/error')         # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
-    A server error occurred.  Please contact the administrator.
+    The server encountered an unexpected condition which prevented it from fulfilling the request.
     <BLANKLINE>
-    [...] localhost => http://localhost:8080/error
+    [...] GET http://localhost:8.../error
+    ...
     Traceback (most recent call last):
       ...
     RuntimeError: some unexpected problem occurred
 
     >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
-    Serving rex.web_demo on 127.0.0.1:8080
+    Serving rex.web_demo on 127.0.0.1:8...
     ----------------------------------------------------------------------
-    [...] localhost => http://localhost:8080/error
+    [...] localhost => http://localhost:8.../error
     Traceback (most recent call last):
       ...
     RuntimeError: some unexpected problem occurred
@@ -87,33 +91,33 @@ in the response::
 
 Use option ``--remote-user`` to set user credentials for all HTTP queries::
 
-    >>> serve_ctl = Ctl("serve rex.web_demo --remote-user=Alice")
+    >>> serve_ctl = Ctl("serve rex.web_demo --port=%s --remote-user=Alice" % random_port)
 
     >>> print get('/')              # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     <!DOCTYPE html>
     <title>Welcome to REX.WEB_DEMO!</title>
 
     >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
-    Serving rex.web_demo on 127.0.0.1:8080
+    Serving rex.web_demo on 127.0.0.1:8...
     localhost - Alice [...] "GET / HTTP/1.0" 200 55
 
 You can also use option ``--environ`` to set a value of any WSGI environment
 variable::
 
-    >>> serve_ctl = Ctl("serve rex.web_demo --environ REMOTE_USER=Bob")
+    >>> serve_ctl = Ctl("serve rex.web_demo --port=%s --environ REMOTE_USER=Bob" % random_port)
 
     >>> print get('/')              # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     <!DOCTYPE html>
     <title>Welcome to REX.WEB_DEMO!</title>
 
     >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
-    Serving rex.web_demo on 127.0.0.1:8080
+    Serving rex.web_demo on 127.0.0.1:8...
     localhost - Bob [...] "GET / HTTP/1.0" 200 55
 
 Use option ``--watch`` to automatically rebuild generated files; option
 ``--quiet`` to suppress the output::
 
-    >>> serve_ctl = Ctl("serve rex.web_demo --watch --quiet")
+    >>> serve_ctl = Ctl("serve rex.web_demo --port=%s --watch --quiet" % random_port)
 
     >>> print get('/')              # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     <!DOCTYPE html>
@@ -124,7 +128,7 @@ Use option ``--watch`` to automatically rebuild generated files; option
 You can use option ``--watch-package`` to rebuild generated files for a
 specific package::
 
-    >>> serve_ctl = Ctl("serve rex.web_demo --watch-package rex.web --quiet")
+    >>> serve_ctl = Ctl("serve rex.web_demo --port=%s --watch-package rex.web --quiet" % random_port)
 
     >>> print get('/')              # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     <!DOCTYPE html>
@@ -133,7 +137,7 @@ specific package::
     >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
 
 The package specified by ``--watch-package`` must exist.  It is also an error
-to use both ``--watch`` and ``--watch-package`` options.
+to use both ``--watch`` and ``--watch-package`` options::
 
     >>> ctl("serve rex.web_demo -w -W rex.web", expect=1)   # doctest: +NORMALIZE_WHITESPACE
     FATAL ERROR: both --watch and --watch-package are specified
@@ -180,7 +184,7 @@ To run a RexDB application under uWSGI server, use ``rex serve-uwsgi`` command. 
 option ``--watch`` to rebuild autogenerated files on the fly::
 
     >>> serve_uwsgi_ctl = Ctl("serve-uwsgi rex.web_demo --watch"
-    ...                       " --set-uwsgi need-app --set-uwsgi http-socket=:8080")
+    ...                       " --set-uwsgi need-app --set-uwsgi http-socket=:%s" % random_port)
 
 Now you could make HTTP requests::
 
@@ -206,9 +210,9 @@ If uWSGI configuration is not provided, an error is reported::
 You can use ``rex start`` command to run uWSGI in daemon mode::
 
     >>> ctl("start rex.web_demo"
-    ...     " --set-uwsgi http-socket=:8080"
-    ...     " --set-uwsgi auto-procname")           # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
-    Starting rex.web_demo (http-socket: :8080, logto: /.../rex.web_demo.log)
+    ...     " --set-uwsgi http-socket=:%s"
+    ...     " --set-uwsgi auto-procname" % random_port) # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    Starting rex.web_demo (http-socket: :8..., logto: /.../rex.web_demo.log)
 
 You can now query the server::
 
@@ -223,7 +227,7 @@ You can now query the server::
 Use ``rex status`` command to get the status of the uWSGI daemon::
 
     >>> ctl("status rex.web_demo")                  # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
-    rex.web_demo is running (http-socket: :8080, logto: /.../rex.web_demo.log)
+    rex.web_demo is running (http-socket: :8..., logto: /.../rex.web_demo.log)
 
 You can also use ``rex status`` command to report the PID of the server and the
 path to the log file::
@@ -239,7 +243,7 @@ path to the log file::
 Use ``rex stop`` command to stop the server::
 
     >>> ctl("stop rex.web_demo")                    # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
-    Stopping rex.web_demo (http-socket: :8080, logto: /.../rex.web_demo.log)
+    Stopping rex.web_demo (http-socket: :8..., logto: /.../rex.web_demo.log)
 
 ``rex stop`` will fail if the server is not running::
 
@@ -270,11 +274,11 @@ for identifying the server::
     >>> open('./build/sandbox/web_demo.yaml', 'w').write('''
     ... project: rex.web_demo
     ... uwsgi:
-    ...   http-socket: :8088
-    ... ''')
+    ...   http-socket: :%s
+    ... ''' % random_port)
 
     >>> ctl("start --config=./build/sandbox/web_demo.yaml")         # doctest: +ELLIPSIS
-    Starting rex.web_demo (http-socket: :8088, logto: /.../rex.web_demo-web_demo.log)
+    Starting rex.web_demo (http-socket: :8..., logto: /.../rex.web_demo-web_demo.log)
 
 If the YAML file containing state information is corrupted, the error
 is silently ignored::

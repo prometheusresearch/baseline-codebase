@@ -5,6 +5,14 @@
 .. contents:: Table of Contents
 
 
+3.7.1 (2016-XX-XX)
+==================
+
+* Emit "500 Internal Server Error" on unexpected exceptions.
+* ``rex start`` and ``rex serve-uwsgi`` display uncaught exceptions with
+  ``--debug``.
+
+
 3.7.0 (2016-03-23)
 ==================
 

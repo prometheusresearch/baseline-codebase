@@ -13,10 +13,14 @@ from webob import Request, Response
 from webob.exc import (WSGIHTTPException, HTTPNotFound, HTTPUnauthorized,
         HTTPMovedPermanently, HTTPMethodNotAllowed)
 from webob.static import FileIter, BLOCK_SIZE
+import sys
 import copy
 import os.path
 import fnmatch
 import json
+import datetime
+import wsgiref
+import cgitb
 import mimetypes
 
 
@@ -448,6 +452,21 @@ class StandardWSGI(WSGI):
             resp = self.handler(req)
         except WSGIHTTPException, exc:
             resp = exc
+        except:
+            write = start_response(
+                    "500 Internal Server Error",
+                    [("Content-Type", 'text/plain')])
+            if write:
+                write("The server encountered an unexpected condition"
+                      " which prevented it from fulfilling the request.\n")
+                if get_settings().debug:
+                    exc_info = sys.exc_info()
+                    write("\n[%s] %s %s\n"
+                         % (datetime.datetime.now(),
+                            environ['REQUEST_METHOD'],
+                            wsgiref.util.request_uri(environ)))
+                    write(cgitb.text(exc_info))
+            raise
         return resp(environ, start_response)
 
 

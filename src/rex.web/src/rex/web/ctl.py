@@ -132,20 +132,10 @@ class RexServerHandler(wsgiref.handlers.SimpleHandler):
             for line in self.format_exception(exc_info):
                 stderr.write(line)
             stderr.flush()
-        finally:
-            exc_info = None
-
-    def error_output(self, environ, start_response):
-        # Generates `500 Internal Server Error` page.  Includes the traceback
-        # if `--debug` in enabled.
-        exc_info = sys.exc_info()
-        try:
-            start_response(self.error_status, self.error_headers[:], exc_info)
-            body = [self.error_body]
-            if env.debug:
-                body.append("\n\n")
-                body.extend(self.format_exception(exc_info))
-            return body
+            # Add a line to access log.
+            if self.headers_sent:
+                self.request_handler.log_request(
+                        self.status.split(' ',1)[0], self.bytes_sent)
         finally:
             exc_info = None
 

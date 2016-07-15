@@ -391,7 +391,7 @@ class ServeUWSGITask(RexWatchTask):
 
     def __call__(self):
         # Build the application; validate requirements and configuration.
-        app = self.make_with_watch(attached=False)
+        app = self.make_with_watch(initialize=False, attached=False)
         # Make a temporary .wsgi file: /tmp/<project>-XXX.wsgi.
         fd, path = tempfile.mkstemp(prefix=app.requirements[0]+'-',
                                     suffix='.wsgi')

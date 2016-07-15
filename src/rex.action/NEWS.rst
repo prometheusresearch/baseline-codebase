@@ -4,6 +4,10 @@
 
 .. contents:: Table of Contents
 
+1.2.0 (2016-07-15)
+==================
+
+* [FEATURE] Support rex.menu.
 
 1.1.0 (2016-04-22)
 ==================

@@ -418,9 +418,11 @@ class ServeUWSGITask(RexWatchTask):
         cmd = ['uwsgi']
         for key in sorted(uwsgi_parameters):
             value = uwsgi_parameters[key]
-            cmd.append('--%s' % key)
             if value is not True:
-                cmd.append(str(value))
+                opt = '--%s=%s' % (key, value)
+            else:
+                opt = '--%s' % (key,)
+            cmd.append(opt)
         # Start uWSGI.
         log("Starting uWSGI server for `{}`", app.requirements[0])
         exe(cmd)

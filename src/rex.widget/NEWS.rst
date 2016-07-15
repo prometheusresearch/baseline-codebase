@@ -2,6 +2,12 @@
   Change Log
 **************
 
+2.7.0 (2016-07-15)
+==================
+
+* [FEATURE] Support rex.menu.
+* [FEATURE] Update react-stylesheet & react-dom-stylesheet.
+
 2.6.0 (2016-06-01)
 ==================
 

@@ -2,7 +2,7 @@
   Change Log
 **************
 
-1.2.0 (XXXX-XX-XX)
+1.2.0 (2015-07-15)
 ==================
 
 * [FEATURE] Add ``rex.widget_chrome.MenuChrome`` which use ``rex.menu`` to get

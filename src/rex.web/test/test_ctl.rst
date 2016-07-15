@@ -275,7 +275,7 @@ for identifying the server::
     ... project: rex.web_demo
     ... uwsgi:
     ...   http-socket: :%s
-    ... ''' % random_port)
+    ... ''' % (random_port+1))
 
     >>> ctl("start --config=./build/sandbox/web_demo.yaml")         # doctest: +ELLIPSIS
     Starting rex.web_demo (http-socket: :8..., logto: /.../rex.web_demo-web_demo.log)

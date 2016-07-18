@@ -26,6 +26,11 @@ class BooleanQuestion extends Question {
     var cfg = Question.getPropertyConfiguration(isSubElement);
     cfg.properties.advanced.unshift(
       {
+        name: 'dropDown',
+        label: _('Use a DropDown Widget'),
+        schema: properties.Bool
+      },
+      {
         name: 'hotkeys',
         label: _('Hotkeys'),
         schema: properties.BooleanHotkeys
@@ -37,10 +42,14 @@ class BooleanQuestion extends Question {
   constructor() {
     super();
     this.hotkeys = {};
+    this.dropDown = false;
   }
 
   parse(element, instrument, field) {
     super.parse(element, instrument, field);
+
+    this.dropDown = (objectPath.get(element, 'options.widget.type') === 'dropDown');
+
     var yes = objectPath.get(
       element,
       'options.widget.options.hotkeys.true',
@@ -69,9 +78,13 @@ class BooleanQuestion extends Question {
     var field = context.getCurrentSerializationField(instrument);
     field.type = 'boolean';
 
-    if (!isEmpty(this.hotkeys)) {
+    if (!isEmpty(this.hotkeys) || this.dropDown) {
       var elm = context.getCurrentSerializationElement(form);
-      objectPath.set(elm, 'options.widget.type', 'radioGroup');
+      objectPath.set(
+        elm,
+        'options.widget.type',
+        this.dropDown ? 'dropDown' : 'radioGroup'
+      );
 
       if (this.hotkeys.yes) {
         objectPath.set(
@@ -98,6 +111,7 @@ class BooleanQuestion extends Question {
   clone(exact, configurationScope) {
     var newElm = super.clone(exact, configurationScope);
     newElm.hotkeys = deepCopy(this.hotkeys);
+    newElm.dropDown = this.dropDown;
     return newElm;
   }
 }
@@ -108,7 +122,7 @@ Question.registerElement(
   function (element, instrument, field) {
     if (field.type.rootType === 'boolean') {
       var widget = objectPath.get(element, 'options.widget.type');
-      if (!widget || (widget === 'radioGroup')) {
+      if (!widget || (widget === 'radioGroup') || (widget === 'dropDown')) {
         var elm = new BooleanQuestion();
         elm.parse(element, instrument, field);
         return elm;

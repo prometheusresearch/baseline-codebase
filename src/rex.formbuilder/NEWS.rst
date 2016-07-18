@@ -11,6 +11,7 @@ REX.FORMBUILDER Change Log
 * Added  ``formbuilder-pick-draft`` and ``formbuilder-edit-draft`` action types
   for use in rex.action wizards.
 * Removed inappropriate properties from Boolean field.
+* Added support for Boolean fields represented as DropDown widgets.
 
 
 5.7.0 (2016-04-22)

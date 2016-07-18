@@ -356,7 +356,7 @@ column::
 Then we could convert the ``zip`` column to integer::
 
     >>> driver("""{ column: address.zip, type: integer }""")
-    ALTER TABLE "address" ALTER COLUMN "zip" SET DATA TYPE "int4" USING "zip"::"int4";
+    ALTER TABLE "address" ALTER COLUMN "zip" SET DATA TYPE "int8" USING "zip"::"int8";
 
     >>> zip_table.select()
     SELECT "id", "code", "city", "zip", "state"
@@ -364,7 +364,7 @@ Then we could convert the ``zip`` column to integer::
     <DataImage address>
 
     >>> zip_table.data.get(zip_key, (u'chi',))
-    (1, u'chi', u'Chicago', 60614, u'IL')
+    (1, u'chi', u'Chicago', 60614L, u'IL')
 
 We can also convert a column to an ``ENUM`` type::
 

@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.7.0 (2016-XX-XX)
+==================
+
+* Use ``int8`` for integer columns.
+
+
 2.6.0 (2016-07-13)
 ==================
 

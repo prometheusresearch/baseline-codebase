@@ -608,7 +608,7 @@ def plpgsql_integer_random_key(table_name, name):
     """
     WHILE NEW.{{ name|n }} IS NULL LOOP
         DECLARE
-            _key int4;
+            _key int8;
         BEGIN
             _key := trunc((random()*999999999) + 1);
             PERFORM id
@@ -660,7 +660,7 @@ def plpgsql_integer_offset_key(table_name, name, basis_names):
     """
     IF NEW.{{ name|n }} IS NULL THEN
         DECLARE
-            _offset int4;
+            _offset int8;
         BEGIN
             SELECT max({{ name|n }}) INTO _offset
     # if basis_names

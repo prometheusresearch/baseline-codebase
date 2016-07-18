@@ -26,22 +26,6 @@ class BooleanQuestion extends Question {
     var cfg = Question.getPropertyConfiguration(isSubElement);
     cfg.properties.advanced.unshift(
       {
-        name: 'length',
-        minLabel: _('Minimum Length'),
-        maxLabel: _('Maximum Length'),
-        schema: properties.NumericRange
-      },
-      {
-        name: 'pattern',
-        label: _('Pattern Constraint'),
-        schema: properties.Regex
-      },
-      {
-        name: 'width',
-        label: _('Field Width'),
-        schema: properties.WidgetSize
-      },
-      {
         name: 'hotkeys',
         label: _('Hotkeys'),
         schema: properties.BooleanHotkeys

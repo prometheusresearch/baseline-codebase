@@ -5,6 +5,14 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+2.0.0 (2016-xx-xx)
+==================
+
+* Completely overhauled the React components for working with Forms and
+  Reconciliations.
+* Update to the new rex.i18n.
+
+
 1.6.0 (2016-07-14)
 ==================
 

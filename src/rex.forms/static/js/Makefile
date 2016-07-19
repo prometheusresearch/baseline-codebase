@@ -1,13 +1,16 @@
-TESTS ?= ./tests/integration/index.js
+BIN           = ./node_modules/.bin
+TESTS         = $(shell find lib -path '*/__tests__/*-test.js')
+MOCHA_OPTIONS = --reporter dot --compilers js:babel-core/register
+
+test:
+	@$(BIN)/mocha $(MOCHA_OPTIONS) $(TESTS)
+
+test-watch:
+	@$(BIN)/mocha $(MOCHA_OPTIONS) --watch $(TESTS)
 
 lint:
-	@./node_modules/.bin/eslint-jsx lib/
+	@$(BIN)/eslint ./lib
 
-ci:
-	export PATH=./node_modules/.bin:$$PATH; webpack-dev-server \
-		$(TESTS:%=mocha!%) \
-		--bail \
-		--quiet \
-		--devtool 'eval' \
-		--port 8888 \
-		--output-file test.js
+check:
+	@$(BIN)/flow ./lib
+

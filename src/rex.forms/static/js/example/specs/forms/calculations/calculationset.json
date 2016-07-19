@@ -1,0 +1,56 @@
+{
+  "instrument": {
+    "id": "urn:calculations",
+    "version": "1.0"
+  },
+  "calculations": [
+    {
+      "id": "calc1",
+      "type": "text",
+      "method": "python",
+      "options": {
+        "expression": "assessment['q1'].upper() + '_' + assessment['q2'].upper()"
+      }
+    },
+    {
+      "id": "calc2",
+      "type": "date",
+      "method": "python",
+      "options": {
+        "expression": "datetime.date.today()"
+      }
+    },
+    {
+      "id": "calc3",
+      "type": "integer",
+      "method": "htsql",
+      "options": {
+        "expression": "(if_null($q3, 0) * 2) + if_null($q4, 0)"
+      }
+    },
+    {
+      "id": "calc4",
+      "type": "float",
+      "method": "htsql",
+      "options": {
+        "expression": "$q5 * 3"
+      }
+    },
+    {
+      "id": "calc5",
+      "type": "text",
+      "method": "python",
+      "options": {
+        "callable": "calculations.repeat_calc1"
+      }
+    },
+    {
+      "id": "calc6",
+      "type": "boolean",
+      "method": "python",
+      "options": {
+        "callable": "calculations.is_q1_red"
+      }
+    }
+  ]
+}

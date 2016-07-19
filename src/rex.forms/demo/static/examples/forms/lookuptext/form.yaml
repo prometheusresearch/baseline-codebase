@@ -10,6 +10,8 @@ pages:
           fieldId: q1
           text:
             en: This field searches Instrument Titles to populate the input with an Instrument UID
+          help:
+            en: Try searching for "calc" or "inst".
           widget:
             type: lookupText
             options:
@@ -19,6 +21,8 @@ pages:
           fieldId: q2
           text:
             en: This field searches Mobile TNs to populate the input with a Subject UID
+          help:
+            en: Try searching for "1".
           widget:
             type: lookupText
             options:
@@ -28,6 +32,8 @@ pages:
           fieldId: q3
           text:
             en: This field searches for users.
+          help:
+            en: Try searching for "user",
           widget:
             type: lookupText
             options:

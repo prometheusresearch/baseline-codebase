@@ -1,217 +1,413 @@
 /**
- * @jsx React.DOM
+ * @copyright 2016-present, Prometheus Research, LLC
  */
-'use strict';
 
-var React               = require('react');
-var ReactForms          = require('react-forms');
-var validation          = ReactForms.validation;
-var FormEventsMixin     = require('./FormEventsMixin');
-var Title               = require('./Title');
-var Page                = require('./Page');
-var PageNavigation      = require('./PageNavigation');
-var ProgressBar         = require('./ProgressBar');
-var Pagination          = require('./Pagination');
-var _                   = require('../localization')._;
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import * as ReactForms from 'react-forms/reactive';
+import * as ReactUI from '@prometheusresearch/react-ui';
+import {atom} from 'derivable';
+import find from 'lodash/find';
+import noop from 'lodash/noop';
+import concat from 'lodash/concat';
+import autobind from 'autobind-decorator';
 
-var FormEntryPagesMixin = {
+import {InjectI18N} from 'rex-i18n';
 
-  getInitialState: function() {
-    var firstPage = this.getPages()[0];
-    return {
-      currentPageId: firstPage ? firstPage.id : null
-    };
-  },
+import * as InstrumentSchema from '../instrument/schema';
+import {isFieldCompleted, createReactFormsMessages} from '../instrument/validate';
+import {makeAssessment} from '../instrument/assessment';
+import FormPage from './FormPage';
+import FormPaginator from './FormPaginator';
+import FormContext from './FormContext';
+import * as EventScope from './event/EventScope';
 
-  getPages: function() {
-    return this.props.form.pages.map((page, idx) => {
-      page.original_index = idx;
-      return page;
+function createFormState({instrument, form, parameters, initialValue = {}, i18n}) {
+  let schema = InstrumentSchema.fromInstrument(instrument, {i18n});
+  let original = atom(initialValue);
+  let event = EventScope.create(form, schema, original, parameters);
+  schema.event = event;
+  let onChange = (update, keyPath) => {
+    let nextValue = ReactForms.update(
+      original.get(),
+      keyPath,
+      update,
+      schema
+    );
+    ReactDOM.unstable_batchedUpdates(() => {
+      original.set(nextValue);
     });
-  },
+  };
+  let messages = createReactFormsMessages({i18n});
+  let observed = original.derive(event.process);
+  let validate = (schema, value) => {
+    return ReactForms.Schema.validate(schema, value, {messages});
+  };
+  let value = ReactForms.createValue({
+    value: observed,
+    schema,
+    onChange,
+    validate,
+  });
+  return {
+    original,
+    observed,
+    value,
+    event,
+  };
+}
 
-  getPage: function(id, withIndex) {
-    var pages = this.props.form.pages;
-    for (var index = 0, len = pages.length; index < len; index++) {
-      var page = pages[index];
-      if (page.id === id) {
-        if (withIndex) {
-          return {page, index};
-        } else {
-          return page;
-        }
-      }
-    }
-  },
+@InjectI18N
+@ReactForms.reactive
+export default class FormEntry extends React.Component {
 
-  isPageValid: function(page) {
-    if (this.formEvents().isFailed(page.id)) {
-      return false;
-    }
+  static propTypes = {
+    /**
+     * The RIOS Web Form Configuration to display.
+     */
+    form: React.PropTypes.object.isRequired,
 
-    for (var i = 0, len = page.elements.length; i < len; i++) {
-      if (page.elements[i].type !== 'question') {
-        continue;
-      }
+    /**
+     * The RIOS Instrument Definition that corresponds with the form.
+     */
+    instrument: React.PropTypes.object.isRequired,
 
-      var fieldId = page.elements[i].options.fieldId;
+    /**
+     * The RIOS Assessment Document to initialize the form with.
+     */
+    assessment: React.PropTypes.object,
 
-      if (!this.props.isFieldValid(fieldId)) {
-        return false;
-      }
-    }
+    /**
+     * The values for the custom/external variables used by the form.
+     */
+    parameters: React.PropTypes.object,
 
-    return true;
-  },
+    /**
+     * The display mode of the form. Can be: entry, review, view. Defaults to
+     * view.
+     */
+    mode: React.PropTypes.string,
 
-  getCurrentPage: function(withIndex) {
-    return this.getPage(this.state.currentPageId, withIndex);
-  },
+    /**
+     * Disable pagination and render everything in a single page. Defaults to
+     * false.
+     */
+    noPagination: React.PropTypes.bool,
 
-  setPage: function(pageOrId) {
-    var id = pageOrId.id || pageOrId;
-    if (this.props.onPage) {
-      var pageInfo = this.getPage(id, true);
-      this.props.onPage(pageInfo.page, pageInfo.index);
-    }
-    this.setState({currentPageId: id});
-  },
+    /**
+     * The function to call when the form's value changes. The callback will
+     * receive an object that contains:
+     * * getAssessment(): The state of the Assessment after the change.
+     * * isValid(): Whether or not the current state of the Assessment is valid.
+     * * getErrors(): An array of the current validation errors in the form.
+     */
+    onChange: React.PropTypes.func,
 
-  hasPreviousPage: function() {
-    var cur = this.getCurrentPage(true);
-    return cur.index > 0;
-  },
+    /**
+     * The function to call when the user changes pages within a form. The
+     * callback will receive an object that contains:
+     * * getAssessment(): The state of the Assessment after the change.
+     * * isValid(): Whether or not the current state of the Assessment is valid.
+     * * getErrors(): An array of the current validation errors in the form.
+     * * pageNumber: The index of the page that the user moved to.
+     */
+    onPage: React.PropTypes.func,
 
-  hasNextPage: function() {
-    var cur = this.getCurrentPage(true);
-    var pages = this.getPages();
-    return cur.index < pages.length - 1;
-  },
+    /**
+     * A collection of API URLs that are used by various widgets or
+     * functionality in the form.
+     */
+    apiUrls: React.PropTypes.object,
+  };
 
-  getPageNavigation: function() {
-    var currentPage = this.getCurrentPage();
-    var events = this.formEvents();
+  static defaultProps = {
+    assessment: {},
+    parameters: {},
+    mode: 'entry',
+    noPagination: false,
+    onChange: noop,
+    onPage: noop,
+    apiUrls: {},
+  };
 
-    var pages = this.getPages().filter((page) =>
-      currentPage === page.id
-      || !events.isHidden(page.id));
-
-    var seenCurrent = false;
-    var seenInvalid = false;
-
-    var enabledPages = pages.filter((page) => {
-      if (currentPage.id === page.id) {
-        seenCurrent = true;
-      }
-
-      if (!seenCurrent) {
-        return true;
-      } else if (!seenInvalid) {
-        if (!this.isPageValid(page)) {
-          seenInvalid = true;
-        }
-        return true;
-      } else {
-        return false;
-      }
+  constructor(props, context) {
+    super(props, context);
+    let {instrument, form, parameters, assessment} = props;
+    this.formState = createFormState({
+      instrument,
+      form,
+      parameters,
+      initialValue: assessment ? assessment.values : {},
+      i18n: this.getI18N(),
     });
 
-    return {
-      currentPage,
-      pages,
-      enabledPages,
-      setPage: this.setPage
+    this.formState.observed.react(this.onChange, {skipFirst: true});
+    this.formStateEditable = null;
+
+    this.state = {
+      pageNumber: 0,
+      editable: null,
     };
   }
-};
 
-var FormEntry = React.createClass({
+  render() {
+    let {form, instrument, parameters, mode, noPagination, apiUrls} = this.props;
+    let {editable, pageNumber} = this.state;
+    let formState = editable ? this.formStateEditable : this.formState;
+    let {isDisabled, isPageDisabled, isPageHidden, isHidden} = formState.event;
 
-  mixins: [
-    FormEntryPagesMixin,
-    ReactForms.FieldsetMixin,
-    FormEventsMixin
-  ],
-
-  propTypes: {
-    instrument: React.PropTypes.object.isRequired,
-    form: React.PropTypes.object.isRequired,
-    subtitle: React.PropTypes.string,
-    assessment: React.PropTypes.object,
-    parameters: React.PropTypes.object,
-    locale: React.PropTypes.string,
-    onComplete: React.PropTypes.func
-  },
-
-  componentWillReceiveProps: function (nextProps) {
-    if (nextProps.form !== this.props.form) {
-      this.setPage(this.getPages()[0]);
+    let pages = form.pages;
+    if (noPagination) {
+      pages = [{
+        id: '__synthetic_page_id__',
+        elements: concat(...pages.map(page => page.elements)),
+      }];
+      pageNumber = 0;
     }
-  },
 
-  render: function() {
-    var currentPage = this.getCurrentPage(true);
-    var totalPages = this.props.form.pages.length;
-    var percentComplete = Math.floor(
-      ((currentPage.index + 1) / totalPages) * 100
+    // Determine which pages are disabled, if we are in review mode and some
+    // question is in editable mode then we disabled all page navigation.
+    let disabledPageNumberList;
+    if (editable != null) {
+      disabledPageNumberList = pages.map(_page => true);
+    } else {
+      disabledPageNumberList = pages.map(page => isPageDisabled(page.id));
+    }
+
+    let hiddenPageNumberList = pages.map(page => isPageHidden(page.id));
+    let page = find(
+      pages.slice(pageNumber),
+      (page, pageNumber) => !hiddenPageNumberList[pageNumber]
     );
-    var percentLabel = _('Page %(page)s of %(total)s', {
-      page: currentPage.index + 1,
-      total: totalPages
+    let hasPages = !noPagination && pages.length > 1;
+
+    let totalFields = instrument.record.length;  // TODO count matrix cells individually?
+    let completeFields = 0;
+    pages.forEach((page_, idx) => {
+      if (idx < pageNumber) {
+        // If we've moved past the page, consider all questions complete.
+        completeFields += page_.elements.filter((element) => {
+          return element.type === 'question';
+        }).length;
+
+      } else if (disabledPageNumberList[idx] || hiddenPageNumberList[idx]) {
+        // If the page is hidden/disabled, consider all questions complete.
+        completeFields += page_.elements.filter((element) => {
+          return element.type === 'question';
+        }).length;
+
+      } else {
+        // Otherwise, consider any hidden/disabled questions or questions with
+        // a value complete.
+        completeFields += page_.elements.filter(element => {
+          if (element.type === 'question') {
+            let {fieldId, tags = {}} = element.options;
+            return (
+              isFieldCompleted(formState.value.select(fieldId))
+              || isHidden(fieldId, ...tags)
+              || isDisabled(fieldId, ...tags)
+            );
+          } else {
+            return false;
+          }
+        }).length;
+      }
     });
-    var navigation = this.getPageNavigation();
-    var title = this.props.form.title ?
-      this.props.form.title :
-      this.props.instrument.title;
-    var subtitle = this.props.subtitle;
+
+    // If there are errors/required on a page, then mark all future pages as
+    // disabled so they user can't go forward until they resolve this page.
+    //
+    // FYI: We modify the disabledPageNumberList /after/ we calculate form
+    // completeness because we don't want to count the blocked pages as
+    // complete.
+    for (let p = pageNumber; p < pages.length; p++) {
+      let pageHasErrors = pages[p].elements.filter((element) => {
+        return element.type === 'question' &&
+          formState.value.select(element.options.fieldId).completeErrorList.length > 0
+        ;
+      }).length > 0;
+      if (pageHasErrors) {
+        for (let i = p + 1; i < pages.length; i++) {
+          disabledPageNumberList[i] = true;
+        }
+        break;
+      }
+    }
 
     return (
-      <div className="rex-forms-FormEntry">
-        <Title text={title} subtitle={subtitle} />
-        <PageNavigation navigation={navigation}>
-          {navigation.pages.length > 1 &&
-            <ProgressBar
-              percentComplete={percentComplete}
-              label={percentLabel}
+      <ReactUI.I18N.I18N dir={this.getI18N().isRightToLeft() ? 'rtl' : 'ltr'}>
+        <FormContext
+          self={this}
+          form={form}
+          parameters={parameters}
+          event={formState.event}
+          apiUrls={apiUrls}>
+          <div>
+            {mode === 'entry' &&
+              <FormProgressBar
+                completeFields={completeFields}
+                totalFields={totalFields}
+                />}
+            {hasPages &&
+              <FormPaginator
+                currentPageNumber={pageNumber}
+                pageCount={pages.length}
+                hiddenPageNumberList={hiddenPageNumberList}
+                disabledPageNumberList={disabledPageNumberList}
+                onPage={this.onPage}
+                marginBottom="medium"
+                />}
+            <FormPage
+              mode={mode}
+              editable={editable}
+              onEditable={this.onEditable}
+              page={page}
+              formValue={formState.value}
               />
-          }
-        </PageNavigation>
-        <Page
-          page={currentPage.page}
-          onNext={this.onNextPage}
-          />
-        <PageNavigation
-          ref='bottomNav'
-          navigation={navigation}>
-          {navigation.pages.length > 1 &&
-            <Pagination navigation={navigation} />
-          }
-        </PageNavigation>
-      </div>
+            {hasPages &&
+              <FormPaginator
+                currentPageNumber={pageNumber}
+                pageCount={pages.length}
+                hiddenPageNumberList={hiddenPageNumberList}
+                disabledPageNumberList={disabledPageNumberList}
+                onPage={this.onPage}
+                marginV="medium"
+                />}
+          </div>
+        </FormContext>
+      </ReactUI.I18N.I18N>
     );
-  },
-
-  onNextPage: function () {
-    this.refs.bottomNav.focusButton('next');
-  },
-
-  /**
-   * Get form completeness as the ratio of number of valid question to number of
-   * all questions in the form.
-   *
-   * @returns {Number}
-   */
-  getCompleteness: function() {
-    var events = this.formEvents();
-    var value = this.value();
-    var questions = this.props.instrument.record.map((field) => field.id);
-    var answers = questions.filter((q) => {
-      return validation.isSuccess(value.validation.children[q])
-        || events.isHidden(q)
-        || events.isDisabled(q);
-    });
-    return Math.floor((answers.length / questions.length) * 100);
   }
-});
 
-module.exports = FormEntry;
+  componentWillReceiveProps({assessment, form, instrument, parameters}) {
+    if (form !== this.props.form) {
+      console.warning( // eslint-disable-line no-console
+        '<FormEntry /> does not handle updating "form" prop'
+      );
+    }
+    if (instrument !== this.props.instrument) {
+      console.warning( // eslint-disable-line no-console
+        '<FormEntry /> does not handle updating "instrument" prop'
+      );
+    }
+    if (assessment !== this.props.assessment) {
+      console.warning( // eslint-disable-line no-console
+        '<FormEntry /> does not handle updating "assessment" prop'
+      );
+    }
+    if (parameters !== this.props.parameters) {
+      console.warning( // eslint-disable-line no-console
+        '<FormEntry /> does not handle updating "parameters" prop'
+      );
+    }
+  }
+
+  getAssessment() {
+    return makeAssessment(
+      this.formState.value.value,
+      this.props.instrument,
+      {},
+      {language: this.getI18N().config.locale}
+    );
+  }
+
+  getErrors() {
+    return this.formState.value.completeErrorList.map((error) => {
+      return {
+        field: error.field.substring(5),
+        message: error.message
+      };
+    });
+  }
+
+  isValid() {
+    return this.formState.value.completeErrorList.length === 0;
+  }
+
+  snapshotState(formValue) {
+    formValue = formValue || this.formState.value;
+    let {instrument} = this.props;
+    let {locale} = this.getI18N().config;
+
+    return {
+      getAssessment: () => {
+        return makeAssessment(
+          formValue.value,
+          instrument,
+          {},
+          {language: locale}
+        );
+      },
+
+      isValid: () => {
+        return formValue.completeErrorList.length === 0;
+      },
+
+      getErrors() {
+        return formValue.completeErrorList.map((error) => {
+          return {
+            field: error.field.substring(5),
+            message: error.message
+          };
+        });
+      }
+    };
+  }
+
+  onChange = () => {
+    this.props.onChange(this.snapshotState(this.formState.value));
+  };
+
+  onPage = ({pageNumber}) => {
+    this.setState(
+      {pageNumber},
+    () => {
+      this.props.onPage({
+        ...this.snapshotState(),
+        pageNumber
+      });
+    });
+  };
+
+  onEditable = ({editable, commit}) => {
+    if (editable === null) {
+      if (commit) {
+        this.formState.original.set(this.formStateEditable.value.value);
+      }
+      this.formStateEditable = null;
+    } else {
+      this.formStateEditable = createFormState({
+        form: this.props.form,
+        instrument: this.props.instrument,
+        parameters: this.props.parameters,
+        initialValue: this.formState.value.value,
+        i18n: this.getI18N(),
+      });
+    }
+    this.setState({editable});
+  };
+}
+
+
+@InjectI18N
+class FormProgressBar extends React.Component {
+  render() {
+    let {totalFields, completeFields} = this.props;
+    let progress = completeFields / totalFields;
+
+    return (
+      <ReactUI.Block marginBottom="medium">
+        <ReactUI.ProgressBar
+          progress={progress}
+          formatLabel={this.formatLabel}
+          />
+      </ReactUI.Block>
+    );
+  }
+
+  @autobind
+  formatLabel(state) {
+    return this.getI18N().formatPercent(state.progress);
+  }
+}
+

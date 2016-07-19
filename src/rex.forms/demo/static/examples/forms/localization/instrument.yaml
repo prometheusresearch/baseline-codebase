@@ -34,4 +34,6 @@ record:
           type: text
         - id: subfield2
           type: integer
+  - id: q7
+    type: boolean
 

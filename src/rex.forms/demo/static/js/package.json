@@ -2,19 +2,13 @@
   "name": "rex-forms-demo",
   "version": "1.6.0",
   "main": "lib/index.js",
-  "rex": {
-    "loaders": [
-      {
-        "test": "**/*.js",
-        "loader": "jsx-loader?harmony"
-      }
-    ]
+  "rex": {},
+  "eslintConfig": {
+    "extends": "prometheusresearch"
   },
-  "peerDependencies": {
-    "react": "^0.10.0",
-    "jquery": "^2.0.0",
-    "bootstrap": "^3.0.0",
-    "envify": "~1.2.0"
+  "dependencies": {
+    "normalize.css": "^4.1.1",
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0"
   }
 }
-

@@ -48,7 +48,7 @@ pages:
         options:
           fieldId: tagged
           text:
-            en: 'Do the following to next three Elements:'
+            en: 'Do the following to next four Elements:'
           enumerations:
             - id: hidden
               text:
@@ -86,6 +86,14 @@ pages:
         options:
           text:
             en: This is a Text Block
+        tags:
+          - group1
+      - type: audio
+        options:
+          source:
+            en:
+              - ../doctor_who.ogg
+              - ../doctor_who.mp3
         tags:
           - group1
       - type: question

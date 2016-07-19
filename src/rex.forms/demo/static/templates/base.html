@@ -1,7 +1,9 @@
+{%- from 'rex.i18n:/template/macros.html' import polyfill -%}
 <!doctype html>
 <html>
   <head>
     <title>rex.forms_demo</title>
+    {{ polyfill() }}
     <link rel="stylesheet" href="{{ MOUNT['rex.forms_demo'] }}/bundle/bundle.css">
     <script src="{{ MOUNT['rex.forms_demo'] }}/bundle/bundle.js"></script>
   </head>
@@ -10,4 +12,3 @@
     {% block body %}{% endblock %}
   </body>
 </html>
-

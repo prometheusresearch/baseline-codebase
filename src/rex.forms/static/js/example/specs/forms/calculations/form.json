@@ -1,0 +1,70 @@
+{
+  "instrument": {
+    "id": "urn:calculations",
+    "version": "1.0"
+  },
+  "defaultLocalization": "en",
+  "pages": [
+    {
+      "id": "page1",
+      "elements": [
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q1",
+            "text": {
+              "en": "q1"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q2",
+            "text": {
+              "en": "q2"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q3",
+            "text": {
+              "en": "q3"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q4",
+            "text": {
+              "en": "q4"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q5",
+            "text": {
+              "en": "q5"
+            }
+          }
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "text",
+          "options": {
+            "text": {
+              "en": "* calc1 = Uppercase concatenation of q1 and q2 with underscore.\n* calc2 = Current date\n* calc3 = (q3*2) + q4\n* calc4 = q5 * 3\n* calc5 = calc1 concatenated with itself\n* calc6 = true if q1 == 'red'\n"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

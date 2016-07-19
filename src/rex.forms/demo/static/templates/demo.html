@@ -5,8 +5,14 @@
     RexFormsDemo.renderDemo(
         {
             demo: {{ demo|json }},
+            demos: {{ demos|json }},
+            recons: {{ recons|json }},
             mountPoint: {{ MOUNT['rex.forms_demo']|json }},
-            lookupApiUrl: '{{ MOUNT['rex.forms'] }}/lookup',
+            apiUrls: {
+                lookup: '{{ MOUNT['rex.forms'] }}/lookup',
+                calculation: '{{ MOUNT['rex.forms_demo'] }}/demo/{{ demo.id }}/calculate'
+            },
+            i18nUrl: {{ MOUNT['rex.i18n']|json }},
             initialLocale: '{{ CURRENT_LOCALE }}',
             availableLocales: {{ SUPPORTED_LOCALES|list|json }}
         },

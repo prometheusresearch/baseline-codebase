@@ -1,0 +1,73 @@
+{
+  "id": "urn:text-rendering",
+  "version": "1.0",
+  "title": "Text Rendering",
+  "types": {
+    "enum": {
+      "base": "enumeration",
+      "enumerations": {
+        "foo": null,
+        "bar": null,
+        "baz": null
+      }
+    },
+    "enumset": {
+      "base": "enumerationSet",
+      "enumerations": {
+        "red": null,
+        "blue": null,
+        "green": null
+      }
+    }
+  },
+  "record": [
+    {
+      "id": "q1",
+      "type": "text"
+    },
+    {
+      "id": "q2",
+      "type": "integer"
+    },
+    {
+      "id": "q3",
+      "type": "integer"
+    },
+    {
+      "id": "q4",
+      "type": "integer"
+    },
+    {
+      "id": "q5",
+      "type": "enum"
+    },
+    {
+      "id": "q5-2",
+      "type": "enumset"
+    },
+    {
+      "id": "q6",
+      "type": {
+        "base": "matrix",
+        "rows": [
+          {
+            "id": "row1"
+          },
+          {
+            "id": "row2"
+          }
+        ],
+        "columns": [
+          {
+            "id": "col1",
+            "type": "text"
+          },
+          {
+            "id": "col2",
+            "type": "integer"
+          }
+        ]
+      }
+    }
+  ]
+}

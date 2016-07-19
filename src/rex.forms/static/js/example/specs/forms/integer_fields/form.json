@@ -1,0 +1,258 @@
+{
+  "instrument": {
+    "id": "urn:integer-fields",
+    "version": "1.0"
+  },
+  "defaultLocalization": "en",
+  "pages": [
+    {
+      "id": "page1",
+      "elements": [
+        {
+          "type": "header",
+          "options": {
+            "text": {
+              "en": "Constraints"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "plain",
+            "text": {
+              "en": "No constraints."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "required",
+            "text": {
+              "en": "This is required."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "min_value",
+            "text": {
+              "en": "This has a minimum value of 3."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "max_value",
+            "text": {
+              "en": "This has a maximum value of 10."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "bounded_value",
+            "text": {
+              "en": "This can be a min of 3 and max of 10."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "required_bounded_value",
+            "text": {
+              "en": "This is required and can be a min of 3 and max of 10."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "page2",
+      "elements": [
+        {
+          "type": "header",
+          "options": {
+            "text": {
+              "en": "Widget Configurations"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q1",
+            "text": {
+              "en": "Default widget."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q2",
+            "text": {
+              "en": "Default size."
+            },
+            "widget": {
+              "type": "inputNumber"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q3",
+            "text": {
+              "en": "Small."
+            },
+            "widget": {
+              "type": "inputNumber",
+              "options": {
+                "width": "small"
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q4",
+            "text": {
+              "en": "Medium."
+            },
+            "widget": {
+              "type": "inputNumner",
+              "options": {
+                "width": "medium"
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q5",
+            "text": {
+              "en": "Large."
+            },
+            "widget": {
+              "type": "inputNumber",
+              "options": {
+                "width": "large"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "page3",
+      "elements": [
+        {
+          "type": "header",
+          "options": {
+            "text": {
+              "en": "Explanations/Annotations"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "explanation_opt",
+            "text": {
+              "en": "Optional explanation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "required_explanation_opt",
+            "text": {
+              "en": "This is required, with optional explanation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "explanation_req",
+            "text": {
+              "en": "Required explanation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "required_explanation_req",
+            "text": {
+              "en": "This is required, with required explanation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "annotation_opt",
+            "text": {
+              "en": "Optional annotation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "annotation_req",
+            "text": {
+              "en": "Required annotation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "exp_opt_ann_opt",
+            "text": {
+              "en": "Optional explanation, optional annotation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "exp_req_ann_opt",
+            "text": {
+              "en": "Required explanation, optional annotation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "exp_opt_ann_req",
+            "text": {
+              "en": "Optional explanation, required annotation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "exp_req_ann_req",
+            "text": {
+              "en": "Required explanation, required annotation."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

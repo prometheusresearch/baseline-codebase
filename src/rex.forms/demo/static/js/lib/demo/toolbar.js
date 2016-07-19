@@ -1,116 +1,148 @@
 /**
- * @jsx React.DOM
+ * @copyright 2016-present, Prometheus Research, LLC
  */
 
-'use strict';
+import * as React from 'react';
+import * as ReactUI from '@prometheusresearch/react-ui';
+import noop from 'lodash/noop';
 
-var React = require('react');
+import {MODE_ENTRY, MODE_REVIEW, MODE_VIEW} from './constants';
 
-var {MODE_EDITOR, MODE_REVIEWER, MODE_VIEWER} = require('./constants');
+export default class Toolbar extends React.Component {
 
-
-var Toolbar = React.createClass({
-  propTypes: {
-    initialLocale: React.PropTypes.string.isRequired,
+  static propTypes = {
+    logFormEvents: React.PropTypes.bool.isRequired,
+    showAssessment: React.PropTypes.bool.isRequired,
+    showErrors: React.PropTypes.bool.isRequired,
+    mode: React.PropTypes.string.isRequired,
+    locale: React.PropTypes.string.isRequired,
     availableLocales: React.PropTypes.array.isRequired,
     mountPoint: React.PropTypes.string.isRequired,
     demo: React.PropTypes.object.isRequired,
     onChange: React.PropTypes.func
-  },
+  };
 
-  getInitialState: function () {
-    return {
-      locale: this.props.initialLocale,
-      mode: MODE_EDITOR,
-      showAssessment: false,
-      logFormEvents: false
-    };
-  },
+  static defaultProps = {
+    onChange: noop,
+  };
 
-  onChangeValue: function (option, event) {
-    this.setState({
-      [option]: event.target.value
-    }, () => {
-      if (this.props.onChange) {
-        this.props.onChange(this.state);
-      }
-    });
-  },
-
-  onToggle: function (option) {
-    this.setState({
-      [option]: !this.state[option]
-    }, () => {
-      if (this.props.onChange) {
-        this.props.onChange(this.state);
-      }
-    });
-  },
-
-  render: function () {
+  render() {
     return (
-      <div className='rfd-Toolbar'>
-        <div className='rfd-Toolbar__return'>
+      <ReactUI.Block padding="small">
+        <ReactUI.Block inline>
           <a href={this.props.mountPoint + '/'}>← Go Back</a>
-        </div>
+        </ReactUI.Block>
         {this.props.demo.validation_errors &&
-          <div className='rfd-Toolbar__invalid'>
-            <span title={this.props.demo.validation_errors}>
+          <ReactUI.Block inline marginLeft="medium">
+            <ReactUI.ErrorText title={this.props.demo.validation_errors}>
               INVALID CONFIGURATION
-            </span>
-          </div>
+            </ReactUI.ErrorText>
+          </ReactUI.Block>
         }
-        <div className='rfd-Toolbar__options'>
-          <div>
-            <label
-              title='Displays the current state of the Assessment'>
-              <input
-                type='checkbox'
-                onChange={this.onToggle.bind(this, 'showAssessment')}
-                value={this.state.showAssessment}
+        <ReactUI.Block inline marginLeft="medium">
+          <ReactUI.Block inline marginRight="x-small">
+            <ReactUI.Checkbox
+              title="Displays the current state of the Assessment"
+              label="Show Assessment"
+              onChange={this.onShowAssessment}
+              value={this.props.showAssessment}
+              />
+          </ReactUI.Block>
+          <ReactUI.Block inline marginRight="x-small">
+            <ReactUI.Checkbox
+              title="Displays all current validation errors"
+              label="Show Errors"
+              onChange={this.onShowErrors}
+              value={this.props.showErrors}
+              />
+          </ReactUI.Block>
+          <ReactUI.Block inline marginRight="x-small">
+            <ReactUI.Checkbox
+              title="Logs Form events to the console"
+              label="Log Events"
+              onChange={this.onLogFormEvents}
+              value={this.props.logFormEvents}
+              />
+          </ReactUI.Block>
+          <ReactUI.Block inline marginRight="x-small">
+            <ReactUI.Checkbox
+              title="Disable pagination"
+              label="No Pagination"
+              onChange={this.onNoPagination}
+              value={this.props.noPagination}
+              />
+          </ReactUI.Block>
+          <ReactUI.Block inline marginRight="x-small">
+            <ReactUI.Select
+              value={this.props.component}
+              onChange={this.onComponent}
+              title="Changes the top-level component being used"
+              options={[
+                {value: 'ENTRY', label: 'FormEntry'},
+                {value: 'EDITOR', label: 'FormEditor'},
+              ]}
+              />
+          </ReactUI.Block>
+          {this.props.component === 'ENTRY' &&
+            <ReactUI.Block inline marginRight="x-small">
+              <ReactUI.Select
+                value={this.props.mode}
+                onChange={this.onMode}
+                title="Changes the operational mode of the Form"
+                options={[
+                  {value: MODE_ENTRY, label: 'Entry Mode'},
+                  {value: MODE_REVIEW, label: 'Review Mode'},
+                  {value: MODE_VIEW, label: 'View Mode'},
+                ]}
                 />
-              Show Assessment
-            </label>
-          </div>
-          <div>
-            <label
-              title='Logs Form events to the console'>
-              <input
-                type='checkbox'
-                onChange={this.onToggle.bind(this, 'logFormEvents')}
-                value={this.state.logFormEvents}
-                />
-              Log Events
-            </label>
-          </div>
-          <div>
-            <select
-              value={this.state.mode}
-              onChange={this.onChangeValue.bind(this, 'mode')}
-              title='Changes the operational mode of the Form'>
-              <option value={MODE_EDITOR}>Edit Mode</option>
-              <option value={MODE_REVIEWER}>Review Mode</option>
-              <option value={MODE_VIEWER}>View Mode</option>
-            </select>
-          </div>
-          <div>
-            <select
-              value={this.state.locale}
-              onChange={this.onChangeValue.bind(this, 'locale')}
-              title='Changes the locale the Form is rendered in'>
-              {this.props.availableLocales.map((locale) => {
-                return (
-                  <option key={locale[0]} value={locale[0]}>{locale[1]}</option>
-                );
-              })}
-            </select>
-          </div>
-        </div>
-      </div>
+            </ReactUI.Block>
+          }
+          <ReactUI.Block inline>
+            <ReactUI.Select
+              value={this.props.locale}
+              onChange={this.onLocale}
+              title="Changes the locale the Form is rendered in"
+              options={this.props.availableLocales.map(locale => ({
+                value: locale[0],
+                label: locale[1],
+              }))}
+              />
+          </ReactUI.Block>
+        </ReactUI.Block>
+      </ReactUI.Block>
     );
   }
-});
 
+  onLocale = locale => {
+    this.props.onChange({locale});
+  }
 
-module.exports = Toolbar;
+  onMode = mode => {
+    this.props.onChange({mode});
+  }
+
+  onComponent = component => {
+    this.props.onChange({component});
+  }
+
+  onShowAssessment = () => {
+    let showAssessment = !this.props.showAssessment;
+    this.props.onChange({showAssessment});
+  };
+
+  onShowErrors = () => {
+    let showErrors = !this.props.showErrors;
+    this.props.onChange({showErrors});
+  };
+
+  onLogFormEvents = () => {
+    let logFormEvents = !this.props.logFormEvents;
+    this.props.onChange({logFormEvents});
+  };
+
+  onNoPagination = () => {
+    let noPagination = !this.props.noPagination;
+    this.props.onChange({noPagination});
+  };
+}
 

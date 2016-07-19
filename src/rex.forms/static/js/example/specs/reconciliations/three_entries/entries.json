@@ -1,0 +1,14 @@
+[
+  {
+    "uid": "entry1",
+    "modified_by": "first_person"
+  },
+  {
+    "uid": "entry2",
+    "modified_by": "second_person"
+  },
+  {
+    "uid": "entry3",
+    "modified_by": "third_person"
+  }
+]

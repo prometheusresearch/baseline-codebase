@@ -1,0 +1,389 @@
+{
+  "instrument": {
+    "id": "urn:enumerationset-fields",
+    "version": "1.0"
+  },
+  "defaultLocalization": "en",
+  "pages": [
+    {
+      "id": "page1",
+      "elements": [
+        {
+          "type": "header",
+          "options": {
+            "text": {
+              "en": "Constraints"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "plain",
+            "text": {
+              "en": "No constraints."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "required",
+            "text": {
+              "en": "This is required."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "min_choices",
+            "text": {
+              "en": "Must choose at least 2."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "max_choices",
+            "text": {
+              "en": "Can't choose more than 2."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "bounded_choices",
+            "text": {
+              "en": "Must choose at least 2 but not more than 3."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "required_bounded_choices",
+            "text": {
+              "en": "This is required and must choose at least 2 but not more than 3."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "page2",
+      "elements": [
+        {
+          "type": "header",
+          "options": {
+            "text": {
+              "en": "Widget Configurations"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q1",
+            "text": {
+              "en": "Default widget."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q2",
+            "text": {
+              "en": "Check group w/ no enumeration descriptions."
+            },
+            "widget": {
+              "type": "checkGroup"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q3",
+            "text": {
+              "en": "Check group w/ some enumeration descriptions."
+            },
+            "enumerations": [
+              {
+                "id": "foo",
+                "text": {
+                  "en": "Foo Description"
+                }
+              },
+              {
+                "id": "baz",
+                "text": {
+                  "en": "The Baz"
+                }
+              }
+            ],
+            "widget": {
+              "type": "checkGroup"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q4",
+            "text": {
+              "en": "Check group w/ all enumeration descriptions."
+            },
+            "enumerations": [
+              {
+                "id": "bar",
+                "text": {
+                  "en": "Bar is First"
+                }
+              },
+              {
+                "id": "foo",
+                "text": {
+                  "en": "Foo Description"
+                }
+              },
+              {
+                "id": "baz",
+                "text": {
+                  "en": "The Baz"
+                }
+              }
+            ],
+            "widget": {
+              "type": "checkGroup"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q5",
+            "text": {
+              "en": "Check group w/ autoHotkeys."
+            },
+            "widget": {
+              "type": "checkGroup",
+              "options": {
+                "autoHotkeys": true
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q6",
+            "text": {
+              "en": "Check group w/ one hotkey."
+            },
+            "widget": {
+              "type": "checkGroup",
+              "options": {
+                "hotkeys": {
+                  "foo": "9"
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q7",
+            "text": {
+              "en": "Check group w/ hotkeys."
+            },
+            "widget": {
+              "type": "checkGroup",
+              "options": {
+                "hotkeys": {
+                  "foo": "9",
+                  "baz": "6"
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q8",
+            "text": {
+              "en": "Check group w/ hotkeys and autoHotkeys."
+            },
+            "widget": {
+              "type": "checkGroup",
+              "options": {
+                "hotkeys": {
+                  "foo": "9",
+                  "baz": "6"
+                },
+                "autoHotkeys": true
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q9",
+            "text": {
+              "en": "Check group (horizontal)."
+            },
+            "widget": {
+              "type": "checkGroup",
+              "options": {
+                "orientation": "horizontal"
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q10",
+            "text": {
+              "en": "Check group (vertical)."
+            },
+            "widget": {
+              "type": "checkGroup",
+              "options": {
+                "orientation": "vertical"
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q11",
+            "text": {
+              "en": "Check group w/ hotkeys and horizontal."
+            },
+            "widget": {
+              "type": "checkGroup",
+              "options": {
+                "hotkeys": {
+                  "foo": "9",
+                  "baz": "6"
+                },
+                "orientation": "horizontal"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "page3",
+      "elements": [
+        {
+          "type": "header",
+          "options": {
+            "text": {
+              "en": "Explanations/Annotations"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "explanation_opt",
+            "text": {
+              "en": "Optional explanation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "required_explanation_opt",
+            "text": {
+              "en": "This is required, with optional explanation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "explanation_req",
+            "text": {
+              "en": "Required explanation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "required_explanation_req",
+            "text": {
+              "en": "This is required, with required explanation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "annotation_opt",
+            "text": {
+              "en": "Optional annotation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "annotation_req",
+            "text": {
+              "en": "Required annotation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "exp_opt_ann_opt",
+            "text": {
+              "en": "Optional explanation, optional annotation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "exp_req_ann_opt",
+            "text": {
+              "en": "Required explanation, optional annotation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "exp_opt_ann_req",
+            "text": {
+              "en": "Optional explanation, required annotation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "exp_req_ann_req",
+            "text": {
+              "en": "Required explanation, required annotation."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "instrument": {
+    "id": "urn:audio",
+    "version": "1.0"
+  },
+  "defaultLocalization": "en",
+  "pages": [
+    {
+      "id": "page1",
+      "elements": [
+        {
+          "type": "text",
+          "options": {
+            "text": {
+              "en": "The following is an audio element..."
+            }
+          }
+        },
+        {
+          "type": "audio",
+          "options": {
+            "source": {
+              "en": [
+                "../doctor_who.ogg",
+                "../doctor_who.mp3"
+              ]
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q1",
+            "text": {
+              "en": "Questions can also have audio associated with them."
+            },
+            "audio": {
+              "en": [
+                "../doctor_who.ogg",
+                "../doctor_who.mp3"
+              ]
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q2",
+            "text": {
+              "en": "Enumeration choices can have audio associated with them."
+            },
+            "enumerations": [
+              {
+                "id": "red",
+                "text": {
+                  "en": "Red"
+                },
+                "audio": {
+                  "en": [
+                    "../doctor_who.ogg",
+                    "../doctor_who.mp3"
+                  ]
+                }
+              },
+              {
+                "id": "blue",
+                "text": {
+                  "en": "Blue"
+                }
+              },
+              {
+                "id": "green",
+                "text": {
+                  "en": "Green"
+                },
+                "help": {
+                  "en": "Some help text."
+                },
+                "audio": {
+                  "en": [
+                    "../doctor_who.ogg",
+                    "../doctor_who.mp3"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q3",
+            "text": {
+              "en": "Matrix rows and columns can have audio associated with them."
+            },
+            "rows": [
+              {
+                "id": "row1",
+                "text": {
+                  "en": "First Row"
+                },
+                "audio": {
+                  "en": [
+                    "../doctor_who.ogg",
+                    "../doctor_who.mp3"
+                  ]
+                }
+              },
+              {
+                "id": "row2",
+                "text": {
+                  "en": "Second Row"
+                }
+              }
+            ],
+            "questions": [
+              {
+                "fieldId": "col1",
+                "text": {
+                  "en": "First Question"
+                }
+              },
+              {
+                "fieldId": "col2",
+                "text": {
+                  "en": "Second Question"
+                },
+                "audio": {
+                  "en": [
+                    "../doctor_who.ogg",
+                    "../doctor_who.mp3"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

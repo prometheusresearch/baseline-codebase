@@ -1,8 +1,8 @@
 'use strict';
 
 module.exports = {
-  MODE_EDITOR: 'edit',
-  MODE_REVIEWER: 'review',
-  MODE_VIEWER: 'view'
+  MODE_ENTRY: 'entry',
+  MODE_REVIEW: 'review',
+  MODE_VIEW: 'view',
 };
 

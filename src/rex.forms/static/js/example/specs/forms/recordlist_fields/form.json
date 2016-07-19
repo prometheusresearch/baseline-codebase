@@ -1,0 +1,576 @@
+{
+  "instrument": {
+    "id": "urn:recordlist-fields",
+    "version": "1.0"
+  },
+  "defaultLocalization": "en",
+  "pages": [
+    {
+      "id": "page1",
+      "elements": [
+        {
+          "type": "header",
+          "options": {
+            "text": {
+              "en": "Constraints"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "plain",
+            "text": {
+              "en": "No constraints."
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "required",
+            "text": {
+              "en": "This is required."
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "min_records",
+            "text": {
+              "en": "Must create at least 2."
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "max_records",
+            "text": {
+              "en": "Can't create more than 2."
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "bounded_records",
+            "text": {
+              "en": "Must create at least 2 but nor more than 3."
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "required_bounded_records",
+            "text": {
+              "en": "This is required and must create at least 2 but nor more than 3."
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "plain_reqd",
+            "text": {
+              "en": "A subfield is required."
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "required_reqd",
+            "text": {
+              "en": "This is required, and a subfield is required."
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "page2",
+      "elements": [
+        {
+          "type": "header",
+          "options": {
+            "text": {
+              "en": "Widget Configurations"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q1",
+            "text": {
+              "en": "Default widget."
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q2",
+            "text": {
+              "en": "RecordList widget w/out options."
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ],
+            "widget": {
+              "type": "recordList"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q3",
+            "text": {
+              "en": "RecordList with custom Add button"
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ],
+            "widget": {
+              "type": "recordList",
+              "options": {
+                "addLabel": {
+                  "en": "Add Another Record"
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q4",
+            "text": {
+              "en": "RecordList with both custom buttons"
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ],
+            "widget": {
+              "type": "recordList",
+              "options": {
+                "addLabel": {
+                  "en": "Add Another Record"
+                },
+                "removeLabel": {
+                  "en": "Get Rid of This"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "page3",
+      "elements": [
+        {
+          "type": "header",
+          "options": {
+            "text": {
+              "en": "Explanations/Annotations"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "explanation_opt",
+            "text": {
+              "en": "Optional explanation."
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "required_explanation_opt",
+            "text": {
+              "en": "This is required, with optional explanation."
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "explanation_req",
+            "text": {
+              "en": "Required explanation."
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "required_explanation_req",
+            "text": {
+              "en": "This is required, with required explanation."
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "annotation_opt",
+            "text": {
+              "en": "Optional annotation."
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "annotation_req",
+            "text": {
+              "en": "Required annotation."
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "exp_opt_ann_opt",
+            "text": {
+              "en": "Optional explanation, optional annotation."
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "exp_req_ann_opt",
+            "text": {
+              "en": "Required explanation, optional annotation."
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "exp_opt_ann_req",
+            "text": {
+              "en": "Optional explanation, required annotation."
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "exp_req_ann_req",
+            "text": {
+              "en": "Required explanation, required annotation."
+            },
+            "questions": [
+              {
+                "fieldId": "subfield2",
+                "text": {
+                  "en": "First is 2."
+                }
+              },
+              {
+                "fieldId": "subfield1",
+                "text": {
+                  "en": "Second is 1."
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

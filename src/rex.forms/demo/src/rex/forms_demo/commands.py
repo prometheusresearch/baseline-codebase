@@ -70,7 +70,7 @@ def get_config(path):
         cfg['validation_errors'] = str(exc)
     else:
         cfg['form'] = PresentationAdaptor.adapt_form(
-            'cfgapp',
+            'demoapp',
             cfg['instrument'],
             cfg['form'],
         )
@@ -96,8 +96,8 @@ def get_demos(directory, demo_id=None):
             continue
         demo['id'] = path
 
-        demo['calculationset'] = load_config_file(path, 'calculationset')
-        calc_mod_path = os.path.join(path, 'calculationset.py')
+        demo['calculationset'] = load_config_file(full_path, 'calculationset')
+        calc_mod_path = os.path.join(full_path, 'calculationset.py')
         demo['calculation_module'] = calc_mod_path \
             if os.path.exists(calc_mod_path) else None
 
@@ -105,6 +105,16 @@ def get_demos(directory, demo_id=None):
             try:
                 CalculationSet.validate_definition(
                     demo['calculationset'],
+                    instrument_definition=demo['instrument'],
+                )
+            except InstrumentValidationError as exc:
+                demo['validation_errors'] = str(exc)
+
+        demo['assessment'] = load_config_file(full_path, 'assessment')
+        if not demo['validation_errors'] and demo['assessment']:
+            try:
+                Assessment.validate_data(
+                    demo['assessment'],
                     instrument_definition=demo['instrument'],
                 )
             except InstrumentValidationError as exc:
@@ -173,6 +183,8 @@ class DemoCommand(BaseCommand):
         return render_to_response(
             'rex.forms_demo:/templates/demo.html',
             request,
+            demos=get_demos(self.package().abspath('examples/forms')),
+            recons=get_recons(self.package().abspath('examples/reconciliations')),
             demo=demos[demo_id],
         )
 
@@ -262,6 +274,8 @@ class ReconCommand(BaseCommand):
         return render_to_response(
             'rex.forms_demo:/templates/recon.html',
             request,
+            demos=get_demos(self.package().abspath('examples/forms')),
+            recons=get_recons(self.package().abspath('examples/reconciliations')),
             recon=recons[recon_id],
         )
 

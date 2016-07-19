@@ -1,0 +1,119 @@
+{
+  "id": "urn:date-fields",
+  "version": "1.0",
+  "title": "Fields: Date",
+  "record": [
+    {
+      "id": "plain",
+      "type": "date"
+    },
+    {
+      "id": "required",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "min_value",
+      "type": {
+        "base": "date",
+        "range": {
+          "min": "2010-01-01"
+        }
+      }
+    },
+    {
+      "id": "max_value",
+      "type": {
+        "base": "date",
+        "range": {
+          "max": "2222-01-01"
+        }
+      }
+    },
+    {
+      "id": "bounded_value",
+      "type": {
+        "base": "date",
+        "range": {
+          "min": "2010-01-01",
+          "max": "2222-01-01"
+        }
+      }
+    },
+    {
+      "id": "required_bounded_value",
+      "type": {
+        "base": "date",
+        "range": {
+          "min": "2010-01-01",
+          "max": "2222-01-01"
+        }
+      },
+      "required": true
+    },
+    {
+      "id": "explanation_opt",
+      "type": "date",
+      "explanation": "optional"
+    },
+    {
+      "id": "required_explanation_opt",
+      "type": "date",
+      "required": true,
+      "explanation": "optional"
+    },
+    {
+      "id": "explanation_req",
+      "type": "date",
+      "explanation": "required"
+    },
+    {
+      "id": "required_explanation_req",
+      "type": "date",
+      "required": true,
+      "explanation": "required"
+    },
+    {
+      "id": "annotation_opt",
+      "type": "date",
+      "annotation": "optional"
+    },
+    {
+      "id": "annotation_req",
+      "type": "date",
+      "annotation": "required"
+    },
+    {
+      "id": "exp_opt_ann_opt",
+      "type": "date",
+      "explanation": "optional",
+      "annotation": "optional"
+    },
+    {
+      "id": "exp_req_ann_opt",
+      "type": "date",
+      "explanation": "required",
+      "annotation": "optional"
+    },
+    {
+      "id": "exp_opt_ann_req",
+      "type": "date",
+      "explanation": "optional",
+      "annotation": "required"
+    },
+    {
+      "id": "exp_req_ann_req",
+      "type": "date",
+      "explanation": "required",
+      "annotation": "required"
+    },
+    {
+      "id": "q1",
+      "type": "date"
+    },
+    {
+      "id": "q2",
+      "type": "date"
+    }
+  ]
+}

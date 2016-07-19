@@ -1,120 +1,128 @@
 /**
- * @jsx React.DOM
+ * @copyright 2016-present, Prometheus Research, LLC
  */
 
-'use strict';
+import * as React from 'react';
+import {style} from 'react-dom-stylesheet';
 
-var React = require('react');
-var {Form} = require('rex-forms');
-var RexI18N = require('rex-i18n');
+import {FormEntry, FormEditor} from 'rex-forms';
+import {Provider} from 'rex-i18n';
 
-var JsonViewer = require('../jsonviewer');
-var {MODE_EDITOR, MODE_REVIEWER, MODE_VIEWER} = require('./constants');
+import JsonViewer from '../jsonviewer';
 
 
-var Workspace = React.createClass({
-  propTypes: {
-    mountPoint: React.PropTypes.string.isRequired,
-    lookupApiUrl: React.PropTypes.string.isRequired,
-    demo: React.PropTypes.object.isRequired,
-    options: React.PropTypes.object
-  },
+let WorkspaceContainer = style('div', {
+  display: 'flex',
+});
 
-  getDefaultProps: function () {
-    return {
-      options: {}
-    };
-  },
+let FormContainer = style('div', {
+  flexGrow: 1,
+  margin: '10px'
+});
 
-  getInitialState: function () {
-    return {
-      assessment: {},
-      isValid: false
-    };
-  },
-
-  componentWillReceiveProps: function (nextProps) {
-    if (this.props.options.locale != nextProps.options.locale) {
-      RexI18N.onLoad(nextProps.options.locale, () => {
-        RexI18N.setDefaultLocale(nextProps.options.locale);
-        this.refs.form.forceUpdate();
-      });
-    }
-  },
-
-  onFormReview: function (assessment) {
-    if (this.props.options.logFormEvents) {
-      console.log('onReview', assessment);
-    }
-  },
-
-  onFormChange: function (assessment) {
-    if (this.props.options.logFormEvents) {
-      console.log('onChange', assessment);
-    }
-  },
-
-  onFormPage: function (page, pageIndex) {
-    if (this.props.options.logFormEvents) {
-      console.log('onPage', page, pageIndex);
-    }
-  },
-
-  onFormUpdate: function (assessment, isValid) {
-    if (this.props.options.logFormEvents) {
-      console.log('onUpdate', assessment, isValid);
-    }
-    this.setState({assessment, isValid});
-  },
-
-  onFormComplete: function (assessment) {
-    if (this.props.options.logFormEvents) {
-      console.log('onComplete', assessment);
-    }
-    this.setState({assessment, isValid: true});
-  },
-
-  render: function () {
-    var showOverview = this.props.options.mode == MODE_REVIEWER || this.props.options.mode == MODE_VIEWER;
-    var readOnly = this.props.options.mode == MODE_VIEWER;
-    var showOverviewOnCompletion = this.props.options.mode == MODE_EDITOR;
-
-    var direction = ['ar', 'fa', 'ps', 'he', 'ur'].indexOf(
-        this.props.options.locale
-      ) > -1 ? 'rtl' : 'ltr';
-
-    return (
-      <div className='rfd-Workspace'>
-        <div className='rfd-Form' dir={direction}>
-          <Form
-            ref='form'
-            instrument={this.props.demo.instrument}
-            form={this.props.demo.form}
-            parameters={this.props.demo.parameters}
-            locale={this.props.options.locale}
-            showOverviewOnCompletion={showOverviewOnCompletion}
-            showOverview={showOverview}
-            readOnly={readOnly}
-            onChange={this.onFormChange}
-            onUpdate={this.onFormUpdate}
-            onPage={this.onFormPage}
-            onReview={this.onFormReview}
-            onComplete={this.onFormComplete}
-            calculationApiPrefix={this.props.mountPoint + '/demo/' + this.props.demo.id + '/calculate'}
-            lookupApiPrefix={this.props.lookupApiUrl}
-            />
-        </div>
-        {this.props.options.showAssessment &&
-          <JsonViewer
-            object={this.state.assessment}
-            isValid={this.state.isValid}
-            />
-        }
-      </div>
-    );
+let AssessmentContainer = style('div', {
+  fontSize: '80%',
+  width: '35%',
+  overflow: 'auto',
+  padding: 16,
+  invalid: {
+    color: 'red'
   }
 });
 
+let ErrorContainer = style('div', {
+  width: '20%'
+});
 
-module.exports = Workspace;
+let Error = function ({error}) {
+  return (
+    <div style={{marginBottom: '1em'}}>
+      <dt style={{fontWeight: 'bold'}}>{error.field}</dt>
+      <dd>{error.message}</dd>
+    </div>
+  );
+};
 
+
+export default class Workspace extends React.Component {
+
+  static propTypes = {
+    mountPoint: React.PropTypes.string.isRequired,
+    apiUrls: React.PropTypes.object.isRequired,
+    i18nUrl: React.PropTypes.string.isRequired,
+    demo: React.PropTypes.object.isRequired,
+    options: React.PropTypes.object
+  };
+
+  static defaultProps = {
+    options: {},
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      assessment: {},
+      isValid: false,
+      errors: []
+    };
+  }
+
+  onFormChange = (state) => {
+    this.logEvent('onChange', state, state.isValid(), state.getErrors());
+    this.setState({
+      assessment: state.getAssessment(),
+      isValid: state.isValid(),
+      errors: state.getErrors()
+    });
+  };
+
+  logEvent(name, ...args) {
+    if (this.props.options.logFormEvents) {
+      console.log(new Date(), name, args);
+    }
+  }
+
+  render() {
+    let Component = this.props.options.component === 'EDITOR' ? FormEditor : FormEntry;
+
+    return (
+      <Provider
+        locale={this.props.options.locale}
+        baseUrl={this.props.i18nUrl}>
+        <WorkspaceContainer>
+          <FormContainer>
+            <Component
+              mode={this.props.options.mode}
+              instrument={this.props.demo.instrument}
+              form={this.props.demo.form}
+              assessment={this.props.demo.assessment}
+              parameters={this.props.demo.parameters}
+              noPagination={this.props.options.noPagination}
+              showCalculations={!!this.props.demo.calculationset}
+              apiUrls={this.props.apiUrls}
+              onChange={this.onFormChange}
+              onPage={this.logEvent.bind(this, 'onPage')}
+              onSave={this.logEvent.bind(this, 'onSave')}
+              onReview={this.logEvent.bind(this, 'onReview')}
+              onComplete={this.logEvent.bind(this, 'onComplete')}
+              />
+          </FormContainer>
+          {this.props.options.showAssessment &&
+            <AssessmentContainer variant={{invalid: !this.state.isValid}}>
+              <JsonViewer
+                object={this.state.assessment}
+                />
+            </AssessmentContainer>
+          }
+          {this.props.options.showErrors &&
+            <ErrorContainer>
+              {this.state.errors.map((error, idx) => {
+                return <Error error={error} key={idx} />;
+              })}
+            </ErrorContainer>
+          }
+        </WorkspaceContainer>
+      </Provider>
+    );
+  }
+}

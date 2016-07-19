@@ -4,6 +4,7 @@ title: Simple Example
 record:
   - id: foo
     type: text
+    required: true
   - id: bar
     type:
       base: enumeration

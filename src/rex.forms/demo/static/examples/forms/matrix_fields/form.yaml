@@ -79,6 +79,43 @@ pages:
           questions: *questions
           widget:
             type: matrix
+      - type: question
+        options:
+          fieldId: q3
+          text:
+            en: A Large Matrix
+          rows:
+            - id: row1
+              text:
+                en: First Row
+            - id: row2
+              text:
+                en: Second Row
+            - id: row3
+              text:
+                en: Third Row
+            - id: row4
+              text:
+                en: Fourth Row
+            - id: row5
+              text:
+                en: This is a Row with a kinda-long title to see if it fits.
+          questions:
+            - fieldId: col1
+              text:
+                en: First Column
+            - fieldId: col2
+              text:
+                en: This column has a longish title to see if it fits in a crowded matrix.
+            - fieldId: col3
+              text:
+                en: Third Column
+            - fieldId: col4
+              text:
+                en: Fourth Column
+            - fieldId: col5
+              text:
+                en: Fifth Column
 
   - id: page3
     elements:

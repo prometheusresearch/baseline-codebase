@@ -1,0 +1,47 @@
+instrument:
+  id: urn:preload
+  version: '1.0'
+values:
+  q1:
+    value: hello
+  q2:
+    value: 42
+  q3:
+    value: 12.3
+  q4:
+    value: true
+  q5:
+    value: "2016-05-22"
+  q6:
+    value: "12:34:56"
+  q7:
+    value: "2016-05-22T12:34:56"
+  q8:
+    value: blue
+  q9:
+    value:
+      - foo
+      - baz
+  q10:
+    value:
+      - subfield1:
+          value: foo
+        subfield2:
+          value: 99
+      - subfield1:
+          value: bar
+        subfield2:
+          value: null
+  q11:
+    value:
+      row1:
+        col1:
+          value: first
+        col2:
+          value: 5
+      row2:
+        col1:
+          value: null
+        col2:
+          value: 987
+

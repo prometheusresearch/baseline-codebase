@@ -1,34 +1,23 @@
 /**
- * @jsx React.DOM
+ * @copyright 2016-present, Prometheus Research, LLC
  */
 
-'use strict';
+import React from 'react';
 
-var React = require('react');
+export default class JsonViewer extends React.Component {
 
-
-var JsonViewer = React.createClass({
-  propTypes: {
+  static propTypes = {
     object: React.PropTypes.object.isRequired,
-    isValid: React.PropTypes.bool.isRequired
-  },
+  };
 
-  render: function () {
-    var classes = 'rfd-JsonViewer';
-    if (!this.props.isValid) {
-      classes += ' rfd-JsonViewer--invalid';
-    }
-
+  render() {
+    let {object} = this.props;
     return (
-      <div className={classes}>
-        <p>
-          {JSON.stringify(this.props.object, null, 2)}
-        </p>
+      <div>
+        <pre>
+          {JSON.stringify(object, null, 2)}
+        </pre>
       </div>
     );
   }
-});
-
-
-module.exports = JsonViewer;
-
+}

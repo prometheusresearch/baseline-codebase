@@ -1,0 +1,52 @@
+id: urn:preload
+version: '1.0'
+title: Assessment Preload
+record:
+  - id: q1
+    type: text
+  - id: q2
+    type: integer
+  - id: q3
+    type: float
+  - id: q4
+    type: boolean
+  - id: q5
+    type: date
+  - id: q6
+    type: time
+  - id: q7
+    type: dateTime
+  - id: q8
+    type:
+      base: enumeration
+      enumerations:
+        red:
+        blue:
+        green:
+  - id: q9
+    type:
+      base: enumerationSet
+      enumerations:
+        foo:
+        bar:
+        baz:
+  - id: q10
+    type:
+      base: recordList
+      record:
+        - id: subfield1
+          type: text
+        - id: subfield2
+          type: integer
+  - id: q11
+    type:
+      base: matrix
+      rows:
+        - id: row1
+        - id: row2
+      columns:
+        - id: col1
+          type: text
+        - id: col2
+          type: integer
+

@@ -73,7 +73,7 @@ pages:
           text:
             en: Medium.
           widget:
-            type: inputNumner
+            type: inputNumber
             options:
               width: medium
       - type: question

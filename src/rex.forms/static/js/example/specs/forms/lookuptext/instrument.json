@@ -1,0 +1,19 @@
+{
+  "id": "urn:lookuptext",
+  "version": "1.0",
+  "title": "The lookupText Widget",
+  "record": [
+    {
+      "id": "q1",
+      "type": "text"
+    },
+    {
+      "id": "q2",
+      "type": "text"
+    },
+    {
+      "id": "q3",
+      "type": "text"
+    }
+  ]
+}

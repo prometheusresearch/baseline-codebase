@@ -61,6 +61,11 @@ pages:
                 en: The green choice
                 es: La opción verde
                 ar: الخيار الأخضر
+      - type: question
+        options:
+          fieldId: q7
+          text:
+            en: Boolean options will automatically be localized
   - id: page2
     elements:
       - type: question

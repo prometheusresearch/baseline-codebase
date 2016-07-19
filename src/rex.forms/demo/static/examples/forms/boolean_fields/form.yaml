@@ -110,6 +110,13 @@ pages:
                 'true': '3'
                 'false': '6'
               orientation: horizontal
+      - type: question
+        options:
+          fieldId: q10
+          text:
+            en: Dropdown
+          widget:
+            type: dropDown
 
   - id: page3
     elements:

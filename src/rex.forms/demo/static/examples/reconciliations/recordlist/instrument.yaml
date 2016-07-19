@@ -8,6 +8,7 @@ record:
       record:
         - id: subfield1
           type: text
+          required: true
         - id: subfield2
           type: integer
 

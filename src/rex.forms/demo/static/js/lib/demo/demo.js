@@ -1,55 +1,106 @@
 /**
- * @jsx React.DOM
+ * @copyright 2016-present, Prometheus Research, LLC
  */
 
-'use strict';
+import * as React from 'react';
+import * as ReactUI from '@prometheusresearch/react-ui';
 
-var React = require('react');
+import {TopNav} from '../menu';
+import Toolbar from './toolbar';
+import Workspace from './workspace';
 
-var Toolbar = require('./toolbar');
-var Workspace = require('./workspace');
+function readOptions() {
+  let options = window.location.hash.slice(1) || '{}';
+  try {
+    return JSON.parse(options);
+  } catch (err) {
+    return {};
+  }
+}
 
+function updateOptions(options) {
+  window.location.hash = '#' + JSON.stringify(options);
+}
 
-var Demo = React.createClass({
-  propTypes: {
+export default class Demo extends React.Component {
+
+  static propTypes = {
     demo: React.PropTypes.object.isRequired,
     mountPoint: React.PropTypes.string.isRequired,
-    lookupApiUrl: React.PropTypes.string.isRequired,
+    apiUrls: React.PropTypes.object.isRequired,
+    i18nUrl: React.PropTypes.string.isRequired,
     initialLocale: React.PropTypes.string.isRequired,
     availableLocales: React.PropTypes.array.isRequired
-  },
+  };
 
-  getInitialState: function () {
-    return {
-      options: {}
+  constructor(props) {
+    super(props);
+    this.state = {
+      options: {
+        ...{
+          locale: props.initialLocale,
+          mode: 'entry',
+          component: 'ENTRY',
+          noPagination: false,
+        },
+        ...readOptions()
+      }
     };
-  },
+  }
 
-  onChangeOptions: function (options) {
-    this.setState({options});
-  },
+  onChangeOptions = (options) => {
+    this.setState({
+      options: {
+        ...this.state.options,
+        ...options
+      }
+    });
+  };
 
-  render: function () {
+  render() {
+    let {
+      locale,
+      mode,
+      component,
+      showAssessment = false,
+      showErrors = false,
+      logFormEvents = false,
+      noPagination = false,
+    } = this.state.options;
     return (
-      <div className='rfd-Demo'>
-        <Toolbar
+      <div>
+        <TopNav
           mountPoint={this.props.mountPoint}
-          onChange={this.onChangeOptions}
-          initialLocale={this.props.initialLocale}
-          availableLocales={this.props.availableLocales}
-          demo={this.props.demo}
+          demos={this.props.demos}
+          recons={this.props.recons}
           />
-        <Workspace
-          mountPoint={this.props.mountPoint}
-          lookupApiUrl={this.props.lookupApiUrl}
-          options={this.state.options}
-          demo={this.props.demo}
-          />
+        <ReactUI.Block marginV={0} marginH="auto" padding="medium" maxWidth={1024}>
+          <Toolbar
+            mountPoint={this.props.mountPoint}
+            onChange={this.onChangeOptions}
+            locale={locale}
+            noPagination={noPagination}
+            mode={mode}
+            component={component}
+            logFormEvents={logFormEvents}
+            showAssessment={showAssessment}
+            showErrors={showErrors}
+            availableLocales={this.props.availableLocales}
+            demo={this.props.demo}
+            />
+          <Workspace
+            mountPoint={this.props.mountPoint}
+            apiUrls={this.props.apiUrls}
+            i18nUrl={this.props.i18nUrl}
+            options={this.state.options}
+            demo={this.props.demo}
+            />
+        </ReactUI.Block>
       </div>
     );
   }
-});
 
-
-module.exports = Demo;
-
+  componentDidUpdate() {
+    updateOptions(this.state.options);
+  }
+}

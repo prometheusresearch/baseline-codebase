@@ -1,17 +1,20 @@
 /**
- * @jsx React.DOM
+ * @copyright 2016-present, Prometheus Research, LLC
  */
 
-'use strict';
+import * as React from 'react';
+import * as ReactUI from '@prometheusresearch/react-ui';
 
-var React        = require('react');
-var log          = require('./log');
-var resourcer    = require('./resourcer');
-var localization = require('./localization');
-var _            = localization._;
+import PlayIcon from 'react-icons/lib/fa/play';
+import PauseIcon from 'react-icons/lib/fa/pause';
+import BackwardIcon from 'react-icons/lib/fa/backward';
+
+import {InjectI18N} from 'rex-i18n';
 
 
-var MIME_TYPES = [
+const AUDIO_SUPPORTED = !!document.createElement('audio').canPlayType;
+
+const MIME_TYPES = [
   {
     pattern: /\.mp3$/,
     mimeType: 'audio/mpeg'
@@ -34,223 +37,201 @@ var MIME_TYPES = [
   }
 ];
 
+
+@InjectI18N
+export default class AudioPlayer extends React.Component {
+
+  static propTypes = {
+    source: React.PropTypes.array.isRequired,
+    showDuration: React.PropTypes.bool,
+    showRestart: React.PropTypes.bool,
+    durationUpdateInterval: React.PropTypes.number,
+  };
+
+  static defaultProps = {
+    showDuration: false,
+    showRestart: true,
+    durationUpdateInterval: 333,
+  };
+
+  constructor(props) {
+    super(props);
+    this._updaterInterval = null;
+    this._audio = null;
+    this.state = {
+      playing: false,
+      position: null,
+      duration: null,
+    };
+  }
+
+  onAudioPlaying = () => {
+    this.setState({playing: true});
+  };
+
+  onAudioPause = () => {
+    this.setState({playing: false});
+  };
+
+  onAudioEnded = () => {
+    this.setState({playing: false});
+  };
+
+  onAudioMetadata = () => {
+    let position = formatTime(this._audio.currentTime);
+    let duration = formatTime(this._audio.duration);
+    this.setState({position, duration});
+    this.forceUpdate();
+  };
+
+  onAudioRef = audio => {
+    this._audio = audio;
+  };
+
+  onAudioDuration = () => {
+    if (this.state.playing && this.props.durationUpdateInterval) {
+      let position = formatTime(this._audio.currentTime);
+      let duration = formatTime(this._audio.duration);
+      this.setState({position, duration});
+    }
+  };
+
+  onPlay = event => {
+    event.stopPropagation();
+    this.setState({playing: true});
+    this._audio.play();
+  };
+
+  onPause = event => {
+    event.stopPropagation();
+    this.setState({playing: false});
+    this._audio.pause();
+  };
+
+  onRestart = event => {
+    event.stopPropagation();
+    this._audio.currentTime = 0;
+    if (!this.state.playing) {
+      this._audio.play();
+    }
+  };
+
+  render() {
+    if (!AUDIO_SUPPORTED) {
+      return <div>{this._('Audio is not supported by this browser.')}</div>;
+    }
+
+    let {showDuration, showRestart, source, disabled} = this.props;
+    let {playing, position, duration} = this.state;
+
+    if (source.length === 0) {
+      return <div />;
+    }
+
+    let sourceElements = source.map((source, idx) =>
+      <source
+        key={idx}
+        src={source}
+        type={getMimeTypeForName(source)}
+        />
+    );
+
+    let durationDisplay = showDuration && duration ?
+      position + ' / ' + duration :
+      '???';
+
+    return (
+      <ReactUI.Block inline>
+        <audio preload="metadata" ref={this.onAudioRef}>
+          {sourceElements}
+        </audio>
+        <ReactUI.Block inline verticalAlign="middle">
+          {!playing ?
+            <ReactUI.FlatButton
+              onClick={this.onPlay}
+              disabled={disabled}
+              groupHorizontally={showRestart}
+              title={this._('Play')}
+              size="small"
+              icon={<PlayIcon />}
+              /> :
+            <ReactUI.FlatButton
+              onClick={this.onPause}
+              disabled={disabled}
+              groupHorizontally={showRestart}
+              title={this._('Pause')}
+              size="small"
+              icon={<PauseIcon />}
+              />}
+          {showDuration &&
+            <ReactUI.FlatButton
+              groupHorizontally={showRestart}
+              disabled={disabled}
+              size="small">
+              {durationDisplay}
+            </ReactUI.FlatButton>}
+          {showRestart &&
+            <ReactUI.FlatButton
+              onClick={this.onRestart}
+              disabled={disabled}
+              groupHorizontally={showRestart}
+              title={this._('Restart the Recording')}
+              size="small"
+              icon={<BackwardIcon />}
+              />}
+        </ReactUI.Block>
+      </ReactUI.Block>
+    );
+  }
+
+  componentDidMount() {
+    if (!this._audio) {
+      return;
+    }
+
+    this._updaterInterval = setInterval(
+      this.onAudioDuration,
+      this.props.durationUpdateInterval
+    );
+    this._audio.addEventListener('playing', this.onAudioPlaying);
+    this._audio.addEventListener('pause', this.onAudioPause);
+    this._audio.addEventListener('ended', this.onAudioEnded);
+    this._audio.addEventListener('loadedmetadata', this.onAudioMetadata);
+  }
+
+  componentWillUnmount() {
+    if (!this._audio) {
+      return;
+    }
+
+    clearInterval(this._updaterInterval);
+
+    this._audio.removeEventListener('playing', this.onAudioPlaying);
+    this._audio.removeEventListener('pause', this.onAudioPause);
+    this._audio.removeEventListener('ended', this.onAudioEnded);
+    this._audio.removeEventListener('loadedmetadata', this.onAudioMetadata);
+  }
+}
+
 function getMimeTypeForName(fileName) {
-  for (var i = 0; i < MIME_TYPES.length; i++) {
+  for (let i = 0; i < MIME_TYPES.length; i++) {
     if (fileName.match(MIME_TYPES[i].pattern)) {
       return MIME_TYPES[i].mimeType;
     }
   }
 }
 
+function formatTime(totalSeconds) {
+  let minutes = parseInt(totalSeconds / 60);
+  if (minutes < 10) {
+    minutes = '0' + minutes;
+  }
 
-var AUDIO_SUPPORTED = !!document.createElement('audio').canPlayType;
+  let seconds = parseInt(totalSeconds % 60);
+  if (seconds < 10) {
+    seconds = '0' + seconds;
+  }
 
-var AudioPlayer;
-
-if (!AUDIO_SUPPORTED) {
-
-  log('AudioPlayer functionality not supported in this browser.');
-
-  AudioPlayer = React.createClass({
-    render: function () {
-      return (<div className="rex-forms-AudioPlayer__notsupported" />);
-    }
-  });
-
-} else {
-
-  AudioPlayer = React.createClass({
-    mixins: [
-      localization.LocalizedMixin,
-      resourcer.ResourcedMixin
-    ],
-
-    propTypes: {
-      source: React.PropTypes.object.isRequired,
-      showDuration: React.PropTypes.bool,
-      showRestart: React.PropTypes.bool
-    },
-
-    getDefaultProps: function () {
-      return {
-        showDuration: true,
-        showRestart: true
-      };
-    },
-
-    getInitialState: function () {
-      return {
-        playing: false,
-        updaterInterval: null,
-        audioEvents: null
-      };
-    },
-
-    getAudio: function () {
-      return this.refs.audio ? this.refs.audio.getDOMNode() : null;
-    },
-
-    componentDidMount: function () {
-      var audio = this.getAudio();
-
-      var audioEvents = {
-        'playing': () => {
-          this.setState({
-            playing: true
-          });
-        },
-
-        'pause': () => {
-          this.setState({
-            playing: false
-          });
-        },
-
-        'ended': () => {
-          this.setState({
-            playing: false
-          });
-        },
-
-        'loadedmetadata': () => {
-          this.forceUpdate();
-        }
-      };
-      Object.keys(audioEvents).forEach((eventName) => {
-        audio.addEventListener(eventName, audioEvents[eventName]);
-      });
-
-      var updaterInterval = setInterval(() => {
-        if (this.state.playing) {
-          this.forceUpdate();
-        }
-      }, 333);
-
-      this.setState({
-        updaterInterval: updaterInterval,
-        audioEvents: audioEvents
-      });
-    },
-
-    componentWillUnmount: function () {
-      if (this.state.updaterInterval) {
-        clearInterval(this.state.updaterInterval);
-      }
-
-      var audio = this.getAudio();
-      var audioEvents = this.state.audioEvents;
-      if (audio && audioEvents) {
-        Object.keys(audioEvents).forEach((eventName) => {
-          audio.removeEventListener(eventName, audioEvents[eventName]);
-        });
-      }
-    },
-
-    buildSources: function (source) {
-      source = source || this.props.source;
-
-      var localSources = this.localize(this.props.source) || [];
-
-      return localSources.map((source, idx) => {
-        return (
-          <source
-            key={idx}
-            src={this.getResourceUrl(source)}
-            type={getMimeTypeForName(source)}
-            />
-        );
-      });
-    },
-
-    onPlayPause: function (event) {
-      event.preventDefault();
-      var audio = this.getAudio();
-      if (this.state.playing) {
-        audio.pause();
-      } else {
-        audio.play();
-      }
-    },
-
-    onRestart: function (event) {
-      event.preventDefault();
-      var audio = this.getAudio();
-      audio.currentTime = 0;
-      if (!this.state.playing) {
-        audio.play();
-      }
-    },
-
-    formatTime: function (totalSeconds) {
-      var minutes = parseInt(totalSeconds / 60);
-      if (minutes < 10) {
-        minutes = '0' + minutes;
-      }
-
-      var seconds = parseInt(totalSeconds % 60);
-      if (seconds < 10) {
-        seconds = '0' + seconds;
-      }
-
-      return minutes + ':' + seconds;
-    },
-
-    render: function () {
-      var audio = this.getAudio();
-
-      var sources = this.buildSources(this.props.source);
-      if (sources.length === 0) {
-        return (<div />);
-      }
-
-      var position, duration, durationDisplay;
-      if (this.props.showDuration && audio && audio.duration) {
-        position = this.formatTime(audio.currentTime);
-        duration = this.formatTime(audio.duration);
-        durationDisplay = position + ' / ' + duration;
-      }
-
-      return (
-        <div className="rex-forms-AudioPlayer">
-          <audio preload="metadata" ref="audio">
-            {sources}
-          </audio>
-          <div className="rex-forms-AudioPlayerControls btn-group">
-            <a className="btn btn-default" onClick={this.onPlayPause}>
-              {!this.state.playing &&
-                <span
-                  title={_('Play the Recording')}
-                  className="icon-play">
-                </span>
-              }
-              {this.state.playing &&
-                <span
-                  title={_('Pause the Recording')}
-                  className="icon-pause">
-                </span>
-              }
-            </a>
-            {this.props.showDuration &&
-              <div className="btn btn-default">
-                <span>{durationDisplay || '???'}</span>
-              </div>
-            }
-            {this.props.showRestart &&
-              <a className="btn btn-default" onClick={this.onRestart}>
-                <span
-                  title={_('Restart the Recording')}
-                  className="icon-restart">
-                </span>
-              </a>
-            }
-          </div>
-        </div>
-      );
-    }
-  });
-
+  return minutes + ':' + seconds;
 }
-
-
-module.exports = AudioPlayer;
 

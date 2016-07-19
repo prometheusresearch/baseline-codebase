@@ -1,0 +1,238 @@
+{
+  "instrument": {
+    "id": "urn:text-rendering",
+    "version": "1.0"
+  },
+  "defaultLocalization": "en",
+  "title": {
+    "en": "An Exercise in Various Text Rendering Options"
+  },
+  "parameters": {
+    "a_string": {
+      "type": "text"
+    },
+    "a_number": {
+      "type": "numeric"
+    },
+    "a_boolean": {
+      "type": "boolean"
+    }
+  },
+  "pages": [
+    {
+      "id": "questions",
+      "elements": [
+        {
+          "type": "header",
+          "options": {
+            "text": {
+              "en": "Question Text, Help, and Errors"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q1",
+            "text": {
+              "en": "This question has help text."
+            },
+            "help": {
+              "en": "This is helpful text."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q2",
+            "text": {
+              "en": "This question has error text."
+            },
+            "error": {
+              "en": "You done messed up now."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q3",
+            "text": {
+              "en": "This question has both help and error text."
+            },
+            "help": {
+              "en": "You should enter an integer (like <<Parameter a_number>>)."
+            },
+            "error": {
+              "en": "You done messed up now."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q4",
+            "text": {
+              "en": "This question has both **help** and **error** text the contains //markup//."
+            },
+            "help": {
+              "en": "This is **//helpful text//**."
+            },
+            "error": {
+              "en": "You done **messed up** now."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q5",
+            "text": {
+              "en": "It's <<Parameter a_boolean>>, enumeration choices can have markup and help, as well."
+            },
+            "enumerations": [
+              {
+                "id": "foo",
+                "text": {
+                  "en": "The //Foo// Description"
+                }
+              },
+              {
+                "id": "bar",
+                "text": {
+                  "en": "A Bar"
+                },
+                "help": {
+                  "en": "This is helpful text."
+                }
+              },
+              {
+                "id": "baz",
+                "text": {
+                  "en": "Some **Bazzy** Thing"
+                },
+                "help": {
+                  "en": "This is **more** //helpful// text."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q5-2",
+            "text": {
+              "en": "It's <<Parameter a_boolean>>, enumeration choices can have markup and help, as well."
+            },
+            "enumerations": [
+              {
+                "id": "red",
+                "text": {
+                  "en": "The //Red// Description"
+                }
+              },
+              {
+                "id": "blue",
+                "text": {
+                  "en": "A Blue"
+                },
+                "help": {
+                  "en": "This is helpful text."
+                }
+              },
+              {
+                "id": "green",
+                "text": {
+                  "en": "Some **Greeny** Thing"
+                },
+                "help": {
+                  "en": "This is **more** //helpful// text."
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q6",
+            "text": {
+              "en": "Matrix rows can have help text, and columns can have help and error text."
+            },
+            "rows": [
+              {
+                "id": "row1",
+                "text": {
+                  "en": "First Row"
+                },
+                "help": {
+                  "en": "Some helpful **hints**."
+                }
+              },
+              {
+                "id": "row2",
+                "text": {
+                  "en": "Second Row"
+                }
+              }
+            ],
+            "questions": [
+              {
+                "fieldId": "col1",
+                "text": {
+                  "en": "Enter some text."
+                },
+                "help": {
+                  "en": "Any text will do."
+                }
+              },
+              {
+                "fieldId": "col2",
+                "text": {
+                  "en": "Pick a number."
+                },
+                "error": {
+                  "en": "You //keep// doing things wrong."
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "non_questions",
+      "elements": [
+        {
+          "type": "header",
+          "options": {
+            "text": {
+              "en": "[[http://www.google.com|Headers]] Can Have //Markup//"
+            }
+          }
+        },
+        {
+          "type": "text",
+          "options": {
+            "text": {
+              "en": "The a_string parameter contains \"<<Parameter a_string>>\""
+            }
+          }
+        },
+        {
+          "type": "divider"
+        },
+        {
+          "type": "text",
+          "options": {
+            "text": {
+              "en": "[[http://en.wikipedia.org/wiki/Lorem_ipsum|Lorem ipsum]] dolor\nsit amet, consectetur adipiscing elit.  Donec dignissim felis\nlectus, at aliquam tortor vulputate nec. Nullam dui dui, rutrum\nut enim quis, fringilla rutrum nulla. Proin sem odio, posuere ac\nsodales at, fermentum ut nunc. Nam sodales mi quis felis accumsan\negestas. Etiam in turpis non lacus posuere interdum. Vivamus ut\nenim lobortis, congue sapien in, egestas metus. Vestibulum id\narcu non tellus convallis suscipit nec quis risus. Cras ornare\nornare mattis. Phasellus malesuada purus elit, eget cursus orci\ndictum at. Vivamus vitae euismod risus.\n\n# Phasellus vehicula sem massa, nec molestie dolor tristique et.\n# Praesent nec tempor justo, ac dapibus justo.\n## Morbi sollicitudin viverra hendrerit.\n\nPellentesque euismod facilisis leo at tempus.  **Mauris a ipsum\ntempor**, porta tellus vel, ultrices velit.  Nulla facilisi.\nQuisque id facilisis ante, ac egestas urna.  Nullam pretium\nsagittis nunc eu congue. Proin quis arcu eget tortor bibendum\nsemper. Sed sit amet cursus risus. Morbi dignissim neque nec\nviverra laoreet. Duis ultrices lorem sit amet risus egestas, eget\nsagittis eros suscipit. //**Vestibulum**// sed orci eget dui\nrhoncus vestibulum sed placerat ante. Vivamus ornare elit non\nligula vehicula dictum consequat vitae nisl. Cras sagittis\niaculis eros, lobortis consequat nulla mollis id.  Suspendisse\nsemper lectus posuere vehicula pulvinar. Vivamus quis convallis\nsapien, in iaculis mi. //Fusce lobortis//, ipsum sit amet\nconsectetur semper, purus magna ultrices risus, et malesuada nisi\nipsum rutrum libero.\n\n* Donec semper elit a ligula egestas, at congue ante euismod.\n* Nam facilisis quam elementum, congue enim et, scelerisque arcu.\n** Morbi a luctus tortor.\n* Pellentesque pellentesque, risus in tincidunt elementum, felis ipsum euismod sapien, eget vestibulum sapien massa ut turpis.\n\n===Sed lacus lectus, scelerisque ut turpis at, tincidunt vehicula massa.===\n\nVivamus adipiscing nec tortor id posuere. Quisque et lectus non\ndolor porta iaculis. Proin pellentesque mattis dictum. Nam ac\nnisl arcu. Nunc felis elit, dictum vel massa sed, viverra ornare\ndiam.\n\n|=Header1 |=Header2 |\n|this     |is       |\n|a        |table    |\n"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

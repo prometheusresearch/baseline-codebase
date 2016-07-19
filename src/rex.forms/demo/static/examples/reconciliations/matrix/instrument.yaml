@@ -8,9 +8,11 @@ record:
       rows:
         - id: row1
         - id: row2
+          required: true
       columns:
         - id: col1
           type: text
+          required: true
         - id: col2
           type: integer
 

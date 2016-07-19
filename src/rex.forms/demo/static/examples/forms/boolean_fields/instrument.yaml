@@ -65,4 +65,6 @@ record:
     type: boolean
   - id: q9
     type: boolean
+  - id: q10
+    type: boolean
 

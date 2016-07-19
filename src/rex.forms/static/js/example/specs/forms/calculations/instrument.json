@@ -1,0 +1,27 @@
+{
+  "id": "urn:calculations",
+  "version": "1.0",
+  "title": "Calculations",
+  "record": [
+    {
+      "id": "q1",
+      "type": "text"
+    },
+    {
+      "id": "q2",
+      "type": "text"
+    },
+    {
+      "id": "q3",
+      "type": "integer"
+    },
+    {
+      "id": "q4",
+      "type": "integer"
+    },
+    {
+      "id": "q5",
+      "type": "float"
+    }
+  ]
+}

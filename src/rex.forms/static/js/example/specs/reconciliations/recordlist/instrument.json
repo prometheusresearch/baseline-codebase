@@ -1,0 +1,23 @@
+{
+  "id": "urn:recordlist",
+  "version": "1.0",
+  "title": "RecordList Reconciliation",
+  "record": [
+    {
+      "id": "foo",
+      "type": {
+        "base": "recordList",
+        "record": [
+          {
+            "id": "subfield1",
+            "type": "text"
+          },
+          {
+            "id": "subfield2",
+            "type": "integer"
+          }
+        ]
+      }
+    }
+  ]
+}

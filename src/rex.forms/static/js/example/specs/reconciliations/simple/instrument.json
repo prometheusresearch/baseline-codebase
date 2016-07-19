@@ -1,0 +1,26 @@
+{
+  "id": "urn:simple",
+  "version": "1.0",
+  "title": "Simple Example",
+  "record": [
+    {
+      "id": "foo",
+      "type": "text"
+    },
+    {
+      "id": "bar",
+      "type": {
+        "base": "enumeration",
+        "enumerations": {
+          "red": null,
+          "green": null,
+          "blue": null
+        }
+      }
+    },
+    {
+      "id": "baz",
+      "type": "boolean"
+    }
+  ]
+}

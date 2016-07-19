@@ -1,0 +1,84 @@
+instrument:
+  id: urn:preload
+  version: '1.0'
+defaultLocalization: en
+pages:
+  - id: page1
+    elements:
+      - type: question
+        options:
+          fieldId: q1
+          text:
+            en: Text field
+      - type: question
+        options:
+          fieldId: q2
+          text:
+            en: Integer field
+      - type: question
+        options:
+          fieldId: q3
+          text:
+            en: Float field
+      - type: question
+        options:
+          fieldId: q4
+          text:
+            en: Boolean field
+      - type: question
+        options:
+          fieldId: q5
+          text:
+            en: Date field
+      - type: question
+        options:
+          fieldId: q6
+          text:
+            en: Time field
+      - type: question
+        options:
+          fieldId: q7
+          text:
+            en: DateTime field
+      - type: question
+        options:
+          fieldId: q8
+          text:
+            en: Enumeration field
+      - type: question
+        options:
+          fieldId: q9
+          text:
+            en: EnumerationSet field
+      - type: question
+        options:
+          fieldId: q10
+          text:
+            en: RecordList field
+          questions:
+            - fieldId: subfield1
+              text:
+                en: First subfield
+            - fieldId: subfield2
+              text:
+                en: Second subfield
+      - type: question
+        options:
+          fieldId: q11
+          text:
+            en: Matrix field
+          rows:
+            - id: row1
+              text:
+                en: First Row
+            - id: row2
+              text:
+                en: Second Row
+          questions:
+            - fieldId: col1
+              text:
+                en: First Column
+            - fieldId: col2
+              text:
+                en: Second Column
+

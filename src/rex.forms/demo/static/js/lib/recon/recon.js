@@ -1,55 +1,70 @@
 /**
- * @jsx React.DOM
+ * @copyright 2014-present, Prometheus Research, LLC
  */
 
-'use strict';
+import * as ReactUI from '@prometheusresearch/react-ui';
+import * as React from 'react';
 
-var React = require('react');
+import {TopNav} from '../menu';
+import Toolbar from './toolbar';
+import Workspace from './workspace';
 
-var Toolbar = require('./toolbar');
-var Workspace = require('./workspace');
+export default class Recon extends React.Component {
 
-
-var Recon = React.createClass({
-  propTypes: {
+  static propTypes = {
     recon: React.PropTypes.object.isRequired,
     mountPoint: React.PropTypes.string.isRequired,
+    i18nUrl: React.PropTypes.string.isRequired,
     initialLocale: React.PropTypes.string.isRequired,
     availableLocales: React.PropTypes.array.isRequired
-  },
+  };
 
-  getInitialState: function () {
-    return {
+  constructor(props) {
+    super(props);
+    this.state ={
       options: {
         locale: this.props.initialLocale
       }
     };
-  },
+  }
 
-  onChangeOptions: function (options) {
+  onChangeOptions = (options) => {
     this.setState({options});
-  },
+  };
 
-  render: function () {
+  onLocale = (locale) => {
+    this.setState({locale});
+  };
+
+  render() {
     return (
-      <div className='rfd-Recon'>
-        <Toolbar
+      <div>
+        <TopNav
           mountPoint={this.props.mountPoint}
-          onChange={this.onChangeOptions}
-          initialLocale={this.props.initialLocale}
-          availableLocales={this.props.availableLocales}
-          recon={this.props.recon}
+          demos={this.props.demos}
+          recons={this.props.recons}
           />
-        <Workspace
-          mountPoint={this.props.mountPoint}
-          options={this.state.options}
-          recon={this.props.recon}
-          />
+        <ReactUI.Block
+          maxWidth={1024}
+          padding="medium"
+          marginH="auto"
+          marginV={0}>
+          <Toolbar
+            mountPoint={this.props.mountPoint}
+            onChange={this.onChangeOptions}
+            locale={this.state.options.locale}
+            onLocale={this.onLocale}
+            availableLocales={this.props.availableLocales}
+            recon={this.props.recon}
+            />
+          <Workspace
+            mountPoint={this.props.mountPoint}
+            i18nUrl={this.props.i18nUrl}
+            options={this.state.options}
+            recon={this.props.recon}
+            />
+        </ReactUI.Block>
       </div>
     );
   }
-});
-
-
-module.exports = Recon;
-
+}

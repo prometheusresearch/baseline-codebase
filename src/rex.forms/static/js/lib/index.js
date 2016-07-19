@@ -1,20 +1,11 @@
 /**
- * @jsx React.DOM
+ * @copyright 2016-present, Prometheus Research, LLC
+ * @flow
  */
-'use strict';
 
-module.exports = {
-  render: require('./render'),
-  Form: require('./form').Form,
-  elements: require('./elements'),
-  widgets: require('./widgets'),
-  services: require('./services'),
-  reconciler: require('./reconciler'),
-  widgetTypes: require('./elements/widgetTypes'),
-  readOnlyWidgetTypes: require('./elements/readOnlyWidgetTypes')
-};
+import FormEntry from './form/FormEntry';
+import FormEditor from './form/FormEditor';
+import Reconciler from './reconcile/Reconciler';
 
-if (window) {
-  window.Rex = window.Rex || {};
-  window.Rex.Forms = module.exports;
-}
+export {FormEntry, FormEditor, Reconciler};
+

@@ -1,28 +1,22 @@
 /**
- * @jsx React.DOM
+ * @copyright 2014-present, Prometheus Research, LLC
  */
 
-'use strict';
+import * as React from 'react';
+import * as ReactUI from '@prometheusresearch/react-ui';
 
-var React = require('react');
+export default class Toolbar extends React.Component {
 
-
-var Toolbar = React.createClass({
-  propTypes: {
-    initialLocale: React.PropTypes.string.isRequired,
+  static propTypes = {
     availableLocales: React.PropTypes.array.isRequired,
+    locale: React.PropTypes.string.isRequired,
+    onLocale: React.PropTypes.func.isRequired,
     mountPoint: React.PropTypes.string.isRequired,
     recon: React.PropTypes.object.isRequired,
     onChange: React.PropTypes.func
-  },
+  };
 
-  getInitialState: function () {
-    return {
-      locale: this.props.initialLocale
-    };
-  },
-
-  onChangeValue: function (option, event) {
+  onChangeValue = (option, event) => {
     this.setState({
       [option]: event.target.value
     }, () => {
@@ -30,9 +24,9 @@ var Toolbar = React.createClass({
         this.props.onChange(this.state);
       }
     });
-  },
+  };
 
-  onToggle: function (option) {
+  onToggle = (option) => {
     this.setState({
       [option]: !this.state[option]
     }, () => {
@@ -40,40 +34,33 @@ var Toolbar = React.createClass({
         this.props.onChange(this.state);
       }
     });
-  },
+  };
 
-  render: function () {
+  render() {
     return (
-      <div className='rfd-Toolbar'>
-        <div className='rfd-Toolbar__return'>
+      <ReactUI.Block padding="small">
+        <ReactUI.Block inline>
           <a href={this.props.mountPoint + '/'}>← Go Back</a>
-        </div>
+        </ReactUI.Block>
         {this.props.recon.validation_errors &&
-          <div className='rfd-Toolbar__invalid'>
-            <span title={this.props.recon.validation_errors}>
+          <ReactUI.Block inline marginLeft="medium">
+            <ReactUI.ErrorText title={this.props.recon.validation_errors}>
               INVALID CONFIGURATION
-            </span>
-          </div>
+            </ReactUI.ErrorText>
+          </ReactUI.Block>
         }
-        <div className='rfd-Toolbar__options'>
-          <div>
-            <select
-              value={this.state.locale}
-              onChange={this.onChangeValue.bind(this, 'locale')}
-              title='Changes the locale the Reconciliation is rendered in'>
-              {this.props.availableLocales.map((locale) => {
-                return (
-                  <option key={locale[0]} value={locale[0]}>{locale[1]}</option>
-                );
-              })}
-            </select>
-          </div>
-        </div>
-      </div>
+        <ReactUI.Block inline marginLeft="medium">
+          <ReactUI.Select
+            value={this.props.locale}
+            onChange={this.props.onLocale}
+            title="Changes the locale the Form is rendered in"
+            options={this.props.availableLocales.map(locale => ({
+              value: locale[0],
+              label: locale[1],
+            }))}
+            />
+        </ReactUI.Block>
+      </ReactUI.Block>
     );
   }
-});
-
-
-module.exports = Toolbar;
-
+}

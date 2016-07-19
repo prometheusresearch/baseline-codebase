@@ -1,0 +1,495 @@
+{
+  "instrument": {
+    "id": "urn:text-fields",
+    "version": "1.0"
+  },
+  "defaultLocalization": "en",
+  "pages": [
+    {
+      "id": "page1",
+      "elements": [
+        {
+          "type": "header",
+          "options": {
+            "text": {
+              "en": "Constraints"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "plain",
+            "text": {
+              "en": "No constraints."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "required",
+            "text": {
+              "en": "This is required."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "min_length",
+            "text": {
+              "en": "This has a minimum length of 3."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "max_length",
+            "text": {
+              "en": "This has a maximum length of 10."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "bounded_length",
+            "text": {
+              "en": "This has a min of 3 and max of 10 characters."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "required_bounded_length",
+            "text": {
+              "en": "This is required and has a min of 3 and max of 10 characters."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "pattern",
+            "text": {
+              "en": "This can only be lowercase letters."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "required_pattern",
+            "text": {
+              "en": "This is required and can only be lowercase letters."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "pattern_bounded_length",
+            "text": {
+              "en": "This has a min of 3 and max of 10 characters, and can only be lowercase letters."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "required_pattern_bounded_length",
+            "text": {
+              "en": "This is required, has a min of 3 and max of 10 characters, and can only be lowercase letters."
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "page2",
+      "elements": [
+        {
+          "type": "header",
+          "options": {
+            "text": {
+              "en": "Widget Configurations"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q1",
+            "text": {
+              "en": "Default size."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q2",
+            "text": {
+              "en": "Single line, default size."
+            },
+            "widget": {
+              "type": "inputText"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q3",
+            "text": {
+              "en": "Single line, small."
+            },
+            "widget": {
+              "type": "inputText",
+              "options": {
+                "width": "small"
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q4",
+            "text": {
+              "en": "Single line, medium."
+            },
+            "widget": {
+              "type": "inputText",
+              "options": {
+                "width": "medium"
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q5",
+            "text": {
+              "en": "Single line, large."
+            },
+            "widget": {
+              "type": "inputText",
+              "options": {
+                "width": "large"
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q6",
+            "text": {
+              "en": "Multiple line, default size."
+            },
+            "widget": {
+              "type": "textArea"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q7",
+            "text": {
+              "en": "Multiple line, small."
+            },
+            "widget": {
+              "type": "textArea",
+              "options": {
+                "width": "small"
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q8",
+            "text": {
+              "en": "Multiple line, medium."
+            },
+            "widget": {
+              "type": "textArea",
+              "options": {
+                "width": "medium"
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q9",
+            "text": {
+              "en": "Multiple line, large."
+            },
+            "widget": {
+              "type": "textArea",
+              "options": {
+                "width": "large"
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q10",
+            "text": {
+              "en": "Multiple line, small/small."
+            },
+            "widget": {
+              "type": "textArea",
+              "options": {
+                "width": "small",
+                "height": "small"
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q11",
+            "text": {
+              "en": "Multiple line, medium/small."
+            },
+            "widget": {
+              "type": "textArea",
+              "options": {
+                "width": "medium",
+                "height": "small"
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q12",
+            "text": {
+              "en": "Multiple line, large/small."
+            },
+            "widget": {
+              "type": "textArea",
+              "options": {
+                "width": "large",
+                "height": "small"
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q13",
+            "text": {
+              "en": "Multiple line, small/medium."
+            },
+            "widget": {
+              "type": "textArea",
+              "options": {
+                "width": "small",
+                "height": "medium"
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q14",
+            "text": {
+              "en": "Multiple line, medium/medium."
+            },
+            "widget": {
+              "type": "textArea",
+              "options": {
+                "width": "medium",
+                "height": "medium"
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q15",
+            "text": {
+              "en": "Multiple line, large/medium."
+            },
+            "widget": {
+              "type": "textArea",
+              "options": {
+                "width": "large",
+                "height": "medium"
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q16",
+            "text": {
+              "en": "Multiple line, small/large."
+            },
+            "widget": {
+              "type": "textArea",
+              "options": {
+                "width": "small",
+                "height": "large"
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q17",
+            "text": {
+              "en": "Multiple line, medium/large."
+            },
+            "widget": {
+              "type": "textArea",
+              "options": {
+                "width": "medium",
+                "height": "large"
+              }
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "q18",
+            "text": {
+              "en": "Multiple line, large/large."
+            },
+            "widget": {
+              "type": "textArea",
+              "options": {
+                "width": "large",
+                "height": "large"
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "page3",
+      "elements": [
+        {
+          "type": "header",
+          "options": {
+            "text": {
+              "en": "Explanations/Annotations"
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "explanation_opt",
+            "text": {
+              "en": "Optional explanation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "required_explanation_opt",
+            "text": {
+              "en": "This is required, with optional explanation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "explanation_req",
+            "text": {
+              "en": "Required explanation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "required_explanation_req",
+            "text": {
+              "en": "This is required, with required explanation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "annotation_opt",
+            "text": {
+              "en": "Optional annotation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "annotation_req",
+            "text": {
+              "en": "Required annotation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "exp_opt_ann_opt",
+            "text": {
+              "en": "Optional explanation, optional annotation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "exp_req_ann_opt",
+            "text": {
+              "en": "Required explanation, optional annotation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "exp_opt_ann_req",
+            "text": {
+              "en": "Optional explanation, required annotation."
+            }
+          }
+        },
+        {
+          "type": "question",
+          "options": {
+            "fieldId": "exp_req_ann_req",
+            "text": {
+              "en": "Required explanation, required annotation."
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

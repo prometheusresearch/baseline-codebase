@@ -1,31 +1,31 @@
 /**
- * @jsx React.DOM
+ * @copyright 2016-present, Prometheus Research, LLC
  */
 
-'use strict';
+import './index.css';
 
-var React = require('react');
-var Menu = require('./menu');
-var Demo = require('./demo/demo');
-var Recon = require('./recon/recon');
+import React from 'react';
+import ReactDOM from 'react-dom';
 
+import Menu from './menu';
+import Demo from './demo/demo';
+import Recon from './recon/recon';
 
 function renderMenu(props, element) {
-  React.renderComponent(Menu(props), element);
+  ReactDOM.render(<Menu {...props} />, element);
 }
 
 function renderDemo(props, element) {
-  React.renderComponent(Demo(props), element);
+  ReactDOM.render(<Demo {...props} />, element);
 }
 
 function renderRecon(props, element) {
-  React.renderComponent(Recon(props), element);
+  ReactDOM.render(<Recon {...props} />, element);
 }
-
 
 global.RexFormsDemo = module.exports = {
   renderMenu,
   renderDemo,
-  renderRecon
+  renderRecon,
 };
 

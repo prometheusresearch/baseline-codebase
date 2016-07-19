@@ -1,9 +1,0 @@
-@import '~normalize.css/normalize.css';
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  font-family: Helvetica;
-}

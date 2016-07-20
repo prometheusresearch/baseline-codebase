@@ -1,5 +1,5 @@
 /**
- * @jsx React.DOM
+ * @copyright 2014-present, Prometheus Research, LLC
  */
 
 import {flatten} from 'flat';

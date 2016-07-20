@@ -27,9 +27,9 @@ export IFrame from './IFrame';
 export TabListBase from './base/TabListBase';
 export Tab from './base/TabBase';
 export TabList from './TabList';
-export {default as Tab} from './base/TabBase';
+export Tab from './base/TabBase';
 export PillList from './PillList';
-export {default as Pill} from './base/TabBase';
+export Pill from './base/TabBase';
 export Panel from './Panel';
 export SecondaryPanel from './SecondaryPanel';
 

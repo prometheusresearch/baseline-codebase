@@ -20,4 +20,4 @@ if (typeof __REX_WIDGET_THEME__ !== 'undefined') {
   };
 }
 
-export default __THEME;
+module.exports = __THEME;

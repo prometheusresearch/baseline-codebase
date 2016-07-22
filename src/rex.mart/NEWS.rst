@@ -5,6 +5,12 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
+0.2.3 (2016-xx-xx)
+==================
+
+- Updated rex.deploy dependency to address issues with large mart databases.
+
+
 0.2.2 (2016-07-14)
 ==================
 

@@ -593,6 +593,7 @@ class ColumnModel(Model):
         TYPE_MAP = {
                 u"boolean": u"bool",
                 u"integer": u"int8",
+                u"integer-int4": u"int4",
                 u"decimal": u"numeric",
                 u"float": u"float8",
                 u"text": u"text",
@@ -610,6 +611,7 @@ class ColumnModel(Model):
         DOMAIN_MAP = {
                 u'boolean': BooleanDomain(),
                 u'integer': IntegerDomain(),
+                u'integer-int4': IntegerDomain(),
                 u'decimal': DecimalDomain(),
                 u'float': FloatDomain(),
                 u'text': TextDomain(),
@@ -629,6 +631,8 @@ class ColumnModel(Model):
         CAST_MAP = {
             u'boolean': set([u'integer', u'text']),
             u'integer': set([u'boolean', u'decimal', u'float', u'text']),
+            u'integer-int4': set([u'boolean', u'integer', u'decimal',
+                                  u'float', u'text']),
             u'decimal': set([u'integer', u'float', u'text']),
             u'float': set([u'integer', u'decimal', u'text']),
             u'text': set([u'boolean', u'integer', u'decimal', u'float',

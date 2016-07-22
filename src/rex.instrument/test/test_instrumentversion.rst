@@ -124,7 +124,7 @@ to the associated CalculationSet object, if there is one::
 
     >>> iv = InstrumentVersion.get_implementation().get_by_uid('calculation1')
     >>> iv.calculation_set
-    DemoCalculationSet(u'calculation1', DemoInstrumentVersion(u'calculation1', DemoInstrument(u'calculation', u'Calculation Instrument'), 1))
+    DemoCalculationSet(u'calculation1', DemoInstrumentVersion(u'calculation1', DemoInstrument(u'calculation', u'Calculation Instrument'), 1L))
 
 
 There's a static method on InstrumentVersion named ``validate_definition()``

@@ -88,7 +88,7 @@ actually be instances of those classes or strings containing UIDs::
     >>> task.instrument
     DemoInstrument(u'simple', u'Simple Instrument')
     >>> task.assessment
-    DemoAssessment(u'assessment1', DemoSubject(u'subject1'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+    DemoAssessment(u'assessment1', DemoSubject(u'subject1'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
 
 
 The priority passed to the constructor must be an integer::
@@ -179,9 +179,9 @@ The start_entry() method will create an Entry for the associated Assessment
     >>> task.assessment is None
     True
     >>> task.start_entry(user)
-    DemoEntry(u'fake_entry_1', DemoAssessment(u'fake_assessment_1', Subject(u'fake123'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1)), u'preliminary')
+    DemoEntry(u'fake_entry_1', DemoAssessment(u'fake_assessment_1', Subject(u'fake123'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L)), u'preliminary')
     >>> task.assessment
-    DemoAssessment(u'fake_assessment_1', Subject(u'fake123'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+    DemoAssessment(u'fake_assessment_1', Subject(u'fake123'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
 
 
 Tasks have a num_required_entries property which is readable only::

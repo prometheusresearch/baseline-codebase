@@ -66,14 +66,14 @@ be an instance or a string containing a UID::
     >>> div.instrument
     DemoInstrument(u'simple', u'Simple Instrument')
     >>> div.parent_instrument_version
-    DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1)
+    DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L)
 
     >>> from rex.instrument.util import get_implementation
     >>> div.definition['version']
     '1.1'
     >>> iv = div.publish(get_implementation('user').get_by_uid('user1'))
     >>> iv
-    DemoInstrumentVersion(u'fake_instrument_version_1', DemoInstrument(u'simple', u'Simple Instrument'), 2)
+    DemoInstrumentVersion(u'fake_instrument_version_1', DemoInstrument(u'simple', u'Simple Instrument'), 2L)
     >>> iv.definition['version']
     '1.2'
 

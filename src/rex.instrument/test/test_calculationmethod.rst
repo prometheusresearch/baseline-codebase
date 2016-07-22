@@ -14,7 +14,7 @@ Set up the environment::
     >>> assessment_impl = get_implementation('assessment')
     >>> assessment = assessment_impl.get_by_uid('assessment8')
     >>> assessment
-    DemoAssessment(u'assessment8', DemoSubject(u'subject1'), DemoInstrumentVersion(u'calculation2', DemoInstrument(u'calculation-complex', u'Calculation Instrument'), 1))
+    DemoAssessment(u'assessment8', DemoSubject(u'subject1'), DemoInstrumentVersion(u'calculation2', DemoInstrument(u'calculation-complex', u'Calculation Instrument'), 1L))
 
 
 The base class has a method named ``flatten_assessment_data()`` that will

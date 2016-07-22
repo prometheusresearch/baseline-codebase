@@ -79,7 +79,7 @@ instances of those classes or strings containing UIDs::
     {'version': '1.1', 'id': 'urn:test-instrument'}
     >>> calc = dcs.publish(iv)
     >>> calc
-    DemoCalculationSet(u'fake_calculationset_1', DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+    DemoCalculationSet(u'fake_calculationset_1', DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
     >>> calc.definition['instrument']
     {'version': '1.3', 'id': 'urn:test-instrument'}
 

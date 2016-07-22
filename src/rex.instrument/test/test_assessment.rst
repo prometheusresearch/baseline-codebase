@@ -74,7 +74,7 @@ instances of those classes or strings containing UIDs::
     >>> assessment.subject
     DemoSubject(u'subject1')
     >>> assessment.instrument_version
-    DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1)
+    DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L)
 
 
 The Evaluation Date must actually be a date (or datetime)::

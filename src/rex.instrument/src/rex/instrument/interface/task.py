@@ -207,7 +207,7 @@ class Task(
             )
         self._instrument = instrument
 
-        if not isinstance(priority, int):
+        if not isinstance(priority, (int, long)):
             raise ValueError('priority must be an integer')
         self._priority = priority
 

@@ -26,7 +26,7 @@ The Mart object is an encapsulation of the information about a Mart database::
     >>> mart   # doctest: +ELLIPSIS
     Mart(code=..., definition=u'empty', owner=u'marttest')
 
-    >>> isinstance(mart.code, int)
+    >>> isinstance(mart.code, long)
     True
     >>> mart.definition_id
     u'empty'
@@ -56,7 +56,7 @@ The Mart object is an encapsulation of the information about a Mart database::
     True
     >>> mart.pinned
     False
-    >>> isinstance(mart.size, int)
+    >>> isinstance(mart.size, long)
     True
     >>> mart.size > 0
     True

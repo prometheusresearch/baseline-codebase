@@ -2,11 +2,19 @@
   Change Log
 **************
 
-1.2.0 (2015-07-15)
+
+1.2.1 (2016-xx-xx)
+==================
+
+* Fixed precendence issue with signup middleware.
+
+
+1.2.0 (2016-07-15)
 ==================
 
 * [FEATURE] Add ``rex.widget_chrome.MenuChrome`` which use ``rex.menu`` to get
   navigation structure.
+
 
 1.1.0 (2016-04-22)
 ==================

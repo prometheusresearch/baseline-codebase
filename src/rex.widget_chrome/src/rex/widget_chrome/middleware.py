@@ -11,7 +11,7 @@ from .setting import UsernameQuery
 class SignupRedirect(Pipe):
     priority = 'signup_redirect'
     after = ['error', 'transaction', 'i18n']
-    before = ['routing']
+    before = ['routing', 'menu']
 
     def __call__(self, req):
         user = authenticate(req)

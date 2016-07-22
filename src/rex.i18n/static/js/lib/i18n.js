@@ -147,6 +147,12 @@ export default class I18N {
         );
       }
     }
+    if (this.config.baseUrl.endsWith('/')) {
+      this.config.baseUrl = this.config.baseUrl.substr(
+        0,
+        this.config.baseUrl.length - 1
+      );
+    }
 
     // Check if we can support timezones.
     this._TZ_SUPPORT = !global.IntlPolyfill;  // Intl.js doesn't support them.

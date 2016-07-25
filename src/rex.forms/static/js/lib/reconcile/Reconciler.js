@@ -79,22 +79,22 @@ export default class Reconciler extends React.Component {
 
   componentWillReceiveProps({form, instrument, parameters, discrepancies}) {
     if (form !== this.props.form) {
-      console.warning( // eslint-disable-line no-console
+      console.warn( // eslint-disable-line no-console
         '<Reconciler /> does not handle updating "form" prop'
       );
     }
     if (instrument !== this.props.instrument) {
-      console.warning( // eslint-disable-line no-console
+      console.warn( // eslint-disable-line no-console
         '<Reconciler /> does not handle updating "instrument" prop'
       );
     }
     if (parameters !== this.props.parameters) {
-      console.warning( // eslint-disable-line no-console
+      console.warn( // eslint-disable-line no-console
         '<Reconciler /> does not handle updating "parameters" prop'
       );
     }
     if (discrepancies !== this.props.discrepancies) {
-      console.warning( // eslint-disable-line no-console
+      console.warn( // eslint-disable-line no-console
         '<Reconciler /> does not handle updating "discrepancies" prop'
       );
     }

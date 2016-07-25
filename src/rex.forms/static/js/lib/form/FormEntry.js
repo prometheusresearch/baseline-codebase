@@ -281,22 +281,22 @@ export default class FormEntry extends React.Component {
 
   componentWillReceiveProps({assessment, form, instrument, parameters}) {
     if (form !== this.props.form) {
-      console.warning( // eslint-disable-line no-console
+      console.warn( // eslint-disable-line no-console
         '<FormEntry /> does not handle updating "form" prop'
       );
     }
     if (instrument !== this.props.instrument) {
-      console.warning( // eslint-disable-line no-console
+      console.warn( // eslint-disable-line no-console
         '<FormEntry /> does not handle updating "instrument" prop'
       );
     }
     if (assessment !== this.props.assessment) {
-      console.warning( // eslint-disable-line no-console
+      console.warn( // eslint-disable-line no-console
         '<FormEntry /> does not handle updating "assessment" prop'
       );
     }
     if (parameters !== this.props.parameters) {
-      console.warning( // eslint-disable-line no-console
+      console.warn( // eslint-disable-line no-console
         '<FormEntry /> does not handle updating "parameters" prop'
       );
     }

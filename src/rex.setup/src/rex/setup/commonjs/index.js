@@ -67,6 +67,14 @@ function configureWebpack(config) {
   var pkg = getPackageMetadata(cwd);
   var deps = getListOfDependencies(pkg);
 
+  // Force babel 5 configuration, this is done for legacy package to allow to
+  // enforce babel5 config on its own package and dependencies.
+  //
+  // Note that the package is still required to have babel-loader@^5 installed
+  // in case of using this flag (as rex-setup can't depend both on babel-loader
+  // 6 and 5 simultaneously.
+  var forceBabel5 = pkg && pkg.rex && pkg.rex.forceBabel5;
+
   // add style entry either via rex.style key in package metadata or implicitly
   if (pkg && pkg.rex && pkg.rex.style) {
     addEntry(config, path.join(cwd, pkg.rex.style));
@@ -123,25 +131,22 @@ function configureWebpack(config) {
       exclude: /\.module\.css$/,
       loader: ExtractTextPlugin.extract('style-loader', 'css-loader?-minimize')
     },
-
     {
       test: /\.module\.css$/,
       loader: ExtractTextPlugin.extract('style-loader', 'css-loader?modules&-minimize&localIdentName=[path][name]---[local]---[hash:base64:5]')
     },
-    {
-      test: /\.style\.js$/,
-      loader: styling(ExtractTextPlugin.extract('style-loader', 'css-loader?modules&-minimize&localIdentName=[path][name]---[local]---[hash:base64:5]'), 'babel-loader?stage=0')
-    },
+
+    { test: /\.json$/, loader: 'json-loader' },
 
     { test: /\.png$/, loader: 'url-loader?prefix=img/&limit=5000' },
-		{ test: /\.jpg$/, loader: 'url-loader?prefix=img/&limit=5000' },
-		{ test: /\.gif$/, loader: 'url-loader?prefix=img/&limit=5000' },
+    { test: /\.jpg$/, loader: 'url-loader?prefix=img/&limit=5000' },
+    { test: /\.gif$/, loader: 'url-loader?prefix=img/&limit=5000' },
 
-		{ test: /\.eot(\?[a-z0-9]+)?$/,   loader: 'file-loader?prefix=font/' },
-		{ test: /\.ttf(\?[a-z0-9]+)?$/,   loader: 'file-loader?prefix=font/' },
-		{ test: /\.svg(\?[a-z0-9]+)?$/,   loader: 'file-loader?prefix=font/' },
-		{ test: /\.woff(\?[a-z0-9]+)?$/,  loader: 'url-loader?prefix=font/&limit=5000' },
-		{ test: /\.woff2(\?[a-z0-9]+)?$/, loader: 'url-loader?prefix=font/&limit=5000' }
+    { test: /\.eot(\?[a-z0-9]+)?$/,   loader: 'file-loader?prefix=font/' },
+    { test: /\.ttf(\?[a-z0-9]+)?$/,   loader: 'file-loader?prefix=font/' },
+    { test: /\.svg(\?[a-z0-9]+)?$/,   loader: 'file-loader?prefix=font/' },
+    { test: /\.woff(\?[a-z0-9]+)?$/,  loader: 'url-loader?prefix=font/&limit=5000' },
+    { test: /\.woff2(\?[a-z0-9]+)?$/, loader: 'url-loader?prefix=font/&limit=5000' }
   ]);
 
   unshift(config, 'resolveLoader.root', process.env.NODE_PATH);
@@ -155,7 +160,7 @@ function configureWebpack(config) {
     new PackageLoadersPlugin({
       packageMeta: ['package.json'],
       loadersKeyPath: ['rex', 'loaders'],
-      injectLoaders: injectDefaultLoaders
+      injectLoaders: injectDefaultLoaders.bind(null, forceBabel5),
     }),
     new ExtractTextPlugin('bundle.css'),
     new webpack.ProvidePlugin({
@@ -227,15 +232,25 @@ DeactivateResultSymlinkPlugin.prototype.apply = function(compiler) {
   };
 }
 
-function injectDefaultLoaders(packageMeta, packageDirname, filename) {
+function injectDefaultLoaders(forceBabel5, packageMeta, packageDirname, filename) {
   if (packageMeta.rex !== undefined && packageMeta.rex.loaders === undefined) {
-    return [
-      {
-        test: /\.js$/,
-        loader: 'babel-loader?stage=0',
-        exclude: /vendor/,
-      }
-    ];
+    if (!forceBabel5) {
+      return [
+        {
+          test: /\.js$/,
+          loader: 'babel-loader?presets[]=prometheusresearch',
+          exclude: /vendor/,
+        }
+      ];
+    } else {
+      return [
+        {
+          test: /\.js$/,
+          loader: 'babel-loader?stage=0',
+          exclude: /vendor/,
+        }
+      ];
+    }
   } else {
     return [];
   }

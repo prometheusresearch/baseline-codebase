@@ -5,8 +5,8 @@
   "peerDependencies": {
     "webpack": "1.12.x",
     "styling": "^0.4.0",
-    "babel-loader": "^6.2.4",
     "babel-core": "^6.9.1",
+    "babel-loader": "^6.2.4",
     "babel-preset-prometheusresearch": "^0.1.0",
     "css-loader": "0.15.x",
     "style-loader": "0.12.x",

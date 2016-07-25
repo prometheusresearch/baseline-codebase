@@ -11,7 +11,7 @@
       },
       {
         "test": "lib/**/*.js",
-        "loader": "babel-loader?stage=0"
+        "loader": "babel-loader?presets[]=prometheusresearch"
       }
     ]
   },

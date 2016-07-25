@@ -22,7 +22,7 @@ class demo(Command):
 setup(
     name='rex.setup_demo',
     description="This package demonstrates capabilities of rex.setup",
-    version='3.1.4',
+    version='3.2.0',
     maintainer="Prometheus Research, LLC",
     maintainer_email="contact@prometheusresearch.com",
     url="http://bitbucket.org/prometheus/rex.setup",

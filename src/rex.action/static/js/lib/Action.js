@@ -52,12 +52,6 @@ export default class Action extends React.Component {
   static contextTypes = contextTypes;
 
   static stylesheet = stylesheet.create({
-    Root: {
-      Component: VBox,
-      flex: 1,
-      overflow: 'hidden',
-      flexDirection: 'column-reverse',
-    },
     Header: {
       Component: VBox,
       boxShadow: Theme.shadow.light(),
@@ -107,7 +101,6 @@ export default class Action extends React.Component {
 
   render() {
     let {
-      Root,
       Header,
       Content,
       ContentContainer,
@@ -137,39 +130,41 @@ export default class Action extends React.Component {
     }
 
     return (
-      <Root>
-        <HBox flex={1}>
-          {noContentWrapper ?
-            children :
-            <ContentContainer mode="sticky" footer={footer}>
-              <Content style={contentStyle}>{children}</Content>
-            </ContentContainer>}
+      <HBox flex={1}>
+        <VBox flex={1} direction="column-reverse">
+          <HBox flex={1}>
+            {noContentWrapper ?
+              children :
+              <ContentContainer mode="sticky" footer={footer}>
+                <Content style={contentStyle}>{children}</Content>
+              </ContentContainer>}
+          </HBox>
+          {!noHeader &&
+            <Header>
+              <HBox>
+                {title &&
+                  <Title>
+                    {title}
+                  </Title>}
+                {help &&
+                  <HBox>
+                    <ReactUI.QuietButton
+                      size="small"
+                      active={showHelp}
+                      onClick={this.toggleShowHelp}
+                      icon={<QuestionIcon />}
+                      />
+                  </HBox>}
+              </HBox>
+            {toolbar &&
+              <Toolbar>{toolbar}</Toolbar>}
+            {extraToolbar &&
+              <Toolbar>{extraToolbar}</Toolbar>}
+            </Header>}
+          </VBox>
           {help && showHelp &&
             <ActionHelp help={help} onClose={this.toggleShowHelp} />}
-        </HBox>
-        {!noHeader &&
-          <Header>
-            <HBox>
-              {title &&
-                <Title>
-                  {title}
-                </Title>}
-              {help &&
-                <HBox>
-                  <ReactUI.QuietButton
-                    size="small"
-                    active={showHelp}
-                    onClick={this.toggleShowHelp}
-                    icon={<QuestionIcon />}
-                    />
-                </HBox>}
-            </HBox>
-          {toolbar &&
-            <Toolbar>{toolbar}</Toolbar>}
-          {extraToolbar &&
-            <Toolbar>{extraToolbar}</Toolbar>}
-          </Header>}
-      </Root>
+      </HBox>
     );
   }
 }

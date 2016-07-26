@@ -146,11 +146,10 @@ export default class Action extends React.Component {
                   <Title>
                     {title}
                   </Title>}
-                {help &&
+                {help && !showHelp &&
                   <HBox>
                     <ReactUI.QuietButton
                       size="small"
-                      active={showHelp}
                       onClick={this.toggleShowHelp}
                       icon={<QuestionIcon />}
                       />

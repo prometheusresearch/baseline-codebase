@@ -91,7 +91,9 @@ export default class Wizard extends React.Component {
             onClick={this._onReplace.bind(null, graph.node.keyPath)}
             />
           <ActionPanel flex={1}>
-            <ActionContext toolbar={<Toolbar graph={graph} onClick={this._onNext} />}>
+            <ActionContext
+              help={action.props.help}
+              toolbar={<Toolbar graph={graph} onClick={this._onNext} />}>
               {action}
             </ActionContext>
           </ActionPanel>

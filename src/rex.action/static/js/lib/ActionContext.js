@@ -5,7 +5,8 @@
 import React from 'react';
 
 export const contextTypes = {
-  toolbar: React.PropTypes.any
+  toolbar: React.PropTypes.any,
+  help: React.PropTypes.string,
 };
 
 export default class ActionContext extends React.Component {
@@ -13,7 +14,10 @@ export default class ActionContext extends React.Component {
   static childContextTypes = contextTypes;
 
   getChildContext() {
-    return {toolbar: this.props.toolbar};
+    return {
+      toolbar: this.props.toolbar,
+      help: this.props.help,
+    };
   }
 
   render() {

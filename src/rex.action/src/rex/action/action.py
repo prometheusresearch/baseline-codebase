@@ -22,6 +22,7 @@ from rex.core import (
     cached, guard)
 from rex.widget import (
     Widget, WidgetVal, Field, computed_field,
+    RSTVal,
     undefined, as_transitionable, TransitionableRecord)
 from rex.widget.widget import _format_Widget
 from rex.widget.util import add_mapping_key, pop_mapping_key, IconVal
@@ -89,6 +90,12 @@ class ActionBase(Widget):
         Action doc string.
 
         It is not available in the browser.
+        """)
+
+    help = Field(
+        RSTVal(), default=undefined,
+        doc="""
+        Action help.
         """)
 
     width = Field(

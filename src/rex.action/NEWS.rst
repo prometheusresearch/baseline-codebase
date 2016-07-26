@@ -4,6 +4,20 @@
 
 .. contents:: Table of Contents
 
+1.3.0 (2016-XX-XX)
+==================
+
+* [FEATURE] Add optional per action help text.
+
+  Configure it via ``help`` field::
+
+    type: make
+    entity: individual
+    help: |
+      Provide some help for the action.
+
+      You can use *ReStructuredText* too!
+
 1.2.0 (2016-07-15)
 ==================
 

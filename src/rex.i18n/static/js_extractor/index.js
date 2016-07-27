@@ -2,6 +2,8 @@
  * Copyright (c) 2016, Prometheus Research, LLC
  */
 
+'use strict';
+
 var babel = require('babel-core');
 var fs = require('fs');
 var path = require('path');

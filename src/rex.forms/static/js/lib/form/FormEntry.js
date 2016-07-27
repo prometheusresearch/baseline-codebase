@@ -136,7 +136,7 @@ export default class FormEntry extends React.Component {
     this.formState = createFormState({
       instrument,
       form,
-      parameters,
+      parameters: parameters || {},
       initialValue: assessment ? assessment.values : {},
       i18n: this.getI18N(),
     });
@@ -239,9 +239,9 @@ export default class FormEntry extends React.Component {
         <FormContext
           self={this}
           form={form}
-          parameters={parameters}
+          parameters={parameters || {}}
           event={formState.event}
-          apiUrls={apiUrls}>
+          apiUrls={apiUrls || {}}>
           <div>
             {mode === 'entry' &&
               <FormProgressBar

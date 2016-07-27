@@ -1,0 +1,13 @@
+{
+  "name": "rex-acquire-actions-demo",
+  "version": "0.1.0",
+  "main": "./lib/index.js",
+  "rex": {
+    "bundleAll": true
+  },
+  "peerDependencies": {
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0"
+  }
+}
+

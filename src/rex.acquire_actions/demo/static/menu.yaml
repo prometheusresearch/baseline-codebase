@@ -1,0 +1,62 @@
+menu:
+  - title: Home
+    items:
+      - path: /
+        access: authenticated
+        title: Home
+        action:
+          type: page
+          text: |
+            Welcome to the RexAcquireActions Demo System!
+
+      - path: /assessments
+        access: authenticated
+        title: Assessments
+        action:
+          type: wizard
+
+          path:
+            - pick-assessment:
+              - view-assessment:
+                - edit-assessment:
+
+          actions:
+            pick-assessment:
+              type: pick
+              title: Pick an Assessment to Test With
+              entity: assessment
+
+            view-assessment:
+              type: assessment-view
+              title: View Assessment
+              entity:
+                assessment: assessment
+
+            edit-assessment:
+              type: assessment-edit
+              title: Edit Assessment
+              entity:
+                assessment: assessment
+
+      - path: /tasks
+        access: authenticated
+        title: Tasks
+        action:
+          type: wizard
+
+          path:
+            - pick-task:
+              - reconcile-task:
+
+          actions:
+            pick-task:
+              type: pick
+              title: Pick a Task to Test With
+              entity: task
+
+            reconcile-task:
+              type: task-reconcile
+              title: Reconcile Task
+              entity:
+                task: task
+

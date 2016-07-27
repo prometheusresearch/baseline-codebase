@@ -1,0 +1,6 @@
+syntax: glob
+build
+dist
+node_modules
+static/www/bundle
+

@@ -10,6 +10,8 @@ forms_presentation_adaptors:
   demoapp:
     - lookup
 
+forms_local_resource_prefix: rex.forms_demo:/media
+
 db: pgsql:forms_demo
 
 htsql_extensions:

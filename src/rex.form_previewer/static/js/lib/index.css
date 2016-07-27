@@ -1,0 +1,9 @@
+@import url(https://fonts.googleapis.com/css?family=Lato:400,900,700,300);
+
+body {
+  font-family: Lato, sans-serif;
+  font-size: 90%;
+  font-weight: 400;
+  margin: 10px 10%;
+}
+

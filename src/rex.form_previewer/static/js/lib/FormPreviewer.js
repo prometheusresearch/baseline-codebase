@@ -1,234 +1,223 @@
 /**
  * Copyright (c) 2015, Prometheus Research, LLC
- *
- * @jsx React.DOM
  */
 
-'use strict';
+import React from 'react';
+import * as ReactForms from 'react-forms';
+import {VBox, HBox} from '@prometheusresearch/react-ui';
 
-var $ = require('jquery');
-var React = require('react/addons');
+import {FormEditor} from 'rex-forms';
+import {Provider, InjectI18N} from 'rex-i18n';
 
-var Form = require('rex-forms').Form;
-var ReactForms = require('react-forms');
-var {Schema, Property} = ReactForms.schema;
-var LocaleChooser = require('./LocaleChooser');
-var ChannelChooser = require('./ChannelChooser');
-var CalculationResults = require('./CalculationResults');
-var Spinny = require('./Spinny');
-var localization = require('./localization');
-var _ = localization.gettext;
+import LocaleChooser from './LocaleChooser';
+import ChannelChooser from './ChannelChooser';
 
 
-var BooleanInput = React.createClass({
-  render: function () {
-    return this.transferPropsTo(
-      <select
-        id={this.props.id || this.props.name}>
-        <option
-          key={'null'}>
-          {_('null')}
-        </option>
-        <option
-          key={'true'}
-          value={true}>
-          {_('True')}
-        </option>
-        <option
-          key={'false'}
-          value={false}>
-          {_('False')}
-        </option>
+@ReactForms.withFormValue
+class BooleanInput extends React.Component {
+  static OPTIONS = [
+    null,
+    true,
+    false,
+  ];
+
+  onChange = (event) => {
+    this.constructor.OPTIONS.forEach((option) => {
+      if (String(option) === event.target.value) {
+        this.props.formValue.update(option);
+      }
+    });
+  }
+
+  render() {
+    return (
+      <select value={this.props.formValue.value} onChange={this.onChange}>
+        {this.constructor.OPTIONS.map((option, idx) => {
+          return (<option key={idx} value={String(option)}>{String(option)}</option>);
+        })}
       </select>
     );
   }
-});
+}
 
 
-var FormPreviewer = React.createClass({
-  propTypes: {
+@ReactForms.withFormValue
+class NumberInput extends React.Component {
+  onChange = (event) => {
+    let value = event.target.value;
+    if ((value === null) || (value === '')) {
+      this.props.formValue.update(null);
+    } else {
+      let number = Number(value);
+      this.props.formValue.update(isNaN(number) ? value : number);
+    }
+  }
+
+  render () {
+    return (
+      <input value={this.props.formValue.value} onChange={this.onChange} />
+    );
+  }
+}
+
+
+@InjectI18N
+export default class FormPreviewer extends React.Component {
+  static propTypes = {
     instrument: React.PropTypes.object.isRequired,
     forms: React.PropTypes.object.isRequired,
     locale: React.PropTypes.string,
     avilableLocales: React.PropTypes.arrayOf(React.PropTypes.arrayOf(React.PropTypes.string)),
     channels: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     initialChannel: React.PropTypes.string.isRequired,
-    returnUrl: React.PropTypes.string,
-    completeUrl: React.PropTypes.string.isRequired,
-    instrumentId: React.PropTypes.string.isRequired,
-    category: React.PropTypes.string.isRequired,
     localResourcePrefix: React.PropTypes.string,
     lookupApiPrefix: React.PropTypes.string,
     calculationApiPrefix: React.PropTypes.string
-  },
+  };
 
-  getDefaultProps: function () {
-    return {
-      locale: 'en',
-      availableLocales: []
-    };
-  },
+  static defaultProps = {
+    locale: 'en',
+    availableLocales: ['en'],
+  };
 
-  getInitialState: function () {
-    var currentForm = this.props.forms[this.props.initialChannel]
-    var parameters = currentForm.parameters ? null : {};
+  constructor(props) {
+    super(props);
 
-    return {
-      locale: this.props.locale,
+    let currentForm = props.forms[props.initialChannel];
+    let parameterForm = null;
+    if (Object.keys(currentForm.parameters || {}).length > 0) {
+      parameterForm = ReactForms.createValue({
+        schema: this.createParameterFormSchema(currentForm),
+        onChange: this.onParametersChange.bind(this),
+      });
+    }
+
+    this.state = {
+      locale: props.locale,
       currentForm,
-      lastResults: null,
+      currentChannel: props.initialChannel,
       processing: false,
-      parameters
+      parameters: null,
+      parameterForm
     };
-  },
+  }
 
-  onLocaleChange: function (locale) {
-    // TODO: Shouldn't hardcode this here.
-    var RTL_LOCALES = ['ar', 'fa', 'ps', 'he', 'ur'];
+  onChannelChange(channel) {
+    let currentForm = this.props.forms[channel];
+    let parameterForm = null;
+    if (Object.keys(currentForm.parameters || {}).length > 0) {
+      parameterForm = ReactForms.createValue({
+        schema: this.createParameterFormSchema(currentForm),
+        onChange: this.onParametersChange.bind(this),
+      });
+    }
 
+    this.setState({
+      currentForm,
+      currentChannel: channel,
+      parameters: null,
+      parameterForm
+    });
+  }
+
+  onLocaleChange(locale) {
     this.setState({
       locale: locale
-    }, () => {
-      var direction = 'ltr';
-      if (RTL_LOCALES.indexOf(locale) > -1) {
-        direction = 'rtl';
-      }
-      document.getElementsByTagName('html')[0].dir = direction;
-
-      localization.switchLocale(locale, () => {
-        this.forceUpdate();
-      });
     });
-  },
+  }
 
-  onChannelChange: function (channel) {
-    var currentForm = this.props.forms[channel]
-    var parameters = currentForm.parameters ? null : {};
-
-    this.setState({
-      currentForm,
-      lastResults: null,
-      parameters
-    });
-  },
-
-  onReturn: function (event) {
-    event.preventDefault();
-    window.top.location = this.props.returnUrl;
-  },
-
-  onComplete: function (assessment) {
-    var payload = {
-      data: JSON.stringify(assessment),
-      instrument_id: this.props.instrumentId,
-      category: this.props.category
+  createParameterFormSchema(form) {
+    let schema = {
+      type: 'object',
+      properties: {}
     };
 
-    this.setState({
-      processing: true,
-      lastResults: null
-    });
+    form = form || this.state.currentForm;
 
-    $.ajax({
-      url: this.props.completeUrl,
-      type: 'POST',
-      data: payload,
-      dataType: 'json'
-    }).then(
-      (data) => {
-        if (data.status === 'SUCCESS') {
-          this.setState({
-            processing: false,
-            lastResults: data.results
-          });
-        } else {
-          alert(_('Calculations Failed:') + '\n\n' + data.message);
-          this.setState({
-            processing: false
-          });
-        }
-      },
-      () => {
-        alert(_('There was an error when trying to complete the Form. Please try again later.'));
-        this.setState({
-          processing: false
-        });
-      }
-    );
-  },
-
-  createParameterFormSchema: function () {
-    var properties = Object.keys(this.state.currentForm.parameters).sort().map((id) => {
-      var type = null, input = undefined;
-      switch (this.state.currentForm.parameters[id].type) {
+    Object.keys(form.parameters).forEach((param) => {
+      switch (form.parameters[param].type) {
         case 'text':
-          type = 'string';
+          schema.properties[param] = {type: 'string'};
           break;
         case 'numeric':
-          type = 'number';
+          schema.properties[param] = {type: 'number'};
           break;
         case 'boolean':
-          type = 'bool';
-          input = (<BooleanInput />);
+          schema.properties[param] = {type: 'boolean'};
           break;
+      }
+    });
+
+    return schema;
+  }
+
+  createParameterForm(form) {
+    form = form || this.state.currentForm;
+    let fields = Object.keys(form.parameters).sort().map((param) => {
+      let input;
+      if (form.parameters[param].type === 'boolean') {
+        input = BooleanInput;
+      } else if (form.parameters[param].type === 'numeric') {
+        input = NumberInput;
       }
 
       return (
-        <Property
-          name={id}
-          label={id}
-          type={type}
-          input={input}
-          />
+        <VBox marginBottom='10px' key={param}>
+          <ReactForms.Field
+            select={param}
+            label={param}
+            Input={input}
+            />
+        </VBox>
       );
     });
-
     return (
-      <Schema>
-        {properties}
-      </Schema>
+      <ReactForms.Fieldset formValue={this.state.parameterForm}>
+        {fields}
+      </ReactForms.Fieldset>
     );
-  },
+  }
 
-  getParameterFormDefaults: function () {
-    var defaults = {};
-    Object.keys(this.state.currentForm.parameters).forEach((id) => {
-      defaults[id] = null;
+  onParametersChange(formValue) {
+    this.setState({parameterForm: formValue});
+  }
+
+  onSetParameters() {
+    let {...params} = this.state.parameterForm.value;
+    Object.keys(this.state.currentForm.parameters).forEach((param) => {
+      if (params[param] === undefined) {
+        params[param] = null;
+      }
     });
-    return defaults;
-  },
+    this.setState({
+      parameters: params,
+    });
+  }
 
-  onSetParameters: function () {
-    var value = this.refs.parameterForm.value();
-    if (ReactForms.validation.isSuccess(value.validation)) {
-      this.setState({
-        parameters: value.value
-      });
-    }
-  },
-
-  onResetParameters: function () {
+  onResetParameters() {
     this.setState({
       parameters: null
     });
-  },
+  }
 
-  render: function () {
-    var hasMultipleForms = Object.keys(this.props.forms).length > 1;
-    var hasMultipleLocales = this.props.availableLocales.length > 1;
-    var hasResults = this.state.lastResults ? true : false;
-    var needsParameters = this.state.parameters === null;
-    var hasParameters = !needsParameters && Object.keys(this.state.parameters).length > 0;
+  render() {
+    let hasMultipleForms = Object.keys(this.props.forms).length > 1;
+    let hasMultipleLocales = this.props.availableLocales.length > 1;
+
+    let needsParameters = (Object.keys(this.state.currentForm.parameters || {}).length > 0);
+    let hasParameters = (Object.keys(this.state.parameters || {}).length > 0);
+    let parameterErrors = needsParameters
+      && (this.state.parameterForm.completeErrorList.length > 0);
 
     return (
-      <div className="form-previewer">
-        <div className="previewer-tools">
+      <VBox>
+        <HBox justifyContent='flex-end' marginBottom='10px'>
           {hasParameters &&
-            <div className="parameter-reseter">
+            <div>
               <button
                 className="btn btn-default"
-                onClick={this.onResetParameters}>
-                {_('Reset Parameters')}
+                onClick={this.onResetParameters.bind(this)}>
+                {this._('Change Parameters')}
               </button>
             </div>
           }
@@ -236,68 +225,49 @@ var FormPreviewer = React.createClass({
             <LocaleChooser
               locales={this.props.availableLocales}
               currentLocale={this.state.locale}
-              onChange={this.onLocaleChange}
+              onChange={this.onLocaleChange.bind(this)}
               />
           }
           {hasMultipleForms &&
             <ChannelChooser
               channels={this.props.channels}
               initialChannel={this.props.initialChannel}
-              onChange={this.onChannelChange}
+              onChange={this.onChannelChange.bind(this)}
               />
           }
-        </div>
-        {needsParameters ?
+        </HBox>
+        {(needsParameters && !hasParameters) ?
           <div className="parameter-gatherer">
-            <h2>{_('Please Enter Parameter Values')}</h2>
-            <p>{_('This form expects to receive the following parameters from the system when it is used in real situations. Please enter these values by hand to facilitate your testing.')}</p>
-            <ReactForms.Form
-              ref="parameterForm"
-              schema={this.createParameterFormSchema()}
-              defaultValue={this.getParameterFormDefaults()}
-            />
+            <h2>{this._('Please Enter Parameter Values')}</h2>
+            <p>{this._('This form expects to receive the following parameters from the system when it is used in real situations. Please enter these values by hand to facilitate your testing.')}</p>
+            {this.createParameterForm()}
             <button
-              onClick={this.onSetParameters}>
-              {_('Use These Values')}
+              onClick={this.onSetParameters.bind(this)}
+              disabled={parameterErrors}>
+              {this._('Use These Values')}
             </button>
           </div>
           :
-          <Form
-            instrument={this.props.instrument}
-            form={this.state.currentForm}
-            readOnly={hasResults}
-            showOverview={hasResults}
-            showOverviewOnCompletion={true}
-            locale={this.state.locale}
-            onComplete={this.onComplete}
-            localResourcePrefix={this.props.localResourcePrefix}
-            parameters={this.state.parameters}
-            lookupApiPrefix={this.props.lookupApiPrefix}
-            calculationApiPrefix={this.props.calculationApiPrefix}
-            />
-        }
-        {this.state.processing &&
-          <Spinny />
-        }
-        {hasResults &&
-          <CalculationResults
-            results={this.state.lastResults}
-            />
-        }
-        {this.props.returnUrl &&
-          <div className="returner">
-            <button
-              className="btn btn-primary"
-              onClick={this.onReturn}>
-              {_('Return to Previous Screen')}
-            </button>
+          <div key={`${this.state.currentChannel}-${this.state.locale}`}>
+            <Provider
+              locale={this.state.locale}
+              baseUrl={this.props.i18nBaseUrl}>
+              <FormEditor
+                instrument={this.props.instrument}
+                form={this.state.currentForm}
+                parameters={this.state.parameters}
+                onComplete={this.onFormComplete}
+                showCalculations={true}
+                apiUrls={{
+                  lookup: this.props.lookupApiPrefix,
+                  calculation: this.props.calculationApiPrefix,
+                }}
+                />
+            </Provider>
           </div>
         }
-      </div>
+      </VBox>
     );
   }
-});
-
-
-module.exports = FormPreviewer;
+}
 

@@ -1,30 +1,29 @@
 /**
  * Copyright (c) 2015, Prometheus Research, LLC
- *
- * @jsx React.DOM
  */
 
-'use strict';
+import React from 'react';
 
-var React = require('react/addons');
+import {InjectI18N} from 'rex-i18n';
+import {VBox, HBox} from '@prometheusresearch/react-ui';
 
-var _ = require('./localization').gettext;
 
-
-var ChannelChooser = React.createClass({
-  propTypes: {
+@InjectI18N
+export default class ChannelChooser extends React.Component {
+  static propTypes = {
     channels: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
     initialChannel: React.PropTypes.string.isRequired,
     onChange: React.PropTypes.func
-  },
+  };
 
-  getInitialState: function () {
-    return {
-      currentChannel: this.props.initialChannel
+  constructor(props) {
+    super(props);
+    this.state = {
+      currentChannel: props.initialChannel
     };
-  },
+  }
 
-  renderChannels: function () {
+  renderChannels() {
     return this.props.channels.map((channel) => {
       return (
         <option
@@ -34,9 +33,9 @@ var ChannelChooser = React.createClass({
         </option>
       );
     });
-  },
+  }
 
-  onChange: function (event) {
+  onChange(event) {
     this.setState({
       currentChannel: event.target.value
     }, () => {
@@ -44,22 +43,21 @@ var ChannelChooser = React.createClass({
         this.props.onChange(this.state.currentChannel);
       }
     });
-  },
+  }
 
-  render: function () {
+  render() {
     return (
-      <div className="channel-chooser">
-        <span>{_('Display as Rendered in:')}</span>
-        <select
-          value={this.state.currentChannel}
-          onChange={this.onChange}>
-          {this.renderChannels()}
-        </select>
-      </div>
+      <HBox marginLeft='20px'>
+        <HBox marginRight='10px'>{this._('Display Assessment as Rendered in:')}</HBox>
+        <HBox>
+          <select
+            value={this.state.currentChannel}
+            onChange={this.onChange.bind(this)}>
+            {this.renderChannels()}
+          </select>
+        </HBox>
+      </HBox>
     );
   }
-});
-
-
-module.exports = ChannelChooser;
+}
 

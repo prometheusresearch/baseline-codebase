@@ -1,32 +1,30 @@
 /**
  * Copyright (c) 2015, Prometheus Research, LLC
- *
- * @jsx React.DOM
  */
 
-'use strict';
+import React from 'react';
+import ReactDOM from 'react-dom';
 
-var $ = require('jquery');
-global.jQuery = global.$ = $;
-var React = require('react/addons');
+import {Provider} from 'rex-i18n';
 
-var RexI18N = require('rex-i18n');
-var FormPreviewer = require('./FormPreviewer');
+import FormPreviewer from './FormPreviewer';
+
+import './index.css';
 
 
-function makeRenderWrapper(component) {
+function makeRenderWrapper(Component) {
   return function (options) {
-    var element = options.element;
+    let element = options.element;
     delete options.element;
 
-    var comp = React.renderComponent(
-      component(options),
+    return ReactDOM.render(
+      <Provider
+        locale={options.locale}
+        baseUrl={options.i18nBaseUrl}>
+        <Component {...options} />
+      </Provider>,
       element
     );
-
-    RexI18N.onLoad(options.locale || 'en', function () {
-      comp.forceUpdate();
-    });
   };
 }
 

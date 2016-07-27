@@ -1,6 +1,6 @@
 {
   "name": "rex-form-previewer",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "JavaScript and CSS for the Form Previewer application",
   "author": "Prometheus Research, LLC",
   "license": "AGPL-3.0",
@@ -9,23 +9,23 @@
     "url": "https://bitbucket.org/rexdb/rex.form_previewer"
   },
   "main": "lib/index.js",
-  "rex": {
-    "loaders": [
-      {"test": "**/*.js", "loader": "jsx-loader?harmony"}
-    ],
-    "dependencies": {
-    }
-  },
+  "rex": {},
   "peerDependencies": {
-    "jquery": "^2",
-    "bootstrap": "^3.1",
-    "react": "^0.10.0",
-    "envify": "~1.2.0"
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0"
   },
   "dependencies": {
-    "spin.js": "2.0.1",
-    "react-forms": "0.5.6",
-    "jsx-loader": "0.11.0"
+    "@prometheusresearch/react-ui": "^0.16.5",
+    "react-forms": "2.0.0-beta32"
+  },
+  "devDependencies": {
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0",
+    "eslint": "^2.10.2",
+    "eslint-config-prometheusresearch": "^0.2.0"
+  },
+  "eslintConfig": {
+    "extends": "prometheusresearch"
   }
 }
 

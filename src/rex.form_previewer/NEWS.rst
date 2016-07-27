@@ -5,6 +5,12 @@ REX.FORM_PREVIEWER Change Log
 .. contents:: Table of Contents
 
 
+0.9.0 (2016-xx-xx)
+==================
+
+* Upgraded to the new React components in rex.forms.
+
+
 0.8.0 (2016-04-22)
 ==================
 

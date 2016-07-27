@@ -2,40 +2,32 @@
 
 {% block content %}
 
-<div id="form-container" />
+<div id="form-container"></div>
 
 <script type="text/javascript">
     var INSTRUMENT = {{ instrument_version.definition|json }};
-    var INSTRUMENT_ID = {{ instrument_version.uid|json }};
-    var CATEGORY = {{ category|json }};
     var FORMS = {{ forms|json }};
+    var I18N_URL = '{{ MOUNT['rex.i18n'] }}';
     var LOCALE = '{{ CURRENT_LOCALE }}';
     var AVAILABLE_LOCALES = {{ SUPPORTED_LOCALES|list|json }};
     var CHANNELS = {{ channels|json }};
     var INITIAL_CHANNEL = {{ initial_channel|json }};
-    var RETURN_URL = {{ return_url|json }};
     var RESOURCE_PREFIX = {{ SETTINGS.forms_local_resource_prefix|json }};
-    var COMPLETE_URL = '{{ MOUNT['rex.form_previewer'] }}/complete';
     var LOOKUP_URL = '{{ MOUNT['rex.forms'] }}/lookup';
     var CALC_URL = {% if instrument_version.calculation_set %}'{{ MOUNT['rex.form_previewer'] }}/calculate/{{ category }}/{{ instrument_version.uid }}'{% else %}null{% endif %};
 
-    $(function () {
-        Rex.FormPreviewer.renderForm({
-            element: document.getElementById('form-container'),
-            instrument: INSTRUMENT,
-            forms: FORMS,
-            locale: LOCALE,
-            availableLocales: AVAILABLE_LOCALES,
-            channels: CHANNELS,
-            initialChannel: INITIAL_CHANNEL,
-            returnUrl: RETURN_URL,
-            completeUrl: COMPLETE_URL,
-            instrumentId: INSTRUMENT_ID,
-            category: CATEGORY,
-            localResourcePrefix: RESOURCE_PREFIX,
-            lookupApiPrefix: LOOKUP_URL,
-            calculationApiPrefix: CALC_URL
-        });
+    Rex.FormPreviewer.renderForm({
+        element: document.getElementById('form-container'),
+        instrument: INSTRUMENT,
+        forms: FORMS,
+        i18nBaseUrl: I18N_URL,
+        locale: LOCALE,
+        availableLocales: AVAILABLE_LOCALES,
+        channels: CHANNELS,
+        initialChannel: INITIAL_CHANNEL,
+        localResourcePrefix: RESOURCE_PREFIX,
+        lookupApiPrefix: LOOKUP_URL,
+        calculationApiPrefix: CALC_URL
     });
 </script>
 

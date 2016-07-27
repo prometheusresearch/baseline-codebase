@@ -132,13 +132,11 @@ export default class Action extends React.Component {
     return (
       <HBox flex={1}>
         <VBox flex={1} direction="column-reverse">
-          <HBox flex={1}>
-            {noContentWrapper ?
-              children :
-              <ContentContainer mode="sticky" footer={footer}>
-                <Content style={contentStyle}>{children}</Content>
-              </ContentContainer>}
-          </HBox>
+          {noContentWrapper ?
+            children :
+            <ContentContainer mode="sticky" footer={footer}>
+              <Content style={contentStyle}>{children}</Content>
+            </ContentContainer>}
           {!noHeader &&
             <Header>
               <HBox>

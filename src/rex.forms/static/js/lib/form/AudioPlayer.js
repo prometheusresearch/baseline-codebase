@@ -26,6 +26,20 @@ export default class AudioPlayer extends React.Component {
       source = this.props.source[this.context.defaultLocalization];
     }
 
+    if (this.context.apiUrls.resourcePrefix) {
+      let prefix = this.context.apiUrls.resourcePrefix;
+      if (prefix.endsWith('/')) {
+        prefix = prefix.slice(0, -1);
+      }
+
+      source = source.map((src) => {
+        if (src.startsWith('/')) {
+          src = prefix + src;
+        }
+        return src;
+      })
+    }
+
     return (
       <AudioPlayerBase
         {...this.props}

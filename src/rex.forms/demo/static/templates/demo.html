@@ -9,6 +9,7 @@
             recons: {{ recons|json }},
             mountPoint: {{ MOUNT['rex.forms_demo']|json }},
             apiUrls: {
+                resourcePrefix: '{{ MOUNT['rex.forms_demo'] }}/media',
                 lookup: '{{ MOUNT['rex.forms'] }}/lookup',
                 calculation: '{{ MOUNT['rex.forms_demo'] }}/demo/{{ demo.id }}/calculate'
             },

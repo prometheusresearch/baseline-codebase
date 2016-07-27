@@ -13,8 +13,8 @@ pages:
         options:
           source:
             en:
-              - ../doctor_who.ogg
-              - ../doctor_who.mp3
+              - /doctor_who.ogg
+              - /doctor_who.mp3
       - type: question
         options:
           fieldId: q1
@@ -22,8 +22,8 @@ pages:
             en: Questions can also have audio associated with them.
           audio:
             en:
-              - ../doctor_who.ogg
-              - ../doctor_who.mp3
+              - /doctor_who.ogg
+              - /doctor_who.mp3
       - type: question
         options:
           fieldId: q2
@@ -35,8 +35,8 @@ pages:
                 en: Red
               audio:
                 en:
-                  - ../doctor_who.ogg
-                  - ../doctor_who.mp3
+                  - /doctor_who.ogg
+                  - /doctor_who.mp3
             - id: blue
               text:
                 en: Blue
@@ -47,8 +47,8 @@ pages:
                 en: Some help text.
               audio:
                 en:
-                  - ../doctor_who.ogg
-                  - ../doctor_who.mp3
+                  - /doctor_who.ogg
+                  - /doctor_who.mp3
       - type: question
         options:
           fieldId: q3
@@ -60,8 +60,8 @@ pages:
                 en: First Row
               audio:
                 en:
-                  - ../doctor_who.ogg
-                  - ../doctor_who.mp3
+                  - /doctor_who.ogg
+                  - /doctor_who.mp3
             - id: row2
               text:
                 en: Second Row
@@ -74,6 +74,6 @@ pages:
                 en: Second Question
               audio:
                 en:
-                  - ../doctor_who.ogg
-                  - ../doctor_who.mp3
+                  - /doctor_who.ogg
+                  - /doctor_who.mp3
 

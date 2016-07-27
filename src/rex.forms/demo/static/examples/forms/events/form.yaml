@@ -92,8 +92,8 @@ pages:
         options:
           source:
             en:
-              - ../doctor_who.ogg
-              - ../doctor_who.mp3
+              - /doctor_who.ogg
+              - /doctor_who.mp3
         tags:
           - group1
       - type: question

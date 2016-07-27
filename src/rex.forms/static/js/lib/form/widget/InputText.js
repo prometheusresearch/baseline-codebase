@@ -5,7 +5,7 @@
 import * as React from 'react';
 import * as ReactForms from 'react-forms/reactive';
 import * as ReactUI from '@prometheusresearch/react-ui';
-import * as HotKey from './Hotkey';
+import * as HotKey from './HotKey';
 
 import Widget from '../Widget';
 

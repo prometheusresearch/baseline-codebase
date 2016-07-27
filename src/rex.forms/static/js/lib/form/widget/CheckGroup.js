@@ -12,7 +12,7 @@ import Widget from '../Widget';
 import * as FormContext  from '../FormContext';
 import OptionLabel from '../OptionLabel';
 import Help from '../Help';
-import * as Hotkey from './Hotkey';
+import * as Hotkey from './HotKey';
 
 let valueStrategy = {
   ...primitiveValueStrategy,

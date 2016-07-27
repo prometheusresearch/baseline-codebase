@@ -102,7 +102,7 @@ instances of those classes or strings containing UIDs::
     >>> form.channel
     DemoChannel(u'survey', u'RexSurvey', u'form')
     >>> form.instrument_version
-    DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1)
+    DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L)
 
 
 The configuration can be passed to the contructor as either a JSON/YAML-encoded
@@ -157,16 +157,16 @@ given a Task and Channel::
     >>> task = Task.get_implementation().get_by_uid('task1')
 
     >>> Form.get_implementation().get_for_task('task1', 'entry')
-    DemoForm(u'simple1entry', DemoChannel(u'entry', u'RexEntry', u'form'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+    DemoForm(u'simple1entry', DemoChannel(u'entry', u'RexEntry', u'form'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
 
     >>> Form.get_implementation().get_for_task(task, 'entry')
-    DemoForm(u'simple1entry', DemoChannel(u'entry', u'RexEntry', u'form'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+    DemoForm(u'simple1entry', DemoChannel(u'entry', u'RexEntry', u'form'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
 
     >>> Form.get_implementation().get_for_task('task1', channel)
-    DemoForm(u'simple1entry', DemoChannel(u'entry', u'RexEntry', u'form'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+    DemoForm(u'simple1entry', DemoChannel(u'entry', u'RexEntry', u'form'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
 
     >>> Form.get_implementation().get_for_task(task, channel)
-    DemoForm(u'simple1entry', DemoChannel(u'entry', u'RexEntry', u'form'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+    DemoForm(u'simple1entry', DemoChannel(u'entry', u'RexEntry', u'form'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
 
     >>> Form.get_implementation().get_for_task('task5', 'entry') is None
     True

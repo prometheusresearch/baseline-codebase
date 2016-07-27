@@ -110,7 +110,7 @@ actually be instances of those classes or strings containing UIDs::
     {'version': '1.1', 'id': 'urn:test-instrument'}
     >>> form = df.publish(iv)
     >>> form
-    DemoForm(u'fake_form_1', DemoChannel(u'survey', u'RexSurvey', u'form'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+    DemoForm(u'fake_form_1', DemoChannel(u'survey', u'RexSurvey', u'form'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
     >>> form.configuration['instrument']
     {'version': '1.3', 'id': 'urn:test-instrument'}
 

@@ -17,7 +17,7 @@ setup(
         'rex.core',
         'rex.db',
         'rex.ctl',
-        'rex.deploy',
+        'rex.deploy>=2.7,<3',
         'rex.web',
         'rex.forms',
         'rex.i18n',

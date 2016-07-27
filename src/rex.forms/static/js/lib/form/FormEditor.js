@@ -13,6 +13,7 @@ import {InjectI18N} from 'rex-i18n';
 import CalculationResults from './CalculationResults';
 import FormEntry from './FormEntry';
 import {post} from '../fetch';
+import getLocalizedString from '../getLocalizedString';
 
 
 @InjectI18N
@@ -228,15 +229,11 @@ export default class FormEditor extends React.Component {
 
     let title = formProps.instrument.title;
     if (formProps.form.title) {
-      let locale = this.getI18N().config.locale;
-      let baseLanguage = this.getI18N().getLanguage();
-      if (formProps.form.title[locale]) {
-        title = formProps.form.title[locale];
-      } else if (formProps.form.title[baseLanguage]) {
-        title = formProps.form.title[baseLanguage];
-      } else {
-        title = formProps.form.title[formProps.form.defaultLocalization];
-      }
+      title = getLocalizedString(
+        formProps.form.title,
+        this.getI18N(),
+        formProps.form.defaultLocalization,
+      );
     }
 
     if (this.state.mode === 'EDIT') {

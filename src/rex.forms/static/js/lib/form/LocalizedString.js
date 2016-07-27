@@ -8,6 +8,7 @@ import {InjectI18N} from 'rex-i18n';
 
 import * as FormContext from './FormContext';
 import isReactElement from '../isReactElement';
+import getLocalizedString from '../getLocalizedString';
 
 
 @InjectI18N
@@ -28,24 +29,16 @@ export default class LocalizedString extends React.Component {
 
   render() {
     let {Component, text, ...props} = this.props;
-    let locale = this.getI18N().config.locale;
-    let baseLanguage = this.getI18N().getLanguage();
 
     let localizedText;
-    if (!text) {
-      localizedText = '';
-
-    } else if ((typeof text === 'string') || isReactElement(text) || (text instanceof String)) {
+    if (isReactElement(text)) {
       localizedText = text;
-
-    } else if (text[locale]) {
-      localizedText = text[locale];
-
-    } else if (text[baseLanguage]) {
-      localizedText = text[baseLanguage];
-
     } else {
-      localizedText = text[this.context.defaultLocalization];
+      localizedText = getLocalizedString(
+        text,
+        this.getI18N(),
+        this.context.defaultLocalization,
+      );
     }
 
     return (

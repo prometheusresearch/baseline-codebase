@@ -13,7 +13,8 @@ import {InjectI18N} from 'rex-i18n';
 import * as FormContext from '../FormContext';
 import parseBoolean from '../../parseBoolean';
 import Widget from '../Widget';
-import LocalizedString from '../LocalizedString';
+import getLocalizedString from '../../getLocalizedString';
+
 
 @InjectI18N
 @ReactForms.reactive
@@ -39,8 +40,11 @@ export default class DropDown extends React.Component {
       if (enumerations) {
         options = map(enumerations, enumeration => ({
           value: enumeration.id,
-          label: <LocalizedString text={enumeration.text} />,
-          hint: <LocalizedString text={enumeration.help} />,
+          label: getLocalizedString(
+            enumeration.text,
+            this.getI18N(),
+            this.context.defaultLocalization,
+          ),
         }));
       } else {
         options = map(type.enumerations, (enumeration, value) => ({

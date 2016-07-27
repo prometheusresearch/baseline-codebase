@@ -65,9 +65,11 @@ export default class Provider extends React.Component {
     if (this.props.onLoad) {
       this.props.onLoad(i18n);
     }
-    this.setState({
-      key: makeKey(i18n)
-    });
+    if (this._mounted) {
+      this.setState({
+        key: makeKey(i18n)
+      });
+    }
   }
 
   componentDidMount() {

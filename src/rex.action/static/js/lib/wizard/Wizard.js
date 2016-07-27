@@ -34,6 +34,7 @@ export default class Wizard extends React.Component {
     renderTopSidebarItem: emptyFunction,
     createHistory,
     settings: {},
+    pathPrefix: '',
   };
 
   static stylesheet = Stylesheet.create({
@@ -53,14 +54,20 @@ export default class Wizard extends React.Component {
 
   constructor(props) {
     super(props);
-    let {path, actions, initialContext, createHistory} = props;
+    let {path, pathPrefix, actions, initialContext, createHistory} = props;
     this._initialContext = initialContext;
     this._history = createHistory();
     this._historyStopListen = null;
 
     let location = null;
     this._history.listen(loc => location = loc)();
-    let graph = GraphPath.fromPath(location.pathname, path, actions, this._initialContext);
+    let pathname = normalizePathname(location.pathname, pathPrefix);
+    let graph = GraphPath.fromPath(
+      pathname,
+      path,
+      actions,
+      this._initialContext
+    );
     this.state = {graph};
   }
 
@@ -116,9 +123,9 @@ export default class Wizard extends React.Component {
     if (prevState.graph !== this.state.graph) {
       let path = GraphPath.toPath(this.state.graph);
       if (path === GraphPath.toPath(prevState.graph)) {
-        this._history.replaceState(null, path);
+        this._history.replaceState(null, this.props.pathPrefix + path);
       } else {
-        this._history.pushState(null, path);
+        this._history.pushState(null, this.props.pathPrefix + path);
       }
     }
   }
@@ -172,16 +179,29 @@ export default class Wizard extends React.Component {
     if (location.action !== 'POP') {
       return;
     }
+
+    let {pathPrefix} = this.props;
     let path = GraphPath.toPath(this.state.graph);
-    if (path === (isFirefox() ? decodeURIComponent(location.pathname) : location.pathname)) {
+
+    let pathname = location.pathname;
+
+    if (isFirefox()) {
+      pathname = decodeURIComponent(pathname);
+    }
+
+    pathname = normalizePathname(pathname, pathPrefix);
+
+    if (path === pathname) {
       return;
     }
+
     let graph = GraphPath.fromPath(
-      location.pathname,
+      pathname,
       this.props.path,
       this.props.actions,
       this._initialContext
     );
+
     this.setState({graph});
   }
 
@@ -267,4 +287,12 @@ export default class Wizard extends React.Component {
     }
   }
 
+}
+
+
+function normalizePathname(pathname, prefix = '') {
+  if (prefix && prefix === pathname.slice(0, prefix.length)) {
+    pathname = pathname.slice(prefix.length);
+  }
+  return pathname;
 }

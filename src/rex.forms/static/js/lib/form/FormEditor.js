@@ -16,10 +16,38 @@ import {post} from '../fetch';
 import getLocalizedString from '../getLocalizedString';
 
 
+let FormSubTitle = function ({children, ...props}) {
+  return (
+    <ReactUI.Block
+      marginStart='3ch'
+      style={{
+        marginBottom: '0.6em',
+        opacity: '0.5',
+        fontSize: '1.5em',
+        fontWeight: 'bold',
+      }}
+      {...props}>
+      {children}
+    </ReactUI.Block>
+  );
+};
+
+
 @InjectI18N
 export default class FormEditor extends React.Component {
   static propTypes = {
     ...FormEntry.propTypes,
+
+    /**
+     * The title to display over the form. If not specified, defaults to the
+     * title found in the Form or Instrument configuration.
+     */
+    title: React.PropTypes.string,
+
+    /**
+     * The subtitle to display over the form.
+     */
+    subtitle: React.PropTypes.string,
 
     /**
      * Whether or not to enable the calculation preview functionality. Defaults
@@ -79,6 +107,7 @@ export default class FormEditor extends React.Component {
       }
     }),
     FormTitle: 'h1',
+    FormSubTitle,
     CommandContainer: style('div', {
       textAlign: 'center'
     }),
@@ -215,6 +244,7 @@ export default class FormEditor extends React.Component {
     let {
       Root,
       FormTitle,
+      FormSubTitle,
       CommandContainer,
       ReviewCommand,
       EditCommand,
@@ -224,16 +254,22 @@ export default class FormEditor extends React.Component {
     } = this.constructor.stylesheet;
     let {
       showCalculations,
+      title,
+      subtitle,
       ...formProps
     } = this.props;
 
-    let title = formProps.instrument.title;
-    if (formProps.form.title) {
-      title = getLocalizedString(
-        formProps.form.title,
-        this.getI18N(),
-        formProps.form.defaultLocalization,
-      );
+
+    if (!title) {
+      if (formProps.form.title) {
+        title = getLocalizedString(
+          formProps.form.title,
+          this.getI18N(),
+          formProps.form.defaultLocalization,
+        );
+      } else {
+        title = formProps.instrument.title;
+      }
     }
 
     if (this.state.mode === 'EDIT') {
@@ -264,47 +300,52 @@ export default class FormEditor extends React.Component {
     let showComplete = this.state.mode === 'REVIEW';
 
     return (
-      <Root variant={{saving: currentlySaving}}>
-        <FormTitle>{title}</FormTitle>
-        {showResults &&
-          <Calculations
-            results={this.state.calculationResults}
-            onClose={this.onCloseCalculations}
+      <ReactUI.I18N.I18N dir={this.getI18N().isRightToLeft() ? 'rtl' : 'ltr'}>
+        <Root variant={{saving: currentlySaving}}>
+          <FormTitle>{title}</FormTitle>
+          {subtitle &&
+            <FormSubTitle>{subtitle}</FormSubTitle>
+          }
+          {showResults &&
+            <Calculations
+              results={this.state.calculationResults}
+              onClose={this.onCloseCalculations}
+              />
+          }
+          <FormEntry
+            {...formProps}
+            ref={this.onFormMount}
             />
-        }
-        <FormEntry
-          {...formProps}
-          ref={this.onFormMount}
-          />
-        <CommandContainer>
-          {showReview &&
-            <ReviewCommand disabled={!formIsValid || currentlySaving} onClick={this.onReview}>
-              {currentlySaving ?
-                this._('Saving Your Progress, Please Wait...') :
-                this._('Review Submission')
-              }
-            </ReviewCommand>
-          }
-          {showEdit &&
-            <EditCommand onClick={this.onEdit}>
-              {this._('Go Back to the Form')}
-            </EditCommand>
-          }
-          {showComplete &&
-            <CompleteCommand disabled={currentlySaving} onClick={this.onComplete}>
-              {currentlySaving ?
-                this._('Saving Your Progress, Please Wait...') :
-                this._('Complete Form')
-              }
-            </CompleteCommand>
-          }
-          {showCalculate &&
-            <CalculateCommand disabled={!formIsValid} onClick={this.onCalculate}>
-              {this._('Preview Calculation Results')}
-            </CalculateCommand>
-          }
-        </CommandContainer>
-      </Root>
+          <CommandContainer>
+            {showReview &&
+              <ReviewCommand disabled={!formIsValid || currentlySaving} onClick={this.onReview}>
+                {currentlySaving ?
+                  this._('Saving Your Progress, Please Wait...') :
+                  this._('Review Submission')
+                }
+              </ReviewCommand>
+            }
+            {showEdit &&
+              <EditCommand onClick={this.onEdit}>
+                {this._('Go Back to the Form')}
+              </EditCommand>
+            }
+            {showComplete &&
+              <CompleteCommand disabled={currentlySaving} onClick={this.onComplete}>
+                {currentlySaving ?
+                  this._('Saving Your Progress, Please Wait...') :
+                  this._('Complete Form')
+                }
+              </CompleteCommand>
+            }
+            {showCalculate &&
+              <CalculateCommand disabled={!formIsValid} onClick={this.onCalculate}>
+                {this._('Preview Calculation Results')}
+              </CalculateCommand>
+            }
+          </CommandContainer>
+        </Root>
+      </ReactUI.I18N.I18N>
     );
   }
 }

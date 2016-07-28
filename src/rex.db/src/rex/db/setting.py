@@ -4,8 +4,8 @@
 
 
 from rex.core import (
-        Setting, Error, Validate, UIntVal, StrVal, MaybeVal, MapVal, UnionVal,
-        OnScalar, OnField)
+        Setting, Error, Validate, BoolVal, UIntVal, StrVal, MaybeVal, MapVal,
+        UnionVal, OnScalar, OnField)
 from htsql.core.util import DB
 
 
@@ -227,5 +227,22 @@ class QueryTimeoutSetting(Setting):
     name = 'query_timeout'
     validate = MaybeVal(UIntVal())
     default = None
+
+
+class ReadOnlySetting(Setting):
+    """
+    Sets the application database in read-only mode.
+
+    This parameter prevents the application from modifying the database
+    when it handles incoming HTTP requests.
+
+    Example::
+
+        read_only: true
+    """
+
+    name = 'read_only'
+    validate = BoolVal()
+    default = False
 
 

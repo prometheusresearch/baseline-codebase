@@ -46,6 +46,7 @@ Configuration
 .. autoclass:: AccessQueriesSetting
 .. autoclass:: AccessMasksSetting
 .. autoclass:: HTSQLEnvironmentSetting
+.. autoclass:: ReadOnlySetting
 
 
 Utilities

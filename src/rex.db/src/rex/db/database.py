@@ -172,11 +172,16 @@ class PipeTransaction(Pipe):
     before = 'routing'
 
     def __call__(self, req):
+        settings = get_settings()
         user = lambda authenticate=authenticate, req=req: authenticate(req)
         masks = [lambda mask_type=mask_type, req=req: mask_type()(req)
                  for mask_type in Mask.all()]
         with get_db(), session(user), mask(*masks), transaction(is_lazy=True):
-            return self.handle(req)
+            if settings.read_only:
+                with context.env(can_write=False):
+                    return self.handle(req)
+            else:
+                return self.handle(req)
 
 
 class Mask(Extension):

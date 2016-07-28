@@ -10,7 +10,7 @@ This package provides database access to RexDB applications.
 
 from .setting import (
         DBVal, HTSQLVal, DBSetting, GatewaysSetting, HTSQLExtensionsSetting,
-        QueryTimeoutSetting)
+        QueryTimeoutSetting, ReadOnlySetting)
 from .handle import jinja_global_htsql, Query
 from .database import RexHTSQL, Mask, get_db
 from .auth import (

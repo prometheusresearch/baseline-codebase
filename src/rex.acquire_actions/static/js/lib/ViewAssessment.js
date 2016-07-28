@@ -110,6 +110,9 @@ export default class ViewAssessment extends React.Component {
           form={form}
           assessment={assessment}
           parameters={parameters}
+          apiUrls={{
+            resourcePrefix: this.props.resourcePrefixUrl,
+          }}
           />
         {hasResults &&
           <CalculationResults

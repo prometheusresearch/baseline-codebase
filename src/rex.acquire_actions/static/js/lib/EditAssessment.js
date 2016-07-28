@@ -147,6 +147,7 @@ export default class ViewAssessment extends React.Component {
           onComplete={this.onFormComplete}
           showCalculations={this.props.showCalculations}
           apiUrls={{
+            resourcePrefix: this.props.resourcePrefixUrl,
             lookup: this.props.lookupApiUrl,
             calculation: `${this.props.calculationsApiUrl}/${assessment_id}`,
           }}

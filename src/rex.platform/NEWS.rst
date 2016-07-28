@@ -5,6 +5,19 @@
 .. contents:: Table of Contents
 
 
+5.4.0 (2016-xx-xx)
+==================
+
+* rex.action==1.3.0
+* rex.deploy==2.7.0
+* rex.forms==2.0.0
+* rex.i18n==0.5.0
+* rex.instrument==1.6.1
+* rex.setup==3.2.0
+* rex.widget==2.8.0
+* rex.widget_chrome==1.2.1
+
+
 5.3.0 (2016-07-15)
 ==================
 
@@ -18,7 +31,6 @@
 * rex.widget==2.7.0
 * rex.widget_chrome==1.2.0
 * rex.dbgui==4.0.0
-
 
 
 5.2.0 (2016-06-01)

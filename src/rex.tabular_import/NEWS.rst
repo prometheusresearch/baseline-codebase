@@ -5,6 +5,12 @@ REX.TABULAR_IMPORT Change Log
 .. contents:: Table of Contents
 
 
+0.2.1 (2016-xx-xx)
+==================
+
+- Fixed a crash that occurred when reporting particular types of errors.
+
+
 0.2.0 (2015-11-20)
 ==================
 

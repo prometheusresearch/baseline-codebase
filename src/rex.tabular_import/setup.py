@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.tabular_import',
-    version='0.2.0',
+    version='0.2.1',
     description='A tool for importing flat datafiles into RexDB tables.',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',

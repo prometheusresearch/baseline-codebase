@@ -19,8 +19,11 @@ let StyledInput = style(BaseInput, {
 
 class Input extends React.Component {
   render() {
-    return <StyledInput {...this.props} debounce={0} />;
+    return <StyledInput {...this.props} debounce={0} onChange={this.onChange} />;
   }
+
+  onChange = (value) =>
+    this.props.onChange({target: {value: value || ''}});
 }
 
 export default style(DateTimePicker, {

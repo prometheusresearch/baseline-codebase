@@ -287,6 +287,8 @@ export default class FormEditor extends React.Component {
         previousOnChange(formState);
         this.onFormChange(formState);
       };
+    } else {
+      formProps.onChange = this.onFormChange;
     }
 
     let formIsValid = this.state.formIsValid;

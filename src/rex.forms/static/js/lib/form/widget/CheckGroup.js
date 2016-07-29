@@ -5,6 +5,7 @@
 import * as React from 'react';
 import * as ReactForms from 'react-forms/reactive';
 import * as ReactUI from '@prometheusresearch/react-ui';
+import {style} from '@prometheusresearch/react-ui/stylesheet';
 import {primitiveValueStrategy} from '@prometheusresearch/react-ui/lib/CheckboxGroupBase';
 import {map} from 'lodash';
 
@@ -13,6 +14,21 @@ import * as FormContext  from '../FormContext';
 import OptionLabel from '../OptionLabel';
 import Help from '../Help';
 import * as Hotkey from './HotKey';
+
+
+let CheckboxInput = style(ReactUI.Checkbox, {
+  Label: {
+    fontSize: null,
+    disabled: {
+      color: '#aaa'
+    }
+  }
+});
+
+let CheckboxGroupInput = style(ReactUI.CheckboxGroup, {
+  Checkbox: props => <CheckboxInput {...props} />
+});
+
 
 let valueStrategy = {
   ...primitiveValueStrategy,
@@ -25,6 +41,7 @@ let valueStrategy = {
     return nextValue;
   }
 };
+
 
 @ReactForms.reactive
 export default class CheckGroup extends React.Component {
@@ -99,7 +116,7 @@ export default class CheckGroup extends React.Component {
         onCancelEdit={onCancelEdit}>
         <Hotkey.HotkeyHandler keys={keys} onKey={this.onKey}>
           <Widget {...props} formValue={formValue} padding="x-small">
-            <ReactUI.CheckboxGroup
+            <CheckboxGroupInput
               layout={orientation}
               valueStrategy={valueStrategy}
               options={options}

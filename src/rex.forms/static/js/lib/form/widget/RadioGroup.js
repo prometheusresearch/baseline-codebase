@@ -23,6 +23,7 @@ import * as Hotkey from './HotKey';
 
 let RadioInput = style(ReactUI.Radio, {
   Label: {
+    fontSize: null,
     disabled: {
       color: '#aaa'
     }

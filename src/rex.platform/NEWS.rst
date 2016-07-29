@@ -17,6 +17,7 @@
 * rex.menu==1.0.1
 * rex.port==1.3.0
 * rex.setup==3.2.0
+* rex.web==3.7.1
 * rex.widget==2.8.0
 * rex.widget_chrome==1.2.1
 

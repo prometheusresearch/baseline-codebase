@@ -30,9 +30,7 @@ export default class DiscrepancyChoices extends React.Component {
   }
 
   onManualOverride = (manualOverride) => {
-    if (!manualOverride) {
-      this.props.formValue.update(undefined);
-    }
+    this.props.formValue.update(manualOverride ? null : undefined);
     this.setState({manualOverride});
   };
 

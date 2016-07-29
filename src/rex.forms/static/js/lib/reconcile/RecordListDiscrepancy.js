@@ -5,6 +5,8 @@
 import * as React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
+import {inject} from 'rex-i18n';
+
 import map from 'lodash/map';
 
 import {isCompleteComposite} from './Discrepancy';
@@ -23,14 +25,18 @@ export default class RecordListDiscrepancy extends React.Component {
     if (position) {
       subtitle = <PositionDescription {...position} />;
     }
-    let records = map(discrepancy, (discrepancy, idx) =>
-      <RecordListItemDiscrepancy
-        entries={entries}
-        key={idx}
-        discrepancy={discrepancy}
-        formValue={formValue.select(parseInt(idx, 10))}
-        />
-    );
+    let records = map(discrepancy, (discrepancy, idx) => {
+      let recordId = parseInt(idx, 10);
+      return (
+        <RecordListRecordDiscrepancy
+          id={recordId}
+          entries={entries}
+          key={idx}
+          discrepancy={discrepancy}
+          formValue={formValue.select(recordId)}
+          />
+      );
+    });
     let header = (
       <DiscrepancyTitle
         complete={complete}
@@ -41,7 +47,10 @@ export default class RecordListDiscrepancy extends React.Component {
     );
     return (
       <ReactUI.Card header={header} marginBottom="medium" variant={{success: complete}}>
-        <ReactUI.Block padding="small">
+        <ReactUI.Block
+          paddingTop="x-small"
+          paddingStart="x-small"
+          paddingEnd="x-small">
           {records}
         </ReactUI.Block>
       </ReactUI.Card>
@@ -49,9 +58,9 @@ export default class RecordListDiscrepancy extends React.Component {
   }
 }
 
-function RecordListItemDiscrepancy({formValue, discrepancy, entries}) {
+let RecordListRecordDiscrepancy = inject(function ({formValue, id, discrepancy, entries}) {
   let records = map(discrepancy, (discrepancy, fieldId) =>
-    <RecordListItemRecordDiscrepancy
+    <RecordListItemDiscrepancy
       entries={entries}
       key={fieldId}
       formValue={formValue.select(fieldId)}
@@ -59,13 +68,20 @@ function RecordListItemDiscrepancy({formValue, discrepancy, entries}) {
       />
   );
   return (
-    <ReactUI.Block>
-      {records}
-    </ReactUI.Block>
+    <ReactUI.Card
+      header={this._('Record %(recordId)s', {recordId: id + 1})}
+      marginBottom="medium">
+      <ReactUI.Block
+        paddingTop="x-small"
+        paddingStart="x-small"
+        paddingEnd="x-small">
+        {records}
+      </ReactUI.Block>
+    </ReactUI.Card>
   );
-}
+});
 
-function RecordListItemRecordDiscrepancy({entries, formValue, discrepancy}) {
+function RecordListItemDiscrepancy({entries, formValue, discrepancy}) {
   let {schema} = formValue;
   let {form: {question}, instrument} = schema;
   let header = (
@@ -75,7 +91,7 @@ function RecordListItemRecordDiscrepancy({entries, formValue, discrepancy}) {
       />
   );
   return (
-    <ReactUI.Card header={header} marginBottom="medium">
+    <ReactUI.Card header={header} marginBottom="small">
       <ReactUI.Block padding="small">
         <DiscrepancyChoices
           discrepancy={discrepancy}

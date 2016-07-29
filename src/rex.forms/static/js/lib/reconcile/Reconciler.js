@@ -99,7 +99,7 @@ export default class Reconciler extends React.Component {
             entries={entries}
             formValue={formValue}
             />
-          <ReactUI.Block textAlign='center'>
+          <ReactUI.Block textAlign="center">
             <ReactUI.SuccessButton
               disabled={!isComplete(formValue, discrepancies)}
               onClick={this.onComplete}>

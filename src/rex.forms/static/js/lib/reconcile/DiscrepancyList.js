@@ -3,7 +3,6 @@
  */
 
 import * as React from 'react';
-import map from 'lodash/map';
 
 import SimpleDiscrepancy from './SimpleDiscrepancy';
 import RecordListDiscrepancy from './RecordListDiscrepancy';
@@ -21,7 +20,7 @@ export default class DiscrepancyList extends React.Component {
     let {formValue, entries} = this.props;
     let discrepancies = [];
 
-    traverseQuestions(this.context.form, (question, page, deep) => {
+    traverseQuestions(this.context.form, (question) => {
       let {fieldId} = question;
 
       if (!formValue.schema.properties[fieldId]) {
@@ -40,6 +39,7 @@ export default class DiscrepancyList extends React.Component {
               formValue={subFormValue}
               />
           );
+          break;
         case 'matrix':
           discrepancies.push(
             <MatrixDiscrepancy
@@ -49,6 +49,7 @@ export default class DiscrepancyList extends React.Component {
               formValue={subFormValue}
               />
           );
+          break;
         default:
           discrepancies.push(
             <SimpleDiscrepancy
@@ -58,6 +59,7 @@ export default class DiscrepancyList extends React.Component {
               formValue={subFormValue}
               />
           );
+          break;
       }
     });
 

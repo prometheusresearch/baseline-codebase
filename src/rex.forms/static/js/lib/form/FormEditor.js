@@ -19,7 +19,7 @@ import getLocalizedString from '../getLocalizedString';
 let FormSubTitle = function ({children, ...props}) {
   return (
     <ReactUI.Block
-      marginStart='3ch'
+      marginStart="3ch"
       style={{
         marginBottom: '0.6em',
         opacity: '0.5',

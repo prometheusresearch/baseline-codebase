@@ -4,7 +4,7 @@
 
 export default function getLocalizedString(lso, i18n, defaultLocale) {
   let locale = i18n.config.locale;
-  let baseLanguage = i18n.getLanguage()
+  let baseLanguage = i18n.getLanguage();
 
   if ((typeof lso === 'string') || (lso instanceof String)) {
     return lso;

@@ -37,7 +37,7 @@ export default class AudioPlayer extends React.Component {
           src = prefix + src;
         }
         return src;
-      })
+      });
     }
 
     return (

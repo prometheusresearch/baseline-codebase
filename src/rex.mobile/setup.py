@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.mobile',
-    version='0.7.0',
+    version='0.7.1',
     description='Class interfaces and framework for using Instrument-based'
     ' SMS Interactions',
     long_description=open('README.rst', 'r').read(),

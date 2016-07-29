@@ -84,7 +84,7 @@ instances of those classes or strings containing UIDs::
     >>> interaction.channel
     DemoChannel(u'survey', u'RexSurvey', u'form')
     >>> interaction.instrument_version
-    DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1)
+    DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L)
 
 
 The configuration can be passed to the contructor as either a JSON/YAML-encoded
@@ -205,16 +205,16 @@ Interaction given a Task and Channel::
     >>> task = Task.get_implementation().get_by_uid('task1')
 
     >>> Interaction.get_implementation().get_for_task('task1', 'mobile')
-    DemoInteraction(u'simple1mobile', DemoChannel(u'mobile', u'RexMobile', u'sms'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+    DemoInteraction(u'simple1mobile', DemoChannel(u'mobile', u'RexMobile', u'sms'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
 
     >>> Interaction.get_implementation().get_for_task(task, 'mobile')
-    DemoInteraction(u'simple1mobile', DemoChannel(u'mobile', u'RexMobile', u'sms'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+    DemoInteraction(u'simple1mobile', DemoChannel(u'mobile', u'RexMobile', u'sms'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
 
     >>> Interaction.get_implementation().get_for_task('task1', channel)
-    DemoInteraction(u'simple1mobile', DemoChannel(u'mobile', u'RexMobile', u'sms'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+    DemoInteraction(u'simple1mobile', DemoChannel(u'mobile', u'RexMobile', u'sms'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
 
     >>> Interaction.get_implementation().get_for_task(task, channel)
-    DemoInteraction(u'simple1mobile', DemoChannel(u'mobile', u'RexMobile', u'sms'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1))
+    DemoInteraction(u'simple1mobile', DemoChannel(u'mobile', u'RexMobile', u'sms'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
 
     >>> Interaction.get_implementation().get_for_task('task5', 'mobile') is None
     True

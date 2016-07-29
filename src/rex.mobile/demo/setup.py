@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.mobile_demo',
-    version='0.7.0',
+    version='0.7.1',
     description='Demo package for testing rex.mobile',
     package_dir={'': 'src'},
     packages=find_packages('src'),
@@ -17,7 +17,7 @@ setup(
         'rex.core',
         'rex.db',
         'rex.ctl',
-        'rex.deploy',
+        'rex.deploy>=2.7,<3',
         'rex.mobile',
         'rex.instrument',
         'rex.instrument_demo',

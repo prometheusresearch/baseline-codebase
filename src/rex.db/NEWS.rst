@@ -9,6 +9,7 @@
 ==================
 
 * Implemented read-only mode.
+* Cache parsed HTSQL expressions.
 
 
 3.5.0 (2016-07-13)

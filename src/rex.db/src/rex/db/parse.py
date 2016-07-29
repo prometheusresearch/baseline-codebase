@@ -42,11 +42,20 @@ with DummyHTSQL():
 
     def parse_htsql(
             text, start=None,
-            scan=prepare_scan(), parse=prepare_parse()):
+            scan=prepare_scan(), parse=prepare_parse(),
+            cache={}, cache_max_size=10000):
         """
         Converts an HTSQL expression to a syntax tree.
         """
-        return parse(scan(decode(text)), start)
+        cache_key = (text, start)
+        try:
+            return cache[cache_key]
+        except KeyError:
+            syntax = parse(scan(decode(text)), start)
+            if len(cache) > cache_max_size:
+                cache.clear()
+            cache[cache_key] = syntax
+            return syntax
 
 
 class SyntaxVal(UStrVal):

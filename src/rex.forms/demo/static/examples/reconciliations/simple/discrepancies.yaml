@@ -7,4 +7,7 @@ bar:
 baz:
   entry1: true
   entry2: false
+blah:
+  entry1: foo
+  entry2: null
 

@@ -19,6 +19,10 @@ export default class Workspace extends React.Component {
     options: {}
   };
 
+  onComplete(reconState) {
+    console.log('complete', reconState);
+  }
+
   render() {
     return (
       <Provider
@@ -30,6 +34,7 @@ export default class Workspace extends React.Component {
           parameters={this.props.recon.parameters}
           discrepancies={this.props.recon.discrepancies}
           entries={this.props.recon.entries}
+          onComplete={this.onComplete}
           />
       </Provider>
     );

@@ -81,10 +81,6 @@ export default class DiscrepancyChoices extends React.Component {
   }
 
   renderValue(value) {
-    if (value === null) {
-      return value;
-    }
-
     if (!Array.isArray(value)) {
       value = [value];
     }
@@ -112,7 +108,7 @@ export default class DiscrepancyChoices extends React.Component {
         return (
           <td key={key}>
             <ReactUI.Block>
-              {value || this._('No value provided.')}
+              {value}
             </ReactUI.Block>
           </td>
         );

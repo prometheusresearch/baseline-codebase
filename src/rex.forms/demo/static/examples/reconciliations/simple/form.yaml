@@ -9,7 +9,7 @@ pages:
         options:
           fieldId: foo
           text:
-            en: This is a Text Question
+            en: This is a required Text Question
       - type: question
         options:
           fieldId: bar
@@ -30,4 +30,9 @@ pages:
           fieldId: baz
           text:
             en: This is a Boolean Question
+      - type: question
+        options:
+          fieldId: blah
+          text:
+            en: This is a non-required text question
 

@@ -84,7 +84,7 @@ export default class FormEntry extends React.Component {
 
     /**
      * The display mode of the form. Can be: entry, review, view. Defaults to
-     * view.
+     * entry.
      */
     mode: React.PropTypes.string,
 

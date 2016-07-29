@@ -10,5 +10,5 @@ REX.FORMS Examples/Tests
     test_ctl
     test_initializer
     test_lookup
-    test_previewcal
+    test_previewcalc
 

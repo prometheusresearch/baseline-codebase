@@ -14,7 +14,7 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     install_requires=[
-        'rex.deploy',
+        'rex.deploy>=2.7,<3',
         'rex.tabular_import',
     ],
     rex_init='rex.tabular_import_demo',

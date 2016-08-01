@@ -7,6 +7,8 @@ from htsql.core.adapter import adapt
 from htsql.core.domain import Domain
 from htsql.core.tr.dump import DumpToDomain, DumpByDomain
 from htsql.core.tr.fn.dump import DumpFunction
+from htsql_pgsql.core.tr.dump import (
+        PGSQLDumpDateIncrement, PGSQLDumpDateDecrement)
 from ..domain import JSONDomain
 from .signature import (
         EscapeIdentitySig, REMatchesSig, FTMatchesSig, FTQueryMatchesSig,
@@ -14,6 +16,16 @@ from .signature import (
         AbsSig, SignSig, CeilSig, FloorSig, DivSig, ModSig, ExpSig, PowSig,
         LnSig, Log10Sig, LogSig, PiSig, ACosSig, ASinSig, ATanSig, ATan2Sig,
         CosSig, CotSig, SinSig, TanSig, RandomSig, JSONGetSig, JSONGetJSONSig)
+
+
+class DeployDumpDateIncrement(PGSQLDumpDateIncrement):
+
+    template = "({lop} + ({rop})::int4)"
+
+
+class DeployDumpDateDecrement(PGSQLDumpDateDecrement):
+
+    template = "({lop} - ({rop})::int4)"
 
 
 class DumpToJSON(DumpToDomain):

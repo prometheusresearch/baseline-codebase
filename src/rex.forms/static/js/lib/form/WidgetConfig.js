@@ -18,7 +18,7 @@ import TimePicker from './widget/TimePicker';
 
 import ViewValue from './widget/ViewValue';
 import ViewBooleanValue from './widget/ViewBooleanValue';
-import ViewListValue from './widget/ViewListValue';
+import ViewEnumerationValue from './widget/ViewEnumerationValue';
 
 export const defaultWidgetComponentConfig = {
   inputText:      InputText,
@@ -53,8 +53,8 @@ export const defaultViewWidgetConfig = {
   float:          ViewValue,
   integer:        ViewValue,
   text:           ViewValue,
-  enumeration:    ViewValue,
-  enumerationSet: ViewListValue,
+  enumeration:    ViewEnumerationValue,
+  enumerationSet: ViewEnumerationValue,
   boolean:        ViewBooleanValue,
   date:           ViewValue,
   time:           ViewValue,

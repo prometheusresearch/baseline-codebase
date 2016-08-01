@@ -35,4 +35,18 @@ pages:
           fieldId: blah
           text:
             en: This is a non-required text question
-
+      - type: question
+        options:
+          fieldId: multi
+          text:
+            en: This is an enumerationSet question
+          enumerations:
+            - id: apple
+              text:
+                en: Apple
+            - id: banana
+              text:
+                en: Banana
+            - id: pear
+              text:
+                en: Pear

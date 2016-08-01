@@ -4,11 +4,12 @@
 
 import * as React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
+import {style} from '@prometheusresearch/react-ui/stylesheet';
 
 import {InjectI18N} from 'rex-i18n';
 
 import QuestionValue from '../form/QuestionValue';
-import QuestionValueResult from '../form/QuestionValueResult';
+import {defaultViewWidgetConfig} from '../form/WidgetConfig';
 import Header from './Header';
 
 
@@ -79,27 +80,31 @@ export default class DiscrepancyChoices extends React.Component {
   }
 
   renderValue(value) {
-    if (!Array.isArray(value)) {
-      value = [value];
-    }
-
-    let {question, formValue} = this.props;
-
-    return value.map((part, idx) => {
-      let active = formValue.value === part;
-      return (
-        <ReactUI.QuietButton
-          key={idx}
-          variant={{active}}
-          onClick={this.updateValue.bind(null, part)}>
-          <QuestionValueResult question={question} value={part} />
-        </ReactUI.QuietButton>
-      );
+    let {question, formValue, instrument} = this.props;
+    let active = formValue.value === value;
+    let Value = style(defaultViewWidgetConfig[instrument.type.base], {
+      Root: ReactUI.Block
     });
+
+    return (
+      <ReactUI.QuietButton
+        variant={{active}}
+        onClick={this.updateValue.bind(null, value)}>
+        <Value
+          question={question}
+          formValue={{value}}
+          noValueText="-"
+          />
+      </ReactUI.QuietButton>
+    );
   }
 
   renderValues(discrepancy) {
-    let {question, formValue: {value}} = this.props;
+    let {question, formValue, instrument} = this.props;
+    let Value = style(defaultViewWidgetConfig[instrument.type.base], {
+      Root: ReactUI.Block
+    });
+
     let values = Object.keys(discrepancy).sort()
       .map((key) => {
         let value = this.renderValue(discrepancy[key]);
@@ -114,13 +119,15 @@ export default class DiscrepancyChoices extends React.Component {
       .concat(
         <td key="_final_value">
           <ReactUI.Block paddingV="x-small" paddingH="small">
-            <QuestionValueResult
+            <Value
               question={question}
-              value={value}
+              formValue={formValue}
+              noValueText="-"
               />
           </ReactUI.Block>
         </td>
       );
+
     return (
       <table style={{width: '100%'}}>
         <Header entries={this.props.entries} />

@@ -16,4 +16,11 @@ record:
     type: boolean
   - id: blah
     type: text
+  - id: multi
+    type:
+      base: enumerationSet
+      enumerations:
+        apple:
+        banana:
+        pear:
 

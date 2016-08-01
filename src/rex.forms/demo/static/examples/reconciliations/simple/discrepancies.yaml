@@ -10,4 +10,7 @@ baz:
 blah:
   entry1: foo
   entry2: null
+multi:
+  entry1: [apple,pear]
+  entry2: [banana]
 

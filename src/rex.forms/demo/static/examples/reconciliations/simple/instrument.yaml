@@ -23,4 +23,6 @@ record:
         apple:
         banana:
         pear:
+  - id: anumber
+    type: integer
 

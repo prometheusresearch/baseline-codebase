@@ -12,6 +12,11 @@ pages:
             en: This is a required Text Question
       - type: question
         options:
+          fieldId: anumber
+          text:
+            en: This is an Integer Question
+      - type: question
+        options:
           fieldId: bar
           text:
             en: This is an Enumeration Question

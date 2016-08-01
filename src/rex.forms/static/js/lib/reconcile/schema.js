@@ -43,13 +43,13 @@ function generateValueSchema(type, question, discrepancy, env) {
   switch (type.base) {
     case 'float':
       return {
-        type: 'number',
+        type: 'any',
         format: env.validate.number,
         instrument: {type},
       };
     case 'integer':
       return {
-        type: 'number',
+        type: 'any',
         format: env.validate.integer,
         instrument: {type},
       };
@@ -61,7 +61,8 @@ function generateValueSchema(type, question, discrepancy, env) {
       };
     case 'boolean':
       return {
-        type: 'boolean'
+        type: 'boolean',
+        instrument: {type},
       };
     case 'date':
       return {
@@ -91,7 +92,8 @@ function generateValueSchema(type, question, discrepancy, env) {
       };
     case 'enumeration':
       return {
-        enum: Object.keys(type.enumerations)
+        enum: Object.keys(type.enumerations),
+        instrument: {type},
       };
     case 'enumerationSet':
       return {

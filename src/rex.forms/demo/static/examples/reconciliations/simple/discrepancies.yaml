@@ -13,4 +13,7 @@ blah:
 multi:
   entry1: [apple,pear]
   entry2: [banana]
+anumber:
+  entry1: 23
+  entry2: 444
 

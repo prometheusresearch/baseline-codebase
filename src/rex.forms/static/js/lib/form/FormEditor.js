@@ -124,21 +124,34 @@ export default class FormEditor extends React.Component {
     this.state = {
       mode: 'EDIT',
       formIsValid: false,
-      lastSavedTime: 0,
       showCalculations: false,
       calculationResults: null,
-      saving: false
+      saving: false,
+      formState: null,
+      formStateChanged: false
     };
   }
 
-  save(formState, force = false) {
+  componentDidMount() {
+    this._saveInterval = setInterval(
+      this.save.bind(this),
+      this.props.autoSaveInterval,
+    );
+  }
+
+  componentWillUnmount() {
+    clearInterval(this._saveInterval);
+    this._saveInterval = null;
+  }
+
+  save(force = false, formState = null) {
+    formState = formState || this.state.formState;
     let promise = Promise.resolve(formState);
 
-    let now = (new Date()).getTime();
-    if (force || ((now - this.props.autoSaveInterval) > this.state.lastSavedTime)) {
+    if (force || this.state.formStateChanged) {
       this.setState({
-        lastSavedTime: now,
-        saving: true
+        saving: true,
+        formStateChanged: false,
       });
 
       promise = promise.then(this.props.onSave).then(
@@ -180,7 +193,10 @@ export default class FormEditor extends React.Component {
       formIsValid: formState.isValid(),
     });
     if (formState.isValid()) {
-      this.save(formState);
+      this.setState({
+        formState: formState,
+        formStateChanged: true
+      });
     }
   }
 
@@ -190,7 +206,7 @@ export default class FormEditor extends React.Component {
     this.setState({
       mode: 'REVIEW'
     }, () => {
-      this.save(formState, true).then(this.props.onReview);
+      this.save(true, formState).then(this.props.onReview);
     });
   }
 

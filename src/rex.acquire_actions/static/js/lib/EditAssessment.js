@@ -109,7 +109,7 @@ export default class ViewAssessment extends React.Component {
     }
 
     let assessment_id = this.props.context[this.props.entity.name].id;
-    let {instrument, assessment, parameters} = displayData.data;
+    let {instrument, assessment, parameters, has_calculations} = displayData.data;
 
     let initialChannel;
     let channels = this.props.channels.filter((channel) => {
@@ -145,7 +145,7 @@ export default class ViewAssessment extends React.Component {
           assessment={assessment}
           parameters={parameters}
           onComplete={this.onFormComplete}
-          showCalculations={this.props.showCalculations}
+          showCalculations={has_calculations && this.props.showCalculations}
           apiUrls={{
             resourcePrefix: this.props.resourcePrefixUrl,
             lookup: this.props.lookupApiUrl,

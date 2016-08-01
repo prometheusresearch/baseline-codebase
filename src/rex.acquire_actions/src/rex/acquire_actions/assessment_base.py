@@ -5,7 +5,7 @@
 from webob.exc import HTTPBadRequest, HTTPForbidden, HTTPNotFound
 
 from rex.core import StrVal, MaybeVal
-from rex.instrument import User, Assessment, ParameterSupplier
+from rex.instrument import User, Assessment, ParameterSupplier, CalculationSet
 from rex.forms import PresentationAdaptor
 from rex.web import authenticate
 from rex.widget import responder, RequestURL, Field
@@ -50,6 +50,13 @@ class AssessmentAction(AcquireAction):
             return self.response_as_json(data)
         data['assessment'] = assessment.data
         data['instrument'] = assessment.instrument_version.definition
+
+        # Check for Calculations
+        calculationset = CalculationSet.get_implementation().find(
+            instrument_version=assessment.instrument_version.uid,
+            limit=1
+        )
+        data['has_calculations'] = len(calculationset) > 0
 
         # Find any calculation results
         results = user.find_objects(

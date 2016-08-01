@@ -25,6 +25,15 @@ export class Request {
       true);
   }
 
+  addPath(path) {
+    return new this.constructor(
+      this.path + path,
+      this._params,
+      this._data,
+      this._transitionable
+    );
+  }
+
   params(params) {
     return new this.constructor(
       this.path,

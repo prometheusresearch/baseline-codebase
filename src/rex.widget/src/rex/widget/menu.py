@@ -28,9 +28,9 @@ class WidgetMenu(Menu):
 
     def masks(self):
         if self.path.endswith('/'):
-            sub_path = '%s@@/{path:*}' % self.path
+            sub_path = '%s@@/{path:**}' % self.path
         else:
-            sub_path = '%s/@@/{path:*}' % self.path
+            sub_path = '%s/@@/{path:**}' % self.path
         return [
             PathMask(self.path),
             PathMask(sub_path),

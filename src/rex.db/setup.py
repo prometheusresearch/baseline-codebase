@@ -33,7 +33,7 @@ setup(
         'HTSQL >2.3.3, <2.5',
     ],
     dependency_links=[
-        'https://bitbucket.org/rexdb/htsql-rexdb/downloads',
+        'https://dist.rexdb.org/packages/',
     ],
     rex_init='rex.db',
 )

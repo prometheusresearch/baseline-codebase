@@ -191,13 +191,9 @@ export default class FormEditor extends React.Component {
   onFormChange(formState) {
     this.setState({
       formIsValid: formState.isValid(),
+      formState: formState,
+      formStateChanged: true
     });
-    if (formState.isValid()) {
-      this.setState({
-        formState: formState,
-        formStateChanged: true
-      });
-    }
   }
 
   @autobind

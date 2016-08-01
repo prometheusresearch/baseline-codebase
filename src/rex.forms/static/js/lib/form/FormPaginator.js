@@ -77,6 +77,7 @@ export default class FormPaginator extends React.Component {
       }
     }
     let prevDisabled = prevPageNumber < 0;
+    let showPrev = currentPageNumber != 0;
 
     let nextPageNumber = pageCount;
     for (let i = currentPageNumber + 1; i < pageCount; i++) {
@@ -86,21 +87,24 @@ export default class FormPaginator extends React.Component {
       }
     }
     let nextDisabled = nextPageNumber >= pageCount;
+    let showNext = currentPageNumber != (pageCount - 1);
 
     return (
       <Focus.FocusableList tabIndex={0} activeDescendant={pageCount}>
         <ReactUI.Block textAlign="center" width="100%" {...props}>
           <ReactUI.Block inline float="start">
-            <Focus.Focusable focusIndex={prevDisabled ? null : -1}>
-              <PageButton
-                icon={<PrevIcon />}
-                tabIndex={-1}
-                disabled={prevDisabled}
-                pageNumber={prevPageNumber}
-                onPage={onPage}>
-                {this._('Previous')}
-              </PageButton>
-            </Focus.Focusable>
+            {showPrev &&
+              <Focus.Focusable focusIndex={prevDisabled ? null : -1}>
+                <PageButton
+                  icon={<PrevIcon />}
+                  tabIndex={-1}
+                  disabled={prevDisabled}
+                  pageNumber={prevPageNumber}
+                  onPage={onPage}>
+                  {this._('Previous')}
+                </PageButton>
+              </Focus.Focusable>
+            }
           </ReactUI.Block>
           <ReactUI.Block inline textAlign="center">
             {prevButtons}
@@ -108,16 +112,18 @@ export default class FormPaginator extends React.Component {
             {nextButtons}
           </ReactUI.Block>
           <ReactUI.Block inline float="end">
-            <Focus.Focusable focusIndex={nextDisabled ? null : pageCount}>
-              <PageButton
-                iconAlt={<NextIcon />}
-                tabIndex={-1}
-                disabled={nextDisabled}
-                pageNumber={nextPageNumber}
-                onPage={onPage}>
-                {this._('Next')}
-              </PageButton>
-          </Focus.Focusable>
+            {showNext &&
+              <Focus.Focusable focusIndex={nextDisabled ? null : pageCount}>
+                <PageButton
+                  iconAlt={<NextIcon />}
+                  tabIndex={-1}
+                  disabled={nextDisabled}
+                  pageNumber={nextPageNumber}
+                  onPage={onPage}>
+                  {this._('Next')}
+                </PageButton>
+              </Focus.Focusable>
+            }
           </ReactUI.Block>
         </ReactUI.Block>
       </Focus.FocusableList>

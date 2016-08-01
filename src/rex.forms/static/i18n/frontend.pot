@@ -3,8 +3,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Project-Id-Version: rex.forms 1.6.0\n"
-"POT-Creation-Date: 2016-07-07 21:00\n"
+"Project-Id-Version: rex.forms 2.0.0\n"
+"POT-Creation-Date: 2016-08-01 20:09\n"
 "Content-Type: text/plain;\n"
 
 #: lib/AudioPlayer.js:121
@@ -71,40 +71,40 @@ msgstr ""
 msgid "I would like to explain my response to this question."
 msgstr ""
 
-#: lib/form/FormEditor.js:193
-msgid "There was an error when executing the calculations."
-msgstr ""
-
-#: lib/form/FormEditor.js:193
+#: lib/form/FormEditor.js:235
 msgid "Error"
 msgstr ""
 
-#: lib/form/FormEditor.js:287
+#: lib/form/FormEditor.js:235
+msgid "There was an error when executing the calculations."
+msgstr ""
+
+#: lib/form/FormEditor.js:338
 msgid "Review Submission"
 msgstr ""
 
-#: lib/form/FormEditor.js:293
+#: lib/form/FormEditor.js:344
 msgid "Go Back to the Form"
 msgstr ""
 
-#: lib/form/FormEditor.js:299
+#: lib/form/FormEditor.js:350
 msgid "Saving Your Progress, Please Wait..."
 msgstr ""
 
-#: lib/form/FormEditor.js:300
+#: lib/form/FormEditor.js:351
 msgid "Complete Form"
 msgstr ""
 
-#: lib/form/FormEditor.js:306
+#: lib/form/FormEditor.js:357
 msgid "Preview Calculation Results"
 msgstr ""
 
-#: lib/form/FormPaginator.js:110
-msgid "Next"
+#: lib/form/FormPaginator.js:104
+msgid "Previous"
 msgstr ""
 
-#: lib/form/FormPaginator.js:93
-msgid "Previous"
+#: lib/form/FormPaginator.js:123
+msgid "Next"
 msgstr ""
 
 #: lib/form/Question.js:103
@@ -119,7 +119,7 @@ msgstr ""
 msgid "Edit"
 msgstr ""
 
-#: lib/form/widget/RadioGroup.js:169
+#: lib/form/widget/RadioGroup.js:170
 msgid "Clear My Selection"
 msgstr ""
 
@@ -132,14 +132,14 @@ msgid "Remove"
 msgstr ""
 
 #: lib/form/widget/ViewBooleanValue.js:11
-msgid "Yes"
-msgstr ""
-
-#: lib/form/widget/ViewBooleanValue.js:11
 msgid "No"
 msgstr ""
 
-#: lib/form/widget/ViewValue.js:23
+#: lib/form/widget/ViewBooleanValue.js:11
+msgid "Yes"
+msgstr ""
+
+#: lib/form/widget/ViewValue.js:30
 msgid "No Value"
 msgstr ""
 
@@ -167,63 +167,67 @@ msgstr ""
 msgid "Not a valid time."
 msgstr ""
 
-#: lib/instrument/validate.js:188
+#: lib/instrument/validate.js:176
+msgid "You must respond to at least one question in this record."
+msgstr ""
+
+#: lib/instrument/validate.js:203
 msgid "Must enter between %(min)s and %(max)s records."
 msgstr ""
 
-#: lib/instrument/validate.js:190
+#: lib/instrument/validate.js:205
 msgid "Must enter at least %(min)s records."
 msgstr ""
 
-#: lib/instrument/validate.js:192
+#: lib/instrument/validate.js:207
 msgid "Cannot enter more than %(max)s records."
 msgstr ""
 
-#: lib/instrument/validate.js:212
+#: lib/instrument/validate.js:228
 msgid "You must provide a response for this row."
 msgstr ""
 
-#: lib/instrument/validate.js:220
+#: lib/instrument/validate.js:236
 msgid "You must provide a response for this field."
 msgstr ""
 
-#: lib/instrument/validate.js:244
+#: lib/instrument/validate.js:260
 msgid "Must select between %(min)s and %(max)s choices."
 msgstr ""
 
-#: lib/instrument/validate.js:246
+#: lib/instrument/validate.js:262
 msgid "Must select at least %(min)s choices."
 msgstr ""
 
-#: lib/instrument/validate.js:248
+#: lib/instrument/validate.js:264
 msgid "Cannot select more than %(max)s choices."
 msgstr ""
 
-#: lib/instrument/validate.js:269
+#: lib/instrument/validate.js:285
 msgid "Must be between %(min)s and %(max)s characters."
 msgstr ""
 
-#: lib/instrument/validate.js:271
+#: lib/instrument/validate.js:287
 msgid "Must be at least %(min)s characters."
 msgstr ""
 
-#: lib/instrument/validate.js:273
+#: lib/instrument/validate.js:289
 msgid "Cannot be more than %(max)s characters."
 msgstr ""
 
-#: lib/instrument/validate.js:283
+#: lib/instrument/validate.js:299
 msgid "Does not match the expected pattern."
 msgstr ""
 
-#: lib/instrument/validate.js:300
+#: lib/instrument/validate.js:316
 msgid "Must be between %(min)s and %(max)s."
 msgstr ""
 
-#: lib/instrument/validate.js:302
+#: lib/instrument/validate.js:318
 msgid "Must be at least %(min)s."
 msgstr ""
 
-#: lib/instrument/validate.js:304
+#: lib/instrument/validate.js:320
 msgid "Cannot be beyond %(max)s."
 msgstr ""
 
@@ -231,11 +235,7 @@ msgstr ""
 msgid "Not a valid number."
 msgstr ""
 
-#: lib/reconcile/DiscrepancyChoices.js:115
-msgid "No value provided."
-msgstr ""
-
-#: lib/reconcile/DiscrepancyChoices.js:60
+#: lib/reconcile/DiscrepancyChoices.js:59
 msgid "Manual Override"
 msgstr ""
 
@@ -263,6 +263,10 @@ msgstr ""
 msgid "Middle of Page %(page)s (%(field)s)"
 msgstr ""
 
-#: lib/reconcile/Reconciler.js:72
+#: lib/reconcile/Reconciler.js:106
 msgid "Complete Reconciliation"
+msgstr ""
+
+#: lib/reconcile/RecordListDiscrepancy.js:72
+msgid "Record %(recordId)s"
 msgstr ""

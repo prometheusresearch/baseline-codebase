@@ -173,7 +173,7 @@ export default class Validate {
         if (isEmptyValue(rec)) {
           errors.push({
             field: '' + idx,
-            message: this.i18n.gettext('You must response to at least one question in this record.')
+            message: this.i18n.gettext('You must respond to at least one question in this record.')
           });
         }
       });

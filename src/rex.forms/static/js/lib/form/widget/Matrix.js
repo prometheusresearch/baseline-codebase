@@ -51,11 +51,18 @@ function ColumnLabelRow({columns, readOnly}) {
     <tr>
       <td style={{width: (rowLabelWidth * 100)+'%'}}></td>
       {columns.map((column) => {
+        let style = {
+          width: (columnWidth * 100) + '%',
+          verticalAlign: 'top'
+        };
         return (
-          <td key={column.fieldId} style={{width: (columnWidth * 100)+'%'}}>
+          <td key={column.fieldId} style={style}>
             <QuestionLabel
               text={column.text}
               />
+            {column.help && !readOnly &&
+              <Help>{column.help}</Help>
+            }
             {column.audio && !readOnly &&
               <ReactUI.Block marginTop="x-small">
                 <AudioPlayer source={column.audio} />
@@ -103,6 +110,7 @@ let MatrixRow = ReactForms.reactive(function MatrixRow({row, questions, formValu
           ...question
         };
 
+        let {help, ...questionOptions} = question;
         return (
           <td key={question.fieldId}>
             {!event.isHidden(eventKey) &&
@@ -112,7 +120,7 @@ let MatrixRow = ReactForms.reactive(function MatrixRow({row, questions, formValu
                 noAudio
                 plain
                 disabled={event.isDisabled(eventKey)}
-                question={question}
+                question={questionOptions}
                 instrument={columnFormValue.schema.instrument}
                 formValue={columnFormValue.select('value')}
                 readOnly={readOnly}

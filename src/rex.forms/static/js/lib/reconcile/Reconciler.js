@@ -5,6 +5,7 @@
 import * as ReactForms from 'react-forms';
 import * as React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
+import isArray from 'lodash/isArray';
 import noop from 'lodash/noop';
 
 import {InjectI18N} from 'rex-i18n';
@@ -14,6 +15,23 @@ import DiscrepancyList from './DiscrepancyList';
 import {fromDiscrepancies} from './schema';
 import {createReactFormsMessages} from '../instrument/validate';
 import FormContext from '../form/FormContext';
+
+
+function makeSolution(value) {
+  let {...solution} = value;
+
+  Object.keys(solution).forEach((key) => {
+    if (isArray(solution[key])) {
+      let mapped = {};
+      solution[key].forEach((rec, idx) => {
+        mapped[String(idx)] = rec;
+      });
+      solution[key] = mapped;
+    }
+  });
+
+  return solution;
+}
 
 
 @InjectI18N
@@ -82,12 +100,14 @@ export default class Reconciler extends React.Component {
           return ReactForms.Schema.validate(schema, value, {messages});
         },
       }),
+      isComplete: false,
     };
   }
 
   render() {
     let {form, parameters, discrepancies, entries} = this.props;
     let {formValue} = this.state;
+    let showComplete = !this.state.isComplete;
     return (
       <FormContext
         self={this}
@@ -100,11 +120,13 @@ export default class Reconciler extends React.Component {
             formValue={formValue}
             />
           <ReactUI.Block textAlign="center">
-            <ReactUI.SuccessButton
-              disabled={!isComplete(formValue, discrepancies)}
-              onClick={this.onComplete}>
-              {this._('Complete Reconciliation')}
-            </ReactUI.SuccessButton>
+            {showComplete &&
+              <ReactUI.SuccessButton
+                disabled={!isComplete(formValue, discrepancies)}
+                onClick={this.onComplete}>
+                {this._('Complete Reconciliation')}
+              </ReactUI.SuccessButton>
+            }
           </ReactUI.Block>
         </div>
       </FormContext>
@@ -135,14 +157,18 @@ export default class Reconciler extends React.Component {
   }
 
   onComplete = () => {
-    this.props.onComplete({
-      solution: this.state.formValue.value,
+    this.setState({
+      isComplete: true,
+    }, () => {
+      this.props.onComplete({
+        solution: makeSolution(this.state.formValue.value),
+      });
     });
   };
 
   onChange = (formValue) => {
     this.props.onChange({
-      solution: formValue.value,
+      solution: makeSolution(formValue.value),
     });
     this.setState({formValue});
   };

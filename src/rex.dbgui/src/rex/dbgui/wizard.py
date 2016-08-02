@@ -13,35 +13,33 @@ def get_schema():
     return model()
 
 @cached
-def table_wizard(table_name):
-    return WizardProxy.table_wizard(table_name)
-
-def root_wizard():
-    pick_table = ActionProxy(
-        id='pick-table-wizard',
-        type='pick-table-wizard',
+def pick_table():
+    return ActionProxy(
+        id='dbgui',
+        type='dbgui',
         title='Pick Table'
     )
-    view_table = ActionProxy(
-        id='view-table-wizard',
-        type='view-table-wizard',
-        title='Table Wizard'
+
+@cached
+def view_source():
+    return ActionProxy(
+        id='view-source',
+        type='view-source',
+        title='View Source'
     )
-    return WizardProxy.from_path('dbgui', 'DBGUI',
-                                 [(pick_table, [(view_table, None)])])
 
-class DBGUIWizard(BaseWizard):
+@cached
+def root_wizard():
+    return WizardProxy.from_path('dbgui', 'DBGUI', [(pick_table(), None)])
 
-    name = 'dbgui_wizard'
-
-    @computed_field
-    def base_url(self, req):
-        return req.script_name
+@cached
+def table_wizard(table_name):
+    return WizardProxy.table_wizard(table_name)
 
 
 class WizardProxy(object):
 
-    wizard_val = ActionVal(action_class=DBGUIWizard)
+    wizard_val = ActionVal(action_class=BaseWizard)
     order = ['id', 'type', 'title', 'path', 'actions']
 
     def __init__(self, id, title, path, actions):
@@ -55,13 +53,12 @@ class WizardProxy(object):
     def wizard(self):
         ret = self.wizard_val(dict(
             id=self.id,
-            type='dbgui_wizard',
+            type='wizard',
             title=self.title,
             path=self.path,
             actions=dict([(a.id, a.action) for a in self.actions])
         ))
         return ret
-
 
     def render(self, req):
         segment = req.path_info_peek()
@@ -69,10 +66,12 @@ class WizardProxy(object):
             req.path_info_pop()
         return render_widget(self.wizard, req, path=req.path_info[1:])
 
-
     @classmethod
     def table_wizard(cls, table):
-        return cls.from_path(table, 'DBGUI: %s' % table, cls.table_path(table))
+        return cls.from_path(table, 'DBGUI: %s' % table,
+                [(pick_table(),
+                  cls.table_path(table) + [(view_source(), None)])
+                ])
 
     @classmethod
     def from_path(cls, id, title, path):
@@ -103,12 +102,11 @@ class WizardProxy(object):
         drop = Drop(table_name)
         return [(pick, cls.record_path(table_name, context=context) + [
            (drop, None),
-            (make, make.replace())
+           (make, make.replace())
         ])]
 
     @classmethod
     def record_path(cls, table_name, context=[]):
-        #TODO: generate fields replacing entity with links
         view = View(table_name, context)
         edit = Edit(table_name, context)
         next = [(edit, edit.replace())]
@@ -256,7 +254,7 @@ class Pick(TableActionProxy):
 
     def __init__(self, table, context=[], **kwds):
         super(Pick, self).__init__(table, 'pick', context, **kwds)
-        self.search = 'string(id)~$search'
+        self.search = 'string(id())~$search'
         self.search_placeholder = 'Search by ID'
 
     def get_fields_value(self, table, prefix='', context=[]):
@@ -280,7 +278,7 @@ class Make(TableActionProxy):
         super(Make, self).__init__(table, 'make', context, **kwds)
 
     def replace(self):
-        # strip out first '../'
+        #strip out first '../'
         return super(Make, self).replace()[3:]
 
 
@@ -334,9 +332,14 @@ def represent_wizard(dumper, wizard):
             continue
         if value is not None:
             node_key = dumper.represent_data(key)
-            if key == 'actions':
+            if key == 'path':
+                node_value = dumper.represent_data(value[0]['dbgui'])
+            elif key == 'actions':
                 actions = []
+                stop_actions = ['dbgui', 'view-source']
                 for action in value:
+                    if action.id in stop_actions:
+                        continue
                     actions.append((
                         dumper.represent_data(action.id),
                         dumper.represent_data(action)

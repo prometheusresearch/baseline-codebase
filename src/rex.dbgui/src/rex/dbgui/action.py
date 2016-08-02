@@ -8,8 +8,8 @@ from webob import Response
 
 class PickTableWizard(Action):
 
-    name = 'pick-table-wizard'
-    js_type = 'rex-dbgui/lib/PickTableWizard'
+    name = 'dbgui'
+    js_type = 'rex-dbgui/lib/PickTable'
 
     def context(self):
         return (self.domain.record(),
@@ -26,8 +26,8 @@ class PickTableWizard(Action):
 
 class ViewTableWizard(Action):
 
-    name = 'view-table-wizard'
-    js_type = 'rex-dbgui/lib/ViewTableWizard'
+    name = 'view-source'
+    js_type = 'rex-dbgui/lib/ViewSource'
 
     def context(self):
         return (self.domain.record(table=typing.ValueType('text')),

@@ -1,7 +1,3 @@
 paths:
   /:
     widget: !<DBGUI>
-
-  /$table:
-    widget: !<DBGUI>
-      table_segment: 1 

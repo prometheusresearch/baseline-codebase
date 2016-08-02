@@ -1,6 +1,6 @@
-from rex.widget import Widget, WidgetComposition, Field, computed_field
-from .wizard import table_wizard, root_wizard, get_schema
-from rex.core import IntVal
+from rex.widget import Widget, Field, computed_field, responder, RequestURL, \
+                       render_widget
+from .wizard import table_wizard, root_wizard
 
 
 class DBGUI(Widget):
@@ -8,29 +8,21 @@ class DBGUI(Widget):
     name = 'DBGUI'
     js_type = 'rex-dbgui/lib/DBGUI'
 
-    table_segment = Field(IntVal(), default=None,
-                          doc='Which PATH_INFO segment is used for table name')
-
-    def get_path_table(self, req):
-        parts = req.path_info.split('/')
-        table = None
-        path = req.path_url
-        if self.table_segment is not None and self.table_segment < len(parts):
-            table = parts[self.table_segment]
-            path = req.application_url \
-                   + '/'.join(parts[0:self.table_segment])
-        return path, table
-
     @computed_field
-    def wizard(self, req):
-        base_path, table = self.get_path_table(req)
-        if table is not None:
-            schema = get_schema()
-            if not any(t for t in schema.tables() if t.label == table):
-                table = None
-        proxy = root_wizard() if table is None else table_wizard(table)
-        return proxy.wizard
+    def root_wizard(self, req):
+        return root_wizard().wizard
 
-    @computed_field
-    def base_url(self, req):
-        return self.get_path_table(req)[0]
+    @responder(url_type=RequestURL)
+    def table_wizard(self, req):
+        name = '.tableWizard'
+        pos = req.path_info.find(name)
+        copy = req.copy()
+        copy.script_name = copy.script_name + req.path_info[:pos + len(name)]
+        copy.path_info = req.path_info[pos + len(name):]
+        table = copy.path_info_peek()
+        copy.path_info_pop()
+        path = None
+        if copy.path_info.startswith('/@@/'):
+            path = copy.path_info[4:]
+        return render_widget(table_wizard(table).wizard, copy, no_chrome=True,
+                             path=path)

@@ -10,7 +10,7 @@ from rex.instrument import Entry, ParameterSupplier, InstrumentError
 from rex.forms import PresentationAdaptor
 from rex.widget import Field, responder, RequestURL
 
-from .base import AcquireAction
+from .base import AcquireEntityAction
 
 
 __all__ = (
@@ -18,14 +18,9 @@ __all__ = (
 )
 
 
-class ReconcileTaskAction(AcquireAction):
+class ReconcileTaskAction(AcquireEntityAction):
     name = 'task-reconcile'
     js_type = 'rex-acquire-actions/lib/ReconcileTask'
-
-    entity = Field(
-        typing.RowTypeVal(),
-        doc='The record containing the Assessment.',
-    )
 
     initial_channel = Field(
         MaybeVal(StrVal()),

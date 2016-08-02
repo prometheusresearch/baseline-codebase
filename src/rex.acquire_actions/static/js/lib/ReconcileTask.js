@@ -64,17 +64,24 @@ export default class ReconcileTask extends React.Component {
     );
     this.props.reconcileTask.data(payload).produce().then(
       (data) => {
-        removeNotification(notification);
         if (data.status === 'SUCCESS') {
-          showNotification(
-            <Notification
-              kind='success'
-              text='The Task has been reconciled.'
-              ttl={10000}
-              />
-          );
-          this.props.onContext({});
+          let previousEntity = this.props.context[this.props.entity.name];
+          this.props.data.produceEntity(
+            {'*': previousEntity.id}
+          ).then((newEntity) => {
+            removeNotification(notification);
+            showNotification(
+              <Notification
+                kind='success'
+                text='The Task has been reconciled.'
+                ttl={10000}
+                />
+            );
+            this.props.onEntityUpdate(previousEntity, newEntity);
+          });
+
         } else {
+          removeNotification(notification);
           showNotification(
             <Notification
               kind='danger'
@@ -83,6 +90,7 @@ export default class ReconcileTask extends React.Component {
           );
         }
       },
+
       (err) => {
         removeNotification(notification);
         showNotification(

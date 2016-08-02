@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.dbgui',
-    version='4.0.0',
+    version='4.1.0',
     description='Database management application',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',
@@ -27,4 +27,3 @@ setup(
         ]
     }
 )
-

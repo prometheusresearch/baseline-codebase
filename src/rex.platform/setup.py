@@ -22,7 +22,7 @@ setup(
     install_requires=[
         'HTSQL==2.3.3.20160506',
         'HTSQL-PGSQL==2.3.3.20160506',
-        'COGS==0.4.0',
+        'COGS==0.4.1',
         'rex.action==1.3.0',
         'rex.setup==3.2.0',
         'rex.core==1.13.0',

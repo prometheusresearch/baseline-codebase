@@ -57,9 +57,9 @@ class MapWidget(Map):
 
     def mask(self, path):
         if path.endswith('/'):
-            sub_path = '%s@@/{path:*}' % path
+            sub_path = '%s@@/{path:**}' % path
         else:
-            sub_path = '%s/@@/{path:*}' % path
+            sub_path = '%s/@@/{path:**}' % path
         return [
             PathMask(path),
             PathMask(sub_path),

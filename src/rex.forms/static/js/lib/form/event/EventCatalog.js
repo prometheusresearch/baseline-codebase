@@ -203,6 +203,14 @@ export function bind(catalog, schema, value, parameters = {}) {
     }
   };
 
+  // HACK: Install a side-door for testing/debugging REXL expressions in the
+  // context of the current form.
+  global.REX_FORMS_EVALUATOR = (expression) => {
+    return REXL.parse(expression).evaluate((id) => {
+      return resolve(id, schema, value.get(), parameters);
+    });
+  };
+
   return mapValues(
     catalog,
     perDomain => mapValues(

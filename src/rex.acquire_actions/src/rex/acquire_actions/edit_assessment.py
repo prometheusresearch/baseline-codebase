@@ -27,12 +27,6 @@ class EditAssessmentAction(AssessmentAction):
         doc='The record containing the Assessment.',
     )
 
-    lookup_api_url = Field(
-        URLVal(),
-        default='rex.forms:/lookup',
-        doc='This is the URL to the API for the lookupText widget.',
-    )
-
     calculations_api_url = Field(
         URLVal(),
         default='rex.forms:/calculate/assessment',

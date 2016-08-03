@@ -167,6 +167,10 @@ export default class ReconcileTask extends React.Component {
           discrepancies={discrepancies}
           entries={entries}
           onComplete={this.onReconcilerComplete}
+          apiUrls={{
+            resourcePrefix: this.props.resourcePrefixUrl,
+            lookup: this.props.lookupApiUrl,
+          }}
           />
       </I18NAction>
     );

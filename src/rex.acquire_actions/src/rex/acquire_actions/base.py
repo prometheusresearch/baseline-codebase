@@ -52,6 +52,12 @@ class AcquireAction(CommonAcquireMixin, Action):
         doc='The URL to prefix resources with when rendering Forms.',
     )
 
+    lookup_api_url = Field(
+        URLVal(),
+        default='rex.forms:/lookup',
+        doc='This is the URL to the API for the lookupText widget.',
+    )
+
     @computed_field
     def locale(self, request):
         # pylint: disable=unused-argument
@@ -86,6 +92,12 @@ class AcquireEntityAction(CommonAcquireMixin, EntityAction):
         URLVal(),
         default=None,
         doc='The URL to prefix resources with when rendering Forms.',
+    )
+
+    lookup_api_url = Field(
+        URLVal(),
+        default='rex.forms:/lookup',
+        doc='This is the URL to the API for the lookupText widget.',
     )
 
     @computed_field

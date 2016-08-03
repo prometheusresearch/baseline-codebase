@@ -5,7 +5,6 @@
 
 import * as React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
-import {style} from '@prometheusresearch/react-ui/stylesheet';
 import toString from 'lodash/toString';
 
 import {InjectI18N} from 'rex-i18n';
@@ -15,7 +14,7 @@ import {InjectI18N} from 'rex-i18n';
 export default class ViewValue extends React.Component {
   static defaultProps = {
     stylesheet: {
-      Root: (props) => <ReactUI.Block marginStart='small' {...props} />
+      Root: (props) => <ReactUI.Block marginStart="small" {...props} />
     }
   }
 
@@ -28,7 +27,7 @@ export default class ViewValue extends React.Component {
 
   render() {
     let {noValueText = this._('No Value')} = this.props;
-    let {Root} = this.props.stylesheet
+    let {Root} = this.props.stylesheet;
     let valueString = this.getValueString();
 
     return (

@@ -110,7 +110,7 @@ let MatrixRow = ReactForms.reactive(function MatrixRow({row, questions, formValu
           ...question
         };
 
-        let {help, ...questionOptions} = question;
+        let {_help, ...questionOptions} = question;
         return (
           <td key={question.fieldId}>
             {!event.isHidden(eventKey) &&

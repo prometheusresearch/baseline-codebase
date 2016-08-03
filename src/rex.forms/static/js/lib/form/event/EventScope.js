@@ -39,6 +39,14 @@ function deriveChildren(scope, schema, value) {
   return children;
 }
 
+function mergeKeyPath(keyPathBase, keyPath) {
+  if (keyPathBase.join('.') === keyPath.slice(0, keyPathBase.length)) {
+    return keyPath;
+  } else {
+    return keyPathBase.concat(keyPath);
+  }
+}
+
 export class EventScope {
 
   constructor(unboundCatalog, node, value, parameters, keyPath, parent) {
@@ -64,7 +72,7 @@ export class EventScope {
       if (item.computation.get()) {
         let keyPathList = item.keyPath(value);
         for (let i = 0; i < keyPathList.length; i++) {
-          let keyPath = this.keyPath.concat(keyPathList[i].slice(this.keyPath.length));
+          let keyPath = mergeKeyPath(this.keyPath, keyPathList[i]);
           value = update(value, keyPath, null);
         }
       }
@@ -78,7 +86,7 @@ export class EventScope {
       if (item.computation.get()) {
         let keyPathList = item.keyPath(value);
         for (let i = 0; i < keyPathList.length; i++) {
-          let keyPath = this.keyPath.concat(keyPathList[i].slice(this.keyPath.length));
+          let keyPath = mergeKeyPath(this.keyPath, keyPathList[i]);
           value = update(value, keyPath, null);
         }
       }
@@ -92,7 +100,7 @@ export class EventScope {
       let hidden  = item.computation.get();
       let keyPathList = item.keyPath(value);
       for (let i = 0; i < keyPathList.length; i++) {
-        let keyPath = this.keyPath.concat(keyPathList[i].slice(this.keyPath.length));
+        let keyPath = mergeKeyPath(this.keyPath, keyPathList[i]);
         let keyValue = get(value, keyPath);
         // Check if we this is an enumerationSet value
         if (isArray(keyValue)) {

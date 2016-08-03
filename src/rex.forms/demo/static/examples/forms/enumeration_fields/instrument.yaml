@@ -76,4 +76,21 @@ record:
     type: basic
   - id: q11
     type: basic
+  - id: q12
+    type:
+      base: enumeration
+      enumerations:
+        one:
+        two:
+        three:
+        four:
+        five:
+        six:
+        seven:
+        eight:
+        nine:
+        ten:
+        eleven:
+  - id: q13
+    type: basic
 

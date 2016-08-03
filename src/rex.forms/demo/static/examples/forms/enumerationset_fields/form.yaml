@@ -161,6 +161,15 @@ pages:
                 foo: '9'
                 baz: '6'
               orientation: horizontal
+      - type: question
+        options:
+          fieldId: q12
+          text:
+            en: This has more than 10 choices, and hotkeys enabled, but no hotkeys should be available.
+          widget:
+            type: checkGroup
+            options:
+              autoHotkeys: true
 
   - id: page3
     elements:

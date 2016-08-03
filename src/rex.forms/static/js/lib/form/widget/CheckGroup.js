@@ -69,10 +69,12 @@ export default class CheckGroup extends React.Component {
         hint: enumeration.help && <Help>{enumeration.help}</Help>,
       }));
     } else {
-      options = map(type.enumerations, (enumeration, value) => ({
-        value,
-        label: value,
-      }));
+      options = Object.keys(type.enumerations).sort().map((enumeration) => {
+        return {
+          value: enumeration,
+          label: enumeration,
+        };
+      });
     }
 
     if (event) {
@@ -81,32 +83,35 @@ export default class CheckGroup extends React.Component {
         hidden.indexOf(enumeration.value) === -1);
     }
 
-    let hotkeys = Hotkey.hotkeysFromOptions(options, this.props.options);
-    let keys = {
-      ...Hotkey.configureHotkeys(hotkeys),
-      Tab: 'Tab',
-    };
+    let keys = {};
+    if (options.length <= 10) {
+      let hotkeys = Hotkey.hotkeysFromOptions(options, this.props.options);
+      keys = {
+        ...Hotkey.configureHotkeys(hotkeys),
+        Tab: 'Tab',
+      };
 
-    if (hotkeys) {
-      options = options.map(option => {
-        if (hotkeys[option.value]) {
-          let label = (
-            <span>
-              <ReactUI.LabelText style={{unicodeBidi: 'isolate'}}>
-                [{hotkeys[option.value]}]
-              </ReactUI.LabelText>
-              {' '}
-              {option.label}
-            </span>
-          );
-          return {
-            ...option,
-            label
-          };
-        } else {
-          return option;
-        }
-      });
+      if (hotkeys) {
+        options = options.map(option => {
+          if (hotkeys[option.value]) {
+            let label = (
+              <span>
+                <ReactUI.LabelText style={{unicodeBidi: 'isolate'}}>
+                  [{hotkeys[option.value]}]
+                </ReactUI.LabelText>
+                {' '}
+                {option.label}
+              </span>
+            );
+            return {
+              ...option,
+              label
+            };
+          } else {
+            return option;
+          }
+        });
+      }
     }
 
     return (

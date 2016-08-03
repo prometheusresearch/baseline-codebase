@@ -88,10 +88,12 @@ export default class RadioGroup extends React.Component {
           hint: enumeration.help && <Help>{enumeration.help}</Help>,
         }));
       } else {
-        options = map(type.enumerations, (enumeration, value) => ({
-          value,
-          label: value,
-        }));
+        options = Object.keys(type.enumerations).sort().map((enumeration) => {
+          return {
+            value: enumeration,
+            label: enumeration,
+          };
+        });
       }
 
       if (event) {
@@ -119,27 +121,29 @@ export default class RadioGroup extends React.Component {
       });
     }
 
-    let hotkeys = Hotkey.hotkeysFromOptions(options, this.props.options);
-    let keys = Hotkey.configureHotkeys(hotkeys);
-
-    if (hotkeys) {
-      options = options.map(option => {
-        if (hotkeys[option.value]) {
-          let label = (
-            <span>
-              <ReactUI.LabelText style={{unicodeBidi: 'isolate'}}>[{hotkeys[option.value]}]</ReactUI.LabelText>
-              {' '}
-              {option.label}
-            </span>
-          );
-          return {
-            ...option,
-            label
-          };
-        } else {
-          return option;
-        }
-      });
+    let keys = {};
+    if (options.length <= 10) {
+      let hotkeys = Hotkey.hotkeysFromOptions(options, this.props.options);
+      keys = Hotkey.configureHotkeys(hotkeys);
+      if (hotkeys) {
+        options = options.map(option => {
+          if (hotkeys[option.value]) {
+            let label = (
+              <span>
+                <ReactUI.LabelText style={{unicodeBidi: 'isolate'}}>[{hotkeys[option.value]}]</ReactUI.LabelText>
+                {' '}
+                {option.label}
+              </span>
+            );
+            return {
+              ...option,
+              label
+            };
+          } else {
+            return option;
+          }
+        });
+      }
     }
 
     return (

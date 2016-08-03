@@ -47,10 +47,12 @@ export default class DropDown extends React.Component {
           ),
         }));
       } else {
-        options = map(type.enumerations, (enumeration, value) => ({
-          value,
-          label: value,
-        }));
+        options = Object.keys(type.enumerations).sort().map((enumeration) => {
+          return {
+            value: enumeration,
+            label: enumeration,
+          };
+        });
       }
       if (event) {
         let hidden = event.hiddenEnumerations(fieldId);

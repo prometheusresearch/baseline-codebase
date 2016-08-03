@@ -1,0 +1,86 @@
+id: 'urn:event-scoping'
+version: '1.0'
+title: 'Form Events: Scoping'
+types:
+  action_enum:
+    base: enumeration
+    enumerations:
+      hide:
+      disable:
+      fail:
+  basic_enum:
+    base: enumeration
+    enumerations:
+      red:
+      blue:
+      green:
+  basic_enumset:
+    base: enumerationSet
+    enumerations:
+      red:
+      blue:
+      green:
+  basic_matrix:
+    base: matrix
+    rows:
+      - id: row1
+      - id: row2
+    columns:
+      - id: col1
+        type: text
+      - id: col2
+        type: basic_enum
+record:
+  - id: x1_source
+    type: action_enum
+  - id: x1_target
+    type: text
+  - id: x1_source_enum
+    type: basic_enumset
+  - id: x1_target_enum
+    type: basic_enum
+
+  - id: x2_source
+    type: action_enum
+  - id: x2_source_enum
+    type: basic_enumset
+  - id: x2_target
+    type: basic_matrix
+  - id: x2_target_top
+    type: text
+
+  - id: x3_source_value
+    type: basic_enum
+  - id: x3_source
+    type: basic_matrix
+  - id: x3_target
+    type: text
+
+  - id: x4_source
+    type: basic_matrix
+  - id: x4_target
+    type: text
+
+  - id: x5_source_value
+    type: basic_enum
+  - id: x5_source
+    type: basic_matrix
+  - id: x5_target
+    type: text
+
+  - id: x6_duplicated_name
+    type: basic_enum
+  - id: x6_source
+    type:
+      base: matrix
+      rows:
+        - id: row1
+        - id: row2
+      columns:
+        - id: x6_duplicated_name
+          type: text
+        - id: col2
+          type: basic_enum
+  - id: x6_target
+    type: text
+

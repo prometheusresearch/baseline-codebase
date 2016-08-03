@@ -1,0 +1,368 @@
+instrument:
+  id: 'urn:event-scoping'
+  version: '1.0'
+defaultLocalization: en
+pages:
+  - id: x1
+    elements:
+      - type: question
+        options:
+          fieldId: x1_source_enum
+          text:
+            en: Choose an enumeration to hide in the next question
+          events:
+            - trigger: x1_source_enum.red==true()
+              action: hideEnumeration
+              options:
+                enumerations:
+                  - red
+              targets:
+                - x1_target_enum
+            - trigger: x1_source_enum.blue==true()
+              action: hideEnumeration
+              options:
+                enumerations:
+                  - blue
+              targets:
+                - x1_target_enum
+            - trigger: x1_source_enum.green==true()
+              action: hideEnumeration
+              options:
+                enumerations:
+                  - green
+              targets:
+                - x1_target_enum
+      - type: question
+        options:
+          fieldId: x1_target_enum
+          text:
+            en: Target Question
+      - type: divider
+      - type: question
+        options:
+          fieldId: x1_source
+          text:
+            en: Choose an action to apply to the elements after this question
+          events:
+            - trigger: x1_source=='hide'
+              action: hide
+              targets:
+                - x1_target
+                - x1_group
+            - trigger: x1_source=='disable'
+              action: disable
+              targets:
+                - x1_target
+                - x1_group
+            - trigger: x1_source=='fail'
+              action: fail
+              options:
+                text:
+                  en: This was failed by x1_source
+              targets:
+                - x1_target
+                - x1_group
+      - type: divider
+        tags:
+          - x1_group
+      - type: header
+        options:
+          text:
+            en: This is a Header
+        tags:
+          - x1_group
+      - type: question
+        options:
+          fieldId: x1_target
+          text:
+            en: This is a Question
+      - type: text
+        options:
+          text:
+            en: This is a Text
+        tags:
+          - x1_group
+
+
+  - id: x2
+    elements:
+      - type: question
+        options:
+          fieldId: x2_source
+          text:
+            en: Choose an action to apply to the top-left cell in the matrix
+          events:
+            - trigger: x2_source=='hide'
+              action: hide
+              targets:
+                - x2_target.row1.col1
+            - trigger: x2_source=='disable'
+              action: disable
+              targets:
+                - x2_target.row1.col1
+            - trigger: x2_source=='fail'
+              action: fail
+              options:
+                text:
+                  en: This was failed by x2_source
+              targets:
+                - x2_target.row1.col1
+      - type: question
+        options:
+          fieldId: x2_source_enum
+          text:
+            en: Choose an enumeration to hide in the top-right cell in the matrix
+          events:
+            - trigger: x2_source_enum.red==true()
+              action: hideEnumeration
+              options:
+                enumerations:
+                  - red
+              targets:
+                - x2_target.row1.col2
+            - trigger: x2_source_enum.blue==true()
+              action: hideEnumeration
+              options:
+                enumerations:
+                  - blue
+              targets:
+                - x2_target.row1.col2
+            - trigger: x2_source_enum.green==true()
+              action: hideEnumeration
+              options:
+                enumerations:
+                  - green
+              targets:
+                - x2_target.row1.col2
+      - type: question
+        options:
+          fieldId: x2_target
+          text:
+            en: This is the target matrix
+          help:
+            en: Typing "enum" in Row 2, Column 1 will hide the bottom-right cell.
+          rows:
+            - id: row1
+              text:
+                en: Row 1
+            - id: row2
+              text:
+                en: Row 2
+          questions:
+            - fieldId: col1
+              text:
+                en: Column 1
+            - fieldId: col2
+              text:
+                en: Column 2
+          events:
+            - trigger: x2_target.row2.col1=='enum'
+              action: hide
+              targets:
+                - x2_target.row2.col2
+      - type: question
+        options:
+          fieldId: x2_target_top
+          text:
+            en: This question will disappear if you type "hide" in Row 1, Column 1
+          events:
+            - trigger: x2_target.row1.col1=='hide'
+              action: hide
+
+
+  - id: x3
+    elements:
+      - type: question
+        options:
+          fieldId: x3_source_value
+          text:
+            en: This value drives expressions in the subfield events.
+          help:
+            en: Choosing "red" will hide the target question, "blue" will disable the top-right cell of the matrix, and "green" will hide all the cells in the first column.
+      - type: question
+        options:
+          fieldId: x3_source
+          text:
+            en: This is a matrix with subfield events.
+          rows:
+            - id: row1
+              text:
+                en: Row 1
+            - id: row2
+              text:
+                en: Row 2
+          questions:
+            - fieldId: col1
+              text:
+                en: Column 1
+              events:
+                - trigger: x3_source_value=='red'
+                  action: hide
+                  targets:
+                    - x3_target
+                - trigger: x3_source_value=='blue'
+                  action: disable
+                  targets:
+                    - x3_source.row1.col2
+            - fieldId: col2
+              text:
+                en: Column 2
+              events:
+                - trigger: x3_source_value=='green'
+                  action: hide
+                  targets:
+                    - col1
+      - type: question
+        options:
+          fieldId: x3_target
+          text:
+            en: This is a target
+
+
+  - id: x4
+    elements:
+      - type: question
+        options:
+          fieldId: x4_source
+          text:
+            en: This is a matrix with subfield events.
+          help:
+            en: If you type "enum" in Row 2, Column 2, the bottom-right cell will disable. If you choose "green" in Row 1, Column 2, all the cells in the first column will disappear.
+          rows:
+            - id: row1
+              text:
+                en: Row 1
+            - id: row2
+              text:
+                en: Row 2
+          questions:
+            - fieldId: col1
+              text:
+                en: Column 1
+              events:
+                - trigger: x4_source.row1.col1=='hide'
+                  action: hide
+                  targets:
+                    - x4_target
+                - trigger: x4_source.row2.col1=='enum'
+                  action: disable
+                  targets:
+                    - x4_source.row2.col2
+            - fieldId: col2
+              text:
+                en: Column 2
+              events:
+                - trigger: x4_source.row1.col2=='green'
+                  action: hide
+                  targets:
+                    - col1
+      - type: question
+        options:
+          fieldId: x4_target
+          text:
+            en: This question will disappear if you type "hide" in Row 1, Column 1
+
+
+  - id: x5
+    elements:
+      - type: question
+        options:
+          fieldId: x5_source_value
+          text:
+            en: If this value is the same as a value in the second column of the matrix, the question in the second column will fail.
+      - type: question
+        options:
+          fieldId: x5_source
+          text:
+            en: This is a matrix with subfield events.
+          help:
+            en: If you type "enum" in any of the cells in the first column, the question in the bottom-right cell will disable. Any row in which you choose "green" in the second column will cause the first to be hidden.
+          rows:
+            - id: row1
+              text:
+                en: Row 1
+            - id: row2
+              text:
+                en: Row 2
+          questions:
+            - fieldId: col1
+              text:
+                en: Column 1
+              events:
+                - trigger: col1=='hide'
+                  action: hide
+                  targets:
+                    - x5_target
+                - trigger: col1=='enum'
+                  action: disable
+                  targets:
+                    - x4_source.row2.col2
+            - fieldId: col2
+              text:
+                en: Column 2
+              events:
+                - trigger: col2=='green'
+                  action: hide
+                  targets:
+                    - col1
+                - trigger: x5_source_value==col2
+                  action: fail
+                  options:
+                    text:
+                      en: This has been forcibly failed.
+                  targets:
+                    - col2
+      - type: question
+        options:
+          fieldId: x5_target
+          text:
+            en: This question will disappear if you type "hide" in any of the cells in the first column.
+
+
+  - id: x6
+    elements:
+      - type: question
+        options:
+          fieldId: x6_duplicated_name
+          text:
+            en: This is a top-level question.
+          help:
+            en: If "green" is chosen here, nothing should happen.
+      - type: question
+        options:
+          fieldId: x6_source
+          text:
+            en: This is a matrix with subfield events.
+          help:
+            en: If you type "green" in the first column, the second column will disappear.
+          rows:
+            - id: row1
+              text:
+                en: Row 1
+            - id: row2
+              text:
+                en: Row 2
+          questions:
+            - fieldId: x6_duplicated_name
+              text:
+                en: Column 1
+            - fieldId: col2
+              text:
+                en: Column 2
+              events:
+                - trigger: x6_duplicated_name=='green'
+                  action: hide
+                  targets:
+                    - col2
+      - type: question
+        options:
+          fieldId: x6_target
+          text:
+            en: This will fail if "blue" is chosen in the first question.
+          events:
+            - trigger: x6_duplicated_name=='blue'
+              action: fail
+              options:
+                text:
+                  en: This has been forcibly failed.
+

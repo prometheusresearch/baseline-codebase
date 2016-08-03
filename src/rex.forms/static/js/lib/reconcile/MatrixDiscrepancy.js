@@ -5,8 +5,6 @@
 import * as React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
-import map from 'lodash/map';
-
 import LocalizedString from '../form/LocalizedString';
 import MarkupString from '../form/MarkupString';
 
@@ -16,7 +14,6 @@ import DiscrepancyChoices from './DiscrepancyChoices';
 import PositionDescription from './PositionDescription';
 
 export default class MatrixDiscrepancy extends React.Component {
-
   render() {
     let {formValue, discrepancy, entries} = this.props;
     let {schema} = formValue;
@@ -26,14 +23,22 @@ export default class MatrixDiscrepancy extends React.Component {
       subtitle = <PositionDescription {...position} />;
     }
     let complete = isCompleteComposite(formValue, discrepancy);
-    let rows = map(discrepancy, (discrepancy, rowId) =>
-      <MatrixRowDiscrepancy
-        key={rowId}
-        formValue={formValue.select(rowId)}
-        discrepancy={discrepancy}
-        entries={entries}
-      />
-    );
+
+    let rows = [];
+    question.rows.forEach((row) => {
+      if (discrepancy[row.id]) {
+        rows.push(
+          <MatrixRowDiscrepancy
+            key={row.id}
+            formValue={formValue.select(row.id)}
+            discrepancy={discrepancy[row.id]}
+            entries={entries}
+            questions={question.questions}
+          />
+        );
+      }
+    });
+
     let header = (
       <DiscrepancyTitle
         complete={complete}
@@ -42,6 +47,7 @@ export default class MatrixDiscrepancy extends React.Component {
         required={schema.required}
         />
     );
+
     return (
       <ReactUI.Card header={header} marginBottom="medium" variant={{success: complete}}>
         <ReactUI.Block padding="x-small">
@@ -52,15 +58,21 @@ export default class MatrixDiscrepancy extends React.Component {
   }
 }
 
-function MatrixRowDiscrepancy({entries, formValue, discrepancy}) {
-  let columns = map(discrepancy, (discrepancy, columnId) =>
-    <MatrixColumnDiscrepancy
-      key={columnId}
-      formValue={formValue.select(columnId)}
-      discrepancy={discrepancy}
-      entries={entries}
-      />
-  );
+function MatrixRowDiscrepancy({entries, formValue, discrepancy, questions}) {
+  let columns = [];
+  questions.forEach((question) => {
+    if (discrepancy[question.fieldId]) {
+      columns.push(
+        <MatrixColumnDiscrepancy
+          key={question.fieldId}
+          formValue={formValue.select(question.fieldId)}
+          discrepancy={discrepancy[question.fieldId]}
+          entries={entries}
+          />
+      );
+    }
+  });
+
   return (
     <ReactUI.Block marginBottom="small">
       {columns}
@@ -98,3 +110,4 @@ function MatrixColumnDiscrepancy({entries, formValue, discrepancy}) {
     </ReactUI.Card>
   );
 }
+

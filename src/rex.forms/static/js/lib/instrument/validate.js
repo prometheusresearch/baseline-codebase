@@ -6,9 +6,9 @@ import isInteger from 'lodash/isInteger';
 import isFinite from 'lodash/isFinite';
 import isPlainObject from 'lodash/isPlainObject';
 
-const DATE_TIME_RE = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d$/;
+const DATE_TIME_RE = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?$/;
 const DATE_RE = /^\d\d\d\d-\d\d-\d\d$/;
-const TIME_RE = /^\d\d:\d\d:\d\d$/;
+const TIME_RE = /^\d\d:\d\d(:\d\d)?$/;
 
 /**
 * Determine if field value is empty.
@@ -127,7 +127,7 @@ export default class Validate {
 
   dateTime = (value, node) => {
     if (!DATE_TIME_RE.exec(value)) {
-      return this.i18n.gettext('This must be entered in the form: YYYY-MM-DDTHH:MM:SS');
+      return this.i18n.gettext('This must be entered in the form: YYYY-MM-DDTHH:MM[:SS]');
     }
 
     let parts = value.split('T');
@@ -149,7 +149,7 @@ export default class Validate {
 
   time = (value, node) => {
     if (!TIME_RE.exec(value)) {
-      return this.i18n.gettext('This must be entered in the form: HH:MM:SS');
+      return this.i18n.gettext('This must be entered in the form: HH:MM[:SS]');
     }
     if (!this.checkLegalTime(value)) {
       return this.i18n.gettext('Not a valid time.');
@@ -343,8 +343,10 @@ export default class Validate {
     if (
       ((parts[0] < 0) || (parts[0] > 23))
       || ((parts[1] < 0) || (parts[1] > 59))
-      || ((parts[2] < 0) || (parts[2] > 59))
       ) {
+      return false;
+    }
+    if ((parts.length === 3) && ((parts[2] < 0) || (parts[2] > 59))) {
       return false;
     }
     return true;

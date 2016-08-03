@@ -28,7 +28,7 @@ setup(
         'jinja2 >=2.7, <2.8',
     ],
     dependency_links=[
-        'https://bitbucket.org/rexdb/htsql-rexdb/downloads',
+        'https://dist.rexdb.org/packages/',
     ],
     entry_points = {
         'htsql.addons': ['rex_deploy = htsql_rex_deploy:DeployAddon'],

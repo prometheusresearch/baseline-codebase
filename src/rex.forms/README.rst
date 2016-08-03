@@ -144,6 +144,9 @@ Accepts the following properties:
 * onComplete: A callback function that is invoked when the user has completed
   reconciling all discrepancies. The callback receives the same argument as
   onChange.
+* apiUrls: An object that contains URLs that are needed for special
+  functionality in the form. Currently supports: lookup (the API
+  needed by the lookupText widget to execute its search query).
 
 
 Settings

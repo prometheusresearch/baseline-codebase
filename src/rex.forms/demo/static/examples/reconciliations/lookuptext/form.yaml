@@ -1,0 +1,41 @@
+instrument:
+  id: urn:lookuptext
+  version: '1.0'
+defaultLocalization: en
+pages:
+  - id: questions
+    elements:
+      - type: question
+        options:
+          fieldId: q1
+          text:
+            en: This field searches Instrument Titles to populate the input with an Instrument UID
+          help:
+            en: Try searching for "calc" or "inst".
+          widget:
+            type: lookupText
+            options:
+              query: /instrument{uid :as value, title :as label}.filter(code~$search|title~$search)
+      - type: question
+        options:
+          fieldId: q2
+          text:
+            en: This field searches Mobile TNs to populate the input with a Subject UID
+          help:
+            en: Try searching for "1".
+          widget:
+            type: lookupText
+            options:
+              query: /subject{uid :as value, mobile_tn :as label}.filter(mobile_tn~$search)
+      - type: question
+        options:
+          fieldId: q3
+          text:
+            en: This field searches for users.
+          help:
+            en: Try searching for "user",
+          widget:
+            type: lookupText
+            options:
+              query: /user{remote_user :as value, remote_user :as label}.filter(remote_user~$search)
+

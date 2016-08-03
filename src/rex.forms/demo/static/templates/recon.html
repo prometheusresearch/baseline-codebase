@@ -8,6 +8,10 @@
             demos: {{ demos|json }},
             recons: {{ recons|json }},
             mountPoint: {{ MOUNT['rex.forms_demo']|json }},
+            apiUrls: {
+                resourcePrefix: '{{ SETTINGS.forms_local_resource_prefix|url }}',
+                lookup: '{{ MOUNT['rex.forms'] }}/lookup',
+            },
             i18nUrl: {{ MOUNT['rex.i18n']|json }},
             initialLocale: '{{ CURRENT_LOCALE }}',
             availableLocales: {{ SUPPORTED_LOCALES|list|json }}

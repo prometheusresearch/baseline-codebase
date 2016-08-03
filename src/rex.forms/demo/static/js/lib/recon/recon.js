@@ -14,6 +14,7 @@ export default class Recon extends React.Component {
   static propTypes = {
     recon: React.PropTypes.object.isRequired,
     mountPoint: React.PropTypes.string.isRequired,
+    apiUrls: React.PropTypes.object.isRequired,
     i18nUrl: React.PropTypes.string.isRequired,
     initialLocale: React.PropTypes.string.isRequired,
     availableLocales: React.PropTypes.array.isRequired
@@ -59,6 +60,7 @@ export default class Recon extends React.Component {
             />
           <Workspace
             mountPoint={this.props.mountPoint}
+            apiUrls={this.props.apiUrls}
             i18nUrl={this.props.i18nUrl}
             options={this.state.options}
             recon={this.props.recon}

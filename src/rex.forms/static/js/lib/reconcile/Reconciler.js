@@ -79,12 +79,19 @@ export default class Reconciler extends React.Component {
      *   discrepancies.
      */
     onComplete: React.PropTypes.func,
+
+    /**
+     * A collection of API URLs that are used by various widgets or
+     * functionality in the form.
+     */
+    apiUrls: React.PropTypes.object,
   };
 
   static defaultProps = {
     parameters: {},
     onComplete: noop,
     onChange: noop,
+    apiUrls: {},
   };
 
   constructor(props, context) {
@@ -105,7 +112,7 @@ export default class Reconciler extends React.Component {
   }
 
   render() {
-    let {form, parameters, discrepancies, entries} = this.props;
+    let {form, parameters, discrepancies, entries, apiUrls} = this.props;
     let {formValue} = this.state;
     let showComplete = !this.state.isComplete;
     return (
@@ -113,7 +120,8 @@ export default class Reconciler extends React.Component {
         self={this}
         form={form}
         parameters={parameters}
-        events={null}>
+        events={null}
+        apiUrls={apiUrls || {}}>
         <div>
           <DiscrepancyList
             entries={entries}

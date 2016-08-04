@@ -128,7 +128,8 @@ definitions:
       - instrument: mart1
         selector: |
           /assessment{
-            id() :as assessment_uid
+            id() :as assessment_uid,
+            age_at_evaluation
           }.filter(
             instrumentversion.instrument='mart1'
           )/:rexdb

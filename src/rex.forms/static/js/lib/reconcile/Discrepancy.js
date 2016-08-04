@@ -16,7 +16,7 @@ export function isCompleteSimple(formValue, _discrepancy) {
 export function isCompleteComposite(formValue, discrepancy) {
   let {value, completeErrorList} = formValue;
   return (
-    value &&
+    !!value &&
     completeErrorList.length === 0 &&
     every(discrepancy, (_v, i) =>
       every(discrepancy[i], (_v, j) =>
@@ -29,7 +29,7 @@ export function isCompleteComposite(formValue, discrepancy) {
 export function isComplete(formValue, discrepancy) {
   let {value, completeErrorList, schema} = formValue;
   return (
-    value &&
+    !!value &&
     completeErrorList.length === 0 &&
     every(discrepancy, (discrepancy, key) => {
       let node = schema.properties[key];

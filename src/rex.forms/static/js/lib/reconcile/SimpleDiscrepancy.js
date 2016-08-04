@@ -8,6 +8,7 @@ import * as ReactUI from '@prometheusresearch/react-ui';
 import DiscrepancyTitle from './DiscrepancyTitle';
 import DiscrepancyChoices from './DiscrepancyChoices';
 import PositionDescription from './PositionDescription';
+import {isCompleteSimple} from './Discrepancy';
 
 export default class SimpleDiscrepancy extends React.Component {
 
@@ -15,12 +16,7 @@ export default class SimpleDiscrepancy extends React.Component {
     let {formValue, discrepancy, entries} = this.props;
     let {schema} = formValue;
     let {form: {question, position}, instrument} = schema;
-    let complete = (
-      // !== undefined is important as we want to capture any intentional input
-      // from user, even if it results in empty value (null)
-      formValue.value !== undefined &&
-      formValue.completeErrorList.length === 0
-    );
+    let complete = isCompleteSimple(formValue, discrepancy);
     let subtitle = null;
     if (position) {
       subtitle = <PositionDescription {...position} />;

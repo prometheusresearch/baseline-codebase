@@ -8,7 +8,7 @@ import * as ReactUI from '@prometheusresearch/react-ui';
 import LocalizedString from '../form/LocalizedString';
 import MarkupString from '../form/MarkupString';
 
-import {isCompleteComposite} from './Discrepancy';
+import {isCompleteSimple, isCompleteComposite} from './Discrepancy';
 import DiscrepancyTitle from './DiscrepancyTitle';
 import DiscrepancyChoices from './DiscrepancyChoices';
 import PositionDescription from './PositionDescription';
@@ -83,6 +83,7 @@ function MatrixRowDiscrepancy({entries, formValue, discrepancy, questions}) {
 function MatrixColumnDiscrepancy({entries, formValue, discrepancy}) {
   let {schema} = formValue;
   let {form: {question, row}, instrument} = schema;
+  let complete = isCompleteSimple(formValue, discrepancy);
   let title = (
     <span>
       <LocalizedString Component={MarkupString} inline text={row.text} />
@@ -97,7 +98,7 @@ function MatrixColumnDiscrepancy({entries, formValue, discrepancy}) {
       />
   );
   return (
-    <ReactUI.Card header={header} marginBottom="x-small">
+    <ReactUI.Card header={header} marginBottom="x-small" variant={{success: complete}}>
       <ReactUI.Block padding="small">
         <DiscrepancyChoices
           discrepancy={discrepancy}

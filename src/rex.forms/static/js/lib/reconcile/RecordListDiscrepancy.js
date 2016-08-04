@@ -9,7 +9,7 @@ import {inject} from 'rex-i18n';
 
 import map from 'lodash/map';
 
-import {isCompleteComposite} from './Discrepancy';
+import {isCompleteSimple, isCompleteComposite} from './Discrepancy';
 import DiscrepancyTitle from './DiscrepancyTitle';
 import DiscrepancyChoices from './DiscrepancyChoices';
 import PositionDescription from './PositionDescription';
@@ -67,10 +67,18 @@ let RecordListRecordDiscrepancy = inject(function ({formValue, id, discrepancy, 
       discrepancy={discrepancy}
       />
   );
+  let complete = isCompleteSimple(formValue, discrepancy);
+  Object.keys(discrepancy).forEach((field) => {
+    if (!isCompleteSimple(formValue.select(field), discrepancy[field])) {
+      complete = false;
+    }
+  });
+
   return (
     <ReactUI.Card
       header={this._('Record %(recordId)s', {recordId: id + 1})}
-      marginBottom="medium">
+      marginBottom="medium"
+      variant={{success: complete}}>
       <ReactUI.Block
         paddingTop="x-small"
         paddingStart="x-small"
@@ -84,6 +92,7 @@ let RecordListRecordDiscrepancy = inject(function ({formValue, id, discrepancy, 
 function RecordListItemDiscrepancy({entries, formValue, discrepancy}) {
   let {schema} = formValue;
   let {form: {question}, instrument} = schema;
+  let complete = isCompleteSimple(formValue, discrepancy);
   let header = (
     <DiscrepancyTitle
       title={question.text}
@@ -91,7 +100,7 @@ function RecordListItemDiscrepancy({entries, formValue, discrepancy}) {
       />
   );
   return (
-    <ReactUI.Card header={header} marginBottom="small">
+    <ReactUI.Card header={header} marginBottom="small" variant={{success: complete}}>
       <ReactUI.Block padding="small">
         <DiscrepancyChoices
           discrepancy={discrepancy}

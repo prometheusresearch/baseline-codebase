@@ -1,10 +1,13 @@
 foo:
   '0':
-    'subfield1':
+    subfield1:
       entry1: hello
       entry2: goodbye
   '1':
-    'subfield2':
+    subfield1:
+      entry1: foo
+      entry2: bar
+    subfield2:
       entry1: 42
       entry2: 43
 

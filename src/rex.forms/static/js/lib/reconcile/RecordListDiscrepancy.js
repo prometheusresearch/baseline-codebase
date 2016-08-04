@@ -34,6 +34,7 @@ export default class RecordListDiscrepancy extends React.Component {
           key={idx}
           discrepancy={discrepancy}
           formValue={formValue.select(recordId)}
+          questions={question.questions}
           />
       );
     });
@@ -58,15 +59,21 @@ export default class RecordListDiscrepancy extends React.Component {
   }
 }
 
-let RecordListRecordDiscrepancy = inject(function ({formValue, id, discrepancy, entries}) {
-  let records = map(discrepancy, (discrepancy, fieldId) =>
-    <RecordListItemDiscrepancy
-      entries={entries}
-      key={fieldId}
-      formValue={formValue.select(fieldId)}
-      discrepancy={discrepancy}
-      />
-  );
+let RecordListRecordDiscrepancy = inject(function ({formValue, id, discrepancy, entries, questions}) {
+  let subfields = [];
+  questions.forEach((question) => {
+    if (discrepancy[question.fieldId]) {
+      subfields.push(
+        <RecordListItemDiscrepancy
+          entries={entries}
+          key={question.fieldId}
+          formValue={formValue.select(question.fieldId)}
+          discrepancy={discrepancy[question.fieldId]}
+          />
+      );
+    }
+  });
+
   let complete = isCompleteSimple(formValue, discrepancy);
   Object.keys(discrepancy).forEach((field) => {
     if (!isCompleteSimple(formValue.select(field), discrepancy[field])) {
@@ -83,7 +90,7 @@ let RecordListRecordDiscrepancy = inject(function ({formValue, id, discrepancy, 
         paddingTop="x-small"
         paddingStart="x-small"
         paddingEnd="x-small">
-        {records}
+        {subfields}
       </ReactUI.Block>
     </ReactUI.Card>
   );

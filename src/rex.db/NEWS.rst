@@ -10,6 +10,7 @@
 
 * Implemented read-only mode.
 * Cache parsed HTSQL expressions.
+* Rollback connection on errors.
 
 
 3.5.0 (2016-07-13)

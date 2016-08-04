@@ -96,6 +96,7 @@ class LazyConnection(object):
             if exc_type is None:
                 self.connection.commit()
             else:
+                self.connection.rollback()
                 self.connection.invalidate()
             self.connection.release()
             self.connection = None

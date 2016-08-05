@@ -110,7 +110,7 @@ let MatrixRow = ReactForms.reactive(function MatrixRow({row, questions, formValu
           ...question
         };
 
-        let {_help, ...questionOptions} = question;
+        let {help, ...questionOptions} = question;  // eslint-disable-line no-unused-vars
         return (
           <td key={question.fieldId}>
             {!event.isHidden(eventKey) &&

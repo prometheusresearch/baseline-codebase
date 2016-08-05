@@ -6,6 +6,7 @@ import * as ReactForms from 'react-forms';
 import * as React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import isArray from 'lodash/isArray';
+import isString from 'lodash/isString';
 import noop from 'lodash/noop';
 
 import {InjectI18N} from 'rex-i18n';
@@ -21,7 +22,7 @@ function makeSolution(value) {
   let {...solution} = value;
 
   Object.keys(solution).forEach((key) => {
-    if (isArray(solution[key])) {
+    if (isArray(solution[key]) && !isString(solution[key][0])) {
       let mapped = {};
       solution[key].forEach((rec, idx) => {
         mapped[String(idx)] = rec;

@@ -9,7 +9,9 @@ import pullAll from 'lodash/pullAll';
 import forEach from 'lodash/forEach';
 import some from 'lodash/some';
 import concat from 'lodash/concat';
+import REXL from 'rex-expression';
 import * as EventCatalog from './EventCatalog';
+import resolve from './resolve';
 
 function deriveChildren(scope, schema, value) {
   let children = {};
@@ -208,5 +210,14 @@ export class EventScope {
 
 export function create(form, schema, value, parameters = {}, parent = null) {
   let catalog = EventCatalog.create(form);
+
+  // HACK: Install a side-door for testing/debugging REXL expressions in the
+  // context of the current form.
+  global.REX_FORMS_EVALUATOR = (expression) => {
+    return REXL.parse(expression).evaluate((id) => {
+      return resolve(id, schema, value.get(), parameters);
+    });
+  };
+
   return new EventScope(catalog, schema, value, parameters, [], parent);
 }

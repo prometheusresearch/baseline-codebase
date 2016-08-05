@@ -111,10 +111,14 @@ export function create(form) {
     if (keyPath) {
       item.keyPath = keyPath;
     }
-    item.eventList.push({
-      ...event,
-      triggerParsed: REXL.parse(event.trigger),
-    });
+    try {
+      item.eventList.push({
+        ...event,
+        triggerParsed: REXL.parse(event.trigger),
+      });
+    } catch (exc) {
+      console.error(`Could not parse ${event.action} Event Trigger "${event.trigger.trim()}": ${exc}`);
+    }
   }
 
   forEachQuestion(form, (question) => {
@@ -156,6 +160,19 @@ export function create(form) {
   return {tag, page, field};
 }
 
+
+function evaluateEvent(event, resolver) {
+  try {
+    return event.triggerParsed.evaluate(resolver);
+  } catch (exc) {
+    console.error(
+      `Failure when evaluating ${event.action} Event Trigger "${event.trigger.trim()}": ${exc}`
+    );
+    return false;
+  }
+}
+
+
 /**
  * Bind catalog to value.
  *
@@ -166,19 +183,19 @@ export function create(form) {
 export function bind(catalog, schema, value, parameters = {}) {
 
   let computeBool = (eventList, resolver) =>
-    every(eventList, ev => ev.triggerParsed.evaluate(resolver));
+    every(eventList, ev => evaluateEvent(ev, resolver));
 
   let computeFail = (eventList, resolver) =>
     eventList
       .map(ev => {
-        let fail = ev.triggerParsed.evaluate(resolver);
+        let fail = evaluateEvent(ev, resolver);
         return fail ? ev.options.text : null;
       })
       .filter(Boolean);
 
   let computeHideEnumeration = (eventList, resolver) =>
     flatten(map(eventList, ev => {
-      let hidden = ev.triggerParsed.evaluate(resolver);
+      let hidden = evaluateEvent(ev, resolver);
       return hidden ? ev.options.enumerations : [];
     }));
 
@@ -201,14 +218,6 @@ export function bind(catalog, schema, value, parameters = {}) {
       });
       return {computation, keyPath, eventList};
     }
-  };
-
-  // HACK: Install a side-door for testing/debugging REXL expressions in the
-  // context of the current form.
-  global.REX_FORMS_EVALUATOR = (expression) => {
-    return REXL.parse(expression).evaluate((id) => {
-      return resolve(id, schema, value.get(), parameters);
-    });
   };
 
   return mapValues(

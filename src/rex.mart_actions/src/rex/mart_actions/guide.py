@@ -27,13 +27,6 @@ __all__ = (
 )
 
 
-def reflect_table_fields(database, table):
-    product = database.produce('/%s/:describe' % table)
-    fields = product.meta.domain.item_domain.fields
-    validate_column = ColumnVal()
-    return [validate_column(f.tag) for f in fields]
-
-
 class FilterVal(Validate):
     _validate = RecordVal(
         ('title', StrVal(), None),
@@ -42,6 +35,8 @@ class FilterVal(Validate):
     )
 
     def __call__(self, value):
+        if isinstance(value, basestring):
+            value = {'title': value, 'expression': value}
         return self._validate(value)
 
 
@@ -68,6 +63,21 @@ class ColumnVal(Validate):
         title = re.sub(r'^[^a-zA-Z_]+', '', title)
         title = re.sub(r'[^a-zA-Z0-9_]', '_', title)
         return title
+
+
+def reflect_table_fields(database, table, validate=ColumnVal()):
+    product = database.produce('/%s/:describe' % table)
+    fields = product.meta.domain.item_domain.fields
+    return [validate(f.tag) for f in fields]
+
+
+def reflect_table_filters(database, table, validate=FilterVal()):
+    product = database.produce('/%s/:describe' % table)
+    fields = product.meta.domain.item_domain.fields
+    return [validate(f.tag)
+            for f in fields
+            if any([isinstance(f.domain, domain_type)
+                    for domain_type in FILTERS])]
 
 
 class GuideMartTool(MartTool):
@@ -166,7 +176,7 @@ class GuideFilterAction(GuideAction):
     js_type = 'rex-mart-actions/lib/guide/FilterDataset'
 
     filters = Field(
-        SeqVal(FilterVal()),
+        SeqVal(FilterVal()), default=None,
         transitionable=False,
         doc="""
         Filter definitions.
@@ -179,14 +189,19 @@ class GuideFilterAction(GuideAction):
             return None
 
         database = self.get_mart_db(mart)
+
+        filters = (
+                self.filters or
+                reflect_table_filters(database, self.table))
+
         query = '/%s{%s}/:describe' % (
             self.table,
-            ', '.join(f.expression for f in self.filters),
+            ', '.join(f.expression for f in filters),
         )
         meta = database.produce(query).meta.domain.item_domain
 
         compiled = []
-        for field, filt in zip(meta.fields, self.filters):
+        for field, filt in zip(meta.fields, filters):
             cfg = FILTERS.get(field.domain.__class__)
             if not cfg:
                 raise Error(

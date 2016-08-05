@@ -200,7 +200,9 @@ queries on tables in Mart databases.
 
                  **filters**: The list of filters to allow the user to choose
                  from. This is a list of mappings that have two properties;
-                 ``title`` and ``expression``.
+                 ``title`` and ``expression``. If not specified, filters will
+                 be automatically displayed for all supported fields on the
+                 table.
 
 ``mart-guide-columns``
     :Purpose: Allows the user to select which columns should be returned by the

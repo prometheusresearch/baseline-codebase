@@ -1,1 +1,60 @@
-- include: case1.yaml
+- table: trunk
+  with:
+  - column: t_id
+    type: integer
+  - column: t_data
+    type: text
+  - identity: [t_id]
+
+- table: branch
+  with:
+  - link: trunk
+  - column: b_id
+    type: text
+  - column: b_data
+    type: text
+  - identity: [trunk, b_id]
+
+- table: facet
+  with:
+  - link: trunk
+  - column: f_text
+    type: text
+  - column: f_int
+    type: integer
+  - identity: [trunk]
+
+- table: cross_partner
+  with:
+  - column: cp_id
+    type: text
+  - column: cp_data
+    type: text
+  - identity: [cp_id]
+
+- table: cross
+  with:
+  - link: trunk
+  - link: cross_partner
+  - identity: [trunk, cross_partner]
+
+- table: parent
+  with:
+  - column: p_id
+    type: text
+  - column: p_data
+    type: text
+  - identity: [p_id]
+
+- table: child
+  with:
+  - link: parent
+  - column: c_id
+    type: text
+  - identity: [parent, c_id]
+
+- table: parent_child_cross
+  with:
+  - link: parent
+  - link: child
+  - identity: [parent, child]

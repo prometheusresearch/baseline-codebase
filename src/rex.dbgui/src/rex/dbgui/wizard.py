@@ -174,7 +174,8 @@ class ActionProxy(object):
 
 class TableActionProxy(ActionProxy):
 
-    order = ActionProxy.order + ['entity', 'input', 'value', 'mask', 'search',
+    order = ActionProxy.order + ['entity', 'input', 'value',
+                                 'fields', 'mask', 'search',
                                  'search_placeholder']
 
     def __init__(self, table, type, context=[], **kwds):
@@ -189,6 +190,7 @@ class TableActionProxy(ActionProxy):
         self.fields, self.value = self.get_fields_value(table, field_prefix,
                                                         context)
         self.input = [to_complete_entity(item) for item in context]
+        #print table, type, self.fields
         for attr, value in kwds.items():
             setattr(self, attr, value)
 
@@ -241,7 +243,6 @@ class TableActionProxy(ActionProxy):
                 continue
             fields.append(prefix + field.label)
         return fields, value or None
-
 
     def replace(self):
         view = 'view' + self.id[len(self.type):]

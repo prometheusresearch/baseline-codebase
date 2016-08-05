@@ -4,7 +4,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Project-Id-Version: rex.forms 2.0.0\n"
-"POT-Creation-Date: 2016-08-01 20:09\n"
+"POT-Creation-Date: 2016-08-05 15:29\n"
 "Content-Type: text/plain;\n"
 
 #: lib/AudioPlayer.js:121
@@ -119,7 +119,7 @@ msgstr ""
 msgid "Edit"
 msgstr ""
 
-#: lib/form/widget/RadioGroup.js:170
+#: lib/form/widget/RadioGroup.js:174
 msgid "Clear My Selection"
 msgstr ""
 
@@ -139,7 +139,7 @@ msgstr ""
 msgid "Yes"
 msgstr ""
 
-#: lib/form/widget/ViewValue.js:30
+#: lib/form/widget/ViewValue.js:29
 msgid "No Value"
 msgstr ""
 
@@ -152,7 +152,7 @@ msgid "This must be entered in the form: YYYY-MM-DD"
 msgstr ""
 
 #: lib/instrument/validate.js:130
-msgid "This must be entered in the form: YYYY-MM-DDTHH:MM:SS"
+msgid "This must be entered in the form: YYYY-MM-DDTHH:MM[:SS]"
 msgstr ""
 
 #: lib/instrument/validate.js:135
@@ -160,7 +160,7 @@ msgid "Not a valid date."
 msgstr ""
 
 #: lib/instrument/validate.js:152
-msgid "This must be entered in the form: HH:MM:SS"
+msgid "This must be entered in the form: HH:MM[:SS]"
 msgstr ""
 
 #: lib/instrument/validate.js:155
@@ -263,10 +263,10 @@ msgstr ""
 msgid "Middle of Page %(page)s (%(field)s)"
 msgstr ""
 
-#: lib/reconcile/Reconciler.js:106
+#: lib/reconcile/Reconciler.js:135
 msgid "Complete Reconciliation"
 msgstr ""
 
-#: lib/reconcile/RecordListDiscrepancy.js:72
+#: lib/reconcile/RecordListDiscrepancy.js:86
 msgid "Record %(recordId)s"
 msgstr ""

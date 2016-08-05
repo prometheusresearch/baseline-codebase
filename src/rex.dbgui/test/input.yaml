@@ -1,0 +1,27 @@
+#
+# Copyright (c) 2016, Prometheus Research, LLC
+#
+
+title: REX.DB
+tests:
+
+- rmdir: ./build/coverage
+- mkdir: ./build/coverage
+- coverage: setup.cfg
+  auto-data: true
+
+- sh: pip install -q -e ./demo
+- sh: rex dropdb rex.dbgui_demo --set=db=pgsql:dbgui_demo
+  ignore: true
+- sh: rex deploy rex.dbgui_demo --set=db=pgsql:dbgui_demo
+
+#- doctest: test/test_*.rst
+
+
+# - coverage-check: 85.0
+# - coverage-report: ./build/coverage
+
+- sh: rex dropdb rex.dbgui_demo --set=db=pgsql:dbgui_demo
+  ignore: true
+
+- sh: pip uninstall -q -y rex.dbgui_demo

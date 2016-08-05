@@ -1,9 +1,0 @@
-- table: visit_migration_fail
-  with:
-  - link: visit
-  - identity: [visit]
-  - link: study_version
-  - link: user
-  - column: when
-    type: datetime
-    default: now()

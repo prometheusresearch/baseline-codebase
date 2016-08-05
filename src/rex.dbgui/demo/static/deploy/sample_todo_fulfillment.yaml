@@ -1,5 +1,0 @@
-- table: sample_todo_fulfillment
-  with:
-  - link: todo
-  - identity: [todo]
-  - link: sample

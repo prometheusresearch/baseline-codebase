@@ -1,5 +1,0 @@
-- table: sample_type_x_todo
-  with:
-  - link: sample_type
-  - link: todo
-  - identity: [sample_type, todo]

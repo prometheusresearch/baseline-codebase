@@ -1,8 +1,0 @@
-- table: individual_notes
-  with:
-  - link: individual
-  - link: todo
-  - identity: [individual, todo]
-  - column: notes
-    type: text
-    required: false

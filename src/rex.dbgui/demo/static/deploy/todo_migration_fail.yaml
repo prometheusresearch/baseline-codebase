@@ -1,9 +1,0 @@
-- table: todo_migration_fail
-  with:
-  - link: todo
-  - identity: [todo]
-  - link: study_version
-  - link: user
-  - column: when
-    type: datetime
-    default: now()

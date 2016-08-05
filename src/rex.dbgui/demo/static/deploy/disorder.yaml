@@ -1,8 +1,0 @@
-- table: disorder
-  with:
-  - column: code
-    type: text
-  - identity: [code]
-  - column: title
-    type: text
-    required: false

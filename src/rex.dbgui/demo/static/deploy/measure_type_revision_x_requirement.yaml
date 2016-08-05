@@ -1,5 +1,0 @@
-- table: measure_type_revision_x_requirement
-  with:
-  - link: requirement
-  - link: measure_type_revision
-  - identity: [requirement, measure_type_revision]

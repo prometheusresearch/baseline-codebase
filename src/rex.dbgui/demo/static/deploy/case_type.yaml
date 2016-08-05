@@ -1,7 +1,0 @@
-- table: case_type
-  with:
-  - column: code
-    type: text
-  - identity: [code]
-  - column: title
-    type: text

@@ -1,0 +1,33 @@
+- table: trunk_1
+  with:
+  - column: t_id
+    type: integer
+  - column: t_data
+    type: text
+  - identity: [t_id]
+
+- table: branch_1
+  with:
+  - link: trunk_1
+  - column: b_id
+    type: text
+  - column: b_data
+    type: text
+  - identity: [trunk_1, b_id]
+
+- table: facet_1
+  with:
+  - link: [trunk_1]
+  - column: f_text
+    type: text
+  - column: f_int
+    type: integer
+
+- table: cross_partner_1
+  with:
+  - column: cp_id
+    type: text
+  - column: cp_data
+    type: text
+
+

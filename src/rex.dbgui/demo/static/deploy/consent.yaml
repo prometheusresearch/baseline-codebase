@@ -1,7 +1,0 @@
-- table: consent
-  with:
-  - link: consent_type
-  - link: individual
-  - column: code
-    type: integer
-  - identity: [individual, consent_type , code: offset]

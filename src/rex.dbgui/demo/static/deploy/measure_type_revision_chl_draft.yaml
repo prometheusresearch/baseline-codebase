@@ -1,9 +1,0 @@
-- table: measure_type_revision_chl_draft
-  with:
-  - link: measure_type_revision_draft
-  - link: acquire_channel
-  - identity: [measure_type_revision_draft, acquire_channel]
-  - column: json
-    type: json
-    required: false
-

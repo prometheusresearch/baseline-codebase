@@ -1,7 +1,0 @@
-- table: measure_annotation_score
-  with:
-  - column: code
-    type: text
-  - identity: [code]
-  - column: title
-    type: text

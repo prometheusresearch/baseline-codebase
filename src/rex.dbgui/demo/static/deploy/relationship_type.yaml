@@ -1,8 +1,0 @@
-- table: relationship_type
-  with:
-  - column: name
-    type: text
-  - identity: [name]
-  - link: reciprocal_relationship_type
-    to: relationship_type
-    required: false

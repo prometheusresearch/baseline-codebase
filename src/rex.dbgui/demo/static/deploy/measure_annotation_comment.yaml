@@ -1,5 +1,0 @@
-- table: measure_annotation_comment
-  with:
-  - link: measure_annotation
-  - link: measure_annotation_comment_type
-  - identity: [measure_annotation, measure_annotation_comment_type]

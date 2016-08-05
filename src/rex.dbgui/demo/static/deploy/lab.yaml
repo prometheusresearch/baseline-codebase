@@ -1,8 +1,0 @@
-- table: lab
-  with:
-  - column: code
-    type: text
-  - identity: [code]
-  - column: title
-    type: text
-

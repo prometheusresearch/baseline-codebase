@@ -1,5 +1,0 @@
-- table: site_x_study
-  with:
-  - link: site
-  - link: study
-  - identity: [site, study]

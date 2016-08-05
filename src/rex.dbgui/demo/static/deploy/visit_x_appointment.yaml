@@ -1,6 +1,0 @@
-- table: visit_x_appointment
-  with:
-  - link: visit
-  - link: appointment
-  - identity: [visit, appointment]
-

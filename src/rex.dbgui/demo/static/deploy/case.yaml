@@ -1,6 +1,0 @@
-- table: case
-  with:
-  - link: case_type
-  - column: code
-    type: integer
-  - identity: [case_type, code: offset]

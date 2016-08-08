@@ -3,9 +3,10 @@
 #
 
 
-from .sql import (sql_create_table, sql_drop_table, sql_rename_table,
-        sql_comment_on_table, sql_define_column, sql_add_column,
-        sql_drop_column, sql_rename_column, sql_copy_column,
+from .sql import (sql_create_schema, sql_drop_schema, sql_rename_schema,
+        sql_comment_on_schema, sql_create_table, sql_drop_table,
+        sql_rename_table, sql_comment_on_table, sql_define_column,
+        sql_add_column, sql_drop_column, sql_rename_column, sql_copy_column,
         sql_set_column_type, sql_set_column_not_null, sql_set_column_default,
         sql_comment_on_column, sql_create_enum_type, sql_drop_type,
         sql_rename_type, sql_add_unique_constraint,
@@ -260,6 +261,12 @@ class CatalogImage(Image):
         """Adds a new schema."""
         return SchemaImage(self, name)
 
+    def create_schema(self, name):
+        """Creates a new schema."""
+        sql = sql_create_schema(name)
+        self.cursor.execute(sql)
+        return self.add_schema(name)
+
 
 class SchemaImage(NamedImage):
     """Database schema."""
@@ -340,9 +347,10 @@ class SchemaImage(NamedImage):
 
     def create_table(self, name, definitions, is_unlogged=False):
         """Creates a table with the given columns."""
-        body = [sql_define_column(column_name, type.name, is_not_null, default)
+        qname = (self.name, name)
+        body = [sql_define_column(column_name, type.qname, is_not_null, default)
                 for column_name, type, is_not_null, default in definitions]
-        sql = sql_create_table(name, body, is_unlogged=is_unlogged)
+        sql = sql_create_table(qname, body, is_unlogged=is_unlogged)
         self.cursor.execute(sql)
         table = self.add_table(name, is_unlogged=is_unlogged)
         for column_name, type, is_not_null, default in definitions:
@@ -352,38 +360,81 @@ class SchemaImage(NamedImage):
     def create_index(self, name, table, columns):
         """Creates an index."""
         column_names = [column.name for column in columns]
-        sql = sql_create_index(name, table.name, column_names)
+        sql = sql_create_index(name, table.qname, column_names)
         self.cursor.execute(sql)
         return self.add_index(name, table, columns)
 
     def create_sequence(self, name, column=None):
         """Creates a sequence and associates it with a column."""
+        qname = (self.name, name)
         if column is None:
-            self.cursor.execute(sql_create_sequence(name))
-            return self.add_sequence(name)
-        sql = sql_create_sequence(name, column.table.name, column.name)
+            self.cursor.execute(sql_create_sequence(qname))
+            return self.add_sequence(qname)
+        sql = sql_create_sequence(qname, column.table.qname, column.name)
         self.cursor.execute(sql)
-        column.alter_default(sql_nextval(name))
+        column.alter_default(sql_nextval(qname))
         sequence = self.add_sequence(name)
         column.link(sequence)
         return sequence
 
     def create_enum_type(self, name, labels):
         """Creates a ``ENUM`` type."""
-        sql = sql_create_enum_type(name, labels)
+        qname = (self.name, name)
+        sql = sql_create_enum_type(qname, labels)
         self.cursor.execute(sql)
         return self.add_enum_type(name, labels)
 
     def create_procedure(self, name, types, return_type, source):
         """Creates a stored procedure."""
-        type_names = [type.name for type in types]
+        qname = (self.name, name)
+        type_qnames = [type.qname for type in types]
         sql = sql_create_function(
-                name, type_names, return_type.name, u"plpgsql", source)
+                qname, type_qnames, return_type.qname, u"plpgsql", source)
         self.cursor.execute(sql)
         return self.add_procedure(name, types, return_type, source)
 
+    def alter_name(self, name):
+        """Renames the schema."""
+        if self.name == name:
+            return self
+        sql = sql_rename_schema(self.name, name)
+        self.cursor.execute(sql)
+        return self.set_name(name)
 
-class IndexImage(NamedImage):
+    def alter_comment(self, comment):
+        """Updates the schema comment."""
+        if self.comment == comment:
+            return self
+        sql = sql_comment_on_schema(self.name, comment)
+        self.cursor.execute(sql)
+        return self.set_comment(comment)
+
+    def drop(self):
+        """Deletes the schema."""
+        sql = sql_drop_schema(self.name)
+        self.cursor.execute(sql)
+        self.remove()
+
+
+class NamespacedImage(NamedImage):
+    """Named object that belongs to a schema."""
+
+    __slots__ = ()
+
+    @property
+    def schema(self):
+        """The schema that owns the object."""
+        return self.owner()
+
+    @property
+    def qname(self):
+        """
+        The qualified name.
+        """
+        return (self.owner().name, self.name)
+
+
+class IndexImage(NamespacedImage):
     """Index."""
 
     __slots__ = ('table', 'columns', 'comment')
@@ -403,11 +454,6 @@ class IndexImage(NamedImage):
         #: Index comment.
         self.comment = None
 
-    @property
-    def schema(self):
-        """Index owner."""
-        return self.owner()
-
     def set_comment(self, comment):
         """Sets the comment."""
         self.comment = comment
@@ -417,24 +463,24 @@ class IndexImage(NamedImage):
         """Changes the index name."""
         if self.name == name:
             return self
-        sql = sql_rename_index(self.name, name)
+        sql = sql_rename_index(self.qname, name)
         self.cursor.execute(sql)
         return self.set_name(name)
 
     def drop(self):
         """Deletes the index."""
-        sql = sql_drop_index(self.name)
+        sql = sql_drop_index(self.qname)
         self.cursor.execute(sql)
         self.remove()
 
     def reset(self):
         """Rebuilds the index."""
         column_names = [column.name for column in self.columns]
-        sql = sql_create_index(self.name, self.table.name, column_names)
+        sql = sql_create_index(self.name, self.table.qname, column_names)
         self.cursor.execute(sql)
 
 
-class SequenceImage(NamedImage):
+class SequenceImage(NamespacedImage):
     """Sequence."""
 
     __slots__ = ('comment',)
@@ -446,11 +492,6 @@ class SequenceImage(NamedImage):
         #: Sequence comment.
         self.comment = None
 
-    @property
-    def schema(self):
-        """Sequence owner."""
-        return self.owner()
-
     def set_comment(self, comment):
         """Sets the comment."""
         self.comment = comment
@@ -460,12 +501,12 @@ class SequenceImage(NamedImage):
         """Renames the sequence."""
         if self.name == name:
             return self
-        sql = sql_rename_sequence(self.name, name)
+        sql = sql_rename_sequence(self.qname, name)
         self.cursor.execute(sql)
         return self.set_name(name)
 
 
-class TypeImage(NamedImage):
+class TypeImage(NamespacedImage):
     """Type."""
 
     __slots__ = ('comment',)
@@ -478,11 +519,6 @@ class TypeImage(NamedImage):
         schema.link(self)
         #: Type comment.
         self.comment = None
-
-    @property
-    def schema(self):
-        """Type owner."""
-        return self.owner()
 
     @property
     def columns(self):
@@ -508,13 +544,13 @@ class TypeImage(NamedImage):
         """Changes the type name."""
         if self.name == name:
             return self
-        sql = sql_rename_type(self.name, name)
+        sql = sql_rename_type(self.qname, name)
         self.cursor.execute(sql)
         return self.set_name(name)
 
     def drop(self):
         """Deletes the type."""
-        sql = sql_drop_type(self.name)
+        sql = sql_drop_type(self.qname)
         self.cursor.execute(sql)
         self.remove()
 
@@ -591,6 +627,13 @@ class ProcedureImage(IndexedImage):
         return self.owner()
 
     @property
+    def qname(self):
+        """
+        The qualified name.
+        """
+        return (self.owner().name, self.name)
+
+    @property
     def triggers(self):
         """List of triggers that call this procedure."""
         return self.find(TriggerImage)
@@ -615,8 +658,8 @@ class ProcedureImage(IndexedImage):
         """Changes the procedure name."""
         if self.name == name:
             return self
-        type_names = [type.name for type in self.types]
-        sql = sql_rename_function(self.name, type_names, name)
+        type_qnames = [type.qname for type in self.types]
+        sql = sql_rename_function(self.qname, type_qnames, name)
         self.cursor.execute(sql)
         return self.set_name(name)
 
@@ -624,22 +667,22 @@ class ProcedureImage(IndexedImage):
         """Changes the procedure body."""
         if self.source == source:
             return self
-        type_names = [type.name for type in self.types]
+        type_qnames = [type.qname for type in self.types]
         sql = sql_create_function(
-                self.name, type_names, self.return_type.name,
+                self.qname, type_qnames, self.return_type.qname,
                 u"plpgsql", source)
         self.cursor.execute(sql)
         return self.set_source(source)
 
     def drop(self):
         """Drops the procedure."""
-        type_names = [type.name for type in self.types]
-        sql = sql_drop_function(self.name, type_names)
+        type_qnames = [type.qname for type in self.types]
+        sql = sql_drop_function(self.qname, type_qnames)
         self.cursor.execute(sql)
         self.remove()
 
 
-class TableImage(NamedImage):
+class TableImage(NamespacedImage):
     """Database table."""
 
     __slots__ = ('columns', 'constraints', 'primary_key', 'unique_keys',
@@ -670,11 +713,6 @@ class TableImage(NamedImage):
         self.comment = None
         #: The table was created as `UNLOGGED`?
         self.is_unlogged = is_unlogged
-
-    @property
-    def schema(self):
-        """Table owner."""
-        return self.owner()
 
     def __contains__(self, name):
         """Is there a column with the given name?"""
@@ -734,7 +772,7 @@ class TableImage(NamedImage):
 
     def create_column(self, name, type, is_not_null, default=None):
         """Creates a column."""
-        sql = sql_add_column(self.name, name, type.name, is_not_null, default)
+        sql = sql_add_column(self.qname, name, type.qname, is_not_null, default)
         self.cursor.execute(sql)
         return self.add_column(name, type, is_not_null, default)
 
@@ -742,7 +780,7 @@ class TableImage(NamedImage):
         """Creates a ``UNIQUE`` or ``PRIMARY KEY`` constraint."""
         column_names = [column.name for column in columns]
         sql = sql_add_unique_constraint(
-                self.name, name, column_names, is_primary)
+                self.qname, name, column_names, is_primary)
         self.cursor.execute(sql)
         key = self.add_unique_key(name, columns, is_primary)
         # Each `UNIQUE` constraint maintains an index with the same name.
@@ -764,8 +802,8 @@ class TableImage(NamedImage):
         column_names = [column.name for column in columns]
         target_column_names = [column.name for column in target_columns]
         sql = sql_add_foreign_key_constraint(
-                self.name, name, column_names,
-                target.name, target_column_names,
+                self.qname, name, column_names,
+                target.qname, target_column_names,
                 on_update=on_update, on_delete=on_delete)
         self.cursor.execute(sql)
         return self.add_foreign_key(
@@ -775,13 +813,13 @@ class TableImage(NamedImage):
     def create_trigger(self, name, when, event, procedure, arguments):
         """Creates a trigger."""
         sql = sql_create_trigger(
-                self.name, name, when, event, procedure.name, arguments)
+                self.qname, name, when, event, procedure.qname, arguments)
         self.cursor.execute(sql)
         return self.add_trigger(name, procedure)
 
     def select(self):
         """Fetches table records."""
-        sql = sql_select(self.name, [column.name for column in self.columns])
+        sql = sql_select(self.qname, [column.name for column in self.columns])
         self.cursor.execute(sql)
         return self.add_data(self.cursor.fetchall())
 
@@ -789,7 +827,7 @@ class TableImage(NamedImage):
         """Renames the table."""
         if self.name == name:
             return self
-        sql = sql_rename_table(self.name, name)
+        sql = sql_rename_table(self.qname, name)
         self.cursor.execute(sql)
         return self.set_name(name)
 
@@ -797,13 +835,13 @@ class TableImage(NamedImage):
         """Updates the table comment."""
         if self.comment == comment:
             return self
-        sql = sql_comment_on_table(self.name, comment)
+        sql = sql_comment_on_table(self.qname, comment)
         self.cursor.execute(sql)
         return self.set_comment(comment)
 
     def drop(self):
         """Drops the table."""
-        sql = sql_drop_table(self.name)
+        sql = sql_drop_table(self.qname)
         self.cursor.execute(sql)
         self.remove()
 
@@ -915,11 +953,11 @@ class ColumnImage(NamedImage):
     def alter_position(self, position):
         if position == self.position:
             return self
-        sql = sql_add_column(self.table.name, u"?", self.type.name, False)
+        sql = sql_add_column(self.table.qname, u"?", self.type.qname, False)
         self.cursor.execute(sql)
-        sql = sql_copy_column(self.table.name, u"?", self.name)
+        sql = sql_copy_column(self.table.qname, u"?", self.name)
         self.cursor.execute(sql)
-        sql = sql_drop_column(self.table.name, self.name)
+        sql = sql_drop_column(self.table.qname, self.name)
         self.cursor.execute(sql)
         self.reset(u"?")
         return self.set_position(position)
@@ -929,7 +967,7 @@ class ColumnImage(NamedImage):
         if self.type is type:
             return self
         sql = sql_set_column_type(
-                self.table.name, self.name, type.name, expression)
+                self.table.qname, self.name, type.qname, expression)
         self.cursor.execute(sql)
         # PostgreSQL loses comments on constraints associated with
         # the column.  We need to reapply them again.
@@ -942,7 +980,7 @@ class ColumnImage(NamedImage):
         """Updates the ``NOT NULL`` constraint."""
         if self.is_not_null == is_not_null:
             return self
-        sql = sql_set_column_not_null(self.table.name, self.name, is_not_null)
+        sql = sql_set_column_not_null(self.table.qname, self.name, is_not_null)
         self.cursor.execute(sql)
         return self.set_is_not_null(is_not_null)
 
@@ -950,7 +988,7 @@ class ColumnImage(NamedImage):
         """Updates the default column value."""
         if self.default == default:
             return self
-        sql = sql_set_column_default(self.table.name, self.name, default)
+        sql = sql_set_column_default(self.table.qname, self.name, default)
         self.cursor.execute(sql)
         return self.set_default(default)
 
@@ -958,7 +996,7 @@ class ColumnImage(NamedImage):
         """Updates the comment on the column."""
         if self.comment == comment:
             return self
-        sql = sql_comment_on_column(self.table.name, self.name, comment)
+        sql = sql_comment_on_column(self.table.qname, self.name, comment)
         self.cursor.execute(sql)
         return self.set_comment(comment)
 
@@ -966,13 +1004,13 @@ class ColumnImage(NamedImage):
         """Updates the column name."""
         if self.name == name:
             return self
-        sql = sql_rename_column(self.table.name, self.name, name)
+        sql = sql_rename_column(self.table.qname, self.name, name)
         self.cursor.execute(sql)
         return self.set_name(name)
 
     def drop(self):
         """Deletes the column from the table."""
-        sql = sql_drop_column(self.table.name, self.name)
+        sql = sql_drop_column(self.table.qname, self.name)
         self.cursor.execute(sql)
         self.remove()
 
@@ -980,24 +1018,24 @@ class ColumnImage(NamedImage):
         """Rebuilds the column."""
         if temp_name is None:
             sql = sql_add_column(
-                    self.table.name, self.name, self.type.name,
+                    self.table.qname, self.name, self.type.qname,
                     self.is_not_null, self.default)
             self.cursor.execute(sql)
         else:
             sql = sql_rename_column(
-                    self.table.name, temp_name, self.name)
+                    self.table.qname, temp_name, self.name)
             self.cursor.execute(sql)
             if self.is_not_null:
                 sql = sql_set_column_not_null(
-                        self.table.name, self.name, True)
+                        self.table.qname, self.name, True)
                 self.cursor.execute(sql)
             if self.default is not None:
                 sql = sql_set_column_default(
-                        self.table.name, self.name, self.default)
+                        self.table.qname, self.name, self.default)
                 self.cursor.execute(sql)
         if self.comment is not None:
             sql = sql_comment_on_column(
-                    self.table.name, self.name, self.comment)
+                    self.table.qname, self.name, self.comment)
             self.cursor.execute(sql)
         unique_key_indexes = []
         for unique_key in self.table.unique_keys:
@@ -1045,7 +1083,7 @@ class ConstraintImage(NamedImage):
         """Renames the constraint."""
         if self.name == name:
             return self
-        sql = sql_rename_constraint(self.origin.name, self.name, name)
+        sql = sql_rename_constraint(self.origin.qname, self.name, name)
         self.cursor.execute(sql)
         return self.set_name(name)
 
@@ -1054,13 +1092,13 @@ class ConstraintImage(NamedImage):
         if self.comment == comment:
             return self
         sql = sql_comment_on_constraint(
-                self.origin.name, self.name, comment)
+                self.origin.qname, self.name, comment)
         self.cursor.execute(sql)
         return self.set_comment(comment)
 
     def drop(self):
         """Drops the constraint."""
-        sql = sql_drop_constraint(self.origin.name, self.name)
+        sql = sql_drop_constraint(self.origin.qname, self.name)
         self.cursor.execute(sql)
         self.remove()
 
@@ -1130,11 +1168,11 @@ class UniqueKeyImage(ConstraintImage):
         if not only_comment:
             column_names = [column.name for column in self.origin_columns]
             sql = sql_add_unique_constraint(
-                    self.origin.name, self.name, column_names, self.is_primary)
+                    self.origin.qname, self.name, column_names, self.is_primary)
             self.cursor.execute(sql)
         if self.comment is not None:
             sql = sql_comment_on_constraint(
-                    self.origin.name, self.name, self.comment)
+                    self.origin.qname, self.name, self.comment)
             self.cursor.execute(sql)
         return self
 
@@ -1219,7 +1257,7 @@ class ForeignKeyImage(ConstraintImage):
         if self.on_delete == (on_delete or NO_ACTION):
             return self
         self.set_on_delete(on_delete)
-        sql = sql_drop_constraint(self.origin.name, self.name)
+        sql = sql_drop_constraint(self.origin.qname, self.name)
         self.cursor.execute(sql)
         return self.reset()
 
@@ -1234,13 +1272,13 @@ class ForeignKeyImage(ConstraintImage):
         if on_delete == NO_ACTION:
             on_delete = None
         sql = sql_add_foreign_key_constraint(
-                self.origin.name, self.name, column_names,
-                self.target.name, target_column_names,
+                self.origin.qname, self.name, column_names,
+                self.target.qname, target_column_names,
                 on_update=on_update, on_delete=on_delete)
         self.cursor.execute(sql)
         if self.comment is not None:
             sql = sql_comment_on_constraint(
-                    self.origin.name, self.name, comment)
+                    self.origin.qname, self.name, comment)
             self.cursor.execute(sql)
         return self
 
@@ -1288,7 +1326,7 @@ class TriggerImage(NamedImage):
         """Updates the comment on the trigger."""
         if self.comment == comment:
             return self
-        sql = sql_comment_on_trigger(self.table.name, self.name, comment)
+        sql = sql_comment_on_trigger(self.table.qname, self.name, comment)
         self.cursor.execute(sql)
         return self.set_comment(comment)
 
@@ -1296,13 +1334,13 @@ class TriggerImage(NamedImage):
         """Renames the trigger."""
         if self.name == name:
             return self
-        sql = sql_rename_trigger(self.table.name, self.name, name)
+        sql = sql_rename_trigger(self.table.qname, self.name, name)
         self.cursor.execute(sql)
         return self.set_name(name)
 
     def drop(self):
         """Drops the trigger."""
-        sql = sql_drop_trigger(self.table.name, self.name)
+        sql = sql_drop_trigger(self.table.qname, self.name)
         self.cursor.execute(sql)
         self.remove()
 
@@ -1383,7 +1421,7 @@ class DataImage(Image):
         """Inserts a record into the table."""
         names = [column.name for column in columns]
         returning_names = [column.name for column in self.table]
-        sql = sql_insert(self.table.name, names, values, returning_names)
+        sql = sql_insert(self.table.qname, names, values, returning_names)
         self.cursor.execute(sql)
         output = self.cursor.fetchall()
         assert len(output) == 1
@@ -1398,7 +1436,7 @@ class DataImage(Image):
         names = [column.name for column in columns]
         returning_names = [column.name for column in self.table]
         sql = sql_update(
-                self.table.name, key_column.name, key_value,
+                self.table.qname, key_column.name, key_value,
                 names, values, returning_names)
         self.cursor.execute(sql)
         output = self.cursor.fetchall()
@@ -1411,7 +1449,7 @@ class DataImage(Image):
         assert len(key_column.unique_keys) > 0
         key_value = old_row[0]
         assert key_value is not None
-        sql = sql_delete(self.table.name, key_column.name, key_value)
+        sql = sql_delete(self.table.qname, key_column.name, key_value)
         self.cursor.execute(sql)
         self.remove_row(old_row)
 

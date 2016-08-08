@@ -131,7 +131,7 @@ Deploying a table fact creates the table::
         "id" "int4" NOT NULL
     );
     CREATE SEQUENCE "individual_seq" OWNED BY "individual"."id";
-    ALTER TABLE "individual" ALTER COLUMN "id" SET DEFAULT nextval('individual_seq'::regclass);
+    ALTER TABLE "individual" ALTER COLUMN "id" SET DEFAULT nextval('"individual_seq"'::regclass);
     ALTER TABLE "individual" ADD CONSTRAINT "individual_uk" UNIQUE ("id");
 
     >>> schema = driver.get_schema()

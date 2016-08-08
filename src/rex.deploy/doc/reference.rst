@@ -46,6 +46,7 @@ Introspection and database catalog
    :special-members: __contains__, __getitem__, __iter__, __len__
 .. autoclass:: SchemaImage
    :special-members: __contains__, __getitem__, __iter__, __len__
+.. autoclass:: NamespacedImage
 .. autoclass:: TypeImage
 .. autoclass:: DomainTypeImage
 .. autoclass:: EnumTypeImage
@@ -92,6 +93,7 @@ SQL serialization
 
 .. autofunction:: mangle
 .. autofunction:: sql_name
+.. autofunction:: sql_qname
 .. autofunction:: sql_value
 .. autofunction:: sql_render
 .. autofunction:: sql_template

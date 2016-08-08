@@ -809,23 +809,26 @@ class ColumnModel(Model):
         self.image.alter_default(None)
         if old_data.enumerators is None and data.enumerators is None:
             type_image = self.table.schema.system_image.types[data.name]
-            expression = sql_cast(sql_name(self.image.name), type_image.name)
+            expression = sql_cast(sql_name(self.image.name), type_image.qname)
             self.image.alter_type(type_image, expression)
         elif old_data.enumerators is None:
             self.enum_image = self.table.schema.image.create_enum_type(
                     names.enum_name, data.enumerators)
-            expression = sql_cast(sql_name(self.image.name), names.enum_name)
+            expression = sql_cast(
+                    sql_name(self.image.name), self.enum_image.qname)
             self.image.alter_type(self.enum_image, expression)
         elif data.enumerators is None:
             type_image = schema.system_image.types[data.name]
-            expression = sql_cast(sql_name(self.image.name), type_image.name)
+            expression = sql_cast(sql_name(self.image.name), type_image.qname)
             self.image.alter_type(type_image, expression)
             self.enum_image.drop()
         else:
+            type_image = schema.system_image.types[u"text"]
             new_enum_image = schema.image.create_enum_type(
                     u"?", data.enumerators)
             expression = sql_cast(
-                    sql_cast(sql_name(self.image.name), u"text"), u"?")
+                    sql_cast(sql_name(self.image.name), type_image.qname),
+                    new_enum_image.qname)
             self.image.alter_type(new_enum_image, expression)
             self.enum_image.drop()
             self.enum_image = new_enum_image
@@ -1369,10 +1372,10 @@ class IdentityModel(Model):
         type_qname = (column.type.schema.name, column.type.name)
         if type_qname == (u'pg_catalog', u'int8') and not is_link:
             return plpgsql_integer_offset_key(
-                    table.name, column.name, basis_names)
+                    table.qname, column.name, basis_names)
         elif type_qname == (u'pg_catalog', u'text') and not is_link:
             return plpgsql_text_offset_key(
-                    table.name, column.name, basis_names)
+                    table.qname, column.name, basis_names)
         else:
             raise Error("Expected an integer or text column:", column)
 
@@ -1382,9 +1385,9 @@ class IdentityModel(Model):
         is_link = len(column.foreign_keys) > 0
         type_qname = (column.type.schema.name, column.type.name)
         if type_qname == (u'pg_catalog', u'int8') and not is_link:
-            return plpgsql_integer_random_key(table.name, column.name)
+            return plpgsql_integer_random_key(table.qname, column.name)
         elif type_qname == (u'pg_catalog', u'text') and not is_link:
-            return plpgsql_text_random_key(table.name, column.name)
+            return plpgsql_text_random_key(table.qname, column.name)
         else:
             raise Error("Expected an integer or text column:", column)
 

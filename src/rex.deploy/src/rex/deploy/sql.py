@@ -70,10 +70,24 @@ def sql_name(names):
     If given a list of names, returns a comma-separated sequence of quoted
     identifiers.  Otherwise, returns a quoted identifier.
     """
-    if not isinstance(names, (list, tuple)):
+    if not isinstance(names, list):
         names = [names]
-    return u", ".join(u"\"%s\"" % name.replace(u"\"", u"\"\"")
-                      for name in names)
+    return u", ".join([u"\"%s\"" % name.replace(u"\"", u"\"\"")
+                       for name in names])
+
+
+def sql_qname(qnames):
+    """
+    Quotes a SQL name with its namespace.
+    """
+    if isinstance(qnames, list):
+        return u", ".join([sql_qname(qname) for qname in qnames])
+    else:
+        namespace, name = qnames
+        if namespace in (u'public', u'pg_catalog'):
+            return sql_name(name)
+        else:
+            return u"%s.%s" % (sql_name(namespace), sql_name(name))
 
 
 def sql_value(value):
@@ -128,6 +142,8 @@ sql_jinja.globals.update({
 sql_jinja.filters.update({
     'name': sql_name,
     'n': sql_name,
+    'qname': sql_qname,
+    'qn': sql_qname,
     'value': sql_value,
     'v': sql_value,
 })
@@ -200,6 +216,27 @@ def sql_select_database(name):
 
 
 @sql_template
+def sql_create_schema(name):
+    """
+    CREATE SCHEMA {{ name|n }};
+    """
+
+
+@sql_template
+def sql_drop_schema(name):
+    """
+    DROP SCHEMA {{ name|n }};
+    """
+
+
+@sql_template
+def sql_rename_schema(name, new_name):
+    """
+    ALTER SCHEMA {{ name|n }} RENAME TO {{ new_name|n }};
+    """
+
+
+@sql_template
 def sql_comment_on_schema(name, text):
     """
     COMMENT ON SCHEMA {{ name|n }} IS {{ text|v }};
@@ -207,9 +244,9 @@ def sql_comment_on_schema(name, text):
 
 
 @sql_template
-def sql_create_table(name, definitions, is_unlogged=False):
+def sql_create_table(qname, definitions, is_unlogged=False):
     """
-    CREATE{% if is_unlogged %} UNLOGGED{% endif %} TABLE {{ name|n }} (
+    CREATE{% if is_unlogged %} UNLOGGED{% endif %} TABLE {{ qname|qn }} (
     # for line in definitions
         {{ line }}{% if not loop.last %},{% endif %}
     # endfor
@@ -218,35 +255,30 @@ def sql_create_table(name, definitions, is_unlogged=False):
 
 
 @sql_template
-def sql_drop_table(name):
+def sql_drop_table(qname):
     """
-    DROP TABLE {{ name|n }};
-    """
-
-
-@sql_template
-def sql_rename_table(name, new_name):
-    """
-    ALTER TABLE {{ name|n }} RENAME TO {{ new_name|n }};
+    DROP TABLE {{ qname|qn }};
     """
 
 
 @sql_template
-def sql_comment_on_table(name, text):
+def sql_rename_table(qname, new_name):
     """
-    COMMENT ON TABLE {{ name|n }} IS {{ text|v }};
+    ALTER TABLE {{ qname|qn }} RENAME TO {{ new_name|n }};
     """
 
 
 @sql_template
-def sql_define_column(name, type_name, is_not_null, default=None):
+def sql_comment_on_table(qname, text):
     """
-    {{ name|n }}
-    #- if type_name is instanceof(unicode)
-     {{ type_name|n }}
-    #- else
-     {{ type_name[0]|n }}({{ type_name[1]|v }})
-    #- endif
+    COMMENT ON TABLE {{ qname|qn }} IS {{ text|v }};
+    """
+
+
+@sql_template
+def sql_define_column(name, type_qname, is_not_null, default=None):
+    """
+    {{ name|n }} {{ type_qname|qn }}
     #- if is_not_null
      NOT NULL
     #- endif
@@ -257,14 +289,10 @@ def sql_define_column(name, type_name, is_not_null, default=None):
 
 
 @sql_template
-def sql_add_column(table_name, name, type_name, is_not_null, default=None):
+def sql_add_column(
+        table_qname, name, type_qname, is_not_null, default=None):
     """
-    ALTER TABLE {{ table_name|n }} ADD COLUMN {{ name|n }}
-    #- if type_name is instanceof(unicode)
-     {{ type_name|n }}
-    #- else
-     {{ type_name[0]|n }}({{ type_name[1]|v }})
-    #- endif
+    ALTER TABLE {{ table_qname|qn }} ADD COLUMN {{ name|n }} {{ type_qname|qn }}
     #- if is_not_null
      NOT NULL
     #- endif
@@ -276,32 +304,32 @@ def sql_add_column(table_name, name, type_name, is_not_null, default=None):
 
 
 @sql_template
-def sql_drop_column(table_name, name):
+def sql_drop_column(table_qname, name):
     """
-    ALTER TABLE {{ table_name|n }} DROP COLUMN {{ name|n }};
+    ALTER TABLE {{ table_qname|qn }} DROP COLUMN {{ name|n }};
     """
 
 
 @sql_template
-def sql_rename_column(table_name, name, new_name):
+def sql_rename_column(table_qname, name, new_name):
     """
-    ALTER TABLE {{ table_name|n }} {{- ' ' -}}
+    ALTER TABLE {{ table_qname|qn }} {{- ' ' -}}
     RENAME COLUMN {{ name|n }} TO {{ new_name|n }};
     """
 
 
 @sql_template
-def sql_copy_column(table_name, name, source_name):
+def sql_copy_column(table_qname, name, source_name):
     """
-    UPDATE {{ table_name|n }} SET {{ name|n }} = {{ source_name|n }};
+    UPDATE {{ table_qname|qn }} SET {{ name|n }} = {{ source_name|n }};
     """
 
 
 @sql_template
-def sql_set_column_type(table_name, name, type_name, expression=None):
+def sql_set_column_type(table_qname, name, type_qname, expression=None):
     """
-    ALTER TABLE {{ table_name|n }} {{- ' ' -}}
-    ALTER COLUMN {{ name|n }} SET DATA TYPE {{ type_name|n }}
+    ALTER TABLE {{ table_qname|qn }} {{- ' ' -}}
+    ALTER COLUMN {{ name|n }} SET DATA TYPE {{ type_qname|qn }}
     #- if expression is not none
      USING {{ expression }}
     #- endif
@@ -310,16 +338,16 @@ def sql_set_column_type(table_name, name, type_name, expression=None):
 
 
 @sql_template
-def sql_cast(expression, type_name):
+def sql_cast(expression, type_qname):
     """
-    {{ expression }}::{{ type_name|n }}
+    {{ expression }}::{{ type_qname|qn }}
     """
 
 
 @sql_template
-def sql_set_column_not_null(table_name, name, is_not_null):
+def sql_set_column_not_null(table_qname, name, is_not_null):
     """
-    ALTER TABLE {{ table_name|n }} ALTER COLUMN {{ name|n }}
+    ALTER TABLE {{ table_qname|qn }} ALTER COLUMN {{ name|n }}
     #- if is_not_null
      SET NOT NULL;
     #- else
@@ -329,9 +357,9 @@ def sql_set_column_not_null(table_name, name, is_not_null):
 
 
 @sql_template
-def sql_set_column_default(table_name, name, expression):
+def sql_set_column_default(table_qname, name, expression):
     """
-    ALTER TABLE {{ table_name|n }} ALTER COLUMN {{ name|n }}
+    ALTER TABLE {{ table_qname|qn }} ALTER COLUMN {{ name|n }}
     #- if expression is not none
      SET DEFAULT {{ expression }};
     #- else
@@ -341,37 +369,37 @@ def sql_set_column_default(table_name, name, expression):
 
 
 @sql_template
-def sql_comment_on_column(table_name, name, text):
+def sql_comment_on_column(table_qname, name, text):
     """
-    COMMENT ON COLUMN {{ table_name|n }}.{{ name|n }} IS {{ text|v }};
-    """
-
-
-@sql_template
-def sql_create_index(name, table_name, column_names):
-    """
-    CREATE INDEX {{ name|n }} ON {{ table_name|n }} ({{ column_names|n }});
+    COMMENT ON COLUMN {{ table_qname|qn }}.{{ name|n }} IS {{ text|v }};
     """
 
 
 @sql_template
-def sql_drop_index(name):
+def sql_create_index(name, table_qname, column_names):
     """
-    DROP INDEX {{ name|n }};
-    """
-
-
-@sql_template
-def sql_rename_index(name, new_name):
-    """
-    ALTER INDEX {{ name|n }} RENAME TO {{ new_name|n }};
+    CREATE INDEX {{ name|n }} ON {{ table_qname|qn }} ({{ column_names|n }});
     """
 
 
 @sql_template
-def sql_add_unique_constraint(table_name, name, column_names, is_primary):
+def sql_drop_index(qname):
     """
-    ALTER TABLE {{ table_name|n }} ADD CONSTRAINT {{ name|n }}
+    DROP INDEX {{ qname|qn }};
+    """
+
+
+@sql_template
+def sql_rename_index(qname, new_name):
+    """
+    ALTER INDEX {{ qname|qn }} RENAME TO {{ new_name|n }};
+    """
+
+
+@sql_template
+def sql_add_unique_constraint(table_qname, name, column_names, is_primary):
+    """
+    ALTER TABLE {{ table_qname|qn }} ADD CONSTRAINT {{ name|n }}
     #- if is_primary
      PRIMARY KEY
     #- else
@@ -386,13 +414,14 @@ def sql_add_unique_constraint(table_name, name, column_names, is_primary):
 
 
 @sql_template
-def sql_add_foreign_key_constraint(table_name, name, column_names,
-                                   target_table_name, target_column_names,
-                                   on_update=None, on_delete=None):
+def sql_add_foreign_key_constraint(
+        table_qname, name, column_names,
+        target_table_qname, target_column_names,
+        on_update=None, on_delete=None):
     """
-    ALTER TABLE {{ table_name|n }} ADD CONSTRAINT {{ name|n }} {{- ' ' -}}
+    ALTER TABLE {{ table_qname|qn }} ADD CONSTRAINT {{ name|n }} {{- ' ' -}}
     FOREIGN KEY ({{ column_names|n }}) {{- ' ' -}}
-    REFERENCES {{ target_table_name|n }} ({{ target_column_names|n }}) {{- '' -}}
+    REFERENCES {{ target_table_qname|qn }} ({{ target_column_names|n }}) {{- '' -}}
     #- if on_update is not none
      ON UPDATE {{ on_update }}
     #- endif
@@ -404,173 +433,173 @@ def sql_add_foreign_key_constraint(table_name, name, column_names,
 
 
 @sql_template
-def sql_drop_constraint(table_name, name):
+def sql_drop_constraint(table_qname, name):
     """
-    ALTER TABLE {{ table_name|n }} DROP CONSTRAINT {{ name|n }};
+    ALTER TABLE {{ table_qname|qn }} DROP CONSTRAINT {{ name|n }};
     """
 
 
 @sql_template
-def sql_rename_constraint(table_name, name, new_name):
+def sql_rename_constraint(table_qname, name, new_name):
     """
-    ALTER TABLE {{ table_name|n }} RENAME CONSTRAINT {{ name|n }} {{- ' ' -}}
+    ALTER TABLE {{ table_qname|qn }} RENAME CONSTRAINT {{ name|n }} {{- ' ' -}}
     TO {{ new_name|n }};
     """
 
 
 @sql_template
-def sql_comment_on_constraint(table_name, name, text):
+def sql_comment_on_constraint(table_qname, name, text):
     """
-    COMMENT ON CONSTRAINT {{ name|n }} ON {{ table_name|n }} IS {{ text|v }};
-    """
-
-
-@sql_template
-def sql_create_enum_type(name, labels):
-    """
-    CREATE TYPE {{ name|n }} AS ENUM ({{ labels|v }});
+    COMMENT ON CONSTRAINT {{ name|n }} ON {{ table_qname|qn }} IS {{ text|v }};
     """
 
 
 @sql_template
-def sql_drop_type(name):
+def sql_create_enum_type(qname, labels):
     """
-    DROP TYPE {{ name|n }};
-    """
-
-
-@sql_template
-def sql_rename_type(name, new_name):
-    """
-    ALTER TYPE {{ name|n }} RENAME TO {{ new_name|n }};
+    CREATE TYPE {{ qname|qn }} AS ENUM ({{ labels|v }});
     """
 
 
 @sql_template
-def sql_comment_on_type(name, text):
+def sql_drop_type(qname):
     """
-    COMMENT ON TYPE {{ name|n }} IS {{ text|v }};
+    DROP TYPE {{ qname|qn }};
     """
 
 
 @sql_template
-def sql_create_sequence(name, owner_table_name=None, owner_name=None):
+def sql_rename_type(qname, new_name):
     """
-    CREATE SEQUENCE {{ name|n }}
+    ALTER TYPE {{ qname|qn }} RENAME TO {{ new_name|n }};
+    """
+
+
+@sql_template
+def sql_comment_on_type(qname, text):
+    """
+    COMMENT ON TYPE {{ qname|qn }} IS {{ text|v }};
+    """
+
+
+@sql_template
+def sql_create_sequence(qname, owner_table_qname=None, owner_name=None):
+    """
+    CREATE SEQUENCE {{ qname|qn }}
     #- if owner_name is not none
-     OWNED BY {{ owner_table_name|n }}.{{ owner_name|n }}
+     OWNED BY {{ owner_table_qname|qn }}.{{ owner_name|n }}
     #- endif
     {{- ';' }}
     """
 
 
 @sql_template
-def sql_drop_sequence(name):
+def sql_drop_sequence(qname):
     """
-    DROP SEQUENCE {{ name|n }};
-    """
-
-
-@sql_template
-def sql_rename_sequence(name, new_name):
-    """
-    ALTER SEQUENCE {{ name|n }} RENAME TO {{ new_name|n }};
+    DROP SEQUENCE {{ qname|qn }};
     """
 
 
 @sql_template
-def sql_nextval(name):
+def sql_rename_sequence(qname, new_name):
     """
-    nextval({{ name|v }}::regclass)
-    """
-
-
-@sql_template
-def sql_create_function(name, types, return_type, language, source):
-    """
-    CREATE OR REPLACE FUNCTION {{ name|n }}({{ types|n }}) {{- ' ' -}}
-    RETURNS {{ return_type|n }} LANGUAGE {{ language }} AS {{ source|v }};
+    ALTER SEQUENCE {{ qname|qn }} RENAME TO {{ new_name|n }};
     """
 
 
 @sql_template
-def sql_drop_function(name, types):
+def sql_nextval(qname):
     """
-    DROP FUNCTION {{ name|n }}({{ types|n }});
-    """
-
-
-@sql_template
-def sql_rename_function(name, types, new_name):
-    """
-    ALTER FUNCTION {{ name|n }}({{ types|n }}) RENAME TO {{ new_name|n }};
+    nextval({{ qname|qn|v }}::regclass)
     """
 
 
 @sql_template
-def sql_create_trigger(table_name, name, when, event,
-                       function_name, arguments):
+def sql_create_function(qname, types, return_type, language, source):
+    """
+    CREATE OR REPLACE FUNCTION {{ qname|qn }}({{ types|qn }}) {{- ' ' -}}
+    RETURNS {{ return_type|qn }} LANGUAGE {{ language }} AS {{ source|v }};
+    """
+
+
+@sql_template
+def sql_drop_function(qname, types):
+    """
+    DROP FUNCTION {{ qname|qn }}({{ types|qn }});
+    """
+
+
+@sql_template
+def sql_rename_function(qname, types, new_name):
+    """
+    ALTER FUNCTION {{ qname|qn }}({{ types|qn }}) RENAME TO {{ new_name|n }};
+    """
+
+
+@sql_template
+def sql_create_trigger(table_qname, name, when, event,
+                       function_qname, arguments):
     """
     CREATE TRIGGER {{ name|n }} {{ when }} {{ event }} {{- ' ' -}}
-    ON {{ table_name|n }} {{- ' ' -}}
-    FOR EACH ROW EXECUTE PROCEDURE {{ function_name|n }}({{ arguments|v }});
+    ON {{ table_qname|qn }} {{- ' ' -}}
+    FOR EACH ROW EXECUTE PROCEDURE {{ function_qname|qn }}({{ arguments|v }});
     """
 
 
 @sql_template
-def sql_drop_trigger(table_name, name):
+def sql_drop_trigger(table_qname, name):
     """
-    DROP TRIGGER {{ name|n }} ON {{ table_name|n }};
-    """
-
-
-@sql_template
-def sql_rename_trigger(table_name, name, new_name):
-    """
-    ALTER TRIGGER {{ name|n }} ON {{ table_name|n }} RENAME TO {{ new_name|n }};
+    DROP TRIGGER {{ name|n }} ON {{ table_qname|qn }};
     """
 
 
 @sql_template
-def sql_comment_on_trigger(table_name, name, text):
+def sql_rename_trigger(table_qname, name, new_name):
     """
-    COMMENT ON TRIGGER {{ name|n }} ON {{ table_name|n }} IS {{ text|v }};
+    ALTER TRIGGER {{ name|n }} ON {{ table_qname|qn }} RENAME TO {{ new_name|n }};
     """
 
 
 @sql_template
-def sql_select(table_name, names):
+def sql_comment_on_trigger(table_qname, name, text):
+    """
+    COMMENT ON TRIGGER {{ name|n }} ON {{ table_qname|qn }} IS {{ text|v }};
+    """
+
+
+@sql_template
+def sql_select(table_qname, names):
     """
     SELECT {{ names|n }}
-        FROM {{ table_name|n }};
+        FROM {{ table_qname|qn }};
     """
 
 
 @sql_template
-def sql_insert(table_name, names, values, returning_names=None):
+def sql_insert(table_qname, names, values, returning_names=None):
     """
-    INSERT INTO {{ table_name|name }}
-        {%- if names %} ({{ names|name }}){% endif %}
+    INSERT INTO {{ table_qname|qn }}
+        {%- if names %} ({{ names|n }}){% endif %}
     # if values
-        VALUES ({{ values|value }}) {%- if not returning_names %};{% endif %}
+        VALUES ({{ values|v }}) {%- if not returning_names %};{% endif %}
     # else
         DEFAULT VALUES {%- if not returning_names %};{% endif %}
     # endif
     # if returning_names
-        RETURNING {{ returning_names|name }};
+        RETURNING {{ returning_names|n }};
     # endif
     """
 
 
 @sql_template
-def sql_update(table_name, key_name, key_value, names, values,
+def sql_update(table_qname, key_name, key_value, names, values,
                returning_names=None):
     """
     # if not names and not values
     # set names = [key_name]
     # set values = [key_value]
     # endif
-    UPDATE {{ table_name|n }}
+    UPDATE {{ table_qname|qn }}
         SET {% for name, value in zip(names, values) -%}
                 {{ name|n }} = {{ value|v }}{% if not loop.last %}, {% endif %}
             {%- endfor %}
@@ -583,9 +612,9 @@ def sql_update(table_name, key_name, key_value, names, values,
 
 
 @sql_template
-def sql_delete(table_name, key_name, key_value):
+def sql_delete(table_qname, key_name, key_value):
     """
-    DELETE FROM {{ table_name|n }}
+    DELETE FROM {{ table_qname|qn }}
         WHERE {{ key_name|n }} = {{ key_value|v }};
     """
 
@@ -604,7 +633,7 @@ def plpgsql_primary_key_procedure(*parts):
 
 
 @sql_template
-def plpgsql_integer_random_key(table_name, name):
+def plpgsql_integer_random_key(table_qname, name):
     """
     WHILE NEW.{{ name|n }} IS NULL LOOP
         DECLARE
@@ -612,7 +641,7 @@ def plpgsql_integer_random_key(table_name, name):
         BEGIN
             _key := trunc((random()*999999999) + 1);
             PERFORM id
-                FROM {{ table_name|n }}
+                FROM {{ table_qname|qn }}
                 WHERE {{ name|n }} = _key;
             IF NOT FOUND THEN
                 NEW.{{ name|n }} := _key;
@@ -623,7 +652,7 @@ def plpgsql_integer_random_key(table_name, name):
 
 
 @sql_template
-def plpgsql_text_random_key(table_name, name):
+def plpgsql_text_random_key(table_qname, name):
     """
     # set letters = "ABCDEFGHJKLMNPQRTUVWXYZ"
     # set digits = "0123456789"
@@ -645,7 +674,7 @@ def plpgsql_text_random_key(table_name, name):
                 {{ one_digit }} ||
                 {{ one_digit }};
             PERFORM id
-                FROM {{ table_name|n }}
+                FROM {{ table_qname|qn }}
                 WHERE {{ name|n }} = _key;
             IF NOT FOUND THEN
                 NEW.{{ name|n }} := _key;
@@ -656,7 +685,7 @@ def plpgsql_text_random_key(table_name, name):
 
 
 @sql_template
-def plpgsql_integer_offset_key(table_name, name, basis_names):
+def plpgsql_integer_offset_key(table_qname, name, basis_names):
     """
     IF NEW.{{ name|n }} IS NULL THEN
         DECLARE
@@ -664,13 +693,13 @@ def plpgsql_integer_offset_key(table_name, name, basis_names):
         BEGIN
             SELECT max({{ name|n }}) INTO _offset
     # if basis_names
-                FROM {{ table_name|n }}
+                FROM {{ table_qname|qn }}
                 WHERE {% for basis_name in basis_names -%}
                       {% if not loop.first %} AND {% endif -%}
                       {{ basis_name|n }} = NEW.{{ basis_name|n -}}
                       {% endfor %};
     # else
-                FROM {{ table_name|n }};
+                FROM {{ table_qname|qn }};
     # endif
             NEW.{{ name|n }} := coalesce(_offset, 0) + 1;
         END;
@@ -679,14 +708,14 @@ def plpgsql_integer_offset_key(table_name, name, basis_names):
 
 
 @sql_template
-def plpgsql_text_offset_key(table_name, name, basis_names):
+def plpgsql_text_offset_key(table_qname, name, basis_names):
     """
     IF NEW.{{ name|n }} IS NULL THEN
         DECLARE
             _offset int4;
         BEGIN
             SELECT CAST(max({{ name|n }}) AS int4) INTO _offset
-                FROM {{ table_name|n }}
+                FROM {{ table_qname|qn }}
                 WHERE {{ name|n }} ~ '^[0-9]{3}$'
                       {%- for basis_name in basis_names %} {{- ' ' -}}
                       AND {{ basis_name|n }} = NEW.{{ basis_name|n }}

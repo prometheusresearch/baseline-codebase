@@ -11,7 +11,8 @@ import {ProviderContext} from './context';
 
 
 function makeKey(i18n) {
-  return `i18n-${i18n.config.locale}-${i18n.isLoaded ? '1' : '0'}`;
+  let isLoaded = i18n.isLoaded || (i18n.config.locale === 'en');
+  return `i18n-${i18n.config.locale}-${isLoaded ? '1' : '0'}`;
 }
 
 

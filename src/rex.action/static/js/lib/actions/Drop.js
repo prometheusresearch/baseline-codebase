@@ -74,6 +74,10 @@ export default class Drop extends React.Component {
     let {entity, onClose, context} = this.props;
     let {confirmDelay} = this.state;
     let title = this.constructor.renderTitle(this.props, context);
+    let article = 'a';
+    if (['a', 'e', 'i', 'o'].indexOf(entity.name[0]) !== -1){
+      article = 'an';
+    };
     return (
      <Action title={title}>
       <stylesheet.Root>
@@ -84,7 +88,7 @@ export default class Drop extends React.Component {
             />}
         <stylesheet.Content>
           <stylesheet.Message>
-            <p>You are about to delete a {entity.name}.</p>
+            <p>You are about to delete {article} {entity.name}.</p>
             <b> This action cannot be undone.</b>
           </stylesheet.Message>
           <stylesheet.MessageBottom>

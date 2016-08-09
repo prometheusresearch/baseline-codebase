@@ -160,7 +160,14 @@ export default class FormEntry extends React.Component {
     if (noPagination) {
       pages = [{
         id: '__synthetic_page_id__',
-        elements: concat(...pages.map(page => page.elements)),
+        elements: concat(...pages.map((page) => {
+          return page.elements.map((element) => {
+            return {
+              originalPageId: page.id,
+              ...element
+            };
+          });
+        })),
       }];
       pageNumber = 0;
     }

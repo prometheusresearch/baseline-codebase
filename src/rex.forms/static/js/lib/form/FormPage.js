@@ -39,7 +39,20 @@ export default class FormPage extends React.Component {
   }
 
   renderElement(element, idx) {
+    let pageIsHidden = (
+      element.originalPageId
+      && this.context.event.isPageHidden(element.originalPageId)
+    );
+    if (pageIsHidden) {
+      return null;
+    }
+
     let {formValue, mode, editable} = this.props;
+    let pageIsDisabled = (
+      element.originalPageId
+      && this.context.event.isPageDisabled(element.originalPageId)
+    );
+
     if (element.type === 'question') {
       let {fieldId} = element.options;
       let questionEditable = editable === fieldId;
@@ -55,7 +68,7 @@ export default class FormPage extends React.Component {
       if (hidden) {
         return null;
       }
-      let disabled = this.context.event.isDisabled(
+      let disabled = pageIsDisabled || this.context.event.isDisabled(
         questionFormValue.schema.form.eventKey
       );
       return (
@@ -76,7 +89,7 @@ export default class FormPage extends React.Component {
       }
       let props = {
         key: idx,
-        disabled: this.context.event.isElementDisabled(...tags)
+        disabled: pageIsDisabled || this.context.event.isElementDisabled(...tags)
       };
       switch (element.type) {
         case 'text':

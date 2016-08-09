@@ -202,13 +202,13 @@ When inserting empty values into required fields, it will complain::
     <BLANKLINE>
     <BLANKLINE>
 
-    >>> import_tabular_data('required_tests', TEST_REQMISSING_CSV, FILE_FORMAT_CSV)
+    >>> import_tabular_data('required_tests', TEST_REQMISSING_CSV, FILE_FORMAT_CSV)  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
     TabularImportError: Errors occurred while importing the records
-        1: Got a blank field value: Required Tests . Is Required, Which triggered an error from the database driver: null value in column "is_required" violates not-null constraint
+        1: Got ... from the database driver: null value in column "is_required" violates not-null constraint
     DETAIL:  Failing row contains (7, 1, null, null, bar, null).
-        2: Got a blank field value: Required Tests . Is Required With Default, Which triggered an error from the database driver: null value in column "is_required_with_default" violates not-null constraint
+        2: Got ... from the database driver: null value in column "is_required_with_default" violates not-null constraint
     DETAIL:  Failing row contains (8, 1, foo, null, null, null).
 
     >>> print_query('/required_tests')
@@ -232,11 +232,11 @@ not have a default value::
     <BLANKLINE>
     <BLANKLINE>
 
-    >>> import_tabular_data('required_tests', TEST_REQMISSING_CSV, FILE_FORMAT_CSV, use_defaults=True)
+    >>> import_tabular_data('required_tests', TEST_REQMISSING_CSV, FILE_FORMAT_CSV, use_defaults=True)  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
     TabularImportError: Errors occurred while importing the records
-        1: Got a blank field value: Required Tests . Is Required, Which triggered an error from the database driver: null value in column "is_required" violates not-null constraint
+        1: Got ... from the database driver: null value in column "is_required" violates not-null constraint
     DETAIL:  Failing row contains (9, 1, null, null, bar, foo).
 
     >>> print_query('/required_tests')
@@ -264,13 +264,13 @@ complain::
     <BLANKLINE>
 
     >>> TEST_UNIQUE_BAD_CSV = get_packages().open('rex.tabular_import_demo:/data/unique_tests_bad.csv').read()
-    >>> import_tabular_data('unique_tests', TEST_UNIQUE_BAD_CSV, FILE_FORMAT_CSV)
+    >>> import_tabular_data('unique_tests', TEST_UNIQUE_BAD_CSV, FILE_FORMAT_CSV)  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
     TabularImportError: Errors occurred while importing the records
-        1: Got a duplicate identity: Unique Tests . Code, Which triggered an error from the database driver: duplicate key value violates unique constraint "unique_tests__pk"
+        1: Got ... from the database driver: duplicate key value violates unique constraint "unique_tests__pk"
     DETAIL:  Key (code)=(1) already exists.
-        2: Got a duplicate field value: Unique Tests . Is Unique, Which triggered an error from the database driver: duplicate key value violates unique constraint "unique_tests__is_unique__uk"
+        2: Got ... from the database driver: duplicate key value violates unique constraint "unique_tests__is_unique__uk"
     DETAIL:  Key (is_unique)=(foo) already exists.
 
     >>> print_query('/unique_tests')
@@ -332,13 +332,13 @@ blah::
     <BLANKLINE>
 
     >>> TEST_BRANCHBADUNIQ_CSV = get_packages().open('rex.tabular_import_demo:/data/branch_nonunique.csv').read()
-    >>> import_tabular_data('branch', TEST_BRANCHBADUNIQ_CSV, FILE_FORMAT_CSV)
+    >>> import_tabular_data('branch', TEST_BRANCHBADUNIQ_CSV, FILE_FORMAT_CSV)  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
     TabularImportError: Errors occurred while importing the records
-        1: Got a duplicate identity: Branch . (Trunk, Code), Which triggered an error from the database driver: duplicate key value violates unique constraint "branch_pk"
+        1: Got ... from the database driver: duplicate key value violates unique constraint "branch_pk"
     DETAIL:  Key (trunk_id, code)=(1, 1) already exists.
-        2: Got a duplicate identity: Branch . (Trunk, Code), Which triggered an error from the database driver: duplicate key value violates unique constraint "branch_pk"
+        2: Got ... from the database driver: duplicate key value violates unique constraint "branch_pk"
     DETAIL:  Key (trunk_id, code)=(1, 1) already exists.
 
     >>> print_query('/branch')

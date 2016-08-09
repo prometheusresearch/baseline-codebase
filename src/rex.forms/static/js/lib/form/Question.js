@@ -110,7 +110,7 @@ export default class Question extends React.Component {
             </ReactUI.Block>
           </ReactUI.Block> :
           <ReactUI.Block position="absolute" top={10} positionEnd={10}>
-            <ReactUI.FlatButton onClick={this.onEditable} size="small">
+            <ReactUI.FlatButton onClick={this.onEditable} size="small" disabled={disabled}>
               {this._('Edit')}
             </ReactUI.FlatButton>
           </ReactUI.Block>)}

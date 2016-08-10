@@ -14,6 +14,7 @@ from .permissions import *
 from .processors import *
 from .purging import *
 from .quota import *
+from .rc import *
 from .settings import *
 from .util import *
 from .validators import *

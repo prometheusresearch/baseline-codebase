@@ -55,6 +55,7 @@ Utilities
 
 .. automodule:: rex.mart.util
 .. automodule:: rex.mart.connections
+.. automodule:: rex.mart.rc
 
 
 Validation

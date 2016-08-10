@@ -16,6 +16,7 @@ REX.MART Examples/Tests
    test_processors
    test_purging
    test_quota
+   test_rc
    test_tables
    test_util
    test_validators

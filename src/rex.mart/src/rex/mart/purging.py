@@ -4,6 +4,7 @@
 
 
 from .connections import get_management_db, get_hosting_cluster
+from .rc import mart_decref
 
 
 __all__ = (
@@ -34,7 +35,7 @@ def purge_mart(code):
     # Physically remove the Mart database
     cluster = get_hosting_cluster()
     if cluster.exists(name):
-        cluster.drop(name)
+        mart_decref(cluster, name)
 
     # Remove the Mart from the inventory
     database.produce(

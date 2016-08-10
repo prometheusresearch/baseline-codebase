@@ -58,3 +58,60 @@
   - link: parent
   - link: child
   - identity: [parent, child]
+
+- table: trunk_facet_parent_case
+  with:
+  - column: t_id
+    type: integer
+  - column: t_data
+    type: text
+  - identity: [t_id]
+
+- table: facet_parent
+  with:
+  - link: trunk_facet_parent_case
+  - column: f_text
+    type: text
+  - column: f_int
+    type: integer
+  - identity: [trunk_facet_parent_case]
+
+- table: facet_branch
+  with:
+  - link: facet_parent
+  - column: b_id
+    type: text
+  - column: b_data
+    type: text
+  - identity: [facet_parent, b_id]
+
+- table: user
+  with:
+  - column: name
+    type: text
+  - identity: [name]
+
+- table: user_access
+  with:
+  - link: user
+  - column: code
+    type: integer
+  - column: when
+    type: datetime
+  - identity: [user, code]
+
+- table: trunk_with_named_links
+  with:
+  - column: t_id
+    type: integer
+  - column: t_data
+    type: text
+  - identity: [t_id]
+
+- table: cross_with_named_links
+  with:
+  - link: different_link_name
+    to: trunk_with_named_links
+  - link: who
+    to: user
+  - identity: [different_link_name, who]

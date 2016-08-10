@@ -60,12 +60,6 @@ class WizardProxy(object):
         ))
         return ret
 
-    def render(self, req):
-        segment = req.path_info_peek()
-        if segment == '@@':
-            req.path_info_pop()
-        return render_widget(self.wizard, req, path=req.path_info[1:])
-
     @classmethod
     def table_wizard(cls, table):
         return cls.from_path(table, 'DBGUI: %s' % table,

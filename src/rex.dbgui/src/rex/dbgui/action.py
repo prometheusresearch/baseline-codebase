@@ -6,7 +6,7 @@ import yaml
 from webob import Response
 
 
-class PickTableWizard(Action):
+class PickTable(Action):
 
     name = 'dbgui'
     js_type = 'rex-dbgui/lib/PickTable'
@@ -24,7 +24,7 @@ class PickTableWizard(Action):
         return ret
 
 
-class ViewTableWizard(Action):
+class ViewSource(Action):
 
     name = 'view-source'
     js_type = 'rex-dbgui/lib/ViewSource'
@@ -42,5 +42,3 @@ class ViewTableWizard(Action):
                                          indent=2,
                                          default_flow_style=False)
         return Response(json=ret)
-
-

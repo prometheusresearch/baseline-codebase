@@ -17,10 +17,7 @@ tests:
 
 - doctest: test/test_*.rst
 
-- coverage-check: 95.0
+- coverage-check: 94.0
 - coverage-report: ./build/coverage
-
-# - sh: rex dropdb rex.dbgui_demo --set=db=pgsql:dbgui_demo
-#   ignore: true
 
 - sh: pip uninstall -q -y rex.dbgui_demo

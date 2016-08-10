@@ -24,6 +24,9 @@ MartBaseVal validates the ``base`` of Mart Definitions::
     >>> val({'type': 'copy', 'target': 'foo'})
     Record(type='copy', target='foo', name_token=None, fixed_name=None)
 
+    >>> val({'type': 'application'})
+    Record(type='application', target=None, name_token=None, fixed_name=None)
+
     >>> val({'type': 'existing', 'target': 'bar'})
     Record(type='existing', target='bar', name_token=None, fixed_name=None)
 
@@ -37,6 +40,15 @@ MartBaseVal validates the ``base`` of Mart Definitions::
     Traceback (most recent call last):
         ...
     Error: Bases type "fresh" cannot have target database names
+    Got:
+        'baz'
+    While validating field:
+        target
+
+    >>> val({'type': 'application', 'target': 'baz'})
+    Traceback (most recent call last):
+        ...
+    Error: Bases type "application" cannot have target database names
     Got:
         'baz'
     While validating field:
@@ -64,7 +76,7 @@ MartBaseVal validates the ``base`` of Mart Definitions::
     Traceback (most recent call last):
         ...
     Error: Expected one of:
-        fresh, copy, existing
+        fresh, copy, existing, application
     Got:
         'something'
     While validating field:

@@ -85,6 +85,7 @@ class MartBaseTypeVal(ChoiceVal):
             'fresh',
             'copy',
             'existing',
+            'application',
         )
 
 
@@ -115,9 +116,12 @@ class MartBaseVal(FullyValidatingRecordVal):
 
         with guard('While validating field:', 'target'):
             with guard('Got:', repr(value.target)):
-                if value.type == 'fresh' and value.target is not None:
+                if value.type in ('fresh', 'application') \
+                        and value.target is not None:
                     raise Error(
-                        'Bases type "fresh" cannot have target database names'
+                        'Bases type "%s" cannot have target database names' % (
+                            value.type,
+                        ),
                     )
                 if value.type in ('copy', 'existing') and value.target is None:
                     raise Error(

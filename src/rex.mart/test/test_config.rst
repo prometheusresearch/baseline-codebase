@@ -20,7 +20,7 @@ describe all Mart definitions available in the current instance::
     >>> rex = LatentRex('rex.mart_demo')
     >>> with rex:
     ...     print [defn['id'] for defn in get_all_definitions()]
-    ['empty', 'just_copy', 'just_deploy', 'just_deploy_includes', 'some_data', 'some_more_data', 'some_sql_data', 'some_more_sql_data', 'both_etl_phases', 'some_data_with_params', 'existing', 'fixed_name', 'existing_missing', 'broken_htsql', 'broken_sql', 'simple_assessment', 'linked_assessment', 'linked_assessment_alltypes', 'calculated_assessment', 'overlap_names_assessment', 'select_json', 'broken_selector', 'datadictionary_deployment', 'datadictionary_assessment', 'datadictionary_alltypes', 'index_processor', 'enum_values', 'some_parameters']
+    ['empty', 'just_copy', 'just_copy_missing', 'just_copy_application', 'just_deploy', 'just_deploy_includes', 'some_data', 'some_more_data', 'some_sql_data', 'some_more_sql_data', 'both_etl_phases', 'some_data_with_params', 'existing', 'fixed_name', 'existing_missing', 'broken_htsql', 'broken_sql', 'simple_assessment', 'linked_assessment', 'linked_assessment_alltypes', 'calculated_assessment', 'overlap_names_assessment', 'select_json', 'broken_selector', 'datadictionary_deployment', 'datadictionary_assessment', 'datadictionary_alltypes', 'index_processor', 'enum_values', 'some_parameters']
 
 
 get_definition

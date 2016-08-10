@@ -7,6 +7,17 @@ definitions:
       type: copy
       target: mart_demo
 
+  - id: just_copy_missing
+    description: Copy a DB that doesn't exist
+    base:
+      type: copy
+      target: does_not_exist
+
+  - id: just_copy_application
+    description: Copy the application DB
+    base:
+      type: application
+
   - id: just_deploy
     label: Just Deploy
     description: A Mart that just has empty tables

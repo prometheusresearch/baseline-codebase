@@ -14,7 +14,7 @@ from rex.core import Error, get_settings
 from rex.deploy import model as deploy_model
 
 from .assessments import AssessmentLoader
-from .config import get_definition
+from .config import get_definition, get_management_db_uri
 from .connections import get_management_db, get_hosting_cluster, \
     get_mart_etl_db, get_sql_connection
 from .mart import Mart
@@ -384,11 +384,21 @@ class MartCreator(object):
 
     def create_mart(self):
         cluster = get_hosting_cluster()
-        if self.definition['base']['type'] in ('fresh', 'copy'):
+        if self.definition['base']['type'] in ('fresh', 'copy', 'application'):
             self.log('Creating database: %s' % (self.name,))
+
             to_clone = None
             if self.definition['base']['type'] == 'copy':
                 to_clone = self.definition['base']['target']
+            elif self.definition['base']['type'] == 'application':
+                to_clone = get_management_db_uri().database
+            if to_clone:
+                if not cluster.exists(to_clone):
+                    raise Error(
+                        'Database "%s" does not exist' % (
+                            to_clone,
+                        )
+                    )
                 self.log('Cloning: %s' % (to_clone,))
 
             with guarded('While creating database:', self.name):

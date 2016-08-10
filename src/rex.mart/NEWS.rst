@@ -12,6 +12,10 @@ REX.MART Change Log
 - Added a basic reference counting system to mart databases that facilitates
   edge cases where multiple application instances may be sharing the exact same
   mart databases.
+- Added a new ``base.type`` for mart definitions called ``application``. It
+  allows you to create a mart database that starts off as a copy of the main
+  RexDB application database, but is simpler to use than ``copy`` because you
+  do not have to know the name of the database ahead of time.
 
 
 0.2.2 (2016-07-14)

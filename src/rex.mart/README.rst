@@ -158,14 +158,21 @@ type
     accepts the following values:
 
     * ``fresh``: Create a brand new database
-    * ``copy``: Create a brand new databse by copying an existing one
+    * ``copy``: Create a brand new database by copying an existing one
+    * ``application``: Create a brand new database by copying the main RexDB
+      application database
     * ``existing``: Build the Mart in an existing database
 
-    If not specified, this property defaults to ``fresh``.
+    If not specified, this property defaults to ``fresh``. Note that using
+    ``copy``, ``application``, and ``existing`` requires the referenced
+    database to be in the same database system as is specified by the
+   ``mart_hosting_cluster`` application setting.
 
 target
     When the ``copy`` or ``existing`` type is specified, this property
-    identifies which database should be copied or built into.
+    identifies which database should be copied or built into. Note that this
+    database must be in the same database system as is specified by the
+    ``mart_hosting_cluster`` application setting.
 
 name_token
     This property specifies the string that should be used as part of the name

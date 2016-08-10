@@ -83,6 +83,30 @@ Copy an existing DB::
     Has Size: True
     Dates: True True
 
+Copy the application DB::
+
+    >>> mc = MartCreator('test', 'just_copy_application')
+    >>> mart = mc()
+    >>> db_exists(mart.name)
+    True
+    >>> db_inventory(mart.name)
+    assessment: 25
+    channel: 5
+    draftinstrumentversion: 2
+    entry: 10
+    instrument: 21
+    instrumentversion: 23
+    people: 5
+    subject: 7
+    task: 8
+    user: 2
+    >>> db_status(mart.name)
+    Definition: just_copy_application
+    Status: complete
+    Owner: test
+    Has Size: True
+    Dates: True True
+
 Create a Mart that always ends up with the same database name::
 
     >>> mc = MartCreator('test', 'fixed_name')
@@ -565,6 +589,16 @@ It complains if you specify a definition that doesn't exist::
     Traceback (most recent call last):
         ...
     Error: Unknown definition "doesntexist"
+
+It complains if you try to copy a database that doesn't exist::
+
+    >>> mc = MartCreator('test', 'just_copy_missing')
+    >>> mart = mc()
+    Traceback (most recent call last):
+        ...
+    Error: Database "does_not_exist" does not exist
+    While creating Mart database:
+        just_copy_missing
 
 It complains if you try to load into an existing database that doesn't exist::
 

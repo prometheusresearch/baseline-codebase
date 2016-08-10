@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.mart_demo',
-    version='0.2.3',
+    version='0.3.0',
     description='Demo package for testing rex.mart',
     package_dir={'': 'src'},
     packages=find_packages('src'),

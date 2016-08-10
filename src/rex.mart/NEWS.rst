@@ -5,10 +5,13 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
-0.2.3 (2016-xx-xx)
+0.3.0 (2016-xx-xx)
 ==================
 
 - Updated rex.deploy dependency to address issues with large mart databases.
+- Added a basic reference counting system to mart databases that facilitates
+  edge cases where multiple application instances may be sharing the exact same
+  mart databases.
 
 
 0.2.2 (2016-07-14)

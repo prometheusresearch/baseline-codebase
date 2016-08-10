@@ -28,7 +28,7 @@ setup(
         'rex.web>=3,<4',
         'rex.widget>=2.3,<3',
         'rex.action>=1,<2',
-        'rex.mart>=0.2,<0.3',
+        'rex.mart>=0.2,<0.4',
         'htsql_excel>=0.1,<0.2',
         'cachetools>=1,<2',
     ],

@@ -2,10 +2,12 @@
  * @copyright 2016-present, Prometheus Research, LLC
  */
 
+import * as React from 'react';
 import autobind from 'autobind-decorator';
 import isArray from 'lodash/isArray';
 
 import ViewValue from './ViewValue';
+import MarkupString from '../MarkupString';
 import * as FormContext from './../FormContext';
 
 
@@ -34,9 +36,9 @@ export default class ViewEnumerationValue extends ViewValue {
         str = enumerations[0].text[this.context.defaultLocalization];
       }
 
-      return str;
+      return <MarkupString key={id} inline>{str}</MarkupString>;
     } else {
-      return id;
+      return <span key={id}>{id}</span>;
     }
   }
 
@@ -48,7 +50,15 @@ export default class ViewEnumerationValue extends ViewValue {
     if (!isArray(value)) {
       value = [value];
     }
-    return value.map(this.getEnumString).join(', ');
+
+    let ret = [];
+    value.forEach((val, idx) => {
+      if (idx) {
+        ret.push(<span key={idx}>{', '}</span>);
+      }
+      ret.push(this.getEnumString(val));
+    });
+    return ret;
   }
 }
 

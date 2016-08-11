@@ -33,8 +33,9 @@ Expressions
 ===========
 
 .. toctree::
+   :maxdepth: 2
 
-    rex_expression_usage
+   rex_expression_usage
 
 
 Release Notes

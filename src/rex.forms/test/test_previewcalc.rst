@@ -1,6 +1,6 @@
-*************
-Lookup Widget
-*************
+********************
+Calculation Previews
+********************
 
 .. contents:: Table of Contents
 

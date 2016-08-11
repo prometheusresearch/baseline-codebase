@@ -1,50 +1,44 @@
-# Arabic translations for rex.forms.
-# Copyright (C) 2014 Prometheus Research, LLC
-# This file is distributed under the same license as the rex.forms project.
-#
+# 
 # Translators:
+# Abdul Ahmad <ahmadabdul3@yahoo.com>, 2016
 # BobbiB <bobbi@prometheusresearch.com>, 2014
 # Jason Simeone, 2014
 msgid ""
 msgstr ""
-"Project-Id-Version:  rex.forms\n"
-"Report-Msgid-Bugs-To: contact@prometheusresearch.com\n"
-"POT-Creation-Date: 2016-07-07 21:00+0000\n"
-"PO-Revision-Date: 2014-12-18 18:46+0000\n"
-"Last-Translator: Jason Simeone\n"
-"Language: ar\n"
-"Language-Team: Arabic "
-"(http://www.transifex.com/projects/p/rexforms/language/ar/)\n"
-"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : "
-"n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5\n"
+"Project-Id-Version: rex.forms\n"
+"POT-Creation-Date: 2016-08-05 15:29\n"
+"PO-Revision-Date: 2016-08-09 17:58+0000\n"
+"Last-Translator: Abdul Ahmad <ahmadabdul3@yahoo.com>\n"
+"Language-Team: Arabic (http://www.transifex.com/rexdb/rexforms/language/ar/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.3.4\n"
+"Language: ar\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
 
 #: lib/AudioPlayer.js:121
 msgid "Audio is not supported by this browser."
-msgstr ""
+msgstr "الصوت غير معتمد في هاذه البراوزر."
 
 #: lib/AudioPlayer.js:154
 msgid "Play"
-msgstr ""
+msgstr "شغل"
 
 #: lib/AudioPlayer.js:162
 msgid "Pause"
-msgstr ""
+msgstr "وقف"
 
 #: lib/AudioPlayer.js:178
 msgid "Restart the Recording"
-msgstr ""
+msgstr "عيد التسجيل"
 
 #: lib/form/Annotation.js:36
 msgid "No annotation"
-msgstr ""
+msgstr "لا يوجد ملاحظة"
 
 #: lib/form/Annotation.js:38
 msgid "Annotation:"
-msgstr ""
+msgstr "ملاحظة:"
 
 #: lib/form/Annotation.js:49
 msgid "Please explain why you can't or won't respond to this question:"
@@ -56,23 +50,23 @@ msgstr "لا أستطيع (أو لن) الرد على هذا السؤال."
 
 #: lib/form/CalculationResults.js:102
 msgid "Close"
-msgstr ""
+msgstr "اغلق"
 
 #: lib/form/CalculationResults.js:86
 msgid "This Form has no calculations."
-msgstr ""
+msgstr "هذا النموذج لا يوجد لديه حسابات"
 
 #: lib/form/CalculationResults.js:91
 msgid "Executing calculations..."
-msgstr ""
+msgstr "تنفذ الحسابات..."
 
 #: lib/form/CalculationResults.js:98
 msgid "Calculation Results"
-msgstr ""
+msgstr "نتائج الحسابات"
 
 #: lib/form/Explanation.js:35
 msgid "No explanation"
-msgstr ""
+msgstr "لا يوجد شرح"
 
 #: lib/form/Explanation.js:48
 msgid "Explanation:"
@@ -86,41 +80,41 @@ msgstr "أنا لا أريد أن اقدم هذه المعلومات."
 msgid "I would like to explain my response to this question."
 msgstr "أود أن أشرح ردي على هذا السؤال."
 
-#: lib/form/FormEditor.js:193
-msgid "There was an error when executing the calculations."
-msgstr ""
-
-#: lib/form/FormEditor.js:193
+#: lib/form/FormEditor.js:235
 msgid "Error"
-msgstr ""
+msgstr "خطأ"
 
-#: lib/form/FormEditor.js:287
+#: lib/form/FormEditor.js:235
+msgid "There was an error when executing the calculations."
+msgstr "هناك خطأ في تنفيذ الحسابات"
+
+#: lib/form/FormEditor.js:338
 msgid "Review Submission"
-msgstr ""
+msgstr "راجع التقديم"
 
-#: lib/form/FormEditor.js:293
+#: lib/form/FormEditor.js:344
 msgid "Go Back to the Form"
-msgstr ""
+msgstr "إرجع للنموذج"
 
-#: lib/form/FormEditor.js:299
+#: lib/form/FormEditor.js:350
 msgid "Saving Your Progress, Please Wait..."
-msgstr ""
+msgstr "يحفظ التقدم، الرجاء للانتظار"
 
-#: lib/form/FormEditor.js:300
+#: lib/form/FormEditor.js:351
 msgid "Complete Form"
-msgstr "ملء الاستمارة"
+msgstr "نموذج كامل"
 
-#: lib/form/FormEditor.js:306
+#: lib/form/FormEditor.js:357
 msgid "Preview Calculation Results"
-msgstr ""
+msgstr "انظر علا نتائج الحسابات"
 
-#: lib/form/FormPaginator.js:110
-msgid "Next"
-msgstr ""
-
-#: lib/form/FormPaginator.js:93
+#: lib/form/FormPaginator.js:104
 msgid "Previous"
-msgstr ""
+msgstr "سابق"
+
+#: lib/form/FormPaginator.js:123
+msgid "Next"
+msgstr "قادم"
 
 #: lib/form/Question.js:103
 msgid "Save"
@@ -134,9 +128,9 @@ msgstr "إلغاء"
 msgid "Edit"
 msgstr "تعديل"
 
-#: lib/form/widget/RadioGroup.js:169
+#: lib/form/widget/RadioGroup.js:174
 msgid "Clear My Selection"
-msgstr "محو اختياري"
+msgstr "إمحاء اختياري"
 
 #: lib/form/widget/RecordList.js:30
 msgid "Add"
@@ -147,155 +141,141 @@ msgid "Remove"
 msgstr "ازالة"
 
 #: lib/form/widget/ViewBooleanValue.js:11
-msgid "Yes"
-msgstr "نعم فعلا"
-
-#: lib/form/widget/ViewBooleanValue.js:11
 msgid "No"
 msgstr "لا"
 
-#: lib/form/widget/ViewValue.js:23
+#: lib/form/widget/ViewBooleanValue.js:11
+msgid "Yes"
+msgstr "نعم"
+
+#: lib/form/widget/ViewValue.js:29
 msgid "No Value"
-msgstr ""
+msgstr "لا يوجد قيمة"
 
 #: lib/instrument/validate.js:100
 msgid "Not a valid whole number."
-msgstr ""
+msgstr "ليس رقم كامل صحيح."
 
 #: lib/instrument/validate.js:113
 msgid "This must be entered in the form: YYYY-MM-DD"
-msgstr ""
+msgstr "هاذا يجب ادخاله بالشكل: س س س س - ش ش - ي ي"
 
 #: lib/instrument/validate.js:130
-msgid "This must be entered in the form: YYYY-MM-DDTHH:MM:SS"
-msgstr ""
+msgid "This must be entered in the form: YYYY-MM-DDTHH:MM[:SS]"
+msgstr "هاذا يجب ادخاله بالشكل: س س س س - ش ش - ي ي س س : د د [: ث ث]"
 
 #: lib/instrument/validate.js:135
 msgid "Not a valid date."
-msgstr ""
+msgstr "ليس تاريخ صالح."
 
 #: lib/instrument/validate.js:152
-msgid "This must be entered in the form: HH:MM:SS"
-msgstr ""
+msgid "This must be entered in the form: HH:MM[:SS]"
+msgstr "هاذا يجب ادخاله بالشكل: س س : د د [: ث ث]"
 
 #: lib/instrument/validate.js:155
 msgid "Not a valid time."
-msgstr ""
+msgstr "ليس وقت صالح."
 
-#: lib/instrument/validate.js:188
-#, python-format
+#: lib/instrument/validate.js:176
+msgid "You must respond to at least one question in this record."
+msgstr "يجب ان تجاوب علا القل سؤال واحد في هاذا التسجيل."
+
+#: lib/instrument/validate.js:203
 msgid "Must enter between %(min)s and %(max)s records."
-msgstr ""
+msgstr "يجب ادخال بين %(min)s و %(max)s تسجيلات."
 
-#: lib/instrument/validate.js:190
-#, python-format
+#: lib/instrument/validate.js:205
 msgid "Must enter at least %(min)s records."
-msgstr ""
+msgstr "يجب ادخال علا الاقل %(min)s تسجيلات."
 
-#: lib/instrument/validate.js:192
-#, python-format
+#: lib/instrument/validate.js:207
 msgid "Cannot enter more than %(max)s records."
-msgstr ""
+msgstr "ممنوع ادخال اكثر من %(max)s تسجيلات."
 
-#: lib/instrument/validate.js:212
+#: lib/instrument/validate.js:228
 msgid "You must provide a response for this row."
-msgstr ""
+msgstr "يجب ان تدخل جواب لهاذا الان."
 
-#: lib/instrument/validate.js:220
+#: lib/instrument/validate.js:236
 msgid "You must provide a response for this field."
-msgstr ""
+msgstr "يجب ان تدخل جواب لهاذا السؤال."
 
-#: lib/instrument/validate.js:244
-#, python-format
+#: lib/instrument/validate.js:260
 msgid "Must select between %(min)s and %(max)s choices."
-msgstr ""
+msgstr "يجب ان تختار بين %(min)s و %(max)s اختيارات."
 
-#: lib/instrument/validate.js:246
-#, python-format
+#: lib/instrument/validate.js:262
 msgid "Must select at least %(min)s choices."
-msgstr ""
+msgstr "يجب ان تختار علا الاقل %(min)s اختيارات."
 
-#: lib/instrument/validate.js:248
-#, python-format
+#: lib/instrument/validate.js:264
 msgid "Cannot select more than %(max)s choices."
-msgstr ""
+msgstr "ممنوع اختيار اكثر من %(max)s اختيارات."
 
-#: lib/instrument/validate.js:269
-#, python-format
+#: lib/instrument/validate.js:285
 msgid "Must be between %(min)s and %(max)s characters."
-msgstr ""
+msgstr "يجب ان يكون بين %(min)s و %(max)s حروف."
 
-#: lib/instrument/validate.js:271
-#, python-format
+#: lib/instrument/validate.js:287
 msgid "Must be at least %(min)s characters."
-msgstr ""
+msgstr "يجب ان يكون علا الاقل %(min)s حروف."
 
-#: lib/instrument/validate.js:273
-#, python-format
+#: lib/instrument/validate.js:289
 msgid "Cannot be more than %(max)s characters."
-msgstr ""
+msgstr "ممنوع ان يكون اكثر من %(max)s حروف."
 
-#: lib/instrument/validate.js:283
+#: lib/instrument/validate.js:299
 msgid "Does not match the expected pattern."
-msgstr ""
+msgstr "لا يتطابق مع النموذج المتوقع."
 
-#: lib/instrument/validate.js:300
-#, python-format
+#: lib/instrument/validate.js:316
 msgid "Must be between %(min)s and %(max)s."
-msgstr ""
+msgstr "يجب ان يكون بين %(min)s و %(max)s."
 
-#: lib/instrument/validate.js:302
-#, python-format
+#: lib/instrument/validate.js:318
 msgid "Must be at least %(min)s."
-msgstr ""
+msgstr "يجب ان يكون علا الاقل %(min)s."
 
-#: lib/instrument/validate.js:304
-#, python-format
+#: lib/instrument/validate.js:320
 msgid "Cannot be beyond %(max)s."
-msgstr ""
+msgstr "ممنوع ان يكون اكثر من %(max)s."
 
 #: lib/instrument/validate.js:87
 msgid "Not a valid number."
-msgstr ""
+msgstr "ليس رقم صحيح."
 
-#: lib/reconcile/DiscrepancyChoices.js:115
-msgid "No value provided."
-msgstr "ليس هناك قيمة مقدمة."
-
-#: lib/reconcile/DiscrepancyChoices.js:60
+#: lib/reconcile/DiscrepancyChoices.js:59
 msgid "Manual Override"
-msgstr "تجاوز اليدوي"
+msgstr "تجاوز يدوي"
 
 #: lib/reconcile/Header.js:33
-#, python-format
 msgid "Entered By: %(username)s"
-msgstr ""
+msgstr "تم الدخول بواسطة: %(username)s"
 
 #: lib/reconcile/Header.js:39
 msgid "Final Value"
 msgstr "القيمة النهائية"
 
 #: lib/reconcile/PositionDescription.js:23
-#, python-format
 msgid "On Page %(page)s (%(field)s)"
-msgstr ""
+msgstr "على الصفحة %(page)s (%(field)s)"
 
 #: lib/reconcile/PositionDescription.js:27
-#, python-format
 msgid "Top of Page %(page)s (%(field)s)"
-msgstr ""
+msgstr "أعلى الصفحة %(page)s (%(field)s)"
 
 #: lib/reconcile/PositionDescription.js:29
-#, python-format
 msgid "Bottom of Page %(page)s (%(field)s)"
-msgstr ""
+msgstr "أسفل الصفحة %(page)s (%(field)s)"
 
 #: lib/reconcile/PositionDescription.js:31
-#, python-format
 msgid "Middle of Page %(page)s (%(field)s)"
-msgstr ""
+msgstr "منتصف الصفحة %(page)s (%(field)s)"
 
-#: lib/reconcile/Reconciler.js:72
+#: lib/reconcile/Reconciler.js:135
 msgid "Complete Reconciliation"
-msgstr "تصالح كامل"
+msgstr " تصالح كامل"
 
+#: lib/reconcile/RecordListDiscrepancy.js:86
+msgid "Record %(recordId)s"
+msgstr "سجل %(recordId)s"

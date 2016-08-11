@@ -105,8 +105,8 @@ class MatrixRow extends React.Component {
         <td>
           <RowLabel
             text={row.text}
-            help={row.help}
-            audio={row.audio}
+            help={readOnly ? null : row.help}
+            audio={readOnly ? null : row.audio}
             required={formValue.schema.instrument.required}
             />
           {hasError && showErrorList &&

@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-3.6.0 (2016-XX-XX)
+3.6.0 (2016-08-11)
 ==================
 
 * Implemented read-only mode.

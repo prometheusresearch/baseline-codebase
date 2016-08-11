@@ -124,7 +124,7 @@ export default class ReconcileTask extends React.Component {
         <I18NAction
           title={title}
           locale={locale}
-          baseUrl={i18nBaseUrl}>
+          i18nBaseUrl={i18nBaseUrl}>
           {content}
         </I18NAction>
       );
@@ -151,7 +151,7 @@ export default class ReconcileTask extends React.Component {
       <I18NAction
         title={title}
         locale={locale}
-        baseUrl={i18nBaseUrl}>
+        i18nBaseUrl={i18nBaseUrl}>
         {hasMultipleForms &&
           <ChannelChooser
             channels={channels}

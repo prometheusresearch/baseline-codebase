@@ -63,7 +63,7 @@ export default class ViewAssessment extends React.Component {
         <I18NAction
           title={title}
           locale={locale}
-          baseUrl={i18nBaseUrl}>
+          i18nBaseUrl={i18nBaseUrl}>
           <AssessmentError
             errorCode={displayData.data.error}
             />
@@ -95,7 +95,7 @@ export default class ViewAssessment extends React.Component {
       <I18NAction
         title={title}
         locale={locale}
-        baseUrl={i18nBaseUrl}>
+        i18nBaseUrl={i18nBaseUrl}>
         {hasMultipleForms &&
           <ChannelChooser
             channels={channels}

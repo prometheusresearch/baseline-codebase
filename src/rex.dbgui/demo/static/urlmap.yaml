@@ -1,0 +1,8 @@
+paths:
+  /:
+    widget: !<DBGUI>
+    access: anybody
+
+  /subpath:
+    widget: !<DBGUI>
+    access: anybody

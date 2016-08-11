@@ -5,6 +5,9 @@
   - column: t_data
     type: text
   - identity: [t_id]
+  - data: |
+      t_id,t_data
+      1,test
 
 - table: branch
   with:

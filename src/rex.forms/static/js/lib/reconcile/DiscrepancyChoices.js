@@ -71,6 +71,7 @@ export default class DiscrepancyChoices extends React.Component {
                 disabled={!manualOverride}
                 question={question}
                 instrument={instrument}
+                form={formValue.schema.form}
                 formValue={formValue}
               />
             </ReactUI.Block>}

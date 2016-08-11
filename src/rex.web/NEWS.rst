@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-3.7.1 (2016-XX-XX)
+3.7.1 (2016-08-11)
 ==================
 
 * Emit "500 Internal Server Error" on unexpected exceptions.

@@ -4,6 +4,7 @@
 
 import REXL from 'rex-expression';
 import {Schema} from 'react-forms/reactive';
+import invariant from 'invariant';
 import isArray from 'lodash/isArray';
 import some from 'lodash/some';
 
@@ -20,18 +21,18 @@ const INSTRUMENT_REXL_TYPE_MAP = {
   'recordList': REXL.List
 };
 
-export default function resolve(identifier, schema, value, parameters = {}) {
+export default function resolve(
+  identifier: string,
+  schema: mixed,
+  value: mixed,
+  parameters: Object = {}
+) {
   // See if it's a Field in our Form.
   let result = resolveField(identifier, schema, value);
 
   if (result === undefined) {
     // It's not a field, let's see if it's a Parameter in the Form.
     result = resolveParameter(identifier, parameters);
-  }
-
-  if (result === undefined) {
-    // It's not an identifier we recognize, default to NULL.
-    result = REXL.Untyped.value(null);
   }
 
   return result;
@@ -48,9 +49,15 @@ function resolveField(identifier, schema, value) {
   for (let i = 0; i < identifier.length; i++) {
 
     // only check for scoped identifiers if we are within some field
-    if (schema.instrument && schema.instrument.type) {
+    if (schema &&
+        schema.instrument &&
+        schema.instrument.type) {
+
       let instrumentType = schema.instrument.type;
-      if (instrumentType.base === 'enumerationSet') {
+
+      if (
+        instrumentType.base === 'enumerationSet'
+      ) {
         // The parent token was an enumerationSet, so treat this token as
         // an attempt to access one of the enumerations.
 
@@ -97,18 +104,14 @@ function resolveField(identifier, schema, value) {
       }
     }
 
-    if (value == null) {
-      return undefined;
-    }
+    schema = selectSchema(schema, identifier[i]);
 
-    value = value[identifier[i]];
-
-    if (value !== undefined) {
-      schema = Schema.select(schema, [identifier[i]]);
+    if (schema != null) {
+      value = selectValue(value, identifier[i]);
 
       if (schema.instrument && schema.instrument.context === 'field') {
-        value = value.value;
-        schema = Schema.select(schema, ['value']);
+        schema = selectSchema(schema, 'value');
+        value = selectValue(value, 'value');
       }
     } else {
       // Token doesn't exist.
@@ -189,3 +192,19 @@ function convertValueToREXL(value) {
   return type.value(value);
 }
 
+
+function selectSchema(schema, key) {
+  try {
+    return Schema.select(schema, [key]);
+  } catch (err) {
+    return undefined;
+  }
+}
+
+function selectValue(value, key) {
+  invariant(
+    value == null || typeof value === 'object',
+    'Expected an object'
+  );
+  return value ? value[key] : null;
+}

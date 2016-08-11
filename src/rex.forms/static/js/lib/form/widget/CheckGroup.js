@@ -55,6 +55,7 @@ export default class CheckGroup extends React.Component {
       formValue,
       options: {orientation = 'vertical'},
       instrument: {type},
+      form: {eventKey},
       question: {fieldId, enumerations},
       editable, onCommitEdit, onCancelEdit,
       ...props
@@ -78,7 +79,7 @@ export default class CheckGroup extends React.Component {
     }
 
     if (event) {
-      let hidden = event.hiddenEnumerations(fieldId);
+      let hidden = event.hiddenEnumerations(eventKey);
       options = options.filter(enumeration =>
         hidden.indexOf(enumeration.value) === -1);
     }

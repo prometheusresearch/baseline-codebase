@@ -1,6 +1,5 @@
 /**
  * @copyright 2016-present, Prometheus Research, LLC
- * @flow
  */
 
 import React from 'react';
@@ -12,5 +11,5 @@ export default style(ReactForms.ErrorList, {
 
   Error({error}) {
     return <Error text={error.message} />;
-  }
+  },
 });

@@ -73,6 +73,7 @@ export default class Question extends React.Component {
           marginBottom={renderAnnotation || renderExplanation ? 'small' : undefined}
           question={question}
           instrument={formValue.schema.instrument}
+          form={formValue.schema.form}
           formValue={formValue.select('value')}
           />
         {renderExplanation &&

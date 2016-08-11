@@ -20,12 +20,12 @@ import {makeAssessment} from '../instrument/assessment';
 import FormPage from './FormPage';
 import FormPaginator from './FormPaginator';
 import FormContext from './FormContext';
-import * as EventScope from './event/EventScope';
+import * as EventExecutor from './event/EventExecutor';
 
 function createFormState({instrument, form, parameters, initialValue = {}, i18n}) {
   let schema = InstrumentSchema.fromInstrument(instrument, {i18n});
   let original = atom(initialValue);
-  let event = EventScope.create(form, schema, original, parameters);
+  let event = EventExecutor.create(form, schema, original, parameters);
   schema.event = event;
   let onChange = (update, keyPath) => {
     let nextValue = ReactForms.update(

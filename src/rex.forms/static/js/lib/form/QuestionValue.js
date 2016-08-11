@@ -16,7 +16,7 @@ import {
 } from './WidgetConfig';
 
 export default function QuestionValue({
-  formValue, question, instrument, readOnly,
+  formValue, question, instrument, form, readOnly,
   editable, onCommitEdit, onCancelEdit,
   noLabel, noHelp, noAudio, disabled, widgetProps, ...props
 }) {
@@ -48,6 +48,7 @@ export default function QuestionValue({
       <Widget
         {...widgetProps}
         instrument={instrument}
+        form={form}
         editable={editable}
         onCommitEdit={onCommitEdit}
         onCancelEdit={onCancelEdit}

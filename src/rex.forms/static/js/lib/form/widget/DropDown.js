@@ -25,6 +25,7 @@ export default class DropDown extends React.Component {
   render() {
     let {
       instrument: {type, field},
+      form: {eventKey},
       question: {fieldId, enumerations},
       ...props
     } = this.props;
@@ -55,7 +56,7 @@ export default class DropDown extends React.Component {
         });
       }
       if (event) {
-        let hidden = event.hiddenEnumerations(fieldId);
+        let hidden = event.hiddenEnumerations(eventKey);
         options = options.filter(enumeration =>
           hidden.indexOf(enumeration.value) === -1);
       }

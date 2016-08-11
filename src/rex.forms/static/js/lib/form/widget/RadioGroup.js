@@ -62,6 +62,7 @@ export default class RadioGroup extends React.Component {
     let {
       options: {orientation = 'vertical'},
       instrument: {type},
+      form: {eventKey},
       question: {fieldId, enumerations},
       formValue,
       editable, onCommitEdit, onCancelEdit,
@@ -97,7 +98,7 @@ export default class RadioGroup extends React.Component {
       }
 
       if (event) {
-        let hidden = event.hiddenEnumerations(fieldId);
+        let hidden = event.hiddenEnumerations(eventKey);
         options = options.filter(enumeration =>
           hidden.indexOf(enumeration.value) === -1);
       }

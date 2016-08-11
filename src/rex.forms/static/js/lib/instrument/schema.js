@@ -1,15 +1,44 @@
 /**
  * @copyright 2016-present, Prometheus Research, LLC
+ * @flow
  */
 
+import type {
+  I18N
+} from 'rex-i18n';
+
+import type {
+  RIOSInstrument,
+  RIOSType,
+  RIOSField,
+  RIOSRow,
+  RIOSColumn,
+  RIOSExtendedType,
+  RIOSTypeCatalog,
+  JSONSchemaExt,
+  JSONSchemaExtension,
+  JSONObjectSchema,
+} from '../types';
+
+import invariant from 'invariant';
 import Validate, {isEmptyValue} from './validate';
 
-type JSONSchema = {};
+type Env = {
+  i18n: I18N;
+  types: RIOSTypeCatalog;
+};
+
+type ConfiguredEnv = Env & {
+  validate: Validate;
+};
 
 /**
  * Generate JSON schema for assessment document from instrument.
  */
-export function fromInstrument(instrument, env): JSONSchema {
+export function fromInstrument(
+  instrument: RIOSInstrument,
+  env: Env
+): JSONSchemaExt {
   env = {
     ...env,
     types: instrument.types,
@@ -25,10 +54,15 @@ export function fromInstrument(instrument, env): JSONSchema {
       return errorList.length === 0 ? true : errorList;
     }
   };
-  return schema;
+  return (schema: (JSONSchemaExtension & JSONObjectSchema<JSONSchemaExt>));
 }
 
-function generateRecordSchema(record, context, eventKey, env) {
+function generateRecordSchema(
+  record: Array<RIOSField>,
+  context,
+  eventKey: Array<string>,
+  env: ConfiguredEnv
+) {
   let properties = {};
   for (let i = 0; i < record.length; i++) {
     let field = record[i];
@@ -47,7 +81,13 @@ function generateRecordSchema(record, context, eventKey, env) {
   };
 }
 
-function generateFieldSchema(field, eventKey, env): JSONSchema {
+function generateFieldSchema(
+  field: RIOSField,
+  eventKey: Array<string>,
+  env: ConfiguredEnv
+): JSONSchemaExt {
+
+  const _env = env;
 
   eventKey = eventKey.concat(field.id);
 
@@ -69,11 +109,12 @@ function generateFieldSchema(field, eventKey, env): JSONSchema {
     field.annotation === 'required'
   );
 
-  let type = resolveType(field.type, env.types);
+  let type = resolveType(field.type, _env.types);
 
   let schema = {
     type: 'object',
     properties: {},
+    required: [],
     form: {
       eventKey: eventKey.join('.'),
     },
@@ -90,7 +131,7 @@ function generateFieldSchema(field, eventKey, env): JSONSchema {
         ) {
           return {
             field: 'annotation',
-            message: env.i18n.gettext('You must provide a response for this field.')
+            message: _env.i18n.gettext('You must provide a response for this field.')
           };
         }
       }
@@ -122,12 +163,20 @@ function generateFieldSchema(field, eventKey, env): JSONSchema {
     schema.required = schema.required || [];
     schema.required.push('value');
   }
+  invariant(
+    schema.properties.value.instrument != null,
+    'Incomplete schema'
+  );
   schema.properties.value.instrument.required = field.required;
 
   return schema;
 }
 
-export function generateValueSchema(type, eventKey, env) {
+export function generateValueSchema(
+  type: RIOSExtendedType,
+  eventKey: Array<string>,
+  env: ConfiguredEnv,
+): JSONSchemaExt {
   switch (type.base) {
     case 'float':
       return {
@@ -171,6 +220,10 @@ export function generateValueSchema(type, eventKey, env) {
         instrument: {type},
       };
     case 'recordList':
+      invariant(
+        type.record != null,
+        'Invalid recordList type'
+      );
       return {
         type: 'array',
         items: generateRecordSchema(type.record, 'recordListRecord', eventKey, env),
@@ -181,21 +234,38 @@ export function generateValueSchema(type, eventKey, env) {
         }
       };
     case 'enumeration':
+      invariant(
+        typeof type.enumerations === 'object',
+        'Invalid enumeration type'
+      );
       return {
         enum: Object.keys(type.enumerations),
         instrument: {type},
       };
     case 'enumerationSet':
+      invariant(
+        typeof type.enumerations === 'object',
+        'Invalid enumerationSet type'
+      );
       return {
         type: 'array',
         format: env.validate.enumerationSet,
         instrument: {type},
-        items: {enum: Object.keys(type.enumerations)}
+        items: {enum: Object.keys(type.enumerations), instrument: {type}}
       };
     case 'matrix': {
+      const {rows, columns} = type;
+      invariant(
+        rows,
+        'Missing rows specification for matrix field'
+      );
+      invariant(
+        columns,
+        'Missing columns specification for matrix field'
+      );
       let properties = {};
-      type.rows.forEach(row => {
-        properties[row.id] = generateMatrixRowSchema(row, type.columns, eventKey, env);
+      rows.forEach(row => {
+        properties[row.id] = generateMatrixRowSchema(row, columns, eventKey, env);
       });
       return {
         type: 'object',
@@ -212,7 +282,11 @@ export function generateValueSchema(type, eventKey, env) {
   }
 }
 
-function generateMatrixRowSchema(row, columns, eventKey, env) {
+function generateMatrixRowSchema(
+  row: RIOSRow,
+  columns: Array<RIOSColumn>,
+  eventKey: Array<string>, env: ConfiguredEnv
+) {
   eventKey = eventKey.concat(row.id);
   let node = {
     type: 'object',
@@ -276,7 +350,11 @@ function isBaseFieldType(type) {
  *
  * @returns A constained type representation.
  */
-export function resolveType(type, types, asBase: boolean = false) {
+export function resolveType(
+  type: RIOSType,
+  types: RIOSTypeCatalog,
+  asBase: boolean = false
+): RIOSExtendedType {
   if (isSimpleFieldType(type)) {
     return {base: type};
   } else if (asBase && isBaseFieldType(type)) {

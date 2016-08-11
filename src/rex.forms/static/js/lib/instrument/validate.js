@@ -1,30 +1,41 @@
 /**
  * @copyright 2016-present, Prometheus Research, LLC
+ * @flow
  */
 
+import type {FormValue} from 'react-forms';
+import type {I18N} from 'rex-i18n';
+import type {JSONSchemaExt} from '../types';
+
+import invariant from 'invariant';
 import isInteger from 'lodash/isInteger';
 import isFinite from 'lodash/isFinite';
+import isArray from 'lodash/isArray';
 import isPlainObject from 'lodash/isPlainObject';
+
+import cast from '../cast';
 
 const DATE_TIME_RE = /^\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?$/;
 const DATE_RE = /^\d\d\d\d-\d\d-\d\d$/;
 const TIME_RE = /^\d\d:\d\d(:\d\d)?$/;
 
 /**
-* Determine if field value is empty.
-*/
-export function isEmptyValue(value) {
-  if (Array.isArray(value)) {
+ * Determine if field value is empty.
+ */
+export function isEmptyValue(value: mixed): boolean {
+  if (isArray(value)) {
+    const valueRefined: Array<mixed> = cast(value);
     // If the array is empty, or only contains "empty" values, then true.
-    return value.filter((val) => {
-      return !isEmptyValue(val);
-    }).length === 0;
+    return valueRefined
+      .filter((val) => !isEmptyValue(val))
+      .length === 0;
 
   } else if (isPlainObject(value)) {
+    const valueRefined: Object  = cast(value);
     // If the object is empty, or only contains keys with "empty" values, then true.
-    return Object.keys(value).filter((key) => {
-      return !isEmptyValue(value[key]);
-    }).length === 0;
+    return Object.keys(valueRefined)
+      .filter(key => !isEmptyValue(valueRefined[key]))
+      .length === 0;
 
   } else {
     // These are what we define as "empty" values.
@@ -35,18 +46,18 @@ export function isEmptyValue(value) {
 /**
 * Determine if field value is completed.
 */
-export function isFieldCompleted(formValue) {
+export function isFieldCompleted(formValue: FormValue): boolean {
   let {value, completeErrorList} = formValue;
-  return (
+  return !!(
     completeErrorList.length === 0 &&
-    value && (
+    value && typeof value === 'object' && (
       !isEmptyValue(value.value) ||
       !isEmptyValue(value.annotation)
     )
   );
 }
 
-export function createReactFormsMessages({i18n}) {
+export function createReactFormsMessages({i18n}: {i18n: I18N}) {
   return {
     IS_REQUIRED: i18n.gettext('You must provide a response for this field.'),
 
@@ -78,14 +89,20 @@ export function createReactFormsMessages({i18n}) {
 
 export default class Validate {
 
-  constructor({i18n}) {
+  i18n: I18N;
+
+  constructor({i18n}: {i18n: I18N}) {
     this.i18n = i18n;
   }
 
-  number = (value, node) => {
+  number = (value: number, node: JSONSchemaExt) => {
     if (!isFinite(value)) {
       return this.i18n.gettext('Not a valid number.');
     }
+    invariant(
+      node.instrument != null,
+      'Incomplete schema'
+    );
     if (node.instrument.type.range) {
       let failure = this.checkValueRange(value, node.instrument.type.range);
       if (failure !== true) {
@@ -95,10 +112,14 @@ export default class Validate {
     return true;
   };
 
-  integer = (value, node) => {
+  integer = (value: number, node: JSONSchemaExt) => {
     if (!isInteger(value)) {
       return this.i18n.gettext('Not a valid whole number.');
     }
+    invariant(
+      node.instrument != null,
+      'Incomplete schema'
+    );
     if (node.instrument.type.range) {
       let failure = this.checkValueRange(value, node.instrument.type.range);
       if (failure !== true) {
@@ -108,7 +129,7 @@ export default class Validate {
     return true;
   };
 
-  date = (value, node) => {
+  date = (value: string, node: JSONSchemaExt) => {
     if (!DATE_RE.exec(value)) {
       return this.i18n.gettext('This must be entered in the form: YYYY-MM-DD');
     }
@@ -116,6 +137,10 @@ export default class Validate {
       return this.i18n.gettext('Not a valid date.');
     }
 
+    invariant(
+      node.instrument != null,
+      'Incomplete schema'
+    );
     if (node.instrument.type.range) {
       let failure = this.checkValueRange(value, node.instrument.type.range);
       if (failure !== true) {
@@ -125,7 +150,7 @@ export default class Validate {
     return true;
   };
 
-  dateTime = (value, node) => {
+  dateTime = (value: string, node: JSONSchemaExt) => {
     if (!DATE_TIME_RE.exec(value)) {
       return this.i18n.gettext('This must be entered in the form: YYYY-MM-DDTHH:MM[:SS]');
     }
@@ -138,6 +163,10 @@ export default class Validate {
       return this.i18n.gettext('Not a valid time.');
     }
 
+    invariant(
+      node.instrument != null,
+      'Incomplete schema'
+    );
     if (node.instrument.type.range) {
       let failure = this.checkValueRange(value, node.instrument.type.range);
       if (failure !== true) {
@@ -147,7 +176,7 @@ export default class Validate {
     return true;
   };
 
-  time = (value, node) => {
+  time = (value: string, node: JSONSchemaExt) => {
     if (!TIME_RE.exec(value)) {
       return this.i18n.gettext('This must be entered in the form: HH:MM[:SS]');
     }
@@ -155,6 +184,10 @@ export default class Validate {
       return this.i18n.gettext('Not a valid time.');
     }
 
+    invariant(
+      node.instrument != null,
+      'Incomplete schema'
+    );
     if (node.instrument.type.range) {
       let failure = this.checkValueRange(value, node.instrument.type.range);
       if (failure !== true) {
@@ -164,7 +197,7 @@ export default class Validate {
     return true;
   };
 
-  recordList = (value, node) => {
+  recordList = (value: Array<Object>, node: JSONSchemaExt) => {
     value = value || [];
 
     if (value.length > 0) {
@@ -183,10 +216,18 @@ export default class Validate {
     }
 
     if (isEmptyValue(value)) {
+      invariant(
+        node.instrument != null,
+        'Incomplete schema'
+      );
       if (node.instrument.required) {
         return this.i18n.gettext('You must provide a response for this field.');
       }
     } else {
+      invariant(
+        node.instrument != null,
+        'Incomplete schema'
+      );
       if (node.instrument.type.length) {
         let {min, max} = node.instrument.type.length;
         let minFailure = (
@@ -198,7 +239,7 @@ export default class Validate {
           max < value.length
         );
         if (minFailure || maxFailure) {
-          let error = {force: true};
+          let error = {message: undefined, force: true};
           if (min !== undefined && max !== undefined) {
             error.message = this.i18n.gettext('Must enter between %(min)s and %(max)s records.', {min, max});
           } else if (min !== undefined) {
@@ -213,8 +254,12 @@ export default class Validate {
     return true;
   };
 
-  matrix = (value, node) => {
+  matrix = (value: Object, node: JSONSchemaExt) => {
     if (isEmptyValue(value)) {
+      invariant(
+        node.instrument != null,
+        'Incomplete schema'
+      );
       if (node.instrument.required) {
         return this.i18n.gettext('You must provide a response for this field.');
       }
@@ -222,29 +267,46 @@ export default class Validate {
     return true;
   };
 
-  matrixRow = (value, node) => {
+  matrixRow = (value: Object, node: JSONSchemaExt) => {
     if (isEmptyValue(value)) {
+      invariant(
+        node.instrument != null,
+        'Incomplete schema'
+      );
       if (node.instrument.required) {
         return this.i18n.gettext('You must provide a response for this row.');
       }
     } else {
-      let errorList = node.instrument.requiredColumns.filter((col) => {
-        return isEmptyValue(value[col]);
-      }).map((col) => {
-        let error = {
-          field: col + '.value',
-          message: this.i18n.gettext('You must provide a response for this field.'),
-          force: true,
-        };
-        return error;
-      });
+      invariant(
+        node.instrument != null,
+        'Incomplete schema'
+      );
+      const {requiredColumns} = node.instrument;
+      invariant(
+        requiredColumns != null,
+        'Invalid schema'
+      );
+      let errorList = requiredColumns
+        .filter(col => isEmptyValue(value[col]))
+        .map((col) => {
+          let error = {
+            field: col + '.value',
+            message: this.i18n.gettext('You must provide a response for this field.'),
+            force: true,
+          };
+          return error;
+        });
       return errorList.length === 0 ? true : errorList;
     }
     return true;
   };
 
-  enumerationSet = (value, node) => {
+  enumerationSet = (value: Array<string>, node: JSONSchemaExt) => {
     value = value || [];
+    invariant(
+      node.instrument != null,
+      'Incomplete schema'
+    );
     if ((value.length > 0) && node.instrument.type.length) {
       let {min, max} = node.instrument.type.length;
       let minFailure = (
@@ -268,8 +330,12 @@ export default class Validate {
     return true;
   };
 
-  text = (value, node) => {
+  text = (value: string, node: JSONSchemaExt) => {
     value = value || '';
+    invariant(
+      node.instrument != null,
+      'Incomplete schema'
+    );
     if (node.instrument.type.length) {
       let {min, max} = node.instrument.type.length;
       let minFailure = (
@@ -302,7 +368,7 @@ export default class Validate {
     return true;
   };
 
-  checkValueRange(value, {min, max}) {
+  checkValueRange(value: any, {min, max}: {min?: any; max?: any}) {
     let minFailure = (
       min !== undefined &&
       min > value
@@ -324,8 +390,9 @@ export default class Validate {
     }
   }
 
-  checkLegalDate(dateStr) {
+  checkLegalDate(dateStr: string): boolean {
     let parts = dateStr.split('-').map(Number);
+    // $FlowIssue: fixme
     let parsed = new Date(parts);
     if (
         isNaN(parsed.getTime())
@@ -338,11 +405,12 @@ export default class Validate {
     return true;
   }
 
-  checkLegalTime(timeStr) {
+  checkLegalTime(timeStr: string): boolean {
     let parts = timeStr.split(':').map(Number);
     if (
       ((parts[0] < 0) || (parts[0] > 23))
       || ((parts[1] < 0) || (parts[1] > 59))
+      || ((parts[2] < 0) || (parts[2] > 59))
       ) {
       return false;
     }

@@ -1,6 +1,5 @@
 /**
  * @copyright 2016, Prometheus Research, LLC
- * @flow
  */
 
 import * as React from 'react';
@@ -76,63 +75,83 @@ function ColumnLabelRow({columns, readOnly}) {
 }
 
 
-let MatrixRow = ReactForms.reactive(function MatrixRow({row, questions, formValue, readOnly}, {event}) {
-  let hasError = formValue.completeErrorList.length > 0;
-  let showErrorList = (
-    formValue.params.forceShowErrorList ||
-    some(formValue.completeErrorList, error => error.force)
-  );
-  return (
-    <tr>
-      <td>
-        <RowLabel
-          text={row.text}
-          help={row.help}
-          audio={row.audio}
-          required={formValue.schema.instrument.required}
-          />
-        {hasError && showErrorList &&
-          <ErrorList formValue={formValue} />
-        }
-      </td>
-      {questions.map(question => {
-        let columnFormValue = formValue.select(question.fieldId);
-        let {eventKey} = columnFormValue.schema.form;
-        // override width of widget.options if any
-        question = {
-          widget: {
-            options: {
-              width: 'large',
-              ...(question.widget && question.widget.options),
+@ReactForms.reactive
+class MatrixRow extends React.Component {
+
+  static contextTypes = FormContext.contextTypes;
+  static childContextTypes = FormContext.contextTypes;
+
+  constructor(props, context) {
+    super(props, context);
+    this.event = context.event.select(props.formValue.keyPath);
+  }
+
+  getChildContext() {
+    return {
+      ...this.context,
+      event: this.event,
+    };
+  }
+
+  render() {
+    let {row, questions, formValue, readOnly} = this.props;
+    let hasError = formValue.completeErrorList.length > 0;
+    let showErrorList = (
+      formValue.params.forceShowErrorList ||
+      some(formValue.completeErrorList, error => error.force)
+    );
+    return (
+      <tr>
+        <td>
+          <RowLabel
+            text={row.text}
+            help={row.help}
+            audio={row.audio}
+            required={formValue.schema.instrument.required}
+            />
+          {hasError && showErrorList &&
+            <ErrorList formValue={formValue} />
+          }
+        </td>
+        {questions.map(question => {
+          let columnFormValue = formValue.select(question.fieldId);
+          let {eventKey} = columnFormValue.schema.form;
+          // override width of widget.options if any
+          question = {
+            widget: {
+              options: {
+                width: 'large',
+                ...(question.widget && question.widget.options),
+              },
+              ...question.widget,
             },
-            ...question.widget,
-          },
-          ...question
-        };
+            ...question
+          };
 
         let {help, ...questionOptions} = question;  // eslint-disable-line no-unused-vars
-        return (
-          <td key={question.fieldId}>
-            {!event.isHidden(eventKey) &&
-              <QuestionValue
-                padding="small"
-                noLabel
-                noAudio
-                plain
-                disabled={event.isDisabled(eventKey)}
-                question={questionOptions}
-                instrument={columnFormValue.schema.instrument}
-                formValue={columnFormValue.select('value')}
-                readOnly={readOnly}
-                />
-            }
-          </td>
-        );
-      })}
-    </tr>
-  );
-});
-MatrixRow.contextTypes = FormContext.contextTypes;
+          return (
+            <td key={question.fieldId}>
+              {!this.event.isHidden(eventKey) &&
+                <QuestionValue
+                  padding="small"
+                  noLabel
+                  noAudio
+                  plain
+                  disabled={this.event.isDisabled(eventKey)}
+                  question={questionOptions}
+                  instrument={columnFormValue.schema.instrument}
+                  form={columnFormValue.schema.form}
+                  formValue={columnFormValue.select('value')}
+                  readOnly={readOnly}
+                  />
+              }
+            </td>
+          );
+        })}
+      </tr>
+    );
+  }
+}
 
 function RowLabel({required, text, help, audio, ...props}) {
   return (

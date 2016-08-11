@@ -30,6 +30,13 @@ types:
         type: text
       - id: col2
         type: basic_enum
+  basic_recordlist:
+    base: recordList
+    record:
+      - id: sub1
+        type: text
+      - id: sub2
+        type: basic_enum
 record:
   - id: x1_source
     type: action_enum
@@ -82,5 +89,37 @@ record:
         - id: col2
           type: basic_enum
   - id: x6_target
+    type: text
+
+  - id: x7_source
+    type: action_enum
+  - id: x7_target
+    type: basic_recordlist
+
+  - id: x8_source_value
+    type: basic_enum
+  - id: x8_source
+    type: basic_recordlist
+  - id: x8_target
+    type: text
+
+  - id: x9_source_value
+    type: basic_enum
+  - id: x9_source
+    type: basic_recordlist
+  - id: x9_target
+    type: text
+
+  - id: x10_duplicated_name
+    type: basic_enum
+  - id: x10_source
+    type:
+      base: recordList
+      record:
+        - id: x10_duplicated_name
+          type: text
+        - id: sub2
+          type: basic_enum
+  - id: x10_target
     type: text
 

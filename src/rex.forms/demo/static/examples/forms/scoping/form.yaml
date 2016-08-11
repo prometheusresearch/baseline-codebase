@@ -296,7 +296,7 @@ pages:
                 - trigger: col1=='enum'
                   action: disable
                   targets:
-                    - x4_source.row2.col2
+                    - x5_source.row2.col2
             - fieldId: col2
               text:
                 en: Column 2
@@ -305,7 +305,7 @@ pages:
                   action: hide
                   targets:
                     - col1
-                - trigger: x5_source_value==col2
+                - trigger: x5_source_value!==null()&x5_source_value==col2
                   action: fail
                   options:
                     text:
@@ -361,6 +361,167 @@ pages:
             en: This will fail if "blue" is chosen in the first question.
           events:
             - trigger: x6_duplicated_name=='blue'
+              action: fail
+              options:
+                text:
+                  en: This has been forcibly failed.
+
+
+  - id: x7
+    elements:
+      - type: question
+        options:
+          fieldId: x7_source
+          text:
+            en: Choose an action to apply to the first subfield of each record
+          events:
+            - trigger: x7_source=='hide'
+              action: hide
+              targets:
+                - x7_target.sub1
+            - trigger: x7_source=='disable'
+              action: disable
+              targets:
+                - x7_target.sub1
+            - trigger: x7_source=='fail'
+              action: fail
+              options:
+                text:
+                  en: This was failed by x7_source
+              targets:
+                - x7_target.sub1
+      - type: question
+        options:
+          fieldId: x7_target
+          text:
+            en: This is the target recordList
+          questions:
+            - fieldId: sub1
+              text:
+                en: Subfield 1
+            - fieldId: sub2
+              text:
+                en: Subfield 2
+
+
+  - id: x8
+    elements:
+      - type: question
+        options:
+          fieldId: x8_source_value
+          text:
+            en: This value drives expressions in the subfield events.
+          help:
+            en: Choosing "red" will hide the target question (if a record exists in the recordlist), and "green" will hide all the first subfields.
+      - type: question
+        options:
+          fieldId: x8_source
+          text:
+            en: This is a recordlist with subfield events.
+          questions:
+            - fieldId: sub1
+              text:
+                en: Subfield 1
+              events:
+                - trigger: x8_source_value=='red'
+                  action: hide
+                  targets:
+                    - x8_target
+            - fieldId: sub2
+              text:
+                en: Subfield 2
+              events:
+                - trigger: x8_source_value=='green'
+                  action: hide
+                  targets:
+                    - sub1
+      - type: question
+        options:
+          fieldId: x8_target
+          text:
+            en: This is a target
+
+
+  - id: x9
+    elements:
+      - type: question
+        options:
+          fieldId: x9_source_value
+          text:
+            en: If this value is the same as a value in the second subfield of a record, that subfield will fail.
+      - type: question
+        options:
+          fieldId: x9_source
+          text:
+            en: This is a recordlist with subfield events.
+          questions:
+            - fieldId: sub1
+              text:
+                en: Subfield 1
+              events:
+                - trigger: sub1=='hide'
+                  action: hide
+                  targets:
+                    - x9_target
+            - fieldId: sub2
+              text:
+                en: Subfield 2
+              help:
+                en: If you choose "green", the first subfield will be hidden.
+              events:
+                - trigger: sub2=='green'
+                  action: hide
+                  targets:
+                    - sub1
+                - trigger: x9_source_value!==null()&x9_source_value==sub2
+                  action: fail
+                  options:
+                    text:
+                      en: This has been forcibly failed.
+                  targets:
+                    - sub2
+      - type: question
+        options:
+          fieldId: x9_target
+          text:
+            en: This question will disappear if you type "hide" in the first subfield of any record.
+
+
+  - id: x10
+    elements:
+      - type: question
+        options:
+          fieldId: x10_duplicated_name
+          text:
+            en: This is a top-level question.
+          help:
+            en: If "green" is chosen here, nothing should happen.
+      - type: question
+        options:
+          fieldId: x10_source
+          text:
+            en: This is a recordlist with subfield events.
+          questions:
+            - fieldId: x10_duplicated_name
+              text:
+                en: Subfield 1
+              help:
+                en: If you type "green" here, the second subfield will disappear.
+            - fieldId: sub2
+              text:
+                en: Subfield 2
+              events:
+                - trigger: x10_duplicated_name=='green'
+                  action: hide
+                  targets:
+                    - sub2
+      - type: question
+        options:
+          fieldId: x10_target
+          text:
+            en: This will fail if "blue" is chosen in the first question.
+          events:
+            - trigger: x10_duplicated_name=='blue'
               action: fail
               options:
                 text:

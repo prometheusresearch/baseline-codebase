@@ -20,7 +20,12 @@ export function fromHash() {
       defaultRemainder,
       '/view-source',
     ].map((s) => {
-      if (remainder.substr(0, s.length) == s) {
+      [s + '/', s + '?'].map((start) => {
+        if (remainder.substr(0, start.length) == start) {
+          remainderAllowed = true;
+        }
+      });
+      if (!remainderAllowed && remainder == s) {
         remainderAllowed = true;
       }
     });
@@ -33,7 +38,7 @@ export function fromHash() {
 }
 
 export function toHash(table, remainder) {
-  return `/dbgui.context[table=${table}]${remainder || ''}`;
+  return table === null ? '' : `/dbgui.context[table=${table}]${remainder || ''}`;
 }
 
 export function recordLink(table, id) {

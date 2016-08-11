@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.7.0 (2016-XX-XX)
+2.7.0 (2016-08-11)
 ==================
 
 * Use ``int8`` for integer columns.

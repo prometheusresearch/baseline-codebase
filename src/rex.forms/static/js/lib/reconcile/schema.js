@@ -83,10 +83,16 @@ function generateValueSchema(type, question, discrepancy, env) {
         instrument: {type},
       };
     case 'recordList':
+      let items = [];
+      let maxIndex = Math.max.apply(null, Object.keys(discrepancy).map(Number));
+      for (let i = 0; i <= maxIndex; i++) {
+        items.push(
+          generateRecordSchema(type.record, question, discrepancy[i] || {}, env)
+        );
+      }
       return {
         type: 'array',
-        items: map(discrepancy, discrepancy =>
-          generateRecordSchema(type.record, question, discrepancy, env)),
+        items,
         format: env.validate.recordList,
         instrument: {type},
       };

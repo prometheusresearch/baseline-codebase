@@ -55,8 +55,10 @@
     "transit-js": "^0.8.795"
   },
   "devDependencies": {
-    "babel": "^5.8.35",
+    "babel-core": "^6.13.2",
     "babel-plugin-espower": "^1.0.0",
+    "babel-polyfill": "^6.13.0",
+    "babel-preset-prometheusresearch": "^0.1.0",
     "eslint": "^2.2.0",
     "eslint-config-prometheusresearch": "^0.1.0",
     "estraverse-fb": "^1.3.1",

@@ -18,7 +18,6 @@ describe('<IconButton />', function() {
       <IconButton name="plus" onClick={onClick} />
     );
     let root = renderer.getRenderOutput();
-    assert(root.type.Component === 'div');
     assert(root.props.children.type === Icon);
     assert(root.props.children.props.name === 'plus');
     assert(root.props.onClick);

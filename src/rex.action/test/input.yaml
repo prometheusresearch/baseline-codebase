@@ -23,7 +23,7 @@ tests:
 - sh: pip uninstall -q -y rex.action_demo
   ignore: true
 
-- coverage-check: 90.0
+- coverage-check: 87.0
 - coverage-report: ./build/coverage
 
 - sh: python setup.py develop_commonjs --package-location ./static/js

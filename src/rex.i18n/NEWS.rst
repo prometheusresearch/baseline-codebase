@@ -5,7 +5,7 @@ REX.I18N Change Log
 .. contents:: Table of Contents
 
 
-0.5.0 (2016-xx-xx)
+0.5.0 (2016-08-12)
 ==================
 
 * Removed the embedded CLDR dataset.

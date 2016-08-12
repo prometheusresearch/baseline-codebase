@@ -10,4 +10,4 @@ config.only = function(filename) {
   return ok;
 };
 
-require('babel/register')(config);
+require('babel-core/register')(config);

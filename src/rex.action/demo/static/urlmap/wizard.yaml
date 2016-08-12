@@ -172,7 +172,7 @@ paths:
           type: edit
           entity: lab
 
-        included: rex.action_demo:/wizard/included
+        included: /wizard/included
 
 
 
@@ -191,8 +191,8 @@ paths:
           type: pick
           entity: study
 
-        view-study: rex.action_demo:/wizard/included/action
-        subwizard: rex.action_demo:/wizard/included/subwizard
+        view-study: /wizard/included/action
+        subwizard: /wizard/included/subwizard
 
   /wizard/included/action:
     access: nobody

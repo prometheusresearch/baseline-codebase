@@ -31,6 +31,7 @@ In case fields are not specified, they are generated from port::
 
   >>> page # doctest: +NORMALIZE_WHITESPACE
   Page(doc=undefined,
+       help=undefined,
        icon=undefined,
        id='home',
        input=RecordType(rows={}, open=True),

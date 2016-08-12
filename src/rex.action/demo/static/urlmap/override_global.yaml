@@ -16,7 +16,7 @@ paths:
             that path gets overridden with something totally different. See
             what happens with this wizard and the one at **Override >
             Global Action 2**.
-        included: rex.action_demo:/override/included
+        included: /override/included
 
 
   /override/global2:
@@ -35,7 +35,7 @@ paths:
             that path gets overridden with something totally different. See
             what happens with this wizard and the one at **Override >
             Global Action 1**.
-        included: rex.action_demo:/override/included
+        included: /override/included
 
 
   /override/included: !override

@@ -43,7 +43,7 @@ Constructing from Python values::
   ...   'type': 'my',
   ...   'id': 'id',
   ... })
-  MyAction(doc=undefined, icon=undefined, id='id', kind=undefined, title=undefined, width=undefined)
+  MyAction(doc=undefined, help=undefined, icon=undefined, id='id', kind=undefined, title=undefined, width=undefined)
 
   >>> validate({
   ...   'id': 'id'
@@ -77,7 +77,7 @@ Action is validated by ``ActionVal`` as is::
   ...   'type': 'my',
   ...   'id': 'id',
   ... }))
-  MyAction(doc=undefined, icon=undefined, id='id', kind=undefined, title=undefined, width=undefined)
+  MyAction(doc=undefined, help=undefined, icon=undefined, id='id', kind=undefined, title=undefined, width=undefined)
 
 Subclass constraints
 --------------------
@@ -90,7 +90,7 @@ Subclass constraints
   ...   'type': 'another',
   ...   'id': 'id',
   ... })
-  AnotherAction(doc=undefined, icon=undefined, id='id', kind=undefined, title=undefined, width=undefined)
+  AnotherAction(doc=undefined, help=undefined, icon=undefined, id='id', kind=undefined, title=undefined, width=undefined)
 
   >>> validate_another({
   ...   'type': 'my',
@@ -112,7 +112,7 @@ Validating/constructing actions with predefined id
   >>> validate_with_id({
   ...   'type': 'my'
   ... })
-  MyAction(doc=undefined, icon=undefined, id='someid', kind=undefined, title=undefined, width=undefined)
+  MyAction(doc=undefined, help=undefined, icon=undefined, id='someid', kind=undefined, title=undefined, width=undefined)
 
   >>> validate_with_id({
   ...   'id': 'id',
@@ -125,7 +125,7 @@ Validating/constructing actions with predefined id
   >>> validate_with_id.parse("""
   ... type: my
   ... """)
-  MyAction(doc=undefined, icon=undefined, id='someid', kind=undefined, title=undefined, width=undefined)
+  MyAction(doc=undefined, help=undefined, icon=undefined, id='someid', kind=undefined, title=undefined, width=undefined)
 
   >>> validate_with_id.parse("""
   ... id: id
@@ -149,7 +149,7 @@ Constructing from YAML
   ... type: my
   ... id: id
   ... """)
-  MyAction(doc=undefined, icon=undefined, id='id', kind=undefined, title=undefined, width=undefined)
+  MyAction(doc=undefined, help=undefined, icon=undefined, id='id', kind=undefined, title=undefined, width=undefined)
 
   >>> validate.parse("""
   ... type: my

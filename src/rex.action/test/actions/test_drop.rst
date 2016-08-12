@@ -33,6 +33,7 @@ In case fields are not specified, they are generated from port::
        db=None,
        doc=undefined,
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
+       help=undefined,
        icon=undefined,
        id='drop-individual',
        kind=undefined,

@@ -76,6 +76,7 @@ Wizard
   Wizard(actions={'second': AnotherAction(...),
                   'first': MyAction(...)},
          doc=undefined,
+         help=undefined,
          icon=undefined,
          id='wizard',
          initial_context=None,
@@ -104,6 +105,7 @@ Wizard
   Wizard(actions={'second': AnotherAction(...),
                   'first': MyAction(...)},
          doc=undefined,
+         help=undefined,
          icon=undefined,
          id='wizard',
          initial_context=None,
@@ -142,6 +144,7 @@ Wizard
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Wizard(actions={'first': RequireX(...)},
          doc=undefined,
+         help=undefined,
          icon=undefined,
          id='wizard',
          initial_context={'x': 'value'},
@@ -343,6 +346,8 @@ Action resolution
       db: 'pgsql:action_demo'
 
   >>> parse("""
+  ... include:
+  ... - other:/urlmap.yaml
   ... paths:
   ...   /:
   ...     action:
@@ -350,7 +355,7 @@ Action resolution
   ...       path:
   ...       - other-action:
   ...       actions:
-  ...         other-action: other:/action
+  ...         other-action: /action
   ... """, """
   ... paths:
   ...   /action:
@@ -370,7 +375,9 @@ Action resolution
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Cannot resolve global action reference:
+  Error: Invalid path:
+      other:/action
+  While loading action:
       other:/action
   While parsing:
       "...", line 5

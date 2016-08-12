@@ -7,8 +7,8 @@ Test rex.widget.menu
   >>> from rex.core import Rex, SandboxPackage
   >>> from rex.widget import Widget, responder
 
-  >>> class MappedWidget(Widget):
-  ...     name = 'MappedWidget'
+  >>> class MenuWidget(Widget):
+  ...     name = 'MenuWidget'
   ...     js_type = 'mapped-widget'
   ...
   ...     @responder()
@@ -24,7 +24,7 @@ Test rex.widget.menu
   ...   - title: Start
   ...     access: anybody
   ...     path: /w
-  ...     widget: !<MappedWidget>
+  ...     widget: !<MenuWidget>
   ... ''')
 
   >>> rex = Rex(pkg, '-', 'rex.widget_demo')

@@ -78,3 +78,12 @@ record:
         - id: subfield3
           type: basic_enum
 
+  - id: focus_events
+    type: basic_enum
+  - id: focus_target1
+    type: text
+  - id: focus_target2
+    type: text
+  - id: focus_target3
+    type: text
+

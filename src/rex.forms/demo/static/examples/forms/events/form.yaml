@@ -390,3 +390,39 @@ pages:
         tags:
           - red_rl
 
+  - id: page6
+    elements:
+      - type: question
+        options:
+          fieldId: focus_events
+          text:
+            en: Blah
+          widget:
+            type: radioGroup
+            options:
+              autoHotkeys: true
+          events:
+            - trigger: focus_events!=='red'
+              action: hide
+              targets:
+                - focus_target1
+            - trigger: focus_events!=='blue'
+              action: disable
+              targets:
+                - focus_target2
+      - type: question
+        options:
+          fieldId: focus_target1
+          text:
+            en: Should be focused if "red" is chosen
+      - type: question
+        options:
+          fieldId: focus_target2
+          text:
+            en: Should be focused if "blue" is chosen
+      - type: question
+        options:
+          fieldId: focus_target3
+          text:
+            en: Should only be focused if "green" is chosen
+

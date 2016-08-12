@@ -58,6 +58,13 @@ export default class RadioGroup extends React.Component {
     ...FormContext.contextTypes,
   };
 
+  componentDidUpdate() {
+    if (this._focusNext) {
+      this._focusNext = false;
+      focusNextWithin(ReactDOM.findDOMNode(this.context.self));
+    }
+  }
+
   render() {
     let {
       options: {orientation = 'vertical'},
@@ -189,7 +196,6 @@ export default class RadioGroup extends React.Component {
       value = parseBoolean(value);
     }
     formValue.update(value);
-
-    focusNextWithin(ReactDOM.findDOMNode(this.context.self));
+    this._focusNext = true;
   };
 }

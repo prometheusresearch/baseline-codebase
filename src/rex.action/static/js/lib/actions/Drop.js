@@ -75,9 +75,9 @@ export default class Drop extends React.Component {
     let {confirmDelay} = this.state;
     let title = this.constructor.renderTitle(this.props, context);
     let article = 'a';
-    if (['a', 'e', 'i', 'o'].indexOf(entity.name[0]) !== -1){
+    if (['a', 'e', 'i', 'o'].indexOf(entity.name[0]) !== -1) {
       article = 'an';
-    };
+    }
     return (
      <Action title={title}>
       <stylesheet.Root>

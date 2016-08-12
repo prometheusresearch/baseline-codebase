@@ -5,6 +5,12 @@ REX.MOBILE Change Log
 .. contents:: Table of Contents
 
 
+0.7.1 (2016-08-12)
+==================
+
+* Minor tweaks to the test suite.
+
+
 0.7.0 (2016-07-14)
 ==================
 

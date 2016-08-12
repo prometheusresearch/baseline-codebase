@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-3.2.0 (2016-XX-XX)
+3.2.0 (2016-08-12)
 ==================
 
 * Update JS build system to use Babel 6 toolchain.

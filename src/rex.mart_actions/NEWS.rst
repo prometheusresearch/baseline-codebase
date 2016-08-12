@@ -5,7 +5,7 @@ REX.MART_ACTIONS Change Log
 .. contents:: Table of Contents
 
 
-0.3.0 (2016-xx-xx)
+0.3.0 (2016-08-12)
 ==================
 
 * Updated JavaScript config for Babel-based building.

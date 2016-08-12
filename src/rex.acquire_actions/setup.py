@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.acquire_actions',
-    version='0.1.0',
+    version='0.1.1',
     description='A collection of RexAction actions and wizards for RexAcquire'
     'workflows.',
     long_description=open('README.rst', 'r').read(),

@@ -69,9 +69,7 @@ class AcquireAction(CommonAcquireMixin, Action):
         channel_impl = Channel.get_implementation()
         return [
             channel.as_dict()
-            for channel in channel_impl.find(
-                presentation_type=channel_impl.PRESENTATION_TYPE_FORM,
-            )
+            for channel in channel_impl.find()
         ]
 
     def __init__(self, *args, **kwargs):
@@ -111,9 +109,7 @@ class AcquireEntityAction(CommonAcquireMixin, EntityAction):
         channel_impl = Channel.get_implementation()
         return [
             channel.as_dict()
-            for channel in channel_impl.find(
-                presentation_type=channel_impl.PRESENTATION_TYPE_FORM,
-            )
+            for channel in channel_impl.find()
         ]
 
     def __init__(self, *args, **kwargs):

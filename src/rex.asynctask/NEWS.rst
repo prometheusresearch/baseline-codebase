@@ -5,6 +5,12 @@ REX.ASYNCTASK Change Log
 .. contents:: Table of Contents
 
 
+0.3.1 (2016-08-12)
+==================
+
+* Minor tweaks to test suite.
+
+
 0.3.0 (2016-01-29)
 ==================
 

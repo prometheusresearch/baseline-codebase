@@ -5,7 +5,7 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
-1.6.1 (2016-xx-xx)
+1.6.1 (2016-08-12)
 ==================
 
 * Fixed an issue that prevented task priorities from being longs.

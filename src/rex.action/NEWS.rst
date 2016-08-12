@@ -4,7 +4,7 @@
 
 .. contents:: Table of Contents
 
-1.3.0 (2016-XX-XX)
+1.3.0 (2016-08-12)
 ==================
 
 * [FEATURE] Add optional per action help text.

@@ -123,3 +123,6 @@ record:
         ten:
         eleven:
 
+  - id: q_text
+    type: text
+

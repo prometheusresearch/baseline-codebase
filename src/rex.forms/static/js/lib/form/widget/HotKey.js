@@ -26,6 +26,7 @@ export class HotkeyHandler extends React.Component {
 
   onKeyPress = e => {
     if (this.props.keys[e.key]) {
+      e.preventDefault();
       this.props.onKey(this.props.keys[e.key], e);
     }
   };

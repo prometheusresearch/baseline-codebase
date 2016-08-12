@@ -133,6 +133,11 @@ pages:
               autoHotkeys: true
       - type: question
         options:
+          fieldId: q_text
+          text:
+            en: Just a textbox following a hotkey-enabled Check group
+      - type: question
+        options:
           fieldId: q9
           text:
             en: Check group (horizontal).

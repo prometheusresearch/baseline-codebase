@@ -94,3 +94,6 @@ record:
   - id: q13
     type: basic
 
+  - id: q_text
+    type: text
+

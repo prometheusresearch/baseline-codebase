@@ -5,6 +5,13 @@ REX.ASYNCTASK Change Log
 .. contents:: Table of Contents
 
 
+0.3.2 (2016-xx-xx)
+==================
+
+* Fixed issue with handling an ``asynctask_transport`` setting that looked like
+  ``pgsql://databasename``.
+
+
 0.3.1 (2016-08-12)
 ==================
 

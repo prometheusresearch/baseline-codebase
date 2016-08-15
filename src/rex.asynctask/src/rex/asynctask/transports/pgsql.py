@@ -106,7 +106,7 @@ class PostgresAsyncTransport(AsyncTransport):
 
         parsed = DB.parse(urlunparse(uri_parts))
         self._connection_parameters = {
-            'database': parsed.database
+            'database': parsed.database.lstrip('/')
         }
         if parsed.host is not None:  # pragma: no cover
             self._connection_parameters['host'] = parsed.host

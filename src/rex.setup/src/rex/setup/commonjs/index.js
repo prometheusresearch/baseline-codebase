@@ -7,6 +7,7 @@ var webpack              = require('webpack');
 var ExtractTextPlugin    = require('extract-text-webpack-plugin');
 var IntrospectablePlugin = require('rex-setup/introspection/plugin');
 var PackageLoadersPlugin = require('webpack-package-loaders-plugin');
+var RenderTerminal       = require('./RenderTerminal');
 
 var introspectionLoader  = require.resolve('./introspection/loader');
 
@@ -188,24 +189,27 @@ function LogProgressPlugin(packageName) {
   this._notifyOnCompile = true;
 }
 
-LogProgressPlugin.prototype._log = function(message) {
-  console.log('webpack(' + this.packageName + '):', message);
+LogProgressPlugin.prototype._log = function(message, state) {
+  state = state || 'regular';
+  var render = RenderTerminal[state];
+  var label = 'webpack:' + this.packageName;
+  render(message, {label: label});
 };
 
 LogProgressPlugin.prototype._onDone = function(stats) {
   var time = stats.endTime - stats.startTime;
-  this._log('compilation finished (' + time + 'ms)');
+  this._log('compilation finished (' + time + 'ms)', 'success');
 }
 
 LogProgressPlugin.prototype._onCompile = function() {
   if (this._notifyOnCompile) {
     this._notifyOnCompile = false;
-    this._log('compilation started');
+    this._log('compilation started', 'regular');
   }
 }
 
 LogProgressPlugin.prototype._onInvalid = function() {
-  this._log('bundled invalidated, recompiling...');
+  this._log('bundled invalidated, recompiling...', 'warning');
 }
 
 LogProgressPlugin.prototype.apply = function(compiler) {

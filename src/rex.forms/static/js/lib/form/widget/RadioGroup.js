@@ -61,8 +61,12 @@ export default class RadioGroup extends React.Component {
   componentDidUpdate() {
     if (this._focusNext) {
       this._focusNext = false;
-      focusNextWithin(ReactDOM.findDOMNode(this.context.self));
+      this.focusNext();
     }
+  }
+
+  focusNext() {
+    focusNextWithin(ReactDOM.findDOMNode(this.context.self));
   }
 
   render() {
@@ -195,7 +199,11 @@ export default class RadioGroup extends React.Component {
     if (instrument.type.base === 'boolean') {
       value = parseBoolean(value);
     }
-    formValue.update(value);
-    this._focusNext = true;
+    if (value !== formValue.value) {
+      formValue.update(value);
+      this._focusNext = true;
+    } else {
+      this.focusNext();
+    }
   };
 }

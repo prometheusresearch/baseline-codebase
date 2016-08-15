@@ -82,6 +82,11 @@ pages:
               autoHotkeys: true
       - type: question
         options:
+          fieldId: q_text
+          text:
+            en: Just a textbox following a hotkey-enabled Radio group
+      - type: question
+        options:
           fieldId: q7
           text:
             en: Radio group (horizontal).

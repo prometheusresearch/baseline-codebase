@@ -68,3 +68,6 @@ record:
   - id: q10
     type: boolean
 
+  - id: q_text
+    type: text
+

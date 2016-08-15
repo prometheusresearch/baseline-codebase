@@ -60,6 +60,10 @@ The Mart object is an encapsulation of the information about a Mart database::
     True
     >>> mart.size > 0
     True
+    >>> mart.status
+    u'complete'
+    >>> mart.usable
+    True
 
     >>> mart.pinned = True
     >>> mart.pinned
@@ -105,7 +109,7 @@ The Mart object is an encapsulation of the information about a Mart database::
     True
 
 
-    >>> mart = Mart(999, 'fakedefn', 'marttest', 'dbname', datetime.now(), datetime.now(), False, 123)
+    >>> mart = Mart(999, 'fakedefn', 'marttest', 'dbname', datetime.now(), datetime.now(), False, 123, 'complete')
     >>> mart.definition is None
     True
 

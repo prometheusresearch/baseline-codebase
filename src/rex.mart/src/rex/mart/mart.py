@@ -39,6 +39,7 @@ class Mart(object):
             record.date_creation_completed,
             record.pinned,
             record.size,
+            record.status,
         )
 
     def __init__(
@@ -50,7 +51,8 @@ class Mart(object):
             date_creation_started,
             date_creation_completed,
             pinned,
-            size):
+            size,
+            status):
         self._code = code
         self._definition_id = definition_id
         self._owner = owner
@@ -59,6 +61,7 @@ class Mart(object):
         self._date_creation_completed = date_creation_completed
         self._pinned = pinned
         self._size = size
+        self._status = status
 
     @property
     def code(self):
@@ -165,6 +168,27 @@ class Mart(object):
 
         return self._size
 
+    @property
+    def status(self):
+        """
+        The creation state of the Mart. Read only.
+
+        :rtype: str
+        """
+
+        return self._status
+
+    @property
+    def usable(self):
+        """
+        Indicates whether or not this Mart has finished the creation process
+        and can be used by an end-user. Read only.
+
+        :rtype: bool
+        """
+
+        return self.status == 'complete'
+
     def purge(self):
         """
         Deletes the Mart and its associated inventory record from the system.
@@ -194,6 +218,7 @@ class Mart(object):
             'date_creation_completed': self.date_creation_completed,
             'pinned': self.pinned,
             'size': self.size,
+            'status': self.status,
         }
 
         if json_safe:

@@ -35,7 +35,7 @@ if the owner of the Mart is the same as the user::
     >>> permissions.user_can_access_mart('someoneelse', mart.code)
     False
 
-    >>> mart = Mart(999, 'empty', 'permtest', 'dbname', datetime.now(), datetime.now(), False, 123)
+    >>> mart = Mart(999, 'empty', 'permtest', 'dbname', datetime.now(), datetime.now(), False, 123, 'complete')
     >>> permissions.user_can_access_mart('permtest', mart)
     True
     >>> permissions.user_can_access_mart('someoneelse', mart)
@@ -52,7 +52,7 @@ behavior of the ``user_can_access_mart``::
     >>> permissions.user_can_manage_mart('someoneelse', mart.code)
     False
 
-    >>> mart = Mart(999, 'empty', 'permtest', 'dbname', datetime.now(), datetime.now(), False, 123)
+    >>> mart = Mart(999, 'empty', 'permtest', 'dbname', datetime.now(), datetime.now(), False, 123, 'complete')
     >>> permissions.user_can_manage_mart('permtest', mart)
     True
     >>> permissions.user_can_manage_mart('someoneelse', mart)

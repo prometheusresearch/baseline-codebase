@@ -5,6 +5,14 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
+0.4.0 (2016-xx-xx)
+==================
+
+- Fixed issue where quota system would purge good, complete Marts in favor of
+  keeping bad, incompete Marts. Now incomplete Marts are ignored from the Quota
+  system.
+
+
 0.3.0 (2016-08-12)
 ==================
 

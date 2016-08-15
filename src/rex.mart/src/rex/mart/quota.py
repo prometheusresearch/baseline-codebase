@@ -15,10 +15,10 @@ __all__ = (
 
 
 HTSQL_MART_COUNTS = """/{
-    count(rexmart_inventory.filter(owner=$owner)),
-    count(rexmart_inventory.filter(owner=$owner&pinned)),
-    count(rexmart_inventory.filter(owner=$owner&definition=$definition)),
-    count(rexmart_inventory.filter(owner=$owner&definition=$definition&pinned))
+    count(rexmart_inventory.filter(owner=$owner&status='complete')),
+    count(rexmart_inventory.filter(owner=$owner&pinned&status='complete')),
+    count(rexmart_inventory.filter(owner=$owner&definition=$definition&status='complete')),
+    count(rexmart_inventory.filter(owner=$owner&definition=$definition&pinned&status='complete'))
 }"""
 
 
@@ -109,7 +109,7 @@ class MartQuota(Extension):
                 definition_id=definition['id'],
             )
             for mart in reversed(marts):
-                if not mart.pinned:
+                if (not mart.pinned) and mart.usable:
                     mart.purge()
                     purged_marts.append(mart)
                     if len(purged_marts) >= num_to_purge:
@@ -135,7 +135,7 @@ class MartQuota(Extension):
         if num_to_purge > 0:
             marts = MartAccessPermissions.top().get_marts_for_user(owner)
             for mart in reversed(marts):
-                if not mart.pinned:
+                if (not mart.pinned) and mart.usable:
                     mart.purge()
                     purged_marts.append(mart)
                     if len(purged_marts) >= num_to_purge:

@@ -198,7 +198,11 @@ LogProgressPlugin.prototype._log = function(message, state) {
 
 LogProgressPlugin.prototype._onDone = function(stats) {
   var time = stats.endTime - stats.startTime;
-  this._log('compilation finished (' + time + 'ms)', 'success');
+  var failure = stats.compilation.errors.length > 0;
+  this._log(
+    'compilation finished (' + time + 'ms)',
+    failure ? 'error' : 'success'
+  );
 }
 
 LogProgressPlugin.prototype._onCompile = function() {
@@ -209,7 +213,7 @@ LogProgressPlugin.prototype._onCompile = function() {
 }
 
 LogProgressPlugin.prototype._onInvalid = function() {
-  this._log('bundled invalidated, recompiling...', 'warning');
+  this._log('bundled invalidated, recompiling...', 'regular');
 }
 
 LogProgressPlugin.prototype.apply = function(compiler) {

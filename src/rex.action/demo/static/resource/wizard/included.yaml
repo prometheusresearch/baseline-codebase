@@ -1,0 +1,15 @@
+type: wizard
+path:
+- pick-study:
+  - view-study:
+  - subwizard:
+
+actions:
+  pick-study:
+    title: Included Wizard
+    type: pick
+    entity: study
+
+  view-study: !include rex.action_demo:/resource/wizard/action.yaml
+  subwizard: !include rex.action_demo:/resource/wizard/subwizard.yaml
+

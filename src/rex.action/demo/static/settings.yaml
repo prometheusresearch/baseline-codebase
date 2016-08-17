@@ -1,78 +1,17 @@
+application_title: Rex.Action Demo
 
 db: pgsql:action_demo
-htsql_extensions:
-    rex_deploy:
 
-rex_widget_chrome:
-  magic: true
+htsql_extensions:
+  rex_deploy:
 
 access:
-    rex.widget: anybody
-    rex.action_demo: anybody
-    rex.action: anybody
-
+  rex.widget: anybody
+  rex.action_demo: anybody
+  rex.action: anybody
 
 rex_widget:
   chrome: rex.action_demo.DemoChrome
 
-application_title: Rex.Action Demo
-
-
-menu:
-- title: Home
-  items:
-  - access: anybody
-    title: Home
-    url: rex.action_demo:/
-    wizard_source: demo/home.html
-  - access: anybody
-    title: Inspect
-    url: rex.action:/inspect
-  - access: anybody
-    title: Demo Documentation
-    url: rex.action_demo:/doc
-    new_window: true
-  - access: anybody
-    title: Rex Action Documentation
-    url: rex.action:/doc
-    new_window: true
-- title: Standard Actions
-  items:
-  - access: anybody
-    title: wizard
-    url: rex.action_demo:/wizard
-  - access: anybody
-    title: page
-    url: rex.action_demo:/page
-  - access: anybody
-    title: pick
-    url: rex.action_demo:/pick
-  - access: anybody
-    title: make
-    url: rex.action_demo:/make
-  - access: anybody
-    title: edit
-    url: rex.action_demo:/edit
-  - access: anybody
-    title: form
-    url: rex.action_demo:/form
-  - access: anybody
-    title: view
-    url: rex.action_demo:/view
-  - access: anybody
-    title: drop
-    url: rex.action_demo:/drop
-  - access: anybody
-    title: plotly
-    url: rex.action_demo:/plotly
-- title: Override
-  items:
-  - access: anybody
-    title: Local Actions
-    url: rex.action_demo:/override/local
-  - access: anybody
-    title: Global Action 1
-    url: rex.action_demo:/override/global1
-  - access: anybody
-    title: Global Action 2
-    url: rex.action_demo:/override/global2
+rex_widget_chrome:
+  magic: true

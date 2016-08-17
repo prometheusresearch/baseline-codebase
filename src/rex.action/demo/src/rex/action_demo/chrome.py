@@ -1,5 +1,5 @@
 
-from rex.widget_chrome import Chrome
+from rex.widget_chrome.menu import Chrome
 from rex.core import cached, get_settings, get_packages
 from rex.widget import computed_field
 from rex.web import get_routes, url_for

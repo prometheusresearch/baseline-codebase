@@ -1,0 +1,14 @@
+type: wizard
+path:
+- pick-individual:
+actions:
+  pick-individual:
+    title: Recruited Individuals
+    type: pick
+    entity: individual
+    input:
+    - study
+    mask: exists(study_recruitment.study=$study)
+
+
+

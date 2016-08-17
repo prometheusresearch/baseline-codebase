@@ -1,0 +1,33 @@
+title: drop
+type: wizard
+path:
+- pick:
+  - minimal:
+  - customize-message:
+  - customize-delay:
+actions:
+  pick:
+    title: Pick Individual
+    type: pick
+    entity: individual
+
+  minimal:
+    title: Minimal Configuration
+    type: drop
+    entity: individual
+
+  customize-message:
+    title: Customize Message
+    type: drop
+    entity: individual
+    message: |
+      Are you sure you want to drop it? The action is not undoable.
+
+  customize-delay:
+    title: Customize Delay
+    type: drop
+    entity: individual
+    message: |
+      Let's think for 30 seconds :)
+    confirm_delay: 30
+

@@ -1,7 +1,0 @@
-paths:
-
-  /hello:
-    access: anybody
-    action:
-      type: hello
-      title: Hello, world!

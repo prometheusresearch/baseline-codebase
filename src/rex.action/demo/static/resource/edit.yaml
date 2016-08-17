@@ -1,0 +1,126 @@
+title: edit
+type: wizard
+path:
+- pick:
+  - minimal:
+    - view:
+  - customize-button:
+    - view:
+  - use-fields:
+    - view:
+  - use-value:
+    - view:
+  - use-query:
+    - view:
+  - use-context:
+    - use-context-edit:
+      - view:
+actions:
+  pick:
+    title: Pick Individual
+    type: pick
+    entity: individual
+
+  minimal:
+    title: Minimal Configuration
+    type: edit
+    entity: individual
+
+  customize-button:
+    title: Customize Button
+    type: edit
+    entity: individual
+    submit_button: Save Changes
+
+  use-fields:
+    title: Using Fields
+    type: edit
+    entity: individual
+    fields:
+    - sex
+    - identity.fullname
+    - value_key: identity.birthdate
+      type: date
+      label: Date of Birth
+
+  use-value:
+    title: Using Value
+    type: edit
+    entity: individual
+    value:
+      identity:
+        deceased: true
+        notes: |
+          Initial notes about this individual
+    fields:
+    - identity.fullname
+    - identity.birthdate
+    - value_key: identity.notes
+      label: Notes
+      type: note
+    - value_key: sex
+      type: string
+      read_only: true
+      label: Sex
+
+  use-query:
+    title: Using Query
+    type: edit
+    entity: individual
+    input:
+    - individual
+    fields:
+    - identity.fullname
+    - identity.birthdate
+    - sex
+    query: |
+      /do(
+        $_individual := update(individual[$individual]{id(),
+          sex := $sex,
+        }),
+        with($identity, merge(identity := {
+          individual := $individual,
+          fullname := $fullname,
+          birthdate := $birthdate,
+        })),
+        {id := $_individual}
+      )
+
+  use-context:
+    title: Using Context
+    type: pick
+    entity:
+      mother: individual
+    mask: sex='female'
+
+  use-context-edit:
+    title: Edit Individual
+    type: edit
+    entity: individual
+    input:
+    - mother: individual
+    value:
+      mother: $mother
+    fields:
+    - identity.fullname
+    - sex
+    - identity.birthdate
+    - value_key: mother
+      type: string
+      read_only: true
+      label: Mother (Pre-Selected)
+
+  view:
+    title: View Individual
+    type: view
+    entity: individual
+    fields:
+    - code
+    - sex
+    - mother
+    - father
+    - identity.fullname
+    - identity.birthdate
+    - identity.deathdate
+    - identity.deceased
+    - identity.notes

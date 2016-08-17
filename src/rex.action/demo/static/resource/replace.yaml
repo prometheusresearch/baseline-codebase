@@ -1,0 +1,18 @@
+type: wizard
+title: Replace (Pick/Make)
+path:
+- pick-individual:
+  - view-individual:
+  - make-individual:
+    - replace: ../../pick-individual/view-individual
+
+actions:
+  pick-individual:
+    type: pick
+    entity: individual
+  make-individual:
+    type: make
+    entity: individual
+  view-individual:
+    type: view
+    entity: individual

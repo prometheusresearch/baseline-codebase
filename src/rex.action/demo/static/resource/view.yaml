@@ -1,0 +1,58 @@
+title: view
+type: wizard
+path:
+- pick:
+  - minimal:
+  - use-fields:
+  - use-context:
+    - use-context-view:
+actions:
+  pick:
+    title: Pick Individual
+    type: pick
+    entity: individual
+
+  minimal:
+    title: Minimal Configuration
+    type: view
+    entity: individual
+
+  use-fields:
+    title: Using Fields
+    type: view
+    entity: individual
+    fields:
+    - code
+    - sex
+    - mother
+    - father
+    - identity.fullname
+    - identity.birthdate
+    - identity.deathdate
+    - identity.deceased
+    - identity.notes
+
+  use-context:
+    title: Using Context
+    type: pick
+    entity: study
+
+  use-context-view:
+    title: View Individual
+    type: view
+    entity: individual
+    input:
+    - study
+    fields:
+    - code
+    - identity.fullname
+    - sex
+    - value_key: study
+      label: Selected Study
+      type: calculation
+      expression: |
+        @study[$study].if(is_null(title), code, title)
+    - value_key: recruited
+      label: Recruited?
+      type: calculation
+      expression: if(exists(study_recruitment?study=$study), 'Yes', 'No')

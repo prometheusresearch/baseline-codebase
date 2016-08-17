@@ -1,0 +1,26 @@
+title: page
+type: wizard
+path:
+- minimal:
+- use-context:
+  - use-context-page:
+actions:
+  minimal:
+    title: Minimal Configuration
+    type: page
+    text: |
+      This is the minimal configuration of the `page` action.
+
+  use-context:
+    title: Using Context
+    type: pick
+    entity: individual
+
+  use-context-page:
+    title: Individual Selected
+    type: page
+    input:
+    - individual
+    text: |
+      This page appears only if `individual` is selected
+

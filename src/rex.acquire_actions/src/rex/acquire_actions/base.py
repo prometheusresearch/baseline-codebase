@@ -5,7 +5,7 @@
 from webob import Response
 from webob.exc import HTTPForbidden
 
-from rex.action import Action, typing
+from rex.action import Action
 from rex.action.actions import EntityAction
 from rex.core import get_settings
 from rex.i18n import get_locale_identifier

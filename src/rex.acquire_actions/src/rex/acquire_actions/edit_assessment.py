@@ -2,7 +2,6 @@
 # Copyright (c) 2016, Prometheus Research, LLC
 #
 
-from webob import Response
 from webob.exc import HTTPBadRequest
 
 from rex.action import typing

@@ -4,7 +4,6 @@
 
 from webob.exc import HTTPBadRequest
 
-from rex.action import typing
 from rex.core import StrVal, MaybeVal
 from rex.instrument import Entry, ParameterSupplier, InstrumentError
 from rex.forms import PresentationAdaptor

@@ -3,7 +3,6 @@
 #
 
 from rex.action import typing
-from rex.core import StrVal, MaybeVal
 from rex.widget import Field
 
 from .assessment_base import AssessmentAction

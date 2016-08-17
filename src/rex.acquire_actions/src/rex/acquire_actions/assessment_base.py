@@ -2,12 +2,11 @@
 # Copyright (c) 2016, Prometheus Research, LLC
 #
 
-from webob.exc import HTTPBadRequest, HTTPForbidden, HTTPNotFound
+from webob.exc import HTTPBadRequest
 
 from rex.core import StrVal, MaybeVal
-from rex.instrument import User, Assessment, ParameterSupplier, CalculationSet
+from rex.instrument import ParameterSupplier, CalculationSet
 from rex.forms import PresentationAdaptor
-from rex.web import authenticate
 from rex.widget import responder, RequestURL, Field
 
 from .base import AcquireAction

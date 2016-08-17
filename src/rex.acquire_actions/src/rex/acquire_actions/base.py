@@ -24,11 +24,13 @@ __all__ = (
 
 class CommonAcquireMixin(object):
     def get_user(self, request):
-        user_id = authenticate(request)
-        user = User.get_implementation().get_by_login(user_id)
-        if not user:
-            raise HTTPForbidden('Unrecognized user')
-        return user
+        if not hasattr(request, '_acquire_user'):
+            user_id = authenticate(request)
+            user = User.get_implementation().get_by_login(user_id)
+            if not user:
+                raise HTTPForbidden('Unrecognized user')
+            setattr(request, '_acquire_user', user)
+        return request._acquire_user
 
     def response_as_json(self, obj):
         return Response(

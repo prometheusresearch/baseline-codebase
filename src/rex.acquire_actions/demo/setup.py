@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.acquire_actions_demo',
-    version='0.1.1',
+    version='0.2.0',
     description='Demo package for testing rex.acquire_actions',
     package_dir={'': 'src'},
     packages=find_packages('src'),

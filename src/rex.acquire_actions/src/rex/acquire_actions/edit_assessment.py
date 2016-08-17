@@ -30,7 +30,7 @@ class EditAssessmentAction(AssessmentAction):
     calculations_api_url = Field(
         URLVal(),
         default='rex.forms:/calculate/assessment',
-        doc='THis is the URL to the API for the calculation previews.',
+        doc='This is the URL to the API for the calculation previews.',
     )
 
     show_calculations = Field(

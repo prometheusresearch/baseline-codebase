@@ -11,7 +11,7 @@ menu:
 
       - path: /assessments
         access: authenticated
-        title: Assessments
+        title: View/Edit Assessments
         action:
           type: wizard
 
@@ -38,9 +38,33 @@ menu:
               entity:
                 assessment: assessment
 
-      - path: /tasks
+      - path: /entry
         access: authenticated
-        title: Tasks
+        title: Data Entry
+        action:
+          type: wizard
+
+          path:
+            - pick-task:
+              - enter-data:
+
+          actions:
+            pick-task:
+              type: pick
+              title: Pick a Task to Enter Data For
+              entity: task
+
+            enter-data:
+              type: task-enter-data
+              title: Enter Data
+              entity:
+                task: task
+              channel: entry
+              show_calculations: true
+
+      - path: /reconciliation
+        access: authenticated
+        title: Reconciliation
         action:
           type: wizard
 
@@ -51,7 +75,7 @@ menu:
           actions:
             pick-task:
               type: pick
-              title: Pick a Task to Test With
+              title: Pick a Task to Reconcile
               entity: task
 
             reconcile-task:

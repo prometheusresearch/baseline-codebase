@@ -97,11 +97,12 @@ class DefinitionParser {
         } catch (exc) {
           if (exc instanceof ParsingError) {
             throw new UnsupportedConfigurationError(_(
-              'Element #%(index)s on page "%(page)s" is not currently'
-              + ' supported.',
+              'The configuration of Element #%(index)s (%(type)s: %(field)s) on page "%(page)s" is not currently supported.',
               {
                 index: index + 1,
-                page: page.id
+                page: page.id,
+                type: element.type,
+                field: element.options ? element.options.fieldId : null,
               }
             ));
           } else {

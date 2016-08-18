@@ -62,7 +62,7 @@ class RecordList extends Question {
 
     this.length = objectPath.get(field, 'type.length', {});
 
-    element.options.questions.forEach((elm, index) => {
+    element.options.questions.forEach((elm) => {
       try {
         this.questions.push(
           Question.parseQuestion(elm, field.type.record)
@@ -70,8 +70,11 @@ class RecordList extends Question {
       } catch (exc) {
         if (exc instanceof errors.ParsingError) {
           throw new errors.UnsupportedConfigurationError(_(
-            'Element #%(index)s in Question %(id)s is not currently supported.',
-            {index, id: self.id}
+            'The configuration of Subfield "%(subfield)s" in RecordList "%(field)s" is not currently supported.',
+            {
+              subfield: elm.fieldId,
+              field: field.id,
+            }
           ));
         } else {
           throw exc;

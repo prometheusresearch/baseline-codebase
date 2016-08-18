@@ -86,7 +86,7 @@ class Matrix extends Question {
   parse(element, instrument, field) {
     super.parse(element, instrument, field);
 
-    element.options.questions.forEach((elm, index) => {
+    element.options.questions.forEach((elm) => {
       try {
         this.questions.push(
           Question.parseQuestion(elm, field.type.columns)
@@ -94,8 +94,11 @@ class Matrix extends Question {
       } catch (exc) {
         if (exc instanceof errors.ParsingError) {
           throw new errors.UnsupportedConfigurationError(_(
-            'Element #%(index)s in Question %(id)s is not currently supported.',
-            {index, id: self.id}
+            'The configuration of Column "%(column)s" in Matrix "%(field)s" is not currently supported.',
+            {
+              column: elm.fieldId,
+              field: field.id,
+            }
           ));
         } else {
           throw exc;

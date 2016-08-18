@@ -5,6 +5,14 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
+5.8.1 (2016-xx-xx)
+==================
+
+* Fixed the error messages that display when the application encounters a
+  configuration it does not support. These messages now display more details
+  about the offending element/field.
+
+
 5.8.0 (2016-08-12)
 ==================
 

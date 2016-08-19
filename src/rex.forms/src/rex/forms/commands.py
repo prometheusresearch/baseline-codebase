@@ -14,6 +14,7 @@ from rex.instrument import User, Task, Assessment, InstrumentError, Subject
 from rex.web import Command, Parameter, authenticate
 
 from .implementation.lookup import REGISTRY
+from .util import preview_calculation_results
 
 
 __all__ = (
@@ -80,44 +81,18 @@ class PreviewCalculationCommand(Command):
         if not instrument_version:
             raise HTTPNotFound()
 
-        return Response(json={
-            'results': self.get_results(
+        try:
+            results = preview_calculation_results(
                 instrument_version,
                 instrument_version.calculation_set,
                 data,
-            ),
-        })
-
-    def get_results(self, instrument_version, calculation_set, data, assessment=None):
-        if not calculation_set:
-            return {}
-
-        # Validate the Assessment Data
-        assessment_impl = Assessment.get_implementation()
-        try:
-            assessment_impl.validate_data(
-                data,
-                instrument_definition=instrument_version.definition,
             )
         except InstrumentError as exc:
             raise HTTPBadRequest(exc.message)
-
-        # Make some temporary objects so we can execute the calcs.
-        subject = Subject.get_implementation()('fake')
-        if not assessment:
-            assessment = assessment_impl(
-                'fake',
-                subject,
-                instrument_version,
-                data,
-                status=assessment_impl.STATUS_COMPLETE,
-            )
         else:
-            assessment.data = data
-            assessment.status = assessment_impl.STATUS_COMPLETE
-
-        # Execute the calculations
-        return calculation_set.execute(assessment=assessment)
+            return Response(json={
+                'results': results,
+            })
 
 
 class PreviewCalculationAssessmentCommand(PreviewCalculationCommand):
@@ -147,12 +122,17 @@ class PreviewCalculationAssessmentCommand(PreviewCalculationCommand):
         if not assessment:
             raise HTTPNotFound()
 
-        return Response(json={
-            'results': self.get_results(
+        try:
+            results = preview_calculation_results(
                 assessment.instrument_version,
                 assessment.instrument_version.calculation_set,
                 data,
                 assessment=assessment,
-            ),
-        })
+            )
+        except InstrumentError as exc:
+            raise HTTPBadRequest(exc.message)
+        else:
+            return Response(json={
+                'results': results,
+            })
 

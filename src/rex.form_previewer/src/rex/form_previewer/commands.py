@@ -16,6 +16,7 @@ from rex.instrument import DraftInstrumentVersion, InstrumentError, User, \
     Subject
 from rex.instrument.util import to_json
 from rex.forms import commands as forms_commands
+from rex.forms.util import preview_calculation_results
 from rex.web import Command, Parameter, render_to_response, authenticate
 
 
@@ -345,7 +346,7 @@ class CompleteFormCommand(BaseViewFormCommand):
         )
 
 
-class PreviewCalculationCommand(forms_commands.PreviewCalculationCommand):
+class PreviewCalculationCommand(Command):
     path = '/calculate/{category}/{instrumentversion_id}'
     parameters = (
         Parameter('category', ChoiceVal('draft', 'published'), 'draft'),
@@ -398,11 +399,16 @@ class PreviewCalculationCommand(forms_commands.PreviewCalculationCommand):
         if not instrument_version:
             raise HTTPNotFound()
 
-        return Response(json={
-            'results': self.get_results(
+        try:
+            results = preview_calculation_results(
                 instrument_version,
                 calculation_set,
                 data,
-            ),
-        })
+            )
+        except InstrumentError as exc:
+            raise HTTPBadRequest(exc.message)
+        else:
+            return Response(json={
+                'results': results,
+            })
 

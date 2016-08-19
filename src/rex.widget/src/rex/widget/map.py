@@ -28,12 +28,11 @@ class MapWidget(Map):
         ('title', StrVal(), None),
         ('no_chrome', BoolVal(), False),
         ('access', StrVal(), None),
-        ('slots', MapVal(StrVal(), DeferredVal()), {}),
     ]
 
     def __call__(self, spec, path, context):
         access = spec.access or self.package.name
-        widget = lambda: spec.widget.resolve(WidgetVal(context=spec.slots))
+        widget = lambda: spec.widget.resolve(WidgetVal())
         return WidgetRenderer(
             path, widget, access,
             title=spec.title,
@@ -46,11 +45,6 @@ class MapWidget(Map):
             spec = spec.__clone__(title=override_spec.title)
         if override_spec.access is not None:
             spec = spec.__clone__(access=override_spec.access)
-        if override_spec.slots is not None:
-            slots = {}
-            slots.update(spec.slots)
-            slots.update(override_spec.slots)
-            spec = spec.__clone__(slots=slots)
         if override_spec.no_chrome != spec.no_chrome:
             spec = spec.__clone__(no_chrome=override_spec.no_chrome)
         return spec

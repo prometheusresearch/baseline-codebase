@@ -11,7 +11,6 @@ from __future__ import absolute_import
 
 import sys
 import types
-import contextlib
 import yaml
 from collections import namedtuple
 
@@ -111,6 +110,9 @@ class DeferredVal(Validate):
     def construct(self, loader, node):
         return DeferredConstruction(loader, node, self.validate)
 
+    def __hash__(self):
+        return hash(self.validate)
+
 
 class WidgetVal(Validate):
     """ Validator for widget values.
@@ -137,12 +139,10 @@ class WidgetVal(Validate):
     def __init__(self,
             widget_class=None,
             package=None,
-            context=None,
             single=False):
         super(WidgetVal, self).__init__()
         self.widget_class = widget_class
         self.package = package
-        self.context = context or {}
         self.single = single
 
     def __call__(self, data):
@@ -198,11 +198,7 @@ class WidgetVal(Validate):
                     raise Error("Missing mandatory field:", field.name)
         return values
 
-    def construct(self, loader, node):
-        with patched_loader(loader, self.context):
-            return self._construct(loader, node)
-
-    def _construct(self, loader, node): # pylint: disable=too-many-statements,too-many-branches,too-many-locals
+    def construct(self, loader, node): # pylint: disable=too-many-statements,too-many-branches,too-many-locals
         widget_classes = Widget.mapped() # pylint: disable=no-member
         location = Location.from_node(node)
         name = None
@@ -331,63 +327,6 @@ def print_deprecation_warning(widget_class, field, node=None):
     if node:
         warning.wrap('Used at:', Location.from_node(node))
     print >> sys.stderr, str(warning)
-
-
-@contextlib.contextmanager
-def patched_loader(loader, context):
-    patched = loader.validating.im_func is ValidatingLoader_validating
-    if not patched:
-        loader.__slots_context = context
-        loader.validating = types.MethodType(
-            ValidatingLoader_validating, loader)
-    yield
-    if not patched:
-        del loader.__slots_context
-        del loader.validating
-
-
-orig_ValidatingLoader_validating = ValidatingLoader.validating
-
-
-def ValidatingLoader_validating(self, validate): # pylint: disable=invalid-name
-    if validate is not None:
-        validate = SlotResolveVal(validate, self.__slots_context)
-    return orig_ValidatingLoader_validating(self, validate)
-
-
-class SlotResolveVal(Validate):
-
-    slot_val = RecordVal(
-        ('name', StrVal()),
-        ('default', DeferredVal()),
-        ('doc', StrVal(), None),
-    )
-
-    def __init__(self, validate, context):
-        self.validate = validate
-        self.context = context
-
-    def __call__(self, value):
-        return self.validate(value)
-
-    def _construct(self, loader, node):
-        if self.validate is not None:
-            return self.validate.construct(loader, node)
-        else:
-            return loader.construct_object(node, deep=True)
-
-    def construct(self, loader, node):
-        if isinstance(node, yaml.MappingNode) and node.tag == '!slot':
-            node = yaml.MappingNode(u'tag:yaml.org,2002:map', node.value,
-                                    start_mark=node.start_mark,
-                                    end_mark=node.end_mark,
-                                    flow_style=node.flow_style)
-            slot = self.slot_val.construct(loader, node)
-            if slot.name in self.context:
-                return self._construct(loader, self.context[slot.name].node)
-            else:
-                return self._construct(loader, slot.default.node)
-        return self._construct(loader, node)
 
 
 _validator = WidgetVal()

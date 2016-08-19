@@ -96,29 +96,6 @@ The code accesses my_slot as a (CamelCased) property of this.props::
 Next, find the high level yaml file which declares the widget's slots.
 (By convention) this will likely be some file in static/page.
 
-To declare your slot, you need a name, a default value, 
-and a documentation string.
-Your slot name must be the same name you used for the python field.
-Be sure the value of name: is also the same.
-
-Unsure why we need to specify two doc strings (yaml and python) 
-but for sanity sake they ought to be the same (or similar).
-
-For example to create **my_slot**::
-
-    my_slot: !slot
-      name: my_slot
-      default: this is the default value for my slot
-      doc: this string describes my slot
-
-Finally, in your yaml file which invokes the widget 
-you supply the data for the slot.  
-The data will be validated and must match the validator you declared
-in the python field for the slot::
-
-    my_slot: data for my slot (not necessarily a string as shown here)
-     
-     
 .. _rex.core: https://bitbucket.org/rexdb/rex.core
 
 

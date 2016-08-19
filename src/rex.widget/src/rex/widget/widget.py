@@ -7,7 +7,6 @@
 
 """
 
-from contextlib import contextmanager
 from collections import OrderedDict
 
 from rex.core import ProxyVal, SeqVal, RecordField

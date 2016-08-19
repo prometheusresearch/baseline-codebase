@@ -22,3 +22,74 @@ R43MH099826.
 
 .. |R| unicode:: 0xAE .. registered trademark sign
 
+
+Actions
+=======
+
+The following action types are made available by this package:
+
+
+assessment-view
+---------------
+Allows the user to view the values in the specified Assessment.
+
+Expects to receive an ``entity`` whose ID is the UID of the Assessment to view.
+
+Options:
+
+* ``initial_channel``: The default Channel whose Form configuration is used to
+  display the Assesment values. Defaults to no preference.
+
+
+assessment-edit
+---------------
+Allows the user to edit the specified Assessment's values.
+
+Expects to receive an ``entity`` whose ID is the UID of the Assessment to view.
+
+Options:
+
+* ``show_calculations``: A boolean indicating whether or not to give the user
+  a "Preview Calculation Results" button while they are editing the Assessment.
+  Defaults to ``true``.
+* ``initial_channel``: The default Channel whose Form configuration is used to
+  display the Assesment values. Defaults to no preference.
+* ``resource_prefix_url``: The URL to prefix resources (e.g., audio files) with
+  when displaying Forms. Defaults to no prefix.
+
+
+task-enter-data
+---------------
+Allows the user to enter data in a Form for the specified Task.
+
+Expects to receive an ``entity`` whose ID is the UID of the Task to enter data
+for.
+
+Options:
+
+* ``channel``: The Channel whose Form configurations are used when entering
+  data. Required.
+* ``show_calculations``: A boolean indicating whether or not to give the user
+  a "Preview Calculation Results" button while they are entering data.
+  Defaults to ``true``.
+* ``allow_concurrent_entries``: A boolean indicating whether or not the user is
+  allowed to start a new Entry for the Task while there an incomplete Entry.
+  Defaults to ``true``.
+* ``resource_prefix_url``: The URL to prefix resources (e.g., audio files) with
+  when displaying Forms. Defaults to no prefix.
+
+
+task-reconcile
+--------------
+Allows the user to reconcile a Task whose Entries have discrepant values.
+
+Expects to receive an ``entity`` whose ID is the UID of the Task to enter data
+for.
+
+Options:
+
+* ``initial_channel``: The default Channel whose Form configuration is used to
+  display the discrepant Fields/Questions. Defaults to no preference.
+* ``resource_prefix_url``: The URL to prefix resources (e.g., audio files) with
+  when displaying Forms. Defaults to no prefix.
+

@@ -45,6 +45,13 @@ class EnterDataAction(AcquireEntityAction):
         doc='Whether or not to allow calculation previews.',
     )
 
+    allow_concurrent_entries = Field(
+        BoolVal(),
+        default=True,
+        doc='Whether or not to allow the user to start a new Entry while a'
+        ' previous entry is still in-progress.',
+    )
+
     def __init__(self, **values):
         super(AcquireEntityAction, self).__init__(**values)
         if not self.entry_fields:

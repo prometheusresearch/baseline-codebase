@@ -200,22 +200,23 @@ export default class EnterData extends React.Component {
           return newEntry;
         }));
         let columns = this.props.entryFields;
-        let showNumRequired = false;
         content = [];
 
+        let canMakeNew = data.length < numRequiredEntries;
         let pendingEntries = entrySelection.data.entries.filter((entry) => entry.status === 'in-progress');
         if (pendingEntries.length) {
-          showNumRequired = true;
           let entry = pendingEntries[0];
           tools = (
             <HBox>
-              <SuccessButton size='small' onClick={this.onContinueEntry.bind(this, entry.uid, 'EDIT')}>
+              <SuccessButton size='small' style={{marginRight: 5}} onClick={this.onContinueEntry.bind(this, entry.uid, 'EDIT')}>
                 {`Continue Working on Entry #${entry.ordinal}`}
               </SuccessButton>
+              {this.props.allowConcurrentEntries && canMakeNew &&
+                <SuccessButton size='small' onClick={this.onNewEntry}>Start New Entry</SuccessButton>
+              }
             </HBox>
           );
-        } else if (data.length <= numRequiredEntries) {
-          showNumRequired = true;
+        } else if (canMakeNew) {
           tools = (
             <HBox>
               <SuccessButton size='small' onClick={this.onNewEntry}>Start New Entry</SuccessButton>
@@ -223,7 +224,7 @@ export default class EnterData extends React.Component {
           );
         }
 
-        if (showNumRequired) {
+        if (canMakeNew) {
           content.push(
             <HBox key='numRequired' padding={20}>
               {`This Task requires ${numRequiredEntries} Entries for completion.`}

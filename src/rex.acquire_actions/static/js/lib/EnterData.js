@@ -258,7 +258,7 @@ export default class EnterData extends React.Component {
             showCalculations={has_calculations && this.props.showCalculations}
             apiUrls={{
               resourcePrefix: this.props.resourcePrefixUrl,
-              lookup: this.props.lookupApiUrl,
+              lookup: this.props.lookupField.path,
               calculation: `${this.props.executeCalculations.path}?task_id=${task.uid}`,
             }}
             />
@@ -284,9 +284,6 @@ export default class EnterData extends React.Component {
             form={form}
             assessment={assessment}
             parameters={parameters}
-            apiUrls={{
-              lookup: this.props.lookupApiUrl,
-            }}
             />
         </VBox>
       );

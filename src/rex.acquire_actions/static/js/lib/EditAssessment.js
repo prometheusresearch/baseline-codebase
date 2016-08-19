@@ -147,7 +147,7 @@ export default class ViewAssessment extends React.Component {
           showCalculations={has_calculations && this.props.showCalculations}
           apiUrls={{
             resourcePrefix: this.props.resourcePrefixUrl,
-            lookup: this.props.lookupApiUrl,
+            lookup: this.props.lookupField.path,
             calculation: `${this.props.executeCalculations.path}?assessment_id=${assessment_id}`,
           }}
           />

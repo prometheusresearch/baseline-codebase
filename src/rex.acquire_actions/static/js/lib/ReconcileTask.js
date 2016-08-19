@@ -169,7 +169,7 @@ export default class ReconcileTask extends React.Component {
           onComplete={this.onReconcilerComplete}
           apiUrls={{
             resourcePrefix: this.props.resourcePrefixUrl,
-            lookup: this.props.lookupApiUrl,
+            lookup: this.props.lookupField.path,
           }}
           />
       </I18NAction>

@@ -33,7 +33,7 @@ setup(
         'rex.widget>=1,<3',
         'rex.action>=1,<2',
         'rex.i18n>=0.5,<0.6',
-        'rex.form_previewer>=0.2,<0.10',
+        'rex.form_previewer>=0.2,<0.11',
     ],
     rex_init='rex.formbuilder',
     rex_static='static'

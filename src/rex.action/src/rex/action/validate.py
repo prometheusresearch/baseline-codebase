@@ -11,6 +11,7 @@ import re
 import urlparse
 import urllib
 import cgi
+import yaml
 
 from htsql.core.error import Error as HTSQLError
 from htsql.core.syn.syntax import Syntax
@@ -204,23 +205,38 @@ class GlobalActionReference(
     __str__ = __repr__
 
 
+class ActionOrActionIncludeVal(Validate):
+
+    def __init__(self, *args, **kwargs):
+        from .action import ActionVal
+        self._validate_action = ActionVal(*args, **kwargs)
+
+    def __call__(self, value):
+        return self._validate_action(value)
+
+    def construct(self, loader, node):
+        if isinstance(node, yaml.ScalarNode) and \
+           node.tag == u'tag:yaml.org,2002:str':
+            # Patch node to be !include.
+            # This is done for b/c reasons.
+            node = yaml.ScalarNode(u'!include', node.value,
+                                   node.start_mark, node.end_mark, u'')
+            with loader.validating(self):
+                return loader.construct_object(node, deep=True)
+        return self._validate_action.construct(loader, node)
+
+
 class ActionMapVal(Validate):
     """ Validator for a mapping from action ids to actions."""
 
-    _validate_pre = MapVal(StrVal(), DeferredVal(validate=AnyVal()))
+    _validate_pre = MapVal(StrVal(), DeferredVal())
     _validate_id = StrVal()
-
-    def _validate_action_value(self, id):
-        from .action import ActionVal
-        return OneOfVal(
-            ActionReferenceVal(reference_type=GlobalActionReference),
-            ActionVal(id=id))
 
     def construct(self, loader, node):
         mapping = self._validate_pre.construct(loader, node)
         result = {}
         for k, v in mapping.items():
-            action = v.resolve(validate=self._validate_action_value(k))
+            action = v.resolve(validate=ActionOrActionIncludeVal(id=k))
             if not isinstance(action, GlobalActionReference):
                 action._introspection = action.Introspection(
                     action, location=v.source_location)
@@ -228,7 +244,8 @@ class ActionMapVal(Validate):
         return result
 
     def __call__(self, value):
+        from .action import ActionVal
         mapping = self._validate_pre(value)
-        return {k: v.resolve(validate=self._validate_action_value(k))
+        return {k: v.resolve(validate=ActionOrActionIncludeVal(id=k))
                 for k, v in mapping.items()}
 

@@ -2,12 +2,15 @@
 # Copyright (c) 2016, Prometheus Research, LLC
 #
 
-from webob.exc import HTTPBadRequest
+import json
+
+from webob.exc import HTTPBadRequest, HTTPNotFound
 
 from rex.core import StrVal, BoolVal
 from rex.instrument import Entry, ParameterSupplier, CalculationSet
 from rex.forms import Form
-from rex.widget import Field, responder, RequestURL, FormFieldsetVal, URLVal
+from rex.forms.util import preview_calculation_results
+from rex.widget import Field, responder, RequestURL, FormFieldsetVal
 
 from .base import AcquireEntityAction
 
@@ -31,12 +34,6 @@ class EnterDataAction(AcquireEntityAction):
         FormFieldsetVal(),
         default=None,
         doc='The fields of the Entry object to display'
-    )
-
-    calculations_api_url = Field(
-        URLVal(),
-        default='rex.forms:/calculate/assessment',
-        doc='This is the URL to the API for the calculation previews.',
     )
 
     show_calculations = Field(
@@ -126,17 +123,15 @@ class EnterDataAction(AcquireEntityAction):
         if not task:
             data['error'] = 'TASK_NOT_FOUND'
             return self.response_as_json(data)
+        data['task'] = task.as_dict()
 
         # Get the Entry
         entry = None
         entry_id = request.json.get('entry_id')
         if entry_id == 'NEW':
-            print 'making new'
             if task.can_enter_data:
-                print 'can make'
                 entry = task.start_entry(user)
             else:
-                print 'oh no'
                 data['error'] = 'CANNOT_START_ENTRY'
                 return self.response_as_json(data)
         else:
@@ -165,7 +160,6 @@ class EnterDataAction(AcquireEntityAction):
         data['has_calculations'] = len(calculationset) > 0
 
         data['assessment'] = entry.data or {}
-        data['assessment_id'] = entry.assessment.uid
         data['instrument'] = entry.assessment.instrument_version.definition
         data['parameters'] = ParameterSupplier.get_task_parameters(task)
 
@@ -209,6 +203,36 @@ class EnterDataAction(AcquireEntityAction):
             if task.can_reconcile:
                 if not task.get_discrepancies():
                     task.reconcile(user)
+
+        return self.response_as_json(data)
+
+    @responder(url_type=RequestURL)
+    def execute_calculations(self, request):
+        # Get the Task
+        task = self.get_task(request)
+        if not task:
+            raise HTTPNotFound()
+
+        # Parse the Assessment Data
+        try:
+            assessment_data = json.loads(request.POST.get('data', '{}'))
+        except ValueError as exc:
+            raise HTTPBadRequest(exc.message)
+
+        if task.assessment:
+            assessment = task.assessment
+            instrument_version = task.assessment.instrument_version
+        else:
+            assessment = None
+            instrument_version = task.instrument_version
+
+        data = {}
+        data['results'] = preview_calculation_results(
+            instrument_version,
+            instrument_version.calculation_set,
+            assessment_data,
+            assessment=assessment,
+        )
 
         return self.response_as_json(data)
 

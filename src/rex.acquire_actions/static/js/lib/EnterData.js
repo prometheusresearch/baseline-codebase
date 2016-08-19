@@ -244,7 +244,7 @@ export default class EnterData extends React.Component {
       }
 
     } else if (mode === 'EDIT') {
-      let {instrument, form, assessment, parameters, has_calculations, assessment_id} = this.state;
+      let {instrument, form, assessment, parameters, has_calculations, task} = this.state;
 
       content = (
         <VBox padding={20} flex={1} overflow='auto'>
@@ -259,7 +259,7 @@ export default class EnterData extends React.Component {
             apiUrls={{
               resourcePrefix: this.props.resourcePrefixUrl,
               lookup: this.props.lookupApiUrl,
-              calculation: `${this.props.calculationsApiUrl}/${assessment_id}`,
+              calculation: `${this.props.executeCalculations.path}?task_id=${task.uid}`,
             }}
             />
         </VBox>

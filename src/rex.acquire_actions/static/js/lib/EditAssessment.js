@@ -1,4 +1,3 @@
-
 /**
  * @copyright 2016, Prometheus Research, LLC
  */
@@ -149,7 +148,7 @@ export default class ViewAssessment extends React.Component {
           apiUrls={{
             resourcePrefix: this.props.resourcePrefixUrl,
             lookup: this.props.lookupApiUrl,
-            calculation: `${this.props.calculationsApiUrl}/${assessment_id}`,
+            calculation: `${this.props.executeCalculations.path}?assessment_id=${assessment_id}`,
           }}
           />
       </I18NAction>

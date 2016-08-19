@@ -2,12 +2,15 @@
 # Copyright (c) 2016, Prometheus Research, LLC
 #
 
+import json
+
 from webob.exc import HTTPBadRequest
 
 from rex.action import typing
 from rex.core import BoolVal
+from rex.forms.util import preview_calculation_results
 from rex.instrument import Entry, InstrumentError, CalculationSet, ResultSet
-from rex.widget import Field, responder, RequestURL, URLVal
+from rex.widget import Field, responder, RequestURL
 
 from .assessment_base import AssessmentAction
 
@@ -24,12 +27,6 @@ class EditAssessmentAction(AssessmentAction):
     entity = Field(
         typing.RowTypeVal(),
         doc='The record containing the Assessment.',
-    )
-
-    calculations_api_url = Field(
-        URLVal(),
-        default='rex.forms:/calculate/assessment',
-        doc='This is the URL to the API for the calculation previews.',
     )
 
     show_calculations = Field(
@@ -100,4 +97,35 @@ class EditAssessmentAction(AssessmentAction):
         }
 
         return self.response_as_json(response)
+
+    @responder(url_type=RequestURL)
+    def execute_calculations(self, request):
+        assessment_id = request.GET.get('assessment_id')
+        assessment_data = request.POST.get('data')
+        if not assessment_id or not assessment_data:
+            raise HTTPBadRequest(
+                'Must specify both assessment_id and data',
+            )
+
+        user = self.get_user(request)
+        assessment = user.get_object_by_uid(assessment_id, 'assessment')
+        if not assessment:
+            raise HTTPBadRequest(
+                'Specified assessment_id does not exist'
+            )
+
+        try:
+            assessment_data = json.loads(assessment_data)
+        except ValueError as exc:
+            raise HTTPBadRequest(exc.message)
+
+        data = {}
+        data['results'] = preview_calculation_results(
+            assessment.instrument_version,
+            assessment.instrument_version.calculation_set,
+            assessment_data,
+            assessment=assessment,
+        )
+
+        return self.response_as_json(data)
 

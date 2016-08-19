@@ -10,6 +10,10 @@ REX.ACQUIRE_ACTIONS Change Log
 
 * Added the ``task-enter-data`` action to replace the legacy RexEntry
   functionality.
+* Fixed the styling of the calculation results on the ``assessment-view``
+  action.
+* Removed the ``calculation_api_url`` property of the ``assessment-edit``
+  action.
 
 
 0.1.1 (2016-08-12)

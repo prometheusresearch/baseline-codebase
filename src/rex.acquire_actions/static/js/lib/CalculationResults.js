@@ -7,9 +7,6 @@ import React from 'react';
 import {InjectI18N} from 'rex-i18n';
 
 
-// TODO: styling
-
-
 @InjectI18N
 export default class CalculationResults extends React.Component {
   static propTypes = {
@@ -20,8 +17,8 @@ export default class CalculationResults extends React.Component {
     var calculations = Object.keys(this.props.results).sort().map((key) => {
       return (
         <tr key={key}>
-          <td className="calculation-name">{key}</td>
-          <td className="calculation-value">{this.props.results[key]}</td>
+          <td style={{paddingRight: '10px', fontWeight: 'bold'}}>{key}</td>
+          <td>{this.props.results[key]}</td>
         </tr>
       );
     });

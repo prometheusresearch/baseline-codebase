@@ -8,7 +8,8 @@ Wizard
 
   >>> import json
   >>> from webob import Request
-  >>> from rex.core import Rex
+  >>> from rex.core import Rex, StrVal
+  >>> from rex.widget import undefined
 
 ::
 
@@ -19,6 +20,7 @@ Wizard
   >>> class MockAction(Action):
   ...   name = 'mock'
   ...
+  ...   text = Field(StrVal(), default=undefined)
   ...   input = Field(RecordTypeVal(), default=RecordType.empty())
   ...   output = Field(RecordTypeVal(), default=RecordType.empty())
   ...
@@ -362,33 +364,6 @@ Action resolution
   ...     action:
   ...       type: mock
   ... """) # doctest: +ELLIPSIS
-
-  >>> parse("""
-  ... paths:
-  ...   /:
-  ...     action:
-  ...       type: wizard
-  ...       path:
-  ...       - other-action:
-  ...       actions:
-  ...         other-action: other:/action
-  ... """) # doctest: +ELLIPSIS
-  Traceback (most recent call last):
-  ...
-  Error: Invalid path:
-      other:/action
-  While loading action:
-      other:/action
-  While parsing:
-      "...", line 5
-  While initializing RexDB application:
-      -
-      rex.action
-      SandboxPackage()
-      SandboxPackage('other')
-  With parameters:
-      attach_dir: '...'
-      db: 'pgsql:action_demo'
 
 Typechecking
 ------------
@@ -980,6 +955,80 @@ Replace
       make-individual -> <replace ../pick-lab/view-lab> -> view-lab
   While parsing:
       "<...>", line 5
+
+::
+
+  >>> rex.off()
+
+Overrides
+---------
+
+::
+
+  >>> rex = Rex('-', 'rex.action_demo', attach_dir=attach_dir)
+  >>> rex.on()
+
+::
+
+  >>> w = Action.parse("""
+  ... type:
+  ...   type: wizard
+  ...   id: wizard
+  ...   path:
+  ...   - pick-individual:
+  ...   actions:
+  ...     pick-individual:
+  ...       type: mock
+  ...       text: NOTOK
+  ...       output:
+  ...       - individual: individual
+  ... pick-individual:
+  ...   type: mock
+  ...   text: OK
+  ... """)
+
+::
+
+  >>> w.actions['pick-individual'] # doctest: +NORMALIZE_WHITESPACE
+  MockAction(doc=undefined,
+             help=undefined,
+             icon=undefined,
+             id='pick-individual',
+             input=RecordType(rows={}, open=True),
+             kind=undefined,
+             output=RecordType(rows={}, open=True),
+             text='OK',
+             title=undefined,
+             width=undefined)
+
+  >>> w = Action.parse("""
+  ... type:
+  ...   type: wizard
+  ...   id: wizard
+  ...   path:
+  ...   - pick-individual:
+  ...   actions:
+  ...     pick-individual:
+  ...       type: mock
+  ...       text: NOTOK
+  ...       output:
+  ...       - individual: individual
+  ... pick-individual:
+  ...   text: OK
+  ... """)
+
+  >>> w.actions['pick-individual'] # doctest: +NORMALIZE_WHITESPACE
+  MockAction(doc=undefined,
+             help=undefined,
+             icon=undefined,
+             id='pick-individual',
+             input=RecordType(rows={}, open=True),
+             kind=undefined,
+             output=RecordType(rows={'individual': RowType(name='individual',
+             type=EntityType(name='individual', state=None))}, open=True),
+             text='OK',
+             title=undefined,
+             width=undefined)
 
 ::
 

@@ -29,6 +29,10 @@ from . import typing
 __all__ = ('RexDBVal', 'QueryVal', 'SyntaxVal', 'DomainVal')
 
 
+def is_string_node(node):
+    return isinstance(node, yaml.ScalarNode) and \
+           node.tag == u'tag:yaml.org,2002:str'
+
 class RexDBVal(Validate):
     """ Validator to reference a Rex DB instance.
     """
@@ -210,6 +214,13 @@ class ActionOrActionIncludeVal(Validate):
     def __init__(self, *args, **kwargs):
         from .action import ActionVal
         self._validate_action = ActionVal(*args, **kwargs)
+        self._validate_action_reference = ActionReferenceVal()
+
+    def __hash__(self):
+        return hash(self._validate_action)
+
+    def __eq__(self, other):
+        return hash(self) == hash(other)
 
     def __call__(self, value):
         return self._validate_action(value)
@@ -219,10 +230,13 @@ class ActionOrActionIncludeVal(Validate):
            node.tag == u'tag:yaml.org,2002:str':
             # Patch node to be !include.
             # This is done for b/c reasons.
-            node = yaml.ScalarNode(u'!include', node.value,
-                                   node.start_mark, node.end_mark, u'')
-            with loader.validating(self):
-                return loader.construct_object(node, deep=True)
+            if not ':' in node.value:
+                return self._validate_action_reference.construct(loader, node)
+            else:
+                node = yaml.ScalarNode(u'!include', node.value,
+                                    node.start_mark, node.end_mark, u'')
+                with loader.validating(self):
+                    return loader.construct_object(node, deep=True)
         return self._validate_action.construct(loader, node)
 
 
@@ -232,11 +246,20 @@ class ActionMapVal(Validate):
     _validate_pre = MapVal(StrVal(), DeferredVal())
     _validate_id = StrVal()
 
+    def __init__(self, action_map=None):
+        self.action_map = action_map
+
     def construct(self, loader, node):
         mapping = self._validate_pre.construct(loader, node)
         result = {}
         for k, v in mapping.items():
-            action = v.resolve(validate=ActionOrActionIncludeVal(id=k))
+            if self.action_map and not k in self.action_map:
+                raise Error('Unkown action found:', k)
+            validate_action = ActionOrActionIncludeVal(
+                id=k,
+                action_base=self.action_map[k] if self.action_map else None
+            )
+            action = v.resolve(validate_action)
             if not isinstance(action, GlobalActionReference):
                 action._introspection = action.Introspection(
                     action, location=v.source_location)
@@ -248,4 +271,3 @@ class ActionMapVal(Validate):
         mapping = self._validate_pre(value)
         return {k: v.resolve(validate=ActionOrActionIncludeVal(id=k))
                 for k, v in mapping.items()}
-

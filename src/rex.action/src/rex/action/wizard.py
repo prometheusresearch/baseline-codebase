@@ -426,12 +426,17 @@ class WizardBase(WizardWidgetBase, ActionBase):
     class Configuration(ActionBase.Configuration):
 
         def _apply_override(self, wizard, override):
+            if isinstance(override, Deferred):
+                override = override.resolve(ActionMapVal(action_map=wizard._constructed_actions))
             actions = dict(wizard._constructed_actions)
             for k, v in override.items():
                 if not k in actions:
                     raise Error('Unknown action override:', k)
-                for v in v:
-                    actions[k] = v(actions[k])
+                if isinstance(v, ActionBase):
+                    actions[k] = v
+                else:
+                    for v in v:
+                        actions[k] = v(actions[k])
             path = instruction.override(wizard.path, actions)
             return wizard.__validated_clone__(path=path, actions=actions)
 

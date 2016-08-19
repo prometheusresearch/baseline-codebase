@@ -30,6 +30,7 @@ from rex.widget.validate import DeferredVal, Deferred
 
 from . import typing
 from . import introspection
+from .validate import is_string_node
 
 __all__ = ('ActionBase', 'Action', 'ActionVal')
 
@@ -265,10 +266,23 @@ class ActionVal(Validate):
     _validate_type = StrVal()
     _validate_id = StrVal()
 
-    def __init__(self, action_class=Action, package=None, id=None):
+    def __init__(self,
+            action_class=Action,
+            action_base=None,
+            package=None,
+            id=None):
+        self.action_base = action_base
         self.action_class = action_class
         self.package = package
         self.id = id
+
+    def __hash__(self):
+        return hash((
+            self.action_base,
+            self.action_class,
+            self.package,
+            self.id
+        ))
 
     def construct(self, loader, node):
         if not isinstance(node, yaml.MappingNode):
@@ -276,18 +290,18 @@ class ActionVal(Validate):
             return self(value)
 
         with guard("While parsing:", Location.from_node(node)):
+
             type_node, node = pop_mapping_key(node, 'type')
-            if self.action_class is not Action:
-                action_class = self.action_class
-            elif not type_node:
-                raise Error('no action "type" specified')
-            else:
-                with guard("While parsing:", Location.from_node(type_node)):
-                    action_type = self._validate_type.construct(loader, type_node)
-                    action_sig = _action_sig(action_type)
-                    if action_sig not in ActionBase.mapped():
-                        raise Error('unknown action type specified:', action_type)
-                action_class = ActionBase.mapped()[action_sig]
+
+            if type_node and not is_string_node(type_node):
+                with loader.validating(ActionVal()):
+                    action_base = loader.construct_object(type_node, deep=True)
+                override_spec = DeferredVal().construct(loader, node)
+                return override(action_base, override_spec)
+
+            if not type_node and self.action_base:
+                override_spec = DeferredVal().construct(loader, node)
+                return override(self.action_base, override_spec)
 
             if self.id is not None:
                 id_node, node = pop_mapping_key(node, 'id')
@@ -297,8 +311,20 @@ class ActionVal(Validate):
                     raise error
                 node = add_mapping_key(node, 'id', self.id)
 
-        construct = WidgetVal(package=self.package, widget_class=action_class).construct
-        return construct(loader, node)
+            if self.action_class is not Action:
+                action_class = self.action_class
+            elif not type_node:
+                raise Error('no action "type" specified')
+            elif is_string_node(type_node):
+                with guard("While parsing:", Location.from_node(type_node)):
+                    action_type = self._validate_type.construct(loader, type_node)
+                    action_sig = _action_sig(action_type)
+                    if action_sig not in ActionBase.mapped():
+                        raise Error('unknown action type specified:', action_type)
+                action_class = ActionBase.mapped()[action_sig]
+
+        widget_val = WidgetVal(package=self.package, widget_class=action_class)
+        return widget_val.construct(loader, node)
 
     def __call__(self, value):
         if isinstance(value, self.action_class):

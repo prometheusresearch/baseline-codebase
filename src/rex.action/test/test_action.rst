@@ -4,14 +4,13 @@ Test rex.action.action
 ::
 
   >>> from rex.core import Rex, SandboxPackage, StrVal
-  >>> rex = Rex('-')
-  >>> rex.on()
+  >>> pkg = SandboxPackage(name="base")
+  >>> rex = Rex('-', pkg)
 
   >>> from rex.action.typing import Domain
-  >>> from rex.action.action import Action, ActionVal
+  >>> from rex.action.action import Action, ActionVal, Field
 
   >>> dom = Domain()
-  >>> dom.on()
 
   >>> class MyAction(Action):
   ...
@@ -27,12 +26,42 @@ Test rex.action.action
   ...   def context(self):
   ...     return {}, {}
 
+  >>> class ConfigurableActionDemo(Action):
+  ...
+  ...   name = 'configurable-demo'
+  ...
+  ...   text = Field(StrVal())
+  ...
+  ...   def context(self):
+  ...     return {}, {}
+
+  >>> pkg.rewrite('configurable-demo-base.yaml', """
+  ... type: configurable-demo
+  ... id: hey
+  ... text: Hello
+  ... """)
+
+Init
+----
+
+::
+
+  >>> dom.on()
+  >>> rex.on()
+
+Tests
+-----
+
+Introspect action registry::
+
   >>> Action.all() # doctest: +NORMALIZE_WHITESPACE
   [__main__.MyAction,
-   __main__.AnotherAction]
+   __main__.AnotherAction,
+   __main__.ConfigurableActionDemo]
 
   >>> sorted(Action.mapped().items()) # doctest: +NORMALIZE_WHITESPACE
   [(Action(name='another'), __main__.AnotherAction),
+   (Action(name='configurable-demo'), __main__.ConfigurableActionDemo),
    (Action(name='my'), __main__.MyAction)]
 
 Constructing from Python values::
@@ -225,6 +254,58 @@ Invalid actions
   ...
   Error: Action "id" of type "invalid" specified incorrect output type:
       1
+
+Overrides
+---------
+
+::
+
+  >>> validate.parse("""
+  ... type: configurable-demo
+  ... id: hey
+  ... text: Hello
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+  ConfigurableActionDemo(doc=undefined,
+                         help=undefined,
+                         icon=undefined,
+                         id='hey',
+                         kind=undefined,
+                         text='Hello',
+                         title=undefined,
+                         width=undefined)
+
+::
+
+  >>> validate.parse("""
+  ... type:
+  ...   type: configurable-demo
+  ...   id: hey
+  ...   text: Hello
+  ... text: Hello!!!
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+  ConfigurableActionDemo(doc=undefined,
+                         help=undefined,
+                         icon=undefined,
+                         id='hey',
+                         kind=undefined,
+                         text='Hello!!!',
+                         title=undefined,
+                         width=undefined)
+
+::
+
+  >>> validate.parse("""
+  ... type: !include base:configurable-demo-base.yaml
+  ... text: Hello!!!
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+  ConfigurableActionDemo(doc=undefined,
+                         help=undefined,
+                         icon=undefined,
+                         id='hey',
+                         kind=undefined,
+                         text='Hello!!!',
+                         title=undefined,
+                         width=undefined)
 
 Cleanup
 -------

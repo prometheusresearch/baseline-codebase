@@ -15,6 +15,8 @@ import urlparse
 import cgi
 
 from webob import Response
+from webob.exc import HTTPMethodNotAllowed
+
 from cached_property import cached_property
 
 from rex.core import (
@@ -118,6 +120,9 @@ class WizardWidgetBase(Widget):
 
     @responder
     def data(self, req):
+
+        if not req.method == 'POST':
+            raise HTTPMethodNotAllowed()
 
         def is_entity(v):
             return isinstance(v, validate_entity.record_type)

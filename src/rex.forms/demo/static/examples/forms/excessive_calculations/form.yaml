@@ -1,0 +1,33 @@
+instrument:
+  id: urn:excessive-calculations
+  version: '1.0'
+defaultLocalization: en
+pages:
+  - id: page1
+    elements:
+      - type: question
+        options:
+          fieldId: q1
+          text:
+            en: q1
+      - type: question
+        options:
+          fieldId: q2
+          text:
+            en: q2
+      - type: question
+        options:
+          fieldId: q3
+          text:
+            en: q3
+      - type: question
+        options:
+          fieldId: q4
+          text:
+            en: q4
+      - type: question
+        options:
+          fieldId: q5
+          text:
+            en: q5
+

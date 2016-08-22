@@ -11,6 +11,8 @@ REX.FORMS Change Log
 * Fixed issue with the form not auto-focusing the next field when a hotkey is
   used to select the same value that is already selected.
 * Refactored the calculation preview APIs for more reusability.
+* Adjusted calculation preview popup to handle configurations with lots of
+  calculations.
 
 
 2.0.0 (2016-08-12)

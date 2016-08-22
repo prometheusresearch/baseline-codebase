@@ -1,0 +1,179 @@
+instrument:
+  id: urn:excessive-calculations
+  version: '1.0'
+calculations:
+  - id: calc1
+    type: text
+    method: python
+    options:
+      expression: assessment['q1'].upper() + '_' + assessment['q2'].upper()
+  - id: calc2
+    type: date
+    method: python
+    options:
+      expression: datetime.date.today()
+  - id: calc3
+    type: integer
+    method: htsql
+    options:
+      expression: (if_null($q3, 0) * 2) + if_null($q4, 0)
+  - id: calc4
+    type: float
+    method: htsql
+    options:
+      expression: $q5 * 3
+  - id: calc5
+    type: text
+    method: htsql
+    options:
+      expression: "'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'"
+  - id: longer_calculation_name_1
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_2
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_3
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_4
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_5
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_6
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_7
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_8
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_9
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_10
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_11
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_12
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_13
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_14
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_15
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_16
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_17
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_18
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_19
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_20
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_21
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_22
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_23
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_24
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_25
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_26
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_27
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_28
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_29
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3
+  - id: longer_calculation_name_30
+    type: integer
+    method: htsql
+    options:
+      expression: $q3 * 3

@@ -21,19 +21,21 @@ export default class CalculationResults extends React.Component {
       position: 'absolute',
       bottom: 0,
       right: 0,
-      maxWidth: '25%',
-      zIndex: 100
+      maxWidth: '30%',
+      zIndex: 100,
     }),
     Title: ReactUI.Text,
     Content: style('div', {
-      overflowX: 'auto'
+      overflow: 'auto',
+      maxHeight: '400px',
     }),
     Key: style('td', {
       fontWeight: 'bold',
-      padding: '5px'
+      padding: '5px',
     }),
     Value: style('td', {
-      padding: '5px'
+      padding: '5px',
+      whiteSpace: 'nowrap',
     }),
     Button: ReactUI.Button,
     Message: (props) => {

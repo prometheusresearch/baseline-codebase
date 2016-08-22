@@ -51,7 +51,7 @@ class ActionIntrospection(object):
 
     @property
     def id(self):
-        return self.action.id
+        return self.action.uid
 
     @property
     def title(self):

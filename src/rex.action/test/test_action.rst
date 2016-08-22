@@ -82,16 +82,6 @@ Constructing from Python values::
   Error: no action "type" specified
 
   >>> validate({
-  ...   'type': 'my'
-  ... }) # doctest: +NORMALIZE_WHITESPACE
-  Traceback (most recent call last):
-  ...
-  Error: Missing mandatory field:
-      id
-  Of widget:
-      Action(name='my')
-
-  >>> validate({
   ...   'type': 'xmy',
   ...   'id': 'id',
   ... }) # doctest: +NORMALIZE_WHITESPACE
@@ -129,44 +119,6 @@ Subclass constraints
   ...
   Error: action must be an instance of:
       __main__.AnotherAction
-
-
-Validating/constructing actions with predefined id
---------------------------------------------------
-
-::
-
-  >>> validate_with_id = ActionVal(id='someid')
-
-  >>> validate_with_id({
-  ...   'type': 'my'
-  ... })
-  MyAction(doc=undefined, help=undefined, icon=undefined, id='someid', kind=undefined, title=undefined, width=undefined)
-
-  >>> validate_with_id({
-  ...   'id': 'id',
-  ...   'type': 'my'
-  ... }) # doctest: +ELLIPSIS
-  Traceback (most recent call last):
-  ...
-  Error: action "id" is cannot be specified
-
-  >>> validate_with_id.parse("""
-  ... type: my
-  ... """)
-  MyAction(doc=undefined, help=undefined, icon=undefined, id='someid', kind=undefined, title=undefined, width=undefined)
-
-  >>> validate_with_id.parse("""
-  ... id: id
-  ... type: my
-  ... """) # doctest: +ELLIPSIS
-  Traceback (most recent call last):
-  ...
-  Error: action "id" is cannot be specified
-  While parsing:
-      "<...>", line 2
-  While parsing:
-      "<...>", line 2
 
 
 Constructing from YAML
@@ -241,7 +193,7 @@ Invalid actions
   >>> InvalidAction(id='id').context_types # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Action "id" of type "invalid" specified incorrect input type:
+  Error: Action "invalid" specified incorrect input type:
       1
 
   >>> class InvalidAction(Action):
@@ -252,7 +204,7 @@ Invalid actions
   >>> InvalidAction(id='id').context_types # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Action "id" of type "invalid" specified incorrect output type:
+  Error: Action "invalid" specified incorrect output type:
       1
 
 Overrides

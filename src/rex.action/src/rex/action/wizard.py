@@ -97,7 +97,7 @@ class WizardWidgetBase(Widget):
                 self.actions = self.actions.resolve()
         if isinstance(self.path, Deferred):
             validate_path = instruction.PathVal(
-                self.uid or self.id,
+                self.uid,
                 self._resolve_action
             )
             self.path = self.path.resolve(validate_path)
@@ -477,7 +477,7 @@ def _collect_actions(wizard):
     if not wizard._constructed_actions:
         wizard.typecheck()
     for key, action in wizard._constructed_actions.items():
-        key = '%s@%s' % (wizard.uid or wizard.id, key)
+        key = '%s@%s' % (wizard.uid, key)
         key = hashlib.md5(key).hexdigest()
         actions[key] = action
         if isinstance(action, WizardBase):

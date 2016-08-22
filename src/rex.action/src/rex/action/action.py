@@ -65,6 +65,7 @@ class ActionBase(Widget):
 
     id = Field(
         StrVal(),
+        default=undefined,
         doc="""
         Action identifier.
 
@@ -117,7 +118,7 @@ class ActionBase(Widget):
 
     def __init__(self, **values):
         self.source_location = None
-        self.uid = None
+        self.uid = id(self)
         self._domain = values.pop('__domain', typing.Domain.current())
         self._context_types = values.pop('__context_types', None)
         self._introspection = None
@@ -183,12 +184,12 @@ class ActionBase(Widget):
             output = self.domain.record(**output)
         if not isinstance(input, typing.Type):
             raise Error(
-                'Action "%s" of type "%s" specified incorrect input type:'\
-                % (self.id, self.name.name), input)
+                'Action "%s" specified incorrect input type:'\
+                % self.name.name, input)
         if not isinstance(output, typing.Type):
             raise Error(
-                'Action "%s" of type "%s" specified incorrect output type:'\
-                % (self.id, self.name.name), output)
+                'Action "%s" specified incorrect output type:'\
+                % self.name.name, output)
         return ContextTypes(input, output)
 
     def context(self):
@@ -303,14 +304,6 @@ class ActionVal(Validate):
                 override_spec = DeferredVal().construct(loader, node)
                 return override(self.action_base, override_spec)
 
-            if self.id is not None:
-                id_node, node = pop_mapping_key(node, 'id')
-                if id_node:
-                    error = Error('action "id" is cannot be specified')
-                    error.wrap("While parsing:", Location.from_node(id_node))
-                    raise error
-                node = add_mapping_key(node, 'id', self.id)
-
             if self.action_class is not Action:
                 action_class = self.action_class
             elif not type_node:
@@ -337,10 +330,6 @@ class ActionVal(Validate):
         action_sig = _action_sig(action_type)
         if action_sig not in ActionBase.mapped():
             raise Error('unknown action type specified:', action_type)
-        if self.id is not None:
-            if 'id' in value:
-                raise Error('action "id" is cannot be specified')
-            value['id'] = self.id
         action_class = ActionBase.mapped()[action_sig]
         if not issubclass(action_class, self.action_class):
             raise Error('action must be an instance of:', self.action_class)

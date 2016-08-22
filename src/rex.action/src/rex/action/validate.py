@@ -8,6 +8,7 @@
 """
 
 import re
+import collections
 import urlparse
 import urllib
 import cgi
@@ -18,8 +19,8 @@ from htsql.core.syn.syntax import Syntax
 from htsql.core.syn.parse import parse
 
 from rex.core import (
-    Record, Validate, Error, Location,
-    AnyVal, UStrVal, StrVal, MapVal, OneOfVal, RecordVal)
+    Record, Validate, Error, guard, Location,
+    AnyVal, UStrVal, StrVal, MapVal, OneOfVal, RecordVal, RecordField)
 from rex.db import get_db, Query, RexHTSQL
 from rex.widget import TransitionableRecord
 from rex.widget.validate import DeferredVal, Deferred
@@ -240,34 +241,106 @@ class ActionOrActionIncludeVal(Validate):
         return self._validate_action.construct(loader, node)
 
 
+class StaticMapVal(Validate):
+
+    def __init__(self, *fields):
+        self.fields = collections.OrderedDict()
+        for field in fields:
+            self.fields[field.name] = field
+
+    def __call__(self, data):
+        with guard("Got:", repr(data)):
+            if not isinstance(data, dict):
+                raise Error("Expected a mapping")
+        values = {}
+        for name in sorted(data):
+            value = data[name]
+            if name not in self.fields:
+                raise Error("Got unexpected field:", name)
+            attribute = self.fields[name].attribute
+            values[attribute] = value
+        for field in self.fields.values():
+            attribute = field.attribute
+            if attribute in values:
+                validate = field.validate
+                with guard("While validating field:", field.name):
+                    values[attribute] = validate(values[attribute])
+            elif field.has_default:
+                values[attribute] = field.default
+            else:
+                raise Error("Missing mandatory field:", field.name)
+        return self.record_type(**values)
+
+    def construct(self, loader, node):
+        location = Location.from_node(node)
+        if not (isinstance(node, yaml.MappingNode) and
+                node.tag == u'tag:yaml.org,2002:map'):
+            error = Error("Expected a mapping")
+            error.wrap("Got:", node.value
+                               if isinstance(node, yaml.ScalarNode)
+                               else "a %s" % node.id)
+            error.wrap("While parsing:", location)
+            raise error
+        values = {}
+        for key_node, value_node in node.value:
+            with loader.validating(StrVal()):
+                name = loader.construct_object(key_node, deep=True)
+            with guard("While parsing:", Location.from_node(key_node)):
+                if name not in self.fields:
+                    raise Error("Got unexpected field:", name)
+                if name in values:
+                    raise Error("Got duplicate field:", name)
+            field = self.fields[name]
+            with guard("While validating field:", name), \
+                 loader.validating(field.validate):
+                value = loader.construct_object(value_node, deep=True)
+            values[field.attribute] = value
+        for field in self.fields.values():
+            attribute = field.attribute
+            if attribute not in values:
+                if field.has_default:
+                    values[attribute] = field.default
+                else:
+                    with guard("While parsing:", location):
+                        raise Error("Missing mandatory field:", field.name)
+        return values
+
+
+class ActionOverrideMapVal(Validate):
+
+    def __init__(self, action_map):
+        rows = (RecordField(k, ActionOrActionIncludeVal(action_base=action), None)
+                for k, action in action_map.items())
+        self._validate = StaticMapVal(*rows)
+
+    def _sanitize(self, value):
+        return {k: v
+                for k, v in value.items()
+                if v is not None}
+
+    def construct(self, loader, node):
+        value = self._validate.construct(loader, node)
+        return self._sanitize(value)
+
+    def __call__(self, value):
+        value = self._validate(value)
+        return self._sanitize(value)
+
+
 class ActionMapVal(Validate):
     """ Validator for a mapping from action ids to actions."""
 
-    _validate_pre = MapVal(StrVal(), DeferredVal())
-    _validate_id = StrVal()
 
     def __init__(self, action_map=None):
-        self.action_map = action_map
+        if action_map:
+            self._validate = ActionOverrideMapVal(action_map)
+        else:
+            self._validate = MapVal(StrVal(), ActionOrActionIncludeVal())
 
     def construct(self, loader, node):
-        mapping = self._validate_pre.construct(loader, node)
-        result = {}
-        for k, v in mapping.items():
-            if self.action_map and not k in self.action_map:
-                raise Error('Unkown action found:', k)
-            validate_action = ActionOrActionIncludeVal(
-                id=k,
-                action_base=self.action_map[k] if self.action_map else None
-            )
-            action = v.resolve(validate_action)
-            if not isinstance(action, GlobalActionReference):
-                action._introspection = action.Introspection(
-                    action, location=v.source_location)
-            result[k] = action
-        return result
+        value = self._validate.construct(loader, node)
+        return value
 
     def __call__(self, value):
-        from .action import ActionVal
-        mapping = self._validate_pre(value)
-        return {k: v.resolve(validate=ActionOrActionIncludeVal(id=k))
-                for k, v in mapping.items()}
+        value = self._validate(value)
+        return value

@@ -13,6 +13,7 @@ REX.FORMS Change Log
 * Refactored the calculation preview APIs for more reusability.
 * Adjusted calculation preview popup to handle configurations with lots of
   calculations.
+* Fixed issues with date/dateTime validation in some browsers.
 
 
 2.0.0 (2016-08-12)

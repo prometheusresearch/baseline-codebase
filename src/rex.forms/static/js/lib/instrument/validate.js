@@ -393,7 +393,7 @@ export default class Validate {
   checkLegalDate(dateStr: string): boolean {
     let parts = dateStr.split('-').map(Number);
     // $FlowIssue: fixme
-    let parsed = new Date(parts);
+    let parsed = new Date(parts[0], (parts[1] - 1), parts[2]);
     if (
         isNaN(parsed.getTime())
         || (parsed.getFullYear() !== parts[0])

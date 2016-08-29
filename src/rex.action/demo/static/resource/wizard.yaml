@@ -68,7 +68,7 @@ actions:
   configure-study:
     title: Configure Study
     type: edit
-    entity: study[non-configured]
+    entity: study[!configured]
 
   pick-recruited:
     title: Recruited Participants

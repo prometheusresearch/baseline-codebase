@@ -495,4 +495,5 @@ def _format_Wizard(wizard, req, path): # pylint: disable=invalid-name
     js_type, props = _format_Action(wizard, req, path)
     if not wizard.included:
         props['actions'] = _collect_actions(wizard)
+        props['domain'] = wizard.domain
     return js_type, props

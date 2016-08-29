@@ -125,6 +125,24 @@ Row type::
   While parsing:
       "<...>", line 2
 
+  >>> r = validate.parse("""
+  ... mother: individual[!recruited && recruited]
+  ... """) 
+
+  >>> r # doctest: +NORMALIZE_WHITESPACE
+  RowType(name='mother',
+          type=EntityType(name='individual',
+                          state=EntityTypeState(name='not_recruited__and__recruited',
+                                                title=None,
+                                                expression=StateExpression(expression='!recruited && recruited'),
+                          input=None)))
+
+  >>> r.type.name in dom.syn_entity_state
+  True
+
+  >>> r.type.state.name in dom.syn_entity_state[r.type.name]
+  True
+
 Row type disallows some of row names::
 
   >>> validate.parse("""

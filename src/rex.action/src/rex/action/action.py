@@ -11,15 +11,19 @@
 """
 
 from collections import namedtuple, OrderedDict
+import hashlib
 
 import yaml
 from cached_property import cached_property
 
 from rex.core import (
     get_settings,
-    Location, Error, Validate, autoreload, get_packages, RecordVal, MaybeVal,
-    ChoiceVal, StrVal, IntVal, SeqVal, MapVal, OMapVal, OneOfVal, AnyVal,
-    cached, guard)
+    Location, locate, set_location,
+    cached, guard,
+    Error, Validate,
+    autoreload, get_packages,
+    RecordVal, MaybeVal,
+    ChoiceVal, StrVal, IntVal, SeqVal, MapVal, OMapVal, OneOfVal, AnyVal)
 from rex.widget import (
     Widget, WidgetVal, Field, computed_field,
     RSTVal,
@@ -118,7 +122,7 @@ class ActionBase(Widget):
 
     def __init__(self, **values):
         self.source_location = None
-        self.uid = id(self)
+        self.uid = values.get('id') or id(self)
         self._domain = values.pop('__domain', typing.Domain.current())
         self._context_types = values.pop('__context_types', None)
         self._introspection = None
@@ -290,7 +294,9 @@ class ActionVal(Validate):
             value = super(ActionVal, self).construct(loader, node)
             return self(value)
 
-        with guard("While parsing:", Location.from_node(node)):
+        loc = Location.from_node(node)
+
+        with guard("While parsing:", loc):
 
             type_node, node = pop_mapping_key(node, 'type')
 
@@ -317,7 +323,17 @@ class ActionVal(Validate):
                 action_class = ActionBase.mapped()[action_sig]
 
         widget_val = WidgetVal(package=self.package, widget_class=action_class)
-        return widget_val.construct(loader, node)
+
+        if not any(k == 'id' for k, v in node.value):
+            if self.id:
+                node = add_mapping_key(node, 'id', self.id)
+            else:
+                id = '%s:%d' % (loc.filename, loc.line)
+                id = hashlib.md5(id).hexdigest()
+                node = add_mapping_key(node, 'id', id)
+
+        action = widget_val.construct(loader, node)
+        return action
 
     def __call__(self, value):
         if isinstance(value, self.action_class):

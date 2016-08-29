@@ -66,7 +66,8 @@ export default class Wizard extends React.Component {
       pathname,
       path,
       actions,
-      this._initialContext
+      this._initialContext,
+      this.props.domain,
     );
     this.state = {graph};
   }
@@ -199,7 +200,8 @@ export default class Wizard extends React.Component {
       pathname,
       this.props.path,
       this.props.actions,
-      this._initialContext
+      this._initialContext,
+      this.props.domain,
     );
 
     this.setState({graph});

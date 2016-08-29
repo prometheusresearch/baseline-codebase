@@ -10,6 +10,7 @@
 """
 
 import re
+import ast
 from collections import Mapping
 
 from werkzeug.local import LocalStack
@@ -22,7 +23,9 @@ from rex.port.grow import GrowCalculation
 from rex.port.arm import TrunkArm, FacetArm
 from rex.core import Error, Validate
 from rex.core import StrVal, OneOfVal, MapVal, SeqVal
-from rex.widget import TransitionableRecord
+from rex.widget import TransitionableRecord, as_transitionable
+
+from .state_expression import StateExpressionVal, is_state_expression
 
 __all__ = (
     'anytype',
@@ -146,11 +149,23 @@ class EntityTypeState(TransitionableRecord):
 class TypeVal(Validate):
 
     _validate = StrVal()
+    _validate_state_expression = StateExpressionVal()
+    _type_with_state = re.compile(r'([a-zA-Z_]+)\[([^\]]+)\]')
 
     def __call__(self, value):
+        dom = Domain.current()
         value = self._validate(value)
-        typ = Domain.current()[value]
-        return typ
+        if is_state_expression(value):
+            m = self._type_with_state.match(value)
+            if m:
+                name, state = m.groups()
+                typ = dom[name]
+                state = self._validate_state_expression(state)
+                return dom.register_syn_state(typ, state)
+            else:
+                raise Error('Invalid type found:', value)
+        else:
+            return dom[value]
 
 
 class OpaqueTypeVal(Validate):
@@ -300,6 +315,7 @@ class Domain(object):
         self.name = name
         self.value_types = DEFAULT_VALUE_TYPES
         self.entity_types = {typ.key: typ for typ in entity_types}
+        self.syn_entity_state = {}
 
     def merge(self, domain):
         if domain is None:
@@ -311,6 +327,14 @@ class Domain(object):
             typ.key: typ for typ
                          in domain.entity_types.values()
         })
+        for entity_name in self.syn_entity_state:
+            (next_domain
+                .syn_entity_state.setdefault(entity_name, {})
+                .update(self.syn_entity_state[entity_name]))
+        for entity_name in domain.syn_entity_state:
+            (next_domain
+                .syn_entity_state.setdefault(entity_name, {})
+                .update(domain.syn_entity_state[entity_name]))
         return next_domain
 
     def get_type(self, type_name):
@@ -322,6 +346,11 @@ class Domain(object):
             return self.entity_types[type_name]
         else:
             return self._validate_opaque_type(type_name)
+
+    def register_syn_state(self, typ, expression):
+        state = EntityTypeState(expression.name, expression=expression)
+        self.syn_entity_state.setdefault(typ.name, {})[state.name] = state
+        return EntityType(typ.name, state=state)
 
     def get_states_for_type(self, type_name):
         return {typ.state.name: typ.state
@@ -355,6 +384,10 @@ class Domain(object):
     def __repr__(self):
         return '<%s %s>' % (self.__class__.__name__, self.name or 'unnamed')
 
+
+@as_transitionable(Domain, tag='rex:action:domain')
+def _encode_Domain(domain, req, path):
+    return [domain.syn_entity_state]
 
 _default_domain = Domain(name='default')
 
@@ -500,12 +533,6 @@ def unify(type_a, type_b, label=None):
             raise RowTypeMismatch(
                 RowType(label, type_a),
                 RowType(label, type_b))
-        elif type_a.state is None or type_b.state is None:
-            return
-        elif type_a.state != type_b.state:
-            raise RowTypeMismatch(
-                RowType(label, type_a),
-                RowType(label, type_b))
     elif kind_a is OpaqueEntityType:
         if type_a.name != type_b.name:
             raise RowTypeMismatch(
@@ -513,6 +540,24 @@ def unify(type_a, type_b, label=None):
                 RowType(label, type_b))
     else:
         raise UnknownKind(kind_a, type_a, kind_b, type_b)
+
+
+class EntityStateScope(Mapping):
+
+    def __init__(self, entity):
+        self.entity = entity
+
+    def __len__(self):
+        return len(iter(self))
+
+    def __iter__(self):
+        return iter(k for k in self.entity if k.startswith('meta:state:'))
+
+    def __getitem__(self, key):
+        internal_key = 'meta:state:%s' % key
+        if not internal_key in self.entity:
+            raise KeyError(key)
+        return self.entity[internal_key]
 
 
 def _intersect_record_types(a, b):

@@ -2,6 +2,7 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import invariant from 'invariant';
 import notImplemented from './notImplemented';
 
 export class Type {
@@ -16,7 +17,7 @@ export class Type {
 
 class AnyType extends Type {
 
-  match(value) { // eslint-disable-line no-unused-vars
+  match(value, domain) { // eslint-disable-line no-unused-vars
     return true;
   }
 
@@ -43,6 +44,17 @@ export class ValueType extends Type {
   }
 }
 
+function matchesState(name, entity, domain) {
+  let type = entity['meta:type'];
+  let key = 'meta:state:' + name;
+  let isSyn = domain[type] != null && domain[type][name] != null;
+  if (!isSyn) {
+    return entity[key];
+  } else {
+    return domain[type][name].expression(entity);
+  }
+}
+
 export class EntityType extends Type {
 
   constructor(name, state) {
@@ -51,13 +63,13 @@ export class EntityType extends Type {
     this.state = state;
   }
 
-  match(value) {
+  match(value, domain) {
+    let type = value['meta:type'];
     return (
       value &&
       typeof value === 'object' &&
-      value['meta:type'] === this.name && (
-        this.state && value[`meta:state:${this.state.name}`] ||
-        !this.state
+      type === this.name && (
+        !this.state || matchesState(this.state.name, value, domain)
       )
     );
   }
@@ -77,8 +89,8 @@ export class RowType extends Type {
     this.type = type;
   }
 
-  match(value) {
-    return this.type.match(value);
+  match(value, domain) {
+    return this.type.match(value, domain);
   }
 }
 
@@ -91,7 +103,7 @@ export class RecordType extends Type {
     this.open = open;
   }
 
-  match(value) {
+  match(value, domain) {
     if (!value) {
       return false;
     }
@@ -100,7 +112,7 @@ export class RecordType extends Type {
         if (value[key] == null) {
           return false;
         }
-        if (!this.rows[key].match(value[key])) {
+        if (!this.rows[key].match(value[key], domain)) {
           return false;
         }
       }

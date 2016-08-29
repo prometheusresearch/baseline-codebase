@@ -55,3 +55,19 @@ Transitionable.register('rex:action:replace', function decode_type_record(payloa
 Transitionable.register('rex:action:repeat', function decode_type_record(payload) {
   return new Instruction.Repeat(payload[0], payload[1]);
 });
+
+/* istanbul ignore next */
+Transitionable.register(
+  'rex:action:domain',
+  function decode_domain(payload) {
+    return payload[0];
+  });
+
+Transitionable.register(
+  'rex:action:state_expr',
+  function decode_state_expression(payload) {
+    let expr = new Function('entity', 'return (' + payload[0] + ');');
+    expr.scope = payload[1];
+    return expr;
+  }
+);

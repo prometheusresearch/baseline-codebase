@@ -13,6 +13,13 @@ REX.MART Change Log
   system.
 
 
+0.3.1 (2016-xx-xx)
+==================
+
+- Fixed crash during creation when the system hosting the marts is different
+  from the system hosting the management db.
+
+
 0.3.0 (2016-08-12)
 ==================
 

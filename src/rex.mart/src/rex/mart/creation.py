@@ -295,7 +295,8 @@ class MartCreator(object):
     def _update_completion_details(self):
         size = None
         with guarded('While retrieving database size'):
-            with get_sql_connection(get_management_db()) as sql:
+            self.connect_mart()
+            with get_sql_connection(self.database) as sql:
                 cursor = sql.cursor()
                 try:
                     cursor.execute('select pg_database_size(%s)', (self.name,))
@@ -381,6 +382,7 @@ class MartCreator(object):
             cluster.rename(fixed_name, self.name)
             self._update_name(fixed_name)
             self.name = fixed_name
+            self.reconnect_mart()
 
     def create_mart(self):
         cluster = get_hosting_cluster()
@@ -426,9 +428,7 @@ class MartCreator(object):
         driver(facts)
         driver.commit()
         driver.close()
-        if self.database:
-            self.close_mart()
-            self.connect_mart()
+        self.reconnect_mart()
 
     def deploy_structures(self):
         if not self.definition['deploy']:
@@ -530,6 +530,11 @@ class MartCreator(object):
         # future instances.
         self.database = None
         gc.collect()
+
+    def reconnect_mart(self):
+        if self.database:
+            self.close_mart()
+        self.connect_mart()
 
     def execute_processors(self, processors):
         if not processors:

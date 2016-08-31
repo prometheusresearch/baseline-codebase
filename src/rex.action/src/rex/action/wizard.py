@@ -93,6 +93,7 @@ class WizardWidgetBase(Widget):
 
     def __init__(self, **values):
         super(WizardWidgetBase, self).__init__(**values)
+        self._port_cache = {}
         self._constructed_actions = {}
         if isinstance(self.actions, Deferred):
             with self.domain:
@@ -121,6 +122,8 @@ class WizardWidgetBase(Widget):
     @responder
     def data(self, req):
 
+        entity_cache = {}
+
         if not req.method == 'POST':
             raise HTTPMethodNotAllowed()
 
@@ -137,11 +140,36 @@ class WizardWidgetBase(Widget):
             params_bind = {k: v.id if is_entity(v) else v
                            for k, v in params.items()
                            if not k.lower() == 'user'}
-            port = Port(params_defs + [{'entity': entity.type, 'select': []}])
-            port = typing.annotate_port(self.states, port)
+
+            entity_cache_key = '%s__%s__%s' % (
+                entity.type,
+                entity.id,
+                repr(sorted(params_bind.items())),
+            )
+
+            if entity_cache_key in entity_cache:
+                return entity_cache[entity_cache_key]
+
+            port_cache_key = '%s__%s' % (
+                entity.type,
+                repr(sorted(params_bind.keys())),
+            )
+
+            if port_cache_key in self._port_cache:
+                port = self._port_cache[port_cache_key]
+            else:
+                port = Port(params_defs + [{'entity': entity.type, 'select': []}])
+                port = typing.annotate_port(self.states, port)
+                self._port_cache[port_cache_key] = port
+
             product = port.produce((u'*', entity.id), **params_bind)
+
             data = product_to_pojo(product)[entity.type]
-            return data[0] if data else None
+            data = data[0] if data else None
+
+            entity_cache[entity_cache_key] = data
+
+            return data
 
         data = validate_req(req.json_body)
 

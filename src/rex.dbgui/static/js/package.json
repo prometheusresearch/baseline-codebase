@@ -6,7 +6,7 @@
     "bundleAll": true
   },
   "dependencies": {
-    "@prometheusresearch/react-ui": "^0.19.1"
+    "@prometheusresearch/react-ui": "^0.21.1"
   },
   "peerDependencies": {
     "react": "^0.14.0",

@@ -35,7 +35,6 @@ class IncludeLoader(object):
         return stream
 
     def __call__(self, filename, validate, master, open):
-        open = functools.partial(self.open, _open=open)
         with self.stats_lock:
             if self.stats_version > 0:
                 stats = {}
@@ -46,10 +45,15 @@ class IncludeLoader(object):
                     except OSError:
                         pass
                 if stats == self.stats:
+                    # We return cached result but still need to call open so
+                    # that loaders above could register paths as dependencies.
+                    for path in self.stats.keys():
+                        open(path)
                     return self.result
                 else:
                     self.stats = stats
             self.stats_version += 1
+            open = functools.partial(self.open, _open=open)
             stream = open(filename)
             loader = self.LoaderClass(stream, validate, master, open)
             node = loader.get_single_node()

@@ -15,7 +15,7 @@
     "react-dom": "^0.14.0"
   },
   "dependencies": {
-    "@prometheusresearch/react-ui": "^0.19.0",
+    "@prometheusresearch/react-ui": "^0.21.1",
     "react-forms": "2.0.0-beta32"
   },
   "devDependencies": {

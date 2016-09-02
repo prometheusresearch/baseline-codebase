@@ -16,7 +16,7 @@
     "react-dom": "^0.14.0"
   },
   "dependencies": {
-    "@prometheusresearch/react-ui": "^0.19.1"
+    "@prometheusresearch/react-ui": "^0.21.0"
   },
   "devDependencies": {
     "eslint": "^2.13.1",

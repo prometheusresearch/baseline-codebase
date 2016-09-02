@@ -24,9 +24,9 @@
     "bundleAll": true
   },
   "dependencies": {
-    "@prometheusresearch/react-autocomplete": "^0.4.1",
+    "@prometheusresearch/react-autocomplete": "^0.4.2",
     "@prometheusresearch/react-box": "^0.9.3",
-    "@prometheusresearch/react-datetimepicker": "^0.4.0",
+    "@prometheusresearch/react-datetimepicker": "^0.4.1",
     "autobind-decorator": "^1.3.2",
     "bootstrap": "3.3.5",
     "bootstrap-datepicker": "^1.3.0",

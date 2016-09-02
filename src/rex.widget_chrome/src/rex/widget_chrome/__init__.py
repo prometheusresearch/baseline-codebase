@@ -21,8 +21,18 @@ class ChromeThemeBootstrap(Bootstrap):
     def __call__(self, req):
         settings = get_settings()
         theme = {
-            'header_primary_color': settings.header_primary_color,
-            'header_secondary_color': settings.header_secondary_color,
+            'primary': json.dumps(settings.header_primary_color),
+            'secondary': json.dumps(settings.header_secondary_color),
         }
-        return '<script>var __REX_WIDGET_CHROME_THEME__ = %s;</script>' % \
-               json.dumps(theme)
+        return '''
+        <script>
+            function __REACT_UI_THEME__(theme) {
+                if (%(primary)s) {
+                    theme.brandColors.primary = %(primary)s;
+                }
+                if (%(secondary)s) {
+                    theme.brandColors.secondary = %(secondary)s;
+                }
+            }
+        </script>
+        ''' % theme

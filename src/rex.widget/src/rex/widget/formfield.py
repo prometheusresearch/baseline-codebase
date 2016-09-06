@@ -440,13 +440,18 @@ def enrich(fields, port, db=None):
     update_by_keypath = {}
 
     def _build_update_by_keypath(field, keypath):
+        keypath = [k for k in keypath if not isinstance(k, int)]
         keypath = tuple(keypath)
         update_by_keypath[keypath] = field
         return field
 
-    _map(List(fields=from_port(port), value_key='__root__'), _build_update_by_keypath)
+    _map(
+        List(fields=from_port(port), value_key='__root__'),
+        _build_update_by_keypath
+    )
 
     def _update_field(field, keypath):
+        keypath = [k for k in keypath if not isinstance(k, int)]
         update = update_by_keypath.get(tuple(keypath))
         if not update:
             return field
@@ -658,6 +663,8 @@ def _remove_layout(fields):
 def _nest(fields):
     fields_by_key = OrderedDict()
     for field in fields:
+        value_key = [k for k in field.value_key if not isinstance(k, int)]
+        field = field.__validated_clone__(value_key=value_key)
         key = field.value_key[0]
         if len(field.value_key) > 1:
             field = field.__validated_clone__(value_key=field.value_key[1:])
@@ -692,7 +699,7 @@ def _map(field, func, keypath=None):
                     for f in field.fields])
     elif isinstance(field, List):
         field = field.__validated_clone__(
-            fields=[_map(f, func, keypath + field.value_key + ['*'])
+            fields=[_map(f, func, keypath + field.value_key)
                     for f in field.fields])
     return field
 

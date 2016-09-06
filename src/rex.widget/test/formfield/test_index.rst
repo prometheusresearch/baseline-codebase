@@ -371,6 +371,11 @@ Enrich field from port
     expression: id()
   ''')
 
+  >>> test_enrich('individual', """
+  ... - todo.completed
+  ... """) # doctest: +NORMALIZE_WHITESPACE
+  [BoolFormField(value_key=['todo', 'completed'], required=True, label=u'Completed')]
+
   >>> fields = test_enrich('table_with_link_to_table_with_title', """
   ... - table_with_title
   ... """)

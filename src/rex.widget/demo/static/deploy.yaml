@@ -1,13 +1,3 @@
-- table: todo
-  with:
-  - column: description
-    type: text
-  - column: completed
-    type: boolean
-  - column: id
-    type: integer
-  - identity: [id: offset]
-
 - table: individual
   with:
   - column: code
@@ -28,6 +18,17 @@
   - link: adopted_father
     to: individual
     required: false
+
+- table: todo
+  with:
+  - link: individual
+  - column: description
+    type: text
+  - column: completed
+    type: boolean
+  - column: id
+    type: integer
+  - identity: [id: offset]
 
 - table: identity
   with:

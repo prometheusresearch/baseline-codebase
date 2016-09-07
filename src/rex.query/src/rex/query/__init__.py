@@ -8,3 +8,6 @@ This package implements compositional database query interface.
 """
 
 
+from .query import Syntax, LiteralSyntax, ApplySyntax, Query, QueryVal
+
+

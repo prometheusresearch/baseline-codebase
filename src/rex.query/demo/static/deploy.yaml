@@ -1,0 +1,62 @@
+
+- table: study
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+  - column: title
+    type: text
+    required: false
+  - column: closed
+    type: boolean
+  - data: ./deploy/study.csv
+
+- table: individual
+  with:
+  - column: code
+    type: text
+  - identity: [code]
+  - column: sex
+    type: [not-known, male, female, not-applicable]
+  - link: mother
+    to: individual
+    required: false
+  - link: father
+    to: individual
+    required: false
+  - data: ./deploy/individual.csv
+
+- table: identity
+  with:
+  - link: individual
+  - identity: [individual]
+  - column: givenname
+    type: text
+    required: false
+  - column: surname
+    type: text
+    required: false
+  - column: birthdate
+    type: date
+    required: false
+  - data: ./deploy/identity.csv
+
+- table: protocol
+  with:
+  - link: study
+  - column: code
+    type: text
+  - identity: [study, code]
+  - column: title
+    type: text
+  - data: ./deploy/protocol.csv
+
+- table: participation
+  with:
+  - link: individual
+  - link: protocol
+  - column: code
+    type: text
+  - identity: [individual, protocol, code]
+  - data: ./deploy/participation.csv
+

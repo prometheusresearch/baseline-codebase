@@ -1,0 +1,22 @@
+#
+# Copyright (c) 2016, Prometheus Research, LLC
+#
+
+title: REX.QUERY
+tests:
+
+- coverage: setup.cfg
+
+- sh: pip install -q -e ./demo
+
+- sh: rex dropdb -q rex.query_demo
+- sh: rex deploy -q rex.query_demo
+
+- doctest: README.rst
+- doctest: test/test_*.rst
+
+- sh: pip uninstall -q -y rex.query_demo
+
+- coverage-check: 95.0
+- coverage-report: ./build/coverage
+

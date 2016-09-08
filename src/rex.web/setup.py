@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.web',
-    version="3.7.1",
+    version="3.7.2",
     description="Web stack for the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -22,7 +22,7 @@ setup(
         'rex.core >=1.9, <2',
         'rex.ctl >=2.0, <3',
         'webob >=1.3.1, <1.4',
-        'jinja2 >=2.7, <2.8',
+        'jinja2 >=2.7, <2.9',
         'pycrypto >=2.4',   # must use the version available on Ubuntu 12.04.
         'pbkdf2 >=1.3',     # FIXME: use PBKDF2 implementation from PyCrypto
                             # once we upgrade to PyCrypto >= 2.5.

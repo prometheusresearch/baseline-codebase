@@ -11,6 +11,8 @@ REX.FORMBUILDER Change Log
 * Fixed the error messages that display when the application encounters a
   configuration it does not support. These messages now display more details
   about the offending element/field.
+* Fixed an issue that allowed too many Channels to be used in certain
+  implementations.
 
 
 5.8.0 (2016-08-12)

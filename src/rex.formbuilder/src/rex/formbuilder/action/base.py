@@ -2,10 +2,15 @@
 # Copyright (c) 2016, Prometheus Research, LLC
 #
 
+from webob import Response
+from webob.exc import HTTPForbidden
+
 from rex.action import Action, typing
-from rex.widget import Field, URLVal, computed_field
+from rex.core import MapVal, StrVal
+from rex.widget import Field, URLVal, computed_field, responder, RequestURL
 from rex.i18n import get_locale_identifier
-from rex.instrument import Channel
+from rex.instrument import Channel, User
+from rex.web import authenticate
 
 
 __all__ = (
@@ -36,19 +41,37 @@ class FormBuilderAction(Action):
         doc='The URL to the screen for the Form Previewer application.',
     )
 
+    channel_filter = Field(
+        MapVal(StrVal(), StrVal()),
+        default={},
+        doc='A mapping of extra properties to filter the list of channels'
+        ' used by Formbuilder. The mapping is'
+        ' ``property: path.to.value.in.props``',
+    )
+
     @computed_field
     def locale(self, request):
         # pylint: disable=unused-argument
         return get_locale_identifier()
 
-    @computed_field
+    @responder(url_type=RequestURL)
     def channels(self, request):
-        # pylint: disable=unused-argument
-        channel_impl = Channel.get_implementation()
-        return [
-            channel.uid
-            for channel in channel_impl.find(
-                presentation_type=channel_impl.PRESENTATION_TYPE_FORM,
-            )
-        ]
+        user_id = authenticate(request)
+        user = User.get_implementation().get_by_login(user_id)
+        if not user:
+            raise HTTPForbidden()
+
+        filters = {}
+        for key, val in request.GET.items():
+            filters[key] = val
+
+        channels = user.find_objects(
+            'channel',
+            presentation_type=Channel.PRESENTATION_TYPE_FORM,
+            **filters
+        )
+
+        return Response(
+            json={'channels': [channel.uid for channel in channels]}
+        )
 

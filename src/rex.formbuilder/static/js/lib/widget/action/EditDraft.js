@@ -4,12 +4,24 @@
 
 import React from 'react';
 import autobind from 'autobind-decorator';
+import objectPath from 'object-path';
 
 import {ConfirmNavigation} from 'rex-action';
+import {Preloader} from 'rex-widget/ui';
+import {Fetch} from 'rex-widget/data';
 
 import {GUI, widget} from '../../index';
 
 
+@Fetch(function (props) {
+  let channels = props.channels;
+  Object.keys(props.channelFilter).forEach((key) => {
+    channels = channels.params({
+      [key]: objectPath.get(props, props.channelFilter[key])
+    });
+  });
+  return {channels};
+})
 export default class EditDraft extends React.Component {
   constructor(props) {
     super(props);
@@ -32,8 +44,14 @@ export default class EditDraft extends React.Component {
      height: '100%',
      overflow: 'auto'
     };
-    let {apiBaseUrl, formPreviewerUrlTemplate, channels, context,
+    let {apiBaseUrl, formPreviewerUrlTemplate, context,
          locale, i18nBaseUrl} = this.props;
+    let {channels} = this.props.fetched;
+
+    if (channels.updating) {
+      return <Preloader />;
+    }
+
     return (
       <div
         key="wrapper"
@@ -55,7 +73,7 @@ export default class EditDraft extends React.Component {
               apiBaseUrl={apiBaseUrl}
               formPreviewerUrlTemplate={formPreviewerUrlTemplate}
               uid={context.draft}
-              channels={channels}
+              channels={channels.data.channels}
               onModified={this.onDraftModified}
             />
           }

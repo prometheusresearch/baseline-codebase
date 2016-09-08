@@ -145,6 +145,8 @@ class DeployTask(RexTask):
 
     Use option ``--quiet`` to suppress any output.
 
+    Use option ``--analyze`` to update database statistics.
+
     Toggle ``--debug`` to dump SQL statements submitted to
     the database server.
     """
@@ -154,6 +156,7 @@ class DeployTask(RexTask):
     class options:
         dry_run = option(hint="immediately rollback the changes")
         quiet = option('q', hint="suppress logging")
+        analyze = option(hint="update database statistics")
 
     def __call__(self):
         with self.make(initialize=False):
@@ -170,7 +173,8 @@ class DeployTask(RexTask):
                         log(msg, *args, **kwds)
                 else:
                     debug(msg, *args, **kwds)
-            deploy(logging=logging, dry_run=self.dry_run)
+            deploy(logging=logging, dry_run=self.dry_run,
+                   analyze=self.analyze)
             if not self.quiet:
                 log("Done.")
 

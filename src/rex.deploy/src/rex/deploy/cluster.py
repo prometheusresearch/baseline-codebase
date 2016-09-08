@@ -134,7 +134,7 @@ def get_cluster():
     return Cluster(db)
 
 
-def deploy(logging=False, dry_run=False):
+def deploy(logging=False, dry_run=False, analyze=False):
     """
     Deploys and validates the application schema from ``deploy.yaml``
     files.
@@ -143,6 +143,8 @@ def deploy(logging=False, dry_run=False):
         Logging configuration for the deployment driver.
     `dry_run`
         If set, the changes are rolled back at the end of the deployment.
+    `analyze`
+        If set, update database statistics at the end of the deployment.
     """
     time_start = datetime.datetime.now()
     # Prepare the driver.
@@ -182,6 +184,10 @@ def deploy(logging=False, dry_run=False):
         else:
             driver.log_progress("Rolling back changes (dry run).")
             driver.rollback()
+        # post-commit statistics analysis
+        if analyze:
+            driver.log_progress("Updating database statistics.")
+            driver.analyze()
     finally:
         time_end = datetime.datetime.now()
         driver.log_timing("Total time: {}", time_end-time_start)

@@ -399,6 +399,12 @@ class Driver(object):
         """
         return self.get_catalog()[u"pg_catalog"]
 
+    def analyze(self):
+        """
+        Executes ANALYZE on the database connection.
+        """
+        self.submit("ANALYZE")
+
     def submit(self, sql):
         """
         Executes the given SQL expression; returns the result.

@@ -25,7 +25,7 @@ setup(
         'HTSQL >2.3.3, <2.5',
         'HTSQL-PGSQL >2.3.3, <2.5',
         'psycopg2 >=2.4.2, <3',
-        'jinja2 >=2.7, <2.8',
+        'jinja2 >=2.7, <2.9',
     ],
     dependency_links=[
         'https://dist.rexdb.org/packages/',

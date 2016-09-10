@@ -39,7 +39,7 @@ class ApplySyntax(Syntax):
             return u"%s%s%s" % (self.args[0], self.op, self.args[1])
         if self.op in [
                 u'=>', u'+', u'-', u'*', u'/',
-                u'=', u'!=', u'>', u'>=', u'<', u'<=',
+                u'=', u'!=', u'>', u'>=', u'<', u'<=', u'~',
                 u'&', u'|'] and len(self.args) == 2:
             return u"(%s%s%s)" % (self.args[0], self.op, self.args[1])
         head = None
@@ -91,15 +91,18 @@ class LiteralSyntax(Syntax):
 
 class Query(object):
 
-    def __init__(self, syntax, limit=None, format=None):
+    def __init__(self, syntax, limit=None, offset=None, format=None):
         self.syntax = syntax
         self.limit = limit
+        self.offset = offset
         self.format = format
 
     def __repr__(self):
         args = ["%r" % self.syntax]
         if self.limit is not None:
             args.append("limit=%r" % self.limit)
+        if self.offset is not None:
+            args.append("offset=%r" % self.offset)
         if self.format is not None:
             args.append("format=%r" % self.format)
         return "%s(%s)" % (self.__class__.__name__, ",".join(args))
@@ -179,10 +182,13 @@ class QueryVal(Validate):
             (OnField('syntax'), RecordVal(
                 ('syntax', validate_syntax),
                 ('limit', MaybeVal(UIntVal), None),
+                ('offset', MaybeVal(UIntVal), None),
                 ('format', MaybeVal(UStrVal), None))),
             validate_syntax)
 
     def __call__(self, data):
+        if isinstance(data, Query):
+            return data
         data = self.validate_query(data)
         if isinstance(data, Syntax):
             return Query(data)

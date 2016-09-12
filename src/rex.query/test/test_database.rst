@@ -45,4 +45,71 @@ It is possible to specify the number of elements to return::
     >>> db.produce([".", ["navigate", "study"], ["navigate", "code"]])
     <Product ('asdl', 'fos', 'lol')>
 
+To show more than one field in the output, we use the ``select`` combinator::
+
+    >>> db.produce(
+    ...     ["select",
+    ...         ["navigate", "study"],
+    ...         ["navigate", "title"],
+    ...         [".", ["navigate", "protocol"], ["navigate", "title"]]])    # doctest: +ELLIPSIS
+    <Product ({'Autism Spectrum Disorder Lab', ('Aspergers Individual', 'Autistic Individual', 'Control Individual')}, ...>
+
+Arithmetic operations::
+
+    >>> db.produce(["+", 9, 3])
+    <Product 12>
+
+    >>> db.produce(["+", "rab", "bit"])
+    <Product 'rabbit'>
+
+    >>> db.produce(["-", 9, 3])
+    <Product 6>
+
+    >>> db.produce(["*", 9, 3])
+    <Product 27>
+
+    >>> db.produce(["/", 9, 3])
+    <Product 3.0000000000000000>
+
+Comparison operations::
+
+    >>> db.produce(["=", 5, 7])
+    <Product false>
+
+    >>> db.produce(["!=", 5, 7])
+    <Product true>
+
+    >>> db.produce(["<", 5, 7])
+    <Product true>
+
+    >>> db.produce(["<=", 5, 7])
+    <Product true>
+
+    >>> db.produce([">", 5, 7])
+    <Product false>
+
+    >>> db.produce([">=", 5, 7])
+    <Product false>
+
+Filtering::
+
+    >>> db.produce(
+    ...     ["filter",
+    ...         ["navigate", "individual"],
+    ...         ["=", ["navigate", "sex"], "female"]])  # doctest: +ELLIPSIS
+    <Product ({'1000', 'female', null, null}, {'1002', 'female', [1000], [1001]}, ...>
+
+Sorting::
+
+    >>> db.produce(
+    ...     ["select",
+    ...         ["sort",
+    ...             ["define",
+    ...                 ["navigate", "individual"],
+    ...                 ["=>", "dob", [".", ["navigate", "identity"], ["navigate", "birthdate"]]]],
+    ...             ["desc", ["navigate", "dob"]]],
+    ...         ["navigate", "code"],
+    ...         ["navigate", "dob"]])   # doctest: +ELLIPSIS
+    <Product ({'1093', '2009-03-03'}, {'1018', '2008-08-08'}, ...>
+
 

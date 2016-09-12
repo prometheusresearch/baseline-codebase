@@ -14,6 +14,7 @@ REX.MART Change Log
 - The data dictionary column table now has a column that specifies what table
   a link field is connected to.
 - The data dictionary column table now includes backlink columns child tables.
+- The data dictionary will now classify both int4 and int8 fields as "integer".
 
 
 0.3.1 (2016-xx-xx)

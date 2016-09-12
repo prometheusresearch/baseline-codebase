@@ -118,7 +118,9 @@ class DataDictionaryProcessor(Processor):
                     column.link = field_model.target_table.label
                 else:
                     datatype = field_model.type
-                    if isinstance(datatype, list):
+                    if datatype == 'integer-int4':
+                        column.datatype = 'integer'
+                    elif isinstance(datatype, list):
                         column.datatype = 'enumeration'
                         column.enumerations = datatype
                     else:

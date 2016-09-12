@@ -9,6 +9,7 @@ REX.MART_ACTIONS Change Log
 ==================
 
 * Now displays column link information in data dictionary screens.
+* Enumeration filters in Guides now have their choices sorted.
 
 
 0.3.0 (2016-08-12)

@@ -18,7 +18,7 @@ export default class EnumFilter extends React.Component {
     let value = this.value;
     return (
       <Filter title={title}>
-        {labels.map(label =>
+        {labels.sort().map(label =>
           <CheckboxButton
             key={label}
             name={label}

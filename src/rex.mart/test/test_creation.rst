@@ -362,8 +362,8 @@ Definitions can invoke post-processors::
     True
     >>> db_inventory(mart.name, detailed=['datadictionary_table', 'datadictionary_column', 'datadictionary_enumeration', 'foo'])
     datadictionary_column: 2
-    (ID(u'foo'), u'col1', u'The First Column', None, None, u'text')
-    (ID(u'foo'), u'col2', None, u'Test Description', None, u'enumeration')
+    (ID(u'foo'), u'col1', u'The First Column', None, None, u'text', None)
+    (ID(u'foo'), u'col2', None, u'Test Description', None, u'enumeration', None)
     datadictionary_enumeration: 3
     (ID(ID(u'foo'), u'col2'), u'bar')
     (ID(ID(u'foo'), u'col2'), u'baz')
@@ -383,22 +383,21 @@ Definitions can invoke post-processors::
     >>> db_exists(mart.name)
     True
     >>> db_inventory(mart.name, detailed=['datadictionary_table', 'datadictionary_column', 'datadictionary_enumeration', 'foo'])
-    datadictionary_column: 6
-    (ID(u'foo'), u'col1', u'The First Column', None, None, u'text')
-    (ID(u'foo'), u'col2', u'Title Number 2', None, u'THE SOURCE', u'enumeration')
-    (ID(u'mart1'), u'assessment_uid', u'Assessment UID', u'the UID of the Assessment', None, u'code')
-    (ID(u'mart1'), u'foo', None, u'The foo value', u'RIOS Instrument', u'text')
-    (ID(u'mart1'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text')
-    (ID(u'mart1'), u'mycoolfield', u'My Cool Field', None, u'RexMart Calculation', u'text')
-    datadictionary_enumeration: 3
-    (ID(ID(u'foo'), u'col2'), u'bar')
-    (ID(ID(u'foo'), u'col2'), u'baz')
-    (ID(ID(u'foo'), u'col2'), u'foo')
+    datadictionary_column: 8
+    (ID(u'mart1'), u'assessment_uid', u'Assessment UID', u'the UID of the Assessment', None, u'code', None)
+    (ID(u'mart1'), u'foo', None, u'The foo value', u'RIOS Instrument', u'text', None)
+    (ID(u'mart1'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text', None)
+    (ID(u'mart1'), u'mycoolfield', u'My Cool Field', None, u'RexMart Calculation', u'text', None)
+    (ID(u'mart1'), u'subject', None, None, u'RexMart Calculation', u'link', ID(u'subject'))
+    (ID(u'subject'), u'mart1', None, None, None, u'branch', ID(u'mart1'))
+    (ID(u'subject'), u'mobile_tn', u'Title Number 2', None, u'THE SOURCE', u'text', None)
+    (ID(u'subject'), u'uid', None, None, None, u'text', None)
+    datadictionary_enumeration: 0
     datadictionary_table: 2
-    (u'foo', u'Foo Bars', u'CUSTOM FOO DESCRIPTION!')
     (u'mart1', u'RexMart Testcase #1', u'A description for the Instrument')
-    foo: 0
+    (u'subject', None, u'CUSTOM SUBJECT DESCRIPTION!')
     mart1: 8
+    subject: 5
     >>> db_status(mart.name)
     Definition: datadictionary_assessment
     Status: complete
@@ -414,32 +413,34 @@ Definitions can invoke post-processors::
     alltypes: 5
     alltypes_matrix_field: 4
     alltypes_recordlist_field: 7
-    datadictionary_column: 25
-    (ID(u'alltypes'), u'assessment_uid', u'Assessment UID', None, None, u'text')
-    (ID(u'alltypes'), u'boolean_field', None, None, u'RIOS Instrument', u'boolean')
-    (ID(u'alltypes'), u'calc1', None, u'A simple calculation', u'RIOS Calculation Set', u'integer')
-    (ID(u'alltypes'), u'calc2', None, None, u'RIOS Calculation Set', u'text')
-    (ID(u'alltypes'), u'date_field', None, None, u'RIOS Instrument', u'date')
-    (ID(u'alltypes'), u'datetime_field', None, None, u'RIOS Instrument', u'datetime')
-    (ID(u'alltypes'), u'enumeration_field', None, None, u'RIOS Instrument', u'enumeration')
-    (ID(u'alltypes'), u'enumerationset_field_bar', None, u'An enumerated set (bar)', u'RIOS Instrument', u'boolean')
-    (ID(u'alltypes'), u'enumerationset_field_baz', None, u'An enumerated set (baz)', u'RIOS Instrument', u'boolean')
-    (ID(u'alltypes'), u'enumerationset_field_foo', None, u'An enumerated set (foo)', u'RIOS Instrument', u'boolean')
-    (ID(u'alltypes'), u'float_field', None, None, u'RIOS Instrument', u'float')
-    (ID(u'alltypes'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text')
-    (ID(u'alltypes'), u'integer_field', None, None, u'RIOS Instrument', u'integer')
-    (ID(u'alltypes'), u'nullable_field', None, None, u'RIOS Instrument', u'text')
-    (ID(u'alltypes'), u'text_field', None, u'This is a text field!', u'RIOS Instrument', u'text')
-    (ID(u'alltypes'), u'time_field', None, None, u'RIOS Instrument', u'time')
-    (ID(u'alltypes_matrix_field'), u'alltypes', None, None, None, u'link')
-    (ID(u'alltypes_matrix_field'), u'row1_col1', None, u'Just a col1 field', u'RIOS Instrument', u'text')
-    (ID(u'alltypes_matrix_field'), u'row1_col2', None, None, u'RIOS Instrument', u'text')
-    (ID(u'alltypes_matrix_field'), u'row2_col1', None, u'Just a col1 field', u'RIOS Instrument', u'text')
-    (ID(u'alltypes_matrix_field'), u'row2_col2', None, None, u'RIOS Instrument', u'text')
-    (ID(u'alltypes_recordlist_field'), u'alltypes', None, None, None, u'link')
-    (ID(u'alltypes_recordlist_field'), u'record_seq', None, None, None, u'integer')
-    (ID(u'alltypes_recordlist_field'), u'subfield1', None, u'The sub field', u'RIOS Instrument', u'text')
-    (ID(u'alltypes_recordlist_field'), u'subfield2', None, None, u'RIOS Instrument', u'text')
+    datadictionary_column: 27
+    (ID(u'alltypes'), u'alltypes_matrix_field', None, None, None, u'facet', ID(u'alltypes_matrix_field'))
+    (ID(u'alltypes'), u'alltypes_recordlist_field', None, None, None, u'branch', ID(u'alltypes_recordlist_field'))
+    (ID(u'alltypes'), u'assessment_uid', u'Assessment UID', None, None, u'text', None)
+    (ID(u'alltypes'), u'boolean_field', None, None, u'RIOS Instrument', u'boolean', None)
+    (ID(u'alltypes'), u'calc1', None, u'A simple calculation', u'RIOS Calculation Set', u'integer', None)
+    (ID(u'alltypes'), u'calc2', None, None, u'RIOS Calculation Set', u'text', None)
+    (ID(u'alltypes'), u'date_field', None, None, u'RIOS Instrument', u'date', None)
+    (ID(u'alltypes'), u'datetime_field', None, None, u'RIOS Instrument', u'datetime', None)
+    (ID(u'alltypes'), u'enumeration_field', None, None, u'RIOS Instrument', u'enumeration', None)
+    (ID(u'alltypes'), u'enumerationset_field_bar', None, u'An enumerated set (bar)', u'RIOS Instrument', u'boolean', None)
+    (ID(u'alltypes'), u'enumerationset_field_baz', None, u'An enumerated set (baz)', u'RIOS Instrument', u'boolean', None)
+    (ID(u'alltypes'), u'enumerationset_field_foo', None, u'An enumerated set (foo)', u'RIOS Instrument', u'boolean', None)
+    (ID(u'alltypes'), u'float_field', None, None, u'RIOS Instrument', u'float', None)
+    (ID(u'alltypes'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text', None)
+    (ID(u'alltypes'), u'integer_field', None, None, u'RIOS Instrument', u'integer', None)
+    (ID(u'alltypes'), u'nullable_field', None, None, u'RIOS Instrument', u'text', None)
+    (ID(u'alltypes'), u'text_field', None, u'This is a text field!', u'RIOS Instrument', u'text', None)
+    (ID(u'alltypes'), u'time_field', None, None, u'RIOS Instrument', u'time', None)
+    (ID(u'alltypes_matrix_field'), u'alltypes', None, None, None, u'link', ID(u'alltypes'))
+    (ID(u'alltypes_matrix_field'), u'row1_col1', None, u'Just a col1 field', u'RIOS Instrument', u'text', None)
+    (ID(u'alltypes_matrix_field'), u'row1_col2', None, None, u'RIOS Instrument', u'text', None)
+    (ID(u'alltypes_matrix_field'), u'row2_col1', None, u'Just a col1 field', u'RIOS Instrument', u'text', None)
+    (ID(u'alltypes_matrix_field'), u'row2_col2', None, None, u'RIOS Instrument', u'text', None)
+    (ID(u'alltypes_recordlist_field'), u'alltypes', None, None, None, u'link', ID(u'alltypes'))
+    (ID(u'alltypes_recordlist_field'), u'record_seq', None, None, None, u'integer', None)
+    (ID(u'alltypes_recordlist_field'), u'subfield1', None, u'The sub field', u'RIOS Instrument', u'text', None)
+    (ID(u'alltypes_recordlist_field'), u'subfield2', None, None, u'RIOS Instrument', u'text', None)
     datadictionary_enumeration: 3
     (ID(ID(u'alltypes'), u'enumeration_field'), u'bar')
     (ID(ID(u'alltypes'), u'enumeration_field'), u'baz')

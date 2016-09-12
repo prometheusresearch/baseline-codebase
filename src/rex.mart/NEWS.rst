@@ -11,6 +11,9 @@ REX.MART Change Log
 - Fixed issue where quota system would purge good, complete Marts in favor of
   keeping bad, incompete Marts. Now incomplete Marts are ignored from the Quota
   system.
+- The data dictionary column table now has a column that specifies what table
+  a link field is connected to.
+- The data dictionary column table now includes backlink columns child tables.
 
 
 0.3.1 (2016-xx-xx)

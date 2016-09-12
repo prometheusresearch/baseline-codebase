@@ -283,25 +283,32 @@ definitions:
 
   - id: datadictionary_assessment
     description: A mart with an Assessment and a data dictionary
-    deploy: !include simple_deploy.yaml
+    deploy: !include simple_subject.yaml
+    post_deploy_scripts:
+      - script: !include/str subject.htsql
+        type: htsql
     assessments:
       - instrument: mart1
         selector: |
           /assessment{
             id() :as assessment_uid,
+            subject.id() :as subject,
             subject.id() :as 'My Cool Field'
           }.filter(
             instrumentversion.instrument=$INSTRUMENT
           )/:rexdb
+        parental_relationship:
+          type: branch
+          parent: subject
     processors:
       - id: datadictionary
         options:
           table_descriptions: |
             name,title,description
-            foo,,CUSTOM FOO DESCRIPTION!
+            subject,,CUSTOM SUBJECT DESCRIPTION!
           column_descriptions: |
             table,name,title,description,source,datatype
-            foo,col2,Title Number 2,,THE SOURCE
+            subject,mobile_tn,Title Number 2,,THE SOURCE
             mart1,assessment_uid,,the UID of the Assessment,,code
 
   - id: datadictionary_alltypes

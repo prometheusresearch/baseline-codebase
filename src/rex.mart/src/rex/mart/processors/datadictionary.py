@@ -41,6 +41,25 @@ class CsvVal(StrVal):
         return value
 
 
+def get_backlink_type(backlink):
+    identity_fields = backlink.table.identity().fields
+    total = len(identity_fields)
+    links = len([field for field in identity_fields if field.is_link])
+
+    if total == 1:
+        if links == 1:
+            return 'facet'
+        else:
+            return 'link'
+    else:
+        if links == 1:
+            return 'branch'
+        elif total == links:
+            return 'cross'
+        else:
+            return 'ternary'
+
+
 class DataDictionaryProcessor(Processor):
     """
     Creates a set of tables that includes metadata about the tables and
@@ -90,11 +109,13 @@ class DataDictionaryProcessor(Processor):
             table.title = table_model.title
             tables[table.name] = table
 
+            # Get the fields physically on the table.
             for field_model in table_model.fields():
                 column = Column(field_model.label)
                 column.title = field_model.title
                 if field_model.is_link:
                     column.datatype = 'link'
+                    column.link = field_model.target_table.label
                 else:
                     datatype = field_model.type
                     if isinstance(datatype, list):
@@ -102,6 +123,14 @@ class DataDictionaryProcessor(Processor):
                         column.enumerations = datatype
                     else:
                         column.datatype = datatype
+                table.columns[column.name] = column
+
+            # Get the pseudofields of child tables.
+            for backlink_model in table_model.backlinks():
+                column = Column(backlink_model.backlink_label())
+                column.title = backlink_model.title
+                column.link = backlink_model.table.label
+                column.datatype = get_backlink_type(backlink_model)
                 table.columns[column.name] = column
 
         # Extract information out of the Instrument definitions
@@ -144,9 +173,11 @@ class DataDictionaryProcessor(Processor):
 
         # Load the dictionary into the Mart
         facts = self.get_base_facts(options)
+        column_facts = []
         for table in tables.values():
-            facts += table.get_deploy_facts(options)
-        interface.deploy_facts(facts)
+            facts += table.get_table_deploy_facts(options)
+            column_facts += table.get_column_deploy_facts(options)
+        interface.deploy_facts(facts + column_facts)
 
     def do_table_overrides(self, tables, table_descriptions):
         if not table_descriptions:
@@ -257,6 +288,12 @@ class DataDictionaryProcessor(Processor):
             'type': 'text',
             'required': False,
         })
+        facts.append({
+            'link': 'link',
+            'to': options['table_name_tables'],
+            'of': options['table_name_columns'],
+            'required': False,
+        })
 
         # Enumeration table
         facts.append({
@@ -289,13 +326,14 @@ class Table(object):
         self.description = description
         self.columns = dict()
 
-    def get_deploy_facts(self, options):
-        facts = []
-
-        facts.append({
+    def get_table_deploy_facts(self, options):
+        return [{
             'data': [self.as_dict()],
             'of': options['table_name_tables'],
-        })
+        }]
+
+    def get_column_deploy_facts(self, options):
+        facts = []
 
         for column in self.columns.values():
             facts += column.get_deploy_facts(self.name, options)
@@ -317,13 +355,15 @@ class Column(object):
             title=None,
             description=None,
             source=None,
-            datatype=None):
+            datatype=None,
+            link=None):
         self.name = name
         self.title = title
         self.description = description
         self.source = source
         self.datatype = datatype
         self.enumerations = []
+        self.link = None
 
     def get_deploy_facts(self, table_name, options):
         facts = []
@@ -358,5 +398,6 @@ class Column(object):
             'description': self.description,
             'source': self.source,
             'datatype': self.datatype,
+            'link': self.link,
         }
 

@@ -3,6 +3,7 @@
 #
 
 
+from .analyze import *
 from .base import *
 from .datadictionary import *
 from .index import *

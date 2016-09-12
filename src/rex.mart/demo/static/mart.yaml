@@ -342,6 +342,12 @@ definitions:
               columns: (upper(col1))
               partial: col2 = 'foo'
 
+  - id: analyze_processor
+    description: A mart with an empty table that uses the analyze processor
+    deploy: !include simple_deploy.yaml
+    processors:
+      - id: analyze
+
   - id: enum_values
     description: Load Assessments that have enumeration/enumerationSet values with atypical enumeration choices
     assessments:

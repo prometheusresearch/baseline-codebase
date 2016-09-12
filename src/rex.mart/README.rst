@@ -730,6 +730,12 @@ Please note that the table and column names that are specified in these index
 definitions must be the actual names of the objects in the PostgreSQL database,
 rather than the HTSQL-imposed labels that they may have.
 
+analyze
+-------
+The ``analyze`` Processor will invoke the PostgreSQL ANALYZE operation to
+collect statistics about the contents of tables in the Mart. This will help
+PostgreSQL execute more efficient queries in databases with lots of data.
+
 
 Known Issues
 ============

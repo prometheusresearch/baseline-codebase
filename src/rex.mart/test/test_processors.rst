@@ -57,6 +57,6 @@ optionally a default value::
     >>> rex = Rex('__main__', 'rex.mart_demo')
     >>> rex.on()
     >>> sorted([repr(proc) for proc in Processor.all()])
-    ['__main__.MyProcessor', 'rex.mart.processors.datadictionary.DataDictionaryProcessor', 'rex.mart.processors.index.IndexProcessor', 'rex.mart_demo.MyProcessor', 'rex.mart_demo.OtherProcessor']
+    ['__main__.MyProcessor', 'rex.mart.processors.analyze.AnalyzeProcessor', 'rex.mart.processors.datadictionary.DataDictionaryProcessor', 'rex.mart.processors.index.IndexProcessor', 'rex.mart_demo.MyProcessor', 'rex.mart_demo.OtherProcessor']
     >>> rex.off()
 

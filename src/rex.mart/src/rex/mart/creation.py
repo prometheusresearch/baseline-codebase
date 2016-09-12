@@ -570,6 +570,17 @@ class ProcessorInterface(object):
         self._creator.connect_mart()
         return self._creator.database
 
+    def get_deploy_driver(self):
+        """
+        Retrieves a rex.deploy Driver for the Mart database.
+
+        :rtype: rex.deploy.fact.Driver
+        """
+
+        cluster = get_hosting_cluster()
+        driver = cluster.drive(self._creator.name)
+        return driver
+
     def get_deploy_model(self):
         """
         Retrieves a rex.deploy Model for the Mart database.
@@ -577,8 +588,7 @@ class ProcessorInterface(object):
         :rtype: rex.deploy.image.ModelSchema
         """
 
-        cluster = get_hosting_cluster()
-        driver = cluster.drive(self._creator.name)
+        driver = self.get_deploy_driver()
         model = deploy_model(driver)
         driver.close()
         return model

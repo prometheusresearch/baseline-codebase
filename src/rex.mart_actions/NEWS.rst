@@ -5,6 +5,12 @@ REX.MART_ACTIONS Change Log
 .. contents:: Table of Contents
 
 
+0.4.0 (2016-xx-xx)
+==================
+
+* Now displays column link information in data dictionary screens.
+
+
 0.3.0 (2016-08-12)
 ==================
 

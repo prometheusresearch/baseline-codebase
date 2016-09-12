@@ -170,6 +170,8 @@ class DictionaryPickTableColumnMartAction(DictionaryPickMartAction):
               label: Description
             - value_key: source
               label: Source
+            - value_key: link
+              label: Linked Table
             """)
         if not self.search:
             self.search = 'name~$search|ft_matches(title, $search)' \
@@ -224,6 +226,8 @@ class DictionaryPickColumnMartAction(DictionaryPickMartAction):
               label: Description
             - value_key: source
               label: Source
+            - value_key: link
+              label: Linked Table
             """)
         if not self.search:
             self.search = 'name~$search|ft_matches(title, $search)' \
@@ -292,6 +296,8 @@ class DictionaryViewColumnMartAction(DictionaryPickColumnMartAction):
               label: Name
             - value_key: datatype
               label: Data Type
+            - value_key: link
+              label: Linked Table
             - value_key: title
               label: Title
             - value_key: description

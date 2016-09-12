@@ -1,0 +1,203 @@
+#
+# A simple Mart exploration path, where the opening is just a list of Marts
+# to choose from.
+#
+
+type: wizard
+
+path:
+  - choose-mart:
+    - view-mart:
+      - replace: ../../choose-mart
+    - guide-schools-intro:
+      - repeat:
+          - guide-schools-filter-by-campus:
+          - guide-schools-filter-by-name:
+          - guide-schools-columns:
+        then:
+          - guide-schools-export:
+    - guide-courses-intro:
+      - repeat:
+          - guide-courses-filter:
+          - guide-courses-columns:
+        then:
+          - guide-courses-export:
+          - console:
+    - console:
+    - dictionary:
+      - dictionary-browse-by-table:
+        - dictionary-browse-table-columns:
+          - dictionary-view-column:
+          - dictionary-browse-column-enumerations:
+        - dictionary-view-table:
+      - dictionary-browse-by-column:
+        - dictionary-view-column:
+        - dictionary-browse-column-enumerations:
+
+actions:
+  #
+  # Navigation Actions
+  #
+
+  choose-mart:
+    type: mart-pick
+    title: Choose a Mart
+
+  view-mart:
+    type: mart-details
+    title: Mart Details
+
+
+  #
+  # HTSQL Tool
+  #
+
+  console:
+    type: mart-htsql-console
+    title: HTSQL Console
+
+
+  #
+  # Data Dictionary Tool
+  #
+
+  dictionary:
+    type: mart-dictionary
+
+  dictionary-browse-by-table:
+    type: mart-dictionary-tables
+    title: Browse Tables
+
+  dictionary-browse-table-columns:
+    type: mart-dictionary-table-columns
+    title: Table Columns
+
+  dictionary-browse-by-column:
+    type: mart-dictionary-columns
+    title: Browse Columns
+
+  dictionary-view-table:
+    type: mart-dictionary-table-details
+    title: Table Details
+
+  dictionary-view-column:
+    type: mart-dictionary-column-details
+    title: Column Details
+
+  dictionary-browse-column-enumerations:
+    type: mart-dictionary-enumerations
+    title: Column Enumerations
+
+
+  #
+  # Guide: Schools
+  #
+
+  guide-schools-intro:
+    type: mart-guide
+    text: Explore schools and their campuses.
+    title: School Guide
+    definition: schools
+
+  guide-schools-filter-by-campus:
+    type: mart-guide-filter
+    title: Filter by campus
+
+    definition: schools
+    table: school
+
+    filters:
+    - title: Name
+      expression: name
+    - title: South Campus
+      expression: campus='south'
+    - title: Old Campus
+      expression: campus='old'
+    - title: Degree
+      expression: degree
+    - title: Date Opened
+      expression: date_opened
+
+  guide-schools-filter-by-name:
+    type: mart-guide-filter
+    title: Filter by name
+
+    definition: schools
+    table: school
+
+    filters:
+    - title: Name
+      expression: name
+    - title: Code
+      expression: code
+
+  guide-schools-columns:
+    type: mart-guide-columns
+    title: Choose columns
+
+    definition: schools
+    table: school
+
+  guide-schools-export:
+    type: mart-guide-export
+
+    definition: schools
+    table: school
+
+    fields:
+      - title: Capital Name
+        expression: upper(name)
+
+
+  #
+  # Guide: Courses
+  #
+
+  guide-courses-intro:
+    type: mart-guide
+    text: Explore the available courses.
+    title: Course Guide
+    definition: schools_with_dict
+
+  guide-courses-filter:
+    type: mart-guide-filter
+    title: Filter stuff
+
+    definition: schools_with_dict
+    table: course
+
+    filters:
+      - title: Title
+        expression: title
+      - title: Full Credit
+        expression: credits >= 3
+      - title: Course Number
+        expression: no
+
+  guide-courses-columns:
+    type: mart-guide-columns
+    title: Choose columns
+
+    definition: schools_with_dict
+    table: course
+
+    fields:
+      - title: Department Name
+        expression: department_code.name
+      - department_code.code
+      - title: Degree
+        expression: department_code.school_code.degree
+
+  guide-courses-export:
+    type: mart-guide-export
+
+    definition: schools_with_dict
+    table: course
+
+    fields:
+      - title: Campus
+        expression: department_code.school_code.campus
+      - title: Departments
+        expression: /department_code.school_code.department
+
+

@@ -1,0 +1,23 @@
+#
+# A slightly more organized exploration path where the user first chooses a
+# definition type, then are shown Marts of that definition to choose from.
+#
+
+type: wizard
+
+path:
+  - choose-definition:
+    - choose-mart:
+    - view-definition:
+
+actions:
+  choose-definition:
+    type: mart-definition-pick
+    title: Choose a Type of Mart to Explore
+
+  view-definition:
+    type: mart-definition-details
+    title: Definition Details
+
+  choose-mart: !include rex.mart_actions_demo:/resources/simple.yaml
+

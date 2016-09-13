@@ -17,7 +17,7 @@ REX.MART Change Log
 - The data dictionary will now classify both int4 and int8 fields as "integer".
 
 
-0.3.1 (2016-xx-xx)
+0.3.1 (2016-08-30)
 ==================
 
 - Fixed crash during creation when the system hosting the marts is different

@@ -112,4 +112,47 @@ Sorting::
     ...         ["navigate", "dob"]])   # doctest: +ELLIPSIS
     <Product ({'1093', '2009-03-03'}, {'1018', '2008-08-08'}, ...>
 
+Type conversion::
+
+    >>> db.produce(["+", ["date", "2016-09-13"], 10])
+    <Product '2016-09-23'>
+
+Aggregates::
+
+    >>> db.produce(
+    ...     ["select",
+    ...         ["filter",
+    ...             ["define",
+    ...                 ["navigate", "study"],
+    ...                 ["=>", "individual", [".", ["protocol"], ["participation"], ["individual"]]],
+    ...                 ["=>", "dob", [".", ["individual"], ["identity"], ["birthdate"]]]],
+    ...             ["exists", ["individual"]]],
+    ...         ["code"],
+    ...         ["count", ["individual"]],
+    ...         ["min", ["dob"]]])
+    <Product ({'fos', 97, '1941-02-02'},)>
+
+Grouping::
+
+    >>> db.produce(["group", ["individual"], ["sex"]])
+    <Product ({'male'}, {'female'})>
+
+Grouping and complement::
+
+    >>> db.produce(
+    ...     ["select",
+    ...         ["group", ["individual"], ["sex"]],
+    ...         ["sex"],
+    ...         ["individual"]])    # doctest: +ELLIPSIS
+    <Product ({'male', ({'1001', 'male', null, null}, ...)}, {'female', ({'1000', 'female', null, null}, ...)})>
+
+Grouping and aggregates::
+
+    >>> db.produce(
+    ...     ["select",
+    ...         ["group", ["individual"], ["sex"]],
+    ...         ["sex"],
+    ...         ["count", ["individual"]],
+    ...         ["max", [".", ["individual"], ["identity"], ["birthdate"]]]])
+    <Product ({'male', 57, '2009-03-03'}, {'female', 41, '2007-01-03'})>
 

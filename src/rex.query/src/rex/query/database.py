@@ -3,11 +3,18 @@
 #
 
 
+from webob import Response
+from webob.exc import HTTPMethodNotAllowed, HTTPBadRequest
+from rex.core import Error
 from rex.db import get_db
 from .query import QueryVal
 from .bind import RexBindingState
 from htsql import HTSQL
+from htsql.core.cmd.act import produce
+from htsql.core.fmt.accept import accept
+from htsql.core.fmt.emit import emit, emit_headers
 from htsql.core.tr.translate import translate
+import json
 
 
 class Database(object):
@@ -33,4 +40,27 @@ class Database(object):
         with self.db:
             return pipe()(None)
 
+    def describe(self, query):
+        query = self.parse(query)
+        pipe = self.translate(query)
+        return Product(pipe.meta, None)
+
+    def __call__(self, req):
+        if req.method != 'POST':
+            raise HTTPMethodNotAllowed()
+        try:
+            data = json.loads(req.body)
+        except ValueError, exc:
+            raise HTTPBadRequest(str(exc))
+        try:
+            query = self.parse(data)
+        except Error, exc:
+            raise HTTPBadRequest(str(exc))
+        with self.db:
+            pipe = self.translate(query)
+            product = pipe()(None)
+            format = query.format or accept(req.environ)
+            headerlist = emit_headers(format, product)
+            app_iter = list(emit(format, product))
+            return Response(headerlist=headerlist, app_iter=app_iter)
 

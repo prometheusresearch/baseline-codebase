@@ -156,3 +156,26 @@ Grouping and aggregates::
     ...         ["max", [".", ["individual"], ["identity"], ["birthdate"]]]])
     <Product ({'male', 57, '2009-03-03'}, {'female', 41, '2007-01-03'})>
 
+
+Handling HTTP Requests
+======================
+
+Queries could be submitted in an HTTP request::
+
+    >>> from webob import Request
+
+    >>> req = Request.blank("/", POST='{"syntax": ["study"], "format": "x-htsql/json"}')
+    >>> print db(req)       # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    200 OK
+    ...
+    {
+      "study": [
+        {
+          "code": "asdl",
+          "title": "Autism Spectrum Disorder Lab",
+          "closed": true
+        },
+        ...
+      ]
+    }
+

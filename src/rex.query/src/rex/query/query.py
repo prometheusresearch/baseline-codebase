@@ -5,7 +5,7 @@
 
 from rex.core import (
         Error, guard, Validate, OnMap, OnSeq, OnField, UnionVal, RecordVal,
-        MaybeVal, UIntVal, UStrVal)
+        MaybeVal, UIntVal, UStrVal, StrVal)
 import decimal
 import datetime
 
@@ -183,7 +183,7 @@ class QueryVal(Validate):
                 ('syntax', validate_syntax),
                 ('limit', MaybeVal(UIntVal), None),
                 ('offset', MaybeVal(UIntVal), None),
-                ('format', MaybeVal(UStrVal), None))),
+                ('format', MaybeVal(StrVal), None))),
             validate_syntax)
 
     def __call__(self, data):

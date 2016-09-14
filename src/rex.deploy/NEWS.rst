@@ -5,10 +5,11 @@
 .. contents:: Table of Contents
 
 
-2.8.0 (2016-XX-XX)
+2.8.0 (2016-09-14)
 ==================
 
 * Added option ``rex deploy --analyze``.
+* Allow ``Jinja2==2.8.0``.
 
 
 2.7.0 (2016-08-11)

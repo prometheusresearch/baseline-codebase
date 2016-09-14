@@ -9,6 +9,7 @@ from rex.core import Error
 from rex.db import get_db
 from .query import QueryVal
 from .bind import RexBindingState
+from .catalog import produce_catalog
 from htsql import HTSQL
 from htsql.core.cmd.act import produce
 from htsql.core.fmt.accept import accept
@@ -36,14 +37,19 @@ class Database(object):
 
     def produce(self, query):
         query = self.parse(query)
-        pipe = self.translate(query)
         with self.db:
+            if query.is_catalog():
+                return produce_catalog()
+            pipe = self.translate(query)
             return pipe()(None)
 
     def describe(self, query):
         query = self.parse(query)
-        pipe = self.translate(query)
-        return Product(pipe.meta, None)
+        with self.db:
+            if query.is_catalog():
+                return produce_catalog()
+            pipe = self.translate(query)
+            return Product(pipe.meta, None)
 
     def __call__(self, req):
         if req.method != 'POST':
@@ -57,8 +63,11 @@ class Database(object):
         except Error, exc:
             raise HTTPBadRequest(str(exc))
         with self.db:
-            pipe = self.translate(query)
-            product = pipe()(None)
+            if query.is_catalog():
+                product = produce_catalog()
+            else:
+                pipe = self.translate(query)
+                product = pipe()(None)
             format = query.format or accept(req.environ)
             headerlist = emit_headers(format, product)
             app_iter = list(emit(format, product))

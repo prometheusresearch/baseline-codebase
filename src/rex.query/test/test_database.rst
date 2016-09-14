@@ -179,3 +179,50 @@ Queries could be submitted in an HTTP request::
       ]
     }
 
+
+Metadata
+========
+
+To get the structure of the database, we use the ``catalog`` command::
+
+    >>> req = Request.blank("/", POST='["catalog"]')
+    >>> print db(req)       # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    200 OK
+    ...
+     | entity                                                                                                                                                                                                    |
+     +---------------+---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+
+     |               |               | field                                                                                                                                                        |            |
+     |               |               +-----------------------+-----------------------+--------+---------+--------+---------------+--------------------------+---------------------------------------+            |
+     |               |               |                       |                       |        |         |        |               | column                   | link                                  |            |
+     |               |               |                       |                       |        |         |        |               +---------+----------------+---------------+-----------------------+            |
+     | name          | label         | label                 | title                 | public | partial | plural | kind          | type    | enum           | target        | inverse               | identity   |
+    -+---------------+---------------+-----------------------+-----------------------+--------+---------+--------+---------------+---------+----------------+---------------+-----------------------+------------+-
+     | identity      | Identity      | individual            | Individual            | true   | false   | false  | direct-link   |         :                | individual    | identity              | individual |
+     :               :               | givenname             | Givenname             | true   | true    | false  | column        | text    |                :               :                       :            :
+     :               :               | surname               | Surname               | true   | true    | false  | column        | text    |                :               :                       :            :
+     :               :               | birthdate             | Birthdate             | true   | true    | false  | column        | date    |                :               :                       :            :
+     :               :               | fullname              | Fullname              | false  | true    | true   | calculation   |         :                :               :                       :            :
+     | individual    | Subject       | code                  | Code                  | true   | false   | false  | column        | text    |                :               :                       | code       |
+     :               :               | sex                   | Sex                   | true   | false   | false  | column        | enum    | not-known      |               :                       :            :
+     :               :               :                       :                       :        :         :        :               :         | male           |               :                       :            :
+     :               :               :                       :                       :        :         :        :               :         | female         |               :                       :            :
+     :               :               :                       :                       :        :         :        :               :         | not-applicable |               :                       :            :
+     :               :               | mother                | Mother                | true   | true    | false  | direct-link   |         :                | individual    | individual_via_mother |            :
+     :               :               | father                | Father                | true   | true    | false  | direct-link   |         :                | individual    | individual_via_father |            :
+     :               :               | identity              | Identity              | false  | true    | false  | indirect-link |         :                | identity      | individual            |            :
+     :               :               | individual_via_mother | Individual Via Mother | false  | true    | true   | indirect-link |         :                | individual    | mother                |            :
+     :               :               | individual_via_father | Individual Via Father | false  | true    | true   | indirect-link |         :                | individual    | father                |            :
+     :               :               | participation         | Participation         | false  | true    | true   | indirect-link |         :                | participation | individual            |            :
+     | participation | Participation | individual            | Individual            | true   | false   | false  | direct-link   |         :                | individual    | participation         | individual |
+     :               :               | protocol              | Protocol              | true   | false   | false  | direct-link   |         :                | protocol      | participation         | protocol   |
+     :               :               | code                  | Code                  | true   | false   | false  | column        | text    |                :               :                       | code       |
+     | protocol      | Protocol      | study                 | Study                 | true   | false   | false  | direct-link   |         :                | study         | protocol              | study      |
+     :               :               | code                  | Code                  | true   | false   | false  | column        | text    |                :               :                       | code       |
+     :               :               | title                 | Title                 | true   | false   | false  | column        | text    |                :               :                       :            :
+     :               :               | participation         | Participation         | false  | true    | true   | indirect-link |         :                | participation | protocol              |            :
+     | study         | Study         | code                  | Code                  | true   | false   | false  | column        | text    |                :               :                       | code       |
+     :               :               | title                 | Title                 | true   | true    | false  | column        | text    |                :               :                       :            :
+     :               :               | closed                | Closed                | true   | false   | false  | column        | boolean |                :               :                       :            :
+     :               :               | protocol              | Protocol              | false  | true    | true   | indirect-link |         :                | protocol      | study                 |            :
+
+

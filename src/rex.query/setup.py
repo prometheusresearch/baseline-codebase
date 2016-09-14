@@ -21,6 +21,7 @@ setup(
     install_requires=[
         'rex.core >=1.13, <2',
         'rex.db >=3.5, <4',
+        'rex.deploy >=2.8, <3',
     ],
     rex_init='rex.query',
 )

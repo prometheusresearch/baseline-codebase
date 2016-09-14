@@ -60,6 +60,17 @@ class ApplySyntax(Syntax):
     def __str__(self):
         return unicode(self).encode('utf-8', 'replace')
 
+    def __hash__(self):
+        return hash((self.op, tuple(self.args)))
+
+    def __eq__(self, other):
+        return (type(self) == type(other) and
+                self.op == other.op and
+                self.args == other.args)
+
+    def __ne__(self, other):
+        return not (self == other)
+
 
 class LiteralSyntax(Syntax):
 
@@ -88,6 +99,17 @@ class LiteralSyntax(Syntax):
     def __str__(self):
         return unicode(self).encode('utf-8', 'replace')
 
+    def __hash__(self):
+        return hash(self.val)
+
+    def __eq__(self, other):
+        return (type(self) == type(other) and
+                type(self.val) == type(other.val) and
+                self.val == other.val)
+
+    def __ne__(self, other):
+        return not (self == other)
+
 
 class Query(object):
 
@@ -96,6 +118,9 @@ class Query(object):
         self.limit = limit
         self.offset = offset
         self.format = format
+
+    def is_catalog(self):
+        return self.syntax == QueryVal.catalog_syntax
 
     def __repr__(self):
         args = ["%r" % self.syntax]
@@ -185,6 +210,8 @@ class QueryVal(Validate):
                 ('offset', MaybeVal(UIntVal), None),
                 ('format', MaybeVal(StrVal), None))),
             validate_syntax)
+
+    catalog_syntax = validate_syntax(['catalog'])
 
     def __call__(self, data):
         if isinstance(data, Query):

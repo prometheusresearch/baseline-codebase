@@ -12,6 +12,7 @@
   - data: ./deploy/study.csv
 
 - table: individual
+  title: Subject
   with:
   - column: code
     type: text
@@ -39,6 +40,8 @@
   - column: birthdate
     type: date
     required: false
+  - alias: fullname
+    expression: (givenname + ' ' + surname)
   - data: ./deploy/identity.csv
 
 - table: protocol

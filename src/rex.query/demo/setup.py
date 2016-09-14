@@ -37,7 +37,6 @@ setup(
     install_requires=[
         'rex.query',
         'rex.ctl',
-        'rex.deploy',
     ],
     cmdclass={'demo': demo},
     rex_static='static',

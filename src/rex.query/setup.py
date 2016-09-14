@@ -22,8 +22,10 @@ setup(
         'rex.core >=1.13, <2',
         'rex.db >=3.5, <4',
         'rex.deploy >=2.8, <3',
+        'rex.web >=3.7, <4',
     ],
     rex_init='rex.query',
+    rex_static='static',
 )
 
 

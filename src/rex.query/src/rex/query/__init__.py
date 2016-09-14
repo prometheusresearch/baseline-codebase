@@ -10,5 +10,6 @@ This package implements compositional database query interface.
 
 from .query import Syntax, LiteralSyntax, ApplySyntax, Query, QueryVal
 from .database import Database
+from .handle import HandleQueryLocation
 
 

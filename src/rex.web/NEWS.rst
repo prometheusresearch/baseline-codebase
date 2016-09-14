@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-3.7.2 (2016-XX-XX)
+3.7.2 (2016-09-14)
 ==================
 
 * Allow ``Jinja2==2.8.0``.

@@ -32,7 +32,7 @@ class demo(Command):
 
 setup(
     name='rex.query_demo',
-    version = "1.0.0",
+    version = "0.1.0",
     description="Demo package for testing rex.query",
     install_requires=[
         'rex.query',

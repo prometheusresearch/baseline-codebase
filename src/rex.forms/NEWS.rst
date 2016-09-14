@@ -5,7 +5,7 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
-2.1.0 (2016-xx-xx)
+2.1.0 (2016-09-14)
 ==================
 
 * Fixed issue with the form not auto-focusing the next field when a hotkey is

@@ -5,7 +5,7 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
-5.8.1 (2016-xx-xx)
+5.8.1 (2016-09-14)
 ==================
 
 * Fixed the error messages that display when the application encounters a

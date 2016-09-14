@@ -108,6 +108,9 @@ class WizardProxy(object):
         schema = get_schema()
         for table in schema.tables():
             identity = table.identity().fields
+            # ignore all non-rex.deploy tables
+            if not identity or any([f is None for f in identity]):
+                continue
             if len(identity) == 1 \
             and identity[0].is_link \
             and identity[0].target_table.label == table_name:

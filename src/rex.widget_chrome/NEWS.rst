@@ -2,8 +2,13 @@
   Change Log
 **************
 
+1.2.2 (2016-09-14)
+==================
 
-1.2.1 (2016-xx-xx)
+* [FIX] Support for external links in rex.menu
+* [FIX] Bring back header_primary_color and header_secondary_color settings.
+
+1.2.1 (2016-08-12)
 ==================
 
 * Fixed precendence issue with signup middleware.

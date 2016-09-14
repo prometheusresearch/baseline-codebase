@@ -4,6 +4,13 @@
 
 .. contents:: Table of Contents
 
+1.4.0 (2016-09-14)
+==================
+
+* [FEATURE] State expressions.
+* [FIX] Cache result during refetch.
+* [FIX] Disable non POST requests for refetch.
+
 1.3.0 (2016-08-12)
 ==================
 

@@ -5,7 +5,7 @@ REX.ACQUIRE_ACTIONS Change Log
 .. contents:: Table of Contents
 
 
-0.2.0 (2016-xx-xx)
+0.2.0 (2016-09-14)
 ==================
 
 * Added the ``task-enter-data`` action to replace the legacy RexEntry

@@ -2,6 +2,12 @@
   Change Log
 **************
 
+2.9.0 (2016-09-14)
+==================
+
+* [FEATURE] Remove slots (deprecated long ago)
+* [FIX] Better inferrences for form fields withing list formfields
+
 2.8.0 (2016-08-12)
 ==================
 

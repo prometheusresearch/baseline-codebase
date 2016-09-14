@@ -4,10 +4,12 @@
 
 .. contents:: Table of Contents
 
-1.13.1 (2016-XX-XX)
+
+1.13.1 (2016-09-14)
 ===================
 
 * Fixed ``!include`` to correctly track dependencies.
+
 
 1.13.0 (2016-07-13)
 ===================

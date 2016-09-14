@@ -13,6 +13,7 @@ from rex.widget import (
     Field, URLVal, computed_field, WidgetComposition
 )
 from rex.menu import get_menu
+from rex.menu.menu import ExternalMenu
 from .url import is_external
 
 class Chrome(BaseChrome):
@@ -55,6 +56,10 @@ class Chrome(BaseChrome):
                 title = item2.title or 'Untitled'
                 url = handler.path
                 permitted = True
+            elif isinstance(handler, ExternalMenu):
+                title = item2.title or 'Untitled'
+                url = handler.value
+                permitted = True
             else:
                 title = item2.title or title_from_handler(handler) or 'Untitled'
                 package_name = get_packages()[0].name
@@ -67,7 +72,7 @@ class Chrome(BaseChrome):
             'title': title,
             'url': url,
             'permitted': permitted,
-            'new_window': False,
+            'new_window': item2.new_window if hasattr(item2, 'new_window') else False
         }
 
     @computed_field

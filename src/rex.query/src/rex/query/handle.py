@@ -17,6 +17,11 @@ class HandleQueryLocation(HandleLocation):
             raise HTTPUnauthorized()
         db = Database()
         with confine(req, self):
-            return db(req)
+            resp = db(req)
+            # TODO: Need to decide on that before 1.0.0
+            enable_cors(resp)
+            return resp
 
-
+def enable_cors(resp):
+    resp.headers['Access-Control-Allow-Origin'] =  '*'
+    resp.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'

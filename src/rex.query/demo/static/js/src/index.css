@@ -1,0 +1,13 @@
+* {
+  font-family: -apple-system, "Helvetica Neue", "Lucida Grande";
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+html, body, #root {
+  height: 100%;
+}

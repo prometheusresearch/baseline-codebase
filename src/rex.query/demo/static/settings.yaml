@@ -2,4 +2,6 @@
 db: pgsql:query_demo
 htsql_extensions:
     rex_deploy:
+access:
+    rex.query: anybody
 

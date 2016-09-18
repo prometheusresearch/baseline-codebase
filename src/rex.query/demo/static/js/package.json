@@ -5,7 +5,7 @@
   "devDependencies": {
     "flow-bin": "^0.32.0",
     "react-dom-stylesheet": "^0.8.4",
-    "react-scripts": "^0.4.1",
+    "react-scripts": "^0.4.2",
     "react-virtualized": "^7.24.3"
   },
   "dependencies": {

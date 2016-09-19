@@ -156,37 +156,37 @@ class QueryButton extends React.Component<*, QueryButtonProps, *> {
 
   onRemove = (e) => {
     e.stopPropagation();
-    let {pointer, onQuery} = this.props;
-    let {query} = qo.removeAt(pointer);
-    onQuery(query);
+    let {pointer, selected, onQuery} = this.props;
+    let {query, selected: nextSelected} = qo.removeAt(pointer, selected);
+    onQuery(query, nextSelected);
   };
 
   onAddFilter = (e) => {
     e.stopPropagation();
-    let {pointer, onQuery} = this.props;
-    let {query, selected} = qo.insertAfter(pointer, q.filter(q.navigate('true')));
-    onQuery(query, selected);
+    let {pointer, selected, onQuery} = this.props;
+    let {query, selected: nextSelected} = qo.insertAfter(pointer, selected, q.filter(q.navigate('true')));
+    onQuery(query, nextSelected);
   };
 
   onAddNavigate = (e) => {
     e.stopPropagation();
-    let {pointer, onQuery} = this.props;
-    let {query, selected} = qo.insertAfter(pointer, q.navigate('code'));
-    onQuery(query, selected);
+    let {pointer, selected, onQuery} = this.props;
+    let {query, selected: nextSelected} = qo.insertAfter(pointer, selected, q.navigate('code'));
+    onQuery(query, nextSelected);
   };
 
   onAddAggregate = (e) => {
     e.stopPropagation();
-    let {pointer, onQuery} = this.props;
-    let {query, selected} = qo.insertAfter(pointer, q.aggregate('count'));
-    onQuery(query, selected);
+    let {pointer, onQuery, selected} = this.props;
+    let {query, selected: nextSelected} = qo.insertAfter(pointer, selected, q.aggregate('count'));
+    onQuery(query, nextSelected);
   };
 
   onAddDefine = (e) => {
     e.stopPropagation();
-    let {pointer, onQuery} = this.props;
-    let {query, selected} = qo.insertAfter(pointer, q.def('name', q.navigate('code')));
-    onQuery(query, selected);
+    let {pointer, onQuery, selected} = this.props;
+    let {query, selected: nextSelected} = qo.insertAfter(pointer, selected, q.def('name', q.navigate('code')));
+    onQuery(query, nextSelected);
   };
 
   toggleActive = (e) => {
@@ -588,30 +588,30 @@ export class QueryVis extends React.Component<*, QueryVisProps<*>, *> {
 
   onAddNavigate = (e: UIEvent) => {
     e.stopPropagation();
-    let {pointer, onQuery} = this.props;
-    let {query, selected} = qo.insertAfter(pointer, q.navigate('code'));
-    onQuery(query, selected);
+    let {pointer, selected, onQuery} = this.props;
+    let {query, selected: nextSelected} = qo.insertAfter(pointer, selected, q.navigate('code'));
+    onQuery(query, nextSelected);
   };
 
   onAddDefine = (e: UIEvent) => {
     e.stopPropagation();
-    let {pointer, onQuery} = this.props;
-    let {query, selected} = qo.insertAfter(pointer, q.def('name', q.navigate('code')));
-    onQuery(query, selected);
+    let {pointer, selected, onQuery} = this.props;
+    let {query, selected: nextSelected} = qo.insertAfter(pointer, selected, q.def('name', q.navigate('code')));
+    onQuery(query, nextSelected);
   };
 
   onAddFilter = (e: UIEvent) => {
     e.stopPropagation();
-    let {pointer, onQuery} = this.props;
-    let {query, selected} = qo.insertAfter(pointer, q.filter(q.navigate('true')));
-    onQuery(query, selected);
+    let {pointer, selected, onQuery} = this.props;
+    let {query, selected: nextSelected} = qo.insertAfter(pointer, selected, q.filter(q.navigate('true')));
+    onQuery(query, nextSelected);
   };
 
   onAddAggregate = (e: UIEvent) => {
     e.stopPropagation();
-    let {pointer, onQuery} = this.props;
-    let {query, selected} = qo.insertAfter(pointer, q.aggregate('count'));
-    onQuery(query, selected);
+    let {pointer, selected, onQuery} = this.props;
+    let {query, selected: nextSelected} = qo.insertAfter(pointer, selected, q.aggregate('count'));
+    onQuery(query, nextSelected);
   };
 
 }

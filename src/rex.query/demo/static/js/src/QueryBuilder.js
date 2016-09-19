@@ -146,7 +146,7 @@ function selectAll(query: Query) {
           fields[k] = q.navigate(k);
         }
       }
-      query = qo.insertAfter(qp.make(query), q.select(fields)).query;
+      query = qo.insertAfter(qp.make(query), null, q.select(fields)).query;
     }
   }
   return query;

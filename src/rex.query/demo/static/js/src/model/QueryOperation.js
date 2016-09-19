@@ -17,7 +17,8 @@ type Transform
 
 export type QueryOperation = (
   // point at which operation should be performed
-  pointer: QueryPointer<>
+  pointer: QueryPointer<>,
+  selected: ?QueryPointer<>
 ) => {query: ?Query, selected: ?QueryPointer<>};
 
 export let noop: QueryOperation = (pointer) => {
@@ -25,7 +26,7 @@ export let noop: QueryOperation = (pointer) => {
   return {query, selected: null};
 };
 
-export let removeAt: QueryOperation = (pointer) => {
+export let removeAt: QueryOperation = (pointer, selected) => {
   if (pointer.prev == null) {
     return {query: null, selected: null};
   }
@@ -33,7 +34,7 @@ export let removeAt: QueryOperation = (pointer) => {
   return {query, selected: null};
 }
 
-export let insertAfter = (pointer: QueryPointer<>, query: Query) => {
+export let insertAfter = (pointer: QueryPointer<>, selected: ?QueryPointer<>, query: Query) => {
   let nextQuery;
   let nextSelected;
 

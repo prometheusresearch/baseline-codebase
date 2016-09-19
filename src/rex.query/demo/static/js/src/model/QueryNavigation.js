@@ -2,7 +2,6 @@
  * @flow
  */
 
-import invariant from 'invariant';
 import * as q from './Query';
 
 type Navigate = {
@@ -19,6 +18,7 @@ type Column = {
   type: 'column';
   query: q.NavigateQuery;
 };
+
 export type QueryNavigation
   = Navigate
   | Select

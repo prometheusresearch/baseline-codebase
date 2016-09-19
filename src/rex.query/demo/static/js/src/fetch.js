@@ -3,7 +3,6 @@
  */
 
 import type {Query} from './model/Query';
-import * as q from './model/Query';
 
 export function fetch(api: string, query: Query): Promise<Object> {
   return window.fetch(api, {

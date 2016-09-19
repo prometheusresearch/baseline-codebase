@@ -19,7 +19,7 @@ from cached_property import cached_property
 from rex.core import ValidatingLoader, Error, Location, guard, set_location
 from rex.core import Validate, StrVal, RecordVal, RecordField, AnyVal
 
-from .widget import Widget, GroupWidget, NullWidget
+from .widget import Widget, GroupWidget, NullWidget, RawWidget
 from .field import Field
 from .transitionable import as_transitionable
 
@@ -147,6 +147,8 @@ class WidgetVal(Validate):
 
     def __call__(self, data):
         with guard("While validating:", repr(data)):
+            if isinstance(data, RawWidget):
+                return data
             if data is None:
                 return NullWidget()
             elif isinstance(data, list):
@@ -310,6 +312,7 @@ class WidgetVal(Validate):
 
     def match(self, value):
         return (
+            isinstance(value, RawWidget) or
             isinstance(value, Widget) or
             isinstance(value, yaml.Node) and
             value.tag.isalnum()

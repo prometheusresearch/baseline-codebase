@@ -7,28 +7,28 @@ describe('insertAfter()', function() {
   it('individual!name', function() {
     let query = q.navigate('individual');
     let pointer = qp.make(query);
-    let {query: nextQuery} = qo.insertAfter(pointer, q.navigate('name'));
+    let {query: nextQuery} = qo.insertAfter(pointer, null, q.navigate('name'));
     expect(nextQuery).toMatchSnapshot();
   });
 
   it('[individual]!name', function() {
     let query = q.pipeline(q.navigate('individual'));
     let pointer = qp.make(query);
-    let {query: nextQuery} = qo.insertAfter(pointer, q.navigate('name'));
+    let {query: nextQuery} = qo.insertAfter(pointer, null, q.navigate('name'));
     expect(nextQuery).toMatchSnapshot();
   });
 
   it('individual.sample!name', function() {
     let query = q.pipeline(q.navigate('individual'), q.navigate('sample'));
     let pointer = qp.make(query);
-    let {query: nextQuery} = qo.insertAfter(pointer, q.navigate('name'));
+    let {query: nextQuery} = qo.insertAfter(pointer, null, q.navigate('name'));
     expect(nextQuery).toMatchSnapshot();
   });
 
   it('individual!sample.name', function() {
     let query = q.pipeline(q.navigate('individual'), q.navigate('name'));
     let pointer = qp.select(qp.make(query), ['pipeline', 0]);
-    let {query: nextQuery} = qo.insertAfter(pointer, q.navigate('sample'));
+    let {query: nextQuery} = qo.insertAfter(pointer, null, q.navigate('sample'));
     expect(nextQuery).toMatchSnapshot();
   });
 
@@ -42,7 +42,7 @@ describe('insertAfter()', function() {
       ['pipeline', 1],
       ['binding', 'query']
     );
-    let {query: nextQuery} = qo.insertAfter(pointer, q.navigate('name'));
+    let {query: nextQuery} = qo.insertAfter(pointer, null, q.navigate('name'));
     expect(nextQuery).toMatchSnapshot();
   });
 
@@ -53,14 +53,14 @@ describe('removeAt()', function() {
   it('individual.name!', function() {
     let query = q.pipeline(q.navigate('individual'), q.navigate('name'));
     let pointer = qp.select(qp.make(query), ['pipeline', 1]);
-    let {query: nextQuery} = qo.removeAt(pointer);
+    let {query: nextQuery} = qo.removeAt(pointer, null);
     expect(nextQuery).toMatchSnapshot();
   });
 
   it('individual!.name', function() {
     let query = q.pipeline(q.navigate('individual'), q.navigate('name'));
     let pointer = qp.select(qp.make(query), ['pipeline', 0]);
-    let {query: nextQuery} = qo.removeAt(pointer);
+    let {query: nextQuery} = qo.removeAt(pointer, null);
     expect(nextQuery).toMatchSnapshot();
   });
 
@@ -76,7 +76,7 @@ describe('removeAt()', function() {
       ['pipeline', 1],
       ['select', 'a']
     );
-    let {query: nextQuery} = qo.removeAt(pointer);
+    let {query: nextQuery} = qo.removeAt(pointer, null);
     expect(nextQuery).toMatchSnapshot();
   });
 
@@ -93,7 +93,7 @@ describe('removeAt()', function() {
       ['select', 'a'],
       ['pipeline', 0]
     );
-    let {query: nextQuery} = qo.removeAt(pointer);
+    let {query: nextQuery} = qo.removeAt(pointer, null);
     expect(nextQuery).toMatchSnapshot();
   });
 
@@ -110,7 +110,7 @@ describe('removeAt()', function() {
       ['pipeline', 1],
       ['select', 'a']
     );
-    let {query: nextQuery} = qo.removeAt(pointer);
+    let {query: nextQuery} = qo.removeAt(pointer, null);
     expect(nextQuery).toMatchSnapshot();
   });
 
@@ -124,7 +124,7 @@ describe('removeAt()', function() {
       ['pipeline', 1],
       ['binding', 'query']
     );
-    let {query: nextQuery} = qo.removeAt(pointer);
+    let {query: nextQuery} = qo.removeAt(pointer, null);
     expect(nextQuery).toMatchSnapshot();
   });
 

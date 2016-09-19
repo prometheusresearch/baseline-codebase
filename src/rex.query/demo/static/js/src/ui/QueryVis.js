@@ -581,33 +581,33 @@ export class QueryVis extends React.Component<*, QueryVisProps<*>, *> {
     );
   }
 
-  onRemoveSelection = (e) => {
+  onRemoveSelection = (e: UIEvent) => {
     e.stopPropagation();
     this.props.onSelect(null);
   };
 
-  onAddNavigate = (e) => {
+  onAddNavigate = (e: UIEvent) => {
     e.stopPropagation();
     let {pointer, onQuery} = this.props;
     let {query, selected} = qo.insertAfter(pointer, q.navigate('code'));
     onQuery(query, selected);
   };
 
-  onAddDefine = (e) => {
+  onAddDefine = (e: UIEvent) => {
     e.stopPropagation();
     let {pointer, onQuery} = this.props;
     let {query, selected} = qo.insertAfter(pointer, q.def('name', q.navigate('code')));
     onQuery(query, selected);
   };
 
-  onAddFilter = (e) => {
+  onAddFilter = (e: UIEvent) => {
     e.stopPropagation();
     let {pointer, onQuery} = this.props;
     let {query, selected} = qo.insertAfter(pointer, q.filter(q.navigate('true')));
     onQuery(query, selected);
   };
 
-  onAddAggregate = (e) => {
+  onAddAggregate = (e: UIEvent) => {
     e.stopPropagation();
     let {pointer, onQuery} = this.props;
     let {query, selected} = qo.insertAfter(pointer, q.aggregate('count'));

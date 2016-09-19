@@ -10,7 +10,7 @@ import type {QueryNavigation} from '../model/QueryNavigation';
 import React from 'react';
 import {
   AutoSizer,
-  FlexColumn, FlexTable
+  Column, Table
 } from 'react-virtualized';
 
 import {getQueryNavigation} from '../model/QueryNavigation';
@@ -38,7 +38,7 @@ function getColumnListFromNavigation(nav: QueryNavigation, usePath) {
   if (nav.type === 'column') {
     console.log(nav.query.path, usePath);
     return [
-      <FlexColumn
+      <Column
         dataKey={nav.query.path}
         disableSort={true}
         cellDataGetter={usePath ? returnRowDataByPath : returnRowData}
@@ -71,7 +71,7 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
     return (
       <AutoSizer>
         {size => (
-          <FlexTable
+          <Table
             headerClassName={styles.headerColumn}
             headerHeight={30}
             noRowsRenderer={this._noRowsRenderer}
@@ -82,7 +82,7 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
             height={size.height}
             width={size.width}>
             {columnList}
-          </FlexTable>
+          </Table>
         )}
       </AutoSizer>
     )

@@ -5,8 +5,7 @@
   "devDependencies": {
     "flow-bin": "^0.32.0",
     "react-dom-stylesheet": "^0.8.4",
-    "react-scripts": "^0.4.2",
-    "react-virtualized": "^7.24.3"
+    "react-scripts": "^0.4.2"
   },
   "dependencies": {
     "@prometheusresearch/react-box": "^0.10.1",
@@ -18,7 +17,8 @@
     "react-addons-shallow-compare": "^15.3.1",
     "react-dom": "^15.3.1",
     "react-icons": "^2.2.1",
-    "react-select": "^1.0.0-rc.1"
+    "react-select": "^1.0.0-rc.1",
+    "react-virtualized": "^8.0.2"
   },
   "proxy": "http://localhost:8080",
   "scripts": {

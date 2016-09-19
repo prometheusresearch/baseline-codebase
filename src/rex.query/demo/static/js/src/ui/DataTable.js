@@ -36,12 +36,16 @@ function returnRowDataByPath({rowData, dataKey}) {
 
 function getColumnListFromNavigation(nav: QueryNavigation, usePath) {
   if (nav.type === 'column') {
+    if (nav.query.name === 'aggregate') {
+      usePath = false;
+    }
     return [
       <Column
-        dataKey={nav.query.path}
+        key={nav.path}
+        dataKey={nav.path}
         disableSort={true}
         cellDataGetter={usePath ? returnRowDataByPath : returnRowData}
-        label={nav.query.path}
+        label={nav.title}
         width={90}
         />
     ];
@@ -76,7 +80,7 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
             overscanRowCount={10}
             rowHeight={35}
             rowGetter={this._getDatum}
-            rowCount={1000}
+            rowCount={10}
             height={size.height}
             width={size.width}>
             {columnList}
@@ -86,13 +90,13 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
     )
   }
 
-  _getDatum = ({index}: {index: number}) => {
+  _getData() {
     let {data, query} = this.props;
     let nav = getQueryNavigation(query);
     if (nav.type === 'navigate') {
       for (let i = nav.navigate.length - 1; i >= 0; i--) {
         if (nav.navigate[i].type === 'column') {
-          data = data[nav.navigate[i].query.path];
+          data = data[nav.navigate[i].path];
           break;
         }
       }
@@ -101,6 +105,11 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
     } else if (nav.type === 'column') {
       // TODO: handle scalar
     }
+    return Array.isArray(data) ? data : [data];
+  }
+
+  _getDatum = ({index}: {index: number}) => {
+    let data = this._getData();
     return data[index];
   };
 

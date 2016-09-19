@@ -43,6 +43,7 @@ export default class QueryBuilder extends React.Component {
     query: Query;
     selected: ?QueryPointer<Query>;
     data: ?Object;
+    dataUpdating: boolean;
   };
 
   constructor(props: QueryBuilderProps) {
@@ -62,6 +63,7 @@ export default class QueryBuilder extends React.Component {
       query,
       selected,
       data: null,
+      dataUpdating: false,
     };
   }
 
@@ -85,7 +87,7 @@ export default class QueryBuilder extends React.Component {
   };
 
   render() {
-    let {query, selected, data} = this.state;
+    let {query, selected, data, dataUpdating} = this.state;
 
     let pointer = qp.make(query);
 
@@ -109,7 +111,7 @@ export default class QueryBuilder extends React.Component {
               />
           </VBox>}
         <VBox basis="400px" grow={3} style={{borderLeft: css.border(1, '#ccc')}}>
-          {data &&
+          {!dataUpdating &&
             <ui.DataTable
               query={selectAll(query)}
               data={data}
@@ -120,9 +122,11 @@ export default class QueryBuilder extends React.Component {
   }
 
   fetchData(query) {
-    fetch('/query/', selectAll(query)).then(data => {
-      this.setState({data});
-    });
+    this.setState({dataUpdating: true});
+    fetch('/query/', selectAll(query))
+      .then(data => {
+        this.setState({data, dataUpdating: false});
+      });
   }
 
   componentDidMount() {

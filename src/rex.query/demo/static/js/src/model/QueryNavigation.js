@@ -16,7 +16,9 @@ type Select = {
 
 type Column = {
   type: 'column';
-  query: q.NavigateQuery;
+  path: string | number;
+  title: string;
+  query: q.NavigateQuery | q.AggregateQuery;
 };
 
 export type QueryNavigation
@@ -38,8 +40,21 @@ export function getQueryNavigation(query: q.Query): QueryNavigation {
         );
       }
       break;
+    case 'aggregate':
+      navigation.push({
+        type: 'column',
+        path: 0,
+        title: query.aggregate,
+        query
+      });
+      break;
     case 'navigate':
-      navigation.push({type: 'column', query});
+      navigation.push({
+        type: 'column',
+        path: query.path,
+        title: query.path,
+        query
+      });
       break;
     case 'select':
       let select = [];

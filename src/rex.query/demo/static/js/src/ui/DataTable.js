@@ -36,7 +36,6 @@ function returnRowDataByPath({rowData, dataKey}) {
 
 function getColumnListFromNavigation(nav: QueryNavigation, usePath) {
   if (nav.type === 'column') {
-    console.log(nav.query.path, usePath);
     return [
       <Column
         dataKey={nav.query.path}
@@ -66,7 +65,6 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
   render () {
     let {query} = this.props;
     let columnList = getColumnList(query);
-    console.log(getQueryNavigation(query));
 
     return (
       <AutoSizer>

@@ -32,11 +32,9 @@ export function translate(query: Query, prev: ?Query) {
       let fields = [];
       for (let k in query.select) {
         if (query.select.hasOwnProperty(k)) {
-          console.log(query.select[k]);
           fields.push(translate(query.select[k], null));
         }
       }
-      console.log(fields);
       return ['select', prev].concat(fields);
     case 'navigate':
       if (prev != null) {

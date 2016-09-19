@@ -5,18 +5,37 @@
 import invariant from 'invariant';
 import * as q from './Query';
 
+type Navigate = {
+  type: 'navigate';
+  navigate: Array<Select | Column>;
+};
+
+type Select = {
+  type: 'select';
+  select: Array<QueryNavigation>;
+};
+
+type Column = {
+  type: 'column';
+  query: q.NavigateQuery;
+};
 export type QueryNavigation
-  = {type: 'column', query: q.NavigateQuery}
-  | {type: 'select', select: Array<QueryNavigation>}
-  | {type: 'navigate', navigate: Array<QueryNavigation>};
+  = Navigate
+  | Select
+  | Column;
 
 export function getQueryNavigation(query: q.Query): QueryNavigation {
-  let navigation: Array<QueryNavigation> = [];
+  let navigation: Array<Select | Column> = [];
   switch (query.name) {
     case 'pipeline':
       let pipeline = q.flattenPipeline(query).pipeline;
       for (let i = 0; i < pipeline.length; i++) {
-        navigation = navigation.concat(getQueryNavigation(pipeline[i]));
+        let nav = getQueryNavigation(pipeline[i]);
+        navigation = navigation.concat(
+          nav.type === 'navigate'
+            ? nav.navigate
+            : nav
+        );
       }
       break;
     case 'navigate':
@@ -34,5 +53,7 @@ export function getQueryNavigation(query: q.Query): QueryNavigation {
     default:
       break;
   }
-  return {type: 'navigate', navigate: navigation};
+  return navigation.length === 1
+    ? navigation[0]
+    : {type: 'navigate', navigate: navigation};
 }

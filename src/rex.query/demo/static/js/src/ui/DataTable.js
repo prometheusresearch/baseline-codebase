@@ -10,8 +10,7 @@ import type {QueryNavigation} from '../model/QueryNavigation';
 import React from 'react';
 import {
   AutoSizer,
-  FlexColumn, FlexTable,
-  SortDirection, SortIndicator
+  FlexColumn, FlexTable
 } from 'react-virtualized';
 
 import {getQueryNavigation} from '../model/QueryNavigation';
@@ -20,28 +19,36 @@ let styles = {};
 
 type DataTableProps = {
   query: Query;
+  data: Object;
 };
 
 function getColumnList(query) {
-  return getColumnListFromNavigation(getQueryNavigation(query), []);
+  return getColumnListFromNavigation(getQueryNavigation(query), false);
 }
 
-function getColumnListFromNavigation(nav: QueryNavigation, keyPath) {
+function returnRowData({rowData}) {
+  return rowData;
+}
+
+function returnRowDataByPath({rowData, dataKey}) {
+  return rowData != null ? rowData[dataKey] : null;
+}
+
+function getColumnListFromNavigation(nav: QueryNavigation, usePath) {
   if (nav.type === 'column') {
-    keyPath = keyPath.concat(nav.query.path);
-    console.log(keyPath);
+    console.log(nav.query.path, usePath);
     return [
       <FlexColumn
-        dataKey={keyPath.join('.')}
+        dataKey={nav.query.path}
         disableSort={true}
-        cellDataGetter={() => 'ok'}
-        label={keyPath.join('.')}
+        cellDataGetter={usePath ? returnRowDataByPath : returnRowData}
+        label={nav.query.path}
         width={90}
         />
     ];
   } else if (nav.type === 'select') {
     return nav.select
-      .map(nav => getColumnListFromNavigation(nav, keyPath))
+      .map(nav => getColumnListFromNavigation(nav, true))
       .reduce((list, c) => list.concat(c), []);
   } else if (nav.type === 'navigate') {
     if (nav.navigate.length === 0) {
@@ -49,11 +56,7 @@ function getColumnListFromNavigation(nav: QueryNavigation, keyPath) {
     } else {
       let navigate = nav.navigate.slice();
       let last = navigate.pop();
-      return getColumnListFromNavigation(
-        last, navigate
-          .map(n => n.type === 'column' ? n.query.path : null)
-          .filter(Boolean)
-      );
+      return getColumnListFromNavigation(last, usePath || false);
     }
   }
 }
@@ -63,7 +66,7 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
   render () {
     let {query} = this.props;
     let columnList = getColumnList(query);
-    console.log(columnList.map(c => c.props));
+    console.log(getQueryNavigation(query));
 
     return (
       <AutoSizer>
@@ -88,11 +91,19 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
   _getDatum = ({index}: {index: number}) => {
     let {data, query} = this.props;
     let nav = getQueryNavigation(query);
-    if (nav.type === 'navigate' && nav.navigate.length > 1) {
-      data = data[nav.navigate[0].query.path];
+    if (nav.type === 'navigate') {
+      for (let i = nav.navigate.length - 1; i >= 0; i--) {
+        if (nav.navigate[i].type === 'column') {
+          data = data[nav.navigate[i].query.path];
+          break;
+        }
+      }
+    } else if (nav.type === 'select') {
+      // TODO: handle record on the top level
+    } else if (nav.type === 'column') {
+      // TODO: handle scalar
     }
-    console.log(data);
-    return data;
+    return data[index];
   };
 
   _noRowsRenderer = () => {

@@ -19,20 +19,24 @@ export function fetch(api: string, query: Query): Promise<Object> {
 /**
  * Translate UI query model into query syntax.
  */
-export function translate(query: Query, prev: ?Query) {
+export function translate(query: Query) {
+  return translateImpl(query, null);
+}
+
+function translateImpl(query, prev) {
   switch (query.name) {
     case 'aggregate':
       return [query.aggregate, prev];
     case 'pipeline':
       return query.pipeline.reduce((prev, q) => {
-        let tq = translate(q, prev);
+        let tq = translateImpl(q, prev);
         return tq != null ? tq : q;
       }, prev);
     case 'select':
       let fields = [];
       for (let k in query.select) {
         if (query.select.hasOwnProperty(k)) {
-          fields.push(translate(query.select[k], null));
+          fields.push(translateImpl(query.select[k], null));
         }
       }
       return ['select', prev].concat(fields);

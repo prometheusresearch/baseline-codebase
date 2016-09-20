@@ -4,7 +4,7 @@
   "private": true,
   "devDependencies": {
     "flow-bin": "^0.32.0",
-    "react-dom-stylesheet": "^0.8.4",
+    "react-dom-stylesheet": "^0.8.6",
     "react-scripts": "^0.4.2"
   },
   "dependencies": {

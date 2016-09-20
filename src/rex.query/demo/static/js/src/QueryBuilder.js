@@ -54,10 +54,9 @@ export default class QueryBuilder extends React.Component {
      */
     let query = q.inferType(domain, q.pipeline(
       q.navigate('study'),
-      q.navigate('code'),
     ));
 
-    let selected = qp.select(qp.make(query), ['pipeline', 1]);
+    let selected = qp.select(qp.make(query), ['pipeline', 0]);
 
     this.state = {
       query,

@@ -25,7 +25,7 @@ export Divider from './Divider';
 export IFrame from './IFrame';
 
 export TabListBase from './base/TabListBase';
-export Tab from './base/TabBase';
+export TabBase from './base/TabBase';
 export TabList from './TabList';
 export Tab from './base/TabBase';
 export PillList from './PillList';

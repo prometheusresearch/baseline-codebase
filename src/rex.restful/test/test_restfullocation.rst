@@ -19,9 +19,6 @@ To define a REST endpoint, inherit from the ``RestfulLocation`` class and
 implement at least one of the ``create``, ``retrieve``, ``update``, or
 ``delete`` methods::
 
-    >>> rex = Rex('__main__', 'rex.restful')
-    >>> rex.on()
-
     >>> class TestResource(RestfulLocation):
     ...     path = '/test/{test_id}'
     ...     def retrieve(self, request, test_id, **kwarg):
@@ -34,6 +31,9 @@ implement at least one of the ``create``, ``retrieve``, ``update``, or
     Traceback (most recent call last):
         ...
     AssertionError: No resource methods defined on __main__.FailedResource
+
+    >>> rex = Rex('__main__', 'rex.restful')
+    >>> rex.on()
 
     >>> TestResource in RestfulLocation.all()
     True
@@ -393,6 +393,89 @@ request and response headers and body for easier debugging::
     {foo: '42'}
     <BLANKLINE>
 
+
+
+CORS
+====
+
+Set up the environment::
+
+    >>> rex.off()
+    >>> rex = Rex('rex.restful_demo', logging_loggers={'rex.restful.wire.request': {'level': 'DEBUG'}, 'rex.restful.wire.response': {'level': 'DEBUG'}})
+    >>> rex.on()
+
+When a CORS policy is defined on a location, that endpoint will support the
+CORS protocol. Here, a preflight request is processed::
+
+    >>> req = Request.blank('/cors/42', method='OPTIONS')
+    >>> req.headers['Origin'] = 'http://example.com'
+    >>> req.headers['Access-Control-Request-Method'] = 'GET'
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    DEBUG:rex.restful.wire.request:OPTIONS /cors/42
+    DEBUG:rex.restful.wire.request:Host: localhost:80
+    DEBUG:rex.restful.wire.request:Origin: http://example.com
+    DEBUG:rex.restful.wire.request:Content-Length: 0
+    DEBUG:rex.restful.wire.request:Access-Control-Request-Method: GET
+    DEBUG:rex.restful.wire.response:200 OK
+    DEBUG:rex.restful.wire.response:Content-Type: application/json; charset=UTF-8
+    DEBUG:rex.restful.wire.response:Content-Length: 0
+    DEBUG:rex.restful.wire.response:Access-Control-Allow-Origin: *
+    DEBUG:rex.restful.wire.response:Access-Control-Allow-Methods: PUT,GET
+    DEBUG:rex.restful.wire.response:Vary: Origin
+    200 OK
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: 0
+    Access-Control-Allow-Origin: *
+    Access-Control-Allow-Methods: PUT,GET
+    Vary: Origin
+
+Here's a simple request with an accepted Origin::
+
+    >>> req = Request.blank('/cors/42')
+    >>> req.headers['Origin'] = 'http://example.com'
+    >>> req.headers['Content-Type'] = 'application/json'
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    DEBUG:rex.restful.wire.request:GET /cors/42
+    DEBUG:rex.restful.wire.request:Content-Type: application/json
+    DEBUG:rex.restful.wire.request:Host: localhost:80
+    DEBUG:rex.restful.wire.request:Origin: http://example.com
+    ### RETRIEVING BAR 42
+    DEBUG:rex.restful.wire.response:200 OK
+    DEBUG:rex.restful.wire.response:Content-Type: application/json; charset=UTF-8
+    DEBUG:rex.restful.wire.response:Content-Length: 13
+    DEBUG:rex.restful.wire.response:Access-Control-Allow-Origin: *
+    DEBUG:rex.restful.wire.response:Vary: Origin
+    INFO:rex.restful.wire.response:{"bar": "42"}
+    200 OK
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: 13
+    Access-Control-Allow-Origin: *
+    Vary: Origin
+    <BLANKLINE>
+    {"bar": "42"}
+
+Here's a simple request with a rejected Origin::
+
+    >>> req = Request.blank('/lockedcors/42')
+    >>> req.headers['Origin'] = 'http://example.com'
+    >>> req.headers['Content-Type'] = 'application/json'
+    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    DEBUG:rex.restful.wire.request:GET /lockedcors/42
+    DEBUG:rex.restful.wire.request:Content-Type: application/json
+    DEBUG:rex.restful.wire.request:Host: localhost:80
+    DEBUG:rex.restful.wire.request:Origin: http://example.com
+    ERROR:root:Disallowed origin: http://example.com
+    DEBUG:rex.restful.wire.response:403 Forbidden
+    DEBUG:rex.restful.wire.response:Content-Type: application/json; charset=UTF-8
+    DEBUG:rex.restful.wire.response:Content-Length: 50
+    DEBUG:rex.restful.wire.response:Vary: Origin
+    INFO:rex.restful.wire.response:{"error": "Disallowed origin: http://example.com"}
+    403 Forbidden
+    Content-Type: application/json; charset=UTF-8
+    Content-Length: 50
+    Vary: Origin
+    <BLANKLINE>
+    {"error": "Disallowed origin: http://example.com"}
 
 
     >>> rex.off()

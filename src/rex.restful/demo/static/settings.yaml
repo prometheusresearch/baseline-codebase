@@ -1,0 +1,6 @@
+restful_cors_policies:
+  demo: {}
+  locked:
+    allow_origins:
+      - http://blah.com
+

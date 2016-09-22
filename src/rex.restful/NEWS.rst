@@ -5,6 +5,14 @@ REX.RESTFUL Change Log
 .. contents:: Table of Contents
 
 
+1.2.0 (2016-xx-xx)
+==================
+
+* Added support for CORS on RestfulLocation endpoints. This is accomplished by
+  setting the ``cors_policy`` property on the class that references a
+  configuration defined by the ``restful_cors_policies`` application setting.
+
+
 1.1.0 (2016-01-29)
 ==================
 

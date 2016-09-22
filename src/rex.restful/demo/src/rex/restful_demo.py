@@ -60,6 +60,30 @@ class StatusResource(RestfulLocation):
         return response
 
 
+class CorsResource(RestfulLocation):
+    path = '/cors/{bar_id}'
+    access = 'anybody'
+    cors_policy = 'demo'
+
+    parameters = (
+        Parameter('bar_id', StrVal()),
+    )
+
+    def retrieve(self, request, bar_id, **kwargs):
+        print '### RETRIEVING BAR %s' % bar_id
+        return {'bar': bar_id}
+
+    def update(self, request, bar_id, **kwargs):
+        print '### UPDATING BAR %s' % foo_id
+        print '###   PAYLOAD: %s' % request.payload
+        return {'bar': bar_id}
+
+
+class FailingCorsResource(CorsResource):
+    path = '/lockedcors/{bar_id}'
+    cors_policy = 'locked'
+
+
 class FailingResource(RestfulLocation):
     path = '/fail'
     access = 'anybody'

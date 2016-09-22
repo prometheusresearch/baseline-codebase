@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.restful',
-    version='1.1.0',
+    version='1.2.0',
     description='A framework for providing RESTful services in a RexDB app.',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',
@@ -28,6 +28,7 @@ setup(
         'rex.logging>=1,<2',
         'pyyaml',
         'python-dateutil',
+        'cors-python==0.0.1',
     ],
     rex_init='rex.restful',
     rex_static='static',

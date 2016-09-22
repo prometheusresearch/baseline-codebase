@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.restful_demo',
-    version='1.1.0',
+    version='1.2.0',
     description='Demo package for testing rex.restful',
     package_dir={'': 'src'},
     packages=find_packages('src'),
@@ -17,5 +17,6 @@ setup(
         'rex.restful',
     ],
     rex_init='rex.restful_demo',
+    rex_static='static',
 )
 

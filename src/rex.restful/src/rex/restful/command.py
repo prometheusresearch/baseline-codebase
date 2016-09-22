@@ -3,10 +3,11 @@
 #
 
 
+from cors import cors_handler, cors_options, http_response
 from webob import Response
 from webob.exc import HTTPMethodNotAllowed, HTTPException, HTTPBadRequest
 
-from rex.core import StrVal, Error, AnyVal
+from rex.core import StrVal, Error, AnyVal, get_settings
 from rex.logging import get_logger
 from rex.web import Command, Parameter
 
@@ -140,6 +141,11 @@ class RestfulLocation(Command):
     #: The permission required to access this location.
     access = 'authenticated'
 
+    #: The identifier of the CORS policy configuration specified in the
+    #: ``restful_cors_policies`` setting to use for this location. If not
+    #: specified, no CORS functionality will be enabled.
+    cors_policy = None
+
     #: The URL that this location responds to. Must be specified by concrete
     #: classes.
     path = None
@@ -205,6 +211,24 @@ class RestfulLocation(Command):
         super(RestfulLocation, self).__init__(*args, **kwargs)
         self._request_logger = get_logger('rex.restful.wire.request')
         self._response_logger = get_logger('rex.restful.wire.response')
+
+        self.cors_handler = None
+        if self.cors_policy:
+            opts = get_settings().restful_cors_policies[self.cors_policy]
+            self.cors_handler = cors_handler.CorsHandler(
+                cors_options.CorsOptions(
+                    allow_origins=opts.allow_origins or True,
+                    allow_methods=opts.allow_methods
+                    or self._get_supported_methods(),
+                    allow_headers=opts.allow_headers or True,
+                    max_age=opts.max_age,
+                    vary=opts.vary or None,
+                    allow_credentials=False,
+                    allow_non_cors_requests=opts.allow_non_cors
+                    if opts.allow_non_cors is not None else True,
+                    continue_on_error=False,
+                )
+            )
 
     def get_response_serializer(self, request):
         for mime_type in request.accept:
@@ -274,6 +298,25 @@ class RestfulLocation(Command):
         self.authorize(request)
         self._log_request(request)
 
+        cors_headers = {}
+        if self.cors_handler:
+            cors_response = self.cors_handler.handle(
+                request.method,
+                request.headers,
+            )
+            if cors_response.state == http_response.ResponseState.END:
+                err = None
+                if cors_response.error:
+                    err = {'error': unicode(cors_response.error)}
+                response = self.make_response(request, err)
+                response.status = cors_response.status
+                for key, value in cors_response.headers.items():
+                    response.headers[key] = value
+                self._log_response(response)
+                return response
+            else:
+                cors_headers = cors_response.headers
+
         implementation, status = self._get_method_handler(request)
 
         if not implementation:
@@ -294,14 +337,13 @@ class RestfulLocation(Command):
             response = {
                 'error': unicode(exc),
             }
-            if hasattr(exc, 'status'):
-                status = exc.status
-            else:
-                status = 500
+            status = getattr(exc, 'status', 500)
 
         if not isinstance(response, Response):
             response = self.make_response(request, response)
             response.status = status
+        for key, value in cors_headers.items():
+            response.headers[key] = value
 
         self._log_response(response)
         return response
@@ -374,14 +416,17 @@ class RestfulLocation(Command):
 
         return implementation, default_status
 
+    def _get_supported_methods(self):
+        return [
+            meth
+            for meth, func_name in RestfulLocation._METHOD_MAP.items()
+            if getattr(self, func_name, None)
+        ]
+
     def _options_handler(self, request, **kwargs):
         # pylint: disable=unused-argument
 
-        allowed = ['OPTIONS']
-
-        for meth, func_name in RestfulLocation._METHOD_MAP.items():
-            if getattr(self, func_name, None):
-                allowed.append(meth)
+        allowed = ['OPTIONS'] + self._get_supported_methods()
 
         response = Response()
         response.headers['Allow'] = ', '.join(allowed)

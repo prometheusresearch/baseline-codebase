@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name='rex.platform',
-    version='5.5.0',
+    version='5.5.1',
     description='RexDB Core Platform Libraries',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',
@@ -23,7 +23,7 @@ setup(
         'HTSQL==2.3.3.20160506',
         'HTSQL-PGSQL==2.3.3.20160506',
         'COGS==0.4.1',
-        'rex.action==1.4.0',
+        'rex.action==1.4.1',
         'rex.setup==3.3.0',
         'rex.core==1.13.1',
         'rex.ctl==2.1.1',

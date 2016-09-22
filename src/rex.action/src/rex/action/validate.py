@@ -248,7 +248,7 @@ class ActionOverrideMapVal(Validate):
     def __init__(self, action_map):
         self.fields = collections.OrderedDict()
         for k, action_base in action_map.items():
-            validate = ActionOrActionIncludeVal(action_base=action_base),
+            validate = ActionOrActionIncludeVal(action_base=action_base)
             self.fields[k] = RecordField(k, validate, None)
 
     def _sanitize(self, value):

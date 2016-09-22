@@ -327,8 +327,9 @@ class ActionMapVal(Validate):
     def _sanitize(self, value):
         value = dict(value)
         for k, action in value.items():
-            action = action.__validated_clone__()
-            action.included = True
+            if not isinstance(action, ActionReference):
+                action = action.__validated_clone__()
+                action.included = True
             value[k] = action
         return value
 

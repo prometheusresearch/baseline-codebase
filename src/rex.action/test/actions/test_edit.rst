@@ -24,7 +24,6 @@ In case fields are not specified, they are generated from port::
 
   >>> edit = Action.parse("""
   ... type: edit
-  ... id: edit-individual
   ... entity: individual
   ... """)
 
@@ -35,7 +34,7 @@ In case fields are not specified, they are generated from port::
        fields=[...],
        help=undefined,
        icon=undefined,
-       id='edit-individual',
+       id='...',
        input=RecordType(rows={}, open=True),
        kind=undefined,
        query=None,
@@ -84,20 +83,19 @@ You can also specify fields and see port generated from them::
 
   >>> edit = Action.parse("""
   ... type: edit
-  ... id: edit-individual
   ... entity: individual
   ... fields:
   ... - value_key: code
   ... """)
 
-  >>> edit # doctest: +NORMALIZE_WHITESPACE
+  >>> edit # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Edit(db=None,
        doc=undefined,
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
        fields=[StringFormField(value_key=['code'], label=u'Code')],
        help=undefined,
        icon=undefined,
-       id='edit-individual',
+       id='...',
        input=RecordType(rows={}, open=True),
        kind=undefined,
        query=None,
@@ -122,7 +120,6 @@ Edit's initial value is also used to generate port::
 
   >>> make = Action.parse("""
   ... type: edit
-  ... id: edit-individual
   ... entity: individual
   ... value:
   ...   sex: female

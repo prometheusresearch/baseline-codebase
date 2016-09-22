@@ -24,16 +24,15 @@ In case fields are not specified, they are generated from port::
 
   >>> page = Action.parse("""
   ... type: page
-  ... id: home
   ... text: |
   ...   Welcome to Rex Action!
   ... """)
 
-  >>> page # doctest: +NORMALIZE_WHITESPACE
+  >>> page # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Page(doc=undefined,
        help=undefined,
        icon=undefined,
-       id='home',
+       id='...',
        input=RecordType(rows={}, open=True),
        kind=undefined,
        text=RST(src=u'<p>Welcome to Rex Action!</p>', links={}),

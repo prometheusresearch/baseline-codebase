@@ -37,7 +37,6 @@ Test rex.action.action
 
   >>> pkg.rewrite('configurable-demo-base.yaml', """
   ... type: configurable-demo
-  ... id: hey
   ... text: Hello
   ... """)
 
@@ -128,9 +127,8 @@ Constructing from YAML
 
   >>> validate.parse("""
   ... type: my
-  ... id: id
-  ... """)
-  MyAction(doc=undefined, help=undefined, icon=undefined, id='id', kind=undefined, title=undefined, width=undefined)
+  ... """) # doctest: +ELLIPSIS
+  MyAction(doc=undefined, help=undefined, icon=undefined, id='...', kind=undefined, title=undefined, width=undefined)
 
   >>> validate.parse("""
   ... type: my
@@ -214,13 +212,12 @@ Overrides
 
   >>> validate.parse("""
   ... type: configurable-demo
-  ... id: hey
   ... text: Hello
-  ... """) # doctest: +NORMALIZE_WHITESPACE
+  ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   ConfigurableActionDemo(doc=undefined,
                          help=undefined,
                          icon=undefined,
-                         id='hey',
+                         id='...',
                          kind=undefined,
                          text='Hello',
                          title=undefined,
@@ -231,14 +228,13 @@ Overrides
   >>> validate.parse("""
   ... type:
   ...   type: configurable-demo
-  ...   id: hey
   ...   text: Hello
   ... text: Hello!!!
-  ... """) # doctest: +NORMALIZE_WHITESPACE
+  ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   ConfigurableActionDemo(doc=undefined,
                          help=undefined,
                          icon=undefined,
-                         id='hey',
+                         id='...',
                          kind=undefined,
                          text='Hello!!!',
                          title=undefined,
@@ -249,11 +245,11 @@ Overrides
   >>> validate.parse("""
   ... type: !include base:configurable-demo-base.yaml
   ... text: Hello!!!
-  ... """) # doctest: +NORMALIZE_WHITESPACE
+  ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   ConfigurableActionDemo(doc=undefined,
                          help=undefined,
                          icon=undefined,
-                         id='hey',
+                         id='...',
                          kind=undefined,
                          text='Hello!!!',
                          title=undefined,

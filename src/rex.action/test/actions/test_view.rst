@@ -24,7 +24,6 @@ In case fields are not specified, they are generated from port::
 
   >>> view = Action.parse("""
   ... type: view
-  ... id: view-individual
   ... entity: individual
   ... """)
 
@@ -35,7 +34,7 @@ In case fields are not specified, they are generated from port::
        fields=[...],
        help=undefined,
        icon=undefined,
-       id='view-individual',
+       id='...',
        input=RecordType(rows={}, open=True),
        kind=undefined,
        title=undefined,
@@ -92,20 +91,19 @@ You can also specify fields and see port generated from them::
 
   >>> view = Action.parse("""
   ... type: view
-  ... id: view-individual
   ... entity: individual
   ... fields:
   ... - value_key: code
   ... """)
 
-  >>> view # doctest: +NORMALIZE_WHITESPACE
+  >>> view # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   View(db=None,
        doc=undefined,
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
        fields=[StringFormField(value_key=['code'], label=u'Code')],
        help=undefined,
        icon=undefined,
-       id='view-individual',
+       id='...',
        input=RecordType(rows={}, open=True),
        kind=undefined,
        title=undefined,
@@ -128,20 +126,19 @@ context::
 
   >>> view = Action.parse("""
   ... type: view
-  ... id: view-mother
   ... entity: {mother: individual}
   ... fields:
   ... - value_key: code
   ... """)
 
-  >>> view # doctest: +NORMALIZE_WHITESPACE
+  >>> view # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   View(db=None,
        doc=undefined,
        entity=RowType(name='mother', type=EntityType(name='individual', state=None)), 
        fields=[StringFormField(value_key=['code'], label=u'Code')],
        help=undefined,
        icon=undefined,
-       id='view-mother',
+       id='...',
        input=RecordType(rows={}, open=True),
        kind=undefined,
        title=undefined,

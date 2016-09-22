@@ -27,7 +27,6 @@ Read only configuration
 Value can be specified as HTSQL query::
 
   >>> action = Action.parse('''
-  ... id: form
   ... type: form
   ... fields:
   ... - code
@@ -76,7 +75,6 @@ Value can be specified as HTSQL query::
 Value can be specified as an object::
 
   >>> action = Action.parse('''
-  ... id: form
   ... type: form
   ... fields:
   ... - code
@@ -99,7 +97,6 @@ Writable configuration without entity
 ::
 
   >>> action = Action.parse('''
-  ... id: form
   ... type: form
   ... fields:
   ... - sex
@@ -160,7 +157,6 @@ Writable configuration with entity
 ::
 
   >>> action = Action.parse('''
-  ... id: form
   ... type: form
   ... fields:
   ... - sex
@@ -235,7 +231,6 @@ Invalid configuration
 ::
 
   >>> action = Action.parse('''
-  ... id: form
   ... type: form
   ... fields:
   ... - code
@@ -253,7 +248,6 @@ Overrides
 ::
 
   >>> action = Action.parse('''
-  ... id: form
   ... type: form
   ... fields:
   ... - code

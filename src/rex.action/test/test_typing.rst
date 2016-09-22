@@ -134,7 +134,7 @@ Row type::
           type=EntityType(name='individual',
                           state=EntityTypeState(name='not_recruited__and__recruited',
                                                 title=None,
-                                                expression=StateExpression(expression='!recruited && recruited'),
+                                                expression=StateExpression(expression='!entity["meta:state:recruited"] && entity["meta:state:recruited"]'),
                           input=None)))
 
   >>> r.type.name in dom.syn_entity_state

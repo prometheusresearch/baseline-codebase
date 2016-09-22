@@ -14,7 +14,6 @@ Test rex.action.widget
   >>> app.on()
 
   >>> wizard = ActionWizard(action=Action.parse("""
-  ... id: pick-individual
   ... type: pick
   ... entity: individual
   ... """))
@@ -23,7 +22,6 @@ Test rex.action.widget
   undefined
 
   >>> wizard = ActionWizard(action=Action.parse("""
-  ... id: pick-individual
   ... type: pick
   ... entity: individual
   ... title: Title

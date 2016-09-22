@@ -24,7 +24,6 @@ In case fields are not specified, they are generated from port::
 
   >>> pick = Action.parse("""
   ... type: pick
-  ... id: pick-individual
   ... entity: individual
   ... """)
 
@@ -79,7 +78,6 @@ var to this filter::
 
   >>> pick = Action.parse("""
   ... type: pick
-  ... id: pick-individual-search
   ... entity: individual
   ... search: identity.givename~$search
   ... """)
@@ -121,7 +119,6 @@ If we provide ``mask`` HTSQL expression it is compiled into port's filter::
 
   >>> pick = Action.parse("""
   ... type: pick
-  ... id: pick-male
   ... entity: individual
   ... mask: sex = 'male'
   ... """)
@@ -143,7 +140,6 @@ to those input variables::
 
   >>> pick = Action.parse("""
   ... type: pick
-  ... id: pick-study-enrollment
   ... entity: study_enrollment
   ... mask: individual = $individual
   ... input:
@@ -194,7 +190,6 @@ a mask::
   >>> with dom:
   ...   action = Action.parse('''
   ... type: pick
-  ... id: pick-individual
   ... entity: individual[editable]
   ... ''')
 

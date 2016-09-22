@@ -65,7 +65,6 @@ Wizard
   >>> from rex.action.wizard import Wizard
 
   >>> Wizard.parse("""
-  ... id: wizard
   ... path:
   ... - first:
   ...   - second:
@@ -80,7 +79,7 @@ Wizard
          doc=undefined,
          help=undefined,
          icon=undefined,
-         id='wizard',
+         id='...',
          initial_context=None,
          kind=undefined,
          path=Start(then=[Execute(id='...', action='first',
@@ -95,7 +94,6 @@ Wizard
 ::
 
   >>> Wizard.parse("""
-  ... id: wizard
   ... path:
   ... - first:
   ... actions:
@@ -109,7 +107,7 @@ Wizard
          doc=undefined,
          help=undefined,
          icon=undefined,
-         id='wizard',
+         id='...',
          initial_context=None,
          kind=undefined,
          path=Start(then=[Execute(id='...', action='first', then=[], action_instance=...)]),
@@ -120,7 +118,6 @@ Wizard
 ::
 
   >>> w = Wizard.parse("""
-  ... id: wizard
   ... path:
   ... - first:
   ... actions:
@@ -135,7 +132,6 @@ Wizard
 ::
 
   >>> Wizard.parse("""
-  ... id: wizard
   ... path:
   ... - first:
   ... initial_context:
@@ -148,7 +144,7 @@ Wizard
          doc=undefined,
          help=undefined,
          icon=undefined,
-         id='wizard',
+         id='...',
          initial_context={'x': 'value'},
          kind=undefined,
          path=Start(then=[Execute(id='...', action='first', then=[], action_instance=RequireX(...))]),
@@ -159,7 +155,6 @@ Wizard
 ::
 
   >>> w = Wizard.parse("""
-  ... id: wizard
   ... path:
   ... - first:
   ...   - second:
@@ -187,7 +182,6 @@ Wizard
 Context refetch::
 
   >>> w = Wizard.parse("""
-  ... id: wizard
   ... path:
   ... - first:
   ...   - second:
@@ -203,7 +197,8 @@ Context refetch::
   ...       expression: exists(study_enrollment.individual = id())
   ... """)
 
-  >>> refetch = lambda ctx: w.data.respond(Request.blank('/', body=json.dumps(ctx)))
+  >>> refetch = lambda ctx: w.data.respond(
+  ...   Request.blank('/', method='POST', body=json.dumps(ctx)))
 
   >>> print refetch({}) # doctest: +ELLIPSIS
   200 OK
@@ -384,7 +379,6 @@ Basic cases
 ~~~~~~~~~~~
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - pick-individual:
   ... actions:
@@ -395,10 +389,34 @@ Basic cases
   ... """)
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - view-individual:
   ... actions:
+  ...   view-individual:
+  ...     type: mock
+  ...     input:
+  ...     - individual: individual
+  ... """) # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Action "view-individual" cannot be used here:
+      Context is missing "individual: individual"
+  Context:
+      <empty context>
+  While type checking action at path:
+      view-individual
+  While parsing:
+      "<...>", line 3
+
+  >>> typecheck("""
+  ... path:
+  ... - pick-individual:
+  ... - view-individual:
+  ... actions:
+  ...   pick-individual:
+  ...     type: mock
+  ...     output:
+  ...     - individual: individual
   ...   view-individual:
   ...     type: mock
   ...     input:
@@ -416,33 +434,6 @@ Basic cases
       "<...>", line 4
 
   >>> typecheck("""
-  ... id: wizard
-  ... path:
-  ... - pick-individual:
-  ... - view-individual:
-  ... actions:
-  ...   pick-individual:
-  ...     type: mock
-  ...     output:
-  ...     - individual: individual
-  ...   view-individual:
-  ...     type: mock
-  ...     input:
-  ...     - individual: individual
-  ... """) # doctest: +ELLIPSIS
-  Traceback (most recent call last):
-  ...
-  Error: Action "view-individual" cannot be used here:
-      Context is missing "individual: individual"
-  Context:
-      <empty context>
-  While type checking action at path:
-      view-individual
-  While parsing:
-      "<...>", line 5
-
-  >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - pick-individual:
   ...   - pick-individual:
@@ -454,7 +445,6 @@ Basic cases
   ... """) # doctest: +ELLIPSIS
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - pick-individual:
   ...   - view-individual:
@@ -470,7 +460,6 @@ Basic cases
   ... """) # doctest: +ELLIPSIS
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - home:
   ...   - view-individual:
@@ -491,10 +480,9 @@ Basic cases
   While type checking action at path:
       home -> view-individual
   While parsing:
-      "<...>", line 5
+      "<...>", line 4
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - pick-individual:
   ...   - home:
@@ -513,7 +501,6 @@ Basic cases, different keys
 Keys and types are different, fail::
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - pick-study:
   ...   - view-individual:
@@ -536,12 +523,11 @@ Keys and types are different, fail::
   While type checking action at path:
       pick-study -> view-individual
   While parsing:
-      "<...>", line 5
+      "<...>", line 4
 
 Keys aren't same as types, fail::
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - pick-mother:
   ...   - view-individual:
@@ -564,12 +550,11 @@ Keys aren't same as types, fail::
   While type checking action at path:
       pick-mother -> view-individual
   While parsing:
-      "<...>", line 5
+      "<...>", line 4
 
 Keys aren't same as types, still match::
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - pick-mother:
   ...   - view-mother:
@@ -587,7 +572,6 @@ Keys aren't same as types, still match::
 Same type, different key, fail::
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - pick-individual:
   ...   - view-mother:
@@ -610,10 +594,9 @@ Same type, different key, fail::
   While type checking action at path:
       pick-individual -> view-mother
   While parsing:
-      "<...>", line 5
+      "<...>", line 4
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - pick-mother:
   ...   - view-mother-study:
@@ -636,7 +619,8 @@ Same type, different key, fail::
   While type checking action at path:
       pick-mother -> view-mother-study
   While parsing:
-      "<...>", line 5
+      "<...>", line 4
+
 
 Indexed types
 ~~~~~~~~~~~~~
@@ -644,7 +628,6 @@ Indexed types
 Same key, same entity, has any state, require recruited state, fail::
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - pick-individual:
   ...   - view-recruited-individual:
@@ -667,7 +650,6 @@ Same key, same entity, has any state, require recruited state, fail::
 Same key, same entity, has recruited, require any state, success::
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - pick-recruited-individual:
   ...   - view-individual:
@@ -690,7 +672,6 @@ Same key, same entity, has recruited, require any state, success::
 Same key, same entity, has recruited, require recruited, success::
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - pick-recruited-individual:
   ...   - view-recruited-individual:
@@ -713,7 +694,6 @@ Same key, same entity, has recruited, require recruited, success::
 Same key, same entity, has enrolled, require recruited, fail::
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - pick-enrolled-individual:
   ...   - view-recruited-individual:
@@ -734,17 +714,7 @@ Same key, same entity, has enrolled, require recruited, fail::
   ...     enrolled:
   ...       title: Recruited
   ...       expression: true()
-  ... """) # doctest: +ELLIPSIS
-  Traceback (most recent call last):
-  ...
-  Error: Action "view-recruited-individual" cannot be used here:
-      Context has "individual: individual[enrolled]" but expected to have "individual: individual[recruited]"
-  Context:
-      individual: individual[enrolled]
-  While type checking action at path:
-      pick-enrolled-individual -> view-recruited-individual
-  While parsing:
-      "<...>", line 5
+  ... """)
 
 Repeat
 ~~~~~~
@@ -752,7 +722,6 @@ Repeat
 ::
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - repeat:
   ...   - pick-individual:
@@ -770,7 +739,6 @@ Repeat
   ... """) # doctest: +NORMALIZE_WHITESPACE
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - repeat:
   ...   - pick-individual:
@@ -795,10 +763,9 @@ Repeat
   While type checking action at path:
       <repeat loop> -> pick-individual -> view-mother
   While parsing:
-      "<...>", line 6
+      "<...>", line 5
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - repeat:
   ...   - pick-individual:
@@ -818,7 +785,6 @@ Repeat
   ... """) # doctest: +NORMALIZE_WHITESPACE
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - repeat:
   ...   - pick-individual:
@@ -849,10 +815,9 @@ Repeat
   While type checking action at path:
       <repeat then> -> pick-individual -> view-mother
   While parsing:
-      "<...>", line 9
+      "<...>", line 8
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - pick-individual:
   ...   - repeat:
@@ -878,7 +843,7 @@ Repeat
   Error: Repeat ends with a type which is incompatible with its beginning:
       Has "individual: study" but expected to have "individual: individual"
   While parsing:
-      "<...>", line 7
+      "<...>", line 6
 
 Replace
 ~~~~~~~
@@ -886,7 +851,6 @@ Replace
 ::
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - pick-individual:
   ... - make-individual:
@@ -903,7 +867,6 @@ Replace
   ... """) # doctest: +ELLIPSIS
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - pick-individual:
   ...   - view-individual:
@@ -925,7 +888,6 @@ Replace
   ... """) # doctest: +ELLIPSIS
 
   >>> typecheck("""
-  ... id: wizard
   ... path:
   ... - pick-lab:
   ...   - view-lab:
@@ -954,7 +916,7 @@ Replace
   While type checking action at path:
       make-individual -> <replace ../pick-lab/view-lab> -> view-lab
   While parsing:
-      "<...>", line 5
+      "<...>", line 4
 
 ::
 
@@ -973,7 +935,6 @@ Overrides
   >>> w = Action.parse("""
   ... type:
   ...   type: wizard
-  ...   id: wizard
   ...   path:
   ...   - pick-individual:
   ...   actions:
@@ -989,11 +950,11 @@ Overrides
 
 ::
 
-  >>> w.actions['pick-individual'] # doctest: +NORMALIZE_WHITESPACE
+  >>> w.actions['pick-individual'] # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   MockAction(doc=undefined,
              help=undefined,
              icon=undefined,
-             id=undefined,
+             id='...',
              input=RecordType(rows={}, open=True),
              kind=undefined,
              output=RecordType(rows={}, open=True),
@@ -1004,7 +965,6 @@ Overrides
   >>> w = Action.parse("""
   ... type:
   ...   type: wizard
-  ...   id: wizard
   ...   path:
   ...   - pick-individual:
   ...   actions:
@@ -1017,11 +977,11 @@ Overrides
   ...   text: OK
   ... """)
 
-  >>> w.actions['pick-individual'] # doctest: +NORMALIZE_WHITESPACE
+  >>> w.actions['pick-individual'] # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   MockAction(doc=undefined,
              help=undefined,
              icon=undefined,
-             id=undefined,
+             id='...',
              input=RecordType(rows={}, open=True),
              kind=undefined,
              output=RecordType(rows={'individual': RowType(name='individual',

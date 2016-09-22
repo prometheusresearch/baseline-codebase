@@ -24,18 +24,17 @@ In case fields are not specified, they are generated from port::
 
   >>> drop= Action.parse("""
   ... type: drop
-  ... id: drop-individual
   ... entity: individual
   ... """)
 
-  >>> drop # doctest: +NORMALIZE_WHITESPACE
+  >>> drop # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Drop(confirm_delay=undefined,
        db=None,
        doc=undefined,
        entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
        help=undefined,
        icon=undefined,
-       id='drop-individual',
+       id='...',
        kind=undefined,
        message=RST(src=u'<p>You are about to drop an entity</p>', links={}),
        title=undefined,

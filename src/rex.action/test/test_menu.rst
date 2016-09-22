@@ -31,7 +31,7 @@ Menu integration
   ...           type: pick
   ...           entity: individual
   ... """)
-  >>> rex = Rex(pkg, '-', 'rex.action_demo', attach_dir=attach_dir)
+  >>> rex = Rex(pkg, '-', 'rex.action', attach_dir=attach_dir, db='pgsql:action_demo')
   >>> rex.on()
 
 ::

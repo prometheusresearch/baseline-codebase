@@ -27,7 +27,6 @@ In case fields are not specified, they are generated from port::
 
   >>> make = Action.parse("""
   ... type: make
-  ... id: make-individual
   ... entity: individual
   ... """)
 
@@ -97,7 +96,6 @@ You can also specify fields and see port generated from them::
 
   >>> make = Action.parse("""
   ... type: make
-  ... id: make-individual
   ... entity: individual
   ... fields:
   ... - value_key: code
@@ -121,7 +119,6 @@ Value also used to generate port::
 
   >>> make = Action.parse("""
   ... type: make
-  ... id: make-individual
   ... entity: individual
   ... value:
   ...   code: code
@@ -175,7 +172,6 @@ Query
 
   >>> make = Action.parse("""
   ... type: make
-  ... id: make-individual
   ... entity: individual
   ... value:
   ...   code: code
@@ -198,7 +194,6 @@ Fields with layout
 
   >>> make = Action.parse("""
   ... type: make
-  ... id: make-individual
   ... entity: individual
   ... fields:
   ... - row:

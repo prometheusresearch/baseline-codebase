@@ -6,6 +6,7 @@
 ==================
 
 * [FIX] Validation of raw widgets.
+* [FIX] Fix es2015 spec compat (duplicate named exports).
 
 2.9.0 (2016-09-14)
 ==================

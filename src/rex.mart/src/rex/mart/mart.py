@@ -4,7 +4,7 @@
 
 
 from .config import get_definition
-from .connections import get_management_db
+from .connections import get_management_db, get_mart_db
 from .purging import purge_mart
 
 
@@ -195,6 +195,19 @@ class Mart(object):
         """
 
         purge_mart(self.code)
+
+    def get_htsql(self, extensions=None):
+        """
+        Retrieves an HTSQL connection to the Mart database.
+
+        :param extensions:
+        the HTSQL extensions to enable/configure, in addition to those defined
+        by the ``mart_htsql_extension`` setting
+        :type extensions: dict
+        :rtype: rex.db.RexHTSQL
+        """
+
+        return get_mart_db(self.name, extensions=extensions)
 
     def as_dict(self, json_safe=False):
         """

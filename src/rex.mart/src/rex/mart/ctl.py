@@ -17,7 +17,7 @@ from rex.ctl import RexTask, argument, option, log
 from rex.ctl.common import pair
 
 from .config import get_all_definitions
-from .connections import get_mart_db, get_management_db
+from .connections import get_management_db
 from .creation import MartCreator
 from .mart import Mart
 from .permissions import MartAccessPermissions
@@ -312,11 +312,11 @@ class MartShellTask(RexTask):
             raise Error('No matching Marts found')
 
         if latest_or_index == 'latest':
-            return get_mart_db(marts[0].name)
+            return marts[0].get_htsql()
         else:
             if len(marts) < latest_or_index:
                 raise Error('No matching Marts found')
-            return get_mart_db(marts[latest_or_index - 1].name)
+            return marts[latest_or_index - 1].get_htsql()
 
     def get_named_database(self):
         database = get_management_db()
@@ -340,7 +340,7 @@ class MartShellTask(RexTask):
                 self.code_name_owner,
             ))
 
-        return get_mart_db(mart.name)
+        return mart.get_htsql()
 
 
 class MartPurgeTask(RexTask):

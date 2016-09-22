@@ -15,6 +15,8 @@ REX.MART Change Log
   a link field is connected to.
 - The data dictionary column table now includes backlink columns child tables.
 - The data dictionary will now classify both int4 and int8 fields as "integer".
+- Added a ``get_htsql()`` method to Mart classes to make getting database
+  connections a little easier.
 
 
 0.3.1 (2016-08-30)

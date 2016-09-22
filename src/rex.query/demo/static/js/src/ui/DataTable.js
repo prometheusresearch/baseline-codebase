@@ -10,10 +10,11 @@ import type {QueryNavigation} from '../model/QueryNavigation';
 import React from 'react';
 import {
   AutoSizer,
-  Column, Table
+  Column
 } from 'react-virtualized';
 import {create} from 'react-dom-stylesheet';
 import * as css from 'react-dom-stylesheet/css';
+import Table from './datatable/DataTable';
 
 import {getQueryNavigation} from '../model/QueryNavigation';
 

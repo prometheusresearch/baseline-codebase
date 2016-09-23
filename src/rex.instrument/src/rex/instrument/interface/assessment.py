@@ -228,14 +228,28 @@ class Assessment(
 
         raise NotImplementedError()
 
-    BulkAssessment = namedtuple(
-        'BulkAssessment',
-        [
+    class BulkAssessment(object):
+        _FIELDS = [
             'uid',
             'data',
             'instrument_version_uid',
-        ],
-    )
+            'subject_uid',
+            'evaluation_date',
+            'context',
+        ]
+
+        def __init__(self, **kwargs):
+            for field in self._FIELDS:
+                setattr(self, field, kwargs.get(field))
+
+        def __repr__(self):
+            return '%s(%s)' % (
+                self.__class__.__name__,
+                ', '.join([
+                    '%s=%r' % (field, getattr(self, field))
+                    for field in self._FIELDS
+                ]),
+            )
 
     @classmethod
     def bulk_retrieve(cls, uids):
@@ -246,11 +260,13 @@ class Assessment(
         multiple, complete, known, Assessments when you only need very basic
         information and functionality about them.
 
-        This method returns a list of namedtuples that have the following
-        properties:
+        This method returns a list of BulkAssessment objects that will have
+        the following properties populated (other properties are left None):
         * uid  (str)
         * data  (dict)
         * instrument_version_uid  (str)
+        * subject_uid  (str)
+        * evaluation_date  (datetime)
 
         :param uids:
             the UIDs of the Assessments to retrieve from the datastore
@@ -291,6 +307,41 @@ class Assessment(
         :raises:
             DataStoreError if there was an error writing to the datastore
         :rtype: Assessment
+        """
+
+        raise NotImplementedError()
+
+    @classmethod
+    def bulk_create(cls, assessments, validate=True):
+        """
+        Intended for usage in utilities like rex.assessment_import, this method
+        will create multiple Assessments in the data store in a single, more
+        efficient operation (as opposed to using the ``create()`` method in a
+        loop).
+
+        The BulkAssessment objects provided in the ``assessments`` argument
+        are expected to have the following keys populated:
+
+        * subject_uid: The UID of the Subject to associate the Assessment with.
+          Required.
+        * instrument_version_uid: The UID of the Instrument Version that the
+          Assessment is in response to. Required.
+        * data: A dictionary containing the Assessment Document. Required.
+        * evaluation_date: A datetime reflecting the date the data was
+          originally captured. Optional.
+        * context: A dictionary containing the extra, implementation-specific
+          variables necessary to create the Assessment in the datastore.
+          Optional.
+
+        :param assessments:
+            the collection of Assessments to load into the datastore
+        :type assessments: iterable of Assessment.BulkAssessment
+        :param validate:
+            indicates whether or not the Assessment Documents should be
+            validated prior to loading them into the datastore. If not
+            specified, defaults to True.
+        :type validate: bool
+        :returns: the number of Assessments created
         """
 
         raise NotImplementedError()

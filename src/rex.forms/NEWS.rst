@@ -5,6 +5,12 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+2.2.0 (2016-xx-xx)
+==================
+
+* The ``FormError`` exception now inherits from ``rex.core.Error``.
+
+
 2.1.0 (2016-09-14)
 ==================
 

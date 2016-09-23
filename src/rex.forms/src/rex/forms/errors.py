@@ -3,6 +3,9 @@
 #
 
 
+from rex.core import Error
+
+
 __all__ = (
     'FormError',
     'ValidationError',
@@ -11,12 +14,14 @@ __all__ = (
 )
 
 
-class FormError(Exception):
+class FormError(Error):
     """
     The base class of any exception raised directly by rex.forms
     """
 
-    pass
+    def __init__(self, message, payload=None):
+        self.message = message
+        super(FormError, self).__init__(message, payload=payload)
 
 
 class ValidationError(FormError):

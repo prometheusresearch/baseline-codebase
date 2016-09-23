@@ -51,14 +51,11 @@ def open_and_validate(
                 str(exc),
             ))
 
-    try:
-        configuration = AnyVal().parse(configuration)
-        Form.validate_configuration(
-            configuration,
-            instrument_definition=instrument_definition,
-        )
-    except ValidationError as exc:
-        raise Error(exc.message)
+    configuration = AnyVal().parse(configuration)
+    Form.validate_configuration(
+        configuration,
+        instrument_definition=instrument_definition,
+    )
 
     return configuration
 

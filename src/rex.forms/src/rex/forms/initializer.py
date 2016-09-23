@@ -42,7 +42,7 @@ class FormsInitialize(Initialize):
                 raise Error(
                     'Form "%s" contains an invalid configuration: %s' % (
                         form.uid,
-                        exc.message,
+                        exc,
                     )
                 )
 

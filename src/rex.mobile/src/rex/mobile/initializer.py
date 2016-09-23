@@ -43,7 +43,7 @@ class MobileInitialize(Initialize):
                     'Interaction "%s" contains an invalid configuration:'
                     ' %s' % (
                         interaction.uid,
-                        exc.message,
+                        exc,
                     )
                 )
 

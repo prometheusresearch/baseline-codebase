@@ -3,6 +3,9 @@
 #
 
 
+from rex.core import Error
+
+
 __all__ = (
     'MobileError',
     'ValidationError',
@@ -11,12 +14,14 @@ __all__ = (
 )
 
 
-class MobileError(Exception):
+class MobileError(Error):
     """
     The base class of any exception raised directly by rex.mobile
     """
 
-    pass
+    def __init__(self, message, payload=None):
+        self.message = message
+        super(MobileError, self).__init__(message, payload=payload)
 
 
 class ValidationError(MobileError):

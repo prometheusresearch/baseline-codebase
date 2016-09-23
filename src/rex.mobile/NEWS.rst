@@ -5,6 +5,12 @@ REX.MOBILE Change Log
 .. contents:: Table of Contents
 
 
+0.8.0 (2016-xx-xx)
+==================
+
+* The ``MobileError`` exception now inherits from ``rex.core.Error``.
+
+
 0.7.1 (2016-08-12)
 ==================
 

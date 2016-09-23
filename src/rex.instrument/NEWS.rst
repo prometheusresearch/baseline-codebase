@@ -10,6 +10,7 @@ REX.INSTRUMENT Change Log
 
 * Added a ``bulk_create()`` method to Assessment to facilitate features in
   ``rex.assessment_import``.
+* The ``InstrumentError`` exception now inherits from ``rex.core.Error``.
 
 
 1.6.1 (2016-08-12)

@@ -7,7 +7,6 @@ import sys
 from rex.core import Error, AnyVal
 from rex.ctl import Task, RexTask, argument, option, log
 
-from .errors import ValidationError
 from .interface import CalculationSet
 from .output import dump_calculationset_json, dump_calculationset_yaml
 from .util import get_implementation
@@ -46,14 +45,11 @@ def open_and_validate(
                 str(exc),
             ))
 
-    try:
-        definition = AnyVal().parse(definition)
-        CalculationSet.validate_definition(
-            definition,
-            instrument_definition=instrument_definition,
-        )
-    except ValidationError as exc:
-        raise Error(exc.message)
+    definition = AnyVal().parse(definition)
+    CalculationSet.validate_definition(
+        definition,
+        instrument_definition=instrument_definition,
+    )
 
     return definition
 

@@ -40,7 +40,7 @@ class InstrumentInitialize(Initialize):
                         'InstrumentVersion "%s" contains an invalid'
                         ' definition: %s' % (
                             version.uid,
-                            exc.message,
+                            exc,
                         )
                     )
 
@@ -60,7 +60,7 @@ class InstrumentInitialize(Initialize):
                         'CalculationSet "%s" contains an invalid'
                         ' definition: %s' % (
                             calc.uid,
-                            exc.message,
+                            exc,
                         )
                     )
 

@@ -11,7 +11,6 @@ from rex.core import Error, AnyVal
 from rex.ctl import Task, RexTask, argument, option, log
 from rex.ctl.common import pair
 
-from .errors import ValidationError
 from .interface import InstrumentVersion
 from .output import dump_instrument_json, dump_instrument_yaml
 from .util import get_implementation, get_current_datetime
@@ -34,11 +33,8 @@ def open_and_validate(filename):
             str(exc),
         ))
 
-    try:
-        definition = AnyVal().parse(definition)
-        InstrumentVersion.validate_definition(definition)
-    except ValidationError as exc:
-        raise Error(exc.message)
+    definition = AnyVal().parse(definition)
+    InstrumentVersion.validate_definition(definition)
 
     return definition
 

@@ -395,14 +395,17 @@ function getNavigation(domain, type, scope) {
     if (type.name === 'void') {
       for (let k in domain.entity) {
         if (domain.entity.hasOwnProperty(k)) {
-          navigation.push({value: k, label: k});
+          navigation.push({value: k, label: domain.entity[k].title});
         }
       }
     } else if (type.name === 'entity') {
       let attribute = domain.entity[type.entity].attribute;
       for (let k in attribute) {
         if (attribute.hasOwnProperty(k)) {
-          navigation.push({value: k, label: k});
+          navigation.push({
+            value: k,
+            label: attribute[k].title
+          });
         }
       }
     }

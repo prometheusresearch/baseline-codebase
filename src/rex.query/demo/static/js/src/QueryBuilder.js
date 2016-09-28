@@ -10,7 +10,9 @@ import React from 'react';
 import {VBox, HBox} from '@prometheusresearch/react-box';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import * as css from 'react-stylesheet/css';
+import {style} from 'react-stylesheet';
 import ArrowLeftIcon  from 'react-icons/lib/fa/arrow-left';
+import ArrowRightIcon  from 'react-icons/lib/fa/arrow-right';
 
 import {fetch} from './fetch';
 import * as t from './model/Type';
@@ -56,6 +58,16 @@ type QueryBuilderState = {
   data: ?Object;
   dataUpdating: boolean;
   showAddColumnPanel: boolean;
+  undoStack: Array<{
+    query: Query;
+    selected: ?QueryPointer<Query>;
+    fieldList: Array<string>;
+  }>;
+  redoStack: Array<{
+    query: Query;
+    selected: ?QueryPointer<Query>;
+    fieldList: Array<string>;
+  }>;
 };
 
 export type QueryBuilderActions = {
@@ -67,6 +79,8 @@ export type QueryBuilderActions = {
   select(pointer: ?QueryPointer<Query>): void;
   replace(pointer: QueryPointer<Query>, query: Query): void;
   renameDefineBinding(pointer: QueryPointer<DefineQuery>, name: string): void;
+  undo(): void;
+  redo(): void;
 };
 
 export default class QueryBuilder extends React.Component {
@@ -95,6 +109,8 @@ export default class QueryBuilder extends React.Component {
       select: this.selectAction,
       replace: this.replaceAction,
       renameDefineBinding: this.renameDefineBindingAction,
+      undo: this.undoAction,
+      redo: this.redoAction,
     };
 
     this.state = {
@@ -105,8 +121,34 @@ export default class QueryBuilder extends React.Component {
       data: null,
       dataUpdating: false,
       showAddColumnPanel: false,
+      undoStack: [],
+      redoStack: [],
     };
   }
+
+  undoAction = () => {
+    let undoStack = this.state.undoStack.slice(0);
+    let {query, selected, fieldList} = undoStack.pop();
+    let redoStack = this.state.redoStack.concat({
+      query: this.state.query,
+      selected: this.state.selected,
+      fieldList: this.state.fieldList,
+    });
+    this.setState({query, selected, fieldList, undoStack, redoStack});
+    this.fetchData(selectAll(query, fieldList));
+  };
+
+  redoAction = () => {
+    let redoStack = this.state.redoStack.slice(0);
+    let {query, selected, fieldList} = redoStack.pop();
+    let undoStack = this.state.undoStack.concat({
+      query: this.state.query,
+      selected: this.state.selected,
+      fieldList: this.state.fieldList,
+    });
+    this.setState({query, selected, fieldList, undoStack, redoStack});
+    this.fetchData(selectAll(query, fieldList));
+  };
 
   selectAction = (pointer: ?QueryPointer<*>) => {
     this.onSelect(pointer);
@@ -212,6 +254,12 @@ export default class QueryBuilder extends React.Component {
       selected: nextSelected,
       fieldList: fieldList,
       showAddColumnPanel: false,
+      undoStack: this.state.undoStack.concat({
+        query: this.state.query,
+        selected: this.state.selected,
+        fieldList: this.state.fieldList,
+      }),
+      redoStack: [],
     });
     this.fetchData(selectAll(nextQuery, fieldList));
   };
@@ -253,43 +301,63 @@ export default class QueryBuilder extends React.Component {
     let pointer = qp.make(query);
 
     return (
-      <HBox grow={1} height="100%">
-        <VBox basis="300px" overflow="auto">
-          <ui.QueryVis
-            domain={this.props.domain}
-            pointer={pointer}
-            selected={selected}
-            showAddColumnPanel={showAddColumnPanel}
-            onAddColumn={this.onShowAddColumn}
-            />
-        </VBox>
-        {(selected || showAddColumnPanel) &&
-          <VBox basis="200px" grow={1}>
-            {showAddColumnPanel ?
-              <ui.AddColumnPanel
-                fieldList={fieldList}
-                onFieldList={this.onFieldList}
-                pointer={pointer}
-                onClose={this.onAddColumnPanelClose}
-                /> :
-              <ui.QueryPanel
-                onClose={this.onSelect.bind(null, null)}
-                pointer={selected}
-                />}
-          </VBox>}
-        <VBox basis="400px" grow={3} style={{borderLeft: css.border(1, '#ccc')}}>
-          {!dataUpdating && !queryInvalid
-            ? <ui.DataTable
-                fieldList={fieldList}
-                onAddColumn={this.onShowAddColumn}
-                query={selectAll(query, fieldList)}
-                data={data}
-                />
-            : queryInvalid
-            ? <InvalidQueryMessage />
-            : null}
-        </VBox>
-      </HBox>
+      <VBox height="100%">
+        <QueryBuilderToolbar width="100%" padding={5} height={35}>
+          <ReactUI.FlatButton
+            disabled={this.state.undoStack.length < 1}
+            onClick={this.actions.undo}
+            icon={<ArrowLeftIcon />}
+            size="small"
+            groupHorizontally>
+            Undo
+          </ReactUI.FlatButton>
+          <ReactUI.FlatButton
+            disabled={this.state.redoStack.length < 1}
+            onClick={this.actions.redo}
+            iconAlt={<ArrowRightIcon />}
+            size="small"
+            groupHorizontally>
+            Redo
+          </ReactUI.FlatButton>
+        </QueryBuilderToolbar>
+        <HBox grow={1}>
+          <VBox basis="300px" overflow="auto">
+            <ui.QueryVis
+              domain={this.props.domain}
+              pointer={pointer}
+              selected={selected}
+              showAddColumnPanel={showAddColumnPanel}
+              onAddColumn={this.onShowAddColumn}
+              />
+          </VBox>
+          {(selected || showAddColumnPanel) &&
+            <VBox basis="200px" grow={1}>
+              {showAddColumnPanel ?
+                <ui.AddColumnPanel
+                  fieldList={fieldList}
+                  onFieldList={this.onFieldList}
+                  pointer={pointer}
+                  onClose={this.onAddColumnPanelClose}
+                  /> :
+                <ui.QueryPanel
+                  onClose={this.onSelect.bind(null, null)}
+                  pointer={selected}
+                  />}
+            </VBox>}
+          <VBox basis="400px" grow={3} style={{borderLeft: css.border(1, '#ccc')}}>
+            {!dataUpdating && !queryInvalid
+              ? <ui.DataTable
+                  fieldList={fieldList}
+                  onAddColumn={this.onShowAddColumn}
+                  query={selectAll(query, fieldList)}
+                  data={data}
+                  />
+              : queryInvalid
+              ? <InvalidQueryMessage />
+              : null}
+          </VBox>
+        </HBox>
+      </VBox>
     );
   }
 
@@ -393,3 +461,10 @@ function InvalidQueryMessage() {
     </ui.Message>
   );
 }
+
+let QueryBuilderToolbar = style(HBox, {
+  base: {
+    zIndex: 1,
+    boxShadow: css.boxShadow(0, 1, 1, 1, '#ddd'),
+  }
+});

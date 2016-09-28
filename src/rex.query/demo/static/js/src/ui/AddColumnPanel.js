@@ -14,7 +14,6 @@ import {style} from 'react-stylesheet';
 import * as theme from './Theme';
 import * as t from '../model/Type';
 import QueryPanelBase from './QueryPanelBase';
-import AttributePicker from './AttributePicker';
 import ColumnPicker from './ColumnPicker';
 
 type AddColumnPanelProps = {

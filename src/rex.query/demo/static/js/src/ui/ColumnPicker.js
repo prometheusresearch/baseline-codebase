@@ -2,6 +2,10 @@
  * @flow
  */
 
+import type {Query} from '../model/Query';
+import type {QueryPointer} from '../model/QueryPointer';
+import type {QueryBuilderActions} from '../QueryBuilder';
+
 import React from 'react';
 import {VBox, HBox} from '@prometheusresearch/react-box';
 import * as ReactUI from '@prometheusresearch/react-ui';
@@ -9,12 +13,17 @@ import * as css from 'react-stylesheet/css';
 import {style} from 'react-stylesheet';
 
 type ColumnPickerProps = {
+  pointer: QueryPointer<Query>;
   options: Array<{label: string; value: string}>;
   selected: Array<string>;
   onSelect: (field: string) => *;
 };
 
 export default class ColumnPicker extends React.Component<*, ColumnPickerProps, *> {
+
+  context: {actions: QueryBuilderActions};
+
+  static contextTypes = {actions: React.PropTypes.object};
 
   render() {
     let {options, selected, onSelect} = this.props;
@@ -33,8 +42,8 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
             placeholder="Search columns…"
             />
         </VBox>
-        <VBox paddingBottom={20}>
-          <ColumnButtonBase icon="＋">
+        <VBox paddingV={20}>
+          <ColumnButtonBase icon="＋" onClick={this.onAddDefine}>
             Define new attribute
           </ColumnButtonBase>
         </VBox>
@@ -42,6 +51,11 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
       </VBox>
     );
   }
+
+  onAddDefine = (e: UIEvent) => {
+    e.stopPropagation();
+    this.context.actions.addDefine(this.props.pointer);
+  };
 }
 
 let ColumnButtonRoot = style(HBox, {

@@ -34,6 +34,7 @@ export default class NavigateQueryPanel extends React.Component {
         theme={theme.entity}
         pointer={pointer}>
         <ColumnPicker
+          pointer={pointer}
           selected={[pointer.query.path]}
           options={q.getNavigationBefore(pointer.query.context)}
           onSelect={this.onSelect}

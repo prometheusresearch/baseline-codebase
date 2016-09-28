@@ -47,6 +47,7 @@ export default class AddColumnPanel extends React.Component<*, AddColumnPanelPro
             selected={fieldList}
             options={columns}
             onSelect={this.onSelect}
+            pointer={pointer}
             /> :
           <NoColumnsMessage />}
       </QueryPanelBase>

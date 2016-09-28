@@ -2,14 +2,12 @@
  * @flow
  */
 
-import type {Query} from '../model/Query';
 import type {QueryPointer} from '../model/QueryPointer';
 import type {QueryBuilderActions} from '../QueryBuilder';
 
 import React from 'react';
 
 import * as q from '../model/Query';
-import * as qo from '../model/QueryOperation';
 import * as theme from './Theme';
 import QueryPanelBase from './QueryPanelBase';
 import ColumnPicker from './ColumnPicker';

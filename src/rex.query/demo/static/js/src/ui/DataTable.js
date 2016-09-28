@@ -7,8 +7,7 @@ import type {QueryNavigation} from '../model/QueryNavigation';
 
 import React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
-import {VBox, HBox} from '@prometheusresearch/react-box';
-import * as css from 'react-stylesheet/css';
+import {VBox} from '@prometheusresearch/react-box';
 import {style} from 'react-stylesheet';
 import {AutoSizer} from 'react-virtualized';
 import IconPlus from 'react-icons/lib/fa/plus';

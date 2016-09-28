@@ -6,9 +6,7 @@ import type {Query} from '../model/Query';
 import type {QueryPointer} from '../model/QueryPointer';
 
 import React from 'react';
-import {VBox, HBox} from '@prometheusresearch/react-box';
-import * as ReactUI from '@prometheusresearch/react-ui';
-import * as css from 'react-stylesheet/css';
+import {VBox} from '@prometheusresearch/react-box';
 import {style} from 'react-stylesheet';
 
 import * as theme from './Theme';

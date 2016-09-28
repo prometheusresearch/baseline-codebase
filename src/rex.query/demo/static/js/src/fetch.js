@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Query, Domain, DomainEntity, DomainEntityAttribute} from './model/Query';
+import type {Query, Domain, DomainEntity} from './model/Query';
 import type {Type} from './model/Type';
 
 import invariant from 'invariant';

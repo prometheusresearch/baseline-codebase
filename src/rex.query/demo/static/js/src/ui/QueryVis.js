@@ -80,7 +80,6 @@ let NavigateButton = createButton('NavigateButton', theme.entity);
 let AggregateButton = createButton('AggregateButton', theme.aggregate);
 let DefineButton = createButton('AggregateButton', theme.traverse);
 let FilterButton = createButton('FilterButton', theme.filter);
-let SelectButton = createButton('SelectButton', theme.select);
 
 let NavigatePanel = createPanel('NavigatePanel', theme.entity);
 let AggregatePanel = createPanel('AggregatePanel', theme.aggregate);

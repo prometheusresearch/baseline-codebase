@@ -13,9 +13,7 @@ import IconRemove from 'react-icons/lib/fa/trash';
 import IconCircleO from 'react-icons/lib/fa/circle-o'
 import IconCircle from 'react-icons/lib/fa/circle'
 
-import noop from '../noop';
 import * as qp from '../model/QueryPointer';
-import * as qo from '../model/QueryOperation';
 import QueryVisToolbar from './QueryVisToolbar';
 
 type QueryVisButtonProps = {

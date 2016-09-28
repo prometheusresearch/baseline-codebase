@@ -374,18 +374,19 @@ request and response headers and body for easier debugging::
     >>> req.body = '{"happy": true, "bar": "baz"}'
     >>> req.headers['Content-Type'] = 'application/json'
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
-    DEBUG:rex.restful.wire.request:PUT /foo/42?format=yaml
+    INFO:rex.restful.wire.request:PUT /foo/42?format=yaml
     DEBUG:rex.restful.wire.request:Content-Type: application/json
     DEBUG:rex.restful.wire.request:Host: localhost:80
     DEBUG:rex.restful.wire.request:Content-Length: 29
     INFO:rex.restful.wire.request:{"happy": true, "bar": "baz"}
     ### UPDATING FOO 42
     ###   PAYLOAD: {u'bar': u'baz', u'happy': True}
-    DEBUG:rex.restful.wire.response:202 Accepted
+    INFO:rex.restful.wire.response:202 Accepted
     DEBUG:rex.restful.wire.response:Content-Type: application/x-yaml
     DEBUG:rex.restful.wire.response:Content-Length: 12
     INFO:rex.restful.wire.response:{foo: '42'}
     <BLANKLINE>
+    INFO:rex.restful.wire.response:Request processed in: ...
     202 Accepted
     Content-Type: application/x-yaml
     Content-Length: 12
@@ -411,17 +412,18 @@ CORS protocol. Here, a preflight request is processed::
     >>> req.headers['Origin'] = 'http://example.com'
     >>> req.headers['Access-Control-Request-Method'] = 'GET'
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
-    DEBUG:rex.restful.wire.request:OPTIONS /cors/42
+    INFO:rex.restful.wire.request:OPTIONS /cors/42
     DEBUG:rex.restful.wire.request:Host: localhost:80
     DEBUG:rex.restful.wire.request:Origin: http://example.com
     DEBUG:rex.restful.wire.request:Content-Length: 0
     DEBUG:rex.restful.wire.request:Access-Control-Request-Method: GET
-    DEBUG:rex.restful.wire.response:200 OK
+    INFO:rex.restful.wire.response:200 OK
     DEBUG:rex.restful.wire.response:Content-Type: application/json; charset=UTF-8
     DEBUG:rex.restful.wire.response:Content-Length: 0
     DEBUG:rex.restful.wire.response:Access-Control-Allow-Origin: *
     DEBUG:rex.restful.wire.response:Access-Control-Allow-Methods: PUT,GET
     DEBUG:rex.restful.wire.response:Vary: Origin
+    INFO:rex.restful.wire.response:Request processed in: ...
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: 0
@@ -435,17 +437,18 @@ Here's a simple request with an accepted Origin::
     >>> req.headers['Origin'] = 'http://example.com'
     >>> req.headers['Content-Type'] = 'application/json'
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
-    DEBUG:rex.restful.wire.request:GET /cors/42
+    INFO:rex.restful.wire.request:GET /cors/42
     DEBUG:rex.restful.wire.request:Content-Type: application/json
     DEBUG:rex.restful.wire.request:Host: localhost:80
     DEBUG:rex.restful.wire.request:Origin: http://example.com
     ### RETRIEVING BAR 42
-    DEBUG:rex.restful.wire.response:200 OK
+    INFO:rex.restful.wire.response:200 OK
     DEBUG:rex.restful.wire.response:Content-Type: application/json; charset=UTF-8
     DEBUG:rex.restful.wire.response:Content-Length: 13
     DEBUG:rex.restful.wire.response:Access-Control-Allow-Origin: *
     DEBUG:rex.restful.wire.response:Vary: Origin
     INFO:rex.restful.wire.response:{"bar": "42"}
+    INFO:rex.restful.wire.response:Request processed in: ...
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: 13
@@ -460,16 +463,17 @@ Here's a simple request with a rejected Origin::
     >>> req.headers['Origin'] = 'http://example.com'
     >>> req.headers['Content-Type'] = 'application/json'
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
-    DEBUG:rex.restful.wire.request:GET /lockedcors/42
+    INFO:rex.restful.wire.request:GET /lockedcors/42
     DEBUG:rex.restful.wire.request:Content-Type: application/json
     DEBUG:rex.restful.wire.request:Host: localhost:80
     DEBUG:rex.restful.wire.request:Origin: http://example.com
     ERROR:root:Disallowed origin: http://example.com
-    DEBUG:rex.restful.wire.response:403 Forbidden
+    INFO:rex.restful.wire.response:403 Forbidden
     DEBUG:rex.restful.wire.response:Content-Type: application/json; charset=UTF-8
     DEBUG:rex.restful.wire.response:Content-Length: 50
     DEBUG:rex.restful.wire.response:Vary: Origin
     INFO:rex.restful.wire.response:{"error": "Disallowed origin: http://example.com"}
+    INFO:rex.restful.wire.response:Request processed in: ...
     403 Forbidden
     Content-Type: application/json; charset=UTF-8
     Content-Length: 50

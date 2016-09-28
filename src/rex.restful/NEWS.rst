@@ -11,6 +11,7 @@ REX.RESTFUL Change Log
 * Added support for CORS on RestfulLocation endpoints. This is accomplished by
   setting the ``cors_policy`` property on the class that references a
   configuration defined by the ``restful_cors_policies`` application setting.
+* Added execution time to response logs.
 
 
 1.1.0 (2016-01-29)

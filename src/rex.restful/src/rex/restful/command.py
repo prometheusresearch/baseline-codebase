@@ -3,6 +3,8 @@
 #
 
 
+from datetime import datetime
+
 from cors import cors_handler, cors_options, http_response
 from webob import Response
 from webob.exc import HTTPMethodNotAllowed, HTTPException, HTTPBadRequest
@@ -295,6 +297,7 @@ class RestfulLocation(Command):
             raise HTTPBadRequest(unicode(exc))
 
     def __call__(self, request, **kwargs):
+        start = datetime.now()
         self.authorize(request)
         self._log_request(request)
 
@@ -312,7 +315,7 @@ class RestfulLocation(Command):
                 response.status = cors_response.status
                 for key, value in cors_response.headers.items():
                     response.headers[key] = value
-                self._log_response(response)
+                self._log_response(response, start)
                 return response
             else:
                 cors_headers = cors_response.headers
@@ -345,7 +348,7 @@ class RestfulLocation(Command):
         for key, value in cors_headers.items():
             response.headers[key] = value
 
-        self._log_response(response)
+        self._log_response(response, start)
         return response
 
     def make_response(self, request, response_payload):
@@ -373,7 +376,7 @@ class RestfulLocation(Command):
         )
 
     def _log_request(self, request):
-        self._request_logger.debug(
+        self._request_logger.info(
             u'%s %s',
             request.method,
             request.path_qs,
@@ -387,8 +390,8 @@ class RestfulLocation(Command):
         if request.body:
             self._request_logger.info(request.body)
 
-    def _log_response(self, response):
-        self._response_logger.debug(response.status)
+    def _log_response(self, response, start_time=None):
+        self._response_logger.info(response.status)
         for name, value in response.headers.items():
             self._response_logger.debug(
                 u'%s: %s',
@@ -397,6 +400,12 @@ class RestfulLocation(Command):
             )
         if response.body:
             self._response_logger.info(response.body)
+        if start_time:
+            self._response_logger.info(
+                'Request processed in: %s' % (
+                    datetime.now() - start_time,
+                )
+            )
 
     def _get_method_handler(self, request):
         method = request.method.upper()

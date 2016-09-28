@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Query, Domain} from './model/Query';
+import type {Query, Domain, DefineQuery} from './model/Query';
 import type {QueryPointer} from './model/QueryPointer';
 
 import invariant from 'invariant';
@@ -66,6 +66,7 @@ export type QueryBuilderActions = {
   remove(pointer: QueryPointer<Query>): void;
   select(pointer: ?QueryPointer<Query>): void;
   replace(pointer: QueryPointer<Query>, query: Query): void;
+  renameDefineBinding(pointer: QueryPointer<DefineQuery>, name: string): void;
 };
 
 export default class QueryBuilder extends React.Component {
@@ -93,6 +94,7 @@ export default class QueryBuilder extends React.Component {
       remove: this.removeAction,
       select: this.selectAction,
       replace: this.replaceAction,
+      renameDefineBinding: this.renameDefineBindingAction,
     };
 
     this.state = {
@@ -174,20 +176,31 @@ export default class QueryBuilder extends React.Component {
     this.onQuery(query, nextSelected);
   };
 
+  renameDefineBindingAction = (pointer: QueryPointer<DefineQuery>, name: string) => {
+    let {query: nextQuery, selected} = qo.transformAt(
+      pointer,
+      pointer,
+      prevQuery => q.def(name, pointer.query.binding.query)
+    );
+    let fieldList = this.state.fieldList.map(field =>
+      field === pointer.query.binding.name ? name : field);
+    this.onQuery(nextQuery, selected, fieldList);
+  };
+
   onSelect = (selected: ?QueryPointer<Query>) => {
     this.setState(state => {
       return {...state, selected, showAddColumnPanel: false};
     });
   }
 
-  onQuery = (query: ?Query, selected: ?QueryPointer<*>) => {
+  onQuery = (query: ?Query, selected: ?QueryPointer<*>, fieldList?: Array<string>) => {
     if (query == null) {
       query = q.navigate('');
       selected = qp.make(query);
     }
 
     let nextQuery = q.inferType(this.props.domain, query);
-    let fieldList = updateFieldList(nextQuery, this.state.fieldList);
+    fieldList = updateFieldList(nextQuery, fieldList || this.state.fieldList);
     let nextSelected = null;
     if (selected) {
       nextSelected = qp.rebase(selected, nextQuery);

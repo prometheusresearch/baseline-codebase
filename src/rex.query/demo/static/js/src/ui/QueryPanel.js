@@ -4,6 +4,7 @@
 
 import type {Query} from '../model/Query';
 import type {QueryPointer} from '../model/QueryPointer';
+import type {QueryBuilderActions} from '../QueryBuilder';
 
 import React from 'react';
 
@@ -11,6 +12,7 @@ import * as q from '../model/Query';
 import * as theme from './Theme';
 import QueryPanelBase from './QueryPanelBase';
 import NavigateQueryPanel from './NavigateQueryPanel';
+import DefineQueryPanel from './DefineQueryPanel';
 
 type QueryPanelProps = {
   pointer: ?QueryPointer<Query>;
@@ -46,12 +48,10 @@ export default function QueryPanel(props: QueryPanelProps) {
       );
     case 'define':
       return (
-        <QueryPanelBase
-          title={pointer.query.name}
+        <DefineQueryPanel
           onClose={onClose}
-          theme={theme.traverse}
-          pointer={pointer}>
-        </QueryPanelBase>
+          pointer={pointer}
+          />
       );
     case 'aggregate':
       return (

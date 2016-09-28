@@ -147,12 +147,14 @@ export default class QueryBuilder extends React.Component {
     if (path == null) {
       return;
     }
+    let name = `define_${path}`;
     let {query, selected: nextSelected} = qo.insertAfter(
       pointer,
       this.state.selected,
       q.def(`define_${path}`, q.navigate(path))
     );
-    this.onQuery(query, nextSelected);
+    let fieldList = this.state.fieldList.concat(name);
+    this.onQuery(query, nextSelected, fieldList);
   };
 
   addFilterAction = (pointer: QueryPointer<*>) => {

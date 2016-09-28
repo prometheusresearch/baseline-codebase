@@ -21,12 +21,29 @@ type ColumnPickerProps = {
 
 export default class ColumnPicker extends React.Component<*, ColumnPickerProps, *> {
 
-  context: {actions: QueryBuilderActions};
+  state: {
+    searchTerm: ?string;
+  };
+
+  context: {
+    actions: QueryBuilderActions
+  };
 
   static contextTypes = {actions: React.PropTypes.object};
 
+  state = {
+    searchTerm: null,
+  };
+
   render() {
     let {options, selected, onSelect} = this.props;
+    let {searchTerm} = this.state;
+    if (searchTerm != null) {
+      let searchTermRe = new RegExp(searchTerm, 'ig');
+      options = options.filter(column => {
+        return searchTermRe.test(column.label) || searchTermRe.test(column.value);
+      });
+    }
     let items = options.map(column =>
       <ColumnPickerButton
         key={column.value}
@@ -40,6 +57,8 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
         <VBox padding={10}>
           <ReactUI.Input
             placeholder="Search columns…"
+            value={searchTerm === null ? '' : searchTerm}
+            onChange={this.onSearchTerm}
             />
         </VBox>
         <VBox paddingV={20}>
@@ -55,6 +74,11 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
   onAddDefine = (e: UIEvent) => {
     e.stopPropagation();
     this.context.actions.addDefine(this.props.pointer);
+  };
+
+  onSearchTerm = (e: UIEvent) => {
+    let target: {value: string} = (e.target: any);
+    this.setState({searchTerm: target.value === '' ? null : target.value});
   };
 }
 

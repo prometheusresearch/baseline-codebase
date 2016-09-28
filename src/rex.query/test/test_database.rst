@@ -54,6 +54,29 @@ To show more than one field in the output, we use the ``select`` combinator::
     ...         [".", ["navigate", "protocol"], ["navigate", "title"]]])    # doctest: +ELLIPSIS
     <Product ({'Autism Spectrum Disorder Lab', ('Aspergers Individual', 'Autistic Individual', 'Control Individual')}, ...>
 
+    >>> db.produce(
+    ...     ["select",
+    ...         [".", ["navigate", "identity"], ["navigate", "individual"]],
+    ...         ["navigate", "code"]])                                      # doctest: +ELLIPSIS
+    <Product ({'1000'}, {'1001'}, ...)>
+
+    >>> db.produce(
+    ...     ["select",
+    ...         [".",["navigate","identity"], ["navigate","individual"]],
+    ...         ["navigate","code"],
+    ...         ["navigate","sex"],
+    ...         ["navigate","mother"],
+    ...         ["navigate","father"],
+    ...         ["navigate","identity"],
+    ...         ["navigate","individual_via_mother"],
+    ...         ["navigate","individual_via_father"],
+    ...         ["navigate","participation"]])                              # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    <Product ({'1000', 'female', null, null, {[1000], 'May', 'Kanaris', '1961-01-01'},
+              ({'1002', 'female', [1000], [1001]},
+               {'1003', 'male', [1000], [1001]},
+               {'1004', 'male', [1000], [1001]}),
+              (), ({[1000], [fos.mother], '1'},)}, ...)>
+
 Arithmetic operations::
 
     >>> db.produce(["+", 9, 3])

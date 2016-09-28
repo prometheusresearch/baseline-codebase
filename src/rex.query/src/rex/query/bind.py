@@ -16,6 +16,7 @@ from htsql.core.tr.binding import (
         CollectBinding, SelectionBinding, SieveBinding, DefineBinding,
         SortBinding, QuotientBinding, ComplementBinding, TitleBinding,
         DirectionBinding, FormulaBinding, CastBinding, ImplicitCastBinding,
+        FreeTableRecipe, AttachedTableRecipe, ColumnRecipe,
         BindingRecipe, KernelRecipe, ComplementRecipe, ClosedRecipe)
 from htsql.core.tr.bind import BindingState, Select
 from htsql.core.tr.lookup import lookup_attribute, unwrap, guess_tag
@@ -27,6 +28,29 @@ from htsql.core.tr.fn.signature import (
         AddSig, SubtractSig, MultiplySig, DivideSig, ContainsSig, CastSig,
         AggregateSig, QuantifySig, ExistsSig, CountSig, MinMaxSig, SumSig,
         AvgSig)
+
+
+class Output(object):
+
+    __slots__  = ('binding', 'domain', 'syntax', 'optional', 'plural')
+
+    def __init__(self, binding, optional=False, plural=False):
+        self.binding = binding
+        self.domain = binding.domain
+        self.syntax = binding.syntax
+        self.optional = optional
+        self.plural = plural
+
+
+class BindingRecipe(BindingRecipe):
+
+    def __init__(self, binding, optional=False, plural=False):
+        self.binding = binding
+        self.optional = optional
+        self.plural = plural
+
+    def __basis__(self):
+        return (self.binding, self.optional, self.plural)
 
 
 class RexBindingState(BindingState):
@@ -69,26 +93,16 @@ class RexBindingState(BindingState):
                 return method(syntax.args)
 
     def bind_query(self, query):
-        binding = self(query.syntax)
-        binding = Select.__invoke__(binding, self)
-        binding = self.collect(binding)
+        output = self(query.syntax)
+        binding = self.collect(output)
         return binding
 
-    def collect(self, binding, stop=None):
-        scope = binding
-        while not isinstance(scope, RootBinding):
-            if scope is stop:
-                break
-            if isinstance(
-                    scope, (TableBinding, QuotientBinding, ComplementBinding)):
-                if not (isinstance(scope, ChainBinding) and
-                        all([join.is_contracting for join in scope.joins])):
-                    binding = Select.__invoke__(binding, self)
-                    binding = CollectBinding(
-                            self.scope, binding,
-                            ListDomain(binding.domain), self.scope.syntax)
-                break
-            scope = scope.base
+    def collect(self, output):
+        binding = Select.__invoke__(output.binding, self)
+        if output.plural:
+            binding = CollectBinding(
+                    self.scope, binding,
+                    ListDomain(binding.domain), self.scope.syntax)
         return binding
 
     def bind_literal(self, value):
@@ -96,8 +110,10 @@ class RexBindingState(BindingState):
             value = Embed.__invoke__(value)
         except TypeError:
             raise Error("Got invalid literal value:", value)
-        return LiteralBinding(
-                self.scope, value.data, value.domain, self.scope.syntax)
+        return Output(
+                LiteralBinding(
+                    self.scope, value.data, value.domain, self.scope.syntax),
+                optional=(value is None))
 
     def bind_navigate_op(self, args):
         if not (len(args) == 1 and
@@ -111,91 +127,141 @@ class RexBindingState(BindingState):
             raise Error("Got unknown identifier:", name)
         syntax = IdentifierSyntax(name)
         binding = self.use(recipe, syntax)
-        return binding
+        optional = False
+        plural = False
+        if isinstance(recipe, ClosedRecipe):
+            recipe = recipe.recipe
+        if isinstance(recipe, FreeTableRecipe):
+            optional = plural = True
+        elif isinstance(recipe, AttachedTableRecipe):
+            for join in recipe.joins:
+                if not join.is_expanding:
+                    optional = True
+                if not join.is_contracting:
+                    plural = True
+        elif isinstance(recipe, ColumnRecipe):
+            optional = recipe.column.is_nullable
+        elif isinstance(recipe, BindingRecipe):
+            optional = recipe.optional
+            plural = recipe.plural
+        elif isinstance(recipe, ComplementRecipe):
+            plural = True
+        return Output(binding, optional=optional, plural=plural)
 
     def bind_compose_op(self, args):
         if not (len(args) >= 2):
             raise Error("Expected at least two arguments,"
                         " got:", ", ".join(map(str, args)))
-        binding = self(args[0])
+        output = self(args[0])
+        binding = output.binding
+        optional = output.optional
+        plural = output.plural
         for arg in args[1:]:
             self.push_scope(binding)
-            binding = self(arg)
+            output = self(arg)
+            binding = output.binding
+            optional = optional or output.optional
+            plural = plural or output.plural
             self.pop_scope()
-        return binding
+        return Output(binding, optional=optional, plural=plural)
 
     def bind_select_op(self, args):
         if not (len(args) >= 1):
             raise Error("Expected at least one argument,"
                         " got:", ", ".join(map(str, args)))
-        binding = self(args[0])
+        output = self(args[0])
         fields = []
-        self.push_scope(binding)
+        self.push_scope(output.binding)
         for arg in args[1:]:
-            field = self.collect(self(arg), binding)
+            field = self.collect(self(arg))
             fields.append(field)
         self.pop_scope()
         domain = RecordDomain([decorate(field) for field in fields])
-        return SelectionBinding(binding, fields, domain, self.scope.syntax)
+        return Output(
+                SelectionBinding(
+                    output.binding, fields, domain, self.scope.syntax),
+                optional=output.optional, plural=output.plural)
 
     def bind_filter_op(self, args):
         if not (len(args) == 2):
             raise Error("Expected two arguments,"
                         " got:", ", ".join(map(str, args)))
-        binding = self(args[0])
-        self.push_scope(binding)
-        predicate = self(args[1])
+        base = self(args[0])
+        if not base.plural:
+            raise Error("Expected a plural expression, got:", args[0])
+        self.push_scope(base.binding)
+        output = self(args[1])
+        if output.plural:
+            raise Error("Expected a singular expression, got:", args[1])
         self.pop_scope()
         predicate = ImplicitCastBinding(
-                predicate, BooleanDomain(), predicate.syntax)
-        return SieveBinding(binding, predicate, self.scope.syntax)
+                output.binding, BooleanDomain(), output.binding.syntax)
+        return Output(
+                SieveBinding(base.binding, predicate, self.scope.syntax),
+                optional=True, plural=True)
 
     def bind_define_op(self, args):
         if not (len(args) >= 1):
             raise Error("Expected at least one argument,"
                         " got:", ", ".join(map(str, args)))
-        binding = self(args[0])
+        base = self(args[0])
+        binding = base.binding
         for arg in args[1:]:
             self.push_scope(binding)
             definition = self(arg)
             self.pop_scope()
-            tag = guess_tag(definition)
+            tag = guess_tag(definition.binding)
             if tag is None:
                 raise Error("Expected a definition:",
                             " got:", ", ".join(map(str, args)))
-            recipe = ClosedRecipe(BindingRecipe(definition))
+            recipe = BindingRecipe(
+                    definition.binding,
+                    optional=definition.optional,
+                    plural=definition.plural)
+            recipe = ClosedRecipe(recipe)
             binding = DefineBinding(
                     binding, tag, None, recipe, self.scope.syntax)
-        return binding
+        return Output(binding, optional=base.optional, plural=base.plural)
 
     def bind_sort_op(self, args):
         if not (len(args) >= 2):
             raise Error("Expected at least two arguments,"
                         " got:", ", ".join(map(str, args)))
-        binding = self(args[0])
+        base = self(args[0])
+        if not base.plural:
+            raise Error("Expected a plural expression, got:", args[0])
         fields = []
-        self.push_scope(binding)
+        self.push_scope(base.binding)
         for arg in args[1:]:
-            field = self(arg)
-            fields.append(field)
+            output = self(arg)
+            if output.plural:
+                raise Error("Expected a singular expression, got:", arg)
+            fields.append(output.binding)
         self.pop_scope()
-        return SortBinding(binding, fields, None, None, self.scope.syntax)
+        return Output(
+                SortBinding(base.binding, fields, None, None, self.scope.syntax),
+                optional=base.optional,
+                plural=base.plural)
 
     def bind_group_op(self, args):
         if not (len(args) >= 2):
             raise Error("Expected at least two arguments,"
                         " got:", ", ".join(map(str, args)))
         seed = self(args[0])
+        if not seed.plural:
+            raise Error("Expected a plural expression, got:", args[0])
         fields = []
-        self.push_scope(seed)
+        self.push_scope(seed.binding)
         for arg in args[1:]:
-            field = self(arg)
-            fields.append(field)
+            output = self(arg)
+            if output.plural:
+                raise Error("Expected a singular expression, got:", arg)
+            fields.append(output.binding)
         self.pop_scope()
         quotient = QuotientBinding(
-                self.scope, seed, fields, self.scope.syntax)
+                self.scope, seed.binding, fields, self.scope.syntax)
         binding = quotient
-        name = guess_tag(seed)
+        name = guess_tag(seed.binding)
         if name is not None:
             recipe = ComplementRecipe(quotient)
             recipe = ClosedRecipe(recipe)
@@ -208,7 +274,7 @@ class RexBindingState(BindingState):
                 recipe = ClosedRecipe(recipe)
                 binding = DefineBinding(
                         binding, name, None, recipe, binding.syntax)
-        return binding
+        return Output(binding, optional=True, plural=True)
 
     def bind_let_op(self, args):
         if not (len(args) == 2 and
@@ -217,23 +283,30 @@ class RexBindingState(BindingState):
             raise Error("Expected an identifier and an argument,"
                         " got:", ", ".join(map(str, args)))
         name = args[0].val
-        binding = self(args[1])
+        output = self(args[1])
         syntax = IdentifierSyntax(name)
-        return TitleBinding(binding, syntax, syntax)
+        return Output(
+                TitleBinding(output.binding, syntax, syntax),
+                optional=output.optional,
+                plural=output.plural)
 
     def bind_asc_op(self, args):
         if not (len(args) == 1):
             raise Error("Expected one argument,"
                         " got:", ", ".join(map(str, args)))
-        binding = self(args[0])
-        return DirectionBinding(binding, +1, self.scope.syntax)
+        output = self(args[0])
+        return Output(
+                DirectionBinding(output.binding, +1, self.scope.syntax),
+                optional=output.optional, plural=output.plural)
 
     def bind_desc_op(self, args):
         if not (len(args) == 1):
             raise Error("Expected one argument,"
                         " got:", ", ".join(map(str, args)))
-        binding = self(args[0])
-        return DirectionBinding(binding, -1, self.scope.syntax)
+        output = self(args[0])
+        return Output(
+                DirectionBinding(output.binding, -1, self.scope.syntax),
+                optional=output.optional, plural=output.plural)
 
     def bind_add_op(self, args):
         return self.bind_poly(AddSig, args)
@@ -304,24 +377,30 @@ class RexBindingState(BindingState):
 
     def bind_exists_op(self, args):
         parameters = self.bind_parameters(ExistsSig, args)
-        binding = parameters['op']
+        output = parameters['op']
+        if not output.plural:
+            raise Error("Expected plural expression, got:", args[0])
         binding = ImplicitCastBinding(
-                binding, BooleanDomain(), self.scope.syntax)
-        return FormulaBinding(
-                self.scope, QuantifySig(+1), binding.domain,
-                self.scope.syntax, plural_base=None, op=binding)
+                output.binding, BooleanDomain(), self.scope.syntax)
+        return Output(
+                FormulaBinding(
+                    self.scope, QuantifySig(+1), binding.domain,
+                    self.scope.syntax, plural_base=None, op=binding))
 
     def bind_count_op(self, args):
-        parameters = self.bind_parameters(ExistsSig, args)
-        binding = parameters['op']
+        parameters = self.bind_parameters(CountSig, args)
+        output = parameters['op']
+        if not output.plural:
+            raise Error("Expected plural expression, got:", args[0])
         binding = ImplicitCastBinding(
-                binding, BooleanDomain(), self.scope.syntax)
+                output.binding, BooleanDomain(), self.scope.syntax)
         binding = FormulaBinding(
                 self.scope, CountSig(), IntegerDomain(),
                 self.scope.syntax, op=binding)
-        return FormulaBinding(
-                self.scope, AggregateSig(), binding.domain,
-                self.scope.syntax, plural_base=None, op=binding)
+        return Output(
+                FormulaBinding(
+                    self.scope, AggregateSig(), binding.domain,
+                    self.scope.syntax, plural_base=None, op=binding))
 
     def bind_min_op(self, args):
         return self.bind_poly_aggregate(MinMaxSig(+1), args)
@@ -342,58 +421,89 @@ class RexBindingState(BindingState):
         domain = coerce(*domains)
         if domain is None:
             raise Error("Detected arguments of unexpected types")
-        lop = ImplicitCastBinding(lop, domain, lop.syntax)
-        rops = [ImplicitCastBinding(rop, domain, rop.syntax) for rop in rops]
+        optional = lop.optional or any([rop.optional for rop in rops])
+        plural = rop.plural or any([rop.plural for rop in rops])
+        lop = ImplicitCastBinding(lop.binding, domain, lop.syntax)
+        rops = [ImplicitCastBinding(rop.binding, domain, rop.syntax)
+                for rop in rops]
         if len(rops) == 1:
-            return FormulaBinding(
+            binding = FormulaBinding(
                     self.scope, IsEqualSig(polarity),
                     BooleanDomain(), self.scope.syntax,
                     lop=lop, rop=rops[0])
         else:
-            return FormulaBinding(
+            binding = FormulaBinding(
                     self.scope, IsAmongSig(polarity),
                     BooleanDomain(), self.scope.syntax,
                     lop=lop, rops=rops)
+        return Output(binding, optional=optional, plural=plural)
 
     def bind_compare(self, relation, lop, rop):
         domain = coerce(lop.domain, rop.domain)
         if domain is None:
             raise Error("Detected arguments of unexpected types")
-        lop = ImplicitCastBinding(lop, domain, lop.syntax)
-        rop = ImplicitCastBinding(rop, domain, rop.syntax)
+        optional = lop.optional or rop.optional
+        plural = lop.plural or rop.plural
+        lop = ImplicitCastBinding(lop.binding, domain, lop.syntax)
+        rop = ImplicitCastBinding(rop.binding, domain, rop.syntax)
         is_comparable = Comparable.__invoke__(domain)
         if not is_comparable:
             raise Error("Detected non-comparable type:", domain)
-        return FormulaBinding(
-                self.scope, CompareSig(relation), BooleanDomain(),
-                self.scope.syntax, lop=lop, rop=rop)
+        return Output(
+                FormulaBinding(
+                    self.scope, CompareSig(relation), BooleanDomain(),
+                    self.scope.syntax, lop=lop, rop=rop),
+                optional=optional, plural=plural)
 
     def bind_poly(self, signature, args):
         if isinstance(signature, type):
             signature = signature()
         parameters = self.bind_parameters(signature, args)
+        optional = False
+        plural = False
+        for slot in signature.slots:
+            value = parameters[slot.name]
+            if value:
+                if slot.is_singular:
+                    optional = optional or value.optional
+                    plural = plural or value.plural
+                    value = value.binding
+                else:
+                    optional = optional or \
+                            any([item.optional for item in value])
+                    plural = plural or any([item.plural for item in value])
+                    value = [item.binding for item in value]
+                parameters[slot.name] = value
         binding = FormulaBinding(
                 self.scope, signature, UntypedDomain(),
                 self.scope.syntax, **parameters)
-        return Correlate.__invoke__(binding, self)
+        return Output(
+                Correlate.__invoke__(binding, self),
+                optional=optional, plural=plural)
 
     def bind_poly_aggregate(self, signature, args):
         if isinstance(signature, type):
             signature = signature()
         parameters = self.bind_parameters(signature, args)
-        binding = parameters['op']
+        output = parameters['op']
+        if not output.plural:
+            raise Error("Expected plural expression:", args[0])
         binding = FormulaBinding(
                 self.scope, signature, UntypedDomain(),
-                self.scope.syntax, op=binding)
+                self.scope.syntax, op=output.binding)
         binding = Correlate.__invoke__(binding, self)
-        return FormulaBinding(
-                self.scope, AggregateSig(), binding.domain,
-                self.scope.syntax, plural_base=None, op=binding)
+        return Output(
+                FormulaBinding(
+                    self.scope, AggregateSig(), binding.domain,
+                    self.scope.syntax, plural_base=None, op=binding),
+                optional=True)
 
     def bind_cast(self, domain, args):
         parameters = self.bind_parameters(CastSig, args)
-        return CastBinding(
-                domain=domain, syntax=self.scope.syntax, **parameters)
+        base = parameters['base']
+        return Output(
+                CastBinding(
+                    domain=domain, syntax=self.scope.syntax, base=base.binding))
 
     def bind_parameters(self, signature, args):
         stack = args[:]

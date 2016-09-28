@@ -85,7 +85,7 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
               overscanRowCount={10}
               rowHeight={35}
               rowGetter={this._getDatum}
-              rowCount={10}
+              rowCount={this._getData().length}
               height={size.height}
               width={size.width}
               columns={columns}

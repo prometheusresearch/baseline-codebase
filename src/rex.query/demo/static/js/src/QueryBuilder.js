@@ -345,7 +345,7 @@ export default class QueryBuilder extends React.Component {
                   />}
             </VBox>}
           <VBox basis="400px" grow={3} style={{borderLeft: css.border(1, '#ccc')}}>
-            {!dataUpdating && !queryInvalid
+            {data != null && !queryInvalid
               ? <ui.DataTable
                   fieldList={fieldList}
                   onAddColumn={this.onShowAddColumn}

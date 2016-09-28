@@ -52,7 +52,7 @@ export function getQueryNavigation(query: q.Query): QueryNavigation {
       navigation.push({
         type: 'column',
         path: query.path,
-        title: query.path,
+        title: getColumnTitle(query),
         query
       });
       break;
@@ -71,4 +71,14 @@ export function getQueryNavigation(query: q.Query): QueryNavigation {
   return navigation.length === 1
     ? navigation[0]
     : {type: 'navigate', navigate: navigation};
+}
+
+function getColumnTitle(query: q.NavigateQuery): string {
+  if (query.context.domainEntityAttrtibute) {
+    return query.context.domainEntityAttrtibute.title;
+  } else if (query.context.domainEntity) {
+    return query.context.domainEntity.title;
+  } else {
+    return query.path;
+  }
 }

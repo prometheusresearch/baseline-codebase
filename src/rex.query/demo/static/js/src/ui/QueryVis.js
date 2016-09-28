@@ -99,9 +99,19 @@ export function QueryVisNavigateButton(props: QueryVisNavigateButtonProps) {
       {...rest}
       stylesheet={{Root: NavigatePanel, Button: NavigateButton}}
       pointer={pointer}
-      label={pointer.query.path}
+      label={getColumnTitle(pointer.query)}
       />
   );
+}
+
+function getColumnTitle(query: q.NavigateQuery): string {
+  if (query.context.domainEntityAttrtibute) {
+    return query.context.domainEntityAttrtibute.title;
+  } else if (query.context.domainEntity) {
+    return query.context.domainEntity.title;
+  } else {
+    return query.path;
+  }
 }
 
 type QueryVisDefineButtonProps = {

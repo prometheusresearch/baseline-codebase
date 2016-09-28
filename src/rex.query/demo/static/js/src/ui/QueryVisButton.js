@@ -142,10 +142,9 @@ export let QueryVisButtonLabel = style(HBox, {
   base: {
     userSelect: 'none',
     cursor: 'default',
-    fontSize: '8pt',
-    textTransform: 'uppercase',
-    fontWeight: 'bold',
-    padding: 5,
+    fontSize: '9pt',
+    fontWeight: 400,
+    padding: 6,
     width: '100%',
   }
 });

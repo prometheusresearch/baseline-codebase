@@ -5,6 +5,8 @@ Object {
       "aggregate": Object {},
       "entity": Object {}
     },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
     "inputType": null,
     "scope": Object {},
     "type": null
@@ -17,6 +19,8 @@ Object {
           "aggregate": Object {},
           "entity": Object {}
         },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
         "inputType": null,
         "scope": Object {},
         "type": null
@@ -30,6 +34,8 @@ Object {
           "aggregate": Object {},
           "entity": Object {}
         },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
         "inputType": null,
         "scope": Object {},
         "type": null
@@ -48,6 +54,8 @@ Object {
       "aggregate": Object {},
       "entity": Object {}
     },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
     "inputType": null,
     "scope": Object {},
     "type": null
@@ -60,6 +68,8 @@ Object {
           "aggregate": Object {},
           "entity": Object {}
         },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
         "inputType": null,
         "scope": Object {},
         "type": null
@@ -73,6 +83,8 @@ Object {
           "aggregate": Object {},
           "entity": Object {}
         },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
         "inputType": null,
         "scope": Object {},
         "type": null
@@ -91,6 +103,8 @@ Object {
       "aggregate": Object {},
       "entity": Object {}
     },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
     "inputType": null,
     "scope": Object {},
     "type": null
@@ -103,6 +117,8 @@ Object {
           "aggregate": Object {},
           "entity": Object {}
         },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
         "inputType": null,
         "scope": Object {},
         "type": null
@@ -116,6 +132,8 @@ Object {
           "aggregate": Object {},
           "entity": Object {}
         },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
         "inputType": null,
         "scope": Object {},
         "type": null
@@ -129,6 +147,8 @@ Object {
           "aggregate": Object {},
           "entity": Object {}
         },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
         "inputType": null,
         "scope": Object {},
         "type": null
@@ -147,6 +167,8 @@ Object {
       "aggregate": Object {},
       "entity": Object {}
     },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
     "inputType": null,
     "scope": Object {},
     "type": null
@@ -159,6 +181,8 @@ Object {
           "aggregate": Object {},
           "entity": Object {}
         },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
         "inputType": null,
         "scope": Object {},
         "type": null
@@ -172,6 +196,8 @@ Object {
           "aggregate": Object {},
           "entity": Object {}
         },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
         "inputType": null,
         "scope": Object {},
         "type": null
@@ -185,6 +211,8 @@ Object {
           "aggregate": Object {},
           "entity": Object {}
         },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
         "inputType": null,
         "scope": Object {},
         "type": null
@@ -203,6 +231,8 @@ Object {
       "aggregate": Object {},
       "entity": Object {}
     },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
     "inputType": null,
     "scope": Object {},
     "type": null
@@ -215,6 +245,8 @@ Object {
           "aggregate": Object {},
           "entity": Object {}
         },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
         "inputType": null,
         "scope": Object {},
         "type": null
@@ -231,6 +263,8 @@ Object {
               "aggregate": Object {},
               "entity": Object {}
             },
+            "domainEntity": null,
+            "domainEntityAttrtibute": null,
             "inputType": null,
             "scope": Object {},
             "type": null
@@ -243,6 +277,8 @@ Object {
                   "aggregate": Object {},
                   "entity": Object {}
                 },
+                "domainEntity": null,
+                "domainEntityAttrtibute": null,
                 "inputType": null,
                 "scope": Object {},
                 "type": null
@@ -256,6 +292,8 @@ Object {
                   "aggregate": Object {},
                   "entity": Object {}
                 },
+                "domainEntity": null,
+                "domainEntityAttrtibute": null,
                 "inputType": null,
                 "scope": Object {},
                 "type": null
@@ -271,6 +309,8 @@ Object {
           "aggregate": Object {},
           "entity": Object {}
         },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
         "inputType": null,
         "scope": Object {},
         "type": null
@@ -288,6 +328,8 @@ Object {
       "aggregate": Object {},
       "entity": Object {}
     },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
     "inputType": null,
     "scope": Object {},
     "type": null
@@ -300,6 +342,8 @@ Object {
           "aggregate": Object {},
           "entity": Object {}
         },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
         "inputType": null,
         "scope": Object {},
         "type": null
@@ -318,6 +362,8 @@ Object {
       "aggregate": Object {},
       "entity": Object {}
     },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
     "inputType": null,
     "scope": Object {},
     "type": null
@@ -330,6 +376,8 @@ Object {
           "aggregate": Object {},
           "entity": Object {}
         },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
         "inputType": null,
         "scope": Object {},
         "type": null
@@ -348,6 +396,8 @@ Object {
       "aggregate": Object {},
       "entity": Object {}
     },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
     "inputType": null,
     "scope": Object {},
     "type": null
@@ -360,6 +410,8 @@ Object {
           "aggregate": Object {},
           "entity": Object {}
         },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
         "inputType": null,
         "scope": Object {},
         "type": null
@@ -378,6 +430,8 @@ Object {
       "aggregate": Object {},
       "entity": Object {}
     },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
     "inputType": null,
     "scope": Object {},
     "type": null
@@ -390,6 +444,8 @@ Object {
           "aggregate": Object {},
           "entity": Object {}
         },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
         "inputType": null,
         "scope": Object {},
         "type": null
@@ -408,6 +464,8 @@ Object {
       "aggregate": Object {},
       "entity": Object {}
     },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
     "inputType": null,
     "scope": Object {},
     "type": null
@@ -420,6 +478,8 @@ Object {
           "aggregate": Object {},
           "entity": Object {}
         },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
         "inputType": null,
         "scope": Object {},
         "type": null
@@ -438,6 +498,8 @@ Object {
       "aggregate": Object {},
       "entity": Object {}
     },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
     "inputType": null,
     "scope": Object {},
     "type": null
@@ -450,6 +512,8 @@ Object {
           "aggregate": Object {},
           "entity": Object {}
         },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
         "inputType": null,
         "scope": Object {},
         "type": null
@@ -463,6 +527,8 @@ Object {
           "aggregate": Object {},
           "entity": Object {}
         },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
         "inputType": null,
         "scope": Object {},
         "type": null
@@ -475,6 +541,8 @@ Object {
               "aggregate": Object {},
               "entity": Object {}
             },
+            "domainEntity": null,
+            "domainEntityAttrtibute": null,
             "inputType": null,
             "scope": Object {},
             "type": null

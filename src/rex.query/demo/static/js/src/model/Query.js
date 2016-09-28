@@ -108,7 +108,12 @@ export type Scope = {
  * Query context represents knowledge about query at any given point.
  */
 export type Context = {
+  // link to the domain
   domain: Domain;
+
+  domainEntity: ?DomainEntity;
+
+  domainEntityAttrtibute: ?DomainEntityAttribute;
   // scope which query can reference other queries from
   scope: Scope;
   // output tupe of the query
@@ -123,7 +128,9 @@ const emptyContext = {
   inputType: null,
   type: null,
   scope: emptyScope,
-  domain: emptyDomain
+  domain: emptyDomain,
+  domainEntity: null,
+  domainEntityAttrtibute: null,
 };
 
 export function navigate(path: string): NavigateQuery {
@@ -175,7 +182,7 @@ function withContext<Q: Query>(query: Q, context: Context): Q {
 }
 
 export function inferTypeStep(context: Context, query: Query): Query {
-  let {domain, type, scope} = context;
+  let {domain, domainEntity, domainEntityAttrtibute, type, scope} = context;
   if (query.name === 'pipeline') {
     if (type == null) {
       return withContext(query, context);
@@ -207,10 +214,14 @@ export function inferTypeStep(context: Context, query: Query): Query {
     let nextSelect = {};
     let fields = {};
     for (let k in query.select) {
-      let q = inferTypeStep(
-        {domain, inputType: context.type, type: baseType, scope},
-        query.select[k]
-      );
+      let q = inferTypeStep({
+        domain,
+        domainEntity,
+        domainEntityAttrtibute,
+        scope,
+        inputType: context.type,
+        type: baseType,
+      }, query.select[k]);
       nextSelect[k] = q;
       fields[k] = q.context.type;
     }
@@ -218,10 +229,12 @@ export function inferTypeStep(context: Context, query: Query): Query {
       name: 'select',
       select: nextSelect,
       context: {
+        domain,
+        domainEntity: null,
+        domainEntityAttrtibute: null,
+        scope,
         inputType: context.type,
         type: t.leastUpperBound(type, {name: 'record', fields}),
-        domain,
-        scope,
       }
     };
   } else if (query.name === 'define') {
@@ -241,10 +254,12 @@ export function inferTypeStep(context: Context, query: Query): Query {
       name: 'define',
       binding,
       context: {
+        domain,
+        domainEntity,
+        domainEntityAttrtibute,
+        scope: nextScope,
         inputType: context.type,
         type,
-        domain,
-        scope: nextScope
       }
     };
   } else if (query.name === 'aggregate') {
@@ -254,22 +269,35 @@ export function inferTypeStep(context: Context, query: Query): Query {
     let aggregate = domain.aggregate[query.aggregate];
     if (aggregate == null) {
       // unknown aggregate
-      return withContext(query, {domain, scope, type: null, inputType: context.type});
+      return withContext(query, {
+        domain,
+        domainEntity: null,
+        domainEntityAttrtibute: null,
+        scope,
+        inputType: context.type,
+        type: null,
+      });
     }
     // TODO: validate input type
     if (type.name !== 'seq') {
       // not a seq
-      return withContext(query, {domain, scope, type: null, inputType: context.type});
-    }
-    return withContext(
-      query,
-      {
+      return withContext(query, {
         domain,
+        domainEntity: null,
+        domainEntityAttrtibute: null,
         scope,
-        type: aggregate.makeType(type.type),
         inputType: context.type,
-      }
-    );
+        type: null,
+      });
+    }
+    return withContext(query, {
+      domain,
+      domainEntity: null,
+      domainEntityAttrtibute: null,
+      scope,
+      inputType: context.type,
+      type: aggregate.makeType(type.type),
+    });
   } else if (query.name === 'navigate') {
     if (type == null) {
       return withContext(query, context);
@@ -279,40 +307,87 @@ export function inferTypeStep(context: Context, query: Query): Query {
       let entity = domain.entity[baseType.entity];
       if (entity == null) {
         // unknown entity
-        return withContext(query, {domain, scope, type: null, inputType: context.type});
+        return withContext(query, {
+          domain,
+          domainEntity: null,
+          domainEntityAttrtibute: null,
+          scope,
+          inputType: context.type,
+          type: null,
+        });
       }
       let attr = entity.attribute[query.path];
       if (attr == null) {
         // unknown attribute
-        return withContext(query, {domain, scope, type: null, inputType: context.type});
+        return withContext(query, {
+          domain,
+          domainEntity: null,
+          domainEntityAttrtibute: null,
+          scope,
+          inputType: context.type,
+          type: null,
+        });
       }
-      return withContext(
-        query,
-        {domain, scope, type: t.leastUpperBound(type, attr.type), inputType: context.type}
-      );
+      return withContext(query, {
+        domain,
+        domainEntity,
+        domainEntityAttrtibute: attr,
+        scope,
+        inputType: context.type,
+        type: t.leastUpperBound(type, attr.type),
+      });
     } else if (baseType.name === 'record') {
       let field = baseType.fields[query.path];
       if (field == null) {
         // unknown field
-        return withContext(query, {domain, scope, type: null, inputType: context.type});
+        return withContext(query, {
+          domain,
+          domainEntity: null,
+          domainEntityAttrtibute: null,
+          scope,
+          inputType: context.type,
+          type: null,
+        });
       }
-      return withContext(
-        query,
-        {domain, type: t.leastUpperBound(type, field), scope, inputType: context.type}
-      );
+      return withContext(query, {
+        domain,
+        domainEntity: null,
+        domainEntityAttrtibute: null,
+        scope,
+        inputType: context.type,
+        type: t.leastUpperBound(type, field),
+      });
     } else if (baseType.name === 'void') {
       let entity = domain.entity[query.path];
       if (entity == null) {
         // unknown entity
-        return withContext(query, {domain, type: null, scope, inputType: context.type});
+        return withContext(query, {
+          domain,
+          domainEntity: null,
+          domainEntityAttrtibute: null,
+          scope,
+          inputType: context.type,
+          type: null,
+        });
       }
-      return withContext(
-        query,
-        {domain, scope, type: t.seqType(t.entityType(query.path)), inputType: context.type}
-      );
+      return withContext(query, {
+        domain,
+        domainEntity: entity,
+        domainEntityAttrtibute: null,
+        scope,
+        inputType: context.type,
+        type: t.seqType(t.entityType(query.path)),
+      });
     } else {
       // can't navigate from this type
-      return withContext(query, {domain, type: null, scope, inputType: context.type});
+      return withContext(query, {
+        domain,
+        domainEntity: null,
+        domainEntityAttrtibute: null,
+        scope,
+        inputType: context.type,
+        type: null,
+      });
     }
   } else {
     invariant(false, 'Unknown query type: %s', query.name);
@@ -325,6 +400,8 @@ export function inferTypeStep(context: Context, query: Query): Query {
 export function inferType(domain: Domain, query: Query): Query {
   let context = {
     domain,
+    domainEntity: null,
+    domainEntityAttrtibute: null,
     inputType: t.voidType,
     type: t.voidType,
     scope: {}

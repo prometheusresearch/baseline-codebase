@@ -4,6 +4,24 @@
  * @flow
  */
 
+export type Type
+  = VoidType
+  | EntityType
+  | NumberType
+  | BooleanType
+  | TextType
+  | RecordType
+  | SeqCardinality<*>
+  | OptCardinality<*>;
+
+export type TypeAtom
+  = VoidType
+  | EntityType
+  | NumberType
+  | TextType
+  | BooleanType
+  | RecordType;
+
 export type EntityType = {
   name: 'entity';
   entity: string;
@@ -21,6 +39,10 @@ export type NumberType = {
   name: 'number';
 };
 
+export type BooleanType = {
+  name: 'boolean';
+};
+
 export type RecordType = {
   name: 'record';
   fields: {[fieldName: string]: Type};
@@ -36,22 +58,6 @@ export type OptCardinality<T: TypeAtom> = {
   type: T;
 };
 
-export type TypeAtom
-  = VoidType
-  | EntityType
-  | NumberType
-  | TextType
-  | RecordType;
-
-export type Type
-  = VoidType
-  | EntityType
-  | NumberType
-  | TextType
-  | RecordType
-  | SeqCardinality<*>
-  | OptCardinality<*>;
-
 export function entityType(entity: string): EntityType {
   return {name: 'entity', entity};
 }
@@ -59,6 +65,7 @@ export function entityType(entity: string): EntityType {
 export const numberType: NumberType = {name: 'number'};
 export const textType: TextType = {name: 'text'};
 export const voidType: VoidType = {name: 'void'};
+export const booleanType : BooleanType = {name: 'boolean'};
 
 export function recordType(fields: {[fieldName: string]: Type}): RecordType {
   return {name: 'record', fields};

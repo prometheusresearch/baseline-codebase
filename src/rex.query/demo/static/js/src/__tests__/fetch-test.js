@@ -1,5 +1,5 @@
 
-import {navigate, aggregate, pipeline} from '../model/Query';
+import {navigate, aggregate, pipeline, def} from '../model/Query';
 import {translate} from '../fetch';
 
 describe('translate', function() {
@@ -47,6 +47,20 @@ describe('translate', function() {
         ['.',
           ['.', ['navigate', 'study'], ['navigate', 'sample']],
           ['navigate', 'code']]]);
+  });
+
+  it('study.define(name := code)', function() {
+    let query = pipeline(
+      navigate('study'),
+      def('name', navigate('code')),
+    );
+    expect(translate(query)).toEqual(
+      ['define',
+        ['navigate', 'study'],
+        ['=>',
+          'name',
+          ['navigate', 'code']]
+      ]);
   });
 
 

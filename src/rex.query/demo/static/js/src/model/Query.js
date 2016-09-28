@@ -49,21 +49,18 @@ export type QueryPipeline = {
   context: Context;
 };
 
-export type QueryAtom
-  = NavigateQuery
-  | SelectQuery
-  | DefineQuery
-  | FilterQuery
-  | LimitQuery
-  | AggregateQuery;
-
 /**
  * Query.
  *
  * Ctx parameters represents context which is null by default.
  */
 export type Query
-  = QueryAtom
+  = NavigateQuery
+  | SelectQuery
+  | DefineQuery
+  | FilterQuery
+  | LimitQuery
+  | AggregateQuery
   | QueryPipeline;
 
 /**
@@ -82,17 +79,20 @@ export type Domain = {
 
   // Entity catalogue (tables).
   entity: {
-    [entityName: string]: {
-
-      // Each entity has a set of attributes (columns / links)
-      attribute: {
-        [attributeName: string]: {
-          type: t.Type
-        };
-      };
-    };
+    [entityName: string]: DomainEntity;
   };
+};
 
+export type DomainEntity = {
+  title: string;
+  attribute: {
+    [attributeName: string]: DomainEntityAttribute;
+  };
+};
+
+export type DomainEntityAttribute = {
+  title: string;
+  type: t.Type
 };
 
 /**
@@ -376,4 +376,44 @@ export function map<A: Query, B: Query>(query: A, f: (q: A) => B): B {
   } else {
     invariant(false, 'Unknown query type: %s', query.name);
   }
+}
+
+export function getNavigationBefore(context: Context) {
+  return getNavigation(context.domain, context.inputType, context.scope);
+}
+
+export function getNavigationAfter(context: Context) {
+  return getNavigation(context.domain, context.type, context.scope);
+}
+
+function getNavigation(domain, type, scope) {
+  let navigation = [];
+
+  // Collect paths from an input type
+  if (type != null) {
+    type = t.atom(type);
+    if (type.name === 'void') {
+      for (let k in domain.entity) {
+        if (domain.entity.hasOwnProperty(k)) {
+          navigation.push({value: k, label: k});
+        }
+      }
+    } else if (type.name === 'entity') {
+      let attribute = domain.entity[type.entity].attribute;
+      for (let k in attribute) {
+        if (attribute.hasOwnProperty(k)) {
+          navigation.push({value: k, label: k});
+        }
+      }
+    }
+  }
+
+  // Collect paths from scope
+  for (let k in scope) {
+    if (scope.hasOwnProperty(k)) {
+      navigation.push({value: k, label: k});
+    }
+  }
+
+  return navigation;
 }

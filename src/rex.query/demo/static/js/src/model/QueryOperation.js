@@ -17,9 +17,9 @@ type Transform
 
 export type QueryOperation = (
   // point at which operation should be performed
-  pointer: QueryPointer<>,
-  selected: ?QueryPointer<>
-) => {query: ?Query, selected: ?QueryPointer<>};
+  pointer: QueryPointer<*>,
+  selected: ?QueryPointer<*>
+) => {query: ?Query, selected: ?QueryPointer<Query>};
 
 export let noop: QueryOperation = (pointer) => {
   let query = qp.root(pointer).query;
@@ -32,9 +32,22 @@ export let removeAt: QueryOperation = (pointer, selected) => {
   }
   let query = transformAtPointer(pointer, {type: 'replace', value: undefined});
   return {query, selected: null};
-}
+};
 
-export let insertAfter = (pointer: QueryPointer<>, selected: ?QueryPointer<>, query: Query) => {
+export let transformAt = (
+  pointer: QueryPointer<*>,
+  selected: ?QueryPointer<*>,
+  transform: (query: Query) => Query
+) => {
+  let nextValue = transform(pointer.query);
+  let nextQuery = transformAtPointer(pointer, {type: 'replace', value: nextValue});
+  let nextSelected = selected != null && nextQuery != null
+    ? qp.rebase(selected, nextQuery)
+    : selected;
+  return {query: nextQuery, selected: nextSelected};
+};
+
+export let insertAfter = (pointer: QueryPointer<Query>, selected: ?QueryPointer<Query>, query: Query) => {
   let nextQuery;
   let nextSelected;
 
@@ -112,21 +125,29 @@ function normalize(q: Query): ?Query {
   }
 }
 
-function transformAtPointer(pointer: QueryPointer<>, transform: Transform): ?Query {
-  let query;
-  let p = pointer;
-  while (p != null && p.prev != null) {
-    query = transformAtKeyPath(
-      p.prev.query,
-      p.keyPath,
-      p === pointer
-        ? transform
-        : {type: 'replace', value: query}
-    );
-    query = normalize(query);
-    p = p.prev;
+function transformAtPointer(pointer: QueryPointer<*>, transform: Transform): ?Query {
+  if (pointer.prev == null) {
+    if (transform.type === 'insertAfter') {
+      return q.pipeline(pointer.query, transform.value);
+    } else if (transform.type === 'replace') {
+      return transform.value;
+    }
+  } else {
+    let p = pointer;
+    let query;
+    while (p != null && p.prev != null) {
+      query = transformAtKeyPath(
+        p.prev.query,
+        p.keyPath,
+        p === pointer
+          ? transform
+          : {type: 'replace', value: query}
+      );
+      query = normalize(query);
+      p = p.prev;
+    }
+    return query;
   }
-  return query;
 }
 
 function transformAtKeyPath(obj: Object, keyPath: KeyPath, value: Transform): Object {

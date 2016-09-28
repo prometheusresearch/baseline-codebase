@@ -7,6 +7,11 @@ export let entity = {
   color: '#06688e',
 };
 
+export let select = {
+  background: '#a463f2',
+  color: '#ffffff',
+};
+
 export let attribute = {
   background: '#7FDBFF',
   color: '#06688e',

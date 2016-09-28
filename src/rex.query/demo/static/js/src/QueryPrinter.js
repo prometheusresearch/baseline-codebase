@@ -32,7 +32,9 @@ export function formatQuery(query: q.Query, indent: string = ''): string {
     case 'select':
       let select = [];
       for (let k in query.select) {
-        select.push(formatQuery(query.select[k], indent + '  '));
+        if (query.select.hasOwnProperty(k)) {
+          select.push(formatQuery(query.select[k], indent + '  '));
+        }
       }
       return `select(${select.join(', ')})`;
     default:

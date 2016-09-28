@@ -5,52 +5,173 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import shallowCompare from 'react-addons-shallow-compare'
-import {style} from 'react-dom-stylesheet';
+import * as ReactUI from '@prometheusresearch/react-ui';
+import {VBox} from '@prometheusresearch/react-box';
+import IconPlus from 'react-icons/lib/fa/plus';
+import IconEllipsis from 'react-icons/lib/fa/ellipsis-v';
+import {style} from 'react-stylesheet';
+import * as css from 'react-stylesheet/css';
 import {Grid} from 'react-virtualized'
 
 let DataTableRow = style('div', {
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
+  displayName: 'DataTableRow',
+  base: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    fontSize: '11pt',
+    borderBottom: css.border(1, '#eee'),
+    overflow: 'hidden',
+    hover: {
+      background: '#fafafa',
+    }
+  }
 });
 
 let DataTableHeaderRow = style('div', {
-  fontWeight: 700,
-  display: 'flex',
-  flexDirection: 'row',
-  alignItems: 'center',
+  displayName: 'DataTableHeaderRow',
+  base: {
+    fontSize: '11pt',
+    zIndex: 1000,
+    fontWeight: 700,
+    borderBottom: css.border(1, '#ccc'),
+    boxShadow: css.boxShadow(0, 2, 0, 0, '#eee'),
+    position: css.position.relative,
+    textTransform: css.textTransform.none,
+
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    overflow: 'hidden',
+  }
 });
 
 let DataTableRowColumn = style('div', {
-  marginRight: 10,
-  minWidth: 0,
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-  firstOfType: {
-    marginLeft: 10,
+  displayName: 'DataTableRowColumn',
+  base: {
+    minWidth: 0,
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    color: '#333',
+    fontSize: '10pt',
+    fontWeight: 200,
+
+    paddingRight: 10,
+    paddingLeft: 10,
+
+    marginRight: 10,
+    firstOfType: {
+      marginLeft: 34,
+    }
   }
 });
 
 let DataTableHeaderRowColumn = style('div', {
-  marginRight: 10,
-  minWidth: 0,
-  firstOfType: {
-    marginLeft: 10,
+  displayName: 'DataTableHeaderRowColumn',
+  base: {
+    position: 'relative',
+    height: '100%',
+    minWidth: 0,
+
+    paddingRight: 10,
+    paddingLeft: 10,
+
+    marginRight: 10,
+    firstOfType: {
+      marginLeft: 10,
+    },
+
+    borderRight: css.border(1, '#eee'),
   }
 });
 
+let DataTableHeaderRowColumnCell = style('span', {
+  displayName: 'DataTableHeaderRowColumnCell',
+  base: {
+    fontWeight: 400,
+    display: css.display.inlineBlock,
+    maxWidth: '100%',
+    whiteSpace: css.whiteSpace.nowrap,
+    textOverflow: css.textOverflow.ellipsis,
+    overflow: css.overflow.hidden,
+    position: css.position.absolute,
+    bottom: 5,
+    paddingRight: 20,
+  }
+});
+
+let DataTableHeaderMenuButton = style(VBox, {
+  base: {
+    color: '#ccc',
+    cursor: 'pointer',
+    hover: {
+      color: 'currentColor',
+    }
+  }
+});
+
+type DataTableHeaderProps = {
+  columns: Array<any>;
+  height: number;
+  width: number;
+  scrollbarWidth: number;
+  onAddColumn: () => *;
+};
+
+function DataTableHeader({
+  columns,
+  height,
+  width,
+  scrollbarWidth,
+  onAddColumn,
+}: DataTableHeaderProps) {
+  let items = columns.map((column, index) => {
+    const {label} = column;
+    const style = getColumnStyle(column)
+    return (
+      <DataTableHeaderRowColumn
+        key={`Header-Col${index}`}
+        style={style}>
+        <DataTableHeaderRowColumnCell
+          key="label"
+          title={label}>
+          {label}
+        </DataTableHeaderRowColumnCell>
+        <DataTableHeaderMenuButton position="absolute" right={2} bottom={6}>
+          <IconEllipsis />
+        </DataTableHeaderMenuButton>
+      </DataTableHeaderRowColumn>
+    );
+  });
+  return (
+    <DataTableHeaderRow
+      style={{
+        height, width,
+        paddingRight: scrollbarWidth,
+      }}>
+      <VBox width={34} alignSelf="flex-end">
+        <ReactUI.QuietButton
+          onClick={onAddColumn}
+          size="small"
+          icon={<IconPlus />}
+          />
+      </VBox>
+      {items}
+    </DataTableHeaderRow>
+  );
+}
+
 type DataTableProps = {
 
-  children: React.Element<*>;
+  columns: Array<any>;
+
+  onAddColumn: () => *;
 
   /**
     * Removes fixed height from the scrollingContainer so that the total height
     * of rows can stretch the window. Intended for use with WindowScroller
     */
   autoHeight?: boolean;
-
-  /** Optional CSS class name */
-  className?: string;
 
   /** Disable rendering the header at all */
   disableHeader?: boolean;
@@ -61,15 +182,6 @@ type DataTableProps = {
     */
   estimatedRowSize: number;
 
-  /** Optional custom CSS class name to attach to inner Grid element. */
-  gridClassName?: string;
-
-  /** Optional inline style to attach to inner Grid element. */
-  gridStyle?: Object;
-
-  /** Optional CSS class to apply to all column headers */
-  headerClassName?: string;
-
   /** Fixed height of header row */
   headerHeight: number;
 
@@ -79,21 +191,11 @@ type DataTableProps = {
   /** Optional renderer to be used in place of table body rows when rowCount is 0 */
   noRowsRenderer?: Function;
 
-  /** Optional custom inline style to attach to table header columns. */
-  headerStyle?: Object;
-
   /**
     * Number of rows to render above/below the visible bounds of the list.
     * These rows can help for smoother scrolling on touch devices.
     */
   overscanRowCount?: number;
-
-  /**
-    * Optional CSS class to apply to all table rows (including the header row).
-    * This property can be a CSS class name (string) or a function that returns a class name.
-    * If a function is provided its signature should be: ({ index: number }): string
-    */
-  rowClassName?: string | Function;
 
   /**
     * Callback responsible for returning a data row given an index.
@@ -105,13 +207,10 @@ type DataTableProps = {
     * Either a fixed row height (number) or a function that returns the height of a row given its index.
     * ({ index: number }): number
     */
-  rowHeight: number | Function;
+  rowHeight: number;
 
   /** Number of rows in table. */
   rowCount: number;
-
-  /** Optional custom inline style to attach to table rows. */
-  rowStyle: Object | Function;
 
   /** See Grid#scrollToAlignment */
   scrollToAlignment: 'auto' | 'end' | 'start' | 'center';
@@ -147,10 +246,8 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     disableHeader: false,
     estimatedRowSize: 30,
     headerHeight: 0,
-    headerStyle: {},
     noRowsRenderer: () => null,
     overscanRowCount: 10,
-    rowStyle: {},
     scrollToAlignment: 'auto',
     style: {}
   };
@@ -186,64 +283,50 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
 
   render () {
     const {
-      children,
-      className,
+      columns,
       disableHeader,
-      gridClassName,
-      gridStyle,
       headerHeight,
-      height,
       noRowsRenderer,
-      rowClassName,
-      rowStyle,
       scrollToIndex,
       style,
-      width
+      height,
+      width,
+      onAddColumn,
     } = this.props
     const { scrollbarWidth } = this.state
 
     const availableRowsHeight = height - headerHeight
 
-    const rowClass = rowClassName instanceof Function ? rowClassName({ index: -1 }) : rowClassName
-    const rowStyleObject = rowStyle instanceof Function ? rowStyle({ index: -1 }) : rowStyle
-
-    // Precompute and cache column styles before rendering rows and columns to speed things up
+    // Precompute and cache column styles before rendering rows and columns to
+    // speed things up
     this._cachedColumnStyles = []
-    React.Children.toArray(children).forEach((column, index) => {
-      const flexStyles = this._getFlexStyleForColumn(column, column.props.style)
-
-      this._cachedColumnStyles[index] = {
-        ...flexStyles,
-        overflow: 'hidden'
-      }
+    columns.forEach((column, index) => {
+      let style = getColumnStyle(column);
+      this._cachedColumnStyles[index] = {...style, overflow: 'hidden'};
     })
 
-    // Note that we specify :numChildren, :scrollbarWidth, :sortBy, and :sortDirection as properties on Grid even though these have nothing to do with Grid.
-    // This is done because Grid is a pure component and won't update unless its properties or state has changed.
-    // Any property that should trigger a re-render of Grid then is specified here to avoid a stale display.
+    // Note that we specify :numChildren, :scrollbarWidth, :sortBy, and
+    // :sortDirection as properties on Grid even though these have nothing to do
+    // with Grid.  This is done because Grid is a pure component and won't
+    // update unless its properties or state has changed. Any property that
+    // should trigger a re-render of Grid then is specified here to avoid a
+    // stale display.
     return (
       <div
-        className={className}
-        style={style}
-      >
+        style={style}>
         {!disableHeader && (
-          <DataTableHeaderRow
-            className={rowClass}
-            style={{
-              ...rowStyleObject,
-              height: headerHeight,
-              overflow: 'hidden',
-              paddingRight: scrollbarWidth,
-              width: width
-            }}>
-            {this._getRenderedHeaderRow()}
-          </DataTableHeaderRow>
+          <DataTableHeader
+            height={headerHeight}
+            width={width}
+            scrollbarWidth={scrollbarWidth}
+            columns={columns}
+            onAddColumn={onAddColumn}
+            />
         )}
-
         <Grid
           {...this.props}
           autoContainerWidth
-          className={gridClassName}
+          style={{outline: 'none'}}
           cellRenderer={this._createRow}
           columnWidth={width}
           columnCount={1}
@@ -254,7 +337,6 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
           }}
           scrollbarWidth={scrollbarWidth}
           scrollToRow={scrollToIndex}
-          style={gridStyle}
         />
       </div>
     )
@@ -271,7 +353,7 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     rowData,
     rowIndex
   }: {
-    column: React.Element<any>;
+    column: any;
     columnIndex: number;
     isScrolling: boolean;
     rowData: Object;
@@ -280,13 +362,25 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     const {
       cellDataGetter,
       cellRenderer,
-      className,
       columnData,
       dataKey
-    } = column.props
+    } = column;
 
-    const cellData = cellDataGetter({ columnData, dataKey, rowData })
-    const renderedCell = cellRenderer({ cellData, columnData, dataKey, isScrolling, rowData, rowIndex })
+    const cellData = cellDataGetter({
+      columnData,
+      dataKey,
+      rowData
+    });
+
+    const renderedCell = cellRenderer({
+      cellData,
+      columnData,
+      dataKey,
+      isScrolling,
+      rowData,
+      rowIndex,
+      column,
+    });
 
     const style = this._cachedColumnStyles[columnIndex]
 
@@ -297,46 +391,12 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     return (
       <DataTableRowColumn
         key={`Row${rowIndex}-Col${columnIndex}`}
-        className={className}
         style={style}
         title={title}>
         {renderedCell}
       </DataTableRowColumn>
     )
   };
-
-  _createHeader({
-    column,
-    index
-  }: {
-    column: React.Element<any>;
-    index: number;
-  }) {
-    const { headerClassName, headerStyle, } = this.props
-    const { dataKey, disableSort, headerRenderer, label, columnData } = column.props
-
-    const style = this._getFlexStyleForColumn(column, headerStyle)
-
-    const renderedHeader = headerRenderer({
-      columnData,
-      dataKey,
-      disableSort,
-      label,
-    })
-
-    const a11yProps = {}
-
-    return (
-      <DataTableHeaderRowColumn
-        {...a11yProps}
-        key={`Header-Col${index}`}
-        className={headerClassName}
-        style={style}
-      >
-        {renderedHeader}
-      </DataTableHeaderRowColumn>
-    )
-  }
 
   _createRow = ({
     rowIndex: index,
@@ -350,19 +410,16 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     style: Object;
   }) => {
     const {
-      children,
-      rowClassName,
+      columns,
       rowGetter,
-      rowStyle
+      rowHeight,
     } = this.props
 
-    const { scrollbarWidth } = this.state
+    const {scrollbarWidth} = this.state
 
-    const rowClass = rowClassName instanceof Function ? rowClassName({ index }) : rowClassName
-    const rowStyleObject = rowStyle instanceof Function ? rowStyle({ index }) : rowStyle
     const rowData = rowGetter({ index })
 
-    const columns = React.Children.toArray(children).map(
+    const items = columns.map(
       (column, columnIndex) => this._createColumn({
         column,
         columnIndex,
@@ -373,73 +430,39 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
       })
     )
 
-    const className = rowClass;
     const flattenedStyle = {
       ...style,
-      ...rowStyleObject,
-      height: this._getRowHeight(index),
-      overflow: 'hidden',
+      height: rowHeight,
       paddingRight: scrollbarWidth
     }
 
     return (
       <DataTableRow
-        className={className}
         key={key}
         style={flattenedStyle}>
-        {columns}
+        {items}
       </DataTableRow>
     );
   };
-
-  /**
-   * Determines the flex-shrink, flex-grow, and width values for a cell (header or column).
-   */
-  _getFlexStyleForColumn(column: any, customStyle: Object = {}) {
-    const flexValue = `${column.props.flexGrow} ${column.props.flexShrink} ${column.props.width}px`
-
-    const style = {
-      ...customStyle,
-      flex: flexValue,
-      msFlex: flexValue,
-      WebkitFlex: flexValue
-    }
-
-    if (column.props.maxWidth) {
-      style.maxWidth = column.props.maxWidth
-    }
-
-    if (column.props.minWidth) {
-      style.minWidth = column.props.minWidth
-    }
-
-    return style
-  }
-
-  _getRenderedHeaderRow () {
-    const { children, disableHeader } = this.props
-    const items = disableHeader ? [] : React.Children.toArray(children)
-
-    return items.map((column, index) =>
-      this._createHeader({ column, index })
-    )
-  }
-
-  _getRowHeight(rowIndex: number) {
-    const {rowHeight} = this.props
-
-    return rowHeight instanceof Function
-      ? rowHeight({ index: rowIndex })
-      : rowHeight
-  }
 
   _setScrollbarWidth () {
     const Grid = ReactDOM.findDOMNode(this.Grid)
     const clientWidth = Grid.clientWidth || 0
     const offsetWidth = Grid.offsetWidth || 0
     const scrollbarWidth = offsetWidth - clientWidth
-
-    this.setState({ scrollbarWidth })
+    this.setState({scrollbarWidth})
   }
 }
 
+function getColumnStyle(column: any) {
+  let {flexGrow = 0, flexShrink = 1, width, maxWidth, minWidth} = column;
+  let flex = `${flexGrow} ${flexShrink} ${width}px`;
+  let style = {
+    flex: flex,
+    msFlex: flex,
+    WebkitFlex: flex,
+    maxWidth: maxWidth,
+    minWidth: minWidth,
+  }
+  return style;
+}

@@ -2,9 +2,9 @@ import './index.css';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import QueryBuilder from './QueryBuilder';
+import QueryBuilderApp from './QueryBuilderApp';
 
 ReactDOM.render(
-  <QueryBuilder />,
+  <QueryBuilderApp />,
   document.getElementById('root')
 );

@@ -4,7 +4,7 @@
 
 import 'react-select/dist/react-select.css';
 
-import type {Context} from '../model/Query';
+import type {Query, Context} from '../model/Query';
 import type {QueryPointer} from '../model/QueryPointer';
 
 import React from 'react';
@@ -14,7 +14,7 @@ import {VBox} from '@prometheusresearch/react-box';
 import * as t from '../model/Type';
 
 type AttributePickerProps = {
-  pointer: QueryPointer<>;
+  pointer: QueryPointer<Query>;
   path: string;
   onSelect: (selected: ?{path: string}) => *;
 };

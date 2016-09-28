@@ -1,22 +1,27 @@
-BIN = ./node_modules/.bin
+PQueryATH := ./node_modules/.bin:$(PATH)
+
+export PATH
 
 install:
 	npm install
 
 start:
-	@$(BIN)/react-scripts start
+	@react-scripts start
+
+lint:
+	@eslint ./src
 
 test:
-	@$(BIN)/react-scripts test
+	@react-scripts test
 
 test-cov:
-	@$(BIN)/react-scripts test --coverage
+	@react-scripts test --coverage
 
 ci:
-	@$(BIN)/react-scripts test --watch
+	@react-scripts test --watch
 
 check:
-	@$(BIN)/flow
+	@flow
 
 build:
-	@$(BIN)/react-scripts build
+	@react-scripts build

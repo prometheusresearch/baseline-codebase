@@ -2,71 +2,40 @@
  * @flow
  */
 
-import type {Query, Context} from '../model/Query';
+import type {Query} from '../model/Query';
 import type {QueryPointer} from '../model/QueryPointer';
+import type {onSelectCallback, onQueryCallback} from '../QueryBuilder';
 
 import React from 'react';
 import {VBox, HBox} from '@prometheusresearch/react-box';
-import * as ReactUI from '@prometheusresearch/react-ui';
-import {style} from 'react-dom-stylesheet';
-import IconPlus from 'react-icons/lib/fa/plus';
-import IconRemove from 'react-icons/lib/fa/trash';
-import IconCube from 'react-icons/lib/fa/cube';
-import IconFilter from 'react-icons/lib/fa/filter';
-import IconPointer from 'react-icons/lib/fa/mouse-pointer';
-import IconCircleO from 'react-icons/lib/fa/circle-o'
-import IconCircle from 'react-icons/lib/fa/circle'
+import * as css from 'react-stylesheet/css';
+import {style} from 'react-stylesheet';
 
 import invariant from 'invariant';
 import color from 'color';
 
-import * as t from '../model/Type';
 import * as q from '../model/Query';
 import * as qp from '../model/QueryPointer';
-import * as qo from '../model/QueryOperation';
 import * as theme from './Theme';
-
-function noop() {}
-
-let ColumnLabelRoot = style(HBox, {
-  userSelect: 'none',
-  cursor: 'default',
-  fontSize: '8pt',
-
-  em: {
-    textTransform: 'uppercase',
-    fontWeight: 'bold',
-  },
-}, {displayName: 'ColumnLabelRoot'});
-
-export function ColumnLabel(props: Object) {
-  return (
-    <ColumnLabelRoot
-      variant={{em: true}}
-      width="100%"
-      paddingH={5}
-      paddingV={5}
-      {...props}
-      />
-  );
-}
+import QueryVisToolbar from './QueryVisToolbar';
+import QueryVisButton, {QueryVisButtonLabel} from './QueryVisButton';
 
 function createButton(displayName, theme) {
   let Root = style(HBox, {
+    displayName: `${displayName}Root`,
+    base: {
+      color: theme.color,
 
-    backgroundColor: theme.background,
-    color: theme.color,
-    borderRadius: 2,
+      justifyContent: 'center',
+      userSelect: 'none',
+      cursor: 'default',
+      fontSize: '10px',
+      alignItems: 'center',
 
-    justifyContent: 'center',
-    userSelect: 'none',
-    cursor: 'default',
-    fontSize: '10px',
-    alignItems: 'center',
-
-    hover: {
-      color: color(theme.color).darken(0.1).rgbString(),
-      backgroundColor: color(theme.background).lighten(0.05).rgbString(),
+      hover: {
+        color: color(theme.color).darken(0.1).rgbString(),
+        backgroundColor: css.rgba(255, 255, 255, 0.15),
+      },
     },
 
     enableActive: {
@@ -76,7 +45,7 @@ function createButton(displayName, theme) {
       },
     }
 
-  }, {displayName: `${displayName}Root`});
+  });
 
   return class extends React.Component {
     static displayName = displayName;
@@ -95,552 +64,267 @@ function createButton(displayName, theme) {
 
 function createPanel(displayName, theme) {
   return style(VBox, {
-    backgroundColor: theme.background,
-    color: theme.color,
-  }, {displayName});
+    displayName,
+    base: {
+      backgroundColor: theme.background,
+      color: theme.color,
+    },
+    selected: {
+      zIndex: 1,
+      boxShadow: css.boxShadow(0, 1, 2, 0, '#bbb'),
+      backgroundColor: color(theme.background).darken(0.2).rgbString(),
+    }
+  });
 }
 
 let NavigateButton = createButton('NavigateButton', theme.entity);
 let AggregateButton = createButton('AggregateButton', theme.aggregate);
 let DefineButton = createButton('AggregateButton', theme.traverse);
 let FilterButton = createButton('FilterButton', theme.filter);
+let SelectButton = createButton('SelectButton', theme.select);
 
 let NavigatePanel = createPanel('NavigatePanel', theme.entity);
 let AggregatePanel = createPanel('AggregatePanel', theme.aggregate);
 let DefinePanel = createPanel('AggregatePanel', theme.traverse);
 let FilterPanel = createPanel('FilterPanel', theme.filter);
+let SelectPanel = createPanel('SelectPanel', theme.select);
 
-type onSelectCallback = (selected: ?QueryPointer<Query>) => *;
-
-type QueryButtonProps = {
-  label: string;
-  pointer: QueryPointer<>;
-  children?: React$Element<*>;
-  innerChildren?: React$Element<*>;
-  style: Object;
-  selected: QueryPointer<>;
-  onSelect: onSelectCallback;
-  onQuery: (query: ?Query, selected: ?QueryPointer<>) => *;
-  stylesheet: {
-    Root: typeof VBox;
-    Button: typeof VBox;
-  };
-};
-
-class QueryButton extends React.Component<*, QueryButtonProps, *> {
-
-  state: {
-    isActive: boolean;
-    isHover: boolean;
-  };
-
-  static defaultProps = {
-    selected: false,
-    onSelect: noop,
-    stylesheet: {
-      Root: VBox,
-      Button: VBox,
-    }
-  };
-
-  onSelect = (e) => {
-    e.stopPropagation();
-    let {selected, onSelect, pointer} = this.props;
-    let isSelected = qp.is(selected, pointer);
-    if (isSelected) {
-      onSelect(null);
-    } else {
-      onSelect(pointer);
-    }
-  };
-
-  onRemove = (e) => {
-    e.stopPropagation();
-    let {pointer, selected, onQuery} = this.props;
-    let {query, selected: nextSelected} = qo.removeAt(pointer, selected);
-    onQuery(query, nextSelected);
-  };
-
-  onAddFilter = (e) => {
-    e.stopPropagation();
-    let {pointer, selected, onQuery} = this.props;
-    let {query, selected: nextSelected} = qo.insertAfter(pointer, selected, q.filter(q.navigate('true')));
-    onQuery(query, nextSelected);
-  };
-
-  onAddNavigate = (e) => {
-    e.stopPropagation();
-    let {pointer, selected, onQuery} = this.props;
-    let {query, selected: nextSelected} = qo.insertAfter(pointer, selected, q.navigate('code'));
-    onQuery(query, nextSelected);
-  };
-
-  onAddAggregate = (e) => {
-    e.stopPropagation();
-    let {pointer, onQuery, selected} = this.props;
-    let {query, selected: nextSelected} = qo.insertAfter(pointer, selected, q.aggregate('count'));
-    onQuery(query, nextSelected);
-  };
-
-  onAddDefine = (e) => {
-    e.stopPropagation();
-    let {pointer, onQuery, selected} = this.props;
-    let {query, selected: nextSelected} = qo.insertAfter(pointer, selected, q.def('name', q.navigate('code')));
-    onQuery(query, nextSelected);
-  };
-
-  toggleActive = (e) => {
-    e.stopPropagation();
-    let isActive = !this.state.isActive;
-    this.setState({isActive});
-  };
-
-  onMouseEnter = () => {
-    this.setState({isHover: true});
-  };
-
-  onMouseLeave = () => {
-    this.setState({isHover: false});
-  };
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      isActive: true,
-      isHover: false,
-    };
-  }
-
-  render() {
-    let {
-      label, children, selected, pointer, innerChildren,
-      stylesheet: {Root, Button},
-    } = this.props;
-    let {
-      isActive, isHover
-    } = this.state;
-    let isSelected = qp.is(selected, pointer);
-    let canNavigate = canNavigateAt(pointer.query.context);
-    let canFilter = canFilterAt(pointer.query.context);
-    let canDefine = canDefineAt(pointer.query.context);
-    let canAggregate = canAggregateAt(pointer.query.context);
-    return (
-      <Root>
-        <VBox
-          onClick={this.onSelect}
-          onMouseOver={this.onMouseEnter}
-          onMouseLeave={this.onMouseLeave}>
-          <ColumnLabel>
-            <HBox grow={1} alignItems="center">
-              <VBox
-                paddingRight={5}
-                style={{visibility: !isActive || isSelected || isHover ? 'visible' : 'hidden'}}>
-                <Button disableActive onClick={this.toggleActive}>
-                  {isActive ? <IconCircle /> : <IconCircleO />}
-                </Button>
-              </VBox>
-              <VBox grow={1}>{label}</VBox>
-              <HBox style={{visibility: isSelected || isHover ? 'visible' : 'hidden'}}>
-                <Button onClick={this.onRemove}>
-                  <IconRemove />
-                </Button>
-              </HBox>
-            </HBox>
-          </ColumnLabel>
-          {isSelected &&
-            <Root
-              position="absolute"
-              top={0}
-              right={-6}
-              width={6}
-              height="100%"
-              />}
-        </VBox>
-        {innerChildren &&
-          <VBox marginLeft={10} style={{backgroundColor: 'white'}}>
-            <VBox paddingLeft={4} paddingTop={4}>{innerChildren}</VBox>
-          </VBox>}
-        {isSelected && (canAggregate || canFilter || canNavigate || canDefine) &&
-          <VBox width="100%" style={{backgroundColor: 'white'}} padding={5} paddingBottom={0}>
-            <HBox>
-              <HBox width="25%">
-                {canNavigate &&
-                  <ReactUI.QuietButton size="x-small" width="100%" onClick={this.onAddNavigate} icon={<IconPointer />}>
-                    Navigate
-                  </ReactUI.QuietButton>}
-              </HBox>
-              <HBox width="25%">
-                {canFilter &&
-                  <ReactUI.QuietButton size="x-small" width="100%" onClick={this.onAddFilter} icon={<IconFilter />}>
-                    Filter
-                  </ReactUI.QuietButton>}
-              </HBox>
-              <HBox width="25%">
-                {canDefine &&
-                  <ReactUI.QuietButton size="x-small" width="100%" onClick={this.onAddDefine} icon={<IconPlus />}>
-                    Define
-                  </ReactUI.QuietButton>}
-              </HBox>
-              <HBox width="25%">
-                {canAggregate &&
-                  <ReactUI.QuietButton size="x-small" width="100%" onClick={this.onAddAggregate} icon={<IconCube />}>
-                    Aggregate
-                  </ReactUI.QuietButton>}
-              </HBox>
-            </HBox>
-          </VBox>}
-        {children}
-      </Root>
-    );
-  }
-
-}
-
-type NavigateProps = {
+type QueryVisNavigateButtonProps = {
   pointer: QueryPointer<q.NavigateQuery>;
-  onQuery: (query: ?Query, selected: ?QueryPointer<>) => *;
+  onQuery: onQueryCallback;
   onSelect: onSelectCallback;
   children?: React$Element<*>;
 };
 
-export class Navigate extends React.Component<*, NavigateProps, *> {
-
-  render() {
-    let {pointer, children, ...props} = this.props;
-    children = React.Children.map(children, child =>
-      child && <VBox paddingTop={4}>{child}</VBox>);
-    return (
-      <QueryButton
-        {...props}
-        stylesheet={{Root: NavigatePanel, Button: NavigateButton}}
-        pointer={pointer}
-        label={pointer.query.path}>
-        <VBox style={{backgroundColor: 'white'}}>
-          {children}
-        </VBox>
-      </QueryButton>
-    );
-  }
+export function QueryVisNavigateButton(props: QueryVisNavigateButtonProps) {
+  let {pointer, ...rest} = props;
+  return (
+    <QueryVisButton
+      {...rest}
+      stylesheet={{Root: NavigatePanel, Button: NavigateButton}}
+      pointer={pointer}
+      label={pointer.query.path}
+      />
+  );
 }
 
-type DefineProps = {
+type QueryVisDefineButtonProps = {
   binding: React$Element<*>;
   pointer: QueryPointer<q.DefineQuery>;
-  onQuery: (query: ?Query, selected: ?QueryPointer<>) => *;
+  onQuery: onQueryCallback;
   onSelect: onSelectCallback;
-  children?: React$Element<*>;
 };
 
-export class Define extends React.Component<*, DefineProps, *> {
-
-  render() {
-    let {pointer, binding, children, ...props} = this.props;
-    return (
-      <QueryButton
-        {...props}
-        stylesheet={{Root: DefinePanel, Button: DefineButton}}
-        pointer={pointer}
-        label={`Define: ${pointer.query.binding.name}`}
-        innerChildren={binding}>
-        <VBox style={{backgroundColor: 'white'}}>
-          {React.Children.map(children, child => {
-            return child && <VBox paddingTop={4}>{child}</VBox>;
-          })}
-        </VBox>
-      </QueryButton>
-    );
-  }
+export function QueryVisDefineButton(props: QueryVisDefineButtonProps) {
+  let {pointer, binding, ...rest} = props;
+  return (
+    <QueryVisButton
+      {...rest}
+      stylesheet={{Root: DefinePanel, Button: DefineButton}}
+      pointer={pointer}
+      label={`Define: ${pointer.query.binding.name}`}>
+      <VBox paddingTop={5}>
+        {binding}
+      </VBox>
+    </QueryVisButton>
+  );
 }
 
-type FilterProps = {
+type QueryVisFilterButtonProps = {
   pointer: QueryPointer<q.FilterQuery>;
-  onQuery: (query: ?Query, selected: ?QueryPointer<>) => *;
-  children?: React$Element<*>;
+  onQuery: onQueryCallback;
   onSelect: onSelectCallback;
 };
 
-export class Filter extends React.Component<*, FilterProps, *> {
-
-  render() {
-    let {pointer, children, ...props} = this.props;
-    children = React.Children.map(children, child =>
-      child && <VBox paddingTop={4}>{child}</VBox>);
-    return (
-      <QueryButton
-        {...props}
-        stylesheet={{Root: FilterPanel, Button: FilterButton}}
-        pointer={pointer}
-        label="Filter">
-        <VBox style={{backgroundColor: 'white'}}>
-          {children}
-        </VBox>
-      </QueryButton>
-    );
-  }
+export function QueryVisFilterButton(props: QueryVisFilterButtonProps) {
+  return (
+    <QueryVisButton
+      {...props}
+      stylesheet={{Root: FilterPanel, Button: FilterButton}}
+      label="Filter"
+      />
+  );
 }
 
-type AggregateProps = {
+type QueryVisAggregateButtonProps = {
   pointer: QueryPointer<q.AggregateQuery>;
-  onQuery: (query: ?Query, selected: ?QueryPointer<>) => *;
-  children?: React$Element<*>;
+  onQuery: onQueryCallback;
   onSelect: onSelectCallback;
 };
 
-export class Aggregate extends React.Component<*, AggregateProps, *> {
-
-  render() {
-    let {pointer, children, ...props} = this.props;
-    children = React.Children.map(children, child =>
-      child && <VBox paddingTop={4}>{child}</VBox>);
-    return (
-      <QueryButton
-        {...props}
-        stylesheet={{Root: AggregatePanel, Button: AggregateButton}}
-        pointer={pointer}
-        label={pointer.query.aggregate}>
-        <VBox style={{backgroundColor: 'white'}}>
-          {children}
-        </VBox>
-      </QueryButton>
-    );
-  }
+export function QueryVisAggregateButton(props: QueryVisAggregateButtonProps) {
+  let {pointer, ...rest} = props;
+  return (
+    <QueryVisButton
+      {...rest}
+      stylesheet={{Root: AggregatePanel, Button: AggregateButton}}
+      pointer={pointer}
+      label={pointer.query.aggregate}
+      />
+  );
 }
 
-type QueryPipelineProps = {
-  pipeline: Array<QueryPointer<Query>>;
+type QueryVisQueryButtonProps = {
+  pointer: QueryPointer<Query>;
+  onQuery: onQueryCallback;
   onSelect: onSelectCallback;
-  onQuery: (query: ?Query, selected: ?QueryPointer<>) => *;
   selected: ?QueryPointer<Query>;
 };
 
-function QueryPipelineVis(props: QueryPipelineProps) {
-  let {pipeline, onQuery, onSelect, selected} = props;
-  let [pointer, ...rest] = pipeline;
-  let {query} = pointer;
-  switch (query.name) {
-    case 'pipeline':
-      return QueryPipelineVis({
-        ...props,
-        pipeline: qp.spread(pointer),
-      });
-    case 'navigate':
-      return (
-        <Navigate
-          selected={selected}
-          onSelect={onSelect}
-          onQuery={onQuery}
-          pointer={pointer}>
-          {rest.length > 0 &&
-            <QueryPipelineVis
-              {...props}
-              pipeline={rest}
-              />}
-        </Navigate>
-      );
-    case 'filter':
-      return (
-        <Filter
-          selected={selected}
-          onSelect={onSelect}
-          onQuery={onQuery}
-          pointer={pointer}>
-          {rest.length > 0 &&
-            <QueryPipelineVis
-              {...props}
-              pipeline={rest}
-              />}
-        </Filter>
-      );
-    case 'define': {
-      let bindingPointer = qp.select(
-        pointer,
-        ['binding', 'query']
-      );
-      return (
-        <Define
-          selected={selected}
-          onSelect={onSelect}
-          onQuery={onQuery}
-          pointer={pointer}
-          name={query.binding.name}
-          binding={
-            <QueryPipelineVis
-              {...props}
-              pipeline={[bindingPointer]}
-              />
-            }>
-          {rest.length > 0 &&
-            <QueryPipelineVis
-              {...props}
-              pipeline={rest}
-              />}
-        </Define>
-      );
-    }
-    case 'select': {
-      return (
-        rest.length > 0 ?
-          <QueryPipelineVis
-            {...props}
-            pipeline={rest}
-            /> :
-         null
-      );
-    }
-    case 'limit': {
-      return (
-        rest.length > 0 ?
-          <QueryPipelineVis
-            {...props}
-            pipeline={rest}
-            /> :
-         null
-      );
-    }
-    case 'aggregate': {
-      return (
-        <Aggregate
-          selected={selected}
-          onSelect={onSelect}
-          onQuery={onQuery}
-          pointer={pointer}>
-          {rest.length > 0 &&
-            <QueryPipelineVis
-              {...props}
-              pipeline={rest}
-              />}
-        </Aggregate>
-      );
-    }
-    default:
-      invariant(false, 'Unknown query type: %s', pointer.query.name);
+function QueryVisQueryButton(props: QueryVisQueryButtonProps) {
+  const {pointer: {query, keyPath, prev}, ...rest} = props;
+  if (query.name === 'navigate') {
+    const p: QueryPointer<q.NavigateQuery> = {query, keyPath, prev};
+    return (
+      <QueryVisNavigateButton
+        {...rest}
+        pointer={p}
+        />
+    );
+  } else if (query.name === 'filter') {
+    const p: QueryPointer<q.FilterQuery> = {query, keyPath, prev};
+    return (
+      <QueryVisFilterButton
+        {...rest}
+        pointer={p}
+        />
+    );
+  } else if (query.name === 'pipeline') {
+    return (
+      <QueryVisPipeline
+        {...rest}
+        pipeline={qp.spread(props.pointer)}
+        />
+    );
+  } else if (query.name === 'define') {
+    const p: any = props.pointer;
+    const bindingPointer = qp.select(p, ['binding', 'query']);
+    return (
+      <QueryVisDefineButton
+        {...rest}
+        pointer={p}
+        binding={
+          <QueryVisQueryButton
+            {...rest}
+            pointer={bindingPointer}
+            />
+          }
+        />
+    );
+  } else if (query.name === 'aggregate') {
+    const p: QueryPointer<q.AggregateQuery> = {query, keyPath, prev};
+    return (
+      <QueryVisAggregateButton
+        {...rest}
+        pointer={p}
+        />
+    );
+  } else if (query.name === 'select') {
+    return null;
+  } else if (query.name === 'limit') {
+    return null;
+  } else {
+    invariant(false, 'Unknown query type: %s', query.name);
   }
 }
 
-type QueryVisProps<Q: Query> = {
-  pointer: QueryPointer<Q>;
+type QueryVisPipelineProps = {
+  pipeline: Array<QueryPointer<Query>>;
   onSelect: onSelectCallback;
-  onQuery: (query: ?Query, selected: ?QueryPointer<>) => *;
+  onQuery: onQueryCallback;
+  selected: ?QueryPointer<Query>;
+};
+
+function QueryVisPipeline({pipeline, ...props}: QueryVisPipelineProps) {
+  let items = pipeline.map((pointer, idx) =>
+    <QueryVisPipelineItem key={idx}>
+      <QueryVisQueryButton
+        {...props}
+        pointer={pointer}
+        />
+    </QueryVisPipelineItem>
+  );
+  return (
+    <QueryVisPipelineRoot>
+      {items}
+    </QueryVisPipelineRoot>
+  );
+}
+
+let QueryVisPipelineRoot = style(VBox, {
+  base: {
+    backgroundColor: '#fff',
+  }
+});
+
+let QueryVisPipelineItem = style(VBox, {
+  base: {
+    paddingBottom: 5,
+    lastOfType: {
+      paddingBottom: 0,
+    }
+  }
+});
+
+type QueryVisProps = {
+  pointer: QueryPointer<Query>;
+  onSelect: onSelectCallback;
+  onQuery: onQueryCallback;
+  onAddColumn: () => *;
+  showAddColumnPanel: boolean;
   selected: ?QueryPointer<Query>;
 };
 
 /**
  * Render graphical query representation.
  */
-export class QueryVis extends React.Component<*, QueryVisProps<*>, *> {
+export class QueryVis extends React.Component<*, QueryVisProps, *> {
 
   render() {
-    let {pointer, selected, ...restProps} = this.props;
+    let {pointer, selected, showAddColumnPanel, onQuery, onSelect} = this.props;
     return (
-      <VBox height="100%" onClick={this.onRemoveSelection}>
-        <QueryPipelineVis
-          {...restProps}
+      <VBox
+        grow={1}
+        paddingV={5}
+        onClick={this.onRemoveSelection}>
+        <QueryVisPipeline
           selected={selected}
           pipeline={qp.spread(pointer)}
+          onQuery={onQuery}
+          onSelect={onSelect}
           />
-        {!selected &&
-          <HBox padding={5}>
-            <VBox width="25%">
-              {canNavigateAt(pointer.query.context) &&
-                <ReactUI.QuietButton
-                  size="x-small"
-                  icon={<IconPointer />}
-                  onClick={this.onAddNavigate}>
-                  Navigate
-                </ReactUI.QuietButton>}
-            </VBox>
-            <VBox width="25%">
-              {canFilterAt(pointer.query.context) &&
-                <ReactUI.QuietButton
-                  size="x-small"
-                  icon={<IconFilter />}
-                  onClick={this.onAddFilter}>
-                  Filter
-                </ReactUI.QuietButton>}
-            </VBox>
-            <VBox width="25%">
-              {canDefineAt(pointer.query.context) &&
-                <ReactUI.QuietButton
-                  size="x-small"
-                  icon={<IconPlus />}
-                  onClick={this.onAddDefine}>
-                  Define
-                </ReactUI.QuietButton>}
-            </VBox>
-            <VBox width="25%">
-              {canAggregateAt(pointer.query.context) &&
-                <ReactUI.QuietButton
-                  size="x-small"
-                  icon={<IconCube />}
-                  onClick={this.onAddAggregate}>
-                  Aggregate
-                </ReactUI.QuietButton>}
-            </VBox>
-          </HBox>}
+        {selected === null &&
+          <VBox padding={5} paddingBottom={0}>
+            <QueryVisToolbar
+              pointer={pointer}
+              selected={pointer}
+              onQuery={onQuery}
+              />
+          </VBox>}
+        <VBox alignSelf="flex-end" paddingV={5} width="100%">
+          <SelectPanel
+            padding={4}
+            paddingLeft={30}
+            variant={{selected: showAddColumnPanel}}>
+            <QueryVisButtonLabel onClick={this.onAddColumn}>
+              <HBox grow={1} alignItems="center">
+                Configure columns
+              </HBox>
+            </QueryVisButtonLabel>
+          </SelectPanel>
+        </VBox>
       </VBox>
     );
   }
+
+  onAddColumn = (e: UIEvent) => {
+    e.stopPropagation();
+    this.props.onAddColumn();
+  };
 
   onRemoveSelection = (e: UIEvent) => {
     e.stopPropagation();
     this.props.onSelect(null);
   };
 
-  onAddNavigate = (e: UIEvent) => {
-    e.stopPropagation();
-    let {pointer, selected, onQuery} = this.props;
-    let {query, selected: nextSelected} = qo.insertAfter(pointer, selected, q.navigate('code'));
-    onQuery(query, nextSelected);
-  };
-
-  onAddDefine = (e: UIEvent) => {
-    e.stopPropagation();
-    let {pointer, selected, onQuery} = this.props;
-    let {query, selected: nextSelected} = qo.insertAfter(pointer, selected, q.def('name', q.navigate('code')));
-    onQuery(query, nextSelected);
-  };
-
-  onAddFilter = (e: UIEvent) => {
-    e.stopPropagation();
-    let {pointer, selected, onQuery} = this.props;
-    let {query, selected: nextSelected} = qo.insertAfter(pointer, selected, q.filter(q.navigate('true')));
-    onQuery(query, nextSelected);
-  };
-
-  onAddAggregate = (e: UIEvent) => {
-    e.stopPropagation();
-    let {pointer, selected, onQuery} = this.props;
-    let {query, selected: nextSelected} = qo.insertAfter(pointer, selected, q.aggregate('count'));
-    onQuery(query, nextSelected);
-  };
-
-}
-
-function canAggregateAt(context: ?Context) {
-  return isSeqAt(context);
-}
-
-function canFilterAt(context: ?Context) {
-  return isSeqAt(context);
-}
-
-function canNavigateAt(context: ?Context) {
-  let canNavigate = (
-    context &&
-    context.type &&
-    t.atom(context.type).name === 'entity'
-  );
-  return canNavigate;
-}
-
-function canDefineAt(context: ?Context) {
-  return isSeqAt(context);
-}
-
-function isSeqAt(context: ?Context) {
-  return (
-    context &&
-    context.type &&
-    context.type.name === 'seq'
-  );
 }

@@ -11,8 +11,8 @@ export type KeyPath = Array<number | string>;
 /**
  * Query with a keyPath inside.
  */
-export type QueryPointer<+Q: Query = Query> = {
-  prev: ?QueryPointer<Query>;
+export interface QueryPointer<+Q: Query = Query> {
+  prev: ?QueryPointer<>;
   keyPath: KeyPath;
   query: Q;
 };
@@ -20,13 +20,18 @@ export type QueryPointer<+Q: Query = Query> = {
 export function make<Q: Query>(
   query: Q
 ): QueryPointer<Q> {
-  return {prev: null, query, keyPath: []};
+  return {
+    // $FlowIssue: interfaces bug
+    prev: null,
+    query,
+    keyPath: []
+  };
 }
 
 export function select(
   pointer: QueryPointer<Query>,
   ...keyPath: Array<KeyPath>
-): QueryPointer<*> {
+): QueryPointer<Query> {
 
   if (keyPath.length === 0) {
     return pointer;
@@ -53,7 +58,7 @@ export function select(
 
 export function spread(
   pointer: QueryPointer<Query>
-): Array<QueryPointer<*>> {
+): Array<QueryPointer<Query>> {
   if (pointer.query.name === 'pipeline') {
     return pointer.query.pipeline.map((q, idx) =>
       select(pointer, ['pipeline', idx]));
@@ -65,7 +70,7 @@ export function spread(
 /**
  * Check two pointers for equality.
  */
-export function is(a: ?QueryPointer<*>, b: ?QueryPointer<*>): boolean {
+export function is(a: ?QueryPointer<Query>, b: ?QueryPointer<Query>): boolean {
   if (a == null && b == null) {
     return true;
   } else if (a == null || b == null) {
@@ -85,7 +90,7 @@ export function is(a: ?QueryPointer<*>, b: ?QueryPointer<*>): boolean {
   return true;
 }
 
-export function move(p: QueryPointer<>, d: number): QueryPointer<> {
+export function move(p: QueryPointer<Query>, d: number): QueryPointer<Query> {
   if (p.prev && p.prev.query.name === 'pipeline') {
     return select(p.prev, ['pipeline', p.keyPath[1] + d]);
   } else {
@@ -93,11 +98,11 @@ export function move(p: QueryPointer<>, d: number): QueryPointer<> {
   }
 }
 
-export function rebase(p: QueryPointer<>, q: Query): QueryPointer<> {
+export function rebase(p: QueryPointer<*>, q: Query): QueryPointer<Query> {
   return select(make(q), ...trace(p).map(p => p.keyPath));
 }
 
-export function root(p: QueryPointer<Query>): QueryPointer<Query> {
+export function root(p: QueryPointer<*>): QueryPointer<Query> {
   while (p.prev != null) {
     p = p.prev;
   }

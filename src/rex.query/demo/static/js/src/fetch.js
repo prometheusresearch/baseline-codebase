@@ -2,17 +2,97 @@
  * @flow
  */
 
-import type {Query} from './model/Query';
+import type {Query, Domain, DomainEntity, DomainEntityAttribute} from './model/Query';
+import type {Type} from './model/Type';
 
-export function fetch(api: string, query: Query): Promise<Object> {
+import invariant from 'invariant';
+import * as t from './model/Type';
+
+function fetchJSON(api: string, data: mixed): Promise<Object> {
   return window.fetch(api, {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(translate(query))
+    body: JSON.stringify(data)
   }).then(response => response.json());
+}
+
+export function fetch(api: string, query: Query): Promise<Object> {
+  return fetchJSON(api, translate(query));
+}
+
+type Catalog = {
+  entity: Array<CatalogEntity>;
+};
+
+type CatalogEntity = {
+  name: string;
+  label: string;
+  field: Array<CatalogEntityField>;
+};
+
+type CatalogEntityField = {
+  label: string;
+  title: string;
+  column: ?{type: string};
+  public: boolean;
+  partial: boolean;
+  plural: boolean;
+  kind: string;
+  link: ?{target: string; inverse: string};
+};
+
+/**
+ * Known aggregate functions are hard-coded now.
+ */
+const aggregate = {
+  count: {
+    makeType: _typ => t.numberType,
+  },
+};
+
+export function fetchCatalog(api: string): Promise<Domain> {
+  return fetchJSON(api, ['catalog']).then(data => {
+    let catalog: Catalog = data;
+    let entity: {[entityName: string]: DomainEntity} = {};
+    catalog.entity.forEach(e => {
+      let attribute = {};
+      e.field.forEach(f => {
+        attribute[f.label] = {
+          title: f.title,
+          type: getFieldType(f),
+        };
+      });
+      entity[e.name] = {
+        title: e.label,
+        attribute
+      };
+    });
+    return {entity, aggregate};
+  });
+}
+
+function getFieldType(field: CatalogEntityField): Type {
+  if (field.column != null) {
+    switch (field.column.type) {
+      case 'text':
+      case 'date':
+      case 'enum':
+        return t.textType;
+      case 'boolean':
+        return t.booleanType;
+      default:
+        invariant(false, 'Unknown column type: %s', field.column.type);
+    }
+  } else if (field.link != null) {
+    return t.entityType(field.link.target);
+  } else if (field.kind === 'calculation') {
+    return t.textType;
+  } else {
+    invariant(false, 'Impossible');
+  }
 }
 
 /**
@@ -24,6 +104,11 @@ export function translate(query: Query) {
 
 function translateImpl(query, prev) {
   switch (query.name) {
+    case 'define':
+      return [
+        'define', prev,
+        ['=>', query.binding.name, translate(query.binding.query)]
+      ];
     case 'aggregate':
       return [query.aggregate, prev];
     case 'pipeline':

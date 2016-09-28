@@ -303,22 +303,22 @@ export default class QueryBuilder extends React.Component {
     return (
       <VBox height="100%">
         <QueryBuilderToolbar width="100%" padding={5} height={35}>
-          <ReactUI.FlatButton
+          <ReactUI.QuietButton
             disabled={this.state.undoStack.length < 1}
             onClick={this.actions.undo}
             icon={<ArrowLeftIcon />}
             size="small"
             groupHorizontally>
             Undo
-          </ReactUI.FlatButton>
-          <ReactUI.FlatButton
+          </ReactUI.QuietButton>
+          <ReactUI.QuietButton
             disabled={this.state.redoStack.length < 1}
             onClick={this.actions.redo}
             iconAlt={<ArrowRightIcon />}
             size="small"
             groupHorizontally>
             Redo
-          </ReactUI.FlatButton>
+          </ReactUI.QuietButton>
         </QueryBuilderToolbar>
         <HBox grow={1}>
           <VBox basis="300px" overflow="auto">

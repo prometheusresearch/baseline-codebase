@@ -468,20 +468,25 @@ function getNavigation(domain, type, scope) {
 
   // Collect paths from an input type
   if (type != null) {
-    type = t.atom(type);
-    if (type.name === 'void') {
+    let baseType = t.atom(type);
+    if (baseType.name === 'void') {
       for (let k in domain.entity) {
         if (domain.entity.hasOwnProperty(k)) {
-          navigation.push({value: k, label: domain.entity[k].title});
+          navigation.push({
+            value: k,
+            label: domain.entity[k].title,
+            type: t.leastUpperBound(type, t.entityType(k)),
+          });
         }
       }
-    } else if (type.name === 'entity') {
-      let attribute = domain.entity[type.entity].attribute;
+    } else if (baseType.name === 'entity') {
+      let attribute = domain.entity[baseType.entity].attribute;
       for (let k in attribute) {
         if (attribute.hasOwnProperty(k)) {
           navigation.push({
             value: k,
-            label: attribute[k].title
+            label: attribute[k].title,
+            type: attribute[k].type,
           });
         }
       }
@@ -491,7 +496,11 @@ function getNavigation(domain, type, scope) {
   // Collect paths from scope
   for (let k in scope) {
     if (scope.hasOwnProperty(k)) {
-      navigation.push({value: k, label: k});
+      navigation.push({
+        value: k,
+        label: k,
+        type: null,
+      });
     }
   }
 

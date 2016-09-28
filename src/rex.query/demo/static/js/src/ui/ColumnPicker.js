@@ -12,9 +12,11 @@ import * as ReactUI from '@prometheusresearch/react-ui';
 import * as css from 'react-stylesheet/css';
 import {style} from 'react-stylesheet';
 
+import * as t from '../model/Type';
+
 type ColumnPickerProps = {
   pointer: QueryPointer<Query>;
-  options: Array<{label: string; value: string}>;
+  options: Array<{label: string; value: string, type: ?t.Type}>;
   selected: Array<string>;
   onSelect: (field: string) => *;
 };
@@ -124,7 +126,7 @@ class ColumnPickerButton extends React.Component {
 
   props: {
     selected: boolean;
-    column: {label: string; value: string};
+    column: {label: string; value: string, type: ?t.Type};
     onSelect: (value: string) => *;
   };
 
@@ -141,8 +143,21 @@ class ColumnPickerButton extends React.Component {
         selected={selected}
         icon={selected && '✓'}
         onClick={this.onSelect}>
-        {column.label}
+        <VBox grow={1}>
+          {column.label}
+        </VBox>
+        {column.type &&
+          <ColumnType alignSelf="center">
+            {t.toString(column.type)}
+          </ColumnType>}
       </ColumnButtonBase>
     );
   }
 }
+
+let ColumnType = style(HBox, {
+  base: {
+    fontSize: '8pt',
+    color: '#666',
+  }
+});

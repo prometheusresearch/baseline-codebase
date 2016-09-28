@@ -118,3 +118,15 @@ export function atom(typ: Type): TypeAtom {
     return typ;
   }
 }
+
+export function toString(type: Type): string {
+  if (type.name === 'seq') {
+    return `seq[${toString(type.type)}]`;
+  } else if (type.name === 'opt') {
+    return `opt[${toString(type.type)}]`;
+  } else if (type.name === 'entity') {
+    return type.entity;
+  } else {
+    return type.name;
+  }
+}

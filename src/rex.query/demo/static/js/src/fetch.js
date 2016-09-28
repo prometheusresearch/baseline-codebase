@@ -75,6 +75,16 @@ export function fetchCatalog(api: string): Promise<Domain> {
 }
 
 function getFieldType(field: CatalogEntityField): Type {
+  let type = getBaseFieldType(field);
+  if (field.plural) {
+    type = t.seqType(type);
+  } else if (field.partial) {
+    type = t.optType(type);
+  }
+  return type;
+}
+
+function getBaseFieldType(field) {
   if (field.column != null) {
     switch (field.column.type) {
       case 'text':

@@ -4,7 +4,7 @@
 
 import type {Query} from '../model/Query';
 import type {QueryPointer} from '../model/QueryPointer';
-import type {onSelectCallback, onQueryCallback} from '../QueryBuilder';
+import type {QueryBuilderActions} from '../QueryBuilder';
 
 import React from 'react';
 import {VBox, HBox} from '@prometheusresearch/react-box';
@@ -23,8 +23,6 @@ type QueryVisButtonProps = {
   pointer: QueryPointer<Query>;
   children?: React$Element<*>;
   selected: QueryPointer<Query>;
-  onSelect: onSelectCallback;
-  onQuery: onQueryCallback;
   stylesheet: {
     Root: typeof VBox;
     Button: typeof VBox;
@@ -33,14 +31,17 @@ type QueryVisButtonProps = {
 
 export default class QueryVisButton extends React.Component<*, QueryVisButtonProps, *> {
 
+  context: {actions: QueryBuilderActions};
+
   state: {
     isActive: boolean;
     isHover: boolean;
   };
 
+  static contextTypes = {actions: React.PropTypes.object};
+
   static defaultProps = {
     selected: false,
-    onSelect: noop,
     stylesheet: {
       Root: VBox,
       Button: VBox,
@@ -49,20 +50,12 @@ export default class QueryVisButton extends React.Component<*, QueryVisButtonPro
 
   onSelect = (e: UIEvent) => {
     e.stopPropagation();
-    let {selected, onSelect, pointer} = this.props;
-    let isSelected = qp.is(selected, pointer);
-    if (isSelected) {
-      onSelect(null);
-    } else {
-      onSelect(pointer);
-    }
+    this.context.actions.select(this.props.pointer);
   };
 
   onRemove = (e: UIEvent) => {
     e.stopPropagation();
-    let {pointer, selected, onQuery} = this.props;
-    let {query, selected: nextSelected} = qo.removeAt(pointer, selected);
-    onQuery(query, nextSelected);
+    this.context.actions.remove(this.props.pointer);
   };
 
   toggleActive = (e: UIEvent) => {
@@ -89,7 +82,7 @@ export default class QueryVisButton extends React.Component<*, QueryVisButtonPro
 
   render() {
     let {
-      label, children, selected, pointer, onQuery,
+      label, children, selected, pointer,
       stylesheet: {Root, Button},
     } = this.props;
     let {
@@ -138,7 +131,6 @@ export default class QueryVisButton extends React.Component<*, QueryVisButtonPro
             <QueryVisToolbar
               pointer={pointer}
               selected={selected}
-              onQuery={onQuery}
               />
           </VBox>}
       </VBox>

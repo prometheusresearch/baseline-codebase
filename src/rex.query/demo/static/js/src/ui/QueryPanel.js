@@ -14,12 +14,11 @@ import NavigateQueryPanel from './NavigateQueryPanel';
 
 type QueryPanelProps = {
   pointer: ?QueryPointer<Query>;
-  onQuery: (query: ?Query, selected: ?QueryPointer<Query>) => *;
   onClose: () => *;
 };
 
 export default function QueryPanel(props: QueryPanelProps) {
-  const {pointer, onQuery, onClose} = props;
+  const {pointer, onClose} = props;
 
   if (pointer == null) {
     return null;
@@ -34,7 +33,6 @@ export default function QueryPanel(props: QueryPanelProps) {
         <NavigateQueryPanel
           pointer={p}
           onClose={onClose}
-          onQuery={onQuery}
           />
       );
     case 'filter':
@@ -43,7 +41,6 @@ export default function QueryPanel(props: QueryPanelProps) {
           title={pointer.query.name}
           onClose={onClose}
           theme={theme.filter}
-          onQuery={onQuery}
           pointer={pointer}>
         </QueryPanelBase>
       );
@@ -53,7 +50,6 @@ export default function QueryPanel(props: QueryPanelProps) {
           title={pointer.query.name}
           onClose={onClose}
           theme={theme.traverse}
-          onQuery={onQuery}
           pointer={pointer}>
         </QueryPanelBase>
       );
@@ -63,7 +59,6 @@ export default function QueryPanel(props: QueryPanelProps) {
           title={pointer.query.aggregate}
           onClose={onClose}
           theme={theme.aggregate}
-          onQuery={onQuery}
           pointer={pointer}>
         </QueryPanelBase>
       );

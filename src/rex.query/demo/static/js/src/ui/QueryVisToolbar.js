@@ -4,7 +4,7 @@
 
 import type {Query, Context} from '../model/Query';
 import type {QueryPointer} from '../model/QueryPointer';
-import type {onQueryCallback} from '../QueryBuilder';
+import type {QueryBuilderActions} from '../QueryBuilder';
 
 import React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
@@ -14,17 +14,17 @@ import IconPlus from 'react-icons/lib/fa/plus';
 import IconCube from 'react-icons/lib/fa/cube';
 import IconFilter from 'react-icons/lib/fa/filter';
 
-import * as qo from '../model/QueryOperation';
-import * as q from '../model/Query';
 import * as t from '../model/Type';
 
 type QueryVisToolbarProps = {
   pointer: QueryPointer<Query>;
-  selected: QueryPointer<Query>;
-  onQuery: onQueryCallback;
 };
 
 export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarProps, *> {
+
+  context: {actions: QueryBuilderActions};
+
+  static contextTypes = {actions: React.PropTypes.object};
 
   render() {
     let {pointer} = this.props;
@@ -78,33 +78,22 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
 
   onAddFilter = (e: UIEvent) => {
     e.stopPropagation();
-    let {pointer, selected, onQuery} = this.props;
-    let {
-      query,
-      selected: nextSelected
-    } = qo.insertAfter(pointer, selected, q.filter(q.navigate('true')));
-    onQuery(query, nextSelected);
+    this.context.actions.addFilter(this.props.pointer);
   };
 
   onAddNavigate = (e: UIEvent) => {
     e.stopPropagation();
-    let {pointer, selected, onQuery} = this.props;
-    let {query, selected: nextSelected} = qo.insertAfter(pointer, selected, q.navigate('code'));
-    onQuery(query, nextSelected);
+    this.context.actions.addNavigate(this.props.pointer);
   };
 
   onAddAggregate = (e: UIEvent) => {
     e.stopPropagation();
-    let {pointer, onQuery, selected} = this.props;
-    let {query, selected: nextSelected} = qo.insertAfter(pointer, selected, q.aggregate('count'));
-    onQuery(query, nextSelected);
+    this.context.actions.addAggregate(this.props.pointer);
   };
 
   onAddDefine = (e: UIEvent) => {
     e.stopPropagation();
-    let {pointer, onQuery, selected} = this.props;
-    let {query, selected: nextSelected} = qo.insertAfter(pointer, selected, q.def('name', q.navigate('code')));
-    onQuery(query, nextSelected);
+    this.context.actions.addDefine(this.props.pointer);
   };
 
 }

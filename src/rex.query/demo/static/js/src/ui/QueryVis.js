@@ -4,7 +4,6 @@
 
 import type {Query} from '../model/Query';
 import type {QueryPointer} from '../model/QueryPointer';
-import type {onSelectCallback, onQueryCallback} from '../QueryBuilder';
 
 import React from 'react';
 import {VBox, HBox} from '@prometheusresearch/react-box';
@@ -91,8 +90,6 @@ let SelectPanel = createPanel('SelectPanel', theme.select);
 
 type QueryVisNavigateButtonProps = {
   pointer: QueryPointer<q.NavigateQuery>;
-  onQuery: onQueryCallback;
-  onSelect: onSelectCallback;
   children?: React$Element<*>;
 };
 
@@ -111,8 +108,6 @@ export function QueryVisNavigateButton(props: QueryVisNavigateButtonProps) {
 type QueryVisDefineButtonProps = {
   binding: React$Element<*>;
   pointer: QueryPointer<q.DefineQuery>;
-  onQuery: onQueryCallback;
-  onSelect: onSelectCallback;
 };
 
 export function QueryVisDefineButton(props: QueryVisDefineButtonProps) {
@@ -132,8 +127,6 @@ export function QueryVisDefineButton(props: QueryVisDefineButtonProps) {
 
 type QueryVisFilterButtonProps = {
   pointer: QueryPointer<q.FilterQuery>;
-  onQuery: onQueryCallback;
-  onSelect: onSelectCallback;
 };
 
 export function QueryVisFilterButton(props: QueryVisFilterButtonProps) {
@@ -148,8 +141,6 @@ export function QueryVisFilterButton(props: QueryVisFilterButtonProps) {
 
 type QueryVisAggregateButtonProps = {
   pointer: QueryPointer<q.AggregateQuery>;
-  onQuery: onQueryCallback;
-  onSelect: onSelectCallback;
 };
 
 export function QueryVisAggregateButton(props: QueryVisAggregateButtonProps) {
@@ -166,8 +157,6 @@ export function QueryVisAggregateButton(props: QueryVisAggregateButtonProps) {
 
 type QueryVisQueryButtonProps = {
   pointer: QueryPointer<Query>;
-  onQuery: onQueryCallback;
-  onSelect: onSelectCallback;
   selected: ?QueryPointer<Query>;
 };
 
@@ -230,8 +219,6 @@ function QueryVisQueryButton(props: QueryVisQueryButtonProps) {
 
 type QueryVisPipelineProps = {
   pipeline: Array<QueryPointer<Query>>;
-  onSelect: onSelectCallback;
-  onQuery: onQueryCallback;
   selected: ?QueryPointer<Query>;
 };
 
@@ -268,8 +255,6 @@ let QueryVisPipelineItem = style(VBox, {
 
 type QueryVisProps = {
   pointer: QueryPointer<Query>;
-  onSelect: onSelectCallback;
-  onQuery: onQueryCallback;
   onAddColumn: () => *;
   showAddColumnPanel: boolean;
   selected: ?QueryPointer<Query>;
@@ -281,24 +266,20 @@ type QueryVisProps = {
 export class QueryVis extends React.Component<*, QueryVisProps, *> {
 
   render() {
-    let {pointer, selected, showAddColumnPanel, onQuery, onSelect} = this.props;
+    let {pointer, selected, showAddColumnPanel} = this.props;
     return (
       <VBox
         grow={1}
-        paddingV={5}
-        onClick={this.onRemoveSelection}>
+        paddingV={5}>
         <QueryVisPipeline
           selected={selected}
           pipeline={qp.spread(pointer)}
-          onQuery={onQuery}
-          onSelect={onSelect}
           />
         {selected === null &&
           <VBox padding={5} paddingBottom={0}>
             <QueryVisToolbar
               pointer={pointer}
               selected={pointer}
-              onQuery={onQuery}
               />
           </VBox>}
         <VBox alignSelf="flex-end" paddingV={5} width="100%">
@@ -320,11 +301,6 @@ export class QueryVis extends React.Component<*, QueryVisProps, *> {
   onAddColumn = (e: UIEvent) => {
     e.stopPropagation();
     this.props.onAddColumn();
-  };
-
-  onRemoveSelection = (e: UIEvent) => {
-    e.stopPropagation();
-    this.props.onSelect(null);
   };
 
 }

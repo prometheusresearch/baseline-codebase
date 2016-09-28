@@ -19,32 +19,63 @@ import * as qp from './model/QueryPointer';
 import * as qo from './model/QueryOperation';
 import * as ui from './ui';
 
-type QueryBuilderProps = {
-  domain: Domain;
-  api: string;
-  initialQuery: ?Query;
-};
-
-export type onSelectCallback = (selected: ?QueryPointer<Query>) => *;
-export type onQueryCallback = (query: ?Query, selected: ?QueryPointer<Query>) => *;
-
 function getInitialQuery(domain: Domain): Query {
   let entityName = Object.keys(domain.entity)[0];
   invariant(entityName != null, 'Empty domain');
   return q.navigate(entityName);
 }
 
+function guessNavigatePath(query: Query): ?string {
+  let {type, domain} = query.context;
+  if (type == null) {
+    return null;
+  }
+  type = t.atom(type);
+  if (type.name === 'entity') {
+    let attributeName = Object.keys(domain.entity[type.entity].attribute)[0];
+    if (attributeName == null) {
+      return null;
+    }
+    return attributeName;
+  } else {
+    return null;
+  }
+}
+
+type QueryBuilderProps = {
+  domain: Domain;
+  api: string;
+  initialQuery: ?Query;
+};
+
+type QueryBuilderState = {
+  query: Query;
+  queryInvalid: boolean;
+  fieldList: Array<string>;
+  selected: ?QueryPointer<Query>;
+  data: ?Object;
+  dataUpdating: boolean;
+  showAddColumnPanel: boolean;
+};
+
+export type QueryBuilderActions = {
+  addNavigate(pointer: QueryPointer<Query>): void;
+  addDefine(pointer: QueryPointer<Query>): void;
+  addFilter(pointer: QueryPointer<Query>): void;
+  addAggregate(pointer: QueryPointer<Query>): void;
+  remove(pointer: QueryPointer<Query>): void;
+  select(pointer: ?QueryPointer<Query>): void;
+  replace(pointer: QueryPointer<Query>, query: Query): void;
+};
+
 export default class QueryBuilder extends React.Component {
 
+  state: QueryBuilderState;
   props: QueryBuilderProps;
-  state: {
-    query: Query;
-    queryInvalid: boolean;
-    fieldList: Array<string>;
-    selected: ?QueryPointer<Query>;
-    data: ?Object;
-    dataUpdating: boolean;
-    showAddColumnPanel: boolean;
+  actions: QueryBuilderActions;
+
+  static childContextTypes = {
+    actions: React.PropTypes.object,
   };
 
   constructor(props: QueryBuilderProps) {
@@ -53,6 +84,17 @@ export default class QueryBuilder extends React.Component {
     let query = q.inferType(domain, initialQuery || getInitialQuery(domain));
     let fieldList = getFieldList(query);
     let selected = qp.select(qp.make(query), ['pipeline', 0]);
+
+    this.actions = {
+      addNavigate: this.addNavigateAction,
+      addDefine: this.addDefineAction,
+      addFilter: this.addFilterAction,
+      addAggregate: this.addAggregateAction,
+      remove: this.removeAction,
+      select: this.selectAction,
+      replace: this.replaceAction,
+    };
+
     this.state = {
       query,
       queryInvalid: false,
@@ -64,7 +106,75 @@ export default class QueryBuilder extends React.Component {
     };
   }
 
-  onSelect: onSelectCallback = (selected) => {
+  selectAction = (pointer: ?QueryPointer<*>) => {
+    this.onSelect(pointer);
+  };
+
+  removeAction = (pointer: QueryPointer<*>) => {
+    let {query, selected: nextSelected} = qo.removeAt(
+      pointer,
+      this.state.selected
+    );
+    this.onQuery(query, nextSelected);
+  };
+
+  replaceAction = (pointer: QueryPointer<*>, query: Query) => {
+    let {query: nextQuery, selected} = qo.transformAt(
+      pointer,
+      pointer,
+      prevQuery => query
+    );
+    this.onQuery(nextQuery, selected);
+  };
+
+  addNavigateAction = (pointer: QueryPointer<*>) => {
+    let path = guessNavigatePath(pointer.query);
+    if (path == null) {
+      return;
+    }
+    let {query, selected: nextSelected} = qo.insertAfter(
+      pointer,
+      this.state.selected,
+      q.navigate(path)
+    );
+    this.onQuery(query, nextSelected);
+  };
+
+  addDefineAction = (pointer: QueryPointer<*>) => {
+    let path = guessNavigatePath(pointer.query);
+    if (path == null) {
+      return;
+    }
+    let {query, selected: nextSelected} = qo.insertAfter(
+      pointer,
+      this.state.selected,
+      q.def(`define_${path}`, q.navigate(path))
+    );
+    this.onQuery(query, nextSelected);
+  };
+
+  addFilterAction = (pointer: QueryPointer<*>) => {
+    let {
+      query,
+      selected: nextSelected
+    } = qo.insertAfter(
+      pointer,
+      this.state.selected,
+      q.filter(q.navigate('true'))
+    );
+    this.onQuery(query, nextSelected);
+  };
+
+  addAggregateAction = (pointer: QueryPointer<*>) => {
+    let {query, selected: nextSelected} = qo.insertAfter(
+      pointer,
+      this.state.selected,
+      q.aggregate('count')
+    );
+    this.onQuery(query, nextSelected);
+  };
+
+  onSelect = (selected: ?QueryPointer<Query>) => {
     this.setState(state => {
       return {...state, selected, showAddColumnPanel: false};
     });
@@ -127,17 +237,13 @@ export default class QueryBuilder extends React.Component {
 
     let pointer = qp.make(query);
 
-    console.log(this.props.domain);
-
     return (
       <HBox grow={1} height="100%">
         <VBox basis="300px" overflow="auto">
           <ui.QueryVis
             domain={this.props.domain}
             pointer={pointer}
-            onQuery={this.onQuery}
             selected={selected}
-            onSelect={this.onSelect}
             showAddColumnPanel={showAddColumnPanel}
             onAddColumn={this.onShowAddColumn}
             />
@@ -154,7 +260,6 @@ export default class QueryBuilder extends React.Component {
               <ui.QueryPanel
                 onClose={this.onSelect.bind(null, null)}
                 pointer={selected}
-                onQuery={this.onQuery}
                 />}
           </VBox>}
         <VBox basis="400px" grow={3} style={{borderLeft: css.border(1, '#ccc')}}>
@@ -171,6 +276,10 @@ export default class QueryBuilder extends React.Component {
         </VBox>
       </HBox>
     );
+  }
+
+  getChildContext() {
+    return {actions: this.actions};
   }
 
   fetchData(query: Query) {

@@ -131,7 +131,10 @@ export default class QueryBuilder extends React.Component {
   }
 
   exportAction = () => {
-    initiateDownload(this.props.api, this.state.query);
+    initiateDownload(
+      this.props.api,
+      selectAll(this.state.query, this.state.fieldList)
+    );
   };
 
   undoAction = () => {

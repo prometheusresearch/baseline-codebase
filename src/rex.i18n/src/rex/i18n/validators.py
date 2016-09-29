@@ -28,7 +28,7 @@ class LocaleVal(StrVal):
             data = data.replace('-', '_')
         try:
             return Locale.parse(data)
-        except UnknownLocaleError:
+        except (UnknownLocaleError, ValueError):
             raise Error(
                 'expected a POSIX or RFC5646 locale identifier, got \'%s\'' % (
                     data,

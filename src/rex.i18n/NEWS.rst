@@ -5,6 +5,13 @@ REX.I18N Change Log
 .. contents:: Table of Contents
 
 
+0.5.1 (2016-xx-xx)
+==================
+
+* Fixed an issue that caused a crash when trying to validate particular strings
+  as Locales.
+
+
 0.5.0 (2016-08-12)
 ==================
 

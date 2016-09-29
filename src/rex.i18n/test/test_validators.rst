@@ -30,6 +30,11 @@ The LocaleVal validator takes in a POSIX/RFC5646 locale identifier or a Babel
         ...
     Error: expected a POSIX or RFC5646 locale identifier, got 'foobar'
 
+    >>> validator('blah(blah')
+    Traceback (most recent call last):
+        ...
+    Error: expected a POSIX or RFC5646 locale identifier, got 'blah(blah'
+
     >>> from babel import Locale
     >>> validator(Locale.parse('en'))
     Locale('en')

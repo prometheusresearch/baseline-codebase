@@ -14,7 +14,7 @@ import {style} from 'react-stylesheet';
 import ArrowLeftIcon  from 'react-icons/lib/fa/arrow-left';
 import ArrowRightIcon  from 'react-icons/lib/fa/arrow-right';
 import DownloadIcon from 'react-icons/lib/fa/cloud-download';
-import PlusIcon from 'react-icons/lib/fa/plus';
+import CogIcon from 'react-icons/lib/fa/cog';
 
 import {fetch, initiateDownload} from './fetch';
 import * as t from './model/Type';
@@ -499,7 +499,7 @@ function NoColumnsMessage({onAddColumn, showAddColumnPanel}) {
         Click
         <ReactUI.FlatButton
           style={{verticalAlign: 'middle', margin: 4, marginTop: 2}}
-          icon={<PlusIcon />}
+          icon={<CogIcon />}
           size="small"
           onClick={onAddColumn}>
           Configure columns

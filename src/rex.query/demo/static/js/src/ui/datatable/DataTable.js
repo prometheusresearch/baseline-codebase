@@ -7,8 +7,8 @@ import ReactDOM from 'react-dom'
 import shallowCompare from 'react-addons-shallow-compare'
 import * as ReactUI from '@prometheusresearch/react-ui';
 import {VBox} from '@prometheusresearch/react-box';
-import IconPlus from 'react-icons/lib/fa/plus';
-import IconEllipsis from 'react-icons/lib/fa/ellipsis-v';
+import CogIcon from 'react-icons/lib/fa/cog';
+import EllipsisIcon from 'react-icons/lib/fa/ellipsis-v';
 import {style} from 'react-stylesheet';
 import * as css from 'react-stylesheet/css';
 import {Grid} from 'react-virtualized'
@@ -137,7 +137,7 @@ function DataTableHeader({
           {label}
         </DataTableHeaderRowColumnCell>
         <DataTableHeaderMenuButton position="absolute" right={2} bottom={6}>
-          <IconEllipsis />
+          <EllipsisIcon />
         </DataTableHeaderMenuButton>
       </DataTableHeaderRowColumn>
     );
@@ -152,7 +152,7 @@ function DataTableHeader({
         <ReactUI.QuietButton
           onClick={onAddColumn}
           size="small"
-          icon={<IconPlus />}
+          icon={<CogIcon />}
           />
       </VBox>
       {items}

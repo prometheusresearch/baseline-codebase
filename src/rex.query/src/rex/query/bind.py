@@ -115,6 +115,12 @@ class RexBindingState(BindingState):
                     self.scope, value.data, value.domain, self.scope.syntax),
                 optional=(value is None))
 
+    def bind_here_op(self, args):
+        if not (len(args) == 0):
+            raise Error("Expected no arguments,"
+                        " got:", ", ".join(map(str, args)))
+        return Output(self.scope)
+
     def bind_navigate_op(self, args):
         if not (len(args) == 1 and
                 isinstance(args[0], LiteralSyntax) and

@@ -145,10 +145,10 @@ class LiteralVal(Validate):
         with guard("Got:", repr(data)):
             if isinstance(data, str):
                 data = data.decode('utf-8', 'replace')
-            if not isinstance(data, (
+            if not (data is None or isinstance(data, (
                         unicode, bool, int, long, float,
                         decimal.Decimal, datetime.date,
-                        datetime.time, datetime.datetime)):
+                        datetime.time, datetime.datetime))):
                 raise Error("Expected a literal value")
             return LiteralSyntax(data)
 

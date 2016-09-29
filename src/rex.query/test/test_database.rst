@@ -77,6 +77,18 @@ To show more than one field in the output, we use the ``select`` combinator::
                {'1004', 'male', [1000], [1001]}),
               (), ({[1000], [fos.mother], '1'},)}, ...)>
 
+    >>> db.produce(
+    ...     ["select",
+    ...         ["here"],
+    ...         ["=>", "num_study", ["count", ["navigate", "study"]]],
+    ...         ["=>", "num_individual", ["count", ["navigate", "individual"]]]])
+    <Product {3, 98}>
+
+Constants::
+
+    >>> db.produce(["select", "here", None, True, 64, 3.14, "htsql"])
+    <Product {null, true, 64, 3.14, 'htsql'}>
+
 Arithmetic operations::
 
     >>> db.produce(["+", 9, 3])

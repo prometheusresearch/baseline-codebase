@@ -13,8 +13,9 @@ import * as css from 'react-stylesheet/css';
 import {style} from 'react-stylesheet';
 import ArrowLeftIcon  from 'react-icons/lib/fa/arrow-left';
 import ArrowRightIcon  from 'react-icons/lib/fa/arrow-right';
+import DownloadIcon from 'react-icons/lib/fa/cloud-download';
 
-import {fetch} from './fetch';
+import {fetch, initiateDownload} from './fetch';
 import * as t from './model/Type';
 import * as q from './model/Query';
 import * as qp from './model/QueryPointer';
@@ -81,6 +82,7 @@ export type QueryBuilderActions = {
   renameDefineBinding(pointer: QueryPointer<DefineQuery>, name: string): void;
   undo(): void;
   redo(): void;
+  export(): void;
 };
 
 export default class QueryBuilder extends React.Component {
@@ -111,6 +113,7 @@ export default class QueryBuilder extends React.Component {
       renameDefineBinding: this.renameDefineBindingAction,
       undo: this.undoAction,
       redo: this.redoAction,
+      export: this.exportAction,
     };
 
     this.state = {
@@ -125,6 +128,10 @@ export default class QueryBuilder extends React.Component {
       redoStack: [],
     };
   }
+
+  exportAction = () => {
+    initiateDownload(this.props.api, this.state.query);
+  };
 
   undoAction = () => {
     let undoStack = this.state.undoStack.slice(0);
@@ -319,6 +326,14 @@ export default class QueryBuilder extends React.Component {
             groupHorizontally>
             Redo
           </ReactUI.QuietButton>
+          <HBox marginLeft="auto">
+            <ReactUI.QuietButton
+              onClick={this.actions.export}
+              icon={<DownloadIcon />}
+              size="small">
+              Export as .csv
+            </ReactUI.QuietButton>
+          </HBox>
         </QueryBuilderToolbar>
         <HBox grow={1}>
           <VBox basis="300px" overflow="auto">

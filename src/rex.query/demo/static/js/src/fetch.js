@@ -5,7 +5,9 @@
 import type {Query, Domain, DomainEntity} from './model/Query';
 import type {Type} from './model/Type';
 
+import download from 'downloadjs';
 import invariant from 'invariant';
+
 import * as t from './model/Type';
 
 function fetchJSON(api: string, data: mixed): Promise<Object> {
@@ -15,8 +17,21 @@ function fetchJSON(api: string, data: mixed): Promise<Object> {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   }).then(response => response.json());
+}
+
+export function initiateDownload(api: string, query: Query): Promise<Blob> {
+  return window.fetch(api, {
+    method: 'POST',
+    headers: {
+      'Accept': 'text/csv',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(translate(query)),
+  })
+  .then(response => response.blob())
+  .then(blob => download(blob, 'query.csv', 'text/csv'));
 }
 
 export function fetch(api: string, query: Query): Promise<Object> {

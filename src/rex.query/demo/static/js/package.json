@@ -16,6 +16,7 @@
     "@prometheusresearch/react-box": "1-alpha",
     "@prometheusresearch/react-ui": "^0.20.0",
     "color": "^0.11.3",
+    "downloadjs": "^1.4.6",
     "invariant": "^2.2.1",
     "lodash": "^4.15.0",
     "react": "^15.3.1",

@@ -3,7 +3,7 @@
 #
 
 
-from webob.exc import HTTPMethodNotAllowed
+from webob.exc import HTTPMethodNotAllowed, HTTPBadRequest
 
 from rex.action import typing
 from rex.core import StrVal
@@ -97,6 +97,8 @@ class DictionaryPickMartAction(MartAction):
             raise HTTPMethodNotAllowed()
 
         mart = self.get_mart(request)
+        if not mart:
+            raise HTTPBadRequest('Specified mart does not exist')
         mart_db = self.get_mart_db(mart)
 
         filters = []

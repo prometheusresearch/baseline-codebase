@@ -12,6 +12,13 @@ REX.MART_ACTIONS Change Log
 * Enumeration filters in Guides now have their choices sorted.
 
 
+0.3.1 (2106-09-29)
+==================
+
+* Fixed crash that occurs if Data Dictionary action APIs are invoked without
+  a valid, specified mart.
+
+
 0.3.0 (2016-08-12)
 ==================
 

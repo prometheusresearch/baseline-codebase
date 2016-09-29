@@ -13,6 +13,7 @@ import * as t from './model/Type';
 function fetchJSON(api: string, data: mixed): Promise<Object> {
   return window.fetch(api, {
     method: 'POST',
+    credentials: 'same-origin',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json'
@@ -24,6 +25,7 @@ function fetchJSON(api: string, data: mixed): Promise<Object> {
 export function initiateDownload(api: string, query: Query): Promise<Blob> {
   return window.fetch(api, {
     method: 'POST',
+    credentials: 'same-origin',
     headers: {
       'Accept': 'text/csv',
       'Content-Type': 'application/json'

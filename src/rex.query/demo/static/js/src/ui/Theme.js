@@ -8,8 +8,8 @@ export let entity = {
 };
 
 export let select = {
-  background: '#a463f2',
-  color: '#ffffff',
+  background: '#888',
+  color: '#fff',
 };
 
 export let attribute = {

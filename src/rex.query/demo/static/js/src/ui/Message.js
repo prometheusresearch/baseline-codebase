@@ -33,11 +33,10 @@ let MessageRoot = style(VBox, {
   }
 });
 
-let MessageChildrenWrapper = style(HBox, {
+let MessageChildrenWrapper = style('p', {
   displayName: 'MessageChildrenWrapper',
   base: {
     width: '80%',
-    alignItems: 'center',
-    justifyContent: 'center',
+    textAlign: 'center',
   }
 });

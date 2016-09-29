@@ -32,10 +32,9 @@ let DataTableHeaderRow = style('div', {
   displayName: 'DataTableHeaderRow',
   base: {
     fontSize: '11pt',
-    zIndex: 1000,
-    fontWeight: 700,
-    borderBottom: css.border(1, '#ccc'),
-    boxShadow: css.boxShadow(0, 2, 0, 0, '#eee'),
+    fontWeight: 400,
+    marginBottom: 2,
+    boxShadow: css.boxShadow(0, 0, 3, 0, '#666'),
     position: css.position.relative,
     textTransform: css.textTransform.none,
 
@@ -88,7 +87,7 @@ let DataTableHeaderRowColumn = style('div', {
 let DataTableHeaderRowColumnCell = style('span', {
   displayName: 'DataTableHeaderRowColumnCell',
   base: {
-    fontWeight: 400,
+    fontWeight: 300,
     display: css.display.inlineBlock,
     maxWidth: '100%',
     whiteSpace: css.whiteSpace.nowrap,
@@ -149,7 +148,7 @@ function DataTableHeader({
         height, width,
         paddingRight: scrollbarWidth,
       }}>
-      <VBox width={34} alignSelf="flex-end">
+      <VBox width={34} paddingH={2} alignSelf="flex-end">
         <ReactUI.QuietButton
           onClick={onAddColumn}
           size="small"

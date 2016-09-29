@@ -99,7 +99,7 @@ export function QueryVisNavigateButton(props: QueryVisNavigateButtonProps) {
       {...rest}
       stylesheet={{Root: NavigatePanel, Button: NavigateButton}}
       pointer={pointer}
-      label={getColumnTitle(pointer.query)}
+      label={`Navigate: ${getColumnTitle(pointer.query)}`}
       />
   );
 }
@@ -159,7 +159,7 @@ export function QueryVisAggregateButton(props: QueryVisAggregateButtonProps) {
       {...rest}
       stylesheet={{Root: AggregatePanel, Button: AggregateButton}}
       pointer={pointer}
-      label={pointer.query.aggregate}
+      label={`Aggregate: ${pointer.query.aggregate}`}
       />
   );
 }
@@ -279,7 +279,7 @@ export class QueryVis extends React.Component<*, QueryVisProps, *> {
     return (
       <VBox
         grow={1}
-        paddingV={5}>
+        paddingV={10}>
         <QueryVisPipeline
           selected={selected}
           pipeline={qp.spread(pointer)}

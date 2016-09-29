@@ -12,9 +12,9 @@ import {style} from 'react-stylesheet';
 import {AutoSizer} from 'react-virtualized';
 import IconPlus from 'react-icons/lib/fa/plus';
 
+import * as t from '../model/Type';
 import {getQueryNavigation} from '../model/QueryNavigation';
 import Table from './datatable/DataTable';
-import Message from './Message';
 
 let styles = {};
 
@@ -75,26 +75,22 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
     let columns = getColumnList(query);
 
     return (
-      fieldList.length > 0 ?
-        <AutoSizer>
-          {size => (
-            <Table
-              onAddColumn={onAddColumn}
-              headerHeight={40}
-              noRowsRenderer={this._noRowsRenderer}
-              overscanRowCount={10}
-              rowHeight={35}
-              rowGetter={this._getDatum}
-              rowCount={this._getData().length}
-              height={size.height}
-              width={size.width}
-              columns={columns}
-              />
-          )}
-        </AutoSizer> :
-        <NoColumnsMessage
-          onAddColumn={onAddColumn}
-          />
+      <AutoSizer>
+        {size => (
+          <Table
+            onAddColumn={onAddColumn}
+            headerHeight={40}
+            noRowsRenderer={this._noRowsRenderer}
+            overscanRowCount={10}
+            rowHeight={35}
+            rowGetter={this._getDatum}
+            rowCount={this._getData().length}
+            height={size.height}
+            width={size.width}
+            columns={columns}
+            />
+        )}
+      </AutoSizer>
     )
   }
 
@@ -139,7 +135,24 @@ function cellRenderer({
   if (cellData == null) {
     return ''
   } else if (column.query.context.type) {
-    let type = column.query.context.type;
+    const type = column.query.context.type;
+    const baseType = t.atom(type);
+    if (baseType.name === 'entity' && typeof cellData === 'object' && cellData != null) {
+      if (type.name === 'seq') {
+        if (Array.isArray(cellData)) {
+          cellData = cellData.map(entity =>
+            formatEntity(baseType.entity, entity)).join(', ');
+        }
+      } else {
+        if ('code' in cellData) {
+          cellData = cellData.code;
+        } else if ('name' in cellData) {
+          cellData = cellData.name;
+        } else if ('title' in cellData) {
+          cellData = cellData.title;
+        }
+      }
+    }
     if (type.name === 'boolean') {
       if (cellData === true) {
         return <BooleanTrueCell>✓</BooleanTrueCell>;
@@ -155,6 +168,18 @@ function cellRenderer({
     }
   } else {
     return String(cellData)
+  }
+}
+
+function formatEntity(entityName, entity) {
+  if ('title' in entity) {
+    return entity.title;
+  } else if ('name' in entity) {
+    return entity.name;
+  } else if ('code' in entity) {
+    return entity.code;
+  } else {
+    return entityName;
   }
 }
 
@@ -178,20 +203,3 @@ let BooleanFalseCell = style('div', {
   }
 });
 
-function NoColumnsMessage({onAddColumn}: {onAddColumn: () => *}) {
-  return (
-    <Message>
-      No columns configured.
-      Click
-        <VBox paddingH={5} paddingV={5}>
-          <ReactUI.Button
-            icon={<IconPlus />}
-            size="small"
-            onClick={onAddColumn}>
-            Configure columns
-          </ReactUI.Button>
-        </VBox>
-      to add a few.
-    </Message>
-  );
-}

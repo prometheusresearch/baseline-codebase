@@ -20,8 +20,6 @@ type QueryPanelBaseProps = {
 
 let QueryPanelBaseRoot = style(VBox, {
   base: {
-    borderLeft: css.border(1, '#ddd'),
-    borderRight: css.border(1, '#ddd'),
   },
 });
 

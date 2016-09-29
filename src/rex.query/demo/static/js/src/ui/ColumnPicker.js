@@ -157,7 +157,8 @@ class ColumnPickerButton extends React.Component {
 
 let ColumnType = style(HBox, {
   base: {
-    fontSize: '8pt',
-    color: '#666',
+    fontFamily: 'Menlo, Monaco, monospace',
+    fontSize: '7pt',
+    color: '#888',
   }
 });

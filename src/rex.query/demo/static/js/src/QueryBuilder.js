@@ -14,6 +14,7 @@ import {style} from 'react-stylesheet';
 import ArrowLeftIcon  from 'react-icons/lib/fa/arrow-left';
 import ArrowRightIcon  from 'react-icons/lib/fa/arrow-right';
 import DownloadIcon from 'react-icons/lib/fa/cloud-download';
+import PlusIcon from 'react-icons/lib/fa/plus';
 
 import {fetch, initiateDownload} from './fetch';
 import * as t from './model/Type';
@@ -336,7 +337,8 @@ export default class QueryBuilder extends React.Component {
           </HBox>
         </QueryBuilderToolbar>
         <HBox grow={1}>
-          <VBox basis="300px" overflow="auto">
+          <VBox basis="300px" overflow="auto"
+            style={{boxShadow: css.boxShadow(0, 0, 3, 0, '#666')}}>
             <ui.QueryVis
               domain={this.props.domain}
               pointer={pointer}
@@ -346,7 +348,8 @@ export default class QueryBuilder extends React.Component {
               />
           </VBox>
           {(selected || showAddColumnPanel) &&
-            <VBox basis="200px" grow={1}>
+            <VBox basis="200px" grow={1}
+              style={{boxShadow: css.boxShadow(0, 0, 3, 0, '#666')}}>
               {showAddColumnPanel ?
                 <ui.AddColumnPanel
                   fieldList={fieldList}
@@ -361,14 +364,19 @@ export default class QueryBuilder extends React.Component {
             </VBox>}
           <VBox basis="400px" grow={3} style={{borderLeft: css.border(1, '#ccc')}}>
             {data != null && !queryInvalid
-              ? <ui.DataTable
-                  fieldList={fieldList}
-                  onAddColumn={this.onShowAddColumn}
-                  query={selectAll(query, fieldList)}
-                  data={data}
-                  />
+              ? fieldList.length === 0
+                ? <NoColumnsMessage
+                    showAddColumnPanel={showAddColumnPanel}
+                    onAddColumn={this.onShowAddColumn}
+                    />
+                : <ui.DataTable
+                    fieldList={fieldList}
+                    onAddColumn={this.onShowAddColumn}
+                    query={selectAll(query, fieldList)}
+                    data={data}
+                    />
               : queryInvalid
-              ? <InvalidQueryMessage />
+              ? <InvalidQueryMessage onUndo={this.actions.undo} />
               : null}
           </VBox>
         </HBox>
@@ -461,25 +469,50 @@ function selectAll(query: Query, fieldList: Array<string> = []) {
   return query;
 }
 
-function InvalidQueryMessage() {
+function InvalidQueryMessage({onUndo}) {
   return (
     <ui.Message>
       Query is invalid. You need to either fix it or
-      <VBox padding={5}>
-        <ReactUI.Button
-          icon={<ArrowLeftIcon />}
-          size="small">
-          return back
-        </ReactUI.Button>
-      </VBox>
+      <ReactUI.Button
+        onClick={onUndo}
+        style={{verticalAlign: 'middle', margin: 4, marginTop: 2}}
+        icon={<ArrowLeftIcon />}
+        size="small">
+        return back
+      </ReactUI.Button>
       to the previous state.
     </ui.Message>
   );
 }
 
+function NoColumnsMessage({onAddColumn, showAddColumnPanel}) {
+  if (showAddColumnPanel) {
+    return (
+      <ui.Message>
+        No columns configured.
+      </ui.Message>
+    );
+  } else {
+    return (
+      <ui.Message>
+        No columns configured.
+        Click
+        <ReactUI.FlatButton
+          style={{verticalAlign: 'middle', margin: 4, marginTop: 2}}
+          icon={<PlusIcon />}
+          size="small"
+          onClick={onAddColumn}>
+          Configure columns
+        </ReactUI.FlatButton>
+        to add a few.
+      </ui.Message>
+    );
+  }
+}
+
 let QueryBuilderToolbar = style(HBox, {
   base: {
     zIndex: 1,
-    boxShadow: css.boxShadow(0, 1, 1, 1, '#ddd'),
+    boxShadow: css.boxShadow(0, 0, 3, 0, '#666'),
   }
 });

@@ -11,8 +11,10 @@ import {style} from 'react-stylesheet';
 
 import * as theme from './Theme';
 import * as t from '../model/Type';
+import * as q from '../model/Query';
 import QueryPanelBase from './QueryPanelBase';
 import ColumnPicker from './ColumnPicker';
+import Message from './Message';
 
 type AddColumnPanelProps = {
   pointer: QueryPointer<Query>;
@@ -36,16 +38,16 @@ export default class AddColumnPanel extends React.Component<*, AddColumnPanelPro
 
   render() {
     let {pointer, fieldList, ...props} = this.props;
-    let columns = getColumnList(pointer.query.context);
+    let options = q.getNavigationAfter(pointer.query.context);
     return (
       <QueryPanelBase
         {...props}
         theme={theme.select}
         title="Configure columns">
-        {columns.length > 0 ?
+        {options.length > 0 ?
           <ColumnPicker
             selected={fieldList}
-            options={columns}
+            options={options}
             onSelect={this.onSelect}
             pointer={pointer}
             /> :
@@ -66,36 +68,8 @@ let NoColumnsMessageRoot = style(VBox, {
 
 function NoColumnsMessage() {
   return (
-    <NoColumnsMessageRoot grow={1} justifyContent="center" alignItems="center">
-      <VBox width="80%" style={{textAlign: 'center'}}>
-        No columns are available to select from.
-      </VBox>
-    </NoColumnsMessageRoot>
+    <Message>
+      No columns are available to select from.
+    </Message>
   );
-}
-
-function getColumnList(context) {
-  let options = [];
-
-  // Collect paths from an input type
-  if (context.type != null) {
-    let type = t.atom(context.type);
-    if (type.name === 'entity') {
-      let attribute = context.domain.entity[type.entity].attribute;
-      for (let k in attribute) {
-        if (attribute.hasOwnProperty(k)) {
-          options.push({value: k, label: k});
-        }
-      }
-    }
-  }
-
-  // Collect paths from scope
-  for (let k in context.scope) {
-    if (context.scope.hasOwnProperty(k)) {
-      options.push({value: k, label: k});
-    }
-  }
-
-  return options;
 }

@@ -1,6 +1,6 @@
 {
   "name": "query-builder-proto",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "devDependencies": {
     "babel-eslint": "^6.1.2",

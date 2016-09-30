@@ -122,11 +122,13 @@ function getBaseFieldType(field) {
   }
 }
 
+const HERE = ['here'];
+
 /**
  * Translate UI query model into query syntax.
  */
 export function translate(query: Query) {
-  return translateImpl(query, ['here']);
+  return translateImpl(query, HERE);
 }
 
 function translateImpl(query, prev) {
@@ -147,12 +149,12 @@ function translateImpl(query, prev) {
       let fields = [];
       for (let k in query.select) {
         if (query.select.hasOwnProperty(k)) {
-          fields.push(translateImpl(query.select[k], null));
+          fields.push(translateImpl(query.select[k], HERE));
         }
       }
       return ['select', prev].concat(fields);
     case 'navigate':
-      if (prev != null) {
+      if (prev !== HERE) {
         return ['.', prev, ['navigate', query.path]];
       } else {
         return ['navigate', query.path];

@@ -331,8 +331,8 @@ export function inferTypeStep(context: Context, query: Query): Query {
       if (definition != null) {
         return withContext(query, {
           domain,
-          domainEntity,
-          domainEntityAttrtibute: null,
+          domainEntity: getDomainEntityFromDefinition(domain, query.path, definition),
+          domainEntityAttrtibute: getDomainEntityAttributeFromDefinition(domain, domainEntity, query.path, definition),
           scope: {},
           inputType: context.type,
           type: definition.context.type != null
@@ -365,8 +365,8 @@ export function inferTypeStep(context: Context, query: Query): Query {
       if (definition != null) {
         return withContext(query, {
           domain,
-          domainEntity,
-          domainEntityAttrtibute: null,
+          domainEntity: getDomainEntityFromDefinition(domain, query.path, definition),
+          domainEntityAttrtibute: getDomainEntityAttributeFromDefinition(domain, domainEntity, query.path, definition),
           scope,
           inputType: context.type,
           type: definition.context.type != null
@@ -399,8 +399,8 @@ export function inferTypeStep(context: Context, query: Query): Query {
       if (definition != null) {
         return withContext(query, {
           domain,
-          domainEntity: null,
-          domainEntityAttrtibute: null,
+          domainEntity: getDomainEntityFromDefinition(domain, query.path, definition),
+          domainEntityAttrtibute: getDomainEntityAttributeFromDefinition(domain, domainEntity, query.path, definition),
           scope,
           inputType: context.type,
           type: definition.context.type != null
@@ -431,6 +431,33 @@ export function inferTypeStep(context: Context, query: Query): Query {
   } else {
     invariant(false, 'Unknown query type: %s', query.name);
   }
+}
+
+function getDomainEntityFromDefinition(domain, name, query): ?DomainEntity {
+  if (query.context.type == null) {
+    return null;
+  }
+  let baseType = t.atom(query.context.type);
+  if (baseType.name !== 'entity') {
+    return null;
+  }
+  let entity = domain[baseType.entity];
+  return entity;
+}
+
+function getDomainEntityAttributeFromDefinition(domain, domainEntity, name, query): ?DomainEntityAttribute {
+  if (domainEntity == null) {
+    return null;
+  }
+  if (query.context.type == null) {
+    return null;
+  }
+  let baseType = t.atom(query.context.type);
+  if (baseType.name === 'entity') {
+    return null;
+  }
+  let attr = domainEntity.attribute[name];
+  return attr;
 }
 
 /**

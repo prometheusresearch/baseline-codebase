@@ -50,6 +50,7 @@ type QueryBuilderProps = {
   domain: Domain;
   api: string;
   initialQuery: ?Query;
+  onQuery: (query: Query) => *;
 };
 
 type QueryBuilderState = {
@@ -266,6 +267,7 @@ export default class QueryBuilder extends React.Component {
       }),
       redoStack: [],
     });
+    this.props.onQuery(nextQuery);
     this.fetchData(selectAll(nextQuery, fieldList));
   };
 

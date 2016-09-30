@@ -175,12 +175,10 @@ export default class QueryBuilder extends React.Component {
   };
 
   removeAction = (pointer: QueryPointer<*>) => {
-    console.log(pointer);
     let {query, selected: nextSelected} = qo.removeAt(
       pointer,
       this.state.selected
     );
-    console.log(query, nextSelected);
     this.onQuery(query, nextSelected);
   };
 

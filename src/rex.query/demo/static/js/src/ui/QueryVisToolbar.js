@@ -34,7 +34,6 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
     let type;
     if (mode === 'prepend') {
       type = pointer.query.context.inputType;
-      console.log(pointer, type);
     } else {
       type = pointer.query.context.type;
     }

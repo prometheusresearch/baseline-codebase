@@ -26,7 +26,7 @@ let ColumnPickerGroupTitle = style(VBox, {
     fontSize: '8pt',
     fontWeight: 200,
     padding: 5,
-    paddingLeft: 10,
+    paddingLeft: 5,
     color: '#888',
   }
 });

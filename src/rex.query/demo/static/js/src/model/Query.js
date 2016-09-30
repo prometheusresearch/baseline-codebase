@@ -294,7 +294,7 @@ export function inferTypeStep(context: Context, query: Query): Query {
       domain,
       domainEntity: null,
       domainEntityAttrtibute: null,
-      scope,
+      scope: {},
       inputType: context.type,
       type: aggregate.makeType(type.type),
     });

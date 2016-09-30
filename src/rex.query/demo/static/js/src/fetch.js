@@ -140,6 +140,9 @@ function translateImpl(query, prev) {
       ];
     case 'aggregate':
       return [query.aggregate, prev];
+    case 'filter':
+      // TODO: implement
+      return ['filter', prev, true];
     case 'pipeline':
       return query.pipeline.reduce((prev, q) => {
         let tq = translateImpl(q, prev);

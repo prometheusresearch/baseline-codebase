@@ -1,5 +1,5 @@
 
-import {navigate, aggregate, pipeline, def} from '../model/Query';
+import {navigate, aggregate, pipeline, filter, def} from '../model/Query';
 import {translate} from '../fetch';
 
 describe('translate', function() {
@@ -33,6 +33,19 @@ describe('translate', function() {
         ['.',
           ['navigate', 'study'],
           ['navigate', 'code']]]);
+  });
+
+  it('study.filter(code)', function() {
+    let query = pipeline(
+      navigate('study'),
+      filter(navigate('code'))
+    );
+    expect(translate(query)).toEqual(
+      ['filter',
+        ['navigate', 'study'],
+        true
+      ]
+    );
   });
 
   it('study.sample.code:count()', function() {

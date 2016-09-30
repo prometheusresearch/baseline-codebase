@@ -27,7 +27,7 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
     return (
       <VBox width="100%" style={{backgroundColor: 'white'}}>
         <HBox padding={2}>
-          <ReactUI.FlatButton
+          <ReactUI.QuietButton
             groupHorizontally
             disabled={!canNavigateAt(pointer.query.context)}
             size="x-small"
@@ -35,8 +35,8 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
             onClick={this.onAddNavigate}
             icon={<PlusIcon />}>
             Navigate
-          </ReactUI.FlatButton>
-          <ReactUI.FlatButton
+          </ReactUI.QuietButton>
+          <ReactUI.QuietButton
             groupHorizontally
             disabled={!canFilterAt(pointer.query.context)}
             size="x-small"
@@ -44,8 +44,8 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
             onClick={this.onAddFilter}
             icon={<PlusIcon />}>
             Filter
-          </ReactUI.FlatButton>
-          <ReactUI.FlatButton
+          </ReactUI.QuietButton>
+          <ReactUI.QuietButton
             groupHorizontally
             disabled={!canDefineAt(pointer.query.context)}
             size="x-small"
@@ -53,8 +53,8 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
             onClick={this.onAddDefine}
             icon={<PlusIcon />}>
             Define
-          </ReactUI.FlatButton>
-          <ReactUI.FlatButton
+          </ReactUI.QuietButton>
+          <ReactUI.QuietButton
             groupHorizontally
             disabled={!canAggregateAt(pointer.query.context)}
             size="x-small"
@@ -62,7 +62,7 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
             onClick={this.onAddAggregate}
             icon={<PlusIcon />}>
             Aggregate
-          </ReactUI.FlatButton>
+          </ReactUI.QuietButton>
         </HBox>
       </VBox>
     );

@@ -21,6 +21,29 @@ type ColumnPickerProps = {
   onSelect: (field: string) => *;
 };
 
+let ColumnPickerGroupTitle = style(VBox, {
+  base: {
+    fontSize: '8pt',
+    fontWeight: 200,
+    padding: 5,
+    paddingLeft: 10,
+    color: '#888',
+  }
+});
+
+function ColumnPickerGroup({title, children}) {
+  return (
+    <VBox>
+      <ColumnPickerGroupTitle>
+        {title}
+      </ColumnPickerGroupTitle>
+      <VBox>
+        {children}
+      </VBox>
+    </VBox>
+  );
+}
+
 export default class ColumnPicker extends React.Component<*, ColumnPickerProps, *> {
 
   state: {
@@ -46,14 +69,24 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
         return searchTermRe.test(column.label) || searchTermRe.test(column.value);
       });
     }
-    let items = options.map(column =>
-      <ColumnPickerButton
-        key={column.value}
-        column={column}
-        onSelect={onSelect}
-        selected={selected.indexOf(column.value) > -1}
-        />
-    );
+    let entityGroup = [];
+    let fieldGroup = [];
+    options.forEach(column => {
+      let button = (
+        <ColumnPickerButton
+          key={column.value}
+          column={column}
+          onSelect={onSelect}
+          selected={selected.indexOf(column.value) > -1}
+          />
+      );
+      let type = column.type ? t.atom(column.type) : null;
+      if (type && type.name === 'entity') {
+        entityGroup.push(button);
+      } else {
+        fieldGroup.push(button);
+      }
+    });
     return (
       <VBox>
         <VBox padding={10}>
@@ -68,7 +101,18 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
             Define new attribute
           </ColumnButtonBase>
         </VBox>
-        <VBox>{items}</VBox>
+        {entityGroup.length > 0 &&
+          <VBox paddingBottom={10}>
+            <ColumnPickerGroup title="Entity">
+              {entityGroup}
+            </ColumnPickerGroup>
+          </VBox>}
+        {fieldGroup.length > 0 &&
+          <VBox>
+            <ColumnPickerGroup title="Field">
+              {fieldGroup}
+            </ColumnPickerGroup>
+          </VBox>}
       </VBox>
     );
   }

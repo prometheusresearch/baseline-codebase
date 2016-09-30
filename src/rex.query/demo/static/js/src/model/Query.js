@@ -317,66 +317,105 @@ export function inferTypeStep(context: Context, query: Query): Query {
         });
       }
       let attr = entity.attribute[query.path];
-      if (attr == null) {
-        // unknown attribute
+      if (attr != null) {
         return withContext(query, {
           domain,
-          domainEntity: null,
+          domainEntity,
+          domainEntityAttrtibute: attr,
+          scope,
+          inputType: context.type,
+          type: t.leastUpperBound(type, attr.type),
+        });
+      }
+      let definition = scope[query.path];
+      if (definition != null) {
+        return withContext(query, {
+          domain,
+          domainEntity,
           domainEntityAttrtibute: null,
           scope,
           inputType: context.type,
-          type: null,
+          type: definition.context.type != null
+            ? t.leastUpperBound(type, definition.context.type)
+            : null,
         });
       }
-      return withContext(query, {
-        domain,
-        domainEntity,
-        domainEntityAttrtibute: attr,
-        scope,
-        inputType: context.type,
-        type: t.leastUpperBound(type, attr.type),
-      });
-    } else if (baseType.name === 'record') {
-      let field = baseType.fields[query.path];
-      if (field == null) {
-        // unknown field
-        return withContext(query, {
-          domain,
-          domainEntity: null,
-          domainEntityAttrtibute: null,
-          scope,
-          inputType: context.type,
-          type: null,
-        });
-      }
+      // unknown attribute
       return withContext(query, {
         domain,
         domainEntity: null,
         domainEntityAttrtibute: null,
         scope,
         inputType: context.type,
-        type: t.leastUpperBound(type, field),
+        type: null,
       });
-    } else if (baseType.name === 'void') {
-      let entity = domain.entity[query.path];
-      if (entity == null) {
-        // unknown entity
+    } else if (baseType.name === 'record') {
+      let field = baseType.fields[query.path];
+      if (field != null) {
         return withContext(query, {
           domain,
           domainEntity: null,
           domainEntityAttrtibute: null,
           scope,
           inputType: context.type,
-          type: null,
+          type: t.leastUpperBound(type, field),
         });
       }
+      let definition = scope[query.path];
+      if (definition != null) {
+        return withContext(query, {
+          domain,
+          domainEntity,
+          domainEntityAttrtibute: null,
+          scope,
+          inputType: context.type,
+          type: definition.context.type != null
+            ? t.leastUpperBound(type, definition.context.type)
+            : null,
+        });
+      }
+      // unknown field
       return withContext(query, {
         domain,
-        domainEntity: entity,
+        domainEntity: null,
         domainEntityAttrtibute: null,
         scope,
         inputType: context.type,
-        type: t.seqType(t.entityType(query.path)),
+        type: null,
+      });
+    } else if (baseType.name === 'void') {
+      let entity = domain.entity[query.path];
+      if (entity != null) {
+        return withContext(query, {
+          domain,
+          domainEntity: entity,
+          domainEntityAttrtibute: null,
+          scope,
+          inputType: context.type,
+          type: t.seqType(t.entityType(query.path)),
+        });
+      }
+      let definition = scope[query.path];
+      if (definition != null) {
+        return withContext(query, {
+          domain,
+          domainEntity: null,
+          domainEntityAttrtibute: null,
+          scope,
+          inputType: context.type,
+          type: definition.context.type != null
+            ? t.leastUpperBound(type, definition.context.type)
+            : null,
+        });
+      }
+      // unknown entity
+      return withContext(query, {
+        domain,
+        domainEntity: null,
+        domainEntityAttrtibute: null,
+        scope,
+        inputType: context.type,
+        type: null,
       });
     } else {
       // can't navigate from this type

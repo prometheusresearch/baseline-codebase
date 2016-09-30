@@ -2,7 +2,7 @@ import * as q from '../Query';
 
 import {
   navigate, filter, limit,
-  select, aggregate, pipeline,
+  select, aggregate, pipeline, def
 } from '../Query';
 import {
   voidType, numberType, textType,
@@ -187,6 +187,23 @@ describe('inferType()', function() {
     let query = pipeline(
       individual,
       aggregate('unknown')
+    );
+    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+  });
+
+  it('individual:define(nickname := name)', function() {
+    let query = pipeline(
+      individual,
+      def('nickname', navigate('name')),
+    );
+    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+  });
+
+  it('individual:define(nickname := name).nickname', function() {
+    let query = pipeline(
+      individual,
+      def('nickname', navigate('name')),
+      navigate('nickname'),
     );
     expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
   });

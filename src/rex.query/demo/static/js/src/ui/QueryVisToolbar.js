@@ -102,7 +102,9 @@ function canNavigateAt(context: ?Context) {
   let canNavigate = (
     context &&
     context.type &&
-    t.atom(context.type).name === 'entity'
+    (context.type.name === 'seq' &&
+     context.type.type.name === 'entity' ||
+     context.type.name === 'void')
   );
   return canNavigate;
 }
@@ -111,8 +113,9 @@ function canDefineAt(context: ?Context) {
   return (
     context &&
     context.type &&
-    context.type.name === 'seq' &&
-    context.type.type.name === 'entity'
+    (context.type.name === 'seq' &&
+     context.type.type.name === 'entity' ||
+     context.type.name === 'void')
   );
 }
 

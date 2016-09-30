@@ -108,7 +108,12 @@ function canNavigateAt(context: ?Context) {
 }
 
 function canDefineAt(context: ?Context) {
-  return isSeqAt(context);
+  return (
+    context &&
+    context.type &&
+    context.type.name === 'seq' &&
+    context.type.type.name === 'entity'
+  );
 }
 
 function isSeqAt(context: ?Context) {

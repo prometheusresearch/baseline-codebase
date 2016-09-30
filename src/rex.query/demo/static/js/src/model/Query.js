@@ -322,7 +322,7 @@ export function inferTypeStep(context: Context, query: Query): Query {
           domain,
           domainEntity,
           domainEntityAttrtibute: attr,
-          scope,
+          scope: {},
           inputType: context.type,
           type: t.leastUpperBound(type, attr.type),
         });
@@ -333,7 +333,7 @@ export function inferTypeStep(context: Context, query: Query): Query {
           domain,
           domainEntity,
           domainEntityAttrtibute: null,
-          scope,
+          scope: {},
           inputType: context.type,
           type: definition.context.type != null
             ? t.leastUpperBound(type, definition.context.type)
@@ -535,10 +535,11 @@ function getNavigation(domain, type, scope) {
   // Collect paths from scope
   for (let k in scope) {
     if (scope.hasOwnProperty(k)) {
+      let type = scope[k].context.type;
       navigation.push({
         value: k,
         label: k,
-        type: null,
+        type: type != null ? t.atom(type) : null,
       });
     }
   }

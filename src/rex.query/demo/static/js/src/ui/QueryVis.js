@@ -263,7 +263,7 @@ let QueryVisPipelineItem = style(VBox, {
 });
 
 type QueryVisProps = {
-  pointer: QueryPointer<Query>;
+  pointer: ?QueryPointer<Query>;
   onAddColumn: () => *;
   showAddColumnPanel: boolean;
   selected: ?QueryPointer<Query>;
@@ -278,20 +278,14 @@ export class QueryVis extends React.Component<*, QueryVisProps, *> {
     let {pointer, selected, showAddColumnPanel} = this.props;
     return (
       <VBox
+        paddingV={10}
         grow={1}>
-        <VBox padding={5}>
-          <QueryVisToolbar
-            mode="prepend"
-            hideDisabled
-            pointer={pointer}
-            selected={pointer}
-            />
-        </VBox>
-        <QueryVisPipeline
-          selected={selected}
-          pipeline={qp.spread(pointer)}
-          />
-        {selected === null &&
+        {pointer &&
+          <QueryVisPipeline
+            selected={selected}
+            pipeline={qp.spread(pointer)}
+            />}
+        {selected == null &&
           <VBox padding={5} paddingBottom={0}>
             <QueryVisToolbar
               pointer={pointer}

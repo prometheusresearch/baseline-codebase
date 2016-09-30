@@ -14,7 +14,7 @@ import {VBox, HBox} from '@prometheusresearch/react-box';
 import * as t from '../model/Type';
 
 type QueryVisToolbarProps = {
-  pointer: QueryPointer<Query>;
+  pointer: ?QueryPointer<Query>;
   mode: string;
   hideDisabled?: boolean;
 };
@@ -33,9 +33,17 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
     let {pointer, mode, hideDisabled} = this.props;
     let type;
     if (mode === 'prepend') {
-      type = pointer.query.context.inputType;
+      if (pointer) {
+        type = pointer.query.context.inputType;
+      } else {
+        type = t.voidType;
+      }
     } else {
-      type = pointer.query.context.type;
+      if (pointer) {
+        type = pointer.query.context.type;
+      } else {
+        type = t.voidType;
+      }
     }
     let canNavigate = canNavigateAt(type);
     let canFilter = canFilterAt(type);

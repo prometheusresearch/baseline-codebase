@@ -20,8 +20,8 @@ setup(
     url='https://bitbucket.org/rexdb/rex.platform',
     include_package_data=True,
     install_requires=[
-        'HTSQL==2.3.3.20160506',
-        'HTSQL-PGSQL==2.3.3.20160506',
+        'HTSQL==2.3.3.20160930',
+        'HTSQL-PGSQL==2.3.3.20160930',
         'COGS==0.4.1',
         'rex.action==1.4.1',
         'rex.setup==3.3.0',

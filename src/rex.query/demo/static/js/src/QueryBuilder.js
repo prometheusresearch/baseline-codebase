@@ -565,6 +565,7 @@ function addSelect(query: Query, fieldList: Array<string> = []) {
   let fields = {};
   if (type != null) {
     type = t.atom(type);
+
     if (type.name === 'entity') {
       let attribute = domain.entity[type.entity].attribute;
       for (let k in attribute) {
@@ -576,10 +577,25 @@ function addSelect(query: Query, fieldList: Array<string> = []) {
         }
       }
     }
-  }
-  for (let k in scope) {
-    if (scope.hasOwnProperty(k) && fieldList.indexOf(k) > -1) {
-      fields[k] = q.navigate(k);
+
+    if (type.name === 'void') {
+      for (let k in domain.entity) {
+        if (
+          domain.entity.hasOwnProperty(k) &&
+          fieldList.indexOf(k) > -1
+        ) {
+          fields[k] = q.navigate(k);
+        }
+      }
+    }
+
+    // add queries from scope
+    if (type.name === 'entity' || type.name === 'void') {
+      for (let k in scope) {
+        if (scope.hasOwnProperty(k) && fieldList.indexOf(k) > -1) {
+          fields[k] = q.navigate(k);
+        }
+      }
     }
   }
   if (Object.keys(fields).length > 0) {

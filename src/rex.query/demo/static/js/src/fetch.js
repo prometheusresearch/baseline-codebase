@@ -126,7 +126,7 @@ function getBaseFieldType(field) {
  * Translate UI query model into query syntax.
  */
 export function translate(query: Query) {
-  return translateImpl(query, null);
+  return translateImpl(query, ['here']);
 }
 
 function translateImpl(query, prev) {

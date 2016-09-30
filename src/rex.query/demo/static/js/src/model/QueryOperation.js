@@ -13,7 +13,8 @@ import * as qp from './QueryPointer';
 
 type Transform
   = {type: 'replace'; value: any}
-  | {type: 'insertAfter'; value: any};
+  | {type: 'insertAfter'; value: any}
+  | {type: 'insertBefore'; value: any};
 
 export type QueryOperation = (
   // point at which operation should be performed
@@ -88,6 +89,46 @@ export let insertAfter = (pointer: QueryPointer<Query>, selected: ?QueryPointer<
   return {query: nextQuery, selected: nextSelected};
 };
 
+export let insertBefore = (pointer: QueryPointer<Query>, selected: ?QueryPointer<Query>, query: Query) => {
+  let nextQuery;
+  let nextSelected;
+
+  if (pointer.prev == null) {
+    if (pointer.query.name === 'pipeline') {
+      let pipeline = pointer.query.pipeline;
+      nextQuery = q.pipeline(query, ...pipeline);
+      nextSelected = qp.select(qp.make(nextQuery), ['pipeline', 0]);
+    } else {
+      nextQuery = q.pipeline(query, pointer.query);
+      nextSelected = qp.select(qp.make(nextQuery), ['pipeline', 0]);
+    }
+  } else {
+    if (pointer.prev.query.name === 'pipeline') {
+      nextQuery = transformAtPointer(
+        pointer,
+        {type: 'insertBefore', value: query}
+      );
+      invariant(nextQuery != null, 'Impossible');
+      nextSelected = qp.move(
+        qp.rebase(pointer, nextQuery),
+        -1
+      );
+    } else {
+      nextQuery = transformAtPointer(
+        pointer,
+        {type: 'replace', value: q.pipeline(query, pointer.query)}
+      );
+      invariant(nextQuery != null, 'Impossible');
+      nextSelected = qp.select(
+        qp.rebase(pointer, nextQuery),
+        ['pipeline', 0]
+      );
+    }
+  }
+
+  return {query: nextQuery, selected: nextSelected};
+};
+
 function normalize(q: Query): ?Query {
   switch (q.name) {
     case 'select':
@@ -129,6 +170,8 @@ function transformAtPointer(pointer: QueryPointer<*>, transform: Transform): ?Qu
   if (pointer.prev == null) {
     if (transform.type === 'insertAfter') {
       return q.pipeline(pointer.query, transform.value);
+    } else if (transform.type === 'insertBefore') {
+      return q.pipeline(transform.value, pointer.query);
     } else if (transform.type === 'replace') {
       return transform.value;
     }
@@ -160,6 +203,8 @@ function transformAtKeyPath(obj: Object, keyPath: KeyPath, value: Transform): Ob
     let arr = obj.slice(0);
     if (ks.length === 0 && value.type === 'insertAfter') {
       arr.splice(key + 1, 0, updatedValue);
+    } else if (ks.length === 0 && value.type === 'insertBefore') {
+      arr.splice(key, 0, updatedValue);
     } else if (updatedValue != null) {
       arr.splice(key, 1, updatedValue);
     } else {

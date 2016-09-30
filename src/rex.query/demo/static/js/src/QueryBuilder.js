@@ -183,29 +183,23 @@ export default class QueryBuilder extends React.Component {
   };
 
   addNavigateAction = (pointer: QueryPointer<*>) => {
-    let path = guessNavigatePath(pointer.query);
-    if (path == null) {
-      return;
-    }
     let {query, selected: nextSelected} = qo.insertAfter(
       pointer,
       this.state.selected,
-      q.navigate(path)
+      q.navigate('')
     );
     this.onQuery(query, nextSelected);
   };
 
   addDefineAction = (pointer: QueryPointer<*>) => {
-    let path = guessNavigatePath(pointer.query);
-    if (path == null) {
-      return;
-    }
-    let name = `define_${path}`;
+    // TODO: need to allocate unique name
+    let name = 'Query';
     let {query, selected: nextSelected} = qo.insertAfter(
       pointer,
       this.state.selected,
-      q.def(`define_${path}`, q.navigate(path))
+      q.def(name, q.navigate(''))
     );
+    nextSelected = qp.select(nextSelected, ['binding', 'query']);
     let fieldList = this.state.fieldList.concat(name);
     this.onQuery(query, nextSelected, fieldList);
   };

@@ -199,7 +199,7 @@ export function inferTypeStep(context: Context, query: Query): Query {
     return {
       name: 'pipeline',
       pipeline: nextPipeline,
-      context: nextContext,
+      context: {...nextContext, inputType: type},
     };
   } else if (query.name === 'filter') {
     let predicate = inferTypeStep(context, query.predicate);

@@ -74,10 +74,14 @@ type QueryBuilderState = {
 };
 
 export type QueryBuilderActions = {
-  addNavigate(pointer: QueryPointer<Query>): void;
-  addDefine(pointer: QueryPointer<Query>): void;
-  addFilter(pointer: QueryPointer<Query>): void;
-  addAggregate(pointer: QueryPointer<Query>): void;
+  appendNavigate(pointer: QueryPointer<Query>): void;
+  prependNavigate(pointer: QueryPointer<Query>): void;
+  appendDefine(pointer: QueryPointer<Query>): void;
+  prependDefine(pointer: QueryPointer<Query>): void;
+  appendFilter(pointer: QueryPointer<Query>): void;
+  prependFilter(pointer: QueryPointer<Query>): void;
+  appendAggregate(pointer: QueryPointer<Query>): void;
+  prependAggregate(pointer: QueryPointer<Query>): void;
   remove(pointer: QueryPointer<Query>): void;
   select(pointer: ?QueryPointer<Query>): void;
   replace(pointer: QueryPointer<Query>, query: Query): void;
@@ -105,10 +109,14 @@ export default class QueryBuilder extends React.Component {
     let selected = qp.select(qp.make(query), ['pipeline', 0]);
 
     this.actions = {
-      addNavigate: this.addNavigateAction,
-      addDefine: this.addDefineAction,
-      addFilter: this.addFilterAction,
-      addAggregate: this.addAggregateAction,
+      appendNavigate: this.appendNavigateAction,
+      prependNavigate: this.prependNavigateAction,
+      appendDefine: this.appendDefineAction,
+      prependDefine: this.prependDefineAction,
+      appendFilter: this.appendFilterAction,
+      prependFilter: this.prependFilterAction,
+      appendAggregate: this.appendAggregateAction,
+      prependAggregate: this.prependAggregateAction,
       remove: this.removeAction,
       select: this.selectAction,
       replace: this.replaceAction,
@@ -134,7 +142,7 @@ export default class QueryBuilder extends React.Component {
   exportAction = () => {
     initiateDownload(
       this.props.api,
-      selectAll(this.state.query, this.state.fieldList)
+      addSelect(this.state.query, this.state.fieldList)
     );
   };
 
@@ -147,7 +155,7 @@ export default class QueryBuilder extends React.Component {
       fieldList: this.state.fieldList,
     });
     this.setState({query, selected, fieldList, undoStack, redoStack});
-    this.fetchData(selectAll(query, fieldList));
+    this.fetchData(addSelect(query, fieldList));
   };
 
   redoAction = () => {
@@ -159,7 +167,7 @@ export default class QueryBuilder extends React.Component {
       fieldList: this.state.fieldList,
     });
     this.setState({query, selected, fieldList, undoStack, redoStack});
-    this.fetchData(selectAll(query, fieldList));
+    this.fetchData(addSelect(query, fieldList));
   };
 
   selectAction = (pointer: ?QueryPointer<*>) => {
@@ -167,10 +175,12 @@ export default class QueryBuilder extends React.Component {
   };
 
   removeAction = (pointer: QueryPointer<*>) => {
+    console.log(pointer);
     let {query, selected: nextSelected} = qo.removeAt(
       pointer,
       this.state.selected
     );
+    console.log(query, nextSelected);
     this.onQuery(query, nextSelected);
   };
 
@@ -183,7 +193,7 @@ export default class QueryBuilder extends React.Component {
     this.onQuery(nextQuery, selected);
   };
 
-  addNavigateAction = (pointer: QueryPointer<*>) => {
+  appendNavigateAction = (pointer: QueryPointer<*>) => {
     let {query, selected: nextSelected} = qo.insertAfter(
       pointer,
       this.state.selected,
@@ -192,7 +202,16 @@ export default class QueryBuilder extends React.Component {
     this.onQuery(query, nextSelected);
   };
 
-  addDefineAction = (pointer: QueryPointer<*>) => {
+  prependNavigateAction = (pointer: QueryPointer<*>) => {
+    let {query, selected: nextSelected} = qo.insertBefore(
+      pointer,
+      this.state.selected,
+      q.navigate('')
+    );
+    this.onQuery(query, nextSelected);
+  };
+
+  appendDefineAction = (pointer: QueryPointer<*>) => {
     // TODO: need to allocate unique name
     let name = 'Query';
     let {query, selected: nextSelected} = qo.insertAfter(
@@ -205,7 +224,20 @@ export default class QueryBuilder extends React.Component {
     this.onQuery(query, nextSelected, fieldList);
   };
 
-  addFilterAction = (pointer: QueryPointer<*>) => {
+  prependDefineAction= (pointer: QueryPointer<*>) => {
+    // TODO: need to allocate unique name
+    let name = 'Query';
+    let {query, selected: nextSelected} = qo.insertBefore(
+      pointer,
+      this.state.selected,
+      q.def(name, q.navigate(''))
+    );
+    nextSelected = qp.select(nextSelected, ['binding', 'query']);
+    let fieldList = this.state.fieldList.concat(name);
+    this.onQuery(query, nextSelected, fieldList);
+  };
+
+  appendFilterAction = (pointer: QueryPointer<*>) => {
     let {
       query,
       selected: nextSelected
@@ -217,7 +249,28 @@ export default class QueryBuilder extends React.Component {
     this.onQuery(query, nextSelected);
   };
 
-  addAggregateAction = (pointer: QueryPointer<*>) => {
+  prependFilterAction = (pointer: QueryPointer<*>) => {
+    let {
+      query,
+      selected: nextSelected
+    } = qo.insertBefore(
+      pointer,
+      this.state.selected,
+      q.filter(q.navigate('true'))
+    );
+    this.onQuery(query, nextSelected);
+  };
+
+  appendAggregateAction = (pointer: QueryPointer<*>) => {
+    let {query, selected: nextSelected} = qo.insertAfter(
+      pointer,
+      this.state.selected,
+      q.aggregate('count')
+    );
+    this.onQuery(query, nextSelected);
+  };
+
+  prependAggregateAction = (pointer: QueryPointer<*>) => {
     let {query, selected: nextSelected} = qo.insertAfter(
       pointer,
       this.state.selected,
@@ -268,7 +321,7 @@ export default class QueryBuilder extends React.Component {
       redoStack: [],
     });
     this.props.onQuery(nextQuery);
-    this.fetchData(selectAll(nextQuery, fieldList));
+    this.fetchData(addSelect(nextQuery, fieldList));
   };
 
   onShowAddColumn = () => {
@@ -290,7 +343,7 @@ export default class QueryBuilder extends React.Component {
         showAddColumnPanel: close ? false : state.showAddColumnPanel,
       };
     }, () => {
-      this.fetchData(selectAll(this.state.query, this.state.fieldList));
+      this.fetchData(addSelect(this.state.query, this.state.fieldList));
     });
   };
 
@@ -371,7 +424,7 @@ export default class QueryBuilder extends React.Component {
                 : <ui.DataTable
                     fieldList={fieldList}
                     onAddColumn={this.onShowAddColumn}
-                    query={selectAll(query, fieldList)}
+                    query={addSelect(query, fieldList)}
                     data={data}
                     />
               : queryInvalid
@@ -400,7 +453,7 @@ export default class QueryBuilder extends React.Component {
   }
 
   componentDidMount() {
-    this.fetchData(selectAll(this.state.query, this.state.fieldList));
+    this.fetchData(addSelect(this.state.query, this.state.fieldList));
   }
 }
 
@@ -439,7 +492,7 @@ function updateFieldList(query, fieldList) {
   return nextFieldList.length < 2 ? allFieldList : nextFieldList;
 }
 
-function selectAll(query: Query, fieldList: Array<string> = []) {
+function addSelect(query: Query, fieldList: Array<string> = []) {
   let {domain, type, scope} = query.context;
   let fields = {};
   if (type != null) {

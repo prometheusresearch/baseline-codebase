@@ -3,6 +3,7 @@
  */
 
 import type {Query, Context} from '../model/Query';
+import type {Type} from '../model/Type';
 import type {QueryPointer} from '../model/QueryPointer';
 import type {QueryBuilderActions} from '../QueryBuilder';
 
@@ -14,6 +15,8 @@ import * as t from '../model/Type';
 
 type QueryVisToolbarProps = {
   pointer: QueryPointer<Query>;
+  mode: string;
+  hideDisabled?: boolean;
 };
 
 export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarProps, *> {
@@ -22,108 +25,140 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
 
   static contextTypes = {actions: React.PropTypes.object};
 
+  static defaultProps = {
+    mode: 'append',
+  };
+
   render() {
-    let {pointer} = this.props;
+    let {pointer, mode, hideDisabled} = this.props;
+    let type;
+    if (mode === 'prepend') {
+      type = pointer.query.context.inputType;
+      console.log(pointer, type);
+    } else {
+      type = pointer.query.context.type;
+    }
+    let canNavigate = canNavigateAt(type);
+    let canFilter = canFilterAt(type);
+    let canDefine = canDefineAt(type);
+    let canAggregate = canAggregateAt(type);
     return (
       <VBox width="100%" style={{backgroundColor: 'white'}}>
         <HBox padding={2}>
-          <ReactUI.QuietButton
-            groupHorizontally
-            disabled={!canNavigateAt(pointer.query.context)}
-            size="x-small"
-            width="25%"
-            onClick={this.onAddNavigate}
-            icon={<PlusIcon />}>
-            Navigate
-          </ReactUI.QuietButton>
-          <ReactUI.QuietButton
-            groupHorizontally
-            disabled={!canFilterAt(pointer.query.context)}
-            size="x-small"
-            width="25%"
-            onClick={this.onAddFilter}
-            icon={<PlusIcon />}>
-            Filter
-          </ReactUI.QuietButton>
-          <ReactUI.QuietButton
-            groupHorizontally
-            disabled={!canDefineAt(pointer.query.context)}
-            size="x-small"
-            width="25%"
-            onClick={this.onAddDefine}
-            icon={<PlusIcon />}>
-            Define
-          </ReactUI.QuietButton>
-          <ReactUI.QuietButton
-            groupHorizontally
-            disabled={!canAggregateAt(pointer.query.context)}
-            size="x-small"
-            width="25%"
-            onClick={this.onAddAggregate}
-            icon={<PlusIcon />}>
-            Aggregate
-          </ReactUI.QuietButton>
+          {(!hideDisabled || hideDisabled && canNavigate) &&
+            <ReactUI.QuietButton
+              groupHorizontally
+              disabled={!canNavigateAt(type)}
+              size="x-small"
+              width="25%"
+              onClick={this.onAddNavigate}
+              icon={<PlusIcon />}>
+              Navigate
+            </ReactUI.QuietButton>}
+          {(!hideDisabled || hideDisabled && canFilter) &&
+            <ReactUI.QuietButton
+              groupHorizontally
+              disabled={!canFilterAt(type)}
+              size="x-small"
+              width="25%"
+              onClick={this.onAddFilter}
+              icon={<PlusIcon />}>
+              Filter
+            </ReactUI.QuietButton>}
+          {(!hideDisabled || hideDisabled && canDefine) &&
+            <ReactUI.QuietButton
+              groupHorizontally
+              disabled={!canDefineAt(type)}
+              size="x-small"
+              width="25%"
+              onClick={this.onAddDefine}
+              icon={<PlusIcon />}>
+              Define
+            </ReactUI.QuietButton>}
+          {(!hideDisabled || hideDisabled && canAggregate) &&
+            <ReactUI.QuietButton
+              groupHorizontally
+              disabled={!canAggregateAt(type)}
+              size="x-small"
+              width="25%"
+              onClick={this.onAddAggregate}
+              icon={<PlusIcon />}>
+              Aggregate
+            </ReactUI.QuietButton>}
         </HBox>
       </VBox>
     );
   }
 
-  onAddFilter = (e: UIEvent) => {
-    e.stopPropagation();
-    this.context.actions.addFilter(this.props.pointer);
-  };
-
   onAddNavigate = (e: UIEvent) => {
     e.stopPropagation();
-    this.context.actions.addNavigate(this.props.pointer);
+    if (this.props.mode === 'prepend') {
+      this.context.actions.prependNavigate(this.props.pointer);
+    } else {
+      this.context.actions.appendNavigate(this.props.pointer);
+    }
+  };
+
+  onAddFilter = (e: UIEvent) => {
+    e.stopPropagation();
+    if (this.props.mode === 'prepend') {
+      this.context.actions.prependFilter(this.props.pointer);
+    } else {
+      this.context.actions.appendFilter(this.props.pointer);
+    }
   };
 
   onAddAggregate = (e: UIEvent) => {
     e.stopPropagation();
-    this.context.actions.addAggregate(this.props.pointer);
+    if (this.props.mode === 'prepend') {
+      this.context.actions.prependAggregate(this.props.pointer);
+    } else {
+      this.context.actions.appendAggregate(this.props.pointer);
+    }
   };
 
   onAddDefine = (e: UIEvent) => {
     e.stopPropagation();
-    this.context.actions.addDefine(this.props.pointer);
+    if (this.props.mode === 'prepend') {
+      this.context.actions.prependDefine(this.props.pointer);
+    } else {
+      this.context.actions.appendDefine(this.props.pointer);
+    }
   };
 
 }
 
-function canAggregateAt(context: ?Context) {
-  return isSeqAt(context);
+function canAggregateAt(type: ?Type) {
+  return isSeqAt(type);
 }
 
-function canFilterAt(context: ?Context) {
-  return isSeqAt(context);
+function canFilterAt(type: ?Type) {
+  return isSeqAt(type);
 }
 
-function canNavigateAt(context: ?Context) {
+function canNavigateAt(type: ?Type) {
   let canNavigate = (
-    context &&
-    context.type &&
-    (context.type.name === 'seq' &&
-     context.type.type.name === 'entity' ||
-     context.type.name === 'void')
+    type &&
+    (type.name === 'seq' &&
+     type.type.name === 'entity' ||
+     type.name === 'void')
   );
   return canNavigate;
 }
 
-function canDefineAt(context: ?Context) {
+function canDefineAt(type: ?Type) {
   return (
-    context &&
-    context.type &&
-    (context.type.name === 'seq' &&
-     context.type.type.name === 'entity' ||
-     context.type.name === 'void')
+    type &&
+    (type.name === 'seq' &&
+     type.type.name === 'entity' ||
+     type.name === 'void')
   );
 }
 
-function isSeqAt(context: ?Context) {
+function isSeqAt(type: ?Type) {
   return (
-    context &&
-    context.type &&
-    context.type.name === 'seq'
+    type &&
+    type.name === 'seq'
   );
 }
 

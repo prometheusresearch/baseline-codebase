@@ -278,8 +278,15 @@ export class QueryVis extends React.Component<*, QueryVisProps, *> {
     let {pointer, selected, showAddColumnPanel} = this.props;
     return (
       <VBox
-        grow={1}
-        paddingV={10}>
+        grow={1}>
+        <VBox padding={5}>
+          <QueryVisToolbar
+            mode="prepend"
+            hideDisabled
+            pointer={pointer}
+            selected={pointer}
+            />
+        </VBox>
         <QueryVisPipeline
           selected={selected}
           pipeline={qp.spread(pointer)}

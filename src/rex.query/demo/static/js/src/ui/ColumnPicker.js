@@ -119,7 +119,7 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
 
   onAddDefine = (e: UIEvent) => {
     e.stopPropagation();
-    this.context.actions.addDefine(this.props.pointer);
+    this.context.actions.appendDefine(this.props.pointer);
   };
 
   onSearchTerm = (e: UIEvent) => {

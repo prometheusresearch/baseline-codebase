@@ -44,7 +44,7 @@ export default class QueryBuilderApp extends React.Component {
         </Message>
       );
     } else {
-      let query = readQueryFromLocation(location) || q.pipeline(q.navigate('study'));
+      let query = q.pipeline(q.navigate('study'));
       return (
         <QueryBuilder
           api={api}
@@ -57,7 +57,7 @@ export default class QueryBuilderApp extends React.Component {
   }
 
   onQuery = (query: q.Query) => {
-    storeQueryToLocation(query);
+
   };
 
   componentDidMount() {

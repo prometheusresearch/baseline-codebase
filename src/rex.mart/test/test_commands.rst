@@ -127,6 +127,7 @@ If enabled, this API will submit asynchronous tasks to initiate Mart creation::
     202 Accepted
     Content-Type: application/json; charset=UTF-8
     Content-Length: 118
+    Set-Cookie: ...
     <BLANKLINE>
     {"purge_on_failure": true, "leave_incomplete": false, "parameters": {}, "owner": "cmdtest", "definition": "some_data"}
 
@@ -137,6 +138,7 @@ If enabled, this API will submit asynchronous tasks to initiate Mart creation::
     202 Accepted
     Content-Type: application/json; charset=UTF-8
     Content-Length: 134
+    Set-Cookie: ...
     <BLANKLINE>
     {"purge_on_failure": true, "leave_incomplete": false, "parameters": {"bar": 333}, "owner": "cmdtest", "definition": "some_parameters"}
 
@@ -146,6 +148,7 @@ If enabled, this API will submit asynchronous tasks to initiate Mart creation::
     400 Bad Request
     Content-Type: application/json; charset=UTF-8
     Content-Length: 47
+    Set-Cookie: ...
     <BLANKLINE>
     {"error": "Missing required parameter \"bar\""}
 
@@ -176,6 +179,7 @@ Accessing the HTSQL endpoint for a specific Mart::
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
+    Set-Cookie: ...
 
     >>> rex.off()
     >>> rex2 = Rex('rex.mart_demo', debug=True, mart_htsql_extensions={'tweak.shell': {}})
@@ -186,6 +190,7 @@ Accessing the HTSQL endpoint for a specific Mart::
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
     X-Htsql-Shell-Root: http://localhost/mart/5
+    Set-Cookie: ...
     >>> rex2.off()
     >>> rex.on()
 
@@ -194,6 +199,7 @@ Accessing the HTSQL endpoint for a specific Mart::
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
+    Set-Cookie: ...
     Content-Length: 176
     <BLANKLINE>
      | Foo Bars                |
@@ -211,6 +217,7 @@ Accessing the HTSQL endpoint for a specific Mart::
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
+    Set-Cookie: ...
     Content-Length: 176
     <BLANKLINE>
      | Foo Bars                |
@@ -228,6 +235,7 @@ Accessing the HTSQL endpoint for a specific Mart::
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
+    Set-Cookie: ...
     Content-Length: 263
     <BLANKLINE>
      | Foo Bars                |
@@ -332,12 +340,14 @@ Accessing the HTSQL endpoint for the latest Mart::
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
+    Set-Cookie: ...
 
     >>> req = Request.blank(mart_path + "/foo?col1={'Bob','John'}", remote_user='cmdtest')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
+    Set-Cookie: ...
     Content-Length: 176
     <BLANKLINE>
      | Foo Bars                |
@@ -355,6 +365,7 @@ Accessing the HTSQL endpoint for the latest Mart::
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
+    Set-Cookie: ...
     Content-Length: 176
     <BLANKLINE>
      | Foo Bars                |
@@ -459,12 +470,14 @@ Accessing the HTSQL endpoint for the latest Mart::
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
+    Set-Cookie: ...
 
     >>> req = Request.blank(mart_path + "/foo?col1={'Bob','John'}", remote_user='cmdtest')
     >>> print req.get_response(rex)  # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
+    Set-Cookie: ...
     Content-Length: 176
     <BLANKLINE>
      | Foo Bars                |
@@ -482,6 +495,7 @@ Accessing the HTSQL endpoint for the latest Mart::
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
+    Set-Cookie: ...
     Content-Length: 176
     <BLANKLINE>
      | Foo Bars                |
@@ -583,6 +597,7 @@ Purging a Mart from the system::
     204 No Content
     Content-Type: application/json; charset=UTF-8
     Content-Length: 0
+    Set-Cookie: ...
 
     >>> req = Request.blank('/definition/some_data', remote_user='cmdtest')
     >>> resp = req.get_response(rex)
@@ -595,6 +610,7 @@ Purging a Mart from the system::
     204 No Content
     Content-Type: application/json; charset=UTF-8
     Content-Length: 0
+    Set-Cookie: ...
 
     >>> req = Request.blank('/definition/some_data', remote_user='cmdtest')
     >>> resp = req.get_response(rex)
@@ -607,6 +623,7 @@ Purging a Mart from the system::
     204 No Content
     Content-Type: application/json; charset=UTF-8
     Content-Length: 0
+    Set-Cookie: ...
 
     >>> req = Request.blank('/definition/some_data', remote_user='cmdtest')
     >>> resp = req.get_response(rex)

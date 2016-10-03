@@ -7,7 +7,9 @@ from collections import OrderedDict, namedtuple
 
 from htsql.core.cmd.act import analyze
 from rex.core import Error, get_settings
+from rex.forms import Form
 from rex.instrument import Instrument, InstrumentVersion, CalculationSet
+from rex.mobile import Interaction
 from rios.core.validation.instrument import get_full_type_definition
 
 from .fields import make_field, make_field_from_htsql, merge_field_into
@@ -233,7 +235,12 @@ class MatrixTable(FacetTable):
     def title(self, value):
         pass
 
-    def merge(self, field, instrument_version, field_filter):
+    def merge(
+            self,
+            field,
+            instrument_version,
+            field_filter,
+            field_presentations):
         if field['type']['base'] != 'matrix':  # pragma: no cover
             raise Error(
                 'Cannot merge a field of type "%s" (%s) with a matrix'
@@ -260,7 +267,16 @@ class MatrixTable(FacetTable):
                     name=name,
                     instrument_version=instrument_version.uid,
                 )
-                if col.get('description'):
+
+                if field_presentations:
+                    ptype, pres, locale = field_presentations[0]
+                    for question in pres['questions']:
+                        if question['fieldId'] == col['id']:
+                            mapped_field.capture_metadata(
+                                (ptype, question, locale),
+                            )
+                            break
+                if not mapped_field.description and col.get('description'):
                     mapped_field.description = col['description']
                 mapped_field.source = 'RIOS Instrument'
                 self.add_field(mapped_field)
@@ -344,7 +360,12 @@ class RecordListTable(BranchTable):
     def title(self, value):
         pass
 
-    def merge(self, field, instrument_version, field_filter):
+    def merge(
+            self,
+            field,
+            instrument_version,
+            field_filter,
+            field_presentations):
         if field['type']['base'] != 'recordList':  # pragma: no cover
             raise Error(
                 'Cannot merge a field of type "%s" (%s) with a recordList'
@@ -368,9 +389,19 @@ class RecordListTable(BranchTable):
                 subfield,
                 instrument_version=instrument_version.uid,
             )
-            if subfield.get('description'):
+
+            if field_presentations:
+                ptype, pres, locale = field_presentations[0]
+                for question in pres['questions']:
+                    if question['fieldId'] == subfield['id']:
+                        mapped_field.capture_metadata(
+                            (ptype, question, locale),
+                        )
+                        break
+            if not mapped_field.description and subfield.get('description'):
                 mapped_field.description = subfield['description']
             mapped_field.source = 'RIOS Instrument'
+
             self.add_field(mapped_field)
 
     def get_statements_for_assessment(
@@ -538,6 +569,71 @@ class PrimaryTable(MappingTable):
             mapped_field.source = 'RexMart Calculation'
             self.add_field(mapped_field)
 
+    def _get_presentations(self, instrument_version):
+        pres = {'form': {}, 'sms': {}}
+
+        for form in Form.get_implementation().find(
+                instrument_version=instrument_version.uid):
+            pres['form'][form.channel.uid] = form.configuration
+        for inter in Interaction.get_implementation().find(
+                instrument_version=instrument_version.uid):
+            pres['sms'][inter.channel.uid] = inter.configuration
+
+        prioritized = []
+
+        ptypes = [
+            ptype
+            for ptype in get_settings().mart_dictionary_presentation_priority
+            if ptype in pres
+        ]
+        ptypes.extend([ptype for ptype in pres if ptype not in ptypes])
+        for ptype in ptypes:
+            channels = [
+                channel
+                for channel in get_settings().mart_dictionary_channel_priority
+                if channel in pres[ptype]
+            ]
+            channels.extend([
+                channel
+                for channel in pres[ptype]
+                if channel not in channels
+            ])
+            for channel in channels:
+                prioritized.append((
+                    ptype,
+                    pres[ptype][channel],
+                ))
+
+        return prioritized
+
+    def _get_field_presentations(self, field_id, presentations):
+        field_pres = []
+
+        for ptype, pres in presentations:
+            if ptype == 'sms':
+                for step in pres['steps']:
+                    if step['type'] == 'question' \
+                            and step['options']['fieldId'] == field_id:
+                        field_pres.append((
+                            ptype,
+                            step['options'],
+                            pres['defaultLocalization'],
+                        ))
+                        break
+            elif ptype == 'form':
+                for page in pres['pages']:
+                    for element in page['elements']:
+                        if element['type'] == 'question' \
+                                and element['options']['fieldId'] == field_id:
+                            field_pres.append((
+                                ptype,
+                                element['options'],
+                                pres['defaultLocalization'],
+                            ))
+                            break
+
+        return field_pres
+
     def _add_instruments(self, instruments):
         inst_impl = Instrument.get_implementation()
         iv_impl = InstrumentVersion.get_implementation()
@@ -561,12 +657,20 @@ class PrimaryTable(MappingTable):
                 )
 
             for version in versions:
+                presentations = self._get_presentations(version)
+                self._add_instrument_fields(version, presentations)
+
                 calculations = cs_impl.find(instrument_version=version.uid)
-                self._add_instrument_fields(version)
                 if calculations:
                     self._add_calculationset_fields(calculations[0])
 
-                self.title = version.definition['title']
+                for ptype, pres in presentations:
+                    if ptype == 'form' and pres.get('title'):
+                        self.title = pres['title'][pres['defaultLocalization']]
+                        break
+                if not self.title:
+                    self.title = version.definition['title']
+
                 if version.definition.get('description'):
                     self.description = version.definition['description']
 
@@ -606,7 +710,7 @@ class PrimaryTable(MappingTable):
 
         return True
 
-    def _add_instrument_fields(self, instrument_version):
+    def _add_instrument_fields(self, instrument_version, presentations):
         for field in instrument_version.definition['record']:
             if not self.is_field_allowed(
                     [field['id']],
@@ -617,17 +721,37 @@ class PrimaryTable(MappingTable):
                 instrument_version.definition,
                 field['type'],
             )
+            field_presentations = self._get_field_presentations(
+                field['id'],
+                presentations,
+            )
 
             if field['type']['base'] == 'recordList':
-                self._add_instrument_recordlist(field, instrument_version)
+                self._add_instrument_recordlist(
+                    field,
+                    instrument_version,
+                    field_presentations,
+                )
 
             elif field['type']['base'] == 'matrix':
-                self._add_instrument_matrix(field, instrument_version)
+                self._add_instrument_matrix(
+                    field,
+                    instrument_version,
+                    field_presentations,
+                )
 
             else:
-                self._add_instrument_simple(field, instrument_version)
+                self._add_instrument_simple(
+                    field,
+                    instrument_version,
+                    field_presentations,
+                )
 
-    def _add_instrument_simple(self, field, instrument_version):
+    def _add_instrument_simple(
+            self,
+            field,
+            instrument_version,
+            field_presentations):
         if field['id'] in self.children:
             raise Error(
                 'Cannot merge a "%s" field with a complex field (%s)' % (
@@ -640,9 +764,13 @@ class PrimaryTable(MappingTable):
             field,
             instrument_version=instrument_version.uid,
         )
-        if field.get('description'):
+
+        if field_presentations:
+            mapped_field.capture_metadata(field_presentations[0])
+        if not mapped_field.description and field.get('description'):
             mapped_field.description = field['description']
         mapped_field.source = 'RIOS Instrument'
+
         self.add_field(mapped_field)
 
     def get_child_index(self):
@@ -650,7 +778,11 @@ class PrimaryTable(MappingTable):
         self._child_idx += 1
         return idx
 
-    def _add_instrument_recordlist(self, field, instrument_version):
+    def _add_instrument_recordlist(
+            self,
+            field,
+            instrument_version,
+            field_presentations):
         if field['id'] in self.fields:
             raise Error(
                 'Cannot merge a recordList field with any other type'
@@ -664,15 +796,30 @@ class PrimaryTable(MappingTable):
                 field,
                 instrument_version,
                 self.is_field_allowed,
+                field_presentations,
             )
         else:
             table = RecordListTable(field['id'], self)
-            table.merge(field, instrument_version, self.is_field_allowed)
+            table.merge(
+                field,
+                instrument_version,
+                self.is_field_allowed,
+                field_presentations,
+            )
             if len(table.fields) > 0:
                 self.children[field['id']] = table
-            table.description = field.get('description')
 
-    def _add_instrument_matrix(self, field, instrument_version):
+            if field_presentations:
+                _, pres, locale = field_presentations[0]
+                table.description = pres['text'][locale]
+            if not table.description and field.get('description'):
+                table.description = field['description']
+
+    def _add_instrument_matrix(
+            self,
+            field,
+            instrument_version,
+            field_presentations):
         if field['id'] in self.fields:
             raise Error(
                 'Cannot merge a matrix field with any other type'
@@ -686,13 +833,24 @@ class PrimaryTable(MappingTable):
                 field,
                 instrument_version,
                 self.is_field_allowed,
+                field_presentations,
             )
         else:
             table = MatrixTable(field['id'], self)
-            table.merge(field, instrument_version, self.is_field_allowed)
+            table.merge(
+                field,
+                instrument_version,
+                self.is_field_allowed,
+                field_presentations,
+            )
             if len(table.fields) > 0:
                 self.children[field['id']] = table
-            table.description = field.get('description')
+
+            if field_presentations:
+                _, pres, locale = field_presentations[0]
+                table.description = pres['text'][locale]
+            if not table.description and field.get('description'):
+                table.description = field['description']
 
     def _add_calculationset_fields(self, calculationset):
         for calc in calculationset.definition['calculations']:

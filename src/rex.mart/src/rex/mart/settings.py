@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import Setting, StrVal, MaybeVal, Error, IntVal, BoolVal
+from rex.core import Setting, StrVal, MaybeVal, Error, IntVal, BoolVal, SeqVal
 from rex.db import DBVal, GatewaysSetting, HTSQLExtensionsSetting
 
 
@@ -191,4 +191,31 @@ class MartHtsqlCacheDepthSetting(Setting):
     name = 'mart_htsql_cache_depth'
     validate = IntVal(min_bound=1)
     default = 20
+
+
+class MartDictionaryPresentationPrioritySetting(Setting):
+    """
+    Specifies the order of Presentation Types to consider when extracting
+    metadata about Assessment table fields from Form/Interaction
+    configurations.
+
+    If not specified, defaults to: ``['form', 'sms']``
+    """
+
+    name = 'mart_dictionary_presentation_priority'
+    validate = SeqVal(StrVal())
+    default = ['form', 'sms']
+
+
+class MartDictionaryChannelPrioritySetting(Setting):
+    """
+    Specifies the order of Channels to consider when extracting metadata about
+    Assessment table fields from Form/Interaction configurations.
+
+    If not specified, defaults to no priorities.
+    """
+
+    name = 'mart_dictionary_channel_priority'
+    validate = SeqVal(StrVal())
+    default = []
 

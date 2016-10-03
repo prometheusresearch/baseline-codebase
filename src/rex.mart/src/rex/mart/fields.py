@@ -122,6 +122,10 @@ class SimpleField(object):
             'required': False,
         }]
 
+    def capture_metadata(self, presentation):
+        _, pres, locale = presentation
+        self.description = pres['text'][locale]
+
     def __repr__(self):  # pragma: no cover
         return '%s(%r)' % (
             self.__class__.__name__,
@@ -299,6 +303,7 @@ class EnumerationField(TextField):
         )
         if enumerations:
             self.enumerations = enumerations or []
+        self.enumeration_descriptions = {}
 
     def default_coercion(self, value):
         coerced = super(EnumerationField, self).default_coercion(value)
@@ -316,6 +321,14 @@ class EnumerationField(TextField):
         facts = super(EnumerationField, self).get_deploy_facts(table_name)
         facts[0]['type'] = self.enumerations
         return facts
+
+    def capture_metadata(self, presentation):
+        super(EnumerationField, self).capture_metadata(presentation)
+        _, pres, locale = presentation
+        if pres.get('enumerations'):
+            for enum in pres['enumerations']:
+                self.enumeration_descriptions[enum['id']] = \
+                    enum['text'][locale]
 
 
 class EnumerationSetField(EnumerationField):

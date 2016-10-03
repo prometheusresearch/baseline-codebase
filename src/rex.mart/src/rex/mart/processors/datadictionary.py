@@ -8,7 +8,7 @@ from StringIO import StringIO
 
 from rex.core import Error, StrVal, MaybeVal
 
-from ..fields import EnumerationSetField
+from ..fields import EnumerationSetField, EnumerationField
 from .base import Processor
 
 
@@ -151,7 +151,10 @@ class DataDictionaryProcessor(Processor):
                             table.columns[field.get_enum_target_name(enum)]
                         if field.title:
                             column.title = '%s (%s)' % (field.title, enum)
-                        if field.description:
+                        if field.enumeration_descriptions.get(enum):
+                            column.description = \
+                                field.enumeration_descriptions[enum]
+                        elif field.description:
                             column.description = '%s (%s)' % (
                                 field.description,
                                 enum,
@@ -163,6 +166,10 @@ class DataDictionaryProcessor(Processor):
                     column.title = field.title
                     column.description = field.description
                     column.source = field.source
+
+                    if isinstance(field, EnumerationField):
+                        column.enumeration_descriptions = \
+                            field.enumeration_descriptions
 
         for mapping in interface.get_assessment_mappings():
             extract_mapping_info(mapping)
@@ -314,6 +321,12 @@ class DataDictionaryProcessor(Processor):
             'required': True,
         })
         facts.append({
+            'column': 'description',
+            'of': options['table_name_enumerations'],
+            'type': 'text',
+            'required': False,
+        })
+        facts.append({
             'identity': ['column', 'name'],
             'of': options['table_name_enumerations'],
         })
@@ -365,6 +378,7 @@ class Column(object):
         self.source = source
         self.datatype = datatype
         self.enumerations = []
+        self.enumeration_descriptions = {}
         self.link = None
 
     def get_deploy_facts(self, table_name, options):
@@ -385,6 +399,7 @@ class Column(object):
                     {
                         'column': '%s.%s' % (table_name, self.name),
                         'name': enum,
+                        'description': self.enumeration_descriptions.get(enum),
                     }
                     for enum in self.enumerations
                 ],

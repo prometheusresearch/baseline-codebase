@@ -18,6 +18,8 @@ setup(
         'rex.mart',
         'rex.asynctask',
         'rex.instrument_demo',
+        'rex.forms_demo',
+        'rex.mobile_demo',
     ],
     rex_init='rex.mart_demo',
     rex_static='static',

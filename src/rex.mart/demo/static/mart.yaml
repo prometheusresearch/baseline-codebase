@@ -401,3 +401,23 @@ definitions:
         parameters:
           prefix: s2
 
+  - id: form_metadata
+    description: Extract metadata from Forms & Interactions
+    assessments:
+      - instrument: mart14
+        selector: |
+          /assessment{
+            id() :as assessment_uid
+          }.filter(
+            instrumentversion.instrument=$INSTRUMENT
+          )/:rexdb
+      - instrument: mart15
+        selector: |
+          /assessment{
+            id() :as assessment_uid
+          }.filter(
+            instrumentversion.instrument=$INSTRUMENT
+          )/:rexdb
+    processors:
+      - id: datadictionary
+

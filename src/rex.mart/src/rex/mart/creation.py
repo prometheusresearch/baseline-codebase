@@ -127,6 +127,7 @@ class MartCreator(object):
         """
 
         self.parameters = self.validate_parameters(parameters)
+        self.close_mart()
 
         if not MartQuota.top().can_create_mart(self.owner, self.definition):
             raise Error(

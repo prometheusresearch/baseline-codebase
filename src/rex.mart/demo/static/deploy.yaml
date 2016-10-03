@@ -28,6 +28,14 @@
   with:
     - data: ./deploy/instrumentversion.csv
 
+- table: form
+  with:
+    - data: ./deploy/form.csv
+
+- table: interaction
+  with:
+    - data: ./deploy/interaction.csv
+
 - table: assessment
   with:
     - column: age_at_evaluation

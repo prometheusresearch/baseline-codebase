@@ -68,10 +68,13 @@ Copy an existing DB::
     >>> db_inventory(mart.name)
     assessment: 25
     channel: 5
+    draftform: 2
     draftinstrumentversion: 2
     entry: 10
-    instrument: 21
-    instrumentversion: 23
+    form: 8
+    instrument: 23
+    instrumentversion: 25
+    interaction: 6
     people: 5
     subject: 7
     task: 8
@@ -92,10 +95,13 @@ Copy the application DB::
     >>> db_inventory(mart.name)
     assessment: 25
     channel: 5
+    draftform: 2
     draftinstrumentversion: 2
     entry: 10
-    instrument: 21
-    instrumentversion: 23
+    form: 8
+    instrument: 23
+    instrumentversion: 25
+    interaction: 6
     people: 5
     subject: 7
     task: 8
@@ -250,11 +256,14 @@ Load data into an existing database::
     >>> db_inventory(mart.name)
     assessment: 25
     channel: 5
+    draftform: 2
     draftinstrumentversion: 2
     entry: 10
     foo: 5
-    instrument: 21
-    instrumentversion: 23
+    form: 8
+    instrument: 23
+    instrumentversion: 25
+    interaction: 6
     people: 5
     subject: 7
     task: 8
@@ -356,6 +365,32 @@ Your Assessment selector can include JSON-ish fields::
 
 Definitions can invoke post-processors::
 
+    >>> mc = MartCreator('test', 'index_processor')
+    >>> mart = mc()
+    >>> db_exists(mart.name)
+    True
+    >>> db_inventory(mart.name)
+    foo: 0
+    >>> db_status(mart.name)
+    Definition: index_processor
+    Status: complete
+    Owner: test
+    Has Size: True
+    Dates: True True
+
+    >>> mc = MartCreator('test', 'analyze_processor')
+    >>> mart = mc()
+    >>> db_exists(mart.name)
+    True
+    >>> db_inventory(mart.name)
+    foo: 0
+    >>> db_status(mart.name)
+    Definition: analyze_processor
+    Status: complete
+    Owner: test
+    Has Size: True
+    Dates: True True
+
     >>> mc = MartCreator('test', 'datadictionary_deployment')
     >>> mart = mc()
     >>> db_exists(mart.name)
@@ -365,9 +400,9 @@ Definitions can invoke post-processors::
     (ID(u'foo'), u'col1', u'The First Column', None, None, u'text', None)
     (ID(u'foo'), u'col2', None, u'Test Description', None, u'enumeration', None)
     datadictionary_enumeration: 3
-    (ID(ID(u'foo'), u'col2'), u'bar')
-    (ID(ID(u'foo'), u'col2'), u'baz')
-    (ID(ID(u'foo'), u'col2'), u'foo')
+    (ID(ID(u'foo'), u'col2'), u'bar', None)
+    (ID(ID(u'foo'), u'col2'), u'baz', None)
+    (ID(ID(u'foo'), u'col2'), u'foo', None)
     datadictionary_table: 1
     (u'foo', u'Foo Bars', u'A Description')
     foo: 0
@@ -442,9 +477,9 @@ Definitions can invoke post-processors::
     (ID(u'alltypes_recordlist_field'), u'subfield1', None, u'The sub field', u'RIOS Instrument', u'text', None)
     (ID(u'alltypes_recordlist_field'), u'subfield2', None, None, u'RIOS Instrument', u'text', None)
     datadictionary_enumeration: 3
-    (ID(ID(u'alltypes'), u'enumeration_field'), u'bar')
-    (ID(ID(u'alltypes'), u'enumeration_field'), u'baz')
-    (ID(ID(u'alltypes'), u'enumeration_field'), u'foo')
+    (ID(ID(u'alltypes'), u'enumeration_field'), u'bar', None)
+    (ID(ID(u'alltypes'), u'enumeration_field'), u'baz', None)
+    (ID(ID(u'alltypes'), u'enumeration_field'), u'foo', None)
     datadictionary_table: 3
     (u'alltypes', u'An Instrument With All Types', None)
     (u'alltypes_matrix_field', u'An Instrument With All Types (matrix_field fields)', None)
@@ -456,31 +491,178 @@ Definitions can invoke post-processors::
     Has Size: True
     Dates: True True
 
-    >>> mc = MartCreator('test', 'index_processor')
-    >>> mart = mc()
-    >>> db_exists(mart.name)
-    True
-    >>> db_inventory(mart.name)
-    foo: 0
-    >>> db_status(mart.name)
-    Definition: index_processor
-    Status: complete
-    Owner: test
-    Has Size: True
-    Dates: True True
+    >>> rex.off()
 
-    >>> mc = MartCreator('test', 'analyze_processor')
+    >>> rex2 = Rex('rex.mart_demo', mart_dictionary_presentation_priority=['form', 'sms'], mart_dictionary_channel_priority=['entry', 'survey', 'mobile', 'fakesms'])
+    >>> rex2.on()
+    >>> mc = MartCreator('test', 'form_metadata')
     >>> mart = mc()
     >>> db_exists(mart.name)
     True
-    >>> db_inventory(mart.name)
-    foo: 0
+    >>> db_inventory(mart.name, detailed=['datadictionary_table', 'datadictionary_column', 'datadictionary_enumeration'])
+    datadictionary_column: 14
+    (ID(u'mart14'), u'assessment_uid', u'Assessment UID', None, None, u'text', None)
+    (ID(u'mart14'), u'bar', None, u'Entry Text for Bar', u'RIOS Instrument', u'integer', None)
+    (ID(u'mart14'), u'baz', None, u'Entry Text for Baz', u'RIOS Instrument', u'enumeration', None)
+    (ID(u'mart14'), u'foo', None, u'Entry Text for Foo', u'RIOS Instrument', u'text', None)
+    (ID(u'mart14'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text', None)
+    (ID(u'mart15'), u'assessment_uid', u'Assessment UID', None, None, u'text', None)
+    (ID(u'mart15'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text', None)
+    (ID(u'mart15'), u'mart15_bar', None, None, None, u'facet', ID(u'mart15_bar'))
+    (ID(u'mart15'), u'mart15_foo', None, None, None, u'branch', ID(u'mart15_foo'))
+    (ID(u'mart15_bar'), u'mart15', None, None, None, u'link', ID(u'mart15'))
+    (ID(u'mart15_bar'), u'row1_col1', None, u'Entry Column1', u'RIOS Instrument', u'text', None)
+    (ID(u'mart15_foo'), u'mart15', None, None, None, u'link', ID(u'mart15'))
+    (ID(u'mart15_foo'), u'record_seq', None, None, None, u'integer', None)
+    (ID(u'mart15_foo'), u'sub1', None, u'Entry Subfield1', u'RIOS Instrument', u'text', None)
+    datadictionary_enumeration: 2
+    (ID(ID(u'mart14'), u'baz'), u'happy', u'Entry Happy')
+    (ID(ID(u'mart14'), u'baz'), u'sad', u'Entry Sad')
+    datadictionary_table: 4
+    (u'mart14', u'Survey Title', None)
+    (u'mart15', u'RexMart Testcase #15', None)
+    (u'mart15_bar', u'RexMart Testcase #15 (bar fields)', u'Entry Text for Bar')
+    (u'mart15_foo', u'RexMart Testcase #15 (foo fields)', u'Entry Text for Foo')
+    mart14: 0
+    mart15: 0
+    mart15_bar: 0
+    mart15_foo: 0
     >>> db_status(mart.name)
-    Definition: analyze_processor
+    Definition: form_metadata
     Status: complete
     Owner: test
     Has Size: True
     Dates: True True
+    >>> rex2.off()
+
+    >>> rex2 = Rex('rex.mart_demo', mart_dictionary_presentation_priority=['form', 'sms'], mart_dictionary_channel_priority=['survey', 'entry', 'mobile', 'fakesms'])
+    >>> rex2.on()
+    >>> mc = MartCreator('test', 'form_metadata')
+    >>> mart = mc()
+    >>> db_exists(mart.name)
+    True
+    >>> db_inventory(mart.name, detailed=['datadictionary_table', 'datadictionary_column', 'datadictionary_enumeration'])
+    datadictionary_column: 14
+    (ID(u'mart14'), u'assessment_uid', u'Assessment UID', None, None, u'text', None)
+    (ID(u'mart14'), u'bar', None, u'Survey Text for Bar', u'RIOS Instrument', u'integer', None)
+    (ID(u'mart14'), u'baz', None, u'Survey Text for Baz', u'RIOS Instrument', u'enumeration', None)
+    (ID(u'mart14'), u'foo', None, u'Survey Text for Foo', u'RIOS Instrument', u'text', None)
+    (ID(u'mart14'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text', None)
+    (ID(u'mart15'), u'assessment_uid', u'Assessment UID', None, None, u'text', None)
+    (ID(u'mart15'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text', None)
+    (ID(u'mart15'), u'mart15_bar', None, None, None, u'facet', ID(u'mart15_bar'))
+    (ID(u'mart15'), u'mart15_foo', None, None, None, u'branch', ID(u'mart15_foo'))
+    (ID(u'mart15_bar'), u'mart15', None, None, None, u'link', ID(u'mart15'))
+    (ID(u'mart15_bar'), u'row1_col1', None, u'Survey Column1', u'RIOS Instrument', u'text', None)
+    (ID(u'mart15_foo'), u'mart15', None, None, None, u'link', ID(u'mart15'))
+    (ID(u'mart15_foo'), u'record_seq', None, None, None, u'integer', None)
+    (ID(u'mart15_foo'), u'sub1', None, u'Survey Subfield1', u'RIOS Instrument', u'text', None)
+    datadictionary_enumeration: 2
+    (ID(ID(u'mart14'), u'baz'), u'happy', u'Survey Happy')
+    (ID(ID(u'mart14'), u'baz'), u'sad', u'Survey Sad')
+    datadictionary_table: 4
+    (u'mart14', u'Survey Title', None)
+    (u'mart15', u'RexMart Testcase #15', None)
+    (u'mart15_bar', u'RexMart Testcase #15 (bar fields)', u'Survey Text for Bar')
+    (u'mart15_foo', u'RexMart Testcase #15 (foo fields)', u'Survey Text for Foo')
+    mart14: 0
+    mart15: 0
+    mart15_bar: 0
+    mart15_foo: 0
+    >>> db_status(mart.name)
+    Definition: form_metadata
+    Status: complete
+    Owner: test
+    Has Size: True
+    Dates: True True
+    >>> rex2.off()
+
+    >>> rex2 = Rex('rex.mart_demo', mart_dictionary_presentation_priority=['sms'], mart_dictionary_channel_priority=['entry', 'survey', 'mobile', 'fakesms'])
+    >>> rex2.on()
+    >>> mc = MartCreator('test', 'form_metadata')
+    >>> mart = mc()
+    >>> db_exists(mart.name)
+    True
+    >>> db_inventory(mart.name, detailed=['datadictionary_table', 'datadictionary_column', 'datadictionary_enumeration'])
+    datadictionary_column: 14
+    (ID(u'mart14'), u'assessment_uid', u'Assessment UID', None, None, u'text', None)
+    (ID(u'mart14'), u'bar', None, u'Mobile Text for Bar', u'RIOS Instrument', u'integer', None)
+    (ID(u'mart14'), u'baz', None, u'Mobile Text for Baz', u'RIOS Instrument', u'enumeration', None)
+    (ID(u'mart14'), u'foo', None, u'Mobile Text for Foo', u'RIOS Instrument', u'text', None)
+    (ID(u'mart14'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text', None)
+    (ID(u'mart15'), u'assessment_uid', u'Assessment UID', None, None, u'text', None)
+    (ID(u'mart15'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text', None)
+    (ID(u'mart15'), u'mart15_bar', None, None, None, u'facet', ID(u'mart15_bar'))
+    (ID(u'mart15'), u'mart15_foo', None, None, None, u'branch', ID(u'mart15_foo'))
+    (ID(u'mart15_bar'), u'mart15', None, None, None, u'link', ID(u'mart15'))
+    (ID(u'mart15_bar'), u'row1_col1', None, u'Entry Column1', u'RIOS Instrument', u'text', None)
+    (ID(u'mart15_foo'), u'mart15', None, None, None, u'link', ID(u'mart15'))
+    (ID(u'mart15_foo'), u'record_seq', None, None, None, u'integer', None)
+    (ID(u'mart15_foo'), u'sub1', None, u'Entry Subfield1', u'RIOS Instrument', u'text', None)
+    datadictionary_enumeration: 2
+    (ID(ID(u'mart14'), u'baz'), u'happy', u'Mobile Happy')
+    (ID(ID(u'mart14'), u'baz'), u'sad', u'Mobile Sad')
+    datadictionary_table: 4
+    (u'mart14', u'Survey Title', None)
+    (u'mart15', u'RexMart Testcase #15', None)
+    (u'mart15_bar', u'RexMart Testcase #15 (bar fields)', u'Entry Text for Bar')
+    (u'mart15_foo', u'RexMart Testcase #15 (foo fields)', u'Entry Text for Foo')
+    mart14: 0
+    mart15: 0
+    mart15_bar: 0
+    mart15_foo: 0
+    >>> db_status(mart.name)
+    Definition: form_metadata
+    Status: complete
+    Owner: test
+    Has Size: True
+    Dates: True True
+    >>> rex2.off()
+
+    >>> rex2 = Rex('rex.mart_demo', mart_dictionary_presentation_priority=['sms', 'form'], mart_dictionary_channel_priority=['entry', 'survey', 'fakesms'])
+    >>> rex2.on()
+    >>> mc = MartCreator('test', 'form_metadata')
+    >>> mart = mc()
+    >>> db_exists(mart.name)
+    True
+    >>> db_inventory(mart.name, detailed=['datadictionary_table', 'datadictionary_column', 'datadictionary_enumeration'])
+    datadictionary_column: 14
+    (ID(u'mart14'), u'assessment_uid', u'Assessment UID', None, None, u'text', None)
+    (ID(u'mart14'), u'bar', None, u'FakeSMS Text for Bar', u'RIOS Instrument', u'integer', None)
+    (ID(u'mart14'), u'baz', None, u'FakeSMS Text for Baz', u'RIOS Instrument', u'enumeration', None)
+    (ID(u'mart14'), u'foo', None, u'FakeSMS Text for Foo', u'RIOS Instrument', u'text', None)
+    (ID(u'mart14'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text', None)
+    (ID(u'mart15'), u'assessment_uid', u'Assessment UID', None, None, u'text', None)
+    (ID(u'mart15'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text', None)
+    (ID(u'mart15'), u'mart15_bar', None, None, None, u'facet', ID(u'mart15_bar'))
+    (ID(u'mart15'), u'mart15_foo', None, None, None, u'branch', ID(u'mart15_foo'))
+    (ID(u'mart15_bar'), u'mart15', None, None, None, u'link', ID(u'mart15'))
+    (ID(u'mart15_bar'), u'row1_col1', None, u'Entry Column1', u'RIOS Instrument', u'text', None)
+    (ID(u'mart15_foo'), u'mart15', None, None, None, u'link', ID(u'mart15'))
+    (ID(u'mart15_foo'), u'record_seq', None, None, None, u'integer', None)
+    (ID(u'mart15_foo'), u'sub1', None, u'Entry Subfield1', u'RIOS Instrument', u'text', None)
+    datadictionary_enumeration: 2
+    (ID(ID(u'mart14'), u'baz'), u'happy', u'FakeSMS Happy')
+    (ID(ID(u'mart14'), u'baz'), u'sad', u'FakeSMS Sad')
+    datadictionary_table: 4
+    (u'mart14', u'Survey Title', None)
+    (u'mart15', u'RexMart Testcase #15', None)
+    (u'mart15_bar', u'RexMart Testcase #15 (bar fields)', u'Entry Text for Bar')
+    (u'mart15_foo', u'RexMart Testcase #15 (foo fields)', u'Entry Text for Foo')
+    mart14: 0
+    mart15: 0
+    mart15_bar: 0
+    mart15_foo: 0
+    >>> db_status(mart.name)
+    Definition: form_metadata
+    Status: complete
+    Owner: test
+    Has Size: True
+    Dates: True True
+    >>> rex2.off()
+
+    >>> rex.on()
+
 
 You can tell the creator to not mark the Mart as complete after processing is
 done::

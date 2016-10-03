@@ -17,6 +17,11 @@ REX.MART Change Log
 - The data dictionary will now classify both int4 and int8 fields as "integer".
 - Added a ``get_htsql()`` method to Mart classes to make getting database
   connections a little easier.
+- The data dictionary enumeration table now includes descriptions for the
+  codes.
+- The descriptions of Assessment table fields will now use the question text
+  from any Forms or Interactions that are found for the corresponding
+  Instruments.
 
 
 0.3.1 (2016-08-30)

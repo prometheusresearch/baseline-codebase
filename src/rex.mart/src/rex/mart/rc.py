@@ -26,7 +26,9 @@ def mart_incref(cluster, name):
         int8_type = system_schema.types[u'int8']
         rc_schema = catalog.create_schema(u'rc')
         rc_table = rc_schema.create_table(
-                u'rc', [(u'id', int4_type, True, None)])
+            u'rc',
+            [(u'id', int4_type, True, None)],
+        )
         rc_schema.create_sequence(u'rc_seq', rc_table[u'id'])
         rc_table.create_unique_key(u'rc_uk', [rc_table[u'id']])
         code_type = rc_schema.create_enum_type(u'rc_code_enum', [u'-'])

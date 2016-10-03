@@ -100,10 +100,29 @@ class DataDictionaryProcessor(Processor):
     )
 
     def execute(self, options, interface):
+        # Get the data from our creation process
+        tables = self.get_deploy_information(interface.get_deploy_model())
+        self.add_assessment_mapping_information(
+            tables,
+            interface.get_assessment_mappings(),
+        )
+
+        # Load in configured overrides
+        self.do_table_overrides(tables, options['table_descriptions'])
+        self.do_column_overrides(tables, options['column_descriptions'])
+
+        # Load the dictionary into the Mart
+        facts = self.get_base_facts(options)
+        column_facts = []
+        for table in tables.values():
+            facts += table.get_table_deploy_facts(options)
+            column_facts += table.get_column_deploy_facts(options)
+        interface.deploy_facts(facts + column_facts)
+
+    def get_deploy_information(self, model):
         tables = dict()
 
         # Extract basic information from rex.deploy model
-        model = interface.get_deploy_model()
         for table_model in model.tables():
             table = Table(table_model.label)
             table.title = table_model.title
@@ -135,7 +154,9 @@ class DataDictionaryProcessor(Processor):
                 column.datatype = get_backlink_type(backlink_model)
                 table.columns[column.name] = column
 
-        # Extract information out of the Instrument definitions
+        return tables
+
+    def add_assessment_mapping_information(self, tables, assessment_mappings):
         def extract_mapping_info(mapping):
             table = tables[mapping.table_name]
             table.title = mapping.title
@@ -167,26 +188,16 @@ class DataDictionaryProcessor(Processor):
                     column.description = field.description
                     column.source = field.source
 
-                    if isinstance(field, EnumerationField):
-                        column.enumeration_descriptions = \
-                            field.enumeration_descriptions
+                    column.enumeration_descriptions = getattr(
+                        field,
+                        'enumeration_descriptions',
+                        {},
+                    )
 
-        for mapping in interface.get_assessment_mappings():
+        for mapping in assessment_mappings:
             extract_mapping_info(mapping)
             for child_mapping in mapping.children.itervalues():
                 extract_mapping_info(child_mapping)
-
-        # Load in configured overrides
-        self.do_table_overrides(tables, options['table_descriptions'])
-        self.do_column_overrides(tables, options['column_descriptions'])
-
-        # Load the dictionary into the Mart
-        facts = self.get_base_facts(options)
-        column_facts = []
-        for table in tables.values():
-            facts += table.get_table_deploy_facts(options)
-            column_facts += table.get_column_deploy_facts(options)
-        interface.deploy_facts(facts + column_facts)
 
     def do_table_overrides(self, tables, table_descriptions):
         if not table_descriptions:

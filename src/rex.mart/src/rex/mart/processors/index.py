@@ -38,7 +38,8 @@ def sql_create_index(
         unique=False,
         where=None):  # pragma: no cover
     """
-    CREATE {%- if unique %} UNIQUE{% endif %} INDEX ON {{ table }} ({{ columns }}) {%- if where %} WHERE {{ where }}{% endif %};
+    CREATE {%- if unique %} UNIQUE{% endif %} INDEX ON {{ table }}
+    ({{ columns }}) {%- if where %} WHERE {{ where }}{% endif %};
     """
 
 

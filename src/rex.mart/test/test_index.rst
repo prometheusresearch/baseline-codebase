@@ -120,27 +120,27 @@ INDEX statements and executes them::
     ...     'table': 'foo',
     ...     'columns': ['bar'],
     ... })
-    u'CREATE INDEX ON "foo" ("bar");'
+    u'CREATE INDEX ON "foo"\n("bar");'
 
     >>> make_statement({
     ...     'table': 'foo',
     ...     'columns': ['bar', '"baz"'],
     ... })
-    u'CREATE INDEX ON "foo" ("bar", "baz");'
+    u'CREATE INDEX ON "foo"\n("bar", "baz");'
 
     >>> make_statement({
     ...     'table': 'foo',
     ...     'columns': ['bar'],
     ...     'unique': True,
     ... })
-    u'CREATE UNIQUE INDEX ON "foo" ("bar");'
+    u'CREATE UNIQUE INDEX ON "foo"\n("bar");'
 
     >>> make_statement({
     ...     'table': 'foo',
     ...     'columns': ['bar', 'baz'],
     ...     'partial': 'baz > 10',
     ... })
-    u'CREATE INDEX ON "foo" ("bar", "baz") WHERE baz > 10;'
+    u'CREATE INDEX ON "foo"\n("bar", "baz") WHERE baz > 10;'
 
     >>> make_statement({
     ...     'table': 'foo',
@@ -148,9 +148,7 @@ INDEX statements and executes them::
     ...     'unique': True,
     ...     'partial': 'baz > 10',
     ... })
-    u'CREATE UNIQUE INDEX ON "foo" ("bar", "baz") WHERE baz > 10;'
-
-
+    u'CREATE UNIQUE INDEX ON "foo"\n("bar", "baz") WHERE baz > 10;'
 
 
 

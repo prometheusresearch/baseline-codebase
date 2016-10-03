@@ -3,6 +3,7 @@
 #
 
 
+from rex.deploy import get_cluster, sql_name, sql_qname
 import weakref
 import collections
 
@@ -287,6 +288,34 @@ SQLColumn = collections.namedtuple('SQLColumn', ['table', 'name'])
 SQLKey = collections.namedtuple('SQLKey', ['table', 'names'])
 
 
+class Column(object):
+
+    __slots__ = ('idxs', 'vals')
+
+    def __init__(self, idxs, vals):
+        self.idxs = idxs
+        self.vals = vals
+
+    def __repr__(self):
+        return "%s(%r, %r)" % (self.__class__.__name__, self.idxs, self.vals)
+
+
+class DataSet(object):
+
+    __slots__ = ('cols', 'length')
+
+    def __init__(self, cols, length):
+        self.cols = cols
+        self.length = length
+
+    def __repr__(self):
+        return "%s(%r, length=%r)" % (
+                self.__class__.__name__, self.cols, self.length)
+
+    def __len__(self):
+        return self.length
+
+
 class Pipe(Comparable):
 
     __slots__ = ('input', 'output')
@@ -296,8 +325,41 @@ class Pipe(Comparable):
             return NotImplemented
         return ComposePipe(self, other)
 
+    def __call__(self):
+        env = {}
+        self.prepare(env)
+        col = self.evaluate([()], env)
+        self.finalize(env)
+        return col
 
-class SQLTablePipe(Pipe):
+    def prepare(self, env):
+        pass
+
+    def finalize(self, env):
+        pass
+
+    def evaluate(self, ivals, env):
+        raise NotImplementedError("%s.evaluate()" % self.__class__.__name__)
+
+
+class SQLPipe(Pipe):
+
+    __slots__ = ()
+
+    def prepare(self, env):
+        if 'driver' not in env:
+            cluster = get_cluster()
+            driver = cluster.drive()
+            env['driver'] = driver
+
+    def finalize(self, env):
+        if 'driver' in env:
+            driver = env['driver']
+            driver.close()
+            del env['driver']
+
+
+class SQLTablePipe(SQLPipe):
 
     __slots__ = ('table',)
 
@@ -313,8 +375,40 @@ class SQLTablePipe(Pipe):
     def __repr__(self):
         return "%s(%r)" % (self.__class__.__name__, self.table)
 
+    def evaluate(self, ivals, env):
+        if not ivals:
+            return Column([0], [])
+        driver = env['driver']
+        catalog = driver.get_catalog()
+        table = catalog[self.table.schema.name][self.table.name]
+        sql = u"""SELECT %s FROM %s""" % (
+                sql_name([column.name for column in table]),
+                sql_qname((table.schema.name, table.name)))
+        rows = driver.submit(sql)
+        cols = []
+        for pos in range(len(table)):
+            idx = 0
+            idxs = [0]
+            vals = []
+            for ival in ivals:
+                for row in rows:
+                    val = row[pos]
+                    if val is not None:
+                        idx += 1
+                        vals.append(val)
+                    idxs.append(idx)
+            col = Column(idxs, vals)
+            cols.append(col)
+        data = DataSet(cols, len(rows))
+        idx = 0
+        idxs = [0]
+        for ival in ivals:
+            idx += len(rows)
+            idxs.append(idx)
+        return Column(idxs, data)
 
-class SQLColumnPipe(Pipe):
+
+class SQLColumnPipe(SQLPipe):
 
     __slots__ = ('column', 'domain', 'optional')
 
@@ -337,8 +431,17 @@ class SQLColumnPipe(Pipe):
             args.append("optional=%r" % self.optional)
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
+    def evaluate(self, ivals, env):
+        if not ivals:
+            return Column([0], [])
+        driver = env['driver']
+        catalog = driver.get_catalog()
+        table = catalog[self.column.table.schema.name][self.column.table.name]
+        column = table[self.column.name]
+        return ivals.cols[column.position]
 
-class SQLLinkPipe(Pipe):
+
+class SQLLinkPipe(SQLPipe):
 
     __slots__ = ('origin', 'target', 'optional', 'plural')
 
@@ -382,6 +485,21 @@ class ComposePipe(Pipe):
     def __repr__(self):
         return "(%r >> %r)" % (self.p, self.q)
 
+    def prepare(self, env):
+        self.p.prepare(env)
+        self.q.prepare(env)
+
+    def finalize(self, env):
+        self.p.finalize(env)
+        self.q.finalize(env)
+
+    def evaluate(self, ivals, env):
+        pcol = self.p.evaluate(ivals, env)
+        qcol = self.q.evaluate(pcol.vals, env)
+        idxs = [qcol.idxs[i] for i in pcol.idxs]
+        vals = qcol.vals
+        return Column(idxs, vals)
+
 
 class ConstPipe(Pipe):
 
@@ -402,6 +520,10 @@ class ConstPipe(Pipe):
     def __repr__(self):
         return "%s(%r, %r)" % (self.__class__.__name__, self.value, self.domain)
 
+    def evaluate(self, ivals, env):
+        N = len(ivals)
+        return Column(range(0, N+1), [self.value]*N)
+
 
 class NullPipe(Pipe):
 
@@ -411,6 +533,10 @@ class NullPipe(Pipe):
         self.input = Input(void_t)
         self.output = Output(null_t, optional=True)
 
+    def evaluate(self, ivals, env):
+        N = len(ivals)
+        return Column([0]*(N+1), [])
+
 
 class EmptyPipe(Pipe):
 
@@ -419,6 +545,10 @@ class EmptyPipe(Pipe):
     def __init__(self):
         self.input = Input(void_t)
         self.output = Output(null_t, optional=True, plural=True)
+
+    def evaluate(self, ivals, env):
+        N = len(ivals)
+        return Column([0]*(N+1), [])
 
 
 class VoidPipe(Pipe):
@@ -439,6 +569,10 @@ class VoidPipe(Pipe):
     def __repr__(self):
         return "%s(%r)" % (self.__class__.__name__, self.domain)
 
+    def evaluate(self, ivals, env):
+        N = len(ivals)
+        return Column(range(0, N+1), [()]*N)
+
 
 class HerePipe(Pipe):
 
@@ -457,6 +591,10 @@ class HerePipe(Pipe):
 
     def __repr__(self):
         return "%s(%r)" % (self.__class__.__name__, self.domain)
+
+    def evaluate(self, ivals, env):
+        N = len(ivals)
+        return Column(range(0, N+1), ivals)
 
 
 class DataSetPipe(Pipe):
@@ -480,6 +618,19 @@ class DataSetPipe(Pipe):
     def __repr__(self):
         return "%s(%r)" % (self.__class__.__name__, self.generators)
 
+    def prepare(self, env):
+        for generator in self.generators:
+            generator.prepare(env)
+
+    def finalize(self, env):
+        for generator in self.generators:
+            generator.finalize(env)
+
+    def evaluate(self, ivals, env):
+        cols = [generator.evaluate(ivals, env)
+                for generator in self.generators]
+        return Column(range(0, len(ivals)+1), DataSet(cols, len(ivals)))
+
 
 class FieldPipe(Pipe):
 
@@ -497,6 +648,9 @@ class FieldPipe(Pipe):
 
     def __repr__(self):
         return "%s(%r, %r)" % (self.__class__.__name__, self.fields, self.index)
+
+    def evaluate(self, ivals, env):
+        return ivals.cols[self.index]
 
 
 class FilterPipe(Pipe):

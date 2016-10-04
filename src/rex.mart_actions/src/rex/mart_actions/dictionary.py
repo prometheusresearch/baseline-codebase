@@ -336,6 +336,8 @@ class DictionaryPickEnumerationMartAction(DictionaryPickMartAction):
             self.fields = FormFieldsetVal().parse("""
             - value_key: name
               label: Name
+            - value_key: description
+              label: Description
             """)
         if not self.search:
             self.search = 'name~$search'

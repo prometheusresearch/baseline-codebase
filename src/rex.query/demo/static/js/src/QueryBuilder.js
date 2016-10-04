@@ -14,6 +14,7 @@ import {style} from 'react-stylesheet';
 import ArrowLeftIcon  from 'react-icons/lib/fa/arrow-left';
 import ArrowRightIcon  from 'react-icons/lib/fa/arrow-right';
 import DownloadIcon from 'react-icons/lib/fa/cloud-download';
+import TerminalIcon from 'react-icons/lib/fa/terminal';
 import CogIcon from 'react-icons/lib/fa/cog';
 
 import {fetch, initiateDownload} from './fetch';
@@ -22,6 +23,7 @@ import * as q from './model/Query';
 import * as qp from './model/QueryPointer';
 import * as qo from './model/QueryOperation';
 import * as ui from './ui';
+import * as parsing from './parsing';
 
 function getInitialQuery(domain: Domain): Query {
   let entityName = Object.keys(domain.entity)[0];
@@ -61,6 +63,7 @@ type QueryBuilderState = {
   data: ?Object;
   dataUpdating: boolean;
   showAddColumnPanel: boolean;
+  showConsole: boolean;
   undoStack: Array<{
     query: ?Query;
     selected: ?QueryPointer<Query>;
@@ -134,6 +137,7 @@ export default class QueryBuilder extends React.Component {
       data: null,
       dataUpdating: false,
       showAddColumnPanel: false,
+      showConsole: false,
       undoStack: [],
       redoStack: [],
     };
@@ -399,6 +403,10 @@ export default class QueryBuilder extends React.Component {
     this.setState({showAddColumnPanel: false});
   };
 
+  onToggleConsole = () => {
+    this.setState({showConsole: !this.state.showConsole});
+  };
+
   onFieldList = ({fieldList, close}: {fieldList: Array<string>; close: boolean}) => {
     this.setState(state => {
       return {
@@ -413,6 +421,26 @@ export default class QueryBuilder extends React.Component {
     });
   };
 
+  onConsoleChange = (e: UIEvent) => {
+    let value = ((e.target: any): HTMLInputElement).value;
+    if (value === '') {
+      this.onQuery(null, null);
+    } else {
+      let node;
+      try {
+        node = parsing.parse(value);
+      } catch (err) {
+        if (err instanceof parsing.SyntaxError) {
+          return;
+        } else {
+          throw err;
+        }
+      }
+      let query = parsing.toQuery(this.props.domain, node);
+      this.onQuery(query, null);
+    }
+  };
+
   render() {
     let {
       query,
@@ -421,7 +449,8 @@ export default class QueryBuilder extends React.Component {
       selected,
       data,
       dataUpdating,
-      showAddColumnPanel
+      showAddColumnPanel,
+      showConsole
     } = this.state;
 
     let pointer = query != null ? qp.make(query) : null;
@@ -447,6 +476,13 @@ export default class QueryBuilder extends React.Component {
           </ReactUI.QuietButton>
           <HBox marginLeft="auto">
             <ReactUI.QuietButton
+              onClick={this.onToggleConsole}
+              active={showConsole}
+              icon={<TerminalIcon />}
+              size="small">
+              Console
+            </ReactUI.QuietButton>
+            <ReactUI.QuietButton
               onClick={this.actions.export}
               icon={<DownloadIcon />}
               size="small">
@@ -454,6 +490,10 @@ export default class QueryBuilder extends React.Component {
             </ReactUI.QuietButton>
           </HBox>
         </QueryBuilderToolbar>
+        {showConsole &&
+          <Console basis="200px">
+            <ConsoleInput onChange={this.onConsoleChange} />
+          </Console>}
         <HBox grow={1}>
           <VBox basis="300px" overflow="auto"
             style={{boxShadow: css.boxShadow(0, 0, 3, 0, '#666')}}>
@@ -648,7 +688,24 @@ function NoColumnsMessage({onAddColumn, showAddColumnPanel}) {
 
 let QueryBuilderToolbar = style(HBox, {
   base: {
+    zIndex: 2,
+    boxShadow: css.boxShadow(0, 0, 3, 0, '#666'),
+  }
+});
+
+let Console = style(VBox, {
+  base: {
     zIndex: 1,
     boxShadow: css.boxShadow(0, 0, 3, 0, '#666'),
+  }
+});
+
+let ConsoleInput = style('textarea', {
+  base: {
+    width: '100%',
+    height: '100%',
+    padding: 10,
+    fontFamily: 'Menlo, monospace',
+    border: 'none',
   }
 });

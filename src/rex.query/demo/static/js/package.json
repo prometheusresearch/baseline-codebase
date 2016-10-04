@@ -9,6 +9,7 @@
     "eslint-plugin-jsx-a11y": "^2.2.2",
     "eslint-plugin-react": "^6.3.0",
     "flow-bin": "^0.32.0",
+    "pegjs": "^0.10.0",
     "react-dom-stylesheet": "^0.8.6",
     "react-scripts": "^0.4.2"
   },

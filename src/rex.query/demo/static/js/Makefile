@@ -2,6 +2,11 @@ PQueryATH := ./node_modules/.bin:$(PATH)
 
 export PATH
 
+build-grammar: src/parsing/grammar.js
+
+src/parsing/grammar.js: src/parsing/grammar.pegjs
+	@pegjs -O speed -o $@ $<
+
 install:
 	npm install
 

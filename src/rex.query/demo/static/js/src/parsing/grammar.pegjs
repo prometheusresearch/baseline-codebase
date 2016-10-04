@@ -77,7 +77,7 @@ ArgList "argument list"
   }
 
 Identifier "identifier"
-  = [a-zA-Z]+ {
+  = [a-zA-Z_]+ {
     return {type: 'Identifier', value: text()};
   }
 

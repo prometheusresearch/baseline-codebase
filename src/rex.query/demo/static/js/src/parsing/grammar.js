@@ -202,8 +202,8 @@ function peg$parse(input, options) {
           return [head].concat(tail.map(item => item[3]));
         },
       peg$c46 = peg$otherExpectation("identifier"),
-      peg$c47 = /^[a-zA-Z]/,
-      peg$c48 = peg$classExpectation([["a", "z"], ["A", "Z"]], false, false),
+      peg$c47 = /^[a-zA-Z_]/,
+      peg$c48 = peg$classExpectation([["a", "z"], ["A", "Z"], "_"], false, false),
       peg$c49 = function() {
           return {type: 'Identifier', value: text()};
         },
@@ -984,7 +984,10 @@ function peg$parse(input, options) {
         if (s5 !== peg$FAILED) {
           s6 = peg$parse_();
           if (s6 !== peg$FAILED) {
-            s7 = peg$parseComposition();
+            s7 = peg$parseApply();
+            if (s7 === peg$FAILED) {
+              s7 = peg$parseIdentifier();
+            }
             if (s7 !== peg$FAILED) {
               s4 = [s4, s5, s6, s7];
               s3 = s4;
@@ -1019,7 +1022,10 @@ function peg$parse(input, options) {
           if (s5 !== peg$FAILED) {
             s6 = peg$parse_();
             if (s6 !== peg$FAILED) {
-              s7 = peg$parseComposition();
+              s7 = peg$parseApply();
+              if (s7 === peg$FAILED) {
+                s7 = peg$parseIdentifier();
+              }
               if (s7 !== peg$FAILED) {
                 s4 = [s4, s5, s6, s7];
                 s3 = s4;

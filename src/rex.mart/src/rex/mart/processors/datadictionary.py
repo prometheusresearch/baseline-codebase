@@ -86,6 +86,12 @@ class DataDictionaryProcessor(Processor):
             table,name,title,description,source,datatype
             mytable,mycolumn,My Column,A column for stuff,Special Database,text
             othertable,othercol,,Primary column for flags,Nowhere,
+    * ``enumeration_descriptions``: A CSV-formatted string that contains
+      column enumeration metadata that will override the
+      automatically-discovered metadata. Expectes input like::
+            table,column,name,description
+            mytable,mycolumn,enum1,The First Enumeration
+            mytable,mycolumn,enum2,The Second Enumeration
     """
 
     #:
@@ -97,6 +103,11 @@ class DataDictionaryProcessor(Processor):
         ('table_name_enumerations', StrVal(), 'datadictionary_enumeration'),
         ('table_descriptions', MaybeVal(CsvVal(['name'])), None),
         ('column_descriptions', MaybeVal(CsvVal(['table', 'name'])), None),
+        (
+            'enumeration_descriptions',
+            MaybeVal(CsvVal(['table', 'column', 'name', 'description'])),
+            None,
+        ),
     )
 
     def execute(self, options, interface):
@@ -110,6 +121,7 @@ class DataDictionaryProcessor(Processor):
         # Load in configured overrides
         self.do_table_overrides(tables, options['table_descriptions'])
         self.do_column_overrides(tables, options['column_descriptions'])
+        self.do_enum_overrides(tables, options['enumeration_descriptions'])
 
         # Load the dictionary into the Mart
         facts = self.get_base_facts(options)
@@ -233,6 +245,28 @@ class DataDictionaryProcessor(Processor):
 
             if column.datatype != 'enumeration':
                 column.enumerations = []
+                column.enumeration_descriptions = {}
+
+    def do_enum_overrides(self, tables, enumeration_descriptions):
+        if not enumeration_descriptions:
+            return
+
+        reader = DictReader(StringIO(enumeration_descriptions))
+        for row in reader:
+            if row['table'] not in tables:
+                continue
+            table = tables[row['table']]
+
+            if row['column'] not in table.columns:
+                continue
+            column = table.columns[row['column']]
+
+            if column.datatype != 'enumeration':
+                continue
+
+            if row['name'] in column.enumerations:
+                column.enumeration_descriptions[row['name']] = \
+                    row['description']
 
     def get_base_facts(self, options):
         facts = []

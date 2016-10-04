@@ -401,8 +401,8 @@ Definitions can invoke post-processors::
     (ID(u'foo'), u'col2', None, u'Test Description', None, u'enumeration', None)
     datadictionary_enumeration: 3
     (ID(ID(u'foo'), u'col2'), u'bar', None)
-    (ID(ID(u'foo'), u'col2'), u'baz', None)
-    (ID(ID(u'foo'), u'col2'), u'foo', None)
+    (ID(ID(u'foo'), u'col2'), u'baz', u'Bazzerific Description')
+    (ID(ID(u'foo'), u'col2'), u'foo', u'The FOO')
     datadictionary_table: 1
     (u'foo', u'Foo Bars', u'A Description')
     foo: 0

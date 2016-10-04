@@ -280,6 +280,10 @@ definitions:
             foo,col2,,Test Description
             doesntexist,col1,
             foo,doesntexist,Blah
+          enumeration_descriptions: |
+            table,column,name,description
+            foo,col2,foo,The FOO
+            foo,col2,baz,Bazzerific Description
 
   - id: datadictionary_assessment
     description: A mart with an Assessment and a data dictionary

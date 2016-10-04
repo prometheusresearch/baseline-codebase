@@ -25,5 +25,6 @@ Configuration
 Utilities
 =========
 
+.. automodule:: rex.forms.output
 .. automodule:: rex.forms.skeleton
 

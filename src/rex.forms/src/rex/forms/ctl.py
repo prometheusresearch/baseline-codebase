@@ -380,10 +380,8 @@ class InstrumentFormSkeleton(Task, FormOutputter):
     def __call__(self):
         instrument = open_and_validate_instrument(self.definition)
 
-        configuration = make_form_skeleton(instrument, self.localization)
         try:
-            # Double check what we produced to make sure it's valid.
-            Form.validate_configuration(configuration, instrument)
+            configuration = make_form_skeleton(instrument, self.localization)
         except ValidationError as exc:  # pragma: no cover
             raise Error(
                 'Unable to validate form configuration: %s' % exc.message

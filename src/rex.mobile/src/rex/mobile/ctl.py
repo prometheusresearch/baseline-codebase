@@ -7,7 +7,6 @@ import sys
 
 from rex.core import Error, AnyVal
 from rex.ctl import Task, RexTask, argument, option, log
-from rex.instrument import InstrumentVersion
 from rex.instrument.ctl import \
     open_and_validate as open_and_validate_instrument, \
     ImplementationContextReceiver
@@ -16,6 +15,7 @@ from rex.instrument.util import get_implementation
 from .errors import ValidationError
 from .interface import Interaction
 from .output import dump_interaction_yaml, dump_interaction_json
+from .skeleton import make_interaction_skeleton, make_form_skeleton
 
 
 __all__ = (
@@ -386,65 +386,17 @@ class InstrumentMobileSkeleton(Task, InteractionOutputter):
     def __call__(self):
         instrument = open_and_validate_instrument(self.definition)
 
-        configuration = self.make_interaction(instrument)
         try:
-            # Double check what we produced to make sure it's valid.
-            Interaction.validate_configuration(configuration, instrument)
+            configuration = make_interaction_skeleton(
+                instrument,
+                self.localization,
+            )
         except ValidationError as exc:  # pragma: no cover
             raise Error(
                 'Unable to validate interaction configuration: %s' % (exc,)
             )
 
         self.do_output(configuration)
-
-    def _text(self, text):
-        return {
-            self.localization: text,
-        }
-
-    def make_interaction(self, instrument):
-        interaction = {}
-
-        interaction['instrument'] = {
-            'id': instrument['id'],
-            'version': instrument['version'],
-        }
-
-        interaction['defaultLocalization'] = self.localization
-
-        interaction['steps'] = []
-
-        for field in instrument['record']:
-            interaction['steps'].append({
-                'type': 'question',
-                'options': self.make_question_options(field, instrument),
-            })
-
-        return interaction
-
-    def make_question_options(self, field, instrument):
-        opts = {
-            'fieldId': field['id'],
-            'text': self._text(field.get('description', field['id'])),
-        }
-
-        type_def = InstrumentVersion.get_full_type_definition(
-            instrument,
-            field['type'],
-        )
-
-        if 'enumerations' in type_def:
-            opts['enumerations'] = [
-                {
-                    'id': key,
-                    'text': self._text(
-                        defn.get('description', key) if defn else key
-                    )
-                }
-                for key, defn in type_def['enumerations'].items()
-            ]
-
-        return opts
 
 
 try:
@@ -473,7 +425,7 @@ else:
         def __call__(self):
             configuration = open_and_validate(self.configuration)
 
-            form = Interaction.convert_configuration_to_form(configuration)
+            form = make_form_skeleton(configuration)
             try:
                 # Double check what we produced to make sure it's valid.
                 Form.validate_configuration(form)

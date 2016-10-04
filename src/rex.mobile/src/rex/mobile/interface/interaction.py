@@ -145,14 +145,9 @@ class Interaction(
                 'Interaction Configurations must be mapped objects.'
             )
 
-        form = {}
-        form['instrument'] = deepcopy(configuration['instrument'])
-        form['defaultLocalization'] = configuration['defaultLocalization']
-        form['pages'] = []
-        form['pages'].append({
-            'id': 'page1',
-            'elements': deepcopy(configuration['steps'])
-        })
+        from ..skeleton import make_form_skeleton
+        form = make_form_skeleton(configuration)
+
         return form
 
     @classmethod

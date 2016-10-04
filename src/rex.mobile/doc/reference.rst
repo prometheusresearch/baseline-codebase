@@ -22,8 +22,9 @@ Configuration
 .. automodule:: rex.mobile.settings
 
 
-Output
-======
+Utilities
+=========
 
 .. automodule:: rex.mobile.output
+.. automodule:: rex.mobile.skeleton
 

@@ -9,6 +9,10 @@ REX.MOBILE Change Log
 ==================
 
 * The ``MobileError`` exception now inherits from ``rex.core.Error``.
+* The ability to generate Interation skeletons based on Instrument Definitions
+  as well as Form skeletons based on Interaction Configurations has been
+  exposed via the ``make_interaction_skeleton()`` and ``make_form_skeleton()``
+  functions.
 
 
 0.7.1 (2016-08-12)

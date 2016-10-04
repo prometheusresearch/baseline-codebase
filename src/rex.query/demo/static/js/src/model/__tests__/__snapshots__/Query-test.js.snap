@@ -183,6 +183,109 @@ Object {
 }
 `;
 
+exports[`inferType() individual:define(newname := name):select(a := newname, b := name) 1`] = `
+Object {
+  "context": Object {
+    "type": Object {
+      "name": "seq",
+      "type": Object {
+        "fields": Object {
+          "a": Object {
+            "name": "text"
+          },
+          "b": Object {
+            "name": "text"
+          }
+        },
+        "name": "record"
+      }
+    }
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "type": Object {
+          "name": "seq",
+          "type": Object {
+            "entity": "individual",
+            "name": "entity"
+          }
+        }
+      },
+      "name": "navigate",
+      "path": "individual"
+    },
+    Object {
+      "binding": Object {
+        "name": "newname",
+        "query": Object {
+          "context": Object {
+            "type": Object {
+              "name": "seq",
+              "type": Object {
+                "name": "text"
+              }
+            }
+          },
+          "name": "navigate",
+          "path": "name"
+        }
+      },
+      "context": Object {
+        "type": Object {
+          "name": "seq",
+          "type": Object {
+            "entity": "individual",
+            "name": "entity"
+          }
+        }
+      },
+      "name": "define"
+    },
+    Object {
+      "context": Object {
+        "type": Object {
+          "name": "seq",
+          "type": Object {
+            "fields": Object {
+              "a": Object {
+                "name": "text"
+              },
+              "b": Object {
+                "name": "text"
+              }
+            },
+            "name": "record"
+          }
+        }
+      },
+      "name": "select",
+      "select": Object {
+        "a": Object {
+          "context": Object {
+            "type": Object {
+              "name": "text"
+            }
+          },
+          "name": "navigate",
+          "path": "newname"
+        },
+        "b": Object {
+          "context": Object {
+            "type": Object {
+              "name": "text"
+            }
+          },
+          "name": "navigate",
+          "path": "name"
+        }
+      }
+    }
+  ]
+}
+`;
+
 exports[`inferType() individual:define(nickname := name) 1`] = `
 Object {
   "context": Object {
@@ -303,6 +406,76 @@ Object {
       },
       "name": "navigate",
       "path": "nickname"
+    }
+  ]
+}
+`;
+
+exports[`inferType() individual:select(a := age) 1`] = `
+Object {
+  "context": Object {
+    "type": Object {
+      "name": "seq",
+      "type": Object {
+        "fields": Object {
+          "a": Object {
+            "name": "opt",
+            "type": Object {
+              "name": "text"
+            }
+          }
+        },
+        "name": "record"
+      }
+    }
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "type": Object {
+          "name": "seq",
+          "type": Object {
+            "entity": "individual",
+            "name": "entity"
+          }
+        }
+      },
+      "name": "navigate",
+      "path": "individual"
+    },
+    Object {
+      "context": Object {
+        "type": Object {
+          "name": "seq",
+          "type": Object {
+            "fields": Object {
+              "a": Object {
+                "name": "opt",
+                "type": Object {
+                  "name": "text"
+                }
+              }
+            },
+            "name": "record"
+          }
+        }
+      },
+      "name": "select",
+      "select": Object {
+        "a": Object {
+          "context": Object {
+            "type": Object {
+              "name": "opt",
+              "type": Object {
+                "name": "text"
+              }
+            }
+          },
+          "name": "navigate",
+          "path": "age"
+        }
+      }
     }
   ]
 }

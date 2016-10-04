@@ -335,9 +335,7 @@ export function inferTypeStep(context: Context, query: Query): Query {
           domainEntityAttrtibute: getDomainEntityAttributeFromDefinition(domain, domainEntity, query.path, definition),
           scope: {},
           inputType: context.type,
-          type: definition.context.type != null
-            ? t.leastUpperBound(type, definition.context.type)
-            : null,
+          type: inferTypeStep(context, definition).context.type,
         });
       }
       // unknown attribute
@@ -369,9 +367,7 @@ export function inferTypeStep(context: Context, query: Query): Query {
           domainEntityAttrtibute: getDomainEntityAttributeFromDefinition(domain, domainEntity, query.path, definition),
           scope,
           inputType: context.type,
-          type: definition.context.type != null
-            ? t.leastUpperBound(type, definition.context.type)
-            : null,
+          type: inferTypeStep(context, definition).context.type,
         });
       }
       // unknown field
@@ -403,9 +399,7 @@ export function inferTypeStep(context: Context, query: Query): Query {
           domainEntityAttrtibute: getDomainEntityAttributeFromDefinition(domain, domainEntity, query.path, definition),
           scope,
           inputType: context.type,
-          type: definition.context.type != null
-            ? t.leastUpperBound(type, definition.context.type)
-            : null,
+          type: inferTypeStep(context, definition).context.type,
         });
       }
       // unknown entity
@@ -522,14 +516,15 @@ export function map<A: Query, B: Query>(query: A, f: (q: A) => B): B {
 }
 
 export function getNavigationBefore(context: Context) {
-  return getNavigation(context.domain, context.inputType, context.scope);
+  return getNavigation(context, context.inputType);
 }
 
 export function getNavigationAfter(context: Context) {
-  return getNavigation(context.domain, context.type, context.scope);
+  return getNavigation(context, context.type);
 }
 
-function getNavigation(domain, type, scope) {
+function getNavigation(context, type) {
+  let {scope, domain} = context;
   let navigation = [];
 
   // Collect paths from an input type
@@ -560,13 +555,14 @@ function getNavigation(domain, type, scope) {
   }
 
   // Collect paths from scope
+  let contextAtQuery = {...context, type: context.type ? t.atom(context.type) : null};
   for (let k in scope) {
     if (scope.hasOwnProperty(k)) {
-      let type = scope[k].context.type;
+      let type = inferTypeStep(contextAtQuery, scope[k]).context.type;
       navigation.push({
         value: k,
         label: k,
-        type: type != null ? t.atom(type) : null,
+        type: type,
       });
     }
   }

@@ -40,6 +40,9 @@ describe('inferType()', function() {
           name: {
             type: textType,
           },
+          age: {
+            type: optType(textType),
+          },
           sample: {
             type: seqType(entityType('sample')),
           }
@@ -51,6 +54,7 @@ describe('inferType()', function() {
   let individual = navigate('individual');
   let sample = navigate('sample');
   let name = navigate('name');
+  let age = navigate('age');
   let title = navigate('title');
   let count = aggregate('count');
 
@@ -147,6 +151,28 @@ describe('inferType()', function() {
       select({
         a: name,
         s: sample,
+      })
+    );
+    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+  });
+
+  it('individual:define(newname := name):select(a := newname, b := name)', function() {
+    let query = pipeline(
+      individual,
+      def('newname', name),
+      select({
+        a: q.navigate('newname'),
+        b: name
+      })
+    );
+    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+  });
+
+  it('individual:select(a := age)', function() {
+    let query = pipeline(
+      individual,
+      select({
+        a: age,
       })
     );
     expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();

@@ -370,7 +370,11 @@ export default class QueryBuilder extends React.Component {
       });
     } else {
       let nextQuery = q.inferType(this.props.domain, query);
-      fieldList = updateFieldList(nextQuery, fieldList || this.state.fieldList);
+      fieldList = updateFieldList(
+        fieldList || this.state.fieldList,
+        this.state.query, 
+        nextQuery,
+      );
       let nextSelected = null;
       if (selected) {
         nextSelected = qp.rebase(selected, nextQuery);
@@ -591,11 +595,23 @@ function getFieldList(query) {
   return fieldList;
 }
 
-function updateFieldList(query, fieldList) {
-  let allFieldList = getFieldList(query);
+function updateFieldList(fieldList, prevQuery, nextQuery) {
+  let allFieldList = getFieldList(nextQuery);
   let nextFieldList = fieldList.filter(field => {
     return allFieldList.indexOf(field) > -1;
   });
+
+  // compare scopes and newly added ones
+  for (let k in nextQuery.context.scope) {
+    if (
+      nextQuery.context.scope.hasOwnProperty(k) &&
+      prevQuery && prevQuery.context.scope[k] == null &&
+      nextFieldList.indexOf(k) == -1
+    ) {
+      nextFieldList.push(k);
+    }
+  }
+
   // TODO: think of the better heueristics for preserving prev fieldList
   return nextFieldList.length < 2 ? allFieldList : nextFieldList;
 }

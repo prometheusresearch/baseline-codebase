@@ -163,7 +163,9 @@ class MenuCommand(BaseCommand):
             'rex.forms_demo:/templates/menu.html',
             request,
             demos=get_demos(self.package().abspath('examples/forms')),
-            recons=get_recons(self.package().abspath('examples/reconciliations')),
+            recons=get_recons(
+                self.package().abspath('examples/reconciliations'),
+            ),
         )
 
 
@@ -184,7 +186,9 @@ class DemoCommand(BaseCommand):
             'rex.forms_demo:/templates/demo.html',
             request,
             demos=get_demos(self.package().abspath('examples/forms')),
-            recons=get_recons(self.package().abspath('examples/reconciliations')),
+            recons=get_recons(
+                self.package().abspath('examples/reconciliations'),
+            ),
             demo=demos[demo_id],
         )
 
@@ -275,7 +279,9 @@ class ReconCommand(BaseCommand):
             'rex.forms_demo:/templates/recon.html',
             request,
             demos=get_demos(self.package().abspath('examples/forms')),
-            recons=get_recons(self.package().abspath('examples/reconciliations')),
+            recons=get_recons(
+                self.package().abspath('examples/reconciliations'),
+            ),
             recon=recons[recon_id],
         )
 

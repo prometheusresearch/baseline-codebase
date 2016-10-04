@@ -10,11 +10,12 @@ __all__ = (
     'preview_calculation_results',
 )
 
+
 def preview_calculation_results(
-    instrument_version,
-    calculation_set,
-    data,
-    assessment=None):
+        instrument_version,
+        calculation_set,
+        data,
+        assessment=None):
     if not calculation_set:
         return {}
 

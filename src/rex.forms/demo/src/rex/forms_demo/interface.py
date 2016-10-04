@@ -59,7 +59,8 @@ class DemoForm(Form):
             }
             data = database.produce(
                 '/form.sort(uid)'
-                '.guard($instrument_version, filter(instrumentversion=$instrument_version))'
+                '.guard($instrument_version,'
+                'filter(instrumentversion=$instrument_version))'
                 '.guard($channel, filter(channel=$channel))',
                 **params
             )
@@ -124,11 +125,12 @@ class DemoDraftForm(DraftForm):
             }
             data = database.produce(
                 '/draftform.sort(uid)'
-                '.guard($draftinstrumentversion, filter(draftinstrumentversion=$draftinstrumentversion))',
+                '.guard($draftinstrumentversion,'
+                'filter(draftinstrumentversion=$draftinstrumentversion))',
                 **params
             )
         return [
-           cls(
+            cls(
                 d.uid,
                 DemoChannel.get_by_uid(d.channel),
                 DemoDraftInstrumentVersion.get_by_uid(

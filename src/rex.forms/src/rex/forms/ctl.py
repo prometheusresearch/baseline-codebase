@@ -3,12 +3,10 @@
 #
 
 
-import string
 import sys
 
 from rex.core import Error, AnyVal
 from rex.ctl import Task, RexTask, argument, option, log
-from rex.instrument import InstrumentVersion
 from rex.instrument.ctl import \
     open_and_validate as open_and_validate_instrument, \
     ImplementationContextReceiver
@@ -17,6 +15,7 @@ from rex.instrument.util import get_implementation
 from .errors import ValidationError
 from .interface import Form
 from .output import dump_form_yaml, dump_form_json
+from .skeleton import make_form_skeleton
 
 
 __all__ = (
@@ -381,7 +380,7 @@ class InstrumentFormSkeleton(Task, FormOutputter):
     def __call__(self):
         instrument = open_and_validate_instrument(self.definition)
 
-        configuration = self.make_form(instrument)
+        configuration = make_form_skeleton(instrument, self.localization)
         try:
             # Double check what we produced to make sure it's valid.
             Form.validate_configuration(configuration, instrument)
@@ -391,97 +390,4 @@ class InstrumentFormSkeleton(Task, FormOutputter):
             )
 
         self.do_output(configuration)
-
-    def _text(self, text):
-        return {
-            self.localization: text,
-        }
-
-    def make_form(self, instrument):
-        form = {}
-
-        form['instrument'] = {
-            'id': instrument['id'],
-            'version': instrument['version'],
-        }
-
-        form['defaultLocalization'] = self.localization
-
-        if 'title' in instrument:
-            form['title'] = self._text(instrument['title'])
-
-        page = {
-            'id': 'page1',
-            'elements': [],
-        }
-
-        for field in instrument['record']:
-            page['elements'].append({
-                'type': 'question',
-                'options': self.make_question_options(field, instrument),
-            })
-
-        form['pages'] = [page]
-
-        return form
-
-    def make_question_options(self, field, instrument):
-        opts = {
-            'fieldId': field['id'],
-            'text': self._text(field.get('description', field['id'])),
-        }
-
-        type_def = InstrumentVersion.get_full_type_definition(
-            instrument,
-            field['type'],
-        )
-
-        if 'enumerations' in type_def:
-            opts['enumerations'] = sorted(
-                [
-                    {
-                        'id': key,
-                        'text': self._text(
-                            defn.get('description', key) if defn else key
-                        )
-                    }
-                    for key, defn in type_def['enumerations'].items()
-                ],
-                key=lambda x: x['id'],
-            )
-
-            hotkeys = {}
-            if len(opts['enumerations']) <= 10:
-                for enum in opts['enumerations']:
-                    if len(enum['id']) == 1 and enum['id'] in string.digits:
-                        hotkeys[enum['id']] = enum['id']
-            if len(hotkeys) == len(opts['enumerations']):
-                if type_def['base'] == 'enumerationSet':
-                    widget_type = 'checkGroup'
-                else:
-                    widget_type = 'radioGroup'
-                opts['widget'] = {
-                    'type': widget_type,
-                    'options': {
-                        'hotkeys': hotkeys,
-                    }
-                }
-
-        if 'rows' in type_def:
-            opts['rows'] = [
-                {
-                    'id': row['id'],
-                    'text': self._text(row.get('description', row['id']))
-                }
-                for row in type_def['rows']
-            ]
-
-        for name in ('record', 'columns'):
-            if name in type_def:
-                opts['questions'] = [
-                    self.make_question_options(subfield, instrument)
-                    for subfield in type_def[name]
-                ]
-
-        return opts
 

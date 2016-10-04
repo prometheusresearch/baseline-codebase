@@ -21,3 +21,9 @@ Configuration
 
 .. automodule:: rex.forms.settings
 
+
+Utilities
+=========
+
+.. automodule:: rex.forms.skeleton
+

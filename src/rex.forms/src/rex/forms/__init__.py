@@ -8,5 +8,6 @@ from .errors import *
 from .initializer import *
 from .interface import *
 from .implementation import *
+from .skeleton import *
 from .settings import *
 

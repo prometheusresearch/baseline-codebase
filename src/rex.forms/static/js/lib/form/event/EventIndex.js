@@ -344,7 +344,7 @@ function getExpression(event: RIOSEvent): REXLExpression {
     try {
       event.triggerParsed = REXL.parse(event.trigger);
     } catch (exc) {
-      console.error(`Could not parse ${event.action} Event Trigger "${event.trigger.trim()}": ${exc}`);
+      console.error(`Could not PARSE ${event.action} Event Trigger "${event.trigger.trim()}": ${exc}`);
       event.triggerParsed = REXL_FALSE;
     }
   }
@@ -372,7 +372,13 @@ function computationWithScope<R>(
   let resolver = resolverForScope(scope, parameters);
   let expression = getExpression(event);
   return derivation(() => {
-    let result = expression.evaluate(resolver);
+    let result;
+    try {
+      result = expression.evaluate(resolver);
+    } catch (exc) {
+      console.error(`Could not EXECUTE ${event.action} Event Trigger "${event.trigger.trim()}": ${exc}`);
+      result = false;
+    }
     return process(result);
   });
 }

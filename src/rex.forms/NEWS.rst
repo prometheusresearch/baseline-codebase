@@ -11,6 +11,8 @@ REX.FORMS Change Log
 * The ``FormError`` exception now inherits from ``rex.core.Error``.
 * The ability to generate Form skeletons based on Instrument Definitions is
   now exposed via the ``make_form_skeleton()`` function.
+* Fixed an issue that caused Forms to not render if their configuration
+  contains invalid REXL expressions.
 
 
 2.1.0 (2016-09-14)

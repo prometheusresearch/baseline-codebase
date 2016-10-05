@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.core',
-    version="1.13.1",
+    version="1.14.0",
     description="Foundation of the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -17,7 +17,7 @@ setup(
     url="https://bitbucket.org/prometheus/rex.core",
     package_dir={'': 'src'},
     packages=find_packages('src'),
-    namespace_packages=['rex'],
+    namespace_packages=['rex', 'sphinxcontrib'],
     install_requires=[
         'rex.setup >=1.0, <4',  # For use by `rex.core` descendants.
         'pyyaml',

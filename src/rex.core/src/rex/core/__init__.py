@@ -14,7 +14,7 @@ from .application import Rex, LatentRex, Initialize
 from .cache import cached, autoreload
 from .context import get_rex
 from .error import Error, guard
-from .extension import Extension
+from .extension import Extension, DocEntry
 from .package import (
     Package, PythonPackage, ModulePackage, StaticPackage, SandboxPackage,
     PackageCollection, get_packages)

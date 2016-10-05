@@ -6,6 +6,48 @@
 from .cache import cached
 from .package import get_packages, Package
 import sys
+import inspect
+
+
+class DocEntry(object):
+    """
+    Documentation entry.
+
+    `header`
+        The entry header.
+    `content`
+        The content of the entry in reStructuredText format.
+    `index`
+        Optional index entry.
+    `package`
+        Optional :class:`rex.core.Package` object that owns the entry.
+    `filename`
+        The location of the documentation source.
+    `line`
+        The line where the documentation starts.
+    """
+
+    def __init__(
+            self, header, content,
+            index=None, package=None, filename=None, line=None):
+        self.header = header
+        self.content = content
+        self.index = index
+        self.package = package
+        self.filename = filename
+        self.line = line
+
+    def __repr__(self):
+        args = [repr(self.header), repr(self.content)]
+        if self.index is not None:
+            args.append("index=%r" % self.index)
+        if self.package is not None:
+            args.append("package=%r" % self.package)
+        if self.filename is not None:
+            args.append("filename=%r" % self.filename)
+        if self.line is not None:
+            args.append("line=%r" % self.line)
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
 
 class Extension(object):
@@ -318,6 +360,54 @@ class Extension(object):
                             previous = extension
         # Sort the extensions.
         return toposort(extensions, order)
+
+    @classmethod
+    def document_header(cls):
+        # Documentation header/index.
+        try:
+            signature = cls.signature()
+        except NotImplementedError:
+            signature = None
+        return unicode(signature if signature else cls.__name__)
+
+    @classmethod
+    def document_content(cls):
+        # Documentation content in RST format.
+        return inspect.cleandoc(cls.__doc__ or '')
+
+    @classmethod
+    def document_index(cls):
+        # Index entry.
+        return cls.document_header()
+
+    @classmethod
+    def document(cls):
+        """
+        Generates a documentation entry for the extension.
+        """
+        header = cls.document_header()
+        content = cls.document_content()
+        index = cls.document_index()
+        package = cls.package()
+        filename = inspect.getsourcefile(cls)
+        try:
+            lines = inspect.getsourcelines(cls)
+        except IOError:
+            lines = ([], 0)
+        line = lines[1]+1
+        return DocEntry(
+                header, content, index=index,
+                package=package, filename=filename, line=line)
+
+    @classmethod
+    def document_all(cls, package=None):
+        """
+        Generates a list of documentation entries for each implementation
+        of this extension.
+        """
+        entries = [extension.document() for extension in cls.all(package)]
+        entries.sort(key=(lambda e: e.header))
+        return entries
 
 
 def toposort(elements, order):

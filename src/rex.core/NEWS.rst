@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.14.0 (2016-XX-XX)
+===================
+
+* Added ``sphinxcontrib.autorex`` Sphinx extension.
+
+
 1.13.1 (2016-09-14)
 ===================
 

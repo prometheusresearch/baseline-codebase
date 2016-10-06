@@ -7,7 +7,8 @@ Set up the environment::
 
     >>> from datetime import datetime
     >>> from rex.core import Rex
-    >>> rex = Rex('rex.mart_demo')
+    >>> import sys; cluster = 'pgsql://:5433/mart' if hasattr(sys, 'MART_MULTICLUSTER_TEST') else None
+    >>> rex = Rex('rex.mart_demo', mart_hosting_cluster=cluster)
     >>> rex.on()
 
     >>> from rex.mart import MartAccessPermissions, Mart, MartCreator

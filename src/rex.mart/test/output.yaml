@@ -10,7 +10,11 @@ tests:
   stdout: ''
 - sh: rex dropdb --quiet rex.mart_demo --set=db=pgsql:a_fixed_name_mart
   stdout: ''
+- sh: rex dropdb --quiet rex.mart_demo --set=db=pgsql://:5433/a_fixed_name_mart
+  stdout: ''
+- py: set-multi-cluster-flag
+  stdout: ''
 - sh: rex deploy --quiet rex.mart_demo
   stdout: ''
-- py: from-rex.core-import-rex
+- py: clean-up-stray-marts
   stdout: ''

@@ -6,9 +6,11 @@ REX.CTL Tasks
 Set up the environment::
 
     >>> from rex.ctl import ctl, Ctl
-    >>> import os
+    >>> import os, sys
     >>> os.environ['REX_PROJECT'] = 'rex.mart_demo'
-    >>> os.environ['REX_PARAMETERS'] = '{"db": "pgsql:mart_demo"}'
+    >>> params = '{"db": "pgsql:mart_demo"'
+    >>> if hasattr(sys, 'MART_MULTICLUSTER_TEST'): params += ', "mart_hosting_cluster": "pgsql://:5433/mart"'
+    >>> os.environ['REX_PARAMETERS'] = params + '}'
 
     >>> def no_timestamp_ctl(cmd, input='', expect=0):
     ...     ctl = Ctl(cmd, input)

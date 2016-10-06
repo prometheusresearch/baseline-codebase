@@ -6,7 +6,8 @@ Creation
 Set up the environment::
 
     >>> from rex.core import Rex
-    >>> rex = Rex('rex.mart_demo')
+    >>> import sys; cluster = 'pgsql://:5433/mart' if hasattr(sys, 'MART_MULTICLUSTER_TEST') else None
+    >>> rex = Rex('rex.mart_demo', mart_hosting_cluster=cluster)
     >>> rex.on()
     >>> from rex.mart import MartCreator
 
@@ -493,7 +494,7 @@ Definitions can invoke post-processors::
 
     >>> rex.off()
 
-    >>> rex2 = Rex('rex.mart_demo', mart_dictionary_presentation_priority=['form', 'sms'], mart_dictionary_channel_priority=['entry', 'survey', 'mobile', 'fakesms'])
+    >>> rex2 = Rex('rex.mart_demo', mart_dictionary_presentation_priority=['form', 'sms'], mart_dictionary_channel_priority=['entry', 'survey', 'mobile', 'fakesms'], mart_hosting_cluster=cluster)
     >>> rex2.on()
     >>> mc = MartCreator('test', 'form_metadata')
     >>> mart = mc()
@@ -535,7 +536,7 @@ Definitions can invoke post-processors::
     Dates: True True
     >>> rex2.off()
 
-    >>> rex2 = Rex('rex.mart_demo', mart_dictionary_presentation_priority=['form', 'sms'], mart_dictionary_channel_priority=['survey', 'entry', 'mobile', 'fakesms'])
+    >>> rex2 = Rex('rex.mart_demo', mart_dictionary_presentation_priority=['form', 'sms'], mart_dictionary_channel_priority=['survey', 'entry', 'mobile', 'fakesms'], mart_hosting_cluster=cluster)
     >>> rex2.on()
     >>> mc = MartCreator('test', 'form_metadata')
     >>> mart = mc()
@@ -577,7 +578,7 @@ Definitions can invoke post-processors::
     Dates: True True
     >>> rex2.off()
 
-    >>> rex2 = Rex('rex.mart_demo', mart_dictionary_presentation_priority=['sms'], mart_dictionary_channel_priority=['entry', 'survey', 'mobile', 'fakesms'])
+    >>> rex2 = Rex('rex.mart_demo', mart_dictionary_presentation_priority=['sms'], mart_dictionary_channel_priority=['entry', 'survey', 'mobile', 'fakesms'], mart_hosting_cluster=cluster)
     >>> rex2.on()
     >>> mc = MartCreator('test', 'form_metadata')
     >>> mart = mc()
@@ -619,7 +620,7 @@ Definitions can invoke post-processors::
     Dates: True True
     >>> rex2.off()
 
-    >>> rex2 = Rex('rex.mart_demo', mart_dictionary_presentation_priority=['sms', 'form'], mart_dictionary_channel_priority=['entry', 'survey', 'fakesms'])
+    >>> rex2 = Rex('rex.mart_demo', mart_dictionary_presentation_priority=['sms', 'form'], mart_dictionary_channel_priority=['entry', 'survey', 'fakesms'], mart_hosting_cluster=cluster)
     >>> rex2.on()
     >>> mc = MartCreator('test', 'form_metadata')
     >>> mart = mc()

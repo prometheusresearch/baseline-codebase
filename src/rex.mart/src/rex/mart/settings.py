@@ -40,11 +40,12 @@ class MartHostingClusterSetting(Setting):
 
     # pylint: disable=no-self-use
     def validate(self, value):
-        value = DBVal()(value)
-        if value.engine != 'pgsql':
-            raise Error(
-                'Only PostgreSQL systems can host Marts'
-            )
+        if value is not None:
+            value = DBVal()(value)
+            if value.engine != 'pgsql':
+                raise Error(
+                    'Only PostgreSQL systems can host Marts'
+                )
         return value
 
 

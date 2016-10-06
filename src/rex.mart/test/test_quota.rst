@@ -6,7 +6,8 @@ Quotas
 Set up the environment::
 
     >>> from rex.core import Rex
-    >>> rex = Rex('rex.mart_demo', mart_max_marts_per_owner=5)
+    >>> import sys; cluster = 'pgsql://:5433/mart' if hasattr(sys, 'MART_MULTICLUSTER_TEST') else None
+    >>> rex = Rex('rex.mart_demo', mart_max_marts_per_owner=5, mart_hosting_cluster=cluster)
     >>> rex.on()
     >>> from rex.mart import MartCreator, get_management_db
 

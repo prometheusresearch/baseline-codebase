@@ -10,10 +10,19 @@ tests:
     auto-data: true
 
   - sh: pip install --quiet --editable ./demo
-
   - sh: rex dropdb --quiet rex.mart_demo
-  - sh: rex dropdb --quiet rex.mart_demo --set=db=pgsql:a_fixed_name_mart
   - sh: rex deploy --quiet rex.mart_demo
+
+  - sh: rex dropdb --quiet rex.mart_demo --set=db=pgsql:a_fixed_name_mart
+    unless: MULTICLUSTER
+  - sh: rex dropdb --quiet rex.mart_demo --set=db=pgsql://:5433/a_fixed_name_mart
+    if: MULTICLUSTER
+
+  - py: |
+      # Set multi-cluster flag
+      import sys
+      sys.MART_MULTICLUSTER_TEST = True
+    if: MULTICLUSTER
 
   - doctest: README.rst
   - doctest: test/test_*.rst
@@ -21,12 +30,13 @@ tests:
   - coverage-check: 90.0
   - coverage-report: ./build/coverage
 
-  # Clean up any stray Marts left behind by testing
   - py: |
+      # Clean up stray marts
       from rex.core import Rex
       from rex.db import get_db
       from rex.mart import purge_mart
-      with Rex('rex.mart_demo'):
+      cluster = 'pgsql://:5433/mart' if __pbbt__.get('MULTICLUSTER') else None
+      with Rex('rex.mart_demo', mart_hosting_cluster=cluster):
         for rec in get_db().produce('/rexmart_inventory{code, name}'):
           if rec.name == 'mart_demo':
             continue

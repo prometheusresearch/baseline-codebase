@@ -8,7 +8,8 @@ Set up the environment::
     >>> from webob import Request
     >>> from pprint import pprint
     >>> from rex.core import Rex
-    >>> rex = Rex('rex.mart_demo')
+    >>> import sys; cluster = 'pgsql://:5433/mart' if hasattr(sys, 'MART_MULTICLUSTER_TEST') else None
+    >>> rex = Rex('rex.mart_demo', mart_hosting_cluster=cluster)
     >>> rex.on()
 
     >>> from rex.mart import MartCreator, purge_mart
@@ -45,7 +46,6 @@ inventory record::
     >>> purge_mart(marts[2].code)
 
     >>> purge_mart(marts[0].code)
-
 
 
 

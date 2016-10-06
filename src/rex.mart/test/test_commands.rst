@@ -8,7 +8,8 @@ Set up the environment::
     >>> from webob import Request
     >>> from pprint import pprint
     >>> from rex.core import Rex
-    >>> rex = Rex('rex.mart_demo')
+    >>> import sys; cluster = 'pgsql://:5433/mart' if hasattr(sys, 'MART_MULTICLUSTER_TEST') else None
+    >>> rex = Rex('rex.mart_demo', mart_hosting_cluster=cluster)
     >>> rex.on()
 
     >>> from rex.mart import MartCreator, purge_mart
@@ -118,7 +119,7 @@ If enabled, this API will submit asynchronous tasks to initiate Mart creation::
     ...
 
     >>> rex.off()
-    >>> rex2 = Rex('rex.mart_demo', mart_allow_runtime_creation=True)
+    >>> rex2 = Rex('rex.mart_demo', mart_allow_runtime_creation=True, mart_hosting_cluster=cluster)
     >>> rex2.on()
 
     >>> req = Request.blank('/definition/some_data', remote_user='cmdtest', method='POST')
@@ -182,7 +183,7 @@ Accessing the HTSQL endpoint for a specific Mart::
     Set-Cookie: ...
 
     >>> rex.off()
-    >>> rex2 = Rex('rex.mart_demo', debug=True, mart_htsql_extensions={'tweak.shell': {}})
+    >>> rex2 = Rex('rex.mart_demo', debug=True, mart_htsql_extensions={'tweak.shell': {}}, mart_hosting_cluster=cluster)
     >>> rex2.on()
     >>> req = Request.blank(mart_path + '/', remote_user='cmdtest')
     >>> print req.get_response(rex2)  # doctest: +ELLIPSIS

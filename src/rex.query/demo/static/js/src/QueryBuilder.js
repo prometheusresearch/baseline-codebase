@@ -189,7 +189,6 @@ export default class QueryBuilder extends React.Component {
       pointer,
       this.state.selected
     );
-    console.log(query);
     this.onQuery(query, nextSelected);
   };
 

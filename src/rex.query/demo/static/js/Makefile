@@ -1,32 +1,32 @@
-PQueryATH := ./node_modules/.bin:$(PATH)
+BIN = ./node_modules/.bin
 
-export PATH
 
 build-grammar: src/parsing/grammar.js
 
 src/parsing/grammar.js: src/parsing/grammar.pegjs
-	@pegjs -O speed -o $@ $<
+	@$(BIN)/pegjs -O speed -o $@ $<
 
 install:
 	npm install
 
 start:
-	@react-scripts start
+	@$(BIN)/react-scripts start
 
 lint:
-	@eslint ./src
+	@$(BIN)/eslint ./src
 
 test:
-	@react-scripts test
+	@$(BIN)/react-scripts test
 
 test-cov:
-	@react-scripts test --coverage
+	@$(BIN)/react-scripts test --coverage
 
 ci:
-	@react-scripts test --watch
+	@$(BIN)/react-scripts test --watch
 
 check:
-	@flow
+	@$(BIN)/flow
 
 build:
-	@react-scripts build
+	@$(BIN)/react-scripts build
+

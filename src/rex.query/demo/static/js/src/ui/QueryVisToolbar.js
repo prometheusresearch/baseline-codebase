@@ -52,16 +52,6 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
     return (
       <VBox width="100%" style={{backgroundColor: 'white'}}>
         <HBox padding={2}>
-          {(!hideDisabled || (hideDisabled && canNavigate)) &&
-            <ReactUI.QuietButton
-              groupHorizontally
-              disabled={!canNavigateAt(type)}
-              size="x-small"
-              width="25%"
-              onClick={this.onAddNavigate}
-              icon={<PlusIcon />}>
-              Navigate
-            </ReactUI.QuietButton>}
           {(!hideDisabled || (hideDisabled && canFilter)) &&
             <ReactUI.QuietButton
               groupHorizontally
@@ -91,6 +81,16 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
               onClick={this.onAddAggregate}
               icon={<PlusIcon />}>
               Aggregate
+            </ReactUI.QuietButton>}
+          {(!hideDisabled || (hideDisabled && canNavigate)) &&
+            <ReactUI.QuietButton
+              groupHorizontally
+              disabled={!canNavigateAt(type)}
+              size="x-small"
+              width="25%"
+              onClick={this.onAddNavigate}
+              icon={<PlusIcon />}>
+              Navigate
             </ReactUI.QuietButton>}
         </HBox>
       </VBox>

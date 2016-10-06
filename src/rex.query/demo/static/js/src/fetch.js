@@ -110,6 +110,9 @@ function getBaseFieldType(field) {
         return t.textType;
       case 'boolean':
         return t.booleanType;
+      case 'integer':
+      case 'float':
+        return t.numberType;
       default:
         invariant(false, 'Unknown column type: %s', field.column.type);
     }

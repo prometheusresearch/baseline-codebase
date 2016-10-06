@@ -4,6 +4,11 @@
 
 .. contents:: Table of Contents
 
+0.4.3 (2016-09-27)
+==================
+
+* Using Assessment.bulk_create(...) to create all assessments at once.
+
 0.4.2 (2016-06-01)
 ==================
 

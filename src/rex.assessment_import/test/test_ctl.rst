@@ -105,16 +105,12 @@ the bunch of csv files as Assessment objects to the datastore::
 
     >>> open('./build/sandbox/simple1.csv', 'w').write('subject,assessment_id,date,q_fake\nsubject1,1,,')
     >>> ctl('assessment-import --project=rex.assessment_import_demo simple --input ./build/sandbox/')
-    Starting assessment 1 import...
-    ### SAVED ASSESSMENT fake_assessment_1
-    Import finished, assessment fake_assessment_1 generated.
+    ### CREATED ASSESSMENT
 
 One of csv or xls --format is expected::
 
     >>> ctl('assessment-import --project=rex.assessment_import_demo simple --input ./build/sandbox/ --format csv')
-    Starting assessment 1 import...
-    ### SAVED ASSESSMENT fake_assessment_1
-    Import finished, assessment fake_assessment_1 generated.
+    ### CREATED ASSESSMENT
 
     >>> book = xlwt.Workbook()
     >>> sheet = book.add_sheet('1')
@@ -132,9 +128,7 @@ One of csv or xls --format is expected::
     >>> book.save('./build/sandbox/simple1.xls')
 
     >>> ctl('assessment-import --project=rex.assessment_import_demo simple --input ./build/sandbox/simple1.xls --format xls')
-    Starting assessment 1 import...
-    ### SAVED ASSESSMENT fake_assessment_1
-    Import finished, assessment fake_assessment_1 generated.
+    ### CREATED ASSESSMENT
 
 The task fails if --format got unknown value::
 

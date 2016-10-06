@@ -11,6 +11,7 @@ from rex.instrument.util import get_implementation
 from rex.core import Extension, Error, get_settings
 from .interface import Instrument, Assessment
 
+import datetime
 
 class BaseLogging(object):
 
@@ -45,7 +46,7 @@ class BaseAssessmentTemplateExport(BaseLogging):
             raise Error('The desired version of "%s" does not exist.' % (
                 self.instrument_uid,
             ))
-        self.do_output(instrument_version, output_path, format)
+        self.do_output(instrument_version, output_path, format.lower())
 
     def do_output(self, instrument_version, output_path=None, format='csv'):
         template_writer = self.get_template_writer(format)
@@ -130,8 +131,17 @@ class AssessmentXLSTemplateOutput(AssessmentTemplateOutput):
 class BaseAssessmentImport(BaseLogging):
 
     def start(self, instrument_uid, version, input_path,
-              tolerant=True, format='csv'
+              tolerant=True, format=None
     ):
+        if not input_path:
+            input_path = '.'
+        if not format:
+            if os.path.isdir(input_path):
+                format = 'csv'
+            else:
+                _, ext = os.path.splitext(input_path)
+                if ext:
+                    format = ext[1:]
         instrument = self.get_instrument(instrument_uid, version)
         importer_impl = self.get_importer(instrument, tolerant, format)
         importer_impl(input_path)
@@ -185,27 +195,17 @@ class AssessmentImporter(BaseLogging, Extension):
     def __call__(self, input):
         raise NotImplementedError()
 
-    def import_assessment(self, base_row, import_data):
-        assessment_id = base_row.get('assessment_id')
-        if not assessment_id:
-            raise Error("Unexpected import data, `assessment_id` not found.")
-        self.log("Starting assessment `%(id)s` import..."
-                 % {'id': assessment_id}
-        )
-        assessment_data = self.make_assessment_data(assessment_id,
-                                                    import_data
-                          )
-        assessment_data[self.instrument.id] = base_row
-        assessment = Assessment.create(self.instrument,
-                                       assessment_data
-                                )
-        return assessment
+    def import_data(self, input):
+        assessment_data = self.generate_assessment_data(input)
+        assessments = []
+        for assessment_id, data in assessment_data.items():
+            assessment = Assessment.create(self.instrument, data)
+            assessments.append(assessment)
+        assessment_impl = get_implementation('assessment')
+        assessment_impl.bulk_create(assessments)
 
-    def rollback(self, assessments):
-        for assessment in assessments:
-            self.warn("Rollback assessment `%(assessment_uid)s`."
-                      % {'assessment_uid': assessment.uid})
-            assessment.delete()
+    def generate_assessment_data(self, input):
+        raise NotImplementedError()
 
 
 class AssessmentCSVImporter(AssessmentImporter):
@@ -213,8 +213,8 @@ class AssessmentCSVImporter(AssessmentImporter):
     name = 'csv'
 
     def __call__(self, input):
-        input_files = self.process_input(input)
-        self.start_import(input_files)
+        input_data = self.process_input(input)
+        self.import_data(input_data)
 
     def process_input(self, input):
         input_files = {}
@@ -242,54 +242,9 @@ class AssessmentCSVImporter(AssessmentImporter):
             raise Error("Not found any csv file appropriate to import.")
         return input_files
 
-    def start_import(self, input_files):
-        success_import = True
-        imported = []
-        if self.instrument.id not in input_files:
-            raise Error("Not found %(root_tpl_id)s.csv file sufficient"
-                        " to the root template %(root_tpl_id)s."
-                        % {'root_tpl_id': self.instrument.id}
-            )
-        base_path = input_files.pop(self.instrument.id)
-        with open(base_path, 'rU') as base_file:
-            try:
-                reader = csv.DictReader(base_file)
-            except Exception:
-                exc = traceback.format_exc()
-                raise Error("Unexpected assessment file %(filepath)s."
-                            % {'filepath': base_path},
-                            exc
-                )
-            for (idx, row) in enumerate(reader):
-                error = ("Unable to import `%(idx)s` row"
-                         " of the `%(base_path)s`: "
-                         % {'idx': idx,
-                            'base_path': base_path
-                            }
-                )
-                try:
-                    assessment = self.import_assessment(row, input_files)
-                    imported.append(assessment)
-                except Error, exc:
-                    success_import = False
-                except Exception:
-                    exc = traceback.format_exc()
-                    success_import = False
-                if not success_import:
-                    error += str(exc)
-                    self.warn(error)
-                    if not self.tolerant:
-                        self.warn("Import failed.")
-                        self.rollback(imported)
-                        raise Error("Nothing was imported.", error)
-                else:
-                    self.log("Import finished, assessment `%(id)s` generated."
-                             % {'id': assessment.uid}
-                    )
-
-    def make_assessment_data(self, assessment_id, import_files):
-        assessment_data = OrderedDict()
-        for rec_id, rec_file in import_files.items():
+    def generate_assessment_data(self, input_files):
+        assessments = OrderedDict()
+        for rec_id, rec_file in input_files.items():
             with open(rec_file, 'rU') as _file:
                 try:
                     reader = csv.DictReader(_file)
@@ -298,39 +253,29 @@ class AssessmentCSVImporter(AssessmentImporter):
                     raise Error("Got unexpected csv file `%(filepath)s`."
                                 % {'filepath': rec_file}, exc
                     )
-                if 'assessment_id' not in reader.fieldnames:
-                    raise Error("Not found `assessment_id` trough"
-                        " `%(filepath)s`."
-                        % {'filepath': record_list_filepath}
-                    )
-                record = []
-                error_nums = []
-                i = 1
-                for row in reader:
-                    row_assessment_id = row.get('assessment_id')
-                    i += 1
-                    if not row_assessment_id:
-                        error_nums.append(str(i))
-                    if row_assessment_id != assessment_id:
-                        continue
-                    record.append(row)
-                assessment_data[rec_id] = record
-                if error_nums:
-                    self.warn("File `%(filepath)s` contains bad formatted row"
-                    " numbers # (`%(error_nums)s`,), `assessment_id` is required."
-                    % {'filepath': rec_file,
-                       'error_nums': ', '.join(error_nums)
-                      }
-                    )
-        return assessment_data
+                for idx, row in enumerate(reader):
+                    assessment_id = row.get('assessment_id')
+                    if not assessment_id:
+                        raise Error("assessment_id not found through"
+                                   " `%(filepath)s` row %(idx)s"
+                                   % {'filepath': rec_file, 'idx': idx})
+                    assessment = assessments.get(assessment_id, OrderedDict())
+                    record = assessment.get(rec_id, [])
+                    if rec_id == self.instrument.id:
+                        record = row
+                    else:
+                        record.append(row)
+                    assessment[rec_id] = record
+                    assessments[assessment_id] = assessment
+        return assessments
 
 
 class AssessmentXLSImporter(AssessmentImporter):
     name = 'xls'
 
     def __call__(self, input):
-        workbook = self.process_input(input)
-        self.start_import(workbook)
+        input_data = self.process_input(input)
+        self.import_data(input_data)
 
     def process_input(self, input):
         if not input:
@@ -346,50 +291,9 @@ class AssessmentXLSImporter(AssessmentImporter):
             raise Error("Bad xls file `%s`." % input, exc)
         return workbook
 
-    def start_import(self, workbook):
-        success_import = True
-        imported = []
-        sheet = workbook.sheets()[0]
-        if sheet.cell_value(0, 0) != self.instrument.id:
-            raise Error("instrument.id is expected as a value of"
-                        " sheet[1].cell(0, 0)"
-            )
-        if sheet.nrows < 3:
-            raise Error("Sheet[0] has to keep at least 3 rows;"
-                        " where 1st row - a sheet name,"
-                        " 2nd - data header,  3rd - data."
-            )
-
-        for row_idx in range(2, sheet.nrows):
-            row = self.get_row(sheet, row_idx)
-            error = ("Unable to import `%(idx)s` row"
-                      " of the `%(instrument)s`: "
-            )
-            try:
-                assessment = self.import_assessment(row, workbook)
-                imported.append(assessment)
-            except Error, exc:
-                success_import = False
-            except Exception:
-                exc = traceback.format_exc()
-                success_import = False
-            if not success_import:
-                error += str(exc)
-                self.warn(error)
-                if not self.tolerant:
-                    self.warn("Import failed.")
-                    self.rollback(imported)
-                    raise Error("Nothing was imported.", error)
-            else:
-                self.log("Import finished, assessment `%(id)s` generated."
-                         % {'id': assessment.uid}
-                )
-
-    def make_assessment_data(self, assessment_id, workbook):
-        assessment_data = OrderedDict()
+    def generate_assessment_data(self, workbook):
+        assessments = OrderedDict()
         for idx, sheet in enumerate(workbook.sheets()):
-            if idx == 0:
-                continue
             if sheet.nrows < 3:
                 raise Error("Sheet[0] has to keep at least 3 rows;"
                             " where 1st row - a sheet name,"
@@ -410,13 +314,18 @@ class AssessmentXLSImporter(AssessmentImporter):
                               }
                 )
             record = []
-            col_idx = header.index('assessment_id')
             for row_idx in range(2, sheet.nrows):
-                if sheet.cell_value(row_idx, col_idx) == assessment_id:
-                    row = self.get_row(sheet, row_idx)
+                row = self.get_row(sheet, row_idx)
+                assessment_id = row['assessment_id']
+                assessment = assessments.get(assessment_id, OrderedDict())
+                record = assessment.get(record_id, [])
+                if record_id == self.instrument.id:
+                    record = row
+                else:
                     record.append(row)
-            assessment_data[record_id] = record
-        return assessment_data
+                assessment[record_id] = record
+                assessments[assessment_id] = assessment
+        return assessments
 
     def get_row(self, sheet, row_idx):
         headers = dict( (i, sheet.cell_value(1, i) ) for i in range(sheet.ncols) )

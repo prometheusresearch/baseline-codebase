@@ -69,3 +69,8 @@ class DemoAssessment(Assessment):
     def save(self, implementation_context=None):
         print '### SAVED ASSESSMENT ' + self.uid
 
+    @classmethod
+    def bulk_create(cls, assessments, validate=True):
+        for assessment in assessments:
+            print '### CREATED ASSESSMENT'
+

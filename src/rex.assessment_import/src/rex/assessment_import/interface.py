@@ -118,7 +118,7 @@ class Field(FieldObjectAbstract):
         self.rows = []
         self.columns = []
         self.enumerations = OrderedDict()
-        self.obj_tpl_id = None
+        self.template_id = None
 
     def add_row(self, id):
         self.rows.append(id)
@@ -129,14 +129,14 @@ class Field(FieldObjectAbstract):
     def add_enumeration(self, enumeration_id, description):
         self.enumerations[enumeration_id] = description
 
-    def add_template(self, obj_tpl_id, blank, templates):
-        self.obj_tpl_id = obj_tpl_id
-        tpl_output = templates.get(obj_tpl_id)
-        if not tpl_output:
-            tpl_output = deepcopy(blank)
+    def add_template(self, template_id, blank, templates):
+        self.template_id = template_id
+        template_output = templates.get(template_id)
+        if not template_output:
+            template_output = deepcopy(blank)
         if self.base_type == 'recordList':
-            rec_obj_id = obj_tpl_id + '.' + self.id
-            self.obj_tpl_id = rec_obj_id
+            rec_obj_id = template_id + '.' + self.id
+            self.template_id = rec_obj_id
             templates[rec_obj_id] = deepcopy(blank)
             for (_, record_field) in self.fields.items():
                 templates = record_field.add_template(rec_obj_id,
@@ -144,29 +144,29 @@ class Field(FieldObjectAbstract):
                                                       templates)
         elif self.base_type == 'matrix':
             for (_, matrix_field) in self.fields.items():
-                templates = matrix_field.add_template(obj_tpl_id,
+                templates = matrix_field.add_template(template_id,
                                                       blank,
                                                       templates)
         elif self.base_type == 'enumerationSet':
             type = ['TRUE.FALSE']
             for id in self.enumerations:
                 enum_name = self.id + '_' + id
-                tpl_output[enum_name] = {
+                template_output[enum_name] = {
                     'description': self.template_description(type=type),
                     'required': self.required
                 }
         elif self.base_type == 'enumeration':
             type = self.enumerations.keys()
-            tpl_output[self.id] = {
+            template_output[self.id] = {
                 'description': self.template_description(type=type),
                 'required': self.required
             }
         else:
-            tpl_output[self.id] = {
+            template_output[self.id] = {
                 'description': self.template_description(),
                 'required': self.required
             }
-        templates[obj_tpl_id] = tpl_output
+        templates[template_id] = template_output
         return templates
 
     def template_description(self, description=None, type=None, required=None):
@@ -193,17 +193,19 @@ class Assessment(object):
         subject = assessment.get_subject(row)
         assessment_context = assessment.get_context(row)
         evaluation_date = assessment.get_date(row)
-        assessment.add_values(instrument, import_data)
+        try:
+            assessment.add_values(instrument, import_data)
+        except Error, exc:
+            raise Error("Unable to import assessment %s"
+                        % row['assessment_id'], exc)
         assessment_impl = get_implementation('assessment')
-        assessment = assessment_impl.create(
-                                subject=subject,
-                                instrument_version=instrument.version,
-                                data=assessment.data,
-                                evaluation_date=evaluation_date,
-                                implementation_context=assessment_context
-                    )
-        assessment.complete('import-tool')
-        assessment.save()
+        assessment = assessment_impl.BulkAssessment(
+                            subject_uid=subject,
+                            instrument_version_uid=instrument.version.uid,
+                            evaluation_date=evaluation_date,
+                            context=assessment_context,
+                            data=assessment.data
+                     )
         return assessment
 
     def validate_with_template(self, tpl_obj_id, data):
@@ -230,13 +232,7 @@ class Assessment(object):
         subject_id = data.get('subject')
         if not subject_id:
             raise Error("`subject` is expected.")
-        subject_impl = get_implementation('subject')
-        subject = subject_impl.get_by_uid(unicode(subject_id))
-        if not subject:
-            raise Error("Subject `%(subject_id)s` not found in the data storage."
-                        % {'subject_id': subject_id}
-            )
-        return subject
+        return subject_id
 
     def get_context(self, row):
         context = {}
@@ -302,11 +298,11 @@ class Assessment(object):
     def add_field_value(self, field, data):
         if field.base_type == 'recordList':
             value = []
-            record_data = data.get(field.obj_tpl_id, [])
+            record_data = data.get(field.template_id, [])
             for row_data in record_data:
-                self.validate_with_template(field.obj_tpl_id, row_data)
+                self.validate_with_template(field.template_id, row_data)
                 row_value = OrderedDict()
-                data[field.obj_tpl_id] = row_data
+                data[field.template_id] = row_data
                 for _, record_field in field.fields.items():
                     record_field_value = self.add_field_value(record_field,
                                                               data)
@@ -327,7 +323,7 @@ class Assessment(object):
             value = []
             for id in field.enumerations:
                 enum_id = field.id + '_' + id
-                enum_value = data.get(field.obj_tpl_id, {}).get(enum_id)
+                enum_value = data.get(field.template_id, {}).get(enum_id)
                 if not enum_value:
                     continue
                 if str(enum_value).lower() == 'true':
@@ -343,7 +339,7 @@ class Assessment(object):
                     % {'field': field.id}, "Got no value for required field."
                 )
         else:
-            value = data.get(field.obj_tpl_id, {}).get(field.id)
+            value = data.get(field.template_id, {}).get(field.id)
             try:
                 value = self.validate_value(value=value,
                                             base_type=field.base_type,

@@ -106,7 +106,7 @@ class AssessmentImportTask(CtlLogging, BaseAssessmentImport, RexTask):
         format = option(
             None,
             str,
-            default='csv',
+            default=None,
             value_name='FORMAT',
             hint='the format of input files one of csv or xls is expected;'
             ' csv is the default value',

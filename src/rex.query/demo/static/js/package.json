@@ -26,7 +26,8 @@
     "react-icons": "^2.2.1",
     "react-select": "^1.0.0-rc.1",
     "react-stylesheet": "2-alpha",
-    "react-virtualized": "^8.0.2"
+    "react-virtualized": "^8.0.2",
+    "qs": "^6.2.1"
   },
   "proxy": "http://localhost:8080",
   "scripts": {

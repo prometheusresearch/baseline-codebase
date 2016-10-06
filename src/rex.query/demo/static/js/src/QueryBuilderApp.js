@@ -44,7 +44,7 @@ export default class QueryBuilderApp extends React.Component {
         </Message>
       );
     } else {
-      let query = q.pipeline(q.navigate('study'));
+      let query = q.pipeline(q.navigate(''));
       return (
         <QueryBuilder
           api={api}

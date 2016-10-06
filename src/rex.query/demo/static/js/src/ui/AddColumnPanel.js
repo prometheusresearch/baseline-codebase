@@ -6,11 +6,8 @@ import type {Query} from '../model/Query';
 import type {QueryPointer} from '../model/QueryPointer';
 
 import React from 'react';
-import {VBox} from '@prometheusresearch/react-box';
-import {style} from 'react-stylesheet';
 
 import * as theme from './Theme';
-import * as t from '../model/Type';
 import * as q from '../model/Query';
 import QueryPanelBase from './QueryPanelBase';
 import ColumnPicker from './ColumnPicker';
@@ -56,15 +53,6 @@ export default class AddColumnPanel extends React.Component<*, AddColumnPanelPro
     );
   }
 }
-
-let NoColumnsMessageRoot = style(VBox, {
-  displayName: 'NoColumnsMessageRoot',
-  base: {
-    fontWeight: 200,
-    fontSize: '10pt',
-    color: '#aaa',
-  }
-});
 
 function NoColumnsMessage() {
   return (

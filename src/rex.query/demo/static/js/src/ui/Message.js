@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import {VBox, HBox} from '@prometheusresearch/react-box';
+import {VBox} from '@prometheusresearch/react-box';
 import {style} from 'react-stylesheet';
 
 type MessageProps = {

@@ -4,7 +4,6 @@
 
 import type {Query} from '../model/Query';
 import type {QueryPointer} from '../model/QueryPointer';
-import type {QueryBuilderActions} from '../QueryBuilder';
 
 import React from 'react';
 

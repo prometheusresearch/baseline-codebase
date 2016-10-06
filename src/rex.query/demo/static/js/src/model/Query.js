@@ -4,6 +4,8 @@
  * @flow
  */
 
+/* eslint-disable no-use-before-define */
+
 import invariant from 'invariant';
 import * as t from './Type';
 
@@ -241,7 +243,6 @@ export function inferTypeStep(context: Context, query: Query): Query {
     if (type == null) {
       return withContext(query, context);
     }
-    let baseType = t.atom(type);
     let nextScope = {
       ...scope,
       [query.binding.name]: inferTypeStep(context, query.binding.query),

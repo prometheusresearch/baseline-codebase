@@ -372,7 +372,7 @@ export default class QueryBuilder extends React.Component {
       let nextQuery = q.inferType(this.props.domain, query);
       fieldList = updateFieldList(
         fieldList || this.state.fieldList,
-        this.state.query, 
+        this.state.query,
         nextQuery,
       );
       let nextSelected = null;
@@ -452,7 +452,6 @@ export default class QueryBuilder extends React.Component {
       fieldList,
       selected,
       data,
-      dataUpdating,
       showAddColumnPanel,
       showConsole
     } = this.state;
@@ -606,7 +605,7 @@ function updateFieldList(fieldList, prevQuery, nextQuery) {
     if (
       nextQuery.context.scope.hasOwnProperty(k) &&
       prevQuery && prevQuery.context.scope[k] == null &&
-      nextFieldList.indexOf(k) == -1
+      nextFieldList.indexOf(k) === -1
     ) {
       nextFieldList.push(k);
     }

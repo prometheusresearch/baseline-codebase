@@ -40,16 +40,6 @@ export function fetch(api: string, query: Query): Promise<Object> {
   return fetchJSON(api, translate(query));
 }
 
-type Catalog = {
-  entity: Array<CatalogEntity>;
-};
-
-type CatalogEntity = {
-  name: string;
-  label: string;
-  field: Array<CatalogEntityField>;
-};
-
 type CatalogEntityField = {
   label: string;
   title: string;
@@ -59,6 +49,16 @@ type CatalogEntityField = {
   plural: boolean;
   kind: string;
   link: ?{target: string; inverse: string};
+};
+
+type CatalogEntity = {
+  name: string;
+  label: string;
+  field: Array<CatalogEntityField>;
+};
+
+type Catalog = {
+  entity: Array<CatalogEntity>;
 };
 
 /**

@@ -7,6 +7,7 @@
  *
  * Keep in mind that we need to make sure it is in sync with grammar.pegjs.
  */
+/* eslint-disable no-use-before-define */
 export type Expression
   = BinaryOperation
   | Binding
@@ -15,6 +16,7 @@ export type Expression
   | StringLiteral
   | BooleanLiteral
   | IntegerLiteral;
+/* eslint-enable no-use-before-define */
 
 export type BinaryOperation = {
   type: 'BinaryOperation';

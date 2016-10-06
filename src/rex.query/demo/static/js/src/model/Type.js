@@ -4,6 +4,7 @@
  * @flow
  */
 
+/* eslint-disable no-use-before-define */
 export type Type
   = VoidType
   | EntityType
@@ -21,6 +22,7 @@ export type TypeAtom
   | TextType
   | BooleanType
   | RecordType;
+/* eslint-enable no-use-before-define */
 
 export type EntityType = {
   name: 'entity';

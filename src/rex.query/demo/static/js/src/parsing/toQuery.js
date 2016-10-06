@@ -3,7 +3,7 @@
  */
 
 import type {Domain, Query} from '../model/Query';
-import type {Expression, BinaryOperation} from './index';
+import type {Expression} from './index';
 
 import invariant from 'invariant';
 import * as q from '../model/Query';

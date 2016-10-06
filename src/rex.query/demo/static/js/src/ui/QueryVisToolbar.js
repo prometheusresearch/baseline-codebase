@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Query, Context} from '../model/Query';
+import type {Query} from '../model/Query';
 import type {Type} from '../model/Type';
 import type {QueryPointer} from '../model/QueryPointer';
 import type {QueryBuilderActions} from '../QueryBuilder';
@@ -52,7 +52,7 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
     return (
       <VBox width="100%" style={{backgroundColor: 'white'}}>
         <HBox padding={2}>
-          {(!hideDisabled || hideDisabled && canNavigate) &&
+          {(!hideDisabled || (hideDisabled && canNavigate)) &&
             <ReactUI.QuietButton
               groupHorizontally
               disabled={!canNavigateAt(type)}
@@ -62,7 +62,7 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
               icon={<PlusIcon />}>
               Navigate
             </ReactUI.QuietButton>}
-          {(!hideDisabled || hideDisabled && canFilter) &&
+          {(!hideDisabled || (hideDisabled && canFilter)) &&
             <ReactUI.QuietButton
               groupHorizontally
               disabled={!canFilterAt(type)}
@@ -72,7 +72,7 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
               icon={<PlusIcon />}>
               Filter
             </ReactUI.QuietButton>}
-          {(!hideDisabled || hideDisabled && canDefine) &&
+          {(!hideDisabled || (hideDisabled && canDefine)) &&
             <ReactUI.QuietButton
               groupHorizontally
               disabled={!canDefineAt(type)}
@@ -82,7 +82,7 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
               icon={<PlusIcon />}>
               Define
             </ReactUI.QuietButton>}
-          {(!hideDisabled || hideDisabled && canAggregate) &&
+          {(!hideDisabled || (hideDisabled && canAggregate)) &&
             <ReactUI.QuietButton
               groupHorizontally
               disabled={!canAggregateAt(type)}
@@ -145,20 +145,20 @@ function canFilterAt(type: ?Type) {
 
 function canNavigateAt(type: ?Type) {
   let canNavigate = (
-    type &&
-    (type.name === 'seq' &&
-     type.type.name === 'entity' ||
-     type.name === 'void')
+    type && (
+      (type.name === 'seq' && type.type.name === 'entity') ||
+      type.name === 'void'
+    )
   );
   return canNavigate;
 }
 
 function canDefineAt(type: ?Type) {
   return (
-    type &&
-    (type.name === 'seq' &&
-     type.type.name === 'entity' ||
-     type.name === 'void')
+    type && (
+      (type.name === 'seq' && type.type.name === 'entity')
+      || type.name === 'void'
+    )
   );
 }
 

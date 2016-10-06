@@ -4,14 +4,9 @@
 
 import * as q from './Query';
 
-type Navigate = {
-  type: 'navigate';
-  navigate: Array<Select | Column>;
-};
-
 type Select = {
   type: 'select';
-  select: Array<QueryNavigation>;
+  select: Array<QueryNavigation>;  // eslint-disable-line no-use-before-define
 };
 
 type Column = {
@@ -19,6 +14,11 @@ type Column = {
   path: string | number;
   title: string;
   query: q.NavigateQuery | q.AggregateQuery;
+};
+
+type Navigate = {
+  type: 'navigate';
+  navigate: Array<Select | Column>;
 };
 
 export type QueryNavigation

@@ -20,10 +20,11 @@ import json
 
 class Database(object):
 
-    def __init__(self, db=None):
+    def __init__(self, db=None, ignore_catalog_entities=None):
         if not isinstance(db, HTSQL):
             db = get_db(db)
         self.db = db
+        self.ignore_catalog_entities = ignore_catalog_entities
 
     parse = QueryVal()
 
@@ -39,7 +40,9 @@ class Database(object):
         query = self.parse(query)
         with self.db:
             if query.is_catalog():
-                return produce_catalog()
+                return produce_catalog(
+                    ignore_entities=self.ignore_catalog_entities,
+                )
             pipe = self.translate(query)
             return pipe()(None)
 
@@ -47,7 +50,9 @@ class Database(object):
         query = self.parse(query)
         with self.db:
             if query.is_catalog():
-                return produce_catalog()
+                return produce_catalog(
+                    ignore_entities=self.ignore_catalog_entities,
+                )
             pipe = self.translate(query)
             return Product(pipe.meta, None)
 
@@ -64,7 +69,9 @@ class Database(object):
             raise HTTPBadRequest(str(exc))
         with self.db:
             if query.is_catalog():
-                product = produce_catalog()
+                product = produce_catalog(
+                    ignore_entities=self.ignore_catalog_entities,
+                )
             else:
                 pipe = self.translate(query)
                 product = pipe()(None)

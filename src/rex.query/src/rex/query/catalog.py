@@ -21,7 +21,7 @@ def profile(tag, domain):
     attributes['domain'] = domain
     return Profile(**attributes)
 
-def produce_catalog():
+def produce_catalog(ignore_entities=None):
     column_domain = RecordDomain([
             profile(u'type', TextDomain()),
             profile(u'enum', ListDomain(TextDomain()))])
@@ -78,8 +78,11 @@ def produce_catalog():
             labels = relabel(field_arc)
             arc_labels[field_arc] = labels[0]
     data = []
+    ignore_entities = ignore_entities or []
     for entity_arc in arcs[None]:
         entity_label = arc_labels[entity_arc].name
+        if entity_label in ignore_entities:
+            continue
         entity_meta = get_meta(entity_arc.table)
         entity_title = entity_meta.title or label_to_title(entity_label)
         field_data = []
@@ -118,6 +121,9 @@ def produce_catalog():
                 link_inverse = None
                 if inverse_arc in arc_labels:
                     link_inverse = arc_labels[inverse_arc].name
+                if link_target in ignore_entities \
+                        or link_inverse in ignore_entities:
+                    continue
                 field_link = link_record((link_target, link_inverse))
             field = field_record((
                     field_label, field_title, field_public, field_partial,

@@ -41,7 +41,7 @@ setup(
         'rex.menu==1.0.1',
         'rex.widget==2.9.2',
         'rex.widget_chrome==1.2.3',
-        'rex.file==1.0.3',
+        'rex.file==1.0.4',
         'rex.dbgui==4.1.1',
     ],
     rex_static='static',

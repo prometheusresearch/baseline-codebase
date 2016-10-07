@@ -2,6 +2,11 @@
   Change Log
 **************
 
+1.2.3 (2016-XX-XX)
+==================
+
+* [FIX] Make first level items support links
+
 1.2.2 (2016-09-14)
 ==================
 

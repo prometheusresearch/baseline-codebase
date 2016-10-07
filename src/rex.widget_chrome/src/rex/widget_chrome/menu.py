@@ -35,7 +35,11 @@ class Chrome(BaseChrome):
     @computed_field
     def menu(self, req):
         menu = get_menu()
-        return [self.menu1_item(req, item) for item in menu.items]
+        return [self.menu_item(req, item) for item in menu.items]
+
+    def menu_item(self, req, item):
+        return self.menu1_item(req, item) if item.items \
+                                          else self.menu2_item(req, item)
 
     def menu1_item(self, req, item1):
         items = [self.menu2_item(req, item) for item in item1.items]

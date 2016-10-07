@@ -115,9 +115,13 @@ export default class Chrome extends React.Component {
 function findMenuItem(menu, href) {
   for (let i = 0; i < menu.length; i++) {
     let item = menu[i];
-    for (let j = 0; j < item.items.length; j++) {
-      if (item.items[j].url === href) {
-        return item.items[j];
+    if (item.url === href) {
+      return item;
+    }
+    if (item.items) {
+      let found = findMenuItem(item.items, href);
+      if (found) {
+        return found;
       }
     }
   }

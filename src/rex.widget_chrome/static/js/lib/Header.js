@@ -61,9 +61,8 @@ export default class Header extends React.Component {
             );
         }
       }
-
       if (itemFirst.permitted) {
-        let items = itemFirst.items
+        let items = (itemFirst.items || [])
           .filter(item => item.permitted)
           .map(item =>
             <Nav.PrimaryMenuItem

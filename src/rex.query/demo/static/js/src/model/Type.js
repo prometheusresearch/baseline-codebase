@@ -121,8 +121,20 @@ export function atom(typ: Type): TypeAtom {
   }
 }
 
-export function toString(type: Type): string {
-  if (type.name === 'seq') {
+export function maybeAtom(typ: ?Type): ?TypeAtom {
+  if (typ == null) {
+    return null;
+  } else if (typ.name === 'opt' || typ.name === 'seq') {
+    return typ.type;
+  } else {
+    return typ;
+  }
+}
+
+export function toString(type: ?Type): string {
+  if (type == null) {
+    return '';
+  } else if (type.name === 'seq') {
     return `[${toString(type.type)}]`;
   } else if (type.name === 'opt') {
     return `?${toString(type.type)}`;

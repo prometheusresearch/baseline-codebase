@@ -8,7 +8,6 @@ import type {QueryPointer} from '../model/QueryPointer';
 import React from 'react';
 
 import * as theme from './Theme';
-import * as q from '../model/Query';
 import QueryPanelBase from './QueryPanelBase';
 import ColumnPicker from './ColumnPicker';
 import Message from './Message';
@@ -35,29 +34,18 @@ export default class AddColumnPanel extends React.Component<*, AddColumnPanelPro
 
   render() {
     let {pointer, fieldList, ...props} = this.props;
-    let options = q.getNavigationAfter(pointer.query.context);
     return (
       <QueryPanelBase
         {...props}
         theme={theme.select}
         title="Configure columns">
-        {options.length > 0 ?
-          <ColumnPicker
-            selected={fieldList}
-            options={options}
-            onSelect={this.onSelect}
-            pointer={pointer}
-            /> :
-          <NoColumnsMessage />}
+        <ColumnPicker
+          allowNested
+          selected={fieldList}
+          onSelect={this.onSelect}
+          pointer={pointer}
+          />
       </QueryPanelBase>
     );
   }
-}
-
-function NoColumnsMessage() {
-  return (
-    <Message>
-      No columns are available to select from.
-    </Message>
-  );
 }

@@ -2,13 +2,15 @@
  * @flow
  */
 
+import {rgb} from 'react-stylesheet/css';
+
 export let entity = {
   background: '#7FDBFF',
   color: '#06688e',
 };
 
 export let select = {
-  background: '#888',
+  background: rgb(141, 127, 255),
   color: '#fff',
 };
 

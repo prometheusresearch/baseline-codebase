@@ -493,8 +493,12 @@ export default class QueryBuilder extends React.Component {
           <Console basis="200px">
             <ConsoleInput onChange={this.onConsoleChange} />
           </Console>}
-        <HBox grow={1}>
-          <VBox basis="300px" overflow="auto"
+        <HBox grow={1} height="calc(100% - 35px)">
+          <VBox
+            basis="300px"
+            overflow="auto"
+            height="100%"
+            overflow="auto"
             style={{boxShadow: css.boxShadow(0, 0, 3, 0, '#666')}}>
             <ui.QueryVis
               domain={this.props.domain}
@@ -505,7 +509,11 @@ export default class QueryBuilder extends React.Component {
               />
           </VBox>
           {(pointer && (selected || showAddColumnPanel)) &&
-            <VBox basis="200px" grow={1}
+            <VBox
+              basis="200px"
+              grow={1}
+              height="100%"
+              overflow="auto"
               style={{boxShadow: css.boxShadow(0, 0, 3, 0, '#666')}}>
               {showAddColumnPanel ?
                 <ui.AddColumnPanel

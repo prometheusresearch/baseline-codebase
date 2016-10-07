@@ -3,6 +3,7 @@
  */
 
 import type {QueryPointer} from '../model/QueryPointer';
+import type {NavigateQuery} from '../model/Query';
 import type {QueryBuilderActions} from '../QueryBuilder';
 
 import React from 'react';
@@ -15,7 +16,7 @@ import ColumnPicker from './ColumnPicker';
 export default class NavigateQueryPanel extends React.Component {
 
   props: {
-    pointer: QueryPointer<q.NavigateQuery>;
+    pointer: QueryPointer<NavigateQuery>;
     onClose: () => *;
   };
 
@@ -34,9 +35,9 @@ export default class NavigateQueryPanel extends React.Component {
         theme={theme.entity}
         pointer={pointer}>
         <ColumnPicker
+          before
           pointer={pointer}
           selected={[pointer.query.path]}
-          options={q.getNavigationBefore(pointer.query.context)}
           onSelect={this.onSelect}
           />
       </QueryPanelBase>

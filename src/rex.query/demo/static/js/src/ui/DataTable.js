@@ -58,19 +58,21 @@ function getColumnConfigImpl(query: Query, focusedSeq, path: Array<string>, supp
     case 'pipeline':
       let pipeline = flattenPipeline(query).pipeline;
       let localPath = [];
+      let skipAllowed = false;
       for (let i = 0; i < pipeline.length; i++) {
         if (pipeline[i].name === 'navigate' && !suppressPath) {
           localPath = pipeline[i].path;
         }
         let nav = getColumnConfigImpl(pipeline[i], focusedSeq, path.concat(localPath), false);
+        if (nav.type !== 'field' && skipAllowed) {
+          break;
+        }
         stack = stack.concat(
           nav.type === 'stack'
             ? nav.stack
             : nav
         );
-        if (!needDetailedColumn(nav, focusedSeq)) {
-          break;
-        }
+        skipAllowed = !needDetailedColumn(nav, focusedSeq);
       }
       break;
     case 'aggregate':

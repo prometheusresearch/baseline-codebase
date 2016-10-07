@@ -5,7 +5,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {VBox, HBox} from '../../layout';
-import {Button} from '../../ui';
+import {Button, Icon} from '../../ui';
 import File from './File';
 import StoredFile from './StoredFile';
 import FileDownload from './FileDownload';
@@ -13,6 +13,7 @@ import Field from './Field';
 import ReadOnlyField from './ReadOnlyField';
 import {WithFormValue} from 'react-forms';
 import uploadFile from '../upload';
+import './animation.css'
 
 export let FileUploadInput = React.createClass({
 
@@ -30,6 +31,20 @@ export let FileUploadInput = React.createClass({
     color: 'rgb(234, 69, 69)'
   },
 
+  styleNote: {
+    color: '#8e8ee2',
+    fontSize: '90%',
+    fontWight: '400',
+    marginRight: '10px'
+  },
+
+  styleIconAnimation: {
+    display: 'inline-block',
+    marginLeft: '5px',
+    animation: 'spin .7s infinite linear',
+    webkitAnimation: 'spin2 0.9s infinite linear'
+  },
+
   getDefaultProps() {
     return {uploadFile};
   },
@@ -45,9 +60,15 @@ export let FileUploadInput = React.createClass({
     return (
       <HBox {...props} onChange={undefined} storage={undefined}>
         <VBox>
-          <Button disabled={progress} icon="hdd" onClick={this.onClick}>
-            Choose file
-          </Button>
+          {progress ? 
+            <span style={this.styleNote}>
+              Loading
+              <Icon name="refresh" style={this.styleIconAnimation} />
+            </span> : 
+            <Button disabled={progress} icon="hdd" onClick={this.onClick}>
+              Choose file
+            </Button>
+          }
         </VBox>
         {error ?
           <VBox justifyContent="center" margin="0 0 0 10px" flex={1}>

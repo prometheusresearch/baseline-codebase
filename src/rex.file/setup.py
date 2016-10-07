@@ -28,7 +28,6 @@ setup(
         'rex.urlmap >=2.6, <3',
     ],
     rex_init='rex.file',
-    rex_static='static',
 )
 
 

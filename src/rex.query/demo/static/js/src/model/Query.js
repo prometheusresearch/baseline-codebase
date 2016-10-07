@@ -537,7 +537,7 @@ function getNavigation(context, type) {
           navigation.push({
             value: k,
             label: domain.entity[k].title,
-            type: t.leastUpperBound(type, t.entityType(k)),
+            type: t.seqType(t.entityType(k)),
           });
         }
       }

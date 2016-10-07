@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Query, Domain, DefineQuery} from './model/Query';
+import type {Query, Domain, DomainEntity, DefineQuery} from './model/Query';
 import type {QueryPointer} from './model/QueryPointer';
 
 import invariant from 'invariant';
@@ -23,29 +23,13 @@ import * as q from './model/Query';
 import * as qp from './model/QueryPointer';
 import * as qo from './model/QueryOperation';
 import * as ui from './ui';
+import * as ArrayUtil from './ArrayUtil';
 import * as parsing from './parsing';
 
 function getInitialQuery(domain: Domain): Query {
   let entityName = Object.keys(domain.entity)[0];
   invariant(entityName != null, 'Empty domain');
   return q.navigate(entityName);
-}
-
-function guessNavigatePath(query: Query): ?string {
-  let {type, domain} = query.context;
-  if (type == null) {
-    return null;
-  }
-  type = t.atom(type);
-  if (type.name === 'entity') {
-    let attributeName = Object.keys(domain.entity[type.entity].attribute)[0];
-    if (attributeName == null) {
-      return null;
-    }
-    return attributeName;
-  } else {
-    return null;
-  }
 }
 
 type QueryBuilderProps = {
@@ -74,6 +58,7 @@ type QueryBuilderState = {
     selected: ?QueryPointer<Query>;
     fieldList: Array<string>;
   }>;
+  focusedSeq: Array<string>;
 };
 
 export type QueryBuilderActions = {
@@ -108,8 +93,9 @@ export default class QueryBuilder extends React.Component {
     super(props);
     let {domain, initialQuery} = props;
     let query = q.inferType(domain, initialQuery || getInitialQuery(domain));
-    let fieldList = getFieldList(query);
+    let fieldList = getFieldList(query, true);
     let selected = qp.select(qp.make(query), ['pipeline', 0]);
+    let focusedSeq = chooseFocus(addSelect(query, fieldList));
 
     this.actions = {
       appendNavigate: this.appendNavigateAction,
@@ -140,6 +126,7 @@ export default class QueryBuilder extends React.Component {
       showConsole: false,
       undoStack: [],
       redoStack: [],
+      focusedSeq,
     };
   }
 
@@ -366,6 +353,7 @@ export default class QueryBuilder extends React.Component {
           fieldList: this.state.fieldList,
         }),
         redoStack: [],
+        focusedSeq: [],
       });
     } else {
       let nextQuery = q.inferType(this.props.domain, query);
@@ -378,6 +366,7 @@ export default class QueryBuilder extends React.Component {
       if (selected) {
         nextSelected = qp.rebase(selected, nextQuery);
       }
+      let focusedSeq = chooseFocus(addSelect(nextQuery, fieldList));
       this.setState({
         query: nextQuery,
         selected: nextSelected,
@@ -389,6 +378,7 @@ export default class QueryBuilder extends React.Component {
           fieldList: this.state.fieldList,
         }),
         redoStack: [],
+        focusedSeq,
       });
       this.props.onQuery(nextQuery);
       this.fetchData(addSelect(nextQuery, fieldList));
@@ -412,9 +402,11 @@ export default class QueryBuilder extends React.Component {
 
   onFieldList = ({fieldList, close}: {fieldList: Array<string>; close: boolean}) => {
     this.setState(state => {
+      let focusedSeq = chooseFocus(addSelect(state.query, fieldList));
       return {
         ...state,
         fieldList,
+        focusedSeq,
         showAddColumnPanel: close ? false : state.showAddColumnPanel,
       };
     }, () => {
@@ -444,6 +436,10 @@ export default class QueryBuilder extends React.Component {
     }
   };
 
+  onFocusedSeq = (focusedSeq: Array<string>) => {
+    this.setState({focusedSeq});
+  };
+
   render() {
     let {
       query,
@@ -452,7 +448,8 @@ export default class QueryBuilder extends React.Component {
       selected,
       data,
       showAddColumnPanel,
-      showConsole
+      showConsole,
+      focusedSeq,
     } = this.state;
 
     let pointer = query != null ? qp.make(query) : null;
@@ -531,9 +528,10 @@ export default class QueryBuilder extends React.Component {
                     />
                 : <ui.DataTable
                     fieldList={fieldList}
-                    onAddColumn={this.onShowAddColumn}
                     query={addSelect(query, fieldList)}
                     data={data}
+                    focusedSeq={focusedSeq}
+                    onFocusedSeq={this.onFocusedSeq}
                     />
               : queryInvalid
               ? <InvalidQueryMessage onUndo={this.actions.undo} />
@@ -567,7 +565,7 @@ export default class QueryBuilder extends React.Component {
   }
 }
 
-function getFieldList(query) {
+function getFieldList(query, scalarOnly) {
   let fieldList = [];
   let {type, domain, scope} = query.context;
   if (type != null) {
@@ -576,6 +574,9 @@ function getFieldList(query) {
       let attribute = domain.entity[type.entity].attribute;
       for (let k in attribute) {
         if (attribute.hasOwnProperty(k)) {
+          if (scalarOnly && attribute[k].type && attribute[k].type.name === 'seq') {
+            continue;
+          }
           fieldList.push(k);
         }
       }
@@ -594,7 +595,7 @@ function getFieldList(query) {
 }
 
 function updateFieldList(fieldList, prevQuery, nextQuery) {
-  let allFieldList = getFieldList(nextQuery);
+  let allFieldList = getFieldList(nextQuery, true);
   let nextFieldList = fieldList.filter(field => {
     return allFieldList.indexOf(field) > -1;
   });
@@ -614,6 +615,19 @@ function updateFieldList(fieldList, prevQuery, nextQuery) {
   return nextFieldList.length < 2 ? allFieldList : nextFieldList;
 }
 
+function addSelectScalar(entity: DomainEntity) {
+  let fields = {};
+  for (let k in entity.attribute) {
+    if (
+      entity.attribute.hasOwnProperty(k) &&
+      t.atom(entity.attribute[k].type).name !== 'entity'
+    ) {
+      fields[k] = q.navigate(k);
+    }
+  }
+  return q.select(fields);
+}
+
 function addSelect(query: Query, fieldList: Array<string> = []) {
   let {domain, type, scope} = query.context;
   let fields = {};
@@ -627,7 +641,15 @@ function addSelect(query: Query, fieldList: Array<string> = []) {
           attribute.hasOwnProperty(k) &&
           fieldList.indexOf(k) > -1
         ) {
-          fields[k] = q.navigate(k);
+          let attrBaseType = t.atom(attribute[k].type);
+          if (attrBaseType.name === 'entity') {
+            fields[k] = q.pipeline(
+              q.navigate(k),
+              addSelectScalar(domain.entity[attrBaseType.entity])
+            );
+          } else {
+            fields[k] = q.navigate(k);
+          }
         }
       }
     }
@@ -647,7 +669,16 @@ function addSelect(query: Query, fieldList: Array<string> = []) {
     if (type.name === 'entity' || type.name === 'void') {
       for (let k in scope) {
         if (scope.hasOwnProperty(k) && fieldList.indexOf(k) > -1) {
-          fields[k] = q.navigate(k);
+          let attrType = scope[k].context.type;
+          let attrBaseType = attrType != null ? t.atom(attrType) : null;
+          if (attrBaseType && attrBaseType.name === 'entity') {
+            fields[k] = q.pipeline(
+              q.navigate(k),
+              addSelectScalar(domain.entity[attrBaseType.entity])
+            );
+          } else {
+            fields[k] = q.navigate(k);
+          }
         }
       }
     }
@@ -723,3 +754,49 @@ let ConsoleInput = style('textarea', {
     border: 'none',
   }
 });
+
+function chooseFocus(query: Query): Array<string> {
+  let focusList = getFocuses(query);
+  let lengths = focusList.map(f => f.length);
+  let max = ArrayUtil.max(lengths);
+  let idx = lengths.findIndex(l => l === max);
+  return focusList[idx];
+}
+
+function getFocuses(query: Query): Array<Array<string>> {
+  return getFocusesImpl(query, [], false);
+}
+
+function getFocusesImpl(query: Query, path: Array<string>, suppressPath: boolean) {
+  switch (query.name) {
+    case 'pipeline': {
+      let result: Array<Array<string>> = [];
+      let pipeline = q.flattenPipeline(query).pipeline;
+      let localPath = [];
+      for (let i = 0; i < pipeline.length; i++) {
+        if (pipeline[i].name === 'navigate' && !suppressPath) {
+          localPath = pipeline[i].path;
+        }
+        result = result.concat(getFocusesImpl(pipeline[i], path.concat(localPath), false));
+      }
+      return result;
+    }
+    case 'aggregate':
+      return [];
+    case 'navigate': {
+      let type = query.context.type;
+      return type && type.name === 'seq' ? [path] : [];
+    }
+    case 'select': {
+      let result: Array<Array<string>> = [];
+      for (let k in query.select) {
+        if (query.select.hasOwnProperty(k)) {
+          result = result.concat(getFocusesImpl(query.select[k], path.concat(k), true));
+        }
+      }
+      return result;
+    }
+    default:
+      return [];
+  }
+}

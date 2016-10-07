@@ -155,7 +155,7 @@ function translateImpl(query, prev) {
       let fields = [];
       for (let k in query.select) {
         if (query.select.hasOwnProperty(k)) {
-          fields.push(translateImpl(query.select[k], HERE));
+          fields.push(['=>', k, translateImpl(query.select[k], HERE)]);
         }
       }
       return ['select', prev].concat(fields);

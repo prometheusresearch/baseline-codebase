@@ -5,13 +5,82 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import shallowCompare from 'react-addons-shallow-compare'
-import * as ReactUI from '@prometheusresearch/react-ui';
-import {VBox} from '@prometheusresearch/react-box';
-import CogIcon from 'react-icons/lib/fa/cog';
-import EllipsisIcon from 'react-icons/lib/fa/ellipsis-v';
 import {style} from 'react-stylesheet';
 import * as css from 'react-stylesheet/css';
 import {Grid} from 'react-virtualized'
+
+import computeColumnStyle from './computeColumnStyle';
+import DataTableHeader from './DataTableHeader';
+import getColumnSpecList from './getColumnSpecList';
+
+export type ColumnSpec<T> = {
+  dataKey: Array<string>;
+  cellRenderer?: CellRenderer<T>;
+  cellDataGetter?: CellDataGetter<T>;
+  headerCellRenderer?: HeaderCellRenderer<T>;
+  width?: number;
+  label?: string;
+  flexGrow?: number;
+  flexShrink?: number;
+  minWidth?: number;
+  maxWidth?: number;
+  data: T;
+};
+
+type ColumnSize = {
+  width: number;
+  height: number;
+};
+
+export type ColumnStack<T> = {
+  type: 'stack';
+  size: ColumnSize;
+  stack: Array<ColumnConfig<T>>;
+};
+
+export type ColumnGroup<T> = {
+  type: 'group';
+  size: ColumnSize;
+  group: Array<ColumnConfig<T>>;
+};
+
+export type ColumnField<T> = {
+  type: 'field';
+  size: ColumnSize;
+  field: ColumnSpec<T>;
+};
+
+export type ColumnConfig<T>
+  = ColumnStack<T>
+  | ColumnGroup<T>
+  | ColumnField<T>;
+
+export type CellDataGetter<T> = (
+  props: {
+    rowData: mixed;
+    columnData: T;
+    dataKey: Array<string>;
+  }
+) => mixed;
+
+export type CellRenderer<T> = (
+  props: {
+    cellData: mixed;
+    rowData: mixed;
+    columnData: T;
+    dataKey: Array<string>;
+    isScrolling: boolean;
+    rowIndex: number;
+  }
+) => ?string | React.Element<any>;
+
+export type HeaderCellRenderer<T> = (
+  props: {
+    column: ColumnField<T>;
+    onClick?: (column: ColumnField<T>) => *;
+    style: Object;
+  }
+) => React.Element<any>;
 
 let DataTableRow = style('div', {
   displayName: 'DataTableRow',
@@ -20,28 +89,10 @@ let DataTableRow = style('div', {
     flexDirection: 'row',
     alignItems: 'center',
     fontSize: '11pt',
-    borderBottom: css.border(1, '#eee'),
     overflow: 'hidden',
     hover: {
       background: '#fafafa',
     }
-  }
-});
-
-let DataTableHeaderRow = style('div', {
-  displayName: 'DataTableHeaderRow',
-  base: {
-    fontSize: '11pt',
-    fontWeight: 400,
-    marginBottom: 2,
-    boxShadow: css.boxShadow(0, 0, 3, 0, '#666'),
-    position: css.position.relative,
-    textTransform: css.textTransform.none,
-
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    overflow: 'hidden',
   }
 });
 
@@ -57,114 +108,12 @@ let DataTableRowColumn = style('div', {
 
     paddingRight: 10,
     paddingLeft: 10,
-
-    marginRight: 10,
-    firstOfType: {
-      marginLeft: 34,
-    }
   }
 });
-
-let DataTableHeaderRowColumn = style('div', {
-  displayName: 'DataTableHeaderRowColumn',
-  base: {
-    position: 'relative',
-    height: '100%',
-    minWidth: 0,
-
-    paddingRight: 10,
-    paddingLeft: 10,
-
-    marginRight: 10,
-    firstOfType: {
-      marginLeft: 10,
-    },
-
-    borderRight: css.border(1, '#eee'),
-  }
-});
-
-let DataTableHeaderRowColumnCell = style('span', {
-  displayName: 'DataTableHeaderRowColumnCell',
-  base: {
-    fontWeight: 300,
-    display: css.display.inlineBlock,
-    maxWidth: '100%',
-    whiteSpace: css.whiteSpace.nowrap,
-    textOverflow: css.textOverflow.ellipsis,
-    overflow: css.overflow.hidden,
-    position: css.position.absolute,
-    bottom: 5,
-    paddingRight: 20,
-  }
-});
-
-let DataTableHeaderMenuButton = style(VBox, {
-  base: {
-    color: '#ccc',
-    cursor: 'pointer',
-    hover: {
-      color: 'currentColor',
-    }
-  }
-});
-
-type DataTableHeaderProps = {
-  columns: Array<any>;
-  height: number;
-  width: number;
-  scrollbarWidth: number;
-  onAddColumn: () => *;
-};
-
-function DataTableHeader({
-  columns,
-  height,
-  width,
-  scrollbarWidth,
-  onAddColumn,
-}: DataTableHeaderProps) {
-  let items = columns.map((column, index) => {
-    const {label} = column;
-    const style = getColumnStyle(column)
-    return (
-      <DataTableHeaderRowColumn
-        key={`Header-Col${index}`}
-        style={style}>
-        <DataTableHeaderRowColumnCell
-          key="label"
-          title={label}>
-          {label}
-        </DataTableHeaderRowColumnCell>
-        <DataTableHeaderMenuButton position="absolute" right={2} bottom={6}>
-          <EllipsisIcon />
-        </DataTableHeaderMenuButton>
-      </DataTableHeaderRowColumn>
-    );
-  });
-  return (
-    <DataTableHeaderRow
-      style={{
-        height, width,
-        paddingRight: scrollbarWidth,
-      }}>
-      <VBox width={34} paddingH={2} alignSelf="flex-end">
-        <ReactUI.QuietButton
-          onClick={onAddColumn}
-          size="small"
-          icon={<CogIcon />}
-          />
-      </VBox>
-      {items}
-    </DataTableHeaderRow>
-  );
-}
 
 type DataTableProps = {
 
-  columns: Array<any>;
-
-  onAddColumn: () => *;
+  columns: ColumnConfig<*>;
 
   /**
     * Removes fixed height from the scrollingContainer so that the total height
@@ -228,6 +177,8 @@ type DataTableProps = {
 
   /** Width of list */
   width: number;
+
+  onColumnClick?: (column: ColumnField<*>) => *;
 };
 
 type DataTableState = {
@@ -238,6 +189,7 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
 
   Grid: Grid;
   _cachedColumnStyles: Array<any>;
+  _cachedColumnSpecList: Array<ColumnSpec<*>>;
 
   state: DataTableState;
 
@@ -280,8 +232,8 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     this._setScrollbarWidth()
   }
 
-  render () {
-    const {
+  render() {
+    let {
       columns,
       disableHeader,
       headerHeight,
@@ -290,17 +242,19 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
       style,
       height,
       width,
-      onAddColumn,
+      onColumnClick,
     } = this.props
     const { scrollbarWidth } = this.state
 
-    const availableRowsHeight = height - headerHeight
+    const availableRowsHeight = height - (headerHeight * columns.size.height);
 
     // Precompute and cache column styles before rendering rows and columns to
     // speed things up
     this._cachedColumnStyles = []
-    columns.forEach((column, index) => {
-      let style = getColumnStyle(column);
+    this._cachedColumnSpecList = getColumnSpecList(columns);
+
+    this._cachedColumnSpecList.forEach((column, index) => {
+      let style = computeColumnStyle(column);
       this._cachedColumnStyles[index] = {...style, overflow: 'hidden'};
     })
 
@@ -319,7 +273,7 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
             width={width}
             scrollbarWidth={scrollbarWidth}
             columns={columns}
-            onAddColumn={onAddColumn}
+            onColumnClick={onColumnClick}
             />
         )}
         <Grid
@@ -352,16 +306,16 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     rowData,
     rowIndex
   }: {
-    column: any;
+    column: ColumnSpec<*>;
     columnIndex: number;
     isScrolling: boolean;
     rowData: Object;
     rowIndex: number;
   }) => {
     const {
-      cellDataGetter,
-      cellRenderer,
-      columnData,
+      cellDataGetter = defaultCellDataGetter,
+      cellRenderer = defaultCellRenderer,
+      data: columnData,
       dataKey
     } = column;
 
@@ -378,7 +332,6 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
       isScrolling,
       rowData,
       rowIndex,
-      column,
     });
 
     const style = this._cachedColumnStyles[columnIndex]
@@ -409,7 +362,6 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     style: Object;
   }) => {
     const {
-      columns,
       rowGetter,
       rowHeight,
     } = this.props
@@ -418,7 +370,7 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
 
     const rowData = rowGetter({ index })
 
-    const items = columns.map(
+    const items = this._cachedColumnSpecList.map(
       (column, columnIndex) => this._createColumn({
         column,
         columnIndex,
@@ -453,15 +405,44 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
   }
 }
 
-function getColumnStyle(column: any) {
-  let {flexGrow = 0, flexShrink = 1, width, maxWidth, minWidth} = column;
-  let flex = `${flexGrow} ${flexShrink} ${width}px`;
-  let style = {
-    flex: flex,
-    msFlex: flex,
-    WebkitFlex: flex,
-    maxWidth: maxWidth,
-    minWidth: minWidth,
+function defaultCellDataGetter({rowData, dataKey}) {
+  return dataKey.length > 0 && rowData != null && typeof rowData === 'object'
+    ? getByKey(rowData, dataKey)
+    : rowData;
+}
+
+function defaultCellRenderer({cellData}) {
+  if (cellData == null) {
+    return '';
+  } else {
+    return String(cellData)
   }
-  return style;
+}
+
+export function getByKey(item: Object, dataKey: Array<string>) {
+  if (dataKey.length === 0) {
+    return item;
+  } else if (dataKey.length === 1) {
+    if (item.__index__ != null && item.__index__ !== 0) {
+      return undefined;
+    }
+    return item[dataKey[0]];
+  } else if (dataKey.length === 2) {
+    item = item[dataKey[0]];
+    if (item == null) {
+      return item;
+    }
+    if (item.__index__ != null && item.__index__ !== 0) {
+      return undefined;
+    }
+    return item[dataKey[1]];
+  } else {
+    for (let i = 0; i < dataKey.length; i++) {
+      item = item[dataKey[i]];
+      if (item == null) {
+        return item;
+      }
+    }
+    return item;
+  }
 }

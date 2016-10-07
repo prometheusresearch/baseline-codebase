@@ -1,6 +1,6 @@
 {
   "name": "rex-widget-demo",
-  "version": "2.9.1",
+  "version": "2.9.2",
   "main": "./lib/index.js",
   "rex": {
     "bundleAll": true

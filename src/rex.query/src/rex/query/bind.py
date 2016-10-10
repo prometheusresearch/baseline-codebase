@@ -22,7 +22,8 @@ from htsql.core.tr.bind import BindingState, Select
 from htsql.core.tr.lookup import lookup_attribute, unwrap, guess_tag
 from htsql.core.tr.decorate import decorate
 from htsql.core.tr.coerce import coerce
-from htsql.core.tr.signature import IsEqualSig, IsAmongSig, CompareSig
+from htsql.core.tr.signature import (
+        IsEqualSig, IsAmongSig, CompareSig, AndSig, OrSig, NotSig, IsNullSig)
 from htsql.core.tr.fn.bind import Correlate, Comparable
 from htsql.core.tr.fn.signature import (
         AddSig, SubtractSig, MultiplySig, DivideSig, ContainsSig, CastSig,
@@ -74,6 +75,7 @@ class RexBindingState(BindingState):
             u'<=': u'less_or_equal',
             u'>': u'greater',
             u'>=': u'greater_or_equal',
+            u'~': u'contains',
     }
 
     def __call__(self, syntax):
@@ -341,6 +343,44 @@ class RexBindingState(BindingState):
 
     bind_not_in_op = bind_not_equal_op
 
+    def bind_and_op(self, args):
+        return self.bind_connective(True, AndSig, args)
+
+    def bind_or_op(self, args):
+        return self.bind_connective(False, OrSig, args)
+
+    def bind_connective(self, zero, signature, args):
+        if not args:
+            return self.bind_literal(zero)
+        parameters = self.bind_parameters(signature, args)
+        optional = False
+        plural = False
+        ops = []
+        for output in parameters['ops']:
+            op = ImplicitCastBinding(
+                    output.binding, BooleanDomain(), self.scope.syntax)
+            optional = optional or output.optional
+            plural = plural or output.plural
+            ops.append(op)
+        if len(ops) == 1:
+            binding = ops[0]
+        else:
+            binding = FormulaBinding(
+                    self.scope, signature(), BooleanDomain(),
+                    self.scope.syntax, ops=ops)
+        return Output(binding, optional=optional, plural=plural)
+
+    def bind_not_op(self, args):
+        parameters = self.bind_parameters(ExistsSig, args)
+        output = parameters['op']
+        op = ImplicitCastBinding(
+                output.binding, BooleanDomain(), self.scope.syntax)
+        return Output(
+                FormulaBinding(
+                    self.scope, NotSig(), BooleanDomain(),
+                    self.scope.syntax, op=op),
+                optional=output.optional, plural=output.plural)
+
     def bind_less_op(self, args):
         parameters = self.bind_parameters(CompareSig, args)
         return self.bind_compare(u'<', **parameters)
@@ -384,10 +424,17 @@ class RexBindingState(BindingState):
     def bind_exists_op(self, args):
         parameters = self.bind_parameters(ExistsSig, args)
         output = parameters['op']
-        if not output.plural:
-            raise Error("Expected plural expression, got:", args[0])
+        if not output.optional:
+            raise Error("Expected optional expression, got:", args[0])
+        #if not output.plural:
+        #    return Output(
+        #            FormulaBinding(
+        #                self.scope, IsNullSig(+1), output.binding.domain,
+        #                self.scope.syntax, op=output.binding))
         binding = ImplicitCastBinding(
                 output.binding, BooleanDomain(), self.scope.syntax)
+        if not output.plural:
+            return Output(binding)
         return Output(
                 FormulaBinding(
                     self.scope, QuantifySig(+1), binding.domain,

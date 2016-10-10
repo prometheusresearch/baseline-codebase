@@ -84,6 +84,16 @@ To show more than one field in the output, we use the ``select`` combinator::
     ...         ["=>", "num_individual", ["count", ["navigate", "individual"]]]])
     <Product {3, 98}>
 
+For complex expressions, we could define aliases with ``define``::
+
+    >>> db.produce(
+    ...     ["select",
+    ...         ["define",
+    ...             ["navigate", "individual"],
+    ...             ["=>", "name", [".", ["navigate", "identity"], ["navigate", "fullname"]]]],
+    ...         ["navigate", "name"], ["navigate", "sex"]])         # doctest: +ELLIPSIS
+    <Product ({'May Kanaris', 'female'}, {'Joseph Kanaris', 'male'}, ...)>
+
 Constants::
 
     >>> db.produce(["select", "here", None, True, 64, 3.14, "htsql"])
@@ -126,6 +136,29 @@ Comparison operations::
     >>> db.produce([">=", 5, 7])
     <Product false>
 
+Logical operations::
+
+    >>> db.produce(["&"])
+    <Product true>
+
+    >>> db.produce(["&", [">=", 7, 5]])
+    <Product true>
+
+    >>> db.produce(["&", [">=", 7, 5], ["<=", 5, 7], ["=", 5, 7]])
+    <Product false>
+
+    >>> db.produce(["|"])
+    <Product false>
+
+    >>> db.produce(["|", [">=", 7, 5]])
+    <Product true>
+
+    >>> db.produce(["|", [">=", 7, 5], ["<=", 5, 7], ["=", 5, 7]])
+    <Product true>
+
+    >>> db.produce(["!", True])
+    <Product false>
+
 Filtering::
 
     >>> db.produce(
@@ -133,6 +166,23 @@ Filtering::
     ...         ["navigate", "individual"],
     ...         ["=", ["navigate", "sex"], "female"]])  # doctest: +ELLIPSIS
     <Product ({'1000', 'female', null, null}, {'1002', 'female', [1000], [1001]}, ...>
+
+    >>> db.produce(
+    ...     ["filter",
+    ...         ["navigate", "individual"],
+    ...         ["exists", ["navigate", "mother"]]])    # doctest: +ELLIPSIS
+    <Product ({'1002', 'female', [1000], [1001]}, {'1003', 'male', [1000], [1001]}, ...)>
+
+    >>> db.produce(
+    ...     [".",
+    ...         ["filter",
+    ...             ["navigate", "individual"],
+    ...             ["~",
+    ...                 [".", ["navigate", "identity"], ["navigate", "fullname"]],
+    ...                 "red"]],
+    ...         ["navigate", "identity"],
+    ...         ["navigate", "fullname"]])
+    <Product ('Gertie Rednour', 'George Rednour', 'Kenneth Rednour', 'Jasper Rednour')>
 
 Sorting::
 

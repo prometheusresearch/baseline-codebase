@@ -5,7 +5,7 @@ REX.I18N Change Log
 .. contents:: Table of Contents
 
 
-0.5.1 (2016-xx-xx)
+0.5.1 (2016-10-11)
 ==================
 
 * Fixed an issue that caused a crash when trying to validate particular strings

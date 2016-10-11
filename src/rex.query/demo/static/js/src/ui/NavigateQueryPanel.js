@@ -2,9 +2,8 @@
  * @flow
  */
 
-import type {QueryPointer} from '../model/QueryPointer';
-import type {NavigateQuery} from '../model/Query';
-import type {QueryBuilderActions} from '../QueryBuilder';
+import type {NavigateQuery, QueryPointer} from '../model';
+import type {Actions} from '../state';
 
 import React from 'react';
 
@@ -20,7 +19,9 @@ export default class NavigateQueryPanel extends React.Component {
     onClose: () => *;
   };
 
-  context: {actions: QueryBuilderActions};
+  context: {
+    actions: Actions;
+  };
 
   static contextTypes = {actions: React.PropTypes.object};
 
@@ -45,9 +46,9 @@ export default class NavigateQueryPanel extends React.Component {
   }
 
   onSelect = (path: string) => {
-    this.context.actions.replace(
-      this.props.pointer,
-      q.navigate(path),
-    );
+    this.context.actions.replace({
+      pointer: this.props.pointer,
+      query: q.navigate(path),
+    });
   };
 }

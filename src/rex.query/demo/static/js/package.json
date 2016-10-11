@@ -11,7 +11,7 @@
     "flow-bin": "^0.33.0",
     "pegjs": "^0.10.0",
     "react-dom-stylesheet": "^0.8.6",
-    "react-scripts": "^0.4.2"
+    "react-scripts": "^0.6.1"
   },
   "dependencies": {
     "@prometheusresearch/react-box": "1-alpha",

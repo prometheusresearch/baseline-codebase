@@ -4,7 +4,7 @@
 
 import type {Query, Context} from '../model/Query';
 import type {QueryPointer} from '../model/QueryPointer';
-import type {QueryBuilderActions} from '../QueryBuilder';
+import type {Actions} from '../state';
 
 import React from 'react';
 import {VBox, HBox} from '@prometheusresearch/react-box';
@@ -36,7 +36,7 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
   };
 
   context: {
-    actions: QueryBuilderActions
+    actions: Actions;
   };
 
   static contextTypes = {actions: React.PropTypes.object};
@@ -124,7 +124,7 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
 
   onAddDefine = (e: UIEvent) => {
     e.stopPropagation();
-    this.context.actions.appendDefine(this.props.pointer);
+    this.context.actions.appendDefine({pointer: this.props.pointer});
   };
 
   onSearchTerm = (e: UIEvent) => {

@@ -2,9 +2,8 @@
  * @flow
  */
 
-import type {Query} from '../model/Query';
-import type {QueryPointer} from '../model/QueryPointer';
-import type {QueryBuilderActions} from '../QueryBuilder';
+import type {Query, QueryPointer} from '../model';
+import type {Actions} from '../state';
 
 import React from 'react';
 import {VBox, HBox} from '@prometheusresearch/react-box';
@@ -29,7 +28,9 @@ type QueryVisButtonProps = {
 
 export default class QueryVisButton extends React.Component<*, QueryVisButtonProps, *> {
 
-  context: {actions: QueryBuilderActions};
+  context: {
+    actions: Actions;
+  };
 
   state: {
     isActive: boolean;

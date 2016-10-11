@@ -50,15 +50,10 @@ export default class QueryBuilderApp extends React.Component {
           api={api}
           domain={domain}
           initialQuery={query}
-          onQuery={this.onQuery}
           />
       );
     }
   }
-
-  onQuery = (query: q.Query) => {
-
-  };
 
   componentDidMount() {
     fetchCatalog(this.props.api).then(domain => {

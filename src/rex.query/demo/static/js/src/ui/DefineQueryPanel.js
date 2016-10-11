@@ -4,7 +4,7 @@
 
 import type {DefineQuery} from '../model/Query';
 import type {QueryPointer} from '../model/QueryPointer';
-import type {QueryBuilderActions} from '../QueryBuilder';
+import type {Actions} from '../state';
 
 import React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
@@ -20,7 +20,9 @@ type DefineQueryPanelProps = {
 
 export default class DefineQueryPanel extends React.Component<*, DefineQueryPanelProps, *> {
 
-  context: {actions: QueryBuilderActions};
+  context: {
+    actions: Actions;
+  };
 
   static contextTypes = {actions: React.PropTypes.object};
 
@@ -45,6 +47,6 @@ export default class DefineQueryPanel extends React.Component<*, DefineQueryPane
   onBindingName = (e: Event) => {
     let target: {value: string} = (e.target: any);
     let name = target.value;
-    this.context.actions.renameDefineBinding(this.props.pointer, name);
+    this.context.actions.renameDefineBinding({pointer: this.props.pointer, name});
   };
 }

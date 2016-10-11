@@ -2,10 +2,8 @@
  * @flow
  */
 
-import type {Query, Context} from '../model/Query';
-import type {Type} from '../model/Type';
-import type {QueryPointer} from '../model/QueryPointer';
-import type {QueryBuilderActions} from '../QueryBuilder';
+import type {Query, Context, QueryPointer, Type} from '../model';
+import type {Actions} from '../state';
 
 import React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
@@ -21,7 +19,9 @@ type QueryVisToolbarProps = {
 
 export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarProps, *> {
 
-  context: {actions: QueryBuilderActions};
+  context: {
+    actions: Actions;
+  };
 
   static contextTypes = {actions: React.PropTypes.object};
 
@@ -99,37 +99,41 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
 
   onAddNavigate = (e: UIEvent) => {
     e.stopPropagation();
+    let {pointer} = this.props; 
     if (this.props.mode === 'prepend') {
-      this.context.actions.prependNavigate(this.props.pointer);
+      this.context.actions.prependNavigate({pointer});
     } else {
-      this.context.actions.appendNavigate(this.props.pointer);
+      this.context.actions.appendNavigate({pointer});
     }
   };
 
   onAddFilter = (e: UIEvent) => {
     e.stopPropagation();
+    let {pointer} = this.props; 
     if (this.props.mode === 'prepend') {
-      this.context.actions.prependFilter(this.props.pointer);
+      this.context.actions.prependFilter({pointer});
     } else {
-      this.context.actions.appendFilter(this.props.pointer);
+      this.context.actions.appendFilter({pointer});
     }
   };
 
   onAddAggregate = (e: UIEvent) => {
     e.stopPropagation();
+    let {pointer} = this.props; 
     if (this.props.mode === 'prepend') {
-      this.context.actions.prependAggregate(this.props.pointer);
+      this.context.actions.prependAggregate({pointer});
     } else {
-      this.context.actions.appendAggregate(this.props.pointer);
+      this.context.actions.appendAggregate({pointer});
     }
   };
 
   onAddDefine = (e: UIEvent) => {
     e.stopPropagation();
+    let {pointer} = this.props; 
     if (this.props.mode === 'prepend') {
-      this.context.actions.prependDefine(this.props.pointer);
+      this.context.actions.prependDefine({pointer});
     } else {
-      this.context.actions.appendDefine(this.props.pointer);
+      this.context.actions.appendDefine({pointer});
     }
   };
 

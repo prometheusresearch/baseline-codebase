@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+3.8.0 (2016-XX-XX)
+==================
+
+* Support for auto-documenting commands.
+
+
 3.7.2 (2016-09-14)
 ==================
 

@@ -99,7 +99,7 @@ export function QueryVisNavigateButton(props: QueryVisNavigateButtonProps) {
       {...rest}
       stylesheet={{Root: NavigatePanel, Button: NavigateButton}}
       pointer={pointer}
-      label={`Navigate: ${getColumnTitle(pointer.query)}`}
+      label={getColumnTitle(pointer.query)}
       />
   );
 }

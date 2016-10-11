@@ -98,7 +98,7 @@ export default class QueryBuilder extends React.Component {
           </ReactUI.QuietButton>
           <HBox marginLeft="auto">
             <ReactUI.QuietButton
-              onClick={this.actions.toggleConsole}
+              onClick={this.actions.onConsoleToggle}
               active={showConsole}
               icon={<TerminalIcon />}
               size="small">
@@ -188,6 +188,14 @@ export default class QueryBuilder extends React.Component {
   onConsoleChange = (e: UIEvent) => {
     let value = ((e.target: any): HTMLInputElement).value;
     this.actions.consoleInput({value});
+  };
+
+  onConsoleToggle = () => {
+    if (this.state.showConsole) {
+      this.actions.hideConsole();
+    } else {
+      this.actions.showConsole();
+    }
   };
 
   onFocusedSeq = (focusedSeq: Array<string>) => {

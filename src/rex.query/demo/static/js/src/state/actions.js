@@ -105,9 +105,15 @@ export function hideAddColumnPanel(): StateUpdater {
   };
 }
 
-export function toggleConsole(): StateUpdater {
+export function showConsole(): StateUpdater {
   return state => {
-    return {...state, showConsole: !state.showConsole};
+    return {...state, showConsole: true};
+  };
+}
+
+export function hideConsole(): StateUpdater {
+  return state => {
+    return {...state, showConsole: false};
   };
 }
 

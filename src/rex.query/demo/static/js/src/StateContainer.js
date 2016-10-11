@@ -11,8 +11,10 @@
  * Effect is an imperative piece of code which happens when some action is
  * handled.
  */
-export type Effect<S> =
-  (state: S, setState: (updater: (state: S) => S) => void) => *;
+export type Effect<S> = (
+  state: S,
+  setState: (tag: string, updater: (state: S) => S) => void
+) => *;
 
 /**
  * A function which takes a state and produces an updated state and optionally a
@@ -75,11 +77,11 @@ export function create<S: Object, H: {[name: string]: ActionHandler<*, S>}>(
   let state = initialState;
 
   function makeUpdaterForEffect(actionName) {
-    return function effectUpdater(updater) {
+    return function effectUpdater(tag, updater) {
       let prevState = state;
       state = updater(prevState);
       if (devtools != null) {
-        let type = `effect from ${actionName}`;
+        let type = `${actionName}.${tag}`;
         devtools.send({type}, state);
       }
       if (state !== prevState) {

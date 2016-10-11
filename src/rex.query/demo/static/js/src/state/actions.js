@@ -398,12 +398,21 @@ function refetchQuery(state, setState) {
   const {query, api, fieldList} = state;
   if (query != null) {
     if (query.context.type == null) {
-      setState(state => ({...state, dataUpdating: false, queryInvalid: true}));
+      setState(
+        'queryInvalid',
+        state => ({...state, dataUpdating: false, queryInvalid: true})
+      );
     } else {
-      setState(state => ({...state, dataUpdating: true, queryInvalid: false}));
+      setState(
+        'fetchStart',
+        state => ({...state, dataUpdating: true, queryInvalid: false})
+      );
       let q = FieldList.addSelect(query, fieldList);
       Fetch.fetch(api, q).then(data => {
-        setState(state => ({...state, data, dataUpdating: false}));
+        setState(
+          'fetchFinish',
+          state => ({...state, data, dataUpdating: false})
+        );
       });
     }
   }

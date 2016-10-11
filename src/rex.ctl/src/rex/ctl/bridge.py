@@ -7,6 +7,7 @@ from rex.core import Error, DocEntry, get_rex, get_packages
 import sys
 import os
 import functools
+import inspect
 from cogs.core import (
         env, task, default_task, setting, argument, option, Failure,
         Environment, TaskSpec, SettingSpec, TopicSpec, ArgSpec, OptSpec,
@@ -245,7 +246,13 @@ class Task(object):
                 lines.append("   %s\n" % opt.hint)
         content = "\n".join(lines)+"\n"
         index = spec.name
-        return DocEntry(header, content, index)
+        filename = inspect.getsourcefile(spec.code)
+        try:
+            lines = inspect.getsourcelines(spec.code)
+        except IOError:
+            lines = ([], 0)
+        line = lines[1]
+        return DocEntry(header, content, index, filename=filename, line=line)
 
 
 class Global(object):

@@ -29,18 +29,42 @@ export function init(): StateUpdater {
   };
 }
 
-export function updateFieldList(params: {fieldList: Array<string>; close: boolean}): StateUpdater {
-  const {fieldList, close} = params;
+export function addToFieldList(params: {field: string}): StateUpdater {
+  const {field} = params;
   return state => {
     if (state.query == null) {
       return state;
     }
-    let focusedSeq = Focus.chooseFocus(FieldList.addSelect(state.query, fieldList));
+    const {fieldList, query} = state;
+    let nextFieldList = fieldList.concat(field);
+    let focusedSeq = Focus.chooseFocus(FieldList.addSelect(query, nextFieldList));
     let nextState = {
       ...state,
-      fieldList,
+      fieldList: nextFieldList,
       focusedSeq,
-      showAddColumnPanel: close ? false : state.showAddColumnPanel,
+    };
+    return [nextState, refetchQuery];
+  };
+}
+
+export function removeFromFieldList(params: {field: string}): StateUpdater {
+  const {field} = params;
+  return state => {
+    if (state.query == null) {
+      return state;
+    }
+    const {fieldList, query} = state;
+    let idx = fieldList.indexOf(field);
+    if (idx === -1) {
+      return state;
+    }
+    let nextFieldList = fieldList.slice(0);
+    nextFieldList.splice(idx, 1);
+    let focusedSeq = Focus.chooseFocus(FieldList.addSelect(query, nextFieldList));
+    let nextState = {
+      ...state,
+      fieldList: nextFieldList,
+      focusedSeq,
     };
     return [nextState, refetchQuery];
   };

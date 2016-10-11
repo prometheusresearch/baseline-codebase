@@ -2,8 +2,8 @@
  * @flow
  */
 
-import type {Query} from '../model/Query';
-import type {QueryPointer} from '../model/QueryPointer';
+import type {Query, QueryPointer} from '../model';
+import type {Actions} from '../state';
 
 import React from 'react';
 
@@ -21,15 +21,22 @@ type AddColumnPanelProps = {
 
 export default class AddColumnPanel extends React.Component<*, AddColumnPanelProps, *> {
 
+  context: {
+    actions: Actions;
+  };
+
+  static contextTypes = {
+    actions: React.PropTypes.object,
+  };
+
   onSelect = (field: string) => {
     let fieldList = this.props.fieldList.slice(0);
     let idx = fieldList.indexOf(field);
     if (idx === -1) {
-      fieldList.push(field);
+      this.context.actions.addToFieldList({field});
     } else {
-      fieldList.splice(idx, 1);
+      this.context.actions.removeFromFieldList({field});
     }
-    this.props.onFieldList({fieldList, close: false});
   };
 
   render() {

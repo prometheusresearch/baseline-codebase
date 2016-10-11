@@ -141,7 +141,6 @@ export default class QueryBuilder extends React.Component {
               {showAddColumnPanel ?
                 <ui.AddColumnPanel
                   fieldList={fieldList}
-                  onFieldList={this.actions.updateFieldList}
                   pointer={pointer}
                   onClose={this.actions.hideAddColumnPanel}
                   /> :

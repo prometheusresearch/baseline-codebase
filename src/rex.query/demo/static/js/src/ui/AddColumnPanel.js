@@ -16,7 +16,6 @@ type AddColumnPanelProps = {
   pointer: QueryPointer<Query>;
   onClose: () => *;
   fieldList: Array<string>;
-  onFieldList: (data: {fieldList: Array<string>, close: boolean}) => *;
 };
 
 export default class AddColumnPanel extends React.Component<*, AddColumnPanelProps, *> {

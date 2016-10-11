@@ -23,12 +23,18 @@ import * as parsing from '../parsing';
 import * as FieldList from './FieldList';
 import * as Focus from './Focus';
 
+/**
+ * Initialize query buiulder.
+ */
 export function init(): StateUpdater {
   return state => {
     return [state, refetchQuery];
   };
 }
 
+/**
+ * Add new field to a list of selected fields.
+ */
 export function addToFieldList(params: {field: string}): StateUpdater {
   const {field} = params;
   return state => {
@@ -47,6 +53,9 @@ export function addToFieldList(params: {field: string}): StateUpdater {
   };
 }
 
+/**
+ * Remove a field from a list of selected fields.
+ */
 export function removeFromFieldList(params: {field: string}): StateUpdater {
   const {field} = params;
   return state => {
@@ -70,6 +79,9 @@ export function removeFromFieldList(params: {field: string}): StateUpdater {
   };
 }
 
+/**
+ * Put a focus on a sequence in a datatable.
+ */
 export function focusOnSeq(params: {focusedSeq: Focus.Focus}): StateUpdater {
   const {focusedSeq} = params;
   return state => {
@@ -77,6 +89,9 @@ export function focusOnSeq(params: {focusedSeq: Focus.Focus}): StateUpdater {
   };
 }
 
+/**
+ * Initiate export procedure.
+ */
 export function exportDataset(): StateUpdater {
   return state => {
     if (state.query != null) {
@@ -89,6 +104,9 @@ export function exportDataset(): StateUpdater {
   };
 }
 
+/**
+ * Show field selection panel.
+ */
 export function showAddColumnPanel(): StateUpdater {
   return state => {
     return {
@@ -99,24 +117,36 @@ export function showAddColumnPanel(): StateUpdater {
   };
 }
 
+/**
+ * Hide field selection panel.
+ */
 export function hideAddColumnPanel(): StateUpdater {
   return state => {
     return {...state, showAddColumnPanel: false};
   };
 }
 
+/**
+ * Show console.
+ */
 export function showConsole(): StateUpdater {
   return state => {
     return {...state, showConsole: true};
   };
 }
 
+/**
+ * Hide console.
+ */
 export function hideConsole(): StateUpdater {
   return state => {
     return {...state, showConsole: false};
   };
 }
 
+/**
+ * Input new text in a console.
+ */
 export function consoleInput(params: {value: string}): StateUpdater {
   const {value} = params;
   return state => {
@@ -139,6 +169,9 @@ export function consoleInput(params: {value: string}): StateUpdater {
   };
 }
 
+/**
+ * Undo.
+ */
 export function undo(): StateUpdater {
   return state => {
     let undoStack = state.undoStack.slice(0);
@@ -156,6 +189,9 @@ export function undo(): StateUpdater {
   };
 }
 
+/**
+ * Redo.
+ */
 export function redo(): StateUpdater {
   return state => {
     let redoStack = state.redoStack.slice(0);
@@ -173,12 +209,18 @@ export function redo(): StateUpdater {
   }
 };
 
+/**
+ * Select a combinator in a query vis panel.
+ */
 export function select(pointer: ?QueryPointer<*>): StateUpdater {
   return state => {
     return {...state, selected: pointer, showAddColumnPanel: false};
   };
 };
 
+/**
+ * Remove a query combinator at pointer.
+ */
 export function remove(pointer: QueryPointer<*>): StateUpdater {
   return state => {
     let {query, selected: nextSelected} = qo.removeAt(
@@ -189,6 +231,9 @@ export function remove(pointer: QueryPointer<*>): StateUpdater {
   };
 }
 
+/**
+ * Replace query combinator with a new one at pointer.
+ */
 export function replace(params: {pointer: QueryPointer<*>, query: Query}): StateUpdater {
   const {query, pointer} = params;
   return state => {
@@ -201,6 +246,9 @@ export function replace(params: {pointer: QueryPointer<*>, query: Query}): State
   };
 }
 
+/**
+ * Append a new navigate combinator at pointer.
+ */
 export function appendNavigate(params: {pointer: ?QueryPointer<*>}): StateUpdater {
   let {pointer} = params;
   return state => {
@@ -219,6 +267,9 @@ export function appendNavigate(params: {pointer: ?QueryPointer<*>}): StateUpdate
   };
 }
 
+/**
+ * Prepend a new navigate combinator at pointer.
+ */
 export function prependNavigate(params: {pointer: ?QueryPointer<*>}): StateUpdater {
   let {pointer} = params;
   return state => {
@@ -237,6 +288,9 @@ export function prependNavigate(params: {pointer: ?QueryPointer<*>}): StateUpdat
   };
 }
 
+/**
+ * Append a new define combinator at pointer.
+ */
 export function appendDefine(params: {pointer: ?QueryPointer<*>}): StateUpdater {
   let {pointer} = params;
   return state => {
@@ -260,6 +314,9 @@ export function appendDefine(params: {pointer: ?QueryPointer<*>}): StateUpdater 
   };
 }
 
+/**
+ * Prepend a new define combinator at pointer.
+ */
 export function prependDefine(params: {pointer: ?QueryPointer<*>}): StateUpdater {
   let {pointer} = params;
   return state => {
@@ -283,6 +340,9 @@ export function prependDefine(params: {pointer: ?QueryPointer<*>}): StateUpdater
   };
 }
 
+/**
+ * Append a new filter combinator at pointer.
+ */
 export function appendFilter(params: {pointer: ?QueryPointer<*>}): StateUpdater {
   let {pointer} = params;
   return state => {
@@ -304,6 +364,9 @@ export function appendFilter(params: {pointer: ?QueryPointer<*>}): StateUpdater 
   };
 }
 
+/**
+ * Prepend a new filter combinator at pointer.
+ */
 export function prependFilter(params: {pointer: ?QueryPointer<*>}): StateUpdater {
   let {pointer} = params;
   return state => {
@@ -325,6 +388,9 @@ export function prependFilter(params: {pointer: ?QueryPointer<*>}): StateUpdater
   };
 }
 
+/**
+ * Append a new aggregate combinator at pointer.
+ */
 export function appendAggregate(params: {pointer: ?QueryPointer<*>}): StateUpdater {
   let {pointer} = params;
   return state => {
@@ -343,6 +409,9 @@ export function appendAggregate(params: {pointer: ?QueryPointer<*>}): StateUpdat
   };
 }
 
+/**
+ * Prepend a new aggregate combinator at pointer.
+ */
 export function prependAggregate(params: {pointer: ?QueryPointer<*>}): StateUpdater {
   let {pointer} = params;
   return state => {
@@ -361,6 +430,9 @@ export function prependAggregate(params: {pointer: ?QueryPointer<*>}): StateUpda
   };
 }
 
+/**
+ * Rename define combinator binding at pointer.
+ */
 export function renameDefineBinding(params: {pointer: QueryPointer<DefineQuery>, name: string}): StateUpdater {
   const {pointer, name} = params;
   return state => {

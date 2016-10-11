@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import Error
+from rex.core import Error, DocEntry, get_rex, get_packages
 import sys
 import os
 import functools
@@ -179,6 +179,73 @@ class Task(object):
         Subclasses must override this method.
         """
         raise NotImplementedError("%s.__call__()" % self.__class__.__name__)
+
+    @classmethod
+    def document_all(cls, package=None):
+        modules = None
+        if get_rex:
+            packages = get_packages()
+            if package is None:
+                modules = packages.modules
+            else:
+                modules = packages[package].modules
+        specs = []
+        for name in sorted(env.task_map):
+            spec = env.task_map[name]
+            if modules is not None and spec.code.__module__ not in modules:
+                continue
+            specs.append(spec)
+        specs.sort(key=(lambda s: s.name))
+        return [cls.document_one(spec) for spec in specs]
+
+    @classmethod
+    def document(cls):
+        return cls.document_one(env.task_map[cls.name])
+
+    @classmethod
+    def document_one(cls, spec):
+        header = spec.name
+        if spec.hint:
+            header = u"%s \u2014 %s" % (header, spec.hint)
+        lines = []
+        usage = spec.name
+        optionals = 0
+        for arg in spec.args:
+            if arg.is_optional:
+                usage = "%s [<%s>" % (usage, arg.name)
+                optionals += 1
+            elif optionals > 0:
+                usage += "]"*optionals
+                optionals = 0
+                usage = "%s <%s>" % (usage, arg.name)
+            else:
+                usage = "%s <%s>" % (usage, arg.name)
+            if arg.is_plural:
+                usage += "..."
+        if optionals:
+            usage += "]"*optionals
+        lines.append(
+                ".. code-block:: console\n\n   $ rex %s\n" % "".join(usage))
+        if spec.help:
+            lines.append(spec.help+"\n")
+        if spec.opts:
+            lines.append("**Options**\n\n.. program:: rex %s\n" % spec.name)
+        for opt in spec.opts:
+            usage = ""
+            if opt.key is not None:
+                usage += "-%s" % opt.key
+                if opt.has_value:
+                    usage += " <%s>" % opt.value_name
+                usage += ", "
+            usage += "--%s" % opt.name
+            if opt.has_value:
+                usage += "=<%s>" % opt.value_name
+            lines.append(".. option:: %s\n   :noindex:\n" % usage)
+            if opt.hint:
+                lines.append("   %s\n" % opt.hint)
+        content = "\n".join(lines)+"\n"
+        index = spec.name
+        return DocEntry(header, content, index)
 
 
 class Global(object):

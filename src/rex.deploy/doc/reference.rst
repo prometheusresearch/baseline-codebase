@@ -2,8 +2,6 @@
   REX.DEPLOY API Reference
 ****************************
 
-.. contents:: Table of Contents
-
 .. automodule:: rex.deploy
 
 
@@ -97,5 +95,12 @@ SQL serialization
 .. autofunction:: sql_value
 .. autofunction:: sql_render
 .. autofunction:: sql_template
+
+
+Available tasks
+===============
+
+.. autorex:: rex.ctl.Task
+   :package: rex.deploy
 
 

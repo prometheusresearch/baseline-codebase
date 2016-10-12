@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.8.1 (2016-XX-XX)
+==================
+
+* Added ``autorex``-based documentation for tasks.
+
+
 2.8.0 (2016-09-14)
 ==================
 

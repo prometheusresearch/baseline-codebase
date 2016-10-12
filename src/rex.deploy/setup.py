@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.deploy',
-    version='2.8.0',
+    version='2.8.1',
     description="Database schema management for RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -19,9 +19,9 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     install_requires=[
-        'rex.core >=1.2, <2',
-        'rex.db >=3.5.0, <4',
-        'rex.ctl >=2.0, <3',
+        'rex.core >=1.14, <2',
+        'rex.db >=3.5, <4',
+        'rex.ctl >=2.2, <3',
         'HTSQL >2.3.3, <2.5',
         'HTSQL-PGSQL >2.3.3, <2.5',
         'psycopg2 >=2.4.2, <3',

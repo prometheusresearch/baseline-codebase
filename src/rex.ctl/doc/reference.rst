@@ -2,8 +2,6 @@
   REX.CTL API Reference
 *************************
 
-.. contents:: Table of Contents
-
 .. automodule:: rex.ctl
 
 

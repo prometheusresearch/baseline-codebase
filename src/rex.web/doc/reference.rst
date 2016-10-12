@@ -2,9 +2,21 @@
   REX.WEB API Reference
 *************************
 
-.. contents:: Table of Contents
-
 .. automodule:: rex.web
+
+
+Available settings
+==================
+
+.. autorex:: rex.core.Setting
+   :package: rex.web
+
+
+Available tasks
+===============
+
+.. autorex:: rex.ctl.Task
+   :package: rex.web
 
 
 Authentication and authorization
@@ -76,13 +88,5 @@ Templates
 .. autofunction:: jinja_filter_urlencode
 .. autofunction:: jinja_filter_url
 .. autofunction:: render_to_response
-
-
-Configuration
-=============
-
-.. autoclass:: MountSetting
-.. autoclass:: AccessSetting
-.. autoclass:: SecretSetting
 
 

@@ -109,7 +109,7 @@ class Setting(Extension):
 
 class DebugSetting(Setting):
     """
-    Turn on debug mode.
+    Turn on the debug mode.
     """
 
     name = 'debug'

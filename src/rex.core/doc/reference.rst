@@ -29,6 +29,7 @@ Extensions
 ==========
 
 .. autoclass:: rex.core.Extension
+.. autoclass:: rex.core.DocEntry
 
 
 Packages
@@ -50,6 +51,12 @@ Settings
 .. autoclass:: rex.core.Setting
 .. autoclass:: rex.core.SettingCollection
 .. autofunction:: rex.core.get_settings()
+
+Available settings
+------------------
+
+.. autorex:: rex.core.Setting
+   :package: rex.core
 
 
 WSGI

@@ -11,6 +11,14 @@ Usage guide
    guide
 
 
+API reference
+=============
+
+.. toctree::
+
+   reference
+
+
 Examples
 ========
 

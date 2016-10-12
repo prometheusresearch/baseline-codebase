@@ -13,6 +13,12 @@ import cgi
 
 
 class HandleUpload(HandleLocation):
+    """
+    Stores uploaded files in the ``rex.attach`` storage with file handles
+    in the ``file`` table.
+
+    Returns a JSON object mapping each file to its handle.
+    """
 
     path = '/'
 

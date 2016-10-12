@@ -7,6 +7,27 @@
 .. automodule:: rex.db
 
 
+Available Settings
+==================
+
+.. autorex:: rex.core.Setting
+   :package: rex.db
+
+
+Available Tasks
+===============
+
+.. autorex:: rex.ctl.Task
+   :package: rex.db
+
+
+Available HTTP Locations
+========================
+
+.. autorex:: rex.web.HandleLocation
+   :package: rex.db
+
+
 HTSQL instance
 ==============
 
@@ -32,21 +53,6 @@ Templates
 =========
 
 .. autofunction:: jinja_global_htsql
-
-
-Configuration
-=============
-
-.. autoclass:: DBSetting
-.. autoclass:: HTSQLExtensionsSetting
-.. autoclass:: GatewaysSetting
-.. autoclass:: QueryTimeoutSetting
-.. autoclass:: UserQuerySetting
-.. autoclass:: AutoUserQuerySetting
-.. autoclass:: AccessQueriesSetting
-.. autoclass:: AccessMasksSetting
-.. autoclass:: HTSQLEnvironmentSetting
-.. autoclass:: ReadOnlySetting
 
 
 Utilities

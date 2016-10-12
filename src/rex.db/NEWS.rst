@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+3.6.1 (2016-XX-XX)
+==================
+
+* Automatically generated documentation for settings and tasks.
+
+
 3.6.0 (2016-08-11)
 ==================
 

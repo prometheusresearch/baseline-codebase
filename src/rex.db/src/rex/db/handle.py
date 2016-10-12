@@ -46,7 +46,12 @@ def jinja_global_htsql(path_or_query, content_type=None,
 
 
 class HandleHTSQLLocation(HandleLocation):
-    # Gateway to HTSQL service.
+    """
+    Gateway to HTSQL service.
+
+    HTSQL queries could be submitted either as a ``GET`` path
+    or in the body of a ``POST`` request.
+    """
 
     path = '*'
 

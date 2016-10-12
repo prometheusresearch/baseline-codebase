@@ -285,7 +285,9 @@ class InitializeAttach(Initialize):
 
 
 class HandleAttachLocation(HandleLocation):
-    # Serves all attachments by handle.
+    """
+    Serves attachments by handle.
+    """
 
     path = '*'
 

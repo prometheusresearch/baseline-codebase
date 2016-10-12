@@ -2,9 +2,21 @@
   REX.ATTACH API Reference
 ****************************
 
-.. contents:: Table of Contents
-
 .. automodule:: rex.attach
+
+
+Available settings
+==================
+
+.. autorex:: rex.core.Setting
+   :package: rex.attach
+
+
+Available HTTP locations
+========================
+
+.. autorex:: rex.web.HandleLocation
+   :package: rex.attach
 
 
 Attachment storage
@@ -22,12 +34,6 @@ Upload and download
 .. autoclass:: AttachmentVal
 .. autofunction:: upload
 .. autofunction:: download
-
-
-Settings
-========
-
-.. autoclass:: AttachDirSetting
 
 
 Utilities

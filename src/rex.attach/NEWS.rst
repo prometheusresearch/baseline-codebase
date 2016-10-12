@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.0.5 (2016-XX-XX)
+==================
+
+* Generated documentation for settings and HTTP locations.
+
+
 2.0.4 (2015-07-14)
 ==================
 

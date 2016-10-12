@@ -2,8 +2,6 @@
   REX.DB API Reference
 ************************
 
-.. contents:: Table of Contents
-
 .. automodule:: rex.db
 
 

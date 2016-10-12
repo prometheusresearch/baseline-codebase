@@ -30,6 +30,7 @@ setup(
         'rex.core >=1.14, <2',
         'cogs >=0.4.0',
     ],
+    rex_init='rex.ctl',
 )
 
 

@@ -236,3 +236,20 @@ To stop the server, use ``rex.ctl.Ctl.stop()``::
     localhost - - [...] "GET / HTTP/1.0" 200 55
 
 
+Documentation
+=============
+
+``rex.ctl`` can generate documentation for available commands.  To get
+a list of documentation entries, write::
+
+    >>> from rex.ctl import Task
+
+    >>> entries = Task.document_all()
+
+    >>> for entry in entries:
+    ...     print entry.index
+    packages
+    pyshell
+    settings
+
+

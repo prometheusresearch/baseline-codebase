@@ -383,7 +383,7 @@ class PyShellTask(RexTask):
             else:
                 banner = self.IPYTHON_BANNER.format(name=name, app=app)
                 sh = InteractiveShellEmbed(banner1=banner)
-                sh(global_ns={}, local_ns=namespace)
+                sh(local_ns=namespace)
 
 
 class ConfigurationTopic(Topic):

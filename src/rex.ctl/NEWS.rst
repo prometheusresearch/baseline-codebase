@@ -9,6 +9,7 @@
 ==================
 
 * Support for ``autorex``-generated documentation.
+* Fix for newer IPython.
 
 
 2.1.1 (2016-02-29)

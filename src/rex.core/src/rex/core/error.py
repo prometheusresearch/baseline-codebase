@@ -13,6 +13,10 @@ class Paragraph(object):
     #       <payload>
 
     def __init__(self, message, payload=None):
+        if isinstance(message, unicode):
+            message = message.encode('utf-8')
+        if isinstance(payload, unicode):
+            payload = payload.encode('utf-8')
         self.message = message
         self.payload = payload
 

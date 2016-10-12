@@ -188,10 +188,13 @@ class Task(object):
             packages = get_packages()
             if package is None:
                 modules = packages.modules
+                modules['cogs.std'] = __import__('cogs.std')
             else:
                 modules = packages[package].modules
         specs = []
         for name in sorted(env.task_map):
+            if not name:
+                continue
             spec = env.task_map[name]
             if modules is not None and spec.code.__module__ not in modules:
                 continue

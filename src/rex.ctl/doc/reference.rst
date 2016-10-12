@@ -7,6 +7,13 @@
 .. automodule:: rex.ctl
 
 
+Available tasks
+===============
+
+.. autorex:: rex.ctl.Task
+   :project: rex.ctl
+
+
 Extending ``rex``
 =================
 

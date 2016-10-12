@@ -171,13 +171,18 @@ packages`` task, e.g.::
       /home/xi/prometheus/rex/rex.ctl/demo/src
     ...
 
-.. highlight:: python
+.. highlight:: console
 
 To interact with the application from Python shell, use ``rex pyshell`` task,
 e.g.::
 
     $ rex pyshell rex.ctl_demo
     Type 'help' for more information, Ctrl-D to exit.
+
+.. highlight:: python
+
+::
+
     >>> ctl_demo
     LatentRex('rex.ctl_demo')
     >>> from rex.db import get_db
@@ -539,26 +544,30 @@ to invoke a subtask, passing values for arguments and options as keyword
 parameters.  Note that if the task itself and a subtask have a parameter with
 the same name, the parameter value is passed from the task to its subtask.
 
+.. highlight:: console
+
 We use the same approach to implement ``rex demo-cron`` task.  We wish to
 create an equivalent of the following command-line command::
 
     $ rex query -i rex.ctl_demo:/etl/disable-bots.htsql -i rex.ctl_demo:/etl/delete-spammers.htsql
+
+.. highlight:: python
 
 Presumably, ``disable-bots.htsql`` and ``delete-spammers.htsql`` are HTSQL
 scripts that we want to execute in the same transaction to perform some ETL
 task.  Using :meth:`rex.ctl.RexTask.do()`, we can invoke this command as
 follows::
 
-class CronTask(RexTask):
-    """run an ETL job"""
+    class CronTask(RexTask):
+        """run an ETL job"""
 
-    name = 'demo-cron'
+        name = 'demo-cron'
 
-    def __call__(self):
-        self.do('query',
-                input=[
-                    'rex.ctl_demo:/etl/disable-bots.htsql',
-                    'rex.ctl_demo:/etl/delete-spammers.htsql'])
+        def __call__(self):
+            self.do('query',
+                    input=[
+                        'rex.ctl_demo:/etl/disable-bots.htsql',
+                        'rex.ctl_demo:/etl/delete-spammers.htsql'])
 
 Finally, let's look at ``rex demo-user-add``::
 

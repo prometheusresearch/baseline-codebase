@@ -132,7 +132,7 @@ Each template gets a number of parameters::
     <p><code>CSRF_INPUT_TAG:</code><code>&lt;input name=&#34;_csrf_token&#34; type=&#34;hidden&#34; value=&#34;...&#34;&gt;</code></p>
     <p><code>CSRF_META_TAG:</code><code>&lt;meta name=&#34;_csrf_token&#34; content=&#34;...&#34;&gt;</code></p>
     <p><code>CSRF_TOKEN:</code><code>...</code></p>
-    <p><code>MOUNT:</code><code>{&#39;rex.web_demo&#39;: &#39;http://localhost&#39;, &#39;rex.web&#39;: &#39;http://localhost/web&#39;, &#39;rex.core&#39;: &#39;http://localhost/core&#39;, &#39;templating&#39;: &#39;http://localhost/templating&#39;}</code></p>
+    <p><code>MOUNT:</code><code>{...}</code></p>
     <p><code>PACKAGE:</code><code>templating</code></p>
     <p><code>PACKAGE_URL:</code><code>http://localhost/templating</code></p>
     <p><code>PARAMS:</code><code>NestedMultiDict([(u&#39;dummy&#39;, u&#39;1&#39;)])</code></p>

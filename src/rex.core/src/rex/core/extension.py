@@ -388,7 +388,7 @@ class Extension(object):
         header = cls.document_header()
         content = cls.document_content()
         index = cls.document_index()
-        package = cls.package()
+        package = cls.package().name
         filename = inspect.getsourcefile(cls)
         try:
             lines = inspect.getsourcelines(cls)

@@ -299,3 +299,17 @@ When priorities are string values, they could be used in
     [__main__.Hi, __main__.Howdy, __main__.Hello]
 
 
+``Extension.document_all``
+==========================
+
+We use the method ``Extension.document_all`` to get a list of documentation
+entries for every implementation of the extension.  For example::
+
+    >>> with main:
+    ...     entries = Setting.document_all()
+
+    >>> entries                 # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    [DocEntry(u'debug', 'Turn on the debug mode.', index=u'debug', package='rex.core',
+              filename='/.../rex/core/setting.py', line=...)]
+
+

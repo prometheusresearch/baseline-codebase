@@ -4,11 +4,19 @@
 
 .. contents:: Table of Contents
 
+
+3.3.1 (2016-XX-XX)
+==================
+
+* Updated test output.
+
+
 3.3.0 (2016-09-14)
 ==================
 
 * commonjs: Fixes to babel-loader
 * commonjs: Colorize webpack output
+
 
 3.2.0 (2016-08-12)
 ==================

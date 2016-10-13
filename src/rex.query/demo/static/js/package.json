@@ -8,11 +8,14 @@
     "eslint-plugin-flowtype": "^2.19.0",
     "eslint-plugin-jsx-a11y": "^2.2.2",
     "eslint-plugin-react": "^6.3.0",
+    "eslint-config-react-app": "^0.2.1",
+    "eslint-plugin-import": "^1.12.0",
     "flow-bin": "^0.33.0",
     "pegjs": "^0.10.0",
     "react-dom-stylesheet": "^0.8.6",
     "react-scripts": "^0.6.1"
   },
+
   "dependencies": {
     "@prometheusresearch/react-box": "1-alpha",
     "@prometheusresearch/react-ui": "^0.20.0",
@@ -36,6 +39,6 @@
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
-    "extends": "./node_modules/react-scripts/config/eslint.js"
+    "extends": "react-app"
   }
 }

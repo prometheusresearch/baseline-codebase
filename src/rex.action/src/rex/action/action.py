@@ -124,7 +124,7 @@ class ActionBase(Widget):
         self.source_location = None
         self.uid = values.get('id') or id(self)
         self._domain = values.pop('__domain', typing.Domain.current())
-        self._context_types = values.pop('__context_types', None)
+        self._context_types = None
         self._introspection = None
         super(ActionBase, self).__init__(**values)
 
@@ -144,14 +144,12 @@ class ActionBase(Widget):
         next_values.update({
             k: v
             for k, v in self.values.items()
-            if k not in ('__domain', '__context_types') or k in self._fields})
+            if k not in ('__domain',) or k in self._fields})
         next_values.update(values)
         if 'package' not in next_values:
             next_values.update({'package': self.package})
         if '__domain' not in next_values:
             next_values.update({'__domain': self.domain})
-        if '__context_types' not in next_values:
-            next_values.update({'__context_types': self.context_types})
         return next_values
 
     def __clone__(self, **values):
@@ -171,11 +169,6 @@ class ActionBase(Widget):
     def with_domain(self, domain):
         """ Override typing domain."""
         return self.__validated_clone__(__domain=domain)
-
-    def refine_input(self, input):
-        input = self.context_types.input.refine(input)
-        context_types = self.context_types.__clone__(input=input)
-        return self.__validated_clone__(__context_types=context_types)
 
     @cached_property
     def context_types(self):

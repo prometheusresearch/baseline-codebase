@@ -487,13 +487,6 @@ class WizardBase(WizardWidgetBase, ActionBase):
         wizard._constructed_actions = actions
         return wizard
 
-    def refine_input(self, input):
-        path = self.path.__clone__(then=[
-            inst.__clone__(action_instance=inst.action_instance.refine_input(input))
-            for inst in self.path.then
-        ])
-        return self.__validated_clone__(path=path)
-
 
 class Wizard(WizardBase):
     """ Wizard which renders the last active action on an entire screen."""

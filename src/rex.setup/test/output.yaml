@@ -246,10 +246,8 @@ tests:
       environment.pickle
       fncychap.sty
       genindex.html
-      iftex.sty
       index.doctree
       index.html
-      needspace.sty
       newfloat.sty
       objects.inv
       python.ist

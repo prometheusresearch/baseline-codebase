@@ -35,6 +35,7 @@ class AutoRexDirective(Directive):
     }
 
     def run(self):
+        env = self.state.document.settings.env
         extension_name = self.arguments[0].encode('utf-8')
         package_name = self.options.get('package')
         project_name = self.options.get('project', package_name)
@@ -57,8 +58,10 @@ class AutoRexDirective(Directive):
                     entry.filename or '')
             node = addnodes.desc()
             node.document = self.state.document
-            node['objtype'] = 'describe'
+            node['domain'] = 'std'
+            node['objtype'] = 'rex'
             sig_node = addnodes.desc_signature(entry.header, '')
+            sig_node['first'] = False
             node.append(sig_node)
             sig_node += addnodes.desc_name(entry.header, entry.header)
             content_node = addnodes.desc_content()
@@ -76,11 +79,14 @@ class AutoRexDirective(Directive):
                 index_node = addnodes.index(entries=[index_entry])
                 self.state.document.note_explicit_target(sig_node)
                 nodes.append(index_node)
+                env.domaindata['std']['objects']['rex', target_name] = \
+                        (env.docname, target_name)
             nodes.append(node)
         return nodes
 
 
 def setup(app):
     app.add_directive('autorex', AutoRexDirective)
+    app.add_crossref_type('rex', 'rex')
 
 

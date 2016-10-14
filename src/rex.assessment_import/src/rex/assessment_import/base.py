@@ -199,6 +199,7 @@ class AssessmentImporter(BaseLogging, Extension):
         assessment_data = self.generate_assessment_data(input)
         assessments = []
         for assessment_id, data in assessment_data.items():
+            if not data: continue
             assessment = Assessment.create(self.instrument, data)
             assessments.append(assessment)
         assessment_impl = get_implementation('assessment')
@@ -232,14 +233,15 @@ class AssessmentCSVImporter(AssessmentImporter):
             for filename in os.listdir(path):
                 filepath = os.path.join(path, filename)
                 if os.path.isfile(filepath):
-                    filename = filename.rsplit('.', 1)
-                    if len(filename) != 2 or filename[1] != 'csv':
+                    name, ext = os.path.splitext(filename)
+                    if ext != '.csv':
                         continue
-                    obj_id = filename[0]
-                    if obj_id in self.instrument.template:
-                        input_files[obj_id] = filepath
+                    if name in self.instrument.template:
+                        input_files[name] = filepath
         if not input_files:
             raise Error("Not found any csv file appropriate to import.")
+        if len(input_files) == 1 and self.instrument.id not in input_files:
+            input_files = {self.instrument.id: input_files.values()[0]}
         return input_files
 
     def generate_assessment_data(self, input_files):

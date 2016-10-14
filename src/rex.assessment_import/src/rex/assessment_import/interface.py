@@ -209,6 +209,7 @@ class Assessment(object):
         return assessment
 
     def validate_with_template(self, tpl_obj_id, data):
+        if not data: return
         template = self.instrument.template.get(tpl_obj_id)
         notfound = []
         data_fields = deepcopy(data)
@@ -361,6 +362,8 @@ class Assessment(object):
     def validate_value(self, value, base_type, required=False, enumerations=[]):
         if isinstance(value, basestring):
             value = value.strip()
+        if isinstance(value, str):
+            value = value.decode('utf-8', 'replace')
         if value in (None, ''):
             if required:
                 raise Error("Got null for required field.")

@@ -7,85 +7,16 @@ import type {QueryPointer} from '../model/QueryPointer';
 
 import React from 'react';
 import {VBox, HBox} from '@prometheusresearch/react-box';
-import * as css from 'react-stylesheet/css';
 import {style} from 'react-stylesheet';
 
 import invariant from 'invariant';
-import color from 'color';
 
 import * as q from '../model/Query';
 import * as qp from '../model/QueryPointer';
-import * as theme from './Theme';
 import QueryVisToolbar from './QueryVisToolbar';
 import QueryVisButton, {QueryVisButtonLabel} from './QueryVisButton';
-
-function createButton(displayName, theme) {
-  let Root = style(HBox, {
-    displayName: `${displayName}Root`,
-    base: {
-      color: theme.color,
-
-      justifyContent: 'center',
-      userSelect: 'none',
-      cursor: 'default',
-      fontSize: '10px',
-      alignItems: 'center',
-
-      hover: {
-        color: color(theme.color).darken(0.1).rgbString(),
-        backgroundColor: css.rgba(255, 255, 255, 0.15),
-      },
-    },
-
-    enableActive: {
-      active: {
-        color: theme.background,
-        backgroundColor: theme.color,
-      },
-    }
-
-  });
-
-  return class extends React.Component {
-    static displayName = displayName;
-    render() {
-      let {children, icon, disableActive, ...props} = this.props;
-      let variant = {enableActive: !disableActive};
-      return (
-        <Root {...props} variant={variant} paddingH={7} paddingV={5}>
-          {icon && <HBox paddingRight={5}>{icon}</HBox>}
-          {children}
-        </Root>
-      );
-    }
-  }
-}
-
-function createPanel(displayName, theme) {
-  return style(VBox, {
-    displayName,
-    base: {
-      backgroundColor: theme.background,
-      color: theme.color,
-    },
-    selected: {
-      zIndex: 1,
-      boxShadow: css.boxShadow(0, 1, 2, 0, '#bbb'),
-      backgroundColor: color(theme.background).darken(0.2).rgbString(),
-    }
-  });
-}
-
-let NavigateButton = createButton('NavigateButton', theme.entity);
-let AggregateButton = createButton('AggregateButton', theme.aggregate);
-let DefineButton = createButton('AggregateButton', theme.traverse);
-let FilterButton = createButton('FilterButton', theme.filter);
-
-let NavigatePanel = createPanel('NavigatePanel', theme.entity);
-let AggregatePanel = createPanel('AggregatePanel', theme.aggregate);
-let DefinePanel = createPanel('AggregatePanel', theme.traverse);
-let FilterPanel = createPanel('FilterPanel', theme.filter);
-let SelectPanel = createPanel('SelectPanel', theme.select);
+import * as QueryButton from './QueryButton';
+import * as QueryPane from './QueryPane';
 
 type QueryVisNavigateButtonProps = {
   pointer: QueryPointer<q.NavigateQuery>;
@@ -97,7 +28,7 @@ export function QueryVisNavigateButton(props: QueryVisNavigateButtonProps) {
   return (
     <QueryVisButton
       {...rest}
-      stylesheet={{Root: NavigatePanel, Button: NavigateButton}}
+      stylesheet={{Root: QueryPane.NavigatePane, Button: QueryButton.NavigateButton}}
       pointer={pointer}
       label={getColumnTitle(pointer.query)}
       />
@@ -124,7 +55,7 @@ export function QueryVisDefineButton(props: QueryVisDefineButtonProps) {
   return (
     <QueryVisButton
       {...rest}
-      stylesheet={{Root: DefinePanel, Button: DefineButton}}
+      stylesheet={{Root: QueryPane.DefinePane, Button: QueryButton.DefineButton}}
       pointer={pointer}
       label={`Define: ${pointer.query.binding.name}`}>
       <VBox paddingTop={5}>
@@ -142,7 +73,7 @@ export function QueryVisFilterButton(props: QueryVisFilterButtonProps) {
   return (
     <QueryVisButton
       {...props}
-      stylesheet={{Root: FilterPanel, Button: FilterButton}}
+      stylesheet={{Root: QueryPane.FilterPane, Button: QueryButton.FilterButton}}
       label="Filter"
       />
   );
@@ -157,7 +88,7 @@ export function QueryVisAggregateButton(props: QueryVisAggregateButtonProps) {
   return (
     <QueryVisButton
       {...rest}
-      stylesheet={{Root: AggregatePanel, Button: AggregateButton}}
+      stylesheet={{Root: QueryPane.AggregatePane, Button: QueryButton.AggregateButton}}
       pointer={pointer}
       label={`Aggregate: ${pointer.query.aggregate}`}
       />
@@ -301,7 +232,7 @@ export class QueryVis extends React.Component<*, QueryVisProps, *> {
               />
           </VBox>}
         <VBox alignSelf="flex-end" paddingV={5} width="100%">
-          <SelectPanel
+          <QueryPane.SelectPane
             padding={4}
             paddingLeft={30}
             variant={{selected: showPanel && selected == null}}>
@@ -310,7 +241,7 @@ export class QueryVis extends React.Component<*, QueryVisProps, *> {
                 Explore
               </HBox>
             </QueryVisButtonLabel>
-          </SelectPanel>
+          </QueryPane.SelectPane>
         </VBox>
       </VBox>
     );

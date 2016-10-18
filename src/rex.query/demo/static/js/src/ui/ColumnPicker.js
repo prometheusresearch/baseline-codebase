@@ -17,6 +17,8 @@ import * as t from '../model/Type';
 import * as q from '../model/Query';
 import {MenuGroup, MenuButton} from './menu';
 import PlusIcon from './PlusIcon';
+import * as QueryButton from './QueryButton';
+import * as QueryPane from './QueryPane';
 
 type Navigation = {
   value: string;
@@ -192,20 +194,22 @@ class ColumnPickerButton extends React.Component {
     let {hover} = this.state;
     let buttonGroup = hover
       ?  <HBox>
-          <ReactUI.QuietButton
-            icon={<PlusIcon />}
-            onClick={this.onNavigate}
-            groupHorizontally
-            size="x-small">
-            Nav
-          </ReactUI.QuietButton>
-          <ReactUI.QuietButton
-            icon={<PlusIcon />}
-            onClick={this.onDefine}
-            groupHorizontally
-            size="x-small">
-            Def
-          </ReactUI.QuietButton>
+          <QueryPane.NavigatePane>
+            <QueryButton.NavigateButton
+              height="100%"
+              icon={<PlusIcon />}
+              onClick={this.onNavigate}>
+              Nav
+            </QueryButton.NavigateButton>
+          </QueryPane.NavigatePane>
+          <QueryPane.DefinePane>
+            <QueryButton.DefineButton
+              height="100%"
+              icon={<PlusIcon />}
+              onClick={this.onDefine}>
+              Def
+            </QueryButton.DefineButton>
+          </QueryPane.DefinePane>
         </HBox>
       : column.context.type
       ? <ColumnType alignSelf="center">

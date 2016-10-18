@@ -31,10 +31,6 @@ describe('normalize()', function() {
     return {query, path};
   }
 
-  function process(query, selected) {
-    return stripped(normalize(query, selected));
-  }
-
   it('here', function() {
     let query = here;
     expect({
@@ -599,8 +595,8 @@ describe('normalize()', function() {
   });
 
   it('individual:select(study := study:select({name: here})) pipeline.1 select.study pipeline.1 select.name', function() {
-    let query = pipeline(individual, select({study: pipeline(name, select({name: here}))}));
-    let nextQuery = pipeline(individual, select({study: name}));
+    let query = pipeline(individual, select({study: pipeline(study, select({name: here}))}));
+    let nextQuery = pipeline(individual, select({study: study}));
     expect({
       query,
       selected: point(query, ['pipeline', 1], ['select', 'study'], ['pipeline', 1], ['select', 'name'])

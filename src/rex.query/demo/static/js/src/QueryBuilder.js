@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Query, Domain, DomainEntity, DefineQuery} from './model';
+import type {Query, Domain} from './model';
 
 import invariant from 'invariant';
 import React from 'react';
@@ -70,12 +70,12 @@ export default class QueryBuilder extends React.Component {
       fieldList,
       selected,
       data,
-      showAddColumnPanel,
+      showPanel,
       showConsole,
       focusedSeq,
     } = this.state;
 
-    let pointer = query != null ? qp.make(query) : null;
+    let pointer = qp.make(query);
 
     return (
       <VBox height="100%">
@@ -117,44 +117,34 @@ export default class QueryBuilder extends React.Component {
             <ConsoleInput onChange={this.onConsoleChange} />
           </Console>}
         <HBox grow={1} height="calc(100% - 35px)">
-          <VBox
-            basis="300px"
-            overflow="auto"
-            height="100%"
-            overflow="auto"
-            style={{boxShadow: css.boxShadow(0, 0, 3, 0, '#666')}}>
+          <LeftPanelWrapper>
             <ui.QueryVis
               domain={this.props.domain}
               pointer={pointer}
               selected={selected}
-              showAddColumnPanel={showAddColumnPanel}
-              onAddColumn={this.actions.showAddColumnPanel}
+              showPanel={showPanel}
+              onShowSelect={this.actions.showSelect}
               />
-          </VBox>
-          {(pointer && (selected || showAddColumnPanel)) &&
-            <VBox
-              basis="200px"
-              grow={1}
-              height="100%"
-              overflow="auto"
-              style={{boxShadow: css.boxShadow(0, 0, 3, 0, '#666')}}>
-              {showAddColumnPanel ?
-                <ui.AddColumnPanel
-                  fieldList={fieldList}
-                  pointer={pointer}
-                  onClose={this.actions.hideAddColumnPanel}
-                  /> :
-                <ui.QueryPanel
-                  onClose={this.actions.select.bind(null, null)}
-                  pointer={selected}
+          </LeftPanelWrapper>
+          {showPanel &&
+            <CenterPanelWrapper>
+              {selected
+                ? <ui.QueryPanel
+                    onClose={this.actions.hidePanel}
+                    pointer={selected}
+                    />
+                : <ui.AddColumnPanel
+                    fieldList={fieldList}
+                    pointer={pointer}
+                    onClose={this.actions.hidePanel}
                   />}
-            </VBox>}
-          <VBox basis="400px" grow={3} style={{borderLeft: css.border(1, '#ccc')}}>
+            </CenterPanelWrapper>}
+          <RightPanelWrapper>
             {query && data != null && !queryInvalid
               ? fieldList.length === 0
                 ? <NoColumnsMessage
-                    showAddColumnPanel={showAddColumnPanel}
-                    onAddColumn={this.actions.showAddColumnPanel}
+                    showPanel={showPanel}
+                    onShowSelect={this.actions.showSelect}
                     />
                 : <ui.DataTable
                     fieldList={fieldList}
@@ -166,7 +156,7 @@ export default class QueryBuilder extends React.Component {
               : queryInvalid
               ? <InvalidQueryMessage onUndo={this.actions.undo} />
               : null}
-          </VBox>
+          </RightPanelWrapper>
         </HBox>
       </VBox>
     );
@@ -219,8 +209,8 @@ function InvalidQueryMessage({onUndo}) {
   );
 }
 
-function NoColumnsMessage({onAddColumn, showAddColumnPanel}) {
-  if (showAddColumnPanel) {
+function NoColumnsMessage({onShowSelect, showPanel}) {
+  if (showPanel) {
     return (
       <ui.Message>
         No columns configured.
@@ -235,7 +225,7 @@ function NoColumnsMessage({onAddColumn, showAddColumnPanel}) {
           style={{verticalAlign: 'middle', margin: 4, marginTop: 2}}
           icon={<CogIcon />}
           size="small"
-          onClick={onAddColumn}>
+          onClick={onShowSelect}>
           Configure columns
         </ReactUI.FlatButton>
         to add a few.
@@ -265,5 +255,32 @@ let ConsoleInput = style('textarea', {
     padding: 10,
     fontFamily: 'Menlo, monospace',
     border: 'none',
+  }
+});
+
+let CenterPanelWrapper = style(VBox, {
+  base: {
+    flexBasis: '200px',
+    flexGrow: 1,
+    height: '100%',
+    overflow: 'auto',
+    boxShadow: css.boxShadow(0, 0, 3, 0, '#666'),
+  }
+});
+
+let RightPanelWrapper = style(VBox, {
+  base: {
+    flexBasis: '400px',
+    flexGrow: 3,
+    borderLeft: css.border(1, '#ccc'),
+  }
+});
+
+let LeftPanelWrapper = style(VBox, {
+  base: {
+    flexBasis: '300px',
+    overflow: 'auto',
+    height: '100%',
+    boxShadow: css.boxShadow(0, 0, 3, 0, '#666'),
   }
 });

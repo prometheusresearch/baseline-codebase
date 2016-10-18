@@ -5,24 +5,11 @@
 import type {Domain} from './model/Query'
 
 import React from 'react';
+
 import QueryBuilder from './QueryBuilder';
 import {Message} from './ui';
 import {fetchCatalog} from './fetch';
 import * as q from './model/Query';
-
-function readQueryFromLocation(location: Location): ?q.Query {
-  let data: any;
-  try {
-    data = JSON.parse(location.hash.trim().slice(1));
-  } catch (_err) {
-    return null;
-  }
-  return (data: q.Query);
-}
-
-function storeQueryToLocation(query) {
-  window.location.hash = JSON.stringify(query);
-}
 
 export default class QueryBuilderApp extends React.Component {
 
@@ -44,7 +31,8 @@ export default class QueryBuilderApp extends React.Component {
         </Message>
       );
     } else {
-      let query = q.pipeline(q.navigate(''));
+      let query = q.pipeline(q.navigate('study'));
+      query = null;
       return (
         <QueryBuilder
           api={api}

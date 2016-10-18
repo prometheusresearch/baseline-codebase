@@ -10,12 +10,12 @@ import React from 'react';
 import * as theme from './Theme';
 import QueryPanelBase from './QueryPanelBase';
 import ColumnPicker from './ColumnPicker';
-import Message from './Message';
+import * as FieldList from '../state/FieldList';
 
 type AddColumnPanelProps = {
   pointer: QueryPointer<Query>;
   onClose: () => *;
-  fieldList: Array<string>;
+  fieldList: FieldList.FieldList;
 };
 
 export default class AddColumnPanel extends React.Component<*, AddColumnPanelProps, *> {
@@ -28,13 +28,11 @@ export default class AddColumnPanel extends React.Component<*, AddColumnPanelPro
     actions: React.PropTypes.object,
   };
 
-  onSelect = (field: string) => {
-    let fieldList = this.props.fieldList.slice(0);
-    let idx = fieldList.indexOf(field);
-    if (idx === -1) {
-      this.context.actions.addToFieldList({field});
+  onSelect = (fieldPath: FieldList.FieldPath) => {
+    if (FieldList.contains(this.props.fieldList, fieldPath)) {
+      this.context.actions.removeFromFieldList({fieldPath});
     } else {
-      this.context.actions.removeFromFieldList({field});
+      this.context.actions.addToFieldList({fieldPath});
     }
   };
 
@@ -44,7 +42,7 @@ export default class AddColumnPanel extends React.Component<*, AddColumnPanelPro
       <QueryPanelBase
         {...props}
         theme={theme.select}
-        title="Configure columns">
+        title="Explore">
         <ColumnPicker
           allowNested
           selected={fieldList}

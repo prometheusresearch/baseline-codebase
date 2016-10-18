@@ -1,6 +1,5 @@
 import {
-  voidType, numberType, textType,
-  entityType, recordType,
+  numberType, textType,
   seqType, optType,
   leastUpperBound, atom
 } from '../Type';

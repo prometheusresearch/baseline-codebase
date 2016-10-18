@@ -9,6 +9,11 @@
 import invariant from 'invariant';
 import * as t from './Type';
 
+export type HereQuery = {
+  name: 'here';
+  context: Context;
+};
+
 export type NavigateQuery = {
   name: 'navigate';
   path: string;
@@ -57,7 +62,8 @@ export type QueryPipeline = {
  * Ctx parameters represents context which is null by default.
  */
 export type Query
-  = NavigateQuery
+  = HereQuery
+  | NavigateQuery
   | SelectQuery
   | DefineQuery
   | FilterQuery
@@ -124,9 +130,9 @@ export type Context = {
   type: ?t.Type;
 };
 
-const emptyScope: Scope = {};
-const emptyDomain: Domain = {entity: {}, aggregate: {}};
-const emptyContext = {
+export const emptyScope: Scope = {};
+export const emptyDomain: Domain = {entity: {}, aggregate: {}};
+export const emptyContext = {
   inputType: null,
   type: null,
   scope: emptyScope,
@@ -134,6 +140,8 @@ const emptyContext = {
   domainEntity: null,
   domainEntityAttrtibute: null,
 };
+
+export const here = {name: 'here', context: emptyContext};
 
 export function navigate(path: string): NavigateQuery {
   return {name: 'navigate', path, context: emptyContext};
@@ -163,21 +171,23 @@ export function pipeline(...pipeline: Array<Query>): QueryPipeline {
   return {name: 'pipeline', pipeline, context: emptyContext};
 }
 
-function withContext<Q: Query>(query: Q, context: Context): Q {
-  if (query.name === 'pipeline') {
-    return {...query, name: 'pipeline', context};
+function withContext(query, context) {
+  if (query.name === 'here') {
+    return {name: 'here', context};
+  } else if (query.name === 'pipeline') {
+    return {name: 'pipeline', context, pipeline: query.pipeline};
   } else if (query.name === 'select') {
-    return {...query, name: 'select', context};
+    return {name: 'select', context, select: query.select};
   } else if (query.name === 'define') {
-    return {...query, name: 'define', context};
+    return {name: 'define', context, binding: query.binding};
   } else if (query.name === 'filter') {
-    return {...query, name: 'filter', context};
+    return {name: 'filter', context, predicate: query.predicate};
   } else if (query.name === 'limit') {
-    return {...query, name: 'limit', context};
+    return {name: 'limit', context, limit: query.limit};
   } else if (query.name === 'aggregate') {
-    return {...query, name: 'aggregate', context};
+    return {name: 'aggregate', context, aggregate: query.aggregate};
   } else if (query.name === 'navigate') {
-    return {...query, name: 'navigate', context};
+    return {name: 'navigate', context, path: query.path};
   } else {
     invariant(false, 'Unknown query type: %s', query.name);
   }
@@ -185,7 +195,15 @@ function withContext<Q: Query>(query: Q, context: Context): Q {
 
 export function inferTypeStep(context: Context, query: Query): Query {
   let {domain, domainEntity, domainEntityAttrtibute, type, scope} = context;
-  if (query.name === 'pipeline') {
+  if (query.name === 'here') {
+    if (type == null) {
+      return withContext(query, context);
+    }
+    return {
+      name: 'here',
+      context: {...context, type, inputType: type},
+    };
+  } else if (query.name === 'pipeline') {
     if (type == null) {
       return withContext(query, context);
     }
@@ -216,16 +234,18 @@ export function inferTypeStep(context: Context, query: Query): Query {
     let nextSelect = {};
     let fields = {};
     for (let k in query.select) {
-      let q = inferTypeStep({
-        domain,
-        domainEntity,
-        domainEntityAttrtibute,
-        scope,
-        inputType: context.type,
-        type: baseType,
-      }, query.select[k]);
-      nextSelect[k] = q;
-      fields[k] = q.context.type;
+      if (query.select.hasOwnProperty(k)) {
+        let q = inferTypeStep({
+          domain,
+          domainEntity,
+          domainEntityAttrtibute,
+          scope,
+          inputType: context.type,
+          type: baseType,
+        }, query.select[k]);
+        nextSelect[k] = q;
+        fields[k] = q.context.type;
+      }
     }
     return {
       name: 'select',
@@ -484,13 +504,17 @@ export function flattenPipeline(query: QueryPipeline): QueryPipeline {
 }
 
 export function map<A: Query, B: Query>(query: A, f: (q: A) => B): B {
-  if (query.name === 'pipeline') {
+  if (query.name === 'here') {
+    return f(query);
+  } else if (query.name === 'pipeline') {
     let pipeline = query.pipeline.map(q => map(q, f));
     return {name: 'pipeline', ...f(query), pipeline};
   } else if (query.name === 'select') {
     let select = {};
     for (let k in query.select) {
-      select[k] = map(query.select[k], f);
+      if (query.select.hasOwnProperty(k)) {
+        select[k] = map(query.select[k], f);
+      }
     }
     return {name: 'select', ...f(query), select};
   } else if (query.name === 'define') {
@@ -514,4 +538,53 @@ export function map<A: Query, B: Query>(query: A, f: (q: A) => B): B {
   } else {
     invariant(false, 'Unknown query type: %s', query.name);
   }
+}
+
+/**
+ * Resolve name in the current context.
+ */
+export function resolveName(context: Context, name: string): ?t.Type {
+  let {scope, domain, type} = context;
+  if (type != null) {
+    type = t.atom(type);
+    if (type.name === 'record' && type.fields[name] != null) {
+      return type.fields[name];
+    }
+    if (
+      type.name === 'void' &&
+      domain.entity[name] != null
+    ) {
+      return t.entityType(name);
+    }
+    if (
+      type.name === 'entity' &&
+      domain.entity[type.entity] != null &&
+      domain.entity[type.entity].attribute[name] != null
+    ) {
+      return domain.entity[type.entity].attribute[name].type;
+    }
+  }
+
+  if (scope[name] != null) {
+    let ctx = inferTypeStep(context, scope[name]).context;
+    return ctx.type;
+  }
+
+  return undefined;
+}
+
+/**
+ * Resolve path in the current context.
+ */
+export function resolvePath(context: Context, path: Array<string>): ?t.Type {
+  let type = null;
+  for (let i = 0; i < path.length; i++) {
+    type = resolveName(context, path[i]);
+    if (type === undefined) {
+      return undefined;
+    } else {
+      context = {...context, type};
+    }
+  }
+  return type;
 }

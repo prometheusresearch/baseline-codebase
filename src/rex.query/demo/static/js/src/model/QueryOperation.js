@@ -12,15 +12,15 @@ import * as q from './Query';
 import * as qp from './QueryPointer';
 
 type Transform
-  = {type: 'replace'; value: any}
-  | {type: 'insertAfter'; value: any}
-  | {type: 'insertBefore'; value: any};
+  = {type: 'replace'; value: Query}
+  | {type: 'insertAfter'; value: Query}
+  | {type: 'insertBefore'; value: Query};
 
 export type QueryOperation = (
   // point at which operation should be performed
   pointer: QueryPointer<*>,
   selected: ?QueryPointer<*>
-) => {query: ?Query, selected: ?QueryPointer<Query>};
+) => {query: Query, selected: ?QueryPointer<Query>};
 
 export let noop: QueryOperation = (pointer) => {
   let query = qp.root(pointer).query;
@@ -29,10 +29,10 @@ export let noop: QueryOperation = (pointer) => {
 
 export let removeAt: QueryOperation = (pointer, selected) => {
   if (pointer.prev == null) {
-    return {query: null, selected: null};
+    return {query: q.here, selected: null};
   }
-  let query = transformAtPointer(pointer, {type: 'replace', value: undefined});
-  return {query, selected: null};
+  let nextQuery = transformAtPointer(pointer, {type: 'replace', value: q.here});
+  return normalize(nextQuery, selected);
 };
 
 export let transformAt = (
@@ -45,10 +45,15 @@ export let transformAt = (
   let nextSelected = selected != null && nextQuery != null
     ? qp.rebase(selected, nextQuery)
     : selected;
-  return {query: nextQuery, selected: nextSelected};
+  return normalize(nextQuery, nextSelected);
 };
 
-export let insertAfter = (pointer: QueryPointer<Query>, selected: ?QueryPointer<Query>, query: Query) => {
+export let insertAfter = (
+  pointer: QueryPointer<Query>,
+  selected: ?QueryPointer<Query>,
+  query: Query,
+  fixSelection?: (selected: ?QueryPointer<*>) => ?QueryPointer<*>
+) => {
   let nextQuery;
   let nextSelected;
 
@@ -68,7 +73,6 @@ export let insertAfter = (pointer: QueryPointer<Query>, selected: ?QueryPointer<
         pointer,
         {type: 'insertAfter', value: query}
       );
-      invariant(nextQuery != null, 'Impossible');
       nextSelected = qp.move(
         qp.rebase(pointer, nextQuery),
         1
@@ -78,7 +82,6 @@ export let insertAfter = (pointer: QueryPointer<Query>, selected: ?QueryPointer<
         pointer,
         {type: 'replace', value: q.pipeline(pointer.query, query)}
       );
-      invariant(nextQuery != null, 'Impossible');
       nextSelected = qp.select(
         qp.rebase(pointer, nextQuery),
         ['pipeline', 1]
@@ -86,7 +89,11 @@ export let insertAfter = (pointer: QueryPointer<Query>, selected: ?QueryPointer<
     }
   }
 
-  return {query: nextQuery, selected: nextSelected};
+  if (fixSelection) {
+    nextSelected = fixSelection(nextSelected);
+  }
+
+  return normalize(nextQuery, nextSelected);
 };
 
 export let insertBefore = (pointer: QueryPointer<Query>, selected: ?QueryPointer<Query>, query: Query) => {
@@ -126,47 +133,174 @@ export let insertBefore = (pointer: QueryPointer<Query>, selected: ?QueryPointer
     }
   }
 
-  return {query: nextQuery, selected: nextSelected};
+  return normalize(nextQuery, nextSelected);
 };
 
-function normalize(q: Query): ?Query {
-  switch (q.name) {
-    case 'select':
+/**
+ * Normalize query.
+ *
+ * Normalization collapses all useless paths like nested pipelines and
+ * combinators with here. It also tries to maintain a pointer which represents
+ * selection.
+ */
+export function normalize(
+  query: Query,
+  selected: ?QueryPointer<*>
+): {query: Query; selected: ?QueryPointer<*>} {
+  let path = selected
+    ? qp.trace(selected).map(p => p.keyPath)
+    : [];
+  let {query: nextQuery, path: nextPath} = normalizeImpl(
+    query,
+    {path: [], rest: path.slice(1)}
+  );
+  return {
+    query: nextQuery,
+    selected: selected
+      ? qp.select(qp.make(nextQuery), ...nextPath)
+      : null
+  };
+}
+
+function normalizeImpl(
+  query: Query,
+  pathInfo: {
+    path: Array<qp.KeyPath>,
+    rest: Array<qp.KeyPath>
+  },
+): {query: Query; path: Array<qp.KeyPath>} {
+  switch (query.name) {
+    case 'select': {
       let nextSelect = {};
-      let seenNone = false;
+      let path = [];
       let seenSome = false;
-      for (let k in q.select) {
-        if (q.select[k] != null) {
-          nextSelect[k] = q.select[k];
-          seenSome = true;
-        } else {
-          seenNone = true;
+      for (let k in query.select) {
+        if (query.select.hasOwnProperty(k)) {
+          let item = normalizeImpl(
+            query.select[k],
+            consumePath(pathInfo, ['select', k])
+          );
+          if (item.query.name !== 'here') {
+            nextSelect[k] = item.query;
+            seenSome = true;
+          }
+          if (item.path.length !== 0) {
+            path = item.path;
+          }
         }
       }
-      if (seenNone) {
-        if (seenSome) {
-          return {...q, select: nextSelect};
+      if (seenSome) {
+        return {
+          query: {name: 'select', select: nextSelect, context: query.context},
+          path: path,
+        };
+      } else {
+        return {
+          query: q.here,
+          path: pathInfo.path,
+        };
+      }
+    }
+    case 'pipeline': {
+      let pipeline = [];
+      let path = [];
+      let delta = 0;
+      for (let i = 0; i < query.pipeline.length; i++) {
+        let item = normalizeImpl(
+          query.pipeline[i],
+          consumePath(pathInfo, ['pipeline', i])
+        );
+        if (item.query.name === 'here') {
+          // selected node is going to be removed, move select up
+          delta -= 1;
+          if (item.path.length !== 0) {
+            path = pathInfo.path.concat(
+              [['pipeline', Math.max(0, i + delta)]]);
+          }
         } else {
-          return undefined;
+          if (item.query.name === 'pipeline') {
+            pipeline.push(...item.query.pipeline);
+          } else {
+            pipeline.push(item.query);
+          }
+          if (item.path.length !== 0) {
+            path = pathInfo.path.concat(
+              [['pipeline', i + delta]],
+              item.path.slice(pathInfo.path.length + 1)
+            );
+          }
         }
       }
-      return q;
-    case 'pipeline':
-      if (q.pipeline.length === 0) {
-        return undefined;
+      if (pipeline.length === 0) {
+        return {
+          query: q.here,
+          path: pathInfo.path,
+        };
+      } else if (pipeline.length === 1) {
+        return {
+          query: pipeline[0],
+          path: pathInfo.path,
+        };
+      } else {
+        return {
+          query: {name: 'pipeline', context: query.context, pipeline},
+          path: path,
+        };
       }
-      return q;
+    }
     case 'define':
-      if (q.binding.query == null) {
-        return undefined;
+      let r = normalizeImpl(
+        query.binding.query,
+        consumePath(pathInfo, ['binding', 'query'])
+      );
+      if (r.query.name === 'here') {
+        return {
+          query: q.here,
+          path: pathInfo.path,
+        };
+      } else {
+        return {
+          query: {
+            name: 'define',
+            binding: {
+              name: query.binding.name,
+              query: r.query,
+            },
+            context: query.context,
+          },
+          path: r.path.length > 0 ? r.path : pathInfo.path,
+        };
       }
-      return q;
+    case 'here':
+      return {query, path: pathInfo.path};
     default:
-      return q;
+      return {query, path: pathInfo.path};
   }
 }
 
-function transformAtPointer(pointer: QueryPointer<*>, transform: Transform): ?Query {
+function consumePath(
+  pathInfo: {
+    path: Array<qp.KeyPath>;
+    rest: Array<qp.KeyPath>;
+  },
+  prefix: qp.KeyPath) {
+  if (pathInfo.rest.length === 0) {
+    return {path: [], rest: []};
+  }
+  let rest = pathInfo.rest.slice(0);
+  let item = rest.shift().slice(0);
+  if (prefix.length !== item.length) {
+    return {path: [], rest: []};
+  }
+  for (let i = 0; i < prefix.length; i++) {
+    if (item[i] !== prefix[i]) {
+      return {path: [], rest: []};
+    }
+  }
+  return {path: pathInfo.path.concat([prefix]), rest};
+}
+
+function transformAtPointer(pointer: QueryPointer<*>, transform: Transform): Query {
   if (pointer.prev == null) {
     if (transform.type === 'insertAfter') {
       return q.pipeline(pointer.query, transform.value);
@@ -174,10 +308,12 @@ function transformAtPointer(pointer: QueryPointer<*>, transform: Transform): ?Qu
       return q.pipeline(transform.value, pointer.query);
     } else if (transform.type === 'replace') {
       return transform.value;
+    } else {
+      return pointer.query;
     }
   } else {
     let p = pointer;
-    let query;
+    let query = pointer.query;
     while (p != null && p.prev != null) {
       query = transformAtKeyPath(
         p.prev.query,
@@ -186,7 +322,6 @@ function transformAtPointer(pointer: QueryPointer<*>, transform: Transform): ?Qu
           ? transform
           : {type: 'replace', value: query}
       );
-      query = normalize(query);
       p = p.prev;
     }
     return query;

@@ -13,7 +13,7 @@ export function chooseFocus(query: Query): Focus {
   let focusList = getFocuses(query);
   let lengths = focusList.map(f => f.length);
   let max = ArrayUtil.max(lengths);
-  let idx = lengths.findIndex(l => l === max);
+  let idx = ArrayUtil.findIndexRight(lengths, l => l === max);
   return focusList[idx];
 }
 

@@ -334,24 +334,8 @@ Object {
     "scope": Object {},
     "type": null
   },
-  "name": "pipeline",
-  "pipeline": Array [
-    Object {
-      "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {}
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "scope": Object {},
-        "type": null
-      },
-      "name": "navigate",
-      "path": "name"
-    }
-  ]
+  "name": "navigate",
+  "path": "name"
 }
 `;
 
@@ -368,24 +352,8 @@ Object {
     "scope": Object {},
     "type": null
   },
-  "name": "pipeline",
-  "pipeline": Array [
-    Object {
-      "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {}
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "scope": Object {},
-        "type": null
-      },
-      "name": "navigate",
-      "path": "individual"
-    }
-  ]
+  "name": "navigate",
+  "path": "individual"
 }
 `;
 
@@ -402,24 +370,8 @@ Object {
     "scope": Object {},
     "type": null
   },
-  "name": "pipeline",
-  "pipeline": Array [
-    Object {
-      "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {}
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "scope": Object {},
-        "type": null
-      },
-      "name": "navigate",
-      "path": "individual"
-    }
-  ]
+  "name": "navigate",
+  "path": "individual"
 }
 `;
 
@@ -436,24 +388,8 @@ Object {
     "scope": Object {},
     "type": null
   },
-  "name": "pipeline",
-  "pipeline": Array [
-    Object {
-      "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {}
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "scope": Object {},
-        "type": null
-      },
-      "name": "navigate",
-      "path": "individual"
-    }
-  ]
+  "name": "navigate",
+  "path": "individual"
 }
 `;
 
@@ -470,24 +406,8 @@ Object {
     "scope": Object {},
     "type": null
   },
-  "name": "pipeline",
-  "pipeline": Array [
-    Object {
-      "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {}
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "scope": Object {},
-        "type": null
-      },
-      "name": "navigate",
-      "path": "individual"
-    }
-  ]
+  "name": "navigate",
+  "path": "individual"
 }
 `;
 

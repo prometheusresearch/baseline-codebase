@@ -6,7 +6,6 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import shallowCompare from 'react-addons-shallow-compare'
 import {style} from 'react-stylesheet';
-import * as css from 'react-stylesheet/css';
 import {Grid} from 'react-virtualized'
 
 import computeColumnStyle from './computeColumnStyle';

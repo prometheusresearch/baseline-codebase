@@ -2,10 +2,25 @@
  * @flow
  */
 
+export function findIndexRight<T>(
+  array: Array<T>,
+  predicate: (item: T) => boolean
+): number {
+  if (array.length === 0) {
+    return -1;
+  }
+  for (let i = array.length - 1; i > -1; i--) {
+    if (predicate(array[i], i)) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 export function sum(array: Array<number>): number {
   let sum = 0;
   for (let i = 0; i < array.length; i++) {
-    sum = sum + array[i];
+    sum += array[i];
   }
   return sum;
 }

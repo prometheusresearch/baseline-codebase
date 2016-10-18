@@ -10,11 +10,13 @@ import type {
 } from './index';
 
 import type {
+  Context,
   DefineQuery,
   Query,
   QueryPointer,
 } from '../model';
 
+import * as t from '../model/Type';
 import * as q from '../model/Query';
 import * as qp from '../model/QueryPointer';
 import * as qo from '../model/QueryOperation';
@@ -22,6 +24,8 @@ import * as Fetch from '../fetch';
 import * as parsing from '../parsing';
 import * as FieldList from './FieldList';
 import * as Focus from './Focus';
+
+type Position = 'before' | 'after';
 
 /**
  * Initialize query buiulder.
@@ -35,15 +39,16 @@ export function init(): StateUpdater {
 /**
  * Add new field to a list of selected fields.
  */
-export function addToFieldList(params: {field: string}): StateUpdater {
-  const {field} = params;
+export function addToFieldList(params: {fieldPath: Array<string>}): StateUpdater {
+  const {fieldPath} = params;
   return state => {
-    if (state.query == null) {
-      return state;
-    }
     const {fieldList, query} = state;
-    let nextFieldList = fieldList.concat(field);
-    let focusedSeq = Focus.chooseFocus(FieldList.addSelect(query, nextFieldList));
+    let nextFieldList = reconcileFieldList(
+      FieldList.merge(fieldList, FieldList.pathToFieldList(fieldPath)),
+      query,
+      query
+    );
+    let focusedSeq = reconcileFocus(state.focusedSeq, query, nextFieldList);
     let nextState = {
       ...state,
       fieldList: nextFieldList,
@@ -56,20 +61,12 @@ export function addToFieldList(params: {field: string}): StateUpdater {
 /**
  * Remove a field from a list of selected fields.
  */
-export function removeFromFieldList(params: {field: string}): StateUpdater {
-  const {field} = params;
+export function removeFromFieldList(params: {fieldPath: FieldList.FieldPath}): StateUpdater {
+  const {fieldPath} = params;
   return state => {
-    if (state.query == null) {
-      return state;
-    }
     const {fieldList, query} = state;
-    let idx = fieldList.indexOf(field);
-    if (idx === -1) {
-      return state;
-    }
-    let nextFieldList = fieldList.slice(0);
-    nextFieldList.splice(idx, 1);
-    let focusedSeq = Focus.chooseFocus(FieldList.addSelect(query, nextFieldList));
+    let nextFieldList = FieldList.remove(fieldList, fieldPath);
+    let focusedSeq = reconcileFocus(state.focusedSeq, query, nextFieldList);
     let nextState = {
       ...state,
       fieldList: nextFieldList,
@@ -105,24 +102,29 @@ export function exportDataset(): StateUpdater {
 }
 
 /**
+ * Show column picker.
+ */
+export function showSelect(): StateUpdater {
+  return state => {
+    return {...state, showPanel: true, selected: null};
+  };
+}
+
+/**
  * Show field selection panel.
  */
-export function showAddColumnPanel(): StateUpdater {
+export function showPanel(): StateUpdater {
   return state => {
-    return {
-      ...state,
-      showAddColumnPanel: true,
-      selected: null,
-    };
+    return {...state, showPanel: true};
   };
 }
 
 /**
  * Hide field selection panel.
  */
-export function hideAddColumnPanel(): StateUpdater {
+export function hidePanel(): StateUpdater {
   return state => {
-    return {...state, showAddColumnPanel: false};
+    return {...state, showPanel: false};
   };
 }
 
@@ -151,7 +153,7 @@ export function consoleInput(params: {value: string}): StateUpdater {
   const {value} = params;
   return state => {
     if (value === '') {
-      return this.onQuery(state, null, null);
+      return onQuery(state, q.here, null);
     } else {
       let node;
       try {
@@ -214,7 +216,7 @@ export function redo(): StateUpdater {
  */
 export function select(pointer: ?QueryPointer<*>): StateUpdater {
   return state => {
-    return {...state, selected: pointer, showAddColumnPanel: false};
+    return {...state, selected: pointer, showPanel: true};
   };
 };
 
@@ -249,94 +251,119 @@ export function replace(params: {pointer: QueryPointer<*>, query: Query}): State
 /**
  * Append a new navigate combinator at pointer.
  */
-export function appendNavigate(params: {pointer: ?QueryPointer<*>}): StateUpdater {
-  let {pointer} = params;
-  return state => {
-    pointer = pointer ? pointer : state.query ? qp.make(state.query) : null;
-    if (pointer) {
-      let {query, selected: nextSelected} = qo.insertAfter(
-        pointer,
-        state.selected,
-        q.navigate('')
-      );
-      return onQuery(state, query, nextSelected);
-    } else {
-      let query = q.navigate('');
-      return onQuery(state, query, qp.make(query));
-    }
-  };
+export function appendNavigate(
+  params: {
+    pointer?: QueryPointer<*>;
+    path?: Array<string>;
+    select?: boolean;
+  }
+): StateUpdater {
+  return insertNavigate('after', params);
 }
 
 /**
  * Prepend a new navigate combinator at pointer.
  */
-export function prependNavigate(params: {pointer: ?QueryPointer<*>}): StateUpdater {
-  let {pointer} = params;
+export function prependNavigate(
+  params: {
+    pointer?: QueryPointer<*>;
+    path?: Array<string>;
+    select?: boolean;
+  }
+): StateUpdater {
+  return insertNavigate('before', params);
+}
+
+function insertNavigate(
+  position: Position,
+  params: {
+    pointer?: QueryPointer<*>;
+    path?: Array<string>;
+    select?: boolean;
+  },
+): StateUpdater {
   return state => {
-    pointer = pointer ? pointer : state.query ? qp.make(state.query) : null;
-    if (pointer) {
-      let {query, selected: nextSelected} = qo.insertBefore(
-        pointer,
-        state.selected,
-        q.navigate('')
-      );
-      return onQuery(state, query, nextSelected);
-    } else {
-      let query = q.navigate('');
-      return onQuery(state, query, qp.make(query));
+    let {
+      pointer = qp.make(state.query),
+      path = [''],
+      select,
+    } = params;
+
+    if (path.length === 0) {
+      return state;
     }
+
+    let op = position === 'before' ? qo.insertBefore : qo.insertAfter;
+    let {query, selected: nextSelected} = op(
+      pointer,
+      state.selected,
+      q.pipeline(...path.map(q.navigate))
+    );
+    return onQuery(state, query, select ? nextSelected : null);
   };
 }
 
 /**
  * Append a new define combinator at pointer.
  */
-export function appendDefine(params: {pointer: ?QueryPointer<*>}): StateUpdater {
-  let {pointer} = params;
-  return state => {
-    pointer = pointer ? pointer : state.query ? qp.make(state.query) : null;
-    // TODO: need to allocate unique name
-    let name = 'Query';
-    if (pointer) {
-      let {query, selected: nextSelected} = qo.insertAfter(
-        pointer,
-        state.selected,
-        q.def(name, q.navigate(''))
-      );
-      nextSelected = qp.select(nextSelected, ['binding', 'query']);
-      let fieldList = state.fieldList.concat(name);
-      return onQuery(state, query, nextSelected, fieldList);
-    } else {
-      let query = q.def(name, q.navigate(''))
-      let selected = qp.select(qp.make(query), ['binding', 'query']);
-      return onQuery(state, query, selected);
-    }
-  };
+export function appendDefine(
+  params: {
+    pointer?: QueryPointer<*>;
+    path?: Array<string>;
+    select?: boolean;
+  }
+): StateUpdater {
+  return insertDefine('after', params);
 }
 
 /**
  * Prepend a new define combinator at pointer.
  */
-export function prependDefine(params: {pointer: ?QueryPointer<*>}): StateUpdater {
-  let {pointer} = params;
+export function prependDefine(
+  params: {
+    pointer?: QueryPointer<*>;
+    path?: Array<string>;
+    select?: boolean;
+  }
+): StateUpdater {
+  return insertDefine('before', params);
+}
+
+function insertDefine(
+  position: Position,
+  params: {
+    pointer?: QueryPointer<*>;
+    path?: Array<string>;
+    select?: boolean;
+  }
+): StateUpdater {
   return state => {
-    pointer = pointer ? pointer : state.query ? qp.make(state.query) : null;
-    // TODO: need to allocate unique name
-    let name = 'Query';
-    if (pointer) {
-      let {query, selected: nextSelected} = qo.insertBefore(
-        pointer,
-        state.selected,
-        q.def(name, q.navigate(''))
-      );
-      nextSelected = qp.select(nextSelected, ['binding', 'query']);
-      let fieldList = state.fieldList.concat(name);
-      return onQuery(state, query, nextSelected, fieldList);
-    } else {
-      let query = q.def(name, q.navigate(''))
-      let selected = qp.select(qp.make(query), ['binding', 'query']);
-      return onQuery(state, query, selected);
-    }
+    let {
+      pointer = qp.make(state.query),
+      path,
+      select,
+    } = params;
+    let name = getName(
+      pointer.query.context.scope,
+      path
+        ? `${path.join(' ')} query`
+        : 'query'
+    );
+    let expression = path != null
+      ? q.pipeline(...path.map(q.navigate))
+      : q.navigate('');
+    let op = position === 'before' ? qo.insertBefore : qo.insertAfter;
+    let {query, selected: nextSelected} = op(
+      pointer,
+      state.selected,
+      q.def(name, expression),
+      selected => selected
+        ? qp.select(selected, ['binding', 'query'])
+        : selected
+    );
+    let nextQuery = q.inferType(state.domain, query);
+    let nextFieldList = state.fieldList.concat(FieldList.make(name));
+    return onQuery(state, nextQuery, select ? nextSelected : null, nextFieldList);
   };
 }
 
@@ -441,81 +468,169 @@ export function renameDefineBinding(params: {pointer: QueryPointer<DefineQuery>,
       pointer,
       prevQuery => q.def(name, pointer.query.binding.query)
     );
-    let fieldList = state.fieldList.map(field =>
-      field === pointer.query.binding.name ? name : field);
+    let fieldList = state.fieldList.map(field => {
+      if (field.name === pointer.query.binding.name) {
+        return {...field, name};
+      }
+      return field;
+    });
     return onQuery(state, nextQuery, selected, fieldList);
   };
 }
 
-function onQuery(state: State, query: ?Query, selected: ?QueryPointer<*>, fieldList?: Array<string>) {
-  if (query == null) {
-    return {
-      ...state,
-      query,
-      selected: null,
-      showAddColumnPanel: false,
-      undoStack: state.undoStack.concat({
-        query: state.query,
-        selected: state.selected,
-        fieldList: state.fieldList,
-      }),
-      redoStack: [],
-      focusedSeq: [],
-    };
-  } else {
-    let nextQuery = q.inferType(state.domain, query);
-    fieldList = FieldList.updateFieldList(
-      fieldList || state.fieldList,
-      // $FlowIssue: ...
-      state.query,
-      nextQuery,
-    );
-    let nextSelected = null;
-    if (selected) {
-      nextSelected = qp.rebase(selected, nextQuery);
-    }
-    let focusedSeq = Focus.chooseFocus(FieldList.addSelect(nextQuery, fieldList));
-    let nextState = {
-      ...state,
-      query: nextQuery,
-      selected: nextSelected,
-      fieldList: fieldList,
-      showAddColumnPanel: false,
-      undoStack: state.undoStack.concat({
-        query: state.query,
-        selected: state.selected,
-        fieldList: state.fieldList,
-      }),
-      redoStack: [],
-      focusedSeq,
-    };
-    return [
-      nextState,
-      refetchQuery
-    ];
+function onQuery(state: State, query: Query, selected: ?QueryPointer<*>, fieldList?: FieldList.FieldList) {
+  let nextQuery = q.inferType(state.domain, query);
+  let nextFieldList = reconcileFieldList(
+    fieldList || state.fieldList,
+    nextQuery,
+    state.query,
+  );
+  let nextSelected = null;
+  if (selected) {
+    nextSelected = qp.rebase(selected, nextQuery);
   }
+  let focusedSeq = reconcileFocus(state.focusedSeq, nextQuery, nextFieldList);
+  let nextState = {
+    ...state,
+    query: nextQuery,
+    showPanel: state.showPanel,
+    selected: nextSelected,
+    fieldList: nextFieldList,
+    undoStack: state.undoStack.concat({
+      query: state.query,
+      selected: state.selected,
+      fieldList: state.fieldList,
+    }),
+    redoStack: [],
+    focusedSeq,
+  };
+  return [
+    nextState,
+    refetchQuery
+  ];
 }
 
 function refetchQuery(state, setState) {
   const {query, api, fieldList} = state;
-  if (query != null) {
-    if (query.context.type == null) {
+  if (query.context.type == null) {
+    setState(
+      'queryInvalid',
+      state => ({...state, dataUpdating: false, queryInvalid: true})
+    );
+  } else {
+    setState(
+      'fetchStart',
+      state => ({...state, dataUpdating: true, queryInvalid: false})
+    );
+    let q = FieldList.addSelect(query, fieldList);
+    Fetch.fetch(api, q).then(data => {
       setState(
-        'queryInvalid',
-        state => ({...state, dataUpdating: false, queryInvalid: true})
+        'fetchFinish',
+        state => ({...state, data, dataUpdating: false})
       );
+    });
+  }
+}
+
+function getName(scope, prefix = 'Query') {
+  if (scope[prefix] == null) {
+    return prefix;
+  }
+  let c = 1;
+  while (scope[prefix + ' ' + c] != null) {
+    c += 1;
+  }
+  return prefix + ' ' + c;
+}
+
+function reconcileFocus(focusedSeq: Focus.Focus, query, fieldList) {
+  let nextFocusedSeq = Focus.chooseFocus(FieldList.addSelect(query, fieldList));
+  if (nextFocusedSeq && nextFocusedSeq.length > 0) {
+    return nextFocusedSeq;
+  } else {
+    return focusedSeq;
+  }
+}
+
+/**
+ * Reconcile field list against query.
+ *
+ * This function removes invalid field list definitions and adds missing ones
+ * (for entity types).
+ */
+function reconcileFieldList(
+  fieldList: FieldList.FieldList,
+  query: Query,
+  prevQuery: Query,
+): FieldList.FieldList {
+  let type = query.context.type;
+  let prevType = prevQuery.context.type;
+  if (
+    type && prevType &&
+    type.name === 'entity' && prevType.name === 'entity' &&
+    type.entity !== prevType.entity
+  ) {
+    return FieldList.fromQuery(query);
+  } else if (
+    type && prevType &&
+    type.name !== prevType.name
+  ) {
+    return FieldList.fromQuery(query);
+  } else {
+    let nextFieldList = reconcileFieldListImpl(fieldList, query.context);
+    if (nextFieldList.length < 1) {
+      return FieldList.fromQuery(query);
     } else {
-      setState(
-        'fetchStart',
-        state => ({...state, dataUpdating: true, queryInvalid: false})
-      );
-      let q = FieldList.addSelect(query, fieldList);
-      Fetch.fetch(api, q).then(data => {
-        setState(
-          'fetchFinish',
-          state => ({...state, data, dataUpdating: false})
-        );
-      });
+      return nextFieldList;
     }
   }
 }
+
+function reconcileFieldListImpl(
+  fieldList: FieldList.FieldList,
+  context: Context
+): FieldList.FieldList {
+  if (fieldList.length === 0) {
+    return fieldList;
+  }
+
+  let toRemove = [];
+
+  fieldList = fieldList.slice(0);
+
+  for (let i = 0; i < fieldList.length; i++) {
+    let field = fieldList[i];
+    let type = q.resolveName(context, field.name);
+
+    // remove unknown fields
+    if (type === undefined) {
+      toRemove.unshift(i);
+      continue;
+
+    // type is not defined, leave as-is
+    } else if (type === null) {
+      continue;
+    }
+
+    field = {
+      name: field.name,
+      children: reconcileFieldListImpl(field.children, {...context, type})
+    };
+
+    // check if type is an entity and select its columns if none selected yet
+    let baseType = t.atom(type);
+    if (baseType.name === 'entity' && field.children.length === 0) {
+      field = {
+        name: field.name,
+        children: FieldList.fromDomainEntity(context.domain.entity[baseType.entity]),
+      };
+    }
+
+    fieldList[i] = field;
+  }
+  for (let i = 0; i < toRemove.length; i++) {
+    fieldList.splice(toRemove[i], 1);
+  }
+  return fieldList;
+}
+

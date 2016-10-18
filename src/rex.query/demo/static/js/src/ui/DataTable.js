@@ -7,7 +7,6 @@ import type {Type} from '../model/Type';
 import type {ColumnConfig, ColumnField} from './datatable/DataTable';
 
 import React from 'react';
-import EllipsisIcon from 'react-icons/lib/fa/ellipsis-v';
 import IconCircleO from 'react-icons/lib/fa/circle-o'
 import IconCircle from 'react-icons/lib/fa/circle'
 import {style} from 'react-stylesheet';
@@ -242,7 +241,7 @@ function cellRenderer({
   dataKey,
 }): ?string | React.Element<*> {
   if (cellData === null) {
-    return nullCell;
+    return nullCell; // eslint-disable-line no-use-before-define
   } else if (cellData === undefined) {
     return null;
   } else if (query.context.type) {

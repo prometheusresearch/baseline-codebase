@@ -8,6 +8,8 @@ import * as q from './model/Query';
 
 export function formatQuery(query: q.Query, indent: string = ''): string {
   switch (query.name) {
+    case 'here':
+      return 'here';
     case 'pipeline':
       let [first, ...rest]= q.flattenPipeline(query).pipeline;
       let fmt = [formatQuery(first)];

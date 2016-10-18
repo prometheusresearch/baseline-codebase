@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Query, Context, QueryPointer, Type} from '../model';
+import type {Query, QueryPointer, Type} from '../model';
 import type {Actions} from '../state';
 
 import React from 'react';
@@ -10,9 +10,10 @@ import * as ReactUI from '@prometheusresearch/react-ui';
 import {VBox, HBox} from '@prometheusresearch/react-box';
 
 import * as t from '../model/Type';
+import PlusIcon from './PlusIcon';
 
 type QueryVisToolbarProps = {
-  pointer: ?QueryPointer<Query>;
+  pointer: QueryPointer<Query>;
   mode: string;
   hideDisabled?: boolean;
 };
@@ -101,9 +102,9 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
     e.stopPropagation();
     let {pointer} = this.props; 
     if (this.props.mode === 'prepend') {
-      this.context.actions.prependNavigate({pointer});
+      this.context.actions.prependNavigate({pointer, select: true});
     } else {
-      this.context.actions.appendNavigate({pointer});
+      this.context.actions.appendNavigate({pointer, select: true});
     }
   };
 
@@ -171,8 +172,4 @@ function isSeqAt(type: ?Type) {
     type &&
     type.name === 'seq'
   );
-}
-
-function PlusIcon() {
-  return <span style={{verticalAlign: 'middle'}}>＋</span>;
 }

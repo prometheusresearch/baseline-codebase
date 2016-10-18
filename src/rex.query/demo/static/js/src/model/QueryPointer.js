@@ -109,7 +109,7 @@ export function root(p: QueryPointer<*>): QueryPointer<Query> {
   return p;
 }
 
-export function trace(p: QueryPointer<*>) {
+export function trace(p: QueryPointer<*>): Array<QueryPointer<*>> {
   let trace = [p];
   while (p.prev != null) {
     p = p.prev;

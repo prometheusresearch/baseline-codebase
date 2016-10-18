@@ -171,7 +171,9 @@ type QueryVisQueryButtonProps = {
 
 function QueryVisQueryButton(props: QueryVisQueryButtonProps) {
   const {pointer: {query, keyPath, prev}, ...rest} = props;
-  if (query.name === 'navigate') {
+  if (query.name === 'here') {
+    return null;
+  } else if (query.name === 'navigate') {
     const p: QueryPointer<q.NavigateQuery> = {query, keyPath, prev};
     return (
       <QueryVisNavigateButton
@@ -263,9 +265,9 @@ let QueryVisPipelineItem = style(VBox, {
 });
 
 type QueryVisProps = {
-  pointer: ?QueryPointer<Query>;
-  onAddColumn: () => *;
-  showAddColumnPanel: boolean;
+  pointer: QueryPointer<Query>;
+  onShowSelect: () => *;
+  showPanel: boolean;
   selected: ?QueryPointer<Query>;
 };
 
@@ -275,7 +277,7 @@ type QueryVisProps = {
 export class QueryVis extends React.Component<*, QueryVisProps, *> {
 
   render() {
-    let {pointer, selected, showAddColumnPanel} = this.props;
+    let {pointer, selected, showPanel} = this.props;
     return (
       <VBox
         grow={1}>
@@ -287,12 +289,11 @@ export class QueryVis extends React.Component<*, QueryVisProps, *> {
             selected={pointer}
             />
         </VBox>
-        {pointer &&
-          <QueryVisPipeline
-            selected={selected}
-            pipeline={qp.spread(pointer)}
-            />}
-        {pointer != null && selected == null &&
+        <QueryVisQueryButton
+          selected={selected}
+          pointer={pointer}
+          />
+        {pointer.query.name !== 'here' && selected == null &&
           <VBox padding={5} paddingBottom={0}>
             <QueryVisToolbar
               pointer={pointer}
@@ -303,10 +304,10 @@ export class QueryVis extends React.Component<*, QueryVisProps, *> {
           <SelectPanel
             padding={4}
             paddingLeft={30}
-            variant={{selected: showAddColumnPanel}}>
-            <QueryVisButtonLabel onClick={this.onAddColumn}>
+            variant={{selected: showPanel && selected == null}}>
+            <QueryVisButtonLabel onClick={this.onShowSelect}>
               <HBox grow={1} alignItems="center">
-                Configure columns
+                Explore
               </HBox>
             </QueryVisButtonLabel>
           </SelectPanel>
@@ -315,9 +316,9 @@ export class QueryVis extends React.Component<*, QueryVisProps, *> {
     );
   }
 
-  onAddColumn = (e: UIEvent) => {
+  onShowSelect = (e: UIEvent) => {
     e.stopPropagation();
-    this.props.onAddColumn();
+    this.props.onShowSelect();
   };
 
 }

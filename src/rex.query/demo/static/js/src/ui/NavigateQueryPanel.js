@@ -45,10 +45,13 @@ export default class NavigateQueryPanel extends React.Component {
     );
   }
 
-  onSelect = (path: string) => {
+  onSelect = (path: Array<string>) => {
+    let query = path.length === 1
+      ? q.navigate(path[0])
+      : q.pipeline(...path.map(p => q.navigate(p)));
     this.context.actions.replace({
       pointer: this.props.pointer,
-      query: q.navigate(path),
+      query,
     });
   };
 }

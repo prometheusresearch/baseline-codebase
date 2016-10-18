@@ -75,24 +75,22 @@ export function create<S: Object, H: {[name: string]: ActionHandler<*, S>}>(
 ): StateContainer<S, H> {
 
   let state = initialState;
+  let devtools = null;
+  let devtoolsUnsubscribe = null;
 
   function makeUpdaterForEffect(actionName) {
     return function effectUpdater(tag, updater) {
-      let prevState = state;
-      state = updater(prevState);
+      state = updater(state);
       if (devtools != null) {
         let type = `${actionName}.${tag}`;
         devtools.send({type}, state);
       }
-      if (state !== prevState) {
-        onChange(state, () => {});
-      }
+      onChange(state, () => {});
     }
   }
 
   function createActionCreator(actionName, actionHandler) {
     return function(params) {
-      let prevState = state;
       let result = actionHandler(params)(state);
       let effect = null;
       if (Array.isArray(result)) {
@@ -105,19 +103,17 @@ export function create<S: Object, H: {[name: string]: ActionHandler<*, S>}>(
       if (devtools != null) {
         devtools.send({...params, type: actionName}, state);
       }
-      if (state !== prevState) {
-        onChange(state, state => {
-          if (effect) {
-            if (Array.isArray(effect)) {
-              effect.forEach(effect => {
-                effect(state, makeUpdaterForEffect(actionName));
-              });
-            } else {
+      onChange(state, state => {
+        if (effect) {
+          if (Array.isArray(effect)) {
+            effect.forEach(effect => {
               effect(state, makeUpdaterForEffect(actionName));
-            }
+            });
+          } else {
+            effect(state, makeUpdaterForEffect(actionName));
           }
-        });
-      }
+        }
+      });
     }
   }
 
@@ -131,9 +127,6 @@ export function create<S: Object, H: {[name: string]: ActionHandler<*, S>}>(
       );
     }
   }
-
-  let devtools = null;
-  let devtoolsUnsubscribe = null;
 
   if (REDUX_DEVTOOLS_ENABLED) {
     devtools = window.__REDUX_DEVTOOLS_EXTENSION__.connect();

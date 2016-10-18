@@ -136,6 +136,8 @@ export function translate(query: Query) {
 
 function translateImpl(query, prev) {
   switch (query.name) {
+    case 'here':
+      return HERE;
     case 'define':
       return [
         'define', prev,

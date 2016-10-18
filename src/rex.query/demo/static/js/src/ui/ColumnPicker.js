@@ -10,10 +10,13 @@ import React from 'react';
 import {VBox, HBox} from '@prometheusresearch/react-box';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import {style} from 'react-stylesheet';
+import * as css from 'react-stylesheet/css';
 
+import * as FieldList from '../state/FieldList';
 import * as t from '../model/Type';
 import * as q from '../model/Query';
 import {MenuGroup, MenuButton} from './menu';
+import PlusIcon from './PlusIcon';
 
 type Navigation = {
   value: string;
@@ -24,8 +27,8 @@ type Navigation = {
 type ColumnPickerProps = {
   pointer: QueryPointer<Query>;
   before?: boolean;
-  selected: Array<string>;
-  onSelect: (field: string) => *;
+  selected: FieldList.FieldList;
+  onSelect: (path: Array<string>) => *;
   allowNested?: boolean;
 };
 
@@ -60,27 +63,31 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
     let entityGroup = [];
     let fieldGroup = [];
     options.forEach(column => {
-      let selected = selectedList.indexOf(column.value) > -1;
+      let selected = FieldList.findBy(selectedList, column.value);
       let type = t.maybeAtom(column.context.type);
       let isEntity = type && type.name === 'entity';
       let button = (
         <ColumnPickerButton
           key={column.value}
+          path={[column.value]}
           column={column}
           onSelect={onSelect}
-          selected={selected}
+          selected={selected != null}
+          actions={this.context.actions}
           />
       );
-      if (allowNested && isEntity && selected) {
+      if (allowNested && isEntity && selected != null) {
         button = (
           <VBox key={column.value}>
             {button}
-            <VBox paddingLeft={10}>
+            <VBox paddingLeft={15}>
               <ColumnPickerGroup
+                path={[column.value]}
                 allowNested={allowNested}
                 context={column.context}
                 selected={selected}
                 onSelect={onSelect}
+                actions={this.context.actions}
                 />
             </VBox>
           </VBox>
@@ -124,7 +131,10 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
 
   onAddDefine = (e: UIEvent) => {
     e.stopPropagation();
-    this.context.actions.appendDefine({pointer: this.props.pointer});
+    this.context.actions.appendDefine({
+      pointer: this.props.pointer,
+      select: true,
+    });
   };
 
   onSearchTerm = (e: UIEvent) => {
@@ -135,60 +145,118 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
 
 class ColumnPickerButton extends React.Component {
 
+  state: {
+    hover: boolean;
+  };
+
   props: {
     selected: boolean;
+    path: Array<string>;
     column: {label: string; value: string, context: Context};
-    onSelect: (value: string) => *;
+    onSelect: (path: Array<string>) => *;
+    actions: Actions;
+  };
+
+  state = {
+    hover: false,
   };
 
   onSelect = (e: UIEvent) => {
     e.stopPropagation();
-    let {onSelect, column} = this.props;
-    onSelect(column.value);
+    let {onSelect, path} = this.props;
+    onSelect(path);
+  };
+
+  onHover = () => {
+    this.setState({hover: true});
+  };
+
+  onHoverOff = () => {
+    this.setState({hover: false});
+  };
+
+  onNavigate = (e: UIEvent) => {
+    e.stopPropagation();
+    let {actions, path} = this.props;
+    actions.appendNavigate({path, select: false});
+  };
+
+  onDefine = (e: UIEvent) => {
+    e.stopPropagation();
+    let {actions, path} = this.props;
+    actions.appendDefine({path, select: false});
   };
 
   render() {
     let {column, selected} = this.props;
+    let {hover} = this.state;
+    let buttonGroup = hover
+      ?  <HBox>
+          <ReactUI.QuietButton
+            icon={<PlusIcon />}
+            onClick={this.onNavigate}
+            groupHorizontally
+            size="x-small">
+            Nav
+          </ReactUI.QuietButton>
+          <ReactUI.QuietButton
+            icon={<PlusIcon />}
+            onClick={this.onDefine}
+            groupHorizontally
+            size="x-small">
+            Def
+          </ReactUI.QuietButton>
+        </HBox>
+      : column.context.type
+      ? <ColumnType alignSelf="center">
+          {t.toString(column.context.type)}
+        </ColumnType>
+      : null;
     return (
       <MenuButton
+        onMouseEnter={this.onHover}
+        onMouseLeave={this.onHoverOff}
         selected={selected}
         icon={selected ? '✓' : null}
+        buttonGroup={buttonGroup}
         onClick={this.onSelect}>
-        <VBox grow={1}>
+        <VBox grow={1} justifyContent="center">
           {column.label}
         </VBox>
-        {column.context.type &&
-          <ColumnType alignSelf="center">
-            {t.toString(column.context.type)}
-          </ColumnType>}
       </MenuButton>
     );
   }
 }
 
-function ColumnPickerGroup({context, onSelect, allowNested}) {
-  let selected = false;
+function ColumnPickerGroup({
+  actions, path, selected: selectedList, context, onSelect, allowNested
+}) {
   let buttons = getNavigationAfter(context).map(column => {
+    let selected = FieldList.findBy(selectedList, column.value);
     let type = t.maybeAtom(column.context.type);
     let isEntity = type && type.name === 'entity';
     let button = (
       <ColumnPickerButton
+        path={path.concat(column.value)}
         key={column.value}
         column={column}
         onSelect={onSelect}
-        selected={selected}
+        selected={selected != null}
+        actions={actions}
         />
     );
     if (allowNested && isEntity && selected) {
       button = (
         <VBox key={column.value}>
           {button}
-          <VBox paddingLeft={10}>
+          <VBox paddingLeft={15}>
             <ColumnPickerGroup
+              path={path.concat(column.value)}
               allowNested={allowNested}
               context={column.context}
               selected={selected}
               onSelect={onSelect}
+              actions={actions}
               />
           </VBox>
         </VBox>
@@ -196,11 +264,20 @@ function ColumnPickerGroup({context, onSelect, allowNested}) {
     }
     return button;
   });
-  return <VBox>{buttons}</VBox>
+  return <ColumnPickerGroupRoot>{buttons}</ColumnPickerGroupRoot>;
 }
 
-let ColumnType = style(HBox, {
+let ColumnPickerGroupRoot = style(VBox, {
   base: {
+    borderLeft: css.border(1, '#eee'),
+  }
+});
+
+let ColumnType = style(HBox, {
+  displayName: 'ColumnType',
+  base: {
+    paddingLeft: 10,
+    paddingRight: 10,
     fontFamily: 'Menlo, Monaco, monospace',
     fontSize: '7pt',
     color: '#888',

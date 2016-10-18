@@ -4,20 +4,12 @@
 
 import type {
   Query,
-  DefineQuery,
   Domain,
-  DomainEntity,
   QueryPointer
 } from '../model';
 
-import invariant from 'invariant';
-
 import * as q from '../model/Query';
-import * as t from '../model/Type';
-import * as qp from '../model/QueryPointer';
-import * as qo from '../model/QueryOperation';
 import * as SC from '../StateContainer';
-import * as ArrayUtil from '../ArrayUtil';
 import * as FieldList from './FieldList';
 import * as Focus from './Focus';
 import * as actions from './actions';
@@ -26,9 +18,9 @@ import * as actions from './actions';
  * Represents a bit of info which is restored on undo/redo operations.
  */
 type UndoRecord = {
-  query: ?Query;
+  query: Query;
   selected: ?QueryPointer<Query>;
-  fieldList: Array<string>;
+  fieldList: FieldList.FieldList;
 };
 
 export type State = {
@@ -37,11 +29,11 @@ export type State = {
 
   api: string;
 
-  query: ?Query;
+  query: Query;
 
   queryInvalid: boolean;
 
-  fieldList: Array<string>;
+  fieldList: FieldList.FieldList;
 
   selected: ?QueryPointer<Query>;
 
@@ -49,7 +41,7 @@ export type State = {
 
   dataUpdating: boolean;
 
-  showAddColumnPanel: boolean;
+  showPanel: boolean;
 
   showConsole: boolean;
 
@@ -57,7 +49,7 @@ export type State = {
 
   redoStack: Array<UndoRecord>;
 
-  focusedSeq: Array<string>;
+  focusedSeq: Focus.Focus;
 
 };
 
@@ -82,15 +74,9 @@ export function getInitialState({
   initialQuery
 }: Params): State {
 
-  if (initialQuery == null) {
-    let entityName = Object.keys(domain.entity)[0];
-    invariant(entityName != null, 'Empty domain');
-    initialQuery = q.navigate(entityName);
-  }
-
-  let query = q.inferType(domain, initialQuery);
-  let fieldList = FieldList.getFieldList(query, true);
-  let selected = qp.select(qp.make(query), ['pipeline', 0]);
+  let query = q.inferType(domain, initialQuery || q.here);
+  let fieldList = FieldList.fromQuery(query);
+  let selected = null;
   let focusedSeq = Focus.chooseFocus(FieldList.addSelect(query, fieldList));
 
   let state: State = {
@@ -102,7 +88,7 @@ export function getInitialState({
     selected,
     data: null,
     dataUpdating: false,
-    showAddColumnPanel: false,
+    showPanel: true,
     showConsole: false,
     undoStack: [],
     redoStack: [],

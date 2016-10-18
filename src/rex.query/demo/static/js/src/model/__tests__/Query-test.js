@@ -1,7 +1,7 @@
 import * as q from '../Query';
 
 import {
-  navigate, filter, limit,
+  here, navigate, filter, limit,
   select, aggregate, pipeline, def
 } from '../Query';
 import {
@@ -59,6 +59,10 @@ describe('inferType()', function() {
   let count = aggregate('count');
 
   it('infers type of query atoms', function() {
+    expect(q.inferType(domain, here).context.type)
+      .toEqual(
+        voidType
+      );
     expect(q.inferType(domain, individual).context.type)
       .toEqual(
         seqType(entityType('individual'))
@@ -105,6 +109,39 @@ describe('inferType()', function() {
       name
     );
     expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+  });
+
+  it('here.individual', function() {
+    let query = pipeline(
+      here,
+      individual,
+    );
+    expect(q.inferType(domain, query).context.type).toEqual(
+      seqType(entityType('individual'))
+    );
+  });
+
+  it('here.individual.here', function() {
+    let query = pipeline(
+      here,
+      individual,
+      here,
+    );
+    expect(q.inferType(domain, query).context.type).toEqual(
+      seqType(entityType('individual'))
+    );
+  });
+
+  it('here.individual.here.name', function() {
+    let query = pipeline(
+      here,
+      individual,
+      here,
+      name,
+    );
+    expect(q.inferType(domain, query).context.type).toEqual(
+      seqType(textType)
+    );
   });
 
   it('individual.name:count()', function() {

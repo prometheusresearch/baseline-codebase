@@ -9,6 +9,8 @@ import download from 'downloadjs';
 import invariant from 'invariant';
 
 import * as t from './model/Type';
+import * as q from './model/Query';
+
 
 function fetchJSON(api: string, data: mixed): Promise<Object> {
   return window.fetch(api, {
@@ -43,7 +45,7 @@ export function fetch(api: string, query: Query): Promise<Object> {
 type CatalogEntityField = {
   label: string;
   title: string;
-  column: ?{type: string};
+  column: ?{type: string, enum: Array<string>};
   public: boolean;
   partial: boolean;
   plural: boolean;
@@ -101,13 +103,14 @@ function getFieldType(field: CatalogEntityField): Type {
   return type;
 }
 
-function getBaseFieldType(field) {
+function getBaseFieldType(field: CatalogEntityField) {
   if (field.column != null) {
     switch (field.column.type) {
       case 'text':
       case 'date':
-      case 'enum':
         return t.textType;
+      case 'enum':
+        return t.enumerationType(field.column.enum);
       case 'boolean':
         return t.booleanType;
       case 'integer':
@@ -125,34 +128,64 @@ function getBaseFieldType(field) {
   }
 }
 
+
 const HERE = ['here'];
+
+const MULTI_BOOLEAN_OPS = {
+  'and': '&',
+  'or': '|',
+};
+
+const UNARY_OPS = {
+  'not': '!',
+  'exists': 'exists',
+};
+
+const BINARY_COMPARISON_OPS = {
+  'equal': '=',
+  'notEqual': '!=',
+  'less': '<',
+  'lessEqual': '<=',
+  'greater': '>',
+  'greaterEqual': '>=',
+  'contains': '~',
+};
+
+
+type SerializedQuery = Array<string | boolean | number | null | SerializedQuery>;
+
 
 /**
  * Translate UI query model into query syntax.
  */
-export function translate(query: Query) {
+export function translate(query: Query): SerializedQuery {
   return translateImpl(query, HERE);
 }
 
-function translateImpl(query, prev) {
+function translateImpl(query: Query, prev: SerializedQuery): SerializedQuery {
   switch (query.name) {
     case 'here':
       return HERE;
-    case 'define':
-      return [
-        'define', prev,
-        ['=>', query.binding.name, translate(query.binding.query)]
-      ];
-    case 'aggregate':
-      return [query.aggregate, prev];
-    case 'filter':
-      // TODO: implement
-      return ['filter', prev, true];
+
     case 'pipeline':
       return query.pipeline.reduce((prev, q) => {
         let tq = translateImpl(q, prev);
         return tq != null ? tq : q;
       }, prev);
+
+    case 'navigate':
+      if (prev !== HERE) {
+        return ['.', prev, ['navigate', query.path]];
+      } else {
+        return ['navigate', query.path];
+      }
+
+    case 'define':
+      return [
+        'define', prev,
+        ['=>', query.binding.name, translate(query.binding.query)]
+      ];
+
     case 'select':
       let fields = [];
       for (let k in query.select) {
@@ -161,13 +194,52 @@ function translateImpl(query, prev) {
         }
       }
       return ['select', prev].concat(fields);
-    case 'navigate':
-      if (prev !== HERE) {
-        return ['.', prev, ['navigate', query.path]];
+
+    case 'aggregate':
+      return [query.aggregate, prev];
+
+    case 'filter':
+      if (!query.predicate) {
+        // Predicate hasn't been defined yet, skip the filter.
+        return prev;
       } else {
-        return ['navigate', query.path];
+        return ['filter', prev, translateImpl(query.predicate, HERE)];
       }
+
+    case 'not':
+      return ['!', translateImpl(query.expression, prev)];
+
     default:
-      return null;
+      if (query.name in MULTI_BOOLEAN_OPS) {
+        let args = query.expressions.map((exp) => {
+          if (q.isQuery(exp)) {
+            exp = translateImpl(exp, HERE);
+          }
+          return exp;
+        });
+        args.unshift(MULTI_BOOLEAN_OPS[query.name]);
+        return args;
+
+      } else if (query.name in UNARY_OPS) {
+        let {expression} = query;
+        if (q.isQuery(expression)) { expression = translateImpl(expression, HERE); }
+
+        return [UNARY_OPS[query.name], expression];
+
+      } else if (query.name in BINARY_COMPARISON_OPS) {
+        let {left, right} = query;
+        if (q.isQuery(left)) { left = translateImpl(left, HERE); }
+        if (q.isQuery(right)) { right = translateImpl(right, HERE); }
+
+        return [BINARY_COMPARISON_OPS[query.name], left, right];
+
+      } else {
+        invariant(
+          false,
+          'Could not translate "%s" to a rex.query combinator',
+          query.name,
+        );
+      }
   }
 }
+

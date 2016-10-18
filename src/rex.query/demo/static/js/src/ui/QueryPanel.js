@@ -12,7 +12,8 @@ import * as theme from './Theme';
 import QueryPanelBase from './QueryPanelBase';
 import NavigateQueryPanel from './NavigateQueryPanel';
 import DefineQueryPanel from './DefineQueryPanel';
-import Message from './Message';
+import FilterQueryPanel from './FilterQueryPanel';
+
 
 type QueryPanelProps = {
   pointer: ?QueryPointer<Query>;
@@ -39,13 +40,10 @@ export default function QueryPanel(props: QueryPanelProps) {
       );
     case 'filter':
       return (
-        <QueryPanelBase
-          title="Filter"
+        <FilterQueryPanel
           onClose={onClose}
-          theme={theme.filter}
-          pointer={pointer}>
-          <Message>Filter expression constructor is not implemented yet.</Message>
-        </QueryPanelBase>
+          pointer={pointer}
+          />
       );
     case 'define':
       return (

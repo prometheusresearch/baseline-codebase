@@ -7,6 +7,7 @@
 /* eslint-disable no-use-before-define */
 
 import invariant from 'invariant';
+import isPlainObject from 'lodash/isPlainObject';
 import * as t from './Type';
 
 export type HereQuery = {
@@ -56,6 +57,80 @@ export type QueryPipeline = {
   context: Context;
 };
 
+export type AndQuery = {
+  name: 'and';
+  expressions: Array<QueryOrLiteral>;
+  context: Context;
+};
+
+export type OrQuery = {
+  name: 'or';
+  expressions: Array<QueryOrLiteral>;
+  context: Context;
+};
+
+export type NotQuery = {
+  name: 'not';
+  expression: QueryOrLiteral;
+  context: Context;
+};
+
+export type EqualQuery = {
+  name: 'equal';
+  left: QueryOrLiteral;
+  right: QueryOrLiteral;
+  context: Context;
+};
+
+export type NotEqualQuery = {
+  name: 'notEqual';
+  left: QueryOrLiteral;
+  right: QueryOrLiteral;
+  context: Context;
+};
+
+export type LessQuery = {
+  name: 'less';
+  left: QueryOrLiteral;
+  right: QueryOrLiteral;
+  context: Context;
+};
+
+export type LessEqualQuery = {
+  name: 'lessEqual';
+  left: QueryOrLiteral;
+  right: QueryOrLiteral;
+  context: Context;
+};
+
+export type GreaterQuery = {
+  name: 'greater';
+  left: QueryOrLiteral;
+  right: QueryOrLiteral;
+  context: Context;
+};
+
+export type GreaterEqualQuery = {
+  name: 'greaterEqual';
+  left: QueryOrLiteral;
+  right: QueryOrLiteral;
+  context: Context;
+};
+
+export type ContainsQuery = {
+  name: 'contains';
+  left: QueryOrLiteral;
+  right: QueryOrLiteral;
+  context: Context;
+};
+
+export type ExistsQuery = {
+  name: 'exists';
+  expression: QueryOrLiteral;
+  context: Context;
+};
+
+
 /**
  * Query.
  *
@@ -69,7 +144,16 @@ export type Query
   | FilterQuery
   | LimitQuery
   | AggregateQuery
+  | AndQuery | OrQuery | NotQuery
+  | EqualQuery | NotEqualQuery | LessQuery | LessEqualQuery | GreaterQuery | GreaterEqualQuery
+  | ContainsQuery | ExistsQuery
   | QueryPipeline;
+
+export type QueryOrLiteral = Query | string | number | boolean | null;
+
+export function isQuery(obj: any): boolean {
+  return (obj && isPlainObject(obj) && obj.name && obj.context);
+}
 
 /**
  * Domain represents data schema.
@@ -171,30 +255,109 @@ export function pipeline(...pipeline: Array<Query>): QueryPipeline {
   return {name: 'pipeline', pipeline, context: emptyContext};
 }
 
-function withContext(query, context) {
-  if (query.name === 'here') {
-    return {name: 'here', context};
-  } else if (query.name === 'pipeline') {
-    return {name: 'pipeline', context, pipeline: query.pipeline};
-  } else if (query.name === 'select') {
-    return {name: 'select', context, select: query.select};
-  } else if (query.name === 'define') {
-    return {name: 'define', context, binding: query.binding};
-  } else if (query.name === 'filter') {
-    return {name: 'filter', context, predicate: query.predicate};
-  } else if (query.name === 'limit') {
-    return {name: 'limit', context, limit: query.limit};
-  } else if (query.name === 'aggregate') {
-    return {name: 'aggregate', context, aggregate: query.aggregate};
-  } else if (query.name === 'navigate') {
-    return {name: 'navigate', context, path: query.path};
-  } else {
-    invariant(false, 'Unknown query type: %s', query.name);
+export function and(...expressions: Array<QueryOrLiteral>): AndQuery {
+  return {name: 'and', expressions, context: emptyContext};
+}
+
+export function or(...expressions: Array<QueryOrLiteral>): OrQuery {
+  return {name: 'or', expressions, context: emptyContext};
+}
+
+export function not(expression: QueryOrLiteral): NotQuery {
+  return {name: 'not', expression, context: emptyContext};
+}
+
+export function equal(left: QueryOrLiteral, right: QueryOrLiteral): EqualQuery {
+  return {name: 'equal', left, right, context: emptyContext};
+}
+
+export function notEqual(left: QueryOrLiteral, right: QueryOrLiteral): NotEqualQuery {
+  return {name: 'notEqual', left, right, context: emptyContext};
+}
+
+export function less(left: QueryOrLiteral, right: QueryOrLiteral): LessQuery {
+  return {name: 'less', left, right, context: emptyContext};
+}
+
+export function lessEqual(left: QueryOrLiteral, right: QueryOrLiteral): LessEqualQuery {
+  return {name: 'lessEqual', left, right, context: emptyContext};
+}
+
+export function greater(left: QueryOrLiteral, right: QueryOrLiteral): GreaterQuery {
+  return {name: 'greater', left, right, context: emptyContext};
+}
+
+export function greaterEqual(left: QueryOrLiteral, right: QueryOrLiteral): GreaterEqualQuery {
+  return {name: 'greaterEqual', left, right, context: emptyContext};
+}
+
+export function contains(left: QueryOrLiteral, right: QueryOrLiteral): ContainsQuery {
+  return {name: 'contains', left, right, context: emptyContext};
+}
+
+export function exists(expression: QueryOrLiteral): ExistsQuery {
+  return {name: 'exists', expression, context: emptyContext};
+}
+
+
+function withContext(query, context: Context) {
+  switch (query.name) {
+    case 'here':
+      return {name: 'here', context};
+    case 'pipeline':
+      return {name: 'pipeline', context, pipeline: query.pipeline};
+    case 'select':
+      return {name: 'select', context, select: query.select};
+    case 'define':
+      return {name: 'define', context, binding: query.binding};
+    case 'filter':
+      return {name: 'filter', context, predicate: query.predicate};
+    case 'limit':
+      return {name: 'limit', context, limit: query.limit};
+    case 'aggregate':
+      return {name: 'aggregate', context, aggregate: query.aggregate};
+    case 'navigate':
+      return {name: 'navigate', context, path: query.path};
+    case 'and':
+      return {name: 'and', context, expressions: query.expressions};
+    case 'or':
+      return {name: 'or', context, expressions: query.expressions};
+    case 'not':
+      return {name: 'not', context, expression: query.expression};
+    case 'equal':
+      return {name: 'equal', context, left: query.left, right: query.right};
+    case 'notEqual':
+      return {name: 'notEqual', context, left: query.left, right: query.right};
+    case 'less':
+      return {name: 'less', context, left: query.left, right: query.right};
+    case 'lessEqual':
+      return {name: 'lessEqual', context, left: query.left, right: query.right};
+    case 'greater':
+      return {name: 'greater', context, left: query.left, right: query.right};
+    case 'greaterEqual':
+      return {name: 'greaterEqual', context, left: query.left, right: query.right};
+    case 'contains':
+      return {name: 'contains', context, left: query.left, right: query.right};
+    case 'exists':
+      return {name: 'exists', context, expression: query.expression};
+    default:
+      invariant(false, 'Unknown query type: %s', query.name);
   }
 }
 
+
 export function inferTypeStep(context: Context, query: Query): Query {
   let {domain, domainEntity, domainEntityAttrtibute, type, scope} = context;
+  let BINARY_COMPARISON_OPS = [
+    'equal', 'notEqual',
+    'less', 'lessEqual', 'greater', 'greaterEqual',
+    'contains',
+  ];
+  let UNARY_OPS = [
+    'not',
+    'exists',
+  ];
+
   if (query.name === 'here') {
     if (type == null) {
       return withContext(query, context);
@@ -203,6 +366,7 @@ export function inferTypeStep(context: Context, query: Query): Query {
       name: 'here',
       context: {...context, type, inputType: type},
     };
+
   } else if (query.name === 'pipeline') {
     if (type == null) {
       return withContext(query, context);
@@ -221,11 +385,46 @@ export function inferTypeStep(context: Context, query: Query): Query {
       pipeline: nextPipeline,
       context: {...nextContext, inputType: type},
     };
+
   } else if (query.name === 'filter') {
-    let predicate = inferTypeStep(context, query.predicate);
+    let {predicate} = query;
+    if (predicate) {
+      predicate = inferTypeStep(context, query.predicate);
+    }
     return {name: 'filter', predicate, context};
+
+  } else if (['and', 'or'].includes(query.name)) {
+    return {
+      name: query.name,
+      expressions: query.expressions.map((exp) => {
+        if (isQuery(exp)) {
+          // $ExpectError
+          exp = inferTypeStep(context, exp);
+        }
+        return exp;
+      }),
+      context,
+    };
+
+  } else if (UNARY_OPS.includes(query.name)) {
+    return {
+      name: query.name,
+      // $ExpectError
+      expression: inferTypeStep(context, query.expression),
+      context,
+    };
+
+  } else if (BINARY_COMPARISON_OPS.includes(query.name)) {
+    let {left, right} = query;
+    // $ExpectError
+    if (isQuery(left)) { left = inferTypeStep(context, left); }
+    // $ExpectError
+    if (isQuery(right)) { right = inferTypeStep(context, right); }
+    return {name: query.name, left, right, context};
+
   } else if (query.name === 'limit') {
     return withContext(query, context);
+
   } else if (query.name === 'select') {
     if (type == null) {
       return withContext(query, context);
@@ -259,6 +458,7 @@ export function inferTypeStep(context: Context, query: Query): Query {
         type: t.leastUpperBound(type, {name: 'record', fields}),
       }
     };
+
   } else if (query.name === 'define') {
     if (type == null) {
       return withContext(query, context);
@@ -283,6 +483,7 @@ export function inferTypeStep(context: Context, query: Query): Query {
         type,
       }
     };
+
   } else if (query.name === 'aggregate') {
     if (type == null) {
       return withContext(query, context);
@@ -319,6 +520,7 @@ export function inferTypeStep(context: Context, query: Query): Query {
       inputType: context.type,
       type: aggregate.makeType(type.type),
     });
+
   } else if (query.name === 'navigate') {
     if (type == null) {
       return withContext(query, context);
@@ -443,6 +645,7 @@ export function inferTypeStep(context: Context, query: Query): Query {
         type: null,
       });
     }
+
   } else {
     invariant(false, 'Unknown query type: %s', query.name);
   }

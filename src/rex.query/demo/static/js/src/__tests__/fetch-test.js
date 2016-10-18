@@ -43,7 +43,7 @@ describe('translate', function() {
     expect(translate(query)).toEqual(
       ['filter',
         ['navigate', 'study'],
-        true
+        ['navigate', 'code'],
       ]
     );
   });

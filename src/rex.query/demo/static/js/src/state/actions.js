@@ -381,11 +381,11 @@ export function appendFilter(params: {pointer: ?QueryPointer<*>}): StateUpdater 
       } = qo.insertAfter(
         pointer,
         state.selected,
-        q.filter(q.navigate('true'))
+        q.filter(q.or(true))
       );
       return onQuery(state, query, nextSelected);
     } else {
-      let query = q.filter(q.navigate('true'))
+      let query = q.filter(q.or(true))
       return onQuery(state, query, qp.make(query));
     }
   };
@@ -405,11 +405,11 @@ export function prependFilter(params: {pointer: ?QueryPointer<*>}): StateUpdater
       } = qo.insertBefore(
         pointer,
         state.selected,
-        q.filter(q.navigate('true'))
+        q.filter(q.or(true))
       );
       return onQuery(state, query, nextSelected);
     } else {
-      let query = q.filter(q.navigate('true'))
+      let query = q.filter(q.or(true))
       return onQuery(state, query, qp.make(query));
     }
   };

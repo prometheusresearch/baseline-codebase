@@ -14,17 +14,12 @@ import * as css from 'react-stylesheet/css';
 
 import * as FieldList from '../state/FieldList';
 import * as t from '../model/Type';
-import * as q from '../model/Query';
+import * as nav from '../model/navigation';
 import {MenuGroup, MenuButton} from './menu';
 import PlusIcon from './PlusIcon';
 import * as QueryButton from './QueryButton';
 import * as QueryPane from './QueryPane';
 
-type Navigation = {
-  value: string;
-  label: string;
-  context: Context;
-};
 
 type ColumnPickerProps = {
   pointer: QueryPointer<Query>;
@@ -33,6 +28,7 @@ type ColumnPickerProps = {
   onSelect: (path: Array<string>) => *;
   allowNested?: boolean;
 };
+
 
 export default class ColumnPicker extends React.Component<*, ColumnPickerProps, *> {
 
@@ -53,8 +49,8 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
   render() {
     let {pointer, before, allowNested, selected: selectedList, onSelect} = this.props;
     let options = before
-      ? getNavigationBefore(pointer.query.context)
-      : getNavigationAfter(pointer.query.context);
+      ? nav.getNavigationBefore(pointer.query.context)
+      : nav.getNavigationAfter(pointer.query.context);
     let {searchTerm} = this.state;
     if (searchTerm != null) {
       let searchTermRe = new RegExp(searchTerm, 'ig');
@@ -235,7 +231,7 @@ class ColumnPickerButton extends React.Component {
 function ColumnPickerGroup({
   actions, path, selected: selectedList, context, onSelect, allowNested
 }) {
-  let buttons = getNavigationAfter(context).map(column => {
+  let buttons = nav.getNavigationAfter(context).map(column => {
     let selected = FieldList.findBy(selectedList, column.value);
     let type = t.maybeAtom(column.context.type);
     let isEntity = type && type.name === 'entity';
@@ -288,59 +284,3 @@ let ColumnType = style(HBox, {
   }
 });
 
-function getNavigationBefore(context: Context): Array<Navigation> {
-  return getNavigation(context, context.inputType);
-}
-
-function getNavigationAfter(context: Context): Array<Navigation> {
-  return getNavigation(context, context.type);
-}
-
-function getNavigation(context, type) {
-  let {scope, domain} = context;
-  let navigation = [];
-
-  let contextAtQuery = {
-    ...context,
-    type: t.maybeAtom(type),
-  };
-
-  // Collect paths from an input type
-  if (type != null) {
-    let baseType = t.atom(type);
-    if (baseType.name === 'void') {
-      for (let k in domain.entity) {
-        if (domain.entity.hasOwnProperty(k)) {
-          navigation.push({
-            value: k,
-            label: domain.entity[k].title,
-            context: q.inferTypeStep(contextAtQuery, q.navigate(k)).context,
-          });
-        }
-      }
-    } else if (baseType.name === 'entity') {
-      let attribute = domain.entity[baseType.entity].attribute;
-      for (let k in attribute) {
-        if (attribute.hasOwnProperty(k)) {
-          navigation.push({
-            value: k,
-            label: attribute[k].title,
-            context: q.inferTypeStep(contextAtQuery, q.navigate(k)).context,
-          });
-        }
-      }
-    }
-  }
-
-  for (let k in scope) {
-    if (scope.hasOwnProperty(k)) {
-      navigation.push({
-        value: k,
-        label: k,
-        context: q.inferTypeStep(contextAtQuery, scope[k]).context,
-      });
-    }
-  }
-
-  return navigation;
-}

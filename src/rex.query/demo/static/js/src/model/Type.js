@@ -11,6 +11,7 @@ export type Type
   | NumberType
   | BooleanType
   | TextType
+  | EnumerationType
   | RecordType
   | SeqCardinality<*>
   | OptCardinality<*>;
@@ -21,6 +22,7 @@ export type TypeAtom
   | NumberType
   | TextType
   | BooleanType
+  | EnumerationType
   | RecordType;
 /* eslint-enable no-use-before-define */
 
@@ -43,6 +45,11 @@ export type NumberType = {
 
 export type BooleanType = {
   name: 'boolean';
+};
+
+export type EnumerationType = {
+  name: 'enumeration';
+  enumerations: Array<string>;
 };
 
 export type RecordType = {
@@ -68,6 +75,10 @@ export const numberType: NumberType = {name: 'number'};
 export const textType: TextType = {name: 'text'};
 export const voidType: VoidType = {name: 'void'};
 export const booleanType : BooleanType = {name: 'boolean'};
+
+export function enumerationType(enumerations: Array<string>): EnumerationType {
+  return {name: 'enumeration', enumerations};
+}
 
 export function recordType(fields: {[fieldName: string]: Type}): RecordType {
   return {name: 'record', fields};

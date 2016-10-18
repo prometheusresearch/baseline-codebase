@@ -25,7 +25,7 @@ ci:
 	@$(BIN)/react-scripts test --watch
 
 check:
-	@$(BIN)/flow
+	@$(BIN)/flow --show-all-errors
 
 build:
 	@$(BIN)/react-scripts build

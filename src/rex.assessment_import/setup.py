@@ -14,7 +14,7 @@ setup(
     install_requires=[
        'xlrd',
        'xlwt',
-       'rex.instrument',
+       'rex.instrument>=1.7,<2',
     ],
     entry_points={
         'rex.ctl': [

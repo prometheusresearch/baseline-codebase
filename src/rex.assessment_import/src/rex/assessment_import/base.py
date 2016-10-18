@@ -135,13 +135,10 @@ class BaseAssessmentImport(BaseLogging):
     ):
         if not input_path:
             input_path = '.'
-        if not format:
-            if os.path.isdir(input_path):
-                format = 'csv'
-            else:
-                _, ext = os.path.splitext(input_path)
-                if ext:
-                    format = ext[1:]
+        if not format: format = 'csv'
+        if os.path.isfile(input_path):
+            _, ext = os.path.splitext(input_path)
+            if ext: format = ext[1:]
         instrument = self.get_instrument(instrument_uid, version)
         importer_impl = self.get_importer(instrument, tolerant, format)
         importer_impl(input_path)
@@ -295,7 +292,7 @@ class AssessmentXLSImporter(AssessmentImporter):
 
     def generate_assessment_data(self, workbook):
         assessments = OrderedDict()
-        for idx, sheet in enumerate(workbook.sheets()):
+        for sheet_idx, sheet in enumerate(workbook.sheets()):
             if sheet.nrows < 3:
                 raise Error("Sheet[0] has to keep at least 3 rows;"
                             " where 1st row - a sheet name,"

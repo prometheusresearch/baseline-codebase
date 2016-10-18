@@ -1,6 +1,7 @@
 import json
 import re
 import datetime
+import time
 import traceback
 
 from collections import OrderedDict
@@ -325,15 +326,16 @@ class Assessment(object):
             for id in field.enumerations:
                 enum_id = field.id + '_' + id
                 enum_value = data.get(field.template_id, {}).get(enum_id)
-                if not enum_value:
+                if enum_value in (None, ''):
                     continue
-                if str(enum_value).lower() == 'true':
+                if unicode(enum_value).lower() in ('true', '1'):
                     value.append(id)
-                elif str(enum_value).lower() not in ('true', 'false'):
+                elif unicode(enum_value).lower() not in ('1', 'true', '0', 'false'):
                     raise Error("Unable to define a value of field %(field)s."
                                 % {'field': field.id},
                     "Got unexpected value %(value)s of enumerationSet field"
                     " %(field)s, one of [TRUE, FALSE] is expected."
+                    % {'value': enum_value, 'field': enum_id}
                 )
             if field.required and not value:
                 raise Error("Unable to define a value of field %(field)s."
@@ -369,23 +371,23 @@ class Assessment(object):
                 raise Error("Got null for required field.")
             return None
         if base_type == 'integer':
-            if not re.match(r'^\-?\d+(\.0)?$', str(value)):
+            if not re.match(r'^\-?\d+(\.0)?$', unicode(value)):
                 raise Error(" Got unexpected value %(value)s for"
                             " %(base_type)s type."
                             % {'value': value, 'base_type': base_type}
                 )
             return int(value)
         if base_type == 'float':
-            if not re.match(r'^-?\d+(\.\d+)?$', str(value)):
+            if not re.match(r'^-?\d+(\.\d+)?$', unicode(value)):
                 raise Error(" Got unexpected value %(value)s of"
                             " %(base_type)s type."
                             % {'value': value, 'base_type': base_type}
                 )
             return float(value)
         if base_type == 'boolean':
-            if str(value).lower() in ('true', '1'):
+            if unicode(value).lower() in ('true', '1'):
                 return True
-            elif str(value).lower() in ('false', '0'):
+            elif unicode(value).lower() in ('false', '0'):
                 return False
             else:
                 raise Error(" Got unexpected value %(value)s of"
@@ -395,7 +397,11 @@ class Assessment(object):
         if base_type == 'date':
             if isinstance(value, (datetime.datetime, datetime.date)):
                 return value.strftime('%Y-%m-%d')
-            if isinstance(value, basestring) \
+            elif isinstance(value, (int, float)):
+                value = (datetime.datetime(1899, 12, 30) +
+                         datetime.timedelta(days=value)).strftime('%Y-%m-%d')
+                return value
+            elif isinstance(value, basestring) \
             and re.match(r'^\d\d\d\d-\d\d-\d\d$', value):
                 return value
             raise Error(" Got unexpected value %(value)s of"
@@ -405,7 +411,10 @@ class Assessment(object):
         if base_type == 'time':
             if isinstance(value, (datetime.datetime, datetime.time)):
                 return value.strftime('%H:%M:%S')
-            if isinstance(value, basestring) \
+            elif isinstance(value, (int, float)):
+                delta = datetime.timedelta(days=value)
+                return time.strftime("%H:%M:%S",time.gmtime(delta.seconds))
+            elif isinstance(value, basestring) \
             and re.match(r'^\d\d:\d\d:\d\d$', value):
                 return value
             raise Error(" Got unexpected value %(value)s of"

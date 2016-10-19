@@ -71,53 +71,53 @@ class ActionBase(Widget):
         StrVal(),
         default=undefined,
         doc="""
-        Action identifier.
-
-        It is used to refer to actions from within wizards. Action identifier
-        should be unique across an entire application.
+        **Deprecated**. Do not use
         """)
 
     icon = Field(
         IconVal(), default=undefined,
         doc="""
-        Action icon.
+        Action icon
         """)
 
     title = Field(
         StrVal(), default=undefined,
         doc="""
-        Action title.
+        Action title (`String`)
         """)
 
     doc = Field(
         StrVal(), default=undefined,
         transitionable=False,
         doc="""
-        Action doc string.
+        Action doc string (`ReST String`)
 
-        It is not available in the browser.
+        Used to generated the documentation.
         """)
 
     help = Field(
         RSTVal(), default=undefined,
         doc="""
-        Action help.
+        Help text (`ReST String`)
+
+        Provide helpful information here. This will be displayed when user
+        click the 'Help' button.
         """)
 
     width = Field(
         IntVal(), default=undefined,
         doc="""
-        Action width.
+        **Deprecated**. Do not use.
         """)
 
     kind = Field(
         ChoiceVal('normal', 'success', 'danger'), default=undefined,
         doc="""
-        Kind of the action.
+        Kind of the action (`normal`, `success`, `danger`)
 
-        Used for styling action and its action buttons accordingly. For example
-        actions of kine ``danger`` will have corresponding buttons coloured red
-        in toolbars.
+        Used for styling action and its action buttons accordingly. For
+        example, actions of kind `danger` will have corresponding buttons
+        colored red in toolbars.
         """)
 
     def __init__(self, **values):
@@ -211,6 +211,12 @@ class ActionBase(Widget):
         else:
             raise Error('Cannot parse an action from:', repr(value))
 
+    NOT_DOCUMENTED = 'Action is not documented'
+
+    @classmethod
+    def document_header(cls):
+        return unicode(cls.name.name)
+
 
 class Action(ActionBase):
 
@@ -245,6 +251,7 @@ class Action(ActionBase):
         if context_type is None:
             context_type = self.context_types.input
         typing.unify(self.context_types.input, context_type)
+
 
 
 @as_transitionable(ActionBase, tag='widget')

@@ -12,6 +12,7 @@ from rex.widget import Field, RSTVal
 
 from ..action import Action
 from ..typing import RecordTypeVal, RecordType
+from .entity_action import EntityAction
 
 __all__ = ('Page',)
 
@@ -19,9 +20,9 @@ __all__ = ('Page',)
 class Page(Action):
     """ Page action displays arbitrary title and text.
 
-    It can be used for example to compose help pages.
+    It can be used for example to compose help and informational pages.
 
-    Example action declaration (``action.yaml``)::
+    Example action declaration::
 
         - type: page
           id: help
@@ -30,9 +31,9 @@ class Page(Action):
             This is a help page.
 
             To enroll individuals into studies, please proceed to `Study
-            Enrollment`_ applet.
+            Enrollment`_ page.
 
-            .. _`Study Enrollment`: rex.study.study_enrollment:/
+            .. _`Study Enrollment`: rex.study:/enroll
     """
 
     name = 'page'
@@ -47,8 +48,7 @@ class Page(Action):
         references which will be resolved to actual URLs.
         """)
 
-    input = Field(
-        RecordTypeVal(), default=RecordType.empty())
+    input = EntityAction.input.__clone__()
 
     def context(self):
         return self.input, self.domain.record()

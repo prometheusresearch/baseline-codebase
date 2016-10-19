@@ -53,7 +53,7 @@ class FormAction(EntityAction):
     value = Field(
         MapVal(StrVal(), AnyVal()), default={},
         doc="""
-        An initial value.
+        An initial value (`Mapping`)
 
         It could reference data from the current context via ``$name``
         references::
@@ -66,7 +66,17 @@ class FormAction(EntityAction):
     query = Field(
         SyntaxVal(), default=None, transitionable=False,
         doc="""
-        Optional query which is used to persist data in database.
+        Optional HTSQL query (`HTSQL Query`)
+
+        The query is used to persist data in database. It could use
+        **$references** specified in the ``input`` and ``entity`` fields.
+
+        The query specified should always return the id of an ``entity`` in a
+        form::
+
+            ...
+            {id := ...}
+
         """)
 
     @cached_property

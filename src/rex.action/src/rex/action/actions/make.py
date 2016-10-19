@@ -21,34 +21,13 @@ __all__ = ('Make',)
 
 
 class Make(FormAction):
-    """ Make an entity.
+    """
+    Make an entity.
 
-    This is an action which renders a form to create a new entity.
+    If ``query`` is provided, then it is used to store the data in the
+    database. In this case all the fields declared become **$references** named
+    the same as their respective ``value_key``.
 
-    Example action declaration (``action.yaml``)::
-
-        - type: make
-          id: make-individual
-          entity: individual
-
-    The set of fields will be inferred automatically for a given ``entity``.
-
-    To configure a specified set of fields use ``fields`` parameter::
-
-        - type: make
-          id: make-individual
-          entity: individual
-          fields:
-          - code
-          - identity.sex
-          - identity.givenname
-            label: First Name
-          - identity.surname
-            label: Last Name
-
-    Fields can be declared as a key path within the record, see ``code`` and
-    ``identity.sex`` fields above (in this case label and other info will be
-    inferred from schema) or completely with label and other parameters.
     """
 
     name = 'make'

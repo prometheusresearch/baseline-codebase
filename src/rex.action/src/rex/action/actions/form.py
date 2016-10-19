@@ -22,6 +22,8 @@ from rex.widget.port_support import PortSupport
 from ..action import Action
 from ..typing import RecordTypeVal, RecordType, RowTypeVal, annotate_port
 from ..validate import RexDBVal, SyntaxVal
+from .entity_action import EntityAction
+from .form_action import FormAction
 
 __all__ = ('Form',)
 
@@ -87,23 +89,35 @@ class Form(Action):
         if self.value is None and self.query is None:
             raise Error('Either value or query should be provided')
 
-    input = Field(
-        RecordTypeVal(), default=RecordType.empty())
-
-    fields = Field(
-        DeferredVal(FormFieldsetVal()),
-        doc="""
-        A list of fields to show.
-
-        If not specified then it will be generated automatically based on the
-        data schema.
-        """)
+    input = EntityAction.input.__clone__()
+    fields = EntityAction.fields.__clone__()
 
     query = Field(
-        SyntaxVal(), transitionable=False,
-        default=None,
+        SyntaxVal(), default=None, transitionable=False,
         doc="""
-        Query which is used to persist data in database.
+        Optional HTSQL query (`String`)
+
+        The query is used to persist data in database.
+
+        If query is not specified then readonly form will be displayed.
+
+        You can use **$references** specified in the ``input`` field. As well
+        as top-level field IDs. For example::
+
+        ...
+        type: form
+        fields:
+        - value_key: title
+          type: string
+          required: true
+        - value_key: code
+          type: string
+          required: true
+        query: |
+          do(
+            $id := insert(study := {code := $code, title := $title}),
+            {id := $id}
+          )
         """)
 
     entity = Field(
@@ -118,24 +132,44 @@ class Form(Action):
             { id := ...}
 
         which is used to fetch entity.
+
+        Note, that unlike ``edit`` and ``view`` actions, the ``entity`` field
+        denotes the value which may not be currently in the context.
         """)
 
     value = Field(
         OneOfVal(SyntaxVal(), MapVal(StrVal(), AnyVal())),
         default=None,
         doc="""
-        Initial form value.
+        Initial form value (`HTSQL Query`).
 
-        Can be specified either as an HTSQL query or an object literal which can
-        reference context values.
+        Specified as an HTSQL query. Note, that the shape of the
+        returned object should match exactly the ``fields`` specified. Also, no
+        database introspection is executed to populate fields for this action.
+        See example::
+
+            # incorrect
+            ...
+            type: form
+            value: |
+                individual := top(individual?id()='test'){code}
+            fields:
+            - code
+            ...
+            # correct
+            type: form
+            value: |
+                individual := top(individual?id()='test'){code}
+            fields:
+            - value_key: individual
+              type: fieldset
+              fields:
+              - value_key: code
+                type: string
+                required: true
         """)
 
-    db = Field(
-        RexDBVal(), default=None,
-        transitionable=False,
-        doc="""
-        Database to use.
-        """)
+    db = EntityAction.db.__clone__()
 
     submit_button = Field(
         StrVal(), default=undefined,

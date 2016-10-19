@@ -18,33 +18,12 @@ __all__ = ('Edit',)
 
 
 class Edit(FormAction):
-    """ Edit an entity.
+    """
+    Edit an entity.
 
-
-    Example action declaration (``action.yaml``)::
-
-        - type: edit
-          id: edit-individual
-          entity: individual
-
-    The set of fields will be inferred automatically for a given ``entity``.
-
-    To configure a specified set of fields use ``fields`` parameter::
-
-        - type: edit
-          id: edit-individual
-          entity: individual
-          fields:
-          - code
-          - identity.sex
-          - identity.givenname
-            label: First Name
-          - identity.surname
-            label: Last Name
-
-    Fields can be declared as a key path within the record, see ``code`` and
-    ``identity.sex`` fields above (in this case label and other info will be
-    inferred from schema) or completely with label and other parameters.
+    If ``query`` is provided, then it is used to store the data in the
+    database. In this case all the fields declared become **$references** named
+    the same as their respective ``value_key``.
     """
 
     name = 'edit'
@@ -66,9 +45,6 @@ class Edit(FormAction):
         doc="""
         Text for submit button.
         """)
-
-    input = Field(
-        RecordTypeVal(), default=RecordType.empty())
 
     def context(self):
         input = self.input

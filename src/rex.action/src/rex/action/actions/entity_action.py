@@ -86,26 +86,90 @@ class EntityAction(Action):
     entity = Field(
         RowTypeVal(),
         doc="""
-        Name of a table in database.
+        Name of an entity action operates on (`String` or `Mapping`)
+
+        In the majority of cases the will be exactly the same as the table name
+        in the database::
+
+            ...
+            entity: todo
+            ...
+
+        Although the form above is just a shortcut for::
+
+            ...
+            entity:
+              todo: todo
+            ...
+
+        I.e. work on **$todo** entity of type **todo**. This permits you to
+        have several entities in the wizard with different names but of the
+        same type, for example::
+            ...
+            entity:
+              remote_user: user
+            ...
+
+        Also you can apply the state modifier when declaring an entity as
+        following::
+
+            ...
+            entity: todo[measure]
+            ...
+
+        Or even more complex use case, the state expression::
+
+            ...
+            entity: todo[measure && not-completed]
+            ...
+
+        State expressions support 3 logical operators AND (&&), OR (||),  and
+        NOT (!). In the simplest case state expression consists of just one
+        state. The action is displayed only in case if state expression
+        evaluates to true.
         """)
 
     input = Field(
-        RecordTypeVal(), default=RecordType.empty())
+        RecordTypeVal(), default=RecordType.empty(),
+        doc="""
+        List of entities (`List`)
+
+        Declare the list of entities (in the format of ``entity``) which are
+        required by the action to operate.
+        """)
 
     db = Field(
         RexDBVal(), default=None,
         transitionable=False,
         doc="""
-        Database to use.
+        Gateway to use (`String`)
+
+        One of the gateways previously declared in the ``gateway`` setting.
         """)
 
     fields = Field(
         DeferredVal(FormFieldsetVal()), default=None,
         doc="""
-        A list of fields to show.
+        A list of fields (`List`)
 
-        If not specified then it will be generated automatically based on the
-        data schema.
+        This is actual for the form-based actions (``make``, ``edit``,
+        ``view``, and ``form``). Depending on the nature of an action this will
+        display editable or readonly form. If not specified, table information
+        will be used to generate it.
+
+        Each entry in this list may be specified in short or complete form. See
+        the following example::
+            ...
+            entity: study
+            fields:
+            - code
+            - value_key: title
+              type: string
+              required: true
+
+        In this example the ``code`` field properties will be automatically
+        calculated from the database, while the ``title`` field is completely
+        specified ny the user.
         """)
 
     @cached_property

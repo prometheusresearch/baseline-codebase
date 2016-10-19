@@ -16,12 +16,14 @@ from rex.widget import Field, RSTVal, PortURL, responder, undefined
 from ..action import Action
 from ..validate import RexDBVal
 from ..typing import RowTypeVal, annotate_port
+from .entity_action import EntityAction
 
 __all__ = ('Drop',)
 
 
 class Drop(Action):
-    """ Drop an entity.
+    """
+    Drop an entity.
     """
 
     name = 'drop'
@@ -31,18 +33,8 @@ class Drop(Action):
         info_js_type = 'rex-action/lib/inspect/DropActionInfo'
         detailed_info_js_type = 'rex-action/lib/inspect/DropDetailedActionInfo'
 
-    entity = Field(
-        RowTypeVal(),
-        doc="""
-        Name of a table in database.
-        """)
-
-    db = Field(
-        RexDBVal(), default=None,
-        transitionable=False,
-        doc="""
-        Database to use.
-        """)
+    entity = EntityAction.entity.__clone__()
+    db = EntityAction.db.__clone__()
 
     message = Field(
         RSTVal(), default="You are about to drop an entity",

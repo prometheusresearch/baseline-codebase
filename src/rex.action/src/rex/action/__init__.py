@@ -16,6 +16,7 @@ from .map import ActionRenderer
 from .actions import View, Make, Page, Pick, Edit
 from .validate import RexDBVal
 from .wizard import Wizard
+from .doc import DocumentPlainWidget
 from . import setting
 
 import rex.action.menu

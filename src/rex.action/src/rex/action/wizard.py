@@ -182,7 +182,6 @@ class WizardWidgetBase(Widget):
                 else:
                     next_context[k] = v
             update[id] = next_context
-
         return Response(json=update)
 
     @property
@@ -493,7 +492,6 @@ class Wizard(WizardBase):
 
     name = 'wizard'
     js_type = 'rex-action/lib/wizard/Wizard'
-
 
 def _collect_actions(wizard):
     actions = {}

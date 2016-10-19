@@ -130,3 +130,39 @@ One of csv or xls --format is expected::
     >>> ctl('assessment-import --project=rex.assessment_import_demo simple --input ./build/sandbox/simple1.xls --format xls')
     ### CREATED ASSESSMENT
 
+Import file contains unexpected value in date field::
+
+    >>> book = xlwt.Workbook()
+    >>> sheet = book.add_sheet('1')
+    >>> sheet.row(0).write(0, 'simple1')
+    >>> assessment_data = {
+    ...                     'subject': 'subject1',
+    ...                     'assessment_id': '1',
+    ...                     'date': 'date',
+    ...                     'q_fake': None
+    ...                   }
+    >>> for (idx, key) in enumerate(assessment_data.keys()):
+    ...     sheet.row(1).write(idx, key)
+    ...     value = assessment_data[key]
+    ...     sheet.row(2).write(idx, value)
+    >>> book.save('./build/sandbox/simple1.xls')
+
+    >>> ctl('assessment-import --project=rex.assessment_import_demo simple --input ./build/sandbox/simple1.xls --format xls', expect=1)
+    FATAL ERROR: Assessment 1 cannot be imported
+        Got unexpected value date of the assessment date
+             Got unexpected value date of date type, YYYY-MM-DD is expected.
+    <BLANKLINE>
+
+Bad import file could be saved if setting assessment_import_dir is not null::
+
+    >>> ctl('assessment-import --project=rex.assessment_import_demo simple --input ./build/sandbox/simple1.xls --format xls --set assessment_import_dir=./build/sandbox/error', expect=1)
+    FATAL ERROR: Assessment 1 cannot be imported
+        Got unexpected value date of the assessment date
+             Got unexpected value date of date type, YYYY-MM-DD is expected.
+    <BLANKLINE>
+
+    >>> os.path.exists('./build/sandbox/error/import.log')
+    True
+
+    >>> os.path.exists('./build/sandbox/error/unknown')
+    True

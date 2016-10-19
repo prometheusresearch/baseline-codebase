@@ -280,13 +280,13 @@ class Assessment(object):
                                                              '%Y-%m-%d'
                                                     )
             except Error, exc:
-                raise AssessmentImporError(
+                raise AssessmentImportError(
                         "Got unexpected value `%(value)s` of the assessment"
                         " `date`" % {'value': evaluation_date},
                         exc, template_id=self.instrument.id)
             except Exception:
                 exc = traceback.format_exc()
-                raise AssessmentImporError(
+                raise AssessmentImportError(
                         "Got unexpected value `%(value)s` of the assessment"
                         " `date`" % {'value': evaluation_date}, exc,
                         template_id=self.instrument.id)

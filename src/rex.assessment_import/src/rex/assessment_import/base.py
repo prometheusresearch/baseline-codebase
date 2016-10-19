@@ -228,23 +228,22 @@ class AssessmentImporter(BaseLogging, Extension):
         output = os.path.join(output, user)
         if not os.path.exists(output):
             os.mkdir(output)
-        output = os.path.join(output, when)
-        if not os.path.exists(output):
-            os.mkdir(output)
         if os.path.isfile(input):
-            output = os.path.join(output, os.path.basename(input))
+            output_filename = '-'.join([when, os.path.basename(input)])
+            output = os.path.join(output, output_filename)
             shutil.copyfile(input, output)
         elif os.path.isdir(input):
             template_id = exc.template_id or self.instrument.id
             for filename in os.listdir(input):
                 name, ext = os.path.splitext(filename)
                 if name == template_id:
-                    inputfile = os.path.join(input, filename)
-                    outputfile = os.path.join(output, filename)
-                    shutil.copyfile(inputfile, outputfile)
+                    input_path = os.path.join(input, filename)
+                    output_filename = '-'.join([when, filename])
+                    output_path = os.path.join(output, output_filename)
+                    shutil.copyfile(input_path, output_path)
                     with open(logfilepath, 'a') as logfile:
                         logfile.write('Invalid input file saved in: '
-                                      + outputfile + '\n')
+                                      + output_path + '\n')
 
 
 class AssessmentCSVImporter(AssessmentImporter):

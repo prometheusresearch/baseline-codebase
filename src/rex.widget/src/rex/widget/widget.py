@@ -8,12 +8,13 @@
 """
 
 from collections import OrderedDict
+import inspect
 
 from rex.core import ProxyVal, SeqVal, RecordField
 from rex.core import Extension, Error
 
 from .transitionable import as_transitionable
-from .field import FieldBase, Field
+from .field import FieldBase, Field, ComputedField, ResponderField
 from .util import PropsContainer
 
 __all__ = ('Widget', 'GroupWidget', 'NullWidget', 'RawWidget')
@@ -128,6 +129,43 @@ class Widget(Extension):
     @classmethod
     def signature(cls):
         return cls.name
+
+    NOT_DOCUMENTED = 'Widget is not documented'
+
+    @classmethod
+    def document_header(cls):
+        if isinstance(cls.name, (str, unicode)):
+            return unicode(cls.name)
+        return super(Widget, cls).document_header()
+
+    @classmethod
+    def document_all(cls, package=None):
+        entries = [extension.document() for extension in cls.all(package)
+                       if extension.name is not None]
+        entries.sort(key=(lambda e: e.header))
+        return entries
+
+    @classmethod
+    def document_fields(cls):
+        fields = []
+        template = '  * ``{name}``\n\n      {doc}'
+        for field in sorted(cls._fields.values(), key=(lambda f: f.name)):
+            if isinstance(field, (ComputedField, ResponderField)):
+                continue
+            fields.append(template.format(
+                name=field.name,
+                doc=(field.doc or 'Field is not documented')
+            ))
+        fields = '\n'.join(fields)
+        if fields:
+            fields = '\n\nFields:\n' + fields
+        return fields
+
+    @classmethod
+    def document_content(cls):
+        fields = cls.document_fields()
+        doc = inspect.cleandoc(cls.__doc__ or cls.NOT_DOCUMENTED) + fields
+        return inspect.cleandoc(doc)
 
     def __init__(self, package=None, **values):
         super(Widget, self).__init__()

@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.dbgui_demo',
-    version='4.1.1',
+    version='4.1.2',
     description='Database management application / Demo',
     maintainer='Prometheus Research, LLC',
     license='AGPLv3',

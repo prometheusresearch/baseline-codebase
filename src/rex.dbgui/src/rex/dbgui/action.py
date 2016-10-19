@@ -7,6 +7,9 @@ from webob import Response
 
 
 class PickTable(Action):
+    """
+    Internal action of the DBGUI. Do not use directly.
+    """
 
     name = 'dbgui'
     js_type = 'rex-dbgui/lib/PickTable'
@@ -25,6 +28,9 @@ class PickTable(Action):
 
 
 class ViewSource(Action):
+    """
+    Internal action of the DBGUI. Do not use directly.
+    """
 
     name = 'view-source'
     js_type = 'rex-dbgui/lib/ViewSource'

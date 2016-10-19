@@ -144,7 +144,7 @@ class BaseAssessmentImport(BaseLogging):
         importer_impl = self.get_importer(instrument, tolerant, format)
         try:
             importer_impl(input_path)
-        except AssessmentImportError, exc:
+        except Exception, exc:
             importer_impl.save_import_error(exc, input_path, user)
             raise exc
 
@@ -208,7 +208,11 @@ class AssessmentImporter(BaseLogging, Extension):
                                             exc, exc.template_id)
             assessments.append(assessment)
         assessment_impl = get_implementation('assessment')
-        assessment_impl.bulk_create(assessments)
+        try:
+            assessment_impl.bulk_create(assessments)
+        except Exception, exc:
+            raise AssessmentImportError(str(exc))
+
 
     def generate_assessment_data(self, input):
         raise NotImplementedError()

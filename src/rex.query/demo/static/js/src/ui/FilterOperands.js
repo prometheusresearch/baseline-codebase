@@ -1,6 +1,7 @@
 import React from 'react';
-
 import * as ReactUI from '@prometheusresearch/react-ui';
+
+import Select from './Select';
 
 
 export class TextOperand extends React.Component {
@@ -63,8 +64,7 @@ export class NumberOperand extends React.Component {
 export class EnumerationOperand extends React.Component {
   render() {
     return (
-      <ReactUI.Select
-        allowNoValue={true}
+      <Select
         value={this.props.value}
         options={this.props.options}
         onChange={this.props.onChange}

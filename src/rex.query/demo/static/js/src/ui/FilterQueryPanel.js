@@ -20,11 +20,11 @@ import * as nav from '../model/navigation';
 import * as theme from './Theme';
 import QueryPanelBase from './QueryPanelBase';
 import {MenuGroup, MenuButton} from './menu';
+import Select from './Select';
 
 
 type FilterConditionProps = {
   expression: QueryOrLiteral;
-  onRemove: () => *;
 };
 
 
@@ -86,30 +86,30 @@ class FilterCondition extends React.Component {
     }
 
     return (
-      <ReactUI.HBox paddingV={5}>
-        <ReactUI.Select
-          allowNoValue={true}
-          value={field}
-          options={fields}
-          onChange={this.onFieldChange}
-          />
-        {field &&
-          <ReactUI.Select
-            value={comparator}
-            options={comparators}
-            onChange={this.onComparatorChange}
-            />
-        }
+      <ReactUI.Block paddingV={5}>
+        <ReactUI.Block>
+          <ReactUI.Block
+            style={{width: '50%', display: 'inline-block'}}>
+            <Select
+              value={field}
+              options={fields}
+              onChange={this.onFieldChange}
+              />
+          </ReactUI.Block>
+          {field &&
+            <ReactUI.Block
+              style={{width: '50%', display: 'inline-block'}}>
+              <Select
+                clearable={false}
+                value={comparator}
+                options={comparators}
+                onChange={this.onComparatorChange}
+                />
+            </ReactUI.Block>
+          }
+        </ReactUI.Block>
         {operandComponent}
-        {this.props.onRemove &&
-          <ReactUI.QuietButton
-            size="small"
-            icon={<CloseIcon />}
-            onClick={this.props.onRemove}
-            title="Remove Condition"
-            />
-        }
-      </ReactUI.HBox>
+      </ReactUI.Block>
     );
   }
 
@@ -223,13 +223,34 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
 
     let conditions = expressions.map((exp, idx) => {
       return (
-        <FilterCondition
-          key={idx}
-          fields={fields}
-          expression={exp}
-          onUpdate={this.onConditionUpdate.bind(this, idx)}
-          onRemove={this.onConditionRemove.bind(this, idx)}
-          />
+        <ReactUI.Block
+          marginBottom={10}
+          key={idx}>
+          <ReactUI.Block
+            style={{
+              width: '95%',
+              display: 'inline-block',
+              verticalAlign: 'middle',
+            }}>
+            <FilterCondition
+              fields={fields}
+              expression={exp}
+              onUpdate={this.onConditionUpdate.bind(this, idx)}
+              />
+          </ReactUI.Block>
+          <ReactUI.Block
+            style={{
+              width: '5%',
+              display: 'inline-block',
+              verticalAlign: 'middle',
+            }}>
+            <ReactUI.QuietButton
+              size="x-small"
+              icon={<CloseIcon />}
+              onClick={this.onConditionRemove.bind(this, idx)}
+              />
+          </ReactUI.Block>
+        </ReactUI.Block>
       );
     });
 

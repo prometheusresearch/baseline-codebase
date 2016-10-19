@@ -38,6 +38,14 @@ Components
    rex.widget_chrome/index
 
 
+Reference
+=========
+
+.. toctree::
+
+   reference
+
+
 Release notes
 =============
 

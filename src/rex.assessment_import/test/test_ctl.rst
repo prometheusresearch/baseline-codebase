@@ -130,10 +130,3 @@ One of csv or xls --format is expected::
     >>> ctl('assessment-import --project=rex.assessment_import_demo simple --input ./build/sandbox/simple1.xls --format xls')
     ### CREATED ASSESSMENT
 
-The task fails if --format got unknown value::
-
-    >>> ctl('assessment-import --project=rex.assessment_import_demo simple --input ./build/sandbox/simple1.xls --format txt', expect=1)
-    FATAL ERROR: txt is unknown format.
-    <BLANKLINE>
-
-

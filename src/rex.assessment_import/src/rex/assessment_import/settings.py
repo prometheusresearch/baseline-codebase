@@ -2,6 +2,22 @@ from collections import OrderedDict
 from rex.core import Setting, OMapVal, StrVal, BoolVal, RecordVal
 
 
+class AssessmentImportDir(Setting):
+
+    """
+    Directory where to save uploaded files and other attachments.
+
+    Example::
+
+        assessment_import_dir: /srv/rexdb/assessments
+    """
+
+    name = 'assessment_import_dir'
+    validate = StrVal()
+    default = None
+
+
+
 class AssessmentTemplateDefaults(Setting):
     """
     An ordered map, where key is an assessment template field name,

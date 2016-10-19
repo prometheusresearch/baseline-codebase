@@ -4,14 +4,16 @@ import csv
 import xlrd
 import xlwt
 import traceback
+import datetime
+import shutil
 
 from collections import OrderedDict
 from rex.ctl import env, RexTask, warn, log as base_log, debug
 from rex.instrument.util import get_implementation
 from rex.core import Extension, Error, get_settings
 from .interface import Instrument, Assessment
+from .error import AssessmentImportError
 
-import datetime
 
 class BaseLogging(object):
 
@@ -43,9 +45,8 @@ class BaseAssessmentTemplateExport(BaseLogging):
         else:
             instrument_version = instrument.get_version(version)
         if not instrument_version:
-            raise Error('The desired version of "%s" does not exist.' % (
-                self.instrument_uid,
-            ))
+            raise Error('The desired version of "%s" does not exist.' %
+                self.instrument_uid)
         self.do_output(instrument_version, output_path, format.lower())
 
     def do_output(self, instrument_version, output_path=None, format='csv'):
@@ -131,7 +132,7 @@ class AssessmentXLSTemplateOutput(AssessmentTemplateOutput):
 class BaseAssessmentImport(BaseLogging):
 
     def start(self, instrument_uid, version, input_path,
-              tolerant=True, format=None
+              tolerant=True, format=None, user=None
     ):
         if not input_path:
             input_path = '.'
@@ -141,7 +142,11 @@ class BaseAssessmentImport(BaseLogging):
             if ext: format = ext[1:]
         instrument = self.get_instrument(instrument_uid, version)
         importer_impl = self.get_importer(instrument, tolerant, format)
-        importer_impl(input_path)
+        try:
+            importer_impl(input_path)
+        except AssessmentImportError, exc:
+            importer_impl.save_import_error(exc, input_path, user)
+            raise exc
 
     def get_instrument(self, instrument_uid, version):
         default_template_fields = \
@@ -149,17 +154,15 @@ class BaseAssessmentImport(BaseLogging):
         instrument_impl = get_implementation('instrument')
         instrument = instrument_impl.get_by_uid(instrument_uid)
         if not instrument:
-            raise Error('Instrument "%s" does not exist.' % (
-                instrument_uid,
-            ))
+            raise Error('Instrument "%s" does not exist.' % instrument_uid)
         if not version:
             instrument_version = instrument.latest_version
         else:
             instrument_version = instrument.get_version(version)
         if not instrument_version:
-            raise Error('The desired version of "%s" does not exist.' % (
-                instrument_uid,
-            ))
+            raise Error('The desired version of "%s" does not exist.'
+                        % instrument_uid
+            )
         instrument =  Instrument.create(instrument_version,
                                         default_template_fields
                       )
@@ -197,13 +200,51 @@ class AssessmentImporter(BaseLogging, Extension):
         assessments = []
         for assessment_id, data in assessment_data.items():
             if not data: continue
-            assessment = Assessment.create(self.instrument, data)
+            try:
+                assessment = Assessment.create(self.instrument, data)
+            except AssessmentImportError, exc:
+                raise AssessmentImportError("Assessment %s cannot be imported"
+                                            % assessment_id,
+                                            exc, exc.template_id)
             assessments.append(assessment)
         assessment_impl = get_implementation('assessment')
         assessment_impl.bulk_create(assessments)
 
     def generate_assessment_data(self, input):
         raise NotImplementedError()
+
+    def save_import_error(self, exc, input, user):
+        output = get_settings().assessment_import_dir
+        if not output: return
+        output = os.path.abspath(output)
+        if not os.path.exists(output):
+            os.mkdir(output)
+        if not user: user = 'unknown'
+        logfilepath = os.path.join(output, 'import.log')
+        when = unicode(datetime.datetime.now())
+        with open(logfilepath, 'a') as logfile:
+            logfile.write('\n' + '\t'.join([when, user]) + '\n')
+            logfile.write(str(exc) + '\n')
+        output = os.path.join(output, user)
+        if not os.path.exists(output):
+            os.mkdir(output)
+        output = os.path.join(output, when)
+        if not os.path.exists(output):
+            os.mkdir(output)
+        if os.path.isfile(input):
+            output = os.path.join(output, os.path.basename(input))
+            shutil.copyfile(input, output)
+        elif os.path.isdir(input):
+            template_id = exc.template_id or self.instrument.id
+            for filename in os.listdir(input):
+                name, ext = os.path.splitext(filename)
+                if name == template_id:
+                    inputfile = os.path.join(input, filename)
+                    outputfile = os.path.join(output, filename)
+                    shutil.copyfile(inputfile, outputfile)
+                    with open(logfilepath, 'a') as logfile:
+                        logfile.write('Invalid input file saved in: '
+                                      + outputfile + '\n')
 
 
 class AssessmentCSVImporter(AssessmentImporter):
@@ -220,13 +261,14 @@ class AssessmentCSVImporter(AssessmentImporter):
         if input:
             path = os.path.abspath(input)
         if not os.path.exists(path):
-            raise Error('Input path "%s" not found.' % path)
+            raise AssessmentImportError('Input path "%s" not found.' % path)
         if os.path.isfile(path):
             obj_id = os.path.basename(path).rsplit('.', 1)[0]
             input_files[obj_id] = path
         elif os.path.isdir(path):
             if not os.access(path, os.R_OK):
-                raise Error('Directory "%s" is forbidden for reading' % path)
+                raise AssessmentImportError(
+                        'Directory "%s" is forbidden for reading' % path)
             for filename in os.listdir(path):
                 filepath = os.path.join(path, filename)
                 if os.path.isfile(filepath):
@@ -236,7 +278,8 @@ class AssessmentCSVImporter(AssessmentImporter):
                     if name in self.instrument.template:
                         input_files[name] = filepath
         if not input_files:
-            raise Error("Not found any csv file appropriate to import.")
+            raise AssessmentImportError(
+                    "Not found any csv file appropriate to import.")
         if len(input_files) == 1 and self.instrument.id not in input_files:
             input_files = {self.instrument.id: input_files.values()[0]}
         return input_files
@@ -249,15 +292,18 @@ class AssessmentCSVImporter(AssessmentImporter):
                     reader = csv.DictReader(_file)
                 except Exception:
                     exc = traceback.format_exc()
-                    raise Error("Got unexpected csv file `%(filepath)s`."
-                                % {'filepath': rec_file}, exc
+                    raise AssessmentImportError(
+                            "Got unexpected csv file `%(filepath)s`."
+                            % {'filepath': rec_file}, exc, rec_id
                     )
                 for idx, row in enumerate(reader):
                     assessment_id = row.get('assessment_id')
                     if not assessment_id:
-                        raise Error("assessment_id not found through"
-                                   " `%(filepath)s` row %(idx)s"
-                                   % {'filepath': rec_file, 'idx': idx})
+                        raise AssessmentImportError(
+                                "assessment_id not found through"
+                                " `%(filepath)s` row %(idx)s"
+                                % {'filepath': rec_file, 'idx': idx},
+                                template_id=rec_id)
                     assessment = assessments.get(assessment_id, OrderedDict())
                     record = assessment.get(rec_id, [])
                     if rec_id == self.instrument.id:
@@ -283,7 +329,8 @@ class AssessmentXLSImporter(AssessmentImporter):
         if not os.path.exists(path):
             raise Error('Input path `%s` not found.' % path)
         if not os.path.isfile(path):
-            raise Error('Unexpected input `%s`, xls file is expected.' % input)
+            raise Error(
+                    'Unexpected input `%s`, xls file is expected.' % input)
         try:
             workbook = xlrd.open_workbook(path)
         except xlrd.XLRDError, exc:
@@ -301,16 +348,18 @@ class AssessmentXLSImporter(AssessmentImporter):
             header = self.sheet_header(sheet)
             record_id = sheet.cell_value(0, 0)
             if not record_id or record_id not in self.instrument.template:
-                raise Error("Unexpected sheet # %(sheet_num)s,"
-                            " record.id is expected as a value of cell(0, 0)."
-                            %  {'sheet_num': sheet_idx}
+                raise AssessmentImportError(
+                        "Unexpected sheet # %(sheet_num)s,"
+                        " record.id is expected as a value of cell(0, 0)."
+                        %  {'sheet_num': sheet_idx},
+                        template_id=record_id
                 )
             if 'assessment_id' not in header:
-                raise Error("Not found `assessment_id` trough sheet"
-                            " # %(sheet_num)s of record `%(record_id)s`."
-                            % {'sheet_num': sheet_idx,
-                               'record_id': record_id
-                              }
+                raise AssessmentImportError(
+                    "Not found `assessment_id` trough sheet"
+                    " # %(sheet_num)s of record `%(record_id)s`."
+                    % {'sheet_num': sheet_idx, 'record_id': record_id},
+                    template_id=record_id
                 )
             record = []
             for row_idx in range(2, sheet.nrows):

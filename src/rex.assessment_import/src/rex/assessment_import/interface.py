@@ -12,6 +12,7 @@ from rex.instrument import InstrumentVersion
 from rex.instrument.util import get_implementation
 from rios.core.output import Instrument as InstrumentOutput, _get_struct
 from rios.core.output.common import get_json
+from .error import AssessmentImportError, AssessmentValidationError
 
 
 class FieldObjectAbstract(object):
@@ -194,11 +195,7 @@ class Assessment(object):
         subject = assessment.get_subject(row)
         assessment_context = assessment.get_context(row)
         evaluation_date = assessment.get_date(row)
-        try:
-            assessment.add_values(instrument, import_data)
-        except Error, exc:
-            raise Error("Unable to import assessment %s"
-                        % row['assessment_id'], exc)
+        assessment.add_values(instrument, import_data)
         assessment_impl = get_implementation('assessment')
         assessment = assessment_impl.BulkAssessment(
                             subject_uid=subject,
@@ -209,31 +206,28 @@ class Assessment(object):
                      )
         return assessment
 
-    def validate_with_template(self, tpl_obj_id, data):
+    def validate_with_template(self, template_id, data):
         if not data: return
-        template = self.instrument.template.get(tpl_obj_id)
-        notfound = []
-        data_fields = deepcopy(data)
-        for name, config in template.items():
-            if name in data:
-                data_fields.pop(name)
-            elif config['required']:
-                notfound.append(name)
-        if data_fields:
-            raise Error("Assessment data related to the `%(tpl_id)s`"
-                " template contains unknown field names `%(names)s`."
-                % {'names': data_fields.keys(), 'tpl_id': tpl_obj_id}
-            )
-        if notfound:
-            raise Error("Assessment data related to the `%(tpl_id)s` template"
-                " does not contain expected fields `%(names)s`."
-                % {'names': notfound, 'tpl_id': tpl_obj_id}
-            )
+        template = self.instrument.template.get(template_id)
+        data_header = set(data.keys())
+        template_header = set(template.keys())
+        extra = data_header - template_header
+        shortage = template_header - data_header
+        if extra:
+            raise AssessmentImportError(
+                    "%s data header contains extra columns %s."
+                    % (template_id, ', '.join(extra)), template_id=template_id)
+        if shortage:
+            raise AssessmentImportError(
+                    "%s data header does not contain expected columns %s."
+                    % (template_id, ', '.join(shortage)),
+                    template_id=template_id)
 
     def get_subject(self, data):
         subject_id = data.get('subject')
         if not subject_id:
-            raise Error("`subject` is expected.")
+            raise AssessmentImportError("`subject` is expected.",
+                                        template_id=self.instrument.id)
         return subject_id
 
     def get_context(self, row):
@@ -245,28 +239,32 @@ class Assessment(object):
             parameter = context_impl[param_name]
             param_value = row.get(param_name)
             if parameter['required'] and param_value in ('', None):
-                raise Error("Parameter `%(param_name)s` required for Assessment"
+                raise AssessmentImportError(
+                            "Parameter `%(param_name)s` required for Assessment"
                             " creation is undefined trough the import data."
-                            % {'param_name': param_name}
+                            % {'param_name': param_name},
+                            template_id=self.instrument.id
                 )
             if param_value not in (None,''):
                 validate = parameter['validator']
                 try:
                     validate(param_value)
-                except Error, exc:
-                    raise Error("Assessment parameter"
+                except AssessmentValidationError, exc:
+                    raise AssessmentImportError(
+                        "Assessment parameter"
                         " `%(param_name)s` got unexpected value `%(param_value)s`."
                         % {'param_name': param_name,
                            'param_value': param_value
-                        }, exc
+                        }, exc, template_id=self.instrument.id
                     )
                 except Exception, exc:
                     exc = traceback.format_exc()
-                    raise Error("Assessment parameter"
-                        " `%(param_name)s` got unexpected value `%(param_value)s`."
+                    raise AssessmentImportError("Assessment parameter"
+                        " `%(param_name)s` got unexpected"
+                        " value `%(param_value)s`."
                         % {'param_name': param_name,
                            'param_value': param_value
-                        }, exc
+                        }, exc, template_id=self.instrument.id
                     )
                 context[param_name] = param_value
         return context
@@ -282,12 +280,16 @@ class Assessment(object):
                                                              '%Y-%m-%d'
                                                     )
             except Error, exc:
-                raise Error("Got unexpected value `%(value)s` of the assessment"
-                        " `date`" % {'value': evaluation_date}, exc)
+                raise AssessmentImporError(
+                        "Got unexpected value `%(value)s` of the assessment"
+                        " `date`" % {'value': evaluation_date},
+                        exc, template_id=self.instrument.id)
             except Exception:
                 exc = traceback.format_exc()
-                raise Error("Got unexpected value `%(value)s` of the assessment"
-                        " `date`" % {'value': evaluation_date}, exc)
+                raise AssessmentImporError(
+                        "Got unexpected value `%(value)s` of the assessment"
+                        " `date`" % {'value': evaluation_date}, exc,
+                        template_id=self.instrument.id)
         return evaluation_date.date()
 
     def add_values(self, instrument, data):
@@ -331,15 +333,20 @@ class Assessment(object):
                 if unicode(enum_value).lower() in ('true', '1'):
                     value.append(id)
                 elif unicode(enum_value).lower() not in ('1', 'true', '0', 'false'):
-                    raise Error("Unable to define a value of field %(field)s."
-                                % {'field': field.id},
+                    raise AssessmentImportError(
+                    "Unable to define a value of field %(field)s."
+                    % {'field': field.id},
                     "Got unexpected value %(value)s of enumerationSet field"
                     " %(field)s, one of [TRUE, FALSE] is expected."
-                    % {'value': enum_value, 'field': enum_id}
-                )
+                    % {'value': enum_value, 'field': enum_id},
+                    field.template_id
+                    )
             if field.required and not value:
-                raise Error("Unable to define a value of field %(field)s."
-                    % {'field': field.id}, "Got no value for required field."
+                raise AssessmentImportError(
+                   "Unable to define a value of field %(field)s."
+                   % {'field': field.id},
+                   "Got no value for required field.",
+                   field.template_id
                 )
         else:
             value = data.get(field.template_id, {}).get(field.id)
@@ -348,14 +355,16 @@ class Assessment(object):
                                             base_type=field.base_type,
                                             required=field.required,
                                             enumerations=field.enumerations)
-            except Error, exc:
-                raise Error("Unable to define a value of field %(field)s."
-                    % {'field': field.id}, exc
+            except AssessmentValidationError, exc:
+                raise AssessmentImportError(
+                    "Unable to define a value of field %(field)s."
+                    % {'field': field.id}, exc, field.template_id
                 )
             except Exception:
                 exc = traceback.format_exc()
-                raise Error("Unable to define a value of field %(field)s."
-                    % {'field': field.id}, exc
+                raise AssessmentImportError(
+                    "Unable to define a value of field %(field)s."
+                    % {'field': field.id}, exc, field.template_id
                 )
         if value in ({}, []):
             value = None
@@ -368,20 +377,22 @@ class Assessment(object):
             value = value.decode('utf-8', 'replace')
         if value in (None, ''):
             if required:
-                raise Error("Got null for required field.")
+                raise AssessmentValidationError("Got null for required field.")
             return None
         if base_type == 'integer':
             if not re.match(r'^\-?\d+(\.0)?$', unicode(value)):
-                raise Error(" Got unexpected value %(value)s for"
-                            " %(base_type)s type."
-                            % {'value': value, 'base_type': base_type}
+                raise AssessmentValidationError(
+                        " Got unexpected value %(value)s for"
+                        " %(base_type)s type."
+                        % {'value': value, 'base_type': base_type}
                 )
             return int(value)
         if base_type == 'float':
             if not re.match(r'^-?\d+(\.\d+)?$', unicode(value)):
-                raise Error(" Got unexpected value %(value)s of"
-                            " %(base_type)s type."
-                            % {'value': value, 'base_type': base_type}
+                raise AssessmentValidationError(
+                        " Got unexpected value %(value)s of"
+                        " %(base_type)s type."
+                        % {'value': value, 'base_type': base_type}
                 )
             return float(value)
         if base_type == 'boolean':
@@ -390,7 +401,8 @@ class Assessment(object):
             elif unicode(value).lower() in ('false', '0'):
                 return False
             else:
-                raise Error(" Got unexpected value %(value)s of"
+                raise AssessmentValidationError(
+                            " Got unexpected value %(value)s of"
                             " %(base_type)s type."
                             % {'value': value, 'base_type': base_type}
                 )
@@ -404,7 +416,8 @@ class Assessment(object):
             elif isinstance(value, basestring) \
             and re.match(r'^\d\d\d\d-\d\d-\d\d$', value):
                 return value
-            raise Error(" Got unexpected value %(value)s of"
+            raise AssessmentValidationError(
+                        " Got unexpected value %(value)s of"
                         " %(base_type)s type, YYYY-MM-DD is expected."
                         % {'value': value, 'base_type': base_type}
             )
@@ -417,7 +430,8 @@ class Assessment(object):
             elif isinstance(value, basestring) \
             and re.match(r'^\d\d:\d\d:\d\d$', value):
                 return value
-            raise Error(" Got unexpected value %(value)s of"
+            raise AssessmentValidationError(
+                            " Got unexpected value %(value)s of"
                             " %(base_type)s type, HH:MM:SS is expected."
                             % {'value': value, 'base_type': base_type}
             )
@@ -427,13 +441,15 @@ class Assessment(object):
             if isinstance(value, basestring) \
             and re.match(r'^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d$', value):
                 return value
-            raise Error("Got unexpected value %(value)s of"
+            raise AssessmentValidationError(
+                        "Got unexpected value %(value)s of"
                         " %(base_type)s type, YYYY-MM-DDTHH:MM:SS is expected."
                         % {'value': value, 'base_type': base_type}
             )
         if base_type == 'enumeration':
             if unicode(value) not in enumerations:
-                raise Error("Got unexpected value %(value)s of"
+                raise AssessmentValidationError(
+                    "Got unexpected value %(value)s of"
                     " %(base_type)s type, one of %(enumeration)s is expected."
                     % {'value': value, 'base_type': base_type,
                        'enumeration': [id for id in enumerations]
@@ -443,7 +459,8 @@ class Assessment(object):
         if base_type == 'text':
             return unicode(value)
         else:
-            raise Error("Got a value %(value)s of unknown %(base_type)s type."
+            raise AssessmentValidationError(
+                        "Got a value %(value)s of unknown %(base_type)s type."
                         % {'value': value, 'base_type': base_type}
             )
         return value

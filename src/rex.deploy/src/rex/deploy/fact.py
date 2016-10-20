@@ -47,6 +47,9 @@ class AliasSpec(object):
             chunks.append(" := %s" % self.body)
         return "".join(chunks)
 
+    def __unicode__(self):
+        return str(self).decode('utf-8')
+
 
 class FactDumper(yaml.Dumper):
 

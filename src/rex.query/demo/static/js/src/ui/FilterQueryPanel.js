@@ -86,7 +86,7 @@ class FilterCondition extends React.Component {
     }
 
     return (
-      <ReactUI.Block paddingV={5}>
+      <ReactUI.Block>
         <ReactUI.Block>
           <ReactUI.Block
             style={{width: '50%', display: 'inline-block'}}>
@@ -224,8 +224,18 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
     let conditions = expressions.map((exp, idx) => {
       return (
         <ReactUI.Block
-          marginBottom={10}
           key={idx}>
+          {idx != 0 &&
+            <ReactUI.Block
+              paddingV={10}
+              style={{
+                textAlign: 'center',
+                fontWeight: 'bold',
+                fontSize: '0.7em',
+              }}>
+              <ReactUI.Text>- OR -</ReactUI.Text>
+            </ReactUI.Block>
+          }
           <ReactUI.Block
             style={{
               width: '95%',
@@ -258,7 +268,7 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
       <QueryPanelBase
         title="Filter"
         onClose={onClose}
-        theme={theme.traverse}
+        theme={theme.filter}
         pointer={pointer}>
         <ReactUI.VBox padding={5}>
           {conditions}

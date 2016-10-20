@@ -70,11 +70,29 @@ type QueryVisFilterButtonProps = {
 };
 
 export function QueryVisFilterButton(props: QueryVisFilterButtonProps) {
+  let {query} = props.pointer;
+
+  let label = 'Filter';
+  if (query.predicate.name === 'or') {
+    let fields = [];
+    query.predicate.expressions.forEach((exp) => {
+      if ((exp !== true) && exp.left && (exp.left.name === 'navigate')) {
+        if (!fields.includes(exp.left.path)) {
+          fields.push(exp.left.path);
+        }
+      }
+    });
+
+    if (fields.length) {
+      label = `Filter by ${fields.join(', ')}`;
+    }
+  }
+
   return (
     <QueryVisButton
       {...props}
       stylesheet={{Root: QueryPane.FilterPane, Button: QueryButton.FilterButton}}
-      label="Filter"
+      label={label}
       />
   );
 }

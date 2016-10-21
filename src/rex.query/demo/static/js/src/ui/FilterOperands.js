@@ -69,7 +69,22 @@ export class EnumerationOperand extends React.Component {
         value={this.props.value}
         options={this.props.options}
         onChange={this.props.onChange}
-        placeholder="Select a Value"
+        placeholder="Select a Value..."
+        />
+    );
+  }
+}
+
+
+export class MultiEnumerationOperand extends React.Component {
+  render() {
+    return (
+      <Select
+        multi={true}
+        value={this.props.value}
+        options={this.props.options}
+        onChange={this.props.onChange}
+        placeholder="Select Some Values..."
         />
     );
   }

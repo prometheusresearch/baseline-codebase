@@ -1,6 +1,7 @@
 import React from 'react';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
+import isArray from 'lodash/isArray';
 
 
 export default class ValueSelect extends React.Component {
@@ -13,7 +14,16 @@ export default class ValueSelect extends React.Component {
 
   onChange = (option) => {
     if (this.props.onChange) {
-      this.props.onChange(option ? option.value : null);
+      let value = null;
+      if (isArray(option)) {
+        value = option.map((opt) => {
+          return opt.value;
+        });
+      } else if (option) {
+        value = option.value;
+      }
+
+      this.props.onChange(value);
     }
   };
 }

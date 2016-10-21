@@ -7,6 +7,7 @@ import type {Type} from './model/Type';
 
 import download from 'downloadjs';
 import invariant from 'invariant';
+import isArray from 'lodash/isArray';
 
 import * as t from './model/Type';
 import * as q from './model/Query';
@@ -227,11 +228,23 @@ function translateImpl(query: Query, prev: SerializedQuery): SerializedQuery {
         return [UNARY_OPS[query.name], expression];
 
       } else if (query.name in BINARY_COMPARISON_OPS) {
-        let {left, right} = query;
-        if (q.isQuery(left)) { left = translateImpl(left, HERE); }
-        if (q.isQuery(right)) { right = translateImpl(right, HERE); }
+        let fragment = [BINARY_COMPARISON_OPS[query.name]];
 
-        return [BINARY_COMPARISON_OPS[query.name], left, right];
+        if (q.isQuery(query.left)) {
+          fragment.push(translateImpl(query.left, HERE));
+        } else {
+          fragment.push(query.left);
+        }
+
+        if (q.isQuery(query.right)) {
+          fragment.push(translateImpl(query.right, HERE));
+        } else if (isArray(query.right)) {
+          fragment = fragment.concat(query.right);
+        } else {
+          fragment.push(query.right);
+        }
+
+        return fragment;
 
       } else {
         invariant(

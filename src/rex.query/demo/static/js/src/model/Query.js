@@ -149,7 +149,7 @@ export type Query
   | ContainsQuery | ExistsQuery
   | QueryPipeline;
 
-export type QueryOrLiteral = Query | string | number | boolean | null;
+export type QueryOrLiteral = Query | string | number | boolean | Array<string> | Array<number> | null;
 
 export function isQuery(obj: any): boolean {
   return (obj && isPlainObject(obj) && obj.name && obj.context);

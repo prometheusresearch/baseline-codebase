@@ -7,6 +7,7 @@ import isString from 'lodash/isString';
 import isBoolean from 'lodash/isBoolean';
 import isFinite from 'lodash/isFinite';
 import isNull from 'lodash/isNull';
+import isArray from 'lodash/isArray';
 
 import * as t from '../model/Type';
 import * as q from '../model/Query';
@@ -60,7 +61,7 @@ export interface Comparator {
 
   // A function that generates a Query for the given field and operand. If a
   // legal Query cannot be generated, return null.
-  query: (field: Navigation, operand: ?any) => ?Query;
+  query: (field: Navigation, operand: ?any, operandIsField: ?boolean) => ?Query;
 };
 
 
@@ -131,13 +132,13 @@ class BasicBinaryComparator {
 class Equal extends BasicBinaryComparator {
   label = '==';
   value = 'equal';
-  types = ['text', 'number', 'enumeration'];
+  types = ['text', 'number'];
 }
 
 class NotEqual extends BasicBinaryComparator {
   label = '!=';
   value = 'notEqual';
-  types = ['text', 'number', 'enumeration'];
+  types = ['text', 'number'];
 }
 
 class Less extends BasicBinaryComparator {
@@ -176,7 +177,7 @@ class NotContains extends BasicBinaryComparator {
   types = ['text'];
 
   identify(expression) {
-    let operandIsField = isField(expression.expression.right);
+    let operandIsField = expression.expression ? isField(expression.expression.right) : false;
     if (
         (expression.name === 'not')
         && (expression.expression.name === 'contains')
@@ -199,6 +200,66 @@ class NotContains extends BasicBinaryComparator {
         ))
       : null;
   }
+}
+
+
+class IsOneOf {
+  label = '==';
+  value = 'enumIn';
+  op = 'equal';
+
+  identify(expression) {
+    if (
+        (expression.name === this.op)
+        && isField(expression.left)
+        && (isArray(expression.right) || isLiteral(expression.right))
+      ) {
+
+      let field = expression.left.path;
+      let operandIsField = false;
+      let operand = expression.right;
+      if (!isArray(operand)) {
+        operand = [operand];
+      }
+
+      return {field, operand, operandIsField};
+    }
+  }
+
+  applicable(field) {
+    return isType(field, ['enumeration']);
+  }
+
+  operand(field, value, onChange) {
+    let type = t.atom(field.context.type);
+    let options = type.enumerations.map((enumeration) => {
+      return {
+        label: enumeration,
+        value: enumeration,
+      };
+    });
+
+    return (
+      <operands.MultiEnumerationOperand
+        options={options}
+        value={value}
+        onChange={onChange}
+        />
+    );
+  }
+
+  query(field, operand) {
+    if (operand && (operand.length > 0)) {
+      return q[this.op](q.navigate(field.value), operand);
+    }
+  }
+}
+
+
+class IsNotOneOf extends IsOneOf {
+  label = '!=';
+  value = 'enumNotIn';
+  op = 'notEqual';
 }
 
 
@@ -326,6 +387,8 @@ export const ALL_COMPARATORS: Array<Comparator> = [
   new GreaterEqual(),
   new Contains(),
   new NotContains(),
+  new IsOneOf(),
+  new IsNotOneOf(),
   new Empty(),
   new NotEmpty(),
   new IsTrue(),

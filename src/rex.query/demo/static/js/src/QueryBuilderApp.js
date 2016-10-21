@@ -9,21 +9,23 @@ import React from 'react';
 import QueryBuilder from './QueryBuilder';
 import {Message} from './ui';
 import {fetchCatalog} from './fetch';
-import * as q from './model/Query';
+
 
 export default class QueryBuilderApp extends React.Component {
-
   state: {domain: ?Domain} = {
     domain: null,
   };
 
   static defaultProps = {
     api: '/query/',
+    initialQuery: null,
+    onQuery: null,
   };
 
   render() {
     let {domain} = this.state;
     let {api} = this.props;
+
     if (domain == null) {
       return (
         <Message height="100%">
@@ -31,13 +33,12 @@ export default class QueryBuilderApp extends React.Component {
         </Message>
       );
     } else {
-      let query = q.pipeline(q.navigate('study'));
-      query = null;
       return (
         <QueryBuilder
           api={api}
           domain={domain}
-          initialQuery={query}
+          initialQuery={this.props.initialQuery}
+          onQuery={this.props.onQuery}
           />
       );
     }

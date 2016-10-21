@@ -54,7 +54,9 @@ export default class QueryBuilder extends React.Component {
         this.setState(state, () => {
           invariant(this.state != null, 'State is not ready');
           onStateUpdated(this.state);
-          this.props.onQuery(state.query);
+          if (this.props.onQuery) {
+            this.props.onQuery(state.query);
+          }
         });
       }
     );

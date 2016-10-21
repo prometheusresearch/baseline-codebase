@@ -25,6 +25,7 @@ import Select from './Select';
 
 type FilterConditionProps = {
   expression: QueryOrLiteral;
+  fields: Array<nav.Navigation>;
 };
 
 
@@ -35,25 +36,21 @@ class FilterCondition extends React.Component {
     super(props);
 
     let condition = this.getCondition(props.expression);
-
     this.state = {...condition};
   }
 
   componentWillReceiveProps(nextProps: FilterConditionProps) {
     let condition = this.getCondition(nextProps.expression);
-    this.setState({
-      ...condition
-    });
+    this.setState({...condition});
   }
 
   getCondition(expression): Comparator {
     if (expression === true) {
-      return {field: null, comparator: null, operand: null};
+      return {field: null, comparator: null, operand: null, operandIsField: false};
     }
 
     let condition = comp.identify(expression);
     invariant(condition, 'Cannot identify expression type.');
-
     return condition;
   }
 
@@ -68,9 +65,19 @@ class FilterCondition extends React.Component {
     invariant(false, 'No field named "%s" found in current scope.', fieldName);
   }
 
+  getCompatibleOperandFields(sourceField) {
+    let sourceTypeName = t.atom(sourceField.context.type).name;
+    return this.props.fields.filter((field) => {
+      return (
+        (field.value !== sourceField.value)
+        && (t.atom(field.context.type).name === sourceTypeName)
+      );
+    });
+  }
+
   render() {
     let {fields} = this.props;
-    let {field, comparator, operand} = this.state;
+    let {field, comparator, operand, operandIsField} = this.state;
     let fieldDef = null;
 
     let comparators = [];
@@ -80,10 +87,34 @@ class FilterCondition extends React.Component {
     }
 
     let operandComponent = null;
+    let chooseOperandType = true;
     if (fieldDef && comparator) {
-      let comparatorDefinition = comp.getDefinition(comparator);
-      operandComponent = comparatorDefinition.operand(fieldDef, operand, this.onOperandChange);
+      let operandFields = this.getCompatibleOperandFields(fieldDef);
+      chooseOperandType = operandFields.length > 0;
+
+      if (chooseOperandType && operandIsField) {
+        operandComponent = (
+          <Select
+            value={operand}
+            options={operandFields}
+            onChange={this.onOperandValueChange}
+            placeholder="Select an Attribute..."
+            />
+        );
+      } else {
+        let comparatorDefinition = comp.getDefinition(comparator);
+        operandComponent = comparatorDefinition.operand(
+          fieldDef,
+          operand,
+          this.onOperandValueChange,
+        );
+      }
     }
+
+    let operandTypeOptions = [
+      {label: 'Constant Value', value: 'value'},
+      {label: 'Attribute', value: 'field'},
+    ];
 
     return (
       <ReactUI.Block>
@@ -108,13 +139,25 @@ class FilterCondition extends React.Component {
             </ReactUI.Block>
           }
         </ReactUI.Block>
-        {operandComponent}
+        {operandComponent &&
+          <ReactUI.Block>
+            {chooseOperandType &&
+              <ReactUI.RadioGroup
+                layout="horizontal"
+                options={operandTypeOptions}
+                value={operandIsField ? 'field' : 'value'}
+                onChange={this.onOperandTypeChange}
+                />
+            }
+            {operandComponent}
+          </ReactUI.Block>
+        }
       </ReactUI.Block>
     );
   }
 
   onFieldChange = (newField: string) => {
-    let {field, comparator, operand} = this.state;
+    let {field, comparator, operand, operandIsField} = this.state;
 
     let prevField = field;
     field = newField;
@@ -134,12 +177,15 @@ class FilterCondition extends React.Component {
       if (!newComp) {
         comparator = null;
         operand = null;
+        operandIsField = false;
       } else if (prevFieldDef && newFieldDef && (prevFieldDef.context.type !== newFieldDef.context.type)) {
         operand = null;
+        operandIsField = false;
       }
     } else {
       comparator = null;
       operand = null;
+      operandIsField = false;
     }
 
     if (field && !comparator) {
@@ -149,7 +195,7 @@ class FilterCondition extends React.Component {
       }
     }
 
-    this.setState({field, comparator, operand}, () => { this.updateQuery(); });
+    this.setState({field, comparator, operand, operandIsField}, () => { this.updateQuery(); });
   };
 
   onComparatorChange = (newComparator: string) => {
@@ -157,12 +203,23 @@ class FilterCondition extends React.Component {
       {
         comparator: newComparator,
         operand: null,
+        operandIsField: false,
       },
       () => { this.updateQuery(); }
     );
   };
 
-  onOperandChange = (newOperand: ?any) => {
+  onOperandTypeChange = (newType: string) => {
+    this.setState(
+      {
+        operandIsField: newType === 'field',
+        operand: null
+      },
+      () => { this.updateQuery(); }
+    );
+  };
+
+  onOperandValueChange = (newOperand: ?any) => {
     this.setState(
       {
         operand: newOperand,
@@ -172,12 +229,12 @@ class FilterCondition extends React.Component {
   };
 
   updateQuery = debounce(() => {
-    let {field, comparator, operand} = this.state;
+    let {field, comparator, operand, operandIsField} = this.state;
 
     let fieldDef = this.getFieldDefinition(field);
     let comparatorDefinition = comp.getDefinition(comparator);
 
-    let query = comparatorDefinition.query(fieldDef, operand);
+    let query = comparatorDefinition.query(fieldDef, operand, operandIsField);
 
     if (query) {
       this.props.onUpdate(query);
@@ -225,7 +282,7 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
       return (
         <ReactUI.Block
           key={idx}>
-          {idx != 0 &&
+          {idx !== 0 &&
             <ReactUI.Block
               paddingV={10}
               style={{

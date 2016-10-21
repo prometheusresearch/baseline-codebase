@@ -3,6 +3,10 @@ import type {Navigation} from '../model/navigation';
 
 import React from 'react';
 import invariant from 'invariant';
+import isString from 'lodash/isString';
+import isBoolean from 'lodash/isBoolean';
+import isFinite from 'lodash/isFinite';
+import isNull from 'lodash/isNull';
 
 import * as t from '../model/Type';
 import * as q from '../model/Query';
@@ -18,9 +22,19 @@ function isNullable(field: Navigation): boolean {
   return (field.context.type != null) && (field.context.type.name === 'opt');
 }
 
+function isField(obj: q.QueryOrLiteral): boolean {
+  return q.isQuery(obj) && (obj.name === 'navigate');
+}
+
+function isLiteral(obj: any): boolean {
+  return isString(obj) || isBoolean(obj) || isFinite(obj) || isNull(obj);
+}
+
+
 
 export type Identification = {
   field: string;  // The name of the field being examined
+  operandIsField: boolean;  // Whether or not the operand is a field or a literal value
   operand: ?any;  // The operand being compared to
 };
 
@@ -60,15 +74,16 @@ class BasicBinaryComparator {
   }
 
   identify(expression) {
+    let operandIsField = isField(expression.right);
     if (
         (expression.name === this.value)
-        && (expression.left.name === 'navigate')
-        && (!q.isQuery(expression.right))
+        && isField(expression.left)
+        && (operandIsField || isLiteral(expression.right))
       ) {
-      return {
-        field: expression.left.path,
-        operand: expression.right,
-      };
+
+      let field = expression.left.path;
+      let operand = operandIsField ? expression.right.path : expression.right;
+      return {field, operand, operandIsField};
     }
   }
 
@@ -103,8 +118,13 @@ class BasicBinaryComparator {
     return <Component {...props} />
   }
 
-  query(field, operand) {
-    return operand ? q[this.value](q.navigate(field.value), operand) : null;
+  query(field, operand, operandIsField) {
+    return operand
+      ? q[this.value](
+          q.navigate(field.value),
+          operandIsField ? q.navigate(operand) : operand,
+        )
+      : null;
   }
 }
 
@@ -156,21 +176,28 @@ class NotContains extends BasicBinaryComparator {
   types = ['text'];
 
   identify(expression) {
+    let operandIsField = isField(expression.expression.right);
     if (
         (expression.name === 'not')
         && (expression.expression.name === 'contains')
-        && (expression.expression.left.name === 'navigate')
-        && (!q.isQuery(expression.expression.right))
+        && isField(expression.expression.left)
+        && (operandIsField || isLiteral(expression.expression.right))
       ) {
-      return {
-        field: expression.expression.left.path,
-        operand: expression.expression.right,
-      };
+
+      let field = expression.expression.left.path;
+      let operand = operandIsField ? expression.expression.right.path : expression.expression.right;
+
+      return {field, operand, operandIsField};
     }
   }
 
-  query(field, operand) {
-    return operand ? q.not(q.contains(q.navigate(field.value), operand)) : null;
+  query(field, operand, operandIsField) {
+    return operand
+      ? q.not(q.contains(
+          q.navigate(field.value),
+          operandIsField ? q.navigate(operand) : operand,
+        ))
+      : null;
   }
 }
 
@@ -183,11 +210,12 @@ class Empty {
     if (
         (expression.name === 'not')
         && (expression.expression.name === 'exists')
-        && (expression.expression.expression.name === 'navigate')
+        && isField(expression.expression.expression)
        ) {
       return {
         field: expression.expression.expression.path,
         operand: null,
+        operandIsField: false,
       };
     }
   }
@@ -214,11 +242,12 @@ class NotEmpty extends Empty {
   identify(expression) {
     if (
         (expression.name === 'exists')
-        && (expression.expression.name === 'navigate')
+        && isField(expression.expression)
        ) {
       return {
         field: expression.expression.path,
         operand: null,
+        operandIsField: false,
       };
     }
   }
@@ -238,12 +267,11 @@ class IsTrue {
   }
 
   identify(expression) {
-    if (
-        (expression.name === 'navigate')
-      ) {
+    if (isField(expression)) {
       return {
         field: expression.path,
         operand: null,
+        operandIsField: false,
       };
     }
   }
@@ -269,11 +297,12 @@ class IsFalse {
   identify(expression) {
     if (
         (expression.name === 'not')
-        && (expression.expression.name === 'navigate')
+        && isField(expression.expression)
       ) {
       return {
         field: expression.expression.path,
         operand: null,
+        operandIsField: false,
       };
     }
   }

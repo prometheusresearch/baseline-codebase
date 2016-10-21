@@ -12,6 +12,7 @@ export class TextOperand extends React.Component {
         {...props}
         value={value == null ? '' : value}
         onChange={this.onChange}
+        placeholder="Enter a Value..."
         />
     );
   }
@@ -68,6 +69,7 @@ export class EnumerationOperand extends React.Component {
         value={this.props.value}
         options={this.props.options}
         onChange={this.props.onChange}
+        placeholder="Select a Value"
         />
     );
   }

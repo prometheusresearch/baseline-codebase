@@ -175,6 +175,29 @@ pages:
             type: checkGroup
             options:
               autoHotkeys: true
+      - type: question
+        options:
+          fieldId: q13
+          text:
+            en: This question's enumerations are numeric strings with no descriptions.
+      - type: question
+        options:
+          fieldId: q14
+          text:
+            en: This question's enumerations are numeric strings.
+          enumerations:
+            - id: '1'
+              text:
+                en: one
+            - id: '2'
+              text:
+                en: two
+            - id: '3'
+              text:
+                en: three
+            - id: '4'
+              text:
+                en: four
 
   - id: page3
     elements:

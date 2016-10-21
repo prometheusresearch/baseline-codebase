@@ -54,7 +54,7 @@ export default class ViewEnumerationValue extends ViewValue {
     let ret = [];
     value.forEach((val, idx) => {
       if (idx) {
-        ret.push(<span key={idx}>{', '}</span>);
+        ret.push(<span key={idx + 'split'}>{', '}</span>);
       }
       ret.push(this.getEnumString(val));
     });

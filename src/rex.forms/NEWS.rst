@@ -13,6 +13,8 @@ REX.FORMS Change Log
   now exposed via the ``make_form_skeleton()`` function.
 * Fixed an issue that caused Forms to not render if their configuration
   contains invalid REXL expressions.
+* Fixed an issue that caused enumerationSet choices to be crammed together
+  when displayed in Review mode.
 
 
 2.1.0 (2016-09-14)

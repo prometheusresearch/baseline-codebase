@@ -15,6 +15,13 @@ types:
       blue:
       green:
       yellow:
+  numeric_set:
+    base: enumerationSet
+    enumerations:
+      '1':
+      '2':
+      '3':
+      '4':
 record:
   - id: plain
     type: basic
@@ -122,6 +129,10 @@ record:
         nine:
         ten:
         eleven:
+  - id: q13
+    type: numeric_set
+  - id: q14
+    type: numeric_set
 
   - id: q_text
     type: text

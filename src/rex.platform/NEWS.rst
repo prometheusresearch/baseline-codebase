@@ -5,17 +5,23 @@
 .. contents:: Table of Contents
 
 
-5.5.3 (2016-xx-xx)
+5.6.0 (2016-xx-xx)
 ==================
 
-* rex.setup==3.3.1
+* rex.action==1.4.2
 * rex.core==1.14.0
 * rex.ctl==2.2.0
-* rex.web==3.8.0
 * rex.db==3.6.1
+* rex.dbgui==4.1.2
 * rex.deploy==2.8.1
 * rex.i18n==0.5.1
+* rex.instrument==1.7.0
 * rex.file==1.0.4
+* rex.forms==2.2.0
+* rex.setup==3.3.1
+* rex.web==3.8.0
+* rex.widget==2.9.2
+* rex.widget_chrome==1.2.3
 * HTSQL==2.3.3.20161013
 * HTSQL-PGSQL==2.3.3.20161013
 

@@ -163,12 +163,6 @@ class ColumnPickerButton extends React.Component {
   }
 }
 
-function getPossibleNavigation(pointer) {
-  return pointer.query.name === 'select'
-    ? getNavigation(pointer, pointer.query.context.inputType)
-    : getNavigation(pointer, pointer.query.context.type);
-}
-
 function getNavigation(pointer: QueryPointer<>, type: ?Type): Array<Navigation> {
   let {context} = pointer.query;
   let {scope, domain} = context;

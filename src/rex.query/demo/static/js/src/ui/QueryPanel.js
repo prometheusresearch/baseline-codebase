@@ -11,7 +11,6 @@ import * as t from '../model/Type';
 import * as theme from './Theme';
 import QueryPanelBase from './QueryPanelBase';
 import DefineQueryPanel from './DefineQueryPanel';
-import Message from './Message';
 import NavigationPanel from './NavigationPanel';
 import FilterQueryPanel from './FilterQueryPanel';
 

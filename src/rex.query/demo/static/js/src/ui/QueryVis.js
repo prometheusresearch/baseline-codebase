@@ -60,7 +60,7 @@ export function QueryVisDefineButton(props: QueryVisDefineButtonProps) {
       stylesheet={{Root: QueryPane.DefinePane, Button: QueryButton.DefineButton}}
       pointer={pointer}
       label={`Define: ${pointer.query.binding.name}`}>
-      <VBox paddingTop={5} paddingLeft={20}>
+      <VBox paddingTop={5} paddingLeft={15}>
         {binding}
       </VBox>
     </QueryVisButton>

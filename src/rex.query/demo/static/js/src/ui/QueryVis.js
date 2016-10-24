@@ -132,13 +132,7 @@ export function QueryVisHere(props: QueryVisHereProps) {
   );
 }
 
-type QueryVisSelectProps = {
-  pointer: QueryPointer<q.SelectQuery>;
-  selected: ?QueryPointer<*>;
-  skipSelect?: boolean;
-};
-
-function selectFieldsToRender(pointer) {
+function getSelectFieldset(pointer) {
   let items = [];
   for (let name in pointer.query.select) {
     if (!pointer.query.select.hasOwnProperty(name)) {
@@ -152,10 +146,16 @@ function selectFieldsToRender(pointer) {
   return items;
 }
 
-export function QueryVisSelect(props: QueryVisSelectProps) {
-  let {pointer, skipSelect, ...rest} = props;
-  let items = selectFieldsToRender(pointer).map(pointer =>
-    <QueryVisSelectItem key={name}>
+type QueryVisSelectFieldsetProps = {
+  fieldset: Array<QueryPointer<*>>;
+  selected: ?QueryPointer<*>;
+  topLevel?: boolean;
+};
+
+function QueryVisSelectFieldset(props: QueryVisSelectFieldsetProps) {
+  let {fieldset, topLevel, ...rest} = props;
+  let items = fieldset.map(pointer =>
+    <QueryVisSelectItem key={pointer.path.join('.')} variant={{topLevel}}>
       <QueryVisSelectItemInner>
         <QueryVisQueryButton
           {...rest}
@@ -164,28 +164,44 @@ export function QueryVisSelect(props: QueryVisSelectProps) {
       </QueryVisSelectItemInner>
     </QueryVisSelectItem>
   );
-  if (skipSelect) {
+  if (items.length === 0) {
+    return null;
+  } else {
     return (
-      <VBox paddingTop={5} paddingLeft={5}>
+      <VBox paddingLeft={topLevel ? 5 : 0}>
         {items}
       </VBox>
     );
-  } else {
-    return (
-      <QueryVisButton
-        {...rest}
-        disableToolbar
-        disableRemove
-        label="Select"
-        stylesheet={{Root: QueryPane.NavigatePane, Button: QueryButton.NavigateButton}}
-        pointer={pointer}>
-        {items.length > 0 &&
-          <VBox paddingTop={5} paddingLeft={5}>
-            {items}
-          </VBox>}
-      </QueryVisButton>
-    );
   }
+}
+
+type QueryVisSelectProps = {
+  pointer: QueryPointer<q.SelectQuery>;
+  selected: ?QueryPointer<*>;
+  topLevel?: boolean;
+};
+
+export function QueryVisSelect(props: QueryVisSelectProps) {
+  let {pointer, topLevel, ...rest} = props;
+  let fieldset = getSelectFieldset(pointer);
+  return (
+    <QueryVisButton
+      {...rest}
+      disableToolbar
+      disableRemove
+      label="Select"
+      stylesheet={{Root: QueryPane.NavigatePane, Button: QueryButton.NavigateButton}}
+      pointer={pointer}>
+      {fieldset.length > 0 &&
+        <VBox paddingTop={5}>
+          <QueryVisSelectFieldset
+            {...rest}
+            topLevel={topLevel}
+            fieldset={fieldset}
+          />
+        </VBox>}
+    </QueryVisButton>
+  );
 }
 
 let QueryVisSelectItem = style(VBox, {
@@ -196,7 +212,10 @@ let QueryVisSelectItem = style(VBox, {
     paddingBottom: 5,
     paddingLeft: 5,
     marginBottom: 5,
-  }
+    lastOfType: {
+      marginBottom: 0,
+    }
+  },
 });
 
 let QueryVisSelectItemInner = style(VBox, {
@@ -213,11 +232,10 @@ type QueryVisQueryButtonProps = {
   pointer: QueryPointer<Query>;
   selected: ?QueryPointer<Query>;
   disableRemove?: boolean;
-  skipSelect?: boolean;
 };
 
 function QueryVisQueryButton(props: QueryVisQueryButtonProps) {
-  const {pointer, disableRemove, skipSelect, ...rest} = props;
+  const {pointer, disableRemove, ...rest} = props;
   if (pointer.query.name === 'here') {
     return (
       <QueryVisHere
@@ -252,7 +270,6 @@ function QueryVisQueryButton(props: QueryVisQueryButtonProps) {
     return (
       <QueryVisSelect
         {...rest}
-        skipSelect={skipSelect}
         pointer={((pointer: any): QueryPointer<q.SelectQuery>)}
         />
     );
@@ -293,10 +310,6 @@ type QueryVisPipelineProps = {
 };
 
 function QueryVisPipeline({pipeline, disableRemove, ...props}: QueryVisPipelineProps) {
-  let skipSelect = (
-    pipeline.length === 2 &&
-    (pipeline[0].query.name === 'here' || pipeline[0].query.name === 'navigate')
-  );
   let first = pipeline[0];
   let last = pipeline[pipeline.length - 1];
   let isSelectPipeline = (
@@ -331,7 +344,6 @@ function QueryVisPipeline({pipeline, disableRemove, ...props}: QueryVisPipelineP
         <QueryVisPipelineItem key={idx}>
           <QueryVisQueryButton
             {...props}
-            skipSelect={skipSelect}
             disableRemove={disableRemove && idx === 0}
             pointer={pointer}
             />
@@ -376,8 +388,9 @@ function QueryVisSelectPipeline({
       </QueryVisPipelineItem>
       {items}
       <QueryVisPipelineItem>
-        <QueryVisQueryButton
+        <QueryVisSelect
           pointer={select}
+          topLevel={navigate.query.name === 'here'}
           {...props}
           />
       </QueryVisPipelineItem>
@@ -395,21 +408,21 @@ type QueryVisSelectCollapsedPipelineProps = {
 function QueryVisSelectCollapsedPipeline({
   navigate, select, ...props
 }: QueryVisSelectCollapsedPipelineProps) {
-  let selectFields = selectFieldsToRender(select);
+  let fieldset = getSelectFieldset(select);
   return (
     <QueryVisPipelineRoot>
       <QueryVisPipelineItem>
         <QueryVisQueryButton
-          pointer={navigate}
           {...props}
+          pointer={navigate}
           />
       </QueryVisPipelineItem>
-      {selectFields.length > 0 &&
+      {fieldset.length > 0 &&
         <QueryVisPipelineItem>
-          <QueryVisQueryButton
-            skipSelect
-            pointer={select}
+          <QueryVisSelectFieldset
             {...props}
+            fieldset={fieldset}
+            topLevel={navigate.query.name === 'here'}
             />
         </QueryVisPipelineItem>}
     </QueryVisPipelineRoot>

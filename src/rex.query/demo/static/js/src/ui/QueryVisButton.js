@@ -58,10 +58,7 @@ export default class QueryVisButton extends React.Component<*, QueryVisButtonPro
           onRemove={this.onRemove}
           selected={isSelected}
           />
-        {children &&
-          <VBox marginLeft={20}>
-            {children}
-          </VBox>}
+        {children}
         {!disableToolbar && isSelected &&
           <VBox padding={5} paddingBottom={0}>
             <QueryVisToolbar

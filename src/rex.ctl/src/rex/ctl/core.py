@@ -72,7 +72,7 @@ class RexTask(Task):
                 None, StrVal(),
                 default=[], plural=True,
                 value_name="PACKAGE",
-                hint="include an additional parameter")
+                hint="include an additional package")
         set = option(
                 None, StrVal(r'[0-9A-Za-z_-]+(=.*)?'),
                 default=[], plural=True,

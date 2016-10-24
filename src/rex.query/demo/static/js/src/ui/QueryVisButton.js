@@ -18,7 +18,8 @@ import QueryVisToolbar from './QueryVisToolbar';
 type QueryVisButtonProps = {
   pointer: QueryPointer<Query>;
   children?: React$Element<*>;
-  selected: QueryPointer<Query>;
+  selected: ?QueryPointer<Query>;
+  disableToolbar: boolean;
 };
 
 export default class QueryVisButton extends React.Component<*, QueryVisButtonProps, *> {
@@ -30,7 +31,8 @@ export default class QueryVisButton extends React.Component<*, QueryVisButtonPro
   static contextTypes = {actions: React.PropTypes.object};
 
   static defaultProps = {
-    selected: false,
+    selected: null,
+    disableToolbar: false,
     stylesheet: {
       Root: VBox,
       Button: VBox,
@@ -46,7 +48,7 @@ export default class QueryVisButton extends React.Component<*, QueryVisButtonPro
   };
 
   render() {
-    let {children, selected, pointer, ...props} = this.props;
+    let {children, selected, pointer, disableToolbar, ...props} = this.props;
     let isSelected = qp.is(selected, pointer);
     return (
       <VBox>
@@ -60,7 +62,7 @@ export default class QueryVisButton extends React.Component<*, QueryVisButtonPro
           <VBox marginLeft={20}>
             {children}
           </VBox>}
-        {isSelected &&
+        {!disableToolbar && isSelected &&
           <VBox padding={5} paddingBottom={0}>
             <QueryVisToolbar
               pointer={pointer}

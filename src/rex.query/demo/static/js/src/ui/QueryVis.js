@@ -169,6 +169,7 @@ export function QueryVisSelect(props: QueryVisSelectProps) {
     return (
       <QueryVisButton
         {...rest}
+        disableToolbar
         disableRemove
         label="Select"
         stylesheet={{Root: QueryPane.NavigatePane, Button: QueryButton.NavigateButton}}

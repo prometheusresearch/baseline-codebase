@@ -51,6 +51,11 @@ function createButton({displayName, theme}) {
   }
 }
 
+export let DefaultButton = createButton({
+  displayName: 'DefaultButton',
+  theme: theme.default,
+});
+
 export let NavigateButton = createButton({
   displayName: 'NavigateButton',
   theme: theme.entity

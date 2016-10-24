@@ -3,7 +3,7 @@ import * as qp from '../QueryPointer';
 import * as qo from '../QueryOperation';
 import {stripContext} from './util';
 
-const {def, here, pipeline, navigate, select} = q;
+const {def, here, pipeline, navigate, select, filter} = q;
 const {normalize} = qo;
 const individual = navigate('individual');
 const study = navigate('study');
@@ -12,13 +12,156 @@ const name = navigate('name');
 import * as jestMatchers from 'jest-matchers';
 import * as matchers from 'jest-matchers/build/matchers';
 
-let point = (q, ...keyPath) => qp.select(qp.make(q), ...keyPath);
+let point = (q, ...keyPath) =>
+  qp.select(qp.make(q), ...keyPath);
+
+let pointerPath = pointer =>
+  pointer
+    ? pointer.path.map(item => item.join('.')).join(':')
+    : null;
+
+describe('addNavigation', function() {
+
+  jestMatchers.addMatchers({
+    toBeNavigatedAs(received, expected) {
+      let {query, selected} = qo.addNavigation({
+        loc: {
+          pointer: received.pointer,
+          selected: null,
+        },
+        path: received.path,
+      });
+      return matchers.toEqual(
+        {
+          query: stripContext(query),
+          selected: pointerPath(selected),
+        },
+        {
+          query: stripContext(expected.query),
+          selected: expected.selected,
+        }
+      );
+    }
+  });
+
+  it('here null a', function() {
+    expect({
+      pointer: point(here),
+      path: ['a'],
+    }).toBeNavigatedAs({
+      query: q.select({a: q.navigate('a')}),
+      selected: 'select.a'
+    });
+  });
+
+  it('here null a.b', function() {
+    expect({
+      pointer: point(here),
+      path: ['a', 'b'],
+    }).toBeNavigatedAs({
+      query: q.select({
+        a: q.pipeline(q.navigate('a'), q.select({
+          b: q.navigate('b')
+        }))
+      }),
+      selected: 'select.a:pipeline.1:select.b'
+    });
+  });
+
+  it('here null a.b.c', function() {
+    expect({
+      pointer: point(here),
+      path: ['a', 'b', 'c'],
+    }).toBeNavigatedAs({
+      query: q.select({
+        a: q.pipeline(q.navigate('a'), q.select({
+          b: q.pipeline(q.navigate('b'), q.select({
+            c: q.navigate('c')
+          }))
+        }))
+      }),
+      selected: 'select.a:pipeline.1:select.b:pipeline.1:select.c'
+    });
+  });
+
+  it('here:select(a := a) null a.b', function() {
+    expect({
+      pointer: point(pipeline(here, select({a: navigate('a')}))),
+      path: ['a', 'b'],
+    }).toBeNavigatedAs({
+      query: q.select({
+        a: q.pipeline(q.navigate('a'), q.select({
+          b: q.navigate('b')
+        }))
+      }),
+      selected: 'select.a:pipeline.1:select.b'
+    });
+  });
+
+  it('here:filter():select(a := a) null a.b', function() {
+    expect({
+      pointer: point(pipeline(here, filter(study), select({a: navigate('a')}))),
+      path: ['a', 'b'],
+    }).toBeNavigatedAs({
+      query: pipeline(
+        filter(study),
+        select({
+          a: pipeline(navigate('a'), select({
+            b: navigate('b')
+          }))
+        })
+      ),
+      selected: 'pipeline.1:select.a:pipeline.1:select.b',
+    });
+  });
+
+  it('here:select(a := a) null a.b.c', function() {
+    expect({
+      pointer: point(pipeline(here, select({a: navigate('a')}))),
+      path: ['a', 'b', 'c'],
+    }).toBeNavigatedAs({
+      query: q.select({
+        a: q.pipeline(q.navigate('a'), q.select({
+          b: q.pipeline(q.navigate('b'), q.select({
+            c: navigate('c'),
+          }))
+        }))
+      }),
+      selected: 'select.a:pipeline.1:select.b:pipeline.1:select.c'
+    });
+  });
+
+  it('here:select(a := a) a b.c', function() {
+    expect({
+      pointer: point(
+        pipeline(here, select({a: navigate('a')})),
+        ['pipeline', 1],
+        ['select', 'a']
+      ),
+      path: ['b', 'c'],
+    }).toBeNavigatedAs({
+      query: q.select({
+        a: q.pipeline(q.navigate('a'), q.select({
+          b: q.pipeline(q.navigate('b'), q.select({
+            c: navigate('c'),
+          }))
+        }))
+      }),
+      selected: 'select.a:pipeline.1:select.b:pipeline.1:select.c'
+    });
+  });
+
+
+});
 
 describe('normalize()', function() {
 
   jestMatchers.addMatchers({
     toBeNormalizedAs(received, expected) {
-      let result = stripped(normalize(received.query, received.selected));
+      let result = stripped(normalize({
+        query: received.query,
+        selected: received.selected
+      }));
       return matchers.toEqual(result, stripped(expected));
     }
   });
@@ -26,7 +169,7 @@ describe('normalize()', function() {
   function stripped({query, selected}) {
     query = stripContext(query);
     let path = selected
-      ? qp.trace(selected).map(item => item.keyPath.join('.')).join(':')
+      ? pointerPath(selected)
       : null;
     return {query, path};
   }
@@ -595,11 +738,25 @@ describe('normalize()', function() {
   });
 
   it('individual:select(study := study:select({name: here})) pipeline.1 select.study pipeline.1 select.name', function() {
-    let query = pipeline(individual, select({study: pipeline(study, select({name: here}))}));
+    let query = pipeline(
+      individual,
+      select({
+        study: pipeline(
+          study,
+          select({name: here})
+        )
+      })
+    );
     let nextQuery = pipeline(individual, select({study: study}));
     expect({
       query,
-      selected: point(query, ['pipeline', 1], ['select', 'study'], ['pipeline', 1], ['select', 'name'])
+      selected: point(
+        query,
+        ['pipeline', 1],
+        ['select', 'study'],
+        ['pipeline', 1],
+        ['select', 'name']
+      )
     }).toBeNormalizedAs({
       query: nextQuery,
       selected: point(query, ['pipeline', 1], ['select', 'study']),
@@ -613,28 +770,28 @@ describe('insertAfter()', function() {
   it('individual!name', function() {
     let query = q.navigate('individual');
     let pointer = qp.make(query);
-    let {query: nextQuery} = qo.insertAfter(pointer, null, q.navigate('name'));
+    let {query: nextQuery} = qo.insertAfter({pointer, selected: null}, q.navigate('name'));
     expect(nextQuery).toMatchSnapshot();
   });
 
   it('[individual]!name', function() {
     let query = q.pipeline(q.navigate('individual'));
     let pointer = qp.make(query);
-    let {query: nextQuery} = qo.insertAfter(pointer, null, q.navigate('name'));
+    let {query: nextQuery} = qo.insertAfter({pointer, selected: null}, q.navigate('name'));
     expect(nextQuery).toMatchSnapshot();
   });
 
   it('individual.sample!name', function() {
     let query = q.pipeline(q.navigate('individual'), q.navigate('sample'));
     let pointer = qp.make(query);
-    let {query: nextQuery} = qo.insertAfter(pointer, null, q.navigate('name'));
+    let {query: nextQuery} = qo.insertAfter({pointer, selected: null}, q.navigate('name'));
     expect(nextQuery).toMatchSnapshot();
   });
 
   it('individual!sample.name', function() {
     let query = q.pipeline(q.navigate('individual'), q.navigate('name'));
     let pointer = qp.select(qp.make(query), ['pipeline', 0]);
-    let {query: nextQuery} = qo.insertAfter(pointer, null, q.navigate('sample'));
+    let {query: nextQuery} = qo.insertAfter({pointer, selected: null}, q.navigate('sample'));
     expect(nextQuery).toMatchSnapshot();
   });
 
@@ -648,7 +805,7 @@ describe('insertAfter()', function() {
       ['pipeline', 1],
       ['binding', 'query']
     );
-    let {query: nextQuery} = qo.insertAfter(pointer, null, q.navigate('name'));
+    let {query: nextQuery} = qo.insertAfter({pointer, selected: null}, q.navigate('name'));
     expect(nextQuery).toMatchSnapshot();
   });
 
@@ -659,14 +816,14 @@ describe('removeAt()', function() {
   it('individual.name!', function() {
     let query = q.pipeline(q.navigate('individual'), q.navigate('name'));
     let pointer = qp.select(qp.make(query), ['pipeline', 1]);
-    let {query: nextQuery} = qo.removeAt(pointer, null);
+    let {query: nextQuery} = qo.removeAt({pointer, selected: null});
     expect(nextQuery).toMatchSnapshot();
   });
 
   it('individual!.name', function() {
     let query = q.pipeline(q.navigate('individual'), q.navigate('name'));
     let pointer = qp.select(qp.make(query), ['pipeline', 0]);
-    let {query: nextQuery} = qo.removeAt(pointer, null);
+    let {query: nextQuery} = qo.removeAt({pointer, selected: null});
     expect(nextQuery).toMatchSnapshot();
   });
 
@@ -682,7 +839,7 @@ describe('removeAt()', function() {
       ['pipeline', 1],
       ['select', 'a']
     );
-    let {query: nextQuery} = qo.removeAt(pointer, null);
+    let {query: nextQuery} = qo.removeAt({pointer, selected: null});
     expect(nextQuery).toMatchSnapshot();
   });
 
@@ -699,7 +856,7 @@ describe('removeAt()', function() {
       ['select', 'a'],
       ['pipeline', 0]
     );
-    let {query: nextQuery} = qo.removeAt(pointer, null);
+    let {query: nextQuery} = qo.removeAt({pointer, selected: null});
     expect(nextQuery).toMatchSnapshot();
   });
 
@@ -716,7 +873,7 @@ describe('removeAt()', function() {
       ['pipeline', 1],
       ['select', 'a']
     );
-    let {query: nextQuery} = qo.removeAt(pointer, null);
+    let {query: nextQuery} = qo.removeAt({pointer, selected: null});
     expect(nextQuery).toMatchSnapshot();
   });
 
@@ -730,7 +887,7 @@ describe('removeAt()', function() {
       ['pipeline', 1],
       ['binding', 'query']
     );
-    let {query: nextQuery} = qo.removeAt(pointer, null);
+    let {query: nextQuery} = qo.removeAt({pointer, selected: null});
     expect(nextQuery).toMatchSnapshot();
   });
 

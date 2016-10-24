@@ -7,15 +7,15 @@ import type {Actions} from '../state';
 
 import React from 'react';
 
+import * as q from '../model/Query';
 import * as theme from './Theme';
 import QueryPanelBase from './QueryPanelBase';
 import ColumnPicker from './ColumnPicker';
-import * as FieldList from '../state/FieldList';
 
 type AddColumnPanelProps = {
   pointer: QueryPointer<Query>;
   onClose: () => *;
-  fieldList: FieldList.FieldList;
+  title: string;
 };
 
 export default class AddColumnPanel extends React.Component<*, AddColumnPanelProps, *> {
@@ -28,25 +28,35 @@ export default class AddColumnPanel extends React.Component<*, AddColumnPanelPro
     actions: React.PropTypes.object,
   };
 
-  onSelect = (fieldPath: FieldList.FieldPath) => {
-    if (FieldList.contains(this.props.fieldList, fieldPath)) {
-      this.context.actions.removeFromFieldList({fieldPath});
+  static defaultProps = {
+    title: 'Database',
+  };
+
+  onSelect = (payload: {path: string}) => {
+    let {path} = payload;
+    let {pointer} = this.props;
+    if (pointer.query.name === 'navigate' && pointer.query.path === '') {
+      this.context.actions.replace({pointer, query: q.navigate(path)});
     } else {
-      this.context.actions.addToFieldList({fieldPath});
+      this.context.actions.navigate({pointer, path: [path]});
     }
   };
 
+  onSelectRemove = (payload: {path: string; pointer: QueryPointer<>}) => {
+    let {pointer} = payload;
+    this.context.actions.cut(pointer);
+  };
+
   render() {
-    let {pointer, fieldList, ...props} = this.props;
+    let {pointer, title, ...props} = this.props;
     return (
       <QueryPanelBase
         {...props}
-        theme={theme.select}
-        title="Explore">
+        theme={theme.entity}
+        title={title}>
         <ColumnPicker
-          allowNested
-          selected={fieldList}
           onSelect={this.onSelect}
+          onSelectRemove={this.onSelectRemove}
           pointer={pointer}
           />
       </QueryPanelBase>

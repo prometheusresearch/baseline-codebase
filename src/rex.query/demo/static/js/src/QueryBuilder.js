@@ -14,12 +14,10 @@ import ArrowLeftIcon  from 'react-icons/lib/fa/arrow-left';
 import ArrowRightIcon  from 'react-icons/lib/fa/arrow-right';
 import DownloadIcon from 'react-icons/lib/fa/cloud-download';
 import TerminalIcon from 'react-icons/lib/fa/terminal';
-import CogIcon from 'react-icons/lib/fa/cog';
 
 import * as qp from './model/QueryPointer';
 import * as ui from './ui';
 import * as State from './state';
-import * as FieldList from './state/FieldList';
 
 type QueryBuilderProps = {
   domain: Domain;
@@ -69,7 +67,6 @@ export default class QueryBuilder extends React.Component {
     let {
       query,
       queryInvalid,
-      fieldList,
       selected,
       data,
       showPanel,
@@ -128,33 +125,21 @@ export default class QueryBuilder extends React.Component {
               onShowSelect={this.actions.showSelect}
               />
           </LeftPanelWrapper>
-          {showPanel &&
+          {showPanel && selected &&
             <CenterPanelWrapper>
-              {selected
-                ? <ui.QueryPanel
-                    onClose={this.actions.hidePanel}
-                    pointer={selected}
-                    />
-                : <ui.AddColumnPanel
-                    fieldList={fieldList}
-                    pointer={pointer}
-                    onClose={this.actions.hidePanel}
-                  />}
+              <ui.QueryPanel
+                onClose={this.actions.hidePanel}
+                pointer={selected}
+                />
             </CenterPanelWrapper>}
           <RightPanelWrapper>
             {query && data != null && !queryInvalid
-              ? fieldList.length === 0
-                ? <NoColumnsMessage
-                    showPanel={showPanel}
-                    onShowSelect={this.actions.showSelect}
-                    />
-                : <ui.DataTable
-                    fieldList={fieldList}
-                    query={FieldList.addSelect(query, fieldList)}
-                    data={data}
-                    focusedSeq={focusedSeq}
-                    onFocusedSeq={this.onFocusedSeq}
-                    />
+              ? <ui.DataTable
+                  query={query}
+                  data={data}
+                  focusedSeq={focusedSeq}
+                  onFocusedSeq={this.onFocusedSeq}
+                  />
               : queryInvalid
               ? <InvalidQueryMessage onUndo={this.actions.undo} />
               : null}
@@ -209,31 +194,6 @@ function InvalidQueryMessage({onUndo}) {
       to the previous state.
     </ui.Message>
   );
-}
-
-function NoColumnsMessage({onShowSelect, showPanel}) {
-  if (showPanel) {
-    return (
-      <ui.Message>
-        No columns configured.
-      </ui.Message>
-    );
-  } else {
-    return (
-      <ui.Message>
-        No columns configured.
-        Click
-        <ReactUI.FlatButton
-          style={{verticalAlign: 'middle', margin: 4, marginTop: 2}}
-          icon={<CogIcon />}
-          size="small"
-          onClick={onShowSelect}>
-          Configure columns
-        </ReactUI.FlatButton>
-        to add a few.
-      </ui.Message>
-    );
-  }
 }
 
 let QueryBuilderToolbar = style(HBox, {

@@ -9,8 +9,9 @@ import type {
 } from '../model';
 
 import * as q from '../model/Query';
+import * as qp from '../model/QueryPointer';
+import * as qo from '../model/QueryOperation';
 import * as SC from '../StateContainer';
-import * as FieldList from './FieldList';
 import * as Focus from './Focus';
 import * as actions from './actions';
 
@@ -20,7 +21,6 @@ import * as actions from './actions';
 type UndoRecord = {
   query: Query;
   selected: ?QueryPointer<Query>;
-  fieldList: FieldList.FieldList;
 };
 
 export type State = {
@@ -32,8 +32,6 @@ export type State = {
   query: Query;
 
   queryInvalid: boolean;
-
-  fieldList: FieldList.FieldList;
 
   selected: ?QueryPointer<Query>;
 
@@ -74,17 +72,21 @@ export function getInitialState({
   initialQuery
 }: Params): State {
 
-  let query = q.inferType(domain, initialQuery || q.here);
-  let fieldList = FieldList.fromQuery(query);
-  let selected = null;
-  let focusedSeq = Focus.chooseFocus(FieldList.addSelect(query, fieldList));
+  // normalize query and prepend `here` query
+  let {query} = qo.normalize({query: initialQuery || q.here, selected: null});
+  if (query.name !== 'here') {
+    query = q.pipeline(q.here, query);
+  }
+  query = q.inferType(domain, query);
+
+  let selected = qp.make(query);
+  let focusedSeq = Focus.chooseFocus(query);
 
   let state: State = {
     domain,
     api,
     query,
     queryInvalid: false,
-    fieldList,
     selected,
     data: null,
     dataUpdating: false,

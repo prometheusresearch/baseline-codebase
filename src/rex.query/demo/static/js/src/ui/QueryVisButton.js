@@ -16,25 +16,15 @@ import * as qp from '../model/QueryPointer';
 import QueryVisToolbar from './QueryVisToolbar';
 
 type QueryVisButtonProps = {
-  label: string;
   pointer: QueryPointer<Query>;
   children?: React$Element<*>;
   selected: QueryPointer<Query>;
-  stylesheet: {
-    Root: typeof VBox;
-    Button: typeof VBox;
-  };
 };
 
 export default class QueryVisButton extends React.Component<*, QueryVisButtonProps, *> {
 
   context: {
     actions: Actions;
-  };
-
-  state: {
-    isActive: boolean;
-    isHover: boolean;
   };
 
   static contextTypes = {actions: React.PropTypes.object};
@@ -47,80 +37,25 @@ export default class QueryVisButton extends React.Component<*, QueryVisButtonPro
     }
   };
 
-  onSelect = (e: UIEvent) => {
-    e.stopPropagation();
+  onSelect = () => {
     this.context.actions.select(this.props.pointer);
   };
 
-  onRemove = (e: UIEvent) => {
-    e.stopPropagation();
+  onRemove = () => {
     this.context.actions.remove(this.props.pointer);
   };
 
-  toggleActive = (e: UIEvent) => {
-    e.stopPropagation();
-    let isActive = !this.state.isActive;
-    this.setState({isActive});
-  };
-
-  onMouseEnter = () => {
-    this.setState({isHover: true});
-  };
-
-  onMouseLeave = () => {
-    this.setState({isHover: false});
-  };
-
-  constructor(props: QueryVisButtonProps) {
-    super(props);
-    this.state = {
-      isActive: true,
-      isHover: false,
-    };
-  }
-
   render() {
-    let {
-      label, children, selected, pointer,
-      stylesheet: {Root, Button},
-    } = this.props;
-    let {
-      isActive, isHover
-    } = this.state;
+    let {children, selected, pointer, ...props} = this.props;
     let isSelected = qp.is(selected, pointer);
     return (
       <VBox>
-        <Root
-          variant={{selected: isSelected}}
-          onClick={this.onSelect}
-          onMouseOver={this.onMouseEnter}
-          onMouseLeave={this.onMouseLeave}>
-          <QueryVisButtonLabel>
-            <HBox grow={1} alignItems="center">
-              <VBox
-                paddingRight={5}
-                style={{visibility: !isActive || isSelected || isHover ? 'visible' : 'hidden'}}>
-                <Button disableActive onClick={this.toggleActive}>
-                  {isActive ? <IconCircle /> : <IconCircleO />}
-                </Button>
-              </VBox>
-              <VBox grow={1}>{label}</VBox>
-              <HBox style={{visibility: isSelected || isHover ? 'visible' : 'hidden'}}>
-                <Button onClick={this.onRemove}>
-                  <IconRemove />
-                </Button>
-              </HBox>
-            </HBox>
-          </QueryVisButtonLabel>
-          {isSelected &&
-            <Root
-              position="absolute"
-              top={0}
-              right={-6}
-              width={6}
-              grow={1}
-              />}
-        </Root>
+        <QueryVisButtonHeader
+          {...props}
+          onSelect={this.onSelect}
+          onRemove={this.onRemove}
+          selected={isSelected}
+          />
         {children &&
           <VBox marginLeft={20}>
             {children}
@@ -136,6 +71,108 @@ export default class QueryVisButton extends React.Component<*, QueryVisButtonPro
     );
   }
 
+}
+
+type QueryVisButtonHeaderProps = {
+  stylesheet: {
+    Root: typeof VBox;
+    Button: typeof VBox;
+  };
+  label: string;
+  selected: boolean;
+  onSelect: () => void;
+  onRemove: () => void;
+  disableRemove: boolean;
+};
+
+class QueryVisButtonHeader extends React.Component<*, QueryVisButtonHeaderProps, *> {
+
+  state: {
+    active: boolean;
+    hover: boolean;
+  };
+
+  state = {
+    active: true,
+    hover: false,
+  };
+
+  onMouseEnter = () => {
+    this.setState({hover: true});
+  };
+
+  onMouseLeave = () => {
+    this.setState({hover: false});
+  };
+
+  toggleActive = (e: UIEvent) => {
+    e.stopPropagation();
+    let active = !this.state.active;
+    this.setState({active});
+  };
+
+  onSelect = (e: UIEvent) => {
+    e.stopPropagation();
+    this.props.onSelect();
+  };
+
+  onRemove = (e: UIEvent) => {
+    e.stopPropagation();
+    this.props.onRemove();
+  };
+
+  render() {
+    let {
+      label, selected, disableRemove,
+      stylesheet: {Root, Button},
+    } = this.props;
+    let {
+      active, hover
+    } = this.state;
+
+    let buttonLabel = (
+      <QueryVisButtonLabel>
+        <HBox grow={1} alignItems="center">
+          <VBox
+            paddingRight={5}
+            style={{visibility: !active || selected || hover ? 'visible' : 'hidden'}}>
+            <Button disableActive onClick={this.toggleActive}>
+              {active ? <IconCircle /> : <IconCircleO />}
+            </Button>
+          </VBox>
+          <VBox grow={1}>{label}</VBox>
+          {!disableRemove &&
+            <HBox
+              style={{visibility: selected || hover ? 'visible' : 'hidden'}}>
+              <Button onClick={this.onRemove}>
+                <IconRemove />
+              </Button>
+            </HBox>}
+        </HBox>
+      </QueryVisButtonLabel>
+    );
+
+    let stripe = selected && (
+      <Root
+        position="absolute"
+        top={0}
+        right={-6}
+        width={6}
+        grow={1}
+        />
+    );
+
+    return (
+      <Root
+        variant={{selected}}
+        onClick={this.onSelect}
+        onMouseOver={this.onMouseEnter}
+        onMouseLeave={this.onMouseLeave}>
+        {buttonLabel}
+        {stripe}
+      </Root>
+    );
+  }
 }
 
 export let QueryVisButtonLabel = style(HBox, {

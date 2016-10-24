@@ -4,6 +4,11 @@
 
 import {rgb} from 'react-stylesheet/css';
 
+export default {
+  background: '#FFFFFF',
+  color: rgb(136, 136, 136),
+};
+
 export let entity = {
   background: '#7FDBFF',
   color: '#06688e',

@@ -7,13 +7,13 @@ import type {QueryPointer} from '../model/QueryPointer';
 
 import React from 'react';
 
-import * as q from '../model/Query';
+import * as t from '../model/Type';
 import * as theme from './Theme';
 import QueryPanelBase from './QueryPanelBase';
-import NavigateQueryPanel from './NavigateQueryPanel';
 import DefineQueryPanel from './DefineQueryPanel';
+import Message from './Message';
+import NavigationPanel from './NavigationPanel';
 import FilterQueryPanel from './FilterQueryPanel';
-
 
 type QueryPanelProps = {
   pointer: ?QueryPointer<Query>;
@@ -27,17 +27,33 @@ export default function QueryPanel(props: QueryPanelProps) {
     return null;
   }
 
-  switch (pointer.query.name) {
+  let query = pointer.query;
+
+  switch (query.name) {
     case 'pipeline':
       return null;
-    case 'navigate':
-      let p: QueryPointer<q.NavigateQuery> = (pointer: any);
+    case 'navigate': {
+      let {domain, type} = query.context;
+      let title = getTitleFromType(domain, type) || query.path;
       return (
-        <NavigateQueryPanel
-          pointer={p}
+        <NavigationPanel
+          title={title}
+          pointer={pointer}
           onClose={onClose}
           />
       );
+    }
+    case 'select': {
+      let {domain, inputType} = query.context;
+      let title = getTitleFromType(domain, inputType) || "Select";
+      return (
+        <NavigationPanel
+          title={title}
+          pointer={pointer}
+          onClose={onClose}
+          />
+      );
+    }
     case 'filter':
       return (
         <FilterQueryPanel
@@ -55,17 +71,37 @@ export default function QueryPanel(props: QueryPanelProps) {
     case 'aggregate':
       return (
         <QueryPanelBase
-          title={`Aggregate: ${pointer.query.aggregate}`}
+          title={`${query.aggregate}`}
           onClose={onClose}
           theme={theme.aggregate}
           pointer={pointer}>
         </QueryPanelBase>
       );
-    case 'select':
-      return null;
+    case 'here':
+      return (
+        <NavigationPanel
+          pointer={pointer}
+          onClose={onClose}
+          />
+      );
     case 'limit':
       return null;
     default:
       return null
+  }
+}
+
+function getTitleFromType(domain, type) {
+  type = t.maybeAtom(type);
+  if (type == null) {
+    return null;
+  } else if (type.name === 'entity') {
+    let entity = domain.entity[type.entity];
+    if (entity == null) {
+      return null;
+    }
+    return entity.title;
+  } else {
+    return null;
   }
 }

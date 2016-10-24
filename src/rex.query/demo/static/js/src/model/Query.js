@@ -706,41 +706,112 @@ export function flattenPipeline(query: QueryPipeline): QueryPipeline {
   return {name: 'pipeline', pipeline, context: query.context};
 }
 
-export function map<A: Query, B: Query>(query: A, f: (q: A) => B): B {
-  if (query.name === 'here') {
-    return f(query);
-  } else if (query.name === 'pipeline') {
-    let pipeline = query.pipeline.map(q => map(q, f));
-    return {name: 'pipeline', ...f(query), pipeline};
-  } else if (query.name === 'select') {
-    let select = {};
-    for (let k in query.select) {
-      if (query.select.hasOwnProperty(k)) {
-        select[k] = map(query.select[k], f);
-      }
-    }
-    return {name: 'select', ...f(query), select};
-  } else if (query.name === 'define') {
-    let binding = {
-      name: query.binding.name,
-      query: map(query.binding.query, f),
-    };
-    return {name: 'define', ...f(query), binding};
-  } else if (query.name === 'filter') {
-    return {
-      name: 'filter',
-      predicate: map(query.predicate, f),
-      ...f(query),
-    };
-  } else if (query.name === 'limit') {
-    return f(query);
-  } else if (query.name === 'aggregate') {
-    return f(query);
-  } else if (query.name === 'navigate') {
-    return f(query);
-  } else {
-    invariant(false, 'Unknown query type: %s', query.name);
+type Transform<A, B, C, R = Query> = {
+  pipeline?: (query: QueryPipeline, a: A, b: B, c: C) => R;
+  aggregate?: (query: AggregateQuery, a: A, b: B, c: C) => R;
+  limit?: (query: LimitQuery, a: A, b: B, c: C) => R;
+  here?: (query: HereQuery, a: A, b: B, c: C) => R;
+  select?: (query: SelectQuery, a: A, b: B, c: C) => R;
+  filter?: (query: FilterQuery, a: A, b: B, c: C) => R;
+  define?: (query: DefineQuery, a: A, b: B, c: C) => R;
+  navigate?: (query: NavigateQuery, a: A, b: B, c: C) => R;
+  otherwise?: (query: Query, a: A, b: B, c: C) => R;
+};
+
+
+function fail<R>(query: Query): R {
+  invariant(false, 'Do not know how to process: %s', query.name);
+}
+
+export function transform<A, B, C, R>(
+  query: Query,
+  transform: Transform<A, B, C, R>,
+  a: A, b: B, c: C
+): R {
+  let otherwise = transform.otherwise || fail;
+  switch (query.name) {
+    case 'pipeline':
+      return transform.pipeline
+        ? transform.pipeline(query, a, b, c)
+        : otherwise(query, a, b, c);
+    case 'aggregate':
+      return transform.aggregate
+        ? transform.aggregate(query, a, b, c)
+        : otherwise(query, a, b, c);
+    case 'limit':
+      return transform.limit
+        ? transform.limit(query, a, b, c)
+        : otherwise(query, a, b, c);
+    case 'here':
+      return transform.here
+        ? transform.here(query, a, b, c)
+        : otherwise(query, a, b, c);
+    case 'select':
+      return transform.select
+        ? transform.select(query, a, b, c)
+        : otherwise(query, a, b, c);
+    case 'filter':
+      return transform.filter
+        ? transform.filter(query, a, b, c)
+        : otherwise(query, a, b, c);
+    case 'define':
+      return transform.define
+        ? transform.define(query, a, b, c)
+        : otherwise(query, a, b, c);
+    case 'navigate':
+      return transform.navigate
+        ? transform.navigate(query, a, b, c)
+        : otherwise(query, a, b, c);
+    default:
+      invariant(false, 'Unknown query: %s', query.name);
   }
+}
+
+export function map(query: Query, f: (q: Query) => Query): Query {
+  return transform(query, {
+    pipeline(query) {
+      let pipeline = query.pipeline.map(q => map(q, f));
+      return {name: 'pipeline', ...f(query), pipeline};
+    },
+    select(query) {
+      let select = {};
+      for (let k in query.select) {
+        if (query.select.hasOwnProperty(k)) {
+          select[k] = map(query.select[k], f);
+        }
+      }
+      return {name: 'select', ...f(query), select};
+    },
+    define(query) {
+      let binding = {
+        name: query.binding.name,
+        query: map(query.binding.query, f),
+      };
+      return {name: 'define', ...f(query), binding};
+    },
+    filter(query) {
+      let predicate = map(query.predicate, f);
+      return {
+        name: 'filter',
+        predicate,
+        ...f(query),
+      };
+    },
+    otherwise(query) {
+      return f(query);
+    },
+  });
+}
+
+export function mapWithTransform<A, B, C>(
+  query: Query,
+  transformSpec: Transform<A, B, C>,
+  a: A, b: B, c: C
+): Query {
+  return map(
+    query,
+    query => transform(query, transformSpec, a, b, c)
+  );
 }
 
 /**

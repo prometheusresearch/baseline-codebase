@@ -2,33 +2,30 @@
  * @flow
  */
 
-import type {Query, Context} from '../model/Query';
-import type {QueryPointer} from '../model/QueryPointer';
+import type {QueryPointer, Type, Query, Context} from '../model';
 import type {Actions} from '../state';
 
 import React from 'react';
-import {VBox, HBox} from '@prometheusresearch/react-box';
+import {VBox} from '@prometheusresearch/react-box';
 import * as ReactUI from '@prometheusresearch/react-ui';
-import {style} from 'react-stylesheet';
-import * as css from 'react-stylesheet/css';
 
-import * as FieldList from '../state/FieldList';
 import * as t from '../model/Type';
-import * as nav from '../model/navigation';
+import * as q from '../model/Query';
+import * as qp from '../model/QueryPointer';
 import {MenuGroup, MenuButton} from './menu';
-import PlusIcon from './PlusIcon';
-import * as QueryButton from './QueryButton';
-import * as QueryPane from './QueryPane';
 
+type Navigation = {
+  value: string;
+  label: string;
+  context: Context;
+  pointer?: QueryPointer<>;
+};
 
 type ColumnPickerProps = {
   pointer: QueryPointer<Query>;
-  before?: boolean;
-  selected: FieldList.FieldList;
-  onSelect: (path: Array<string>) => *;
-  allowNested?: boolean;
+  onSelect: (payload: {path: string}) => *;
+  onSelectRemove: (payload: {path: string, pointer: QueryPointer<>}) => *;
 };
-
 
 export default class ColumnPicker extends React.Component<*, ColumnPickerProps, *> {
 
@@ -47,10 +44,12 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
   };
 
   render() {
-    let {pointer, before, allowNested, selected: selectedList, onSelect} = this.props;
-    let options = before
-      ? nav.getNavigationBefore(pointer.query.context)
-      : nav.getNavigationAfter(pointer.query.context);
+    let {pointer, onSelect, onSelectRemove} = this.props;
+    let {type} = pointer.query.context;
+    let active = getNavigationPointerMap(pointer);
+    let options = pointer.query.name === 'select' || type == null
+      ? getNavigation(pointer, pointer.query.context.inputType)
+      : getNavigation(pointer, pointer.query.context.type);
     let {searchTerm} = this.state;
     if (searchTerm != null) {
       let searchTermRe = new RegExp(searchTerm, 'ig');
@@ -61,36 +60,19 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
     let entityGroup = [];
     let fieldGroup = [];
     options.forEach(column => {
-      let selected = FieldList.findBy(selectedList, column.value);
+      let pointer = active[column.value];
       let type = t.maybeAtom(column.context.type);
       let isEntity = type && type.name === 'entity';
       let button = (
         <ColumnPickerButton
           key={column.value}
-          path={[column.value]}
           column={column}
+          pointer={pointer}
           onSelect={onSelect}
-          selected={selected != null}
+          onSelectRemove={onSelectRemove}
           actions={this.context.actions}
           />
       );
-      if (allowNested && isEntity && selected != null) {
-        button = (
-          <VBox key={column.value}>
-            {button}
-            <VBox paddingLeft={15}>
-              <ColumnPickerGroup
-                path={[column.value]}
-                allowNested={allowNested}
-                context={column.context}
-                selected={selected}
-                onSelect={onSelect}
-                actions={this.context.actions}
-                />
-            </VBox>
-          </VBox>
-        );
-      }
       if (isEntity) {
         entityGroup.push(button);
       } else {
@@ -113,13 +95,18 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
         </MenuGroup>
         {entityGroup.length > 0 &&
           <VBox paddingBottom={10}>
-            <MenuGroup title="Entity">
+            <MenuGroup
+              title={
+                type == null || type.name === 'void'
+                  ? 'Entities'
+                  : 'Relationships'
+              }>
               {entityGroup}
             </MenuGroup>
           </VBox>}
         {fieldGroup.length > 0 &&
           <VBox>
-            <MenuGroup title="Field">
+            <MenuGroup title="Attributes">
               {fieldGroup}
             </MenuGroup>
           </VBox>}
@@ -143,82 +130,30 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
 
 class ColumnPickerButton extends React.Component {
 
-  state: {
-    hover: boolean;
-  };
-
   props: {
-    selected: boolean;
-    path: Array<string>;
+    pointer?: QueryPointer<>;
     column: {label: string; value: string, context: Context};
-    onSelect: (path: Array<string>) => *;
+    onSelect: (payload: {path: string}) => *;
+    onSelectRemove: (payload: {path: string, pointer: QueryPointer<>}) => *;
     actions: Actions;
-  };
-
-  state = {
-    hover: false,
   };
 
   onSelect = (e: UIEvent) => {
     e.stopPropagation();
-    let {onSelect, path} = this.props;
-    onSelect(path);
-  };
-
-  onHover = () => {
-    this.setState({hover: true});
-  };
-
-  onHoverOff = () => {
-    this.setState({hover: false});
-  };
-
-  onNavigate = (e: UIEvent) => {
-    e.stopPropagation();
-    let {actions, path} = this.props;
-    actions.appendNavigate({path, select: false});
-  };
-
-  onDefine = (e: UIEvent) => {
-    e.stopPropagation();
-    let {actions, path} = this.props;
-    actions.appendDefine({path, select: false});
+    let {onSelect, onSelectRemove, column, pointer} = this.props;
+    if (pointer != null) {
+      onSelectRemove({path: column.value, pointer});
+    } else {
+      onSelect({path: column.value});
+    }
   };
 
   render() {
-    let {column, selected} = this.props;
-    let {hover} = this.state;
-    let buttonGroup = hover
-      ?  <HBox>
-          <QueryPane.NavigatePane>
-            <QueryButton.NavigateButton
-              height="100%"
-              icon={<PlusIcon />}
-              onClick={this.onNavigate}>
-              Nav
-            </QueryButton.NavigateButton>
-          </QueryPane.NavigatePane>
-          <QueryPane.DefinePane>
-            <QueryButton.DefineButton
-              height="100%"
-              icon={<PlusIcon />}
-              onClick={this.onDefine}>
-              Def
-            </QueryButton.DefineButton>
-          </QueryPane.DefinePane>
-        </HBox>
-      : column.context.type
-      ? <ColumnType alignSelf="center">
-          {t.toString(column.context.type)}
-        </ColumnType>
-      : null;
+    let {column, pointer} = this.props;
     return (
       <MenuButton
-        onMouseEnter={this.onHover}
-        onMouseLeave={this.onHoverOff}
-        selected={selected}
-        icon={selected ? '✓' : null}
-        buttonGroup={buttonGroup}
+        selected={pointer != null}
+        icon={pointer != null ? '✓' : null}
         onClick={this.onSelect}>
         <VBox grow={1} justifyContent="center">
           {column.label}
@@ -228,59 +163,126 @@ class ColumnPickerButton extends React.Component {
   }
 }
 
-function ColumnPickerGroup({
-  actions, path, selected: selectedList, context, onSelect, allowNested
-}) {
-  let buttons = nav.getNavigationAfter(context).map(column => {
-    let selected = FieldList.findBy(selectedList, column.value);
-    let type = t.maybeAtom(column.context.type);
-    let isEntity = type && type.name === 'entity';
-    let button = (
-      <ColumnPickerButton
-        path={path.concat(column.value)}
-        key={column.value}
-        column={column}
-        onSelect={onSelect}
-        selected={selected != null}
-        actions={actions}
-        />
-    );
-    if (allowNested && isEntity && selected) {
-      button = (
-        <VBox key={column.value}>
-          {button}
-          <VBox paddingLeft={15}>
-            <ColumnPickerGroup
-              path={path.concat(column.value)}
-              allowNested={allowNested}
-              context={column.context}
-              selected={selected}
-              onSelect={onSelect}
-              actions={actions}
-              />
-          </VBox>
-        </VBox>
-      );
-    }
-    return button;
-  });
-  return <ColumnPickerGroupRoot>{buttons}</ColumnPickerGroupRoot>;
+function getPossibleNavigation(pointer) {
+  return pointer.query.name === 'select'
+    ? getNavigation(pointer, pointer.query.context.inputType)
+    : getNavigation(pointer, pointer.query.context.type);
 }
 
-let ColumnPickerGroupRoot = style(VBox, {
-  base: {
-    borderLeft: css.border(1, '#eee'),
-  }
-});
+function getNavigation(pointer: QueryPointer<>, type: ?Type): Array<Navigation> {
+  let {context} = pointer.query;
+  let {scope, domain} = context;
+  let navigation = [];
 
-let ColumnType = style(HBox, {
-  displayName: 'ColumnType',
-  base: {
-    paddingLeft: 10,
-    paddingRight: 10,
-    fontFamily: 'Menlo, Monaco, monospace',
-    fontSize: '7pt',
-    color: '#888',
-  }
-});
+  let contextAtQuery = {
+    ...context,
+    type: t.maybeAtom(type),
+  };
 
+  // Collect paths from an input type
+  if (type != null) {
+    let baseType = t.atom(type);
+    if (baseType.name === 'void') {
+      for (let k in domain.entity) {
+        if (domain.entity.hasOwnProperty(k)) {
+          let navQuery = q.inferTypeStep(contextAtQuery, q.navigate(k));
+          navigation.push({
+            value: k,
+            label: domain.entity[k].title,
+            context: navQuery.context,
+          });
+        }
+      }
+    } else if (baseType.name === 'entity') {
+      let attribute = domain.entity[baseType.entity].attribute;
+      for (let k in attribute) {
+        if (attribute.hasOwnProperty(k)) {
+          let navQuery = q.inferTypeStep(contextAtQuery, q.navigate(k));
+          navigation.push({
+            value: k,
+            label: attribute[k].title,
+            context: navQuery.context,
+          });
+        }
+      }
+    } else if (baseType.name === 'record') {
+      for (let k in baseType.fields) {
+        if (baseType.fields.hasOwnProperty(k)) {
+          let navQuery = q.inferTypeStep(contextAtQuery, q.navigate(k));
+          navigation.push({
+            value: k,
+            label: k,
+            context: navQuery.context,
+          });
+        }
+      }
+    }
+  }
+
+  for (let k in scope) {
+    if (scope.hasOwnProperty(k)) {
+      let navQuery = q.inferTypeStep(contextAtQuery, scope[k]);
+      navigation.push({
+        value: k,
+        label: k,
+        context: navQuery.context,
+      });
+    }
+  }
+
+  return navigation;
+}
+
+function getNavigationPointerMap(pointer: QueryPointer<>) {
+  // Now we show column picker on navigate nodes, this is why we do this hack...
+  let pointerPrev = qp.prev(pointer);
+  if (pointerPrev && pointerPrev.query.name === 'pipeline') {
+    return getNavigationPointerMapImpl(pointerPrev);
+  } else {
+    return getNavigationPointerMapImpl(pointer);
+  }
+}
+
+function getNavigationPointerMapImpl(
+  pointer: QueryPointer<>
+): {[path: string]: QueryPointer<>} {
+  const noNavigation = {};
+  return q.transform(pointer.query, {
+
+    pipeline: query => {
+      if (query.pipeline.length === 0) {
+        return {};
+      } else if (query.pipeline.length === 1) {
+        return getNavigationPointerMapImpl(qp.select(pointer, ['pipeline', 0]));
+      } else {
+        let navigation = {};
+        for (let i = 0; i < query.pipeline.length; i++) {
+          // FIXME: this is silly
+          navigation = getNavigationPointerMapImpl(qp.select(pointer, ['pipeline', i]));
+        }
+        return navigation;
+      }
+    },
+
+    navigate: query => {
+      return {
+        [query.path]: pointer,
+      };
+    },
+
+    select: query => {
+      let navigation = {};
+      for (let name in query.select) {
+        if (!query.select.hasOwnProperty(name)) {
+          continue;
+        }
+        navigation[name] = qp.select(pointer, ['select', name]);
+      }
+      return navigation;
+    },
+
+    otherwise: _query => {
+      return noNavigation;
+    },
+  });
+}

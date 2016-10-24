@@ -12,48 +12,50 @@ export type KeyPath = Array<number | string>;
  * Query with a keyPath inside.
  */
 export interface QueryPointer<+Q: Query = Query> {
-  prev: ?QueryPointer<>;
-  keyPath: KeyPath;
+  root: Query;
+  path: Array<KeyPath>;
   query: Q;
 };
 
 export function make<Q: Query>(
-  query: Q
+  query: Q,
+  ...path: Array<KeyPath>
 ): QueryPointer<Q> {
+  // TODO: rm cast the Flow 0.34 lands and we don't need to use interface to
+  // represent pointers
+  let root = (query: Query);
+  for (let i = 0; i < path.length; i++) {
+    query = getByKeyPath(query, path[i]);
+    if (query == null) {
+      invariant(false, 'Invalid query pointer with path: %s', path.join('.'));
+    }
+  }
   return {
-    // $FlowIssue: interfaces bug
-    prev: null,
-    query,
-    keyPath: []
+    root: root,
+    path: path,
+    query: query,
   };
 }
 
 export function select(
   pointer: QueryPointer<Query>,
-  ...keyPath: Array<KeyPath>
+  ...path: Array<KeyPath>
 ): QueryPointer<Query> {
-
-  if (keyPath.length === 0) {
+  if (path.length === 0) {
     return pointer;
   }
-
-  let q: Query;
-  let p = pointer;
-
-  for (let i = 0; i < keyPath.length; i++) {
-    if (keyPath[i].length === 0) {
-      continue;
+  let query = pointer.query;
+  for (let i = 0; i < path.length; i++) {
+    query = getByKeyPath(query, path[i]);
+    if (query == null) {
+      invariant(false, 'Invalid query pointer with path: %s', path.join('.'));
     }
-    q = getByKeyPath(p.query, keyPath[i]);
-    invariant(q != null, 'Invalid pointer: %s', keyPath[i]);
-    p = {
-      prev: p,
-      query: q,
-      keyPath: keyPath[i],
-    };
   }
-
-  return p;
+  return {
+    root: pointer.root,
+    path: pointer.path.concat(path),
+    query: query,
+  };
 }
 
 export function spread(
@@ -83,37 +85,94 @@ export function is(a: ?QueryPointer<Query>, b: ?QueryPointer<Query>): boolean {
   }
   for (let i = 0; i < ta.length; i++) {
     // TODO: do we need to check for query type?
-    if (ta[i].keyPath.join('.') !== tb[i].keyPath.join('.')) {
+    if (ta[i].path.join('.') !== tb[i].path.join('.')) {
       return false;
     }
   }
   return true;
 }
 
+export function prev(p: QueryPointer<>): ?QueryPointer<> {
+  if (p.path.length === 0) {
+    return null;
+  } else {
+    let path = p.path.slice(0, p.path.length - 1);
+    return make(p.root, ...path);
+  }
+}
+
 export function move(p: QueryPointer<Query>, d: number): QueryPointer<Query> {
-  if (p.prev && p.prev.query.name === 'pipeline') {
-    return select(p.prev, ['pipeline', p.keyPath[1] + d]);
+  let pPrev = prev(p);
+  if (pPrev && pPrev.query.name === 'pipeline') {
+    let path = pPrev.path.slice(0);
+    path.push(['pipeline', p.path[p.path.length - 1][1] + d]);
+    return make(pPrev.root, ...path);
   } else {
     return p;
   }
 }
 
-export function rebase(p: QueryPointer<*>, q: Query): QueryPointer<Query> {
-  return select(make(q), ...trace(p).map(p => p.keyPath));
+export function rebase(
+  pointer: QueryPointer<*>,
+  query: Query,
+  until?: (query: Query) => boolean,
+): QueryPointer<Query> {
+  let trace = [{query, path: []}];
+  let root = query;
+
+  for (let i = 0; i < pointer.path.length; i++) {
+    let nextQuery = getByKeyPath(query, pointer.path[i]);
+
+    let path = pointer.path.slice(0, i + 1);
+
+    if (query.name === 'pipeline' && path.length > 0) {
+      let [_, idx] = path[path.length - 1];
+      for (let j = 0; j < ((idx: any): number); j++) {
+        let segment = ['pipeline', j];
+        let jPath = path.slice(0, path.length - 1).concat([segment]);
+        let jQuery = getByKeyPath(query, segment);
+        if (jQuery) {
+          trace.push({path: jPath, query: jQuery});
+        }
+      }
+    }
+
+    if (nextQuery == null) {
+      break;
+    } else {
+      trace.push({path, query: nextQuery});
+      query = nextQuery;
+    }
+  }
+
+
+  if (until) {
+    while (trace.length > 1) {
+      if (until(trace[trace.length - 1].query)) {
+        break;
+      } else {
+        trace.pop();
+      }
+    }
+  }
+
+  return {
+    root,
+    query: trace[trace.length - 1].query,
+    path: trace[trace.length - 1].path,
+  };
 }
 
 export function root(p: QueryPointer<*>): QueryPointer<Query> {
-  while (p.prev != null) {
-    p = p.prev;
-  }
-  return p;
+  return make(p.root);
 }
 
 export function trace(p: QueryPointer<*>): Array<QueryPointer<*>> {
-  let trace = [p];
-  while (p.prev != null) {
-    p = p.prev;
-    trace.unshift(p);
+  let path = [];
+  let trace = [make(p.root)];
+  for (let i = 0; i < p.path.length; i++) {
+    path.push(p.path[i]);
+    trace.push(make(p.root, ...path));
   }
   return trace;
 }

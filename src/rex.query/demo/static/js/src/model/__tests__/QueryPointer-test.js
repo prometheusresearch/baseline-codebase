@@ -1,13 +1,13 @@
 import * as q from '../Query';
-import {make, select, trace, root, rebase, move} from '../QueryPointer';
+import {make, select, trace, root, rebase, move, prev} from '../QueryPointer';
 
 describe('make()', function() {
 
   it('allows creating things', function() {
     let p = make(q.navigate('individual'));
     expect(p.query).toEqual(q.navigate('individual'));
-    expect(p.keyPath).toEqual([]);
-    expect(p.prev).toEqual(null);
+    expect(p.path).toEqual([]);
+    expect(prev(p)).toEqual(null);
   });
 
 });
@@ -20,8 +20,8 @@ describe('select()', function() {
     let p1 = select(p, ['pipeline', 0]);
 
     expect(p1.query).toEqual(q.navigate('individual'));
-    expect(p1.keyPath).toEqual(['pipeline', 0]);
-    expect(p1.prev).toEqual(p);
+    expect(p1.path).toEqual([['pipeline', 0]]);
+    expect(prev(p1)).toEqual(p);
   });
 
   it('selects from the pointer', function() {
@@ -31,9 +31,9 @@ describe('select()', function() {
     let p2 = select(p1, ['binding', 'query']);
 
     expect(p2.query).toEqual(q.navigate('individual'));
-    expect(p2.keyPath).toEqual(['binding', 'query']);
-    expect(p2.prev).toEqual(p1);
-    expect(p1.prev).toEqual(p);
+    expect(p2.path).toEqual([['pipeline', 0], ['binding', 'query']]);
+    expect(prev(p2)).toEqual(p1);
+    expect(prev(p1)).toEqual(p);
   });
 
 });
@@ -74,15 +74,15 @@ describe('rebase()', function() {
     let p1 = select(p, ['pipeline', 0]);
     let p2 = select(p1, ['binding', 'query']);
     expect(p2.query).toBe(query.pipeline[0].binding.query);
-    expect(p2.prev).toBeTruthy();
-    expect(p2.prev.prev).toBeTruthy();
-    expect(p2.prev.prev.prev).toBeNull();
+    expect(prev(p2)).toBeTruthy();
+    expect(prev(prev(p2))).toBeTruthy();
+    expect(prev(prev(prev(p2)))).toBeNull();
 
     let rp2 = rebase(p2, nextQuery);
     expect(rp2.query).toBe(nextQuery.pipeline[0].binding.query);
-    expect(rp2.prev).toBeTruthy();
-    expect(rp2.prev.prev).toBeTruthy();
-    expect(rp2.prev.prev.prev).toBeNull();
+    expect(prev(rp2)).toBeTruthy();
+    expect(prev(prev(rp2))).toBeTruthy();
+    expect(prev(prev(prev(rp2)))).toBeNull();
   });
 
 });
@@ -90,16 +90,21 @@ describe('rebase()', function() {
 describe('move()', function() {
 
   it('moves pointer to next item in pipeline', function() {
-    let query = q.pipeline(q.navigate('individual'), q.navigate('name'));
+    let query = q.pipeline(
+      q.navigate('individual'),
+      q.navigate('name')
+    );
 
     let p = select(make(query), ['pipeline', 0]);
     expect(p.query).toEqual(q.navigate('individual'));
+
     let pp1 = move(p, 1);
     expect(pp1.query).toEqual(q.navigate('name'));
-    expect(pp1.keyPath).toEqual(['pipeline', 1]);
+    expect(pp1.path).toEqual([['pipeline', 1]]);
+
     let pm1 = move(pp1, -1);
     expect(pm1.query).toEqual(q.navigate('individual'));
-    expect(pm1.keyPath).toEqual(['pipeline', 0]);
+    expect(pm1.path).toEqual([['pipeline', 0]]);
   });
 
 });

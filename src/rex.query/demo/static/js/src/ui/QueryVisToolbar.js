@@ -46,19 +46,18 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
         type = t.voidType;
       }
     }
-    let canNavigate = canNavigateAt(type);
     let canFilter = canFilterAt(type);
     let canDefine = canDefineAt(type);
     let canAggregate = canAggregateAt(type);
     return (
       <VBox width="100%" style={{backgroundColor: 'white'}}>
-        <HBox padding={2}>
+        <HBox padding={2} justifyContent="flex-end">
           {(!hideDisabled || (hideDisabled && canFilter)) &&
             <ReactUI.QuietButton
               groupHorizontally
               disabled={!canFilterAt(type)}
               size="x-small"
-              width="25%"
+              width="30%"
               onClick={this.onAddFilter}
               icon={<PlusIcon />}>
               Filter
@@ -68,7 +67,7 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
               groupHorizontally
               disabled={!canDefineAt(type)}
               size="x-small"
-              width="25%"
+              width="30%"
               onClick={this.onAddDefine}
               icon={<PlusIcon />}>
               Define
@@ -78,35 +77,15 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
               groupHorizontally
               disabled={!canAggregateAt(type)}
               size="x-small"
-              width="25%"
+              width="30%"
               onClick={this.onAddAggregate}
               icon={<PlusIcon />}>
               Aggregate
-            </ReactUI.QuietButton>}
-          {(!hideDisabled || (hideDisabled && canNavigate)) &&
-            <ReactUI.QuietButton
-              groupHorizontally
-              disabled={!canNavigateAt(type)}
-              size="x-small"
-              width="25%"
-              onClick={this.onAddNavigate}
-              icon={<PlusIcon />}>
-              Navigate
             </ReactUI.QuietButton>}
         </HBox>
       </VBox>
     );
   }
-
-  onAddNavigate = (e: UIEvent) => {
-    e.stopPropagation();
-    let {pointer} = this.props; 
-    if (this.props.mode === 'prepend') {
-      this.context.actions.prependNavigate({pointer, select: true});
-    } else {
-      this.context.actions.appendNavigate({pointer, select: true});
-    }
-  };
 
   onAddFilter = (e: UIEvent) => {
     e.stopPropagation();
@@ -132,9 +111,9 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
     e.stopPropagation();
     let {pointer} = this.props; 
     if (this.props.mode === 'prepend') {
-      this.context.actions.prependDefine({pointer});
+      this.context.actions.prependDefine({pointer, select: true});
     } else {
-      this.context.actions.appendDefine({pointer});
+      this.context.actions.appendDefine({pointer, select: true});
     }
   };
 
@@ -146,16 +125,6 @@ function canAggregateAt(type: ?Type) {
 
 function canFilterAt(type: ?Type) {
   return isSeqAt(type);
-}
-
-function canNavigateAt(type: ?Type) {
-  let canNavigate = (
-    type && (
-      (type.name === 'seq' && type.type.name === 'entity') ||
-      type.name === 'void'
-    )
-  );
-  return canNavigate;
 }
 
 function canDefineAt(type: ?Type) {

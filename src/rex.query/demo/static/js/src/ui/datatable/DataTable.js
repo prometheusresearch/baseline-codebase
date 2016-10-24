@@ -294,10 +294,6 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     )
   }
 
-  shouldComponentUpdate(nextProps: DataTableProps, nextState: DataTableState) {
-    return shallowCompare(this, nextProps, nextState)
-  }
-
   _createColumn = ({
     column,
     columnIndex,
@@ -400,7 +396,9 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     const clientWidth = Grid.clientWidth || 0
     const offsetWidth = Grid.offsetWidth || 0
     const scrollbarWidth = offsetWidth - clientWidth
-    this.setState({scrollbarWidth})
+    if (scrollbarWidth !== this.state.scrollbarWidth) {
+      this.setState({scrollbarWidth})
+    }
   }
 }
 

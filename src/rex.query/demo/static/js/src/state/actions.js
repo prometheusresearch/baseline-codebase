@@ -515,23 +515,25 @@ function onQuery(state: State, query: Query, selected: ?QueryPointer<*>) {
 
 function refetchQuery(state, setState) {
   const {query, api} = state;
-  if (query.context.type == null) {
-    setState(
-      'queryInvalid',
-      state => ({...state, dataUpdating: false, queryInvalid: true})
-    );
-  } else {
-    setState(
-      'fetchStart',
-      state => ({...state, dataUpdating: true, queryInvalid: false})
-    );
-    Fetch.fetch(api, query).then(data => {
+  Promise.resolve().then(_ => {
+    if (query.context.type == null) {
       setState(
-        'fetchFinish',
-        state => ({...state, data, dataUpdating: false})
+        'queryInvalid',
+        state => ({...state, dataUpdating: false, queryInvalid: true})
       );
-    });
-  }
+    } else {
+      setState(
+        'fetchStart',
+        state => ({...state, dataUpdating: true, queryInvalid: false})
+      );
+      Fetch.fetch(api, query).then(data => {
+        setState(
+          'fetchFinish',
+          state => ({...state, data, dataUpdating: false})
+        );
+      });
+    }
+  });
 }
 
 function getName(scope, prefix = 'Query') {

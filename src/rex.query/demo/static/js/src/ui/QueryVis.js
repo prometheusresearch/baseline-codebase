@@ -293,15 +293,6 @@ function QueryVisPipeline({pipeline, disableRemove, ...props}: QueryVisPipelineP
     (pipeline[0].query.name === 'here' || pipeline[0].query.name === 'navigate')
   );
   let items = pipeline.map((pointer, idx) => {
-    // Skip select in 2-pipeline which start with navigate
-    if (
-      pipeline.length === 2 &&
-      idx === 1 &&
-      pipeline[0].query.name === 'navigate' &&
-      pipeline[1].query.name === 'select'
-    ) {
-      return null;
-    }
     return (
       <QueryVisPipelineItem key={idx}>
         <QueryVisQueryButton
@@ -330,9 +321,9 @@ let QueryVisPipelineRoot = style(VBox, {
 let QueryVisPipelineItem = style(VBox, {
   displayName: 'QueryVisPipelineItem',
   base: {
-    paddingBottom: 5,
+    marginBottom: 5,
     lastOfType: {
-      paddingBottom: 0,
+      marginBottom: 0,
     }
   }
 });

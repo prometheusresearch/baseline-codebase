@@ -4,7 +4,6 @@
 
 import React from 'react'
 import ReactDOM from 'react-dom'
-import shallowCompare from 'react-addons-shallow-compare'
 import {style} from 'react-stylesheet';
 import {Grid} from 'react-virtualized'
 

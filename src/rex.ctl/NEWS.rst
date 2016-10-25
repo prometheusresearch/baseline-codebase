@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.2.0 (2016-XX-XX)
+2.2.0 (2016-10-25)
 ==================
 
 * Support for ``autorex``-generated documentation.

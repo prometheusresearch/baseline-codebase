@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-3.3.1 (2016-XX-XX)
+3.3.1 (2016-10-25)
 ==================
 
 * Updated test output.

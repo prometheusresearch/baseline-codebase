@@ -5,10 +5,11 @@
 .. contents:: Table of Contents
 
 
-1.14.0 (2016-XX-XX)
+1.14.0 (2016-10-25)
 ===================
 
 * Added ``sphinxcontrib.autorex`` Sphinx extension.
+* Fixed Error to handle non-ASCII messages or payloads.
 
 
 1.13.1 (2016-09-14)

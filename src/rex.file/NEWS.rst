@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.0.4 (2016-XX-XX)
+1.0.4 (2016-10-25)
 ==================
 
 * Do not automatically enable ``rex_deploy`` HTSQL addon.

@@ -164,7 +164,7 @@ Definition JSON from an InstrumentVersion in the project data store::
     the data store.
     <BLANKLINE>
     Options:
-      --require=PACKAGE        : include an additional parameter
+      --require=PACKAGE        : include an additional package
       --set=PARAM=VALUE        : set a configuration parameter
       --output=OUTPUT_FILE     : the file to write to; if not specified, stdout is used
       --format=FORMAT          : the format to output the definition in; can be either JSON or YAML; if not specified, defaults to JSON
@@ -274,7 +274,7 @@ to an InstrumentVersion in the project data store::
     Instrument Definition to use.
     <BLANKLINE>
     Options:
-      --require=PACKAGE        : include an additional parameter
+      --require=PACKAGE        : include an additional package
       --set=PARAM=VALUE        : set a configuration parameter
       --context=PARAM=VALUE    : the additional parameters to pass to the RexAcquire API implementations to create/save objects to the data store
       --version=VERSION        : the version to store the InstrumentVersion as; if not specified, one will be calculated
@@ -451,7 +451,7 @@ way specified::
     Definition to format.
     <BLANKLINE>
     Options:
-      --require=PACKAGE        : include an additional parameter
+      --require=PACKAGE        : include an additional package
       --set=PARAM=VALUE        : set a configuration parameter
       --output=OUTPUT_FILE     : the file to write to; if not specified, stdout is used
       --format=FORMAT          : the format to output the definition in; can be either JSON or YAML; if not specified, defaults to JSON
@@ -580,7 +580,7 @@ Definition JSON from an InstrumentVersion in the project data store::
     the data store.
     <BLANKLINE>
     Options:
-      --require=PACKAGE        : include an additional parameter
+      --require=PACKAGE        : include an additional package
       --set=PARAM=VALUE        : set a configuration parameter
       --output=OUTPUT_FILE     : the file to write to; if not specified, stdout is used
       --format=FORMAT          : the format to output the definition in; can be either JSON or YAML; if not specified, defaults to JSON
@@ -706,7 +706,7 @@ to an InstrumentVersion in the project data store::
     CalculationSet Definition to use.
     <BLANKLINE>
     Options:
-      --require=PACKAGE        : include an additional parameter
+      --require=PACKAGE        : include an additional package
       --set=PARAM=VALUE        : set a configuration parameter
       --context=PARAM=VALUE    : the additional parameters to pass to the RexAcquire API implementations to create/save objects to the data store
       --version=VERSION        : the version of Instrument to store the CalculationSet in; if not specified, one will be calculated

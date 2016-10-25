@@ -5,7 +5,7 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
-1.7.0 (2016-xx-xx)
+1.7.0 (2016-10-25)
 ==================
 
 * Added a ``bulk_create()`` method to Assessment to facilitate features in

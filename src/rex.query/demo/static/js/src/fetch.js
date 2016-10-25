@@ -108,7 +108,6 @@ function getBaseFieldType(field: CatalogEntityField) {
   if (field.column != null) {
     switch (field.column.type) {
       case 'text':
-      case 'date':
         return t.textType;
       case 'enum':
         return t.enumerationType(field.column.enum);
@@ -117,6 +116,12 @@ function getBaseFieldType(field: CatalogEntityField) {
       case 'integer':
       case 'float':
         return t.numberType;
+      case 'date':
+        return t.dateType;
+      case 'time':
+        return t.timeType;
+      case 'datetime':
+        return t.dateTimeType;
       default:
         invariant(false, 'Unknown column type: %s', field.column.type);
     }

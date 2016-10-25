@@ -30,7 +30,9 @@
     "react-icons": "^2.2.1",
     "react-select": "^1.0.0-rc.2",
     "react-stylesheet": "2-alpha",
-    "react-virtualized": "^8.0.2"
+    "react-virtualized": "^8.0.2",
+    "react-input-moment": "prometheusresearch/react-input-moment#master",
+    "moment": "^2.15.2"
   },
   "proxy": "http://localhost:8080",
   "scripts": {

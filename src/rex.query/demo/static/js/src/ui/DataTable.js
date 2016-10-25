@@ -263,7 +263,7 @@ function cellRenderer({
         }
       }
     }
-    if (type.name === 'boolean') {
+    if (baseType.name === 'boolean') {
       if (cellData === true) {
         return <BooleanTrueCell>✓</BooleanTrueCell>;
       } else if (cellData === false) {
@@ -271,7 +271,13 @@ function cellRenderer({
       } else {
         return null;
       }
-    } else if (type.name === 'number') {
+    } else if (baseType.name === 'number') {
+      return String(cellData)
+    } else if (baseType.name === 'date') {
+      return String(cellData)
+    } else if (baseType.name === 'time') {
+      return String(cellData)
+    } else if (baseType.name === 'datetime') {
       return String(cellData)
     } else {
       return String(cellData)

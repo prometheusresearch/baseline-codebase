@@ -12,6 +12,9 @@ export type Type
   | BooleanType
   | TextType
   | EnumerationType
+  | DateType
+  | TimeType
+  | DateTimeType
   | RecordType
   | SeqCardinality<*>
   | OptCardinality<*>;
@@ -23,6 +26,9 @@ export type TypeAtom
   | TextType
   | BooleanType
   | EnumerationType
+  | DateType
+  | TimeType
+  | DateTimeType
   | RecordType;
 /* eslint-enable no-use-before-define */
 
@@ -52,6 +58,18 @@ export type EnumerationType = {
   enumerations: Array<string>;
 };
 
+export type DateType = {
+  name: 'date';
+};
+
+export type TimeType = {
+  name: 'time';
+};
+
+export type DateTimeType = {
+  name: 'datetime';
+};
+
 export type RecordType = {
   name: 'record';
   fields: {[fieldName: string]: Type};
@@ -74,7 +92,10 @@ export function entityType(entity: string): EntityType {
 export const numberType: NumberType = {name: 'number'};
 export const textType: TextType = {name: 'text'};
 export const voidType: VoidType = {name: 'void'};
-export const booleanType : BooleanType = {name: 'boolean'};
+export const booleanType: BooleanType = {name: 'boolean'};
+export const dateType: DateType = {name: 'date'};
+export const timeType: TimeType = {name: 'time'};
+export const dateTimeType: DateTimeType = {name: 'datetime'};
 
 export function enumerationType(enumerations: Array<string>): EnumerationType {
   return {name: 'enumeration', enumerations};

@@ -32,7 +32,6 @@ function isLiteral(obj: any): boolean {
 }
 
 
-
 export type Identification = {
   field: string;  // The name of the field being examined
   operandIsField: boolean;  // Whether or not the operand is a field or a literal value
@@ -102,6 +101,18 @@ class BasicBinaryComparator {
         Component = operands.NumberOperand;
         break;
 
+      case 'date':
+        Component = operands.DateOperand;
+        break;
+
+      case 'time':
+        Component = operands.TimeOperand;
+        break;
+
+      case 'datetime':
+        Component = operands.DateTimeOperand;
+        break;
+
       case 'enumeration':
         Component = operands.EnumerationOperand;
         props.options = type.enumerations.map((enumeration) => {
@@ -132,37 +143,37 @@ class BasicBinaryComparator {
 class Equal extends BasicBinaryComparator {
   label = '==';
   value = 'equal';
-  types = ['text', 'number'];
+  types = ['text', 'number', 'date', 'time', 'datetime'];
 }
 
 class NotEqual extends BasicBinaryComparator {
   label = '!=';
   value = 'notEqual';
-  types = ['text', 'number'];
+  types = ['text', 'number', 'date', 'time', 'datetime'];
 }
 
 class Less extends BasicBinaryComparator {
   label = '<';
   value = 'less';
-  types = ['number'];
+  types = ['number', 'date', 'time', 'datetime'];
 }
 
 class LessEqual extends BasicBinaryComparator {
   label = '<=';
   value = 'lessEqual';
-  types = ['number'];
+  types = ['number', 'date', 'time', 'datetime'];
 }
 
 class Greater extends BasicBinaryComparator {
   label = '>';
   value = 'greater';
-  types = ['number'];
+  types = ['number', 'date', 'time', 'datetime'];
 }
 
 class GreaterEqual extends BasicBinaryComparator {
   label = '>=';
   value = 'greaterEqual';
-  types = ['number'];
+  types = ['number', 'date', 'time', 'datetime'];
 }
 
 class Contains extends BasicBinaryComparator {
@@ -282,7 +293,10 @@ class Empty {
   }
 
   applicable(field) {
-    return isType(field, ['text', 'number', 'enumeration', 'boolean'])
+    return isType(
+        field,
+        ['text', 'number', 'enumeration', 'boolean', 'date', 'time', 'datetime']
+      )
       && isNullable(field);
   }
 

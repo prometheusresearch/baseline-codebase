@@ -4,6 +4,11 @@
 
 .. contents:: Table of Contents
 
+1.5.0 (2016-10-26)
+==================
+
+* [FEATURE] Add documentation extension.
+
 1.4.0 (2016-09-14)
 ==================
 

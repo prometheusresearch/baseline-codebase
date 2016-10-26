@@ -2,6 +2,12 @@
   Change Log
 **************
 
+2.10.0 (2016-10-26)
+===================
+
+* [FEAT] Add documentation hooks.
+* [FIX] Fix styles for file upload.
+
 2.9.1 (2016-09-22)
 ==================
 

@@ -1,6 +1,6 @@
 {
   "name": "rex-widget",
-  "version": "2.9.2",
+  "version": "2.10.0",
   "main": "lib/index.js",
   "peerDependencies": {
     "react": "^0.14.0",

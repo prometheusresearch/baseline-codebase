@@ -4,6 +4,11 @@
 
 .. contents:: Table of Contents
 
+4.1.2 (2016-10-26)
+==================
+
+* Add documentation
+
 
 4.1.1 (2016-xx-xx)
 ==================

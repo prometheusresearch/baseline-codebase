@@ -8,6 +8,7 @@
 ==================
 
 * Using Assessment.bulk_create(...) to create all assessments at once.
+* Added setting assessment_import_dir to save failed import files.
 
 0.4.2 (2016-06-01)
 ==================

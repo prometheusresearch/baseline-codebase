@@ -15,11 +15,6 @@ var PropertyEditorModal = require('./PropertyEditorModal');
 var _ = require('../i18n').gettext;
 
 
-// An ugly global so we know when a WorkspaceElement is editing properties,
-// no matter where in the tree it's happening.
-var CURRENTLY_EDITING = false;
-
-
 var WorkspaceElement = React.createClass({
   mixins: [
     DragDropMixin
@@ -130,10 +125,6 @@ var WorkspaceElement = React.createClass({
       || this.props.element.forceEdit
       || false;
 
-    if (needsEdit) {
-      CURRENTLY_EDITING = true;
-    }
-
     return {
       editing: needsEdit,
       deleting: false,
@@ -145,8 +136,6 @@ var WorkspaceElement = React.createClass({
     if (nextProps.element.needsEdit || nextProps.element.forceEdit) {
       this.setState({
         editing: true
-      }, () => {
-        CURRENTLY_EDITING = true;
       });
     }
   },
@@ -155,8 +144,6 @@ var WorkspaceElement = React.createClass({
     if (!this.state.editing) {
       this.setState({
         editing: true
-      }, () => {
-        CURRENTLY_EDITING = true;
       });
     }
   },
@@ -164,15 +151,13 @@ var WorkspaceElement = React.createClass({
   canMove: function () {
     return !this.props.fixed
       && !this.state.editing
-      && !this.state.deleting
-      && !CURRENTLY_EDITING;
+      && !this.state.deleting;
   },
 
   onCompleteEditing: function (element) {
     this.setState({
       editing: false
     }, () => {
-      CURRENTLY_EDITING = false;
       DraftSetActions.updateElement(element);
     });
   },
@@ -183,8 +168,6 @@ var WorkspaceElement = React.createClass({
     } else {
       this.setState({
         editing: false
-      }, () => {
-        CURRENTLY_EDITING = false;
       });
     }
   },

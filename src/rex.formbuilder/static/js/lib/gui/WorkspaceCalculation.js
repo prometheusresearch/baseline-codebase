@@ -15,11 +15,6 @@ var PropertyEditorModal = require('./PropertyEditorModal');
 var _ = require('../i18n').gettext;
 
 
-// An ugly global so we know when a WorkspaceCalculation is editing properties,
-// no matter where in the tree it's happening.
-var CURRENTLY_EDITING = false;
-
-
 var WorkspaceCalculation = React.createClass({
   mixins: [
     DragDropMixin
@@ -104,10 +99,6 @@ var WorkspaceCalculation = React.createClass({
       || this.props.calculation.forceEdit
       || false;
 
-    if (needsEdit) {
-      CURRENTLY_EDITING = true;
-    }
-
     return {
       editing: needsEdit,
       deleting: false,
@@ -119,8 +110,6 @@ var WorkspaceCalculation = React.createClass({
     if (nextProps.calculation.needsEdit || nextProps.calculation.forceEdit) {
       this.setState({
         editing: true
-      }, () => {
-        CURRENTLY_EDITING = true;
       });
     }
   },
@@ -129,23 +118,19 @@ var WorkspaceCalculation = React.createClass({
     if (!this.state.editing) {
       this.setState({
         editing: true
-      }, () => {
-        CURRENTLY_EDITING = true;
       });
     }
   },
 
   canMove: function () {
     return !this.state.editing
-      && !this.state.deleting
-      && !CURRENTLY_EDITING;
+      && !this.state.deleting;
   },
 
   onCompleteEditing: function (calculation) {
     this.setState({
       editing: false
     }, () => {
-      CURRENTLY_EDITING = false;
       DraftSetActions.updateCalculation(calculation);
     });
   },
@@ -156,8 +141,6 @@ var WorkspaceCalculation = React.createClass({
     } else {
       this.setState({
         editing: false
-      }, () => {
-        CURRENTLY_EDITING = false;
       });
     }
   },

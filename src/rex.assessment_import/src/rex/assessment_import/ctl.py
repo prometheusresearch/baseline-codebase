@@ -4,30 +4,18 @@ import codecs
 from collections import OrderedDict
 
 from rex.core import Error, get_settings
-from rex.ctl import RexTask, argument, option, warn, log, debug
-from rex.instrument.util import get_implementation
-from .interface import Instrument, Assessment
-from .base import BaseAssessmentTemplateExport, BaseAssessmentImport
-
-class CtlLogging(object):
-
-    def log(self, msg="", *args, **kwds):
-        log(msg, *args, **kwds)
-
-    def warn(self, msg, *args, **kwds):
-        warn(msg, *args, **kwds)
-
-    def debug(self, msg, *args, **kwds):
-        debug(msg, *args, **kwds)
+from rex.ctl import Task, RexTask, argument, option, warn, log, debug
+from .core import export_template, import_assessment
 
 
-class AssessmentTemplateExportTask(CtlLogging, BaseAssessmentTemplateExport, RexTask):
+class AssessmentTemplateExportTask(RexTask):
+
     """
     exports an InstrumentVersion from the datastore
 
     The assessment-template-export task will export an InstrumentVersion from a
-    project's data store and save generated output as a bunch of csv files.
-
+    project's data store and save generated output in given format,
+    default format is csv.
     The instrument-uid argument is the UID of the desired Instrument in
     the data store.
     """
@@ -52,7 +40,7 @@ class AssessmentTemplateExportTask(CtlLogging, BaseAssessmentTemplateExport, Rex
             str,
             default=None,
             value_name='OUTPUT_PATH',
-            hint='the directory to keep generated csv files write to;'
+            hint='the directory to keep generated files write to;'
             ' if not specified, current directory is used',
         )
         format = option(
@@ -63,18 +51,27 @@ class AssessmentTemplateExportTask(CtlLogging, BaseAssessmentTemplateExport, Rex
             hint='the format of output files one of csv or xls is expected;'
             ' csv is the default value',
         )
-
-    def __init__(self, *args, **kwargs):
-        super(AssessmentTemplateExportTask, self).__init__(*args, **kwargs)
+        verbose = option(
+            None,
+            bool,
+            value_name='VERBOSE',
+            hint='Show logs'
+        )
 
     def __call__(self):
         with self.make():
-            self.start(self.instrument_uid, self.version, self.output, self.format)
+            export_template(instrument_uid=self.instrument_uid,
+                            version=self.version,
+                            output=self.output,
+                            format=self.format,
+                            verbose=self.verbose)
 
 
-class AssessmentImportTask(CtlLogging, BaseAssessmentImport, RexTask):
+
+class AssessmentImportTask(RexTask):
     """
-    imports Assessment data given as a bunch of csv files to the datastore.
+    imports Assessment data given as a zip, bunch of csv or xls
+    to the datastore.
 
     The instrument-uid argument is the UID of the desired Instrument in
     the data store.
@@ -100,23 +97,19 @@ class AssessmentImportTask(CtlLogging, BaseAssessmentImport, RexTask):
             str,
             default=None,
             value_name='INPUT_PATH',
-            hint='the directory contained assessments data stored in csv files;'
-            ' if not specified, current directory is used',
+            hint='the directory contained assessments data stored in csv files'
+                 'or path to .xls file'
         )
-        format = option(
+        verbose = option(
             None,
-            str,
-            default=None,
-            value_name='FORMAT',
-            hint='the format of input files one of csv or xls is expected;'
-            ' csv is the default value',
+            bool,
+            value_name='VERBOSE',
+            hint='Show logs'
         )
 
     def __call__(self):
         with self.make():
-            self.start(self.instrument_uid,
-                       self.version,
-                       self.input,
-                       tolerant=True,
-                       format=self.format
-            )
+            import_assessment(instrument_uid=self.instrument_uid,
+                              version=self.version,
+                              input=self.input,
+                              verbose=self.verbose)

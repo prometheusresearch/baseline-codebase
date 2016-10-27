@@ -1,0 +1,16 @@
+- table: instrumentversion
+  with:
+  - data:
+    - uid: qctest1
+      instrument: [qctest]
+      version: 1
+      published_by: someone
+      date_published: '2016-10-10'
+      definition: !include/str qctest.js
+    - uid: eeg-upload1
+      instrument: [eeg-upload]
+      version: 1
+      published_by: someone
+      date_published: '2016-10-10'
+      definition: !include/str eeg_upload.js
+

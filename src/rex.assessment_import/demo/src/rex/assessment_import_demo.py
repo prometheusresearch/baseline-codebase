@@ -71,6 +71,4 @@ class DemoAssessment(Assessment):
 
     @classmethod
     def bulk_create(cls, assessments, validate=True):
-        for assessment in assessments:
-            print '### CREATED ASSESSMENT'
-
+        print '### CREATED %s ASSESSMENTS' % len(assessments)

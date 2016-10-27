@@ -1,9 +1,9 @@
 import os
 
 from rex.core import get_settings, Initialize, Error
-
-
+from .core import *
 from .settings import *
+
 
 class InitializeAssessmentImport(Initialize):
     # Verifies that `assessment_import_dir` is a valid directory and writable.

@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.assessment_import_demo',
-    version='0.4.3',
+    version='0.5.0',
     description='Demo package for testing rex.assessment_import',
     package_dir={'': 'src'},
     packages=find_packages('src'),

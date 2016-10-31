@@ -62,7 +62,7 @@ export function spread(
   pointer: QueryPointer<Query>
 ): Array<QueryPointer<Query>> {
   if (pointer.query.name === 'pipeline') {
-    return pointer.query.pipeline.map((q, idx) =>
+    return pointer.query.pipeline.map((_query, idx) =>
       select(pointer, ['pipeline', idx]));
   } else {
     return [pointer];

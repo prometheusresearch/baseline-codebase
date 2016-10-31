@@ -12,7 +12,7 @@ import * as theme from './Theme';
 import QueryPanelBase from './QueryPanelBase';
 import DefineQueryPanel from './DefineQueryPanel';
 import NavigationPanel from './NavigationPanel';
-import FilterQueryPanel from './FilterQueryPanel';
+import FilterQueryPanel from './filter/FilterQueryPanel';
 
 type QueryPanelProps = {
   pointer: ?QueryPointer<Query>;

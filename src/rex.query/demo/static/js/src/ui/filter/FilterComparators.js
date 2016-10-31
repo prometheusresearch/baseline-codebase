@@ -2,14 +2,14 @@
  * @flow
  */
 
-import type {Expression} from '../model';
-import type {Navigation} from '../model/navigation';
+import type {Expression} from '../../model';
+import type {Navigation} from '../../model/navigation';
 
 import React from 'react';
 import invariant from 'invariant';
 
-import * as t from '../model/Type';
-import * as q from '../model/Query';
+import * as t from '../../model/Type';
+import * as q from '../../model/Query';
 import * as operands from './FilterOperands';
 
 function isOfType(field: Navigation, types: Array<string>): boolean {

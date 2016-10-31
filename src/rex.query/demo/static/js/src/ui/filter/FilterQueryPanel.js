@@ -2,9 +2,9 @@
  * @noflow
  */
 
-import type {Query, FilterQuery} from '../model/Query';
-import type {QueryPointer} from '../model/QueryPointer';
-import type {Actions} from '../state';
+import type {Query, FilterQuery} from '../../model/Query';
+import type {QueryPointer} from '../../model/QueryPointer';
+import type {Actions} from '../../state';
 import type {Comparator} from './FilterComparators';
 
 import invariant from 'invariant';
@@ -13,14 +13,14 @@ import CloseIcon from 'react-icons/lib/fa/close';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import debounce from 'lodash/debounce';
 
+import * as t from '../../model/Type';
+import * as q from '../../model/Query';
+import * as nav from '../../model/navigation';
+import * as theme from '../Theme';
+import QueryPanelBase from '../QueryPanelBase';
+import {MenuGroup, MenuButton} from '../menu';
+import Select from '../Select';
 import * as comp from './FilterComparators';
-import * as t from '../model/Type';
-import * as q from '../model/Query';
-import * as nav from '../model/navigation';
-import * as theme from './Theme';
-import QueryPanelBase from './QueryPanelBase';
-import {MenuGroup, MenuButton} from './menu';
-import Select from './Select';
 
 type FilterConditionProps = {
   expression: Query;

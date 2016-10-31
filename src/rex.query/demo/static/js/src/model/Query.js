@@ -10,61 +10,61 @@ import invariant from 'invariant';
 import * as t from './Type';
 
 export type HereQuery = {
-  name: 'here';
-  context: Context;
+  +name: 'here';
+  +context: Context;
 };
 
 export type ValueQuery = {
-  name: 'value';
-  value: string | number | boolean | null;
-  context: Context;
+  +name: 'value';
+  +value: string | number | boolean | null;
+  +context: Context;
 };
 
 export type NavigateQuery = {
-  name: 'navigate';
-  path: string;
-  context: Context;
+  +name: 'navigate';
+  +path: string;
+  +context: Context;
 };
 
 export type SelectQuery = {
-  name: 'select';
-  select: {[name: string]: QueryPipeline};
-  context: Context;
+  +name: 'select';
+  +select: {[name: string]: QueryPipeline};
+  +context: Context;
 };
 
 type DefineQueryBinding = {
-  name: string;
-  query: QueryPipeline;
+  +name: string;
+  +query: QueryPipeline;
 };
 
 export type DefineQuery = {
-  name: 'define';
-  binding: DefineQueryBinding;
-  context: Context;
+  +name: 'define';
+  +binding: DefineQueryBinding;
+  +context: Context;
 };
 
 export type FilterQuery = {
-  name: 'filter';
-  predicate: Expression;
-  context: Context;
+  +name: 'filter';
+  +predicate: Expression;
+  +context: Context;
 };
 
 export type LimitQuery = {
-  name: 'limit';
-  limit: number;
-  context: Context;
+  +name: 'limit';
+  +limit: number;
+  +context: Context;
 };
 
 export type AggregateQuery = {
-  name: 'aggregate';
-  aggregate: string;
-  context: Context;
+  +name: 'aggregate';
+  +aggregate: string;
+  +context: Context;
 };
 
 export type QueryPipeline = {
-  name: 'pipeline',
-  pipeline: Array<Query>;
-  context: Context;
+  +name: 'pipeline',
+  +pipeline: Array<Query>;
+  +context: Context;
 };
 
 export type BinaryOperator
@@ -78,11 +78,11 @@ export type BinaryOperator
   | 'contains';
 
 export type BinaryQuery = {
-  name: 'binary';
-  op: BinaryOperator;
-  left: Expression;
-  right: Expression;
-  context: Context;
+  +name: 'binary';
+  +op: BinaryOperator;
+  +left: Expression;
+  +right: Expression;
+  +context: Context;
 };
 
 export type UnaryOperator
@@ -90,10 +90,10 @@ export type UnaryOperator
   | 'exists';
 
 export type UnaryQuery = {
-  name: 'unary';
-  op: UnaryOperator;
-  expression: Expression;
-  context: Context;
+  +name: 'unary';
+  +op: UnaryOperator;
+  +expression: Expression;
+  +context: Context;
 };
 
 export type LogicalBinaryOperator
@@ -101,10 +101,10 @@ export type LogicalBinaryOperator
   | 'or';
 
 export type LogicalBinaryQuery = {
-  name: 'logicalBinary';
-  op: LogicalBinaryOperator;
-  expressions: Array<Expression>;
-  context: Context;
+  +name: 'logicalBinary';
+  +op: LogicalBinaryOperator;
+  +expressions: Array<Expression>;
+  +context: Context;
 };
 
 

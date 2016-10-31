@@ -11,19 +11,17 @@ export type KeyPath = Array<number | string>;
 /**
  * Query with a keyPath inside.
  */
-export interface QueryPointer<+Q: Query = Query> {
-  root: QueryPipeline;
-  path: Array<KeyPath>;
-  query: Q;
-};
+export type QueryPointer<+Q: Query = Query> = {|
+  +root: QueryPipeline;
+  +path: Array<KeyPath>;
+  +query: Q;
+|};
 
 export function make<Q: QueryPipeline>(
   query: Q,
   ...path: Array<KeyPath>
 ): QueryPointer<Q> {
-  // TODO: rm cast the Flow 0.34 lands and we don't need to use interface to
-  // represent pointers
-  let root = (query: QueryPipeline);
+  let root = query;
   for (let i = 0; i < path.length; i++) {
     query = getByKeyPath(query, path[i]);
     if (query == null) {

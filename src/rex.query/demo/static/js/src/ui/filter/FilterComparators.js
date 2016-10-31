@@ -42,29 +42,31 @@ export type Comparator = {
 
   // A function that looks at a query to determine if it is one that this
   // comparator handles. If so, it returns an object containing basic info.
-  identify: (
+  identify(
     expression: Expression
-  ) => ?Identification;
+  ): ?Identification;
 
   // A function that looks at a field and dermines if it is one that this
   // comparator can be used with.
-  applicable: (field: Navigation) => boolean;
+  applicable(
+    field: Navigation
+  ): boolean;
 
   // A function that returns a React element that can collect the operand for
   // this comparator. If no operand is necessary, return null.
-  operand: (
+  operand(
     field: Navigation,
     value: ?any,
     onChange: (operand: ?any) => void
-  ) => ?React.Element<*>;
+  ): ?React.Element<*>;
 
   // A function that generates a Query for the given field and operand. If a
   // legal Query cannot be generated, return null.
-  query: (
+  query(
     field: Navigation,
     operand: ?any,
     operandIsField: ?boolean
-  ) => ?Expression;
+  ): ?Expression;
 };
 
 
@@ -440,7 +442,7 @@ class IsFalse {
   }
 }
 
-export const ALL_COMPARATORS: Array<Comparator> = [
+const ALL_COMPARATORS = [
   new Equal(),
   new NotEqual(),
   new Less(),

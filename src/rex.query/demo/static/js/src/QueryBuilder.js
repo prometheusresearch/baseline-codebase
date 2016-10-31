@@ -75,8 +75,6 @@ export default class QueryBuilder extends React.Component {
     } = this.state;
 
     let pointer = qp.make(query);
-    console.log(query);
-    console.log(selected && selected.path.join(':'));
 
     return (
       <VBox height="100%">

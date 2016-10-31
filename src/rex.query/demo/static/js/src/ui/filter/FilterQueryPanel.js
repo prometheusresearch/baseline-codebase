@@ -370,13 +370,13 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
   onConditionUpdate(index: number, condition: Query) {
     let expressions = this.state.expressions.slice();
     expressions[index] = condition;
-    this.setState({expressions}, () => { this.updateQuery(); });
+    this.setState({expressions}, () => this.updateQuery());
   }
 
   onConditionRemove(index: number) {
     let expressions = this.state.expressions.slice();
     expressions.splice(index, 1);
-    this.setState({expressions}, () => { this.updateQuery(); });
+    this.setState({expressions}, () => this.updateQuery());
   }
 
   updateQuery() {

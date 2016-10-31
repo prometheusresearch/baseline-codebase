@@ -140,12 +140,19 @@ export function QueryVisHere(props: {
 
 function getSelectFieldset(pointer) {
   let items = [];
-  for (let name in pointer.query.select) {
-    if (!pointer.query.select.hasOwnProperty(name)) {
+  let select = pointer.query.select;
+  for (let name in select) {
+    if (!select.hasOwnProperty(name)) {
       continue;
     }
-    let type = t.maybeAtom(pointer.query.select[name].context.type);
-    if (type == null || type.name === 'entity' || type.name === 'record') {
+    let type = t.maybeAtom(select[name].context.type);
+    let last = select[name].pipeline[select[name].pipeline.length - 1];
+    if (
+      type == null ||
+      type.name === 'entity' ||
+      type.name === 'record' ||
+      last.name === 'aggregate'
+    ) {
       items.push(qp.select(pointer, ['select', name]));
     }
   }

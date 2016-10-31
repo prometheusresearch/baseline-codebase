@@ -34,7 +34,7 @@ export let AggregatePane = createPane({
 });
 
 export let DefinePane = createPane({
-  displayName: 'AggregatePane',
+  displayName: 'DefinePane',
   theme: theme.traverse
 });
 

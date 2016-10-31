@@ -95,7 +95,7 @@ function reconcileSelect(query: q.SelectQuery, grow?: boolean): q.SelectQuery {
     let kQuery = reconcilePipeline(pipeline);
     if (
       kQuery.context.type != null ||
-      (k in query.context.scope) && isInitialDefine(query.context.scope[k])
+      ((k in query.context.scope) && isInitialDefine(query.context.scope[k]))
     ) {
       select[k] = kQuery;
     }

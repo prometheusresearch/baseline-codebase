@@ -6,7 +6,7 @@ import type {Query, QueryPointer} from '../../model';
 import type {Actions} from '../../state';
 
 import React from 'react';
-import {VBox, HBox} from '@prometheusresearch/react-box';
+import {VBox} from '@prometheusresearch/react-box';
 
 import * as qp from '../../model/QueryPointer';
 import QueryVisToolbar from './QueryVisToolbar';

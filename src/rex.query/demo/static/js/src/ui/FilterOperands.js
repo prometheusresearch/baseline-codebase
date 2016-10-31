@@ -4,7 +4,6 @@
 
 import React from 'react';
 import moment from 'moment';
-import invariant from 'invariant';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
 import Select from './Select';
@@ -19,10 +18,11 @@ type TextOperandProps = {
 export class TextOperand extends React.Component<*, TextOperandProps, *> {
 
   render() {
-    let {type, value, onChange, ...props} = this.props;
+    let {value, ...props} = this.props;
     return (
       <ReactUI.Input
         {...props}
+        type={undefined}
         value={value == null ? '' : value}
         onChange={this.onChange}
         placeholder="Enter a Value..."

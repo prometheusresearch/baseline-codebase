@@ -15,8 +15,6 @@ import ArrowRightIcon  from 'react-icons/lib/fa/arrow-right';
 import DownloadIcon from 'react-icons/lib/fa/cloud-download';
 import TerminalIcon from 'react-icons/lib/fa/terminal';
 
-import * as q from './model/Query';
-import * as op from './model/op';
 import * as qp from './model/QueryPointer';
 import * as ui from './ui';
 import * as State from './state';

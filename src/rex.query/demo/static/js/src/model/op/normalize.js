@@ -15,7 +15,7 @@
 import type {Query, QueryPipeline} from '../Query';
 import type {QueryPointer, KeyPath} from '../QueryPointer';
 
-import {transformQuery, here, inferType} from '../Query';
+import {transformQuery, here} from '../Query';
 import * as q from '../Query';
 import {pointer} from '../QueryPointer';
 

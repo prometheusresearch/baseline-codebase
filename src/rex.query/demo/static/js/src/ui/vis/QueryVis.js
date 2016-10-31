@@ -238,7 +238,7 @@ export function QueryVisSelect(props: {
 let QueryVisSelectItem = style(VBox, {
   displayName: 'QueryVisSelectItem',
   base: {
-    backgroundColor: theme.entity.background,
+    backgroundColor: '#ccc',
     paddingTop: 5,
     paddingLeft: 5,
     marginBottom: 5,

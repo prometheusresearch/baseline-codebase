@@ -254,7 +254,7 @@ function getLabelForSelect(query: q.SelectQuery): string {
 let QueryVisSelectItem = style(VBox, {
   displayName: 'QueryVisSelectItem',
   base: {
-    backgroundColor: '#ccc',
+    backgroundColor: '#bbb',
     paddingTop: 5,
     paddingLeft: 5,
     marginBottom: 5,

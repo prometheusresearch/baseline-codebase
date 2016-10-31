@@ -126,5 +126,6 @@ export let QueryVisButtonLabel = style(HBox, {
     fontWeight: 400,
     padding: 6,
     width: '100%',
+    height: 32,
   }
 });

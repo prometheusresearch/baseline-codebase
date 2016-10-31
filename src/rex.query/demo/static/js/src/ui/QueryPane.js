@@ -47,3 +47,8 @@ export let SelectPane = createPane({
   displayName: 'SelectPane',
   theme: theme.select
 });
+
+export let DefaultPane = createPane({
+  displayName: 'SelectPane',
+  theme: theme.default,
+});

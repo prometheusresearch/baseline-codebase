@@ -4,9 +4,9 @@ Object {
     "type": Object {
       "name": "seq",
       "type": Object {
-        "name": "text"
-      }
-    }
+        "name": "text",
+      },
+    },
   },
   "name": "pipeline",
   "pipeline": Array [
@@ -16,26 +16,26 @@ Object {
           "name": "seq",
           "type": Object {
             "entity": "individual",
-            "name": "entity"
-          }
-        }
+            "name": "entity",
+          },
+        },
       },
       "name": "navigate",
-      "path": "individual"
+      "path": "individual",
     },
     Object {
       "context": Object {
         "type": Object {
           "name": "seq",
           "type": Object {
-            "name": "text"
-          }
-        }
+            "name": "text",
+          },
+        },
       },
       "name": "navigate",
-      "path": "name"
-    }
-  ]
+      "path": "name",
+    },
+  ],
 }
 `;
 
@@ -43,8 +43,8 @@ exports[`inferType() individual.name:count() 1`] = `
 Object {
   "context": Object {
     "type": Object {
-      "name": "number"
-    }
+      "name": "number",
+    },
   },
   "name": "pipeline",
   "pipeline": Array [
@@ -54,35 +54,35 @@ Object {
           "name": "seq",
           "type": Object {
             "entity": "individual",
-            "name": "entity"
-          }
-        }
+            "name": "entity",
+          },
+        },
       },
       "name": "navigate",
-      "path": "individual"
+      "path": "individual",
     },
     Object {
       "context": Object {
         "type": Object {
           "name": "seq",
           "type": Object {
-            "name": "text"
-          }
-        }
+            "name": "text",
+          },
+        },
       },
       "name": "navigate",
-      "path": "name"
+      "path": "name",
     },
     Object {
       "aggregate": "count",
       "context": Object {
         "type": Object {
-          "name": "number"
-        }
+          "name": "number",
+        },
       },
-      "name": "aggregate"
-    }
-  ]
+      "name": "aggregate",
+    },
+  ],
 }
 `;
 
@@ -93,9 +93,9 @@ Object {
       "name": "seq",
       "type": Object {
         "entity": "sample",
-        "name": "entity"
-      }
-    }
+        "name": "entity",
+      },
+    },
   },
   "name": "pipeline",
   "pipeline": Array [
@@ -105,12 +105,12 @@ Object {
           "name": "seq",
           "type": Object {
             "entity": "individual",
-            "name": "entity"
-          }
-        }
+            "name": "entity",
+          },
+        },
       },
       "name": "navigate",
-      "path": "individual"
+      "path": "individual",
     },
     Object {
       "context": Object {
@@ -118,14 +118,14 @@ Object {
           "name": "seq",
           "type": Object {
             "entity": "sample",
-            "name": "entity"
-          }
-        }
+            "name": "entity",
+          },
+        },
       },
       "name": "navigate",
-      "path": "sample"
-    }
-  ]
+      "path": "sample",
+    },
+  ],
 }
 `;
 
@@ -135,9 +135,9 @@ Object {
     "type": Object {
       "name": "seq",
       "type": Object {
-        "name": "text"
-      }
-    }
+        "name": "text",
+      },
+    },
   },
   "name": "pipeline",
   "pipeline": Array [
@@ -147,12 +147,12 @@ Object {
           "name": "seq",
           "type": Object {
             "entity": "individual",
-            "name": "entity"
-          }
-        }
+            "name": "entity",
+          },
+        },
       },
       "name": "navigate",
-      "path": "individual"
+      "path": "individual",
     },
     Object {
       "context": Object {
@@ -160,26 +160,26 @@ Object {
           "name": "seq",
           "type": Object {
             "entity": "sample",
-            "name": "entity"
-          }
-        }
+            "name": "entity",
+          },
+        },
       },
       "name": "navigate",
-      "path": "sample"
+      "path": "sample",
     },
     Object {
       "context": Object {
         "type": Object {
           "name": "seq",
           "type": Object {
-            "name": "text"
-          }
-        }
+            "name": "text",
+          },
+        },
       },
       "name": "navigate",
-      "path": "title"
-    }
-  ]
+      "path": "title",
+    },
+  ],
 }
 `;
 
@@ -191,15 +191,15 @@ Object {
       "type": Object {
         "fields": Object {
           "a": Object {
-            "name": "text"
+            "name": "text",
           },
           "b": Object {
-            "name": "text"
-          }
+            "name": "text",
+          },
         },
-        "name": "record"
-      }
-    }
+        "name": "record",
+      },
+    },
   },
   "name": "pipeline",
   "pipeline": Array [
@@ -209,12 +209,12 @@ Object {
           "name": "seq",
           "type": Object {
             "entity": "individual",
-            "name": "entity"
-          }
-        }
+            "name": "entity",
+          },
+        },
       },
       "name": "navigate",
-      "path": "individual"
+      "path": "individual",
     },
     Object {
       "binding": Object {
@@ -224,24 +224,37 @@ Object {
             "type": Object {
               "name": "seq",
               "type": Object {
-                "name": "text"
-              }
-            }
+                "name": "text",
+              },
+            },
           },
-          "name": "navigate",
-          "path": "name"
-        }
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "name": "seq",
+                  "type": Object {
+                    "name": "text",
+                  },
+                },
+              },
+              "name": "navigate",
+              "path": "name",
+            },
+          ],
+        },
       },
       "context": Object {
         "type": Object {
           "name": "seq",
           "type": Object {
             "entity": "individual",
-            "name": "entity"
-          }
-        }
+            "name": "entity",
+          },
+        },
       },
-      "name": "define"
+      "name": "define",
     },
     Object {
       "context": Object {
@@ -250,39 +263,59 @@ Object {
           "type": Object {
             "fields": Object {
               "a": Object {
-                "name": "text"
+                "name": "text",
               },
               "b": Object {
-                "name": "text"
-              }
+                "name": "text",
+              },
             },
-            "name": "record"
-          }
-        }
+            "name": "record",
+          },
+        },
       },
       "name": "select",
       "select": Object {
         "a": Object {
           "context": Object {
             "type": Object {
-              "name": "text"
-            }
+              "name": "text",
+            },
           },
-          "name": "navigate",
-          "path": "newname"
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "name": "text",
+                },
+              },
+              "name": "navigate",
+              "path": "newname",
+            },
+          ],
         },
         "b": Object {
           "context": Object {
             "type": Object {
-              "name": "text"
-            }
+              "name": "text",
+            },
           },
-          "name": "navigate",
-          "path": "name"
-        }
-      }
-    }
-  ]
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "name": "text",
+                },
+              },
+              "name": "navigate",
+              "path": "name",
+            },
+          ],
+        },
+      },
+    },
+  ],
 }
 `;
 
@@ -293,9 +326,9 @@ Object {
       "name": "seq",
       "type": Object {
         "entity": "individual",
-        "name": "entity"
-      }
-    }
+        "name": "entity",
+      },
+    },
   },
   "name": "pipeline",
   "pipeline": Array [
@@ -305,12 +338,12 @@ Object {
           "name": "seq",
           "type": Object {
             "entity": "individual",
-            "name": "entity"
-          }
-        }
+            "name": "entity",
+          },
+        },
       },
       "name": "navigate",
-      "path": "individual"
+      "path": "individual",
     },
     Object {
       "binding": Object {
@@ -320,26 +353,39 @@ Object {
             "type": Object {
               "name": "seq",
               "type": Object {
-                "name": "text"
-              }
-            }
+                "name": "text",
+              },
+            },
           },
-          "name": "navigate",
-          "path": "name"
-        }
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "name": "seq",
+                  "type": Object {
+                    "name": "text",
+                  },
+                },
+              },
+              "name": "navigate",
+              "path": "name",
+            },
+          ],
+        },
       },
       "context": Object {
         "type": Object {
           "name": "seq",
           "type": Object {
             "entity": "individual",
-            "name": "entity"
-          }
-        }
+            "name": "entity",
+          },
+        },
       },
-      "name": "define"
-    }
-  ]
+      "name": "define",
+    },
+  ],
 }
 `;
 
@@ -349,9 +395,9 @@ Object {
     "type": Object {
       "name": "seq",
       "type": Object {
-        "name": "text"
-      }
-    }
+        "name": "text",
+      },
+    },
   },
   "name": "pipeline",
   "pipeline": Array [
@@ -361,12 +407,12 @@ Object {
           "name": "seq",
           "type": Object {
             "entity": "individual",
-            "name": "entity"
-          }
-        }
+            "name": "entity",
+          },
+        },
       },
       "name": "navigate",
-      "path": "individual"
+      "path": "individual",
     },
     Object {
       "binding": Object {
@@ -376,38 +422,465 @@ Object {
             "type": Object {
               "name": "seq",
               "type": Object {
-                "name": "text"
-              }
-            }
+                "name": "text",
+              },
+            },
           },
-          "name": "navigate",
-          "path": "name"
-        }
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "name": "seq",
+                  "type": Object {
+                    "name": "text",
+                  },
+                },
+              },
+              "name": "navigate",
+              "path": "name",
+            },
+          ],
+        },
       },
       "context": Object {
         "type": Object {
           "name": "seq",
           "type": Object {
             "entity": "individual",
-            "name": "entity"
-          }
-        }
+            "name": "entity",
+          },
+        },
       },
-      "name": "define"
+      "name": "define",
     },
     Object {
       "context": Object {
         "type": Object {
           "name": "seq",
           "type": Object {
-            "name": "text"
-          }
-        }
+            "name": "text",
+          },
+        },
       },
       "name": "navigate",
-      "path": "nickname"
-    }
-  ]
+      "path": "nickname",
+    },
+  ],
+}
+`;
+
+exports[`inferType() individual:define(nickname := name):select(nickname) 1`] = `
+Object {
+  "context": Object {
+    "type": Object {
+      "name": "seq",
+      "type": Object {
+        "fields": Object {
+          "nickname": Object {
+            "name": "text",
+          },
+        },
+        "name": "record",
+      },
+    },
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "type": Object {
+          "name": "seq",
+          "type": Object {
+            "entity": "individual",
+            "name": "entity",
+          },
+        },
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "binding": Object {
+        "name": "nickname",
+        "query": Object {
+          "context": Object {
+            "type": Object {
+              "name": "seq",
+              "type": Object {
+                "name": "text",
+              },
+            },
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "name": "seq",
+                  "type": Object {
+                    "name": "text",
+                  },
+                },
+              },
+              "name": "navigate",
+              "path": "name",
+            },
+          ],
+        },
+      },
+      "context": Object {
+        "type": Object {
+          "name": "seq",
+          "type": Object {
+            "entity": "individual",
+            "name": "entity",
+          },
+        },
+      },
+      "name": "define",
+    },
+    Object {
+      "context": Object {
+        "type": Object {
+          "name": "seq",
+          "type": Object {
+            "fields": Object {
+              "nickname": Object {
+                "name": "text",
+              },
+            },
+            "name": "record",
+          },
+        },
+      },
+      "name": "select",
+      "select": Object {
+        "nickname": Object {
+          "context": Object {
+            "type": Object {
+              "name": "text",
+            },
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "name": "text",
+                },
+              },
+              "name": "navigate",
+              "path": "nickname",
+            },
+          ],
+        },
+      },
+    },
+  ],
+}
+`;
+
+exports[`inferType() individual:define(nickname := name):select(nickname:select(code)) 1`] = `
+Object {
+  "context": Object {
+    "type": Object {
+      "name": "seq",
+      "type": Object {
+        "fields": Object {
+          "nickname": Object {
+            "fields": Object {
+              "code": null,
+            },
+            "name": "record",
+          },
+        },
+        "name": "record",
+      },
+    },
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "type": Object {
+          "name": "seq",
+          "type": Object {
+            "entity": "individual",
+            "name": "entity",
+          },
+        },
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "binding": Object {
+        "name": "nickname",
+        "query": Object {
+          "context": Object {
+            "type": Object {
+              "name": "seq",
+              "type": Object {
+                "name": "text",
+              },
+            },
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "name": "seq",
+                  "type": Object {
+                    "name": "text",
+                  },
+                },
+              },
+              "name": "navigate",
+              "path": "name",
+            },
+          ],
+        },
+      },
+      "context": Object {
+        "type": Object {
+          "name": "seq",
+          "type": Object {
+            "entity": "individual",
+            "name": "entity",
+          },
+        },
+      },
+      "name": "define",
+    },
+    Object {
+      "context": Object {
+        "type": Object {
+          "name": "seq",
+          "type": Object {
+            "fields": Object {
+              "nickname": Object {
+                "fields": Object {
+                  "code": null,
+                },
+                "name": "record",
+              },
+            },
+            "name": "record",
+          },
+        },
+      },
+      "name": "select",
+      "select": Object {
+        "nickname": Object {
+          "context": Object {
+            "type": Object {
+              "fields": Object {
+                "code": null,
+              },
+              "name": "record",
+            },
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "name": "text",
+                },
+              },
+              "name": "navigate",
+              "path": "nickname",
+            },
+            Object {
+              "context": Object {
+                "type": Object {
+                  "fields": Object {
+                    "code": null,
+                  },
+                  "name": "record",
+                },
+              },
+              "name": "select",
+              "select": Object {
+                "code": Object {
+                  "context": Object {
+                    "type": null,
+                  },
+                  "name": "pipeline",
+                  "pipeline": Array [
+                    Object {
+                      "context": Object {
+                        "type": null,
+                      },
+                      "name": "navigate",
+                      "path": "code",
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      },
+    },
+  ],
+}
+`;
+
+exports[`inferType() individual:define(s := sample:count()):select(s:select(title)) 1`] = `
+Object {
+  "context": Object {
+    "type": Object {
+      "name": "seq",
+      "type": Object {
+        "fields": Object {
+          "s": Object {
+            "fields": Object {
+              "title": null,
+            },
+            "name": "record",
+          },
+        },
+        "name": "record",
+      },
+    },
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "type": Object {
+          "name": "seq",
+          "type": Object {
+            "entity": "individual",
+            "name": "entity",
+          },
+        },
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "binding": Object {
+        "name": "s",
+        "query": Object {
+          "context": Object {
+            "type": Object {
+              "name": "number",
+            },
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "name": "seq",
+                  "type": Object {
+                    "entity": "sample",
+                    "name": "entity",
+                  },
+                },
+              },
+              "name": "navigate",
+              "path": "sample",
+            },
+            Object {
+              "aggregate": "count",
+              "context": Object {
+                "type": Object {
+                  "name": "number",
+                },
+              },
+              "name": "aggregate",
+            },
+          ],
+        },
+      },
+      "context": Object {
+        "type": Object {
+          "name": "seq",
+          "type": Object {
+            "entity": "individual",
+            "name": "entity",
+          },
+        },
+      },
+      "name": "define",
+    },
+    Object {
+      "context": Object {
+        "type": Object {
+          "name": "seq",
+          "type": Object {
+            "fields": Object {
+              "s": Object {
+                "fields": Object {
+                  "title": null,
+                },
+                "name": "record",
+              },
+            },
+            "name": "record",
+          },
+        },
+      },
+      "name": "select",
+      "select": Object {
+        "s": Object {
+          "context": Object {
+            "type": Object {
+              "fields": Object {
+                "title": null,
+              },
+              "name": "record",
+            },
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "name": "number",
+                },
+              },
+              "name": "navigate",
+              "path": "s",
+            },
+            Object {
+              "context": Object {
+                "type": Object {
+                  "fields": Object {
+                    "title": null,
+                  },
+                  "name": "record",
+                },
+              },
+              "name": "select",
+              "select": Object {
+                "title": Object {
+                  "context": Object {
+                    "type": null,
+                  },
+                  "name": "pipeline",
+                  "pipeline": Array [
+                    Object {
+                      "context": Object {
+                        "type": null,
+                      },
+                      "name": "navigate",
+                      "path": "title",
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      },
+    },
+  ],
 }
 `;
 
@@ -421,13 +894,13 @@ Object {
           "a": Object {
             "name": "opt",
             "type": Object {
-              "name": "text"
-            }
-          }
+              "name": "text",
+            },
+          },
         },
-        "name": "record"
-      }
-    }
+        "name": "record",
+      },
+    },
   },
   "name": "pipeline",
   "pipeline": Array [
@@ -437,12 +910,12 @@ Object {
           "name": "seq",
           "type": Object {
             "entity": "individual",
-            "name": "entity"
-          }
-        }
+            "name": "entity",
+          },
+        },
       },
       "name": "navigate",
-      "path": "individual"
+      "path": "individual",
     },
     Object {
       "context": Object {
@@ -453,13 +926,13 @@ Object {
               "a": Object {
                 "name": "opt",
                 "type": Object {
-                  "name": "text"
-                }
-              }
+                  "name": "text",
+                },
+              },
             },
-            "name": "record"
-          }
-        }
+            "name": "record",
+          },
+        },
       },
       "name": "select",
       "select": Object {
@@ -468,16 +941,16 @@ Object {
             "type": Object {
               "name": "opt",
               "type": Object {
-                "name": "text"
-              }
-            }
+                "name": "text",
+              },
+            },
           },
           "name": "navigate",
-          "path": "age"
-        }
-      }
-    }
-  ]
+          "path": "age",
+        },
+      },
+    },
+  ],
 }
 `;
 
@@ -489,15 +962,15 @@ Object {
       "type": Object {
         "fields": Object {
           "a": Object {
-            "name": "text"
+            "name": "text",
           },
           "b": Object {
-            "name": "text"
-          }
+            "name": "text",
+          },
         },
-        "name": "record"
-      }
-    }
+        "name": "record",
+      },
+    },
   },
   "name": "pipeline",
   "pipeline": Array [
@@ -507,12 +980,12 @@ Object {
           "name": "seq",
           "type": Object {
             "entity": "individual",
-            "name": "entity"
-          }
-        }
+            "name": "entity",
+          },
+        },
       },
       "name": "navigate",
-      "path": "individual"
+      "path": "individual",
     },
     Object {
       "context": Object {
@@ -521,39 +994,39 @@ Object {
           "type": Object {
             "fields": Object {
               "a": Object {
-                "name": "text"
+                "name": "text",
               },
               "b": Object {
-                "name": "text"
-              }
+                "name": "text",
+              },
             },
-            "name": "record"
-          }
-        }
+            "name": "record",
+          },
+        },
       },
       "name": "select",
       "select": Object {
         "a": Object {
           "context": Object {
             "type": Object {
-              "name": "text"
-            }
+              "name": "text",
+            },
           },
           "name": "navigate",
-          "path": "name"
+          "path": "name",
         },
         "b": Object {
           "context": Object {
             "type": Object {
-              "name": "text"
-            }
+              "name": "text",
+            },
           },
           "name": "navigate",
-          "path": "name"
-        }
-      }
-    }
-  ]
+          "path": "name",
+        },
+      },
+    },
+  ],
 }
 `;
 
@@ -563,9 +1036,9 @@ Object {
     "type": Object {
       "name": "seq",
       "type": Object {
-        "name": "text"
-      }
-    }
+        "name": "text",
+      },
+    },
   },
   "name": "pipeline",
   "pipeline": Array [
@@ -575,12 +1048,12 @@ Object {
           "name": "seq",
           "type": Object {
             "entity": "individual",
-            "name": "entity"
-          }
-        }
+            "name": "entity",
+          },
+        },
       },
       "name": "navigate",
-      "path": "individual"
+      "path": "individual",
     },
     Object {
       "context": Object {
@@ -589,51 +1062,51 @@ Object {
           "type": Object {
             "fields": Object {
               "a": Object {
-                "name": "text"
+                "name": "text",
               },
               "b": Object {
-                "name": "text"
-              }
+                "name": "text",
+              },
             },
-            "name": "record"
-          }
-        }
+            "name": "record",
+          },
+        },
       },
       "name": "select",
       "select": Object {
         "a": Object {
           "context": Object {
             "type": Object {
-              "name": "text"
-            }
+              "name": "text",
+            },
           },
           "name": "navigate",
-          "path": "name"
+          "path": "name",
         },
         "b": Object {
           "context": Object {
             "type": Object {
-              "name": "text"
-            }
+              "name": "text",
+            },
           },
           "name": "navigate",
-          "path": "name"
-        }
-      }
+          "path": "name",
+        },
+      },
     },
     Object {
       "context": Object {
         "type": Object {
           "name": "seq",
           "type": Object {
-            "name": "text"
-          }
-        }
+            "name": "text",
+          },
+        },
       },
       "name": "navigate",
-      "path": "a"
-    }
-  ]
+      "path": "a",
+    },
+  ],
 }
 `;
 
@@ -645,19 +1118,19 @@ Object {
       "type": Object {
         "fields": Object {
           "a": Object {
-            "name": "text"
+            "name": "text",
           },
           "s": Object {
             "name": "seq",
             "type": Object {
               "entity": "sample",
-              "name": "entity"
-            }
-          }
+              "name": "entity",
+            },
+          },
         },
-        "name": "record"
-      }
-    }
+        "name": "record",
+      },
+    },
   },
   "name": "pipeline",
   "pipeline": Array [
@@ -667,12 +1140,12 @@ Object {
           "name": "seq",
           "type": Object {
             "entity": "individual",
-            "name": "entity"
-          }
-        }
+            "name": "entity",
+          },
+        },
       },
       "name": "navigate",
-      "path": "individual"
+      "path": "individual",
     },
     Object {
       "context": Object {
@@ -681,30 +1154,30 @@ Object {
           "type": Object {
             "fields": Object {
               "a": Object {
-                "name": "text"
+                "name": "text",
               },
               "s": Object {
                 "name": "seq",
                 "type": Object {
                   "entity": "sample",
-                  "name": "entity"
-                }
-              }
+                  "name": "entity",
+                },
+              },
             },
-            "name": "record"
-          }
-        }
+            "name": "record",
+          },
+        },
       },
       "name": "select",
       "select": Object {
         "a": Object {
           "context": Object {
             "type": Object {
-              "name": "text"
-            }
+              "name": "text",
+            },
           },
           "name": "navigate",
-          "path": "name"
+          "path": "name",
         },
         "s": Object {
           "context": Object {
@@ -712,16 +1185,16 @@ Object {
               "name": "seq",
               "type": Object {
                 "entity": "sample",
-                "name": "entity"
-              }
-            }
+                "name": "entity",
+              },
+            },
           },
           "name": "navigate",
-          "path": "sample"
-        }
-      }
-    }
-  ]
+          "path": "sample",
+        },
+      },
+    },
+  ],
 }
 `;
 
@@ -733,18 +1206,18 @@ Object {
       "type": Object {
         "fields": Object {
           "a": Object {
-            "name": "text"
+            "name": "text",
           },
           "s": Object {
             "name": "seq",
             "type": Object {
-              "name": "text"
-            }
-          }
+              "name": "text",
+            },
+          },
         },
-        "name": "record"
-      }
-    }
+        "name": "record",
+      },
+    },
   },
   "name": "pipeline",
   "pipeline": Array [
@@ -754,12 +1227,12 @@ Object {
           "name": "seq",
           "type": Object {
             "entity": "individual",
-            "name": "entity"
-          }
-        }
+            "name": "entity",
+          },
+        },
       },
       "name": "navigate",
-      "path": "individual"
+      "path": "individual",
     },
     Object {
       "context": Object {
@@ -768,38 +1241,38 @@ Object {
           "type": Object {
             "fields": Object {
               "a": Object {
-                "name": "text"
+                "name": "text",
               },
               "s": Object {
                 "name": "seq",
                 "type": Object {
-                  "name": "text"
-                }
-              }
+                  "name": "text",
+                },
+              },
             },
-            "name": "record"
-          }
-        }
+            "name": "record",
+          },
+        },
       },
       "name": "select",
       "select": Object {
         "a": Object {
           "context": Object {
             "type": Object {
-              "name": "text"
-            }
+              "name": "text",
+            },
           },
           "name": "navigate",
-          "path": "name"
+          "path": "name",
         },
         "s": Object {
           "context": Object {
             "type": Object {
               "name": "seq",
               "type": Object {
-                "name": "text"
-              }
-            }
+                "name": "text",
+              },
+            },
           },
           "name": "pipeline",
           "pipeline": Array [
@@ -809,30 +1282,30 @@ Object {
                   "name": "seq",
                   "type": Object {
                     "entity": "sample",
-                    "name": "entity"
-                  }
-                }
+                    "name": "entity",
+                  },
+                },
               },
               "name": "navigate",
-              "path": "sample"
+              "path": "sample",
             },
             Object {
               "context": Object {
                 "type": Object {
                   "name": "seq",
                   "type": Object {
-                    "name": "text"
-                  }
-                }
+                    "name": "text",
+                  },
+                },
               },
               "name": "navigate",
-              "path": "title"
-            }
-          ]
-        }
-      }
-    }
-  ]
+              "path": "title",
+            },
+          ],
+        },
+      },
+    },
+  ],
 }
 `;
 
@@ -844,15 +1317,15 @@ Object {
       "type": Object {
         "fields": Object {
           "a": Object {
-            "name": "text"
+            "name": "text",
           },
           "s": Object {
-            "name": "number"
-          }
+            "name": "number",
+          },
         },
-        "name": "record"
-      }
-    }
+        "name": "record",
+      },
+    },
   },
   "name": "pipeline",
   "pipeline": Array [
@@ -862,12 +1335,12 @@ Object {
           "name": "seq",
           "type": Object {
             "entity": "individual",
-            "name": "entity"
-          }
-        }
+            "name": "entity",
+          },
+        },
       },
       "name": "navigate",
-      "path": "individual"
+      "path": "individual",
     },
     Object {
       "context": Object {
@@ -876,32 +1349,32 @@ Object {
           "type": Object {
             "fields": Object {
               "a": Object {
-                "name": "text"
+                "name": "text",
               },
               "s": Object {
-                "name": "number"
-              }
+                "name": "number",
+              },
             },
-            "name": "record"
-          }
-        }
+            "name": "record",
+          },
+        },
       },
       "name": "select",
       "select": Object {
         "a": Object {
           "context": Object {
             "type": Object {
-              "name": "text"
-            }
+              "name": "text",
+            },
           },
           "name": "navigate",
-          "path": "name"
+          "path": "name",
         },
         "s": Object {
           "context": Object {
             "type": Object {
-              "name": "number"
-            }
+              "name": "number",
+            },
           },
           "name": "pipeline",
           "pipeline": Array [
@@ -911,34 +1384,34 @@ Object {
                   "name": "seq",
                   "type": Object {
                     "entity": "sample",
-                    "name": "entity"
-                  }
-                }
+                    "name": "entity",
+                  },
+                },
               },
               "name": "navigate",
-              "path": "sample"
+              "path": "sample",
             },
             Object {
               "aggregate": "count",
               "context": Object {
                 "type": Object {
-                  "name": "number"
-                }
+                  "name": "number",
+                },
               },
-              "name": "aggregate"
-            }
-          ]
-        }
-      }
-    }
-  ]
+              "name": "aggregate",
+            },
+          ],
+        },
+      },
+    },
+  ],
 }
 `;
 
 exports[`inferType() individual:unknown() : fails on unknown aggregate 1`] = `
 Object {
   "context": Object {
-    "type": null
+    "type": null,
   },
   "name": "pipeline",
   "pipeline": Array [
@@ -948,20 +1421,20 @@ Object {
           "name": "seq",
           "type": Object {
             "entity": "individual",
-            "name": "entity"
-          }
-        }
+            "name": "entity",
+          },
+        },
       },
       "name": "navigate",
-      "path": "individual"
+      "path": "individual",
     },
     Object {
       "aggregate": "unknown",
       "context": Object {
-        "type": null
+        "type": null,
       },
-      "name": "aggregate"
-    }
-  ]
+      "name": "aggregate",
+    },
+  ],
 }
 `;

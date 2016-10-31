@@ -26,6 +26,16 @@ export default class QueryBuilderApp extends React.Component {
     let {domain} = this.state;
     let {api} = this.props;
 
+  //let q = require('./model/Query');
+  //let qq = q.pipeline(
+  //  q.select({
+  //    study: q.pipeline(
+  //      q.navigate('study'),
+  //      q.def('query', q.pipeline(q.navigate('protocol'), q.aggregate('count')))
+  //    )
+  //  })
+  //);
+
     if (domain == null) {
       return (
         <Message height="100%">

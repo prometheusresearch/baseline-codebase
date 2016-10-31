@@ -1,6 +1,6 @@
 
-import {navigate, aggregate, pipeline, filter, def} from '../model/Query';
-import {translate} from '../fetch';
+import {navigate, aggregate, pipeline, filter, def} from '../../model/Query';
+import translate from '../translate';
 
 describe('translate', function() {
 

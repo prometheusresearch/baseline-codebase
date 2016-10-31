@@ -7,32 +7,37 @@
     "eslint": "^3.5.0",
     "eslint-config-react-app": "^0.2.1",
     "eslint-plugin-flowtype": "^2.19.0",
-    "eslint-plugin-import": "^1.12.0",
+    "eslint-plugin-import": "^2.0.0",
     "eslint-plugin-jsx-a11y": "^2.2.2",
     "eslint-plugin-react": "^6.3.0",
     "flow-bin": "^0.33.0",
     "pegjs": "^0.10.0",
     "react-dom-stylesheet": "^0.8.6",
-    "react-scripts": "^0.6.1"
+    "react-scripts": "^0.7.0"
+  },
+  "babel": {
+    "presets": ["babel-preset-react-app"]
   },
   "dependencies": {
     "@prometheusresearch/react-box": "1-alpha",
     "@prometheusresearch/react-ui": "^0.20.0",
+    "babel-jest": "^16.0.0",
     "color": "^0.11.3",
     "downloadjs": "^1.4.6",
     "invariant": "^2.2.1",
+    "jest-cli": "^16.0.2",
     "lodash": "^4.15.0",
+    "moment": "^2.15.2",
     "pushstate-server": "^2.1.0",
     "qs": "^6.2.1",
     "react": "^15.3.1",
     "react-addons-shallow-compare": "^15.3.1",
     "react-dom": "^15.3.1",
     "react-icons": "^2.2.1",
+    "react-input-moment": "prometheusresearch/react-input-moment#master",
     "react-select": "^1.0.0-rc.2",
     "react-stylesheet": "2-alpha",
-    "react-virtualized": "^8.0.2",
-    "react-input-moment": "prometheusresearch/react-input-moment#master",
-    "moment": "^2.15.2"
+    "react-virtualized": "^8.0.2"
   },
   "proxy": "http://localhost:8080",
   "scripts": {

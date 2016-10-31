@@ -8,6 +8,9 @@ export type {
   NavigateQuery,
   SelectQuery,
   AggregateQuery,
+  QueryPipeline,
+
+  Expression,
 
   Context,
 

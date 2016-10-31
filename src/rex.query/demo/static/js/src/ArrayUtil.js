@@ -2,6 +2,32 @@
  * @flow
  */
 
+export type KeyPath = Array<number | string>;
+
+function referenceEquals(a, b) {
+  return a === b;
+}
+
+export function equals<A, B>(
+  a: Array<A>,
+  b: Array<B>,
+  equals: (a: A, b: B) => boolean = referenceEquals,
+): boolean {
+  if (a.length !== b.length) {
+    return false;
+  }
+  for (let i = 0; i < a.length; i++) {
+    if (!equals(a[i], b[i])) {
+      return false;
+    }
+  }
+  return true;
+}
+
+export function traceEquals(a: Array<KeyPath>, b: Array<KeyPath>) {
+  return equals(a, b, equals);
+}
+
 export function findIndexRight<T>(
   array: Array<T>,
   predicate: (item: T) => boolean
@@ -15,6 +41,16 @@ export function findIndexRight<T>(
     }
   }
   return -1;
+}
+
+export function transformLast<A>(array: Array<A>, fn: (a: A) => A): Array<A> {
+  if (array.length === 0) {
+    return array;
+  } else {
+    array = array.slice();
+    array.push(fn(array.pop()));
+    return array;
+  }
 }
 
 export function sum(array: Array<number>): number {

@@ -1,12 +1,45 @@
 /**
- * @flow
+ * @noflow
  */
 
-import type {Domain, Query} from '../model/Query';
+import type {Domain, Query, Expression as QueryExpression} from '../model/Query';
 import type {Expression} from './index';
 
 import invariant from 'invariant';
 import * as q from '../model/Query';
+
+export function toExpression(domain: Domain, node: Expression): QueryExpression {
+  switch (node.type) {
+    case 'Identifier':
+      return q.navigate(node.value);
+    case 'BinaryOperation': {
+      let {left, right, operator} = node;
+      switch (operator) {
+        case ':':
+        case '.': {
+          let pipeline = [];
+          let leftQuery = toQuery(domain, left);
+          if (leftQuery.name === 'pipeline') {
+            pipeline = leftQuery.pipeline.concat(pipeline);
+          } else {
+            pipeline = [leftQuery].concat(pipeline);
+          }
+          let rightQuery = toQuery(domain, right);
+          if (rightQuery.name === 'pipeline') {
+            pipeline = pipeline.concat(rightQuery.pipeline);
+          } else {
+            pipeline = pipeline.concat(rightQuery);
+          }
+          return {name: 'query', query: q.pipeline(...pipeline)};
+        }
+        default:
+          return q.navigate('individual');
+      }
+    }
+    default:
+      invariant(false, 'Do not know how to bind: %s', node.type);
+  }
+}
 
 export default function toQuery(domain: Domain, node: Expression): Query {
   switch (node.type) {
@@ -43,7 +76,7 @@ export default function toQuery(domain: Domain, node: Expression): Query {
             node.argList.length === 1,
             'filter(predicate) requires a single argument'
           );
-          return q.filter(toQuery(domain, node.argList[0]));
+          return q.filter(toExpression(domain, node.argList[0]));
         }
         case 'define': {
           let arg = node.argList[0];

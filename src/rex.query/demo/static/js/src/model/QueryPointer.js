@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Query} from './Query';
+import type {Query, QueryPipeline} from './Query';
 
 import invariant from 'invariant';
 
@@ -12,18 +12,18 @@ export type KeyPath = Array<number | string>;
  * Query with a keyPath inside.
  */
 export interface QueryPointer<+Q: Query = Query> {
-  root: Query;
+  root: QueryPipeline;
   path: Array<KeyPath>;
   query: Q;
 };
 
-export function make<Q: Query>(
+export function make<Q: QueryPipeline>(
   query: Q,
   ...path: Array<KeyPath>
 ): QueryPointer<Q> {
   // TODO: rm cast the Flow 0.34 lands and we don't need to use interface to
   // represent pointers
-  let root = (query: Query);
+  let root = (query: QueryPipeline);
   for (let i = 0; i < path.length; i++) {
     query = getByKeyPath(query, path[i]);
     if (query == null) {
@@ -36,6 +36,8 @@ export function make<Q: Query>(
     query: query,
   };
 }
+
+export let pointer = make;
 
 export function select(
   pointer: QueryPointer<Query>,
@@ -114,7 +116,7 @@ export function move(p: QueryPointer<Query>, d: number): QueryPointer<Query> {
 
 export function rebase(
   pointer: QueryPointer<*>,
-  query: Query,
+  query: QueryPipeline,
   until?: (query: Query) => boolean,
 ): QueryPointer<Query> {
   let trace = [{query, path: []}];
@@ -175,6 +177,22 @@ export function trace(p: QueryPointer<*>): Array<QueryPointer<*>> {
     trace.push(make(p.root, ...path));
   }
   return trace;
+}
+
+export function repr(p: ?QueryPointer<*>): ?string {
+  if (p == null) {
+    return null;
+  } else {
+    return reprPath(p.path);
+  }
+}
+
+export function reprPath(path: Array<KeyPath>): ?string {
+  if (path.length === 0) {
+    return '<pointer>';
+  } else {
+    return `<pointer ${path.map(p => p.join('.')).join(':')}>`;
+  }
 }
 
 function getByKeyPath(obj: mixed, keyPath: KeyPath): any {

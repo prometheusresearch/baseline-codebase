@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Query, Domain} from './model';
+import type {Query, QueryPipeline, Domain} from './model';
 
 import invariant from 'invariant';
 import React from 'react';
@@ -15,6 +15,8 @@ import ArrowRightIcon  from 'react-icons/lib/fa/arrow-right';
 import DownloadIcon from 'react-icons/lib/fa/cloud-download';
 import TerminalIcon from 'react-icons/lib/fa/terminal';
 
+import * as q from './model/Query';
+import * as op from './model/op';
 import * as qp from './model/QueryPointer';
 import * as ui from './ui';
 import * as State from './state';
@@ -22,7 +24,7 @@ import * as State from './state';
 type QueryBuilderProps = {
   domain: Domain;
   api: string;
-  initialQuery: ?Query;
+  initialQuery: ?QueryPipeline;
   onQuery: (query?: ?Query) => *;
 };
 
@@ -66,8 +68,8 @@ export default class QueryBuilder extends React.Component {
   render() {
     let {
       query,
-      queryInvalid,
       selected,
+      queryInvalid,
       data,
       showPanel,
       showConsole,
@@ -75,6 +77,8 @@ export default class QueryBuilder extends React.Component {
     } = this.state;
 
     let pointer = qp.make(query);
+    console.log(query);
+    console.log(selected && selected.path.join(':'));
 
     return (
       <VBox height="100%">

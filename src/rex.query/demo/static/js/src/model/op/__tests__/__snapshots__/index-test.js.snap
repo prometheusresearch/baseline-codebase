@@ -1,0 +1,756 @@
+exports[`insertAfter() [individual]!name 1`] = `
+Object {
+  "context": Object {
+    "domain": Object {
+      "aggregate": Object {},
+      "entity": Object {},
+    },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
+    "inputType": null,
+    "prev": [Circular],
+    "scope": Object {},
+    "type": null,
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "here",
+    },
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "navigate",
+      "path": "name",
+    },
+  ],
+}
+`;
+
+exports[`insertAfter() individual!name 1`] = `
+Object {
+  "context": Object {
+    "domain": Object {
+      "aggregate": Object {},
+      "entity": Object {},
+    },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
+    "inputType": null,
+    "prev": [Circular],
+    "scope": Object {},
+    "type": null,
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "here",
+    },
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "navigate",
+      "path": "name",
+    },
+  ],
+}
+`;
+
+exports[`insertAfter() individual!sample.name 1`] = `
+Object {
+  "context": Object {
+    "domain": Object {
+      "aggregate": Object {},
+      "entity": Object {},
+    },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
+    "inputType": null,
+    "prev": [Circular],
+    "scope": Object {},
+    "type": null,
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "here",
+    },
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "navigate",
+      "path": "sample",
+    },
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "navigate",
+      "path": "name",
+    },
+  ],
+}
+`;
+
+exports[`insertAfter() individual.sample!name 1`] = `
+Object {
+  "context": Object {
+    "domain": Object {
+      "aggregate": Object {},
+      "entity": Object {},
+    },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
+    "inputType": null,
+    "prev": [Circular],
+    "scope": Object {},
+    "type": null,
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "here",
+    },
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "navigate",
+      "path": "sample",
+    },
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "navigate",
+      "path": "name",
+    },
+  ],
+}
+`;
+
+exports[`insertAfter() individual:define(a = sample!name) 1`] = `
+Object {
+  "context": Object {
+    "domain": Object {
+      "aggregate": Object {},
+      "entity": Object {},
+    },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
+    "inputType": null,
+    "prev": [Circular],
+    "scope": Object {},
+    "type": null,
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "here",
+    },
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "binding": Object {
+        "name": "a",
+        "query": Object {
+          "context": Object {
+            "domain": Object {
+              "aggregate": Object {},
+              "entity": Object {},
+            },
+            "domainEntity": null,
+            "domainEntityAttrtibute": null,
+            "inputType": null,
+            "prev": [Circular],
+            "scope": Object {},
+            "type": null,
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "domain": Object {
+                  "aggregate": Object {},
+                  "entity": Object {},
+                },
+                "domainEntity": null,
+                "domainEntityAttrtibute": null,
+                "inputType": null,
+                "prev": [Circular],
+                "scope": Object {},
+                "type": null,
+              },
+              "name": "navigate",
+              "path": "sample",
+            },
+            Object {
+              "context": Object {
+                "domain": Object {
+                  "aggregate": Object {},
+                  "entity": Object {},
+                },
+                "domainEntity": null,
+                "domainEntityAttrtibute": null,
+                "inputType": null,
+                "prev": [Circular],
+                "scope": Object {},
+                "type": null,
+              },
+              "name": "navigate",
+              "path": "name",
+            },
+          ],
+        },
+      },
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "define",
+    },
+  ],
+}
+`;
+
+exports[`removeAt() individual!.name 1`] = `
+Object {
+  "context": Object {
+    "domain": Object {
+      "aggregate": Object {},
+      "entity": Object {},
+    },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
+    "inputType": null,
+    "prev": [Circular],
+    "scope": Object {},
+    "type": null,
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "here",
+    },
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "navigate",
+      "path": "name",
+    },
+  ],
+}
+`;
+
+exports[`removeAt() individual.name! 1`] = `
+Object {
+  "context": Object {
+    "domain": Object {
+      "aggregate": Object {},
+      "entity": Object {},
+    },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
+    "inputType": null,
+    "prev": [Circular],
+    "scope": Object {},
+    "type": null,
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "here",
+    },
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+  ],
+}
+`;
+
+exports[`removeAt() individual:define(a := sample!) 1`] = `
+Object {
+  "context": Object {
+    "domain": Object {
+      "aggregate": Object {},
+      "entity": Object {},
+    },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
+    "inputType": null,
+    "prev": [Circular],
+    "scope": Object {},
+    "type": null,
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "here",
+    },
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+  ],
+}
+`;
+
+exports[`removeAt() individual:select(a = [sample!]) 1`] = `
+Object {
+  "context": Object {
+    "domain": Object {
+      "aggregate": Object {},
+      "entity": Object {},
+    },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
+    "inputType": null,
+    "prev": [Circular],
+    "scope": Object {},
+    "type": null,
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "here",
+    },
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+  ],
+}
+`;
+
+exports[`removeAt() individual:select(a = sample.name!) 1`] = `
+Object {
+  "context": Object {
+    "domain": Object {
+      "aggregate": Object {},
+      "entity": Object {},
+    },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
+    "inputType": null,
+    "prev": [Circular],
+    "scope": Object {},
+    "type": null,
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "here",
+    },
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+  ],
+}
+`;
+
+exports[`removeAt() individual:select(a = sample.name!, b = sample) 1`] = `
+Object {
+  "context": Object {
+    "domain": Object {
+      "aggregate": Object {},
+      "entity": Object {},
+    },
+    "domainEntity": null,
+    "domainEntityAttrtibute": null,
+    "inputType": null,
+    "prev": [Circular],
+    "scope": Object {},
+    "type": null,
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "here",
+    },
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "context": Object {
+        "domain": Object {
+          "aggregate": Object {},
+          "entity": Object {},
+        },
+        "domainEntity": null,
+        "domainEntityAttrtibute": null,
+        "inputType": null,
+        "prev": [Circular],
+        "scope": Object {},
+        "type": null,
+      },
+      "name": "select",
+      "select": Object {
+        "b": Object {
+          "context": Object {
+            "domain": Object {
+              "aggregate": Object {},
+              "entity": Object {},
+            },
+            "domainEntity": null,
+            "domainEntityAttrtibute": null,
+            "inputType": null,
+            "prev": [Circular],
+            "scope": Object {},
+            "type": null,
+          },
+          "name": "navigate",
+          "path": "sample",
+        },
+      },
+    },
+  ],
+}
+`;

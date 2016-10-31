@@ -4,13 +4,14 @@
 
 import type {
   Query,
+  QueryPipeline,
   Domain,
   QueryPointer
 } from '../model';
 
 import * as q from '../model/Query';
 import * as qp from '../model/QueryPointer';
-import * as qo from '../model/QueryOperation';
+import * as op from '../model/op';
 import * as SC from '../StateContainer';
 import * as Focus from './Focus';
 import * as actions from './actions';
@@ -19,7 +20,7 @@ import * as actions from './actions';
  * Represents a bit of info which is restored on undo/redo operations.
  */
 type UndoRecord = {
-  query: Query;
+  query: QueryPipeline;
   selected: ?QueryPointer<Query>;
 };
 
@@ -29,7 +30,7 @@ export type State = {
 
   api: string;
 
-  query: Query;
+  query: QueryPipeline;
 
   queryInvalid: boolean;
 
@@ -63,7 +64,7 @@ export type Actions =
 export type Params = {
   api: string;
   domain: Domain;
-  initialQuery?: ?Query;
+  initialQuery?: ?QueryPipeline;
 };
 
 export function getInitialState({
@@ -72,14 +73,14 @@ export function getInitialState({
   initialQuery
 }: Params): State {
 
-  // normalize query and prepend `here` query
-  let {query} = qo.normalize({query: initialQuery || q.here, selected: null});
-  if (query.name !== 'here') {
-    query = q.pipeline(q.here, query);
-  }
+  let {query} = op.normalize({
+    query: q.inferType(domain, initialQuery || q.pipeline(q.here)),
+    selected: null,
+  });
+
   query = q.inferType(domain, query);
 
-  let selected = qp.make(query);
+  let selected = qp.make(query, ['pipeline', 0]);
   let focusedSeq = Focus.chooseFocus(query);
 
   let state: State = {

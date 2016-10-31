@@ -1,8 +1,8 @@
 /**
- * @flow
+ * @noflow
  */
 
-import type {FilterQuery, QueryOrLiteral} from '../model/Query';
+import type {Query, FilterQuery} from '../model/Query';
 import type {QueryPointer} from '../model/QueryPointer';
 import type {Actions} from '../state';
 import type {Comparator} from './FilterComparators';
@@ -22,15 +22,19 @@ import QueryPanelBase from './QueryPanelBase';
 import {MenuGroup, MenuButton} from './menu';
 import Select from './Select';
 
-
 type FilterConditionProps = {
-  expression: QueryOrLiteral;
+  expression: Query;
   fields: Array<nav.Navigation>;
 };
 
-
 class FilterCondition extends React.Component {
-  state: {field: ?string, operand: ?string, comparator: ?string};
+
+  state: {
+    field: ?string;
+    operand: ?string;
+    comparator: ?string;
+    operandIsField: boolean;
+  };
 
   constructor(props: FilterConditionProps) {
     super(props);
@@ -45,7 +49,7 @@ class FilterCondition extends React.Component {
   }
 
   getCondition(expression): Comparator {
-    if (expression === true) {
+    if (expression.name === 'value' && expression.value === true) {
       return {field: null, comparator: null, operand: null, operandIsField: false};
     }
 
@@ -66,11 +70,21 @@ class FilterCondition extends React.Component {
   }
 
   getCompatibleOperandFields(sourceField) {
-    let sourceTypeName = t.atom(sourceField.context.type).name;
+    const sourceType = t.maybeAtom(sourceField.context.type);
+    invariant(
+      sourceType != null,
+      'Expected a typed query'
+    );
     return this.props.fields.filter((field) => {
+      let type = t.maybeAtom(field.context.type);
+      // FIXME: rm invariant
+      invariant(
+        type != null,
+        'Expected a typed query'
+      );
       return (
-        (field.value !== sourceField.value)
-        && (t.atom(field.context.type).name === sourceTypeName)
+        field.value !== sourceField.value &&
+        type.name === sourceType.name
       );
     });
   }
@@ -249,8 +263,14 @@ type FilterQueryPanelProps = {
 };
 
 export default class FilterQueryPanel extends React.Component<*, FilterQueryPanelProps, *> {
-  context: {actions: Actions};
-  state: {expressions: Array<QueryOrLiteral>};
+
+  context: {
+    actions: Actions;
+  };
+
+  state: {
+    expressions: Array<Query>;
+  };
 
   static contextTypes = {actions: React.PropTypes.object};
 
@@ -258,7 +278,9 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
     super(props);
     let {predicate} = props.pointer.query;
     this.state = {
-      expressions: ((predicate.name === 'or') && (predicate.expressions.length > 0)) ? predicate.expressions : [true],
+      expressions: predicate.name === 'or' && predicate.expressions.length > 0
+        ? predicate.expressions
+        : [q.value(true)],
     };
   }
 
@@ -341,11 +363,11 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
 
   onAddCondition = () => {
     let expressions = this.state.expressions.slice();
-    expressions.push(true);
+    expressions.push(q.value(true));
     this.setState({expressions});
   };
 
-  onConditionUpdate(index: number, condition: QueryOrLiteral) {
+  onConditionUpdate(index: number, condition: Query) {
     let expressions = this.state.expressions.slice();
     expressions[index] = condition;
     this.setState({expressions}, () => { this.updateQuery(); });
@@ -359,22 +381,15 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
 
   updateQuery() {
     let {expressions} = this.state;
-    expressions = expressions.filter((exp) => {
-      return (exp !== true);
-    });
+    expressions = expressions.filter(expression =>
+      !(expression.name === 'value' && expression.value === true));
 
     let query;
     if (expressions.length > 0) {
-      query = q.filter(q.or.apply(null, expressions.map((exp) => {
-        if (q.isQuery(exp)) {
-          // $ExpectError
-          return q.inferTypeStep(this.props.pointer.query.context, exp);
-        } else {
-          return exp;
-        }
-      })));
+      query = q.filter(q.or(...expressions.map(expression =>
+        q.inferExpressionType(this.props.pointer.query.context, expression))));
     } else {
-      query = q.filter(q.or(true));
+      query = q.filter(q.or(q.value(true)));
     }
 
     this.context.actions.replace({

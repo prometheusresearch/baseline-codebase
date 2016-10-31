@@ -1,14 +1,25 @@
+/**
+ * @flow
+ */
+
 import React from 'react';
 import moment from 'moment';
+import invariant from 'invariant';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
 import Select from './Select';
 import {DatePicker, TimePicker, DateTimePicker} from './DateTime';
 
+type TextOperandProps = {
+  type: string;
+  value: string;
+  onChange: (value: ?string) => *;
+};
 
-export class TextOperand extends React.Component {
+export class TextOperand extends React.Component<*, TextOperandProps, *> {
+
   render() {
-    let {type, value, onChange, ...props} = this.props;  // eslint-disable-line no-unused-vars
+    let {type, value, onChange, ...props} = this.props;
     return (
       <ReactUI.Input
         {...props}
@@ -19,14 +30,25 @@ export class TextOperand extends React.Component {
     );
   }
 
-  onChange = (event) => {
-    this.props.onChange(event.target.value || null);
+  onChange = (event: any) => {
+    let target = event.target;
+    this.props.onChange(target.value || null);
   };
 }
 
+type NumberOperandProps = {
+  value: string;
+  onChange: (value: number) => *;
+};
 
-export class NumberOperand extends React.Component {
-  constructor(props) {
+export class NumberOperand extends React.Component<*, NumberOperandProps, *> {
+
+  state: {
+    value: string;
+    error: boolean;
+  };
+
+  constructor(props: NumberOperandProps) {
     super(props);
     this.state = {
       value: props.value,
@@ -34,7 +56,7 @@ export class NumberOperand extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: NumberOperandProps) {
     if (nextProps.value !== this.props.value) {
       this.setState({
         value: nextProps.value,
@@ -53,7 +75,7 @@ export class NumberOperand extends React.Component {
     );
   }
 
-  onChange = (value) => {
+  onChange = (value: string) => {
     let num = Number(value);
     if ((value != null) && (num.toString() === value)) {
       this.setState({value, error: false}, () => { this.props.onChange(num); });
@@ -80,9 +102,11 @@ export class EnumerationOperand extends React.Component {
 
 // TODO: refactor date/time/datetime operands -- lots of cut&paste
 
-
 export class DateOperand extends React.Component {
-  constructor(props) {
+
+  state: any;
+
+  constructor(props: any) {
     super(props);
     this.state = {
       moment: props.value ? moment(props.value) : null,
@@ -90,7 +114,7 @@ export class DateOperand extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: any) {
     this.setState({
       moment: nextProps.value ? moment(nextProps.value) : null,
     });
@@ -139,7 +163,7 @@ export class DateOperand extends React.Component {
     });
   };
 
-  onChange = (moment) => {
+  onChange = (moment: any) => {
     this.setState({
       pickerShowing: false,
     }, () => { this.props.onChange(moment.format('YYYY-MM-DD')); });
@@ -154,7 +178,10 @@ export class DateOperand extends React.Component {
 
 
 export class TimeOperand extends React.Component {
-  constructor(props) {
+
+  state: any;
+
+  constructor(props: any) {
     super(props);
     this.state = {
       moment: props.value ? moment(props.value, 'HH:mm:ss') : null,
@@ -162,7 +189,7 @@ export class TimeOperand extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: any) {
     this.setState({
       moment: nextProps.value ? moment(nextProps.value, 'HH:mm:ss') : null,
     });
@@ -212,7 +239,7 @@ export class TimeOperand extends React.Component {
     });
   };
 
-  onChange = (moment) => {
+  onChange = (moment: any) => {
     this.setState({
       pickerShowing: false,
     }, () => { this.props.onChange(moment.format('HH:mm:ss')); });
@@ -227,7 +254,10 @@ export class TimeOperand extends React.Component {
 
 
 export class DateTimeOperand extends React.Component {
-  constructor(props) {
+
+  state: any;
+
+  constructor(props: any) {
     super(props);
     this.state = {
       moment: props.value ? moment(props.value, 'YYYY-MM-DD HH:mm:ss') : null,
@@ -235,7 +265,7 @@ export class DateTimeOperand extends React.Component {
     };
   }
 
-  componentWillReceiveProps(nextProps) {
+  componentWillReceiveProps(nextProps: any) {
     this.setState({
       moment: nextProps.value ? moment(nextProps.value, 'YYYY-MM-DD HH:mm:ss') : null,
     });
@@ -285,7 +315,7 @@ export class DateTimeOperand extends React.Component {
     });
   };
 
-  onChange = (moment) => {
+  onChange = (moment: any) => {
     this.setState({
       pickerShowing: false,
     }, () => { this.props.onChange(moment.format('YYYY-MM-DD HH:mm:ss')); });
@@ -312,4 +342,3 @@ export class MultiEnumerationOperand extends React.Component {
     );
   }
 }
-

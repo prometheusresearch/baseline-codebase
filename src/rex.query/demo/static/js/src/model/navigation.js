@@ -41,7 +41,7 @@ export function getNavigation(context: q.Context, type: ?t.Type) {
           navigation.push({
             value: k,
             label: domain.entity[k].title,
-            context: q.inferTypeStep(contextAtQuery, q.navigate(k)).context,
+            context: q.inferQueryType(contextAtQuery, q.navigate(k)).context,
           });
         }
       }
@@ -52,7 +52,7 @@ export function getNavigation(context: q.Context, type: ?t.Type) {
           navigation.push({
             value: k,
             label: attribute[k].title,
-            context: q.inferTypeStep(contextAtQuery, q.navigate(k)).context,
+            context: q.inferQueryType(contextAtQuery, q.navigate(k)).context,
           });
         }
       }
@@ -64,7 +64,7 @@ export function getNavigation(context: q.Context, type: ?t.Type) {
       navigation.push({
         value: k,
         label: k,
-        context: q.inferTypeStep(contextAtQuery, scope[k]).context,
+        context: q.inferQueryType(contextAtQuery, scope[k]).context,
       });
     }
   }

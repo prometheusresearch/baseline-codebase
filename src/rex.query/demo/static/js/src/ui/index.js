@@ -2,7 +2,7 @@
  * @flow
  */
 
-export {QueryVis} from './QueryVis';
+export {QueryVis} from './vis/QueryVis';
 export {default as QueryPanel} from './QueryPanel';
 export {default as NavigationPanel} from './NavigationPanel';
 export {DataTable} from './DataTable';

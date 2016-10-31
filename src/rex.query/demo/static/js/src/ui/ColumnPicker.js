@@ -179,7 +179,7 @@ function getNavigation(pointer: QueryPointer<>, type: ?Type): Array<Navigation> 
     if (baseType.name === 'void') {
       for (let k in domain.entity) {
         if (domain.entity.hasOwnProperty(k)) {
-          let navQuery = q.inferTypeStep(contextAtQuery, q.navigate(k));
+          let navQuery = q.inferQueryType(contextAtQuery, q.navigate(k));
           navigation.push({
             value: k,
             label: domain.entity[k].title,
@@ -191,7 +191,7 @@ function getNavigation(pointer: QueryPointer<>, type: ?Type): Array<Navigation> 
       let attribute = domain.entity[baseType.entity].attribute;
       for (let k in attribute) {
         if (attribute.hasOwnProperty(k)) {
-          let navQuery = q.inferTypeStep(contextAtQuery, q.navigate(k));
+          let navQuery = q.inferQueryType(contextAtQuery, q.navigate(k));
           navigation.push({
             value: k,
             label: attribute[k].title,
@@ -202,7 +202,7 @@ function getNavigation(pointer: QueryPointer<>, type: ?Type): Array<Navigation> 
     } else if (baseType.name === 'record') {
       for (let k in baseType.fields) {
         if (baseType.fields.hasOwnProperty(k)) {
-          let navQuery = q.inferTypeStep(contextAtQuery, q.navigate(k));
+          let navQuery = q.inferQueryType(contextAtQuery, q.navigate(k));
           navigation.push({
             value: k,
             label: k,
@@ -215,7 +215,7 @@ function getNavigation(pointer: QueryPointer<>, type: ?Type): Array<Navigation> 
 
   for (let k in scope) {
     if (scope.hasOwnProperty(k)) {
-      let navQuery = q.inferTypeStep(contextAtQuery, scope[k]);
+      let navQuery = q.inferQueryType(contextAtQuery, scope[k]);
       navigation.push({
         value: k,
         label: k,
@@ -241,7 +241,7 @@ function getNavigationPointerMapImpl(
   pointer: QueryPointer<>
 ): {[path: string]: QueryPointer<>} {
   const noNavigation = {};
-  return q.transform(pointer.query, {
+  return q.transformQuery(pointer.query, {
 
     pipeline: query => {
       if (query.pipeline.length === 0) {

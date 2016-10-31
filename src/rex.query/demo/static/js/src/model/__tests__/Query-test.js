@@ -2,22 +2,15 @@ import * as q from '../Query';
 
 import {
   here, navigate, filter, limit,
-  select, aggregate, pipeline, def
+  select, aggregate, pipeline, def,
+  value
 } from '../Query';
 import {
   voidType, numberType, textType,
   entityType, recordType,
   seqType, optType
 } from '../Type';
-
-function stripDomain(query) {
-  return q.map(query, query => {
-    return {
-      ...query,
-      context: query.context ? {type: query.context.type} : null
-    };
-  });
-}
+import {stripDomain} from './util';
 
 describe('inferType()', function() {
 
@@ -69,7 +62,7 @@ describe('inferType()', function() {
       );
     expect(q.inferType(domain, navigate('unknown')).context.type)
       .toEqual(null);
-    expect(q.inferType(domain, filter(individual)).context.type)
+    expect(q.inferType(domain, filter(value(true))).context.type)
       .toEqual(voidType);
     expect(q.inferType(domain, limit(10)).context.type)
       .toEqual(voidType);
@@ -196,10 +189,10 @@ describe('inferType()', function() {
   it('individual:define(newname := name):select(a := newname, b := name)', function() {
     let query = pipeline(
       individual,
-      def('newname', name),
+      def('newname', pipeline(name)),
       select({
-        a: q.navigate('newname'),
-        b: name
+        a: pipeline(q.navigate('newname')),
+        b: pipeline(name)
       })
     );
     expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
@@ -257,7 +250,7 @@ describe('inferType()', function() {
   it('individual:define(nickname := name)', function() {
     let query = pipeline(
       individual,
-      def('nickname', navigate('name')),
+      def('nickname', pipeline(navigate('name'))),
     );
     expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
   });
@@ -265,8 +258,45 @@ describe('inferType()', function() {
   it('individual:define(nickname := name).nickname', function() {
     let query = pipeline(
       individual,
-      def('nickname', navigate('name')),
+      def('nickname', pipeline(navigate('name'))),
       navigate('nickname'),
+    );
+    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+  });
+
+  it('individual:define(nickname := name):select(nickname)', function() {
+    let query = pipeline(
+      individual,
+      def('nickname', pipeline(navigate('name'))),
+      select({nickname: pipeline(navigate('nickname'))}),
+    );
+    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+  });
+
+  it('individual:define(nickname := name):select(nickname:select(code))', function() {
+    let query = pipeline(
+      individual,
+      def('nickname', pipeline(navigate('name'))),
+      select({
+        nickname: pipeline(
+          navigate('nickname'),
+          select({code: pipeline(navigate('code'))})
+        )
+      }),
+    );
+    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+  });
+
+  it('individual:define(s := sample:count()):select(s:select(title))', function() {
+    let query = pipeline(
+      individual,
+      def('s', pipeline(sample, count)),
+      select({
+        s: pipeline(
+          navigate('s'),
+          select({title: pipeline(title)})
+        )
+      }),
     );
     expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
   });

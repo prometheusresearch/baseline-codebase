@@ -2,75 +2,12 @@
  * @flow
  */
 
-import type {Query, QueryPointer} from '../model';
-import type {Actions} from '../state';
-
 import React from 'react';
 import {VBox, HBox} from '@prometheusresearch/react-box';
 import {style} from 'react-stylesheet';
 import IconRemove from 'react-icons/lib/fa/trash';
 import IconCircleO from 'react-icons/lib/fa/circle-o'
 import IconCircle from 'react-icons/lib/fa/circle'
-
-import * as qp from '../model/QueryPointer';
-import QueryVisToolbar from './QueryVisToolbar';
-
-type QueryVisButtonProps = {
-  pointer: QueryPointer<Query>;
-  children?: React$Element<*>;
-  selected: ?QueryPointer<Query>;
-  disableToolbar: boolean;
-};
-
-export default class QueryVisButton extends React.Component<*, QueryVisButtonProps, *> {
-
-  context: {
-    actions: Actions;
-  };
-
-  static contextTypes = {actions: React.PropTypes.object};
-
-  static defaultProps = {
-    selected: null,
-    disableToolbar: false,
-    stylesheet: {
-      Root: VBox,
-      Button: VBox,
-    }
-  };
-
-  onSelect = () => {
-    this.context.actions.select(this.props.pointer);
-  };
-
-  onRemove = () => {
-    this.context.actions.remove(this.props.pointer);
-  };
-
-  render() {
-    let {children, selected, pointer, disableToolbar, ...props} = this.props;
-    let isSelected = qp.is(selected, pointer);
-    return (
-      <VBox>
-        <QueryVisButtonHeader
-          {...props}
-          onSelect={this.onSelect}
-          onRemove={this.onRemove}
-          selected={isSelected}
-          />
-        {children}
-        {!disableToolbar && isSelected &&
-          <VBox padding={5} paddingBottom={0}>
-            <QueryVisToolbar
-              pointer={pointer}
-              selected={selected}
-              />
-          </VBox>}
-      </VBox>
-    );
-  }
-
-}
 
 type QueryVisButtonHeaderProps = {
   stylesheet: {
@@ -82,9 +19,11 @@ type QueryVisButtonHeaderProps = {
   onSelect: () => void;
   onRemove: () => void;
   disableRemove: boolean;
+  disableToggle: boolean;
 };
 
-class QueryVisButtonHeader extends React.Component<*, QueryVisButtonHeaderProps, *> {
+export default class QueryVisButtonHeader
+  extends React.Component<*, QueryVisButtonHeaderProps, *> {
 
   state: {
     active: boolean;
@@ -122,7 +61,7 @@ class QueryVisButtonHeader extends React.Component<*, QueryVisButtonHeaderProps,
 
   render() {
     let {
-      label, selected, disableRemove,
+      label, selected, disableRemove, disableToggle,
       stylesheet: {Root, Button},
     } = this.props;
     let {
@@ -134,7 +73,11 @@ class QueryVisButtonHeader extends React.Component<*, QueryVisButtonHeaderProps,
         <HBox grow={1} alignItems="center">
           <VBox
             paddingRight={5}
-            style={{visibility: !active || selected || hover ? 'visible' : 'hidden'}}>
+            style={{
+              visibility: !disableToggle && (!active || selected || hover)
+                ? 'visible'
+                : 'hidden'
+            }}>
             <Button disableActive onClick={this.toggleActive}>
               {active ? <IconCircle /> : <IconCircleO />}
             </Button>

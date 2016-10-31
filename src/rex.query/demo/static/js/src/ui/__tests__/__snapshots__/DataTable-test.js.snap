@@ -5,16 +5,16 @@ Object {
     "cellRenderer": null,
     "data": null,
     "dataKey": Array [
-      "individual"
+      "individual",
     ],
     "headerCellRenderer": null,
-    "label": "individual"
+    "label": "individual",
   },
   "size": Object {
     "height": 1,
-    "width": 1
+    "width": 1,
   },
-  "type": "field"
+  "type": "field",
 }
 `;
 
@@ -22,7 +22,7 @@ exports[`test individual.study 1`] = `
 Object {
   "size": Object {
     "height": 2,
-    "width": 1
+    "width": 1,
   },
   "stack": Array [
     Object {
@@ -31,16 +31,16 @@ Object {
         "cellRenderer": null,
         "data": null,
         "dataKey": Array [
-          "individual"
+          "individual",
         ],
         "headerCellRenderer": null,
-        "label": "individual"
+        "label": "individual",
       },
       "size": Object {
         "height": 1,
-        "width": 1
+        "width": 1,
       },
-      "type": "field"
+      "type": "field",
     },
     Object {
       "field": Object {
@@ -48,19 +48,19 @@ Object {
         "cellRenderer": null,
         "data": null,
         "dataKey": Array [
-          "study"
+          "study",
         ],
         "headerCellRenderer": null,
-        "label": "study"
+        "label": "study",
       },
       "size": Object {
         "height": 1,
-        "width": 1
+        "width": 1,
       },
-      "type": "field"
-    }
+      "type": "field",
+    },
   ],
-  "type": "stack"
+  "type": "stack",
 }
 `;
 
@@ -68,7 +68,7 @@ exports[`test individual:select(name,age) 1`] = `
 Object {
   "size": Object {
     "height": 2,
-    "width": 2
+    "width": 2,
   },
   "stack": Array [
     Object {
@@ -77,16 +77,16 @@ Object {
         "cellRenderer": null,
         "data": null,
         "dataKey": Array [
-          "individual"
+          "individual",
         ],
         "headerCellRenderer": null,
-        "label": "individual"
+        "label": "individual",
       },
       "size": Object {
         "height": 1,
-        "width": 1
+        "width": 1,
       },
-      "type": "field"
+      "type": "field",
     },
     Object {
       "group": Array [
@@ -97,16 +97,16 @@ Object {
             "data": null,
             "dataKey": Array [
               "individual",
-              "name"
+              "name",
             ],
             "headerCellRenderer": null,
-            "label": "name"
+            "label": "name",
           },
           "size": Object {
             "height": 1,
-            "width": 1
+            "width": 1,
           },
-          "type": "field"
+          "type": "field",
         },
         Object {
           "field": Object {
@@ -115,26 +115,26 @@ Object {
             "data": null,
             "dataKey": Array [
               "individual",
-              "age"
+              "age",
             ],
             "headerCellRenderer": null,
-            "label": "age"
+            "label": "age",
           },
           "size": Object {
             "height": 1,
-            "width": 1
+            "width": 1,
           },
-          "type": "field"
-        }
+          "type": "field",
+        },
       ],
       "size": Object {
         "height": 1,
-        "width": 2
+        "width": 2,
       },
-      "type": "group"
-    }
+      "type": "group",
+    },
   ],
-  "type": "stack"
+  "type": "stack",
 }
 `;
 
@@ -142,7 +142,7 @@ exports[`test individual:select(name,study:select(label)) 1`] = `
 Object {
   "size": Object {
     "height": 3,
-    "width": 2
+    "width": 2,
   },
   "stack": Array [
     Object {
@@ -151,16 +151,16 @@ Object {
         "cellRenderer": null,
         "data": null,
         "dataKey": Array [
-          "individual"
+          "individual",
         ],
         "headerCellRenderer": null,
-        "label": "individual"
+        "label": "individual",
       },
       "size": Object {
         "height": 1,
-        "width": 1
+        "width": 1,
       },
-      "type": "field"
+      "type": "field",
     },
     Object {
       "group": Array [
@@ -171,21 +171,21 @@ Object {
             "data": null,
             "dataKey": Array [
               "individual",
-              "name"
+              "name",
             ],
             "headerCellRenderer": null,
-            "label": "name"
+            "label": "name",
           },
           "size": Object {
             "height": 1,
-            "width": 1
+            "width": 1,
           },
-          "type": "field"
+          "type": "field",
         },
         Object {
           "size": Object {
             "height": 2,
-            "width": 1
+            "width": 1,
           },
           "stack": Array [
             Object {
@@ -195,16 +195,16 @@ Object {
                 "data": null,
                 "dataKey": Array [
                   "individual",
-                  "study"
+                  "study",
                 ],
                 "headerCellRenderer": null,
-                "label": "study"
+                "label": "study",
               },
               "size": Object {
                 "height": 1,
-                "width": 1
+                "width": 1,
               },
-              "type": "field"
+              "type": "field",
             },
             Object {
               "group": Array [
@@ -216,35 +216,35 @@ Object {
                     "dataKey": Array [
                       "individual",
                       "study",
-                      "label"
+                      "label",
                     ],
                     "headerCellRenderer": null,
-                    "label": "label"
+                    "label": "label",
                   },
                   "size": Object {
                     "height": 1,
-                    "width": 1
+                    "width": 1,
                   },
-                  "type": "field"
-                }
+                  "type": "field",
+                },
               ],
               "size": Object {
                 "height": 1,
-                "width": 1
+                "width": 1,
               },
-              "type": "group"
-            }
+              "type": "group",
+            },
           ],
-          "type": "stack"
-        }
+          "type": "stack",
+        },
       ],
       "size": Object {
         "height": 2,
-        "width": 2
+        "width": 2,
       },
-      "type": "group"
-    }
+      "type": "group",
+    },
   ],
-  "type": "stack"
+  "type": "stack",
 }
 `;

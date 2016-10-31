@@ -2,8 +2,7 @@
  * @flow
  */
 
-import type {Query} from '../../model/Query';
-import type {QueryPointer} from '../../model/QueryPointer';
+import type {QueryPointer, Query, Expression} from '../../model';
 
 import React from 'react';
 import {VBox} from '@prometheusresearch/react-box';
@@ -16,7 +15,6 @@ import * as q from '../../model/Query';
 import * as qp from '../../model/QueryPointer';
 import * as QueryButton from '../QueryButton';
 import * as QueryPane from '../QueryPane';
-import * as theme from '../Theme';
 import QueryVisToolbar from './QueryVisToolbar';
 import QueryVisButton from './QueryVisButton';
 
@@ -46,12 +44,10 @@ function getColumnTitle(query: q.NavigateQuery): string {
   }
 }
 
-type QueryVisDefineButtonProps = {
+export function QueryVisDefineButton(props: {
   binding: React$Element<*>;
   pointer: QueryPointer<q.DefineQuery>;
-};
-
-export function QueryVisDefineButton(props: QueryVisDefineButtonProps) {
+}) {
   let {pointer, binding, ...rest} = props;
   return (
     <QueryVisButton
@@ -66,43 +62,48 @@ export function QueryVisDefineButton(props: QueryVisDefineButtonProps) {
   );
 }
 
-type QueryVisFilterButtonProps = {
+export function QueryVisFilterButton(props: {
   pointer: QueryPointer<q.FilterQuery>;
-};
-
-export function QueryVisFilterButton(props: QueryVisFilterButtonProps) {
+}) {
   let {query} = props.pointer;
-
-  let label = 'Filter';
-  if (query.predicate.name === 'or') {
-    let fields = [];
-    query.predicate.expressions.forEach((exp) => {
-      if ((exp !== true) && exp.left && (exp.left.name === 'navigate')) {
-        if (!fields.includes(exp.left.path)) {
-          fields.push(exp.left.path);
-        }
-      }
-    });
-
-    if (fields.length) {
-      label = `Filter by ${fields.join(', ')}`;
-    }
-  }
-
+  let label = getLabelForFilterExpression(query.predicate);
+  let stylesheet = {
+    Root: QueryPane.FilterPane,
+    Button: QueryButton.FilterButton,
+  };
   return (
     <QueryVisButton
       {...props}
-      stylesheet={{Root: QueryPane.FilterPane, Button: QueryButton.FilterButton}}
+      stylesheet={stylesheet}
       label={label}
       />
   );
 }
 
-type QueryVisAggregateButtonProps = {
-  pointer: QueryPointer<q.AggregateQuery>;
-};
+function getLabelForFilterExpression(expression: Expression): string {
+  if (expression.name === 'logicalBinary' && expression.op === 'or') {
+    let fields = [];
+    expression.expressions.forEach(expr => {
+      if (
+        !(expr.name === 'value' && expr.value === true) &&
+         expr.name === 'binary'
+      ) {
+        if (expr.left.name === 'navigate' && !fields.includes(expr.left.path)) {
+          fields.push(expr.left.path);
+        }
+      }
+    });
 
-export function QueryVisAggregateButton(props: QueryVisAggregateButtonProps) {
+    if (fields.length) {
+      return `Filter by ${fields.join(', ')}`;
+    }
+  }
+  return 'Filter';
+}
+
+export function QueryVisAggregateButton(props: {
+  pointer: QueryPointer<q.AggregateQuery>;
+}) {
   let {pointer, ...rest} = props;
   return (
     <QueryVisButton
@@ -114,12 +115,10 @@ export function QueryVisAggregateButton(props: QueryVisAggregateButtonProps) {
   );
 }
 
-type QueryVisHereProps = {
+export function QueryVisHere(props: {
   pointer: QueryPointer<q.HereQuery>;
   selected: ?QueryPointer<*>;
-};
-
-export function QueryVisHere(props: QueryVisHereProps) {
+}) {
   let {pointer, ...rest} = props;
   // Top level here which represents database.
   let disableRemove = (
@@ -177,13 +176,11 @@ function QueryVisSelectHeader(props: {
   );
 }
 
-type QueryVisSelectFieldsetProps = {
+function QueryVisSelectFieldset(props: {
   fieldset: Array<QueryPointer<*>>;
   selected: ?QueryPointer<*>;
   topLevel: boolean;
-};
-
-function QueryVisSelectFieldset(props: QueryVisSelectFieldsetProps) {
+}) {
   let {fieldset, topLevel, ...rest} = props;
   let items = fieldset.map(pointer =>
     <QueryVisSelectItem key={pointer.path.join('.')} variant={{topLevel}}>
@@ -213,7 +210,7 @@ export function QueryVisSelect(props: {
 }) {
   let {pointer, topLevel, ...rest} = props;
   let fieldset = getSelectFieldset(pointer);
-  let label = Object.keys(pointer.query.select).join(', ');
+  let label = `Select ${Object.keys(pointer.query.select).join(', ')}`;
   return (
     <QueryVisButton
       {...rest}
@@ -257,13 +254,11 @@ let QueryVisSelectItemInner = style(VBox, {
   }
 });
 
-type QueryVisQueryButtonProps = {
+function QueryVisQueryButton(props: {
   pointer: QueryPointer<Query>;
   selected: ?QueryPointer<Query>;
   disableRemove?: boolean;
-};
-
-function QueryVisQueryButton(props: QueryVisQueryButtonProps) {
+}) {
   const {pointer, disableRemove, ...rest} = props;
   if (pointer.query.name === 'here') {
     return (
@@ -333,13 +328,11 @@ function QueryVisQueryButton(props: QueryVisQueryButtonProps) {
   }
 }
 
-type QueryVisPipelineProps = {
+function QueryVisPipeline({pipeline, disableRemove, ...props}: {
   pipeline: Array<QueryPointer<Query>>;
   selected: ?QueryPointer<Query>;
   disableRemove?: boolean;
-};
-
-function QueryVisPipeline({pipeline, disableRemove, ...props}: QueryVisPipelineProps) {
+}) {
   let first = pipeline[0];
   let last = pipeline[pipeline.length - 1];
   let isSelectPipeline = (
@@ -435,15 +428,13 @@ function QueryVisSelectPipeline({
   );
 }
 
-type QueryVisSelectCollapsedPipelineProps = {
+function QueryVisSelectCollapsedPipeline({
+  navigate, select, selected, ...props
+}: {
   navigate: QueryPointer<q.NavigateQuery | q.HereQuery>;
   select: QueryPointer<q.SelectQuery>;
   selected: ?QueryPointer<Query>;
-};
-
-function QueryVisSelectCollapsedPipeline({
-  navigate, select, selected, ...props
-}: QueryVisSelectCollapsedPipelineProps) {
+}) {
   let fieldset = getSelectFieldset(select);
   let isSelected = (
     qp.is(selected, navigate) ||

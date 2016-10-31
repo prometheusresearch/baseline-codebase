@@ -210,7 +210,7 @@ export function QueryVisSelect(props: {
 }) {
   let {pointer, topLevel, ...rest} = props;
   let fieldset = getSelectFieldset(pointer);
-  let label = `Select ${Object.keys(pointer.query.select).join(', ')}`;
+  let label = getLabelForSelect(pointer.query);
   return (
     <QueryVisButton
       {...rest}
@@ -230,6 +230,25 @@ export function QueryVisSelect(props: {
         </VBox>}
     </QueryVisButton>
   );
+}
+
+function getLabelForSelect(query: q.SelectQuery): string {
+  let fields = Object.keys(query.select).filter(key => {
+    let type = query.select[key].context.type;
+    let baseType = t.maybeAtom(type);
+    if (
+      type != null && baseType != null &&
+      (type.name === 'seq' || baseType.name === 'entity')
+    ) {
+      return false;
+    }
+    return true;
+  });
+  if (fields.length > 0) {
+    return `Select ${fields.join(', ')}`;
+  } else {
+    return `Select`;
+  }
 }
 
 let QueryVisSelectItem = style(VBox, {

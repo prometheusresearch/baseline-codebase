@@ -223,7 +223,11 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
         if node.tag == u'!include':
             return self.cached_include(node)
         if node.tag == u'!include/str':
-            filename = self.include_path(node)
+            filename, pointer = self.include_path(node)
+            if pointer:
+                raise yaml.constructor.ConstructorError(None, None,
+                        "unexpected pointer: #/%s/" % "/".join(pointer),
+                        node.start_mark)
             try:
                 stream = self.open(filename)
             except IOError:
@@ -252,6 +256,10 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
                     node.start_mark)
         basename = getattr(self.stream, 'name', None)
         filename = node.value.encode('utf-8')
+        pointer = []
+        if '#' in filename:
+            filename, pointer = filename.rsplit('#', 1)
+            pointer = pointer.strip('/').split('/')
         if ':' in filename:
             if not get_rex:
                 raise yaml.constructor.ConstructorError(None, None,
@@ -275,12 +283,12 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
                         node.start_mark)
             filename = os.path.normpath(
                     os.path.join(os.path.dirname(basename), filename))
-        return filename
+        return filename, pointer
 
     def cached_include(self, node):
         from .context import get_rex
         location = Location.from_node(node)
-        filename = self.include_path(node)
+        filename, pointer = self.include_path(node)
         if not os.path.isfile(filename):
             raise yaml.constructor.ConstructorError(None, None,
                     "unable to open file: %s" % filename, node.start_mark)
@@ -291,8 +299,11 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
                     cache_key, lambda: IncludeLoader(self.__class__))
         else:
             loader = IncludeLoader(self.__class__)
+        validate = self.validate
+        for key in reversed(pointer):
+            validate = IncludeKeyVal(key, validate)
         with guard("While processing !include directive:", location):
-            return loader(filename, self.validate, self.master, self.open)
+            return loader(filename, validate, self.master, self.open)
 
     def setting(self, node):
         from .context import get_rex
@@ -1494,5 +1505,66 @@ class UnionVal(Validate):
         return "%s(%s)" % (self.__class__.__name__,
                            ", ".join(repr(variant)
                                      for variant in self.variants))
+
+
+class IncludeKeyVal(Validate):
+    """
+    Extracts a value from a mapping.
+
+    `key`
+        The key to extract.
+    `validate`
+        How to validate the value.
+    """
+
+    def __init__(self, key, validate):
+        self.key = key
+        self.validate = validate
+
+    def __call__(self, data):
+        if not isinstance(data, dict):
+            raise Error("Expected a mapping")
+        if self.key not in data:
+            raise Error("Expected a mapping with a key:", self.key)
+        value = data[self.key]
+        if self.validate is not None:
+            value = self.validate(value)
+        return value
+
+    def construct(self, loader, node):
+        if not (isinstance(node, yaml.MappingNode) and
+                node.tag == u'tag:yaml.org,2002:map'):
+            error = Error("Expected a mapping")
+            error.wrap("Got:", node.value
+                               if isinstance(node, yaml.ScalarNode)
+                               else "a %s" % node.id)
+            error.wrap("While parsing:", Location.from_node(node))
+            raise error
+        for key_node, value_node in node.value:
+            if not (isinstance(key_node, yaml.ScalarNode) and
+                    key_node.tag == u'tag:yaml.org,2002:str' and
+                    key_node.value == self.key):
+                continue
+            with loader.validating(self.validate):
+                return loader.construct_object(value_node, deep=True)
+        error = Error("Expected a mapping with a key:", self.key)
+        error.wrap("While parsing:", Location.from_node(node))
+        raise error
+
+    def __repr__(self):
+        args = [repr(self.key)]
+        if self.validate is not None:
+            args.append(repr(self.validate))
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
+
+    def __hash__(self):
+        return hash((self.key, self.validate))
+
+    def __eq__(self, other):
+        return (isinstance(other, IncludeKeyVal) and
+                self.key == other.key and self.validate == other.validate)
+
+    def __ne__(self, other):
+        return not (self == other)
 
 

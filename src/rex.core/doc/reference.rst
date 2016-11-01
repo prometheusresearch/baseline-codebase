@@ -100,6 +100,7 @@ Validators
 .. autoclass:: rex.core.RecordVal
 .. autoclass:: rex.core.SwitchVal
 .. autoclass:: rex.core.UnionVal
+.. autoclass:: rex.core.IncludeKeyVal
 .. autoclass:: rex.core.OnMatch
    :special-members: __call__, __str__
 .. autoclass:: rex.core.OnScalar

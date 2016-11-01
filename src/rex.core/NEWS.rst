@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.15.0 (2016-XX-XX)
+===================
+
+* Added support for pointers with ``!include`` directive.
+
+
 1.14.0 (2016-10-25)
 ===================
 

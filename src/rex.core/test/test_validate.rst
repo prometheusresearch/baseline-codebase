@@ -1370,6 +1370,85 @@ loading content from external files.  Files that are included using
     >>> str_val.parse(sandbox.open('include-str.yaml'))
     ' [We, love, YAML] '
 
+It is possible to include a sub-structure of a mapping from an included YAML
+file::
+
+    >>> sandbox.rewrite('include.me.too', """ { We : { love : YAML }, Not: XML } """)
+    >>> sandbox.rewrite('include-pointer.yaml', """ !include include.me.too#/We/love/ """)
+
+    >>> str_val.parse(sandbox.open('include-pointer.yaml'))
+    'YAML'
+
+It is an error when the mapping key does not exist, or the content
+of the document is not a mapping::
+
+    >>> sandbox.rewrite('include-pointer.yaml', """ !include include.me.too#/We/hate/ """)
+    >>> str_val.parse(sandbox.open('include-pointer.yaml'))     # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Expected a mapping with a key:
+        hate
+    While parsing:
+        "/.../include.me.too", line 1
+    While processing !include directive:
+        "/.../include-pointer.yaml", line 1
+
+    >>> sandbox.rewrite('include-pointer.yaml', """ !include include.me#/We/love/ """)
+    >>> str_val.parse(sandbox.open('include-pointer.yaml'))     # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Expected a mapping
+    Got:
+        a sequence
+    While parsing:
+        "/.../include.me", line 1
+    While processing !include directive:
+        "/.../include-pointer.yaml", line 1
+
+It is not allowed to use the pointer syntax with string includes::
+
+    >>> sandbox.rewrite('include-pointer.yaml', """ !include/str include.me.too#/We/love/ """)
+    >>> str_val.parse(sandbox.open('include-pointer.yaml'))     # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Failed to parse a YAML document:
+        unexpected pointer: #/We/love/
+          in "/.../include-pointer.yaml", line 1, column 2
+
+The pointer extractor is implemented as a validator, which can be used
+directly::
+
+    >>> from rex.core import IncludeKeyVal
+
+    >>> include_key_val = IncludeKeyVal('key', str_val)
+    >>> include_key_val
+    IncludeKeyVal('key', StrVal())
+
+    >>> include_key_val({"key": "value"})
+    'value'
+
+    >>> include_key_val({"no": "value"})
+    Traceback (most recent call last):
+      ...
+    Error: Expected a mapping with a key:
+        key
+
+    >>> include_key_val(None)
+    Traceback (most recent call last):
+      ...
+    Error: Expected a mapping
+
+The include key validator is hashable and comparable::
+
+    >>> other_include_key_val = IncludeKeyVal('key', str_val)
+
+    >>> hash(include_key_val) == hash(other_include_key_val)
+    True
+    >>> include_key_val == other_include_key_val
+    True
+    >>> include_key_val != other_include_key_val
+    False
+
 An empty YAML stream is interpreted as a ``null`` value::
 
     >>> sandbox.rewrite('include.me', """ """)

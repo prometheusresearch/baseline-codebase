@@ -8,17 +8,31 @@ import {VBox} from '@prometheusresearch/react-box';
 import color from 'color';
 import * as theme from './Theme';
 
-function createPane({displayName, theme}) {
+function createPane({displayName, theme, noActiveBorder}: {
+  displayName: string;
+  theme: theme.QueryVisTheme;
+  noActiveBorder?: boolean;
+}) {
+  let makeBorder = (width) => css.border(
+    width,
+    theme.borderStyle ? theme.borderStyle : 'solid',
+    theme.borderColor
+  );
   return style(VBox, {
     displayName,
     base: {
-      backgroundColor: theme.background,
-      color: theme.color,
+      backgroundColor: theme.backgroundColor,
+      color: theme.textColor,
+      boxShadow: css.boxShadow(0, 1, 2, -1, '#aaa'),
+      marginBottom: 2,
+      marginLeft: 2,
+      border: makeBorder(1),
+      borderRight: css.none,
     },
     selected: {
       zIndex: 1,
-      boxShadow: css.boxShadow(0, 1, 2, 0, '#bbb'),
-      backgroundColor: color(theme.background).darken(0.2).rgbString(),
+      backgroundColor: theme.backgroundColorActive,
+      borderLeft: noActiveBorder ? undefined : makeBorder(4),
     }
   });
 }
@@ -50,5 +64,6 @@ export let SelectPane = createPane({
 
 export let DefaultPane = createPane({
   displayName: 'SelectPane',
-  theme: theme.default,
+  theme: theme.placeholder,
+  noActiveBorder: true,
 });

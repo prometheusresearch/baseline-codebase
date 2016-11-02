@@ -26,15 +26,23 @@ export default class QueryBuilderApp extends React.Component {
     let {domain} = this.state;
     let {api} = this.props;
 
-  //let q = require('./model/Query');
-  //let qq = q.pipeline(
-  //  q.select({
-  //    study: q.pipeline(
-  //      q.navigate('study'),
-  //      q.def('query', q.pipeline(q.navigate('protocol'), q.aggregate('count')))
-  //    )
-  //  })
-  //);
+// XXX: Just some place to make a predefined query, this is useful for debug but
+// make sure we remove it before the release!
+//
+//  let q = require('./model/Query');
+//  let qq = q.pipeline(
+//    q.here,
+//    q.def(
+//      'study count',
+//      q.pipeline(
+//        q.navigate('study'),
+//        q.aggregate('count'),
+//      )
+//    ),
+//    q.select({
+//      'study count': q.pipeline(q.navigate('study count')),
+//    }),
+//  );
 
     if (domain == null) {
       return (

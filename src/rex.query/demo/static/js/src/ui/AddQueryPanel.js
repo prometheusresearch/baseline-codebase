@@ -8,6 +8,7 @@ import type {Actions} from '../state';
 import React from 'react';
 
 import * as q from '../model/Query';
+import * as qp from '../model/QueryPointer';
 import * as theme from './Theme';
 import QueryPanelBase from './QueryPanelBase';
 import ColumnPicker from './ColumnPicker';
@@ -15,10 +16,9 @@ import ColumnPicker from './ColumnPicker';
 type AddColumnPanelProps = {
   pointer: QueryPointer<Query>;
   onClose: () => *;
-  title: string;
 };
 
-export default class AddColumnPanel extends React.Component<*, AddColumnPanelProps, *> {
+export default class AddQueryPanel extends React.Component<*, AddColumnPanelProps, *> {
 
   context: {
     actions: Actions;
@@ -26,10 +26,6 @@ export default class AddColumnPanel extends React.Component<*, AddColumnPanelPro
 
   static contextTypes = {
     actions: React.PropTypes.object,
-  };
-
-  static defaultProps = {
-    title: 'Database',
   };
 
   onSelect = (payload: {path: string}) => {
@@ -48,13 +44,14 @@ export default class AddColumnPanel extends React.Component<*, AddColumnPanelPro
   };
 
   render() {
-    let {pointer, title, ...props} = this.props;
+    let {pointer, ...props} = this.props;
     return (
       <QueryPanelBase
         {...props}
-        theme={theme.entity}
-        title={title}>
+        theme={theme.placeholder}
+        title="Add">
         <ColumnPicker
+          showAddMenu
           onSelect={this.onSelect}
           onSelectRemove={this.onSelectRemove}
           pointer={pointer}

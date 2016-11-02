@@ -3,10 +3,14 @@
  */
 
 import type {QueryPointer, Query, Expression} from '../../model';
+import type {Actions} from '../../state';
 
 import React from 'react';
-import {VBox} from '@prometheusresearch/react-box';
+import {VBox, HBox} from '@prometheusresearch/react-box';
 import {style} from 'react-stylesheet';
+import * as css from 'react-stylesheet/css';
+import IconClose from 'react-icons/lib/fa/close';
+import IconRemove from 'react-icons/lib/fa/trash';
 
 import invariant from 'invariant';
 
@@ -16,7 +20,61 @@ import * as qp from '../../model/QueryPointer';
 import * as QueryButton from '../QueryButton';
 import * as QueryPane from '../QueryPane';
 import QueryVisToolbar from './QueryVisToolbar';
-import QueryVisButton from './QueryVisButton';
+import QueryVisButtonBase from './QueryVisButton';
+
+class QueryVisButton extends React.Component {
+
+  context: {
+    actions: Actions;
+  }
+
+  static contextTypes = {
+    actions: React.PropTypes.object,
+  };
+
+  onSelect = () => {
+    this.context.actions.select(this.props.pointer);
+  };
+
+  onClose = () => {
+    this.context.actions.remove(this.props.pointer);
+  };
+
+  render() {
+    let {pointer, selected, ...props} = this.props;
+    let isSelected = selected && qp.is(selected, pointer);
+    return (
+      <QueryVisButtonBase
+        {...props}
+        onClose={this.onClose}
+        onSelect={this.onSelect}
+        selected={isSelected}
+        />
+    );
+  }
+}
+
+class QueryVisInsertAfterButton extends React.Component {
+
+  props: {
+    pointer: QueryPointer<q.Query>;
+  };
+
+  render() {
+    let stylesheet = {
+      Root: QueryPane.DefaultPane,
+      Button: QueryButton.DefaultButton,
+    };
+    return (
+      <QueryVisButtonBase
+        selected
+        stylesheet={stylesheet}
+        label=""
+        />
+    );
+  }
+}
+
 
 export function QueryVisNavigateButton(props: {
   pointer: QueryPointer<q.NavigateQuery>;
@@ -26,7 +84,7 @@ export function QueryVisNavigateButton(props: {
   return (
     <QueryVisButton
       {...rest}
-      disableToggle
+      selectable
       stylesheet={{Root: QueryPane.NavigatePane, Button: QueryButton.NavigateButton}}
       pointer={pointer}
       label={getColumnTitle(pointer.query)}
@@ -45,22 +103,51 @@ function getColumnTitle(query: q.NavigateQuery): string {
 }
 
 export function QueryVisDefineButton(props: {
-  binding: React$Element<*>;
   pointer: QueryPointer<q.DefineQuery>;
+  selected: ?QueryPointer<>;
+  insertAfter: ?QueryPointer<>;
 }) {
-  let {pointer, binding, ...rest} = props;
+  let {pointer, selected, insertAfter} = props;
+  let bindingPointer: QueryPointer<q.QueryPipeline> = (
+    qp.select(pointer, ['binding', 'query']): any
+  );
+  let isSelected = selected && qp.is(selected, pointer)
   return (
-    <QueryVisButton
-      {...rest}
-      stylesheet={{Root: QueryPane.DefinePane, Button: QueryButton.DefineButton}}
-      pointer={pointer}
-      label={pointer.query.binding.name}>
-      <VBox paddingTop={5} paddingLeft={15}>
-        {binding}
-      </VBox>
-    </QueryVisButton>
+    <VBox>
+      <QueryVisDefineWrapper>
+        <QueryVisNavigationHeader
+          selectable
+          closeable
+          selected={isSelected}
+          label={pointer.query.binding.name}
+          pointer={pointer}
+          />
+        <VBox paddingV={8} paddingLeft={8}>
+          <QueryVisPipeline
+            pointer={bindingPointer}
+            selected={selected}
+            insertAfter={insertAfter}
+            />
+        </VBox>
+      </QueryVisDefineWrapper>
+    </VBox>
   );
 }
+
+let QueryVisDefineWrapper = style(VBox, {
+  displayName: 'QueryVisDefineWrapper',
+  base: {
+    borderLeft: css.border(1, '#bbb'),
+    borderTop: css.border(1, '#bbb'),
+    borderBottom: css.border(1, '#bbb'),
+    boxShadow: css.boxShadow(-1, 1, 4, -1, '#aaa'),
+    marginLeft: 2,
+    marginBottom: 2,
+    lastOfType: {
+      marginBottom: 2,
+    }
+  },
+});
 
 export function QueryVisFilterButton(props: {
   pointer: QueryPointer<q.FilterQuery>;
@@ -74,6 +161,8 @@ export function QueryVisFilterButton(props: {
   return (
     <QueryVisButton
       {...props}
+      selectable
+      closeable
       stylesheet={stylesheet}
       label={label}
       />
@@ -108,32 +197,11 @@ export function QueryVisAggregateButton(props: {
   return (
     <QueryVisButton
       {...rest}
+      selectable
+      closeable
       stylesheet={{Root: QueryPane.AggregatePane, Button: QueryButton.AggregateButton}}
       pointer={pointer}
       label={`${pointer.query.aggregate}`}
-      />
-  );
-}
-
-export function QueryVisHere(props: {
-  pointer: QueryPointer<q.HereQuery>;
-  selected: ?QueryPointer<*>;
-}) {
-  let {pointer, ...rest} = props;
-  // Top level here which represents database.
-  let disableRemove = (
-    pointer.path.length === 1 &&
-    pointer.path[0][0] === 'pipeline' &&
-    pointer.path[0][1] === 0
-  );
-  return (
-    <QueryVisButton
-      {...rest}
-      disableToggle
-      disableRemove={disableRemove}
-      stylesheet={{Root: QueryPane.NavigatePane, Button: QueryButton.NavigateButton}}
-      pointer={pointer}
-      label="Database"
       />
   );
 }
@@ -159,141 +227,87 @@ function getSelectFieldset(pointer) {
   return items;
 }
 
-function QueryVisSelectHeader(props: {
-  pointer: QueryPointer<q.HereQuery | q.NavigateQuery>;
-  selected: ?QueryPointer<*>;
-}) {
-  const {pointer, selected} = props;
-  let stylesheet = {
-    Root: QueryPane.DefaultPane,
-    Button: QueryButton.DefaultButton,
-  };
-  let label = pointer.query.name === 'navigate'
-    ? getColumnTitle(pointer.query)
-    : 'Database';
-  return (
-    <QueryVisButton
-      stylesheet={stylesheet}
-      pointer={pointer}
-      selected={selected}
-      disableSelected
-      disableToggle
-      label={label}
-      />
-  );
-}
+class QueryVisNavigationHeader extends React.Component {
 
-function QueryVisSelectFieldset(props: {
-  fieldset: Array<QueryPointer<*>>;
-  selected: ?QueryPointer<*>;
-  topLevel: boolean;
-}) {
-  let {fieldset, topLevel, ...rest} = props;
-  let items = fieldset.map(pointer =>
-    <QueryVisSelectItem key={pointer.path.join('.')} variant={{topLevel}}>
-      <QueryVisSelectItemInner>
-        <QueryVisQueryButton
-          {...rest}
-          pointer={pointer}
-          />
-      </QueryVisSelectItemInner>
-    </QueryVisSelectItem>
-  );
-  if (items.length === 0) {
-    return null;
-  } else {
+  context: {
+    actions: Actions;
+  }
+
+  static contextTypes = {
+    actions: React.PropTypes.object,
+  };
+
+  props: {
+    label: string;
+    pointer: QueryPointer<q.Query>;
+    closeable?: boolean;
+    selected?: ?boolean;
+    selectable?: boolean;
+  };
+
+  onRemove = (ev: UIEvent) => {
+    ev.stopPropagation();
+    this.context.actions.cut(this.props.pointer);
+  };
+
+  onSelect = (ev: UIEvent) => {
+    ev.stopPropagation();
+    this.context.actions.select(this.props.pointer);
+  };
+
+  render() {
+    const {label, selectable, selected, closeable} = this.props;
     return (
-      <VBox paddingLeft={topLevel ? 5 : 0}>
-        {items}
-      </VBox>
+      <QueryVisNavigationHeaderRoot
+        variant={{selected}}
+        onClick={selectable && this.onSelect}>
+        <HBox grow={1} alignItems="center">
+          {label}
+        </HBox>
+        {closeable &&
+          <HBox>
+            <QueryButton.DefaultButton
+              onClick={this.onRemove}>
+              <IconRemove />
+            </QueryButton.DefaultButton>
+          </HBox>}
+      </QueryVisNavigationHeaderRoot>
     );
   }
 }
 
-export function QueryVisSelect(props: {
-  pointer: QueryPointer<q.SelectQuery>;
-  selected: ?QueryPointer<*>;
-  topLevel: boolean;
-}) {
-  let {pointer, topLevel, ...rest} = props;
-  let fieldset = getSelectFieldset(pointer);
-  let label = getLabelForSelect(pointer.query);
-  return (
-    <QueryVisButton
-      {...rest}
-      disableToolbar
-      disableRemove
-      disableToggle
-      label={label}
-      stylesheet={{Root: QueryPane.NavigatePane, Button: QueryButton.NavigateButton}}
-      pointer={pointer}>
-      {fieldset.length > 0 &&
-        <VBox paddingTop={5}>
-          <QueryVisSelectFieldset
-            {...rest}
-            topLevel={topLevel}
-            fieldset={fieldset}
-          />
-        </VBox>}
-    </QueryVisButton>
-  );
-}
-
-function getLabelForSelect(query: q.SelectQuery): string {
-  let fields = Object.keys(query.select).filter(key => {
-    let type = query.select[key].context.type;
-    let baseType = t.maybeAtom(type);
-    if (
-      type != null && baseType != null &&
-      (type.name === 'seq' || baseType.name === 'entity')
-    ) {
-      return false;
-    }
-    return true;
-  });
-  if (fields.length > 0) {
-    return `Select ${fields.join(', ')}`;
-  } else {
-    return `Select`;
-  }
-}
-
-let QueryVisSelectItem = style(VBox, {
-  displayName: 'QueryVisSelectItem',
+let QueryVisNavigationHeaderRoot = style(HBox, {
+  displayName: 'QueryVisNavigationHeaderRoot',
   base: {
-    backgroundColor: '#bbb',
-    paddingTop: 5,
-    paddingLeft: 5,
-    marginBottom: 5,
-    lastOfType: {
-      marginBottom: 0,
-    }
+    height: 34,
+    fontSize: '12px',
+    fontWeight: 300,
+    backgroundColor: '#F1F1F1',
+    color: '#666',
+    cursor: 'default',
+    textTransform: css.textTransform.capitalize,
+    userSelect: css.none,
+    borderBottom: css.border(1, '#bbb'),
+    paddingLeft: 10,
+    paddingRight: 5,
+    paddingTop: 7,
+    paddingBottom: 7,
   },
-});
-
-let QueryVisSelectItemInner = style(VBox, {
-  displayName: 'QueryVisSelectItemInner',
-  base: {
-    backgroundColor: '#fff',
-    paddingTop: 5,
-    paddingLeft: 5,
+  selected: {
+    borderLeft: css.border(3, '#bbb'),
+    zIndex: 1,
   }
 });
 
 function QueryVisQueryButton(props: {
-  pointer: QueryPointer<Query>;
-  selected: ?QueryPointer<Query>;
-  disableRemove?: boolean;
+  pointer: QueryPointer<>;
+  selected: ?QueryPointer<>;
+  insertAfter: ?QueryPointer<>;
+  closeable?: boolean;
 }) {
-  const {pointer, disableRemove, ...rest} = props;
+  const {pointer, ...rest} = props;
   if (pointer.query.name === 'here') {
-    return (
-      <QueryVisHere
-        {...rest}
-        disableRemove={disableRemove}
-        pointer={((pointer: any): QueryPointer<q.HereQuery>)}
-        />
-    );
+    return null;
   } else if (pointer.query.name === 'navigate') {
     return (
       <QueryVisNavigateButton
@@ -312,30 +326,16 @@ function QueryVisQueryButton(props: {
     return (
       <QueryVisPipeline
         {...rest}
-        disableRemove={disableRemove}
-        pipeline={qp.spread(pointer)}
+        pointer={((pointer: any): QueryPointer<q.QueryPipeline>)}
         />
     );
   } else if (pointer.query.name === 'select') {
-    return (
-      <QueryVisSelect
-        {...rest}
-        topLevel={false}
-        pointer={((pointer: any): QueryPointer<q.SelectQuery>)}
-        />
-    );
+    return null;
   } else if (pointer.query.name === 'define') {
-    const bindingPointer = qp.select(pointer, ['binding', 'query']);
     return (
       <QueryVisDefineButton
         {...rest}
         pointer={((pointer: any): QueryPointer<q.DefineQuery>)}
-        binding={
-          <QueryVisQueryButton
-            {...rest}
-            pointer={bindingPointer}
-            />
-          }
         />
     );
   } else if (pointer.query.name === 'aggregate') {
@@ -354,138 +354,49 @@ function QueryVisQueryButton(props: {
   }
 }
 
-function QueryVisPipeline({pipeline, disableRemove, ...props}: {
-  pipeline: Array<QueryPointer<Query>>;
+function QueryVisPipeline({pointer, closeable, insertAfter, ...props}: {
+  pointer: QueryPointer<q.QueryPipeline>;
   selected: ?QueryPointer<Query>;
-  disableRemove?: boolean;
+  insertAfter: ?QueryPointer<>;
+  closeable?: boolean;
 }) {
-  let first = pipeline[0];
-  let last = pipeline[pipeline.length - 1];
-  let isSelectPipeline = (
-    pipeline.length >= 2 &&
-    (first.query.name === 'here' || first.query.name === 'navigate') &&
-    last.query.name === 'select'
-  );
-  let isSelectCollapsedPipeline = (
-    isSelectPipeline &&
-    pipeline.length === 2
-  );
-  if (isSelectCollapsedPipeline) {
-    let navigate: QueryPointer<q.NavigateQuery | q.HereQuery> = (first: any);
-    let select: QueryPointer<q.SelectQuery> = (last: any);
-    return (
-      <QueryVisSelectCollapsedPipeline
-        {...props}
-        navigate={navigate}
-        select={select}
-        />
+  let pipeline = qp.spread(pointer);
+  let topLevel = pointer.path.length === 0;
+  let items = [];
+  let disableAdd = false;
+  pipeline.forEach((pointer, idx) => {
+    items.push(
+      <QueryVisPipelineItem key={idx} variant={{topLevel}}>
+        <QueryVisQueryButton
+          {...props}
+          insertAfter={insertAfter}
+          closeable={closeable && idx > 0}
+          pointer={pointer}
+          />
+      </QueryVisPipelineItem>
     );
-  } else if (isSelectPipeline) {
-    let navigate: QueryPointer<q.NavigateQuery | q.HereQuery> = (first: any);
-    let select: QueryPointer<q.SelectQuery> = (last: any);
-    return (
-      <QueryVisSelectPipeline
-        {...props}
-        navigate={navigate}
-        select={select}
-        pipeline={pipeline.slice(1, pipeline.length - 1)}
-        />
-    );
-  } else {
-    let items = pipeline.map((pointer, idx) => {
-      return (
-        <QueryVisPipelineItem key={idx}>
-          <QueryVisQueryButton
-            {...props}
-            disableRemove={disableRemove && idx === 0}
+    if (qp.is(pointer, insertAfter)) {
+      disableAdd = true;
+      items.push(
+        <QueryVisPipelineItem key="__insertAfter__" variant={{topLevel}}>
+          <QueryVisInsertAfterButton
             pointer={pointer}
             />
         </QueryVisPipelineItem>
       );
-    });
-    return (
-      <QueryVisPipelineRoot>
-        {items}
-      </QueryVisPipelineRoot>
-    );
-  }
-}
-
-function QueryVisSelectPipeline({
-  pipeline, select, navigate, selected
-}: {
-  navigate: QueryPointer<q.NavigateQuery | q.HereQuery>;
-  select: QueryPointer<q.SelectQuery>;
-  pipeline: Array<QueryPointer<Query>>;
-  selected: ?QueryPointer<Query>;
-}) {
-  let isSelected = (
-    qp.is(selected, navigate) ||
-    qp.is(selected, select)
-  );
-  let items = pipeline.map((pointer, idx) => {
-    return (
-      <QueryVisPipelineItem key={idx}>
-        <QueryVisQueryButton
-          pointer={pointer}
-          selected={selected}
-          />
-      </QueryVisPipelineItem>
-    );
+    }
   });
+  let last = pipeline[pipeline.length - 1];
+  let insertAfterPointer = last.query.name === 'select'
+    ? pipeline[pipeline.length - 2]
+    : last;
   return (
-    <QueryVisPipelineRoot>
-      <QueryVisPipelineItem>
-        <QueryVisSelectHeader
-          pointer={navigate}
-          selected={selected}
-          />
-      </QueryVisPipelineItem>
+    <QueryVisPipelineRoot paddingLeft={topLevel ? 8 : 0}>
       {items}
-      <QueryVisPipelineItem>
-        <QueryVisSelect
-          pointer={select}
-          selected={selected}
-          isSelected={isSelected}
-          topLevel={navigate.query.name === 'here'}
-          />
-      </QueryVisPipelineItem>
-    </QueryVisPipelineRoot>
-  );
-}
-
-function QueryVisSelectCollapsedPipeline({
-  navigate, select, selected, ...props
-}: {
-  navigate: QueryPointer<q.NavigateQuery | q.HereQuery>;
-  select: QueryPointer<q.SelectQuery>;
-  selected: ?QueryPointer<Query>;
-}) {
-  let fieldset = getSelectFieldset(select);
-  let isSelected = (
-    qp.is(selected, navigate) ||
-    qp.is(selected, select)
-  );
-  return (
-    <QueryVisPipelineRoot>
-      <QueryVisPipelineItem>
-        <QueryVisQueryButton
-          {...props}
-          isSelected={isSelected}
-          selected={selected}
-          pointer={navigate}
-          />
-      </QueryVisPipelineItem>
-      {fieldset.length > 0 &&
-        <QueryVisPipelineItem>
-          <QueryVisSelectFieldset
-            {...props}
-            isSelected={isSelected}
-            selected={selected}
-            fieldset={fieldset}
-            topLevel={navigate.query.name === 'here'}
-            />
-        </QueryVisPipelineItem>}
+      <QueryVisToolbar
+        disableAdd={disableAdd}
+        pointer={insertAfterPointer}
+        />
     </QueryVisPipelineRoot>
   );
 }
@@ -504,13 +415,20 @@ let QueryVisPipelineItem = style(VBox, {
     lastOfType: {
       marginBottom: 0,
     }
+  },
+  topLevel: {
+    marginBottom: 10,
+    lastOfType: {
+      marginBottom: 0,
+    }
   }
 });
 
 type QueryVisProps = {
   pointer: QueryPointer<Query>;
   onShowSelect: () => *;
-  selected: ?QueryPointer<Query>;
+  selected: ?QueryPointer<>;
+  insertAfter: ?QueryPointer<>;
 };
 
 /**
@@ -519,23 +437,18 @@ type QueryVisProps = {
 export class QueryVis extends React.Component<*, QueryVisProps, *> {
 
   render() {
-    let {pointer, selected} = this.props;
+    let {pointer, selected, insertAfter} = this.props;
     return (
-      <VBox
-        grow={1}
-        paddingTop={5}>
+      <VBox grow={1}>
+        <QueryVisNavigationHeader
+          pointer={pointer}
+          label="My Queries"
+          />
         <QueryVisQueryButton
-          disableRemove
           selected={selected}
+          insertAfter={insertAfter}
           pointer={pointer}
           />
-        {pointer.query.name !== 'here' && selected == null &&
-          <VBox padding={5} paddingBottom={0}>
-            <QueryVisToolbar
-              pointer={pointer}
-              selected={pointer}
-              />
-          </VBox>}
       </VBox>
     );
   }

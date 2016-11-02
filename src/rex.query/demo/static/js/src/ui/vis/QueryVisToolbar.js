@@ -6,10 +6,10 @@ import type {Query, QueryPointer, Type} from '../../model';
 import type {Actions} from '../../state';
 
 import React from 'react';
-import * as ReactUI from '@prometheusresearch/react-ui';
+import {style} from 'react-stylesheet';
 import {VBox, HBox} from '@prometheusresearch/react-box';
-
 import * as t from '../../model/Type';
+
 import PlusIcon from '../PlusIcon';
 
 type QueryVisToolbarProps = {
@@ -17,12 +17,9 @@ type QueryVisToolbarProps = {
   /**
    * Pointer on which the toolbar operates.
    */
-  pointer: ?QueryPointer<Query>;
+  pointer: QueryPointer<Query>;
 
-  /**
-   * Hide disabled toolbar buttons instead of showing them with disabled state.
-   */
-  hideDisabled?: boolean;
+  disableAdd?: boolean;
 };
 
 export default class QueryVisToolbar
@@ -35,69 +32,114 @@ export default class QueryVisToolbar
   static contextTypes = {actions: React.PropTypes.object};
 
   render() {
-    let {pointer, hideDisabled} = this.props;
-    let type = pointer
-      ? pointer.query.context.type
-      : t.voidType;
+    let {pointer, disableAdd} = this.props;
+    let type = pointer.query.context.type;
+    let canNavigate = canNavigateAt(type);
     let canFilter = canFilterAt(type);
-    let canDefine = canDefineAt(type);
     let canAggregate = canAggregateAt(type);
+    if (!canNavigate && !canAggregate && !canFilter) {
+      return null;
+    }
     return (
-      <VBox width="100%" style={{backgroundColor: 'white'}}>
+      <VBox height={32} width="100%" style={{backgroundColor: 'white'}}>
         <HBox padding={2} justifyContent="flex-end">
-          {(!hideDisabled || (hideDisabled && canFilter)) &&
-            <ReactUI.QuietButton
-              groupHorizontally
-              disabled={!canFilterAt(type)}
-              size="x-small"
-              width="30%"
-              onClick={this.onAddFilter}
+          {canFilter &&
+            <QueryVisToolbarButton
+              onClick={this.onFilter}
               icon={<PlusIcon />}>
               Filter
-            </ReactUI.QuietButton>}
-          {(!hideDisabled || (hideDisabled && canDefine)) &&
-            <ReactUI.QuietButton
-              groupHorizontally
-              disabled={!canDefineAt(type)}
-              size="x-small"
-              width="30%"
-              onClick={this.onAddDefine}
+            </QueryVisToolbarButton>}
+          {canAggregate &&
+            <QueryVisToolbarButton
+              onClick={this.onAggregate}
               icon={<PlusIcon />}>
-              Define
-            </ReactUI.QuietButton>}
-          {(!hideDisabled || (hideDisabled && canAggregate)) &&
-            <ReactUI.QuietButton
-              groupHorizontally
-              disabled={!canAggregateAt(type)}
-              size="x-small"
-              width="30%"
-              onClick={this.onAddAggregate}
+              Count
+            </QueryVisToolbarButton>}
+          {canNavigate &&
+            <QueryVisToolbarButton
+              disabled={disableAdd}
+              onClick={this.onAdd}
               icon={<PlusIcon />}>
-              Aggregate
-            </ReactUI.QuietButton>}
+              Add
+            </QueryVisToolbarButton>}
         </HBox>
       </VBox>
     );
   }
 
-  onAddFilter = (e: UIEvent) => {
-    e.stopPropagation();
-    let {pointer} = this.props;
-    this.context.actions.appendFilter({pointer});
+  onAdd = (ev: UIEvent) => {
+    ev.stopPropagation();
+    this.context.actions.insertAfter(this.props.pointer);
   };
 
-  onAddAggregate = (e: UIEvent) => {
-    e.stopPropagation();
-    let {pointer} = this.props;
-    this.context.actions.appendAggregate({pointer});
+  onFilter = (ev: UIEvent) => {
+    ev.stopPropagation();
+    this.context.actions.appendFilter({pointer: this.props.pointer});
   };
 
-  onAddDefine = (e: UIEvent) => {
-    e.stopPropagation();
-    let {pointer} = this.props;
-    this.context.actions.appendDefine({pointer, select: true});
+  onAggregate = (ev: UIEvent) => {
+    ev.stopPropagation();
+    this.context.actions.appendAggregate({pointer: this.props.pointer});
   };
 
+}
+
+let QueryVisToolbarButtonRoot = style(HBox, {
+  displayName: 'QueryVisToolbarButtonRoot',
+  base: {
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 5,
+    paddingBottom: 5,
+
+    justifyContent: 'center',
+    userSelect: 'none',
+    alignItems: 'center',
+    cursor: 'default',
+
+    fontSize: '12px',
+    fontWeight: 300,
+
+    color: '#585858',
+    backgroundColor: '#ffffff',
+
+    hover: {
+      color: '#000000',
+    },
+    active: {
+      backgroundColor: '#fafafa',
+    }
+  },
+  selected: {
+    fontWeight: 500,
+    color: '#1f85f5',
+    hover: {
+      color: '#1f85f5',
+    },
+  },
+  disabled: {
+    cursor: 'not-allowed',
+    color: '#aaa',
+    hover: {
+      color: '#aaa',
+    },
+    active: {
+      backgroundColor: '#ffffff',
+    }
+  },
+});
+
+function QueryVisToolbarButton({children, selected, icon, disabled, ...props}) {
+  let variant = {selected, disabled};
+  return (
+    <QueryVisToolbarButtonRoot
+      {...props}
+      aria-role="button"
+      variant={variant}>
+      {icon && <HBox paddingRight={5}>{icon}</HBox>}
+      {children}
+    </QueryVisToolbarButtonRoot>
+  );
 }
 
 function canAggregateAt(type: ?Type) {
@@ -108,12 +150,11 @@ function canFilterAt(type: ?Type) {
   return isSeqAt(type);
 }
 
-function canDefineAt(type: ?Type) {
+function canNavigateAt(type: ?Type) {
+  type = t.maybeAtom(type);
   return (
-    type && (
-      (type.name === 'seq' && type.type.name === 'entity')
-      || type.name === 'void'
-    )
+    type &&
+    (type.name === 'record' || type.name === 'entity' || type.name === 'void')
   );
 }
 

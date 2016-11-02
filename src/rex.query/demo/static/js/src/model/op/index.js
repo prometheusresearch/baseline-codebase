@@ -12,6 +12,7 @@ import type {KeyPath, QueryPointer} from '../QueryPointer';
 import * as q from '../Query';
 import * as qp from '../QueryPointer';
 import normalize from './normalize';
+import transformAtPointer from './transformAtPointer';
 
 export {default as normalize} from './normalize';
 export {default as reconcileNavigation} from './reconcileNavigation';
@@ -26,12 +27,6 @@ export type QueryPointerState = {
   pointer: QueryPointer<*>;
   selected: ?QueryPointer<*>;
 };
-
-export type Transform
-  = {type: 'replace'; value: Query}
-  | {type: 'cut'}
-  | {type: 'insertAfter'; value: Query}
-  | {type: 'insertBefore'; value: Query};
 
 /**
  * Noop.
@@ -186,75 +181,3 @@ export let insertBefore = (
 
   return normalize({query: nextQuery, selected: nextSelected});
 };
-
-function transformAtPointer(
-  pointer: QueryPointer<*>,
-  transform: Transform
-): QueryPipeline {
-  if (qp.prev(pointer) == null) {
-    if (transform.type === 'insertAfter') {
-      return q.pipeline(pointer.query, transform.value);
-    } else if (transform.type === 'insertBefore') {
-      return q.pipeline(transform.value, pointer.query);
-    } else if (transform.type === 'replace') {
-      return ((transform.value: any): QueryPipeline);
-    } else {
-      return pointer.root;
-    }
-  } else {
-    let p = pointer;
-    let query = pointer.query;
-    let pPrev = qp.prev(p);
-    while (p != null && pPrev != null) {
-      query = transformAtKeyPath(
-        pPrev.query,
-        p.path[p.path.length - 1],
-        p === pointer
-          ? transform
-          : {type: 'replace', value: query}
-      );
-      if (query == null) {
-        return q.pipeline(q.here);
-      }
-      p = pPrev;
-      pPrev = qp.prev(p);
-    }
-    return ((query: any): QueryPipeline);
-  }
-}
-
-function transformAtKeyPath(
-  obj: Object,
-  keyPath: KeyPath,
-  value: Transform
-): ?Object {
-  if (keyPath.length === 0) {
-    if (value.type === 'cut') {
-      return q.here;
-    } else {
-      return value.value;
-    }
-  }
-  let [key, ...ks] = keyPath;
-  let updatedValue = transformAtKeyPath(obj[key], ks, value);
-  if (Array.isArray(obj)) {
-    let arr = obj.slice(0);
-    if (ks.length === 0 && value.type === 'insertAfter') {
-      arr.splice(key + 1, 0, updatedValue);
-    } else if (ks.length === 0 && value.type === 'insertBefore') {
-      arr.splice(key, 0, updatedValue);
-    } else if (ks.length === 0 && value.type === 'cut') {
-      arr = arr.slice(0, key);
-    } else if (updatedValue != null) {
-      arr.splice(key, 1, updatedValue);
-    } else {
-      arr.splice(key, 1);
-    }
-    return arr;
-  } else {
-    return {
-      ...obj,
-      [key]: updatedValue
-    };
-  }
-}

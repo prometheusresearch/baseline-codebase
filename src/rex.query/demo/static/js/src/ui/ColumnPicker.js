@@ -13,8 +13,10 @@ import * as t from '../model/Type';
 import * as q from '../model/Query';
 import * as qp from '../model/QueryPointer';
 import {MenuGroup, MenuButton} from './menu';
+import PlusIcon from './PlusIcon';
 
 type Navigation = {
+  type: 'entity' | 'attribute' | 'query';
   value: string;
   label: string;
   context: Context;
@@ -25,6 +27,8 @@ type ColumnPickerProps = {
   pointer: QueryPointer<Query>;
   onSelect: (payload: {path: string}) => *;
   onSelectRemove: (payload: {path: string, pointer: QueryPointer<>}) => *;
+  showAddMenu?: boolean;
+  showSelectMenu?: boolean;
 };
 
 export default class ColumnPicker extends React.Component<*, ColumnPickerProps, *> {
@@ -44,7 +48,13 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
   };
 
   render() {
-    let {pointer, onSelect, onSelectRemove} = this.props;
+    let {
+      pointer,
+      onSelect,
+      onSelectRemove,
+      showAddMenu,
+      showSelectMenu,
+    } = this.props;
     let {type} = pointer.query.context;
     let active = getNavigationPointerMap(pointer);
     let options = pointer.query.name === 'select' || type == null
@@ -57,12 +67,11 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
         return searchTermRe.test(column.label) || searchTermRe.test(column.value);
       });
     }
-    let entityGroup = [];
-    let fieldGroup = [];
+    let entityList = [];
+    let queryList = [];
+    let attributeList = [];
     options.forEach(column => {
       let pointer = active[column.value];
-      let type = t.maybeAtom(column.context.type);
-      let isEntity = type && type.name === 'entity';
       let button = (
         <ColumnPickerButton
           key={column.value}
@@ -73,59 +82,164 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
           actions={this.context.actions}
           />
       );
-      if (isEntity) {
-        entityGroup.push(button);
+      if (column.type === 'query') {
+        queryList.push(button);
+      } else if (column.type === 'entity') {
+        entityList.push(column);
       } else {
-        fieldGroup.push(button);
+        attributeList.push(button);
       }
     });
     return (
       <VBox>
-        <VBox padding={10}>
-          <ReactUI.Input
-            placeholder="Search columns…"
-            value={searchTerm === null ? '' : searchTerm}
-            onChange={this.onSearchTerm}
-            />
+        {showSelectMenu &&
+          <VBox padding={10}>
+            <ReactUI.Input
+              placeholder="Filter columns…"
+              value={searchTerm === null ? '' : searchTerm}
+              onChange={this.onSearchTerm}
+              />
+          </VBox>}
+        <VBox paddingBottom={10}>
+          {/* FIXME: decide on what */ false && showAddMenu && canFilterAt(type) &&
+            <VBox paddingBottom={10}>
+              <FilterMenu
+                onFilter={this.onFilter}
+                />
+            </VBox>}
+          {/* FIXME: decide on what */ false && showAddMenu && canAggregateAt(type) &&
+            <VBox paddingBottom={10}>
+              <AggregateMenu
+                onAggregate={this.onAggregate}
+                />
+            </VBox>}
+          {showAddMenu && entityList.length > 0 &&
+            <VBox paddingBottom={10}>
+              <DefineMenu
+                menu={entityList}
+                onSelect={this.onDefine}
+                />
+            </VBox>}
+          {showSelectMenu && queryList.length > 0 &&
+            <VBox paddingBottom={10}>
+              <MenuGroup
+                title={
+                  type == null || type.name === 'void'
+                    ? 'Entities'
+                    : 'Relationships'
+                }>
+                {queryList}
+              </MenuGroup>
+            </VBox>}
+          {showSelectMenu && attributeList.length > 0 &&
+            <VBox paddingBottom={10}>
+              <MenuGroup title="Attributes">
+                {attributeList}
+              </MenuGroup>
+            </VBox>}
         </VBox>
-        <MenuGroup paddingV={20}>
-          <MenuButton icon="＋" onClick={this.onAddDefine}>
-            Define new attribute
-          </MenuButton>
-        </MenuGroup>
-        {entityGroup.length > 0 &&
-          <VBox paddingBottom={10}>
-            <MenuGroup
-              title={
-                type == null || type.name === 'void'
-                  ? 'Entities'
-                  : 'Relationships'
-              }>
-              {entityGroup}
-            </MenuGroup>
-          </VBox>}
-        {fieldGroup.length > 0 &&
-          <VBox>
-            <MenuGroup title="Attributes">
-              {fieldGroup}
-            </MenuGroup>
-          </VBox>}
       </VBox>
     );
   }
 
-  onAddDefine = (e: UIEvent) => {
-    e.stopPropagation();
+  onDefine = (nav: Navigation) => {
     this.context.actions.appendDefine({
       pointer: this.props.pointer,
       select: true,
+      path: [nav.value],
     });
+  };
+
+  onAggregate = (_aggregateName: string) => {
+    this.context.actions.appendAggregate({
+      pointer: this.props.pointer
+    });
+  };
+
+  onFilter = () => {
+    this.context.actions.appendFilter({pointer: this.props.pointer});
   };
 
   onSearchTerm = (e: UIEvent) => {
     let target: {value: string} = (e.target: any);
     this.setState({searchTerm: target.value === '' ? null : target.value});
   };
+}
+
+class FilterMenu extends React.Component {
+
+  props: {
+    onFilter: () => *;
+  };
+
+  onClick = (ev: UIEvent) => {
+    ev.stopPropagation();
+    this.props.onFilter();
+  }
+
+  render() {
+    return (
+      <MenuGroup>
+        <MenuButton onClick={this.onClick}>
+          Add Filter
+        </MenuButton>
+      </MenuGroup>
+    );
+  }
+}
+
+class AggregateMenu extends React.Component {
+
+  props: {
+    onAggregate: (aggregateName: string) => *;
+  };
+
+  onClick = (aggregateName, ev: UIEvent) => {
+    ev.stopPropagation();
+    this.props.onAggregate(aggregateName);
+  }
+
+  render() {
+    return (
+      <MenuGroup title="Aggregate with">
+        <MenuButton onClick={this.onClick.bind(null, 'count')}>
+          Count
+        </MenuButton>
+      </MenuGroup>
+    );
+  }
+}
+
+class DefineMenu extends React.Component {
+
+  props: {
+    menu: Array<Navigation>;
+    onSelect: (nav: Navigation) => *;
+  };
+
+  onClick = (item, ev: UIEvent) => {
+    ev.stopPropagation();
+    this.props.onSelect(item);
+  }
+
+  render() {
+    let {menu} = this.props;
+    let buttonList = menu.map(item =>
+      <MenuButton
+        key={item.value}
+        icon={<PlusIcon />}
+        onClick={this.onClick.bind(null, item)}>
+        <VBox grow={1} justifyContent="center">
+          {item.label}
+        </VBox>
+      </MenuButton>
+    );
+    return (
+      <MenuGroup title="Relationships">
+        {buttonList}
+      </MenuGroup>
+    );
+  }
 }
 
 class ColumnPickerButton extends React.Component {
@@ -181,6 +295,7 @@ function getNavigation(pointer: QueryPointer<>, type: ?Type): Array<Navigation> 
         if (domain.entity.hasOwnProperty(k)) {
           let navQuery = q.inferQueryType(contextAtQuery, q.navigate(k));
           navigation.push({
+            type: 'entity',
             value: k,
             label: domain.entity[k].title,
             context: navQuery.context,
@@ -192,7 +307,13 @@ function getNavigation(pointer: QueryPointer<>, type: ?Type): Array<Navigation> 
       for (let k in attribute) {
         if (attribute.hasOwnProperty(k)) {
           let navQuery = q.inferQueryType(contextAtQuery, q.navigate(k));
+          let type = attribute[k].type;
           navigation.push({
+            type: type.name === 'seq'
+              ? 'entity'
+              : t.atom(type).name === 'entity'
+              ? 'query'
+              : 'attribute',
             value: k,
             label: attribute[k].title,
             context: navQuery.context,
@@ -204,6 +325,12 @@ function getNavigation(pointer: QueryPointer<>, type: ?Type): Array<Navigation> 
         if (baseType.fields.hasOwnProperty(k)) {
           let navQuery = q.inferQueryType(contextAtQuery, q.navigate(k));
           navigation.push({
+            // FIXME: This is incorrect!
+            //
+            // We don't really know from where this query is originated
+            // from (from domain or define's scope). We probably need to
+            // introduce new query node to track that.
+            type: 'attribute',
             value: k,
             label: k,
             context: navQuery.context,
@@ -217,6 +344,7 @@ function getNavigation(pointer: QueryPointer<>, type: ?Type): Array<Navigation> 
     if (scope.hasOwnProperty(k)) {
       let navQuery = q.inferQueryType(contextAtQuery, scope[k]);
       navigation.push({
+        type: 'query',
         value: k,
         label: k,
         context: navQuery.context,
@@ -279,4 +407,19 @@ function getNavigationPointerMapImpl(
       return noNavigation;
     },
   });
+}
+
+function canAggregateAt(type: ?Type) {
+  return isSeqAt(type);
+}
+
+function canFilterAt(type: ?Type) {
+  return isSeqAt(type);
+}
+
+function isSeqAt(type: ?Type) {
+  return (
+    type &&
+    type.name === 'seq'
+  );
 }

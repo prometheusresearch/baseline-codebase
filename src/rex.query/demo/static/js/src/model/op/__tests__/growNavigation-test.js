@@ -1,7 +1,7 @@
 import * as jestMatchers from 'jest-matchers';
 import * as matchers from 'jest-matchers/build/matchers';
 
-import {value, here, pipeline, navigate, select, filter} from '../../Query';
+import {value, here, pipeline, navigate, select, filter, def} from '../../Query';
 import * as qp from '../../QueryPointer';
 import {stripContext} from '../../__tests__/util';
 import growNavigation from '../growNavigation';
@@ -176,4 +176,52 @@ describe('growNavigation', function() {
       selected: 'pipeline.1:select.a:pipeline.1:select.b:pipeline.1:select.c:pipeline.0'
     });
   });
+
+  it('here:define(a := a) a b', function() {
+    expect({
+      pointer: qp.make(
+        pipeline(
+          here,
+          def('a', pipeline(navigate('a')))
+        ),
+        ['pipeline', 1],
+        ['binding', 'query'],
+      ),
+      path: ['b'],
+    }).toBeNavigatedAs({
+      query: pipeline(
+        here,
+        def('a', pipeline(
+          navigate('a'),
+          select({b: pipeline(navigate('b'))})
+        )),
+      ),
+      selected: 'pipeline.1:binding.query:pipeline.1:select.b:pipeline.0'
+    });
+  });
+
+  it('here:define(a := a) -a b', function() {
+    expect({
+      pointer: qp.make(
+        pipeline(
+          here,
+          def('a', pipeline(navigate('a')))
+        ),
+        ['pipeline', 1],
+        ['binding', 'query'],
+        ['pipeline', '0'],
+      ),
+      path: ['b'],
+    }).toBeNavigatedAs({
+      query: pipeline(
+        here,
+        def('a', pipeline(
+          navigate('a'),
+          select({b: pipeline(navigate('b'))})
+        )),
+      ),
+      selected: 'pipeline.1:binding.query:pipeline.1:select.b:pipeline.0'
+    });
+  });
+
 });

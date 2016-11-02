@@ -111,8 +111,8 @@ export type LogicalBinaryQuery = {
 /**
  * Describe query structure.
  */
-export type Query
-  = HereQuery
+export type Query =
+  | HereQuery
   | NavigateQuery
   | SelectQuery
   | DefineQuery
@@ -125,8 +125,8 @@ export type Query
 /**
  * Describe expression which are used in filter query.
  */
-export type Expression
-  = ValueQuery
+export type Expression =
+  | ValueQuery
   | NavigateQuery
   | BinaryQuery
   | UnaryQuery

@@ -50,7 +50,7 @@ let MenuButtonRoot = style(HBox, {
     cursor: 'pointer',
     fontSize: '10pt',
     fontWeight: 200,
-    borderBottom: css.border(1, '#eee'),
+    borderBottom: css.border(1, '#ddd'),
     userSelect: 'none',
     hover: {
       background: '#fafafa',
@@ -58,7 +58,7 @@ let MenuButtonRoot = style(HBox, {
   },
   selected: {
     color: '#1f85f5',
-  }
+  },
 });
 
 

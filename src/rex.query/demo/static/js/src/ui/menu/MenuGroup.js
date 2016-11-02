@@ -6,6 +6,7 @@ import React from 'react';
 import {VBox} from '@prometheusresearch/react-box';
 import * as css from 'react-stylesheet/css';
 import {style} from 'react-stylesheet';
+import MenuTitle from './MenuTitle';
 
 type MenuGroupProps = {
   title?: string | React$Element<*>;
@@ -16,10 +17,10 @@ export default function MenuGroup({title, children, ...props}: MenuGroupProps) {
   return (
     <VBox {...props}>
       {title &&
-        <MenuGroupTitle>
+        <MenuTitle>
           {title}
-        </MenuGroupTitle>}
-      <MenuGroupChildren>
+        </MenuTitle>}
+      <MenuGroupChildren variant={{noTitle: title == null}}>
         {children}
       </MenuGroupChildren>
     </VBox>
@@ -27,17 +28,7 @@ export default function MenuGroup({title, children, ...props}: MenuGroupProps) {
 }
 
 let MenuGroupChildren = style(VBox, {
-  base: {
-    borderTop: css.border(1, '#eee'),
-  }
-});
-
-let MenuGroupTitle = style(VBox, {
-  base: {
-    fontSize: '8pt',
-    fontWeight: 200,
-    padding: 5,
-    paddingLeft: 5,
-    color: '#888',
+  noTitle: {
+    borderTop: css.border(1, '#ddd'),
   }
 });

@@ -1,0 +1,29 @@
+/**
+ * @flow
+ */
+
+import React from 'react';
+import {VBox} from '@prometheusresearch/react-box';
+import * as css from 'react-stylesheet/css';
+import {style} from 'react-stylesheet';
+
+export default function MenuHelp(props: Object) {
+  return (
+    <MenuHelpRoot
+      {...props}
+      />
+  );
+}
+
+let MenuHelpRoot = style(VBox, {
+  displayName: 'MenuHelpRoot',
+  base: {
+    userSelect: css.none,
+    cursor: css.cursor.default,
+    fontSize: '8pt',
+    fontWeight: 200,
+    padding: 5,
+    margin: 5,
+    color: '#666',
+  }
+});

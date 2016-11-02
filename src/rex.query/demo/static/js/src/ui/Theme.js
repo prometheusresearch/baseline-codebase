@@ -4,37 +4,78 @@
 
 import {rgb} from 'react-stylesheet/css';
 
-export default {
-  background: '#FFFFFF',
-  color: rgb(136, 136, 136),
+export type QueryVisTheme = {
+  backgroundColor: string;
+  backgroundColorActive: string;
+
+  textColor: string;
+  textColorActive: string;
+
+  borderColor: string;
+  borderStyle?: string;
 };
 
-export let entity = {
-  background: '#7FDBFF',
-  color: '#06688e',
+export let placeholder: QueryVisTheme = {
+  backgroundColor: '#fff',
+  backgroundColorActive: '#fff',
+  borderColor: '#bbb',
+  borderStyle: 'dashed',
+  textColor: rgb(136, 136, 136),
+  textColorActive: rgb(136, 136, 136),
 };
 
-export let select = {
-  background: rgb(141, 127, 255),
-  color: '#fff',
+export let def: QueryVisTheme = {
+  backgroundColor: '#f1f1f1',
+  backgroundColorActive: '#f1f1f1',
+  borderColor: '#f1f1f1',
+  textColor: rgb(136, 136, 136),
+  textColorActive: rgb(136, 136, 136),
 };
 
-export let attribute = {
-  background: '#7FDBFF',
-  color: '#06688e',
+export let entity: QueryVisTheme = {
+  backgroundColor: '#7FDBFF',
+  backgroundColorActive: '#7FDBFF',
+  borderColor: '#33a2ce',
+  textColor: '#06688e',
+  textColorActive: '#06688e',
 };
 
-export let traverse = {
-  background: '#0074D9',
-  color: 'hsla(208, 100%, 85%, 1.0)',
+export let select: QueryVisTheme = {
+  backgroundColor: rgb(141, 127, 255),
+  backgroundColorActive: rgb(141, 127, 255),
+  borderColor: rgb(141, 127, 255),
+  textColor: '#fff',
+  textColorActive: '#fff',
 };
 
-export let filter = {
-  background: '#FF851B',
-  color: 'hsla(28, 100%, 20%, 1.0)',
+export let attribute: QueryVisTheme = {
+  backgroundColor: '#7FDBFF',
+  backgroundColorActive: '#7FDBFF',
+  borderColor: '#7FDBFF',
+  textColor: '#06688e',
+  textColorActive: '#06688e',
 };
 
-export let aggregate = {
-  background: '#39CCCC',
-  color: '#06688e',
+export let traverse: QueryVisTheme = {
+  backgroundColor: '#0074D9',
+  backgroundColorActive: '#0074D9',
+  borderColor: '#0074D9',
+  textColor: 'hsla(208, 100%, 85%, 1.0)',
+  textColorActive: 'hsla(208, 100%, 85%, 1.0)',
+};
+
+export let filter: QueryVisTheme = {
+  backgroundColor: '#FF851B',
+  backgroundColorActive: '#FF851B',
+  borderColor: '#af5e17',
+  textColor: 'hsla(28, 100%, 20%, 1.0)',
+  textColorActive: 'hsla(28, 100%, 20%, 1.0)',
+};
+
+export let aggregate: QueryVisTheme = {
+  backgroundColor: '#39CCCC',
+  backgroundColorActive: '#39CCCC',
+  borderColor: '#2a9898',
+  textColor: '#06688e',
+  textColorActive: '#06688e',
 };

@@ -67,6 +67,7 @@ export default class QueryBuilder extends React.Component {
     let {
       query,
       selected,
+      insertAfter,
       queryInvalid,
       data,
       showPanel,
@@ -74,7 +75,15 @@ export default class QueryBuilder extends React.Component {
       focusedSeq,
     } = this.state;
 
+    let disablePanelClose = false;
     let pointer = qp.make(query);
+
+    // FIXME: we should maintain this invariant in the state container
+    if (isEmptyQuery(query)) {
+      insertAfter = qp.make(query, ['pipeline', 0]);
+      disablePanelClose = true;
+      showPanel = true;
+    }
 
     return (
       <VBox height="100%">
@@ -121,17 +130,29 @@ export default class QueryBuilder extends React.Component {
               domain={this.props.domain}
               pointer={pointer}
               selected={selected}
+              insertAfter={insertAfter}
               showPanel={showPanel}
               onShowSelect={this.actions.showSelect}
               />
           </LeftPanelWrapper>
-          {showPanel && selected &&
-            <CenterPanelWrapper>
-              <ui.QueryPanel
-                onClose={this.actions.hidePanel}
-                pointer={selected}
-                />
-            </CenterPanelWrapper>}
+          {(selected || insertAfter) && showPanel && (
+            insertAfter ?
+              <CenterPanelWrapper>
+                <ui.AddQueryPanel
+                  onClose={this.actions.hidePanel}
+                  pointer={insertAfter}
+                  disableClose={disablePanelClose}
+                  />
+              </CenterPanelWrapper> : selected ?
+              <CenterPanelWrapper>
+                <ui.QueryPanel
+                  onClose={this.actions.hidePanel}
+                  pointer={selected}
+                  disableClose={disablePanelClose}
+                  />
+              </CenterPanelWrapper> :
+              null
+          )}
           <RightPanelWrapper>
             {query && data != null && !queryInvalid
               ? <ui.DataTable
@@ -226,7 +247,7 @@ let CenterPanelWrapper = style(VBox, {
     flexGrow: 1,
     height: '100%',
     overflow: 'auto',
-    boxShadow: css.boxShadow(0, 0, 3, 0, '#666'),
+    boxShadow: css.boxShadow(0, 0, 3, 0, '#aaa'),
   }
 });
 
@@ -246,3 +267,13 @@ let LeftPanelWrapper = style(VBox, {
     boxShadow: css.boxShadow(0, 0, 3, 0, '#666'),
   }
 });
+
+function isEmptyQuery(query) {
+  if (query.pipeline.length === 1) {
+    return true;
+  }
+  if (query.pipeline.length === 2 && query.pipeline[1].name === 'select') {
+    return true;
+  }
+  return false;
+}

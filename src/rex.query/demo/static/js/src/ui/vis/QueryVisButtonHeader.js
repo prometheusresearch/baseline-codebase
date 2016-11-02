@@ -14,12 +14,18 @@ type QueryVisButtonHeaderProps = {
     Root: typeof VBox;
     Button: typeof VBox;
   };
+  closeIcon: React.Element<*>;
+
   label: string;
+
   selected: boolean;
+  selectable: boolean;
+
+  toggleable: boolean;
+  closeable: boolean;
+
   onSelect: () => void;
-  onRemove: () => void;
-  disableRemove: boolean;
-  disableToggle: boolean;
+  onClose: () => void;
 };
 
 export default class QueryVisButtonHeader
@@ -33,6 +39,10 @@ export default class QueryVisButtonHeader
   state = {
     active: true,
     hover: false,
+  };
+
+  static defaultProps = {
+    closeIcon: <IconRemove />,
   };
 
   onMouseEnter = () => {
@@ -54,14 +64,16 @@ export default class QueryVisButtonHeader
     this.props.onSelect();
   };
 
-  onRemove = (e: UIEvent) => {
+  onClose = (e: UIEvent) => {
     e.stopPropagation();
-    this.props.onRemove();
+    this.props.onClose();
   };
 
   render() {
     let {
-      label, selected, disableRemove, disableToggle,
+      label, selected,
+      selectable, toggleable, closeable,
+      closeIcon,
       stylesheet: {Root, Button},
     } = this.props;
     let {
@@ -74,44 +86,33 @@ export default class QueryVisButtonHeader
           <VBox
             paddingRight={5}
             style={{
-              visibility: !disableToggle && (!active || selected || hover)
+              visibility: toggleable && (!active || selected || hover)
                 ? 'visible'
                 : 'hidden'
             }}>
-            <Button disableActive onClick={this.toggleActive}>
+            <Button disableActive onClick={toggleable && this.toggleActive}>
               {active ? <IconCircle /> : <IconCircleO />}
             </Button>
           </VBox>
           <VBox grow={1}>{label}</VBox>
-          {!disableRemove &&
+          {closeable &&
             <HBox
               style={{visibility: selected || hover ? 'visible' : 'hidden'}}>
-              <Button onClick={this.onRemove}>
-                <IconRemove />
+              <Button onClick={this.onClose}>
+                {closeIcon}
               </Button>
             </HBox>}
         </HBox>
       </QueryVisButtonLabel>
     );
 
-    let stripe = selected && (
-      <Root
-        position="absolute"
-        top={0}
-        right={-6}
-        width={6}
-        grow={1}
-        />
-    );
-
     return (
       <Root
         variant={{selected}}
-        onClick={this.onSelect}
+        onClick={selectable && this.onSelect}
         onMouseOver={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}>
         {buttonLabel}
-        {stripe}
       </Root>
     );
   }
@@ -120,6 +121,7 @@ export default class QueryVisButtonHeader
 export let QueryVisButtonLabel = style(HBox, {
   displayName: 'QueryVisButtonLabel',
   base: {
+    textTransform: 'capitalize',
     userSelect: 'none',
     cursor: 'default',
     fontSize: '9pt',

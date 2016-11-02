@@ -44,8 +44,8 @@ export function navigate(params: {
   return state => {
     let pointer = qp.rebase(params.pointer, state.query);
     let loc = {pointer, selected: state.selected};
-    let {query, selected} = op.growNavigation({loc, path: params.path});
-    return onQuery(state, query, selected);
+    let {query} = op.growNavigation({loc, path: params.path});
+    return onQuery(state, query, state.selected);
   };
 }
 
@@ -92,7 +92,17 @@ export function showPanel(): StateUpdater {
  */
 export function hidePanel(): StateUpdater {
   return state => {
-    return {...state, showPanel: false};
+    return {
+      ...state,
+      showPanel: state.insertAfter != null && state.prevSelected
+        ? true
+        : false,
+      insertAfter: null,
+      selected: state.insertAfter != null
+        ? state.prevSelected
+        : null,
+      prevSelected: null,
+    };
   };
 }
 
@@ -178,11 +188,42 @@ export function redo(): StateUpdater {
 };
 
 /**
+ * Initiate new query combinator insertion.
+ */
+export function insertAfter(pointer: ?QueryPointer<*>): StateUpdater {
+  return state => {
+    return {
+      ...state,
+      insertAfter: pointer,
+      selected: null,
+      prevSelected: state.selected,
+      showPanel: true
+    };
+  };
+};
+
+export function insertAfterClose(): StateUpdater {
+  return state => {
+    return {
+      ...state,
+      insertAfter: null,
+      prevSelected: null,
+      selected: state.prevSelected,
+    };
+  };
+};
+
+/**
  * Select a combinator in a query vis panel.
  */
 export function select(pointer: ?QueryPointer<*>): StateUpdater {
   return state => {
-    return {...state, selected: pointer, showPanel: true};
+    return {
+      ...state,
+      selected: pointer,
+      showPanel: true,
+      insertAfter: null,
+    };
   };
 };
 
@@ -307,7 +348,7 @@ export function appendDefine(
       loc: {pointer: qp.rebase(pointer, query), selected: null},
       path: [name],
     });
-    return onQuery(state, nextQuery, select ? selected : null);
+    return onQuery(state, nextQuery, select ? selected : null, null);
   };
 }
 
@@ -374,7 +415,12 @@ export function renameDefineBinding(
   };
 }
 
-function onQuery(state: State, query: QueryPipeline, selected: ?QueryPointer<*>) {
+function onQuery(
+  state: State,
+  query: QueryPipeline,
+  selected: ?QueryPointer<*>,
+  insertAfter?: ?QueryPointer<> = state.insertAfter
+) {
   query = q.inferType(state.domain, query);
   query = op.reconcileNavigation(query);
   query = q.inferType(state.domain, query);
@@ -383,12 +429,27 @@ function onQuery(state: State, query: QueryPipeline, selected: ?QueryPointer<*>)
   } else {
     selected = qp.pointer(query, ['pipeline', 0]);
   }
+  let showPanel = state.showPanel;
+  if (insertAfter != null && !qp.is(selected, state.selected)) {
+    insertAfter = null;
+    showPanel = false;
+  }
+  if (insertAfter != null) {
+    insertAfter = qp.rebase(insertAfter, query);
+  }
+  if (insertAfter == null && state.insertAfter != null) {
+    showPanel = false;
+  }
+  if (!qp.is(state.selected, selected)) {
+    showPanel = true;
+  }
   let focusedSeq = reconcileFocus(state.focusedSeq, query);
   let nextState = {
     ...state,
     query,
     selected,
-    showPanel: state.showPanel,
+    insertAfter,
+    showPanel: showPanel,
     undoStack: state.undoStack.concat({
       query: state.query,
       selected: state.selected,
@@ -438,11 +499,7 @@ function getName(scope, prefix = 'Query') {
 
 function reconcileFocus(focusedSeq: Focus.Focus, query) {
   let nextFocusedSeq = Focus.chooseFocus(query);
-  if (nextFocusedSeq && nextFocusedSeq.length > 0) {
-    return nextFocusedSeq;
-  } else {
-    return focusedSeq;
-  }
+  return nextFocusedSeq;
 }
 
 function selectable(query) {

@@ -110,7 +110,13 @@ describe('reconcileNavigation()', function() {
     let expectation = {
       query: pipeline(
         here,
-        def('q', pipeline(individual))
+        def('q', pipeline(
+          individual,
+          select({
+            age: pipeline(age),
+            name: pipeline(name),
+          })
+        ))
       ),
       selected: null
     };
@@ -121,7 +127,9 @@ describe('reconcileNavigation()', function() {
     let queryState = {
       query: pipeline(
         here,
-        def('q', pipeline(individual))
+        def('q', pipeline(
+          individual,
+        ))
       ),
       selected: [
         ['pipeline', 1],
@@ -130,7 +138,13 @@ describe('reconcileNavigation()', function() {
     let expectation = {
       query: pipeline(
         here,
-        def('q', pipeline(individual))
+        def('q', pipeline(
+          individual,
+          select({
+            age: pipeline(age),
+            name: pipeline(name),
+          })
+        ))
       ),
       selected: [
         ['pipeline', 1],
@@ -385,10 +399,6 @@ describe('reconcileNavigation()', function() {
         select({
           individual: pipeline(
             individual,
-            select({
-              name: pipeline(name),
-              age: pipeline(age),
-            })
           )
         })
       ),
@@ -411,10 +421,6 @@ describe('reconcileNavigation()', function() {
         select({
           individual: pipeline(
             individual,
-            select({
-              name: pipeline(name),
-              age: pipeline(age),
-            })
           )
         })
       ),

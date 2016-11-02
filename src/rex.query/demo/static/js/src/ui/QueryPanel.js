@@ -8,11 +8,12 @@ import type {QueryPointer} from '../model/QueryPointer';
 import React from 'react';
 
 import * as t from '../model/Type';
+import * as q from '../model/Query';
 import * as theme from './Theme';
 import QueryPanelBase from './QueryPanelBase';
 import DefineQueryPanel from './DefineQueryPanel';
-import NavigationPanel from './NavigationPanel';
 import FilterQueryPanel from './filter/FilterQueryPanel';
+import {MenuHelp} from './menu';
 
 type QueryPanelProps = {
   pointer: ?QueryPointer<Query>;
@@ -20,77 +21,58 @@ type QueryPanelProps = {
 };
 
 export default function QueryPanel(props: QueryPanelProps) {
-  const {pointer, onClose} = props;
+  const {pointer, onClose, ...rest} = props;
 
   if (pointer == null) {
     return null;
   }
 
-  let query = pointer.query;
-
-  switch (query.name) {
-    case 'pipeline':
-      return null;
-    case 'navigate': {
-      let {domain, type} = query.context;
-      let title = getTitleFromType(domain, type) || query.path;
-      return (
-        <NavigationPanel
-          title={title}
-          pointer={pointer}
-          onClose={onClose}
-          />
-      );
-    }
-    case 'select': {
-      let {domain, inputType} = query.context;
-      let title = getTitleFromType(domain, inputType) || "Select";
-      return (
-        <NavigationPanel
-          title={title}
-          pointer={pointer}
-          onClose={onClose}
-          />
-      );
-    }
-    case 'filter':
-      return (
-        <FilterQueryPanel
-          onClose={onClose}
-          pointer={pointer}
-          />
-      );
-    case 'define':
-      return (
-        <DefineQueryPanel
-          onClose={onClose}
-          pointer={pointer}
-          />
-      );
-    case 'aggregate':
-      return (
-        <QueryPanelBase
-          title={`${query.aggregate}`}
-          onClose={onClose}
-          theme={theme.aggregate}
-          pointer={pointer}>
-        </QueryPanelBase>
-      );
-    case 'here':
-      return (
-        <NavigationPanel
-          pointer={pointer}
-          onClose={onClose}
-          />
-      );
-    case 'limit':
-      return null;
-    default:
-      return null
-  }
+  return q.transformQuery(pointer.query, {
+    navigate: query => (
+      <QueryPanelBase
+        {...rest}
+        title={getTitleFromPointer(pointer)}
+        onClose={onClose}
+        theme={theme.entity}
+        pointer={pointer}>
+        <MenuHelp>
+          This page is intentionally made blank for now.
+        </MenuHelp>
+      </QueryPanelBase>
+    ),
+    define: query => (
+      <DefineQueryPanel
+        onClose={onClose}
+        pointer={pointer}
+        />
+    ),
+    aggregate: query => (
+      <QueryPanelBase
+        {...rest}
+        title={query.aggregate}
+        onClose={onClose}
+        theme={theme.aggregate}
+        pointer={pointer}>
+        <MenuHelp>
+          This will show a list of available aggregate functions as soon as we
+          got more than the single one (count) we have now.
+        </MenuHelp>
+      </QueryPanelBase>
+    ),
+    filter: query => (
+      <FilterQueryPanel
+        {...rest}
+        onClose={onClose}
+        pointer={pointer}
+        />
+    ),
+    otherwise: _query =>
+      null,
+  });
 }
 
-function getTitleFromType(domain, type) {
+function getTitleFromPointer(pointer) {
+  let {domain, type} = pointer.query.context;
   type = t.maybeAtom(type);
   if (type == null) {
     return null;

@@ -4,21 +4,30 @@
  * @flow
  */
 
+import invariant from 'invariant';
+
 import type {QueryState, QueryPointerState} from './index';
 import type {QueryPipeline} from '../Query';
 import type {KeyPath, QueryPointer} from '../QueryPointer';
 
 import * as q from '../Query';
 import * as qp from '../QueryPointer';
+import transformAtPointer from './transformAtPointer';
 
 export default function growNavigation({loc: {pointer, selected}, path}: {
   loc: QueryPointerState;
   path: Array<string>;
 }): QueryState {
-  let {query, keyPath} = growNavigationImpl(
-    pointer.root,
-    pathFromPointer(pointer).concat(path)
+  let p = pointer.query.name !== 'pipeline'
+    ? qp.prev(pointer)
+    : pointer;
+  invariant(
+    p && p.query.name === 'pipeline',
+    'Malformed query structure'
   );
+  let {query, keyPath} = growNavigationImpl(p.query, path);
+  query = transformAtPointer(p, {type: 'replace', value: query});
+  keyPath = p.path.concat(keyPath);
   return {query, selected: qp.make(query, ...keyPath)};
 }
 

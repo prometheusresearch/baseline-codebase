@@ -17,33 +17,44 @@ function reconcilePipeline(query: QueryPipeline): QueryPipeline {
 
   let tail = query.pipeline[query.pipeline.length - 1];
 
-  if (tail.name === 'select') {
-    let select = reconcileSelect(tail);
-    let pipeline = query.pipeline;
-    pipeline.pop();
-    if (Object.keys(select.select).length > 0) {
-      pipeline = pipeline.concat(select);
+  let pipeline = [];
+
+  for (let i = 0; i < query.pipeline.length; i++) {
+    let item = query.pipeline[i];
+    if (item.name === 'define') {
+      item = reconcileDefine(item);
     }
-    return q.inferQueryType(query.context.prev, {
-      name: 'pipeline',
-      context: query.context,
-      pipeline
-    });
-  } else {
-    let select = q.select({});
-    select = q.inferQueryType(tail.context, select);
-    select = reconcileSelect(select, true);
-    let pipeline = query.pipeline;
-    if (Object.keys(select.select).length > 0) {
-      pipeline = pipeline.concat(select);
+    if (item === tail && tail.name === 'select') {
+      continue;
     }
-    return q.inferQueryType(query.context.prev, {
-      name: 'pipeline',
-      context: query.context,
-      pipeline: pipeline,
-    });
+    pipeline.push(item);
   }
 
+  let select = tail.name === 'select'
+    ? reconcileSelect(tail)
+    : reconcileSelect(q.inferQueryType(tail.context, q.select({})), true);
+
+  if (Object.keys(select.select).length > 0) {
+    pipeline = pipeline.concat(select);
+  }
+
+  return q.inferQueryType(query.context.prev, {
+    name: 'pipeline',
+    context: query.context,
+    pipeline: pipeline,
+  });
+}
+
+function reconcileDefine(query: q.DefineQuery): q.DefineQuery {
+  let binding = {
+    name: query.binding.name,
+    query: reconcilePipeline(query.binding.query),
+  };
+  return {
+    name: 'define',
+    binding,
+    context: query.context,
+  };
 }
 
 function reconcileSelect(query: q.SelectQuery, grow?: boolean): q.SelectQuery {
@@ -92,7 +103,7 @@ function reconcileSelect(query: q.SelectQuery, grow?: boolean): q.SelectQuery {
       continue;
     }
     let pipeline = query.select[k];
-    let kQuery = reconcilePipeline(pipeline);
+    let kQuery = pipeline; //reconcilePipeline(pipeline);
     if (
       kQuery.context.type != null ||
       ((k in query.context.scope) && isInitialDefine(query.context.scope[k]))

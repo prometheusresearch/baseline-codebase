@@ -51,7 +51,13 @@ export function getColumnConfig(
   return getColumnConfigImpl(query, focusedSeq, [], false);
 }
 
-function getColumnConfigImpl(query: Query, focusedSeq, path: Array<string>, suppressPath: boolean) {
+function getColumnConfigImpl(
+  query: Query,
+  focusedSeq,
+  path: Array<string>,
+  suppressPath: boolean,
+  currentStack?: Array<QColumnConfig>,
+) {
   let stack: Array<QColumnConfig> = [];
   switch (query.name) {
     case 'pipeline':
@@ -62,7 +68,13 @@ function getColumnConfigImpl(query: Query, focusedSeq, path: Array<string>, supp
         if (pipeline[i].name === 'navigate' && !suppressPath) {
           localPath = pipeline[i].path;
         }
-        let nav = getColumnConfigImpl(pipeline[i], focusedSeq, path.concat(localPath), false);
+        let nav = getColumnConfigImpl(
+          pipeline[i],
+          focusedSeq,
+          path.concat(localPath),
+          false,
+          stack,
+        );
         if (nav.type !== 'field' && skipAllowed) {
           break;
         }
@@ -74,20 +86,38 @@ function getColumnConfigImpl(query: Query, focusedSeq, path: Array<string>, supp
         skipAllowed = !needDetailedColumn(nav, focusedSeq);
       }
       break;
-    case 'aggregate':
+    case 'aggregate': {
+      let prev = currentStack != null
+        ? currentStack.pop()
+        : null;
+      let dataKey = prev && prev.type === 'field'
+        ? prev.field.dataKey
+        : ['0'];
+      let label = prev && prev.type === 'field' && prev.field.label
+        ? `${prev.field.label} ${query.aggregate}`
+        : query.aggregate;
       stack.push({
         type: 'field',
         field: {
           cellRenderer,
           cellDataGetter,
-          dataKey: ['0'],
-          label: query.aggregate,
+          dataKey,
+          label,
           data: {query, type: query.context.type, focused: false},
         },
         size: {width: 1, height: 1},
       });
       break;
+    }
     case 'navigate': {
+      if (query.path in query.context.prev.scope) {
+        return getColumnConfigImpl(
+          query.context.prev.scope[query.path],
+          focusedSeq,
+          path,
+          true
+        );
+      }
       let type = query.context.type;
       let focused = path.join('.') === focusedSeq.join('.');
       stack.push({
@@ -108,7 +138,14 @@ function getColumnConfigImpl(query: Query, focusedSeq, path: Array<string>, supp
       let group = [];
       for (let k in query.select) {
         if (query.select.hasOwnProperty(k)) {
-          group.push(getColumnConfigImpl(query.select[k], focusedSeq, path.concat(k), true));
+          group.push(
+            getColumnConfigImpl(
+              query.select[k],
+              focusedSeq,
+              path.concat(k),
+              true
+            )
+          );
         }
       }
       stack.push({

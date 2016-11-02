@@ -34,7 +34,11 @@ export type State = {
 
   queryInvalid: boolean;
 
-  selected: ?QueryPointer<Query>;
+  insertAfter: ?QueryPointer<>;
+
+  selected: ?QueryPointer<>;
+
+  prevSelected: ?QueryPointer<>;
 
   data: ?Object;
 
@@ -73,14 +77,21 @@ export function getInitialState({
   initialQuery
 }: Params): State {
 
-  let {query} = op.normalize({
-    query: q.inferType(domain, initialQuery || q.pipeline(q.here)),
+  let query = initialQuery || q.pipeline(q.here);
+  query = op.reconcileNavigation(query);
+  query = op.normalize({
+    query: q.inferType(domain, query),
     selected: null,
-  });
+  }).query;
 
   query = q.inferType(domain, query);
 
-  let selected = qp.make(query, ['pipeline', 0]);
+  let insertAfter = initialQuery == null
+    ? qp.make(query, ['pipeline', 0])
+    : null;
+
+  let selected = null;
+
   let focusedSeq = Focus.chooseFocus(query);
 
   let state: State = {
@@ -89,6 +100,8 @@ export function getInitialState({
     query,
     queryInvalid: false,
     selected,
+    prevSelected: null,
+    insertAfter,
     data: null,
     dataUpdating: false,
     showPanel: true,

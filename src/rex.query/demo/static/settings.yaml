@@ -4,4 +4,5 @@ htsql_extensions:
     rex_deploy:
 access:
     rex.query: anybody
+    rex.query_demo: anybody
 

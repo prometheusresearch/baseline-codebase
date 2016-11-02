@@ -1,5 +1,5 @@
 
-from setuptools import setup
+from setuptools import setup, find_packages
 from distutils.core import Command
 
 class demo(Command):
@@ -15,7 +15,7 @@ class demo(Command):
 
     def run(self):
         import os
-        cmd = "rex deploy rex.query_demo"
+        cmd = "rex query-demo-populate rex.query_demo"
         print "$", cmd
         os.spawnvp(0, cmd.split()[0], cmd.split())
         from rex.core import Rex
@@ -37,8 +37,14 @@ setup(
     install_requires=[
         'rex.query',
         'rex.ctl',
+        'rex.port',
     ],
+    package_dir={'': 'src'},
+    packages=find_packages('src'),
+    namespace_packages=['rex'],
     cmdclass={'demo': demo},
+    entry_points={'rex.ctl': ['rex.query_demo = rex.query_demo']},
     rex_static='static',
+    rex_init='rex.query_demo',
 )
 

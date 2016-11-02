@@ -1,65 +1,147 @@
 
-- table: study
+- table: region
   with:
-  - column: code
+  - column: name
     type: text
-  - identity: [code]
-  - column: title
+  - column: comment
     type: text
     required: false
-  - column: closed
-    type: boolean
-  - data: ./deploy/study.csv
+  - identity: [name]
 
-- table: individual
-  title: Subject
+- table: nation
   with:
-  - column: code
+  - column: name
     type: text
-  - identity: [code]
-  - column: sex
-    type: [not-known, male, female, not-applicable]
-  - link: mother
-    to: individual
+  - link: region
+  - column: comment
+    type: text
     required: false
-  - link: father
-    to: individual
-    required: false
-  - data: ./deploy/individual.csv
+  - identity: [name]
 
-- table: identity
+- table: customer
   with:
-  - link: individual
-  - identity: [individual]
-  - column: givenname
+  - column: name
+    type: text
+  - column: address
+    type: text
+  - link: nation
+  - column: phone
+    type: text
+  - column: acctbal
+    type: decimal
+  - column: mktsegment
+    type: text
+  - column: comment
     type: text
     required: false
-  - column: surname
+  - identity: [name]
+
+- table: supplier
+  with:
+  - column: name
+    type: text
+  - column: address
+    type: text
+  - link: nation
+  - column: phone
+    type: text
+  - column: acctbal
+    type: decimal
+  - column: comment
     type: text
     required: false
-  - column: birthdate
+  - identity: [name]
+
+- table: part
+  with:
+  - column: name
+    type: text
+  - column: mfgr
+    type: text
+  - column: brand
+    type: text
+  - column: type
+    type: text
+  - column: size
+    type: integer
+  - column: container
+    type: text
+  - column: retailprice
+    type: decimal
+  - column: comment
+    type: text
+    required: false
+  - identity: [name]
+
+- table: partsupp
+  with:
+  - link: part
+  - link: supplier
+  - column: availqty
+    type: integer
+  - column: supplycost
+    type: decimal
+  - column: comment
+    type: text
+    required: false
+  - identity: [part, supplier]
+
+- table: order
+  with:
+  - column: key
+    type: integer
+  - link: customer
+  - column: orderstatus
+    type: [F, O, P]
+  - column: totalprice
+    type: decimal
+  - column: orderdate
     type: date
+  - column: orderpriority
+    type: text
+  - column: clerk
+    type: text
+  - column: shippriority
+    type: integer
+  - column: comment
+    type: text
     required: false
-  - alias: fullname
-    expression: (givenname + ' ' + surname)
-  - data: ./deploy/identity.csv
+  - identity: [key: offset]
 
-- table: protocol
+- table: lineitem
   with:
-  - link: study
-  - column: code
+  - link: order
+  - link: partsupp
+  - column: linenumber
+    type: integer
+  - column: quantity
+    type: integer
+  - column: extendedprice
+    type: decimal
+  - column: discount
+    type: decimal
+  - column: tax
+    type: decimal
+  - column: returnflag
+    type: [A, N, R]
+  - column: linestatus
+    type: [F, O]
+  - column: shipdate
+    type: date
+  - column: commitdate
+    type: date
+  - column: receiptdate
+    type: date
+  - column: shipinstruct
     type: text
-  - identity: [study, code]
-  - column: title
+  - column: shipmode
     type: text
-  - data: ./deploy/protocol.csv
-
-- table: participation
-  with:
-  - link: individual
-  - link: protocol
-  - column: code
+  - column: comment
     type: text
-  - identity: [individual, protocol, code]
-  - data: ./deploy/participation.csv
+    required: false
+  - alias: part
+    expression: partsupp.part
+  - alias: supplier
+    expression: partsupp.supplier
+  - identity: [order, linenumber]
 

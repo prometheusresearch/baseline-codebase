@@ -112,6 +112,7 @@ function getBaseFieldType(field: CatalogEntityField) {
       case 'boolean':
         return t.booleanType;
       case 'integer':
+      case 'decimal':
       case 'float':
         return t.numberType;
       case 'date':

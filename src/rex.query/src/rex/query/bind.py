@@ -14,10 +14,11 @@ from htsql.core.cmd.embed import Embed
 from htsql.core.tr.binding import (
         RootBinding, LiteralBinding, TableBinding, ChainBinding,
         CollectBinding, SelectionBinding, SieveBinding, DefineBinding,
-        SortBinding, QuotientBinding, ComplementBinding, TitleBinding,
-        DirectionBinding, FormulaBinding, CastBinding, ImplicitCastBinding,
-        FreeTableRecipe, AttachedTableRecipe, ColumnRecipe,
-        BindingRecipe, KernelRecipe, ComplementRecipe, ClosedRecipe)
+        SortBinding, QuotientBinding, ComplementBinding, ClipBinding,
+        TitleBinding, DirectionBinding, FormulaBinding, CastBinding,
+        ImplicitCastBinding, FreeTableRecipe, AttachedTableRecipe,
+        ColumnRecipe, BindingRecipe, KernelRecipe, ComplementRecipe,
+        ClosedRecipe)
 from htsql.core.tr.bind import BindingState, Select
 from htsql.core.tr.lookup import lookup_attribute, unwrap, guess_tag
 from htsql.core.tr.decorate import decorate
@@ -251,6 +252,24 @@ class RexBindingState(BindingState):
                 optional=base.optional,
                 plural=base.plural)
 
+    def bind_take_op(self, args):
+        if not (len(args) == 2):
+            raise Error("Expected two arguments,"
+                        " got:", ", ".join(map(str, args)))
+        base = self(args[0])
+        if not base.plural:
+            raise Error("Expected a plural expression, got:", args[0])
+        if not (isinstance(args[1], LiteralSyntax) and
+                isinstance(args[1].val, int)):
+            raise Error("Expected an integer literal, got:", args[1])
+        limit = args[1].val
+        return Output(
+                ClipBinding(
+                    self.scope, base.binding, [],
+                    limit, None, self.scope.syntax),
+                optional=True,
+                plural=base.plural)
+
     def bind_group_op(self, args):
         if not (len(args) >= 2):
             raise Error("Expected at least two arguments,"
@@ -426,11 +445,6 @@ class RexBindingState(BindingState):
         output = parameters['op']
         if not output.optional:
             raise Error("Expected optional expression, got:", args[0])
-        #if not output.plural:
-        #    return Output(
-        #            FormulaBinding(
-        #                self.scope, IsNullSig(+1), output.binding.domain,
-        #                self.scope.syntax, op=output.binding))
         binding = ImplicitCastBinding(
                 output.binding, BooleanDomain(), self.scope.syntax)
         if not output.plural:

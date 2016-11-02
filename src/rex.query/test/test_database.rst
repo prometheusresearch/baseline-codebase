@@ -197,6 +197,16 @@ Sorting::
     ...         ["navigate", "dob"]])   # doctest: +ELLIPSIS
     <Product ({'1093', '2009-03-03'}, {'1018', '2008-08-08'}, ...>
 
+Pagination::
+
+    >>> db.produce(
+    ...     ["select",
+    ...         ["take",
+    ...             ["navigate", "individual"],
+    ...             4],
+    ...         ["navigate", "code"]])
+    <Product ({'1000'}, {'1001'}, {'1002'}, {'1003'})>
+
 Type conversion::
 
     >>> db.produce(["+", ["date", "2016-09-13"], 10])

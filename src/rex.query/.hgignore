@@ -4,6 +4,7 @@ syntax: glob
 *.pyc
 *.pyo
 *.egg-info
+demo/static/www/*
 build
 dist
 coverage

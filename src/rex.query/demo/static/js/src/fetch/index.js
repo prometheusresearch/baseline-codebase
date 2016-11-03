@@ -67,9 +67,40 @@ type Catalog = {
  */
 const aggregate = {
   count: {
+    title: 'Count',
     makeType: _typ => t.numberType,
+    isAllowed: typ => typ.name === 'seq',
+  },
+  exists: {
+    title: 'Exists',
+    makeType: _typ => t.booleanType,
+    isAllowed: typ => typ.name === 'seq',
+  },
+  max: {
+    title: 'Max',
+    makeType: _typ => t.numberType,
+    isAllowed: typ => typ.name === 'seq' && isNumeric(typ.type),
+  },
+  min: {
+    title: 'Min',
+    makeType: _typ => t.numberType,
+    isAllowed: typ => typ.name === 'seq' && isNumeric(typ.type),
+  },
+  mean: {
+    title: 'Mean',
+    makeType: _typ => t.numberType,
+    isAllowed: typ => typ.name === 'seq' && isNumeric(typ.type),
   },
 };
+
+function isNumeric(type: t.Type) {
+  return (
+    type.name === 'number' ||
+    type.name === 'date' ||
+    type.name === 'time' ||
+    type.name === 'datetime'
+  );
+}
 
 export function fetchCatalog(api: string): Promise<Domain> {
   return fetchJSON(api, ['catalog']).then(data => {

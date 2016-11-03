@@ -53,7 +53,7 @@ export default class QueryVisToolbar
             <QueryVisToolbarButton
               onClick={this.onAggregate}
               icon={<PlusIcon />}>
-              Count
+              Aggregate
             </QueryVisToolbarButton>}
           {canNavigate &&
             <QueryVisToolbarButton

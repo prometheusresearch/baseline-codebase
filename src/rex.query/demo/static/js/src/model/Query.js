@@ -142,15 +142,19 @@ export type Domain = {
 
   // Aggregate catalogue.
   aggregate: {
-    [aggregateName: string]: {
-      makeType: (typ: t.Type) => t.Type;
-    }
+    [aggregateName: string]: DomainAggregate;
   };
 
   // Entity catalogue (tables).
   entity: {
     [entityName: string]: DomainEntity;
   };
+};
+
+export type DomainAggregate = {
+  title: string;
+  isAllowed: (typ: t.Type) => boolean;
+  makeType: (typ: t.Type) => t.Type;
 };
 
 export type DomainEntity = {

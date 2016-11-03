@@ -9,7 +9,6 @@ import React from 'react';
 import {VBox, HBox} from '@prometheusresearch/react-box';
 import {style} from 'react-stylesheet';
 import * as css from 'react-stylesheet/css';
-import IconClose from 'react-icons/lib/fa/close';
 import IconRemove from 'react-icons/lib/fa/trash';
 
 import invariant from 'invariant';
@@ -196,7 +195,9 @@ function getLabelForFilterExpression(expression: Expression): string {
 export function QueryVisAggregateButton(props: {
   pointer: QueryPointer<q.AggregateQuery>;
 }) {
-  let {pointer, ...rest} = props;
+  const {pointer, ...rest} = props;
+  const domain = pointer.query.context.domain;
+  const aggregate = domain.aggregate[pointer.query.aggregate];
   return (
     <QueryVisButton
       {...rest}
@@ -204,7 +205,7 @@ export function QueryVisAggregateButton(props: {
       closeable
       stylesheet={{Root: QueryPane.AggregatePane, Button: QueryButton.AggregateButton}}
       pointer={pointer}
-      label={`${pointer.query.aggregate}`}
+      label={aggregate.title}
       />
   );
 }

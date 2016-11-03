@@ -12,6 +12,7 @@ import * as q from '../model/Query';
 import * as theme from './Theme';
 import QueryPanelBase from './QueryPanelBase';
 import DefineQueryPanel from './DefineQueryPanel';
+import AggregateQueryPanel from './AggregateQueryPanel';
 import FilterQueryPanel from './filter/FilterQueryPanel';
 import {MenuHelp} from './menu';
 
@@ -47,17 +48,10 @@ export default function QueryPanel(props: QueryPanelProps) {
         />
     ),
     aggregate: query => (
-      <QueryPanelBase
-        {...rest}
-        title={query.aggregate}
+      <AggregateQueryPanel
         onClose={onClose}
-        theme={theme.aggregate}
-        pointer={pointer}>
-        <MenuHelp>
-          This will show a list of available aggregate functions as soon as we
-          got more than the single one (count) we have now.
-        </MenuHelp>
-      </QueryPanelBase>
+        pointer={pointer}
+        />
     ),
     filter: query => (
       <FilterQueryPanel

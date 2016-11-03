@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from rex.core import Setting, OMapVal, StrVal, BoolVal, RecordVal
+from rex.core import Setting, OMapVal, StrVal, BoolVal, RecordVal, SeqVal
 
 
 class AssessmentImportDir(Setting):
@@ -15,7 +15,6 @@ class AssessmentImportDir(Setting):
     name = 'assessment_import_dir'
     validate = StrVal()
     default = None
-
 
 
 class AssessmentTemplateDefaults(Setting):
@@ -55,4 +54,15 @@ class AssessmentTemplateDefaults(Setting):
                     }
                 ),
              ))
+
+
+class AssessmentContextFields(Setting):
+    """
+        List of field names to find in assessment implementation context
+        to include as assessment template fields.
+    """
+
+    name = 'assessment_context_fields'
+    validate = SeqVal(StrVal())
+    default = []
 

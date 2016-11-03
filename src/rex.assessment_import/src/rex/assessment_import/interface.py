@@ -79,14 +79,25 @@ class Instrument(Field):
         self.id = id
         self.fields = OrderedDict()
         self.default_fields = get_settings().assessment_template_defaults
+
         assessment_impl = get_implementation('assessment')
         action = assessment_impl.CONTEXT_ACTION_CREATE
-        self.context_fields = assessment_impl.get_implementation_context(action)
+        self.context_fields = self.make_context()
         for field_definition in instrument_definition['record']:
             field = self.add_field(instrument_definition, field_definition)
             self.fields[field.id] = field
         self.blank_assessment = assessment_impl.generate_empty_data(
                                                     instrument_definition)
+
+    def make_context(self):
+        assessment_context_fields = get_settings().assessment_context_fields
+        assessment_impl = get_implementation('assessment')
+        action = assessment_impl.CONTEXT_ACTION_CREATE
+        context = [(field_id, field) for (field_id, field) in
+                   assessment_impl.get_implementation_context(action).items()
+                   if field_id in assessment_context_fields]
+        return context
+
 
 
 class TemplateCollection(object):
@@ -106,7 +117,7 @@ class TemplateCollection(object):
         if id == self.instrument.id:
             default_fields = OrderedDict(
                     default_fields.items() +
-                    self.instrument.context_fields.items())
+                    self.instrument.context_fields)
         for (name, parameter) in default_fields.items():
             self.add_field(id,
                            name,
@@ -197,7 +208,7 @@ class Assessment(object):
 
     def get_context(self, data):
         context = {}
-        for field_id, field in self.instrument.context_fields.items():
+        for field_id, field in self.instrument.context_fields:
             value = data.get(field_id)
             if field['required'] and value is None:
                 raise Error("%s value is required in %s."

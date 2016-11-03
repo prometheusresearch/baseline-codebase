@@ -46,6 +46,7 @@ class QueryVisButton extends React.Component {
     return (
       <QueryVisButtonBase
         {...props}
+        closeTitle="Remove"
         onClose={this.onClose}
         onSelect={this.onSelect}
         selected={isSelected}
@@ -118,6 +119,7 @@ export function QueryVisDefineButton(props: {
         <QueryVisNavigationHeader
           selectable
           closeable
+          closeTitle="Remove"
           selected={isSelected}
           label={pointer.query.binding.name}
           pointer={pointer}
@@ -241,6 +243,7 @@ class QueryVisNavigationHeader extends React.Component {
     label: string;
     pointer: QueryPointer<q.Query>;
     closeable?: boolean;
+    closeTitle?: string;
     selected?: ?boolean;
     selectable?: boolean;
   };
@@ -256,7 +259,13 @@ class QueryVisNavigationHeader extends React.Component {
   };
 
   render() {
-    const {label, selectable, selected, closeable} = this.props;
+    const {
+      label,
+      selectable,
+      selected,
+      closeable,
+      closeTitle,
+    } = this.props;
     return (
       <QueryVisNavigationHeaderRoot
         variant={{selected}}
@@ -267,6 +276,7 @@ class QueryVisNavigationHeader extends React.Component {
         {closeable &&
           <HBox>
             <QueryButton.DefaultButton
+              title={closeTitle}
               onClick={this.onRemove}>
               <IconRemove />
             </QueryButton.DefaultButton>

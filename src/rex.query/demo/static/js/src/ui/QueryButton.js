@@ -43,7 +43,12 @@ function createButton({displayName, theme}) {
       let {children, icon, disableActive, ...props} = this.props;
       let variant = {enableActive: !disableActive};
       return (
-        <Root paddingH={7} paddingV={5} {...props} variant={variant}>
+        <Root
+          paddingH={7}
+          paddingV={5}
+          {...props}
+          aria-role="button"
+          variant={variant}>
           {icon && <HBox paddingRight={5}>{icon}</HBox>}
           {children}
         </Root>

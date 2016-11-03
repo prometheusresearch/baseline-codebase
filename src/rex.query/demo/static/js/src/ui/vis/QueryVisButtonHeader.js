@@ -24,6 +24,8 @@ type QueryVisButtonHeaderProps = {
   toggleable: boolean;
   closeable: boolean;
 
+  closeTitle?: string;
+
   onSelect: () => void;
   onClose: () => void;
 };
@@ -73,7 +75,7 @@ export default class QueryVisButtonHeader
     let {
       label, selected,
       selectable, toggleable, closeable,
-      closeIcon,
+      closeIcon, closeTitle,
       stylesheet: {Root, Button},
     } = this.props;
     let {
@@ -98,7 +100,7 @@ export default class QueryVisButtonHeader
           {closeable &&
             <HBox
               style={{visibility: selected || hover ? 'visible' : 'hidden'}}>
-              <Button onClick={this.onClose}>
+              <Button onClick={this.onClose} title={closeTitle}>
                 {closeIcon}
               </Button>
             </HBox>}

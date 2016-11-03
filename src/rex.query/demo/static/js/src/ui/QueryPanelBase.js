@@ -50,6 +50,7 @@ export default class QueryPanelBase extends React.Component<*, QueryPanelBasePro
             </QueryPanelBaseTitle>
             {!disableClose &&
               <ReactUI.QuietButton
+                title="Close"
                 size="small"
                 icon={<CloseIcon />}
                 onClick={onClose}

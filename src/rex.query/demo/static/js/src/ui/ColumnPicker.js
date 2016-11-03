@@ -9,6 +9,7 @@ import React from 'react';
 import {VBox} from '@prometheusresearch/react-box';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
+import * as feature from '../feature';
 import * as t from '../model/Type';
 import * as q from '../model/Query';
 import * as qp from '../model/QueryPointer';
@@ -283,13 +284,15 @@ class ColumnPickerButton extends React.Component {
       <MenuButton
         selected={pointer != null}
         icon={pointer != null ? '✓' : null}
-        menu={[
-          <MenuButtonSecondary
-            onClick={this.onNavigate}
-            key="navigate">
-            Navigate to {column.label}
-          </MenuButtonSecondary>,
-        ]}
+        menu={
+          feature.ENABLE_ATTRIBUTE_CONTEXT_MENU && [
+            <MenuButtonSecondary
+              onClick={this.onNavigate}
+              key="navigate">
+              Navigate to {column.label}
+            </MenuButtonSecondary>,
+          ]
+        }
         onClick={this.onSelect}>
         <VBox grow={1} justifyContent="center">
           {column.label}

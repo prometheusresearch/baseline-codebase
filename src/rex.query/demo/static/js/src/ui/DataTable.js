@@ -10,8 +10,11 @@ import React from 'react';
 import IconCircleO from 'react-icons/lib/fa/circle-o'
 import IconCircle from 'react-icons/lib/fa/circle'
 import {style} from 'react-stylesheet';
+import {VBox} from '@prometheusresearch/react-box';
+import * as css from 'react-stylesheet/css';
 import {AutoSizer} from 'react-virtualized';
 
+import {LoadingIndicator} from '../ui';
 import * as ArrayUtil from '../ArrayUtil';
 import * as t from '../model/Type';
 import {flattenPipeline} from '../model/Query';
@@ -188,6 +191,7 @@ function getData(data: Object, focusedSeq: Array<string>): Array<Object> {
 
 type DataTableProps = {
   query: Query;
+  loading?: boolean;
   data: Object;
   focusedSeq: Array<string>;
   onFocusedSeq: (focusedSeq: Array<string>) => *;
@@ -210,22 +214,27 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
 
   render() {
     return (
-      <AutoSizer>
-        {size => (
-          <DataTableBase
-            onColumnClick={this.onColumnClick}
-            headerHeight={30}
-            noRowsRenderer={this._noRowsRenderer}
-            overscanRowCount={10}
-            rowHeight={35}
-            rowGetter={this._getRowData}
-            rowCount={this.data.length}
-            height={size.height}
-            width={size.width}
-            columns={this.columns}
-            />
-        )}
-      </AutoSizer>
+      <VBox grow={1}>
+        <AutoSizer>
+          {size => (
+            <DataTableBase
+              onColumnClick={this.onColumnClick}
+              headerHeight={30}
+              noRowsRenderer={this._noRowsRenderer}
+              overscanRowCount={10}
+              rowHeight={35}
+              rowGetter={this._getRowData}
+              rowCount={this.data.length}
+              height={size.height}
+              width={size.width}
+              columns={this.columns}
+              />
+          )}
+        </AutoSizer>
+        <LoadingPane variant={{visible: this.props.loading}}>
+          <LoadingIndicator />
+        </LoadingPane>
+      </VBox>
     )
   }
 
@@ -363,6 +372,26 @@ let BooleanFalseCell = style('div', {
     paddingRight: 5,
     paddingLeft: 5,
   }
+});
+
+let LoadingPane = style(VBox, {
+  base: {
+    background: css.rgba(230, 0.9),
+    position: 'absolute',
+    zIndex: 1000,
+    height: 30,
+    width: 100,
+    left: 'calc(50% - 50px)',
+    justifyContent: 'center',
+    bottom: 0,
+    opacity: 0,
+    transition: 'opacity 0.3s, bottom 0.3s',
+    borderRadius: 13,
+  },
+  visible: {
+    bottom: 10,
+    opacity: 100,
+  },
 });
 
 function needDetailedColumn(column: ColumnConfig<*>, focusedSeq: Array<string>) {

@@ -69,6 +69,7 @@ export default class QueryBuilder extends React.Component {
       selected,
       insertAfter,
       queryInvalid,
+      queryLoading,
       data,
       showPanel,
       showConsole,
@@ -154,16 +155,21 @@ export default class QueryBuilder extends React.Component {
               null
           )}
           <RightPanelWrapper>
-            {query && data != null && !queryInvalid
-              ? <ui.DataTable
-                  query={query}
-                  data={data}
-                  focusedSeq={focusedSeq}
-                  onFocusedSeq={this.onFocusedSeq}
-                  />
-              : queryInvalid
-              ? <InvalidQueryMessage onUndo={this.actions.undo} />
-              : null}
+            {
+              queryInvalid ?
+              <InvalidQueryMessage
+                onUndo={this.actions.undo}
+                /> :
+              data != null ?
+              <ui.DataTable
+                query={query}
+                loading={queryLoading}
+                data={data}
+                focusedSeq={focusedSeq}
+                onFocusedSeq={this.onFocusedSeq}
+                /> :
+              null
+            }
           </RightPanelWrapper>
         </HBox>
       </VBox>

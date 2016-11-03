@@ -121,7 +121,7 @@ function translateQuery(
         }
       }
       if (feature.FEATURE_ARTIFICIAL_DATASET_LIMIT != null) {
-        if (prev[0] === 'navigate') {
+        if (Array.isArray(prev) && prev[0] === 'navigate') {
           prev = ['take', prev, feature.FEATURE_ARTIFICIAL_DATASET_LIMIT];
         }
       }

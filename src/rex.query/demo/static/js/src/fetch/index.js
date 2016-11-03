@@ -76,8 +76,8 @@ const aggregate = {
     makeType: _typ => t.booleanType,
     isAllowed: typ => typ.name === 'seq',
   },
-  max: {
-    title: 'Max',
+  sum: {
+    title: 'Sum',
     makeType: _typ => t.numberType,
     isAllowed: typ => typ.name === 'seq' && isNumeric(typ.type),
   },

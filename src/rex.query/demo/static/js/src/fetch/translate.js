@@ -117,13 +117,12 @@ function translateQuery(
       for (let k in query.select) {
         if (query.select.hasOwnProperty(k)) {
           let kquery = translateQuery(query.select[k], HERE);
-          if (feature.FEATURE_ARTIFICIAL_DATASET_LIMIT != null) {
-            let ktype = query.select[k].context.type;
-            if (ktype != null && ktype.name === 'seq') {
-              kquery = ['take', kquery, feature.FEATURE_ARTIFICIAL_DATASET_LIMIT];
-            }
-          }
           fields.push(['=>', k, kquery]);
+        }
+      }
+      if (feature.FEATURE_ARTIFICIAL_DATASET_LIMIT != null) {
+        if (prev[0] === 'navigate') {
+          prev = ['take', prev, feature.FEATURE_ARTIFICIAL_DATASET_LIMIT];
         }
       }
       return ['select', prev].concat(fields);

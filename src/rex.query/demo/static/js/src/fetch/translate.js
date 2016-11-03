@@ -5,6 +5,7 @@
 import type {Query, Expression} from '../model/Query';
 
 import invariant from 'invariant';
+import * as feature from '../feature';
 
 const HERE = ['here'];
 
@@ -111,14 +112,22 @@ function translateQuery(
         ['=>', query.binding.name, translate(query.binding.query)]
       ];
 
-    case 'select':
+    case 'select': {
       let fields = [];
       for (let k in query.select) {
         if (query.select.hasOwnProperty(k)) {
-          fields.push(['=>', k, translateQuery(query.select[k], HERE)]);
+          let kquery = translateQuery(query.select[k], HERE);
+          if (feature.FEATURE_ARTIFICIAL_DATASET_LIMIT != null) {
+            let ktype = query.select[k].context.type;
+            if (ktype != null && ktype.name === 'seq') {
+              kquery = ['take', kquery, feature.FEATURE_ARTIFICIAL_DATASET_LIMIT];
+            }
+          }
+          fields.push(['=>', k, kquery]);
         }
       }
       return ['select', prev].concat(fields);
+    }
 
     case 'aggregate':
       return [query.aggregate, prev];

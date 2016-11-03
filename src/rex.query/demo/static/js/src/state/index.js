@@ -26,32 +26,86 @@ type UndoRecord = {
 
 export type State = {
 
+  /**
+   * Current database domain.
+   *
+   * TODO: This shouldn't be a part of the state as it doesn't change during
+   * QueryBuilder lifecycle.
+   */
   domain: Domain;
 
+  /**
+   * API being used (an URL).
+   *
+   * TODO: This shouldn't be a part of the state as it doesn't change during
+   * QueryBuilder lifecycle.
+   */
   api: string;
 
+  /**
+   * Current query.
+   */
   query: QueryPipeline;
 
+  /**
+   * If current query is invalid (missing some vital parts which result in
+   * invalid type).
+   */
   queryInvalid: boolean;
 
+  /**
+   * If query is being processed by API.
+   */
+  queryLoading: boolean;
+
+  /**
+   * Pointer to the query which has active "add query panel" attached.
+   */
   insertAfter: ?QueryPointer<>;
 
+  /**
+   * Pointer to the query which has active "edit query panel" attached.
+   */
   selected: ?QueryPointer<>;
 
+  /**
+   * Previously selected query.
+   *
+   * This is used primarly for restoring query selection state.
+   */
   prevSelected: ?QueryPointer<>;
 
+  /**
+   * Currently fetched dataset.
+   *
+   * Note that it could be stale, always check `queryLoading` if query is being
+   * processed which will result in a new dataset being fetched.
+   */
   data: ?Object;
 
-  dataUpdating: boolean;
-
+  /**
+   * Show panel.
+   */
   showPanel: boolean;
 
+  /**
+   * Show console.
+   */
   showConsole: boolean;
 
+  /**
+   * Undo stack.
+   */
   undoStack: Array<UndoRecord>;
 
+  /**
+   * Redo stack.
+   */
   redoStack: Array<UndoRecord>;
 
+  /**
+   * Currently focused sequence which is expanded in the datatable.
+   */
   focusedSeq: Focus.Focus;
 
 };
@@ -99,11 +153,11 @@ export function getInitialState({
     api,
     query,
     queryInvalid: false,
+    queryLoading: false,
     selected,
     prevSelected: null,
     insertAfter,
     data: null,
-    dataUpdating: false,
     showPanel: true,
     showConsole: false,
     undoStack: [],

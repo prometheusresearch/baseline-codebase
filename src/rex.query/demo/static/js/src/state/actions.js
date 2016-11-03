@@ -469,17 +469,17 @@ function refetchQuery(state, setState) {
     if (query.context.type == null) {
       setState(
         'queryInvalid',
-        state => ({...state, dataUpdating: false, queryInvalid: true})
+        state => ({...state, queryLoading: false, queryInvalid: true})
       );
     } else {
       setState(
         'fetchStart',
-        state => ({...state, dataUpdating: true, queryInvalid: false})
+        state => ({...state, queryLoading: true, queryInvalid: false})
       );
       Fetch.fetch(api, query).then(data => {
         setState(
           'fetchFinish',
-          state => ({...state, data, dataUpdating: false})
+          state => ({...state, data, queryLoading: false})
         );
       });
     }

@@ -12,7 +12,7 @@ import * as ReactUI from '@prometheusresearch/react-ui';
 import * as t from '../model/Type';
 import * as q from '../model/Query';
 import * as qp from '../model/QueryPointer';
-import {MenuGroup, MenuButton} from './menu';
+import {MenuGroup, MenuButton, MenuButtonSecondary} from './menu';
 import PlusIcon from './PlusIcon';
 
 type Navigation = {
@@ -79,6 +79,7 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
           pointer={pointer}
           onSelect={onSelect}
           onSelectRemove={onSelectRemove}
+          onNavigate={this.onNavigate}
           actions={this.context.actions}
           />
       );
@@ -158,6 +159,14 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
 
   onFilter = () => {
     this.context.actions.appendFilter({pointer: this.props.pointer});
+  };
+
+  onNavigate = (payload: {path: string}) => {
+    let p = getPipelineInsertionPoint(this.props.pointer);
+    this.context.actions.appendNavigate({
+      pointer: p,
+      path: [payload.path],
+    });
   };
 
   onSearchTerm = (e: UIEvent) => {
@@ -248,6 +257,7 @@ class ColumnPickerButton extends React.Component {
     pointer?: QueryPointer<>;
     column: {label: string; value: string, context: Context};
     onSelect: (payload: {path: string}) => *;
+    onNavigate: (payload: {path: string}) => *;
     onSelectRemove: (payload: {path: string, pointer: QueryPointer<>}) => *;
     actions: Actions;
   };
@@ -262,12 +272,24 @@ class ColumnPickerButton extends React.Component {
     }
   };
 
+  onNavigate = () => {
+    let {onNavigate, column} = this.props;
+    onNavigate({path: column.value});
+  };
+
   render() {
     let {column, pointer} = this.props;
     return (
       <MenuButton
         selected={pointer != null}
         icon={pointer != null ? '✓' : null}
+        menu={[
+          <MenuButtonSecondary
+            onClick={this.onNavigate}
+            key="navigate">
+            Navigate to {column.label}
+          </MenuButtonSecondary>,
+        ]}
         onClick={this.onSelect}>
         <VBox grow={1} justifyContent="center">
           {column.label}
@@ -422,4 +444,12 @@ function isSeqAt(type: ?Type) {
     type &&
     type.name === 'seq'
   );
+}
+
+function getPipelineInsertionPoint(pointer: QueryPointer<>) {
+  let p = qp.prev(pointer);
+  if (p == null || p.query.name !== 'pipeline') {
+    return pointer;
+  }
+  return qp.select(p, ['pipeline', p.query.pipeline.length - 2]);
 }

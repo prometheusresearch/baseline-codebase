@@ -86,6 +86,7 @@ export function QueryVisNavigateButton(props: {
     <QueryVisButton
       {...rest}
       selectable
+      closeable
       stylesheet={{Root: QueryPane.NavigatePane, Button: QueryButton.NavigateButton}}
       pointer={pointer}
       label={getColumnTitle(pointer.query)}

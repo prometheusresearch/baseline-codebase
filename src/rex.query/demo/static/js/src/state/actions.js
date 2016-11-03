@@ -292,23 +292,21 @@ export function appendNavigate(
   params: {
     pointer?: QueryPointer<*>;
     path?: Array<string>;
-    select?: boolean;
   }
 ): StateUpdater {
   return state => {
     let {
       pointer = qp.make(state.query),
       path = [''],
-      select,
     } = params;
     if (path.length === 0) {
       return state;
     }
-    let {query, selected: nextSelected} = op.insertAfter(
+    let {query} = op.insertAfter(
       {pointer, selected: state.selected},
       q.pipeline(...path.map(q.navigate))
     );
-    return onQuery(state, query, select ? nextSelected : null);
+    return onQuery(state, query, state.selected);
   };
 }
 

@@ -26,7 +26,12 @@ import {
   getByKey
 } from './datatable/index';
 
-type QColumnConfig = ColumnConfig<{query: Query; type: ?Type, focused: boolean}>;
+type QColumnConfig = ColumnConfig<{
+  query: Query;
+  type: ?Type;
+  focusedSeq: Array<string>;
+  focused: boolean;
+}>;
 
 function SeqHeaderCell(props) {
   const {column, onClick, style} = props;
@@ -106,7 +111,12 @@ function getColumnConfigImpl(
           cellDataGetter,
           dataKey,
           label,
-          data: {query, type: query.context.type, focused: false},
+          data: {
+            query,
+            type: query.context.type,
+            focusedSeq,
+            focused: false
+          },
         },
         size: {width: 1, height: 1},
       });
@@ -131,7 +141,12 @@ function getColumnConfigImpl(
           headerCellRenderer: type && type.name === 'seq' ? SeqHeaderCell : undefined,
           dataKey: path.length === 0 ? [query.path] : path,
           label: getColumnTitle(query),
-          data: {query, type, focused},
+          data: {
+            query,
+            type,
+            focusedSeq,
+            focused
+          },
         },
         size: {width: 1, height: 1},
       });
@@ -274,9 +289,9 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
 
 }
 
-function cellDataGetter({rowData, dataKey, columnData: {type}}) {
+function cellDataGetter({rowData, dataKey, columnData: {type, focusedSeq}}) {
   let cellData = rowData != null && typeof rowData === 'object'
-    ? getByKey(rowData, dataKey)
+    ? getByKey(rowData, dataKey, focusedSeq)
     : rowData;
   return cellData;
 }

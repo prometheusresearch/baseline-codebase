@@ -415,20 +415,27 @@ function defaultCellRenderer({cellData}) {
   }
 }
 
-export function getByKey(item: Object, dataKey: Array<string>) {
+export function getByKey(item: Object, dataKey: Array<string>, focus?: Array<string>) {
   if (dataKey.length === 0) {
     return item;
   } else if (dataKey.length === 1) {
-    if (item.__index__ != null && item.__index__ !== 0) {
-      return undefined;
-    }
     return item[dataKey[0]];
   } else if (dataKey.length === 2) {
     item = item[dataKey[0]];
     if (item == null) {
       return item;
     }
-    if (item.__index__ != null && item.__index__ !== 0) {
+    if (
+      item.__index__ != null &&
+      item.__index__ !== 0 &&
+      (
+        (focus == null) ||
+        (
+          focus.length > 1 &&
+          !(focus[0] === dataKey[0] && focus[1] === dataKey[1])
+        )
+      )
+    ) {
       return undefined;
     }
     return item[dataKey[1]];

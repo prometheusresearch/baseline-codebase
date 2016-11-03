@@ -30,17 +30,24 @@ export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
   }
 
   menuButtonMenu: ?HTMLElement = null;
+  menuButtonMenuToggle: ?HTMLElement = null;
   mounted: boolean = true;
 
   toggleMenuOpen = () => {
-    this.setState(state =>
-      ({...state, menuOpen: !state.menuOpen}));
+    if (this.state.menuOpen) {
+      this.setState(state => ({...state, menuOpen: false}));
+    } else {
+      this.setState(state => ({...state, menuOpen: true}));
+    }
   };
 
   maybeCloseMenu = (ev: MouseEvent) => {
     let target = ev.target;
     do {
-      if (this.menuButtonMenu != null && this.menuButtonMenu === target) {
+      if (
+        (this.menuButtonMenu != null && this.menuButtonMenu === target) ||
+        (this.menuButtonMenuToggle != null && this.menuButtonMenuToggle === target)
+      ) {
         return;
       }
       // $FlowFixMe: how?
@@ -54,6 +61,12 @@ export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
   onMenuButtonMenu = (menuButtonMenu: HTMLElement) => {
     this.menuButtonMenu = menuButtonMenu
       ? ReactDOM.findDOMNode(menuButtonMenu)
+      : null;
+  };
+
+  onMenuButtonMenuToggle = (menuButtonMenuToggle: HTMLElement) => {
+    this.menuButtonMenuToggle = menuButtonMenuToggle
+      ? ReactDOM.findDOMNode(menuButtonMenuToggle)
       : null;
   };
 
@@ -87,6 +100,7 @@ export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
           {buttonGroup}
           {menu &&
             <MenuButtonMenuToggle
+              ref={this.onMenuButtonMenuToggle}
               onClick={this.toggleMenuOpen}
               />}
         </HBox>

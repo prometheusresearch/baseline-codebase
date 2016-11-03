@@ -63,13 +63,13 @@ let MenuButtonSecondaryRoot = style(HBox, {
     paddingLeft: 30,
     paddingRight: 10,
     color: '#666',
-    backgroundColor: '#eee',
+    backgroundColor: '#f2f2f2',
     lastOfType: {
       borderBottom: css.none,
     },
     hover: {
       color: '#222',
-      backgroundColor: '#e5e5e5',
+      backgroundColor: '#e7e7e7',
     }
   },
 });

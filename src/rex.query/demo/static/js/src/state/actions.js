@@ -490,8 +490,13 @@ function onQuery(
   ];
 }
 
+// FIXME: we need better sync mechanism, this is just hacky.
+let refetchIndex = 0;
+
 function refetchQuery(state, setState) {
   const {query, api} = state;
+  refetchIndex += 1;
+  const currentRefetchIndex = refetchIndex;
   Promise.resolve().then(_ => {
     if (query.context.type == null) {
       setState(
@@ -504,10 +509,15 @@ function refetchQuery(state, setState) {
         state => ({...state, queryLoading: true, queryInvalid: false})
       );
       Fetch.fetch(api, query).then(data => {
-        setState(
-          'fetchFinish',
-          state => ({...state, data, queryLoading: false})
-        );
+        if (refetchIndex === currentRefetchIndex) {
+          console.log('OK FINE');
+          setState(
+            'fetchFinish',
+            state => ({...state, data, queryLoading: false})
+          );
+        } else {
+          console.log('DROP');
+        }
       });
     }
   });

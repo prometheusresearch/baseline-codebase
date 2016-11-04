@@ -422,7 +422,6 @@ export function renameDefineBinding(
           if (!query.select.hasOwnProperty(k)) {
             continue;
           }
-          console.log(k);
           if (k === prevName) {
             select[nextName] = query.select[prevName];
           } else {

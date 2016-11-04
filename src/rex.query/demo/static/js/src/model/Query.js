@@ -833,6 +833,14 @@ export function mapQuery(query: Query, f: (q: Query) => Query): Query {
   });
 }
 
+export function mapQueryWithTransform<A, B, C>(
+  query: Query,
+  transform: TransformQuery<A, B, C, Query>,
+  a: A, b: B, c: C
+): Query {
+  return mapQuery(query, query => transformQuery(query, transform, a, b, c));
+}
+
 export function mapExpression(
   query: Expression,
   f: (q: Expression) => Expression
@@ -871,6 +879,17 @@ export function mapExpression(
       return f(expression);
     },
   });
+}
+
+export function mapExpressionWithTransform<A, B, C>(
+  expression: Expression,
+  transform: TransformExpression<A, B, C, Expression>,
+  a: A, b: B, c: C
+): Expression {
+  return mapExpression(
+    expression,
+    expression => transformExpression(expression, transform, a, b, c)
+  );
 }
 
 /**

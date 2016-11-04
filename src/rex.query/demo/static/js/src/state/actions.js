@@ -395,21 +395,51 @@ export function renameDefineBinding(
   }
 ): StateUpdater {
   return state => {
-    let pointer = params.pointer
-      ? qp.rebase(params.pointer, state.query)
-      : qp.make(state.query);
-
-    let {query: nextQuery, selected} = op.transformAt({
+    const pointer = qp.rebase(params.pointer, state.query);
+    const prevName = params.pointer.query.binding.name;
+    const nextName = params.name;
+    let {query} = op.transformAt({
       loc: {pointer, selected: pointer},
       transform: prevQuery => {
         invariant(
           prevQuery.name === 'define',
           'Expected "define" query'
         );
-        return {query: q.def(params.name, prevQuery.binding.query)};
+        return {query: q.def(nextName, prevQuery.binding.query)};
       }
     });
-    return onQuery(state, nextQuery, selected);
+    let renameNavigation = query => {
+      if (query.path === prevName) {
+        query = q.navigate(nextName);
+      }
+      return query;
+    };
+    query = q.mapQueryWithTransform(query, {
+      navigate: renameNavigation,
+      select: query => {
+        let select = {};
+        for (let k in query.select) {
+          if (!query.select.hasOwnProperty(k)) {
+            continue;
+          }
+          console.log(k);
+          if (k === prevName) {
+            select[nextName] = query.select[prevName];
+          } else {
+            select[k] = query.select[k];
+          }
+        }
+        return {name: 'select', select, context: query.context};
+      },
+      filter: query => {
+        let predicate = q.mapExpressionWithTransform(query.predicate, {
+          navigate: renameNavigation,
+        });
+        return {name: 'filter', predicate, context: query.context};
+      },
+      otherwise: query => query,
+    });
+    return onQuery(state, ((query: any): QueryPipeline), state.selected);
   };
 }
 

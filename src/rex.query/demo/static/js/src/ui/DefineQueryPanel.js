@@ -7,6 +7,7 @@ import type {QueryPointer} from '../model/QueryPointer';
 import type {Actions} from '../state';
 
 import React from 'react';
+import ReactDOM from 'react-dom';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import * as ReactBox from '@prometheusresearch/react-box';
 
@@ -14,8 +15,9 @@ import * as t from '../model/Type';
 import * as qp from '../model/QueryPointer';
 import * as theme from './Theme';
 import QueryPanelBase from './QueryPanelBase';
-import {MenuTitle, MenuHelp} from './menu';
+import {MenuTitle, MenuGroup, MenuButton, MenuHelp} from './menu';
 import ColumnPicker from './ColumnPicker';
+import PencilIcon from './PencilIcon';
 
 type DefineQueryPanelProps = {
   pointer: QueryPointer<DefineQuery>;
@@ -29,41 +31,85 @@ export default class DefineQueryPanel
     actions: Actions;
   };
 
+  state: {
+    renameOpen: boolean;
+    renameValue: ?string;
+  } = {
+    renameOpen: false,
+    renameValue: null,
+  };
+
+  bindingRenameInput: ?HTMLElement = null;
+
   static contextTypes = {actions: React.PropTypes.object};
 
   render() {
-    let {onClose, pointer} = this.props;
+    let {
+      onClose,
+      pointer
+    } = this.props;
+    let {
+      renameOpen,
+      renameValue,
+    } = this.state;
+
     let type = t.maybeAtom(pointer.query.binding.query.context.type);
+
     let hasConfigurableColumns = (
       type &&
       (type.name === 'record' ||
        type.name === 'entity')
     );
+
     let last = qp.select(
       pointer,
       ['binding', 'query'],
       ['pipeline', pointer.query.binding.query.pipeline.length - 1]
     );
+
     return (
       <QueryPanelBase
         title={pointer.query.binding.name}
         onClose={onClose}
         theme={theme.def}
         pointer={pointer}>
-        {false && <MenuTitle size="large">
-          Rename query
-        </MenuTitle>}
-        {false && <ReactBox.VBox padding={10} marginBottom={10}>
-          <ReactUI.Input
-            disabled
-            style={{color: '#888'}}
-            value={pointer.query.binding.name}
-            onChange={this.onBindingName}
-            />
-          <MenuHelp>
-            This piece of functionality isn't implemented yet. Check back soon!
-          </MenuHelp>
-        </ReactBox.VBox>}
+        <ReactBox.VBox marginBottom={10}>
+          {!renameOpen ?
+            <MenuGroup>
+              <MenuButton
+                icon={<PencilIcon />}
+                onClick={this.onBindingRenameBegin}>
+                Rename query
+              </MenuButton>
+            </MenuGroup> :
+            <ReactBox.VBox>
+              <MenuTitle size="large">
+                Rename query
+              </MenuTitle>
+              <ReactBox.VBox padding={10}>
+                <ReactUI.Input
+                  ref={this.onBindingRenameInputRef}
+                  value={renameValue || ''}
+                  onKeyDown={this.onBindingRenameKey}
+                  onChange={this.onBindingRenameChange}
+                  />
+                <ReactBox.HBox padding={5}>
+                  <ReactUI.FlatSuccessButton
+                    onClick={this.onBindingRenameCommit}
+                    size="small"
+                    groupHorizontally>
+                    Save
+                  </ReactUI.FlatSuccessButton>
+                  <ReactUI.FlatButton
+                    onClick={this.onBindingRenameCancel}
+                    size="small"
+                    groupHorizontally>
+                    Cancel
+                  </ReactUI.FlatButton>
+                </ReactBox.HBox>
+              </ReactBox.VBox>
+            </ReactBox.VBox>}
+        </ReactBox.VBox>
         <MenuTitle size="large">
           Configure columns
         </MenuTitle>
@@ -96,9 +142,58 @@ export default class DefineQueryPanel
     this.context.actions.cut(pointer);
   };
 
-  onBindingName = (e: Event) => {
+  onBindingRenameInputRef = (bindingRenameInput: any) => {
+    this.bindingRenameInput = bindingRenameInput
+      ? ReactDOM.findDOMNode(bindingRenameInput)
+      : null;
+    if (this.bindingRenameInput) {
+      this.bindingRenameInput.focus();
+    }
+  };
+
+  onBindingRenameBegin = () => {
+    this.setState(state => ({
+      ...state,
+      renameOpen: true,
+      renameValue: this.props.pointer.query.binding.name,
+    }));
+  };
+
+  onBindingRenameChange = (e: Event) => {
     let target: {value: string} = (e.target: any);
-    let name = target.value;
-    this.context.actions.renameDefineBinding({pointer: this.props.pointer, name});
+    let renameValue = target.value;
+    this.setState(state => ({...state, renameValue}));
+  };
+
+  onBindingRenameKey = (e: KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      this.onBindingRenameCommit();
+    } else if (e.key === 'Escape') {
+      this.onBindingRenameCancel();
+    }
+  };
+
+  onBindingRenameCommit = () => {
+    const {renameValue} = this.state;
+    this.setState(state => ({
+      ...state,
+      renameOpen: false,
+      renameValue: null
+    }), () => {
+      if (renameValue != null) {
+        this.context.actions.renameDefineBinding({
+          pointer: this.props.pointer,
+          name: renameValue
+        });
+      }
+    });
+  };
+
+  onBindingRenameCancel = () => {
+    this.setState(state => ({
+      ...state,
+      renameOpen: false,
+      renameValue: null
+    }));
   };
 }

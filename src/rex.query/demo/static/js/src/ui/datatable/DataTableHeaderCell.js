@@ -49,6 +49,7 @@ export let DataTableHeaderCellLabel = style('span', {
   displayName: 'DataTableHeaderCellLabel',
   base: {
     userSelect: 'none',
+    textTransform: 'capitalize',
     cursor: 'default',
     display: css.display.inlineBlock,
     maxWidth: '100%',

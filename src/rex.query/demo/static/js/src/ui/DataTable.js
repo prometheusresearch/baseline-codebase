@@ -56,13 +56,14 @@ export function getColumnConfig(
   query: Query,
   focusedSeq: Array<string> = []
 ): QColumnConfig {
-  return getColumnConfigImpl(query, focusedSeq, [], false);
+  return getColumnConfigImpl(query, focusedSeq, [], null, false);
 }
 
 function getColumnConfigImpl(
   query: Query,
   focusedSeq,
   path: Array<string>,
+  bindingName: ?string,
   suppressPath: boolean,
   currentStack?: Array<QColumnConfig>,
 ) {
@@ -80,6 +81,7 @@ function getColumnConfigImpl(
           pipeline[i],
           focusedSeq,
           path.concat(localPath),
+          bindingName,
           false,
           stack,
         );
@@ -102,7 +104,7 @@ function getColumnConfigImpl(
         ? prev.field.dataKey
         : ['0'];
       let label = prev && prev.type === 'field' && prev.field.label
-        ? `${prev.field.label} ${query.aggregate}`
+        ? prev.field.label
         : query.aggregate;
       stack.push({
         type: 'field',
@@ -124,10 +126,12 @@ function getColumnConfigImpl(
     }
     case 'navigate': {
       if (query.path in query.context.prev.scope) {
+        let binding = query.context.prev.scope[query.path];
         return getColumnConfigImpl(
-          query.context.prev.scope[query.path],
+          binding.query,
           focusedSeq,
           path,
+          binding.name,
           true
         );
       }
@@ -140,7 +144,7 @@ function getColumnConfigImpl(
           cellDataGetter,
           headerCellRenderer: type && type.name === 'seq' ? SeqHeaderCell : undefined,
           dataKey: path.length === 0 ? [query.path] : path,
-          label: getColumnTitle(query),
+          label: bindingName ? bindingName : getColumnTitle(query),
           data: {
             query,
             type,
@@ -161,6 +165,7 @@ function getColumnConfigImpl(
               query.select[k],
               focusedSeq,
               path.concat(k),
+              null,
               true
             )
           );

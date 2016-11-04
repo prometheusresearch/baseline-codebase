@@ -175,7 +175,7 @@ export type DomainEntityAttribute = {
  * Usually those introduced by .define(name := ...) combinator.
  */
 export type Scope = {
-  [name: string]: QueryPipeline;
+  [name: string]: DefineQueryBinding;
 };
 
 /**
@@ -433,7 +433,10 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
       }
       let nextScope = {
         ...scope,
-        [query.binding.name]: inferQueryType(context, query.binding.query),
+        [query.binding.name]: {
+          name: query.binding.name,
+          query: inferQueryType(context, query.binding.query),
+        }
       };
       let pipeline = inferQueryType(context, query.binding.query);
       let binding = {
@@ -531,11 +534,20 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
           return withContext(query, {
             prev: context,
             domain,
-            domainEntity: getDomainEntityFromDefinition(domain, query.path, definition),
-            domainEntityAttrtibute: getDomainEntityAttributeFromDefinition(domain, domainEntity, query.path, definition),
+            domainEntity: getDomainEntityFromDefinition(
+              domain,
+              query.path,
+              definition.query
+            ),
+            domainEntityAttrtibute: getDomainEntityAttributeFromDefinition(
+              domain,
+              domainEntity,
+              query.path,
+              definition.query
+            ),
             scope: {},
             inputType: context.type,
-            type: inferQueryType(context, definition).context.type,
+            type: inferQueryType(context, definition.query).context.type,
           });
         }
         // unknown attribute
@@ -566,11 +578,20 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
           return withContext(query, {
             prev: context,
             domain,
-            domainEntity: getDomainEntityFromDefinition(domain, query.path, definition),
-            domainEntityAttrtibute: getDomainEntityAttributeFromDefinition(domain, domainEntity, query.path, definition),
+            domainEntity: getDomainEntityFromDefinition(
+              domain,
+              query.path,
+              definition.query
+            ),
+            domainEntityAttrtibute: getDomainEntityAttributeFromDefinition(
+              domain,
+              domainEntity,
+              query.path,
+              definition.query,
+            ),
             scope,
             inputType: context.type,
-            type: inferQueryType(context, definition).context.type,
+            type: inferQueryType(context, definition.query).context.type,
           });
         }
         // unknown field
@@ -601,11 +622,20 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
           return withContext(query, {
             prev: context,
             domain,
-            domainEntity: getDomainEntityFromDefinition(domain, query.path, definition),
-            domainEntityAttrtibute: getDomainEntityAttributeFromDefinition(domain, domainEntity, query.path, definition),
+            domainEntity: getDomainEntityFromDefinition(
+              domain,
+              query.path,
+              definition.query
+            ),
+            domainEntityAttrtibute: getDomainEntityAttributeFromDefinition(
+              domain,
+              domainEntity,
+              query.path,
+              definition.query
+            ),
             scope,
             inputType: context.type,
-            type: inferQueryType(context, definition).context.type,
+            type: inferQueryType(context, definition.query).context.type,
           });
         }
         // unknown entity
@@ -918,7 +948,7 @@ export function resolveName(context: Context, name: string): ?t.Type {
   }
 
   if (scope[name] != null) {
-    let ctx = inferQueryType(context, scope[name]).context;
+    let ctx = inferQueryType(context, scope[name].query).context;
     return ctx.type;
   }
 

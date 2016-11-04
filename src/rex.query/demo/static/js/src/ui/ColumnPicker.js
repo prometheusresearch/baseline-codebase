@@ -367,7 +367,7 @@ function getNavigation(pointer: QueryPointer<>, type: ?Type): Array<Navigation> 
 
   for (let k in scope) {
     if (scope.hasOwnProperty(k)) {
-      let navQuery = q.inferQueryType(contextAtQuery, scope[k]);
+      let navQuery = q.inferQueryType(contextAtQuery, scope[k].query);
       navigation.push({
         type: 'query',
         value: k,

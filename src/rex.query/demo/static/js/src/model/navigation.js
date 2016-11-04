@@ -64,7 +64,7 @@ export function getNavigation(context: q.Context, type: ?t.Type) {
       navigation.push({
         value: k,
         label: k,
-        context: q.inferQueryType(contextAtQuery, scope[k]).context,
+        context: q.inferQueryType(contextAtQuery, scope[k].query).context,
       });
     }
   }

@@ -510,13 +510,10 @@ function refetchQuery(state, setState) {
       );
       Fetch.fetch(api, query).then(data => {
         if (refetchIndex === currentRefetchIndex) {
-          console.log('OK FINE');
           setState(
             'fetchFinish',
             state => ({...state, data, queryLoading: false})
           );
-        } else {
-          console.log('DROP');
         }
       });
     }

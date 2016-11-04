@@ -842,14 +842,14 @@ export function mapQuery(query: Query, f: (q: Query) => Query): Query {
           select[k] = mapQuery(query.select[k], f);
         }
       }
-      return {name: 'select', ...f(query), select};
+      return f({name: 'select', ...query, select});
     },
     define(query) {
       let binding = {
         name: query.binding.name,
         query: mapQueryPipeline(query.binding.query, f),
       };
-      return {name: 'define', ...f(query), binding};
+      return f({name: 'define', ...query, binding});
     },
     filter(query) {
       return {

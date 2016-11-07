@@ -49,12 +49,6 @@ export default class QueryVisToolbar
               icon={<PlusIcon />}>
               Filter
             </QueryVisToolbarButton>}
-          {canAggregate &&
-            <QueryVisToolbarButton
-              onClick={this.onAggregate}
-              icon={<PlusIcon />}>
-              Aggregate
-            </QueryVisToolbarButton>}
           {canNavigate &&
             <QueryVisToolbarButton
               disabled={disableAdd}

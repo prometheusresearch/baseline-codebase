@@ -386,6 +386,43 @@ export function appendAggregate(params: {pointer: ?QueryPointer<*>}): StateUpdat
 }
 
 /**
+ * Append a new aggregate combinator at pointer.
+ */
+export function appendNavigateAndAggregate(params: {
+  pointer: QueryPointer<QueryPipeline>;
+  navigate: ?q.NavigateQuery;
+  aggregate: q.DomainAggregate;
+}): StateUpdater {
+  return state => {
+    let {navigate, aggregate, pointer} = params;
+    pointer = qp.rebase(pointer, state.query)
+    let {selected, query} = op.transformAt({
+      loc: {pointer, selected: state.selected},
+      transform: query => {
+        invariant(
+          query.name === 'pipeline',
+          'Expected "pipeline" query'
+        );
+        let pipeline = query.pipeline.slice(0);
+        pipeline.pop();
+        if (navigate) {
+          pipeline.push(navigate);
+        }
+        pipeline.push(q.aggregate(aggregate.name));
+        return {
+          query: {
+            name: 'pipeline',
+            pipeline,
+            context: query.context,
+          }
+        };
+      }
+    });
+    return onQuery(state, query, state.prevSelected, null);
+  };
+}
+
+/**
  * Rename define combinator binding at pointer.
  */
 export function renameDefineBinding(

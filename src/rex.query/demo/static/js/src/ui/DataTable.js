@@ -85,6 +85,7 @@ function getColumnConfigImpl(
           false,
           stack,
         );
+        bindingName = null;
         if (nav.type !== 'field' && skipAllowed) {
           break;
         }

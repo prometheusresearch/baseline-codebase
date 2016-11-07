@@ -7,6 +7,7 @@ import type {QueryVisTheme} from './Theme';
 import color from 'color';
 import React from 'react';
 import CloseIcon from 'react-icons/lib/fa/close';
+import ArrowLeftIcon from 'react-icons/lib/fa/arrow-left';
 import {VBox, HBox} from '@prometheusresearch/react-box';
 import {style} from 'react-stylesheet';
 import * as css from 'react-stylesheet/css';
@@ -20,6 +21,7 @@ type QueryPanelBaseProps = {
   noBorder?: boolean;
   disableClose?: boolean;
   onClose: () => *;
+  onBack: () => *;
 };
 
 export default class QueryPanelBase extends React.Component<*, QueryPanelBaseProps, *> {
@@ -35,6 +37,7 @@ export default class QueryPanelBase extends React.Component<*, QueryPanelBasePro
       children,
       onClose,
       disableClose,
+      onBack,
       noBorder,
     } = this.props;
     let border = !noBorder
@@ -44,7 +47,16 @@ export default class QueryPanelBase extends React.Component<*, QueryPanelBasePro
       <QueryPanelBaseRoot
         style={{borderLeft: border}}>
         <QueryPanelBaseWrapper>
-          <HBox padding={10}>
+          <HBox padding={10} alignItems="center">
+            {onBack != null &&
+              <HBox paddingRight={10}>
+                <ReactUI.QuietButton
+                  title="Back"
+                  size="small"
+                  icon={<ArrowLeftIcon />}
+                  onClick={onBack}
+                  />
+              </HBox>}
             <QueryPanelBaseTitle grow={1}>
               {title}
             </QueryPanelBaseTitle>

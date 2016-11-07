@@ -172,6 +172,7 @@ let MenuButtonRoot = style(VBox, {
     fontWeight: 200,
     borderBottom: css.border(1, '#ddd'),
     userSelect: 'none',
+    textTransform: 'capitalize',
   },
   selected: {
     color: '#1f85f5',

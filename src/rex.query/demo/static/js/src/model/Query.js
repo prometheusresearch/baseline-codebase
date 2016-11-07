@@ -153,6 +153,7 @@ export type Domain = {
 
 export type DomainAggregate = {
   title: string;
+  name: string;
   isAllowed: (typ: t.Type) => boolean;
   makeType: (typ: t.Type) => t.Type;
 };

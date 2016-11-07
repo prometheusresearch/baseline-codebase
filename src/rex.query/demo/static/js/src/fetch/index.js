@@ -67,27 +67,38 @@ type Catalog = {
  */
 const aggregate = {
   count: {
+    name: 'count',
     title: 'Count',
     makeType: _typ => t.numberType,
-    isAllowed: typ => typ.name === 'seq',
+    isAllowed: typ => typ.name === 'seq' && isEntityLike(typ.type),
   },
   exists: {
+    name: 'exists',
     title: 'Exists',
     makeType: _typ => t.booleanType,
-    isAllowed: typ => typ.name === 'seq',
+    isAllowed: typ => typ.name === 'seq' && isEntityLike(typ.type),
   },
   sum: {
+    name: 'sum',
     title: 'Sum',
     makeType: _typ => t.numberType,
     isAllowed: typ => typ.name === 'seq' && isNumeric(typ.type),
   },
   min: {
+    name: 'min',
     title: 'Min',
     makeType: _typ => t.numberType,
     isAllowed: typ => typ.name === 'seq' && isNumeric(typ.type),
   },
+  max: {
+    name: 'max',
+    title: 'Max',
+    makeType: _typ => t.numberType,
+    isAllowed: typ => typ.name === 'seq' && isNumeric(typ.type),
+  },
   mean: {
-    title: 'Mean',
+    name: 'mean',
+    title: 'Average',
     makeType: _typ => t.numberType,
     isAllowed: typ => typ.name === 'seq' && isNumeric(typ.type),
   },
@@ -99,6 +110,13 @@ function isNumeric(type: t.Type) {
     type.name === 'date' ||
     type.name === 'time' ||
     type.name === 'datetime'
+  );
+}
+
+function isEntityLike(type: t.Type) {
+  return (
+    type.name === 'entity' ||
+    type.name === 'record'
   );
 }
 

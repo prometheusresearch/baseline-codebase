@@ -42,6 +42,7 @@ function getPipelineFocusList(
   } else if (type.name === 'record' || type.name === 'entity') {
     // TODO: Remove flattenPipeline, make sure it's not needed.
     let pipeline = flattenPipeline(query).pipeline;
+    let seenNavigate = false;
     let localPath = [];
     for (let i = 0; i < pipeline.length; i++) {
       let item = pipeline[i];
@@ -55,6 +56,10 @@ function getPipelineFocusList(
       }
       if (item.name === 'navigate' && !suppressPath) {
         localPath = item.path;
+        seenNavigate = true;
+      }
+      if (item.name === 'navigate' && seenNavigate) {
+        continue;
       }
       result = result.concat(
         getQueryFocusList(

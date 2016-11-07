@@ -7,7 +7,7 @@
 import invariant from 'invariant';
 
 import type {Query, QueryPipeline} from '../Query';
-import type {KeyPath, QueryPointer} from '../QueryPointer';
+import type {QueryPointer} from '../QueryPointer';
 
 import * as q from '../Query';
 import * as qp from '../QueryPointer';

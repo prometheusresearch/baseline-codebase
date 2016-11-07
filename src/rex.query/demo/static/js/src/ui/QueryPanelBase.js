@@ -4,7 +4,6 @@
 
 import type {QueryVisTheme} from './Theme';
 
-import color from 'color';
 import React from 'react';
 import CloseIcon from 'react-icons/lib/fa/close';
 import ArrowLeftIcon from 'react-icons/lib/fa/arrow-left';

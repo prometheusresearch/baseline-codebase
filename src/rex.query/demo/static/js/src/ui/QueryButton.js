@@ -6,7 +6,6 @@ import React from 'react'
 import * as css from 'react-stylesheet/css';
 import {style} from 'react-stylesheet';
 import {HBox} from '@prometheusresearch/react-box';
-import color from 'color';
 import * as theme from './Theme';
 import * as Pane from './QueryPane';
 

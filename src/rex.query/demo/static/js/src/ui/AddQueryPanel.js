@@ -8,10 +8,9 @@ import type {Actions} from '../state';
 import React from 'react';
 
 import * as q from '../model/Query';
-import * as t from '../model/Type';
 import * as qp from '../model/QueryPointer';
 import * as theme from './Theme';
-import {MenuHelp, MenuGroup, MenuButton} from './menu';
+import {MenuGroup, MenuButton} from './menu';
 import QueryPanelBase from './QueryPanelBase';
 import ColumnPicker from './ColumnPicker';
 import AddAggregateMenu from './AddAggregateMenu';

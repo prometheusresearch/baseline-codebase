@@ -5,7 +5,6 @@
 import * as css from 'react-stylesheet/css';
 import {style} from 'react-stylesheet';
 import {VBox} from '@prometheusresearch/react-box';
-import color from 'color';
 import * as theme from './Theme';
 
 function createPane({displayName, theme, noActiveBorder}: {

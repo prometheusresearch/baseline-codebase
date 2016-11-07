@@ -8,7 +8,7 @@ import invariant from 'invariant';
 
 import type {QueryState, QueryPointerState} from './index';
 import type {QueryPipeline} from '../Query';
-import type {KeyPath, QueryPointer} from '../QueryPointer';
+import type {KeyPath} from '../QueryPointer';
 
 import * as q from '../Query';
 import * as qp from '../QueryPointer';
@@ -96,17 +96,4 @@ function growNavigationImpl(
       ].concat(res.keyPath),
     };
   }
-}
-
-function pathFromPointer(pointer: QueryPointer<*>): Array<string> {
-  return qp.trace(pointer)
-    .map(pointer => {
-      let pointerPrev = qp.prev(pointer);
-      if (pointerPrev && pointerPrev.query.name === 'select') {
-        return String(pointer.path[pointer.path.length - 1][1]);
-      } else {
-        return null;
-      }
-    })
-    .filter(Boolean);
 }

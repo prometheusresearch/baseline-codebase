@@ -396,7 +396,7 @@ export function appendNavigateAndAggregate(params: {
   return state => {
     let {navigate, aggregate, pointer} = params;
     pointer = qp.rebase(pointer, state.query)
-    let {selected, query} = op.transformAt({
+    let {query} = op.transformAt({
       loc: {pointer, selected: state.selected},
       transform: query => {
         invariant(

@@ -9,6 +9,7 @@
 ===================
 
 * Added support for pointers with ``!include`` directive.
+* Added ``!include/python`` directive to include calculated values.
 
 
 1.14.0 (2016-10-25)

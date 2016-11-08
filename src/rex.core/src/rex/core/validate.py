@@ -239,6 +239,8 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
                                    node.start_mark, node.end_mark, u'')
         if node.tag == u'!setting':
             return self.setting(node)
+        if node.tag == u'!include/python':
+            return self.include_python(node)
         if self.validate is not None:
             return self.validate.construct(self, node)
         return super(ValidatingLoader, self).construct_object(node, deep)
@@ -322,6 +324,32 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
             if not hasattr(settings, node.value):
                 raise Error("Got unknown setting:", node.value.encode('utf-8'))
             value = getattr(settings, node.value)
+            if self.validate is not None:
+                value = self.validate(value)
+        return value
+
+    def include_python(self, node):
+        if not isinstance(node, yaml.ScalarNode):
+            raise yaml.constructor.ConstructorError(None, None,
+                    "expected a 'module:object' string, but found %s" % node.id,
+                    node.start_mark)
+        with guard("While parsing:", Location.from_node(node)):
+            parts = node.value.split(":", 1)
+            if len(parts) != 2 or not parts[0] or not parts[1]:
+                raise Error("Unknown python object format. "
+                            "Expected 'module:object'",
+                            node.value.encode('utf-8'))
+            [module, item] = [p.encode('utf-8') for p in parts]
+            try:
+                m = __import__(module, fromlist=[item])
+                if not hasattr(m, item):
+                    raise ImportError
+                else:
+                    obj = getattr(m, item)
+            except ImportError:
+                raise Error("Cannot import '%s' from '%s'" % (item, module),
+                            node.value.encode('utf-8'))
+            value = obj() if callable(obj) else obj
             if self.validate is not None:
                 value = self.validate(value)
         return value

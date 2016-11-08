@@ -1,6 +1,7 @@
 
 from rex.core import Setting, StrVal
 from rex.core import Extension
+from rex.core import get_packages
 
 class DemoFolderSetting(Setting):
     """Directory with demo data."""
@@ -41,3 +42,6 @@ class HelloCommand(Command):
     def __call__(self):
         return "Hello, World!"
 
+FOO = 'BAR'
+def main_package():
+    return get_packages()[0].name

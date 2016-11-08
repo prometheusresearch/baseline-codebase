@@ -1537,3 +1537,69 @@ It is an error to use ``!setting`` when no Rex application is active::
           in "/.../setting.yaml", line 1, column 2
 
 
+``!include/python``
+============
+
+You can use Python objects as constants in your YAML documents with the help
+of the ``!include/python`` tags::
+
+    >>> from rex.core import Rex
+    >>> demo = Rex('rex.core_demo', demo_folder='demo')
+    >>> demo.on()
+    >>> FOO = 'BAR'
+
+    >>> sandbox.rewrite('setting.yaml',
+    ...                 """bar_is: !include/python rex.core_demo:FOO """)
+
+    >>> any_val.parse(sandbox.open('setting.yaml'))
+    {'bar_is': 'BAR'}
+
+If the object imported is callable - it will be called::
+
+    >>> sandbox.rewrite('setting.yaml',
+    ...                 """pkg: !include/python rex.core_demo:main_package """)
+
+    >>> any_val.parse(sandbox.open('setting.yaml'))
+    {'pkg': 'rex.core_demo'}
+
+Be careful when specifying an object::
+
+    >>> sandbox.rewrite('setting.yaml',
+    ...                 """pkg: !include/python {module: rex.core_demo, object: FOO} """)
+
+    >>> any_val.parse(sandbox.open('setting.yaml'))            # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Failed to parse a YAML document:
+        expected a 'module:object' string, but found mapping
+          in "/.../setting.yaml", line 1, column 6
+
+    >>> sandbox.rewrite('setting.yaml',
+    ...                 """pkg: !include/python rex.core_demo.FOO """)
+
+    >>> any_val.parse(sandbox.open('setting.yaml'))            # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Unknown python object format. Expected 'module:object'
+        rex.core_demo.FOO
+    ...
+
+    >>> sandbox.rewrite('setting.yaml',
+    ...                 """pkg: !include/python rex.core.demo:FOO """)
+
+    >>> any_val.parse(sandbox.open('setting.yaml'))            # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Cannot import 'FOO' from 'rex.core.demo'
+        rex.core.demo:FOO
+    ...
+
+    >>> sandbox.rewrite('setting.yaml',
+    ...                 """pkg: !include/python rex.core_demo:FO """)
+
+    >>> any_val.parse(sandbox.open('setting.yaml'))            # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+      ...
+    Error: Cannot import 'FO' from 'rex.core_demo'
+        rex.core_demo:FO
+    ...

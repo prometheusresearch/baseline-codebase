@@ -94,7 +94,6 @@ class WizardWidgetBase(Widget):
     def __init__(self, **values):
         super(WizardWidgetBase, self).__init__(**values)
         self._port_cache = {}
-        self._constructed_actions = {}
         if isinstance(self.actions, Deferred):
             with self.domain:
                 self.actions = self.actions.resolve()
@@ -106,18 +105,12 @@ class WizardWidgetBase(Widget):
             self.path = self.path.resolve(validate_path)
 
     def _resolve_action(self, ref):
-        if not ref in self._constructed_actions:
-            action = resolve_action_reference(
-                ref,
-                actions=self.actions,
-                package=self.package,
-                domain=self.domain,
-            )
-            if isinstance(action, WizardBase):
-                action.included = True
-            self.states = self.domain.merge(action.domain)
-            self._constructed_actions[ref] = action
-        return self._constructed_actions[ref]
+        action = self.actions[ref]
+        if isinstance(action, WizardBase) and not action.included:
+            action = action.__validated_clone__()
+            action.included = True
+            self.actions[ref] = action
+        return action
 
     @responder
     def data(self, req):
@@ -460,8 +453,8 @@ class WizardBase(WizardWidgetBase, ActionBase):
         def _apply_override(self, wizard, override):
             if isinstance(override, Deferred):
                 override = override.resolve(
-                    ActionMapVal(action_map=wizard._constructed_actions))
-            actions = dict(wizard._constructed_actions)
+                    ActionMapVal(action_map=wizard.actions))
+            actions = dict(wizard.actions)
             domain = wizard.domain
             for k, v in override.items():
                 if not k in actions:
@@ -507,10 +500,9 @@ def _collect_actions(wizard):
     # reloads.
 
     if not wizard.included:
-        if not len(set(wizard.actions) - set(wizard._constructed_actions)) > 0:
-            wizard.typecheck()
+        wizard.typecheck()
 
-    for orig_key, action in wizard._constructed_actions.items():
+    for orig_key, action in wizard.actions.items():
         key = '%s@%s' % (wizard.uid, orig_key)
         key = hashlib.md5(key).hexdigest()
         actions[key] = action

@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.i18n_demo',
-    version='0.5.1',
+    version='0.5.2',
     description='Demo package for testing rex.i18n',
     package_dir={'': 'src'},
     packages=find_packages('src'),

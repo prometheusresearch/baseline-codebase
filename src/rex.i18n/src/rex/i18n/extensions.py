@@ -101,7 +101,7 @@ class AcceptLanguageLocaleDetector(LocaleDetector):
         ]
 
         lid = None
-        if request.accept_language:
+        if bool(request.accept_language):
             # The request.accept_language.best_match() algorithm provided by
             # WebOb isn't great. For a list of equal-quality offered languages,
             # it doesn't give preference to exact matches. So, if both en and
@@ -124,8 +124,8 @@ class AcceptLanguageLocaleDetector(LocaleDetector):
                     lid = lang
                     break
 
-        if not lid:
-            lid = request.accept_language.best_match(supported)
+            if not lid:
+                lid = request.accept_language.best_match(supported)
 
         if lid:
             try:

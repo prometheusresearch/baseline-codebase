@@ -21,7 +21,7 @@ This function will retrieve the locale that is being used on the current
 thread::
 
     >>> get_locale()
-    Locale('fr')
+    Locale(u'fr')
 
 
 get_locale_direction

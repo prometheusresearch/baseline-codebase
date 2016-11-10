@@ -15,15 +15,15 @@ The LocaleVal validator takes in a POSIX/RFC5646 locale identifier or a Babel
     >>> validator = LocaleVal()
 
     >>> validator('en')
-    Locale('en')
+    Locale(u'en')
     >>> validator('en_GB')
-    Locale('en', territory='GB')
+    Locale(u'en', territory=u'GB')
     >>> validator('en_GB.UTF-8')
-    Locale('en', territory='GB')
+    Locale(u'en', territory=u'GB')
     >>> validator('en-GB')
-    Locale('en', territory='GB')
+    Locale(u'en', territory=u'GB')
     >>> validator('zh-Hans')
-    Locale('zh', script='Hans')
+    Locale(u'zh', script=u'Hans')
 
     >>> validator('foobar')
     Traceback (most recent call last):

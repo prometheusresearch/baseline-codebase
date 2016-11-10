@@ -5,6 +5,13 @@ REX.I18N Change Log
 .. contents:: Table of Contents
 
 
+0.5.2 (2016-xx-xx)
+==================
+
+* Fixed an issue that caused the AcceptsLanguageLocaleDetector to always
+  identify a locale, even when the header didn't exist.
+
+
 0.5.1 (2016-10-11)
 ==================
 

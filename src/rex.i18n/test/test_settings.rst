@@ -19,16 +19,16 @@ be set to any valid POSIX Locale identifier::
     >>> app = Rex('__main__', 'rex.i18n')
     >>> with app:
     ...     get_settings().i18n_default_locale
-    Locale('en')
+    Locale(u'en')
 
     >>> app = Rex('__main__', 'rex.i18n', i18n_default_locale='fr_CA')
     >>> with app:
     ...     get_settings().i18n_default_locale
-    Locale('fr', territory='CA')
+    Locale(u'fr', territory=u'CA')
     >>> app = Rex('__main__', 'rex.i18n', i18n_default_locale='fr-CA')
     >>> with app:
     ...     get_settings().i18n_default_locale
-    Locale('fr', territory='CA')
+    Locale(u'fr', territory=u'CA')
 
     >>> app = Rex('__main__', 'rex.i18n', i18n_default_locale='foobar')
     Traceback (most recent call last):
@@ -82,21 +82,21 @@ valid POSIX Locale identifiers::
     >>> app = Rex('__main__', 'rex.i18n')
     >>> with app:
     ...     get_settings().i18n_supported_locales
-    [Locale('en')]
+    [Locale(u'en')]
 
     >>> app = Rex('__main__', 'rex.i18n', i18n_supported_locales=['en', 'fr_CA'])
     >>> with app:
     ...     get_settings().i18n_supported_locales
-    [Locale('en'), Locale('fr', territory='CA')]
+    [Locale(u'en'), Locale(u'fr', territory=u'CA')]
     >>> app = Rex('__main__', 'rex.i18n', i18n_supported_locales=['en', 'fr-CA'])
     >>> with app:
     ...     get_settings().i18n_supported_locales
-    [Locale('en'), Locale('fr', territory='CA')]
+    [Locale(u'en'), Locale(u'fr', territory=u'CA')]
 
     >>> app = Rex('__main__', 'rex.i18n', i18n_supported_locales=['fr_CA', 'ar'])
     >>> with app:
     ...     get_settings().i18n_supported_locales
-    [Locale('fr', territory='CA'), Locale('ar')]
+    [Locale(u'fr', territory=u'CA'), Locale(u'ar')]
 
     >>> app = Rex('__main__', 'rex.i18n', i18n_supported_locales=['foobar'])
     Traceback (most recent call last):

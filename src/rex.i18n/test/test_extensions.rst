@@ -10,7 +10,7 @@ Set up the environment::
     >>> from rex.i18n.extensions import *
     >>> from rex.core import Rex
     >>> from webob import Request
-    >>> rex = Rex('rex.i18n', i18n_default_locale='en', i18n_supported_locales=['en', 'fr', 'en-GB'])
+    >>> rex = Rex('rex.i18n', i18n_default_locale='en', i18n_supported_locales=['fr', 'en', 'en-GB'])
     >>> rex.on()
 
 
@@ -36,7 +36,7 @@ session, if one exists::
     >>> req = Request.blank('/')
     >>> req.environ['rex.session'] = {'i18n_locale': 'es'}
     >>> SessionLocaleDetector.detect_locale(req)
-    Locale('es')
+    Locale(u'es')
 
     >>> req.environ['rex.session'] = {'i18n_locale': 'fake'}
     >>> SessionLocaleDetector.detect_locale(req) is None
@@ -54,16 +54,16 @@ This detector will try to find the best locale to use based on what is in the
 Accept-Language header sent by the browser::
 
     >>> req = Request.blank('/')
-    >>> AcceptLanguageLocaleDetector.detect_locale(req)
-    Locale('en')
+    >>> AcceptLanguageLocaleDetector.detect_locale(req) is None
+    True
 
     >>> req.accept_language = 'fr,en;q=0.5,ar'
     >>> AcceptLanguageLocaleDetector.detect_locale(req)
-    Locale('fr')
+    Locale(u'fr')
 
     >>> req.accept_language = 'en-GB,en;q=0.5'
     >>> AcceptLanguageLocaleDetector.detect_locale(req)
-    Locale('en', territory='GB')
+    Locale(u'en', territory=u'GB')
 
 
 DefaultLocaleDetector
@@ -74,7 +74,7 @@ application's settings::
 
     >>> req = Request.blank('/')
     >>> DefaultLocaleDetector.detect_locale(req)
-    Locale('en')
+    Locale(u'en')
 
 
 TimezoneDetector

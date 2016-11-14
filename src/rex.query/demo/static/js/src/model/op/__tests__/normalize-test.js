@@ -25,7 +25,7 @@ function stripped({query, selected}) {
 
 describe('normalize()', function() {
 
-  jestMatchers.addMatchers({
+  jestMatchers.expect.extend({
     toBeNormalizedAs(received, expected) {
       let result = stripped(normalize({
         query: received.query,

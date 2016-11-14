@@ -12,6 +12,7 @@ import IconEllipsis from 'react-icons/lib/fa/ellipsis-v';
 type MenuButtonProps = {
   icon?: ?string | React$Element<*>;
   selected?: boolean;
+  disabled?: boolean;
   onIconClick?: (ev: MouseEvent) => *;
   tabIndex?: number;
   menu?: React$Element<*>;
@@ -75,6 +76,7 @@ export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
       icon,
       menu,
       selected,
+      disabled,
       children,
       buttonGroup,
       onIconClick,
@@ -84,10 +86,11 @@ export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
     let {
       menuOpen,
     } = this.state;
+    let variant = {selected, disabled};
     return (
-      <MenuButtonRoot {...rest} variant={{selected}} tabIndex={tabIndex}>
+      <MenuButtonRoot {...rest} variant={variant} tabIndex={tabIndex}>
         <HBox>
-          <MenuButtonWrapper>
+          <MenuButtonWrapper variant={variant}>
             <VBox
               onClick={onIconClick}
               width={15}
@@ -100,6 +103,7 @@ export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
           {buttonGroup}
           {menu &&
             <MenuButtonMenuToggle
+              variant={variant}
               ref={this.onMenuButtonMenuToggle}
               onClick={this.toggleMenuOpen}
               />}
@@ -160,6 +164,11 @@ let MenuButtonMenuToggleRoot = style(VBox, {
       color: '#222',
       background: '#fafafa',
     },
+  },
+  disabled: {
+    hover: {
+      background: '#fff',
+    }
   }
 });
 
@@ -176,6 +185,10 @@ let MenuButtonRoot = style(VBox, {
   },
   selected: {
     color: '#1f85f5',
+  },
+  disabled: {
+    color: '#aaa',
+    cursor: 'not-allowed',
   },
 });
 
@@ -195,6 +208,11 @@ let MenuButtonWrapper = style(HBox, {
     paddingRight: 10,
     hover: {
       background: '#fafafa',
+    },
+  },
+  disabled: {
+    hover: {
+      background: '#fff',
     }
   }
 });

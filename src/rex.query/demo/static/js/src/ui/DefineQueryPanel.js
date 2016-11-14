@@ -57,8 +57,7 @@ export default class DefineQueryPanel
 
     let hasConfigurableColumns = (
       type &&
-      (type.name === 'record' ||
-       type.name === 'entity')
+      type.name === 'record'
     );
 
     let last = qp.select(

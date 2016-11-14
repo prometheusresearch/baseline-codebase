@@ -22,6 +22,7 @@ type Navigation = {
   label: string;
   context: Context;
   pointer?: QueryPointer<>;
+  groupBy?: boolean;
 };
 
 type ColumnPickerProps = {
@@ -59,7 +60,7 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
     let {type} = pointer.query.context;
     let active = getNavigationPointerMap(pointer);
     let options = pointer.query.name === 'select' || type == null
-      ? getNavigation(pointer, pointer.query.context.inputType)
+      ? getNavigation(pointer, pointer.query.context.prev.type)
       : getNavigation(pointer, pointer.query.context.type);
     let {searchTerm} = this.state;
     if (searchTerm != null) {
@@ -71,11 +72,13 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
     let entityList = [];
     let queryList = [];
     let attributeList = [];
+    let groupByAttributeList = [];
     options.forEach(column => {
       let pointer = active[column.value];
       let button = (
         <ColumnPickerButton
           key={column.value}
+          disabled={column.groupBy}
           column={column}
           pointer={pointer}
           onSelect={onSelect}
@@ -84,7 +87,9 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
           actions={this.context.actions}
           />
       );
-      if (column.type === 'query') {
+      if (column.groupBy) {
+        groupByAttributeList.push(button);
+      } else if (column.type === 'query') {
         queryList.push(button);
       } else if (column.type === 'entity') {
         entityList.push(column);
@@ -121,6 +126,13 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
                 menu={entityList}
                 onSelect={this.onDefine}
                 />
+            </VBox>}
+          {showSelectMenu && groupByAttributeList.length > 0 &&
+            <VBox paddingBottom={10}>
+              <MenuGroup
+                title="Group by columns">
+                {groupByAttributeList}
+              </MenuGroup>
             </VBox>}
           {showSelectMenu && queryList.length > 0 &&
             <VBox paddingBottom={10}>
@@ -260,6 +272,7 @@ class ColumnPickerButton extends React.Component {
     onSelect: (payload: {path: string}) => *;
     onNavigate: (payload: {path: string}) => *;
     onSelectRemove: (payload: {path: string, pointer: QueryPointer<>}) => *;
+    disabled: boolean;
     actions: Actions;
   };
 
@@ -279,13 +292,14 @@ class ColumnPickerButton extends React.Component {
   };
 
   render() {
-    let {column, pointer} = this.props;
+    let {column, pointer, disabled} = this.props;
     return (
       <MenuButton
+        disabled={disabled}
         selected={pointer != null}
         icon={pointer != null ? '✓' : null}
         menu={
-          feature.ENABLE_ATTRIBUTE_CONTEXT_MENU && [
+          feature.ENABLE_ATTRIBUTE_CONTEXT_MENU && !disabled && [
             <MenuButtonSecondary
               onClick={this.onNavigate}
               key="navigate">
@@ -327,8 +341,8 @@ function getNavigation(pointer: QueryPointer<>, type: ?Type): Array<Navigation> 
           });
         }
       }
-    } else if (baseType.name === 'entity') {
-      let attribute = domain.entity[baseType.entity].attribute;
+    } else if (baseType.name === 'record') {
+      let attribute = t.recordAttribute(baseType);
       for (let k in attribute) {
         if (attribute.hasOwnProperty(k)) {
           let navQuery = q.inferQueryType(contextAtQuery, q.navigate(k));
@@ -336,18 +350,19 @@ function getNavigation(pointer: QueryPointer<>, type: ?Type): Array<Navigation> 
           navigation.push({
             type: type.name === 'seq'
               ? 'entity'
-              : t.atom(type).name === 'entity'
+              : t.atom(type).name === 'record'
               ? 'query'
               : 'attribute',
             value: k,
-            label: attribute[k].title,
+            label: attribute[k].title || k,
             context: navQuery.context,
+            groupBy: attribute[k].groupBy,
           });
         }
       }
     } else if (baseType.name === 'record') {
-      for (let k in baseType.fields) {
-        if (baseType.fields.hasOwnProperty(k)) {
+      for (let k in baseType.attribute) {
+        if (baseType.attribute.hasOwnProperty(k)) {
           let navQuery = q.inferQueryType(contextAtQuery, q.navigate(k));
           navigation.push({
             // FIXME: This is incorrect!

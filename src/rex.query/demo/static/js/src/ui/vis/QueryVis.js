@@ -93,13 +93,7 @@ export function QueryVisNavigateButton(props: {
 }
 
 function getColumnTitle(query: q.NavigateQuery): string {
-  if (query.context.domainEntityAttrtibute) {
-    return query.context.domainEntityAttrtibute.title;
-  } else if (query.context.domainEntity) {
-    return query.context.domainEntity.title;
-  } else {
-    return query.path;
-  }
+  return query.path;
 }
 
 export function QueryVisDefineButton(props: {
@@ -189,6 +183,22 @@ function getLabelForFilterExpression(expression: Expression): string {
     }
   }
   return 'Filter';
+}
+
+export function QueryVisGroupButton(props: {
+  pointer: QueryPointer<q.GroupQuery>;
+}) {
+  const {pointer, ...rest} = props;
+  return (
+    <QueryVisButton
+      {...rest}
+      selectable
+      closeable
+      stylesheet={{Root: QueryPane.GroupPane, Button: QueryButton.GroupButton}}
+      pointer={pointer}
+      label={`Group by ${pointer.query.byPath.join(', ')}`}
+      />
+  );
 }
 
 export function QueryVisAggregateButton(props: {
@@ -326,6 +336,13 @@ function QueryVisQueryButton(props: {
       <QueryVisDefineButton
         {...rest}
         pointer={((pointer: any): QueryPointer<q.DefineQuery>)}
+        />
+    );
+  } else if (pointer.query.name === 'group') {
+    return (
+      <QueryVisGroupButton
+        {...rest}
+        pointer={((pointer: any): QueryPointer<q.GroupQuery>)}
         />
     );
   } else if (pointer.query.name === 'aggregate') {

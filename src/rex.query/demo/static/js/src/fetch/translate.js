@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Query, Expression} from '../model/Query';
+import type {Query, Expression} from '../model';
 
 import invariant from 'invariant';
 import * as feature from '../feature';
@@ -90,7 +90,7 @@ function translateQuery(
 ): SerializedQuery {
   switch (query.name) {
     case 'here':
-      return HERE;
+      return prev;
 
     case 'pipeline': {
       let res = query.pipeline.reduce((prev, q) => {
@@ -130,6 +130,13 @@ function translateQuery(
 
     case 'aggregate':
       return [query.aggregate, prev];
+
+    case 'group':
+      if (query.byPath.length === 0) {
+        return prev;
+      } else {
+        return ['group', prev, ...query.byPath.map(p => [p])];
+      }
 
     case 'filter':
       if (!query.predicate) {

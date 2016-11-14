@@ -1,45 +1,27 @@
 exports[`insertAfter() [individual]!name 1`] = `
 Object {
   "context": Object {
-    "domain": Object {
-      "aggregate": Object {},
-      "entity": Object {},
-    },
-    "domainEntity": null,
-    "domainEntityAttrtibute": null,
-    "inputType": null,
-    "prev": [Circular],
-    "scope": Object {},
+    "domain": <DOMAIN>,
+    "prev": "<PREV CONTEXT>",
+    "scope": "<SCOPE [empty]>",
     "type": null,
   },
   "name": "pipeline",
   "pipeline": Array [
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "here",
     },
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "navigate",
@@ -47,15 +29,9 @@ Object {
     },
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "navigate",
@@ -68,45 +44,27 @@ Object {
 exports[`insertAfter() individual!name 1`] = `
 Object {
   "context": Object {
-    "domain": Object {
-      "aggregate": Object {},
-      "entity": Object {},
-    },
-    "domainEntity": null,
-    "domainEntityAttrtibute": null,
-    "inputType": null,
-    "prev": [Circular],
-    "scope": Object {},
+    "domain": <DOMAIN>,
+    "prev": "<PREV CONTEXT>",
+    "scope": "<SCOPE [empty]>",
     "type": null,
   },
   "name": "pipeline",
   "pipeline": Array [
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "here",
     },
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "navigate",
@@ -114,15 +72,9 @@ Object {
     },
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "navigate",
@@ -135,45 +87,27 @@ Object {
 exports[`insertAfter() individual!sample.name 1`] = `
 Object {
   "context": Object {
-    "domain": Object {
-      "aggregate": Object {},
-      "entity": Object {},
-    },
-    "domainEntity": null,
-    "domainEntityAttrtibute": null,
-    "inputType": null,
-    "prev": [Circular],
-    "scope": Object {},
+    "domain": <DOMAIN>,
+    "prev": "<PREV CONTEXT>",
+    "scope": "<SCOPE [empty]>",
     "type": null,
   },
   "name": "pipeline",
   "pipeline": Array [
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "here",
     },
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "navigate",
@@ -181,15 +115,9 @@ Object {
     },
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "navigate",
@@ -197,15 +125,9 @@ Object {
     },
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "navigate",
@@ -218,45 +140,27 @@ Object {
 exports[`insertAfter() individual.sample!name 1`] = `
 Object {
   "context": Object {
-    "domain": Object {
-      "aggregate": Object {},
-      "entity": Object {},
-    },
-    "domainEntity": null,
-    "domainEntityAttrtibute": null,
-    "inputType": null,
-    "prev": [Circular],
-    "scope": Object {},
+    "domain": <DOMAIN>,
+    "prev": "<PREV CONTEXT>",
+    "scope": "<SCOPE [empty]>",
     "type": null,
   },
   "name": "pipeline",
   "pipeline": Array [
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "here",
     },
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "navigate",
@@ -264,15 +168,9 @@ Object {
     },
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "navigate",
@@ -280,15 +178,9 @@ Object {
     },
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "navigate",
@@ -301,45 +193,27 @@ Object {
 exports[`insertAfter() individual:define(a = sample!name) 1`] = `
 Object {
   "context": Object {
-    "domain": Object {
-      "aggregate": Object {},
-      "entity": Object {},
-    },
-    "domainEntity": null,
-    "domainEntityAttrtibute": null,
-    "inputType": null,
-    "prev": [Circular],
-    "scope": Object {},
+    "domain": <DOMAIN>,
+    "prev": "<PREV CONTEXT>",
+    "scope": "<SCOPE [empty]>",
     "type": null,
   },
   "name": "pipeline",
   "pipeline": Array [
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "here",
     },
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "navigate",
@@ -350,30 +224,18 @@ Object {
         "name": "a",
         "query": Object {
           "context": Object {
-            "domain": Object {
-              "aggregate": Object {},
-              "entity": Object {},
-            },
-            "domainEntity": null,
-            "domainEntityAttrtibute": null,
-            "inputType": null,
-            "prev": [Circular],
-            "scope": Object {},
+            "domain": <DOMAIN>,
+            "prev": "<PREV CONTEXT>",
+            "scope": "<SCOPE [empty]>",
             "type": null,
           },
           "name": "pipeline",
           "pipeline": Array [
             Object {
               "context": Object {
-                "domain": Object {
-                  "aggregate": Object {},
-                  "entity": Object {},
-                },
-                "domainEntity": null,
-                "domainEntityAttrtibute": null,
-                "inputType": null,
-                "prev": [Circular],
-                "scope": Object {},
+                "domain": <DOMAIN>,
+                "prev": "<PREV CONTEXT>",
+                "scope": "<SCOPE [empty]>",
                 "type": null,
               },
               "name": "navigate",
@@ -381,15 +243,9 @@ Object {
             },
             Object {
               "context": Object {
-                "domain": Object {
-                  "aggregate": Object {},
-                  "entity": Object {},
-                },
-                "domainEntity": null,
-                "domainEntityAttrtibute": null,
-                "inputType": null,
-                "prev": [Circular],
-                "scope": Object {},
+                "domain": <DOMAIN>,
+                "prev": "<PREV CONTEXT>",
+                "scope": "<SCOPE [empty]>",
                 "type": null,
               },
               "name": "navigate",
@@ -399,15 +255,9 @@ Object {
         },
       },
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "define",
@@ -419,45 +269,27 @@ Object {
 exports[`removeAt() individual!.name 1`] = `
 Object {
   "context": Object {
-    "domain": Object {
-      "aggregate": Object {},
-      "entity": Object {},
-    },
-    "domainEntity": null,
-    "domainEntityAttrtibute": null,
-    "inputType": null,
-    "prev": [Circular],
-    "scope": Object {},
+    "domain": <DOMAIN>,
+    "prev": "<PREV CONTEXT>",
+    "scope": "<SCOPE [empty]>",
     "type": null,
   },
   "name": "pipeline",
   "pipeline": Array [
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "here",
     },
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "navigate",
@@ -470,45 +302,27 @@ Object {
 exports[`removeAt() individual.name! 1`] = `
 Object {
   "context": Object {
-    "domain": Object {
-      "aggregate": Object {},
-      "entity": Object {},
-    },
-    "domainEntity": null,
-    "domainEntityAttrtibute": null,
-    "inputType": null,
-    "prev": [Circular],
-    "scope": Object {},
+    "domain": <DOMAIN>,
+    "prev": "<PREV CONTEXT>",
+    "scope": "<SCOPE [empty]>",
     "type": null,
   },
   "name": "pipeline",
   "pipeline": Array [
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "here",
     },
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "navigate",
@@ -521,45 +335,27 @@ Object {
 exports[`removeAt() individual:define(a := sample!) 1`] = `
 Object {
   "context": Object {
-    "domain": Object {
-      "aggregate": Object {},
-      "entity": Object {},
-    },
-    "domainEntity": null,
-    "domainEntityAttrtibute": null,
-    "inputType": null,
-    "prev": [Circular],
-    "scope": Object {},
+    "domain": <DOMAIN>,
+    "prev": "<PREV CONTEXT>",
+    "scope": "<SCOPE [empty]>",
     "type": null,
   },
   "name": "pipeline",
   "pipeline": Array [
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "here",
     },
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "navigate",
@@ -572,45 +368,27 @@ Object {
 exports[`removeAt() individual:select(a = [sample!]) 1`] = `
 Object {
   "context": Object {
-    "domain": Object {
-      "aggregate": Object {},
-      "entity": Object {},
-    },
-    "domainEntity": null,
-    "domainEntityAttrtibute": null,
-    "inputType": null,
-    "prev": [Circular],
-    "scope": Object {},
+    "domain": <DOMAIN>,
+    "prev": "<PREV CONTEXT>",
+    "scope": "<SCOPE [empty]>",
     "type": null,
   },
   "name": "pipeline",
   "pipeline": Array [
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "here",
     },
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "navigate",
@@ -623,45 +401,27 @@ Object {
 exports[`removeAt() individual:select(a = sample.name!) 1`] = `
 Object {
   "context": Object {
-    "domain": Object {
-      "aggregate": Object {},
-      "entity": Object {},
-    },
-    "domainEntity": null,
-    "domainEntityAttrtibute": null,
-    "inputType": null,
-    "prev": [Circular],
-    "scope": Object {},
+    "domain": <DOMAIN>,
+    "prev": "<PREV CONTEXT>",
+    "scope": "<SCOPE [empty]>",
     "type": null,
   },
   "name": "pipeline",
   "pipeline": Array [
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "here",
     },
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "navigate",
@@ -674,45 +434,27 @@ Object {
 exports[`removeAt() individual:select(a = sample.name!, b = sample) 1`] = `
 Object {
   "context": Object {
-    "domain": Object {
-      "aggregate": Object {},
-      "entity": Object {},
-    },
-    "domainEntity": null,
-    "domainEntityAttrtibute": null,
-    "inputType": null,
-    "prev": [Circular],
-    "scope": Object {},
+    "domain": <DOMAIN>,
+    "prev": "<PREV CONTEXT>",
+    "scope": "<SCOPE [empty]>",
     "type": null,
   },
   "name": "pipeline",
   "pipeline": Array [
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "here",
     },
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "navigate",
@@ -720,30 +462,18 @@ Object {
     },
     Object {
       "context": Object {
-        "domain": Object {
-          "aggregate": Object {},
-          "entity": Object {},
-        },
-        "domainEntity": null,
-        "domainEntityAttrtibute": null,
-        "inputType": null,
-        "prev": [Circular],
-        "scope": Object {},
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": null,
       },
       "name": "select",
       "select": Object {
         "b": Object {
           "context": Object {
-            "domain": Object {
-              "aggregate": Object {},
-              "entity": Object {},
-            },
-            "domainEntity": null,
-            "domainEntityAttrtibute": null,
-            "inputType": null,
-            "prev": [Circular],
-            "scope": Object {},
+            "domain": <DOMAIN>,
+            "prev": "<PREV CONTEXT>",
+            "scope": "<SCOPE [empty]>",
             "type": null,
           },
           "name": "navigate",

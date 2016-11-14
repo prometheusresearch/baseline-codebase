@@ -13,10 +13,6 @@ export type {
   Expression,
 
   Context,
-
-  Domain,
-  DomainEntity,
-  DomainEntityAttribute,
 } from './Query';
 
 export type {
@@ -25,4 +21,8 @@ export type {
 
 export type {
   Type,
+
+  Domain,
+  DomainEntity,
+  DomainAttribute,
 } from './Type';

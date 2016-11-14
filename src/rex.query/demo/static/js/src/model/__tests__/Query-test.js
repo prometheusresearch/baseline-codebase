@@ -3,46 +3,47 @@ import * as q from '../Query';
 import {
   here, navigate, filter, limit,
   select, aggregate, pipeline, def,
-  value
+  value, group,
 } from '../Query';
 import {
   voidType, numberType, textType,
   entityType, recordType,
-  seqType, optType
+  seqType, optType,
+  createDomain
 } from '../Type';
 import {stripDomain} from './util';
 
 describe('inferType()', function() {
 
-  let domain = {
+  let domain = createDomain({
     aggregate: {
       count: {
-        makeType: _ => numberType
+        makeType: type => numberType(type.domain)
       }
     },
     entity: {
-      sample: {
+      sample: domain => ({
         attribute: {
           title: {
-            type: textType,
+            type: textType(domain),
           }
         }
-      },
-      individual: {
+      }),
+      individual: domain => ({
         attribute: {
           name: {
-            type: textType,
+            type: textType(domain),
           },
           age: {
-            type: optType(textType),
+            type: optType(textType(domain)),
           },
           sample: {
-            type: seqType(entityType('sample')),
+            type: seqType(entityType(domain, 'sample')),
           }
         }
-      }
+      })
     }
-  };
+  });
 
   let individual = navigate('individual');
   let sample = navigate('sample');
@@ -54,25 +55,25 @@ describe('inferType()', function() {
   it('infers type of query atoms', function() {
     expect(q.inferType(domain, here).context.type)
       .toEqual(
-        voidType
+        voidType(domain)
       );
     expect(q.inferType(domain, individual).context.type)
       .toEqual(
-        seqType(entityType('individual'))
+        seqType(entityType(domain, 'individual'))
       );
     expect(q.inferType(domain, navigate('unknown')).context.type)
       .toEqual(null);
     expect(q.inferType(domain, filter(value(true))).context.type)
-      .toEqual(voidType);
+      .toEqual(voidType(domain));
     expect(q.inferType(domain, limit(10)).context.type)
-      .toEqual(voidType);
+      .toEqual(voidType(domain));
     expect(q.inferType(domain, select({a: individual})).context.type)
-      .toEqual(recordType({
-        a: seqType(entityType('individual'))
+      .toEqual(recordType(domain, {
+        a: {type: seqType(entityType(domain, 'individual'))}
       }));
     expect(q.inferType(domain, select({a: navigate('unknown')})).context.type)
-      .toEqual(recordType({
-        a: null
+      .toEqual(recordType(domain, {
+        a: {type: null}
       }));
     expect(q.inferType(domain, aggregate('count')).context.type)
       .toEqual(null);
@@ -110,7 +111,7 @@ describe('inferType()', function() {
       individual,
     );
     expect(q.inferType(domain, query).context.type).toEqual(
-      seqType(entityType('individual'))
+      seqType(entityType(domain, 'individual'))
     );
   });
 
@@ -121,7 +122,7 @@ describe('inferType()', function() {
       here,
     );
     expect(q.inferType(domain, query).context.type).toEqual(
-      seqType(entityType('individual'))
+      seqType(entityType(domain, 'individual'))
     );
   });
 
@@ -133,7 +134,7 @@ describe('inferType()', function() {
       name,
     );
     expect(q.inferType(domain, query).context.type).toEqual(
-      seqType(textType)
+      seqType(textType(domain))
     );
   });
 
@@ -298,7 +299,46 @@ describe('inferType()', function() {
         )
       }),
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(q.inferType(domain, query)).toMatchSnapshot();
+  });
+
+  it('individual:group(age))', function() {
+    let query = pipeline(
+      individual,
+      group(['age']),
+    );
+    expect(q.inferType(domain, query)).toMatchSnapshot();
+  });
+
+  it('individual:group(age):name)', function() {
+    let query = pipeline(
+      individual,
+      group(['age']),
+      individual,
+      name,
+    );
+    expect(q.inferType(domain, query)).toMatchSnapshot();
+  });
+
+  it('individual:group(age):select(name))', function() {
+    let query = pipeline(
+      individual,
+      group(['age']),
+      select({name: pipeline(individual, name)}),
+    );
+    expect(q.inferType(domain, query)).toMatchSnapshot();
+  });
+
+  it('individual:group(age):select(age, name))', function() {
+    let query = pipeline(
+      individual,
+      group(['age']),
+      select({
+        age: pipeline(individual, age),
+        name: pipeline(individual, name),
+      }),
+    );
+    expect(q.inferType(domain, query)).toMatchSnapshot();
   });
 
 });

@@ -13,6 +13,7 @@ import * as theme from './Theme';
 import QueryPanelBase from './QueryPanelBase';
 import DefineQueryPanel from './DefineQueryPanel';
 import AggregateQueryPanel from './AggregateQueryPanel';
+import GroupQueryPanel from './GroupQueryPanel';
 import FilterQueryPanel from './filter/FilterQueryPanel';
 import {MenuHelp} from './menu';
 
@@ -32,7 +33,7 @@ export default function QueryPanel(props: QueryPanelProps) {
     navigate: query => (
       <QueryPanelBase
         {...rest}
-        title={getTitleFromPointer(pointer)}
+        title={getTitleAtContext(pointer.query.context)}
         onClose={onClose}
         theme={theme.entity}
         pointer={pointer}>
@@ -53,6 +54,12 @@ export default function QueryPanel(props: QueryPanelProps) {
         pointer={pointer}
         />
     ),
+    group: query => (
+      <GroupQueryPanel
+        onClose={onClose}
+        pointer={pointer}
+        />
+    ),
     filter: query => (
       <FilterQueryPanel
         {...rest}
@@ -65,17 +72,15 @@ export default function QueryPanel(props: QueryPanelProps) {
   });
 }
 
-function getTitleFromPointer(pointer) {
-  let {domain, type} = pointer.query.context;
+function getTitleAtContext(context) {
+  let {type} = context;
   type = t.maybeAtom(type);
   if (type == null) {
     return null;
-  } else if (type.name === 'entity') {
-    let entity = domain.entity[type.entity];
-    if (entity == null) {
-      return null;
-    }
-    return entity.title;
+  } else if (type.name === 'record' && type.entity != null) {
+    return type.domain[type.entity]
+      ? type.domain[type.entity].title
+      : null;
   } else {
     return null;
   }

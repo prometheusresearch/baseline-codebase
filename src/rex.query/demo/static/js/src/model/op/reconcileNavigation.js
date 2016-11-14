@@ -7,6 +7,10 @@ import type {QueryPipeline} from '../Query';
 import * as t from '../Type';
 import * as q from '../Query';
 
+/**
+ * This function automatically grows select combinators at the leaves so that
+ * data is visible in the output.
+ */
 export default function reconcileNavigation(query: QueryPipeline): QueryPipeline {
   return reconcilePipeline(query);
 }
@@ -58,7 +62,7 @@ function reconcileDefine(query: q.DefineQuery): q.DefineQuery {
 }
 
 function reconcileSelect(query: q.SelectQuery, grow?: boolean): q.SelectQuery {
-  let {inputType: type, domain} = query.context;
+  let {prev: {type}} = query.context;
 
   type = t.maybeAtom(type);
 
@@ -68,58 +72,74 @@ function reconcileSelect(query: q.SelectQuery, grow?: boolean): q.SelectQuery {
 
   let select = {};
 
-  if (type.name === 'entity') {
+  if (grow && type.name === 'record') {
+    let attribute = t.recordAttribute(type);
 
-    if (grow) {
-      let attribute = domain.entity[type.entity].attribute;
+    for (let k in attribute) {
 
-      for (let k in attribute) {
+      if (!attribute.hasOwnProperty(k)) {
+        continue;
+      }
 
-        if (!attribute.hasOwnProperty(k)) {
-          continue;
-        }
-        let type = attribute[k].type;
-        let baseType = t.atom(type);
-        if (type.name === 'seq') {
-          continue;
-        }
-        if (baseType.name === 'entity') {
-          continue;
-        }
-        if (k in query.select) {
-          let pipeline = query.select[k];
-          select[k] = reconcilePipeline(pipeline);
-        } else {
-          let pipeline = q.pipeline(q.navigate(k));
-          pipeline = q.inferQueryType(query.context, pipeline);
-          select[k] = reconcilePipeline(pipeline);
-        }
+      let type = attribute[k].type;
+
+      if (type.name === 'seq') {
+        continue;
+      }
+
+      if (k in query.select) {
+        let pipeline = query.select[k];
+        select[k] = reconcilePipeline(pipeline);
+      } else {
+        let pipeline = q.pipeline(q.navigate(k));
+        pipeline = q.inferQueryType(query.context, pipeline);
+        select[k] = reconcilePipeline(pipeline);
       }
     }
   }
 
+  // filter out invalid types from select
   for (let k in query.select) {
     if (!query.select.hasOwnProperty(k)) {
       continue;
     }
-    let pipeline = query.select[k];
-    let kQuery = pipeline; //reconcilePipeline(pipeline);
-    if (
-      kQuery.context.type != null ||
-      ((k in query.context.scope) && isInitialDefine(query.context.scope[k].query))
-    ) {
+    let kQuery = query.select[k];
+    if (kQuery.context.type != null) {
       select[k] = kQuery;
     }
   }
 
-  // TODO: grow from scope
+  // force group by columns always visible
+  let groupByColumnList = getGroupByColumnList(type);
+  if (groupByColumnList.length > 0) {
+    let nextSelect = {}
+    groupByColumnList.forEach(val => {
+      if (select[val] == null) {
+        nextSelect[val] = q.pipeline(q.navigate(val));
+      }
+    });
+    Object.assign(nextSelect, select);
+    select = nextSelect;
+  }
+
   return q.inferQueryType(query.context.prev, q.select({...select}));
 }
 
-function isInitialDefine(query: QueryPipeline) {
-  return (
-    query.pipeline.length === 1 &&
-    query.pipeline[0].name === 'navigate' &&
-    query.pipeline[0].path === ''
-  );
+function getGroupByColumnList(type): Array<string> {
+  if (type.name !== 'record') {
+    return [];
+  }
+  let columnList = [];
+  let attribute = t.recordAttribute(type);
+
+  for (let k in attribute) {
+    if (!attribute.hasOwnProperty(k)) {
+      continue;
+    }
+    if (!attribute[k].groupBy) {
+      continue;
+    }
+    columnList.push(k);
+  }
+  return columnList;
 }

@@ -286,6 +286,65 @@ export function replace(
 }
 
 /**
+ * Update group query with new column list.
+ */
+export function setGroupByPath(
+  params: {
+    pointer: QueryPointer<q.GroupQuery>,
+    byPath: Array<string>,
+  }
+): StateUpdater {
+  return state => {
+    let {byPath, pointer} = params;
+    let needAppendDefine = (
+      byPath.length > 0 &&
+      pointer.query.byPath.length === 0
+    );
+    pointer = qp.rebase(pointer, state.query);
+    let {query} = pointer;
+
+    let prevType = t.maybeAtom(query.context.prev.type);
+    invariant(
+      prevType && prevType.name === 'record' && prevType.entity != null,
+      'Invalid type info'
+    );
+    const entity = prevType.entity;
+
+    query = op.transformAt({
+      loc: {pointer, selected: null},
+      transform: _ => {
+        return {
+          query: {
+            name: 'group',
+            byPath: byPath,
+            context: query.context,
+          }
+        };
+      }
+    }).query;
+
+    if (needAppendDefine) {
+      let name = getName(
+        pointer.query.context.scope,
+        `grouped ${entity} query`
+      );
+      query = q.inferType(state.domain, query);
+      query = op.insertAfter(
+        {pointer: qp.rebase(pointer, query), selected: state.selected},
+        q.def(name, q.pipeline(q.navigate(entity))),
+      ).query;
+      query = q.inferType(state.domain, query);
+      query = op.growNavigation({
+        loc: {pointer: qp.rebase(pointer, query), selected: null},
+        path: [name],
+      }).query;
+    }
+
+    return onQuery(state, query, state.selected);
+  };
+}
+
+/**
  * Append a new navigate combinator at pointer.
  */
 export function appendNavigate(
@@ -315,7 +374,7 @@ export function appendNavigate(
  */
 export function appendDefine(
   params: {
-    pointer?: ?QueryPointer<*>;
+    pointer: QueryPointer<*>;
     path?: Array<string>;
     select?: boolean;
   }
@@ -325,9 +384,7 @@ export function appendDefine(
       path,
       select,
     } = params;
-    let pointer = params.pointer
-      ? qp.rebase(params.pointer, state.query)
-      : qp.make(state.query);
+    let pointer = qp.rebase(params.pointer, state.query);
     let name = getName(
       pointer.query.context.scope,
       path
@@ -370,6 +427,23 @@ export function appendFilter(params: {pointer: ?QueryPointer<*>}): StateUpdater 
 }
 
 /**
+ * Append a new filter combinator at pointer.
+ */
+export function appendGroup(params: {pointer: QueryPointer<*>}): StateUpdater {
+  return state => {
+    let pointer = qp.rebase(params.pointer, state.query);
+    let {
+      query,
+      selected: nextSelected
+    } = op.insertAfter(
+      {pointer, selected: state.selected},
+      q.group([]),
+    );
+    return onQuery(state, query, nextSelected);
+  };
+}
+
+/**
  * Append a new aggregate combinator at pointer.
  */
 export function appendAggregate(params: {pointer: ?QueryPointer<*>}): StateUpdater {
@@ -390,11 +464,11 @@ export function appendAggregate(params: {pointer: ?QueryPointer<*>}): StateUpdat
  */
 export function appendNavigateAndAggregate(params: {
   pointer: QueryPointer<QueryPipeline>;
-  navigate: ?q.NavigateQuery;
-  aggregate: q.DomainAggregate;
+  path: Array<string>;
+  aggregate: t.DomainAggregate;
 }): StateUpdater {
   return state => {
-    let {navigate, aggregate, pointer} = params;
+    let {path, aggregate, pointer} = params;
     pointer = qp.rebase(pointer, state.query)
     let {query} = op.transformAt({
       loc: {pointer, selected: state.selected},
@@ -405,8 +479,8 @@ export function appendNavigateAndAggregate(params: {
         );
         let pipeline = query.pipeline.slice(0);
         pipeline.pop();
-        if (navigate) {
-          pipeline.push(navigate);
+        if (path.length) {
+          pipeline = pipeline.concat(path.map(p => q.navigate(p)));
         }
         pipeline.push(q.aggregate(aggregate.name));
         return {
@@ -577,7 +651,6 @@ function selectable(query) {
   const type = t.maybeAtom(query.context.type);
   return (
     type == null ||
-    type.name === 'entity' ||
     type.name === 'record' ||
     type.name === 'void' ||
     query.name === 'aggregate' ||

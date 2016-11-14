@@ -2,8 +2,7 @@
  * @flow
  */
 
-import type {Query, Domain, DomainEntity} from '../model/Query';
-import type {Type} from '../model/Type';
+import type {Query, Type, Domain} from '../model';
 
 import download from 'downloadjs';
 import invariant from 'invariant';
@@ -69,37 +68,37 @@ const aggregate = {
   count: {
     name: 'count',
     title: 'Count',
-    makeType: _typ => t.numberType,
+    makeType: typ => t.numberType(typ.domain),
     isAllowed: typ => typ.name === 'seq' && isEntityLike(typ.type),
   },
   exists: {
     name: 'exists',
     title: 'Exists',
-    makeType: _typ => t.booleanType,
+    makeType: typ => t.booleanType(typ.domain),
     isAllowed: typ => typ.name === 'seq' && isEntityLike(typ.type),
   },
   sum: {
     name: 'sum',
     title: 'Sum',
-    makeType: _typ => t.numberType,
+    makeType: typ => t.numberType(typ.domain),
     isAllowed: typ => typ.name === 'seq' && isNumeric(typ.type),
   },
   min: {
     name: 'min',
     title: 'Min',
-    makeType: _typ => t.numberType,
+    makeType: typ => t.numberType(typ.domain),
     isAllowed: typ => typ.name === 'seq' && isNumeric(typ.type),
   },
   max: {
     name: 'max',
     title: 'Max',
-    makeType: _typ => t.numberType,
+    makeType: typ => t.numberType(typ.domain),
     isAllowed: typ => typ.name === 'seq' && isNumeric(typ.type),
   },
   mean: {
     name: 'mean',
     title: 'Average',
-    makeType: _typ => t.numberType,
+    makeType: typ => t.numberType(typ.domain),
     isAllowed: typ => typ.name === 'seq' && isNumeric(typ.type),
   },
 };
@@ -115,34 +114,33 @@ function isNumeric(type: t.Type) {
 
 function isEntityLike(type: t.Type) {
   return (
-    type.name === 'entity' ||
     type.name === 'record'
   );
 }
 
 export function fetchCatalog(api: string): Promise<Domain> {
   return fetchJSON(api, ['catalog']).then(data => {
+    let domain: Domain = {entity: {}, aggregate};
     let catalog: Catalog = data;
-    let entity: {[entityName: string]: DomainEntity} = {};
     catalog.entity.forEach(e => {
       let attribute = {};
       e.field.forEach(f => {
         attribute[f.label] = {
           title: f.title,
-          type: getFieldType(f),
+          type: getFieldType(domain, f),
         };
       });
-      entity[e.name] = {
+      domain.entity[e.name] = {
         title: e.label,
         attribute
       };
     });
-    return {entity, aggregate};
+    return domain;
   });
 }
 
-function getFieldType(field: CatalogEntityField): Type {
-  let type = getBaseFieldType(field);
+function getFieldType(domain: Domain, field: CatalogEntityField): Type {
+  let type = getBaseFieldType(domain, field);
   if (field.plural) {
     type = t.seqType(type);
   } else if (field.partial) {
@@ -151,32 +149,32 @@ function getFieldType(field: CatalogEntityField): Type {
   return type;
 }
 
-function getBaseFieldType(field: CatalogEntityField) {
+function getBaseFieldType(domain: Domain, field: CatalogEntityField) {
   if (field.column != null) {
     switch (field.column.type) {
       case 'text':
-        return t.textType;
+        return t.textType(domain);
       case 'enum':
-        return t.enumerationType(field.column.enum);
+        return t.enumerationType(domain, field.column.enum);
       case 'boolean':
-        return t.booleanType;
+        return t.booleanType(domain);
       case 'integer':
       case 'decimal':
       case 'float':
-        return t.numberType;
+        return t.numberType(domain);
       case 'date':
-        return t.dateType;
+        return t.dateType(domain);
       case 'time':
-        return t.timeType;
+        return t.timeType(domain);
       case 'datetime':
-        return t.dateTimeType;
+        return t.dateTimeType(domain);
       default:
         invariant(false, 'Unknown column type: %s', field.column.type);
     }
   } else if (field.link != null) {
-    return t.entityType(field.link.target);
+    return t.entityType(domain, field.link.target);
   } else if (field.kind === 'calculation') {
-    return t.textType;
+    return t.textType(domain);
   } else {
     invariant(false, 'Impossible');
   }

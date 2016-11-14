@@ -15,7 +15,7 @@ let pointerPath = pointer =>
 
 describe('growNavigation', function() {
 
-  jestMatchers.addMatchers({
+  jestMatchers.expect.extend({
     toBeNavigatedAs(received, expected) {
       let {query, selected} = growNavigation({
         loc: {

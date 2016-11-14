@@ -2,8 +2,10 @@ exports[`inferType() individual.name 1`] = `
 Object {
   "context": Object {
     "type": Object {
+      "domain": <DOMAIN>,
       "name": "seq",
       "type": Object {
+        "domain": <DOMAIN>,
         "name": "text",
       },
     },
@@ -13,10 +15,13 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -26,8 +31,10 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "domain": <DOMAIN>,
             "name": "text",
           },
         },
@@ -43,6 +50,7 @@ exports[`inferType() individual.name:count() 1`] = `
 Object {
   "context": Object {
     "type": Object {
+      "domain": <DOMAIN>,
       "name": "number",
     },
   },
@@ -51,10 +59,13 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -64,8 +75,10 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "domain": <DOMAIN>,
             "name": "text",
           },
         },
@@ -77,6 +90,7 @@ Object {
       "aggregate": "count",
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "number",
         },
       },
@@ -90,10 +104,13 @@ exports[`inferType() individual.sample 1`] = `
 Object {
   "context": Object {
     "type": Object {
+      "domain": <DOMAIN>,
       "name": "seq",
       "type": Object {
+        "attribute": null,
+        "domain": <DOMAIN>,
         "entity": "sample",
-        "name": "entity",
+        "name": "record",
       },
     },
   },
@@ -102,10 +119,13 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -115,10 +135,13 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "sample",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -133,8 +156,10 @@ exports[`inferType() individual.sample.title 1`] = `
 Object {
   "context": Object {
     "type": Object {
+      "domain": <DOMAIN>,
       "name": "seq",
       "type": Object {
+        "domain": <DOMAIN>,
         "name": "text",
       },
     },
@@ -144,10 +169,13 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -157,10 +185,13 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "sample",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -170,8 +201,10 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "domain": <DOMAIN>,
             "name": "text",
           },
         },
@@ -187,16 +220,25 @@ exports[`inferType() individual:define(newname := name):select(a := newname, b :
 Object {
   "context": Object {
     "type": Object {
+      "domain": <DOMAIN>,
       "name": "seq",
       "type": Object {
-        "fields": Object {
+        "attribute": Object {
           "a": Object {
-            "name": "text",
+            "type": Object {
+              "domain": <DOMAIN>,
+              "name": "text",
+            },
           },
           "b": Object {
-            "name": "text",
+            "type": Object {
+              "domain": <DOMAIN>,
+              "name": "text",
+            },
           },
         },
+        "domain": <DOMAIN>,
+        "entity": null,
         "name": "record",
       },
     },
@@ -206,10 +248,13 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -222,8 +267,10 @@ Object {
         "query": Object {
           "context": Object {
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "seq",
               "type": Object {
+                "domain": <DOMAIN>,
                 "name": "text",
               },
             },
@@ -233,8 +280,10 @@ Object {
             Object {
               "context": Object {
                 "type": Object {
+                  "domain": <DOMAIN>,
                   "name": "seq",
                   "type": Object {
+                    "domain": <DOMAIN>,
                     "name": "text",
                   },
                 },
@@ -247,10 +296,13 @@ Object {
       },
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -259,16 +311,25 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
-            "fields": Object {
+            "attribute": Object {
               "a": Object {
-                "name": "text",
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "text",
+                },
               },
               "b": Object {
-                "name": "text",
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "text",
+                },
               },
             },
+            "domain": <DOMAIN>,
+            "entity": null,
             "name": "record",
           },
         },
@@ -278,6 +339,7 @@ Object {
         "a": Object {
           "context": Object {
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "text",
             },
           },
@@ -286,6 +348,7 @@ Object {
             Object {
               "context": Object {
                 "type": Object {
+                  "domain": <DOMAIN>,
                   "name": "text",
                 },
               },
@@ -297,6 +360,7 @@ Object {
         "b": Object {
           "context": Object {
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "text",
             },
           },
@@ -305,6 +369,7 @@ Object {
             Object {
               "context": Object {
                 "type": Object {
+                  "domain": <DOMAIN>,
                   "name": "text",
                 },
               },
@@ -323,10 +388,13 @@ exports[`inferType() individual:define(nickname := name) 1`] = `
 Object {
   "context": Object {
     "type": Object {
+      "domain": <DOMAIN>,
       "name": "seq",
       "type": Object {
+        "attribute": null,
+        "domain": <DOMAIN>,
         "entity": "individual",
-        "name": "entity",
+        "name": "record",
       },
     },
   },
@@ -335,10 +403,13 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -351,8 +422,10 @@ Object {
         "query": Object {
           "context": Object {
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "seq",
               "type": Object {
+                "domain": <DOMAIN>,
                 "name": "text",
               },
             },
@@ -362,8 +435,10 @@ Object {
             Object {
               "context": Object {
                 "type": Object {
+                  "domain": <DOMAIN>,
                   "name": "seq",
                   "type": Object {
+                    "domain": <DOMAIN>,
                     "name": "text",
                   },
                 },
@@ -376,10 +451,13 @@ Object {
       },
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -393,8 +471,10 @@ exports[`inferType() individual:define(nickname := name).nickname 1`] = `
 Object {
   "context": Object {
     "type": Object {
+      "domain": <DOMAIN>,
       "name": "seq",
       "type": Object {
+        "domain": <DOMAIN>,
         "name": "text",
       },
     },
@@ -404,10 +484,13 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -420,8 +503,10 @@ Object {
         "query": Object {
           "context": Object {
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "seq",
               "type": Object {
+                "domain": <DOMAIN>,
                 "name": "text",
               },
             },
@@ -431,8 +516,10 @@ Object {
             Object {
               "context": Object {
                 "type": Object {
+                  "domain": <DOMAIN>,
                   "name": "seq",
                   "type": Object {
+                    "domain": <DOMAIN>,
                     "name": "text",
                   },
                 },
@@ -445,10 +532,13 @@ Object {
       },
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -457,8 +547,10 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "domain": <DOMAIN>,
             "name": "text",
           },
         },
@@ -474,13 +566,19 @@ exports[`inferType() individual:define(nickname := name):select(nickname) 1`] = 
 Object {
   "context": Object {
     "type": Object {
+      "domain": <DOMAIN>,
       "name": "seq",
       "type": Object {
-        "fields": Object {
+        "attribute": Object {
           "nickname": Object {
-            "name": "text",
+            "type": Object {
+              "domain": <DOMAIN>,
+              "name": "text",
+            },
           },
         },
+        "domain": <DOMAIN>,
+        "entity": null,
         "name": "record",
       },
     },
@@ -490,10 +588,13 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -506,8 +607,10 @@ Object {
         "query": Object {
           "context": Object {
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "seq",
               "type": Object {
+                "domain": <DOMAIN>,
                 "name": "text",
               },
             },
@@ -517,8 +620,10 @@ Object {
             Object {
               "context": Object {
                 "type": Object {
+                  "domain": <DOMAIN>,
                   "name": "seq",
                   "type": Object {
+                    "domain": <DOMAIN>,
                     "name": "text",
                   },
                 },
@@ -531,10 +636,13 @@ Object {
       },
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -543,13 +651,19 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
-            "fields": Object {
+            "attribute": Object {
               "nickname": Object {
-                "name": "text",
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "text",
+                },
               },
             },
+            "domain": <DOMAIN>,
+            "entity": null,
             "name": "record",
           },
         },
@@ -559,6 +673,7 @@ Object {
         "nickname": Object {
           "context": Object {
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "text",
             },
           },
@@ -567,6 +682,7 @@ Object {
             Object {
               "context": Object {
                 "type": Object {
+                  "domain": <DOMAIN>,
                   "name": "text",
                 },
               },
@@ -585,16 +701,25 @@ exports[`inferType() individual:define(nickname := name):select(nickname:select(
 Object {
   "context": Object {
     "type": Object {
+      "domain": <DOMAIN>,
       "name": "seq",
       "type": Object {
-        "fields": Object {
+        "attribute": Object {
           "nickname": Object {
-            "fields": Object {
-              "code": null,
+            "type": Object {
+              "attribute": Object {
+                "code": Object {
+                  "type": null,
+                },
+              },
+              "domain": <DOMAIN>,
+              "entity": null,
+              "name": "record",
             },
-            "name": "record",
           },
         },
+        "domain": <DOMAIN>,
+        "entity": null,
         "name": "record",
       },
     },
@@ -604,10 +729,13 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -620,8 +748,10 @@ Object {
         "query": Object {
           "context": Object {
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "seq",
               "type": Object {
+                "domain": <DOMAIN>,
                 "name": "text",
               },
             },
@@ -631,8 +761,10 @@ Object {
             Object {
               "context": Object {
                 "type": Object {
+                  "domain": <DOMAIN>,
                   "name": "seq",
                   "type": Object {
+                    "domain": <DOMAIN>,
                     "name": "text",
                   },
                 },
@@ -645,10 +777,13 @@ Object {
       },
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -657,16 +792,25 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
-            "fields": Object {
+            "attribute": Object {
               "nickname": Object {
-                "fields": Object {
-                  "code": null,
+                "type": Object {
+                  "attribute": Object {
+                    "code": Object {
+                      "type": null,
+                    },
+                  },
+                  "domain": <DOMAIN>,
+                  "entity": null,
+                  "name": "record",
                 },
-                "name": "record",
               },
             },
+            "domain": <DOMAIN>,
+            "entity": null,
             "name": "record",
           },
         },
@@ -676,9 +820,13 @@ Object {
         "nickname": Object {
           "context": Object {
             "type": Object {
-              "fields": Object {
-                "code": null,
+              "attribute": Object {
+                "code": Object {
+                  "type": null,
+                },
               },
+              "domain": <DOMAIN>,
+              "entity": null,
               "name": "record",
             },
           },
@@ -687,6 +835,7 @@ Object {
             Object {
               "context": Object {
                 "type": Object {
+                  "domain": <DOMAIN>,
                   "name": "text",
                 },
               },
@@ -696,9 +845,13 @@ Object {
             Object {
               "context": Object {
                 "type": Object {
-                  "fields": Object {
-                    "code": null,
+                  "attribute": Object {
+                    "code": Object {
+                      "type": null,
+                    },
                   },
+                  "domain": <DOMAIN>,
+                  "entity": null,
                   "name": "record",
                 },
               },
@@ -732,17 +885,29 @@ Object {
 exports[`inferType() individual:define(s := sample:count()):select(s:select(title)) 1`] = `
 Object {
   "context": Object {
+    "domain": <DOMAIN>,
+    "prev": "<PREV CONTEXT>",
+    "scope": "<SCOPE s>",
     "type": Object {
+      "domain": <DOMAIN>,
       "name": "seq",
       "type": Object {
-        "fields": Object {
+        "attribute": Object {
           "s": Object {
-            "fields": Object {
-              "title": null,
+            "type": Object {
+              "attribute": Object {
+                "title": Object {
+                  "type": null,
+                },
+              },
+              "domain": <DOMAIN>,
+              "entity": null,
+              "name": "record",
             },
-            "name": "record",
           },
         },
+        "domain": <DOMAIN>,
+        "entity": null,
         "name": "record",
       },
     },
@@ -751,11 +916,17 @@ Object {
   "pipeline": Array [
     Object {
       "context": Object {
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -767,7 +938,11 @@ Object {
         "name": "s",
         "query": Object {
           "context": Object {
+            "domain": <DOMAIN>,
+            "prev": "<PREV CONTEXT>",
+            "scope": "<SCOPE [empty]>",
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "number",
             },
           },
@@ -775,11 +950,17 @@ Object {
           "pipeline": Array [
             Object {
               "context": Object {
+                "domain": <DOMAIN>,
+                "prev": "<PREV CONTEXT>",
+                "scope": "<SCOPE [empty]>",
                 "type": Object {
+                  "domain": <DOMAIN>,
                   "name": "seq",
                   "type": Object {
+                    "attribute": null,
+                    "domain": <DOMAIN>,
                     "entity": "sample",
-                    "name": "entity",
+                    "name": "record",
                   },
                 },
               },
@@ -789,7 +970,11 @@ Object {
             Object {
               "aggregate": "count",
               "context": Object {
+                "domain": <DOMAIN>,
+                "prev": "<PREV CONTEXT>",
+                "scope": "<SCOPE [empty]>",
                 "type": Object {
+                  "domain": <DOMAIN>,
                   "name": "number",
                 },
               },
@@ -799,11 +984,17 @@ Object {
         },
       },
       "context": Object {
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE s>",
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -811,17 +1002,29 @@ Object {
     },
     Object {
       "context": Object {
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE s>",
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
-            "fields": Object {
+            "attribute": Object {
               "s": Object {
-                "fields": Object {
-                  "title": null,
+                "type": Object {
+                  "attribute": Object {
+                    "title": Object {
+                      "type": null,
+                    },
+                  },
+                  "domain": <DOMAIN>,
+                  "entity": null,
+                  "name": "record",
                 },
-                "name": "record",
               },
             },
+            "domain": <DOMAIN>,
+            "entity": null,
             "name": "record",
           },
         },
@@ -830,10 +1033,17 @@ Object {
       "select": Object {
         "s": Object {
           "context": Object {
+            "domain": <DOMAIN>,
+            "prev": "<PREV CONTEXT>",
+            "scope": "<SCOPE [empty]>",
             "type": Object {
-              "fields": Object {
-                "title": null,
+              "attribute": Object {
+                "title": Object {
+                  "type": null,
+                },
               },
+              "domain": <DOMAIN>,
+              "entity": null,
               "name": "record",
             },
           },
@@ -841,7 +1051,11 @@ Object {
           "pipeline": Array [
             Object {
               "context": Object {
+                "domain": <DOMAIN>,
+                "prev": "<PREV CONTEXT>",
+                "scope": "<SCOPE [empty]>",
                 "type": Object {
+                  "domain": <DOMAIN>,
                   "name": "number",
                 },
               },
@@ -850,10 +1064,17 @@ Object {
             },
             Object {
               "context": Object {
+                "domain": <DOMAIN>,
+                "prev": "<PREV CONTEXT>",
+                "scope": "<SCOPE [empty]>",
                 "type": Object {
-                  "fields": Object {
-                    "title": null,
+                  "attribute": Object {
+                    "title": Object {
+                      "type": null,
+                    },
                   },
+                  "domain": <DOMAIN>,
+                  "entity": null,
                   "name": "record",
                 },
               },
@@ -861,12 +1082,18 @@ Object {
               "select": Object {
                 "title": Object {
                   "context": Object {
+                    "domain": <DOMAIN>,
+                    "prev": "<PREV CONTEXT>",
+                    "scope": "<SCOPE [empty]>",
                     "type": null,
                   },
                   "name": "pipeline",
                   "pipeline": Array [
                     Object {
                       "context": Object {
+                        "domain": <DOMAIN>,
+                        "prev": "<PREV CONTEXT>",
+                        "scope": "<SCOPE [empty]>",
                         "type": null,
                       },
                       "name": "navigate",
@@ -884,20 +1111,694 @@ Object {
 }
 `;
 
+exports[`inferType() individual:group(age)) 1`] = `
+Object {
+  "context": Object {
+    "domain": <DOMAIN>,
+    "prev": "<PREV CONTEXT>",
+    "scope": "<SCOPE [empty]>",
+    "type": Object {
+      "domain": <DOMAIN>,
+      "name": "seq",
+      "type": Object {
+        "attribute": Object {
+          "age": Object {
+            "type": Object {
+              "domain": <DOMAIN>,
+              "name": "opt",
+              "type": Object {
+                "domain": <DOMAIN>,
+                "name": "text",
+              },
+            },
+          },
+          "individual": Object {
+            "type": Object {
+              "domain": <DOMAIN>,
+              "name": "seq",
+              "type": Object {
+                "attribute": null,
+                "domain": <DOMAIN>,
+                "entity": "individual",
+                "name": "record",
+              },
+            },
+          },
+        },
+        "domain": <DOMAIN>,
+        "entity": null,
+        "name": "record",
+      },
+    },
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
+        "type": Object {
+          "domain": <DOMAIN>,
+          "name": "seq",
+          "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
+            "entity": "individual",
+            "name": "record",
+          },
+        },
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "byPath": Array [
+        "age",
+      ],
+      "context": Object {
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
+        "type": Object {
+          "domain": <DOMAIN>,
+          "name": "seq",
+          "type": Object {
+            "attribute": Object {
+              "age": Object {
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "opt",
+                  "type": Object {
+                    "domain": <DOMAIN>,
+                    "name": "text",
+                  },
+                },
+              },
+              "individual": Object {
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "seq",
+                  "type": Object {
+                    "attribute": null,
+                    "domain": <DOMAIN>,
+                    "entity": "individual",
+                    "name": "record",
+                  },
+                },
+              },
+            },
+            "domain": <DOMAIN>,
+            "entity": null,
+            "name": "record",
+          },
+        },
+      },
+      "name": "group",
+    },
+  ],
+}
+`;
+
+exports[`inferType() individual:group(age):name) 1`] = `
+Object {
+  "context": Object {
+    "domain": <DOMAIN>,
+    "prev": "<PREV CONTEXT>",
+    "scope": "<SCOPE [empty]>",
+    "type": Object {
+      "domain": <DOMAIN>,
+      "name": "seq",
+      "type": Object {
+        "domain": <DOMAIN>,
+        "name": "text",
+      },
+    },
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
+        "type": Object {
+          "domain": <DOMAIN>,
+          "name": "seq",
+          "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
+            "entity": "individual",
+            "name": "record",
+          },
+        },
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "byPath": Array [
+        "age",
+      ],
+      "context": Object {
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
+        "type": Object {
+          "domain": <DOMAIN>,
+          "name": "seq",
+          "type": Object {
+            "attribute": Object {
+              "age": Object {
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "opt",
+                  "type": Object {
+                    "domain": <DOMAIN>,
+                    "name": "text",
+                  },
+                },
+              },
+              "individual": Object {
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "seq",
+                  "type": Object {
+                    "attribute": null,
+                    "domain": <DOMAIN>,
+                    "entity": "individual",
+                    "name": "record",
+                  },
+                },
+              },
+            },
+            "domain": <DOMAIN>,
+            "entity": null,
+            "name": "record",
+          },
+        },
+      },
+      "name": "group",
+    },
+    Object {
+      "context": Object {
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
+        "type": Object {
+          "domain": <DOMAIN>,
+          "name": "seq",
+          "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
+            "entity": "individual",
+            "name": "record",
+          },
+        },
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "context": Object {
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
+        "type": Object {
+          "domain": <DOMAIN>,
+          "name": "seq",
+          "type": Object {
+            "domain": <DOMAIN>,
+            "name": "text",
+          },
+        },
+      },
+      "name": "navigate",
+      "path": "name",
+    },
+  ],
+}
+`;
+
+exports[`inferType() individual:group(age):select(age, name)) 1`] = `
+Object {
+  "context": Object {
+    "domain": <DOMAIN>,
+    "prev": "<PREV CONTEXT>",
+    "scope": "<SCOPE [empty]>",
+    "type": Object {
+      "domain": <DOMAIN>,
+      "name": "seq",
+      "type": Object {
+        "attribute": Object {
+          "age": Object {
+            "type": Object {
+              "domain": <DOMAIN>,
+              "name": "seq",
+              "type": Object {
+                "domain": <DOMAIN>,
+                "name": "text",
+              },
+            },
+          },
+          "name": Object {
+            "type": Object {
+              "domain": <DOMAIN>,
+              "name": "seq",
+              "type": Object {
+                "domain": <DOMAIN>,
+                "name": "text",
+              },
+            },
+          },
+        },
+        "domain": <DOMAIN>,
+        "entity": null,
+        "name": "record",
+      },
+    },
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
+        "type": Object {
+          "domain": <DOMAIN>,
+          "name": "seq",
+          "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
+            "entity": "individual",
+            "name": "record",
+          },
+        },
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "byPath": Array [
+        "age",
+      ],
+      "context": Object {
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
+        "type": Object {
+          "domain": <DOMAIN>,
+          "name": "seq",
+          "type": Object {
+            "attribute": Object {
+              "age": Object {
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "opt",
+                  "type": Object {
+                    "domain": <DOMAIN>,
+                    "name": "text",
+                  },
+                },
+              },
+              "individual": Object {
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "seq",
+                  "type": Object {
+                    "attribute": null,
+                    "domain": <DOMAIN>,
+                    "entity": "individual",
+                    "name": "record",
+                  },
+                },
+              },
+            },
+            "domain": <DOMAIN>,
+            "entity": null,
+            "name": "record",
+          },
+        },
+      },
+      "name": "group",
+    },
+    Object {
+      "context": Object {
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
+        "type": Object {
+          "domain": <DOMAIN>,
+          "name": "seq",
+          "type": Object {
+            "attribute": Object {
+              "age": Object {
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "seq",
+                  "type": Object {
+                    "domain": <DOMAIN>,
+                    "name": "text",
+                  },
+                },
+              },
+              "name": Object {
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "seq",
+                  "type": Object {
+                    "domain": <DOMAIN>,
+                    "name": "text",
+                  },
+                },
+              },
+            },
+            "domain": <DOMAIN>,
+            "entity": null,
+            "name": "record",
+          },
+        },
+      },
+      "name": "select",
+      "select": Object {
+        "age": Object {
+          "context": Object {
+            "domain": <DOMAIN>,
+            "prev": "<PREV CONTEXT>",
+            "scope": "<SCOPE [empty]>",
+            "type": Object {
+              "domain": <DOMAIN>,
+              "name": "seq",
+              "type": Object {
+                "domain": <DOMAIN>,
+                "name": "text",
+              },
+            },
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "domain": <DOMAIN>,
+                "prev": "<PREV CONTEXT>",
+                "scope": "<SCOPE [empty]>",
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "seq",
+                  "type": Object {
+                    "attribute": null,
+                    "domain": <DOMAIN>,
+                    "entity": "individual",
+                    "name": "record",
+                  },
+                },
+              },
+              "name": "navigate",
+              "path": "individual",
+            },
+            Object {
+              "context": Object {
+                "domain": <DOMAIN>,
+                "prev": "<PREV CONTEXT>",
+                "scope": "<SCOPE [empty]>",
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "seq",
+                  "type": Object {
+                    "domain": <DOMAIN>,
+                    "name": "text",
+                  },
+                },
+              },
+              "name": "navigate",
+              "path": "age",
+            },
+          ],
+        },
+        "name": Object {
+          "context": Object {
+            "domain": <DOMAIN>,
+            "prev": "<PREV CONTEXT>",
+            "scope": "<SCOPE [empty]>",
+            "type": Object {
+              "domain": <DOMAIN>,
+              "name": "seq",
+              "type": Object {
+                "domain": <DOMAIN>,
+                "name": "text",
+              },
+            },
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "domain": <DOMAIN>,
+                "prev": "<PREV CONTEXT>",
+                "scope": "<SCOPE [empty]>",
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "seq",
+                  "type": Object {
+                    "attribute": null,
+                    "domain": <DOMAIN>,
+                    "entity": "individual",
+                    "name": "record",
+                  },
+                },
+              },
+              "name": "navigate",
+              "path": "individual",
+            },
+            Object {
+              "context": Object {
+                "domain": <DOMAIN>,
+                "prev": "<PREV CONTEXT>",
+                "scope": "<SCOPE [empty]>",
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "seq",
+                  "type": Object {
+                    "domain": <DOMAIN>,
+                    "name": "text",
+                  },
+                },
+              },
+              "name": "navigate",
+              "path": "name",
+            },
+          ],
+        },
+      },
+    },
+  ],
+}
+`;
+
+exports[`inferType() individual:group(age):select(name)) 1`] = `
+Object {
+  "context": Object {
+    "domain": <DOMAIN>,
+    "prev": "<PREV CONTEXT>",
+    "scope": "<SCOPE [empty]>",
+    "type": Object {
+      "domain": <DOMAIN>,
+      "name": "seq",
+      "type": Object {
+        "attribute": Object {
+          "name": Object {
+            "type": Object {
+              "domain": <DOMAIN>,
+              "name": "seq",
+              "type": Object {
+                "domain": <DOMAIN>,
+                "name": "text",
+              },
+            },
+          },
+        },
+        "domain": <DOMAIN>,
+        "entity": null,
+        "name": "record",
+      },
+    },
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
+        "type": Object {
+          "domain": <DOMAIN>,
+          "name": "seq",
+          "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
+            "entity": "individual",
+            "name": "record",
+          },
+        },
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "byPath": Array [
+        "age",
+      ],
+      "context": Object {
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
+        "type": Object {
+          "domain": <DOMAIN>,
+          "name": "seq",
+          "type": Object {
+            "attribute": Object {
+              "age": Object {
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "opt",
+                  "type": Object {
+                    "domain": <DOMAIN>,
+                    "name": "text",
+                  },
+                },
+              },
+              "individual": Object {
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "seq",
+                  "type": Object {
+                    "attribute": null,
+                    "domain": <DOMAIN>,
+                    "entity": "individual",
+                    "name": "record",
+                  },
+                },
+              },
+            },
+            "domain": <DOMAIN>,
+            "entity": null,
+            "name": "record",
+          },
+        },
+      },
+      "name": "group",
+    },
+    Object {
+      "context": Object {
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
+        "type": Object {
+          "domain": <DOMAIN>,
+          "name": "seq",
+          "type": Object {
+            "attribute": Object {
+              "name": Object {
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "seq",
+                  "type": Object {
+                    "domain": <DOMAIN>,
+                    "name": "text",
+                  },
+                },
+              },
+            },
+            "domain": <DOMAIN>,
+            "entity": null,
+            "name": "record",
+          },
+        },
+      },
+      "name": "select",
+      "select": Object {
+        "name": Object {
+          "context": Object {
+            "domain": <DOMAIN>,
+            "prev": "<PREV CONTEXT>",
+            "scope": "<SCOPE [empty]>",
+            "type": Object {
+              "domain": <DOMAIN>,
+              "name": "seq",
+              "type": Object {
+                "domain": <DOMAIN>,
+                "name": "text",
+              },
+            },
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "domain": <DOMAIN>,
+                "prev": "<PREV CONTEXT>",
+                "scope": "<SCOPE [empty]>",
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "seq",
+                  "type": Object {
+                    "attribute": null,
+                    "domain": <DOMAIN>,
+                    "entity": "individual",
+                    "name": "record",
+                  },
+                },
+              },
+              "name": "navigate",
+              "path": "individual",
+            },
+            Object {
+              "context": Object {
+                "domain": <DOMAIN>,
+                "prev": "<PREV CONTEXT>",
+                "scope": "<SCOPE [empty]>",
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "seq",
+                  "type": Object {
+                    "domain": <DOMAIN>,
+                    "name": "text",
+                  },
+                },
+              },
+              "name": "navigate",
+              "path": "name",
+            },
+          ],
+        },
+      },
+    },
+  ],
+}
+`;
+
 exports[`inferType() individual:select(a := age) 1`] = `
 Object {
   "context": Object {
     "type": Object {
+      "domain": <DOMAIN>,
       "name": "seq",
       "type": Object {
-        "fields": Object {
+        "attribute": Object {
           "a": Object {
-            "name": "opt",
             "type": Object {
-              "name": "text",
+              "domain": <DOMAIN>,
+              "name": "opt",
+              "type": Object {
+                "domain": <DOMAIN>,
+                "name": "text",
+              },
             },
           },
         },
+        "domain": <DOMAIN>,
+        "entity": null,
         "name": "record",
       },
     },
@@ -907,10 +1808,13 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -920,16 +1824,23 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
-            "fields": Object {
+            "attribute": Object {
               "a": Object {
-                "name": "opt",
                 "type": Object {
-                  "name": "text",
+                  "domain": <DOMAIN>,
+                  "name": "opt",
+                  "type": Object {
+                    "domain": <DOMAIN>,
+                    "name": "text",
+                  },
                 },
               },
             },
+            "domain": <DOMAIN>,
+            "entity": null,
             "name": "record",
           },
         },
@@ -939,8 +1850,10 @@ Object {
         "a": Object {
           "context": Object {
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "opt",
               "type": Object {
+                "domain": <DOMAIN>,
                 "name": "text",
               },
             },
@@ -958,16 +1871,25 @@ exports[`inferType() individual:select(a := name, b := name) 1`] = `
 Object {
   "context": Object {
     "type": Object {
+      "domain": <DOMAIN>,
       "name": "seq",
       "type": Object {
-        "fields": Object {
+        "attribute": Object {
           "a": Object {
-            "name": "text",
+            "type": Object {
+              "domain": <DOMAIN>,
+              "name": "text",
+            },
           },
           "b": Object {
-            "name": "text",
+            "type": Object {
+              "domain": <DOMAIN>,
+              "name": "text",
+            },
           },
         },
+        "domain": <DOMAIN>,
+        "entity": null,
         "name": "record",
       },
     },
@@ -977,10 +1899,13 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -990,16 +1915,25 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
-            "fields": Object {
+            "attribute": Object {
               "a": Object {
-                "name": "text",
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "text",
+                },
               },
               "b": Object {
-                "name": "text",
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "text",
+                },
               },
             },
+            "domain": <DOMAIN>,
+            "entity": null,
             "name": "record",
           },
         },
@@ -1009,6 +1943,7 @@ Object {
         "a": Object {
           "context": Object {
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "text",
             },
           },
@@ -1018,6 +1953,7 @@ Object {
         "b": Object {
           "context": Object {
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "text",
             },
           },
@@ -1034,8 +1970,10 @@ exports[`inferType() individual:select(a := name, b := name).a 1`] = `
 Object {
   "context": Object {
     "type": Object {
+      "domain": <DOMAIN>,
       "name": "seq",
       "type": Object {
+        "domain": <DOMAIN>,
         "name": "text",
       },
     },
@@ -1045,10 +1983,13 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -1058,16 +1999,25 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
-            "fields": Object {
+            "attribute": Object {
               "a": Object {
-                "name": "text",
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "text",
+                },
               },
               "b": Object {
-                "name": "text",
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "text",
+                },
               },
             },
+            "domain": <DOMAIN>,
+            "entity": null,
             "name": "record",
           },
         },
@@ -1077,6 +2027,7 @@ Object {
         "a": Object {
           "context": Object {
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "text",
             },
           },
@@ -1086,6 +2037,7 @@ Object {
         "b": Object {
           "context": Object {
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "text",
             },
           },
@@ -1097,8 +2049,10 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "domain": <DOMAIN>,
             "name": "text",
           },
         },
@@ -1114,20 +2068,31 @@ exports[`inferType() individual:select(a := name, s := sample) 1`] = `
 Object {
   "context": Object {
     "type": Object {
+      "domain": <DOMAIN>,
       "name": "seq",
       "type": Object {
-        "fields": Object {
+        "attribute": Object {
           "a": Object {
-            "name": "text",
+            "type": Object {
+              "domain": <DOMAIN>,
+              "name": "text",
+            },
           },
           "s": Object {
-            "name": "seq",
             "type": Object {
-              "entity": "sample",
-              "name": "entity",
+              "domain": <DOMAIN>,
+              "name": "seq",
+              "type": Object {
+                "attribute": null,
+                "domain": <DOMAIN>,
+                "entity": "sample",
+                "name": "record",
+              },
             },
           },
         },
+        "domain": <DOMAIN>,
+        "entity": null,
         "name": "record",
       },
     },
@@ -1137,10 +2102,13 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -1150,20 +2118,31 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
-            "fields": Object {
+            "attribute": Object {
               "a": Object {
-                "name": "text",
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "text",
+                },
               },
               "s": Object {
-                "name": "seq",
                 "type": Object {
-                  "entity": "sample",
-                  "name": "entity",
+                  "domain": <DOMAIN>,
+                  "name": "seq",
+                  "type": Object {
+                    "attribute": null,
+                    "domain": <DOMAIN>,
+                    "entity": "sample",
+                    "name": "record",
+                  },
                 },
               },
             },
+            "domain": <DOMAIN>,
+            "entity": null,
             "name": "record",
           },
         },
@@ -1173,6 +2152,7 @@ Object {
         "a": Object {
           "context": Object {
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "text",
             },
           },
@@ -1182,10 +2162,13 @@ Object {
         "s": Object {
           "context": Object {
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "seq",
               "type": Object {
+                "attribute": null,
+                "domain": <DOMAIN>,
                 "entity": "sample",
-                "name": "entity",
+                "name": "record",
               },
             },
           },
@@ -1202,19 +2185,29 @@ exports[`inferType() individual:select(a := name, s := sample.title) 1`] = `
 Object {
   "context": Object {
     "type": Object {
+      "domain": <DOMAIN>,
       "name": "seq",
       "type": Object {
-        "fields": Object {
+        "attribute": Object {
           "a": Object {
-            "name": "text",
-          },
-          "s": Object {
-            "name": "seq",
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "text",
             },
           },
+          "s": Object {
+            "type": Object {
+              "domain": <DOMAIN>,
+              "name": "seq",
+              "type": Object {
+                "domain": <DOMAIN>,
+                "name": "text",
+              },
+            },
+          },
         },
+        "domain": <DOMAIN>,
+        "entity": null,
         "name": "record",
       },
     },
@@ -1224,10 +2217,13 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -1237,19 +2233,29 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
-            "fields": Object {
+            "attribute": Object {
               "a": Object {
-                "name": "text",
-              },
-              "s": Object {
-                "name": "seq",
                 "type": Object {
+                  "domain": <DOMAIN>,
                   "name": "text",
                 },
               },
+              "s": Object {
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "seq",
+                  "type": Object {
+                    "domain": <DOMAIN>,
+                    "name": "text",
+                  },
+                },
+              },
             },
+            "domain": <DOMAIN>,
+            "entity": null,
             "name": "record",
           },
         },
@@ -1259,6 +2265,7 @@ Object {
         "a": Object {
           "context": Object {
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "text",
             },
           },
@@ -1268,8 +2275,10 @@ Object {
         "s": Object {
           "context": Object {
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "seq",
               "type": Object {
+                "domain": <DOMAIN>,
                 "name": "text",
               },
             },
@@ -1279,10 +2288,13 @@ Object {
             Object {
               "context": Object {
                 "type": Object {
+                  "domain": <DOMAIN>,
                   "name": "seq",
                   "type": Object {
+                    "attribute": null,
+                    "domain": <DOMAIN>,
                     "entity": "sample",
-                    "name": "entity",
+                    "name": "record",
                   },
                 },
               },
@@ -1292,8 +2304,10 @@ Object {
             Object {
               "context": Object {
                 "type": Object {
+                  "domain": <DOMAIN>,
                   "name": "seq",
                   "type": Object {
+                    "domain": <DOMAIN>,
                     "name": "text",
                   },
                 },
@@ -1313,16 +2327,25 @@ exports[`inferType() individual:select(a := name, s := sample:count()) 1`] = `
 Object {
   "context": Object {
     "type": Object {
+      "domain": <DOMAIN>,
       "name": "seq",
       "type": Object {
-        "fields": Object {
+        "attribute": Object {
           "a": Object {
-            "name": "text",
+            "type": Object {
+              "domain": <DOMAIN>,
+              "name": "text",
+            },
           },
           "s": Object {
-            "name": "number",
+            "type": Object {
+              "domain": <DOMAIN>,
+              "name": "number",
+            },
           },
         },
+        "domain": <DOMAIN>,
+        "entity": null,
         "name": "record",
       },
     },
@@ -1332,10 +2355,13 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },
@@ -1345,16 +2371,25 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
-            "fields": Object {
+            "attribute": Object {
               "a": Object {
-                "name": "text",
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "text",
+                },
               },
               "s": Object {
-                "name": "number",
+                "type": Object {
+                  "domain": <DOMAIN>,
+                  "name": "number",
+                },
               },
             },
+            "domain": <DOMAIN>,
+            "entity": null,
             "name": "record",
           },
         },
@@ -1364,6 +2399,7 @@ Object {
         "a": Object {
           "context": Object {
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "text",
             },
           },
@@ -1373,6 +2409,7 @@ Object {
         "s": Object {
           "context": Object {
             "type": Object {
+              "domain": <DOMAIN>,
               "name": "number",
             },
           },
@@ -1381,10 +2418,13 @@ Object {
             Object {
               "context": Object {
                 "type": Object {
+                  "domain": <DOMAIN>,
                   "name": "seq",
                   "type": Object {
+                    "attribute": null,
+                    "domain": <DOMAIN>,
                     "entity": "sample",
-                    "name": "entity",
+                    "name": "record",
                   },
                 },
               },
@@ -1395,6 +2435,7 @@ Object {
               "aggregate": "count",
               "context": Object {
                 "type": Object {
+                  "domain": <DOMAIN>,
                   "name": "number",
                 },
               },
@@ -1418,10 +2459,13 @@ Object {
     Object {
       "context": Object {
         "type": Object {
+          "domain": <DOMAIN>,
           "name": "seq",
           "type": Object {
+            "attribute": null,
+            "domain": <DOMAIN>,
             "entity": "individual",
-            "name": "entity",
+            "name": "record",
           },
         },
       },

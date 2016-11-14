@@ -197,13 +197,7 @@ function getColumnConfigImpl(
 }
 
 function getColumnTitle(query: NavigateQuery): string {
-  if (query.context.domainEntityAttrtibute) {
-    return query.context.domainEntityAttrtibute.title;
-  } else if (query.context.domainEntity) {
-    return query.context.domainEntity.title;
-  } else {
-    return query.path;
-  }
+  return query.path;
 }
 
 function getData(data: Object, focusedSeq: Array<string>): Array<Object> {
@@ -314,7 +308,11 @@ function cellRenderer({
   } else if (query.context.type) {
     const type = query.context.type;
     const baseType = t.atom(type);
-    if (baseType.name === 'entity' && typeof cellData === 'object' && cellData != null) {
+    if (
+      baseType.name === 'record' &&
+      typeof cellData === 'object' &&
+      cellData != null
+    ) {
       if (type.name === 'seq') {
         if (Array.isArray(cellData)) {
           cellData = cellData.map(entity =>

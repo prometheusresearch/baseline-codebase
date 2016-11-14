@@ -297,7 +297,7 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
 
     let fields = nav.getNavigationAfter(pointer.query.context).filter((field) => {
       let atom = t.maybeAtom(field.context.type);
-      return (atom && (atom.name !== 'entity'));
+      return (atom && (atom.name !== 'record'));
     });
 
     let conditions = expressions.map((exp, idx) => {

@@ -40,21 +40,26 @@ export default class AddAggregateMenu extends React.Component {
   };
 
   onSelect = (payload: {
-    navigate: ?q.NavigateQuery;
-    aggregate: q.DomainAggregate;
+    path: Array<string>;
+    aggregate: t.DomainAggregate;
   }) => {
     this.context.actions.appendNavigateAndAggregate({
       pointer: this.props.pointer,
-      navigate: payload.navigate,
+      path: payload.path,
       aggregate: payload.aggregate,
     });
   };
 
   render() {
     let {
-      pointer: {query: {context: {domain, type}}},
+      pointer: {query},
     } = this.props;
-    let {searchTerm} = this.state;
+    let {
+      searchTerm
+    } = this.state;
+
+    let type = getEffectivePipelineType(query);
+    let domain = query.context.domain;
 
     if (type == null) {
       return <NoAggregateMenu />;
@@ -62,28 +67,11 @@ export default class AddAggregateMenu extends React.Component {
 
     let baseType = t.atom(type);
 
-    if (!(baseType.name === 'record' || baseType.name === 'entity')) {
+    if (baseType.name !== 'record') {
       return <NoAggregateMenu />;
     }
 
-    let columns = [];
-    if (baseType.name === 'record') {
-      for (let key in baseType.fields) {
-        // $FlowIssue: does not refine to !== null
-        if (!baseType.fields.hasOwnProperty(key)) {
-          continue;
-        }
-        // $FlowIssue: does not refine to !== null
-        let keyType = baseType.fields[key];
-        if (keyType == null) {
-          continue;
-        }
-        columns.push({
-          navigate: q.navigate(key),
-          type: t.leastUpperBound(type, keyType),
-        });
-      }
-    }
+    let columns = getColumnListToSummarize(type, true);
 
     let items = [];
     for (let name in domain.aggregate) {
@@ -97,7 +85,7 @@ export default class AddAggregateMenu extends React.Component {
       items.push(
         <AggregateButton
           key={aggregate.name}
-          navigate={null}
+          path={[]}
           aggregate={aggregate}
           name={name}
           onClick={this.onSelect}
@@ -106,7 +94,7 @@ export default class AddAggregateMenu extends React.Component {
     }
 
     for (let i = 0; i < columns.length; i++) {
-      let {type, navigate}= columns[i];
+      let {type, path} = columns[i];
       for (let name in domain.aggregate) {
         if (!domain.aggregate.hasOwnProperty(name)) {
           continue;
@@ -120,8 +108,8 @@ export default class AddAggregateMenu extends React.Component {
         }
         items.push(
           <AggregateButton
-            key={aggregate.name + '__' + navigate.path}
-            navigate={navigate}
+            key={aggregate.name + '__' + path.join('.')}
+            path={path}
             aggregate={aggregate}
             name={name}
             onClick={this.onSelect}
@@ -185,27 +173,81 @@ function NoAggregateMenu({title = 'Summarize'}) {
 class AggregateButton extends React.Component {
 
   props: {
-    navigate: ?q.NavigateQuery;
-    aggregate: q.DomainAggregate;
-    onClick: (payload: {navigate: ?q.NavigateQuery; aggregate: q.DomainAggregate}) => *;
+    path: Array<string>;
+    aggregate: t.DomainAggregate;
+    onClick: (payload: {
+      path: Array<string>;
+      aggregate: t.DomainAggregate
+    }) => *;
   };
 
   onClick = (ev: UIEvent) => {
     ev.stopPropagation();
-    let {onClick, navigate, aggregate} = this.props;
-    onClick({navigate, aggregate});
+    let {onClick, path, aggregate} = this.props;
+    onClick({path, aggregate});
   };
 
   render() {
-    let {navigate, aggregate} = this.props;
+    let {path, aggregate} = this.props;
     return (
       <MenuButton
         icon="＋"
         onClick={this.onClick}>
         <div>
-          {aggregate.title} {navigate ? navigate.path : ''}
+          {aggregate.title} {path.join(' ')}
         </div>
       </MenuButton>
     );
+  }
+}
+
+function getColumnListToSummarize(type: t.Type, noRecursion = false) {
+  let baseType = t.atom(type);
+  let columns = [];
+  if (baseType.name === 'record') {
+    let attribute = t.recordAttribute(baseType);
+    for (let key in attribute) {
+      if (!attribute.hasOwnProperty(key)) {
+        continue;
+      }
+      let attr = attribute[key];
+      if (attr.type == null) {
+        continue;
+      }
+
+      let column = {
+        path: [key],
+        type: t.leastUpperBound(type, attr.type),
+      };
+
+      if (t.atom(column.type).name === 'record') {
+        if (!noRecursion) {
+          columns = columns.concat(
+            getColumnListToSummarize(column.type, true)
+            .map(column => ({...column, path: [key].concat(column.path)}))
+          );
+        }
+        if (column.type.name === 'seq') {
+          columns.push(column);
+        }
+      } else {
+        columns.push(column);
+      }
+    }
+  }
+  return columns;
+}
+
+function getEffectivePipelineType(query: q.QueryPipeline): ?t.Type {
+  if (query.pipeline.length === 1) {
+    return query.context.type;
+  }
+
+  let last = query.pipeline[query.pipeline.length - 1];
+
+  if (last.name === 'select') {
+    return query.pipeline[query.pipeline.length - 2].context.type;
+  } else {
+    return query.context.type;
   }
 }

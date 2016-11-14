@@ -65,9 +65,9 @@ export let traverse: QueryVisTheme = {
 };
 
 export let filter: QueryVisTheme = {
-  backgroundColor: '#FF851B',
-  backgroundColorActive: '#FF851B',
-  borderColor: '#af5e17',
+  backgroundColor: '#ffb16e',
+  backgroundColorActive: '#ffb16e',
+  borderColor: '#ca8140',
   textColor: 'hsla(28, 100%, 20%, 1.0)',
   textColorActive: 'hsla(28, 100%, 20%, 1.0)',
 };
@@ -78,4 +78,12 @@ export let aggregate: QueryVisTheme = {
   borderColor: '#2a9898',
   textColor: '#06688e',
   textColorActive: '#06688e',
+};
+
+export let group: QueryVisTheme = {
+  backgroundColor: '#b264e2',
+  backgroundColorActive: '#b264e2',
+  borderColor: '#6c17a0',
+  textColor: '#3e1458',
+  textColorActive: '#3e1458',
 };

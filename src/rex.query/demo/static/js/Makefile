@@ -16,13 +16,13 @@ lint:
 	@$(BIN)/eslint ./src
 
 test:
-	@$(BIN)/react-scripts test
+	@$(BIN)/jest
 
 test-cov:
-	@$(BIN)/react-scripts test --coverage
+	@$(BIN)/jest test --coverage
 
 ci:
-	@$(BIN)/react-scripts test --watch
+	@$(BIN)/jest --watch
 
 check:
 	@$(BIN)/flow --show-all-errors

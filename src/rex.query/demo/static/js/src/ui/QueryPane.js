@@ -46,6 +46,11 @@ export let AggregatePane = createPane({
   theme: theme.aggregate
 });
 
+export let GroupPane = createPane({
+  displayName: 'GroupPane',
+  theme: theme.group,
+});
+
 export let DefinePane = createPane({
   displayName: 'DefinePane',
   theme: theme.traverse

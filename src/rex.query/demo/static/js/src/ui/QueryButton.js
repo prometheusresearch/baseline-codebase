@@ -86,6 +86,11 @@ export let AggregateButton = createButton({
   theme: theme.aggregate
 });
 
+export let GroupButton = createButton({
+  displayName: 'GroupButton',
+  theme: theme.group,
+});
+
 export let DefineButton = createButton({
   displayName: 'AggregateButton',
   theme: theme.traverse

@@ -5,7 +5,6 @@
 import * as t from './Type';
 import * as q from './Query';
 
-
 export type Navigation = {
   value: string;
   label: string;
@@ -14,7 +13,7 @@ export type Navigation = {
 
 
 export function getNavigationBefore(context: q.Context): Array<Navigation> {
-  return getNavigation(context, context.inputType);
+  return getNavigation(context, context.prev.type);
 }
 
 
@@ -45,8 +44,8 @@ export function getNavigation(context: q.Context, type: ?t.Type) {
           });
         }
       }
-    } else if (baseType.name === 'entity') {
-      let attribute = domain.entity[baseType.entity].attribute;
+    } else if (baseType.name === 'record' && baseType.entity != null) {
+      let attribute = t.recordAttribute(baseType);
       for (let k in attribute) {
         if (attribute.hasOwnProperty(k)) {
           navigation.push({

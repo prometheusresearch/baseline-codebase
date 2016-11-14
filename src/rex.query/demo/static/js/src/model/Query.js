@@ -61,6 +61,12 @@ export type AggregateQuery = {
   +context: Context;
 };
 
+export type GroupQuery = {
+  +name: 'group';
+  +byPath: Array<string>;
+  +context: Context;
+};
+
 export type QueryPipeline = {
   +name: 'pipeline',
   +pipeline: Array<Query>;
@@ -118,6 +124,7 @@ export type Query =
   | DefineQuery
   | FilterQuery
   | LimitQuery
+  | GroupQuery
   | AggregateQuery
   | QueryPipeline;
 
@@ -134,43 +141,6 @@ export type Expression =
   | {name: 'query'; query: Query; context: Context};
 
 /**
- * Domain represents data schema.
- *
- * TODO: this is incomplete, needs to be extended.
- */
-export type Domain = {
-
-  // Aggregate catalogue.
-  aggregate: {
-    [aggregateName: string]: DomainAggregate;
-  };
-
-  // Entity catalogue (tables).
-  entity: {
-    [entityName: string]: DomainEntity;
-  };
-};
-
-export type DomainAggregate = {
-  title: string;
-  name: string;
-  isAllowed: (typ: t.Type) => boolean;
-  makeType: (typ: t.Type) => t.Type;
-};
-
-export type DomainEntity = {
-  title: string;
-  attribute: {
-    [attributeName: string]: DomainEntityAttribute;
-  };
-};
-
-export type DomainEntityAttribute = {
-  title: string;
-  type: t.Type
-};
-
-/**
  * Set of queries in scope (by key).
  *
  * Usually those introduced by .define(name := ...) combinator.
@@ -182,36 +152,27 @@ export type Scope = {
 /**
  * Query context represents knowledge about query at any given point.
  */
-export type Context = {
+export type Context = {|
+  // link to the prev query context
   prev: Context;
 
   // domain
-  domain: Domain;
-
-  domainEntity: ?DomainEntity;
-
-  domainEntityAttrtibute: ?DomainEntityAttribute;
+  domain: t.Domain;
 
   // scope which query can reference other queries from
   scope: Scope;
 
-  // output type of the query
-  inputType: ?t.Type;
-
-  // output type of the query
+  // output type of the query, null means invalid type
   type: ?t.Type;
-};
+|};
 
 export const emptyScope: Scope = {};
-export const emptyDomain: Domain = {entity: {}, aggregate: {}};
+export const emptyDomain: t.Domain = {entity: {}, aggregate: {}};
 export const emptyContext = {
   prev: ((null: any): Context),
-  inputType: null,
   type: null,
   scope: emptyScope,
   domain: emptyDomain,
-  domainEntity: null,
-  domainEntityAttrtibute: null,
 };
 
 emptyContext.prev = emptyContext;
@@ -244,6 +205,10 @@ export function limit(limit: number): LimitQuery {
 
 export function aggregate(aggregate: string): AggregateQuery {
   return {name: 'aggregate', aggregate, context: emptyContext};
+}
+
+export function group(byPath: Array<string>): GroupQuery {
+  return {name: 'group', byPath, context: emptyContext};
 }
 
 export function pipeline(...pipeline: Array<Query>): QueryPipeline {
@@ -294,13 +259,9 @@ export function exists(expression: Expression): UnaryQuery {
   return {name: 'unary', op: 'exists', expression, context: emptyContext};
 }
 
-
 function withContext<Q: Query>(query: Q, context: Context): Q {
-  return transformQuery(query, {
-    otherwise(query) {
-      return (({...query, context}: any): Q);
-    }
-  });
+  let nextQuery: any = {...query, context};
+  return (nextQuery: Q);
 }
 
 export function inferExpressionType(context: Context, query: Expression): Expression {
@@ -342,7 +303,8 @@ export function inferExpressionType(context: Context, query: Expression): Expres
 }
 
 export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
-  const {domain, domainEntity, domainEntityAttrtibute, type, scope} = context;
+  const {domain, type, scope} = context;
+  const invalidContext = {prev: context, domain, scope, type: null};
   let nextQuery = transformQuery(query, {
     here: query => {
       if (type == null) {
@@ -354,7 +316,6 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
             ...context,
             prev: context,
             type,
-            inputType: type
           },
         };
       }
@@ -378,7 +339,6 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         context: {
           ...nextContext,
           prev: context,
-          inputType: type
         },
       };
     },
@@ -398,20 +358,17 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
       }
       let baseType = t.atom(type);
       let nextSelect = {};
-      let fields = {};
+      let attribute = {};
       for (let k in query.select) {
         if (query.select.hasOwnProperty(k)) {
           let q = inferQueryType({
             prev: context,
             domain,
-            domainEntity,
-            domainEntityAttrtibute,
             scope,
-            inputType: context.type,
             type: baseType,
           }, query.select[k]);
           nextSelect[k] = q;
-          fields[k] = q.context.type;
+          attribute[k] = {type: q.context.type};
         }
       }
       return {
@@ -420,11 +377,8 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         context: {
           prev: context,
           domain,
-          domainEntity: null,
-          domainEntityAttrtibute: null,
           scope,
-          inputType: context.type,
-          type: t.leastUpperBound(type, {name: 'record', fields}),
+          type: t.leastUpperBound(type, t.recordType(domain, attribute)),
         }
       };
     },
@@ -450,10 +404,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         context: {
           prev: context,
           domain,
-          domainEntity,
-          domainEntityAttrtibute,
           scope: nextScope,
-          inputType: context.type,
           type,
         }
       };
@@ -465,68 +416,92 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
       let aggregate = domain.aggregate[query.aggregate];
       if (aggregate == null) {
         // unknown aggregate
-        return withContext(query, {
-          prev: context,
-          domain,
-          domainEntity: null,
-          domainEntityAttrtibute: null,
-          scope,
-          inputType: context.type,
-          type: null,
-        });
+        return withContext(query, invalidContext);
       }
       // TODO: validate input type
       if (type.name !== 'seq') {
         // not a seq
-        return withContext(query, {
-          prev: context,
-          domain,
-          domainEntity: null,
-          domainEntityAttrtibute: null,
-          scope,
-          inputType: context.type,
-          type: null,
-        });
+        return withContext(query, invalidContext);
       }
       return withContext(query, {
         prev: context,
         domain,
-        domainEntity: null,
-        domainEntityAttrtibute: null,
         scope: {},
-        inputType: context.type,
         type: aggregate.makeType(type.type),
       });
+    },
+    group: query => {
+      if (type == null) {
+        return withContext(query, context);
+      }
+      if (type.name !== 'seq') {
+        return withContext(query, invalidContext);
+      }
+      let baseType = t.atom(type);
+      if (baseType.name !== 'record') {
+        return withContext(query, invalidContext);
+      }
 
+      const entity = baseType.entity;
+      if (entity == null) {
+        return withContext(query, invalidContext);
+      }
+
+      if (query.byPath.length === 0) {
+        return {
+          name: 'group',
+          byPath: [],
+          context: {
+            prev: context,
+            scope,
+            domain,
+            type: context.type,
+          },
+        };
+      }
+
+      let baseTypeAttribute = t.recordAttribute(baseType);
+
+      let attribute = {};
+      for (let i = 0; i < query.byPath.length; i++) {
+        let k = query.byPath[i];
+        if (baseTypeAttribute[k] == null) {
+          return withContext(query, invalidContext);
+        }
+        attribute[k] = {
+          type: baseTypeAttribute[k].type,
+          groupBy: true,
+        };
+      }
+
+      attribute[entity] = {
+        type: t.seqType(t.entityType(domain, entity)),
+      };
+
+      return withContext(query, {
+        prev: context,
+        domain,
+        scope: {},
+        type: t.seqType(t.recordType(domain, attribute)),
+      });
     },
     navigate: query => {
       if (type == null) {
         return withContext(query, context);
       }
       let baseType = t.atom(type);
-      if (baseType.name === 'entity') {
+      if (baseType.name === 'record' && baseType.entity != null) {
         let entity = domain.entity[baseType.entity];
         if (entity == null) {
           // unknown entity
-          return withContext(query, {
-            prev: context,
-            domain,
-            domainEntity: null,
-            domainEntityAttrtibute: null,
-            scope,
-            inputType: context.type,
-            type: null,
-          });
+          return withContext(query, invalidContext);
         }
         let attr = entity.attribute[query.path];
         if (attr != null) {
           return withContext(query, {
             prev: context,
             domain,
-            domainEntity,
-            domainEntityAttrtibute: attr,
             scope: {},
-            inputType: context.type,
             type: t.leastUpperBound(type, attr.type),
           });
         }
@@ -535,43 +510,20 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
           return withContext(query, {
             prev: context,
             domain,
-            domainEntity: getDomainEntityFromDefinition(
-              domain,
-              query.path,
-              definition.query
-            ),
-            domainEntityAttrtibute: getDomainEntityAttributeFromDefinition(
-              domain,
-              domainEntity,
-              query.path,
-              definition.query
-            ),
             scope: {},
-            inputType: context.type,
             type: inferQueryType(context, definition.query).context.type,
           });
         }
         // unknown attribute
-        return withContext(query, {
-          prev: context,
-          domain,
-          domainEntity: null,
-          domainEntityAttrtibute: null,
-          scope,
-          inputType: context.type,
-          type: null,
-        });
+        return withContext(query, invalidContext);
       } else if (baseType.name === 'record') {
-        let field = baseType.fields[query.path];
+        let field = t.recordAttribute(baseType)[query.path];
         if (field != null) {
           return withContext(query, {
             prev: context,
             domain,
-            domainEntity: null,
-            domainEntityAttrtibute: null,
             scope,
-            inputType: context.type,
-            type: t.leastUpperBound(type, field),
+            type: t.leastUpperBound(type, field.type),
           });
         }
         let definition = scope[query.path];
@@ -579,43 +531,20 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
           return withContext(query, {
             prev: context,
             domain,
-            domainEntity: getDomainEntityFromDefinition(
-              domain,
-              query.path,
-              definition.query
-            ),
-            domainEntityAttrtibute: getDomainEntityAttributeFromDefinition(
-              domain,
-              domainEntity,
-              query.path,
-              definition.query,
-            ),
             scope,
-            inputType: context.type,
             type: inferQueryType(context, definition.query).context.type,
           });
         }
         // unknown field
-        return withContext(query, {
-          prev: context,
-          domain,
-          domainEntity: null,
-          domainEntityAttrtibute: null,
-          scope,
-          inputType: context.type,
-          type: null,
-        });
+        return withContext(query, invalidContext);
       } else if (baseType.name === 'void') {
         let entity = domain.entity[query.path];
         if (entity != null) {
           return withContext(query, {
             prev: context,
             domain,
-            domainEntity: entity,
-            domainEntityAttrtibute: null,
             scope,
-            inputType: context.type,
-            type: t.seqType(t.entityType(query.path)),
+            type: t.seqType(t.entityType(domain, query.path)),
           });
         }
         let definition = scope[query.path];
@@ -623,87 +552,29 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
           return withContext(query, {
             prev: context,
             domain,
-            domainEntity: getDomainEntityFromDefinition(
-              domain,
-              query.path,
-              definition.query
-            ),
-            domainEntityAttrtibute: getDomainEntityAttributeFromDefinition(
-              domain,
-              domainEntity,
-              query.path,
-              definition.query
-            ),
             scope,
-            inputType: context.type,
             type: inferQueryType(context, definition.query).context.type,
           });
         }
         // unknown entity
-        return withContext(query, {
-          prev: context,
-          domain,
-          domainEntity: null,
-          domainEntityAttrtibute: null,
-          scope,
-          inputType: context.type,
-          type: null,
-        });
+        return withContext(query, invalidContext);
       } else {
         // can't navigate from this type
-        return withContext(query, {
-          prev: context,
-          domain,
-          domainEntity: null,
-          domainEntityAttrtibute: null,
-          scope,
-          inputType: context.type,
-          type: null,
-        });
+        return withContext(query, invalidContext);
       }
     },
   });
   return ((nextQuery: any): Q);
 }
 
-function getDomainEntityFromDefinition(domain, name, query): ?DomainEntity {
-  if (query.context.type == null) {
-    return null;
-  }
-  let baseType = t.atom(query.context.type);
-  if (baseType.name !== 'entity') {
-    return null;
-  }
-  let entity = domain[baseType.entity];
-  return entity;
-}
-
-function getDomainEntityAttributeFromDefinition(domain, domainEntity, name, query): ?DomainEntityAttribute {
-  if (domainEntity == null) {
-    return null;
-  }
-  if (query.context.type == null) {
-    return null;
-  }
-  let baseType = t.atom(query.context.type);
-  if (baseType.name === 'entity') {
-    return null;
-  }
-  let attr = domainEntity.attribute[name];
-  return attr;
-}
-
 /**
  * Infer the type of the query in context of a domain.
  */
-export function inferType<Q: Query>(domain: Domain, query: Q): Q {
+export function inferType<Q: Query>(domain: t.Domain, query: Q): Q {
   let context = {
     prev: emptyContext,
     domain,
-    domainEntity: null,
-    domainEntityAttrtibute: null,
-    inputType: t.voidType,
-    type: t.voidType,
+    type: t.voidType(domain),
     scope: {}
   };
   return inferQueryType(context, query);
@@ -725,6 +596,7 @@ export function flattenPipeline(query: QueryPipeline): QueryPipeline {
 type TransformQuery<A, B, C, R = Query> = {
   pipeline?: (query: QueryPipeline, a: A, b: B, c: C) => R;
   aggregate?: (query: AggregateQuery, a: A, b: B, c: C) => R;
+  group?: (query: GroupQuery, a: A, b: B, c: C) => R;
   limit?: (query: LimitQuery, a: A, b: B, c: C) => R;
   here?: (query: HereQuery, a: A, b: B, c: C) => R;
   select?: (query: SelectQuery, a: A, b: B, c: C) => R;
@@ -761,6 +633,10 @@ export function transformQuery<A, B, C, R>(
     case 'aggregate':
       return transform.aggregate
         ? transform.aggregate(query, a, b, c)
+        : otherwise(query, a, b, c);
+    case 'group':
+      return transform.group
+        ? transform.group(query, a, b, c)
         : otherwise(query, a, b, c);
     case 'limit':
       return transform.limit
@@ -930,17 +806,18 @@ export function resolveName(context: Context, name: string): ?t.Type {
   let {scope, domain, type} = context;
   if (type != null) {
     type = t.atom(type);
-    if (type.name === 'record' && type.fields[name] != null) {
-      return type.fields[name];
+    if (type.name === 'record' && t.recordAttribute(type)[name] != null) {
+      return t.recordAttribute(type)[name].type;
     }
     if (
       type.name === 'void' &&
       domain.entity[name] != null
     ) {
-      return t.entityType(name);
+      return t.entityType(context.domain, name);
     }
     if (
-      type.name === 'entity' &&
+      type.name === 'record' &&
+      type.entity != null &&
       domain.entity[type.entity] != null &&
       domain.entity[type.entity].attribute[name] != null
     ) {
@@ -966,7 +843,7 @@ export function resolvePath(context: Context, path: Array<string>): ?t.Type {
     if (type === undefined) {
       return undefined;
     } else {
-      context = {...context, type};
+      context = (({...context, type}: any): Context);
     }
   }
   return type;

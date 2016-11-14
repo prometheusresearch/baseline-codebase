@@ -42,19 +42,19 @@ export default class QueryVisToolbar
     }
     return (
       <VBox height={32} width="100%" style={{backgroundColor: 'white'}}>
-        <HBox padding={2} justifyContent="flex-end">
-          {canFilter &&
-            <QueryVisToolbarButton
-              onClick={this.onFilter}
-              icon={<PlusIcon />}>
-              Filter
-            </QueryVisToolbarButton>}
+        <HBox padding={2} justifyContent="flex-start">
           {canNavigate &&
             <QueryVisToolbarButton
               disabled={disableAdd}
               onClick={this.onAdd}
               icon={<PlusIcon />}>
               Add
+            </QueryVisToolbarButton>}
+          {canFilter &&
+            <QueryVisToolbarButton
+              onClick={this.onFilter}
+              icon={<PlusIcon />}>
+              Filter
             </QueryVisToolbarButton>}
         </HBox>
       </VBox>
@@ -148,7 +148,7 @@ function canNavigateAt(type: ?Type) {
   type = t.maybeAtom(type);
   return (
     type &&
-    (type.name === 'record' || type.name === 'entity' || type.name === 'void')
+    (type.name === 'record' || type.name === 'void')
   );
 }
 

@@ -66,12 +66,19 @@ export default class AddQueryPanel extends React.Component<*, AddColumnPanelProp
     this.context.actions.appendFilter({pointer: this.props.pointer});
   };
 
+  onGroup = (ev: UIEvent) => {
+    ev.stopPropagation();
+    this.context.actions.appendGroup({pointer: this.props.pointer});
+  };
+
   render() {
     let {pointer, ...props} = this.props;
     let {activeTab} = this.state;
+    let type = pointer.query.context.type;
     let pipeline = getPipeline(pointer);
-    let canFilter = canFilterAt(pointer.query.context.type);
-    let canAggregate = canAggregateAt(pointer.query.context.type);
+    let canFilter = canFilterAt(type);
+    let canGroup = canGroupAt(type);
+    let canAggregate = canAggregateAt(type);
     if (activeTab == null) {
       return (
         <QueryPanelBase
@@ -91,6 +98,12 @@ export default class AddQueryPanel extends React.Component<*, AddColumnPanelProp
                   icon="＋"
                   onClick={this.onActiveTabAggregate}>
                   Summarize
+                </MenuButton>}
+              {canGroup &&
+                <MenuButton
+                  icon="＋"
+                  onClick={this.onGroup}>
+                  Group
                 </MenuButton>}
             </MenuGroup>}
           <ColumnPicker
@@ -137,6 +150,11 @@ function canFilterAt(type: ?Type) {
 
 function canAggregateAt(type: ?Type) {
   return isSeqAt(type);
+}
+
+
+function canGroupAt(type: ?Type) {
+  return type && type.name === 'seq' && type.type.name === 'record';
 }
 
 function isSeqAt(type: ?Type) {

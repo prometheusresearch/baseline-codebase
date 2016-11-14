@@ -6,34 +6,35 @@ import {
   here, pipeline, navigate, select, def,
   inferType
 } from '../../Query';
-import * as qp from '../../QueryPointer';
 import {stripContext} from '../../__tests__/util';
 import reconcileNavigation from '../reconcileNavigation';
 
-const domain = {
+const domain = t.createDomain({
   entity: {
-    individual: {
+    individual: domain => ({
       attribute: {
         name: {
-          type: t.textType,
+          type: t.textType(domain),
         },
         age: {
-          type: t.numberType,
+          type: t.numberType(domain),
         },
         study: {
-          type: t.entityType('study'),
+          type: t.entityType(domain, 'study'),
         },
       }
-    },
-    study: {
+    }),
+    study: domain => ({
       attribute: {
         name: {
-          type: t.textType
+          type: t.textType(domain),
         },
       }
-    },
-  }
-};
+    }),
+  },
+  aggregate: {
+  },
+});
 
 const individual = navigate('individual');
 const name = navigate('name');
@@ -41,7 +42,7 @@ const age = navigate('age');
 
 describe('reconcileNavigation()', function() {
 
-  jestMatchers.addMatchers({
+  jestMatchers.expect.extend({
     toBeReconciledAs(received, expected) {
       let query = reconcileNavigation(inferType(domain, received.query));
       return matchers.toEqual(

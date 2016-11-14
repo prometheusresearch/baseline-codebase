@@ -39,7 +39,7 @@ function getPipelineFocusList(
   let type = maybeAtom(query.context.type);
   if (type == null) {
     return [];
-  } else if (type.name === 'record' || type.name === 'entity') {
+  } else if (type.name === 'record') {
     // TODO: Remove flattenPipeline, make sure it's not needed.
     let pipeline = flattenPipeline(query).pipeline;
     let seenNavigate = false;

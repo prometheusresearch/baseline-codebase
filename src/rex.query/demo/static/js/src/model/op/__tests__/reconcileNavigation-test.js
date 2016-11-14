@@ -37,6 +37,7 @@ const domain = t.createDomain({
 });
 
 const individual = navigate('individual');
+const study = navigate('study');
 const name = navigate('name');
 const age = navigate('age');
 
@@ -70,7 +71,8 @@ describe('reconcileNavigation()', function() {
         individual,
         select({
           name: pipeline(name),
-          age: pipeline(age)
+          age: pipeline(age),
+          study: pipeline(study),
         }),
       ),
       selected: null
@@ -93,6 +95,7 @@ describe('reconcileNavigation()', function() {
         select({
           name: pipeline(name),
           age: pipeline(age),
+          study: pipeline(study),
         }),
       ),
       selected: null
@@ -116,6 +119,7 @@ describe('reconcileNavigation()', function() {
           select({
             age: pipeline(age),
             name: pipeline(name),
+            study: pipeline(study),
           })
         ))
       ),
@@ -144,6 +148,7 @@ describe('reconcileNavigation()', function() {
           select({
             age: pipeline(age),
             name: pipeline(name),
+            study: pipeline(study),
           })
         ))
       ),
@@ -171,6 +176,7 @@ describe('reconcileNavigation()', function() {
         select({
           name: pipeline(name),
           age: pipeline(age),
+          study: pipeline(study),
         }),
       ),
       selected: null
@@ -198,6 +204,7 @@ describe('reconcileNavigation()', function() {
         select({
           name: pipeline(name),
           age: pipeline(age),
+          study: pipeline(study),
         }),
       ),
       selected: [
@@ -227,6 +234,7 @@ describe('reconcileNavigation()', function() {
         select({
           name: pipeline(name),
           age: pipeline(age),
+          study: pipeline(study),
         }),
       ),
       selected: [
@@ -377,6 +385,7 @@ describe('reconcileNavigation()', function() {
         select({
           name: pipeline(name),
           age: pipeline(age),
+          study: pipeline(study)
         }),
       ),
       selected: [

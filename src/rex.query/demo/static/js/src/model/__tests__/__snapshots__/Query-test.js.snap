@@ -1123,6 +1123,7 @@ Object {
       "type": Object {
         "attribute": Object {
           "age": Object {
+            "groupBy": true,
             "type": Object {
               "domain": <DOMAIN>,
               "name": "opt",
@@ -1186,6 +1187,7 @@ Object {
           "type": Object {
             "attribute": Object {
               "age": Object {
+                "groupBy": true,
                 "type": Object {
                   "domain": <DOMAIN>,
                   "name": "opt",
@@ -1270,6 +1272,7 @@ Object {
           "type": Object {
             "attribute": Object {
               "age": Object {
+                "groupBy": true,
                 "type": Object {
                   "domain": <DOMAIN>,
                   "name": "opt",
@@ -1413,6 +1416,7 @@ Object {
           "type": Object {
             "attribute": Object {
               "age": Object {
+                "groupBy": true,
                 "type": Object {
                   "domain": <DOMAIN>,
                   "name": "opt",
@@ -1659,6 +1663,7 @@ Object {
           "type": Object {
             "attribute": Object {
               "age": Object {
+                "groupBy": true,
                 "type": Object {
                   "domain": <DOMAIN>,
                   "name": "opt",

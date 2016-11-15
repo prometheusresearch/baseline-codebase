@@ -52,7 +52,6 @@ export default class AddNavigateMenu extends React.Component {
     path: string;
   }) => {
     let pointer = this.props.pointer;
-    console.log(pointer);
     this.context.actions.appendNavigate({
       pointer: pointer,
       path: [payload.path],

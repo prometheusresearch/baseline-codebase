@@ -119,7 +119,7 @@ class WizardIntrospection(ActionIntrospection):
                 debug=debug)
         if detailed:
 
-            def _introspect_path(instruction):
+            def _introspect_path(instruction, _state=None):
                 if hasattr(instruction, 'action_instance'):
                     action_introspection = instruction.action_instance._introspection
                     if action_introspection is None:

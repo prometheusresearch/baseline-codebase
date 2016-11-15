@@ -104,6 +104,15 @@ class WizardWidgetBase(Widget):
             )
             self.path = self.path.resolve(validate_path)
 
+        self._enrich_domain()
+
+    def _enrich_domain(self):
+        def _visit(instruction, domain):
+            if hasattr(instruction, 'action_instance'):
+                domain = domain.merge(instruction.action_instance.domain)
+            return domain
+        self.states = instruction.visit(self.path, _visit, self.domain)
+
     def _resolve_action(self, ref):
         action = self.actions[ref]
         if isinstance(action, WizardBase) and not action.included:
@@ -152,7 +161,7 @@ class WizardWidgetBase(Widget):
                 port = self._port_cache[port_cache_key]
             else:
                 port = Port(params_defs + [{'entity': entity.type, 'select': []}])
-                port = typing.annotate_port(self.states, port)
+                port = typing.annotate_port(self.domain, port)
                 self._port_cache[port_cache_key] = port
 
             product = port.produce((u'*', entity.id), **params_bind)
@@ -198,7 +207,7 @@ class WizardWidgetBase(Widget):
         input_nodes = self.path.then
         output_nodes = []
 
-        def _find_output_nodes(inst):
+        def _find_output_nodes(inst, _state=None):
             if not inst.then and not isinstance(inst, instruction.Repeat):
                 output_nodes.append(inst)
 
@@ -371,74 +380,6 @@ def _type_repr(kind):
         return kind.type_name
     else:
         return repr(kind)
-
-
-local_action_ref_val = ActionReferenceVal(reference_type=LocalActionReference)
-
-
-def resolve_action_reference(ref, actions=None, package=None, domain=None):
-    """ Resolve action reference to action instance.
-
-    :param ref: Action reference
-    :keyword actions: Local actions bindings
-    :keyword package: Current package
-    :keyword domain: Current domain
-    :returns: Action instance for a reference
-    """
-    # Prevent circular imports
-    from .map import ActionRenderer
-
-    action = None
-
-    actions = actions or {}
-    domain = domain or typing.Domain.current()
-
-    ref = local_action_ref_val(ref)
-
-    if not ref.id in actions:
-        raise Error('Found unknown action reference:', ref.id)
-
-    action = actions[ref.id]
-
-    if isinstance(action, GlobalActionReference):
-        global_ref = action
-        if not global_ref.package:
-            if not package:
-                raise Error(
-                    'Package name is missing, use pkg:path syntax',
-                    global_ref)
-            handler = route('%s:%s' % (package.name, global_ref.id))
-        else:
-            return load_action(global_ref)
-
-        if handler is None:
-            raise Error(
-                'Cannot resolve global action reference:',
-                global_ref)
-        elif not isinstance(handler, ActionRenderer):
-            raise Error(
-                'Action reference resolves to handler of a non-action type:',
-                global_ref)
-        else:
-            action = handler.action.__validated_clone__(id=ref.id)
-
-    action = action.with_domain(action.domain.merge(domain))
-    return action
-
-
-@autoreload
-def load_action(ref, open=open):
-    packages = get_packages()
-    with guard('While loading action:', ref):
-        if ref.package not in packages:
-            raise Error('Invalid package name:', ref.package)
-        package = packages[ref.package]
-        if not package.exists(ref.id):
-            raise Error('Invalid path:', ref)
-        filename = package.abspath(ref.id)
-        with open(filename) as stream:
-            validate = ActionVal(id=ref.id)
-            return validate.parse(stream, open=open)
 
 
 class WizardBase(WizardWidgetBase, ActionBase):

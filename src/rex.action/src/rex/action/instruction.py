@@ -86,13 +86,14 @@ class Repeat(Instruction):
         return self.repeat.action_instance
 
 
-def visit(instruction, visitor):
-    visitor(instruction)
+def visit(instruction, visitor, state=None):
+    state = visitor(instruction, state)
     if isinstance(instruction, Repeat):
         for next_instruction in instruction.repeat:
-            visit(next_instruction, visitor)
+            state = visit(next_instruction, visitor, state=state)
     for next_instruction in instruction.then:
-        visit(next_instruction, visitor)
+        state = visit(next_instruction, visitor, state=state)
+    return state
 
 
 def map(instruction, mapper):

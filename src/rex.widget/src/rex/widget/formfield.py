@@ -1008,3 +1008,41 @@ class List(CompositeFormField):
         ('unique_by', MaybeUndefinedVal(StrVal()), undefined),
         ('unique_by_error', MaybeUndefinedVal(StrVal()), undefined),
     )
+
+
+class CodeFormField(FormField):
+
+    type = 'code'
+
+    fields = (
+        ('table', StrVal()),
+        ('code_field', StrVal(), 'code'),
+        ('validate_message', StrVal(), 'Code should be unique')
+    )
+
+    def __call__(self):
+        values = {}
+        values.update(self.values)
+        validate = values.get('validate')
+        if not validate:
+            validate = 'null()'
+        elif isinstance(validate, QueryValidator):
+            validate = validate.expression
+        values['validate'] = """
+        define(my_value := if(is_null($id), null(), {0}[$id].{1}))
+        .if(!exists({0}?{1}=$value)
+            |(!is_null($id) & $value = my_value),
+            {2}, '{3}')
+        """.format(
+            values['table'],
+            values['code_field'],
+            validate,
+            values['validate_message'].replace("'", "''"),
+        )
+        if values.get('pattern') is None:
+            values['pattern'] = '^[a-z0-9-]*$'
+        del values['table']
+        del values['code_field']
+        del values['validate_message']
+        field = StringFormField(**values)
+        return field()

@@ -8,6 +8,7 @@ import type {Actions} from '../../state';
 import React from 'react';
 import {style} from 'react-stylesheet';
 import {VBox, HBox} from '@prometheusresearch/react-box';
+import * as t from '../../model/Type';
 
 import PlusIcon from '../PlusIcon';
 
@@ -36,7 +37,8 @@ export default class QueryVisToolbar
     let canNavigate = canNavigateAt(type);
     let canFilter = canFilterAt(type);
     let canAggregate = canAggregateAt(type);
-    if (!canNavigate && !canAggregate && !canFilter) {
+    let hasGroupBy = hasGroupByAt(type);
+    if (!canNavigate && !canAggregate && !canFilter && !hasGroupBy) {
       return null;
     }
     return (
@@ -55,6 +57,12 @@ export default class QueryVisToolbar
               icon={<PlusIcon />}>
               Filter
             </QueryVisToolbarButton>}
+          {hasGroupBy &&
+            <QueryVisToolbarButton
+              onClick={this.onAddGroupQuery.bind(null, hasGroupBy)}
+              icon={<PlusIcon />}>
+              Add {hasGroupBy} Query
+            </QueryVisToolbarButton>}
         </HBox>
       </VBox>
     );
@@ -68,6 +76,15 @@ export default class QueryVisToolbar
   onFilter = (ev: UIEvent) => {
     ev.stopPropagation();
     this.context.actions.appendFilter({pointer: this.props.pointer});
+  };
+
+  onAddGroupQuery = (path: string, ev: UIEvent) => {
+    ev.stopPropagation();
+    this.context.actions.appendDefine({
+      pointer: this.props.pointer,
+      path: [path],
+      select: true,
+    });
   };
 
   onAggregate = (ev: UIEvent) => {
@@ -90,6 +107,7 @@ let QueryVisToolbarButtonRoot = style(HBox, {
     alignItems: 'center',
     cursor: 'default',
 
+    textTransform: 'capitalize',
     fontSize: '12px',
     fontWeight: 300,
 
@@ -149,4 +167,27 @@ function canNavigateAt(type: Type) {
 
 function isSeqAt(type: Type) {
   return type.card === 'seq';
+}
+
+function hasGroupByAt(type: Type) {
+  if (type.name === 'record') {
+    let attribute = t.recordAttribute(type);
+    let hasGroupBy = false;
+    let entityName = null;
+    for (let k in attribute) {
+      if (!attribute.hasOwnProperty(k)) {
+        continue;
+      }
+      if (attribute[k].groupBy) {
+        hasGroupBy = true;
+      }
+      if (attribute[k].type.name === 'record') {
+        entityName = k;
+      }
+    }
+    if (hasGroupBy) {
+      return entityName;
+    }
+  }
+  return null;
 }

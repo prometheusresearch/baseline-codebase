@@ -111,7 +111,10 @@ class WizardWidgetBase(Widget):
             if hasattr(instruction, 'action_instance'):
                 domain = domain.merge(instruction.action_instance.domain)
             return domain
-        self.states = instruction.visit(self.path, _visit, self.domain)
+        domain = instruction.visit(self.path, _visit, self.domain)
+        self.states = domain
+        for k, v in self.actions.items():
+            self.actions[k] = v.with_domain(domain)
 
     def _resolve_action(self, ref):
         action = self.actions[ref]

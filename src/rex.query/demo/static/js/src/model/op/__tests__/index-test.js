@@ -1,17 +1,6 @@
-import * as jestMatchers from 'jest-matchers';
-import * as matchers from 'jest-matchers/build/matchers';
-
-import {def, pipeline, navigate, select, filter} from '../../Query';
+import {def, pipeline, navigate, select} from '../../Query';
 import * as qp from '../../QueryPointer';
-import {stripContext} from '../../__tests__/util';
 import {insertAfter, removeAt} from '../index';
-
-const study = navigate('study');
-
-let pointerPath = pointer =>
-  pointer
-    ? pointer.path.map(item => item.join('.')).join(':')
-    : null;
 
 describe('insertAfter()', function() {
 

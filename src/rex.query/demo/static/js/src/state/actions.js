@@ -303,7 +303,7 @@ export function setGroupByPath(
     pointer = qp.rebase(pointer, state.query);
     let {query} = pointer;
 
-    let prevType = t.maybeAtom(query.context.prev.type);
+    let prevType = query.context.prev.type;
     invariant(
       prevType && prevType.name === 'record' && prevType.entity != null,
       'Invalid type info'
@@ -365,7 +365,7 @@ export function appendNavigate(
       {pointer, selected: state.selected},
       q.pipeline(...path.map(q.navigate))
     );
-    return onQuery(state, query, state.selected);
+    return onQuery(state, query, state.selected || state.prevSelected);
   };
 }
 
@@ -609,7 +609,7 @@ function refetchQuery(state, setState) {
   refetchIndex += 1;
   const currentRefetchIndex = refetchIndex;
   Promise.resolve().then(_ => {
-    if (query.context.type == null) {
+    if (query.context.type.name === 'invalid') {
       setState(
         'queryInvalid',
         state => ({...state, queryLoading: false, queryInvalid: true})
@@ -648,11 +648,12 @@ function reconcileFocus(focusedSeq: Focus.Focus, query) {
 }
 
 function selectable(query) {
-  const type = t.maybeAtom(query.context.type);
+  const type = query.context.type;
   return (
-    type == null ||
-    type.name === 'record' ||
-    type.name === 'void' ||
+    type.name === 'invalid'    ||
+    type.name === 'record'     ||
+    type.name === 'void'       ||
+
     query.name === 'aggregate' ||
     query.name === 'define'
   );

@@ -61,13 +61,11 @@ export default class AddAggregateMenu extends React.Component {
     let type = getEffectivePipelineType(query);
     let domain = query.context.domain;
 
-    if (type == null) {
+    if (type.name === 'invalid') {
       return <NoAggregateMenu />;
     }
 
-    let baseType = t.atom(type);
-
-    if (baseType.name !== 'record') {
+    if (type.name !== 'record') {
       return <NoAggregateMenu />;
     }
 
@@ -99,7 +97,7 @@ export default class AddAggregateMenu extends React.Component {
         if (!domain.aggregate.hasOwnProperty(name)) {
           continue;
         }
-        if (type == null) {
+        if (type.name === 'invalid') {
           continue;
         }
         let aggregate = domain.aggregate[name];
@@ -137,7 +135,7 @@ export default class AddAggregateMenu extends React.Component {
       <VBox>
         <VBox padding={10}>
           <ReactUI.Input
-            placeholder="Filter…"
+            placeholder="Search…"
             value={searchTerm === null ? '' : searchTerm}
             onChange={this.onSearchTerm}
             />
@@ -202,16 +200,15 @@ class AggregateButton extends React.Component {
 }
 
 function getColumnListToSummarize(type: t.Type, noRecursion = false) {
-  let baseType = t.atom(type);
   let columns = [];
-  if (baseType.name === 'record') {
-    let attribute = t.recordAttribute(baseType);
+  if (type.name === 'record') {
+    let attribute = t.recordAttribute(type);
     for (let key in attribute) {
       if (!attribute.hasOwnProperty(key)) {
         continue;
       }
       let attr = attribute[key];
-      if (attr.type == null) {
+      if (attr.type.name === 'invalid') {
         continue;
       }
 
@@ -220,14 +217,14 @@ function getColumnListToSummarize(type: t.Type, noRecursion = false) {
         type: t.leastUpperBound(type, attr.type),
       };
 
-      if (t.atom(column.type).name === 'record') {
+      if (column.type.name === 'record') {
         if (!noRecursion) {
           columns = columns.concat(
             getColumnListToSummarize(column.type, true)
             .map(column => ({...column, path: [key].concat(column.path)}))
           );
         }
-        if (column.type.name === 'seq') {
+        if (column.type.card === 'seq') {
           columns.push(column);
         }
       } else {
@@ -238,7 +235,7 @@ function getColumnListToSummarize(type: t.Type, noRecursion = false) {
   return columns;
 }
 
-function getEffectivePipelineType(query: q.QueryPipeline): ?t.Type {
+function getEffectivePipelineType(query: q.QueryPipeline): t.Type {
   if (query.pipeline.length === 1) {
     return query.context.type;
   }

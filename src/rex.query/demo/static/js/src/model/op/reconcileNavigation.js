@@ -64,9 +64,7 @@ function reconcileDefine(query: q.DefineQuery): q.DefineQuery {
 function reconcileSelect(query: q.SelectQuery, grow?: boolean): q.SelectQuery {
   let {prev: {type}} = query.context;
 
-  type = t.maybeAtom(type);
-
-   if (type == null) {
+  if (type.name === 'invalid') {
     return query;
   }
 
@@ -83,7 +81,7 @@ function reconcileSelect(query: q.SelectQuery, grow?: boolean): q.SelectQuery {
 
       let type = attribute[k].type;
 
-      if (type.name === 'seq') {
+      if (type.card === 'seq') {
         continue;
       }
 
@@ -104,7 +102,7 @@ function reconcileSelect(query: q.SelectQuery, grow?: boolean): q.SelectQuery {
       continue;
     }
     let kQuery = query.select[k];
-    if (kQuery.context.type != null) {
+    if (kQuery.context.type.name !== 'invalid') {
       select[k] = kQuery;
     }
   }

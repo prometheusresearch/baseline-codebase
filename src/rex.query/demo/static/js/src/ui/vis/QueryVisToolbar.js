@@ -8,7 +8,6 @@ import type {Actions} from '../../state';
 import React from 'react';
 import {style} from 'react-stylesheet';
 import {VBox, HBox} from '@prometheusresearch/react-box';
-import * as t from '../../model/Type';
 
 import PlusIcon from '../PlusIcon';
 
@@ -136,25 +135,18 @@ function QueryVisToolbarButton({children, selected, icon, disabled, ...props}) {
   );
 }
 
-function canAggregateAt(type: ?Type) {
+function canAggregateAt(type: Type) {
   return isSeqAt(type);
 }
 
-function canFilterAt(type: ?Type) {
+function canFilterAt(type: Type) {
   return isSeqAt(type);
 }
 
-function canNavigateAt(type: ?Type) {
-  type = t.maybeAtom(type);
-  return (
-    type &&
-    (type.name === 'record' || type.name === 'void')
-  );
+function canNavigateAt(type: Type) {
+  return type.name === 'record' || type.name === 'void';
 }
 
-function isSeqAt(type: ?Type) {
-  return (
-    type &&
-    type.name === 'seq'
-  );
+function isSeqAt(type: Type) {
+  return type.card === 'seq';
 }

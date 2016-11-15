@@ -10,9 +10,6 @@ import {
   transformQuery,
   flattenPipeline
 } from '../model/Query';
-import {
-  maybeAtom
-} from '../model/Type';
 
 export type Focus = Array<string>;
 
@@ -36,8 +33,8 @@ function getPipelineFocusList(
   suppressPath: boolean
 ) {
   let result: Array<Array<string>> = [];
-  let type = maybeAtom(query.context.type);
-  if (type == null) {
+  let type = query.context.type;
+  if (type.name === 'invalid') {
     return [];
   } else if (type.name === 'record') {
     // TODO: Remove flattenPipeline, make sure it's not needed.
@@ -114,7 +111,7 @@ function getQueryFocusList(
     select: _ => getSelectFocusList(...arguments),
     navigate: query => {
       let type = query.context.type;
-      return type && type.name === 'seq'
+      return type && type.card === 'seq'
         ? [path]
         : [];
     },

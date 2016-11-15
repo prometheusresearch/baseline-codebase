@@ -6,8 +6,6 @@ import * as qp from '../../QueryPointer';
 import {stripContext} from '../../__tests__/util';
 import growNavigation from '../growNavigation';
 
-const study = navigate('study');
-
 let pointerPath = pointer =>
   pointer
     ? pointer.path.map(item => item.join('.')).join(':')

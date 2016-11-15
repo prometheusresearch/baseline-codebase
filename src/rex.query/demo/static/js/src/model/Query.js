@@ -163,14 +163,14 @@ export type Context = {|
   scope: Scope;
 
   // output type of the query, null means invalid type
-  type: ?t.Type;
+  type: t.Type;
 |};
 
 export const emptyScope: Scope = {};
 export const emptyDomain: t.Domain = {entity: {}, aggregate: {}};
 export const emptyContext = {
   prev: ((null: any): Context),
-  type: null,
+  type: t.voidType(emptyDomain),
   scope: emptyScope,
   domain: emptyDomain,
 };
@@ -304,10 +304,15 @@ export function inferExpressionType(context: Context, query: Expression): Expres
 
 export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
   const {domain, type, scope} = context;
-  const invalidContext = {prev: context, domain, scope, type: null};
+  const invalidContext = {
+    prev: context,
+    domain,
+    scope,
+    type: t.invalidType(domain),
+  };
   let nextQuery = transformQuery(query, {
     here: query => {
-      if (type == null) {
+      if (type.name === 'invalid') {
         return withContext(query, context);
       } else {
         return {
@@ -321,7 +326,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
       }
     },
     pipeline: query => {
-      if (type == null) {
+      if (type.name === 'invalid') {
         return withContext(query, context);
       }
       let nextPipeline = [];
@@ -353,10 +358,10 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
       return withContext(query, context);
     },
     select: query => {
-      if (type == null) {
+      if (type.name === 'invalid') {
         return withContext(query, context);
       }
-      let baseType = t.atom(type);
+      let baseType = t.regType(type);
       let nextSelect = {};
       let attribute = {};
       for (let k in query.select) {
@@ -383,7 +388,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
       };
     },
     define: query => {
-      if (type == null) {
+      if (type.name === 'invalid') {
         return withContext(query, context);
       }
       let nextScope = {
@@ -410,7 +415,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
       };
     },
     aggregate: query => {
-      if (type == null) {
+      if (type.name === 'invalid') {
         return withContext(query, context);
       }
       let aggregate = domain.aggregate[query.aggregate];
@@ -419,7 +424,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         return withContext(query, invalidContext);
       }
       // TODO: validate input type
-      if (type.name !== 'seq') {
+      if (type.card !== 'seq') {
         // not a seq
         return withContext(query, invalidContext);
       }
@@ -427,17 +432,17 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         prev: context,
         domain,
         scope: {},
-        type: aggregate.makeType(type.type),
+        type: aggregate.makeType(type),
       });
     },
     group: query => {
-      if (type == null) {
+      if (type.name === 'invalid') {
         return withContext(query, context);
       }
-      if (type.name !== 'seq') {
+      if (type.card !== 'seq') {
         return withContext(query, invalidContext);
       }
-      let baseType = t.atom(type);
+      let baseType = t.regType(type);
       if (baseType.name !== 'record') {
         return withContext(query, invalidContext);
       }
@@ -486,10 +491,10 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
       });
     },
     navigate: query => {
-      if (type == null) {
+      if (type.name === 'invalid') {
         return withContext(query, context);
       }
-      let baseType = t.atom(type);
+      let baseType = t.regType(type);
       if (baseType.name === 'record' && baseType.entity != null) {
         let entity = domain.entity[baseType.entity];
         if (entity == null) {
@@ -802,27 +807,27 @@ export function mapExpressionWithTransform<A, B, C>(
 /**
  * Resolve name in the current context.
  */
-export function resolveName(context: Context, name: string): ?t.Type {
+export function resolveName(context: Context, name: string): t.Type {
   let {scope, domain, type} = context;
-  if (type != null) {
-    type = t.atom(type);
-    if (type.name === 'record' && t.recordAttribute(type)[name] != null) {
-      return t.recordAttribute(type)[name].type;
-    }
-    if (
-      type.name === 'void' &&
-      domain.entity[name] != null
-    ) {
-      return t.entityType(context.domain, name);
-    }
-    if (
-      type.name === 'record' &&
-      type.entity != null &&
-      domain.entity[type.entity] != null &&
-      domain.entity[type.entity].attribute[name] != null
-    ) {
-      return domain.entity[type.entity].attribute[name].type;
-    }
+
+  type = t.regType(type);
+
+  if (type.name === 'record' && t.recordAttribute(type)[name] != null) {
+    return t.recordAttribute(type)[name].type;
+  }
+  if (
+    type.name === 'void' &&
+    domain.entity[name] != null
+  ) {
+    return t.entityType(context.domain, name);
+  }
+  if (
+    type.name === 'record' &&
+    type.entity != null &&
+    domain.entity[type.entity] != null &&
+    domain.entity[type.entity].attribute[name] != null
+  ) {
+    return domain.entity[type.entity].attribute[name].type;
   }
 
   if (scope[name] != null) {
@@ -830,18 +835,18 @@ export function resolveName(context: Context, name: string): ?t.Type {
     return ctx.type;
   }
 
-  return undefined;
+  return t.invalidType(domain);
 }
 
 /**
  * Resolve path in the current context.
  */
-export function resolvePath(context: Context, path: Array<string>): ?t.Type {
-  let type = null;
+export function resolvePath(context: Context, path: Array<string>): t.Type {
+  let type = t.invalidType(context.domain);
   for (let i = 0; i < path.length; i++) {
     type = resolveName(context, path[i]);
-    if (type === undefined) {
-      return undefined;
+    if (type.name === 'invalid') {
+      return type;
     } else {
       context = (({...context, type}: any): Context);
     }

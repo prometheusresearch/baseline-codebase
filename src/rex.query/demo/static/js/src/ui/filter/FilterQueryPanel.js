@@ -13,7 +13,6 @@ import CloseIcon from 'react-icons/lib/fa/close';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import debounce from 'lodash/debounce';
 
-import * as t from '../../model/Type';
 import * as q from '../../model/Query';
 import * as nav from '../../model/navigation';
 import * as theme from '../Theme';
@@ -70,16 +69,16 @@ class FilterCondition extends React.Component {
   }
 
   getCompatibleOperandFields(sourceField) {
-    const sourceType = t.maybeAtom(sourceField.context.type);
+    const sourceType = sourceField.context.type;
     invariant(
       sourceType != null,
       'Expected a typed query'
     );
     return this.props.fields.filter((field) => {
-      let type = t.maybeAtom(field.context.type);
+      let type = field.context.type;
       // FIXME: rm invariant
       invariant(
-        type != null,
+        type.name !== 'invalid',
         'Expected a typed query'
       );
       return (
@@ -296,7 +295,7 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
     let {expressions} = this.state;
 
     let fields = nav.getNavigationAfter(pointer.query.context).filter((field) => {
-      let atom = t.maybeAtom(field.context.type);
+      let atom = field.context.type;
       return (atom && (atom.name !== 'record'));
     });
 

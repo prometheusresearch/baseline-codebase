@@ -16,7 +16,6 @@ import {AutoSizer} from 'react-virtualized';
 
 import {LoadingIndicator} from '../ui';
 import * as ArrayUtil from '../ArrayUtil';
-import * as t from '../model/Type';
 import {flattenPipeline} from '../model/Query';
 import {
   DataTable as DataTableBase,
@@ -28,7 +27,7 @@ import {
 
 type QColumnConfig = ColumnConfig<{
   query: Query;
-  type: ?Type;
+  type: Type;
   focusedSeq: Array<string>;
   focused: boolean;
 }>;
@@ -143,7 +142,7 @@ function getColumnConfigImpl(
         field: {
           cellRenderer,
           cellDataGetter,
-          headerCellRenderer: type && type.name === 'seq' ? SeqHeaderCell : undefined,
+          headerCellRenderer: type && type.card === 'seq' ? SeqHeaderCell : undefined,
           dataKey: path.length === 0 ? [query.path] : path,
           label: bindingName ? bindingName : getColumnTitle(query),
           data: {
@@ -253,8 +252,8 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
     )
   }
 
-  onColumnClick = (column: ColumnField<{type: ?Type}>) => {
-    if (column.field.data.type && column.field.data.type.name === 'seq') {
+  onColumnClick = (column: ColumnField<{type: Type}>) => {
+    if (column.field.data.type.card === 'seq') {
       this.props.onFocusedSeq(column.field.dataKey);
     }
   };
@@ -307,16 +306,15 @@ function cellRenderer({
     return null;
   } else if (query.context.type) {
     const type = query.context.type;
-    const baseType = t.atom(type);
     if (
-      baseType.name === 'record' &&
+      type.name === 'record' &&
       typeof cellData === 'object' &&
       cellData != null
     ) {
-      if (type.name === 'seq') {
+      if (type.card === 'seq') {
         if (Array.isArray(cellData)) {
           cellData = cellData.map(entity =>
-            formatEntity(baseType.entity, entity)).join(', ');
+            formatEntity(type.entity, entity)).join(', ');
         }
       } else {
         if ('code' in cellData) {
@@ -328,7 +326,7 @@ function cellRenderer({
         }
       }
     }
-    if (baseType.name === 'boolean') {
+    if (type.name === 'boolean') {
       if (cellData === true) {
         return <BooleanTrueCell>✓</BooleanTrueCell>;
       } else if (cellData === false) {
@@ -336,13 +334,13 @@ function cellRenderer({
       } else {
         return null;
       }
-    } else if (baseType.name === 'number') {
+    } else if (type.name === 'number') {
       return String(cellData)
-    } else if (baseType.name === 'date') {
+    } else if (type.name === 'date') {
       return String(cellData)
-    } else if (baseType.name === 'time') {
+    } else if (type.name === 'time') {
       return String(cellData)
-    } else if (baseType.name === 'datetime') {
+    } else if (type.name === 'datetime') {
       return String(cellData)
     } else {
       return String(cellData)
@@ -417,7 +415,7 @@ function needDetailedColumn(column: ColumnConfig<*>, focusedSeq: Array<string>) 
   if (
     column.type === 'field' &&
     column.field.data.type &&
-    column.field.data.type.name === 'seq'
+    column.field.data.type.card === 'seq'
   ) {
     let focusedSeqPrefix = focusedSeq.slice(0, column.field.dataKey.length);
     return focusedSeqPrefix.join('.') === column.field.dataKey.join('.');

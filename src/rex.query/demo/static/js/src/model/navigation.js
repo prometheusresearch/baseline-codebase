@@ -22,38 +22,35 @@ export function getNavigationAfter(context: q.Context): Array<Navigation> {
 }
 
 
-export function getNavigation(context: q.Context, type: ?t.Type) {
+export function getNavigation(context: q.Context, type: t.Type) {
   let {scope, domain} = context;
   let navigation = [];
 
   let contextAtQuery = {
     ...context,
-    type: t.maybeAtom(type),
+    type: t.regType(type),
   };
 
   // Collect paths from an input type
-  if (type != null) {
-    let baseType = t.atom(type);
-    if (baseType.name === 'void') {
-      for (let k in domain.entity) {
-        if (domain.entity.hasOwnProperty(k)) {
-          navigation.push({
-            value: k,
-            label: domain.entity[k].title,
-            context: q.inferQueryType(contextAtQuery, q.navigate(k)).context,
-          });
-        }
+  if (type.name === 'void') {
+    for (let k in domain.entity) {
+      if (domain.entity.hasOwnProperty(k)) {
+        navigation.push({
+          value: k,
+          label: domain.entity[k].title,
+          context: q.inferQueryType(contextAtQuery, q.navigate(k)).context,
+        });
       }
-    } else if (baseType.name === 'record' && baseType.entity != null) {
-      let attribute = t.recordAttribute(baseType);
-      for (let k in attribute) {
-        if (attribute.hasOwnProperty(k)) {
-          navigation.push({
-            value: k,
-            label: attribute[k].title,
-            context: q.inferQueryType(contextAtQuery, q.navigate(k)).context,
-          });
-        }
+    }
+  } else if (type.name === 'record' && type.entity != null) {
+    let attribute = t.recordAttribute(type);
+    for (let k in attribute) {
+      if (attribute.hasOwnProperty(k)) {
+        navigation.push({
+          value: k,
+          label: attribute[k].title,
+          context: q.inferQueryType(contextAtQuery, q.navigate(k)).context,
+        });
       }
     }
   }

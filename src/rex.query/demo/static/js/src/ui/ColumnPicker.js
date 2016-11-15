@@ -59,7 +59,7 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
     } = this.props;
     let {type} = pointer.query.context;
     let active = getNavigationPointerMap(pointer);
-    let options = pointer.query.name === 'select' || type == null
+    let options = pointer.query.name === 'select' || type.name === 'invalid'
       ? getNavigation(pointer, pointer.query.context.prev.type)
       : getNavigation(pointer, pointer.query.context.type);
     let {searchTerm} = this.state;
@@ -102,7 +102,7 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
         {showSelectMenu &&
           <VBox padding={10}>
             <ReactUI.Input
-              placeholder="Filter columns…"
+              placeholder="Search columns…"
               value={searchTerm === null ? '' : searchTerm}
               onChange={this.onSearchTerm}
               />
@@ -138,7 +138,7 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
             <VBox paddingBottom={10}>
               <MenuGroup
                 title={
-                  type == null || type.name === 'void'
+                  type.name === 'invalid' || type.name === 'void'
                     ? 'Entities'
                     : 'Relationships'
                 }>
@@ -316,66 +316,46 @@ class ColumnPickerButton extends React.Component {
   }
 }
 
-function getNavigation(pointer: QueryPointer<>, type: ?Type): Array<Navigation> {
+function getNavigation(pointer: QueryPointer<>, type: Type): Array<Navigation> {
   let {context} = pointer.query;
   let {scope, domain} = context;
   let navigation = [];
 
   let contextAtQuery = {
     ...context,
-    type: t.maybeAtom(type),
+    type: t.regType(type),
   };
 
   // Collect paths from an input type
-  if (type != null) {
-    let baseType = t.atom(type);
-    if (baseType.name === 'void') {
-      for (let k in domain.entity) {
-        if (domain.entity.hasOwnProperty(k)) {
-          let navQuery = q.inferQueryType(contextAtQuery, q.navigate(k));
-          navigation.push({
-            type: 'entity',
-            value: k,
-            label: domain.entity[k].title,
-            context: navQuery.context,
-          });
-        }
+  if (type.name === 'void') {
+    for (let k in domain.entity) {
+      if (domain.entity.hasOwnProperty(k)) {
+        let navQuery = q.inferQueryType(contextAtQuery, q.navigate(k));
+        navigation.push({
+          type: 'entity',
+          value: k,
+          label: domain.entity[k].title,
+          context: navQuery.context,
+        });
       }
-    } else if (baseType.name === 'record') {
-      let attribute = t.recordAttribute(baseType);
-      for (let k in attribute) {
-        if (attribute.hasOwnProperty(k)) {
-          let navQuery = q.inferQueryType(contextAtQuery, q.navigate(k));
-          let type = attribute[k].type;
-          navigation.push({
-            type: type.name === 'seq'
-              ? 'entity'
-              : t.atom(type).name === 'record'
-              ? 'query'
-              : 'attribute',
-            value: k,
-            label: attribute[k].title || k,
-            context: navQuery.context,
-            groupBy: attribute[k].groupBy,
-          });
-        }
-      }
-    } else if (baseType.name === 'record') {
-      for (let k in baseType.attribute) {
-        if (baseType.attribute.hasOwnProperty(k)) {
-          let navQuery = q.inferQueryType(contextAtQuery, q.navigate(k));
-          navigation.push({
-            // FIXME: This is incorrect!
-            //
-            // We don't really know from where this query is originated
-            // from (from domain or define's scope). We probably need to
-            // introduce new query node to track that.
-            type: 'attribute',
-            value: k,
-            label: k,
-            context: navQuery.context,
-          });
-        }
+    }
+  } else if (type.name === 'record') {
+    let attribute = t.recordAttribute(type);
+    for (let k in attribute) {
+      if (attribute.hasOwnProperty(k)) {
+        let navQuery = q.inferQueryType(contextAtQuery, q.navigate(k));
+        let type = attribute[k].type;
+        navigation.push({
+          type: type.card === 'seq'
+            ? 'entity'
+            : type.name === 'record'
+            ? 'query'
+            : 'attribute',
+          value: k,
+          label: attribute[k].title || k,
+          context: navQuery.context,
+          groupBy: attribute[k].groupBy,
+        });
       }
     }
   }
@@ -449,19 +429,16 @@ function getNavigationPointerMapImpl(
   });
 }
 
-function canAggregateAt(type: ?Type) {
+function canAggregateAt(type: Type) {
   return isSeqAt(type);
 }
 
-function canFilterAt(type: ?Type) {
+function canFilterAt(type: Type) {
   return isSeqAt(type);
 }
 
-function isSeqAt(type: ?Type) {
-  return (
-    type &&
-    type.name === 'seq'
-  );
+function isSeqAt(type: Type) {
+  return type.card === 'seq';
 }
 
 function getPipelineInsertionPoint(pointer: QueryPointer<>) {

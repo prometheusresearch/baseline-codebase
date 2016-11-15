@@ -62,7 +62,7 @@ function AggregateMenu({
     if (!domain.aggregate.hasOwnProperty(name)) {
       continue;
     }
-    if (type == null) {
+    if (type.name === 'invalid') {
       continue;
     }
     if (!domain.aggregate[name].isAllowed(type)) {

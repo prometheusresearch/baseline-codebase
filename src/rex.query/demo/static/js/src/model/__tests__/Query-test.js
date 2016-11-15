@@ -7,7 +7,7 @@ import {
 } from '../Query';
 import {
   voidType, numberType, textType,
-  entityType, recordType,
+  entityType, recordType, invalidType,
   seqType, optType,
   createDomain
 } from '../Type';
@@ -62,7 +62,9 @@ describe('inferType()', function() {
         seqType(entityType(domain, 'individual'))
       );
     expect(q.inferType(domain, navigate('unknown')).context.type)
-      .toEqual(null);
+      .toEqual(
+        invalidType(domain)
+      );
     expect(q.inferType(domain, filter(value(true))).context.type)
       .toEqual(voidType(domain));
     expect(q.inferType(domain, limit(10)).context.type)
@@ -73,10 +75,12 @@ describe('inferType()', function() {
       }));
     expect(q.inferType(domain, select({a: navigate('unknown')})).context.type)
       .toEqual(recordType(domain, {
-        a: {type: null}
+        a: {type: invalidType(domain)}
       }));
     expect(q.inferType(domain, aggregate('count')).context.type)
-      .toEqual(null);
+      .toEqual(
+        invalidType(domain)
+      );
   });
 
   it('fails on navigate to unknown attribute', function() {
@@ -84,7 +88,7 @@ describe('inferType()', function() {
       individual,
       navigate('b'),
     )).context.type).toEqual(
-      null
+      invalidType(domain)
     );
   });
 
@@ -93,7 +97,7 @@ describe('inferType()', function() {
       select({a: individual}),
       navigate('b'),
     )).context.type).toEqual(
-      null
+      invalidType(domain)
     );
   });
 

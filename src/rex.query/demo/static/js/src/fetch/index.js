@@ -69,37 +69,37 @@ const aggregate = {
     name: 'count',
     title: 'Count',
     makeType: typ => t.numberType(typ.domain),
-    isAllowed: typ => typ.name === 'seq' && isEntityLike(typ.type),
+    isAllowed: typ => typ.card === 'seq' && isEntityLike(typ),
   },
   exists: {
     name: 'exists',
     title: 'Exists',
     makeType: typ => t.booleanType(typ.domain),
-    isAllowed: typ => typ.name === 'seq' && isEntityLike(typ.type),
+    isAllowed: typ => typ.card === 'seq' && isEntityLike(typ),
   },
   sum: {
     name: 'sum',
     title: 'Sum',
     makeType: typ => t.numberType(typ.domain),
-    isAllowed: typ => typ.name === 'seq' && isNumeric(typ.type),
+    isAllowed: typ => typ.card === 'seq' && isNumeric(typ),
   },
   min: {
     name: 'min',
     title: 'Min',
     makeType: typ => t.numberType(typ.domain),
-    isAllowed: typ => typ.name === 'seq' && isNumeric(typ.type),
+    isAllowed: typ => typ.card === 'seq' && isNumeric(typ),
   },
   max: {
     name: 'max',
     title: 'Max',
     makeType: typ => t.numberType(typ.domain),
-    isAllowed: typ => typ.name === 'seq' && isNumeric(typ.type),
+    isAllowed: typ => typ.card === 'seq' && isNumeric(typ),
   },
   mean: {
     name: 'mean',
     title: 'Average',
     makeType: typ => t.numberType(typ.domain),
-    isAllowed: typ => typ.name === 'seq' && isNumeric(typ.type),
+    isAllowed: typ => typ.card === 'seq' && isNumeric(typ),
   },
 };
 

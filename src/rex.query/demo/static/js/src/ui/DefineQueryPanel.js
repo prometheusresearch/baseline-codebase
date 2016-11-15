@@ -11,7 +11,6 @@ import ReactDOM from 'react-dom';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import * as ReactBox from '@prometheusresearch/react-box';
 
-import * as t from '../model/Type';
 import * as qp from '../model/QueryPointer';
 import * as theme from './Theme';
 import QueryPanelBase from './QueryPanelBase';
@@ -53,7 +52,7 @@ export default class DefineQueryPanel
       renameValue,
     } = this.state;
 
-    let type = t.maybeAtom(pointer.query.binding.query.context.type);
+    let type = pointer.query.binding.query.context.type;
 
     let hasConfigurableColumns = (
       type &&

@@ -8,13 +8,12 @@ import type {Navigation} from '../../model/navigation';
 import React from 'react';
 import invariant from 'invariant';
 
-import * as t from '../../model/Type';
 import * as q from '../../model/Query';
 import * as operands from './FilterOperands';
 
 function isOfType(field: Navigation, types: Array<string>): boolean {
-  let atom = t.maybeAtom(field.context.type);
-  return atom != null && types.includes(atom.name);
+  let type = field.context.type;
+  return types.includes(type.name);
 }
 
 export type Identification = {
@@ -104,8 +103,8 @@ class BasicBinaryComparator {
   operand(field, value, onChange) {
     let props = {value, onChange};
     let Component;
-    let type = t.maybeAtom(field.context.type);
-    if (type == null) {
+    let type = field.context.type;
+    if (type.name === 'invalid') {
       // XXX: Better to throw?
       return null;
     }
@@ -283,8 +282,11 @@ class IsOneOf {
   }
 
   operand(field, value, onChange) {
-    let type = t.maybeAtom(field.context.type);
-    invariant(type && type.name === 'enumeration', 'Incompat type');
+    let type = field.context.type;
+    invariant(
+      type && type.name === 'enumeration',
+      'Incompat type'
+    );
     let options = type.enumerations.map(enumeration => {
       return {
         label: enumeration,
@@ -340,7 +342,7 @@ class Empty {
         field,
         ['text', 'number', 'enumeration', 'boolean', 'date', 'time', 'datetime']
       ) &&
-      field.context.type && field.context.type.name === 'opt'
+      field.context.type && field.context.type.card === 'opt'
     );
   }
 

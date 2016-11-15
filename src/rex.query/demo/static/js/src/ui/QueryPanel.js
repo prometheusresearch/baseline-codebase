@@ -7,7 +7,6 @@ import type {QueryPointer} from '../model/QueryPointer';
 
 import React from 'react';
 
-import * as t from '../model/Type';
 import * as q from '../model/Query';
 import * as theme from './Theme';
 import QueryPanelBase from './QueryPanelBase';
@@ -74,12 +73,11 @@ export default function QueryPanel(props: QueryPanelProps) {
 
 function getTitleAtContext(context) {
   let {type} = context;
-  type = t.maybeAtom(type);
-  if (type == null) {
+  if (type.name === 'invalid') {
     return null;
   } else if (type.name === 'record' && type.entity != null) {
     return type.domain[type.entity]
-      ? type.domain[type.entity].title
+      ? (type.domain[type.entity].title || type.entity)
       : null;
   } else {
     return null;

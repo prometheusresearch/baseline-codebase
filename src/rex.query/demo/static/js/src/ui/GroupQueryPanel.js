@@ -64,28 +64,28 @@ export default class GroupQueryPanel
   }
 }
 
+function canGroupBy(type) {
+  return !(
+    type.name === 'invalid' ||
+    type.name === 'record' ||
+    type.card === 'seq'
+  );
+}
+
 function GroupMenu({
   query: {byPath, context: {domain, prev: {type}}},
   onSelect,
   onSelectRemove,
 }) {
   let items = [];
-  type = t.maybeAtom(type);
-  if (type != null && type.name === 'record') {
+  if (type.name === 'record') {
     let attribute = t.recordAttribute(type);
     for (let name in attribute) {
       if (!attribute.hasOwnProperty(name)) {
         continue;
       }
       let type = attribute[name].type;
-      if (type == null) {
-        continue;
-      }
-      if (type.name === 'seq') {
-        continue;
-      }
-      type = t.atom(type);
-      if (type.name === 'record') {
+      if (!canGroupBy(type)) {
         continue;
       }
       items.push(

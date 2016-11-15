@@ -14,6 +14,7 @@ import {MenuGroup, MenuButton} from './menu';
 import QueryPanelBase from './QueryPanelBase';
 import ColumnPicker from './ColumnPicker';
 import AddAggregateMenu from './AddAggregateMenu';
+import AddNavigateMenu from './AddNavigateMenu';
 
 type AddColumnPanelProps = {
   pointer: QueryPointer<Query>;
@@ -27,7 +28,7 @@ export default class AddQueryPanel extends React.Component<*, AddColumnPanelProp
   };
 
   state: {
-    activeTab: null | 'aggregate';
+    activeTab: null | 'aggregate' | 'navigate';
   } = {
     activeTab: null,
   };
@@ -56,6 +57,11 @@ export default class AddQueryPanel extends React.Component<*, AddColumnPanelProp
     this.setState(state => ({...state, activeTab: 'aggregate'}));
   };
 
+  onActiveTabNavigate = (ev: UIEvent) => {
+    ev.stopPropagation();
+    this.setState(state => ({...state, activeTab: 'navigate'}));
+  };
+
   onActiveTabDefault = (ev: UIEvent) => {
     ev.stopPropagation();
     this.setState(state => ({...state, activeTab: null}));
@@ -79,6 +85,7 @@ export default class AddQueryPanel extends React.Component<*, AddColumnPanelProp
     let canFilter = canFilterAt(type);
     let canGroup = canGroupAt(type);
     let canAggregate = canAggregateAt(type);
+    let canNavigate = canNavigateAt(type);
     if (activeTab == null) {
       return (
         <QueryPanelBase
@@ -105,6 +112,12 @@ export default class AddQueryPanel extends React.Component<*, AddColumnPanelProp
                   onClick={this.onGroup}>
                   Group
                 </MenuButton>}
+              {canNavigate &&
+                <MenuButton
+                  icon="＋"
+                  onClick={this.onActiveTabNavigate}>
+                  Focus
+                </MenuButton>}
             </MenuGroup>}
           <ColumnPicker
             showAddMenu
@@ -127,6 +140,18 @@ export default class AddQueryPanel extends React.Component<*, AddColumnPanelProp
               />}
         </QueryPanelBase>
       );
+    } else if (activeTab === 'navigate') {
+      return (
+        <QueryPanelBase
+          {...props}
+          onBack={this.onActiveTabDefault}
+          theme={theme.placeholder}
+          title="Focus">
+          <AddNavigateMenu
+            pointer={pointer}
+            />
+        </QueryPanelBase>
+      );
     }
   }
 }
@@ -144,22 +169,24 @@ function getPipeline(pointer: QueryPointer<>): ?QueryPointer<QueryPipeline> {
   }
 }
 
-function canFilterAt(type: ?Type) {
+function canFilterAt(type: Type) {
   return isSeqAt(type);
 }
 
-function canAggregateAt(type: ?Type) {
+function canAggregateAt(type: Type) {
   return isSeqAt(type);
 }
 
 
-function canGroupAt(type: ?Type) {
-  return type && type.name === 'seq' && type.type.name === 'record';
+function canGroupAt(type: Type) {
+  return type.card === 'seq' && type.name === 'record';
 }
 
-function isSeqAt(type: ?Type) {
-  return (
-    type &&
-    type.name === 'seq'
-  );
+function canNavigateAt(type: Type) {
+  return type.name === 'record';
 }
+
+function isSeqAt(type: Type) {
+  return type.card === 'seq';
+}
+

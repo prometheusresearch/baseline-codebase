@@ -1,44 +1,51 @@
 import {
   numberType, textType,
-  seqType, optType,
-  leastUpperBound, atom
+  seqType, optType, regType,
+  leastUpperBound, emptyDomain as dom
 } from '../Type';
 
 it('leastUpperBound()', function() {
-  expect(leastUpperBound(textType, textType))
-    .toEqual(textType);
-  expect(leastUpperBound(textType, seqType(textType)))
-    .toEqual(seqType(textType));
-  expect(leastUpperBound(textType, optType(textType)))
-    .toEqual(optType(textType));
+  expect(leastUpperBound(textType(dom), textType(dom)))
+    .toEqual(textType(dom));
+  expect(leastUpperBound(textType(dom), seqType(textType(dom))))
+    .toEqual(seqType(textType(dom)));
+  expect(leastUpperBound(textType(dom), optType(textType(dom))))
+    .toEqual(optType(textType(dom)));
 
-  expect(leastUpperBound(optType(textType), textType))
-    .toEqual(optType(textType));
-  expect(leastUpperBound(optType(textType), seqType(textType)))
-    .toEqual(seqType(textType));
-  expect(leastUpperBound(optType(textType), optType(textType)))
-    .toEqual(optType(textType));
+  expect(leastUpperBound(optType(textType(dom)), textType(dom)))
+    .toEqual(optType(textType(dom)));
+  expect(leastUpperBound(optType(textType(dom)), seqType(textType(dom))))
+    .toEqual(seqType(textType(dom)));
+  expect(leastUpperBound(optType(textType(dom)), optType(textType(dom))))
+    .toEqual(optType(textType(dom)));
 
-  expect(leastUpperBound(seqType(textType), textType))
-    .toEqual(seqType(textType));
-  expect(leastUpperBound(seqType(textType), seqType(textType)))
-    .toEqual(seqType(textType));
-  expect(leastUpperBound(seqType(textType), optType(textType)))
-    .toEqual(seqType(textType));
+  expect(leastUpperBound(seqType(textType(dom)), textType(dom)))
+    .toEqual(seqType(textType(dom)));
+  expect(leastUpperBound(seqType(textType(dom)), seqType(textType(dom))))
+    .toEqual(seqType(textType(dom)));
+  expect(leastUpperBound(seqType(textType(dom)), optType(textType(dom))))
+    .toEqual(seqType(textType(dom)));
 });
 
 it('seqType()', function() {
-  expect(seqType(seqType(numberType))).toEqual(seqType(numberType));
-  expect(seqType(optType(numberType))).toEqual(seqType(numberType));
+  expect(seqType(seqType(numberType(dom))))
+    .toEqual(seqType(numberType(dom)));
+  expect(seqType(optType(numberType(dom))))
+    .toEqual(seqType(numberType(dom)));
 });
 
 it('optType()', function() {
-  expect(optType(optType(numberType))).toEqual(optType(numberType));
-  expect(optType(seqType(numberType))).toEqual(seqType(numberType));
+  expect(optType(optType(numberType(dom))))
+    .toEqual(optType(numberType(dom)));
+  expect(optType(seqType(numberType(dom))))
+    .toEqual(seqType(numberType(dom)));
 });
 
-it('atom()', function() {
-  expect(atom(optType(numberType))).toEqual(numberType);
-  expect(atom(seqType(numberType))).toEqual(numberType);
-  expect(atom(numberType)).toEqual(numberType);
+it('regType()', function() {
+  expect(regType(optType(numberType(dom))))
+    .toEqual(numberType(dom));
+  expect(regType(seqType(numberType(dom))))
+    .toEqual(numberType(dom));
+  expect(regType(numberType(dom)))
+    .toEqual(numberType(dom));
 });

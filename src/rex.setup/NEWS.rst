@@ -4,6 +4,10 @@
 
 .. contents:: Table of Contents
 
+3.4.0 (2016-XX-XX)
+==================
+
+* Add js generator which executes ``npm run build`` command on a package.
 
 3.3.1 (2016-10-25)
 ==================

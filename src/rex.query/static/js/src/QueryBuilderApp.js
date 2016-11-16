@@ -11,7 +11,7 @@ import {Message} from './ui';
 import {fetchCatalog} from './fetch';
 
 // eslint-disable-next-line
-const API = __rex_root__ + '/query/';
+const API = (typeof __rex_root__ !== 'undefined' ? __rex_root__ : '') + '/query/';
 
 export default class QueryBuilderApp extends React.Component {
   state: {domain: ?Domain} = {

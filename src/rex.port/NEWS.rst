@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.3.1 (2016-XX-XX)
+==================
+
+* Cache prepared insert, update and delete commands.
+
+
 1.3.0 (2016-07-13)
 ==================
 

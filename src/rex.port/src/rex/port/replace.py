@@ -385,7 +385,7 @@ def recover(pair_map, actual_map):
     return recovered_map
 
 
-def patch(pair_map):
+def patch(pair_map, command_cache):
     # Updates the database.
     identity_map = collections.OrderedDict()
 
@@ -431,12 +431,13 @@ def patch(pair_map):
                         trimmed_fields.append(field)
                 new_fields = trimmed_fields
             if old_fields is None:
-                new_identity = insert(node, arcs, new_fields)
+                new_identity = insert(node, arcs, new_fields, command_cache)
             elif new_fields is None:
-                delete(node, identity)
+                delete(node, identity, command_cache)
                 new_identity = None
             else:
-                new_identity = update(node, arcs, identity, new_fields)
+                new_identity = update(
+                        node, arcs, identity, new_fields, command_cache)
             if new_identity is not None:
                 reference_to_identity[new_cell.reference] = new_identity
                 identity_cell = Cell(new_cell.node, new_cell.reference,
@@ -445,50 +446,63 @@ def patch(pair_map):
     return identity_map
 
 
-def insert(node, arcs, fields):
+def insert(node, arcs, fields, command_cache):
     # Inserts a record.
-    extract_table = BuildExtractTable.__invoke__(
-            node, arcs)
-    execute_insert = BuildExecuteInsert.__invoke__(
-            extract_table.table, extract_table.columns)
-    resolve_identity = BuildResolveIdentity.__invoke__(
-            execute_insert.table, execute_insert.output_columns,
-            is_list=False)
-    row = resolve_identity(
-            execute_insert(
-                extract_table(
-                    fields)))
-    return row
+    cache_key = (insert, node, tuple(arcs))
+    try:
+        command = command_cache[cache_key]
+    except KeyError:
+        extract_table = BuildExtractTable.__invoke__(
+                node, arcs)
+        execute_insert = BuildExecuteInsert.__invoke__(
+                extract_table.table, extract_table.columns)
+        resolve_identity = BuildResolveIdentity.__invoke__(
+                execute_insert.table, execute_insert.output_columns,
+                is_list=False)
+        command = command_cache[cache_key] = (
+                lambda fields:
+                    resolve_identity(execute_insert(extract_table(fields))))
+    return command(fields)
 
 
-def update(node, arcs, identity, fields):
+def update(node, arcs, identity, fields, command_cache):
     # Updates a record.
-    resolve_key = BuildResolveKey.__invoke__(
-            node, arcs)
-    extract_table = BuildExtractTable.__invoke__(
-            node, arcs)
-    execute_update = BuildExecuteUpdate.__invoke__(
-            extract_table.table, extract_table.columns)
-    resolve_identity = BuildResolveIdentity.__invoke__(
-            execute_update.table, execute_update.output_columns,
-            is_list=False)
-    row = resolve_identity(
-            execute_update(
-                resolve_key(identity),
-                extract_table(
-                    fields)))
-    return row
+    cache_key = (update, node, tuple(arcs))
+    try:
+        command = command_cache[cache_key]
+    except KeyError:
+        resolve_key = BuildResolveKey.__invoke__(
+                node, arcs)
+        extract_table = BuildExtractTable.__invoke__(
+                node, arcs)
+        execute_update = BuildExecuteUpdate.__invoke__(
+                extract_table.table, extract_table.columns)
+        resolve_identity = BuildResolveIdentity.__invoke__(
+                execute_update.table, execute_update.output_columns,
+                is_list=False)
+        command = command_cache[cache_key] = (
+                lambda identity, fields:
+                    resolve_identity(
+                        execute_update(
+                            resolve_key(identity),
+                            extract_table(fields))))
+    return command(identity, fields)
 
 
-def delete(node, identity):
+def delete(node, identity, command_cache):
     # Deletes a record.
-    resolve_key = BuildResolveKey.__invoke__(
-            node, [])
-    execute_delete = BuildExecuteDelete.__invoke__(
-            node.table)
-    execute_delete(
-            resolve_key(
-                identity))
+    cache_key = (delete, node)
+    try:
+        command = command_cache[cache_key]
+    except KeyError:
+        resolve_key = BuildResolveKey.__invoke__(
+                node, [])
+        execute_delete = BuildExecuteDelete.__invoke__(
+                node.table)
+        command = command_cache[cache_key] = (
+                lambda identity:
+                    execute_delete(resolve_key(identity)))
+    return command(identity)
 
 
 def verify(identity_map, actual_map):
@@ -503,7 +517,7 @@ def verify(identity_map, actual_map):
                 raise Error("Failed to fetch:", cell)
 
 
-def replace(tree, old, new, constraints):
+def replace(tree, old, new, constraints, command_cache):
     # Replaces the `old` subset of the database with `new` data.
 
     # Parse JSON if necessary.
@@ -528,7 +542,7 @@ def replace(tree, old, new, constraints):
     pair_map = recover(pair_map, actual_map)
 
     # Apply the changes, receive the identities of the affected records.
-    identity_map = patch(pair_map)
+    identity_map = patch(pair_map, command_cache)
 
     # Extract this data subset again and verify that all the modified
     # records are within it.

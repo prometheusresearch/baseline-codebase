@@ -39,6 +39,7 @@ class Port(object):
                 tree = grow(RootArm([]))
         self.tree = tree
         self.db = db
+        self._command_cache = {}
 
     def __str__(self):
         # Renders YAML representation of the schema tree.
@@ -101,7 +102,8 @@ class Port(object):
         with self.db:
             constraints = ConstraintSet.parse(*args, **kwds)
             with transaction():
-                return replace(self.tree, old, new, constraints)
+                return replace(
+                        self.tree, old, new, constraints, self._command_cache)
 
     def insert(self, new):
         """

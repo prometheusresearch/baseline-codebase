@@ -160,7 +160,7 @@ setuptools.command.develop.develop.install_for_development = \
 
 # Files and directories in `static` that we don't want to add to the
 # source distribution.
-SDIST_STATIC_SKIP = ['node_modules', 'bower_components']
+SDIST_STATIC_SKIP = ['node_modules', 'bower_components', 'build', 'coverage']
 
 # Patch `sdist` to include static files.
 _add_defaults = setuptools.command.sdist.sdist.add_defaults

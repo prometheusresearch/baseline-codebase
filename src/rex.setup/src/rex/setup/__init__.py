@@ -17,6 +17,7 @@ from .namespace import develop_namespace
 from .generate import Generate, watch
 from .download import GenerateDownload
 from .webpack import GenerateWebpack
+from .js import GenerateJS
 from .doc import GenerateDoc
 from .commonjs import node, npm, install_commonjs, develop_commonjs
 import os

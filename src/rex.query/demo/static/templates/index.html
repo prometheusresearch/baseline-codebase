@@ -1,0 +1,40 @@
+{% macro js(bundle) -%}
+  {% if bundle.js %}
+  <script>
+    var __rex_public_path__ = "{{ bundle.root|url }}";
+    console.log(__rex_public_path__);
+  </script>
+  <script src="{{ bundle.js|url }}"></script>
+  {% endif %}
+{%- endmacro %}
+
+{% macro css(bundle) -%}
+  {% if bundle.css %}
+  <link
+    rel="stylesheet"
+    href="{{ bundle.css|url }}">
+  {% endif %}
+{%- endmacro %}
+
+{% macro meta() -%}
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+{%- endmacro %}
+
+{% macro entry() -%}
+  <div id="root"></div>
+{%- endmacro %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {{ meta() }}
+  {{ css(bundle) }}
+</head>
+<body>
+  {{ entry() }}
+  {{ js(bundle) }}
+</body>
+</html>
+

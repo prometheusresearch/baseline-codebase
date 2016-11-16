@@ -5,14 +5,18 @@
 
 import React from 'react';
 import {style} from 'react-stylesheet';
-import loadingIndicatorImg  from './loading-indicator.gif';
+
+// eslint-disable-next-line
+import loadingIndicatorImg  from '!!file!./loading-indicator.gif?publicPath=false';
+
+let src = window.__rex_public_path__ + loadingIndicatorImg;
 
 export default class LoadingIndicator extends React.Component {
 
   render() {
     return (
       <Root>
-        <img src={loadingIndicatorImg} role="presentation" />
+        <img src={src} role="presentation" />
       </Root>
     );
   }

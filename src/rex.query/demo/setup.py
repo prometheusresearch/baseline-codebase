@@ -46,5 +46,8 @@ setup(
     entry_points={'rex.ctl': ['rex.query_demo = rex.query_demo']},
     rex_static='static',
     rex_init='rex.query_demo',
+    rex_bundle={
+        './www/bundle': ['js:'],
+    }
 )
 

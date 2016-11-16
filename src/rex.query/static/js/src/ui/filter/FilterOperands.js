@@ -7,7 +7,7 @@ import moment from 'moment';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
 import Select from '../Select';
-import {DatePicker, TimePicker, DateTimePicker} from '../DateTime';
+//import {DatePicker, TimePicker, DateTimePicker} from '../DateTime';
 
 type TextOperandProps = {
   type: string;
@@ -134,7 +134,7 @@ export class DateOperand extends React.Component {
           placeholder="Choose a Date..."
           onClick={this.onShowPicker}
           />
-        {pickerShowing &&
+        {pickerShowing && null /*
           <ReactUI.Block
             style={{
               position: 'absolute',
@@ -152,7 +152,7 @@ export class DateOperand extends React.Component {
               onCancel={this.onCancel}
               />
           </ReactUI.Block>
-        }
+        */}
       </ReactUI.Block>
     );
   }
@@ -209,7 +209,7 @@ export class TimeOperand extends React.Component {
           placeholder="Choose a Time..."
           onClick={this.onShowPicker}
           />
-        {pickerShowing &&
+        {pickerShowing && null /*
           <ReactUI.Block
             style={{
               position: 'absolute',
@@ -228,7 +228,7 @@ export class TimeOperand extends React.Component {
               onCancel={this.onCancel}
               />
           </ReactUI.Block>
-        }
+        */}
       </ReactUI.Block>
     );
   }
@@ -285,7 +285,7 @@ export class DateTimeOperand extends React.Component {
           placeholder="Choose a Date/Time..."
           onClick={this.onShowPicker}
           />
-        {pickerShowing &&
+        {pickerShowing && null/*
           <ReactUI.Block
             style={{
               position: 'absolute',
@@ -304,7 +304,7 @@ export class DateTimeOperand extends React.Component {
               onCancel={this.onCancel}
               />
           </ReactUI.Block>
-        }
+        */}
       </ReactUI.Block>
     );
   }

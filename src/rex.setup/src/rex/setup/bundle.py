@@ -153,11 +153,17 @@ class bundle(setuptools.Command):
                         rex_static_txt = None
                     # Optionally install CommonJS package (if webpack generator is active
                     # for the distribution)
-                    if self.rex_bundle and any(
-                            gen.startswith('webpack:') or gen.startswith('js:')
-                            for item in self.rex_bundle.values()
-                            for gen in item):
-                        commonjs.install_package(dist, skip_if_installed=True)
+                    if self.rex_bundle:
+                        has_webpack = False
+                        has_js = False
+                        for item in self.rex_bundle.values():
+                            for gen in item:
+                                has_webpack = has_webpack or gen.startswith('webpack:')
+                                has_js = has_js or gen.startswith('js:')
+                        if has_js or has_webpack:
+                            commonjs.install_package(dist,
+                                    skip_if_installed=True,
+                                    npm_install_production=not has_js)
                 # Populate the directory from a set of URLs.
                 for url in self.rex_bundle[base]:
                     # Find and invoke an appropriate generator.

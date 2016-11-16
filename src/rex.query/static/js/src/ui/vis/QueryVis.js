@@ -307,7 +307,7 @@ function QueryVisQueryButton(props: {
 }) {
   const {pointer, ...rest} = props;
   if (pointer.query.name === 'here') {
-    return null;
+    return <noscript />;
   } else if (pointer.query.name === 'navigate') {
     return (
       <QueryVisNavigateButton
@@ -330,7 +330,7 @@ function QueryVisQueryButton(props: {
         />
     );
   } else if (pointer.query.name === 'select') {
-    return null;
+    return <noscript />;
   } else if (pointer.query.name === 'define') {
     return (
       <QueryVisDefineButton
@@ -353,9 +353,9 @@ function QueryVisQueryButton(props: {
         />
     );
   } else if (pointer.query.name === 'select') {
-    return null;
+    return <noscript />;
   } else if (pointer.query.name === 'limit') {
-    return null;
+    return <noscript />;
   } else {
     invariant(false, 'Unknown query type: %s', pointer.query.name);
   }

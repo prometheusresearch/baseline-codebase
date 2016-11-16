@@ -1,5 +1,5 @@
 {
-  "name": "query-builder-proto",
+  "name": "rex-query",
   "version": "0.1.0",
   "private": true,
   "devDependencies": {

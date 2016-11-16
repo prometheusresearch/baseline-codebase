@@ -3,175 +3,155 @@
  */
 
 'use strict';
-
-var React = require('react');
+import React from 'react';
 var classNames = require('classnames');
-var {DragDropMixin} = require('react-dnd');
+import ConfirmationModal from './ConfirmationModal';
+import {DraftSetActions} from '../actions';
+import {WORKSPACE_CALCULATION, CALCULATION_TYPE} from './DraggableTypes';
+import { DragDropContext, DragSource, DropTarget } from 'react-dnd';
+import PropertyEditorModal from './PropertyEditorModal';
+import autobind from 'autobind-decorator'; 
+let _ = require('../i18n').gettext;
 
-var ConfirmationModal = require('./ConfirmationModal');
-var {DraftSetActions} = require('../actions');
-var DraggableTypes = require('./DraggableTypes');
-var PropertyEditorModal = require('./PropertyEditorModal');
-var _ = require('../i18n').gettext;
-
-
-var WorkspaceCalculation = React.createClass({
-  mixins: [
-    DragDropMixin
-  ],
-
-  propTypes: {
-    calculation: React.PropTypes.object.isRequired
+const workspaceCalculationSource = {
+  canDrag(props, monitor) {
+    return !props.fixed;
   },
 
-  statics: {
-    configureDragDrop: function (register) {
-      register(DraggableTypes.WORKSPACE_CALCULATION, {
-        dragSource: {
-          beginDrag: function (component) {
-            return {
-              item: {
-                calculation: component.props.calculation
-              }
-            };
-          },
+  beginDrag(props, monitor, component) {
+    return {
+      item: {
+        calculation: component.props.calculation
+      }
+    };
+  }
+};
 
-          canDrag: function (component) {
-            return component.canMove();
-          }
-        },
+const workspaceCalculationTarget = {
+  canDrop(props, monitor) {
+    return !props.fixed;
+  },
 
-        dropTarget: {
-          enter: function (component, item) {
-            if (component.props.calculation.CID === item.calculation.CID) {
-              return;
-            }
-
-            DraftSetActions.putCalculation(
-              item.calculation,
-              component.props.calculation
-            );
-          },
-
-          canDrop: function (component) {
-            return component.canMove();
-          }
-        }
-      });
-
-      register(DraggableTypes.CALCULATION_TYPE, {
-        dropTarget: {
-          enter: function (component, item) {
-            if (component.props.calculation.CID === item.calculation.CID) {
-              return;
-            }
-
-            DraftSetActions.putCalculation(
-              item.calculation,
-              component.props.calculation
-            );
-          },
-
-          leave: function (component, item) {
-            if (component.props.calculation.CID === item.calculation.CID) {
-              component.setState({isDragging: false});
-            }
-          },
-
-          acceptDrop: function (component) {
-            component.setState({isDragging: false});
-          },
-
-          canDrop: function (component, item) {
-            if (component.props.calculation.CID === item.calculation.CID) {
-              return true;
-            }
-
-            return component.canMove();
-          }
-        }
-      });
+  hover(props, monitor, component) {
+    let item = monitor.getItem()['item'];
+    if (component.props.calculation.CID === item.calculation.CID) {
+      return;
     }
-  },
 
-  getInitialState: function () {
-    var needsEdit = this.props.calculation.needsEdit
+    if (!monitor.isOver({'shallow': true})) {
+      return;
+    }
+
+    DraftSetActions.putCalculation(
+      item.calculation,
+      component.props.calculation
+    );
+  }
+};
+
+@DropTarget([WORKSPACE_CALCULATION, CALCULATION_TYPE], workspaceCalculationTarget, connect => ({
+  connectDropTarget: connect.dropTarget()
+}))
+@DragSource(WORKSPACE_CALCULATION, workspaceCalculationSource, (connect, monitor) => ({
+  connectDragSource: connect.dragSource(),
+  isDragging: monitor.isDragging()
+}))
+export default class WorkspaceCalculation extends React.Component {
+  
+  static propTypes: {
+    calculation: React.PropTypes.object.isRequired
+  };
+
+  constructor(props) {
+    super(props);
+    let needsEdit = this.props.calculation.needsEdit
       || this.props.calculation.forceEdit
       || false;
 
-    return {
+    this.state = {
       editing: needsEdit,
       deleting: false,
       isDragging: false
     };
-  },
+  }
 
-  componentWillReceiveProps: function (nextProps) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.calculation.needsEdit || nextProps.calculation.forceEdit) {
       this.setState({
         editing: true
       });
     }
-  },
+  }
 
-  onEdit: function () {
+  @autobind
+  onEdit() {
     if (!this.state.editing) {
       this.setState({
         editing: true
+      }, () =>{
+        this.props.toggleDrag(true);
       });
     }
-  },
+  }
 
-  canMove: function () {
-    return !this.state.editing
-      && !this.state.deleting;
-  },
-
-  onCompleteEditing: function (calculation) {
+  @autobind
+  onCompleteEditing (calculation) {
     this.setState({
       editing: false
     }, () => {
       DraftSetActions.updateCalculation(calculation);
+      this.props.toggleDrag(false);
     });
-  },
+  }
 
-  onCancelEditing: function () {
+  @autobind
+  onCancelEditing() {
     if (this.props.calculation.needsEdit) {
       DraftSetActions.deleteCalculation(this.props.calculation);
     } else {
       this.setState({
         editing: false
+      }, () => {
+        this.props.toggleDrag(false);
       });
     }
-  },
+  }
 
-  onClone: function () {
+  @autobind
+  onClone() {
     DraftSetActions.cloneCalculation(this.props.calculation);
-  },
+  }
 
-  onDelete: function () {
+  @autobind
+  onDelete() {
     this.setState({
       deleting: true
+    }, () =>{
+      this.props.toggleDrag(true);
     });
-  },
+  }
 
-  onDeleteAccepted: function () {
-    DraftSetActions.deleteCalculation(this.props.calculation);
+  @autobind
+  onDeleteAccepted() {
     this.setState({
       deleting: false
+    }, () => {
+      DraftSetActions.deleteCalculation(this.props.calculation);
+      this.props.toggleDrag(false);
     });
-  },
-
-  onDeleteRejected: function () {
+  }
+  
+  @autobind
+  onDeleteRejected() {
     this.setState({
       deleting: false
+    }, () => {
+      this.props.toggleDrag(false);
     });
-  },
+  }
 
-  render: function () {
-    var {isDragging} = this.getDragState(DraggableTypes.WORKSPACE_CALCULATION);
-    isDragging |= this.state.isDragging;
-
+  render() {
+    const { connectDragSource, connectDropTarget, isDragging, locale, toggleDrag, fixed} = this.props;
     var classes = {
       'rfb-workspace-item': true,
       'rfb-dragging': isDragging,
@@ -183,13 +163,8 @@ var WorkspaceCalculation = React.createClass({
     }
     classes = classNames(classes);
 
-    return (
+    return connectDragSource(connectDropTarget(
       <div
-        {...this.dragSourceFor(DraggableTypes.WORKSPACE_CALCULATION)}
-        {...this.dropTargetFor(
-          DraggableTypes.WORKSPACE_CALCULATION,
-          DraggableTypes.CALCULATION_TYPE
-        )}
         className={classes}>
         {this.props.calculation.getWorkspaceComponent()}
         <div className="rfb-workspace-item-tools">
@@ -225,10 +200,6 @@ var WorkspaceCalculation = React.createClass({
             />
         }
       </div>
-    );
+    ));
   }
-});
-
-
-module.exports = WorkspaceCalculation;
-
+}

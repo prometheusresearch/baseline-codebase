@@ -4,55 +4,90 @@
 
 'use strict';
 
-var React = require('react');
+import React from 'react';
+import WorkspaceCalculation from './WorkspaceCalculation';
+import {DraftSetStore} from '../stores';
+import autobind from 'autobind-decorator'; 
+import { DropTarget } from 'react-dnd';
+import {DraftSetActions} from '../actions';
+import {WORKSPACE_CALCULATION, CALCULATION_TYPE} from './DraggableTypes';
 
-var WorkspaceCalculation = require('./WorkspaceCalculation');
-var {DraftSetStore} = require('../stores');
+const CalculationWorkspaceTarget = {
+  drop(props, monitor, component) {
+    //By monitor.isOver({ shallow: true }) I check is element really hover workspace 
+    //or other element inside it.
+    if (!monitor.isOver({ shallow: true }))
+      return;
+    let item =  monitor.getItem()['item'];
+    DraftSetActions.putCalculation(
+      item.calculation,
+      null
+    );
+    return;
+  }
+};
 
+function collect(connect, monitor) {
+  return {
+    connectDropTarget: connect.dropTarget(),
+    isOver: monitor.isOver(),
+    canDrop: monitor.canDrop()
+  };
+}
 
-var CalculationWorkspace = React.createClass({
-  getInitialState: function () {
-    return {
+@DropTarget([WORKSPACE_CALCULATION, CALCULATION_TYPE], CalculationWorkspaceTarget, collect)
+export default class CalculationWorkspace extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
       calculations: DraftSetStore.getActiveCalculations()
-    };
-  },
+    }
+  }
 
-  componentDidMount: function () {
+  componentDidMount() {
     DraftSetStore.addChangeListener(this._onDraftSetChange);
-  },
+  }
 
-  componentWillUnmount: function () {
+  componentWillUnmount() {
     DraftSetStore.removeChangeListener(this._onDraftSetChange);
-  },
+  }
 
-  _onDraftSetChange: function () {
+  @autobind
+  _onDraftSetChange() {
     this.setState({
       calculations: DraftSetStore.getActiveCalculations()
     });
-  },
+  }
+  
+  @autobind
+  toggleDragAndDrop(isModalDialogOpen) {
+    this.setState({canDragAndDrop: !isModalDialogOpen});
+  }
 
-  buildCalculations: function () {
+  buildCalculations() {
     return this.state.calculations.map((calculation) => {
       return (
         <WorkspaceCalculation
           key={calculation.CID}
           calculation={calculation}
-          />
+          toggleDrag={this.toggleDragAndDrop}
+          fixed={!this.state.canDragAndDrop || calculation.forceEdit || calculation.needsEdit}
+        />
       );
     });
-  },
+  }
 
-  render: function () {
+  render() {
     var calculations = this.buildCalculations();
-
-    return (
+    let {connectDropTarget} = this.props;
+    return connectDropTarget(
       <div className="rfb-workspace">
         {calculations}
       </div>
     );
   }
-});
+}
 
 
-module.exports = CalculationWorkspace;
 

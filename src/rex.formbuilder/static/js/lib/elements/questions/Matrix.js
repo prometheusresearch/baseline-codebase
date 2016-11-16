@@ -15,7 +15,7 @@ var Question = require('./Question');
 var properties = require('../../properties');
 var errors = require('../../errors');
 var {isEmptyLocalization, isEmpty} = require('../../util');
-var SubFieldContainer = require('../../gui/SubFieldContainer');
+import SubFieldContainer from '../../gui/SubFieldContainer';
 var _ = require('../../i18n').gettext;
 
 
@@ -122,7 +122,7 @@ class Matrix extends Question {
     });
   }
 
-  getWorkspaceComponent(defaultLocale) {
+  getWorkspaceComponent(defaultLocale, toggleDrop, fixed) {
     return (
       <div>
         <div className="rfb-workspace-item-details">
@@ -136,6 +136,8 @@ class Matrix extends Question {
         <SubFieldContainer
           subFields={this.questions}
           locale={defaultLocale}
+          toggleDrop={toggleDrop}
+          fixed={fixed}
           />
       </div>
     );

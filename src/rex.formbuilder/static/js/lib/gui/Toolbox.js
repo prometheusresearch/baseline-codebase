@@ -31,7 +31,7 @@ var Toolbox = React.createClass({
           label={group.label}
           tools={tools}
           toolComponent={this.props.toolComponent}
-          />
+        />
       );
     });
   },

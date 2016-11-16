@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import autobind from 'autobind-decorator';
+import {autobind} from 'rex-widget/lang';
 import objectPath from 'object-path';
 
 import {ConfirmNavigation} from 'rex-action';
@@ -11,6 +11,9 @@ import {Preloader} from 'rex-widget/ui';
 import {Fetch} from 'rex-widget/data';
 
 import {GUI, widget} from '../../index';
+
+import i18n  from '../../i18n';
+let _ = i18n.gettext;
 
 
 @Fetch(function (props) {
@@ -51,7 +54,6 @@ export default class EditDraft extends React.Component {
     if (channels.updating) {
       return <Preloader />;
     }
-
     return (
       <div
         key="wrapper"
@@ -60,7 +62,7 @@ export default class EditDraft extends React.Component {
         {this.state.draftModified &&
           <ConfirmNavigation
             key="confirm"
-            message={GUI.DraftSetEditor.getUnsavedMessage()}
+            message={getUnsavedMessage()}
           />
         }
         <widget.I18NWidget
@@ -83,3 +85,7 @@ export default class EditDraft extends React.Component {
   }
 }
 
+//moved from DraftSetEditor
+function getUnsavedMessage() {
+  return _('You\'ve made changes to this Draft, but haven\'t saved them yet.');
+}

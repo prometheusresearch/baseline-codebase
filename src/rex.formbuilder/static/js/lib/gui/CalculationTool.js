@@ -4,85 +4,84 @@
 
 'use strict';
 
-var React = require('react');
-var {DragDropMixin} = require('react-dnd');
+import React from 'react';
+import {DraftSetActions} from '../actions';
+import {CALCULATION_TYPE} from './DraggableTypes';
+import autobind from 'autobind-decorator'; 
+import { DragDropContext } from 'react-dnd';
+import HTML5Backend from 'react-dnd-html5-backend';
+import { DragSource } from 'react-dnd';
 
-var {DraftSetActions} = require('../actions');
-var DraggableTypes = require('./DraggableTypes');
-
-
-var CalculationTool = React.createClass({
-  mixins: [
-    DragDropMixin
-  ],
-
-  propTypes: {
-    tool: React.PropTypes.func.isRequired
-  },
-
-  getInitialState: function () {
+const calculationToolSource = {
+  beginDrag(props, monitor, component) {
+    let calc = new component.props.tool();
+    component.setState({pendingCalculation: calc});
     return {
-      pendingCalculation: null
+      item: {
+        calculation: calc
+      }
     };
   },
 
-  statics: {
-    configureDragDrop: function (register) {
-      register(DraggableTypes.CALCULATION_TYPE, {
-        dragSource: {
-          beginDrag: function (component) {
-            var calc = new component.props.tool();
-            component.setState({pendingCalculation: calc});
-            return {
-              item: {
-                calculation: calc
-              }
-            };
-          },
-
-          endDrag: function (component, effect) {
-            if (!effect) {
-              DraftSetActions.deleteCalculation(
-                component.state.pendingCalculation
-              );
-            } else {
-              var cfg = component.state.pendingCalculation.constructor
-                .getPropertyConfiguration();
-              if (cfg.properties[cfg.defaultCategory].length > 0) {
-                DraftSetActions.editCalculation(
-                  component.state.pendingCalculation
-                );
-              }
-            }
-            component.setState({pendingCalculation: null});
-          }
-        }
-      });
+  endDrag(props, monitor, component) {
+    if (!monitor.didDrop()) {
+      DraftSetActions.deleteCalculation(component.state.pendingCalculation);
+    } else {
+      let cfg = component.state.pendingCalculation.constructor
+        .getPropertyConfiguration();
+      if (cfg.properties[cfg.defaultCategory].length > 0) {
+        DraftSetActions.editCalculation(
+          component.state.pendingCalculation
+        );
+      }
     }
-  },
+    component.setState({pendingCalculation: null});
+    return component.state.pendingCalculation;
+  }
+};
 
-  onClick: function () {
+function collect(connect, monitor) {
+  return {
+    connectDragSource: connect.dragSource(),
+    connectDragPreview: connect.dragPreview(),
+    isDragging: monitor.isDragging()
+  };
+}
+
+
+@DragSource(CALCULATION_TYPE, calculationToolSource, collect)
+export default class CalculationTool extends React.Component {
+  
+  static propTypes = {
+    tool: React.PropTypes.func.isRequired
+  };
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      pendingCalculation: null
+    };
+  }
+  
+  @autobind
+  onClick() {
     /*eslint new-cap:0 */
-    var calc = new this.props.tool();
+    let calc = new this.props.tool();
     DraftSetActions.addCalculation(calc);
-    var cfg = this.props.tool.getPropertyConfiguration();
+    let cfg = this.props.tool.getPropertyConfiguration();
     if (cfg.properties[cfg.defaultCategory].length > 0) {
       DraftSetActions.editCalculation(calc);
     }
-  },
+  }
 
-  render: function () {
-    return (
-      <div
-        {...this.dragSourceFor(DraggableTypes.CALCULATION_TYPE)}
-        onClick={this.onClick}
+  render() {
+    const { connectDragSource, isDragging } = this.props;
+    return connectDragSource(
+      <div onClick={this.onClick}
         className="rfb-tool">
         {this.props.tool.getToolboxComponent()}
       </div>
     );
   }
-});
-
-
-module.exports = CalculationTool;
+}
 

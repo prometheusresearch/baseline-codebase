@@ -11,15 +11,17 @@ var ConfirmationModal = require('./ConfirmationModal');
 var TotalFailureModal = require('./TotalFailureModal');
 var {format} = require('../util');
 var ElementToolbox = require('./ElementToolbox');
-var ElementWorkspace = require('./ElementWorkspace');
+import ElementWorkspace from './ElementWorkspace';
 var CalculationToolbox = require('./CalculationToolbox');
-var CalculationWorkspace = require('./CalculationWorkspace');
+import CalculationWorkspace from './CalculationWorkspace';
 var MenuHeader = require('./MenuHeader');
 var FormSettingsModal = require('./FormSettingsModal');
 var ToasterMixin = require('./ToasterMixin');
 var {DraftSetActions, SettingActions, ErrorActions, I18NActions} = require('../actions');
 var {DraftSetStore} = require('../stores');
 var {ConfigurationError} = require('../errors');
+var HTML5Backend = require('react-dnd-html5-backend');
+var DragDropContext = require('react-dnd').DragDropContext;
 var i18n = require('../i18n');
 var _ = i18n.gettext;
 
@@ -55,6 +57,7 @@ var DraftSetEditor = React.createClass({
       configFailure: null
     };
   },
+
 
   componentWillMount: function () {
     SettingActions.initialize(this.props);
@@ -210,14 +213,105 @@ var DraftSetEditor = React.createClass({
     });
   },
 
-  render: function () {
-    var workspace, toggleTitle, toggleLabel;
-    var toggleClasses = {'rfb-icon': true};
+  renderMenuHeader: function () {
+    let toggleTitle, toggleLabel;
+    let toggleClasses = {'rfb-icon': true};
     if (this.state.editMode === MODE_FORM) {
       toggleTitle = _('Switch to the Calculations Editor');
       toggleLabel = _('Edit Calculations');
       toggleClasses = classNames(toggleClasses, 'icon-mode-calculations');
+    } else if (this.state.editMode === MODE_CALCULATIONS) {
+      toggleTitle = _('Switch to the Form Editor');
+      toggleLabel = _('Edit Form');
+      toggleClasses = classNames(toggleClasses, 'icon-mode-form');
+    }
 
+    let saveButtonClasses = classNames('rfb-button', {
+      'rfb-button__disabled': !this.state.modified || !this.state.valid
+    });
+
+    let formTitle = null;
+    if (this.state.configuration) {
+      formTitle = this.state.configuration.title[
+        this.state.configuration.locale
+      ];
+    }
+    return (
+      <MenuHeader
+        title={formTitle}>
+        {this.props.instrumentMenuUrlTemplate &&
+          this.state.instrumentVersion &&
+          <button
+            className="rfb-button"
+            onClick={this.onReturn}>
+            <span className="rfb-icon icon-go-back" />
+            {_('Return to Menu')}
+          </button>
+        }
+        {this.state.editMode === MODE_FORM &&
+          <button
+            disabled={!this.state.configuration}
+            className="rfb-button"
+            title={_('Edit the high-level Form settings')}
+            onClick={this.onFormSettings}>
+            <span className="rfb-icon icon-edit" />
+            {_('Form Settings')}
+          </button>
+        }
+        <button
+          className="rfb-button"
+          title={toggleTitle}
+          onClick={this.onModeSwitch}>
+          <span className={toggleClasses} />
+          {toggleLabel}
+        </button>
+        <button
+          className={saveButtonClasses}
+          title={
+            this.state.validityError
+            || _('Save the current state of this Draft to the database')
+          }
+          onClick={this.onSave}>
+          <span className="rfb-icon icon-save" />
+          {_('Save')}
+        </button>
+        {this.props.formPreviewerUrlTemplate &&
+          <button
+            disabled={this.state.modified || !this.state.valid}
+            className="rfb-button"
+            title={_('Explore a rendered, interactive view of this Draft')}
+            onClick={this.onPreview}>
+            <span className="rfb-icon icon-view" />
+            {_('Preview Form')}
+          </button>
+        }
+        <button
+          disabled={this.state.modified || !this.state.valid}
+          className="rfb-button"
+          title={
+            _('Publish the current state of this Draft for use by end-users')
+          }
+          onClick={this.onPublish}>
+          <span className="rfb-icon icon-publish" />
+          {_('Publish')}
+        </button>
+        <ConfirmationModal
+          visible={this.state.publishing}
+          onAccept={this.onPublishAccepted}
+          onReject={this.onPublishRejected}>
+          <p>{_(
+            'Publishing this Draft will make it publicly available for use'
+            + ' in data collection. Are you sure you want to publish this'
+            + ' Draft?'
+          )}</p>
+        </ConfirmationModal>
+      </MenuHeader>
+    ); 
+  },
+
+  render: function () {
+    let workspace;
+    if (this.state.editMode === MODE_FORM) {
       workspace = (
         <div className="rfb-draftset-container">
           <ElementToolbox />
@@ -225,10 +319,6 @@ var DraftSetEditor = React.createClass({
         </div>
       );
     } else if (this.state.editMode === MODE_CALCULATIONS) {
-      toggleTitle = _('Switch to the Form Editor');
-      toggleLabel = _('Edit Form');
-      toggleClasses = classNames(toggleClasses, 'icon-mode-form');
-
       workspace = (
         <div className="rfb-draftset-container">
           <CalculationToolbox />
@@ -236,89 +326,10 @@ var DraftSetEditor = React.createClass({
         </div>
       );
     }
-
-    var saveButtonClasses = classNames('rfb-button', {
-      'rfb-button__disabled': !this.state.modified || !this.state.valid
-    });
-
-    var formTitle = null;
-    if (this.state.configuration) {
-      formTitle = this.state.configuration.title[
-        this.state.configuration.locale
-      ];
-    }
-
+    let menuHeader = this.renderMenuHeader();
     return (
       <div className="rfb-draftset-editor">
-        <MenuHeader
-          title={formTitle}>
-          {this.props.instrumentMenuUrlTemplate &&
-            this.state.instrumentVersion &&
-            <button
-              className="rfb-button"
-              onClick={this.onReturn}>
-              <span className="rfb-icon icon-go-back" />
-              {_('Return to Menu')}
-            </button>
-          }
-          {this.state.editMode === MODE_FORM &&
-            <button
-              disabled={!this.state.configuration}
-              className="rfb-button"
-              title={_('Edit the high-level Form settings')}
-              onClick={this.onFormSettings}>
-              <span className="rfb-icon icon-edit" />
-              {_('Form Settings')}
-            </button>
-          }
-          <button
-            className="rfb-button"
-            title={toggleTitle}
-            onClick={this.onModeSwitch}>
-            <span className={toggleClasses} />
-            {toggleLabel}
-          </button>
-          <button
-            className={saveButtonClasses}
-            title={
-              this.state.validityError
-              || _('Save the current state of this Draft to the database')
-            }
-            onClick={this.onSave}>
-            <span className="rfb-icon icon-save" />
-            {_('Save')}
-          </button>
-          {this.props.formPreviewerUrlTemplate &&
-            <button
-              disabled={this.state.modified || !this.state.valid}
-              className="rfb-button"
-              title={_('Explore a rendered, interactive view of this Draft')}
-              onClick={this.onPreview}>
-              <span className="rfb-icon icon-view" />
-              {_('Preview Form')}
-            </button>
-          }
-          <button
-            disabled={this.state.modified || !this.state.valid}
-            className="rfb-button"
-            title={
-              _('Publish the current state of this Draft for use by end-users')
-            }
-            onClick={this.onPublish}>
-            <span className="rfb-icon icon-publish" />
-            {_('Publish')}
-          </button>
-          <ConfirmationModal
-            visible={this.state.publishing}
-            onAccept={this.onPublishAccepted}
-            onReject={this.onPublishRejected}>
-            <p>{_(
-              'Publishing this Draft will make it publicly available for use'
-              + ' in data collection. Are you sure you want to publish this'
-              + ' Draft?'
-            )}</p>
-          </ConfirmationModal>
-        </MenuHeader>
+        {menuHeader}
         {this.state.configuration && this.state.editingSettings &&
           <FormSettingsModal
             ref="modalSettings"
@@ -348,11 +359,5 @@ var DraftSetEditor = React.createClass({
   }
 });
 
-function getUnsavedMessage() {
-  return _('You\'ve made changes to this Draft, but haven\'t saved them yet.');
-}
-
-DraftSetEditor.getUnsavedMessage = getUnsavedMessage;
-
-module.exports = DraftSetEditor;
+module.exports = DragDropContext(HTML5Backend)(DraftSetEditor);
 

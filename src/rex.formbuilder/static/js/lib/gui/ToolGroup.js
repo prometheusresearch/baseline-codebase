@@ -15,14 +15,14 @@ var ToolGroup = React.createClass({
   },
 
   buildTools: function () {
-    var Component = this.props.toolComponent;
-
+    //TODO something wrong with the toolComponent
+    var Component = this.props.toolComponent.default;
     return this.props.tools.map((tool, idx) => {
       return (
         <Component
           key={idx}
           tool={tool}
-          />
+        />
       );
     });
   },
@@ -32,7 +32,6 @@ var ToolGroup = React.createClass({
     if (!tools) {
       return null;
     }
-
     return (
       <div className="rfb-tool-group">
         <h3>{this.props.label}</h3>

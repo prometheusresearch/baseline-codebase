@@ -4,229 +4,236 @@
 
 'use strict';
 
-var React = require('react');
+import React from 'react';
 var classNames = require('classnames');
-var {DragDropMixin} = require('react-dnd');
 
-var ConfirmationModal = require('./ConfirmationModal');
-var {DraftSetActions} = require('../actions');
-var DraggableTypes = require('./DraggableTypes');
-var PropertyEditorModal = require('./PropertyEditorModal');
-var _ = require('../i18n').gettext;
+import ConfirmationModal from './ConfirmationModal';
+import {DraftSetActions} from '../actions';
+import {WORKSPACE_ELEMENT, ELEMENT_TYPE} from './DraggableTypes';
+import PropertyEditorModal from './PropertyEditorModal';
+import autobind from 'autobind-decorator'; 
+import { DragDropContext, DragSource, DropTarget } from 'react-dnd';
+import HTML5Backend from 'react-dnd-html5-backend';
 
 
-var WorkspaceElement = React.createClass({
-  mixins: [
-    DragDropMixin
-  ],
+let _ = require('../i18n').gettext;
 
-  propTypes: {
+const workspaceElementSource = {
+  canDrag(props, monitor) {
+    return !props.fixed;
+  },
+
+  beginDrag(props, monitor, component) {
+    return {
+      item: {
+        element: component.props.element
+      }
+    };
+  },
+
+  endDrag(props, monitor, component) {
+    if(!monitor.didDrop())
+      return;
+    DraftSetActions.checkNewHome(props.element);
+  }
+};
+
+const workspaceElementTarget = {
+  canDrop(props, monitor) {
+    let item = monitor.getItem()['item'];
+    //Can drop inside element only if element is a container and element can be subfield. 
+    //Element shouldn't be in edit mode.
+    //If it's possibe to drop inside we wouldn't put element near.
+
+    let canDrop = false;
+    
+    //Element in edit mode
+    if (props.fixed)
+      return false;
+    
+    let element = props.element;
+    
+    //Element not a Container
+    if(!element.constructor.isContainingElement())
+      return false;
+
+    //Item coudn't be a subfield
+    if(!item.element.constructor.canBeSubField())
+      return false;
+
+    //if element is already a subfield we can't add 3 level
+    if(props.isSubField)
+      return false;
+    
+    //on the other cases it should be possible  
+    return true;
+  },
+
+  hover(props, monitor, component) {
+    let element = component.props.element;
+    //don't put the next element if it should be edit first
+    //don't put the  next element if it's not trully hover the WorspaceElement 
+    //(ElementWorkspace will be responsible for it)
+    //don't the put next element near if you can drop it inside
+    if (element.needsEdit || !monitor.isOver({'shallow': true}) || monitor.canDrop())
+      return;
+    let item = monitor.getItem()['item'];
+    if (element.EID === item.element.EID) {
+      return;
+    }
+    //don't put next element if this element is subfield, and the next element
+    //coudn't be subfield
+    if(props.isSubField && !item.element.constructor.canBeSubField())
+      return;
+    DraftSetActions.putElement(
+      item.element,
+      element
+    );
+  }
+};
+
+@DropTarget([WORKSPACE_ELEMENT, ELEMENT_TYPE], workspaceElementTarget, connect => ({
+  connectDropTarget: connect.dropTarget()
+}))
+@DragSource(WORKSPACE_ELEMENT, workspaceElementSource, (connect, monitor) => ({
+  connectDragSource: connect.dragSource(),
+  isDragging: monitor.isDragging()
+}))
+export default class WorkspaceElement extends React.Component {
+
+  static propTypes = {
     element: React.PropTypes.object.isRequired,
     fixed: React.PropTypes.bool,
     isSubField: React.PropTypes.bool,
     locale: React.PropTypes.string.isRequired
-  },
+  };
 
-  getDefaultProps: function () {
-    return {
-      fixed: false,
-      isSubField: false
-    };
-  },
+  static getDefaultProps = {
+    fixed: false,
+    isSubField: false
+  };
 
-  statics: {
-    configureDragDrop: function (register) {
-      register(DraggableTypes.WORKSPACE_ELEMENT, {
-        dragSource: {
-          beginDrag: function (component) {
-            return {
-              item: {
-                element: component.props.element
-              }
-            };
-          },
-
-          canDrag: function (component) {
-            return component.canMove();
-          }
-        },
-
-        dropTarget: {
-          enter: function (component, item) {
-            if (component.props.element.EID === item.element.EID) {
-              return;
-            }
-
-            DraftSetActions.putElement(
-              item.element,
-              component.props.element
-            );
-          },
-
-          acceptDrop: function (component, item) {
-            DraftSetActions.checkNewHome(item.element);
-          },
-
-          canDrop: function (component, item) {
-            return component.canMove()
-              && !component.props.element.constructor.isContainingElement()
-              && (
-                !item.element.constructor.isContainingElement()
-                || !component.props.isSubField
-              )
-              && (
-                item.element.constructor.canBeSubField()
-                || !component.props.isSubField
-              )
-            ;
-          }
-        }
-      });
-
-      register(DraggableTypes.ELEMENT_TYPE, {
-        dropTarget: {
-          enter: function (component, item) {
-            if (component.props.element.EID === item.element.EID) {
-              return;
-            }
-
-            DraftSetActions.putElement(
-              item.element,
-              component.props.element
-            );
-          },
-
-          leave: function (component, item) {
-            if (component.props.element.EID === item.element.EID) {
-              component.setState({isDragging: false});
-            }
-          },
-
-          acceptDrop: function (component) {
-            component.setState({isDragging: false});
-          },
-
-          canDrop: function (component, item) {
-            if (component.props.element.EID === item.element.EID) {
-              return true;
-            }
-
-            return !component.props.isSubField
-              && !component.props.element.constructor.isContainingElement()
-              && component.canMove();
-          }
-        }
-      });
-    }
-  },
-
-  getInitialState: function () {
-    var needsEdit = this.props.element.needsEdit
+  constructor(props) {
+    super(props);
+    let needsEdit = this.props.element.needsEdit
       || this.props.element.forceEdit
       || false;
 
-    return {
+    this.state = {
       editing: needsEdit,
       deleting: false,
       isDragging: false
     };
-  },
+  }
 
-  componentWillReceiveProps: function (nextProps) {
+  componentWillReceiveProps(nextProps) {
     if (nextProps.element.needsEdit || nextProps.element.forceEdit) {
       this.setState({
         editing: true
       });
     }
-  },
-
-  onEdit: function () {
+  }
+  
+  @autobind
+  onEdit() {
     if (!this.state.editing) {
       this.setState({
         editing: true
+      }, () => {
+        this.props.toggleDrop(true);
       });
     }
-  },
+  }
 
-  canMove: function () {
+  canMove() {
     return !this.props.fixed
       && !this.state.editing
       && !this.state.deleting;
-  },
+  }
 
-  onCompleteEditing: function (element) {
+  @autobind
+  onCompleteEditing(element) {
     this.setState({
       editing: false
     }, () => {
       DraftSetActions.updateElement(element);
+      this.props.toggleDrop(false);
     });
-  },
+  }
 
-  onCancelEditing: function () {
+  @autobind
+  onCancelEditing() {
     if (this.props.element.needsEdit) {
       DraftSetActions.deleteElement(this.props.element);
     } else {
       this.setState({
         editing: false
+      }, () => {
+        this.props.toggleDrop(false);
       });
     }
-  },
-
-  onClone: function () {
+  }
+  
+  @autobind
+  onClone() {
     DraftSetActions.cloneElement(this.props.element);
-  },
-
-  onDelete: function () {
+  }
+  
+  @autobind
+  onDelete() {
     this.setState({
       deleting: true
+    }, () => {
+      this.props.toggleDrop(true);
     });
-  },
+  }
 
-  onDeleteAccepted: function () {
-    DraftSetActions.deleteElement(this.props.element);
+  @autobind
+  onDeleteAccepted() {
     this.setState({
       deleting: false
+    }, () => {
+      DraftSetActions.deleteElement(this.props.element);
+      this.props.toggleDrop(false);
     });
-  },
+  }
 
-  onDeleteRejected: function () {
+  @autobind
+  onDeleteRejected() {
     this.setState({
       deleting: false
+    }, () => {
+      this.props.toggleDrop(false);
     });
-  },
+  }
 
-  render: function () {
-    var {isDragging} = this.getDragState(DraggableTypes.WORKSPACE_ELEMENT);
-    isDragging |= this.state.isDragging;
+  render() {
+    //let {isDragging} = this.getDragState(DraggableTypes.WORKSPACE_ELEMENT);
+    //isDragging |= this.state.isDragging;
+    const { connectDragSource, connectDropTarget, isDragging, locale, toggleDrop, fixed} = this.props;
 
-    var elementInvalid = false;
+    let elementInvalid = false;
     try {
-      this.props.element.checkValidity(this.props.locale);
+      this.props.element.checkValidity(locale);
     } catch (exc) {
       elementInvalid = true;
     }
 
-    var classes = {
+    let classes = {
       'rfb-workspace-item': true,
       'rfb-dragging': isDragging,
       'rfb-movable': this.canMove(),
       'rfb-element-invalid': elementInvalid
     };
-    var typeId = this.props.element.constructor.getTypeID();
+    let typeId = this.props.element.constructor.getTypeID();
     if (typeId) {
       classes['rfb-workspace-element-' + typeId] = true;
     }
     classes = classNames(classes);
 
-    return (
-      <div
-        {...this.dragSourceFor(DraggableTypes.WORKSPACE_ELEMENT)}
-        {...this.dropTargetFor(
-          DraggableTypes.WORKSPACE_ELEMENT,
-          DraggableTypes.ELEMENT_TYPE
-        )}
-        className={classes}>
-        {this.props.element.getWorkspaceComponent(this.props.locale)}
+    return connectDragSource(connectDropTarget(
+      <div className={classes}>
+        {this.props.element.getWorkspaceComponent(locale, toggleDrop, fixed)}
         <div className="rfb-workspace-item-tools">
           <button
             className="rfb-button rfb-icon-button"
@@ -265,10 +272,6 @@ var WorkspaceElement = React.createClass({
             />
         }
       </div>
-    );
+    ));
   }
-});
-
-
-module.exports = WorkspaceElement;
-
+}

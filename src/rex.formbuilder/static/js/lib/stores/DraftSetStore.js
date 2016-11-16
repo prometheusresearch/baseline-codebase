@@ -153,7 +153,6 @@ function editAttributes(attributes) {
 
 function findElement(element, container) {
   container = container || _activeConfiguration.elements;
-
   for (var i = 0; i < container.length; i++) {
     if (container[i].EID === element.EID) {
       return {
@@ -192,7 +191,6 @@ function putElement(element, afterElement, container) {
 
 function checkNewHome(element) {
   var newHome = findElement(element);
-
   var duplicateIDs = newHome.container.filter((elm) => {
     return (element.id === elm.id)
       && (element.EID !== elm.EID);

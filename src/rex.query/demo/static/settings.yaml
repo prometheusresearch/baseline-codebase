@@ -1,8 +1,8 @@
-
 db: pgsql:query_demo
 htsql_extensions:
-    rex_deploy:
+  rex_deploy:
 access:
-    rex.query: anybody
-    rex.query_demo: anybody
-
+  rex.query: anybody
+  rex.query_demo: anybody
+mount:
+  rex.query: /

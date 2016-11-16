@@ -10,7 +10,7 @@ from .database import Database
 
 class HandleQueryLocation(HandleLocation):
 
-    path = '/'
+    path = '/query/'
 
     def __call__(self, req):
         if not authorize(req, self):

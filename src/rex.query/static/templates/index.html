@@ -1,8 +1,8 @@
 {% macro js(bundle) -%}
   {% if bundle.js %}
   <script>
-    var __rex_public_path__ = "{{ bundle.root|url }}";
-    console.log(__rex_public_path__);
+    var __rex_root__ = "{{ PACKAGE_URL }}";
+    var __rex_bundle_root__ = "{{ bundle.root|url }}";
   </script>
   <script src="{{ bundle.js|url }}"></script>
   {% endif %}

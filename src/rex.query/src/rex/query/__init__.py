@@ -24,5 +24,4 @@ from .pipe import (
         text_le_sig, text_eq_sig, text_ne_sig, text_ge_sig, text_gt_sig,
         count_sig, exists_sig, any_sig, all_sig, min_sig, max_sig, sum_sig,
         FormulaPipe, AggregatePipe, OptionalAggregatePipe)
-
-
+from .app import RenderQuery

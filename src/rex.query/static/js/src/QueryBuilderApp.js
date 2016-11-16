@@ -10,6 +10,8 @@ import QueryBuilder from './QueryBuilder';
 import {Message} from './ui';
 import {fetchCatalog} from './fetch';
 
+// eslint-disable-next-line
+const API = __rex_root__ + '/query/';
 
 export default class QueryBuilderApp extends React.Component {
   state: {domain: ?Domain} = {
@@ -17,7 +19,7 @@ export default class QueryBuilderApp extends React.Component {
   };
 
   static defaultProps = {
-    api: '/query/',
+    api: API,
     initialQuery: null,
     onQuery: null,
   };

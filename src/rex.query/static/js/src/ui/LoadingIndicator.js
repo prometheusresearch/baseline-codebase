@@ -6,10 +6,10 @@
 import React from 'react';
 import {style} from 'react-stylesheet';
 
-// eslint-disable-next-line
-import loadingIndicatorImg  from '!!file!./loading-indicator.gif?publicPath=false';
+// $FlowFixMe: cannot resolve
+import loadingIndicatorImg  from '!!file!./loading-indicator.gif?publicPath=false'; // eslint-disable-line
 
-let src = window.__rex_public_path__ + loadingIndicatorImg;
+let src = window.__rex_bundle_root__ + loadingIndicatorImg;
 
 export default class LoadingIndicator extends React.Component {
 

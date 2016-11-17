@@ -1,3 +1,4 @@
+from rex.core import StrVal
 
 from rex.instrument.interface import Assessment
 from rex.db import get_db
@@ -72,3 +73,20 @@ class DemoAssessment(Assessment):
     @classmethod
     def bulk_create(cls, assessments, validate=True):
         print '### CREATED %s ASSESSMENTS' % len(assessments)
+
+    @classmethod
+    def get_implementation_context(cls, action):
+        if action == cls.CONTEXT_ACTION_CREATE:
+            return {
+                'study': {
+                    'required': False,
+                    'validator': StrVal(),
+                },
+                'study1': {
+                    'required': True,
+                    'validator': StrVal(),
+                }
+            }
+
+
+        return Assessment.get_implementation_context(action)

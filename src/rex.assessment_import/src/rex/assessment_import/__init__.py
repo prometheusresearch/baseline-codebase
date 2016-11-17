@@ -3,6 +3,7 @@ import os
 from rex.core import get_settings, Initialize, Error
 from .core import *
 from .settings import *
+from .import_package import *
 
 
 class InitializeAssessmentImport(Initialize):

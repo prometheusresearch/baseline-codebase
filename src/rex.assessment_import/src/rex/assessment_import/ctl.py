@@ -1,10 +1,12 @@
 import os
-import csv
-import codecs
+import zipfile
 from collections import OrderedDict
 
 from rex.core import Error, get_settings
-from rex.ctl import Task, RexTask, argument, option, warn, log, debug
+from rex.ctl import Task, RexTask, argument, option
+
+
+from .import_package import ImportPackage
 from .core import export_template, import_assessment
 
 
@@ -60,12 +62,23 @@ class AssessmentTemplateExportTask(RexTask):
 
     def __call__(self):
         with self.make():
-            export_template(instrument_uid=self.instrument_uid,
-                            version=self.version,
-                            output=self.output,
-                            format=self.format,
-                            verbose=self.verbose)
-
+            template = export_template(instrument_uid=self.instrument_uid,
+                                       version=self.version,
+                                       verbose=self.verbose)
+            if not self.format or self.format == 'csv':
+                filename, filecontent = template.as_zip_file()
+            elif self.format == 'xls':
+                filename, filecontent = template.as_xls_file()
+            else:
+                raise Error("Format %s is unknown." % self.format)
+            if not self.output:
+                self.output = '.'
+            output = os.path.abspath(self.output)
+            if not os.path.exists(output):
+                os.mkdir(output)
+            filepath = os.path.join(output, filename)
+            with open(filepath, 'w') as f:
+                f.write(filecontent)
 
 
 class AssessmentImportTask(RexTask):
@@ -108,8 +121,23 @@ class AssessmentImportTask(RexTask):
         )
 
     def __call__(self):
+        input = self.input
+        if not input:
+            input = '.'
+        input = os.path.abspath(input)
+        if not os.path.exists(input):
+            raise Error("Input path `%s` does not exists" % input)
         with self.make():
+            (_, ext) = os.path.splitext(input)
+            if os.path.isdir(input):
+                input = ImportPackage.from_directory(input)
+            elif zipfile.is_zipfile(input):
+                input = ImportPackage.from_zip(input)
+            elif os.path.isfile(input) and ext == '.csv':
+                input = ImportPackage.from_zip(input)
+            elif os.path.isfile(input) and ext == '.xls':
+                input = ImportPackage.from_xls(input)
             import_assessment(instrument_uid=self.instrument_uid,
                               version=self.version,
-                              input=self.input,
+                              input=input,
                               verbose=self.verbose)

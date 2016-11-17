@@ -9,8 +9,9 @@ tests:
   - rmdir: ./build/sandbox
   - mkdir: ./build/sandbox
   - mkdir: ./build/sandbox/output
-  
+
   - coverage: setup.cfg
+    auto-data: true
 
   - sh: pip install --quiet --editable ./demo
 
@@ -18,9 +19,11 @@ tests:
   - sh: rex deploy --quiet rex.assessment_import_demo
 
   - doctest: README.rst
+  - doctest: test/test_settings.rst
+  - doctest: test/test_import_package.rst
   - doctest: test/test_export_template.rst
   - doctest: test/test_import_assessment.rst
 
-  - coverage-check: 85.0
+  - coverage-check: 90.0
   - coverage-report: ./build/coverage
 

@@ -4,18 +4,16 @@ Template export
 
 .. contents:: Table of Contents
 
-Function ``export_template`` is used to export instrument template
-as bunch of csv files or as xls file.
+Function ``export_template`` is used to export instrument as ImportPackage
+object.
 The function expects one mandatory parameter ``instrument_uid``,
-and four optional parameters:
+and the next optional parameters:
 ``version`` - instrument version, latest version by default,
-``output`` - path to directory to save template, by default current directory,
-``format`` - csv or xls is expected, csv by default,
 ``verbose`` - boolean value indicates if log are shown, False by default.
+``user`` - user initiator of instrument export.
 
 ::
 
-  >>> import os
   >>> from rex.core import Rex
   >>> from rex.assessment_import import export_template
 
@@ -36,37 +34,28 @@ If version given, it must exist in the data store::
   ...
   Error: The desired version of "Complex Instrument" does not exist.
 
-If format is given, one of csv or xls is expected::
+Successfull export returns ImportPackage object::
 
-  >>> export_template(instrument_uid='qctest', format='xlsx')
-  Traceback (most recent call last):
-  ...
-  Error: Format xlsx is unknown. One of xls, csv is expected
+  >>> output = export_template(instrument_uid='qctest')
 
-  >>> export_template(instrument_uid='qctest', output='./build/sandbox/csv')
+  >>> output = export_template(instrument_uid='qctest', version=1)
 
-A bunch of csv template files is created::
+Set parameter verbose to show logs::
 
-  >>> for filename in sorted(os.listdir('./build/sandbox/csv')):
-  ...       print filename
-  qctest1.csv
-  qctest1.matrix.csv
-  qctest1.q_matrix1.csv
-  qctest1.q_matrix2.csv
-  qctest1.recordlist.csv
-  qctest1.recordlist2.csv
-  qctest1.recordlist3.csv
-  qctest1.recordlist4.csv
-  qctest1.recordlist5.csv
+  >>> output = export_template(instrument_uid='qctest', version=1, verbose=True)
+  Looking for instrument...
+  Generating instrument template...
 
-To export instrument template as xls, format should be specified::
+use ImportPackage.as_zip_file metod to process data as zip file, contained
+a bunch of csv files::
 
-  >>> export_template(instrument_uid='qctest',
-  ...                 output='./build/sandbox/xls',
-  ...                 format='xls')
+  >>> zip_file_name, zip_file_content = output.as_zip_file()
+  >>> print zip_file_name
+  qctest1.zip
 
-Template saved as xls file::
+use ImportPackage.as_xls_file metod to process data as xls::
 
-  >>> for filename in sorted(os.listdir('./build/sandbox/xls')):
-  ...       print filename
+  >>> xls_file_name, xls_file_content = output.as_xls_file()
+  >>> print xls_file_name
   qctest1.xls
+

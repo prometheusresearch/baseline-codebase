@@ -7,6 +7,7 @@ import type {Actions} from '../../state';
 
 import React from 'react';
 import {style} from 'react-stylesheet';
+import * as css from 'react-stylesheet/css';
 import {VBox, HBox} from '@prometheusresearch/react-box';
 import * as t from '../../model/Type';
 
@@ -46,6 +47,7 @@ export default class QueryVisToolbar
         <HBox padding={2} justifyContent="flex-start">
           {canNavigate &&
             <QueryVisToolbarButton
+              emphasis
               disabled={disableAdd}
               onClick={this.onAdd}
               icon={<PlusIcon />}>
@@ -121,6 +123,10 @@ let QueryVisToolbarButtonRoot = style(HBox, {
       backgroundColor: '#fafafa',
     }
   },
+  emphasis: {
+    border: css.border(1, '#ccc'),
+    borderRadius: 2,
+  },
   selected: {
     fontWeight: 500,
     color: '#1f85f5',
@@ -140,8 +146,8 @@ let QueryVisToolbarButtonRoot = style(HBox, {
   },
 });
 
-function QueryVisToolbarButton({children, selected, icon, disabled, ...props}) {
-  let variant = {selected, disabled};
+function QueryVisToolbarButton({children, selected, icon, disabled, emphasis, ...props}) {
+  let variant = {selected, disabled, emphasis};
   return (
     <QueryVisToolbarButtonRoot
       {...props}

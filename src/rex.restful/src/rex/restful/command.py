@@ -11,7 +11,7 @@ from webob.exc import HTTPMethodNotAllowed, HTTPException, HTTPBadRequest
 
 from rex.core import StrVal, Error, AnyVal, get_settings
 from rex.logging import get_logger
-from rex.web import Command, Parameter
+from rex.web import Command, Parameter, confine
 
 from .serializer import Serializer
 
@@ -333,7 +333,8 @@ class RestfulLocation(Command):
             arguments = self.parse_arguments(request)
             kwargs.update(arguments)
 
-            response = implementation(request, **kwargs)
+            with confine(request, self):
+                response = implementation(request, **kwargs)
 
         except HTTPException, exc:
             # pylint: disable=redefined-variable-type

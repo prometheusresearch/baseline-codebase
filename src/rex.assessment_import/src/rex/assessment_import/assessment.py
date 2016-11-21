@@ -34,16 +34,16 @@ class Assessment(object):
     def make_context(self, instrument, data):
         context = {}
         for field_id, field in instrument.context.items():
-            value = data.get(field_id)
-            if field['required'] and value is None:
+            value = data.get(field_id, None)
+            if field['required'] and value in (None, ''):
                 raise Error("%s value is required in %s."
-                            % (field.id, instrument.id))
+                            % (field_id, instrument.id))
             if value not in (None,''):
                 try:
                     field['validator'](value)
                 except Error, exc:
                     raise Error("Got unexpected %s value in %s"
-                                % (field.id, instrument.id), exc)
+                                % (field_id, instrument.id), exc)
                 context[field_id] = value
         return context
 

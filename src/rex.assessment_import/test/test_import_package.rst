@@ -62,6 +62,14 @@ When given path parameter is not xls file assertion error appeared::
   ...
   AssertionError
 
+When not readable xls file given::
+
+  >>> input = ImportPackage.from_xls('./test/data/errors/qctest/qctest18.xls')
+  Traceback (most recent call last):
+  ...
+  Error: Bad xls file
+      File size is 0 bytes
+
 from_csv
 ++++++++
 
@@ -83,6 +91,14 @@ When given path parameter is not csv file assertion error appeared::
   Traceback (most recent call last):
   ...
   AssertionError
+
+When csv file is unreadable::
+
+  >>> input = ImportPackage.from_csv('./test/data/errors/qctest/csv/qctest19.csv')
+  Traceback (most recent call last):
+  ...
+  Error: Unable to read csv ./test/data/errors/qctest/csv/qctest19.csv.
+      line contains NULL byte
 
 from_zip
 ++++++++

@@ -1,4 +1,4 @@
-from rex.core import StrVal
+from rex.core import StrVal, FloatVal, Error
 
 from rex.instrument.interface import Assessment
 from rex.db import get_db
@@ -72,6 +72,9 @@ class DemoAssessment(Assessment):
 
     @classmethod
     def bulk_create(cls, assessments, validate=True):
+        for assessment in assessments:
+            if assessment.context['study1'] < 0:
+                raise Error('Bulk create failed with unexpected study1.')
         print '### CREATED %s ASSESSMENTS' % len(assessments)
 
     @classmethod
@@ -84,9 +87,7 @@ class DemoAssessment(Assessment):
                 },
                 'study1': {
                     'required': True,
-                    'validator': StrVal(),
+                    'validator': FloatVal(),
                 }
             }
-
-
         return Assessment.get_implementation_context(action)

@@ -4,7 +4,6 @@ import xlrd
 import xlwt
 import zipfile
 import datetime
-import traceback
 import shutil
 import tempfile
 
@@ -90,6 +89,7 @@ class ImportPackage(object):
         try:
             workbook = xlrd.open_workbook(path)
         except xlrd.XLRDError, exc:
+            exc = Error("Bad xls file", exc)
             cls.fail(exc, path, user)
         data = OrderedDict()
         for idx, sheet in enumerate(workbook.sheets()):
@@ -115,19 +115,19 @@ class ImportPackage(object):
             if ext != '.csv': continue
             filepath = os.path.join(path, filename)
             with open(filepath, 'rU') as csvfile:
-                data = cls.read_csv(csvfile, user)
+                try:
+                    data = cls.read_csv(csvfile, user)
+                except Exception, exc:
+                    exc = Error("Unable to read csv %s" % filepath, exc)
+                    cls.fail(exc, path, user)
                 chunks.append(ImportChunk(name, data, user))
         return cls(chunks=chunks)
 
     @classmethod
     def read_csv(cls, csvfile, user=None):
-        try:
-            reader = csv.DictReader(csvfile)
-        except Exception:
-            exc = traceback.format_exc()
-            exc = Error("Bad csv file `%s`" % path, exc)
-            cls.fail(exc, path, user)
-        return [row for row in reader]
+        reader = csv.DictReader(csvfile)
+        data = [row for row in reader]
+        return data
 
     @classmethod
     def from_zip(cls, path, user=None):
@@ -138,7 +138,11 @@ class ImportPackage(object):
                 name, ext = os.path.splitext(os.path.basename(filepath))
                 if ext != '.csv': continue
                 with zf.open(filepath, 'rU') as csvfile:
-                    data = cls.read_csv(csvfile, user)
+                    try:
+                        data = cls.read_csv(csvfile, user)
+                    except Exception, exc:
+                        exc = Error("Unable to read csv %s" % filepath, exc)
+                        cls.fail(exc, path, user)
                     chunks.append(ImportChunk(name, data, user))
         return cls(chunks=chunks)
 
@@ -150,7 +154,11 @@ class ImportPackage(object):
         (name, ext) = os.path.splitext(filename)
         assert ext == '.csv'
         with open(path, 'rU') as csvfile:
-            data = cls.read_csv(csvfile, user)
+            try:
+                data = cls.read_csv(csvfile, user)
+            except Exception, exc:
+                exc = Error("Unable to read csv %s." % path, exc)
+                cls.fail(exc, path, user)
             chunks.append(ImportChunk(name, data, user))
         return cls(chunks=chunks)
 

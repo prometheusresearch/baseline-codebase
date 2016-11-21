@@ -134,7 +134,7 @@ class AssessmentImportTask(RexTask):
             elif zipfile.is_zipfile(input):
                 input = ImportPackage.from_zip(input)
             elif os.path.isfile(input) and ext == '.csv':
-                input = ImportPackage.from_zip(input)
+                input = ImportPackage.from_csv(input)
             elif os.path.isfile(input) and ext == '.xls':
                 input = ImportPackage.from_xls(input)
             import_assessment(instrument_uid=self.instrument_uid,

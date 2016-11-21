@@ -69,6 +69,17 @@ When parameter verbose is set, import_assessment shows logs::
   Saving generated assessments to the data store...
   ### CREATED 2999 ASSESSMENTS
 
+  >>> input = ImportPackage.from_xls(path='./test/data/qctest1.xls', user='demo')
+  >>> import_assessment(instrument_uid='qctest', input=input, verbose=True)
+  Looking for instrument...
+  Generating instrument template...
+  Generating assessments collection for given input...
+  Processing chunk `qctest1`...
+  Processing chunk `qctest1.matrix`...
+  Processing chunk `qctest1.recordlist2`...
+  Saving generated assessments to the data store...
+  ### CREATED 2 ASSESSMENTS
+
 When application started with the setting assessment_import_dir, failed
 failed chunks saved in <assessment_import_dir>/<username>/<when>-<chunk.id>.csv,
 where <username> is user given as function parameter or 'unknown'.
@@ -151,6 +162,50 @@ Import fails when one of the data rows contain null in subject::
   ...
   Error: Check chunk `qctest1` row #2
       subject is required.
+
+Import fails when field from instrument implementation context is required and
+contains no value::
+
+  >>> input = ImportPackage.from_xls(path='./test/data/errors/qctest/qctest15.xls',
+  ...                                user='demo')
+
+  >>> import_assessment(instrument_uid='qctest', input=input)
+  Traceback (most recent call last):
+  ...
+  Error: Check chunk `qctest1` row #1
+      study1 value is required in qctest1.
+
+Import fails when field from instrument implementation context contains value
+can not be validated with its validator::
+
+  >>> input = ImportPackage.from_xls(path='./test/data/errors/qctest/qctest16.xls',
+  ...                                user='demo')
+
+  >>> import_assessment(instrument_uid='qctest', input=input)
+  Traceback (most recent call last):
+  ...
+  Error: Check chunk `qctest1` row #1
+      Got unexpected study1 value in qctest1
+          Expected a float value
+          Got:
+              u'study1'
+
+Import fails when assessment implementation method bulk_create failed::
+
+  >>> input = ImportPackage.from_xls(path='./test/data/errors/qctest/qctest17.xls',
+  ...                                user='demo1')
+
+  >>> import_assessment(instrument_uid='qctest', input=input)
+  Traceback (most recent call last):
+  ...
+  Error: Bulk create failed with unexpected study1.
+
+When application started with the parameter assessment_import_dir, and method
+bulk_create failed all import data saved as cvs files
+in <assessment_import_dir>/<username>/<when>-<chunk_name>.csv::
+
+  >>> print [filename for filename in os.listdir('./build/sandbox/demo1')] # doctest: +ELLIPSIS
+  ['...-qctest1.csv', '...-qctest1.matrix.csv', '...-qctest1.recordlist2.csv']
 
 Import fails when data column contains bad value.
 
@@ -275,3 +330,5 @@ bad enumerationSet::
   Error: Check chunk `qctest1` row #1
       Got unexpected value english for enumerationset1_english.
           TRUE or FALSE is expected for enumerationSet field
+
+

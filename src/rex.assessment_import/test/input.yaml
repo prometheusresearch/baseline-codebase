@@ -24,6 +24,6 @@ tests:
   - doctest: test/test_export_template.rst
   - doctest: test/test_import_assessment.rst
 
-  - coverage-check: 90.0
+  - coverage-check: 98.0
   - coverage-report: ./build/coverage
 

@@ -436,7 +436,7 @@ def install_package(dist, skip_if_installed=False, execute=dummy_execute,
         for pyname, jsname, jspath in python_dependencies:
             is_dev_install = os.path.islink(static_filename(pyname))
             if is_dev_install or force_npm_link:
-                for path in ('lib', 'style', 'package.json'):
+                for path in ('src', 'lib', 'style', 'package.json'):
                     installed_path = os.path.join(sandbox, 'node_modules', jsname, path)
                     src_path = os.path.join(jspath, path)
                     if os.path.exists(src_path):

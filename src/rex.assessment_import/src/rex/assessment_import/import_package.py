@@ -62,12 +62,23 @@ class ImportPackage(object):
             output = os.path.join(output, user)
             if not os.path.exists(output):
                 os.mkdir(output)
-            filename = os.path.basename(input)
-            filename = when + '-' + filename
-            output = os.path.join(output, filename)
-            shutil.copy(input, output)
-            with open(logfile, 'a') as f:
-                f.write('File saved as `%s`.\n\n' % output)
+            if os.path.isdir(input):
+                output = os.path.join(output,
+                                      when + '-' + os.path.basename(input))
+                os.mkdir(output)
+                for filename in os.listdir(input):
+                    input_filename = os.path.join(input, filename)
+                    output_filename = os.path.join(output, filename)
+                    shutil.copy(input_filename, output_filename)
+                    with open(logfile, 'a') as f:
+                        f.write('File saved as `%s`.\n\n' % output_filename)
+            else:
+                filename = os.path.basename(input)
+                filename = when + '-' + filename
+                output = os.path.join(output, filename)
+                shutil.copy(input, output)
+                with open(logfile, 'a') as f:
+                    f.write('File saved as `%s`.\n\n' % output)
         raise Error(str(msg))
 
     @classmethod

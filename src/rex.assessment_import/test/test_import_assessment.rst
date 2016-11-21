@@ -107,6 +107,15 @@ Extra chunk saved::
   ...                   if filename.endswith('eeg-upload2.csv')]  # doctest: +ELLIPSIS
   ['...-eeg-upload2.csv']
 
+Import fails when it is unable to read one of csv files stored in directory::
+
+  >>> input = ImportPackage.from_directory(path='./test/data/errors/eeg-upload1',
+  ...                                      user='demo')  # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+  ...
+  Error: Unable to read csv .../src/rex.assessment_import/test/data/errors/eeg-upload1/eeg-upload1.csv
+      line contains NULL byte
+
 Import fails when data header does not match instrument template header::
 
   >>> input = ImportPackage.from_csv(path='./test/data/errors/qctest/csv/1/qctest1.csv',

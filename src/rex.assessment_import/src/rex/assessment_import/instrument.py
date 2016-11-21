@@ -74,10 +74,23 @@ class Instrument(object):
         self.make_chunks(instrument_version)
         self.defaults = get_settings().assessment_template_defaults or {}
         assessment_impl = get_implementation('assessment')
-        action = assessment_impl.CONTEXT_ACTION_CREATE
-        self.context = assessment_impl.get_implementation_context(action) or {}
+        self.context = {}
+        self.make_context()
         self.blank_assessment = assessment_impl.generate_empty_data(
                                                 instrument_version.definition)
+
+    def make_context(self):
+        assessment_impl = get_implementation('assessment')
+        action = assessment_impl.CONTEXT_ACTION_CREATE
+        context = assessment_impl.get_implementation_context(action) or {}
+        context_fields = get_settings().assessment_context_fields
+        if not context_fields:
+            self.context = context
+        else:
+            self.context = dict([(name, value)
+                                 for (name, value) in context.items()
+                                    if name in context_fields
+                                ])
 
     def __iter__(self):
         return iter(self.chunks.items())

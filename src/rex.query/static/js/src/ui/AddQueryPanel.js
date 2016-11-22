@@ -92,7 +92,7 @@ export default class AddQueryPanel extends React.Component<*, AddColumnPanelProp
           {...props}
           theme={theme.placeholder}
           title="Add">
-          {(canAggregate || canFilter) &&
+          {(canNavigate || canAggregate || canFilter) &&
             <MenuGroup paddingV={20}>
               {canFilter &&
                 <MenuButton

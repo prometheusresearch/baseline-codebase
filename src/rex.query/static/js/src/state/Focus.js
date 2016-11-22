@@ -6,9 +6,7 @@ import type {Query, SelectQuery, QueryPipeline} from '../model';
 
 import * as ArrayUtil from '../ArrayUtil';
 import {
-  inferQueryType,
-  transformQuery,
-  flattenPipeline
+  transformQuery
 } from '../model/Query';
 
 export type Focus = Array<string>;
@@ -22,14 +20,14 @@ export function chooseFocus(query: QueryPipeline): Focus {
 }
 
 function getFocuses(query: QueryPipeline): Array<Focus> {
-  let focusList = getPipelineFocusList(query, [], {}, false);
+  let focusList = getPipelineFocusList(query, [], false);
+  console.log('focusList', focusList);
   return focusList;
 }
 
 function getPipelineFocusList(
   query: QueryPipeline,
   path: Array<string>,
-  defineMap: {[name: string]: QueryPipeline},
   suppressPath: boolean
 ) {
   let result: Array<Array<string>> = [];
@@ -37,20 +35,11 @@ function getPipelineFocusList(
   if (type.name === 'invalid') {
     return [];
   } else if (type.name === 'record') {
-    // TODO: Remove flattenPipeline, make sure it's not needed.
-    let pipeline = flattenPipeline(query).pipeline;
+    let pipeline = query.pipeline;
     let seenNavigate = false;
     let localPath = [];
     for (let i = 0; i < pipeline.length; i++) {
       let item = pipeline[i];
-      if (item.name === 'define') {
-        defineMap = {
-          ...defineMap,
-          // XXX: This needs to be fixed to use more stable identifiers for define
-          // bindings. Currently shadowing isn't allowed and this is a bug.
-          [item.binding.name]: item.binding.query,
-        };
-      }
       if (item.name === 'navigate' && !suppressPath) {
         localPath = item.path;
         seenNavigate = true;
@@ -62,7 +51,6 @@ function getPipelineFocusList(
         getQueryFocusList(
           item,
           path.concat(localPath),
-          defineMap,
           false
         )
       );
@@ -76,7 +64,6 @@ function getPipelineFocusList(
 function getSelectFocusList(
   query: SelectQuery,
   path: Array<string>,
-  defineMap: {[name: string]: QueryPipeline},
   suppressPath: boolean
 ) {
   let result: Array<Focus> = [];
@@ -85,14 +72,14 @@ function getSelectFocusList(
       continue;
     }
     let item = query.select[k];
-    if (defineMap[k] != null) {
-      item = inferQueryType(query.context.prev, defineMap[k]);
+    console.log(query.context.scope);
+    if (query.context.scope[k] != null) {
+      item = query.context.scope[k].query;
     }
     result = result.concat(
       getPipelineFocusList(
         item,
         path.concat(k),
-        defineMap,
         true
       )
     );
@@ -103,7 +90,6 @@ function getSelectFocusList(
 function getQueryFocusList(
   query: Query,
   path: Array<string>,
-  defineMap: {[name: string]: QueryPipeline},
   suppressPath: boolean
 ) {
   return transformQuery(query, {

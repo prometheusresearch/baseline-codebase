@@ -182,6 +182,782 @@ Object {
 }
 `;
 
+exports[`inferType() individual:define(id := identity).select(id := id) 1`] = `
+Object {
+  "context": Object {
+    "type": Object {
+      "attribute": Object {
+        "id": Object {
+          "type": Object {
+            "attribute": null,
+            "card": null,
+            "domain": <DOMAIN>,
+            "entity": "identity",
+            "name": "record",
+          },
+        },
+      },
+      "card": "seq",
+      "domain": <DOMAIN>,
+      "entity": null,
+      "name": "record",
+    },
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "type": Object {
+          "attribute": null,
+          "card": "seq",
+          "domain": <DOMAIN>,
+          "entity": "individual",
+          "name": "record",
+        },
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "binding": Object {
+        "name": "id",
+        "query": Object {
+          "context": Object {
+            "type": Object {
+              "attribute": null,
+              "card": null,
+              "domain": <DOMAIN>,
+              "entity": "identity",
+              "name": "record",
+            },
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "attribute": null,
+                  "card": null,
+                  "domain": <DOMAIN>,
+                  "entity": "identity",
+                  "name": "record",
+                },
+              },
+              "name": "navigate",
+              "path": "identity",
+            },
+          ],
+        },
+      },
+      "context": Object {
+        "type": Object {
+          "attribute": null,
+          "card": "seq",
+          "domain": <DOMAIN>,
+          "entity": "individual",
+          "name": "record",
+        },
+      },
+      "name": "define",
+    },
+    Object {
+      "context": Object {
+        "type": Object {
+          "attribute": Object {
+            "id": Object {
+              "type": Object {
+                "attribute": null,
+                "card": null,
+                "domain": <DOMAIN>,
+                "entity": "identity",
+                "name": "record",
+              },
+            },
+          },
+          "card": "seq",
+          "domain": <DOMAIN>,
+          "entity": null,
+          "name": "record",
+        },
+      },
+      "name": "select",
+      "select": Object {
+        "id": Object {
+          "context": Object {
+            "type": Object {
+              "attribute": null,
+              "card": null,
+              "domain": <DOMAIN>,
+              "entity": "identity",
+              "name": "record",
+            },
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "attribute": null,
+                  "card": null,
+                  "domain": <DOMAIN>,
+                  "entity": "identity",
+                  "name": "record",
+                },
+              },
+              "name": "navigate",
+              "path": "id",
+            },
+          ],
+        },
+      },
+    },
+  ],
+}
+`;
+
+exports[`inferType() individual:define(id := identity).select(id := id.name) 1`] = `
+Object {
+  "context": Object {
+    "type": Object {
+      "attribute": Object {
+        "id": Object {
+          "type": Object {
+            "card": null,
+            "domain": <DOMAIN>,
+            "name": "text",
+          },
+        },
+      },
+      "card": "seq",
+      "domain": <DOMAIN>,
+      "entity": null,
+      "name": "record",
+    },
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "type": Object {
+          "attribute": null,
+          "card": "seq",
+          "domain": <DOMAIN>,
+          "entity": "individual",
+          "name": "record",
+        },
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "binding": Object {
+        "name": "id",
+        "query": Object {
+          "context": Object {
+            "type": Object {
+              "attribute": null,
+              "card": null,
+              "domain": <DOMAIN>,
+              "entity": "identity",
+              "name": "record",
+            },
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "attribute": null,
+                  "card": null,
+                  "domain": <DOMAIN>,
+                  "entity": "identity",
+                  "name": "record",
+                },
+              },
+              "name": "navigate",
+              "path": "identity",
+            },
+          ],
+        },
+      },
+      "context": Object {
+        "type": Object {
+          "attribute": null,
+          "card": "seq",
+          "domain": <DOMAIN>,
+          "entity": "individual",
+          "name": "record",
+        },
+      },
+      "name": "define",
+    },
+    Object {
+      "context": Object {
+        "type": Object {
+          "attribute": Object {
+            "id": Object {
+              "type": Object {
+                "card": null,
+                "domain": <DOMAIN>,
+                "name": "text",
+              },
+            },
+          },
+          "card": "seq",
+          "domain": <DOMAIN>,
+          "entity": null,
+          "name": "record",
+        },
+      },
+      "name": "select",
+      "select": Object {
+        "id": Object {
+          "context": Object {
+            "type": Object {
+              "card": null,
+              "domain": <DOMAIN>,
+              "name": "text",
+            },
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "attribute": null,
+                  "card": null,
+                  "domain": <DOMAIN>,
+                  "entity": "identity",
+                  "name": "record",
+                },
+              },
+              "name": "navigate",
+              "path": "id",
+            },
+            Object {
+              "context": Object {
+                "type": Object {
+                  "card": null,
+                  "domain": <DOMAIN>,
+                  "name": "text",
+                },
+              },
+              "name": "navigate",
+              "path": "name",
+            },
+          ],
+        },
+      },
+    },
+  ],
+}
+`;
+
+exports[`inferType() individual:define(id := identity.name).select(id := id) 1`] = `
+Object {
+  "context": Object {
+    "type": Object {
+      "attribute": Object {
+        "id": Object {
+          "type": Object {
+            "card": null,
+            "domain": <DOMAIN>,
+            "name": "text",
+          },
+        },
+      },
+      "card": "seq",
+      "domain": <DOMAIN>,
+      "entity": null,
+      "name": "record",
+    },
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "type": Object {
+          "attribute": null,
+          "card": "seq",
+          "domain": <DOMAIN>,
+          "entity": "individual",
+          "name": "record",
+        },
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "binding": Object {
+        "name": "id",
+        "query": Object {
+          "context": Object {
+            "type": Object {
+              "card": null,
+              "domain": <DOMAIN>,
+              "name": "text",
+            },
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "attribute": null,
+                  "card": null,
+                  "domain": <DOMAIN>,
+                  "entity": "identity",
+                  "name": "record",
+                },
+              },
+              "name": "navigate",
+              "path": "identity",
+            },
+            Object {
+              "context": Object {
+                "type": Object {
+                  "card": null,
+                  "domain": <DOMAIN>,
+                  "name": "text",
+                },
+              },
+              "name": "navigate",
+              "path": "name",
+            },
+          ],
+        },
+      },
+      "context": Object {
+        "type": Object {
+          "attribute": null,
+          "card": "seq",
+          "domain": <DOMAIN>,
+          "entity": "individual",
+          "name": "record",
+        },
+      },
+      "name": "define",
+    },
+    Object {
+      "context": Object {
+        "type": Object {
+          "attribute": Object {
+            "id": Object {
+              "type": Object {
+                "card": null,
+                "domain": <DOMAIN>,
+                "name": "text",
+              },
+            },
+          },
+          "card": "seq",
+          "domain": <DOMAIN>,
+          "entity": null,
+          "name": "record",
+        },
+      },
+      "name": "select",
+      "select": Object {
+        "id": Object {
+          "context": Object {
+            "type": Object {
+              "card": null,
+              "domain": <DOMAIN>,
+              "name": "text",
+            },
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "card": null,
+                  "domain": <DOMAIN>,
+                  "name": "text",
+                },
+              },
+              "name": "navigate",
+              "path": "id",
+            },
+          ],
+        },
+      },
+    },
+  ],
+}
+`;
+
+exports[`inferType() individual:define(id := identity.name):group(id)) 1`] = `
+Object {
+  "context": Object {
+    "domain": <DOMAIN>,
+    "prev": "<PREV CONTEXT>",
+    "scope": "<SCOPE [empty]>",
+    "type": Object {
+      "attribute": Object {
+        "id": Object {
+          "groupBy": true,
+          "type": Object {
+            "card": null,
+            "domain": <DOMAIN>,
+            "name": "text",
+          },
+        },
+        "individual": Object {
+          "type": Object {
+            "attribute": null,
+            "card": "seq",
+            "domain": <DOMAIN>,
+            "entity": "individual",
+            "name": "record",
+          },
+        },
+      },
+      "card": "seq",
+      "domain": <DOMAIN>,
+      "entity": null,
+      "name": "record",
+    },
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
+        "type": Object {
+          "attribute": null,
+          "card": "seq",
+          "domain": <DOMAIN>,
+          "entity": "individual",
+          "name": "record",
+        },
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "binding": Object {
+        "name": "id",
+        "query": Object {
+          "context": Object {
+            "domain": <DOMAIN>,
+            "prev": "<PREV CONTEXT>",
+            "scope": "<SCOPE [empty]>",
+            "type": Object {
+              "card": null,
+              "domain": <DOMAIN>,
+              "name": "text",
+            },
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "domain": <DOMAIN>,
+                "prev": "<PREV CONTEXT>",
+                "scope": "<SCOPE [empty]>",
+                "type": Object {
+                  "attribute": null,
+                  "card": null,
+                  "domain": <DOMAIN>,
+                  "entity": "identity",
+                  "name": "record",
+                },
+              },
+              "name": "navigate",
+              "path": "identity",
+            },
+            Object {
+              "context": Object {
+                "domain": <DOMAIN>,
+                "prev": "<PREV CONTEXT>",
+                "scope": "<SCOPE [empty]>",
+                "type": Object {
+                  "card": null,
+                  "domain": <DOMAIN>,
+                  "name": "text",
+                },
+              },
+              "name": "navigate",
+              "path": "name",
+            },
+          ],
+        },
+      },
+      "context": Object {
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE id>",
+        "type": Object {
+          "attribute": null,
+          "card": "seq",
+          "domain": <DOMAIN>,
+          "entity": "individual",
+          "name": "record",
+        },
+      },
+      "name": "define",
+    },
+    Object {
+      "byPath": Array [
+        "id",
+      ],
+      "context": Object {
+        "domain": <DOMAIN>,
+        "prev": "<PREV CONTEXT>",
+        "scope": "<SCOPE [empty]>",
+        "type": Object {
+          "attribute": Object {
+            "id": Object {
+              "groupBy": true,
+              "type": Object {
+                "card": null,
+                "domain": <DOMAIN>,
+                "name": "text",
+              },
+            },
+            "individual": Object {
+              "type": Object {
+                "attribute": null,
+                "card": "seq",
+                "domain": <DOMAIN>,
+                "entity": "individual",
+                "name": "record",
+              },
+            },
+          },
+          "card": "seq",
+          "domain": <DOMAIN>,
+          "entity": null,
+          "name": "record",
+        },
+      },
+      "name": "group",
+    },
+  ],
+}
+`;
+
+exports[`inferType() individual:define(id := identity:select(name)).select(id := id) 1`] = `
+Object {
+  "context": Object {
+    "type": Object {
+      "attribute": Object {
+        "id": Object {
+          "type": Object {
+            "attribute": Object {
+              "name": Object {
+                "type": Object {
+                  "card": null,
+                  "domain": <DOMAIN>,
+                  "name": "text",
+                },
+              },
+            },
+            "card": null,
+            "domain": <DOMAIN>,
+            "entity": null,
+            "name": "record",
+          },
+        },
+      },
+      "card": "seq",
+      "domain": <DOMAIN>,
+      "entity": null,
+      "name": "record",
+    },
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "type": Object {
+          "attribute": null,
+          "card": "seq",
+          "domain": <DOMAIN>,
+          "entity": "individual",
+          "name": "record",
+        },
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "binding": Object {
+        "name": "id",
+        "query": Object {
+          "context": Object {
+            "type": Object {
+              "attribute": Object {
+                "name": Object {
+                  "type": Object {
+                    "card": null,
+                    "domain": <DOMAIN>,
+                    "name": "text",
+                  },
+                },
+              },
+              "card": null,
+              "domain": <DOMAIN>,
+              "entity": null,
+              "name": "record",
+            },
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "attribute": null,
+                  "card": null,
+                  "domain": <DOMAIN>,
+                  "entity": "identity",
+                  "name": "record",
+                },
+              },
+              "name": "navigate",
+              "path": "identity",
+            },
+            Object {
+              "context": Object {
+                "type": Object {
+                  "attribute": Object {
+                    "name": Object {
+                      "type": Object {
+                        "card": null,
+                        "domain": <DOMAIN>,
+                        "name": "text",
+                      },
+                    },
+                  },
+                  "card": null,
+                  "domain": <DOMAIN>,
+                  "entity": null,
+                  "name": "record",
+                },
+              },
+              "name": "select",
+              "select": Object {
+                "name": Object {
+                  "context": Object {
+                    "type": Object {
+                      "card": null,
+                      "domain": <DOMAIN>,
+                      "name": "text",
+                    },
+                  },
+                  "name": "pipeline",
+                  "pipeline": Array [
+                    Object {
+                      "context": Object {
+                        "type": Object {
+                          "card": null,
+                          "domain": <DOMAIN>,
+                          "name": "text",
+                        },
+                      },
+                      "name": "navigate",
+                      "path": "name",
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      },
+      "context": Object {
+        "type": Object {
+          "attribute": null,
+          "card": "seq",
+          "domain": <DOMAIN>,
+          "entity": "individual",
+          "name": "record",
+        },
+      },
+      "name": "define",
+    },
+    Object {
+      "context": Object {
+        "type": Object {
+          "attribute": Object {
+            "id": Object {
+              "type": Object {
+                "attribute": Object {
+                  "name": Object {
+                    "type": Object {
+                      "card": null,
+                      "domain": <DOMAIN>,
+                      "name": "text",
+                    },
+                  },
+                },
+                "card": null,
+                "domain": <DOMAIN>,
+                "entity": null,
+                "name": "record",
+              },
+            },
+          },
+          "card": "seq",
+          "domain": <DOMAIN>,
+          "entity": null,
+          "name": "record",
+        },
+      },
+      "name": "select",
+      "select": Object {
+        "id": Object {
+          "context": Object {
+            "type": Object {
+              "attribute": Object {
+                "name": Object {
+                  "type": Object {
+                    "card": null,
+                    "domain": <DOMAIN>,
+                    "name": "text",
+                  },
+                },
+              },
+              "card": null,
+              "domain": <DOMAIN>,
+              "entity": null,
+              "name": "record",
+            },
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "attribute": Object {
+                    "name": Object {
+                      "type": Object {
+                        "card": null,
+                        "domain": <DOMAIN>,
+                        "name": "text",
+                      },
+                    },
+                  },
+                  "card": null,
+                  "domain": <DOMAIN>,
+                  "entity": null,
+                  "name": "record",
+                },
+              },
+              "name": "navigate",
+              "path": "id",
+            },
+          ],
+        },
+      },
+    },
+  ],
+}
+`;
+
 exports[`inferType() individual:define(newname := name):select(a := newname, b := name) 1`] = `
 Object {
   "context": Object {
@@ -2188,6 +2964,193 @@ Object {
                 },
               },
               "name": "aggregate",
+            },
+          ],
+        },
+      },
+    },
+  ],
+}
+`;
+
+exports[`inferType() individual:select(id := identity) 1`] = `
+Object {
+  "context": Object {
+    "type": Object {
+      "attribute": Object {
+        "id": Object {
+          "type": Object {
+            "attribute": null,
+            "card": null,
+            "domain": <DOMAIN>,
+            "entity": "identity",
+            "name": "record",
+          },
+        },
+      },
+      "card": "seq",
+      "domain": <DOMAIN>,
+      "entity": null,
+      "name": "record",
+    },
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "type": Object {
+          "attribute": null,
+          "card": "seq",
+          "domain": <DOMAIN>,
+          "entity": "individual",
+          "name": "record",
+        },
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "context": Object {
+        "type": Object {
+          "attribute": Object {
+            "id": Object {
+              "type": Object {
+                "attribute": null,
+                "card": null,
+                "domain": <DOMAIN>,
+                "entity": "identity",
+                "name": "record",
+              },
+            },
+          },
+          "card": "seq",
+          "domain": <DOMAIN>,
+          "entity": null,
+          "name": "record",
+        },
+      },
+      "name": "select",
+      "select": Object {
+        "id": Object {
+          "context": Object {
+            "type": Object {
+              "attribute": null,
+              "card": null,
+              "domain": <DOMAIN>,
+              "entity": "identity",
+              "name": "record",
+            },
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "attribute": null,
+                  "card": null,
+                  "domain": <DOMAIN>,
+                  "entity": "identity",
+                  "name": "record",
+                },
+              },
+              "name": "navigate",
+              "path": "identity",
+            },
+          ],
+        },
+      },
+    },
+  ],
+}
+`;
+
+exports[`inferType() individual:select(id := identity.name) 1`] = `
+Object {
+  "context": Object {
+    "type": Object {
+      "attribute": Object {
+        "id": Object {
+          "type": Object {
+            "card": null,
+            "domain": <DOMAIN>,
+            "name": "text",
+          },
+        },
+      },
+      "card": "seq",
+      "domain": <DOMAIN>,
+      "entity": null,
+      "name": "record",
+    },
+  },
+  "name": "pipeline",
+  "pipeline": Array [
+    Object {
+      "context": Object {
+        "type": Object {
+          "attribute": null,
+          "card": "seq",
+          "domain": <DOMAIN>,
+          "entity": "individual",
+          "name": "record",
+        },
+      },
+      "name": "navigate",
+      "path": "individual",
+    },
+    Object {
+      "context": Object {
+        "type": Object {
+          "attribute": Object {
+            "id": Object {
+              "type": Object {
+                "card": null,
+                "domain": <DOMAIN>,
+                "name": "text",
+              },
+            },
+          },
+          "card": "seq",
+          "domain": <DOMAIN>,
+          "entity": null,
+          "name": "record",
+        },
+      },
+      "name": "select",
+      "select": Object {
+        "id": Object {
+          "context": Object {
+            "type": Object {
+              "card": null,
+              "domain": <DOMAIN>,
+              "name": "text",
+            },
+          },
+          "name": "pipeline",
+          "pipeline": Array [
+            Object {
+              "context": Object {
+                "type": Object {
+                  "attribute": null,
+                  "card": null,
+                  "domain": <DOMAIN>,
+                  "entity": "identity",
+                  "name": "record",
+                },
+              },
+              "name": "navigate",
+              "path": "identity",
+            },
+            Object {
+              "context": Object {
+                "type": Object {
+                  "card": null,
+                  "domain": <DOMAIN>,
+                  "name": "text",
+                },
+              },
+              "name": "navigate",
+              "path": "name",
             },
           ],
         },

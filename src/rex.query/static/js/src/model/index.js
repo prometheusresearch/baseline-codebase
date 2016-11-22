@@ -25,4 +25,6 @@ export type {
   Domain,
   DomainEntity,
   DomainAttribute,
+
+  TypeCardinality,
 } from './Type';

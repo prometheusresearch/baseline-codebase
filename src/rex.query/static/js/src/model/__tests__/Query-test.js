@@ -29,6 +29,13 @@ describe('inferType()', function() {
           }
         }
       }),
+      identity: domain => ({
+        attribute: {
+          name: {
+            type: textType(domain),
+          },
+        }
+      }),
       individual: domain => ({
         attribute: {
           name: {
@@ -36,6 +43,9 @@ describe('inferType()', function() {
           },
           age: {
             type: optType(textType(domain)),
+          },
+          identity: {
+            type: entityType(domain, 'identity'),
           },
           sample: {
             type: seqType(entityType(domain, 'sample')),
@@ -48,6 +58,7 @@ describe('inferType()', function() {
   let individual = navigate('individual');
   let sample = navigate('sample');
   let name = navigate('name');
+  let identity = navigate('identity');
   let age = navigate('age');
   let title = navigate('title');
   let count = aggregate('count');
@@ -186,6 +197,73 @@ describe('inferType()', function() {
       select({
         a: name,
         s: sample,
+      })
+    );
+    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+  });
+
+  it('individual:select(id := identity)', function() {
+    let query = pipeline(
+      individual,
+      select({
+        id: pipeline(identity)
+      })
+    );
+    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+  });
+
+  it('individual:define(id := identity).select(id := id)', function() {
+    let query = pipeline(
+      individual,
+      def('id', pipeline(identity)),
+      select({
+        id: pipeline(navigate('id')),
+      })
+    );
+    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+  });
+
+  it('individual:select(id := identity.name)', function() {
+    let query = pipeline(
+      individual,
+      select({
+        id: pipeline(identity, name)
+      })
+    );
+    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+  });
+
+  it('individual:define(id := identity.name).select(id := id)', function() {
+    let query = pipeline(
+      individual,
+      def('id', pipeline(identity, name)),
+      select({
+        id: pipeline(navigate('id')),
+      })
+    );
+    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+  });
+
+  it('individual:define(id := identity).select(id := id.name)', function() {
+    let query = pipeline(
+      individual,
+      def('id', pipeline(identity)),
+      select({
+        id: pipeline(navigate('id'), name),
+      })
+    );
+    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+  });
+
+  it('individual:define(id := identity:select(name)).select(id := id)', function() {
+    let query = pipeline(
+      individual,
+      def('id', pipeline(
+        identity,
+        select({name: pipeline(name)}),
+      )),
+      select({
+        id: pipeline(navigate('id')),
       })
     );
     expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
@@ -341,6 +419,18 @@ describe('inferType()', function() {
         age: pipeline(individual, age),
         name: pipeline(individual, name),
       }),
+    );
+    expect(q.inferType(domain, query)).toMatchSnapshot();
+  });
+
+  it('individual:define(id := identity.name):group(id))', function() {
+    let query = pipeline(
+      individual,
+      def('id', pipeline(
+        identity,
+        name,
+      )),
+      group(['id']),
     );
     expect(q.inferType(domain, query)).toMatchSnapshot();
   });

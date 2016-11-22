@@ -73,7 +73,7 @@ function canGroupBy(type) {
 }
 
 function GroupMenu({
-  query: {byPath, context: {domain, prev: {type}}},
+  query: {byPath, context: {domain, scope, prev: {type}}},
   onSelect,
   onSelectRemove,
 }) {
@@ -99,7 +99,25 @@ function GroupMenu({
       );
     }
 
-    // TODO: fill items from scope, right?
+    for (let name in scope) {
+      if (!scope.hasOwnProperty(name)) {
+        continue;
+      }
+      let type = scope[name].query.context.type;
+      if (!canGroupBy(type)) {
+        continue;
+      }
+      items.push(
+        <GroupButton
+          key={name}
+          selected={byPath.indexOf(name) > -1}
+          name={name}
+          onSelect={onSelect}
+          onSelectRemove={onSelectRemove}
+          />
+      );
+    }
+
   }
   return (
     <MenuGroup>

@@ -132,8 +132,7 @@ class FilterCondition extends React.Component {
     return (
       <ReactUI.Block>
         <ReactUI.Block>
-          <ReactUI.Block
-            style={{width: '50%', display: 'inline-block'}}>
+          <ReactUI.Block marginBottom={5}>
             <Select
               value={field}
               options={fields}
@@ -141,8 +140,7 @@ class FilterCondition extends React.Component {
               />
           </ReactUI.Block>
           {field &&
-            <ReactUI.Block
-              style={{width: '50%', display: 'inline-block'}}>
+            <ReactUI.Block marginBottom={5}>
               <Select
                 clearable={false}
                 value={comparator}
@@ -155,13 +153,14 @@ class FilterCondition extends React.Component {
         {operandComponent &&
           <ReactUI.Block>
             {chooseOperandType &&
-              <ReactUI.RadioGroup
-                layout="horizontal"
-                options={operandTypeOptions}
-                value={operandIsField ? 'field' : 'value'}
-                onChange={this.onOperandTypeChange}
-                />
-            }
+              <ReactUI.Block marginBottom={5}>
+                <ReactUI.RadioGroup
+                  layout="horizontal"
+                  options={operandTypeOptions}
+                  value={operandIsField ? 'field' : 'value'}
+                  onChange={this.onOperandTypeChange}
+                  />
+              </ReactUI.Block>}
             {operandComponent}
           </ReactUI.Block>
         }
@@ -261,6 +260,29 @@ type FilterQueryPanelProps = {
   onClose: () => *;
 };
 
+function ORSeparator() {
+  return (
+    <ReactUI.Block
+      paddingV={10}
+      style={{
+        textAlign: 'center',
+        fontWeight: 300,
+        color: '#888',
+        fontSize: '0.7em',
+      }}>
+      <hr />
+      <ReactUI.Text style={{
+        position: 'absolute',
+        top: 5,
+        padding: 5,
+        width: 25,
+        marginLeft: -12.5,
+        background: '#fff',
+      }}>OR</ReactUI.Text>
+    </ReactUI.Block>
+  );
+}
+
 export default class FilterQueryPanel extends React.Component<*, FilterQueryPanelProps, *> {
 
   context: {
@@ -304,38 +326,19 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
         <ReactUI.Block
           key={idx}>
           {idx !== 0 &&
-            <ReactUI.Block
-              paddingV={10}
-              style={{
-                textAlign: 'center',
-                fontWeight: 'bold',
-                fontSize: '0.7em',
-              }}>
-              <ReactUI.Text>- OR -</ReactUI.Text>
-            </ReactUI.Block>
-          }
-          <ReactUI.Block
-            style={{
-              width: '95%',
-              display: 'inline-block',
-              verticalAlign: 'middle',
-            }}>
-            <FilterCondition
-              fields={fields}
-              expression={exp}
-              onUpdate={this.onConditionUpdate.bind(this, idx)}
-              />
-          </ReactUI.Block>
-          <ReactUI.Block
-            style={{
-              width: '5%',
-              display: 'inline-block',
-              verticalAlign: 'middle',
-            }}>
+            <ORSeparator />}
+          <ReactUI.Block textAlign="right" marginBottom={5}>
             <ReactUI.QuietButton
               size="x-small"
               icon={<CloseIcon />}
               onClick={this.onConditionRemove.bind(this, idx)}
+              />
+          </ReactUI.Block>
+          <ReactUI.Block style={{verticalAlign: 'middle'}}>
+            <FilterCondition
+              fields={fields}
+              expression={exp}
+              onUpdate={this.onConditionUpdate.bind(this, idx)}
               />
           </ReactUI.Block>
         </ReactUI.Block>
@@ -348,8 +351,10 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
         onClose={onClose}
         theme={theme.filter}
         pointer={pointer}>
-        <ReactUI.VBox padding={5}>
-          {conditions}
+        <ReactUI.VBox padding={0}>
+          <ReactUI.VBox padding={5}>
+            {conditions}
+          </ReactUI.VBox>
           <MenuGroup paddingV={20}>
             <MenuButton icon="＋" onClick={this.onAddCondition}>
               Add Another Condition

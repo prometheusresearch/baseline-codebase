@@ -60,8 +60,13 @@ export type Type
 
 /* eslint-enable no-use-before-define */
 
-type TypeCardinality = {
-  card: 'seq' | 'opt' | null;
+export type TypeCardinality =
+  | 'seq'
+  | 'opt'
+  | null;
+
+type TypeCardinalityProp = {
+  card: TypeCardinality;
 };
 
 export type InvalidType = {
@@ -73,50 +78,50 @@ export type InvalidType = {
 export type VoidType = {
   name: 'void';
   domain: Domain;
-} & TypeCardinality;
+} & TypeCardinalityProp;
 
 export type TextType = {
   name: 'text';
   domain: Domain;
-} & TypeCardinality;
+} & TypeCardinalityProp;
 
 export type NumberType = {
   name: 'number';
   domain: Domain;
-} & TypeCardinality;
+} & TypeCardinalityProp;
 
 export type BooleanType = {
   name: 'boolean';
   domain: Domain;
-} & TypeCardinality;
+} & TypeCardinalityProp;
 
 export type EnumerationType = {
   name: 'enumeration';
   enumerations: Array<string>;
   domain: Domain;
-} & TypeCardinality;
+} & TypeCardinalityProp;
 
 export type DateType = {
   name: 'date';
   domain: Domain;
-} & TypeCardinality;
+} & TypeCardinalityProp;
 
 export type TimeType = {
   name: 'time';
   domain: Domain;
-} & TypeCardinality;
+} & TypeCardinalityProp;
 
 export type DateTimeType = {
   name: 'datetime';
   domain: Domain;
-} & TypeCardinality;
+} & TypeCardinalityProp;
 
 export type RecordType = {
   name: 'record';
   entity: ?string;
   attribute: ?DomainAttributeMap;
   domain: Domain;
-} & TypeCardinality;
+} & TypeCardinalityProp;
 
 export function createDomain(spec: {
   entity: {
@@ -254,8 +259,19 @@ export function toString(type: Type): string {
     return `[${toString(regType(type))}]`;
   } else if (type.card === 'opt') {
     return `?${toString(regType(type))}`;
-  } else if (type.name === 'record' && type.entity != null) {
-    return type.entity;
+  } else if (type.name === 'record') {
+    if (type.entity != null) {
+      return type.entity;
+    } else {
+      let fieldList = [];
+      let attribute = recordAttribute(type);
+      for (let k in attribute) {
+        if (attribute.hasOwnProperty(k)) {
+          fieldList.push(`${k}: ${toString(attribute[k].type)}`);
+        }
+      }
+      return `{${fieldList.join(', ')}}`;
+    }
   } else {
     return type.name;
   }

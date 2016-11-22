@@ -16,7 +16,6 @@ import {AutoSizer} from 'react-virtualized';
 
 import {LoadingIndicator} from '../ui';
 import * as ArrayUtil from '../ArrayUtil';
-import {flattenPipeline} from '../model/Query';
 import {
   DataTable as DataTableBase,
   DataTableHeaderCellRoot,
@@ -55,6 +54,7 @@ export function getColumnConfig(
   query: Query,
   focusedSeq: Array<string> = []
 ): QColumnConfig {
+  window.qq = query;
   return getColumnConfigImpl(query, focusedSeq, [], null, false);
 }
 
@@ -69,7 +69,7 @@ function getColumnConfigImpl(
   let stack: Array<QColumnConfig> = [];
   switch (query.name) {
     case 'pipeline':
-      let pipeline = flattenPipeline(query).pipeline;
+      let pipeline = query.pipeline;
       let localPath = [];
       let skipAllowed = false;
       for (let i = 0; i < pipeline.length; i++) {
@@ -136,7 +136,7 @@ function getColumnConfigImpl(
         );
       }
       let type = query.context.type;
-      let focused = path.join('.') === focusedSeq.join('.');
+      let focused = path.join('.') === focusedSeq.join('.') && type.card === 'seq';
       stack.push({
         type: 'field',
         field: {
@@ -351,7 +351,9 @@ function cellRenderer({
 }
 
 function formatEntity(entityName, entity) {
-  if ('title' in entity) {
+  if (typeof entity === 'string') {
+    return entity;
+  } else if ('title' in entity) {
     return entity.title;
   } else if ('name' in entity) {
     return entity.name;

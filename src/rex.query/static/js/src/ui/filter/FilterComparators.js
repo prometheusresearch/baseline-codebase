@@ -161,42 +161,42 @@ class BasicBinaryComparator {
 
 class Equal extends BasicBinaryComparator {
 
-  label = '==';
+  label = 'is equal'
   value = 'equal';
   types = ['text', 'number', 'date', 'time', 'datetime'];
 }
 
 class NotEqual extends BasicBinaryComparator {
 
-  label = '!=';
+  label = 'is not equal to';
   value = 'notEqual';
   types = ['text', 'number', 'date', 'time', 'datetime'];
 }
 
 class Less extends BasicBinaryComparator {
 
-  label = '<';
+  label = 'is less than';
   value = 'less';
   types = ['number', 'date', 'time', 'datetime'];
 }
 
 class LessEqual extends BasicBinaryComparator {
 
-  label = '<=';
+  label = 'is less than or equal to';
   value = 'lessEqual';
   types = ['number', 'date', 'time', 'datetime'];
 }
 
 class Greater extends BasicBinaryComparator {
 
-  label = '>';
+  label = 'is greater than';
   value = 'greater';
   types = ['number', 'date', 'time', 'datetime'];
 }
 
 class GreaterEqual extends BasicBinaryComparator {
 
-  label = '>=';
+  label = 'is greater than or equal to';
   value = 'greaterEqual';
   types = ['number', 'date', 'time', 'datetime'];
 }

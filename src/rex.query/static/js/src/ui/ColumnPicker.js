@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {QueryPointer, Type, Query, Context} from '../model';
+import type {QueryPointer, Type, TypeCardinality, Query, Context} from '../model';
 import type {Actions} from '../state';
 
 import React from 'react';
@@ -17,7 +17,8 @@ import {MenuGroup, MenuButton, MenuButtonSecondary} from './menu';
 import PlusIcon from './PlusIcon';
 
 type Navigation = {
-  type: 'entity' | 'attribute' | 'query';
+  type: 'record' | 'attribute';
+  card: TypeCardinality;
   value: string;
   label: string;
   context: Context;
@@ -84,14 +85,14 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
           onSelect={onSelect}
           onSelectRemove={onSelectRemove}
           onNavigate={this.onNavigate}
+          onAddQuery={this.onAddQuery}
           actions={this.context.actions}
           />
       );
       if (column.groupBy) {
         groupByAttributeList.push(button);
-      } else if (column.type === 'query') {
+      } else if (column.type === 'record') {
         queryList.push(button);
-      } else if (column.type === 'entity') {
         entityList.push(column);
       } else {
         attributeList.push(button);
@@ -182,6 +183,15 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
     });
   };
 
+  onAddQuery = (payload: {path: string}) => {
+    let p = getPipelineInsertionPoint(this.props.pointer);
+    this.context.actions.appendDefine({
+      pointer: p,
+      select: true,
+      path: [payload.path],
+    });
+  };
+
   onSearchTerm = (e: UIEvent) => {
     let target: {value: string} = (e.target: any);
     this.setState({searchTerm: target.value === '' ? null : target.value});
@@ -268,9 +278,10 @@ class ColumnPickerButton extends React.Component {
 
   props: {
     pointer?: QueryPointer<>;
-    column: {label: string; value: string, context: Context};
+    column: Navigation;
     onSelect: (payload: {path: string}) => *;
     onNavigate: (payload: {path: string}) => *;
+    onAddQuery: (payload: {path: string}) => *;
     onSelectRemove: (payload: {path: string, pointer: QueryPointer<>}) => *;
     disabled: boolean;
     actions: Actions;
@@ -291,8 +302,14 @@ class ColumnPickerButton extends React.Component {
     onNavigate({path: column.value});
   };
 
+  onAddQuery = () => {
+    let {onAddQuery, column} = this.props;
+    onAddQuery({path: column.value});
+  };
+
   render() {
     let {column, pointer, disabled} = this.props;
+    console.log(this.props);
     return (
       <MenuButton
         disabled={disabled}
@@ -303,8 +320,14 @@ class ColumnPickerButton extends React.Component {
             <MenuButtonSecondary
               onClick={this.onNavigate}
               key="navigate">
-              Navigate to {column.label}
+              Focus on {column.label}
             </MenuButtonSecondary>,
+            column.type === 'record' &&
+              <MenuButtonSecondary
+                onClick={this.onAddQuery}
+                key="define">
+                Add new query with {column.label}
+              </MenuButtonSecondary>
           ]
         }
         onClick={this.onSelect}>
@@ -332,7 +355,8 @@ function getNavigation(pointer: QueryPointer<>, type: Type): Array<Navigation> {
       if (domain.entity.hasOwnProperty(k)) {
         let navQuery = q.inferQueryType(contextAtQuery, q.navigate(k));
         navigation.push({
-          type: 'entity',
+          type: 'record',
+          card: 'seq',
           value: k,
           label: domain.entity[k].title,
           context: navQuery.context,
@@ -346,11 +370,10 @@ function getNavigation(pointer: QueryPointer<>, type: Type): Array<Navigation> {
         let navQuery = q.inferQueryType(contextAtQuery, q.navigate(k));
         let type = attribute[k].type;
         navigation.push({
-          type: type.card === 'seq'
-            ? 'entity'
-            : type.name === 'record'
-            ? 'query'
+          type: type.name === 'record'
+            ? 'record'
             : 'attribute',
+          card: type.card,
           value: k,
           label: attribute[k].title || k,
           context: navQuery.context,
@@ -364,7 +387,8 @@ function getNavigation(pointer: QueryPointer<>, type: Type): Array<Navigation> {
     if (scope.hasOwnProperty(k)) {
       let navQuery = q.inferQueryType(contextAtQuery, scope[k].query);
       navigation.push({
-        type: 'query',
+        type: 'record',
+        card: type.card,
         value: k,
         label: k,
         context: navQuery.context,

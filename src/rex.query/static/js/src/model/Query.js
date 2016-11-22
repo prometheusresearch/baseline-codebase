@@ -391,19 +391,19 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
       if (type.name === 'invalid') {
         return withContext(query, context);
       }
-      let nextScope = {
-        ...scope,
-        [query.binding.name]: {
-          name: query.binding.name,
-          query: inferQueryType(context, query.binding.query),
-        }
-      };
       let pipeline = inferQueryType({
         prev: context.prev,
         domain,
         scope,
         type: t.regType(context.type),
       }, query.binding.query);
+      let nextScope = {
+        ...scope,
+        [query.binding.name]: {
+          name: query.binding.name,
+          query: pipeline,
+        }
+      };
       let binding = {
         name: query.binding.name,
         query: ((pipeline: any): QueryPipeline)
@@ -475,13 +475,19 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
       let attribute = {};
       for (let i = 0; i < query.byPath.length; i++) {
         let k = query.byPath[i];
-        if (baseTypeAttribute[k] == null) {
+        if (baseTypeAttribute[k] != null) {
+          attribute[k] = {
+            type: baseTypeAttribute[k].type,
+            groupBy: true,
+          };
+        } else if (scope[k] != null) {
+          attribute[k] = {
+            type: scope[k].query.context.type,
+            groupBy: true,
+          };
+        } else {
           return withContext(query, invalidContext);
         }
-        attribute[k] = {
-          type: baseTypeAttribute[k].type,
-          groupBy: true,
-        };
       }
 
       attribute[entity] = {
@@ -500,39 +506,13 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         return withContext(query, context);
       }
       let baseType = t.regType(type);
-      if (baseType.name === 'record' && baseType.entity != null) {
-        let entity = domain.entity[baseType.entity];
-        if (entity == null) {
-          // unknown entity
-          return withContext(query, invalidContext);
-        }
-        let attr = entity.attribute[query.path];
-        if (attr != null) {
-          return withContext(query, {
-            prev: context,
-            domain,
-            scope: {},
-            type: t.leastUpperBound(type, attr.type),
-          });
-        }
-        let definition = scope[query.path];
-        if (definition != null) {
-          return withContext(query, {
-            prev: context,
-            domain,
-            scope: {},
-            type: inferQueryType(context, definition.query).context.type,
-          });
-        }
-        // unknown attribute
-        return withContext(query, invalidContext);
-      } else if (baseType.name === 'record') {
+      if (baseType.name === 'record') {
         let field = t.recordAttribute(baseType)[query.path];
         if (field != null) {
           return withContext(query, {
             prev: context,
             domain,
-            scope,
+            scope: {},
             type: t.leastUpperBound(type, field.type),
           });
         }
@@ -541,7 +521,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
           return withContext(query, {
             prev: context,
             domain,
-            scope,
+            scope: {},
             type: inferQueryType(context, definition.query).context.type,
           });
         }

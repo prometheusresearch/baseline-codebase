@@ -43,7 +43,9 @@ export default class MenuButtonSecondary
             justifyContent="flex-start">
             {icon}
           </VBox>}
-        {children}
+        <div>
+          {children}
+        </div>
       </MenuButtonSecondaryRoot>
     );
   }

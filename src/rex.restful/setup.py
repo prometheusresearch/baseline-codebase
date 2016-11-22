@@ -23,8 +23,8 @@ setup(
     include_package_data=True,
     namespace_packages=['rex'],
     install_requires=[
-        'rex.core>=1.9,<2',
-        'rex.web>=2,<4',
+        'rex.core>=1.14,<2',
+        'rex.web>=3.6,<4',
         'rex.logging>=1,<2',
         'pyyaml',
         'python-dateutil',

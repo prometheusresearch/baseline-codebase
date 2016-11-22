@@ -79,6 +79,21 @@ class CorsResource(RestfulLocation):
         return {'bar': bar_id}
 
 
+class DocumentedResource(RestfulLocation):
+    """
+    This is the general documentation for the endpoint.
+    """
+
+    path = '/documentation'
+    access = 'anybody'
+
+    def retrieve(self, request, **kwargs):
+        """
+        This is the documentation specific to the GET method.
+        """
+        return {}
+
+
 class FailingCorsResource(CorsResource):
     path = '/lockedcors/{bar_id}'
     cors_policy = 'locked'

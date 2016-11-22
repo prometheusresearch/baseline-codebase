@@ -13,6 +13,8 @@ REX.RESTFUL Change Log
   configuration defined by the ``restful_cors_policies`` application setting.
 * Added execution time to response logs.
 * Added support for the ``rex.web.Confine`` extension.
+* Added support for ``autorex`` Sphinx extension to auto-document APIs built
+  with RestfulLocation.
 
 
 1.1.0 (2016-01-29)

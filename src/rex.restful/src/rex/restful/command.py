@@ -3,6 +3,8 @@
 #
 
 
+import inspect
+
 from datetime import datetime
 
 from cors import cors_handler, cors_options, http_response
@@ -403,9 +405,8 @@ class RestfulLocation(Command):
             self._response_logger.info(response.body)
         if start_time:
             self._response_logger.info(
-                'Request processed in: %s' % (
-                    datetime.now() - start_time,
-                )
+                'Request processed in: %s',
+                datetime.now() - start_time,
             )
 
     def _get_method_handler(self, request):
@@ -446,6 +447,34 @@ class RestfulLocation(Command):
     def render(self, req, **arguments):
         # This is never called.
         pass  # pragma: no cover
+
+    @classmethod
+    def signature(cls):  # pragma: no cover
+        return cls.__name__
+
+    @classmethod
+    def document_content(cls):
+        parts = []
+
+        def doc_method(label, name):
+            if getattr(cls, name, None):
+                method = ['**%s**' % (label,)]
+                method.append('\n'.join([
+                    '    %s' % (line,)
+                    for line in inspect.cleandoc(
+                        getattr(cls, name).__doc__ or ''
+                    ).splitlines()
+                ]))
+                return '\n\n'.join(method)
+            return None
+
+        parts.append(inspect.cleandoc(cls.__doc__ or ''))
+        parts.append(doc_method('GET', 'retrieve'))
+        parts.append(doc_method('POST', 'create'))
+        parts.append(doc_method('PUT', 'update'))
+        parts.append(doc_method('DELETE', 'delete'))
+
+        return '\n\n'.join([part for part in parts if part])
 
 
 class SimpleResource(RestfulLocation):

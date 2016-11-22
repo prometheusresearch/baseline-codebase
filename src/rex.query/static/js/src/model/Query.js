@@ -398,7 +398,12 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
           query: inferQueryType(context, query.binding.query),
         }
       };
-      let pipeline = inferQueryType(context, query.binding.query);
+      let pipeline = inferQueryType({
+        prev: context.prev,
+        domain,
+        scope,
+        type: t.regType(context.type),
+      }, query.binding.query);
       let binding = {
         name: query.binding.name,
         query: ((pipeline: any): QueryPipeline)

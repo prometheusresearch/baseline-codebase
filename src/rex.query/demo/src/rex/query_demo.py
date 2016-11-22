@@ -16,7 +16,7 @@ class PopulateTask(RexTask):
     name = 'query-demo-populate'
 
     class options:
-        quiet = option(hint="suppress output")
+        quiet = option('q', hint="suppress output")
 
     def __call__(self):
         self.do('deploy')

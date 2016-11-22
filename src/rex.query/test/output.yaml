@@ -8,6 +8,8 @@ tests:
   stdout: ''
 - sh: rex dropdb -q rex.query_demo
   stdout: ''
+- sh: rex query-demo-populate rex.query_demo -q
+  stdout: ''
 - sh: rex deploy -q rex.query_demo
   stdout: ''
 - sh: pip uninstall -q -y rex.query_demo

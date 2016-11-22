@@ -21,78 +21,74 @@ To start executing database queries, we need to create a database instance::
 
     >>> db = Database()
 
-Now we can execute queries.  For example, this executes the query ``study``::
+Now we can execute queries.  For example, this executes the query ``region``::
 
-    >>> db.produce(["navigate", "study"])                           # doctest: +NORMALIZE_WHITESPACE
-    <Product ({'asdl', 'Autism Spectrum Disorder Lab', true},
-              {'fos', 'Family Obesity Study', false},
-              {'lol', null, true})>
+    >>> db.produce(["navigate", "region"])                          # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    <Product ({'AFRICA', '...'},
+              {'AMERICA', '...'},
+              {'ASIA', '...'},
+              ...)>
 
 Queries could be also written in JSON object notation::
 
-    >>> db.produce({"op": "navigate", "args": ["study"]})           # doctest: +NORMALIZE_WHITESPACE
-    <Product ({'asdl', 'Autism Spectrum Disorder Lab', true},
-              {'fos', 'Family Obesity Study', false},
-              {'lol', null, true})>
+    >>> db.produce({"op": "navigate", "args": ["region"]})          # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    <Product ({'AFRICA', '...'},
+              {'AMERICA', '...'},
+              {'ASIA', '...'},
+              ...)>
 
 It is possible to specify the number of elements to return::
 
-    >>> db.produce({"syntax": ["navigate", "study"], "limit": 2})
-    <Product ({'asdl', 'Autism Spectrum Disorder Lab', true}, {'fos', 'Family Obesity Study', false})>
+    >>> db.produce({"syntax": ["navigate", "region"], "limit": 2})  # doctest: +ELLIPSIS
+    <Product ({'AFRICA', 'lar deposits. ...'}, {'AMERICA', '... requests. s'})>
 
-``study.code`` is expressed this way::
+``region.name`` is expressed this way::
 
-    >>> db.produce([".", ["navigate", "study"], ["navigate", "code"]])
-    <Product ('asdl', 'fos', 'lol')>
+    >>> db.produce([".", ["navigate", "region"], ["navigate", "name"]]) # doctest: +ELLIPSIS
+    <Product ('AFRICA', 'AMERICA', 'ASIA', 'EUROPE', 'MIDDLE EAST')>
 
 To show more than one field in the output, we use the ``select`` combinator::
 
     >>> db.produce(
     ...     ["select",
-    ...         ["navigate", "study"],
-    ...         ["navigate", "title"],
-    ...         [".", ["navigate", "protocol"], ["navigate", "title"]]])    # doctest: +ELLIPSIS
-    <Product ({'Autism Spectrum Disorder Lab', ('Aspergers Individual', 'Autistic Individual', 'Control Individual')}, ...>
+    ...         ["navigate", "region"],
+    ...         ["navigate", "name"],
+    ...         [".", ["navigate", "nation"], ["navigate", "name"]]])   # doctest: +ELLIPSIS
+    <Product ({'AFRICA', ('ALGERIA', 'ETHIOPIA', ...)}, {'AMERICA', ('ARGENTINA', 'BRAZIL', ...)}, ...)>
 
     >>> db.produce(
     ...     ["select",
-    ...         [".", ["navigate", "identity"], ["navigate", "individual"]],
-    ...         ["navigate", "code"]])                                      # doctest: +ELLIPSIS
-    <Product ({'1000'}, {'1001'}, ...)>
+    ...         [".", ["navigate", "region"], ["navigate", "nation"]],
+    ...         ["navigate", "name"]])                                  # doctest: +ELLIPSIS
+    <Product ({'ALGERIA'}, {'ETHIOPIA'}, ...)>
 
     >>> db.produce(
     ...     ["select",
-    ...         [".",["navigate","identity"], ["navigate","individual"]],
-    ...         ["navigate","code"],
-    ...         ["navigate","sex"],
-    ...         ["navigate","mother"],
-    ...         ["navigate","father"],
-    ...         ["navigate","identity"],
-    ...         ["navigate","individual_via_mother"],
-    ...         ["navigate","individual_via_father"],
-    ...         ["navigate","participation"]])                              # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
-    <Product ({'1000', 'female', null, null, {[1000], 'May', 'Kanaris', '1961-01-01'},
-              ({'1002', 'female', [1000], [1001]},
-               {'1003', 'male', [1000], [1001]},
-               {'1004', 'male', [1000], [1001]}),
-              (), ({[1000], [fos.mother], '1'},)}, ...)>
+    ...         [".",["navigate","region"], ["navigate","nation"]],
+    ...         ["navigate","name"],
+    ...         ["navigate","region"],
+    ...         ["navigate","comment"],
+    ...         ["navigate","customer"]])                               # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    <Product ({'ALGERIA', [AFRICA], '...',
+                ({'Customer#000000029', '...', [ALGERIA], '10-773-203-7342', 7618.27, 'FURNITURE', '...'},
+                 ...)}, ...)>
 
     >>> db.produce(
     ...     ["select",
     ...         ["here"],
-    ...         ["=>", "num_study", ["count", ["navigate", "study"]]],
-    ...         ["=>", "num_individual", ["count", ["navigate", "individual"]]]])
-    <Product {3, 98}>
+    ...         ["=>", "num_customer", ["count", ["navigate", "customer"]]],
+    ...         ["=>", "num_supplier", ["count", ["navigate", "supplier"]]]])
+    <Product {1200, 80}>
 
 For complex expressions, we could define aliases with ``define``::
 
     >>> db.produce(
     ...     ["select",
     ...         ["define",
-    ...             ["navigate", "individual"],
-    ...             ["=>", "name", [".", ["navigate", "identity"], ["navigate", "fullname"]]]],
-    ...         ["navigate", "name"], ["navigate", "sex"]])         # doctest: +ELLIPSIS
-    <Product ({'May Kanaris', 'female'}, {'Joseph Kanaris', 'male'}, ...)>
+    ...             ["navigate", "supplier"],
+    ...             ["=>", "country", [".", ["navigate", "nation"], ["navigate", "name"]]]],
+    ...         ["navigate", "name"], ["navigate", "country"]])     # doctest: +ELLIPSIS
+    <Product ({'Supplier#000000001', 'PERU'}, {'Supplier#000000002', 'ETHIOPIA'}, ...)>
 
 Constants::
 
@@ -163,49 +159,47 @@ Filtering::
 
     >>> db.produce(
     ...     ["filter",
-    ...         ["navigate", "individual"],
-    ...         ["=", ["navigate", "sex"], "female"]])  # doctest: +ELLIPSIS
-    <Product ({'1000', 'female', null, null}, {'1002', 'female', [1000], [1001]}, ...>
+    ...         ["navigate", "customer"],
+    ...         [">", ["navigate", "acctbal"], 9950]])  # doctest: +ELLIPSIS
+    <Product ({'Customer#000000045', ..., 9983.38, 'AUTOMOBILE', ...}, ...)>
 
     >>> db.produce(
     ...     ["filter",
-    ...         ["navigate", "individual"],
-    ...         ["exists", ["navigate", "mother"]]])    # doctest: +ELLIPSIS
-    <Product ({'1002', 'female', [1000], [1001]}, {'1003', 'male', [1000], [1001]}, ...)>
+    ...         ["navigate", "customer"],
+    ...         ["!", ["exists", ["navigate", "order"]]]])  # doctest: +ELLIPSIS
+    <Product ({'Customer#000000003', ...}, {'Customer#000000006', ...}, ...)>
 
     >>> db.produce(
     ...     [".",
     ...         ["filter",
-    ...             ["navigate", "individual"],
+    ...             ["navigate", "nation"],
     ...             ["~",
-    ...                 [".", ["navigate", "identity"], ["navigate", "fullname"]],
-    ...                 "red"]],
-    ...         ["navigate", "identity"],
-    ...         ["navigate", "fullname"]])
-    <Product ('Gertie Rednour', 'George Rednour', 'Kenneth Rednour', 'Jasper Rednour')>
+    ...                 [".", ["navigate", "region"], ["navigate", "name"]],
+    ...                 "asia"]],
+    ...         ["navigate", "customer"],
+    ...         ["navigate", "name"]])                      # doctest: +ELLIPSIS
+    <Product ('Customer#000000007', 'Customer#000000019', ...)>
 
 Sorting::
 
     >>> db.produce(
     ...     ["select",
     ...         ["sort",
-    ...             ["define",
-    ...                 ["navigate", "individual"],
-    ...                 ["=>", "dob", [".", ["navigate", "identity"], ["navigate", "birthdate"]]]],
-    ...             ["desc", ["navigate", "dob"]]],
-    ...         ["navigate", "code"],
-    ...         ["navigate", "dob"]])   # doctest: +ELLIPSIS
-    <Product ({'1093', '2009-03-03'}, {'1018', '2008-08-08'}, ...>
+    ...             ["navigate", "customer"],
+    ...             ["desc", ["navigate", "acctbal"]]],
+    ...         ["navigate", "name"],
+    ...         ["navigate", "acctbal"]])   # doctest: +ELLIPSIS
+    <Product ({'Customer#000000213', 9987.71}, {'Customer#000000045', 9983.38}, ...)>
 
 Pagination::
 
     >>> db.produce(
     ...     ["select",
     ...         ["take",
-    ...             ["navigate", "individual"],
-    ...             4],
-    ...         ["navigate", "code"]])
-    <Product ({'1000'}, {'1001'}, {'1002'}, {'1003'})>
+    ...             ["navigate", "nation"],
+    ...             3],
+    ...         ["navigate", "name"]])
+    <Product ({'ALGERIA'}, {'ARGENTINA'}, {'BRAZIL'})>
 
 Type conversion::
 
@@ -217,39 +211,36 @@ Aggregates::
     >>> db.produce(
     ...     ["select",
     ...         ["filter",
-    ...             ["define",
-    ...                 ["navigate", "study"],
-    ...                 ["=>", "individual", [".", ["protocol"], ["participation"], ["individual"]]],
-    ...                 ["=>", "dob", [".", ["individual"], ["identity"], ["birthdate"]]]],
-    ...             ["exists", ["individual"]]],
-    ...         ["code"],
-    ...         ["count", ["individual"]],
-    ...         ["min", ["dob"]]])
-    <Product ({'fos', 97, '1941-02-02'},)>
+    ...             ["navigate", "customer"],
+    ...             ["exists", ["order"]]],
+    ...         ["name"],
+    ...         ["count", ["order"]],
+    ...         ["sum", [".", ["order"], ["totalprice"]]]])     # doctest: +ELLIPSIS
+    <Product ({'Customer#000000001', 8, 1129859.43}, {'Customer#000000002', 14, 1733607.99}, ...)>
 
 Grouping::
 
-    >>> db.produce(["group", ["individual"], ["sex"]])
-    <Product ({'male'}, {'female'})>
+    >>> db.produce(["group", ["order"], ["orderstatus"]])
+    <Product ({'F'}, {'O'}, {'P'})>
 
 Grouping and complement::
 
     >>> db.produce(
     ...     ["select",
-    ...         ["group", ["individual"], ["sex"]],
-    ...         ["sex"],
-    ...         ["individual"]])    # doctest: +ELLIPSIS
-    <Product ({'male', ({'1001', 'male', null, null}, ...)}, {'female', ({'1000', 'female', null, null}, ...)})>
+    ...         ["group", ["order"], ["orderstatus"]],
+    ...         ["orderstatus"],
+    ...         ["order"]])     # doctest: +ELLIPSIS
+    <Product ({'F', ({3, ['Customer#000000988'], 'F', ...}, ...)}, {'O', ({1, ['Customer#000000296'], 'O', ...}, ...)}, ...)>
 
 Grouping and aggregates::
 
     >>> db.produce(
     ...     ["select",
-    ...         ["group", ["individual"], ["sex"]],
-    ...         ["sex"],
-    ...         ["count", ["individual"]],
-    ...         ["max", [".", ["individual"], ["identity"], ["birthdate"]]]])
-    <Product ({'male', 57, '2009-03-03'}, {'female', 41, '2007-01-03'})>
+    ...         ["group", ["order"], ["orderstatus"]],
+    ...         ["orderstatus"],
+    ...         ["count", ["order"]],
+    ...         ["max", [".", ["order"], ["lineitem"], ["quantity"]]]])
+    <Product ({'F', 5849, 50}, {'O', 5857, 50}, {'P', 294, 50})>
 
 
 Handling HTTP Requests
@@ -259,20 +250,28 @@ Queries could be submitted in an HTTP request::
 
     >>> from webob import Request
 
-    >>> req = Request.blank("/", POST='{"syntax": ["study"], "format": "x-htsql/json"}')
+    >>> req = Request.blank("/", POST='{"syntax": ["region"], "format": "x-htsql/json"}')
     >>> print db(req)       # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     200 OK
     ...
     {
-      "study": [
+      "region": [
         {
-          "code": "asdl",
-          "title": "Autism Spectrum Disorder Lab",
-          "closed": true
+          "name": "AFRICA",
+          "comment": "..."
         },
         ...
       ]
     }
+
+The query builder interface is available at the root of the package::
+
+    >>> req = Request.blank("/")
+    >>> print req.get_response(demo)    # doctest: +ELLIPSIS
+    200 OK
+    ...
+    <!DOCTYPE html>
+    ...
 
 
 Metadata
@@ -284,40 +283,19 @@ To get the structure of the database, we use the ``catalog`` command::
     >>> print db(req)       # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     200 OK
     ...
-     | entity                                                                                                                                                                                                    |
-     +---------------+---------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+
-     |               |               | field                                                                                                                                                        |            |
-     |               |               +-----------------------+-----------------------+--------+---------+--------+---------------+--------------------------+---------------------------------------+            |
-     |               |               |                       |                       |        |         |        |               | column                   | link                                  |            |
-     |               |               |                       |                       |        |         |        |               +---------+----------------+---------------+-----------------------+            |
-     | name          | label         | label                 | title                 | public | partial | plural | kind          | type    | enum           | target        | inverse               | identity   |
-    -+---------------+---------------+-----------------------+-----------------------+--------+---------+--------+---------------+---------+----------------+---------------+-----------------------+------------+-
-     | identity      | Identity      | individual            | Individual            | true   | false   | false  | direct-link   |         :                | individual    | identity              | individual |
-     :               :               | givenname             | Givenname             | true   | true    | false  | column        | text    |                :               :                       :            :
-     :               :               | surname               | Surname               | true   | true    | false  | column        | text    |                :               :                       :            :
-     :               :               | birthdate             | Birthdate             | true   | true    | false  | column        | date    |                :               :                       :            :
-     :               :               | fullname              | Fullname              | false  | true    | true   | calculation   |         :                :               :                       :            :
-     | individual    | Subject       | code                  | Code                  | true   | false   | false  | column        | text    |                :               :                       | code       |
-     :               :               | sex                   | Sex                   | true   | false   | false  | column        | enum    | not-known      |               :                       :            :
-     :               :               :                       :                       :        :         :        :               :         | male           |               :                       :            :
-     :               :               :                       :                       :        :         :        :               :         | female         |               :                       :            :
-     :               :               :                       :                       :        :         :        :               :         | not-applicable |               :                       :            :
-     :               :               | mother                | Mother                | true   | true    | false  | direct-link   |         :                | individual    | individual_via_mother |            :
-     :               :               | father                | Father                | true   | true    | false  | direct-link   |         :                | individual    | individual_via_father |            :
-     :               :               | identity              | Identity              | false  | true    | false  | indirect-link |         :                | identity      | individual            |            :
-     :               :               | individual_via_mother | Individual Via Mother | false  | true    | true   | indirect-link |         :                | individual    | mother                |            :
-     :               :               | individual_via_father | Individual Via Father | false  | true    | true   | indirect-link |         :                | individual    | father                |            :
-     :               :               | participation         | Participation         | false  | true    | true   | indirect-link |         :                | participation | individual            |            :
-     | participation | Participation | individual            | Individual            | true   | false   | false  | direct-link   |         :                | individual    | participation         | individual |
-     :               :               | protocol              | Protocol              | true   | false   | false  | direct-link   |         :                | protocol      | participation         | protocol   |
-     :               :               | code                  | Code                  | true   | false   | false  | column        | text    |                :               :                       | code       |
-     | protocol      | Protocol      | study                 | Study                 | true   | false   | false  | direct-link   |         :                | study         | protocol              | study      |
-     :               :               | code                  | Code                  | true   | false   | false  | column        | text    |                :               :                       | code       |
-     :               :               | title                 | Title                 | true   | false   | false  | column        | text    |                :               :                       :            :
-     :               :               | participation         | Participation         | false  | true    | true   | indirect-link |         :                | participation | protocol              |            :
-     | study         | Study         | code                  | Code                  | true   | false   | false  | column        | text    |                :               :                       | code       |
-     :               :               | title                 | Title                 | true   | true    | false  | column        | text    |                :               :                       :            :
-     :               :               | closed                | Closed                | true   | false   | false  | column        | boolean |                :               :                       :            :
-     :               :               | protocol              | Protocol              | false  | true    | true   | indirect-link |         :                | protocol      | study                 |            :
+     | entity                                                                                                                                              |
+     +----------+----------+------------------------------------------------------------------------------------------------------------------+------------+
+     |          |          | field                                                                                                            |            |
+     |          |          +---------------+---------------+--------+---------+--------+---------------+----------------+---------------------+            |
+     |          |          |               |               |        |         |        |               | column         | link                |            |
+     |          |          |               |               |        |         |        |               +---------+------+----------+----------+            |
+     | name     | label    | label         | title         | public | partial | plural | kind          | type    | enum | target   | inverse  | identity   |
+    -+----------+----------+---------------+---------------+--------+---------+--------+---------------+---------+------+----------+----------+------------+-
+     | customer | Customer | name          | Name          | true   | false   | false  | column        | text    |      :          :          | name       |
+     :          :          | address       | Address       | true   | false   | false  | column        | text    |      :          :          :            :
+     :          :          | nation        | Nation        | true   | false   | false  | direct-link   |         :      | nation   | customer |            :
+     :          :          | phone         | Phone         | true   | false   | false  | column        | text    |      :          :          :            :
+     :          :          | acctbal       | Acctbal       | true   | false   | false  | column        | decimal |      :          :          :            :
+    ...
 
 

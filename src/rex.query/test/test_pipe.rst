@@ -15,76 +15,76 @@ We start with initializing the application::
     >>> demo = Rex('rex.query_demo')
     >>> demo.on()
 
-Query ``study.code`` is constructed by the following combinator::
+Query ``region.name`` is constructed by the following combinator::
 
     >>> from rex.query import (
     ...         SQLSchema, SQLTable, SQLColumn, SQLKey, SQLTablePipe, SQLColumnPipe, SQLLinkPipe,
     ...         AggregatePipe, DataSetPipe, text_t, integer_t, count_sig)
 
     >>> public_ns = SQLSchema(u'public')
-    >>> study_t = SQLTable(public_ns, u'study')
-    >>> study_code_c = SQLColumn(study_t, u'code')
+    >>> region_t = SQLTable(public_ns, u'region')
+    >>> region_name_c = SQLColumn(region_t, u'name')
 
-    >>> study_pipe = SQLTablePipe(study_t)
-    >>> study_code_pipe = SQLColumnPipe(study_code_c, text_t)
-    >>> study_to_code_pipe = (study_pipe >> study_code_pipe)
+    >>> region_pipe = SQLTablePipe(region_t)
+    >>> region_name_pipe = SQLColumnPipe(region_name_c, text_t)
+    >>> region_to_name_pipe = (region_pipe >> region_name_pipe)
 
-    >>> print study_to_code_pipe    # doctest: +NORMALIZE_WHITESPACE
-    (SQLTablePipe(SQLTable(schema=SQLSchema(name=u'public'), name=u'study'))
+    >>> print region_to_name_pipe    # doctest: +NORMALIZE_WHITESPACE
+    (SQLTablePipe(SQLTable(schema=SQLSchema(name=u'public'), name=u'region'))
      >>
-     SQLColumnPipe(SQLColumn(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'study'), name=u'code'),
+     SQLColumnPipe(SQLColumn(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'region'), name=u'name'),
                    AtomicDomain(u'Text')))
-    >>> print study_to_code_pipe.input
+    >>> print region_to_name_pipe.input
     Input(AtomicDomain(u'Void'))
-    >>> print study_to_code_pipe.output
+    >>> print region_to_name_pipe.output
     Output(AtomicDomain(u'Text'), optional=True, plural=True)
-    >>> print study_to_code_pipe()
-    Column([0, 3], [u'fos', u'asdl', u'lol'])
+    >>> print region_to_name_pipe()
+    Column([0, 5], [u'AFRICA', u'AMERICA', u'ASIA', u'EUROPE', u'MIDDLE EAST'])
 
-``study:select(code, title)``::
+``region:select(name, comment)``::
 
-    >>> study_title_c = SQLColumn(study_t, u'title')
+    >>> region_comment_c = SQLColumn(region_t, u'comment')
 
-    >>> study_title_pipe = SQLColumnPipe(study_title_c, text_t)
-    >>> study_with_code_title_pipe = \
-    ...     study_pipe >> DataSetPipe((study_code_pipe, study_title_pipe))
+    >>> region_comment_pipe = SQLColumnPipe(region_comment_c, text_t)
+    >>> region_with_name_comment_pipe = \
+    ...     region_pipe >> DataSetPipe((region_name_pipe, region_comment_pipe))
 
-    >>> print study_with_code_title_pipe                        # doctest: +NORMALIZE_WHITESPACE
-    (SQLTablePipe(SQLTable(schema=SQLSchema(name=u'public'), name=u'study'))
+    >>> print region_with_name_comment_pipe                        # doctest: +NORMALIZE_WHITESPACE
+    (SQLTablePipe(SQLTable(schema=SQLSchema(name=u'public'), name=u'region'))
      >>
-     DataSetPipe((SQLColumnPipe(SQLColumn(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'study'), name=u'code'), AtomicDomain(u'Text')),
-                  SQLColumnPipe(SQLColumn(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'study'), name=u'title'), AtomicDomain(u'Text')))))
+     DataSetPipe((SQLColumnPipe(SQLColumn(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'region'), name=u'name'), AtomicDomain(u'Text')),
+                  SQLColumnPipe(SQLColumn(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'region'), name=u'comment'), AtomicDomain(u'Text')))))
 
-    >>> print study_with_code_title_pipe.output                 # doctest: +NORMALIZE_WHITESPACE
+    >>> print region_with_name_comment_pipe.output                 # doctest: +NORMALIZE_WHITESPACE
     Output(DataSetDomain((Output(AtomicDomain(u'Text')),
                           Output(AtomicDomain(u'Text')))),
                          optional=True, plural=True)
 
-    >>> print study_with_code_title_pipe()                      # doctest: +NORMALIZE_WHITESPACE
-    Column([0, 3], DataSet([Column([0, 1, 2, 3], [u'fos', u'asdl', u'lol']),
-                            Column([0, 1, 2, 2], [u'Family Obesity Study', u'Autism Spectrum Disorder Lab'])], length=3))
+    >>> print region_with_name_comment_pipe()                      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    Column([0, 5], DataSet([Column([0, 1, 2, 3, 4, 5], [u'AFRICA', u'AMERICA', ...]),
+                            Column([0, 1, 2, 3, 4, 5], [u'lar ...', u'hs ...', ...])], length=5))
 
-``study:select(code, title, count(protocol))``::
+``region:select(name, comment, count(nation))``::
 
-    >>> study_key = SQLKey(study_t, (u'id',))
-    >>> protocol_t = SQLTable(public_ns, u'participation')
-    >>> protocol_study_key = SQLKey(protocol_t, (u'study_id',))
+    >>> region_key = SQLKey(region_t, (u'id',))
+    >>> nation_t = SQLTable(public_ns, u'participation')
+    >>> nation_region_key = SQLKey(nation_t, (u'region_id',))
 
-    >>> study_protocol_pipe = SQLLinkPipe(study_key, protocol_study_key, optional=False, plural=False)
-    >>> count_study_protocol_pipe = AggregatePipe(count_sig, (study_protocol_pipe,))
-    >>> study_with_code_title_count_protocol_pipe = \
-    ...     study_pipe >> DataSetPipe((study_code_pipe, study_title_pipe, count_study_protocol_pipe))
+    >>> region_nation_pipe = SQLLinkPipe(region_key, nation_region_key, optional=False, plural=False)
+    >>> count_region_nation_pipe = AggregatePipe(count_sig, (region_nation_pipe,))
+    >>> region_with_name_comment_count_nation_pipe = \
+    ...     region_pipe >> DataSetPipe((region_name_pipe, region_comment_pipe, count_region_nation_pipe))
 
-    >>> print study_with_code_title_count_protocol_pipe         # doctest: +NORMALIZE_WHITESPACE
-    (SQLTablePipe(SQLTable(schema=SQLSchema(name=u'public'), name=u'study'))
+    >>> print region_with_name_comment_count_nation_pipe         # doctest: +NORMALIZE_WHITESPACE
+    (SQLTablePipe(SQLTable(schema=SQLSchema(name=u'public'), name=u'region'))
      >>
-     DataSetPipe((SQLColumnPipe(SQLColumn(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'study'), name=u'code'), AtomicDomain(u'Text')),
-                  SQLColumnPipe(SQLColumn(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'study'), name=u'title'), AtomicDomain(u'Text')),
+     DataSetPipe((SQLColumnPipe(SQLColumn(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'region'), name=u'name'), AtomicDomain(u'Text')),
+                  SQLColumnPipe(SQLColumn(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'region'), name=u'comment'), AtomicDomain(u'Text')),
                   AggregatePipe(Signature(name=u'count', domains=(AnyDomain(),), range=AtomicDomain(u'Integer')),
-                                (SQLLinkPipe(SQLKey(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'study'), names=(u'id',)),
-                                             SQLKey(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'participation'), names=(u'study_id',))),)))))
+                                (SQLLinkPipe(SQLKey(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'region'), names=(u'id',)),
+                                             SQLKey(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'participation'), names=(u'region_id',))),)))))
 
-    >>> print study_with_code_title_count_protocol_pipe.output  # doctest: +NORMALIZE_WHITESPACE
+    >>> print region_with_name_comment_count_nation_pipe.output  # doctest: +NORMALIZE_WHITESPACE
     Output(DataSetDomain((Output(AtomicDomain(u'Text')),
                           Output(AtomicDomain(u'Text')),
                           Output(AtomicDomain(u'Integer')))),

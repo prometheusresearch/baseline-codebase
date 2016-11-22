@@ -296,10 +296,6 @@ export function setGroupByPath(
 ): StateUpdater {
   return state => {
     let {byPath, pointer} = params;
-    let needAppendDefine = (
-      byPath.length > 0 &&
-      pointer.query.byPath.length === 0
-    );
     pointer = qp.rebase(pointer, state.query);
     let {query} = pointer;
 
@@ -308,7 +304,6 @@ export function setGroupByPath(
       prevType && prevType.name === 'record' && prevType.entity != null,
       'Invalid type info'
     );
-    const entity = prevType.entity;
 
     query = op.transformAt({
       loc: {pointer, selected: null},
@@ -322,23 +317,6 @@ export function setGroupByPath(
         };
       }
     }).query;
-
-    if (needAppendDefine) {
-      let name = getName(
-        pointer.query.context.scope,
-        `grouped ${entity} query`
-      );
-      query = q.inferType(state.domain, query);
-      query = op.insertAfter(
-        {pointer: qp.rebase(pointer, query), selected: state.selected},
-        q.def(name, q.pipeline(q.navigate(entity))),
-      ).query;
-      query = q.inferType(state.domain, query);
-      query = op.growNavigation({
-        loc: {pointer: qp.rebase(pointer, query), selected: null},
-        path: [name],
-      }).query;
-    }
 
     return onQuery(state, query, state.selected);
   };

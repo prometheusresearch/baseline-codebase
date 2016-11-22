@@ -14,6 +14,10 @@ __all__ = (
 
 
 class RestfulInitialize(Initialize):
+    @classmethod
+    def signature(cls):  # pragma: no cover
+        return 'restful'
+
     def __call__(self):
         # Make sure the CORS policies specified by all the RestfulLocations
         # are actually defined.

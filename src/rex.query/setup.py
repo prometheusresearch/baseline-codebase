@@ -18,6 +18,9 @@ setup(
     package_dir={'': 'src'},
     packages=find_packages('src'),
     namespace_packages=['rex'],
+    entry_points={
+        'htsql.addons': ['rex_query = htsql_rex_query:RexQueryAddon'],
+    },
     install_requires=[
         'rex.core >=1.13, <2',
         'rex.db >=3.5, <4',

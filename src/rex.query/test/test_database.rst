@@ -180,6 +180,18 @@ Filtering::
     ...         ["navigate", "name"]])                      # doctest: +ELLIPSIS
     <Product ('Customer#000000007', 'Customer#000000019', ...)>
 
+Filtering works correctly with define::
+
+    >>> db.produce(
+    ...     [".",
+    ...         ["filter",
+    ...             ["define",
+    ...                 ["navigate", "region"],
+    ...                 ["=>", "nation", [".", ["navigate", "nation"], ["navigate", "name"]]]],
+    ...             ["=", ["navigate", "name"], "ASIA"]],
+    ...         ["navigate", "nation"]])
+    <Product ('CHINA', 'INDIA', 'INDONESIA', 'JAPAN', 'VIETNAM')>
+
 Sorting::
 
     >>> db.produce(

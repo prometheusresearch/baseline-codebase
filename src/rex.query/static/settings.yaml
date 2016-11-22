@@ -2,3 +2,6 @@
 access:
   rex.query: nobody
 
+htsql_extensions:
+  rex_query:
+

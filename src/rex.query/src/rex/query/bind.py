@@ -5,6 +5,7 @@
 
 from rex.core import Error, guard
 from .query import Query, ApplySyntax, LiteralSyntax
+from htsql.core.adapter import adapt
 from htsql.core.domain import (
         UntypedDomain, BooleanDomain, TextDomain, IntegerDomain, DecimalDomain,
         FloatDomain, DateDomain,TimeDomain, DateTimeDomain, ListDomain,
@@ -17,9 +18,8 @@ from htsql.core.tr.binding import (
         SortBinding, QuotientBinding, ComplementBinding, ClipBinding,
         TitleBinding, DirectionBinding, FormulaBinding, CastBinding,
         ImplicitCastBinding, FreeTableRecipe, AttachedTableRecipe,
-        ColumnRecipe, BindingRecipe, KernelRecipe, ComplementRecipe,
-        ClosedRecipe)
-from htsql.core.tr.bind import BindingState, Select
+        ColumnRecipe, KernelRecipe, ComplementRecipe, ClosedRecipe)
+from htsql.core.tr.bind import BindingState, Select, BindByRecipe
 from htsql.core.tr.lookup import lookup_attribute, unwrap, guess_tag
 from htsql.core.tr.decorate import decorate
 from htsql.core.tr.coerce import coerce
@@ -30,6 +30,7 @@ from htsql.core.tr.fn.signature import (
         AddSig, SubtractSig, MultiplySig, DivideSig, ContainsSig, CastSig,
         AggregateSig, QuantifySig, ExistsSig, CountSig, MinMaxSig, SumSig,
         AvgSig)
+from htsql_rex_query import BindingRecipe, DefinitionRecipe
 
 
 class Output(object):
@@ -42,17 +43,6 @@ class Output(object):
         self.syntax = binding.syntax
         self.optional = optional
         self.plural = plural
-
-
-class BindingRecipe(BindingRecipe):
-
-    def __init__(self, binding, optional=False, plural=False):
-        self.binding = binding
-        self.optional = optional
-        self.plural = plural
-
-    def __basis__(self):
-        return (self.binding, self.optional, self.plural)
 
 
 class RexBindingState(BindingState):
@@ -150,7 +140,7 @@ class RexBindingState(BindingState):
                     plural = True
         elif isinstance(recipe, ColumnRecipe):
             optional = recipe.column.is_nullable
-        elif isinstance(recipe, BindingRecipe):
+        elif isinstance(recipe, (BindingRecipe, DefinitionRecipe)):
             optional = recipe.optional
             plural = recipe.plural
         elif isinstance(recipe, ComplementRecipe):
@@ -223,8 +213,8 @@ class RexBindingState(BindingState):
             if tag is None:
                 raise Error("Expected a definition:",
                             " got:", ", ".join(map(str, args)))
-            recipe = BindingRecipe(
-                    definition.binding,
+            recipe = DefinitionRecipe(
+                    binding, arg,
                     optional=definition.optional,
                     plural=definition.plural)
             recipe = ClosedRecipe(recipe)

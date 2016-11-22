@@ -213,7 +213,7 @@ When application started with the parameter assessment_import_dir, and method
 bulk_create failed all import data saved as cvs files
 in <assessment_import_dir>/<username>/<when>-<chunk_name>.csv::
 
-  >>> print [filename for filename in os.listdir('./build/sandbox/demo1')] # doctest: +ELLIPSIS
+  >>> print sorted(os.listdir('./build/sandbox/demo1')) # doctest: +ELLIPSIS
   ['...-qctest1.csv', '...-qctest1.matrix.csv', '...-qctest1.recordlist2.csv']
 
 Import fails when data column contains bad value.

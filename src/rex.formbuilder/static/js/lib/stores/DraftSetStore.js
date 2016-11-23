@@ -15,6 +15,7 @@ var I18NStore = require('./I18NStore');
 var {ErrorActions, SuccessActions} = require('../actions');
 var DefinitionParser = require('../DefinitionParser');
 var Configuration = require('../Configuration');
+var PageStart = require('../elements/PageStart');
 var errors = require('../errors');
 var _ = require('../i18n').gettext;
 
@@ -180,7 +181,11 @@ function putElement(element, afterElement, container) {
     container = container || _activeConfiguration.elements;
     container.push(element);
   } else {
-    afterElm.container.splice(afterElm.index, 0, element);
+    let index = afterElm.index;
+    //we can't put before the PageStart;
+    if ((afterElm.container[index] instanceof PageStart) && index == 0)
+      index = 1;
+    afterElm.container.splice(index, 0, element);
   }
 
   _isModified = true;

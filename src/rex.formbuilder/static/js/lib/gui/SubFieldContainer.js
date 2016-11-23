@@ -29,12 +29,15 @@ const subFieldsContainerTarget = {
 
   canDrop(props, monitor) {
     let item = monitor.getItem()['item'];
+    //Can drop only if element can be SubField
+    //And there is no Subfields yet
+    //If there is at least one SubField 
+    //WorkSpace element will be responsible for this.
+    if (props.subFields.length > 0)
+      return false;
     return item.element.constructor.canBeSubField();
   }
 
-  /*leave: function (component, item) {
-    DraftSetActions.deleteElement(item.element);
-  }*/
 }
 
 @DropTarget([ELEMENT_TYPE, WORKSPACE_ELEMENT], subFieldsContainerTarget, (connect, monitor) => ({

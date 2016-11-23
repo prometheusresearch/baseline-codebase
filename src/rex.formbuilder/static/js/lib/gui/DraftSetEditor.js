@@ -359,5 +359,10 @@ var DraftSetEditor = React.createClass({
   }
 });
 
+//moved from DraftSetEditor
+function getUnsavedMessage() {
+  return _('You\'ve made changes to this Draft, but haven\'t saved them yet.');
+}
+
 module.exports = DragDropContext(HTML5Backend)(DraftSetEditor);
 

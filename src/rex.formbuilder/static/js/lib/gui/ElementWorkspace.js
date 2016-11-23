@@ -12,35 +12,8 @@ import autobind from 'autobind-decorator';
 import HTML5Backend from 'react-dnd-html5-backend';
 import { DropTarget } from 'react-dnd';
 import {DraftSetActions} from '../actions';
+import DropTargetSpace from './DropTargetSpace'; 
 
-const ElementWorkspaceTarget = {
-  canDrop(props, monitor) {
-    return true;
-  },
-
-  drop(props, monitor, component) {
-    //By monitor.isOver({ shallow: true }) I check is element really hover workspace 
-    //or other element inside it.
-    if (!monitor.isOver({ shallow: true }))
-      return;
-    let item =  monitor.getItem()['item'];
-    DraftSetActions.putElement(
-      item.element,
-      null
-    );
-    return;
-  }
-};
-
-function collect(connect, monitor) {
-  return {
-    connectDropTarget: connect.dropTarget(),
-    isOver: monitor.isOver(),
-    canDrop: monitor.canDrop()
-  };
-}
-
-@DropTarget([WORKSPACE_ELEMENT, ELEMENT_TYPE], ElementWorkspaceTarget, collect)
 export default class ElementWorkspace extends React.Component {
 
   constructor(props) {
@@ -92,10 +65,10 @@ export default class ElementWorkspace extends React.Component {
 
   render() {
     var elements = this.buildElements();
-    let {connectDropTarget} = this.props;
-    return connectDropTarget(
+    return (
       <div className="rfb-workspace">
         {elements}
+        <DropTargetSpace />
       </div>
     );
   }

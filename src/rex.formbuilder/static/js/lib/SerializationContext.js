@@ -7,7 +7,9 @@
 
 class SerializationContext {
   getCurrentSerializationElementContainer(form) {
-    return form.pages[form.pages.length - 1].elements;
+    if (form.pages.length > 0)
+      return form.pages[form.pages.length - 1].elements;
+    return [];
   }
 
   getCurrentSerializationElement(form) {

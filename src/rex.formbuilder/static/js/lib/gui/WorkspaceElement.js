@@ -38,8 +38,7 @@ const workspaceElementSource = {
   }
 };
 
-const workspaceElementTarget = {
-  canDrop(props, monitor) {
+function canDropInside(props, monitor) {
     let item = monitor.getItem()['item'];
     //Can drop inside element only if element is a container and element can be subfield. 
     //Element shouldn't be in edit mode.
@@ -67,6 +66,16 @@ const workspaceElementTarget = {
     
     //on the other cases it should be possible  
     return true;
+};
+
+const workspaceElementTarget = {
+
+  canDrop(props, monitor) {
+    return (props.element.EID !== 1);
+  },
+
+  drop(props, monitor, component) {
+    return;
   },
 
   hover(props, monitor, component) {
@@ -75,7 +84,8 @@ const workspaceElementTarget = {
     //don't put the  next element if it's not trully hover the WorspaceElement 
     //(ElementWorkspace will be responsible for it)
     //don't the put next element near if you can drop it inside
-    if (element.needsEdit || !monitor.isOver({'shallow': true}) || monitor.canDrop())
+
+    if (element.needsEdit || !monitor.isOver({'shallow': true}) || canDropInside(props, monitor))
       return;
     let item = monitor.getItem()['item'];
     if (element.EID === item.element.EID) {

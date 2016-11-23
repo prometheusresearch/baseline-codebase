@@ -145,3 +145,7 @@ class JSONGetJSONSig(BinarySig):
     pass
 
 
+class MedianSig(UnarySig):
+    pass
+
+

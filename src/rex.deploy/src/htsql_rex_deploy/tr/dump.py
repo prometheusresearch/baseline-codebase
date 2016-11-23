@@ -15,7 +15,8 @@ from .signature import (
         FTHeadlineSig, FTQueryHeadlineSig, FTRankSig, FTQueryRankSig, JoinSig,
         AbsSig, SignSig, CeilSig, FloorSig, DivSig, ModSig, ExpSig, PowSig,
         LnSig, Log10Sig, LogSig, PiSig, ACosSig, ASinSig, ATanSig, ATan2Sig,
-        CosSig, CotSig, SinSig, TanSig, RandomSig, JSONGetSig, JSONGetJSONSig)
+        CosSig, CotSig, SinSig, TanSig, RandomSig, JSONGetSig, JSONGetJSONSig,
+        MedianSig)
 
 
 class DeployDumpDateIncrement(PGSQLDumpDateIncrement):
@@ -241,5 +242,11 @@ class DumpEscapeIdentity(DumpFunction):
     adapt(EscapeIdentitySig)
     template = "(CASE WHEN {op} ~ '^[0-9A-Za-z_-]+$' THEN {op}" \
                " ELSE '''' || REPLACE({op}, '''', '''''') || '''' END)"
+
+
+class DumpMedian(DumpFunction):
+
+    adapt(MedianSig)
+    template = "(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY {op}))"
 
 

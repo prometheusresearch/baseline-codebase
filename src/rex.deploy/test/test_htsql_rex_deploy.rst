@@ -415,6 +415,15 @@ Function ``random()`` generates a random value::
     >>> 0 <= r <= 1
     True
 
+Aggregate ``median()`` returns a median value in a sequence::
+
+    >>> q = Query(''' median(case.count(participation)) ''')
+    >>> q.format('txt')                                             # doctest: +NORMALIZE_WHITESPACE
+     | median(case.count(participation)) |
+    -+-----------------------------------+-
+     |                               4.0 |
+
+
 
 Identity Conversion
 ===================

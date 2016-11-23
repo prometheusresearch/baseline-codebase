@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.9.0 (2016-XX-XX)
+==================
+
+* Implemented aggregate ``median()``.
+
+
 2.8.1 (2016-10-25)
 ==================
 

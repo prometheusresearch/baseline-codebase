@@ -13,14 +13,16 @@ from htsql.core.tr.bind import SelectRecord
 from htsql.core.tr.lookup import guess_header, expand
 from htsql.core.tr.fn.signature import AggregateSig
 from htsql.core.tr.fn.bind import (BindCast, BindMonoFunction,
-        BindPolyFunction, Correlate, CorrelateFunction, match)
+        BindPolyFunction, BindPolyAggregate, Correlate, CorrelateFunction,
+        match)
 from ..domain import JSONDomain
 from .lookup import select_identity
 from .signature import (REMatchesSig, FTMatchesSig, FTQueryMatchesSig,
         FTHeadlineSig, FTQueryHeadlineSig, FTRankSig, FTQueryRankSig, JoinSig,
         AbsSig, SignSig, CeilSig, FloorSig, DivSig, ModSig, ExpSig, PowSig,
         LnSig, Log10Sig, LogSig, PiSig, ACosSig, ASinSig, ATanSig, ATan2Sig,
-        CosSig, CotSig, SinSig, TanSig, RandomSig, JSONGetSig, JSONGetJSONSig)
+        CosSig, CotSig, SinSig, TanSig, RandomSig, JSONGetSig, JSONGetJSONSig,
+        MedianSig)
 
 
 class SelectEntity(SelectRecord):
@@ -469,6 +471,22 @@ class BindRandom(BindMonoFunction):
     call('random')
     signature = RandomSig
     domains = []
+    codomain = FloatDomain()
+
+
+class BindMedian(BindPolyAggregate):
+
+    call('median')
+    signature = MedianSig
+
+
+class BindFloatMedian(CorrelateFunction):
+
+    match(MedianSig, IntegerDomain,
+                     DecimalDomain,
+                     FloatDomain)
+    signature = MedianSig
+    domain = [FloatDomain()]
     codomain = FloatDomain()
 
 

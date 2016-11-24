@@ -122,6 +122,11 @@ class FilterCondition extends React.Component {
           this.onOperandValueChange,
         );
       }
+
+      if (fieldDef.context.type.name === 'record') {
+        chooseOperandType = false;
+      }
+
     }
 
     let operandTypeOptions = [

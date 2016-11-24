@@ -212,7 +212,7 @@ class AddQueryMenuButton extends React.Component {
 
   toggleOpen = (e: UIEvent) => {
     e.stopPropagation();
-    if (this.props.item.type !== 'attribute') {
+    if (this.props.item.query.context.type.name === 'record') {
       this.setState(state =>
         ({...state, open: !state.open}));
     }

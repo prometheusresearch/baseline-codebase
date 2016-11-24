@@ -5,9 +5,7 @@
 import type {Query, SelectQuery, QueryPipeline} from '../model';
 
 import * as ArrayUtil from '../ArrayUtil';
-import {
-  transformQuery
-} from '../model/Query';
+import * as q from '../model/Query';
 
 export type Focus = Array<string>;
 
@@ -20,37 +18,33 @@ export function chooseFocus(query: QueryPipeline): Focus {
 }
 
 function getFocuses(query: QueryPipeline): Array<Focus> {
-  let focusList = getPipelineFocusList(query, [], false);
+  let focusList = getPipelineFocusList(query, []);
   return focusList;
 }
 
 function getPipelineFocusList(
   query: QueryPipeline,
   path: Array<string>,
-  suppressPath: boolean
 ) {
   let result: Array<Array<string>> = [];
   let type = query.context.type;
-  if (type.name === 'invalid') {
-    return [];
-  } else if (type.name === 'record') {
+  if (type.name !== 'invalid') {
     let pipeline = query.pipeline;
-    let seenNavigate = false;
     let localPath = [];
     for (let i = 0; i < pipeline.length; i++) {
       let item = pipeline[i];
-      if (item.name === 'navigate' && !suppressPath) {
-        localPath = item.path;
-        seenNavigate = true;
+
+      if (item.name === 'navigate') {
+        let nextItem = pipeline[i + 1];
+        if (nextItem && nextItem.name === 'navigate') {
+          continue;
+        }
       }
-      if (item.name === 'navigate' && seenNavigate) {
-        continue;
-      }
+
       result = result.concat(
         getQueryFocusList(
           item,
           path.concat(localPath),
-          false
         )
       );
     }
@@ -63,7 +57,6 @@ function getPipelineFocusList(
 function getSelectFocusList(
   query: SelectQuery,
   path: Array<string>,
-  suppressPath: boolean
 ) {
   let result: Array<Focus> = [];
   for (let k in query.select) {
@@ -74,13 +67,14 @@ function getSelectFocusList(
     if (query.context.scope[k] != null) {
       item = query.context.scope[k].query;
     }
-    result = result.concat(
-      getPipelineFocusList(
-        item,
-        path.concat(k),
-        true
-      )
-    );
+    if (item.context.type.card === 'seq') {
+      result = result.concat(
+        getPipelineFocusList(
+          item,
+          path.concat(k),
+        )
+      );
+    }
   }
   return result;
 }
@@ -88,9 +82,8 @@ function getSelectFocusList(
 function getQueryFocusList(
   query: Query,
   path: Array<string>,
-  suppressPath: boolean
 ) {
-  return transformQuery(query, {
+  return q.transformQuery(query, {
     pipeline: _ => getPipelineFocusList(...arguments),
     select: _ => getSelectFocusList(...arguments),
     navigate: query => {

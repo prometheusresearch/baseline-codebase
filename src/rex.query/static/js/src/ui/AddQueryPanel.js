@@ -17,7 +17,6 @@ import * as theme from './Theme';
 import {MenuGroup, MenuButton, MenuButtonSecondary} from './menu';
 import QueryPanelBase from './QueryPanelBase';
 import AddAggregateMenu from './AddAggregateMenu';
-import AddNavigateMenu from './AddNavigateMenu';
 
 type AddColumnPanelProps = {
   pointer: QueryPointer<Query>;
@@ -31,7 +30,7 @@ export default class AddQueryPanel extends React.Component<*, AddColumnPanelProp
   };
 
   state: {
-    activeTab: null | 'aggregate' | 'navigate';
+    activeTab: null | 'aggregate';
   } = {
     activeTab: null,
   };
@@ -88,14 +87,13 @@ export default class AddQueryPanel extends React.Component<*, AddColumnPanelProp
     let canFilter = canFilterAt(type);
     let canGroup = canGroupAt(type);
     let canAggregate = canAggregateAt(type);
-    let canNavigate = canNavigateAt(type);
     if (activeTab == null) {
       return (
         <QueryPanelBase
           {...props}
           theme={theme.placeholder}
           title="Add">
-          {(canNavigate || canAggregate || canFilter) &&
+          {(canAggregate || canFilter) &&
             <MenuGroup paddingV={20}>
               {canFilter &&
                 <MenuButton
@@ -115,12 +113,6 @@ export default class AddQueryPanel extends React.Component<*, AddColumnPanelProp
                   onClick={this.onGroup}>
                   Group
                 </MenuButton>}
-              {canNavigate &&
-                <MenuButton
-                  icon="＋"
-                  onClick={this.onActiveTabNavigate}>
-                  Focus
-                </MenuButton>}
             </MenuGroup>}
           <AddQueryMenu
             pointer={pointer}
@@ -138,18 +130,6 @@ export default class AddQueryPanel extends React.Component<*, AddColumnPanelProp
             <AddAggregateMenu
               pointer={pipeline}
               />}
-        </QueryPanelBase>
-      );
-    } else if (activeTab === 'navigate') {
-      return (
-        <QueryPanelBase
-          {...props}
-          onBack={this.onActiveTabDefault}
-          theme={theme.placeholder}
-          title="Focus">
-          <AddNavigateMenu
-            pointer={pointer}
-            />
         </QueryPanelBase>
       );
     }
@@ -372,11 +352,6 @@ function canGroupAt(type: Type) {
   return type.card === 'seq' && type.name === 'record';
 }
 
-function canNavigateAt(type: Type) {
-  return type.name === 'record';
-}
-
 function isSeqAt(type: Type) {
   return type.card === 'seq';
 }
-

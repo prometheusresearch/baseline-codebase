@@ -62,7 +62,7 @@ let MenuButtonSecondaryRoot = style(HBox, {
     borderBottom: css.border(1, '#ddd'),
     userSelect: 'none',
     padding: 8,
-    paddingLeft: 30,
+    paddingLeft: 40,
     paddingRight: 10,
     color: '#666',
     backgroundColor: '#f2f2f2',

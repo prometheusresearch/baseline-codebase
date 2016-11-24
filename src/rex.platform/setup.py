@@ -42,7 +42,7 @@ setup(
         'rex.widget==2.11.0',
         'rex.widget_chrome==1.2.3',
         'rex.file==1.0.4',
-        'rex.dbgui==4.1.2',
+        'rex.dbgui==4.1.3',
     ],
     rex_static='static',
     rex_bundle={

@@ -192,6 +192,30 @@ Filtering works correctly with define::
     ...         ["navigate", "nation"]])
     <Product ('CHINA', 'INDIA', 'INDONESIA', 'JAPAN', 'VIETNAM')>
 
+Filtering also works with identities::
+
+    >>> db.produce(
+    ...     ["filter",
+    ...         ["navigate", "nation"],
+    ...         ["=", ["navigate", "region"], "'MIDDLE EAST'"]])        # doctest: +ELLIPSIS
+    <Product ({'EGYPT', ['MIDDLE EAST'], '...'}, ...)>
+
+    >>> db.produce(
+    ...     ["filter",
+    ...         ["navigate", "lineitem"],
+    ...         ["=",
+    ...             [".", ["navigate", "partsupp"], ["id"]],
+    ...             "'yellow white ghost lavender salmon'.'Supplier#000000069'"]])  # doctest: +ELLIPSIS
+    <Product ({[3719], ['yellow white ghost lavender salmon'.'Supplier#000000069'], ...}, ...)>
+
+A list of identities could be generated with::
+
+    >>> db.produce(
+    ...     [".",
+    ...         ["navigate", "region"],
+    ...         ["id"]])
+    <Product ([AFRICA], [AMERICA], [ASIA], [EUROPE], ['MIDDLE EAST'])>
+
 Sorting::
 
     >>> db.produce(

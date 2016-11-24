@@ -9,23 +9,23 @@ from htsql.core.adapter import adapt
 from htsql.core.domain import (
         UntypedDomain, BooleanDomain, TextDomain, IntegerDomain, DecimalDomain,
         FloatDomain, DateDomain,TimeDomain, DateTimeDomain, ListDomain,
-        RecordDomain)
+        RecordDomain, EntityDomain, IdentityDomain)
 from htsql.core.syn.syntax import VoidSyntax, IdentifierSyntax
 from htsql.core.cmd.embed import Embed
 from htsql.core.tr.binding import (
         RootBinding, LiteralBinding, TableBinding, ChainBinding,
         CollectBinding, SelectionBinding, SieveBinding, DefineBinding,
-        SortBinding, QuotientBinding, ComplementBinding, ClipBinding,
-        TitleBinding, DirectionBinding, FormulaBinding, CastBinding,
-        ImplicitCastBinding, FreeTableRecipe, AttachedTableRecipe,
+        IdentityBinding, SortBinding, QuotientBinding, ComplementBinding,
+        ClipBinding, TitleBinding, DirectionBinding, FormulaBinding,
+        CastBinding, ImplicitCastBinding, FreeTableRecipe, AttachedTableRecipe,
         ColumnRecipe, KernelRecipe, ComplementRecipe, ClosedRecipe)
 from htsql.core.tr.bind import BindingState, Select, BindByRecipe
-from htsql.core.tr.lookup import lookup_attribute, unwrap, guess_tag
+from htsql.core.tr.lookup import lookup_attribute, unwrap, guess_tag, identify
 from htsql.core.tr.decorate import decorate
 from htsql.core.tr.coerce import coerce
 from htsql.core.tr.signature import (
         IsEqualSig, IsAmongSig, CompareSig, AndSig, OrSig, NotSig, IsNullSig)
-from htsql.core.tr.fn.bind import Correlate, Comparable
+from htsql.core.tr.fn.bind import Correlate, Comparable, BindAmong, BindNotAmong
 from htsql.core.tr.fn.signature import (
         AddSig, SubtractSig, MultiplySig, DivideSig, ContainsSig, CastSig,
         AggregateSig, QuantifySig, ExistsSig, CountSig, MinMaxSig, SumSig,
@@ -325,6 +325,15 @@ class RexBindingState(BindingState):
                 DirectionBinding(output.binding, -1, self.scope.syntax),
                 optional=output.optional, plural=output.plural)
 
+    def bind_id_op(self, args):
+        if args:
+            raise Error("Expected no arguments,"
+                        " got:", ", ".join(map(str, args)))
+        recipe = identify(self.scope)
+        if recipe is None:
+            raise Error("Cannot determine identity")
+        return Output(self.use(recipe, self.scope.syntax))
+
     def bind_add_op(self, args):
         return self.bind_poly(AddSig, args)
 
@@ -474,15 +483,23 @@ class RexBindingState(BindingState):
     def bind_among(self, polarity, lop, rops):
         if not rops:
             return self.bind_among(-polarity, lop, [lop])
-        domains = [lop.domain] + [rop.domain for rop in rops]
-        domain = coerce(*domains)
-        if domain is None:
-            raise Error("Detected arguments of unexpected types")
         optional = lop.optional or any([rop.optional for rop in rops])
         plural = rop.plural or any([rop.plural for rop in rops])
-        lop = ImplicitCastBinding(lop.binding, domain, lop.syntax)
-        rops = [ImplicitCastBinding(rop.binding, domain, rop.syntax)
-                for rop in rops]
+        if isinstance(lop.domain, (EntityDomain, IdentityDomain)):
+            ops = []
+            for rop in rops:
+                op = self.correlate_identity(polarity, lop.binding, rop.binding)
+                ops.append(op)
+            binding = self.merge_identities(polarity, ops)
+            return Output(binding, optional=optional, plural=plural)
+        else:
+            domains = [lop.domain] + [rop.domain for rop in rops]
+            domain = coerce(*domains)
+            if domain is None:
+                raise Error("Detected arguments of unexpected types")
+            lop = ImplicitCastBinding(lop.binding, domain, lop.syntax)
+            rops = [ImplicitCastBinding(rop.binding, domain, rop.syntax)
+                    for rop in rops]
         if len(rops) == 1:
             binding = FormulaBinding(
                     self.scope, IsEqualSig(polarity),
@@ -494,6 +511,88 @@ class RexBindingState(BindingState):
                     BooleanDomain(), self.scope.syntax,
                     lop=lop, rops=rops)
         return Output(binding, optional=optional, plural=plural)
+
+    def correlate_identity(self, polarity, lop, rop):
+        ops = self.pair_identities(polarity, lop, rop)
+        return self.merge_identities(polarity, ops)
+
+    def merge_identities(self, polarity, ops):
+        if len(ops) == 1:
+            return ops[0]
+        else:
+            return FormulaBinding(
+                    self.scope,
+                    AndSig() if polarity == +1 else OrSig(),
+                    BooleanDomain(), self.scope.syntax, ops=ops)
+
+    def pair_identities(self, polarity, lop, rop):
+        ops = self.coerce_identities(lop, rop)
+        if ops is None:
+            raise Error("Cannot coerce values of types (%s, %s)"
+                        " to a common type" % (lop.domain, rop.domain))
+        lop, rop = ops
+        if (isinstance(lop, IdentityBinding) and
+                isinstance(rop, IdentityBinding)):
+            if len(lop.elements) != len(rop.elements):
+                raise Error("Cannot coerce values of types (%s, %s)"
+                            " to a common type" % (lop.domain, rop.domain))
+            pairs = []
+            for lel, rel in zip(lop.elements, rop.elements):
+                pairs.extend(self.pair_identities(polarity, lel, rel))
+            return pairs
+        elif isinstance(lop, IdentityBinding):
+            if isinstance(rop.domain, UntypedDomain):
+                try:
+                    value = lop.domain.parse(rop.value)
+                except ValueError, exc:
+                    raise Error("Cannot coerce [%s] to %s:"
+                                % (rop.value, lop.domain), exc)
+                rop = LiteralBinding(rop.base, value, lop.domain, rop.syntax)
+            if rop.domain != lop.domain:
+                raise Error("Cannot coerce values of types (%s, %s)"
+                            " to a common type" % (lop.domain, rop.domain))
+            if rop.value is None:
+                return [LiteralBinding(rop.base, None,
+                                       coerce(BooleanDomain()), rop.syntax)]
+            pairs = []
+            for lel, rel, domain in zip(lop.elements, rop.value,
+                                        lop.domain.labels):
+                rel = LiteralBinding(rop.base, rel, domain, rop.syntax)
+                pairs.extend(self.pair_identities(polarity, lel, rel))
+            return pairs
+        elif isinstance(rop, IdentityBinding):
+            return self.pair_identities(polarity, rop, lop)
+        else:
+            domain = coerce(lop.domain, rop.domain)
+            if domain is None:
+                raise Error("Cannot coerce values of types (%s, %s)"
+                            " to a common type" % (lop.domain, rop.domain))
+            lop = ImplicitCastBinding(lop, domain, lop.syntax)
+            rop = ImplicitCastBinding(rop, domain, rop.syntax)
+            op = FormulaBinding(self.scope,
+                                IsEqualSig(polarity),
+                                coerce(BooleanDomain()),
+                                self.scope.syntax, lop=lop, rop=rop)
+            return [op]
+
+    def coerce_identities(self, lop, rop):
+        if not any([isinstance(op.domain, (EntityDomain, IdentityDomain))
+                    for op in [lop, rop]]):
+            return lop, rop
+        ops = []
+        for op in [lop, rop]:
+            if isinstance(op.domain, EntityDomain):
+                recipe = identify(op)
+                if recipe is None:
+                    return None
+                op = self.use(recipe, op.syntax, scope=op)
+            elif not isinstance(op, (IdentityBinding, LiteralBinding)):
+                op = (unwrap(op, IdentityBinding, is_deep=False) or
+                      unwrap(op, LiteralBinding, is_deep=False))
+            if op is None:
+                return None
+            ops.append(op)
+        return ops
 
     def bind_compare(self, relation, lop, rop):
         domain = coerce(lop.domain, rop.domain)

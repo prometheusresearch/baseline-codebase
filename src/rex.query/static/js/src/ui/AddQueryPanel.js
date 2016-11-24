@@ -238,7 +238,7 @@ class AddQueryMenuButton extends React.Component {
           icon="⇩"
           onClick={this.onNavigate}
           key="navigate">
-          Focus on {item.label}
+          Focus {item.label}
         </MenuButtonSecondary>
       );
     }

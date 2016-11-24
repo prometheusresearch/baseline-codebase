@@ -38,13 +38,26 @@ export function init(): StateUpdater {
  * Navigate.
  */
 export function navigate(params: {
-  pointer: QueryPointer<*>,
-  path: Array<string>
+  pointer: QueryPointer<Query>,
+  path: Array<string>,
 }): StateUpdater {
+
   return state => {
     let pointer = qp.rebase(params.pointer, state.query);
     let loc = {pointer, selected: state.selected};
-    let {query} = op.growNavigation({loc, path: params.path});
+    let add = null;
+    let type = q.resolvePath(
+      qp.selectLast(pointer).query.context.prev,
+      params.path
+    );
+    if (type.card === 'seq') {
+      add = q.aggregate('count');
+    }
+    let {query} = op.growNavigation({
+      loc,
+      path: params.path,
+      add: add
+    });
     return onQuery(state, query, state.selected);
   };
 }

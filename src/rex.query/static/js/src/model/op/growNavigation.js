@@ -7,16 +7,21 @@
 import invariant from 'invariant';
 
 import type {QueryState, QueryPointerState} from './index';
-import type {QueryPipeline} from '../Query';
+import type {Query, QueryPipeline} from '../Query';
 import type {KeyPath} from '../QueryPointer';
 
 import * as q from '../Query';
 import * as qp from '../QueryPointer';
 import transformAtPointer from './transformAtPointer';
 
-export default function growNavigation({loc: {pointer, selected}, path}: {
+export default function growNavigation({
+  loc: {pointer, selected},
+  path,
+  add,
+}: {
   loc: QueryPointerState;
   path: Array<string>;
+  add?: ?Query;
 }): QueryState {
   let p = pointer.query.name !== 'pipeline'
     ? qp.prev(pointer)
@@ -25,7 +30,7 @@ export default function growNavigation({loc: {pointer, selected}, path}: {
     p && p.query.name === 'pipeline',
     'Malformed query structure'
   );
-  let {query, keyPath} = growNavigationImpl(p.query, path);
+  let {query, keyPath} = growNavigationImpl(p.query, path, add);
   query = transformAtPointer(p, {type: 'replace', value: query});
   keyPath = p.path.concat(keyPath);
   return {query, selected: qp.make(query, ...keyPath)};
@@ -33,15 +38,23 @@ export default function growNavigation({loc: {pointer, selected}, path}: {
 
 function growNavigationImpl(
   query: QueryPipeline,
-  path: Array<string>
+  path: Array<string>,
+  add?: ?Query,
 ): {
   query: QueryPipeline,
   keyPath: Array<KeyPath>
 } {
 
   if (path.length === 0) {
+    if (add) {
+      query = {
+        name: 'pipeline',
+        pipeline: query.pipeline.concat(add),
+        context: query.context,
+      };
+    }
     return {
-      query,
+      query: query,
       keyPath: [['pipeline', query.pipeline.length - 1]]
     };
   }
@@ -52,7 +65,8 @@ function growNavigationImpl(
   if (tail.name === 'select') {
     let res = growNavigationImpl(
       tail.select[key] || q.pipeline(q.navigate(key)),
-      rest
+      rest,
+      add,
     );
     let pipeline = query.pipeline;
     pipeline.pop();
@@ -76,7 +90,8 @@ function growNavigationImpl(
   } else {
     let res = growNavigationImpl(
       q.pipeline(q.navigate(key)),
-      rest
+      rest,
+      add,
     );
     let pipeline = query.pipeline;
     pipeline = query.pipeline.concat(

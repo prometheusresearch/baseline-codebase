@@ -230,7 +230,7 @@ class ColumnPickerButton extends React.Component {
         }
         onClick={this.onSelect}>
         <VBox grow={1} justifyContent="center">
-          {column.label}
+          {column.card === 'seq' ? '# ' : ''}{column.label}
         </VBox>
       </MenuButton>
     );

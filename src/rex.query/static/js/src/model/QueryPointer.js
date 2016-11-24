@@ -58,6 +58,12 @@ export function select(
   };
 }
 
+export function selectLast(pointer: QueryPointer<Query>): QueryPointer<Query> {
+  // $FlowFixMe: make sure we type it as a pipeline
+  let lastIdx = pointer.query.pipeline.length - 1;
+  return select(pointer, ['pipeline', lastIdx]);
+}
+
 export function spread(
   pointer: QueryPointer<Query>
 ): Array<QueryPointer<Query>> {

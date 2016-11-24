@@ -790,51 +790,21 @@ export function mapExpressionWithTransform<A, B, C>(
 }
 
 /**
- * Resolve name in the current context.
- */
-export function resolveName(context: Context, name: string): t.Type {
-  let {scope, domain, type} = context;
-
-  type = t.regType(type);
-
-  if (type.name === 'record' && t.recordAttribute(type)[name] != null) {
-    return t.recordAttribute(type)[name].type;
-  }
-  if (
-    type.name === 'void' &&
-    domain.entity[name] != null
-  ) {
-    return t.entityType(context.domain, name);
-  }
-  if (
-    type.name === 'record' &&
-    type.entity != null &&
-    domain.entity[type.entity] != null &&
-    domain.entity[type.entity].attribute[name] != null
-  ) {
-    return domain.entity[type.entity].attribute[name].type;
-  }
-
-  if (scope[name] != null) {
-    let ctx = inferQueryType(context, scope[name].query).context;
-    return ctx.type;
-  }
-
-  return t.invalidType(domain);
-}
-
-/**
  * Resolve path in the current context.
  */
 export function resolvePath(context: Context, path: Array<string>): t.Type {
-  let type = t.invalidType(context.domain);
-  for (let i = 0; i < path.length; i++) {
-    type = resolveName(context, path[i]);
-    if (type.name === 'invalid') {
-      return type;
-    } else {
-      context = (({...context, type}: any): Context);
-    }
-  }
-  return type;
+  let query = select({
+    __a__: pipeline(...path.map(item => navigate(item)))
+  });
+  let type = inferQueryType(context, query).context.type;
+  invariant(
+    type.name === 'record',
+    'Impossible'
+  );
+  let attribute = t.recordAttribute(type);
+  invariant(
+    attribute.__a__ != null,
+    'Impossible'
+  );
+  return attribute.__a__.type;
 }

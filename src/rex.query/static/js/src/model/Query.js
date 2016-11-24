@@ -264,6 +264,12 @@ function withContext<Q: Query>(query: Q, context: Context): Q {
   return (nextQuery: Q);
 }
 
+export function regularizeContext(context: Context): Context {
+  let type = t.regType(context.type);
+  let nextContext: any = {...context, type};
+  return nextContext;
+}
+
 export function inferExpressionType(context: Context, query: Expression): Expression {
   if (query.name === 'logicalBinary') {
     return {

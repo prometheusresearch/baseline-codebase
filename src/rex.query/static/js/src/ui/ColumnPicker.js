@@ -209,9 +209,18 @@ class ColumnPickerButton extends React.Component {
 
   render() {
     let {column, pointer, disabled} = this.props;
+    let title;
+    if (pointer != null) {
+      title = `Hide ${column.label} in the output`;
+    } else if (column.card === 'seq') {
+      title = `Show ${column.label} in the output. The count will be shown because the attribute is plural`;
+    } else {
+      title = `Show ${column.label} in the output.`;
+    }
     return (
       <MenuButton
         disabled={disabled}
+        title={title}
         selected={pointer != null}
         icon={pointer != null ? '✓' : null}
         menu={
@@ -219,12 +228,14 @@ class ColumnPickerButton extends React.Component {
             column.type === 'record' &&
               <MenuButtonSecondary
                 icon={<PlusIcon />}
+                title={`Add ${column.label} query`}
                 onClick={this.onAddQuery}
                 key="define">
                 Add {column.label}
               </MenuButtonSecondary>,
             <MenuButtonSecondary
               icon="⇩"
+              title={`Focus on ${column.label} and discard all other attributes`}
               onClick={this.onNavigate}
               key="navigate">
               Focus {column.label}

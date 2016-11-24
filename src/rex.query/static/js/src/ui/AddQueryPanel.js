@@ -2,11 +2,12 @@
  * @flow
  */
 
-import type {Type, Query, QueryPipeline, QueryPointer} from '../model';
+import type {Context, Type, Query, QueryPipeline, QueryPointer} from '../model';
 import type {Actions} from '../state';
 
 import React from 'react';
 import {VBox} from '@prometheusresearch/react-box';
+import {style} from 'react-stylesheet';
 import * as css from 'react-stylesheet/css';
 
 import * as t from '../model/Type';
@@ -184,7 +185,7 @@ class AddQueryMenu extends React.Component<*, AddQueryMenuProps, *> {
 
 function AddQueryMenuSection({query, path, onAdd, onNavigate, noNavigate}) {
   let prev = path[path.length - 2];
-  let nav = getNavigation(query)
+  let nav = getNavigation(query.context)
     // We filter out backlinks.
     .filter(item => item.value !== prev);
   return (
@@ -236,6 +237,7 @@ class AddQueryMenuButton extends React.Component {
       menu.push(
         <MenuButtonSecondary
           icon="⇩"
+          title={`Focus on ${item.label} and discard all other attributes`}
           onClick={this.onNavigate}
           key="navigate">
           Focus {item.label}
@@ -250,16 +252,24 @@ class AddQueryMenuButton extends React.Component {
     }
 
     return (
-      <VBox style={{background: '#f1f1f1'}}>
+      <VBox style={{
+        background: '#f1f1f1',
+        borderBottom: open ? '1px solid #ddd' : 'none',
+      }}>
         <MenuButton
           icon={icon}
-          title="Add query"
+          title={`Add ${item.label} query`}
           iconTitle={open ? "Collapse" : "Expand"}
-          style={{fontWeight: open ? 400 : 200}}
           onClick={this.onAddQuery}
           onIconClick={this.toggleOpen}
           menu={menu.length > 0 ? menu : null}>
-          {item.label}
+          <div style={{fontWeight: open ? 400 : 200}}>
+            {item.label}
+          </div>
+          <QueryType
+            value={item.value}
+            type={item.query.context.type}
+            />
         </MenuButton>
         {open &&
           <VBox
@@ -278,8 +288,38 @@ class AddQueryMenuButton extends React.Component {
   }
 }
 
-function getNavigation(query: Query) {
-  let {context} = query;
+function QueryType({value, type}) {
+  let name;
+  if (type.name === 'record') {
+    if (type.entity) {
+      name = type.entity;
+    } else {
+      name = 'query';
+    }
+  } else {
+    name = type.name;
+  }
+  if (type.card === 'seq') {
+    name += ' list';
+  } else if (type.card === 'opt') {
+    name += ' (optional)';
+  }
+  return <QueryTypeRoot>{name}</QueryTypeRoot>;
+}
+
+let QueryTypeRoot = style('div', {
+  base: {
+    textTransform: 'none',
+    color: '#888',
+    fontSize: '10px',
+    position: 'absolute',
+    right: 10,
+    height: 10,
+    top: 'calc(50% - 5px)',
+  }
+});
+
+function getNavigation(context: Context) {
   let {type, scope, domain} = context;
   let navigation = [];
 
@@ -287,7 +327,7 @@ function getNavigation(query: Query) {
   if (type.name === 'void') {
     for (let k in domain.entity) {
       if (domain.entity.hasOwnProperty(k)) {
-        let navQuery = q.inferQueryType(context, q.navigate(k));
+        let navQuery = q.inferQueryType(q.regularizeContext(context), q.navigate(k));
         navigation.push({
           type: 'record',
           value: k,
@@ -300,7 +340,7 @@ function getNavigation(query: Query) {
     let attribute = t.recordAttribute(type);
     for (let k in attribute) {
       if (attribute.hasOwnProperty(k)) {
-        let navQuery = q.inferQueryType(context, q.navigate(k));
+        let navQuery = q.inferQueryType(q.regularizeContext(context), q.navigate(k));
         navigation.push({
           type: navQuery.context.type.name === 'record'
             ? 'record'
@@ -315,7 +355,7 @@ function getNavigation(query: Query) {
 
   for (let k in scope) {
     if (scope.hasOwnProperty(k)) {
-      let navQuery = q.inferQueryType(context, scope[k].query);
+      let navQuery = q.inferQueryType(q.regularizeContext(context), scope[k].query);
       navigation.push({
         type: 'record',
         value: k,

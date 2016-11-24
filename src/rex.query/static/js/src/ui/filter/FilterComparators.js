@@ -325,14 +325,17 @@ class IsNotOneOf extends IsOneOf {
 
 
 class Empty {
+
   label = 'is empty';
   value = 'empty';
 
   identify(expression) {
     if (
-      expression.name === 'not'
-      && expression.expression.name === 'exists'
-      && expression.expression.expression.name === 'navigate'
+      expression.name === 'unary' &&
+      expression.op === 'not' &&
+      expression.expression.name === 'unary' &&
+      expression.expression.op === 'exists' &&
+      expression.expression.expression.name === 'navigate'
     ) {
       return {
         field: expression.expression.expression.path,
@@ -343,12 +346,21 @@ class Empty {
   }
 
   applicable(field) {
-    return !!(
+    return (
       isOfType(
         field,
-        ['text', 'number', 'enumeration', 'boolean', 'date', 'time', 'datetime']
+        [
+          'text',
+          'number',
+          'enumeration',
+          'boolean',
+          'date',
+          'time',
+          'datetime',
+          'record'
+        ]
       ) &&
-      field.context.type && field.context.type.card === 'opt'
+      field.context.type.card != null
     );
   }
 
@@ -363,12 +375,14 @@ class Empty {
 
 
 class NotEmpty extends Empty {
+
   label = 'is not empty';
   value = 'notEmpty';
 
   identify(expression) {
     if (
-      expression.name === 'exists' &&
+      expression.name === 'unary' &&
+      expression.op === 'exists' &&
       expression.expression.name === 'navigate'
     ) {
       return {

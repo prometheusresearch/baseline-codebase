@@ -160,19 +160,15 @@ function QueryVisToolbarButton({children, selected, icon, disabled, emphasis, ..
 }
 
 function canAggregateAt(type: Type) {
-  return isSeqAt(type);
+  return type.card === 'seq';
 }
 
 function canFilterAt(type: Type) {
-  return isSeqAt(type);
+  return type.name === 'record' && type.card === 'seq';
 }
 
 function canNavigateAt(type: Type) {
   return type.name === 'record' || type.name === 'void';
-}
-
-function isSeqAt(type: Type) {
-  return type.card === 'seq';
 }
 
 function hasGroupByAt(type: Type) {

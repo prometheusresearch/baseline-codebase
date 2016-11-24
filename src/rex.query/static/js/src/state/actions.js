@@ -469,7 +469,9 @@ export function appendNavigateAndAggregate(params: {
           'Expected "pipeline" query'
         );
         let pipeline = query.pipeline.slice(0);
-        pipeline.pop();
+        if (pipeline[pipeline.length - 1].name === 'select') {
+          pipeline.pop();
+        }
         if (path.length) {
           pipeline = pipeline.concat(path.map(p => q.navigate(p)));
         }

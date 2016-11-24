@@ -65,12 +65,6 @@ export default class AddAggregateMenu extends React.Component {
       return <NoAggregateMenu />;
     }
 
-    if (type.name !== 'record') {
-      return <NoAggregateMenu />;
-    }
-
-    let columns = getColumnListToSummarize(type, true);
-
     let items = [];
     for (let name in domain.aggregate) {
       if (!domain.aggregate.hasOwnProperty(name)) {
@@ -90,6 +84,8 @@ export default class AddAggregateMenu extends React.Component {
           />
       );
     }
+
+    let columns = getColumnListToSummarize(type, true);
 
     for (let i = 0; i < columns.length; i++) {
       let {type, path} = columns[i];

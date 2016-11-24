@@ -45,7 +45,7 @@ export default class QueryVisToolbar
     return (
       <VBox height={32} width="100%" style={{backgroundColor: 'white'}}>
         <HBox padding={2} justifyContent="flex-start">
-          {canNavigate &&
+          {(canNavigate || canAggregate || canFilter) &&
             <QueryVisToolbarButton
               emphasis
               disabled={disableAdd}

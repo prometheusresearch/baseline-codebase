@@ -69,13 +69,13 @@ const aggregate = {
     name: 'count',
     title: 'Count',
     makeType: typ => t.numberType(typ.domain),
-    isAllowed: typ => typ.card === 'seq' && isEntityLike(typ),
+    isAllowed: typ => typ.card === 'seq',
   },
   exists: {
     name: 'exists',
     title: 'Exists',
     makeType: typ => t.booleanType(typ.domain),
-    isAllowed: typ => typ.card === 'seq' && isEntityLike(typ),
+    isAllowed: typ => typ.card === 'seq',
   },
   sum: {
     name: 'sum',
@@ -109,12 +109,6 @@ function isNumeric(type: t.Type) {
     type.name === 'date' ||
     type.name === 'time' ||
     type.name === 'datetime'
-  );
-}
-
-function isEntityLike(type: t.Type) {
-  return (
-    type.name === 'record'
   );
 }
 

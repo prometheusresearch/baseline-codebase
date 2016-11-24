@@ -21,7 +21,6 @@ export function chooseFocus(query: QueryPipeline): Focus {
 
 function getFocuses(query: QueryPipeline): Array<Focus> {
   let focusList = getPipelineFocusList(query, [], false);
-  console.log('focusList', focusList);
   return focusList;
 }
 
@@ -72,7 +71,6 @@ function getSelectFocusList(
       continue;
     }
     let item = query.select[k];
-    console.log(query.context.scope);
     if (query.context.scope[k] != null) {
       item = query.context.scope[k].query;
     }

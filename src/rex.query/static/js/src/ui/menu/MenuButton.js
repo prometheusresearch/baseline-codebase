@@ -14,6 +14,7 @@ type MenuButtonProps = {
   selected?: boolean;
   disabled?: boolean;
   onIconClick?: (ev: MouseEvent) => *;
+  iconTitle?: string;
   tabIndex?: number;
   menu?: React$Element<*>;
   children?: React$Element<*>;
@@ -75,6 +76,7 @@ export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
     let {
       icon,
       menu,
+      iconTitle,
       selected,
       disabled,
       children,
@@ -87,18 +89,26 @@ export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
       menuOpen,
     } = this.state;
     let variant = {selected, disabled};
+    let separateHover = icon && onIconClick;
     return (
       <MenuButtonRoot {...rest} variant={variant} tabIndex={tabIndex}>
         <HBox>
-          <MenuButtonWrapper variant={variant}>
-            <VBox
+          <MenuButtonWrapper
+            variant={{...variant, hoverStyle: !separateHover}}>
+            <MenuButtonIconWrapper
+              title={iconTitle}
+              role={onIconClick && 'button'}
+              variant={{hoverStyle: separateHover}}
               onClick={onIconClick}
               width={15}
               paddingRight={20}
               justifyContent="flex-start">
               {icon}
-            </VBox>
-            {children}
+            </MenuButtonIconWrapper>
+            <MenuButtonLabelWrapper
+              variant={{hoverStyle: separateHover}}>
+              {children}
+            </MenuButtonLabelWrapper>
           </MenuButtonWrapper>
           {buttonGroup}
           {menu &&
@@ -182,6 +192,7 @@ let MenuButtonRoot = style(VBox, {
     borderBottom: css.border(1, '#ddd'),
     userSelect: 'none',
     textTransform: 'capitalize',
+    background: '#fff',
   },
   selected: {
     color: '#1f85f5',
@@ -199,13 +210,51 @@ let MenuButtonMenu = style(VBox, {
   }
 });
 
-let MenuButtonWrapper = style(HBox, {
-  displayName: 'MenuButtonWrapper',
+let MenuButtonIconWrapper = style(VBox, {
+  displayName: 'MenuButtonIconWrapper',
+  base: {
+    padding: 8,
+    paddingLeft: 10,
+    paddingRight: 10,
+  },
+  hoverStyle: {
+    hover: {
+      background: '#fafafa',
+    },
+  },
+  disabled: {
+    hover: {
+      background: '#fff',
+    }
+  }
+});
+
+let MenuButtonLabelWrapper = style(HBox, {
+  displayName: 'MenuButtonLabelWrapper',
   base: {
     flexGrow: 1,
     padding: 8,
     paddingLeft: 10,
     paddingRight: 10,
+  },
+  hoverStyle: {
+    hover: {
+      background: '#fafafa',
+    },
+  },
+  disabled: {
+    hover: {
+      background: '#fff',
+    }
+  }
+});
+
+let MenuButtonWrapper = style(HBox, {
+  displayName: 'MenuButtonWrapper',
+  base: {
+    flexGrow: 1,
+  },
+  hoverStyle: {
     hover: {
       background: '#fafafa',
     },

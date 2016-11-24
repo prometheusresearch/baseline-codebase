@@ -6,13 +6,16 @@ import type {Type, Query, QueryPipeline, QueryPointer} from '../model';
 import type {Actions} from '../state';
 
 import React from 'react';
+import {VBox} from '@prometheusresearch/react-box';
+import * as css from 'react-stylesheet/css';
 
+import * as t from '../model/Type';
 import * as q from '../model/Query';
 import * as qp from '../model/QueryPointer';
+
 import * as theme from './Theme';
-import {MenuGroup, MenuButton} from './menu';
+import {MenuGroup, MenuButton, MenuButtonSecondary} from './menu';
 import QueryPanelBase from './QueryPanelBase';
-import ColumnPicker from './ColumnPicker';
 import AddAggregateMenu from './AddAggregateMenu';
 import AddNavigateMenu from './AddNavigateMenu';
 
@@ -119,10 +122,7 @@ export default class AddQueryPanel extends React.Component<*, AddColumnPanelProp
                   Focus
                 </MenuButton>}
             </MenuGroup>}
-          <ColumnPicker
-            showAddMenu
-            onSelect={this.onSelect}
-            onSelectRemove={this.onSelectRemove}
+          <AddQueryMenu
             pointer={pointer}
             />
         </QueryPanelBase>
@@ -154,6 +154,196 @@ export default class AddQueryPanel extends React.Component<*, AddColumnPanelProp
       );
     }
   }
+}
+
+type AddQueryMenuProps = {
+  pointer: QueryPointer<QueryPipeline>;
+};
+
+class AddQueryMenu extends React.Component<*, AddQueryMenuProps, *> {
+
+  context: {
+    actions: Actions;
+  };
+
+  static contextTypes = {
+    actions: React.PropTypes.object,
+  };
+
+  onAdd = ({path}) => {
+    this.context.actions.appendDefine({
+      pointer: this.props.pointer,
+      path,
+      select: true,
+    });
+  };
+
+  onNavigate = ({path}) => {
+    this.context.actions.appendNavigate({
+      pointer: this.props.pointer,
+      path,
+    });
+  };
+
+  render() {
+    let {pointer} = this.props;
+
+    return (
+      <MenuGroup title="Relationships">
+        <AddQueryMenuSection
+          noNavigate={pointer.query.context.type.name === 'void'}
+          onAdd={this.onAdd}
+          onNavigate={this.onNavigate}
+          query={pointer.query}
+          path={[]}
+          />
+      </MenuGroup>
+    );
+  }
+}
+
+function AddQueryMenuSection({query, path, onAdd, onNavigate, noNavigate}) {
+  let prev = path[path.length - 2];
+  let nav = getNavigation(query)
+    // We filter out backlinks.
+    .filter(item => item.value !== prev);
+  return (
+    <VBox>
+      {nav.map(item =>
+        <AddQueryMenuButton
+          noNavigate={noNavigate}
+          key={item.value}
+          item={item}
+          path={path.concat(item.value)}
+          onAdd={onAdd}
+          onNavigate={onNavigate}
+          />)}
+    </VBox>
+  );
+}
+
+class AddQueryMenuButton extends React.Component {
+
+  state: {
+    open: boolean
+  } = {
+    open: false
+  };
+
+  toggleOpen = (e: UIEvent) => {
+    e.stopPropagation();
+    if (this.props.item.type !== 'attribute') {
+      this.setState(state =>
+        ({...state, open: !state.open}));
+    }
+  };
+
+  onAddQuery = (e: UIEvent) => {
+    e.stopPropagation();
+    this.props.onAdd({path: this.props.path});
+  };
+
+  onNavigate = () => {
+    this.props.onNavigate({path: this.props.path});
+  };
+
+  render() {
+    let {item, path, onAdd, onNavigate, noNavigate} = this.props;
+    let {open} = this.state;
+
+    let menu = [];
+    if (!noNavigate) {
+      menu.push(
+        <MenuButtonSecondary
+          onClick={this.onNavigate}
+          key="navigate">
+          Focus on {item.label}
+        </MenuButtonSecondary>
+      );
+    }
+
+    let icon = null;
+    if (item.type !== 'attribute') {
+      icon = open ? '▾' : '▸';
+    }
+
+    return (
+      <VBox style={{background: '#eeeeee'}}>
+        <MenuButton
+          icon={icon}
+          title="Add query"
+          iconTitle={open ? "Collapse" : "Expand"}
+          style={{fontWeight: open ? 400 : 200}}
+          onClick={this.onAddQuery}
+          onIconClick={this.toggleOpen}
+          menu={menu.length > 0 ? menu : null}>
+          {item.label}
+        </MenuButton>
+        {open &&
+          <VBox
+            marginLeft={15}
+            style={{borderLeft: css.border(1, '#ddd')}}>
+            <AddQueryMenuSection
+              onAdd={onAdd}
+              onNavigate={onNavigate}
+              query={item.query}
+              path={path}
+              noNavigate={noNavigate}
+            />
+          </VBox>}
+      </VBox>
+    );
+  }
+}
+
+function getNavigation(query: Query) {
+  let {context} = query;
+  let {type, scope, domain} = context;
+  let navigation = [];
+
+  // Collect paths from an input type
+  if (type.name === 'void') {
+    for (let k in domain.entity) {
+      if (domain.entity.hasOwnProperty(k)) {
+        let navQuery = q.inferQueryType(context, q.navigate(k));
+        navigation.push({
+          type: 'record',
+          value: k,
+          label: domain.entity[k].title,
+          query: navQuery,
+        });
+      }
+    }
+  } else if (type.name === 'record') {
+    let attribute = t.recordAttribute(type);
+    for (let k in attribute) {
+      if (attribute.hasOwnProperty(k)) {
+        let navQuery = q.inferQueryType(context, q.navigate(k));
+        navigation.push({
+          type: navQuery.context.type.name === 'record'
+            ? 'record'
+            : 'attribute',
+          value: k,
+          label: attribute[k].title || k,
+          query: navQuery,
+        });
+      }
+    }
+  }
+
+  for (let k in scope) {
+    if (scope.hasOwnProperty(k)) {
+      let navQuery = q.inferQueryType(context, scope[k].query);
+      navigation.push({
+        type: 'record',
+        value: k,
+        label: k,
+        query: navQuery,
+      });
+    }
+  }
+
+  return navigation;
 }
 
 function getPipeline(pointer: QueryPointer<>): ?QueryPointer<QueryPipeline> {

@@ -309,7 +309,6 @@ class ColumnPickerButton extends React.Component {
 
   render() {
     let {column, pointer, disabled} = this.props;
-    console.log(this.props);
     return (
       <MenuButton
         disabled={disabled}

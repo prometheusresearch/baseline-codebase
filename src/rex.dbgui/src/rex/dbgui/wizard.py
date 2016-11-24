@@ -116,12 +116,13 @@ class WizardProxy(object):
             and identity[0].target_table.label == table_name:
                 next.extend(cls.record_path(
                     table.label,
-                    context=context + [table_name]
+                    context=context + ([table_name] if not view._is_facet else [])
                 ))
                 continue
             links = [f for f in identity
                        if f.is_link and f.target_table.label == table_name]
             if len(links) == 1 and links[0] not in context:
+                print view.entity, table.label, view._is_facet
                 if view._is_facet:
                     mask = '%s.%s=$%s' % (links[0].label,
                                           view.entity.values()[0],
@@ -139,6 +140,8 @@ class WizardProxy(object):
         return ret
 
 def to_complete_entity(entity):
+    if entity == 'table':
+        return {'_table': 'table'}
     if entity == 'user':
         return {'_user': 'user'}
     else:
@@ -186,8 +189,9 @@ class TableActionProxy(ActionProxy):
         self.entity = to_complete_entity(self.entity)
         self.fields, self.value = self.get_fields_value(table, field_prefix,
                                                         context)
+        if context:
+            self.id = '%s--%s' % (self.id, '-'.join([c for c in context]))
         self.input = [to_complete_entity(item) for item in context]
-        #print table, type, self.fields
         for attr, value in kwds.items():
             setattr(self, attr, value)
 
@@ -202,11 +206,11 @@ class TableActionProxy(ActionProxy):
                 identity = table.identity().fields
                 if len(identity) == 1 and identity[0].is_link:
                     if identity[0].target_table.label == parent:
-                        field_prefix.insert(0, table_name)
+                        field_prefix.append(table_name)
                         entity = parent
                         break
                     else:
-                        field_prefix.insert(0, identity[0].target_table.label)
+                        field_prefix.append(identity[0].target_table.label)
                         table = identity[0].target_table
                 else:
                     field_prefix = []

@@ -20,7 +20,7 @@ export function fromHash() {
       defaultRemainder,
       '/view-source',
     ].map((s) => {
-      [s + '/', s + '?'].map((start) => {
+      [s + '/', s + '?', s + '['].map((start) => {
         if (remainder.substr(0, start.length) == start) {
           remainderAllowed = true;
         }

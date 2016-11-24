@@ -4,6 +4,13 @@
 
 .. contents:: Table of Contents
 
+4.1.3 ()
+========================
+
+* Fixed bug when rendering facet-of-facet and facet->facet->children table
+  schemas
+
+
 4.1.2 (2016-10-26)
 ==================
 

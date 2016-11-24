@@ -9,6 +9,7 @@ import React from 'react';
 import {VBox} from '@prometheusresearch/react-box';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
+import PlusIcon from './PlusIcon';
 import * as feature from '../feature';
 import * as t from '../model/Type';
 import * as q from '../model/Query';
@@ -215,17 +216,19 @@ class ColumnPickerButton extends React.Component {
         icon={pointer != null ? '✓' : null}
         menu={
           feature.ENABLE_ATTRIBUTE_CONTEXT_MENU && !disabled && [
-            <MenuButtonSecondary
-              onClick={this.onNavigate}
-              key="navigate">
-              Focus on {column.label}
-            </MenuButtonSecondary>,
             column.type === 'record' &&
               <MenuButtonSecondary
+                icon={<PlusIcon />}
                 onClick={this.onAddQuery}
                 key="define">
-                Add new query with {column.label}
-              </MenuButtonSecondary>
+                Add {column.label}
+              </MenuButtonSecondary>,
+            <MenuButtonSecondary
+              icon="⇩"
+              onClick={this.onNavigate}
+              key="navigate">
+              Focus {column.label}
+            </MenuButtonSecondary>,
           ]
         }
         onClick={this.onSelect}>

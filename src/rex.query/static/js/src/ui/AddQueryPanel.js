@@ -235,6 +235,7 @@ class AddQueryMenuButton extends React.Component {
     if (!noNavigate) {
       menu.push(
         <MenuButtonSecondary
+          icon="⇩"
           onClick={this.onNavigate}
           key="navigate">
           Focus on {item.label}

@@ -76,7 +76,8 @@ class BasicBinaryComparator {
   types: Array<string>;
 
   applicable(field) {
-    return isOfType(field, this.types);
+    let type = field.context.type;
+    return type.card !== 'seq' && isOfType(field, this.types);
   }
 
   identify(query: Expression): ?Identification {
@@ -109,6 +110,11 @@ class BasicBinaryComparator {
       return null;
     }
     switch (type.name) {
+
+      case 'record':
+        Component = operands.TextOperand;
+        break;
+
       case 'text':
         Component = operands.TextOperand;
         break;
@@ -163,7 +169,7 @@ class Equal extends BasicBinaryComparator {
 
   label = 'is equal'
   value = 'equal';
-  types = ['text', 'number', 'date', 'time', 'datetime'];
+  types = ['text', 'number', 'date', 'time', 'datetime', 'record'];
 }
 
 class NotEqual extends BasicBinaryComparator {

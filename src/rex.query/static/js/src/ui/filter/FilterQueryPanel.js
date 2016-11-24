@@ -316,9 +316,9 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
     let {onClose, pointer} = this.props;
     let {expressions} = this.state;
 
-    let fields = nav.getNavigationAfter(pointer.query.context).filter((field) => {
-      let atom = field.context.type;
-      return (atom && (atom.name !== 'record'));
+    let fields = nav.getNavigationAfter(pointer.query.context).filter(field => {
+      let type = field.context.type;
+      return type.name !== 'invalid';
     });
 
     let conditions = expressions.map((exp, idx) => {

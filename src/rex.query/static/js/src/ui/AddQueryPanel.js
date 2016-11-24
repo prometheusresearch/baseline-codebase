@@ -18,6 +18,7 @@ import * as theme from './Theme';
 import {MenuGroup, MenuButton, MenuButtonSecondary} from './menu';
 import QueryPanelBase from './QueryPanelBase';
 import AddAggregateMenu from './AddAggregateMenu';
+import PlusIcon from './PlusIcon';
 
 type AddColumnPanelProps = {
   pointer: QueryPointer<Query>;
@@ -169,10 +170,13 @@ class AddQueryMenu extends React.Component<*, AddQueryMenuProps, *> {
   render() {
     let {pointer} = this.props;
 
+    let isAtRoot = pointer.query.context.type.name === 'void';
+
     return (
       <MenuGroup title="Relationships">
         <AddQueryMenuSection
-          noNavigate={pointer.query.context.type.name === 'void'}
+          noNavigate={isAtRoot}
+          nonHierarchical={isAtRoot}
           onAdd={this.onAdd}
           onNavigate={this.onNavigate}
           query={pointer.query}
@@ -183,7 +187,9 @@ class AddQueryMenu extends React.Component<*, AddQueryMenuProps, *> {
   }
 }
 
-function AddQueryMenuSection({query, path, onAdd, onNavigate, noNavigate}) {
+function AddQueryMenuSection({
+  query, path, onAdd, onNavigate, noNavigate, nonHierarchical
+}) {
   let prev = path[path.length - 2];
   let nav = getNavigation(query.context)
     // We filter out backlinks.
@@ -192,6 +198,7 @@ function AddQueryMenuSection({query, path, onAdd, onNavigate, noNavigate}) {
     <VBox>
       {nav.map(item =>
         <AddQueryMenuButton
+          nonHierarchical={nonHierarchical}
           noNavigate={noNavigate}
           key={item.value}
           item={item}
@@ -229,7 +236,7 @@ class AddQueryMenuButton extends React.Component {
   };
 
   render() {
-    let {item, path, onAdd, onNavigate, noNavigate} = this.props;
+    let {item, path, onAdd, onNavigate, noNavigate, nonHierarchical} = this.props;
     let {open} = this.state;
 
     let menu = [];
@@ -247,7 +254,9 @@ class AddQueryMenuButton extends React.Component {
 
     let icon = null;
 
-    if (item.query.context.type.name === 'record') {
+    if (nonHierarchical) {
+      icon = <PlusIcon />;
+    } else if (item.query.context.type.name === 'record') {
       icon = open ? '▾' : '▸';
     }
 
@@ -261,7 +270,7 @@ class AddQueryMenuButton extends React.Component {
           title={`Add ${item.label} query`}
           iconTitle={open ? "Collapse" : "Expand"}
           onClick={this.onAddQuery}
-          onIconClick={this.toggleOpen}
+          onIconClick={!nonHierarchical && this.toggleOpen}
           menu={menu.length > 0 ? menu : null}>
           <div style={{fontWeight: open ? 400 : 200}}>
             {item.label}
@@ -271,7 +280,7 @@ class AddQueryMenuButton extends React.Component {
             type={item.query.context.type}
             />
         </MenuButton>
-        {open &&
+        {!nonHierarchical && open &&
           <VBox
             marginLeft={15}
             style={{borderLeft: css.border(1, '#ddd')}}>

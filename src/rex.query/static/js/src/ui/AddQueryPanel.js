@@ -243,12 +243,13 @@ class AddQueryMenuButton extends React.Component {
     }
 
     let icon = null;
-    if (item.type !== 'attribute') {
+
+    if (item.query.context.type.name === 'record') {
       icon = open ? '▾' : '▸';
     }
 
     return (
-      <VBox style={{background: '#eeeeee'}}>
+      <VBox style={{background: '#f1f1f1'}}>
         <MenuButton
           icon={icon}
           title="Add query"

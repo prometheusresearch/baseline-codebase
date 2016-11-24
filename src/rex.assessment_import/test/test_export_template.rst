@@ -59,3 +59,27 @@ use ImportPackage.as_xls_file metod to process data as xls::
   >>> print xls_file_name
   qctest1.xls
 
+use ImportPackage.as_csv_file metod to process data as csv file, when package
+contains only one data chunk::
+
+  >>> output = export_template(instrument_uid='calctest', version=1, verbose=True)
+  Looking for instrument...
+  Generating instrument template...
+
+  >>> csv_file_name, csv_file_content = output.as_csv_file()
+  >>> print csv_file_name
+  calctest1.csv
+
+When package consists on more than one chunks, ImportPackage.as_csv_file fails::
+
+  >>> output = export_template(instrument_uid='qctest', version=1, verbose=True)
+  Looking for instrument...
+  Generating instrument template...
+
+  >>> print len(output.chunks)
+  9
+
+  >>> csv_file_name, csv_file_content = output.as_csv_file()
+  Traceback (most recent call last):
+  ...
+  Error: Unable to generate csv file for more than one chunk

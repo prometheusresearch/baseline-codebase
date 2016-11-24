@@ -131,7 +131,7 @@ Use method as_xls_file to generate xls file content::
 
   >>> filename, filecontent = package.as_xls_file()
   >>> print filename, len(filecontent)
-  eeg-upload1.xls 860160
+  eeg-upload1.xls 888832
 
 as_zip_file
 +++++++++++
@@ -140,7 +140,7 @@ Use method as_zip_file to generate zip file content with a bunch of csv files::
 
   >>> filename, filecontent = package.as_zip_file()
   >>> print filename, len(filecontent)
-  eeg-upload1.zip 313680
+  eeg-upload1.zip 316686
 
 Saving failed data
 ==================

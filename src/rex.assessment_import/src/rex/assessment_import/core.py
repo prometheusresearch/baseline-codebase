@@ -17,6 +17,8 @@ def import_assessment(instrument_uid, version=None, input=None, verbose=False):
         raise Error("input is expected.")
     if not isinstance(input, ImportPackage):
         raise Error("input is expected as an object of ImportPackage.")
+    if not input.chunks:
+        raise Error("No data to import.")
     assessment_impl = get_implementation('assessment')
     if verbose: print "Looking for instrument..."
     instrument = Instrument.find(instrument_uid, version)

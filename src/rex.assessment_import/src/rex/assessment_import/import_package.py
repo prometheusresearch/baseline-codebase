@@ -146,6 +146,8 @@ class ImportPackage(object):
         chunks = []
         with zipfile.ZipFile(path, 'r') as zf:
             for filepath in zf.namelist():
+                head, filepath = os.path.split(filepath)
+                if head: continue
                 name, ext = os.path.splitext(os.path.basename(filepath))
                 if ext != '.csv': continue
                 with zf.open(filepath, 'rU') as csvfile:
@@ -180,6 +182,18 @@ class ImportPackage(object):
 
     def __iter__(self):
         return iter(self.chunks)
+
+    def as_csv_file(self):
+        if len(self.chunks) > 1:
+            raise Error("Unable to generate csv file for more than one chunk")
+        csvcontent = StringIO()
+        writer = csv.DictWriter(csvcontent,
+                                fieldnames=self.chunks[0].data[0].keys())
+        writer.writeheader()
+        for row in self.chunks[0].data:
+            writer.writerow(row)
+        csvfilename = self.chunks[0].id + '.csv'
+        return (csvfilename, csvcontent.getvalue())
 
     def as_zip_file(self):
         zipcontent = StringIO()

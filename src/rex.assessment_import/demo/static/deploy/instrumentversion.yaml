@@ -13,4 +13,10 @@
       published_by: someone
       date_published: '2016-10-10'
       definition: !include/str eeg_upload.js
+    - uid: calctest1
+      instrument: [calctest]
+      version: 1
+      published_by: someone
+      date_published: '2016-10-10'
+      definition: !include/str calctest.js
 

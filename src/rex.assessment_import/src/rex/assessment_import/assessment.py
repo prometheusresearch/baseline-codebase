@@ -185,7 +185,7 @@ class Assessment(object):
                 delta = datetime.timedelta(days=value)
                 return time.strftime("%H:%M:%S",time.gmtime(delta.seconds))
             if isinstance(value, basestring) \
-            and re.match(r'^\d\d:\d\d:\d\d$', value, re.UNICODE):
+            and re.match(r'^\d?\d:\d\d:\d\d$', value, re.UNICODE):
                 return value
             raise Error(" Got unexpected value %(value)s of"
                             " %(base_type)s type,"

@@ -113,7 +113,6 @@ export default class DefineQueryPanel
         </MenuTitle>
         {hasConfigurableColumns ?
           <ColumnPicker
-            showSelectMenu
             onSelect={this.onSelect}
             onSelectRemove={this.onSelectRemove}
             pointer={last}

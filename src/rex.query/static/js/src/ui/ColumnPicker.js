@@ -14,7 +14,6 @@ import * as t from '../model/Type';
 import * as q from '../model/Query';
 import * as qp from '../model/QueryPointer';
 import {MenuGroup, MenuButton, MenuButtonSecondary} from './menu';
-import PlusIcon from './PlusIcon';
 
 type Navigation = {
   type: 'record' | 'attribute';
@@ -30,8 +29,6 @@ type ColumnPickerProps = {
   pointer: QueryPointer<Query>;
   onSelect: (payload: {path: string}) => *;
   onSelectRemove: (payload: {path: string, pointer: QueryPointer<>}) => *;
-  showAddMenu?: boolean;
-  showSelectMenu?: boolean;
 };
 
 export default class ColumnPicker extends React.Component<*, ColumnPickerProps, *> {
@@ -55,8 +52,6 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
       pointer,
       onSelect,
       onSelectRemove,
-      showAddMenu,
-      showSelectMenu,
     } = this.props;
     let {type} = pointer.query.context;
     let active = getNavigationPointerMap(pointer);
@@ -100,42 +95,22 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
     });
     return (
       <VBox>
-        {showSelectMenu &&
-          <VBox padding={10}>
-            <ReactUI.Input
-              placeholder="Search columns…"
-              value={searchTerm === null ? '' : searchTerm}
-              onChange={this.onSearchTerm}
-              />
-          </VBox>}
+        <VBox padding={10}>
+          <ReactUI.Input
+            placeholder="Search columns…"
+            value={searchTerm === null ? '' : searchTerm}
+            onChange={this.onSearchTerm}
+            />
+        </VBox>
         <VBox paddingBottom={10}>
-          {/* FIXME: decide on what */ false && showAddMenu && canFilterAt(type) &&
-            <VBox paddingBottom={10}>
-              <FilterMenu
-                onFilter={this.onFilter}
-                />
-            </VBox>}
-          {/* FIXME: decide on what */ false && showAddMenu && canAggregateAt(type) &&
-            <VBox paddingBottom={10}>
-              <AggregateMenu
-                onAggregate={this.onAggregate}
-                />
-            </VBox>}
-          {showAddMenu && entityList.length > 0 &&
-            <VBox paddingBottom={10}>
-              <DefineMenu
-                menu={entityList}
-                onSelect={this.onDefine}
-                />
-            </VBox>}
-          {showSelectMenu && groupByAttributeList.length > 0 &&
+          {groupByAttributeList.length > 0 &&
             <VBox paddingBottom={10}>
               <MenuGroup
                 title="Group by columns">
                 {groupByAttributeList}
               </MenuGroup>
             </VBox>}
-          {showSelectMenu && queryList.length > 0 &&
+          {queryList.length > 0 &&
             <VBox paddingBottom={10}>
               <MenuGroup
                 title={
@@ -146,7 +121,7 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
                 {queryList}
               </MenuGroup>
             </VBox>}
-          {showSelectMenu && attributeList.length > 0 &&
+          {attributeList.length > 0 &&
             <VBox paddingBottom={10}>
               <MenuGroup title="Attributes">
                 {attributeList}
@@ -196,82 +171,6 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
     let target: {value: string} = (e.target: any);
     this.setState({searchTerm: target.value === '' ? null : target.value});
   };
-}
-
-class FilterMenu extends React.Component {
-
-  props: {
-    onFilter: () => *;
-  };
-
-  onClick = (ev: UIEvent) => {
-    ev.stopPropagation();
-    this.props.onFilter();
-  }
-
-  render() {
-    return (
-      <MenuGroup>
-        <MenuButton onClick={this.onClick}>
-          Add Filter
-        </MenuButton>
-      </MenuGroup>
-    );
-  }
-}
-
-class AggregateMenu extends React.Component {
-
-  props: {
-    onAggregate: (aggregateName: string) => *;
-  };
-
-  onClick = (aggregateName, ev: UIEvent) => {
-    ev.stopPropagation();
-    this.props.onAggregate(aggregateName);
-  }
-
-  render() {
-    return (
-      <MenuGroup title="Aggregate with">
-        <MenuButton onClick={this.onClick.bind(null, 'count')}>
-          Count
-        </MenuButton>
-      </MenuGroup>
-    );
-  }
-}
-
-class DefineMenu extends React.Component {
-
-  props: {
-    menu: Array<Navigation>;
-    onSelect: (nav: Navigation) => *;
-  };
-
-  onClick = (item, ev: UIEvent) => {
-    ev.stopPropagation();
-    this.props.onSelect(item);
-  }
-
-  render() {
-    let {menu} = this.props;
-    let buttonList = menu.map(item =>
-      <MenuButton
-        key={item.value}
-        icon={<PlusIcon />}
-        onClick={this.onClick.bind(null, item)}>
-        <VBox grow={1} justifyContent="center">
-          {item.label}
-        </VBox>
-      </MenuButton>
-    );
-    return (
-      <MenuGroup title="Relationships">
-        {buttonList}
-      </MenuGroup>
-    );
-  }
 }
 
 class ColumnPickerButton extends React.Component {
@@ -450,18 +349,6 @@ function getNavigationPointerMapImpl(
       return noNavigation;
     },
   });
-}
-
-function canAggregateAt(type: Type) {
-  return isSeqAt(type);
-}
-
-function canFilterAt(type: Type) {
-  return isSeqAt(type);
-}
-
-function isSeqAt(type: Type) {
-  return type.card === 'seq';
 }
 
 function getPipelineInsertionPoint(pointer: QueryPointer<>) {

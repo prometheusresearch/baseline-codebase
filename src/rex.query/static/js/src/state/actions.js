@@ -354,7 +354,7 @@ export function appendNavigate(
     }
     let {query} = op.insertAfter(
       {pointer, selected: state.selected},
-      q.pipeline(...path.map(q.navigate))
+      q.pipeline(...path.map(q.use))
     );
     return onQuery(state, query, state.selected || state.prevSelected);
   };
@@ -383,8 +383,8 @@ export function appendDefine(
         : 'query'
     );
     let expression = path != null
-      ? q.pipeline(...path.map(q.navigate))
-      : q.pipeline(q.navigate(''));
+      ? q.pipeline(...path.map(q.use))
+      : q.pipeline(q.use(''));
     let {query, selected} = op.insertAfter(
       {pointer, selected: state.selected},
       q.def(name, expression),
@@ -473,7 +473,7 @@ export function appendNavigateAndAggregate(params: {
           pipeline.pop();
         }
         if (path.length) {
-          pipeline = pipeline.concat(path.map(p => q.navigate(p)));
+          pipeline = pipeline.concat(path.map(p => q.use(p)));
         }
         pipeline.push(q.aggregate(aggregate.name));
         return {
@@ -514,7 +514,7 @@ export function renameDefineBinding(
     });
     let renameNavigation = query => {
       if (query.path === prevName) {
-        query = q.navigate(nextName);
+        query = q.use(nextName);
       }
       return query;
     };

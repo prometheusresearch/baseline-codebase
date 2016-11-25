@@ -24,6 +24,7 @@ export type NavigateQuery = {
   +name: 'navigate';
   +path: string;
   +context: Context;
+  +regular: boolean;
 };
 
 export type SelectQuery = {
@@ -184,7 +185,11 @@ export function value(value: number | string | boolean): ValueQuery {
 }
 
 export function navigate(path: string): NavigateQuery {
-  return {name: 'navigate', path, context: emptyContext};
+  return {name: 'navigate', path, context: emptyContext, regular: false};
+}
+
+export function use(path: string): NavigateQuery {
+  return {name: 'navigate', path, context: emptyContext, regular: true};
 }
 
 export function filter(predicate: Expression): FilterQuery {
@@ -524,11 +529,15 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         }
         let definition = scope[query.path];
         if (definition != null) {
+          let definitionQuery = definition.query;
+          if (query.regular) {
+            definitionQuery = regularizePipeline(definitionQuery);
+          }
           return withContext(query, {
             prev: context,
             domain,
             scope: {},
-            type: inferQueryType(context, definition.query).context.type,
+            type: inferQueryType(context, definitionQuery).context.type,
           });
         }
         // unknown field
@@ -574,6 +583,18 @@ export function inferType<Q: Query>(domain: t.Domain, query: Q): Q {
     scope: {}
   };
   return inferQueryType(context, query);
+}
+
+function regularizePipeline(query: QueryPipeline): QueryPipeline {
+  let last = query.pipeline[query.pipeline.length - 1];
+  if (last && last.name === 'select') {
+    query = {
+      name: 'pipeline',
+      pipeline: query.pipeline.slice(0, query.pipeline.length - 1),
+      context: query.context,
+    };
+  }
+  return query;
 }
 
 export function flattenPipeline(query: QueryPipeline): QueryPipeline {
@@ -802,6 +823,7 @@ export function resolvePath(context: Context, path: Array<string>): t.Type {
   let query = select({
     __a__: pipeline(...path.map(item => navigate(item)))
   });
+  // TODO: just use `inferQueryType(regularizeContext(context), query)`
   let type = inferQueryType(context, query).context.type;
   invariant(
     type.name === 'record',

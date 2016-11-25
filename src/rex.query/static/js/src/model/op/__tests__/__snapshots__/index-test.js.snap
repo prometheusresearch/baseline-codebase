@@ -38,6 +38,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -52,6 +53,7 @@ Object {
       },
       "name": "navigate",
       "path": "name",
+      "regular": false,
     },
   ],
 }
@@ -97,6 +99,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -111,6 +114,7 @@ Object {
       },
       "name": "navigate",
       "path": "name",
+      "regular": false,
     },
   ],
 }
@@ -156,6 +160,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -170,6 +175,7 @@ Object {
       },
       "name": "navigate",
       "path": "sample",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -184,6 +190,7 @@ Object {
       },
       "name": "navigate",
       "path": "name",
+      "regular": false,
     },
   ],
 }
@@ -229,6 +236,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -243,6 +251,7 @@ Object {
       },
       "name": "navigate",
       "path": "sample",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -257,6 +266,7 @@ Object {
       },
       "name": "navigate",
       "path": "name",
+      "regular": false,
     },
   ],
 }
@@ -302,6 +312,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "binding": Object {
@@ -332,6 +343,7 @@ Object {
               },
               "name": "navigate",
               "path": "sample",
+              "regular": false,
             },
             Object {
               "context": Object {
@@ -346,6 +358,7 @@ Object {
               },
               "name": "navigate",
               "path": "name",
+              "regular": false,
             },
           ],
         },
@@ -406,6 +419,7 @@ Object {
       },
       "name": "navigate",
       "path": "name",
+      "regular": false,
     },
   ],
 }
@@ -451,6 +465,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
   ],
 }
@@ -496,6 +511,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
   ],
 }
@@ -541,6 +557,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
   ],
 }
@@ -586,6 +603,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
   ],
 }
@@ -631,6 +649,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -658,6 +677,7 @@ Object {
           },
           "name": "navigate",
           "path": "sample",
+          "regular": false,
         },
       },
     },

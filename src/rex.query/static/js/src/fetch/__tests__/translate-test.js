@@ -65,14 +65,17 @@ describe('translate', function() {
   it('study.define(name := code)', function() {
     let query = pipeline(
       navigate('study'),
-      def('name', navigate('code')),
+      def('name', pipeline(navigate('code'))),
     );
     expect(translate(query)).toEqual(
       ['define',
         ['navigate', 'study'],
         ['=>',
+          'name__regular',
+          ['navigate', 'code']],
+        ['=>',
           'name',
-          ['navigate', 'code']]
+          ['navigate', 'name__regular']]
       ]);
   });
 

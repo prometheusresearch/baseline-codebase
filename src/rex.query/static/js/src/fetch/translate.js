@@ -2,10 +2,11 @@
  * @flow
  */
 
-import type {Query, Expression} from '../model';
+import type {Query, QueryPipeline, NavigateQuery, Expression} from '../model';
 
 import invariant from 'invariant';
 import * as feature from '../feature';
+import * as q from '../model/Query';
 
 const HERE = ['here'];
 
@@ -43,17 +44,39 @@ export default function translate(query: Query): SerializedQuery {
   return translateQuery(query, HERE);
 }
 
+function regularizeName(name) {
+  return name + '__regular';
+}
+
+function regularize(query: NavigateQuery) {
+  if (query.context.prev.scope[query.path] != null) {
+    return regularizeName(query.path);
+  } else {
+    return query.path;
+  }
+}
+
+function translateNavigateQuery(
+  query: NavigateQuery,
+  prev: SerializedQuery
+): SerializedQuery {
+  let path = query.regular
+    ? regularize(query)
+    : query.path;
+  if (prev !== HERE) {
+    return ['.', prev, ['navigate', path]];
+  } else {
+    return ['navigate', path];
+  }
+}
+
 function translateExpression(
   query: Expression,
   prev: SerializedQuery
 ): SerializedQuery {
   switch (query.name) {
     case 'navigate':
-      if (prev !== HERE) {
-        return ['.', prev, ['navigate', query.path]];
-      } else {
-        return ['navigate', query.path];
-      }
+      return translateNavigateQuery(query, prev);
 
     case 'value':
       return query.value;
@@ -84,6 +107,25 @@ function translateExpression(
   }
 }
 
+function partitionPipeline(query: QueryPipeline): [?Query, QueryPipeline] {
+  let last = query.pipeline[query.pipeline.length - 1];
+  if (last && last.name === 'select') {
+    return [
+      last,
+      {
+        name: 'pipeline',
+        pipeline: query.pipeline.slice(0, query.pipeline.length - 1),
+        context: query.context,
+      }
+    ];
+  } else {
+    return [
+      null,
+      query
+    ];
+  }
+}
+
 function translateQuery(
   query: Query,
   prev: SerializedQuery
@@ -100,17 +142,24 @@ function translateQuery(
     }
 
     case 'navigate':
-      if (prev !== HERE) {
-        return ['.', prev, ['navigate', query.path]];
-      } else {
-        return ['navigate', query.path];
-      }
+      return translateNavigateQuery(query, prev);
 
-    case 'define':
+    case 'define': {
+      let [select, pipeline] = partitionPipeline(query.binding.query);
+      let path = regularizeName(query.binding.name);
       return [
-        'define', prev,
-        ['=>', query.binding.name, translate(query.binding.query)]
+        'define',
+        prev,
+        ['=>',
+          path,
+          translate(pipeline)],
+        ['=>',
+          query.binding.name,
+          select != null
+            ? translate(q.pipeline(q.navigate(path), select))
+            : translate(q.navigate(path))]
       ];
+    }
 
     case 'select': {
       let fields = [];

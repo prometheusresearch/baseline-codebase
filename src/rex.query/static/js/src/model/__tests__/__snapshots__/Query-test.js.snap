@@ -21,6 +21,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -32,6 +33,7 @@ Object {
       },
       "name": "navigate",
       "path": "name",
+      "regular": false,
     },
   ],
 }
@@ -60,6 +62,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -71,6 +74,7 @@ Object {
       },
       "name": "navigate",
       "path": "name",
+      "regular": false,
     },
     Object {
       "aggregate": "count",
@@ -112,6 +116,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -125,6 +130,7 @@ Object {
       },
       "name": "navigate",
       "path": "sample",
+      "regular": false,
     },
   ],
 }
@@ -153,6 +159,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -166,6 +173,7 @@ Object {
       },
       "name": "navigate",
       "path": "sample",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -177,6 +185,7 @@ Object {
       },
       "name": "navigate",
       "path": "title",
+      "regular": false,
     },
   ],
 }
@@ -217,6 +226,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "binding": Object {
@@ -245,6 +255,7 @@ Object {
               },
               "name": "navigate",
               "path": "identity",
+              "regular": false,
             },
           ],
         },
@@ -306,6 +317,7 @@ Object {
               },
               "name": "navigate",
               "path": "id",
+              "regular": false,
             },
           ],
         },
@@ -348,6 +360,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "binding": Object {
@@ -376,6 +389,7 @@ Object {
               },
               "name": "navigate",
               "path": "identity",
+              "regular": false,
             },
           ],
         },
@@ -433,6 +447,7 @@ Object {
               },
               "name": "navigate",
               "path": "id",
+              "regular": false,
             },
             Object {
               "context": Object {
@@ -444,6 +459,7 @@ Object {
               },
               "name": "navigate",
               "path": "name",
+              "regular": false,
             },
           ],
         },
@@ -486,6 +502,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "binding": Object {
@@ -512,6 +529,7 @@ Object {
               },
               "name": "navigate",
               "path": "identity",
+              "regular": false,
             },
             Object {
               "context": Object {
@@ -523,6 +541,7 @@ Object {
               },
               "name": "navigate",
               "path": "name",
+              "regular": false,
             },
           ],
         },
@@ -578,6 +597,7 @@ Object {
               },
               "name": "navigate",
               "path": "id",
+              "regular": false,
             },
           ],
         },
@@ -636,6 +656,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "binding": Object {
@@ -668,6 +689,7 @@ Object {
               },
               "name": "navigate",
               "path": "identity",
+              "regular": false,
             },
             Object {
               "context": Object {
@@ -682,6 +704,7 @@ Object {
               },
               "name": "navigate",
               "path": "name",
+              "regular": false,
             },
           ],
         },
@@ -783,6 +806,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "binding": Object {
@@ -819,6 +843,7 @@ Object {
               },
               "name": "navigate",
               "path": "identity",
+              "regular": false,
             },
             Object {
               "context": Object {
@@ -860,6 +885,7 @@ Object {
                       },
                       "name": "navigate",
                       "path": "name",
+                      "regular": false,
                     },
                   ],
                 },
@@ -949,6 +975,7 @@ Object {
               },
               "name": "navigate",
               "path": "id",
+              "regular": false,
             },
           ],
         },
@@ -998,6 +1025,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "binding": Object {
@@ -1022,6 +1050,7 @@ Object {
               },
               "name": "navigate",
               "path": "name",
+              "regular": false,
             },
           ],
         },
@@ -1084,6 +1113,7 @@ Object {
               },
               "name": "navigate",
               "path": "newname",
+              "regular": false,
             },
           ],
         },
@@ -1107,6 +1137,7 @@ Object {
               },
               "name": "navigate",
               "path": "name",
+              "regular": false,
             },
           ],
         },
@@ -1141,6 +1172,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "binding": Object {
@@ -1165,6 +1197,7 @@ Object {
               },
               "name": "navigate",
               "path": "name",
+              "regular": false,
             },
           ],
         },
@@ -1207,6 +1240,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "binding": Object {
@@ -1231,6 +1265,7 @@ Object {
               },
               "name": "navigate",
               "path": "name",
+              "regular": false,
             },
           ],
         },
@@ -1256,6 +1291,7 @@ Object {
       },
       "name": "navigate",
       "path": "nickname",
+      "regular": false,
     },
   ],
 }
@@ -1294,6 +1330,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "binding": Object {
@@ -1318,6 +1355,7 @@ Object {
               },
               "name": "navigate",
               "path": "name",
+              "regular": false,
             },
           ],
         },
@@ -1373,6 +1411,7 @@ Object {
               },
               "name": "navigate",
               "path": "nickname",
+              "regular": false,
             },
           ],
         },
@@ -1425,6 +1464,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "binding": Object {
@@ -1449,6 +1489,7 @@ Object {
               },
               "name": "navigate",
               "path": "name",
+              "regular": false,
             },
           ],
         },
@@ -1524,6 +1565,7 @@ Object {
               },
               "name": "navigate",
               "path": "nickname",
+              "regular": false,
             },
             Object {
               "context": Object {
@@ -1565,6 +1607,7 @@ Object {
                       },
                       "name": "navigate",
                       "path": "code",
+                      "regular": false,
                     },
                   ],
                 },
@@ -1627,6 +1670,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "binding": Object {
@@ -1659,6 +1703,7 @@ Object {
               },
               "name": "navigate",
               "path": "sample",
+              "regular": false,
             },
             Object {
               "aggregate": "count",
@@ -1760,6 +1805,7 @@ Object {
               },
               "name": "navigate",
               "path": "s",
+              "regular": false,
             },
             Object {
               "context": Object {
@@ -1810,6 +1856,7 @@ Object {
                       },
                       "name": "navigate",
                       "path": "title",
+                      "regular": false,
                     },
                   ],
                 },
@@ -1872,6 +1919,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "byPath": Array [
@@ -1942,6 +1990,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "byPath": Array [
@@ -1994,6 +2043,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -2008,6 +2058,7 @@ Object {
       },
       "name": "navigate",
       "path": "name",
+      "regular": false,
     },
   ],
 }
@@ -2059,6 +2110,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "byPath": Array [
@@ -2154,6 +2206,7 @@ Object {
               },
               "name": "navigate",
               "path": "individual",
+              "regular": false,
             },
             Object {
               "context": Object {
@@ -2168,6 +2221,7 @@ Object {
               },
               "name": "navigate",
               "path": "age",
+              "regular": false,
             },
           ],
         },
@@ -2199,6 +2253,7 @@ Object {
               },
               "name": "navigate",
               "path": "individual",
+              "regular": false,
             },
             Object {
               "context": Object {
@@ -2213,6 +2268,7 @@ Object {
               },
               "name": "navigate",
               "path": "name",
+              "regular": false,
             },
           ],
         },
@@ -2261,6 +2317,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "byPath": Array [
@@ -2349,6 +2406,7 @@ Object {
               },
               "name": "navigate",
               "path": "individual",
+              "regular": false,
             },
             Object {
               "context": Object {
@@ -2363,6 +2421,7 @@ Object {
               },
               "name": "navigate",
               "path": "name",
+              "regular": false,
             },
           ],
         },
@@ -2405,6 +2464,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -2436,6 +2496,7 @@ Object {
           },
           "name": "navigate",
           "path": "age",
+          "regular": false,
         },
       },
     },
@@ -2483,6 +2544,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -2521,6 +2583,7 @@ Object {
           },
           "name": "navigate",
           "path": "name",
+          "regular": false,
         },
         "b": Object {
           "context": Object {
@@ -2532,6 +2595,7 @@ Object {
           },
           "name": "navigate",
           "path": "name",
+          "regular": false,
         },
       },
     },
@@ -2562,6 +2626,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -2600,6 +2665,7 @@ Object {
           },
           "name": "navigate",
           "path": "name",
+          "regular": false,
         },
         "b": Object {
           "context": Object {
@@ -2611,6 +2677,7 @@ Object {
           },
           "name": "navigate",
           "path": "name",
+          "regular": false,
         },
       },
     },
@@ -2624,6 +2691,7 @@ Object {
       },
       "name": "navigate",
       "path": "a",
+      "regular": false,
     },
   ],
 }
@@ -2671,6 +2739,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -2711,6 +2780,7 @@ Object {
           },
           "name": "navigate",
           "path": "name",
+          "regular": false,
         },
         "s": Object {
           "context": Object {
@@ -2724,6 +2794,7 @@ Object {
           },
           "name": "navigate",
           "path": "sample",
+          "regular": false,
         },
       },
     },
@@ -2771,6 +2842,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -2809,6 +2881,7 @@ Object {
           },
           "name": "navigate",
           "path": "name",
+          "regular": false,
         },
         "s": Object {
           "context": Object {
@@ -2832,6 +2905,7 @@ Object {
               },
               "name": "navigate",
               "path": "sample",
+              "regular": false,
             },
             Object {
               "context": Object {
@@ -2843,6 +2917,7 @@ Object {
               },
               "name": "navigate",
               "path": "title",
+              "regular": false,
             },
           ],
         },
@@ -2892,6 +2967,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -2930,6 +3006,7 @@ Object {
           },
           "name": "navigate",
           "path": "name",
+          "regular": false,
         },
         "s": Object {
           "context": Object {
@@ -2953,6 +3030,7 @@ Object {
               },
               "name": "navigate",
               "path": "sample",
+              "regular": false,
             },
             Object {
               "aggregate": "count",
@@ -3008,6 +3086,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -3055,6 +3134,7 @@ Object {
               },
               "name": "navigate",
               "path": "identity",
+              "regular": false,
             },
           ],
         },
@@ -3097,6 +3177,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "context": Object {
@@ -3140,6 +3221,7 @@ Object {
               },
               "name": "navigate",
               "path": "identity",
+              "regular": false,
             },
             Object {
               "context": Object {
@@ -3151,6 +3233,7 @@ Object {
               },
               "name": "navigate",
               "path": "name",
+              "regular": false,
             },
           ],
         },
@@ -3183,6 +3266,7 @@ Object {
       },
       "name": "navigate",
       "path": "individual",
+      "regular": false,
     },
     Object {
       "aggregate": "unknown",

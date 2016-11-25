@@ -158,7 +158,7 @@ class BasicBinaryComparator {
   query(field, operand, operandIsField) {
     return operand
       ? q[this.value](
-          q.navigate(field.value),
+          q.use(field.value),
           operandIsField ? q.navigate(operand) : q.value(operand)
         )
       : null;
@@ -246,7 +246,7 @@ class NotContains extends BasicBinaryComparator {
   query(field, operand, operandIsField) {
     return operand
       ? q.not(q.contains(
-          q.navigate(field.value),
+          q.use(field.value),
           operandIsField ? q.navigate(operand) : operand,
         ))
       : null;
@@ -311,7 +311,7 @@ class IsOneOf {
 
   query(field, operand) {
     if (operand && (operand.length > 0)) {
-      return q[this.op](q.navigate(field.value), operand);
+      return q[this.op](q.use(field.value), operand);
     }
   }
 }
@@ -369,7 +369,7 @@ class Empty {
   }
 
   query(field) {
-    return q.not(q.exists(q.navigate(field.value)));
+    return q.not(q.exists(q.use(field.value)));
   }
 }
 
@@ -394,7 +394,7 @@ class NotEmpty extends Empty {
   }
 
   query(field) {
-    return q.exists(q.navigate(field.value));
+    return q.exists(q.use(field.value));
   }
 }
 
@@ -424,7 +424,7 @@ class IsTrue {
   }
 
   query(field) {
-    return q.navigate(field.value);
+    return q.use(field.value);
   }
 }
 
@@ -460,7 +460,7 @@ class IsFalse {
   }
 
   query(field) {
-    return q.not(q.navigate(field.value));
+    return q.not(q.use(field.value));
   }
 }
 

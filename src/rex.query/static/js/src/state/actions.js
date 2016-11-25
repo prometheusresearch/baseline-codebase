@@ -50,7 +50,7 @@ export function navigate(params: {
       qp.selectLast(pointer).query.context.prev,
       params.path
     );
-    if (type.card === 'seq') {
+    if (type.card === 'seq' && type.name === 'record' && type.entity != null) {
       add = q.aggregate('count');
     }
     let {query} = op.growNavigation({

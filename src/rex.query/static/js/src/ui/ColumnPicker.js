@@ -24,6 +24,7 @@ type Navigation = {
   context: Context;
   pointer?: QueryPointer<>;
   groupBy?: boolean;
+  fromQuery?: boolean;
 };
 
 type ColumnPickerProps = {
@@ -244,7 +245,7 @@ class ColumnPickerButton extends React.Component {
         }
         onClick={this.onSelect}>
         <VBox grow={1} justifyContent="center">
-          {column.card === 'seq' ? '# ' : ''}{column.label}
+          {column.card === 'seq' && !column.fromQuery ? '# ' : ''}{column.label}
         </VBox>
       </MenuButton>
     );
@@ -304,6 +305,7 @@ function getNavigation(pointer: QueryPointer<>, type: Type): Array<Navigation> {
         value: k,
         label: k,
         context: navQuery.context,
+        fromQuery: true,
       });
     }
   }

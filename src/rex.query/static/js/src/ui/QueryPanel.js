@@ -37,7 +37,7 @@ export default function QueryPanel(props: QueryPanelProps) {
         theme={theme.entity}
         pointer={pointer}>
         <MenuHelp>
-          This page is intentionally made blank for now.
+          This is a place holder. Eventually, we'd like to make this editable, but it is a significant development effort.
         </MenuHelp>
       </QueryPanelBase>
     ),

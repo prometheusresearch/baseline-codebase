@@ -213,7 +213,7 @@ A list of identities could be generated with::
     >>> db.produce(
     ...     [".",
     ...         ["navigate", "region"],
-    ...         ["id"]])
+    ...         ["navigate", "id"]])
     <Product ([AFRICA], [AMERICA], [ASIA], [EUROPE], ['MIDDLE EAST'])>
 
 Sorting::

@@ -121,6 +121,8 @@ class RexBindingState(BindingState):
             raise Error("Expected an identifier,"
                         " got:", ", ".join(map(str, args)))
         name = args[0].val
+        if name == u'id':
+            return self.bind_id_op([])
         recipe = lookup_attribute(self.scope, name)
         if recipe is None:
             raise Error("Got unknown identifier:", name)

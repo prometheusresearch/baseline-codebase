@@ -58,6 +58,20 @@ export function select(
   };
 }
 
+export function selectFindLast(
+  pointer: QueryPointer<QueryPipeline>,
+  find: (query: Query) => boolean,
+): ?QueryPointer<Query> {
+  let pipeline = pointer.query.pipeline;
+  for (let i = pipeline.length - 1; i >= 0; i--) {
+    let query = pipeline[i];
+    if (find(query)) {
+      return select(pointer, ['pipeline', i]);
+    }
+  }
+  return null;
+}
+
 export function selectLast(pointer: QueryPointer<Query>): QueryPointer<Query> {
   // $FlowFixMe: make sure we type it as a pipeline
   let lastIdx = pointer.query.pipeline.length - 1;

@@ -490,6 +490,75 @@ export function appendNavigateAndAggregate(params: {
 }
 
 /**
+ * Append a new aggregate combinator at pointer.
+ */
+export function appendDefineAndAggregate(params: {
+  pointer: QueryPointer<QueryPipeline>;
+  path: Array<string>;
+  aggregate: t.DomainAggregate;
+}): StateUpdater {
+  return state => {
+    let {path, aggregate, pointer} = params;
+    let name = getName(pointer.query.context.scope, params.path.join(' ') + ' Query');
+    pointer = qp.rebase(pointer, state.query)
+    let {query} = op.transformAt({
+      loc: {pointer, selected: state.selected},
+      transform: query => {
+        invariant(
+          query.name === 'pipeline',
+          'Expected "pipeline" query'
+        );
+        let pipeline = query.pipeline.slice(0);
+        let select = null;
+        if (pipeline[pipeline.length - 1].name === 'select') {
+          select = pipeline.pop();
+        }
+        let innerPipeline = [];
+        if (path.length > 0) {
+          innerPipeline = innerPipeline.concat(path.map(p => q.use(p)));
+        } else {
+          innerPipeline.push(q.here);
+        }
+        innerPipeline.push(q.aggregate(aggregate.name));
+        pipeline.push(
+          q.def(
+            name,
+            q.pipeline(...innerPipeline),
+          )
+        );
+        if (select) {
+          pipeline.push(select);
+        }
+        return {
+          query: {
+            name: 'pipeline',
+            pipeline,
+            context: query.context,
+          }
+        };
+      }
+    });
+    pointer = qp.rebase(pointer, query);
+    let selected = qp.selectFindLast(
+      ((pointer: any): QueryPointer<QueryPipeline>),
+      query => query.name === 'define'
+    );
+    if (selected) {
+      selected = qp.select(
+        selected,
+        ['binding', 'query'],
+        ['pipeline', params.path.length],
+      );
+    }
+    query = op.growNavigation({
+      loc: {pointer, selected: state.selected},
+      path: [name],
+    }).query;
+    return onQuery(state, query, selected || state.prevSelected, null);
+  };
+}
+
+/**
  * Rename define combinator binding at pointer.
  */
 export function renameDefineBinding(

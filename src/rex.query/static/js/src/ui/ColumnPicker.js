@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {QueryPointer, Type, TypeCardinality, Query, Context} from '../model';
+import type {QueryPointer, QueryPipeline, Type, TypeCardinality, Query, Context} from '../model';
 import type {Actions} from '../state';
 
 import React from 'react';
@@ -83,6 +83,7 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
           onSelectRemove={onSelectRemove}
           onNavigate={this.onNavigate}
           onAddQuery={this.onAddQuery}
+          onAggregate={this.onAggregate}
           actions={this.context.actions}
           />
       );
@@ -142,9 +143,13 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
     });
   };
 
-  onAggregate = (_aggregateName: string) => {
-    this.context.actions.appendAggregate({
-      pointer: this.props.pointer
+  onAggregate = (payload: {path: string}) => {
+    let domain = this.props.pointer.query.context.domain;
+    let pipeline = qp.prev(this.props.pointer);
+    this.context.actions.appendDefineAndAggregate({
+      pointer: ((pipeline: any): QueryPointer<QueryPipeline>),
+      path: [payload.path],
+      aggregate: domain.aggregate.count,
     });
   };
 
@@ -182,6 +187,7 @@ class ColumnPickerButton extends React.Component {
     column: Navigation;
     onSelect: (payload: {path: string}) => *;
     onNavigate: (payload: {path: string}) => *;
+    onAggregate: (payload: {path: string}) => *;
     onAddQuery: (payload: {path: string}) => *;
     onSelectRemove: (payload: {path: string, pointer: QueryPointer<>}) => *;
     disabled: boolean;
@@ -206,6 +212,11 @@ class ColumnPickerButton extends React.Component {
   onAddQuery = () => {
     let {onAddQuery, column} = this.props;
     onAddQuery({path: column.value});
+  };
+
+  onAggregate = () => {
+    let {onAggregate, column} = this.props;
+    onAggregate({path: column.value});
   };
 
   render() {
@@ -241,6 +252,14 @@ class ColumnPickerButton extends React.Component {
               key="navigate">
               Focus {column.label}
             </MenuButtonSecondary>,
+            column.card === 'seq' &&
+              <MenuButtonSecondary
+                icon="∑"
+                title={`Compute summarizations for ${column.label}`}
+                onClick={this.onAggregate}
+                key="summarize">
+                Summarize {column.label}
+              </MenuButtonSecondary>,
           ]
         }
         onClick={this.onSelect}>

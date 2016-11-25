@@ -261,6 +261,7 @@ class IsOneOf {
   op = 'equal';
 
   identify(expression) {
+    console.log(expression);
     if (expression.name !== 'binary') {
       return null;
     }
@@ -310,8 +311,8 @@ class IsOneOf {
   }
 
   query(field, operand) {
-    if (operand && (operand.length > 0)) {
-      return q[this.op](q.use(field.value), operand);
+    if (operand && operand.length > 0) {
+      return q[this.op](q.use(field.value), q.value(operand));
     }
   }
 }

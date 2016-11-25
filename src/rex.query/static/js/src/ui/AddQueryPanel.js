@@ -167,6 +167,16 @@ class AddQueryMenu extends React.Component<*, AddQueryMenuProps, *> {
     });
   };
 
+  onAggregate = ({path}) => {
+    let pipeline = qp.prev(this.props.pointer);
+    let domain = this.props.pointer.query.context.domain;
+    this.context.actions.appendDefineAndAggregate({
+      pointer: ((pipeline: any): QueryPointer<QueryPipeline>),
+      path,
+      aggregate: domain.aggregate.count,
+    });
+  };
+
   render() {
     let {pointer} = this.props;
 
@@ -179,6 +189,7 @@ class AddQueryMenu extends React.Component<*, AddQueryMenuProps, *> {
           nonHierarchical={isAtRoot}
           onAdd={this.onAdd}
           onNavigate={this.onNavigate}
+          onAggregate={this.onAggregate}
           query={pointer.query}
           path={[]}
           />
@@ -188,10 +199,10 @@ class AddQueryMenu extends React.Component<*, AddQueryMenuProps, *> {
 }
 
 function AddQueryMenuSection({
-  query, path, onAdd, onNavigate, noNavigate, nonHierarchical
+  query, path, onAdd, onNavigate, onAggregate, noNavigate, nonHierarchical
 }) {
   let prev = path[path.length - 2];
-  let nav = getNavigation(query.context)
+  let nav = getNavigation(query.context, path)
     // We filter out backlinks.
     .filter(item => item.value !== prev);
   return (
@@ -205,6 +216,7 @@ function AddQueryMenuSection({
           path={path.concat(item.value)}
           onAdd={onAdd}
           onNavigate={onNavigate}
+          onAggregate={onAggregate}
           />)}
     </VBox>
   );
@@ -235,8 +247,16 @@ class AddQueryMenuButton extends React.Component {
     this.props.onNavigate({path: this.props.path});
   };
 
+  onAggregate = () => {
+    this.props.onAggregate({path: this.props.path});
+  };
+
   render() {
-    let {item, path, onAdd, onNavigate, noNavigate, nonHierarchical} = this.props;
+    let {
+      item, path,
+      onAdd, onNavigate, onAggregate,
+      noNavigate, nonHierarchical,
+    } = this.props;
     let {open} = this.state;
 
     let menu = [];
@@ -248,7 +268,15 @@ class AddQueryMenuButton extends React.Component {
           onClick={this.onNavigate}
           key="navigate">
           Focus {item.label}
-        </MenuButtonSecondary>
+        </MenuButtonSecondary>,
+        item.pathType.card === 'seq' &&
+          <MenuButtonSecondary
+            icon="∑"
+            title={`Compute summarizations for ${item.label}`}
+            onClick={this.onAggregate}
+            key="summarize">
+            Summarize {item.label}
+          </MenuButtonSecondary>,
       );
     }
 
@@ -287,6 +315,7 @@ class AddQueryMenuButton extends React.Component {
             <AddQueryMenuSection
               onAdd={onAdd}
               onNavigate={onNavigate}
+              onAggregate={onAggregate}
               query={item.query}
               path={path}
               noNavigate={noNavigate}
@@ -328,7 +357,7 @@ let QueryTypeRoot = style('div', {
   }
 });
 
-function getNavigation(context: Context) {
+function getNavigation(context: Context, path: Array<string>) {
   let {type, scope, domain} = context;
   let navigation = [];
 
@@ -337,11 +366,16 @@ function getNavigation(context: Context) {
     for (let k in domain.entity) {
       if (domain.entity.hasOwnProperty(k)) {
         let navQuery = q.inferQueryType(q.regularizeContext(context), q.navigate(k));
+        let pathType = q.inferQueryType(
+          path.length === 0 ? q.regularizeContext(context) : context,
+          q.navigate(k)
+        ).context.type;
         navigation.push({
           type: 'record',
           value: k,
           label: domain.entity[k].title,
           query: navQuery,
+          pathType,
         });
       }
     }
@@ -350,6 +384,10 @@ function getNavigation(context: Context) {
     for (let k in attribute) {
       if (attribute.hasOwnProperty(k)) {
         let navQuery = q.inferQueryType(q.regularizeContext(context), q.navigate(k));
+        let pathType = q.inferQueryType(
+          path.length === 0 ? q.regularizeContext(context) : context,
+          q.navigate(k)
+        ).context.type;
         navigation.push({
           type: navQuery.context.type.name === 'record'
             ? 'record'
@@ -357,6 +395,7 @@ function getNavigation(context: Context) {
           value: k,
           label: attribute[k].title || k,
           query: navQuery,
+          pathType,
         });
       }
     }
@@ -365,11 +404,16 @@ function getNavigation(context: Context) {
   for (let k in scope) {
     if (scope.hasOwnProperty(k)) {
       let navQuery = q.inferQueryType(q.regularizeContext(context), scope[k].query);
+      let pathType = q.inferQueryType(
+        path.length === 0 ? q.regularizeContext(context) : context,
+        q.navigate(k)
+      ).context.type;
       navigation.push({
         type: 'record',
         value: k,
         label: k,
         query: navQuery,
+        pathType,
       });
     }
   }

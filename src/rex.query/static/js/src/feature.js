@@ -12,7 +12,7 @@
  * mostly for demos and until we have pagination implemented. If set to `null`
  * means that nothing is limited.
  */
-export const FEATURE_ARTIFICIAL_DATASET_LIMIT: ?number = null;
+export const FEATURE_ARTIFICIAL_DATASET_LIMIT: ?number = 10;
 
 /**
  * Enable contextual menu for attributes in a column picker.

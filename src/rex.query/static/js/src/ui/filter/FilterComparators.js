@@ -176,7 +176,7 @@ class NotEqual extends BasicBinaryComparator {
 
   label = 'is not equal to';
   value = 'notEqual';
-  types = ['text', 'number', 'date', 'time', 'datetime'];
+  types = ['text', 'number', 'date', 'time', 'datetime', 'record'];
 }
 
 class Less extends BasicBinaryComparator {

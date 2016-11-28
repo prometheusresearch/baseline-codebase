@@ -161,6 +161,26 @@ Import fails when one of the data rows contain null in assessment_id::
   ...
   Error: Check chunk `qctest1` row # 1, assessment_id not found.
 
+Import fails when record (instrument) chunk contains duplicated assessment_id::
+
+  >>> input = ImportPackage.from_xls(path='./test/data/errors/qctest/qctest19.xls',
+  ...                                user='demo')
+
+  >>> import_assessment(instrument_uid='qctest', input=input)
+  Traceback (most recent call last):
+  ...
+  Error: Duplicated assessment_id `1.0` chunk `qctest1` row # 2.
+
+Import fails when matrix chunk contains duplicated assessment_id::
+
+  >>> input = ImportPackage.from_xls(path='./test/data/errors/qctest/qctest20.xls',
+  ...                                user='demo')
+
+  >>> import_assessment(instrument_uid='qctest', input=input)
+  Traceback (most recent call last):
+  ...
+  Error: Duplicated assessment_id `1.0` chunk `qctest1.matrix` row # 2.
+
 Import fails when one of the data rows contain null in subject::
 
   >>> input = ImportPackage.from_xls(path='./test/data/errors/qctest/qctest14.xls',

@@ -54,7 +54,7 @@ class Assessment(object):
         if not date:
             date = datetime.datetime.today()
         elif isinstance(date, (int, float)):
-            date = (datetime.datetime(1899, 12, 30) +
+            date = (datetime.datetime(1900, 01, 01) +
                     datetime.timedelta(days=date))
         elif (isinstance(date, basestring)
         and not re.match(r'^\d\d\d\d-\d\d-\d\d$', date)):
@@ -168,7 +168,7 @@ class Assessment(object):
             and re.match(r'^\d\d\d\d-\d\d-\d\d$', value, re.UNICODE):
                 return value
             if isinstance(value, (int, float)):
-                value = (datetime.datetime(1899, 12, 30) +
+                value = (datetime.datetime(1900, 01, 01) +
                          datetime.timedelta(days=value)).strftime('%Y-%m-%d')
                 return value
             raise Error(" Got unexpected value %(value)s of"
@@ -195,6 +195,12 @@ class Assessment(object):
                                'id': field.id}
             )
         if field.base_type == 'dateTime':
+            if isinstance(value, (int, float)):
+                value = (datetime.datetime(1900, 01, 01, 00, 00, 01) +
+                         datetime.timedelta(days=value)
+                        ).strftime('%Y-%m-%dT%H:%M:%S')
+                return value
+
             if isinstance(value, datetime.datetime):
                 return value.strftime('%Y-%m-%dT%H:%M:%S')
             if isinstance(value, basestring) \
@@ -242,16 +248,14 @@ class AssessmentCollection(object):
 
     def add_chunk(self, instrument, template, chunk):
         field = instrument[chunk.id]
+        self.check_assessment_id(instrument, chunk)
         for (idx, row) in enumerate(chunk.data):
             try:
                 self.check_with_template(template, row)
             except Error, exc:
                 raise Error("Check chunk `%s` row # %s does not"
                             " match template" % (chunk.id, idx+1), exc)
-            assessment_id = row.get('assessment_id')
-            if not assessment_id:
-                raise Error("Check chunk `%s` row # %s, assessment_id not found."
-                            % (chunk.id, idx+1))
+            assessment_id = row.get('assessment_id')            
             assessment = self.assessment_map.get(assessment_id)
             if not assessment:
                 assessment = Assessment(instrument, assessment_id)
@@ -265,6 +269,20 @@ class AssessmentCollection(object):
                     assessment.make_matrix(field, row)
             except Exception, exc:
                 raise Error("Check chunk `%s` row #%s" % (chunk.id, idx+1), exc)
+
+    def check_assessment_id(self, instrument, chunk):
+        field = instrument[chunk.id]
+        processed = []
+        for (idx, row) in enumerate(chunk.data):
+            assessment_id = row.get('assessment_id')
+            if not assessment_id:
+                raise Error("Check chunk `%s` row # %s, assessment_id not found."
+                            % (chunk.id, idx+1))
+            if field.base_type in ('matrix', 'record') \
+            and assessment_id in processed:
+                raise Error("Duplicated assessment_id `%s` chunk `%s` row # %s."
+                            % (assessment_id, chunk.id, idx+1))
+            processed.append(assessment_id)
 
     def check_with_template(self, template, record):
         record_header = set(record.keys())

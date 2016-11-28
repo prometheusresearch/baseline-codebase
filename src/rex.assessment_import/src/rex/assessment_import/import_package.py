@@ -5,7 +5,6 @@ import xlwt
 import zipfile
 import datetime
 import shutil
-import tempfile
 
 from StringIO import StringIO
 from collections import OrderedDict

@@ -1,4 +1,4 @@
 mart_htsql_extensions:
   tweak.shell:
   htsql_excel:
-
+  rex_query:

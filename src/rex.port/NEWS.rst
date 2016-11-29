@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.3.1 (2016-XX-XX)
+1.3.1 (2016-11-29)
 ==================
 
 * Cache prepared insert, update and delete commands.

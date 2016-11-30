@@ -156,6 +156,9 @@ class ImportPackage(object):
                         exc = Error("Unable to read csv %s" % filepath, exc)
                         cls.fail(exc, path, user)
                     chunks.append(ImportChunk(name, data, user))
+        if not chunks:
+            exc = Error("No data to import.")
+            cls.fail(exc, path, user)
         return cls(chunks=chunks)
 
     @classmethod

@@ -249,3 +249,13 @@ Typically, these actions will be arranged as::
         then:
           - mart-guide-export:
 
+
+Query Builder
+-------------
+
+``mart-query-builder``
+    :Purpose: Displays the QueryBuilder application connected to the specified
+              Mart..
+    :Input: **mart**: The ID of the Mart to connect to.
+    :Output: N/A
+

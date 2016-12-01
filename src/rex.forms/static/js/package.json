@@ -1,6 +1,6 @@
 {
   "name": "rex-forms",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "main": "lib/index.js",
   "rex": {},
   "babel": {
@@ -18,8 +18,8 @@
     }
   },
   "peerDependencies": {
-    "react": "^0.14.0",
-    "react-dom": "^0.14.0"
+    "react": "^0.14.0 || ^15.0.0",
+    "react-dom": "^0.14.0 || ^15.0.0"
   },
   "dependencies": {
     "@prometheusresearch/react-ui": "^0.21.1",
@@ -28,7 +28,7 @@
     "invariant": "^2.2.1",
     "jscreole": "prometheusresearch/jscreole#inline-markup",
     "lodash": "^4.12.0",
-    "react-forms": "2.0.0-beta32",
+    "react-forms": "2.0.0-beta33",
     "react-icons": "^2.1.0",
     "react-input-mask": "^0.6.7"
   },

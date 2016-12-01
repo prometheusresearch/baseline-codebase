@@ -5,6 +5,12 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+2.3.0 (20xx-xx-xx)
+==================
+
+* JS dependency updates.
+
+
 2.2.0 (2016-10-25)
 ==================
 

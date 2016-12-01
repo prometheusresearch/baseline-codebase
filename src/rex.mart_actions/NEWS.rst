@@ -5,12 +5,14 @@ REX.MART_ACTIONS Change Log
 .. contents:: Table of Contents
 
 
-0.4.0 (2016-xx-xx)
+0.5.0 (2016-12-01)
 ==================
 
 * Now displays column link information in data dictionary screens.
 * Now displays enumeration descriptions in the data dictionary screens.
 * Enumeration filters in Guides now have their choices sorted.
+* Added a new action that integrates the new QueryBuilder application with Mart
+  databases.
 
 
 0.3.1 (2106-09-29)

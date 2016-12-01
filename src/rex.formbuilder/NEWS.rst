@@ -5,10 +5,10 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
-5.9.0 (2016-xx-xx)
+5.9.0 (2016-12-01)
 ==================
 
-* 
+* Fixed various issues around the drag-and-drop functionality in the GUI.
 
 
 5.8.1 (2016-09-14)

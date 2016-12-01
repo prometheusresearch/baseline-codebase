@@ -5,13 +5,18 @@
 .. contents:: Table of Contents
 
 
-6.0.0 (2016-XX-XX)
+6.0.0 (2016-12-01)
 ==================
 
 * HTSQL==2.3.3.20161027
 * HTSQL-PGSQL==2.3.3.20161027
+* rex.action==1.5.1
+* rex.setup==3.4.0
 * rex.core==1.15.0
 * rex.port==1.3.1
+* rex.restful==1.2.0
+* rex.widget==2.11.0
+* rex.dbgui==4.1.3
 
 
 5.6.0 (2016-10-26)

@@ -5,7 +5,7 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
-0.4.0 (2016-xx-xx)
+0.4.0 (2016-12-01)
 ==================
 
 - Fixed issue where quota system would purge good, complete Marts in favor of

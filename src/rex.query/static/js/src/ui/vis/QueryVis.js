@@ -57,6 +57,8 @@ class QueryVisInsertAfterButton extends React.Component {
 
   props: {
     pointer: QueryPointer<q.Query>;
+    first?: boolean;
+    last?: boolean;
   };
 
   render() {
@@ -64,8 +66,11 @@ class QueryVisInsertAfterButton extends React.Component {
       Root: QueryPane.DefaultPane,
       Button: QueryButton.DefaultButton,
     };
+    let {first, last} = this.props;
     return (
       <QueryVisButtonBase
+        first={first}
+        last={last}
         selected
         stylesheet={stylesheet}
         label=""
@@ -402,7 +407,7 @@ function QueryVisPipeline({pointer, closeable, insertAfter, ...props}: {
       items.push(
         <QueryVisPipelineItem key="__insertAfter__" variant={{topLevel}}>
           <QueryVisInsertAfterButton
-            first={first}
+            first={pointer.query.name === 'here'}
             last={lastItem}
             pointer={pointer}
             />

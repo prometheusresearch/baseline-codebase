@@ -4,7 +4,7 @@
 
 .. contents:: Table of Contents
 
-4.1.3 ()
+4.1.3 (2016-12-01)
 ========================
 
 * Fixed bug when rendering facet-of-facet and facet->facet->children table

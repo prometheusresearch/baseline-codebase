@@ -303,6 +303,8 @@ function QueryVisQueryButton(props: {
   pointer: QueryPointer<>;
   selected: ?QueryPointer<>;
   insertAfter: ?QueryPointer<>;
+  first?: boolean;
+  last?: boolean;
   closeable?: boolean;
 }) {
   const {pointer, ...rest} = props;
@@ -371,39 +373,55 @@ function QueryVisPipeline({pointer, closeable, insertAfter, ...props}: {
   let topLevel = pointer.path.length === 0;
   let items = [];
   let disableAdd = false;
+  let lastPointer = pipeline[pipeline.length - 1];
+  let firstPointer = pipeline[0];
   pipeline.forEach((pointer, idx) => {
+    let needPlaceholder = qp.is(pointer, insertAfter);
+    let lastItem = lastPointer.query.name === 'select'
+      ? pipeline.length - 2
+      : pipeline.length - 1;
+    let firstItem = firstPointer.query.name === 'here'
+      ? 1
+      : 0;
+    let first = idx === firstItem;
+    let last = !needPlaceholder && idx === lastItem;
     items.push(
       <QueryVisPipelineItem key={idx} variant={{topLevel}}>
         <QueryVisQueryButton
           {...props}
+          first={first}
+          last={last}
           insertAfter={insertAfter}
           closeable={closeable && idx > 0}
           pointer={pointer}
           />
       </QueryVisPipelineItem>
     );
-    if (qp.is(pointer, insertAfter)) {
+    if (needPlaceholder) {
       disableAdd = true;
       items.push(
         <QueryVisPipelineItem key="__insertAfter__" variant={{topLevel}}>
           <QueryVisInsertAfterButton
+            first={first}
+            last={lastItem}
             pointer={pointer}
             />
         </QueryVisPipelineItem>
       );
     }
   });
-  let last = pipeline[pipeline.length - 1];
-  let insertAfterPointer = last.query.name === 'select'
+  let insertAfterPointer = lastPointer.query.name === 'select'
     ? pipeline[pipeline.length - 2]
-    : last;
+    : lastPointer;
   return (
     <QueryVisPipelineRoot paddingLeft={topLevel ? 8 : 0}>
       {items}
+      <VBox marginTop={5}>
       <QueryVisToolbar
         disableAdd={disableAdd}
         pointer={insertAfterPointer}
         />
+      </VBox>
     </QueryVisPipelineRoot>
   );
 }
@@ -418,7 +436,7 @@ let QueryVisPipelineRoot = style(VBox, {
 let QueryVisPipelineItem = style(VBox, {
   displayName: 'QueryVisPipelineItem',
   base: {
-    marginBottom: 5,
+    marginBottom: 0,
     lastOfType: {
       marginBottom: 0,
     }

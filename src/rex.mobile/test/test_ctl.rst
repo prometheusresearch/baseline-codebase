@@ -204,7 +204,7 @@ JSON from a Form in the project data store::
     assigned to.
     <BLANKLINE>
     Options:
-      --require=PACKAGE        : include an additional parameter
+      --require=PACKAGE        : include an additional package
       --set=PARAM=VALUE        : set a configuration parameter
       --output=OUTPUT_FILE     : the file to write to; if not specified, stdout is used
       --format=FORMAT          : the format to output the configuration in; can be either JSON or YAML; if not specified, defaults to JSON
@@ -368,7 +368,7 @@ a Form in the project data store::
     Configuration to use.
     <BLANKLINE>
     Options:
-      --require=PACKAGE        : include an additional parameter
+      --require=PACKAGE        : include an additional package
       --set=PARAM=VALUE        : set a configuration parameter
       --context=PARAM=VALUE    : the additional parameters to pass to the RexAcquire API implementations to create/save objects to the data store
       --version=VERSION        : the version of the Instrument to associate the Interaction with; if not specified, then the latest version will be used

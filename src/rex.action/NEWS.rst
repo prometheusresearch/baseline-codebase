@@ -4,6 +4,11 @@
 
 .. contents:: Table of Contents
 
+1.5.1 (2016-12-01)
+==================
+
+* [FIX] Fix override edge cases.
+
 1.5.0 (2016-10-26)
 ==================
 

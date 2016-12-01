@@ -50,7 +50,7 @@ command line::
     were specified.
     <BLANKLINE>
     Options:
-      --require=PACKAGE        : include an additional parameter
+      --require=PACKAGE        : include an additional package
       --set=PARAM=VALUE        : set a configuration parameter
       -o/--owner=OWNER         : The owner to assign to the Mart. This option may be repeated to create Marts for multiple owners.
       -d/--definition=DEFINITION : The ID of the Definition to use when creating the Mart. This option may be repeated to create multiple types of Marts.
@@ -292,7 +292,7 @@ The ``mart-shell`` task opens an HTSQL console to the specified Mart database::
     the owner, and the reference will specify which of their Marts to open.
     <BLANKLINE>
     Options:
-      --require=PACKAGE        : include an additional parameter
+      --require=PACKAGE        : include an additional package
       --set=PARAM=VALUE        : set a configuration parameter
       -r/--reference=REFERENCE : Specifies which of the owner's Mart databases to connect to. It must be in the form <DEFINITION_ID>@latest or <DEFINITION_ID>@<NUMBER>, where <NUMBER> is the index of the Marts of that Definition for the user (foo@1 would be the most recent foo Mart created, etc).
     <BLANKLINE>
@@ -367,7 +367,7 @@ The ``mart-purge`` will delete the specified Mart(s) from the system::
     specified for that option.
     <BLANKLINE>
     Options:
-      --require=PACKAGE        : include an additional parameter
+      --require=PACKAGE        : include an additional package
       --set=PARAM=VALUE        : set a configuration parameter
       -o/--owner=OWNER         : The owner of the Mart(s) to purge. This option may be repeated to specify multiple owners.
       -d/--definition=DEFINITION : The Definition ID of the Mart(s) to purge. This option may be repeated to specify multiple Definitions.

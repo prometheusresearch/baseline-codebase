@@ -4,10 +4,12 @@
 
 .. contents:: Table of Contents
 
-3.4.0 (2016-XX-XX)
+3.4.0 (2016-12-01)
 ==================
 
 * Add js generator which executes ``npm run build`` command on a package.
+* Directory ``src/`` is now also considered a directory with source code in JS
+  packages.
 
 3.3.1 (2016-10-25)
 ==================

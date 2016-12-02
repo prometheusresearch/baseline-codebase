@@ -15,6 +15,7 @@ import * as css from 'react-stylesheet/css';
 import {AutoSizer} from 'react-virtualized';
 
 import {LoadingIndicator} from '../ui';
+import * as q from '../model/Query';
 import * as ArrayUtil from '../ArrayUtil';
 import {
   DataTable as DataTableBase,
@@ -131,7 +132,7 @@ function getColumnConfigImpl(
           binding.query,
           focusedSeq,
           path,
-          binding.name,
+          q.genQueryName(binding.query) || binding.name,
           true
         );
       }

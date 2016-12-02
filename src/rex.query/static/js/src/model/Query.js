@@ -836,3 +836,16 @@ export function resolvePath(context: Context, path: Array<string>): t.Type {
   );
   return attribute.__a__.type;
 }
+
+export function genQueryName(query: QueryPipeline): ?string {
+  let name = [];
+  for (let i = 0; i < query.pipeline.length; i++) {
+    let q = query.pipeline[i];
+    if (q.name === 'navigate') {
+      name.push(q.path);
+    } else if (q.name === 'aggregate') {
+      name.push(q.aggregate);
+    }
+  }
+  return name.length > 0 ? name.join(' ') : null;
+}

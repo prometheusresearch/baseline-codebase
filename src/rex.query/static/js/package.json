@@ -50,6 +50,7 @@
     "@prometheusresearch/react-ui": "^0.20.0",
     "color": "^0.11.3",
     "downloadjs": "^1.4.6",
+    "flow-coverage-report": "^0.2.0",
     "invariant": "^2.2.1",
     "lodash": "^4.15.0",
     "moment": "^2.15.2",

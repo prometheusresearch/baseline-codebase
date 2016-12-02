@@ -1,5 +1,6 @@
 [ignore]
 <PROJECT_ROOT>/node_modules/fbjs/lib/PromiseMap.js.flow
+<PROJECT_ROOT>/node_modules/flow-coverage-report/.*\.js
 <PROJECT_ROOT>/node_modules/fbjs/lib/PromiseMap.js
 <PROJECT_ROOT>/node_modules/fbjs/lib/Deferred.js.flow
 <PROJECT_ROOT>/node_modules/fbjs/lib/Deferred.js

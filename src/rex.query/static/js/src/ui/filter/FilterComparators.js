@@ -261,7 +261,6 @@ class IsOneOf {
   op = 'equal';
 
   identify(expression) {
-    console.log(expression);
     if (expression.name !== 'binary') {
       return null;
     }

@@ -1,264 +1,21 @@
 /**
- * @noflow
+ * @flow
  */
 
-import type {Query, FilterQuery} from '../../model/Query';
+import type {Expression, FilterQuery} from '../../model/Query';
 import type {QueryPointer} from '../../model/QueryPointer';
 import type {Actions} from '../../state';
-import type {Comparator} from './FilterComparators';
 
-import invariant from 'invariant';
 import React from 'react';
 import CloseIcon from 'react-icons/lib/fa/close';
 import * as ReactUI from '@prometheusresearch/react-ui';
-import debounce from 'lodash/debounce';
 
 import * as q from '../../model/Query';
 import * as nav from '../../model/navigation';
 import * as theme from '../Theme';
 import QueryPanelBase from '../QueryPanelBase';
 import {MenuGroup, MenuButton} from '../menu';
-import Select from '../Select';
-import * as comp from './FilterComparators';
-
-type FilterConditionProps = {
-  expression: Query;
-  fields: Array<nav.Navigation>;
-};
-
-class FilterCondition extends React.Component {
-
-  state: {
-    field: ?string;
-    operand: ?string;
-    comparator: ?string;
-    operandIsField: boolean;
-  };
-
-  constructor(props: FilterConditionProps) {
-    super(props);
-
-    let condition = this.getCondition(props.expression);
-    this.state = {...condition};
-  }
-
-  componentWillReceiveProps(nextProps: FilterConditionProps) {
-    let condition = this.getCondition(nextProps.expression);
-    this.setState({...condition});
-  }
-
-  getCondition(expression): Comparator {
-    if (expression.name === 'value' && expression.value === true) {
-      return {field: null, comparator: null, operand: null, operandIsField: false};
-    }
-
-    let condition = comp.identify(expression);
-    invariant(condition, 'Cannot identify expression type.');
-    return condition;
-  }
-
-  getFieldDefinition(fieldName) {
-    for (let i = 0; i < this.props.fields.length; i++) {
-      let field = this.props.fields[i];
-      if (field.value === fieldName) {
-        return field;
-      }
-    }
-
-    invariant(false, 'No field named "%s" found in current scope.', fieldName);
-  }
-
-  getCompatibleOperandFields(sourceField) {
-    const sourceType = sourceField.context.type;
-    invariant(
-      sourceType != null,
-      'Expected a typed query'
-    );
-    return this.props.fields.filter((field) => {
-      let type = field.context.type;
-      // FIXME: rm invariant
-      invariant(
-        type.name !== 'invalid',
-        'Expected a typed query'
-      );
-      return (
-        field.value !== sourceField.value &&
-        type.name === sourceType.name
-      );
-    });
-  }
-
-  render() {
-    let {fields} = this.props;
-    let {field, comparator, operand, operandIsField} = this.state;
-    let fieldDef = null;
-
-    let comparators = [];
-    if (field) {
-      fieldDef = this.getFieldDefinition(field);
-      comparators = comp.getApplicableForField(fieldDef);
-    }
-
-    let operandComponent = null;
-    let chooseOperandType = true;
-    if (fieldDef && comparator) {
-      let operandFields = this.getCompatibleOperandFields(fieldDef);
-      chooseOperandType = operandFields.length > 0;
-
-      if (chooseOperandType && operandIsField) {
-        operandComponent = (
-          <Select
-            value={operand}
-            options={operandFields}
-            onChange={this.onOperandValueChange}
-            placeholder="Select an Attribute..."
-            />
-        );
-      } else {
-        let comparatorDefinition = comp.getDefinition(comparator);
-        operandComponent = comparatorDefinition.operand(
-          fieldDef,
-          operand,
-          this.onOperandValueChange,
-        );
-      }
-
-      if (fieldDef.context.type.name === 'record') {
-        chooseOperandType = false;
-      }
-
-    }
-
-    let operandTypeOptions = [
-      {label: 'Constant Value', value: 'value'},
-      {label: 'Attribute', value: 'field'},
-    ];
-
-    return (
-      <ReactUI.Block>
-        <ReactUI.Block>
-          <ReactUI.Block marginBottom={5}>
-            <Select
-              value={field}
-              options={fields}
-              onChange={this.onFieldChange}
-              />
-          </ReactUI.Block>
-          {field &&
-            <ReactUI.Block marginBottom={5}>
-              <Select
-                clearable={false}
-                value={comparator}
-                options={comparators}
-                onChange={this.onComparatorChange}
-                />
-            </ReactUI.Block>
-          }
-        </ReactUI.Block>
-        {operandComponent &&
-          <ReactUI.Block>
-            {chooseOperandType &&
-              <ReactUI.Block marginBottom={5}>
-                <ReactUI.RadioGroup
-                  layout="horizontal"
-                  options={operandTypeOptions}
-                  value={operandIsField ? 'field' : 'value'}
-                  onChange={this.onOperandTypeChange}
-                  />
-              </ReactUI.Block>}
-            {operandComponent}
-          </ReactUI.Block>
-        }
-      </ReactUI.Block>
-    );
-  }
-
-  onFieldChange = (newField: string) => {
-    let {field, comparator, operand, operandIsField} = this.state;
-
-    let prevField = field;
-    field = newField;
-
-    let newFieldDef = newField ? this.getFieldDefinition(newField) : null;
-
-    if (newField) {
-      let newComp = null;
-      comp.getApplicableForField(newFieldDef).forEach((comp) => {
-        if (comp.value === comparator) {
-          return comp;
-        }
-      });
-
-      let prevFieldDef = prevField ? this.getFieldDefinition(prevField) : null;
-
-      if (!newComp) {
-        comparator = null;
-        operand = null;
-        operandIsField = false;
-      } else if (prevFieldDef && newFieldDef && (prevFieldDef.context.type !== newFieldDef.context.type)) {
-        operand = null;
-        operandIsField = false;
-      }
-    } else {
-      comparator = null;
-      operand = null;
-      operandIsField = false;
-    }
-
-    if (field && !comparator) {
-      let comparators = comp.getApplicableForField(newFieldDef)
-      if (comparators.length > 0) {
-        comparator = comparators[0].value;
-      }
-    }
-
-    this.setState({field, comparator, operand, operandIsField}, () => { this.updateQuery(); });
-  };
-
-  onComparatorChange = (newComparator: string) => {
-    this.setState(
-      {
-        comparator: newComparator,
-        operand: null,
-        operandIsField: false,
-      },
-      () => { this.updateQuery(); }
-    );
-  };
-
-  onOperandTypeChange = (newType: string) => {
-    this.setState(
-      {
-        operandIsField: newType === 'field',
-        operand: null
-      },
-      () => { this.updateQuery(); }
-    );
-  };
-
-  onOperandValueChange = (newOperand: ?any) => {
-    this.setState(
-      {
-        operand: newOperand,
-      },
-      () => { this.updateQuery(); }
-    );
-  };
-
-  updateQuery = debounce(() => {
-    let {field, comparator, operand, operandIsField} = this.state;
-
-    let fieldDef = this.getFieldDefinition(field);
-    let comparatorDefinition = comp.getDefinition(comparator);
-
-    let query = comparatorDefinition.query(fieldDef, operand, operandIsField);
-
-    if (query) {
-      this.props.onUpdate(query);
-    }
-  }, 750);
-}
-
+import FilterCondition from './FilterCondition';
 
 type FilterQueryPanelProps = {
   pointer: QueryPointer<FilterQuery>;
@@ -295,7 +52,7 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
   };
 
   state: {
-    expressions: Array<Query>;
+    expressions: Array<Expression>;
   };
 
   static contextTypes = {actions: React.PropTypes.object};
@@ -313,7 +70,9 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
   componentWillReceiveProps(nextProps: FilterQueryPanelProps) {
     let {predicate} = nextProps.pointer.query;
     this.setState({
-      expressions: (predicate && predicate.expressions) ? predicate.expressions : [true],
+      expressions: predicate && predicate.expressions
+        ? predicate.expressions
+        : [q.value(true)],
     });
   }
 
@@ -376,7 +135,7 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
     this.setState({expressions});
   };
 
-  onConditionUpdate(index: number, condition: Query) {
+  onConditionUpdate(index: number, condition: Expression) {
     let expressions = this.state.expressions.slice();
     expressions[index] = condition;
     this.setState({expressions}, () => this.updateQuery());

@@ -91,11 +91,25 @@ function translateExpression(
     }
 
     case 'binary': {
-      return [
-        BINARY_OP_ENCODE[query.op],
-        translateExpression(query.left, HERE),
-        translateExpression(query.right, HERE),
-      ];
+      let {op, left, right} = query;
+      if (
+        (op === 'equal' || op === 'notEqual') &&
+        right.name === 'value' &&
+        Array.isArray(right.value)
+      ) {
+        return [
+          BINARY_OP_ENCODE[op],
+          translateExpression(left, HERE),
+          // $FlowIssue: refine doesn't work!
+          ...right.value
+        ];
+      } else {
+        return [
+          BINARY_OP_ENCODE[op],
+          translateExpression(left, HERE),
+          translateExpression(right, HERE),
+        ];
+      }
     }
 
     default:

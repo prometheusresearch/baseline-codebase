@@ -150,6 +150,7 @@ export function QueryVisDefineButton(props: {
     qp.select(pointer, ['binding', 'query']): any
   );
   let isSelected = selected && qp.is(selected, pointer)
+  let title = q.genQueryName(pointer.query.binding.query);
   return (
     <QueryVisDefineWrapper>
       <QueryVisDefineButtonTopShape first={first} />
@@ -158,7 +159,7 @@ export function QueryVisDefineButton(props: {
         closeable
         closeTitle="Remove"
         selected={isSelected}
-        label={pointer.query.binding.name}
+        label={title || pointer.query.binding.name}
         pointer={pointer}
         />
       <VBox paddingV={8} paddingLeft={8}>

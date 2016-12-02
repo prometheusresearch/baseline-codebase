@@ -376,7 +376,7 @@ export function appendDefine(
       select,
     } = params;
     let pointer = qp.rebase(params.pointer, state.query);
-    let name = getName(
+    let name = generateQueryID(
       pointer.query.context.scope,
       path
         ? `${path.join(' ')} query`
@@ -499,7 +499,7 @@ export function appendDefineAndAggregate(params: {
 }): StateUpdater {
   return state => {
     let {path, aggregate, pointer} = params;
-    let name = getName(pointer.query.context.scope, params.path.join(' ') + ' Query');
+    let name = generateQueryID(pointer.query.context.scope, params.path.join(' ') + ' Query');
     pointer = qp.rebase(pointer, state.query)
     let {query} = op.transformAt({
       loc: {pointer, selected: state.selected},
@@ -693,7 +693,7 @@ function refetchQuery(state, setState) {
   });
 }
 
-function getName(scope, prefix = 'Query') {
+function generateQueryID(scope, prefix = 'Query') {
   if (scope[prefix] == null) {
     return prefix;
   }

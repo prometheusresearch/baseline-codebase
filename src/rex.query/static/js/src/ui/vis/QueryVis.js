@@ -58,7 +58,6 @@ class QueryVisInsertAfterButton extends React.Component {
   props: {
     pointer: QueryPointer<q.Query>;
     first?: boolean;
-    last?: boolean;
   };
 
   render() {
@@ -66,11 +65,10 @@ class QueryVisInsertAfterButton extends React.Component {
       Root: QueryPane.DefaultPane,
       Button: QueryButton.DefaultButton,
     };
-    let {first, last} = this.props;
+    let {first} = this.props;
     return (
       <QueryVisButtonBase
         first={first}
-        last={last}
         selected
         stylesheet={stylesheet}
         label=""
@@ -101,36 +99,77 @@ function getColumnTitle(query: q.NavigateQuery): string {
   return query.path;
 }
 
+function QueryVisDefineButtonTopShape({first}) {
+  let triangle = first ? '' : '10,0 15,5 20,0';
+  let points = `0,0 ${triangle} 300,0`;
+  return (
+    <svg
+      style={{position: 'absolute', top: 0, left: -1, zIndex: 100}}
+      viewBox="0 0 300 10"
+      width="100%"
+      height="10px">
+      <polyline
+        fill="#fff"
+        stroke="#bbb"
+        strokeWidth="1"
+        strokeLinecap="round"
+        strokeLinejoin="miter"
+        points={points}
+        />
+    </svg>
+  );
+}
+
+function QueryVisDefineButtonBottomShape() {
+  return (
+    <svg
+      style={{position: 'absolute', bottom: -10, left: -1}}
+      viewBox="0 0 300 10"
+      width="100%"
+      height="10px">
+      <polyline
+        fill="#fff"
+        stroke="#bbb"
+        strokeWidth="1"
+        strokeLinecap="round"
+        strokeLinejoin="miter"
+        points="0,0 10,0 15,5 20,0 300,0"
+        />
+    </svg>
+  );
+}
+
 export function QueryVisDefineButton(props: {
   pointer: QueryPointer<q.DefineQuery>;
   selected: ?QueryPointer<>;
   insertAfter: ?QueryPointer<>;
+  first?: boolean;
 }) {
-  let {pointer, selected, insertAfter} = props;
+  let {pointer, selected, insertAfter, first} = props;
   let bindingPointer: QueryPointer<q.QueryPipeline> = (
     qp.select(pointer, ['binding', 'query']): any
   );
   let isSelected = selected && qp.is(selected, pointer)
   return (
-    <VBox>
-      <QueryVisDefineWrapper>
-        <QueryVisNavigationHeader
-          selectable
-          closeable
-          closeTitle="Remove"
-          selected={isSelected}
-          label={pointer.query.binding.name}
-          pointer={pointer}
+    <QueryVisDefineWrapper>
+      <QueryVisDefineButtonTopShape first={first} />
+      <QueryVisDefineHeader
+        selectable
+        closeable
+        closeTitle="Remove"
+        selected={isSelected}
+        label={pointer.query.binding.name}
+        pointer={pointer}
+        />
+      <VBox paddingV={8} paddingLeft={8}>
+        <QueryVisPipeline
+          pointer={bindingPointer}
+          selected={selected}
+          insertAfter={insertAfter}
           />
-        <VBox paddingV={8} paddingLeft={8}>
-          <QueryVisPipeline
-            pointer={bindingPointer}
-            selected={selected}
-            insertAfter={insertAfter}
-            />
-        </VBox>
-      </QueryVisDefineWrapper>
-    </VBox>
+      </VBox>
+      <QueryVisDefineButtonBottomShape />
+    </QueryVisDefineWrapper>
   );
 }
 
@@ -138,14 +177,9 @@ let QueryVisDefineWrapper = style(VBox, {
   displayName: 'QueryVisDefineWrapper',
   base: {
     borderLeft: css.border(1, '#bbb'),
-    borderTop: css.border(1, '#bbb'),
-    borderBottom: css.border(1, '#bbb'),
-    boxShadow: css.boxShadow(-1, 1, 4, -1, '#aaa'),
+    marginTop: 2,
+    marginBottom: 5,
     marginLeft: 2,
-    marginBottom: 2,
-    lastOfType: {
-      marginBottom: 2,
-    }
   },
 });
 
@@ -224,7 +258,7 @@ export function QueryVisAggregateButton(props: {
   );
 }
 
-class QueryVisNavigationHeader extends React.Component {
+class QueryVisDefineHeader extends React.Component {
 
   context: {
     actions: Actions;
@@ -262,7 +296,7 @@ class QueryVisNavigationHeader extends React.Component {
       closeTitle,
     } = this.props;
     return (
-      <QueryVisNavigationHeaderRoot
+      <QueryVisDefineHeaderRoot
         variant={{selected}}
         onClick={selectable && this.onSelect}>
         <HBox grow={1} alignItems="center">
@@ -276,13 +310,13 @@ class QueryVisNavigationHeader extends React.Component {
               <IconRemove />
             </QueryButton.DefaultButton>
           </HBox>}
-      </QueryVisNavigationHeaderRoot>
+      </QueryVisDefineHeaderRoot>
     );
   }
 }
 
-let QueryVisNavigationHeaderRoot = style(HBox, {
-  displayName: 'QueryVisNavigationHeaderRoot',
+let QueryVisDefineHeaderRoot = style(HBox, {
+  displayName: 'QueryVisDefineHeaderRoot',
   base: {
     height: 34,
     fontSize: '12px',
@@ -293,6 +327,7 @@ let QueryVisNavigationHeaderRoot = style(HBox, {
     textTransform: css.textTransform.capitalize,
     userSelect: css.none,
     borderBottom: css.border(1, '#bbb'),
+    borderLeft: css.border(3, 'transparent'),
     paddingLeft: 10,
     paddingRight: 5,
     paddingTop: 7,
@@ -309,7 +344,6 @@ function QueryVisQueryButton(props: {
   selected: ?QueryPointer<>;
   insertAfter: ?QueryPointer<>;
   first?: boolean;
-  last?: boolean;
   closeable?: boolean;
 }) {
   const {pointer, ...rest} = props;
@@ -382,20 +416,15 @@ function QueryVisPipeline({pointer, closeable, insertAfter, ...props}: {
   let firstPointer = pipeline[0];
   pipeline.forEach((pointer, idx) => {
     let needPlaceholder = qp.is(pointer, insertAfter);
-    let lastItem = lastPointer.query.name === 'select'
-      ? pipeline.length - 2
-      : pipeline.length - 1;
     let firstItem = firstPointer.query.name === 'here'
       ? 1
       : 0;
     let first = idx === firstItem;
-    let last = !needPlaceholder && idx === lastItem;
     items.push(
       <QueryVisPipelineItem key={idx} variant={{topLevel}}>
         <QueryVisQueryButton
           {...props}
           first={first}
-          last={last}
           insertAfter={insertAfter}
           closeable={closeable && idx > 0}
           pointer={pointer}
@@ -408,7 +437,6 @@ function QueryVisPipeline({pointer, closeable, insertAfter, ...props}: {
         <QueryVisPipelineItem key="__insertAfter__" variant={{topLevel}}>
           <QueryVisInsertAfterButton
             first={pointer.query.name === 'here'}
-            last={lastItem}
             pointer={pointer}
             />
         </QueryVisPipelineItem>
@@ -470,7 +498,7 @@ export class QueryVis extends React.Component<*, QueryVisProps, *> {
     let {pointer, selected, insertAfter} = this.props;
     return (
       <VBox grow={1}>
-        <QueryVisNavigationHeader
+        <QueryVisDefineHeader
           pointer={pointer}
           label="My Queries"
           />

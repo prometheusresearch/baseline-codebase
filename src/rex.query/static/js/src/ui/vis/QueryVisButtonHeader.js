@@ -24,6 +24,8 @@ type QueryVisButtonHeaderProps = {
   toggleable: boolean;
   closeable: boolean;
 
+  first?: boolean;
+
   closeTitle?: string;
 
   onSelect: () => void;
@@ -76,7 +78,7 @@ export default class QueryVisButtonHeader
       label, selected,
       selectable, toggleable, closeable,
       closeIcon, closeTitle,
-      first, last,
+      first,
       stylesheet: {Root, Button},
     } = this.props;
     let {
@@ -112,7 +114,6 @@ export default class QueryVisButtonHeader
     return (
       <Root
         first={first}
-        last={last}
         variant={{selected}}
         onClick={selectable && this.onSelect}
         onMouseOver={this.onMouseEnter}

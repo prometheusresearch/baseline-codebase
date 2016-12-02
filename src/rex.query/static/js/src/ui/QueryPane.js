@@ -5,14 +5,14 @@
 import React from 'react';
 
 import {VBox} from '@prometheusresearch/react-box';
+import {style} from 'react-stylesheet';
 import * as theme from './Theme';
 
-function makePath({first, last, open}) {
-  let top = first ? '' : '20,0 15,5 10,0';
-  let bottom = '10,32 15,37 20,32';
-  let end = open ? '' : '278,0';
-  return `278,0 ${top} 0,0 0,32 ${bottom} 278,32 ${end}`;
-}
+type ShapeProps = {
+  children?: React$Element<*>;
+  first?: boolean;
+  variant: {selected?: boolean};
+};
 
 function createPane({displayName, theme, noActiveBorder, strokeDasharray}: {
   displayName: string;
@@ -21,48 +21,25 @@ function createPane({displayName, theme, noActiveBorder, strokeDasharray}: {
   strokeDasharray?: string;
 }) {
 
-  function Shape({children, first, last, variant, ...props}) {
+  function Shape({children, first, variant, ...props}: ShapeProps) {
     let selected = variant && variant.selected;
-    let fill = selected && !noActiveBorder
-      ? theme.backgroundColorActive
-      : theme.backgroundColor;
-    let strokeWidth = selected && !noActiveBorder
-      ? 2
-      : 1;
-    let points = makePath({
-      last, first,
-      open: selected,
-    });
-
     return (
       <VBox {...props}
-        paddingBottom={7}
+        paddingBottom={5}
         left={1}
         style={{zIndex: selected ? 1 : 0}}>
-        <div style={{
-          zIndex: 100,
-          paddingTop: 3,
-          color: theme.textColor
-        }}>
+        <PaneChildrenWrapper style={{color: theme.textColor}}>
           {children}
-        </div>
-        <div style={{position: 'absolute'}}>
-          <svg
-            style={{padding: 1}}
-            viewBox="0 0 278 37"
-            width="100%"
-            height="40px">
-            <polyline
-              fill={fill}
-              stroke={theme.borderColor}
-              strokeDasharray={strokeDasharray}
-              strokeWidth={strokeWidth}
-              strokeLinecap="round"
-              strokeLinejoin="miter"
-              points={points}
-              />
-          </svg>
-        </div>
+        </PaneChildrenWrapper>
+        <Overlay>
+          <PaneShape
+            fill={theme.backgroundColor}
+            stroke={theme.borderColor}
+            strokeDasharray={strokeDasharray}
+            selected={selected && !noActiveBorder}
+            topTriangle={first}
+            />
+        </Overlay>
       </VBox>
     );
   }
@@ -71,6 +48,72 @@ function createPane({displayName, theme, noActiveBorder, strokeDasharray}: {
 
   return Shape;
 }
+
+function PaneShape({
+  fill,
+  stroke,
+  strokeDasharray,
+  selected,
+  topTriangle
+}) {
+  let top = topTriangle ? '' : '20,0 15,5 10,0';
+  let bottom = '10,35 15,40 20,35';
+  let end = open ? '' : '300,0';
+  let points = `300,0 ${top} 0,0 0,35 ${bottom} 300,35 ${end}`;
+  return (
+    <svg
+      style={{padding: 1}}
+      viewBox="0 0 300 40"
+      width="100%"
+      height="40px">
+      <polyline
+        fill={fill}
+        stroke={stroke}
+        strokeDasharray={strokeDasharray}
+        strokeWidth={1}
+        strokeLinecap="round"
+        strokeLinejoin="miter"
+        points={points}
+        />
+      {selected &&
+        <polyline
+          stroke={stroke}
+          strokeWidth={6}
+          strokeLinecap="square"
+          strokeLinejoin="miter"
+          points="0,3 0,32"
+          />}
+    </svg>
+  );
+}
+
+class Overlay extends React.Component {
+
+  static style = {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0
+  };
+
+  render() {
+    let {children} = this.props;
+    return (
+      <div style={this.constructor.style}>
+        {children}
+      </div>
+    );
+  }
+
+}
+
+let PaneChildrenWrapper = style('div', {
+  base: {
+    zIndex: 100,
+    paddingTop: 3,
+  }
+});
 
 export let NavigatePane = createPane({
   displayName: 'NavigatePane',

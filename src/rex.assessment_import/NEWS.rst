@@ -4,10 +4,11 @@
 
 .. contents:: Table of Contents
 
-0.5.0
-=====
+0.5.0 (2016-12-02)
+==================
 
 * added functions import_assessment, export_template to replace classes.
+* bugs fixed, code refactored
 
 0.4.3 (2016-09-27)
 ==================

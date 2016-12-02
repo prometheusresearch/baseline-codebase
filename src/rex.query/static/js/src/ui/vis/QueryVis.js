@@ -329,7 +329,7 @@ let QueryVisDefineHeaderRoot = style(HBox, {
     userSelect: css.none,
     borderBottom: css.border(1, '#bbb'),
     borderLeft: css.border(3, 'transparent'),
-    paddingLeft: 10,
+    paddingLeft: 25,
     paddingRight: 5,
     paddingTop: 7,
     paddingBottom: 7,

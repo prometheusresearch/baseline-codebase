@@ -152,25 +152,27 @@ export function QueryVisDefineButton(props: {
   let isSelected = selected && qp.is(selected, pointer)
   let title = q.genQueryName(pointer.query.binding.query);
   return (
-    <QueryVisDefineWrapper>
-      <QueryVisDefineButtonTopShape first={first} />
-      <QueryVisDefineHeader
-        selectable
-        closeable
-        closeTitle="Remove"
-        selected={isSelected}
-        label={title || pointer.query.binding.name}
-        pointer={pointer}
-        />
-      <VBox paddingV={8} paddingLeft={8}>
-        <QueryVisPipeline
-          pointer={bindingPointer}
-          selected={selected}
-          insertAfter={insertAfter}
+    <VBox paddingBottom={5}>
+      <QueryVisDefineWrapper>
+        <QueryVisDefineButtonTopShape first={first} />
+        <QueryVisDefineHeader
+          selectable
+          closeable
+          closeTitle="Remove"
+          selected={isSelected}
+          label={title || pointer.query.binding.name}
+          pointer={pointer}
           />
-      </VBox>
-      <QueryVisDefineButtonBottomShape />
-    </QueryVisDefineWrapper>
+        <VBox paddingV={8} paddingLeft={8}>
+          <QueryVisPipeline
+            pointer={bindingPointer}
+            selected={selected}
+            insertAfter={insertAfter}
+            />
+        </VBox>
+        <QueryVisDefineButtonBottomShape />
+      </QueryVisDefineWrapper>
+    </VBox>
   );
 }
 
@@ -178,8 +180,8 @@ let QueryVisDefineWrapper = style(VBox, {
   displayName: 'QueryVisDefineWrapper',
   base: {
     borderLeft: css.border(1, '#bbb'),
+    overflow: 'visible',
     marginTop: 2,
-    marginBottom: 5,
     marginLeft: 2,
   },
 });

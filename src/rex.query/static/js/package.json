@@ -46,7 +46,7 @@
     ]
   },
   "dependencies": {
-    "@prometheusresearch/react-box": "1.0.0-alpha.3",
+    "@prometheusresearch/react-box": "1.0.0-alpha.4",
     "@prometheusresearch/react-ui": "^0.20.0",
     "color": "^0.11.3",
     "downloadjs": "^1.4.6",

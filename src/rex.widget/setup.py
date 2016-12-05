@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.widget',
-    version='2.11.0',
+    version='2.11.1',
     description="Widget toolkit for the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",

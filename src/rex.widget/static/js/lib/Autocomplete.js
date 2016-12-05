@@ -150,6 +150,7 @@ export default class Autocomplete extends React.Component {
     titleAttribute: 'title',
     valueAttribute: 'id',
     debounce: 300,
+    limit: 50,
   };
 
   constructor(props) {
@@ -251,8 +252,10 @@ export default class Autocomplete extends React.Component {
 
   @autobind
   _requestOptions(value) {
-    let {titleAttribute, data} = this.props;
-    data = data.limit(50);
+    let {titleAttribute, data, limit} = this.props;
+    if (limit) {
+      data = data.limit(limit);
+    }
     if (value) {
       data = data.params({[`*.${titleAttribute}:contains`]: value});
     }

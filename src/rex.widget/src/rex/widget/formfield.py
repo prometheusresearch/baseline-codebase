@@ -895,12 +895,13 @@ class EntityFormField(FormField):
 
     fields = (
         ('data', EntitySuggestionSpecVal()),
+        ('limit', MaybeVal(IntVal()), 50),
         ('using', ChoiceVal('autocomplete', 'radio-group'), 'autocomplete'),
     )
 
     def widget(self):
         if self.using == 'autocomplete':
-            return AutocompleteField(_data=self.data)
+            return AutocompleteField(_data=self.data, limit=self.limit)
         elif self.using == 'radio-group':
             return RadioGroupField(_data=self.data)
 
@@ -910,6 +911,8 @@ class AutocompleteField(Widget, PortSupport):
     js_type = 'rex-widget/lib/form/AutocompleteField'
 
     _data = Field(AnyVal(), transitionable=False)
+
+    limit = Field(MaybeVal(IntVal()), default=None)
 
     @cached_property
     def query_port(self):

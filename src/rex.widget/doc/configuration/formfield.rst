@@ -202,6 +202,12 @@ The following additional parameters are available:
   **mask** (optional)
     HTSQL expression which will be used as a mask for table.
 
+**limit** (optional, default: ``50``)
+  Determines how many items this widget will show. This is only applicable for
+  ``autocompelte`` widget right now. Set to ``null`` to show all items in the
+  database (warning: that may slow down an app a lot if the corresponding entity
+  table has a lot of records).
+
 **using** (optional, default: ``autocomplete``)
   Determines what widget. Either ``autocomplete`` or ``radio-group``.
 

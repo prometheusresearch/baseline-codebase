@@ -54,12 +54,18 @@ export class AutocompleteField extends React.Component {
      */
     style: React.PropTypes.object,
 
+    /**
+     * How many items to fetch from server for any given request.
+     */
+    limit: React.PropTypes.number,
+
     Input: React.PropTypes.func,
 
     View: React.PropTypes.func,
   };
 
   static defaultProps = {
+    limit: 50,
     Input: Autocomplete,
     View: function View({data, titleAttribute}) {
       if (data) {
@@ -72,7 +78,7 @@ export class AutocompleteField extends React.Component {
 
   render() {
     let {
-      data, readOnly, formValue,
+      data, readOnly, formValue, limit,
       valueAttribute, titleAttribute, style,
       select, selectFormValue,
       Input, View,
@@ -98,6 +104,7 @@ export class AutocompleteField extends React.Component {
       return (
         <Field {...props} data={undefined} formValue={formValue}>
           <Input
+            limit={limit}
             style={{resultList: style && style.resultList}}
             data={queryDataSpec}
             titleData={titleDataSpec}

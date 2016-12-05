@@ -145,9 +145,10 @@ class ImportPackage(object):
         chunks = []
         with zipfile.ZipFile(path, 'r') as zf:
             for filepath in zf.namelist():
-                head, filepath = os.path.split(filepath)
-                if head: continue
+                head, filename = os.path.split(filepath)
+                if not filename: continue
                 name, ext = os.path.splitext(os.path.basename(filepath))
+                if name.startswith('.'): continue
                 if ext != '.csv': continue
                 with zf.open(filepath, 'rU') as csvfile:
                     try:

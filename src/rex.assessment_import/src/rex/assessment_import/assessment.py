@@ -200,11 +200,10 @@ class Assessment(object):
                          datetime.timedelta(days=value)
                         ).strftime('%Y-%m-%dT%H:%M:%S')
                 return value
-
             if isinstance(value, datetime.datetime):
                 return value.strftime('%Y-%m-%dT%H:%M:%S')
             if isinstance(value, basestring) \
-            and re.match(r'^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d$',
+            and re.match(r'^\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?$',
                          value,
                          re.UNICODE):
                 return value

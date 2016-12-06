@@ -131,7 +131,7 @@ command line::
     HTSQL script #1...
     SQL script #2...
     ...ETL complete
-    Processing Assessment #1
+    Processing Assessment #1 (mart1)
     ...deploying structures
     ...loading Assessments
     ...8 Assessments loaded

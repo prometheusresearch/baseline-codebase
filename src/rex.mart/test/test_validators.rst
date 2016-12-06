@@ -373,6 +373,20 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])
 
     >>> assessment = {
+    ...     'instrument': ['foo', 'bar'],
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ... }
+    >>> val(assessment)
+    Record(instrument=['foo', 'bar'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])
+
+    >>> assessment = {
+    ...     'instrument': '@ALL',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ... }
+    >>> val(assessment)
+    Record(instrument='@ALL', name=None, selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])
+
+    >>> assessment = {
     ...     'instrument': 'foo',
     ...     'name': 'bar',
     ...     'selector': '/measure{id() :as assessment_uid}',
@@ -752,6 +766,48 @@ AssessmentDefinitionVal validates a single Assessment Definition::
         ...
     Error: Definition does not include any fields, calculations, or metadata
 
+    >>> assessment = {
+    ...     'instrument': '@ALL',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'name': 'something',
+    ... }
+    >>> val(assessment)
+    Traceback (most recent call last):
+        ...
+    Error: The "name", "fields", "calculations", and "post_load_calculations" properties are not allowed when @ALL is specified for the instrument.
+
+    >>> assessment = {
+    ...     'instrument': '@ALL',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'fields': None,
+    ... }
+    >>> val(assessment)
+    Traceback (most recent call last):
+        ...
+    Error: The "name", "fields", "calculations", and "post_load_calculations" properties are not allowed when @ALL is specified for the instrument.
+
+    >>> assessment = {
+    ...     'instrument': '@ALL',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'calculations': None,
+    ... }
+    >>> val(assessment)
+    Traceback (most recent call last):
+        ...
+    Error: The "name", "fields", "calculations", and "post_load_calculations" properties are not allowed when @ALL is specified for the instrument.
+
+    >>> assessment = {
+    ...     'instrument': '@ALL',
+    ...     'selector': '/measure{id() :as assessment_uid}',
+    ...     'post_load_calculations': [
+    ...         {'name': 'postcalc1', 'type': 'text', 'expression': 'upper(assessment_uid)'},
+    ...     ]
+    ... }
+    >>> val(assessment)
+    Traceback (most recent call last):
+        ...
+    Error: The "name", "fields", "calculations", and "post_load_calculations" properties are not allowed when @ALL is specified for the instrument.
+
 
 ProcessorVal
 ============
@@ -1016,6 +1072,21 @@ DefinitionVal validates a single Mart Definition::
     ... }
     >>> val(definition)
     Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])], post_assessment_scripts=[], processors=[])
+
+    >>> definition = {
+    ...     'id': 'foo',
+    ...     'assessments': [
+    ...         {
+    ...             'instrument': '@ALL',
+    ...             'selector': '/measure{id() :as assessment_uid}',
+    ...         },
+    ...     ],
+    ... }
+    >>> validated = val(definition)
+    >>> validated
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[Record(instrument=['alltypes'], name=u'alltypes', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['calculation'], name=u'calculation', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['calculation-complex'], name=u'calculation_complex', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['complex'], name=u'complex', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['disabled'], name=u'disabled', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['mart1'], name=u'mart1', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['mart10'], name=u'mart10', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['mart11'], name=u'mart11', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['mart12'], name=u'mart12', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['mart13'], name=u'mart13', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['mart14'], name=u'mart14', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['mart15'], name=u'mart15', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['mart2'], name=u'mart2', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['mart3'], name=u'mart3', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['mart4'], name=u'mart4', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['mart5'], name=u'mart5', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['mart6'], name=u'mart6', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['mart7'], name=u'mart7', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['mart8'], name=u'mart8', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['mart9'], name=u'mart9', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['simple'], name=u'simple', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(instrument=['texter'], name=u'texter', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])], post_assessment_scripts=[], processors=[])
+    >>> [a.name for a in validated.assessments]
+    [u'alltypes', u'calculation', u'calculation_complex', u'complex', u'disabled', u'mart1', u'mart10', u'mart11', u'mart12', u'mart13', u'mart14', u'mart15', u'mart2', u'mart3', u'mart4', u'mart5', u'mart6', u'mart7', u'mart8', u'mart9', u'simple', u'texter']
 
     >>> definition = {
     ...     'id': 'foo',

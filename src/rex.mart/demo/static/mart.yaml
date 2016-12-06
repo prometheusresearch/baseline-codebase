@@ -425,3 +425,37 @@ definitions:
     processors:
       - id: datadictionary
 
+  - id: all_assessments
+    description: Load a Mart that automatically includes all Assessments in the system
+    assessments:
+      - instrument: '@ALL'
+        selector: |
+          /assessment{
+            id() :as assessment_uid,
+            age_at_evaluation
+          }.filter(
+            instrumentversion.instrument=$INSTRUMENT
+          )/:rexdb
+
+  - id: all_assessments_linked
+    description: Load a Mart that automatically includes all Assessments in the system and links them to subject
+    deploy: !include simple_subject.yaml
+    post_deploy_scripts:
+      - script: !include/str subject.htsql
+        type: htsql
+    assessments:
+      - instrument: '@ALL'
+        selector:
+          query: |
+            /assessment{
+              id() :as assessment_uid,
+              subject.id() :as subject
+            }.filter(
+              instrumentversion.instrument=$INSTRUMENT
+            )/:rexdb
+        parental_relationship:
+          type: branch
+          parent: subject
+    processors:
+      - id: datadictionary
+

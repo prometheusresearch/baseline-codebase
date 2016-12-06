@@ -2,8 +2,5 @@
         uid,
         mobile_tn
     }
-    .filter(
-        uid~'mart'
-    )
     /:rexdb
     /:insert

@@ -277,12 +277,16 @@ instrument
     Assessments loaded. If this specifies an Instrument with multiple Versions,
     or multiple different Instruments, all Instrument Definitions involved will
     be merged such that the data from their respective Assessments is loaded
-    into a single set of relational tables. This property is required.
+    into a single set of relational tables. If the string ``@ALL`` is specified
+    for this property, then all Instruments found in the system that are active
+    and have at least one InstrumentVersion will be included in the Mart. This
+    property is required.
 
 name
     This property specifies the base name of the table that the Assessments
     should be loaded in. If not specified, it takes the name of the first
-    Instrument listed in the ``instrument`` property.
+    Instrument listed in the ``instrument`` property. Not allowed if using
+    ``@ALL`` instruments.
 
 selector
     This property specifies an HTSQL query that will be run in the Mart that
@@ -336,13 +340,14 @@ fields
     This property is a list that specifies which fields from the Instrument to
     include. If this property is set to ``null``, then no Instrument fields are
     included. If this property is not specified, then all Instrument fields
-    are included.
+    are included. Not allowed if using ``@ALL`` instruments.
 
 calculations
     This property is a list that specifies which fields from the Calculation
     Set to include. If this property is set to ``null``, then no Calculation
     Set fields are included. If this property is not specified, then all
-    Calculation Set fields are included.
+    Calculation Set fields are included. Not allowed if using ``@ALL``
+    instruments.
 
 meta
     This property is a list that specifies which metadata fields from the
@@ -364,8 +369,8 @@ post_load_calculations
     HTSQL-expression-based fields to add on to the base Assessment table. It
     allows you to add columns to the Assessment table that are populated with
     values that are calculated based of the values of fields within the
-    Assessment itself. Each one of these field definitions accepts the
-    following properties:
+    Assessment itself. Not allowed if using ``@ALL`` instruments. Each one of
+    these field definitions accepts the following properties:
 
     name
         This property specifies the name of the field to add to the table. This
@@ -379,6 +384,7 @@ post_load_calculations
     expression
         This property specifies the HTSQL expression to use to calculate the
         value that should be stored in the field.
+
 
 post_assessment_scripts
 ```````````````````````

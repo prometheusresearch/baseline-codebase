@@ -496,7 +496,7 @@ class MartCreator(object):
             return
 
         for idx, assessment in enumerate(self.definition['assessments']):
-            idx_label = '#%s' % (idx + 1,)
+            idx_label = '#%s (%s)' % (idx + 1, assessment['name'])
             self.log('Processing Assessment %s' % (idx_label,))
 
             with guarded('While processing Assessment:', idx_label):

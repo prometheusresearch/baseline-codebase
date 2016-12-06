@@ -9,6 +9,7 @@ from rex.core import Error, StrVal, RecordVal, MaybeVal, ChoiceVal, SeqVal, \
     MapVal, guard, OneOrSeqVal, OneOfVal, BoolVal, get_settings, IntVal, \
     AnyVal, FloatVal
 from rex.deploy import Driver
+from rex.instrument import Instrument
 from rex.restful import DateVal, TimeVal, DateTimeVal
 
 from .util import make_safe_token, RESTR_SAFE_TOKEN, record_to_dict, REQUIRED
@@ -486,6 +487,19 @@ class PostLoadCalculationsVal(FullyValidatingRecordVal):
         )
 
 
+class AllOrOneOrSeqVal(NormalizedOneOrSeqVal):
+    """
+    Parses/Validates the configuration of the instrument property on an
+    Assessment definition.
+    """
+
+    def __call__(self, data):
+        if data == '@ALL':
+            return data
+        else:
+            return super(AllOrOneOrSeqVal, self).__call__(data)
+
+
 class AssessmentDefinitionVal(FullyValidatingRecordVal):
     """
     Parses/Validates a single Assessment definition.
@@ -494,7 +508,7 @@ class AssessmentDefinitionVal(FullyValidatingRecordVal):
     def __init__(self):
         super(AssessmentDefinitionVal, self).__init__(
             # The Instrument(s) that define the structure of the Assessments.
-            ('instrument', NormalizedOneOrSeqVal(StrVal)),
+            ('instrument', AllOrOneOrSeqVal(StrVal)),
 
             # The name of the table to store the Assessments in.
             ('name', StrippedStrVal(RESTR_SAFE_TOKEN), None),
@@ -524,7 +538,8 @@ class AssessmentDefinitionVal(FullyValidatingRecordVal):
             # The Assessment-level metadata fields to include.
             ('meta', MaybeVal(NormalizedOneOrSeqVal(MetadataFieldVal)), None),
 
-            # The Assessment-specific calculations to execute aft
+            # The Assessment-specific calculation fields to execute after
+            # they've been loaded into the database.
             (
                 'post_load_calculations',
                 NormalizedOneOrSeqVal(PostLoadCalculationsVal),
@@ -535,41 +550,58 @@ class AssessmentDefinitionVal(FullyValidatingRecordVal):
     def __call__(self, data):
         value = super(AssessmentDefinitionVal, self).__call__(data)
 
-        with guard('While validating field:', 'name'):
-            if not value.name and value.instrument:
-                # Default the name to be the same as the instrument.
-                safe_name = make_safe_token(value.instrument[0])
-                value = value.__clone__(name=safe_name)
+        if value.instrument != '@ALL':
+            with guard('While validating field:', 'name'):
+                if not value.name and value.instrument:
+                    # Default the name to be the same as the instrument.
+                    safe_name = make_safe_token(value.instrument[0])
+                    value = value.__clone__(name=safe_name)
 
-            elif value.name:
-                with guard('Got:', value.name):
-                    max_length = get_settings().mart_max_name_length
-                    max_length -= 3  # reserve room for numbering
-                    if len(value.name) > max_length:
-                        raise Error(
-                            'Name cannot be longer than %s characters' % (
-                                max_length,
+                elif value.name:
+                    with guard('Got:', value.name):
+                        max_length = get_settings().mart_max_name_length
+                        max_length -= 3  # reserve room for numbering
+                        if len(value.name) > max_length:
+                            raise Error(
+                                'Name cannot be longer than %s characters' % (
+                                    max_length,
+                                )
                             )
-                        )
 
-        # Make sure that we're actually including something from the Assessment
-        if value.fields is None \
-                and value.calculations is None \
-                and not value.meta:
-            raise Error(
-                'Definition does not include any fields, calculations, or'
-                ' metadata'
-            )
-
-        with guard('While validating field:', 'post_load_calculations'):
-            names = [calc.name for calc in value.post_load_calculations]
-            dupe_names = set([name for name in names if names.count(name) > 1])
-            if dupe_names:
+            # Make sure that we're actually including something from the
+            # Assessment
+            if value.fields is None \
+                    and value.calculations is None \
+                    and not value.meta:
                 raise Error(
-                    'Calculation Names (%s) cannot be duplicated within an'
-                    ' Assessment' % (
-                        ', '.join(list(dupe_names)),
+                    'Definition does not include any fields, calculations, or'
+                    ' metadata'
+                )
+
+            with guard('While validating field:', 'post_load_calculations'):
+                names = [calc.name for calc in value.post_load_calculations]
+                dupe_names = set([
+                    name
+                    for name in names
+                    if names.count(name) > 1
+                ])
+                if dupe_names:
+                    raise Error(
+                        'Calculation Names (%s) cannot be duplicated within an'
+                        ' Assessment' % (
+                            ', '.join(list(dupe_names)),
+                        )
                     )
+
+        else:
+            if value.name \
+                    or value.fields != [] \
+                    or value.calculations != [] \
+                    or value.post_load_calculations:
+                raise Error(
+                    'The "name", "fields", "calculations", and'
+                    ' "post_load_calculations" properties are not allowed when'
+                    ' @ALL is specified for the instrument.'
                 )
 
         return value
@@ -692,7 +724,26 @@ class DefinitionVal(FullyValidatingRecordVal):
         # Make sure we're not trying to load multiple assessment definitions
         # into the same table
         with guard('While validating field:', 'assessments'):
-            names = [assessment.name for assessment in value.assessments]
+            assessments = []
+            for assessment in value.assessments:
+                if assessment.instrument != '@ALL':
+                    assessments.append(assessment)
+                else:
+                    all_instruments = [
+                        instrument
+                        for instrument in Instrument.get_implementation().find(
+                            status=Instrument.STATUS_ACTIVE,
+                        )
+                        if instrument.latest_version
+                    ]
+                    for instrument in all_instruments:
+                        assessments.append(
+                            AssessmentDefinitionVal()(assessment.__clone__(
+                                instrument=instrument.code,
+                            ))
+                        )
+
+            names = [assessment.name for assessment in assessments]
             dupe_names = set([name for name in names if names.count(name) > 1])
             if dupe_names:
                 raise Error(
@@ -701,6 +752,7 @@ class DefinitionVal(FullyValidatingRecordVal):
                         ', '.join(list(dupe_names)),
                     )
                 )
+            value = value.__clone__(assessments=assessments)
 
         # Make sure we're not defining duplicate parameters.
         with guard('While validating field:', 'parameters'):

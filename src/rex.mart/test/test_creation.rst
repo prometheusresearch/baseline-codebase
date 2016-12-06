@@ -300,7 +300,7 @@ the Mart::
     True
     >>> db_inventory(mart.name)
     mart1: 8
-    subject: 5
+    subject: 7
     >>> db_status(mart.name)
     Definition: linked_assessment
     Status: complete
@@ -316,7 +316,7 @@ the Mart::
     alltypes: 5
     alltypes_matrix_field: 4
     alltypes_recordlist_field: 7
-    subject: 5
+    subject: 7
     >>> db_status(mart.name)
     Definition: linked_assessment_alltypes
     Status: complete
@@ -433,7 +433,7 @@ Definitions can invoke post-processors::
     (u'mart1', u'RexMart Testcase #1', u'A description for the Instrument')
     (u'subject', None, u'CUSTOM SUBJECT DESCRIPTION!')
     mart1: 8
-    subject: 5
+    subject: 7
     >>> db_status(mart.name)
     Definition: datadictionary_assessment
     Status: complete
@@ -762,6 +762,103 @@ Your rex.deploy configuration can use include statements::
     foo: 0
     >>> db_status(mart.name)
     Definition: just_deploy_includes
+    Status: complete
+    Owner: test
+    Has Size: True
+    Dates: True True
+
+Your assessment configurations can specify inclusion of "all" instruments
+without explicitly listing every one::
+
+    >>> mc = MartCreator('test', 'all_assessments')
+    >>> mart = mc()
+    >>> db_exists(mart.name)
+    True
+    >>> db_inventory(mart.name)
+    alltypes: 5
+    alltypes_matrix_field: 4
+    alltypes_recordlist_field: 7
+    calculation: 0
+    calculation_complex: 1
+    calculation_complex_q_matrix: 1
+    calculation_complex_q_recordlist: 2
+    complex: 0
+    disabled: 1
+    mart1: 8
+    mart10: 0
+    mart10_bar: 0
+    mart11: 0
+    mart11_bar: 0
+    mart12: 1
+    mart12_recordlist_field: 1
+    mart13: 1
+    mart14: 0
+    mart15: 0
+    mart15_bar: 0
+    mart15_foo: 0
+    mart2: 0
+    mart3: 0
+    mart4: 0
+    mart4_bar: 0
+    mart5: 0
+    mart5_bar: 0
+    mart6: 0
+    mart7: 0
+    mart8: 1
+    mart9: 0
+    simple: 2
+    texter: 0
+    >>> db_status(mart.name)
+    Definition: all_assessments
+    Status: complete
+    Owner: test
+    Has Size: True
+    Dates: True True
+
+    >>> mc = MartCreator('test', 'all_assessments_linked')
+    >>> mart = mc()
+    >>> db_exists(mart.name)
+    True
+    >>> db_inventory(mart.name)
+    alltypes: 5
+    alltypes_matrix_field: 4
+    alltypes_recordlist_field: 7
+    calculation: 0
+    calculation_complex: 1
+    calculation_complex_q_matrix: 1
+    calculation_complex_q_recordlist: 2
+    complex: 0
+    datadictionary_column: 225
+    datadictionary_enumeration: 23
+    datadictionary_table: 34
+    disabled: 1
+    mart1: 8
+    mart10: 0
+    mart10_bar: 0
+    mart11: 0
+    mart11_bar: 0
+    mart12: 1
+    mart12_recordlist_field: 1
+    mart13: 1
+    mart14: 0
+    mart15: 0
+    mart15_bar: 0
+    mart15_foo: 0
+    mart2: 0
+    mart3: 0
+    mart4: 0
+    mart4_bar: 0
+    mart5: 0
+    mart5_bar: 0
+    mart6: 0
+    mart7: 0
+    mart8: 1
+    mart9: 0
+    simple: 2
+    subject: 7
+    texter: 0
+    >>> db_status(mart.name)
+    Definition: all_assessments_linked
     Status: complete
     Owner: test
     Has Size: True

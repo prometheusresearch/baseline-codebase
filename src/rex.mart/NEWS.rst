@@ -5,6 +5,14 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
+0.5.0 (2016-xx-xx)
+==================
+
+- Added the ability to specify ``@ALL`` for the instrument in an assessment
+  definition. This tells rex.mart that all active Instruments in the system
+  should be automatically included in the Mart database.
+
+
 0.4.0 (2016-12-01)
 ==================
 

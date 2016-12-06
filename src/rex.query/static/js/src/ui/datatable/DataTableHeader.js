@@ -14,14 +14,21 @@ import DataTableHeaderCell from './DataTableHeaderCell';
 
 type DataTableHeaderProps = {
   columns: ColumnConfig<*>;
+  columnWidgetByDataKey: {[dataKey: string]: number};
   height: number;
   width: number;
   scrollbarWidth: number;
+  onColumnResize?: (resize: {dataKey: Array<string>; width: number}) => *;
   onColumnClick?: (column: ColumnField<*>) => *;
 };
 
 export default function DataTableHeader(props: DataTableHeaderProps) {
-  let {width, height, scrollbarWidth, onColumnClick, columns} = props;
+  let {
+    width, height,
+    scrollbarWidth,
+    onColumnClick, onColumnResize,
+    columns, columnWidgetByDataKey,
+  } = props;
   return (
     <DataTableHeaderRow
       style={{
@@ -31,14 +38,20 @@ export default function DataTableHeader(props: DataTableHeaderProps) {
       }}>
       <DataTableHeaderItem
         columns={columns}
+        columnWidgetByDataKey={columnWidgetByDataKey}
         height={height}
         onClick={onColumnClick}
+        onResize={onColumnResize}
         />
     </DataTableHeaderRow>
   );
 }
 
-function DataTableHeaderItem({columns, onClick, height, grow = 1}) {
+function DataTableHeaderItem({
+  columns, columnWidgetByDataKey,
+  onClick, onResize,
+  height, grow = 1
+}) {
   if (columns.type === 'stack') {
     return (
       <DataTableHeaderStack height={height * columns.size.height} grow={grow}>
@@ -51,16 +64,20 @@ function DataTableHeaderItem({columns, onClick, height, grow = 1}) {
             key={idx}>
             <DataTableHeaderItem
               onClick={onClick}
+              onResize={onResize}
               height={height}
               flexGrow={1}
               columns={columns}
+              columnWidgetByDataKey={columnWidgetByDataKey}
               />
           </DataTableHeaderGroup> :
           <DataTableHeaderItem
             onClick={onClick}
+            onResize={onResize}
             height={height}
             key={idx}
             columns={columns}
+            columnWidgetByDataKey={columnWidgetByDataKey}
             />)}
       </DataTableHeaderStack>
     );
@@ -70,15 +87,22 @@ function DataTableHeaderItem({columns, onClick, height, grow = 1}) {
         {columns.group.map((columns, idx) =>
           <DataTableHeaderItem
             onClick={onClick}
+            onResize={onResize}
             key={idx}
             height={height}
             grow={columns.size.width}
             columns={columns}
+            columnWidgetByDataKey={columnWidgetByDataKey}
             />)}
       </DataTableHeaderGroup>
     );
   } else if (columns.type === 'field') {
-    const style = computeColumnStyle(columns.field, {flexGrow: grow})
+    let dataKey = columns.field.dataKey.join('__');
+    let width = columnWidgetByDataKey[dataKey];
+    const style = computeColumnStyle(columns.field, {
+      flexGrow: grow,
+      width,
+    })
     if (columns.field.headerCellRenderer) {
       return columns.field.headerCellRenderer({
         column: columns,
@@ -90,7 +114,8 @@ function DataTableHeaderItem({columns, onClick, height, grow = 1}) {
         <DataTableHeaderCell
           column={columns}
           style={style}
-          onClick={onClick ? onClick.bind(null, columns) : onClick}
+          onClick={onClick}
+          onResize={onResize}
           />
       );
     }

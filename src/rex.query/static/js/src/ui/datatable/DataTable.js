@@ -196,15 +196,10 @@ type DataTableProps = {
 
 type DataTableState = {
   scrollbarWidth: number;
+  columnWidgetByDataKey: {[dataKey: string]: number};
 };
 
 export default class DataTable extends React.Component<*, DataTableProps, *> {
-
-  Grid: Grid;
-  _cachedColumnStyles: Array<any>;
-  _cachedColumnSpecList: Array<ColumnSpec<*>>;
-
-  state: DataTableState;
 
   static defaultProps = {
     disableHeader: false,
@@ -216,11 +211,16 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     style: {}
   };
 
-  _cachedColumnStyles = [];
+  Grid: Grid;
+  _cachedColumnStyles: Array<any>;
+  _cachedColumnSpecList: Array<ColumnSpec<*>>;
 
-  state = {
-    scrollbarWidth: 0
+  state: DataTableState = {
+    scrollbarWidth: 0,
+    columnWidgetByDataKey: {},
   };
+
+  _cachedColumnStyles = [];
 
   forceUpdateGrid() {
     this.Grid.forceUpdate()
@@ -257,7 +257,10 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
       width,
       onColumnClick,
     } = this.props
-    const { scrollbarWidth } = this.state
+    const {
+      scrollbarWidth,
+      columnWidgetByDataKey
+    } = this.state
 
     const availableRowsHeight = height - (headerHeight * columns.size.height);
 
@@ -266,10 +269,13 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     this._cachedColumnStyles = []
     this._cachedColumnSpecList = getColumnSpecList(columns);
 
-    this._cachedColumnSpecList.forEach((column, index) => {
-      let style = computeColumnStyle(column);
-      this._cachedColumnStyles[index] = {...style, overflow: 'hidden'};
-    })
+    for (let i = 0; i < this._cachedColumnSpecList.length; i++) {
+      let column = this._cachedColumnSpecList[i];
+      let dataKey = column.dataKey.join('__');
+      let width = columnWidgetByDataKey[dataKey];
+      let style = computeColumnStyle(column, {width});
+      this._cachedColumnStyles[i] = {...style, overflow: 'hidden'};
+    }
 
     // Note that we specify :numChildren, :scrollbarWidth, :sortBy, and
     // :sortDirection as properties on Grid even though these have nothing to do
@@ -286,7 +292,9 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
             width={width}
             scrollbarWidth={scrollbarWidth}
             columns={columns}
+            columnWidgetByDataKey={columnWidgetByDataKey}
             onColumnClick={onColumnClick}
+            onColumnResize={this._onColumnResize}
             />
         )}
         <Grid
@@ -416,6 +424,15 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
       this.setState({scrollbarWidth})
     }
   }
+
+  _onColumnResize = ({dataKey, width}: {dataKey: Array<string>; width: number}) => {
+    let key = dataKey.join('__');
+    let columnWidgetByDataKey = {
+      ...this.state.columnWidgetByDataKey,
+      [key]: width
+    };
+    this.setState({columnWidgetByDataKey});
+  };
 }
 
 function defaultCellDataGetter({rowData, dataKey}) {

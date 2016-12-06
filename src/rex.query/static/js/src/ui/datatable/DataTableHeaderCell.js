@@ -16,6 +16,7 @@ function stopPropagation(e: UIEvent) {
 }
 
 type DataTableHeaderCellProps = {
+  minColumnWidth: number;
   column: ColumnField<*>;
   onClick?: (column: ColumnField<*>) => *;
   onResize?: (resize: {dataKey: Array<string>; width: number}) => *;
@@ -23,6 +24,10 @@ type DataTableHeaderCellProps = {
 };
 
 export default class DataTableHeaderCell extends React.Component {
+
+  static defaultProps = {
+    minColumnWidth: 50,
+  };
 
   props: DataTableHeaderCellProps;
 
@@ -76,7 +81,7 @@ export default class DataTableHeaderCell extends React.Component {
   onMouseDown = (e: MouseEvent) => {
     if (this.rootRef != null) {
       let rootRect = this.rootRef.getBoundingClientRect();
-      let left = e.clientX - rootRect.left - 1;
+      let left = Math.max(e.clientX - rootRect.left - 1, this.props.minColumnWidth);
       window.addEventListener('mousemove', this.onMouseMove);
       window.addEventListener('mouseup', this.onMouseUp);
       this.setState({resize: left});
@@ -88,7 +93,7 @@ export default class DataTableHeaderCell extends React.Component {
     window.removeEventListener('mouseup', this.onMouseUp);
     if (this.rootRef != null) {
       let rootRect = this.rootRef.getBoundingClientRect();
-      let width = e.clientX - rootRect.left - 1;
+      let width = Math.max(e.clientX - rootRect.left - 1, this.props.minColumnWidth);
       this.setState({resize: null});
       if (this.props.onResize) {
         this.props.onResize({
@@ -102,7 +107,7 @@ export default class DataTableHeaderCell extends React.Component {
   onMouseMove = (e: MouseEvent) => {
     if (this.rootRef != null) {
       let rootRect = this.rootRef.getBoundingClientRect();
-      let left = e.clientX - rootRect.left - 1;
+      let left = Math.max(e.clientX - rootRect.left - 1, this.props.minColumnWidth);
       this.setState({resize: left});
     }
   };

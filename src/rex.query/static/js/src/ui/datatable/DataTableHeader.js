@@ -128,6 +128,7 @@ let DataTableHeaderStack = style(VBox, {
   base: {
     height: '100%',
     flexGrow: 1,
+    overflow: 'visible',
   }
 });
 
@@ -135,6 +136,7 @@ let DataTableHeaderGroup = style(HBox, {
   displayName: 'DataTableHeaderGroup',
   base: {
     borderBottom: css.border(1, '#ccc'),
+    overflow: 'visible',
   }
 });
 
@@ -152,7 +154,7 @@ let DataTableHeaderRow = style('div', {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    overflow: 'hidden',
+    overflow: 'visible',
   }
 });
 

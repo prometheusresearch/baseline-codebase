@@ -172,6 +172,7 @@ export let DataTableHeaderCellResizeHandle = style('div', {
     background: '#222',
     width: 3,
     zIndex: 1000,
+    height: 100000,
     hover: {
       background: '#222',
     },

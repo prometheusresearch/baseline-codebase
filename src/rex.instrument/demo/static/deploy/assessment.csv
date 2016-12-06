@@ -1,7 +1,7 @@
 uid,subject,instrumentversion,status,evaluation_date,data
 assessment1,subject1,simple1,completed,,"{""instrument"":{""id"": ""urn:test-instrument"",""version"": ""1.1""}, ""values"":{""q_fake"":{""value"": ""foo""}}}"
 assessment2,subject1,simple1,in-progress,,"{}"
-assessment3,subject1,disabled1,completed,,"{}"
+assessment3,subject1,disabled1,completed,,"{""instrument"":{""id"": ""urn:test-instrument"",""version"": ""1.1""}, ""values"":{""q_fake"":{""value"": ""blah""}}}"
 assessment4,subject1,simple1,completed,,"{""instrument"":{""id"": ""urn:test-instrument"",""version"": ""1.1""}, ""values"":{""q_fake"":{""value"": ""blah""}}}"
 assessment5,subject1,simple1,in-progress,,"{}"
 assessment6,subject1,disabled1,in-progress,,"{}"

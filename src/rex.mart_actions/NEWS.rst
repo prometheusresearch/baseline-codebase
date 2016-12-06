@@ -5,6 +5,12 @@ REX.MART_ACTIONS Change Log
 .. contents:: Table of Contents
 
 
+0.6.0 (2016-xx-xx)
+==================
+
+* 
+
+
 0.5.0 (2016-12-01)
 ==================
 

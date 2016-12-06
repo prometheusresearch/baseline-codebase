@@ -5,6 +5,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import {style} from 'react-stylesheet';
+import * as css from 'react-stylesheet/css';
 import {Grid} from 'react-virtualized'
 
 import computeColumnStyle from './computeColumnStyle';
@@ -85,9 +86,11 @@ let DataTableRow = style('div', {
   base: {
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center',
     fontSize: '11pt',
     overflow: 'hidden',
+
+    borderBottom: css.border(1, '#eee'),
+
     hover: {
       background: '#fafafa',
     }
@@ -97,15 +100,27 @@ let DataTableRow = style('div', {
 let DataTableRowColumn = style('div', {
   displayName: 'DataTableRowColumn',
   base: {
-    minWidth: 0,
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
+    display: 'flex',
+    alignItems: 'center',
     color: '#333',
-    fontSize: '10pt',
+    height: '100%',
+    fontSize: '9pt',
     fontWeight: 200,
+
+    borderRight: css.border(1, '#eee'),
 
     paddingRight: 10,
     paddingLeft: 10,
+  }
+});
+
+let DataTableRowColumnInner = style('div', {
+  displayName: 'DataTableRowColumnInner',
+  base: {
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    minWidth: 0,
   }
 });
 
@@ -339,7 +354,9 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
         key={`Row${rowIndex}-Col${columnIndex}`}
         style={style}
         title={title}>
-        {renderedCell}
+        <DataTableRowColumnInner>
+          {renderedCell}
+        </DataTableRowColumnInner>
       </DataTableRowColumn>
     )
   };

@@ -202,18 +202,23 @@ class Assessment(object):
                 return value
             if isinstance(value, datetime.datetime):
                 return value.strftime('%Y-%m-%dT%H:%M:%S')
-            if isinstance(value, basestring) \
-            and re.match(r'^\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?$',
-                         value,
-                         re.UNICODE):
-                return value
-            raise Error("Got unexpected value %(value)s of"
-                        " %(base_type)s type,"
-                        " YYYY-MM-DDTHH:MM:SS is expected for field %(id)s."
-                        % {'value': value,
-                           'base_type': field.base_type,
-                           'id': field.id}
-            )
+            if isinstance(value, basestring):
+                if re.match(r'^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d$',
+                            value,
+                            re.UNICODE):
+                    return value
+                if re.match(r'^\d\d\d\d-\d\d-\d\dT\d\d:\d\d$',
+                            value,
+                            re.UNICODE):
+                    return value + ':00'
+                else:
+                    raise Error("Got unexpected value %(value)s of"
+                                " %(base_type)s type,"
+                                " YYYY-MM-DDTHH:MM:SS is expected for field %(id)s."
+                                % {'value': value,
+                                   'base_type': field.base_type,
+                                   'id': field.id}
+                    )
         if field.base_type == 'enumeration':
             if unicode(value) not in field.enumerations:
                 raise Error("Got unexpected value %(value)s of"

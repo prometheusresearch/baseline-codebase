@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {ColumnField} from './DataTable';
+import type {ColumnField, ColumnContainerConfig} from './DataTable';
 
 import React from 'react'
 import ReactDOM from 'react-dom'
@@ -10,17 +10,17 @@ import {HBox} from '@prometheusresearch/react-box';
 import EllipsisIcon from 'react-icons/lib/fa/ellipsis-v';
 import {style} from 'react-stylesheet';
 import * as css from 'react-stylesheet/css';
-
-function stopPropagation(e: UIEvent) {
-  e.stopPropagation();
-}
+import stopPropagation from '../../stopPropagation';
 
 type DataTableHeaderCellProps = {
-  minColumnWidth: number;
   column: ColumnField<*>;
+  parentColumn: ?ColumnContainerConfig<*>;
+  index: ?number;
   onClick?: (column: ColumnField<*>) => *;
-  onResize?: (resize: {dataKey: Array<string>; width: number}) => *;
+  onResize?: (resize: {id: string; width: number}) => *;
   style: Object;
+  minColumnWidth: number;
+  resizeable?: boolean;
 };
 
 export default class DataTableHeaderCell extends React.Component {
@@ -40,8 +40,13 @@ export default class DataTableHeaderCell extends React.Component {
   rootRef: ?HTMLElement = null;
 
   render() {
-    const {column, onClick, style} = this.props;
+    let {column, onClick, style, index, parentColumn, resizeable} = this.props;
     const {resize} = this.state;
+    if (resizeable == null) {
+      resizeable = index != null && parentColumn != null
+        ? parentColumn.columnList.length - 1 !== index
+        : true;
+    }
     return (
       <DataTableHeaderCellRoot
         ref={this.onRootRef}
@@ -53,12 +58,13 @@ export default class DataTableHeaderCell extends React.Component {
         <DataTableHeaderCellMenu>
           <EllipsisIcon />
         </DataTableHeaderCellMenu>
-        <DataTableHeaderCellResizeHandle
-          onMouseDown={this.onMouseDown}
-          onClick={stopPropagation}
-          style={{left: resize}}
-          variant={{resize: resize != null}}
-          />
+        {resizeable &&
+          <DataTableHeaderCellResizeHandle
+            onMouseDown={this.onMouseDown}
+            onClick={stopPropagation}
+            style={{left: resize}}
+            variant={{resize: resize != null}}
+            />}
       </DataTableHeaderCellRoot>
     );
   }
@@ -68,14 +74,14 @@ export default class DataTableHeaderCell extends React.Component {
     window.removeEventListener('mouseup', this.onMouseUp);
   }
 
-  onRootRef = (rootRef: React.Component<*, *, *>) => {
-    this.rootRef = ReactDOM.findDOMNode(rootRef);
-  };
-
   onClick = () => {
     if (this.props.onClick) {
       this.props.onClick(this.props.column);
     }
+  };
+
+  onRootRef = (rootRef: React.Component<*, *, *>) => {
+    this.rootRef = ReactDOM.findDOMNode(rootRef);
   };
 
   onMouseDown = (e: MouseEvent) => {
@@ -97,7 +103,7 @@ export default class DataTableHeaderCell extends React.Component {
       this.setState({resize: null});
       if (this.props.onResize) {
         this.props.onResize({
-          dataKey: this.props.column.field.dataKey,
+          id: this.props.column.id,
           width
         });
       }

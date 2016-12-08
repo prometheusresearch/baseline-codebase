@@ -33,18 +33,21 @@ type ColumnSize = {
 
 export type ColumnStack<T> = {
   type: 'stack';
+  id: string;
   size: ColumnSize;
-  stack: Array<ColumnConfig<T>>;
+  columnList: Array<ColumnConfig<T>>;
 };
 
 export type ColumnGroup<T> = {
   type: 'group';
+  id: string;
   size: ColumnSize;
-  group: Array<ColumnConfig<T>>;
+  columnList: Array<ColumnConfig<T>>;
 };
 
 export type ColumnField<T> = {
   type: 'field';
+  id: string;
   size: ColumnSize;
   field: ColumnSpec<T>;
 };
@@ -53,6 +56,10 @@ export type ColumnConfig<T>
   = ColumnStack<T>
   | ColumnGroup<T>
   | ColumnField<T>;
+
+export type ColumnContainerConfig<T>
+  = ColumnStack<T>
+  | ColumnGroup<T>;
 
 export type CellDataGetter<T> = (
   props: {
@@ -196,7 +203,7 @@ type DataTableProps = {
 
 type DataTableState = {
   scrollbarWidth: number;
-  columnWidgetByDataKey: {[dataKey: string]: number};
+  columnWidthByID: {[id: string]: number};
 };
 
 export default class DataTable extends React.Component<*, DataTableProps, *> {
@@ -217,7 +224,7 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
 
   state: DataTableState = {
     scrollbarWidth: 0,
-    columnWidgetByDataKey: {},
+    columnWidthByID: {},
   };
 
   _cachedColumnStyles = [];
@@ -259,7 +266,7 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     } = this.props
     const {
       scrollbarWidth,
-      columnWidgetByDataKey
+      columnWidthByID
     } = this.state
 
     const availableRowsHeight = height - (headerHeight * columns.size.height);
@@ -271,8 +278,7 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
 
     for (let i = 0; i < this._cachedColumnSpecList.length; i++) {
       let column = this._cachedColumnSpecList[i];
-      let dataKey = column.dataKey.join('__');
-      let width = columnWidgetByDataKey[dataKey];
+      let width = columnWidthByID[column.id];
       let style = computeColumnStyle(column, {width});
       this._cachedColumnStyles[i] = {...style, overflow: 'hidden'};
     }
@@ -292,7 +298,7 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
             width={width}
             scrollbarWidth={scrollbarWidth}
             columns={columns}
-            columnWidgetByDataKey={columnWidgetByDataKey}
+            columnWidthByID={columnWidthByID}
             onColumnClick={onColumnClick}
             onColumnResize={this._onColumnResize}
             />
@@ -425,13 +431,13 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     }
   }
 
-  _onColumnResize = ({dataKey, width}: {dataKey: Array<string>; width: number}) => {
-    let key = dataKey.join('__');
-    let columnWidgetByDataKey = {
-      ...this.state.columnWidgetByDataKey,
-      [key]: width
+  _onColumnResize = ({id, width}: {id: string; width: number}) => {
+    console.log('onColumnResize:', id, width);
+    let columnWidthByID = {
+      ...this.state.columnWidthByID,
+      [id]: width
     };
-    this.setState({columnWidgetByDataKey});
+    this.setState({columnWidthByID});
   };
 }
 

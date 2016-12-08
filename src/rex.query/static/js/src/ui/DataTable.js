@@ -19,9 +19,6 @@ import * as q from '../model/Query';
 import * as ArrayUtil from '../ArrayUtil';
 import {
   DataTable as DataTableBase,
-  DataTableHeaderCellRoot,
-  DataTableHeaderCellLabel,
-  DataTableHeaderCellMenu,
   getByKey
 } from './datatable/index';
 
@@ -31,22 +28,6 @@ type QColumnConfig = ColumnConfig<{
   focusedSeq: Array<string>;
   focused: boolean;
 }>;
-
-function SeqHeaderCell(props) {
-  const {column, onClick, style} = props;
-  return (
-    <DataTableHeaderCellRoot
-      style={style}
-      onClick={onClick}>
-      <DataTableHeaderCellLabel title={column.field.label}>
-        {column.field.label}
-      </DataTableHeaderCellLabel>
-      <DataTableHeaderCellMenu>
-        {column.field.data.focused ? <IconCircle /> : <IconCircleO />}
-      </DataTableHeaderCellMenu>
-    </DataTableHeaderCellRoot>
-  );
-}
 
 /**
  * Produce column config for a query.
@@ -91,7 +72,7 @@ function getColumnConfigImpl(
         }
         stack = stack.concat(
           nav.type === 'stack'
-            ? nav.stack
+            ? nav.columnList
             : nav
         );
         skipAllowed = !needDetailedColumn(nav, focusedSeq);
@@ -109,6 +90,7 @@ function getColumnConfigImpl(
         : query.aggregate;
       stack.push({
         type: 'field',
+        id: 'field:' + dataKey.join('__'),
         field: {
           cellRenderer,
           cellDataGetter,
@@ -140,10 +122,10 @@ function getColumnConfigImpl(
       let focused = path.join('.') === focusedSeq.join('.') && type.card === 'seq';
       stack.push({
         type: 'field',
+        id: 'field:' + (path.length === 0 ? [query.path] : path).join('__'),
         field: {
           cellRenderer,
           cellDataGetter,
-          headerCellRenderer: type && type.card === 'seq' ? SeqHeaderCell : undefined,
           dataKey: path.length === 0 ? [query.path] : path,
           label: bindingName ? bindingName : getColumnTitle(query),
           data: {
@@ -174,7 +156,8 @@ function getColumnConfigImpl(
       }
       stack.push({
         type: 'group',
-        group,
+        id: 'group:' + path.join('__'),
+        columnList: group,
         size: {
           width: ArrayUtil.sum(group.map(c => c.size.width)),
           height: ArrayUtil.max(group.map(c => c.size.height)),
@@ -188,7 +171,8 @@ function getColumnConfigImpl(
     ? stack[0]
     : {
       type: 'stack',
-      stack,
+      id: 'stack:' + path.join('__'),
+      columnList: stack,
       size: {
         width: ArrayUtil.max(stack.map(c => c.size.width)),
         height: ArrayUtil.sum(stack.map(c => c.size.height)),

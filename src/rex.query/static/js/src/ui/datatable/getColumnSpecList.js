@@ -20,11 +20,11 @@ export default function getColumnSpecList(
     if (c.type === 'field') {
       columnList.push(c.field);
     } else if (c.type === 'stack') {
-      if (c.stack.length > 0) {
-        queue.unshift(c.stack[c.stack.length - 1]);
+      if (c.columnList.length > 0) {
+        queue.unshift(c.columnList[c.columnList.length - 1]);
       }
     } else if (c.type === 'group') {
-      queue = c.group.concat(queue);
+      queue = c.columnList.concat(queue);
     }
   }
   return columnList;

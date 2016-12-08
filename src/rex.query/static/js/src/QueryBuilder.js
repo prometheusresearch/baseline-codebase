@@ -125,7 +125,7 @@ export default class QueryBuilder extends React.Component {
           <Console basis="200px">
             <ConsoleInput onChange={this.onConsoleChange} />
           </Console>}
-        <HBox grow={1} height="calc(100% - 35px)">
+        <HBox grow={1} height="calc(100% - 35px)" width="calc(100% - 50px)">
           <LeftPanelWrapper>
             <ui.QueryVis
               domain={this.props.domain}

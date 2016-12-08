@@ -21,6 +21,18 @@ REX.MART_ACTIONS Change Log
   databases.
 
 
+0.4.0 (N/A)
+===========
+
+* v0.4.0 was never actually released.
+
+
+0.3.2 (2016-12-xx)
+==================
+
+* Widened dependency range for rex.mart.
+
+
 0.3.1 (2106-09-29)
 ==================
 

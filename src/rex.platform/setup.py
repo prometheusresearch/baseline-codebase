@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name='rex.platform',
-    version='6.0.0',
+    version='6.1.0',
     description='RexDB Core Platform Libraries',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',
@@ -20,8 +20,8 @@ setup(
     url='https://bitbucket.org/rexdb/rex.platform',
     include_package_data=True,
     install_requires=[
-        'HTSQL==2.3.3.20161027',
-        'HTSQL-PGSQL==2.3.3.20161027',
+        'HTSQL==2.3.3.20161123',
+        'HTSQL-PGSQL==2.3.3.20161123',
         'COGS==0.4.1',
         'rex.action==1.5.1',
         'rex.setup==3.4.0',

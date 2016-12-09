@@ -6,7 +6,7 @@ import React from 'react';
 
 import {Action} from 'rex-action';
 import {autobind} from 'rex-widget/lang';
-import {QueryBuilderApp} from 'rex-query';
+import QueryBuilderApp from 'rex-query/QueryBuilderApp';
 
 
 export default class QueryBuilder extends React.Component {

@@ -1,4 +1,4 @@
-/**
+/*e
  * This module implements query model.
  *
  * @flow
@@ -848,4 +848,52 @@ export function genQueryName(query: QueryPipeline): ?string {
     }
   }
   return name.length > 0 ? name.join(' ') : null;
+}
+
+export function deserializeQuery(data: string): Query {
+  let queryWithoutContext: Query = (JSON.parse(data): any);
+  return modifyQueryContext(queryWithoutContext, (_ctx) => emptyContext);
+}
+
+export function serializeQuery(query: Query): string {
+  let queryWithoutContext = modifyQueryContext(query, _ctx => null);
+  return JSON.stringify(queryWithoutContext);
+}
+
+function modifyQueryContext(
+  query: Query,
+  modify: (ctx: ?Context) => ?Context
+): Query {
+  let nextQuery: Query = (mapQueryWithTransform(query, {
+    filter(query) {
+      return {
+        ...query,
+        name: 'filter',
+        predicate: modifyExpressionContext(query.predicate, modify),
+        context: modify(query.context),
+      };
+    },
+    otherwise(query) {
+      return {
+        ...query,
+        context: modify(query.context),
+      };
+    }
+  }): any);
+  return nextQuery;
+}
+
+function modifyExpressionContext(
+  expression: Expression,
+  modify: (ctx: ?Context) => ?Context
+): Expression {
+  let nextExpression: Expression = (mapExpressionWithTransform(expression, {
+    otherwise(expression) {
+      return {
+        ...expression,
+        context: modify(expression.context),
+      };
+    }
+  }): any);
+  return nextExpression;
 }

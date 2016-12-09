@@ -132,12 +132,12 @@ export function getInitialState({
 }: Params): State {
 
   let query = initialQuery || q.pipeline(q.here);
+  query = q.inferType(domain, query);
   query = op.reconcileNavigation(query);
   query = op.normalize({
     query: q.inferType(domain, query),
     selected: null,
   }).query;
-
   query = q.inferType(domain, query);
 
   let insertAfter = initialQuery == null

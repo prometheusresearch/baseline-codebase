@@ -25,20 +25,19 @@ function createPane({displayName, theme, noActiveBorder, strokeDasharray}: {
     let selected = variant && variant.selected;
     return (
       <VBox {...props}
-        paddingBottom={5}
         left={1}
         style={{zIndex: selected ? 1 : 0}}>
-        <PaneChildrenWrapper style={{color: theme.textColor}}>
-          {children}
-        </PaneChildrenWrapper>
+        <PaneShape
+          fill={theme.backgroundColor}
+          stroke={theme.borderColor}
+          strokeDasharray={strokeDasharray}
+          selected={selected && !noActiveBorder}
+          topTriangle={first}
+          />
         <Overlay>
-          <PaneShape
-            fill={theme.backgroundColor}
-            stroke={theme.borderColor}
-            strokeDasharray={strokeDasharray}
-            selected={selected && !noActiveBorder}
-            topTriangle={first}
-            />
+          <PaneChildrenWrapper style={{color: theme.textColor}}>
+            {children}
+          </PaneChildrenWrapper>
         </Overlay>
       </VBox>
     );

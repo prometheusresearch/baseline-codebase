@@ -5,9 +5,9 @@
 .. contents:: Table of Contents
 
 
-1.0.0 (2016-XX-XX)
+0.2.0 (2016-11-24)
 ==================
 
-* Initial release.
+* Initial release / included to rex.platform
 
 

@@ -2,6 +2,7 @@
   "name": "rex-query",
   "version": "0.1.0",
   "private": true,
+  "main": "./src/index.js",
   "devDependencies": {
     "babel-eslint": "^7.0.0",
     "babel-jest": "^17.0.0",
@@ -12,52 +13,26 @@
     "eslint-plugin-jsx-a11y": "^2.2.2",
     "eslint-plugin-react": "^6.3.0",
     "flow-bin": "^0.34.0",
+    "flow-coverage-report": "^0.2.0",
     "jest": "^17.0.0",
     "jest-cli": "^17.0.0",
     "pegjs": "^0.10.0",
     "react-dom-stylesheet": "^0.8.6",
     "react-scripts": "^0.7.0"
   },
-  "babel": {
-    "presets": [
-      "babel-preset-react-app"
-    ]
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "jsx",
-      "js",
-      "json"
-    ],
-    "moduleNameMapper": {
-      "^.+\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/node_modules/react-scripts/config/jest/FileStub.js",
-      "^.+\\.css$": "<rootDir>/node_modules/react-scripts/config/jest/CSSStub.js"
-    },
-    "setupFiles": [
-      "<rootDir>/node_modules/react-scripts/config/polyfills.js"
-    ],
-    "testPathIgnorePatterns": [
-      "<rootDir>/(build|docs|node_modules)/"
-    ],
-    "testEnvironment": "node",
-    "snapshotSerializers": [
-      "<rootDir>/scripts/jest-serialize-domain",
-      "<rootDir>/scripts/jest-serialize-context"
-    ]
-  },
   "dependencies": {
     "@prometheusresearch/react-box": "1.0.0-alpha.4",
     "@prometheusresearch/react-ui": "^0.20.0",
     "color": "^0.11.3",
     "downloadjs": "^1.4.6",
-    "flow-coverage-report": "^0.2.0",
+    "input-moment": "^0.3.0",
     "invariant": "^2.2.1",
     "lodash": "^4.15.0",
     "moment": "^2.15.2",
     "qs": "^6.2.1",
-    "react": "15.3.1",
-    "react-addons-shallow-compare": "15.3.1",
-    "react-dom": "15.3.1",
+    "react": "^0.14.0",
+    "react-addons-shallow-compare": "^0.14.0",
+    "react-dom": "^0.14.0",
     "react-icons": "^2.2.1",
     "react-select": "^1.0.0-rc.2",
     "react-stylesheet": "2-alpha",

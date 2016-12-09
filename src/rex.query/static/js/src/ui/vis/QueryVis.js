@@ -465,7 +465,6 @@ function QueryVisPipeline({pointer, closeable, insertAfter, ...props}: {
 let QueryVisPipelineRoot = style(VBox, {
   displayName: 'QueryVisPipelineRoot',
   base: {
-    backgroundColor: '#fff',
   }
 });
 

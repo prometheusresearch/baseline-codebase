@@ -29,7 +29,7 @@ setup(
         'rex.widget>=2.3,<3',
         'rex.action>=1,<2',
         'rex.mart>=0.4,<0.6',
-        'rex.query>=0.1,<0.3',
+        'rex.query>=0.3,<0.4',
         'htsql_excel>=0.1,<0.2',
         'cachetools>=1,<2',
     ],

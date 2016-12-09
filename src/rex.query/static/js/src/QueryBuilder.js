@@ -24,6 +24,7 @@ type QueryBuilderProps = {
   api: string;
   initialQuery: ?QueryPipeline;
   onQuery: (query?: ?Query) => *;
+  Toolbar?: string | Function | null;
 };
 
 export default class QueryBuilder extends React.Component {
@@ -65,6 +66,10 @@ export default class QueryBuilder extends React.Component {
 
   render() {
     let {
+      domain,
+      Toolbar,
+    } = this.props;
+    let {
       query,
       selected,
       insertAfter,
@@ -105,6 +110,10 @@ export default class QueryBuilder extends React.Component {
             groupHorizontally>
             Redo
           </ReactUI.QuietButton>
+          {Toolbar &&
+            <HBox grow={1} paddingH={10}>
+              <Toolbar />
+            </HBox>}
           <HBox marginLeft="auto">
             <ReactUI.QuietButton
               onClick={this.actions.onConsoleToggle}
@@ -128,7 +137,7 @@ export default class QueryBuilder extends React.Component {
         <HBox grow={1} height="calc(100% - 35px)" width="calc(100% - 50px)">
           <LeftPanelWrapper>
             <ui.QueryVis
-              domain={this.props.domain}
+              domain={domain}
               pointer={pointer}
               selected={selected}
               insertAfter={insertAfter}

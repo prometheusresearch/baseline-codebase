@@ -2,6 +2,7 @@ import './index.css';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+import * as ReactUI from '@prometheusresearch/react-ui';
 import * as qs from 'qs';
 
 import QueryBuilderApp from './QueryBuilderApp';
@@ -25,6 +26,14 @@ function onQuery(query) {
   }
 }
 
+function Toolbar() {
+  return (
+    <div>
+      <ReactUI.QuietButton size="small">Save</ReactUI.QuietButton>
+      <ReactUI.QuietButton size="small">Rename</ReactUI.QuietButton>
+    </div>
+  );
+}
 
 let query = params.rememberQuery ? readQueryFromLocation() : null;
 
@@ -33,6 +42,7 @@ ReactDOM.render(
     api={params.api}
     initialQuery={query}
     onQuery={onQuery}
+    Toolbar={Toolbar}
     />,
   document.getElementById('root')
 );

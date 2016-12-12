@@ -54,7 +54,7 @@ class Assessment(object):
         if not date:
             date = datetime.datetime.today()
         elif isinstance(date, (int, float)):
-            date = (datetime.datetime(1900, 01, 01) +
+            date = (datetime.datetime(1899, 12, 30) +
                     datetime.timedelta(days=date))
         elif (isinstance(date, basestring)
         and not re.match(r'^\d\d\d\d-\d\d-\d\d$', date)):
@@ -168,7 +168,7 @@ class Assessment(object):
             and re.match(r'^\d\d\d\d-\d\d-\d\d$', value, re.UNICODE):
                 return value
             if isinstance(value, (int, float)):
-                value = (datetime.datetime(1900, 01, 01) +
+                value = (datetime.datetime(1899, 12, 30) +
                          datetime.timedelta(days=value)).strftime('%Y-%m-%d')
                 return value
             raise Error(" Got unexpected value %(value)s of"

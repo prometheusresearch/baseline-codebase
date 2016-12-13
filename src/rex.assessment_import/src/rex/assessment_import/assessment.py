@@ -186,6 +186,8 @@ class Assessment(object):
                 return time.strftime("%H:%M:%S",time.gmtime(delta.seconds))
             if isinstance(value, basestring) \
             and re.match(r'^\d?\d:\d\d:\d\d$', value, re.UNICODE):
+                value = datetime.datetime.strptime(value, '%H:%M:%S') \
+                                         .strftime('%H:%M:%S')
                 return value
             raise Error(" Got unexpected value %(value)s of"
                             " %(base_type)s type,"

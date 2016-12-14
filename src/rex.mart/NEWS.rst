@@ -5,7 +5,7 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
-0.5.0 (2016-xx-xx)
+0.5.0 (2016-12-14)
 ==================
 
 - Added the ability to specify ``@ALL`` for the instrument in an assessment

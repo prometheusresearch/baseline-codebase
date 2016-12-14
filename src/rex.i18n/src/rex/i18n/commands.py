@@ -13,8 +13,8 @@ from webob.exc import HTTPBadRequest, HTTPFound
 from rex.core import get_settings, StrVal
 from rex.web import Command, Parameter
 
-from .core import KEY_LOCALE, DOMAIN_FRONTEND, get_json_translations, \
-    get_locale, get_locale_identifier
+from .core import DOMAIN_FRONTEND, get_json_translations, get_locale, \
+    get_locale_identifier, get_i18n_context
 from .validators import LocaleVal
 
 
@@ -54,8 +54,8 @@ class SwitchLocaleCommand(Command):
         if locale not in get_settings().i18n_supported_locales:
             raise HTTPBadRequest('"%s" is not a supported locale' % locale)
 
-        request.environ['rex.session'][KEY_LOCALE] = \
-            get_locale_identifier(locale)
+        i18n = get_i18n_context()
+        i18n.set_locale(locale)
 
         redirect = redirect or request.referer or '/'
 
@@ -66,7 +66,7 @@ class SwitchLocaleCommand(Command):
         # Not really useful except for testing, but we'll send it back in
         # a header.
         response.headers['X-RexI18N-Locale'] = \
-            request.environ['rex.session'][KEY_LOCALE]
+            get_locale_identifier(i18n.get_locale())
 
         return response
 

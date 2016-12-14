@@ -108,15 +108,22 @@ class I18NContext(threading.local):
 
         return self._locale is not None
 
-    def set_locale(self, locale):
+    def set_locale(self, locale, request=None):
         """
         Sets the locale to use for the current thread.
 
         :param locale: the locale the current thread should use
         :type locale: Locale
+        :param request:
+            the Request whose session should be updated to reflect this change
+        :type request: webob.Request
         """
 
         self._locale = locale
+
+        if request:
+            request.environ['rex.session'][KEY_LOCALE] = \
+                get_locale_identifier(locale)
 
     def get_timezone(self):
         """
@@ -141,15 +148,21 @@ class I18NContext(threading.local):
 
         return self._timezone is not None
 
-    def set_timezone(self, timezone):
+    def set_timezone(self, timezone, request=None):
         """
         Sets the timezone to use for the current thread.
 
         :param timezone: the timezone the current thread should use
         :type timezone: tzinfo
+        :param request:
+            the Request whose session should be updated to reflect this change
+        :type request: webob.Request
         """
 
         self._timezone = timezone
+
+        if request:
+            request.environ['rex.session'][KEY_TIMEZONE] = timezone.zone
 
 
 _CONTEXT = I18NContext()

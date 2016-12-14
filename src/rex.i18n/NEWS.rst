@@ -10,6 +10,8 @@ REX.I18N Change Log
 
 * Fixed an issue that caused the AcceptsLanguageLocaleDetector to always
   identify a locale, even when the header didn't exist.
+* Fixed/Refactored the set_locale()/set_timezone() APIs so that it's easier to
+  update the current session.
 
 
 0.5.1 (2016-10-11)

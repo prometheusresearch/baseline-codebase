@@ -172,4 +172,18 @@ with `htsql_environment` parameter::
      | ee   | Electrical Engineering | eng         |
      | me   | Mechanical Engineering | eng         |
 
+The value of a ``htsql_environment`` variable can also refer to a Python
+function::
+
+    >>> answer = Rex('__main__', 'rex.db',
+    ...     db="sqlite:./sandbox/db_demo.sqlite",
+    ...     htsql_environment={'answer': "rex.db_demo:answer_query"})
+
+    >>> req = Request.blank('/db/$answer', remote_user="Alice")
+    >>> print req.get_response(answer)          # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+     | $answer |
+    -+---------+-
+     |       4 |
 

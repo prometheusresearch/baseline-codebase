@@ -42,6 +42,7 @@ from htsql.core.fmt.format import JSONFormat
 from htsql.core.fmt.json import (EmitJSON, to_json, DomainToRaw, JS_MAP,
         JS_SEQ, JS_END)
 from htsql.tweak.gateway.command import SummonGateway, ActGateway
+import re
 
 
 class RexConnect(Connect):
@@ -314,7 +315,21 @@ class LookupReferenceInRoot(Lookup):
                 context.env.session_properties is not None:
             if self.probe.key not in context.env.session_properties:
                 syntax = context.app.rex.properties[self.probe.key]
-                product = produce(syntax)
+                method = lambda: produce(syntax)
+                if re.match(r'^(\w+)(\.\w+)*:\w+$', syntax):
+                    module, name = syntax.split(':')
+                    try:
+                        module = __import__(module, fromlist=[name])
+                    except ImportError:
+                        pass
+                    else:
+                        if hasattr(module, name):
+                            function = getattr(module, name)
+                            session = (context.env.session()
+                                       if context.env.session is not None
+                                       else None)
+                            method = lambda: function(session)
+                product = method()
                 recipe = LiteralRecipe(product.data, product.domain)
                 context.env.session_properties[self.probe.key] = recipe
             return context.env.session_properties[self.probe.key]

@@ -33,3 +33,7 @@ class CampusesCommand(Command):
         return Response(body=body)
 
 
+def answer_query(session):
+    db = get_db()
+    return db.produce("2+2")
+

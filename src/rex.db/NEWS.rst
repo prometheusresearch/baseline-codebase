@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+3.7.0 (201X-XX-XX)
+==================
+
+* ``htsql_environment``: can be defined via a Python function.
+
+
 3.6.1 (2016-10-25)
 ==================
 

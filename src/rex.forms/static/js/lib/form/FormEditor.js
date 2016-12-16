@@ -272,7 +272,7 @@ export default class FormEditor extends React.Component {
     } = this.props;
 
 
-    if (!title) {
+    if (title === undefined) {
       if (formProps.form.title) {
         title = getLocalizedString(
           formProps.form.title,
@@ -316,7 +316,9 @@ export default class FormEditor extends React.Component {
     return (
       <ReactUI.I18N.I18N dir={this.getI18N().isRightToLeft() ? 'rtl' : 'ltr'}>
         <Root variant={{saving: currentlySaving}}>
-          <FormTitle>{title}</FormTitle>
+          {title &&
+            <FormTitle>{title}</FormTitle>
+          }
           {subtitle &&
             <FormSubTitle>{subtitle}</FormSubTitle>
           }

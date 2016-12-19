@@ -27,5 +27,7 @@ class GenerateJS(Generate):
             os.path.join(src, 'build'),
             self.target)
         # We don't need index.html as we render a template instead.
-        os.unlink(
-            os.path.join(self.target, 'index.html'))
+        extra_html = os.path.join(self.target, 'index.html')
+        if os.path.exists(extra_html):
+            os.unlink(extra_html)
+

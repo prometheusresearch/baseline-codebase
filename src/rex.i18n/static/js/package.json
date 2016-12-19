@@ -3,6 +3,11 @@
   "version": "0.5.2",
   "main": "lib/index.js",
   "rex": {},
+  "babel": {
+    "presets": [
+      "prometheusresearch"
+    ]
+  },
   "dependencies": {
     "jed": "1.1.0",
     "moment-timezone": "^0.5.4",

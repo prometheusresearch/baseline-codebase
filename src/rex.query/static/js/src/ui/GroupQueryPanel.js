@@ -73,11 +73,14 @@ function canGroupBy(type) {
 }
 
 function GroupMenu({
-  query: {byPath, context: {domain, scope, prev: {type}}},
+  query: {byPath, context: {domain, scope, prev: {type, scope: prevScope}}},
   onSelect,
   onSelectRemove,
 }) {
   let items = [];
+  if (byPath.length > 0) {
+    scope = prevScope;
+  }
   if (type.name === 'record') {
     let attribute = t.recordAttribute(type);
     for (let name in attribute) {

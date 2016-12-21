@@ -26,7 +26,6 @@ export default function reconcileNavigation(query: QueryPipeline): QueryPipeline
 }
 
 function reconcilePipeline(query: QueryPipeline): QueryPipeline {
-
   query = q.inferQueryType(query.context.prev, query);
 
   let tail = query.pipeline[query.pipeline.length - 1];
@@ -92,6 +91,12 @@ function reconcileSelect(context: q.Context, query: ?q.SelectQuery): q.SelectQue
         select[k] = kQuery;
       }
     }
+
+    // Ok, all fields are invalid, let's build from scratch.
+    if (Object.keys(select).length === 0) {
+      return reconcileSelect(context, null);
+    }
+
   } else {
     if (type.name === 'record') {
       let length = 0;

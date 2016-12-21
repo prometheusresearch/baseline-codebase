@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import {VBox} from '@prometheusresearch/react-box';
+import {VBox} from 'react-stylesheet';
 
 import QueryVisButtonHeader from './QueryVisButtonHeader';
 

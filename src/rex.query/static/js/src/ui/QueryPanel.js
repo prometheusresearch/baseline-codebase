@@ -8,13 +8,11 @@ import type {QueryPointer} from '../model/QueryPointer';
 import React from 'react';
 
 import * as q from '../model/Query';
-import * as theme from './Theme';
-import QueryPanelBase from './QueryPanelBase';
 import DefineQueryPanel from './DefineQueryPanel';
 import AggregateQueryPanel from './AggregateQueryPanel';
 import GroupQueryPanel from './GroupQueryPanel';
 import FilterQueryPanel from './filter/FilterQueryPanel';
-import {MenuHelp} from './menu';
+import NavigateQueryPanel from './NavigateQueryPanel';
 
 type QueryPanelProps = {
   pointer: ?QueryPointer<Query>;
@@ -25,21 +23,16 @@ export default function QueryPanel(props: QueryPanelProps) {
   const {pointer, onClose, ...rest} = props;
 
   if (pointer == null) {
-    return null;
+    return <noscript />;
   }
 
   return q.transformQuery(pointer.query, {
     navigate: query => (
-      <QueryPanelBase
+      <NavigateQueryPanel
         {...rest}
-        title={getTitleAtContext(pointer.query.context)}
+        pointer={pointer}
         onClose={onClose}
-        theme={theme.entity}
-        pointer={pointer}>
-        <MenuHelp>
-          This is a place holder. Eventually, we'd like to make this editable, but it is a significant development effort.
-        </MenuHelp>
-      </QueryPanelBase>
+        />
     ),
     define: query => (
       <DefineQueryPanel
@@ -67,19 +60,6 @@ export default function QueryPanel(props: QueryPanelProps) {
         />
     ),
     otherwise: _query =>
-      null,
+      <noscript />
   });
-}
-
-function getTitleAtContext(context) {
-  let {type} = context;
-  if (type.name === 'invalid') {
-    return null;
-  } else if (type.name === 'record' && type.entity != null) {
-    return type.domain[type.entity]
-      ? (type.domain[type.entity].title || type.entity)
-      : null;
-  } else {
-    return null;
-  }
 }

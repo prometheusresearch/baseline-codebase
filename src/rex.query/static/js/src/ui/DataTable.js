@@ -7,11 +7,7 @@ import type {Type} from '../model/Type';
 import type {ColumnConfig, ColumnField} from './datatable/DataTable';
 
 import React from 'react';
-import IconCircleO from 'react-icons/lib/fa/circle-o'
-import IconCircle from 'react-icons/lib/fa/circle'
-import {style} from 'react-stylesheet';
-import {VBox} from '@prometheusresearch/react-box';
-import * as css from 'react-stylesheet/css';
+import {style, css, VBox} from 'react-stylesheet';
 import {AutoSizer} from 'react-virtualized';
 
 import {LoadingIndicator} from '../ui';
@@ -36,7 +32,6 @@ export function getColumnConfig(
   query: Query,
   focusedSeq: Array<string> = []
 ): QColumnConfig {
-  window.qq = query;
   return getColumnConfigImpl(query, focusedSeq, [], null, false);
 }
 
@@ -213,7 +208,7 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
 
   render() {
     return (
-      <VBox grow={1}>
+      <VBox flexGrow={1}>
         <AutoSizer>
           {size => (
             <DataTableBase
@@ -224,8 +219,8 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
               rowHeight={35}
               rowGetter={this._getRowData}
               rowCount={this.data.length}
-              height={size.height}
               width={size.width}
+              height={size.height}
               columns={this.columns}
               />
           )}

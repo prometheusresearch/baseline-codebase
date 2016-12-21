@@ -17,7 +17,7 @@ import type {QueryPointer, KeyPath} from '../QueryPointer';
 
 import {transformQuery, here} from '../Query';
 import * as q from '../Query';
-import {pointer} from '../QueryPointer';
+import * as qp from '../QueryPointer';
 
 type PathInfo = {
   path: Array<KeyPath>;
@@ -28,6 +28,8 @@ type Result<Q: Query> = {
   query: Q;
   path: Array<KeyPath>;
 };
+
+const DISABLED_SELECTED_STATE = ['pipeline', 'here'];
 
 export default function normalize({
   query,
@@ -58,11 +60,28 @@ export default function normalize({
     }
   }
 
+  selected = selected
+    ? qp.pointer(nextQuery, ...nextPath)
+    : null;
+
+  let nextSelected = null;
+
+  if (selected) {
+
+    nextSelected = qp.pointer(nextQuery, ...nextPath);
+
+    while (
+      nextSelected != null &&
+      DISABLED_SELECTED_STATE.indexOf(nextSelected.query.name) > -1
+    ) {
+      nextSelected = qp.prev(nextSelected);
+    }
+
+  }
+
   return {
     query: nextQuery,
-    selected: selected
-      ? pointer(nextQuery, ...nextPath)
-      : null
+    selected: nextSelected,
   };
 }
 

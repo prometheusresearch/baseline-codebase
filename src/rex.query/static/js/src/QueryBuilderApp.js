@@ -59,7 +59,7 @@ export default class QueryBuilderApp extends React.Component {
           domain={domain}
           initialQuery={this.props.initialQuery}
           onQuery={this.props.onQuery}
-          Toolbar={this.props.Toolbar}
+          toolbar={this.props.toolbar}
           />
       );
     }

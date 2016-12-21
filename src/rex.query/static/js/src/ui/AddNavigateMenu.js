@@ -6,7 +6,7 @@ import type {QueryPipeline, QueryPointer, Context, Type} from '../model';
 import type {Actions} from '../state';
 
 import React from 'react';
-import {VBox} from '@prometheusresearch/react-box';
+import {VBox} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
 import * as q from '../model/Query';

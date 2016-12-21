@@ -7,9 +7,7 @@ import type {QueryVisTheme} from './Theme';
 import React from 'react';
 import CloseIcon from 'react-icons/lib/fa/close';
 import ArrowLeftIcon from 'react-icons/lib/fa/arrow-left';
-import {VBox, HBox} from '@prometheusresearch/react-box';
-import {style} from 'react-stylesheet';
-import * as css from 'react-stylesheet/css';
+import {style, css, VBox, HBox} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import * as Theme from './Theme';
 
@@ -56,9 +54,14 @@ export default class QueryPanelBase extends React.Component<*, QueryPanelBasePro
                   onClick={onBack}
                   />
               </HBox>}
-            <QueryPanelBaseTitle grow={1}>
+            <HBox
+              flexGrow={1}
+              textTransform="capitalize"
+              color="#888"
+              fontSize="10pt"
+              fontWeight={400}>
               {title}
-            </QueryPanelBaseTitle>
+            </HBox>
             {!disableClose &&
               <ReactUI.QuietButton
                 title="Close"
@@ -67,7 +70,7 @@ export default class QueryPanelBase extends React.Component<*, QueryPanelBasePro
                 onClick={onClose}
                 />}
           </HBox>
-          <VBox grow={1}>
+          <VBox flexGrow={1}>
             {children}
           </VBox>
         </QueryPanelBaseWrapper>
@@ -88,13 +91,5 @@ let QueryPanelBaseWrapper = style(VBox, {
   base: {
     flexGrow: 1,
     borderLeft: css.border(1, '#ddd'),
-  }
-});
-
-let QueryPanelBaseTitle = style(HBox, {
-  displayName: 'QueryPanelBaseTitle',
-  base: {
-    textTransform: 'capitalize',
-    fontWeight: 300,
   }
 });

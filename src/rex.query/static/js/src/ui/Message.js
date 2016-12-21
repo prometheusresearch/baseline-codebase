@@ -3,8 +3,7 @@
  */
 
 import React from 'react';
-import {VBox} from '@prometheusresearch/react-box';
-import {style} from 'react-stylesheet';
+import {style, VBox} from 'react-stylesheet';
 
 type MessageProps = {
   children?: React.Element<any>;

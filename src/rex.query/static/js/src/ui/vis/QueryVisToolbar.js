@@ -6,12 +6,8 @@ import type {Query, QueryPointer, Type} from '../../model';
 import type {Actions} from '../../state';
 
 import React from 'react';
-import {style} from 'react-stylesheet';
-import * as css from 'react-stylesheet/css';
-import {VBox, HBox} from '@prometheusresearch/react-box';
+import {style, css, VBox, HBox} from 'react-stylesheet';
 import * as t from '../../model/Type';
-
-import PlusIcon from '../PlusIcon';
 
 type QueryVisToolbarProps = {
 
@@ -43,27 +39,33 @@ export default class QueryVisToolbar
       return null;
     }
     return (
-      <VBox height={32} width="100%" style={{backgroundColor: 'white'}}>
+      <VBox width="100%" style={{backgroundColor: 'white'}}>
         <HBox padding={2} justifyContent="flex-start">
           {(canNavigate || canAggregate || canFilter) &&
             <QueryVisToolbarButton
-              emphasis
               disabled={disableAdd}
-              onClick={this.onAdd}
-              icon={<PlusIcon />}>
-              Add
+              onClick={this.onAdd}>
+              Link
             </QueryVisToolbarButton>}
+            {hasGroupBy &&
+              <QueryVisToolbarButton
+                onClick={this.onAddGroupQuery.bind(null, hasGroupBy)}>
+                Link complement
+              </QueryVisToolbarButton>}
           {canFilter &&
             <QueryVisToolbarButton
-              onClick={this.onFilter}
-              icon={<PlusIcon />}>
+              onClick={this.onFilter}>
               Filter
             </QueryVisToolbarButton>}
-          {hasGroupBy &&
+          {canAggregate &&
             <QueryVisToolbarButton
-              onClick={this.onAddGroupQuery.bind(null, hasGroupBy)}
-              icon={<PlusIcon />}>
-              Add {hasGroupBy} Query
+              onClick={this.onAggregate}>
+              Summarize
+            </QueryVisToolbarButton>}
+          {canAggregate &&
+            <QueryVisToolbarButton
+              onClick={this.onGroup}>
+              Group
             </QueryVisToolbarButton>}
         </HBox>
       </VBox>
@@ -78,6 +80,11 @@ export default class QueryVisToolbar
   onFilter = (ev: UIEvent) => {
     ev.stopPropagation();
     this.context.actions.appendFilter({pointer: this.props.pointer});
+  };
+
+  onGroup = (ev: UIEvent) => {
+    ev.stopPropagation();
+    this.context.actions.appendGroup({pointer: this.props.pointer});
   };
 
   onAddGroupQuery = (path: string, ev: UIEvent) => {
@@ -99,10 +106,7 @@ export default class QueryVisToolbar
 let QueryVisToolbarButtonRoot = style(HBox, {
   displayName: 'QueryVisToolbarButtonRoot',
   base: {
-    paddingLeft: 10,
-    paddingRight: 10,
-    paddingTop: 5,
-    paddingBottom: 5,
+    padding: {horizontal: 7, vertical: 5},
 
     justifyContent: 'center',
     userSelect: 'none',
@@ -110,11 +114,16 @@ let QueryVisToolbarButtonRoot = style(HBox, {
     cursor: 'default',
 
     textTransform: 'capitalize',
-    fontSize: '12px',
+    fontSize: '11px',
     fontWeight: 300,
 
-    color: '#585858',
+    color: '#666',
     backgroundColor: '#ffffff',
+
+    borderRight: '1px solid #eee',
+    lastChild: {
+      borderRight: 'none',
+    },
 
     hover: {
       color: '#000000',
@@ -151,7 +160,6 @@ function QueryVisToolbarButton({children, selected, icon, disabled, emphasis, ..
   return (
     <QueryVisToolbarButtonRoot
       {...props}
-      aria-role="button"
       variant={variant}>
       {icon && <HBox paddingRight={5}>{icon}</HBox>}
       {children}

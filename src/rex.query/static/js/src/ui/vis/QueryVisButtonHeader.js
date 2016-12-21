@@ -3,8 +3,7 @@
  */
 
 import React from 'react';
-import {VBox, HBox} from '@prometheusresearch/react-box';
-import {style} from 'react-stylesheet';
+import {style, HBox, VBox} from 'react-stylesheet';
 import IconRemove from 'react-icons/lib/fa/trash';
 import IconCircleO from 'react-icons/lib/fa/circle-o'
 import IconCircle from 'react-icons/lib/fa/circle'
@@ -87,7 +86,7 @@ export default class QueryVisButtonHeader
 
     let buttonLabel = (
       <QueryVisButtonLabel>
-        <HBox grow={1} alignItems="center">
+        <HBox flexGrow={1} alignItems="center">
           <VBox
             paddingRight={5}
             style={{
@@ -99,7 +98,7 @@ export default class QueryVisButtonHeader
               {active ? <IconCircle /> : <IconCircleO />}
             </Button>
           </VBox>
-          <VBox grow={1}>{label}</VBox>
+          <VBox flexGrow={1}>{label}</VBox>
           {closeable &&
             <HBox
               style={{visibility: selected || hover ? 'visible' : 'hidden'}}>

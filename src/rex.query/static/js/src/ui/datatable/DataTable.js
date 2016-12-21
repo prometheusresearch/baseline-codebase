@@ -7,8 +7,8 @@ import ReactDOM from 'react-dom'
 import {style} from 'react-stylesheet';
 import * as css from 'react-stylesheet/css';
 import {Grid} from 'react-virtualized'
+import invariant from 'invariant';
 
-import computeColumnStyle from './computeColumnStyle';
 import DataTableHeader from './DataTableHeader';
 import getColumnSpecList from './getColumnSpecList';
 
@@ -199,6 +199,10 @@ type DataTableProps = {
   width: number;
 
   onColumnClick?: (column: ColumnField<*>) => *;
+
+  minColumnWidth: number;
+
+  initialColumnWidth: number;
 };
 
 type DataTableState = {
@@ -209,6 +213,8 @@ type DataTableState = {
 export default class DataTable extends React.Component<*, DataTableProps, *> {
 
   static defaultProps = {
+    minColumnWidth: 70,
+    initialColumnWidth: 120,
     disableHeader: false,
     estimatedRowSize: 30,
     headerHeight: 0,
@@ -220,7 +226,7 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
 
   Grid: Grid;
   _cachedColumnStyles: Array<any>;
-  _cachedColumnSpecList: Array<ColumnSpec<*>>;
+  _cachedColumnSpecList: Array<ColumnField<*>>;
 
   state: DataTableState = {
     scrollbarWidth: 0,
@@ -252,6 +258,52 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     this._setScrollbarWidth()
   }
 
+  _columnWidth = (column: ColumnConfig<*>) => {
+    let {columnWidthByID} = this.state;
+    let {initialColumnWidth, minColumnWidth} = this.props;
+
+    if (column.type === 'field') {
+      let width = columnWidthByID[column.id];
+      if (width == null) {
+        width = column.field.width;
+      }
+      if (width == null) {
+        width = initialColumnWidth;
+      }
+      return Math.max(
+        width,
+        column.field.minWidth || minColumnWidth,
+        minColumnWidth
+      );
+
+    } else if (column.type === 'group') {
+      if (columnWidthByID[column.id] == null) {
+        // TODO: file an issue with eslint
+        let width = 0; // eslint-disable-line no-unused-vars
+        for (let i = 0; i < column.columnList.length; i++) {
+          width += this._columnWidth(column.columnList[i]);
+        }
+      }
+      return columnWidthByID[column.id]
+
+    } else if (column.type === 'stack') {
+      if (columnWidthByID[column.id] == null) {
+        let last = column.columnList[column.columnList.length - 1];
+        let width = last != null
+          ? this._columnWidth(column.columnList[column.columnList.length - 1])
+          : 0;
+        columnWidthByID[column.id] = width;
+      }
+      return columnWidthByID[column.id]
+
+    } else {
+      invariant(
+        false,
+        'Invalid column cofig: %s', JSON.stringify(column)
+      );
+    }
+  };
+
   render() {
     let {
       columns,
@@ -264,8 +316,8 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
       width,
       onColumnClick,
     } = this.props
+
     const {
-      scrollbarWidth,
       columnWidthByID
     } = this.state
 
@@ -276,11 +328,13 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     this._cachedColumnStyles = []
     this._cachedColumnSpecList = getColumnSpecList(columns);
 
+    let totalWidth = 0;
+
     for (let i = 0; i < this._cachedColumnSpecList.length; i++) {
       let column = this._cachedColumnSpecList[i];
-      let width = columnWidthByID[column.id];
-      let style = computeColumnStyle(column, {width});
-      this._cachedColumnStyles[i] = {...style, overflow: 'hidden'};
+      let width = this._columnWidth(column);
+      totalWidth += width;
+      this._cachedColumnStyles[i] = {width, overflow: 'hidden'};
     }
 
     // Note that we specify :numChildren, :scrollbarWidth, :sortBy, and
@@ -290,14 +344,14 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     // should trigger a re-render of Grid then is specified here to avoid a
     // stale display.
     return (
-      <div
-        style={style}>
+      <div style={{...style, width, overflowX: 'auto'}}>
         {!disableHeader && (
           <DataTableHeader
             height={headerHeight}
-            width={width}
-            scrollbarWidth={scrollbarWidth}
+            width={totalWidth}
+            scrollbarWidth={0}
             columns={columns}
+            columnWidth={this._columnWidth}
             columnWidthByID={columnWidthByID}
             onColumnClick={onColumnClick}
             onColumnResize={this._onColumnResize}
@@ -305,17 +359,18 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
         )}
         <Grid
           {...this.props}
+          width={totalWidth}
           autoContainerWidth
-          style={{outline: 'none'}}
-          cellRenderer={this._createRow}
-          columnWidth={width}
+          style={{outline: 'none', overflowX: 'hidden'}}
+          cellRenderer={this._cellRenderer}
+          columnWidth={totalWidth}
           columnCount={1}
           height={availableRowsHeight}
           noContentRenderer={noRowsRenderer}
           ref={(ref) => {
             this.Grid = ref
           }}
-          scrollbarWidth={scrollbarWidth}
+          scrollbarWidth={0}
           scrollToRow={scrollToIndex}
         />
       </div>
@@ -375,7 +430,7 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     )
   };
 
-  _createRow = ({
+  _cellRenderer = ({
     rowIndex: index,
     isScrolling,
     key,
@@ -397,7 +452,7 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
 
     const items = this._cachedColumnSpecList.map(
       (column, columnIndex) => this._createColumn({
-        column,
+        column: column.field,
         columnIndex,
         isScrolling,
         rowData,
@@ -409,7 +464,6 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     const flattenedStyle = {
       ...style,
       height: rowHeight,
-      paddingRight: scrollbarWidth
     }
 
     return (
@@ -431,11 +485,15 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     }
   }
 
-  _onColumnResize = ({id, width}: {id: string; width: number}) => {
-    console.log('onColumnResize:', id, width);
+  _onColumnResize = ({column, width}: {column: ColumnField<*>; width: number}) => {
+    width = Math.max(
+      width,
+      column.field.minWidth || this.props.minColumnWidth,
+      this.props.minColumnWidth
+    );
     let columnWidthByID = {
       ...this.state.columnWidthByID,
-      [id]: width
+      [column.id]: width
     };
     this.setState({columnWidthByID});
   };

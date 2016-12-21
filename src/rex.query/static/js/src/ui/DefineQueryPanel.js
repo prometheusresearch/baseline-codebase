@@ -9,7 +9,7 @@ import type {Actions} from '../state';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import * as ReactUI from '@prometheusresearch/react-ui';
-import * as ReactBox from '@prometheusresearch/react-box';
+import {VBox, HBox} from 'react-stylesheet';
 
 import * as qp from '../model/QueryPointer';
 import * as theme from './Theme';
@@ -67,31 +67,31 @@ export default class DefineQueryPanel
 
     return (
       <QueryPanelBase
-        title={pointer.query.binding.name}
+        title="Configure columns"
         onClose={onClose}
         theme={theme.def}
         pointer={pointer}>
-        <ReactBox.VBox marginBottom={10}>
+        <VBox marginBottom={10}>
           {!renameOpen ?
-            <MenuGroup>
+            false && <MenuGroup>
               <MenuButton
                 icon={<PencilIcon />}
                 onClick={this.onBindingRenameBegin}>
                 Rename query
               </MenuButton>
             </MenuGroup> :
-            <ReactBox.VBox>
+            <VBox>
               <MenuTitle size="large">
                 Rename query
               </MenuTitle>
-              <ReactBox.VBox padding={10}>
+              <VBox padding={10}>
                 <ReactUI.Input
                   ref={this.onBindingRenameInputRef}
                   value={renameValue || ''}
                   onKeyDown={this.onBindingRenameKey}
                   onChange={this.onBindingRenameChange}
                   />
-                <ReactBox.HBox padding={5}>
+                <HBox padding={5}>
                   <ReactUI.FlatSuccessButton
                     onClick={this.onBindingRenameCommit}
                     size="small"
@@ -104,13 +104,10 @@ export default class DefineQueryPanel
                     groupHorizontally>
                     Cancel
                   </ReactUI.FlatButton>
-                </ReactBox.HBox>
-              </ReactBox.VBox>
-            </ReactBox.VBox>}
-        </ReactBox.VBox>
-        <MenuTitle size="large">
-          Configure columns
-        </MenuTitle>
+                </HBox>
+              </VBox>
+            </VBox>}
+        </VBox>
         {hasConfigurableColumns ?
           <ColumnPicker
             onSelect={this.onSelect}

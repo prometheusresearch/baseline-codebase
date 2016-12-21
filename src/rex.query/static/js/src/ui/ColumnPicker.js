@@ -6,10 +6,11 @@ import type {QueryPointer, QueryPipeline, Type, TypeCardinality, Query, Context}
 import type {Actions} from '../state';
 
 import React from 'react';
-import {VBox} from '@prometheusresearch/react-box';
+import {VBox, HBox} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
-import PlusIcon from './PlusIcon';
+import {IconPlus} from './Icon';
+import TagLabel from './TagLabel';
 import * as feature from '../feature';
 import * as t from '../model/Type';
 import * as q from '../model/Query';
@@ -239,18 +240,18 @@ class ColumnPickerButton extends React.Component {
           feature.ENABLE_ATTRIBUTE_CONTEXT_MENU && !disabled && [
             column.type === 'record' &&
               <MenuButtonSecondary
-                icon={<PlusIcon />}
-                title={`Add ${column.label} query`}
+                icon={<IconPlus />}
+                title={`Link ${column.label} query`}
                 onClick={this.onAddQuery}
                 key="define">
-                Add {column.label}
+                Link {column.label}
               </MenuButtonSecondary>,
             <MenuButtonSecondary
               icon="⇩"
-              title={`Focus on ${column.label} and discard all other attributes`}
+              title={`Go to ${column.label} and discard all other attributes`}
               onClick={this.onNavigate}
               key="navigate">
-              Focus {column.label}
+              Go to {column.label}
             </MenuButtonSecondary>,
             column.card === 'seq' &&
               <MenuButtonSecondary
@@ -263,9 +264,15 @@ class ColumnPickerButton extends React.Component {
           ]
         }
         onClick={this.onSelect}>
-        <VBox grow={1} justifyContent="center">
-          {column.card === 'seq' && !column.fromQuery ? '# ' : ''}{column.label}
-        </VBox>
+        <HBox flexGrow={1} alignItems="center">
+          <HBox flexGrow={1}>
+            {column.card === 'seq' && !column.fromQuery ? '# ' : ''}{column.label}
+          </HBox>
+          {column.fromQuery &&
+            <TagLabel>
+              Query
+            </TagLabel>}
+        </HBox>
       </MenuButton>
     );
   }
@@ -322,7 +329,7 @@ function getNavigation(pointer: QueryPointer<>, type: Type): Array<Navigation> {
         type: 'record',
         card: type.card,
         value: k,
-        label: k,
+        label: q.genQueryName(navQuery) || k,
         context: navQuery.context,
         fromQuery: true,
       });

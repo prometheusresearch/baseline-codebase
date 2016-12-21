@@ -25,7 +25,7 @@ type FilterQueryPanelProps = {
 function ORSeparator() {
   return (
     <ReactUI.Block
-      paddingV={10}
+      padding={{vertical: 10}}
       style={{
         textAlign: 'center',
         fontWeight: 300,
@@ -60,8 +60,13 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
   constructor(props: FilterQueryPanelProps) {
     super(props);
     let {predicate} = props.pointer.query;
+    let isValidPredicate = (
+      predicate.name === 'logicalBinary' &&
+      predicate.op === 'or' &&
+      predicate.expressions.length > 0
+    );
     this.state = {
-      expressions: predicate.name === 'or' && predicate.expressions.length > 0
+      expressions: isValidPredicate
         ? predicate.expressions
         : [q.value(true)],
     };
@@ -119,7 +124,7 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
           <ReactUI.VBox padding={5}>
             {conditions}
           </ReactUI.VBox>
-          <MenuGroup paddingV={20}>
+          <MenuGroup padding={{vertical: 20}}>
             <MenuButton icon="＋" onClick={this.onAddCondition}>
               Add Another Condition
             </MenuButton>

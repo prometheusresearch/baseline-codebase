@@ -59,6 +59,7 @@ export type LimitQuery = {
 export type AggregateQuery = {
   +name: 'aggregate';
   +aggregate: string;
+  +path: ?string;
   +context: Context;
 };
 
@@ -208,8 +209,8 @@ export function limit(limit: number): LimitQuery {
   return {name: 'limit', limit, context: emptyContext};
 }
 
-export function aggregate(aggregate: string): AggregateQuery {
-  return {name: 'aggregate', aggregate, context: emptyContext};
+export function aggregate(aggregate: string, path?: ?string = null): AggregateQuery {
+  return {name: 'aggregate', aggregate, path, context: emptyContext};
 }
 
 export function group(byPath: Array<string>): GroupQuery {
@@ -314,7 +315,7 @@ export function inferExpressionType(context: Context, query: Expression): Expres
 }
 
 export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
-  const {domain, type, scope} = context;
+  let {domain, type, scope} = context;
   const invalidContext = {
     prev: context,
     domain,
@@ -434,6 +435,14 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
       if (type.name === 'invalid') {
         return withContext(query, context);
       }
+
+      if (query.path != null) {
+        let contextAfterNavigate = inferQueryType(context, navigate(query.path)).context;
+        domain = contextAfterNavigate.domain;
+        scope = contextAfterNavigate.scope;
+        type = contextAfterNavigate.type;
+      }
+
       let aggregate = domain.aggregate[query.aggregate];
       if (aggregate == null) {
         // unknown aggregate
@@ -844,7 +853,11 @@ export function genQueryName(query: QueryPipeline): ?string {
     if (q.name === 'navigate') {
       name.push(q.path);
     } else if (q.name === 'aggregate') {
-      name.push(q.aggregate);
+      if (q.path != null) {
+        name.push(`${q.path} ${q.aggregate}`);
+      } else {
+        name.push(q.aggregate);
+      }
     }
   }
   return name.length > 0 ? name.join(' ') : null;
@@ -866,18 +879,18 @@ function modifyQueryContext(
 ): Query {
   let nextQuery: Query = (mapQueryWithTransform(query, {
     filter(query) {
-      return {
+      return ({
         ...query,
         name: 'filter',
         predicate: modifyExpressionContext(query.predicate, modify),
         context: modify(query.context),
-      };
+      }: any);
     },
     otherwise(query) {
-      return {
+      return ({
         ...query,
         context: modify(query.context),
-      };
+      }: any);
     }
   }): any);
   return nextQuery;
@@ -889,10 +902,10 @@ function modifyExpressionContext(
 ): Expression {
   let nextExpression: Expression = (mapExpressionWithTransform(expression, {
     otherwise(expression) {
-      return {
+      return ({
         ...expression,
         context: modify(expression.context),
-      };
+      }: any);
     }
   }): any);
   return nextExpression;

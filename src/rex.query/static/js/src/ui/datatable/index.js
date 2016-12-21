@@ -13,5 +13,4 @@ export {
   default as DataTableHeaderCell,
   DataTableHeaderCellRoot,
   DataTableHeaderCellLabel,
-  DataTableHeaderCellMenu
 } from './DataTableHeaderCell';

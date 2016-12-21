@@ -7,6 +7,16 @@ import type {QueryPipeline} from '../Query';
 import * as t from '../Type';
 import * as q from '../Query';
 
+const INITIAL_COLUMN_NUM_LIMIT = 5;
+const INITIAL_COLUMN_PRIORITY_NAME_LIST: Array<string> = [
+  'id',
+  'key',
+  'name',
+  'title',
+  'type',
+];
+
+
 /**
  * This function automatically grows select combinators at the leaves so that
  * data is visible in the output.
@@ -35,8 +45,8 @@ function reconcilePipeline(query: QueryPipeline): QueryPipeline {
   }
 
   let select = tail.name === 'select'
-    ? reconcileSelect(tail)
-    : reconcileSelect(q.inferQueryType(tail.context, q.select({})), true);
+    ? reconcileSelect(tail.context.prev, tail)
+    : reconcileSelect(tail.context, null);
 
   if (Object.keys(select.select).length > 0) {
     pipeline = pipeline.concat(select);
@@ -61,49 +71,55 @@ function reconcileDefine(query: q.DefineQuery): q.DefineQuery {
   };
 }
 
-function reconcileSelect(query: q.SelectQuery, grow?: boolean): q.SelectQuery {
-  let {prev: {type}} = query.context;
+function reconcileSelect(context: q.Context, query: ?q.SelectQuery): q.SelectQuery {
+  let {type} = context;
 
   if (type.name === 'invalid') {
-    return query;
+    return query != null ? query : q.select({});
   }
 
   let select = {};
 
-  if (grow && type.name === 'record') {
-    let attribute = t.recordAttribute(type);
-
-    for (let k in attribute) {
-
-      if (!attribute.hasOwnProperty(k)) {
+  if (query != null) {
+    // filter out invalid types from select
+    const prevSelect = query.select;
+    for (let k in prevSelect) {
+      if (!prevSelect.hasOwnProperty(k)) {
         continue;
       }
-
-      let type = attribute[k].type;
-
-      if (type.card === 'seq') {
-        continue;
-      }
-
-      if (k in query.select) {
-        let pipeline = query.select[k];
-        select[k] = reconcilePipeline(pipeline);
-      } else {
-        let pipeline = q.pipeline(q.navigate(k));
-        pipeline = q.inferQueryType(query.context, pipeline);
-        select[k] = reconcilePipeline(pipeline);
+      let kQuery = prevSelect[k];
+      if (kQuery.context.type.name !== 'invalid') {
+        select[k] = kQuery;
       }
     }
-  }
-
-  // filter out invalid types from select
-  for (let k in query.select) {
-    if (!query.select.hasOwnProperty(k)) {
-      continue;
-    }
-    let kQuery = query.select[k];
-    if (kQuery.context.type.name !== 'invalid') {
-      select[k] = kQuery;
+  } else {
+    if (type.name === 'record') {
+      let length = 0;
+      let attribute = t.recordAttribute(type);
+      // try to add common columns first
+      for (let i = 0; i < INITIAL_COLUMN_PRIORITY_NAME_LIST.length; i++) {
+        if (length >= INITIAL_COLUMN_NUM_LIMIT) {
+          break;
+        }
+        let k = INITIAL_COLUMN_PRIORITY_NAME_LIST[i];
+        if (maybeAddToSelect(select, context, k, attribute[k])) {
+          length += 1;
+        }
+      }
+      for (let k in attribute) {
+        if (length >= INITIAL_COLUMN_NUM_LIMIT) {
+          break;
+        }
+        if (!attribute.hasOwnProperty(k)) {
+          continue;
+        }
+        if (select[k] != null) {
+          continue;
+        }
+        if (maybeAddToSelect(select, context, k, attribute[k])) {
+          length += 1;
+        }
+      }
     }
   }
 
@@ -120,7 +136,20 @@ function reconcileSelect(query: q.SelectQuery, grow?: boolean): q.SelectQuery {
     select = nextSelect;
   }
 
-  return q.inferQueryType(query.context.prev, q.select({...select}));
+  return q.inferQueryType(context, q.select({...select}));
+}
+
+function maybeAddToSelect(select, context, key, attribute) {
+  if (attribute == null) {
+    return false;
+  }
+  let type = attribute.type;
+  if (type.card === 'seq') {
+    return false;
+  }
+  let pipeline = q.pipeline(q.navigate(key));
+  select[key] = q.inferQueryType(context, pipeline);
+  return true;
 }
 
 function getGroupByColumnList(type): Array<string> {

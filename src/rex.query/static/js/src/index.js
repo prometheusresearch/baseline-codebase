@@ -42,7 +42,7 @@ ReactDOM.render(
     api={params.api}
     initialQuery={query}
     onQuery={onQuery}
-    Toolbar={Toolbar}
+    toolbar={<Toolbar />}
     />,
   document.getElementById('root')
 );

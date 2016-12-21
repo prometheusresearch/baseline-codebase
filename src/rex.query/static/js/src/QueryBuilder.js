@@ -6,10 +6,9 @@ import type {Query, QueryPipeline, Domain} from './model';
 
 import invariant from 'invariant';
 import React from 'react';
-import {VBox, HBox} from '@prometheusresearch/react-box';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import * as css from 'react-stylesheet/css';
-import {style} from 'react-stylesheet';
+import {style, VBox, HBox} from 'react-stylesheet';
 import ArrowLeftIcon  from 'react-icons/lib/fa/arrow-left';
 import ArrowRightIcon  from 'react-icons/lib/fa/arrow-right';
 import DownloadIcon from 'react-icons/lib/fa/cloud-download';
@@ -24,7 +23,7 @@ type QueryBuilderProps = {
   api: string;
   initialQuery: ?QueryPipeline;
   onQuery: (query?: ?Query) => *;
-  Toolbar?: string | Function | null;
+  toolbar?: ?React.Element<*>;
 };
 
 export default class QueryBuilder extends React.Component {
@@ -67,7 +66,7 @@ export default class QueryBuilder extends React.Component {
   render() {
     let {
       domain,
-      Toolbar,
+      toolbar,
     } = this.props;
     let {
       query,
@@ -110,9 +109,9 @@ export default class QueryBuilder extends React.Component {
             groupHorizontally>
             Redo
           </ReactUI.QuietButton>
-          {Toolbar &&
-            <HBox grow={1} paddingH={10}>
-              <Toolbar />
+          {toolbar &&
+            <HBox flexGrow={1} padding={{horizontal: 10}}>
+              {toolbar}
             </HBox>}
           <HBox marginLeft="auto">
             <ReactUI.QuietButton
@@ -134,7 +133,7 @@ export default class QueryBuilder extends React.Component {
           <Console basis="200px">
             <ConsoleInput onChange={this.onConsoleChange} />
           </Console>}
-        <HBox grow={1} height="calc(100% - 35px)" width="calc(100% - 50px)">
+        <HBox flexGrow={1} height="calc(100% - 35px)" width="100%">
           <LeftPanelWrapper>
             <ui.QueryVis
               domain={domain}
@@ -269,7 +268,7 @@ let CenterPanelWrapper = style(VBox, {
 let RightPanelWrapper = style(VBox, {
   base: {
     flexBasis: '400px',
-    flexGrow: 3,
+    flexGrow: 4,
     borderLeft: css.border(1, '#ccc'),
   }
 });

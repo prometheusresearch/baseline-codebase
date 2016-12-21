@@ -3,9 +3,7 @@
  */
 
 import React from 'react';
-import {VBox} from '@prometheusresearch/react-box';
-import * as css from 'react-stylesheet/css';
-import {style} from 'react-stylesheet';
+import {style, css, VBox} from 'react-stylesheet';
 
 export default function MenuHelp(props: Object) {
   return (

@@ -59,7 +59,7 @@ export function getNavigation(context: q.Context, type: t.Type) {
     if (scope.hasOwnProperty(k)) {
       navigation.push({
         value: k,
-        label: k,
+        label: q.genQueryName(scope[k].query) || k,
         context: q.inferQueryType(contextAtQuery, scope[k].query).context,
       });
     }

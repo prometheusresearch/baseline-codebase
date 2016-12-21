@@ -6,10 +6,7 @@ import type {QueryPointer, Query, Expression} from '../../model';
 import type {Actions} from '../../state';
 
 import React from 'react';
-import {VBox, HBox} from '@prometheusresearch/react-box';
-import {style} from 'react-stylesheet';
-import * as css from 'react-stylesheet/css';
-import IconRemove from 'react-icons/lib/fa/trash';
+import {style, css, VBox, HBox} from 'react-stylesheet';
 
 import invariant from 'invariant';
 
@@ -19,6 +16,7 @@ import * as QueryButton from '../QueryButton';
 import * as QueryPane from '../QueryPane';
 import QueryVisToolbar from './QueryVisToolbar';
 import QueryVisButtonBase from './QueryVisButton';
+import * as Icon from '../Icon';
 
 class QueryVisButton extends React.Component {
 
@@ -153,7 +151,10 @@ export function QueryVisDefineButton(props: {
   let title = q.genQueryName(pointer.query.binding.query);
   return (
     <VBox paddingBottom={5}>
-      <QueryVisDefineWrapper>
+      <VBox
+        borderLeft={css.border(1, '#bbb')}
+        overflow="visible"
+        margin={{vertical: 2, left: 2}}>
         <QueryVisDefineButtonTopShape first={first} />
         <QueryVisDefineHeader
           selectable
@@ -163,7 +164,7 @@ export function QueryVisDefineButton(props: {
           label={title || pointer.query.binding.name}
           pointer={pointer}
           />
-        <VBox paddingV={8} paddingLeft={8}>
+        <VBox paddingLeft={8}>
           <QueryVisPipeline
             pointer={bindingPointer}
             selected={selected}
@@ -171,20 +172,10 @@ export function QueryVisDefineButton(props: {
             />
         </VBox>
         <QueryVisDefineButtonBottomShape />
-      </QueryVisDefineWrapper>
+      </VBox>
     </VBox>
   );
 }
-
-let QueryVisDefineWrapper = style(VBox, {
-  displayName: 'QueryVisDefineWrapper',
-  base: {
-    borderLeft: css.border(1, '#bbb'),
-    overflow: 'visible',
-    marginTop: 2,
-    marginLeft: 2,
-  },
-});
 
 export function QueryVisFilterButton(props: {
   pointer: QueryPointer<q.FilterQuery>;
@@ -247,8 +238,12 @@ export function QueryVisAggregateButton(props: {
   pointer: QueryPointer<q.AggregateQuery>;
 }) {
   const {pointer, ...rest} = props;
-  const domain = pointer.query.context.domain;
-  const aggregate = domain.aggregate[pointer.query.aggregate];
+  const {query} = pointer;
+  const domain = query.context.domain;
+  const aggregate = domain.aggregate[query.aggregate];
+  const label = query.path == null
+    ? aggregate.title
+    : `${query.path} ${aggregate.title}`;
   return (
     <QueryVisButton
       {...rest}
@@ -256,7 +251,7 @@ export function QueryVisAggregateButton(props: {
       closeable
       stylesheet={{Root: QueryPane.AggregatePane, Button: QueryButton.AggregateButton}}
       pointer={pointer}
-      label={aggregate.title}
+      label={label}
       />
   );
 }
@@ -299,48 +294,43 @@ class QueryVisDefineHeader extends React.Component {
       closeTitle,
     } = this.props;
     return (
-      <QueryVisDefineHeaderRoot
-        variant={{selected}}
+      <HBox
+        height={34}
+        fontSize="10px"
+        fontWeight={400}
+        color="#888888"
+        cursor="default"
+        userSelect="none"
+        borderLeft={css.border(3, 'transparent')}
+        padding={{horizontal: 5, vertical: 5}}
         onClick={selectable && this.onSelect}>
-        <HBox grow={1} alignItems="center">
-          {label}
+        <HBox
+          flexGrow={1}
+          alignItems="center">
+          <HBox
+            marginRight={10}
+            textTransform={css.textTransform.uppercase}>
+            {label}
+          </HBox>
         </HBox>
+        <QueryButton.DefaultButton
+          title="Configure query output"
+          marginRight={2}
+          active={selected}>
+          <Icon.IconCogs />
+        </QueryButton.DefaultButton>
         {closeable &&
           <HBox>
             <QueryButton.DefaultButton
               title={closeTitle}
               onClick={this.onRemove}>
-              <IconRemove />
+              <Icon.IconRemove />
             </QueryButton.DefaultButton>
           </HBox>}
-      </QueryVisDefineHeaderRoot>
+      </HBox>
     );
   }
 }
-
-let QueryVisDefineHeaderRoot = style(HBox, {
-  displayName: 'QueryVisDefineHeaderRoot',
-  base: {
-    height: 34,
-    fontSize: '12px',
-    fontWeight: 300,
-    backgroundColor: '#F1F1F1',
-    color: '#666',
-    cursor: 'default',
-    textTransform: css.textTransform.capitalize,
-    userSelect: css.none,
-    borderBottom: css.border(1, '#bbb'),
-    borderLeft: css.border(3, 'transparent'),
-    paddingLeft: 25,
-    paddingRight: 5,
-    paddingTop: 7,
-    paddingBottom: 7,
-  },
-  selected: {
-    borderLeft: css.border(3, '#bbb'),
-    zIndex: 1,
-  }
-});
 
 function QueryVisQueryButton(props: {
   pointer: QueryPointer<>;
@@ -452,12 +442,13 @@ function QueryVisPipeline({pointer, closeable, insertAfter, ...props}: {
   return (
     <QueryVisPipelineRoot paddingLeft={topLevel ? 8 : 0}>
       {items}
-      <VBox marginTop={5}>
-      <QueryVisToolbar
-        disableAdd={disableAdd}
-        pointer={insertAfterPointer}
-        />
-      </VBox>
+      {!topLevel &&
+        <VBox marginTop={10}>
+          <QueryVisToolbar
+            disableAdd={disableAdd}
+            pointer={insertAfterPointer}
+            />
+        </VBox>}
     </QueryVisPipelineRoot>
   );
 }
@@ -471,7 +462,7 @@ let QueryVisPipelineRoot = style(VBox, {
 let QueryVisPipelineItem = style(VBox, {
   displayName: 'QueryVisPipelineItem',
   base: {
-    marginBottom: 0,
+    marginBottom: -3,
     lastOfType: {
       marginBottom: 0,
     }
@@ -499,11 +490,7 @@ export class QueryVis extends React.Component<*, QueryVisProps, *> {
   render() {
     let {pointer, selected, insertAfter} = this.props;
     return (
-      <VBox grow={1}>
-        <QueryVisDefineHeader
-          pointer={pointer}
-          label="My Queries"
-          />
+      <VBox flexGrow={1}>
         <QueryVisQueryButton
           selected={selected}
           insertAfter={insertAfter}

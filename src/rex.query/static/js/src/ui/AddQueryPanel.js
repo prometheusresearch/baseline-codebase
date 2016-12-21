@@ -2,12 +2,11 @@
  * @flow
  */
 
-import type {Context, Type, Query, QueryPipeline, QueryPointer} from '../model';
+import type {Context, Query, QueryPipeline, QueryPointer} from '../model';
 import type {Actions} from '../state';
 
 import React from 'react';
-import {VBox} from '@prometheusresearch/react-box';
-import {style} from 'react-stylesheet';
+import {VBox, HBox} from 'react-stylesheet';
 import * as css from 'react-stylesheet/css';
 
 import * as t from '../model/Type';
@@ -17,8 +16,8 @@ import * as qp from '../model/QueryPointer';
 import * as theme from './Theme';
 import {MenuGroup, MenuButton, MenuButtonSecondary} from './menu';
 import QueryPanelBase from './QueryPanelBase';
-import AddAggregateMenu from './AddAggregateMenu';
-import PlusIcon from './PlusIcon';
+import {IconPlus} from './Icon';
+import TagLabel from './TagLabel';
 
 type AddColumnPanelProps = {
   pointer: QueryPointer<Query>;
@@ -31,110 +30,27 @@ export default class AddQueryPanel extends React.Component<*, AddColumnPanelProp
     actions: Actions;
   };
 
-  state: {
-    activeTab: null | 'aggregate';
-  } = {
-    activeTab: null,
-  };
-
   static contextTypes = {
     actions: React.PropTypes.object,
   };
 
-  onSelect = (payload: {path: string}) => {
-    let {path} = payload;
-    let {pointer} = this.props;
-    if (pointer.query.name === 'navigate' && pointer.query.path === '') {
-      this.context.actions.replace({pointer, query: q.navigate(path)});
-    } else {
-      this.context.actions.navigate({pointer, path: [path]});
-    }
-  };
-
-  onSelectRemove = (payload: {path: string; pointer: QueryPointer<>}) => {
-    let {pointer} = payload;
-    this.context.actions.cut(pointer);
-  };
-
-  onActiveTabAggregate = (ev: UIEvent) => {
-    ev.stopPropagation();
-    this.setState(state => ({...state, activeTab: 'aggregate'}));
-  };
-
-  onActiveTabNavigate = (ev: UIEvent) => {
-    ev.stopPropagation();
-    this.setState(state => ({...state, activeTab: 'navigate'}));
-  };
-
-  onActiveTabDefault = (ev: UIEvent) => {
-    ev.stopPropagation();
-    this.setState(state => ({...state, activeTab: null}));
-  };
-
-  onFilter = (ev: UIEvent) => {
-    ev.stopPropagation();
-    this.context.actions.appendFilter({pointer: this.props.pointer});
-  };
-
-  onGroup = (ev: UIEvent) => {
-    ev.stopPropagation();
-    this.context.actions.appendGroup({pointer: this.props.pointer});
-  };
 
   render() {
     let {pointer, ...props} = this.props;
-    let {activeTab} = this.state;
-    let type = pointer.query.context.type;
-    let pipeline = getPipeline(pointer);
-    let canFilter = canFilterAt(type);
-    let canGroup = canGroupAt(type);
-    let canAggregate = canAggregateAt(type);
-    if (activeTab == null) {
-      return (
-        <QueryPanelBase
-          {...props}
-          theme={theme.placeholder}
-          title="Add">
-          {(canAggregate || canFilter) &&
-            <MenuGroup paddingV={20}>
-              {canFilter &&
-                <MenuButton
-                  icon="＋"
-                  onClick={this.onFilter}>
-                  Filter
-                </MenuButton>}
-              {canAggregate &&
-                <MenuButton
-                  icon="＋"
-                  onClick={this.onActiveTabAggregate}>
-                  Summarize
-                </MenuButton>}
-              {canGroup &&
-                <MenuButton
-                  icon="＋"
-                  onClick={this.onGroup}>
-                  Group
-                </MenuButton>}
-            </MenuGroup>}
-          <AddQueryMenu
-            pointer={pointer}
-            />
-        </QueryPanelBase>
-      );
-    } else if (activeTab === 'aggregate') {
-      return (
-        <QueryPanelBase
-          {...props}
-          onBack={this.onActiveTabDefault}
-          theme={theme.placeholder}
-          title="Summarize">
-          {pipeline &&
-            <AddAggregateMenu
-              pointer={pipeline}
-              />}
-        </QueryPanelBase>
-      );
-    }
+    let isTopLevel = pointer.path.length === 1;
+    let title = isTopLevel
+      ? 'Pick a starting relationship'
+      : 'Link';
+    return (
+      <QueryPanelBase
+        {...props}
+        theme={theme.placeholder}
+        title={title}>
+        <AddQueryMenu
+          pointer={pointer}
+          />
+      </QueryPanelBase>
+    );
   }
 }
 
@@ -264,10 +180,10 @@ class AddQueryMenuButton extends React.Component {
       menu.push(
         <MenuButtonSecondary
           icon="⇩"
-          title={`Focus on ${item.label} and discard all other attributes`}
+          title={`Go to ${item.label} and discard all other attributes`}
           onClick={this.onNavigate}
           key="navigate">
-          Focus {item.label}
+          Go to {item.label}
         </MenuButtonSecondary>,
         item.pathType.card === 'seq' &&
           <MenuButtonSecondary
@@ -283,7 +199,7 @@ class AddQueryMenuButton extends React.Component {
     let icon = null;
 
     if (nonHierarchical) {
-      icon = <PlusIcon />;
+      icon = <IconPlus />;
     } else if (item.query.context.type.name === 'record') {
       icon = open ? '▾' : '▸';
     }
@@ -300,13 +216,13 @@ class AddQueryMenuButton extends React.Component {
           onClick={this.onAddQuery}
           onIconClick={!nonHierarchical && this.toggleOpen}
           menu={menu.length > 0 ? menu : null}>
-          <div style={{fontWeight: open ? 400 : 200}}>
-            {item.label}
-          </div>
-          <QueryType
-            value={item.value}
-            type={item.query.context.type}
-            />
+          <HBox flexGrow={1} alignItems="center">
+            <VBox flexGrow={1}>
+              {item.label}
+            </VBox>
+            {item.fromQuery &&
+              <TagLabel>Query</TagLabel>}
+          </HBox>
         </MenuButton>
         {!nonHierarchical && open &&
           <VBox
@@ -326,37 +242,6 @@ class AddQueryMenuButton extends React.Component {
   }
 }
 
-function QueryType({value, type}) {
-  let name;
-  if (type.name === 'record') {
-    if (type.entity) {
-      name = type.entity;
-    } else {
-      name = 'query';
-    }
-  } else {
-    name = type.name;
-  }
-  if (type.card === 'seq') {
-    name += ' list';
-  } else if (type.card === 'opt') {
-    name += ' (optional)';
-  }
-  return <QueryTypeRoot>{name}</QueryTypeRoot>;
-}
-
-let QueryTypeRoot = style('div', {
-  base: {
-    textTransform: 'none',
-    color: '#888',
-    fontSize: '10px',
-    position: 'absolute',
-    right: 10,
-    height: 10,
-    top: 'calc(50% - 5px)',
-  }
-});
-
 function getNavigation(context: Context, path: Array<string>) {
   let {type, scope, domain} = context;
   let navigation = [];
@@ -375,6 +260,7 @@ function getNavigation(context: Context, path: Array<string>) {
           value: k,
           label: domain.entity[k].title,
           query: navQuery,
+          fromQuery: false,
           pathType,
         });
       }
@@ -395,6 +281,7 @@ function getNavigation(context: Context, path: Array<string>) {
           value: k,
           label: attribute[k].title || k,
           query: navQuery,
+          fromQuery: false,
           pathType,
         });
       }
@@ -411,42 +298,13 @@ function getNavigation(context: Context, path: Array<string>) {
       navigation.push({
         type: 'record',
         value: k,
-        label: k,
+        label: q.genQueryName(navQuery) || k,
         query: navQuery,
+        fromQuery: true,
         pathType,
       });
     }
   }
 
   return navigation;
-}
-
-function getPipeline(pointer: QueryPointer<>): ?QueryPointer<QueryPipeline> {
-  if (pointer.query.name === 'pipeline') {
-    return (pointer: any);
-  } else {
-    let p = qp.prev(pointer);
-    if (p != null) {
-      return getPipeline(p);
-    } else {
-      return null;
-    }
-  }
-}
-
-function canFilterAt(type: Type) {
-  return isSeqAt(type);
-}
-
-function canAggregateAt(type: Type) {
-  return isSeqAt(type);
-}
-
-
-function canGroupAt(type: Type) {
-  return type.card === 'seq' && type.name === 'record';
-}
-
-function isSeqAt(type: Type) {
-  return type.card === 'seq';
 }

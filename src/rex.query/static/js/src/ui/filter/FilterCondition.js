@@ -305,7 +305,7 @@ function getCondition(expression: Expression): FilterConditionState {
   return {
     fieldName: condition.field,
     operandName: condition.operand,
-    comparatorName: null,
+    comparatorName: condition.comparator,
     operandIsField: condition.operandIsField,
   };
 }

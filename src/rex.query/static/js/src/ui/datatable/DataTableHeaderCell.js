@@ -3,21 +3,115 @@
  */
 
 import type {ColumnField, ColumnContainerConfig} from './DataTable';
+import type {Actions} from '../../state';
 
 import React from 'react'
 import ReactDOM from 'react-dom'
-import {HBox} from '@prometheusresearch/react-box';
 import EllipsisIcon from 'react-icons/lib/fa/ellipsis-v';
-import {style} from 'react-stylesheet';
-import * as css from 'react-stylesheet/css';
+import {style, css, Element, HBox} from 'react-stylesheet';
 import stopPropagation from '../../stopPropagation';
+import * as MenuButton from 'react-aria-menubutton';
+import RelativePortal from 'react-relative-portal';
+
+let DataTableHeaderCellMenuRoot = style(HBox, {
+  base: {
+    color: '#ccc',
+    cursor: 'pointer',
+
+    position: 'absolute',
+    bottom: 7,
+    right: 4,
+
+    hover: {
+      color: 'currentColor',
+    }
+  }
+});
+
+function DropdownMenu({children}) {
+  let border = {width: 1, style: 'solid', color: '#cccccc'};
+  let boxShadow = {x: 0, y: 0, blur: 3, spread: 1, color: '#eeeeee'};
+  return (
+    <RelativePortal right={0} top={-6}>
+      <MenuButton.Menu>
+        <Element>
+          <Element
+            borderBottom={border}
+            textAlign="right">
+            <Element
+              position="relative"
+              top={1}
+              background="#ffffff"
+              borderTop={border}
+              borderLeft={border}
+              borderRight={border}
+              display="inline-block"
+              fontSize="80%">
+              <EllipsisIcon />
+            </Element>
+          </Element>
+          <Element
+            boxShadow={boxShadow}
+            background="#ffffff"
+            borderRight={border}
+            borderLeft={border}
+            borderBottom={border}>
+            {children}
+          </Element>
+        </Element>
+      </MenuButton.Menu>
+    </RelativePortal>
+  );
+}
+
+function DropdownMenuItem({value, children}) {
+  return (
+    <Element
+      padding={{vertical: 7, horizontal: 12}}
+      fontWeight={200}
+      fontSize="80%"
+      background="#ffffff"
+      backgroundOnHover="#fafafa"
+      cursor="default"
+      color="#666666"
+      colorOnHover="#444444">
+      <MenuButton.MenuItem value={value}>{children}</MenuButton.MenuItem>
+    </Element>
+  );
+}
+
+class DataTableHeaderCellMenu extends React.Component {
+
+  context: {
+    actions: Actions;
+  };
+
+  static contextTypes = {actions: React.PropTypes.object};
+
+  onMenuSelect = (value) => {
+
+  };
+
+  render() {
+    return (
+      <MenuButton.Wrapper tag={DataTableHeaderCellMenuRoot} onSelection={this.onMenuSelect}>
+        <MenuButton.Button tag={EllipsisIcon} />
+        <DropdownMenu>
+          <DropdownMenuItem value="hide">Hide column</DropdownMenuItem>
+          <DropdownMenuItem value="goto">Go to column</DropdownMenuItem>
+          <DropdownMenuItem value="summarize">Summarize column</DropdownMenuItem>
+        </DropdownMenu>
+      </MenuButton.Wrapper>
+    );
+  }
+}
 
 type DataTableHeaderCellProps = {
   column: ColumnField<*>;
   parentColumn: ?ColumnContainerConfig<*>;
   index: ?number;
   onClick?: (column: ColumnField<*>) => *;
-  onResize?: (resize: {id: string; width: number}) => *;
+  onResize?: (resize: {column: ColumnField<*>; width: number}) => *;
   style: Object;
   minColumnWidth: number;
   resizeable?: boolean;
@@ -26,7 +120,7 @@ type DataTableHeaderCellProps = {
 export default class DataTableHeaderCell extends React.Component {
 
   static defaultProps = {
-    minColumnWidth: 50,
+    minColumnWidth: 70,
   };
 
   props: DataTableHeaderCellProps;
@@ -40,7 +134,11 @@ export default class DataTableHeaderCell extends React.Component {
   rootRef: ?HTMLElement = null;
 
   render() {
-    let {column, onClick, style, index, parentColumn, resizeable} = this.props;
+    let {
+      column, onClick,
+      style, index,
+      parentColumn, resizeable
+    } = this.props;
     const {resize} = this.state;
     if (resizeable == null) {
       resizeable = index != null && parentColumn != null
@@ -55,9 +153,7 @@ export default class DataTableHeaderCell extends React.Component {
         <DataTableHeaderCellLabel title={column.field.label}>
           {column.field.label}
         </DataTableHeaderCellLabel>
-        <DataTableHeaderCellMenu>
-          <EllipsisIcon />
-        </DataTableHeaderCellMenu>
+        <DataTableHeaderCellMenu />
         {resizeable &&
           <DataTableHeaderCellResizeHandle
             onMouseDown={this.onMouseDown}
@@ -103,7 +199,7 @@ export default class DataTableHeaderCell extends React.Component {
       this.setState({resize: null});
       if (this.props.onResize) {
         this.props.onResize({
-          id: this.props.column.id,
+          column: this.props.column,
           width
         });
       }
@@ -146,21 +242,6 @@ export let DataTableHeaderCellLabel = style('span', {
     position: css.position.absolute,
     bottom: 5,
     paddingRight: 20,
-  }
-});
-
-export let DataTableHeaderCellMenu = style(HBox, {
-  base: {
-    color: '#ccc',
-    cursor: 'pointer',
-
-    position: 'absolute',
-    bottom: 7,
-    right: 4,
-
-    hover: {
-      color: 'currentColor',
-    }
   }
 });
 

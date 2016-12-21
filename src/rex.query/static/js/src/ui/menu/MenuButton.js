@@ -4,9 +4,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {VBox, HBox} from '@prometheusresearch/react-box';
-import * as css from 'react-stylesheet/css';
-import {style} from 'react-stylesheet';
+import {style, css, VBox, HBox} from 'react-stylesheet';
 import IconEllipsis from 'react-icons/lib/fa/ellipsis-v';
 
 type MenuButtonProps = {

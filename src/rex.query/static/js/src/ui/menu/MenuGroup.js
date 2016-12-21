@@ -3,9 +3,7 @@
  */
 
 import React from 'react';
-import {VBox} from '@prometheusresearch/react-box';
-import * as css from 'react-stylesheet/css';
-import {style} from 'react-stylesheet';
+import {style, css, VBox} from 'react-stylesheet';
 import MenuTitle from './MenuTitle';
 
 type MenuGroupProps = {
@@ -20,7 +18,7 @@ export default function MenuGroup({title, children, ...props}: MenuGroupProps) {
         <MenuTitle>
           {title}
         </MenuTitle>}
-      <MenuGroupChildren variant={{noTitle: title == null}}>
+      <MenuGroupChildren overflow="visible" variant={{noTitle: title == null}}>
         {children}
       </MenuGroupChildren>
     </VBox>

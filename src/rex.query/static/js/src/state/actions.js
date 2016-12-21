@@ -290,11 +290,11 @@ export function replace(
   return state => {
     let {query, pointer} = params;
     pointer = qp.rebase(pointer, state.query);
-    let {query: nextQuery, selected} = op.transformAt({
+    let {query: nextQuery} = op.transformAt({
       loc: {pointer, selected: pointer},
       transform: prevQuery => ({query})
     });
-    return onQuery(state, nextQuery, selected);
+    return onQuery(state, nextQuery, state.selected);
   };
 }
 
@@ -330,7 +330,12 @@ export function setGroupByPath(
         };
       }
     }).query;
-
+    query = q.inferType(state.domain, query);
+    query = op.growNavigation({
+      loc: {pointer: qp.rebase(pointer, query), selected: null},
+      path: [prevType.entity],
+      add: q.aggregate('count'),
+    }).query;
     return onQuery(state, query, state.selected);
   };
 }

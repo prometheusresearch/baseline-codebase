@@ -191,8 +191,12 @@ function translateQuery(
       return ['select', prev].concat(fields);
     }
 
-    case 'aggregate':
+    case 'aggregate': {
+      if (query.path != null) {
+        prev = translateQuery(q.navigate(query.path), prev);
+      }
       return [query.aggregate, prev];
+    }
 
     case 'group':
       if (query.byPath.length === 0) {

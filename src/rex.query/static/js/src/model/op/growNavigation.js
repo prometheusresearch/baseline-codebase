@@ -30,7 +30,7 @@ export default function growNavigation({
     p && p.query.name === 'pipeline',
     'Malformed query structure'
   );
-  let {query, keyPath} = growNavigationImpl(p.query, path, add);
+  let {query, keyPath} = growNavigationImpl(p.query, path, add, false);
   query = transformAtPointer(p, {type: 'replace', value: query});
   keyPath = p.path.concat(keyPath);
   return {query, selected: qp.make(query, ...keyPath)};
@@ -40,13 +40,14 @@ function growNavigationImpl(
   query: QueryPipeline,
   path: Array<string>,
   add?: ?Query,
+  growing: boolean,
 ): {
   query: QueryPipeline,
   keyPath: Array<KeyPath>
 } {
 
   if (path.length === 0) {
-    if (add) {
+    if (growing && add) {
       query = {
         name: 'pipeline',
         pipeline: query.pipeline.concat(add),
@@ -67,6 +68,7 @@ function growNavigationImpl(
       tail.select[key] || q.pipeline(q.navigate(key)),
       rest,
       add,
+      growing || tail.select[key] == null
     );
     let pipeline = query.pipeline;
     pipeline.pop();
@@ -92,6 +94,7 @@ function growNavigationImpl(
       q.pipeline(q.navigate(key)),
       rest,
       add,
+      true
     );
     let pipeline = query.pipeline;
     pipeline = query.pipeline.concat(

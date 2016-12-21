@@ -246,7 +246,7 @@ function injectDefaultLoaders(forceBabel5, packageMeta, packageDirname, filename
       return [
         {
           test: /\.js$/,
-          loader: 'babel-loader?presets[]=prometheusresearch',
+          loader: 'babel-loader?presets[]=prometheusresearch&babelrc=false',
           exclude: /vendor/,
         }
       ];

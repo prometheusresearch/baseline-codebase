@@ -486,7 +486,7 @@ class RexBindingState(BindingState):
         if not rops:
             return self.bind_among(-polarity, lop, [lop])
         optional = lop.optional or any([rop.optional for rop in rops])
-        plural = rop.plural or any([rop.plural for rop in rops])
+        plural = lop.plural or any([rop.plural for rop in rops])
         if isinstance(lop.domain, (EntityDomain, IdentityDomain)):
             ops = []
             for rop in rops:

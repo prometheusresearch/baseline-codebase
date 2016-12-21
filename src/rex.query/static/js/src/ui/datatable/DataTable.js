@@ -292,7 +292,9 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
         let width = last != null
           ? this._columnWidth(column.columnList[column.columnList.length - 1])
           : 0;
-        columnWidthByID[column.id] = width;
+        return width;
+        // TODO: find a way to cache this
+        //columnWidthByID[column.id] = width;
       }
       return columnWidthByID[column.id]
 

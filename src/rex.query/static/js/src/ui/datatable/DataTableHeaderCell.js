@@ -232,15 +232,18 @@ export let DataTableHeaderCellLabel = style('span', {
   displayName: 'DataTableHeaderCellLabel',
   base: {
     userSelect: 'none',
-    textTransform: 'capitalize',
     cursor: 'default',
     display: css.display.inlineBlock,
     maxWidth: '100%',
+    textTransform: css.textTransform.uppercase,
+    fontSize: '10px',
+    fontWeight: 400,
+    color: '#888888',
     whiteSpace: css.whiteSpace.nowrap,
     textOverflow: css.textOverflow.ellipsis,
     overflow: css.overflow.hidden,
     position: css.position.absolute,
-    bottom: 5,
+    bottom: 8,
     paddingRight: 20,
   }
 });

@@ -64,7 +64,7 @@ export default class AggregateQueryPanel
         : `${entityTitle} ${title}`
 
       let options = map(t.recordAttribute(prevType), (f, k) => ({
-        label: <Element textTransform="capitalize">{entityTitle} {f.title  || k}</Element>,
+        label: <Element textTransform="capitalize">{f.title  || k}</Element>,
         value: k
       }));
 

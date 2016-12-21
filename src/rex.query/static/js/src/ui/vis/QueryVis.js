@@ -6,7 +6,7 @@ import type {QueryPointer, Query, Expression} from '../../model';
 import type {Actions} from '../../state';
 
 import React from 'react';
-import {style, css, VBox, HBox} from 'react-stylesheet';
+import {style, css, Element, VBox, HBox} from 'react-stylesheet';
 
 import invariant from 'invariant';
 
@@ -306,12 +306,17 @@ class QueryVisDefineHeader extends React.Component {
         onClick={selectable && this.onSelect}>
         <HBox
           flexGrow={1}
+          flexShrink={1}
           alignItems="center">
-          <HBox
+          <Element
             marginRight={10}
+            minWidth={0}
+            overflow="hidden"
+            whiteSpace="nowrap"
+            style={{textOverflow: 'ellipsis'}}
             textTransform={css.textTransform.uppercase}>
             {label}
-          </HBox>
+          </Element>
         </HBox>
         <QueryButton.DefaultButton
           title="Configure query output"

@@ -85,7 +85,7 @@ function getColumnConfigImpl(
         : query.aggregate;
       stack.push({
         type: 'field',
-        id: 'field:' + dataKey.join('__'),
+        id: 'field:' + path.join('__'),
         field: {
           cellRenderer,
           cellDataGetter,

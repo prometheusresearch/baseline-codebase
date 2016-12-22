@@ -256,7 +256,7 @@ class NotContains extends BasicBinaryComparator {
 
 class IsOneOf {
 
-  label = '==';
+  label = 'is one of'
   value = 'enumIn';
   op = 'equal';
 
@@ -318,7 +318,8 @@ class IsOneOf {
 
 
 class IsNotOneOf extends IsOneOf {
-  label = '!=';
+
+  label = 'is not one of';
   value = 'enumNotIn';
   op = 'notEqual';
 }

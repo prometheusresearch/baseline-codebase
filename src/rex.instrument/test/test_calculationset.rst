@@ -345,6 +345,8 @@ HTSQL calculation expressions don't allow ETL statements::
     While translating:
         /{} :as individual/:insert
         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    While executing calculation:
+        calc1
 
 CalculationSet.execute() handles situations where the calculations return
 Decimal values::
@@ -396,12 +398,28 @@ types returned as is::
 
 CalculationSet.execute(...) fails when computed unexpected result::
 
+    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(\'2001-02-03\')'
+    >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
+    >>> calculationset.execute(assessment)
+    {'calc1': u'2001-02-03'}
+
+    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = '123'
+    >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
+    >>> calculationset.execute(assessment)
+    Traceback (most recent call last):
+        ...
+    ValidationError: Unexpected calculation result type -- Expected "date" got "int"
+    While executing calculation:
+        calc1
+
     >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(\'Hello world!\')'
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    ValidationError: Calculated unexpected result, date or dateTime is expected.
+    ValidationError: Unexpected calculation result type -- Expected "date" got "unicode"
+    While executing calculation:
+        calc1
 
     >>> CALCULATIONSET['calculations'][0]['type'] = 'time'
     >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'datetime.datetime(2015, 5, 1, 11, 34, 56)'
@@ -409,12 +427,28 @@ CalculationSet.execute(...) fails when computed unexpected result::
     >>> calculationset.execute(assessment)
     {'calc1': '11:34:56'}
 
+    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(\'12:34:56\')'
+    >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
+    >>> calculationset.execute(assessment)
+    {'calc1': u'12:34:56'}
+
+    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(\'Hello world!\')'
+    >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
+    >>> calculationset.execute(assessment)
+    Traceback (most recent call last):
+        ...
+    ValidationError: Unexpected calculation result type -- Expected "time" got "unicode"
+    While executing calculation:
+        calc1
+
     >>> CALCULATIONSET['calculations'][0]['options']['expression'] = '358'
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    ValidationError: Calculated unexpected result, time is expected.
+    ValidationError: Unexpected calculation result type -- Expected "time" got "int"
+    While executing calculation:
+        calc1
 
     >>> CALCULATIONSET['calculations'][0]['type'] = 'dateTime'
     >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'datetime.datetime(2015, 5, 1, 11, 34, 56)'
@@ -422,12 +456,33 @@ CalculationSet.execute(...) fails when computed unexpected result::
     >>> calculationset.execute(assessment)
     {'calc1': '2015-05-01T11:34:56'}
 
+    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'datetime.date(2015, 5, 1)'
+    >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
+    >>> calculationset.execute(assessment)
+    {'calc1': '2015-05-01T00:00:00'}
+
+    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(\'2001-02-03T12:34:56\')'
+    >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
+    >>> calculationset.execute(assessment)
+    {'calc1': u'2001-02-03T12:34:56'}
+
+    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(\'Hello world!\')'
+    >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
+    >>> calculationset.execute(assessment)
+    Traceback (most recent call last):
+        ...
+    ValidationError: Unexpected calculation result type -- Expected "dateTime" got "unicode"
+    While executing calculation:
+        calc1
+
     >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'True'
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    ValidationError: Calculated unexpected result, dateTime is expected.
+    ValidationError: Unexpected calculation result type -- Expected "dateTime" got "bool"
+    While executing calculation:
+        calc1
 
     >>> CALCULATIONSET['calculations'][0]['type'] = 'integer'
     >>> CALCULATIONSET['calculations'][0]['options']['expression'] = '10+15'
@@ -445,7 +500,9 @@ CalculationSet.execute(...) fails when computed unexpected result::
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    ValidationError: Calculated unexpected result, integer is expected.
+    ValidationError: Unexpected calculation result type -- Expected "integer" got "unicode"
+    While executing calculation:
+        calc1
 
     >>> CALCULATIONSET['calculations'][0]['type'] = 'float'
     >>> CALCULATIONSET['calculations'][0]['options']['expression'] = '10.01 + 15'
@@ -463,13 +520,9 @@ CalculationSet.execute(...) fails when computed unexpected result::
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    ValidationError: Calculated unexpected result, float is expected.
-
-    >>> CALCULATIONSET['calculations'][0]['type'] = 'enumeration'
-    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(\'yes\')'
-    >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
-    >>> calculationset.execute(assessment)
-    {'calc1': u'yes'}
+    ValidationError: Unexpected calculation result type -- Expected "float" got "unicode"
+    While executing calculation:
+        calc1
 
     >>> CALCULATIONSET['calculations'][0]['type'] = 'boolean'
     >>> CALCULATIONSET['calculations'][0]['options']['expression'] = '1 is None'
@@ -490,26 +543,16 @@ CalculationSet.execute(...) fails when computed unexpected result::
     >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'int(2)'
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
-    Traceback (most recent call last):
-        ...
-    ValidationError: Calculated unexpected result. Boolean is expected.
-
-    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(\'True\')'
-    >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
-    >>> calculationset.execute(assessment)
     {'calc1': True}
-
-    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(\'false\')'
-    >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
-    >>> calculationset.execute(assessment)
-    {'calc1': False}
 
     >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(\'Morning!\')'
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    ValidationError: Calculated unexpected result. Boolean is expected.
+    ValidationError: Unexpected calculation result type -- Expected "boolean" got "unicode"
+    While executing calculation:
+        calc1
 
 
 execute calculation contained enumeration question::
@@ -683,6 +726,8 @@ execute calculations of recordSet question can be defined with python method onl
     While translating:
         $q_recordlist_0_hello
         ^^^^^^^^^^^^^^^^^^^^^
+    While executing calculation:
+        calc1
 
 execute calculations of boolean question when assessment keeps null as a value::
 
@@ -731,6 +776,8 @@ execute(..) fails if expression contains value that cannot be run correctly::
     Traceback (most recent call last):
     ...
     InstrumentError: Unable to calculate expression unicode(1+1: unexpected EOF while parsing (<string>, line 1)
+    While executing calculation:
+        calc1
 
 execute HTSQL expressions of varying forms::
 
@@ -808,6 +855,8 @@ execute(...) fails if module undefined::
     Traceback (most recent call last):
         ...
     InstrumentError: Unexpected callable my_calculation2: module name is expected.
+    While executing calculation:
+        calc1
 
 or module doesnot exist::
 
@@ -817,6 +866,8 @@ or module doesnot exist::
     Traceback (most recent call last):
         ...
     InstrumentError: Unexpected callable rex.instrument_demo1.my_calculation1: unable to import module rex.instrument_demo1: No module named instrument_demo1.
+    While executing calculation:
+        calc1
 
 or module doesnot contain given object name::
 
@@ -826,6 +877,8 @@ or module doesnot contain given object name::
     Traceback (most recent call last):
         ...
     InstrumentError: Unexpected callable rex.instrument_demo.my_calculation: suitable callable object not found: 'module' object has no attribute 'my_calculation'
+    While executing calculation:
+        calc1
 
 or given object is not callable::
 
@@ -835,6 +888,8 @@ or given object is not callable::
     Traceback (most recent call last):
         ...
     InstrumentError: Unexpected callable option rex.instrument_demo.my_calculation3: my_calculation3 is not callable.
+    While executing calculation:
+        calc1
 
     >>> CALCULATIONSET['calculations'][0]['options']['callable'] = 'rex.instrument_demo.my_calculation4'
     >>> calculationset = CalculationSet('fake123', 'calculation2', CALCULATIONSET)
@@ -842,6 +897,8 @@ or given object is not callable::
     Traceback (most recent call last):
         ...
     InstrumentError: Execution of rex.instrument_demo.my_calculation4 failed: __call__() takes exactly 4 arguments (3 given)
+    While executing calculation:
+        calc1
 
 execute(...) fails when application started with incorrect modules list defined
 by the setting instrument_calculationmethod_default_module_list::
@@ -857,6 +914,8 @@ by the setting instrument_calculationmethod_default_module_list::
     Traceback (most recent call last):
         ...
     InstrumentError: Got unexpected module math1 from setting 'instrument_calculationmethod_default_module_list'
+    While executing calculation:
+        calc1
 
 
 

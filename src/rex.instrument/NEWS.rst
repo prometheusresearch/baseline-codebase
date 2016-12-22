@@ -5,6 +5,12 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
+1.7.1 (20xx-xx-xx)
+==================
+
+* Fixed some issues with type-casting of CalculationSet results.
+
+
 1.7.0 (2016-10-25)
 ==================
 

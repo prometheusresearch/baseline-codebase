@@ -2,16 +2,13 @@
 # Copyright (c) 2015, Prometheus Research, LLC
 #
 
-
-import datetime
-import re
-
 from copy import deepcopy
+from datetime import datetime, time
 from decimal import Decimal
 from rios.core import validate_calculationset, \
     ValidationError as RiosValidationError
 
-from rex.core import Extension, AnyVal, Error
+from rex.core import Extension, AnyVal, Error, guard
 
 from .instrumentversion import InstrumentVersion
 from .calculationscope import CalculationScopeAddon
@@ -31,69 +28,80 @@ def coerce_instrument_type(result, instrument_type):
     if result is None:
         return result
 
-    if instrument_type == 'date':
-        if isinstance(result, (datetime.datetime, datetime.date)):
-            result = result.strftime('%Y-%m-%d')
-        elif not isinstance(result, basestring) \
-                or not re.match(r'^\d\d\d\d-\d\d-\d\d$', result):
-            raise ValidationError(
-                "Calculated unexpected result, date or dateTime is expected.")
+    result_type = type(result).__name__
 
-    elif instrument_type == 'time':
-        if isinstance(result, (datetime.datetime, datetime.time)):
-            result = result.strftime('%H:%M:%S')
-        elif not isinstance(result, basestring) \
-                or not re.match(r'^\d\d:\d\d:\d\d$', result):
-            raise ValidationError(
-                "Calculated unexpected result, time is expected.")
-
-    elif instrument_type == 'dateTime':
-        if isinstance(result, datetime.datetime):
-            result = result.strftime('%Y-%m-%dT%H:%M:%S')
-        elif not isinstance(result, basestring) \
-                or not re.match(r'^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d$', result):
-            raise ValidationError(
-                "Calculated unexpected result, dateTime is expected.")
+    if instrument_type == 'text':
+        return unicode(result)
 
     elif instrument_type == 'integer':
-        if isinstance(result, basestring) and not result.isdigit():
-            raise ValidationError(
-                "Calculated unexpected result, integer is expected.")
-        result = int(result)
+        if result_type in ('float', 'int', 'Decimal'):
+            return int(result)
+
+        if result_type in ('str', 'unicode') and result.isdigit():
+            return int(result)
 
     elif instrument_type == 'float':
-        if isinstance(result, (basestring, Decimal)):
-            try:
-                result = float(result)
-            except ValueError:
-                raise ValidationError(
-                    "Calculated unexpected result, float is expected.")
+        if result_type in ('float', 'int', 'Decimal'):
+            return float(result)
 
-    elif instrument_type in ('text', 'enumeration'):
-        result = unicode(result)
+        if result_type in ('str', 'unicode') and result.isdigit():
+            return float(result)
 
     elif instrument_type == 'boolean':
-        if isinstance(result, int):
-            if result == 0:
-                return False
-            elif result == 1:
-                return True
-            else:
-                raise ValidationError(
-                    "Calculated unexpected result. Boolean is expected."
-                )
+        if result_type == 'bool':
+            return result
 
-        elif isinstance(result, basestring):
-            if result.lower() == 'false':
-                return False
-            elif result.lower() == 'true':
-                return True
-            else:
-                raise ValidationError(
-                    "Calculated unexpected result. Boolean is expected."
-                )
+        if result_type in ('int', 'float'):
+            return False if result == 0 else True
 
-    return result
+    elif instrument_type == 'date':
+        if result_type in ('date', 'datetime'):
+            return result.strftime('%Y-%m-%d')
+
+        if result_type in ('str', 'unicode'):
+            try:
+                datetime.strptime(result, '%Y-%m-%d')
+            except ValueError:
+                pass
+            else:
+                return result
+
+    elif instrument_type == 'time':
+        if result_type in ('time', 'datetime'):
+            return result.strftime('%H:%M:%S')
+
+        if result_type in ('str', 'unicode'):
+            try:
+                datetime.strptime(result, '%H:%M:%S')
+            except ValueError:
+                pass
+            else:
+                return result
+
+    elif instrument_type == 'dateTime':
+        if result_type == 'datetime':
+            return result.strftime('%Y-%m-%dT%H:%M:%S')
+
+        if result_type == 'date':
+            return datetime.combine(
+                result,
+                datetime.min.time(),
+            ).strftime('%Y-%m-%dT%H:%M:%S')
+
+        if result_type in ('str', 'unicode'):
+            try:
+                datetime.strptime(result, '%Y-%m-%dT%H:%M:%S')
+            except ValueError:
+                pass
+            else:
+                return result
+
+    raise ValidationError(
+        'Unexpected calculation result type -- Expected "%s" got "%s"' % (
+            instrument_type,
+            result_type,
+        )
+    )
 
 
 class CalculationSet(
@@ -407,19 +415,20 @@ class CalculationSet(
 
         results = {}
         for calculation in self.definition['calculations']:
-            method = CalculationMethod.mapped()[calculation['method']]()
-            scope_additions = CalculationScopeAddon.get_addon_scope(
-                method=method.name,
-                assessment=assessment,
-            )
-            result = method(
-                calculation['options'],
-                assessment,
-                results,
-                scope_additions,
-            )
-            result = coerce_instrument_type(result, calculation['type'])
-            results[calculation['id']] = result
+            with guard('While executing calculation:', calculation['id']):
+                method = CalculationMethod.mapped()[calculation['method']]()
+                scope_additions = CalculationScopeAddon.get_addon_scope(
+                    method=method.name,
+                    assessment=assessment,
+                )
+                result = method(
+                    calculation['options'],
+                    assessment,
+                    results,
+                    scope_additions,
+                )
+                result = coerce_instrument_type(result, calculation['type'])
+                results[calculation['id']] = result
         return results
 
     def get_display_name(self):

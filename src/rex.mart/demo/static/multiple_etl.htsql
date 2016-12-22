@@ -12,3 +12,16 @@
     /:rexdb
     /:insert
 
+# Test the use of rex_deploy function on local connection
+/{
+        string(random()) :as col1
+    } :as foo
+    /:insert
+
+# Test the use of rex_deploy function in gateway
+/people{
+        string(random()) :as col1
+    } :as foo
+    /:rexdb
+    /:insert
+

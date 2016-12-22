@@ -90,7 +90,13 @@ def get_mart_etl_db(name, extensions=None):
     gateways = {}
     gateways.update(get_settings().mart_etl_htsql_gateways)
     gateways.update({
-        'rexdb': get_management_db_uri(),
+        'rexdb': {
+            'htsql': {
+                'db': get_management_db_uri(),
+            },
+            'rex_deploy': {},
+            'tweak.meta': {},
+        },
     })
 
     ext = {}

@@ -5,6 +5,14 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
+0.6.0 (20xx-xx-xx)
+==================
+
+- Added the ability to use ``rex.deploy``-provided HTSQL functions as well as
+  the ``tweak.meta`` functionality in ETL queries against the ``rexdb``
+  gateway.
+
+
 0.5.0 (2016-12-14)
 ==================
 

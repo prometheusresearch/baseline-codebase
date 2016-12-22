@@ -172,7 +172,7 @@ Make a table and transfer some data into it with multiple scripts/statements::
     >>> db_exists(mart.name)
     True
     >>> db_inventory(mart.name)
-    foo: 15
+    foo: 21
     >>> db_status(mart.name)
     Definition: some_more_data
     Status: complete
@@ -217,7 +217,7 @@ Make a table and load it with data using both ETL phases::
     >>> db_exists(mart.name)
     True
     >>> db_inventory(mart.name)
-    foo: 19
+    foo: 25
     >>> db_status(mart.name)
     Definition: both_etl_phases
     Status: complete

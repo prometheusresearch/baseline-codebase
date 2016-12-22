@@ -174,10 +174,6 @@ function getColumnConfigImpl(
     };
 }
 
-function getColumnTitle(query: NavigateQuery): string {
-  return query.path;
-}
-
 function getData(data: Object, focusedSeq: Array<string>): Array<Object> {
   return ArrayUtil.transpose(data, focusedSeq);
 }

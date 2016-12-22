@@ -17,6 +17,7 @@ export type {
 
 export type {
   QueryPointer,
+  KeyPath,
 } from './QueryPointer';
 
 export type {

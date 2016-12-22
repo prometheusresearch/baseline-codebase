@@ -146,7 +146,7 @@ class DictionaryPickTableMartAction(DictionaryPickMartAction):
             self.table = 'datadictionary_table'
 
     def context(self):
-        return {'mart': typing.number}, {'mart_table': typing.string}
+        return {'mart': typing.anytype}, {'mart_table': typing.string}
 
 
 class DictionaryPickTableColumnMartAction(DictionaryPickMartAction):
@@ -192,7 +192,7 @@ class DictionaryPickTableColumnMartAction(DictionaryPickMartAction):
 
     def context(self):
         ictx = {
-            'mart': typing.number,
+            'mart': typing.anytype,
             'mart_table': typing.string,
         }
         octx = {
@@ -240,7 +240,7 @@ class DictionaryPickColumnMartAction(DictionaryPickMartAction):
             self.table = 'datadictionary_column'
 
     def context(self):
-        return {'mart': typing.number}, {'mart_column': typing.string}
+        return {'mart': typing.anytype}, {'mart_column': typing.string}
 
 
 class DictionaryViewTableMartAction(DictionaryPickTableMartAction):
@@ -270,7 +270,7 @@ class DictionaryViewTableMartAction(DictionaryPickTableMartAction):
 
     def context(self):
         ictx = {
-            'mart': typing.number,
+            'mart': typing.anytype,
             'mart_table': typing.string,
         }
         octx = {}
@@ -314,7 +314,7 @@ class DictionaryViewColumnMartAction(DictionaryPickColumnMartAction):
 
     def context(self):
         ictx = {
-            'mart': typing.number,
+            'mart': typing.anytype,
             'mart_column': typing.string,
         }
         octx = {}
@@ -354,7 +354,7 @@ class DictionaryPickEnumerationMartAction(DictionaryPickMartAction):
 
     def context(self):
         ictx = {
-            'mart': typing.number,
+            'mart': typing.anytype,
             'mart_column': typing.string,
         }
         octx = {

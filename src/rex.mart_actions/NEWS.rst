@@ -8,7 +8,7 @@ REX.MART_ACTIONS Change Log
 0.6.0 (2016-xx-xx)
 ==================
 
-* 
+* Relaxed type convention for 'mart' context variable (now supports entity)
 
 
 0.5.0 (2016-12-01)

@@ -9,12 +9,13 @@ import * as ui from 'rex-widget/ui';
 import {Fetch} from 'rex-widget/data';
 import * as form from 'rex-widget/form';
 import Title from './Title';
+import martFromContext from './martFromContext';
 
 
 @Fetch(function ({data, context, contextTypes}) {
   data = data.params({
     '*': context.mart_column,
-    'mart': context.mart
+    'mart': martFromContext(context)
   });
   return {
     entity: data.getSingleEntity()

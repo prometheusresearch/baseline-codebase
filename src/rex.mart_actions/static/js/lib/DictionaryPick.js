@@ -8,6 +8,7 @@ import {Action} from 'rex-action';
 import {autobind} from 'rex-widget/lang';
 import {SearchInput} from 'rex-widget/form';
 import {DataTable} from 'rex-widget/datatable';
+import martFromContext from './martFromContext';
 
 
 export default class DictionaryPick extends React.Component {
@@ -26,8 +27,8 @@ export default class DictionaryPick extends React.Component {
         onChange={this.onSearch}
         />
     );
-
-    data = data.params({'mart': context.mart});
+    
+    data = data.params({'mart': martFromContext(context)});
     if (this.constructor.contextParams) {
       this.constructor.contextParams.forEach((param) => {
         data = data.params({[':' + param]: context[param]});

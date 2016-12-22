@@ -10,6 +10,7 @@ import {Action} from 'rex-action';
 import {IFrame} from 'rex-widget/ui';
 import {Preloader} from 'rex-widget/ui';
 import resolveURL from 'rex-widget/lib/resolveURL';
+import martFromContext from './martFromContext';
 
 
 export default class HtsqlConsole extends React.Component {
@@ -37,7 +38,7 @@ export default class HtsqlConsole extends React.Component {
     }
 
     let htsqlUrl = resolveURL(
-      'rex.mart:/mart/' + context.mart + '/shell(' + query + ')'
+      `rex.mart:/mart/${martFromContext(context)}/shell(${query})`
     );
 
     return (

@@ -298,7 +298,7 @@ function getNavigation(context: Context, path: Array<string>) {
       navigation.push({
         type: 'record',
         value: k,
-        label: q.genQueryName(navQuery) || k,
+        label: scope[k].query.context.title || k,
         query: navQuery,
         fromQuery: true,
         pathType,

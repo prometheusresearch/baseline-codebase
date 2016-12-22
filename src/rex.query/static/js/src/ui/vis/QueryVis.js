@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {QueryPointer, Query, Expression} from '../../model';
+import type {QueryPointer, Query} from '../../model';
 import type {Actions} from '../../state';
 
 import React from 'react';
@@ -88,13 +88,9 @@ export function QueryVisNavigateButton(props: {
       closeable
       stylesheet={{Root: QueryPane.NavigatePane, Button: QueryButton.NavigateButton}}
       pointer={pointer}
-      label={getColumnTitle(pointer.query)}
+      label={pointer.query.context.title}
       />
   );
-}
-
-function getColumnTitle(query: q.NavigateQuery): string {
-  return query.path;
 }
 
 function QueryVisDefineButtonTopShape({first}) {
@@ -148,7 +144,6 @@ export function QueryVisDefineButton(props: {
     qp.select(pointer, ['binding', 'query']): any
   );
   let isSelected = selected && qp.is(selected, pointer)
-  let title = q.genQueryName(pointer.query.binding.query);
   return (
     <VBox paddingBottom={5}>
       <VBox
@@ -161,7 +156,7 @@ export function QueryVisDefineButton(props: {
           closeable
           closeTitle="Remove"
           selected={isSelected}
-          label={title || pointer.query.binding.name}
+          label={pointer.query.context.title || pointer.query.binding.name}
           pointer={pointer}
           />
         <VBox paddingLeft={8}>
@@ -181,7 +176,6 @@ export function QueryVisFilterButton(props: {
   pointer: QueryPointer<q.FilterQuery>;
 }) {
   let {query} = props.pointer;
-  let label = getLabelForFilterExpression(query.predicate);
   let stylesheet = {
     Root: QueryPane.FilterPane,
     Button: QueryButton.FilterButton,
@@ -192,30 +186,9 @@ export function QueryVisFilterButton(props: {
       selectable
       closeable
       stylesheet={stylesheet}
-      label={label}
+      label={query.context.title}
       />
   );
-}
-
-function getLabelForFilterExpression(expression: Expression): string {
-  if (expression.name === 'logicalBinary' && expression.op === 'or') {
-    let fields = [];
-    expression.expressions.forEach(expr => {
-      if (
-        !(expr.name === 'value' && expr.value === true) &&
-         expr.name === 'binary'
-      ) {
-        if (expr.left.name === 'navigate' && !fields.includes(expr.left.path)) {
-          fields.push(expr.left.path);
-        }
-      }
-    });
-
-    if (fields.length) {
-      return `Filter by ${fields.join(', ')}`;
-    }
-  }
-  return 'Filter';
 }
 
 export function QueryVisGroupButton(props: {
@@ -229,7 +202,7 @@ export function QueryVisGroupButton(props: {
       closeable
       stylesheet={{Root: QueryPane.GroupPane, Button: QueryButton.GroupButton}}
       pointer={pointer}
-      label={`Group by ${pointer.query.byPath.join(', ')}`}
+      label={pointer.query.context.title}
       />
   );
 }
@@ -238,12 +211,6 @@ export function QueryVisAggregateButton(props: {
   pointer: QueryPointer<q.AggregateQuery>;
 }) {
   const {pointer, ...rest} = props;
-  const {query} = pointer;
-  const domain = query.context.domain;
-  const aggregate = domain.aggregate[query.aggregate];
-  const label = query.path == null
-    ? aggregate.title
-    : `${query.path} ${aggregate.title}`;
   return (
     <QueryVisButton
       {...rest}
@@ -251,7 +218,7 @@ export function QueryVisAggregateButton(props: {
       closeable
       stylesheet={{Root: QueryPane.AggregatePane, Button: QueryButton.AggregateButton}}
       pointer={pointer}
-      label={label}
+      label={pointer.query.context.title}
       />
   );
 }

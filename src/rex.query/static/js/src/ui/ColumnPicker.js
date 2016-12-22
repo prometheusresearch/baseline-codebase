@@ -329,7 +329,7 @@ function getNavigation(pointer: QueryPointer<>, type: Type): Array<Navigation> {
         type: 'record',
         card: type.card,
         value: k,
-        label: q.genQueryName(navQuery) || k,
+        label: scope[k].query.context.title || k,
         context: navQuery.context,
         fromQuery: true,
       });

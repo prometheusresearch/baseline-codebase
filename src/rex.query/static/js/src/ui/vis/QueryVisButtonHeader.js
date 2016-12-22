@@ -126,7 +126,7 @@ export default class QueryVisButtonHeader
 export let QueryVisButtonLabel = style(HBox, {
   displayName: 'QueryVisButtonLabel',
   base: {
-    textTransform: 'capitalize',
+    //textTransform: 'capitalize',
     userSelect: 'none',
     cursor: 'default',
     fontSize: '9pt',

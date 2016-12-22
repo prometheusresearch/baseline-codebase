@@ -166,6 +166,8 @@ export type Context = {|
 
   // output type of the query, null means invalid type
   type: t.Type;
+
+  title: ?string;
 |};
 
 export const emptyScope: Scope = {};
@@ -175,6 +177,7 @@ export const emptyContext = {
   type: t.voidType(emptyDomain),
   scope: emptyScope,
   domain: emptyDomain,
+  title: null,
 };
 
 emptyContext.prev = emptyContext;
@@ -321,6 +324,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
     domain,
     scope,
     type: t.invalidType(domain),
+    title: null,
   };
   let nextQuery = transformQuery(query, {
     here: query => {
@@ -356,14 +360,21 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         context: {
           ...nextContext,
           prev: context,
+          title: genQueryNameFromPipeline(nextPipeline),
         },
       };
     },
     filter: query => {
+      let expressionTitle = genExpressionName(query.predicate);
       return {
         name: 'filter',
         predicate: inferExpressionType(context, query.predicate),
-        context
+        context: {
+          ...context,
+          title: expressionTitle == null
+            ? 'Filter'
+            : `Filter by ${expressionTitle}`,
+        }
       };
     },
     limit: query => {
@@ -383,6 +394,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
             domain,
             scope,
             type: baseType,
+            title: null,
           }, query.select[k]);
           nextSelect[k] = q;
           attribute[k] = {type: q.context.type};
@@ -396,6 +408,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
           domain,
           scope,
           type: t.leastUpperBound(type, t.recordType(domain, attribute)),
+          title: null,
         }
       };
     },
@@ -408,6 +421,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         domain,
         scope,
         type: t.regType(context.type),
+        title: null,
       }, query.binding.query);
       let nextScope = {
         ...scope,
@@ -428,6 +442,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
           domain,
           scope: nextScope,
           type,
+          title: genQueryName(binding.query),
         }
       };
     },
@@ -436,18 +451,22 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         return withContext(query, context);
       }
 
-      if (query.path != null) {
-        let contextAfterNavigate = inferQueryType(context, navigate(query.path)).context;
-        domain = contextAfterNavigate.domain;
-        scope = contextAfterNavigate.scope;
-        type = contextAfterNavigate.type;
-      }
-
       let aggregate = domain.aggregate[query.aggregate];
       if (aggregate == null) {
         // unknown aggregate
         return withContext(query, invalidContext);
       }
+
+      let title = aggregate.title;
+
+      if (query.path != null) {
+        let contextAfterNavigate = inferQueryType(context, navigate(query.path)).context;
+        domain = contextAfterNavigate.domain;
+        scope = contextAfterNavigate.scope;
+        type = contextAfterNavigate.type;
+        title = `${contextAfterNavigate.title || query.path} ${title}`;
+      }
+
       // TODO: validate input type
       if (type.card !== 'seq') {
         // not a seq
@@ -458,6 +477,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         domain,
         scope: {},
         type: aggregate.makeType(type),
+        title,
       });
     },
     group: query => {
@@ -486,6 +506,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
             scope,
             domain,
             type: context.type,
+            title: 'Group'
           },
         };
       }
@@ -493,6 +514,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
       let baseTypeAttribute = t.recordAttribute(baseType);
 
       let attribute = {};
+      let byPathTitleList = [];
       for (let i = 0; i < query.byPath.length; i++) {
         let k = query.byPath[i];
         if (baseTypeAttribute[k] != null) {
@@ -500,11 +522,13 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
             type: baseTypeAttribute[k].type,
             groupBy: true,
           };
+          byPathTitleList.push(baseTypeAttribute[k].title || k);
         } else if (scope[k] != null) {
           attribute[k] = {
             type: scope[k].query.context.type,
             groupBy: true,
           };
+          byPathTitleList.push(scope[k].query.context.title || k);
         } else {
           return withContext(query, invalidContext);
         }
@@ -519,6 +543,8 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         domain,
         scope: {},
         type: t.seqType(t.recordType(domain, attribute)),
+        // TODO: generate title here
+        title: `Group by ${byPathTitleList.join(', ')}`
       });
     },
     navigate: query => {
@@ -534,6 +560,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
             domain,
             scope: {},
             type: t.leastUpperBound(type, field.type),
+            title: field.title,
           });
         }
         let definition = scope[query.path];
@@ -547,6 +574,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
             domain,
             scope: {},
             type: inferQueryType(context, definitionQuery).context.type,
+            title: definition.query.context.title,
           });
         }
         // unknown field
@@ -559,6 +587,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
             domain,
             scope,
             type: t.seqType(t.entityType(domain, query.path)),
+            title: entity.title,
           });
         }
         let definition = scope[query.path];
@@ -568,6 +597,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
             domain,
             scope,
             type: inferQueryType(context, definition.query).context.type,
+            title: definition.query.context.title,
           });
         }
         // unknown entity
@@ -847,16 +877,20 @@ export function resolvePath(context: Context, path: Array<string>): t.Type {
 }
 
 export function genQueryName(query: QueryPipeline): ?string {
+  return genQueryNameFromPipeline(query.pipeline);
+}
+
+export function genQueryNameFromPipeline(pipeline: Array<Query>): ?string {
   let name = [];
-  for (let i = 0; i < query.pipeline.length; i++) {
-    let q = query.pipeline[i];
+  for (let i = 0; i < pipeline.length; i++) {
+    let q = pipeline[i];
     if (q.name === 'navigate') {
-      name.push(q.path);
+      name.push(q.context.title || q.path);
     } else if (q.name === 'aggregate') {
       if (q.path != null) {
-        name.push(`${q.path} ${q.aggregate}`);
+        name.push(q.context.title || `${q.path} ${q.aggregate}`);
       } else {
-        name.push(q.aggregate);
+        name.push(q.context.title || q.aggregate);
       }
     }
   }
@@ -909,4 +943,28 @@ function modifyExpressionContext(
     }
   }): any);
   return nextExpression;
+}
+
+function genExpressionName(expression: Expression): ?string {
+  if (expression.name === 'logicalBinary' && expression.op === 'or') {
+    let fields = [];
+    expression.expressions.forEach(expr => {
+      if (
+        !(expr.name === 'value' && expr.value === true) &&
+         expr.name === 'binary'
+      ) {
+        if (expr.left.name === 'navigate') {
+          let title = expr.left.context.title || expr.left.path;
+          if (!fields.includes(title)) {
+            fields.push(title);
+          }
+        }
+      }
+    });
+
+    if (fields.length) {
+      return fields.join(', ');
+    }
+  }
+  return null;
 }

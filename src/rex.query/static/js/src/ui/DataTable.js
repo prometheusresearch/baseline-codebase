@@ -11,7 +11,6 @@ import {style, css, VBox} from 'react-stylesheet';
 import {AutoSizer} from 'react-virtualized';
 
 import {LoadingIndicator} from '../ui';
-import * as q from '../model/Query';
 import * as ArrayUtil from '../ArrayUtil';
 import {
   DataTable as DataTableBase,
@@ -109,7 +108,7 @@ function getColumnConfigImpl(
           binding.query,
           focusedSeq,
           path,
-          q.genQueryName(binding.query) || binding.name,
+          binding.query.context.title || binding.name,
           true
         );
       }
@@ -122,7 +121,7 @@ function getColumnConfigImpl(
           cellRenderer,
           cellDataGetter,
           dataKey: path.length === 0 ? [query.path] : path,
-          label: bindingName ? bindingName : getColumnTitle(query),
+          label: query.context.title || query.path,
           data: {
             query,
             type,
@@ -332,6 +331,12 @@ function cellRenderer({
 
 function formatEntity(entityName, entity) {
   if (typeof entity === 'string') {
+    return entity;
+  } else if (typeof entity === 'boolean') {
+    return entity;
+  } else if (typeof entity === 'number') {
+    return entity;
+  } else if (entity == null) {
     return entity;
   } else if ('title' in entity) {
     return entity.title;

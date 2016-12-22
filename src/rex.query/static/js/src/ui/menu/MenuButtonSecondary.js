@@ -52,6 +52,7 @@ export default class MenuButtonSecondary
 let MenuButtonSecondaryRoot = style(HBox, {
   displayName: 'MenuButtonSecondaryRoot',
   base: {
+    whiteSpace: 'nowrap',
     outline: css.none,
     height: '33px',
     cursor: 'default',

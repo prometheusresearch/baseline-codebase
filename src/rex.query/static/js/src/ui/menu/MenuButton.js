@@ -231,6 +231,7 @@ let MenuButtonLabelWrapper = style(HBox, {
   displayName: 'MenuButtonLabelWrapper',
   base: {
     flexGrow: 1,
+    flexShrink: 1,
     padding: 8,
     paddingLeft: 10,
     paddingRight: 10,
@@ -251,6 +252,7 @@ let MenuButtonWrapper = style(HBox, {
   displayName: 'MenuButtonWrapper',
   base: {
     flexGrow: 1,
+    flexShrink: 1,
   },
   hoverStyle: {
     hover: {

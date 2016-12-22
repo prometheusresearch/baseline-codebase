@@ -180,10 +180,10 @@ class AddQueryMenuButton extends React.Component {
       menu.push(
         <MenuButtonSecondary
           icon="⇩"
-          title={`Go to ${item.label} and discard all other attributes`}
+          title={`Follow ${item.label} and discard all other attributes`}
           onClick={this.onNavigate}
           key="navigate">
-          Go to {item.label}
+          Follow {item.label}
         </MenuButtonSecondary>,
         item.pathType.card === 'seq' &&
           <MenuButtonSecondary

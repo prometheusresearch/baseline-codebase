@@ -248,10 +248,10 @@ class ColumnPickerButton extends React.Component {
               </MenuButtonSecondary>,
             <MenuButtonSecondary
               icon="⇩"
-              title={`Go to ${column.label} and discard all other attributes`}
+              title={`Follow ${column.label} and discard all other attributes`}
               onClick={this.onNavigate}
               key="navigate">
-              Go to {column.label}
+              Follow {column.label}
             </MenuButtonSecondary>,
             column.card === 'seq' &&
               <MenuButtonSecondary

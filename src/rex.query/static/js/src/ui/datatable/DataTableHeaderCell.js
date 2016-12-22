@@ -98,7 +98,7 @@ class DataTableHeaderCellMenu extends React.Component {
         <MenuButton.Button tag={EllipsisIcon} />
         <DropdownMenu>
           <DropdownMenuItem value="hide">Hide column</DropdownMenuItem>
-          <DropdownMenuItem value="goto">Go to column</DropdownMenuItem>
+          <DropdownMenuItem value="goto">Follow column</DropdownMenuItem>
           <DropdownMenuItem value="summarize">Summarize column</DropdownMenuItem>
         </DropdownMenu>
       </MenuButton.Wrapper>

@@ -63,15 +63,17 @@ export default class AggregateQueryPanel
         ? `${entityTitle} ${query.path} ${title}`
         : `${entityTitle} ${title}`
 
-      let options = map(t.recordAttribute(prevType), (f, k) => ({
+      let options = [{
+        label: <Element textTransform="capitalize">{query.context.prev.title}</Element>,
+        value: ENTITY_SENTINEL,
+      }];
+
+      options = options.concat(map(t.recordAttribute(prevType), (f, k) => ({
         label: <Element textTransform="capitalize">{f.title  || k}</Element>,
         value: k
-      }));
+      })));
 
-      options.unshift({
-        label: <Element textTransform="capitalize">{entityTitle}</Element>,
-        value: ENTITY_SENTINEL,
-      });
+      // TODO: allow to summarize by query in scope
 
       attributeSelect = (
         <MenuGroup

@@ -95,7 +95,8 @@ function GroupMenu({
         <GroupButton
           key={name}
           selected={byPath.indexOf(name) > -1}
-          name={name}
+          name={attribute[name].title}
+          path={name}
           onSelect={onSelect}
           onSelectRemove={onSelectRemove}
           />
@@ -114,7 +115,8 @@ function GroupMenu({
         <GroupButton
           key={name}
           selected={byPath.indexOf(name) > -1}
-          name={name}
+          name={scope[name].query.context.title || name}
+          path={name}
           onSelect={onSelect}
           onSelectRemove={onSelectRemove}
           />
@@ -134,9 +136,9 @@ class GroupButton extends React.Component {
   onClick = (ev: UIEvent) => {
     ev.stopPropagation();
     if (this.props.selected) {
-      this.props.onSelectRemove(this.props.name);
+      this.props.onSelectRemove(this.props.path);
     } else {
-      this.props.onSelect(this.props.name);
+      this.props.onSelect(this.props.path);
     }
   };
 

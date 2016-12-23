@@ -4337,6 +4337,13 @@ react-aria-menubutton@^4.3.0:
     focus-group "^0.3.1"
     teeny-tap "^0.2.0"
 
+react-aria-menubutton@andreypopp/react-aria-menubutton#939562363c5fb9eecdc38465477e3c209339383c:
+  version "4.3.0"
+  resolved "https://codeload.github.com/andreypopp/react-aria-menubutton/tar.gz/939562363c5fb9eecdc38465477e3c209339383c"
+  dependencies:
+    focus-group "^0.3.1"
+    teeny-tap "^0.2.0"
+
 react-css-property-operations@^15.4.1:
   version "15.4.1"
   resolved "https://registry.yarnpkg.com/react-css-property-operations/-/react-css-property-operations-15.4.1.tgz#4c0e305df4cc35f0f5fd2d65a79214c8b012db35"

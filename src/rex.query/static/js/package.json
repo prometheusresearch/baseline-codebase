@@ -69,7 +69,7 @@
     "moment": "^2.15.2",
     "qs": "^6.2.1",
     "react-addons-shallow-compare": "^0.14.0",
-    "react-aria-menubutton": "^4.3.0",
+    "react-aria-menubutton": "andreypopp/react-aria-menubutton#939562363c5fb9eecdc38465477e3c209339383c",
     "react-icons": "^2.2.1",
     "react-relative-portal": "^1.2.0",
     "react-select": "^1.0.0-rc.2",

@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Query, NavigateQuery} from '../model/Query';
+import type {Query} from '../model/Query';
 import type {Type} from '../model/Type';
 import type {ColumnConfig, ColumnField} from './datatable/DataTable';
 

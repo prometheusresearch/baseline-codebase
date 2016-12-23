@@ -6,7 +6,7 @@ import type {Context, Query, QueryPipeline, QueryPointer} from '../model';
 import type {Actions} from '../state';
 
 import React from 'react';
-import {VBox, HBox} from 'react-stylesheet';
+import {VBox, HBox, Element} from 'react-stylesheet';
 import * as css from 'react-stylesheet/css';
 
 import * as t from '../model/Type';
@@ -217,8 +217,10 @@ class AddQueryMenuButton extends React.Component {
           onIconClick={!nonHierarchical && this.toggleOpen}
           menu={menu.length > 0 ? menu : null}>
           <HBox flexGrow={1} alignItems="center">
-            <VBox flexGrow={1}>
-              {item.label}
+            <VBox flexGrow={1} flexShrink={1}>
+              <Element whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">
+                {item.label}
+              </Element>
             </VBox>
             {item.fromQuery &&
               <TagLabel>Query</TagLabel>}

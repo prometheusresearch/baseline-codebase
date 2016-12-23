@@ -4459,9 +4459,9 @@ react-select@^1.0.0-rc.2:
     classnames "^2.2.4"
     react-input-autosize "^1.1.0"
 
-react-stylesheet@2.0.0-beta.11:
-  version "2.0.0-beta.11"
-  resolved "https://registry.yarnpkg.com/react-stylesheet/-/react-stylesheet-2.0.0-beta.11.tgz#897fa4fbff590e2510fb15c6f1ece981c4754471"
+react-stylesheet@2.0.0-beta.12:
+  version "2.0.0-beta.12"
+  resolved "https://registry.yarnpkg.com/react-stylesheet/-/react-stylesheet-2.0.0-beta.12.tgz#c10a6ab82e025e86a1a2e3a0f3f56344bb94f47d"
   dependencies:
     fbjs "^0.8.4"
     inline-style-prefix-all "^2.0.2"

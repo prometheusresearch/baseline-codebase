@@ -3,10 +3,9 @@
  */
 
 import React from 'react';
-import {style, Element, HBox, VBox} from 'react-stylesheet';
-import IconRemove from 'react-icons/lib/fa/trash';
-import IconCircleO from 'react-icons/lib/fa/circle-o'
-import IconCircle from 'react-icons/lib/fa/circle'
+import {style, HBox, VBox} from 'react-stylesheet';
+import Label from '../../ui/Label'
+import * as Icon from '../../ui/Icon';
 
 type QueryVisButtonHeaderProps = {
   stylesheet: {
@@ -45,7 +44,7 @@ export default class QueryVisButtonHeader
   };
 
   static defaultProps = {
-    closeIcon: <IconRemove />,
+    closeIcon: <Icon.IconRemove />,
   };
 
   onMouseEnter = () => {
@@ -95,13 +94,11 @@ export default class QueryVisButtonHeader
                 : 'hidden'
             }}>
             <Button disableActive onClick={toggleable && this.toggleActive}>
-              {active ? <IconCircle /> : <IconCircleO />}
+              {active ? <Icon.IconCircle /> : <Icon.IconCircleO />}
             </Button>
           </VBox>
           <HBox flexGrow={1} flexShrink={1}>
-            <Element textOverflow="ellipsis" overflow="hidden" whiteSpace="nowrap">
-              {label}
-            </Element>
+            <Label label={label} />
           </HBox>
           {closeable &&
             <HBox

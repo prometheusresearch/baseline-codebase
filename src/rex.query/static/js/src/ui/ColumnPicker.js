@@ -6,11 +6,12 @@ import type {QueryPointer, QueryPipeline, Type, TypeCardinality, Query, Context}
 import type {Actions} from '../state';
 
 import React from 'react';
-import {Element, VBox, HBox} from 'react-stylesheet';
+import {VBox, HBox} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
 import {IconPlus} from './Icon';
 import TagLabel from './TagLabel';
+import Label from './Label';
 import * as feature from '../feature';
 import * as t from '../model/Type';
 import * as q from '../model/Query';
@@ -265,9 +266,13 @@ class ColumnPickerButton extends React.Component {
         }
         onClick={this.onSelect}>
         <HBox flexShrink={1} flexGrow={1} alignItems="center">
-          <Element textOverflow="ellipsis" overflow="hidden" whiteSpace="nowrap">
-            {column.card === 'seq' && !column.fromQuery ? '# ' : ''}{column.label}
-          </Element>
+          <Label
+            label={
+              column.card === 'seq' && !column.fromQuery
+                ? `# ${column.label}`
+                : column.label
+            }
+            />
           {column.fromQuery &&
             <TagLabel marginLeft="auto">
               Query

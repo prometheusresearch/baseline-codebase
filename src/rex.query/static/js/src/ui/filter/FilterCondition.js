@@ -8,9 +8,12 @@ import type {Navigation} from '../../model/navigation';
 import invariant from 'invariant';
 import React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
+import {HBox} from 'react-stylesheet';
 import debounce from 'lodash/debounce';
 
 import Select from '../Select';
+import TagLabel from '../TagLabel';
+import Label from '../Label';
 import * as nav from '../../model/navigation';
 import * as FilterComparators from './FilterComparators';
 
@@ -51,7 +54,11 @@ export default class FilterCondition
     let operandComponent = null;
     let chooseOperandType = true;
     if (field != null && comparatorName != null) {
-      let operandFields = getCompatibleOperandFields(fields, field);
+      console.log(fields);
+      let operandFields = getCompatibleOperandFields(fields, field).map(field => ({
+        label: field.label,
+        value: field.value,
+      }));
       chooseOperandType = operandFields.length > 0;
 
       if (chooseOperandType && operandIsField && operandName) {
@@ -87,13 +94,26 @@ export default class FilterCondition
       {label: 'Attribute', value: 'field'},
     ];
 
+    console.log(fields);
+    let fieldOptions = fields.map(field => ({
+      label: field.fromQuery
+        ? <HBox>
+            <HBox flexGrow={1} flexShrink={1}>
+              <Label label={field.label} />
+            </HBox>
+            <TagLabel>query</TagLabel>
+          </HBox>
+        : field.label,
+      value: field.value,
+    }));
+
     return (
       <ReactUI.Block>
         <ReactUI.Block>
           <ReactUI.Block marginBottom={5}>
             <Select
               value={fieldName}
-              options={fields}
+              options={fieldOptions}
               onChange={this.onFieldChange}
               />
           </ReactUI.Block>

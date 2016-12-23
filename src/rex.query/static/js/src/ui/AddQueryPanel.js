@@ -6,7 +6,7 @@ import type {Context, Query, QueryPipeline, QueryPointer} from '../model';
 import type {Actions} from '../state';
 
 import React from 'react';
-import {VBox, HBox, Element} from 'react-stylesheet';
+import {VBox, HBox} from 'react-stylesheet';
 import * as css from 'react-stylesheet/css';
 
 import * as t from '../model/Type';
@@ -18,6 +18,7 @@ import {MenuGroup, MenuButton, MenuButtonSecondary} from './menu';
 import QueryPanelBase from './QueryPanelBase';
 import {IconPlus} from './Icon';
 import TagLabel from './TagLabel';
+import Label from './Label';
 
 type AddColumnPanelProps = {
   pointer: QueryPointer<Query>;
@@ -218,9 +219,7 @@ class AddQueryMenuButton extends React.Component {
           menu={menu.length > 0 ? menu : null}>
           <HBox flexGrow={1} alignItems="center">
             <VBox flexGrow={1} flexShrink={1}>
-              <Element whiteSpace="nowrap" overflow="hidden" textOverflow="ellipsis">
-                {item.label}
-              </Element>
+              <Label label={item.label} />
             </VBox>
             {item.fromQuery &&
               <TagLabel marginLeft="auto">Query</TagLabel>}

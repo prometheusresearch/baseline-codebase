@@ -7,9 +7,9 @@ import type {QueryPointer} from '../../model/QueryPointer';
 import type {Actions} from '../../state';
 
 import React from 'react';
-import CloseIcon from 'react-icons/lib/fa/close';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
+import * as Icon from '../../ui/Icon';
 import * as q from '../../model/Query';
 import * as nav from '../../model/navigation';
 import * as theme from '../Theme';
@@ -99,7 +99,7 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
           <ReactUI.Block textAlign="right" marginBottom={5}>
             <ReactUI.QuietButton
               size="x-small"
-              icon={<CloseIcon />}
+              icon={<Icon.IconClose />}
               onClick={this.onConditionRemove.bind(this, idx)}
               />
           </ReactUI.Block>

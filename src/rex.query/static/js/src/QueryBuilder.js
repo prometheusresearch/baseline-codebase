@@ -9,10 +9,8 @@ import React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import * as css from 'react-stylesheet/css';
 import {style, VBox, HBox} from 'react-stylesheet';
-import ArrowLeftIcon  from 'react-icons/lib/fa/arrow-left';
-import ArrowRightIcon  from 'react-icons/lib/fa/arrow-right';
-import DownloadIcon from 'react-icons/lib/fa/cloud-download';
 
+import * as Icon from './ui/Icon';
 import * as qp from './model/QueryPointer';
 import * as ui from './ui';
 import * as State from './state';
@@ -94,7 +92,7 @@ export default class QueryBuilder extends React.Component {
           <ReactUI.QuietButton
             disabled={this.state.undoStack.length < 1}
             onClick={this.container.actions.undo}
-            icon={<ArrowLeftIcon />}
+            icon={<Icon.IconArrowLeft />}
             size="small"
             groupHorizontally>
             Undo
@@ -102,7 +100,7 @@ export default class QueryBuilder extends React.Component {
           <ReactUI.QuietButton
             disabled={this.state.redoStack.length < 1}
             onClick={this.actions.redo}
-            iconAlt={<ArrowRightIcon />}
+            iconAlt={<Icon.IconArrowRight />}
             size="small"
             groupHorizontally>
             Redo
@@ -114,7 +112,7 @@ export default class QueryBuilder extends React.Component {
           <HBox marginLeft="auto">
             <ReactUI.QuietButton
               onClick={this.actions.export}
-              icon={<DownloadIcon />}
+              icon={<Icon.IconDownload />}
               size="small">
               Export as .csv
             </ReactUI.QuietButton>
@@ -196,7 +194,7 @@ function InvalidQueryMessage({onUndo}) {
       <ReactUI.Button
         onClick={onUndo}
         style={{verticalAlign: 'middle', margin: 4, marginTop: 2}}
-        icon={<ArrowLeftIcon />}
+        icon={<Icon.ArrowLeftIcon />}
         size="small">
         return back
       </ReactUI.Button>

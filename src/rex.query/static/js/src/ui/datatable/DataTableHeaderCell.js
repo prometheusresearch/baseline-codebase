@@ -7,8 +7,8 @@ import type {Actions} from '../../state';
 
 import React from 'react'
 import ReactDOM from 'react-dom'
-import EllipsisIcon from 'react-icons/lib/fa/ellipsis-v';
 import {style, css, Element, HBox} from 'react-stylesheet';
+import * as Icon from '../../ui/Icon';
 import stopPropagation from '../../stopPropagation';
 import * as MenuButton from 'react-aria-menubutton';
 import RelativePortal from 'react-relative-portal';
@@ -47,7 +47,7 @@ function DropdownMenu({children}) {
               borderRight={border}
               display="inline-block"
               fontSize="80%">
-              <EllipsisIcon />
+              <Icon.IconEllipsis />
             </Element>
           </Element>
           <Element
@@ -95,7 +95,7 @@ class DataTableHeaderCellMenu extends React.Component {
   render() {
     return (
       <MenuButton.Wrapper tag={DataTableHeaderCellMenuRoot} onSelection={this.onMenuSelect}>
-        <MenuButton.Button tag={EllipsisIcon} />
+        <MenuButton.Button tag={Icon.IconEllipsis} />
         <DropdownMenu>
           <DropdownMenuItem value="hide">Hide column</DropdownMenuItem>
           <DropdownMenuItem value="goto">Follow column</DropdownMenuItem>

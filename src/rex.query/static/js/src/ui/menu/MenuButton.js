@@ -5,7 +5,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import {style, css, Element, VBox, HBox} from 'react-stylesheet';
-import IconEllipsis from 'react-icons/lib/fa/ellipsis-v';
+import * as Icon from '../Icon';
 
 type MenuButtonProps = {
   icon?: ?string | React$Element<*>;
@@ -156,7 +156,7 @@ class MenuButtonMenuToggle extends React.Component {
   render() {
     return (
       <MenuButtonMenuToggleRoot onClick={this.onClick}>
-        <IconEllipsis />
+        <Icon.IconEllipsis />
       </MenuButtonMenuToggleRoot>
     );
   }

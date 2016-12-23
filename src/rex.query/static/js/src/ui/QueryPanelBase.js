@@ -5,10 +5,10 @@
 import type {QueryVisTheme} from './Theme';
 
 import React from 'react';
-import CloseIcon from 'react-icons/lib/fa/close';
-import ArrowLeftIcon from 'react-icons/lib/fa/arrow-left';
-import {style, css, Element, VBox, HBox} from 'react-stylesheet';
+import * as Icon from './Icon';
+import {style, css, VBox, HBox} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
+import Label from './Label';
 import * as Theme from './Theme';
 
 type QueryPanelBaseProps = {
@@ -50,7 +50,7 @@ export default class QueryPanelBase extends React.Component<*, QueryPanelBasePro
                 <ReactUI.QuietButton
                   title="Back"
                   size="small"
-                  icon={<ArrowLeftIcon />}
+                  icon={<Icon.IconArrowLeft />}
                   onClick={onBack}
                   />
               </HBox>}
@@ -61,15 +61,13 @@ export default class QueryPanelBase extends React.Component<*, QueryPanelBasePro
               color="#888"
               fontSize="10pt"
               fontWeight={400}>
-              <Element textOverflow="ellipsis" overflow="hidden" whiteSpace="nowrap">
-                {title}
-              </Element>
+              <Label label={title} />
             </HBox>
             {!disableClose &&
               <ReactUI.QuietButton
                 title="Close"
                 size="small"
-                icon={<CloseIcon />}
+                icon={<Icon.IconClose />}
                 onClick={onClose}
                 />}
           </HBox>

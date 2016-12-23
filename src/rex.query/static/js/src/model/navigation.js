@@ -9,6 +9,7 @@ export type Navigation = {
   value: string;
   label: string;
   context: q.Context;
+  fromQuery: boolean;
 };
 
 
@@ -39,6 +40,7 @@ export function getNavigation(context: q.Context, type: t.Type) {
           value: k,
           label: domain.entity[k].title,
           context: q.inferQueryType(contextAtQuery, q.navigate(k)).context,
+          fromQuery: false,
         });
       }
     }
@@ -50,6 +52,7 @@ export function getNavigation(context: q.Context, type: t.Type) {
           value: k,
           label: attribute[k].title,
           context: q.inferQueryType(contextAtQuery, q.navigate(k)).context,
+          fromQuery: false,
         });
       }
     }
@@ -61,6 +64,7 @@ export function getNavigation(context: q.Context, type: t.Type) {
         value: k,
         label: scope[k].query.context.title || k,
         context: q.inferQueryType(contextAtQuery, scope[k].query).context,
+        fromQuery: true,
       });
     }
   }

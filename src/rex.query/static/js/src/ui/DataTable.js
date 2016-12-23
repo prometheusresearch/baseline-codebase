@@ -298,6 +298,8 @@ function cellRenderer({
           cellData = cellData.name;
         } else if ('title' in cellData) {
           cellData = cellData.title;
+        } else {
+          formatEntity(type.entity, cellData);
         }
       }
     }
@@ -317,12 +319,19 @@ function cellRenderer({
       return String(cellData)
     } else if (type.name === 'datetime') {
       return String(cellData)
+    } else if (type.name === 'json') {
+      return formatJSON(cellData);
     } else {
       return String(cellData)
     }
   } else {
     return String(cellData)
   }
+}
+
+function formatJSON(data) {
+  // TODO: click to show data in a modal?
+  return <JSONCell>— JSON data —</JSONCell>
 }
 
 function formatEntity(entityName, entity) {
@@ -371,6 +380,15 @@ let BooleanFalseCell = style('div', {
     color: '#a90000',
     paddingRight: 5,
     paddingLeft: 5,
+  }
+});
+
+let JSONCell = style('div', {
+  displayName: 'JSONCell',
+  base: {
+    color: '#888',
+    fontFamily: 'Menlo, monospace',
+    fontSize: '7pt',
   }
 });
 

@@ -51,6 +51,7 @@ export type Type
   | NumberType
   | BooleanType
   | TextType
+  | JSONType
   | EnumerationType
   | DateType
   | TimeType
@@ -82,6 +83,11 @@ export type VoidType = {
 
 export type TextType = {
   name: 'text';
+  domain: Domain;
+} & TypeCardinalityProp;
+
+export type JSONType = {
+  name: 'json';
   domain: Domain;
 } & TypeCardinalityProp;
 
@@ -150,6 +156,10 @@ export function numberType(domain: Domain): NumberType {
 
 export function textType(domain: Domain): TextType {
   return {name: 'text', card: null, domain};
+}
+
+export function jsonType(domain: Domain): JSONType {
+  return {name: 'json', card: null, domain};
 }
 
 export function voidType(domain: Domain): VoidType {

@@ -147,8 +147,9 @@ function getBaseFieldType(domain: Domain, field: CatalogEntityField) {
   if (field.column != null) {
     switch (field.column.type) {
       case 'text':
-      case 'json':
         return t.textType(domain);
+      case 'json':
+        return t.jsonType(domain);
       case 'enum':
         return t.enumerationType(domain, field.column.enum);
       case 'boolean':

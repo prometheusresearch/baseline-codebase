@@ -5,30 +5,31 @@
 import React from 'react';
 
 import {style, VBox} from 'react-stylesheet';
-import * as theme from './Theme';
+import * as Theme from './Theme';
 
 type ShapeProps = {
   children?: React$Element<*>;
   first?: boolean;
-  variant: {selected?: boolean};
+  variant: {selected?: boolean, invalid?: boolean};
 };
 
 function createPane({displayName, theme, noActiveBorder, strokeDasharray}: {
   displayName: string;
-  theme: theme.QueryVisTheme;
+  theme: Theme.QueryVisTheme;
   noActiveBorder?: boolean;
   strokeDasharray?: string;
 }) {
 
   function Shape({children, first, variant, ...props}: ShapeProps) {
     let selected = variant && variant.selected;
+    let invalid = variant && variant.invalid;
     return (
       <VBox {...props}
         left={1}
         style={{zIndex: selected ? 1 : 0}}>
         <PaneShape
-          fill={theme.backgroundColor}
-          stroke={theme.borderColor}
+          fill={!invalid ? theme.backgroundColor : Theme.invalid.backgroundColor}
+          stroke={!invalid ? theme.borderColor : theme}
           strokeDasharray={strokeDasharray}
           selected={selected && !noActiveBorder}
           topTriangle={first}
@@ -115,42 +116,42 @@ let PaneChildrenWrapper = style('div', {
 
 export let NavigatePane = createPane({
   displayName: 'NavigatePane',
-  theme: theme.entity
+  theme: Theme.entity
 });
 
 export let AggregatePane = createPane({
   displayName: 'AggregatePane',
-  theme: theme.aggregate
+  theme: Theme.aggregate
 });
 
 export let GroupPane = createPane({
   displayName: 'GroupPane',
-  theme: theme.group,
+  theme: Theme.group,
 });
 
 export let DefinePane = createPane({
   displayName: 'DefinePane',
-  theme: theme.traverse
+  theme: Theme.traverse
 });
 
 export let FilterPane = createPane({
   displayName: 'FilterPane',
-  theme: theme.filter
+  theme: Theme.filter
 });
 
 export let SelectPane = createPane({
   displayName: 'SelectPane',
-  theme: theme.select
+  theme: Theme.select
 });
 
 export let DefaultPane = createPane({
   displayName: 'SelectPane',
-  theme: theme.placeholder,
+  theme: Theme.placeholder,
   noActiveBorder: true,
   strokeDasharray: '2, 2',
 });
 
 export let PlainPane = createPane({
   displayName: 'PlainPane',
-  theme: theme.placeholder,
+  theme: Theme.placeholder,
 });

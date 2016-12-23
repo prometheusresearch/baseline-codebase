@@ -81,3 +81,10 @@ export let group: QueryVisTheme = {
   textColor: '#3e1458',
   textColorActive: '#3e1458',
 };
+
+export let invalid: QueryVisTheme = {
+  backgroundColor: '#ff8181',
+  borderColor: '#d01e1e',
+  textColor: 'white',
+  textColorActive: 'white',
+};

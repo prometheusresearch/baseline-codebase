@@ -39,6 +39,7 @@ class QueryVisButton extends React.Component {
   render() {
     let {pointer, selected, ...props} = this.props;
     let isSelected = selected && qp.is(selected, pointer);
+    let isInvalid = pointer.query.context.type.name === 'invalid';
     return (
       <QueryVisButtonBase
         {...props}
@@ -46,6 +47,7 @@ class QueryVisButton extends React.Component {
         onClose={this.onClose}
         onSelect={this.onSelect}
         selected={isSelected}
+        invalid={isInvalid}
         />
     );
   }

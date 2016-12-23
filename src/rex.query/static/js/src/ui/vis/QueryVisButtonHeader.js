@@ -73,7 +73,7 @@ export default class QueryVisButtonHeader
 
   render() {
     let {
-      label, selected,
+      label, selected, invalid,
       selectable, toggleable, closeable,
       closeIcon, closeTitle,
       first,
@@ -114,7 +114,7 @@ export default class QueryVisButtonHeader
     return (
       <Root
         first={first}
-        variant={{selected}}
+        variant={{selected, invalid}}
         onClick={selectable && this.onSelect}
         onMouseOver={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}>

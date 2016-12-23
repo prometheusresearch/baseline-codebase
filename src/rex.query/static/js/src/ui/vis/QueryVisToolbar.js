@@ -103,7 +103,7 @@ export default class QueryVisToolbar
 
 }
 
-let QueryVisToolbarButtonRoot = style(HBox, {
+let QueryVisToolbarButtonRoot = style('button', {
   displayName: 'QueryVisToolbarButtonRoot',
   base: {
     padding: {horizontal: 7, vertical: 5},
@@ -112,6 +112,7 @@ let QueryVisToolbarButtonRoot = style(HBox, {
     userSelect: 'none',
     alignItems: 'center',
     cursor: 'default',
+    border: 'none',
 
     textTransform: 'capitalize',
     fontSize: '11px',
@@ -129,6 +130,10 @@ let QueryVisToolbarButtonRoot = style(HBox, {
       color: '#000000',
     },
     active: {
+      backgroundColor: '#fafafa',
+    },
+    focus: {
+      outline: 'none',
       backgroundColor: '#fafafa',
     }
   },

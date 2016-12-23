@@ -131,6 +131,7 @@ let DataTableRowColumn = style('div', {
 let DataTableRowColumnInner = style('div', {
   displayName: 'DataTableRowColumnInner',
   base: {
+    width: '100%',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     overflow: 'hidden',

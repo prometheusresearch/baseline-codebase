@@ -312,7 +312,7 @@ function cellRenderer({
         return null;
       }
     } else if (type.name === 'number') {
-      return String(cellData)
+      return <NumberCell>{cellData}</NumberCell>;
     } else if (type.name === 'date') {
       return String(cellData)
     } else if (type.name === 'time') {
@@ -362,6 +362,15 @@ let NullCell = style('div', {
 });
 
 let nullCell = <NullCell>—</NullCell>;
+
+let NumberCell = style('div', {
+  displayName: 'NumberCell',
+  base: {
+    textAlign: 'right',
+    paddingRight: 5,
+    paddingLeft: 5,
+  }
+});
 
 let BooleanTrueCell = style('div', {
   displayName: 'BooleanTrueCell',

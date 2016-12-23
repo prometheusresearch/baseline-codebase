@@ -8,7 +8,7 @@ import type {Navigation} from '../../model/navigation';
 import invariant from 'invariant';
 import React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
-import {HBox} from 'react-stylesheet';
+import {HBox, Element} from 'react-stylesheet';
 import debounce from 'lodash/debounce';
 
 import Select from '../Select';
@@ -41,9 +41,25 @@ export default class FilterCondition
   }
 
   render() {
-    let {fields} = this.props;
+    let {fields, expression} = this.props;
     let {fieldName, comparatorName, operandName, operandIsField} = this.state;
     let field = null;
+
+    if (expression.context.type.name === 'invalid') {
+      return (
+        <Element fontSize="10pt" fontWeight={300} textAlign="center">
+          <Element display="inline-block" marginRight={5}>
+            {fieldName}
+          </Element>
+          <Element display="inline-block" marginRight={5}>
+            {comparatorName}
+          </Element>
+          <Element display="inline-block">
+            {operandName}
+          </Element>
+        </Element>
+      );
+    }
 
     let comparators = [];
     if (fieldName != null) {

@@ -13,7 +13,7 @@ import * as ReactUI from '@prometheusresearch/react-ui';
 import * as Icon from '../../ui/Icon';
 import * as q from '../../model/Query';
 import * as nav from '../../model/navigation';
-import * as theme from '../Theme';
+import * as Theme from '../Theme';
 import QueryPanelBase from '../QueryPanelBase';
 import {MenuGroup, MenuButton} from '../menu';
 import FilterCondition from './FilterCondition';
@@ -92,13 +92,15 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
       return type.name !== 'invalid';
     });
 
-    let conditions = expressions.map((exp, idx) => {
+    let conditions = expressions.map((expression, idx) => {
+      let isInvalid = expression.context.type.name === 'invalid';
       return (
         <Element
           key={idx}>
           {idx !== 0 &&
             <ORSeparator />}
           <Element
+            border={!isInvalid ? 'none' : `1px solid ${Theme.invalid.borderColor}`}
             padding={{horizontal: 5, vertical: 10}}>
             <Element
               textAlign="right"
@@ -112,7 +114,7 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
             <Element verticalAlign="middle">
               <FilterCondition
                 fields={fields}
-                expression={exp}
+                expression={expression}
                 onUpdate={this.onConditionUpdate.bind(this, idx)}
                 />
             </Element>
@@ -125,7 +127,7 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
       <QueryPanelBase
         title="Filter"
         onClose={onClose}
-        theme={theme.filter}
+        theme={Theme.filter}
         pointer={pointer}>
         <ReactUI.VBox padding={0}>
           <ReactUI.VBox padding={5}>

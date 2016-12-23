@@ -273,6 +273,15 @@ function withContext<Q: Query>(query: Q, context: Context): Q {
   return (nextQuery: Q);
 }
 
+function withType(context: Context, type: t.Type): Context {
+  let nextContext: any = {...context, type};
+  return (nextContext: Context);
+}
+
+function withInvalidType(context: Context): Context {
+  return withType(context, t.invalidType(context.domain));
+}
+
 export function regularizeContext(context: Context): Context {
   let type = t.regType(context.type);
   let nextContext: any = {...context, type};
@@ -281,18 +290,25 @@ export function regularizeContext(context: Context): Context {
 
 export function inferExpressionType(context: Context, query: Expression): Expression {
   if (query.name === 'logicalBinary') {
+    let expressions = query.expressions.map(expression => inferExpressionType(context, expression));
+    if (expressions.some(expression => expression.context.type.name === 'invalid')) {
+      context = withInvalidType(context);
+    }
     return {
       name: 'logicalBinary',
       op: query.op,
-      expressions: query.expressions.map(expression =>
-        inferExpressionType(context, expression)),
+      expressions,
       context,
     };
   } else if (query.name === 'unary') {
+    let expression = inferExpressionType(context, query.expression);
+    if (expression.context.type.name === 'invalid') {
+      context = withInvalidType(context);
+    }
     return {
       name: 'unary',
       op: query.op,
-      expression: inferExpressionType(context, query.expression),
+      expression,
       context,
     };
   } else if (query.name === 'value') {
@@ -304,6 +320,9 @@ export function inferExpressionType(context: Context, query: Expression): Expres
   } else if (query.name === 'binary') {
     let left = inferExpressionType(context, query.left);
     let right = inferExpressionType(context, query.right);
+    if (left.context.type.name === 'invalid' || right.context.type.name === 'invalid') {
+      context = withInvalidType(context);
+    }
     return {
       name: 'binary',
       op: query.op,
@@ -366,11 +385,15 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
     },
     filter: query => {
       let expressionTitle = genExpressionName(query.predicate);
+      let predicate = inferExpressionType(context, query.predicate);
       return {
         name: 'filter',
-        predicate: inferExpressionType(context, query.predicate),
+        predicate,
         context: {
           ...context,
+          type: predicate.context.type.name === 'invalid'
+            ? t.invalidType(domain)
+            : context.type,
           title: expressionTitle == null
             ? 'Filter'
             : `Filter by ${expressionTitle}`,

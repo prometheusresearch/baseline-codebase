@@ -28,8 +28,9 @@ function createPane({displayName, theme, noActiveBorder, strokeDasharray}: {
         left={1}
         style={{zIndex: selected ? 1 : 0}}>
         <PaneShape
-          fill={!invalid ? theme.backgroundColor : Theme.invalid.backgroundColor}
-          stroke={!invalid ? theme.borderColor : theme}
+          fill={theme.backgroundColor}
+          stroke={!invalid ? theme.borderColor : Theme.invalid.borderColor}
+          strokeWidth={!invalid ? 1 : 2}
           strokeDasharray={strokeDasharray}
           selected={selected && !noActiveBorder}
           topTriangle={first}
@@ -51,6 +52,7 @@ function createPane({displayName, theme, noActiveBorder, strokeDasharray}: {
 function PaneShape({
   fill,
   stroke,
+  strokeWidth = 1,
   strokeDasharray,
   selected,
   topTriangle
@@ -69,7 +71,7 @@ function PaneShape({
         fill={fill}
         stroke={stroke}
         strokeDasharray={strokeDasharray}
-        strokeWidth={1}
+        strokeWidth={strokeWidth}
         strokeLinecap="round"
         strokeLinejoin="miter"
         points={points}

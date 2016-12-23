@@ -230,7 +230,6 @@ let MenuButtonIconWrapper = style(VBox, {
 let MenuButtonLabelWrapper = style(Element, {
   displayName: 'MenuButtonLabelWrapper',
   base: {
-    padding: 8,
     paddingLeft: 10,
     paddingRight: 10,
     whiteSpace: 'nowrap',
@@ -255,6 +254,8 @@ let MenuButtonWrapper = style(HBox, {
   base: {
     flexGrow: 1,
     flexShrink: 1,
+    height: 32,
+    alignItems: 'center',
   },
   hoverStyle: {
     hover: {

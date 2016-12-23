@@ -8,7 +8,14 @@ import isArray from 'lodash/isArray';
 export default class ValueSelect extends React.Component {
   render() {
     let {style, ...props} = this.props;
-    return <Select {...props} style={style} onChange={this.onChange} />;
+    return (
+      <Select
+        {...props}
+        style={style}
+        onChange={this.onChange}
+        valueRenderer={valueRenderer}
+        />
+    );
   }
 
   onChange = (option) => {
@@ -27,3 +34,6 @@ export default class ValueSelect extends React.Component {
   };
 }
 
+function valueRenderer(option) {
+  return option.labelActive !== undefined ? option.labelActive : option.label;
+}

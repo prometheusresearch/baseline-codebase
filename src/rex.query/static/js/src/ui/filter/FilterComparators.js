@@ -156,7 +156,7 @@ class BasicBinaryComparator {
   }
 
   query(field, operand, operandIsField) {
-    return operand
+    return operand != null
       ? q[this.value](
           q.use(field.value),
           operandIsField ? q.navigate(operand) : q.value(operand)

@@ -54,7 +54,6 @@ export default class FilterCondition
     let operandComponent = null;
     let chooseOperandType = true;
     if (field != null && comparatorName != null) {
-      console.log(fields);
       let operandFields = getCompatibleOperandFields(fields, field).map(field => ({
         label: field.label,
         value: field.value,
@@ -94,8 +93,8 @@ export default class FilterCondition
       {label: 'Attribute', value: 'field'},
     ];
 
-    console.log(fields);
     let fieldOptions = fields.map(field => ({
+      labelActive: field.label,
       label: field.fromQuery
         ? <HBox>
             <HBox flexGrow={1} flexShrink={1}>

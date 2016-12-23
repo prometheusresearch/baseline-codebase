@@ -100,6 +100,9 @@ let DataTableRow = style('div', {
 
     hover: {
       background: '#fafafa',
+    },
+    lastOfType: {
+      borderBottom: css.border(1, '#eee'),
     }
   }
 });

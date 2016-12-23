@@ -236,6 +236,7 @@ let MenuButtonLabelWrapper = style(Element, {
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
     overflow: 'hidden',
+    width: '100%',
   },
   hoverStyle: {
     hover: {

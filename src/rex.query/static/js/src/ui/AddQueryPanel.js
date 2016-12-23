@@ -223,7 +223,7 @@ class AddQueryMenuButton extends React.Component {
               </Element>
             </VBox>
             {item.fromQuery &&
-              <TagLabel>Query</TagLabel>}
+              <TagLabel marginLeft="auto">Query</TagLabel>}
           </HBox>
         </MenuButton>
         {!nonHierarchical && open &&

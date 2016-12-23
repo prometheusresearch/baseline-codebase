@@ -7,6 +7,7 @@ import type {QueryPointer} from '../../model/QueryPointer';
 import type {Actions} from '../../state';
 
 import React from 'react';
+import {Element} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
 import * as Icon from '../../ui/Icon';
@@ -24,24 +25,25 @@ type FilterQueryPanelProps = {
 
 function ORSeparator() {
   return (
-    <ReactUI.Block
+    <Element
+      position="relative"
       padding={{vertical: 10}}
-      style={{
-        textAlign: 'center',
-        fontWeight: 300,
-        color: '#888',
-        fontSize: '0.7em',
-      }}>
+      textAlign="center"
+      fontWeight={300}
+      color="#888"
+      fontSize="0.7em">
       <hr />
-      <ReactUI.Text style={{
-        position: 'absolute',
-        top: 5,
-        padding: 5,
-        width: 25,
-        marginLeft: -12.5,
-        background: '#fff',
-      }}>OR</ReactUI.Text>
-    </ReactUI.Block>
+      <Element
+        position="absolute"
+        top={5}
+        left="50%"
+        width={25}
+        marginLeft={-12.5}
+        padding={5}
+        background="#fff">
+        OR
+      </Element>
+    </Element>
   );
 }
 
@@ -92,25 +94,30 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
 
     let conditions = expressions.map((exp, idx) => {
       return (
-        <ReactUI.Block
+        <Element
           key={idx}>
           {idx !== 0 &&
             <ORSeparator />}
-          <ReactUI.Block textAlign="right" marginBottom={5}>
-            <ReactUI.QuietButton
-              size="x-small"
-              icon={<Icon.IconClose />}
-              onClick={this.onConditionRemove.bind(this, idx)}
-              />
-          </ReactUI.Block>
-          <ReactUI.Block style={{verticalAlign: 'middle'}}>
-            <FilterCondition
-              fields={fields}
-              expression={exp}
-              onUpdate={this.onConditionUpdate.bind(this, idx)}
-              />
-          </ReactUI.Block>
-        </ReactUI.Block>
+          <Element
+            padding={{horizontal: 5, vertical: 10}}>
+            <Element
+              textAlign="right"
+              marginBottom={5}>
+              <ReactUI.QuietButton
+                size="x-small"
+                icon={<Icon.IconRemove />}
+                onClick={this.onConditionRemove.bind(this, idx)}
+                />
+            </Element>
+            <Element verticalAlign="middle">
+              <FilterCondition
+                fields={fields}
+                expression={exp}
+                onUpdate={this.onConditionUpdate.bind(this, idx)}
+                />
+            </Element>
+          </Element>
+        </Element>
       );
     });
 

@@ -96,7 +96,7 @@ let DataTableRow = style('div', {
     fontSize: '11pt',
     overflow: 'hidden',
 
-    borderBottom: css.border(1, '#eee'),
+    //borderBottom: css.border(1, '#eee'),
 
     hover: {
       background: '#fafafa',
@@ -114,10 +114,14 @@ let DataTableRowColumn = style('div', {
     fontSize: '9pt',
     fontWeight: 200,
 
+    borderTop: css.border(1, '#eee'),
     borderRight: css.border(1, '#eee'),
 
     paddingRight: 10,
     paddingLeft: 10,
+  },
+  isEmpty: {
+    borderTop: css.border(1, 'transparent')
   }
 });
 
@@ -423,6 +427,7 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     return (
       <DataTableRowColumn
         key={`Row${rowIndex}-Col${columnIndex}`}
+        variant={{isEmpty: cellData === undefined}}
         style={style}
         title={title}>
         <DataTableRowColumnInner>

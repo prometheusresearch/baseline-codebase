@@ -269,7 +269,7 @@ class ColumnPickerButton extends React.Component {
             {column.card === 'seq' && !column.fromQuery ? '# ' : ''}{column.label}
           </Element>
           {column.fromQuery &&
-            <TagLabel>
+            <TagLabel marginLeft="auto">
               Query
             </TagLabel>}
         </HBox>

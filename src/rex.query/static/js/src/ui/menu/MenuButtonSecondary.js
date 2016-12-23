@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import {style, css, VBox, HBox} from 'react-stylesheet';
+import {style, css, Element, VBox, HBox} from 'react-stylesheet';
 
 type MenuButtonSecondaryProps = {
   icon?: ?string | React$Element<*>;
@@ -41,9 +41,9 @@ export default class MenuButtonSecondary
             justifyContent="flex-start">
             {icon}
           </VBox>}
-        <div>
+        <Element overflow="hidden" textOverflow="ellipsis">
           {children}
-        </div>
+        </Element>
       </MenuButtonSecondaryRoot>
     );
   }

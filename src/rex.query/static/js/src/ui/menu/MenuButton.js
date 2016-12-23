@@ -4,7 +4,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {style, css, VBox, HBox} from 'react-stylesheet';
+import {style, css, Element, VBox, HBox} from 'react-stylesheet';
 import IconEllipsis from 'react-icons/lib/fa/ellipsis-v';
 
 type MenuButtonProps = {
@@ -227,14 +227,15 @@ let MenuButtonIconWrapper = style(VBox, {
   }
 });
 
-let MenuButtonLabelWrapper = style(HBox, {
+let MenuButtonLabelWrapper = style(Element, {
   displayName: 'MenuButtonLabelWrapper',
   base: {
-    flexGrow: 1,
-    flexShrink: 1,
     padding: 8,
     paddingLeft: 10,
     paddingRight: 10,
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
   },
   hoverStyle: {
     hover: {

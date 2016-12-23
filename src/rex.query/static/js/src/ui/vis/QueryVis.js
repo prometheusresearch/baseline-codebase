@@ -280,7 +280,7 @@ class QueryVisDefineHeader extends React.Component {
             minWidth={0}
             overflow="hidden"
             whiteSpace="nowrap"
-            style={{textOverflow: 'ellipsis'}}
+            textOverflow="ellipsis"
             textTransform={css.textTransform.uppercase}>
             {label}
           </Element>

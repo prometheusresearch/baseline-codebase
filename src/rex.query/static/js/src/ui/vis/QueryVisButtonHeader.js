@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import {style, HBox, VBox} from 'react-stylesheet';
+import {style, Element, HBox, VBox} from 'react-stylesheet';
 import IconRemove from 'react-icons/lib/fa/trash';
 import IconCircleO from 'react-icons/lib/fa/circle-o'
 import IconCircle from 'react-icons/lib/fa/circle'
@@ -86,7 +86,7 @@ export default class QueryVisButtonHeader
 
     let buttonLabel = (
       <QueryVisButtonLabel>
-        <HBox flexGrow={1} alignItems="center">
+        <HBox flexGrow={1} flexShrink={1} alignItems="center">
           <VBox
             paddingRight={5}
             style={{
@@ -98,7 +98,11 @@ export default class QueryVisButtonHeader
               {active ? <IconCircle /> : <IconCircleO />}
             </Button>
           </VBox>
-          <VBox flexGrow={1}>{label}</VBox>
+          <HBox flexGrow={1} flexShrink={1}>
+            <Element textOverflow="ellipsis" overflow="hidden" whiteSpace="nowrap">
+              {label}
+            </Element>
+          </HBox>
           {closeable &&
             <HBox
               style={{visibility: selected || hover ? 'visible' : 'hidden'}}>

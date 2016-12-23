@@ -7,7 +7,7 @@ import type {QueryVisTheme} from './Theme';
 import React from 'react';
 import CloseIcon from 'react-icons/lib/fa/close';
 import ArrowLeftIcon from 'react-icons/lib/fa/arrow-left';
-import {style, css, VBox, HBox} from 'react-stylesheet';
+import {style, css, Element, VBox, HBox} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import * as Theme from './Theme';
 
@@ -56,11 +56,14 @@ export default class QueryPanelBase extends React.Component<*, QueryPanelBasePro
               </HBox>}
             <HBox
               flexGrow={1}
+              flexShrink={1}
               textTransform="capitalize"
               color="#888"
               fontSize="10pt"
               fontWeight={400}>
-              {title}
+              <Element textOverflow="ellipsis" overflow="hidden" whiteSpace="nowrap">
+                {title}
+              </Element>
             </HBox>
             {!disableClose &&
               <ReactUI.QuietButton

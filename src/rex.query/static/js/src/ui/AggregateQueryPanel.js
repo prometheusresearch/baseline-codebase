@@ -55,13 +55,8 @@ export default class AggregateQueryPanel
     const prevType = query.context.prev.type;
 
     let attributeSelect = null;
-    let title = query.context.domain.aggregate[query.aggregate].title;
 
     if (prevType.name === 'record') {
-      let entityTitle = prevType.entity || 'Query';
-      title = query.path
-        ? `${entityTitle} ${query.path} ${title}`
-        : `${entityTitle} ${title}`
 
       let options = [{
         label: <Element textTransform="capitalize">{query.context.prev.title}</Element>,
@@ -95,7 +90,7 @@ export default class AggregateQueryPanel
     return (
       <QueryPanelBase
         {...rest}
-        title={title}
+        title={query.context.title}
         onClose={onClose}
         theme={theme.aggregate}
         pointer={pointer}>

@@ -6,7 +6,7 @@ import type {QueryPointer, QueryPipeline, Type, TypeCardinality, Query, Context}
 import type {Actions} from '../state';
 
 import React from 'react';
-import {VBox, HBox} from 'react-stylesheet';
+import {Element, VBox, HBox} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
 import {IconPlus} from './Icon';
@@ -224,11 +224,11 @@ class ColumnPickerButton extends React.Component {
     let {column, pointer, disabled} = this.props;
     let title;
     if (pointer != null) {
-      title = `Hide ${column.label} in the output`;
+      title = `Hide "${column.label}" in the output`;
     } else if (column.card === 'seq') {
-      title = `Show ${column.label} in the output. The count will be shown because the attribute is plural`;
+      title = `Show "${column.label}" in the output. The count will be shown because the attribute is plural`;
     } else {
-      title = `Show ${column.label} in the output.`;
+      title = `Show "${column.label}" in the output.`;
     }
     return (
       <MenuButton
@@ -241,14 +241,14 @@ class ColumnPickerButton extends React.Component {
             column.type === 'record' &&
               <MenuButtonSecondary
                 icon={<IconPlus />}
-                title={`Link ${column.label} query`}
+                title={`Link "${column.label}" query`}
                 onClick={this.onAddQuery}
                 key="define">
                 Link {column.label}
               </MenuButtonSecondary>,
             <MenuButtonSecondary
               icon="⇩"
-              title={`Follow ${column.label} and discard all other attributes`}
+              title={`Follow "${column.label}" and discard all other attributes`}
               onClick={this.onNavigate}
               key="navigate">
               Follow {column.label}
@@ -256,7 +256,7 @@ class ColumnPickerButton extends React.Component {
             column.card === 'seq' &&
               <MenuButtonSecondary
                 icon="∑"
-                title={`Compute summarizations for ${column.label}`}
+                title={`Compute summarizations for "${column.label}"`}
                 onClick={this.onAggregate}
                 key="summarize">
                 Summarize {column.label}
@@ -264,10 +264,10 @@ class ColumnPickerButton extends React.Component {
           ]
         }
         onClick={this.onSelect}>
-        <HBox flexGrow={1} alignItems="center">
-          <HBox flexGrow={1}>
+        <HBox flexShrink={1} flexGrow={1} alignItems="center">
+          <Element textOverflow="ellipsis" overflow="hidden" whiteSpace="nowrap">
             {column.card === 'seq' && !column.fromQuery ? '# ' : ''}{column.label}
-          </HBox>
+          </Element>
           {column.fromQuery &&
             <TagLabel>
               Query

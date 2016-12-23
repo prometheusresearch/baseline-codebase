@@ -4330,13 +4330,6 @@ react-addons-shallow-compare@^0.14.0:
   version "0.14.8"
   resolved "https://registry.yarnpkg.com/react-addons-shallow-compare/-/react-addons-shallow-compare-0.14.8.tgz#1f26533d78cadabf4639756ec0dae5ab45427a74"
 
-react-aria-menubutton@^4.3.0:
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/react-aria-menubutton/-/react-aria-menubutton-4.3.0.tgz#352aba495040efeb37acae291b1f52b0ca3d109f"
-  dependencies:
-    focus-group "^0.3.1"
-    teeny-tap "^0.2.0"
-
 react-aria-menubutton@andreypopp/react-aria-menubutton#939562363c5fb9eecdc38465477e3c209339383c:
   version "4.3.0"
   resolved "https://codeload.github.com/andreypopp/react-aria-menubutton/tar.gz/939562363c5fb9eecdc38465477e3c209339383c"
@@ -4466,9 +4459,9 @@ react-select@^1.0.0-rc.2:
     classnames "^2.2.4"
     react-input-autosize "^1.1.0"
 
-react-stylesheet@2.0.0-beta.12:
-  version "2.0.0-beta.12"
-  resolved "https://registry.yarnpkg.com/react-stylesheet/-/react-stylesheet-2.0.0-beta.12.tgz#c10a6ab82e025e86a1a2e3a0f3f56344bb94f47d"
+react-stylesheet@2.0.0-beta.13:
+  version "2.0.0-beta.13"
+  resolved "https://registry.yarnpkg.com/react-stylesheet/-/react-stylesheet-2.0.0-beta.13.tgz#5c992e20a7452ed62764c32f1ba79ee7aa838bde"
   dependencies:
     fbjs "^0.8.4"
     inline-style-prefix-all "^2.0.2"

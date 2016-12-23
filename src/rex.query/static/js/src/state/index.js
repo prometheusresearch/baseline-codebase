@@ -89,11 +89,6 @@ export type State = {
   showPanel: boolean;
 
   /**
-   * Show console.
-   */
-  showConsole: boolean;
-
-  /**
    * Undo stack.
    */
   undoStack: Array<UndoRecord>;
@@ -159,7 +154,6 @@ export function getInitialState({
     insertAfter,
     data: null,
     showPanel: true,
-    showConsole: false,
     undoStack: [],
     redoStack: [],
     focusedSeq,

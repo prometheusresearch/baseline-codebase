@@ -12,7 +12,6 @@ import {style, VBox, HBox} from 'react-stylesheet';
 import ArrowLeftIcon  from 'react-icons/lib/fa/arrow-left';
 import ArrowRightIcon  from 'react-icons/lib/fa/arrow-right';
 import DownloadIcon from 'react-icons/lib/fa/cloud-download';
-import TerminalIcon from 'react-icons/lib/fa/terminal';
 
 import * as qp from './model/QueryPointer';
 import * as ui from './ui';
@@ -76,7 +75,6 @@ export default class QueryBuilder extends React.Component {
       queryLoading,
       data,
       showPanel,
-      showConsole,
       focusedSeq,
     } = this.state;
 
@@ -115,13 +113,6 @@ export default class QueryBuilder extends React.Component {
             </HBox>}
           <HBox marginLeft="auto">
             <ReactUI.QuietButton
-              onClick={this.actions.onConsoleToggle}
-              active={showConsole}
-              icon={<TerminalIcon />}
-              size="small">
-              Console
-            </ReactUI.QuietButton>
-            <ReactUI.QuietButton
               onClick={this.actions.export}
               icon={<DownloadIcon />}
               size="small">
@@ -129,10 +120,6 @@ export default class QueryBuilder extends React.Component {
             </ReactUI.QuietButton>
           </HBox>
         </QueryBuilderToolbar>
-        {showConsole &&
-          <Console basis="200px">
-            <ConsoleInput onChange={this.onConsoleChange} />
-          </Console>}
         <HBox flexGrow={1} height="calc(100% - 35px)" width="100%">
           <LeftPanelWrapper>
             <ui.QueryVis
@@ -196,19 +183,6 @@ export default class QueryBuilder extends React.Component {
     this.container.dispose();
   }
 
-  onConsoleChange = (e: UIEvent) => {
-    let value = ((e.target: any): HTMLInputElement).value;
-    this.actions.consoleInput({value});
-  };
-
-  onConsoleToggle = () => {
-    if (this.state.showConsole) {
-      this.actions.hideConsole();
-    } else {
-      this.actions.showConsole();
-    }
-  };
-
   onFocusedSeq = (focusedSeq: Array<string>) => {
     this.actions.focusOnSeq({focusedSeq});
   };
@@ -235,23 +209,6 @@ let QueryBuilderToolbar = style(HBox, {
   base: {
     zIndex: 2,
     boxShadow: css.boxShadow(0, 0, 3, 0, '#666'),
-  }
-});
-
-let Console = style(VBox, {
-  base: {
-    zIndex: 1,
-    boxShadow: css.boxShadow(0, 0, 3, 0, '#666'),
-  }
-});
-
-let ConsoleInput = style('textarea', {
-  base: {
-    width: '100%',
-    height: '100%',
-    padding: 10,
-    fontFamily: 'Menlo, monospace',
-    border: 'none',
   }
 });
 

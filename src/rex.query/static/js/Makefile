@@ -1,11 +1,5 @@
 BIN = ./node_modules/.bin
 
-
-build-grammar: src/parsing/grammar.js
-
-src/parsing/grammar.js: src/parsing/grammar.pegjs
-	@$(BIN)/pegjs -O speed -o $@ $<
-
 install:
 	npm install
 

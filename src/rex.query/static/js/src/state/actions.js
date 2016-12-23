@@ -22,7 +22,6 @@ import * as q from '../model/Query';
 import * as qp from '../model/QueryPointer';
 import * as op from '../model/op';
 import * as Fetch from '../fetch';
-import * as parsing from '../parsing';
 import * as Focus from './Focus';
 
 /**
@@ -116,49 +115,6 @@ export function hidePanel(): StateUpdater {
         : null,
       prevSelected: null,
     };
-  };
-}
-
-/**
- * Show console.
- */
-export function showConsole(): StateUpdater {
-  return state => {
-    return {...state, showConsole: true};
-  };
-}
-
-/**
- * Hide console.
- */
-export function hideConsole(): StateUpdater {
-  return state => {
-    return {...state, showConsole: false};
-  };
-}
-
-/**
- * Input new text in a console.
- */
-export function consoleInput(params: {value: string}): StateUpdater {
-  const {value} = params;
-  return state => {
-    if (value === '') {
-      return onQuery(state, q.pipeline(q.here), null);
-    } else {
-      let node;
-      try {
-        node = parsing.parse(value);
-      } catch (err) {
-        if (err instanceof parsing.SyntaxError) {
-          return state;
-        } else {
-          throw err;
-        }
-      }
-      let query = parsing.toQuery(this.props.domain, node);
-      return onQuery(state, query, null);
-    }
   };
 }
 

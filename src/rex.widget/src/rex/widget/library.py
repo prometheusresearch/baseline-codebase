@@ -110,6 +110,16 @@ class TextareaField(Widget):
     js_type = 'rex-widget/lib/form/TextareaField'
 
 
+class SourceCodeField(Widget):
+    name = 'SourceCodeField'
+    js_type = 'rex-widget/lib/form/SourceCodeField'
+
+
+class JsonSourceCodeField(Widget):
+    name = 'JsonSourceCodeField'
+    js_type = 'rex-widget/lib/form/JsonSourceCodeField'
+
+
 class DatetimeField(Widget):
 
     name = 'DatetimeField'

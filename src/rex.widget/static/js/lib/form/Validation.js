@@ -4,6 +4,7 @@
 
 import moment from 'moment';
 import {toSnakeCase} from '../lang';
+import {isPlainObject} from 'lodash/lang';
 
 export const DATETIME_ISO_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 export const DATE_ISO_FORMAT = 'YYYY-MM-DD';
@@ -12,6 +13,17 @@ export function string(value, node) {
   if (node.formatPattern) {
     if (new RegExp(node.formatPattern).exec(value) === null) {
       return node.formatError || 'does not match the pattern';
+    }
+  }
+  return true;
+}
+
+export function json(value, node) {
+  if (!isPlainObject(value)) {
+    try {
+      JSON.parse(value);
+    } catch (exc) {
+      return node.formatError || 'not a valid JSON object';
     }
   }
   return true;

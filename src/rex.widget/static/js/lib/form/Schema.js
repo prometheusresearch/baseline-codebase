@@ -194,6 +194,14 @@ function _fieldToSchema(field) {
         formatError: field.error,
         isRequired: !!field.required
       };
+    case 'json':
+      return {
+        ...defaultAttributes,
+        type: 'any',
+        format: Validation.json,
+        formatError: field.error,
+        isRequired: !!field.required
+      };
     default:
       return {
         ...defaultAttributes,

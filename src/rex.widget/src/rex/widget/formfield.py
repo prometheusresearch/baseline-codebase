@@ -25,6 +25,12 @@ from rex.port import Port, GrowVal
 from rex.db import get_db, Query
 from rex.file.map import FileRenderer
 
+try:
+    from htsql_rex_deploy.domain import JSONDomain
+except ImportError:
+    class JSONDomain(object):
+        pass
+
 from .widget import Widget
 from .field import Field, responder
 from .url import URLVal, PortURL, QueryURL
@@ -539,6 +545,8 @@ def _from_arm(arm, db, field_val, value_key='__root__', label='Root'):
             field_type = 'date'
         elif isinstance(arm.domain, domain.DateTimeDomain):
             field_type = 'datetime'
+        elif isinstance(arm.domain, JSONDomain):
+            field_type = 'json'
         else:
             field_type = 'string'
 
@@ -720,6 +728,22 @@ class NoteFormField(StringFormField):
     def widget(self):
         from .library import TextareaField
         return TextareaField()
+
+
+class SourceCodeFormField(FormField):
+    type = 'source'
+
+    def widget(self):
+        from .library import SourceCodeField
+        return SourceCodeField()
+
+
+class JsonFormField(FormField):
+    type = 'json'
+
+    def widget(self):
+        from .library import JsonSourceCodeField
+        return JsonSourceCodeField()
 
 
 class IntegerFormField(FormField):

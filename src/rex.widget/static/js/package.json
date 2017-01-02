@@ -52,7 +52,9 @@
     "rethemeable": "^2.0.1",
     "styling": "^0.4.0",
     "to-snake-case": "^1.0.0",
-    "transit-js": "^0.8.795"
+    "transit-js": "^0.8.795",
+    "codemirror": "^5.17.0",
+    "react-codemirror": "^0.2.6"
   },
   "devDependencies": {
     "babel-core": "^6.13.2",

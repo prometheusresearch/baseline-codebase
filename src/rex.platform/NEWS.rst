@@ -10,6 +10,10 @@
 
 * HTSQL==2.3.3.20161123
 * HTSQL-PGSQL==2.3.3.20161123
+* rex.instrument==1.7.1
+* rex.forms==2.3.0
+* rex.i18n==0.5.2
+* rex.restful==1.2.0
 
 
 6.0.0 (2016-12-01)

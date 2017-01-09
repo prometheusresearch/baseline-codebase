@@ -4,7 +4,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {style, css, Element, VBox, HBox} from 'react-stylesheet';
+import {style, css, VBox, HBox} from 'react-stylesheet';
 import * as Icon from '../Icon';
 
 type MenuButtonProps = {
@@ -230,6 +230,7 @@ let MenuButtonLabelWrapper = style(VBox, {
     paddingRight: 10,
     whiteSpace: 'nowrap',
     textOverflow: 'ellipsis',
+    justifyContent: 'center',
     overflow: 'hidden',
     width: '100%',
     height: '100%',

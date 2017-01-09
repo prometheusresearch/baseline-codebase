@@ -1,9 +1,16 @@
-import * as q from '../Query';
+// @flow
+
+import * as c from '../RexQueryCatalog';
 
 import {
   here, navigate, filter, limit,
   select, aggregate, pipeline, def,
-  value, group,
+  value, group, or, and, not, exists,
+  lessEqual, less, greater, greaterEqual,
+  voidContext,
+  genExpressionName, genQueryName, inferTypeAtPath,
+  serializeQuery, deserializeQuery,
+  inferQueryType, inferExpressionType
 } from '../Query';
 import {
   voidType, numberType, textType,
@@ -13,41 +20,58 @@ import {
 } from '../Type';
 import {stripDomain} from './util';
 
+import _catalog from './catalog.json';
+
+let catalog: c.Catalog = _catalog;
+let domain = c.toDomain(catalog);
+
 describe('inferType()', function() {
 
   let domain = createDomain({
     aggregate: {
       count: {
+        name: 'count',
+        title: 'Count',
+        isAllowed: _type => true,
         makeType: type => numberType(type.domain)
       }
     },
     entity: {
       sample: domain => ({
+        title: 'Sample',
         attribute: {
           title: {
+            title: 'Title',
             type: textType(domain),
           }
         }
       }),
       identity: domain => ({
+        title: 'Identity',
         attribute: {
           name: {
+            title: 'Name',
             type: textType(domain),
           },
         }
       }),
       individual: domain => ({
+        title: 'Individual',
         attribute: {
           name: {
+            title: 'Name',
             type: textType(domain),
           },
           age: {
+            title: 'Age',
             type: optType(textType(domain)),
           },
           identity: {
+            title: 'Identity',
             type: entityType(domain, 'identity'),
           },
           sample: {
+            title: 'Sample',
             type: seqType(entityType(domain, 'sample')),
           }
         }
@@ -64,38 +88,38 @@ describe('inferType()', function() {
   let count = aggregate('count');
 
   it('infers type of query atoms', function() {
-    expect(q.inferType(domain, here).context.type)
+    expect(inferQueryType(voidContext(domain), here).context.type)
       .toEqual(
         voidType(domain)
       );
-    expect(q.inferType(domain, individual).context.type)
+    expect(inferQueryType(voidContext(domain), individual).context.type)
       .toEqual(
         seqType(entityType(domain, 'individual'))
       );
-    expect(q.inferType(domain, navigate('unknown')).context.type)
+    expect(inferQueryType(voidContext(domain), navigate('unknown')).context.type)
       .toEqual(
         invalidType(domain)
       );
-    expect(q.inferType(domain, filter(value(true))).context.type)
+    expect(inferQueryType(voidContext(domain), filter(value(true))).context.type)
       .toEqual(voidType(domain));
-    expect(q.inferType(domain, limit(10)).context.type)
+    expect(inferQueryType(voidContext(domain), limit(10)).context.type)
       .toEqual(voidType(domain));
-    expect(q.inferType(domain, select({a: individual})).context.type)
+    expect(inferQueryType(voidContext(domain), select({a: pipeline(individual)})).context.type)
       .toEqual(recordType(domain, {
-        a: {type: seqType(entityType(domain, 'individual'))}
+        a: {title: 'Individual', type: seqType(entityType(domain, 'individual'))}
       }));
-    expect(q.inferType(domain, select({a: navigate('unknown')})).context.type)
+    expect(inferQueryType(voidContext(domain), select({a: pipeline(navigate('unknown'))})).context.type)
       .toEqual(recordType(domain, {
-        a: {type: invalidType(domain)}
+        a: {title: 'unknown', type: invalidType(domain)}
       }));
-    expect(q.inferType(domain, aggregate('count')).context.type)
+    expect(inferQueryType(voidContext(domain), aggregate('count')).context.type)
       .toEqual(
         invalidType(domain)
       );
   });
 
   it('fails on navigate to unknown attribute', function() {
-    expect(q.inferType(domain, pipeline(
+    expect(inferQueryType(voidContext(domain), pipeline(
       individual,
       navigate('b'),
     )).context.type).toEqual(
@@ -104,8 +128,8 @@ describe('inferType()', function() {
   });
 
   it('fails on navigate to unknown record field', function() {
-    expect(q.inferType(domain, pipeline(
-      select({a: individual}),
+    expect(inferQueryType(voidContext(domain), pipeline(
+      select({a: pipeline(individual)}),
       navigate('b'),
     )).context.type).toEqual(
       invalidType(domain)
@@ -117,7 +141,7 @@ describe('inferType()', function() {
       individual,
       name
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('here.individual', function() {
@@ -125,7 +149,7 @@ describe('inferType()', function() {
       here,
       individual,
     );
-    expect(q.inferType(domain, query).context.type).toEqual(
+    expect(inferQueryType(voidContext(domain), query).context.type).toEqual(
       seqType(entityType(domain, 'individual'))
     );
   });
@@ -136,7 +160,7 @@ describe('inferType()', function() {
       individual,
       here,
     );
-    expect(q.inferType(domain, query).context.type).toEqual(
+    expect(inferQueryType(voidContext(domain), query).context.type).toEqual(
       seqType(entityType(domain, 'individual'))
     );
   });
@@ -148,7 +172,7 @@ describe('inferType()', function() {
       here,
       name,
     );
-    expect(q.inferType(domain, query).context.type).toEqual(
+    expect(inferQueryType(voidContext(domain), query).context.type).toEqual(
       seqType(textType(domain))
     );
   });
@@ -159,7 +183,7 @@ describe('inferType()', function() {
       name,
       count
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
 
@@ -168,7 +192,7 @@ describe('inferType()', function() {
       individual,
       sample,
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual.sample.title', function() {
@@ -177,29 +201,29 @@ describe('inferType()', function() {
       sample,
       title,
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:select(a := name, b := name)', function() {
     let query = pipeline(
       individual,
       select({
-        a: name,
-        b: name
+        a: pipeline(name),
+        b: pipeline(name)
       })
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:select(a := name, s := sample)', function() {
     let query = pipeline(
       individual,
       select({
-        a: name,
-        s: sample,
+        a: pipeline(name),
+        s: pipeline(sample),
       })
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:select(id := identity)', function() {
@@ -209,7 +233,7 @@ describe('inferType()', function() {
         id: pipeline(identity)
       })
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:define(id := identity).select(id := id)', function() {
@@ -220,7 +244,7 @@ describe('inferType()', function() {
         id: pipeline(navigate('id')),
       })
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:select(id := identity.name)', function() {
@@ -230,7 +254,7 @@ describe('inferType()', function() {
         id: pipeline(identity, name)
       })
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:define(id := identity.name).select(id := id)', function() {
@@ -241,7 +265,7 @@ describe('inferType()', function() {
         id: pipeline(navigate('id')),
       })
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:define(id := identity).select(id := id.name)', function() {
@@ -252,7 +276,7 @@ describe('inferType()', function() {
         id: pipeline(navigate('id'), name),
       })
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:define(id := identity:select(name)).select(id := id)', function() {
@@ -266,7 +290,7 @@ describe('inferType()', function() {
         id: pipeline(navigate('id')),
       })
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:define(newname := name):select(a := newname, b := name)', function() {
@@ -274,52 +298,52 @@ describe('inferType()', function() {
       individual,
       def('newname', pipeline(name)),
       select({
-        a: pipeline(q.navigate('newname')),
+        a: pipeline(navigate('newname')),
         b: pipeline(name)
       })
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:select(a := age)', function() {
     let query = pipeline(
       individual,
       select({
-        a: age,
+        a: pipeline(age),
       })
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:select(a := name, s := sample:count())', function() {
     let query = pipeline(
       individual,
       select({
-        a: name,
+        a: pipeline(name),
         s: pipeline(sample, count)
       })
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:select(a := name, s := sample.title)', function() {
     let query = pipeline(
       individual,
       select({
-        a: name,
+        a: pipeline(name),
         s: pipeline(sample, title)
       })
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:select(a := name, b := name).a', function() {
     let query = pipeline(
       individual,
-      select({a: name, b: name}),
+      select({a: pipeline(name), b: pipeline(name)}),
       navigate('a'),
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:unknown() : fails on unknown aggregate', function() {
@@ -327,7 +351,7 @@ describe('inferType()', function() {
       individual,
       aggregate('unknown')
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:define(nickname := name)', function() {
@@ -335,7 +359,7 @@ describe('inferType()', function() {
       individual,
       def('nickname', pipeline(navigate('name'))),
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:define(nickname := name).nickname', function() {
@@ -344,7 +368,7 @@ describe('inferType()', function() {
       def('nickname', pipeline(navigate('name'))),
       navigate('nickname'),
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:define(nickname := name):select(nickname)', function() {
@@ -353,7 +377,7 @@ describe('inferType()', function() {
       def('nickname', pipeline(navigate('name'))),
       select({nickname: pipeline(navigate('nickname'))}),
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:define(nickname := name):select(nickname:select(code))', function() {
@@ -367,7 +391,7 @@ describe('inferType()', function() {
         )
       }),
     );
-    expect(stripDomain(q.inferType(domain, query))).toMatchSnapshot();
+    expect(stripDomain(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:define(s := sample:count()):select(s:select(title))', function() {
@@ -381,7 +405,7 @@ describe('inferType()', function() {
         )
       }),
     );
-    expect(q.inferType(domain, query)).toMatchSnapshot();
+    expect(inferQueryType(voidContext(domain), query)).toMatchSnapshot();
   });
 
   it('individual:group(age))', function() {
@@ -389,7 +413,7 @@ describe('inferType()', function() {
       individual,
       group(['age']),
     );
-    expect(q.inferType(domain, query)).toMatchSnapshot();
+    expect(inferQueryType(voidContext(domain), query)).toMatchSnapshot();
   });
 
   it('individual:group(age):name)', function() {
@@ -399,7 +423,7 @@ describe('inferType()', function() {
       individual,
       name,
     );
-    expect(q.inferType(domain, query)).toMatchSnapshot();
+    expect(inferQueryType(voidContext(domain), query)).toMatchSnapshot();
   });
 
   it('individual:group(age):select(name))', function() {
@@ -408,7 +432,7 @@ describe('inferType()', function() {
       group(['age']),
       select({name: pipeline(individual, name)}),
     );
-    expect(q.inferType(domain, query)).toMatchSnapshot();
+    expect(inferQueryType(voidContext(domain), query)).toMatchSnapshot();
   });
 
   it('individual:group(age):select(age, name))', function() {
@@ -420,7 +444,7 @@ describe('inferType()', function() {
         name: pipeline(individual, name),
       }),
     );
-    expect(q.inferType(domain, query)).toMatchSnapshot();
+    expect(inferQueryType(voidContext(domain), query)).toMatchSnapshot();
   });
 
   it('individual:define(id := identity.name):group(id))', function() {
@@ -432,7 +456,182 @@ describe('inferType()', function() {
       )),
       group(['id']),
     );
-    expect(q.inferType(domain, query)).toMatchSnapshot();
+    expect(inferQueryType(voidContext(domain), query)).toMatchSnapshot();
   });
 
+});
+
+describe('inferExpressionType(context, expression)', function() {
+  it('customer', function() {
+    expect(inferExpressionType(voidContext(domain),
+      navigate('customer')
+    )).toMatchSnapshot();
+  });
+  it('42', function() {
+    expect(inferExpressionType(voidContext(domain),
+      value(42)
+    )).toMatchSnapshot();
+  });
+  it('"text!"', function() {
+    expect(inferExpressionType(voidContext(domain),
+      value('text!')
+    )).toMatchSnapshot();
+  });
+  it('true', function() {
+    expect(inferExpressionType(voidContext(domain),
+      value(true)
+    )).toMatchSnapshot();
+  });
+  it('customer < 42', function() {
+    expect(inferExpressionType(voidContext(domain),
+      less(
+        navigate('customer'),
+        value(42)
+      )
+    )).toMatchSnapshot();
+  });
+  it('customer <= 42', function() {
+    expect(inferExpressionType(voidContext(domain),
+      lessEqual(
+        navigate('customer'),
+        value(42)
+      )
+    )).toMatchSnapshot();
+  });
+  it('customer > 42', function() {
+    expect(inferExpressionType(voidContext(domain),
+      greater(
+        navigate('customer'),
+        value(42)
+      )
+    )).toMatchSnapshot();
+  });
+  it('customer >= 42', function() {
+    expect(inferExpressionType(voidContext(domain),
+      greaterEqual(
+        navigate('customer'),
+        value(42)
+      )
+    )).toMatchSnapshot();
+  });
+  it('customer and 42', function() {
+    expect(inferExpressionType(voidContext(domain),
+      and(
+        navigate('customer'),
+        value(42)
+      )
+    )).toMatchSnapshot();
+  });
+  it('customer or 42', function() {
+    expect(inferExpressionType(voidContext(domain),
+      or(
+        navigate('customer'),
+        value(42)
+      )
+    )).toMatchSnapshot();
+  });
+  it('not customer', function() {
+    expect(inferExpressionType(voidContext(domain),
+      not(
+        navigate('customer'),
+      )
+    )).toMatchSnapshot();
+  });
+  it('exists customer', function() {
+    expect(inferExpressionType(voidContext(domain),
+      exists(
+        navigate('customer'),
+      )
+    )).toMatchSnapshot();
+  });
+});
+
+test('genQueryName (untyped)', function() {
+  let genName = query => genQueryName(query);
+  expect(genName(
+    navigate('customer')
+  )).toBe('customer');
+  expect(genName(pipeline(
+    navigate('customer')
+  ))).toBe('customer');
+  expect(genName(pipeline(
+    navigate('customer'),
+    navigate('name'),
+  ))).toBe('customer name');
+  expect(genName(pipeline(
+    navigate('customer'),
+    aggregate('count'),
+  ))).toBe('customer count');
+  expect(genName(pipeline(
+    navigate('customer'),
+    aggregate('count', 'name'),
+  ))).toBe('customer name count');
+});
+
+test('genQueryName (typed)', function() {
+  let genName = query => genQueryName(inferQueryType(voidContext(domain), query));
+  expect(genName(pipeline(
+    navigate('customer')
+  ))).toBe('Customer');
+  expect(genName(pipeline(
+    navigate('customer'),
+    navigate('name'),
+  ))).toBe('Customer Name');
+  expect(genName(pipeline(
+    navigate('customer'),
+    aggregate('count'),
+  ))).toBe('Customer Count');
+  expect(genName(pipeline(
+    navigate('customer'),
+    aggregate('count', 'name'),
+  ))).toBe('Customer Name Count');
+});
+
+test('genExpressionName', function() {
+  expect(genExpressionName(navigate('name'))).toBe(null);
+  expect(genExpressionName(value(42))).toBe(null);
+  expect(genExpressionName(or(
+    lessEqual(navigate('name'), value(42))
+  ))).toBe('name');
+});
+
+test('inferTypeAtPath', function() {
+  let getContextAt = (...path) =>
+    inferQueryType(voidContext(domain), pipeline(...path.map(item => navigate(item)))).context;
+
+  expect(inferTypeAtPath(getContextAt(), [])).toEqual({
+    name: 'void',
+    card: null,
+    domain
+  });
+  expect(inferTypeAtPath(getContextAt(), ['customer'])).toEqual({
+    name: 'record',
+    card: 'seq',
+    entity: 'customer',
+    attribute: null,
+    domain
+  });
+  expect(inferTypeAtPath(getContextAt(), ['customer', 'name'])).toEqual({
+    name: 'text',
+    card: 'seq',
+    domain
+  });
+  expect(inferTypeAtPath(getContextAt('customer'), ['name'])).toEqual({
+    name: 'text',
+    card: null,
+    domain
+  });
+  expect(inferTypeAtPath(getContextAt('customer', 'name'), [])).toEqual({
+    name: 'text',
+    card: null,
+    domain
+  });
+});
+
+test('serializeQuery/deserializeQuery', function() {
+  let expectIdentity = q =>
+    expect(deserializeQuery(serializeQuery(q))).toEqual(q);
+  expectIdentity(navigate('name'));
+  expectIdentity(pipeline(navigate('name'), navigate('age')));
+  expectIdentity(filter(or(lessEqual(navigate('name'), value(42)))));
 });

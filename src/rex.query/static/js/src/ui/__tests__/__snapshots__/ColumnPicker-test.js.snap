@@ -1,0 +1,1291 @@
+exports[`<ColumnPicker /> renders: here 1`] = `
+<div
+  className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+  style={Object {}}>
+  <div
+    className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+    style={
+      Object {
+        "padding": "10px",
+      }
+    }>
+    <input
+      className="input--4113811583"
+      onChange={[Function]}
+      placeholder="Search…"
+      value="" />
+  </div>
+  <div
+    className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+    style={
+      Object {
+        "paddingBottom": "10px",
+      }
+    }>
+    <div
+      className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+      style={
+        Object {
+          "paddingBottom": "10px",
+        }
+      }>
+      <div
+        className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+        style={Object {}}>
+        <div
+          className="Box-1692465394 MenuTitleRoot-1206561428 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+          style={Object {}}>
+          Entities
+        </div>
+        <div
+          className="Box-1692465394 rs-overflow-visible-normal VBox-1183190097 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+          style={Object {}}>
+          <div
+            className="Box-1692465394 MenuButtonRoot-2179298142 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+            onClick={[Function]}
+            style={Object {}}
+            tabIndex={0}
+            title="Show \"Customer\" in the output. The count will be shown because the attribute is plural">
+            <div
+              className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+              style={Object {}}>
+              <div
+                className="Box-1692465394 MenuButtonWrapper-1088153668 MenuButtonWrapper-hoverStyle-1088153668 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                style={Object {}}>
+                <div
+                  className="Box-1692465394 rs-justifyContent-flex-start-normal MenuButtonIconWrapper-766211827 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                  onClick={undefined}
+                  role={undefined}
+                  style={
+                    Object {
+                      "paddingRight": "20px",
+                      "width": "15px",
+                    }
+                  }
+                  title={undefined} />
+                <div
+                  className="MenuButtonLabelWrapper-251771473 rs-boxSizing-border-box-normal rs-0"
+                  style={Object {}}>
+                  <div
+                    className="Box-1692465394 rs-alignItems-center-normal rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                    style={
+                      Object {
+                        "flexGrow": "1",
+                        "flexShrink": "1",
+                      }
+                    }>
+                    <div
+                      className="div-456115599"
+                      title="# Customer">
+                      # Customer
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="Box-1692465394 MenuButtonMenuToggleRoot-634918240 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                onClick={[Function]}
+                style={Object {}}>
+                <svg
+                  fill="currentColor"
+                  height="1em"
+                  preserveAspectRatio="xMidYMid meet"
+                  style={
+                    Object {
+                      "color": undefined,
+                      "verticalAlign": "middle",
+                    }
+                  }
+                  viewBox="0 0 40 40"
+                  width="1em">
+                  <g>
+                    <path
+                      d="m24.1 27.9v4.2q0 0.9-0.7 1.6t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.6v-4.2q0-0.9 0.6-1.6t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.6z m0-11.5v4.3q0 0.9-0.7 1.5t-1.5 0.7h-4.3q-0.9 0-1.5-0.7t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z m0-11.4v4.3q0 0.9-0.7 1.5t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div
+            className="Box-1692465394 MenuButtonRoot-2179298142 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+            onClick={[Function]}
+            style={Object {}}
+            tabIndex={0}
+            title="Show \"Lineitem\" in the output. The count will be shown because the attribute is plural">
+            <div
+              className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+              style={Object {}}>
+              <div
+                className="Box-1692465394 MenuButtonWrapper-1088153668 MenuButtonWrapper-hoverStyle-1088153668 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                style={Object {}}>
+                <div
+                  className="Box-1692465394 rs-justifyContent-flex-start-normal MenuButtonIconWrapper-766211827 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                  onClick={undefined}
+                  role={undefined}
+                  style={
+                    Object {
+                      "paddingRight": "20px",
+                      "width": "15px",
+                    }
+                  }
+                  title={undefined} />
+                <div
+                  className="MenuButtonLabelWrapper-251771473 rs-boxSizing-border-box-normal rs-0"
+                  style={Object {}}>
+                  <div
+                    className="Box-1692465394 rs-alignItems-center-normal rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                    style={
+                      Object {
+                        "flexGrow": "1",
+                        "flexShrink": "1",
+                      }
+                    }>
+                    <div
+                      className="div-456115599"
+                      title="# Lineitem">
+                      # Lineitem
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="Box-1692465394 MenuButtonMenuToggleRoot-634918240 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                onClick={[Function]}
+                style={Object {}}>
+                <svg
+                  fill="currentColor"
+                  height="1em"
+                  preserveAspectRatio="xMidYMid meet"
+                  style={
+                    Object {
+                      "color": undefined,
+                      "verticalAlign": "middle",
+                    }
+                  }
+                  viewBox="0 0 40 40"
+                  width="1em">
+                  <g>
+                    <path
+                      d="m24.1 27.9v4.2q0 0.9-0.7 1.6t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.6v-4.2q0-0.9 0.6-1.6t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.6z m0-11.5v4.3q0 0.9-0.7 1.5t-1.5 0.7h-4.3q-0.9 0-1.5-0.7t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z m0-11.4v4.3q0 0.9-0.7 1.5t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div
+            className="Box-1692465394 MenuButtonRoot-2179298142 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+            onClick={[Function]}
+            style={Object {}}
+            tabIndex={0}
+            title="Show \"Nation\" in the output. The count will be shown because the attribute is plural">
+            <div
+              className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+              style={Object {}}>
+              <div
+                className="Box-1692465394 MenuButtonWrapper-1088153668 MenuButtonWrapper-hoverStyle-1088153668 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                style={Object {}}>
+                <div
+                  className="Box-1692465394 rs-justifyContent-flex-start-normal MenuButtonIconWrapper-766211827 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                  onClick={undefined}
+                  role={undefined}
+                  style={
+                    Object {
+                      "paddingRight": "20px",
+                      "width": "15px",
+                    }
+                  }
+                  title={undefined} />
+                <div
+                  className="MenuButtonLabelWrapper-251771473 rs-boxSizing-border-box-normal rs-0"
+                  style={Object {}}>
+                  <div
+                    className="Box-1692465394 rs-alignItems-center-normal rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                    style={
+                      Object {
+                        "flexGrow": "1",
+                        "flexShrink": "1",
+                      }
+                    }>
+                    <div
+                      className="div-456115599"
+                      title="# Nation">
+                      # Nation
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="Box-1692465394 MenuButtonMenuToggleRoot-634918240 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                onClick={[Function]}
+                style={Object {}}>
+                <svg
+                  fill="currentColor"
+                  height="1em"
+                  preserveAspectRatio="xMidYMid meet"
+                  style={
+                    Object {
+                      "color": undefined,
+                      "verticalAlign": "middle",
+                    }
+                  }
+                  viewBox="0 0 40 40"
+                  width="1em">
+                  <g>
+                    <path
+                      d="m24.1 27.9v4.2q0 0.9-0.7 1.6t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.6v-4.2q0-0.9 0.6-1.6t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.6z m0-11.5v4.3q0 0.9-0.7 1.5t-1.5 0.7h-4.3q-0.9 0-1.5-0.7t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z m0-11.4v4.3q0 0.9-0.7 1.5t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div
+            className="Box-1692465394 MenuButtonRoot-2179298142 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+            onClick={[Function]}
+            style={Object {}}
+            tabIndex={0}
+            title="Show \"Order\" in the output. The count will be shown because the attribute is plural">
+            <div
+              className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+              style={Object {}}>
+              <div
+                className="Box-1692465394 MenuButtonWrapper-1088153668 MenuButtonWrapper-hoverStyle-1088153668 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                style={Object {}}>
+                <div
+                  className="Box-1692465394 rs-justifyContent-flex-start-normal MenuButtonIconWrapper-766211827 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                  onClick={undefined}
+                  role={undefined}
+                  style={
+                    Object {
+                      "paddingRight": "20px",
+                      "width": "15px",
+                    }
+                  }
+                  title={undefined} />
+                <div
+                  className="MenuButtonLabelWrapper-251771473 rs-boxSizing-border-box-normal rs-0"
+                  style={Object {}}>
+                  <div
+                    className="Box-1692465394 rs-alignItems-center-normal rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                    style={
+                      Object {
+                        "flexGrow": "1",
+                        "flexShrink": "1",
+                      }
+                    }>
+                    <div
+                      className="div-456115599"
+                      title="# Order">
+                      # Order
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="Box-1692465394 MenuButtonMenuToggleRoot-634918240 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                onClick={[Function]}
+                style={Object {}}>
+                <svg
+                  fill="currentColor"
+                  height="1em"
+                  preserveAspectRatio="xMidYMid meet"
+                  style={
+                    Object {
+                      "color": undefined,
+                      "verticalAlign": "middle",
+                    }
+                  }
+                  viewBox="0 0 40 40"
+                  width="1em">
+                  <g>
+                    <path
+                      d="m24.1 27.9v4.2q0 0.9-0.7 1.6t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.6v-4.2q0-0.9 0.6-1.6t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.6z m0-11.5v4.3q0 0.9-0.7 1.5t-1.5 0.7h-4.3q-0.9 0-1.5-0.7t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z m0-11.4v4.3q0 0.9-0.7 1.5t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div
+            className="Box-1692465394 MenuButtonRoot-2179298142 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+            onClick={[Function]}
+            style={Object {}}
+            tabIndex={0}
+            title="Show \"Part\" in the output. The count will be shown because the attribute is plural">
+            <div
+              className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+              style={Object {}}>
+              <div
+                className="Box-1692465394 MenuButtonWrapper-1088153668 MenuButtonWrapper-hoverStyle-1088153668 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                style={Object {}}>
+                <div
+                  className="Box-1692465394 rs-justifyContent-flex-start-normal MenuButtonIconWrapper-766211827 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                  onClick={undefined}
+                  role={undefined}
+                  style={
+                    Object {
+                      "paddingRight": "20px",
+                      "width": "15px",
+                    }
+                  }
+                  title={undefined} />
+                <div
+                  className="MenuButtonLabelWrapper-251771473 rs-boxSizing-border-box-normal rs-0"
+                  style={Object {}}>
+                  <div
+                    className="Box-1692465394 rs-alignItems-center-normal rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                    style={
+                      Object {
+                        "flexGrow": "1",
+                        "flexShrink": "1",
+                      }
+                    }>
+                    <div
+                      className="div-456115599"
+                      title="# Part">
+                      # Part
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="Box-1692465394 MenuButtonMenuToggleRoot-634918240 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                onClick={[Function]}
+                style={Object {}}>
+                <svg
+                  fill="currentColor"
+                  height="1em"
+                  preserveAspectRatio="xMidYMid meet"
+                  style={
+                    Object {
+                      "color": undefined,
+                      "verticalAlign": "middle",
+                    }
+                  }
+                  viewBox="0 0 40 40"
+                  width="1em">
+                  <g>
+                    <path
+                      d="m24.1 27.9v4.2q0 0.9-0.7 1.6t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.6v-4.2q0-0.9 0.6-1.6t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.6z m0-11.5v4.3q0 0.9-0.7 1.5t-1.5 0.7h-4.3q-0.9 0-1.5-0.7t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z m0-11.4v4.3q0 0.9-0.7 1.5t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div
+            className="Box-1692465394 MenuButtonRoot-2179298142 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+            onClick={[Function]}
+            style={Object {}}
+            tabIndex={0}
+            title="Show \"Partsupp\" in the output. The count will be shown because the attribute is plural">
+            <div
+              className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+              style={Object {}}>
+              <div
+                className="Box-1692465394 MenuButtonWrapper-1088153668 MenuButtonWrapper-hoverStyle-1088153668 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                style={Object {}}>
+                <div
+                  className="Box-1692465394 rs-justifyContent-flex-start-normal MenuButtonIconWrapper-766211827 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                  onClick={undefined}
+                  role={undefined}
+                  style={
+                    Object {
+                      "paddingRight": "20px",
+                      "width": "15px",
+                    }
+                  }
+                  title={undefined} />
+                <div
+                  className="MenuButtonLabelWrapper-251771473 rs-boxSizing-border-box-normal rs-0"
+                  style={Object {}}>
+                  <div
+                    className="Box-1692465394 rs-alignItems-center-normal rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                    style={
+                      Object {
+                        "flexGrow": "1",
+                        "flexShrink": "1",
+                      }
+                    }>
+                    <div
+                      className="div-456115599"
+                      title="# Partsupp">
+                      # Partsupp
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="Box-1692465394 MenuButtonMenuToggleRoot-634918240 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                onClick={[Function]}
+                style={Object {}}>
+                <svg
+                  fill="currentColor"
+                  height="1em"
+                  preserveAspectRatio="xMidYMid meet"
+                  style={
+                    Object {
+                      "color": undefined,
+                      "verticalAlign": "middle",
+                    }
+                  }
+                  viewBox="0 0 40 40"
+                  width="1em">
+                  <g>
+                    <path
+                      d="m24.1 27.9v4.2q0 0.9-0.7 1.6t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.6v-4.2q0-0.9 0.6-1.6t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.6z m0-11.5v4.3q0 0.9-0.7 1.5t-1.5 0.7h-4.3q-0.9 0-1.5-0.7t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z m0-11.4v4.3q0 0.9-0.7 1.5t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div
+            className="Box-1692465394 MenuButtonRoot-2179298142 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+            onClick={[Function]}
+            style={Object {}}
+            tabIndex={0}
+            title="Show \"Region\" in the output. The count will be shown because the attribute is plural">
+            <div
+              className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+              style={Object {}}>
+              <div
+                className="Box-1692465394 MenuButtonWrapper-1088153668 MenuButtonWrapper-hoverStyle-1088153668 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                style={Object {}}>
+                <div
+                  className="Box-1692465394 rs-justifyContent-flex-start-normal MenuButtonIconWrapper-766211827 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                  onClick={undefined}
+                  role={undefined}
+                  style={
+                    Object {
+                      "paddingRight": "20px",
+                      "width": "15px",
+                    }
+                  }
+                  title={undefined} />
+                <div
+                  className="MenuButtonLabelWrapper-251771473 rs-boxSizing-border-box-normal rs-0"
+                  style={Object {}}>
+                  <div
+                    className="Box-1692465394 rs-alignItems-center-normal rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                    style={
+                      Object {
+                        "flexGrow": "1",
+                        "flexShrink": "1",
+                      }
+                    }>
+                    <div
+                      className="div-456115599"
+                      title="# Region">
+                      # Region
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="Box-1692465394 MenuButtonMenuToggleRoot-634918240 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                onClick={[Function]}
+                style={Object {}}>
+                <svg
+                  fill="currentColor"
+                  height="1em"
+                  preserveAspectRatio="xMidYMid meet"
+                  style={
+                    Object {
+                      "color": undefined,
+                      "verticalAlign": "middle",
+                    }
+                  }
+                  viewBox="0 0 40 40"
+                  width="1em">
+                  <g>
+                    <path
+                      d="m24.1 27.9v4.2q0 0.9-0.7 1.6t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.6v-4.2q0-0.9 0.6-1.6t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.6z m0-11.5v4.3q0 0.9-0.7 1.5t-1.5 0.7h-4.3q-0.9 0-1.5-0.7t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z m0-11.4v4.3q0 0.9-0.7 1.5t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div
+            className="Box-1692465394 MenuButtonRoot-2179298142 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+            onClick={[Function]}
+            style={Object {}}
+            tabIndex={0}
+            title="Show \"Supplier\" in the output. The count will be shown because the attribute is plural">
+            <div
+              className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+              style={Object {}}>
+              <div
+                className="Box-1692465394 MenuButtonWrapper-1088153668 MenuButtonWrapper-hoverStyle-1088153668 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                style={Object {}}>
+                <div
+                  className="Box-1692465394 rs-justifyContent-flex-start-normal MenuButtonIconWrapper-766211827 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                  onClick={undefined}
+                  role={undefined}
+                  style={
+                    Object {
+                      "paddingRight": "20px",
+                      "width": "15px",
+                    }
+                  }
+                  title={undefined} />
+                <div
+                  className="MenuButtonLabelWrapper-251771473 rs-boxSizing-border-box-normal rs-0"
+                  style={Object {}}>
+                  <div
+                    className="Box-1692465394 rs-alignItems-center-normal rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                    style={
+                      Object {
+                        "flexGrow": "1",
+                        "flexShrink": "1",
+                      }
+                    }>
+                    <div
+                      className="div-456115599"
+                      title="# Supplier">
+                      # Supplier
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="Box-1692465394 MenuButtonMenuToggleRoot-634918240 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                onClick={[Function]}
+                style={Object {}}>
+                <svg
+                  fill="currentColor"
+                  height="1em"
+                  preserveAspectRatio="xMidYMid meet"
+                  style={
+                    Object {
+                      "color": undefined,
+                      "verticalAlign": "middle",
+                    }
+                  }
+                  viewBox="0 0 40 40"
+                  width="1em">
+                  <g>
+                    <path
+                      d="m24.1 27.9v4.2q0 0.9-0.7 1.6t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.6v-4.2q0-0.9 0.6-1.6t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.6z m0-11.5v4.3q0 0.9-0.7 1.5t-1.5 0.7h-4.3q-0.9 0-1.5-0.7t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z m0-11.4v4.3q0 0.9-0.7 1.5t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`<ColumnPicker /> renders: here:customer 1`] = `
+<div
+  className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+  style={Object {}}>
+  <div
+    className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+    style={
+      Object {
+        "padding": "10px",
+      }
+    }>
+    <input
+      className="input--4113811583"
+      onChange={[Function]}
+      placeholder="Search…"
+      value="" />
+  </div>
+  <div
+    className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+    style={
+      Object {
+        "paddingBottom": "10px",
+      }
+    }>
+    <div
+      className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+      style={
+        Object {
+          "paddingBottom": "10px",
+        }
+      }>
+      <div
+        className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+        style={Object {}}>
+        <div
+          className="Box-1692465394 MenuTitleRoot-1206561428 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+          style={Object {}}>
+          Relationships
+        </div>
+        <div
+          className="Box-1692465394 rs-overflow-visible-normal VBox-1183190097 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+          style={Object {}}>
+          <div
+            className="Box-1692465394 MenuButtonRoot-2179298142 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+            onClick={[Function]}
+            style={Object {}}
+            tabIndex={0}
+            title="Show \"Nation\" in the output.">
+            <div
+              className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+              style={Object {}}>
+              <div
+                className="Box-1692465394 MenuButtonWrapper-1088153668 MenuButtonWrapper-hoverStyle-1088153668 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                style={Object {}}>
+                <div
+                  className="Box-1692465394 rs-justifyContent-flex-start-normal MenuButtonIconWrapper-766211827 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                  onClick={undefined}
+                  role={undefined}
+                  style={
+                    Object {
+                      "paddingRight": "20px",
+                      "width": "15px",
+                    }
+                  }
+                  title={undefined} />
+                <div
+                  className="MenuButtonLabelWrapper-251771473 rs-boxSizing-border-box-normal rs-0"
+                  style={Object {}}>
+                  <div
+                    className="Box-1692465394 rs-alignItems-center-normal rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                    style={
+                      Object {
+                        "flexGrow": "1",
+                        "flexShrink": "1",
+                      }
+                    }>
+                    <div
+                      className="div-456115599"
+                      title="Nation">
+                      Nation
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="Box-1692465394 MenuButtonMenuToggleRoot-634918240 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                onClick={[Function]}
+                style={Object {}}>
+                <svg
+                  fill="currentColor"
+                  height="1em"
+                  preserveAspectRatio="xMidYMid meet"
+                  style={
+                    Object {
+                      "color": undefined,
+                      "verticalAlign": "middle",
+                    }
+                  }
+                  viewBox="0 0 40 40"
+                  width="1em">
+                  <g>
+                    <path
+                      d="m24.1 27.9v4.2q0 0.9-0.7 1.6t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.6v-4.2q0-0.9 0.6-1.6t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.6z m0-11.5v4.3q0 0.9-0.7 1.5t-1.5 0.7h-4.3q-0.9 0-1.5-0.7t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z m0-11.4v4.3q0 0.9-0.7 1.5t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div
+            className="Box-1692465394 MenuButtonRoot-2179298142 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+            onClick={[Function]}
+            style={Object {}}
+            tabIndex={0}
+            title="Show \"Order\" in the output. The count will be shown because the attribute is plural">
+            <div
+              className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+              style={Object {}}>
+              <div
+                className="Box-1692465394 MenuButtonWrapper-1088153668 MenuButtonWrapper-hoverStyle-1088153668 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                style={Object {}}>
+                <div
+                  className="Box-1692465394 rs-justifyContent-flex-start-normal MenuButtonIconWrapper-766211827 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                  onClick={undefined}
+                  role={undefined}
+                  style={
+                    Object {
+                      "paddingRight": "20px",
+                      "width": "15px",
+                    }
+                  }
+                  title={undefined} />
+                <div
+                  className="MenuButtonLabelWrapper-251771473 rs-boxSizing-border-box-normal rs-0"
+                  style={Object {}}>
+                  <div
+                    className="Box-1692465394 rs-alignItems-center-normal rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                    style={
+                      Object {
+                        "flexGrow": "1",
+                        "flexShrink": "1",
+                      }
+                    }>
+                    <div
+                      className="div-456115599"
+                      title="# Order">
+                      # Order
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="Box-1692465394 MenuButtonMenuToggleRoot-634918240 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                onClick={[Function]}
+                style={Object {}}>
+                <svg
+                  fill="currentColor"
+                  height="1em"
+                  preserveAspectRatio="xMidYMid meet"
+                  style={
+                    Object {
+                      "color": undefined,
+                      "verticalAlign": "middle",
+                    }
+                  }
+                  viewBox="0 0 40 40"
+                  width="1em">
+                  <g>
+                    <path
+                      d="m24.1 27.9v4.2q0 0.9-0.7 1.6t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.6v-4.2q0-0.9 0.6-1.6t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.6z m0-11.5v4.3q0 0.9-0.7 1.5t-1.5 0.7h-4.3q-0.9 0-1.5-0.7t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z m0-11.4v4.3q0 0.9-0.7 1.5t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+      style={
+        Object {
+          "paddingBottom": "10px",
+        }
+      }>
+      <div
+        className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+        style={Object {}}>
+        <div
+          className="Box-1692465394 MenuTitleRoot-1206561428 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+          style={Object {}}>
+          Attributes
+        </div>
+        <div
+          className="Box-1692465394 rs-overflow-visible-normal VBox-1183190097 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+          style={Object {}}>
+          <div
+            className="Box-1692465394 MenuButtonRoot-2179298142 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+            onClick={[Function]}
+            style={Object {}}
+            tabIndex={0}
+            title="Show \"Name\" in the output.">
+            <div
+              className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+              style={Object {}}>
+              <div
+                className="Box-1692465394 MenuButtonWrapper-1088153668 MenuButtonWrapper-hoverStyle-1088153668 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                style={Object {}}>
+                <div
+                  className="Box-1692465394 rs-justifyContent-flex-start-normal MenuButtonIconWrapper-766211827 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                  onClick={undefined}
+                  role={undefined}
+                  style={
+                    Object {
+                      "paddingRight": "20px",
+                      "width": "15px",
+                    }
+                  }
+                  title={undefined} />
+                <div
+                  className="MenuButtonLabelWrapper-251771473 rs-boxSizing-border-box-normal rs-0"
+                  style={Object {}}>
+                  <div
+                    className="Box-1692465394 rs-alignItems-center-normal rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                    style={
+                      Object {
+                        "flexGrow": "1",
+                        "flexShrink": "1",
+                      }
+                    }>
+                    <div
+                      className="div-456115599"
+                      title="Name">
+                      Name
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="Box-1692465394 MenuButtonMenuToggleRoot-634918240 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                onClick={[Function]}
+                style={Object {}}>
+                <svg
+                  fill="currentColor"
+                  height="1em"
+                  preserveAspectRatio="xMidYMid meet"
+                  style={
+                    Object {
+                      "color": undefined,
+                      "verticalAlign": "middle",
+                    }
+                  }
+                  viewBox="0 0 40 40"
+                  width="1em">
+                  <g>
+                    <path
+                      d="m24.1 27.9v4.2q0 0.9-0.7 1.6t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.6v-4.2q0-0.9 0.6-1.6t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.6z m0-11.5v4.3q0 0.9-0.7 1.5t-1.5 0.7h-4.3q-0.9 0-1.5-0.7t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z m0-11.4v4.3q0 0.9-0.7 1.5t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div
+            className="Box-1692465394 MenuButtonRoot-2179298142 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+            onClick={[Function]}
+            style={Object {}}
+            tabIndex={0}
+            title="Show \"Address\" in the output.">
+            <div
+              className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+              style={Object {}}>
+              <div
+                className="Box-1692465394 MenuButtonWrapper-1088153668 MenuButtonWrapper-hoverStyle-1088153668 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                style={Object {}}>
+                <div
+                  className="Box-1692465394 rs-justifyContent-flex-start-normal MenuButtonIconWrapper-766211827 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                  onClick={undefined}
+                  role={undefined}
+                  style={
+                    Object {
+                      "paddingRight": "20px",
+                      "width": "15px",
+                    }
+                  }
+                  title={undefined} />
+                <div
+                  className="MenuButtonLabelWrapper-251771473 rs-boxSizing-border-box-normal rs-0"
+                  style={Object {}}>
+                  <div
+                    className="Box-1692465394 rs-alignItems-center-normal rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                    style={
+                      Object {
+                        "flexGrow": "1",
+                        "flexShrink": "1",
+                      }
+                    }>
+                    <div
+                      className="div-456115599"
+                      title="Address">
+                      Address
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="Box-1692465394 MenuButtonMenuToggleRoot-634918240 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                onClick={[Function]}
+                style={Object {}}>
+                <svg
+                  fill="currentColor"
+                  height="1em"
+                  preserveAspectRatio="xMidYMid meet"
+                  style={
+                    Object {
+                      "color": undefined,
+                      "verticalAlign": "middle",
+                    }
+                  }
+                  viewBox="0 0 40 40"
+                  width="1em">
+                  <g>
+                    <path
+                      d="m24.1 27.9v4.2q0 0.9-0.7 1.6t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.6v-4.2q0-0.9 0.6-1.6t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.6z m0-11.5v4.3q0 0.9-0.7 1.5t-1.5 0.7h-4.3q-0.9 0-1.5-0.7t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z m0-11.4v4.3q0 0.9-0.7 1.5t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div
+            className="Box-1692465394 MenuButtonRoot-2179298142 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+            onClick={[Function]}
+            style={Object {}}
+            tabIndex={0}
+            title="Show \"Phone\" in the output.">
+            <div
+              className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+              style={Object {}}>
+              <div
+                className="Box-1692465394 MenuButtonWrapper-1088153668 MenuButtonWrapper-hoverStyle-1088153668 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                style={Object {}}>
+                <div
+                  className="Box-1692465394 rs-justifyContent-flex-start-normal MenuButtonIconWrapper-766211827 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                  onClick={undefined}
+                  role={undefined}
+                  style={
+                    Object {
+                      "paddingRight": "20px",
+                      "width": "15px",
+                    }
+                  }
+                  title={undefined} />
+                <div
+                  className="MenuButtonLabelWrapper-251771473 rs-boxSizing-border-box-normal rs-0"
+                  style={Object {}}>
+                  <div
+                    className="Box-1692465394 rs-alignItems-center-normal rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                    style={
+                      Object {
+                        "flexGrow": "1",
+                        "flexShrink": "1",
+                      }
+                    }>
+                    <div
+                      className="div-456115599"
+                      title="Phone">
+                      Phone
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="Box-1692465394 MenuButtonMenuToggleRoot-634918240 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                onClick={[Function]}
+                style={Object {}}>
+                <svg
+                  fill="currentColor"
+                  height="1em"
+                  preserveAspectRatio="xMidYMid meet"
+                  style={
+                    Object {
+                      "color": undefined,
+                      "verticalAlign": "middle",
+                    }
+                  }
+                  viewBox="0 0 40 40"
+                  width="1em">
+                  <g>
+                    <path
+                      d="m24.1 27.9v4.2q0 0.9-0.7 1.6t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.6v-4.2q0-0.9 0.6-1.6t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.6z m0-11.5v4.3q0 0.9-0.7 1.5t-1.5 0.7h-4.3q-0.9 0-1.5-0.7t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z m0-11.4v4.3q0 0.9-0.7 1.5t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div
+            className="Box-1692465394 MenuButtonRoot-2179298142 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+            onClick={[Function]}
+            style={Object {}}
+            tabIndex={0}
+            title="Show \"Acctbal\" in the output.">
+            <div
+              className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+              style={Object {}}>
+              <div
+                className="Box-1692465394 MenuButtonWrapper-1088153668 MenuButtonWrapper-hoverStyle-1088153668 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                style={Object {}}>
+                <div
+                  className="Box-1692465394 rs-justifyContent-flex-start-normal MenuButtonIconWrapper-766211827 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                  onClick={undefined}
+                  role={undefined}
+                  style={
+                    Object {
+                      "paddingRight": "20px",
+                      "width": "15px",
+                    }
+                  }
+                  title={undefined} />
+                <div
+                  className="MenuButtonLabelWrapper-251771473 rs-boxSizing-border-box-normal rs-0"
+                  style={Object {}}>
+                  <div
+                    className="Box-1692465394 rs-alignItems-center-normal rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                    style={
+                      Object {
+                        "flexGrow": "1",
+                        "flexShrink": "1",
+                      }
+                    }>
+                    <div
+                      className="div-456115599"
+                      title="Acctbal">
+                      Acctbal
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="Box-1692465394 MenuButtonMenuToggleRoot-634918240 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                onClick={[Function]}
+                style={Object {}}>
+                <svg
+                  fill="currentColor"
+                  height="1em"
+                  preserveAspectRatio="xMidYMid meet"
+                  style={
+                    Object {
+                      "color": undefined,
+                      "verticalAlign": "middle",
+                    }
+                  }
+                  viewBox="0 0 40 40"
+                  width="1em">
+                  <g>
+                    <path
+                      d="m24.1 27.9v4.2q0 0.9-0.7 1.6t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.6v-4.2q0-0.9 0.6-1.6t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.6z m0-11.5v4.3q0 0.9-0.7 1.5t-1.5 0.7h-4.3q-0.9 0-1.5-0.7t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z m0-11.4v4.3q0 0.9-0.7 1.5t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div
+            className="Box-1692465394 MenuButtonRoot-2179298142 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+            onClick={[Function]}
+            style={Object {}}
+            tabIndex={0}
+            title="Show \"Mktsegment\" in the output.">
+            <div
+              className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+              style={Object {}}>
+              <div
+                className="Box-1692465394 MenuButtonWrapper-1088153668 MenuButtonWrapper-hoverStyle-1088153668 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                style={Object {}}>
+                <div
+                  className="Box-1692465394 rs-justifyContent-flex-start-normal MenuButtonIconWrapper-766211827 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                  onClick={undefined}
+                  role={undefined}
+                  style={
+                    Object {
+                      "paddingRight": "20px",
+                      "width": "15px",
+                    }
+                  }
+                  title={undefined} />
+                <div
+                  className="MenuButtonLabelWrapper-251771473 rs-boxSizing-border-box-normal rs-0"
+                  style={Object {}}>
+                  <div
+                    className="Box-1692465394 rs-alignItems-center-normal rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                    style={
+                      Object {
+                        "flexGrow": "1",
+                        "flexShrink": "1",
+                      }
+                    }>
+                    <div
+                      className="div-456115599"
+                      title="Mktsegment">
+                      Mktsegment
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="Box-1692465394 MenuButtonMenuToggleRoot-634918240 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                onClick={[Function]}
+                style={Object {}}>
+                <svg
+                  fill="currentColor"
+                  height="1em"
+                  preserveAspectRatio="xMidYMid meet"
+                  style={
+                    Object {
+                      "color": undefined,
+                      "verticalAlign": "middle",
+                    }
+                  }
+                  viewBox="0 0 40 40"
+                  width="1em">
+                  <g>
+                    <path
+                      d="m24.1 27.9v4.2q0 0.9-0.7 1.6t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.6v-4.2q0-0.9 0.6-1.6t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.6z m0-11.5v4.3q0 0.9-0.7 1.5t-1.5 0.7h-4.3q-0.9 0-1.5-0.7t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z m0-11.4v4.3q0 0.9-0.7 1.5t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div
+            className="Box-1692465394 MenuButtonRoot-2179298142 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+            onClick={[Function]}
+            style={Object {}}
+            tabIndex={0}
+            title="Show \"Comment\" in the output.">
+            <div
+              className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+              style={Object {}}>
+              <div
+                className="Box-1692465394 MenuButtonWrapper-1088153668 MenuButtonWrapper-hoverStyle-1088153668 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                style={Object {}}>
+                <div
+                  className="Box-1692465394 rs-justifyContent-flex-start-normal MenuButtonIconWrapper-766211827 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                  onClick={undefined}
+                  role={undefined}
+                  style={
+                    Object {
+                      "paddingRight": "20px",
+                      "width": "15px",
+                    }
+                  }
+                  title={undefined} />
+                <div
+                  className="MenuButtonLabelWrapper-251771473 rs-boxSizing-border-box-normal rs-0"
+                  style={Object {}}>
+                  <div
+                    className="Box-1692465394 rs-alignItems-center-normal rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                    style={
+                      Object {
+                        "flexGrow": "1",
+                        "flexShrink": "1",
+                      }
+                    }>
+                    <div
+                      className="div-456115599"
+                      title="Comment">
+                      Comment
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="Box-1692465394 MenuButtonMenuToggleRoot-634918240 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                onClick={[Function]}
+                style={Object {}}>
+                <svg
+                  fill="currentColor"
+                  height="1em"
+                  preserveAspectRatio="xMidYMid meet"
+                  style={
+                    Object {
+                      "color": undefined,
+                      "verticalAlign": "middle",
+                    }
+                  }
+                  viewBox="0 0 40 40"
+                  width="1em">
+                  <g>
+                    <path
+                      d="m24.1 27.9v4.2q0 0.9-0.7 1.6t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.6v-4.2q0-0.9 0.6-1.6t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.6z m0-11.5v4.3q0 0.9-0.7 1.5t-1.5 0.7h-4.3q-0.9 0-1.5-0.7t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z m0-11.4v4.3q0 0.9-0.7 1.5t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`<ColumnPicker /> renders: here:customer:select(name) 1`] = `
+<div
+  className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+  style={Object {}}>
+  <div
+    className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+    style={
+      Object {
+        "padding": "10px",
+      }
+    }>
+    <input
+      className="input--4113811583"
+      onChange={[Function]}
+      placeholder="Search…"
+      value="" />
+  </div>
+  <div
+    className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+    style={
+      Object {
+        "paddingBottom": "10px",
+      }
+    }>
+    <div
+      className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+      style={
+        Object {
+          "paddingBottom": "10px",
+        }
+      }>
+      <div
+        className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+        style={Object {}}>
+        <div
+          className="Box-1692465394 MenuTitleRoot-1206561428 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+          style={Object {}}>
+          Attributes
+        </div>
+        <div
+          className="Box-1692465394 rs-overflow-visible-normal VBox-1183190097 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+          style={Object {}}>
+          <div
+            className="Box-1692465394 MenuButtonRoot-2179298142 MenuButtonRoot-selected-2179298142 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+            onClick={[Function]}
+            style={Object {}}
+            tabIndex={0}
+            title="Hide \"Name\" in the output">
+            <div
+              className="Box-1692465394 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+              style={Object {}}>
+              <div
+                className="Box-1692465394 MenuButtonWrapper-1088153668 MenuButtonWrapper-hoverStyle-1088153668 rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                style={Object {}}>
+                <div
+                  className="Box-1692465394 rs-justifyContent-flex-start-normal MenuButtonIconWrapper-766211827 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                  onClick={undefined}
+                  role={undefined}
+                  style={
+                    Object {
+                      "paddingRight": "20px",
+                      "width": "15px",
+                    }
+                  }
+                  title={undefined}>
+                  ✓
+                </div>
+                <div
+                  className="MenuButtonLabelWrapper-251771473 rs-boxSizing-border-box-normal rs-0"
+                  style={Object {}}>
+                  <div
+                    className="Box-1692465394 rs-alignItems-center-normal rs-boxSizing-border-box-normal rs-flexDirection-row-normal rs-0"
+                    style={
+                      Object {
+                        "flexGrow": "1",
+                        "flexShrink": "1",
+                      }
+                    }>
+                    <div
+                      className="div-456115599"
+                      title="Name">
+                      Name
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div
+                className="Box-1692465394 MenuButtonMenuToggleRoot-634918240 rs-boxSizing-border-box-normal rs-flexDirection-column-normal rs-0"
+                onClick={[Function]}
+                style={Object {}}>
+                <svg
+                  fill="currentColor"
+                  height="1em"
+                  preserveAspectRatio="xMidYMid meet"
+                  style={
+                    Object {
+                      "color": undefined,
+                      "verticalAlign": "middle",
+                    }
+                  }
+                  viewBox="0 0 40 40"
+                  width="1em">
+                  <g>
+                    <path
+                      d="m24.1 27.9v4.2q0 0.9-0.7 1.6t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.6v-4.2q0-0.9 0.6-1.6t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.6z m0-11.5v4.3q0 0.9-0.7 1.5t-1.5 0.7h-4.3q-0.9 0-1.5-0.7t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z m0-11.4v4.3q0 0.9-0.7 1.5t-1.5 0.6h-4.3q-0.9 0-1.5-0.6t-0.6-1.5v-4.3q0-0.9 0.6-1.5t1.5-0.6h4.3q0.9 0 1.5 0.6t0.7 1.5z" />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;

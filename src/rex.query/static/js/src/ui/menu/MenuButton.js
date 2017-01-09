@@ -29,8 +29,8 @@ export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
     menuOpen: false,
   }
 
-  menuButtonMenu: ?HTMLElement = null;
-  menuButtonMenuToggle: ?HTMLElement = null;
+  menuButtonMenu: ?React.Component<*, *, *> = null;
+  menuButtonMenuToggle: ?React.Component<*, *, *> = null;
   mounted: boolean = true;
 
   toggleMenuOpen = () => {
@@ -45,8 +45,8 @@ export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
     let target = ev.target;
     do {
       if (
-        (this.menuButtonMenu != null && this.menuButtonMenu === target) ||
-        (this.menuButtonMenuToggle != null && this.menuButtonMenuToggle === target)
+        (this.menuButtonMenu != null && ReactDOM.findDOMNode(this.menuButtonMenu) === target) ||
+        (this.menuButtonMenuToggle != null && ReactDOM.findDOMNode(this.menuButtonMenuToggle) === target)
       ) {
         return;
       }
@@ -58,16 +58,12 @@ export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
     }
   }
 
-  onMenuButtonMenu = (menuButtonMenu: HTMLElement) => {
-    this.menuButtonMenu = menuButtonMenu
-      ? ReactDOM.findDOMNode(menuButtonMenu)
-      : null;
+  onMenuButtonMenu = (menuButtonMenu: React.Component<*, *, *>) => {
+    this.menuButtonMenu = menuButtonMenu;
   };
 
-  onMenuButtonMenuToggle = (menuButtonMenuToggle: HTMLElement) => {
-    this.menuButtonMenuToggle = menuButtonMenuToggle
-      ? ReactDOM.findDOMNode(menuButtonMenuToggle)
-      : null;
+  onMenuButtonMenuToggle = (menuButtonMenuToggle: React.Component<*, *, *>) => {
+    this.menuButtonMenuToggle = menuButtonMenuToggle;
   };
 
   render() {

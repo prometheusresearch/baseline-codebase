@@ -19,7 +19,7 @@
     "testPathIgnorePatterns": [
       "<rootDir>[/\\\\](build|docs|node_modules)[/\\\\]"
     ],
-    "testEnvironment": "node",
+    "testEnvironment": "jsdom",
     "testURL": "http://localhost",
     "transform": {
       "^.+\\.(js|jsx)$": "<rootDir>/node_modules/babel-jest",
@@ -46,16 +46,17 @@
     "pegjs": "^0.10.0",
     "react": "^15.0.0",
     "react-dom": "^15.0.0",
-    "react-dom-stylesheet": "^0.8.8",
-    "react-scripts": "^0.8.4"
+    "react-scripts": "^0.8.4",
+    "react-test-renderer": "^15.4.1"
   },
   "peerDependencies": {
     "react": "^0.14.0",
     "react-dom": "^0.14.0"
   },
   "dependencies": {
-    "@prometheusresearch/react-ui": "^0.21.3",
+    "@prometheusresearch/react-ui": "^0.22.0",
     "babel-eslint": "7.0.0",
+    "debounce-promise": "^2.1.1",
     "downloadjs": "^1.4.6",
     "eslint": "3.8.1",
     "eslint-config-react-app": "0.5.0",
@@ -73,7 +74,7 @@
     "react-icons": "^2.2.1",
     "react-relative-portal": "^1.2.0",
     "react-select": "^1.0.0-rc.2",
-    "react-stylesheet": "2.0.0-beta.13",
+    "react-stylesheet": "^2.0.0",
     "react-virtualized": "^8.7.1"
   },
   "proxy": "http://localhost:8080",

@@ -48,14 +48,14 @@ describe('normalize()', function() {
       selected: pointer(here)
     }).toBeNormalizedAs({
       query: pipeline(here),
-      selected: pointer(here)
+      path: null,
     });
     expect({
       query,
       selected: pointer(navigate('x'))
     }).toBeNormalizedAs({
       query: pipeline(here),
-      selected: pointer(here)
+      path: null,
     });
   });
 
@@ -572,7 +572,6 @@ describe('normalize()', function() {
       selected: pointer(
         nextQuery,
         ['pipeline', 2],
-        ['binding', 'query']
       )
     });
   });
@@ -757,7 +756,6 @@ describe('normalize()', function() {
       selected: pointer(
         nextQuery,
         ['pipeline', 2],
-        ['binding', 'query']
       ),
     });
   });
@@ -784,7 +782,6 @@ describe('normalize()', function() {
       selected: pointer(
         nextQuery,
         ['pipeline', 2],
-        ['binding', 'query']
       ),
     });
   });

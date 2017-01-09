@@ -85,6 +85,6 @@ export let group: QueryVisTheme = {
 export let invalid: QueryVisTheme = {
   backgroundColor: '#ff8181',
   borderColor: '#d01e1e',
-  textColor: 'white',
-  textColorActive: 'white',
+  textColor: '#981e1e',
+  textColorActive: '#981e1e',
 };

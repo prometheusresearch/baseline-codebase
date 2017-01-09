@@ -1,0 +1,928 @@
+{
+  "entity": [
+    {
+      "name": "customer",
+      "label": "Customer",
+      "field": [
+        {
+          "label": "name",
+          "title": "Name",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "address",
+          "title": "Address",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "nation",
+          "title": "Nation",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "direct-link",
+          "column": null,
+          "link": {
+            "target": "nation",
+            "inverse": "customer"
+          }
+        },
+        {
+          "label": "phone",
+          "title": "Phone",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "acctbal",
+          "title": "Acctbal",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "decimal",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "mktsegment",
+          "title": "Mktsegment",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "comment",
+          "title": "Comment",
+          "public": true,
+          "partial": true,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "order",
+          "title": "Order",
+          "public": false,
+          "partial": true,
+          "plural": true,
+          "kind": "indirect-link",
+          "column": null,
+          "link": {
+            "target": "order",
+            "inverse": "customer"
+          }
+        }
+      ],
+      "identity": [
+        "name"
+      ]
+    },
+    {
+      "name": "lineitem",
+      "label": "Lineitem",
+      "field": [
+        {
+          "label": "order",
+          "title": "Order",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "direct-link",
+          "column": null,
+          "link": {
+            "target": "order",
+            "inverse": "lineitem"
+          }
+        },
+        {
+          "label": "partsupp",
+          "title": "Partsupp",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "direct-link",
+          "column": null,
+          "link": {
+            "target": "partsupp",
+            "inverse": "lineitem"
+          }
+        },
+        {
+          "label": "linenumber",
+          "title": "Linenumber",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "integer",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "quantity",
+          "title": "Quantity",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "integer",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "extendedprice",
+          "title": "Extendedprice",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "decimal",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "discount",
+          "title": "Discount",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "decimal",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "tax",
+          "title": "Tax",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "decimal",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "returnflag",
+          "title": "Returnflag",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "enum",
+            "enum": [
+              "A",
+              "N",
+              "R"
+            ]
+          },
+          "link": null
+        },
+        {
+          "label": "linestatus",
+          "title": "Linestatus",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "enum",
+            "enum": [
+              "F",
+              "O"
+            ]
+          },
+          "link": null
+        },
+        {
+          "label": "shipdate",
+          "title": "Shipdate",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "date",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "commitdate",
+          "title": "Commitdate",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "date",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "receiptdate",
+          "title": "Receiptdate",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "date",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "shipinstruct",
+          "title": "Shipinstruct",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "shipmode",
+          "title": "Shipmode",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "comment",
+          "title": "Comment",
+          "public": true,
+          "partial": true,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "part",
+          "title": "Part",
+          "public": false,
+          "partial": true,
+          "plural": true,
+          "kind": "calculation",
+          "column": null,
+          "link": null
+        },
+        {
+          "label": "supplier",
+          "title": "Supplier",
+          "public": false,
+          "partial": true,
+          "plural": true,
+          "kind": "calculation",
+          "column": null,
+          "link": null
+        }
+      ],
+      "identity": [
+        "order",
+        "linenumber"
+      ]
+    },
+    {
+      "name": "nation",
+      "label": "Nation",
+      "field": [
+        {
+          "label": "name",
+          "title": "Name",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "region",
+          "title": "Region",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "direct-link",
+          "column": null,
+          "link": {
+            "target": "region",
+            "inverse": "nation"
+          }
+        },
+        {
+          "label": "comment",
+          "title": "Comment",
+          "public": true,
+          "partial": true,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "customer",
+          "title": "Customer",
+          "public": false,
+          "partial": true,
+          "plural": true,
+          "kind": "indirect-link",
+          "column": null,
+          "link": {
+            "target": "customer",
+            "inverse": "nation"
+          }
+        },
+        {
+          "label": "supplier",
+          "title": "Supplier",
+          "public": false,
+          "partial": true,
+          "plural": true,
+          "kind": "indirect-link",
+          "column": null,
+          "link": {
+            "target": "supplier",
+            "inverse": "nation"
+          }
+        }
+      ],
+      "identity": [
+        "name"
+      ]
+    },
+    {
+      "name": "order",
+      "label": "Order",
+      "field": [
+        {
+          "label": "key",
+          "title": "Key",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "integer",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "customer",
+          "title": "Customer",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "direct-link",
+          "column": null,
+          "link": {
+            "target": "customer",
+            "inverse": "order"
+          }
+        },
+        {
+          "label": "orderstatus",
+          "title": "Orderstatus",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "enum",
+            "enum": [
+              "F",
+              "O",
+              "P"
+            ]
+          },
+          "link": null
+        },
+        {
+          "label": "totalprice",
+          "title": "Totalprice",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "decimal",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "orderdate",
+          "title": "Orderdate",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "date",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "orderpriority",
+          "title": "Orderpriority",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "clerk",
+          "title": "Clerk",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "shippriority",
+          "title": "Shippriority",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "integer",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "comment",
+          "title": "Comment",
+          "public": true,
+          "partial": true,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "lineitem",
+          "title": "Lineitem",
+          "public": false,
+          "partial": true,
+          "plural": true,
+          "kind": "indirect-link",
+          "column": null,
+          "link": {
+            "target": "lineitem",
+            "inverse": "order"
+          }
+        }
+      ],
+      "identity": [
+        "key"
+      ]
+    },
+    {
+      "name": "part",
+      "label": "Part",
+      "field": [
+        {
+          "label": "name",
+          "title": "Name",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "mfgr",
+          "title": "Mfgr",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "brand",
+          "title": "Brand",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "type",
+          "title": "Type",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "size",
+          "title": "Size",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "integer",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "container",
+          "title": "Container",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "retailprice",
+          "title": "Retailprice",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "decimal",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "comment",
+          "title": "Comment",
+          "public": true,
+          "partial": true,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "partsupp",
+          "title": "Partsupp",
+          "public": false,
+          "partial": true,
+          "plural": true,
+          "kind": "indirect-link",
+          "column": null,
+          "link": {
+            "target": "partsupp",
+            "inverse": "part"
+          }
+        }
+      ],
+      "identity": [
+        "name"
+      ]
+    },
+    {
+      "name": "partsupp",
+      "label": "Partsupp",
+      "field": [
+        {
+          "label": "part",
+          "title": "Part",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "direct-link",
+          "column": null,
+          "link": {
+            "target": "part",
+            "inverse": "partsupp"
+          }
+        },
+        {
+          "label": "supplier",
+          "title": "Supplier",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "direct-link",
+          "column": null,
+          "link": {
+            "target": "supplier",
+            "inverse": "partsupp"
+          }
+        },
+        {
+          "label": "availqty",
+          "title": "Availqty",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "integer",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "supplycost",
+          "title": "Supplycost",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "decimal",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "comment",
+          "title": "Comment",
+          "public": true,
+          "partial": true,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "lineitem",
+          "title": "Lineitem",
+          "public": false,
+          "partial": true,
+          "plural": true,
+          "kind": "indirect-link",
+          "column": null,
+          "link": {
+            "target": "lineitem",
+            "inverse": "partsupp"
+          }
+        }
+      ],
+      "identity": [
+        "part",
+        "supplier"
+      ]
+    },
+    {
+      "name": "region",
+      "label": "Region",
+      "field": [
+        {
+          "label": "name",
+          "title": "Name",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "comment",
+          "title": "Comment",
+          "public": true,
+          "partial": true,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "nation",
+          "title": "Nation",
+          "public": false,
+          "partial": true,
+          "plural": true,
+          "kind": "indirect-link",
+          "column": null,
+          "link": {
+            "target": "nation",
+            "inverse": "region"
+          }
+        }
+      ],
+      "identity": [
+        "name"
+      ]
+    },
+    {
+      "name": "supplier",
+      "label": "Supplier",
+      "field": [
+        {
+          "label": "name",
+          "title": "Name",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "address",
+          "title": "Address",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "nation",
+          "title": "Nation",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "direct-link",
+          "column": null,
+          "link": {
+            "target": "nation",
+            "inverse": "supplier"
+          }
+        },
+        {
+          "label": "phone",
+          "title": "Phone",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "acctbal",
+          "title": "Acctbal",
+          "public": true,
+          "partial": false,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "decimal",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "comment",
+          "title": "Comment",
+          "public": true,
+          "partial": true,
+          "plural": false,
+          "kind": "column",
+          "column": {
+            "type": "text",
+            "enum": []
+          },
+          "link": null
+        },
+        {
+          "label": "partsupp",
+          "title": "Partsupp",
+          "public": false,
+          "partial": true,
+          "plural": true,
+          "kind": "indirect-link",
+          "column": null,
+          "link": {
+            "target": "partsupp",
+            "inverse": "supplier"
+          }
+        }
+      ],
+      "identity": [
+        "name"
+      ]
+    }
+  ]
+}

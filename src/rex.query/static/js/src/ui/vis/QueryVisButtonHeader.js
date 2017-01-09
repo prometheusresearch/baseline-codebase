@@ -19,6 +19,8 @@ type QueryVisButtonHeaderProps = {
   selected: boolean;
   selectable: boolean;
 
+  invalid?: boolean;
+
   toggleable: boolean;
   closeable: boolean;
 

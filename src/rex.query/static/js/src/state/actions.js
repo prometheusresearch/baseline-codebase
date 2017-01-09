@@ -17,7 +17,7 @@ import type {
 } from '../model';
 
 import invariant from 'invariant';
-import * as t from '../model/Type';
+import * as d from '../model/Domain';
 import * as q from '../model/Query';
 import * as qp from '../model/QueryPointer';
 import * as op from '../model/op';
@@ -45,7 +45,7 @@ export function navigate(params: {
     let pointer = qp.rebase(params.pointer, state.query);
     let loc = {pointer, selected: state.selected};
     let add = null;
-    let type = q.resolvePath(
+    let type = q.inferTypeAtPath(
       qp.selectLast(pointer).query.context.prev,
       params.path
     );
@@ -273,6 +273,7 @@ export function setGroupByPath(
       prevType && prevType.name === 'record' && prevType.entity != null,
       'Invalid type info'
     );
+    const entity = prevType.entity;
 
     query = op.transformAt({
       loc: {pointer, selected: null},
@@ -289,7 +290,7 @@ export function setGroupByPath(
     query = q.inferType(state.domain, query);
     query = op.growNavigation({
       loc: {pointer: qp.rebase(pointer, query), selected: null},
-      path: [prevType.entity],
+      path: [entity],
       add: q.aggregate('count'),
     }).query;
     return onQuery(state, query, state.selected);
@@ -417,7 +418,7 @@ export function appendAggregate(params: {pointer: ?QueryPointer<*>}): StateUpdat
 export function appendNavigateAndAggregate(params: {
   pointer: QueryPointer<QueryPipeline>;
   path: Array<string>;
-  aggregate: t.DomainAggregate;
+  aggregate: d.DomainAggregate;
 }): StateUpdater {
   return state => {
     let {path, aggregate, pointer} = params;
@@ -456,7 +457,7 @@ export function appendNavigateAndAggregate(params: {
 export function appendDefineAndAggregate(params: {
   pointer: QueryPointer<QueryPipeline>;
   path: Array<string>;
-  aggregate: t.DomainAggregate;
+  aggregate: d.DomainAggregate;
 }): StateUpdater {
   return state => {
     let {path, aggregate, pointer} = params;
@@ -629,6 +630,9 @@ let refetchIndex = 0;
 
 function refetchQuery(state, setState) {
   const {query, api} = state;
+  if (query.context.hasInvalidType) {
+    return;
+  }
   refetchIndex += 1;
   const currentRefetchIndex = refetchIndex;
   Promise.resolve().then(_ => {

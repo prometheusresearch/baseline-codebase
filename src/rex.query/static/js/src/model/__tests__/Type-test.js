@@ -1,8 +1,11 @@
 import {
   numberType, textType,
   seqType, optType, regType,
-  leastUpperBound, emptyDomain as dom
+  recordType, entityType,
+  leastUpperBound,
+  toString,
 } from '../Type';
+import {emptyDomain as dom} from '../Domain';
 
 it('leastUpperBound()', function() {
   expect(leastUpperBound(textType(dom), textType(dom)))
@@ -48,4 +51,17 @@ it('regType()', function() {
     .toEqual(numberType(dom));
   expect(regType(numberType(dom)))
     .toEqual(numberType(dom));
+});
+
+test('toString()', function() {
+  expect(toString(numberType(dom))).toBe('number');
+  expect(toString(textType(dom))).toBe('text');
+  expect(toString(seqType(textType(dom)))).toBe('[text]');
+  expect(toString(optType(textType(dom)))).toBe('?text');
+  expect(toString(entityType(dom, 'study'))).toBe('study');
+  expect(toString(seqType(entityType(dom, 'study')))).toBe('[study]');
+  expect(toString(optType(entityType(dom, 'study')))).toBe('?study');
+  expect(toString(recordType(dom, {a: {type: textType(dom)}}))).toBe('{a: text}');
+  expect(toString(seqType(recordType(dom, {a: {type: textType(dom)}})))).toBe('[{a: text}]');
+  expect(toString(optType(recordType(dom, {a: {type: textType(dom)}})))).toBe('?{a: text}');
 });

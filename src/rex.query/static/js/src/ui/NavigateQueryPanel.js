@@ -2,19 +2,22 @@
  * @flow
  */
 
-import type {NavigateQuery, QueryPointer} from '../model';
+import type {NavigateQuery, QueryPointer, QueryNavigation} from '../model';
 import type {Actions} from '../state';
+import type {SearchCallback} from './Search';
 
 import React from 'react';
-import * as nav from '../model/navigation';
+import {VBox} from 'react-stylesheet';
 import * as q from '../model/Query';
 import {MenuButton, MenuGroup, MenuHelp} from './menu';
 import QueryPanelBase from './QueryPanelBase';
 import * as theme from './Theme';
+import NavigationMenu from './NavigationMenu';
 
 type NavigateQueryPanelProps = {
   pointer: QueryPointer<NavigateQuery>;
   onClose: Function;
+  onSearch: SearchCallback;
 };
 
 export default class NavigateQueryPanel extends React.Component<*, NavigateQueryPanelProps, *> {
@@ -33,8 +36,7 @@ export default class NavigateQueryPanel extends React.Component<*, NavigateQuery
   }
 
   render() {
-    let {pointer, onClose, ...rest} = this.props;
-    let navigation = nav.getNavigationBefore(pointer.query.context);
+    let {pointer, onClose, onSearch, ...rest} = this.props;
     return (
       <QueryPanelBase
         {...rest}
@@ -42,8 +44,24 @@ export default class NavigateQueryPanel extends React.Component<*, NavigateQuery
         title={pointer.query.path}
         theme={theme.entity}
         pointer={pointer}>
+        <NavigationMenu onSearch={onSearch} context={pointer.query.context.prev}>
+          <this.NavigationMenuContents {...this.props} />
+        </NavigationMenu>
+      </QueryPanelBase>
+    );
+  }
+
+  NavigationMenuContents = (
+    props: NavigateQueryPanelProps & {navigation: Map<string, QueryNavigation>}
+  ) => {
+    let {
+      navigation,
+      pointer,
+    } = props;
+    return (
+      <VBox>
         <MenuGroup>
-          {navigation.map(nav => {
+          {Array.from(navigation.values()).map(nav => {
             let isSelected = nav.value === pointer.query.path;
             return (
               <MenuButton
@@ -60,8 +78,7 @@ export default class NavigateQueryPanel extends React.Component<*, NavigateQuery
           Edit current query combinator by selecting another relationship to
           navigate to.
         </MenuHelp>
-      </QueryPanelBase>
+      </VBox>
     );
-  }
+  };
 }
-

@@ -21,11 +21,16 @@ export type {
 } from './QueryPointer';
 
 export type {
-  Type,
+  QueryNavigation
+} from './QueryNavigation';
 
+export type {
+  Type,
+  TypeCardinality,
+} from './Type';
+
+export type {
   Domain,
   DomainEntity,
   DomainAttribute,
-
-  TypeCardinality,
-} from './Type';
+} from './Domain';

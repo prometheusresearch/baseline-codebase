@@ -2,8 +2,7 @@
  * @flow
  */
 
-import type {Expression} from '../../model';
-import type {Navigation} from '../../model/navigation';
+import type {QueryNavigation, Expression} from '../../model';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -11,7 +10,7 @@ import invariant from 'invariant';
 import * as q from '../../model/Query';
 import * as operands from './FilterOperands';
 
-function isOfType(field: Navigation, types: Array<string>): boolean {
+function isOfType(field: QueryNavigation, types: Array<string>): boolean {
   let type = field.context.type;
   return types.includes(type.name);
 }
@@ -48,13 +47,13 @@ export type Comparator = {
   // A function that looks at a field and dermines if it is one that this
   // comparator can be used with.
   applicable(
-    field: Navigation
+    field: QueryNavigation
   ): boolean;
 
   // A function that returns a React element that can collect the operand for
   // this comparator. If no operand is necessary, return null.
   operand(
-    field: Navigation,
+    field: QueryNavigation,
     value: ?any,
     onChange: (operand: ?any) => void
   ): ?React.Element<*>;
@@ -62,7 +61,7 @@ export type Comparator = {
   // A function that generates a Query for the given field and operand. If a
   // legal Query cannot be generated, return null.
   query(
-    field: Navigation,
+    field: QueryNavigation,
     operand: ?any,
     operandIsField: ?boolean
   ): ?Expression;
@@ -494,7 +493,7 @@ export function identify(expression: Expression): ?FullIdentification {
   }
 }
 
-export function getApplicableForField(field: Navigation): Array<Comparator> {
+export function getApplicableForField(field: QueryNavigation): Array<Comparator> {
   return ALL_COMPARATORS.filter((comp) => {
     return comp.applicable(field);
   });

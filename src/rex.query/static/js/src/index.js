@@ -7,6 +7,7 @@ import * as qs from 'qs';
 
 import QueryBuilderApp from './QueryBuilderApp';
 import * as q from './model/Query';
+import debounce from 'debounce-promise';
 
 let params = qs.parse(window.location.search.substr(1));
 
@@ -26,6 +27,29 @@ function onQuery(query) {
   }
 }
 
+function delay(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function doSearch({searchTerm, navigation}) {
+  console.log('Search for:', searchTerm);
+  return delay(1000).then(_ => {
+    if (searchTerm == null) {
+      let searchResultList = Array.from(navigation.values());
+      return searchResultList;
+    } else {
+      let searchTermRe = new RegExp(searchTerm, 'ig');
+      let searchResultList = [];
+      for (let item of navigation.values()) {
+        if (searchTermRe.test(item.label) || searchTermRe.test(item.value)) {
+          searchResultList.push({label: item.label, value: item.value});
+        }
+      }
+      return searchResultList;
+    }
+  });
+}
+
 function Toolbar() {
   return (
     <div>
@@ -42,6 +66,7 @@ ReactDOM.render(
     api={params.api}
     initialQuery={query}
     onQuery={onQuery}
+    onSearch={debounce(doSearch, 700)}
     toolbar={<Toolbar />}
     />,
   document.getElementById('root')

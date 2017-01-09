@@ -2,8 +2,10 @@ exports[`insertAfter() [individual]!name 1`] = `
 Object {
   "context": Object {
     "domain": <DOMAIN>,
+    "hasInvalidType": false,
     "prev": "<PREV CONTEXT>",
     "scope": "<SCOPE [empty]>",
+    "title": null,
     "type": Object {
       "card": null,
       "domain": <DOMAIN>,
@@ -15,8 +17,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -28,8 +32,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -43,8 +49,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -63,8 +71,10 @@ exports[`insertAfter() individual!name 1`] = `
 Object {
   "context": Object {
     "domain": <DOMAIN>,
+    "hasInvalidType": false,
     "prev": "<PREV CONTEXT>",
     "scope": "<SCOPE [empty]>",
+    "title": null,
     "type": Object {
       "card": null,
       "domain": <DOMAIN>,
@@ -76,8 +86,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -89,8 +101,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -104,8 +118,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -124,8 +140,10 @@ exports[`insertAfter() individual!sample.name 1`] = `
 Object {
   "context": Object {
     "domain": <DOMAIN>,
+    "hasInvalidType": false,
     "prev": "<PREV CONTEXT>",
     "scope": "<SCOPE [empty]>",
+    "title": null,
     "type": Object {
       "card": null,
       "domain": <DOMAIN>,
@@ -137,8 +155,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -150,8 +170,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -165,8 +187,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -180,8 +204,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -200,8 +226,10 @@ exports[`insertAfter() individual.sample!name 1`] = `
 Object {
   "context": Object {
     "domain": <DOMAIN>,
+    "hasInvalidType": false,
     "prev": "<PREV CONTEXT>",
     "scope": "<SCOPE [empty]>",
+    "title": null,
     "type": Object {
       "card": null,
       "domain": <DOMAIN>,
@@ -213,8 +241,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -226,8 +256,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -241,8 +273,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -256,8 +290,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -276,8 +312,10 @@ exports[`insertAfter() individual:define(a = sample!name) 1`] = `
 Object {
   "context": Object {
     "domain": <DOMAIN>,
+    "hasInvalidType": false,
     "prev": "<PREV CONTEXT>",
     "scope": "<SCOPE [empty]>",
+    "title": null,
     "type": Object {
       "card": null,
       "domain": <DOMAIN>,
@@ -289,8 +327,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -302,8 +342,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -320,8 +362,10 @@ Object {
         "query": Object {
           "context": Object {
             "domain": <DOMAIN>,
+            "hasInvalidType": false,
             "prev": "<PREV CONTEXT>",
             "scope": "<SCOPE [empty]>",
+            "title": null,
             "type": Object {
               "card": null,
               "domain": <DOMAIN>,
@@ -333,8 +377,10 @@ Object {
             Object {
               "context": Object {
                 "domain": <DOMAIN>,
+                "hasInvalidType": false,
                 "prev": "<PREV CONTEXT>",
                 "scope": "<SCOPE [empty]>",
+                "title": null,
                 "type": Object {
                   "card": null,
                   "domain": <DOMAIN>,
@@ -348,8 +394,10 @@ Object {
             Object {
               "context": Object {
                 "domain": <DOMAIN>,
+                "hasInvalidType": false,
                 "prev": "<PREV CONTEXT>",
                 "scope": "<SCOPE [empty]>",
+                "title": null,
                 "type": Object {
                   "card": null,
                   "domain": <DOMAIN>,
@@ -365,8 +413,10 @@ Object {
       },
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -383,8 +433,10 @@ exports[`removeAt() individual!.name 1`] = `
 Object {
   "context": Object {
     "domain": <DOMAIN>,
+    "hasInvalidType": false,
     "prev": "<PREV CONTEXT>",
     "scope": "<SCOPE [empty]>",
+    "title": null,
     "type": Object {
       "card": null,
       "domain": <DOMAIN>,
@@ -396,8 +448,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -409,8 +463,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -429,8 +485,10 @@ exports[`removeAt() individual.name! 1`] = `
 Object {
   "context": Object {
     "domain": <DOMAIN>,
+    "hasInvalidType": false,
     "prev": "<PREV CONTEXT>",
     "scope": "<SCOPE [empty]>",
+    "title": null,
     "type": Object {
       "card": null,
       "domain": <DOMAIN>,
@@ -442,8 +500,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -455,8 +515,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -475,8 +537,10 @@ exports[`removeAt() individual:define(a := sample!) 1`] = `
 Object {
   "context": Object {
     "domain": <DOMAIN>,
+    "hasInvalidType": false,
     "prev": "<PREV CONTEXT>",
     "scope": "<SCOPE [empty]>",
+    "title": null,
     "type": Object {
       "card": null,
       "domain": <DOMAIN>,
@@ -488,8 +552,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -501,8 +567,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -521,8 +589,10 @@ exports[`removeAt() individual:select(a = [sample!]) 1`] = `
 Object {
   "context": Object {
     "domain": <DOMAIN>,
+    "hasInvalidType": false,
     "prev": "<PREV CONTEXT>",
     "scope": "<SCOPE [empty]>",
+    "title": null,
     "type": Object {
       "card": null,
       "domain": <DOMAIN>,
@@ -534,8 +604,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -547,8 +619,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -567,8 +641,10 @@ exports[`removeAt() individual:select(a = sample.name!) 1`] = `
 Object {
   "context": Object {
     "domain": <DOMAIN>,
+    "hasInvalidType": false,
     "prev": "<PREV CONTEXT>",
     "scope": "<SCOPE [empty]>",
+    "title": null,
     "type": Object {
       "card": null,
       "domain": <DOMAIN>,
@@ -580,8 +656,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -593,8 +671,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -613,8 +693,10 @@ exports[`removeAt() individual:select(a = sample.name!, b = sample) 1`] = `
 Object {
   "context": Object {
     "domain": <DOMAIN>,
+    "hasInvalidType": false,
     "prev": "<PREV CONTEXT>",
     "scope": "<SCOPE [empty]>",
+    "title": null,
     "type": Object {
       "card": null,
       "domain": <DOMAIN>,
@@ -626,8 +708,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -639,8 +723,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -654,8 +740,10 @@ Object {
     Object {
       "context": Object {
         "domain": <DOMAIN>,
+        "hasInvalidType": false,
         "prev": "<PREV CONTEXT>",
         "scope": "<SCOPE [empty]>",
+        "title": null,
         "type": Object {
           "card": null,
           "domain": <DOMAIN>,
@@ -667,8 +755,10 @@ Object {
         "b": Object {
           "context": Object {
             "domain": <DOMAIN>,
+            "hasInvalidType": false,
             "prev": "<PREV CONTEXT>",
             "scope": "<SCOPE [empty]>",
+            "title": null,
             "type": Object {
               "card": null,
               "domain": <DOMAIN>,

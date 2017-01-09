@@ -2,78 +2,68 @@
  * @flow
  */
 
-import type {QueryPointer, QueryPipeline, Type, TypeCardinality, Query, Context} from '../model';
+import type {QueryNavigation, QueryPointer, QueryPipeline, Query} from '../model';
 import type {Actions} from '../state';
+import type {SearchCallback} from './Search';
 
 import React from 'react';
 import {VBox, HBox} from 'react-stylesheet';
-import * as ReactUI from '@prometheusresearch/react-ui';
 
 import {IconPlus} from './Icon';
 import TagLabel from './TagLabel';
 import Label from './Label';
 import * as feature from '../feature';
-import * as t from '../model/Type';
 import * as q from '../model/Query';
 import * as qp from '../model/QueryPointer';
 import {MenuGroup, MenuButton, MenuButtonSecondary} from './menu';
-
-type Navigation = {
-  type: 'record' | 'attribute';
-  card: TypeCardinality;
-  value: string;
-  label: string;
-  context: Context;
-  pointer?: QueryPointer<>;
-  groupBy?: boolean;
-  fromQuery?: boolean;
-};
+import NavigationMenu from './NavigationMenu';
 
 type ColumnPickerProps = {
   pointer: QueryPointer<Query>;
   onSelect: (payload: {path: string}) => *;
   onSelectRemove: (payload: {path: string, pointer: QueryPointer<>}) => *;
+  onSearch: SearchCallback;
 };
 
 export default class ColumnPicker extends React.Component<*, ColumnPickerProps, *> {
-
-  state: {
-    searchTerm: ?string;
-  };
 
   context: {
     actions: Actions;
   };
 
-  static contextTypes = {actions: React.PropTypes.object};
-
-  state = {
-    searchTerm: null,
+  static contextTypes = {
+    actions: React.PropTypes.object
   };
 
   render() {
+    let {pointer: {query}, onSearch} = this.props;
+    let context = query.name === 'select' || query.context.type.name === 'invalid'
+      ? query.context.prev
+      : query.context;
+    return (
+      <NavigationMenu onSearch={onSearch} context={context}>
+        <this.NavigationMenuContents {...this.props} />
+      </NavigationMenu>
+    );
+
+  }
+
+  NavigationMenuContents = (props: ColumnPickerProps & {navigation: Map<string, QueryNavigation>}) => {
     let {
       pointer,
+      navigation,
       onSelect,
       onSelectRemove,
-    } = this.props;
+    } = props;
+
     let {type} = pointer.query.context;
     let active = getNavigationPointerMap(pointer);
-    let options = pointer.query.name === 'select' || type.name === 'invalid'
-      ? getNavigation(pointer, pointer.query.context.prev.type)
-      : getNavigation(pointer, pointer.query.context.type);
-    let {searchTerm} = this.state;
-    if (searchTerm != null) {
-      let searchTermRe = new RegExp(searchTerm, 'ig');
-      options = options.filter(column => {
-        return searchTermRe.test(column.label) || searchTermRe.test(column.value);
-      });
-    }
     let entityList = [];
     let queryList = [];
     let attributeList = [];
     let groupByAttributeList = [];
-    options.forEach(column => {
+
+    navigation.forEach(column => {
       let pointer = active[column.value];
       let button = (
         <ColumnPickerButton
@@ -99,45 +89,36 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
       }
     });
     return (
-      <VBox>
-        <VBox padding={10}>
-          <ReactUI.Input
-            placeholder="Search columns…"
-            value={searchTerm === null ? '' : searchTerm}
-            onChange={this.onSearchTerm}
-            />
-        </VBox>
-        <VBox paddingBottom={10}>
-          {groupByAttributeList.length > 0 &&
-            <VBox paddingBottom={10}>
-              <MenuGroup
-                title="Group by columns">
-                {groupByAttributeList}
-              </MenuGroup>
-            </VBox>}
-          {queryList.length > 0 &&
-            <VBox paddingBottom={10}>
-              <MenuGroup
-                title={
-                  type.name === 'invalid' || type.name === 'void'
-                    ? 'Entities'
-                    : 'Relationships'
-                }>
-                {queryList}
-              </MenuGroup>
-            </VBox>}
-          {attributeList.length > 0 &&
-            <VBox paddingBottom={10}>
-              <MenuGroup title="Attributes">
-                {attributeList}
-              </MenuGroup>
-            </VBox>}
-        </VBox>
+      <VBox paddingBottom={10}>
+        {groupByAttributeList.length > 0 &&
+          <VBox paddingBottom={10}>
+            <MenuGroup
+              title="Group by columns">
+              {groupByAttributeList}
+            </MenuGroup>
+          </VBox>}
+        {queryList.length > 0 &&
+          <VBox paddingBottom={10}>
+            <MenuGroup
+              title={
+                type.name === 'invalid' || type.name === 'void'
+                  ? 'Entities'
+                  : 'Relationships'
+              }>
+              {queryList}
+            </MenuGroup>
+          </VBox>}
+        {attributeList.length > 0 &&
+          <VBox paddingBottom={10}>
+            <MenuGroup title="Attributes">
+              {attributeList}
+            </MenuGroup>
+          </VBox>}
       </VBox>
     );
-  }
+  };
 
-  onDefine = (nav: Navigation) => {
+  onDefine = (nav: QueryNavigation) => {
     this.context.actions.appendDefine({
       pointer: this.props.pointer,
       select: true,
@@ -176,17 +157,13 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
     });
   };
 
-  onSearchTerm = (e: UIEvent) => {
-    let target: {value: string} = (e.target: any);
-    this.setState({searchTerm: target.value === '' ? null : target.value});
-  };
 }
 
 class ColumnPickerButton extends React.Component {
 
   props: {
     pointer?: QueryPointer<>;
-    column: Navigation;
+    column: QueryNavigation;
     onSelect: (payload: {path: string}) => *;
     onNavigate: (payload: {path: string}) => *;
     onAggregate: (payload: {path: string}) => *;
@@ -281,67 +258,6 @@ class ColumnPickerButton extends React.Component {
       </MenuButton>
     );
   }
-}
-
-function getNavigation(pointer: QueryPointer<>, type: Type): Array<Navigation> {
-  let {context} = pointer.query;
-  let {scope, domain} = context;
-  let navigation = [];
-
-  let contextAtQuery = {
-    ...context,
-    type: t.regType(type),
-  };
-
-  // Collect paths from an input type
-  if (type.name === 'void') {
-    for (let k in domain.entity) {
-      if (domain.entity.hasOwnProperty(k)) {
-        let navQuery = q.inferQueryType(contextAtQuery, q.navigate(k));
-        navigation.push({
-          type: 'record',
-          card: 'seq',
-          value: k,
-          label: domain.entity[k].title,
-          context: navQuery.context,
-        });
-      }
-    }
-  } else if (type.name === 'record') {
-    let attribute = t.recordAttribute(type);
-    for (let k in attribute) {
-      if (attribute.hasOwnProperty(k)) {
-        let navQuery = q.inferQueryType(contextAtQuery, q.navigate(k));
-        let type = attribute[k].type;
-        navigation.push({
-          type: type.name === 'record'
-            ? 'record'
-            : 'attribute',
-          card: type.card,
-          value: k,
-          label: attribute[k].title || k,
-          context: navQuery.context,
-          groupBy: attribute[k].groupBy,
-        });
-      }
-    }
-  }
-
-  for (let k in scope) {
-    if (scope.hasOwnProperty(k)) {
-      let navQuery = q.inferQueryType(contextAtQuery, scope[k].query);
-      navigation.push({
-        type: 'record',
-        card: type.card,
-        value: k,
-        label: scope[k].query.context.title || k,
-        context: navQuery.context,
-        fromQuery: true,
-      });
-    }
-  }
-
-  return navigation;
 }
 
 function getNavigationPointerMap(pointer: QueryPointer<>) {

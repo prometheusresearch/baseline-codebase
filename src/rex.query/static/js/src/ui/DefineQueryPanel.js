@@ -5,6 +5,7 @@
 import type {DefineQuery} from '../model/Query';
 import type {QueryPointer} from '../model/QueryPointer';
 import type {Actions} from '../state';
+import type {SearchCallback} from './Search';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
@@ -21,6 +22,7 @@ import PencilIcon from './PencilIcon';
 type DefineQueryPanelProps = {
   pointer: QueryPointer<DefineQuery>;
   onClose: () => *;
+  onSearch: SearchCallback;
 };
 
 export default class DefineQueryPanel
@@ -45,6 +47,7 @@ export default class DefineQueryPanel
   render() {
     let {
       onClose,
+      onSearch,
       pointer
     } = this.props;
     let {
@@ -112,6 +115,7 @@ export default class DefineQueryPanel
           <ColumnPicker
             onSelect={this.onSelect}
             onSelectRemove={this.onSelectRemove}
+            onSearch={onSearch}
             pointer={last}
             /> :
           <MenuHelp>

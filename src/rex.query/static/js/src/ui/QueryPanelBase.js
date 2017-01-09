@@ -15,6 +15,7 @@ type QueryPanelBaseProps = {
   title: string;
   theme: QueryVisTheme;
   children: React$Element<*>;
+  topBanner?: ?React$Element<*>;
   noBorder?: boolean;
   disableClose?: boolean;
   onClose: () => *;
@@ -36,6 +37,7 @@ export default class QueryPanelBase extends React.Component<*, QueryPanelBasePro
       disableClose,
       onBack,
       noBorder,
+      topBanner,
     } = this.props;
     let border = !noBorder
       ? css.border(5, theme.backgroundColor)
@@ -43,6 +45,7 @@ export default class QueryPanelBase extends React.Component<*, QueryPanelBasePro
     return (
       <QueryPanelBaseRoot
         style={{borderLeft: border}}>
+        {topBanner}
         <QueryPanelBaseWrapper>
           <HBox padding={10} alignItems="center">
             {onBack != null &&

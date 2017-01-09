@@ -1,0 +1,544 @@
+exports[`test context: individual 1`] = `
+Map {
+  "name" => Object {
+    "card": null,
+    "context": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Name",
+      "type": Object {
+        "card": null,
+        "domain": <DOMAIN>,
+        "name": "text",
+      },
+    },
+    "groupBy": undefined,
+    "label": "Name",
+    "regularContext": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Name",
+      "type": Object {
+        "card": null,
+        "domain": <DOMAIN>,
+        "name": "text",
+      },
+    },
+    "type": "attribute",
+    "value": "name",
+  },
+  "study_enrollment" => Object {
+    "card": "seq",
+    "context": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Study Enrollment",
+      "type": Object {
+        "attribute": null,
+        "card": "seq",
+        "domain": <DOMAIN>,
+        "entity": "study_enrollment",
+        "name": "record",
+      },
+    },
+    "groupBy": undefined,
+    "label": "Study Enrollment",
+    "regularContext": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Study Enrollment",
+      "type": Object {
+        "attribute": null,
+        "card": "seq",
+        "domain": <DOMAIN>,
+        "entity": "study_enrollment",
+        "name": "record",
+      },
+    },
+    "type": "record",
+    "value": "study_enrollment",
+  },
+}
+`;
+
+exports[`test context: individual.name 1`] = `Map {}`;
+
+exports[`test context: individual.study_enrollment 1`] = `
+Map {
+  "individual" => Object {
+    "card": null,
+    "context": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Individual",
+      "type": Object {
+        "attribute": null,
+        "card": null,
+        "domain": <DOMAIN>,
+        "entity": "individual",
+        "name": "record",
+      },
+    },
+    "groupBy": undefined,
+    "label": "Individual",
+    "regularContext": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Individual",
+      "type": Object {
+        "attribute": null,
+        "card": null,
+        "domain": <DOMAIN>,
+        "entity": "individual",
+        "name": "record",
+      },
+    },
+    "type": "record",
+    "value": "individual",
+  },
+  "study" => Object {
+    "card": null,
+    "context": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Study",
+      "type": Object {
+        "attribute": null,
+        "card": null,
+        "domain": <DOMAIN>,
+        "entity": "study",
+        "name": "record",
+      },
+    },
+    "groupBy": undefined,
+    "label": "Study",
+    "regularContext": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Study",
+      "type": Object {
+        "attribute": null,
+        "card": null,
+        "domain": <DOMAIN>,
+        "entity": "study",
+        "name": "record",
+      },
+    },
+    "type": "record",
+    "value": "study",
+  },
+}
+`;
+
+exports[`test context: individual.study_enrollment.study.name 1`] = `Map {}`;
+
+exports[`test context: study 1`] = `
+Map {
+  "name" => Object {
+    "card": null,
+    "context": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Name",
+      "type": Object {
+        "card": null,
+        "domain": <DOMAIN>,
+        "name": "text",
+      },
+    },
+    "groupBy": undefined,
+    "label": "Name",
+    "regularContext": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Name",
+      "type": Object {
+        "card": null,
+        "domain": <DOMAIN>,
+        "name": "text",
+      },
+    },
+    "type": "attribute",
+    "value": "name",
+  },
+  "study_enrollment" => Object {
+    "card": "seq",
+    "context": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Study Enrollment",
+      "type": Object {
+        "attribute": null,
+        "card": "seq",
+        "domain": <DOMAIN>,
+        "entity": "study_enrollment",
+        "name": "record",
+      },
+    },
+    "groupBy": undefined,
+    "label": "Study Enrollment",
+    "regularContext": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Study Enrollment",
+      "type": Object {
+        "attribute": null,
+        "card": "seq",
+        "domain": <DOMAIN>,
+        "entity": "study_enrollment",
+        "name": "record",
+      },
+    },
+    "type": "record",
+    "value": "study_enrollment",
+  },
+}
+`;
+
+exports[`test context: study.study_enrollment 1`] = `
+Map {
+  "individual" => Object {
+    "card": null,
+    "context": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Individual",
+      "type": Object {
+        "attribute": null,
+        "card": null,
+        "domain": <DOMAIN>,
+        "entity": "individual",
+        "name": "record",
+      },
+    },
+    "groupBy": undefined,
+    "label": "Individual",
+    "regularContext": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Individual",
+      "type": Object {
+        "attribute": null,
+        "card": null,
+        "domain": <DOMAIN>,
+        "entity": "individual",
+        "name": "record",
+      },
+    },
+    "type": "record",
+    "value": "individual",
+  },
+  "study" => Object {
+    "card": null,
+    "context": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Study",
+      "type": Object {
+        "attribute": null,
+        "card": null,
+        "domain": <DOMAIN>,
+        "entity": "study",
+        "name": "record",
+      },
+    },
+    "groupBy": undefined,
+    "label": "Study",
+    "regularContext": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Study",
+      "type": Object {
+        "attribute": null,
+        "card": null,
+        "domain": <DOMAIN>,
+        "entity": "study",
+        "name": "record",
+      },
+    },
+    "type": "record",
+    "value": "study",
+  },
+}
+`;
+
+exports[`test context: void 1`] = `
+Map {
+  "individual" => Object {
+    "card": "seq",
+    "context": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Individual",
+      "type": Object {
+        "attribute": null,
+        "card": "seq",
+        "domain": <DOMAIN>,
+        "entity": "individual",
+        "name": "record",
+      },
+    },
+    "label": "Individual",
+    "regularContext": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Individual",
+      "type": Object {
+        "attribute": null,
+        "card": "seq",
+        "domain": <DOMAIN>,
+        "entity": "individual",
+        "name": "record",
+      },
+    },
+    "type": "record",
+    "value": "individual",
+  },
+  "study" => Object {
+    "card": "seq",
+    "context": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Study",
+      "type": Object {
+        "attribute": null,
+        "card": "seq",
+        "domain": <DOMAIN>,
+        "entity": "study",
+        "name": "record",
+      },
+    },
+    "label": "Study",
+    "regularContext": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Study",
+      "type": Object {
+        "attribute": null,
+        "card": "seq",
+        "domain": <DOMAIN>,
+        "entity": "study",
+        "name": "record",
+      },
+    },
+    "type": "record",
+    "value": "study",
+  },
+  "study_enrollment" => Object {
+    "card": "seq",
+    "context": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Study Enrollment",
+      "type": Object {
+        "attribute": null,
+        "card": "seq",
+        "domain": <DOMAIN>,
+        "entity": "study_enrollment",
+        "name": "record",
+      },
+    },
+    "label": "Study Enrollment",
+    "regularContext": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE [empty]>",
+      "title": "Study Enrollment",
+      "type": Object {
+        "attribute": null,
+        "card": "seq",
+        "domain": <DOMAIN>,
+        "entity": "study_enrollment",
+        "name": "record",
+      },
+    },
+    "type": "record",
+    "value": "study_enrollment",
+  },
+}
+`;
+
+exports[`test with query in scope 1`] = `
+Map {
+  "individual" => Object {
+    "card": "seq",
+    "context": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE individual-query>",
+      "title": "Individual",
+      "type": Object {
+        "attribute": null,
+        "card": "seq",
+        "domain": <DOMAIN>,
+        "entity": "individual",
+        "name": "record",
+      },
+    },
+    "label": "Individual",
+    "regularContext": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE individual-query>",
+      "title": "Individual",
+      "type": Object {
+        "attribute": null,
+        "card": "seq",
+        "domain": <DOMAIN>,
+        "entity": "individual",
+        "name": "record",
+      },
+    },
+    "type": "record",
+    "value": "individual",
+  },
+  "study" => Object {
+    "card": "seq",
+    "context": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE individual-query>",
+      "title": "Study",
+      "type": Object {
+        "attribute": null,
+        "card": "seq",
+        "domain": <DOMAIN>,
+        "entity": "study",
+        "name": "record",
+      },
+    },
+    "label": "Study",
+    "regularContext": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE individual-query>",
+      "title": "Study",
+      "type": Object {
+        "attribute": null,
+        "card": "seq",
+        "domain": <DOMAIN>,
+        "entity": "study",
+        "name": "record",
+      },
+    },
+    "type": "record",
+    "value": "study",
+  },
+  "study_enrollment" => Object {
+    "card": "seq",
+    "context": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE individual-query>",
+      "title": "Study Enrollment",
+      "type": Object {
+        "attribute": null,
+        "card": "seq",
+        "domain": <DOMAIN>,
+        "entity": "study_enrollment",
+        "name": "record",
+      },
+    },
+    "label": "Study Enrollment",
+    "regularContext": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE individual-query>",
+      "title": "Study Enrollment",
+      "type": Object {
+        "attribute": null,
+        "card": "seq",
+        "domain": <DOMAIN>,
+        "entity": "study_enrollment",
+        "name": "record",
+      },
+    },
+    "type": "record",
+    "value": "study_enrollment",
+  },
+  "individual-query" => Object {
+    "card": null,
+    "context": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE individual-query>",
+      "title": "Individual",
+      "type": Object {
+        "attribute": null,
+        "card": "seq",
+        "domain": <DOMAIN>,
+        "entity": "individual",
+        "name": "record",
+      },
+    },
+    "fromQuery": true,
+    "label": "Individual",
+    "regularContext": Object {
+      "domain": <DOMAIN>,
+      "hasInvalidType": false,
+      "prev": "<PREV CONTEXT>",
+      "scope": "<SCOPE individual-query>",
+      "title": "Individual",
+      "type": Object {
+        "attribute": null,
+        "card": "seq",
+        "domain": <DOMAIN>,
+        "entity": "individual",
+        "name": "record",
+      },
+    },
+    "type": "record",
+    "value": "individual-query",
+  },
+}
+`;

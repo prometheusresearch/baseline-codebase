@@ -2,16 +2,16 @@
  * @flow
  */
 
-import type {Context, Query, QueryPipeline, QueryPointer} from '../model';
+import type {Query, QueryPipeline, QueryPointer} from '../model';
 import type {Actions} from '../state';
+import type {SearchCallback} from './Search';
 
 import React from 'react';
 import {VBox, HBox} from 'react-stylesheet';
 import * as css from 'react-stylesheet/css';
 
-import * as t from '../model/Type';
-import * as q from '../model/Query';
 import * as qp from '../model/QueryPointer';
+import * as qn from '../model/QueryNavigation';
 
 import * as theme from './Theme';
 import {MenuGroup, MenuButton, MenuButtonSecondary} from './menu';
@@ -19,9 +19,11 @@ import QueryPanelBase from './QueryPanelBase';
 import {IconPlus} from './Icon';
 import TagLabel from './TagLabel';
 import Label from './Label';
+import NavigationMenu from './NavigationMenu';
 
 type AddColumnPanelProps = {
   pointer: QueryPointer<Query>;
+  onSearch: SearchCallback;
   onClose: () => *;
 };
 
@@ -37,7 +39,7 @@ export default class AddQueryPanel extends React.Component<*, AddColumnPanelProp
 
 
   render() {
-    let {pointer, ...props} = this.props;
+    let {pointer, onSearch, ...props} = this.props;
     let isTopLevel = pointer.path.length === 1;
     let title = isTopLevel
       ? 'Pick a starting relationship'
@@ -49,6 +51,7 @@ export default class AddQueryPanel extends React.Component<*, AddColumnPanelProp
         title={title}>
         <AddQueryMenu
           pointer={pointer}
+          onSearch={onSearch}
           />
       </QueryPanelBase>
     );
@@ -57,6 +60,7 @@ export default class AddQueryPanel extends React.Component<*, AddColumnPanelProp
 
 type AddQueryMenuProps = {
   pointer: QueryPointer<QueryPipeline>;
+  onSearch: SearchCallback;
 };
 
 class AddQueryMenu extends React.Component<*, AddQueryMenuProps, *> {
@@ -95,36 +99,31 @@ class AddQueryMenu extends React.Component<*, AddQueryMenuProps, *> {
   };
 
   render() {
-    let {pointer} = this.props;
-
-    let isAtRoot = pointer.query.context.type.name === 'void';
-
+    let {pointer: {query: {context}}, onSearch} = this.props;
+    let isAtRoot = context.type.name === 'void';
     return (
-      <MenuGroup title="Relationships">
+      <NavigationMenu onSearch={onSearch} context={context}>
         <AddQueryMenuSection
           noNavigate={isAtRoot}
           nonHierarchical={isAtRoot}
           onAdd={this.onAdd}
           onNavigate={this.onNavigate}
           onAggregate={this.onAggregate}
-          query={pointer.query}
+          context={context}
           path={[]}
           />
-      </MenuGroup>
+      </NavigationMenu>
     );
   }
 }
 
 function AddQueryMenuSection({
-  query, path, onAdd, onNavigate, onAggregate, noNavigate, nonHierarchical
+  context, path, onAdd, onNavigate, onAggregate, noNavigate, nonHierarchical,
+  navigation
 }) {
-  let prev = path[path.length - 2];
-  let nav = getNavigation(query.context, path)
-    // We filter out backlinks.
-    .filter(item => item.value !== prev);
   return (
-    <VBox>
-      {nav.map(item =>
+    <MenuGroup>
+      {Array.from(navigation.values()).map(item =>
         <AddQueryMenuButton
           nonHierarchical={nonHierarchical}
           noNavigate={noNavigate}
@@ -135,7 +134,7 @@ function AddQueryMenuSection({
           onNavigate={onNavigate}
           onAggregate={onAggregate}
           />)}
-    </VBox>
+    </MenuGroup>
   );
 }
 
@@ -149,7 +148,7 @@ class AddQueryMenuButton extends React.Component {
 
   toggleOpen = (e: UIEvent) => {
     e.stopPropagation();
-    if (this.props.item.query.context.type.name === 'record') {
+    if (this.props.item.context.type.name === 'record') {
       this.setState(state =>
         ({...state, open: !state.open}));
     }
@@ -186,7 +185,7 @@ class AddQueryMenuButton extends React.Component {
           key="navigate">
           Follow {item.label}
         </MenuButtonSecondary>,
-        item.pathType.card === 'seq' &&
+        item.regularContext.type.card === 'seq' &&
           <MenuButtonSecondary
             icon="∑"
             title={`Compute summarizations for ${item.label}`}
@@ -201,15 +200,14 @@ class AddQueryMenuButton extends React.Component {
 
     if (nonHierarchical) {
       icon = <IconPlus />;
-    } else if (item.query.context.type.name === 'record') {
+    } else if (item.context.type.name === 'record') {
       icon = open ? '▾' : '▸';
     }
 
     return (
-      <VBox style={{
-        background: '#f1f1f1',
-        borderBottom: open ? '1px solid #ddd' : 'none',
-      }}>
+      <VBox
+        background="#f1f1f1"
+        borderBottom={open ? '1px solid #ddd' : 'none'}>
         <MenuButton
           icon={icon}
           title={`Add ${item.label} query`}
@@ -226,86 +224,34 @@ class AddQueryMenuButton extends React.Component {
           </HBox>
         </MenuButton>
         {!nonHierarchical && open &&
-          <VBox
-            marginLeft={15}
-            style={{borderLeft: css.border(1, '#ddd')}}>
-            <AddQueryMenuSection
-              onAdd={onAdd}
-              onNavigate={onNavigate}
-              onAggregate={onAggregate}
-              query={item.query}
-              path={path}
-              noNavigate={noNavigate}
-            />
-          </VBox>}
+          <AddQueryMenuButtonMenu
+            onAdd={onAdd}
+            onNavigate={onNavigate}
+            onAggregate={onAggregate}
+            context={item.context}
+            path={path}
+            noNavigate={noNavigate}
+            />}
       </VBox>
     );
   }
 }
 
-function getNavigation(context: Context, path: Array<string>) {
-  let {type, scope, domain} = context;
-  let navigation = [];
-
-  // Collect paths from an input type
-  if (type.name === 'void') {
-    for (let k in domain.entity) {
-      if (domain.entity.hasOwnProperty(k)) {
-        let navQuery = q.inferQueryType(q.regularizeContext(context), q.navigate(k));
-        let pathType = q.inferQueryType(
-          path.length === 0 ? q.regularizeContext(context) : context,
-          q.navigate(k)
-        ).context.type;
-        navigation.push({
-          type: 'record',
-          value: k,
-          label: domain.entity[k].title,
-          query: navQuery,
-          fromQuery: false,
-          pathType,
-        });
-      }
-    }
-  } else if (type.name === 'record') {
-    let attribute = t.recordAttribute(type);
-    for (let k in attribute) {
-      if (attribute.hasOwnProperty(k)) {
-        let navQuery = q.inferQueryType(q.regularizeContext(context), q.navigate(k));
-        let pathType = q.inferQueryType(
-          path.length === 0 ? q.regularizeContext(context) : context,
-          q.navigate(k)
-        ).context.type;
-        navigation.push({
-          type: navQuery.context.type.name === 'record'
-            ? 'record'
-            : 'attribute',
-          value: k,
-          label: attribute[k].title || k,
-          query: navQuery,
-          fromQuery: false,
-          pathType,
-        });
-      }
-    }
-  }
-
-  for (let k in scope) {
-    if (scope.hasOwnProperty(k)) {
-      let navQuery = q.inferQueryType(q.regularizeContext(context), scope[k].query);
-      let pathType = q.inferQueryType(
-        path.length === 0 ? q.regularizeContext(context) : context,
-        q.navigate(k)
-      ).context.type;
-      navigation.push({
-        type: 'record',
-        value: k,
-        label: scope[k].query.context.title || k,
-        query: navQuery,
-        fromQuery: true,
-        pathType,
-      });
-    }
-  }
-
-  return navigation;
+function AddQueryMenuButtonMenu({onAdd, onNavigate, onAggregate, context, path, noNavigate}) {
+  let navigation = qn.getNavigation(context, false);
+  return (
+    <VBox
+      marginLeft={15}
+      borderLeft={css.border(1, '#ddd')}>
+      <AddQueryMenuSection
+        navigation={navigation}
+        onAdd={onAdd}
+        onNavigate={onNavigate}
+        onAggregate={onAggregate}
+        context={context}
+        path={path}
+        noNavigate={noNavigate}
+      />
+    </VBox>
+  );
 }

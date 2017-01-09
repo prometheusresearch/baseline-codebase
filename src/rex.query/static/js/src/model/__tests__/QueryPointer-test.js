@@ -1,5 +1,5 @@
 import * as q from '../Query';
-import {make, select, trace, root, rebase, move, prev} from '../QueryPointer';
+import {is, make, select, trace, root, rebase, move, prev} from '../QueryPointer';
 
 describe('make()', function() {
 
@@ -107,4 +107,11 @@ describe('move()', function() {
     expect(pm1.path).toEqual([['pipeline', 0]]);
   });
 
+});
+
+test('is()', function() {
+  let query = q.pipeline(q.navigate('individual'), q.navigate('name'));
+  expect(is(make(query), make(query))).toBeTruthy();
+  expect(is(make(query, ['pipeline', 0]), make(query))).toBeFalsy();
+  expect(is(make(query, ['pipeline', 0]), make(query, ['pipeline', 0]))).toBeTruthy();
 });

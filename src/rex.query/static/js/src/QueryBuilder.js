@@ -3,12 +3,12 @@
  */
 
 import type {Query, QueryPipeline, Domain} from './model';
+import type {SearchCallback} from './ui';
 
 import invariant from 'invariant';
 import React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
-import * as css from 'react-stylesheet/css';
-import {style, VBox, HBox} from 'react-stylesheet';
+import {css, style, VBox, HBox} from 'react-stylesheet';
 
 import * as Icon from './ui/Icon';
 import * as qp from './model/QueryPointer';
@@ -20,6 +20,7 @@ type QueryBuilderProps = {
   api: string;
   initialQuery: ?QueryPipeline;
   onQuery: (query?: ?Query) => *;
+  onSearch?: SearchCallback;
   toolbar?: ?React.Element<*>;
 };
 
@@ -128,6 +129,9 @@ export default class QueryBuilder extends React.Component {
               showPanel={showPanel}
               onShowSelect={this.actions.showSelect}
               />
+            {pointer.query.context.hasInvalidType &&
+              <InvalidQueryNotice
+                />}
           </LeftPanelWrapper>
           {(selected || insertAfter) && showPanel && (
             insertAfter ?
@@ -135,12 +139,14 @@ export default class QueryBuilder extends React.Component {
                 <ui.AddQueryPanel
                   onClose={this.actions.hidePanel}
                   pointer={insertAfter}
+                  onSearch={this.props.onSearch}
                   disableClose={disablePanelClose}
                   />
               </CenterPanelWrapper> : selected ?
               <CenterPanelWrapper>
                 <ui.QueryPanel
                   onClose={this.actions.hidePanel}
+                  onSearch={this.props.onSearch}
                   pointer={selected}
                   disableClose={disablePanelClose}
                   />
@@ -200,6 +206,15 @@ function InvalidQueryMessage({onUndo}) {
       </ReactUI.Button>
       to the previous state.
     </ui.Message>
+  );
+}
+
+function InvalidQueryNotice() {
+  return (
+    <ui.ErrorPanel borderTop>
+      The query is not valid, please either fix it or remove invalid query
+      combinators.
+    </ui.ErrorPanel>
   );
 }
 

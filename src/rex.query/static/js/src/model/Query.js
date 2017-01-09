@@ -7,6 +7,7 @@
 /* eslint-disable no-use-before-define */
 
 import invariant from 'invariant';
+import * as d from './Domain';
 import * as t from './Type';
 
 export type HereQuery = {
@@ -159,7 +160,7 @@ export type Context = {|
   prev: Context;
 
   // domain
-  domain: t.Domain;
+  domain: d.Domain;
 
   // scope which query can reference other queries from
   scope: Scope;
@@ -167,16 +168,19 @@ export type Context = {|
   // output type of the query, null means invalid type
   type: t.Type;
 
+  // if the query has an error somewhere
+  hasInvalidType: boolean;
+
   title: ?string;
 |};
 
 export const emptyScope: Scope = {};
-export const emptyDomain: t.Domain = {entity: {}, aggregate: {}};
 export const emptyContext = {
   prev: ((null: any): Context),
-  type: t.voidType(emptyDomain),
+  type: t.voidType(d.emptyDomain),
+  hasInvalidType: false,
   scope: emptyScope,
-  domain: emptyDomain,
+  domain: d.emptyDomain,
   title: null,
 };
 
@@ -278,8 +282,9 @@ function withType(context: Context, type: t.Type): Context {
   return (nextContext: Context);
 }
 
-function withInvalidType(context: Context): Context {
-  return withType(context, t.invalidType(context.domain));
+function withHasInvalidType(context: Context): Context {
+  let nextContext: any = {...context, hasInvalidType: true};
+  return (nextContext: Context);
 }
 
 export function regularizeContext(context: Context): Context {
@@ -291,43 +296,49 @@ export function regularizeContext(context: Context): Context {
 export function inferExpressionType(context: Context, query: Expression): Expression {
   if (query.name === 'logicalBinary') {
     let expressions = query.expressions.map(expression => inferExpressionType(context, expression));
-    if (expressions.some(expression => expression.context.type.name === 'invalid')) {
-      context = withInvalidType(context);
+    if (expressions.some(expression => expression.context.hasInvalidType)) {
+      context = withHasInvalidType(context);
     }
     return {
       name: 'logicalBinary',
       op: query.op,
       expressions,
-      context,
+      context: withType(context, t.booleanType(context.domain)),
     };
   } else if (query.name === 'unary') {
     let expression = inferExpressionType(context, query.expression);
-    if (expression.context.type.name === 'invalid') {
-      context = withInvalidType(context);
+    if (expression.context.hasInvalidType) {
+      context = withHasInvalidType(context);
     }
     return {
       name: 'unary',
       op: query.op,
       expression,
-      context,
+      context: withType(context, t.booleanType(context.domain)),
     };
   } else if (query.name === 'value') {
+    let type = t.textType(context.domain);
+    if (typeof query.value === 'boolean') {
+      type = t.booleanType(context.domain);
+    } else if (typeof query.value === 'number') {
+      type = t.numberType(context.domain);
+    }
     return {
       name: 'value',
       value: query.value,
-      context,
+      context: withType(context, type),
     };
   } else if (query.name === 'binary') {
     let left = inferExpressionType(context, query.left);
     let right = inferExpressionType(context, query.right);
-    if (left.context.type.name === 'invalid' || right.context.type.name === 'invalid') {
-      context = withInvalidType(context);
+    if (left.context.hasInvalidType || right.context.hasInvalidType) {
+      context = withHasInvalidType(context);
     }
     return {
       name: 'binary',
       op: query.op,
       left, right,
-      context,
+      context: withType(context, t.booleanType(context.domain)),
     };
   } else if (query.name === 'navigate') {
     return inferQueryType(context, query);
@@ -343,6 +354,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
     domain,
     scope,
     type: t.invalidType(domain),
+    hasInvalidType: true,
     title: null,
   };
   let nextQuery = transformQuery(query, {
@@ -365,10 +377,12 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         return withContext(query, context);
       }
       let nextPipeline = [];
+      let hasInvalidType = false;
       let nextContext = query.pipeline.reduce(
         (context, query) => {
           let q = inferQueryType(context, query);
           nextPipeline.push(q);
+          hasInvalidType = hasInvalidType || q.context.hasInvalidType;
           return q.context;
         },
         context
@@ -379,6 +393,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         context: {
           ...nextContext,
           prev: context,
+          hasInvalidType,
           title: genQueryNameFromPipeline(nextPipeline),
         },
       };
@@ -394,6 +409,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
           type: predicate.context.type.name === 'invalid'
             ? t.invalidType(domain)
             : context.type,
+          hasInvalidType: predicate.context.hasInvalidType,
           title: expressionTitle == null
             ? 'Filter'
             : `Filter by ${expressionTitle}`,
@@ -410,6 +426,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
       let baseType = t.regType(type);
       let nextSelect = {};
       let attribute = {};
+      let hasInvalidType = false;
       for (let k in query.select) {
         if (query.select.hasOwnProperty(k)) {
           let q = inferQueryType({
@@ -417,10 +434,15 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
             domain,
             scope,
             type: baseType,
+            hasInvalidType: false,
             title: null,
           }, query.select[k]);
           nextSelect[k] = q;
-          attribute[k] = {type: q.context.type};
+          attribute[k] = {
+            type: q.context.type,
+            title: q.context.title || k
+          };
+          hasInvalidType = hasInvalidType || q.context.hasInvalidType;
         }
       }
       return {
@@ -431,6 +453,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
           domain,
           scope,
           type: t.leastUpperBound(type, t.recordType(domain, attribute)),
+          hasInvalidType,
           title: null,
         }
       };
@@ -444,6 +467,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         domain,
         scope,
         type: t.regType(context.type),
+        hasInvalidType: false,
         title: null,
       }, query.binding.query);
       let nextScope = {
@@ -465,6 +489,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
           domain,
           scope: nextScope,
           type,
+          hasInvalidType: binding.query.context.hasInvalidType,
           title: genQueryName(binding.query),
         }
       };
@@ -483,11 +508,12 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
       let title = aggregate.title;
 
       if (query.path != null) {
-        let contextAfterNavigate = inferQueryType(context, navigate(query.path)).context;
+        const path = query.path;
+        const contextAfterNavigate = inferQueryType(context, navigate(path)).context;
         domain = contextAfterNavigate.domain;
         scope = contextAfterNavigate.scope;
         type = contextAfterNavigate.type;
-        title = `${contextAfterNavigate.title || query.path} ${title}`;
+        title = `${contextAfterNavigate.title || path} ${title}`;
       }
 
       // TODO: validate input type
@@ -500,6 +526,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         domain,
         scope: {},
         type: aggregate.makeType(type),
+        hasInvalidType: false,
         title,
       });
     },
@@ -529,6 +556,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
             scope,
             domain,
             type: context.type,
+            hasInvalidType: false,
             title: 'Group'
           },
         };
@@ -566,7 +594,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         domain,
         scope: {},
         type: t.seqType(t.recordType(domain, attribute)),
-        // TODO: generate title here
+        hasInvalidType: false,
         title: `Group by ${byPathTitleList.join(', ')}`
       });
     },
@@ -583,6 +611,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
             domain,
             scope: {},
             type: t.leastUpperBound(type, field.type),
+            hasInvalidType: false,
             title: field.title,
           });
         }
@@ -597,6 +626,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
             domain,
             scope: {},
             type: inferQueryType(context, definitionQuery).context.type,
+            hasInvalidType: false,
             title: definition.query.context.title,
           });
         }
@@ -610,6 +640,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
             domain,
             scope,
             type: t.seqType(t.entityType(domain, query.path)),
+            hasInvalidType: false,
             title: entity.title,
           });
         }
@@ -620,6 +651,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
             domain,
             scope,
             type: inferQueryType(context, definition.query).context.type,
+            hasInvalidType: false,
             title: definition.query.context.title,
           });
         }
@@ -634,17 +666,23 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
   return ((nextQuery: any): Q);
 }
 
-/**
- * Infer the type of the query in context of a domain.
- */
-export function inferType<Q: Query>(domain: t.Domain, query: Q): Q {
+export function voidContext(domain: d.Domain): Context {
   let context = {
     prev: emptyContext,
     domain,
     type: t.voidType(domain),
-    scope: {}
+    hasInvalidType: false,
+    scope: {},
+    title: null,
   };
-  return inferQueryType(context, query);
+  return context;
+}
+
+/**
+ * Infer the type of the query in context of a domain.
+ */
+export function inferType<Q: Query>(domain: d.Domain, query: Q): Q {
+  return inferQueryType(voidContext(domain), query);
 }
 
 function regularizePipeline(query: QueryPipeline): QueryPipeline {
@@ -657,19 +695,6 @@ function regularizePipeline(query: QueryPipeline): QueryPipeline {
     };
   }
   return query;
-}
-
-export function flattenPipeline(query: QueryPipeline): QueryPipeline {
-  let pipeline = [];
-  for (let i = 0; i < query.pipeline.length; i++) {
-    let item = query.pipeline[i];
-    if (item.name === 'pipeline') {
-      pipeline = pipeline.concat(flattenPipeline(item));
-    } else {
-      pipeline.push(item);
-    }
-  }
-  return {name: 'pipeline', pipeline, context: query.context};
 }
 
 type TransformQuery<A, B, C, R = Query> = {
@@ -881,26 +906,17 @@ export function mapExpressionWithTransform<A, B, C>(
 /**
  * Resolve path in the current context.
  */
-export function resolvePath(context: Context, path: Array<string>): t.Type {
-  let query = select({
-    __a__: pipeline(...path.map(item => navigate(item)))
-  });
-  // TODO: just use `inferQueryType(regularizeContext(context), query)`
-  let type = inferQueryType(context, query).context.type;
-  invariant(
-    type.name === 'record',
-    'Impossible'
-  );
-  let attribute = t.recordAttribute(type);
-  invariant(
-    attribute.__a__ != null,
-    'Impossible'
-  );
-  return attribute.__a__.type;
+export function inferTypeAtPath(context: Context, path: Array<string>): t.Type {
+  let query = pipeline(...path.map(item => navigate(item)));
+  return inferQueryType(regularizeContext(context), query).context.type;
 }
 
-export function genQueryName(query: QueryPipeline): ?string {
-  return genQueryNameFromPipeline(query.pipeline);
+export function genQueryName(query: Query): ?string {
+  if (query.name === 'pipeline') {
+    return genQueryNameFromPipeline(query.pipeline);
+  } else {
+    return genQueryNameFromPipeline([query]);
+  }
 }
 
 export function genQueryNameFromPipeline(pipeline: Array<Query>): ?string {
@@ -968,7 +984,7 @@ function modifyExpressionContext(
   return nextExpression;
 }
 
-function genExpressionName(expression: Expression): ?string {
+export function genExpressionName(expression: Expression): ?string {
   if (expression.name === 'logicalBinary' && expression.op === 'or') {
     let fields = [];
     expression.expressions.forEach(expr => {

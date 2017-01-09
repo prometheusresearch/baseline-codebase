@@ -16,7 +16,10 @@ export function stripContext(query) {
 }
 
 export function stripDomain(query) {
-  return strip(query, query => ({...query, context: {type: query.context.type}}));
+  return strip(query, query => ({
+    ...query,
+    context: {type: query.context.type, hasInvalidType: query.context.hasInvalidType}
+  }));
 }
 
 // TODO: remove that by fixing test discovery

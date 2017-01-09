@@ -39,7 +39,7 @@ class QueryVisButton extends React.Component {
   render() {
     let {pointer, selected, ...props} = this.props;
     let isSelected = selected && qp.is(selected, pointer);
-    let isInvalid = pointer.query.context.type.name === 'invalid';
+    let isInvalid = pointer.query.context.hasInvalidType;
     return (
       <QueryVisButtonBase
         {...props}
@@ -90,7 +90,7 @@ export function QueryVisNavigateButton(props: {
       closeable
       stylesheet={{Root: QueryPane.NavigatePane, Button: QueryButton.NavigateButton}}
       pointer={pointer}
-      label={pointer.query.context.title}
+      label={pointer.query.context.title || pointer.query.path}
       />
   );
 }

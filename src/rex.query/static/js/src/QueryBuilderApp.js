@@ -14,6 +14,7 @@ import {fetchCatalog} from './fetch';
 const API = (typeof __rex_root__ !== 'undefined' ? __rex_root__ : '') + '/query/';
 
 export default class QueryBuilderApp extends React.Component {
+
   state: {domain: ?Domain} = {
     domain: null,
   };
@@ -27,25 +28,6 @@ export default class QueryBuilderApp extends React.Component {
   render() {
     let {domain} = this.state;
     let {api} = this.props;
-
-// XXX: Just some place to make a predefined query, this is useful for debug but
-// make sure we remove it before the release!
-//
-//  let q = require('./model/Query');
-//  let qq = q.pipeline(
-//    q.here,
-//    q.def(
-//      'study count',
-//      q.pipeline(
-//        q.navigate('study'),
-//        q.aggregate('count'),
-//      )
-//    ),
-//    q.select({
-//      'study count': q.pipeline(q.navigate('study count')),
-//    }),
-//  );
-
     if (domain == null) {
       return (
         <Message height="100%">
@@ -59,6 +41,7 @@ export default class QueryBuilderApp extends React.Component {
           domain={domain}
           initialQuery={this.props.initialQuery}
           onQuery={this.props.onQuery}
+          onSearch={this.props.onSearch}
           toolbar={this.props.toolbar}
           />
       );

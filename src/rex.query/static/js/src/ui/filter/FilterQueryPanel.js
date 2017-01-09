@@ -12,7 +12,7 @@ import * as ReactUI from '@prometheusresearch/react-ui';
 
 import * as Icon from '../../ui/Icon';
 import * as q from '../../model/Query';
-import * as nav from '../../model/navigation';
+import * as qn from '../../model/QueryNavigation';
 import * as Theme from '../Theme';
 import QueryPanelBase from '../QueryPanelBase';
 import {MenuGroup, MenuButton} from '../menu';
@@ -62,16 +62,19 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
   constructor(props: FilterQueryPanelProps) {
     super(props);
     let {predicate} = props.pointer.query;
-    let isValidPredicate = (
+    if (
       predicate.name === 'logicalBinary' &&
       predicate.op === 'or' &&
       predicate.expressions.length > 0
-    );
-    this.state = {
-      expressions: isValidPredicate
-        ? predicate.expressions
-        : [q.value(true)],
-    };
+    ) {
+      this.state = {
+        expressions: predicate.expressions,
+      };
+    } else {
+      this.state = {
+        expressions: [q.value(true)],
+      };
+    }
   }
 
   componentWillReceiveProps(nextProps: FilterQueryPanelProps) {
@@ -87,7 +90,8 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
     let {onClose, pointer} = this.props;
     let {expressions} = this.state;
 
-    let fields = nav.getNavigationAfter(pointer.query.context).filter(field => {
+    let navigation = Array.from(qn.getNavigation(pointer.query.context).values());
+    let fields = navigation.filter(field => {
       let type = field.context.type;
       return type.name !== 'invalid';
     });
@@ -102,15 +106,17 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
           <Element
             border={!isInvalid ? 'none' : `1px solid ${Theme.invalid.borderColor}`}
             padding={{horizontal: 5, vertical: 10}}>
-            <Element
-              textAlign="right"
-              marginBottom={5}>
-              <ReactUI.QuietButton
-                size="x-small"
-                icon={<Icon.IconRemove />}
-                onClick={this.onConditionRemove.bind(this, idx)}
-                />
-            </Element>
+            {expressions.length > 1 &&
+              <Element
+                textAlign="right"
+                marginBottom={5}>
+                <ReactUI.QuietButton
+                  size="x-small"
+                  title="Remove filter condition"
+                  icon={<Icon.IconRemove />}
+                  onClick={this.onConditionRemove.bind(this, idx)}
+                  />
+              </Element>}
             <Element verticalAlign="middle">
               <FilterCondition
                 fields={fields}

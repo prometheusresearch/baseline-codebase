@@ -8,8 +8,8 @@
 6.1.0 (2016-xx-xx)
 ==================
 
-* HTSQL==2.3.3.20161123
-* HTSQL-PGSQL==2.3.3.20161123
+* HTSQL==2.3.3.20170105
+* HTSQL-PGSQL==2.3.3.20170105
 * rex.deploy==2.9.0
 * rex.instrument==1.7.1
 * rex.forms==2.3.0

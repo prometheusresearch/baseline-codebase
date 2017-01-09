@@ -66,7 +66,7 @@ export let cutAt = ({loc}: {loc: QueryPointerState}) => {
 /**
  * Transform query at pointer.
  */
-export let transformAt = ({loc: {pointer, selected}, transform}: {
+export let transformAt = ({loc: {pointer, selected}, transform, transformPipeline}: {
   loc: QueryPointerState;
   transform: (
     query: Query,
@@ -75,12 +75,16 @@ export let transformAt = ({loc: {pointer, selected}, transform}: {
     query: Query;
     selected?: ?QueryPointer<*>;
   };
+  transformPipeline?: (QueryPipeline) => QueryPipeline;
 }) => {
   let {
     query: nextValue,
     selected: diffSelected
   } = transform(pointer.query, selected);
-  let nextQuery = transformAtPointer(pointer, {type: 'replace', value: nextValue});
+  let nextQuery = transformAtPointer(pointer, {
+    type: 'replace',
+    value: nextValue
+  }, transformPipeline);
   let nextSelected = selected != null && nextQuery != null
     ? qp.select(
         qp.rebase(selected, nextQuery),

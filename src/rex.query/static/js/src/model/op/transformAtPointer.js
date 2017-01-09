@@ -12,7 +12,8 @@ import transformAtKeyPath from './transformAtKeyPath';
 
 export default function transformAtPointer(
   pointer: QueryPointer<*>,
-  transform: Transform
+  transform: Transform,
+  transformPipeline?: (QueryPipeline) => QueryPipeline
 ): QueryPipeline {
   if (qp.prev(pointer) == null) {
     if (transform.type === 'insertAfter') {
@@ -29,15 +30,18 @@ export default function transformAtPointer(
     let query = pointer.query;
     let pPrev = qp.prev(p);
     while (p != null && pPrev != null) {
-      query = transformAtKeyPath(
-        pPrev.query,
-        p.path[p.path.length - 1],
-        p === pointer
-          ? transform
-          : {type: 'replace', value: query}
-      );
+      let transformQueryWith = null;
+      if (p === pointer) {
+        transformQueryWith = transform;
+      } else {
+        transformQueryWith = {type: 'replace', value: query};
+      }
+      query = transformAtKeyPath(pPrev.query, p.path[p.path.length - 1], transformQueryWith);
       if (query == null) {
         return q.pipeline(q.here);
+      }
+      if (p === pointer && transformPipeline) {
+        query = (transformPipeline(query): any);
       }
       p = pPrev;
       pPrev = qp.prev(p);

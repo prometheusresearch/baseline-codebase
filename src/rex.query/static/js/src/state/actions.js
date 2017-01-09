@@ -248,7 +248,18 @@ export function replace(
     pointer = qp.rebase(pointer, state.query);
     let {query: nextQuery} = op.transformAt({
       loc: {pointer, selected: pointer},
-      transform: prevQuery => ({query})
+      transform: prevQuery => ({query}),
+      transformPipeline: (pipeline) => {
+        if (pointer.query.name === 'navigate' &&
+            pipeline.pipeline[pipeline.pipeline.length - 1].name === 'select') {
+          return {
+            ...pipeline,
+            pipeline: pipeline.pipeline.slice(0, pipeline.pipeline.length - 1),
+          };
+        } else {
+          return pipeline;
+        }
+      },
     });
     return onQuery(state, nextQuery, state.selected);
   };

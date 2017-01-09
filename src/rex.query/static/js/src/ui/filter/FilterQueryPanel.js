@@ -135,8 +135,8 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
         onClose={onClose}
         theme={Theme.filter}
         pointer={pointer}>
-        <ReactUI.VBox padding={0}>
-          <ReactUI.VBox padding={5}>
+        <ReactUI.VBox overflow="visible" padding={0}>
+          <ReactUI.VBox overflow="visible" padding={5}>
             {conditions}
           </ReactUI.VBox>
           <MenuGroup padding={{vertical: 20}}>

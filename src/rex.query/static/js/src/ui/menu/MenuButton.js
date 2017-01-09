@@ -223,7 +223,7 @@ let MenuButtonIconWrapper = style(VBox, {
   }
 });
 
-let MenuButtonLabelWrapper = style(Element, {
+let MenuButtonLabelWrapper = style(VBox, {
   displayName: 'MenuButtonLabelWrapper',
   base: {
     paddingLeft: 10,
@@ -232,6 +232,7 @@ let MenuButtonLabelWrapper = style(Element, {
     textOverflow: 'ellipsis',
     overflow: 'hidden',
     width: '100%',
+    height: '100%',
   },
   hoverStyle: {
     hover: {

@@ -137,7 +137,6 @@ export default class QueryBuilder extends React.Component {
             insertAfter ?
               <CenterPanelWrapper>
                 <ui.AddQueryPanel
-                  key={insertAfter.path.join(':')}
                   onClose={this.actions.hidePanel}
                   pointer={insertAfter}
                   onSearch={this.props.onSearch}
@@ -146,7 +145,6 @@ export default class QueryBuilder extends React.Component {
               </CenterPanelWrapper> : selected ?
               <CenterPanelWrapper>
                 <ui.QueryPanel
-                  key={selected.path.join(':')}
                   onClose={this.actions.hidePanel}
                   onSearch={this.props.onSearch}
                   pointer={selected}

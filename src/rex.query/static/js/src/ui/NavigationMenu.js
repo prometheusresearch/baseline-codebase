@@ -52,6 +52,16 @@ export default class NavigationMenu extends React.Component<*, NavigationMenuPro
     this.mounted = false;
   }
 
+  componentWillReceiveProps(nextProps: NavigationMenuProps) {
+    if (nextProps.context !== this.props.context) {
+      this.setState({
+        searchTerm: null,
+        searchInProgress: false,
+        navigation: qn.getNavigation(nextProps.context),
+      });
+    }
+  }
+
   onSearchTerm = (e: UIEvent) => {
     let target: {value: string} = (e.target: any);
     let searchTerm = target.value === '' ? null : target.value;

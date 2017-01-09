@@ -312,7 +312,7 @@ function cellRenderer({
         return null;
       }
     } else if (type.name === 'number') {
-      return <NumberCell>{cellData}</NumberCell>;
+      return <NumberCell>{String(cellData)}</NumberCell>;
     } else if (type.name === 'date') {
       return String(cellData)
     } else if (type.name === 'time') {

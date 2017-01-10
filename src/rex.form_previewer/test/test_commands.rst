@@ -253,7 +253,7 @@ client::
     Content-Length: ...
     Set-Cookie: ...
     <BLANKLINE>
-    {"status": "ERROR", "message": "Unable to calculate expression assessment['q_fake'].upper(): 'NoneType' object has no attribute 'upper'"}
+    {"status": "ERROR", "message": "Unable to calculate expression assessment['q_fake'].upper(): 'NoneType' object has no attribute 'upper'\nWhile executing calculation:\n    uppercased"}
 
 It complains if you give it a bad Assessment::
 

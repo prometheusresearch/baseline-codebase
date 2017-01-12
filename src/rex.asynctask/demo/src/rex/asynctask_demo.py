@@ -40,3 +40,13 @@ class FragileWorker(AsyncTaskWorker):
             sys.exit()
         print 'FRAGILE processed: %r' % (payload,)
 
+
+class RequeueWorker(AsyncTaskWorker):
+    name = 'requeue_worker'
+
+    def process(self, payload):
+        print 'REQUEUE processed: %r' % (payload,)
+        if payload['foo'] == 1:
+            self.requeue({'foo': 2})
+            print 'REQUEUE requeued'
+

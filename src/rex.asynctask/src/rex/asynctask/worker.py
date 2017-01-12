@@ -41,15 +41,18 @@ class AsyncTaskWorker(Extension):
 
     def __init__(self):
         self.logger = get_logger(self)
+        self._transport = None
+        self._queue_name = None
 
     def __call__(self, conn, queue_name):
         self.logger.info('Starting; queue=%s', queue_name)
+        self._transport = get_transport()
+        self._queue_name = queue_name
 
-        transport = get_transport()
         sleep_duration = self.get_poll_interval() / 1000.0
 
         while not check_for_termination(conn):
-            payload = transport.get_task(queue_name)
+            payload = self._transport.get_task(queue_name)
             if payload is not None:
                 self.logger.debug('Got payload: %r', payload)
                 try:
@@ -69,6 +72,8 @@ class AsyncTaskWorker(Extension):
                 except KeyboardInterrupt:  # pragma: no cover
                     pass
 
+        self._queue_name = None
+        self._transport = None
         self.logger.info('Terminating')
 
     def get_poll_interval(self):
@@ -94,6 +99,18 @@ class AsyncTaskWorker(Extension):
         """
 
         raise NotImplementedError()
+
+    def requeue(self, payload):
+        """
+        A convenience method for resubmitting a payload back into the queue.
+
+        :param payload: the payload to resubmit.
+        :type payload: dict
+        """
+
+        if self._transport and self._queue_name:
+            self._transport.submit_task(self._queue_name, payload)
+        self.logger.debug('Requeued payload: %r', payload)
 
 
 def check_for_termination(comm):

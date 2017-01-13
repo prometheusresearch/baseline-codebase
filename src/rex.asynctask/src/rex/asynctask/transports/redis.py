@@ -83,6 +83,12 @@ class RedisAsyncTransport(AsyncTransport):
         payload = self.decode_payload(self._redis.lpop(queue_name))
         return payload
 
+    def poll_queue(self, queue_name):
+        self.ensure_valid_name(queue_name)
+        queue_name = '_'.join([self.key_prefix, queue_name])
+        count = self._redis.llen(queue_name)
+        return count
+
     def __repr__(self):
         return '%s(%s)' % (
             self.__class__.__name__,

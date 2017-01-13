@@ -21,14 +21,20 @@ expected::
     >>> transport
     RedisAsyncTransport(localhost)
 
+    >>> transport.poll_queue('foo')
+    0
     >>> transport.submit_task('foo', {'foo': 1})
     >>> transport.submit_task('foo', {'foo': 2})
+    >>> transport.poll_queue('foo')
+    2
     >>> transport.get_task('foo')
     {u'foo': 1}
     >>> transport.get_task('foo')
     {u'foo': 2}
     >>> transport.get_task('foo') is None
     True
+    >>> transport.poll_queue('foo')
+    0
 
     >>> transport.submit_task('foo', {'foo': 3})
     >>> transport.get_task('foo')
@@ -64,11 +70,11 @@ It will immediately raise an error when you specify a database that cannot be
 connected to::
 
     >>> rex.on()
-    >>> transport = get_transport('redis://hostname_that_doesnt_exist')
+    >>> transport = get_transport('redis://hostname_that_doesnt_exist')  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
     Error: Failed to connect to the Redis server:
-        Error 8 connecting to hostname_that_doesnt_exist:6379. nodename nor servname provided, or not known.
+        Error ... connecting to hostname_that_doesnt_exist:6379. ... not known.
 
     >>> rex.off()
 

@@ -54,6 +54,11 @@ class LocalMemoryAsyncTransport(AsyncTransport):
 
         return payload
 
+    def poll_queue(self, queue_name):
+        self.ensure_valid_name(queue_name)
+        count = len(self._queues.get(queue_name, []))
+        return count
+
     @contextmanager
     def _lock(self, name):
         self._locks[name].acquire()

@@ -76,6 +76,14 @@ WHERE
     id = %s
 '''
 
+SQL_COUNT = '''
+SELECT COUNT(*)
+FROM
+    asynctask_queue
+WHERE
+    queue_name = %s
+'''
+
 
 class PostgresAsyncTransport(AsyncTransport):
     """
@@ -178,6 +186,20 @@ class PostgresAsyncTransport(AsyncTransport):
                     )
                 )
         return payload
+
+    def poll_queue(self, queue_name):
+        self.ensure_valid_name(queue_name)
+        with self._lock(queue_name) as cur:
+            cur.execute(
+                SQL_COUNT,
+                (
+                    queue_name,
+                )
+            )
+            result = cur.fetchone()
+            if result:
+                result = int(result[0])
+            return result
 
     @contextmanager
     def _lock(self, name):

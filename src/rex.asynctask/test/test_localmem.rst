@@ -18,14 +18,20 @@ Basic Operations
 The basic operations of submitting and retrieving tasks should work as
 expected::
 
+    >>> transport.poll_queue('foo')
+    0
     >>> transport.submit_task('foo', {'foo': 1})
     >>> transport.submit_task('foo', {'foo': 2})
+    >>> transport.poll_queue('foo')
+    2
     >>> transport.get_task('foo')
     {u'foo': 1}
     >>> transport.get_task('foo')
     {u'foo': 2}
     >>> transport.get_task('foo') is None
     True
+    >>> transport.poll_queue('foo')
+    0
 
     >>> transport.submit_task('foo', {'foo': 3})
     >>> transport.get_task('foo')

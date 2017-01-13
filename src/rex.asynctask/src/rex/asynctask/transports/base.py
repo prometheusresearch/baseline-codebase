@@ -166,6 +166,20 @@ class AsyncTransport(Extension):
 
         raise NotImplementedError()
 
+    def poll_queue(self, queue_name):
+        """
+        Counts the number of tasks in the specified queue.
+        
+        Must be implemented by concrete classes.
+
+        :param queue_name: the name of the queue to poll
+        :type queue_name: str
+        :returns:
+            the number of tasks in the queue; 0 if queue does not exist
+        """
+
+        raise NotImplementedError()
+
     def __repr__(self):
         return self.__class__.__name__
 

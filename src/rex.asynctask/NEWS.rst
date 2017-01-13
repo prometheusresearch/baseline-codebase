@@ -10,8 +10,10 @@ REX.ASYNCTASK Change Log
 
 * Fixed issue with handling an ``asynctask_transport`` setting that looked like
   ``pgsql://databasename``.
-* Added a ``requeue`` method to ``AsyncTaskWorker`` to make resubmitting a task
-  easier.
+* Added a ``requeue()`` method to ``AsyncTaskWorker`` to make resubmitting a
+  task easier.
+* Added a ``poll_queue()`` method to ``AsyncTransport`` to find how many tasks
+  are currently waiting in a queue for processing.
 
 
 0.3.1 (2016-08-12)

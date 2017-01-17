@@ -23,11 +23,12 @@ export default class QueryBuilderApp extends React.Component {
     api: API,
     initialQuery: null,
     onQuery: null,
+    limitSelectQuery: 10000,
   };
 
   render() {
     let {domain} = this.state;
-    let {api} = this.props;
+    let {api, initialQuery, limitSelectQuery} = this.props;
     if (domain == null) {
       return (
         <Message height="100%">
@@ -39,7 +40,8 @@ export default class QueryBuilderApp extends React.Component {
         <QueryBuilder
           api={api}
           domain={domain}
-          initialQuery={this.props.initialQuery}
+          initialQuery={initialQuery}
+          limitSelectQuery={limitSelectQuery}
           onQuery={this.props.onQuery}
           onSearch={this.props.onSearch}
           toolbar={this.props.toolbar}

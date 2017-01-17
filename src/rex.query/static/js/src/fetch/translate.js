@@ -5,7 +5,6 @@
 import type {Query, QueryPipeline, NavigateQuery, Expression} from '../model';
 
 import invariant from 'invariant';
-import * as feature from '../feature';
 import * as q from '../model/Query';
 
 const HERE = ['here'];
@@ -30,18 +29,26 @@ const BINARY_OP_ENCODE = {
   'contains': '~',
 };
 
-type SerializedQuery
+export type SerializedQuery
   = Array<SerializedQuery>
   | string
   | boolean
   | number
   | null;
 
+export type TranslateOptions = {
+
+  /**
+   * Limit the output of seqs in select combinators
+   */
+  limitSelect?: ?number;
+};
+
 /**
  * Translate UI query model into query syntax.
  */
-export default function translate(query: Query): SerializedQuery {
-  return translateQuery(query, HERE);
+export default function translate(query: Query, options: TranslateOptions = {}): SerializedQuery {
+  return translateQuery(query, HERE, options);
 }
 
 function regularizeName(name) {
@@ -142,7 +149,8 @@ function partitionPipeline(query: QueryPipeline): [?Query, QueryPipeline] {
 
 function translateQuery(
   query: Query,
-  prev: SerializedQuery
+  prev: SerializedQuery,
+  options: TranslateOptions
 ): SerializedQuery {
   switch (query.name) {
     case 'here':
@@ -150,7 +158,7 @@ function translateQuery(
 
     case 'pipeline': {
       let res = query.pipeline.reduce((prev, q) => {
-        return translateQuery(q, prev);
+        return translateQuery(q, prev, options);
       }, prev);
       return ((res: any): SerializedQuery);
     }
@@ -166,12 +174,12 @@ function translateQuery(
         prev,
         ['=>',
           path,
-          translate(pipeline)],
+          translate(pipeline, options)],
         ['=>',
           query.binding.name,
           select != null
-            ? translate(q.pipeline(q.navigate(path), select))
-            : translate(q.navigate(path))]
+            ? translate(q.pipeline(q.navigate(path), select), options)
+            : translate(q.navigate(path), options)]
       ];
     }
 
@@ -179,13 +187,13 @@ function translateQuery(
       let fields = [];
       for (let k in query.select) {
         if (query.select.hasOwnProperty(k)) {
-          let kquery = translateQuery(query.select[k], HERE);
+          let kquery = translateQuery(query.select[k], HERE, options);
           fields.push(['=>', k, kquery]);
         }
       }
-      if (feature.FEATURE_ARTIFICIAL_DATASET_LIMIT != null) {
+      if (options.limitSelect != null) {
         if (Array.isArray(prev) && prev[0] === 'navigate') {
-          prev = ['take', prev, feature.FEATURE_ARTIFICIAL_DATASET_LIMIT];
+          prev = ['take', prev, options.limitSelect];
         }
       }
       return ['select', prev].concat(fields);
@@ -193,7 +201,7 @@ function translateQuery(
 
     case 'aggregate': {
       if (query.path != null) {
-        prev = translateQuery(q.navigate(query.path), prev);
+        prev = translateQuery(q.navigate(query.path), prev, options);
       }
       return [query.aggregate, prev];
     }

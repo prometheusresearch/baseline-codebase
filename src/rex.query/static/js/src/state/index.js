@@ -8,6 +8,9 @@ import type {
   Domain,
   QueryPointer
 } from '../model';
+import type {
+  TranslateOptions
+} from '../fetch/translate';
 
 import * as q from '../model/Query';
 import * as qp from '../model/QueryPointer';
@@ -103,6 +106,13 @@ export type State = {
    */
   focusedSeq: Focus.Focus;
 
+  /**
+   * Query translation options.
+   *
+   * We put it in state because we probably will make it configurable through
+   * the UI.
+   */
+  translateOptions: TranslateOptions;
 };
 
 export type StateUpdater =
@@ -118,12 +128,14 @@ export type Params = {
   api: string;
   domain: Domain;
   initialQuery?: ?QueryPipeline;
+  translateOptions: TranslateOptions;
 };
 
 export function getInitialState({
   api,
   domain,
-  initialQuery
+  initialQuery,
+  translateOptions,
 }: Params): State {
 
   let query = initialQuery || q.pipeline(q.here);
@@ -157,6 +169,7 @@ export function getInitialState({
     undoStack: [],
     redoStack: [],
     focusedSeq,
+    translateOptions,
   };
 
   return state;

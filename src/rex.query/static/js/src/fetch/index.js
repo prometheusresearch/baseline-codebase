@@ -2,6 +2,7 @@
  * @flow
  */
 
+import type {TranslateOptions} from './translate';
 import type {Query, Domain} from '../model';
 import type {Catalog} from '../model/RexQueryCatalog';
 
@@ -22,7 +23,7 @@ function fetchJSON(api: string, data: mixed): Promise<Object> {
   }).then(response => response.json());
 }
 
-export function initiateDownload(api: string, query: Query): Promise<Blob> {
+export function initiateDownload(api: string, query: Query, options: TranslateOptions): Promise<Blob> {
   return window.fetch(api, {
     method: 'POST',
     credentials: 'same-origin',
@@ -30,14 +31,14 @@ export function initiateDownload(api: string, query: Query): Promise<Blob> {
       'Accept': 'text/csv',
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(translate(query)),
+    body: JSON.stringify(translate(query, options)),
   })
   .then(response => response.blob())
   .then(blob => download(blob, 'query.csv', 'text/csv'));
 }
 
-export function fetch(api: string, query: Query): Promise<Object> {
-  return fetchJSON(api, translate(query));
+export function fetch(api: string, query: Query, options: TranslateOptions): Promise<Object> {
+  return fetchJSON(api, translate(query, options));
 }
 
 export function fetchCatalog(api: string): Promise<Domain> {

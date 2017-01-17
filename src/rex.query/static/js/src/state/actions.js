@@ -76,7 +76,7 @@ export function focusOnSeq(params: {focusedSeq: Focus.Focus}): StateUpdater {
  */
 export function exportDataset(): StateUpdater {
   return state => {
-    Fetch.initiateDownload(state.api, state.query);
+    Fetch.initiateDownload(state.api, state.query, {});
     return state;
   };
 }
@@ -657,7 +657,7 @@ function refetchQuery(state, setState) {
         'fetchStart',
         state => ({...state, queryLoading: true, queryInvalid: false})
       );
-      Fetch.fetch(api, query).then(data => {
+      Fetch.fetch(api, query, state.translateOptions).then(data => {
         if (refetchIndex === currentRefetchIndex) {
           setState(
             'fetchFinish',

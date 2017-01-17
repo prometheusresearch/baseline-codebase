@@ -19,6 +19,7 @@ type QueryBuilderProps = {
   domain: Domain;
   api: string;
   initialQuery: ?QueryPipeline;
+  limitSelectQuery: number;
   onQuery: (query?: ?Query) => *;
   onSearch?: SearchCallback;
   toolbar?: ?React.Element<*>;
@@ -33,6 +34,7 @@ export default class QueryBuilder extends React.Component {
 
   static defaultProps = {
     onQuery: (query?: ?Query) => {},
+    limitSelectQuery: 10000,
   };
 
   static childContextTypes = {
@@ -42,10 +44,10 @@ export default class QueryBuilder extends React.Component {
   constructor(props: QueryBuilderProps) {
     super(props);
 
-    let {domain, initialQuery, api} = props;
+    let {domain, initialQuery, api, limitSelectQuery} = props;
 
     this.container = State.createContainer(
-      {domain, api, initialQuery},
+      {domain, api, initialQuery, translateOptions: {limitSelect: limitSelectQuery}},
       (state, onStateUpdated) => {
         this.setState(state, () => {
           invariant(this.state != null, 'State is not ready');

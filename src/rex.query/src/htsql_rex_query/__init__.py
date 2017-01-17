@@ -5,8 +5,17 @@
 
 from htsql.core.addon import Addon
 from htsql.core.adapter import adapt
-from htsql.core.tr.binding import Recipe, BindingRecipe, RerouteBinding
+from htsql.core.tr.binding import (
+        Recipe, BindingRecipe, RerouteBinding, SelectionBinding)
 from htsql.core.tr.bind import BindByRecipe
+from htsql.core.tr.lookup import Lookup, ExpansionProbe
+
+
+class SelectionBinding(SelectionBinding):
+
+    def __init__(self, base, recipes, elements, domain, syntax):
+        super(SelectionBinding, self).__init__(base, elements, domain, syntax)
+        self.recipes = recipes
 
 
 class BindingRecipe(BindingRecipe):
@@ -32,6 +41,15 @@ class DefinitionRecipe(Recipe):
         return (self.base, self.definition, self.optional, self.plural)
 
 
+class SelectSyntaxRecipe(Recipe):
+
+    def __init__(self, syntax):
+        self.syntax = syntax
+
+    def __basis__(self):
+        return (self.syntax,)
+
+
 class BindByDefinition(BindByRecipe):
 
     adapt(DefinitionRecipe)
@@ -45,6 +63,23 @@ class BindByDefinition(BindByRecipe):
         binding = self.state(self.recipe.definition).binding
         self.state.pop_scope()
         return binding
+
+
+class BindBySelectSyntax(BindByRecipe):
+
+    adapt(SelectSyntaxRecipe)
+
+    def __call__(self):
+        return self.state.collect(self.state(self.recipe.syntax))
+
+
+class ExpandSelection(Lookup):
+
+    adapt(SelectionBinding, ExpansionProbe)
+
+    def itemize(self):
+        for recipe, element in zip(self.binding.recipes, self.binding.elements):
+            yield (element.syntax, recipe)
 
 
 class RexQueryAddon(Addon):

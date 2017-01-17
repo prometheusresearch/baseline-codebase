@@ -14,13 +14,14 @@ from htsql.core.syn.syntax import VoidSyntax, IdentifierSyntax
 from htsql.core.cmd.embed import Embed
 from htsql.core.tr.binding import (
         RootBinding, LiteralBinding, TableBinding, ChainBinding,
-        CollectBinding, SelectionBinding, SieveBinding, DefineBinding,
-        IdentityBinding, SortBinding, QuotientBinding, ComplementBinding,
-        ClipBinding, TitleBinding, DirectionBinding, FormulaBinding,
-        CastBinding, ImplicitCastBinding, FreeTableRecipe, AttachedTableRecipe,
+        CollectBinding, SieveBinding, DefineBinding, IdentityBinding,
+        SortBinding, QuotientBinding, ComplementBinding, ClipBinding,
+        TitleBinding, DirectionBinding, FormulaBinding, CastBinding,
+        ImplicitCastBinding, FreeTableRecipe, AttachedTableRecipe,
         ColumnRecipe, KernelRecipe, ComplementRecipe, ClosedRecipe)
 from htsql.core.tr.bind import BindingState, Select, BindByRecipe
-from htsql.core.tr.lookup import lookup_attribute, unwrap, guess_tag, identify
+from htsql.core.tr.lookup import (
+        lookup_attribute, unwrap, guess_tag, identify, expand)
 from htsql.core.tr.decorate import decorate
 from htsql.core.tr.coerce import coerce
 from htsql.core.tr.signature import (
@@ -30,7 +31,8 @@ from htsql.core.tr.fn.signature import (
         AddSig, SubtractSig, MultiplySig, DivideSig, ContainsSig, CastSig,
         AggregateSig, QuantifySig, ExistsSig, CountSig, MinMaxSig, SumSig,
         AvgSig)
-from htsql_rex_query import BindingRecipe, DefinitionRecipe
+from htsql_rex_query import (
+        SelectionBinding, BindingRecipe, DefinitionRecipe, SelectSyntaxRecipe)
 
 
 class Output(object):
@@ -171,16 +173,18 @@ class RexBindingState(BindingState):
             raise Error("Expected at least one argument,"
                         " got:", ", ".join(map(str, args)))
         output = self(args[0])
+        recipes = []
         fields = []
         self.push_scope(output.binding)
         for arg in args[1:]:
+            recipes.append(SelectSyntaxRecipe(arg))
             field = self.collect(self(arg))
             fields.append(field)
         self.pop_scope()
         domain = RecordDomain([decorate(field) for field in fields])
         return Output(
                 SelectionBinding(
-                    output.binding, fields, domain, self.scope.syntax),
+                    output.binding, recipes, fields, domain, self.scope.syntax),
                 optional=output.optional, plural=output.plural)
 
     def bind_filter_op(self, args):
@@ -255,12 +259,25 @@ class RexBindingState(BindingState):
                 isinstance(args[1].val, int)):
             raise Error("Expected an integer literal, got:", args[1])
         limit = args[1].val
-        return Output(
-                ClipBinding(
-                    self.scope, base.binding, [],
-                    limit, None, self.scope.syntax),
-                optional=True,
-                plural=base.plural)
+        binding = ClipBinding(
+                self.scope, base.binding, [],
+                limit, None, self.scope.syntax)
+        if isinstance(base.binding.domain, RecordDomain):
+            syntax_recipes = expand(
+                    base.binding,
+                    with_syntax=True, with_wild=True, with_class=True)
+            if syntax_recipes is not None:
+                elements = []
+                recipes = []
+                for syntax, recipe in syntax_recipes:
+                    recipes.append(recipe)
+                    element = self.use(recipe, syntax, scope=binding)
+                    elements.append(element)
+                fields = [decorate(element) for element in elements]
+                domain = RecordDomain(fields)
+                binding = SelectionBinding(
+                        binding, recipes, elements, domain, binding.syntax)
+        return Output(binding, optional=True, plural=base.plural)
 
     def bind_group_op(self, args):
         if not (len(args) >= 2):

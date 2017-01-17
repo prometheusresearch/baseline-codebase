@@ -35,23 +35,23 @@ It can generate the wizard for the base trunk table::
         - view-trunk:
           - edit-trunk:
             - replace: ../../../pick-trunk/view-trunk
-          - view-facet:
-            - edit-facet:
-              - replace: ../../view-facet
-        - pick-branch:
-          - view-branch:
-            - edit-branch:
-              - replace: ../../../pick-branch/view-branch
+          - view-facet--trunk:
+            - edit-facet--trunk:
+              - replace: ../../view-facet--trunk
+        - pick-branch--trunk:
+          - view-branch--trunk:
+            - edit-branch--trunk:
+              - replace: ../../../pick-branch--trunk/view-branch--trunk
           - drop-branch:
-          - make-branch:
-            - replace: ../../pick-branch/view-branch
-        - pick-cross:
-          - view-cross:
-            - edit-cross:
-              - replace: ../../../pick-cross/view-cross
+          - make-branch--trunk:
+            - replace: ../../pick-branch--trunk/view-branch--trunk
+        - pick-cross--trunk:
+          - view-cross--trunk:
+            - edit-cross--trunk:
+              - replace: ../../../pick-cross--trunk/view-cross--trunk
           - drop-cross:
-          - make-cross:
-            - replace: ../../pick-cross/view-cross
+          - make-cross--trunk:
+            - replace: ../../pick-cross--trunk/view-cross--trunk
         - drop-trunk:
         - make-trunk:
           - replace: ../../pick-trunk/view-trunk
@@ -86,7 +86,7 @@ It can generate the wizard for the base trunk table::
           fields:
           - t_id
           - t_data
-        view-facet:
+        view-facet--trunk:
           type: view
           title: View facet
           entity:
@@ -96,7 +96,7 @@ It can generate the wizard for the base trunk table::
           fields:
           - facet.f_text
           - facet.f_int
-        edit-facet:
+        edit-facet--trunk:
           type: edit
           title: Edit facet
           entity:
@@ -108,7 +108,7 @@ It can generate the wizard for the base trunk table::
           fields:
           - facet.f_text
           - facet.f_int
-        pick-branch:
+        pick-branch--trunk:
           type: pick
           title: Pick branch
           entity:
@@ -124,7 +124,7 @@ It can generate the wizard for the base trunk table::
           mask: trunk=$trunk
           search: string(id())~$search
           search_placeholder: Search by ID
-        view-branch:
+        view-branch--trunk:
           type: view
           title: View branch
           entity:
@@ -134,7 +134,7 @@ It can generate the wizard for the base trunk table::
           fields:
           - b_id
           - b_data
-        edit-branch:
+        edit-branch--trunk:
           type: edit
           title: Edit branch
           entity:
@@ -151,7 +151,7 @@ It can generate the wizard for the base trunk table::
           title: Drop branch
           entity:
             branch: branch
-        make-branch:
+        make-branch--trunk:
           type: make
           title: Make branch
           entity:
@@ -163,7 +163,7 @@ It can generate the wizard for the base trunk table::
           fields:
           - b_id
           - b_data
-        pick-cross:
+        pick-cross--trunk:
           type: pick
           title: Pick cross
           entity:
@@ -179,7 +179,7 @@ It can generate the wizard for the base trunk table::
           mask: trunk=$trunk
           search: string(id())~$search
           search_placeholder: Search by ID
-        view-cross:
+        view-cross--trunk:
           type: view
           title: View cross
           entity:
@@ -188,7 +188,7 @@ It can generate the wizard for the base trunk table::
           - trunk: trunk
           fields:
           - cross_partner
-        edit-cross:
+        edit-cross--trunk:
           type: edit
           title: Edit cross
           entity:
@@ -204,7 +204,7 @@ It can generate the wizard for the base trunk table::
           title: Drop cross
           entity:
             cross: cross
-        make-cross:
+        make-cross--trunk:
           type: make
           title: Make cross
           entity:
@@ -232,7 +232,7 @@ It can generate the wizard for the base trunk table::
 
 It can handle the case when facet table is a parent of some other table::
 
-  >>> print_wizard('trunk_facet_parent_case')
+  >>> print_wizard('trunk_facet_parent_case')  # doctest: +ELLIPSIS
   /trunk_facet_parent_case:
     action:
       id: trunk_facet_parent_case
@@ -243,16 +243,16 @@ It can handle the case when facet table is a parent of some other table::
         - view-trunk-facet-parent-case:
           - edit-trunk-facet-parent-case:
             - replace: ../../../pick-trunk-facet-parent-case/view-trunk-facet-parent-case
-          - view-facet-parent:
-            - edit-facet-parent:
-              - replace: ../../view-facet-parent
-            - pick-facet-branch:
-              - view-facet-branch:
-                - edit-facet-branch:
-                  - replace: ../../../pick-facet-branch/view-facet-branch
+          - view-facet-parent--trunk_facet_parent_case:
+            - edit-facet-parent--trunk_facet_parent_case:
+              - replace: ../../view-facet-parent--trunk_facet_parent_case
+            - pick-facet-branch--trunk_facet_parent_case:
+              - view-facet-branch--trunk_facet_parent_case:
+                - edit-facet-branch--trunk_facet_parent_case:
+                  - replace: ../../../pick-facet-branch--trunk_facet_parent_case/view-facet-branch--trunk_facet_parent_case
               - drop-facet-branch:
-              - make-facet-branch:
-                - replace: ../../pick-facet-branch/view-facet-branch
+              - make-facet-branch--trunk_facet_parent_case:
+                - replace: ../../pick-facet-branch--trunk_facet_parent_case/view-facet-branch--trunk_facet_parent_case
         - drop-trunk-facet-parent-case:
         - make-trunk-facet-parent-case:
           - replace: ../../pick-trunk-facet-parent-case/view-trunk-facet-parent-case
@@ -287,7 +287,7 @@ It can handle the case when facet table is a parent of some other table::
           fields:
           - t_id
           - t_data
-        view-facet-parent:
+        view-facet-parent--trunk_facet_parent_case:
           type: view
           title: View facet_parent
           entity:
@@ -297,7 +297,7 @@ It can handle the case when facet table is a parent of some other table::
           fields:
           - facet_parent.f_text
           - facet_parent.f_int
-        edit-facet-parent:
+        edit-facet-parent--trunk_facet_parent_case:
           type: edit
           title: Edit facet_parent
           entity:
@@ -309,7 +309,7 @@ It can handle the case when facet table is a parent of some other table::
           fields:
           - facet_parent.f_text
           - facet_parent.f_int
-        pick-facet-branch:
+        pick-facet-branch--trunk_facet_parent_case:
           type: pick
           title: Pick facet_branch
           entity:
@@ -326,7 +326,7 @@ It can handle the case when facet table is a parent of some other table::
           mask: facet_parent.trunk_facet_parent_case=$trunk_facet_parent_case
           search: string(id())~$search
           search_placeholder: Search by ID
-        view-facet-branch:
+        view-facet-branch--trunk_facet_parent_case:
           type: view
           title: View facet_branch
           entity:
@@ -336,7 +336,7 @@ It can handle the case when facet table is a parent of some other table::
           fields:
           - b_id
           - b_data
-        edit-facet-branch:
+        edit-facet-branch--trunk_facet_parent_case:
           type: edit
           title: Edit facet_branch
           entity:
@@ -353,7 +353,7 @@ It can handle the case when facet table is a parent of some other table::
           title: Drop facet_branch
           entity:
             facet_branch: facet_branch
-        make-facet-branch:
+        make-facet-branch--trunk_facet_parent_case:
           type: make
           title: Make facet_branch
           entity:
@@ -378,12 +378,12 @@ It can handle the case when facet table is a parent of some other table::
           fields:
           - t_id
           - t_data
-  <BLANKLINE>
+  ...
 
 It handles the ``user`` table differently (to avoid the naming conflict with
 the ``$USER`` variable)::
 
-  >>> print_wizard('user')
+  >>> print_wizard('user') # doctest: +ELLIPSIS
   /user:
     action:
       id: user
@@ -394,20 +394,20 @@ the ``$USER`` variable)::
         - view-user:
           - edit-user:
             - replace: ../../../pick-user/view-user
-        - pick-cross-with-named-links:
-          - view-cross-with-named-links:
-            - edit-cross-with-named-links:
-              - replace: ../../../pick-cross-with-named-links/view-cross-with-named-links
+        - pick-cross-with-named-links--user:
+          - view-cross-with-named-links--user:
+            - edit-cross-with-named-links--user:
+              - replace: ../../../pick-cross-with-named-links--user/view-cross-with-named-links--user
           - drop-cross-with-named-links:
-          - make-cross-with-named-links:
-            - replace: ../../pick-cross-with-named-links/view-cross-with-named-links
-        - pick-user-access:
-          - view-user-access:
-            - edit-user-access:
-              - replace: ../../../pick-user-access/view-user-access
+          - make-cross-with-named-links--user:
+            - replace: ../../pick-cross-with-named-links--user/view-cross-with-named-links--user
+        - pick-user-access--user:
+          - view-user-access--user:
+            - edit-user-access--user:
+              - replace: ../../../pick-user-access--user/view-user-access--user
           - drop-user-access:
-          - make-user-access:
-            - replace: ../../pick-user-access/view-user-access
+          - make-user-access--user:
+            - replace: ../../pick-user-access--user/view-user-access--user
         - drop-user:
         - make-user:
           - replace: ../../pick-user/view-user
@@ -440,7 +440,7 @@ the ``$USER`` variable)::
             _user: user
           fields:
           - name
-        pick-cross-with-named-links:
+        pick-cross-with-named-links--user:
           type: pick
           title: Pick cross_with_named_links
           entity:
@@ -456,7 +456,7 @@ the ``$USER`` variable)::
           mask: who=$_user
           search: string(id())~$search
           search_placeholder: Search by ID
-        view-cross-with-named-links:
+        view-cross-with-named-links--user:
           type: view
           title: View cross_with_named_links
           entity:
@@ -465,7 +465,7 @@ the ``$USER`` variable)::
           - _user: user
           fields:
           - different_link_name
-        edit-cross-with-named-links:
+        edit-cross-with-named-links--user:
           type: edit
           title: Edit cross_with_named_links
           entity:
@@ -481,7 +481,7 @@ the ``$USER`` variable)::
           title: Drop cross_with_named_links
           entity:
             cross_with_named_links: cross_with_named_links
-        make-cross-with-named-links:
+        make-cross-with-named-links--user:
           type: make
           title: Make cross_with_named_links
           entity:
@@ -492,7 +492,7 @@ the ``$USER`` variable)::
             who: $_user
           fields:
           - different_link_name
-        pick-user-access:
+        pick-user-access--user:
           type: pick
           title: Pick user_access
           entity:
@@ -508,7 +508,7 @@ the ``$USER`` variable)::
           mask: user=$_user
           search: string(id())~$search
           search_placeholder: Search by ID
-        view-user-access:
+        view-user-access--user:
           type: view
           title: View user_access
           entity:
@@ -518,7 +518,7 @@ the ``$USER`` variable)::
           fields:
           - code
           - when
-        edit-user-access:
+        edit-user-access--user:
           type: edit
           title: Edit user_access
           entity:
@@ -535,7 +535,7 @@ the ``$USER`` variable)::
           title: Drop user_access
           entity:
             user_access: user_access
-        make-user-access:
+        make-user-access--user:
           type: make
           title: Make user_access
           entity:
@@ -559,11 +559,12 @@ the ``$USER`` variable)::
             _user: user
           fields:
           - name
-  <BLANKLINE>
+  ...
+
 
 It handles the case when link names are not equal to target table names::
 
-  >>> print_wizard('trunk_with_named_links')
+  >>> print_wizard('trunk_with_named_links')  # doctest: +ELLIPSIS
   /trunk_with_named_links:
     action:
       id: trunk_with_named_links
@@ -574,13 +575,13 @@ It handles the case when link names are not equal to target table names::
         - view-trunk-with-named-links:
           - edit-trunk-with-named-links:
             - replace: ../../../pick-trunk-with-named-links/view-trunk-with-named-links
-        - pick-cross-with-named-links:
-          - view-cross-with-named-links:
-            - edit-cross-with-named-links:
-              - replace: ../../../pick-cross-with-named-links/view-cross-with-named-links
+        - pick-cross-with-named-links--trunk_with_named_links:
+          - view-cross-with-named-links--trunk_with_named_links:
+            - edit-cross-with-named-links--trunk_with_named_links:
+              - replace: ../../../pick-cross-with-named-links--trunk_with_named_links/view-cross-with-named-links--trunk_with_named_links
           - drop-cross-with-named-links:
-          - make-cross-with-named-links:
-            - replace: ../../pick-cross-with-named-links/view-cross-with-named-links
+          - make-cross-with-named-links--trunk_with_named_links:
+            - replace: ../../pick-cross-with-named-links--trunk_with_named_links/view-cross-with-named-links--trunk_with_named_links
         - drop-trunk-with-named-links:
         - make-trunk-with-named-links:
           - replace: ../../pick-trunk-with-named-links/view-trunk-with-named-links
@@ -615,7 +616,7 @@ It handles the case when link names are not equal to target table names::
           fields:
           - t_id
           - t_data
-        pick-cross-with-named-links:
+        pick-cross-with-named-links--trunk_with_named_links:
           type: pick
           title: Pick cross_with_named_links
           entity:
@@ -631,7 +632,7 @@ It handles the case when link names are not equal to target table names::
           mask: different_link_name=$trunk_with_named_links
           search: string(id())~$search
           search_placeholder: Search by ID
-        view-cross-with-named-links:
+        view-cross-with-named-links--trunk_with_named_links:
           type: view
           title: View cross_with_named_links
           entity:
@@ -640,7 +641,7 @@ It handles the case when link names are not equal to target table names::
           - trunk_with_named_links: trunk_with_named_links
           fields:
           - who
-        edit-cross-with-named-links:
+        edit-cross-with-named-links--trunk_with_named_links:
           type: edit
           title: Edit cross_with_named_links
           entity:
@@ -656,7 +657,7 @@ It handles the case when link names are not equal to target table names::
           title: Drop cross_with_named_links
           entity:
             cross_with_named_links: cross_with_named_links
-        make-cross-with-named-links:
+        make-cross-with-named-links--trunk_with_named_links:
           type: make
           title: Make cross_with_named_links
           entity:
@@ -680,4 +681,4 @@ It handles the case when link names are not equal to target table names::
           fields:
           - t_id
           - t_data
-  <BLANKLINE>
+  ...

@@ -122,7 +122,6 @@ class WizardProxy(object):
             links = [f for f in identity
                        if f.is_link and f.target_table.label == table_name]
             if len(links) == 1 and links[0] not in context:
-                print view.entity, table.label, view._is_facet
                 if view._is_facet:
                     mask = '%s.%s=$%s' % (links[0].label,
                                           view.entity.values()[0],

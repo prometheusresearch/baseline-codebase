@@ -16,8 +16,5 @@ tests:
     Deploying rex.dbgui_demo.
     Validating rex.dbgui_demo.
     Done.
-- sh: rex dropdb rex.dbgui_demo --set=db=pgsql:dbgui_demo
-  stdout: |
-    Dropping database pgsql:///dbgui_demo.
 - sh: pip uninstall -q -y rex.dbgui_demo
   stdout: ''

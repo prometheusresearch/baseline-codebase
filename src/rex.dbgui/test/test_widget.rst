@@ -32,7 +32,6 @@ The important part here is that this downloaded wizard can also download interna
     "trunk": [
       {
         "id": "1",
-        "t_id": 1,
         "t_data": "test",
         "meta:type": "trunk",
         "meta:title": "1"

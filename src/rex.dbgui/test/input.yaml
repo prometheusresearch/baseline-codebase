@@ -17,7 +17,7 @@ tests:
 
 - doctest: test/test_*.rst
 
-- coverage-check: 98.0
+- coverage-check: 97.0
 - coverage-report: ./build/coverage
 
 - sh: pip uninstall -q -y rex.dbgui_demo

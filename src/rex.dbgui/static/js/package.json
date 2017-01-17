@@ -1,6 +1,6 @@
 {
   "name": "rex-dbgui",
-  "version": "4.1.3",
+  "version": "4.1.4",
   "main": "./lib/index.js",
   "rex": {
     "bundleAll": true

@@ -1037,6 +1037,7 @@ Built-in types
   >>> sorted(FormField.mapped().items()) # doctest: +NORMALIZE_WHITESPACE
   [('bool', rex.widget.formfield.BoolFormField),
    ('calculation', rex.widget.formfield.CalculatedFormField),
+   ('code', rex.widget.formfield.CodeFormField),
    ('date', rex.widget.formfield.DateFormField),
    ('datetime', rex.widget.formfield.DatetimeFormField),
    ('entity', rex.widget.formfield.EntityFormField),
@@ -1045,9 +1046,11 @@ Built-in types
    ('fieldset', rex.widget.formfield.Fieldset),
    ('file', rex.widget.formfield.FileFormField),
    ('integer', rex.widget.formfield.IntegerFormField),
+   ('json', rex.widget.formfield.JsonFormField),
    ('list', rex.widget.formfield.List),
    ('note', rex.widget.formfield.NoteFormField),
    ('number', rex.widget.formfield.NumberFormField),
+   ('source', rex.widget.formfield.SourceCodeFormField),
    ('string', rex.widget.formfield.StringFormField)]
 
   >>> rex.off()

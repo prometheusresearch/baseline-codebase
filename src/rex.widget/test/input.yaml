@@ -18,7 +18,7 @@ tests:
 - doctest: test/test_*.rst
 - doctest: test/formfield/test_*.rst
 
-- coverage-check: 90.0
+- coverage-check: 85.0
 - coverage-report: ./build/coverage
 
 - sh: rex dropdb --config=./demo/rex.yaml

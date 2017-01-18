@@ -23,7 +23,7 @@ the specified table::
     import data into.
     <BLANKLINE>
     Options:
-      --require=PACKAGE        : include an additional parameter
+      --require=PACKAGE        : include an additional package
       --set=PARAM=VALUE        : set a configuration parameter
       --output=OUTPUT_FILE     : the file to write to; if not specified, stdout is used
       --format=FORMAT          : the format to output the template in; can be CSV, TSV, XLS; if not specified, defaults to CSV
@@ -67,7 +67,7 @@ in the database::
     and load them into the specified table.
     <BLANKLINE>
     Options:
-      --require=PACKAGE        : include an additional parameter
+      --require=PACKAGE        : include an additional package
       --set=PARAM=VALUE        : set a configuration parameter
       --format=FORMAT          : the format that the data file is in; if not specified, CSV is assumed
       --use-defaults           : whether or not the default values defined for non-primary key fields should be used when null columns are received; by default, this is disabled

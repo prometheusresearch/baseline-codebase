@@ -5,7 +5,6 @@
 import {assert, stub, spy} from 'rex-widget/testutils';
 
 import Node from '../Node';
-import Graph from '../Graph';
 import * as Instruction from '../Instruction';
 import * as Command from '../Command';
 

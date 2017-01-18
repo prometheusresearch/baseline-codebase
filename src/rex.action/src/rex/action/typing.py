@@ -17,6 +17,8 @@ from werkzeug.local import LocalStack
 
 from htsql.core.classify import classify
 from htsql.core.syn.parse import parse as parse_htsql
+from htsql.core.model import TableArc
+from htsql.core.classify import relabel
 
 from rex.port import Port
 from rex.port.grow import GrowCalculation
@@ -410,8 +412,11 @@ def annotate_port(domain, port):
     with port.db:
         for path, arm in port.tree.walk():
             if isinstance(arm, (TrunkArm, FacetArm)):
+                arc = TableArc(arm.table)
+                labels = relabel(arc)
+                name = labels[0].name
                 typ = domain[arm.table.name]
-                tree = grow_type_info(tree, path, typ)
+                tree = grow_type_info(tree, path, name)
                 tree = grow_title_info(tree, path, arm)
                 for state in domain.get_states_for_type(typ.name).values():
                     tree = grow_state_info(tree, path, state)
@@ -436,8 +441,8 @@ def grow_title_info(tree, path, arm):
     return tree
 
 
-def grow_type_info(tree, path, typ):
-    expression = parse_htsql("'%s'" % typ.name)
+def grow_type_info(tree, path, name):
+    expression = parse_htsql("'%s'" % name)
     grow = GrowCalculation(u'meta:type', path, expression)
     tree = grow(tree)
     return tree

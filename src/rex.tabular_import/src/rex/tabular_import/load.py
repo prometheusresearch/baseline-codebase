@@ -117,6 +117,7 @@ def import_tabular_data(
                     db_connection.rollback()
 
             if error:
+                db_connection.rollback()
                 raise error
 
     return len(data)

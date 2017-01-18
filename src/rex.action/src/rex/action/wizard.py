@@ -36,7 +36,7 @@ from .action import ActionBase, ActionVal, _format_Action
 from .validate import (
     DomainVal,
     ActionMapVal,
-    ActionReferenceVal, LocalActionReference, GlobalActionReference)
+    ActionReferenceVal, LocalActionReference)
 from . import typing
 from . import instruction
 from . import introspection

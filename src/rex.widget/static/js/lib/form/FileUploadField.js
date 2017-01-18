@@ -13,7 +13,7 @@ import Field from './Field';
 import ReadOnlyField from './ReadOnlyField';
 import {WithFormValue} from 'react-forms';
 import uploadFile from '../upload';
-import './animation.css'
+import './animation.css';
 
 export let FileUploadInput = React.createClass({
 

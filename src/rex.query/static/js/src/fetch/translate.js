@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Query, QueryPipeline, NavigateQuery, Expression} from '../model';
+import type {Context, Query, QueryPipeline, NavigateQuery, Expression} from '../model';
 
 import invariant from 'invariant';
 import * as q from '../model/Query';
@@ -48,7 +48,8 @@ export type TranslateOptions = {
  * Translate UI query model into query syntax.
  */
 export default function translate(query: Query, options: TranslateOptions = {}): SerializedQuery {
-  return translateQuery(query, HERE, options);
+  let context = query.context.prev;
+  return translateQuery(query, {translated: HERE, context}, options);
 }
 
 function regularizeName(name) {
@@ -149,29 +150,29 @@ function partitionPipeline(query: QueryPipeline): [?Query, QueryPipeline] {
 
 function translateQuery(
   query: Query,
-  prev: SerializedQuery,
+  prev: {translated: SerializedQuery, context: Context},
   options: TranslateOptions
 ): SerializedQuery {
   switch (query.name) {
     case 'here':
-      return prev;
+      return prev.translated;
 
     case 'pipeline': {
       let res = query.pipeline.reduce((prev, q) => {
-        return translateQuery(q, prev, options);
+        return {translated: translateQuery(q, prev, options), context: q.context};
       }, prev);
-      return ((res: any): SerializedQuery);
+      return res.translated;
     }
 
     case 'navigate':
-      return translateNavigateQuery(query, prev);
+      return translateNavigateQuery(query, prev.translated);
 
     case 'define': {
       let [select, pipeline] = partitionPipeline(query.binding.query);
       let path = regularizeName(query.binding.name);
       return [
         'define',
-        prev,
+        prev.translated,
         ['=>',
           path,
           translate(pipeline, options)],
@@ -187,38 +188,43 @@ function translateQuery(
       let fields = [];
       for (let k in query.select) {
         if (query.select.hasOwnProperty(k)) {
-          let kquery = translateQuery(query.select[k], HERE, options);
-          fields.push(['=>', k, kquery]);
+          let field = query.select[k];
+          let fieldTranslated = translateQuery(
+            query.select[k],
+            {translated: HERE, context: query.context},
+            options
+          );
+          if (options.limitSelect != null && field.context.type.card === 'seq') {
+            fieldTranslated = ['take', fieldTranslated, options.limitSelect];
+          }
+          fields.push(['=>', k, fieldTranslated]);
         }
       }
-      if (options.limitSelect != null) {
-        if (Array.isArray(prev) && prev[0] === 'navigate') {
-          prev = ['take', prev, options.limitSelect];
-        }
-      }
-      return ['select', prev].concat(fields);
+      return ['select', prev.translated].concat(fields);
     }
 
     case 'aggregate': {
+      let translated = prev.translated;
       if (query.path != null) {
-        prev = translateQuery(q.navigate(query.path), prev, options);
+        translated = translateQuery(q.navigate(query.path), prev, options);
       }
-      return [query.aggregate, prev];
+      return [query.aggregate, translated];
     }
 
     case 'group':
       if (query.byPath.length === 0) {
-        return prev;
+        // Group by columns are not defined yet, skip the group by clause.
+        return prev.translated;
       } else {
-        return ['group', prev, ...query.byPath.map(p => [p])];
+        return ['group', prev.translated, ...query.byPath.map(p => [p])];
       }
 
     case 'filter':
       if (!query.predicate) {
         // Predicate hasn't been defined yet, skip the filter.
-        return prev;
+        return prev.translated;
       } else {
-        return ['filter', prev, translateExpression(query.predicate, HERE)];
+        return ['filter', prev.translated, translateExpression(query.predicate, HERE)];
       }
 
     default:

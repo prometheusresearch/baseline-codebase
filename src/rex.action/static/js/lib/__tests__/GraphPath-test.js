@@ -131,7 +131,7 @@ describe('rex-widget', function() {
         assert(Graph.create.calledOnce);
         assert.deepEqual(
           Graph.create.lastCall.args,
-          [instruction, initialContext, actions, false]
+          [instruction, initialContext, actions, undefined, false]
         );
         assert(graph.advance.calledOnce);
         assert(graph.advance.lastCall.args[0] === undefined);
@@ -154,7 +154,7 @@ describe('rex-widget', function() {
         assert(Graph.create.calledOnce);
         assert.deepEqual(
           Graph.create.lastCall.args,
-          [instruction, initialContext, actions, false]
+          [instruction, initialContext, actions, undefined, false]
         );
         assert(graph.advance.calledOnce);
         assert(graph.advance.lastCall.args[0] === 'action');
@@ -178,7 +178,7 @@ describe('rex-widget', function() {
         assert(Graph.create.calledOnce);
         assert.deepEqual(
           Graph.create.lastCall.args,
-          [instruction, initialContext, actions, false]
+          [instruction, initialContext, actions, undefined, false]
         );
         assert(graph.advance.calledTwice);
         assert(graph.advance.firstCall.args[0] === 'action');
@@ -202,7 +202,7 @@ describe('rex-widget', function() {
         assert(Graph.create.calledOnce);
         assert.deepEqual(
           Graph.create.lastCall.args,
-          [instruction, actions, initialContext, false]
+          [instruction, actions, initialContext, undefined, false]
         );
         assert(graph.advance.calledOnce);
         assert(graph.advance.firstCall.args[0] === 'action');

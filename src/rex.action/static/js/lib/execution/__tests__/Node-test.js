@@ -5,6 +5,7 @@
 import {assert, stub, spy} from 'rex-widget/testutils';
 
 import Node from '../Node';
+import Graph from '../Graph';
 import * as Instruction from '../Instruction';
 import * as Command from '../Command';
 
@@ -63,8 +64,9 @@ describe('rex-action/execution', function() {
       let actions = {
         id: {props: {contextTypes: {input}}}
       };
+      let graph = {actions};
       let instruction = new Instruction.Execute('id', 'id', []);
-      let node = Node.create(actions, instruction);
+      let node = Node.create(graph, instruction);
       assert(node.isAllowed);
       assert(input.match.calledOnce);
     });
@@ -73,6 +75,7 @@ describe('rex-action/execution', function() {
       let actions = {
         action: {props: {p: 2}}
       };
+      let graph = {actions};
       let command = {
         execute() {
           return {a: 1};
@@ -82,7 +85,7 @@ describe('rex-action/execution', function() {
       stub(Command, 'getCommand').returns(command);
 
       let instruction = new Instruction.Execute('action', 'action', []);
-      let node = Node.create(actions, instruction);
+      let node = Node.create(graph, instruction);
       let nextNode = node.executeCommand('commandName', 1, 2);
 
       assert(Command.getCommand.calledOnce);
@@ -103,6 +106,7 @@ describe('rex-action/execution', function() {
       let actions = {
         action: {props: {p: 2}}
       };
+      let graph = {actions};
       let command = {
         execute(props, context, a) { return {a}; }
       };
@@ -110,7 +114,7 @@ describe('rex-action/execution', function() {
       stub(Command, 'getCommand').returns(command);
 
       let instruction = new Instruction.Execute('action', 'action', []);
-      let node = Node.create(actions, instruction);
+      let node = Node.create(graph, instruction);
       node = node.executeCommand('commandName', 1);
       assert.deepEqual(node.context, {a: 1});
       node = node.reExecuteCommand(42);
@@ -147,11 +151,12 @@ describe('rex-action/execution', function() {
             }
           }
         };
+        let graph = {actions};
         let thenInstructions = [
           new Instruction.IncludeWizard('wizard', '', [])
         ];
         let instruction = new Instruction.Execute('root', 'root', thenInstructions);
-        let node = Node.create(actions, instruction);
+        let node = Node.create(graph, instruction);
         let then = node.then;
         assert(then.length === 1);
         assert(then[0].instruction === actions.wizard.props.path.then[0]);
@@ -167,12 +172,13 @@ describe('rex-action/execution', function() {
             }
           }
         };
+        let graph = {actions};
         let exit = new Instruction.Execute('exit', 'exit', []);
         let thenInstructions = [
           new Instruction.IncludeWizard('include', '', [exit])
         ];
         let instruction = new Instruction.Execute('root', 'root', thenInstructions);
-        let node = Node.create(actions, instruction);
+        let node = Node.create(graph, instruction);
         let then = node.then[0].then;
         assert(then.length === 1);
         assert(then[0].instruction.action === 'exit');
@@ -182,11 +188,12 @@ describe('rex-action/execution', function() {
         let actions = {
           start: {props: {contextTypes: {rows: {}}}}
         };
+        let graph = {actions};
         let instruction = new Instruction.Execute('root', 'root', [
           new Instruction.Execute('start', 'target', [], {props: {contextTypes: {rows: {}}}}),
           new Instruction.Replace('./target'),
         ]);
-        let node = Node.create(actions, instruction);
+        let node = Node.create(graph, instruction);
         let then = node.then;
         assert(then.length === 2);
         assert(then[0]._concreteNode.instruction.action === 'target');

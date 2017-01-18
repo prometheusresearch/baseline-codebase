@@ -2,7 +2,6 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import invariant from 'invariant';
 import notImplemented from './notImplemented';
 
 export class Type {
@@ -64,9 +63,11 @@ export class EntityType extends Type {
   }
 
   match(value, domain) {
+    if (value == null) {
+      return false;
+    }
     let type = value['meta:type'];
     return (
-      value &&
       typeof value === 'object' &&
       type === this.name && (
         !this.state || matchesState(this.state.name, value, domain)

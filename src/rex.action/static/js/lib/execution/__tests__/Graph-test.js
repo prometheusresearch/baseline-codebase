@@ -231,7 +231,7 @@ describe('rex-action/execution', function() {
       let instruction = new Instruction.Start([
         new Instruction.Execute('action')
       ]);
-      let graph = Graph.create(instruction, actions, {}, false);
+      let graph = Graph.create(instruction, actions, {}, undefined, false);
       assert(graph.node.keyPath === 'root');
       assert.deepEqual(graph.node.context, undefined);
       graph = graph.executeCommandAtCurrentNode('context', {a: 42});
@@ -262,7 +262,7 @@ describe('rex-action/execution', function() {
       let instruction = new Instruction.Start([
         new Instruction.Execute('action')
       ]);
-      let graph = Graph.create(instruction, actions, {}, false);
+      let graph = Graph.create(instruction, actions, {}, undefined, false);
       assert(graph.node.keyPath === 'root');
       assert(graph.trace.length === 1);
       assert.deepEqual(graph.node.context, undefined);
@@ -291,7 +291,7 @@ describe('rex-action/execution', function() {
       let instruction = new Instruction.Start([
         new Instruction.Execute('next')
       ]);
-      let graph = Graph.create(instruction, actions, {}, false);
+      let graph = Graph.create(instruction, actions, {}, undefined, false);
       assert(graph.node.keyPath === 'root');
       assert(graph.trace.length === 1);
       assert.deepEqual(graph.node.context, undefined);
@@ -367,7 +367,7 @@ describe('rex-action/execution', function() {
         new Instruction.Execute('next1'),
         new Instruction.Execute('next2')
       ]);
-      let graph = Graph.create(instruction, actions, {}, false);
+      let graph = Graph.create(instruction, actions, {}, undefined, false);
       assert(graph.node.keyPath === 'root');
       assert(graph.trace.length === 1);
       assert.deepEqual(graph.node.context, undefined);
@@ -405,7 +405,7 @@ describe('rex-action/execution', function() {
         new Instruction.Execute('next1'),
         new Instruction.Execute('next2')
       ]);
-      let graph = Graph.create(instruction, actions, {}, false);
+      let graph = Graph.create(instruction, actions, {}, undefined, false);
       assert(graph.node.keyPath === 'root');
       assert(graph.trace.length === 1);
       assert.deepEqual(graph.node.context, undefined);

@@ -69,14 +69,19 @@ describe('rex-action', function() {
       });
 
       it('match() (state)', function() {
+        let domain = {
+          individual: {
+
+          }
+        };
         let type = new Typing.EntityType('individual', {name: 'enrolled'});
-        assert(!type.match(null));
-        assert(!type.match('string'));
-        assert(!type.match(42));
-        assert(!type.match({}));
-        assert(!type.match(Entity.createEntity('study', 1)));
-        assert(!type.match(Entity.createEntity('individual', 1)));
-        assert(type.match(Entity.createEntity('individual', 1, null, {enrolled: true})));
+        assert(!type.match(null, domain));
+        assert(!type.match('string', domain));
+        assert(!type.match(42, domain));
+        assert(!type.match({}, domain));
+        assert(!type.match(Entity.createEntity('study', 1), domain));
+        assert(!type.match(Entity.createEntity('individual', 1), domain,));
+        assert(type.match(Entity.createEntity('individual', 1, null, {enrolled: true}), domain));
       });
 
       it('format() (no state)', function() {

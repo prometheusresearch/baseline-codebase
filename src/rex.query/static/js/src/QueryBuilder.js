@@ -114,7 +114,7 @@ export default class QueryBuilder extends React.Component {
             </HBox>}
           <HBox marginLeft="auto">
             <ReactUI.QuietButton
-              onClick={this.actions.export}
+              onClick={this.actions.exportDataset}
               icon={<Icon.IconDownload />}
               size="small">
               Export as .csv

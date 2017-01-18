@@ -76,7 +76,10 @@ export function focusOnSeq(params: {focusedSeq: Focus.Focus}): StateUpdater {
  */
 export function exportDataset(): StateUpdater {
   return state => {
-    Fetch.initiateDownload(state.api, state.query, {});
+    Fetch.initiateDownload(state.api, state.query, {})
+      .catch(err => {
+        console.error('Error while exporting dataset:', err);
+      });
     return state;
   };
 }

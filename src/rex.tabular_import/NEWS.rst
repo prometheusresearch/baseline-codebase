@@ -5,6 +5,13 @@ REX.TABULAR_IMPORT Change Log
 .. contents:: Table of Contents
 
 
+0.2.2 (2017-01-19)
+==================
+
+- Fixed an issue where records could sometimes still be inserted into the
+  database even when an error has occurred.
+
+
 0.2.1 (2016-08-12)
 ==================
 

@@ -4,7 +4,7 @@
 
 .. contents:: Table of Contents
 
-0.5.1 (2016-12-05)
+0.5.1 (2017-01-19)
 ==================
 
 * fixed method ImportPackage.from_zip() to support folders inside archive.

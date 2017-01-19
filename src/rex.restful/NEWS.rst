@@ -5,7 +5,7 @@ REX.RESTFUL Change Log
 .. contents:: Table of Contents
 
 
-1.2.0 (2016-xx-xx)
+1.2.0 (2017-01-19)
 ==================
 
 * Added support for CORS on RestfulLocation endpoints. This is accomplished by

@@ -5,7 +5,7 @@ REX.ASYNCTASK Change Log
 .. contents:: Table of Contents
 
 
-0.4.0 (2017-xx-xx)
+0.4.0 (2017-01-19)
 ==================
 
 * Fixed issue with handling an ``asynctask_transport`` setting that looked like

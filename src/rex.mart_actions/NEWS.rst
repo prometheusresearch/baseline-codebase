@@ -5,7 +5,7 @@ REX.MART_ACTIONS Change Log
 .. contents:: Table of Contents
 
 
-0.6.0 (2016-xx-xx)
+0.6.0 (2017-01-19)
 ==================
 
 * Relaxed type convention for 'mart' context variable (now supports entity)

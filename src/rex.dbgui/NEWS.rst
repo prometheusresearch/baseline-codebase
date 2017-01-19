@@ -4,9 +4,10 @@
 
 .. contents:: Table of Contents
 
-4.1.4 (2017-XX-XX)
+4.1.4 (2017-01-19)
 ==================
 
+* Bug fixes
 * Fixed tests
 
 4.1.3 (2016-12-01)

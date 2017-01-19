@@ -5,7 +5,7 @@ REX.I18N Change Log
 .. contents:: Table of Contents
 
 
-0.5.2 (2016-xx-xx)
+0.5.2 (2017-01-19)
 ==================
 
 * Fixed an issue that caused the AcceptsLanguageLocaleDetector to always

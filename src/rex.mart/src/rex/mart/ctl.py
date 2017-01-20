@@ -140,6 +140,7 @@ class MartCreateTask(RexTask):
                 ' combinations'
             )
 
+        definitions = [defn['id'] for defn in get_all_definitions()]
         validator = RunListVal()
         if self.runlist:
             if ':' in self.runlist:
@@ -160,9 +161,15 @@ class MartCreateTask(RexTask):
                 runlist = validator.parse(runlist)
 
         else:
-            if not self.owner or not self.definition:
+            if not self.definition:
                 raise Error(
-                    'You must specify at least one owner and definition'
+                    'You must specify at least one definition (%s)' % (
+                        ', '.join(definitions),
+                    )
+                )
+            if not self.owner:
+                raise Error(
+                    'You must specify at least one owner'
                 )
 
             params = {

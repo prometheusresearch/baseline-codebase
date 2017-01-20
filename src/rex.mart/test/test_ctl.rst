@@ -255,11 +255,11 @@ command line::
     Skipping Mart creation for owner=foo, definition=just_deploy (owner not allowed to access definition)
 
     >>> ctl('mart-create', expect=1)  # doctest: +ELLIPSIS
-    FATAL ERROR: You must specify at least one owner and definition
+    FATAL ERROR: You must specify at least one definition (empty, just_copy, just_copy_missing, just_copy_application, just_deploy, just_deploy_includes, some_data, some_more_data, some_sql_data, some_more_sql_data, both_etl_phases, some_data_with_params, existing, fixed_name, existing_missing, broken_htsql, broken_sql, simple_assessment, linked_assessment, linked_assessment_alltypes, calculated_assessment, overlap_names_assessment, select_json, broken_selector, datadictionary_deployment, datadictionary_assessment, datadictionary_alltypes, index_processor, analyze_processor, enum_values, some_parameters, form_metadata, all_assessments, all_assessments_linked)
     <BLANKLINE>
 
-    >>> ctl('mart-create --owner=foo', expect=1)  # doctest: +ELLIPSIS
-    FATAL ERROR: You must specify at least one owner and definition
+    >>> ctl('mart-create --definition=empty', expect=1)  # doctest: +ELLIPSIS
+    FATAL ERROR: You must specify at least one owner
     <BLANKLINE>
 
     >>> ctl('mart-create --owner=foo --definition=bar', expect=1)  # doctest: +ELLIPSIS

@@ -11,6 +11,8 @@ REX.MART Change Log
 - Added the ability to use ``rex.deploy``-provided HTSQL functions as well as
   the ``tweak.meta`` functionality in ETL queries against the ``rexdb``
   gateway.
+- Fixed an issue where the data dictionary wouldn't include question text from
+  Forms/Interactions when there are multiple versions of the Instrument.
 
 
 0.5.0 (2016-12-14)

@@ -50,6 +50,9 @@ class SimpleField(object):
         field = cls(current.name)
         field.version_mapping = deepcopy(current.version_mapping)
         field.version_mapping.update(incoming.version_mapping)
+        field.title = incoming.title or current.title
+        field.description = incoming.description or current.description
+        field.source = incoming.source or current.source
         return field
 
     def __init__(self, name, instrument_version=None):

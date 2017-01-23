@@ -5,6 +5,12 @@ REX.MART_ACTIONS Change Log
 .. contents:: Table of Contents
 
 
+0.6.1 (2017-01-xx)
+==================
+
+* Widened dependency range for rex.mart.
+
+
 0.6.0 (2017-01-19)
 ==================
 

@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@prometheusresearch/react-ui": "^0.21.1",
-    "react-forms": "2.0.0-beta32",
+    "react-forms": "2.0.0-beta35",
     "derivable": "1.0.0-beta11"
   },
   "devDependencies": {

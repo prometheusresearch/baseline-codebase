@@ -4,10 +4,15 @@ REX.FORM_PREVIEWER Change Log
 
 .. contents:: Table of Contents
 
+0.10.2 (2017-01-23)
+===================
+
+* Updated the 'react-forms' JavaScript dependency
+
 0.10.1 (2017-01-05)
 ===================
 
-* Pinned the 'derivable' JavaScript dependency 
+* Pinned the 'derivable' JavaScript dependency
 
 0.10.0 (2016-09-14)
 ===================

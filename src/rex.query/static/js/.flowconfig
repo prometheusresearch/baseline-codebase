@@ -1,25 +1,6 @@
 [ignore]
-<PROJECT_ROOT>/node_modules/react/node_modules/fbjs/lib/PromiseMap.js.flow
-<PROJECT_ROOT>/node_modules/react/node_modules/fbjs/lib/fetchWithRetries.js.flow
-<PROJECT_ROOT>/node_modules/fbjs/lib/PromiseMap.js.flow
-<PROJECT_ROOT>/node_modules/flow-coverage-report/.*\.js
-<PROJECT_ROOT>/node_modules/fbjs/lib/fetchWithRetries.js.flow
-<PROJECT_ROOT>/node_modules/fbjs/lib/PromiseMap.js
-<PROJECT_ROOT>/node_modules/fbjs/lib/Deferred.js.flow
-<PROJECT_ROOT>/node_modules/fbjs/lib/Deferred.js
-<PROJECT_ROOT>/node_modules/fbjs/lib/shallowEqual.js.flow
-<PROJECT_ROOT>/node_modules/fbjs/lib/shallowEqual.js
-<PROJECT_ROOT>/node_modules/.store/fbjs@.*/Deferred.js.flow
-<PROJECT_ROOT>/node_modules/.store/fbjs@.*/Deferred.js
-<PROJECT_ROOT>/node_modules/fbjs/PromiseMap.js.flow
-<PROJECT_ROOT>/node_modules/fbjs/PromiseMap.js
-<PROJECT_ROOT>/node_modules/fbjs/shallowEqual.js.flow
-<PROJECT_ROOT>/node_modules/fbjs/shallowEqual.js
-<PROJECT_ROOT>/node_modules/.store/fbjs@.*/PromiseMap.js.flow
-<PROJECT_ROOT>/node_modules/.store/fbjs@.*/PromiseMap.js
-<PROJECT_ROOT>/node_modules/.store/fbjs@.*/shallowEqual.js.flow
-<PROJECT_ROOT>/node_modules/.store/fbjs@.*/shallowEqual.js
-<PROJECT_ROOT>/node_modules/.store/babel-plugin-flow-react-proptypes@.*
+<PROJECT_ROOT>/node_modules/.resolutions/registry.npmjs.org/flow-coverage-report/.*
+<PROJECT_ROOT>/node_modules/.resolutions/registry.npmjs.org/fbjs/.*/package/lib/partitionObjectByKey.js.flow
 
 [include]
 

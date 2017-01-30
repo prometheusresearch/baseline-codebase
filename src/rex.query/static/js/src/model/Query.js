@@ -15,7 +15,7 @@ export type HereQuery = {
   +context: Context;
 };
 
-export type ValueQuery = {
+export type ConstantExpression = {
   +name: 'value';
   +value: string | number | boolean | null;
   +context: Context;
@@ -86,7 +86,7 @@ export type BinaryOperator
   | 'greaterEqual'
   | 'contains';
 
-export type BinaryQuery = {
+export type BinaryExpression = {
   +name: 'binary';
   +op: BinaryOperator;
   +left: Expression;
@@ -98,7 +98,7 @@ export type UnaryOperator
   = 'not'
   | 'exists';
 
-export type UnaryQuery = {
+export type UnaryExpression = {
   +name: 'unary';
   +op: UnaryOperator;
   +expression: Expression;
@@ -109,7 +109,7 @@ export type LogicalBinaryOperator
   = 'and'
   | 'or';
 
-export type LogicalBinaryQuery = {
+export type LogicalBinaryExpression = {
   +name: 'logicalBinary';
   +op: LogicalBinaryOperator;
   +expressions: Array<Expression>;
@@ -131,17 +131,22 @@ export type Query =
   | AggregateQuery
   | QueryPipeline;
 
+export type QueryExpression = {
+  +name: 'query';
+  +query: Query;
+  +context: Context;
+};
 
 /**
  * Describe expression which are used in filter query.
  */
 export type Expression =
-  | ValueQuery
   | NavigateQuery
-  | BinaryQuery
-  | UnaryQuery
-  | LogicalBinaryQuery
-  | {name: 'query'; query: Query; context: Context};
+  | ConstantExpression
+  | BinaryExpression
+  | UnaryExpression
+  | LogicalBinaryExpression
+  | QueryExpression;
 
 /**
  * Set of queries in scope (by key).
@@ -188,7 +193,7 @@ emptyContext.prev = emptyContext;
 
 export const here = {name: 'here', context: emptyContext};
 
-export function value(value: number | string | boolean): ValueQuery {
+export function value(value: number | string | boolean): ConstantExpression {
   return {name: 'value', value, context: emptyContext};
 }
 
@@ -228,47 +233,47 @@ export function pipeline(...pipeline: Array<Query>): QueryPipeline {
   return {name: 'pipeline', pipeline, context: emptyContext};
 }
 
-export function and(...expressions: Array<Expression>): LogicalBinaryQuery {
+export function and(...expressions: Array<Expression>): LogicalBinaryExpression {
   return {name: 'logicalBinary', op: 'and', expressions, context: emptyContext};
 }
 
-export function or(...expressions: Array<Expression>): LogicalBinaryQuery {
+export function or(...expressions: Array<Expression>): LogicalBinaryExpression {
   return {name: 'logicalBinary', op: 'or', expressions, context: emptyContext};
 }
 
-export function not(expression: Expression): UnaryQuery {
+export function not(expression: Expression): UnaryExpression {
   return {name: 'unary', op: 'not', expression, context: emptyContext};
 }
 
-export function equal(left: Expression, right: Expression): BinaryQuery {
+export function equal(left: Expression, right: Expression): BinaryExpression {
   return {name: 'binary', op: 'equal', left, right, context: emptyContext};
 }
 
-export function notEqual(left: Expression, right: Expression): BinaryQuery {
+export function notEqual(left: Expression, right: Expression): BinaryExpression {
   return {name: 'binary', op: 'notEqual', left, right, context: emptyContext};
 }
 
-export function less(left: Expression, right: Expression): BinaryQuery {
+export function less(left: Expression, right: Expression): BinaryExpression {
   return {name: 'binary', op: 'less', left, right, context: emptyContext};
 }
 
-export function lessEqual(left: Expression, right: Expression): BinaryQuery {
+export function lessEqual(left: Expression, right: Expression): BinaryExpression {
   return {name: 'binary', op: 'lessEqual', left, right, context: emptyContext};
 }
 
-export function greater(left: Expression, right: Expression): BinaryQuery {
+export function greater(left: Expression, right: Expression): BinaryExpression {
   return {name: 'binary', op: 'greater', left, right, context: emptyContext};
 }
 
-export function greaterEqual(left: Expression, right: Expression): BinaryQuery {
+export function greaterEqual(left: Expression, right: Expression): BinaryExpression {
   return {name: 'binary', op: 'greaterEqual', left, right, context: emptyContext};
 }
 
-export function contains(left: Expression, right: Expression): BinaryQuery {
+export function contains(left: Expression, right: Expression): BinaryExpression {
   return {name: 'binary', op: 'contains', left, right, context: emptyContext};
 }
 
-export function exists(expression: Expression): UnaryQuery {
+export function exists(expression: Expression): UnaryExpression {
   return {name: 'unary', op: 'exists', expression, context: emptyContext};
 }
 
@@ -711,10 +716,10 @@ type TransformQuery<A, B, C, R = Query> = {
 };
 
 type TransformExpression<A, B, C, R = Expression> = {
-  binary?: (query: BinaryQuery, a: A, b: B, c: C) => R;
-  unary?: (query: UnaryQuery, a: A, b: B, c: C) => R;
-  logicalBinary?: (query: LogicalBinaryQuery, a: A, b: B, c: C) => R;
-  value?: (query: ValueQuery, a: A, b: B, c: C) => R;
+  binary?: (query: BinaryExpression, a: A, b: B, c: C) => R;
+  unary?: (query: UnaryExpression, a: A, b: B, c: C) => R;
+  logicalBinary?: (query: LogicalBinaryExpression, a: A, b: B, c: C) => R;
+  value?: (query: ConstantExpression, a: A, b: B, c: C) => R;
   navigate?: (query: NavigateQuery, a: A, b: B, c: C) => R;
   otherwise?: (query: Expression, a: A, b: B, c: C) => R;
 };

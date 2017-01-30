@@ -25,6 +25,7 @@ var MultiSelect = React.createClass({
 
   getDefaultProps: function () {
     return {
+      choices: [],
       allowCreate: false
     };
   },
@@ -60,18 +61,33 @@ var MultiSelect = React.createClass({
   },
 
   render: function () {
+    var choices = this.props.choices.slice();
+
     var value = '';
     if (this.state.value && (this.state.value.count() > 0)) {
       value = this.state.value.join(DELIMITER);
+
+      // If a value isn't in the list of choices, shove it in there.
+      this.state.value.forEach((val) => {
+        var exists = choices.filter((choice) => {
+          choice.value === val;
+        }) > 0;
+        if (!exists) {
+          choices.push({value: val, label: val});
+        }
+      });
     }
+
+    var Selector = this.props.allowCreate ? ReactSelect.Creatable : ReactSelect;
 
     return (
       <div className="rfb-multiselect">
-        <ReactSelect
-          allowCreate={this.props.allowCreate}
-          options={this.props.choices}
+        <Selector
+          options={choices}
           onBlur={this.props.onBlur}
           onChange={this.handleChange}
+          simpleValue={true}
+          joinValues={true}
           delimiter={DELIMITER}
           multi={true}
           value={value}

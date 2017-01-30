@@ -19,10 +19,11 @@ tests:
   - sh: rex deploy --quiet rex.assessment_import_demo
 
   - doctest: README.rst
-  - doctest: test/test_settings.rst
-  - doctest: test/test_import_package.rst
-  - doctest: test/test_export_template.rst
-  - doctest: test/test_import_assessment.rst
+  - doctest: test/test_*.rst
+  #- doctest: test/test_settings.rst
+  #- doctest: test/test_import_package.rst
+  #- doctest: test/test_export_template.rst
+  #- doctest: test/test_import_assessment.rst
 
   - coverage-check: 95.0
   - coverage-report: ./build/coverage

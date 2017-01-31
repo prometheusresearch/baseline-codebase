@@ -3,7 +3,6 @@
 #
 
 
-from .commands import *
+from .action import *
 from .settings import *
-from .widgets import *
 

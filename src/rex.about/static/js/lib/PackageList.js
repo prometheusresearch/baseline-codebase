@@ -19,6 +19,13 @@ var PackageList = React.createClass({
       );
     }
 
+    var cellStyle = {
+      style: {
+        paddingRight: 20,
+        paddingTop: 5,
+      }
+    };
+
     var packages = this.props.packages.map((pkg) => {
       var name = pkg.name;
       if (pkg.homepage) {
@@ -29,23 +36,26 @@ var PackageList = React.createClass({
 
       return (
         <tr key={pkg.name}>
-          <td>{name}</td>
-          <td>{pkg.version}</td>
-          <td>{pkg.license}</td>
-          <td>{pkg.author}</td>
+          <td {...cellStyle}>{name}</td>
+          <td {...cellStyle}>{pkg.version}</td>
+          <td {...cellStyle}>{pkg.license}</td>
+          <td {...cellStyle}>{pkg.author}</td>
         </tr>
       );
     });
 
     return (
-      <div className="package-list">
+      <div
+        style={{
+          marginTop: '1em',
+        }}>
         <table>
           <thead>
             <tr>
-              <th>Component</th>
-              <th>Version</th>
-              <th>License</th>
-              <th>Author</th>
+              <th {...cellStyle}>Component</th>
+              <th {...cellStyle}>Version</th>
+              <th {...cellStyle}>License</th>
+              <th {...cellStyle}>Author</th>
             </tr>
           </thead>
           <tbody>

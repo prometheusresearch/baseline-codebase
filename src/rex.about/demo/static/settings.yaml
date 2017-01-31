@@ -1,0 +1,13 @@
+# Users/Permissions
+user_query: true()
+
+# Chrome
+rex_widget:
+  chrome: rex.widget_chrome.MenuChrome
+application_title: RexAbout Demo
+username_query: $USER
+user_profile_url: rex.about_demo:/
+application_logout_url: rex.about_demo:/
+
+db: pgsql:about_demo
+

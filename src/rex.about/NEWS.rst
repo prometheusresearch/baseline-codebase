@@ -5,6 +5,12 @@ REX.ABOUT Change Log
 .. contents:: Table of Contents
 
 
+0.4.0 (2017-xx-xx)
+==================
+
+* Converted widget into a ``rex.action`` custom action type.
+
+
 0.3.0 (2016-09-14)
 ==================
 

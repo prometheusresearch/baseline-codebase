@@ -10,6 +10,7 @@ import ReadOnlyField from './ReadOnlyField';
 import {WithFormValue} from 'react-forms';
 
 const ISO_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+const ISO_FORMAT_MILLIS = 'YYYY-MM-DD HH:mm:ss.SSSS';
 const ISO_FORMAT_NO_TIME = 'YYYY-MM-DD';
 
 export class DatetimePicker extends React.Component {
@@ -17,8 +18,10 @@ export class DatetimePicker extends React.Component {
   render() {
     let {value, format, ...props} = this.props;
     if (value) {
-      let date = moment(value, ISO_FORMAT, true);
-      if (!date.isValid()) {
+      let date = moment(value, [ISO_FORMAT, ISO_FORMAT_MILLIS], true);
+      if (date.isValid()) {
+        value = date.format(ISO_FORMAT);
+      } else {
         date = moment(value, ISO_FORMAT_NO_TIME, true);
         if (date.isValid()) {
           value = date.format(ISO_FORMAT);

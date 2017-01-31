@@ -2,6 +2,11 @@
   Change Log
 **************
 
+2.11.2 (2017-XX-XX)
+===================
+
+* [FIX] Datetime field can parse values with milliseconds
+
 2.11.1 (2017-01-19)
 ===================
 

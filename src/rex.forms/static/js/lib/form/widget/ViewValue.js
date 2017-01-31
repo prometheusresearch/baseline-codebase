@@ -18,7 +18,7 @@ export default class ViewValue extends React.Component {
   }
 
   getValueString() {
-    if (this.props.formValue.value) {
+    if (this.props.formValue.value != null) {
       return toString(this.props.formValue.value);
     }
     return null;

@@ -5,6 +5,13 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+2.3.1 (2017-xx-xx)
+==================
+
+* Fixed an issue that caused the review/readonly views to show zeros in
+  integer and float fields as "No Value".
+
+
 2.3.0 (2017-01-19)
 ==================
 

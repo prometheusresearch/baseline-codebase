@@ -76,7 +76,7 @@ export class DatetimeField extends React.Component {
     if (readOnly) {
       let value = formValue.value;
       if (value) {
-        let date = moment(formValue.value, ISO_FORMAT, true);
+        let date = moment(formValue.value, [ISO_FORMAT, ISO_FORMAT_MILLIS], true);
         if (!date.isValid()) {
           date = moment(formValue.value, ISO_FORMAT_NO_TIME, true);
         }

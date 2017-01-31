@@ -7,6 +7,7 @@ import {toSnakeCase} from '../lang';
 import {isPlainObject} from 'lodash/lang';
 
 export const DATETIME_ISO_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+export const DATETIME_ISO_FORMAT_MILLIS = 'YYYY-MM-DD HH:mm:ss.SSSS';
 export const DATE_ISO_FORMAT = 'YYYY-MM-DD';
 
 export function string(value, node) {
@@ -30,7 +31,7 @@ export function json(value, node) {
 }
 
 export function datetime(value, node) {
-  let date = moment(value, DATETIME_ISO_FORMAT, true);
+  let date = moment(value, [DATETIME_ISO_FORMAT, DATETIME_ISO_FORMAT_MILLIS], true);
   if (!date.isValid()) {
     date = moment(value, DATE_ISO_FORMAT, true);
     if (date.isValid()) {

@@ -9,6 +9,8 @@ __all__ = (
 
 
 REXDB_LICENSE = '''
+<h2>RexDB License</h2>
+
 <p>Copyright &copy; 2006-2017 Prometheus Research, LLC. All rights reserved.</p>
 
 <p>This program is free software: you can use, redistribute, and/or modify

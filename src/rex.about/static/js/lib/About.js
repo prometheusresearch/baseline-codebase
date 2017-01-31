@@ -98,7 +98,7 @@ export default class AboutRexDB extends React.Component {
           </Tab>
           <Tab
             id="license"
-            title="RexDB License"
+            title="License"
             style={{
               width: '100%',
             }}>

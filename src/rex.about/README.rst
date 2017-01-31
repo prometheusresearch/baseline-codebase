@@ -31,13 +31,15 @@ Python packages in the environment, as well as the RexDB license. This action
 type takes the following properties:
 
 ``heading``
-    Changes the heading of the page. Optional.
+    Changes the heading of the page. Optional. If not specified, displays
+    "About this RexDB Application".
 
 ``overview``
     Sets the text that is displayed on the "Overview" tab, under the
-    application version. Use HTML for formatting. Optional.
+    application version. Use HTML for formatting. Optional. If not specified,
+    no text is displayed.
 
 ``license``
-    Sets the text that is displayed on the "RexDB License" tab. Use HTML for
-    formatting. Optional.
+    Sets the text that is displayed on the "License" tab. Use HTML for
+    formatting. Optional. If not specified, displays the RexDB license.
 

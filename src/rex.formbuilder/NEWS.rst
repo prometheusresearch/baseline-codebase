@@ -5,7 +5,7 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
-5.9.1 (2017-xx-xx)
+5.9.1 (2017-02-07)
 ==================
 
 * Updated some JS dependencies to fix styling conflicts with other packages.

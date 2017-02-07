@@ -5,7 +5,7 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
-2.3.1 (2017-xx-xx)
+2.3.1 (2017-02-07)
 ==================
 
 * Fixed an issue that caused the review/readonly views to show zeros in

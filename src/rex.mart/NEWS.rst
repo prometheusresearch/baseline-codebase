@@ -5,7 +5,7 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
-0.6.0 (20xx-xx-xx)
+0.6.0 (2017-02-07)
 ==================
 
 - Added the ability to use ``rex.deploy``-provided HTSQL functions as well as

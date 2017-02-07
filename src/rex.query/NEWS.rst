@@ -4,6 +4,11 @@
 
 .. contents:: Table of Contents
 
+0.3.1 (2017-02-07)
+==================
+
+* Fix rendering query panel.
+
 0.3.0 (2017-01-19)
 ==================
 

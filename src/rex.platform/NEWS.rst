@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-6.1.1 (2017-XX-XX)
+6.1.1 (2017-02-10)
 ==================
 
 * rex.forms=2.3.1

@@ -4,7 +4,7 @@
 
 .. contents:: Table of Contents
 
-0.5.2 (2017-XX-XX)
+0.5.2 (2017-02-10)
 ==================
 
 * fixed tests

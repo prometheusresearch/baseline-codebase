@@ -10,8 +10,11 @@ from rex.asynctask import AsyncTaskWorker
 
 __all__ = (
     'FooWorker',
+    'BarWorker',
+    'BazWorker',
     'ErrorWorker',
     'FragileWorker',
+    'RequeueWorker',
 )
 
 
@@ -20,6 +23,20 @@ class FooWorker(AsyncTaskWorker):
 
     def process(self, payload):
         print 'FOO processed: %r' % (payload,)
+
+
+class BarWorker(AsyncTaskWorker):
+    name = 'demo_bar_worker'
+
+    def process(self, payload):
+        print 'BAR processed: %r' % (payload,)
+
+
+class BazWorker(AsyncTaskWorker):
+    name = 'demo_baz_worker'
+
+    def process(self, payload):
+        print 'BAZ processed: %r' % (payload,)
 
 
 class ErrorWorker(AsyncTaskWorker):

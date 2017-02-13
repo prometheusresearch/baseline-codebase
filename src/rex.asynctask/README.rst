@@ -72,29 +72,6 @@ task::
     rex asynctask-workers --set=asynctask_workers='{"queue_foo": "my_worker"}'
 
 
-Settings
-========
-
-``rex.asynctask`` provides the following settings:
-
-``asynctask_transport``
-    Specifies the URI of the default transport to use in the application.
-
-``asynctask_workers``
-    This is a mapping of queue names to AsyncTaskWorker names that the
-    ``asynctask-workers`` task will use to launch its child task worker
-    processes.
-
-``asynctask_workers_poll_interval``
-    Specifies the number of milliseoncds the ``asynctask-workers`` task will
-    wait between its attempts to retrieve tasks from queues. Defaults to
-    ``500``.
-
-``asynctask_workers_check_child_interval``
-    Specifies the number of milliseconds the ``asynctask-workers`` task will
-    wait between child process health checks. Defaults to ``1000``.
-
-
 Command Line Tools
 ==================
 
@@ -111,4 +88,43 @@ will spawn that will process tasks as they come across.
 ::
 
     rex asynctask-workers
+
+
+Scheduled Tasks
+===============
+
+The ``asynctask-workers`` command has the ability to automatically initiate the
+execution of workers using a crontab-like scheduling mechanism. This
+functionality is enabled by doing two things:
+
+* Pass the ``--scheduler`` option when executing ``rex asynctask-workers``. Be
+  sure that you only do this to **ONLY ONE** execution of ``asynctask-workers``
+  within a cluster of workers. Specifying it to more than one will cause
+  multiple executions for each scheduled instance.
+
+* Configure the ``asynctask_scheduled_workers`` setting to specify which
+  workers need to be executed and on what schedule.
+
+The following syntax would cause the ``my_worker`` task to be executed every 5
+seconds::
+
+  rex asynctask-workers --scheduler --set=asynctask_scheduled_workers='[{"worker": "my_worker", "second": "*/5"}]'
+
+**CAVEAT**: This functionality is **not** recommended as an outright
+replacement of the normal crontab fucntionality available on all systems. This
+is a convenience mechanism intended for use by applications that have already
+implemented a series of ``AsyncTaskWorkers``, and simply want to add scheduled
+execution of their tasks. If your project is not already using
+``rex.asynctask``, and you want to schedule execution of code in your
+environment, then you should use the normal method of implementing
+``rex.ctl.Task`` classes and using crontab to execute them.
+
+
+Settings
+========
+
+``rex.asynctask`` provides the following settings:
+
+.. autorex:: rex.core.Setting
+   :package: rex.asynctask
 

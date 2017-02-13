@@ -7,12 +7,16 @@ import os
 import signal
 import time
 
+from functools import partial
 from multiprocessing import Process, Pipe
 
-from rex.core import get_settings
-from rex.ctl import RexTask
+from apscheduler.schedulers.background import BackgroundScheduler
+
+from rex.core import get_settings, get_rex
+from rex.ctl import RexTask, option
 from rex.logging import get_logger
 
+from .core import get_transport
 from .worker import AsyncTaskWorker
 
 
@@ -33,24 +37,37 @@ class AsyncTaskWorkerTask(RexTask):
 
     name = 'asynctask-workers'
 
+    class options(object):  # noqa
+        scheduler = option(
+            None,
+            bool,
+            hint='if specified, this process will act as the initiator for'
+            ' any ScheduledAsyncTaskWorkers that are configured. This should'
+            ' only be enabled for one process in cluster of workers.'
+        )
+
     def __init__(self, *args, **kwargs):
         super(AsyncTaskWorkerTask, self).__init__(*args, **kwargs)
         self._workers = {}
         self._connections = {}
         self._dying = False
         self._master_pid = os.getpid()
+        self._scheduler = None
 
     def __call__(self):
         with self.make():
             self.logger = get_logger(self)
 
             worker_config = get_settings().asynctask_workers
-            if not worker_config:
+            scheduled_worker_config = \
+                get_settings().asynctask_scheduled_workers
+            if not worker_config and not scheduled_worker_config:
                 self.logger.info('No workers configured; terminating.')
                 return
+            self.initialize_workers(worker_config, scheduled_worker_config)
 
-            for queue_name, worker_name in worker_config.items():
-                self.build_worker(queue_name, worker_name)
+            if self.scheduler:
+                self._scheduler = self.build_scheduler()
 
             def on_term(signum, frame):  # pylint: disable=unused-argument
                 if self._master_pid == os.getpid():
@@ -80,6 +97,16 @@ class AsyncTaskWorkerTask(RexTask):
 
         self.logger.info('Complete')
 
+    def initialize_workers(self, worker_config, scheduled_worker_config):
+        for queue_name, worker_name in worker_config.items():
+            self.build_worker(queue_name, worker_name)
+
+        for schedule in scheduled_worker_config:
+            self.build_worker(
+                self.get_scheduled_queue_name(schedule.worker),
+                schedule.worker,
+            )
+
     def build_worker(self, queue_name, worker_name):
         worker = AsyncTaskWorker.mapped()[worker_name]()
 
@@ -96,7 +123,67 @@ class AsyncTaskWorkerTask(RexTask):
         )
         process.start()
 
+    def build_scheduler(self):
+        schedules = get_settings().asynctask_scheduled_workers
+        if not schedules:
+            self.logger.info(
+                'No schedules configured -- not starting scheduler'
+            )
+            return
+
+        scheduler = BackgroundScheduler()
+        rex = get_rex()
+
+        for schedule in schedules:
+            sched = self.make_schedule(schedule)
+            scheduler.add_job(
+                partial(self.enqueue_scheduled_task, rex),
+                trigger='cron',
+                args=[schedule.worker],
+                **sched
+            )
+            self.logger.info('Scheduled %s for %r', schedule.worker, sched)
+
+        scheduler.start()
+        return scheduler
+
+    def enqueue_scheduled_task(self, rex, worker_name):
+        with rex:
+            self.logger.debug(
+                'Triggering scheduled execution of %s',
+                worker_name,
+            )
+            get_transport().submit_task(
+                self.get_scheduled_queue_name(worker_name),
+                {},
+            )
+
+    def get_scheduled_queue_name(self, worker_name):
+        # pylint: disable=no-self-use
+        return 'scheduled_0_%s' % (
+            worker_name,
+        )
+
+    def make_schedule(self, schedule):
+        # pylint: disable=no-self-use
+        sched = {}
+
+        for field in (
+                'year', 'month', 'day',
+                'week', 'day_of_week',
+                'hour', 'minute', 'second'):
+            val = getattr(schedule, field, None)
+            if val is not None:
+                sched[field] = val
+
+        return sched
+
     def cleanup(self):
+        if self._scheduler:
+            self.logger.debug('Termination received; shutting down scheduler')
+            self._scheduler.shutdown()
+            self.logger.debug('Scheduler dead')
+
         self.logger.debug('Termination received; shutting down children')
         for conn in self._connections.values():
             conn.send('QUIT')

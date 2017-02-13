@@ -5,6 +5,13 @@ REX.ASYNCTASK Change Log
 .. contents:: Table of Contents
 
 
+0.5.0 (2017-xx-xx)
+==================
+
+* Added a basic task scheduling system that allows workers to be triggered via
+  a crontab-like configuration.
+
+
 0.4.0 (2017-01-19)
 ==================
 

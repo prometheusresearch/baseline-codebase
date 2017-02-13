@@ -1,0 +1,4 @@
+logging_loggers:
+  apscheduler:
+    level: WARN
+

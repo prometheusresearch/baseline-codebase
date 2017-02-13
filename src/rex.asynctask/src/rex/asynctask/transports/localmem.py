@@ -56,7 +56,7 @@ class LocalMemoryAsyncTransport(AsyncTransport):
 
     def poll_queue(self, queue_name):
         self.ensure_valid_name(queue_name)
-        count = len(self._queues.get(queue_name, []))
+        count = len(self._queues[queue_name])
         return count
 
     @contextmanager

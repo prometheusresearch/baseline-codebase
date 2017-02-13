@@ -33,6 +33,9 @@ expected::
     >>> transport.poll_queue('foo')
     0
 
+    >>> transport.poll_queue('doesntexist')
+    0
+
     >>> transport.submit_task('foo', {'foo': 3})
     >>> transport.get_task('foo')
     {u'foo': 3}

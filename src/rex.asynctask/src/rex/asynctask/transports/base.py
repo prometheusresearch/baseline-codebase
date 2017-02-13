@@ -169,7 +169,7 @@ class AsyncTransport(Extension):
     def poll_queue(self, queue_name):
         """
         Counts the number of tasks in the specified queue.
-        
+
         Must be implemented by concrete classes.
 
         :param queue_name: the name of the queue to poll

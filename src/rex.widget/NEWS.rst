@@ -2,6 +2,12 @@
   Change Log
 **************
 
+2.12.0 (2017-XX-XX)
+===================
+
+* [FEAT] Form fields' ``validate`` now can access ``$root`` (form's root value),
+  ``$parent`` (parent fieldset's value) to perform validations.
+
 2.11.2 (2017-02-07)
 ===================
 

@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.action',
-    version='1.5.2',
+    version='1.6.0',
     description="Foundation of the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",

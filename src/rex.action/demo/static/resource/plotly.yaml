@@ -23,7 +23,6 @@ actions:
   use-layout:
     title: Using Layout
     type: plotly
-    type: plotly
     plot:
       type: pie
     layout:

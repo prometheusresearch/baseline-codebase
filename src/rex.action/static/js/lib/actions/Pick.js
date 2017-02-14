@@ -28,7 +28,7 @@ export default class Pick extends React.Component {
   render() {
     let {
       entity,
-      sort,
+      sort: sortSpec,
       onClose,
       context,
       contextTypes,
@@ -50,6 +50,12 @@ export default class Pick extends React.Component {
           placeholder={searchPlaceholder}
           />
     );
+    let sort = undefined;
+    if (Array.isArray(sortSpec)) {
+      sort = sortSpec.map(item => ({valueKey: item.field, asc: item.asc}));
+    } else if (sortSpec) {
+      sort = {valueKey: sortSpec.field, asc: sortSpec.asc};
+    }
     return (
       <Action
         noContentWrapper
@@ -58,10 +64,7 @@ export default class Pick extends React.Component {
         onClose={onClose}>
         <DataTable
           allowReselect
-          sort={sort ? {
-            valueKey: sort.field,
-            asc: sort.asc,
-          } : undefined}
+          sort={sort}
           data={data}
           columns={this.props.fields}
           selected={selected}

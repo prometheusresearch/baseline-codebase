@@ -3,6 +3,8 @@ type: wizard
 path:
 - minimal:
   - view:
+- with-sort:
+- with-multiple-sort:
 - use-search:
   - view:
 - use-fields:
@@ -19,6 +21,22 @@ actions:
     title: Minimal Configuration
     type: pick
     entity: individual
+  with-sort:
+    title: With sort (code desc)
+    type: pick
+    entity: individual
+    sort:
+      field: code
+      asc: false
+  with-multiple-sort:
+    title: With multiple sort (code desc, sex asc)
+    type: pick
+    entity: individual
+    sort:
+    - field: code
+      asc: false
+    - field: sex
+      asc: true
   use-search:
     title: Using Search
     type: pick

@@ -7,7 +7,7 @@
 
 """
 
-from rex.core import StrVal, SeqVal, MaybeVal, BoolVal, RecordVal
+from rex.core import StrVal, SeqVal, MaybeVal, BoolVal, RecordVal, OneOfVal
 from rex.port import Port
 from rex.widget import Field, ColumnVal, undefined
 
@@ -64,8 +64,11 @@ class Pick(EntityAction):
         It can reference context variables declared in the ``input`` field.
         """)
 
+    sort_spec_val_single = RecordVal(('field', StrVal()), ('asc', BoolVal(), True))
+    sort_spec_val = OneOfVal(sort_spec_val_single, SeqVal(sort_spec_val_single))
+
     sort = Field(
-        RecordVal(('field', StrVal()), ('asc', BoolVal(), True)), default=undefined,
+        sort_spec_val, default=undefined,
         doc="""
         Column for sorting
         """)

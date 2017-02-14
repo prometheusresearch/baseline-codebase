@@ -60,8 +60,12 @@ below. For type specific parameters consult the form fiel type reference.
 
 **validate** (optional)
   HTSQL expression which is used to validate the form field value. It can
-  reference ``$value`` (the value of the field) and ``$id`` (the identifier of
-  the record being edited; or ``null()`` if it is not available).
+  reference the following variables:
+
+  - ``$value`` - the value of the field
+  - ``$id`` - the identifier of the record being edited
+  - ``$root`` - form's root value
+  - ``$parent`` - parent fieldset's value
 
   If HTSQL expression returns ``null()`` then validation succeeds; otherwise
   return a string which is treated as error message.

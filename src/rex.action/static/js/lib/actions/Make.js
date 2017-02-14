@@ -5,7 +5,7 @@
 import React from 'react';
 import SubmitButton from '../ui/SubmitButton';
 import * as form from 'rex-widget/form';
-import {emptyFunction, autobind} from 'rex-widget/lang';
+import {emptyFunction} from 'rex-widget/lang';
 import {command, Types} from '../execution/Command';
 import Action from '../Action';
 import * as ObjectTemplate from '../ObjectTemplate';
@@ -67,8 +67,7 @@ export default class Make extends React.Component {
     );
   }
 
-  @autobind
-  renderFooter() {
+  renderFooter = () => {
     let {submitButton, icon} = this.props;
     return (
       <SubmitButton
@@ -78,12 +77,11 @@ export default class Make extends React.Component {
         {submitButton}
       </SubmitButton>
     );
-  }
+  };
 
-  @autobind
-  _onForm(form) {
+  _onForm = (form) => {
     this._form = form;
-  }
+  };
 
   getKey() {
     let contextKey = Object
@@ -93,31 +91,27 @@ export default class Make extends React.Component {
     return `${contextKey}__${this.state.key}`;
   }
 
-  @autobind
-  onSubmit(e) {
+  onSubmit = (e) => {
     e.preventDefault();
     e.stopPropagation();
     this._form.submit();
-  }
+  };
 
-  @autobind
-  onBeforeSubmit(_value) {
+  onBeforeSubmit = (_value) => {
     this.setState({submitInProgress: true});
-  }
+  };
 
-  @autobind
-  onSubmitComplete(data) {
+  onSubmitComplete = (data) => {
     this.props.onSubmitComplete(data);
     let key = this.state.key + 1;
     this.setState({key, submitInProgress: false});
     this.props.onCommand('default', data);
     this.props.refetch();
-  }
+  };
 
-  @autobind
-  onSubmitError() {
+  onSubmitError = () => {
     this.setState({submitInProgress: false});
-  }
+  };
 
   static getTitle(props) {
     return props.title || `Make ${props.entity.name}`;

@@ -16,7 +16,7 @@ menu:
   - title: Pick
     path: /pick
     access: anybody
-    action: !include resource/page.yaml
+    action: !include resource/pick.yaml
   - title: Make
     path: /make
     access: anybody

@@ -13,6 +13,7 @@ from collections import OrderedDict
 
 import yaml
 from cached_property import cached_property
+from webob import Response
 
 from htsql.core import domain
 from htsql.core.model import HomeNode, TableArc
@@ -33,7 +34,7 @@ except ImportError:
 
 from .widget import Widget
 from .field import Field, responder
-from .url import URLVal, PortURL, QueryURL
+from .url import URLVal, PortURL, QueryURL, RequestURL
 from .util import PropsContainer, undefined, MaybeUndefinedVal, pop_mapping_key
 from .transitionable import as_transitionable
 from .pointer import Pointer
@@ -288,6 +289,13 @@ class FormWidgetSpecVal(Validate):
 
 FormWidgetSpec = FormWidgetSpecVal._validate_spec.record_type
 
+import json
+from rex.core import Error
+from webob.exc import (
+    HTTPMethodNotAllowed, HTTPBadRequest, HTTPError)
+from htsql.core.cmd.act import produce
+from htsql.core.fmt.accept import accept
+from htsql.core.fmt.emit import emit, emit_headers
 
 class QueryValidator(object):
 
@@ -298,14 +306,48 @@ class QueryValidator(object):
         self.query = Query(self.expression)
         self.query.parameters = {}
         self.query.parameters.update(self.parameters)
-        self.query.parameters.update({'value': None, 'id': None})
+        self.query.parameters.update({
+            'value': None,
+            'id': None,
+            'root': None,
+            'parent': None,
+        })
 
     def respond(self, req):
-        return self.query(req)
+        if not req.method == 'POST':
+            raise HTTPMethodNotAllowed()
+
+        data = req.POST.get('data')
+
+        if data is None:
+            raise HTTPBadRequest('Missing "data" in POST payload')
+
+        try:
+            params = json.loads(data)
+        except ValueError:
+            raise HTTPBadRequest(
+                'invalid request payload, "data" field should'
+                ' contain a valid JSON object')
+
+        params = self.query._merge(params)
+
+        try:
+            db = self.query.get_db()
+            with db:
+                product = produce(self.query.query, params)
+        except (Error, HTTPError), error:
+            return req.get_response(error)
+
+        with db:
+            format = accept(req.environ)
+            headerlist = emit_headers(format, product)
+            app_iter = list(emit(format, product))
+            return Response(headerlist=headerlist, app_iter=app_iter)
+
 
 @as_transitionable(QueryValidator)
 def _format_QueryValidator(value, req, path):
-    return Pointer(value, url_type=QueryURL, to_field=True)
+    return Pointer(value, url_type=RequestURL, to_field=True)
 
 
 class QueryValidatorVal(Validate):

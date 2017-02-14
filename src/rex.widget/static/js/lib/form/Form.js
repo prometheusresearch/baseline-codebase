@@ -21,6 +21,8 @@ import {Request} from '../data/Request';
 
 import Fieldset from './Fieldset';
 
+const ERROR_SENTINEL = '__rex_widget_validate_form__';
+
 let FormStyle = {
   controls: {
     marginTop: 10
@@ -56,6 +58,7 @@ let Form = React.createClass({
      * The data specification to submit the form value to.
      */
     submitTo: PropTypes.object,
+
     /**
      * The form schema in json schema format.
      */
@@ -298,7 +301,51 @@ let Form = React.createClass({
 
   onChange(value) {
     value = value.update(this.props.onChange(value.value, this.state.value.value, value), true);
+    if (this.props.validate != null) {
+      this.props.validate(value.value).then(
+        this.onValidateComplete,
+        this.onValidateError
+      );
+    }
     this.setState({value});
+  },
+
+  onValidateComplete(result) {
+    if (result == null) {
+      return;
+    }
+    const nextErrors = [];
+    const keys = Object.keys(result);
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      const error = result[key];
+      if (error == null) {
+        continue;
+      }
+      if (error.message == null) {
+        continue;
+      }
+      nextErrors.push(error);
+    }
+    this.setState(state => {
+      let value = state.value;
+      const prevErrors = value.completeErrorList.filter(error => error[ERROR_SENTINEL]);
+      for (let error of prevErrors) {
+        value = value.removeError(error, true);
+      }
+      for (let error of nextErrors) {
+        value = value.select(error.field).addError({
+          message: error.message,
+          [ERROR_SENTINEL]: true,
+        }, true).root;
+      }
+      value = value.updateParams({forceShowErrors: true}, true);
+      return {...state, value};
+    });
+  },
+
+  onValidateError(err) {
+    console.error('Form validation error:', err);
   },
 
   onSubmit(e) {

@@ -74,6 +74,7 @@ export default class EntityForm extends React.Component {
       <Form
         {...props}
         ref={this.onForm}
+        validate={this.validate}
         schema={{
           type: 'object',
           properties: {
@@ -97,6 +98,22 @@ export default class EntityForm extends React.Component {
         </Fieldset>
       </Form>
     );
+  }
+
+  validate = (value) => {
+    const {validate, entity} = this.props;
+    if (!validate) {
+      return Promise.resolve({});
+    }
+    value = value[entity] || [];
+    value = value[0] || {};
+    return validate(value).then(result => {
+      for (let idx in result) {
+        let item = result[idx];
+        result[idx] = {...item, field: `${entity}.0.${item.field}`};
+      }
+      return result;
+    });
   }
 
   onForm = (form) => {

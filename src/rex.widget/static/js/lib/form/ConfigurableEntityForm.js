@@ -8,7 +8,7 @@ import * as Schema from './Schema';
 import EntityForm from './EntityForm';
 import FormColumn from './FormColumn';
 import filterFormValue from './filterFormValue';
-
+import {validate, validatorFromFields} from './ConfigurableForm';
 
 /**
  * Form which has fieldset configurable through URL mapping.
@@ -60,6 +60,7 @@ export default class ConfigurableEntityForm extends React.Component {
 
     if (!this.props.disableValidation) {
       this._schema = Schema.fromFields(this.props.fields);
+      this._validator = validatorFromFields(this.props.fields);
     }
   }
 
@@ -70,6 +71,7 @@ export default class ConfigurableEntityForm extends React.Component {
         {...props}
         ref={this.onForm}
         schema={this._schema}
+        validate={this._validator && this._validate}
         onChange={this.onChange}
         submitButton={readOnly ? null : submitButton}>
         <FormColumn
@@ -83,8 +85,13 @@ export default class ConfigurableEntityForm extends React.Component {
   componentWillReceiveProps({fields}) {
     if (fields !== this.props.fields) {
       this._schema = Schema.fromFields(fields);
+      this._validator = validatorFromFields(fields);
     }
   }
+
+  _validate = (root) => {
+    return validate(this._validator, root, this.props.context);
+  };
 
   onChange = (value, prevValue) => {
     let {entity} = this.props;

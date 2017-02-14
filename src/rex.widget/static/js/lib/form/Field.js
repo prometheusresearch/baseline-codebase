@@ -2,7 +2,6 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import debounce from 'lodash/function/debounce';
 import React from 'react';
 import {withFormValue} from 'react-forms';
 import {VBox, HBox} from '../../layout';
@@ -118,13 +117,11 @@ export class Field extends React.Component {
     deserialize: (value) => (value),
     labelSize: 2,
     inputSize: 5,
-    debounceValidation: 500,
     layout: 'vertical',
   };
 
   constructor(props) {
     super(props);
-    this._validate = debounce(this._validate, props.debounceValidation);
     this.state = {
       dirty: false
     };
@@ -188,63 +185,8 @@ export class Field extends React.Component {
       onChange(value);
     }
     this.props.formValue.update(value);
-    if (this.props.validate) {
-      this._validate(value);
-    }
     this.setState({dirty: true});
   };
-
-  _validate(value) {
-    let formValue = this.props.formValue;
-    let context = formValue.params.context;
-    let params = {};
-    for (let key in context) {
-      if (context.hasOwnProperty(key)) {
-        let value = context[key];
-        if (value['meta:type'] !== undefined) {
-          params[key] = value.id;
-        } else {
-          params[key] = value;
-        }
-      }
-    }
-    if (formValue.parent) {
-      params.id = formValue.parent.value.id || null;
-    }
-    params.value = value;
-    this.props.validate.produce(params).then(
-      this._onValidateComplete.bind(null, value),
-      this._onValidateError);
-  }
-
-  _onValidateComplete = (value, result) => {
-    let formValue = this.props.formValue;
-
-    if (value !== formValue.value) {
-      return;
-    }
-
-    let firstKey = Object.keys(result)[0];
-    result = result[firstKey];
-
-    let error = formValue.errorList.find(error => error.rexWidgetError);
-    if (result !== null) {
-      formValue = formValue.removeError(error, true);
-      formValue = formValue.addError({
-        message: String(result),
-        rexWidgetError: true,
-      });
-    } else {
-      formValue = formValue.removeError(error);
-    }
-  };
-
-  _onValidateError = (error) => {
-    // FIXME: What to do? Render into errorList?
-    /* istanbul ignore next */
-    console.error(error); // eslint-disable-line no-console
-  };
-
 }
 
 export default withFormValue(Field);

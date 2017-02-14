@@ -5,7 +5,7 @@
 import React from 'react';
 
 import {forceRefreshData} from '../data';
-import {autobind, emptyFunction} from '../lang';
+import {emptyFunction} from '../lang';
 import {Port} from '../data/Port';
 import {Mutation} from '../data/Mutation';
 import Form from './Form';
@@ -99,13 +99,11 @@ export default class EntityForm extends React.Component {
     );
   }
 
-  @autobind
-  onForm(form) {
+  onForm = (form) => {
     this._form = form;
-  }
+  };
 
-  @autobind
-  transformValueOnSubmit(value) {
+  transformValueOnSubmit = (value) => {
     if (this.props.transformValueOnSubmit) {
       return this.props.transformValueOnSubmit(value);
     } else if (needExtract(this.props.submitTo)) {
@@ -113,20 +111,18 @@ export default class EntityForm extends React.Component {
     } else {
       return value;
     }
-  }
+  };
 
-  @autobind
-  onSubmitComplete(data) {
+  onSubmitComplete = (data) => {
     forceRefreshData();
     if (needExtract(this.props.submitTo)) {
       this.props.onSubmitComplete(data[this.props.entity][0]);
     } else {
       this.props.onSubmitComplete(data);
     }
-  }
+  };
 
-  @autobind
-  submit() {
+  submit = () => {
     return this._form.submit();
-  }
+  };
 }

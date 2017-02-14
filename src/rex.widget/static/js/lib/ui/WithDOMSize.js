@@ -4,7 +4,6 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {autobind} from '../lang';
 
 const DEFAULT_OPTIONS = {};
 
@@ -53,8 +52,7 @@ export default function WithDOMSize(Component, options = DEFAULT_OPTIONS) {
       window.removeEventListener('resize', this.computeSize);
     }
 
-    @autobind
-    computeSize() {
+    computeSize = () => {
       let node = this.props.getDOMNode(this);
       let {width, height} = node.getBoundingClientRect();
       if ((options.forceAsync || height === 0) && !this._timedOut) {
@@ -63,6 +61,6 @@ export default function WithDOMSize(Component, options = DEFAULT_OPTIONS) {
       } else {
         this.setState({DOMSize: {width, height}});
       }
-    }
+    };
   };
 }

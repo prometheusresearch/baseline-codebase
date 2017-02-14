@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import {autobind, emptyFunction} from '../../lang';
+import {emptyFunction} from '../../lang';
 import * as Schema from './Schema';
 import Form from './Form';
 import FormColumn from './FormColumn';
@@ -85,19 +85,16 @@ export default class ConfigurableForm extends React.Component {
     }
   }
 
-  @autobind
-  onForm(form) {
+  onForm = (form) => {
     this._form = form;
-  }
+  };
 
-  @autobind
-  onChange(value, prevValue) {
+  onChange = (value, prevValue) => {
     value = filterFormValue(value, this._schema.hideIfList);
     return this.props.onChange(value, prevValue);
-  }
+  };
 
-  @autobind
-  submit() {
+  submit = () => {
     return this._form.submit();
-  }
+  };
 }

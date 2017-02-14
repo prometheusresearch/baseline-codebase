@@ -2,7 +2,6 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import autobind from 'autobind-decorator';
 import {fetch, post} from '../fetch';
 import shallowEquals from '../shallowEquals';
 import {isArray} from '../lang';
@@ -67,8 +66,7 @@ export class Port {
     );
   }
 
-  @autobind
-  _processData(result) {
+  _processData = (result) => {
     for (let key in result) {
       let data = result[key];
       if (this._expectSingleEntity) {
@@ -79,7 +77,7 @@ export class Port {
       }
       return data;
     }
-  }
+  };
 
   /**
    * Send request to produce entities from port.

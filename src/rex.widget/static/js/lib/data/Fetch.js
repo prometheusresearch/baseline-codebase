@@ -2,7 +2,6 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import autobind from 'autobind-decorator';
 import React from 'react';
 import ReactUpdates from 'react/lib/ReactUpdates';
 import transferStaticProperties from '../lang/transferStaticProperties';
@@ -155,8 +154,7 @@ export default function Fetch(Component, fetch) {
         );
       }
 
-      @autobind
-      _onDataComplete(key, result) {
+      _onDataComplete = (key, result) => {
         let {params, data} = this.state;
         ReactUpdates.batchedUpdates(() => {
           let dataSet = new DataSet(key, result, null, false, false);
@@ -164,24 +162,22 @@ export default function Fetch(Component, fetch) {
           data = {...data, [key]: dataSet};
           this.setState({data});
         });
-      }
+      };
 
-      @autobind
-      _onDataError(key, error) {
+      _onDataError = (key, error) => {
         let data = {
           ...this.state.data,
           [key]: new DataSet(key, this.state.data[key].data, error, false, false)
         };
         this.setState({data});
-      }
+      };
 
-      @autobind
-      _onDataParams(params) {
+      _onDataParams = (params) => {
         params = {...this.state.params, ...params};
         let nextSpec = fetch.fetch({...this.props, ...params});
         let data = this._fetchAll(nextSpec);
         this.setState({data, params});
-      }
+      };
     };
 
     transferStaticProperties(Component, FetchContainer, ['defaultProps']);

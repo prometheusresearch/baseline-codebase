@@ -4,7 +4,7 @@
 
 import React, {PropTypes} from 'react';
 import {VBox, HBox}       from '../../layout';
-import {WithFormValue}    from 'react-forms';
+import {withFormValue}    from 'react-forms';
 import ErrorList from './ErrorList';
 
 let Style = {
@@ -137,4 +137,4 @@ function renderValue(value) {
   }
 }
 
-export default WithFormValue(ReadOnlyField);
+export default withFormValue(ReadOnlyField);

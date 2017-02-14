@@ -3,9 +3,8 @@
  */
 
 import debounce from 'lodash/function/debounce';
-import autobind from 'autobind-decorator';
 import React from 'react';
-import {WithFormValue} from 'react-forms';
+import {withFormValue} from 'react-forms';
 import {VBox, HBox} from '../../layout';
 import * as Stylesheet from '../../stylesheet';
 import Input from './Input';
@@ -167,15 +166,13 @@ export class Field extends React.Component {
     );
   }
 
-  @autobind
-  onBlur() {
+  onBlur = () => {
     if (!this.state.dirty) {
       this.setState({dirty: true});
     }
-  }
+  };
 
-  @autobind
-  onChange(onChange, e) {
+  onChange = (onChange, e) => {
     let value;
     if (e && e.target && e.target.value !== undefined) {
       e.stopPropagation();
@@ -195,7 +192,7 @@ export class Field extends React.Component {
       this._validate(value);
     }
     this.setState({dirty: true});
-  }
+  };
 
   _validate(value) {
     let formValue = this.props.formValue;
@@ -220,8 +217,7 @@ export class Field extends React.Component {
       this._onValidateError);
   }
 
-  @autobind
-  _onValidateComplete(value, result) {
+  _onValidateComplete = (value, result) => {
     let formValue = this.props.formValue;
 
     if (value !== formValue.value) {
@@ -241,15 +237,14 @@ export class Field extends React.Component {
     } else {
       formValue = formValue.removeError(error);
     }
-  }
+  };
 
-  @autobind
-  _onValidateError(error) {
+  _onValidateError = (error) => {
     // FIXME: What to do? Render into errorList?
     /* istanbul ignore next */
     console.error(error); // eslint-disable-line no-console
-  }
+  };
 
 }
 
-export default WithFormValue(Field);
+export default withFormValue(Field);

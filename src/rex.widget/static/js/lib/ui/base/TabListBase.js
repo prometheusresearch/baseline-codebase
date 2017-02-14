@@ -3,7 +3,7 @@
  */
 
 import React, {PropTypes} from 'react';
-import {autobind, emptyFunction} from '../../../lang';
+import {emptyFunction} from '../../../lang';
 import {VBox} from '../../../layout';
 import * as Stylesheet from '../../../stylesheet';
 import * as CSS from '../../../css';
@@ -121,9 +121,8 @@ export default class TabListBase extends React.Component {
     );
   }
 
-  @autobind
-  onClick(id, e) {
+  onClick = (id, e) => {
     e.preventDefault();
     this.props.onSelected(id);
-  }
+  };
 }

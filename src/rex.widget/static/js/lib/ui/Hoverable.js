@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import {autobind, emptyFunction} from '../lang';
+import {emptyFunction} from '../lang';
 
 export default function Hoverable(Component) {
   let displayName = Component.displayName || Component.name;
@@ -33,16 +33,14 @@ export default function Hoverable(Component) {
       );
     }
 
-    @autobind
-    onMouseEnter(e) {
+    onMouseEnter = (e) => {
       this.setState({hover: true});
       this.props.onMouseEnter(e); // eslint-disable-line react/prop-types
-    }
+    };
 
-    @autobind
-    onMouseLeave(e) {
+    onMouseLeave = (e) => {
       this.setState({hover: false});
       this.props.onMouseLeave(e); // eslint-disable-line react/prop-types
-    }
+    };
   };
 }

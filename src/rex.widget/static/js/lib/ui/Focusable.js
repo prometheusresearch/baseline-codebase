@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import {emptyFunction, autobind} from '../lang';
+import {emptyFunction} from '../lang';
 
 export default function Focusable(Component) {
   let displayName = Component.displayName || Component.name;
@@ -33,16 +33,14 @@ export default function Focusable(Component) {
       );
     }
 
-    @autobind
-    onFocus(e) {
+    onFocus = (e) => {
       this.setState({focus: true});
       this.props.onFocus(e);
-    }
+    };
 
-    @autobind
-    onBlur(e) {
+    onBlur = (e) => {
       this.setState({focus: false});
       this.props.onBlur(e);
-    }
+    };
   };
 }

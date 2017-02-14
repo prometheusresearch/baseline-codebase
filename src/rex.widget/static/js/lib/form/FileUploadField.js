@@ -11,7 +11,7 @@ import StoredFile from './StoredFile';
 import FileDownload from './FileDownload';
 import Field from './Field';
 import ReadOnlyField from './ReadOnlyField';
-import {WithFormValue} from 'react-forms';
+import {withFormValue} from 'react-forms';
 import uploadFile from '../upload';
 import './animation.css';
 
@@ -220,4 +220,4 @@ export class FileUploadField extends React.Component {
   }
 }
 
-export default WithFormValue(FileUploadField);
+export default withFormValue(FileUploadField);

@@ -3,11 +3,11 @@
  */
 
 import React, {PropTypes}  from 'react';
-import {WithFormValue}     from 'react-forms';
+import {withFormValue}     from 'react-forms';
 import {VBox}              from '@prometheusresearch/react-box';
 import renderFormItem      from './renderFormItem';
 
-@WithFormValue
+@withFormValue
 export default class FormColumn extends React.Component {
 
   static propTypes = {

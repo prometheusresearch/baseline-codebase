@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import {WithFormValue} from 'react-forms';
+import {withFormValue} from 'react-forms';
 
 import Field from './Field';
 import ReadOnlyField from './ReadOnlyField';
@@ -52,4 +52,4 @@ export class CheckboxField extends React.Component {
   }
 }
 
-export default WithFormValue(CheckboxField);
+export default withFormValue(CheckboxField);

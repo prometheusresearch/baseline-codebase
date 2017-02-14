@@ -3,7 +3,6 @@
  */
 
 import React, {PropTypes} from 'react';
-import autobind           from 'autobind-decorator';
 import Fetch              from '../data/Fetch';
 import DataTableBase      from './DataTableBase';
 
@@ -75,16 +74,14 @@ export class DataTable extends React.Component {
     }
   }
 
-  @autobind
-  onPagination(pagination) {
+  onPagination = (pagination) => {
     this.props.setDataParams({pagination});
-  }
+  };
 
-  @autobind
-  onSort(sort) {
+  onSort = (sort) => {
     let pagination = this.props.pagination;
     this.props.setDataParams({sort, pagination});
-  }
+  };
 }
 
 export default Fetch(DataSpec)(DataTable);

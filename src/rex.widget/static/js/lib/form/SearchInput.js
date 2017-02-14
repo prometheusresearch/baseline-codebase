@@ -7,7 +7,6 @@ import ReactDOM from 'react-dom';
 import * as stylesheet from '../../stylesheet';
 import * as css from '../../css';
 import {HBox} from '../../layout';
-import {autobind} from '../../lang';
 import {Icon} from '../../ui';
 import Input from './Input';
 
@@ -79,32 +78,27 @@ export default class SearchInput extends React.Component {
     );
   }
 
-  @autobind
-  clear() {
+  clear = () => {
     this.props.onChange(null);
     this.focus();
-  }
+  };
 
-  @autobind
-  focus() {
+  focus = () => {
     if (this._input) {
       ReactDOM.findDOMNode(this._input).focus();
     }
-  }
+  };
 
-  @autobind
-  onInputRef(input) {
+  onInputRef = (input) => {
     this._input = input;
-  }
+  };
 
-  @autobind
-  onFocus() {
+  onFocus = () => {
     this.setState({focus: true});
-  }
+  };
 
-  @autobind
-  onBlur() {
+  onBlur = () => {
     this.setState({focus: false});
-  }
+  };
 }
 

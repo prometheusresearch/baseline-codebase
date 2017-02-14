@@ -3,10 +3,9 @@
  */
 
 import React, {PropTypes} from 'react';
-import {WithFormValue} from 'react-forms';
+import {withFormValue} from 'react-forms';
 import CloseIcon from 'react-icons/lib/fa/close';
 
-import {autobind} from '../../lang';
 import {HBox, VBox} from '../../layout';
 import {DangerButton, Button} from '../../ui';
 import * as Stylesheet from '../../stylesheet';
@@ -155,8 +154,7 @@ export class RepeatingFieldset extends React.Component {
     );
   }
 
-  @autobind
-  addItem() {
+  addItem = () => {
     let {formValue} = this.props;
     let value = (formValue.value || []).slice(0);
     let defaultValue = this.props.defaultValue;
@@ -169,15 +167,14 @@ export class RepeatingFieldset extends React.Component {
     }
     value.push(defaultValue);
     formValue.update(value);
-  }
+  };
 
-  @autobind
-  removeItem(idx) {
+  removeItem = (idx) => {
     let {formValue} = this.props;
     let value = (formValue.value || []).slice(0);
     value.splice(idx, 1);
     formValue.update(value);
-  }
+  };
 }
 
-export default WithFormValue(RepeatingFieldset);
+export default withFormValue(RepeatingFieldset);

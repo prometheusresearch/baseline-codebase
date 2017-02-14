@@ -2,7 +2,6 @@
  * @copyright 2015, Facebook, Inc. All rights reserved.
  */
 
-import autobind           from 'autobind-decorator';
 import React, {PropTypes} from 'react';
 import {isTouchDevice}    from './Environment';
 
@@ -42,32 +41,29 @@ export default class TouchableArea extends React.Component {
     }
   }
 
-  @autobind
-  _onTouchStart(e) {
+  _onTouchStart = (e) => {
     if (!this.props.scroller || !this.props.touchable) {
       return;
     }
 
     this.props.scroller.doTouchStart(e.touches, e.timeStamp);
-  }
+  };
 
-  @autobind
-  _onTouchMove(e) {
+  _onTouchMove = (e) => {
     if (!this.props.scroller || !this.props.touchable) {
       return;
     }
 
     this.props.scroller.doTouchMove(e.touches, e.timeStamp, e.scale);
     e.preventDefault();
-  }
+  };
 
-  @autobind
-  _onTouchEnd(e) {
+  _onTouchEnd = (e) => {
     if (!this.props.scroller || !this.props.touchable) {
       return;
     }
 
     this.props.scroller.doTouchEnd(e.timeStamp);
-  }
+  };
 
 }

@@ -10,7 +10,7 @@ import * as Stylesheet from '../../stylesheet';
 import * as css from '../../css';
 import WithDOMSize from '../ui/WithDOMSize';
 import {VBox, HBox} from '../../layout';
-import {emptyFunction, autobind} from '../../lang';
+import {emptyFunction} from '../../lang';
 import {LoadingIndicator, Icon} from '../ui';
 import * as KeyPath       from '../KeyPath';
 import TouchableArea      from '../TouchableArea';
@@ -229,16 +229,14 @@ export class DataTableBase extends React.Component {
     );
   }
 
-  @autobind
-  onTouchScroll(left, top) {
+  onTouchScroll = (left, top) => {
     if (isTouchDevice) {
       this.setState({left, top});
       this.onScrollEnd();
     }
-  }
+  };
 
-  @autobind
-  onContentDimensionsChange(contentHeight, contentWidth) {
+  onContentDimensionsChange = (contentHeight, contentWidth) => {
     if (isTouchDevice) {
       this.scroller.setDimensions(
         this.props.DOMSize.width,
@@ -247,17 +245,15 @@ export class DataTableBase extends React.Component {
         contentHeight
       );
     }
-  }
+  };
 
-  @autobind
-  onColumnResizeEndCallback(newWidth, dataKey) {
+  onColumnResizeEndCallback = (newWidth, dataKey) => {
     newWidth = Math.max(this.props.minColumnWidth, newWidth);
     let columnWidth = {...this.state.columnWidth, [dataKey]: newWidth};
     this.setState({columnWidth});
-  }
+  };
 
-  @autobind
-  headerRenderer(label, cellDataKey, columnData) {
+  headerRenderer = (label, cellDataKey, columnData) => {
     let {SortIndicator} = this.constructor.stylesheet;
     let {sort: {valueKey, asc}, onSort} = this.props;
     let active = KeyPath.equals(columnData.valueKey, valueKey);
@@ -276,10 +272,9 @@ export class DataTableBase extends React.Component {
         </HBox>
       </div>
     );
-  }
+  };
 
-  @autobind
-  cellRenderer(cellData, cellDataKey, rowData, rowIndex, columnData) {
+  cellRenderer = (cellData, cellDataKey, rowData, rowIndex, columnData) => {
     let onCellClick;
     if (this.props.onCellClick) {
       onCellClick = this.props.onCellClick.bind(null, cellDataKey, cellData, rowData);
@@ -293,33 +288,29 @@ export class DataTableBase extends React.Component {
         </span>
       );
     }
-  }
+  };
 
-  @autobind
-  cellDataGetter(cellDataKey, rowData) {
+  cellDataGetter = (cellDataKey, rowData) => {
     return KeyPath.get(cellDataKey, rowData);
-  }
+  };
 
-  @autobind
-  rowGetter(rowIndex) {
+  rowGetter = (rowIndex) => {
     if (rowIndex > this._rowIndexMax) {
       this._rowIndexMax = rowIndex;
     }
     let rowData = this.props.data.data[rowIndex];
     return rowData;
-  }
+  };
 
-  @autobind
-  rowClassNameGetter(rowIndex) {
+  rowClassNameGetter = (rowIndex) => {
     let {selected} = this.props;
     let row = this.rowGetter(rowIndex);
     if (row && row.id !== undefined && row.id == selected) { // eslint-disable-line eqeqeq
       return this.props.selectedRowClassName;
     }
-  }
+  };
 
-  @autobind
-  onScrollEnd() {
+  onScrollEnd = () => {
     let {
       pagination: {top, skip},
       data: {updating, hasMore, data}
@@ -327,15 +318,14 @@ export class DataTableBase extends React.Component {
     if (data && data.length - this._rowIndexMax < 10 && !updating && hasMore) {
       this.props.onPagination({top, skip: skip + top});
     }
-  }
+  };
 
-  @autobind
-  onRowClick(e, rowIndex, row) {
+  onRowClick = (e, rowIndex, row) => {
     let {allowReselect, selected, onSelect} = this.props;
     if (allowReselect || row.id != selected) { // eslint-disable-line eqeqeq
       onSelect(row.id, row);
     }
-  }
+  };
 }
 
 /**

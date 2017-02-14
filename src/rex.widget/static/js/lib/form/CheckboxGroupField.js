@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import {WithFormValue} from 'react-forms';
+import {withFormValue} from 'react-forms';
 
 import {Fetch} from '../../data';
 import {Preloader} from '../../ui';
@@ -105,4 +105,4 @@ export function fetch({options, formValue}) {
 
 let FetchOptions = Fetch(fetch);
 
-export default WithFormValue(FetchOptions(CheckboxGroupField));
+export default withFormValue(FetchOptions(CheckboxGroupField));

@@ -7,7 +7,7 @@ import Autocomplete from '../Autocomplete';
 import Field from './Field';
 import ReadOnlyField from './ReadOnlyField';
 import {Fetch} from '../../data';
-import {WithFormValue} from 'react-forms';
+import {withFormValue} from 'react-forms';
 import contextParams from './contextParams';
 
 /**
@@ -137,4 +137,4 @@ export class EntityTitle extends React.Component {
   }
 }
 
-export default WithFormValue(AutocompleteField);
+export default withFormValue(AutocompleteField);

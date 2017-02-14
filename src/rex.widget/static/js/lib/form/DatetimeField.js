@@ -7,7 +7,7 @@ import React from 'react';
 import DatetimeInput from './DatetimeInput';
 import Field from './Field';
 import ReadOnlyField from './ReadOnlyField';
-import {WithFormValue} from 'react-forms';
+import {withFormValue} from 'react-forms';
 
 const ISO_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 const ISO_FORMAT_MILLIS = 'YYYY-MM-DD HH:mm:ss.SSSS';
@@ -97,4 +97,4 @@ export class DatetimeField extends React.Component {
   }
 }
 
-export default WithFormValue(DatetimeField);
+export default withFormValue(DatetimeField);

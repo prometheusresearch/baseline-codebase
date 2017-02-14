@@ -2,7 +2,6 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import autobind       from 'autobind-decorator';
 import React          from 'react';
 import Input          from './Input';
 import tryParseFloat  from '../tryParseFloat';
@@ -37,8 +36,7 @@ export default class NumberInput extends React.Component {
     }
   }
 
-  @autobind
-  onChange(value) {
+  onChange = (value) => {
     this.setState({value}, () => {
       if (value === '') {
         this.props.onChange(undefined); // eslint-disable-line react/prop-types
@@ -47,5 +45,5 @@ export default class NumberInput extends React.Component {
         this.props.onChange(value); // eslint-disable-line react/prop-types
       }
     });
-  }
+  };
 }

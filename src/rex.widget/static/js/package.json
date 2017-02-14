@@ -46,7 +46,7 @@
     "object-assign": "^1.0.0",
     "qs": "^4.0.0",
     "react-dom-stylesheet": "^0.7.0",
-    "react-forms": "2.0.0-beta24",
+    "react-forms": "2.0.0-beta35",
     "react-icons": "^1.0.6",
     "react-stylesheet": "^1.0.0",
     "rethemeable": "^2.0.1",

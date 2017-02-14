@@ -8,7 +8,7 @@ import {Preloader} from '../../ui';
 import {Fetch} from '../../data';
 import Field from './Field';
 import ReadOnlyField from './ReadOnlyField';
-import {WithFormValue} from 'react-forms';
+import {withFormValue} from 'react-forms';
 
 /**
  * Renders a <Field> with a <Select>
@@ -107,4 +107,4 @@ function fetch({data, options}) {
   return options ? {} : {data};
 }
 
-export default Fetch(fetch)(WithFormValue(SelectField));
+export default Fetch(fetch)(withFormValue(SelectField));

@@ -3,7 +3,7 @@
  */
 
 import React from 'react';
-import {autobind, emptyFunction} from '../../lang';
+import {emptyFunction} from '../../lang';
 import * as Schema from './Schema';
 import EntityForm from './EntityForm';
 import FormColumn from './FormColumn';
@@ -86,8 +86,7 @@ export default class ConfigurableEntityForm extends React.Component {
     }
   }
 
-  @autobind
-  onChange(value, prevValue) {
+  onChange = (value, prevValue) => {
     let {entity} = this.props;
     let valueToFilter = value[entity][0];
     let filteredValue = filterFormValue(valueToFilter, this._schema.hideIfList);
@@ -95,15 +94,13 @@ export default class ConfigurableEntityForm extends React.Component {
       value = {[entity]: [filteredValue]};
     }
     return this.props.onChange(value, prevValue);
-  }
+  };
 
-  @autobind
-  onForm(form) {
+  onForm = (form) => {
     this._form = form;
-  }
+  };
 
-  @autobind
-  submit() {
+  submit = () => {
     return this._form.submit();
-  }
+  };
 }

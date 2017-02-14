@@ -4,7 +4,6 @@
 
 import React from 'react';
 import AutocompleteBase from '@prometheusresearch/react-autocomplete';
-import {autobind} from '../lang';
 import {IconButton} from './ui';
 import * as layout from '../layout';
 import * as css from '../css';
@@ -217,8 +216,7 @@ export default class Autocomplete extends React.Component {
     }
   }
 
-  @autobind
-  onChange(value) {
+  onChange = (value) => {
     if (value) {
       this.props.onChange(value.id);
       this.setState({value});
@@ -226,32 +224,27 @@ export default class Autocomplete extends React.Component {
       this.props.onChange(null);
       this.setState({value: null});
     }
-  }
+  };
 
-  @autobind
-  _clear() {
+  _clear = () => {
     this.setState({value: null});
     this.props.onChange(null);
-  }
+  };
 
-  @autobind
-  _open() {
+  _open = () => {
     this.refs.underlying.showResults('');
-  }
+  };
 
-  @autobind
-  _onRequestValueComplete(value) {
+  _onRequestValueComplete = (value) => {
     this.setState({value});
-  }
+  };
 
-  @autobind
-  _onRequestValueError(err) {
+  _onRequestValueError = (err) => {
     /* istanbul ignore next */
     console.error(err); // eslint-disable-line no-console
-  }
+  };
 
-  @autobind
-  _requestOptions(value) {
+  _requestOptions = (value) => {
     let {titleAttribute, data, limit} = this.props;
     if (limit) {
       data = data.limit(limit);
@@ -262,25 +255,22 @@ export default class Autocomplete extends React.Component {
     return data.produce().then(
       this._onRequestOptionsComplete,
       this._onRequestOptionsError);
-  }
+  };
 
-  @autobind
-  _onRequestOptionsComplete(options) {
+  _onRequestOptionsComplete = (options) => {
     return options.map(option => ({
       ...option,
       id: option[this.props.valueAttribute],
       title: option[this.props.titleAttribute]
     }));
-  }
+  };
 
-  @autobind
-  _onRequestOptionsError(err) {
+  _onRequestOptionsError = (err) => {
     /* istanbul ignore next */
     console.error(err); // eslint-disable-line no-console
-  }
+  };
 
-  @autobind
-  _search(_options, value, cb) {
+  _search = (_options, value, cb) => {
     if (this._searchTimer !== null) {
       clearTimeout(this._searchTimer);
     }
@@ -290,6 +280,6 @@ export default class Autocomplete extends React.Component {
         err => cb(err)
       );
     }, this.props.debounce);
-  }
+  };
 
 }

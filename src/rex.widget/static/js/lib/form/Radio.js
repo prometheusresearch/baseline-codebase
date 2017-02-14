@@ -2,7 +2,6 @@
  * @copyright 2016, Prometheus Research, LLC
  */
 
-import {autobind} from '../lang';
 import React from 'react';
 
 export default class Radio extends React.Component {
@@ -18,9 +17,8 @@ export default class Radio extends React.Component {
     );
   }
 
-  @autobind
-  onChange(e) {
+  onChange = (e) => {
     this.props.onChange(e.target.checked);
-  }
+  };
 }
 

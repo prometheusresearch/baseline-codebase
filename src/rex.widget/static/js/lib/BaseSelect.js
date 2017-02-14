@@ -3,7 +3,6 @@
  */
 
 import React from 'react';
-import {autobind} from '../lang';
 import * as Stylesheet from '../stylesheet';
 import * as css from '../css';
 
@@ -133,13 +132,12 @@ export default class BaseSelect extends React.Component {
     );
   }
 
-  @autobind
-  onChange(e) {
+  onChange = (e) => {
     let value = e.target.value;
     let id = e.target.id;
     if (value === sentinel) {
       value = null;
     }
     this.props.onValue(value, id);
-  }
+  };
 }

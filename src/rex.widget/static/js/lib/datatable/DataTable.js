@@ -9,10 +9,18 @@ import DataTableBase      from './DataTableBase';
 
 export let DataSpec = {
 
-  fetch({data, pagination: {top, skip}, sort: {valueKey, asc}}) {
+  fetch({data, pagination: {top, skip}, sort}) {
     data = data.limit(top, skip);
-    if (valueKey) {
-      data = data.sort(valueKey, asc);
+    if (sort) {
+      if (!Array.isArray(sort)) {
+        sort = [sort];
+      }
+      for (let i = 0; i < sort.length; i++) {
+        let {valueKey, asc} = sort[i];
+        if (valueKey) {
+          data = data.sort(valueKey, asc);
+        }
+      }
     }
     return {data};
   },

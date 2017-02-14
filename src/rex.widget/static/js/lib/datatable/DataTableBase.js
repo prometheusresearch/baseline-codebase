@@ -43,7 +43,7 @@ export class DataTableBase extends React.Component {
     /**
      * Current sort direction.
      */
-    sort: PropTypes.object,
+    sort: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
 
     /**
      * Callback which is called on next sort direction.
@@ -255,10 +255,18 @@ export class DataTableBase extends React.Component {
 
   headerRenderer = (label, cellDataKey, columnData) => {
     let {SortIndicator} = this.constructor.stylesheet;
-    let {sort: {valueKey, asc}, onSort} = this.props;
-    let active = KeyPath.equals(columnData.valueKey, valueKey);
-    let sort = {valueKey: columnData.valueKey, asc: active ? !asc : true};
-    let icon = active ? (asc ? 'sort-by-attributes' : 'sort-by-attributes-alt') : 'sort';
+    let {sort: sortSpec, onSort} = this.props;
+    let sort;
+    let icon;
+    if (sortSpec && !Array.isArray(sortSpec)) {
+      let {valueKey, asc} = sortSpec;
+      let active = KeyPath.equals(columnData.valueKey, valueKey);
+      sort = {valueKey: columnData.valueKey, asc: active ? !asc : true};
+      icon = active ? (asc ? 'sort-by-attributes' : 'sort-by-attributes-alt') : 'sort';
+    } else {
+      icon = 'sort';
+      sort = {valueKey: columnData.valueKey, asc: true};
+    }
     return (
       <div>
         <HBox flex={1}>

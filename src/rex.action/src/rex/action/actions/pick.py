@@ -9,7 +9,7 @@
 
 from rex.core import StrVal, SeqVal, MaybeVal, BoolVal, RecordVal, OneOfVal
 from rex.port import Port
-from rex.widget import Field, ColumnVal, undefined
+from rex.widget import Field, ColumnVal, undefined, formfield
 
 from .. import typing
 from .entity_action import EntityAction
@@ -106,9 +106,21 @@ class Pick(EntityAction):
         if self.entity.type.state:
             mask.append(self.entity.type.state.expression)
 
+        fields = self.fields
+
+        if self.sort:
+            fields = fields + [
+                formfield.CalculatedFormField(
+                    value_key=['__sort__'],
+                    expression=self.sort.field,
+                )
+            ]
+
         port = super(Pick, self).create_port(
+            fields=fields,
             filters=filters,
             mask=expr_and(mask) if mask else None)
+
         return port
 
     def context(self):

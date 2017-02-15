@@ -50,12 +50,7 @@ export default class Pick extends React.Component {
           placeholder={searchPlaceholder}
           />
     );
-    let sort = undefined;
-    if (Array.isArray(sortSpec)) {
-      sort = sortSpec.map(item => ({valueKey: item.field, asc: item.asc}));
-    } else if (sortSpec) {
-      sort = {valueKey: sortSpec.field, asc: sortSpec.asc};
-    }
+    let sort = {valueKey: '__sort__', asc: sortSpec.asc};
     return (
       <Action
         noContentWrapper

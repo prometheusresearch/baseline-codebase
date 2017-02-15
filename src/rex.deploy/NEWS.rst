@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.9.1 (2017-02-15)
+==================
+
+* Removed the test on ``median()``.
+
+
 2.9.0 (2017-01-19)
 ==================
 

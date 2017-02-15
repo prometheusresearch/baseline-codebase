@@ -11,16 +11,8 @@ export let DataSpec = {
 
   fetch({data, pagination: {top, skip}, sort}) {
     data = data.limit(top, skip);
-    if (sort) {
-      if (!Array.isArray(sort)) {
-        sort = [sort];
-      }
-      for (let i = 0; i < sort.length; i++) {
-        let {valueKey, asc} = sort[i];
-        if (valueKey) {
-          data = data.sort(valueKey, asc);
-        }
-      }
+    if (sort && sort.valueKey) {
+      data = data.sort(sort.valueKey, sort.asc);
     }
     return {data};
   },

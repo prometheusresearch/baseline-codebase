@@ -4,7 +4,6 @@ path:
 - minimal:
   - view:
 - with-sort:
-- with-multiple-sort:
 - use-search:
   - view:
 - use-fields:
@@ -25,18 +24,13 @@ actions:
     title: With sort (code desc)
     type: pick
     entity: individual
+    fields:
+    - code
+    - sex
+    - mother.identity.fullname
     sort:
-      field: code
+      field: mother.identity.fullname + '__' + text(sex)
       asc: false
-  with-multiple-sort:
-    title: With multiple sort (code desc, sex asc)
-    type: pick
-    entity: individual
-    sort:
-    - field: code
-      asc: false
-    - field: sex
-      asc: true
   use-search:
     title: Using Search
     type: pick

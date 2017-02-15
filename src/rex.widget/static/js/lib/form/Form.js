@@ -34,9 +34,9 @@ let FormStyle = {
  *
  * @public
  */
-let Form = React.createClass({
+class Form extends React.Component {
 
-  propTypes: {
+  static propTypes = {
 
     /**
      * If form should operate in "insert" mode (for creating new entities).
@@ -134,7 +134,42 @@ let Form = React.createClass({
      * Callback is called on each update.
      */
     onUpdate: PropTypes.func,
-  },
+  };
+
+  static defaultProps = {
+    submitButton: (
+      <SuccessButton>Submit</SuccessButton>
+    ),
+    onChange: emptyFunction.thatReturnsArgument,
+    onUpdate: emptyFunction.thatReturnsArgument,
+    onBeforeSubmit: emptyFunction.thatReturnsArgument,
+    onSubmitComplete: emptyFunction,
+    onSubmitError: emptyFunction,
+    transformValueOnSubmit: emptyFunction.thatReturnsArgument,
+    progressNotification: (
+      <Notification
+        kind="info"
+        text="Data saving is in progress"
+        icon="cog"
+        ttl={Infinity}
+        />
+    ),
+    completeNotification: (
+      <Notification
+        kind="success"
+        text="Data saved successfully"
+        icon="ok"
+        />
+    ),
+    errorNotification: (
+      <Notification
+        kind="danger"
+        text="There was an error while submitting data to server"
+        icon="remove"
+        ttl={Infinity}
+        />
+    )
+  };
 
   render() {
     let {children, schema, submitButton, submitButtonTitle, ...props} = this.props;
@@ -167,47 +202,11 @@ let Form = React.createClass({
           </VBox>}
       </VBox>
     );
-  },
+  }
 
-  getDefaultProps() {
-    return {
-      submitButton: (
-        <SuccessButton>Submit</SuccessButton>
-      ),
-      onChange: emptyFunction.thatReturnsArgument,
-      onUpdate: emptyFunction.thatReturnsArgument,
-      onBeforeSubmit: emptyFunction.thatReturnsArgument,
-      onSubmitComplete: emptyFunction,
-      onSubmitError: emptyFunction,
-      transformValueOnSubmit: emptyFunction.thatReturnsArgument,
-      progressNotification: (
-        <Notification
-          kind="info"
-          text="Data saving is in progress"
-          icon="cog"
-          ttl={Infinity}
-          />
-      ),
-      completeNotification: (
-        <Notification
-          kind="success"
-          text="Data saved successfully"
-          icon="ok"
-          />
-      ),
-      errorNotification: (
-        <Notification
-          kind="danger"
-          text="There was an error while submitting data to server"
-          icon="remove"
-          ttl={Infinity}
-          />
-      )
-    };
-  },
-
-  getInitialState() {
-    return {
+  constructor(props) {
+    super(props);
+    this.state = {
       submitInProgress: false,
       value: createValue({
         schema: this.props.schema,
@@ -216,7 +215,8 @@ let Form = React.createClass({
         params: {context: this.props.context},
       })
     };
-  },
+    this._promiseLastValidation = Promise.resolve();
+  }
 
   componentDidUpdate() {
     let value = this.props.onUpdate(this.state.value.value);
@@ -225,7 +225,7 @@ let Form = React.createClass({
         value: this.state.value.update(value, true)
       });
     }
-  },
+  }
 
   componentWillReceiveProps(nextProps) {
     let value = this.state.value;
@@ -239,9 +239,13 @@ let Form = React.createClass({
       });
       this.setState({value});
     }
-  },
+  }
 
-  submit() {
+  submit = () => {
+    this._validate().then(this._submitImpl);
+  };
+
+  _submitImpl = () => {
     let {value} = this.state;
     let {submitTo, insert, onBeforeSubmit, transformValueOnSubmit} = this.props;
 
@@ -297,20 +301,25 @@ let Form = React.createClass({
           .then(this.onSubmitComplete, this.onSubmitError);
       }
     }
-  },
+  };
 
-  onChange(value) {
+  onChange = (value) => {
     value = value.update(this.props.onChange(value.value, this.state.value.value, value), true);
+    this._validate(value);
+    this.setState({value});
+  };
+
+  _validate = (formValue = this.state.value) => {
     if (this.props.validate != null) {
-      this.props.validate(value.value).then(
-        this.onValidateComplete,
-        this.onValidateError
+      this._promiseLastValidation = this.props.validate(formValue.value).then(
+        this._onValidateComplete,
+        this._onValidateError
       );
     }
-    this.setState({value});
-  },
+    return this._promiseLastValidation;
+  };
 
-  onValidateComplete(result) {
+  _onValidateComplete = (result) => {
     if (result == null) {
       return;
     }
@@ -327,41 +336,43 @@ let Form = React.createClass({
       }
       nextErrors.push(error);
     }
-    this.setState(state => {
-      let value = state.value;
-      const prevErrors = value.completeErrorList.filter(error => error[ERROR_SENTINEL]);
-      for (let error of prevErrors) {
-        value = value.removeError(error, true);
-      }
-      for (let error of nextErrors) {
-        value = value.select(error.field).addError({
-          message: error.message,
-          [ERROR_SENTINEL]: true,
-        }, true).root;
-      }
-      value = value.updateParams({forceShowErrors: true}, true);
-      return {...state, value};
+    return new Promise(resolve => {
+      this.setState(state => {
+        let value = state.value;
+        const prevErrors = value.completeErrorList.filter(error => error[ERROR_SENTINEL]);
+        for (let error of prevErrors) {
+          value = value.removeError(error, true);
+        }
+        for (let error of nextErrors) {
+          value = value.select(error.field).addError({
+            message: error.message,
+            [ERROR_SENTINEL]: true,
+          }, true).root;
+        }
+        value = value.updateParams({forceShowErrors: true}, true);
+        return {...state, value};
+      }, resolve);
     });
-  },
+  };
 
-  onValidateError(err) {
-    console.error('Form validation error:', err);
-  },
+  _onValidateError = (err) => {
+    console.error('Form validation error:', err); // eslint-disable-line no-console
+  };
 
-  onSubmit(e) {
+  onSubmit = (e) => {
     e.stopPropagation();
     e.preventDefault();
     this.submit();
-  },
+  };
 
-  onSubmitComplete(data) {
+  onSubmitComplete = (data) => {
     this.setState({submitInProgress: false});
     removeNotification(this._progressNotification);
     showNotification(this.props.completeNotification);
     this.props.onSubmitComplete(data);
-  },
+  };
 
-  onSubmitError(err) {
+  onSubmitError = (err) => {
     this.setState({submitInProgress: false});
     removeNotification(this._progressNotification);
     let errorNotification = React.cloneElement(this.props.errorNotification, {
@@ -374,8 +385,8 @@ let Form = React.createClass({
     });
     showNotification(errorNotification);
     this.props.onSubmitError({error: err});
-  }
-});
+  };
+}
 
 let ErrorRendererStyle = {
   stack: {

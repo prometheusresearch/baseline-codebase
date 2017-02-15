@@ -30,7 +30,7 @@ actions:
     - mother.identity.fullname
     sort:
       field: mother.identity.fullname + '__' + text(sex)
-      asc: false
+      asc: true
   use-search:
     title: Using Search
     type: pick

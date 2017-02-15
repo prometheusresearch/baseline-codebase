@@ -4,6 +4,11 @@
 
 .. contents:: Table of Contents
 
+1.6.0 (2017-XX-XX)
+==================
+
+* [FEAT] Support arbitrary HTSQL expressions as sort keys in pick action config.
+
 1.5.2 (2017-01-19)
 ==================
 

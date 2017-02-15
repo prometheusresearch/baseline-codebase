@@ -11,6 +11,8 @@ path:
   - view:
 - use-query:
   - view:
+- with-validation:
+  - view:
 - use-context:
   - use-context-make:
     - view:
@@ -36,6 +38,28 @@ actions:
     - value_key: identity.birthdate
       type: date
       label: Date of Birth
+
+  with-validation:
+    title: With Validation
+    type: make
+    entity: individual
+    fields:
+    - sex
+    - value_key: identity.fullname
+      label: Full name
+    - value_key: identity.birthdate
+      type: date
+      label: Date of Birth
+      validate:
+        do(
+          $fullname := null(),
+          with($parent,
+            if($fullname == null() & $value == null(),
+              'Required if fullname is not entered',
+              null()
+            )
+          )
+        )
 
   use-value:
     title: Using Value

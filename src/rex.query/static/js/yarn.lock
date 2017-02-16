@@ -2205,7 +2205,7 @@ fb-watchman@^1.8.0, fb-watchman@^1.9.0:
   dependencies:
     bser "1.0.2"
 
-fbjs@^0.8.1, fbjs@^0.8.4:
+fbjs@^0.8.1, fbjs@^0.8.4, fbjs@^0.8.9:
   version "0.8.9"
   resolved "https://registry.yarnpkg.com/fbjs/-/fbjs-0.8.9.tgz#180247fbd347dcc9004517b904f865400a0c8f14"
   dependencies:
@@ -4476,11 +4476,11 @@ react-select@^1.0.0-rc.2:
     classnames "^2.2.4"
     react-input-autosize "^1.1.0"
 
-react-stylesheet@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/react-stylesheet/-/react-stylesheet-2.0.0.tgz#e6e94b6e5a58e84d3e8a80daa574dbe8de19cb85"
+react-stylesheet@^2.0.0, react-stylesheet@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/react-stylesheet/-/react-stylesheet-2.0.1.tgz#9818fc5118bd7fb8a3dab370fa911664fd0d7949"
   dependencies:
-    fbjs "^0.8.4"
+    fbjs "^0.8.9"
     inline-style-prefix-all "^2.0.2"
     invariant "^2.2.1"
     murmurhash-js "^1.0.0"

@@ -22,10 +22,10 @@ export default function ErrorPanel({
   let borderStyle = css.border(2, Theme.invalid.borderColor);
   return (
     <VBox
-      borderTop={borderTop ? borderStyle : null}
-      borderBottom={borderBottom ? borderStyle : null}
-      borderLeft={borderLeft ? borderStyle : null}
-      borderRight={borderRight ? borderStyle : null}
+      borderTop={borderTop ? borderStyle : undefined}
+      borderBottom={borderBottom ? borderStyle : undefined}
+      borderLeft={borderLeft ? borderStyle : undefined}
+      borderRight={borderRight ? borderStyle : undefined}
       fontSize="9pt"
       padding={10}
       color={Theme.invalid.textColor}

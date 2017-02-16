@@ -2,19 +2,20 @@
  * @flow
  */
 
-import type {Query, QueryPointer, Type} from '../../model';
+import type {QueryPipeline, Type} from '../../model';
 import type {Actions} from '../../state';
 
 import React from 'react';
 import {style, css, VBox, HBox} from 'react-stylesheet';
 import * as t from '../../model/Type';
+import * as qo from '../../model/QueryOperation';
 
 type QueryVisToolbarProps = {
 
   /**
    * Pointer on which the toolbar operates.
    */
-  pointer: QueryPointer<Query>;
+  pipeline: QueryPipeline;
 
   disableAdd?: boolean;
 };
@@ -29,8 +30,8 @@ export default class QueryVisToolbar
   static contextTypes = {actions: React.PropTypes.object};
 
   render() {
-    let {pointer, disableAdd} = this.props;
-    let type = pointer.query.context.type;
+    let {pipeline, disableAdd} = this.props;
+    let type = qo.getInsertionPoint(pipeline).context.type;
     let canNavigate = canNavigateAt(type);
     let canFilter = canFilterAt(type);
     let canAggregate = canAggregateAt(type);
@@ -74,23 +75,23 @@ export default class QueryVisToolbar
 
   onAdd = (ev: UIEvent) => {
     ev.stopPropagation();
-    this.context.actions.insertAfter(this.props.pointer);
+    this.context.actions.setActiveQueryPipeline({pipeline: this.props.pipeline});
   };
 
   onFilter = (ev: UIEvent) => {
     ev.stopPropagation();
-    this.context.actions.appendFilter({pointer: this.props.pointer});
+    this.context.actions.appendFilter({at: this.props.pipeline});
   };
 
   onGroup = (ev: UIEvent) => {
     ev.stopPropagation();
-    this.context.actions.appendGroup({pointer: this.props.pointer});
+    this.context.actions.appendGroup({at: this.props.pipeline});
   };
 
   onAddGroupQuery = (path: string, ev: UIEvent) => {
     ev.stopPropagation();
     this.context.actions.appendDefine({
-      pointer: this.props.pointer,
+      at: this.props.pipeline,
       path: [path],
       select: true,
     });
@@ -98,7 +99,7 @@ export default class QueryVisToolbar
 
   onAggregate = (ev: UIEvent) => {
     ev.stopPropagation();
-    this.context.actions.appendAggregate({pointer: this.props.pointer});
+    this.context.actions.appendAggregate({at: this.props.pipeline});
   };
 
 }

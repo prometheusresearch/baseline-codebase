@@ -4,11 +4,15 @@
 
 export type {
   Query,
+  QueryAtom,
+  QueryPipeline,
+
   DefineQuery,
   NavigateQuery,
   SelectQuery,
   AggregateQuery,
-  QueryPipeline,
+  GroupQuery,
+  FilterQuery,
 
   Expression,
 
@@ -16,9 +20,8 @@ export type {
 } from './Query';
 
 export type {
-  QueryPointer,
-  KeyPath,
-} from './QueryPointer';
+  QueryLoc
+} from './QueryLoc';
 
 export type {
   QueryNavigation

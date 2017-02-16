@@ -2,7 +2,6 @@
  * @flow
  */
 
-import type {QueryPointer} from '../model/QueryPointer';
 import type {Actions} from '../state';
 
 import React from 'react';
@@ -14,7 +13,7 @@ import QueryPanelBase from './QueryPanelBase';
 import {MenuButton, MenuGroup} from './menu';
 
 type GroupQueryPanelProps = {
-  pointer: QueryPointer<q.GroupQuery>;
+  query: q.GroupQuery;
   onClose: () => *;
 };
 
@@ -28,24 +27,23 @@ export default class GroupQueryPanel
   static contextTypes = {actions: React.PropTypes.object};
 
   onSelect = (path: string) => {
-    let byPath = this.props.pointer.query.byPath.concat(path);
+    let byPath = this.props.query.byPath.concat(path);
     this.context.actions.setGroupByPath({
-      pointer: this.props.pointer,
+      at: this.props.query,
       byPath,
     });
   };
 
   onSelectRemove = (path: string) => {
-    let byPath = this.props.pointer.query.byPath.filter(p => p !== path);
+    let byPath = this.props.query.byPath.filter(p => p !== path);
     this.context.actions.setGroupByPath({
-      pointer: this.props.pointer,
+      at: this.props.query,
       byPath,
     });
   };
 
   render() {
-    const {pointer, onClose, ...rest} = this.props;
-    const {query} = pointer;
+    const {query, onClose, ...rest} = this.props;
 
     return (
       <QueryPanelBase
@@ -53,7 +51,7 @@ export default class GroupQueryPanel
         title="Group"
         onClose={onClose}
         theme={theme.group}
-        pointer={pointer}>
+        query={query}>
         <GroupMenu
           query={query}
           onSelect={this.onSelect}

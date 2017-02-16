@@ -3,6 +3,7 @@
  */
 
 import type {ColumnField, ColumnContainerConfig} from './DataTable';
+import type {ColumnSpecData} from '../DataTable';
 import type {Actions} from '../../state';
 
 import React from 'react'
@@ -82,6 +83,10 @@ function DropdownMenuItem({value, children}) {
 
 class DataTableHeaderCellMenu extends React.Component {
 
+  props: {
+    column: ColumnField<ColumnSpecData>;
+  };
+
   context: {
     actions: Actions;
   };
@@ -89,7 +94,32 @@ class DataTableHeaderCellMenu extends React.Component {
   static contextTypes = {actions: React.PropTypes.object};
 
   onMenuSelect = (value) => {
-
+    const {pipeline, navigate} = this.props.column.field.data;
+    if (navigate == null) {
+      return;
+    }
+    switch (value) {
+      case 'hide': {
+        this.context.actions.cut({at: navigate});
+        break;
+      }
+      case 'link': {
+        this.context.actions.appendDefine({
+          at: pipeline,
+          path: [navigate.path],
+        });
+        break;
+      }
+      case 'goto': {
+        this.context.actions.appendNavigate({
+          at: pipeline,
+          path: [navigate.path],
+        });
+        break;
+      }
+      default:
+        break;
+    }
   };
 
   render() {
@@ -97,9 +127,9 @@ class DataTableHeaderCellMenu extends React.Component {
       <MenuButton.Wrapper tag={DataTableHeaderCellMenuRoot} onSelection={this.onMenuSelect}>
         <MenuButton.Button tag={Icon.IconEllipsis} />
         <DropdownMenu>
-          <DropdownMenuItem value="hide">Hide column</DropdownMenuItem>
+          <DropdownMenuItem value="hide">Remove column</DropdownMenuItem>
           <DropdownMenuItem value="goto">Follow column</DropdownMenuItem>
-          <DropdownMenuItem value="summarize">Summarize column</DropdownMenuItem>
+          <DropdownMenuItem value="link">Link as a query</DropdownMenuItem>
         </DropdownMenu>
       </MenuButton.Wrapper>
     );
@@ -153,7 +183,9 @@ export default class DataTableHeaderCell extends React.Component {
         <DataTableHeaderCellLabel title={column.field.label}>
           {column.field.label}
         </DataTableHeaderCellLabel>
-        <DataTableHeaderCellMenu />
+        <DataTableHeaderCellMenu
+          column={column}
+          />
         {resizeable &&
           <DataTableHeaderCellResizeHandle
             onMouseDown={this.onMouseDown}

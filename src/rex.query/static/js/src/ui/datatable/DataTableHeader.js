@@ -238,8 +238,12 @@ class DataTableHeaderStack extends React.Component {
       );
       this.setState({resize: null});
       if (this.props.onResize) {
+        let [_, columnSpec] = findRightMostField(this.props.columnSpec);
+        if (columnSpec == null) {
+          return;
+        }
         this.props.onResize({
-          column: this.props.columnSpec,
+          column: columnSpec,
           width
         });
       }
@@ -376,7 +380,7 @@ class DataTableHeaderGroup extends React.Component {
   };
 }
 
-function findRightMostField(columnSpec, headList = []) {
+function findRightMostField(columnSpec, headList = []): [Array<ColumnConfig<*>>, ?ColumnField<*>] {
   if (columnSpec.type === 'field') {
     return [headList, columnSpec];
   } else if (columnSpec.type === 'group') {

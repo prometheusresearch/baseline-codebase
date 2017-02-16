@@ -71,7 +71,7 @@ function createRaisedButton({displayName, Button, Pane}) {
     const {selected, ...rest} = props;
     return (
       <Pane variant={{selected}}>
-        <Button padding={{horizontal: 10}} {...rest} />
+        <Button padding={{horizontal: 10, vertical: 5}} {...rest} />
       </Pane>
     );
   };

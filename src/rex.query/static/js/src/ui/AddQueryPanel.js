@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Query, QueryPipeline, QueryPointer} from '../model';
+import type {QueryPipeline} from '../model';
 import type {Actions} from '../state';
 import type {SearchCallback} from './Search';
 
@@ -10,7 +10,6 @@ import React from 'react';
 import {VBox, HBox} from 'react-stylesheet';
 import * as css from 'react-stylesheet/css';
 
-import * as qp from '../model/QueryPointer';
 import * as qn from '../model/QueryNavigation';
 
 import * as theme from './Theme';
@@ -21,13 +20,14 @@ import TagLabel from './TagLabel';
 import Label from './Label';
 import NavigationMenu from './NavigationMenu';
 
-type AddColumnPanelProps = {
-  pointer: QueryPointer<Query>;
+type AddQueryPanelProps = {
+  pipeline: QueryPipeline;
   onSearch: SearchCallback;
+  title?: string;
   onClose: () => *;
 };
 
-export default class AddQueryPanel extends React.Component<*, AddColumnPanelProps, *> {
+export default class AddQueryPanel extends React.Component<*, AddQueryPanelProps, *> {
 
   context: {
     actions: Actions;
@@ -39,18 +39,14 @@ export default class AddQueryPanel extends React.Component<*, AddColumnPanelProp
 
 
   render() {
-    let {pointer, onSearch, ...props} = this.props;
-    let isTopLevel = pointer.path.length === 1;
-    let title = isTopLevel
-      ? 'Pick a starting relationship'
-      : 'Link';
+    let {pipeline, onSearch, title = 'Pick', ...props} = this.props;
     return (
       <QueryPanelBase
         {...props}
         theme={theme.placeholder}
         title={title}>
         <AddQueryMenu
-          pointer={pointer}
+          pipeline={pipeline}
           onSearch={onSearch}
           />
       </QueryPanelBase>
@@ -59,7 +55,7 @@ export default class AddQueryPanel extends React.Component<*, AddColumnPanelProp
 }
 
 type AddQueryMenuProps = {
-  pointer: QueryPointer<QueryPipeline>;
+  pipeline: QueryPipeline;
   onSearch: SearchCallback;
 };
 
@@ -75,7 +71,7 @@ class AddQueryMenu extends React.Component<*, AddQueryMenuProps, *> {
 
   onAdd = ({path}) => {
     this.context.actions.appendDefine({
-      pointer: this.props.pointer,
+      at: this.props.pipeline,
       path,
       select: true,
     });
@@ -83,23 +79,26 @@ class AddQueryMenu extends React.Component<*, AddQueryMenuProps, *> {
 
   onNavigate = ({path}) => {
     this.context.actions.appendNavigate({
-      pointer: this.props.pointer,
+      at: this.props.pipeline,
       path,
     });
   };
 
   onAggregate = ({path}) => {
-    let pipeline = qp.prev(this.props.pointer);
-    let domain = this.props.pointer.query.context.domain;
+    let {pipeline} = this.props;
+    let {aggregate}  = pipeline.context.domain;
     this.context.actions.appendDefineAndAggregate({
-      pointer: ((pipeline: any): QueryPointer<QueryPipeline>),
+      at: pipeline,
       path,
-      aggregate: domain.aggregate.count,
+      aggregate: aggregate.count,
     });
   };
 
   render() {
-    let {pointer: {query: {context}}, onSearch} = this.props;
+    let {pipeline: {pipeline}, onSearch} = this.props;
+    let context = pipeline[pipeline.length - 1].name === 'select'
+      ? pipeline[pipeline.length - 2].context
+      : pipeline[pipeline.length - 1].context;
     let isAtRoot = context.type.name === 'void';
     return (
       <NavigationMenu onSearch={onSearch} context={context}>

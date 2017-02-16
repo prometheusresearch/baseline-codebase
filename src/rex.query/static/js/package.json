@@ -53,10 +53,11 @@
     "react-dom": "^0.14.0"
   },
   "dependencies": {
-    "@prometheusresearch/react-ui": "^0.22.3",
     "@prometheusresearch/react-datetimepicker": "^0.5.0",
+    "@prometheusresearch/react-ui": "^0.22.3",
     "babel-eslint": "7.0.0",
     "debounce-promise": "^2.1.1",
+    "debug": "^2.6.0",
     "downloadjs": "^1.4.6",
     "eslint": "3.8.1",
     "eslint-config-react-app": "0.5.0",

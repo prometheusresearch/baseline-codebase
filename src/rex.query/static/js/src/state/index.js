@@ -3,18 +3,16 @@
  */
 
 import type {
-  Query,
+  QueryAtom,
   QueryPipeline,
   Domain,
-  QueryPointer
 } from '../model';
-import type {
-  TranslateOptions
+import {
+  type TranslateOptions
 } from '../fetch/translate';
 
 import * as q from '../model/Query';
-import * as qp from '../model/QueryPointer';
-import * as op from '../model/op';
+import * as QueryOperation from '../model/QueryOperation';
 import * as SC from '../StateContainer';
 import * as Focus from './Focus';
 import * as actions from './actions';
@@ -23,8 +21,8 @@ import * as actions from './actions';
  * Represents a bit of info which is restored on undo/redo operations.
  */
 type UndoRecord = {
-  query: QueryPipeline;
-  selected: ?QueryPointer<Query>;
+  query: QueryPipeline,
+  selected: ?QueryAtom,
 };
 
 export type State = {
@@ -64,19 +62,19 @@ export type State = {
   /**
    * Pointer to the query which has active "add query panel" attached.
    */
-  insertAfter: ?QueryPointer<>;
+  activeQueryPipeline: ?QueryPipeline;
 
   /**
    * Pointer to the query which has active "edit query panel" attached.
    */
-  selected: ?QueryPointer<>;
+  selected: ?QueryAtom;
 
   /**
    * Previously selected query.
    *
    * This is used primarly for restoring query selection state.
    */
-  prevSelected: ?QueryPointer<>;
+  prevSelected: ?QueryAtom;
 
   /**
    * Currently fetched dataset.
@@ -115,43 +113,31 @@ export type State = {
   translateOptions: TranslateOptions;
 };
 
-export type StateUpdater =
-  SC.StateUpdater<State>;
+export type StateUpdater = SC.StateUpdater<State>;
 
-export type StateContainer =
-  SC.StateContainer<State, typeof actions>;
+export type StateContainer = SC.StateContainer<State, typeof actions>;
 
-export type Actions =
-  SC.StateContainerActions<StateContainer>;
+export type Actions = SC.StateContainerActions<StateContainer>;
 
 export type Params = {
-  api: string;
-  domain: Domain;
-  initialQuery?: ?QueryPipeline;
-  translateOptions: TranslateOptions;
+  api: string,
+  domain: Domain,
+  initialQuery?: ?QueryPipeline,
+  translateOptions: TranslateOptions,
 };
 
-export function getInitialState({
-  api,
-  domain,
-  initialQuery,
-  translateOptions,
-}: Params): State {
-
+export function getInitialState(
+  {
+    api,
+    domain,
+    initialQuery,
+    translateOptions,
+  }: Params,
+): State {
   let query = initialQuery || q.pipeline(q.here);
   query = q.inferType(domain, query);
-  query = op.reconcileNavigation(query);
-  query = op.normalize({
-    query: q.inferType(domain, query),
-    selected: null,
-  }).query;
+  query = QueryOperation.reconcileNavigation(query);
   query = q.inferType(domain, query);
-
-  let insertAfter = initialQuery == null
-    ? qp.make(query, ['pipeline', 0])
-    : null;
-
-  let selected = null;
 
   let focusedSeq = Focus.chooseFocus(query);
 
@@ -161,9 +147,9 @@ export function getInitialState({
     query,
     queryInvalid: false,
     queryLoading: false,
-    selected,
+    selected: null,
     prevSelected: null,
-    insertAfter,
+    activeQueryPipeline: query,
     data: null,
     showPanel: true,
     undoStack: [],
@@ -179,7 +165,7 @@ export {actions};
 
 export function createContainer(
   params: Params,
-  onChange: (state: State, onStateUpdated: (state: State) => *) => *
+  onChange: (state: State, onStateUpdated: (state: State) => *) => *,
 ): StateContainer {
   let initialState = getInitialState(params);
   return SC.create(initialState, actions, onChange);

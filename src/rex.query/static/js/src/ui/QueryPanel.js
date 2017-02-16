@@ -3,7 +3,6 @@
  */
 
 import type {Query} from '../model/Query';
-import type {QueryPointer} from '../model/QueryPointer';
 import type {SearchCallback} from './Search';
 
 import React from 'react';
@@ -17,20 +16,16 @@ import NavigateQueryPanel from './NavigateQueryPanel';
 import ErrorPanel from  './ErrorPanel';
 
 type QueryPanelProps = {
-  pointer: ?QueryPointer<Query>;
+  query: Query;
   onClose: () => *;
   onSearch: SearchCallback;
 };
 
 export default function QueryPanel(props: QueryPanelProps) {
-  const {pointer, onClose, onSearch, ...rest} = props;
-
-  if (pointer == null) {
-    return <noscript />;
-  }
+  const {query, onClose, onSearch, ...rest} = props;
 
   let topBanner = null;
-  if (pointer.query.context.type.name === 'invalid') {
+  if (query.context.type.name === 'invalid') {
     topBanner = (
       <ErrorPanel borderBottom>
         This query combinator is invalid, either fix it or remove it.
@@ -38,12 +33,12 @@ export default function QueryPanel(props: QueryPanelProps) {
     );
   }
 
-  return q.transformQuery(pointer.query, {
+  return q.transformQuery(query, {
     navigate: query => (
       <NavigateQueryPanel
         {...rest}
         topBanner={topBanner}
-        pointer={pointer}
+        query={query}
         onClose={onClose}
         onSearch={onSearch}
         />
@@ -53,14 +48,14 @@ export default function QueryPanel(props: QueryPanelProps) {
         topBanner={topBanner}
         onClose={onClose}
         onSearch={onSearch}
-        pointer={pointer}
+        query={query}
         />
     ),
     aggregate: query => (
       <AggregateQueryPanel
         topBanner={topBanner}
         onClose={onClose}
-        pointer={pointer}
+        query={query}
         onSearch={onSearch}
         />
     ),
@@ -68,7 +63,7 @@ export default function QueryPanel(props: QueryPanelProps) {
       <GroupQueryPanel
         topBanner={topBanner}
         onClose={onClose}
-        pointer={pointer}
+        query={query}
         onSearch={onSearch}
         />
     ),
@@ -77,7 +72,7 @@ export default function QueryPanel(props: QueryPanelProps) {
         {...rest}
         topBanner={topBanner}
         onClose={onClose}
-        pointer={pointer}
+        query={query}
         onSearch={onSearch}
         />
     ),

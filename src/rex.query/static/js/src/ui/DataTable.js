@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Query} from '../model/Query';
+import type {Query, QueryPipeline, NavigateQuery} from '../model/Query';
 import type {Type} from '../model/Type';
 import type {ColumnConfig, ColumnField} from './datatable/DataTable';
 
@@ -17,32 +17,35 @@ import {
   getByKey
 } from './datatable/index';
 
-type QColumnConfig = ColumnConfig<{
-  query: Query;
-  type: Type;
-  focusedSeq: Array<string>;
-  focused: boolean;
-}>;
+export type ColumnSpecData = {
+  query: Query,
+  pipeline: QueryPipeline,
+  navigate: ?NavigateQuery,
+  type: Type,
+  focusedSeq: Array<string>,
+  focused: boolean,
+};
 
 /**
  * Produce column config for a query.
  */
 export function getColumnConfig(
-  query: Query,
+  query: QueryPipeline,
   focusedSeq: Array<string> = []
-): QColumnConfig {
-  return getColumnConfigImpl(query, focusedSeq, [], null, false);
+): ColumnConfig<ColumnSpecData> {
+  return getColumnConfigImpl(query, query, focusedSeq, [], null, false);
 }
 
 function getColumnConfigImpl(
   query: Query,
+  queryPipeline: QueryPipeline,
   focusedSeq,
   path: Array<string>,
   bindingName: ?string,
   suppressPath: boolean,
-  currentStack?: Array<QColumnConfig>,
+  currentStack?: Array<ColumnConfig<ColumnSpecData>>,
 ) {
-  let stack: Array<QColumnConfig> = [];
+  let stack: Array<ColumnConfig<ColumnSpecData>> = [];
   switch (query.name) {
     case 'pipeline':
       let pipeline = query.pipeline;
@@ -54,6 +57,7 @@ function getColumnConfigImpl(
         }
         let nav = getColumnConfigImpl(
           pipeline[i],
+          queryPipeline,
           focusedSeq,
           path.concat(localPath),
           bindingName,
@@ -92,6 +96,8 @@ function getColumnConfigImpl(
           label,
           data: {
             query,
+            pipeline: queryPipeline,
+            navigate: prev != null && prev.type === 'field' ? prev.field.data.navigate : null,
             type: query.context.type,
             focusedSeq,
             focused: false
@@ -105,6 +111,7 @@ function getColumnConfigImpl(
       if (query.path in query.context.prev.scope) {
         let binding = query.context.prev.scope[query.path];
         return getColumnConfigImpl(
+          binding.query,
           binding.query,
           focusedSeq,
           path,
@@ -124,6 +131,8 @@ function getColumnConfigImpl(
           label: query.context.title || query.path,
           data: {
             query,
+            pipeline: queryPipeline,
+            navigate: query,
             type,
             focusedSeq,
             focused
@@ -140,6 +149,7 @@ function getColumnConfigImpl(
           group.push(
             getColumnConfigImpl(
               query.select[k],
+              queryPipeline,
               focusedSeq,
               path.concat(k),
               null,
@@ -179,16 +189,16 @@ function getData(data: Object, focusedSeq: Array<string>): Array<Object> {
 }
 
 type DataTableProps = {
-  query: Query;
-  loading?: boolean;
-  data: Object;
-  focusedSeq: Array<string>;
-  onFocusedSeq: (focusedSeq: Array<string>) => *;
+  query: QueryPipeline,
+  loading?: boolean,
+  data: Object,
+  focusedSeq: Array<string>,
+  onFocusedSeq: (focusedSeq: Array<string>) => *,
 };
 
 export class DataTable extends React.Component<*, DataTableProps, *> {
 
-  columns: QColumnConfig;
+  columns: ColumnConfig<ColumnSpecData>;
   data: Array<Object>;
 
   static defaultProps = {

@@ -2,7 +2,6 @@
  * @flow
  */
 
-import type {QueryPointer} from '../model/QueryPointer';
 import type {Actions} from '../state';
 import map from 'lodash/map';
 
@@ -17,8 +16,8 @@ import Select from './Select';
 import {MenuButton, MenuGroup, MenuHelp} from './menu';
 
 type AggregateQueryPanelProps = {
-  pointer: QueryPointer<q.AggregateQuery>;
-  onClose: () => *;
+  query: q.AggregateQuery,
+  onClose: () => *,
 };
 
 const ENTITY_SENTINEL = '__entity_sentinel__';
@@ -33,25 +32,23 @@ export default class AggregateQueryPanel
   static contextTypes = {actions: React.PropTypes.object};
 
   onSelect = (aggregate: string) => {
-    this.context.actions.replace({
-      pointer: this.props.pointer,
-      query: q.aggregate(aggregate, this.props.pointer.query.path),
+    this.context.actions.setAggregate({
+      at: this.props.query,
+      aggregate,
+      path: this.props.query.path,
     });
   };
 
   onAttribute = (path: string) => {
-    this.context.actions.replace({
-      pointer: this.props.pointer,
-      query: q.aggregate(
-        'count',
-        path === ENTITY_SENTINEL ? null : path
-      ),
+    this.context.actions.setAggregate({
+      at: this.props.query,
+      aggregate: 'count',
+      path: path === ENTITY_SENTINEL ? null : path,
     });
   }
 
   render() {
-    const {pointer, onClose, ...rest} = this.props;
-    const {query} = pointer;
+    const {query, onClose, ...rest} = this.props;
     const prevType = query.context.prev.type;
 
     let attributeSelect = null;
@@ -93,7 +90,7 @@ export default class AggregateQueryPanel
         title={query.context.title}
         onClose={onClose}
         theme={theme.aggregate}
-        pointer={pointer}>
+        query={query}>
         {attributeSelect}
         <AggregateMenu
           title="Select summarize function"

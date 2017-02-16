@@ -7,9 +7,9 @@ import type {SearchCallback} from './Search';
 
 import React from 'react';
 import {VBox, Element} from 'react-stylesheet';
-import * as ReactUI from '@prometheusresearch/react-ui';
+import {Input} from '@prometheusresearch/react-ui';
 
-import * as qn from '../model/QueryNavigation';
+import {getNavigation} from '../model/QueryNavigation';
 import {dummySearch, runSearch} from './Search';
 import LoadingIndicator from './LoadingIndicator';
 
@@ -39,7 +39,7 @@ export default class NavigationMenu extends React.Component<*, NavigationMenuPro
     this.state = {
       searchTerm: null,
       searchInProgress: false,
-      navigation: qn.getNavigation(context),
+      navigation: getNavigation(context),
     };
     this.mounted = false;
   }
@@ -57,7 +57,7 @@ export default class NavigationMenu extends React.Component<*, NavigationMenuPro
       this.setState({
         searchTerm: null,
         searchInProgress: false,
-        navigation: qn.getNavigation(nextProps.context),
+        navigation: getNavigation(nextProps.context),
       });
     }
   }
@@ -65,7 +65,7 @@ export default class NavigationMenu extends React.Component<*, NavigationMenuPro
   onSearchTerm = (e: UIEvent) => {
     let target: {value: string} = (e.target: any);
     let searchTerm = target.value === '' ? null : target.value;
-    let navigation = qn.getNavigation(this.props.context);
+    let navigation = getNavigation(this.props.context);
     if (searchTerm != null) {
       runSearch(this.props.onSearch, {searchTerm, navigation})
         .then(this.onSearchComplete, this.onSearchError);
@@ -112,7 +112,7 @@ export default class NavigationMenu extends React.Component<*, NavigationMenuPro
     return (
       <VBox>
         <VBox padding={10}>
-          <ReactUI.Input
+          <Input
             placeholder="Search…"
             value={searchTerm === null ? '' : searchTerm}
             onChange={this.onSearchTerm}

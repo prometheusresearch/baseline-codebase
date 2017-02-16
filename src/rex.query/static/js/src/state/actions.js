@@ -11,18 +11,24 @@ import type {
 
 import type {
   DefineQuery,
-  Query,
+  QueryAtom,
   QueryPipeline,
-  QueryPointer,
+  AggregateQuery,
+  NavigateQuery,
+  FilterQuery,
+  Expression,
 } from '../model';
 
+import createLogger from 'debug';
 import invariant from 'invariant';
 import * as d from '../model/Domain';
 import * as q from '../model/Query';
-import * as qp from '../model/QueryPointer';
-import * as op from '../model/op';
+import * as qo from '../model/QueryOperation';
+import * as QueryLoc from '../model/QueryLoc';
 import * as Fetch from '../fetch';
 import * as Focus from './Focus';
+
+let logAction = createLogger('rex-query:state:actions');
 
 /**
  * Initialize query buiulder.
@@ -36,28 +42,21 @@ export function init(): StateUpdater {
 /**
  * Navigate.
  */
-export function navigate(params: {
-  pointer: QueryPointer<Query>,
+export function navigate({at, path}: {
+  at: QueryPipeline,
   path: Array<string>,
 }): StateUpdater {
-
+  logAction('navigate', {at, path});
   return state => {
-    let pointer = qp.rebase(params.pointer, state.query);
-    let loc = {pointer, selected: state.selected};
     let add = null;
-    let type = q.inferTypeAtPath(
-      qp.selectLast(pointer).query.context.prev,
-      params.path
-    );
+    let type = q.inferTypeAtPath(at.context.prev, path);
     if (type.card === 'seq' && type.name === 'record' && type.entity != null) {
       add = q.aggregate('count');
     }
-    let {query} = op.growNavigation({
-      loc,
-      path: params.path,
-      add: add
-    });
-    return onQuery(state, query, state.selected);
+    let query = qo.editor(state.query, at)
+      .growNavigation({path: path, add: add})
+      .getQuery();
+    return onQuery(state, {query, selected: state.selected});
   };
 }
 
@@ -162,11 +161,11 @@ export function redo(): StateUpdater {
 /**
  * Initiate new query combinator insertion.
  */
-export function insertAfter(pointer: ?QueryPointer<*>): StateUpdater {
+export function setActiveQueryPipeline({pipeline}: {pipeline: QueryPipeline}): StateUpdater {
   return state => {
     return {
       ...state,
-      insertAfter: pointer,
+      activeQueryPipeline: pipeline,
       selected: null,
       prevSelected: state.selected,
       showPanel: true
@@ -174,27 +173,17 @@ export function insertAfter(pointer: ?QueryPointer<*>): StateUpdater {
   };
 };
 
-export function insertAfterClose(): StateUpdater {
-  return state => {
-    return {
-      ...state,
-      insertAfter: null,
-      prevSelected: null,
-      selected: state.prevSelected,
-    };
-  };
-};
-
 /**
  * Select a combinator in a query vis panel.
  */
-export function select(pointer: ?QueryPointer<*>): StateUpdater {
+export function setSelected({query}: {query: ?QueryAtom}): StateUpdater {
+  logAction('select', {query});
   return state => {
     return {
       ...state,
-      selected: pointer,
+      selected: query,
       showPanel: true,
-      insertAfter: null,
+      activeQueryPipeline: null,
     };
   };
 };
@@ -202,69 +191,81 @@ export function select(pointer: ?QueryPointer<*>): StateUpdater {
 /**
  * Remove a query combinator at pointer.
  */
-export function cut(pointer: QueryPointer<*>): StateUpdater {
+export function cut({at}: {at: QueryAtom | QueryPipeline}): StateUpdater {
+  logAction('cut', at);
   return state => {
-    let {query, selected: nextSelected} = op.cutAt({
-      loc: {
-        pointer,
-        selected: state.selected
-      }
-    });
-    return onQuery(state, query, nextSelected);
+    let query = qo.editor(state.query, at, {edge: 'leading'})
+      .cut()
+      .getQuery();
+    return onQuery(state, {query, selected: state.selected});
   };
 }
 
 /**
  * Remove a query combinator at pointer.
  */
-export function remove(pointer: QueryPointer<*>): StateUpdater {
+export function remove({at}: {at: QueryPipeline | QueryAtom}): StateUpdater {
+  logAction('remove', {at});
   return state => {
-    pointer = qp.rebase(pointer, state.query);
-    if (pointer.query.name === 'navigate') {
-      let {query, selected: nextSelected} = op.cutAt({
-        loc: {
-          pointer,
-          selected: state.selected
-        }
-      });
-      return onQuery(state, query, nextSelected);
+    let editor = qo.editor(state.query, at);
+    if (at.name === 'navigate') {
+      let query = editor.cut().getQuery();
+      return onQuery(state, {query});
     } else {
-      let {query, selected: nextSelected} = op.removeAt({
-        pointer,
-        selected: state.selected
-      });
-      return onQuery(state, query, nextSelected);
+      if (at.name === 'group') {
+        editor = editor.removeSelect();
+      }
+      editor = editor.remove()
+      let query = editor.getQuery();
+      return onQuery(state, {query});
     }
   };
 }
 
-/**
- * Replace query combinator with a new one at pointer.
- */
-export function replace(
-  params: {
-    pointer: QueryPointer<*>;
-    query: Query
-  }): StateUpdater {
+export function setAggregate({at, aggregate, path}: {
+  at: AggregateQuery,
+  aggregate: string,
+  path?: ?string,
+}): StateUpdater {
+  logAction('setAggregate', {at});
   return state => {
-    let {query, pointer} = params;
-    pointer = qp.rebase(pointer, state.query);
-    let {query: nextQuery} = op.transformAt({
-      loc: {pointer, selected: pointer},
-      transform: prevQuery => ({query}),
-      transformPipeline: (pipeline) => {
-        if (pointer.query.name === 'navigate' &&
-            pipeline.pipeline[pipeline.pipeline.length - 1].name === 'select') {
-          return {
-            ...pipeline,
-            pipeline: pipeline.pipeline.slice(0, pipeline.pipeline.length - 1),
-          };
-        } else {
-          return pipeline;
-        }
-      },
-    });
-    return onQuery(state, nextQuery, state.selected);
+    if (path == null) {
+      path = null
+    }
+    let nextAggregate = q.aggregate(aggregate, path);
+    let query = qo.editor(state.query, at)
+      .replaceWith(nextAggregate)
+      .getQuery();
+    return onQuery(state, {query, selected: nextAggregate});
+  };
+}
+
+export function setNavigate({at, path}: {
+  at: NavigateQuery,
+  path: string,
+}): StateUpdater {
+  logAction('setNavigate', {at});
+  return state => {
+    let nextNavigate = q.navigate(path)
+    let query = qo.editor(state.query, at)
+      .removeSelect()
+      .replaceWith(nextNavigate)
+      .getQuery();
+    return onQuery(state, {query, selected: nextNavigate});
+  };
+}
+
+export function setFilter({at, expression}: {
+  at: FilterQuery,
+  expression: Expression,
+}): StateUpdater {
+  logAction('setFilter', {at});
+  return state => {
+    let nextFilter = q.filter(expression);
+    let query = qo.editor(state.query, at)
+      .replaceWith(nextFilter)
+      .getQuery();
+    return onQuery(state, {query, selected: nextFilter});
   };
 }
 
@@ -272,42 +273,43 @@ export function replace(
  * Update group query with new column list.
  */
 export function setGroupByPath(
-  params: {
-    pointer: QueryPointer<q.GroupQuery>,
+  {at, byPath}: {
+    at: q.GroupQuery,
     byPath: Array<string>,
   }
 ): StateUpdater {
   return state => {
-    let {byPath, pointer} = params;
-    pointer = qp.rebase(pointer, state.query);
-    let {query} = pointer;
-
-    let prevType = query.context.prev.type;
+    let prevType = at.context.prev.type;
     invariant(
       prevType && prevType.name === 'record' && prevType.entity != null,
       'Invalid type info'
     );
     const entity = prevType.entity;
 
-    query = op.transformAt({
-      loc: {pointer, selected: null},
-      transform: _ => {
-        return {
-          query: {
-            name: 'group',
-            byPath: byPath,
-            context: query.context,
-          }
-        };
-      }
-    }).query;
-    query = q.inferType(state.domain, query);
-    query = op.growNavigation({
-      loc: {pointer: qp.rebase(pointer, query), selected: null},
-      path: [entity],
-      add: q.aggregate('count'),
-    }).query;
-    return onQuery(state, query, state.selected);
+    let editor = qo.editor(state.query, at)
+
+    editor = editor
+      .transformWith(query => ({
+        id: query.id,
+        name: 'group',
+        byPath: byPath,
+        context: query.context,
+      }));
+
+    if (byPath.length === 0) {
+      editor = editor.removeSelect();
+    }
+
+    editor = editor
+      .inferType()
+      .growNavigation({
+        path: [entity],
+        add: q.aggregate('count')
+      })
+
+    let query = editor.getQuery();
+
+    return onQuery(state, {query, selected: state.selected});
   };
 }
 
@@ -315,176 +317,116 @@ export function setGroupByPath(
  * Append a new navigate combinator at pointer.
  */
 export function appendNavigate(
-  params: {
-    pointer?: QueryPointer<*>;
+  {at, path = []}: {
+    at: QueryPipeline;
     path?: Array<string>;
   }
 ): StateUpdater {
+  logAction('appendNavigate', {at, path});
   return state => {
-    let {
-      pointer = qp.make(state.query),
-      path = [''],
-    } = params;
     if (path.length === 0) {
       return state;
     }
-    let {query} = op.insertAfter(
-      {pointer, selected: state.selected},
-      q.pipeline(...path.map(q.use))
-    );
-    return onQuery(state, query, state.selected || state.prevSelected);
+    let query = qo.editor(state.query, at)
+      .insertAfter({what: path.map(q.use)})
+      .getQuery()
+    return onQuery(state, {query, selected: state.selected || state.prevSelected});
   };
 }
 
 /**
- * Append a new define combinator at pointer.
+ * Append a new define combinator at query.
  */
 export function appendDefine(
-  params: {
-    pointer: QueryPointer<*>;
+  {at, path, select}: {
+    at: QueryPipeline;
     path?: Array<string>;
     select?: boolean;
   }
 ): StateUpdater {
+  logAction('appendDefine', {at, path, select});
   return state => {
-    let {
-      path,
-      select,
-    } = params;
-    let pointer = qp.rebase(params.pointer, state.query);
     let name = generateQueryID(
-      pointer.query.context.scope,
+      at.context.scope,
       path
         ? `${path.join(' ')} query`
         : 'query'
     );
+
     let expression = path != null
       ? q.pipeline(...path.map(q.use))
       : q.pipeline(q.use(''));
-    let {query, selected} = op.insertAfter(
-      {pointer, selected: state.selected},
-      q.def(name, expression),
-    );
+
+    let def = q.def(name, expression);
+
+    let query = qo.editor(state.query, at)
+      .insertAfter({what: [def]})
+      .growNavigation({path: [name]})
+      .getQuery();
     query = q.inferType(state.domain, query);
-    let {query: nextQuery} = op.growNavigation({
-      loc: {pointer: qp.rebase(pointer, query), selected: null},
-      path: [name],
-    });
-    return onQuery(state, nextQuery, select ? selected : null, null);
+    return onQuery(state, {query, selected: select ? def : null, activeQueryPipeline: null});
   };
 }
 
 /**
  * Append a new filter combinator at pointer.
  */
-export function appendFilter(params: {pointer: ?QueryPointer<*>}): StateUpdater {
+export function appendFilter({at}: {
+    at: QueryPipeline
+  }): StateUpdater {
+  logAction('appendFilter', {at});
   return state => {
-    let pointer = params.pointer
-      ? qp.rebase(params.pointer, state.query)
-      : qp.make(state.query);
-    let {
-      query,
-      selected: nextSelected
-    } = op.insertAfter(
-      {pointer, selected: state.selected},
-      q.filter(q.or(q.value(true)))
-    );
-    return onQuery(state, query, nextSelected);
+    let filter = q.filter(q.or(q.value(true)));
+    let query = qo.editor(state.query, at)
+      .insertAfter({what: [filter]})
+      .getQuery();
+    return onQuery(state, {query, selected: filter});
   };
 }
 
 /**
- * Append a new filter combinator at pointer.
+ * Append a new filter combinator to a pipeline.
  */
-export function appendGroup(params: {pointer: QueryPointer<*>}): StateUpdater {
+export function appendGroup({at}: {
+  at: QueryPipeline
+}): StateUpdater {
   return state => {
-    let pointer = qp.rebase(params.pointer, state.query);
-    let {
-      query,
-      selected: nextSelected
-    } = op.insertAfter(
-      {pointer, selected: state.selected},
-      q.group([]),
-    );
-    return onQuery(state, query, nextSelected);
+    let group = q.group([]);
+    let query = qo.editor(state.query, at)
+      .insertAfter({what: [group]})
+      .getQuery();
+    return onQuery(state, {query, selected: group});
   };
 }
 
 /**
- * Append a new aggregate combinator at pointer.
+ * Append a new aggregate combinator to a pipeline.
  */
-export function appendAggregate(params: {pointer: ?QueryPointer<*>}): StateUpdater {
+export function appendAggregate({at}: {
+  at: QueryPipeline
+}): StateUpdater {
   return state => {
-    let pointer = params.pointer
-      ? qp.rebase(params.pointer, state.query)
-      : qp.make(state.query);
-    let {query, selected} = op.insertAfter(
-      {pointer, selected: state.selected},
-      q.aggregate('count')
-    );
-    return onQuery(state, query, selected);
+    let aggregate = q.aggregate('count');
+    let query = qo.editor(state.query, at)
+      .insertAfter({what: [aggregate]})
+      .getQuery();
+    return onQuery(state, {query, selected: aggregate});
   };
 }
 
 /**
  * Append a new aggregate combinator at pointer.
  */
-export function appendNavigateAndAggregate(params: {
-  pointer: QueryPointer<QueryPipeline>;
+export function appendDefineAndAggregate({at, path, aggregate}: {
+  at: QueryPipeline,
   path: Array<string>;
   aggregate: d.DomainAggregate;
 }): StateUpdater {
   return state => {
-    let {path, aggregate, pointer} = params;
-    pointer = qp.rebase(pointer, state.query)
-    let {query} = op.transformAt({
-      loc: {pointer, selected: state.selected},
-      transform: query => {
-        invariant(
-          query.name === 'pipeline',
-          'Expected "pipeline" query'
-        );
-        let pipeline = query.pipeline.slice(0);
-        if (pipeline[pipeline.length - 1].name === 'select') {
-          pipeline.pop();
-        }
-        if (path.length) {
-          pipeline = pipeline.concat(path.map(p => q.use(p)));
-        }
-        pipeline.push(q.aggregate(aggregate.name));
-        return {
-          query: {
-            name: 'pipeline',
-            pipeline,
-            context: query.context,
-          }
-        };
-      }
-    });
-    return onQuery(state, query, state.prevSelected, null);
-  };
-}
-
-/**
- * Append a new aggregate combinator at pointer.
- */
-export function appendDefineAndAggregate(params: {
-  pointer: QueryPointer<QueryPipeline>;
-  path: Array<string>;
-  aggregate: d.DomainAggregate;
-}): StateUpdater {
-  return state => {
-    let {path, aggregate, pointer} = params;
-    let name = generateQueryID(pointer.query.context.scope, params.path.join(' ') + ' Query');
-    pointer = qp.rebase(pointer, state.query)
-    let {query} = op.transformAt({
-      loc: {pointer, selected: state.selected},
-      transform: query => {
-        invariant(
-          query.name === 'pipeline',
-          'Expected "pipeline" query'
-        );
-        let pipeline = query.pipeline.slice(0);
+    let name = generateQueryID(at.context.scope, path.join(' ') + ' Query');
+    let query = qo.editor(state.query, at)
+      .transformPipelineWith(pipeline => {
+        pipeline = pipeline.slice(0);
         let select = null;
         if (pipeline[pipeline.length - 1].name === 'select') {
           select = pipeline.pop();
@@ -505,32 +447,11 @@ export function appendDefineAndAggregate(params: {
         if (select) {
           pipeline.push(select);
         }
-        return {
-          query: {
-            name: 'pipeline',
-            pipeline,
-            context: query.context,
-          }
-        };
-      }
-    });
-    pointer = qp.rebase(pointer, query);
-    let selected = qp.selectFindLast(
-      ((pointer: any): QueryPointer<QueryPipeline>),
-      query => query.name === 'define'
-    );
-    if (selected) {
-      selected = qp.select(
-        selected,
-        ['binding', 'query'],
-        ['pipeline', params.path.length],
-      );
-    }
-    query = op.growNavigation({
-      loc: {pointer, selected: state.selected},
-      path: [name],
-    }).query;
-    return onQuery(state, query, selected || state.prevSelected, null);
+        return pipeline;
+      })
+      //.growNavigation({path: [name]})
+      .getQuery();
+    return onQuery(state, {query, selected: state.prevSelected, activeQueryPipeline: null});
   };
 }
 
@@ -538,85 +459,92 @@ export function appendDefineAndAggregate(params: {
  * Rename define combinator binding at pointer.
  */
 export function renameDefineBinding(
-  params: {
-    pointer: QueryPointer<DefineQuery>;
-    name: string
+  {at, name}: {
+    at: DefineQuery,
+    name: string,
   }
 ): StateUpdater {
   return state => {
-    const pointer = qp.rebase(params.pointer, state.query);
-    const prevName = params.pointer.query.binding.name;
-    const nextName = params.name;
-    let {query} = op.transformAt({
-      loc: {pointer, selected: pointer},
-      transform: prevQuery => {
-        invariant(
-          prevQuery.name === 'define',
-          'Expected "define" query'
-        );
-        return {query: q.def(nextName, prevQuery.binding.query)};
-      }
-    });
-    let renameNavigation = query => {
-      if (query.path === prevName) {
-        query = q.use(nextName);
-      }
-      return query;
-    };
-    query = q.mapQueryWithTransform(query, {
-      navigate: renameNavigation,
-      select: query => {
-        let select = {};
-        for (let k in query.select) {
-          if (!query.select.hasOwnProperty(k)) {
-            continue;
-          }
-          if (k === prevName) {
-            select[nextName] = query.select[prevName];
-          } else {
-            select[k] = query.select[k];
-          }
-        }
-        return {name: 'select', select, context: query.context};
-      },
-      filter: query => {
-        let predicate = q.mapExpressionWithTransform(query.predicate, {
-          navigate: renameNavigation,
-        });
-        return {name: 'filter', predicate, context: query.context};
-      },
-      otherwise: query => query,
-    });
-    return onQuery(state, ((query: any): QueryPipeline), state.selected);
+    // TODO: implement it!
+    return state;
   };
 }
 
-function onQuery(
-  state: State,
+function reconcileSelected(
+  selected: ?QueryLoc.QueryLoc<>,
+  prevSelected: ?QueryLoc.QueryLoc<>
+): ?QueryAtom {
+  // Nothing is going to be selected.
+  if (selected == null) {
+    return null;
+  }
+
+  let resolved = QueryLoc.tryResolveLoc(selected);
+
+  // Prev selected state isn't available, nothing we can do but hope the current
+  // selection works.
+  if (prevSelected == null) {
+    return resolved;
+  }
+
+  // Ok, the current selected state is valid.
+  if (resolved != null) {
+    return resolved;
+  }
+
+  // Try to backtrack and find the closest valid selected state.
+  for (let query of QueryLoc.traverseLoc(prevSelected)) {
+    if (query.name === 'pipeline') {
+      continue;
+    }
+    let parentLoc = QueryLoc.loc(selected.rootQuery, query);
+    let resolved = QueryLoc.tryResolveLoc(parentLoc);
+    if (resolved != null) {
+      return resolved;
+    }
+  }
+
+  return null;
+}
+
+function onQuery(state: State, {
+  query,
+  selected,
+  activeQueryPipeline,
+}: {
   query: QueryPipeline,
-  selected: ?QueryPointer<*>,
-  insertAfter?: ?QueryPointer<> = state.insertAfter
-) {
-  query = q.inferType(state.domain, query);
-  query = op.reconcileNavigation(query);
-  query = q.inferType(state.domain, query);
-  if (selected && selected.path.length > 0) {
-    selected = qp.rebase(selected, query, selectable);
-  } else {
-    selected = qp.pointer(query, ['pipeline', 0]);
+  selected?: ?QueryAtom,
+  activeQueryPipeline?: ?QueryPipeline,
+}) {
+  if (selected === undefined) {
+    selected = state.selected;
   }
+  selected = reconcileSelected(
+    selected != null
+      ? QueryLoc.loc(query, selected)
+      : null,
+    state.selected != null
+      ? QueryLoc.loc(state.query, state.selected)
+      : null,
+  );
+  if (activeQueryPipeline === undefined) {
+    activeQueryPipeline = state.activeQueryPipeline;
+  }
+
+  let selectedDidChange = (
+    (!state.selected && selected) ||
+    (state.selected && selected && selected.id !== state.selected.id)
+  );
+
   let showPanel = state.showPanel;
-  if (insertAfter != null && !qp.is(selected, state.selected)) {
-    insertAfter = null;
+  if (activeQueryPipeline != null && !selectedDidChange) {
+    activeQueryPipeline = null;
     showPanel = false;
   }
-  if (insertAfter != null) {
-    insertAfter = qp.rebase(insertAfter, query);
-  }
-  if (insertAfter == null && state.insertAfter != null) {
+  if (activeQueryPipeline == null && state.activeQueryPipeline != null) {
     showPanel = false;
   }
-  if (!qp.is(state.selected, selected)) {
+  if (selectedDidChange) {
     showPanel = true;
   }
   let focusedSeq = reconcileFocus(state.focusedSeq, query);
@@ -624,7 +552,7 @@ function onQuery(
     ...state,
     query,
     selected,
-    insertAfter,
+    activeQueryPipeline,
     showPanel: showPanel,
     undoStack: state.undoStack.concat({
       query: state.query,
@@ -642,8 +570,11 @@ function onQuery(
 // FIXME: we need better sync mechanism, this is just hacky.
 let refetchIndex = 0;
 
+let fetchLog = createLogger('rex-query:state:fetch');
+
 function refetchQuery(state, setState) {
   const {query, api} = state;
+  fetchLog('fetching', state.query);
   if (query.context.hasInvalidType) {
     return;
   }
@@ -686,16 +617,4 @@ function generateQueryID(scope, prefix = 'Query') {
 function reconcileFocus(focusedSeq: Focus.Focus, query) {
   let nextFocusedSeq = Focus.chooseFocus(query);
   return nextFocusedSeq;
-}
-
-function selectable(query) {
-  const type = query.context.type;
-  return (
-    type.name === 'invalid'    ||
-    type.name === 'record'     ||
-    type.name === 'void'       ||
-
-    query.name === 'aggregate' ||
-    query.name === 'define'
-  );
 }

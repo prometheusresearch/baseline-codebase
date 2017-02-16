@@ -2,7 +2,14 @@
  * @flow
  */
 
-import type {Context, Query, QueryPipeline, NavigateQuery, Expression} from '../model';
+import {
+  type Context,
+  type Query,
+  type QueryAtom,
+  type QueryPipeline,
+  type NavigateQuery,
+  type Expression
+} from '../model';
 
 import invariant from 'invariant';
 import * as q from '../model/Query';
@@ -108,7 +115,7 @@ function translateExpression(
         return [
           BINARY_OP_ENCODE[op],
           translateExpression(left, HERE),
-          // $FlowIssue: refine doesn't work!
+          // $FlowFixMe: refine doesn't work!
           ...right.value
         ];
       } else {
@@ -129,12 +136,13 @@ function translateExpression(
   }
 }
 
-function partitionPipeline(query: QueryPipeline): [?Query, QueryPipeline] {
+function partitionPipeline(query: QueryPipeline): [?QueryAtom, QueryPipeline] {
   let last = query.pipeline[query.pipeline.length - 1];
   if (last && last.name === 'select') {
     return [
       last,
       {
+        id: query.id,
         name: 'pipeline',
         pipeline: query.pipeline.slice(0, query.pipeline.length - 1),
         context: query.context,

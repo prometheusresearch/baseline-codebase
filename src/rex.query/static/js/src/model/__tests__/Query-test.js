@@ -18,7 +18,7 @@ import {
   seqType, optType,
   createDomain
 } from '../Type';
-import {stripDomain} from './util';
+import {stripDomain, stripId} from './util';
 
 import _catalog from './catalog.json';
 
@@ -405,7 +405,7 @@ describe('inferType()', function() {
         )
       }),
     );
-    expect(inferQueryType(voidContext(domain), query)).toMatchSnapshot();
+    expect(stripId(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:group(age))', function() {
@@ -413,7 +413,7 @@ describe('inferType()', function() {
       individual,
       group(['age']),
     );
-    expect(inferQueryType(voidContext(domain), query)).toMatchSnapshot();
+    expect(stripId(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:group(age):name)', function() {
@@ -423,7 +423,7 @@ describe('inferType()', function() {
       individual,
       name,
     );
-    expect(inferQueryType(voidContext(domain), query)).toMatchSnapshot();
+    expect(stripId(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:group(age):select(name))', function() {
@@ -432,7 +432,7 @@ describe('inferType()', function() {
       group(['age']),
       select({name: pipeline(individual, name)}),
     );
-    expect(inferQueryType(voidContext(domain), query)).toMatchSnapshot();
+    expect(stripId(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:group(age):select(age, name))', function() {
@@ -444,7 +444,7 @@ describe('inferType()', function() {
         name: pipeline(individual, name),
       }),
     );
-    expect(inferQueryType(voidContext(domain), query)).toMatchSnapshot();
+    expect(stripId(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
   it('individual:define(id := identity.name):group(id))', function() {
@@ -456,93 +456,93 @@ describe('inferType()', function() {
       )),
       group(['id']),
     );
-    expect(inferQueryType(voidContext(domain), query)).toMatchSnapshot();
+    expect(stripId(inferQueryType(voidContext(domain), query))).toMatchSnapshot();
   });
 
 });
 
 describe('inferExpressionType(context, expression)', function() {
   it('customer', function() {
-    expect(inferExpressionType(voidContext(domain),
+    expect(stripId(inferExpressionType(voidContext(domain),
       navigate('customer')
-    )).toMatchSnapshot();
+    ))).toMatchSnapshot();
   });
   it('42', function() {
-    expect(inferExpressionType(voidContext(domain),
+    expect(stripId(inferExpressionType(voidContext(domain),
       value(42)
-    )).toMatchSnapshot();
+    ))).toMatchSnapshot();
   });
   it('"text!"', function() {
-    expect(inferExpressionType(voidContext(domain),
+    expect(stripId(inferExpressionType(voidContext(domain),
       value('text!')
-    )).toMatchSnapshot();
+    ))).toMatchSnapshot();
   });
   it('true', function() {
-    expect(inferExpressionType(voidContext(domain),
+    expect(stripId(inferExpressionType(voidContext(domain),
       value(true)
-    )).toMatchSnapshot();
+    ))).toMatchSnapshot();
   });
   it('customer < 42', function() {
-    expect(inferExpressionType(voidContext(domain),
+    expect(stripId(inferExpressionType(voidContext(domain),
       less(
         navigate('customer'),
         value(42)
       )
-    )).toMatchSnapshot();
+    ))).toMatchSnapshot();
   });
   it('customer <= 42', function() {
-    expect(inferExpressionType(voidContext(domain),
+    expect(stripId(inferExpressionType(voidContext(domain),
       lessEqual(
         navigate('customer'),
         value(42)
       )
-    )).toMatchSnapshot();
+    ))).toMatchSnapshot();
   });
   it('customer > 42', function() {
-    expect(inferExpressionType(voidContext(domain),
+    expect(stripId(inferExpressionType(voidContext(domain),
       greater(
         navigate('customer'),
         value(42)
       )
-    )).toMatchSnapshot();
+    ))).toMatchSnapshot();
   });
   it('customer >= 42', function() {
-    expect(inferExpressionType(voidContext(domain),
+    expect(stripId(inferExpressionType(voidContext(domain),
       greaterEqual(
         navigate('customer'),
         value(42)
       )
-    )).toMatchSnapshot();
+    ))).toMatchSnapshot();
   });
   it('customer and 42', function() {
-    expect(inferExpressionType(voidContext(domain),
+    expect(stripId(inferExpressionType(voidContext(domain),
       and(
         navigate('customer'),
         value(42)
       )
-    )).toMatchSnapshot();
+    ))).toMatchSnapshot();
   });
   it('customer or 42', function() {
-    expect(inferExpressionType(voidContext(domain),
+    expect(stripId(inferExpressionType(voidContext(domain),
       or(
         navigate('customer'),
         value(42)
       )
-    )).toMatchSnapshot();
+    ))).toMatchSnapshot();
   });
   it('not customer', function() {
-    expect(inferExpressionType(voidContext(domain),
+    expect(stripId(inferExpressionType(voidContext(domain),
       not(
         navigate('customer'),
       )
-    )).toMatchSnapshot();
+    ))).toMatchSnapshot();
   });
   it('exists customer', function() {
-    expect(inferExpressionType(voidContext(domain),
+    expect(stripId(inferExpressionType(voidContext(domain),
       exists(
         navigate('customer'),
       )
-    )).toMatchSnapshot();
+    ))).toMatchSnapshot();
   });
 });
 

@@ -1,7 +1,5 @@
 [ignore]
-<PROJECT_ROOT>/node_modules/.resolutions/registry.npmjs.org/flow-coverage-report/.*
-<PROJECT_ROOT>/node_modules/.resolutions/registry.npmjs.org/fbjs/.*/package/lib/partitionObjectByKey.js.flow
-<PROJECT_ROOT>/node_modules/.resolutions/registry.npmjs.org/fbjs/.*/node_modules/fbjs/lib/partitionObjectByKey.js.flow
+<PROJECT_ROOT>/node_modules/flow-coverage-report/.*
 
 [include]
 

@@ -1,4 +1,4 @@
-/*e
+/**
  * This module implements query model.
  *
  * @flow
@@ -6,22 +6,30 @@
 
 /* eslint-disable no-use-before-define */
 
+import uniqueId from 'lodash/uniqueId';
 import invariant from 'invariant';
 import * as d from './Domain';
 import * as t from './Type';
 
+function genQueryId() {
+  return uniqueId('query');
+}
+
 export type HereQuery = {
+  +id: string;
   +name: 'here';
   +context: Context;
 };
 
 export type ConstantExpression = {
+  +id: string;
   +name: 'value';
   +value: string | number | boolean | null;
   +context: Context;
 };
 
 export type NavigateQuery = {
+  +id: string;
   +name: 'navigate';
   +path: string;
   +context: Context;
@@ -29,6 +37,7 @@ export type NavigateQuery = {
 };
 
 export type SelectQuery = {
+  +id: string;
   +name: 'select';
   +select: {[name: string]: QueryPipeline};
   +context: Context;
@@ -40,24 +49,28 @@ type DefineQueryBinding = {
 };
 
 export type DefineQuery = {
+  +id: string;
   +name: 'define';
   +binding: DefineQueryBinding;
   +context: Context;
 };
 
 export type FilterQuery = {
+  +id: string;
   +name: 'filter';
   +predicate: Expression;
   +context: Context;
 };
 
 export type LimitQuery = {
+  +id: string;
   +name: 'limit';
   +limit: number;
   +context: Context;
 };
 
 export type AggregateQuery = {
+  +id: string;
   +name: 'aggregate';
   +aggregate: string;
   +path: ?string;
@@ -65,14 +78,16 @@ export type AggregateQuery = {
 };
 
 export type GroupQuery = {
+  +id: string;
   +name: 'group';
   +byPath: Array<string>;
   +context: Context;
 };
 
 export type QueryPipeline = {
+  +id: string;
   +name: 'pipeline',
-  +pipeline: Array<Query>;
+  +pipeline: Array<QueryAtom>;
   +context: Context;
 };
 
@@ -87,6 +102,7 @@ export type BinaryOperator
   | 'contains';
 
 export type BinaryExpression = {
+  +id: string;
   +name: 'binary';
   +op: BinaryOperator;
   +left: Expression;
@@ -99,6 +115,7 @@ export type UnaryOperator
   | 'exists';
 
 export type UnaryExpression = {
+  +id: string;
   +name: 'unary';
   +op: UnaryOperator;
   +expression: Expression;
@@ -110,16 +127,13 @@ export type LogicalBinaryOperator
   | 'or';
 
 export type LogicalBinaryExpression = {
+  +id: string;
   +name: 'logicalBinary';
   +op: LogicalBinaryOperator;
   +expressions: Array<Expression>;
   +context: Context;
 };
 
-
-/**
- * Describe query structure.
- */
 export type Query =
   | HereQuery
   | NavigateQuery
@@ -131,7 +145,41 @@ export type Query =
   | AggregateQuery
   | QueryPipeline;
 
+export type QueryName =
+  | 'here'
+  | 'navigate'
+  | 'select'
+  | 'define'
+  | 'filter'
+  | 'limit'
+  | 'group'
+  | 'aggregate'
+  | 'pipeline';
+
+export const QueryNameSet = new Set([
+  'here',
+  'navigate',
+  'select',
+  'define',
+  'filter',
+  'limit',
+  'group',
+  'aggregate',
+  'pipeline',
+]);
+
+export type QueryAtom =
+  | HereQuery
+  | NavigateQuery
+  | SelectQuery
+  | DefineQuery
+  | FilterQuery
+  | LimitQuery
+  | GroupQuery
+  | AggregateQuery;
+
 export type QueryExpression = {
+  +id: string;
   +name: 'query';
   +query: Query;
   +context: Context;
@@ -147,6 +195,23 @@ export type Expression =
   | UnaryExpression
   | LogicalBinaryExpression
   | QueryExpression;
+
+export type ExpressionName =
+  | 'navigate'
+  | 'value'
+  | 'binary'
+  | 'unary'
+  | 'logicalBinary'
+  | 'query';
+
+export const ExpressionNameSet = new Set([
+  'navigate',
+  'value',
+  'binary',
+  'unary',
+  'logicalBinary',
+  'query',
+]);
 
 /**
  * Set of queries in scope (by key).
@@ -191,90 +256,90 @@ export const emptyContext = {
 
 emptyContext.prev = emptyContext;
 
-export const here = {name: 'here', context: emptyContext};
+export const here = {id: genQueryId(), name: 'here', context: emptyContext};
 
 export function value(value: number | string | boolean): ConstantExpression {
-  return {name: 'value', value, context: emptyContext};
+  return {name: 'value', id: genQueryId(), value, context: emptyContext};
 }
 
 export function navigate(path: string): NavigateQuery {
-  return {name: 'navigate', path, context: emptyContext, regular: false};
+  return {name: 'navigate', id: genQueryId(), path, context: emptyContext, regular: false};
 }
 
 export function use(path: string): NavigateQuery {
-  return {name: 'navigate', path, context: emptyContext, regular: true};
+  return {name: 'navigate', id: genQueryId(), path, context: emptyContext, regular: true};
 }
 
 export function filter(predicate: Expression): FilterQuery {
-  return {name: 'filter', predicate, context: emptyContext};
+  return {name: 'filter', id: genQueryId(), predicate, context: emptyContext};
 }
 
 export function select(select: {[fieldName: string]: QueryPipeline}): SelectQuery {
-  return {name: 'select', select, context: emptyContext};
+  return {name: 'select', id: genQueryId(), select, context: emptyContext};
 }
 
 export function def(name: string, query: QueryPipeline): DefineQuery {
-  return {name: 'define', binding: {name, query}, context: emptyContext};
+  return {name: 'define', id: genQueryId(), binding: {name, query}, context: emptyContext};
 }
 
 export function limit(limit: number): LimitQuery {
-  return {name: 'limit', limit, context: emptyContext};
+  return {name: 'limit', id: genQueryId(), limit, context: emptyContext};
 }
 
 export function aggregate(aggregate: string, path?: ?string = null): AggregateQuery {
-  return {name: 'aggregate', aggregate, path, context: emptyContext};
+  return {name: 'aggregate', id: genQueryId(), aggregate, path, context: emptyContext};
 }
 
 export function group(byPath: Array<string>): GroupQuery {
-  return {name: 'group', byPath, context: emptyContext};
+  return {name: 'group', id: genQueryId(), byPath, context: emptyContext};
 }
 
-export function pipeline(...pipeline: Array<Query>): QueryPipeline {
-  return {name: 'pipeline', pipeline, context: emptyContext};
+export function pipeline(...pipeline: Array<QueryAtom>): QueryPipeline {
+  return {name: 'pipeline', id: genQueryId(), pipeline, context: emptyContext};
 }
 
 export function and(...expressions: Array<Expression>): LogicalBinaryExpression {
-  return {name: 'logicalBinary', op: 'and', expressions, context: emptyContext};
+  return {name: 'logicalBinary', id: genQueryId(), op: 'and', expressions, context: emptyContext};
 }
 
 export function or(...expressions: Array<Expression>): LogicalBinaryExpression {
-  return {name: 'logicalBinary', op: 'or', expressions, context: emptyContext};
+  return {name: 'logicalBinary', id: genQueryId(), op: 'or', expressions, context: emptyContext};
 }
 
 export function not(expression: Expression): UnaryExpression {
-  return {name: 'unary', op: 'not', expression, context: emptyContext};
+  return {name: 'unary', id: genQueryId(), op: 'not', expression, context: emptyContext};
 }
 
 export function equal(left: Expression, right: Expression): BinaryExpression {
-  return {name: 'binary', op: 'equal', left, right, context: emptyContext};
+  return {name: 'binary', id: genQueryId(), op: 'equal', left, right, context: emptyContext};
 }
 
 export function notEqual(left: Expression, right: Expression): BinaryExpression {
-  return {name: 'binary', op: 'notEqual', left, right, context: emptyContext};
+  return {name: 'binary', id: genQueryId(), op: 'notEqual', left, right, context: emptyContext};
 }
 
 export function less(left: Expression, right: Expression): BinaryExpression {
-  return {name: 'binary', op: 'less', left, right, context: emptyContext};
+  return {name: 'binary', id: genQueryId(), op: 'less', left, right, context: emptyContext};
 }
 
 export function lessEqual(left: Expression, right: Expression): BinaryExpression {
-  return {name: 'binary', op: 'lessEqual', left, right, context: emptyContext};
+  return {name: 'binary', id: genQueryId(), op: 'lessEqual', left, right, context: emptyContext};
 }
 
 export function greater(left: Expression, right: Expression): BinaryExpression {
-  return {name: 'binary', op: 'greater', left, right, context: emptyContext};
+  return {name: 'binary', id: genQueryId(), op: 'greater', left, right, context: emptyContext};
 }
 
 export function greaterEqual(left: Expression, right: Expression): BinaryExpression {
-  return {name: 'binary', op: 'greaterEqual', left, right, context: emptyContext};
+  return {name: 'binary', id: genQueryId(), op: 'greaterEqual', left, right, context: emptyContext};
 }
 
 export function contains(left: Expression, right: Expression): BinaryExpression {
-  return {name: 'binary', op: 'contains', left, right, context: emptyContext};
+  return {name: 'binary', id: genQueryId(), op: 'contains', left, right, context: emptyContext};
 }
 
 export function exists(expression: Expression): UnaryExpression {
-  return {name: 'unary', op: 'exists', expression, context: emptyContext};
+  return {name: 'unary', id: genQueryId(), op: 'exists', expression, context: emptyContext};
 }
 
 function withContext<Q: Query>(query: Q, context: Context): Q {
@@ -305,6 +370,7 @@ export function inferExpressionType(context: Context, query: Expression): Expres
       context = withHasInvalidType(context);
     }
     return {
+      id: query.id,
       name: 'logicalBinary',
       op: query.op,
       expressions,
@@ -316,6 +382,7 @@ export function inferExpressionType(context: Context, query: Expression): Expres
       context = withHasInvalidType(context);
     }
     return {
+      id: query.id,
       name: 'unary',
       op: query.op,
       expression,
@@ -329,6 +396,7 @@ export function inferExpressionType(context: Context, query: Expression): Expres
       type = t.numberType(context.domain);
     }
     return {
+      id: query.id,
       name: 'value',
       value: query.value,
       context: withType(context, type),
@@ -340,6 +408,7 @@ export function inferExpressionType(context: Context, query: Expression): Expres
       context = withHasInvalidType(context);
     }
     return {
+      id: query.id,
       name: 'binary',
       op: query.op,
       left, right,
@@ -362,17 +431,21 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
     hasInvalidType: true,
     title: null,
   };
-  let nextQuery = transformQuery(query, {
+  let nextQuery: Query = transformQuery(query, {
     here: query => {
       if (type.name === 'invalid') {
         return withContext(query, context);
       } else {
         return {
+          id: genQueryId(),
           name: 'here',
           context: {
-            ...context,
+            domain: context.domain,
+            scope: context.scope,
             prev: context,
             type,
+            title: 'Here',
+            hasInvalidType: false,
           },
         };
       }
@@ -393,11 +466,14 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         context
       );
       return {
+        id: query.id,
         name: 'pipeline',
         pipeline: nextPipeline,
         context: {
-          ...nextContext,
           prev: context,
+          domain: nextContext.domain,
+          scope: nextContext.scope,
+          type: nextContext.type,
           hasInvalidType,
           title: genQueryNameFromPipeline(nextPipeline),
         },
@@ -407,10 +483,13 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
       let expressionTitle = genExpressionName(query.predicate);
       let predicate = inferExpressionType(context, query.predicate);
       return {
+        id: query.id,
         name: 'filter',
         predicate,
         context: {
-          ...context,
+          prev: context,
+          scope: context.scope,
+          domain: context.domain,
           type: predicate.context.type.name === 'invalid'
             ? t.invalidType(domain)
             : context.type,
@@ -451,6 +530,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         }
       }
       return {
+        id: query.id,
         name: 'select',
         select: nextSelect,
         context: {
@@ -487,6 +567,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         query: ((pipeline: any): QueryPipeline)
       };
       return {
+        id: query.id,
         name: 'define',
         binding,
         context: {
@@ -554,6 +635,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
 
       if (query.byPath.length === 0) {
         return {
+          id: query.id,
           name: 'group',
           byPath: [],
           context: {
@@ -694,6 +776,7 @@ function regularizePipeline(query: QueryPipeline): QueryPipeline {
   let last = query.pipeline[query.pipeline.length - 1];
   if (last && last.name === 'select') {
     query = {
+      id: query.id,
       name: 'pipeline',
       pipeline: query.pipeline.slice(0, query.pipeline.length - 1),
       context: query.context,
@@ -812,7 +895,11 @@ function mapQueryPipeline(
   query: QueryPipeline,
   f: (q: Query) => Query
 ): QueryPipeline {
-  let pipeline = query.pipeline.map(q => mapQuery(q, f));
+  let pipeline = query.pipeline.map(q => {
+    let nextQ = mapQuery(q, f)
+    invariant(nextQ.name !== 'pipeline', 'Invalid query structure');
+    return nextQ;
+  });
   return {name: 'pipeline', ...f(query), pipeline};
 }
 
@@ -864,6 +951,7 @@ export function mapExpression(
   return transformExpression(query, {
     unary(expression) {
       return f({
+        id: expression.id,
         name: 'unary',
         op: expression.op,
         expression: mapExpression(expression.expression, f),
@@ -872,6 +960,7 @@ export function mapExpression(
     },
     binary(expression) {
       return f({
+        id: expression.id,
         name: 'binary',
         op: expression.op,
         left: mapExpression(expression.left, f),
@@ -881,6 +970,7 @@ export function mapExpression(
     },
     logicalBinary(expression) {
       return f({
+        id: expression.id,
         name: 'logicalBinary',
         op: expression.op,
         expressions: expression.expressions
@@ -924,7 +1014,7 @@ export function genQueryName(query: Query): ?string {
   }
 }
 
-export function genQueryNameFromPipeline(pipeline: Array<Query>): ?string {
+export function genQueryNameFromPipeline(pipeline: Array<QueryAtom>): ?string {
   let name = [];
   for (let i = 0; i < pipeline.length; i++) {
     let q = pipeline[i];

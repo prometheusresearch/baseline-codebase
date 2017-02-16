@@ -2,22 +2,21 @@
  * @flow
  */
 
-import type {NavigateQuery, QueryPointer, QueryNavigation} from '../model';
+import type {NavigateQuery, QueryNavigation} from '../model';
 import type {Actions} from '../state';
 import type {SearchCallback} from './Search';
 
 import React from 'react';
 import {VBox} from 'react-stylesheet';
-import * as q from '../model/Query';
 import {MenuButton, MenuGroup, MenuHelp} from './menu';
 import QueryPanelBase from './QueryPanelBase';
 import * as theme from './Theme';
 import NavigationMenu from './NavigationMenu';
 
 type NavigateQueryPanelProps = {
-  pointer: QueryPointer<NavigateQuery>;
-  onClose: Function;
-  onSearch: SearchCallback;
+  query: NavigateQuery,
+  onClose: Function,
+  onSearch: SearchCallback,
 };
 
 export default class NavigateQueryPanel extends React.Component<*, NavigateQueryPanelProps, *> {
@@ -29,22 +28,22 @@ export default class NavigateQueryPanel extends React.Component<*, NavigateQuery
   static contextTypes = {actions: React.PropTypes.object};
 
   onClick = (path: string) => {
-    this.context.actions.replace({
-      pointer: this.props.pointer,
-      query: q.navigate(path),
+    this.context.actions.setNavigate({
+      at: this.props.query,
+      path,
     });
   }
 
   render() {
-    let {pointer, onClose, onSearch, ...rest} = this.props;
+    let {query, onClose, onSearch, ...rest} = this.props;
     return (
       <QueryPanelBase
         {...rest}
         onClose={onClose}
-        title={pointer.query.path}
+        title={query.path}
         theme={theme.entity}
-        pointer={pointer}>
-        <NavigationMenu onSearch={onSearch} context={pointer.query.context.prev}>
+        query={query}>
+        <NavigationMenu onSearch={onSearch} context={query.context.prev}>
           <this.NavigationMenuContents {...this.props} />
         </NavigationMenu>
       </QueryPanelBase>
@@ -54,15 +53,12 @@ export default class NavigateQueryPanel extends React.Component<*, NavigateQuery
   NavigationMenuContents = (
     props: NavigateQueryPanelProps & {navigation: Map<string, QueryNavigation>}
   ) => {
-    let {
-      navigation,
-      pointer,
-    } = props;
+    let {navigation, query} = props;
     return (
       <VBox>
         <MenuGroup>
           {Array.from(navigation.values()).map(nav => {
-            let isSelected = nav.value === pointer.query.path;
+            let isSelected = nav.value === query.path;
             return (
               <MenuButton
                 key={nav.value}

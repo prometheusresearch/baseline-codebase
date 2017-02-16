@@ -5,13 +5,13 @@
 import type {Query, QueryPipeline, Domain} from './model';
 import type {SearchCallback} from './ui';
 
+import createLogger from 'debug';
 import invariant from 'invariant';
 import React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import {css, style, VBox, HBox} from 'react-stylesheet';
 
 import * as Icon from './ui/Icon';
-import * as qp from './model/QueryPointer';
 import * as ui from './ui';
 import * as State from './state';
 
@@ -24,6 +24,8 @@ type QueryBuilderProps = {
   onSearch?: SearchCallback;
   toolbar?: ?React.Element<*>;
 };
+
+let log = createLogger('rex-query:ui:main');
 
 export default class QueryBuilder extends React.Component {
 
@@ -71,7 +73,7 @@ export default class QueryBuilder extends React.Component {
     let {
       query,
       selected,
-      insertAfter,
+      activeQueryPipeline,
       queryInvalid,
       queryLoading,
       data,
@@ -79,12 +81,13 @@ export default class QueryBuilder extends React.Component {
       focusedSeq,
     } = this.state;
 
+    log('render', this.state);
+
     let disablePanelClose = false;
-    let pointer = qp.make(query);
 
     // FIXME: we should maintain this invariant in the state container
     if (isEmptyQuery(query)) {
-      insertAfter = qp.make(query, ['pipeline', 0]);
+      activeQueryPipeline = query;
       disablePanelClose = true;
       showPanel = true;
     }
@@ -125,22 +128,23 @@ export default class QueryBuilder extends React.Component {
           <LeftPanelWrapper>
             <ui.QueryVis
               domain={domain}
-              pointer={pointer}
+              pipeline={query}
               selected={selected}
-              insertAfter={insertAfter}
+              activeQueryPipeline={activeQueryPipeline}
               showPanel={showPanel}
               onShowSelect={this.actions.showSelect}
               />
-            {pointer.query.context.hasInvalidType &&
+            {query.context.hasInvalidType &&
               <InvalidQueryNotice
                 />}
           </LeftPanelWrapper>
-          {(selected || insertAfter) && showPanel && (
-            insertAfter ?
+          {(selected || activeQueryPipeline) && showPanel && (
+            activeQueryPipeline ?
               <CenterPanelWrapper>
                 <ui.AddQueryPanel
+                  title="Pick a starting relationship"
                   onClose={this.actions.hidePanel}
-                  pointer={insertAfter}
+                  pipeline={activeQueryPipeline}
                   onSearch={this.props.onSearch}
                   disableClose={disablePanelClose}
                   />
@@ -150,7 +154,7 @@ export default class QueryBuilder extends React.Component {
                   key={selected.path.join('.')}
                   onClose={this.actions.hidePanel}
                   onSearch={this.props.onSearch}
-                  pointer={selected}
+                  query={selected}
                   disableClose={disablePanelClose}
                   />
               </CenterPanelWrapper> :

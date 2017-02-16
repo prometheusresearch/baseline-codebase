@@ -2,8 +2,7 @@
  * @flow
  */
 
-import type {DefineQuery} from '../model/Query';
-import type {QueryPointer} from '../model/QueryPointer';
+import type {QueryPipeline, DefineQuery} from '../model';
 import type {Actions} from '../state';
 import type {SearchCallback} from './Search';
 
@@ -12,7 +11,6 @@ import ReactDOM from 'react-dom';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import {VBox, HBox} from 'react-stylesheet';
 
-import * as qp from '../model/QueryPointer';
 import * as theme from './Theme';
 import QueryPanelBase from './QueryPanelBase';
 import {MenuTitle, MenuGroup, MenuButton, MenuHelp} from './menu';
@@ -20,7 +18,7 @@ import ColumnPicker from './ColumnPicker';
 import PencilIcon from './PencilIcon';
 
 type DefineQueryPanelProps = {
-  pointer: QueryPointer<DefineQuery>;
+  query: DefineQuery;
   onClose: () => *;
   onSearch: SearchCallback;
 };
@@ -48,24 +46,18 @@ export default class DefineQueryPanel
     let {
       onClose,
       onSearch,
-      pointer
+      query
     } = this.props;
     let {
       renameOpen,
       renameValue,
     } = this.state;
 
-    let type = pointer.query.binding.query.context.type;
+    let type = query.binding.query.context.type;
 
     let hasConfigurableColumns = (
       type &&
       type.name === 'record'
-    );
-
-    let last = qp.select(
-      pointer,
-      ['binding', 'query'],
-      ['pipeline', pointer.query.binding.query.pipeline.length - 1]
     );
 
     return (
@@ -73,7 +65,7 @@ export default class DefineQueryPanel
         title="Configure columns"
         onClose={onClose}
         theme={theme.def}
-        pointer={pointer}>
+        query={query}>
         <VBox marginBottom={10}>
           {!renameOpen ?
             false && <MenuGroup>
@@ -116,7 +108,7 @@ export default class DefineQueryPanel
             onSelect={this.onSelect}
             onSelectRemove={this.onSelectRemove}
             onSearch={onSearch}
-            pointer={last}
+            query={query.binding.query}
             /> :
           <MenuHelp>
             This query has no columns to configure.
@@ -127,17 +119,16 @@ export default class DefineQueryPanel
 
   onSelect = (payload: {path: string}) => {
     let {path} = payload;
-    let {pointer} = this.props;
-    // FIXME: cleanup this mess
+    let {query} = this.props;
     this.context.actions.navigate({
-      pointer: qp.select(pointer, ['binding', 'query']),
+      at: query.binding.query,
       path: [path]
     });
   };
 
-  onSelectRemove = (payload: {path: string; pointer: QueryPointer<>}) => {
-    let {pointer} = payload;
-    this.context.actions.cut(pointer);
+  onSelectRemove = (payload: {path: string; query: QueryPipeline}) => {
+    let {query} = payload;
+    this.context.actions.cut({at: query});
   };
 
   onBindingRenameInputRef = (bindingRenameInput: any) => {
@@ -153,7 +144,7 @@ export default class DefineQueryPanel
     this.setState(state => ({
       ...state,
       renameOpen: true,
-      renameValue: this.props.pointer.query.binding.name,
+      renameValue: this.props.query.binding.name,
     }));
   };
 
@@ -180,7 +171,7 @@ export default class DefineQueryPanel
     }), () => {
       if (renameValue != null) {
         this.context.actions.renameDefineBinding({
-          pointer: this.props.pointer,
+          at: this.props.query,
           name: renameValue
         });
       }

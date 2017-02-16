@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {QueryNavigation, QueryPointer, QueryPipeline, Query} from '../model';
+import type {QueryNavigation, QueryPipeline} from '../model';
 import type {Actions} from '../state';
 import type {SearchCallback} from './Search';
 
@@ -13,15 +13,14 @@ import {IconPlus} from './Icon';
 import TagLabel from './TagLabel';
 import Label from './Label';
 import * as feature from '../feature';
-import * as q from '../model/Query';
-import * as qp from '../model/QueryPointer';
+import {getInsertionPoint} from '../model/QueryOperation';
 import {MenuGroup, MenuButton, MenuButtonSecondary} from './menu';
 import NavigationMenu from './NavigationMenu';
 
 type ColumnPickerProps = {
-  pointer: QueryPointer<Query>;
+  query: QueryPipeline;
   onSelect: (payload: {path: string}) => *;
-  onSelectRemove: (payload: {path: string, pointer: QueryPointer<>}) => *;
+  onSelectRemove: (payload: {path: string, query: QueryPipeline}) => *;
   onSearch: SearchCallback;
 };
 
@@ -36,10 +35,10 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
   };
 
   render() {
-    let {pointer: {query}, onSearch} = this.props;
-    let context = query.name === 'select' || query.context.type.name === 'invalid'
+    let {query, onSearch} = this.props;
+    let context = query.context.type.name === 'invalid'
       ? query.context.prev
-      : query.context;
+      : getInsertionPoint(query).context;
     return (
       <NavigationMenu onSearch={onSearch} context={context}>
         <this.NavigationMenuContents {...this.props} />
@@ -50,27 +49,27 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
 
   NavigationMenuContents = (props: ColumnPickerProps & {navigation: Map<string, QueryNavigation>}) => {
     let {
-      pointer,
+      query,
       navigation,
       onSelect,
       onSelectRemove,
     } = props;
 
-    let {type} = pointer.query.context;
-    let active = getNavigationPointerMap(pointer);
+    let {type} = query.context;
+    let active = getNavigationIndex(query);
     let entityList = [];
     let queryList = [];
     let attributeList = [];
     let groupByAttributeList = [];
 
     navigation.forEach(column => {
-      let pointer = active[column.value];
+      let query = active[column.value];
       let button = (
         <ColumnPickerButton
           key={column.value}
           disabled={column.groupBy}
           column={column}
-          pointer={pointer}
+          query={query}
           onSelect={onSelect}
           onSelectRemove={onSelectRemove}
           onNavigate={this.onNavigate}
@@ -120,38 +119,35 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
 
   onDefine = (nav: QueryNavigation) => {
     this.context.actions.appendDefine({
-      pointer: this.props.pointer,
+      at: this.props.query,
       select: true,
       path: [nav.value],
     });
   };
 
   onAggregate = (payload: {path: string}) => {
-    let domain = this.props.pointer.query.context.domain;
-    let pipeline = qp.prev(this.props.pointer);
+    let domain = this.props.query.context.domain;
     this.context.actions.appendDefineAndAggregate({
-      pointer: ((pipeline: any): QueryPointer<QueryPipeline>),
+      at: this.props.query,
       path: [payload.path],
       aggregate: domain.aggregate.count,
     });
   };
 
   onFilter = () => {
-    this.context.actions.appendFilter({pointer: this.props.pointer});
+    this.context.actions.appendFilter({at: this.props.query});
   };
 
   onNavigate = (payload: {path: string}) => {
-    let p = getPipelineInsertionPoint(this.props.pointer);
     this.context.actions.appendNavigate({
-      pointer: p,
+      at: this.props.query,
       path: [payload.path],
     });
   };
 
   onAddQuery = (payload: {path: string}) => {
-    let p = getPipelineInsertionPoint(this.props.pointer);
     this.context.actions.appendDefine({
-      pointer: p,
+      at: this.props.query,
       select: true,
       path: [payload.path],
     });
@@ -162,22 +158,22 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
 class ColumnPickerButton extends React.Component {
 
   props: {
-    pointer?: QueryPointer<>;
+    query?: QueryPipeline;
     column: QueryNavigation;
     onSelect: (payload: {path: string}) => *;
     onNavigate: (payload: {path: string}) => *;
     onAggregate: (payload: {path: string}) => *;
     onAddQuery: (payload: {path: string}) => *;
-    onSelectRemove: (payload: {path: string, pointer: QueryPointer<>}) => *;
+    onSelectRemove: (payload: {path: string, query: QueryPipeline}) => *;
     disabled: boolean;
     actions: Actions;
   };
 
   onSelect = (e: UIEvent) => {
     e.stopPropagation();
-    let {onSelect, onSelectRemove, column, pointer} = this.props;
-    if (pointer != null) {
-      onSelectRemove({path: column.value, pointer});
+    let {onSelect, onSelectRemove, column, query} = this.props;
+    if (query != null) {
+      onSelectRemove({path: column.value, query});
     } else {
       onSelect({path: column.value});
     }
@@ -199,9 +195,9 @@ class ColumnPickerButton extends React.Component {
   };
 
   render() {
-    let {column, pointer, disabled} = this.props;
+    let {column, query, disabled} = this.props;
     let title;
-    if (pointer != null) {
+    if (query != null) {
       title = `Hide "${column.label}" in the output`;
     } else if (column.card === 'seq') {
       title = `Show "${column.label}" in the output. The count will be shown because the attribute is plural`;
@@ -212,8 +208,8 @@ class ColumnPickerButton extends React.Component {
       <MenuButton
         disabled={disabled}
         title={title}
-        selected={pointer != null}
-        icon={pointer != null ? '✓' : null}
+        selected={query != null}
+        icon={query != null ? '✓' : null}
         menu={
           feature.ENABLE_ATTRIBUTE_CONTEXT_MENU && !disabled && [
             column.type === 'record' &&
@@ -260,64 +256,25 @@ class ColumnPickerButton extends React.Component {
   }
 }
 
-function getNavigationPointerMap(pointer: QueryPointer<>) {
-  // Now we show column picker on navigate nodes, this is why we do this hack...
-  let pointerPrev = qp.prev(pointer);
-  if (pointerPrev && pointerPrev.query.name === 'pipeline') {
-    return getNavigationPointerMapImpl(pointerPrev);
-  } else {
-    return getNavigationPointerMapImpl(pointer);
-  }
-}
-
-function getNavigationPointerMapImpl(
-  pointer: QueryPointer<>
-): {[path: string]: QueryPointer<>} {
+function getNavigationIndex(
+  query: QueryPipeline
+): {[key: string]: QueryPipeline} {
   const noNavigation = {};
-  return q.transformQuery(pointer.query, {
-
-    pipeline: query => {
-      if (query.pipeline.length === 0) {
-        return {};
-      } else if (query.pipeline.length === 1) {
-        return getNavigationPointerMapImpl(qp.select(pointer, ['pipeline', 0]));
-      } else {
-        let navigation = {};
-        for (let i = 0; i < query.pipeline.length; i++) {
-          // FIXME: this is silly
-          navigation = getNavigationPointerMapImpl(qp.select(pointer, ['pipeline', i]));
-        }
-        return navigation;
-      }
-    },
-
-    navigate: query => {
-      return {
-        [query.path]: pointer,
-      };
-    },
-
-    select: query => {
-      let navigation = {};
-      for (let name in query.select) {
-        if (!query.select.hasOwnProperty(name)) {
-          continue;
-        }
-        navigation[name] = qp.select(pointer, ['select', name]);
-      }
-      return navigation;
-    },
-
-    otherwise: _query => {
-      return noNavigation;
-    },
-  });
-}
-
-function getPipelineInsertionPoint(pointer: QueryPointer<>) {
-  let p = qp.prev(pointer);
-  if (p == null || p.query.name !== 'pipeline') {
-    return pointer;
+  if (query.pipeline.length === 0) {
+    return noNavigation;
   }
-  return qp.select(p, ['pipeline', p.query.pipeline.length - 2]);
+  const lastIndex = query.pipeline.length - 1;
+  const last = query.pipeline[lastIndex];
+  const navigation = {};
+  if (last.name === 'navigate') {
+    navigation[last.path] = query;
+  } else if (last.name === 'select') {
+    for (let name in last.select) {
+      if (!last.select.hasOwnProperty(name)) {
+        continue;
+      }
+      navigation[name] = last.select[name];
+    }
+  }
+  return navigation;
 }

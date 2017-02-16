@@ -2,8 +2,7 @@
  * @flow
  */
 
-import type {Expression, FilterQuery} from '../../model/Query';
-import type {QueryPointer} from '../../model/QueryPointer';
+import type {Expression, FilterQuery} from '../../model';
 import type {Actions} from '../../state';
 
 import React from 'react';
@@ -19,8 +18,8 @@ import {MenuGroup, MenuButton} from '../menu';
 import FilterCondition from './FilterCondition';
 
 type FilterQueryPanelProps = {
-  pointer: QueryPointer<FilterQuery>;
-  onClose: () => *;
+  query: FilterQuery,
+  onClose: () => *,
 };
 
 function ORSeparator() {
@@ -61,7 +60,7 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
 
   constructor(props: FilterQueryPanelProps) {
     super(props);
-    let {predicate} = props.pointer.query;
+    let {predicate} = props.query;
     if (
       predicate.name === 'logicalBinary' &&
       predicate.op === 'or' &&
@@ -78,7 +77,7 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
   }
 
   componentWillReceiveProps(nextProps: FilterQueryPanelProps) {
-    let {predicate} = nextProps.pointer.query;
+    let {predicate} = nextProps.query;
     this.setState({
       expressions: predicate && predicate.expressions
         ? predicate.expressions
@@ -87,10 +86,10 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
   }
 
   render() {
-    let {onClose, pointer} = this.props;
+    let {onClose, query} = this.props;
     let {expressions} = this.state;
 
-    let navigation = Array.from(qn.getNavigation(pointer.query.context).values());
+    let navigation = Array.from(qn.getNavigation(query.context).values());
     let fields = navigation.filter(field => {
       let type = field.context.type;
       return type.name !== 'invalid';
@@ -134,7 +133,7 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
         title="Filter"
         onClose={onClose}
         theme={Theme.filter}
-        pointer={pointer}>
+        query={query}>
         <ReactUI.VBox overflow="visible" padding={0}>
           <ReactUI.VBox overflow="visible" padding={5}>
             {conditions}
@@ -169,20 +168,18 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
 
   updateQuery() {
     let {expressions} = this.state;
+
     expressions = expressions.filter(expression =>
       !(expression.name === 'value' && expression.value === true));
 
-    let query;
-    if (expressions.length > 0) {
-      query = q.filter(q.or(...expressions.map(expression =>
-        q.inferExpressionType(this.props.pointer.query.context, expression))));
-    } else {
-      query = q.filter(q.or(q.value(true)));
-    }
+    let expression = expressions.length > 0
+      ?  q.or(...expressions.map(expression =>
+           q.inferExpressionType(this.props.query.context, expression)))
+      : q.or(q.value(true));
 
-    this.context.actions.replace({
-      pointer: this.props.pointer,
-      query
+    this.context.actions.setFilter({
+      at: this.props.query,
+      expression,
     });
   }
 }

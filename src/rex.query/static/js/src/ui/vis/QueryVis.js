@@ -2,7 +2,15 @@
  * @flow
  */
 
-import type {QueryPointer, Query} from '../../model';
+import {
+  type QueryPipeline,
+  type QueryAtom,
+  type NavigateQuery,
+  type DefineQuery,
+  type AggregateQuery,
+  type FilterQuery,
+  type GroupQuery,
+} from '../../model';
 import type {Actions} from '../../state';
 
 import React from 'react';
@@ -10,8 +18,6 @@ import {style, css, Element, VBox, HBox} from 'react-stylesheet';
 
 import invariant from 'invariant';
 
-import * as q from '../../model/Query';
-import * as qp from '../../model/QueryPointer';
 import * as QueryButton from '../QueryButton';
 import * as QueryPane from '../QueryPane';
 import QueryVisToolbar from './QueryVisToolbar';
@@ -20,8 +26,13 @@ import * as Icon from '../Icon';
 
 class QueryVisButton extends React.Component {
 
+  props: {
+    query: QueryAtom,
+    selected: ?QueryAtom,
+  };
+
   context: {
-    actions: Actions;
+    actions: Actions,
   }
 
   static contextTypes = {
@@ -29,17 +40,17 @@ class QueryVisButton extends React.Component {
   };
 
   onSelect = () => {
-    this.context.actions.select(this.props.pointer);
+    this.context.actions.setSelected({query: this.props.query});
   };
 
   onClose = () => {
-    this.context.actions.remove(this.props.pointer);
+    this.context.actions.remove({at: this.props.query});
   };
 
   render() {
-    let {pointer, selected, ...props} = this.props;
-    let isSelected = selected && qp.is(selected, pointer);
-    let isInvalid = pointer.query.context.hasInvalidType;
+    let {query, selected, ...props} = this.props;
+    let isSelected = selected && selected.id === query.id;
+    let isInvalid = query.context.hasInvalidType;
     return (
       <QueryVisButtonBase
         {...props}
@@ -56,8 +67,8 @@ class QueryVisButton extends React.Component {
 class QueryVisInsertAfterButton extends React.Component {
 
   props: {
-    pointer: QueryPointer<q.Query>;
-    first?: boolean;
+    query: QueryPipeline,
+    first?: boolean,
   };
 
   render() {
@@ -79,18 +90,19 @@ class QueryVisInsertAfterButton extends React.Component {
 
 
 export function QueryVisNavigateButton(props: {
-  pointer: QueryPointer<q.NavigateQuery>;
-  children?: React$Element<*>;
+  query: NavigateQuery,
+  selected: ?QueryAtom,
+  children?: React$Element<*>,
 }) {
-  let {pointer, ...rest} = props;
+  let {query, ...rest} = props;
   return (
     <QueryVisButton
       {...rest}
       selectable
       closeable
       stylesheet={{Root: QueryPane.NavigatePane, Button: QueryButton.NavigateButton}}
-      pointer={pointer}
-      label={pointer.query.context.title || pointer.query.path}
+      query={query}
+      label={query.context.title || query.path}
       />
   );
 }
@@ -136,16 +148,13 @@ function QueryVisDefineButtonBottomShape() {
 }
 
 export function QueryVisDefineButton(props: {
-  pointer: QueryPointer<q.DefineQuery>;
-  selected: ?QueryPointer<>;
-  insertAfter: ?QueryPointer<>;
-  first?: boolean;
+  query: DefineQuery,
+  selected: ?QueryAtom,
+  activeQueryPipeline: ?QueryPipeline,
+  first?: boolean,
 }) {
-  let {pointer, selected, insertAfter, first} = props;
-  let bindingPointer: QueryPointer<q.QueryPipeline> = (
-    qp.select(pointer, ['binding', 'query']): any
-  );
-  let isSelected = selected && qp.is(selected, pointer)
+  let {query, selected, activeQueryPipeline, first} = props;
+  let isSelected = selected && selected.id === query.id;
   return (
     <VBox paddingBottom={5}>
       <VBox
@@ -158,14 +167,14 @@ export function QueryVisDefineButton(props: {
           closeable
           closeTitle="Remove"
           selected={isSelected}
-          label={pointer.query.context.title || pointer.query.binding.name}
-          pointer={pointer}
+          label={query.context.title || query.binding.name}
+          query={query}
           />
         <VBox paddingLeft={8}>
           <QueryVisPipeline
-            pointer={bindingPointer}
+            pipeline={query.binding.query}
             selected={selected}
-            insertAfter={insertAfter}
+            activeQueryPipeline={activeQueryPipeline}
             />
         </VBox>
         <QueryVisDefineButtonBottomShape />
@@ -175,9 +184,10 @@ export function QueryVisDefineButton(props: {
 }
 
 export function QueryVisFilterButton(props: {
-  pointer: QueryPointer<q.FilterQuery>;
+  query: FilterQuery,
+  selected: ?QueryAtom,
 }) {
-  let {query} = props.pointer;
+  let {query} = props;
   let stylesheet = {
     Root: QueryPane.FilterPane,
     Button: QueryButton.FilterButton,
@@ -193,34 +203,34 @@ export function QueryVisFilterButton(props: {
   );
 }
 
-export function QueryVisGroupButton(props: {
-  pointer: QueryPointer<q.GroupQuery>;
+export function QueryVisGroupButton({query, ...rest}: {
+  query: GroupQuery,
+  selected: ?QueryAtom,
 }) {
-  const {pointer, ...rest} = props;
   return (
     <QueryVisButton
       {...rest}
       selectable
       closeable
       stylesheet={{Root: QueryPane.GroupPane, Button: QueryButton.GroupButton}}
-      pointer={pointer}
-      label={pointer.query.context.title}
+      query={query}
+      label={query.context.title}
       />
   );
 }
 
-export function QueryVisAggregateButton(props: {
-  pointer: QueryPointer<q.AggregateQuery>;
+export function QueryVisAggregateButton({query, ...rest}: {
+  query: AggregateQuery,
+  selected: ?QueryAtom,
 }) {
-  const {pointer, ...rest} = props;
   return (
     <QueryVisButton
       {...rest}
       selectable
       closeable
       stylesheet={{Root: QueryPane.AggregatePane, Button: QueryButton.AggregateButton}}
-      pointer={pointer}
-      label={pointer.query.context.title}
+      query={query}
+      label={query.context.title}
       />
   );
 }
@@ -236,22 +246,22 @@ class QueryVisDefineHeader extends React.Component {
   };
 
   props: {
-    label: string;
-    pointer: QueryPointer<q.Query>;
-    closeable?: boolean;
-    closeTitle?: string;
-    selected?: ?boolean;
-    selectable?: boolean;
+    label: string,
+    query: DefineQuery,
+    closeable?: boolean,
+    closeTitle?: string,
+    selected?: ?boolean,
+    selectable?: boolean,
   };
 
   onRemove = (ev: UIEvent) => {
     ev.stopPropagation();
-    this.context.actions.cut(this.props.pointer);
+    this.context.actions.cut({at: this.props.query.binding.query});
   };
 
   onSelect = (ev: UIEvent) => {
     ev.stopPropagation();
-    this.context.actions.select(this.props.pointer);
+    this.context.actions.setSelected({query: this.props.query});
   };
 
   render() {
@@ -307,120 +317,113 @@ class QueryVisDefineHeader extends React.Component {
 }
 
 function QueryVisQueryButton(props: {
-  pointer: QueryPointer<>;
-  selected: ?QueryPointer<>;
-  insertAfter: ?QueryPointer<>;
-  first?: boolean;
-  closeable?: boolean;
+  query: QueryAtom | QueryPipeline,
+  selected: ?QueryAtom,
+  activeQueryPipeline: ?QueryPipeline,
+  first?: boolean,
+  closeable?: boolean,
+  isTopLevel?: boolean,
 }) {
-  const {pointer, ...rest} = props;
-  if (pointer.query.name === 'here') {
+  const {query, ...rest} = props;
+  if (query.name === 'here') {
     return <noscript />;
-  } else if (pointer.query.name === 'navigate') {
+  } else if (query.name === 'navigate') {
     return (
       <QueryVisNavigateButton
         {...rest}
-        pointer={((pointer: any): QueryPointer<q.NavigateQuery>)}
+        query={query}
         />
     );
-  } else if (pointer.query.name === 'filter') {
+  } else if (query.name === 'filter') {
     return (
       <QueryVisFilterButton
         {...rest}
-        pointer={((pointer: any): QueryPointer<q.FilterQuery>)}
+        query={query}
         />
     );
-  } else if (pointer.query.name === 'pipeline') {
+  } else if (query.name === 'pipeline') {
     return (
       <QueryVisPipeline
         {...rest}
-        pointer={((pointer: any): QueryPointer<q.QueryPipeline>)}
+        pipeline={query}
         />
     );
-  } else if (pointer.query.name === 'select') {
+  } else if (query.name === 'select') {
     return <noscript />;
-  } else if (pointer.query.name === 'define') {
+  } else if (query.name === 'define') {
     return (
       <QueryVisDefineButton
         {...rest}
-        pointer={((pointer: any): QueryPointer<q.DefineQuery>)}
+        query={query}
         />
     );
-  } else if (pointer.query.name === 'group') {
+  } else if (query.name === 'group') {
     return (
       <QueryVisGroupButton
         {...rest}
-        pointer={((pointer: any): QueryPointer<q.GroupQuery>)}
+        query={query}
         />
     );
-  } else if (pointer.query.name === 'aggregate') {
+  } else if (query.name === 'aggregate') {
     return (
       <QueryVisAggregateButton
         {...rest}
-        pointer={((pointer: any): QueryPointer<q.AggregateQuery>)}
+        query={query}
         />
     );
-  } else if (pointer.query.name === 'select') {
+  } else if (query.name === 'select') {
     return <noscript />;
-  } else if (pointer.query.name === 'limit') {
+  } else if (query.name === 'limit') {
     return <noscript />;
   } else {
-    invariant(false, 'Unknown query type: %s', pointer.query.name);
+    invariant(false, 'Unknown query type: %s', query.name);
   }
 }
 
-function QueryVisPipeline({pointer, closeable, insertAfter, ...props}: {
-  pointer: QueryPointer<q.QueryPipeline>;
-  selected: ?QueryPointer<Query>;
-  insertAfter: ?QueryPointer<>;
-  closeable?: boolean;
+function QueryVisPipeline({pipeline, closeable, isTopLevel, activeQueryPipeline, ...props}: {
+  pipeline: QueryPipeline,
+  selected: ?QueryAtom,
+  activeQueryPipeline: ?QueryPipeline,
+  closeable?: boolean,
+  isTopLevel?: boolean,
 }) {
-  let pipeline = qp.spread(pointer);
-  let topLevel = pointer.path.length === 0;
   let items = [];
   let disableAdd = false;
-  let lastPointer = pipeline[pipeline.length - 1];
-  let firstPointer = pipeline[0];
-  pipeline.forEach((pointer, idx) => {
-    let needPlaceholder = qp.is(pointer, insertAfter);
-    let firstItem = firstPointer.query.name === 'here'
+  let first = pipeline.pipeline[0];
+  pipeline.pipeline.forEach((query, idx) => {
+    let firstItem = first.name === 'here'
       ? 1
       : 0;
-    let first = idx === firstItem;
     items.push(
-      <QueryVisPipelineItem key={idx} variant={{topLevel}}>
+      <QueryVisPipelineItem key={idx} variant={{isTopLevel}}>
         <QueryVisQueryButton
           {...props}
-          first={first}
-          insertAfter={insertAfter}
+          first={idx === firstItem}
+          activeQueryPipeline={activeQueryPipeline}
           closeable={closeable && idx > 0}
-          pointer={pointer}
+          query={query}
           />
       </QueryVisPipelineItem>
     );
-    if (needPlaceholder) {
-      disableAdd = true;
-      items.push(
-        <QueryVisPipelineItem key="__insertAfter__" variant={{topLevel}}>
-          <QueryVisInsertAfterButton
-            first={pointer.query.name === 'here'}
-            pointer={pointer}
-            />
-        </QueryVisPipelineItem>
-      );
-    }
   });
-  let insertAfterPointer = lastPointer.query.name === 'select'
-    ? pipeline[pipeline.length - 2]
-    : lastPointer;
+  if (activeQueryPipeline && activeQueryPipeline.id === pipeline.id) {
+    disableAdd = true;
+    items.push(
+      <QueryVisPipelineItem key="__insertAfter__" variant={{isTopLevel}}>
+        <QueryVisInsertAfterButton
+          query={pipeline}
+          />
+      </QueryVisPipelineItem>
+    );
+  }
   return (
-    <QueryVisPipelineRoot paddingLeft={topLevel ? 8 : 0}>
+    <QueryVisPipelineRoot paddingLeft={isTopLevel ? 8 : 0}>
       {items}
-      {!topLevel &&
+      {!isTopLevel &&
         <VBox marginTop={10}>
           <QueryVisToolbar
             disableAdd={disableAdd}
-            pointer={insertAfterPointer}
+            pipeline={pipeline}
             />
         </VBox>}
     </QueryVisPipelineRoot>
@@ -441,7 +444,7 @@ let QueryVisPipelineItem = style(VBox, {
       marginBottom: 0,
     }
   },
-  topLevel: {
+  isTopLevel: {
     marginBottom: 10,
     lastOfType: {
       marginBottom: 0,
@@ -450,10 +453,10 @@ let QueryVisPipelineItem = style(VBox, {
 });
 
 type QueryVisProps = {
-  pointer: QueryPointer<Query>;
-  onShowSelect: () => *;
-  selected: ?QueryPointer<>;
-  insertAfter: ?QueryPointer<>;
+  pipeline: QueryPipeline;
+  onShowSelect(): *,
+  selected: ?QueryAtom,
+  activeQueryPipeline: ?QueryPipeline,
 };
 
 /**
@@ -462,13 +465,14 @@ type QueryVisProps = {
 export class QueryVis extends React.Component<*, QueryVisProps, *> {
 
   render() {
-    let {pointer, selected, insertAfter} = this.props;
+    let {pipeline, selected, activeQueryPipeline} = this.props;
     return (
       <VBox flexGrow={1}>
         <QueryVisQueryButton
+          isTopLevel
           selected={selected}
-          insertAfter={insertAfter}
-          pointer={pointer}
+          activeQueryPipeline={activeQueryPipeline}
+          query={pipeline}
           />
       </VBox>
     );

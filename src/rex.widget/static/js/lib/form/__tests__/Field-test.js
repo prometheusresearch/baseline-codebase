@@ -79,39 +79,5 @@ describe('rex-widget/form', function() {
       assert(event.stopPropagation.calledOnce);
     });
 
-    it('validates value using async producing handler', function(done) {
-      let validate = {
-        produce() {
-          return Promise.resolve({key: 'error'});
-        }
-      };
-      let renderer = TestUtils.createRenderer();
-      let onChange = Sinon.spy();
-      let formValue = createValue({
-        schema,
-        onChange,
-        value: {num: 42},
-        params: {
-          context: {a: 'a'}
-        }
-      });
-      renderer.render(
-        <Field
-          debounceValidation={0}
-          formValue={formValue.select('num')}
-          validate={validate}
-          />
-      );
-      let root = renderer.getRenderOutput();
-      assert(findAllWithType(root, ErrorList).length === 0);
-      let input = findWithType(root, Input);
-      input.props.onChange(42);
-      setTimeout(() => {
-        assert(onChange.callCount === 2);
-        assert(onChange.lastCall.args[0].completeErrorList[0].message === 'error');
-        done();
-      }, 10);
-    });
-
   });
 });

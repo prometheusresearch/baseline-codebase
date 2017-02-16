@@ -27,7 +27,7 @@ type QueryBuilderProps = {
 
 let log = createLogger('rex-query:ui:main');
 
-export default class QueryBuilder extends React.Component {
+export default class QueryBuilder extends React.Component<*, QueryBuilderProps, *> {
 
   state: State.State;
   props: QueryBuilderProps;
@@ -151,7 +151,7 @@ export default class QueryBuilder extends React.Component {
               </CenterPanelWrapper> : selected ?
               <CenterPanelWrapper>
                 <ui.QueryPanel
-                  key={selected.path.join('.')}
+                  key={selected.id}
                   onClose={this.actions.hidePanel}
                   onSearch={this.props.onSearch}
                   query={selected}

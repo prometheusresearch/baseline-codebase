@@ -3,7 +3,7 @@
  */
 
 import {fetch, post} from '../fetch';
-import shallowEquals from '../shallowEquals';
+import {shallowParamsEquals as shallowEquals} from '../shallowEquals';
 import {isArray} from '../lang';
 
 const SORT_ASC = 'asc';

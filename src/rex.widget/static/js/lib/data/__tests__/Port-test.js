@@ -1,5 +1,5 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2017, Prometheus Research, LLC
  */
 
 import {Port as BasePort, isPort} from '../Port';

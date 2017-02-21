@@ -77,38 +77,47 @@ export function rebaseLoc<Q: Query.QueryAtom>(loc: QueryLoc<Q>, rootQuery: Query
   return {...loc, rootQuery};
 }
 
-export function* traverseLoc(loc: QueryLoc<>): Generator<Query.QueryAtom | Query.QueryPipeline, *, *> {
-  yield resolveLoc(loc);
+export function traverseLoc(loc: QueryLoc<>): Array<Query.QueryAtom | Query.QueryPipeline> {
+  let result = [];
+  result.push(resolveLoc(loc));
   let path = resolveLocPath(loc).reverse();
   for (let item of path) {
-    yield item.query;
+    result.push(item.query);
     if (item.at === 'pipeline') {
       for (let i = item.index - 1; i >= 0; i--) {
-        yield item.query.pipeline[i];
+        result.push(item.query.pipeline[i]);
       }
     }
   }
+  return result;
 }
 
-function* traverseQuery(
+function traverseQuery(
   query: Query.Query,
-  path?: QueryPath = []
-): Generator<ResolvedQueryLoc<>, void, void> {
+  path?: QueryPath = [],
+): Array<ResolvedQueryLoc<>> {
+  let result = [];
   if (query.name === 'pipeline') {
     for (let index = 0; index < query.pipeline.length; index++) {
-      yield* traverseQuery(query.pipeline[index], path.concat({at: 'pipeline', index, query}));
+      result = result.concat(
+        traverseQuery(query.pipeline[index], path.concat({at: 'pipeline', index, query})),
+      );
     }
   } else if (query.name === 'select') {
     for (let key in query.select) {
       if (query.select.hasOwnProperty(key)) {
-        yield* traverseQuery(query.select[key], path.concat({at: 'select', key, query}));
+        result = result.concat(
+          traverseQuery(query.select[key], path.concat({at: 'select', key, query})),
+        );
       }
     }
   } else if (query.name === 'define') {
-    yield* traverseQuery(query.binding.query, path.concat({at: 'binding', query}));
+    result = result.concat(
+      traverseQuery(query.binding.query, path.concat({at: 'binding', query})),
+    );
   }
   if (query.name !== 'pipeline') {
-    yield [query, path];
+    result.push([query, path]);
   }
+  return result;
 }
-

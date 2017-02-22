@@ -3,6 +3,7 @@
   "version": "3.4.0",
   "main": "./index.js",
   "peerDependencies": {
+    "fsevents": "1.0.17",
     "webpack": "1.12.x",
     "chalk": "1.1.x",
     "styling": "^0.4.0",

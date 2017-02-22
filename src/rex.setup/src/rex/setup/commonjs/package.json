@@ -2,9 +2,6 @@
   "name": "rex-setup",
   "version": "3.4.2",
   "main": "./index.js",
-  "optionalDependencies": {
-    "fsevents": "1.0.17"
-  },
   "peerDependencies": {
     "webpack": "1.12.x",
     "chalk": "1.1.x",

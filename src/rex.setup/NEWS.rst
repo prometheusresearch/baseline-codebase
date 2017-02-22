@@ -4,8 +4,12 @@
 
 .. contents:: Table of Contents
 
+3.4.2 (2016-XX-XX)
+==================
 
-3.4.1 (2016-xx-xx)
+* Fix fsevents failure on macOS.
+
+3.4.1 (2016-01-19)
 ==================
 
 * Minor fix to js generator to avoid crashes when removing unnecessary files.

@@ -4,6 +4,7 @@
 
 
 import sys
+import platform
 import os, os.path
 import shutil
 import stat
@@ -333,9 +334,6 @@ def bootstrap():
                  quiet=True)
     if not path.strip():
         cwd = pkg_resources.resource_filename('rex.setup', 'commonjs')
-        meta_filename = pkg_resources.resource_filename('rex.setup', 'commonjs/package.json')
-        with open(meta_filename, 'r') as f:
-            meta = json.load(f)
         # bootstrap
         npm_path = find_executable('npm', 'NPM')
         out, err = exe(npm_path, ['--version'])
@@ -343,15 +341,37 @@ def bootstrap():
         if npm_version[0] not in ('3', '2'):
             npm(['install', '--global', 'npm@2.x.x'])
         npm(['install', '--global', 'npm@' + NPM_VERSION])
-        # we install peer deps ourselves with the new npm
-        if meta.get('peerDependencies'):
-            peer_deps = ['%s@%s' % (k, v)
-                         for k, v in
-                         meta['peerDependencies'].items()]
-        else:
-            peer_deps = []
+        # install deps
+        deps = [
+            "webpack@1.12.x",
+            "chalk@1.1.x",
+            "styling@^0.4.0",
+            "babel-core@^6.9.1",
+            "babel-loader@^6.2.5",
+            "babel-preset-prometheusresearch@^0.1.0",
+            "css-loader@0.15.x",
+            "style-loader@0.12.x",
+            "less-loader@0.7.x",
+            "url-loader@0.5.x",
+            "json-loader@0.5.x",
+            "imports-loader@0.6.x",
+            "exports-loader@0.6.x",
+            "file-loader@0.8.x",
+            "source-map-loader@0.1.x",
+            "extract-text-webpack-plugin@0.8.x",
+            "webpack-package-loaders-plugin@2.1.x",
+            "core-js@0.9.18",
+            "node-libs-browser@0.5.x",
+            "whatwg-fetch@0.9.x",
+            "less@1.5.x"
+        ]
+        if platform.system() == 'Darwin':
+            deps = deps + [
+                "fsevents@1.0.17"
+            ]
+        npm(['install', '--global'] + deps, cwd=cwd)
         # install itself
-        npm(['install', '--global'] + peer_deps + ['.'], cwd=cwd)
+        npm(['install', '--global', '.'], cwd=cwd)
 
 
 class Sandbox(object):

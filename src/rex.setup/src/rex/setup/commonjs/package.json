@@ -1,28 +1,5 @@
 {
   "name": "rex-setup",
   "version": "3.4.2",
-  "main": "./index.js",
-  "peerDependencies": {
-    "webpack": "1.12.x",
-    "chalk": "1.1.x",
-    "styling": "^0.4.0",
-    "babel-core": "^6.9.1",
-    "babel-loader": "^6.2.5",
-    "babel-preset-prometheusresearch": "^0.1.0",
-    "css-loader": "0.15.x",
-    "style-loader": "0.12.x",
-    "less-loader": "0.7.x",
-    "url-loader": "0.5.x",
-    "json-loader": "0.5.x",
-    "imports-loader": "0.6.x",
-    "exports-loader": "0.6.x",
-    "file-loader": "0.8.x",
-    "source-map-loader": "0.1.x",
-    "extract-text-webpack-plugin": "0.8.x",
-    "webpack-package-loaders-plugin": "2.1.x",
-    "core-js": "0.9.18",
-    "node-libs-browser": "0.5.x",
-    "whatwg-fetch": "0.9.x",
-    "less": "1.5.x"
-  }
+  "main": "./index.js"
 }

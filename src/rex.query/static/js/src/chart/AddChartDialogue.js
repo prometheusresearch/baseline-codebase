@@ -78,6 +78,7 @@ function AddChartItem({label, icon, chartType, onClick}) {
       fontWeight={200}
       width={90}
       textAlign="center"
+      userSelect="none"
       cursor="default"
       border="1px solid #ccc"
       borderRadius={2}

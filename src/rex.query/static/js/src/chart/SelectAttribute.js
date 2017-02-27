@@ -15,11 +15,12 @@ type SelectAttributeProps = {
   label: string,
   value: ?string,
   filter?: (QueryNavigation) => boolean,
+  noResultsText?: string,
   onChange: (string) => *,
 };
 
 export default function SelectAttribute(
-  {context, label, value, onChange, filter}: SelectAttributeProps,
+  {context, label, value, onChange, filter, noResultsText}: SelectAttributeProps,
 ) {
   let nav = Array.from(getNavigation(context).values());
   if (filter != null) {
@@ -35,6 +36,7 @@ export default function SelectAttribute(
       control={
         (
           <ui.Select
+            noResultsText={noResultsText}
             wrapperStyle={{width: 300}}
             value={value}
             options={options}

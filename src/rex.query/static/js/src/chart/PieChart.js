@@ -11,6 +11,7 @@ import {type QueryPipeline, getPipelineContext} from '../model';
 import {getQuery, isNumericNav} from './util';
 import SelectAttribute from './SelectAttribute';
 import ChartControlPanel from './ChartControlPanel';
+import NoNumericAttributeText from './NoNumericAttributeText';
 
 const RADIAN = Math.PI / 180;
 
@@ -71,6 +72,7 @@ export default function PieChart(
         <SelectAttribute
           label="Value"
           value={chart.valueColumn}
+          noResultsText={<NoNumericAttributeText />}
           context={getPipelineContext(query)}
           onChange={valueColumn => onChart({type: 'pie', ...chart, valueColumn})}
           filter={isNumericNav}

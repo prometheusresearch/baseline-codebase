@@ -15,6 +15,7 @@ import SelectAttribute from './SelectAttribute';
 import SelectAttributeWithColor from './SelectAttributeWithColor';
 import ChartControlPanel from './ChartControlPanel';
 import ChartControl from './ChartControl';
+import NoNumericAttributeText from './NoNumericAttributeText';
 
 type BarChartProps = {
   chart: model.BarChart,
@@ -83,6 +84,7 @@ export default function BarChart(
               key={index}
               label="Bar"
               noValueLabel="Add new bar"
+              noResultsText={<NoNumericAttributeText />}
               context={getPipelineContext(query)}
               value={bar.valueColumn}
               onChange={valueColumn => updateBar({...bar, valueColumn})}

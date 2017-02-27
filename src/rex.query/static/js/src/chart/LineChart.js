@@ -13,6 +13,7 @@ import {getQuery, isNumericNav} from './util';
 import SelectAttribute from './SelectAttribute';
 import SelectAttributeWithColor from './SelectAttributeWithColor';
 import ChartControlPanel from './ChartControlPanel';
+import NoNumericAttributeText from './NoNumericAttributeText';
 
 type LineChartProps = {
   chart: model.LineChart,
@@ -86,6 +87,7 @@ export default function LineChart(
               key={index}
               label="Line"
               noValueLabel="Add new line"
+              noResultsText={<NoNumericAttributeText />}
               context={getPipelineContext(query)}
               value={line.valueColumn}
               onChange={valueColumn => updateChart({...line, valueColumn})}

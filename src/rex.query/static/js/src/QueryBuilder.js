@@ -11,6 +11,8 @@ import React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import {css, style, VBox, HBox} from 'react-stylesheet';
 
+import AddChartDialogue from './chart/AddChartDialogue';
+import Chart from './chart/Chart';
 import * as Icon from './ui/Icon';
 import * as ui from './ui';
 import * as State from './state';
@@ -79,6 +81,8 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
       data,
       showPanel,
       focusedSeq,
+      chartList,
+      activeTab,
     } = this.state;
 
     log('render', this.state);
@@ -91,6 +95,46 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
       disablePanelClose = true;
       showPanel = true;
     }
+
+    const tabList = [
+      {
+        id: '__dataset__',
+        label: 'Table',
+        children: (
+          <ui.DataTable
+            query={query}
+            loading={queryLoading}
+            data={data}
+            focusedSeq={focusedSeq}
+            onFocusedSeq={this.onFocusedSeq}
+          />
+        )
+      },
+      ...chartList.map(chart => ({
+        id: chart.id,
+        label: chart.label,
+        children: (
+          <Chart
+            query={query}
+            loading={queryLoading}
+            data={data}
+            chartSpec={chart}
+            />
+        ),
+      }))
+    ];
+
+    const tabListAlt = [
+      {
+        id: '__addplot__',
+        label: '＋ Add Chart',
+        children: (
+          <AddChartDialogue
+            onAddChart={this.actions.addChart}
+            />
+        ),
+      },
+    ];
 
     return (
       <VBox height="100%">
@@ -124,7 +168,7 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
             </ReactUI.QuietButton>
           </HBox>
         </QueryBuilderToolbar>
-        <HBox flexGrow={1} height="calc(100% - 35px)" width="100%">
+        <HBox flexGrow={1} overflow="hidden" height="calc(100% - 35px)" width="100%">
           <LeftPanelWrapper>
             <ui.QueryVis
               domain={domain}
@@ -161,21 +205,20 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
               null
           )}
           <RightPanelWrapper>
-            {
-              queryInvalid ?
-              <InvalidQueryMessage
-                onUndo={this.actions.undo}
-                /> :
-              data != null ?
-              <ui.DataTable
-                query={query}
-                loading={queryLoading}
-                data={data}
-                focusedSeq={focusedSeq}
-                onFocusedSeq={this.onFocusedSeq}
-                /> :
-              null
-            }
+            {isEmptyQueryPipeline(query)
+              ? null
+              : queryInvalid
+              ? <InvalidQueryMessage
+                  onUndo={this.actions.undo}
+                  />
+              : data != null
+              ? <ui.TabContainer
+                  activeTab={activeTab}
+                  onActiveTab={activeTab => this.actions.setActiveTab({activeTab})}
+                  tabList={tabList}
+                  tabListAlt={tabListAlt}
+                  />
+              : null}
           </RightPanelWrapper>
         </HBox>
       </VBox>
@@ -197,7 +240,13 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
   onFocusedSeq = (focusedSeq: Array<string>) => {
     this.actions.focusOnSeq({focusedSeq});
   };
+}
 
+function isEmptyQueryPipeline(query: QueryPipeline) {
+  return (
+    query.pipeline.length === 1 &&
+    query.pipeline[0].name === 'here'
+  );
 }
 
 function InvalidQueryMessage({onUndo}) {

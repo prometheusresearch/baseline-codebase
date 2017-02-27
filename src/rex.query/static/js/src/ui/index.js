@@ -11,3 +11,8 @@ export {DataTable} from './DataTable';
 export {default as Message} from './Message';
 export {default as LoadingIndicator} from './LoadingIndicator';
 export {default as ErrorPanel} from './ErrorPanel';
+export {default as TabContainer} from './TabContainer';
+export {default as Header} from './Header';
+export {default as Select} from './Select';
+import * as Icon from './Icon';
+export {Icon};

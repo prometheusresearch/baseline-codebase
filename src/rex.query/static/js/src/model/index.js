@@ -37,3 +37,10 @@ export type {
   DomainEntity,
   DomainAttribute,
 } from './Domain';
+
+import {type Context, type QueryPipeline} from './Query';
+import {getInsertionPoint} from './QueryOperation';
+
+export function getPipelineContext(pipeline: QueryPipeline): Context {
+  return getInsertionPoint(pipeline).context;
+}

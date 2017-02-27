@@ -26,6 +26,7 @@ import * as q from '../model/Query';
 import * as qo from '../model/QueryOperation';
 import * as QueryLoc from '../model/QueryLoc';
 import * as Fetch from '../fetch';
+import * as Chart from '../chart';
 import * as Focus from './Focus';
 
 let logAction = createLogger('rex-query:state:actions');
@@ -36,6 +37,66 @@ let logAction = createLogger('rex-query:state:actions');
 export function init(): StateUpdater {
   return state => {
     return [state, refetchQuery];
+  };
+}
+
+export function setActiveTab(params: {activeTab: string}): StateUpdater {
+  logAction('setActiveTab', params);
+  return state => {
+    return {...state, activeTab: params.activeTab};
+  };
+}
+
+export function addChart(params: {chartType: Chart.ChartType}): StateUpdater {
+  logAction('addChart', params);
+  return state => {
+    const {chartType} = params;
+    const chartSpec = {
+      id: `${chartType}-${state.chartList.length + 1}`,
+      label: (
+        state.chartList.length === 0
+          ? Chart.getChartTitle({type: chartType})
+          : `${Chart.getChartTitle({type: chartType})} ${state.chartList.length}`
+      ),
+      chart: Chart.getInitialChart(state.query, {type: chartType}),
+    };
+    const chartList = state.chartList.concat(chartSpec);
+    return {
+      ...state,
+      activeTab: chartSpec.id,
+      chartList,
+    };
+  };
+}
+
+export function updateChart(
+  params: {chartId: string, chart?: Chart.Chart, label?: string},
+): StateUpdater {
+  logAction('updateChart', params);
+  return state => {
+    const chartList = state.chartList.slice(0);
+    const chartIdx = state.chartList.findIndex(chart => chart.id === params.chartId);
+    invariant(chartIdx != null, 'Cannot find chart: %s', params.chartId);
+    const nextChart = {...chartList[chartIdx]};
+    if (params.chart != null) {
+      nextChart.chart = params.chart;
+    }
+    if (params.label != null) {
+      nextChart.label  = params.label;
+    }
+    chartList.splice(chartIdx, 1, nextChart);
+    return {...state, chartList};
+  };
+}
+
+export function removeChart(params: {chartId: string}): StateUpdater {
+  logAction('removeChart', params);
+  return state => {
+    const chartList = state.chartList.slice(0);
+    const chartIdx = state.chartList.findIndex(chart => chart.id === params.chartId);
+    invariant(chartIdx != null, 'Cannot find chart: %s', params.chartId);
+    chartList.splice(chartIdx, 1);
+    return {...state, chartList, activeTab: '__dataset__'};
   };
 }
 
@@ -423,6 +484,7 @@ export function appendDefineAndAggregate({at, path, aggregate}: {
   aggregate: d.DomainAggregate;
 }): StateUpdater {
   return state => {
+    let newQuery;
     let name = generateQueryID(at.context.scope, path.join(' ') + ' Query');
     let query = qo.editor(state.query, at)
       .transformPipelineWith(pipeline => {
@@ -438,20 +500,16 @@ export function appendDefineAndAggregate({at, path, aggregate}: {
           innerPipeline.push(q.here);
         }
         innerPipeline.push(q.aggregate(aggregate.name));
-        pipeline.push(
-          q.def(
-            name,
-            q.pipeline(...innerPipeline),
-          )
-        );
+        newQuery = q.def(name, q.pipeline(...innerPipeline));
+        pipeline.push(newQuery)
         if (select) {
           pipeline.push(select);
         }
         return pipeline;
       })
-      //.growNavigation({path: [name]})
+      .growNavigation({path: [name]})
       .getQuery();
-    return onQuery(state, {query, selected: state.prevSelected, activeQueryPipeline: null});
+    return onQuery(state, {query, selected: newQuery, activeQueryPipeline: null});
   };
 }
 

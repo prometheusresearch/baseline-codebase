@@ -15,24 +15,23 @@ import * as theme from './Theme';
 import QueryPanelBase from './QueryPanelBase';
 import {MenuTitle, MenuGroup, MenuButton, MenuHelp} from './menu';
 import ColumnPicker from './ColumnPicker';
-import PencilIcon from './PencilIcon';
+import * as Icon from './Icon';
 
 type DefineQueryPanelProps = {
-  query: DefineQuery;
-  onClose: () => *;
-  onSearch: SearchCallback;
+  query: DefineQuery,
+  onClose: () => *,
+  onSearch: SearchCallback,
 };
 
 export default class DefineQueryPanel
   extends React.Component<*, DefineQueryPanelProps, *> {
-
   context: {
-    actions: Actions;
+    actions: Actions,
   };
 
   state: {
-    renameOpen: boolean;
-    renameValue: ?string;
+    renameOpen: boolean,
+    renameValue: ?string,
   } = {
     renameOpen: false,
     renameValue: null,
@@ -46,7 +45,7 @@ export default class DefineQueryPanel
     let {
       onClose,
       onSearch,
-      query
+      query,
     } = this.props;
     let {
       renameOpen,
@@ -55,10 +54,7 @@ export default class DefineQueryPanel
 
     let type = query.binding.query.context.type;
 
-    let hasConfigurableColumns = (
-      type &&
-      type.name === 'record'
-    );
+    let hasConfigurableColumns = type && type.name === 'record';
 
     return (
       <QueryPanelBase
@@ -67,52 +63,53 @@ export default class DefineQueryPanel
         theme={theme.def}
         query={query}>
         <VBox marginBottom={10}>
-          {!renameOpen ?
-            false && <MenuGroup>
-              <MenuButton
-                icon={<PencilIcon />}
-                onClick={this.onBindingRenameBegin}>
-                Rename query
-              </MenuButton>
-            </MenuGroup> :
-            <VBox>
-              <MenuTitle size="large">
-                Rename query
-              </MenuTitle>
-              <VBox padding={10}>
-                <ReactUI.Input
-                  ref={this.onBindingRenameInputRef}
-                  value={renameValue || ''}
-                  onKeyDown={this.onBindingRenameKey}
-                  onChange={this.onBindingRenameChange}
+          {!renameOpen
+            ? false &&
+                <MenuGroup>
+                  <MenuButton
+                    icon={<Icon.IconPencil />}
+                    onClick={this.onBindingRenameBegin}>
+                    Rename query
+                  </MenuButton>
+                </MenuGroup>
+            : <VBox>
+                <MenuTitle size="large">
+                  Rename query
+                </MenuTitle>
+                <VBox padding={10}>
+                  <ReactUI.Input
+                    ref={this.onBindingRenameInputRef}
+                    value={renameValue || ''}
+                    onKeyDown={this.onBindingRenameKey}
+                    onChange={this.onBindingRenameChange}
                   />
-                <HBox padding={5}>
-                  <ReactUI.FlatSuccessButton
-                    onClick={this.onBindingRenameCommit}
-                    size="small"
-                    groupHorizontally>
-                    Save
-                  </ReactUI.FlatSuccessButton>
-                  <ReactUI.FlatButton
-                    onClick={this.onBindingRenameCancel}
-                    size="small"
-                    groupHorizontally>
-                    Cancel
-                  </ReactUI.FlatButton>
-                </HBox>
-              </VBox>
-            </VBox>}
+                  <HBox padding={5}>
+                    <ReactUI.FlatSuccessButton
+                      onClick={this.onBindingRenameCommit}
+                      size="small"
+                      groupHorizontally>
+                      Save
+                    </ReactUI.FlatSuccessButton>
+                    <ReactUI.FlatButton
+                      onClick={this.onBindingRenameCancel}
+                      size="small"
+                      groupHorizontally>
+                      Cancel
+                    </ReactUI.FlatButton>
+                  </HBox>
+                </VBox>
+              </VBox>}
         </VBox>
-        {hasConfigurableColumns ?
-          <ColumnPicker
-            onSelect={this.onSelect}
-            onSelectRemove={this.onSelectRemove}
-            onSearch={onSearch}
-            query={query.binding.query}
-            /> :
-          <MenuHelp>
-            This query has no columns to configure.
-          </MenuHelp>}
+        {hasConfigurableColumns
+          ? <ColumnPicker
+              onSelect={this.onSelect}
+              onSelectRemove={this.onSelectRemove}
+              onSearch={onSearch}
+              query={query.binding.query}
+            />
+          : <MenuHelp>
+              This query has no columns to configure.
+            </MenuHelp>}
       </QueryPanelBase>
     );
   }
@@ -122,11 +119,11 @@ export default class DefineQueryPanel
     let {query} = this.props;
     this.context.actions.navigate({
       at: query.binding.query,
-      path: [path]
+      path: [path],
     });
   };
 
-  onSelectRemove = (payload: {path: string; query: QueryPipeline}) => {
+  onSelectRemove = (payload: {path: string, query: QueryPipeline}) => {
     let {query} = payload;
     this.context.actions.cut({at: query});
   };
@@ -164,25 +161,28 @@ export default class DefineQueryPanel
 
   onBindingRenameCommit = () => {
     const {renameValue} = this.state;
-    this.setState(state => ({
-      ...state,
-      renameOpen: false,
-      renameValue: null
-    }), () => {
-      if (renameValue != null) {
-        this.context.actions.renameDefineBinding({
-          at: this.props.query,
-          name: renameValue
-        });
-      }
-    });
+    this.setState(
+      state => ({
+        ...state,
+        renameOpen: false,
+        renameValue: null,
+      }),
+      () => {
+        if (renameValue != null) {
+          this.context.actions.renameDefineBinding({
+            at: this.props.query,
+            name: renameValue,
+          });
+        }
+      },
+    );
   };
 
   onBindingRenameCancel = () => {
     this.setState(state => ({
       ...state,
       renameOpen: false,
-      renameValue: null
+      renameValue: null,
     }));
   };
 }

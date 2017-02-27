@@ -73,8 +73,9 @@ export function getNavigation(
   for (let k in scope) {
     if (scope.hasOwnProperty(k)) {
       let navQuery = q.inferQueryType(localContext, scope[k].query);
+      let type = navQuery.context.type;
       navigation.set(k, {
-        type: 'record',
+        type: type.name === 'record' ? 'record' : 'attribute',
         card: type.card,
         value: k,
         label: scope[k].query.context.title || k,

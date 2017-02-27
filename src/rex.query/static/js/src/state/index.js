@@ -2,20 +2,15 @@
  * @flow
  */
 
-import type {
-  QueryAtom,
-  QueryPipeline,
-  Domain,
-} from '../model';
-import {
-  type TranslateOptions
-} from '../fetch/translate';
+import type {QueryAtom, QueryPipeline, Domain} from '../model';
+import {type TranslateOptions} from '../fetch/translate';
 
 import * as q from '../model/Query';
 import * as QueryOperation from '../model/QueryOperation';
 import * as SC from '../StateContainer';
 import * as Focus from './Focus';
 import * as actions from './actions';
+import {type Chart} from '../chart';
 
 /**
  * Represents a bit of info which is restored on undo/redo operations.
@@ -25,15 +20,20 @@ type UndoRecord = {
   selected: ?QueryAtom,
 };
 
-export type State = {
+export type ChartSpec = {
+  id: string,
+  label: string,
+  chart: Chart,
+};
 
+export type State = {
   /**
    * Current database domain.
    *
    * TODO: This shouldn't be a part of the state as it doesn't change during
    * QueryBuilder lifecycle.
    */
-  domain: Domain;
+  domain: Domain,
 
   /**
    * API being used (an URL).
@@ -41,40 +41,42 @@ export type State = {
    * TODO: This shouldn't be a part of the state as it doesn't change during
    * QueryBuilder lifecycle.
    */
-  api: string;
+  api: string,
 
   /**
    * Current query.
    */
-  query: QueryPipeline;
+  query: QueryPipeline,
 
   /**
    * If current query is invalid (missing some vital parts which result in
    * invalid type).
    */
-  queryInvalid: boolean;
+  queryInvalid: boolean,
 
   /**
    * If query is being processed by API.
    */
-  queryLoading: boolean;
+  queryLoading: boolean,
 
   /**
    * Pointer to the query which has active "add query panel" attached.
    */
-  activeQueryPipeline: ?QueryPipeline;
+  activeQueryPipeline: ?QueryPipeline,
 
   /**
    * Pointer to the query which has active "edit query panel" attached.
    */
-  selected: ?QueryAtom;
+  selected: ?QueryAtom,
 
   /**
    * Previously selected query.
    *
    * This is used primarly for restoring query selection state.
    */
-  prevSelected: ?QueryAtom;
+  prevSelected: ?QueryAtom,
+
+  activeTab: string,
 
   /**
    * Currently fetched dataset.
@@ -82,27 +84,32 @@ export type State = {
    * Note that it could be stale, always check `queryLoading` if query is being
    * processed which will result in a new dataset being fetched.
    */
-  data: ?Object;
+  data: ?Object,
+
+  /**
+   * A list of active charts
+   */
+  chartList: Array<ChartSpec>,
 
   /**
    * Show panel.
    */
-  showPanel: boolean;
+  showPanel: boolean,
 
   /**
    * Undo stack.
    */
-  undoStack: Array<UndoRecord>;
+  undoStack: Array<UndoRecord>,
 
   /**
    * Redo stack.
    */
-  redoStack: Array<UndoRecord>;
+  redoStack: Array<UndoRecord>,
 
   /**
    * Currently focused sequence which is expanded in the datatable.
    */
-  focusedSeq: Focus.Focus;
+  focusedSeq: Focus.Focus,
 
   /**
    * Query translation options.
@@ -110,7 +117,7 @@ export type State = {
    * We put it in state because we probably will make it configurable through
    * the UI.
    */
-  translateOptions: TranslateOptions;
+  translateOptions: TranslateOptions,
 };
 
 export type StateUpdater = SC.StateUpdater<State>;
@@ -149,11 +156,13 @@ export function getInitialState(
     queryLoading: false,
     selected: null,
     prevSelected: null,
-    activeQueryPipeline: query,
+    activeTab: '__dataset__',
+    activeQueryPipeline: null,
     data: null,
     showPanel: true,
     undoStack: [],
     redoStack: [],
+    chartList: [],
     focusedSeq,
     translateOptions,
   };

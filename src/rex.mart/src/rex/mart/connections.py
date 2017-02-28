@@ -93,13 +93,18 @@ def get_mart_etl_db(name, extensions=None):
         'rexdb': {
             'htsql': {
                 'db': get_management_db_uri(),
+                'query_cache_size': 0,
             },
             'rex_deploy': {},
             'tweak.meta': {},
         },
     })
 
-    ext = {}
+    ext = {
+        'htsql': {
+            'query_cache_size': 0,
+        }
+    }
     ext.update(get_settings().mart_etl_htsql_extensions)
     ext.update({
         'rex_deploy': {},

@@ -5,6 +5,13 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
+0.6.1 (2017-xx-xx)
+==================
+
+- Made some improvements to reduce the amount of memory consumed by
+  ``mart-create`` on Definitions with many Assessments.
+
+
 0.6.0 (2017-02-07)
 ==================
 

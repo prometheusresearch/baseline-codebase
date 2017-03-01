@@ -40,6 +40,8 @@ class MappingTable(object):
         merge_field_into(self.fields, field)
 
     def ensure_unique_fieldnames(self):
+        # Make sure instrument field names don't collide with our special
+        # field names.
         if self.reserved_column_names:
             base_name_len = get_settings().mart_max_name_length - 4
             for field in self.fields.itervalues():
@@ -48,29 +50,49 @@ class MappingTable(object):
                         field.target_name[:base_name_len],
                     ))
 
+        # Find all the names that are duplicated
         field_names = [
             field.target_name
             for field in self.fields.itervalues()
         ]
-        dupe_names = set([
+        duped = set([
             name
             for name in field_names
             if field_names.count(name) > 1
         ])
+        dupe_bases = {}
+        shortened_max_length = get_settings().mart_max_name_length - 3
+        for dupe in duped:
+            if len(dupe) > shortened_max_length:
+                dupe = dupe[:shortened_max_length]
+                if dupe.endswith('_'):
+                    dupe = dupe[:-1]
+            dupe_bases[dupe] = 0
 
-        for dupe_name in dupe_names:
-            cnt = 1
-            base_name = dupe_name[:get_settings().mart_max_name_length - 3]
+        # Add some uniqueness to the duped names
+        for field in self.fields.itervalues():
+            for base in dupe_bases.keys():
+                if field.target_name.startswith(base):
+                    dupe_bases[base] += 1
+                    field.force_target_name('%s_%s' % (
+                        base,
+                        dupe_bases[base],
+                    ))
 
-            for field in self.fields.itervalues():
-                if field.target_name != dupe_name:
-                    continue
-
-                field.force_target_name('%s_%s' % (
-                    base_name,
-                    cnt,
-                ))
-                cnt += 1
+        # Make absolutely sure we're unique
+        field_names = [
+            field.target_name
+            for field in self.fields.itervalues()
+        ]
+        duped = set([
+            name
+            for name in field_names
+            if field_names.count(name) > 1
+        ])
+        assert len(duped)==0, 'Duplicate field names on %s: %r' % (
+            self.name,
+            duped,
+        )
 
     def get_field_facts(self, exclude_columns=None):
         facts = []

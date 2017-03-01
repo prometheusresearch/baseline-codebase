@@ -670,7 +670,11 @@ Built-In Post-Processors
 datadictionary
 --------------
 The ``datadictionary`` Processor will generate a set of tables that includes
-metadata about the tables and columns that were created in the Mart.
+metadata about the tables and columns that were created in the Mart. Note that
+for Assessment tables, the "title" of columns will contain the original RIOS
+Instrument field name if it was not the same as the column name that was used,
+and the "description" of columns will contain the text of the corresponding
+Question configuration in the Form and/or Interaction, if one exists.
 
 This Processor accepts the following options:
 

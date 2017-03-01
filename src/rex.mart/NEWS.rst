@@ -10,6 +10,8 @@ REX.MART Change Log
 
 - Made some improvements to reduce the amount of memory consumed by
   ``mart-create`` on Definitions with many Assessments.
+- Fixed some issues around the massaging of column names derived from RIOS
+  Instruments to ensure uniqueness within a table.
 
 
 0.6.0 (2017-02-07)

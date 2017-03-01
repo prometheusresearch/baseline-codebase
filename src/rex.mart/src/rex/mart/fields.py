@@ -61,6 +61,8 @@ class SimpleField(object):
         self._forced_target_name = None
         self.version_mapping = {}
         self.title = None
+        if self._target_name != name:
+            self.title = name
         self.description = None
         self.source = None
         if instrument_version:

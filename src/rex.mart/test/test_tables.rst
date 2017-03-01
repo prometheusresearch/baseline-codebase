@@ -1280,7 +1280,7 @@ to their name::
 
     >>> definition = AssessmentDefinitionVal()({
     ...     'instrument': 'mart1',
-    ...     'selector': "/assessment{uid :as assessment_uid, uid :as qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm, uid :as qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqqq}.filter(instrumentversion.instrument='mart1')",
+    ...     'selector': "/assessment{uid :as assessment_uid, uid :as qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm, uid :as qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqqq, uid :as qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyui_}.filter(instrumentversion.instrument='mart1')",
     ... })
     >>> table = PrimaryTable(definition, get_management_db())
     >>> pprint(table.get_deploy_facts())
@@ -1301,6 +1301,10 @@ to their name::
       'required': False,
       'type': 'text'},
      {'column': u'qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyui_2',
+      'of': u'mart1',
+      'required': False,
+      'type': 'text'},
+     {'column': u'qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyui_3',
       'of': u'mart1',
       'required': False,
       'type': 'text'},

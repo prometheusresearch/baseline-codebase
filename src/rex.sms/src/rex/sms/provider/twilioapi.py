@@ -41,7 +41,6 @@ class TwilioSmsProvider(SmsProvider):
         # pylint: disable=super-on-old-class
         super(TwilioSmsProvider, self).__init__()
         self.client = None
-        self.from_number = None
 
     def initialize(self):
         # pylint: disable=super-on-old-class
@@ -57,9 +56,7 @@ class TwilioSmsProvider(SmsProvider):
             timeout=timeout,
         )
 
-        self.from_number = setting_or_die('sms_twilio_from_number')
-
-    def __call__(self, recipient, message, original_recipient=None):
+    def __call__(self, recipient, sender, message):
         attempts = 0
         retry_delay = get_settings().sms_twilio_retry_delay / 1000.0
 
@@ -68,7 +65,7 @@ class TwilioSmsProvider(SmsProvider):
                 attempts += 1
                 message = self.client.messages.create(
                     to=recipient,
-                    from_=self.from_number,
+                    from_=sender,
                     body=message,
                 )
                 return
@@ -140,15 +137,4 @@ class SmsTwilioRetryDelaySetting(Setting):
     name = 'sms_twilio_retry_delay'
     validate = IntVal()
     default = 1000
-
-
-class SmsTwilioFromNumber(Setting):
-    """
-    The TN/ShortCode to use as the "From" number when sending messages through
-    the Twilio API.
-    """
-
-    name = 'sms_twilio_from_number'
-    validate = StrVal()  # TODO: validate this; can be normal or short code
-    default = None
 

@@ -12,7 +12,7 @@ produce output of any kind::
 
     >>> from rex.sms import send_sms
 
-    >>> send_sms('2035551234', 'hello world')
+    >>> send_sms('2035551234', '8605559999', 'hello world')
 
 
     >>> rex.off()

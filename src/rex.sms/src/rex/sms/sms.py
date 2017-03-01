@@ -3,11 +3,11 @@
 #
 
 
-from rex.core import cached, get_settings, Error
+from rex.core import cached, get_settings, Error, OneOfVal
 from rex.web import get_jinja
 
 from .provider import SmsProvider
-from .validators import TelephoneNumberVal
+from .validators import TelephoneNumberVal, ShortCodeVal
 
 
 __all__ = (
@@ -17,31 +17,33 @@ __all__ = (
 )
 
 
-def send_sms(recipient, message):
+VALIDATOR_RECIPIENT = TelephoneNumberVal()
+
+VALIDATOR_SENDER = OneOfVal(TelephoneNumberVal(), ShortCodeVal())
+
+
+def send_sms(recipient, sender, message):
     """
     Sends an SMS message to the specified recipient using the SmsProvider
     configured for the current application instance.
 
     :param recipient: the telephone number to send the message to
     :type recipient: string
+    :param sender: the telephone number to send the message from
+    :type sender: string
     :param message: the message to send
     :type message: string
     """
 
-    recipient = TelephoneNumberVal()(recipient)
+    recipient = VALIDATOR_RECIPIENT(recipient)
+    if get_settings().sms_force_recipient:
+        recipient = get_settings().sms_force_recipient
+
+    sender = VALIDATOR_SENDER(sender)
+
     provider = get_sms_provider()
 
-    if get_settings().sms_force_recipient:
-        provider(
-            get_settings().sms_force_recipient,
-            message,
-            original_recipient=recipient,
-        )
-    else:
-        provider(
-            recipient,
-            message,
-        )
+    provider(recipient, sender, message)
 
 
 def compose(package_path, **context):

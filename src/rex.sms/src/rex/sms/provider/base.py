@@ -45,7 +45,7 @@ class SmsProvider(Extension):
 
         pass
 
-    def __call__(self, recipient, message, original_recipient=None):
+    def __call__(self, recipient, sender, message):
         """
         Sends an SMS message to the specified recipient.
 
@@ -53,12 +53,10 @@ class SmsProvider(Extension):
 
         :param recipient: The Telephone Number of the recipient.
         :type recipient: string
+        :param sender: The Telephone Number of the sender.
+        :type sender: string
         :param message: The message to send to the recipient.
         :type message: string
-        :param original_recipient:
-            The Telephone Number of the originally-intended recipient of the
-            message, before any forwarding/routing logic took place.
-        :type original_recipient: string
         """
 
         raise NotImplementedError()

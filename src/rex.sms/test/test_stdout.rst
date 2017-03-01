@@ -12,9 +12,10 @@ messages to STDOUT::
     >>> rex = Rex('rex.sms', sms_provider='stdout')
     >>> rex.on()
 
-    >>> send_sms('2035551234', 'hello world')
+    >>> send_sms('2035551234', '8605559999', 'hello world')
     === SMS MESSAGE SENT ===
-    SENT TO: +12035551234
+    TO: +12035551234
+    FROM: +18605559999
     MESSAGE: hello world
 
 
@@ -22,9 +23,10 @@ messages to STDOUT::
     >>> rex = Rex('rex.sms', sms_provider='stdout', sms_force_recipient='2035559999')
     >>> rex.on()
 
-    >>> send_sms('2035551234', 'hello world')
+    >>> send_sms('2035551234', '8605559999', 'hello world')
     === SMS MESSAGE SENT ===
-    SENT TO: +12035559999 (+12035551234)
+    TO: +12035559999
+    FROM: +18605559999
     MESSAGE: hello world
 
 

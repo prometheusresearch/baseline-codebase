@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.sms',
-    version='1.0.0',
+    version='2.0.0',
     description='A RexDB interface for sending SMS text messages.',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',
@@ -26,8 +26,8 @@ setup(
         'rex.core>=1.9,<2',
         'rex.web>=1,<4',
         'rex.logging>=1,<2',
-        'phonenumberslite>=6.3,<7',
-        'twilio>=4,<5',
+        'phonenumberslite>=7,<9',
+        'twilio>=4,<6',
     ],
     rex_init='rex.sms',
 )

@@ -41,9 +41,10 @@ Now we can send an SMS message using ``rex.sms.send_sms()``::
     >>> from rex.sms import send_sms
 
     >>> with rex:
-    ...     send_sms('203-555-1234', 'Hello dear friend!')
+    ...     send_sms('203-555-1234', '860-555-9999', 'Hello dear friend!')
     === SMS MESSAGE SENT ===
-    SENT TO: +12035551234
+    TO: +12035551234
+    FROM: +18605559999
     MESSAGE: Hello dear friend!
 
 As you can see, the ``send_sms()`` function takes two arguments: the mobile
@@ -62,9 +63,10 @@ an SMS message using the function ``rex.sms.compose()``::
 
     >>> with rex:
     ...     msg = compose('rex.sms_demo:/templates/context.txt', name='Billy')
-    ...     send_sms('203-555-1234', msg)
+    ...     send_sms('203-555-1234', '860-555-9999', msg)
     === SMS MESSAGE SENT ===
-    SENT TO: +12035551234
+    TO: +12035551234
+    FROM: +18605559999
     MESSAGE: Hello Billy!
 
 

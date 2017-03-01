@@ -22,18 +22,11 @@ class LoggingSmsProvider(SmsProvider):
     #: The name of this implementation used by the ``sms_provider`` setting.
     name = 'logging'
 
-    def __call__(self, recipient, message, original_recipient=None):
-        if original_recipient:
-            destination = '%s (%s)' % (
-                recipient,
-                original_recipient,
-            )
-        else:
-            destination = recipient
-
+    def __call__(self, recipient, sender, message):
         get_logger(self).info(
-            'SMS Message sent to %s: %s',
-            destination,
+            'SMS Message sent to %s from %s: %s',
+            recipient,
+            sender,
             message,
         )
 

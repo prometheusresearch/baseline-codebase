@@ -22,15 +22,9 @@ class StdoutSmsProvider(SmsProvider):
     #: The name of this implementation used by the ``sms_provider`` setting.
     name = 'stdout'
 
-    def __call__(self, recipient, message, original_recipient=None):
+    def __call__(self, recipient, sender, message):
         sys.stdout.write(u'=== SMS MESSAGE SENT ===\n')
-        sys.stdout.write(u'SENT TO: ')
-        if original_recipient:
-            sys.stdout.write(u'%s (%s)\n' % (
-                recipient,
-                original_recipient,
-            ))
-        else:
-            sys.stdout.write(u'%s\n' % recipient)
+        sys.stdout.write(u'TO: %s\n' % recipient)
+        sys.stdout.write(u'FROM: %s\n' % sender)
         sys.stdout.write(u'MESSAGE: %s\n' % (message,))
 

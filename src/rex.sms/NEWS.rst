@@ -11,6 +11,8 @@ REX.SMS Change Log
 * Changed the ``send_sms`` function to require the telephone number of the
   sender.
 * Added a ShortCodeVal validator for working with Short Codes.
+* The ``send_sms`` function will now throw a ``BlockedSmsError`` exception if
+  the recipient is blocked/blacklisted.
 
 
 1.0.0 (2015-09-30)

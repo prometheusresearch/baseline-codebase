@@ -40,7 +40,7 @@ Get expected Twilio errors::
     >>> send_sms('5005550004', '5005550006', 'number is blacklisted?')  # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    TwilioRestException: ...
+    BlockedSmsError: +15005550004
 
     >>> send_sms('5005550009', '5005550006', 'number cannot receive sms?')  # doctest: +ELLIPSIS
     Traceback (most recent call last):

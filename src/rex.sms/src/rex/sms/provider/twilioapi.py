@@ -9,6 +9,7 @@ from rex.core import get_settings, Error, Setting, StrVal, IntVal
 from twilio.rest import TwilioRestClient
 from twilio.rest.exceptions import TwilioRestException
 
+from ..errors import BlockedSmsError
 from .base import SmsProvider
 
 
@@ -76,6 +77,8 @@ class TwilioSmsProvider(SmsProvider):
                         time.sleep(retry_delay)
                     else:
                         raise
+                elif exc.code == 21610:
+                    raise BlockedSmsError(recipient)
                 else:
                     raise
 

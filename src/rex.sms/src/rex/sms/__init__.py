@@ -3,6 +3,7 @@
 #
 
 
+from .errors import *
 from .initialize import *
 from .provider import *
 from .settings import *

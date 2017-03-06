@@ -18,7 +18,7 @@ import pkg_resources
 
 
 # npm version used for CommonJS environment
-NPM_VERSION = '3.3.3'
+NPM_VERSION = '3.10.10'
 
 
 class install_commonjs(setuptools.Command):

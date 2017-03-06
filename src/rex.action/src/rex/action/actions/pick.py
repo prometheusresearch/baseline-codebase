@@ -109,10 +109,17 @@ class Pick(EntityAction):
         fields = self.fields
 
         if self.sort:
+            # check if user refers the previously defined field
+            sort_defined = [f.expression
+                              for f in fields
+                              if isinstance(f, formfield.CalculatedFormField)
+                              and '.'.join(f.value_key) == self.sort.field]
+            sort_expression = sort_defined[0] \
+                                if sort_defined else self.sort.field
             fields = fields + [
                 formfield.CalculatedFormField(
                     value_key=['__sort__'],
-                    expression=self.sort.field,
+                    expression=sort_expression,
                 )
             ]
 

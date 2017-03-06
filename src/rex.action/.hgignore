@@ -13,3 +13,4 @@ bower_components
 doc/_build
 .nyc_output
 coverage
+tags

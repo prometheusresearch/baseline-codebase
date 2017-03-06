@@ -13,3 +13,4 @@ node_modules
 coverage
 bower_components
 *.v.*
+tags

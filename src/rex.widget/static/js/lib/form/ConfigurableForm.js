@@ -36,7 +36,7 @@ export default class ConfigurableForm extends React.Component {
     readOnly: React.PropTypes.bool,
 
     /**
-     * When **layout** === ``'row'``, 
+     * When **layout** === ``'row'``,
      * the form fields are arranged horizontally;
      * otherwise vertically.
      */
@@ -115,7 +115,7 @@ export function validatorFromFields(fields, trace = []) {
         validatorFromFields(field.fields, trace.concat(field.valueKey))
       );
     } else if (field.type === 'list') {
-      validatorList = validatorList.push({
+      validatorList.push({
         valueKey: field.valueKey,
         validateList: validatorFromFields(field.fields)
       });

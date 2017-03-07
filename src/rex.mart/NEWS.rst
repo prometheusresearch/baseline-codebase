@@ -5,7 +5,7 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
-0.6.1 (2017-xx-xx)
+0.6.1 (2017-03-07)
 ==================
 
 - Made some improvements to reduce the amount of memory consumed by

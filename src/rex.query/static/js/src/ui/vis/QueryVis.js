@@ -18,14 +18,14 @@ import {style, css, Element, VBox, HBox} from 'react-stylesheet';
 
 import invariant from 'invariant';
 
+import ArrowDown from '../ArrowDown';
+import * as Icon from '../Icon';
 import * as QueryButton from '../QueryButton';
 import * as QueryPane from '../QueryPane';
 import QueryVisToolbar from './QueryVisToolbar';
 import QueryVisButtonBase from './QueryVisButton';
-import * as Icon from '../Icon';
 
 class QueryVisButton extends React.Component {
-
   props: {
     query: QueryAtom,
     selected: ?QueryAtom,
@@ -33,7 +33,7 @@ class QueryVisButton extends React.Component {
 
   context: {
     actions: Actions,
-  }
+  };
 
   static contextTypes = {
     actions: React.PropTypes.object,
@@ -59,13 +59,12 @@ class QueryVisButton extends React.Component {
         onSelect={this.onSelect}
         selected={isSelected}
         invalid={isInvalid}
-        />
+      />
     );
   }
 }
 
 class QueryVisInsertAfterButton extends React.Component {
-
   props: {
     query: QueryPipeline,
     first?: boolean,
@@ -77,23 +76,17 @@ class QueryVisInsertAfterButton extends React.Component {
       Button: QueryButton.DefaultButton,
     };
     let {first} = this.props;
-    return (
-      <QueryVisButtonBase
-        first={first}
-        selected
-        stylesheet={stylesheet}
-        label=""
-        />
-    );
+    return <QueryVisButtonBase first={first} selected stylesheet={stylesheet} label="" />;
   }
 }
 
-
-export function QueryVisNavigateButton(props: {
-  query: NavigateQuery,
-  selected: ?QueryAtom,
-  children?: React$Element<*>,
-}) {
+export function QueryVisNavigateButton(
+  props: {
+    query: NavigateQuery,
+    selected: ?QueryAtom,
+    children?: React$Element<*>,
+  },
+) {
   let {query, ...rest} = props;
   return (
     <QueryVisButton
@@ -103,65 +96,27 @@ export function QueryVisNavigateButton(props: {
       stylesheet={{Root: QueryPane.NavigatePane, Button: QueryButton.NavigateButton}}
       query={query}
       label={query.context.title || query.path}
-      />
+    />
   );
 }
 
-function QueryVisDefineButtonTopShape({first}) {
-  let triangle = first ? '' : '10,0 15,5 20,0';
-  let points = `0,0 ${triangle} 300,0`;
-  return (
-    <svg
-      style={{position: 'absolute', top: 0, left: -1, zIndex: 100}}
-      viewBox="0 0 300 10"
-      width="100%"
-      height="10px">
-      <polyline
-        fill="#fff"
-        stroke="#bbb"
-        strokeWidth="1"
-        strokeLinecap="round"
-        strokeLinejoin="miter"
-        points={points}
-        />
-    </svg>
-  );
-}
-
-function QueryVisDefineButtonBottomShape() {
-  return (
-    <svg
-      style={{position: 'absolute', bottom: -10, left: -1}}
-      viewBox="0 0 300 10"
-      width="100%"
-      height="10px">
-      <polyline
-        fill="#fff"
-        stroke="#bbb"
-        strokeWidth="1"
-        strokeLinecap="round"
-        strokeLinejoin="miter"
-        points="0,0 10,0 15,5 20,0 300,0"
-        />
-    </svg>
-  );
-}
-
-export function QueryVisDefineButton(props: {
-  query: DefineQuery,
-  selected: ?QueryAtom,
-  activeQueryPipeline: ?QueryPipeline,
-  first?: boolean,
-}) {
+export function QueryVisDefineButton(
+  props: {
+    query: DefineQuery,
+    selected: ?QueryAtom,
+    activeQueryPipeline: ?QueryPipeline,
+    first?: boolean,
+  },
+) {
   let {query, selected, activeQueryPipeline, first} = props;
   let isSelected = selected && selected.id === query.id;
   return (
-    <VBox paddingBottom={5}>
+    <VBox paddingBottom={5} left={1}>
       <VBox
         borderLeft={css.border(1, '#bbb')}
-        overflow="visible"
-        margin={{vertical: 2, left: 2}}>
-        <QueryVisDefineButtonTopShape first={first} />
+        borderTop={css.border(1, '#bbb')}
+        borderBottom={css.border(1, '#bbb')}
+        overflow="visible">
         <QueryVisDefineHeader
           selectable
           closeable
@@ -169,24 +124,31 @@ export function QueryVisDefineButton(props: {
           selected={isSelected}
           label={query.context.title || query.binding.name}
           query={query}
-          />
+        />
         <VBox paddingLeft={8}>
           <QueryVisPipeline
             pipeline={query.binding.query}
             selected={selected}
             activeQueryPipeline={activeQueryPipeline}
-            />
+          />
         </VBox>
-        <QueryVisDefineButtonBottomShape />
       </VBox>
+      <ArrowDown left={5} bottom={0} color="#bbb" />
+      <ArrowDown left={5} bottom={1} color="white" />
+      {!first && [
+        <ArrowDown key="1" left={5} top={0} color="#bbb" />,
+        <ArrowDown key="2" left={5} top={-1} color="white" />,
+      ]}
     </VBox>
   );
 }
 
-export function QueryVisFilterButton(props: {
-  query: FilterQuery,
-  selected: ?QueryAtom,
-}) {
+export function QueryVisFilterButton(
+  props: {
+    query: FilterQuery,
+    selected: ?QueryAtom,
+  },
+) {
   let {query} = props;
   let stylesheet = {
     Root: QueryPane.FilterPane,
@@ -199,14 +161,19 @@ export function QueryVisFilterButton(props: {
       closeable
       stylesheet={stylesheet}
       label={query.context.title}
-      />
+    />
   );
 }
 
-export function QueryVisGroupButton({query, ...rest}: {
-  query: GroupQuery,
-  selected: ?QueryAtom,
-}) {
+export function QueryVisGroupButton(
+  {
+    query,
+    ...rest
+  }: {
+    query: GroupQuery,
+    selected: ?QueryAtom,
+  },
+) {
   return (
     <QueryVisButton
       {...rest}
@@ -215,14 +182,19 @@ export function QueryVisGroupButton({query, ...rest}: {
       stylesheet={{Root: QueryPane.GroupPane, Button: QueryButton.GroupButton}}
       query={query}
       label={query.context.title}
-      />
+    />
   );
 }
 
-export function QueryVisAggregateButton({query, ...rest}: {
-  query: AggregateQuery,
-  selected: ?QueryAtom,
-}) {
+export function QueryVisAggregateButton(
+  {
+    query,
+    ...rest
+  }: {
+    query: AggregateQuery,
+    selected: ?QueryAtom,
+  },
+) {
   return (
     <QueryVisButton
       {...rest}
@@ -231,15 +203,14 @@ export function QueryVisAggregateButton({query, ...rest}: {
       stylesheet={{Root: QueryPane.AggregatePane, Button: QueryButton.AggregateButton}}
       query={query}
       label={query.context.title}
-      />
+    />
   );
 }
 
 class QueryVisDefineHeader extends React.Component {
-
   context: {
-    actions: Actions;
-  }
+    actions: Actions,
+  };
 
   static contextTypes = {
     actions: React.PropTypes.object,
@@ -283,10 +254,7 @@ class QueryVisDefineHeader extends React.Component {
         borderLeft={css.border(3, 'transparent')}
         padding={{horizontal: 5, vertical: 5}}
         onClick={selectable && this.onSelect}>
-        <HBox
-          flexGrow={1}
-          flexShrink={1}
-          alignItems="center">
+        <HBox flexGrow={1} flexShrink={1} alignItems="center">
           <Element
             marginRight={10}
             minWidth={0}
@@ -305,9 +273,7 @@ class QueryVisDefineHeader extends React.Component {
         </QueryButton.DefaultButton>
         {closeable &&
           <HBox>
-            <QueryButton.DefaultButton
-              title={closeTitle}
-              onClick={this.onRemove}>
+            <QueryButton.DefaultButton title={closeTitle} onClick={this.onRemove}>
               <Icon.IconRemove />
             </QueryButton.DefaultButton>
           </HBox>}
@@ -316,61 +282,33 @@ class QueryVisDefineHeader extends React.Component {
   }
 }
 
-function QueryVisQueryButton(props: {
-  query: QueryAtom | QueryPipeline,
-  selected: ?QueryAtom,
-  activeQueryPipeline: ?QueryPipeline,
-  first?: boolean,
-  closeable?: boolean,
-  isTopLevel?: boolean,
-}) {
+function QueryVisQueryButton(
+  props: {
+    query: QueryAtom | QueryPipeline,
+    selected: ?QueryAtom,
+    activeQueryPipeline: ?QueryPipeline,
+    first?: boolean,
+    closeable?: boolean,
+    isTopLevel?: boolean,
+  },
+) {
   const {query, ...rest} = props;
   if (query.name === 'here') {
     return <noscript />;
   } else if (query.name === 'navigate') {
-    return (
-      <QueryVisNavigateButton
-        {...rest}
-        query={query}
-        />
-    );
+    return <QueryVisNavigateButton {...rest} query={query} />;
   } else if (query.name === 'filter') {
-    return (
-      <QueryVisFilterButton
-        {...rest}
-        query={query}
-        />
-    );
+    return <QueryVisFilterButton {...rest} query={query} />;
   } else if (query.name === 'pipeline') {
-    return (
-      <QueryVisPipeline
-        {...rest}
-        pipeline={query}
-        />
-    );
+    return <QueryVisPipeline {...rest} pipeline={query} />;
   } else if (query.name === 'select') {
     return <noscript />;
   } else if (query.name === 'define') {
-    return (
-      <QueryVisDefineButton
-        {...rest}
-        query={query}
-        />
-    );
+    return <QueryVisDefineButton {...rest} query={query} />;
   } else if (query.name === 'group') {
-    return (
-      <QueryVisGroupButton
-        {...rest}
-        query={query}
-        />
-    );
+    return <QueryVisGroupButton {...rest} query={query} />;
   } else if (query.name === 'aggregate') {
-    return (
-      <QueryVisAggregateButton
-        {...rest}
-        query={query}
-        />
-    );
+    return <QueryVisAggregateButton {...rest} query={query} />;
   } else if (query.name === 'select') {
     return <noscript />;
   } else if (query.name === 'limit') {
@@ -380,20 +318,26 @@ function QueryVisQueryButton(props: {
   }
 }
 
-function QueryVisPipeline({pipeline, closeable, isTopLevel, activeQueryPipeline, ...props}: {
-  pipeline: QueryPipeline,
-  selected: ?QueryAtom,
-  activeQueryPipeline: ?QueryPipeline,
-  closeable?: boolean,
-  isTopLevel?: boolean,
-}) {
+function QueryVisPipeline(
+  {
+    pipeline,
+    closeable,
+    isTopLevel,
+    activeQueryPipeline,
+    ...props
+  }: {
+    pipeline: QueryPipeline,
+    selected: ?QueryAtom,
+    activeQueryPipeline: ?QueryPipeline,
+    closeable?: boolean,
+    isTopLevel?: boolean,
+  },
+) {
   let items = [];
   let disableAdd = false;
   let first = pipeline.pipeline[0];
   pipeline.pipeline.forEach((query, idx) => {
-    let firstItem = first.name === 'here'
-      ? 1
-      : 0;
+    let firstItem = first.name === 'here' ? 1 : 0;
     items.push(
       <QueryVisPipelineItem key={idx} variant={{isTopLevel}}>
         <QueryVisQueryButton
@@ -402,18 +346,16 @@ function QueryVisPipeline({pipeline, closeable, isTopLevel, activeQueryPipeline,
           activeQueryPipeline={activeQueryPipeline}
           closeable={closeable && idx > 0}
           query={query}
-          />
-      </QueryVisPipelineItem>
+        />
+      </QueryVisPipelineItem>,
     );
   });
   if (activeQueryPipeline && activeQueryPipeline.id === pipeline.id) {
     disableAdd = true;
     items.push(
       <QueryVisPipelineItem key="__insertAfter__" variant={{isTopLevel}}>
-        <QueryVisInsertAfterButton
-          query={pipeline}
-          />
-      </QueryVisPipelineItem>
+        <QueryVisInsertAfterButton first={isTopLevel} query={pipeline} />
+      </QueryVisPipelineItem>,
     );
   }
   return (
@@ -421,10 +363,7 @@ function QueryVisPipeline({pipeline, closeable, isTopLevel, activeQueryPipeline,
       {items}
       {!isTopLevel &&
         <VBox marginTop={10}>
-          <QueryVisToolbar
-            disableAdd={disableAdd}
-            pipeline={pipeline}
-            />
+          <QueryVisToolbar disableAdd={disableAdd} pipeline={pipeline} />
         </VBox>}
     </QueryVisPipelineRoot>
   );
@@ -432,28 +371,27 @@ function QueryVisPipeline({pipeline, closeable, isTopLevel, activeQueryPipeline,
 
 let QueryVisPipelineRoot = style(VBox, {
   displayName: 'QueryVisPipelineRoot',
-  base: {
-  }
+  base: {},
 });
 
 let QueryVisPipelineItem = style(VBox, {
   displayName: 'QueryVisPipelineItem',
   base: {
-    marginBottom: -3,
+    marginBottom: 0,
     lastOfType: {
       marginBottom: 0,
-    }
+    },
   },
   isTopLevel: {
-    marginBottom: 10,
+    marginBottom: 5,
     lastOfType: {
       marginBottom: 0,
-    }
-  }
+    },
+  },
 });
 
 type QueryVisProps = {
-  pipeline: QueryPipeline;
+  pipeline: QueryPipeline,
   onShowSelect(): *,
   selected: ?QueryAtom,
   activeQueryPipeline: ?QueryPipeline,
@@ -463,7 +401,6 @@ type QueryVisProps = {
  * Render graphical query representation.
  */
 export class QueryVis extends React.Component<*, QueryVisProps, *> {
-
   render() {
     let {pipeline, selected, activeQueryPipeline} = this.props;
     return (
@@ -473,7 +410,7 @@ export class QueryVis extends React.Component<*, QueryVisProps, *> {
           selected={selected}
           activeQueryPipeline={activeQueryPipeline}
           query={pipeline}
-          />
+        />
       </VBox>
     );
   }
@@ -482,5 +419,4 @@ export class QueryVis extends React.Component<*, QueryVisProps, *> {
     e.stopPropagation();
     this.props.onShowSelect();
   };
-
 }

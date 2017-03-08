@@ -11,6 +11,7 @@ import PieChartIcon from './icon/PieChartIcon';
 import BarChartIcon from './icon/BarChartIcon';
 import ScatterChartIcon from './icon/ScatterChartIcon';
 import LineChartIcon from './icon/LineChartIcon';
+import AreaChartIcon from './icon/AreaChartIcon';
 
 type AddChartDialogueProps = {
   onAddChart: ({chartType: Chart.ChartType}) => void,
@@ -38,6 +39,12 @@ export default function AddChartDialogue({onAddChart}: AddChartDialogueProps) {
           chartType="bar"
           onClick={onAddChart}
           icon={<BarChartIcon />}
+        />
+        <AddChartItem
+          label="Area chart"
+          chartType="area"
+          onClick={onAddChart}
+          icon={<AreaChartIcon />}
         />
         <AddChartItem
           label="Scatter plot"

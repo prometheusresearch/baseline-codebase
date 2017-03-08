@@ -25,6 +25,17 @@ export type LineChart = {
   lineList: Array<Line>,
 };
 
+export type Area = {
+  valueColumn: ?string,
+  color: string,
+};
+
+export type AreaChart = {
+  type: 'area',
+  labelColumn: ?string,
+  areaList: Array<Area>,
+};
+
 export type Bar = {
   valueColumn: ?string,
   color: string,
@@ -44,9 +55,9 @@ export type ScatterChart = {
   zColumn: ?string,
 };
 
-export type ChartType = 'pie' | 'line' | 'bar' | 'scatter';
+export type ChartType = 'pie' | 'line' | 'bar' | 'scatter' | 'area';
 
-export type Chart = PieChart | LineChart | BarChart | ScatterChart;
+export type Chart = PieChart | LineChart | BarChart | ScatterChart | AreaChart;
 
 export function getChartTitle({type}: {type: string}): string {
   switch (type) {
@@ -56,6 +67,8 @@ export function getChartTitle({type}: {type: string}): string {
       return 'Line Chart';
     case 'bar':
       return 'Bar Chart';
+    case 'area':
+      return 'Area Chart';
     case 'scatter':
       return 'Scatter Chart';
     default:
@@ -69,6 +82,8 @@ export function getInitialChart(pipeline: QueryPipeline, {type}: {type: string})
       return {type: 'pie', labelColumn: getLabelColumn(pipeline), valueColumn: null};
     case 'line':
       return {type: 'line', labelColumn: getLabelColumn(pipeline), lineList: []};
+    case 'area':
+      return {type: 'area', labelColumn: getLabelColumn(pipeline), areaList: []};
     case 'bar':
       return {
         type: 'bar',

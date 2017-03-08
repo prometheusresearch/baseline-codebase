@@ -14,25 +14,25 @@ import SelectAttributeWithColor from './SelectAttributeWithColor';
 import ChartControlPanel from './ChartControlPanel';
 import NoNumericAttributeText from './NoNumericAttributeText';
 
-type LineChartProps = {
-  chart: model.LineChart,
+type AreaChartProps = {
+  chart: model.AreaChart,
   onChart: (model.Chart) => *,
   data: any,
   query: QueryPipeline,
 };
 
-export default function LineChart(
-  {chart, onChart, data: rawData, query: pipeline}: LineChartProps,
+export default function AreaChart(
+  {chart, onChart, data: rawData, query: pipeline}: AreaChartProps,
 ) {
   const {query, data} = getQuery(pipeline, rawData);
   if (query == null) {
     return null;
   }
   let rendered = null;
-  if (chart.labelColumn && chart.lineList.length > 0) {
+  if (chart.labelColumn && chart.areaList.length > 0) {
     rendered = (
-      <recharts.LineChart
-        key={getLineChartKey(chart)}
+      <recharts.AreaChart
+        key={getAreaChartKey(chart)}
         data={data}
         width={600}
         height={400}
@@ -42,20 +42,21 @@ export default function LineChart(
         <recharts.CartesianGrid strokeDasharray="3 3" />
         <recharts.Tooltip />
         <recharts.Legend />
-        {chart.lineList.map(line => {
+        {chart.areaList.map(area => {
           return (
-            <recharts.Line
-              key={line.valueColumn}
-              dataKey={line.valueColumn}
-              type="monotone"
-              stroke={line.color}
+            <recharts.Area
+              key={area.valueColumn}
+              dataKey={area.valueColumn}
+              stroke={area.color}
+              fill={area.color}
+              fillOpacity={0.6}
             />
           );
         })}
-      </recharts.LineChart>
+      </recharts.AreaChart>
     );
   }
-  const lineList = chart.lineList.concat({
+  const areaList = chart.areaList.concat({
     valueColumn: null,
     color: '#8884d8',
   });
@@ -66,33 +67,33 @@ export default function LineChart(
           label="X axis"
           value={chart.labelColumn}
           context={getPipelineContext(query)}
-          onChange={labelColumn => onChart({type: 'line', ...chart, labelColumn})}
+          onChange={labelColumn => onChart({type: 'area', ...chart, labelColumn})}
         />
-        {lineList.map((line, index) => {
+        {areaList.map((area, index) => {
           const updateChart = (values: model.Line) => {
-            const lineList = chart.lineList.slice(0);
+            const areaList = chart.areaList.slice(0);
             if (values.valueColumn === null) {
-              lineList.splice(index, 1);
+              areaList.splice(index, 1);
             } else {
-              lineList.splice(index, 1, {
-                ...lineList[index],
+              areaList.splice(index, 1, {
+                ...areaList[index],
                 ...values,
               });
             }
-            onChart({type: 'line', ...chart, lineList});
+            onChart({type: 'area', ...chart, areaList});
           };
           return (
             <SelectAttributeWithColor
               key={index}
               label="Line"
-              noValueLabel="Add new line"
+              noValueLabel="Add new area"
               noResultsText={<NoNumericAttributeText />}
               context={getPipelineContext(query)}
-              value={line.valueColumn}
-              onChange={valueColumn => updateChart({...line, valueColumn})}
-              color={line.color}
+              value={area.valueColumn}
+              onChange={valueColumn => updateChart({...area, valueColumn})}
+              color={area.color}
               filter={isNumericNav}
-              onColorChange={color => updateChart({...line, color})}
+              onColorChange={color => updateChart({...area, color})}
             />
           );
         })}
@@ -104,6 +105,6 @@ export default function LineChart(
   );
 }
 
-function getLineChartKey(chart: LineChart): string {
-  return chart.lineList.map(bar => `${bar.valueColumn}--${bar.color}`).join(':');
+function getAreaChartKey(chart: AreaChart): string {
+  return chart.areaList.map(item => `${item.valueColumn}--${item.color}`).join(':');
 }

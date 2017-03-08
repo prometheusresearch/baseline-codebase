@@ -12,6 +12,7 @@ import * as State from '../state';
 import * as model from './model';
 import type {ChartSpec} from '../state';
 import type {QueryPipeline} from '../model';
+import AreaChart from './AreaChart';
 import LineChart from './LineChart';
 import PieChart from './PieChart';
 import BarChart from './BarChart';
@@ -42,6 +43,10 @@ export default class Chart extends React.Component {
       }
       case 'line': {
         children = <LineChart {...props} chart={chart} onChart={this.onUpdateChart} />;
+        break;
+      }
+      case 'area': {
+        children = <AreaChart {...props} chart={chart} onChart={this.onUpdateChart} />;
         break;
       }
       case 'bar': {

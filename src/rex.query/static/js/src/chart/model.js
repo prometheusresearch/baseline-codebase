@@ -52,7 +52,6 @@ export type ScatterChart = {
   type: 'scatter',
   xColumn: ?string,
   yColumn: ?string,
-  zColumn: ?string,
 };
 
 export type ChartType = 'pie' | 'line' | 'bar' | 'scatter' | 'area';
@@ -92,7 +91,7 @@ export function getInitialChart(pipeline: QueryPipeline, {type}: {type: string})
         barList: [],
       };
     case 'scatter':
-      return {type: 'scatter', xColumn: null, yColumn: null, zColumn: null};
+      return {type: 'scatter', xColumn: null, yColumn: null};
     default:
       invariant(false, 'Unknown chart type: %s', type);
   }

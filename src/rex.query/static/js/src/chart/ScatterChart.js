@@ -13,12 +13,14 @@ import SelectAttribute from './SelectAttribute';
 
 type ScatterChartProps = {
   chart: model.ScatterChart,
-  onChart: model.Chart => *,
+  onChart: (model.Chart) => *,
   data: any,
   query: QueryPipeline,
 };
 
-export default function ScatterChart({chart, onChart, data: rawData, query: pipeline}: ScatterChartProps) {
+export default function ScatterChart(
+  {chart, onChart, data: rawData, query: pipeline}: ScatterChartProps,
+) {
   let {query, data} = getQuery(pipeline, rawData);
   if (query == null) {
     return null;
@@ -29,7 +31,6 @@ export default function ScatterChart({chart, onChart, data: rawData, query: pipe
       <recharts.ScatterChart width={600} height={400}>
         <recharts.XAxis dataKey={chart.xColumn} name={chart.xColumn} />
         <recharts.YAxis dataKey={chart.yColumn} name={chart.yColumn} />
-        {chart.zColumn && <recharts.ZAxis dataKey={chart.zColumn} name={chart.zColumn} />}
         <recharts.CartesianGrid strokeDasharray="3 3" />
         <recharts.Tooltip cursor={{strokeDasharray: '3 3'}} />
         <recharts.Legend />
@@ -45,19 +46,13 @@ export default function ScatterChart({chart, onChart, data: rawData, query: pipe
           value={chart.xColumn}
           context={query.context}
           onChange={xColumn => onChart({type: 'scatter', ...chart, xColumn})}
-          />
+        />
         <SelectAttribute
           label="Y axis"
           value={chart.yColumn}
           context={query.context}
           onChange={yColumn => onChart({type: 'scatter', ...chart, yColumn})}
-          />
-        <SelectAttribute
-          label="Z axis"
-          value={chart.zColumn}
-          context={query.context}
-          onChange={zColumn => onChart({type: 'scatter', ...chart, zColumn})}
-          />
+        />
       </VBox>
       <VBox flexGrow={1}>
         {rendered}

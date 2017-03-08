@@ -11,10 +11,10 @@ export default function TagLabel(props: Object) {
       display="inline-block"
       background={css.rgb(136)}
       color={css.rgb(255)}
-      borderRadius={2}
-      fontSize="6pt"
-      padding={3}
+      borderRadius={1}
+      fontSize="7pt"
+      padding="2px 4px"
       {...props}
-      />
+    />
   );
 }

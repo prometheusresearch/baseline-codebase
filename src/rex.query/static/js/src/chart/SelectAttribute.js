@@ -15,7 +15,7 @@ type SelectAttributeProps = {
   label: string,
   value: ?string,
   filter?: (QueryNavigation) => boolean,
-  noResultsText?: string,
+  noResultsText?: string | React$Element<*>,
   onChange: (string) => *,
 };
 

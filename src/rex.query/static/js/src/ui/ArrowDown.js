@@ -5,7 +5,9 @@
 import React from 'react';
 import {Element} from 'react-stylesheet';
 
-export default function ArrowDown({color = 'red', size = 5, ...props}) {
+type ArrowDownProps = {color?: string, size?: number};
+
+export default function ArrowDown({color = 'red', size = 5, ...props}: ArrowDownProps) {
   return (
     <Element
       position="absolute"

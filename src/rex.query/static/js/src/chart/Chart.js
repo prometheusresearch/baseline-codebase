@@ -151,6 +151,7 @@ class EditableHeader extends React.Component {
               paddingTop={20}
               paddingBottom={10}>
               <ReactUI.Input
+                style={{marginRight: 5}}
                 value={this.state.value}
                 onChange={this.onChange}
                 onKeyDown={this.onKeyDown}
@@ -166,7 +167,14 @@ class EditableHeader extends React.Component {
                 icon={<ui.Icon.IconClose />}
               />
             </HBox>
-          : <ui.Header onClick={this.onEditStart}>{value}</ui.Header>}
+          : <HBox alignItems="baseline">
+              <ReactUI.QuietButton
+                onClick={this.onEditStart}
+                size="small"
+                icon={<ui.Icon.IconPencil />}
+              />
+              <ui.Header paddingLeft={0}>{value}</ui.Header>
+            </HBox>}
       </VBox>
     );
   }

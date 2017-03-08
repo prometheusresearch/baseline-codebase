@@ -506,7 +506,7 @@ Map {
     "value": "study_enrollment",
   },
   "individual-query" => Object {
-    "card": null,
+    "card": "seq",
     "context": Object {
       "domain": <DOMAIN>,
       "hasInvalidType": false,

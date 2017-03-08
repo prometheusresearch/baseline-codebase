@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.web',
-    version="3.8.0",
+    version="3.9.0",
     description="Web stack for the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -19,7 +19,7 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     install_requires=[
-        'rex.core >=1.14, <2',
+        'rex.core >=1.16, <2',
         'rex.ctl >=2.0, <3',
         'webob >=1.3.1, <1.4',
         'jinja2 >=2.7, <2.9',

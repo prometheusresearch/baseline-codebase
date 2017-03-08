@@ -404,6 +404,7 @@ class ServeUWSGITask(RexWatchTask):
             raise fail("missing uWSGI configuration")
         uwsgi_parameters = {}
         uwsgi_parameters['need-app'] = True
+        uwsgi_parameters['enable-threads'] = True
         uwsgi_parameters['plugin'] = 'python'
         if hasattr(sys, 'real_prefix'):
             uwsgi_parameters['virtualenv'] = sys.prefix
@@ -491,6 +492,7 @@ class StartTask(RexWatchTask):
         uwsgi_cfg = {}
         uwsgi_cfg['need-app'] = True
         uwsgi_cfg['plugin'] = 'python'
+        uwsgi_cfg['enable-threads'] = True
         if hasattr(sys, 'real_prefix'):
             uwsgi_cfg['virtualenv'] = sys.prefix
         uwsgi_cfg.update(env.uwsgi)

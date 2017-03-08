@@ -4,7 +4,8 @@
 
 
 from rex.core import (Setting, Extension, WSGI, get_packages, get_settings,
-        MapVal, OMapVal, ChoiceVal, StrVal, Error, cached, autoreload)
+        MapVal, OMapVal, ChoiceVal, StrVal, Error, cached, autoreload,
+        get_rex, get_sentry)
 from .handle import HandleFile, HandleLocation, HandleError
 from .auth import authenticate, authorize, confine
 from .path import PathMap, PathMask
@@ -15,7 +16,7 @@ from webob.exc import (WSGIHTTPException, HTTPNotFound, HTTPUnauthorized,
 from webob.static import FileIter, BLOCK_SIZE
 import sys
 import copy
-import os.path
+import os
 import fnmatch
 import json
 import datetime
@@ -446,6 +447,22 @@ class StandardWSGI(WSGI):
                 environ.get('PATH_INFO')[0] != '/'):
             environ['SCRIPT_NAME'] = environ['SCRIPT_NAME'] + environ['PATH_INFO']
             environ['PATH_INFO'] = ''
+        # Sentry configuration.
+        rex = get_rex()
+        sentry = get_sentry()
+        sentry.extra_context({
+            'rex.requirements': rex.requirements,
+            'rex.parameters': rex.parameters,
+            'wsgi.environ': dict(environ),
+            'wsgi.remote_user': environ.get('REMOTE_USER'),
+            'wsgi.remote_addr': environ.get('REMOTE_ADDR'),
+            'wsgi.request_uri': wsgiref.util.request_uri(environ),
+            'wsgi.application_uri': wsgiref.util.application_uri(environ),
+            'os.getcwd': os.getcwd(),
+            'os.getuid': os.getuid(),
+            'os.environ': dict(os.environ),
+        })
+        environ['rex.sentry'] = sentry
         # Bridge between WSGI and WebOb.
         req = Request(environ)
         try:
@@ -453,6 +470,7 @@ class StandardWSGI(WSGI):
         except WSGIHTTPException, exc:
             resp = exc
         except:
+            sentry.captureException()
             write = start_response(
                     "500 Internal Server Error",
                     [("Content-Type", 'text/plain')])

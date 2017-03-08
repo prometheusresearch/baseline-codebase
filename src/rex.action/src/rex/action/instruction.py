@@ -12,12 +12,12 @@
 
 """
 
-import hashlib
 from cached_property import cached_property
 
 from rex.core import Location, locate, set_location, Validate, Error
 from rex.core import RecordVal, UnionVal, MapVal, StrVal, SeqVal, OnField, OneOfVal
 from rex.widget import TransitionableRecord
+from .util import get_action_key
 
 __all__ = (
     'Start', 'Execute', 'IncludeWizard', 'Repeat', 'Replace',
@@ -202,8 +202,7 @@ class ExecuteVal(BaseInstructionVal):
     def create_instruction(self, action=None, then=None):
         from .wizard import WizardBase as Wizard
         action_instance = self.resolve_action(action)
-        id = '%s@%s' % (self.id, action)
-        id = hashlib.md5(id).hexdigest()
+        id = get_action_key(self.id, action)
         if isinstance(action_instance, Wizard):
             return IncludeWizard(
                 id=id,
@@ -305,8 +304,7 @@ class ExecuteShortcutVal(ValidateWithAction):
             raise Error('only mappings of a single key are allowed')
         action, then = value.iteritems().next()
         action_instance = self.resolve_action(action)
-        id = '%s@%s' % (self.id, action)
-        id = hashlib.md5(id).hexdigest()
+        id = get_action_key(self.id, action)
         if isinstance(action_instance, Wizard):
             return IncludeWizard(
                 id=id,

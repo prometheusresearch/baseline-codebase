@@ -10,7 +10,6 @@
 
 """
 
-import hashlib
 import urlparse
 import cgi
 
@@ -40,6 +39,7 @@ from .validate import (
 from . import typing
 from . import instruction
 from . import introspection
+from .util import get_action_key
 
 __all__ = ('WizardBase', 'WizardWidgetBase')
 
@@ -447,8 +447,7 @@ def _collect_actions(wizard):
         wizard.typecheck()
 
     for orig_key, action in wizard.actions.items():
-        key = '%s@%s' % (wizard.uid, orig_key)
-        key = hashlib.md5(key).hexdigest()
+        key = get_action_key(wizard.uid, orig_key)
         actions[key] = action
         if isinstance(action, WizardBase):
             actions.update(_collect_actions(action))

@@ -1538,7 +1538,7 @@ It is an error to use ``!setting`` when no Rex application is active::
 
 
 ``!include/python``
-============
+===================
 
 You can use Python objects as constants in your YAML documents with the help
 of the ``!include/python`` tags::

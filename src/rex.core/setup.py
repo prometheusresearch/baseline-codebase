@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.core',
-    version="1.15.0",
+    version="1.16.0",
     description="Foundation of the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -20,6 +20,7 @@ setup(
     namespace_packages=['rex', 'sphinxcontrib'],
     install_requires=[
         'rex.setup >=1.0, <4',  # For use by `rex.core` descendants.
+        'raven >=6.0, <7',
         'pyyaml',
     ],
     rex_init='rex.core',

@@ -72,6 +72,8 @@ Errors
 .. autoexception:: rex.core.Error
    :special-members: __call__
 .. autoclass:: guard
+.. autofunction:: get_sentry
+.. autofunction:: get_sentry_config
 
 
 Validators

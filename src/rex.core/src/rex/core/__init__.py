@@ -18,6 +18,7 @@ from .extension import Extension, DocEntry
 from .package import (
     Package, PythonPackage, ModulePackage, StaticPackage, SandboxPackage,
     PackageCollection, get_packages)
+from .sentry import get_sentry, get_sentry_config
 from .setting import Setting, SettingCollection, get_settings
 from .validate import (
     ValidatingLoader, Validate, AnyVal, ProxyVal, MaybeVal, OneOfVal, StrVal,

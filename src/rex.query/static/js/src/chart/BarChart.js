@@ -10,7 +10,7 @@ import * as ReactUI from '@prometheusresearch/react-ui';
 import * as model from './model';
 import type {QueryPipeline} from '../model';
 import {getPipelineContext} from '../model';
-import {getQuery, isNumericNav} from './util';
+import {getQuery} from './util';
 import SelectAttribute from './SelectAttribute';
 import SelectAttributeWithColor from './SelectAttributeWithColor';
 import ChartControlPanel from './ChartControlPanel';
@@ -90,7 +90,8 @@ export default function BarChart(
               onChange={valueColumn => updateBar({...bar, valueColumn})}
               color={bar.color}
               onColorChange={color => updateBar({...bar, color})}
-              filter={isNumericNav}
+              onlyNumerics={true}
+              addSumarizations={true}
             />
           );
         })}

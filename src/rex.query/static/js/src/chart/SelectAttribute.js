@@ -4,9 +4,7 @@
 
 import React from 'react';
 
-import {getNavigation} from '../model/QueryNavigation';
-import type {Context} from '../model';
-import {type QueryNavigation} from '../model/QueryNavigation';
+import {type Context, type QueryNavigation, getNavigation} from '../model';
 import * as ui from '../ui';
 import ChartControl from './ChartControl';
 
@@ -14,22 +12,62 @@ type SelectAttributeProps = {
   context: Context,
   label: string,
   value: ?string,
-  filter?: (QueryNavigation) => boolean,
   noResultsText?: string | React$Element<*>,
   onChange: (string) => *,
+  onlyNumerics?: boolean,
+  addSumarizations?: boolean,
 };
 
-export default function SelectAttribute(
-  {context, label, value, onChange, filter, noResultsText}: SelectAttributeProps,
-) {
-  let nav = Array.from(getNavigation(context).values());
-  if (filter != null) {
-    nav = nav.filter(filter);
+function isNumericNav(nav: QueryNavigation): boolean {
+  return nav.card == null && nav.context.type.name === 'number';
+}
+
+function getSelectOptionsFromContext(
+  context: Context,
+  params: {
+    onlyNumerics?: boolean,
+    addSumarizations?: boolean,
+  },
+): Array<ui.SelectOption> {
+  const {onlyNumerics, addSumarizations} = params;
+  const navigation = Array.from(getNavigation(context).values());
+  const options = [];
+
+  for (let i = 0; i < navigation.length; i++) {
+    const nav = navigation[i];
+
+    if (addSumarizations && nav.card === 'seq') {
+      options.push({
+        label: '# ' + nav.label,
+        value: nav.value,
+      });
+    }
+
+    if (onlyNumerics && !isNumericNav(nav)) {
+      continue;
+    }
+
+    options.push({
+      label: nav.label,
+      value: nav.value,
+    });
   }
-  const options = nav.map(nav => ({
-    label: nav.label,
-    value: nav.value,
-  }));
+
+  return options;
+}
+
+export default function SelectAttribute(
+  {
+    context,
+    label,
+    value,
+    onChange,
+    noResultsText,
+    onlyNumerics,
+    addSumarizations,
+  }: SelectAttributeProps,
+) {
+  const options = getSelectOptionsFromContext(context, {onlyNumerics, addSumarizations});
   return (
     <ChartControl
       label={label}

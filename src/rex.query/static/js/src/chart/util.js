@@ -2,7 +2,7 @@
  * @flow
  */
 
-import {type QueryNavigation, getNavigation} from '../model/QueryNavigation';
+import {getNavigation} from '../model/QueryNavigation';
 import {type QueryPipeline, type Context} from '../model';
 
 export function getColumnOptions(
@@ -31,8 +31,4 @@ export function getQuery(
       return {query: null, data};
     }
   }
-}
-
-export function isNumericNav(nav: QueryNavigation): boolean {
-  return nav.card == null && nav.context.type.name === 'number';
 }

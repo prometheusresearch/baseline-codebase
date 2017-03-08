@@ -8,7 +8,7 @@ import {VBox} from 'react-stylesheet';
 
 import * as model from './model';
 import {type QueryPipeline, getPipelineContext} from '../model';
-import {getQuery, isNumericNav} from './util';
+import {getQuery} from './util';
 import SelectAttribute from './SelectAttribute';
 import SelectAttributeWithColor from './SelectAttributeWithColor';
 import ChartControlPanel from './ChartControlPanel';
@@ -91,7 +91,8 @@ export default function LineChart(
               value={line.valueColumn}
               onChange={valueColumn => updateChart({...line, valueColumn})}
               color={line.color}
-              filter={isNumericNav}
+              onlyNumerics={true}
+              addSumarizations={true}
               onColorChange={color => updateChart({...line, color})}
             />
           );

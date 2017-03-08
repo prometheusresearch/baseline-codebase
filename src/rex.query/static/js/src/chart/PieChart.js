@@ -8,7 +8,7 @@ import {VBox} from 'react-stylesheet';
 
 import * as model from './model';
 import {type QueryPipeline, getPipelineContext} from '../model';
-import {getQuery, isNumericNav} from './util';
+import {getQuery} from './util';
 import SelectAttribute from './SelectAttribute';
 import ChartControlPanel from './ChartControlPanel';
 import NoNumericAttributeText from './NoNumericAttributeText';
@@ -75,7 +75,8 @@ export default function PieChart(
           noResultsText={<NoNumericAttributeText />}
           context={getPipelineContext(query)}
           onChange={valueColumn => onChart({type: 'pie', ...chart, valueColumn})}
-          filter={isNumericNav}
+          onlyNumerics={true}
+          addSumarizations={true}
         />
       </ChartControlPanel>
       <VBox flexGrow={1} alignItems="center">

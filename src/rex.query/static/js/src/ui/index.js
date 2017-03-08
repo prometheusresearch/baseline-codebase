@@ -14,5 +14,6 @@ export {default as ErrorPanel} from './ErrorPanel';
 export {default as TabContainer} from './TabContainer';
 export {default as Header} from './Header';
 export {default as Select} from './Select';
+export type {SelectOption} from './Select';
 import * as Icon from './Icon';
 export {Icon};

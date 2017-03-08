@@ -8,7 +8,7 @@ import {VBox} from 'react-stylesheet';
 
 import * as model from './model';
 import {type QueryPipeline, getPipelineContext} from '../model';
-import {getQuery, isNumericNav} from './util';
+import {getQuery} from './util';
 import SelectAttribute from './SelectAttribute';
 import SelectAttributeWithColor from './SelectAttributeWithColor';
 import ChartControlPanel from './ChartControlPanel';
@@ -92,7 +92,8 @@ export default function AreaChart(
               value={area.valueColumn}
               onChange={valueColumn => updateChart({...area, valueColumn})}
               color={area.color}
-              filter={isNumericNav}
+              onlyNumerics={true}
+              addSumarizations={true}
               onColorChange={color => updateChart({...area, color})}
             />
           );

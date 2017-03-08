@@ -12,10 +12,7 @@ import {AutoSizer} from 'react-virtualized';
 
 import {LoadingIndicator} from '../ui';
 import * as ArrayUtil from '../ArrayUtil';
-import {
-  DataTable as DataTableBase,
-  getByKey
-} from './datatable/index';
+import {DataTable as DataTableBase, getByKey} from './datatable/index';
 
 export type ColumnSpecData = {
   query: Query,
@@ -31,7 +28,7 @@ export type ColumnSpecData = {
  */
 export function getColumnConfig(
   query: QueryPipeline,
-  focusedSeq: Array<string> = []
+  focusedSeq: Array<string> = [],
 ): ColumnConfig<ColumnSpecData> {
   return getColumnConfigImpl(query, query, focusedSeq, [], null, false);
 }
@@ -68,23 +65,15 @@ function getColumnConfigImpl(
         if (nav.type !== 'field' && skipAllowed) {
           break;
         }
-        stack = stack.concat(
-          nav.type === 'stack'
-            ? nav.columnList
-            : nav
-        );
+        stack = stack.concat(nav.type === 'stack' ? nav.columnList : nav);
         skipAllowed = !needDetailedColumn(nav, focusedSeq);
       }
       break;
     case 'aggregate': {
-      let prev = currentStack != null
-        ? currentStack.pop()
-        : null;
-      let dataKey = prev && prev.type === 'field'
-        ? prev.field.dataKey
-        : ['0'];
+      let prev = currentStack != null ? currentStack.pop() : null;
+      let dataKey = prev && prev.type === 'field' ? prev.field.dataKey : ['0'];
       let label = prev && prev.type === 'field' && prev.field.label
-        ? prev.field.label
+        ? query.aggregate === 'count' ? '# ' + prev.field.label : prev.field.label
         : query.aggregate;
       stack.push({
         type: 'field',
@@ -97,10 +86,12 @@ function getColumnConfigImpl(
           data: {
             query,
             pipeline: queryPipeline,
-            navigate: prev != null && prev.type === 'field' ? prev.field.data.navigate : null,
+            navigate: prev != null && prev.type === 'field'
+              ? prev.field.data.navigate
+              : null,
             type: query.context.type,
             focusedSeq,
-            focused: false
+            focused: false,
           },
         },
         size: {width: 1, height: 1},
@@ -116,7 +107,7 @@ function getColumnConfigImpl(
           focusedSeq,
           path,
           binding.query.context.title || binding.name,
-          true
+          true,
         );
       }
       let type = query.context.type;
@@ -135,7 +126,7 @@ function getColumnConfigImpl(
             navigate: query,
             type,
             focusedSeq,
-            focused
+            focused,
           },
         },
         size: {width: 1, height: 1},
@@ -153,8 +144,8 @@ function getColumnConfigImpl(
               focusedSeq,
               path.concat(k),
               null,
-              true
-            )
+              true,
+            ),
           );
         }
       }
@@ -174,14 +165,14 @@ function getColumnConfigImpl(
   return stack.length === 1
     ? stack[0]
     : {
-      type: 'stack',
-      id: 'stack:' + path.join('__'),
-      columnList: stack,
-      size: {
-        width: ArrayUtil.max(stack.map(c => c.size.width)),
-        height: ArrayUtil.sum(stack.map(c => c.size.height)),
-      }
-    };
+        type: 'stack',
+        id: 'stack:' + path.join('__'),
+        columnList: stack,
+        size: {
+          width: ArrayUtil.max(stack.map(c => c.size.width)),
+          height: ArrayUtil.sum(stack.map(c => c.size.height)),
+        },
+      };
 }
 
 function getData(data: Object, focusedSeq: Array<string>): Array<Object> {
@@ -197,7 +188,6 @@ type DataTableProps = {
 };
 
 export class DataTable extends React.Component<*, DataTableProps, *> {
-
   columns: ColumnConfig<ColumnSpecData>;
   data: Array<Object>;
 
@@ -227,14 +217,14 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
               width={size.width}
               height={size.height}
               columns={this.columns}
-              />
+            />
           )}
         </AutoSizer>
         <LoadingPane variant={{visible: this.props.loading}}>
           <LoadingIndicator />
         </LoadingPane>
       </VBox>
-    )
+    );
   }
 
   onColumnClick = (column: ColumnField<{type: Type}>) => {
@@ -268,9 +258,8 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
       <div>
         No data
       </div>
-    )
+    );
   };
-
 }
 
 function cellDataGetter({rowData, dataKey, columnData: {type, focusedSeq}}) {
@@ -280,26 +269,23 @@ function cellDataGetter({rowData, dataKey, columnData: {type, focusedSeq}}) {
   return cellData;
 }
 
-function cellRenderer({
-  columnData: {query},
-  cellData,
-  dataKey,
-}): ?string | React.Element<*> {
+function cellRenderer(
+  {
+    columnData: {query},
+    cellData,
+    dataKey,
+  },
+): ?string | React.Element<*> {
   if (cellData === null) {
     return nullCell; // eslint-disable-line no-use-before-define
   } else if (cellData === undefined) {
     return null;
   } else if (query.context.type) {
     const type = query.context.type;
-    if (
-      type.name === 'record' &&
-      typeof cellData === 'object' &&
-      cellData != null
-    ) {
+    if (type.name === 'record' && typeof cellData === 'object' && cellData != null) {
       if (type.card === 'seq') {
         if (Array.isArray(cellData)) {
-          cellData = cellData.map(entity =>
-            formatEntity(type.entity, entity)).join(', ');
+          cellData = cellData.map(entity => formatEntity(type.entity, entity)).join(', ');
         }
       } else {
         if ('code' in cellData) {
@@ -324,24 +310,24 @@ function cellRenderer({
     } else if (type.name === 'number') {
       return <NumberCell>{String(cellData)}</NumberCell>;
     } else if (type.name === 'date') {
-      return String(cellData)
+      return String(cellData);
     } else if (type.name === 'time') {
-      return String(cellData)
+      return String(cellData);
     } else if (type.name === 'datetime') {
-      return String(cellData)
+      return String(cellData);
     } else if (type.name === 'json') {
       return formatJSON(cellData);
     } else {
-      return String(cellData)
+      return String(cellData);
     }
   } else {
-    return String(cellData)
+    return String(cellData);
   }
 }
 
 function formatJSON(data) {
   // TODO: click to show data in a modal?
-  return <JSONCell>— JSON data —</JSONCell>
+  return <JSONCell>— JSON data —</JSONCell>;
 }
 
 function formatEntity(entityName, entity) {
@@ -368,7 +354,7 @@ let NullCell = style('div', {
   base: {
     color: '#bbb',
     textAlign: 'center',
-  }
+  },
 });
 
 let nullCell = <NullCell>—</NullCell>;
@@ -379,7 +365,7 @@ let NumberCell = style('div', {
     textAlign: 'right',
     paddingRight: 5,
     paddingLeft: 5,
-  }
+  },
 });
 
 let BooleanTrueCell = style('div', {
@@ -389,7 +375,7 @@ let BooleanTrueCell = style('div', {
     color: 'green',
     paddingRight: 5,
     paddingLeft: 5,
-  }
+  },
 });
 
 let BooleanFalseCell = style('div', {
@@ -399,7 +385,7 @@ let BooleanFalseCell = style('div', {
     color: '#a90000',
     paddingRight: 5,
     paddingLeft: 5,
-  }
+  },
 });
 
 let JSONCell = style('div', {
@@ -408,7 +394,7 @@ let JSONCell = style('div', {
     color: '#888',
     fontFamily: 'Menlo, monospace',
     fontSize: '7pt',
-  }
+  },
 });
 
 let LoadingPane = style(VBox, {

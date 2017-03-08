@@ -156,19 +156,13 @@ export function getInitialState(
     queryLoading: false,
     selected: null,
     prevSelected: null,
-    activeTab: 'c', //'__dataset__',
+    activeTab: '__dataset__',
     activeQueryPipeline: null,
     data: null,
     showPanel: true,
     undoStack: [],
     redoStack: [],
-    chartList: [
-      {
-        id: 'c',
-        label: 'Test Chart',
-        chart: {type: 'line', labelColumn: null, lineList: []},
-      },
-    ],
+    chartList: [],
     focusedSeq,
     translateOptions,
   };

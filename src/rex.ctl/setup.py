@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.ctl',
-    version = "2.2.0",
+    version = "2.3.0",
     description="Command-line administration utility for the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -27,7 +27,7 @@ setup(
         ],
     },
     install_requires=[
-        'rex.core >=1.14, <2',
+        'rex.core >=1.16, <2',
         'cogs >=0.4.0',
     ],
     rex_init='rex.ctl',

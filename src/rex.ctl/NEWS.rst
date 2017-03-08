@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.3.0 (2017-XX-XX)
+==================
+
+* Added Sentry support.
+
+
 2.2.0 (2016-10-25)
 ==================
 

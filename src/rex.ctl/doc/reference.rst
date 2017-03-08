@@ -27,6 +27,12 @@ Template for application-specific tasks
 .. autoclass:: rex.ctl.RexTask
 
 
+Loading application from ``rex.yaml``
+=====================================
+
+.. autofunction:: rex.ctl.load_rex
+
+
 Testing ``rex``
 ===============
 

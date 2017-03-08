@@ -3,7 +3,7 @@
 #
 
 
-from rex.core import Error, DocEntry, get_rex, get_packages
+from rex.core import Error, DocEntry, get_rex, get_packages, get_sentry
 import sys
 import os
 import functools
@@ -58,7 +58,22 @@ def main():
         # When `--debug` is on, show the full traceback.
         try:
             try:
-                run(sys.argv)
+                try:
+                    run(sys.argv)
+                except Exception:
+                    # Submit the exception to Sentry.
+                    exc_info = sys.exc_info()
+                    try:
+                        sentry = get_sentry(sync=True)
+                        sentry.extra_context({
+                            'os.environ': dict(os.environ),
+                            'os.getcwd': os.getcwd(),
+                            'os.getuid': os.getuid(),
+                        })
+                        sentry.captureException(exc_info)
+                    except:
+                        pass
+                    raise exc_info[0], exc_info[1], exc_info[2]
             except (Error, IOError), exc:
                 if env.debug:
                     raise

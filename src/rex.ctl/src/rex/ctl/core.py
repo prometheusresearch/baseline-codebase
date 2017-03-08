@@ -4,8 +4,9 @@
 
 
 from rex.core import (
-        Rex, LatentRex, MaybeVal, StrVal, SeqVal, MapVal, BoolVal,
-        get_packages, ModulePackage, StaticPackage, Setting)
+        Rex, LatentRex, Validate, MaybeVal, StrVal, SeqVal, MapVal, BoolVal,
+        UnionVal, OnScalar, OnMap, get_packages, ModulePackage, StaticPackage,
+        Setting)
 from .bridge import Task, Global, Topic, argument, option, env, log, fail
 import sys
 import os
@@ -55,10 +56,42 @@ class ParametersGlobal(Global):
 
     A dictionary with application parameters.
     """
+
     name = 'parameters'
     value_name='{NAME:VALUE}'
     validate = MapVal(StrVal)
     default = {}
+
+
+class ExportSentryVal(Validate):
+    # Exports Sentry configuration into the environment.
+
+    def __init__(self, validate):
+        self.validate = validate
+
+    def __call__(self, data):
+        data = self.validate(data)
+        if isinstance(data, str):
+            data = {'dsn': data}
+        for key, value in sorted(data.items()):
+            if value:
+                os.environ['SENTRY_'+key.upper()] = value
+        return data
+
+
+class SentryGlobal(Global):
+    """configuration for the Sentry client
+
+    This parameter configures the client for the Sentry error tracker.
+    It should contain the key `dsn` with the address of the Sentry server.
+    It may contain other keys, which are submitted to Sentry as tags.
+    """
+
+    name = 'sentry'
+    value_name = 'DSN'
+    validate = ExportSentryVal(UnionVal(
+            (OnScalar, StrVal),
+            (OnMap, MapVal(StrVal, MaybeVal(StrVal)))))
 
 
 class RexTask(Task):
@@ -447,5 +480,37 @@ class ConfigurationTopic(Topic):
     """
 
     name = 'configuration'
+
+
+def load_rex(config_path, secret_path=None, initialize=True):
+    """
+    Creates an application instance from a configuration file.
+
+    `config_path`
+        Path to the configuration file.
+    `secret_path`
+        Path to the file containing the secret passphrase for generating
+        private keys.
+    `initialize`
+        Whether or not to initialize the application.
+    """
+    validate = MapVal()
+    with open(config_path) as config_file:
+        config_data = validate.parse(config_file)
+    project = ProjectGlobal.validate(config_data.get('project'))
+    requirements = RequirementsGlobal.validate(
+            config_data.get('requirements', []))
+    parameters = ParametersGlobal.validate(
+            config_data.get('parameters', {}))
+    SentryGlobal.validate(config_data.get('sentry'))
+    if secret_path is not None:
+        with open(secret_path) as secret_file:
+            secret_data = secret_file.read()
+        parameters['secret'] = secret_data
+    if initialize:
+        RexClass = Rex
+    else:
+        RexClass = LatentRex
+    return RexClass(projects, *requirements, **parameters)
 
 

@@ -15,7 +15,8 @@ from .bridge import (
         Topic)
 from .core import (
         RexTask, ProjectGlobal, RequirementsGlobal, ParametersGlobal,
-        PackagesTask, SettingsTask, PyShellTask, ConfigurationTopic)
+        SentryGlobal, PackagesTask, SettingsTask, PyShellTask,
+        ConfigurationTopic, load_rex)
 from .ctl import Ctl, ctl
 
 

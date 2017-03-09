@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "babel-jest": "^18.0.0",
-    "flow-bin": "0.39.0",
+    "flow-bin": "^0.41.0",
     "flow-coverage-report": "^0.2.0",
     "jest": "^18.0.0",
     "jest-cli": "^18.0.0",

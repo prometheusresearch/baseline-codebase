@@ -3,10 +3,10 @@
  */
 
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
 import {VBox, HBox} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
+import findDOMNode from '../findDOMNode';
 import * as ui from '../ui';
 import * as State from '../state';
 import * as model from './model';
@@ -129,7 +129,7 @@ class EditableHeader extends React.Component {
 
   onInput = input => {
     if (this._input == null) {
-      const wrapperNode = ReactDOM.findDOMNode(input);
+      const wrapperNode = findDOMNode(input);
       const node = wrapperNode.querySelector('input');
       if (node != null) {
         node.focus();

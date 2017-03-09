@@ -7,10 +7,10 @@ import type {Actions} from '../state';
 import type {SearchCallback} from './Search';
 
 import React from 'react';
-import ReactDOM from 'react-dom';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import {VBox, HBox} from 'react-stylesheet';
 
+import findDOMNode from '../findDOMNode';
 import * as theme from './Theme';
 import QueryPanelBase from './QueryPanelBase';
 import {MenuTitle, MenuGroup, MenuButton, MenuHelp} from './menu';
@@ -129,9 +129,7 @@ export default class DefineQueryPanel
   };
 
   onBindingRenameInputRef = (bindingRenameInput: any) => {
-    this.bindingRenameInput = bindingRenameInput
-      ? ReactDOM.findDOMNode(bindingRenameInput)
-      : null;
+    this.bindingRenameInput = bindingRenameInput ? findDOMNode(bindingRenameInput) : null;
     if (this.bindingRenameInput) {
       this.bindingRenameInput.focus();
     }

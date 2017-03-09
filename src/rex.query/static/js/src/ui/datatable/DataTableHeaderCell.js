@@ -6,9 +6,9 @@ import type {ColumnField, ColumnContainerConfig} from './DataTable';
 import type {ColumnSpecData} from '../DataTable';
 import type {Actions} from '../../state';
 
-import React from 'react'
-import ReactDOM from 'react-dom'
+import React from 'react';
 import {style, css, Element, HBox} from 'react-stylesheet';
+import findDOMNode from '../../findDOMNode';
 import * as Icon from '../../ui/Icon';
 import stopPropagation from '../../stopPropagation';
 import * as MenuButton from 'react-aria-menubutton';
@@ -25,8 +25,8 @@ let DataTableHeaderCellMenuRoot = style(HBox, {
 
     hover: {
       color: 'currentColor',
-    }
-  }
+    },
+  },
 });
 
 function DropdownMenu({children}) {
@@ -36,9 +36,7 @@ function DropdownMenu({children}) {
     <RelativePortal right={0} top={-6}>
       <MenuButton.Menu>
         <Element>
-          <Element
-            borderBottom={border}
-            textAlign="right">
+          <Element borderBottom={border} textAlign="right">
             <Element
               position="relative"
               top={1}
@@ -82,18 +80,17 @@ function DropdownMenuItem({value, children}) {
 }
 
 class DataTableHeaderCellMenu extends React.Component {
-
   props: {
-    column: ColumnField<ColumnSpecData>;
+    column: ColumnField<ColumnSpecData>,
   };
 
   context: {
-    actions: Actions;
+    actions: Actions,
   };
 
   static contextTypes = {actions: React.PropTypes.object};
 
-  onMenuSelect = (value) => {
+  onMenuSelect = value => {
     const {pipeline, navigate} = this.props.column.field.data;
     if (navigate == null) {
       return;
@@ -124,7 +121,9 @@ class DataTableHeaderCellMenu extends React.Component {
 
   render() {
     return (
-      <MenuButton.Wrapper tag={DataTableHeaderCellMenuRoot} onSelection={this.onMenuSelect}>
+      <MenuButton.Wrapper
+        tag={DataTableHeaderCellMenuRoot}
+        onSelection={this.onMenuSelect}>
         <MenuButton.Button tag={Icon.IconEllipsis} />
         <DropdownMenu>
           <DropdownMenuItem value="hide">Remove column</DropdownMenuItem>
@@ -137,18 +136,17 @@ class DataTableHeaderCellMenu extends React.Component {
 }
 
 type DataTableHeaderCellProps = {
-  column: ColumnField<*>;
-  parentColumn: ?ColumnContainerConfig<*>;
-  index: ?number;
-  onClick?: (column: ColumnField<*>) => *;
-  onResize?: (resize: {column: ColumnField<*>; width: number}) => *;
-  style: Object;
-  minColumnWidth: number;
-  resizeable?: boolean;
+  column: ColumnField<*>,
+  parentColumn: ?ColumnContainerConfig<*>,
+  index: ?number,
+  onClick?: (column: ColumnField<*>) => *,
+  onResize?: (resize: {column: ColumnField<*>, width: number}) => *,
+  style: Object,
+  minColumnWidth: number,
+  resizeable?: boolean,
 };
 
 export default class DataTableHeaderCell extends React.Component {
-
   static defaultProps = {
     minColumnWidth: 70,
   };
@@ -156,7 +154,7 @@ export default class DataTableHeaderCell extends React.Component {
   props: DataTableHeaderCellProps;
 
   state: {
-    resize: ?number;
+    resize: ?number,
   } = {
     resize: null,
   };
@@ -165,9 +163,12 @@ export default class DataTableHeaderCell extends React.Component {
 
   render() {
     let {
-      column, onClick,
-      style, index,
-      parentColumn, resizeable
+      column,
+      onClick,
+      style,
+      index,
+      parentColumn,
+      resizeable,
     } = this.props;
     const {resize} = this.state;
     if (resizeable == null) {
@@ -176,23 +177,18 @@ export default class DataTableHeaderCell extends React.Component {
         : true;
     }
     return (
-      <DataTableHeaderCellRoot
-        ref={this.onRootRef}
-        style={style}
-        onClick={onClick}>
+      <DataTableHeaderCellRoot ref={this.onRootRef} style={style} onClick={onClick}>
         <DataTableHeaderCellLabel title={column.field.label}>
           {column.field.label}
         </DataTableHeaderCellLabel>
-        <DataTableHeaderCellMenu
-          column={column}
-          />
+        <DataTableHeaderCellMenu column={column} />
         {resizeable &&
           <DataTableHeaderCellResizeHandle
             onMouseDown={this.onMouseDown}
             onClick={stopPropagation}
             style={{left: resize}}
             variant={{resize: resize != null}}
-            />}
+          />}
       </DataTableHeaderCellRoot>
     );
   }
@@ -209,7 +205,7 @@ export default class DataTableHeaderCell extends React.Component {
   };
 
   onRootRef = (rootRef: React.Component<*, *, *>) => {
-    this.rootRef = ReactDOM.findDOMNode(rootRef);
+    this.rootRef = findDOMNode(rootRef);
   };
 
   onMouseDown = (e: MouseEvent) => {
@@ -232,7 +228,7 @@ export default class DataTableHeaderCell extends React.Component {
       if (this.props.onResize) {
         this.props.onResize({
           column: this.props.column,
-          width
+          width,
         });
       }
     }
@@ -257,7 +253,7 @@ export let DataTableHeaderCellRoot = style('div', {
     paddingLeft: 10,
 
     borderRight: css.border(1, '#ccc'),
-  }
+  },
 });
 
 export let DataTableHeaderCellLabel = style('span', {
@@ -277,7 +273,7 @@ export let DataTableHeaderCellLabel = style('span', {
     position: css.position.absolute,
     bottom: 8,
     paddingRight: 20,
-  }
+  },
 });
 
 export let DataTableHeaderCellResizeHandle = style('div', {
@@ -293,7 +289,7 @@ export let DataTableHeaderCellResizeHandle = style('div', {
 
     hover: {
       background: '#888',
-    }
+    },
   },
   resize: {
     background: '#222',
@@ -303,5 +299,5 @@ export let DataTableHeaderCellResizeHandle = style('div', {
     hover: {
       background: '#222',
     },
-  }
+  },
 });

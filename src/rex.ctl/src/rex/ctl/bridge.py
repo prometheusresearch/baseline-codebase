@@ -65,11 +65,6 @@ def main():
                     exc_info = sys.exc_info()
                     try:
                         sentry = get_sentry(sync=True)
-                        sentry.extra_context({
-                            'os.environ': dict(os.environ),
-                            'os.getcwd': os.getcwd(),
-                            'os.getuid': os.getuid(),
-                        })
                         sentry.captureException(exc_info)
                     except:
                         pass

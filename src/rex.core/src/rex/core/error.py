@@ -3,7 +3,10 @@
 #
 
 
+import sys
+import os
 import textwrap
+import raven
 
 
 class Paragraph(object):
@@ -159,5 +162,38 @@ class guard(object):
     def __exit__(self, exc_type, exc_value, exc_traceback):
         if isinstance(exc_value, Error):
             exc_value.wrap(self.message, self.payload)
+
+
+def get_sentry(sync=False, context={}):
+    """
+    Returns a client for the Sentry error tracker.
+
+    `sync`
+        If set, switch to use a blocking HTTP transport.
+    `context`
+        Extra context to pass with the error report.
+    """
+    tags = {}
+    for key in sorted(os.environ):
+        value = os.environ[key]
+        if key.startswith('SENTRY_') and key != 'SENTRY_DSN' and value:
+            tags[key[7:].lower()] = value
+    context = context.copy()
+    context.update({
+        'argv': sys.argv[:],
+        'getcwd': os.getcwd(),
+        'getuid': os.getuid(),
+        'environ': dict(os.environ),
+    })
+    transport = None
+    if sync:
+        transport = raven.transport.http.HTTPTransport
+    return raven.Client(
+            dsn=None,
+            tags=tags,
+            context=context,
+            transport=transport,
+            install_sys_hook=False,
+            install_logging_hook=False)
 
 

@@ -13,12 +13,11 @@ validating utilities.
 from .application import Rex, LatentRex, Initialize
 from .cache import cached, autoreload
 from .context import get_rex
-from .error import Error, guard
+from .error import Error, guard, get_sentry
 from .extension import Extension, DocEntry
 from .package import (
     Package, PythonPackage, ModulePackage, StaticPackage, SandboxPackage,
     PackageCollection, get_packages)
-from .sentry import get_sentry, get_sentry_config
 from .setting import Setting, SettingCollection, get_settings
 from .validate import (
     ValidatingLoader, Validate, AnyVal, ProxyVal, MaybeVal, OneOfVal, StrVal,

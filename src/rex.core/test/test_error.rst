@@ -108,3 +108,44 @@ Errors have WSGI interface and are rendered either in ``text/plain`` or
         refrigerator #3
 
 
+Sentry integration
+==================
+
+``rex.core`` is integrated with the Sentry error tracker.  To use Sentry, you
+must provide the Sentry *DSN*, a URL-like value that contains the address of
+the Sentry server and authentication information.  The DSN must be specified as
+an environment variable ``SENTRY_DSN``::
+
+    >>> import os
+
+    >>> _environ = os.environ
+
+    >>> os.environ = {'SENTRY_DSN': 'http://pk:sk@hostname:9000/1'}
+
+Any additional environment variables that start with ``SENTRY_`` are added to
+the configuration as tags::
+
+    >>> os.environ['SENTRY_PROJECT'] = 'rex.core_demo'
+    >>> os.environ['SENTRY_VERSION'] = '1.0.0'
+
+We can use function ``get_sentry`` to get an instance of the Sentry client::
+
+    >>> from rex.core import get_sentry
+
+    >>> sentry = get_sentry()
+    >>> sentry                  # doctest: +ELLIPSIS
+    <raven.base.Client object at ...>
+
+To get a DSN suitable for use in Javascript code, we can use::
+
+    >>> sentry.get_public_dsn()
+    '//pk@hostname:9000/1'
+
+We can also get a list of tags::
+
+    >>> sentry.tags
+    {'project': 'rex.core_demo', 'version': '1.0.0'}
+
+    >>> os.environ = _environ
+
+

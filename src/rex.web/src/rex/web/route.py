@@ -23,6 +23,7 @@ import datetime
 import wsgiref
 import cgitb
 import mimetypes
+import raven.utils.wsgi
 
 
 class MountSetting(Setting):
@@ -434,7 +435,12 @@ class StandardWSGI(WSGI):
         return cls(pipe)
 
     def __init__(self, handler):
+        rex = get_rex()
         self.handler = handler
+        self.sentry = get_sentry(
+                context={
+                    'requirements': rex.requirements,
+                    'parameters': rex.parameters })
 
     def __call__(self, environ, start_response):
         # Workaround for uWSGI leaving an extra `/` on SCRIPT_NAME.
@@ -448,43 +454,44 @@ class StandardWSGI(WSGI):
             environ['SCRIPT_NAME'] = environ['SCRIPT_NAME'] + environ['PATH_INFO']
             environ['PATH_INFO'] = ''
         # Sentry configuration.
-        rex = get_rex()
-        sentry = get_sentry()
-        sentry.extra_context({
-            'rex.requirements': rex.requirements,
-            'rex.parameters': rex.parameters,
-            'wsgi.environ': dict(environ),
-            'wsgi.remote_user': environ.get('REMOTE_USER'),
-            'wsgi.remote_addr': environ.get('REMOTE_ADDR'),
-            'wsgi.request_uri': wsgiref.util.request_uri(environ),
-            'wsgi.application_uri': wsgiref.util.application_uri(environ),
-            'os.getcwd': os.getcwd(),
-            'os.getuid': os.getuid(),
-            'os.environ': dict(os.environ),
-        })
-        environ['rex.sentry'] = sentry
+        self.sentry.user_context({
+            'id': environ.get('REMOTE_USER'),
+            'ip_address': environ.get('REMOTE_ADDR') })
+        self.sentry.http_context({
+            'method': environ.get('REQUEST_METHOD'),
+            'url': raven.utils.wsgi.get_current_url(
+                    environ, strip_querystring=True),
+            'query_string': environ.get('QUERY_STRING'),
+            'headers': dict(raven.utils.wsgi.get_headers(environ)),
+            'env': dict(raven.utils.wsgi.get_environ(environ)) })
+        data = self.sentry.context.data
+        environ['rex.sentry'] = self.sentry
         # Bridge between WSGI and WebOb.
         req = Request(environ)
         try:
-            resp = self.handler(req)
-        except WSGIHTTPException, exc:
-            resp = exc
-        except:
-            sentry.captureException()
-            write = start_response(
-                    "500 Internal Server Error",
-                    [("Content-Type", 'text/plain')])
-            if write:
-                write("The server encountered an unexpected condition"
-                      " which prevented it from fulfilling the request.\n")
-                if get_settings().debug:
-                    exc_info = sys.exc_info()
-                    write("\n[%s] %s %s\n"
-                         % (datetime.datetime.now(),
-                            environ['REQUEST_METHOD'],
-                            wsgiref.util.request_uri(environ)))
-                    write(cgitb.text(exc_info))
-            raise
+            try:
+                resp = self.handler(req)
+            except WSGIHTTPException, exc:
+                resp = exc
+            except:
+                self.sentry.captureException()
+                write = start_response(
+                        "500 Internal Server Error",
+                        [("Content-Type", 'text/plain')])
+                if write:
+                    write("The server encountered an unexpected condition"
+                          " which prevented it from fulfilling the request.\n")
+                    if get_settings().debug:
+                        exc_info = sys.exc_info()
+                        write("\n[%s] %s %s\n"
+                             % (datetime.datetime.now(),
+                                environ['REQUEST_METHOD'],
+                                wsgiref.util.request_uri(environ)))
+                        write(cgitb.text(exc_info))
+                raise
+        finally:
+            self.sentry.context.clear()
+            self.sentry.transaction.clear()
         return resp(environ, start_response)
 
 

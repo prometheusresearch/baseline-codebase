@@ -1,73 +1,100 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2015-present, Prometheus Research, LLC
+ * @flow
  */
 
-import * as Transitionable  from 'rex-widget/lib/Transitionable';
-import * as Instruction     from './execution/Instruction';
-import * as Typing          from './Typing';
+import * as Transitionable from 'rex-widget/lib/Transitionable';
+import * as T from './Typing';
+import compileExpression from './compileExpression';
+import type {PreInstruction} from './parseInstruction';
 
 /* istanbul ignore next */
 Transitionable.register('type:any', function decode_type_any() {
-  return Typing.anytype;
+  return T.anytype;
 });
 
 /* istanbul ignore next */
 Transitionable.register('type:value', function decode_type_value(payload) {
-  return new Typing.ValueType(payload);
+  return new T.ValueType(payload);
 });
 
 /* istanbul ignore next */
 Transitionable.register('type:entity', function decode_type_entity(payload) {
-  return new Typing.EntityType(payload[0], payload[1]);
+  return new T.EntityType(payload[0], payload[1]);
 });
 
 /* istanbul ignore next */
 Transitionable.register('type:row', function decode_type_row(payload) {
-  return new Typing.RowType(payload[0], payload[1]);
+  return new T.RowType(payload[0], payload[1]);
 });
 
 /* istanbul ignore next */
 Transitionable.register('type:record', function decode_type_record(payload) {
-  return new Typing.RecordType(payload[0], payload[1]);
+  return new T.RecordType(payload[0], payload[1]);
 });
 
 /* istanbul ignore next */
-Transitionable.register('rex:action:start', function decode_type_record(payload) {
-  return new Instruction.Start(payload[0]);
+Transitionable.register('rex:action:start', function decode_action_start(payload) {
+  return payload[0];
 });
 
 /* istanbul ignore next */
-Transitionable.register('rex:action:execute', function decode_type_record(payload) {
-  return new Instruction.Execute(payload[0], payload[1], payload[2], payload[3]);
+Transitionable.register('rex:action:execute', function decode_action_execute(
+  payload,
+): PreInstruction {
+  let [id, name, then] = payload;
+  return {
+    type: 'execute',
+    id,
+    name,
+    then,
+  };
 });
 
 /* istanbul ignore next */
-Transitionable.register('rex:action:include_wizard', function decode_type_record(payload) {
-  return new Instruction.IncludeWizard(payload[0], payload[1], payload[2], payload[3]);
+Transitionable.register('rex:action:include_wizard', function decode_action_include(
+  payload,
+): PreInstruction {
+  let [id, name, then] = payload;
+  return {
+    type: 'include',
+    id,
+    name,
+    then,
+  };
 });
 
 /* istanbul ignore next */
-Transitionable.register('rex:action:replace', function decode_type_record(payload) {
-  return new Instruction.Replace(payload[0]);
+Transitionable.register('rex:action:replace', function decode_action_replace(
+  payload,
+): PreInstruction {
+  let [reference] = payload;
+  return {
+    type: 'replace',
+    reference,
+  };
 });
 
 /* istanbul ignore next */
-Transitionable.register('rex:action:repeat', function decode_type_record(payload) {
-  return new Instruction.Repeat(payload[0], payload[1]);
+Transitionable.register('rex:action:repeat', function decode_action_repeat(
+  payload,
+): PreInstruction {
+  let [repeat, then] = payload;
+  return {
+    type: 'repeat',
+    repeat,
+    then,
+  };
 });
 
 /* istanbul ignore next */
-Transitionable.register(
-  'rex:action:domain',
-  function decode_domain(payload) {
-    return payload[0];
-  });
+Transitionable.register('rex:action:domain', function decode_domain(payload) {
+  return payload[0];
+});
 
-Transitionable.register(
-  'rex:action:state_expr',
-  function decode_state_expression(payload) {
-    let expr = new Function('entity', 'return (' + payload[0] + ');');
-    expr.scope = payload[1];
-    return expr;
-  }
-);
+Transitionable.register('rex:action:state_expr', function decode_state_expression(
+  payload,
+) {
+  const [source, scope] = payload;
+  return compileExpression(source, scope);
+});

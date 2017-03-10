@@ -1,11 +1,10 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
- * @flow
  */
 
 import escapeRegExp from 'escape-regexp';
 
-export function makeEscape(character: string): (string) => string {
+export function makeEscape(character) {
   let re = new RegExp(escapeRegExp(character), 'g');
 
   function escape(string) {
@@ -15,7 +14,7 @@ export function makeEscape(character: string): (string) => string {
   return escape;
 }
 
-export function makeUnescape(character: string): (string) => string {
+export function makeUnescape(character) {
   let unescapeRe = new RegExp('(?:\\\\)' + escapeRegExp(character), 'g');
 
   function unescape(string) {
@@ -25,7 +24,7 @@ export function makeUnescape(character: string): (string) => string {
   return unescape;
 }
 
-export function makeSplitBy(character: string): (string) => Array<string> {
+export function makeSplitBy(character) {
   let splitRe = new RegExp('(?:^|[^\\\\])' + escapeRegExp(character));
   let unescape = makeUnescape(character);
 
@@ -36,8 +35,7 @@ export function makeSplitBy(character: string): (string) => Array<string> {
       array.push('');
       string = string.substring(1);
     }
-    // eslint-disable-next-line no-cond-assign
-    while (match = splitRe.exec(string)) {
+    while (match = splitRe.exec(string)) { // eslint-disable-line no-cond-assign
       array.push(string.substring(0, match.index + 1));
       string = string.substring(match.index + 2);
     }
@@ -48,7 +46,7 @@ export function makeSplitBy(character: string): (string) => Array<string> {
   return splitBy;
 }
 
-export function makeJoinWith(character: string): (string[]) => string {
+export function makeJoinWith(character) {
   let escape = makeEscape(character);
 
   function joinWith(array) {
@@ -58,7 +56,7 @@ export function makeJoinWith(character: string): (string[]) => string {
   return joinWith;
 }
 
-export function quote(str: string): string {
+export function quote(str) {
   return `'${str}'`;
 }
 

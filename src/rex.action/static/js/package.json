@@ -6,13 +6,7 @@
     "bundleAll": true
   },
   "eslintConfig": {
-    "extends": "prometheusresearch",
-    "plugins": [
-      "jest"
-    ],
-    "env": {
-      "jest/globals": true
-    }
+    "extends": "prometheusresearch"
   },
   "nyc": {
     "exclude": [
@@ -26,19 +20,17 @@
     ]
   },
   "dependencies": {
-    "@prometheusresearch/react-ui": "^0.21.0",
     "autobind-decorator": "^1.2.0",
+    "@prometheusresearch/react-ui": "^0.21.0",
     "empty": "^0.10.1",
     "escape-regexp": "0.0.1",
     "history": "^1.9.1",
     "invariant": "^2.1.1",
     "lodash": "^3.10.1",
     "memoize-decorator": "^1.0.2",
-    "qs": "^6.4.0",
     "react-addons-css-transition-group": "^0.14.8",
     "react-clone-referenced-element": "^1.0.1",
     "rethemeable": "^2.0.0",
-    "rex-widget": "file:/Users/andreypopp/Workspace/prometheusresearch/study/src/rex.widget/static/js",
     "styling": "^0.4.0"
   },
   "peerDependencies": {
@@ -50,13 +42,10 @@
     "babel-plugin-espower": "^1.0.0",
     "babel-polyfill": "^6.13.0",
     "babel-preset-prometheusresearch": "^0.1.0",
-    "eslint": "^3.17.1",
-    "eslint-config-prometheusresearch": "^0.4.0",
-    "eslint-plugin-jest": "^19.0.1",
+    "eslint": "^2.2.0",
+    "eslint-config-prometheusresearch": "^0.1.0",
     "estraverse-fb": "^1.3.1",
-    "flow-bin": "0.41.0",
     "inspect-react-element": "^1.1.1",
-    "jest-cli": "^19.0.2",
     "jsdom": "^3.0.0",
     "mocha": "^2.3.3",
     "nyc": "^6.0.0",

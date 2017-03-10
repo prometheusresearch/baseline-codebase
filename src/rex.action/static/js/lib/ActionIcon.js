@@ -1,18 +1,15 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
- * @flow
  */
 
-import React from 'react';
+import React, {PropTypes} from 'react';
 import {Icon} from 'rex-widget/ui';
-import {type Position} from './execution/State';
 
-export function getIconAtNode(position: Position) {
-  const {element} = position.instruction.action;
-  if (element == null) {
+export function getIconAtNode(node) {
+  if (node.element == null) {
     return null;
   }
-  let {type: Component, props} = element;
+  let {type: Component, props} = node.element;
   if (Component.getIcon) {
     return Component.getIcon(props);
   } else if (props.icon) {
@@ -27,13 +24,14 @@ export function getIconAtNode(position: Position) {
 }
 
 export default class ActionIcon extends React.Component {
-  props: {
-    position: Position,
+
+  static propTypes = {
+    node: PropTypes.object.isRequired
   };
 
   render() {
-    let {position, ...props} = this.props;
-    let name = getIconAtNode(position);
+    let {node, ...props} = this.props;
+    let name = getIconAtNode(node);
     return name ? <Icon {...props} name={name} /> : null;
   }
 }

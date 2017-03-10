@@ -1,17 +1,14 @@
 /**
- * @copyright 2015-present, Prometheus Research, LLC
- * @flow
+ * @copyright 2015, Prometheus Research, LLC
  */
 
-import React from 'react';
+import React, {PropTypes} from 'react';
 
 import * as Stylesheet from 'rex-widget/stylesheet';
 import {VBox} from 'rex-widget/layout';
-import type {Position} from './execution/State';
 
-export function getTitleAtNode(position: Position) {
-  const {element} = position.instruction.action;
-  let {type: Component, props} = element;
+export function getTitleAtNode(node) {
+  let {type: Component, props} = node.element;
   if (Component.getTitle) {
     return Component.getTitle(props);
   } else if (props.title) {
@@ -26,11 +23,14 @@ export function getTitleAtNode(position: Position) {
 }
 
 export default class ActionTitle extends React.Component {
-  props: {
-    position: Position,
-    subTitle?: string,
-    noRichTitle?: boolean,
-    noWrap?: boolean,
+
+  static propTypes = {
+
+    node: PropTypes.object.isRequired,
+
+    subTitle: PropTypes.node,
+
+    noRichTitle: PropTypes.bool,
   };
 
   static stylesheet = Stylesheet.create({
@@ -38,7 +38,7 @@ export default class ActionTitle extends React.Component {
       Component: VBox,
       noWrap: {
         whiteSpace: 'nowrap',
-      },
+      }
     },
     Secondary: {
       Component: VBox,
@@ -46,18 +46,20 @@ export default class ActionTitle extends React.Component {
       fontSize: '90%',
       noWrap: {
         whiteSpace: 'nowrap',
-      },
+      }
     },
   });
 
   render() {
-    const {Primary, Secondary} = this.constructor.stylesheet;
-    const {position, subTitle, noRichTitle, noWrap} = this.props;
-    const {element} = position.instruction.action;
-    if (element.type.renderTitle && !noRichTitle) {
-      return element.type.renderTitle(element.props, position.context);
+    let {Primary, Secondary} = this.constructor.stylesheet;
+    let {node, subTitle, titleOnly, noRichTitle, noWrap, ...props} = this.props;
+    if (node.element.type.renderTitle && !noRichTitle) {
+      return node.element.type.renderTitle(
+        node.element.props,
+        node.context
+      );
     }
-    let title = getTitleAtNode(position);
+    let title = getTitleAtNode(node);
     if (subTitle) {
       return (
         <VBox>
@@ -70,3 +72,4 @@ export default class ActionTitle extends React.Component {
     }
   }
 }
+

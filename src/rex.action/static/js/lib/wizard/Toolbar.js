@@ -1,56 +1,43 @@
 /**
- * @copyright 2015-present, Prometheus Research, LLC
- * @flow
+ * @copyright 2015, Prometheus Research, LLC
  */
 
 import React from 'react';
-import invariant from 'invariant';
 
 import * as ui from 'rex-widget/ui';
 import * as layout from 'rex-widget/layout';
 
-import {
-  type Position,
-  type State,
-  nextPosition,
-  isPositionAllowed,
-} from '../execution/State';
+import * as Instruction from '../execution/Instruction';
 import {getTitleAtNode} from '../ActionTitle';
 import {getIconAtNode} from '../ActionIcon';
 
-type ToolbarProps = {
-  graph: State,
-  onClick: Function,
-};
-
-export default function Toolbar({graph, onClick}: ToolbarProps) {
-  invariant(graph.position != null, 'Invalid state');
-  let buttons = nextPosition(graph.position)
-    .filter(isPositionAllowed)
-    .map(pos => (
-      <ToolbarButton key={pos.instruction.action.id} position={pos} onClick={onClick} />
-    ));
-  return <layout.HBox wrap="wrap">{buttons}</layout.HBox>;
-}
-
-export function ToolbarButton(
-  {position, onClick}: {position: Position, onClick: Function},
-) {
-  let Button = buttonForPosition(position);
+export function ToolbarButton({node, onClick}) {
+  let Button = buttonForNode(node);
   return (
     <Button
       size="small"
       style={{marginRight: 5, marginBottom: 5}}
-      onClick={onClick.bind(null, position.instruction.action.id)}
-      icon={getIconAtNode(position)}>
-      {getTitleAtNode(position)}
+      onClick={onClick.bind(null, node.keyPath)}
+      icon={getIconAtNode(node)}>
+      {getTitleAtNode(node)}
     </Button>
   );
 }
 
-function buttonForPosition(pos: Position) {
-  const {element} = pos.instruction.action;
-  switch (element.props.kind) {
+export default function Toolbar({graph, onClick}) {
+  let nodes = graph.nextActions().filter(node => !Instruction.Replace.is(node.instruction));
+  let buttons = nodes.map(node =>
+    <ToolbarButton
+      key={node.keyPath}
+      node={node}
+      onClick={onClick}
+      />
+  );
+  return <layout.HBox wrap="wrap">{buttons}</layout.HBox>;
+}
+
+function buttonForNode(node) {
+  switch (node.element.props.kind) {
     case 'success':
       return ui.SuccessButton;
     case 'danger':
@@ -59,3 +46,4 @@ function buttonForPosition(pos: Position) {
       return ui.Button;
   }
 }
+

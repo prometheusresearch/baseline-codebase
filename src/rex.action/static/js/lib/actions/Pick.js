@@ -14,6 +14,7 @@ import Title from './Title';
 import * as ContextUtils from '../ContextUtils';
 
 export default class Pick extends React.Component {
+
   static propTypes = {
     context: React.PropTypes.object,
     onCommand: React.PropTypes.func,
@@ -21,7 +22,7 @@ export default class Pick extends React.Component {
 
   static defaultProps = {
     icon: 'list',
-    width: 600,
+    width: 600
   };
 
   render() {
@@ -33,7 +34,7 @@ export default class Pick extends React.Component {
       contextTypes,
       searchPlaceholder,
       data,
-      actionState: {search},
+      actionState: {search}
     } = this.props;
     let title = this.constructor.renderTitle(this.props, this.props.context);
     let selected = context[entity.name] ? context[entity.name].id : undefined;
@@ -41,12 +42,14 @@ export default class Pick extends React.Component {
     if (search) {
       data = data.params({'*:__search__': search});
     }
-    let extraToolbar = this.props.search &&
-      <SearchInput
-        value={search}
-        onChange={this.onSearch}
-        placeholder={searchPlaceholder}
-      />;
+    let extraToolbar = (
+      this.props.search &&
+        <SearchInput
+          value={search}
+          onChange={this.onSearch}
+          placeholder={searchPlaceholder}
+          />
+    );
     let sort = sortSpec ? {valueKey: '__sort__', asc: sortSpec.asc} : undefined;
     return (
       <Action
@@ -61,16 +64,18 @@ export default class Pick extends React.Component {
           columns={this.props.fields}
           selected={selected}
           onSelect={this.onSelect}
-        />
+          />
       </Action>
     );
   }
 
-  @autobind onSelect(entityId, entity) {
+  @autobind
+  onSelect(entityId, entity) {
     this.props.onCommand('default', entity);
   }
 
-  @autobind onSearch(search) {
+  @autobind
+  onSearch(search) {
     this.props.setActionState({search});
   }
 
@@ -83,6 +88,7 @@ export default class Pick extends React.Component {
   }
 
   static commands = {
+
     @command(Types.ConfigurableEntity())
     default(props, context, entity) {
       if (entity != null) {
@@ -90,6 +96,6 @@ export default class Pick extends React.Component {
       } else {
         return context;
       }
-    },
+    }
   };
 }

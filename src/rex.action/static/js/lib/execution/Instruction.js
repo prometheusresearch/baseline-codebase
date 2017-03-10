@@ -1,50 +1,29 @@
 /**
- * @copyright 2017, Prometheus Research, LLC
- * @flow
+ * @copyright 2015, Prometheus Research, LLC
  */
 
-/**
- * Abstract base class for wizard instructions.
- */
 export class Instruction {
-  then: Instruction[];
 
-  constructor(then: Instruction[]) {
+  constructor(then) {
     this.then = then;
   }
 
-  static is(obj: any): boolean {
+  static is(obj) {
     return obj && obj.constructor === this;
   }
 }
 
-/**
- * Initial instruction.
- *
- * Wizard execution starts here.
- */
 export class Start extends Instruction {
-  action: null;
-  constructor(then: Instruction[]) {
+
+  constructor(then) {
     super(then);
     this.action = null;
   }
 }
 
-/**
- * Execute action.
- */
 export class Execute extends Instruction {
-  id: string;
-  action: string;
-  element: React$Element<*>;
 
-  constructor(
-    id: string,
-    action: string,
-    then: Instruction[],
-    element: React$Element<*>,
-  ) {
+  constructor(id, action, then, element) {
     super(then);
     this.id = id;
     this.action = action;
@@ -52,15 +31,9 @@ export class Execute extends Instruction {
   }
 }
 
-/**
- * Execute subwizard
- */
 export class IncludeWizard extends Instruction {
-  id: string;
-  action: ?mixed;
-  element: React$Element<*>;
 
-  constructor(id: string, action: mixed, then: Instruction[], element: React$Element<*>) {
+  constructor(id, action, then, element) {
     super(then);
     this.id = id;
     this.action = action;
@@ -68,25 +41,17 @@ export class IncludeWizard extends Instruction {
   }
 }
 
-/**
- * Replace current path with another one specified with `replace` reference.
- */
 export class Replace extends Instruction {
-  replace: string;
 
-  constructor(replace: string) {
+  constructor(replace) {
     super([]);
     this.replace = replace;
   }
 }
 
-/**
- * Repeat `repeat` section and then go to `then`.
- */
 export class Repeat extends Instruction {
-  repeat: Instruction[];
 
-  constructor(repeat: Instruction[], then: Instruction[]) {
+  constructor(repeat, then) {
     super(then);
     this.repeat = repeat;
   }

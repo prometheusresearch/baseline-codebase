@@ -8,8 +8,8 @@ import type {Actions} from '../../state';
 
 import React from 'react';
 import {style, css, Element, HBox} from 'react-stylesheet';
-import findDOMNode from '../../findDOMNode';
 import * as Icon from '../../ui/Icon';
+import findDOMNode from '../../findDOMNode';
 import stopPropagation from '../../stopPropagation';
 import * as MenuButton from 'react-aria-menubutton';
 import RelativePortal from 'react-relative-portal';

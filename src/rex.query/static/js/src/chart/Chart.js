@@ -6,7 +6,7 @@ import * as React from 'react';
 import {VBox, HBox} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
-import findDOMNode from '../findDOMNode';
+import {findDOMNodeStrict as findDOMNode} from '../findDOMNode';
 import * as ui from '../ui';
 import * as State from '../state';
 import * as model from './model';

@@ -8,7 +8,7 @@ import * as css from 'react-stylesheet/css';
 import {Grid} from 'react-virtualized';
 import invariant from 'invariant';
 
-import findDOMNode from '../../findDOMNode';
+import {findDOMNodeStrict as findDOMNode} from '../../findDOMNode';
 import DataTableHeader from './DataTableHeader';
 import getColumnSpecList from './getColumnSpecList';
 

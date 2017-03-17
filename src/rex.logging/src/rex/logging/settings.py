@@ -2,10 +2,9 @@
 # Copyright (c) 2015, Prometheus Research, LLC
 #
 
-
-from copy import deepcopy
-
 from rex.core import Setting, MapVal
+
+from .util import merge_dicts
 
 
 __all__ = (
@@ -18,17 +17,8 @@ __all__ = (
 
 
 class MergedDictionaryMixin(object):
-    def merge(self, old_value, new_value):
-        merged = deepcopy(old_value)
-        for key, value in new_value.items():
-            if key not in merged:
-                merged[key] = value
-            else:
-                if isinstance(merged[key], dict) and isinstance(value, dict):
-                    merged[key] = self.merge(merged[key], value)
-                else:
-                    merged[key] = value
-        return merged
+    def merge(self, old_value, new_value):  # pylint: disable=no-self-use
+        return merge_dicts(old_value, new_value)
 
 
 class LoggingFormattersSetting(MergedDictionaryMixin, Setting):

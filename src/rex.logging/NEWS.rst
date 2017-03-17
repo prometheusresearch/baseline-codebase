@@ -5,6 +5,12 @@ REX.LOGGING Change Log
 .. contents:: Table of Contents
 
 
+1.1.0 (2017-xx-xx)
+==================
+
+* Added support for Sentry.
+
+
 1.0.0 (2015-09-30)
 ==================
 

@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.logging_demo',
-    version='1.0.0',
+    version='1.1.0',
     description='Demo package for testing rex.logging',
     package_dir={'': 'src'},
     packages=find_packages('src'),

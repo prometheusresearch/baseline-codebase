@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.logging',
-    version='1.0.0',
+    version='1.1.0',
     description='A convenience wrapper to bootstrap the Python logging'
     ' framework via RexDB settings.',
     long_description=open('README.rst', 'r').read(),
@@ -24,7 +24,7 @@ setup(
     include_package_data=True,
     namespace_packages=['rex'],
     install_requires=[
-        'rex.core>=1.4,<2',
+        'rex.core>=1.16,<2',
     ],
     rex_init='rex.logging',
     rex_static='static',

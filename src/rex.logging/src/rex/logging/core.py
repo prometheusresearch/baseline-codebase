@@ -8,6 +8,8 @@ import types
 
 from rex.core import get_settings
 
+from .util import merge_dicts
+
 
 __all__ = (
     'get_logger',
@@ -50,6 +52,13 @@ def get_logger(name=None):
     return logging.getLogger(name)
 
 
+BASE_LOGGERS = {
+    'raven': {
+        'level': 'ERROR',
+    },
+}
+
+
 def get_logging_config():
     """
     Assembles the configuration for the Python Logging framework using the
@@ -60,6 +69,8 @@ def get_logging_config():
     :rtype: dict
     """
 
+    loggers = merge_dicts(BASE_LOGGERS, get_settings().logging_loggers)
+
     return {
         'version': 1,
         'incremental': False,
@@ -67,7 +78,7 @@ def get_logging_config():
         'formatters': get_settings().logging_formatters,
         'filters': get_settings().logging_filters,
         'handlers': get_settings().logging_handlers,
-        'loggers': get_settings().logging_loggers,
+        'loggers': loggers,
         'root': get_settings().logging_root,
     }
 

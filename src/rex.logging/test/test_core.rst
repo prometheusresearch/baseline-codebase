@@ -61,10 +61,10 @@ to initialize the Python Logging framework::
     >>> rex = Rex('rex.logging')
     >>> with rex:
     ...     get_logging_config()
-    {'loggers': {}, 'version': 1, 'filters': {}, 'disable_existing_loggers': True, 'handlers': {'console': {'formatter': 'basic', 'class': 'logging.StreamHandler', 'stream': 'ext://sys.stdout'}}, 'root': {'level': 'INFO', 'handlers': ['console']}, 'incremental': False, 'formatters': {'detailed': {'format': '%(asctime)s|%(process)s|%(threadName)s|%(name)s|%(levelname)s|%(message)s'}, 'brief': {'format': '%(message)s'}, 'basic': {'format': '%(levelname)s:%(name)s:%(message)s'}}}
+    {'loggers': {'raven': {'level': 'ERROR'}}, 'version': 1, 'filters': {}, 'disable_existing_loggers': True, 'handlers': {'console': {'formatter': 'basic', 'class': 'logging.StreamHandler', 'stream': 'ext://sys.stdout'}}, 'root': {'level': 'INFO', 'handlers': ['console']}, 'incremental': False, 'formatters': {'detailed': {'format': '%(asctime)s|%(process)s|%(threadName)s|%(name)s|%(levelname)s|%(message)s'}, 'brief': {'format': '%(message)s'}, 'basic': {'format': '%(levelname)s:%(name)s:%(message)s'}}}
 
     >>> rex = Rex('rex.logging_demo')
     >>> with rex:
     ...     get_logging_config()
-    {'loggers': {}, 'version': 1, 'filters': {}, 'disable_existing_loggers': True, 'handlers': {'console_error': {'formatter': 'detailed', 'class': 'logging.StreamHandler', 'stream': 'ext://sys.stderr'}, 'console': {'formatter': 'basic', 'class': 'logging.StreamHandler', 'stream': 'ext://sys.stdout'}}, 'root': {'handlers': ['console'], 'level': 'DEBUG'}, 'incremental': False, 'formatters': {'detailed': {'format': '%(name)s:%(message)s'}, 'brief': {'format': '%(message)s'}, 'basic': {'format': '%(levelname)s:%(name)s:%(message)s'}}}
+    {'loggers': {'raven': {'level': 'ERROR'}}, 'version': 1, 'filters': {}, 'disable_existing_loggers': True, 'handlers': {'console_error': {'formatter': 'detailed', 'class': 'logging.StreamHandler', 'stream': 'ext://sys.stderr'}, 'console': {'formatter': 'basic', 'class': 'logging.StreamHandler', 'stream': 'ext://sys.stdout'}}, 'root': {'handlers': ['console'], 'level': 'DEBUG'}, 'incremental': False, 'formatters': {'detailed': {'format': '%(name)s:%(message)s'}, 'brief': {'format': '%(message)s'}, 'basic': {'format': '%(levelname)s:%(name)s:%(message)s'}}}
 

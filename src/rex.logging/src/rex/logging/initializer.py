@@ -40,3 +40,6 @@ class LoggingInitialize(Initialize):
         root_logger = logging.getLogger()
         root_logger.addHandler(handler)
 
+        # Capture messages from the warnings module.
+        logging.captureWarnings(True)
+

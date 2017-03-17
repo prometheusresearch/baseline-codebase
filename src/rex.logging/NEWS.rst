@@ -9,6 +9,7 @@ REX.LOGGING Change Log
 ==================
 
 * Added support for Sentry.
+* Now automatically captures messages from the ``warnings`` module.
 
 
 1.0.0 (2015-09-30)

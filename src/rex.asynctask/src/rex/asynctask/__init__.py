@@ -8,4 +8,5 @@ from .ctl import *
 from .settings import *
 from .transports import *
 from .worker import *
+from .ctl_worker import *
 

@@ -8,6 +8,7 @@ import signal
 import time
 
 from functools import partial
+from hashlib import sha256
 from multiprocessing import Process, Pipe
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -103,8 +104,8 @@ class AsyncTaskWorkerTask(RexTask):
 
         for schedule in scheduled_worker_config:
             self.build_worker(
-                self.get_scheduled_queue_name(schedule.worker),
-                schedule.worker,
+                self.get_scheduled_queue_name(schedule),
+                schedule.worker or 'ctl_executor',
             )
 
     def build_worker(self, queue_name, worker_name):
@@ -136,33 +137,49 @@ class AsyncTaskWorkerTask(RexTask):
 
         for schedule in schedules:
             sched = self.make_schedule(schedule)
+            if schedule.worker:
+                worker = schedule.worker
+                payload = {}
+            else:
+                worker = 'ctl_executor'
+                payload = {'command': schedule.ctl}
+
             scheduler.add_job(
-                partial(self.enqueue_scheduled_task, rex),
+                partial(self.enqueue_scheduled_task, rex, schedule),
                 trigger='cron',
-                args=[schedule.worker],
+                args=[worker, payload],
                 **sched
             )
-            self.logger.info('Scheduled %s for %r', schedule.worker, sched)
+            self.logger.info(
+                'Scheduled "%s" for %r',
+                schedule.worker or schedule.ctl,
+                sched,
+            )
 
         scheduler.start()
         return scheduler
 
-    def enqueue_scheduled_task(self, rex, worker_name):
+    def enqueue_scheduled_task(self, rex, schedule, worker_name, payload):
         with rex:
             self.logger.debug(
                 'Triggering scheduled execution of %s',
                 worker_name,
             )
             get_transport().submit_task(
-                self.get_scheduled_queue_name(worker_name),
-                {},
+                self.get_scheduled_queue_name(schedule),
+                payload,
             )
 
-    def get_scheduled_queue_name(self, worker_name):
+    def get_scheduled_queue_name(self, schedule):
         # pylint: disable=no-self-use
-        return 'scheduled_0_%s' % (
-            worker_name,
-        )
+
+        name = schedule.worker
+        if not name:
+            hasher = sha256()
+            hasher.update(repr(schedule))
+            name = 'ctl_%s' % (hasher.hexdigest()[:8],)
+
+        return 'scheduled_0_%s' % (name,)
 
     def make_schedule(self, schedule):
         # pylint: disable=no-self-use

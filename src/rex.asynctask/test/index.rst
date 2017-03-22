@@ -9,4 +9,5 @@ REX.ASYNCTASK Examples/Tests
    test_pgsql
    redis/test_redis
    test_core
+   test_settings
 

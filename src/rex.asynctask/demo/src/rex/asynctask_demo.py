@@ -6,6 +6,8 @@
 import sys
 
 from rex.asynctask import AsyncTaskWorker
+from rex.core import Error
+from rex.ctl import Task, RexTask, log
 
 
 __all__ = (
@@ -15,6 +17,9 @@ __all__ = (
     'ErrorWorker',
     'FragileWorker',
     'RequeueWorker',
+    'NoisyTask',
+    'QuietTask',
+    'CrashyTask',
 )
 
 
@@ -66,4 +71,38 @@ class RequeueWorker(AsyncTaskWorker):
         if payload['foo'] == 1:
             self.requeue({'foo': 2})
             print 'REQUEUE requeued'
+
+
+class NoisyTask(RexTask):
+    """
+    A task that says hello.
+    """
+
+    name = 'demo-noisy-task'
+
+    def __call__(self):
+        with self.make(ensure=False):
+            log('Hello world!')
+
+
+class QuietTask(Task):
+    """
+    A task that does nothing and says nothing.
+    """
+
+    name = 'demo-quiet-task'
+
+    def __call__(self):
+        return
+
+
+class CrashyTask(Task):
+    """
+    A task that instantly crashes.
+    """
+
+    name = 'demo-crashy-task'
+
+    def __call__(self):
+        raise Error('Oops, I crashed')
 

@@ -4,7 +4,7 @@
 
 
 from rex.core import Setting, MapVal, StrVal, ChoiceVal, IntVal, MaybeVal, \
-    RecordVal, SeqVal, OneOfVal
+    RecordVal, SeqVal, OneOfVal, Error, guard
 
 from .worker import AsyncTaskWorker
 
@@ -89,7 +89,10 @@ class AsyncTaskScheduledWorkersSetting(Setting):
 
     Each configuration is mapping that accepts the following keys:
 
-    * worker: The name of the worker to trigger. Required.
+    * worker: The name of the worker to trigger. Required if ``ctl`` is not
+      specified.
+    * ctl: The name and arguments of a rex.ctl.Task to execute. Required if
+      ``worker`` is not specified.
     * year: Year to execute the worker. Optional.
     * month: Month to execute the worker (1-12). Optional.
     * day: Day of the month to execute the worker (1-31). Optional.
@@ -117,7 +120,8 @@ class AsyncTaskScheduledWorkersSetting(Setting):
 
     def validate(self, value):
         validator = SeqVal(RecordVal(
-            ('worker', ChoiceVal(AsyncTaskWorker.mapped().keys())),
+            ('worker', ChoiceVal(AsyncTaskWorker.mapped().keys()), None),
+            ('ctl', StrVal(), None),
             ('year', OneOfVal(IntVal(), StrVal()), None),
             ('month', OneOfVal(IntVal(1, 12), StrVal()), None),
             ('day', OneOfVal(IntVal(1, 31), StrVal()), None),
@@ -129,5 +133,27 @@ class AsyncTaskScheduledWorkersSetting(Setting):
             ('start_date', StrVal(RE_DATETIME), None),
             ('end_date', StrVal(RE_DATETIME), None),
         ))
-        return validator(value)
+        value = validator(value)
+
+        for idx, cfg in enumerate(value):
+            with guard('While validating sequence item', '#%s' % (idx + 1)):
+                if bool(cfg.worker) == bool(cfg.ctl):
+                    raise Error("Must specify one of 'worker' or 'ctl'")
+
+                has_one_schedule = any([
+                    cfg.year,
+                    cfg.month,
+                    cfg.day,
+                    cfg.week,
+                    cfg.day_of_week,
+                    cfg.hour,
+                    cfg.minute,
+                    cfg.second,
+                ])
+                if not has_one_schedule:
+                    raise Error('Must specify some property of the schedule')
+
+        return value
+
+
 

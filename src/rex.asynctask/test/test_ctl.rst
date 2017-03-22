@@ -12,6 +12,13 @@ Set up an environment::
     >>> from rex.ctl import Ctl, ctl
     >>> import time
 
+    >>> def strip_coveragepy_warnings(output):
+    ...     return '\n'.join([
+    ...         line
+    ...         for line in output.splitlines()
+    ...         if not 'Coverage.py warning' in line
+    ...     ])
+
 
 asynctask-workers
 =================
@@ -50,7 +57,7 @@ specified queues::
     >>> transport.submit_task('foo', {'foo': 1})
     >>> time.sleep(1)
 
-    >>> print worker_ctl.stop()  # doctest: +ELLIPSIS
+    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching demo_foo_worker to work on queue foo
     INFO:FooWorker:Starting; queue=foo
     DEBUG:FooWorker:Got payload: {u'foo': 1}
@@ -58,10 +65,8 @@ specified queues::
     DEBUG:FooWorker:Processing complete
     DEBUG:AsyncTaskWorkerTask:Termination received; shutting down children
     INFO:FooWorker:Terminating
-    Coverage.py ...
     DEBUG:AsyncTaskWorkerTask:Children dead
     INFO:AsyncTaskWorkerTask:Complete
-    <BLANKLINE>
 
     >>> transport.get_task('foo') is None
     True
@@ -81,7 +86,7 @@ queue::
     >>> transport.submit_task('foo', {'foo': 1})
     >>> time.sleep(2)
 
-    >>> print worker_ctl.stop()  # doctest: +ELLIPSIS
+    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching requeue_worker to work on queue foo
     INFO:RequeueWorker:Starting; queue=foo
     DEBUG:RequeueWorker:Got payload: {u'foo': 1}
@@ -94,10 +99,8 @@ queue::
     DEBUG:RequeueWorker:Processing complete
     DEBUG:AsyncTaskWorkerTask:Termination received; shutting down children
     INFO:RequeueWorker:Terminating
-    Coverage.py ...
     DEBUG:AsyncTaskWorkerTask:Children dead
     INFO:AsyncTaskWorkerTask:Complete
-    <BLANKLINE>
 
     >>> transport.get_task('foo') is None
     True
@@ -118,7 +121,7 @@ an exception, it won't cause the entire worker to die::
     >>> transport.submit_task('foo', {'error': False})
     >>> time.sleep(1)
 
-    >>> print worker_ctl.stop()  # doctest: +ELLIPSIS
+    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching demo_error_worker to work on queue foo
     INFO:ErrorWorker:Starting; queue=foo
     DEBUG:ErrorWorker:Got payload: {u'error': True}
@@ -131,10 +134,8 @@ an exception, it won't cause the entire worker to die::
     DEBUG:ErrorWorker:Processing complete
     DEBUG:AsyncTaskWorkerTask:Termination received; shutting down children
     INFO:ErrorWorker:Terminating
-    Coverage.py ...
     DEBUG:AsyncTaskWorkerTask:Children dead
     INFO:AsyncTaskWorkerTask:Complete
-    <BLANKLINE>
 
     >>> transport.get_task('foo') is None
     True
@@ -155,12 +156,11 @@ If a worker dies, the master process will restart it::
     >>> transport.submit_task('foo', {'die': False})
     >>> time.sleep(1)
 
-    >>> print worker_ctl.stop()  # doctest: +ELLIPSIS
+    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching demo_fragile_worker to work on queue foo
     INFO:FragileWorker:Starting; queue=foo
     DEBUG:FragileWorker:Got payload: {u'die': True}
     FRAGILE DYING!
-    Coverage.py ...
     ERROR:AsyncTaskWorkerTask:Worker for queue foo died; restarting...
     INFO:AsyncTaskWorkerTask:Launching demo_fragile_worker to work on queue foo
     INFO:FragileWorker:Starting; queue=foo
@@ -169,10 +169,8 @@ If a worker dies, the master process will restart it::
     DEBUG:FragileWorker:Processing complete
     DEBUG:AsyncTaskWorkerTask:Termination received; shutting down children
     INFO:FragileWorker:Terminating
-    Coverage.py ...
     DEBUG:AsyncTaskWorkerTask:Children dead
     INFO:AsyncTaskWorkerTask:Complete
-    <BLANKLINE>
 
     >>> transport.get_task('foo') is None
     True
@@ -184,10 +182,10 @@ Tasks can be scheduled to execute at particular times::
 
     >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --scheduler --set=asynctask_workers={} --set=asynctask_scheduled_workers='[{\"worker\": \"demo_bar_worker\", \"second\": \"*/5\"}]'")
     >>> time.sleep(10)  # give the task some time for the tasks to trigger
-    >>> print worker_ctl.stop()  # doctest: +ELLIPSIS
+    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching demo_bar_worker to work on queue scheduled_0_demo_bar_worker
     INFO:BarWorker:Starting; queue=scheduled_0_demo_bar_worker
-    INFO:AsyncTaskWorkerTask:Scheduled demo_bar_worker for {'second': '*/5'}
+    INFO:AsyncTaskWorkerTask:Scheduled "demo_bar_worker" for {'second': '*/5'}
     DEBUG:AsyncTaskWorkerTask:Triggering scheduled execution of demo_bar_worker
     DEBUG:BarWorker:Got payload: {}
     BAR processed: {}
@@ -200,21 +198,66 @@ Tasks can be scheduled to execute at particular times::
     DEBUG:AsyncTaskWorkerTask:Scheduler dead
     DEBUG:AsyncTaskWorkerTask:Termination received; shutting down children
     INFO:BarWorker:Terminating
-    Coverage.py ...
     DEBUG:AsyncTaskWorkerTask:Children dead
     INFO:AsyncTaskWorkerTask:Complete
-    <BLANKLINE>
 
     >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --scheduler")
     >>> time.sleep(1)  # give the task a little time to spin up
-    >>> print worker_ctl.stop()  # doctest: +ELLIPSIS
+    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching demo_foo_worker to work on queue foo
     INFO:AsyncTaskWorkerTask:No schedules configured -- not starting scheduler
     INFO:FooWorker:Starting; queue=foo
     DEBUG:AsyncTaskWorkerTask:Termination received; shutting down children
     INFO:FooWorker:Terminating
-    Coverage.py ...
     DEBUG:AsyncTaskWorkerTask:Children dead
     INFO:AsyncTaskWorkerTask:Complete
+
+
+rex.ctl Tasks can be executed on a schedule::
+
+    >>> import datetime
+    >>> second = datetime.datetime.now().second
+    >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --scheduler --set=asynctask_workers={} --set=asynctask_scheduled_workers='[{\"ctl\": \"demo-noisy-task\", \"second\": \"%s\"}, {\"ctl\": \"demo-quiet-task\", \"second\": \"%s\"}, {\"ctl\": \"demo-crashy-task\", \"second\": \"%s\"}]'" % (second + 2, second + 4, second + 6))
+    >>> time.sleep(10)  # give the task some time for the tasks to trigger
+    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
+    INFO:AsyncTaskWorkerTask:Launching ctl_executor to work on queue scheduled_0_ctl_...
+    INFO:AsyncTaskWorkerTask:Launching ctl_executor to work on queue scheduled_0_ctl_...
+    INFO:AsyncTaskWorkerTask:Launching ctl_executor to work on queue scheduled_0_ctl_...
+    INFO:CtlExecutorWorker:Starting; queue=scheduled_0_ctl_...
+    INFO:CtlExecutorWorker:Starting; queue=scheduled_0_ctl_...
+    INFO:CtlExecutorWorker:Starting; queue=scheduled_0_ctl_...
+    INFO:AsyncTaskWorkerTask:Scheduled "demo-noisy-task" for {'second': ...}
+    INFO:AsyncTaskWorkerTask:Scheduled "demo-quiet-task" for {'second': ...}
+    INFO:AsyncTaskWorkerTask:Scheduled "demo-crashy-task" for {'second': ...}
+    DEBUG:AsyncTaskWorkerTask:Triggering scheduled execution of ctl_executor
+    DEBUG:CtlExecutorWorker:Got payload: {u'command': u'demo-noisy-task'}
+    INFO:CtlExecutorWorker:Executing Task: demo-noisy-task
+    INFO:CtlExecutorWorker:Hello world!
+    DEBUG:CtlExecutorWorker:Processing complete
+    DEBUG:AsyncTaskWorkerTask:Triggering scheduled execution of ctl_executor
+    DEBUG:CtlExecutorWorker:Got payload: {u'command': u'demo-quiet-task'}
+    INFO:CtlExecutorWorker:Executing Task: demo-quiet-task
+    DEBUG:CtlExecutorWorker:Processing complete
+    DEBUG:AsyncTaskWorkerTask:Triggering scheduled execution of ctl_executor
+    DEBUG:CtlExecutorWorker:Got payload: {u'command': u'demo-crashy-task'}
+    INFO:CtlExecutorWorker:Executing Task: demo-crashy-task
+    ERROR:CtlExecutorWorker:Failed execution
+    Traceback (most recent call last):
+    ...
+    Error: Received unexpected exit code:
+        expected 0; got 1
+    With output:
+        FATAL ERROR: Oops, I crashed
     <BLANKLINE>
+    From:
+        rex demo-crashy-task
+    DEBUG:CtlExecutorWorker:Processing complete
+    DEBUG:AsyncTaskWorkerTask:Termination received; shutting down scheduler
+    DEBUG:AsyncTaskWorkerTask:Scheduler dead
+    DEBUG:AsyncTaskWorkerTask:Termination received; shutting down children
+    INFO:CtlExecutorWorker:Terminating
+    INFO:CtlExecutorWorker:Terminating
+    INFO:CtlExecutorWorker:Terminating
+    DEBUG:AsyncTaskWorkerTask:Children dead
+    INFO:AsyncTaskWorkerTask:Complete
 

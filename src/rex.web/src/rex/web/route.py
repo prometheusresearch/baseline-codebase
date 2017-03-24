@@ -577,3 +577,29 @@ def route(package_url):
     return routes.get(local_url)
 
 
+def make_sentry_script_tag(req):
+    """
+    Generates an HTML snippet to enable Sentry integration::
+
+        <script src="/web/ravenjs/raven.min.js"></script>
+        <script>Raven.config(...).install()</script>
+    """
+    sentry = req.environ.get('rex.sentry')
+    if not sentry:
+        return ""
+    public_dsn = sentry.get_public_dsn()
+    if not public_dsn:
+        return ""
+    tags = sentry.tags
+    user_context = sentry.context.get().get('user')
+    raven = url_for(req, "rex.web:/ravenjs/raven.min.js")
+    config = "Raven.config(%s)" % json.dumps(public_dsn)
+    if tags:
+        config += ".setTagContext(%s)" % json.dumps(tags)
+    if user_context:
+        config += ".setUserContext(%s)" % json.dumps(user_context)
+    config += ".install()"
+    return """<script src="%s"></script><script>%s</script>""" \
+            % (raven, config)
+
+

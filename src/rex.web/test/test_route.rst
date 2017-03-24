@@ -340,6 +340,49 @@ Let's prevent ``HandleAnyError`` from messing with the rest of the tests::
     >>> HandleAnyError.code = None
     >>> main.reset()
 
+``rex.web`` is integrated with the Sentry error tracking tool.  To enable
+Sentry integration, you must provide the Sentry DSN and additional tags
+as environment variables::
+
+    >>> import os
+
+    >>> _environ = os.environ
+
+    >>> os.environ = {
+    ...     'SENTRY_DSN': 'http://pk:sk@hostname:9000/1',
+    ...     'SENTRY_PROJECT': 'rex.web_demo',
+    ...     'SENTRY_VERSION': '1.0.0' }
+
+    >>> demo.reset()
+
+You can use the template variable ``SENTRY_SCRIPT_TAG`` to integrate Sentry
+with the front-end::
+
+    >>> req = Request.blank('/sentry.html', remote_user='Alice')
+    >>> print req.get_response(demo)            # doctest: +ELLIPSIS
+    200 OK
+    ...
+    <head>
+      <title>Testing Sentry integration</title>
+      <script src="http://localhost/web/ravenjs/raven.min.js"></script><script>Raven.config("//pk@hostname:9000/1").setTagContext({...}).setUserContext({...}).install()</script>
+    </head>
+
+When Sentry integration is not configured, ``SENTRY_SCRIPT_TAG`` is empty::
+
+    >>> os.environ = {}
+
+    >>> demo.reset()
+
+    >>> req = Request.blank('/sentry.html', remote_user='Alice')
+    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    <head>
+      <title>Testing Sentry integration</title>
+    </head>
+
+    >>> os.environ = _environ
+
 
 Handling static files
 =====================

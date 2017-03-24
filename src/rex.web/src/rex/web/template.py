@@ -5,7 +5,7 @@
 
 from rex.core import get_packages, cached, get_settings, Error
 from .handle import HandleFile
-from .route import url_for
+from .route import url_for, make_sentry_script_tag
 from .auth import authenticate
 from .csrf import retain_csrf_token, make_csrf_meta_tag, make_csrf_input_tag
 from webob import Response
@@ -271,6 +271,8 @@ def render_to_response(package_path, req,
         The URL of the request, without the query string.
     `REQUEST`
         HTTP request object.
+    `SENTRY_SCRIPT_TAG`
+        An HTML snippet that enables front-end Sentry integration.
     `SETTINGS`
         Application configuration.
     `URL`
@@ -291,9 +293,10 @@ def render_to_response(package_path, req,
     PATH_QS = req.path_qs
     PATH_URL = req.path_url
     REQUEST = req
+    SENTRY_SCRIPT_TAG = lazy(lambda req=req: make_sentry_script_tag(req))
+    SETTINGS = get_settings()
     URL = req.url
     USER = authenticate(req)
-    SETTINGS = get_settings()
     body = template.render(
             CSRF_INPUT_TAG=CSRF_INPUT_TAG,
             CSRF_META_TAG=CSRF_META_TAG,
@@ -306,6 +309,7 @@ def render_to_response(package_path, req,
             PATH_QS=PATH_QS,
             PATH_URL=PATH_URL,
             REQUEST=REQUEST,
+            SENTRY_SCRIPT_TAG=SENTRY_SCRIPT_TAG,
             URL=URL,
             USER=USER,
             SETTINGS=SETTINGS,

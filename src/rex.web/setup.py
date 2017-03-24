@@ -29,6 +29,12 @@ setup(
     ],
     entry_points={'rex.ctl': ['rex.web = rex.web']},
     rex_init='rex.web',
+    rex_static='static',
+    rex_bundle={
+        './static/www/ravenjs': [
+            'https://cdn.ravenjs.com/3.12.1/raven.min.js#md5=6dcbcc3c7c6a7c5e8f6f4e94ec77dfd5',
+        ],
+    },
 )
 
 

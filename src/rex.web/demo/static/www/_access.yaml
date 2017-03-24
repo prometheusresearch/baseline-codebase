@@ -1,6 +1,7 @@
 - /index.html   : anybody
 - /page.html    : anybody
 - /csrf.html    : anybody
+- /sentry.html  : anybody
 - /example.rst  : anybody
 - /secured.html : authenticated
 - /*.png        : anybody

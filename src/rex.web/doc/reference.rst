@@ -90,3 +90,9 @@ Templates
 .. autofunction:: render_to_response
 
 
+Sentry integration
+==================
+
+.. autofunction:: make_sentry_script_tag
+
+

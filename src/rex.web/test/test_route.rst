@@ -364,7 +364,7 @@ with the front-end::
     ...
     <head>
       <title>Testing Sentry integration</title>
-      <script src="http://localhost/web/ravenjs/raven.min.js"></script><script>Raven.config("//pk@hostname:9000/1").setTagContext({...}).setUserContext({...}).install()</script>
+      <script src="http://localhost/web/ravenjs/raven.min.js"></script><script>Raven.config("//pk@hostname:9000/1").setTagsContext({...}).setUserContext({...}).install()</script>
     </head>
 
 When Sentry integration is not configured, ``SENTRY_SCRIPT_TAG`` is empty::

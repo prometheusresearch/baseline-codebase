@@ -595,7 +595,7 @@ def make_sentry_script_tag(req):
     raven = url_for(req, "rex.web:/ravenjs/raven.min.js")
     config = "Raven.config(%s)" % json.dumps(public_dsn)
     if tags:
-        config += ".setTagContext(%s)" % json.dumps(tags)
+        config += ".setTagsContext(%s)" % json.dumps(tags)
     if user_context:
         config += ".setUserContext(%s)" % json.dumps(user_context)
     config += ".install()"

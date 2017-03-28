@@ -103,9 +103,6 @@ out. To change this, you alter the value of the ``sms_provider`` setting. The
     ``sms_twilio_token``
         The API Token to use when connecting to the Twilio API.
 
-    ``sms_twilio_from_number``
-        The TN/ShortCode to use as the "From" number when sending messages.
-
 You can implement your own Provider by writing a class that inherits from the
 ``rex.sms.SmsProvider`` extension. See the API Reference for details.
 

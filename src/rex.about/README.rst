@@ -28,11 +28,7 @@ Usage
 This package exposes a RexAction type named ``about`` that will display the
 executing package's version, the versions of all the RexDB and non-RexDB
 Python packages in the environment, as well as the RexDB license. This action
-type takes the following properties:
-
-``heading``
-    Changes the heading of the page. Optional. If not specified, displays
-    "About this RexDB Application".
+defines the following additional properties:
 
 ``overview``
     Sets the text that is displayed on the "Overview" tab, under the

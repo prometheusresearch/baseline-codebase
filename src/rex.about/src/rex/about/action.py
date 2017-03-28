@@ -27,12 +27,6 @@ class AboutAction(Action):
     name = 'about'
     js_type = 'rex-about/lib/About'
 
-    heading = Field(
-        StrVal(),
-        doc='The heading of the page.',
-        default='About this RexDB Application',
-    )
-
     license = Field(
         StrVal(),
         doc='The RexDB license text to display.',

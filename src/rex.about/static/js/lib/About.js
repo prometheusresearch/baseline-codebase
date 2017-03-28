@@ -11,6 +11,10 @@ import PackageList from './PackageList';
 
 
 export default class AboutRexDB extends React.Component {
+  static defaultProps = {
+    title: 'About this RexDB Application',
+  }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -35,12 +39,6 @@ export default class AboutRexDB extends React.Component {
 
     return (
       <Action title={title} onClose={onClose}>
-        <h1
-          style={{
-            margin: '0 0 1em',
-          }}>
-          {this.props.heading}
-        </h1>
         <TabList
           selected={this.state.activeTab}
           onSelected={activeTab => this.setState({activeTab})}

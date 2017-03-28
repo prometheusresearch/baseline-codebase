@@ -12,7 +12,7 @@ menu:
         title: Overrides Test
         action:
           type: about
-          heading: This is a Custom Heading
+          title: This is a Custom Title
           overview: |
             <p>This is an example of putting text on the "Overview" tab.</p>
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer eget diam molestie, ultrices mauris ac, lacinia purus. Mauris ultricies dapibus eleifend. Pellentesque rhoncus orci vel tincidunt mollis. Phasellus nunc mauris, efficitur vitae tortor vel, tincidunt suscipit neque. Quisque accumsan eget arcu et commodo. Nulla hendrerit est eget sagittis convallis. Pellentesque gravida tellus quis tellus malesuada posuere. Nam ut tristique tortor, eget dictum nisl. Integer pretium, magna et aliquam imperdiet, mauris nibh scelerisque nisl, sed pulvinar erat metus sed nisi. Aliquam erat volutpat. Etiam placerat aliquam ante ullamcorper sollicitudin. Nunc ac mauris id sapien suscipit venenatis. Donec at facilisis orci.</p>

@@ -5,6 +5,12 @@ REX.TABULAR_IMPORT Change Log
 .. contents:: Table of Contents
 
 
+0.2.3 (2017-XX-XX)
+==================
+
+- Faster insert operation.
+
+
 0.2.2 (2017-01-19)
 ==================
 

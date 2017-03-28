@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.tabular_import_demo',
-    version='0.2.2',
+    version='0.2.3',
     description='Demo package for testing rex.tabular_import',
     package_dir={'': 'src'},
     packages=find_packages('src'),

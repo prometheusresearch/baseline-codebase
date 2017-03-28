@@ -4,6 +4,11 @@
 
 
 from htsql.core.error import Error as HTSQLError
+from htsql.core.domain import Profile, RecordDomain, UntypedDomain
+from htsql.core.classify import classify
+from htsql.tweak.etl.cmd.insert import (
+        BuildExtractNode, BuildExtractTable,
+        BuildExecuteInsert, BuildResolveIdentity)
 from rex.db import get_db
 
 from .error import TabularImportError
@@ -14,6 +19,38 @@ from .marshal import get_dataset
 __all__ = (
     'import_tabular_data',
 )
+
+
+def insert(
+        table,
+        columns,
+        values,
+        query_cache):
+    cache_key = (table, tuple(columns))
+    if cache_key not in query_cache:
+        meta = Profile(
+                RecordDomain([
+                    Profile(UntypedDomain(), tag=column)
+                    for column in columns]), tag=table)
+        extract_node = BuildExtractNode.__invoke__(meta)
+        extract_table = BuildExtractTable.__invoke__(
+                extract_node.node,
+                extract_node.arcs)
+        execute_insert = BuildExecuteInsert.__invoke__(
+                extract_table.table,
+                extract_table.columns)
+        resolve_identity = BuildResolveIdentity.__invoke__(
+                execute_insert.table,
+                execute_insert.output_columns,
+                is_list=False)
+        query = query_cache[cache_key] = (
+                lambda values:
+                    resolve_identity(
+                    execute_insert(
+                    extract_table(
+                    extract_node(values)))))
+    query = query_cache[cache_key]
+    return query(values)
 
 
 def import_tabular_data(
@@ -79,13 +116,16 @@ def import_tabular_data(
 
     error = None
     db = get_db()
+    query_cache = {}
     with db:
         with db.transaction() as db_connection:
             for row_idx, row in enumerate(data):
-                col_values = {}
+                col_names = []
+                col_values = []
                 for col_idx, col_name in enumerate(data.headers):
                     if row[col_idx] != '':
-                        col_values[col_name] = row[col_idx]
+                        col_names.append(col_name)
+                        col_values.append(row[col_idx])
                     else:
                         if use_defaults or col_name in identity_fields:
                             # Don't explicitly list the field in the insert,
@@ -93,18 +133,11 @@ def import_tabular_data(
                             continue
                         else:
                             # Otherwise, force it to NULL
-                            col_values[col_name] = None
-
-                htsql = '{%s} :as %s/:insert' % (
-                    ', '.join([
-                        '$%s :as %s' % (k, k)
-                        for k in col_values.keys()
-                    ]),
-                    description['name'],
-                )
+                            col_names.append(col_name)
+                            col_values.append(None)
 
                 try:
-                    db.produce(htsql, **col_values)
+                    insert(table_name, col_names, col_values, query_cache)
                 except HTSQLError as exc:
                     if not error:
                         error = TabularImportError()

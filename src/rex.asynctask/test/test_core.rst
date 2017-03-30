@@ -49,6 +49,13 @@ It also complains if the transport URI is not defined::
     Error: Asynctask transport not specified
 
     >>> rex.off()
+    >>> rex = Rex('rex.asynctask', 'rex.db', db='pgsql:asynctask_demo')
+    >>> rex.on()
+
+    >>> get_transport()
+    PostgresAsyncTransport(localhost/asynctask_demo)
+
+    >>> rex.off()
 
 
 process_queue

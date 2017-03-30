@@ -22,6 +22,9 @@ class AsyncTaskTransportSetting(Setting):
     """
     Specifies the URI of the default transport to use within this application
     for asynchronous tasks.
+
+    If not specified, defaults to ``None``, which tells the system to usethe
+    application database defined in the ``db`` setting (if present).
     """
 
     name = 'asynctask_transport'

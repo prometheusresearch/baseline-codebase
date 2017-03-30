@@ -13,6 +13,9 @@ REX.ASYNCTASK Change Log
 * Added a quiet mode to the ``asynctask-workers`` rex.ctl task.
 * Added the ``process_queue()`` and ``run_worker()`` functions to process tasks
   without needing to invoke the rex.ctl task.
+* Changed ``get_transport()`` so that when the ``asynctask_transport`` setting
+  is not set, it will use the application database defined by the ``db``
+  setting, if it exists.
 
 
 0.4.0 (2017-01-19)

@@ -33,7 +33,10 @@ def get_transport(uri=None):
 
     uri = uri or get_settings().asynctask_transport
     if not uri:
-        raise Error('Asynctask transport not specified')
+        if hasattr(get_settings(), 'db'):
+            uri = unicode(get_settings().db['htsql']['db'])
+        else:
+            raise Error('Asynctask transport not specified')
 
     parts = urlparse(uri)
     transport = AsyncTransport.mapped().get(parts.scheme)

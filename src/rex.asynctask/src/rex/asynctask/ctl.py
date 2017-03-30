@@ -14,8 +14,8 @@ from multiprocessing import Process, Pipe
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from rex.core import get_settings, get_rex
-from rex.ctl import RexTask, option
-from rex.logging import get_logger
+from rex.ctl import RexTask, option, env
+from rex.logging import get_logger, disable_logging
 
 from .core import get_transport
 from .worker import AsyncTaskWorker
@@ -47,6 +47,12 @@ class AsyncTaskWorkerTask(RexTask):
             ' only be enabled for one process in cluster of workers.'
         )
 
+        quiet = option(
+            'q',
+            bool,
+            hint='if specified, no logging output will be produced',
+        )
+
     def __init__(self, *args, **kwargs):
         super(AsyncTaskWorkerTask, self).__init__(*args, **kwargs)
         self._workers = {}
@@ -55,8 +61,14 @@ class AsyncTaskWorkerTask(RexTask):
         self._master_pid = os.getpid()
         self._scheduler = None
 
+    @property
+    def is_quiet(self):
+        return self.quiet or env.quiet
+
     def __call__(self):
         with self.make():
+            if self.is_quiet:
+                disable_logging()
             self.logger = get_logger(self)
 
             worker_config = get_settings().asynctask_workers

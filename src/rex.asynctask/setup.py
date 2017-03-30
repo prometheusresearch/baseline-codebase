@@ -31,7 +31,7 @@ setup(
     install_requires=[
         'rex.core>=1.4,<2',
         'rex.ctl>=2,<3',
-        'rex.logging>=1,<2',
+        'rex.logging>=1.1,<2',
         'redis>=2.10,<2.11',
         'HTSQL>=2.3.3,<3',
         'psycopg2',

@@ -37,6 +37,7 @@ the queues configured in the application settings::
       --require=PACKAGE        : include an additional package
       --set=PARAM=VALUE        : set a configuration parameter
       --scheduler              : if specified, this process will act as the initiator for any ScheduledAsyncTaskWorkers that are configured. This should only be enabled for one process in cluster of workers.
+      -q/--quiet               : if specified, no logging output will be produced
     <BLANKLINE>
 
 If no workers are configured, it will bail::
@@ -67,6 +68,26 @@ specified queues::
     INFO:FooWorker:Terminating
     DEBUG:AsyncTaskWorkerTask:Children dead
     INFO:AsyncTaskWorkerTask:Complete
+
+    >>> transport.get_task('foo') is None
+    True
+
+    >>> rex.off()
+
+
+The ``--quiet`` option will suppress all logging::
+
+    >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --quiet --set=asynctask_workers='{\"foo\": \"demo_quiet_worker\"}'")
+    >>> time.sleep(2)  # give the task a little time to spin up
+
+    >>> rex = Rex('rex.asynctask_demo')
+    >>> rex.on()
+    >>> transport = get_transport()
+    >>> transport.submit_task('foo', {'error': False})
+    >>> time.sleep(1)
+
+    >>> strip_coveragepy_warnings(worker_ctl.stop()) == ''
+    True
 
     >>> transport.get_task('foo') is None
     True

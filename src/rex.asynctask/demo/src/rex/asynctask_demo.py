@@ -44,6 +44,13 @@ class BazWorker(AsyncTaskWorker):
         print 'BAZ processed: %r' % (payload,)
 
 
+class QuietWorker(AsyncTaskWorker):
+    name = 'demo_quiet_worker'
+
+    def process(self, payload):
+        pass
+
+
 class ErrorWorker(AsyncTaskWorker):
     name = 'demo_error_worker'
 

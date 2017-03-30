@@ -29,7 +29,7 @@ This setting configures the workers that watch queues for tasks to process::
     Traceback (most recent call last):
         ...
     Error: Expected one of:
-        demo_fragile_worker, ctl_executor, demo_bar_worker, demo_foo_worker, demo_baz_worker, demo_error_worker, requeue_worker
+        demo_fragile_worker, ctl_executor, demo_bar_worker, demo_foo_worker, demo_baz_worker, demo_error_worker, demo_quiet_worker, requeue_worker
     Got:
         'doesntexist'
     While validating mapping value for key:
@@ -101,7 +101,7 @@ This setting configures the workers that execute according to a schedule::
     Traceback (most recent call last):
         ...
     Error: Expected one of:
-        demo_fragile_worker, ctl_executor, demo_bar_worker, demo_foo_worker, demo_baz_worker, demo_error_worker, requeue_worker
+        demo_fragile_worker, ctl_executor, demo_bar_worker, demo_foo_worker, demo_baz_worker, demo_error_worker, demo_quiet_worker, requeue_worker
     Got:
         'doesntexist'
     While validating field:

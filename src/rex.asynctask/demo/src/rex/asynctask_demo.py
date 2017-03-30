@@ -44,6 +44,13 @@ class BazWorker(AsyncTaskWorker):
         print 'BAZ processed: %r' % (payload,)
 
 
+class LoggingWorker(AsyncTaskWorker):
+    name = 'demo_logging_worker'
+
+    def process(self, payload):
+        self.logger.info('Logging Worker received: %r', payload)
+
+
 class QuietWorker(AsyncTaskWorker):
     name = 'demo_quiet_worker'
 

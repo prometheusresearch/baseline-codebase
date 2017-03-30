@@ -10,6 +10,9 @@ REX.ASYNCTASK Change Log
 
 * Added a basic task scheduling system that allows workers and rex.ctl Tasks to
   be triggered via a crontab-like configuration.
+* Added a quiet mode to the ``asynctask-workers`` rex.ctl task.
+* Added the ``process_queue()`` and ``run_worker()`` functions to process tasks
+  without needing to invoke the rex.ctl task.
 
 
 0.4.0 (2017-01-19)

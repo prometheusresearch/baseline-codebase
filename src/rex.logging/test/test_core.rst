@@ -68,3 +68,41 @@ to initialize the Python Logging framework::
     ...     get_logging_config()
     {'loggers': {'raven': {'level': 'ERROR'}}, 'version': 1, 'filters': {}, 'disable_existing_loggers': True, 'handlers': {'console_error': {'formatter': 'detailed', 'class': 'logging.StreamHandler', 'stream': 'ext://sys.stderr'}, 'console': {'formatter': 'basic', 'class': 'logging.StreamHandler', 'stream': 'ext://sys.stdout'}}, 'root': {'handlers': ['console'], 'level': 'DEBUG'}, 'incremental': False, 'formatters': {'detailed': {'format': '%(name)s:%(message)s'}, 'brief': {'format': '%(message)s'}, 'basic': {'format': '%(levelname)s:%(name)s:%(message)s'}}}
 
+
+
+disable_logging & enable_logging
+================================
+
+These functions allow you to turn on/off the entire logging system::
+
+    >>> from rex.logging import disable_logging, enable_logging
+    >>> rex = Rex('rex.logging_demo')
+    >>> rex.on()
+    >>> def say_hello():
+    ...     log = get_logger()
+    ...     log.debug('Hello')
+    ...     log.info('Hello')
+    ...     log.warn('Hello')
+    ...     log.error('Hello')
+    ...     log.critical('Hello')
+
+    >>> say_hello()
+    DEBUG:root:Hello
+    INFO:root:Hello
+    WARNING:root:Hello
+    ERROR:root:Hello
+    CRITICAL:root:Hello
+
+    >>> disable_logging()
+    >>> say_hello()
+
+    >>> enable_logging()
+    >>> say_hello()
+    DEBUG:root:Hello
+    INFO:root:Hello
+    WARNING:root:Hello
+    ERROR:root:Hello
+    CRITICAL:root:Hello
+
+    >>> rex.off()
+

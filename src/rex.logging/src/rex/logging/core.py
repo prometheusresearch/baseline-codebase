@@ -14,6 +14,8 @@ from .util import merge_dicts
 __all__ = (
     'get_logger',
     'get_logging_config',
+    'disable_logging',
+    'enable_logging',
 )
 
 
@@ -81,4 +83,20 @@ def get_logging_config():
         'loggers': loggers,
         'root': get_settings().logging_root,
     }
+
+
+def disable_logging():
+    """
+    Shuts down all logging in the application.
+    """
+
+    logging.disable(logging.CRITICAL)
+
+
+def enable_logging():
+    """
+    (Re-)Enables logging in the application.
+    """
+
+    logging.disable(logging.NOTSET)
 

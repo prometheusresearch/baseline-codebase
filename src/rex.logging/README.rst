@@ -38,16 +38,18 @@ function and use the returned `Logger object`_ to output your messages.
 
     >>> from rex.core import Rex
     >>> from rex.logging import get_logger
-    
+
     >>> with Rex('rex.logging'):
     ...     logger = get_logger()
     ...     logger.debug('debug message')
     ...     logger.info('info message')
     ...     logger.warn('warn message')
     ...     logger.error('error message')
+    ...     logger.critical('critical message')
     INFO:root:info message
     WARNING:root:warn message
     ERROR:root:error message
+    CRITICAL:root:critical message
 
 
 Settings

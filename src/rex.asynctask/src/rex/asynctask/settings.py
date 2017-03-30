@@ -39,6 +39,10 @@ class AsyncTaskWorkersSetting(Setting):
     ``AsyncTaskWorker``.
 
     If not specified, defaults to ``{}``.
+
+    This is a merged setting, meaning that the mappings defined for this
+    setting in any number of ``settings.yaml`` files within a project will be
+    merged together. To explicitly disable a queue, set it to null/None.
     """
 
     #:
@@ -48,9 +52,16 @@ class AsyncTaskWorkersSetting(Setting):
     def validate(self, value):
         validator = MapVal(
             StrVal(),
-            ChoiceVal(AsyncTaskWorker.mapped().keys()),
+            MaybeVal(ChoiceVal(AsyncTaskWorker.mapped().keys())),
         )
         return validator(value)
+
+    def merge(self, old_value, new_value):
+        map_val = MapVal()
+        value = {}
+        value.update(map_val(old_value))
+        value.update(map_val(new_value))
+        return value
 
 
 class AsyncWorkersPollIntervalSetting(Setting):

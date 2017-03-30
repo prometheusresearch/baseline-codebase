@@ -16,6 +16,7 @@ REX.ASYNCTASK Change Log
 * Changed ``get_transport()`` so that when the ``asynctask_transport`` setting
   is not set, it will use the application database defined by the ``db``
   setting, if it exists.
+* The ``asynctask_workers`` application setting is now merged.
 
 
 0.4.0 (2017-01-19)

@@ -14,15 +14,20 @@ asynctask_workers
 
 This setting configures the workers that watch queues for tasks to process::
 
-    >>> rex = Rex('rex.asynctask_demo', asynctask_workers={})
+    >>> rex = Rex('rex.asynctask_demo')
     >>> with rex:
     ...     print repr(get_settings().asynctask_workers)
-    {}
+    {'foo': 'demo_foo_worker'}
 
-    >>> rex = Rex('rex.asynctask_demo', asynctask_workers={'some_queue': 'demo_foo_worker'})
+    >>> rex = Rex('rex.asynctask_demo', asynctask_workers={'some_queue': 'demo_bar_worker'})
     >>> with rex:
     ...     print repr(get_settings().asynctask_workers)
-    {'some_queue': 'demo_foo_worker'}
+    {'some_queue': 'demo_bar_worker', 'foo': 'demo_foo_worker'}
+
+    >>> rex = Rex('rex.asynctask_demo', asynctask_workers={'foo': None, 'some_queue': 'demo_bar_worker'})
+    >>> with rex:
+    ...     print repr(get_settings().asynctask_workers)
+    {'some_queue': 'demo_bar_worker', 'foo': None}
 
 
     >>> rex = Rex('rex.asynctask_demo', asynctask_workers={'some_queue': 'doesntexist'})

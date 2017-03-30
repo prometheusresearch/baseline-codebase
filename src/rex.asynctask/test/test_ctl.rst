@@ -42,7 +42,10 @@ the queues configured in the application settings::
 
 If no workers are configured, it will bail::
 
-    >>> ctl('asynctask-workers rex.asynctask_demo --set=asynctask_workers={}')
+    >>> ctl('asynctask-workers rex.asynctask --set=asynctask_workers={}')
+    INFO:AsyncTaskWorkerTask:No workers configured; terminating.
+
+    >>> ctl("asynctask-workers rex.asynctask_demo --set=asynctask_workers='{\"foo\": null}'")
     INFO:AsyncTaskWorkerTask:No workers configured; terminating.
 
 
@@ -201,7 +204,7 @@ If a worker dies, the master process will restart it::
 
 Tasks can be scheduled to execute at particular times::
 
-    >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --scheduler --set=asynctask_workers={} --set=asynctask_scheduled_workers='[{\"worker\": \"demo_bar_worker\", \"second\": \"*/5\"}]'")
+    >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --scheduler --set=asynctask_workers='{\"foo\": null}' --set=asynctask_scheduled_workers='[{\"worker\": \"demo_bar_worker\", \"second\": \"*/5\"}]'")
     >>> time.sleep(10)  # give the task some time for the tasks to trigger
     >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching demo_bar_worker to work on queue scheduled_0_demo_bar_worker
@@ -238,7 +241,7 @@ rex.ctl Tasks can be executed on a schedule::
 
     >>> import datetime
     >>> second = datetime.datetime.now().second
-    >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --scheduler --set=asynctask_workers={} --set=asynctask_scheduled_workers='[{\"ctl\": \"demo-noisy-task\", \"second\": \"%s\"}, {\"ctl\": \"demo-quiet-task\", \"second\": \"%s\"}, {\"ctl\": \"demo-crashy-task\", \"second\": \"%s\"}]'" % (second + 2, second + 4, second + 6))
+    >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --scheduler --set=asynctask_workers='{\"foo\": null}' --set=asynctask_scheduled_workers='[{\"ctl\": \"demo-noisy-task\", \"second\": \"%s\"}, {\"ctl\": \"demo-quiet-task\", \"second\": \"%s\"}, {\"ctl\": \"demo-crashy-task\", \"second\": \"%s\"}]'" % (second + 2, second + 4, second + 6))
     >>> time.sleep(10)  # give the task some time for the tasks to trigger
     >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching ctl_executor to work on queue scheduled_0_ctl_...

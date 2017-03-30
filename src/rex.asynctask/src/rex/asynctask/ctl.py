@@ -74,10 +74,10 @@ class AsyncTaskWorkerTask(RexTask):
             worker_config = get_settings().asynctask_workers
             scheduled_worker_config = \
                 get_settings().asynctask_scheduled_workers
-            if not worker_config and not scheduled_worker_config:
+            self.initialize_workers(worker_config, scheduled_worker_config)
+            if len(self._workers) == 0:
                 self.logger.info('No workers configured; terminating.')
                 return
-            self.initialize_workers(worker_config, scheduled_worker_config)
 
             if self.scheduler:
                 self._scheduler = self.build_scheduler()
@@ -112,7 +112,8 @@ class AsyncTaskWorkerTask(RexTask):
 
     def initialize_workers(self, worker_config, scheduled_worker_config):
         for queue_name, worker_name in worker_config.items():
-            self.build_worker(queue_name, worker_name)
+            if worker_name:
+                self.build_worker(queue_name, worker_name)
 
         for schedule in scheduled_worker_config:
             self.build_worker(

@@ -36,6 +36,7 @@ setup(
         'HTSQL>=2.3.3,<3',
         'psycopg2',
         'apscheduler>=3.3,<4',
+        'filelock>=2.0.8<2.1',
     ],
     rex_init='rex.asynctask',
     rex_static='static',

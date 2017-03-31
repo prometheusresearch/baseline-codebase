@@ -1,4 +1,6 @@
 logging_loggers:
   apscheduler:
     level: WARN
+  filelock:
+    level: WARN
 

@@ -17,6 +17,8 @@ REX.ASYNCTASK Change Log
   is not set, it will use the application database defined by the ``db``
   setting, if it exists.
 * The ``asynctask_workers`` application setting is now merged.
+* Added an **experimental** ``FileSysAsyncTransport`` for persisting queues on
+  the filesystem.
 
 
 0.4.0 (2017-01-19)

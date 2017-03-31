@@ -41,6 +41,8 @@ tests:
   - sh: rex dropdb --quiet rex.asynctask_demo
   - sh: rex deploy --quiet rex.asynctask_demo
 
+  - rmdir: ./filesys_test
+
   - doctest: README.rst
   - doctest: test/test_*.rst
 

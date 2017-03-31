@@ -7,4 +7,10 @@ asynctask_workers:
 
 logging_root:
   level: DEBUG
+#  handlers: [console, file]
+
+#logging_handlers:
+#  file:
+#    class: logging.FileHandler
+#    filename: test.log
 

@@ -6,6 +6,7 @@
 from htsql.core.error import Error as HTSQLError
 from htsql.core.domain import Profile, RecordDomain, UntypedDomain
 from htsql.core.classify import classify
+from htsql.core.cmd.embed import Embed
 from htsql.tweak.etl.cmd.insert import (
         BuildExtractNode, BuildExtractTable,
         BuildExecuteInsert, BuildResolveIdentity)
@@ -25,13 +26,24 @@ def insert(
         table,
         columns,
         values,
-        query_cache):
-    cache_key = (table, tuple(columns))
+        query_cache,
+        untyped=UntypedDomain()):
+    row = []
+    domains = []
+    for value in values:
+        if isinstance(value, unicode):
+            row.append(value)
+            domains.append(untyped)
+        else:
+            value = Embed.__invoke__(value)
+            row.append(value.data)
+            domains.append(value.domain)
+    cache_key = (table, tuple(columns), tuple(domains))
     if cache_key not in query_cache:
         meta = Profile(
                 RecordDomain([
-                    Profile(UntypedDomain(), tag=column)
-                    for column in columns]), tag=table)
+                    Profile(domain, tag=column)
+                    for domain, column in zip(domains, columns)]), tag=table)
         extract_node = BuildExtractNode.__invoke__(meta)
         extract_table = BuildExtractTable.__invoke__(
                 extract_node.node,
@@ -50,7 +62,7 @@ def insert(
                     extract_table(
                     extract_node(values)))))
     query = query_cache[cache_key]
-    return query(values)
+    return query(row)
 
 
 def import_tabular_data(

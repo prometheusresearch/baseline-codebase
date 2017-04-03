@@ -1,0 +1,37 @@
+table: import_job
+with:
+- column: code
+  type: integer
+- column: user
+  type: text
+- column: table
+  type: text
+- file: file
+- column: added_at
+  type: datetime
+  default: now()
+- column: status
+  type: [unknown, success, error]
+  default: unknown
+- column: started_at
+  type: datetime
+  required: false
+- column: completed_at
+  type: datetime
+  required: false
+- column: result
+  type: text
+  required: false
+- alias: status_calculated
+  expression: |
+    if(
+      status = 'success', 'Success',
+      status = 'error', 'Error',
+      is_null(started_at), 'Queued',
+      is_null(completed_at), 'Running',
+      'Completed'
+    )
+- alias: __title__
+  expression: |
+    table + ' (' + slice(string(added_at), 0, 19) + ')'
+- identity: [code: offset]

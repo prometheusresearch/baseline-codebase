@@ -6,6 +6,8 @@ title: REX.TABULAR_IMPORT
 tests:
   - rmdir: ./build/coverage
   - mkdir: ./build/coverage
+  - rmdir: ./build/sandbox
+  - mkdir: ./build/sandbox
   - coverage: setup.cfg
     auto-data: true
 

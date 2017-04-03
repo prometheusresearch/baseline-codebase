@@ -1,0 +1,12 @@
+{
+  "name": "rex-tabular-import",
+  "version": "0.3.0",
+  "main": "./lib/index.js",
+  "rex": {
+    "bundleAll": true
+  },
+  "peerDependencies": {
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0"
+  }
+}

@@ -13,7 +13,8 @@ import {InjectI18N} from 'rex-i18n';
 export default class ViewValue extends React.Component {
   static defaultProps = {
     stylesheet: {
-      Root: (props) => <ReactUI.Block marginStart="small" {...props} />
+      Root: (props) => <ReactUI.Block marginStart="small" {...props} />,
+      Text: (props) => <ReactUI.Text  {...props} />,
     }
   }
 
@@ -26,14 +27,14 @@ export default class ViewValue extends React.Component {
 
   render() {
     let {noValueText = this._('No Value')} = this.props;
-    let {Root} = this.props.stylesheet;
+    let {Root, Text} = this.props.stylesheet;
     let valueString = this.getValueString();
 
     return (
       <Root>
         {valueString === null ?
-          <ReactUI.Text color="#888">{noValueText}</ReactUI.Text> :
-          <ReactUI.Text>{valueString}</ReactUI.Text>}
+          <Text color="#888">{noValueText}</Text> :
+          <Text>{valueString}</Text>}
       </Root>
     );
   }

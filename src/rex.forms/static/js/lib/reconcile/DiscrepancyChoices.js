@@ -13,6 +13,26 @@ import {defaultViewWidgetConfig} from '../form/WidgetConfig';
 import Header from './Header';
 
 
+function Value(props) {
+  let {instrumentType, ...otherProps} = props;
+  let Component = style(defaultViewWidgetConfig[instrumentType], {
+    Root: ReactUI.Block,
+    Text: style('p', {
+      whiteSpace: 'initial',
+      wordWrap: 'break-word',
+      textAlign: 'initial',
+      lineHeight: 1.3,
+    }),
+  });
+  return <Component {...otherProps} />;
+}
+
+
+let ValueButton = style(ReactUI.QuietButton, {
+  Caption: (props) => <div style={{maxWidth: '100%'}} {...props} />,
+});
+
+
 @InjectI18N
 export default class DiscrepancyChoices extends React.Component {
 
@@ -83,34 +103,34 @@ export default class DiscrepancyChoices extends React.Component {
   renderValue(value) {
     let {question, formValue, instrument} = this.props;
     let active = formValue.value === value;
-    let Value = style(defaultViewWidgetConfig[instrument.type.base], {
-      Root: ReactUI.Block
-    });
 
     return (
-      <ReactUI.QuietButton
+      <ValueButton
+        style={{maxWidth: '100%'}}
         variant={{active}}
         onClick={this.updateValue.bind(null, value)}>
         <Value
+          instrumentType={instrument.type.base}
           question={question}
           formValue={{value}}
           noValueText="-"
           />
-      </ReactUI.QuietButton>
+      </ValueButton>
     );
   }
 
   renderValues(discrepancy) {
     let {question, formValue, instrument} = this.props;
-    let Value = style(defaultViewWidgetConfig[instrument.type.base], {
-      Root: ReactUI.Block
-    });
 
     let values = Object.keys(discrepancy).sort()
       .map((key) => {
         let value = this.renderValue(discrepancy[key]);
         return (
-          <td key={key}>
+          <td
+            style={{
+              verticalAlign: 'top',
+            }}
+            key={key}>
             <ReactUI.Block>
               {value}
             </ReactUI.Block>
@@ -118,9 +138,14 @@ export default class DiscrepancyChoices extends React.Component {
         );
       })
       .concat(
-        <td key="_final_value">
+        <td
+          style={{
+            verticalAlign: 'top',
+          }}
+          key="_final_value">
           <ReactUI.Block paddingV="x-small" paddingH="small">
             <Value
+              instrumentType={instrument.type.base}
               question={question}
               formValue={formValue}
               noValueText="-"
@@ -130,7 +155,7 @@ export default class DiscrepancyChoices extends React.Component {
       );
 
     return (
-      <table style={{width: '100%'}}>
+      <table style={{width: '100%', tableLayout: 'fixed'}}>
         <Header entries={this.props.entries} />
         <tbody>
           <tr>{values}</tr>

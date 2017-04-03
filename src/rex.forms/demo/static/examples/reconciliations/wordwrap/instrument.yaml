@@ -1,0 +1,28 @@
+id: urn:simple
+version: '1.0'
+title: Wordwrapping
+record:
+  - id: foo
+    type: text
+    required: true
+  - id: bar
+    type:
+      base: enumeration
+      enumerations:
+        red:
+        green:
+        blue:
+  - id: baz
+    type: boolean
+  - id: blah
+    type: text
+  - id: multi
+    type:
+      base: enumerationSet
+      enumerations:
+        apple:
+        banana:
+        pear:
+  - id: anumber
+    type: integer
+

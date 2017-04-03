@@ -1,0 +1,57 @@
+instrument:
+  id: urn:simple
+  version: '1.0'
+defaultLocalization: en
+pages:
+  - id: page1
+    elements:
+      - type: question
+        options:
+          fieldId: foo
+          text:
+            en: This is a required Text Question
+      - type: question
+        options:
+          fieldId: anumber
+          text:
+            en: This is an Integer Question
+      - type: question
+        options:
+          fieldId: bar
+          text:
+            en: This is an Enumeration Question
+          enumerations:
+            - id: green
+              text:
+                en: ThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntry
+            - id: red
+              text:
+                en: ThisIsAReallyLon gTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReal lyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyL ongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTex tEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntry
+            - id: blue
+              text:
+                en: Blue
+      - type: question
+        options:
+          fieldId: baz
+          text:
+            en: This is a Boolean Question
+      - type: question
+        options:
+          fieldId: blah
+          text:
+            en: This is a non-required text question
+      - type: question
+        options:
+          fieldId: multi
+          text:
+            en: This is an enumerationSet question
+          enumerations:
+            - id: apple
+              text:
+                en: Apple
+            - id: banana
+              text:
+                en: ThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntry
+            - id: pear
+              text:
+                en: ThisIsAReallyLon gTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReal lyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyL ongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTex tEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntryThisIsAReallyLongTextEntry

@@ -7,3 +7,4 @@ static/js/bower_components
 static/js/node_modules
 demo/static/www/bundle
 yarn.lock
+rex.yaml

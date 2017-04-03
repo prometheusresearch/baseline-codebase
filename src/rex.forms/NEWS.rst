@@ -5,6 +5,12 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+2.3.2 (2017-xx-xx)
+==================
+
+* Fixed a wordwrap issue with displaying long values in the reconciler.
+
+
 2.3.1 (2017-02-07)
 ==================
 

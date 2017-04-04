@@ -38,7 +38,7 @@ setup(
         'rex.asynctask>=0.5,<0.6',
         'rex.attach>=2.0.4,<3',
         'rex.file>=1.0.4,<2',
-        'rex.widget>=2.12,<3',
+        'rex.widget>=2.11,<3',
         'tablib>=0.10,<0.11',
     ],
     rex_init='rex.tabular_import',

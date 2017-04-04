@@ -59,11 +59,11 @@ Successful import::
 Import with a low-level error::
 
   >>> run_job('trunk', 'trunk.csv')
-  >>> print db.produce("/import_job.result").data[0]
+  >>> print db.produce("/import_job.result").data[0]  # doctest: +ELLIPSIS
   Errors occurred while importing the records
-      1: Got a duplicate identity: Trunk . Code, Which triggered an error from the database driver: duplicate key value violates unique constraint "trunk_pk"
+      1: Got ... from the database driver: duplicate key value violates unique constraint "trunk_pk"
   DETAIL:  Key (code)=(1) already exists.
-      2: Got a duplicate identity: Trunk . Code, Which triggered an error from the database driver: duplicate key value violates unique constraint "trunk_pk"
+      2: Got ... from the database driver: duplicate key value violates unique constraint "trunk_pk"
   DETAIL:  Key (code)=(2) already exists.
 
 

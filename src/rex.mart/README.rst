@@ -163,10 +163,16 @@ type
       application database
     * ``existing``: Build the Mart in an existing database
 
-    If not specified, this property defaults to ``fresh``. Note that using
-    ``copy``, ``application``, and ``existing`` requires the referenced
-    database to be in the same database system as is specified by the
-   ``mart_hosting_cluster`` application setting.
+    If not specified, this property defaults to ``fresh``.
+
+    Note that using ``copy``, ``application``, and ``existing`` requires the
+    referenced database to be in the same database system as is specified by
+    the ``mart_hosting_cluster`` application setting.
+
+    Furthermore, the ``copy`` and ``application`` methods require that there be
+    no connections to the referenced database when the Mart is being created.
+    This means that you cannot use these methods to copy the database of an
+    actively-running application.
 
 target
     When the ``copy`` or ``existing`` type is specified, this property

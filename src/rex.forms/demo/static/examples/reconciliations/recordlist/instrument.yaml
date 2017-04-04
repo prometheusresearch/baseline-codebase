@@ -11,4 +11,14 @@ record:
           required: true
         - id: subfield2
           type: integer
+  - id: bar
+    type:
+      base: recordList
+      record:
+        - id: subfield1
+          type: text
+        - id: subfield2
+          type: integer
+        - id: subfield3
+          type: integer
 

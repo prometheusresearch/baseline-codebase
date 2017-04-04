@@ -10,4 +10,20 @@ foo:
     subfield2:
       entry1: 42
       entry2: 43
+bar:
+  '0':
+    subfield1:
+      entry1: hello
+      entry2: null
+    subfield2:
+      entry1: null
+      entry2: 42
+  '1':
+    _NEEDS_VALUE_: true
+    subfield1:
+      entry1: hello
+      entry2: null
+    subfield2:
+      entry1: null
+      entry2: 42
 

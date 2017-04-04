@@ -9,6 +9,8 @@ REX.FORMS Change Log
 ==================
 
 * Fixed a wordwrap issue with displaying long values in the reconciler.
+* Now handles reconciliation scenarios where a recordList record must have a
+  value chosen in the solution.
 
 
 2.3.1 (2017-02-07)

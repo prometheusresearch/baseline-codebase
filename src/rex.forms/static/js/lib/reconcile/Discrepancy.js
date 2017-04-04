@@ -22,7 +22,7 @@ export function isCompleteComposite(formValue, discrepancy) {
       every(discrepancy[i], (_v, j) =>
         // !== undefined is important as we want to capture any intentional input
         // from user, even if it results in empty value (null)
-        value[i] && value[i][j] !== undefined))
+        (j === '_NEEDS_VALUE_') || (value[i] && value[i][j] !== undefined)))
   );
 }
 

@@ -9,6 +9,8 @@ import uniq from 'lodash/uniq';
 
 import {resolveType} from '../instrument/schema';
 import Validate from '../instrument/validate';
+import {isEmptyValue} from '../instrument/validate';
+
 
 export function fromDiscrepancies(discrepancies = {}, instrument, form, env) {
   env = {
@@ -93,7 +95,6 @@ function generateValueSchema(type, question, discrepancy, env) {
       return {
         type: 'array',
         items,
-        format: env.validate.recordList,
         instrument: {type},
       };
     case 'enumeration':
@@ -133,6 +134,17 @@ function generateValueSchema(type, question, discrepancy, env) {
   }
 }
 
+
+function recordValidator(needsValue, value, node) {
+  if (needsValue) {
+    if (isEmptyValue(value)) {
+      return 'At least one field in this record must have a value.';
+    }
+  }
+
+  return true;
+}
+
 function generateRecordSchema(record, question, discrepancy, env) {
   let properties = {};
   let required = [];
@@ -156,6 +168,7 @@ function generateRecordSchema(record, question, discrepancy, env) {
     type: 'object',
     properties: properties,
     required: required,
+    format: recordValidator.bind(null, !!discrepancy._NEEDS_VALUE_),
     instrument: {
       type: {
         base: 'recordList',

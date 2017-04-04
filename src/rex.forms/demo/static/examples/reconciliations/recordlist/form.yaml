@@ -17,4 +17,19 @@ pages:
             - fieldId: subfield2
               text:
                 en: Second Subfield
+      - type: question
+        options:
+          fieldId: bar
+          text:
+            en: This is another RecordList Question (try picking null for both fields; second record should require at least one value)
+          questions:
+            - fieldId: subfield1
+              text:
+                en: First Subfield
+            - fieldId: subfield2
+              text:
+                en: Second Subfield
+            - fieldId: subfield3
+              text:
+                en: Third Subfield
 

@@ -13,6 +13,8 @@ import {isCompleteSimple, isCompleteComposite} from './Discrepancy';
 import DiscrepancyTitle from './DiscrepancyTitle';
 import DiscrepancyChoices from './DiscrepancyChoices';
 import PositionDescription from './PositionDescription';
+import ErrorList from '../form/ErrorList';
+
 
 export default class RecordListDiscrepancy extends React.Component {
 
@@ -75,7 +77,7 @@ let RecordListRecordDiscrepancy = inject(function ({formValue, id, discrepancy, 
   });
 
   let complete = isCompleteSimple(formValue, discrepancy);
-  Object.keys(discrepancy).forEach((field) => {
+  Object.keys(discrepancy).filter((field) => field != '_NEEDS_VALUE_').forEach((field) => {
     if (!isCompleteSimple(formValue.select(field), discrepancy[field])) {
       complete = false;
     }
@@ -92,6 +94,13 @@ let RecordListRecordDiscrepancy = inject(function ({formValue, id, discrepancy, 
         paddingEnd="x-small">
         {subfields}
       </ReactUI.Block>
+      {formValue.completeErrorList.length > 0 &&
+        <ReactUI.Block
+          paddingStart="x-small"
+          paddingBottom="x-small">
+          <ErrorList formValue={formValue} />
+        </ReactUI.Block>
+      }
     </ReactUI.Card>
   );
 });

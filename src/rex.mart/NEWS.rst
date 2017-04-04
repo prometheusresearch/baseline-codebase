@@ -5,6 +5,14 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
+0.6.2 (2017-xx-xx)
+==================
+
+* Fixed an issue that caused crashes when filtering identifiable fields from
+  Marts that involved Instruments where fields changed their identifiable
+  status between versions.
+
+
 0.6.1 (2017-03-07)
 ==================
 

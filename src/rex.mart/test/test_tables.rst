@@ -640,7 +640,8 @@ Cases where identifiable fields are filtered::
       'required': True,
       'title': 'InstrumentVersion UID',
       'type': 'text'},
-     {'column': u'foo', 'of': u'mart9', 'required': False, 'type': 'text'}]
+     {'column': u'foo', 'of': u'mart9', 'required': False, 'type': 'text'},
+     {'column': u'calc2', 'of': u'mart9', 'required': False, 'type': 'text'}]
 
     >>> definition = AssessmentDefinitionVal()({
     ...     'instrument': 'mart9',
@@ -661,7 +662,88 @@ Cases where identifiable fields are filtered::
       'required': True,
       'title': 'InstrumentVersion UID',
       'type': 'text'},
-     {'column': u'bar', 'of': u'mart9', 'required': False, 'type': 'integer'}]
+     {'column': u'bar', 'of': u'mart9', 'required': False, 'type': 'integer'},
+     {'column': u'calc1', 'of': u'mart9', 'required': False, 'type': 'integer'}]
+
+    >>> definition = AssessmentDefinitionVal()({
+    ...     'instrument': 'mart9b',
+    ...     'selector': "/assessment{uid :as assessment_uid}.filter(instrumentversion.instrument='mart9b')",
+    ...     'identifiable': 'only',
+    ... })
+    >>> table = PrimaryTable(definition, get_management_db())
+    >>> pprint(table.get_deploy_facts())
+    [{'table': u'mart9b'},
+     {'column': 'assessment_uid',
+      'of': u'mart9b',
+      'required': True,
+      'title': 'Assessment UID',
+      'type': 'text'},
+     {'identity': ['assessment_uid'], 'of': u'mart9b'},
+     {'column': 'instrument_version_uid',
+      'of': u'mart9b',
+      'required': True,
+      'title': 'InstrumentVersion UID',
+      'type': 'text'},
+     {'column': u'foo', 'of': u'mart9b', 'required': False, 'type': 'text'},
+     {'column': u'bar', 'of': u'mart9b', 'required': False, 'type': 'integer'},
+     {'table': u'mart9b_baz'},
+     {'link': u'mart9b', 'of': u'mart9b_baz', 'required': True},
+     {'column': 'record_seq',
+      'of': u'mart9b_baz',
+      'required': True,
+      'type': 'integer'},
+     {'identity': [u'mart9b', {'record_seq': 'offset'}], 'of': u'mart9b_baz'},
+     {'column': u'baz2', 'of': u'mart9b_baz', 'required': False, 'type': 'text'},
+     {'table': u'mart9b_blah'},
+     {'link': u'mart9b', 'of': u'mart9b_blah', 'required': True},
+     {'identity': [u'mart9b'], 'of': u'mart9b_blah'},
+     {'column': u'row1_blah1',
+      'of': u'mart9b_blah',
+      'required': False,
+      'type': 'text'},
+     {'column': u'row2_blah1',
+      'of': u'mart9b_blah',
+      'required': False,
+      'type': 'text'}]
+
+    >>> definition = AssessmentDefinitionVal()({
+    ...     'instrument': 'mart9b',
+    ...     'selector': "/assessment{uid :as assessment_uid}.filter(instrumentversion.instrument='mart9b')",
+    ...     'identifiable': 'none',
+    ... })
+    >>> table = PrimaryTable(definition, get_management_db())
+    >>> pprint(table.get_deploy_facts())
+    [{'table': u'mart9b'},
+     {'column': 'assessment_uid',
+      'of': u'mart9b',
+      'required': True,
+      'title': 'Assessment UID',
+      'type': 'text'},
+     {'identity': ['assessment_uid'], 'of': u'mart9b'},
+     {'column': 'instrument_version_uid',
+      'of': u'mart9b',
+      'required': True,
+      'title': 'InstrumentVersion UID',
+      'type': 'text'},
+     {'table': u'mart9b_baz'},
+     {'link': u'mart9b', 'of': u'mart9b_baz', 'required': True},
+     {'column': 'record_seq',
+      'of': u'mart9b_baz',
+      'required': True,
+      'type': 'integer'},
+     {'identity': [u'mart9b', {'record_seq': 'offset'}], 'of': u'mart9b_baz'},
+     {'column': u'baz1', 'of': u'mart9b_baz', 'required': False, 'type': 'text'},
+     {'table': u'mart9b_blah'},
+     {'link': u'mart9b', 'of': u'mart9b_blah', 'required': True},
+     {'identity': [u'mart9b'], 'of': u'mart9b_blah'},
+     {'column': u'row1_blah2',
+      'of': u'mart9b_blah',
+      'required': False,
+      'type': 'integer'},
+     {'column': u'row2_blah2',
+      'of': u'mart9b_blah',
+      'required': False,
+      'type': 'integer'}]
 
 Merging recordList changes::
 

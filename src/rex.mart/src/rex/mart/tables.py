@@ -89,10 +89,13 @@ class MappingTable(object):
             for name in field_names
             if field_names.count(name) > 1
         ])
-        assert len(duped)==0, 'Duplicate field names on %s: %r' % (
+        assert len(duped) == 0, 'Duplicate field names on %s: %r' % (
             self.name,
             duped,
         )
+
+    def filter_identifiable(self, fields, rule):
+        raise NotImplementedError()
 
     def get_field_facts(self, exclude_columns=None):
         facts = []
@@ -220,7 +223,7 @@ class ChildTable(MappingTable):  # pylint: disable=abstract-method
         )
 
 
-class FacetTable(ChildTable):
+class FacetTable(ChildTable):  # pylint: disable=abstract-method
     def get_deploy_facts(self):
         facts = []
 
@@ -274,9 +277,7 @@ class MatrixTable(FacetTable):
 
         for row in field['type']['rows']:
             for col in field['type']['columns']:
-                if not field_filter(
-                        [field['id'], row['id'], col['id']],
-                        col.get('identifiable', False)):
+                if not field_filter([field['id'], row['id'], col['id']]):
                     continue
 
                 name = '%s_%s' % (row['id'], col['id'])
@@ -302,6 +303,20 @@ class MatrixTable(FacetTable):
                     mapped_field.description = col['description']
                 mapped_field.source = 'RIOS Instrument'
                 self.add_field(mapped_field)
+
+    def filter_identifiable(self, fields, rule):
+        subfields = []
+        for field in fields:
+            if field.startswith('%s.' % (self.original_name,)):
+                _, row, column = field.split('.')
+                subfields.append('%s_%s' % (row, column))
+
+        for field in self.fields.keys():
+            if rule == 'none' and field in subfields:
+                del self.fields[field]
+
+            elif rule == 'only' and field not in subfields:
+                del self.fields[field]
 
     def get_value_mapping(
             self,
@@ -330,7 +345,7 @@ class MatrixTable(FacetTable):
         return value_mapping
 
 
-class BranchTable(ChildTable):
+class BranchTable(ChildTable):  # pylint: disable=abstract-method
     @property
     def reserved_column_names(self):
         names = super(BranchTable, self).reserved_column_names[:]
@@ -398,9 +413,7 @@ class RecordListTable(BranchTable):
             )
 
         for subfield in field['type']['record']:
-            if not field_filter(
-                    [field['id'], subfield['id']],
-                    subfield.get('identifiable', False)):
+            if not field_filter([field['id'], subfield['id']]):
                 continue
 
             subfield['type'] = get_full_type_definition(
@@ -425,6 +438,19 @@ class RecordListTable(BranchTable):
             mapped_field.source = 'RIOS Instrument'
 
             self.add_field(mapped_field)
+
+    def filter_identifiable(self, fields, rule):
+        subfields = []
+        for field in fields:
+            if field.startswith('%s.' % (self.original_name,)):
+                subfields.append(field.split('.')[1])
+
+        for field in self.fields.keys():
+            if rule == 'none' and field in subfields:
+                del self.fields[field]
+
+            elif rule == 'only' and field not in subfields:
+                del self.fields[field]
 
     def get_statements_for_assessment(
             self,
@@ -592,6 +618,8 @@ class PrimaryTable(MappingTable):
             self.add_field(mapped_field)
 
     def _get_presentations(self, instrument_version):
+        # pylint: disable=no-self-use
+
         pres = {'form': {}, 'sms': {}}
 
         for form in Form.get_implementation().find(
@@ -629,6 +657,8 @@ class PrimaryTable(MappingTable):
         return prioritized
 
     def _get_field_presentations(self, field_id, presentations):
+        # pylint: disable=no-self-use
+
         field_pres = []
 
         for ptype, pres in presentations:
@@ -661,6 +691,7 @@ class PrimaryTable(MappingTable):
         iv_impl = InstrumentVersion.get_implementation()
         cs_impl = CalculationSet.get_implementation()
 
+        identifiable = set()
         for instrument_uid in instruments:
             instrument = inst_impl.get_by_uid(instrument_uid)
             if not instrument:
@@ -681,10 +712,16 @@ class PrimaryTable(MappingTable):
             for version in versions:
                 presentations = self._get_presentations(version)
                 self._add_instrument_fields(version, presentations)
+                identifiable.update(self._get_identifiable_fields(
+                    instrument=version.definition
+                ))
 
                 calculations = cs_impl.find(instrument_version=version.uid)
                 if calculations:
                     self._add_calculationset_fields(calculations[0])
+                    identifiable.update(self._get_identifiable_fields(
+                        calculations=calculations[0].definition
+                    ))
 
                 for ptype, pres in presentations:
                     if ptype == 'form' and pres.get('title'):
@@ -696,7 +733,66 @@ class PrimaryTable(MappingTable):
                 if version.definition.get('description'):
                     self.description = version.definition['description']
 
-    def is_field_allowed(self, name, identifiable):
+        self.filter_identifiable(
+            identifiable,
+            self.definition['identifiable'],
+        )
+
+    def _get_identifiable_fields(
+            self,
+            instrument=None,
+            calculations=None,
+            prefix=None):
+        fields = set()
+        prefix = prefix or []
+
+        if instrument:
+            for field in instrument['record']:
+                if field.get('identifiable', False):
+                    fields.add('.'.join(prefix + [field['id']]))
+
+                field['type'] = get_full_type_definition(
+                    instrument,
+                    field['type'],
+                )
+                if field['type']['base'] == 'recordList':
+                    fields.update(self._get_identifiable_fields(
+                        instrument=field['type'],
+                        prefix=[field['id']],
+                    ))
+                elif field['type']['base'] == 'matrix':
+                    mtx_instrument = {
+                        'record': field['type']['columns'],
+                    }
+                    for row in field['type']['rows']:
+                        fields.update(self._get_identifiable_fields(
+                            instrument=mtx_instrument,
+                            prefix=[field['id'], row['id']],
+                        ))
+
+        if calculations:
+            for calc in calculations['calculations']:
+                if calc.get('identifiable', False):
+                    fields.add(calc['id'])
+
+        return fields
+
+    def filter_identifiable(self, fields, rule):
+        for field in self.fields.keys():
+            if rule == 'none' and field in fields:
+                del self.fields[field]
+            elif rule == 'only' and field not in fields:
+                del self.fields[field]
+
+        for child_name, child in self.children.items():
+            if rule == 'none' and child_name in fields:
+                del self.children[child_name]
+            else:
+                child.filter_identifiable(fields, rule)
+                if len(child.fields) == 0:
+                    del self.children[child_name]
+
+    def is_field_allowed(self, name):
         if self.definition['fields'] is None:
             # Definition explicitly excludes all fields
             return False
@@ -709,13 +805,6 @@ class PrimaryTable(MappingTable):
                     field.split('.')[0]
                     for field in self.definition['fields']]:
             # Definition does not specify this field
-            return False
-
-        if self.definition['identifiable'] == 'none' and identifiable:
-            # No identifable fields allowed
-            return False
-        if self.definition['identifiable'] == 'only' and not identifiable:
-            # Only identifiable fields are allowed
             return False
 
         return True
@@ -734,9 +823,7 @@ class PrimaryTable(MappingTable):
 
     def _add_instrument_fields(self, instrument_version, presentations):
         for field in instrument_version.definition['record']:
-            if not self.is_field_allowed(
-                    [field['id']],
-                    field.get('identifiable', False)):
+            if not self.is_field_allowed([field['id']]):
                 continue
 
             field['type'] = get_full_type_definition(
@@ -882,7 +969,6 @@ class PrimaryTable(MappingTable):
             field = {
                 'id': calc['id'],
                 'type': {'base': calc['type']},
-                'identifiable': calc.get('identifiable', False),
             }
             mapped_field = make_field(field)
             if calc.get('description'):

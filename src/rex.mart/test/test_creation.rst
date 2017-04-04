@@ -73,8 +73,8 @@ Copy an existing DB::
     draftinstrumentversion: 2
     entry: 10
     form: 8
-    instrument: 23
-    instrumentversion: 25
+    instrument: 24
+    instrumentversion: 27
     interaction: 6
     people: 5
     subject: 7
@@ -100,8 +100,8 @@ Copy the application DB::
     draftinstrumentversion: 2
     entry: 10
     form: 8
-    instrument: 23
-    instrumentversion: 25
+    instrument: 24
+    instrumentversion: 27
     interaction: 6
     people: 5
     subject: 7
@@ -262,8 +262,8 @@ Load data into an existing database::
     entry: 10
     foo: 5
     form: 8
-    instrument: 23
-    instrumentversion: 25
+    instrument: 24
+    instrumentversion: 27
     interaction: 6
     people: 5
     subject: 7
@@ -806,6 +806,9 @@ without explicitly listing every one::
     mart7: 0
     mart8: 1
     mart9: 0
+    mart9b: 0
+    mart9b_baz: 0
+    mart9b_blah: 0
     simple: 2
     texter: 0
     >>> db_status(mart.name)
@@ -828,9 +831,9 @@ without explicitly listing every one::
     calculation_complex_q_matrix: 1
     calculation_complex_q_recordlist: 2
     complex: 0
-    datadictionary_column: 225
+    datadictionary_column: 244
     datadictionary_enumeration: 23
-    datadictionary_table: 34
+    datadictionary_table: 37
     disabled: 1
     mart1: 8
     mart10: 0
@@ -854,6 +857,9 @@ without explicitly listing every one::
     mart7: 0
     mart8: 1
     mart9: 0
+    mart9b: 0
+    mart9b_baz: 0
+    mart9b_blah: 0
     simple: 2
     subject: 7
     texter: 0

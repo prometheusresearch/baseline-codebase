@@ -5,6 +5,13 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
+1.8.0 (2017-xx-xx)
+==================
+
+* Enhanced discrepancy identification to flag when a record must have at least
+  one subfield's value specified in the solution.
+
+
 1.7.1 (2017-01-19)
 ==================
 

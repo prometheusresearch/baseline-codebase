@@ -138,6 +138,8 @@ def _get_record_discrepancies(field, entries):
         return None
 
     for record_index in range(num_records):
+        sri = str(record_index)
+        needsValue = True
         for subfield in field['type']['record']:
             subfield_discrepancies = _get_simple_discrepancies(
                 subfield,
@@ -149,10 +151,14 @@ def _get_record_discrepancies(field, entries):
                 ),
             )
             if subfield_discrepancies:
-                sri = str(record_index)
                 if sri not in discrepancies:
                     discrepancies[sri] = {}
                 discrepancies[sri][subfield['id']] = subfield_discrepancies
+            elif accessor(entries[0], subfield['id'], record_index) is not None:
+                needsValue = False
+        if needsValue and sri in discrepancies:
+            discrepancies[sri]['_NEEDS_VALUE_'] = True
+
 
     return discrepancies
 

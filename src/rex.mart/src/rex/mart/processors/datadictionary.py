@@ -8,7 +8,7 @@ from StringIO import StringIO
 
 from rex.core import Error, StrVal, MaybeVal
 
-from ..fields import EnumerationSetField, EnumerationField
+from ..fields import EnumerationSetField
 from .base import Processor
 
 
@@ -424,7 +424,7 @@ class Column(object):
         self.datatype = datatype
         self.enumerations = []
         self.enumeration_descriptions = {}
-        self.link = None
+        self.link = link
 
     def get_deploy_facts(self, table_name, options):
         facts = []

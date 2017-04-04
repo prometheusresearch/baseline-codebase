@@ -146,7 +146,7 @@ class MartCreateTask(RexTask):
             if ':' in self.runlist:
                 open_func = get_packages().open
             else:
-                open_func = open
+                open_func = open  # pylint: disable=redefined-variable-type
 
             try:
                 runlist = open_func(self.runlist).read()

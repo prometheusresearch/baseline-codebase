@@ -3,9 +3,9 @@
  * @flow
  */
 
-import type {Form, QuestionOptions} from './types';
+import type {RIOSForm, RIOSQuestion} from '../types';
 
-type Callback = (question: QuestionOptions, page: string, deep: boolean) => mixed;
+type Callback = (question: RIOSQuestion, page: string, deep: boolean) => mixed;
 
 /**
  * Traverse all questions in a form and fire callback
@@ -13,7 +13,7 @@ type Callback = (question: QuestionOptions, page: string, deep: boolean) => mixe
  * @param {Form} form
  * @param {Function<Question, PageId, isDeep>}
  */
-export default function traverseQuestions(form: Form, cb: Callback) {
+export default function traverseQuestions(form: RIOSForm, cb: Callback) {
 
   for (let i = 0; i < form.pages.length; i++) {
     let page = form.pages[i];

@@ -92,7 +92,7 @@ export default class FormPaginator extends React.Component {
     return (
       <Focus.FocusableList tabIndex={0} activeDescendant={pageCount}>
         <ReactUI.Block textAlign="center" width="100%" {...props}>
-          <ReactUI.Block inline float="start">
+          <ReactUI.Block inline float="start" width={120} minHeight={1}>
             {showPrev &&
               <Focus.Focusable focusIndex={prevDisabled ? null : -1}>
                 <PageButton
@@ -111,7 +111,7 @@ export default class FormPaginator extends React.Component {
             {currentButton}
             {nextButtons}
           </ReactUI.Block>
-          <ReactUI.Block inline float="end">
+          <ReactUI.Block inline float="end" width={120} minHeight={1}>
             {showNext &&
               <Focus.Focusable focusIndex={nextDisabled ? null : pageCount}>
                 <PageButton

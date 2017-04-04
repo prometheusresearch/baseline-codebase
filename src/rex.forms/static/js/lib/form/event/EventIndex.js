@@ -24,7 +24,7 @@ import type {
   KeyPath,
 } from '../../types';
 
-import {
+import type {
   Locator
 } from './TargetIndex';
 
@@ -118,13 +118,16 @@ export function createEventIndex(
 
     // matrix row
     if (context.parent && context.row) {
+      const parent = context.parent;
+      const rows = parent.rows;
+      invariant(rows != null, 'Missing rows');
 
       // eval in the same matrix row scope
       if (isTargetScoped) {
 
-        locateScope = (value) =>
-          context.parent.rows.map(row =>
-            [context.parent.fieldId, 'value', row.id]);
+        locateScope = (_value) =>
+          rows.map(row =>
+            [parent.fieldId, 'value', row.id]);
 
         compute = (globalScope: Scope, targetScope: ?Scope) => {
           invariant(
@@ -138,11 +141,11 @@ export function createEventIndex(
       } else {
 
         compute = (globalScope: Scope, _targetScope: ?Scope) => {
-          let scopeList = context.parent.rows
+          let scopeList = rows
             .map(row => {
               let localScope = selectScope(
                 globalScope,
-                [context.parent.fieldId, 'value', row.id]
+                [parent.fieldId, 'value', row.id]
               );
               if (localScope == null) {
                 return null;
@@ -158,6 +161,8 @@ export function createEventIndex(
     // record list item
     } else if (context.parent) {
 
+      const parent = context.parent;
+
       // eval in the same record list item scope
       if (isTargetScoped) {
 
@@ -167,12 +172,12 @@ export function createEventIndex(
             'Cannot eval event without local scope'
           );
           return computationForEvent(event, [targetScope, globalScope], parameters);
-        }
+        };
 
         locateScope = (value) => {
-          let recordList: Array<*> = cast(get(value, [context.parent.fieldId, 'value'])) || [];
+          let recordList: Array<*> = cast(get(value, [parent.fieldId, 'value'])) || [];
           return recordList.map((item, idx) =>
-            [context.parent.fieldId, 'value', idx]);
+            [parent.fieldId, 'value', idx]);
         };
 
       // eval in each record list item scope and aggregate
@@ -187,6 +192,7 @@ export function createEventIndex(
                 globalScope,
                 [fieldId, 'value', idx]
               );
+              invariant(localScope != null, 'Missing local scope');
               return [localScope, globalScope];
             })
             .filter(item => item != null);
@@ -432,20 +438,21 @@ function aggregatedComputationForEvent(
   scopeList: Array<NestedScope>,
   parameters: Object
 ) {
+  const ev = event;
   return derivation(() => {
-    switch (event.action) {
+    switch (ev.action) {
       case 'hide':
       case 'disable':
         return some(scopeList, scope =>
-          booleanComputation(event, scope, parameters).get());
+          booleanComputation(ev, scope, parameters).get());
       case 'fail':
         return flatten(scopeList.map(scope =>
-          failComputation(event, scope, parameters)).get());
+          failComputation(ev, scope, parameters).get()));
       case 'hideEnumeration':
         return flatten(scopeList.map(scope =>
-          hideEnumerationComputation(event, scope, parameters)).get());
+          hideEnumerationComputation(ev, scope, parameters).get()));
       default:
-        invariant(false, 'Unknown event action: %s', event.action);
+        invariant(false, 'Unknown event action: %s', ev.action);
     }
   });
 }

@@ -1,5 +1,5 @@
 demo::
-	@$(MAKE) --no-print-directory -C demo/rex.forms_demo run
+	@rex serve rex.forms_demo
 
 develop install::
 	@python setup.py $@

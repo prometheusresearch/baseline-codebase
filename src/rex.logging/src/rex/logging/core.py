@@ -85,12 +85,18 @@ def get_logging_config():
     }
 
 
-def disable_logging():
+def disable_logging(level=logging.WARNING):
     """
-    Shuts down all logging in the application.
+    Shuts down the logging in the application of all messages equal to or lower
+    than the specified level.
+
+    :param level:
+        the level at which logging should be disabled. if not specified,
+        defaults to ``logging.WARNING``.
+    :type level: int
     """
 
-    logging.disable(logging.CRITICAL)
+    logging.disable(level)
 
 
 def enable_logging():

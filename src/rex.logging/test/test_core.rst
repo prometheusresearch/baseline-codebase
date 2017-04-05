@@ -75,6 +75,7 @@ disable_logging & enable_logging
 
 These functions allow you to turn on/off the entire logging system::
 
+    >>> import logging
     >>> from rex.logging import disable_logging, enable_logging
     >>> rex = Rex('rex.logging_demo')
     >>> rex.on()
@@ -94,6 +95,11 @@ These functions allow you to turn on/off the entire logging system::
     CRITICAL:root:Hello
 
     >>> disable_logging()
+    >>> say_hello()
+    ERROR:root:Hello
+    CRITICAL:root:Hello
+
+    >>> disable_logging(logging.CRITICAL)
     >>> say_hello()
 
     >>> enable_logging()

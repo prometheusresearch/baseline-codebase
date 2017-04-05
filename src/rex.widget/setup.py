@@ -25,7 +25,7 @@ setup(
         'rex.setup              >= 3.1,   < 4',
         'rex.core               >= 1.6,   < 2',
         'rex.port               >= 1.1,   < 2',
-        'rex.web                >= 3.0,   < 4',
+        'rex.web                >= 3.9,   < 4',
         'rex.db                 >= 3.0,   < 4',
         'rex.file               >= 1.0,   < 2',
         'rex.urlmap             >= 2.5,   < 3',

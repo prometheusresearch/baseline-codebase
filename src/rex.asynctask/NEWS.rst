@@ -5,7 +5,7 @@ REX.ASYNCTASK Change Log
 .. contents:: Table of Contents
 
 
-0.5.0 (2017-xx-xx)
+0.5.0 (2017-04-05)
 ==================
 
 * Added a basic task scheduling system that allows workers and rex.ctl Tasks to

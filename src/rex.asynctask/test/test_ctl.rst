@@ -226,7 +226,7 @@ Tasks can be scheduled to execute at particular times::
     INFO:AsyncTaskWorkerTask:Complete
 
     >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --scheduler")
-    >>> time.sleep(1)  # give the task a little time to spin up
+    >>> time.sleep(3)  # give the task a little time to spin up
     >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching demo_foo_worker to work on queue foo
     INFO:AsyncTaskWorkerTask:No schedules configured -- not starting scheduler
@@ -241,8 +241,8 @@ rex.ctl Tasks can be executed on a schedule::
 
     >>> import datetime
     >>> second = datetime.datetime.now().second
-    >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --scheduler --set=asynctask_workers='{\"foo\": null}' --set=asynctask_scheduled_workers='[{\"ctl\": \"demo-noisy-task\", \"second\": \"%s\"}, {\"ctl\": \"demo-quiet-task\", \"second\": \"%s\"}, {\"ctl\": \"demo-crashy-task\", \"second\": \"%s\"}]'" % (second + 2, second + 4, second + 6))
-    >>> time.sleep(10)  # give the task some time for the tasks to trigger
+    >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --scheduler --set=asynctask_workers='{\"foo\": null}' --set=asynctask_scheduled_workers='[{\"ctl\": \"demo-noisy-task\", \"second\": \"%s\"}, {\"ctl\": \"demo-quiet-task\", \"second\": \"%s\"}, {\"ctl\": \"demo-crashy-task\", \"second\": \"%s\"}]'" % (second + 4, second + 6, second + 8))
+    >>> time.sleep(12)  # give the task some time for the tasks to trigger
     >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching ctl_executor to work on queue scheduled_0_ctl_...
     INFO:AsyncTaskWorkerTask:Launching ctl_executor to work on queue scheduled_0_ctl_...

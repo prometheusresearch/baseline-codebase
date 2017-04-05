@@ -5,10 +5,7 @@ REX.TABULAR_IMPORT Change Log
 .. contents:: Table of Contents
 
 
-
-
-
-0.3.0 (2017-XX-XX)
+0.3.0 (2017-04-05)
 ==================
 
 - Added asynchronous import execution

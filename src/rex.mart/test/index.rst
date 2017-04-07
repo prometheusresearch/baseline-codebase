@@ -21,4 +21,5 @@ REX.MART Examples/Tests
    test_util
    test_validators
    test_workers
+   test_definer_rexdb
 

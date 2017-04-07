@@ -16,25 +16,11 @@
         4,Mary,Cooper
         5,Some,Body
 
-- table: subject
-  with:
-    - data: ./deploy/subject.csv
-
-- table: instrument
-  with:
-    - data: ./deploy/instrument.csv
-
-- table: instrumentversion
-  with:
-    - data: ./deploy/instrumentversion.csv
-
-- table: form
-  with:
-    - data: ./deploy/form.csv
-
-- table: interaction
-  with:
-    - data: ./deploy/interaction.csv
+- data: ./deploy/subject.csv
+- data: ./deploy/instrument.csv
+- data: ./deploy/instrumentversion.csv
+- data: ./deploy/form.csv
+- data: ./deploy/interaction.csv
 
 - table: assessment
   with:
@@ -42,4 +28,12 @@
       type: integer
       required: false
     - data: ./deploy/assessment.csv
+
+- data: ./deploy/rexmart_dynamic_assessment.csv
+- data: ./deploy/rexmart_dynamic_assessment_instrument.csv
+- data: ./deploy/rexmart_dynamic_assessment_parent.csv
+- data: ./deploy/rexmart_dynamic_assessment_instrument_field.csv
+- data: ./deploy/rexmart_dynamic_assessment_calculation_field.csv
+- data: ./deploy/rexmart_dynamic_assessment_meta_field.csv
+- data: ./deploy/rexmart_dynamic_assessment_calculation.csv
 

@@ -19,7 +19,7 @@ Some tools for testing::
     ...     return cluster.exists(name)
     >>> def db_inventory(name, detailed=None):
     ...     db = get_mart_db(name)
-    ...     tables = db.produce("/meta(/table?name!={'rexmart_inventory','asynctask_queue'})")
+    ...     tables = db.produce("/meta(/table?name!='asynctask_queue'&name!~'rexmart')")
     ...     if not tables:
     ...         print 'No tables found'
     ...         return
@@ -870,6 +870,36 @@ without explicitly listing every one::
     Has Size: True
     Dates: True True
 
+You can get a::
+
+    >>> mc = MartCreator('test', 'dynamic_simple')
+    >>> mart = mc()
+    >>> db_exists(mart.name)
+    True
+    >>> db_inventory(mart.name)
+    mart1: 8
+    subject: 7
+    >>> db_status(mart.name)
+    Definition: dynamic_simple
+    Status: complete
+    Owner: test
+    Has Size: True
+    Dates: True True
+
+    >>> mc = MartCreator('test', 'dynamic_complex')
+    >>> mart = mc()
+    >>> db_exists(mart.name)
+    True
+    >>> db_inventory(mart.name)
+    mart1: 8
+    mart2: 0
+    subject: 7
+    >>> db_status(mart.name)
+    Definition: dynamic_complex
+    Status: complete
+    Owner: test
+    Has Size: True
+    Dates: True True
 
 It complains if you don't specify an owner::
 

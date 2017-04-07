@@ -392,6 +392,21 @@ post_load_calculations
         value that should be stored in the field.
 
 
+As an alternative to explicitly declaring the configuration of assessments in
+the Mart Definition, you can add an entry to the ``assessments`` property that
+instructs ``rex.mart`` to retrieve assessment configurations via a Definer
+extension. This kind of entry accepts the following properties:
+
+dynamic
+    This property identifies which Definer to execute. This property is
+    required.
+
+options
+    This property is a mapping that allows you to specify options to pass into
+    the execution of the Definer. The options allowed here vary from Definer
+    to Definer.
+
+
 post_assessment_scripts
 ```````````````````````
 The ``post_assessment_scripts`` property functions exactly like the
@@ -751,6 +766,15 @@ analyze
 The ``analyze`` Processor will invoke the PostgreSQL ANALYZE operation to
 collect statistics about the contents of tables in the Mart. This will help
 PostgreSQL execute more efficient queries in databases with lots of data.
+
+
+Built-In Definers
+=================
+
+rexdb
+-----
+The ``rexdb`` Definer retrieves its configuration from tables stored in the
+main RexDB application database.
 
 
 Known Issues

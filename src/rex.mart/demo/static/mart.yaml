@@ -459,3 +459,21 @@ definitions:
     processors:
       - id: datadictionary
 
+  - id: dynamic_simple
+    description: Load a Mart with an Assessment configured via tables
+    deploy: !include simple_subject.yaml
+    post_deploy_scripts:
+      - script: !include/str subject.htsql
+        type: htsql
+    assessments:
+      - dynamic: rexdb
+
+  - id: dynamic_complex
+    description: Load a Mart with multiple Assessments configured via tables
+    deploy: !include simple_subject.yaml
+    post_deploy_scripts:
+      - script: !include/str subject.htsql
+        type: htsql
+    assessments:
+      - dynamic: rexdb
+

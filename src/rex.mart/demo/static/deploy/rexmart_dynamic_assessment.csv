@@ -1,0 +1,5 @@
+definition,sequence,status,name,parental_relationship,identifiable,include_fields,include_calculations,selector
+dynamic_simple,10,enabled,mart1,trunk,any,true,true,"/assessment{id() :as assessment_uid}.filter(instrumentversion.instrument=$INSTRUMENT)/:rexdb"
+dynamic_complex,10,enabled,mart1,branch,any,true,true,"/assessment{id() :as assessment_uid, subject.id() :as subject}.filter(instrumentversion.instrument=$INSTRUMENT)/:rexdb"
+dynamic_complex,20,enabled,mart2,trunk,none,false,false,"/assessment{id() :as assessment_uid}.filter(instrumentversion.instrument=$INSTRUMENT)/:rexdb"
+broken,10,enabled,mart1,trunk,any,true,true,"foo"

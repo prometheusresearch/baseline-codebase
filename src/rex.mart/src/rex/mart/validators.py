@@ -7,7 +7,7 @@ from collections import Counter
 
 from rex.core import Error, StrVal, RecordVal, MaybeVal, ChoiceVal, SeqVal, \
     MapVal, guard, OneOrSeqVal, OneOfVal, BoolVal, get_settings, IntVal, \
-    AnyVal, FloatVal
+    AnyVal, FloatVal, UnionVal
 from rex.deploy import Driver
 from rex.instrument import Instrument
 from rex.restful import DateVal, TimeVal, DateTimeVal
@@ -31,6 +31,7 @@ __all__ = (
     'MetadataFieldVal',
     'PostLoadCalculationsVal',
     'AssessmentDefinitionVal',
+    'DynamicAssessmentVal',
     'ProcessorVal',
     'DefinitionVal',
     'MartConfigurationVal',
@@ -550,6 +551,10 @@ class AssessmentDefinitionVal(FullyValidatingRecordVal):
     def __call__(self, data):
         value = super(AssessmentDefinitionVal, self).__call__(data)
 
+        with guard('While validating field:', 'instrument'):
+            if not value.instrument:
+                raise Error('Assessment does not specify any instruments')
+
         if value.instrument != '@ALL':
             with guard('While validating field:', 'name'):
                 if not value.name and value.instrument:
@@ -574,7 +579,7 @@ class AssessmentDefinitionVal(FullyValidatingRecordVal):
                     and value.calculations is None \
                     and not value.meta:
                 raise Error(
-                    'Definition does not include any fields, calculations, or'
+                    'Assessment does not include any fields, calculations, or'
                     ' metadata'
                 )
 
@@ -603,6 +608,34 @@ class AssessmentDefinitionVal(FullyValidatingRecordVal):
                     ' "post_load_calculations" properties are not allowed when'
                     ' @ALL is specified for the instrument.'
                 )
+
+        return value
+
+
+class DynamicAssessmentVal(FullyValidatingRecordVal):
+    """
+    Parses/Validates a single Dynamic Assessment definition.
+    """
+
+    def __init__(self):
+        super(DynamicAssessmentVal, self).__init__(
+            # The name of the Definer implementation to invoke.
+            ('dynamic', StrippedStrVal),
+
+            # Arbitrary options to pass to the Definer's get_assessments()
+            # method.
+            ('options', MapVal(), {}),
+        )
+
+    def __call__(self, data):
+        value = super(DynamicAssessmentVal, self).__call__(data)
+
+        from .definers import Definer
+
+        with guard('While validating field:', 'dynamic'):
+            with guard('Got:', value.dynamic):
+                if value.dynamic not in Definer.mapped():
+                    raise Error('Unknown Definer ID')
 
         return value
 
@@ -676,7 +709,14 @@ class DefinitionVal(FullyValidatingRecordVal):
             ('post_deploy_scripts', SeqVal(EtlScriptVal), []),
 
             # The Assessments to load into the Mart.
-            ('assessments', SeqVal(AssessmentDefinitionVal), []),
+            (
+                'assessments',
+                SeqVal(UnionVal(
+                    ('instrument', AssessmentDefinitionVal()),
+                    ('dynamic', DynamicAssessmentVal()),
+                )),
+                [],
+            ),
 
             # The ETL scripts to execute after the Assessments have been
             # loaded.
@@ -726,7 +766,9 @@ class DefinitionVal(FullyValidatingRecordVal):
         with guard('While validating field:', 'assessments'):
             assessments = []
             for assessment in value.assessments:
-                if assessment.instrument != '@ALL':
+                if not hasattr(assessment, 'instrument'):
+                    assessments.append(assessment)
+                elif assessment.instrument != '@ALL':
                     assessments.append(assessment)
                 else:
                     all_instruments = [
@@ -743,7 +785,11 @@ class DefinitionVal(FullyValidatingRecordVal):
                             ))
                         )
 
-            names = [assessment.name for assessment in assessments]
+            names = [
+                assessment.name
+                for assessment in assessments
+                if hasattr(assessment, 'instrument')
+            ]
             dupe_names = set([name for name in names if names.count(name) > 1])
             if dupe_names:
                 raise Error(

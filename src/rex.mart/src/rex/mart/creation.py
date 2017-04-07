@@ -17,6 +17,7 @@ from .assessments import AssessmentLoader
 from .config import get_definition, get_management_db_uri
 from .connections import get_management_db, get_hosting_cluster, \
     get_mart_etl_db, get_sql_connection
+from .definers import Definer
 from .mart import Mart
 from .processors import Processor
 from .purging import purge_mart
@@ -495,7 +496,18 @@ class MartCreator(object):
         if not self.definition['assessments']:
             return
 
-        for idx, assessment in enumerate(self.definition['assessments']):
+        assessments = []
+        for cfg in self.definition['assessments']:
+            if cfg.get('dynamic'):
+                assessments += Definer.get_assessments(
+                    cfg['dynamic'],
+                    self.definition['id'],
+                    **cfg.get('options', {})
+                )
+            else:
+                assessments.append(cfg)
+
+        for idx, assessment in enumerate(assessments):
             idx_label = '#%s (%s)' % (idx + 1, assessment['name'])
             self.log('Processing Assessment %s' % (idx_label,))
 

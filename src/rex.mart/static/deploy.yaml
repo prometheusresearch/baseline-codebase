@@ -51,3 +51,180 @@
       type: boolean
       default: false
 
+
+# This table contains the Assessment definitions that will be retrieved by the
+# "rexdb" Definer.
+- table: rexmart_dynamic_assessment
+  with:
+    # The ID of the Mart Definition this Assessment belongs to
+    - column: definition
+      type: text
+
+    # A unique sequence number that orders the Assessments
+    - column: sequence
+      type: integer
+
+    - identity:
+        - definition
+        - sequence
+
+    # The status of the Assessment definition; disabled records are ignored
+    - column: status
+      type:
+        - enabled
+        - disabled
+      default: enabled
+
+    # The "name" property of the Assessment
+    - column: name
+      type: text
+
+    # The "selector" property of the Assessment
+    - column: selector
+      type: text
+
+    # The "parental_relationship.type" property of the Assessment
+    - column: parental_relationship
+      type:
+        - trunk
+        - facet
+        - branch
+        - cross
+        - ternary
+      default: trunk
+
+    # The "identifiable" property of the Assessment
+    - column: identifiable
+      type:
+        - none
+        - only
+        - any
+      default: any
+
+    # Whether or not fields from the Instrument(s) should be included
+    - column: include_fields
+      type: boolean
+      default: true
+
+    # Whether or not calculations from the Instrument(s) should be included
+    - column: include_calculations
+      type: boolean
+      default: true
+
+- sql: ALTER TABLE rexmart_dynamic_assessment ADD CONSTRAINT rexmart_dynamic_assessment_defname UNIQUE (definition, name);
+  unless: SELECT * FROM pg_catalog.pg_constraint WHERE conname = 'rexmart_dynamic_assessment_defname';
+
+
+# This table contains the Instruments referenced by the Assessment definitions
+- table: rexmart_dynamic_assessment_instrument
+  with:
+    - link: rexmart_dynamic_assessment
+
+    # The name/code of the Instrument
+    - column: name
+      type: text
+
+    - identity:
+        - rexmart_dynamic_assessment
+        - name
+
+
+# This table contains the parent table(s) that the Assessment table hangs from
+- table: rexmart_dynamic_assessment_parent
+  with:
+    - link: rexmart_dynamic_assessment
+
+    # The name of the table
+    - column: name
+      type: text
+
+    - identity:
+        - rexmart_dynamic_assessment
+        - name
+
+
+# This table contains the fields from the Instrument(s) that should be
+# included in the Assessment table
+- table: rexmart_dynamic_assessment_instrument_field
+  with:
+    - link: rexmart_dynamic_assessment
+
+    # The name of the field
+    - column: name
+      type: text
+
+    - identity:
+        - rexmart_dynamic_assessment
+        - name
+
+
+# This table contains the fields from the Instrument Calculation(s) that should
+# be included in the Assessment table
+- table: rexmart_dynamic_assessment_calculation_field
+  with:
+    - link: rexmart_dynamic_assessment
+
+    # The name of the calculation
+    - column: name
+      type: text
+
+    - identity:
+        - rexmart_dynamic_assessment
+        - name
+
+
+# This table contains the metadata fields from the Instrument(s) that should be
+# included in the Assessment table
+- table: rexmart_dynamic_assessment_meta_field
+  with:
+    - link: rexmart_dynamic_assessment
+
+    # The name of the field
+    - column: name
+      type: text
+
+    - identity:
+        - rexmart_dynamic_assessment
+        - name
+
+    # The datatype of the field
+    - column: type
+      type:
+        - text
+        - integer
+        - float
+        - boolean
+        - date
+        - time
+        - dateTime
+
+
+# This table contains the post-load calculations that are performed on records
+# in the Assessment table
+- table: rexmart_dynamic_assessment_calculation
+  with:
+    - link: rexmart_dynamic_assessment
+
+    # The name of the calculation/field
+    - column: name
+      type: text
+
+    - identity:
+        - rexmart_dynamic_assessment
+        - name
+
+    # The datatype of the calculation's value
+    - column: type
+      type:
+        - text
+        - integer
+        - float
+        - boolean
+        - date
+        - time
+        - dateTime
+
+    # The HTSQL expression that performs the calculation
+    - column: expression
+      type: text
+

@@ -5,7 +5,7 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
-0.6.2 (2017-xx-xx)
+0.7.0 (2017-xx-xx)
 ==================
 
 * Fixed an issue that caused crashes when filtering identifiable fields from

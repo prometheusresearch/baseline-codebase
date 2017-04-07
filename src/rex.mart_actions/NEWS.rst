@@ -5,6 +5,12 @@ REX.MART_ACTIONS Change Log
 .. contents:: Table of Contents
 
 
+0.7.0 (2017-xx-xx)
+==================
+
+* Updated rex.query and rex.mart.
+
+
 0.6.1 (2017-02-07)
 ==================
 

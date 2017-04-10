@@ -10,13 +10,12 @@ import Select from '../Select';
 import DateTimeField from '@prometheusresearch/react-datetimepicker';
 
 type TextOperandProps = {
-  type: string;
-  value: string;
-  onChange: (value: ?string) => *;
+  type: string,
+  value: string,
+  onChange: (value: ?string) => *,
 };
 
 export class TextOperand extends React.Component<*, TextOperandProps, *> {
-
   render() {
     let {value, ...props} = this.props;
     return (
@@ -26,7 +25,7 @@ export class TextOperand extends React.Component<*, TextOperandProps, *> {
         value={value == null ? '' : value}
         onChange={this.onChange}
         placeholder="Enter a Value..."
-        />
+      />
     );
   }
 
@@ -37,27 +36,26 @@ export class TextOperand extends React.Component<*, TextOperandProps, *> {
 }
 
 type NumberOperandProps = {
-  value: string;
-  onChange: (value: number) => *;
+  value: string,
+  onChange: (value: number) => *,
 };
 
 export class NumberOperand extends React.Component<*, NumberOperandProps, *> {
-
   state: {
-    value: string;
-    error: boolean;
+    value: string,
+    error: boolean,
   };
 
   constructor(props: NumberOperandProps) {
     super(props);
     this.state = {
       value: props.value,
-      error: false
+      error: false,
     };
   }
 
   componentWillReceiveProps(nextProps: NumberOperandProps) {
-    if (nextProps.value !== this.props.value) {
+    if (Number(nextProps.value) !== Number(this.state.value)) {
       this.setState({
         value: nextProps.value,
         error: false,
@@ -68,23 +66,24 @@ export class NumberOperand extends React.Component<*, NumberOperandProps, *> {
   render() {
     return (
       <TextOperand
-        variant={{'error': this.state.error}}
+        variant={{error: this.state.error}}
         value={this.state.value}
         onChange={this.onChange}
-        />
+      />
     );
   }
 
   onChange = (value: string) => {
     let num = Number(value);
-    if ((value != null) && (num.toString() === value)) {
-      this.setState({value, error: false}, () => { this.props.onChange(num); });
+    if (value != null && !Number.isNaN(num)) {
+      this.setState({value, error: false}, () => {
+        this.props.onChange(num);
+      });
     } else {
       this.setState({value, error: true});
     }
   };
 }
-
 
 export class EnumerationOperand extends React.Component {
   render() {
@@ -94,17 +93,16 @@ export class EnumerationOperand extends React.Component {
         options={this.props.options}
         onChange={this.props.onChange}
         placeholder="Select a Value..."
-        />
+      />
     );
   }
 }
 
 class DateOperandBase extends React.Component {
-
   static format = 'YYYY-MM-DD';
 
   state: {
-    value: any;
+    value: any,
   };
 
   constructor(props: any) {
@@ -129,7 +127,7 @@ class DateOperandBase extends React.Component {
     );
   }
 
-  renderField(props: {value: any; onChange: string => *}): ?React.Element<*> {
+  renderField(props: {value: any, onChange: (string) => *}): ?React.Element<*> {
     return null;
   }
 
@@ -139,47 +137,32 @@ class DateOperandBase extends React.Component {
 }
 
 export class DateOperand extends DateOperandBase {
-
   static format = 'YYYY-MM-DD';
 
-  renderField({value, onChange}: {value: any; onChange: string => *}): ?React.Element<*> {
-    return (
-      <DateTimeField
-        mode="date"
-        dateTime={value}
-        onChange={onChange}
-        />
-    );
+  renderField(
+    {value, onChange}: {value: any, onChange: (string) => *},
+  ): ?React.Element<*> {
+    return <DateTimeField mode="date" dateTime={value} onChange={onChange} />;
   }
 }
 
 export class TimeOperand extends DateOperandBase {
-
   static format = 'HH:mm:ss';
 
-  renderField({value, onChange}: {value: any; onChange: string => *}): ?React.Element<*> {
-    return (
-      <DateTimeField
-        mode="time"
-        dateTime={value}
-        onChange={onChange}
-        />
-    );
+  renderField(
+    {value, onChange}: {value: any, onChange: (string) => *},
+  ): ?React.Element<*> {
+    return <DateTimeField mode="time" dateTime={value} onChange={onChange} />;
   }
 }
 
 export class DateTimeOperand extends DateOperandBase {
-
   static format = 'YYYY-MM-DD HH:mm:ss';
 
-  renderField({value, onChange}: {value: any; onChange: string => *}): ?React.Element<*> {
-    return (
-      <DateTimeField
-        mode="time"
-        dateTime={value}
-        onChange={onChange}
-        />
-    );
+  renderField(
+    {value, onChange}: {value: any, onChange: (string) => *},
+  ): ?React.Element<*> {
+    return <DateTimeField mode="time" dateTime={value} onChange={onChange} />;
   }
 }
 
@@ -192,7 +175,7 @@ export class MultiEnumerationOperand extends React.Component {
         options={this.props.options}
         onChange={this.props.onChange}
         placeholder="Select Some Values..."
-        />
+      />
     );
   }
 }

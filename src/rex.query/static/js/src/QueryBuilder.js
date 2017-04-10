@@ -18,19 +18,18 @@ import * as ui from './ui';
 import * as State from './state';
 
 type QueryBuilderProps = {
-  domain: Domain;
-  api: string;
-  initialQuery: ?QueryPipeline;
-  limitSelectQuery: number;
-  onQuery: (query?: ?Query) => *;
-  onSearch?: SearchCallback;
-  toolbar?: ?React.Element<*>;
+  domain: Domain,
+  api: string,
+  initialQuery: ?QueryPipeline,
+  limitSelectQuery: number,
+  onQuery: (query?: ?Query) => *,
+  onSearch?: SearchCallback,
+  toolbar?: ?React.Element<*>,
 };
 
 let log = createLogger('rex-query:ui:main');
 
 export default class QueryBuilder extends React.Component<*, QueryBuilderProps, *> {
-
   state: State.State;
   props: QueryBuilderProps;
   actions: State.Actions;
@@ -60,7 +59,7 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
             this.props.onQuery(state.query);
           }
         });
-      }
+      },
     );
 
     this.state = this.container.getState();
@@ -108,31 +107,22 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
             focusedSeq={focusedSeq}
             onFocusedSeq={this.onFocusedSeq}
           />
-        )
+        ),
       },
       ...chartList.map(chart => ({
         id: chart.id,
         label: chart.label,
         children: (
-          <Chart
-            query={query}
-            loading={queryLoading}
-            data={data}
-            chartSpec={chart}
-            />
+          <Chart query={query} loading={queryLoading} data={data} chartSpec={chart} />
         ),
-      }))
+      })),
     ];
 
     const tabListAlt = [
       {
         id: '__addplot__',
         label: '＋ Add Chart',
-        children: (
-          <AddChartDialogue
-            onAddChart={this.actions.addChart}
-            />
-        ),
+        children: <AddChartDialogue onAddChart={this.actions.addChart} />,
       },
     ];
 
@@ -177,48 +167,46 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
               activeQueryPipeline={activeQueryPipeline}
               showPanel={showPanel}
               onShowSelect={this.actions.showSelect}
-              />
-            {query.context.hasInvalidType &&
-              <InvalidQueryNotice
-                />}
+            />
+            {query.context.hasInvalidType && <InvalidQueryNotice />}
           </LeftPanelWrapper>
-          {(selected || activeQueryPipeline) && showPanel && (
-            activeQueryPipeline ?
-              <CenterPanelWrapper>
-                <ui.AddQueryPanel
-                  title="Pick a starting relationship"
-                  onClose={this.actions.hidePanel}
-                  pipeline={activeQueryPipeline}
-                  onSearch={this.props.onSearch}
-                  disableClose={disablePanelClose}
+          {(selected || activeQueryPipeline) &&
+            showPanel &&
+            (activeQueryPipeline
+              ? <CenterPanelWrapper>
+                  <ui.AddQueryPanel
+                    title="Pick a starting relationship"
+                    onClose={this.actions.hidePanel}
+                    pipeline={activeQueryPipeline}
+                    onSearch={this.props.onSearch}
+                    disableClose={disablePanelClose}
                   />
-              </CenterPanelWrapper> : selected ?
-              <CenterPanelWrapper>
-                <ui.QueryPanel
-                  key={selected.id}
-                  onClose={this.actions.hidePanel}
-                  onSearch={this.props.onSearch}
-                  query={selected}
-                  disableClose={disablePanelClose}
-                  />
-              </CenterPanelWrapper> :
-              null
-          )}
+                </CenterPanelWrapper>
+              : selected
+                  ? <CenterPanelWrapper>
+                      <ui.QueryPanel
+                        key={selected.id}
+                        onClose={this.actions.hidePanel}
+                        onSearch={this.props.onSearch}
+                        query={selected}
+                        disableClose={disablePanelClose}
+                      />
+                    </CenterPanelWrapper>
+                  : null)}
           <RightPanelWrapper>
             {isEmptyQueryPipeline(query)
               ? null
               : queryInvalid
-              ? <InvalidQueryMessage
-                  onUndo={this.actions.undo}
-                  />
-              : data != null
-              ? <ui.TabContainer
-                  activeTab={activeTab}
-                  onActiveTab={activeTab => this.actions.setActiveTab({activeTab})}
-                  tabList={tabList}
-                  tabListAlt={tabListAlt}
-                  />
-              : null}
+                  ? <InvalidQueryMessage onUndo={this.actions.undo} />
+                  : data != null
+                      ? <ui.TabContainer
+                          activeTab={activeTab}
+                          onActiveTab={activeTab =>
+                            this.actions.setActiveTab({activeTab})}
+                          tabList={tabList}
+                          tabListAlt={tabListAlt}
+                        />
+                      : null}
           </RightPanelWrapper>
         </HBox>
       </VBox>
@@ -243,10 +231,7 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
 }
 
 function isEmptyQueryPipeline(query: QueryPipeline) {
-  return (
-    query.pipeline.length === 1 &&
-    query.pipeline[0].name === 'here'
-  );
+  return query.pipeline.length === 1 && query.pipeline[0].name === 'here';
 }
 
 function InvalidQueryMessage({onUndo}) {
@@ -278,7 +263,7 @@ let QueryBuilderToolbar = style(HBox, {
   base: {
     zIndex: 2,
     boxShadow: css.boxShadow(0, 0, 3, 0, '#666'),
-  }
+  },
 });
 
 let CenterPanelWrapper = style(VBox, {
@@ -288,7 +273,7 @@ let CenterPanelWrapper = style(VBox, {
     height: '100%',
     overflow: 'auto',
     boxShadow: css.boxShadow(0, 0, 3, 0, '#aaa'),
-  }
+  },
 });
 
 let RightPanelWrapper = style(VBox, {
@@ -296,7 +281,7 @@ let RightPanelWrapper = style(VBox, {
     flexBasis: '400px',
     flexGrow: 4,
     borderLeft: css.border(1, '#ccc'),
-  }
+  },
 });
 
 let LeftPanelWrapper = style(VBox, {
@@ -305,7 +290,7 @@ let LeftPanelWrapper = style(VBox, {
     overflow: 'auto',
     height: '100%',
     boxShadow: css.boxShadow(0, 0, 3, 0, '#666'),
-  }
+  },
 });
 
 function isEmptyQuery(query) {

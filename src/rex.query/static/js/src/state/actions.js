@@ -4,10 +4,7 @@
  * @flow
  */
 
-import type {
-  State,
-  StateUpdater,
-} from './index';
+import type {State, StateUpdater} from './index';
 
 import type {
   DefineQuery,
@@ -53,11 +50,9 @@ export function addChart(params: {chartType: Chart.ChartType}): StateUpdater {
     const {chartType} = params;
     const chartSpec = {
       id: `${chartType}-${state.chartList.length + 1}`,
-      label: (
-        state.chartList.length === 0
-          ? Chart.getChartTitle({type: chartType})
-          : `${Chart.getChartTitle({type: chartType})} ${state.chartList.length}`
-      ),
+      label: state.chartList.length === 0
+        ? Chart.getChartTitle({type: chartType})
+        : `${Chart.getChartTitle({type: chartType})} ${state.chartList.length}`,
       chart: Chart.getInitialChart(state.query, {type: chartType}),
     };
     const chartList = state.chartList.concat(chartSpec);
@@ -82,7 +77,7 @@ export function updateChart(
       nextChart.chart = params.chart;
     }
     if (params.label != null) {
-      nextChart.label  = params.label;
+      nextChart.label = params.label;
     }
     chartList.splice(chartIdx, 1, nextChart);
     return {...state, chartList};
@@ -103,10 +98,15 @@ export function removeChart(params: {chartId: string}): StateUpdater {
 /**
  * Navigate.
  */
-export function navigate({at, path}: {
-  at: QueryPipeline,
-  path: Array<string>,
-}): StateUpdater {
+export function navigate(
+  {
+    at,
+    path,
+  }: {
+    at: QueryPipeline,
+    path: Array<string>,
+  },
+): StateUpdater {
   logAction('navigate', {at, path});
   return state => {
     let add = null;
@@ -114,7 +114,8 @@ export function navigate({at, path}: {
     if (type.card === 'seq' && type.name === 'record' && type.entity != null) {
       add = q.aggregate('count');
     }
-    let query = qo.editor(state.query, at)
+    let query = qo
+      .editor(state.query, at)
       .growNavigation({path: path, add: add})
       .getQuery();
     return onQuery(state, {query, selected: state.selected});
@@ -136,10 +137,9 @@ export function focusOnSeq(params: {focusedSeq: Focus.Focus}): StateUpdater {
  */
 export function exportDataset(): StateUpdater {
   return state => {
-    Fetch.initiateDownload(state.api, state.query, {})
-      .catch(err => {
-        console.error('Error while exporting dataset:', err);
-      });
+    Fetch.initiateDownload(state.api, state.query, {}).catch(err => {
+      console.error('Error while exporting dataset:', err);
+    });
     return state;
   };
 }
@@ -169,13 +169,9 @@ export function hidePanel(): StateUpdater {
   return state => {
     return {
       ...state,
-      showPanel: state.insertAfter != null && state.prevSelected
-        ? true
-        : false,
+      showPanel: state.insertAfter != null && state.prevSelected ? true : false,
       insertAfter: null,
-      selected: state.insertAfter != null
-        ? state.prevSelected
-        : null,
+      selected: state.insertAfter != null ? state.prevSelected : null,
       prevSelected: null,
     };
   };
@@ -193,10 +189,7 @@ export function undo(): StateUpdater {
       selected: state.selected,
     });
     let nextState = {...state, query, selected, undoStack, redoStack};
-    return [
-      nextState,
-      refetchQuery,
-    ];
+    return [nextState, refetchQuery];
   };
 }
 
@@ -212,27 +205,26 @@ export function redo(): StateUpdater {
       selected: state.selected,
     });
     let nextState = {...state, query, selected, undoStack, redoStack};
-    return [
-      nextState,
-      refetchQuery
-    ];
-  }
-};
+    return [nextState, refetchQuery];
+  };
+}
 
 /**
  * Initiate new query combinator insertion.
  */
-export function setActiveQueryPipeline({pipeline}: {pipeline: QueryPipeline}): StateUpdater {
+export function setActiveQueryPipeline(
+  {pipeline}: {pipeline: QueryPipeline},
+): StateUpdater {
   return state => {
     return {
       ...state,
       activeQueryPipeline: pipeline,
       selected: null,
       prevSelected: state.selected,
-      showPanel: true
+      showPanel: true,
     };
   };
-};
+}
 
 /**
  * Select a combinator in a query vis panel.
@@ -247,7 +239,7 @@ export function setSelected({query}: {query: ?QueryAtom}): StateUpdater {
       activeQueryPipeline: null,
     };
   };
-};
+}
 
 /**
  * Remove a query combinator at pointer.
@@ -255,9 +247,7 @@ export function setSelected({query}: {query: ?QueryAtom}): StateUpdater {
 export function cut({at}: {at: QueryAtom | QueryPipeline}): StateUpdater {
   logAction('cut', at);
   return state => {
-    let query = qo.editor(state.query, at, {edge: 'leading'})
-      .cut()
-      .getQuery();
+    let query = qo.editor(state.query, at, {edge: 'leading'}).cut().getQuery();
     return onQuery(state, {query, selected: state.selected});
   };
 }
@@ -276,39 +266,49 @@ export function remove({at}: {at: QueryPipeline | QueryAtom}): StateUpdater {
       if (at.name === 'group') {
         editor = editor.removeSelect();
       }
-      editor = editor.remove()
+      editor = editor.remove();
       let query = editor.getQuery();
       return onQuery(state, {query});
     }
   };
 }
 
-export function setAggregate({at, aggregate, path}: {
-  at: AggregateQuery,
-  aggregate: string,
-  path?: ?string,
-}): StateUpdater {
+export function setAggregate(
+  {
+    at,
+    aggregate,
+    path,
+  }: {
+    at: AggregateQuery,
+    aggregate: string,
+    path?: ?string,
+  },
+): StateUpdater {
   logAction('setAggregate', {at});
   return state => {
     if (path == null) {
-      path = null
+      path = null;
     }
     let nextAggregate = q.aggregate(aggregate, path);
-    let query = qo.editor(state.query, at)
-      .replaceWith(nextAggregate)
-      .getQuery();
+    let query = qo.editor(state.query, at).replaceWith(nextAggregate).getQuery();
     return onQuery(state, {query, selected: nextAggregate});
   };
 }
 
-export function setNavigate({at, path}: {
-  at: NavigateQuery,
-  path: string,
-}): StateUpdater {
+export function setNavigate(
+  {
+    at,
+    path,
+  }: {
+    at: NavigateQuery,
+    path: string,
+  },
+): StateUpdater {
   logAction('setNavigate', {at});
   return state => {
-    let nextNavigate = q.navigate(path)
-    let query = qo.editor(state.query, at)
+    let nextNavigate = q.navigate(path);
+    let query = qo
+      .editor(state.query, at)
       .removeSelect()
       .replaceWith(nextNavigate)
       .getQuery();
@@ -316,16 +316,19 @@ export function setNavigate({at, path}: {
   };
 }
 
-export function setFilter({at, expression}: {
-  at: FilterQuery,
-  expression: Expression,
-}): StateUpdater {
+export function setFilter(
+  {
+    at,
+    expression,
+  }: {
+    at: FilterQuery,
+    expression: Expression,
+  },
+): StateUpdater {
   logAction('setFilter', {at});
   return state => {
-    let nextFilter = q.filter(expression);
-    let query = qo.editor(state.query, at)
-      .replaceWith(nextFilter)
-      .getQuery();
+    let nextFilter: FilterQuery = {...q.filter(expression), id: at.id};
+    let query = qo.editor(state.query, at).replaceWith(nextFilter).getQuery();
     return onQuery(state, {query, selected: nextFilter});
   };
 }
@@ -334,39 +337,39 @@ export function setFilter({at, expression}: {
  * Update group query with new column list.
  */
 export function setGroupByPath(
-  {at, byPath}: {
+  {
+    at,
+    byPath,
+  }: {
     at: q.GroupQuery,
     byPath: Array<string>,
-  }
+  },
 ): StateUpdater {
   return state => {
     let prevType = at.context.prev.type;
     invariant(
       prevType && prevType.name === 'record' && prevType.entity != null,
-      'Invalid type info'
+      'Invalid type info',
     );
     const entity = prevType.entity;
 
-    let editor = qo.editor(state.query, at)
+    let editor = qo.editor(state.query, at);
 
-    editor = editor
-      .transformWith(query => ({
-        id: query.id,
-        name: 'group',
-        byPath: byPath,
-        context: query.context,
-      }));
+    editor = editor.transformWith(query => ({
+      id: query.id,
+      name: 'group',
+      byPath: byPath,
+      context: query.context,
+    }));
 
     if (byPath.length === 0) {
       editor = editor.removeSelect();
     }
 
-    editor = editor
-      .inferType()
-      .growNavigation({
-        path: [entity],
-        add: q.aggregate('count')
-      })
+    editor = editor.inferType().growNavigation({
+      path: [entity],
+      add: q.aggregate('count'),
+    });
 
     let query = editor.getQuery();
 
@@ -378,19 +381,23 @@ export function setGroupByPath(
  * Append a new navigate combinator at pointer.
  */
 export function appendNavigate(
-  {at, path = []}: {
-    at: QueryPipeline;
-    path?: Array<string>;
-  }
+  {
+    at,
+    path = [],
+  }: {
+    at: QueryPipeline,
+    path?: Array<string>,
+  },
 ): StateUpdater {
   logAction('appendNavigate', {at, path});
   return state => {
     if (path.length === 0) {
       return state;
     }
-    let query = qo.editor(state.query, at)
+    let query = qo
+      .editor(state.query, at)
       .insertAfter({what: path.map(q.use)})
-      .getQuery()
+      .getQuery();
     return onQuery(state, {query, selected: state.selected || state.prevSelected});
   };
 }
@@ -399,19 +406,21 @@ export function appendNavigate(
  * Append a new define combinator at query.
  */
 export function appendDefine(
-  {at, path, select}: {
-    at: QueryPipeline;
-    path?: Array<string>;
-    select?: boolean;
-  }
+  {
+    at,
+    path,
+    select,
+  }: {
+    at: QueryPipeline,
+    path?: Array<string>,
+    select?: boolean,
+  },
 ): StateUpdater {
   logAction('appendDefine', {at, path, select});
   return state => {
     let name = generateQueryID(
       at.context.scope,
-      path
-        ? `${path.join(' ')} query`
-        : 'query'
+      path ? `${path.join(' ')} query` : 'query',
     );
 
     let expression = path != null
@@ -420,27 +429,34 @@ export function appendDefine(
 
     let def = q.def(name, expression);
 
-    let query = qo.editor(state.query, at)
+    let query = qo
+      .editor(state.query, at)
       .insertAfter({what: [def]})
       .growNavigation({path: [name]})
       .getQuery();
     query = q.inferType(state.domain, query);
-    return onQuery(state, {query, selected: select ? def : null, activeQueryPipeline: null});
+    return onQuery(state, {
+      query,
+      selected: select ? def : null,
+      activeQueryPipeline: null,
+    });
   };
 }
 
 /**
  * Append a new filter combinator at pointer.
  */
-export function appendFilter({at}: {
-    at: QueryPipeline
-  }): StateUpdater {
+export function appendFilter(
+  {
+    at,
+  }: {
+    at: QueryPipeline,
+  },
+): StateUpdater {
   logAction('appendFilter', {at});
   return state => {
     let filter = q.filter(q.or(q.value(true)));
-    let query = qo.editor(state.query, at)
-      .insertAfter({what: [filter]})
-      .getQuery();
+    let query = qo.editor(state.query, at).insertAfter({what: [filter]}).getQuery();
     return onQuery(state, {query, selected: filter});
   };
 }
@@ -448,14 +464,16 @@ export function appendFilter({at}: {
 /**
  * Append a new filter combinator to a pipeline.
  */
-export function appendGroup({at}: {
-  at: QueryPipeline
-}): StateUpdater {
+export function appendGroup(
+  {
+    at,
+  }: {
+    at: QueryPipeline,
+  },
+): StateUpdater {
   return state => {
     let group = q.group([]);
-    let query = qo.editor(state.query, at)
-      .insertAfter({what: [group]})
-      .getQuery();
+    let query = qo.editor(state.query, at).insertAfter({what: [group]}).getQuery();
     return onQuery(state, {query, selected: group});
   };
 }
@@ -463,14 +481,16 @@ export function appendGroup({at}: {
 /**
  * Append a new aggregate combinator to a pipeline.
  */
-export function appendAggregate({at}: {
-  at: QueryPipeline
-}): StateUpdater {
+export function appendAggregate(
+  {
+    at,
+  }: {
+    at: QueryPipeline,
+  },
+): StateUpdater {
   return state => {
     let aggregate = q.aggregate('count');
-    let query = qo.editor(state.query, at)
-      .insertAfter({what: [aggregate]})
-      .getQuery();
+    let query = qo.editor(state.query, at).insertAfter({what: [aggregate]}).getQuery();
     return onQuery(state, {query, selected: aggregate});
   };
 }
@@ -478,15 +498,22 @@ export function appendAggregate({at}: {
 /**
  * Append a new aggregate combinator at pointer.
  */
-export function appendDefineAndAggregate({at, path, aggregate}: {
-  at: QueryPipeline,
-  path: Array<string>;
-  aggregate: d.DomainAggregate;
-}): StateUpdater {
+export function appendDefineAndAggregate(
+  {
+    at,
+    path,
+    aggregate,
+  }: {
+    at: QueryPipeline,
+    path: Array<string>,
+    aggregate: d.DomainAggregate,
+  },
+): StateUpdater {
   return state => {
     let newQuery;
     let name = generateQueryID(at.context.scope, path.join(' ') + ' Query');
-    let query = qo.editor(state.query, at)
+    let query = qo
+      .editor(state.query, at)
       .transformPipelineWith(pipeline => {
         pipeline = pipeline.slice(0);
         let select = null;
@@ -501,7 +528,7 @@ export function appendDefineAndAggregate({at, path, aggregate}: {
         }
         innerPipeline.push(q.aggregate(aggregate.name));
         newQuery = q.def(name, q.pipeline(...innerPipeline));
-        pipeline.push(newQuery)
+        pipeline.push(newQuery);
         if (select) {
           pipeline.push(select);
         }
@@ -517,10 +544,13 @@ export function appendDefineAndAggregate({at, path, aggregate}: {
  * Rename define combinator binding at pointer.
  */
 export function renameDefineBinding(
-  {at, name}: {
+  {
+    at,
+    name,
+  }: {
     at: DefineQuery,
     name: string,
-  }
+  },
 ): StateUpdater {
   return state => {
     // TODO: implement it!
@@ -530,7 +560,7 @@ export function renameDefineBinding(
 
 function reconcileSelected(
   selected: ?QueryLoc.QueryLoc<>,
-  prevSelected: ?QueryLoc.QueryLoc<>
+  prevSelected: ?QueryLoc.QueryLoc<>,
 ): ?QueryAtom {
   // Nothing is going to be selected.
   if (selected == null) {
@@ -565,34 +595,31 @@ function reconcileSelected(
   return null;
 }
 
-function onQuery(state: State, {
-  query,
-  selected,
-  activeQueryPipeline,
-}: {
-  query: QueryPipeline,
-  selected?: ?QueryAtom,
-  activeQueryPipeline?: ?QueryPipeline,
-}) {
+function onQuery(
+  state: State,
+  {
+    query,
+    selected,
+    activeQueryPipeline,
+  }: {
+    query: QueryPipeline,
+    selected?: ?QueryAtom,
+    activeQueryPipeline?: ?QueryPipeline,
+  },
+) {
   if (selected === undefined) {
     selected = state.selected;
   }
   selected = reconcileSelected(
-    selected != null
-      ? QueryLoc.loc(query, selected)
-      : null,
-    state.selected != null
-      ? QueryLoc.loc(state.query, state.selected)
-      : null,
+    selected != null ? QueryLoc.loc(query, selected) : null,
+    state.selected != null ? QueryLoc.loc(state.query, state.selected) : null,
   );
   if (activeQueryPipeline === undefined) {
     activeQueryPipeline = state.activeQueryPipeline;
   }
 
-  let selectedDidChange = (
-    (!state.selected && selected) ||
-    (state.selected && selected && selected.id !== state.selected.id)
-  );
+  let selectedDidChange = (!state.selected && selected) ||
+    (state.selected && selected && selected.id !== state.selected.id);
 
   let showPanel = state.showPanel;
   if (activeQueryPipeline != null && !selectedDidChange) {
@@ -619,10 +646,7 @@ function onQuery(state: State, {
     redoStack: [],
     focusedSeq,
   };
-  return [
-    nextState,
-    refetchQuery
-  ];
+  return [nextState, refetchQuery];
 }
 
 // FIXME: we need better sync mechanism, this is just hacky.
@@ -640,21 +664,20 @@ function refetchQuery(state, setState) {
   const currentRefetchIndex = refetchIndex;
   Promise.resolve().then(_ => {
     if (query.context.type.name === 'invalid') {
-      setState(
-        'queryInvalid',
-        state => ({...state, queryLoading: false, queryInvalid: true})
-      );
+      setState('queryInvalid', state => ({
+        ...state,
+        queryLoading: false,
+        queryInvalid: true,
+      }));
     } else {
-      setState(
-        'fetchStart',
-        state => ({...state, queryLoading: true, queryInvalid: false})
-      );
+      setState('fetchStart', state => ({
+        ...state,
+        queryLoading: true,
+        queryInvalid: false,
+      }));
       Fetch.fetch(api, query, state.translateOptions).then(data => {
         if (refetchIndex === currentRefetchIndex) {
-          setState(
-            'fetchFinish',
-            state => ({...state, data, queryLoading: false})
-          );
+          setState('fetchFinish', state => ({...state, data, queryLoading: false}));
         }
       });
     }

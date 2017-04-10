@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Domain} from './model'
+import type {Domain} from './model';
 
 import React from 'react';
 
@@ -14,7 +14,6 @@ import {fetchCatalog} from './fetch';
 const API = (typeof __rex_root__ !== 'undefined' ? __rex_root__ : '') + '/query/';
 
 export default class QueryBuilderApp extends React.Component {
-
   state: {domain: ?Domain} = {
     domain: null,
   };
@@ -43,9 +42,10 @@ export default class QueryBuilderApp extends React.Component {
           initialQuery={initialQuery}
           limitSelectQuery={limitSelectQuery}
           onQuery={this.props.onQuery}
+          onState={this.props.onState}
           onSearch={this.props.onSearch}
           toolbar={this.props.toolbar}
-          />
+        />
       );
     }
   }

@@ -4,6 +4,7 @@
 
 import type {Query, QueryPipeline, Domain} from './model';
 import type {SearchCallback} from './ui';
+import type {ChartSpec} from './state';
 
 import createLogger from 'debug';
 import invariant from 'invariant';
@@ -24,6 +25,7 @@ type QueryBuilderProps = {
   initialQuery: ?QueryPipeline,
   limitSelectQuery: number,
   onQuery: (query?: ?Query) => *,
+  onState?: (payload: {query: ?Query, chartList: Array<ChartSpec>}) => *,
   onSearch?: SearchCallback,
   toolbar?: ?React.Element<*>,
 };
@@ -58,6 +60,9 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
           onStateUpdated(this.state);
           if (this.props.onQuery) {
             this.props.onQuery(state.query);
+          }
+          if (this.props.onState) {
+            this.props.onState({query: state.query, chartList: state.chartList});
           }
         });
       },

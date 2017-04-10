@@ -109,14 +109,14 @@ export function navigate(
 ): StateUpdater {
   logAction('navigate', {at, path});
   return state => {
-    let add = null;
+    let editAtCompletion;
     let type = q.inferTypeAtPath(at.context.prev, path);
     if (type.card === 'seq' && type.name === 'record' && type.entity != null) {
-      add = q.aggregate('count');
+      editAtCompletion = pipe => pipe.concat(q.aggregate('count'));
     }
     let query = qo
       .editor(state.query, at)
-      .growNavigation({path: path, add: add})
+      .growNavigation({path, editAtCompletion})
       .getQuery();
     return onQuery(state, {query, selected: state.selected});
   };
@@ -333,18 +333,15 @@ export function setFilter(
   };
 }
 
+type SetGroupByPathParams = {
+  at: q.GroupQuery,
+  byPath: Array<string>,
+};
+
 /**
  * Update group query with new column list.
  */
-export function setGroupByPath(
-  {
-    at,
-    byPath,
-  }: {
-    at: q.GroupQuery,
-    byPath: Array<string>,
-  },
-): StateUpdater {
+export function setGroupByPath({at, byPath}: SetGroupByPathParams): StateUpdater {
   return state => {
     let prevType = at.context.prev.type;
     invariant(
@@ -366,9 +363,17 @@ export function setGroupByPath(
       editor = editor.removeSelect();
     }
 
-    editor = editor.inferType().growNavigation({
+    editor = editor.inferType();
+
+    editor = editor.growNavigation({
       path: [entity],
-      add: q.aggregate('count'),
+      editAtCompletion: pipe => {
+        const tail = pipe[pipe.length - 1];
+        if (tail && tail.name !== 'aggregate') {
+          pipe = pipe.concat(q.aggregate('count'));
+        }
+        return pipe;
+      },
     });
 
     let query = editor.getQuery();

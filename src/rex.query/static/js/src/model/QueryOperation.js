@@ -24,8 +24,7 @@ import * as t from './Type';
 let log = createLogger('rex-query:op');
 
 class Editor<Q: QueryAtom> {
-
-  loc: QueryLoc.QueryLoc<Q>
+  loc: QueryLoc.QueryLoc<Q>;
 
   constructor(loc: QueryLoc.QueryLoc<Q>) {
     this.loc = loc;
@@ -42,33 +41,23 @@ class Editor<Q: QueryAtom> {
     return new Editor(nextLoc);
   }
 
-  transformWith<NQ: QueryAtom>(f: Q => NQ): Editor<NQ> {
+  transformWith<NQ: QueryAtom>(f: (Q) => NQ): Editor<NQ> {
     let nextQuery = edit(this.loc, f);
-    invariant(
-      nextQuery != null,
-      'Invalid query transform'
-    );
+    invariant(nextQuery != null, 'Invalid query transform');
     let nextLoc: QueryLoc.QueryLoc<NQ> = (QueryLoc.rebaseLoc(this.loc, nextQuery): any);
     return new Editor(nextLoc);
   }
 
   replaceWith<NQ: QueryAtom>(q: NQ): Editor<NQ> {
     let nextQuery = edit(this.loc, _ => q);
-    invariant(
-      nextQuery != null,
-      'Invalid query replace'
-    );
+    invariant(nextQuery != null, 'Invalid query replace');
     let nextLoc: QueryLoc.QueryLoc<NQ> = (QueryLoc.rebaseLoc(this.loc, nextQuery): any);
     return new Editor(nextLoc);
   }
 
-
-  transformPipelineWith(f: Array<QueryAtom> => Array<QueryAtom>): Editor<Q> {
+  transformPipelineWith(f: (Array<QueryAtom>) => Array<QueryAtom>): Editor<Q> {
     let nextQuery = editPipeline(this.loc, f);
-    invariant(
-      nextQuery != null,
-      'Invalid query transform'
-    );
+    invariant(nextQuery != null, 'Invalid query transform');
     let nextLoc = QueryLoc.rebaseLoc(this.loc, nextQuery);
     return new Editor(nextLoc);
   }
@@ -112,13 +101,22 @@ class Editor<Q: QueryAtom> {
 
   inferType(): Editor<Q> {
     let query = this.loc.rootQuery;
-    let nextQuery  = inferType(query.context.domain, query);
+    let nextQuery = inferType(query.context.domain, query);
     let nextLoc = QueryLoc.rebaseLoc(this.loc, nextQuery);
     return new Editor(nextLoc);
   }
 
-  growNavigation(params: {path: Array<string>, add?: ?QueryAtom}): Editor<Q> {
-    let nextQuery = growNavigation({loc: this.loc, path: params.path, add: params.add});
+  growNavigation(
+    params: {
+      path: Array<string>,
+      editAtCompletion?: (Array<QueryAtom>) => Array<QueryAtom>,
+    },
+  ): Editor<Q> {
+    let nextQuery = growNavigation({
+      loc: this.loc,
+      path: params.path,
+      editAtCompletion: params.editAtCompletion,
+    });
     let nextLoc = QueryLoc.rebaseLoc(this.loc, nextQuery);
     return new Editor(nextLoc);
   }
@@ -143,8 +141,10 @@ export function editor(
   return new Editor(QueryLoc.loc(rootQuery, query));
 }
 
-
-function transformQueryByPath(query: ?QueryAtom | QueryPipeline, path: QueryLoc.QueryPath): ?QueryPipeline {
+function transformQueryByPath(
+  query: ?QueryAtom | QueryPipeline,
+  path: QueryLoc.QueryPath,
+): ?QueryPipeline {
   let cur: ?QueryAtom | QueryPipeline = query;
   for (let i = path.length - 1; i >= 0; i--) {
     let item = path[i];
@@ -158,10 +158,7 @@ function transformQueryByPath(query: ?QueryAtom | QueryPipeline, path: QueryLoc.
           continue;
         }
       } else {
-        invariant(
-          cur != null && cur.name !== 'pipeline',
-          'Invalid query structure'
-        )
+        invariant(cur != null && cur.name !== 'pipeline', 'Invalid query structure');
         pipeline[item.index] = cur;
       }
       // This is needed so we don't leave orphaned select combinators in
@@ -177,7 +174,6 @@ function transformQueryByPath(query: ?QueryAtom | QueryPipeline, path: QueryLoc.
         ...item.query,
         pipeline,
       };
-
     } else if (item.at === 'select') {
       let select = {...item.query.select};
       if (cur == null) {
@@ -194,34 +190,33 @@ function transformQueryByPath(query: ?QueryAtom | QueryPipeline, path: QueryLoc.
         ...item.query,
         select,
       };
-
     } else if (item.at === 'binding') {
       if (cur == null) {
         continue;
       }
-      invariant(
-        cur != null && cur.name === 'pipeline',
-        'Invalid query structure'
-      )
+      invariant(cur != null && cur.name === 'pipeline', 'Invalid query structure');
       cur = {
         name: 'define',
         ...item.query,
         binding: {
           ...item.query.binding,
-          query: cur
-        }
+          query: cur,
+        },
       };
     }
   }
   invariant(
     cur == null || cur.name === 'pipeline',
     'Expected a query pipeline (or null) but got: "%s"',
-    cur != null ? cur.name : cur
+    cur != null ? cur.name : cur,
   );
   return cur;
 }
 
-function edit<Q: QueryAtom>(loc: QueryLoc.QueryLoc<Q>, edit: Q => ?QueryAtom): ?QueryPipeline {
+function edit<Q: QueryAtom>(
+  loc: QueryLoc.QueryLoc<Q>,
+  edit: (Q) => ?QueryAtom,
+): ?QueryPipeline {
   let found = QueryLoc.resolveLocWithPath(loc);
   invariant(found != null, 'Cannot find query by id: %s', loc.at);
   let [query, path] = found;
@@ -230,7 +225,7 @@ function edit<Q: QueryAtom>(loc: QueryLoc.QueryLoc<Q>, edit: Q => ?QueryAtom): ?
 
 function editPipeline<Q: QueryAtom>(
   loc: QueryLoc.QueryLoc<Q>,
-  edit: Array<QueryAtom> => Array<QueryAtom>
+  edit: (Array<QueryAtom>) => Array<QueryAtom>,
 ): ?QueryPipeline {
   let found = QueryLoc.resolveLocWithPath(loc);
   invariant(found != null, 'Cannot find query by id: %s', loc.at);
@@ -248,10 +243,7 @@ function editPipeline<Q: QueryAtom>(
     }
   } else if (path.length > 0) {
     const pathItem = path.pop();
-    invariant(
-      pathItem.at === 'pipeline',
-      'Invalid query structure'
-    );
+    invariant(pathItem.at === 'pipeline', 'Invalid query structure');
     const pipeline = edit(pathItem.query.pipeline);
     if (pipeline.length === 0) {
       return transformQueryByPath(null, path);
@@ -271,7 +263,7 @@ function editPipeline<Q: QueryAtom>(
 
 export function remove<Q: QueryAtom>({loc}: {loc: QueryLoc.QueryLoc<Q>}) {
   return editPipeline(loc, pipeline => {
-    let nextPipeline = pipeline.filter(q => q.id !== loc.at)
+    let nextPipeline = pipeline.filter(q => q.id !== loc.at);
     return nextPipeline;
   });
 }
@@ -279,20 +271,22 @@ export function remove<Q: QueryAtom>({loc}: {loc: QueryLoc.QueryLoc<Q>}) {
 export function cut<Q: QueryAtom>({loc}: {loc: QueryLoc.QueryLoc<Q>}): ?QueryPipeline {
   let query = editPipeline(loc, pipeline => {
     let idx = pipeline.findIndex(q => q.id === loc.at);
-    invariant(
-      idx > -1,
-      'Invalid query location: %s', loc.at
-    );
+    invariant(idx > -1, 'Invalid query location: %s', loc.at);
     pipeline = pipeline.slice(0, idx);
     return pipeline;
   });
   return query;
-};
+}
 
-export function insertAfter<Q: QueryAtom>({loc, what}: {
-  loc: QueryLoc.QueryLoc<Q>;
-  what: Array<QueryAtom>;
-}): QueryPipeline {
+export function insertAfter<Q: QueryAtom>(
+  {
+    loc,
+    what,
+  }: {
+    loc: QueryLoc.QueryLoc<Q>,
+    what: Array<QueryAtom>,
+  },
+): QueryPipeline {
   let query = editPipeline(loc, pipeline => {
     let idx = pipeline.findIndex(q => q.id === loc.at);
     invariant(idx > -1, 'Invalid query location');
@@ -304,20 +298,28 @@ export function insertAfter<Q: QueryAtom>({loc, what}: {
   return query;
 }
 
-export function transform<Q: QueryAtom>({
-  loc,
-  transform
-}: {loc: QueryLoc.QueryLoc<Q>, transform: Q => ?QueryAtom}): ?QueryPipeline {
+export function transform<Q: QueryAtom>(
+  {
+    loc,
+    transform,
+  }: {loc: QueryLoc.QueryLoc<Q>, transform: (Q) => ?QueryAtom},
+): ?QueryPipeline {
   return edit(loc, transform);
 }
 
-export function growNavigation<Q: QueryAtom>({loc, path, add}: {
-  loc: QueryLoc.QueryLoc<Q>,
-  path: Array<string>;
-  add?: ?QueryAtom;
-}): QueryPipeline {
+export function growNavigation<Q: QueryAtom>(
+  {
+    loc,
+    path,
+    editAtCompletion,
+  }: {
+    loc: QueryLoc.QueryLoc<Q>,
+    path: Array<string>,
+    editAtCompletion?: (Array<QueryAtom>) => Array<QueryAtom>,
+  },
+): QueryPipeline {
   let query = editPipeline(loc, pipeline => {
-    return growNavigationImpl(pipeline, path, add);
+    return growNavigationImpl(pipeline, path, editAtCompletion);
   });
   invariant(query != null, 'Invalid operation');
   return query;
@@ -326,12 +328,11 @@ export function growNavigation<Q: QueryAtom>({loc, path, add}: {
 function growNavigationImpl(
   pipe: Array<QueryAtom>,
   path: Array<string>,
-  add?: ?QueryAtom,
+  editAtCompletion?: (Array<QueryAtom>) => Array<QueryAtom>,
 ): Array<QueryAtom> {
-
   if (path.length === 0) {
-    if (add != null) {
-      pipe = pipe.concat(add);
+    if (editAtCompletion != null) {
+      pipe = editAtCompletion(pipe);
     }
     return pipe;
   }
@@ -341,36 +342,27 @@ function growNavigationImpl(
 
   if (tail.name === 'select') {
     let nextPipe = growNavigationImpl(
-      tail.select[key] != null
-        ? tail.select[key].pipeline
-        : [navigate(key)],
+      tail.select[key] != null ? tail.select[key].pipeline : [navigate(key)],
       rest,
-      add,
+      editAtCompletion,
     );
-    return pipe.slice(0, pipe.length - 1).concat(
-      select({...tail.select, [key]: pipeline(...nextPipe)})
-    );
+    return pipe
+      .slice(0, pipe.length - 1)
+      .concat(select({...tail.select, [key]: pipeline(...nextPipe)}));
   } else {
-    let nextPipe = growNavigationImpl(
-      [navigate(key)],
-      rest,
-      add,
-    );
-    return pipe.concat(
-      select({[key]: pipeline(...nextPipe)})
-    );
+    let nextPipe = growNavigationImpl([navigate(key)], rest, editAtCompletion);
+    return pipe.concat(select({[key]: pipeline(...nextPipe)}));
   }
 }
 
 export function getInsertionPoint(
   query: QueryPipeline,
-  edge?: 'leading' | 'trailing' = 'trailing'
+  edge?: 'leading' | 'trailing' = 'trailing',
 ): QueryAtom {
-
   invariant(
     !((query.pipeline.length === 1 && query.pipeline[0].name === 'select') ||
-      (query.pipeline.length === 0)),
-    'Invalid query pipeline'
+      query.pipeline.length === 0),
+    'Invalid query pipeline',
   );
 
   let item;
@@ -479,7 +471,6 @@ function reconcileSelect(context: Context, query: ?SelectQuery): SelectQuery {
     if (Object.keys(fields).length === 0) {
       return reconcileSelect(context, null);
     }
-
   } else {
     if (type.name === 'record') {
       let length = 0;
@@ -514,7 +505,7 @@ function reconcileSelect(context: Context, query: ?SelectQuery): SelectQuery {
   // force group by columns always visible
   let groupByColumnList = getGroupByColumnList(type);
   if (groupByColumnList.length > 0) {
-    let nextFields = {}
+    let nextFields = {};
     groupByColumnList.forEach(val => {
       if (fields[val] == null) {
         nextFields[val] = pipeline(navigate(val));

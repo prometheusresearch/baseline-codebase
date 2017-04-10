@@ -505,13 +505,12 @@ function reconcileSelect(context: Context, query: ?SelectQuery): SelectQuery {
   // force group by columns always visible
   let groupByColumnList = getGroupByColumnList(type);
   if (groupByColumnList.length > 0) {
-    let nextFields = {};
+    let nextFields = {...fields};
     groupByColumnList.forEach(val => {
-      if (fields[val] == null) {
+      if (nextFields[val] == null) {
         nextFields[val] = pipeline(navigate(val));
       }
     });
-    Object.assign(nextFields, fields);
     fields = nextFields;
   }
 

@@ -10,24 +10,24 @@ import * as d from './Domain';
 import * as t from './Type';
 
 export type CatalogEntityField = {
-  label: string;
-  title: string;
-  column: ?{type: string, enum: Array<string>};
-  public: boolean;
-  partial: boolean;
-  plural: boolean;
-  kind: string;
-  link: ?{target: string; inverse: string};
+  label: string,
+  title: string,
+  column: ?{type: string, enum: Array<string>},
+  public: boolean,
+  partial: boolean,
+  plural: boolean,
+  kind: string,
+  link: ?{target: string, inverse: string},
 };
 
 export type CatalogEntity = {
-  name: string;
-  label: string;
-  field: Array<CatalogEntityField>;
+  name: string,
+  label: string,
+  field: Array<CatalogEntityField>,
 };
 
 export type Catalog = {
-  entity: Array<CatalogEntity>;
+  entity: Array<CatalogEntity>,
 };
 
 /**
@@ -50,7 +50,7 @@ const aggregate = {
     name: 'sum',
     title: 'Sum',
     makeType: typ => t.numberType(typ.domain),
-    isAllowed: typ => typ.card === 'seq' && isNumeric(typ),
+    isAllowed: typ => typ.card === 'seq' && isNumeric(typ) && isAdditionDefined(typ),
   },
   min: {
     name: 'min',
@@ -68,17 +68,19 @@ const aggregate = {
     name: 'mean',
     title: 'Average',
     makeType: typ => t.numberType(typ.domain),
-    isAllowed: typ => typ.card === 'seq' && isNumeric(typ),
+    isAllowed: typ => typ.card === 'seq' && isNumeric(typ) && isAdditionDefined(typ),
   },
 };
 
+function isAdditionDefined(type: t.Type) {
+  return type.name === 'number';
+}
+
 function isNumeric(type: t.Type) {
-  return (
-    type.name === 'number' ||
+  return type.name === 'number' ||
     type.name === 'date' ||
     type.name === 'time' ||
-    type.name === 'datetime'
-  );
+    type.name === 'datetime';
 }
 
 export function toDomain(data: Catalog): d.Domain {
@@ -94,7 +96,7 @@ export function toDomain(data: Catalog): d.Domain {
     });
     domain.entity[e.name] = {
       title: e.label,
-      attribute
+      attribute,
     };
   });
   return domain;

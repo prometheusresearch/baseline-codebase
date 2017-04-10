@@ -33,28 +33,53 @@ export default class Chart extends React.Component {
   props: ChartProps;
 
   render() {
-    const {chartSpec, ...props} = this.props;
+    const {chartSpec, query, ...props} = this.props;
     const {label, chart} = chartSpec;
     let children;
     switch (chart.type) {
       case 'pie': {
-        children = <PieChart {...props} chart={chart} onChart={this.onUpdateChart} />;
+        children = (
+          <PieChart {...props} query={query} chart={chart} onChart={this.onUpdateChart} />
+        );
         break;
       }
       case 'line': {
-        children = <LineChart {...props} chart={chart} onChart={this.onUpdateChart} />;
+        children = (
+          <LineChart
+            {...props}
+            query={query}
+            chart={chart}
+            onChart={this.onUpdateChart}
+          />
+        );
         break;
       }
       case 'area': {
-        children = <AreaChart {...props} chart={chart} onChart={this.onUpdateChart} />;
+        children = (
+          <AreaChart
+            {...props}
+            query={query}
+            chart={chart}
+            onChart={this.onUpdateChart}
+          />
+        );
         break;
       }
       case 'bar': {
-        children = <BarChart {...props} chart={chart} onChart={this.onUpdateChart} />;
+        children = (
+          <BarChart {...props} query={query} chart={chart} onChart={this.onUpdateChart} />
+        );
         break;
       }
       case 'scatter': {
-        children = <ScatterChart {...props} chart={chart} onChart={this.onUpdateChart} />;
+        children = (
+          <ScatterChart
+            {...props}
+            query={query}
+            chart={chart}
+            onChart={this.onUpdateChart}
+          />
+        );
         break;
       }
       default:
@@ -63,7 +88,10 @@ export default class Chart extends React.Component {
     return (
       <VBox height={0} overflow="auto" flexGrow={1}>
         <HBox padding={10} justifyContent="space-between">
-          <EditableHeader value={label} onChange={this.onUpdateLabel} />
+          <EditableHeader
+            value={label || model.getChartTitle(chart, query)}
+            onChange={this.onUpdateLabel}
+          />
           <ReactUI.QuietButton
             onClick={this.onRemoveChart}
             icon={<ui.Icon.IconRemove />}

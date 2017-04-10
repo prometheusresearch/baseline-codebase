@@ -12,6 +12,7 @@ import * as ReactUI from '@prometheusresearch/react-ui';
 import {css, style, VBox, HBox} from 'react-stylesheet';
 
 import AddChartDialogue from './chart/AddChartDialogue';
+import * as ChartModel from './chart/model';
 import Chart from './chart/Chart';
 import * as Icon from './ui/Icon';
 import * as ui from './ui';
@@ -111,7 +112,7 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
       },
       ...chartList.map(chart => ({
         id: chart.id,
-        label: chart.label,
+        label: chart.label || ChartModel.getChartTitle(chart.chart, query),
         children: (
           <Chart query={query} loading={queryLoading} data={data} chartSpec={chart} />
         ),

@@ -50,9 +50,7 @@ export function addChart(params: {chartType: Chart.ChartType}): StateUpdater {
     const {chartType} = params;
     const chartSpec = {
       id: `${chartType}-${state.chartList.length + 1}`,
-      label: state.chartList.length === 0
-        ? Chart.getChartTitle({type: chartType})
-        : `${Chart.getChartTitle({type: chartType})} ${state.chartList.length}`,
+      label: null,
       chart: Chart.getInitialChart(state.query, {type: chartType}),
     };
     const chartList = state.chartList.concat(chartSpec);

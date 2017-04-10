@@ -22,7 +22,7 @@ type UndoRecord = {
 
 export type ChartSpec = {
   id: string,
-  label: string,
+  label: ?string,
   chart: Chart,
 };
 

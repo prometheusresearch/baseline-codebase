@@ -16,11 +16,10 @@ type TabContainerProps = {
   tabList: Array<TabSpec>,
   tabListAlt: Array<TabSpec>,
   activeTab: string,
-  onActiveTab: string => void,
+  onActiveTab: (string) => void,
 };
 
 export default class TabContainer extends React.Component {
-
   props: TabContainerProps;
 
   render() {
@@ -29,11 +28,8 @@ export default class TabContainer extends React.Component {
     const found = tabListAll.find(tab => tab.id === activeTab);
     invariant(found, 'Cannot find active tab');
     return (
-      <VBox
-        flexGrow={1}>
-        <HBox
-          justifyContent="space-between"
-          borderBottom="1px solid #BBBBBB">
+      <VBox flexGrow={1}>
+        <HBox justifyContent="space-between" borderBottom="1px solid #BBBBBB">
           <HBox>
             {tabList.map(tab => (
               <TabButton
@@ -41,7 +37,7 @@ export default class TabContainer extends React.Component {
                 active={activeTab === tab.id}
                 key={tab.id}
                 onClick={() => onActiveTab(tab.id)}
-                />
+              />
             ))}
           </HBox>
           {tabListAlt.length > 0 &&
@@ -52,7 +48,7 @@ export default class TabContainer extends React.Component {
                   active={activeTab === tab.id}
                   key={tab.id}
                   onClick={() => onActiveTab(tab.id)}
-                  />
+                />
               ))}
             </HBox>}
         </HBox>
@@ -75,8 +71,12 @@ function TabButton({label, active, onClick}) {
       borderBottomOnHover={active ? '2px solid #1f85f5' : '2px solid #bbbbbb'}
       fontSize="10pt"
       fontWeight={200}
+      maxWidth={120}
+      overflow="hidden"
+      whiteSpace="nowrap"
+      textOverflow="ellipsis"
       onClick={onClick}>
-      {label}
+      <span>{label}</span>
     </Element>
   );
 }

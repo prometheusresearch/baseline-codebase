@@ -10,6 +10,7 @@ import * as model from './model';
 import {type QueryPipeline, getPipelineContext} from '../model';
 import {getQuery} from './util';
 import SelectAttribute from './SelectAttribute';
+import SelectAttributeWithColor from './SelectAttributeWithColor';
 import ChartControlPanel from './ChartControlPanel';
 import NoNumericAttributeText from './NoNumericAttributeText';
 
@@ -17,13 +18,13 @@ const RADIAN = Math.PI / 180;
 
 const PieChartLabel = ({cx, cy, midAngle, outerRadius, percent, name}) => {
   const radius = outerRadius + 23;
-  const x = cx + radius * Math.cos((-midAngle) * RADIAN);
-  const y = cy + radius * Math.sin((-midAngle) * RADIAN);
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
   return (
     <text
       x={x}
       y={y}
-      fill="#8884d8"
+      fill="#222222"
       textAnchor={x > cx ? 'start' : 'end'}
       dominantBaseline="central">
       {`${name} (${(percent * 100).toFixed(0)}%)`}
@@ -54,7 +55,7 @@ export default function PieChart(
           nameKey={chart.labelColumn}
           valueKey={chart.valueColumn}
           outerRadius={130}
-          fill="#8884d8"
+          fill={chart.color}
           label={PieChartLabel}
         />
       </recharts.PieChart>
@@ -69,7 +70,7 @@ export default function PieChart(
           context={getPipelineContext(query)}
           onChange={labelColumn => onChart({type: 'pie', ...chart, labelColumn})}
         />
-        <SelectAttribute
+        <SelectAttributeWithColor
           label="Value"
           value={chart.valueColumn}
           noResultsText={<NoNumericAttributeText />}
@@ -77,6 +78,8 @@ export default function PieChart(
           onChange={valueColumn => onChart({type: 'pie', ...chart, valueColumn})}
           onlyNumerics={true}
           addSumarizations={true}
+          color={chart.color}
+          onColorChange={color => onChart({type: 'pie', ...chart, color})}
         />
       </ChartControlPanel>
       <VBox flexGrow={1} alignItems="center">

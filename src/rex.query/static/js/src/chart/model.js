@@ -13,6 +13,7 @@ export type PieChart = {
   type: 'pie',
   labelColumn: ?string,
   valueColumn: ?string,
+  color: string,
 };
 
 export type Line = {
@@ -167,7 +168,12 @@ function getScatterChartDesc(attrs, {xColumn, yColumn}: ScatterChart): ?string {
 export function getInitialChart(pipeline: QueryPipeline, {type}: {type: string}): Chart {
   switch (type) {
     case 'pie':
-      return {type: 'pie', labelColumn: getLabelColumn(pipeline), valueColumn: null};
+      return {
+        type: 'pie',
+        labelColumn: getLabelColumn(pipeline),
+        valueColumn: null,
+        color: '#8884d8',
+      };
     case 'line':
       return {type: 'line', labelColumn: getLabelColumn(pipeline), lineList: []};
     case 'area':

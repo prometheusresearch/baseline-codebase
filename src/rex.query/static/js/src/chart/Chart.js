@@ -10,6 +10,8 @@ import {findDOMNodeStrict as findDOMNode} from '../findDOMNode';
 import * as ui from '../ui';
 import * as State from '../state';
 import * as model from './model';
+import * as SVG from '../SVG';
+import * as Fetch from '../fetch';
 import type {ChartSpec} from '../state';
 import type {QueryPipeline} from '../model';
 import AreaChart from './AreaChart';
@@ -24,6 +26,10 @@ type ChartProps = {
   data: any,
 };
 
+function findChartElement(element: HTMLElement): ?HTMLElement {
+  return element.querySelector('svg.recharts-surface');
+}
+
 export default class Chart extends React.Component {
   static contextTypes = {
     actions: React.PropTypes.object,
@@ -31,6 +37,8 @@ export default class Chart extends React.Component {
 
   context: {actions: State.Actions};
   props: ChartProps;
+
+  _chart: ?Object;
 
   render() {
     const {chartSpec, query, ...props} = this.props;
@@ -97,12 +105,34 @@ export default class Chart extends React.Component {
             icon={<ui.Icon.IconRemove />}
           />
         </HBox>
-        <VBox flexGrow={1}>
+        <HBox padding={{horizontal: 15, vertical: 10}} justifyContent="flex-end">
+          <ReactUI.Button
+            size="small"
+            icon={<ui.Icon.IconDownload />}
+            onClick={this.onExportChart}>
+            Export
+          </ReactUI.Button>
+        </HBox>
+        <VBox flexGrow={1} ref={chart => this._chart = chart}>
           {children}
         </VBox>
       </VBox>
     );
   }
+
+  onExportChart = () => {
+    if (this._chart != null) {
+      const element = findDOMNode(this._chart);
+      const svgElement = findChartElement(element);
+      if (svgElement != null) {
+        SVG.rasterizeElement(svgElement).then(data => {
+          if (data != null) {
+            Fetch.initiateDownloadFromBlob(data, 'chart.png', 'image/png');
+          }
+        });
+      }
+    }
+  };
 
   onRemoveChart = () => {
     this.context.actions.removeChart({chartId: this.props.chartSpec.id});

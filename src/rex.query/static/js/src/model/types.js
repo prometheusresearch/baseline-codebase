@@ -273,18 +273,6 @@ export type QueryName =
   | 'aggregate'
   | 'pipeline';
 
-export const QueryNameSet = new Set([
-  'here',
-  'navigate',
-  'select',
-  'define',
-  'filter',
-  'limit',
-  'group',
-  'aggregate',
-  'pipeline',
-]);
-
 export type QueryAtom =
   | HereQuery
   | NavigateQuery

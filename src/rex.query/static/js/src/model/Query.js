@@ -32,6 +32,18 @@ import invariant from 'invariant';
 import * as d from './Domain';
 import * as t from './Type';
 
+export const QueryNameSet = new Set([
+  'here',
+  'navigate',
+  'select',
+  'define',
+  'filter',
+  'limit',
+  'group',
+  'aggregate',
+  'pipeline',
+]);
+
 function genQueryId() {
   return uniqueId('query');
 }

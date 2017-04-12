@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+3.10.0 (2017-XX-XX)
+===================
+
+* Use JSON for uWSGI configuration.
+
+
 3.9.0 (2017-04-05)
 ==================
 

@@ -22,7 +22,7 @@ import json
 import subprocess
 import atexit
 import wsgiref.simple_server, wsgiref.handlers, wsgiref.util
-import yaml
+import json
 
 
 def wsgi_file(app):
@@ -419,11 +419,14 @@ class ServeUWSGITask(RexWatchTask):
         cmd = ['uwsgi']
         for key in sorted(uwsgi_parameters):
             value = uwsgi_parameters[key]
-            if value is not True:
-                opt = '--%s=%s' % (key, value)
+            if isinstance(value, list):
+                cmd.extend(['--%s=%s' % (key, item) for item in value])
             else:
-                opt = '--%s' % (key,)
-            cmd.append(opt)
+                if value is not True:
+                    opt = '--%s=%s' % (key, value)
+                else:
+                    opt = '--%s' % (key,)
+                cmd.append(opt)
         # Start uWSGI.
         log("Starting uWSGI server for `{}`", app.requirements[0])
         exe(cmd)
@@ -444,7 +447,7 @@ class DaemonAttributes(object):
         self.run_dir = '/run/rex'
         if hasattr(sys, 'real_prefix'):
             self.run_dir = sys.prefix+self.run_dir
-        self.yaml_path = os.path.join(self.run_dir, self.handle+'.yaml')
+        self.json_path = os.path.join(self.run_dir, self.handle+'.json')
         self.pid_path = os.path.join(self.run_dir, self.handle+'.pid')
         self.log_path = os.path.join(self.run_dir, self.handle+'.log')
         self.wsgi_path = os.path.join(self.run_dir, self.handle+'.wsgi')
@@ -513,8 +516,10 @@ class StartTask(RexWatchTask):
         if not sockets:
             raise fail("uWSGI sockets are not configured")
         cfg = { 'project': form.name, 'uwsgi': uwsgi_cfg }
-        with open(form.yaml_path, 'w') as stream:
-            yaml.dump(cfg, stream, default_flow_style=False)
+        with open(form.json_path, 'w') as stream:
+            json.dump(
+                    cfg, stream,
+                    indent=2, separators=(',', ': '), sort_keys=True)
         # Make a .wsgi script.
         with open(form.wsgi_path, 'w') as stream:
             for line in wsgi_file(app):
@@ -524,7 +529,7 @@ class StartTask(RexWatchTask):
         # Start uWSGI; catch errors if any.
         status = ", ".join(sockets+["logto: "+form.log_path])
         log("Starting `{}` ({})", form.name, status)
-        cmd = ['uwsgi', form.yaml_path]
+        cmd = ['uwsgi', form.json_path]
         proc = subprocess.Popen(cmd,
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT)
@@ -553,10 +558,10 @@ class StopTask(RexTask):
         # Get the daemon configuration and PID.
         uwsgi_cfg = {}
         pid = None
-        if os.path.exists(form.yaml_path):
+        if os.path.exists(form.json_path):
             try:
-                cfg = yaml.load(open(form.yaml_path))
-            except yaml.YAMLError:
+                cfg = json.load(open(form.json_path))
+            except ValueError:
                 pass
             else:
                 if isinstance(cfg, dict) and isinstance(cfg.get('uwsgi'), dict):
@@ -614,10 +619,10 @@ class StatusTask(RexTask):
         # Get the daemon configuration and PID.
         uwsgi_cfg = {}
         pid = None
-        if os.path.exists(form.yaml_path):
+        if os.path.exists(form.json_path):
             try:
-                cfg = yaml.load(open(form.yaml_path))
-            except yaml.YAMLError:
+                cfg = json.load(open(form.json_path))
+            except ValueError:
                 pass
             else:
                 if isinstance(cfg, dict) and isinstance(cfg.get('uwsgi'), dict):

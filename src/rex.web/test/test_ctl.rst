@@ -261,9 +261,9 @@ configuration::
     >>> ctl("start rex.web_demo"
     ...     " --set-uwsgi http-socket=/path/to/socket", expect=1)   # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     Starting rex.web_demo (http-socket: /path/to/socket, logto: /.../rex.web_demo.log)
-    [uWSGI] getting YAML configuration from /.../rex.web_demo.yaml
+    [uWSGI] getting JSON configuration from /.../rex.web_demo.json
     ...
-    FATAL ERROR: non-zero exit code: uwsgi /.../rex.web_demo.yaml
+    FATAL ERROR: non-zero exit code: uwsgi /.../rex.web_demo.json
 
     >>> ctl("start rex.web_demo", expect=1)         # doctest: +NORMALIZE_WHITESPACE
     FATAL ERROR: uWSGI sockets are not configured
@@ -289,9 +289,9 @@ is silently ignored::
     >>> cfg.close()
 
     >>> ctl("status --config=./build/sandbox/web_demo.yaml")        # doctest: +ELLIPSIS
-    rex.web_demo is running (logto: /.../rex.web_demo-web_demo.log)
+    rex.web_demo is running (http-socket: :8..., logto: /.../rex.web_demo-web_demo.log)
 
     >>> ctl("stop --config=./build/sandbox/web_demo.yaml")          # doctest: +ELLIPSIS
-    Stopping rex.web_demo (logto: /.../rex.web_demo-web_demo.log)
+    Stopping rex.web_demo (http-socket: :8..., logto: /.../rex.web_demo-web_demo.log)
 
 

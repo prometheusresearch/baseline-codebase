@@ -2,9 +2,13 @@
  * @flow
  */
 
-import type {QueryPipeline, Context} from '../model/types';
+import type {QueryPipeline, QueryAtom, Context} from '../model/types';
+import type {Chart} from './model';
 
-import {getNavigation} from '../model';
+import {inferTypeAtPath, aggregate} from '../model/Query';
+import {editor} from '../model/QueryOperation';
+import {getNavigation} from '../model/QueryNavigation';
+import {getUsedAttributes} from './model';
 
 export function getColumnOptions(
   context: Context,
@@ -31,5 +35,31 @@ export function getQuery(
     } else {
       return {query: null, data};
     }
+  }
+}
+
+export function enrichQuery(query: QueryPipeline, chart: Chart): QueryPipeline {
+  const focus = getQuery(query, null).query;
+  if (focus == null) {
+    return query;
+  }
+  let e = editor(query, focus);
+  for (const attrName of getUsedAttributes(chart)) {
+    let editAtCompletion;
+    const type = inferTypeAtPath(focus.context.prev, [attrName]);
+    if (type.card === 'seq' && type.name === 'record' && type.entity != null) {
+      editAtCompletion = ensurePipelineHasCount;
+    }
+    e = e.growNavigation({path: [attrName], editAtCompletion});
+  }
+  return e.getQuery();
+}
+
+function ensurePipelineHasCount(pipe: QueryAtom[]): QueryAtom[] {
+  const last = pipe[pipe.length - 1];
+  if (last != null && last.name === 'aggregate') {
+    return pipe;
+  } else {
+    return pipe.concat(aggregate('count'));
   }
 }

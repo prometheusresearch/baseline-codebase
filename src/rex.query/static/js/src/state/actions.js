@@ -80,7 +80,7 @@ export function updateChart(
       nextChart.label = params.label;
     }
     chartList.splice(chartIdx, 1, nextChart);
-    return {...state, chartList};
+    return [{...state, chartList}, refetchQuery];
   };
 }
 
@@ -95,24 +95,25 @@ export function removeChart(params: {chartId: string}): StateUpdater {
   };
 }
 
+function ensurePipelineHasCount(pipe: QueryAtom[]): QueryAtom[] {
+  const last = pipe[pipe.length - 1];
+  if (last != null && last.name === 'aggregate') {
+    return pipe;
+  } else {
+    return pipe.concat(q.aggregate('count'));
+  }
+}
+
 /**
  * Navigate.
  */
-export function navigate(
-  {
-    at,
-    path,
-  }: {
-    at: QueryPipeline,
-    path: Array<string>,
-  },
-): StateUpdater {
+export function navigate({at, path}: {at: QueryPipeline, path: string[]}): StateUpdater {
   logAction('navigate', {at, path});
   return state => {
     let editAtCompletion;
     let type = q.inferTypeAtPath(at.context.prev, path);
     if (type.card === 'seq' && type.name === 'record' && type.entity != null) {
-      editAtCompletion = pipe => pipe.concat(q.aggregate('count'));
+      editAtCompletion = ensurePipelineHasCount;
     }
     let query = qo
       .editor(state.query, at)
@@ -677,7 +678,11 @@ function refetchQuery(state, setState) {
         queryLoading: true,
         queryInvalid: false,
       }));
-      Fetch.fetch(api, query, state.translateOptions).then(data => {
+      const queryToFetch = state.chartList.reduce(
+        (q, c) => Chart.enrichQuery(q, c.chart),
+        query,
+      );
+      Fetch.fetch(api, queryToFetch, state.translateOptions).then(data => {
         if (refetchIndex === currentRefetchIndex) {
           setState('fetchFinish', state => ({...state, data, queryLoading: false}));
         }

@@ -193,6 +193,46 @@ export function getInitialChart(pipeline: QueryPipeline, {type}: {type: string})
   }
 }
 
+export function getUsedAttributes(chart: Chart): Set<string> {
+  const attributes = new Set();
+  const add = column => {
+    if (column != null) {
+      attributes.add(column);
+    }
+  };
+  switch (chart.type) {
+    case 'pie':
+      add(chart.labelColumn);
+      add(chart.valueColumn);
+      break;
+    case 'line':
+      add(chart.labelColumn);
+      for (const {valueColumn} of chart.lineList) {
+        add(valueColumn);
+      }
+      break;
+    case 'area':
+      add(chart.labelColumn);
+      for (const {valueColumn} of chart.areaList) {
+        add(valueColumn);
+      }
+      break;
+    case 'bar':
+      add(chart.labelColumn);
+      for (const {valueColumn} of chart.barList) {
+        add(valueColumn);
+      }
+      break;
+    case 'scatter':
+      add(chart.xColumn);
+      add(chart.yColumn);
+      break;
+    default:
+      invariant(false, 'Unknown chart type: %s', chart.type);
+  }
+  return attributes;
+}
+
 const COLUMN_AS_LABEL_TO_CONSIDER = {
   title: true,
   name: true,

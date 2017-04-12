@@ -14,6 +14,7 @@
 * rex.instrument==1.8.0
 * rex.logging=1.1.0
 * rex.web==3.9.0
+* rex.deploy==2.9.2
 
 
 6.1.2 (2017-02-15)

@@ -2143,7 +2143,7 @@ Object {
           "type": Object {
             "attribute": Object {
               "code": Object {
-                "title": "code",
+                "title": "Code",
                 "type": Object {
                   "card": null,
                   "domain": <DOMAIN>,
@@ -2238,7 +2238,7 @@ Object {
               "type": Object {
                 "attribute": Object {
                   "code": Object {
-                    "title": "code",
+                    "title": "Code",
                     "type": Object {
                       "card": null,
                       "domain": <DOMAIN>,
@@ -2268,7 +2268,7 @@ Object {
             "type": Object {
               "attribute": Object {
                 "code": Object {
-                  "title": "code",
+                  "title": "Code",
                   "type": Object {
                     "card": null,
                     "domain": <DOMAIN>,
@@ -2305,7 +2305,7 @@ Object {
                 "type": Object {
                   "attribute": Object {
                     "code": Object {
-                      "title": "code",
+                      "title": "Code",
                       "type": Object {
                         "card": null,
                         "domain": <DOMAIN>,
@@ -2375,7 +2375,7 @@ Object {
           "type": Object {
             "attribute": Object {
               "title": Object {
-                "title": "title",
+                "title": "Title",
                 "type": Object {
                   "card": null,
                   "domain": <DOMAIN>,
@@ -2510,7 +2510,7 @@ Object {
               "type": Object {
                 "attribute": Object {
                   "title": Object {
-                    "title": "title",
+                    "title": "Title",
                     "type": Object {
                       "card": null,
                       "domain": <DOMAIN>,
@@ -2544,7 +2544,7 @@ Object {
             "type": Object {
               "attribute": Object {
                 "title": Object {
-                  "title": "title",
+                  "title": "Title",
                   "type": Object {
                     "card": null,
                     "domain": <DOMAIN>,
@@ -2589,7 +2589,7 @@ Object {
                 "type": Object {
                   "attribute": Object {
                     "title": Object {
-                      "title": "title",
+                      "title": "Title",
                       "type": Object {
                         "card": null,
                         "domain": <DOMAIN>,
@@ -2612,7 +2612,7 @@ Object {
                     "hasInvalidType": true,
                     "prev": "<PREV CONTEXT>",
                     "scope": "<SCOPE [empty]>",
-                    "title": "title",
+                    "title": "Title",
                     "type": Object {
                       "card": null,
                       "domain": <DOMAIN>,
@@ -2759,7 +2759,7 @@ Object {
     "hasInvalidType": false,
     "prev": "<PREV CONTEXT>",
     "scope": "<SCOPE [empty]>",
-    "title": "Individual individual Name",
+    "title": "Individual Individual Name",
     "type": Object {
       "card": "seq",
       "domain": <DOMAIN>,
@@ -2881,7 +2881,7 @@ Object {
     "type": Object {
       "attribute": Object {
         "age": Object {
-          "title": "individual Age",
+          "title": "Individual Age",
           "type": Object {
             "card": "seq",
             "domain": <DOMAIN>,
@@ -2889,7 +2889,7 @@ Object {
           },
         },
         "name": Object {
-          "title": "individual Name",
+          "title": "Individual Name",
           "type": Object {
             "card": "seq",
             "domain": <DOMAIN>,
@@ -2975,7 +2975,7 @@ Object {
         "type": Object {
           "attribute": Object {
             "age": Object {
-              "title": "individual Age",
+              "title": "Individual Age",
               "type": Object {
                 "card": "seq",
                 "domain": <DOMAIN>,
@@ -2983,7 +2983,7 @@ Object {
               },
             },
             "name": Object {
-              "title": "individual Name",
+              "title": "Individual Name",
               "type": Object {
                 "card": "seq",
                 "domain": <DOMAIN>,
@@ -3006,7 +3006,7 @@ Object {
             "hasInvalidType": false,
             "prev": "<PREV CONTEXT>",
             "scope": "<SCOPE [empty]>",
-            "title": "individual Age",
+            "title": "Individual Age",
             "type": Object {
               "card": "seq",
               "domain": <DOMAIN>,
@@ -3062,7 +3062,7 @@ Object {
             "hasInvalidType": false,
             "prev": "<PREV CONTEXT>",
             "scope": "<SCOPE [empty]>",
-            "title": "individual Name",
+            "title": "Individual Name",
             "type": Object {
               "card": "seq",
               "domain": <DOMAIN>,
@@ -3129,7 +3129,7 @@ Object {
     "type": Object {
       "attribute": Object {
         "name": Object {
-          "title": "individual Name",
+          "title": "Individual Name",
           "type": Object {
             "card": "seq",
             "domain": <DOMAIN>,
@@ -3215,7 +3215,7 @@ Object {
         "type": Object {
           "attribute": Object {
             "name": Object {
-              "title": "individual Name",
+              "title": "Individual Name",
               "type": Object {
                 "card": "seq",
                 "domain": <DOMAIN>,
@@ -3238,7 +3238,7 @@ Object {
             "hasInvalidType": false,
             "prev": "<PREV CONTEXT>",
             "scope": "<SCOPE [empty]>",
-            "title": "individual Name",
+            "title": "Individual Name",
             "type": Object {
               "card": "seq",
               "domain": <DOMAIN>,

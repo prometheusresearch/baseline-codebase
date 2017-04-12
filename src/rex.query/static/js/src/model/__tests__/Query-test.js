@@ -139,7 +139,7 @@ describe('inferType()', function() {
       ).context.type,
     ).toEqual(
       recordType(domain, {
-        a: {title: 'unknown', type: invalidType(domain)},
+        a: {title: 'Unknown', type: invalidType(domain)},
       }),
     );
     expect(inferQueryType(voidContext(domain), aggregate('count')).context.type).toEqual(
@@ -521,14 +521,14 @@ describe('inferExpressionType(context, expression)', function() {
 
 test('genQueryName (untyped)', function() {
   let genName = query => genQueryName(query);
-  expect(genName(navigate('customer'))).toBe('customer');
-  expect(genName(pipeline(navigate('customer')))).toBe('customer');
-  expect(genName(pipeline(navigate('customer'), navigate('name')))).toBe('customer name');
+  expect(genName(navigate('customer'))).toBe('Customer');
+  expect(genName(pipeline(navigate('customer')))).toBe('Customer');
+  expect(genName(pipeline(navigate('customer'), navigate('name')))).toBe('Customer Name');
   expect(genName(pipeline(navigate('customer'), aggregate('count')))).toBe(
-    'customer count',
+    'Customer Count',
   );
   expect(genName(pipeline(navigate('customer'), aggregate('count', 'name')))).toBe(
-    'customer name count',
+    'Customer Name count',
   );
 });
 

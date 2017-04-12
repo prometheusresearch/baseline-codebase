@@ -1,0 +1,10 @@
+{
+  "name": "rex-baseline",
+  "version": "1.0.0",
+  "main": "./lib/index.js",
+  "dependencies": {
+    "react": "^0.14.0",
+    "react-addons-update": "^0.14.0",
+    "react-dom": "^0.14.0"
+  }
+}

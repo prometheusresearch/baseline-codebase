@@ -1,0 +1,19 @@
+
+application_title: RexDB Baseline
+
+header_primary_color: "#004E94"
+header_secondary_color: "#0094CD"
+
+htsql_extensions:
+  rex_deploy:
+
+rex_widget:
+  chrome: rex.widget_chrome.MenuChrome
+
+rex_action:
+  include_page_breadcrumb_item: true
+
+rex_widget_chrome:
+  magic: true
+  hide_second_tier_menu: true
+

@@ -8,33 +8,28 @@ import {VBox} from 'react-stylesheet';
 import QueryVisButtonHeader from './QueryVisButtonHeader';
 
 type QueryVisButtonProps = {
-  children?: React$Element<*>;
+  children?: React$Element<*>,
   stylesheet: {
-    Root: React.Component<*,*,*>;
-    Button: React.Component<*,*,*>;
-  };
+    Root: React.Component<*, *, *>,
+    Button: React.Component<*, *, *>,
+  },
 };
 
-export default class QueryVisButton
- extends React.Component<*, QueryVisButtonProps, *> {
-
+export default class QueryVisButton extends React.Component<*, QueryVisButtonProps, *> {
   static defaultProps = {
     stylesheet: {
       Root: VBox,
       Button: VBox,
-    }
+    },
   };
 
   render() {
     let {children, ...props} = this.props;
     return (
       <VBox>
-        <QueryVisButtonHeader
-          {...props}
-          />
+        <QueryVisButtonHeader {...props} />
         {children}
       </VBox>
     );
   }
-
 }

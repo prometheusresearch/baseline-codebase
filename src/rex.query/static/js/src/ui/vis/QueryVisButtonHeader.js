@@ -4,40 +4,39 @@
 
 import React from 'react';
 import {style, HBox, VBox} from 'react-stylesheet';
-import Label from '../../ui/Label'
+import Label from '../../ui/Label';
 import * as Icon from '../../ui/Icon';
 
 type QueryVisButtonHeaderProps = {
   stylesheet: {
-    Root: typeof VBox;
-    Button: typeof VBox;
-  };
-  closeIcon: React.Element<*>;
+    Root: typeof VBox,
+    Button: typeof VBox,
+  },
+  closeIcon: React.Element<*>,
 
-  label: string;
+  label: string,
 
-  selected: boolean;
-  selectable: boolean;
+  selected: boolean,
+  selectable: boolean,
 
-  invalid?: boolean;
+  invalid?: boolean,
 
-  toggleable: boolean;
-  closeable: boolean;
+  toggleable: boolean,
+  closeable: boolean,
 
-  first?: boolean;
+  first?: boolean,
 
-  closeTitle?: string;
+  closeTitle?: string,
 
-  onSelect: () => void;
-  onClose: () => void;
+  onSelect: () => void,
+  onClose: () => void,
 };
 
 export default class QueryVisButtonHeader
   extends React.Component<*, QueryVisButtonHeaderProps, *> {
-
   state: {
-    active: boolean;
-    hover: boolean;
+    active: boolean,
+    hover: boolean,
   };
 
   state = {
@@ -75,14 +74,20 @@ export default class QueryVisButtonHeader
 
   render() {
     let {
-      label, selected, invalid,
-      selectable, toggleable, closeable,
-      closeIcon, closeTitle,
+      label,
+      selected,
+      invalid,
+      selectable,
+      toggleable,
+      closeable,
+      closeIcon,
+      closeTitle,
       first,
       stylesheet: {Root, Button},
     } = this.props;
     let {
-      active, hover
+      active,
+      hover,
     } = this.state;
 
     let buttonLabel = (
@@ -93,7 +98,7 @@ export default class QueryVisButtonHeader
             style={{
               visibility: toggleable && (!active || selected || hover)
                 ? 'visible'
-                : 'hidden'
+                : 'hidden',
             }}>
             <Button disableActive onClick={toggleable && this.toggleActive}>
               {active ? <Icon.IconCircle /> : <Icon.IconCircleO />}
@@ -103,8 +108,7 @@ export default class QueryVisButtonHeader
             <Label label={label} />
           </HBox>
           {closeable &&
-            <HBox
-              style={{visibility: selected || hover ? 'visible' : 'hidden'}}>
+            <HBox style={{visibility: selected || hover ? 'visible' : 'hidden'}}>
               <Button onClick={this.onClose} title={closeTitle}>
                 {closeIcon}
               </Button>
@@ -137,5 +141,5 @@ export let QueryVisButtonLabel = style(HBox, {
     padding: 6,
     width: '100%',
     height: 32,
-  }
+  },
 });

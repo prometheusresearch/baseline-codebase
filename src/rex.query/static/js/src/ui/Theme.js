@@ -5,15 +5,15 @@
 import {rgb, rgba} from 'react-stylesheet/css';
 
 export type QueryVisTheme = {
-  backgroundColor: string;
-  backgroundColorOnHover?: string;
-  backgroundColorOnActive?: string;
+  backgroundColor: string,
+  backgroundColorOnHover?: string,
+  backgroundColorOnActive?: string,
 
-  textColor: string;
-  textColorActive: string;
+  textColor: string,
+  textColorActive: string,
 
-  borderColor: string;
-  borderStyle?: string;
+  borderColor: string,
+  borderStyle?: string,
 };
 
 export let placeholder: QueryVisTheme = {

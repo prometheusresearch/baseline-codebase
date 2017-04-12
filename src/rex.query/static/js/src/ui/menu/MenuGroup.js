@@ -7,8 +7,8 @@ import {style, css, VBox} from 'react-stylesheet';
 import MenuTitle from './MenuTitle';
 
 type MenuGroupProps = {
-  title?: string | React$Element<*>;
-  children?: React$Element<*>;
+  title?: string | React$Element<*>,
+  children?: React$Element<*>,
 };
 
 export default function MenuGroup({title, children, ...props}: MenuGroupProps) {
@@ -28,5 +28,5 @@ export default function MenuGroup({title, children, ...props}: MenuGroupProps) {
 let MenuGroupChildren = style(VBox, {
   noTitle: {
     borderTop: css.border(1, '#ddd'),
-  }
+  },
 });

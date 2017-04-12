@@ -6,15 +6,14 @@ import React from 'react';
 import {style, css, Element, VBox, HBox} from 'react-stylesheet';
 
 type MenuButtonSecondaryProps = {
-  icon?: ?string | React$Element<*>;
-  tabIndex?: number;
-  children?: React$Element<*>;
-  onClick?: () => *;
+  icon?: ?string | React$Element<*>,
+  tabIndex?: number,
+  children?: React$Element<*>,
+  onClick?: () => *,
 };
 
 export default class MenuButtonSecondary
   extends React.Component<*, MenuButtonSecondaryProps, *> {
-
   onClick = (ev: UIEvent) => {
     ev.stopPropagation();
     if (this.props.onClick) {
@@ -30,15 +29,9 @@ export default class MenuButtonSecondary
       ...rest
     } = this.props;
     return (
-      <MenuButtonSecondaryRoot
-        {...rest}
-        onClick={this.onClick}
-        tabIndex={tabIndex}>
+      <MenuButtonSecondaryRoot {...rest} onClick={this.onClick} tabIndex={tabIndex}>
         {icon &&
-          <VBox
-            width={15}
-            paddingRight={20}
-            justifyContent="flex-start">
+          <VBox width={15} paddingRight={20} justifyContent="flex-start">
             {icon}
           </VBox>}
         <Element overflow="hidden" textOverflow="ellipsis">
@@ -71,6 +64,6 @@ let MenuButtonSecondaryRoot = style(HBox, {
     hover: {
       color: '#222',
       backgroundColor: '#e7e7e7',
-    }
+    },
   },
 });

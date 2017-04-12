@@ -13,21 +13,19 @@
  */
 export type Effect<S> = (
   state: S,
-  setState: (tag: string, updater: (state: S) => S) => void
+  setState: (tag: string, updater: (state: S) => S) => void,
 ) => *;
 
 /**
  * A function which takes a state and produces an updated state and optionally a
  * list of effects.
  */
-export type StateUpdater<S: Object> =
-  (state: S) => S | [S, Array<Effect<S>> | Effect<S>];
+export type StateUpdater<S: Object> = (state: S) => S | [S, Array<Effect<S>> | Effect<S>];
 
 /**
  * A function which produces a state updater for a given set of parameters.
  */
-export type ActionHandler<P: Object | void, S> =
-  (params: P) => StateUpdater<S>;
+export type ActionHandler<P: Object | void, S> = (params: P) => StateUpdater<S>;
 
 /**
  * An interface to state container.
@@ -35,34 +33,30 @@ export type ActionHandler<P: Object | void, S> =
  * You can read state and modify it via actions.
  */
 export type StateContainer<S: Object, H: {[name: string]: ActionHandler<*, S>}> = {
-
   /**
    * Actions available.
    */
-  actions: $ObjMap<H, <P>(a: ActionHandler<P, S>) => (params: P) => void>;
+  actions: $ObjMap<H, <P>(a: ActionHandler<P, S>) => (params: P) => void>,
 
   /**
    * Return current state.
    */
-  getState: () => S;
+  getState: () => S,
 
   /**
    * Dispose container.
    */
-  dispose: () => void;
+  dispose: () => void,
 };
 
 /**
  * Actions for a given state container.
  */
-export type StateContainerActions<SC: StateContainer<*, *>> =
-  $PropertyType<SC, 'actions'>;
+export type StateContainerActions<SC: StateContainer<*, *>> = $PropertyType<SC, 'actions'>;
 
-const REDUX_DEVTOOLS_ENABLED = (
-  process.env.NODE_ENV === 'development' &&
+const REDUX_DEVTOOLS_ENABLED = process.env.NODE_ENV === 'development' &&
   typeof window !== 'undefined' &&
-  window.__REDUX_DEVTOOLS_EXTENSION__ != null
-);
+  window.__REDUX_DEVTOOLS_EXTENSION__ != null;
 
 /**
  * Create a new state container given an initial state and a set of action
@@ -73,7 +67,6 @@ export function create<S: Object, H: {[name: string]: ActionHandler<*, S>}>(
   actions: H,
   onChange: (state: S, callback: (state: S) => *) => *,
 ): StateContainer<S, H> {
-
   let state = initialState;
   let devtools = null;
   let devtoolsUnsubscribe = null;
@@ -86,7 +79,7 @@ export function create<S: Object, H: {[name: string]: ActionHandler<*, S>}>(
         devtools.send({type}, state);
       }
       onChange(state, () => {});
-    }
+    };
   }
 
   function createActionCreator(actionName, actionHandler) {
@@ -114,23 +107,20 @@ export function create<S: Object, H: {[name: string]: ActionHandler<*, S>}>(
           }
         }
       });
-    }
+    };
   }
 
   let actionCreators = {};
 
   for (let actionName in actions) {
     if (actions.hasOwnProperty(actionName)) {
-      actionCreators[actionName] = createActionCreator(
-        actionName,
-        actions[actionName]
-      );
+      actionCreators[actionName] = createActionCreator(actionName, actions[actionName]);
     }
   }
 
   if (REDUX_DEVTOOLS_ENABLED) {
     devtools = window.__REDUX_DEVTOOLS_EXTENSION__.connect();
-    devtoolsUnsubscribe = devtools.subscribe((message) => {
+    devtoolsUnsubscribe = devtools.subscribe(message => {
       if (message.type === 'DISPATCH' && message.payload.type === 'JUMP_TO_STATE') {
         let state = JSON.parse(message.state);
         onChange(state, state => {});
@@ -139,7 +129,6 @@ export function create<S: Object, H: {[name: string]: ActionHandler<*, S>}>(
   }
 
   return {
-
     getState() {
       return state;
     },
@@ -157,7 +146,6 @@ export function create<S: Object, H: {[name: string]: ActionHandler<*, S>}>(
         devtoolsUnsubscribe();
         devtoolsUnsubscribe = null;
       }
-    }
-
+    },
   };
 }

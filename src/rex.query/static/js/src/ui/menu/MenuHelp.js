@@ -6,11 +6,7 @@ import React from 'react';
 import {style, css, VBox} from 'react-stylesheet';
 
 export default function MenuHelp(props: Object) {
-  return (
-    <MenuHelpRoot
-      {...props}
-      />
-  );
+  return <MenuHelpRoot {...props} />;
 }
 
 let MenuHelpRoot = style(VBox, {
@@ -23,5 +19,5 @@ let MenuHelpRoot = style(VBox, {
     padding: 5,
     margin: 5,
     color: '#666',
-  }
+  },
 });

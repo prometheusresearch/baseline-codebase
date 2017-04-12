@@ -2,7 +2,7 @@
  * @flow
  */
 
-import React from 'react'
+import React from 'react';
 import {style, css, HBox} from 'react-stylesheet';
 import * as theme from './Theme';
 import * as Pane from './QueryPane';
@@ -32,7 +32,7 @@ function createButton({displayName, theme}) {
       hover: {
         color: theme.backgroundColor,
         backgroundColor: theme.backgroundColorOnActive || theme.textColor,
-      }
+      },
     },
 
     enableActive: {
@@ -40,8 +40,7 @@ function createButton({displayName, theme}) {
         color: theme.backgroundColor,
         backgroundColor: theme.backgroundColorOnActive || theme.textColor,
       },
-    }
-
+    },
   });
 
   return class extends React.Component {
@@ -50,24 +49,21 @@ function createButton({displayName, theme}) {
       let {children, icon, disableActive, active, ...props} = this.props;
       let variant = {active, enableActive: !disableActive};
       return (
-        <Root
-          padding={{horizontal: 7, vertical: 5}}
-          {...props}
-          variant={variant}>
+        <Root padding={{horizontal: 7, vertical: 5}} {...props} variant={variant}>
           {icon && <HBox paddingRight={5}>{icon}</HBox>}
           {children}
         </Root>
       );
     }
-  }
+  };
 }
 
 type RaisedButtonProps = {
-  selected: boolean;
+  selected: boolean,
 };
 
 function createRaisedButton({displayName, Button, Pane}) {
-  return  (props: RaisedButtonProps) => {
+  return (props: RaisedButtonProps) => {
     const {selected, ...rest} = props;
     return (
       <Pane variant={{selected}}>
@@ -84,12 +80,12 @@ export let DefaultButton = createButton({
 
 export let NavigateButton = createButton({
   displayName: 'NavigateButton',
-  theme: theme.entity
+  theme: theme.entity,
 });
 
 export let AggregateButton = createButton({
   displayName: 'AggregateButton',
-  theme: theme.aggregate
+  theme: theme.aggregate,
 });
 
 export let GroupButton = createButton({
@@ -99,17 +95,17 @@ export let GroupButton = createButton({
 
 export let DefineButton = createButton({
   displayName: 'AggregateButton',
-  theme: theme.traverse
+  theme: theme.traverse,
 });
 
 export let FilterButton = createButton({
   displayName: 'FilterButton',
-  theme: theme.filter
+  theme: theme.filter,
 });
 
 export let SelectButton = createButton({
   displayName: 'SelectButton',
-  theme: theme.select
+  theme: theme.select,
 });
 
 export let NavigateRaisedButton = createRaisedButton({

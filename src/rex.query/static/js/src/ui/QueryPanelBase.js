@@ -12,18 +12,17 @@ import Label from './Label';
 import * as Theme from './Theme';
 
 type QueryPanelBaseProps = {
-  title: string;
-  theme: QueryVisTheme;
-  children: React$Element<*>;
-  topBanner?: ?React$Element<*>;
-  noBorder?: boolean;
-  disableClose?: boolean;
-  onClose: () => *;
-  onBack: () => *;
+  title: string,
+  theme: QueryVisTheme,
+  children: React$Element<*>,
+  topBanner?: ?React$Element<*>,
+  noBorder?: boolean,
+  disableClose?: boolean,
+  onClose: () => *,
+  onBack: () => *,
 };
 
 export default class QueryPanelBase extends React.Component<*, QueryPanelBaseProps, *> {
-
   static defaultProps = {
     theme: Theme.placeholder,
   };
@@ -43,8 +42,7 @@ export default class QueryPanelBase extends React.Component<*, QueryPanelBasePro
       ? css.border(5, theme.backgroundColor)
       : css.border(1, theme.backgroundColor);
     return (
-      <QueryPanelBaseRoot
-        style={{borderLeft: border}}>
+      <QueryPanelBaseRoot style={{borderLeft: border}}>
         {topBanner}
         <QueryPanelBaseWrapper>
           <HBox padding={10} alignItems="center">
@@ -55,7 +53,7 @@ export default class QueryPanelBase extends React.Component<*, QueryPanelBasePro
                   size="small"
                   icon={<Icon.IconArrowLeft />}
                   onClick={onBack}
-                  />
+                />
               </HBox>}
             <HBox
               flexGrow={1}
@@ -72,7 +70,7 @@ export default class QueryPanelBase extends React.Component<*, QueryPanelBasePro
                 size="small"
                 icon={<Icon.IconClose />}
                 onClick={onClose}
-                />}
+              />}
           </HBox>
           <VBox flexGrow={1}>
             {children}
@@ -87,7 +85,7 @@ let QueryPanelBaseRoot = style(VBox, {
   displayName: 'QueryPanelBaseRoot',
   base: {
     flexGrow: 1,
-  }
+  },
 });
 
 let QueryPanelBaseWrapper = style(VBox, {
@@ -95,5 +93,5 @@ let QueryPanelBaseWrapper = style(VBox, {
   base: {
     flexGrow: 1,
     borderLeft: css.border(1, '#ddd'),
-  }
+  },
 });

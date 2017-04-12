@@ -29,7 +29,7 @@ export function stripDomain(query) {
   return stripImpl(query, query => ({
     ...query,
     id: null,
-    context: {type: query.context.type, hasInvalidType: query.context.hasInvalidType}
+    context: {type: query.context.type, hasInvalidType: query.context.hasInvalidType},
   }));
 }
 

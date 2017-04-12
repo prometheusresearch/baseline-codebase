@@ -5,15 +5,15 @@
 import React from 'react';
 import {style, css, VBox} from 'react-stylesheet';
 
-export default function MenuTitle({size = 'normal', ...props}: {
-  size?: 'normal' | 'large';
-}) {
-  return (
-    <MenuTitleRoot
-      {...props}
-      variant={{large: size === 'large'}}
-      />
-  );
+export default function MenuTitle(
+  {
+    size = 'normal',
+    ...props
+  }: {
+    size?: 'normal' | 'large',
+  },
+) {
+  return <MenuTitleRoot {...props} variant={{large: size === 'large'}} />;
 }
 
 let MenuTitleRoot = style(VBox, {
@@ -30,5 +30,5 @@ let MenuTitleRoot = style(VBox, {
   },
   large: {
     fontSize: '10pt',
-  }
+  },
 });

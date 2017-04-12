@@ -11,7 +11,7 @@ import type {ColumnConfig, ColumnField} from './DataTable';
  * ignoring their grouping and stacking.
  */
 export default function getColumnSpecList<T>(
-  config: ColumnConfig<T>
+  config: ColumnConfig<T>,
 ): Array<ColumnField<T>> {
   let queue = [config];
   let columnFieldList = [];

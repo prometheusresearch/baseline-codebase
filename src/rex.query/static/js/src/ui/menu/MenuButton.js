@@ -8,26 +8,25 @@ import {style, css, VBox, HBox} from 'react-stylesheet';
 import * as Icon from '../Icon';
 
 type MenuButtonProps = {
-  icon?: ?string | React$Element<*>;
-  selected?: boolean;
-  disabled?: boolean;
-  onIconClick?: (ev: MouseEvent) => *;
-  iconTitle?: string;
-  tabIndex?: number;
-  menu?: React$Element<*>;
-  children?: React$Element<*>;
-  buttonGroup?: ?React$Element<*>;
+  icon?: ?string | React$Element<*>,
+  selected?: boolean,
+  disabled?: boolean,
+  onIconClick?: (ev: MouseEvent) => *,
+  iconTitle?: string,
+  tabIndex?: number,
+  menu?: React$Element<*>,
+  children?: React$Element<*>,
+  buttonGroup?: ?React$Element<*>,
 };
 
 type MenuButtonState = {
-  menuOpen: boolean;
+  menuOpen: boolean,
 };
 
 export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
-
-  state: MenuButtonState  = {
+  state: MenuButtonState = {
     menuOpen: false,
-  }
+  };
 
   menuButtonMenu: ?React.Component<*, *, *> = null;
   menuButtonMenuToggle: ?React.Component<*, *, *> = null;
@@ -45,8 +44,10 @@ export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
     let target = ev.target;
     do {
       if (
-        (this.menuButtonMenu != null && ReactDOM.findDOMNode(this.menuButtonMenu) === target) ||
-        (this.menuButtonMenuToggle != null && ReactDOM.findDOMNode(this.menuButtonMenuToggle) === target)
+        (this.menuButtonMenu != null &&
+          ReactDOM.findDOMNode(this.menuButtonMenu) === target) ||
+        (this.menuButtonMenuToggle != null &&
+          ReactDOM.findDOMNode(this.menuButtonMenuToggle) === target)
       ) {
         return;
       }
@@ -56,7 +57,7 @@ export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
     if (this.mounted) {
       this.setState(state => ({...state, menuOpen: false}));
     }
-  }
+  };
 
   onMenuButtonMenu = (menuButtonMenu: React.Component<*, *, *>) => {
     this.menuButtonMenu = menuButtonMenu;
@@ -87,8 +88,7 @@ export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
     return (
       <MenuButtonRoot {...rest} variant={variant} tabIndex={tabIndex}>
         <HBox>
-          <MenuButtonWrapper
-            variant={{...variant, hoverStyle: !separateHover}}>
+          <MenuButtonWrapper variant={{...variant, hoverStyle: !separateHover}}>
             <MenuButtonIconWrapper
               title={iconTitle}
               role={onIconClick && 'button'}
@@ -99,8 +99,7 @@ export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
               justifyContent="flex-start">
               {icon}
             </MenuButtonIconWrapper>
-            <MenuButtonLabelWrapper
-              variant={{hoverStyle: separateHover}}>
+            <MenuButtonLabelWrapper variant={{hoverStyle: separateHover}}>
               {children}
             </MenuButtonLabelWrapper>
           </MenuButtonWrapper>
@@ -110,9 +109,10 @@ export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
               variant={variant}
               ref={this.onMenuButtonMenuToggle}
               onClick={this.toggleMenuOpen}
-              />}
+            />}
         </HBox>
-        {menuOpen && menu &&
+        {menuOpen &&
+          menu &&
           <MenuButtonMenu ref={this.onMenuButtonMenu}>
             {menu}
           </MenuButtonMenu>}
@@ -139,9 +139,8 @@ export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
 }
 
 class MenuButtonMenuToggle extends React.Component {
-
   props: {
-    onClick: () => *;
+    onClick: () => *,
   };
 
   onClick = (ev: UIEvent) => {
@@ -172,8 +171,8 @@ let MenuButtonMenuToggleRoot = style(VBox, {
   disabled: {
     hover: {
       background: '#fff',
-    }
-  }
+    },
+  },
 });
 
 let MenuButtonRoot = style(VBox, {
@@ -201,7 +200,7 @@ let MenuButtonMenu = style(VBox, {
   displayName: 'MenuButtonMenu',
   base: {
     borderTop: css.border(1, '#bbb'),
-  }
+  },
 });
 
 let MenuButtonIconWrapper = style(VBox, {
@@ -219,8 +218,8 @@ let MenuButtonIconWrapper = style(VBox, {
   disabled: {
     hover: {
       background: '#fff',
-    }
-  }
+    },
+  },
 });
 
 let MenuButtonLabelWrapper = style(VBox, {
@@ -243,8 +242,8 @@ let MenuButtonLabelWrapper = style(VBox, {
   disabled: {
     hover: {
       background: '#fff',
-    }
-  }
+    },
+  },
 });
 
 let MenuButtonWrapper = style(HBox, {
@@ -263,6 +262,6 @@ let MenuButtonWrapper = style(HBox, {
   disabled: {
     hover: {
       background: '#fff',
-    }
-  }
+    },
+  },
 });

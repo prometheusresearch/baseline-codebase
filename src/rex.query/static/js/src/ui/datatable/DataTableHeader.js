@@ -169,35 +169,36 @@ class DataTableHeaderStack extends React.Component {
         width={width}
         flexGrow={width == null ? flexGrow : undefined}>
         {stack.map(
-          (c, idx) => c.type === 'field'
-            ? <DataTableHeaderGroupRoot
-                height={height * c.size.height}
-                flexGrow={1}
-                width="100%"
-                key={idx}>
-                <DataTableHeaderItem
+          (c, idx) =>
+            c.type === 'field'
+              ? <DataTableHeaderGroupRoot
+                  height={height * c.size.height}
+                  flexGrow={1}
+                  width="100%"
+                  key={idx}>
+                  <DataTableHeaderItem
+                    onClick={onClick}
+                    onResize={onResize}
+                    height={height}
+                    width="100%"
+                    flexGrow={1}
+                    columnSpec={c}
+                    parentColumnSpec={columnSpec}
+                    resizeable={false}
+                    columnWidth={columnWidth}
+                    index={idx}
+                  />
+                </DataTableHeaderGroupRoot>
+              : <DataTableHeaderItem
                   onClick={onClick}
                   onResize={onResize}
                   height={height}
-                  width="100%"
-                  flexGrow={1}
+                  key={idx}
                   columnSpec={c}
                   parentColumnSpec={columnSpec}
-                  resizeable={false}
                   columnWidth={columnWidth}
                   index={idx}
-                />
-              </DataTableHeaderGroupRoot>
-            : <DataTableHeaderItem
-                onClick={onClick}
-                onResize={onResize}
-                height={height}
-                key={idx}
-                columnSpec={c}
-                parentColumnSpec={columnSpec}
-                columnWidth={columnWidth}
-                index={idx}
-              />,
+                />,
         )}
         {resizeable &&
           <DataTableHeaderCellResizeHandle

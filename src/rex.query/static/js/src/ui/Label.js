@@ -14,6 +14,6 @@ let LabelRoot = style('div', {
     display: 'inline-block',
     textOverflow: 'ellipsis',
     overflow: 'hidden',
-    whiteSpace: 'nowrap'
-  }
+    whiteSpace: 'nowrap',
+  },
 });

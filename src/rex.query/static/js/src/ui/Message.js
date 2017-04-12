@@ -6,7 +6,7 @@ import React from 'react';
 import {style, VBox} from 'react-stylesheet';
 
 type MessageProps = {
-  children?: React.Element<any>;
+  children?: React.Element<any>,
 };
 
 export default function Message({children, ...props}: MessageProps) {
@@ -29,7 +29,7 @@ let MessageRoot = style(VBox, {
     fontWeight: 200,
     fontSize: '10pt',
     color: '#aaa',
-  }
+  },
 });
 
 let MessageChildrenWrapper = style('p', {
@@ -37,5 +37,5 @@ let MessageChildrenWrapper = style('p', {
   base: {
     width: '80%',
     textAlign: 'center',
-  }
+  },
 });

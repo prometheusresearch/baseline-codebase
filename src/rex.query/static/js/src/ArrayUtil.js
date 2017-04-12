@@ -30,7 +30,7 @@ export function traceEquals(a: Array<KeyPath>, b: Array<KeyPath>) {
 
 export function findIndexRight<T>(
   array: Array<T>,
-  predicate: (item: T) => boolean
+  predicate: (item: T) => boolean,
 ): number {
   if (array.length === 0) {
     return -1;
@@ -90,11 +90,13 @@ export function transpose(obj: Object, keyPath: Array<string>): Array<Object> {
       }
       return result;
     } else {
-      return [{
-        ...obj,
-        __index__: 0,
-        [key]: {}
-      }];
+      return [
+        {
+          ...obj,
+          __index__: 0,
+          [key]: {},
+        },
+      ];
     }
   } else {
     return [obj];

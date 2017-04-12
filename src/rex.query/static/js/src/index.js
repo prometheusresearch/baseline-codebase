@@ -68,7 +68,6 @@ ReactDOM.render(
     onQuery={onQuery}
     onSearch={debounce(doSearch, 700)}
     toolbar={<Toolbar />}
-    />,
-  document.getElementById('root')
+  />,
+  document.getElementById('root'),
 );
-

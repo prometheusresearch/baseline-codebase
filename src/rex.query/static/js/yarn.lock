@@ -24,9 +24,9 @@
     invariant "^2.2.1"
     react-stylesheet "^2.0.0"
 
-"@prometheusresearch/react-ui@^0.24.1":
-  version "0.24.1"
-  resolved "https://registry.yarnpkg.com/@prometheusresearch/react-ui/-/react-ui-0.24.1.tgz#9a8fde48dd8e2cc73cc5b04abe9d396bb86c28f8"
+"@prometheusresearch/react-ui@^0.24.4":
+  version "0.24.4"
+  resolved "https://registry.yarnpkg.com/@prometheusresearch/react-ui/-/react-ui-0.24.4.tgz#302b3932da5d3ecaed0d6c72d67c1a804063ed42"
   dependencies:
     color-js "^1.0.4"
     debounce "^1.0.0"

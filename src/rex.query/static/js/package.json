@@ -54,7 +54,7 @@
   },
   "dependencies": {
     "@prometheusresearch/react-datetimepicker": "^0.5.0",
-    "@prometheusresearch/react-ui": "^0.24.1",
+    "@prometheusresearch/react-ui": "^0.24.4",
     "babel-eslint": "7.0.0",
     "debounce-promise": "^2.1.1",
     "debug": "^2.6.0",

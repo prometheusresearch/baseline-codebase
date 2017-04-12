@@ -16,21 +16,19 @@ import Label from '../Label';
 import * as FilterComparators from './FilterComparators';
 
 type FilterConditionProps = {
-  expression: Expression;
-  fields: Array<QueryNavigation>;
-  onUpdate: (expression: Expression) => *;
+  expression: Expression,
+  fields: Array<QueryNavigation>,
+  onUpdate: (expression: Expression) => *,
 };
 
 type FilterConditionState = {|
-  fieldName: ?string;
-  operandName: ?string;
-  comparatorName: ?string;
-  operandIsField: boolean;
+  fieldName: ?string,
+  operandName: ?string,
+  comparatorName: ?string,
+  operandIsField: boolean,
 |};
 
-export default class FilterCondition
-  extends React.Component<*, FilterConditionProps, *> {
-
+export default class FilterCondition extends React.Component<*, FilterConditionProps, *> {
   state: FilterConditionState;
 
   constructor(props: FilterConditionProps) {
@@ -81,13 +79,14 @@ export default class FilterCondition
             options={operandFields}
             onChange={this.onOperandValueChange}
             placeholder="Select an Attribute..."
-            />
+          />
         );
       } else {
         let comparatorDefinition = FilterComparators.getDefinition(comparatorName);
         invariant(
           comparatorDefinition != null,
-          'Cannot find comparator definition for: %s', comparatorName
+          'Cannot find comparator definition for: %s',
+          comparatorName,
         );
         operandComponent = comparatorDefinition.operand(
           field,
@@ -99,7 +98,6 @@ export default class FilterCondition
       if (field.context.type.name === 'record') {
         chooseOperandType = false;
       }
-
     }
 
     let operandTypeOptions = [
@@ -128,7 +126,7 @@ export default class FilterCondition
               value={fieldName}
               options={fieldOptions}
               onChange={this.onFieldChange}
-              />
+            />
           </ReactUI.Block>
           {fieldName != null &&
             <ReactUI.Block marginBottom={5}>
@@ -137,9 +135,8 @@ export default class FilterCondition
                 value={comparatorName}
                 options={comparators}
                 onChange={this.onComparatorChange}
-                />
-            </ReactUI.Block>
-          }
+              />
+            </ReactUI.Block>}
         </ReactUI.Block>
         {operandComponent &&
           <ReactUI.Block>
@@ -150,11 +147,10 @@ export default class FilterCondition
                   options={operandTypeOptions}
                   value={operandIsField ? 'field' : 'value'}
                   onChange={this.onOperandTypeChange}
-                  />
+                />
               </ReactUI.Block>}
             {operandComponent}
-          </ReactUI.Block>
-        }
+          </ReactUI.Block>}
       </ReactUI.Block>
     );
   }
@@ -171,15 +167,13 @@ export default class FilterCondition
       fieldName,
       comparatorName,
       operandName,
-      operandIsField
+      operandIsField,
     } = this.state;
 
     let prevField = fieldName;
     fieldName = newField;
 
-    let newFieldDef = newField
-      ? getFieldDefinition(this.props.fields, newField)
-      : null;
+    let newFieldDef = newField ? getFieldDefinition(this.props.fields, newField) : null;
 
     if (newFieldDef) {
       let newComp = null;
@@ -200,7 +194,7 @@ export default class FilterCondition
       } else if (
         prevFieldDef &&
         newFieldDef &&
-        (prevFieldDef.context.type !== newFieldDef.context.type)
+        prevFieldDef.context.type !== newFieldDef.context.type
       ) {
         operandName = null;
         operandIsField = false;
@@ -212,98 +206,105 @@ export default class FilterCondition
     }
 
     if (newFieldDef && comparatorName == null) {
-      let comparators = FilterComparators.getApplicableForField(newFieldDef)
+      let comparators = FilterComparators.getApplicableForField(newFieldDef);
       if (comparators.length > 0) {
         comparatorName = comparators[0].value;
       }
     }
 
-    this.setState({
-      fieldName,
-      comparatorName,
-      operandName,
-      operandIsField
-    }, () => this.updateQuery());
+    this.setState(
+      {
+        fieldName,
+        comparatorName,
+        operandName,
+        operandIsField,
+      },
+      () => this.updateQuery(),
+    );
   };
 
   onComparatorChange = (comparatorName: string) => {
-    this.setState({
-      comparatorName,
-      operandName: null,
-      operandIsField: false,
-    }, () => this.updateQuery());
+    this.setState(
+      {
+        comparatorName,
+        operandName: null,
+        operandIsField: false,
+      },
+      () => this.updateQuery(),
+    );
   };
 
   onOperandTypeChange = (newType: string) => {
-    this.setState({
-      operandIsField: newType === 'field',
-      operandName: null
-    }, () => this.updateQuery());
+    this.setState(
+      {
+        operandIsField: newType === 'field',
+        operandName: null,
+      },
+      () => this.updateQuery(),
+    );
   };
 
   onOperandValueChange = (newOperand: ?string) => {
-    this.setState({
-      operandName: newOperand,
-    }, () => this.updateQuery());
+    this.setState(
+      {
+        operandName: newOperand,
+      },
+      () => this.updateQuery(),
+    );
   };
 
-  updateQuery = debounce(() => {
-    let {
-      fieldName,
-      comparatorName,
-      operandName,
-      operandIsField
-    } = this.state;
+  updateQuery = debounce(
+    () => {
+      let {
+        fieldName,
+        comparatorName,
+        operandName,
+        operandIsField,
+      } = this.state;
 
-    invariant(
-      comparatorName != null,
-      'Comparator name is null'
-    );
+      invariant(comparatorName != null, 'Comparator name is null');
 
-    invariant(
-      fieldName != null,
-      'Field is null'
-    );
+      invariant(fieldName != null, 'Field is null');
 
-    let field = getFieldDefinition(this.props.fields, fieldName);
+      let field = getFieldDefinition(this.props.fields, fieldName);
 
-    let comparatorDefinition = FilterComparators.getDefinition(comparatorName);
+      let comparatorDefinition = FilterComparators.getDefinition(comparatorName);
 
-    invariant(
-      comparatorDefinition != null,
-      'Cannot find comparator definition for: %s', comparatorName
-    );
+      invariant(
+        comparatorDefinition != null,
+        'Cannot find comparator definition for: %s',
+        comparatorName,
+      );
 
-    let query = comparatorDefinition.query(
-      field,
-      operandName,
-      operandIsField
-    );
+      let query = comparatorDefinition.query(field, operandName, operandIsField);
 
-    if (query) {
-      this.props.onUpdate(query);
-    }
-  }, 750);
+      if (query) {
+        this.props.onUpdate(query);
+      }
+    },
+    750,
+  );
 }
 
 function getCompatibleOperandFields(
   fieldList: Array<QueryNavigation>,
-  field: QueryNavigation
+  field: QueryNavigation,
 ) {
   if (field.context.type.name === 'invalid') {
     return [];
   } else {
-    return fieldList.filter(f =>
-      f.context.type.name !== 'invalid' &&
-      f.value !== field.value &&
-      f.context.type.name === field.context.type.name
+    return fieldList.filter(
+      f =>
+        f.context.type.name !== 'invalid' &&
+        f.value !== field.value &&
+        f.context.type.name === field.context.type.name,
     );
   }
 }
 
 function getFieldDefinition(
   fieldList: Array<QueryNavigation>,
-  fieldName: string
+  fieldName: string,
 ): QueryNavigation {
   for (let i = 0; i < fieldList.length; i++) {
     let field = fieldList[i];
@@ -312,10 +313,7 @@ function getFieldDefinition(
     }
   }
 
-  invariant(
-    false,
-    'No field named "%s" found in current scope.', fieldName
-  );
+  invariant(false, 'No field named "%s" found in current scope.', fieldName);
 }
 
 function getCondition(expression: Expression): FilterConditionState {
@@ -324,16 +322,13 @@ function getCondition(expression: Expression): FilterConditionState {
       fieldName: null,
       comparatorName: null,
       operandName: null,
-      operandIsField: false
+      operandIsField: false,
     };
   }
 
   let condition = FilterComparators.identify(expression);
 
-  invariant(
-    condition,
-    'Cannot identify expression type.'
-  );
+  invariant(condition, 'Cannot identify expression type.');
 
   return {
     fieldName: condition.field,

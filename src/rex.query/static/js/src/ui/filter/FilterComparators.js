@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {QueryNavigation, Expression} from '../../model';
+import type {QueryNavigation, Expression, BinaryExpression} from '../../model';
 
 import React from 'react';
 import invariant from 'invariant';
@@ -16,60 +16,49 @@ function isOfType(field: QueryNavigation, types: Array<string>): boolean {
 }
 
 export type Identification = {
-
   // The name of the field being examined
-  field: string;
+  field: string,
 
   // Whether or not the operand is a field or a literal value
-  operandIsField: boolean;
+  operandIsField: boolean,
 
   // The operand being compared to
-  operand: ?any;
+  operand: ?any,
 };
 
 export type FullIdentification = Identification & {
   // The unqiue ID of the comparator that identified the expression
-  comparator: string;
+  comparator: string,
 };
 
 export type Comparator = {
   // The name shown to the user
-  label: string;
+  label: string,
   // The unique ID of the comparator
-  value: string;
+  value: string,
 
   // A function that looks at a query to determine if it is one that this
   // comparator handles. If so, it returns an object containing basic info.
-  identify(
-    expression: Expression
-  ): ?Identification;
+  identify(expression: Expression): ?Identification,
 
   // A function that looks at a field and dermines if it is one that this
   // comparator can be used with.
-  applicable(
-    field: QueryNavigation
-  ): boolean;
+  applicable(field: QueryNavigation): boolean,
 
   // A function that returns a React element that can collect the operand for
   // this comparator. If no operand is necessary, return null.
   operand(
     field: QueryNavigation,
     value: ?any,
-    onChange: (operand: ?any) => void
-  ): ?React.Element<*>;
+    onChange: (operand: ?any) => void,
+  ): ?React.Element<*>,
 
   // A function that generates a Query for the given field and operand. If a
   // legal Query cannot be generated, return null.
-  query(
-    field: QueryNavigation,
-    operand: ?any,
-    operandIsField: ?boolean
-  ): ?Expression;
+  query(field: QueryNavigation, operand: ?any, operandIsField: ?boolean): ?Expression,
 };
 
-
 class BasicBinaryComparator {
-
   label: string;
   value: string;
   types: Array<string>;
@@ -77,6 +66,10 @@ class BasicBinaryComparator {
   applicable(field) {
     let type = field.context.type;
     return type.card !== 'seq' && isOfType(field, this.types);
+  }
+
+  checkQuery(_query: BinaryExpression): boolean {
+    return true;
   }
 
   identify(query: Expression): ?Identification {
@@ -91,6 +84,9 @@ class BasicBinaryComparator {
       return null;
     }
     if (!(right.name === 'navigate' || right.name === 'value')) {
+      return null;
+    }
+    if (!this.checkQuery(query)) {
       return null;
     }
     return {
@@ -109,7 +105,6 @@ class BasicBinaryComparator {
       return null;
     }
     switch (type.name) {
-
       case 'record':
         Component = operands.TextOperand;
         break;
@@ -143,7 +138,7 @@ class BasicBinaryComparator {
               label: enumeration,
               value: enumeration,
             };
-          })
+          }),
         };
         break;
 
@@ -151,70 +146,79 @@ class BasicBinaryComparator {
         invariant(false, 'Cannot generate operand component for "%s"', type.name);
     }
 
-    return <Component {...props} />
+    return <Component {...props} />;
   }
 
   query(field, operand, operandIsField) {
     return operand != null
       ? q[this.value](
           q.use(field.value),
-          operandIsField ? q.navigate(operand) : q.value(operand)
+          operandIsField ? q.navigate(operand) : q.value(operand),
         )
       : null;
   }
 }
 
-class Equal extends BasicBinaryComparator {
+function isEqualMultiExpression(expression: BinaryExpression): boolean {
+  const {right} = expression;
+  if (right.name === 'value' && Array.isArray(right.value)) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
-  label = 'is equal'
+class Equal extends BasicBinaryComparator {
+  label = 'is equal';
   value = 'equal';
   types = ['text', 'number', 'date', 'time', 'datetime', 'record'];
+
+  checkQuery(expression: BinaryExpression): boolean {
+    return !isEqualMultiExpression(expression);
+  }
 }
 
 class NotEqual extends BasicBinaryComparator {
-
   label = 'is not equal to';
   value = 'notEqual';
   types = ['text', 'number', 'date', 'time', 'datetime', 'record'];
+
+  checkQuery(expression: BinaryExpression): boolean {
+    return !isEqualMultiExpression(expression);
+  }
 }
 
 class Less extends BasicBinaryComparator {
-
   label = 'is less than';
   value = 'less';
   types = ['number', 'date', 'time', 'datetime'];
 }
 
 class LessEqual extends BasicBinaryComparator {
-
   label = 'is less than or equal to';
   value = 'lessEqual';
   types = ['number', 'date', 'time', 'datetime'];
 }
 
 class Greater extends BasicBinaryComparator {
-
   label = 'is greater than';
   value = 'greater';
   types = ['number', 'date', 'time', 'datetime'];
 }
 
 class GreaterEqual extends BasicBinaryComparator {
-
   label = 'is greater than or equal to';
   value = 'greaterEqual';
   types = ['number', 'date', 'time', 'datetime'];
 }
 
 class Contains extends BasicBinaryComparator {
-
   label = 'contains';
   value = 'contains';
   types = ['text'];
 }
 
 class NotContains extends BasicBinaryComparator {
-
   label = "doesn't contain";
   value = 'notContains';
   types = ['text'];
@@ -228,12 +232,11 @@ class NotContains extends BasicBinaryComparator {
       ? expression.right.name === 'navigate'
       : false;
     if (
-        query.name === 'not'
-        && expression.name === 'binary'
-        && expression.left.name === 'navigate'
-        && (expression.right.name === 'navigate' || expression.right.name === 'value')
-      ) {
-
+      query.name === 'not' &&
+      expression.name === 'binary' &&
+      expression.left.name === 'navigate' &&
+      (expression.right.name === 'navigate' || expression.right.name === 'value')
+    ) {
       let field = query.expression.left.path;
       let operand = operandIsField
         ? query.expression.right.path
@@ -244,18 +247,15 @@ class NotContains extends BasicBinaryComparator {
 
   query(field, operand, operandIsField) {
     return operand
-      ? q.not(q.contains(
-          q.use(field.value),
-          operandIsField ? q.navigate(operand) : operand,
-        ))
+      ? q.not(
+          q.contains(q.use(field.value), operandIsField ? q.navigate(operand) : operand),
+        )
       : null;
   }
 }
 
-
 class IsOneOf {
-
-  label = 'is one of'
+  label = 'is one of';
   value = 'enumIn';
   op = 'equal';
 
@@ -267,10 +267,10 @@ class IsOneOf {
       return null;
     }
     if (expression.right.name !== 'value') {
-      return null
+      return null;
     }
     if (expression.left.name !== 'navigate') {
-      return null
+      return null;
     }
 
     let field = expression.left.path;
@@ -288,10 +288,7 @@ class IsOneOf {
 
   operand(field, value, onChange) {
     let type = field.context.type;
-    invariant(
-      type && type.name === 'enumeration',
-      'Incompat type'
-    );
+    invariant(type && type.name === 'enumeration', 'Incompat type');
     let options = type.enumerations.map(enumeration => {
       return {
         label: enumeration,
@@ -304,7 +301,7 @@ class IsOneOf {
         options={options}
         value={value}
         onChange={onChange}
-        />
+      />
     );
   }
 
@@ -315,17 +312,13 @@ class IsOneOf {
   }
 }
 
-
 class IsNotOneOf extends IsOneOf {
-
   label = 'is not one of';
   value = 'enumNotIn';
   op = 'notEqual';
 }
 
-
 class Empty {
-
   label = 'is empty';
   value = 'empty';
 
@@ -346,22 +339,16 @@ class Empty {
   }
 
   applicable(field) {
-    return (
-      isOfType(
-        field,
-        [
-          'text',
-          'number',
-          'enumeration',
-          'boolean',
-          'date',
-          'time',
-          'datetime',
-          'record'
-        ]
-      ) &&
-      field.context.type.card != null
-    );
+    return isOfType(field, [
+      'text',
+      'number',
+      'enumeration',
+      'boolean',
+      'date',
+      'time',
+      'datetime',
+      'record',
+    ]) && field.context.type.card != null;
   }
 
   operand(field, value, onChange) {
@@ -373,9 +360,7 @@ class Empty {
   }
 }
 
-
 class NotEmpty extends Empty {
-
   label = 'is not empty';
   value = 'notEmpty';
 
@@ -398,9 +383,7 @@ class NotEmpty extends Empty {
   }
 }
 
-
 class IsTrue {
-
   label = 'is true';
   value = 'isTrue';
 
@@ -428,9 +411,7 @@ class IsTrue {
   }
 }
 
-
 class IsFalse {
-
   label = 'is false';
   value = 'isFalse';
 
@@ -487,21 +468,21 @@ export function identify(expression: Expression): ?FullIdentification {
     if (identification) {
       return {
         ...identification,
-        comparator: ALL_COMPARATORS[i].value
+        comparator: ALL_COMPARATORS[i].value,
       };
     }
   }
 }
 
 export function getApplicableForField(field: QueryNavigation): Array<Comparator> {
-  return ALL_COMPARATORS.filter((comp) => {
+  return ALL_COMPARATORS.filter(comp => {
     return comp.applicable(field);
   });
 }
 
 export function getDefinition(
   comparatorName: string,
-  comparatorCollection: Array<Comparator> = ALL_COMPARATORS
+  comparatorCollection: Array<Comparator> = ALL_COMPARATORS,
 ): ?Comparator {
   for (let i = 0; i < comparatorCollection.length; i++) {
     if (comparatorCollection[i].value === comparatorName) {
@@ -509,4 +490,3 @@ export function getDefinition(
     }
   }
 }
-

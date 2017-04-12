@@ -87,6 +87,7 @@ export class NumberOperand extends React.Component<*, NumberOperandProps, *> {
 
 export class EnumerationOperand extends React.Component {
   render() {
+    console.log(this.props.value);
     return (
       <Select
         value={this.props.value}

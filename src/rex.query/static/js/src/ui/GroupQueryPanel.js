@@ -3,25 +3,23 @@
  */
 
 import type {Actions} from '../state';
+import type {GroupQuery} from '../model/types';
 
 import React from 'react';
 
-import * as q from '../model/Query';
 import * as t from '../model/Type';
 import * as theme from './Theme';
 import QueryPanelBase from './QueryPanelBase';
 import {MenuButton, MenuGroup} from './menu';
 
 type GroupQueryPanelProps = {
-  query: q.GroupQuery;
-  onClose: () => *;
+  query: GroupQuery,
+  onClose: () => *,
 };
 
-export default class GroupQueryPanel
-  extends React.Component<*, GroupQueryPanelProps, *> {
-
+export default class GroupQueryPanel extends React.Component<*, GroupQueryPanelProps, *> {
   context: {
-    actions: Actions;
+    actions: Actions,
   };
 
   static contextTypes = {actions: React.PropTypes.object};
@@ -56,25 +54,23 @@ export default class GroupQueryPanel
           query={query}
           onSelect={this.onSelect}
           onSelectRemove={this.onSelectRemove}
-          />
+        />
       </QueryPanelBase>
     );
   }
 }
 
 function canGroupBy(type) {
-  return !(
-    type.name === 'invalid' ||
-    type.name === 'record' ||
-    type.card === 'seq'
-  );
+  return !(type.name === 'invalid' || type.name === 'record' || type.card === 'seq');
 }
 
-function GroupMenu({
-  query: {byPath, context: {domain, scope, prev: {type, scope: prevScope}}},
-  onSelect,
-  onSelectRemove,
-}) {
+function GroupMenu(
+  {
+    query: {byPath, context: {domain, scope, prev: {type, scope: prevScope}}},
+    onSelect,
+    onSelectRemove,
+  },
+) {
   let items = [];
   if (byPath.length > 0) {
     scope = prevScope;
@@ -97,7 +93,7 @@ function GroupMenu({
           path={name}
           onSelect={onSelect}
           onSelectRemove={onSelectRemove}
-          />
+        />,
       );
     }
 
@@ -117,10 +113,9 @@ function GroupMenu({
           path={name}
           onSelect={onSelect}
           onSelectRemove={onSelectRemove}
-          />
+        />,
       );
     }
-
   }
   return (
     <MenuGroup>
@@ -130,7 +125,6 @@ function GroupMenu({
 }
 
 class GroupButton extends React.Component {
-
   onClick = (ev: UIEvent) => {
     ev.stopPropagation();
     if (this.props.selected) {
@@ -143,10 +137,7 @@ class GroupButton extends React.Component {
   render() {
     let {name, selected} = this.props;
     return (
-      <MenuButton
-        onClick={this.onClick}
-        icon={selected ? '✓' : null}
-        selected={selected}>
+      <MenuButton onClick={this.onClick} icon={selected ? '✓' : null} selected={selected}>
         {name}
       </MenuButton>
     );

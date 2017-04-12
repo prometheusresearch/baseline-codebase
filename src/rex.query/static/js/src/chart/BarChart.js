@@ -2,13 +2,14 @@
  * @flow
  */
 
+import type {QueryPipeline} from '../model/types';
+
 import * as React from 'react';
 import * as recharts from 'recharts';
 import {VBox} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
 import * as model from './model';
-import type {QueryPipeline} from '../model';
 import {getPipelineContext} from '../model';
 import {getQuery} from './util';
 import SelectAttribute from './SelectAttribute';
@@ -99,16 +100,15 @@ export default function BarChart(
           <ChartControl
             label="Stack vertically"
             control={
-              (
-                <ReactUI.Checkbox
-                  value={chart.stacked === 'vertical'}
-                  onChange={vertical => onChart({
+              <ReactUI.Checkbox
+                value={chart.stacked === 'vertical'}
+                onChange={vertical =>
+                  onChart({
                     type: 'bar',
                     ...chart,
                     stacked: vertical ? 'vertical' : 'horizontal',
                   })}
-                />
-              )
+              />
             }
           />}
       </ChartControlPanel>

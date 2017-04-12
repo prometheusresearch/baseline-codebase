@@ -2,19 +2,19 @@
  * @flow
  */
 
-import type {QueryNavigation} from '../model';
+import type {QueryNavigation} from '../model/types';
 
 export type SearchResult = {
-  value: string;
-  label: string
+  value: string,
+  label: string,
 };
 
 export type SearchCallbackParams = {
-  searchTerm: ?string;
-  navigation: Map<string, QueryNavigation>;
+  searchTerm: ?string,
+  navigation: Map<string, QueryNavigation>,
 };
 
-export type SearchCallback = SearchCallbackParams => Promise<Array<SearchResult>>;
+export type SearchCallback = (SearchCallbackParams) => Promise<Array<SearchResult>>;
 
 export let dummySearch: SearchCallback = ({searchTerm, navigation}) => {
   return new Promise((resolve, reject) => {
@@ -36,7 +36,7 @@ export let dummySearch: SearchCallback = ({searchTerm, navigation}) => {
 
 export function runSearch(
   search: SearchCallback,
-  params: SearchCallbackParams
+  params: SearchCallbackParams,
 ): Promise<Map<string, QueryNavigation>> {
   return search(params).then(searchResultList => {
     let nextNavigation = new Map();

@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Query} from '../model/Query';
+import type {Query} from '../model/types';
 import type {SearchCallback} from './Search';
 
 import React from 'react';
@@ -13,12 +13,12 @@ import AggregateQueryPanel from './AggregateQueryPanel';
 import GroupQueryPanel from './GroupQueryPanel';
 import FilterQueryPanel from './filter/FilterQueryPanel';
 import NavigateQueryPanel from './NavigateQueryPanel';
-import ErrorPanel from  './ErrorPanel';
+import ErrorPanel from './ErrorPanel';
 
 type QueryPanelProps = {
-  query: Query;
-  onClose: () => *;
-  onSearch: SearchCallback;
+  query: Query,
+  onClose: () => *,
+  onSearch: SearchCallback,
 };
 
 export default function QueryPanel(props: QueryPanelProps) {
@@ -41,7 +41,7 @@ export default function QueryPanel(props: QueryPanelProps) {
         query={query}
         onClose={onClose}
         onSearch={onSearch}
-        />
+      />
     ),
     define: query => (
       <DefineQueryPanel
@@ -49,7 +49,7 @@ export default function QueryPanel(props: QueryPanelProps) {
         onClose={onClose}
         onSearch={onSearch}
         query={query}
-        />
+      />
     ),
     aggregate: query => (
       <AggregateQueryPanel
@@ -57,7 +57,7 @@ export default function QueryPanel(props: QueryPanelProps) {
         onClose={onClose}
         query={query}
         onSearch={onSearch}
-        />
+      />
     ),
     group: query => (
       <GroupQueryPanel
@@ -65,7 +65,7 @@ export default function QueryPanel(props: QueryPanelProps) {
         onClose={onClose}
         query={query}
         onSearch={onSearch}
-        />
+      />
     ),
     filter: query => (
       <FilterQueryPanel
@@ -74,9 +74,8 @@ export default function QueryPanel(props: QueryPanelProps) {
         onClose={onClose}
         query={query}
         onSearch={onSearch}
-        />
+      />
     ),
-    otherwise: _query =>
-      <noscript />
+    otherwise: _query => <noscript />,
   });
 }

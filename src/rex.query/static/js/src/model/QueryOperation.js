@@ -5,60 +5,58 @@
 import invariant from 'invariant';
 import createLogger from 'debug';
 
-import {
-  type Context,
-  type QueryAtom,
-  type QueryPipeline,
-  type SelectQuery,
-  type DefineQuery,
-  navigate,
-  pipeline,
-  select,
-  here,
-  inferType,
-  inferQueryType,
-} from './Query';
-import * as QueryLoc from './QueryLoc';
+import type {
+  Context,
+  QueryAtom,
+  QueryPipeline,
+  SelectQuery,
+  DefineQuery,
+  QueryLoc,
+  QueryPath,
+} from './types';
+
+import {navigate, pipeline, select, here, inferType, inferQueryType} from './Query';
+import * as QL from './QueryLoc';
 import * as t from './Type';
 
 let log = createLogger('rex-query:op');
 
 class Editor<Q: QueryAtom> {
-  loc: QueryLoc.QueryLoc<Q>;
+  loc: QueryLoc<Q>;
 
-  constructor(loc: QueryLoc.QueryLoc<Q>) {
+  constructor(loc: QueryLoc<Q>) {
     this.loc = loc;
   }
 
   setLoc<NQ: QueryAtom>(nextQuery: NQ): Editor<NQ> {
-    let nextLoc = QueryLoc.loc(this.loc.rootQuery, nextQuery);
+    let nextLoc = QL.loc(this.loc.rootQuery, nextQuery);
     return new Editor(nextLoc);
   }
 
   insertAfter(params: {what: Array<QueryAtom>}): Editor<Q> {
     let nextQuery = insertAfter({loc: this.loc, what: params.what});
-    let nextLoc = QueryLoc.rebaseLoc(this.loc, nextQuery);
+    let nextLoc = QL.rebaseLoc(this.loc, nextQuery);
     return new Editor(nextLoc);
   }
 
   transformWith<NQ: QueryAtom>(f: (Q) => NQ): Editor<NQ> {
     let nextQuery = edit(this.loc, f);
     invariant(nextQuery != null, 'Invalid query transform');
-    let nextLoc: QueryLoc.QueryLoc<NQ> = (QueryLoc.rebaseLoc(this.loc, nextQuery): any);
+    let nextLoc: QueryLoc<NQ> = (QL.rebaseLoc(this.loc, nextQuery): any);
     return new Editor(nextLoc);
   }
 
   replaceWith<NQ: QueryAtom>(q: NQ): Editor<NQ> {
     let nextQuery = edit(this.loc, _ => q);
     invariant(nextQuery != null, 'Invalid query replace');
-    let nextLoc: QueryLoc.QueryLoc<NQ> = (QueryLoc.rebaseLoc(this.loc, nextQuery): any);
+    let nextLoc: QueryLoc<NQ> = (QL.rebaseLoc(this.loc, nextQuery): any);
     return new Editor(nextLoc);
   }
 
   transformPipelineWith(f: (Array<QueryAtom>) => Array<QueryAtom>): Editor<Q> {
     let nextQuery = editPipeline(this.loc, f);
     invariant(nextQuery != null, 'Invalid query transform');
-    let nextLoc = QueryLoc.rebaseLoc(this.loc, nextQuery);
+    let nextLoc = QL.rebaseLoc(this.loc, nextQuery);
     return new Editor(nextLoc);
   }
 
@@ -68,7 +66,7 @@ class Editor<Q: QueryAtom> {
     if (nextQuery == null) {
       nextQuery = pipeline(here);
     }
-    let nextLoc = QueryLoc.rebaseLoc(this.loc, nextQuery);
+    let nextLoc = QL.rebaseLoc(this.loc, nextQuery);
     log('cut:end', nextLoc);
     return new Editor(nextLoc);
   }
@@ -79,7 +77,7 @@ class Editor<Q: QueryAtom> {
     if (nextQuery == null) {
       nextQuery = pipeline(here);
     }
-    let nextLoc = QueryLoc.rebaseLoc(this.loc, nextQuery);
+    let nextLoc = QL.rebaseLoc(this.loc, nextQuery);
     log('remove:end', nextLoc);
     return new Editor(nextLoc);
   }
@@ -95,14 +93,14 @@ class Editor<Q: QueryAtom> {
     if (nextQuery == null) {
       nextQuery = pipeline(here);
     }
-    let nextLoc = QueryLoc.rebaseLoc(this.loc, nextQuery);
+    let nextLoc = QL.rebaseLoc(this.loc, nextQuery);
     return new Editor(nextLoc);
   }
 
   inferType(): Editor<Q> {
     let query = this.loc.rootQuery;
     let nextQuery = inferType(query.context.domain, query);
-    let nextLoc = QueryLoc.rebaseLoc(this.loc, nextQuery);
+    let nextLoc = QL.rebaseLoc(this.loc, nextQuery);
     return new Editor(nextLoc);
   }
 
@@ -117,7 +115,7 @@ class Editor<Q: QueryAtom> {
       path: params.path,
       editAtCompletion: params.editAtCompletion,
     });
-    let nextLoc = QueryLoc.rebaseLoc(this.loc, nextQuery);
+    let nextLoc = QL.rebaseLoc(this.loc, nextQuery);
     return new Editor(nextLoc);
   }
 
@@ -138,12 +136,12 @@ export function editor(
   if (query.name === 'pipeline') {
     query = getInsertionPoint(query, config.edge);
   }
-  return new Editor(QueryLoc.loc(rootQuery, query));
+  return new Editor(QL.loc(rootQuery, query));
 }
 
 function transformQueryByPath(
   query: ?QueryAtom | QueryPipeline,
-  path: QueryLoc.QueryPath,
+  path: QueryPath,
 ): ?QueryPipeline {
   let cur: ?QueryAtom | QueryPipeline = query;
   for (let i = path.length - 1; i >= 0; i--) {
@@ -213,21 +211,18 @@ function transformQueryByPath(
   return cur;
 }
 
-function edit<Q: QueryAtom>(
-  loc: QueryLoc.QueryLoc<Q>,
-  edit: (Q) => ?QueryAtom,
-): ?QueryPipeline {
-  let found = QueryLoc.resolveLocWithPath(loc);
+function edit<Q: QueryAtom>(loc: QueryLoc<Q>, edit: (Q) => ?QueryAtom): ?QueryPipeline {
+  let found = QL.resolveLocWithPath(loc);
   invariant(found != null, 'Cannot find query by id: %s', loc.at);
   let [query, path] = found;
   return transformQueryByPath(edit(query), path);
 }
 
 function editPipeline<Q: QueryAtom>(
-  loc: QueryLoc.QueryLoc<Q>,
+  loc: QueryLoc<Q>,
   edit: (Array<QueryAtom>) => Array<QueryAtom>,
 ): ?QueryPipeline {
-  let found = QueryLoc.resolveLocWithPath(loc);
+  let found = QL.resolveLocWithPath(loc);
   invariant(found != null, 'Cannot find query by id: %s', loc.at);
   let [query, path] = found;
   if (query.name === 'pipeline') {
@@ -261,14 +256,14 @@ function editPipeline<Q: QueryAtom>(
   }
 }
 
-export function remove<Q: QueryAtom>({loc}: {loc: QueryLoc.QueryLoc<Q>}) {
+export function remove<Q: QueryAtom>({loc}: {loc: QueryLoc<Q>}) {
   return editPipeline(loc, pipeline => {
     let nextPipeline = pipeline.filter(q => q.id !== loc.at);
     return nextPipeline;
   });
 }
 
-export function cut<Q: QueryAtom>({loc}: {loc: QueryLoc.QueryLoc<Q>}): ?QueryPipeline {
+export function cut<Q: QueryAtom>({loc}: {loc: QueryLoc<Q>}): ?QueryPipeline {
   let query = editPipeline(loc, pipeline => {
     let idx = pipeline.findIndex(q => q.id === loc.at);
     invariant(idx > -1, 'Invalid query location: %s', loc.at);
@@ -283,7 +278,7 @@ export function insertAfter<Q: QueryAtom>(
     loc,
     what,
   }: {
-    loc: QueryLoc.QueryLoc<Q>,
+    loc: QueryLoc<Q>,
     what: Array<QueryAtom>,
   },
 ): QueryPipeline {
@@ -302,7 +297,7 @@ export function transform<Q: QueryAtom>(
   {
     loc,
     transform,
-  }: {loc: QueryLoc.QueryLoc<Q>, transform: (Q) => ?QueryAtom},
+  }: {loc: QueryLoc<Q>, transform: (Q) => ?QueryAtom},
 ): ?QueryPipeline {
   return edit(loc, transform);
 }
@@ -313,7 +308,7 @@ export function growNavigation<Q: QueryAtom>(
     path,
     editAtCompletion,
   }: {
-    loc: QueryLoc.QueryLoc<Q>,
+    loc: QueryLoc<Q>,
     path: Array<string>,
     editAtCompletion?: (Array<QueryAtom>) => Array<QueryAtom>,
   },

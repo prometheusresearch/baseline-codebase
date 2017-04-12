@@ -2,33 +2,24 @@
  * @flow
  */
 
+import type {
+  Query,
+  QueryPipeline,
+  QueryAtom,
+  QueryLoc,
+  QueryPath,
+  ResolvedQueryLoc,
+} from './types';
+
 import invariant from 'invariant';
-import * as Query from './Query';
 
-export type QueryLoc<Q: Query.QueryAtom = Query.QueryAtom> = {
-  +rootQuery: Query.QueryPipeline;
-  +at: string;
-  _query: ?Q;
-  _path: ?QueryPath;
-};
-
-export type QueryPathItem =
-  | {at: 'pipeline', index: number, query: Query.QueryPipeline}
-  | {at: 'select', key: string, query: Query.SelectQuery}
-  | {at: 'binding', query: Query.DefineQuery};
-
-export type QueryPath = Array<QueryPathItem>;
-
-export type ResolvedQueryLoc<Q: Query.QueryAtom = Query.QueryAtom> = [Q, QueryPath];
-
-
-export function resolveLoc<Q: Query.QueryAtom>(loc: QueryLoc<Q>): Q {
+export function resolveLoc<Q: QueryAtom>(loc: QueryLoc<Q>): Q {
   resolveLocImpl(loc);
   invariant(loc._query != null, 'Impossible');
   return loc._query;
 }
 
-export function tryResolveLoc<Q: Query.QueryAtom>(loc: QueryLoc<Q>): ?Q {
+export function tryResolveLoc<Q: QueryAtom>(loc: QueryLoc<Q>): ?Q {
   try {
     resolveLocImpl(loc);
   } catch (_err) {
@@ -37,25 +28,22 @@ export function tryResolveLoc<Q: Query.QueryAtom>(loc: QueryLoc<Q>): ?Q {
   return loc._query;
 }
 
-export function resolveLocPath<Q: Query.QueryAtom>(loc: QueryLoc<Q>): QueryPath {
+export function resolveLocPath<Q: QueryAtom>(loc: QueryLoc<Q>): QueryPath {
   resolveLocImpl(loc);
-  invariant(loc._path!= null, 'Impossible');
+  invariant(loc._path != null, 'Impossible');
   return loc._path;
 }
 
-function resolveLocImpl<Q: Query.QueryAtom>(loc: QueryLoc<Q>) {
+function resolveLocImpl<Q: QueryAtom>(loc: QueryLoc<Q>) {
   if (loc._query == null || loc._path == null) {
     let res = resolveLocWithPath(loc);
-    invariant(
-      res != null,
-      'Invalid query id: %s', loc.at
-    );
+    invariant(res != null, 'Invalid query id: %s', loc.at);
     loc._query = res[0];
     loc._path = res[1];
   }
 }
 
-export function resolveLocWithPath<Q: Query.QueryAtom>(loc: QueryLoc<Q>): ?ResolvedQueryLoc<Q> {
+export function resolveLocWithPath<Q: QueryAtom>(loc: QueryLoc<Q>): ?ResolvedQueryLoc<Q> {
   for (let [query, path] of traverseQuery(loc.rootQuery)) {
     if (query.id === loc.at) {
       return [((query: any): Q), path];
@@ -64,20 +52,23 @@ export function resolveLocWithPath<Q: Query.QueryAtom>(loc: QueryLoc<Q>): ?Resol
   return null;
 }
 
-export function loc<Q: Query.QueryAtom>(rootQuery: Query.QueryPipeline, query: Q): QueryLoc<Q> {
+export function loc<Q: QueryAtom>(rootQuery: QueryPipeline, query: Q): QueryLoc<Q> {
   return {
     rootQuery,
     _query: query,
     _path: null,
-    at: query.id
+    at: query.id,
   };
 }
 
-export function rebaseLoc<Q: Query.QueryAtom>(loc: QueryLoc<Q>, rootQuery: Query.QueryPipeline): QueryLoc<Q> {
+export function rebaseLoc<Q: QueryAtom>(
+  loc: QueryLoc<Q>,
+  rootQuery: QueryPipeline,
+): QueryLoc<Q> {
   return {...loc, rootQuery};
 }
 
-export function traverseLoc(loc: QueryLoc<>): Array<Query.QueryAtom | Query.QueryPipeline> {
+export function traverseLoc(loc: QueryLoc<>): Array<QueryAtom | QueryPipeline> {
   let result = [];
   result.push(resolveLoc(loc));
   let path = resolveLocPath(loc).reverse();
@@ -92,10 +83,7 @@ export function traverseLoc(loc: QueryLoc<>): Array<Query.QueryAtom | Query.Quer
   return result;
 }
 
-function traverseQuery(
-  query: Query.Query,
-  path?: QueryPath = [],
-): Array<ResolvedQueryLoc<>> {
+function traverseQuery(query: Query, path?: QueryPath = []): Array<ResolvedQueryLoc<>> {
   let result = [];
   if (query.name === 'pipeline') {
     for (let index = 0; index < query.pipeline.length; index++) {

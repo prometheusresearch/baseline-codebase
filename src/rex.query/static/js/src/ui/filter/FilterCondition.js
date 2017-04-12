@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {QueryNavigation, Expression} from '../../model';
+import type {QueryNavigation, Expression} from '../../model/types';
 
 import invariant from 'invariant';
 import React from 'react';

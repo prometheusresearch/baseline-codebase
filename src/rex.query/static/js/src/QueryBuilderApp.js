@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Domain} from './model';
+import type {Domain} from './model/types';
 
 import React from 'react';
 

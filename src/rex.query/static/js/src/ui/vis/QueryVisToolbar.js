@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {QueryPipeline, Type} from '../../model';
+import type {QueryPipeline, Type} from '../../model/types';
 import type {Actions} from '../../state';
 
 import React from 'react';
@@ -11,20 +11,17 @@ import * as t from '../../model/Type';
 import * as qo from '../../model/QueryOperation';
 
 type QueryVisToolbarProps = {
-
   /**
    * Pointer on which the toolbar operates.
    */
-  pipeline: QueryPipeline;
+  pipeline: QueryPipeline,
 
-  disableAdd?: boolean;
+  disableAdd?: boolean,
 };
 
-export default class QueryVisToolbar
-  extends React.Component<*, QueryVisToolbarProps, *> {
-
+export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarProps, *> {
   context: {
-    actions: Actions;
+    actions: Actions,
   };
 
   static contextTypes = {actions: React.PropTypes.object};
@@ -43,29 +40,23 @@ export default class QueryVisToolbar
       <VBox width="100%" style={{backgroundColor: 'white'}}>
         <HBox padding={2} justifyContent="flex-start">
           {(canNavigate || canAggregate || canFilter) &&
-            <QueryVisToolbarButton
-              disabled={disableAdd}
-              onClick={this.onAdd}>
+            <QueryVisToolbarButton disabled={disableAdd} onClick={this.onAdd}>
               Link
             </QueryVisToolbarButton>}
-            {hasGroupBy &&
-              <QueryVisToolbarButton
-                onClick={this.onAddGroupQuery.bind(null, hasGroupBy)}>
-                Link complement
-              </QueryVisToolbarButton>}
+          {hasGroupBy &&
+            <QueryVisToolbarButton onClick={this.onAddGroupQuery.bind(null, hasGroupBy)}>
+              Link complement
+            </QueryVisToolbarButton>}
           {canFilter &&
-            <QueryVisToolbarButton
-              onClick={this.onFilter}>
+            <QueryVisToolbarButton onClick={this.onFilter}>
               Filter
             </QueryVisToolbarButton>}
           {canAggregate &&
-            <QueryVisToolbarButton
-              onClick={this.onAggregate}>
+            <QueryVisToolbarButton onClick={this.onAggregate}>
               Summarize
             </QueryVisToolbarButton>}
           {canAggregate &&
-            <QueryVisToolbarButton
-              onClick={this.onGroup}>
+            <QueryVisToolbarButton onClick={this.onGroup}>
               Group
             </QueryVisToolbarButton>}
         </HBox>
@@ -101,7 +92,6 @@ export default class QueryVisToolbar
     ev.stopPropagation();
     this.context.actions.appendAggregate({at: this.props.pipeline});
   };
-
 }
 
 let QueryVisToolbarButtonRoot = style('button', {
@@ -136,7 +126,7 @@ let QueryVisToolbarButtonRoot = style('button', {
     focus: {
       outline: 'none',
       backgroundColor: '#fafafa',
-    }
+    },
   },
   emphasis: {
     border: css.border(1, '#ccc'),
@@ -157,16 +147,14 @@ let QueryVisToolbarButtonRoot = style('button', {
     },
     active: {
       backgroundColor: '#ffffff',
-    }
+    },
   },
 });
 
 function QueryVisToolbarButton({children, selected, icon, disabled, emphasis, ...props}) {
   let variant = {selected, disabled, emphasis};
   return (
-    <QueryVisToolbarButtonRoot
-      {...props}
-      variant={variant}>
+    <QueryVisToolbarButtonRoot {...props} variant={variant}>
       {icon && <HBox paddingRight={5}>{icon}</HBox>}
       {children}
     </QueryVisToolbarButtonRoot>

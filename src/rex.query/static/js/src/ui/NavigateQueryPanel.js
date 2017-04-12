@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {NavigateQuery, QueryNavigation} from '../model';
+import type {NavigateQuery, QueryNavigation} from '../model/types';
 import type {Actions} from '../state';
 import type {SearchCallback} from './Search';
 
@@ -19,10 +19,10 @@ type NavigateQueryPanelProps = {
   onSearch: SearchCallback,
 };
 
-export default class NavigateQueryPanel extends React.Component<*, NavigateQueryPanelProps, *> {
-
+export default class NavigateQueryPanel
+  extends React.Component<*, NavigateQueryPanelProps, *> {
   context: {
-    actions: Actions;
+    actions: Actions,
   };
 
   static contextTypes = {actions: React.PropTypes.object};
@@ -32,7 +32,7 @@ export default class NavigateQueryPanel extends React.Component<*, NavigateQuery
       at: this.props.query,
       path,
     });
-  }
+  };
 
   render() {
     let {query, onClose, onSearch, ...rest} = this.props;
@@ -51,7 +51,7 @@ export default class NavigateQueryPanel extends React.Component<*, NavigateQuery
   }
 
   NavigationMenuContents = (
-    props: NavigateQueryPanelProps & {navigation: Map<string, QueryNavigation>}
+    props: NavigateQueryPanelProps & {navigation: Map<string, QueryNavigation>},
   ) => {
     let {navigation, query} = props;
     return (

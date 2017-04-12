@@ -7,21 +7,23 @@
 import type {State, StateUpdater} from './index';
 
 import type {
+  DomainAggregate,
   DefineQuery,
   QueryAtom,
   QueryPipeline,
   AggregateQuery,
   NavigateQuery,
   FilterQuery,
+  GroupQuery,
   Expression,
-} from '../model';
+  QueryLoc,
+} from '../model/types';
 
 import createLogger from 'debug';
 import invariant from 'invariant';
-import * as d from '../model/Domain';
 import * as q from '../model/Query';
 import * as qo from '../model/QueryOperation';
-import * as QueryLoc from '../model/QueryLoc';
+import * as QL from '../model/QueryLoc';
 import * as Fetch from '../fetch';
 import * as Chart from '../chart';
 import * as Focus from './Focus';
@@ -332,7 +334,7 @@ export function setFilter(
 }
 
 type SetGroupByPathParams = {
-  at: q.GroupQuery,
+  at: GroupQuery,
   byPath: Array<string>,
 };
 
@@ -509,7 +511,7 @@ export function appendDefineAndAggregate(
   }: {
     at: QueryPipeline,
     path: Array<string>,
-    aggregate: d.DomainAggregate,
+    aggregate: DomainAggregate,
   },
 ): StateUpdater {
   return state => {
@@ -561,16 +563,13 @@ export function renameDefineBinding(
   };
 }
 
-function reconcileSelected(
-  selected: ?QueryLoc.QueryLoc<>,
-  prevSelected: ?QueryLoc.QueryLoc<>,
-): ?QueryAtom {
+function reconcileSelected(selected: ?QueryLoc<>, prevSelected: ?QueryLoc<>): ?QueryAtom {
   // Nothing is going to be selected.
   if (selected == null) {
     return null;
   }
 
-  let resolved = QueryLoc.tryResolveLoc(selected);
+  let resolved = QL.tryResolveLoc(selected);
 
   // Prev selected state isn't available, nothing we can do but hope the current
   // selection works.
@@ -584,12 +583,12 @@ function reconcileSelected(
   }
 
   // Try to backtrack and find the closest valid selected state.
-  for (let query of QueryLoc.traverseLoc(prevSelected)) {
+  for (let query of QL.traverseLoc(prevSelected)) {
     if (query.name === 'pipeline') {
       continue;
     }
-    let parentLoc = QueryLoc.loc(selected.rootQuery, query);
-    let resolved = QueryLoc.tryResolveLoc(parentLoc);
+    let parentLoc = QL.loc(selected.rootQuery, query);
+    let resolved = QL.tryResolveLoc(parentLoc);
     if (resolved != null) {
       return resolved;
     }
@@ -614,8 +613,8 @@ function onQuery(
     selected = state.selected;
   }
   selected = reconcileSelected(
-    selected != null ? QueryLoc.loc(query, selected) : null,
-    state.selected != null ? QueryLoc.loc(state.query, state.selected) : null,
+    selected != null ? QL.loc(query, selected) : null,
+    state.selected != null ? QL.loc(state.query, state.selected) : null,
   );
   if (activeQueryPipeline === undefined) {
     activeQueryPipeline = state.activeQueryPipeline;

@@ -2,8 +2,7 @@
  * @flow
  */
 
-import type {Query, QueryPipeline, NavigateQuery} from '../model/Query';
-import type {Type} from '../model/Type';
+import type {Type, Query, QueryPipeline, NavigateQuery} from '../model/types';
 import type {ColumnConfig, ColumnField} from './datatable/DataTable';
 
 import React from 'react';

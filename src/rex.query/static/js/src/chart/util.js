@@ -2,7 +2,9 @@
  * @flow
  */
 
-import {type QueryPipeline, type Context, getNavigation} from '../model';
+import type {QueryPipeline, Context} from '../model/types';
+
+import {getNavigation} from '../model';
 
 export function getColumnOptions(
   context: Context,

@@ -4,101 +4,35 @@
  * @flow
  */
 
-import type {Domain, DomainEntity, DomainAggregate, DomainAttributeMap} from './Domain';
+import type {
+  Domain,
+  DomainEntity,
+  DomainAggregate,
+  DomainAttributeMap,
+  Type,
+  InvalidType,
+  RecordType,
+  EnumerationType,
+  NumberType,
+  TextType,
+  JSONType,
+  VoidType,
+  BooleanType,
+  DateType,
+  TimeType,
+  DateTimeType,
+} from './types';
 
-/* eslint-disable no-use-before-define */
-
-export type Type
-  = VoidType
-  | NumberType
-  | BooleanType
-  | TextType
-  | JSONType
-  | EnumerationType
-  | DateType
-  | TimeType
-  | DateTimeType
-  | InvalidType
-  | RecordType;
-
-/* eslint-enable no-use-before-define */
-
-export type TypeCardinality =
-  | 'seq'
-  | 'opt'
-  | null;
-
-type TypeCardinalityProp = {
-  card: TypeCardinality;
-};
-
-export type InvalidType = {
-  name: 'invalid',
-  domain: Domain;
-  card: null;
-};
-
-export type VoidType = {
-  name: 'void';
-  domain: Domain;
-} & TypeCardinalityProp;
-
-export type TextType = {
-  name: 'text';
-  domain: Domain;
-} & TypeCardinalityProp;
-
-export type JSONType = {
-  name: 'json';
-  domain: Domain;
-} & TypeCardinalityProp;
-
-export type NumberType = {
-  name: 'number';
-  domain: Domain;
-} & TypeCardinalityProp;
-
-export type BooleanType = {
-  name: 'boolean';
-  domain: Domain;
-} & TypeCardinalityProp;
-
-export type EnumerationType = {
-  name: 'enumeration';
-  enumerations: Array<string>;
-  domain: Domain;
-} & TypeCardinalityProp;
-
-export type DateType = {
-  name: 'date';
-  domain: Domain;
-} & TypeCardinalityProp;
-
-export type TimeType = {
-  name: 'time';
-  domain: Domain;
-} & TypeCardinalityProp;
-
-export type DateTimeType = {
-  name: 'datetime';
-  domain: Domain;
-} & TypeCardinalityProp;
-
-export type RecordType = {
-  name: 'record';
-  entity: ?string;
-  attribute: ?DomainAttributeMap;
-  domain: Domain;
-} & TypeCardinalityProp;
-
-export function createDomain(spec: {
-  entity: {
-    [name: string]: (domain: Domain) => DomainEntity
-  };
-  aggregate: {
-    [name: string]: DomainAggregate;
-  };
-}): Domain {
+export function createDomain(
+  spec: {
+    entity: {
+      [name: string]: (domain: Domain) => DomainEntity,
+    },
+    aggregate: {
+      [name: string]: DomainAggregate,
+    },
+  },
+): Domain {
   let domain: Domain = {entity: {}, aggregate: spec.aggregate};
   for (let k in spec.entity) {
     if (spec.entity.hasOwnProperty(k)) {
@@ -146,7 +80,7 @@ export function dateTimeType(domain: Domain): DateTimeType {
 
 export function enumerationType(
   domain: Domain,
-  enumerations: Array<string>
+  enumerations: Array<string>,
 ): EnumerationType {
   return {name: 'enumeration', card: null, enumerations, domain};
 }
@@ -155,10 +89,7 @@ export function entityType(domain: Domain, entity: string): RecordType {
   return {name: 'record', card: null, entity, attribute: null, domain};
 }
 
-export function recordType(
-  domain: Domain,
-  attribute: DomainAttributeMap,
-): RecordType {
+export function recordType(domain: Domain, attribute: DomainAttributeMap): RecordType {
   return {name: 'record', card: null, entity: null, attribute, domain};
 }
 

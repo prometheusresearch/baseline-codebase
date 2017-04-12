@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Query, SelectQuery, QueryPipeline} from '../model';
+import type {Query, SelectQuery, QueryPipeline} from '../model/types';
 
 import * as ArrayUtil from '../ArrayUtil';
 import * as q from '../model/Query';
@@ -22,10 +22,7 @@ function getFocuses(query: QueryPipeline): Array<Focus> {
   return focusList;
 }
 
-function getPipelineFocusList(
-  query: QueryPipeline,
-  path: Array<string>,
-) {
+function getPipelineFocusList(query: QueryPipeline, path: Array<string>) {
   let result: Array<Array<string>> = [];
   let type = query.context.type;
   if (type.name !== 'invalid') {
@@ -41,12 +38,7 @@ function getPipelineFocusList(
         }
       }
 
-      result = result.concat(
-        getQueryFocusList(
-          item,
-          path.concat(localPath),
-        )
-      );
+      result = result.concat(getQueryFocusList(item, path.concat(localPath)));
     }
     return result;
   } else {
@@ -54,10 +46,7 @@ function getPipelineFocusList(
   }
 }
 
-function getSelectFocusList(
-  query: SelectQuery,
-  path: Array<string>,
-) {
+function getSelectFocusList(query: SelectQuery, path: Array<string>) {
   let result: Array<Focus> = [];
   for (let k in query.select) {
     if (!query.select.hasOwnProperty(k)) {
@@ -68,29 +57,19 @@ function getSelectFocusList(
       item = query.context.scope[k].query;
     }
     if (item.context.type.card === 'seq') {
-      result = result.concat(
-        getPipelineFocusList(
-          item,
-          path.concat(k),
-        )
-      );
+      result = result.concat(getPipelineFocusList(item, path.concat(k)));
     }
   }
   return result;
 }
 
-function getQueryFocusList(
-  query: Query,
-  path: Array<string>,
-) {
+function getQueryFocusList(query: Query, path: Array<string>) {
   return q.transformQuery(query, {
     pipeline: _ => getPipelineFocusList(...arguments),
     select: _ => getSelectFocusList(...arguments),
     navigate: query => {
       let type = query.context.type;
-      return type && type.card === 'seq'
-        ? [path]
-        : [];
+      return type && type.card === 'seq' ? [path] : [];
     },
     otherwise: _query => [],
   });

@@ -2,10 +2,11 @@
  * @flow
  */
 
+import type {Context} from '../model/types';
+
 import * as React from 'react';
 import {HBox} from 'react-stylesheet';
 import {SwatchColorPicker} from '@prometheusresearch/react-ui';
-import {type Context} from '../model';
 import SelectAttribute from './SelectAttribute';
 import {COLOR_LIST} from './ColorList';
 

@@ -2,15 +2,15 @@
  * @flow
  */
 
-import {
-  type QueryPipeline,
-  type QueryAtom,
-  type NavigateQuery,
-  type DefineQuery,
-  type AggregateQuery,
-  type FilterQuery,
-  type GroupQuery,
-} from '../../model';
+import type {
+  QueryPipeline,
+  QueryAtom,
+  NavigateQuery,
+  DefineQuery,
+  AggregateQuery,
+  FilterQuery,
+  GroupQuery,
+} from '../../model/types';
 import type {Actions} from '../../state';
 
 import React from 'react';

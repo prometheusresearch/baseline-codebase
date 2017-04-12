@@ -2,6 +2,9 @@
  * @flow
  */
 
+import type {ChartSpec} from '../state';
+import type {QueryPipeline} from '../model/types';
+
 import * as React from 'react';
 import {VBox, HBox} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
@@ -12,8 +15,6 @@ import * as State from '../state';
 import * as model from './model';
 import * as SVG from '../SVG';
 import * as Fetch from '../fetch';
-import type {ChartSpec} from '../state';
-import type {QueryPipeline} from '../model';
 import AreaChart from './AreaChart';
 import LineChart from './LineChart';
 import PieChart from './PieChart';

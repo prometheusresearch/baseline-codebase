@@ -3,6 +3,8 @@
  */
 
 import type {Actions} from '../state';
+import type {AggregateQuery} from '../model/types';
+
 import map from 'lodash/map';
 
 import React from 'react';
@@ -16,7 +18,7 @@ import Select from './Select';
 import {MenuButton, MenuGroup, MenuHelp} from './menu';
 
 type AggregateQueryPanelProps = {
-  query: q.AggregateQuery,
+  query: AggregateQuery,
   onClose: () => *,
 };
 
@@ -24,9 +26,8 @@ const ENTITY_SENTINEL = '__entity_sentinel__';
 
 export default class AggregateQueryPanel
   extends React.Component<*, AggregateQueryPanelProps, *> {
-
   context: {
-    actions: Actions;
+    actions: Actions,
   };
 
   static contextTypes = {actions: React.PropTypes.object};
@@ -45,7 +46,7 @@ export default class AggregateQueryPanel
       aggregate: 'count',
       path: path === ENTITY_SENTINEL ? null : path,
     });
-  }
+  };
 
   render() {
     const {query, onClose, ...rest} = this.props;
@@ -54,23 +55,24 @@ export default class AggregateQueryPanel
     let attributeSelect = null;
 
     if (prevType.name === 'record') {
+      let options = [
+        {
+          label: <Element textTransform="capitalize">{query.context.prev.title}</Element>,
+          value: ENTITY_SENTINEL,
+        },
+      ];
 
-      let options = [{
-        label: <Element textTransform="capitalize">{query.context.prev.title}</Element>,
-        value: ENTITY_SENTINEL,
-      }];
-
-      options = options.concat(map(t.recordAttribute(prevType), (f, k) => ({
-        label: <Element textTransform="capitalize">{f.title  || k}</Element>,
-        value: k
-      })));
+      options = options.concat(
+        map(t.recordAttribute(prevType), (f, k) => ({
+          label: <Element textTransform="capitalize">{f.title || k}</Element>,
+          value: k,
+        })),
+      );
 
       // TODO: allow to summarize by query in scope
 
       attributeSelect = (
-        <MenuGroup
-          title="Select attribute to summarize by"
-          overflow="visible">
+        <MenuGroup title="Select attribute to summarize by" overflow="visible">
           <VBox padding={10} overflow="visible">
             <Select
               clearable={false}
@@ -78,7 +80,7 @@ export default class AggregateQueryPanel
               options={options}
               onChange={this.onAttribute}
               placeholder="Relationship"
-              />
+            />
           </VBox>
         </MenuGroup>
       );
@@ -96,7 +98,7 @@ export default class AggregateQueryPanel
           title="Select summarize function"
           query={query}
           onSelect={this.onSelect}
-          />
+        />
         <MenuHelp>
           Edit current query combinator by selecting another summarize function
           to apply to the current pipeline.
@@ -106,11 +108,13 @@ export default class AggregateQueryPanel
   }
 }
 
-function AggregateMenu({
-  query: {aggregate, path, context},
-  title,
-  onSelect,
-}) {
+function AggregateMenu(
+  {
+    query: {aggregate, path, context},
+    title,
+    onSelect,
+  },
+) {
   let type = path == null
     ? context.prev.type
     : q.inferQueryType(context.prev, q.navigate(path)).context.type;
@@ -132,7 +136,7 @@ function AggregateMenu({
         aggregate={context.domain.aggregate[name]}
         name={name}
         onClick={onSelect}
-        />
+      />,
     );
   }
   return (
@@ -143,7 +147,6 @@ function AggregateMenu({
 }
 
 class AggregateButton extends React.Component {
-
   onClick = (ev: UIEvent) => {
     ev.stopPropagation();
     this.props.onClick(this.props.name);

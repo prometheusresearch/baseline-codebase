@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Query, QueryPipeline, Domain} from './model';
+import type {Query, QueryPipeline, Domain} from './model/types';
 import type {SearchCallback} from './ui';
 import type {ChartSpec} from './state';
 

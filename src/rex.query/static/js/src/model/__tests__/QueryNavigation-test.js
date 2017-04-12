@@ -1,18 +1,20 @@
 // @flow
 
+import type {Context, Domain} from '../types';
+
 import * as d from '../Domain';
 import * as t from '../Type';
 import * as q from '../Query';
 import * as qn from '../QueryNavigation';
 
-const domain: d.Domain = t.createDomain({
+const domain: Domain = t.createDomain({
   aggregate: {
     count: {
       name: 'count',
       title: 'Count',
       isAllowed: _type => true,
-      makeType: type => t.numberType(type.domain)
-    }
+      makeType: type => t.numberType(type.domain),
+    },
   },
   entity: {
     individual: domain => ({
@@ -20,45 +22,47 @@ const domain: d.Domain = t.createDomain({
       attribute: {
         name: {
           title: 'Name',
-          type: t.textType(domain)
+          type: t.textType(domain),
         },
         study_enrollment: {
           title: 'Study Enrollment',
-          type: t.seqType(t.entityType(domain, 'study_enrollment'))
+          type: t.seqType(t.entityType(domain, 'study_enrollment')),
         },
-      }
+      },
     }),
     study: domain => ({
       title: 'Study',
       attribute: {
         name: {
           title: 'Name',
-          type: t.textType(domain)
+          type: t.textType(domain),
         },
         study_enrollment: {
           title: 'Study Enrollment',
-          type: t.seqType(t.entityType(domain, 'study_enrollment'))
+          type: t.seqType(t.entityType(domain, 'study_enrollment')),
         },
-      }
+      },
     }),
     study_enrollment: domain => ({
       title: 'Study Enrollment',
       attribute: {
         individual: {
           title: 'Individual',
-          type: t.entityType(domain, 'individual')
+          type: t.entityType(domain, 'individual'),
         },
         study: {
           title: 'Study',
-          type: t.entityType(domain, 'study')
+          type: t.entityType(domain, 'study'),
         },
-      }
+      },
     }),
   },
 });
 
-function getContext(...path: Array<string>): q.Context {
-  let query = path.length === 0 ? q.here : q.pipeline(...path.map(path => q.navigate(path)));
+function getContext(...path: Array<string>): Context {
+  let query = path.length === 0
+    ? q.here
+    : q.pipeline(...path.map(path => q.navigate(path)));
   return q.inferType(domain, query).context;
 }
 
@@ -105,12 +109,7 @@ test('context: study.study_enrollment', function() {
 });
 
 test('with query in scope', function() {
-  let query = q.pipeline(
-    q.def(
-      'individual-query',
-      q.pipeline(q.navigate('individual'))
-    ),
-  );
+  let query = q.pipeline(q.def('individual-query', q.pipeline(q.navigate('individual'))));
   let context = q.inferType(domain, query).context;
   let navigation = qn.getNavigation(context);
   expect(navigation).toMatchSnapshot();

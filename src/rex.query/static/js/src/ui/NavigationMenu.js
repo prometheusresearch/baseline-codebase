@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {QueryNavigation, Context} from '../model';
+import type {QueryNavigation, Context} from '../model/types';
 import type {SearchCallback} from './Search';
 
 import React from 'react';
@@ -14,21 +14,20 @@ import {dummySearch, runSearch} from './Search';
 import LoadingIndicator from './LoadingIndicator';
 
 type NavigationMenuProps = {
-  context: Context;
-  onSearch: SearchCallback;
-  children?: React.Element<*>;
+  context: Context,
+  onSearch: SearchCallback,
+  children?: React.Element<*>,
 };
 
 export default class NavigationMenu extends React.Component<*, NavigationMenuProps, *> {
-
   static defaultProps = {
     onSearch: dummySearch,
   };
 
   state: {
-    searchTerm: ?string;
-    searchInProgress: boolean;
-    navigation: Map<string, QueryNavigation>;
+    searchTerm: ?string,
+    searchInProgress: boolean,
+    navigation: Map<string, QueryNavigation>,
   };
 
   mounted: boolean;
@@ -67,8 +66,10 @@ export default class NavigationMenu extends React.Component<*, NavigationMenuPro
     let searchTerm = target.value === '' ? null : target.value;
     let navigation = getNavigation(this.props.context);
     if (searchTerm != null) {
-      runSearch(this.props.onSearch, {searchTerm, navigation})
-        .then(this.onSearchComplete, this.onSearchError);
+      runSearch(this.props.onSearch, {searchTerm, navigation}).then(
+        this.onSearchComplete,
+        this.onSearchError,
+      );
       this.setState({searchTerm, searchInProgress: true});
     } else {
       this.setState({searchTerm, navigation, searchInProgress: false});
@@ -116,7 +117,7 @@ export default class NavigationMenu extends React.Component<*, NavigationMenuPro
             placeholder="Search…"
             value={searchTerm === null ? '' : searchTerm}
             onChange={this.onSearchTerm}
-            />
+          />
         </VBox>
         <VBox>
           {loadingIndicator}

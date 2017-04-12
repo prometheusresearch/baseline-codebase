@@ -2,9 +2,10 @@
  * @flow
  */
 
+import type {QueryPipeline} from '../model/types';
+
 import invariant from 'invariant';
 
-import type {QueryPipeline} from '../model';
 import * as T from '../model/Type';
 import {getNavigation} from '../model/QueryNavigation';
 import {getQuery} from './util';

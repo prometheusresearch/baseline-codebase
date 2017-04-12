@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {QueryPipeline, DefineQuery} from '../model';
+import type {QueryPipeline, DefineQuery} from '../model/types';
 import type {Actions} from '../state';
 import type {SearchCallback} from './Search';
 

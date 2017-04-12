@@ -2,9 +2,11 @@
  * @flow
  */
 
+import {type Context, type QueryNavigation} from '../model/types';
+
 import React from 'react';
 
-import {type Context, type QueryNavigation, getNavigation} from '../model';
+import {getNavigation} from '../model';
 import * as ui from '../ui';
 import ChartControl from './ChartControl';
 
@@ -72,15 +74,13 @@ export default function SelectAttribute(
     <ChartControl
       label={label}
       control={
-        (
-          <ui.Select
-            noResultsText={noResultsText}
-            wrapperStyle={{width: 300}}
-            value={value}
-            options={options}
-            onChange={onChange}
-          />
-        )
+        <ui.Select
+          noResultsText={noResultsText}
+          wrapperStyle={{width: 300}}
+          value={value}
+          options={options}
+          onChange={onChange}
+        />
       }
     />
   );

@@ -2,8 +2,8 @@
  * @flow
  */
 
-import type {QueryAtom, QueryPipeline, Domain} from '../model';
-import {type TranslateOptions} from '../fetch/translate';
+import type {QueryAtom, QueryPipeline, Domain} from '../model/types';
+import type {TranslateOptions} from '../fetch/translate';
 
 import * as q from '../model/Query';
 import * as QueryOperation from '../model/QueryOperation';

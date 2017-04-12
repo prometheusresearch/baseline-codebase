@@ -2,12 +2,13 @@
  * @flow
  */
 
+import type {QueryPipeline} from '../model/types';
+
 import * as React from 'react';
 import * as recharts from 'recharts';
 import {VBox} from 'react-stylesheet';
 
 import * as model from './model';
-import {type QueryPipeline} from '../model';
 import {getQuery} from './util';
 import SelectAttribute from './SelectAttribute';
 

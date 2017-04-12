@@ -4,9 +4,10 @@
  * @flow
  */
 
+import type {Domain, Type} from './types';
+
 import invariant from 'invariant';
 
-import * as d from './Domain';
 import * as t from './Type';
 
 export type CatalogEntityField = {
@@ -72,19 +73,19 @@ const aggregate = {
   },
 };
 
-function isAdditionDefined(type: t.Type) {
+function isAdditionDefined(type: Type) {
   return type.name === 'number';
 }
 
-function isNumeric(type: t.Type) {
+function isNumeric(type: Type) {
   return type.name === 'number' ||
     type.name === 'date' ||
     type.name === 'time' ||
     type.name === 'datetime';
 }
 
-export function toDomain(data: Catalog): d.Domain {
-  let domain: d.Domain = {entity: {}, aggregate};
+export function toDomain(data: Catalog): Domain {
+  let domain: Domain = {entity: {}, aggregate};
   let catalog: Catalog = data;
   catalog.entity.forEach(e => {
     let attribute = {};
@@ -102,7 +103,7 @@ export function toDomain(data: Catalog): d.Domain {
   return domain;
 }
 
-function getFieldType(domain: d.Domain, field: CatalogEntityField): t.Type {
+function getFieldType(domain: Domain, field: CatalogEntityField): Type {
   let type = getBaseFieldType(domain, field);
   if (field.plural) {
     type = t.seqType(type);
@@ -112,7 +113,7 @@ function getFieldType(domain: d.Domain, field: CatalogEntityField): t.Type {
   return type;
 }
 
-function getBaseFieldType(domain: d.Domain, field: CatalogEntityField): t.Type {
+function getBaseFieldType(domain: Domain, field: CatalogEntityField): Type {
   if (field.column != null) {
     switch (field.column.type) {
       case 'text':

@@ -2,14 +2,14 @@
  * @flow
  */
 
-import {
-  type Context,
-  type Query,
-  type QueryAtom,
-  type QueryPipeline,
-  type NavigateQuery,
-  type Expression
-} from '../model';
+import type {
+  Context,
+  Query,
+  QueryAtom,
+  QueryPipeline,
+  NavigateQuery,
+  Expression,
+} from '../model/types';
 
 import invariant from 'invariant';
 import * as q from '../model/Query';
@@ -17,44 +17,41 @@ import * as q from '../model/Query';
 const HERE = ['here'];
 
 const LOGICAL_BINARY_OP_ENCODE = {
-  'and': '&',
-  'or': '|',
+  and: '&',
+  or: '|',
 };
 
 const UNARY_OP_ENCODE = {
-  'not': '!',
-  'exists': 'exists',
+  not: '!',
+  exists: 'exists',
 };
 
 const BINARY_OP_ENCODE = {
-  'equal': '=',
-  'notEqual': '!=',
-  'less': '<',
-  'lessEqual': '<=',
-  'greater': '>',
-  'greaterEqual': '>=',
-  'contains': '~',
+  equal: '=',
+  notEqual: '!=',
+  less: '<',
+  lessEqual: '<=',
+  greater: '>',
+  greaterEqual: '>=',
+  contains: '~',
 };
 
-export type SerializedQuery
-  = Array<SerializedQuery>
-  | string
-  | boolean
-  | number
-  | null;
+export type SerializedQuery = Array<SerializedQuery> | string | boolean | number | null;
 
 export type TranslateOptions = {
-
   /**
    * Limit the output of seqs in select combinators
    */
-  limitSelect?: ?number;
+  limitSelect?: ?number,
 };
 
 /**
  * Translate UI query model into query syntax.
  */
-export default function translate(query: Query, options: TranslateOptions = {}): SerializedQuery {
+export default function translate(
+  query: Query,
+  options: TranslateOptions = {},
+): SerializedQuery {
   let context = query.context.prev;
   return translateQuery(query, {translated: HERE, context}, options);
 }
@@ -73,11 +70,9 @@ function regularize(query: NavigateQuery) {
 
 function translateNavigateQuery(
   query: NavigateQuery,
-  prev: SerializedQuery
+  prev: SerializedQuery,
 ): SerializedQuery {
-  let path = query.regular
-    ? regularize(query)
-    : query.path;
+  let path = query.regular ? regularize(query) : query.path;
   if (prev !== HERE) {
     return ['.', prev, ['navigate', path]];
   } else {
@@ -85,10 +80,7 @@ function translateNavigateQuery(
   }
 }
 
-function translateExpression(
-  query: Expression,
-  prev: SerializedQuery
-): SerializedQuery {
+function translateExpression(query: Expression, prev: SerializedQuery): SerializedQuery {
   switch (query.name) {
     case 'navigate':
       return translateNavigateQuery(query, prev);
@@ -116,7 +108,7 @@ function translateExpression(
           BINARY_OP_ENCODE[op],
           translateExpression(left, HERE),
           // $FlowFixMe: refine doesn't work!
-          ...right.value
+          ...right.value,
         ];
       } else {
         return [
@@ -128,11 +120,7 @@ function translateExpression(
     }
 
     default:
-      invariant(
-        false,
-        'Could not translate "%s" to a rex.query combinator',
-        query.name,
-      );
+      invariant(false, 'Could not translate "%s" to a rex.query combinator', query.name);
   }
 }
 
@@ -146,29 +134,29 @@ function partitionPipeline(query: QueryPipeline): [?QueryAtom, QueryPipeline] {
         name: 'pipeline',
         pipeline: query.pipeline.slice(0, query.pipeline.length - 1),
         context: query.context,
-      }
+      },
     ];
   } else {
-    return [
-      null,
-      query
-    ];
+    return [null, query];
   }
 }
 
 function translateQuery(
   query: Query,
   prev: {translated: SerializedQuery, context: Context},
-  options: TranslateOptions
+  options: TranslateOptions,
 ): SerializedQuery {
   switch (query.name) {
     case 'here':
       return prev.translated;
 
     case 'pipeline': {
-      let res = query.pipeline.reduce((prev, q) => {
-        return {translated: translateQuery(q, prev, options), context: q.context};
-      }, prev);
+      let res = query.pipeline.reduce(
+        (prev, q) => {
+          return {translated: translateQuery(q, prev, options), context: q.context};
+        },
+        prev,
+      );
       return res.translated;
     }
 
@@ -181,14 +169,14 @@ function translateQuery(
       return [
         'define',
         prev.translated,
-        ['=>',
-          path,
-          translate(pipeline, options)],
-        ['=>',
+        ['=>', path, translate(pipeline, options)],
+        [
+          '=>',
           query.binding.name,
           select != null
             ? translate(q.pipeline(q.navigate(path), select), options)
-            : translate(q.navigate(path), options)]
+            : translate(q.navigate(path), options),
+        ],
       ];
     }
 
@@ -200,7 +188,7 @@ function translateQuery(
           let fieldTranslated = translateQuery(
             query.select[k],
             {translated: HERE, context: query.context},
-            options
+            options,
           );
           if (options.limitSelect != null && field.context.type.card === 'seq') {
             fieldTranslated = ['take', fieldTranslated, options.limitSelect];
@@ -236,12 +224,6 @@ function translateQuery(
       }
 
     default:
-      invariant(
-        false,
-        'Could not translate "%s" to a rex.query combinator',
-        query.name,
-      );
+      invariant(false, 'Could not translate "%s" to a rex.query combinator', query.name);
   }
 }
-
-

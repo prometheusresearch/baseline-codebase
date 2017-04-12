@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {QueryNavigation, QueryPipeline} from '../model';
+import type {QueryNavigation, QueryPipeline} from '../model/types';
 import type {Actions} from '../state';
 import type {SearchCallback} from './Search';
 
@@ -18,20 +18,19 @@ import {MenuGroup, MenuButton, MenuButtonSecondary} from './menu';
 import NavigationMenu from './NavigationMenu';
 
 type ColumnPickerProps = {
-  query: QueryPipeline;
-  onSelect: (payload: {path: string}) => *;
-  onSelectRemove: (payload: {path: string, query: QueryPipeline}) => *;
-  onSearch: SearchCallback;
+  query: QueryPipeline,
+  onSelect: (payload: {path: string}) => *,
+  onSelectRemove: (payload: {path: string, query: QueryPipeline}) => *,
+  onSearch: SearchCallback,
 };
 
 export default class ColumnPicker extends React.Component<*, ColumnPickerProps, *> {
-
   context: {
-    actions: Actions;
+    actions: Actions,
   };
 
   static contextTypes = {
-    actions: React.PropTypes.object
+    actions: React.PropTypes.object,
   };
 
   render() {
@@ -44,10 +43,11 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
         <this.NavigationMenuContents {...this.props} />
       </NavigationMenu>
     );
-
   }
 
-  NavigationMenuContents = (props: ColumnPickerProps & {navigation: Map<string, QueryNavigation>}) => {
+  NavigationMenuContents = (
+    props: ColumnPickerProps & {navigation: Map<string, QueryNavigation>},
+  ) => {
     let {
       query,
       navigation,
@@ -76,7 +76,7 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
           onAddQuery={this.onAddQuery}
           onAggregate={this.onAggregate}
           actions={this.context.actions}
-          />
+        />
       );
       if (column.groupBy) {
         groupByAttributeList.push(button);
@@ -91,8 +91,7 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
       <VBox paddingBottom={10}>
         {groupByAttributeList.length > 0 &&
           <VBox paddingBottom={10}>
-            <MenuGroup
-              title="Group by columns">
+            <MenuGroup title="Group by columns">
               {groupByAttributeList}
             </MenuGroup>
           </VBox>}
@@ -152,21 +151,19 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
       path: [payload.path],
     });
   };
-
 }
 
 class ColumnPickerButton extends React.Component {
-
   props: {
-    query?: QueryPipeline;
-    column: QueryNavigation;
-    onSelect: (payload: {path: string}) => *;
-    onNavigate: (payload: {path: string}) => *;
-    onAggregate: (payload: {path: string}) => *;
-    onAddQuery: (payload: {path: string}) => *;
-    onSelectRemove: (payload: {path: string, query: QueryPipeline}) => *;
-    disabled: boolean;
-    actions: Actions;
+    query?: QueryPipeline,
+    column: QueryNavigation,
+    onSelect: (payload: {path: string}) => *,
+    onNavigate: (payload: {path: string}) => *,
+    onAggregate: (payload: {path: string}) => *,
+    onAddQuery: (payload: {path: string}) => *,
+    onSelectRemove: (payload: {path: string, query: QueryPipeline}) => *,
+    disabled: boolean,
+    actions: Actions,
   };
 
   onSelect = (e: UIEvent) => {
@@ -211,7 +208,8 @@ class ColumnPickerButton extends React.Component {
         selected={query != null}
         icon={query != null ? '✓' : null}
         menu={
-          feature.ENABLE_ATTRIBUTE_CONTEXT_MENU && !disabled && [
+          feature.ENABLE_ATTRIBUTE_CONTEXT_MENU &&
+          !disabled && [
             column.type === 'record' &&
               <MenuButtonSecondary
                 icon={<IconPlus />}
@@ -245,7 +243,7 @@ class ColumnPickerButton extends React.Component {
                 ? `# ${column.label}`
                 : column.label
             }
-            />
+          />
           {column.fromQuery &&
             <TagLabel marginLeft="auto">
               Query
@@ -256,9 +254,7 @@ class ColumnPickerButton extends React.Component {
   }
 }
 
-function getNavigationIndex(
-  query: QueryPipeline
-): {[key: string]: QueryPipeline} {
+function getNavigationIndex(query: QueryPipeline): {[key: string]: QueryPipeline} {
   const noNavigation = {};
   if (query.pipeline.length === 0) {
     return noNavigation;

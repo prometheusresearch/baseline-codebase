@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {TypeCardinality, Context} from '../model';
+import type {Context, QueryNavigation} from '../model/types';
 
 import * as t from './Type';
 import * as q from './Query';
@@ -10,24 +10,12 @@ import * as q from './Query';
 /**
  * Objects of this type represent possible navigations.
  */
-export type QueryNavigation = {
-  type: 'record' | 'attribute';
-  card: TypeCardinality;
-  context: Context;
-  regularContext: Context;
-  value: string;
-  label: string;
-
-  groupBy?: boolean;
-  fromQuery?: boolean;
-};
-
 /**
  * Get possible navigations at the given context.
  */
 export function getNavigation(
   context: Context,
-  local?: boolean = true
+  local?: boolean = true,
 ): Map<string, QueryNavigation> {
   let {scope, domain, type} = context;
   let navigation = new Map();
@@ -45,7 +33,9 @@ export function getNavigation(
           value: k,
           label: domain.entity[k].title,
           context: navQuery.context,
-          regularContext: local ? navQuery.context : q.inferQueryType(context, navQuery).context,
+          regularContext: local
+            ? navQuery.context
+            : q.inferQueryType(context, navQuery).context,
         });
       }
     }
@@ -56,14 +46,14 @@ export function getNavigation(
         let navQuery = q.inferQueryType(localContext, q.navigate(k));
         let type = attribute[k].type;
         navigation.set(k, {
-          type: type.name === 'record'
-            ? 'record'
-            : 'attribute',
+          type: type.name === 'record' ? 'record' : 'attribute',
           card: type.card,
           value: k,
           label: attribute[k].title || k,
           context: navQuery.context,
-          regularContext: local ? navQuery.context : q.inferQueryType(context, navQuery).context,
+          regularContext: local
+            ? navQuery.context
+            : q.inferQueryType(context, navQuery).context,
           groupBy: attribute[k].groupBy,
         });
       }
@@ -80,7 +70,9 @@ export function getNavigation(
         value: k,
         label: scope[k].query.context.title || k,
         context: navQuery.context,
-        regularContext: local ? navQuery.context : q.inferQueryType(context, navQuery).context,
+        regularContext: local
+          ? navQuery.context
+          : q.inferQueryType(context, navQuery).context,
         fromQuery: true,
       });
     }
@@ -88,4 +80,3 @@ export function getNavigation(
 
   return navigation;
 }
-

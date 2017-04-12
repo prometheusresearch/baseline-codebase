@@ -3,7 +3,7 @@
  */
 
 import type {TranslateOptions} from './translate';
-import type {Query, Domain} from '../model';
+import type {Query, Domain} from '../model/types';
 import type {Catalog} from '../model/RexQueryCatalog';
 
 import download from 'downloadjs';

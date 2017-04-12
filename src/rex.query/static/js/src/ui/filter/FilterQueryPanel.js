@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Expression, FilterQuery} from '../../model';
+import type {Expression, FilterQuery} from '../../model/types';
 import type {Actions} from '../../state';
 
 import React from 'react';
@@ -46,14 +46,14 @@ function ORSeparator() {
   );
 }
 
-export default class FilterQueryPanel extends React.Component<*, FilterQueryPanelProps, *> {
-
+export default class FilterQueryPanel
+  extends React.Component<*, FilterQueryPanelProps, *> {
   context: {
-    actions: Actions;
+    actions: Actions,
   };
 
   state: {
-    expressions: Array<Expression>;
+    expressions: Array<Expression>,
   };
 
   static contextTypes = {actions: React.PropTypes.object};
@@ -98,30 +98,26 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
     let conditions = expressions.map((expression, idx) => {
       let isInvalid = expression.context.type.name === 'invalid';
       return (
-        <Element
-          key={idx}>
-          {idx !== 0 &&
-            <ORSeparator />}
+        <Element key={idx}>
+          {idx !== 0 && <ORSeparator />}
           <Element
             border={!isInvalid ? 'none' : `1px solid ${Theme.invalid.borderColor}`}
             padding={{horizontal: 5, vertical: 10}}>
             {expressions.length > 1 &&
-              <Element
-                textAlign="right"
-                marginBottom={5}>
+              <Element textAlign="right" marginBottom={5}>
                 <ReactUI.QuietButton
                   size="x-small"
                   title="Remove filter condition"
                   icon={<Icon.IconRemove />}
                   onClick={this.onConditionRemove.bind(this, idx)}
-                  />
+                />
               </Element>}
             <Element verticalAlign="middle">
               <FilterCondition
                 fields={fields}
                 expression={expression}
                 onUpdate={this.onConditionUpdate.bind(this, idx)}
-                />
+              />
             </Element>
           </Element>
         </Element>
@@ -129,11 +125,7 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
     });
 
     return (
-      <QueryPanelBase
-        title="Filter"
-        onClose={onClose}
-        theme={Theme.filter}
-        query={query}>
+      <QueryPanelBase title="Filter" onClose={onClose} theme={Theme.filter} query={query}>
         <ReactUI.VBox overflow="visible" padding={0}>
           <ReactUI.VBox overflow="visible" padding={5}>
             {conditions}
@@ -169,12 +161,15 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
   updateQuery() {
     let {expressions} = this.state;
 
-    expressions = expressions.filter(expression =>
-      !(expression.name === 'value' && expression.value === true));
+    expressions = expressions.filter(
+      expression => !(expression.name === 'value' && expression.value === true),
+    );
 
     let expression = expressions.length > 0
-      ?  q.or(...expressions.map(expression =>
-           q.inferExpressionType(this.props.query.context, expression)))
+      ? q.or(
+          ...expressions.map(expression =>
+            q.inferExpressionType(this.props.query.context, expression)),
+        )
       : q.or(q.value(true));
 
     this.context.actions.setFilter({
@@ -183,4 +178,3 @@ export default class FilterQueryPanel extends React.Component<*, FilterQueryPane
     });
   }
 }
-

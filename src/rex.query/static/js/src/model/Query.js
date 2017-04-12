@@ -4,7 +4,28 @@
  * @flow
  */
 
-/* eslint-disable no-use-before-define */
+import type {
+  Domain,
+  Type,
+  Context,
+  Scope,
+  Query,
+  QueryAtom,
+  QueryPipeline,
+  NavigateQuery,
+  LimitQuery,
+  AggregateQuery,
+  HereQuery,
+  FilterQuery,
+  SelectQuery,
+  DefineQuery,
+  GroupQuery,
+  Expression,
+  ConstantExpression,
+  BinaryExpression,
+  LogicalBinaryExpression,
+  UnaryExpression,
+} from './types';
 
 import uniqueId from 'lodash/uniqueId';
 import invariant from 'invariant';
@@ -14,231 +35,6 @@ import * as t from './Type';
 function genQueryId() {
   return uniqueId('query');
 }
-
-export type HereQuery = {
-  +id: string,
-  +name: 'here',
-  +context: Context,
-};
-
-export type ConstantExpression = {
-  +id: string,
-  +name: 'value',
-  +value: string | number | boolean | null,
-  +context: Context,
-};
-
-export type NavigateQuery = {
-  +id: string,
-  +name: 'navigate',
-  +path: string,
-  +context: Context,
-  +regular: boolean,
-};
-
-export type SelectQuery = {
-  +id: string,
-  +name: 'select',
-  +select: {[name: string]: QueryPipeline},
-  +context: Context,
-};
-
-type DefineQueryBinding = {
-  +name: string,
-  +query: QueryPipeline,
-};
-
-export type DefineQuery = {
-  +id: string,
-  +name: 'define',
-  +binding: DefineQueryBinding,
-  +context: Context,
-};
-
-export type FilterQuery = {
-  +id: string,
-  +name: 'filter',
-  +predicate: Expression,
-  +context: Context,
-};
-
-export type LimitQuery = {
-  +id: string,
-  +name: 'limit',
-  +limit: number,
-  +context: Context,
-};
-
-export type AggregateQuery = {
-  +id: string,
-  +name: 'aggregate',
-  +aggregate: string,
-  +path: ?string,
-  +context: Context,
-};
-
-export type GroupQuery = {
-  +id: string,
-  +name: 'group',
-  +byPath: Array<string>,
-  +context: Context,
-};
-
-export type QueryPipeline = {
-  +id: string,
-  +name: 'pipeline',
-  +pipeline: Array<QueryAtom>,
-  +context: Context,
-};
-
-export type BinaryOperator =
-  | 'equal'
-  | 'notEqual'
-  | 'less'
-  | 'lessEqual'
-  | 'greater'
-  | 'greaterEqual'
-  | 'greaterEqual'
-  | 'contains';
-
-export type BinaryExpression = {
-  +id: string,
-  +name: 'binary',
-  +op: BinaryOperator,
-  +left: Expression,
-  +right: Expression,
-  +context: Context,
-};
-
-export type UnaryOperator = 'not' | 'exists';
-
-export type UnaryExpression = {
-  +id: string,
-  +name: 'unary',
-  +op: UnaryOperator,
-  +expression: Expression,
-  +context: Context,
-};
-
-export type LogicalBinaryOperator = 'and' | 'or';
-
-export type LogicalBinaryExpression = {
-  +id: string,
-  +name: 'logicalBinary',
-  +op: LogicalBinaryOperator,
-  +expressions: Array<Expression>,
-  +context: Context,
-};
-
-export type Query =
-  | HereQuery
-  | NavigateQuery
-  | SelectQuery
-  | DefineQuery
-  | FilterQuery
-  | LimitQuery
-  | GroupQuery
-  | AggregateQuery
-  | QueryPipeline;
-
-export type QueryName =
-  | 'here'
-  | 'navigate'
-  | 'select'
-  | 'define'
-  | 'filter'
-  | 'limit'
-  | 'group'
-  | 'aggregate'
-  | 'pipeline';
-
-export const QueryNameSet = new Set([
-  'here',
-  'navigate',
-  'select',
-  'define',
-  'filter',
-  'limit',
-  'group',
-  'aggregate',
-  'pipeline',
-]);
-
-export type QueryAtom =
-  | HereQuery
-  | NavigateQuery
-  | SelectQuery
-  | DefineQuery
-  | FilterQuery
-  | LimitQuery
-  | GroupQuery
-  | AggregateQuery;
-
-export type QueryExpression = {
-  +id: string,
-  +name: 'query',
-  +query: Query,
-  +context: Context,
-};
-
-/**
- * Describe expression which are used in filter query.
- */
-export type Expression =
-  | NavigateQuery
-  | ConstantExpression
-  | BinaryExpression
-  | UnaryExpression
-  | LogicalBinaryExpression
-  | QueryExpression;
-
-export type ExpressionName =
-  | 'navigate'
-  | 'value'
-  | 'binary'
-  | 'unary'
-  | 'logicalBinary'
-  | 'query';
-
-export const ExpressionNameSet = new Set([
-  'navigate',
-  'value',
-  'binary',
-  'unary',
-  'logicalBinary',
-  'query',
-]);
-
-/**
- * Set of queries in scope (by key).
- *
- * Usually those introduced by .define(name := ...) combinator.
- */
-export type Scope = {
-  [name: string]: DefineQueryBinding,
-};
-
-/**
- * Query context represents knowledge about query at any given point.
- */
-export type Context = {|
-  // link to the prev query context
-  prev: Context,
-
-  // domain
-  domain: d.Domain,
-
-  // scope which query can reference other queries from
-  scope: Scope,
-
-  // output type of the query, null means invalid type
-  type: t.Type,
-
-  // if the query has an error somewhere
-  hasInvalidType: boolean,
-
-  title: ?string,
-|};
 
 export const emptyScope: Scope = {};
 export const emptyContext = {
@@ -421,7 +217,7 @@ function withContext<Q: Query>(query: Q, context: Context): Q {
   return (nextQuery: Q);
 }
 
-function withType(context: Context, type: t.Type): Context {
+function withType(context: Context, type: Type): Context {
   let nextContext: any = {...context, type};
   return (nextContext: Context);
 }
@@ -833,7 +629,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
   return ((nextQuery: any): Q);
 }
 
-export function voidContext(domain: d.Domain): Context {
+export function voidContext(domain: Domain): Context {
   let context = {
     prev: emptyContext,
     domain,
@@ -848,7 +644,7 @@ export function voidContext(domain: d.Domain): Context {
 /**
  * Infer the type of the query in context of a domain.
  */
-export function inferType<Q: Query>(domain: d.Domain, query: Q): Q {
+export function inferType<Q: Query>(domain: Domain, query: Q): Q {
   return inferQueryType(voidContext(domain), query);
 }
 
@@ -1082,7 +878,7 @@ export function mapExpressionWithTransform<A, B, C>(
 /**
  * Resolve path in the current context.
  */
-export function inferTypeAtPath(context: Context, path: Array<string>): t.Type {
+export function inferTypeAtPath(context: Context, path: Array<string>): Type {
   let query = pipeline(...path.map(item => navigate(item)));
   return inferQueryType(regularizeContext(context), query).context.type;
 }

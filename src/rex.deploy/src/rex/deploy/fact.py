@@ -16,6 +16,7 @@ import sys
 import inspect
 import decimal
 import collections
+import weakref
 import psycopg2
 import yaml
 
@@ -385,7 +386,7 @@ class Driver(object):
             was_locked = self.is_locked
             self.logging = False
             self.is_locked = False
-            self.catalog = introspect(self)
+            self.catalog = introspect(weakref.proxy(self))
             self.logging = logging
             self.is_locked = was_locked
         return self.catalog

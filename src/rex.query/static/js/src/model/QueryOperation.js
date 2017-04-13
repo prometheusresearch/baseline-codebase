@@ -258,7 +258,22 @@ function editPipeline<Q: QueryAtom>(
 
 export function remove<Q: QueryAtom>({loc}: {loc: QueryLoc<Q>}) {
   return editPipeline(loc, pipeline => {
-    let nextPipeline = pipeline.filter(q => q.id !== loc.at);
+    const idx = pipeline.findIndex(q => q.id === loc.at);
+    if (idx === -1) {
+      return pipeline;
+    }
+    const nextPipeline = pipeline.slice(0);
+    nextPipeline.splice(idx, 1);
+    // try to restore the latest saved select if needed
+    const last = nextPipeline[nextPipeline.length - 1];
+    if (
+      idx === pipeline.length - 1 &&
+      last &&
+      last.name !== 'select' &&
+      last.savedSelect != null
+    ) {
+      nextPipeline.push(last.savedSelect);
+    }
     return nextPipeline;
   });
 }
@@ -268,6 +283,11 @@ export function cut<Q: QueryAtom>({loc}: {loc: QueryLoc<Q>}): ?QueryPipeline {
     let idx = pipeline.findIndex(q => q.id === loc.at);
     invariant(idx > -1, 'Invalid query location: %s', loc.at);
     pipeline = pipeline.slice(0, idx);
+    // try to restore the latest saved select if needed
+    const last = pipeline[pipeline.length - 1];
+    if (last != null && last.savedSelect != null) {
+      pipeline.push(last.savedSelect);
+    }
     return pipeline;
   });
   return query;
@@ -286,6 +306,15 @@ export function insertAfter<Q: QueryAtom>(
     let idx = pipeline.findIndex(q => q.id === loc.at);
     invariant(idx > -1, 'Invalid query location');
     pipeline = pipeline.slice(0);
+    // check if we need to save the selection state
+    const maybeSelect = pipeline[pipeline.length - 1];
+    if (idx === pipeline.length - 2 && maybeSelect.name === 'select') {
+      // $FlowIssue: not sure why I can't unify with QueryAtom here
+      pipeline[idx] = {
+        ...pipeline[idx],
+        savedSelect: maybeSelect,
+      };
+    }
     pipeline.splice(idx + 1, 0, ...what);
     return pipeline;
   });
@@ -433,10 +462,9 @@ function reconcileDefine(query: DefineQuery): DefineQuery {
     query: reconcilePipeline(query.binding.query),
   };
   return {
-    id: query.id,
     name: 'define',
+    ...query,
     binding,
-    context: query.context,
   };
 }
 

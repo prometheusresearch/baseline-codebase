@@ -140,13 +140,7 @@ export type HereQuery = {
   +id: string,
   +name: 'here',
   +context: Context,
-};
-
-export type ConstantExpression = {
-  +id: string,
-  +name: 'value',
-  +value: string | number | boolean | null,
-  +context: Context,
+  +savedSelect: ?SelectQuery,
 };
 
 export type NavigateQuery = {
@@ -155,6 +149,7 @@ export type NavigateQuery = {
   +path: string,
   +context: Context,
   +regular: boolean,
+  +savedSelect: ?SelectQuery,
 };
 
 export type SelectQuery = {
@@ -162,6 +157,7 @@ export type SelectQuery = {
   +name: 'select',
   +select: {[name: string]: QueryPipeline},
   +context: Context,
+  +savedSelect: ?SelectQuery,
 };
 
 type DefineQueryBinding = {
@@ -174,6 +170,7 @@ export type DefineQuery = {
   +name: 'define',
   +binding: DefineQueryBinding,
   +context: Context,
+  +savedSelect: ?SelectQuery,
 };
 
 export type FilterQuery = {
@@ -181,6 +178,7 @@ export type FilterQuery = {
   +name: 'filter',
   +predicate: Expression,
   +context: Context,
+  +savedSelect: ?SelectQuery,
 };
 
 export type LimitQuery = {
@@ -188,6 +186,7 @@ export type LimitQuery = {
   +name: 'limit',
   +limit: number,
   +context: Context,
+  +savedSelect: ?SelectQuery,
 };
 
 export type AggregateQuery = {
@@ -196,6 +195,7 @@ export type AggregateQuery = {
   +aggregate: string,
   +path: ?string,
   +context: Context,
+  +savedSelect: ?SelectQuery,
 };
 
 export type GroupQuery = {
@@ -203,6 +203,7 @@ export type GroupQuery = {
   +name: 'group',
   +byPath: Array<string>,
   +context: Context,
+  +savedSelect: ?SelectQuery,
 };
 
 export type QueryPipeline = {
@@ -238,6 +239,13 @@ export type UnaryExpression = {
   +name: 'unary',
   +op: UnaryOperator,
   +expression: Expression,
+  +context: Context,
+};
+
+export type ConstantExpression = {
+  +id: string,
+  +name: 'value',
+  +value: string | number | boolean | null,
   +context: Context,
 };
 

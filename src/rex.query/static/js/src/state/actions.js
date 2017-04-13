@@ -356,10 +356,9 @@ export function setGroupByPath({at, byPath}: SetGroupByPathParams): StateUpdater
     let editor = qo.editor(state.query, at);
 
     editor = editor.transformWith(query => ({
-      id: query.id,
       name: 'group',
+      ...query,
       byPath: byPath,
-      context: query.context,
     }));
 
     if (byPath.length === 0) {

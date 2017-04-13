@@ -60,7 +60,12 @@ export const emptyContext = {
 
 emptyContext.prev = emptyContext;
 
-export const here = {id: genQueryId(), name: 'here', context: emptyContext};
+export const here = {
+  id: genQueryId(),
+  name: 'here',
+  context: emptyContext,
+  savedSelect: null,
+};
 
 export function value(value: number | string | boolean): ConstantExpression {
   return {name: 'value', id: genQueryId(), value, context: emptyContext};
@@ -73,19 +78,39 @@ export function navigate(path: string): NavigateQuery {
     path,
     context: emptyContext,
     regular: false,
+    savedSelect: null,
   };
 }
 
 export function use(path: string): NavigateQuery {
-  return {name: 'navigate', id: genQueryId(), path, context: emptyContext, regular: true};
+  return {
+    name: 'navigate',
+    id: genQueryId(),
+    path,
+    context: emptyContext,
+    regular: true,
+    savedSelect: null,
+  };
 }
 
 export function filter(predicate: Expression): FilterQuery {
-  return {name: 'filter', id: genQueryId(), predicate, context: emptyContext};
+  return {
+    name: 'filter',
+    id: genQueryId(),
+    predicate,
+    context: emptyContext,
+    savedSelect: null,
+  };
 }
 
 export function select(select: {[fieldName: string]: QueryPipeline}): SelectQuery {
-  return {name: 'select', id: genQueryId(), select, context: emptyContext};
+  return {
+    name: 'select',
+    id: genQueryId(),
+    select,
+    context: emptyContext,
+    savedSelect: null,
+  };
 }
 
 export function def(name: string, query: QueryPipeline): DefineQuery {
@@ -94,19 +119,39 @@ export function def(name: string, query: QueryPipeline): DefineQuery {
     id: genQueryId(),
     binding: {name, query},
     context: emptyContext,
+    savedSelect: null,
   };
 }
 
 export function limit(limit: number): LimitQuery {
-  return {name: 'limit', id: genQueryId(), limit, context: emptyContext};
+  return {
+    name: 'limit',
+    id: genQueryId(),
+    limit,
+    context: emptyContext,
+    savedSelect: null,
+  };
 }
 
 export function aggregate(aggregate: string, path?: ?string = null): AggregateQuery {
-  return {name: 'aggregate', id: genQueryId(), aggregate, path, context: emptyContext};
+  return {
+    name: 'aggregate',
+    id: genQueryId(),
+    aggregate,
+    path,
+    context: emptyContext,
+    savedSelect: null,
+  };
 }
 
 export function group(byPath: Array<string>): GroupQuery {
-  return {name: 'group', id: genQueryId(), byPath, context: emptyContext};
+  return {
+    name: 'group',
+    id: genQueryId(),
+    byPath,
+    context: emptyContext,
+    savedSelect: null,
+  };
 }
 
 export function pipeline(...pipeline: Array<QueryAtom>): QueryPipeline {
@@ -323,6 +368,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         return {
           id: genQueryId(),
           name: 'here',
+          savedSelect: query.savedSelect,
           context: {
             domain: context.domain,
             scope: context.scope,
@@ -370,6 +416,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         id: query.id,
         name: 'filter',
         predicate,
+        savedSelect: query.savedSelect,
         context: {
           prev: context,
           scope: context.scope,
@@ -418,6 +465,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         id: query.id,
         name: 'select',
         select: nextSelect,
+        savedSelect: query.savedSelect,
         context: {
           prev: context,
           domain,
@@ -457,6 +505,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
       return {
         id: query.id,
         name: 'define',
+        savedSelect: query.savedSelect,
         binding,
         context: {
           prev: context,
@@ -525,6 +574,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         return {
           id: query.id,
           name: 'group',
+          savedSelect: query.savedSelect,
           byPath: [],
           context: {
             prev: context,

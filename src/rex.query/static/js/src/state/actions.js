@@ -184,12 +184,13 @@ export function hidePanel(): StateUpdater {
 export function undo(): StateUpdater {
   return state => {
     let undoStack = state.undoStack.slice(0);
-    let {query, selected} = undoStack.pop();
+    let {query, selected, focusedSeq} = undoStack.pop();
     let redoStack = state.redoStack.concat({
       query: state.query,
       selected: state.selected,
+      focusedSeq: state.focusedSeq,
     });
-    let nextState = {...state, query, selected, undoStack, redoStack};
+    let nextState = {...state, query, selected, focusedSeq, undoStack, redoStack};
     return [nextState, refetchQuery];
   };
 }
@@ -200,12 +201,13 @@ export function undo(): StateUpdater {
 export function redo(): StateUpdater {
   return state => {
     let redoStack = state.redoStack.slice(0);
-    let {query, selected} = redoStack.pop();
+    let {query, selected, focusedSeq} = redoStack.pop();
     let undoStack = state.undoStack.concat({
       query: state.query,
       selected: state.selected,
+      focusedSeq: state.focusedSeq,
     });
-    let nextState = {...state, query, selected, undoStack, redoStack};
+    let nextState = {...state, query, selected, focusedSeq, undoStack, redoStack};
     return [nextState, refetchQuery];
   };
 }
@@ -645,6 +647,7 @@ function onQuery(
     undoStack: state.undoStack.concat({
       query: state.query,
       selected: state.selected,
+      focusedSeq: state.focusedSeq,
     }),
     redoStack: [],
     focusedSeq,

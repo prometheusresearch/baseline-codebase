@@ -4,13 +4,13 @@
 
 import type {QueryAtom, QueryPipeline, Domain} from '../model/types';
 import type {TranslateOptions} from '../fetch/translate';
+import type {Chart} from '../chart';
 
 import * as q from '../model/Query';
 import * as QueryOperation from '../model/QueryOperation';
 import * as SC from '../StateContainer';
 import * as Focus from './Focus';
 import * as actions from './actions';
-import {type Chart} from '../chart';
 
 /**
  * Represents a bit of info which is restored on undo/redo operations.
@@ -18,6 +18,7 @@ import {type Chart} from '../chart';
 type UndoRecord = {
   query: QueryPipeline,
   selected: ?QueryAtom,
+  focusedSeq: Focus.Focus,
 };
 
 export type ChartSpec = {

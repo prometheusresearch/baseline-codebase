@@ -22,6 +22,7 @@ from .route import (
     MountSetting, Pipe, Route, not_found, url_for, route, get_routes,
     make_sentry_script_tag)
 from .secret import SecretSetting, encrypt_and_sign, validate_and_decrypt
+from .services import ServicesSetting
 from .template import (
     get_jinja, render_to_response, HandleTemplate, jinja_filter_json,
     jinja_filter_urlencode, jinja_filter_url)

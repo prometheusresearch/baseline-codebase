@@ -478,6 +478,8 @@ class StartTask(RexWatchTask):
     def __call__(self):
         # Build the application; validate requirements and configuration.
         app = self.make_with_watch(attached=False)
+        with app:
+            services = get_settings().services
         form = DaemonAttributes(app)
         # Create the directory to store `*.pid` and other files.
         if not os.path.exists(form.run_dir):
@@ -510,12 +512,23 @@ class StartTask(RexWatchTask):
         uwsgi_cfg['daemonize2'] = form.log_path
         uwsgi_cfg['pidfile'] = form.pid_path
         uwsgi_cfg['master'] = True
+        if services:
+            executable = 'rex'
+            if hasattr(sys, 'real_prefix'):
+                executable = os.path.join(sys.prefix, 'bin', executable)
+            executable += ' --config=' + form.json_path
+            uwsgi_cfg['attach-daemon'] = [
+                    executable + ' ' + service
+                    for service in services]
         sockets = ["%s: %s" % (key, value)
                    for key, value in sorted(uwsgi_cfg.items())
                    if key == 'socket' or key.endswith('-socket')]
         if not sockets:
             raise fail("uWSGI sockets are not configured")
-        cfg = { 'project': form.name, 'uwsgi': uwsgi_cfg }
+        cfg = {
+                'requirements': app.requirements,
+                'parameters': app.parameters,
+                'uwsgi': uwsgi_cfg }
         with open(form.json_path, 'w') as stream:
             json.dump(
                     cfg, stream,

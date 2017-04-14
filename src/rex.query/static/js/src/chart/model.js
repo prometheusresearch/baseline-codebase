@@ -121,44 +121,35 @@ function getValueLabel<T: {valueColumn: ?string}>(attrs, list: T[]) {
   return value;
 }
 
-function getLineChartDesc(attrs, {labelColumn, lineList}: LineChart): ?string {
-  if (labelColumn == null) {
+function getChartDesc(attrs, labelColumn, valueList): ?string {
+  if (labelColumn == null || !(labelColumn in attrs)) {
     return null;
   }
   const label = attrs[labelColumn].title;
-  const value = getValueLabel(attrs, lineList);
-  return `${value.join(', ')} by ${label}`;
+  if (valueList.length === 0) {
+    return null;
+  }
+  return `${valueList.join(', ')} by ${label}`;
+}
+
+function getLineChartDesc(attrs, {labelColumn, lineList}: LineChart): ?string {
+  return getChartDesc(attrs, labelColumn, getValueLabel(attrs, lineList));
 }
 
 function getBarChartDesc(attrs, {labelColumn, barList}: BarChart): ?string {
-  if (labelColumn == null) {
-    return null;
-  }
-  const label = attrs[labelColumn].title;
-  const value = getValueLabel(attrs, barList);
-  return `${value.join(', ')} by ${label}`;
+  return getChartDesc(attrs, labelColumn, getValueLabel(attrs, barList));
 }
 
 function getAreaChartDesc(attrs, {labelColumn, areaList}: AreaChart): ?string {
-  if (labelColumn == null) {
-    return null;
-  }
-  const label = attrs[labelColumn].title;
-  const value = getValueLabel(attrs, areaList);
-  return `${value.join(', ')} by ${label}`;
+  return getChartDesc(attrs, labelColumn, getValueLabel(attrs, areaList));
 }
 
 function getPieChartDesc(attrs, {labelColumn, valueColumn}: PieChart): ?string {
-  if (labelColumn == null) {
-    return null;
-  }
-  const label = attrs[labelColumn].title;
-  const value = getValueLabel(attrs, [{valueColumn}]);
-  return `${value.join(', ')} by ${label}`;
+  return getChartDesc(attrs, labelColumn, getValueLabel(attrs, [{valueColumn}]));
 }
 
 function getScatterChartDesc(attrs, {xColumn, yColumn}: ScatterChart): ?string {
-  if (xColumn == null || yColumn == null) {
+  if (xColumn == null || yColumn == null || !(xColumn in attrs) || !(yColumn in attrs)) {
     return null;
   }
   const yLabel = attrs[yColumn].title;

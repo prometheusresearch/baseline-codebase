@@ -392,10 +392,16 @@ class ServeUWSGITask(RexWatchTask):
     def __call__(self):
         # Build the application; validate requirements and configuration.
         app = self.make_with_watch(initialize=False, attached=False)
+        with app:
+            services = get_settings().services
         # Make a temporary .wsgi file: /tmp/<project>-XXX.wsgi.
-        fd, path = tempfile.mkstemp(prefix=app.requirements[0]+'-',
-                                    suffix='.wsgi')
-        stream = os.fdopen(fd, 'w')
+        wsgi_fd, wsgi_path = tempfile.mkstemp(
+                prefix=app.requirements[0]+'-', suffix='.wsgi')
+        # Make a temporary config file: /tmp/<project>-XXX.json.
+        json_fd, json_path = tempfile.mkstemp(
+                prefix=app.requirements[0]+'-', suffix='.json')
+        # Write the .wsgi file.
+        stream = os.fdopen(wsgi_fd, 'w')
         for line in wsgi_file(app):
             stream.write(line)
         stream.close()
@@ -415,19 +421,27 @@ class ServeUWSGITask(RexWatchTask):
             else:
                 key, value = value, True
             uwsgi_parameters[key] = value
-        uwsgi_parameters['wsgi-file'] = path
-        cmd = ['uwsgi']
-        for key in sorted(uwsgi_parameters):
-            value = uwsgi_parameters[key]
-            if isinstance(value, list):
-                cmd.extend(['--%s=%s' % (key, item) for item in value])
-            else:
-                if value is not True:
-                    opt = '--%s=%s' % (key, value)
-                else:
-                    opt = '--%s' % (key,)
-                cmd.append(opt)
+        uwsgi_parameters['wsgi-file'] = wsgi_path
+        if services:
+            executable = 'rex'
+            if hasattr(sys, 'real_prefix'):
+                executable = os.path.join(sys.prefix, 'bin', executable)
+            executable += ' --config=' + json_path
+            uwsgi_parameters['attach-daemon'] = [
+                    executable + ' ' + service
+                    for service in services]
+        cfg = {
+                'requirements': app.requirements,
+                'parameters': app.parameters,
+                'uwsgi': uwsgi_parameters }
+        # Write the config.
+        stream = os.fdopen(json_fd, 'w')
+        json.dump(
+                cfg, stream,
+                indent=2, separators=(',', ': '), sort_keys=True)
+        stream.close()
         # Start uWSGI.
+        cmd = ['uwsgi', json_path]
         log("Starting uWSGI server for `{}`", app.requirements[0])
         exe(cmd)
 

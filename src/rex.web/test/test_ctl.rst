@@ -195,6 +195,7 @@ You can stop the server by pressing Ctrl-C::
 
     >>> print serve_uwsgi_ctl.stop()                # doctest: +ELLIPSIS
     Starting uWSGI server for rex.web_demo
+    [uWSGI] getting JSON configuration from /.../rex.web_demo-....json
     *** Starting uWSGI ... ***
     ...
 

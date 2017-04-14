@@ -9,6 +9,7 @@
 ===================
 
 * Use JSON for uWSGI configuration.
+* Added ``services`` setting.
 
 
 3.9.0 (2017-04-05)

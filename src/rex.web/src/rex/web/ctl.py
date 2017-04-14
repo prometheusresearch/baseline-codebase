@@ -318,9 +318,6 @@ class ServeTask(RexWatchTask):
         app = self.make_with_watch()
         host = self.host or env.http_host
         port = self.port or env.http_port
-        if not self.quiet:
-            log("Serving `{}` on `{}:{}`",
-                app.requirements[0], host, port)
         environ = {}
         if self.remote_user:
             environ['REMOTE_USER'] = self.remote_user
@@ -330,11 +327,44 @@ class ServeTask(RexWatchTask):
             else:
                 key, value = value, True
             environ[key] = value
-        httpd = wsgiref.simple_server.make_server(
-                host, port, app,
-                RexServer.make(environ, self.quiet),
-                RexRequestHandler)
-        httpd.serve_forever()
+        processes = []
+        try:
+            with app:
+                services = get_settings().services
+            if services:
+                cfg = {
+                        'requirements': app.requirements,
+                        'parameters': app.parameters }
+                json_fd, json_path = tempfile.mkstemp(
+                        prefix=app.requirements[0]+'-', suffix='.json')
+                stream = os.fdopen(json_fd, 'w')
+                json.dump(
+                        cfg, stream,
+                        indent=2, separators=(',', ': '), sort_keys=True)
+                stream.close()
+                executable = 'rex'
+                if hasattr(sys, 'real_prefix'):
+                    executable = os.path.join(sys.prefix, 'bin', executable)
+                executable += ' --config=' + json_path
+                for service in services:
+                    if not self.quiet:
+                        log("Starting `{}`", service)
+                    process = subprocess.Popen(
+                            executable + ' ' + service, shell=True)
+                    processes.append(process)
+            if not self.quiet:
+                log("Serving `{}` on `{}:{}`",
+                    app.requirements[0], host, port)
+            httpd = wsgiref.simple_server.make_server(
+                    host, port, app,
+                    RexServer.make(environ, self.quiet),
+                    RexRequestHandler)
+            httpd.serve_forever()
+        finally:
+            for process in processes:
+                process.terminate()
+            for process in processes:
+                process.wait()
 
 
 class WSGITask(RexTask):

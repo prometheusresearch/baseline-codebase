@@ -976,43 +976,45 @@ function uppercase(string) {
 
 export function deserializeQuery(data: string): Query {
   let queryWithoutContext: Query = (JSON.parse(data): any);
-  return modifyQueryContext(queryWithoutContext, _ctx => emptyContext);
+  return sanitizeQuery(queryWithoutContext, _ctx => emptyContext);
 }
 
 export function serializeQuery(query: Query): string {
-  let queryWithoutContext = modifyQueryContext(query, _ctx => null);
+  let queryWithoutContext = sanitizeQuery(query, _ctx => null);
   return JSON.stringify(queryWithoutContext);
 }
 
-function modifyQueryContext(query: Query, modify: (ctx: ?Context) => ?Context): Query {
+function sanitizeQuery(query: Query, modifyContext: (ctx: ?Context) => ?Context): Query {
   let nextQuery: Query = (mapQueryWithTransform(query, {
     filter(query) {
       return ({
         ...query,
         name: 'filter',
-        predicate: modifyExpressionContext(query.predicate, modify),
-        context: modify(query.context),
+        predicate: sanitizeExpression(query.predicate, modifyContext),
+        context: modifyContext(query.context),
+        savedSelect: null,
       }: any);
     },
     otherwise(query) {
       return ({
         ...query,
-        context: modify(query.context),
+        context: modifyContext(query.context),
+        savedSelect: null,
       }: any);
     },
   }): any);
   return nextQuery;
 }
 
-function modifyExpressionContext(
+function sanitizeExpression(
   expression: Expression,
-  modify: (ctx: ?Context) => ?Context,
+  modifyContext: (ctx: ?Context) => ?Context,
 ): Expression {
   let nextExpression: Expression = (mapExpressionWithTransform(expression, {
     otherwise(expression) {
       return ({
         ...expression,
-        context: modify(expression.context),
+        context: modifyContext(expression.context),
       }: any);
     },
   }): any);

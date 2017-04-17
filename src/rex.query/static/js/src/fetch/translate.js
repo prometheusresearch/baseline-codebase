@@ -212,7 +212,7 @@ function translateQuery(
         // Group by columns are not defined yet, skip the group by clause.
         return prev.translated;
       } else {
-        return ['group', prev.translated, ...query.byPath.map(p => [p])];
+        return ['group', prev.translated, ...query.byPath.map(p => ['navigate', p])];
       }
 
     case 'filter':

@@ -125,7 +125,11 @@ describe('translate', function() {
 
   it('study.group(code)', function() {
     let query = inferType(domain, pipeline(navigate('study'), group(['code'])));
-    expect(translate(query)).toEqual(['group', ['navigate', 'study'], ['code']]);
+    expect(translate(query)).toEqual([
+      'group',
+      ['navigate', 'study'],
+      ['navigate', 'code'],
+    ]);
   });
 
   it('study.define(name := code)', function() {

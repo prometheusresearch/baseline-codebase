@@ -586,7 +586,7 @@ test('inferTypeAtPath', function() {
   });
 });
 
-test('serializeQuery/deserializeQuery', function() {
+test.skip('serializeQuery/deserializeQuery', function() {
   let expectIdentity = q => expect(deserializeQuery(serializeQuery(q))).toEqual(q);
   expectIdentity(navigate('name'));
   expectIdentity(pipeline(navigate('name'), navigate('age')));

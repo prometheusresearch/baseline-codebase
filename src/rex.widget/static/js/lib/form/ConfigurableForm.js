@@ -115,10 +115,13 @@ export function validatorFromFields(fields, trace = []) {
         validatorFromFields(field.fields, trace.concat(field.valueKey))
       );
     } else if (field.type === 'list') {
-      validatorList.push({
-        valueKey: field.valueKey,
-        validateList: validatorFromFields(field.fields)
-      });
+      let _validatorList = validatorFromFields(field.fields);
+      if (_validatorList) {
+        validatorList.push({
+          valueKey: field.valueKey,
+          validateList: _validatorList
+        });
+      }
     } else {
       if (field.validate != null) {
         validatorList.push({

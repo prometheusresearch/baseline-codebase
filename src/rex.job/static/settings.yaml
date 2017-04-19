@@ -1,0 +1,10 @@
+htsql_extensions:
+  rex_deploy:
+  tweak.etl:
+
+asynctask_scheduled_workers:
+  - worker: job_queuer
+    second: '*/5'
+  - worker: job_cleanup
+    minute: '*/5'
+

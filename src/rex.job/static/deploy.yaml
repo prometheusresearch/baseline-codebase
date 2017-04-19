@@ -1,0 +1,49 @@
+- table: job
+  with:
+    - column: code
+      type: integer
+    - identity:
+        - code: offset
+
+    - column: owner  # TODO this should be a link to a generic "user" table?
+      type: text
+
+    - column: title
+      type: text
+      required: false
+
+    - column: status
+      type:
+        - new
+        - queued
+        - started
+        - completed
+        - failed
+      default: new
+
+    - column: status_detail
+      type: text
+      required: false
+
+    - column: type
+      type: text
+
+    - column: payload
+      type: json
+      default: {}
+
+    - column: date_submitted
+      type: datetime
+      default: now()
+
+    - column: date_started
+      type: datetime
+      required: false
+
+    - column: date_completed
+      type: datetime
+      required: false
+
+    - alias: __title__
+      expression: if_null(title, string(code))
+

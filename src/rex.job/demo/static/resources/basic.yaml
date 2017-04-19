@@ -1,0 +1,51 @@
+type: wizard
+
+path:
+  - pick-job:
+    - view-job:
+      - drop-job:
+    - make-job:
+      - replace: ../../pick-job
+
+states:
+  job:
+    cancellable:
+      title: Cancellable Jobs
+      expression: status={'new','queued'}
+
+actions:
+  pick-job:
+    title: List Jobs
+    type: pick
+    entity: job
+    fields:
+      - code
+      - owner
+      - title
+      - status
+      - type
+      - date_submitted
+      - date_completed
+
+  make-job:
+    title: Create a Job
+    type: make
+    entity: job
+    fields:
+      - title
+      - type
+      - owner
+      - payload
+
+  view-job:
+    title: Job Details
+    type: view
+    entity: job
+    input:
+      - job
+
+  drop-job:
+    title: Cancel Job
+    type: drop
+    entity: job[cancellable]
+

@@ -1,0 +1,16 @@
+menu:
+  - title: Home
+    items:
+      - path: /
+        access: authenticated
+        title: Home
+        action:
+          type: page
+          text: |
+            Welcome to the RexJob Demo System!
+
+      - path: /basic
+        access: authenticated
+        title: Basic Job Manager
+        action: !include rex.job_demo:/resources/basic.yaml
+

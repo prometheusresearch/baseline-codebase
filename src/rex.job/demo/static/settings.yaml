@@ -1,0 +1,17 @@
+db: pgsql:job_demo
+attach_dir: /tmp
+
+logging_root:
+  level: DEBUG
+
+user_query: true()
+rex_widget:
+  chrome: rex.widget_chrome.MenuChrome
+application_title: RexJob Demo
+username_query: $USER
+user_profile_url: rex.job_demo:/
+application_logout_url: rex.job_demo:/
+
+services:
+  - asynctask-workers --scheduler
+

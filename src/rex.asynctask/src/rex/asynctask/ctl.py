@@ -11,6 +11,7 @@ from functools import partial
 from hashlib import sha256
 from multiprocessing import Process, Pipe
 
+from apscheduler.schedulers import SchedulerNotRunningError
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from rex.core import get_settings, get_rex
@@ -211,7 +212,10 @@ class AsyncTaskWorkerTask(RexTask):
     def cleanup(self):
         if self._scheduler:
             self.logger.debug('Termination received; shutting down scheduler')
-            self._scheduler.shutdown()
+            try:
+                self._scheduler.shutdown()
+            except SchedulerNotRunningError:
+                pass
             self.logger.debug('Scheduler dead')
 
         self.logger.debug('Termination received; shutting down children')

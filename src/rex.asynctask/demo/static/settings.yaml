@@ -5,6 +5,8 @@ asynctask_transport: pgsql:asynctask_demo
 asynctask_workers:
   foo: demo_foo_worker
 
+asynctask_scheduled_workers: []
+
 logging_root:
   level: DEBUG
 #  handlers: [console, file]

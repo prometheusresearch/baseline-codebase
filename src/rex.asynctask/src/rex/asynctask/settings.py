@@ -126,6 +126,10 @@ class AsyncTaskScheduledWorkersSetting(Setting):
     https://apscheduler.readthedocs.io/en/latest/modules/triggers/cron.html#introduction
 
     If not specified, defaults to ``[]``.
+
+    This is a merged setting, meaning that the mappings defined for this
+    setting in any number of ``settings.yaml`` files within a project will be
+    merged together.
     """
 
     #:
@@ -169,5 +173,10 @@ class AsyncTaskScheduledWorkersSetting(Setting):
 
         return value
 
-
+    def merge(self, old_value, new_value):
+        list_val = SeqVal()
+        value = []
+        value += list_val(old_value)
+        value += list_val(new_value)
+        return value
 

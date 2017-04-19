@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.asynctask',
-    version='0.5.0',
+    version='0.6.0',
     description='An extensible framework for submitting and consuming'
     ' asynchronous tasks.',
     long_description=open('README.rst', 'r').read(),
@@ -29,7 +29,7 @@ setup(
         ],
     },
     install_requires=[
-        'rex.core>=1.4,<2',
+        'rex.core>=1.14,<2',
         'rex.ctl>=2,<3',
         'rex.logging>=1.1,<2',
         'redis>=2.10,<2.11',

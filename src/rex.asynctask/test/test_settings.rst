@@ -57,10 +57,10 @@ This setting configures the workers that execute according to a schedule::
     ...     print repr(get_settings().asynctask_scheduled_workers)
     []
 
-    >>> rex = Rex('rex.asynctask_demo', asynctask_scheduled_workers=[{'worker': 'demo_foo_worker', 'minute': '*/5'}, {'ctl': 'demo-noisy-task', 'hour': '*/3'}])
+    >>> rex = Rex('rex.asynctask_demo', asynctask_scheduled_workers=[{'worker': 'demo_foo_worker', 'minute': '*/5'}, {'ctl': 'demo-noisy-task', 'hour': '*/3'}, {'worker': 'demo_foo_worker', 'second': 0}])
     >>> with rex:
     ...     print repr(get_settings().asynctask_scheduled_workers)
-    [Record(worker='demo_foo_worker', ctl=None, year=None, month=None, day=None, week=None, day_of_week=None, hour=None, minute='*/5', second=None, start_date=None, end_date=None), Record(worker=None, ctl='demo-noisy-task', year=None, month=None, day=None, week=None, day_of_week=None, hour='*/3', minute=None, second=None, start_date=None, end_date=None)]
+    [Record(worker='demo_foo_worker', ctl=None, year=None, month=None, day=None, week=None, day_of_week=None, hour=None, minute='*/5', second=None, start_date=None, end_date=None), Record(worker=None, ctl='demo-noisy-task', year=None, month=None, day=None, week=None, day_of_week=None, hour='*/3', minute=None, second=None, start_date=None, end_date=None), Record(worker='demo_foo_worker', ctl=None, year=None, month=None, day=None, week=None, day_of_week=None, hour=None, minute=None, second=0, start_date=None, end_date=None)]
 
 
     >>> rex = Rex('rex.asynctask_demo', asynctask_scheduled_workers=[{'minute': '*/5'}])

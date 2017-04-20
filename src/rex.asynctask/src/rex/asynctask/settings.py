@@ -159,14 +159,14 @@ class AsyncTaskScheduledWorkersSetting(Setting):
                     raise Error("Must specify one of 'worker' or 'ctl'")
 
                 has_one_schedule = any([
-                    cfg.year,
-                    cfg.month,
-                    cfg.day,
-                    cfg.week,
-                    cfg.day_of_week,
-                    cfg.hour,
-                    cfg.minute,
-                    cfg.second,
+                    cfg.year is not None,
+                    cfg.month is not None,
+                    cfg.day is not None,
+                    cfg.week is not None,
+                    cfg.day_of_week is not None,
+                    cfg.hour is not None,
+                    cfg.minute is not None,
+                    cfg.second is not None,
                 ])
                 if not has_one_schedule:
                     raise Error('Must specify some property of the schedule')

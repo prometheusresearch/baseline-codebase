@@ -9,6 +9,8 @@ REX.ASYNCTASK Change Log
 ==================
 
 * The ``asynctask_scheduled_workers`` setting is now merged.
+* Adjusted the ``pgsql`` transport so that it no longer holds a persistent
+  connection to the database. It only gets one when it needs it.
 
 
 0.5.0 (2017-04-05)

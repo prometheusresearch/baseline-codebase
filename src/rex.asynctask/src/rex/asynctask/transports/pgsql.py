@@ -128,16 +128,6 @@ class PostgresAsyncTransport(AsyncTransport):
         super(PostgresAsyncTransport, self).__init__(uri_parts)
 
     def initialize(self):
-        try:
-            self._connection = psycopg2.connect(**self._connection_parameters)
-            self._connection.set_client_encoding('UTF8')
-            self._connection.autocommit = True
-        except psycopg2.Error as exc:
-            raise Error(
-                'Failed to connect to the Postgres server:',
-                exc,
-            )
-
         self.master_lock_id = int(self.options.get(
             'master_lock_id',
             '1234567890',
@@ -201,9 +191,22 @@ class PostgresAsyncTransport(AsyncTransport):
                 result = int(result[0])
             return result
 
+    def _get_connection(self):
+        try:
+            conn = psycopg2.connect(**self._connection_parameters)
+            conn.set_client_encoding('UTF8')
+            conn.autocommit = True
+        except psycopg2.Error as exc:
+            raise Error(
+                'Failed to connect to the Postgres server:',
+                exc,
+            )
+        else:
+            return conn
+
     @contextmanager
     def _lock(self, name):
-        cur = self._connection.cursor()
+        cur = self._get_connection().cursor()
         cur.execute(
             SQL_LOCK,
             (

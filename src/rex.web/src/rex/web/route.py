@@ -598,7 +598,9 @@ def make_sentry_script_tag(req):
         config += ".setTagsContext(%s)" % json.dumps(tags)
     if user_context:
         config += ".setUserContext(%s)" % json.dumps(user_context)
-    config += ".install()"
+    config += ".install();"
+    config += "window.onunhandledrejection=" \
+        "function(evt) {Raven.captureException(evt.reason);};"
     return """<script src="%s"></script><script>%s</script>""" \
             % (raven, config)
 

@@ -204,12 +204,20 @@ If a worker dies, the master process will restart it::
 
 Tasks can be scheduled to execute at particular times::
 
-    >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --scheduler --set=asynctask_workers='{\"foo\": null}' --set=asynctask_scheduled_workers='[{\"worker\": \"demo_bar_worker\", \"second\": \"*/5\"}]'")
+    >>> from datetime import datetime, timedelta
+    >>> def get_next_second(count=1):
+    ...     now = datetime.now()
+    ...     seconds = []
+    ...     for i in range(count):
+    ...         seconds.append((now + timedelta(seconds=(4 + (i * 2)))).second)
+    ...     return ','.join(map(str, seconds))
+
+    >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --scheduler --set=asynctask_workers='{\"foo\": null}' --set=asynctask_scheduled_workers='[{\"worker\": \"demo_bar_worker\", \"second\": \"%s\"}]'" % (get_next_second(2),))
     >>> time.sleep(10)  # give the task some time for the tasks to trigger
     >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching demo_bar_worker to work on queue scheduled_0_demo_bar_worker
     INFO:BarWorker:Starting; queue=scheduled_0_demo_bar_worker
-    INFO:AsyncTaskWorkerTask:Scheduled "demo_bar_worker" for {'second': '*/5'}
+    INFO:AsyncTaskWorkerTask:Scheduled "demo_bar_worker" for {'second': ...}
     DEBUG:AsyncTaskWorkerTask:Triggering scheduled execution of demo_bar_worker
     DEBUG:BarWorker:Got payload: {}
     BAR processed: {}
@@ -239,9 +247,7 @@ Tasks can be scheduled to execute at particular times::
 
 rex.ctl Tasks can be executed on a schedule::
 
-    >>> import datetime
-    >>> second = datetime.datetime.now().second
-    >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --scheduler --set=asynctask_workers='{\"foo\": null}' --set=asynctask_scheduled_workers='[{\"ctl\": \"demo-noisy-task\", \"second\": \"%s\"}, {\"ctl\": \"demo-quiet-task\", \"second\": \"%s\"}, {\"ctl\": \"demo-crashy-task\", \"second\": \"%s\"}]'" % (second + 4, second + 6, second + 8))
+    >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --scheduler --set=asynctask_workers='{\"foo\": null}' --set=asynctask_scheduled_workers='[{\"ctl\": \"demo-noisy-task\", \"second\": \"%s\"}, {\"ctl\": \"demo-quiet-task\", \"second\": \"%s\"}, {\"ctl\": \"demo-crashy-task\", \"second\": \"%s\"}]'" % tuple(get_next_second(3).split(',')))
     >>> time.sleep(12)  # give the task some time for the tasks to trigger
     >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching ctl_executor to work on queue scheduled_0_ctl_...

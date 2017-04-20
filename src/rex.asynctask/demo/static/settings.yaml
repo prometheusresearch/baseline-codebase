@@ -15,4 +15,5 @@ logging_root:
 #  file:
 #    class: logging.FileHandler
 #    filename: test.log
+#    formatter: detailed
 

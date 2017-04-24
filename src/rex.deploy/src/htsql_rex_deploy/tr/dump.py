@@ -15,8 +15,8 @@ from .signature import (
         FTHeadlineSig, FTQueryHeadlineSig, FTRankSig, FTQueryRankSig, JoinSig,
         AbsSig, SignSig, CeilSig, FloorSig, DivSig, ModSig, ExpSig, PowSig,
         LnSig, Log10Sig, LogSig, PiSig, ACosSig, ASinSig, ATanSig, ATan2Sig,
-        CosSig, CotSig, SinSig, TanSig, RandomSig, JSONGetSig, JSONGetJSONSig,
-        MedianSig)
+        CosSig, CotSig, SinSig, TanSig, RandomSig, ToJSONSig, JSONGetSig,
+        JSONGetJSONSig, MedianSig)
 
 
 class DeployDumpDateIncrement(PGSQLDumpDateIncrement):
@@ -43,6 +43,12 @@ class DumpJSON(DumpByDomain):
 
     def __call__(self):
         self.format("{value:literal}::JSON", value=self.domain.dump(self.value))
+
+
+class DumpConvertToJSON(DumpFunction):
+
+    adapt(ToJSONSig)
+    template = "TO_JSON({op})"
 
 
 class DumpJSONGet(DumpFunction):

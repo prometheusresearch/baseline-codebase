@@ -5,10 +5,11 @@
 .. contents:: Table of Contents
 
 
-2.9.2 (2017-XX-XX)
-==================
+2.10.0 (2017-XX-XX)
+===================
 
 * Fixed driver-catalog GC cycle.
+* Conversion from HTSQL records to JSON objects.
 
 
 2.9.1 (2017-02-15)

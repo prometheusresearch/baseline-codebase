@@ -137,6 +137,10 @@ class RandomSig(NullarySig):
     pass
 
 
+class ToJSONSig(UnarySig):
+    pass
+
+
 class JSONGetSig(BinarySig):
     pass
 

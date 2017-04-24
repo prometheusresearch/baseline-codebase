@@ -5,13 +5,15 @@
 
 from htsql.core.adapter import adapt, adapt_many
 from htsql.core.domain import (
-        BooleanDomain, IntegerDomain, DateDomain, TextDomain, UntypedDomain,
-        IdentityDomain)
-from htsql.core.tr.flow import IdentityFlow
+        BooleanDomain, NumberDomain, IntegerDomain, DateDomain, TextDomain,
+        UntypedDomain, IdentityDomain, RecordDomain)
+from htsql.core.tr.flow import IdentityFlow, SelectionFlow
 from htsql.core.tr.space import CastCode, LiteralCode, FormulaCode
 from htsql.core.tr.encode import Convert, ConvertUntyped, ConvertToText
+from htsql.core.tr.signature import IfNullSig
 from ..domain import JSONDomain
-from .signature import NullableConcatenateSig, EscapeIdentitySig
+from .signature import NullableConcatenateSig, EscapeIdentitySig, ToJSONSig
+import json
 
 
 class ConvertJSONAndText(ConvertToText):
@@ -27,6 +29,44 @@ class ConvertUntypedToJSON(ConvertUntyped):
     def __call__(self):
         flow = self.flow.clone(domain=TextDomain())
         code = Convert.__prepare__(flow, self.state)()
+        return CastCode(code, self.domain, self.flow)
+
+
+class ConvertRecordToJSON(Convert):
+
+    adapt(RecordDomain, JSONDomain)
+
+    def __call__(self):
+        if not isinstance(self.flow.base, SelectionFlow):
+            return super(ConvertRecordToJSON, self).__call__()
+        chunks = []
+        chunks.append(LiteralCode(u'{', TextDomain(), self.flow))
+        for idx, field in enumerate(self.flow.base.domain.fields):
+            if idx > 0:
+                chunks.append(LiteralCode(u',', TextDomain(), self.flow))
+            chunks.append(
+                    LiteralCode(
+                        unicode(json.dumps(field.tag or '')) + u':',
+                        TextDomain(), self.flow))
+            element = self.state.encode(self.flow.base.elements[idx])
+            if isinstance(element.domain, UntypedDomain):
+                element = element.clone(domain=TextDomain())
+            if not isinstance(
+                    element.domain, (BooleanDomain, NumberDomain, JSONDomain)):
+                element = CastCode(element, TextDomain(), element.flow)
+            element = FormulaCode(
+                    ToJSONSig(), JSONDomain(), element.flow, op=element)
+            element = FormulaCode(
+                    IfNullSig(), TextDomain(), element.flow,
+                    lop=element,
+                    rop=LiteralCode(u'null', TextDomain(), element.flow))
+            chunks.append(element)
+        chunks.append(LiteralCode(u'}', TextDomain(), self.flow))
+        code = chunks[0]
+        for chunk in chunks[1:]:
+            code = FormulaCode(
+                    NullableConcatenateSig(), TextDomain(), self.flow,
+                    lop=code, rop=chunk)
         return CastCode(code, self.domain, self.flow)
 
 

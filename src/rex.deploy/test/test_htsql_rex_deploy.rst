@@ -172,6 +172,39 @@ to the database::
      :           :   "value": 5       :
      :           : }                  :
 
+JSON values can also be constructed from HTSQL records::
+
+    >>> q = Query('''
+    ...     do(
+    ...         $sample_id := insert(
+    ...             sample:={
+    ...                 individual:=[1000.01],
+    ...                 code:='W',
+    ...                 other:=json({
+    ...                     type:='weight',
+    ...                     value:=17,
+    ...                     notes:=null,
+    ...                     unset:=true,
+    ...                     errors:=json({
+    ...                         min:=-0.2,
+    ...                         max:=0.03})})}),
+    ...         sample[$sample_id]{id(), other}) ''')
+    >>> print q.format('txt')                                           # doctest: +NORMALIZE_WHITESPACE
+     | Assessment                      |
+     +-----------+---------------------+
+     | id()      | Other               |
+    -+-----------+---------------------+-
+     | 1000.01.W | {                   |
+     :           :   "errors": {       :
+     :           :     "max": 0.03,    :
+     :           :     "min": -0.2     :
+     :           :   },                :
+     :           :   "notes": null,    :
+     :           :   "type": "weight", :
+     :           :   "unset": true,    :
+     :           :   "value": 17       :
+     :           : }                   :
+
 In JSON format, JSON data is serialized as a native JSON object::
 
     >>> q = Query(''' /sample{id(), other} ''')
@@ -190,6 +223,19 @@ In JSON format, JSON data is serialized as a native JSON object::
             "type": "speed",
             "value": 5
           }
+        },
+        {
+          "0": "1000.01.W",
+          "other": {
+            "errors": {
+              "max": 0.03,
+              "min": -0.2
+            },
+            "notes": null,
+            "type": "weight",
+            "unset": true,
+            "value": 17
+          }
         }
       ]
     }
@@ -203,6 +249,17 @@ untyped JSON literals::
       "0": {},
       "1": "{}",
       "2": {}
+    }
+
+HTSQL records are converted to JSON objects::
+
+    >>> q = Query(''' {json({ type := 'individual_num', value := count(individual) })} ''')
+    >>> print q.format('json')                                          # doctest: +NORMALIZE_WHITESPACE
+    {
+      "0": {
+        "type": "individual_num",
+        "value": 1
+      }
     }
 
 JSON objects can be passed to queries as parameters::

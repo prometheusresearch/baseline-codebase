@@ -13,7 +13,7 @@
 * rex.core==1.16.0
 * rex.ctl==2.3.0
 * rex.web==3.10.0
-* rex.deploy==2.9.2
+* rex.deploy==2.10.0
 * rex.forms==2.3.2
 * rex.instrument==1.8.0
 * rex.logging=1.1.0

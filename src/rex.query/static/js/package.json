@@ -57,6 +57,7 @@
     "@prometheusresearch/react-ui": "^0.24.4",
     "babel-eslint": "7.0.0",
     "base64-js": "^1.2.0",
+    "create-react-class": "^15.5.2",
     "debounce-promise": "^2.1.1",
     "debug": "^2.6.0",
     "downloadjs": "^1.4.6",

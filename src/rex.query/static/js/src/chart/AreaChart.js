@@ -8,6 +8,7 @@ import * as React from 'react';
 import * as recharts from 'recharts';
 import {VBox} from 'react-stylesheet';
 
+import ChartTitle from './ChartTitle';
 import * as model from './model';
 import {getPipelineContext} from '../model';
 import {getQuery} from './util';
@@ -21,10 +22,12 @@ type AreaChartProps = {
   onChart: (model.Chart) => *,
   data: any,
   query: QueryPipeline,
+  label: string,
+  onLabel: (string) => *,
 };
 
 export default function AreaChart(
-  {chart, onChart, data: rawData, query: pipeline}: AreaChartProps,
+  {label, onLabel, chart, onChart, data: rawData, query: pipeline}: AreaChartProps,
 ) {
   const {query, data} = getQuery(pipeline, rawData);
   if (query == null) {
@@ -38,7 +41,11 @@ export default function AreaChart(
         data={data}
         width={600}
         height={400}
-        margin={{top: 5, right: 30, left: 20, bottom: 5}}>
+        margin={{top: 50, right: 30, left: 20, bottom: 5}}
+        style={{fontWeight: 200, fontSize: '9pt'}}>
+        <g>
+          <ChartTitle left={300} value={label} onChange={onLabel} />
+        </g>
         <recharts.XAxis dataKey={chart.labelColumn} />
         <recharts.YAxis />
         <recharts.CartesianGrid strokeDasharray="3 3" />

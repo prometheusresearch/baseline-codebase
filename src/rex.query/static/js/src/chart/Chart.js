@@ -27,6 +27,8 @@ type ChartProps = {
   data: any,
 };
 
+const EXPORT_FONT = '11px -apple-system, "Helvetica Neue", "Lucida Grande"';
+
 function findChartElement(element: HTMLElement): ?HTMLElement {
   return element.querySelector('svg.recharts-surface');
 }
@@ -43,12 +45,20 @@ export default class Chart extends React.Component {
 
   render() {
     const {chartSpec, query, ...props} = this.props;
-    const {label, chart} = chartSpec;
+    const {label: originalLabel, chart} = chartSpec;
+    const label = originalLabel || model.getChartTitle(chart, query);
     let children;
     switch (chart.type) {
       case 'pie': {
         children = (
-          <PieChart {...props} query={query} chart={chart} onChart={this.onUpdateChart} />
+          <PieChart
+            {...props}
+            label={label}
+            onLabel={this.onUpdateLabel}
+            query={query}
+            chart={chart}
+            onChart={this.onUpdateChart}
+          />
         );
         break;
       }
@@ -56,6 +66,8 @@ export default class Chart extends React.Component {
         children = (
           <LineChart
             {...props}
+            label={label}
+            onLabel={this.onUpdateLabel}
             query={query}
             chart={chart}
             onChart={this.onUpdateChart}
@@ -67,6 +79,8 @@ export default class Chart extends React.Component {
         children = (
           <AreaChart
             {...props}
+            label={label}
+            onLabel={this.onUpdateLabel}
             query={query}
             chart={chart}
             onChart={this.onUpdateChart}
@@ -76,7 +90,14 @@ export default class Chart extends React.Component {
       }
       case 'bar': {
         children = (
-          <BarChart {...props} query={query} chart={chart} onChart={this.onUpdateChart} />
+          <BarChart
+            {...props}
+            label={label}
+            onLabel={this.onUpdateLabel}
+            query={query}
+            chart={chart}
+            onChart={this.onUpdateChart}
+          />
         );
         break;
       }
@@ -84,6 +105,8 @@ export default class Chart extends React.Component {
         children = (
           <ScatterChart
             {...props}
+            label={label}
+            onLabel={this.onUpdateLabel}
             query={query}
             chart={chart}
             onChart={this.onUpdateChart}
@@ -97,22 +120,16 @@ export default class Chart extends React.Component {
     return (
       <VBox height={0} overflow="auto" flexGrow={1}>
         <HBox padding={10} justifyContent="space-between">
-          <EditableHeader
-            value={label || model.getChartTitle(chart, query)}
-            onChange={this.onUpdateLabel}
-          />
+          <ReactUI.QuietButton
+            size="small"
+            icon={<ui.Icon.IconDownload />}
+            onClick={this.onExportChart}>
+            Export as image
+          </ReactUI.QuietButton>
           <ReactUI.QuietButton
             onClick={this.onRemoveChart}
             icon={<ui.Icon.IconRemove />}
           />
-        </HBox>
-        <HBox padding={{horizontal: 15, vertical: 10}} justifyContent="flex-end">
-          <ReactUI.Button
-            size="small"
-            icon={<ui.Icon.IconDownload />}
-            onClick={this.onExportChart}>
-            Export
-          </ReactUI.Button>
         </HBox>
         <VBox flexGrow={1} ref={chart => this._chart = chart}>
           {children}
@@ -126,7 +143,7 @@ export default class Chart extends React.Component {
       const element = findDOMNode(this._chart);
       const svgElement = findChartElement(element);
       if (svgElement != null) {
-        SVG.rasterizeElement(svgElement).then(data => {
+        SVG.rasterizeElement(svgElement, {font: EXPORT_FONT}).then(data => {
           if (data != null) {
             Fetch.initiateDownloadFromBlob(data, 'chart.png', 'image/png');
           }
@@ -146,95 +163,4 @@ export default class Chart extends React.Component {
   onUpdateChart = (chart: model.Chart) => {
     this.context.actions.updateChart({chartId: this.props.chartSpec.id, chart});
   };
-}
-
-class EditableHeader extends React.Component {
-  static defaultProps = {
-    onChange: _value => {},
-  };
-
-  _input: HTMLElement;
-
-  props: {value: string, onChange: (string) => *};
-
-  state: {value: ?string} = {value: null};
-
-  onEditStart = () => {
-    this.setState({value: this.props.value});
-  };
-
-  onEditCommit = () => {
-    const {value} = this.state;
-    this.setState({value: null});
-    this.props.onChange(value || this.props.value);
-  };
-
-  onEditCancel = () => {
-    this.setState({value: null});
-  };
-
-  onChange = (e: KeyboardEvent) => {
-    const value: string = (e.target: any).value;
-    this.setState({value});
-  };
-
-  onKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      this.onEditCommit();
-    } else if (e.key === 'Escape') {
-      this.onEditCancel();
-    }
-  };
-
-  onInput = input => {
-    if (this._input == null) {
-      const wrapperNode = findDOMNode(input);
-      const node = wrapperNode.querySelector('input');
-      if (node != null) {
-        node.focus();
-      }
-    }
-    this._input = input;
-  };
-
-  render() {
-    const {value} = this.props;
-    const edit = this.state.value != null;
-    return (
-      <VBox>
-        {edit
-          ? <HBox
-              ref={this.onInput}
-              paddingLeft={20}
-              paddingRight={20}
-              paddingTop={20}
-              paddingBottom={10}>
-              <ReactUI.Input
-                style={{marginRight: 5}}
-                value={this.state.value}
-                onChange={this.onChange}
-                onKeyDown={this.onKeyDown}
-              />
-              <ReactUI.QuietButton
-                onClick={this.onEditCommit}
-                size="small"
-                icon={<ui.Icon.IconCheck />}
-              />
-              <ReactUI.QuietButton
-                onClick={this.onEditCancel}
-                size="small"
-                icon={<ui.Icon.IconClose />}
-              />
-            </HBox>
-          : <HBox alignItems="baseline">
-              <ReactUI.QuietButton
-                onClick={this.onEditStart}
-                size="small"
-                icon={<ui.Icon.IconPencil />}
-              />
-              <ui.Header paddingLeft={0}>{value}</ui.Header>
-            </HBox>}
-      </VBox>
-    );
-  }
 }

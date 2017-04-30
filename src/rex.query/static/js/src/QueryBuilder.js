@@ -23,6 +23,7 @@ type QueryBuilderProps = {
   domain: Domain,
   api: string,
   initialQuery: ?QueryPipeline,
+  initialChartList?: Array<State.ChartSpec>,
   limitSelectQuery: number,
   onQuery: (query?: ?Query) => *,
   onState?: (payload: {query: ?Query, chartList: Array<ChartSpec>}) => *,
@@ -50,10 +51,16 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
   constructor(props: QueryBuilderProps) {
     super(props);
 
-    let {domain, initialQuery, api, limitSelectQuery} = props;
+    let {domain, initialQuery, initialChartList, api, limitSelectQuery} = props;
 
     this.container = State.createContainer(
-      {domain, api, initialQuery, translateOptions: {limitSelect: limitSelectQuery}},
+      {
+        domain,
+        api,
+        initialQuery,
+        initialChartList,
+        translateOptions: {limitSelect: limitSelectQuery},
+      },
       (state, onStateUpdated) => {
         this.setState(state, () => {
           invariant(this.state != null, 'State is not ready');
@@ -73,10 +80,7 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
   }
 
   render() {
-    let {
-      domain,
-      toolbar,
-    } = this.props;
+    let {domain, toolbar} = this.props;
     let {
       query,
       selected,

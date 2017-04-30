@@ -131,17 +131,17 @@ export type Params = {
   api: string,
   domain: Domain,
   initialQuery?: ?QueryPipeline,
+  initialChartList?: Array<ChartSpec>,
   translateOptions: TranslateOptions,
 };
 
-export function getInitialState(
-  {
-    api,
-    domain,
-    initialQuery,
-    translateOptions,
-  }: Params,
-): State {
+export function getInitialState({
+  api,
+  domain,
+  initialQuery,
+  initialChartList = [],
+  translateOptions,
+}: Params): State {
   let query = initialQuery || q.pipeline(q.here);
   query = q.inferType(domain, query);
   query = QueryOperation.reconcileNavigation(query);
@@ -163,7 +163,7 @@ export function getInitialState(
     showPanel: true,
     undoStack: [],
     redoStack: [],
-    chartList: [],
+    chartList: initialChartList,
     focusedSeq,
     translateOptions,
   };

@@ -9,6 +9,7 @@ import * as recharts from 'recharts';
 import {VBox} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
+import ChartTitle from './ChartTitle';
 import * as model from './model';
 import {getPipelineContext} from '../model';
 import {getQuery} from './util';
@@ -23,10 +24,12 @@ type BarChartProps = {
   onChart: (model.Chart) => *,
   data: any,
   query: QueryPipeline,
+  label: string,
+  onLabel: (string) => *,
 };
 
 export default function BarChart(
-  {chart, onChart, data: rawData, query: pipeline}: BarChartProps,
+  {label, onLabel, chart, onChart, data: rawData, query: pipeline}: BarChartProps,
 ) {
   const {query, data} = getQuery(pipeline, rawData);
   if (query == null) {
@@ -35,7 +38,16 @@ export default function BarChart(
   let rendered = null;
   if (chart.labelColumn && chart.barList.length > 0) {
     rendered = (
-      <recharts.BarChart key={getBarChartKey(chart)} data={data} width={600} height={400}>
+      <recharts.BarChart
+        key={getBarChartKey(chart)}
+        data={data}
+        width={600}
+        height={400}
+        style={{fontWeight: 200, fontSize: '9pt'}}
+        margin={{top: 50}}>
+        <g>
+          <ChartTitle left={300} value={label} onChange={onLabel} />
+        </g>
         <recharts.XAxis dataKey={chart.labelColumn} />
         <recharts.YAxis />
         <recharts.CartesianGrid strokeDasharray="3 3" />

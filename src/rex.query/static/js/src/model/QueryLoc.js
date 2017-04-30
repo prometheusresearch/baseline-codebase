@@ -105,7 +105,7 @@ function traverseQuery(query: Query, path?: QueryPath = []): Array<ResolvedQuery
     );
   }
   if (query.name !== 'pipeline') {
-    result.push([query, path]);
+    result.push(([query, path]: ResolvedQueryLoc<>));
   }
   return result;
 }

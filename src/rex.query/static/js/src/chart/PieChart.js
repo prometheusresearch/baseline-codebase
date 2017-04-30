@@ -10,6 +10,7 @@ import {VBox} from 'react-stylesheet';
 
 import * as model from './model';
 import {getPipelineContext} from '../model';
+import ChartTitle from './ChartTitle';
 import {getQuery} from './util';
 import SelectAttribute from './SelectAttribute';
 import SelectAttributeWithColor from './SelectAttributeWithColor';
@@ -24,6 +25,7 @@ const PieChartLabel = ({cx, cy, midAngle, outerRadius, percent, name}) => {
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
   return (
     <text
+      style={{fontWeight: 200, fontSize: '9pt'}}
       x={x}
       y={y}
       fill="#222222"
@@ -37,12 +39,14 @@ const PieChartLabel = ({cx, cy, midAngle, outerRadius, percent, name}) => {
 type PieChartProps = {
   chart: model.PieChart,
   onChart: (model.Chart) => *,
+  label: string,
+  onLabel: (string) => *,
   data: any,
   query: QueryPipeline,
 };
 
 export default function PieChart(
-  {chart, onChart, data: rawData, query: pipeline}: PieChartProps,
+  {label, onLabel, chart, onChart, data: rawData, query: pipeline}: PieChartProps,
 ) {
   let {query, data} = getQuery(pipeline, rawData);
   if (query == null) {
@@ -50,8 +54,13 @@ export default function PieChart(
   }
   let rendered = null;
   if (chart.labelColumn && chart.valueColumn) {
+    const width = 600;
+    const height = 400;
     rendered = (
-      <recharts.PieChart width={600} height={400}>
+      <recharts.PieChart width={width} height={height}>
+        <g>
+          <ChartTitle left="300" value={label} onChange={onLabel} />
+        </g>
         <recharts.Pie
           data={data}
           nameKey={chart.labelColumn}

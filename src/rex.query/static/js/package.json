@@ -68,6 +68,7 @@
     "invariant": "^2.2.1",
     "lodash": "^4.15.0",
     "moment": "^2.15.2",
+    "prop-types": "^15.5.8",
     "qs": "^6.2.1",
     "react-addons-shallow-compare": "^0.14.0",
     "react-addons-transition-group": "^0.14.0",

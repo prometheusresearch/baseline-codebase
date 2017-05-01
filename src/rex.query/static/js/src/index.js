@@ -61,13 +61,26 @@ function Toolbar() {
 
 let query = params.rememberQuery ? readQueryFromLocation() : null;
 
-ReactDOM.render(
-  <QueryBuilderApp
-    api={params.api}
-    initialQuery={query}
-    onQuery={onQuery}
-    onSearch={debounce(doSearch, 700)}
-    toolbar={<Toolbar />}
-  />,
-  document.getElementById('root'),
-);
+function render(element, props = {}) {
+  ReactDOM.render(
+    <QueryBuilderApp
+      api={params.api}
+      initialQuery={query}
+      onQuery={onQuery}
+      onSearch={debounce(doSearch, 700)}
+      toolbar={<Toolbar />}
+      {...props}
+    />,
+    element
+  );
+}
+
+// Render if root is available
+
+const root = document.getElementById('rex-query-root');
+
+if (root != null) {
+  render(root);
+}
+
+

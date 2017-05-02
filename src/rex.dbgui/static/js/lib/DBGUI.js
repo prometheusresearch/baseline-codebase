@@ -24,7 +24,6 @@ export default class DBGUI extends React.Component {
   componentWillMount() {
     if (window.location.hash) {
       let {table, remainder} = fromHash();
-      console.log(table, remainder);
       if (table !== null) {
         this.setTable(table, remainder);
       }

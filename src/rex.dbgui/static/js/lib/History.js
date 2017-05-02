@@ -9,7 +9,6 @@ export function fromHash() {
   let table = null;
   let remainder = null;
   let re = /^dbgui\.context\[table=(.+?)\]/;
-  console.log(path, path.match(re));
   let match = path.match(re);
   if (match) {
     table = match[1];

@@ -107,7 +107,7 @@ class FormRow(FormLayoutItem):
     """ Form row.
     """
 
-    js_type = 'rex-widget/lib/form/FormRow'
+    js_type = ('rex-widget', 'FormRow')
 
 
 class FormRowVal(FormLayoutItemVal):
@@ -124,7 +124,7 @@ class FormColumn(FormLayoutItem):
     """ Form column.
     """
 
-    js_type = 'rex-widget/lib/form/FormColumn'
+    js_type = ('rex-widget', 'FormColumn')
 
 
 class FormColumnVal(FormLayoutItemVal):
@@ -931,7 +931,7 @@ class EntityListFormField(FormField):
 
 class CheckboxGroup(Widget, PortSupport):
 
-    js_type = 'rex-widget/lib/form/CheckboxGroupField'
+    js_type = ('rex-widget', 'CheckboxGroupField')
 
     _data = Field(AnyVal(), transitionable=False)
     plain = Field(BoolVal(), default=undefined)
@@ -974,7 +974,7 @@ class EntityFormField(FormField):
 
 class AutocompleteField(Widget, PortSupport):
 
-    js_type = 'rex-widget/lib/form/AutocompleteField'
+    js_type = ('rex-widget', 'AutocompleteField')
 
     _data = Field(AnyVal(), transitionable=False)
 
@@ -1012,7 +1012,7 @@ class AutocompleteField(Widget, PortSupport):
 
 class RadioGroupField(Widget, PortSupport):
 
-    js_type = 'rex-widget/lib/form/RadioGroupField'
+    js_type = ('rex-widget', 'RadioGroupField')
 
     _data = Field(AnyVal(), transitionable=False)
 

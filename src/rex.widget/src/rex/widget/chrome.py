@@ -25,7 +25,7 @@ def get_chrome():
 class Chrome(Widget):
     """ Base chrome class."""
 
-    js_type = 'rex-widget/lib/Chrome'
+    js_type = ('rex-widget', 'Chrome')
 
     content = Field(
         WidgetVal(single=True),

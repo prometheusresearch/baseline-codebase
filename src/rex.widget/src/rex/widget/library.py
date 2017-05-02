@@ -22,18 +22,6 @@ from .rst import RSTVal
 __all__ = ('DataGrid',)
 
 
-class Text(Widget):
-
-    name = 'Text'
-    js_type = 'rex-widget/lib/library/Text'
-
-    text = Field(
-        RSTVal(),
-        doc="""
-        Text in ReStructuredText format.
-        """)
-
-
 class Link(Widget):
     """
     ``<Link>`` widget is used to generate links between application pages and
@@ -50,25 +38,9 @@ class Link(Widget):
     """
 
     name = 'Link'
-    js_type = 'rex-widget/lib/library/Link'
+    js_type = 'rex-widget', 'Link'
 
     href = Field(URLVal())
-    text = Field(StrVal())
-    params = Field(MapVal(StrVal(), ParamVal()), default={})
-
-
-class LinkButton(Widget):
-
-    name = 'LinkButton'
-    js_type = 'rex-widget/lib/library/LinkButton'
-
-    href = Field(URLVal())
-    icon = Field(StrVal(), default='link')
-    quiet = Field(MaybeUndefinedVal(BoolVal()), default=undefined)
-    success = Field(MaybeUndefinedVal(BoolVal()), default=undefined)
-    danger = Field(MaybeUndefinedVal(BoolVal()), default=undefined)
-    size = Field(MaybeUndefinedVal(StrVal()), default=undefined)
-    align = Field(MaybeUndefinedVal(StrVal()), default=undefined)
     text = Field(StrVal())
     params = Field(MapVal(StrVal(), ParamVal()), default={})
 
@@ -77,7 +49,7 @@ class Form(Widget):
     """ Form widget."""
 
     name = 'Form'
-    js_type = 'rex-widget/lib/form/ConfigurableEntityForm'
+    js_type = 'rex-widget', 'ConfigurableEntityForm'
 
     entity = Field(
         StrVal(),
@@ -107,23 +79,23 @@ class Form(Widget):
 class TextareaField(Widget):
 
     name = 'TextareaField'
-    js_type = 'rex-widget/lib/form/TextareaField'
+    js_type = 'rex-widget', 'TextareaField'
 
 
 class SourceCodeField(Widget):
     name = 'SourceCodeField'
-    js_type = 'rex-widget/lib/form/SourceCodeField'
+    js_type = 'rex-widget', 'SourceCodeField'
 
 
 class JsonSourceCodeField(Widget):
     name = 'JsonSourceCodeField'
-    js_type = 'rex-widget/lib/form/JsonSourceCodeField'
+    js_type = 'rex-widget', 'JsonSourceCodeField'
 
 
 class DatetimeField(Widget):
 
     name = 'DatetimeField'
-    js_type = 'rex-widget/lib/form/DatetimeField'
+    js_type = 'rex-widget', 'DatetimeField'
 
     format = Field(
         StrVal(), default='YYYY-MM-DD HH:MM:SS',
@@ -136,7 +108,7 @@ class DatetimeField(Widget):
 class DateField(Widget):
 
     name = 'DateField'
-    js_type = 'rex-widget/lib/form/DateField'
+    js_type = 'rex-widget', 'DateField'
 
     format = Field(
         StrVal(), default='YYYY-MM-DD',
@@ -161,7 +133,7 @@ class DateField(Widget):
 class IFrame(Widget):
 
     name = 'IFrame'
-    js_type = 'rex-widget/lib/library/IFrame'
+    js_type = 'rex-widget', 'IFrame'
 
     transfer_request_params = Field(BoolVal(), default=False)
     src = Field(URLVal())

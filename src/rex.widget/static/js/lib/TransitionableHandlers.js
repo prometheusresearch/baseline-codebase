@@ -15,9 +15,13 @@ Transitionable.register('undefined', function decode_widget() { // eslint-disabl
 
 /* istanbul ignore next */
 Transitionable.register('widget', function decode_widget(payload) { // eslint-disable-line camelcase
-  let module = __require__(payload[0]);
-  let type = module.default ? module.default : module;
-  return React.createElement(type, payload[1]);
+  const [pkgName, symbolName, props] = payload;
+  const pkg = __require__(pkgName);
+  if (pkg[symbolName] === undefined) {
+    throw new Error(`Package "${pkgName}" doesn't have "${symbolName}" but application was configured to look for it.`);
+  }
+  const type = pkg[symbolName];
+  return React.createElement(type, props);
 });
 
 /* istanbul ignore next */

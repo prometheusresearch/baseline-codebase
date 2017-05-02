@@ -2,9 +2,7 @@
 # Copyright (c) 2014, Prometheus Research, LLC
 #
 
-
 from setuptools import setup, find_packages
-
 
 setup(
     name='rex.widget',
@@ -22,7 +20,7 @@ setup(
         'docutils-react-docgen  >= 1.1.0, < 2.0.0',
         'docutils-shell         >= 0.0.2, < 1.0',
         'rex.expression         >= 1.3,   < 2',
-        'rex.setup              >= 3.1,   < 4',
+        'rex.setup              >= 4,     < 5',
         'rex.core               >= 1.6,   < 2',
         'rex.port               >= 1.1,   < 2',
         'rex.web                >= 3.9,   < 4',
@@ -37,7 +35,4 @@ setup(
         'werkzeug               >= 0.10.4, < 0.11',
     ],
     rex_init='rex.widget',
-    rex_static='static',
-)
-
-
+    rex_static='static', )

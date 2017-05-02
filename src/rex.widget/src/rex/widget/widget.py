@@ -19,6 +19,28 @@ from .util import PropsContainer
 
 __all__ = ('Widget', 'GroupWidget', 'NullWidget', 'RawWidget')
 
+JS_IS_STRING_ERROR_MESSAGE = """
+Expected "js_type" class atribute to be a tuple of ('<pkg name>', '<symbol>')
+
+Previously "js_type" was used to specify a JS module which exports a React
+component for a widget. Now it is changed to specify a pair of JS package and a
+name of the symbol exported from package's entry point which points to a React
+component.
+
+If previously "js_type" was:
+
+    js_type = "my-app/lib/Component"
+
+Now it should be:
+
+    js_type = ("my-app", "Component")
+
+While "my-app" JS package entry point (usually "static/js/lib/index.js") should
+contain:
+
+    export Component from "./Component.js"
+
+""".strip()
 
 class WidgetMeta(Extension.__metaclass__): # pylint: disable=no-init
 
@@ -29,6 +51,13 @@ class WidgetMeta(Extension.__metaclass__): # pylint: disable=no-init
         fields.sort(key=lambda (_, field): -field.order)
         members.update(fields)
         cls = Extension.__metaclass__.__new__(mcs, name, bases, members)
+        # js_type validation
+        if hasattr(cls, 'js_type') and cls.js_type is not None:
+            if isinstance(cls.js_type, basestring):
+                raise Error(
+                    'Error while defining %s.%s widget:' % (
+                        cls.__module__, cls.__name__),
+                    JS_IS_STRING_ERROR_MESSAGE)
         cls._fields = OrderedDict()
         if not (name == 'Widget' and members['__module__'] == __name__):
             cls._fields.update([f for base in bases
@@ -208,7 +237,8 @@ def _format_Widget(widget, req, path): # pylint: disable=invalid-name
             values[name] = field(widget)
         elif name in values:
             del values[name]
-    return widget.js_type, PropsContainer(values)
+    pkg_name, symbol_name = widget.js_type
+    return pkg_name, symbol_name, PropsContainer(values)
 
 
 class WidgetComposition(Widget):

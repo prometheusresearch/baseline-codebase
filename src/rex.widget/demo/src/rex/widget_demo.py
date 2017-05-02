@@ -35,7 +35,7 @@ class RexWidgetDemoSetting(Setting):
 
 
 class Chrome(ChromeBase):
-    js_type = 'rex-widget-demo/lib/Chrome'
+    js_type = 'rex-widget-demo', 'Chrome'
 
     @computed_field
     def menu(self, req):
@@ -44,19 +44,19 @@ class Chrome(ChromeBase):
 
 class DemoPageHome(Widget):
     name = 'DemoPageHome'
-    js_type = 'rex-widget-demo/lib/page/Home'
+    js_type = 'rex-widget-demo', 'Home'
 
 
 class DemoPageLayout(Widget):
     name = 'DemoPageLayout'
-    js_type = 'rex-widget-demo/lib/page/Layout'
+    js_type = 'rex-widget-demo', 'Layout'
 
 
 class DemoPageUI(Widget):
     name = 'DemoPageUI'
-    js_type = 'rex-widget-demo/lib/page/UI'
+    js_type = 'rex-widget-demo', 'UI'
 
 
 class DemoPageForms(Widget):
     name = 'DemoPageForms'
-    js_type = 'rex-widget-demo/lib/page/Forms'
+    js_type = 'rex-widget-demo', 'Forms'

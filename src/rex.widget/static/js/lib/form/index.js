@@ -21,7 +21,7 @@ export ReadOnlyField from './ReadOnlyField';
 export RepeatingFieldset from './RepeatingFieldset';
 export SelectField from './SelectField';
 export TextareaField from './TextareaField';
-export {Value, WithFormValue, ErrorList} from 'react-forms';
+export {Value, WithFormValue, withFormValue, ErrorList} from 'react-forms';
 
 export File from './File';
 export StoredFile from './StoredFile';

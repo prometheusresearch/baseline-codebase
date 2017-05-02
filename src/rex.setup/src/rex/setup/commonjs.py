@@ -345,7 +345,6 @@ def bootstrap():
         deps = [
             "webpack@1.12.x",
             "chalk@1.1.x",
-            "styling@^0.4.0",
             "babel-core@^6.9.1",
             "babel-loader@^6.2.5",
             "babel-preset-prometheusresearch@^0.1.0",

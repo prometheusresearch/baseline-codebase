@@ -1,12 +1,12 @@
 {
-    "name": "rex-setup-demo",
-    "version": "3.4.2",
-    "main": "./lib/index",
-    "rex": {
-      "style": "./lib/index.less"
-    },
-    "peerDependencies": {
-      "jquery": "*",
-      "bootstrap": "*"
-    }
+  "name": "rex-setup-demo",
+  "version": "4.0.0",
+  "main": "./lib/index",
+  "rex": {
+    "style": "./lib/index.less"
+  },
+  "peerDependencies": {
+    "jquery": "*",
+    "bootstrap": "*"
+  }
 }

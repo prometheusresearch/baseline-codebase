@@ -4,7 +4,17 @@
 
 .. contents:: Table of Contents
 
-3.4.2 (2016-XX-XX)
+4.0.0 (2017-XX-XX)
+==================
+
+* [BREAKING] JS: Make introspection plugin only register packages entry points. That
+  means an arbitrary module cannot be queries by its module name at runtime.
+  This makes bundle slimmer and build process faster.
+
+* [FEATURE] JS: Use more robust devtool for Webpack. Source maps and debugger
+  now again work in newest Chrome browser.
+
+3.4.2 (2017-03-27)
 ==================
 
 * Fix fsevents failure on macOS.

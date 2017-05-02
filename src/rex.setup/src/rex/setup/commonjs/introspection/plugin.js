@@ -5,14 +5,6 @@ function IntrospectablePlugin(options) {
   this.requireName = options.requireName || '__require__';
 }
 
-var POSSIBLE_ERRORS = [
-  '',
-  '',
-  'Things to look into:',
-  '  - Check that the module exists',
-  '  - Check that the package or the package the module'
-].join('\n');
-
 IntrospectablePlugin.prototype.apply = function(compiler) {
   // Mapping CommonJS module reference to module id
   var registry = {};
@@ -40,11 +32,7 @@ IntrospectablePlugin.prototype.apply = function(compiler) {
           '    var module = __introspectable_modules__[id];',
           '    if (module === undefined) {',
           '      throw new Error([',
-          '        "Cannot find module " + id + " in the application bundle.",',
-          '        "",',
-          '        "Things to look into:",',
-          '        "  - Check that the module exists",',
-          '        "  - Check that the package this module belongs to has \\"rex\\": {\\"bundleAll\\": true} in its package.json metadata",',
+          '        "Cannot find package " + id + " in the application bundle.",',
           '      ].join("\\n"));',
           '    }',
           '    return __webpack_require__(module);',

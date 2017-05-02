@@ -1,6 +1,6 @@
-
 from setuptools import setup, find_packages
 from distutils.core import Command
+
 
 class demo(Command):
 
@@ -19,10 +19,11 @@ class demo(Command):
         print "rex_init.txt:", dist.get_metadata('rex_init.txt')
         print "rex_static.txt:", dist.get_metadata('rex_static.txt')
 
+
 setup(
     name='rex.setup_demo',
     description="This package demonstrates capabilities of rex.setup",
-    version='3.4.2',
+    version='4.0.0',
     maintainer="Prometheus Research, LLC",
     maintainer_email="contact@prometheusresearch.com",
     url="http://bitbucket.org/prometheus/rex.setup",
@@ -51,6 +52,4 @@ setup(
             'doc:html',
             'doc:latex',
         ],
-    },
-)
-
+    }, )

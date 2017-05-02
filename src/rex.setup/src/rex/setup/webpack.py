@@ -50,7 +50,7 @@ def webpack_watch(module, target):
     cwd = commonjs.package_filename(module)
     return commonjs.node([
         commonjs.find_executable('webpack'),
-        '--devtool', 'cheap-module-eval-source-map',
+        '--devtool', 'cheap-module-source-map',
         '--display-origins',
         '--display-reasons',
         '--output-path', target,

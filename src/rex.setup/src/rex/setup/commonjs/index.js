@@ -1,15 +1,12 @@
 'use strict';
 
 var fs                   = require('fs');
-var styling              = require('styling');
 var path                 = require('path');
 var webpack              = require('webpack');
 var ExtractTextPlugin    = require('extract-text-webpack-plugin');
 var IntrospectablePlugin = require('rex-setup/introspection/plugin');
 var PackageLoadersPlugin = require('webpack-package-loaders-plugin');
 var RenderTerminal       = require('./RenderTerminal');
-
-var introspectionLoader  = require.resolve('./introspection/loader');
 
 var DEV           = !!process.env.REX_SETUP_DEV;
 var BUNDLE_PREFIX = process.env.REX_SETUP_BUNDLE_PREFIX || '/bundle/';
@@ -18,7 +15,7 @@ var cwd = process.cwd();
 var packageDirectory = path.join(cwd, 'node_modules');
 
 /**
- * Read package metdata or return null if no found.
+ * Read package metadata or return null if no found.
  */
 function getPackageMetadata(directory) {
   var packageMetadataFilename = path.join(directory, 'package.json');
@@ -90,17 +87,11 @@ function configureWebpack(config) {
 
   // add entry for each introspectable package in dependency chain
   deps.forEach(function(pkg) {
-    if (pkg.rex && pkg.rex.bundleAll) {
-      addEntry(config, 'rex-setup/introspection/loader?all!' + pkg.name);
-    }
+    addIntrospectablePackageEntry(config, pkg);
   });
 
-  // add package entry point
-  if (pkg.rex && pkg.rex.bundleAll) {
-    addEntry(config, 'rex-setup/introspection/loader?all!./');
-  } else {
-    addEntry(config, './');
-  }
+  // add own package
+  addIntrospectablePackageEntry(config, pkg, './');
 
   addEntry(config, require.resolve('core-js/modules/es6.array.find'));
   addEntry(config, require.resolve('core-js/modules/es6.array.find-index'));
@@ -317,6 +308,14 @@ function addEntry(config, entry) {
   if (!hasEntry(config, entry)) {
     unshift(config, 'entry', entry);
   }
+}
+
+function addIntrospectablePackageEntry(config, pkg, entry) {
+  if (entry == null) {
+    entry = pkg.name;
+  }
+  var params = {name: pkg.name};
+  addEntry(config, 'rex-setup/introspection/loader?' + JSON.stringify(params) + '!' + entry);
 }
 
 function hasEntry(config, entry) {

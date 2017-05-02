@@ -2,13 +2,11 @@
 # Copyright (c) 2012-2014, Prometheus Research, LLC
 #
 
-
 from setuptools import setup, find_packages
-
 
 setup(
     name='rex.setup',
-    version='3.4.2',
+    version='4.0.0',
     description="Distutils extension for the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -51,7 +49,4 @@ setup(
         'sphinxcontrib-nwdiag >=0.9, <0.10',
         'sphinxcontrib-actdiag >=0.8, <0.9',
         'Sphinx >=1.2, !=1.3.0',
-    ],
-)
-
-
+    ], )

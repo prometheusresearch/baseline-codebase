@@ -2,13 +2,11 @@
 # Copyright (c) 2015, Prometheus Research, LLC
 #
 
-
 from setuptools import setup, find_packages
-
 
 setup(
     name='rex.form_previewer',
-    version='0.10.2',
+    version='0.10.3',
     description='RexAcquire Form Previewer Applet',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',
@@ -23,7 +21,7 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     install_requires=[
-        'rex.setup>=3.0,<4',
+        'rex.setup>=3.0,<5',
         'rex.core>=1.9,<2',
         'rex.web>=2,<4',
         'rex.i18n>=0.5,<0.6',
@@ -36,6 +34,4 @@ setup(
         './www/bundle': [
             'webpack:rex-form-previewer',
         ],
-    },
-)
-
+    }, )

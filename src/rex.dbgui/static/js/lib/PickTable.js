@@ -5,7 +5,6 @@ import {DataSet} from 'rex-widget/data';
 import autobind from 'autobind-decorator';
 import {DataTableBase} from 'rex-widget/datatable';
 import {SearchInput} from 'rex-widget/form';
-import Title from 'rex-action/lib/actions/Title';
 
 export default class PickTable extends React.Component {
 
@@ -54,13 +53,10 @@ export default class PickTable extends React.Component {
 
   static renderTitle(props, context) {
     let {title} = props;
-    let {Primary} = Title.stylesheet;
     return (
       <VBox>
-        <Primary>
-          {title}
-          {context.table && <small>{context.table}</small>}
-        </Primary>
+        {title}
+        {context.table && <small>{context.table}</small>}
       </VBox>
     );
   }

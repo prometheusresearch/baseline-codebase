@@ -13,6 +13,6 @@ class DbguiEntityField(formfield.EntityFormField):
 
 class DbguiEntityLink(formfield.AutocompleteField):
 
-    js_type = 'rex-dbgui/lib/DbguiEntityField'
+    js_type = 'rex-dbgui', 'DbguiEntityField'
 
     table = Field(StrVal())

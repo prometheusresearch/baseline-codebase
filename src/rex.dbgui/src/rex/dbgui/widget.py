@@ -6,7 +6,7 @@ from .wizard import table_wizard, root_wizard
 class DBGUI(Widget):
 
     name = 'DBGUI'
-    js_type = 'rex-dbgui/lib/DBGUI'
+    js_type = 'rex-dbgui', 'DBGUI'
 
     @computed_field
     def root_wizard(self, req):

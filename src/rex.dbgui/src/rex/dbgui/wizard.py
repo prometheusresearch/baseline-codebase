@@ -245,10 +245,14 @@ class TableActionProxy(ActionProxy):
         return fields, value or None
 
     def replace(self):
+        table = self.entity.keys()[0]
         view = 'view' + self.id[len(self.type):]
         pick = 'pick' + self.id[len(self.type):]
-        return ('../../../'  + pick + '/' + view) if not self._is_facet \
-               else '../../' + view
+        add_to_context = lambda name: '%s=$%s' % (name, name)
+        if not self._is_facet:
+            return '../../../' + pick + '?' + add_to_context(table) + '/' + view
+        else:
+            return '../../' + view + '?' + add_to_context(table)
 
 
 class Pick(TableActionProxy):

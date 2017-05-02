@@ -5,10 +5,11 @@ export function toActionName(actionType, table) {
 }
 
 export function fromHash() {
-  let path = window.location.hash.substr(1);
+  let path = decodeURIComponent(window.location.hash.substr(1));
   let table = null;
   let remainder = null;
-  let re = /^\/dbgui\.context\[table=(.+?)\]/;
+  let re = /^dbgui\.context\[table=(.+?)\]/;
+  console.log(path, path.match(re));
   let match = path.match(re);
   if (match) {
     table = match[1];
@@ -38,7 +39,7 @@ export function fromHash() {
 }
 
 export function toHash(table, remainder) {
-  return table === null ? '' : `/dbgui.context[table=${table}]${remainder || ''}`;
+  return table === null ? '' : `dbgui.context[table=${table}]${remainder || ''}`;
 }
 
 export function recordLink(table, id) {

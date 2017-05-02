@@ -12,7 +12,7 @@ class PickTable(Action):
     """
 
     name = 'dbgui'
-    js_type = 'rex-dbgui/lib/PickTable'
+    js_type = 'rex-dbgui', 'PickTable'
 
     def context(self):
         return (self.domain.record(),
@@ -33,7 +33,7 @@ class ViewSource(Action):
     """
 
     name = 'view-source'
-    js_type = 'rex-dbgui/lib/ViewSource'
+    js_type = 'rex-dbgui', 'ViewSource'
 
     def context(self):
         return (self.domain.record(table=typing.ValueType('text')),

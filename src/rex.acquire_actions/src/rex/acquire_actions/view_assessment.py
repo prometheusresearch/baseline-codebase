@@ -15,7 +15,7 @@ __all__ = (
 
 class ViewAssessmentAction(AssessmentAction):
     name = 'assessment-view'
-    js_type = 'rex-acquire-actions/lib/ViewAssessment'
+    js_type = 'rex-acquire-actions', 'ViewAssessment'
 
     entity = Field(
         typing.RowTypeVal(),

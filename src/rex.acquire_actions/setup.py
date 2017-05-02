@@ -2,13 +2,11 @@
 # Copyright (c) 2016, Prometheus Research, LLC
 #
 
-
 from setuptools import setup, find_packages
-
 
 setup(
     name='rex.acquire_actions',
-    version='0.2.0',
+    version='0.2.1',
     description='A collection of RexAction actions and wizards for RexAcquire'
     'workflows.',
     long_description=open('README.rst', 'r').read(),
@@ -32,6 +30,4 @@ setup(
         'rex.forms>=2.1,<3',
     ],
     rex_init='rex.acquire_actions',
-    rex_static='static',
-)
-
+    rex_static='static', )

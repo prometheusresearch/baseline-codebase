@@ -22,7 +22,7 @@ __all__ = (
 
 class EnterDataAction(AcquireEntityAction):
     name = 'task-enter-data'
-    js_type = 'rex-acquire-actions/lib/EnterData'
+    js_type = 'rex-acquire-actions', 'EnterData'
 
     channel = Field(
         StrVal(),

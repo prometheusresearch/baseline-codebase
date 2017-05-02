@@ -2,13 +2,11 @@
 # Copyright (c) 2016, Prometheus Research, LLC
 #
 
-
 from setuptools import setup, find_packages
-
 
 setup(
     name='rex.acquire_actions_demo',
-    version='0.2.0',
+    version='0.2.1',
     description='Demo package for testing rex.acquire_actions',
     package_dir={'': 'src'},
     packages=find_packages('src'),
@@ -23,10 +21,4 @@ setup(
     ],
     rex_init='rex.acquire_actions_demo',
     rex_static='static',
-    rex_bundle={
-        './www/bundle': [
-            'webpack:'
-        ]
-    }
-)
-
+    rex_bundle={'./www/bundle': ['webpack:']})

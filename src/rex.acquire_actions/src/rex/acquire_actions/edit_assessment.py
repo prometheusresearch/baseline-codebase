@@ -22,7 +22,7 @@ __all__ = (
 
 class EditAssessmentAction(AssessmentAction):
     name = 'assessment-edit'
-    js_type = 'rex-acquire-actions/lib/EditAssessment'
+    js_type = 'rex-acquire-actions', 'EditAssessment'
 
     entity = Field(
         typing.RowTypeVal(),

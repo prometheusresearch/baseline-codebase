@@ -19,7 +19,7 @@ __all__ = (
 
 class ReconcileTaskAction(AcquireEntityAction):
     name = 'task-reconcile'
-    js_type = 'rex-acquire-actions/lib/ReconcileTask'
+    js_type = 'rex-acquire-actions', 'ReconcileTask'
 
     initial_channel = Field(
         MaybeVal(StrVal()),

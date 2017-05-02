@@ -2,13 +2,11 @@
 # Copyright (c) 2014, Prometheus Research, LLC
 #
 
-
 from setuptools import setup, find_packages
-
 
 setup(
     name='rex.i18n',
-    version='0.5.2',
+    version='0.5.3',
     description='An Internationalization framework for rex.web applications.',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',
@@ -28,7 +26,7 @@ setup(
         ],
     },
     install_requires=[
-        'rex.setup>=3.2,<4',
+        'rex.setup>=3.2,<5',
         'rex.core>=1.9,<2',
         'rex.ctl>=2,<3',
         'rex.web>=3.1,<4',
@@ -37,6 +35,4 @@ setup(
         'pytz>=0a',
     ],
     rex_init='rex.i18n',
-    rex_static='static',
-)
-
+    rex_static='static', )

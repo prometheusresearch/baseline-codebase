@@ -1,6 +1,6 @@
 {
   "name": "rex-i18n",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "main": "lib/index.js",
   "rex": {},
   "babel": {
@@ -43,4 +43,3 @@
     }
   }
 }
-

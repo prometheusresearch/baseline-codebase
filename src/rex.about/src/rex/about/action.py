@@ -25,7 +25,7 @@ class AboutAction(Action):
     """
 
     name = 'about'
-    js_type = 'rex-about/lib/About'
+    js_type = 'rex-about', 'About'
 
     license = Field(
         StrVal(),

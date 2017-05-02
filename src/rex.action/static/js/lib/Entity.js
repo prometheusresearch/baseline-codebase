@@ -1,12 +1,10 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2015-present, Prometheus Research, LLC
+ * @flow
  */
 
 import invariant from 'invariant';
-
-const TYPE_ATTR = 'meta:type';
-const TITLE_ATTR = 'meta:title';
-const ID_ATTR = 'id';
+import type {Entity} from './types';
 
 const STATE_ATTR_PREFIX = 'meta:state:';
 
@@ -15,15 +13,17 @@ const STATE_ATTR_PREFIX = 'meta:state:';
  *
  *    let individual = createEntity('individual', 'I0331DSS', {...})
  */
-export function createEntity(type, id, props, state) {
-  invariant(
-    id != null,
-    'id cannot be null or undefined'
-  );
+export function createEntity(
+  type: string,
+  id: string,
+  props?: ?Object,
+  state?: Object,
+): Entity {
+  invariant(id != null, 'id cannot be null or undefined');
   let entity = {
-    [TYPE_ATTR]: type,
-    [ID_ATTR]: id,
-    ...props
+    'meta:type': type,
+    id,
+    ...props,
   };
   if (state) {
     for (let key in state) {
@@ -37,21 +37,16 @@ export function createEntity(type, id, props, state) {
 /**
  * Check if given object is an entity.
  */
-export function isEntity(obj) {
-  return obj && obj[TYPE_ATTR] && obj[ID_ATTR];
+export function isEntity(obj: ?Object) {
+  return obj && obj['meta:type'] && obj.id;
 }
 
-export function getEntityState(entity) {
-  invariant(
-    isEntity(entity),
-    'Expected an entity, got %s', entity
-  );
+export function getEntityState(entity: Entity): Object {
+  invariant(isEntity(entity), 'Expected an entity, got %s', entity);
   let state = {};
   for (let key in entity) {
     if (
-      entity.hasOwnProperty(key) &&
-      key.indexOf(STATE_ATTR_PREFIX) === 0 &&
-      entity[key]
+      entity.hasOwnProperty(key) && key.indexOf(STATE_ATTR_PREFIX) === 0 && entity[key]
     ) {
       state[key.substring(STATE_ATTR_PREFIX.length)] = true;
     }
@@ -59,18 +54,12 @@ export function getEntityState(entity) {
   return state;
 }
 
-export function getEntityType(entity) {
-  invariant(
-    isEntity(entity),
-    'Expected an entity, got %s', entity
-  );
-  return entity[TYPE_ATTR];
+export function getEntityType(entity: Entity): string {
+  invariant(isEntity(entity), 'Expected an entity, got %s', entity);
+  return entity['meta:type'];
 }
 
-export function getEntityTitle(entity) {
-  invariant(
-    isEntity(entity),
-    'Expected an entity, got %s', entity
-  );
-  return entity[TITLE_ATTR] || entity.__title__ || entity.title || null;
+export function getEntityTitle(entity: Entity): ?string {
+  invariant(isEntity(entity), 'Expected an entity, got %s', entity);
+  return entity['meta:title'] || entity.__title__ || entity.title || null;
 }

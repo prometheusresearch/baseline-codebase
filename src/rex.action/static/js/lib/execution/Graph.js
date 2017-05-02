@@ -1,22 +1,33 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2015-present, Prometheus Research, LLC
+ * @noflow
  */
 
-import invariant          from 'invariant';
-import {quote}            from '../StringUtils';
-import * as Entity        from '../Entity';
-import * as Instruction   from './Instruction';
+import invariant from 'invariant';
+import {quote} from '../StringUtils';
+import {isEntity, getEntityType} from '../Entity';
+import * as Instruction from './Instruction';
 import * as Command from './Command';
 import Node from './Node';
+import type {Entity, PerActionState, Context} from '../types';
 
 const INITIAL_CONTEXT = {
-  USER: __REX_USER__ === null ?  null : quote(__REX_USER__)
+  USER: __REX_USER__ === null ? null : quote(__REX_USER__),
 };
+
+type ActionMap = {
+  [id: string]: React$Element<*>,
+};
+
+type Domain = mixed;
 
 /**
  * Graph state.
  */
 export default class Graph {
+  trace: Node[];
+  actions: ActionMap;
+  domain: Domain;
 
   /**
    * Start wizard.
@@ -25,7 +36,7 @@ export default class Graph {
     initialContext = {...INITIAL_CONTEXT, ...initialContext};
     invariant(
       Instruction.Start.is(instruction),
-      'Can only start wizard from a "Start" instruction'
+      'Can only start wizard from a "Start" instruction',
     );
     let graph = new this([], actions, domain);
     let node = graph.createNode(instruction, initialContext);
@@ -34,34 +45,40 @@ export default class Graph {
       graph = graph.advance();
       invariant(
         !Instruction.Start.is(graph.node.instruction),
-        'Invalid wizard config: cannot advance from start node'
+        'Invalid wizard config: cannot advance from start node',
       );
     }
     return graph;
   }
 
-  constructor(trace, actions, domain) {
+  constructor(trace: Node[], actions: ActionMap, domain: Domain) {
     this.trace = trace;
     this.actions = actions;
     this.domain = domain;
   }
 
-  replaceTrace(trace) {
+  replaceTrace(trace: Node[]) {
     return new Graph(trace, this.actions);
   }
 
-  createNode(instruction, context = {}, parent = null, index = null, command = null) {
+  createNode(
+    instruction: Instruction.Instruction,
+    context: Context = {},
+    parent: ?Node = null,
+    index: null | string | number = null,
+    command: ?Function = null,
+  ) {
     return Node.create(this, instruction, context, parent, index, command);
   }
 
   /**
    * The current node is the last node.
    */
-  get node() {
+  get node(): ?Node {
     return this.trace[this.trace.length - 1];
   }
 
-  indexOf(action) {
+  indexOf(action: string): number {
     for (let i = 0; i < this.trace.length; i++) {
       if (this.trace[i].keyPath === action) {
         return i;
@@ -70,17 +87,17 @@ export default class Graph {
     return -1;
   }
 
-  _replaceCurrentNode(node) {
+  _replaceCurrentNode(node: Node): Graph {
     let trace = this.trace.slice(0, this.trace.length - 1).concat(node);
-    return new this.constructor(trace);
+    return new this.constructor(trace, this.actions, this.domain);
   }
 
-  _appendAtCurrentNode(node) {
+  _appendAtCurrentNode(node: Node): Graph {
     let trace = this.trace.concat(node);
-    return new this.constructor(trace);
+    return new this.constructor(trace, this.actions, this.domain);
   }
 
-  _advanceToReference(reference, contextUpdate = null) {
+  _advanceToReference(reference: string, contextUpdate: ?Object = null): Graph {
     if (!Array.isArray(reference)) {
       reference = reference.split('/').filter(Boolean);
     }
@@ -98,16 +115,16 @@ export default class Graph {
           wasContextUpdated = true;
           graph = graph.executeCommandAtCurrentNodeAndNoAdvance(
             Command.onContextCommand.name,
-            contextUpdate
+            contextUpdate,
           );
         }
-        let nextNode = graph.node.then
-          .filter(n =>
-            (n.action === segment) ||
+        let nextNode = graph.node.then.filter(
+          n =>
+            n.action === segment ||
             (n.parent &&
-             Instruction.IncludeWizard.is(n.parent.instruction) &&
-             n.parent.action === segment)
-          )[0];
+              Instruction.IncludeWizard.is(n.parent.instruction) &&
+              n.parent.action === segment),
+        )[0];
         if (!nextNode) {
           return graph;
         }
@@ -126,33 +143,27 @@ export default class Graph {
    *
    * This also closes all actions which goes afterwards.
    */
-  close(action = null) {
+  close(action: string = null): Graph {
     let idx;
     if (action === null) {
       idx = this.trace.length - 1;
     } else {
       idx = this.trace.findIndex(node => node.keyPath === action);
     }
-    invariant(
-      idx > -1,
-      'Invalid action keyPath: %s', action
-    );
+    invariant(idx > -1, 'Invalid action keyPath: %s', action);
     let trace = this.trace.slice(0, idx);
-    return new this.constructor(trace);
+    return new this.constructor(trace, this.actions, this.domain);
   }
 
   /**
    * Close all actions after the ``action`` action.
    */
-  returnTo(action) {
+  returnTo(action: string): Graph {
     let idx = this.indexOf(action);
-    invariant(
-      idx > -1,
-      'Invalid action keyPath: %s'
-    );
+    invariant(idx > -1, 'Invalid action keyPath: %s');
     if (idx < this.trace.length - 1) {
       let trace = this.trace.slice(0, idx + 1);
-      return new this.constructor(trace);
+      return new this.constructor(trace, this.actions, this.domain);
     } else {
       return this;
     }
@@ -161,7 +172,7 @@ export default class Graph {
   /**
    * Replace ``action`` action with ``nextAction`` action.
    */
-  replace(action, nextAction, tryAdvance = true) {
+  replace(action: string, nextAction: string, tryAdvance: boolean = true): Graph {
     let graph = this.close(action).advance(nextAction);
     if (tryAdvance) {
       graph = graph.advance();
@@ -173,7 +184,7 @@ export default class Graph {
    * Advance wizard given the ``action`` and a ``contextUpdate`` update to
    * context.
    */
-  advance(action = null, contextUpdate = null) {
+  advance(action: ?string = null, contextUpdate: ?Context = null) {
     let graph = this;
     let currentNode = graph.node;
 
@@ -182,8 +193,7 @@ export default class Graph {
       graph = graph._replaceCurrentNode(currentNode);
     }
 
-    let nextNodes = currentNode
-      .then
+    let nextNodes = currentNode.then
       .filter(n => n.isAllowed)
       .filter(n => action === null || action === n.keyPath);
 
@@ -194,13 +204,13 @@ export default class Graph {
       } else if (Instruction.Replace.is(nextNode.instruction)) {
         graph = graph._advanceToReference(
           nextNode.instruction.replace,
-          currentNode.context
+          currentNode.context,
         );
         return graph;
       } else {
         invariant(
           false,
-          'Only Execute and Replace are allowed as a valid node to advance'
+          'Only Execute and Replace are allowed as a valid node to advance',
         );
       }
     }
@@ -211,47 +221,40 @@ export default class Graph {
   /**
    * Execute command at current node.
    */
-  executeCommandAtCurrentNode(commandName, ...args) {
+  executeCommandAtCurrentNode(commandName: string, ...args: string[]): Graph {
     let node = this.node.executeCommand(commandName, ...args);
     let graph = this._replaceCurrentNode(node);
     return graph.advance();
   }
 
-  executeCommandAtCurrentNodeAndNoAdvance(commandName, ...args) {
+  executeCommandAtCurrentNodeAndNoAdvance(commandName: string, ...args: string[]): Graph {
     let currentNode = this.node.executeCommand(commandName, ...args);
     return this._replaceCurrentNode(currentNode);
   }
 
-  setState(node, stateUpdate) {
+  setState(node: Node, stateUpdate: Object): Graph {
     let idx = this.trace.indexOf(node);
     let trace = this.trace.slice(0);
     trace[idx] = this.trace[idx].setState(stateUpdate);
-    return new this.constructor(trace);
+    return new this.constructor(trace, this.actions, this.domain);
   }
 
   /**
    * Get a list of sibling actions for a ``node``.
    */
-  siblingActions(node = this.node) {
-    invariant(
-      !Instruction.Start.is(node.instruction),
-      'Invalid node passed'
-    );
+  siblingActions(node: Node = this.node): Node[] {
+    invariant(!Instruction.Start.is(node.instruction), 'Invalid node passed');
     let prevNodeIdx = this.trace.indexOf(node) - 1;
     let prevNode = this.trace[prevNodeIdx];
-    let nodes = prevNode.replaceContext(node.context)
-      .then.filter(n => n.isAllowed);
+    let nodes = prevNode.replaceContext(node.context).then.filter(n => n.isAllowed);
     return nodes;
   }
 
   /**
    * Get a list of next actions for a ``node``.
    */
-  nextActions(node = this.node) {
-    invariant(
-      !Instruction.Start.is(node.instruction),
-      'Invalid node passed'
-    );
+  nextActions(node: Node = this.node): Node[] {
+    invariant(!Instruction.Start.is(node.instruction), 'Invalid node passed');
     return node.then
       .filter(n => !Instruction.Replace.is(n.instruction))
       .filter(n => n.isAllowed);
@@ -267,11 +270,7 @@ export default class Graph {
 
     for (let i = 0; i < trace.length; i++) {
       let node = trace[i];
-      let nextContext = updateEntityInContext(
-        node.context,
-        prevEntity,
-        nextEntity
-      );
+      let nextContext = updateEntityInContext(node.context, prevEntity, nextEntity);
       let nextNode = node.replaceContext(nextContext);
       if (!nextNode.isAllowed) {
         break;
@@ -291,15 +290,18 @@ export default class Graph {
       }
       nextTrace.push(nextNode);
     }
-    return new this.constructor(nextTrace);
+    return new this.constructor(nextTrace, this.actions, this.domain);
   }
-
 }
 
 /**
  * Produce a new context with the `prevEntity` replaced with the `nextEntity`.
  */
-function updateEntityInContext(context, prevEntity, nextEntity) {
+function updateEntityInContext(
+  context: Context,
+  prevEntity: Entity,
+  nextEntity: Entity,
+): Context {
   let nextContext = {};
   for (let key in context) {
     if (!context[key]) {
@@ -313,10 +315,10 @@ function updateEntityInContext(context, prevEntity, nextEntity) {
   return nextContext;
 }
 
-function updateEntity(obj, prevEntity, nextEntity) {
+function updateEntity(obj: mixed, prevEntity: Entity, nextEntity: Entity) {
   if (
-    Entity.isEntity(obj) &&
-    Entity.getEntityType(obj) === Entity.getEntityType(prevEntity) &&
+    isEntity(obj) &&
+    getEntityType(obj) === getEntityType(prevEntity) &&
     obj.id === prevEntity.id
   ) {
     return nextEntity;

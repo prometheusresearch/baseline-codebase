@@ -1,34 +1,32 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2015-present, Prometheus Research, LLC
+ * @flow
  */
 
 import React from 'react';
+import invariant from 'invariant';
 import {findDOMNode} from 'react-dom';
 
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-import {autobind} from 'rex-widget/lang';
 import {pageContextTypes} from 'rex-widget/page';
 import * as stylesheet from 'rex-widget/stylesheet';
-import * as layout  from 'rex-widget/layout';
+import * as layout from 'rex-widget/layout';
 import * as ui from 'rex-widget/ui';
 import * as css from 'rex-widget/css';
 
+import type {Position} from '../execution/State';
 import ActionTitle from '../ActionTitle';
 import SingleChild from '../ui/SingleChild';
+import TransitionGroup from '../ui/TransitionGroup';
 
 import * as TransitionStyle from './BreadcrumbTransition.module.css';
 
-function TransitionGroup({name, style, ...props}) {
-  let transitionName = {
-    enter: style[name + 'Enter'],
-    enterActive: style[name + 'EnterActive'],
-    leave: style[name + 'Leave'],
-    leaveActive: style[name + 'LeaveActive'],
-  };
-  return <ReactCSSTransitionGroup {...props} transitionName={transitionName} />;
-}
+type BreadcrumbItem = {
+  pos?: Position,
+  page?: {url: string, title: string},
+  collapsed?: boolean,
+};
 
-function OpacityTransition({...props}) {
+function BreadcrumbTransition({...props}) {
   return (
     <TransitionGroup
       {...props}
@@ -36,7 +34,7 @@ function OpacityTransition({...props}) {
       style={TransitionStyle}
       transitionEnterTimeout={300}
       transitionLeaveTimeout={300}
-      />
+    />
   );
 }
 
@@ -68,11 +66,11 @@ let BreadcrumbTriangle = stylesheet.style('div', {
 
   first: {
     left: 'calc(100% + 2px)',
-    borderLeftColor: css.rgb(100)
+    borderLeftColor: css.rgb(100),
   },
 
   second: {
-    borderLeftColor: css.rgb(255)
+    borderLeftColor: css.rgb(255),
   },
 });
 
@@ -103,11 +101,11 @@ export let BreadcrumbButton = stylesheet.style(ui.ButtonBase, {
       cursor: 'default',
       hover: {
         color: '#0094CD',
-      }
+      },
     },
     page: {
       fontWeight: 'bold',
-    }
+    },
   },
   Caption: {
     verticalAlign: 'middle',
@@ -117,46 +115,45 @@ export let BreadcrumbButton = stylesheet.style(ui.ButtonBase, {
     top: -1,
     verticalAlign: 'middle',
     hasCaption: {
-      marginRight: 10
-    }
-  }
+      marginRight: 10,
+    },
+  },
 });
 
 // sentinel to mark nodes which needs to be collapsed
 const _COLLAPSED = '<COLLAPSED BREADCRUMB>';
 
 export class Breadcrumb extends React.Component {
-
   static contextTypes = pageContextTypes;
 
-  constructor(props) {
-    super(props);
-    this._ghost = null;
-    this.state = {
-      collapsed: null,
-      calculateCollapsed: true
-    };
-  }
+  _ghost: ?HTMLElement = null;
+  state: {collapsed: ?boolean, calculateCollapsed: boolean} = {
+    collapsed: null,
+    calculateCollapsed: true,
+  };
 
   render() {
-    let {graph, includePageBreadcrumbItem} = this.props;
-    let allNodes = graph.trace.slice(1).map(node => ({node}));
+    const {graph, includePageBreadcrumbItem} = this.props;
+    const currentPos = graph.position;
+    invariant(currentPos != null, 'Invalid state');
+    let allPosList = currentPos.trace.concat(currentPos).map(pos => ({pos}));
     if (includePageBreadcrumbItem) {
-      allNodes = this.context.navigationStack.map(page => ({page})).concat(allNodes);
+      allPosList = this.context.navigationStack.map(page => ({page})).concat(allPosList);
     }
-    let nodes = allNodes;
-    if (this.state.collapsed && nodes.length > 6) {
-      nodes = nodes.slice(0, includePageBreadcrumbItem ? 3 : 2)
+    let posList = allPosList;
+    if (this.state.collapsed && posList.length > 6) {
+      posList = posList
+        .slice(0, includePageBreadcrumbItem ? 3 : 2)
         .concat({collapsed: true})
-        .concat(nodes.slice(nodes.length - 4));
+        .concat(posList.slice(posList.length - 4));
     }
-    let buttons = nodes.map(this.renderButton, this);
-    let ghostButtons = allNodes.map(this.renderButton, this);
+    let buttons = posList.map(this.renderButton, this);
+    let ghostButtons = allPosList.map(this.renderButton, this);
     return (
       <BreadcrumbRoot>
-        <OpacityTransition component={layout.HBox} transitionLeave={false}>
+        <BreadcrumbTransition component={layout.HBox} transitionLeave={false}>
           {buttons}
-        </OpacityTransition>
+        </BreadcrumbTransition>
         <layout.HBox ref={this._onGhost} height={0} style={{visibility: 'hidden'}}>
           {ghostButtons}
         </layout.HBox>
@@ -164,7 +161,11 @@ export class Breadcrumb extends React.Component {
     );
   }
 
-  renderButton({node, page, collapsed}, idx, items) {
+  renderButton(
+    {pos, page, collapsed}: BreadcrumbItem,
+    idx: number,
+    items: BreadcrumbItem[],
+  ) {
     let {onClick} = this.props;
     if (collapsed) {
       return (
@@ -175,27 +176,32 @@ export class Breadcrumb extends React.Component {
         </BreadcrumbButtonWrapper>
       );
     } else if (page) {
+      const firstItem = items.find(item => item.pos != null);
       return (
         <BreadcrumbButtonWrapper key={page.url}>
           <BreadcrumbButton
             variant={{page: true}}
-            onClick={onClick.bind(null, items.find(item => item.node).node.keyPath)}>
+            onClick={
+              firstItem &&
+                firstItem.pos &&
+                onClick.bind(null, firstItem.pos.instruction.action.id)
+            }>
             {page.title}
           </BreadcrumbButton>
           <BreadcrumbTriangle variant={{first: true}} />
           <BreadcrumbTriangle variant={{second: true}} />
         </BreadcrumbButtonWrapper>
       );
-    } else if (node) {
+    } else if (pos) {
       let current = idx === items.length - 1;
       return (
-        <BreadcrumbButtonWrapper key={node.keyPath}>
+        <BreadcrumbButtonWrapper key={pos.instruction.action.id}>
           <BreadcrumbButton
             variant={{current}}
-            onClick={onClick.bind(null, node.keyPath)}>
-            <OpacityTransition component={SingleChild} transitionLeave={false}>
-              <ActionTitle noWrap node={node} />
-            </OpacityTransition>
+            onClick={onClick.bind(null, pos.instruction.action.id)}>
+            <BreadcrumbTransition component={SingleChild} transitionLeave={false}>
+              <ActionTitle noWrap position={pos} />
+            </BreadcrumbTransition>
           </BreadcrumbButton>
           {!current && <BreadcrumbTriangle variant={{first: true}} />}
           {!current && <BreadcrumbTriangle variant={{second: true}} />}
@@ -214,16 +220,18 @@ export class Breadcrumb extends React.Component {
     this.setState({calculateCollapsed: true});
   }
 
-  @autobind
-  _onGhost(ghost) {
-    this._ghost = findDOMNode(ghost);
-  }
+  _onGhost = (ghost: any) => {
+    this._ghost = (findDOMNode(ghost): any);
+  };
 
   _checkOverflow() {
     let rootWidth = this.props.DOMSize.width;
     let seenWidth = 0;
+    if (this._ghost == null) {
+      return;
+    }
     for (let i = 0; i < this._ghost.childNodes.length; i++) {
-      let child = this._ghost.childNodes[i];
+      let child: HTMLElement = (this._ghost.childNodes[i]: any);
       seenWidth = seenWidth + child.offsetWidth;
       if (seenWidth > rootWidth) {
         if (!this.state.collapsed) {
@@ -234,7 +242,6 @@ export class Breadcrumb extends React.Component {
     }
     this.setState({collapsed: false, calculateCollapsed: false});
   }
-
 }
 
 export default ui.WithDOMSize(Breadcrumb);

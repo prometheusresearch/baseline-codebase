@@ -1,32 +1,57 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2015-present, Prometheus Research, LLC
+ * @noflow
  */
 
-import memoize            from 'memoize-decorator';
-import invariant          from 'invariant';
-import flatten            from 'lodash/array/flatten';
-import * as Entity        from '../Entity';
-import * as Command       from './Command';
-import {Start, Execute, IncludeWizard, Repeat, Replace} from './Instruction';
+import memoize from 'memoize-decorator';
+import invariant from 'invariant';
+import flatten from 'lodash/array/flatten';
+import * as Entity from '../Entity';
+import * as Command from './Command';
+import {
+  type Instruction,
+  Start,
+  Execute,
+  IncludeWizard,
+  Repeat,
+  Replace,
+} from './Instruction';
+import type {Graph} from './Graph';
+import type {PerActionState, Context} from '../types';
 
 /**
  * Objects of this class represent a node within a wizard execution state.
  */
 export default class Node {
+  graph: Graph;
+  instruction: Instruction;
+  context: Context;
+  state: PerActionState;
+  parent: ?Node;
+  index: ?(string | number);
+  command: ?Function;
+  prev: ?Node;
 
-  static create(graph, instruction, context = {}, parent = null, index = null, prev = null) {
+  static create(
+    graph,
+    instruction,
+    context = {},
+    parent = null,
+    index = null,
+    prev = null,
+  ) {
     return new this(graph, instruction, context, {}, parent, index, null, prev);
   }
 
   constructor(
-    graph,
-    instruction,
-    context = {},
-    state = {},
-    parent = null,
-    index = null,
-    command = null,
-    prev = null,
+    graph: Graph,
+    instruction: Instruction,
+    context: Context = {},
+    state: PerActionState = {},
+    parent: ?Node = null,
+    index: ?(string | number) = null,
+    command: Function = null,
+    prev: ?Node = null,
   ) {
     this.graph = graph;
     this.instruction = instruction;
@@ -73,8 +98,7 @@ export default class Node {
     );
   }
 
-  @memoize
-  get _concreteNode() {
+  @memoize get _concreteNode() {
     if (
       Start.is(this.instruction) ||
       IncludeWizard.is(this.instruction) ||
@@ -152,8 +176,7 @@ export default class Node {
    *
    * Points to a node for Start instruction for the nearest wizard.
    */
-  @memoize
-  get start() {
+  @memoize get start(): Node {
     let start = this;
     while (start.prev) {
       start = start.prev;
@@ -164,8 +187,7 @@ export default class Node {
   /**
    * React element which should be used to render.
    */
-  @memoize
-  get element() {
+  @memoize get element(): React$Element<*> {
     let node;
     if (this._isConcreteNode) {
       node = this;
@@ -178,8 +200,7 @@ export default class Node {
   /**
    * Key path.
    */
-  @memoize
-  get keyPath() {
+  @memoize get keyPath() {
     let keyPath = [];
     if (this.action !== null) {
       keyPath.push(this.action);
@@ -197,28 +218,28 @@ export default class Node {
   /**
    * Key.
    */
-  @memoize
-  get key() {
-    return Object
-      .keys(this.contextTypes.input.rows)
+  @memoize get key(): string {
+    return Object.keys(this.contextTypes.input.rows)
       .map(k => this.context[k])
       .map(v => Entity.isEntity(v) ? v.id : v)
-      .join('__') + '__' + this.action + '__' + this.index;
+      .join('__') +
+      '__' +
+      this.action +
+      '__' +
+      String(this.index);
   }
 
   /**
    * List of next nodes.
    */
-  @memoize
-  get then() {
+  @memoize get then(): Node[] {
     return this._thenWithContext(this.context);
   }
 
   /**
    * Action ID.
    */
-  @memoize
-  get action() {
+  @memoize get action(): string {
     if (this._isConcreteNode) {
       return this.instruction.action;
     } else {
@@ -229,16 +250,14 @@ export default class Node {
   /**
    * Context types.
    */
-  @memoize
-  get contextTypes() {
+  @memoize get contextTypes(): Object {
     return this.element.props.contextTypes;
   }
 
   /**
    * Check if node is allowed.
    */
-  @memoize
-  get isAllowed() {
+  @memoize get isAllowed(): boolean {
     let node = this._concreteNode;
     if (Start.is(node.instruction)) {
       return true;
@@ -247,13 +266,15 @@ export default class Node {
     }
   }
 
-  _thenWithContext(context) {
+  _thenWithContext(context: Context): Node[] {
     // Handle case where we are "exiting" from the current node.
     // This might be the case for wizard inclusion or repeat group.
-    if (this.instruction.then.length === 0 && this.parent) {
-      if (Repeat.is(this.parent.instruction)) {
-        let thenExit = this.parent._thenWithContext(context);
-        let thenLoop = this.parent.instruction.repeat.map(inst =>
+    const parent = this.parent;
+    if (this.instruction.then.length === 0 && parent) {
+      const parentInstruction = parent.instruction;
+      if (parentInstruction instanceof Repeat) {
+        let thenExit = parent._thenWithContext(context);
+        let thenLoop = parentInstruction.repeat.map(inst =>
           this.constructor.create(
             this.graph,
             inst,
@@ -263,14 +284,11 @@ export default class Node {
             this,
           ));
         return thenLoop.concat(thenExit);
-      } else if (IncludeWizard.is(this.parent.instruction)) {
-        let thenExit = this.parent._thenWithContext(context);
+      } else if (parentInstruction instanceof IncludeWizard) {
+        let thenExit = parent._thenWithContext(context);
         return thenExit;
       } else {
-        invariant(
-          false,
-          'found unknown instruction'
-        );
+        invariant(false, 'found unknown instruction');
       }
     } else {
       let nodes = [];
@@ -289,7 +307,6 @@ export default class Node {
       return nodes;
     }
   }
-
 }
 
 /**
@@ -309,14 +326,13 @@ function realizeNode(node) {
       node.action,
     );
     return flatten(startNode.then.map(realizeNode));
-  } else if (Repeat.is(node.instruction)) {
-    return flatten(node.instruction.repeat.map(n =>
-      realizeNode(Node.create(node.graph, n, node.context, node, 0))));
-  } else {
-    invariant(
-      false,
-      'Unknown instruction found: %s', node.instruction.constructor.name
+  } else if (node.instruction instanceof Repeat) {
+    return flatten(
+      node.instruction.repeat.map(n =>
+        realizeNode(Node.create(node.graph, n, node.context, node, 0))),
     );
+  } else {
+    invariant(false, 'Unknown instruction found: %s', node.instruction.constructor.name);
   }
 }
 
@@ -331,6 +347,7 @@ function resolveNodeByReference(node, reference) {
   }
   let segments = reference.split('/');
   for (let i = 0; i < segments.length; i++) {
+    invariant(currentNode != null, 'Invalid action reference: %s', reference);
     let segment = segments[i];
     if (segment === '.') {
       // do nothing
@@ -342,19 +359,17 @@ function resolveNodeByReference(node, reference) {
       // fail into infinte recursion.
       nextNodes = nextNodes.filter(n => !Replace.is(n.instruction));
       // TODO: Fail on crossing wizard boundaries.
-      nextNodes = nextNodes.filter(n =>
-        (n.action === segment) ||
-        (n.parent &&
-         IncludeWizard.is(n.parent.instruction) &&
-         n.parent.action === segment)
+      nextNodes = nextNodes.filter(
+        n =>
+          n.action === segment ||
+          (n.parent &&
+            IncludeWizard.is(n.parent.instruction) &&
+            n.parent.action === segment),
       );
       currentNode = nextNodes[0];
     }
-    invariant(
-      currentNode != null,
-      'Invalid action reference: %s', reference
-    );
   }
+  invariant(currentNode != null, 'Invalid action reference: %s', reference);
   context = {...currentNode.context, ...context};
   context = maskContext(context, currentNode.contextTypes);
   return currentNode.replaceContext(context);

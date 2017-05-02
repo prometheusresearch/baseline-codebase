@@ -245,7 +245,7 @@ export function collectFromTraverse(
             if (isProvidedBy(nextPos, referencedInstruction)) {
               const contextUpdateArg = updateContextBySpec(
                 nextPos.instruction.action.domain,
-                nextPos.instruction.action.contextTypes.input,
+                nextPos.instruction.action.contextTypes,
                 referencedPosition.context,
                 context,
                 contextUpdate,
@@ -271,7 +271,7 @@ export function collectFromTraverse(
             if (isProvidedBy(nextPos, referencedInstruction)) {
               const contextUpdateArg = updateContextBySpec(
                 nextPos.instruction.action.domain,
-                nextPos.instruction.action.contextTypes.input,
+                nextPos.instruction.action.contextTypes,
                 referencedPosition.context,
                 context,
                 contextUpdate,
@@ -313,7 +313,7 @@ function isProvidedBy(position: Position, instruction: Instruction) {
 
 function updateContextBySpec(
   domain: Domain,
-  inputType: RecordType,
+  {input, output}: {input: RecordType, output: RecordType},
   context: Context,
   originalContext: Context,
   updateSpec: ?ContextUpdateSpec,
@@ -331,8 +331,9 @@ function updateContextBySpec(
   } else {
     for (const key in originalContext) {
       if (
-        inputType.rows[key] != null &&
-        inputType.rows[key].match(originalContext[key], domain)
+        (input.rows[key] != null &&
+          input.rows[key].match(originalContext[key], domain)) ||
+        (output.rows[key] != null && output.rows[key].match(originalContext[key], domain))
       ) {
         nextContext[key] = originalContext[key];
       }

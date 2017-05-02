@@ -31,7 +31,7 @@ class SelectImportTableField(FormField):
 
 class SelectImportTableWidget(Widget):
 
-    js_type = 'rex-tabular-import/lib/SelectImportTable'
+    js_type = 'rex-tabular-import', 'SelectImportTable'
 
     tables = Field(SeqVal(StrVal()))
 

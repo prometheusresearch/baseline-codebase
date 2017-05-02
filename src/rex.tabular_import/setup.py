@@ -2,13 +2,11 @@
 # Copyright (c) 2015, Prometheus Research, LLC
 #
 
-
 from setuptools import setup, find_packages
-
 
 setup(
     name='rex.tabular_import',
-    version='0.3.0',
+    version='0.3.1',
     description='A tool for importing flat datafiles into RexDB tables.',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',
@@ -42,6 +40,4 @@ setup(
         'tablib>=0.10,<0.11',
     ],
     rex_init='rex.tabular_import',
-    rex_static='static',
-)
-
+    rex_static='static', )

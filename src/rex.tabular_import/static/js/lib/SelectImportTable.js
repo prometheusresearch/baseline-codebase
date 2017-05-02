@@ -1,7 +1,7 @@
 "use strict";
 
 import React from "react";
-import { WithFormValue, SelectField, Field } from "rex-widget/form";
+import { withFormValue, SelectField, Field } from "rex-widget/form";
 import Select from "rex-widget/lib/Select";
 import { VBox, HBox } from "rex-widget/layout";
 
@@ -59,4 +59,4 @@ class SelectImportTable extends React.Component {
   }
 }
 
-export default WithFormValue(SelectImportTable);
+export default withFormValue(SelectImportTable);

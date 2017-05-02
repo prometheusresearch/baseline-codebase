@@ -17,7 +17,7 @@ from rex.menu.menu import ExternalMenu
 from .url import is_external
 
 class Chrome(BaseChrome):
-    js_type = 'rex-widget-chrome/lib/Chrome'
+    js_type = 'rex-widget-chrome', 'Chrome'
 
     @computed_field
     def settings(self):

@@ -9,7 +9,7 @@ from webob import Response
 class Error(Widget):
 
     name = 'Error'
-    js_type = 'rex-widget-chrome/lib/Error'
+    js_type = 'rex-widget-chrome', 'Error'
 
     code = Field(UIntVal())
     title = Field(StrVal())

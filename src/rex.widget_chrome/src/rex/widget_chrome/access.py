@@ -1,7 +1,7 @@
 from rex.core import Initialize, get_settings, cached, get_packages
 from rex.web import route, Authorize
 from rex.urlmap import Override
-from rex.action.map import ActionRenderer
+from rex.action import ActionRenderer
 from rex.widget.map import WidgetRenderer
 from .url import is_external
 

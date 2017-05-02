@@ -243,15 +243,20 @@ export function collectFromTraverse(
         for (const nextPos of nextPosition(referencedPosition, {skipReplace: true})) {
           if (referencedInstruction.type === 'execute') {
             if (isProvidedBy(nextPos, referencedInstruction)) {
-              referencedPosition = applyCommandAtPosition(nextPos, 'context', [
-                updateContextBySpec(
-                  nextPos.instruction.action.domain,
-                  nextPos.instruction.action.contextTypes.input,
-                  referencedPosition.context,
-                  context,
-                  contextUpdate,
-                ),
-              ]);
+              const contextUpdateArg = updateContextBySpec(
+                nextPos.instruction.action.domain,
+                nextPos.instruction.action.contextTypes.input,
+                referencedPosition.context,
+                context,
+                contextUpdate,
+              );
+              if (!isEmptyObject(contextUpdateArg)) {
+                referencedPosition = applyCommandAtPosition(nextPos, 'context', [
+                  contextUpdateArg,
+                ]);
+              } else {
+                referencedPosition = nextPos;
+              }
               if (i === instruction.traverse.length - 1) {
                 referencedPosition = {...referencedPosition, from: 'replace'};
                 to.push(referencedPosition);
@@ -264,15 +269,20 @@ export function collectFromTraverse(
               'Trying to replace past the inclided wizard which is not supported',
             );
             if (isProvidedBy(nextPos, referencedInstruction)) {
-              referencedPosition = applyCommandAtPosition(nextPos, 'context', [
-                updateContextBySpec(
-                  nextPos.instruction.action.domain,
-                  nextPos.instruction.action.contextTypes.input,
-                  referencedPosition.context,
-                  context,
-                  contextUpdate,
-                ),
-              ]);
+              const contextUpdateArg = updateContextBySpec(
+                nextPos.instruction.action.domain,
+                nextPos.instruction.action.contextTypes.input,
+                referencedPosition.context,
+                context,
+                contextUpdate,
+              );
+              if (!isEmptyObject(contextUpdateArg)) {
+                referencedPosition = applyCommandAtPosition(nextPos, 'context', [
+                  contextUpdateArg,
+                ]);
+              } else {
+                referencedPosition = nextPos;
+              }
               referencedPosition = {...referencedPosition, from: 'replace'};
               to.push(referencedPosition);
             }
@@ -310,7 +320,6 @@ function updateContextBySpec(
 ): Context {
   const nextContext = {...context};
   if (updateSpec != null) {
-    const nextContext = {...context};
     for (const key in updateSpec) {
       const value = updateSpec[key];
       if (typeof value === 'string' && value.startsWith('$')) {
@@ -322,7 +331,8 @@ function updateContextBySpec(
   } else {
     for (const key in originalContext) {
       if (
-        inputType.rows[key] != null && inputType.rows[key].match(originalContext[key], domain)
+        inputType.rows[key] != null &&
+        inputType.rows[key].match(originalContext[key], domain)
       ) {
         nextContext[key] = originalContext[key];
       }
@@ -338,4 +348,8 @@ function traceWithNoStart(pos: Position | StartPosition): Array<Position> {
     pos = pos.prev;
   }
   return result;
+}
+
+function isEmptyObject(obj) {
+  return typeof obj === 'object' && obj !== null && Object.keys(obj).length === 0;
 }

@@ -1,6 +1,6 @@
-
 from setuptools import setup, find_packages
 from distutils.core import Command
+
 
 class demo(Command):
 
@@ -21,9 +21,10 @@ class demo(Command):
             print "get_packages():", get_packages()
             print "get_settings():", get_settings()
 
+
 setup(
     name='rex.core_demo',
-    version = "1.16.0",
+    version="1.16.1",
     description="Demo package for testing rex.core",
     package_dir={'': 'src'},
     packages=find_packages('src'),
@@ -36,6 +37,4 @@ setup(
     ],
     cmdclass={'demo': demo},
     rex_init='rex.core_demo',
-    rex_static='static',
-)
-
+    rex_static='static', )

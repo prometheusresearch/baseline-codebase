@@ -1,0 +1,2128 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`nextPosition() execute { execute } 1`] = `
+Array [
+  Object {
+    "context": Object {},
+    "instruction": Object {
+      "action": Object {
+        "commands": Object {},
+        "contextTypes": Object {
+          "input": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+          "output": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+        },
+        "domain": Object {},
+        "element": <div />,
+        "id": "actionNext",
+        "name": "actionNext",
+      },
+      "parent": null,
+      "then": Array [],
+      "type": "execute",
+    },
+    "prev": Object {
+      "context": Object {},
+      "instruction": Object {
+        "action": Object {
+          "commands": Object {},
+          "contextTypes": Object {
+            "input": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+            "output": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+          },
+          "domain": Object {},
+          "element": <div />,
+          "id": "action",
+          "name": "action",
+        },
+        "parent": null,
+        "then": Array [
+          Object {
+            "action": Object {
+              "commands": Object {},
+              "contextTypes": Object {
+                "input": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+                "output": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+              },
+              "domain": Object {},
+              "element": <div />,
+              "id": "actionNext",
+              "name": "actionNext",
+            },
+            "parent": null,
+            "then": Array [],
+            "type": "execute",
+          },
+        ],
+        "type": "execute",
+      },
+      "prev": Object {
+        "context": Object {},
+        "instruction": Object {
+          "parent": null,
+          "then": Array [],
+          "type": "start",
+        },
+        "type": "start-position",
+      },
+      "stack": Array [],
+      "state": Object {},
+      "type": "position",
+    },
+    "stack": Array [],
+    "state": Object {},
+    "type": "position",
+  },
+]
+`;
+
+exports[`nextPosition() execute { include { execute } } 1`] = `
+Array [
+  Object {
+    "context": Object {},
+    "instruction": Object {
+      "action": Object {
+        "commands": Object {},
+        "contextTypes": Object {
+          "input": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+          "output": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+        },
+        "domain": Object {},
+        "element": <div />,
+        "id": "actionNext",
+        "name": "actionNext",
+      },
+      "parent": null,
+      "then": Array [],
+      "type": "execute",
+    },
+    "prev": Object {
+      "context": Object {},
+      "instruction": Object {
+        "action": Object {
+          "commands": Object {},
+          "contextTypes": Object {
+            "input": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+            "output": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+          },
+          "domain": Object {},
+          "element": <div />,
+          "id": "action",
+          "name": "action",
+        },
+        "parent": null,
+        "then": Array [
+          Object {
+            "include": Object {
+              "parent": null,
+              "then": Array [
+                Object {
+                  "action": Object {
+                    "commands": Object {},
+                    "contextTypes": Object {
+                      "input": RecordType {
+                        "open": true,
+                        "rows": Object {},
+                      },
+                      "output": RecordType {
+                        "open": true,
+                        "rows": Object {},
+                      },
+                    },
+                    "domain": Object {},
+                    "element": <div />,
+                    "id": "actionNext",
+                    "name": "actionNext",
+                  },
+                  "parent": null,
+                  "then": Array [],
+                  "type": "execute",
+                },
+              ],
+              "type": "start",
+            },
+            "name": "include-actionNext",
+            "parent": null,
+            "then": Array [],
+            "type": "include",
+          },
+        ],
+        "type": "execute",
+      },
+      "prev": Object {
+        "context": Object {},
+        "instruction": Object {
+          "parent": null,
+          "then": Array [],
+          "type": "start",
+        },
+        "type": "start-position",
+      },
+      "stack": Array [],
+      "state": Object {},
+      "type": "position",
+    },
+    "stack": Array [
+      Object {
+        "include": Object {
+          "parent": null,
+          "then": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "actionNext",
+                "name": "actionNext",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "type": "start",
+        },
+        "name": "include-actionNext",
+        "parent": null,
+        "then": Array [],
+        "type": "include",
+      },
+    ],
+    "state": Object {},
+    "type": "position",
+  },
+]
+`;
+
+exports[`nextPosition() execute { include { include { execute } } } 1`] = `
+Array [
+  Object {
+    "context": Object {},
+    "instruction": Object {
+      "action": Object {
+        "commands": Object {},
+        "contextTypes": Object {
+          "input": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+          "output": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+        },
+        "domain": Object {},
+        "element": <div />,
+        "id": "actionNext",
+        "name": "actionNext",
+      },
+      "parent": null,
+      "then": Array [],
+      "type": "execute",
+    },
+    "prev": Object {
+      "context": Object {},
+      "instruction": Object {
+        "action": Object {
+          "commands": Object {},
+          "contextTypes": Object {
+            "input": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+            "output": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+          },
+          "domain": Object {},
+          "element": <div />,
+          "id": "action",
+          "name": "action",
+        },
+        "parent": null,
+        "then": Array [
+          Object {
+            "include": Object {
+              "parent": null,
+              "then": Array [
+                Object {
+                  "include": Object {
+                    "parent": null,
+                    "then": Array [
+                      Object {
+                        "action": Object {
+                          "commands": Object {},
+                          "contextTypes": Object {
+                            "input": RecordType {
+                              "open": true,
+                              "rows": Object {},
+                            },
+                            "output": RecordType {
+                              "open": true,
+                              "rows": Object {},
+                            },
+                          },
+                          "domain": Object {},
+                          "element": <div />,
+                          "id": "actionNext",
+                          "name": "actionNext",
+                        },
+                        "parent": null,
+                        "then": Array [],
+                        "type": "execute",
+                      },
+                    ],
+                    "type": "start",
+                  },
+                  "name": "include-actionNext",
+                  "parent": null,
+                  "then": Array [],
+                  "type": "include",
+                },
+              ],
+              "type": "start",
+            },
+            "name": "include-include-actionNext",
+            "parent": null,
+            "then": Array [],
+            "type": "include",
+          },
+        ],
+        "type": "execute",
+      },
+      "prev": Object {
+        "context": Object {},
+        "instruction": Object {
+          "parent": null,
+          "then": Array [],
+          "type": "start",
+        },
+        "type": "start-position",
+      },
+      "stack": Array [],
+      "state": Object {},
+      "type": "position",
+    },
+    "stack": Array [
+      Object {
+        "include": Object {
+          "parent": null,
+          "then": Array [
+            Object {
+              "include": Object {
+                "parent": null,
+                "then": Array [
+                  Object {
+                    "action": Object {
+                      "commands": Object {},
+                      "contextTypes": Object {
+                        "input": RecordType {
+                          "open": true,
+                          "rows": Object {},
+                        },
+                        "output": RecordType {
+                          "open": true,
+                          "rows": Object {},
+                        },
+                      },
+                      "domain": Object {},
+                      "element": <div />,
+                      "id": "actionNext",
+                      "name": "actionNext",
+                    },
+                    "parent": null,
+                    "then": Array [],
+                    "type": "execute",
+                  },
+                ],
+                "type": "start",
+              },
+              "name": "include-actionNext",
+              "parent": null,
+              "then": Array [],
+              "type": "include",
+            },
+          ],
+          "type": "start",
+        },
+        "name": "include-include-actionNext",
+        "parent": null,
+        "then": Array [],
+        "type": "include",
+      },
+      Object {
+        "include": Object {
+          "parent": null,
+          "then": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "actionNext",
+                "name": "actionNext",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "type": "start",
+        },
+        "name": "include-actionNext",
+        "parent": null,
+        "then": Array [],
+        "type": "include",
+      },
+    ],
+    "state": Object {},
+    "type": "position",
+  },
+]
+`;
+
+exports[`nextPosition() execute { repeat (execute) { execute } } 1`] = `
+Array [
+  Object {
+    "context": Object {},
+    "instruction": Object {
+      "action": Object {
+        "commands": Object {},
+        "contextTypes": Object {
+          "input": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+          "output": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+        },
+        "domain": Object {},
+        "element": <div />,
+        "id": "actionRepeat",
+        "name": "actionRepeat",
+      },
+      "parent": null,
+      "then": Array [],
+      "type": "execute",
+    },
+    "prev": Object {
+      "context": Object {},
+      "instruction": Object {
+        "action": Object {
+          "commands": Object {},
+          "contextTypes": Object {
+            "input": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+            "output": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+          },
+          "domain": Object {},
+          "element": <div />,
+          "id": "action",
+          "name": "action",
+        },
+        "parent": null,
+        "then": Array [
+          Object {
+            "parent": null,
+            "repeat": Array [
+              Object {
+                "action": Object {
+                  "commands": Object {},
+                  "contextTypes": Object {
+                    "input": RecordType {
+                      "open": true,
+                      "rows": Object {},
+                    },
+                    "output": RecordType {
+                      "open": true,
+                      "rows": Object {},
+                    },
+                  },
+                  "domain": Object {},
+                  "element": <div />,
+                  "id": "actionRepeat",
+                  "name": "actionRepeat",
+                },
+                "parent": null,
+                "then": Array [],
+                "type": "execute",
+              },
+            ],
+            "then": Array [
+              Object {
+                "action": Object {
+                  "commands": Object {},
+                  "contextTypes": Object {
+                    "input": RecordType {
+                      "open": true,
+                      "rows": Object {},
+                    },
+                    "output": RecordType {
+                      "open": true,
+                      "rows": Object {},
+                    },
+                  },
+                  "domain": Object {},
+                  "element": <div />,
+                  "id": "actionThen",
+                  "name": "actionThen",
+                },
+                "parent": null,
+                "then": Array [],
+                "type": "execute",
+              },
+            ],
+            "type": "repeat",
+          },
+        ],
+        "type": "execute",
+      },
+      "prev": Object {
+        "context": Object {},
+        "instruction": Object {
+          "parent": null,
+          "then": Array [],
+          "type": "start",
+        },
+        "type": "start-position",
+      },
+      "stack": Array [],
+      "state": Object {},
+      "type": "position",
+    },
+    "stack": Array [
+      Object {
+        "parent": null,
+        "repeat": Array [
+          Object {
+            "action": Object {
+              "commands": Object {},
+              "contextTypes": Object {
+                "input": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+                "output": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+              },
+              "domain": Object {},
+              "element": <div />,
+              "id": "actionRepeat",
+              "name": "actionRepeat",
+            },
+            "parent": null,
+            "then": Array [],
+            "type": "execute",
+          },
+        ],
+        "then": Array [
+          Object {
+            "action": Object {
+              "commands": Object {},
+              "contextTypes": Object {
+                "input": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+                "output": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+              },
+              "domain": Object {},
+              "element": <div />,
+              "id": "actionThen",
+              "name": "actionThen",
+            },
+            "parent": null,
+            "then": Array [],
+            "type": "execute",
+          },
+        ],
+        "type": "repeat",
+      },
+    ],
+    "state": Object {},
+    "type": "position",
+  },
+]
+`;
+
+exports[`nextPosition() execute {} 1`] = `Array []`;
+
+exports[`nextPosition() include { execute } -> include { execute } | execute {} 1`] = `
+Array [
+  Object {
+    "context": Object {},
+    "instruction": Object {
+      "action": Object {
+        "commands": Object {},
+        "contextTypes": Object {
+          "input": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+          "output": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+        },
+        "domain": Object {},
+        "element": <div />,
+        "id": "actionNext",
+        "name": "actionNext",
+      },
+      "parent": null,
+      "then": Array [],
+      "type": "execute",
+    },
+    "prev": Object {
+      "context": Object {},
+      "instruction": Object {
+        "action": Object {
+          "commands": Object {},
+          "contextTypes": Object {
+            "input": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+            "output": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+          },
+          "domain": Object {},
+          "element": <div />,
+          "id": "action",
+          "name": "action",
+        },
+        "parent": null,
+        "then": Array [],
+        "type": "execute",
+      },
+      "prev": Object {
+        "context": Object {},
+        "instruction": Object {
+          "parent": null,
+          "then": Array [],
+          "type": "start",
+        },
+        "type": "start-position",
+      },
+      "stack": Array [
+        Object {
+          "include": Object {
+            "parent": null,
+            "then": Array [],
+            "type": "start",
+          },
+          "name": "include-WRONG",
+          "parent": null,
+          "then": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "WRONG",
+                "name": "WRONG",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "type": "include",
+        },
+        Object {
+          "include": Object {
+            "parent": null,
+            "then": Array [],
+            "type": "start",
+          },
+          "name": "include-actionNext",
+          "parent": null,
+          "then": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "actionNext",
+                "name": "actionNext",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "type": "include",
+        },
+      ],
+      "state": Object {},
+      "type": "position",
+    },
+    "stack": Array [
+      Object {
+        "include": Object {
+          "parent": null,
+          "then": Array [],
+          "type": "start",
+        },
+        "name": "include-WRONG",
+        "parent": null,
+        "then": Array [
+          Object {
+            "action": Object {
+              "commands": Object {},
+              "contextTypes": Object {
+                "input": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+                "output": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+              },
+              "domain": Object {},
+              "element": <div />,
+              "id": "WRONG",
+              "name": "WRONG",
+            },
+            "parent": null,
+            "then": Array [],
+            "type": "execute",
+          },
+        ],
+        "type": "include",
+      },
+    ],
+    "state": Object {},
+    "type": "position",
+  },
+]
+`;
+
+exports[`nextPosition() include { execute } -> include {} | execute {} 1`] = `
+Array [
+  Object {
+    "context": Object {},
+    "instruction": Object {
+      "action": Object {
+        "commands": Object {},
+        "contextTypes": Object {
+          "input": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+          "output": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+        },
+        "domain": Object {},
+        "element": <div />,
+        "id": "actionNext",
+        "name": "actionNext",
+      },
+      "parent": null,
+      "then": Array [],
+      "type": "execute",
+    },
+    "prev": Object {
+      "context": Object {},
+      "instruction": Object {
+        "action": Object {
+          "commands": Object {},
+          "contextTypes": Object {
+            "input": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+            "output": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+          },
+          "domain": Object {},
+          "element": <div />,
+          "id": "action",
+          "name": "action",
+        },
+        "parent": null,
+        "then": Array [],
+        "type": "execute",
+      },
+      "prev": Object {
+        "context": Object {},
+        "instruction": Object {
+          "parent": null,
+          "then": Array [],
+          "type": "start",
+        },
+        "type": "start-position",
+      },
+      "stack": Array [
+        Object {
+          "include": Object {
+            "parent": null,
+            "then": Array [],
+            "type": "start",
+          },
+          "name": "include-actionNext",
+          "parent": null,
+          "then": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "actionNext",
+                "name": "actionNext",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "type": "include",
+        },
+        Object {
+          "include": Object {
+            "parent": null,
+            "then": Array [],
+            "type": "start",
+          },
+          "name": "include-empty",
+          "parent": null,
+          "then": Array [],
+          "type": "include",
+        },
+      ],
+      "state": Object {},
+      "type": "position",
+    },
+    "stack": Array [],
+    "state": Object {},
+    "type": "position",
+  },
+]
+`;
+
+exports[`nextPosition() include { execute } -> repeat (execute) { execute } | execute {} 1`] = `
+Array [
+  Object {
+    "context": Object {},
+    "instruction": Object {
+      "action": Object {
+        "commands": Object {},
+        "contextTypes": Object {
+          "input": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+          "output": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+        },
+        "domain": Object {},
+        "element": <div />,
+        "id": "actionRepeat",
+        "name": "actionRepeat",
+      },
+      "parent": null,
+      "then": Array [],
+      "type": "execute",
+    },
+    "prev": Object {
+      "context": Object {},
+      "instruction": Object {
+        "action": Object {
+          "commands": Object {},
+          "contextTypes": Object {
+            "input": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+            "output": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+          },
+          "domain": Object {},
+          "element": <div />,
+          "id": "action",
+          "name": "action",
+        },
+        "parent": null,
+        "then": Array [],
+        "type": "execute",
+      },
+      "prev": Object {
+        "context": Object {},
+        "instruction": Object {
+          "parent": null,
+          "then": Array [],
+          "type": "start",
+        },
+        "type": "start-position",
+      },
+      "stack": Array [
+        Object {
+          "include": Object {
+            "parent": null,
+            "then": Array [],
+            "type": "start",
+          },
+          "name": "include-WRONG",
+          "parent": null,
+          "then": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "WRONG",
+                "name": "WRONG",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "type": "include",
+        },
+        Object {
+          "parent": null,
+          "repeat": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "actionRepeat",
+                "name": "actionRepeat",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "then": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "actionThen",
+                "name": "actionThen",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "type": "repeat",
+        },
+      ],
+      "state": Object {},
+      "type": "position",
+    },
+    "stack": Array [
+      Object {
+        "include": Object {
+          "parent": null,
+          "then": Array [],
+          "type": "start",
+        },
+        "name": "include-WRONG",
+        "parent": null,
+        "then": Array [
+          Object {
+            "action": Object {
+              "commands": Object {},
+              "contextTypes": Object {
+                "input": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+                "output": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+              },
+              "domain": Object {},
+              "element": <div />,
+              "id": "WRONG",
+              "name": "WRONG",
+            },
+            "parent": null,
+            "then": Array [],
+            "type": "execute",
+          },
+        ],
+        "type": "include",
+      },
+      Object {
+        "parent": null,
+        "repeat": Array [
+          Object {
+            "action": Object {
+              "commands": Object {},
+              "contextTypes": Object {
+                "input": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+                "output": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+              },
+              "domain": Object {},
+              "element": <div />,
+              "id": "actionRepeat",
+              "name": "actionRepeat",
+            },
+            "parent": null,
+            "then": Array [],
+            "type": "execute",
+          },
+        ],
+        "then": Array [
+          Object {
+            "action": Object {
+              "commands": Object {},
+              "contextTypes": Object {
+                "input": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+                "output": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+              },
+              "domain": Object {},
+              "element": <div />,
+              "id": "actionThen",
+              "name": "actionThen",
+            },
+            "parent": null,
+            "then": Array [],
+            "type": "execute",
+          },
+        ],
+        "type": "repeat",
+      },
+    ],
+    "state": Object {},
+    "type": "position",
+  },
+  Object {
+    "context": Object {},
+    "instruction": Object {
+      "action": Object {
+        "commands": Object {},
+        "contextTypes": Object {
+          "input": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+          "output": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+        },
+        "domain": Object {},
+        "element": <div />,
+        "id": "actionThen",
+        "name": "actionThen",
+      },
+      "parent": null,
+      "then": Array [],
+      "type": "execute",
+    },
+    "prev": Object {
+      "context": Object {},
+      "instruction": Object {
+        "action": Object {
+          "commands": Object {},
+          "contextTypes": Object {
+            "input": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+            "output": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+          },
+          "domain": Object {},
+          "element": <div />,
+          "id": "action",
+          "name": "action",
+        },
+        "parent": null,
+        "then": Array [],
+        "type": "execute",
+      },
+      "prev": Object {
+        "context": Object {},
+        "instruction": Object {
+          "parent": null,
+          "then": Array [],
+          "type": "start",
+        },
+        "type": "start-position",
+      },
+      "stack": Array [
+        Object {
+          "include": Object {
+            "parent": null,
+            "then": Array [],
+            "type": "start",
+          },
+          "name": "include-WRONG",
+          "parent": null,
+          "then": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "WRONG",
+                "name": "WRONG",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "type": "include",
+        },
+        Object {
+          "parent": null,
+          "repeat": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "actionRepeat",
+                "name": "actionRepeat",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "then": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "actionThen",
+                "name": "actionThen",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "type": "repeat",
+        },
+      ],
+      "state": Object {},
+      "type": "position",
+    },
+    "stack": Array [
+      Object {
+        "include": Object {
+          "parent": null,
+          "then": Array [],
+          "type": "start",
+        },
+        "name": "include-WRONG",
+        "parent": null,
+        "then": Array [
+          Object {
+            "action": Object {
+              "commands": Object {},
+              "contextTypes": Object {
+                "input": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+                "output": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+              },
+              "domain": Object {},
+              "element": <div />,
+              "id": "WRONG",
+              "name": "WRONG",
+            },
+            "parent": null,
+            "then": Array [],
+            "type": "execute",
+          },
+        ],
+        "type": "include",
+      },
+    ],
+    "state": Object {},
+    "type": "position",
+  },
+]
+`;
+
+exports[`nextPosition() include | execute {} 1`] = `
+Array [
+  Object {
+    "context": Object {},
+    "instruction": Object {
+      "action": Object {
+        "commands": Object {},
+        "contextTypes": Object {
+          "input": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+          "output": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+        },
+        "domain": Object {},
+        "element": <div />,
+        "id": "actionNext",
+        "name": "actionNext",
+      },
+      "parent": null,
+      "then": Array [],
+      "type": "execute",
+    },
+    "prev": Object {
+      "context": Object {},
+      "instruction": Object {
+        "action": Object {
+          "commands": Object {},
+          "contextTypes": Object {
+            "input": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+            "output": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+          },
+          "domain": Object {},
+          "element": <div />,
+          "id": "action",
+          "name": "action",
+        },
+        "parent": null,
+        "then": Array [],
+        "type": "execute",
+      },
+      "prev": Object {
+        "context": Object {},
+        "instruction": Object {
+          "parent": null,
+          "then": Array [],
+          "type": "start",
+        },
+        "type": "start-position",
+      },
+      "stack": Array [
+        Object {
+          "include": Object {
+            "parent": null,
+            "then": Array [],
+            "type": "start",
+          },
+          "name": "include-actionNext",
+          "parent": null,
+          "then": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "actionNext",
+                "name": "actionNext",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "type": "include",
+        },
+      ],
+      "state": Object {},
+      "type": "position",
+    },
+    "stack": Array [],
+    "state": Object {},
+    "type": "position",
+  },
+]
+`;
+
+exports[`nextPosition() repeat (execute) { execute } | execute {} 1`] = `
+Array [
+  Object {
+    "context": Object {},
+    "instruction": Object {
+      "action": Object {
+        "commands": Object {},
+        "contextTypes": Object {
+          "input": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+          "output": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+        },
+        "domain": Object {},
+        "element": <div />,
+        "id": "actionRepeat",
+        "name": "actionRepeat",
+      },
+      "parent": null,
+      "then": Array [],
+      "type": "execute",
+    },
+    "prev": Object {
+      "context": Object {},
+      "instruction": Object {
+        "action": Object {
+          "commands": Object {},
+          "contextTypes": Object {
+            "input": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+            "output": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+          },
+          "domain": Object {},
+          "element": <div />,
+          "id": "action",
+          "name": "action",
+        },
+        "parent": null,
+        "then": Array [],
+        "type": "execute",
+      },
+      "prev": Object {
+        "context": Object {},
+        "instruction": Object {
+          "parent": null,
+          "then": Array [],
+          "type": "start",
+        },
+        "type": "start-position",
+      },
+      "stack": Array [
+        Object {
+          "parent": null,
+          "repeat": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "actionRepeat",
+                "name": "actionRepeat",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "then": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "actionThen",
+                "name": "actionThen",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "type": "repeat",
+        },
+      ],
+      "state": Object {},
+      "type": "position",
+    },
+    "stack": Array [
+      Object {
+        "parent": null,
+        "repeat": Array [
+          Object {
+            "action": Object {
+              "commands": Object {},
+              "contextTypes": Object {
+                "input": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+                "output": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+              },
+              "domain": Object {},
+              "element": <div />,
+              "id": "actionRepeat",
+              "name": "actionRepeat",
+            },
+            "parent": null,
+            "then": Array [],
+            "type": "execute",
+          },
+        ],
+        "then": Array [
+          Object {
+            "action": Object {
+              "commands": Object {},
+              "contextTypes": Object {
+                "input": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+                "output": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+              },
+              "domain": Object {},
+              "element": <div />,
+              "id": "actionThen",
+              "name": "actionThen",
+            },
+            "parent": null,
+            "then": Array [],
+            "type": "execute",
+          },
+        ],
+        "type": "repeat",
+      },
+    ],
+    "state": Object {},
+    "type": "position",
+  },
+  Object {
+    "context": Object {},
+    "instruction": Object {
+      "action": Object {
+        "commands": Object {},
+        "contextTypes": Object {
+          "input": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+          "output": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+        },
+        "domain": Object {},
+        "element": <div />,
+        "id": "actionThen",
+        "name": "actionThen",
+      },
+      "parent": null,
+      "then": Array [],
+      "type": "execute",
+    },
+    "prev": Object {
+      "context": Object {},
+      "instruction": Object {
+        "action": Object {
+          "commands": Object {},
+          "contextTypes": Object {
+            "input": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+            "output": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+          },
+          "domain": Object {},
+          "element": <div />,
+          "id": "action",
+          "name": "action",
+        },
+        "parent": null,
+        "then": Array [],
+        "type": "execute",
+      },
+      "prev": Object {
+        "context": Object {},
+        "instruction": Object {
+          "parent": null,
+          "then": Array [],
+          "type": "start",
+        },
+        "type": "start-position",
+      },
+      "stack": Array [
+        Object {
+          "parent": null,
+          "repeat": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "actionRepeat",
+                "name": "actionRepeat",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "then": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "actionThen",
+                "name": "actionThen",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "type": "repeat",
+        },
+      ],
+      "state": Object {},
+      "type": "position",
+    },
+    "stack": Array [],
+    "state": Object {},
+    "type": "position",
+  },
+]
+`;
+
+exports[`nextPosition() root { current, alternative } => current { replace(alternative with it-is = $should) } 1`] = `
+Array [
+  Object {
+    "command": Object {
+      "args": Array [
+        Object {
+          "it-is": "be-transfered",
+        },
+      ],
+      "commandName": "context",
+    },
+    "context": Object {
+      "it-is": "be-transfered",
+    },
+    "from": "replace",
+    "instruction": Object {
+      "action": Object {
+        "commands": Object {},
+        "contextTypes": Object {
+          "input": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+          "output": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+        },
+        "domain": Object {},
+        "element": <div />,
+        "id": "actionAlternative",
+        "name": "actionAlternative",
+      },
+      "parent": Object {
+        "action": Object {
+          "commands": Object {},
+          "contextTypes": Object {
+            "input": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+            "output": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+          },
+          "domain": Object {},
+          "element": <div />,
+          "id": "actionPrev",
+          "name": "actionPrev",
+        },
+        "parent": null,
+        "then": Array [
+          Object {
+            "action": Object {
+              "commands": Object {},
+              "contextTypes": Object {
+                "input": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+                "output": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+              },
+              "domain": Object {},
+              "element": <div />,
+              "id": "action",
+              "name": "action",
+            },
+            "parent": [Circular],
+            "then": Array [
+              Object {
+                "parent": [Circular],
+                "traverse": Array [
+                  Object {
+                    "actionName": "actionAlternative",
+                    "contextUpdate": Object {
+                      "it-is": "$should",
+                    },
+                  },
+                ],
+                "traverseBack": 1,
+                "type": "replace",
+              },
+            ],
+            "type": "execute",
+          },
+          [Circular],
+        ],
+        "type": "execute",
+      },
+      "then": Array [],
+      "type": "execute",
+    },
+    "prev": Object {
+      "context": Object {},
+      "instruction": Object {
+        "action": Object {
+          "commands": Object {},
+          "contextTypes": Object {
+            "input": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+            "output": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+          },
+          "domain": Object {},
+          "element": <div />,
+          "id": "actionPrev",
+          "name": "actionPrev",
+        },
+        "parent": null,
+        "then": Array [
+          Object {
+            "action": Object {
+              "commands": Object {},
+              "contextTypes": Object {
+                "input": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+                "output": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+              },
+              "domain": Object {},
+              "element": <div />,
+              "id": "action",
+              "name": "action",
+            },
+            "parent": [Circular],
+            "then": Array [
+              Object {
+                "parent": [Circular],
+                "traverse": Array [
+                  Object {
+                    "actionName": "actionAlternative",
+                    "contextUpdate": Object {
+                      "it-is": "$should",
+                    },
+                  },
+                ],
+                "traverseBack": 1,
+                "type": "replace",
+              },
+            ],
+            "type": "execute",
+          },
+          Object {
+            "action": Object {
+              "commands": Object {},
+              "contextTypes": Object {
+                "input": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+                "output": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+              },
+              "domain": Object {},
+              "element": <div />,
+              "id": "actionAlternative",
+              "name": "actionAlternative",
+            },
+            "parent": [Circular],
+            "then": Array [],
+            "type": "execute",
+          },
+        ],
+        "type": "execute",
+      },
+      "prev": Object {
+        "context": Object {},
+        "instruction": Object {
+          "parent": null,
+          "then": Array [],
+          "type": "start",
+        },
+        "type": "start-position",
+      },
+      "stack": Array [],
+      "state": Object {},
+      "type": "position",
+    },
+    "stack": Array [],
+    "state": Object {},
+    "type": "position",
+  },
+]
+`;
+
+exports[`nextPosition() root { current, alternative } => current { replace(alternative with ok = yes) } 1`] = `
+Array [
+  Object {
+    "command": Object {
+      "args": Array [
+        Object {
+          "ok": "yes",
+        },
+      ],
+      "commandName": "context",
+    },
+    "context": Object {
+      "ok": "yes",
+    },
+    "from": "replace",
+    "instruction": Object {
+      "action": Object {
+        "commands": Object {},
+        "contextTypes": Object {
+          "input": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+          "output": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+        },
+        "domain": Object {},
+        "element": <div />,
+        "id": "actionAlternative",
+        "name": "actionAlternative",
+      },
+      "parent": Object {
+        "action": Object {
+          "commands": Object {},
+          "contextTypes": Object {
+            "input": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+            "output": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+          },
+          "domain": Object {},
+          "element": <div />,
+          "id": "actionPrev",
+          "name": "actionPrev",
+        },
+        "parent": null,
+        "then": Array [
+          Object {
+            "action": Object {
+              "commands": Object {},
+              "contextTypes": Object {
+                "input": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+                "output": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+              },
+              "domain": Object {},
+              "element": <div />,
+              "id": "action",
+              "name": "action",
+            },
+            "parent": [Circular],
+            "then": Array [
+              Object {
+                "parent": [Circular],
+                "traverse": Array [
+                  Object {
+                    "actionName": "actionAlternative",
+                    "contextUpdate": Object {
+                      "ok": "yes",
+                    },
+                  },
+                ],
+                "traverseBack": 1,
+                "type": "replace",
+              },
+            ],
+            "type": "execute",
+          },
+          [Circular],
+        ],
+        "type": "execute",
+      },
+      "then": Array [],
+      "type": "execute",
+    },
+    "prev": Object {
+      "context": Object {},
+      "instruction": Object {
+        "action": Object {
+          "commands": Object {},
+          "contextTypes": Object {
+            "input": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+            "output": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+          },
+          "domain": Object {},
+          "element": <div />,
+          "id": "actionPrev",
+          "name": "actionPrev",
+        },
+        "parent": null,
+        "then": Array [
+          Object {
+            "action": Object {
+              "commands": Object {},
+              "contextTypes": Object {
+                "input": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+                "output": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+              },
+              "domain": Object {},
+              "element": <div />,
+              "id": "action",
+              "name": "action",
+            },
+            "parent": [Circular],
+            "then": Array [
+              Object {
+                "parent": [Circular],
+                "traverse": Array [
+                  Object {
+                    "actionName": "actionAlternative",
+                    "contextUpdate": Object {
+                      "ok": "yes",
+                    },
+                  },
+                ],
+                "traverseBack": 1,
+                "type": "replace",
+              },
+            ],
+            "type": "execute",
+          },
+          Object {
+            "action": Object {
+              "commands": Object {},
+              "contextTypes": Object {
+                "input": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+                "output": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+              },
+              "domain": Object {},
+              "element": <div />,
+              "id": "actionAlternative",
+              "name": "actionAlternative",
+            },
+            "parent": [Circular],
+            "then": Array [],
+            "type": "execute",
+          },
+        ],
+        "type": "execute",
+      },
+      "prev": Object {
+        "context": Object {},
+        "instruction": Object {
+          "parent": null,
+          "then": Array [],
+          "type": "start",
+        },
+        "type": "start-position",
+      },
+      "stack": Array [],
+      "state": Object {},
+      "type": "position",
+    },
+    "stack": Array [],
+    "state": Object {},
+    "type": "position",
+  },
+]
+`;

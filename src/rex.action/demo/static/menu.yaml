@@ -37,6 +37,10 @@ menu:
     path: /drop
     access: anybody
     action: !include resource/drop.yaml
+  - title: Replace (Pick/Make)
+    path: /replace
+    access: anybody
+    action: !include resource/replace.yaml
   - title: Plotly
     path: /plotly
     access: anybody

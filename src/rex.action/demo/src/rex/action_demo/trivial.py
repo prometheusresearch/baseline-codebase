@@ -10,7 +10,7 @@ from webob import Response
 class Trivial(Action):
 
     name = 'trivial'
-    js_type = 'rex-action-demo/lib/Trivial'
+    js_type = 'rex-action-demo', 'Trivial'
 
     description = Field(RSTVal())
     help_link = Field(URLVal(), default='rex.action_demo:/doc')

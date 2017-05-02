@@ -2,11 +2,11 @@
  * @flow
  */
 
+import type {Instruction} from '../types';
 import * as React from 'react';
 import * as SP from '../StatePath';
-import * as S from '../State';
 import * as C from '../Command';
-import * as T from '../../Typing';
+import * as T from '../Type';
 
 describe('StatePath.fromPath()/toPath()', function() {
   const contextTypes = {
@@ -23,17 +23,19 @@ describe('StatePath.fromPath()/toPath()', function() {
   function createAction({id, commands}) {
     return {
       id,
+      name: id,
       domain: {},
       contextTypes,
       element: <div />,
       commands,
     };
   }
-  const instruction: S.Instruction[] = [
+  const instruction: Instruction[] = [
     {
       type: 'execute',
       action: createAction({id: 'one', commands: {}}),
       then: [],
+      parent: null,
     },
     {
       type: 'execute',
@@ -43,8 +45,10 @@ describe('StatePath.fromPath()/toPath()', function() {
           type: 'execute',
           action: createAction({id: 'three', commands: {}}),
           then: [],
+          parent: null,
         },
       ],
+      parent: null,
     },
     {
       type: 'execute',
@@ -55,6 +59,7 @@ describe('StatePath.fromPath()/toPath()', function() {
         },
       }),
       then: [],
+      parent: null,
     },
     {
       type: 'execute',
@@ -65,9 +70,13 @@ describe('StatePath.fromPath()/toPath()', function() {
         },
       }),
       then: [],
+      parent: null,
     },
   ];
-  const config = {instruction, context: {}};
+  const config = {
+    instruction: {type: 'start', then: instruction, parent: null},
+    context: {},
+  };
 
   test('', function() {
     const state = SP.fromPath('', config);

@@ -6,8 +6,8 @@
 import memoize from 'memoize-decorator';
 import invariant from 'invariant';
 import flatten from 'lodash/array/flatten';
-import * as Entity from '../Entity';
-import * as Command from './Command';
+import * as Entity from '../model/Entity';
+import * as Command from '../model/Command';
 import {
   type Instruction,
   Start,

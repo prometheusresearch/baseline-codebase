@@ -3,9 +3,12 @@
  */
 
 import Action from './Action';
-import {createEntity, isEntity, getEntityTitle} from './Entity';
 
-import {command, Types as ArgTypes} from './execution/Command';
+import {createEntity, isEntity, getEntityTitle} from './model/Entity';
+import {command, Types as ArgTypes} from './model/Command';
+import * as Command from './model/Command';
+import * as Entity from './model/Entity';
+
 
 import Actions from './actions';
 import Title from './actions/Title';
@@ -13,6 +16,16 @@ import Title from './actions/Title';
 import './TransitionableHandlers';
 
 export ConfirmNavigation from './ConfirmNavigation';
+export Wizard from './wizard/Wizard';
+export ActionWizard from './ActionWizard';
+export Page from './actions/Page';
+export Drop from './actions/Drop';
+export Form from './actions/Form';
+export Pick from './actions/Pick';
+export Edit from './actions/Edit';
+export View from './actions/View';
+export Make from './actions/Make';
+export Plotly from './actions/Plotly';
 
 export {
   Action,
@@ -23,6 +36,8 @@ export {
   Actions,
   command,
   ArgTypes,
+  Command,
+  Entity,
 };
 
 export default {

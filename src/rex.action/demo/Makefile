@@ -1,7 +1,7 @@
 .PHONY: deploy serve doc
 
 APP = rex.action_demo
-OPTIONS = --debug --set=attach_dir=/tmp/files
+OPTIONS = --debug --set=attach_dir=/tmp
 
 deploy pyshell shell:
 	rex $@ $(OPTIONS) $(APP)

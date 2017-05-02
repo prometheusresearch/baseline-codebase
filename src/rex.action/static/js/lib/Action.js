@@ -1,27 +1,22 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2015-present, Prometheus Research, LLC
+ * @flow
  */
 
 import * as React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
-import {css} from '@prometheusresearch/react-ui/stylesheet';
+import {VBox, HBox, Element, css} from 'react-stylesheet';
 import QuestionIcon from 'react-icons/lib/fa/question-circle';
 import CloseIcon from 'react-icons/lib/fa/close';
 
 import {emptyFunction} from 'rex-widget/lang';
-import {VBox, HBox} from 'rex-widget/layout';
 import * as ui from 'rex-widget/ui';
-import * as stylesheet from 'rex-widget/stylesheet';
 
 import {contextTypes} from './ActionContext';
-import {
-  QuietButton,
-  StickyFooterPanel,
-  Theme
-} from './ui';
-
+import {StickyFooterPanel, Theme} from './ui';
 
 export default class Action extends React.Component {
+  state: {showHelp: boolean} = {showHelp: false};
 
   static propTypes = {
     /**
@@ -46,52 +41,10 @@ export default class Action extends React.Component {
   };
 
   static defaultProps = {
-    renderFooter: emptyFunction
+    renderFooter: emptyFunction,
   };
 
   static contextTypes = contextTypes;
-
-  static stylesheet = stylesheet.create({
-    Header: {
-      Component: VBox,
-      boxShadow: Theme.shadow.light(),
-      padding: '20px',
-    },
-    Content: {
-      Component: VBox,
-      padding: 20,
-    },
-    Toolbar: {
-      Component: VBox,
-      marginTop: 10,
-    },
-    Footer: {
-      padding: '10px 20px',
-      flexShrink: 0,
-      sticky: {
-        zIndex: 1000,
-        boxShadow: Theme.shadow.normal(),
-      }
-    },
-    Title: {
-      Component: VBox,
-      fontWeight: 'bold',
-      flex: 1
-    },
-    ContentContainer: {
-      Component: StickyFooterPanel,
-      ContentWrapper: {
-        overflow: 'auto',
-      }
-    },
-  });
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      showHelp: false,
-    };
-  }
 
   toggleShowHelp = () => {
     this.setState({showHelp: !this.state.showHelp}, () => {
@@ -101,22 +54,18 @@ export default class Action extends React.Component {
 
   render() {
     let {
-      Header,
-      Content,
-      ContentContainer,
-      Footer,
-      Title,
-      Toolbar
-    } = this.constructor.stylesheet;
-
-    let {
-      children, toolbar, extraToolbar,
-      title, help, noContentWrapper, noHeader,
-      contentStyle
+      children,
+      toolbar,
+      extraToolbar,
+      title,
+      help,
+      noContentWrapper,
+      noHeader,
+      contentStyle,
     } = this.props;
 
     let {
-      showHelp
+      showHelp,
     } = this.state;
 
     if (help === undefined) {
@@ -126,41 +75,42 @@ export default class Action extends React.Component {
     toolbar = toolbar || this.context.toolbar;
     let footer = this.props.renderFooter();
     if (footer) {
-      footer = <Footer>{footer}</Footer>;
+      footer = <Element padding="10px 20px" flexShrink={0}>{footer}</Element>;
     }
 
     return (
-      <HBox flex={1}>
-        <VBox flex={1} direction="column-reverse">
-          {noContentWrapper ?
-            children :
-            <ContentContainer mode="sticky" footer={footer}>
-              <Content style={contentStyle}>{children}</Content>
-            </ContentContainer>}
+      <HBox flexGrow={1} flexShrink={1} height="100%">
+        <VBox flexGrow={1} flexShrink={1} height="100%" overflow="auto">
           {!noHeader &&
-            <Header>
+            <VBox boxShadow={Theme.shadow.light()} padding={20}>
               <HBox>
                 {title &&
-                  <Title>
+                  <VBox flexGrow={1} fontWeight="bold">
                     {title}
-                  </Title>}
-                {help && !showHelp &&
+                  </VBox>}
+                {help &&
+                  !showHelp &&
                   <HBox>
                     <ReactUI.QuietButton
                       size="small"
                       onClick={this.toggleShowHelp}
                       icon={<QuestionIcon />}
-                      />
+                    />
                   </HBox>}
               </HBox>
-            {toolbar &&
-              <Toolbar>{toolbar}</Toolbar>}
-            {extraToolbar &&
-              <Toolbar>{extraToolbar}</Toolbar>}
-            </Header>}
-          </VBox>
-          {help && showHelp &&
-            <ActionHelp help={help} onClose={this.toggleShowHelp} />}
+              {toolbar && <VBox marginTop={10}>{toolbar}</VBox>}
+              {extraToolbar && <VBox marginTop={10}>{extraToolbar}</VBox>}
+            </VBox>}
+          {noContentWrapper
+            ? children
+            : <StickyFooterPanel
+                contentWrapperStyle={{overflow: 'auto'}}
+                mode="sticky"
+                footer={footer}>
+                <VBox padding={20} style={contentStyle}>{children}</VBox>
+              </StickyFooterPanel>}
+        </VBox>
+        {help && showHelp && <ActionHelp help={help} onClose={this.toggleShowHelp} />}
       </HBox>
     );
   }
@@ -168,34 +118,22 @@ export default class Action extends React.Component {
 
 function ActionHelp({help, onClose}) {
   return (
-    <ReactUI.VBox
-      style={{borderLeft: css.border(1, '#ddd')}}
-      height="100%"
-      width={300}
-      padding="x-small">
-      <ReactUI.VBox
-        style={{fontSize: '90%'}}
-        height="100%">
-        <ReactUI.HBox alignItems="center">
-          <ReactUI.VBox
-            flex={1}
-            padding="x-small">
+    <VBox borderLeft={css.border(1, '#ddd')} height="100%" width={300} padding="x-small">
+      <VBox fontSize="90%" height="100%">
+        <HBox alignItems="center">
+          <VBox flexGrow={1} padding="x-small">
             <ReactUI.LabelText>
               Help
             </ReactUI.LabelText>
-          </ReactUI.VBox>
-          <VBox>
-            <ReactUI.QuietButton
-              size="small"
-              onClick={onClose}
-              icon={<CloseIcon />}
-              />
           </VBox>
-        </ReactUI.HBox>
-        <ReactUI.VBox flex={1} overflow="auto">
+          <VBox>
+            <ReactUI.QuietButton size="small" onClick={onClose} icon={<CloseIcon />} />
+          </VBox>
+        </HBox>
+        <VBox flexGrow={1} overflow="auto">
           <div dangerouslySetInnerHTML={{__html: help}} />
-        </ReactUI.VBox>
-      </ReactUI.VBox>
-    </ReactUI.VBox>
+        </VBox>
+      </VBox>
+    </VBox>
   );
 }

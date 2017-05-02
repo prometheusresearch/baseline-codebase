@@ -1,23 +1,27 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2015-present, Prometheus Research, LLC
+ * @flow
  */
 
-import autobind from 'autobind-decorator';
-import React from 'react';
+import * as React from 'react';
+import * as ReactUI from '@prometheusresearch/react-ui';
 
 import * as form from 'rex-widget/form';
 import * as ui from 'rex-widget/ui';
 import * as data from 'rex-widget/data';
 
-import SubmitButton from '../ui/SubmitButton';
+import type {Entity} from '../model/types';
 import Action from '../Action';
 import * as ObjectTemplate from '../ObjectTemplate';
 import * as ContextUtils from '../ContextUtils';
 import Title from './Title';
 import fetchEntity from './fetchEntity';
 
-export class Edit extends React.Component {
+type Form = {
+  submit: Function,
+};
 
+export class Edit extends React.Component {
   static propTypes = {
     context: React.PropTypes.object,
     onCommand: React.PropTypes.func,
@@ -27,16 +31,12 @@ export class Edit extends React.Component {
     width: 400,
     icon: 'pencil',
     submitButton: 'Submit',
-    value: {}
+    value: {},
   };
 
-  constructor(props) {
-    super(props);
-    this._form = null;
-    this.state = {
-      submitInProgress: false
-    };
-  }
+  _form: ?Form = null;
+
+  state: {submitInProgress: boolean} = {submitInProgress: false};
 
   render() {
     let {onClose, width, fetched, context} = this.props;
@@ -47,35 +47,29 @@ export class Edit extends React.Component {
         onClose={onClose}
         title={title}
         renderFooter={this.renderFooter}>
-        {!fetched.entity.updating ?
-          this.renderForm() :
-          <ui.Preloader />}
+        {!fetched.entity.updating ? this.renderForm() : <ui.Preloader />}
       </Action>
     );
   }
 
-  @autobind
-  renderFooter() {
+  renderFooter = () => {
     let {submitButton, icon} = this.props;
     return (
-      <SubmitButton
-        icon={icon}
+      <ReactUI.SuccessButton
+        icon={<ui.Icon name={icon} />}
         disabled={this.state.submitInProgress}
         onClick={this._onSubmit}>
         {submitButton}
-      </SubmitButton>
+      </ReactUI.SuccessButton>
     );
-  }
+  };
 
-  @autobind
-  renderForm() {
+  renderForm = () => {
     let {entity, fields, value, context, contextTypes, fetched} = this.props;
-    value = mergeDeepInto(
-      fetched.entity.data,
-      ObjectTemplate.render(value, context)
-    );
+    value = mergeDeepInto(fetched.entity.data, ObjectTemplate.render(value, context));
     let submitTo = this.props.dataMutation.params(
-      ContextUtils.contextToParams(context, contextTypes.input));
+      ContextUtils.contextToParams(context, contextTypes.input),
+    );
     return (
       <form.ConfigurableEntityForm
         ref={this._onForm}
@@ -89,38 +83,35 @@ export class Edit extends React.Component {
         value={value}
         entity={entity.type.name}
         fields={fields}
-        />
+      />
     );
-  }
+  };
 
-  @autobind
-  _onForm(form) {
+  _onForm = (form: ?Form) => {
     this._form = form;
-  }
+  };
 
-  @autobind
-  _onSubmit(e) {
+  _onSubmit = (e: UIEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    this._form.submit();
-  }
+    if (this._form != null) {
+      this._form.submit();
+    }
+  };
 
-  @autobind
-  onBeforeSubmit(_value) {
+  onBeforeSubmit = () => {
     this.setState({submitInProgress: true});
-  }
+  };
 
-  @autobind
-  onSubmitComplete(prevEntity, nextEntity) {
+  onSubmitComplete = (prevEntity: Entity, nextEntity: ?Entity) => {
     this.setState({submitInProgress: false}, () => {
       this.props.onEntityUpdate(prevEntity, nextEntity);
     });
-  }
+  };
 
-  @autobind
-  onSubmitError() {
+  onSubmitError = () => {
     this.setState({submitInProgress: false});
-  }
+  };
 
   static renderTitle({entity, title = `Edit ${entity.name}`}, context) {
     return <Title title={title} entity={entity} context={context} />;

@@ -5,9 +5,17 @@
 
 import invariant from 'invariant';
 import * as qs from 'qs';
-import type {Instruction, IExecute, IInclude, IRepeat, IReplace} from './execution/State';
+import type {
+  Instruction,
+  IStart,
+  IExecute,
+  IInclude,
+  IRepeat,
+  IReplace,
+} from './model/types';
 
 export type PreInstruction =
+  | {type: 'start', then: PreInstruction[]}
   | {type: 'execute', id: string, name: string, then: PreInstruction[]}
   | {type: 'include', id: string, name: string, then: PreInstruction[]}
   | {type: 'repeat', repeat: PreInstruction[], then: PreInstruction[]}
@@ -16,66 +24,101 @@ export type PreInstruction =
 export function parseInstruction(
   domain: Object,
   actions: Object,
-  instruction: PreInstruction[],
-): Instruction[] {
-  return instruction.map(item => {
-    if (item.type === 'execute') {
-      const element = actions[item.id];
-      const action = {
-        id: item.id,
-        name: item.name,
-        contextTypes: element.props.contextTypes,
-        domain,
-        commands: element.type.commands,
-        element,
-      };
-      return ({
-        type: 'execute',
-        action,
-        then: parseInstruction(domain, actions, item.then),
-      }: IExecute);
-    } else if (item.type === 'include') {
-      const element = actions[item.id];
-      return ({
-        type: 'include',
-        include: parseInstruction(domain, actions, element.props.path),
-        then: parseInstruction(domain, actions, item.then),
-      }: IInclude);
-    } else if (item.type === 'repeat') {
-      return ({
-        type: 'repeat',
-        repeat: parseInstruction(domain, actions, item.repeat),
-        then: parseInstruction(domain, actions, item.then),
-      }: IRepeat);
-    } else if (item.type === 'replace') {
-      return parseReplaceReference(item.reference);
-    } else {
-      invariant(false, 'Unknown instruction found: %s', item.type);
-    }
-  });
+  instruction: PreInstruction,
+): Instruction {
+  if (instruction.type === 'start') {
+    const then = instruction.then.map(i => parseInstruction(domain, actions, i));
+    const res: IStart = {
+      type: 'start',
+      then,
+      parent: null,
+    };
+    assignParent(then, res);
+    return res;
+  } else if (instruction.type === 'execute') {
+    const element = actions[instruction.id];
+    const action = {
+      id: instruction.id,
+      name: instruction.name,
+      contextTypes: element.props.contextTypes,
+      domain,
+      commands: element.type.commands,
+      element,
+    };
+    const then = instruction.then.map(i => parseInstruction(domain, actions, i));
+    const res: IExecute = {
+      type: 'execute',
+      action,
+      then,
+      parent: null,
+    };
+    assignParent(then, res);
+    return res;
+  } else if (instruction.type === 'include') {
+    const element = actions[instruction.id];
+    const include = parseInstruction(domain, actions, element.props.path);
+    invariant(include.type === 'start', 'Invalid include');
+    const then = instruction.then.map(i => parseInstruction(domain, actions, i));
+    const res: IInclude = {
+      type: 'include',
+      name: instruction.name,
+      include,
+      then,
+      parent: null,
+    };
+    assignParent([include], res);
+    assignParent(then, res);
+    return res;
+  } else if (instruction.type === 'repeat') {
+    const repeat = instruction.repeat.map(i => parseInstruction(domain, actions, i));
+    const then = instruction.then.map(i => parseInstruction(domain, actions, i));
+    const res: IRepeat = {
+      type: 'repeat',
+      repeat,
+      then,
+      parent: null,
+    };
+    assignParent(repeat, res);
+    assignParent(then, res);
+    return res;
+  } else if (instruction.type === 'replace') {
+    return parseReplaceReference(instruction.reference);
+  } else {
+    invariant(false, 'Unknown instruction found: %s', instruction.type);
+  }
 }
 
-const PARSE_REFERENCE = /([a-zA-Z0-9_\-]+)(\?(.*))?/;
+function assignParent(instructions, parent) {
+  for (let i = 0; i < instructions.length; i++) {
+    instructions[i].parent = parent;
+  }
+}
 
-function parseReplaceReference(value: string): IReplace {
+const PARSE_REFERENCE = /([a-zA-Z0-9_\-]+)\?(.*)/;
+
+export function parseReplaceReference(value: string): IReplace {
   const instruction = {
     type: 'replace',
     traverseBack: 0,
     traverse: [],
+    parent: null,
   };
   const segments = value.split('/');
   for (let i = 0; i < segments.length; i++) {
     const item = segments[i];
-    if (item === '' || item === '') {
+    if (item === '' || item === '.') {
       continue;
     } else if (item === '..') {
-      instruction.traverseBack -= 1;
+      instruction.traverseBack += 1;
     } else {
       const m = PARSE_REFERENCE.exec(item);
-      invariant(m != null, 'Invalid replace reference: %s', value);
-      const [_1, actionId, _2, contextUpdateValue] = m;
-      const contextUpdate = qs.parse(contextUpdateValue);
-      instruction.traverse.push({actionId, contextUpdate});
+      if (m != null) {
+        const [_1, actionName, contextUpdateValue] = m;
+        const contextUpdate = qs.parse(contextUpdateValue);
+        instruction.traverse.push({actionName, contextUpdate});
+      } else {
+        instruction.traverse.push({actionName: item, contextUpdate: null});
+      }
     }
   }
   return instruction;

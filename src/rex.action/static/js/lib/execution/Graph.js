@@ -5,9 +5,9 @@
 
 import invariant from 'invariant';
 import {quote} from '../StringUtils';
-import {isEntity, getEntityType} from '../Entity';
+import {isEntity, getEntityType} from '../model/Entity';
 import * as Instruction from './Instruction';
-import * as Command from './Command';
+import * as Command from '../model/Command';
 import Node from './Node';
 import type {Entity, PerActionState, Context} from '../types';
 

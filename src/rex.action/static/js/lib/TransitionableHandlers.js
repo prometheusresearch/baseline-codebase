@@ -4,7 +4,7 @@
  */
 
 import * as Transitionable from 'rex-widget/lib/Transitionable';
-import * as T from './Typing';
+import * as T from './model/Type';
 import compileExpression from './compileExpression';
 import type {PreInstruction} from './parseInstruction';
 
@@ -34,67 +34,79 @@ Transitionable.register('type:record', function decode_type_record(payload) {
 });
 
 /* istanbul ignore next */
-Transitionable.register('rex:action:start', function decode_action_start(payload) {
-  return payload[0];
-});
+Transitionable.register(
+  'rex:action:start',
+  function decode_action_start(payload): PreInstruction {
+    let [then] = payload;
+    return {
+      type: 'start',
+      then,
+    };
+  },
+);
 
 /* istanbul ignore next */
-Transitionable.register('rex:action:execute', function decode_action_execute(
-  payload,
-): PreInstruction {
-  let [id, name, then] = payload;
-  return {
-    type: 'execute',
-    id,
-    name,
-    then,
-  };
-});
+Transitionable.register(
+  'rex:action:execute',
+  function decode_action_execute(payload): PreInstruction {
+    let [id, name, then] = payload;
+    return {
+      type: 'execute',
+      id,
+      name,
+      then,
+    };
+  },
+);
 
 /* istanbul ignore next */
-Transitionable.register('rex:action:include_wizard', function decode_action_include(
-  payload,
-): PreInstruction {
-  let [id, name, then] = payload;
-  return {
-    type: 'include',
-    id,
-    name,
-    then,
-  };
-});
+Transitionable.register(
+  'rex:action:include_wizard',
+  function decode_action_include(payload): PreInstruction {
+    let [id, name, then] = payload;
+    return {
+      type: 'include',
+      id,
+      name,
+      then,
+    };
+  },
+);
 
 /* istanbul ignore next */
-Transitionable.register('rex:action:replace', function decode_action_replace(
-  payload,
-): PreInstruction {
-  let [reference] = payload;
-  return {
-    type: 'replace',
-    reference,
-  };
-});
+Transitionable.register(
+  'rex:action:replace',
+  function decode_action_replace(payload): PreInstruction {
+    let [reference] = payload;
+    return {
+      type: 'replace',
+      reference,
+    };
+  },
+);
 
 /* istanbul ignore next */
-Transitionable.register('rex:action:repeat', function decode_action_repeat(
-  payload,
-): PreInstruction {
-  let [repeat, then] = payload;
-  return {
-    type: 'repeat',
-    repeat,
-    then,
-  };
-});
+Transitionable.register(
+  'rex:action:repeat',
+  function decode_action_repeat(payload): PreInstruction {
+    let [repeat, then] = payload;
+    return {
+      type: 'repeat',
+      repeat,
+      then,
+    };
+  },
+);
 
 /* istanbul ignore next */
 Transitionable.register('rex:action:domain', function decode_domain(payload) {
   return payload[0];
 });
 
-Transitionable.register('rex:action:state_expr', function decode_state_expression(
-  payload,
-) {
-  const [source, scope] = payload;
-  return compileExpression(source, scope);
-});
+Transitionable.register(
+  'rex:action:state_expr',
+  function decode_state_expression(payload) {
+    const [source, scope] = payload;
+    return compileExpression(source, scope);
+  },
+);

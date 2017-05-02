@@ -3,15 +3,15 @@
  */
 
 import * as KeyPath from 'rex-widget/lib/KeyPath';
-import invariant      from 'invariant';
-import isPlainObject  from 'lodash/lang/isPlainObject';
-import isArray        from 'lodash/lang/isArray';
-import {isEntity}     from './Entity';
+import invariant from 'invariant';
+import isPlainObject from 'lodash/lang/isPlainObject';
+import isArray from 'lodash/lang/isArray';
+import {isEntity} from './model/Entity';
 
 /**
  * Render object `template` with the provided `context`.
  */
-export function render(template, context) {
+export function render(template: mixed, context: Object): mixed {
   if (isArray(template)) {
     return renderArray(template, context);
   } else if (isPlainObject(template)) {
@@ -20,7 +20,7 @@ export function render(template, context) {
     invariant(
       false,
       'Expected template to be an object or an array, got: %s',
-      typeof template
+      typeof template,
     );
   }
 }

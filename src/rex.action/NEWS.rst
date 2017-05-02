@@ -4,10 +4,33 @@
 
 .. contents:: Table of Contents
 
-1.6.0 (2017-XX-XX)
+2.0.0 (2017-XX-XX)
 ==================
 
+* [BREAKING] Remove rex.urlmap bindings.
+
+* [BREAKING] Remove introspection API & UI.
+
+* [BREAKING] Replace directive now requires explicit annotations for context
+  updates. Previously this worked::
+
+    - pick-individual:
+    - make-individual:
+      - replace: ../../pick-individual
+
+  Now this is required instead::
+
+    - pick-individual:
+    - make-individual:
+      - replace: ../../pick-individual?individual=$individual
+
+  Note the ``?individual=$individual`` part which says "set ``individual`` key
+  to the ``individual`` key from the original context (the context the replace
+  is originating from).
+
 * [FEAT] Support arbitrary HTSQL expressions as sort keys in pick action config.
+
+* [FIX] Do not store states in URLs.
 
 1.5.2 (2017-01-19)
 ==================

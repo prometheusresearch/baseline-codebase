@@ -94,7 +94,7 @@ class Plotly(Action):
     """
 
     name = 'plotly'
-    js_type = 'rex-action/lib/actions/Plotly'
+    js_type = 'rex-action', 'Plotly'
 
     input = EntityAction.input.__clone__()
 

@@ -1,8 +1,9 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2015-present, Prometheus Research, LLC
+ * @flow
  */
 
-import React from 'react';
+import * as React from 'react';
 
 export const contextTypes = {
   toolbar: React.PropTypes.any,
@@ -10,6 +11,12 @@ export const contextTypes = {
 };
 
 export default class ActionContext extends React.Component {
+
+  props: {
+    children?: React.Element<*>,
+    toolbar: React.Element<*>,
+    help: string,
+  };
 
   static childContextTypes = contextTypes;
 

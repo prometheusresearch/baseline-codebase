@@ -328,7 +328,7 @@ new action type one should subclass :class:`rex.action.Action` class::
       """ Action which shows weather forecast for a specified location."""
 
       name = 'show-weather'
-      js_type = 'package/lib/ShowWeather'
+      js_type = 'package', 'ShowWeather'
 
       format = Field(
           ChoiceVal('fahrenheit', 'celsius'),

@@ -4,7 +4,9 @@ path:
 - pick-individual:
   - view-individual:
   - make-individual:
-    - replace: ../../pick-individual/view-individual
+    - replace: ../../pick-individual?individual=$individual/view-individual
+  - make-individual-via-wizard:
+    - replace: ../../pick-individual?individual=$individual/view-individual
 
 actions:
   pick-individual:
@@ -16,3 +18,38 @@ actions:
   view-individual:
     type: view
     entity: individual
+
+  make-individual-via-wizard:
+    type: wizard
+    path:
+    - w-pick-individual:
+      - ww-pick-individual:
+        - more-pick:
+          - make-individual:
+    actions:
+      w-pick-individual:
+        title: Pick Individual (dummy action) 1
+        type: pick
+        entity: individual
+      ww-pick-individual:
+        title: Pick Individual (dummy action) 2
+        type: pick
+        entity: individual
+      make-individual:
+        title: Make Individual (via included wizard)
+        type: make
+        entity: individual
+      more-pick:
+        type: wizard
+        path:
+        - p1:
+          - p2:
+        actions:
+          p1:
+            type: pick
+            entity: individual
+            title: P1
+          p2:
+            type: pick
+            entity: individual
+            title: P2

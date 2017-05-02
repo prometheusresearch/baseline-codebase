@@ -1,17 +1,24 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2015-present, Prometheus Research, LLC
+ * @flow
  */
 
-import React  from 'react';
+import * as React from 'react';
 import Action from '../Action';
 
 export default class Page extends React.Component {
+  props: {
+    width?: number,
+    title?: string,
+    text?: string,
+    onClose: Function,
+  };
 
   static defaultProps = {
     width: 480,
     title: 'Page',
-    icon: 'bookmark'
-  }
+    icon: 'bookmark',
+  };
 
   render() {
     let {width, title, text, onClose} = this.props;

@@ -4,5 +4,5 @@
 
 export Graph from './Graph';
 export Node from './Node';
-export * as Command from './Command';
+export * as Command from '../model/Command';
 export * as Instruction from './Instruction';

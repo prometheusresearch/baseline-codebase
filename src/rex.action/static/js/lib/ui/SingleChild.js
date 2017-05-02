@@ -1,8 +1,9 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2015-present, Prometheus Research, LLC
+ * @flow
  */
 
-import React from 'react';
+import * as React from 'react';
 
 export default class SingleChild extends React.Component {
   render() {

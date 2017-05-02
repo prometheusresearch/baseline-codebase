@@ -60,7 +60,7 @@ class Form(Action):
     """
 
     name = 'form'
-    js_type = 'rex-action/lib/actions/Form'
+    js_type = 'rex-action', 'Form'
 
     class Configuration(Action.Configuration):
 

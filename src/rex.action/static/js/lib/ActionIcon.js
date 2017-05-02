@@ -1,13 +1,13 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2015-present, Prometheus Research, LLC
  * @flow
  */
 
 import React from 'react';
 import {Icon} from 'rex-widget/ui';
-import {type Position} from './execution/State';
+import type {Position} from './model/types';
 
-export function getIconAtNode(position: Position) {
+export function getIconAtPosition(position: Position) {
   const {element} = position.instruction.action;
   if (element == null) {
     return null;
@@ -33,7 +33,7 @@ export default class ActionIcon extends React.Component {
 
   render() {
     let {position, ...props} = this.props;
-    let name = getIconAtNode(position);
+    let name = getIconAtPosition(position);
     return name ? <Icon {...props} name={name} /> : null;
   }
 }

@@ -33,11 +33,7 @@ class Pick(EntityAction):
     """
 
     name = 'pick'
-    js_type = 'rex-action/lib/actions/Pick'
-
-    class Introspection(EntityAction.Introspection):
-        info_js_type = 'rex-action/lib/inspect/PickActionInfo'
-        detailed_info_js_type = 'rex-action/lib/inspect/PickDetailedActionInfo'
+    js_type = 'rex-action', 'Pick'
 
     search = Field(
         StrVal(), default=None,

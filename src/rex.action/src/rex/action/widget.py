@@ -21,7 +21,7 @@ class ActionWizard(Widget):
     """ Wizard widget which renders single action."""
 
     name = 'ActionWizard'
-    js_type = 'rex-action/lib/ActionWizard'
+    js_type = 'rex-action', 'ActionWizard'
 
     action = Field(ActionVal(),
         doc="""

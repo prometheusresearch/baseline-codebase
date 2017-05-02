@@ -37,7 +37,7 @@ class Page(Action):
     """
 
     name = 'page'
-    js_type = 'rex-action/lib/actions/Page'
+    js_type = 'rex-action', 'Page'
 
     text = Field(
         RSTVal(), default="Welcome to Rex Action!",

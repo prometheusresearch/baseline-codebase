@@ -16,9 +16,8 @@ path:
     - edit:
       - replace: ../../view
   - make:
-    - replace: ../../use-replace/view
+    - replace: ../../use-replace/view?lab=$lab
 - included:
-- includedx:
 states:
   study:
     configured:
@@ -170,4 +169,3 @@ actions:
     entity: lab
 
   included: !include rex.action_demo:/resource/wizard/included.yaml
-  includedx: !include rex.action_demo:/resource/wizard/included.yaml

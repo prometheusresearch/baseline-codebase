@@ -4,60 +4,58 @@
  */
 
 import emptyFunction from 'empty/function';
-import createHistory from 'history/lib/createHashHistory';
 import invariant from 'invariant';
-import React from 'react';
+import * as React from 'react';
+import {VBox, HBox} from 'react-stylesheet';
 
-//import {post} from 'rex-widget/lib/fetch';
-import * as Stylesheet from 'rex-widget/stylesheet';
-import * as layout from 'rex-widget/layout';
+import {post} from 'rex-widget/lib/fetch';
+import {Preloader} from 'rex-widget/ui';
 
-//import {isEntity, getEntityType} from '../Entity';
-import {Command} from '../execution';
+import createLogger from 'debug';
+import type {State, Entity, IStart} from '../model/types';
+import * as E from '../model/Entity';
+import * as C from '../model/Command';
+import * as S from '../model/State';
+import * as P from '../model/Position';
+import * as SP from '../model/StatePath';
+import * as History from '../History';
+import * as Environment from '../Environment';
+import injectLocation from '../injectLocation';
+
+import {type PreInstruction, parseInstruction} from '../parseInstruction';
 import ActionContext from '../ActionContext';
 import {confirmNavigation} from '../ConfirmNavigation';
 
 import Breadcrumb from './Breadcrumb';
 import Sidebar from './Sidebar';
 import Toolbar from './Toolbar';
-//import * as Environment from '../Environment';
-import * as S from '../execution/State';
-import * as SP from '../execution/StatePath';
-import type {State} from '../execution/State';
-import {type PreInstruction, parseInstruction} from '../parseInstruction';
-import type {Entity} from '../types';
 
 type WizardProps = {
-  path: PreInstruction[],
+  data: Object,
+  path: PreInstruction,
   domain: Object,
   actions: Object,
   initialContext: ?Object,
   settings: {includePageBreadcrumbItem?: boolean},
+  pathPrefix: string,
+  history: History.History,
+  location: History.Location,
 };
 
 type WizardState = {
-  graph: State,
+  graph: ?State,
 };
 
-export default class Wizard extends React.Component {
-  props: WizardProps;
-  state: WizardState;
+const log = createLogger('rex-action:wizard');
 
+class Wizard extends React.Component<*, WizardProps, WizardState> {
   static defaultProps = {
     title: 'Wizard',
     icon: 'asterisk',
     renderTopSidebarItem: emptyFunction,
-    createHistory,
     settings: {},
     pathPrefix: '',
   };
-
-  static stylesheet = Stylesheet.create({
-    ActionPanel: {
-      Component: layout.VBox,
-      flex: 1,
-    },
-  });
 
   static renderTitle({title}) {
     return title;
@@ -67,21 +65,41 @@ export default class Wizard extends React.Component {
     return props.title;
   }
 
+  _instruction: IStart;
+
+  props: WizardProps;
+  state: WizardState = {graph: null};
+
   constructor(props: WizardProps) {
     super(props);
-    let {domain, path, actions, initialContext} = props;
-    let instruction = parseInstruction(domain, actions, path);
-    let graph = SP.fromPath('/', {
-      instruction,
+    const {location, domain, path, actions, initialContext} = props;
+    const instruction = parseInstruction(domain, actions, path);
+    invariant(
+      instruction.type === 'start',
+      'Wizard should start with "start" instruction but got: "%s"',
+      instruction.type,
+    );
+    this._instruction = instruction;
+    log('use location', location);
+    const graph = SP.fromPath(location.pathname, {
+      instruction: this._instruction,
       context: initialContext || {},
     });
-    this.state = {graph};
+    this._refetch(graph);
   }
 
   render() {
     const {graph} = this.state;
+    log('render with state:', graph);
+    if (graph == null) {
+      return (
+        <VBox height="100%" flexGrow={1} justifyContent="center">
+          <Preloader style={{height: 'auto'}} />
+        </VBox>
+      );
+    }
     const {position} = graph;
-    invariant(position != null, 'Invalid state');
+    invariant(position.type === 'position', 'Invalid state');
     const action = React.cloneElement(position.instruction.action.element, {
       key: position.instruction.action.id,
       context: position.context,
@@ -94,119 +112,116 @@ export default class Wizard extends React.Component {
       refetch: () => this._refetch(this.state.graph),
       toolbar: <Toolbar graph={graph} onClick={this._onNext} />,
     });
-    let {ActionPanel} = this.constructor.stylesheet;
     let showBreadcrumb = this.props.settings.includePageBreadcrumbItem ||
-      position.trace.length > 0;
+      position.prev != null;
     return (
-      <layout.VBox flex={1} direction="column-reverse">
-        <layout.HBox flex={1}>
+      <VBox height="100%" flexGrow={1} flexDirection="column-reverse">
+        <HBox height="calc(100% - 50px)" flexGrow={1}>
           <Sidebar graph={graph} onClick={this._onReplaceWithSibling} />
-          <ActionPanel flex={1}>
+          <VBox flexGrow={1} flexShrink={1}>
             <ActionContext
               help={action.props.help}
               toolbar={<Toolbar graph={graph} onClick={this._onNext} />}>
               {action}
             </ActionContext>
-          </ActionPanel>
-        </layout.HBox>
+          </VBox>
+        </HBox>
         {showBreadcrumb &&
           <Breadcrumb
             includePageBreadcrumbItem={this.props.settings.includePageBreadcrumbItem}
             graph={graph}
             onClick={this._onReturn}
           />}
-      </layout.VBox>
+      </VBox>
     );
   }
 
-  //componentDidMount() {
-  //  //this._historyStopListen = this._history.listen(this._onLocation);
-  //}
+  componentDidUpdate(_prevProps: WizardProps, {graph: prevGraph}: WizardState) {
+    const {graph} = this.state;
+    if (prevGraph != null && graph != null && prevGraph !== graph) {
+      let path = SP.toPath(graph);
+      if (path === SP.toPath(prevGraph)) {
+        this.props.history.replace(this.props.pathPrefix + path);
+      } else {
+        this.props.history.push(this.props.pathPrefix + path);
+      }
+    }
+  }
 
-  //componentDidUpdate(_prevProps, prevState) {
-  //  if (prevState.graph !== this.state.graph) {
-  //    let path = GraphPath.toPath(this.state.graph);
-  //    if (path === GraphPath.toPath(prevState.graph)) {
-  //      this._history.replaceState(null, this.props.pathPrefix + path);
-  //    } else {
-  //      this._history.pushState(null, this.props.pathPrefix + path);
-  //    }
-  //  }
-  //}
+  componentWillReceiveProps({location}: WizardProps) {
+    if (location === this.props.location) {
+      return;
+    }
 
-  //  componentWillUnmount() {
-  //if (this._historyStopListen) {
-  //  this._historyStopListen();
-  //}
-  //this._history = null;
-  //this._historyStopListen = null;
-  //  }
+    this._onLocation(location);
+  }
 
-  _refetch = (_graph: State) => {
-    //let data = {};
-    //graph.trace.forEach(node => {
-    //  data[node.keyPath] = {};
-    //  Object.keys(node.context).forEach(key => {
-    //    let value = node.context[key];
-    //    data[node.keyPath][key] = isEntity(value)
-    //      ? {id: value.id, type: getEntityType(value)}
-    //      : value;
-    //  });
-    //});
-    //post(this.props.data, null, JSON.stringify(data)).then(
-    //  this._onRefetchComplete,
-    //  this._onRefetchError,
-    //);
+  _refetch = (graph: ?State) => {
+    if (graph == null) {
+      return;
+    }
+    const data = {};
+    S.forEachPosition(graph, pos => {
+      data[pos.instruction.action.id] = {};
+      Object.keys(pos.context).forEach(key => {
+        const value = pos.context[key];
+        if (E.isEntity(value)) {
+          const entity: Entity = (value: any);
+          data[pos.instruction.action.id][key] = {
+            id: entity.id,
+            type: E.getEntityType(entity),
+          };
+        } else {
+          data[pos.instruction.action.id][key] = value;
+        }
+      });
+    });
+    post(this.props.data, null, JSON.stringify(data)).then(
+      this._onRefetchComplete.bind(null, graph),
+      this._onRefetchError,
+    );
   };
-  //
-  //_onRefetchComplete = data => {
-  //  let trace = [];
-  //  for (let i = 0; i < this.state.graph.trace.length; i++) {
-  //    let node = this.state.graph.trace[i];
-  //    node = node.setContext(data[node.keyPath]);
-  //    if (!node.isAllowed) {
-  //      break;
-  //    }
-  //    trace.push(node);
-  //  }
-  //  let graph = this.state.graph.replaceTrace(trace);
-  //  this.setState({graph});
-  //};
 
-  //_onRefetchError = err => {
-  //  console.error(err); // eslint-disable-line no-console
-  //};
+  _onRefetchComplete = (graph: State, data: Object) => {
+    const nextGraph = S.mapPosition(graph, pos => {
+      const contextUpdate = data[pos.instruction.action.id];
+      const nextContext = {...pos.context, ...contextUpdate};
+      const nextPos = {...pos, context: nextContext};
+      return P.isPositionAllowed(nextPos) ? nextPos : null;
+    });
+    this.setState({graph: nextGraph});
+  };
 
-  //_onLocation = location => {
-  //  if (location.action !== 'POP') {
-  //    return;
-  //  }
-  //
-  //  let {pathPrefix} = this.props;
-  //  let path = GraphPath.toPath(this.state.graph);
-  //
-  //  let pathname = location.pathname;
-  //
-  //  if (Environment.isFirefox()) {
-  //    pathname = decodeURIComponent(pathname);
-  //  }
-  //
-  //  pathname = normalizePathname(pathname, pathPrefix);
-  //
-  //  if (path === pathname) {
-  //    return;
-  //  }
-  //
-  //  let graph = GraphPath.fromPath(
-  //    pathname,
-  //    this.props.path,
-  //    this.props.actions,
-  //    this._initialContext,
-  //    this.props.domain,
-  //  );
-  //
-  //  this.setState({graph});
-  //};
+  _onRefetchError = (err: Error) => {
+    // eslint-disable-next-line no-console
+    console.error(err);
+  };
+
+  _onLocation = (location: History.Location) => {
+    // TODO: maybe we should work with in-flight state instead?
+    if (this.state.graph == null) {
+      return;
+    }
+    let path = SP.toPath(this.state.graph);
+    let pathname = location.pathname;
+
+    if (Environment.isFirefox()) {
+      pathname = decodeURIComponent(pathname);
+    }
+
+    pathname = normalizePathname(pathname, this.props.pathPrefix);
+
+    if (path === pathname) {
+      return;
+    }
+
+    let graph = SP.fromPath(pathname, {
+      instruction: this._instruction,
+      context: this.props.initialContext || {},
+    });
+
+    this._refetch(graph);
+  };
 
   _onNext = (actionId: string) => {
     this.setStateConfirmed(state => ({
@@ -245,34 +260,41 @@ export default class Wizard extends React.Component {
   };
 
   _onContext = (context: Object) => {
-    let commandName = Command.onContextCommand.name;
+    let commandName = C.onContextCommand.name;
     return this._onCommand(true, commandName, context);
   };
 
   _onContextNoAdvance = (context: Object) => {
-    let commandName = Command.onContextCommand.name;
+    let commandName = C.onContextCommand.name;
     return this._onCommand(false, commandName, context);
   };
 
-  _onEntityUpdate = (_prevEntity: Entity, _nextEntity: Entity) => {
-    //this.setState(state => {
-    //  let {graph} = state;
-    //  graph = graph.updateEntity(prevEntity, nextEntity);
-    //  this._refetch(graph);
-    //  return {...state, graph};
-    //});
+  _onEntityUpdate = (prevEntity: Entity, nextEntity: ?Entity) => {
+    this.setState(state => {
+      let graph = S.updateEntity(state.graph, prevEntity, nextEntity);
+      this._refetch(graph);
+      return {...state, graph};
+    });
   };
 
-  setStateConfirmed = (setter: (WizardState) => WizardState) => {
+  setStateConfirmed = (updater: (WizardState & {graph: State}) => WizardState) => {
     if (confirmNavigation()) {
-      this.setState(setter);
+      this.setState(state => {
+        if (state.graph == null) {
+          return state;
+        } else {
+          return updater(state);
+        }
+      });
     }
   };
 }
 
-//function normalizePathname(pathname, prefix = '') {
-//  if (prefix && prefix === pathname.slice(0, prefix.length)) {
-//    pathname = pathname.slice(prefix.length);
-//  }
-//  return pathname;
-//}
+function normalizePathname(pathname, prefix = '') {
+  if (prefix && prefix === pathname.slice(0, prefix.length)) {
+    pathname = pathname.slice(prefix.length);
+  }
+  return pathname;
+}
+
+export default injectLocation(Wizard);

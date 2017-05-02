@@ -1,60 +1,23 @@
 /**
- * @copyright 2015, Prometheus Research, LL);
+ * @copyright 2015-present, Prometheus Research, LL);
+ * @flow
  */
 
-import React from 'react';
+import * as React from 'react';
+import {VBox, Element, css} from 'react-stylesheet';
+import * as ReactUI from '@prometheusresearch/react-ui';
 
-import {VBox, HBox} from 'rex-widget/layout';
 import {forceRefreshData} from 'rex-widget/data';
-import * as Stylesheet from 'rex-widget/stylesheet';
 import * as ui from 'rex-widget/ui';
-import * as CSS from 'rex-widget/css';
 
 import Action from '../Action';
 
 import Title from './Title';
 
-let stylesheet = Stylesheet.create({
-  Root: {
-    Component: VBox,
-    flex: 1,
-    background: CSS.rgba(255, 226, 226, 0.4),
-    color: CSS.rgb(68, 22, 22),
-    paddingBottom: 20,
-    paddingTop: 5,
-    maxWidth: 400,
-    boxShadow: '0px 1px 2px 0px rgb(200, 200, 200)',
-  },
-
-  Header: {
-    Component: HBox,
-    paddingTop: 1,
-  },
-
-  Content: {
-    Component: VBox,
-    flex: 1,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    paddingLeft: 20,
-  },
-
-  Title: {
-    Component: VBox,
-    flex: 1,
-  },
-
-  MessageBottom: {
-    paddingBottom: 10,
-    fontSize: '90%',
-  },
-
-  Message: {
-    fontSize: '90%',
-  }
-});
-
 export default class Drop extends React.Component {
+  state: {confirmDelay: number} = {confirmDelay: this.props.confirmDelay};
+
+  _countdown: ?number = null;
 
   static defaultProps = {
     width: 400,
@@ -63,52 +26,58 @@ export default class Drop extends React.Component {
     kind: 'danger',
   };
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      confirmDelay: this.props.confirmDelay
-    };
-  }
-
   render() {
     let {entity, onClose, context} = this.props;
     let {confirmDelay} = this.state;
     let title = this.constructor.renderTitle(this.props, context);
-    let article = 'a';
-    if (['a', 'e', 'i', 'o'].indexOf(entity.name[0]) !== -1) {
-      article = 'an';
-    }
     return (
-     <Action title={title}>
-      <stylesheet.Root>
-        {onClose &&
-          <ui.QuietButton
-            icon="remove"
-            onClick={onClose}
-            />}
-        <stylesheet.Content>
-          <stylesheet.Message>
-            <p>You are about to delete {article} {entity.name}.</p>
-            <b> This action cannot be undone.</b>
-          </stylesheet.Message>
-          <stylesheet.MessageBottom>
-            {confirmDelay > 0 ?
-              <p>
-                Wait {confirmDelay} seconds...
-              </p> :
-              <p>
-               Press the button below to permanently delete this record.
-              </p>}
-          </stylesheet.MessageBottom>
-          <ui.DangerButton
-            onClick={this.drop}
-            disabled={confirmDelay > 0}
-            icon="remove">
-            Delete {entity.name}
-          </ui.DangerButton>
-        </stylesheet.Content>
-      </stylesheet.Root>
-     </Action>
+      <Action title={title}>
+        <VBox
+          flexGrow={1}
+          background={css.rgba(255, 226, 226, 0.4)}
+          color={css.rgb(68, 22, 22)}
+          paddingBottom={20}
+          paddingTop={5}
+          maxWidth={400}
+          boxShadow="0px 1px 2px 0px rgb(200, 200, 200)">
+          {onClose &&
+            <ReactUI.QuietButton icon={<ui.Icon name="remove" />} onClick={onClose} />}
+          <VBox
+            overflow="visible"
+            flexGrow={1}
+            alignItems="flex-start"
+            justifyContent="center"
+            paddingLeft={20}>
+            <Element fontSize="90%" fontWeight={200} paddingBottom={15}>
+              <Element>
+                <p>
+                  You are about to delete {article(entity.name)} {entity.name}.
+                </p>
+              </Element>
+              <Element fontWeight={400}>
+                <p>
+                  This action cannot be undone.
+                </p>
+              </Element>
+              <Element>
+                {confirmDelay > 0
+                  ? <p>
+                      Wait {confirmDelay} seconds...
+                    </p>
+                  : <p>
+                      Press the button below to permanently delete this record.
+                    </p>}
+              </Element>
+            </Element>
+            <ReactUI.DangerButton
+              onClick={this.drop}
+              disabled={confirmDelay > 0}
+              icon={<ui.Icon name="remove" />}>
+              Delete {entity.name}
+            </ReactUI.DangerButton>
+          </VBox>
+        </VBox>
+      </Action>
     );
   }
 
@@ -117,7 +86,9 @@ export default class Drop extends React.Component {
   }
 
   componentWillUnmount() {
-    clearInterval(this._countdown);
+    if (this._countdown != null) {
+      clearInterval(this._countdown);
+    }
   }
 
   drop = () => {
@@ -127,15 +98,15 @@ export default class Drop extends React.Component {
       this.props.onEntityUpdate(entity, null);
       forceRefreshData();
     });
-  }
+  };
 
   countdown = () => {
     let confirmDelay = this.state.confirmDelay - 1;
-    if (confirmDelay === 0) {
+    if (confirmDelay === 0 && this._countdown != null) {
       clearInterval(this._countdown);
     }
     this.setState({confirmDelay});
-  }
+  };
 
   static renderTitle({entity, title = `Drop ${entity.name}`}, context) {
     return <Title title={title} context={context} entity={entity} />;
@@ -144,4 +115,12 @@ export default class Drop extends React.Component {
   static getTitle(props) {
     return props.title || `Drop ${props.entity.name}`;
   }
+}
+
+function article(name) {
+  let article = 'a';
+  if (['a', 'e', 'i', 'o'].indexOf(name[0]) !== -1) {
+    article = 'an';
+  }
+  return article;
 }

@@ -46,11 +46,7 @@ class View(EntityAction):
     """
 
     name = 'view'
-    js_type = 'rex-action/lib/actions/View'
-
-    class Introspection(EntityAction.Introspection):
-        info_js_type = 'rex-action/lib/inspect/ViewActionInfo'
-        detailed_info_js_type = 'rex-action/lib/inspect/ViewDetailedActionInfo'
+    js_type = 'rex-action', 'View'
 
     class Configuration(EntityAction.Configuration):
 

@@ -1,14 +1,15 @@
 /**
- * @copyright 2016, Prometheus Research, LLC
+ * @copyright 2016-present, Prometheus Research, LLC
+ * @flow
  */
 
-import React from 'react';
+import * as React from 'react';
 
-import {autobind} from 'rex-widget/lang';
 import {SearchInput} from 'rex-widget/form';
 import {DataTable} from 'rex-widget/datatable';
 
-import {command, Types} from '../execution/Command';
+import type {Entity} from '../model/types';
+import {defineCommand, Types} from '../model/Command';
 import Action from '../Action';
 import Title from './Title';
 import * as ContextUtils from '../ContextUtils';
@@ -66,13 +67,13 @@ export default class Pick extends React.Component {
     );
   }
 
-  @autobind onSelect(entityId, entity) {
+  onSelect = (entityId: string, entity: Entity) => {
     this.props.onCommand('default', entity);
-  }
+  };
 
-  @autobind onSearch(search) {
+  onSearch = (search: string) => {
     this.props.setActionState({search});
-  }
+  };
 
   static renderTitle({entity, title = `Pick ${entity.name}`}, context) {
     return <Title title={title} entity={entity} context={context} />;
@@ -81,15 +82,15 @@ export default class Pick extends React.Component {
   static getTitle(props) {
     return props.title || `Pick ${props.entity.name}`;
   }
-
-  static commands = {
-    @command(Types.ConfigurableEntity())
-    default(props, context, entity) {
-      if (entity != null) {
-        return {...context, [props.entity.name]: entity};
-      } else {
-        return context;
-      }
-    },
-  };
 }
+
+defineCommand(Pick, {
+  argumentTypes: [Types.ConfigurableEntity()],
+  execute(props, context, entity) {
+    if (entity != null) {
+      return {...context, [props.entity.name]: entity};
+    } else {
+      return context;
+    }
+  },
+});

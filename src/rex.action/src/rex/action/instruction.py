@@ -12,6 +12,9 @@
 
 """
 
+import cgi
+
+from collections import namedtuple
 from cached_property import cached_property
 
 from rex.core import Location, locate, set_location, Validate, Error
@@ -19,14 +22,12 @@ from rex.core import RecordVal, UnionVal, MapVal, StrVal, SeqVal, OnField, OneOf
 from rex.widget import TransitionableRecord
 from .util import get_action_key
 
-__all__ = (
-    'Start', 'Execute', 'IncludeWizard', 'Repeat', 'Replace',
-    'InstructionVal', 'PathVal',
-    'visit', 'map',
-)
+__all__ = ('Start', 'Execute', 'IncludeWizard', 'Repeat', 'Replace',
+           'InstructionVal', 'PathVal', 'visit', 'map', )
 
 
 class Instruction(TransitionableRecord):
+    """ Base class for instructions."""
 
     def __clone__(self, **values):
         inst = super(Instruction, self).__clone__(**values)
@@ -37,16 +38,15 @@ class Instruction(TransitionableRecord):
 
     def __transit_format__(self, req, path):
         return [
-            getattr(self, field)
-            for field in self._fields
+            getattr(self, field) for field in self._fields
             if field != 'action_instance'
-        ] # pylint: disable=no-member
+        ]  # pylint: disable=no-member
 
 
 class Start(Instruction):
     """ Start of the wizard execution."""
 
-    fields = ('then',)
+    fields = ('then', )
 
     __transit_tag__ = 'rex:action:start'
 
@@ -66,8 +66,9 @@ class IncludeWizard(Execute):
 
 
 class Replace(Instruction):
+    """ Replace current position with a new one."""
 
-    fields = ('replace', 'instruction')
+    fields = ('replace', 'instruction', 'traverse_back', 'traverse')
 
     __transit_tag__ = 'rex:action:replace'
 
@@ -99,35 +100,36 @@ def visit(instruction, visitor, state=None):
 def map(instruction, mapper):
     return _map(instruction, mapper, [])
 
+
 def _map(instruction, mapper, ancestors):
     instruction = mapper(instruction, ancestors)
     if isinstance(instruction, Repeat):
         instruction = instruction.__clone__(
-            repeat=[_map(inst, mapper, ancestors) for inst in instruction.repeat],
-        )
+            repeat=[
+                _map(inst, mapper, ancestors) for inst in instruction.repeat
+            ], )
     if isinstance(instruction, (Start, IncludeWizard, Execute, Repeat)):
         ancestors = ancestors + [instruction]
         instruction = instruction.__clone__(
-            then=[_map(inst, mapper, ancestors) for inst in instruction.then]
-        )
+            then=[_map(inst, mapper, ancestors) for inst in instruction.then])
     return instruction
 
 
 def override(instruction, actions):
-    def _override(instruction, ancestors):
+    def _override(instruction, _ancestors):
         if isinstance(instruction, Execute) and instruction.action in actions:
             action_instance = actions[instruction.action]
-            instruction = instruction.__clone__(action_instance=action_instance)
+            instruction = instruction.__clone__(
+                action_instance=action_instance)
         return instruction
+
     return map(instruction, _override)
 
 
 class ValidateWithAction(Validate):
-
     def __init__(self, id, resolve_action):
         self.id = id
         self.resolve_action = resolve_action
-
 
 
 class ThenVal(ValidateWithAction):
@@ -146,11 +148,12 @@ class ThenVal(ValidateWithAction):
 
     @cached_property
     def _validate(self):
-        return SeqVal(UnionVal(
-            ExecuteVal(self.id, self.resolve_action).variant,
-            RepeatVal(self.id, self.resolve_action).variant,
-            ReplaceVal(self.id, self.resolve_action).variant,
-            ExecuteShortcutVal(self.id, self.resolve_action)))
+        return SeqVal(
+            UnionVal(
+                ExecuteVal(self.id, self.resolve_action).variant,
+                RepeatVal(self.id, self.resolve_action).variant,
+                ReplaceVal(self.id, self.resolve_action).variant,
+                ExecuteShortcutVal(self.id, self.resolve_action)))
 
     def _check(self, value):
         seen = set()
@@ -162,7 +165,8 @@ class ThenVal(ValidateWithAction):
             elif isinstance(instruction, Repeat):
                 for instruction in instruction.repeat:
                     if instruction.action in seen:
-                        raise Error('Found duplicate action:', instruction.action)
+                        raise Error('Found duplicate action:',
+                                    instruction.action)
                     seen.add(instruction.action)
         return value
 
@@ -218,10 +222,8 @@ class ExecuteVal(BaseInstructionVal):
 
     @cached_property
     def instruction_validator(self):
-        return RecordVal(
-            ('action', StrVal()),
-            ('then', ThenVal(self.id, self.resolve_action), [])
-        )
+        return RecordVal(('action', StrVal()), ('then', ThenVal(
+            self.id, self.resolve_action), []))
 
 
 class InstructionPointerVal(Validate):
@@ -253,17 +255,19 @@ class ReplaceVal(BaseInstructionVal):
     instruction_match = OnField('replace')
 
     def create_instruction(self, replace=None):
-        return Replace(replace=replace, instruction=None)
+        return Replace(
+            replace=replace,
+            instruction=None,
+            traverse_back=None,
+            traverse=None)
 
     @cached_property
     def instruction_validator(self):
         return RecordVal(
-            ('replace', InstructionPointerVal()),
-        )
+            ('replace', InstructionPointerVal()), )
 
 
 class RepeatSectionVal(ValidateWithAction):
-
     @cached_property
     def validator(self):
         return ThenVal(self.id, self.resolve_action)
@@ -289,10 +293,9 @@ class RepeatVal(BaseInstructionVal):
 
     @cached_property
     def instruction_validator(self):
-        return RecordVal(
-            ('repeat', RepeatSectionVal(self.id, self.resolve_action)),
-            ('then', ThenVal(self.id, self.resolve_action), [])
-        )
+        return RecordVal(('repeat', RepeatSectionVal(self.id,
+                                                     self.resolve_action)),
+                         ('then', ThenVal(self.id, self.resolve_action), []))
 
 
 class ExecuteShortcutVal(ValidateWithAction):
@@ -336,7 +339,6 @@ class ExecuteShortcutVal(ValidateWithAction):
 
 
 class InstructionVal(ValidateWithAction):
-
     def __call__(self, value):
         validate = UnionVal(
             ExecuteVal(self.id, self.resolve_action).variant,
@@ -347,24 +349,24 @@ class InstructionVal(ValidateWithAction):
 
 
 class PathVal(Validate):
-
     def __init__(self, id, resolve_action):
         self.id = id
         self.resolve_action = resolve_action
 
-    def _attach_references_mapper(self, instruction, path):
+    def _resolve_replace_reference(self, instruction, path):
         if isinstance(instruction, Replace):
-            delegate_instruction = resolve_reference(instruction.replace, path)
+            (delegate_instruction, traverse_back,
+             traverse) = resolve_replace_reference(instruction.replace, path)
             if not isinstance(delegate_instruction, Execute):
-                raise Error(
-                    'Replace %s should point to another action, got:' % instruction.replace,
-                    delegate_instruction.__class__.__name__)
-            return instruction.__clone__(instruction=delegate_instruction)
+                raise Error('Replace %s should point to another action, got:' %
+                            instruction.replace,
+                            delegate_instruction.__class__.__name__)
+            return instruction.__clone__(
+                instruction=delegate_instruction,
+                traverse_back=traverse_back,
+                traverse=traverse, )
         else:
             return instruction
-
-    def _attach_references(self, path):
-        return map(path, self._attach_references_mapper)
 
     def __call__(self, value):
         if isinstance(value, Start):
@@ -372,38 +374,61 @@ class PathVal(Validate):
         validate = ThenVal(self.id, self.resolve_action)
         path = validate(value)
         path = Start(then=path)
-        path = self._attach_references(path)
+        path = map(path, self._resolve_replace_reference)
         return path
 
     def construct(self, loader, node):
         validate = ThenVal(self.id, self.resolve_action)
         path = validate.construct(loader, node)
         path = Start(then=path)
-        path = self._attach_references(path)
+        path = map(path, self._resolve_replace_reference)
         return path
 
 
-def resolve_reference(reference, path):
+def resolve_replace_reference(reference, path):
     if not isinstance(reference, list):
         reference = reference.split('/')
     stack = path[:]
+    traverse_back = 0
+    traverse = []
     for segment in reference:
         if not segment:
             continue
         elif segment == '.':
             continue
         elif segment == '..':
+            traverse_back = traverse_back + 1
             stack.pop()
         else:
+            action_name, context_update = parse_reference_segment(segment)
+            traverse.append((action_name, context_update))
             top = stack[-1]
             for action in top.then:
                 if not isinstance(action, Execute):
                     continue
-                if action.action == segment:
+                if action.action == action_name:
                     stack.append(action)
                     break
             if top == stack[-1]:
                 raise Error('Invalid reference:', '/'.join(reference))
         if not stack:
             raise Error('Invalid reference:', '/'.join(reference))
-    return stack[-1]
+    action = stack[-1]
+    return (action, traverse_back, traverse)
+
+
+ReferenceSegment = namedtuple('ReferenceSegment', ['name', 'update'])
+
+
+def parse_reference_segment(segment):
+    if '?' in segment:
+        name, update = segment.split('?', 1)
+        update = cgi.parse_qs(update)
+        for k, v in update.items():
+            if len(v) > 1:
+                raise Error('Multiple context updates for the same key:',
+                            segment)
+            update[k] = v[0]
+        return ReferenceSegment(name=name, update=update)
+    else:
+        return ReferenceSegment(name=segment, update=None)

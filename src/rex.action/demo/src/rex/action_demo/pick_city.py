@@ -6,7 +6,7 @@ from rex.core import SeqVal, RecordVal, StrVal, UIntVal
 class PickCity(Action):
 
     name = 'pick-city'
-    js_type = 'rex-action-demo/lib/PickCity'
+    js_type = 'rex-action-demo', 'PickCity'
 
     cities = Field(SeqVal(RecordVal(
         ('id', StrVal()),
@@ -22,7 +22,7 @@ class PickCity(Action):
 class ViewCity(Action):
 
     name = 'view-city'
-    js_type = 'rex-action-demo/lib/ViewCity'
+    js_type = 'rex-action-demo', 'ViewCity'
 
     def context(self):
         return (self.domain.record(city=typing.ValueType('text')),

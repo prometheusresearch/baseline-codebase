@@ -27,11 +27,7 @@ class Drop(Action):
     """
 
     name = 'drop'
-    js_type = 'rex-action/lib/actions/Drop'
-
-    class Introspection(Action.Introspection):
-        info_js_type = 'rex-action/lib/inspect/DropActionInfo'
-        detailed_info_js_type = 'rex-action/lib/inspect/DropDetailedActionInfo'
+    js_type = 'rex-action', 'Drop'
 
     entity = EntityAction.entity.__clone__()
     db = EntityAction.db.__clone__()

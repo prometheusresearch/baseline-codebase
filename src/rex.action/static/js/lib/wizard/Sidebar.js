@@ -3,61 +3,31 @@
  * @flow
  */
 
-import autobind from 'autobind-decorator';
-import React from 'react';
 import AngleLeftIcon from 'react-icons/lib/fa/angle-double-left';
 import AngleRightIcon from 'react-icons/lib/fa/angle-double-right';
+import * as React from 'react';
+import * as ReactUI from '@prometheusresearch/react-ui';
+import {VBox, style, css} from 'react-stylesheet';
 
-import * as css from 'rex-widget/css';
-import * as Stylesheet from 'rex-widget/stylesheet';
-import * as layout from 'rex-widget/layout';
 import * as ui from 'rex-widget/ui';
 
-import ActionTitle, {getTitleAtNode} from '../ActionTitle';
+import ActionTitle, {getTitleAtPosition} from '../ActionTitle';
 import ActionIcon from '../ActionIcon';
-import * as S from '../execution/State';
+import * as S from '../model/State';
+import * as P from '../model/Position';
+import SidebarButton from './SidebarButton';
 
 const SIDEBAR_COLLAPSED_KEY = 'rex.action.sidebar.collapsed';
 
-let SidebarRoot = Stylesheet.style(layout.VBox, {
-  background: '#ffffff',
-  width: 250,
-  boxShadow: '0px 0px 1px 2px #E2E2E2',
-  padding: css.padding(10, 0),
+let SidebarRoot = style(VBox, {
+  base: {
+    background: '#ffffff',
+    width: 250,
+    boxShadow: '0px 0px 1px 2px #E2E2E2',
+    padding: css.padding(10, 0),
+  },
   collapsed: {
     width: 'auto',
-  },
-});
-
-let SidebarButton = Stylesheet.style(ui.ButtonBase, {
-  Root: {
-    height: 48,
-    minHeight: 48,
-    fontSize: '90%',
-    background: 'transparent',
-    padding: css.padding(15, 20),
-    border: css.border(1, 'transparent'),
-    color: '#646464',
-    whiteSpace: 'nowrap',
-    hover: {
-      color: '#333',
-    },
-    active: {
-      color: '#0094CD', //would like this color to be whatever subheaderTheme color is (as defined in rex.widget_chrome)
-      fontWeight: 700,
-      background: 'white',
-      hover: {
-        color: '#0094CD', //as well as this color
-      },
-    },
-    focus: {
-      outline: css.none,
-    },
-  },
-  IconWrapper: {
-    hasCaption: {
-      marginRight: 15,
-    },
   },
 });
 
@@ -84,10 +54,10 @@ export default class Sidebar extends React.Component {
   render() {
     let {onClick, graph} = this.props;
     let {collapsed} = this.state;
-    let buttons = S.siblingPosition(graph.position).map(pos => (
+    let buttons = S.sibling(graph).filter(P.isPositionAllowed).map(pos => (
       <SidebarButton
         key={pos.instruction.action.id}
-        title={getTitleAtNode(pos)}
+        title={getTitleAtPosition(pos)}
         active={pos.instruction.action.id === graph.position.instruction.action.id}
         icon={<ActionIcon position={pos} />}
         onClick={onClick.bind(null, pos.instruction.action.id)}>
@@ -96,10 +66,10 @@ export default class Sidebar extends React.Component {
     ));
     return (
       <SidebarRoot variant={{collapsed}}>
-        <layout.VBox flex={1} style={{overflowX: 'hidden', overflowY: 'auto'}}>
+        <VBox flexGrow={1} style={{overflowX: 'hidden', overflowY: 'auto'}}>
           {buttons}
-        </layout.VBox>
-        <ui.SecondaryQuietButton
+        </VBox>
+        <ReactUI.QuietButton
           style={{backgroundColor: 'white', color: '#0094CD', border: css.none}}
           size="normal"
           title="Toggle sidebar"
@@ -110,10 +80,12 @@ export default class Sidebar extends React.Component {
     );
   }
 
-  @autobind toggle() {
-    let collapsed = !this.state.collapsed;
-    this.setState({collapsed});
-    ui.dispatchResizeEvent();
-    writeState(getSidebarKey(), collapsed);
-  }
+  toggle = () => {
+    this.setState(state => {
+      const collapsed = !state.collapsed;
+      ui.dispatchResizeEvent();
+      writeState(getSidebarKey(), collapsed);
+      return {...state, collapsed};
+    });
+  };
 }

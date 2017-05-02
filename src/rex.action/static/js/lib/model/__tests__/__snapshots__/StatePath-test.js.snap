@@ -1,0 +1,1635 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`StatePath.fromPath()/toPath()  1`] = `
+Object {
+  "context": Object {},
+  "instruction": Object {
+    "action": Object {
+      "commands": Object {},
+      "contextTypes": Object {
+        "input": RecordType {
+          "open": true,
+          "rows": Object {},
+        },
+        "output": RecordType {
+          "open": true,
+          "rows": Object {},
+        },
+      },
+      "domain": Object {},
+      "element": <div />,
+      "id": "one",
+      "name": "one",
+    },
+    "parent": null,
+    "then": Array [],
+    "type": "execute",
+  },
+  "prev": Object {
+    "context": Object {},
+    "instruction": Object {
+      "parent": null,
+      "then": Array [
+        Object {
+          "action": Object {
+            "commands": Object {},
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "one",
+            "name": "one",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {},
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "two",
+            "name": "two",
+          },
+          "parent": null,
+          "then": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "three",
+                "name": "three",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {
+              "default": Command {
+                "_execute": [Function],
+                "argumentTypes": Array [
+                  ValueType {},
+                ],
+                "name": "default",
+              },
+            },
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "with-default-command",
+            "name": "with-default-command",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {
+              "named": Command {
+                "_execute": [Function],
+                "argumentTypes": Array [
+                  ValueType {},
+                ],
+                "name": "default",
+              },
+            },
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "with-named-command",
+            "name": "with-named-command",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+      ],
+      "type": "start",
+    },
+    "type": "start-position",
+  },
+  "stack": Array [],
+  "state": Object {},
+  "type": "position",
+}
+`;
+
+exports[`StatePath.fromPath()/toPath() / 1`] = `
+Object {
+  "context": Object {},
+  "instruction": Object {
+    "action": Object {
+      "commands": Object {},
+      "contextTypes": Object {
+        "input": RecordType {
+          "open": true,
+          "rows": Object {},
+        },
+        "output": RecordType {
+          "open": true,
+          "rows": Object {},
+        },
+      },
+      "domain": Object {},
+      "element": <div />,
+      "id": "one",
+      "name": "one",
+    },
+    "parent": null,
+    "then": Array [],
+    "type": "execute",
+  },
+  "prev": Object {
+    "context": Object {},
+    "instruction": Object {
+      "parent": null,
+      "then": Array [
+        Object {
+          "action": Object {
+            "commands": Object {},
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "one",
+            "name": "one",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {},
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "two",
+            "name": "two",
+          },
+          "parent": null,
+          "then": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "three",
+                "name": "three",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {
+              "default": Command {
+                "_execute": [Function],
+                "argumentTypes": Array [
+                  ValueType {},
+                ],
+                "name": "default",
+              },
+            },
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "with-default-command",
+            "name": "with-default-command",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {
+              "named": Command {
+                "_execute": [Function],
+                "argumentTypes": Array [
+                  ValueType {},
+                ],
+                "name": "default",
+              },
+            },
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "with-named-command",
+            "name": "with-named-command",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+      ],
+      "type": "start",
+    },
+    "type": "start-position",
+  },
+  "stack": Array [],
+  "state": Object {},
+  "type": "position",
+}
+`;
+
+exports[`StatePath.fromPath()/toPath() /one 1`] = `
+Object {
+  "context": Object {},
+  "instruction": Object {
+    "action": Object {
+      "commands": Object {},
+      "contextTypes": Object {
+        "input": RecordType {
+          "open": true,
+          "rows": Object {},
+        },
+        "output": RecordType {
+          "open": true,
+          "rows": Object {},
+        },
+      },
+      "domain": Object {},
+      "element": <div />,
+      "id": "one",
+      "name": "one",
+    },
+    "parent": null,
+    "then": Array [],
+    "type": "execute",
+  },
+  "prev": Object {
+    "context": Object {},
+    "instruction": Object {
+      "parent": null,
+      "then": Array [
+        Object {
+          "action": Object {
+            "commands": Object {},
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "one",
+            "name": "one",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {},
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "two",
+            "name": "two",
+          },
+          "parent": null,
+          "then": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "three",
+                "name": "three",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {
+              "default": Command {
+                "_execute": [Function],
+                "argumentTypes": Array [
+                  ValueType {},
+                ],
+                "name": "default",
+              },
+            },
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "with-default-command",
+            "name": "with-default-command",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {
+              "named": Command {
+                "_execute": [Function],
+                "argumentTypes": Array [
+                  ValueType {},
+                ],
+                "name": "default",
+              },
+            },
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "with-named-command",
+            "name": "with-named-command",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+      ],
+      "type": "start",
+    },
+    "type": "start-position",
+  },
+  "stack": Array [],
+  "state": Object {},
+  "type": "position",
+}
+`;
+
+exports[`StatePath.fromPath()/toPath() /two 1`] = `
+Object {
+  "context": Object {},
+  "instruction": Object {
+    "action": Object {
+      "commands": Object {},
+      "contextTypes": Object {
+        "input": RecordType {
+          "open": true,
+          "rows": Object {},
+        },
+        "output": RecordType {
+          "open": true,
+          "rows": Object {},
+        },
+      },
+      "domain": Object {},
+      "element": <div />,
+      "id": "two",
+      "name": "two",
+    },
+    "parent": null,
+    "then": Array [
+      Object {
+        "action": Object {
+          "commands": Object {},
+          "contextTypes": Object {
+            "input": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+            "output": RecordType {
+              "open": true,
+              "rows": Object {},
+            },
+          },
+          "domain": Object {},
+          "element": <div />,
+          "id": "three",
+          "name": "three",
+        },
+        "parent": null,
+        "then": Array [],
+        "type": "execute",
+      },
+    ],
+    "type": "execute",
+  },
+  "prev": Object {
+    "context": Object {},
+    "instruction": Object {
+      "parent": null,
+      "then": Array [
+        Object {
+          "action": Object {
+            "commands": Object {},
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "one",
+            "name": "one",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {},
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "two",
+            "name": "two",
+          },
+          "parent": null,
+          "then": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "three",
+                "name": "three",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {
+              "default": Command {
+                "_execute": [Function],
+                "argumentTypes": Array [
+                  ValueType {},
+                ],
+                "name": "default",
+              },
+            },
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "with-default-command",
+            "name": "with-default-command",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {
+              "named": Command {
+                "_execute": [Function],
+                "argumentTypes": Array [
+                  ValueType {},
+                ],
+                "name": "default",
+              },
+            },
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "with-named-command",
+            "name": "with-named-command",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+      ],
+      "type": "start",
+    },
+    "type": "start-position",
+  },
+  "stack": Array [],
+  "state": Object {},
+  "type": "position",
+}
+`;
+
+exports[`StatePath.fromPath()/toPath() /two/three 1`] = `
+Object {
+  "context": Object {},
+  "instruction": Object {
+    "action": Object {
+      "commands": Object {},
+      "contextTypes": Object {
+        "input": RecordType {
+          "open": true,
+          "rows": Object {},
+        },
+        "output": RecordType {
+          "open": true,
+          "rows": Object {},
+        },
+      },
+      "domain": Object {},
+      "element": <div />,
+      "id": "three",
+      "name": "three",
+    },
+    "parent": null,
+    "then": Array [],
+    "type": "execute",
+  },
+  "prev": Object {
+    "context": Object {},
+    "instruction": Object {
+      "action": Object {
+        "commands": Object {},
+        "contextTypes": Object {
+          "input": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+          "output": RecordType {
+            "open": true,
+            "rows": Object {},
+          },
+        },
+        "domain": Object {},
+        "element": <div />,
+        "id": "two",
+        "name": "two",
+      },
+      "parent": null,
+      "then": Array [
+        Object {
+          "action": Object {
+            "commands": Object {},
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "three",
+            "name": "three",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+      ],
+      "type": "execute",
+    },
+    "prev": Object {
+      "context": Object {},
+      "instruction": Object {
+        "parent": null,
+        "then": Array [
+          Object {
+            "action": Object {
+              "commands": Object {},
+              "contextTypes": Object {
+                "input": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+                "output": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+              },
+              "domain": Object {},
+              "element": <div />,
+              "id": "one",
+              "name": "one",
+            },
+            "parent": null,
+            "then": Array [],
+            "type": "execute",
+          },
+          Object {
+            "action": Object {
+              "commands": Object {},
+              "contextTypes": Object {
+                "input": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+                "output": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+              },
+              "domain": Object {},
+              "element": <div />,
+              "id": "two",
+              "name": "two",
+            },
+            "parent": null,
+            "then": Array [
+              Object {
+                "action": Object {
+                  "commands": Object {},
+                  "contextTypes": Object {
+                    "input": RecordType {
+                      "open": true,
+                      "rows": Object {},
+                    },
+                    "output": RecordType {
+                      "open": true,
+                      "rows": Object {},
+                    },
+                  },
+                  "domain": Object {},
+                  "element": <div />,
+                  "id": "three",
+                  "name": "three",
+                },
+                "parent": null,
+                "then": Array [],
+                "type": "execute",
+              },
+            ],
+            "type": "execute",
+          },
+          Object {
+            "action": Object {
+              "commands": Object {
+                "default": Command {
+                  "_execute": [Function],
+                  "argumentTypes": Array [
+                    ValueType {},
+                  ],
+                  "name": "default",
+                },
+              },
+              "contextTypes": Object {
+                "input": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+                "output": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+              },
+              "domain": Object {},
+              "element": <div />,
+              "id": "with-default-command",
+              "name": "with-default-command",
+            },
+            "parent": null,
+            "then": Array [],
+            "type": "execute",
+          },
+          Object {
+            "action": Object {
+              "commands": Object {
+                "named": Command {
+                  "_execute": [Function],
+                  "argumentTypes": Array [
+                    ValueType {},
+                  ],
+                  "name": "default",
+                },
+              },
+              "contextTypes": Object {
+                "input": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+                "output": RecordType {
+                  "open": true,
+                  "rows": Object {},
+                },
+              },
+              "domain": Object {},
+              "element": <div />,
+              "id": "with-named-command",
+              "name": "with-named-command",
+            },
+            "parent": null,
+            "then": Array [],
+            "type": "execute",
+          },
+        ],
+        "type": "start",
+      },
+      "type": "start-position",
+    },
+    "stack": Array [],
+    "state": Object {},
+    "type": "position",
+  },
+  "stack": Array [],
+  "state": Object {},
+  "type": "position",
+}
+`;
+
+exports[`StatePath.fromPath()/toPath() /with-default-command 1`] = `
+Object {
+  "context": Object {},
+  "instruction": Object {
+    "action": Object {
+      "commands": Object {
+        "default": Command {
+          "_execute": [Function],
+          "argumentTypes": Array [
+            ValueType {},
+          ],
+          "name": "default",
+        },
+      },
+      "contextTypes": Object {
+        "input": RecordType {
+          "open": true,
+          "rows": Object {},
+        },
+        "output": RecordType {
+          "open": true,
+          "rows": Object {},
+        },
+      },
+      "domain": Object {},
+      "element": <div />,
+      "id": "with-default-command",
+      "name": "with-default-command",
+    },
+    "parent": null,
+    "then": Array [],
+    "type": "execute",
+  },
+  "prev": Object {
+    "context": Object {},
+    "instruction": Object {
+      "parent": null,
+      "then": Array [
+        Object {
+          "action": Object {
+            "commands": Object {},
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "one",
+            "name": "one",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {},
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "two",
+            "name": "two",
+          },
+          "parent": null,
+          "then": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "three",
+                "name": "three",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {
+              "default": Command {
+                "_execute": [Function],
+                "argumentTypes": Array [
+                  ValueType {},
+                ],
+                "name": "default",
+              },
+            },
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "with-default-command",
+            "name": "with-default-command",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {
+              "named": Command {
+                "_execute": [Function],
+                "argumentTypes": Array [
+                  ValueType {},
+                ],
+                "name": "default",
+              },
+            },
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "with-named-command",
+            "name": "with-named-command",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+      ],
+      "type": "start",
+    },
+    "type": "start-position",
+  },
+  "stack": Array [],
+  "state": Object {},
+  "type": "position",
+}
+`;
+
+exports[`StatePath.fromPath()/toPath() /with-default-command[42] 1`] = `
+Object {
+  "command": Object {
+    "args": Array [
+      "42",
+    ],
+    "commandName": "default",
+  },
+  "context": Object {
+    "value": "42",
+  },
+  "instruction": Object {
+    "action": Object {
+      "commands": Object {
+        "default": Command {
+          "_execute": [Function],
+          "argumentTypes": Array [
+            ValueType {},
+          ],
+          "name": "default",
+        },
+      },
+      "contextTypes": Object {
+        "input": RecordType {
+          "open": true,
+          "rows": Object {},
+        },
+        "output": RecordType {
+          "open": true,
+          "rows": Object {},
+        },
+      },
+      "domain": Object {},
+      "element": <div />,
+      "id": "with-default-command",
+      "name": "with-default-command",
+    },
+    "parent": null,
+    "then": Array [],
+    "type": "execute",
+  },
+  "prev": Object {
+    "context": Object {},
+    "instruction": Object {
+      "parent": null,
+      "then": Array [
+        Object {
+          "action": Object {
+            "commands": Object {},
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "one",
+            "name": "one",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {},
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "two",
+            "name": "two",
+          },
+          "parent": null,
+          "then": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "three",
+                "name": "three",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {
+              "default": Command {
+                "_execute": [Function],
+                "argumentTypes": Array [
+                  ValueType {},
+                ],
+                "name": "default",
+              },
+            },
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "with-default-command",
+            "name": "with-default-command",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {
+              "named": Command {
+                "_execute": [Function],
+                "argumentTypes": Array [
+                  ValueType {},
+                ],
+                "name": "default",
+              },
+            },
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "with-named-command",
+            "name": "with-named-command",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+      ],
+      "type": "start",
+    },
+    "type": "start-position",
+  },
+  "stack": Array [],
+  "state": Object {},
+  "type": "position",
+}
+`;
+
+exports[`StatePath.fromPath()/toPath() /with-named-command 1`] = `
+Object {
+  "context": Object {},
+  "instruction": Object {
+    "action": Object {
+      "commands": Object {
+        "named": Command {
+          "_execute": [Function],
+          "argumentTypes": Array [
+            ValueType {},
+          ],
+          "name": "default",
+        },
+      },
+      "contextTypes": Object {
+        "input": RecordType {
+          "open": true,
+          "rows": Object {},
+        },
+        "output": RecordType {
+          "open": true,
+          "rows": Object {},
+        },
+      },
+      "domain": Object {},
+      "element": <div />,
+      "id": "with-named-command",
+      "name": "with-named-command",
+    },
+    "parent": null,
+    "then": Array [],
+    "type": "execute",
+  },
+  "prev": Object {
+    "context": Object {},
+    "instruction": Object {
+      "parent": null,
+      "then": Array [
+        Object {
+          "action": Object {
+            "commands": Object {},
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "one",
+            "name": "one",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {},
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "two",
+            "name": "two",
+          },
+          "parent": null,
+          "then": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "three",
+                "name": "three",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {
+              "default": Command {
+                "_execute": [Function],
+                "argumentTypes": Array [
+                  ValueType {},
+                ],
+                "name": "default",
+              },
+            },
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "with-default-command",
+            "name": "with-default-command",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {
+              "named": Command {
+                "_execute": [Function],
+                "argumentTypes": Array [
+                  ValueType {},
+                ],
+                "name": "default",
+              },
+            },
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "with-named-command",
+            "name": "with-named-command",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+      ],
+      "type": "start",
+    },
+    "type": "start-position",
+  },
+  "stack": Array [],
+  "state": Object {},
+  "type": "position",
+}
+`;
+
+exports[`StatePath.fromPath()/toPath() /with-named-command.named[32] 1`] = `
+Object {
+  "command": Object {
+    "args": Array [
+      "32",
+    ],
+    "commandName": "named",
+  },
+  "context": Object {
+    "value": "32",
+  },
+  "instruction": Object {
+    "action": Object {
+      "commands": Object {
+        "named": Command {
+          "_execute": [Function],
+          "argumentTypes": Array [
+            ValueType {},
+          ],
+          "name": "default",
+        },
+      },
+      "contextTypes": Object {
+        "input": RecordType {
+          "open": true,
+          "rows": Object {},
+        },
+        "output": RecordType {
+          "open": true,
+          "rows": Object {},
+        },
+      },
+      "domain": Object {},
+      "element": <div />,
+      "id": "with-named-command",
+      "name": "with-named-command",
+    },
+    "parent": null,
+    "then": Array [],
+    "type": "execute",
+  },
+  "prev": Object {
+    "context": Object {},
+    "instruction": Object {
+      "parent": null,
+      "then": Array [
+        Object {
+          "action": Object {
+            "commands": Object {},
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "one",
+            "name": "one",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {},
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "two",
+            "name": "two",
+          },
+          "parent": null,
+          "then": Array [
+            Object {
+              "action": Object {
+                "commands": Object {},
+                "contextTypes": Object {
+                  "input": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                  "output": RecordType {
+                    "open": true,
+                    "rows": Object {},
+                  },
+                },
+                "domain": Object {},
+                "element": <div />,
+                "id": "three",
+                "name": "three",
+              },
+              "parent": null,
+              "then": Array [],
+              "type": "execute",
+            },
+          ],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {
+              "default": Command {
+                "_execute": [Function],
+                "argumentTypes": Array [
+                  ValueType {},
+                ],
+                "name": "default",
+              },
+            },
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "with-default-command",
+            "name": "with-default-command",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+        Object {
+          "action": Object {
+            "commands": Object {
+              "named": Command {
+                "_execute": [Function],
+                "argumentTypes": Array [
+                  ValueType {},
+                ],
+                "name": "default",
+              },
+            },
+            "contextTypes": Object {
+              "input": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+              "output": RecordType {
+                "open": true,
+                "rows": Object {},
+              },
+            },
+            "domain": Object {},
+            "element": <div />,
+            "id": "with-named-command",
+            "name": "with-named-command",
+          },
+          "parent": null,
+          "then": Array [],
+          "type": "execute",
+        },
+      ],
+      "type": "start",
+    },
+    "type": "start-position",
+  },
+  "stack": Array [],
+  "state": Object {},
+  "type": "position",
+}
+`;

@@ -37,7 +37,7 @@ def get_sources(req):
 class DemoChrome(Chrome):
 
     name = 'DemoChrome'
-    js_type = 'rex-action-demo/lib/DemoChrome'
+    js_type = 'rex-action-demo', 'DemoChrome'
 
     @computed_field
     def wizard_source(self, req):

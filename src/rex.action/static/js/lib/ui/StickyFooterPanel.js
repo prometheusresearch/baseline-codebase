@@ -1,31 +1,38 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2015-present, Prometheus Research, LLC
+ * @flow
  */
 
-import autobind from 'autobind-decorator';
-import React, {PropTypes} from 'react';
-import {findDOMNode} from 'react-dom';
+import invariant from 'invariant';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
+import {VBox, Element} from 'react-stylesheet';
+
 import cloneElementWithRef from '../cloneElementWithRef';
+import {addResizeListener, removeResizeListener} from '../vendor/detectElementResize';
 
-import * as stylesheet from 'rex-widget/stylesheet';
-import {VBox} from 'rex-widget/layout';
+type Props = {
+  mode?: 'sticky' | 'floating',
+  footer?: React$Element<*>,
+  children?: React$Element<*>,
+  stickThreshold: number,
+  addResizeListener: (element: HTMLElement, listener: Function) => void,
+  removeResizeListener: (element: HTMLElement, listener: Function) => void,
+  contentWrapperStyle?: Object,
+};
 
-import {
-  addResizeListener,
-  removeResizeListener
-} from '../vendor/detectElementResize';
+type State = {
+  sticky: boolean,
+};
 
 export default class StickyFooterPanel extends React.Component {
+  props: Props;
 
-  static propTypes = {
-    mode: PropTypes.oneOf(['sticky', 'floating']),
+  state: State = {sticky: this.props.mode === 'sticky'};
 
-    children: PropTypes.node,
-
-    footer: PropTypes.node,
-
-    stickThreshold: PropTypes.number,
-  };
+  _footerRef: ?React.Component<any, any, any> = null;
+  _contentRef: ?React.Component<any, any, any> = null;
+  _contentWrapperRef: ?React.Component<any, any, any> = null;
 
   static defaultProps = {
     stickThreshold: 50,
@@ -33,30 +40,8 @@ export default class StickyFooterPanel extends React.Component {
     removeResizeListener: removeResizeListener,
   };
 
-  static stylesheet = stylesheet.create({
-    Root: {
-      Component: VBox,
-      flex: 1,
-    },
-    Content: 'div',
-    ContentWrapper: {
-      Component: VBox,
-      paddingLeft: 10,
-      flex: 1,
-    }
-  });
-
-  constructor(props) {
-    super(props);
-    this.state = {sticky: this.props.mode === 'sticky'};
-    this._footerRef = null;
-    this._contentRef = null;
-    this._contentWrapperRef = null;
-  }
-
   render() {
-    let {Root, Content, ContentWrapper} = this.constructor.stylesheet;
-    let {children, footer, mode} = this.props;
+    let {children, footer, mode, contentWrapperStyle} = this.props;
     let {sticky} = this.state;
     if (footer) {
       footer = cloneElementWithRef(footer, {
@@ -65,15 +50,19 @@ export default class StickyFooterPanel extends React.Component {
       });
     }
     return (
-      <Root>
-        <ContentWrapper ref={this._onContentWrapperRef}>
-          {mode !== undefined ?
-            children :
-            <Content ref={this._onContentRef}>{children}</Content>}
+      <VBox flexGrow={1}>
+        <VBox
+          paddingLeft={10}
+          flexGrow={1}
+          ref={this._onContentWrapperRef}
+          style={contentWrapperStyle}>
+          {mode !== undefined
+            ? children
+            : <Element ref={this._onContentRef}>{children}</Element>}
           {!sticky && footer}
-        </ContentWrapper>
+        </VBox>
         {sticky && footer}
-      </Root>
+      </VBox>
     );
   }
 
@@ -89,13 +78,13 @@ export default class StickyFooterPanel extends React.Component {
     }
   }
 
-  componentWillReceiveProps({mode}) {
+  componentWillReceiveProps({mode}: Props) {
     if (mode !== this.props.mode) {
       this.setState({sticky: mode === 'sticky'});
     }
   }
 
-  componentDidUpdate({mode}) {
+  componentDidUpdate({mode}: Props) {
     if (mode !== this.props.mode) {
       if (this.props.mode === undefined) {
         this._installContentResizeDetector();
@@ -107,7 +96,7 @@ export default class StickyFooterPanel extends React.Component {
   }
 
   _installContentResizeDetector() {
-    if (this._contentRef && this._contentWrapperRef) {
+    if (this._contentRef != null && this._contentWrapperRef != null) {
       this.props.addResizeListener(this._contentElement, this._onContentResize);
       this.props.addResizeListener(this._contentWrapperElement, this._onContentResize);
     }
@@ -120,8 +109,7 @@ export default class StickyFooterPanel extends React.Component {
     }
   }
 
-  @autobind
-  _onContentResize() {
+  _onContentResize = () => {
     let contentBottom = this._contentElement.getBoundingClientRect().bottom;
     let contentWrapperBottom = this._contentWrapperElement.getBoundingClientRect().bottom;
     if (this._footerRef && !this.state.sticky) {
@@ -137,32 +125,32 @@ export default class StickyFooterPanel extends React.Component {
         this.setState({sticky: true});
       }
     }
+  };
+
+  get _contentElement(): HTMLElement {
+    invariant(this._contentRef != null, 'Invalid component state');
+    return (ReactDOM.findDOMNode(this._contentRef): any);
   }
 
-  get _contentElement() {
-    return this._contentRef ? findDOMNode(this._contentRef) : null;
+  get _contentWrapperElement(): HTMLElement {
+    invariant(this._contentWrapperRef != null, 'Invalid component state');
+    return (ReactDOM.findDOMNode(this._contentWrapperRef): any);
   }
 
-  get _contentWrapperElement() {
-    return this._contentWrapperRef ? findDOMNode(this._contentWrapperRef) : null;
+  get _footerElement(): HTMLElement {
+    invariant(this._footerRef != null, 'Invalid component state');
+    return (ReactDOM.findDOMNode(this._footerRef): any);
   }
 
-  get _footerElement() {
-    return this._footerRef ? findDOMNode(this._footerRef) : null;
-  }
-
-  @autobind
-  _onFooterRef(footerRef) {
+  _onFooterRef = (footerRef: React.Component<*, *, *>) => {
     this._footerRef = footerRef;
-  }
+  };
 
-  @autobind
-  _onContentRef(contentRef) {
+  _onContentRef = (contentRef: React.Component<any, any, any>) => {
     this._contentRef = contentRef;
-  }
+  };
 
-  @autobind
-  _onContentWrapperRef(contentWrapperRef) {
+  _onContentWrapperRef = (contentWrapperRef: React.Component<any, any, any>) => {
     this._contentWrapperRef = contentWrapperRef;
-  }
+  };
 }

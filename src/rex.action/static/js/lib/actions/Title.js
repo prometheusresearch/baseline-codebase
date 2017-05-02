@@ -1,44 +1,44 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2015-present, Prometheus Research, LLC
+ * @flow
  */
 
-import React from 'react';
+import * as React from 'react';
+import {Element} from 'react-stylesheet';
 
-import * as Stylesheet from 'rex-widget/stylesheet';
-import {VBox} from 'rex-widget/layout';
-
-import * as Entity from '../Entity';
+import * as Entity from '../model/Entity';
 
 export default class Title extends React.Component {
-
-  static stylesheet = Stylesheet.create({
-    Primary: {
-      Component: VBox,
-    },
-    Secondary: {
-      Component: VBox,
-      opacity: 0.7,
-      fontSize: '90%',
-    },
-  });
+  props: {
+    entity: {name: string},
+    context: Object,
+    title: string,
+  };
 
   render() {
-    let {entity, context, title} = this.props;
-    let {Primary, Secondary} = this.constructor.stylesheet;
-    if (entity.name in context) {
-      let entityTitle = Entity.getEntityTitle(context[entity.name]);
-      if (entityTitle === null) {
-        entityTitle = context[entity.name].id;
-      }
+    const {entity, context, title} = this.props;
+    const subtitle = getEntityTitle(context, entity.name);
+    if (subtitle != null) {
       return (
-        <VBox>
-          <Primary>{title}</Primary>
-          <Secondary>{entityTitle}</Secondary>
-        </VBox>
+        <Element>
+          <Element>{title}</Element>
+          <Element opacity={0.7} fontSize="90%">{subtitle}</Element>
+        </Element>
       );
     } else {
-      return <Primary>{title}</Primary>;
+      return <Element display="inline">{title}</Element>;
     }
   }
 }
 
+function getEntityTitle(context, entityName): ?string {
+  if (entityName in context && context[entityName] != null) {
+    let subtitle = Entity.getEntityTitle(context[entityName]);
+    if (subtitle === null) {
+      subtitle = context[entityName].id;
+    }
+    return subtitle;
+  } else {
+    return null;
+  }
+}

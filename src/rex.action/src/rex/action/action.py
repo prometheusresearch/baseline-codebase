@@ -33,7 +33,6 @@ from rex.widget.util import add_mapping_key, pop_mapping_key, IconVal
 from rex.widget.validate import DeferredVal, Deferred
 
 from . import typing
-from . import introspection
 from .validate import is_string_node
 
 __all__ = ('ActionBase', 'Action', 'ActionVal')
@@ -63,9 +62,6 @@ class ContextTypes(TransitionableRecord):
 class ActionBase(Widget):
 
     __metaclass__ = ActionMeta
-
-    #: Action introspection interface
-    Introspection = introspection.ActionIntrospection
 
     id = Field(
         StrVal(),
@@ -125,7 +121,6 @@ class ActionBase(Widget):
         self.uid = values.get('id') or id(self)
         self._domain = values.pop('__domain', typing.Domain.current())
         self._context_types = None
-        self._introspection = None
         super(ActionBase, self).__init__(**values)
 
     @property
@@ -154,15 +149,11 @@ class ActionBase(Widget):
 
     def __clone__(self, **values):
         action = self.__class__(**self._clone_values(values))
-        if self._introspection:
-            action._introspection = self._introspection.transfer(action)
         action.uid = self.uid
         return action
 
     def __validated_clone__(self, **values):
         action = self.validated(**self._clone_values(values))
-        if self._introspection:
-            action._introspection = self._introspection.transfer(action)
         action.uid = self.uid
         return action
 
@@ -256,12 +247,12 @@ class Action(ActionBase):
 
 @as_transitionable(ActionBase, tag='widget')
 def _format_Action(action, req, path): # pylint: disable=invalid-name
-    js_type, props = _format_Widget(action, req, path)
+    package_name, symbol_name, props = _format_Widget(action, req, path)
     props['context_types'] = {
         'input': action.context_types[0],
         'output': action.context_types[1],
     }
-    return js_type, props
+    return package_name, symbol_name, props
 
 
 class ActionVal(Validate):

@@ -1,22 +1,46 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
+ * @flow
  */
 
-import React from 'react';
-import SubmitButton from '../ui/SubmitButton';
+import * as React from 'react';
+import * as ReactUI from '@prometheusresearch/react-ui';
+
+import {Icon} from 'rex-widget/ui';
 import * as form from 'rex-widget/form';
 import {emptyFunction} from 'rex-widget/lang';
-import {command, Types} from '../execution/Command';
+
+import type {EntityType} from '../model/types';
+import {defineCommand, Types} from '../model/Command';
 import Action from '../Action';
 import * as ObjectTemplate from '../ObjectTemplate';
 import * as ContextUtils from '../ContextUtils';
 
-export default class Make extends React.Component {
+type MakeProps = {
+  width: number,
+  icon: string,
+  kind: string,
+  onSubmitComplete: Function,
+  submitButton: string,
+  context: Object,
+  contextTypes: Object,
+  value: Object,
+  onCommand: Function,
+  onClose: Function,
+  refetch: Function,
+  fields: Object,
+  entity: {name: string, type: EntityType},
+};
 
-  static propTypes = {
-    context: React.PropTypes.object,
-    onCommand: React.PropTypes.func,
-  };
+export default class Make extends React.Component {
+  props: MakeProps;
+
+  state: {
+    key: number,
+    submitInProgress: boolean,
+  } = {key: 1, submitInProgress: false};
+
+  _form: ?{submit: Function} = null;
 
   static defaultProps = {
     width: 400,
@@ -27,19 +51,14 @@ export default class Make extends React.Component {
     value: {},
   };
 
-  constructor(props) {
-    super(props);
-    this._form = null;
-    this.state = {
-      key: 1,
-      submitInProgress: false
-    };
-  }
-
   render() {
     let {
-      fields, entity,
-      onClose, width, context, contextTypes
+      fields,
+      entity,
+      onClose,
+      width,
+      context,
+      contextTypes,
     } = this.props;
     let value = ObjectTemplate.render(this.props.value, context);
     let title = this.constructor.getTitle(this.props);
@@ -56,13 +75,15 @@ export default class Make extends React.Component {
           ref={this._onForm}
           entity={entity.type.name}
           fields={fields}
-          submitTo={this.props.dataMutation.params(ContextUtils.contextToParams(context, contextTypes.input))}
+          submitTo={this.props.dataMutation.params(
+            ContextUtils.contextToParams(context, contextTypes.input),
+          )}
           submitButton={null}
           onBeforeSubmit={this.onBeforeSubmit}
           onSubmitError={this.onSubmitError}
           onSubmitComplete={this.onSubmitComplete}
           value={value}
-          />
+        />
       </Action>
     );
   }
@@ -70,38 +91,39 @@ export default class Make extends React.Component {
   renderFooter = () => {
     let {submitButton, icon} = this.props;
     return (
-      <SubmitButton
+      <ReactUI.SuccessButton
         disabled={this.state.submitInProgress}
         onClick={this.onSubmit}
-        icon={icon}>
+        icon={<Icon name={icon} />}>
         {submitButton}
-      </SubmitButton>
+      </ReactUI.SuccessButton>
     );
   };
 
-  _onForm = (form) => {
+  _onForm = (form: {submit: Function}) => {
     this._form = form;
   };
 
   getKey() {
-    let contextKey = Object
-      .keys(this.props.contextTypes.input)
+    let contextKey = Object.keys(this.props.contextTypes.input)
       .map(k => this.props.context[k])
       .join('__');
     return `${contextKey}__${this.state.key}`;
   }
 
-  onSubmit = (e) => {
+  onSubmit = (e: UIEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    this._form.submit();
+    if (this._form) {
+      this._form.submit();
+    }
   };
 
-  onBeforeSubmit = (_value) => {
+  onBeforeSubmit = () => {
     this.setState({submitInProgress: true});
   };
 
-  onSubmitComplete = (data) => {
+  onSubmitComplete = (data: Object) => {
     this.props.onSubmitComplete(data);
     let key = this.state.key + 1;
     this.setState({key, submitInProgress: false});
@@ -113,19 +135,18 @@ export default class Make extends React.Component {
     this.setState({submitInProgress: false});
   };
 
-  static getTitle(props) {
+  static getTitle(props: MakeProps) {
     return props.title || `Make ${props.entity.name}`;
   }
-
-  static commands = {
-
-    @command(Types.ConfigurableEntity())
-    default(props, context, entity) {
-      if (entity != null) {
-        return {...context, [props.entity.name]: entity};
-      } else {
-        return context;
-      }
-    }
-  };
 }
+
+defineCommand(Make, {
+  argumentTypes: [Types.ConfigurableEntity()],
+  execute(props, context, entity) {
+    if (entity != null) {
+      return {...context, [props.entity.name]: entity};
+    } else {
+      return context;
+    }
+  },
+});

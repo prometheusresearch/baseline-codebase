@@ -14,7 +14,7 @@ __all__ = (
 
 class EditDraftAction(FormBuilderAction):
     name = 'formbuilder-edit-draft'
-    js_type = 'rex-formbuilder/lib/widget/action/EditDraft'
+    js_type = 'rex-formbuilder', 'EditDraft'
 
     entity = Field(lambda x: False, default=None)
 

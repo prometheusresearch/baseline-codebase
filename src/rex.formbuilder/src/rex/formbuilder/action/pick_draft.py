@@ -14,7 +14,7 @@ __all__ = (
 
 class PickDraftAction(FormBuilderAction):
     name = 'formbuilder-pick-draft'
-    js_type = 'rex-formbuilder/lib/widget/action/PickDraft'
+    js_type = 'rex-formbuilder', 'PickDraft'
 
     entity = Field(typing.RowTypeVal())
 

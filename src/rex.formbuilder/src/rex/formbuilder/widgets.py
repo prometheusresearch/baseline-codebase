@@ -24,7 +24,7 @@ class InstrumentMenuWidget(Widget):
     """
 
     name = 'InstrumentMenu'
-    js_type = 'rex-formbuilder/lib/widget/InstrumentMenu'
+    js_type = 'rex-formbuilder', 'InstrumentMenu'
 
     api_base_url = Field(
         URLVal(),
@@ -76,7 +76,7 @@ class DraftSetEditorWidget(Widget):
     """
 
     name = 'DraftSetEditor'
-    js_type = 'rex-formbuilder/lib/widget/DraftSetEditor'
+    js_type = 'rex-formbuilder', 'DraftSetEditor'
 
     api_base_url = Field(
         URLVal(),
@@ -122,7 +122,7 @@ class I18NWidget(Widget):
     """
 
     name = 'I18NWidget'
-    js_type = 'rex-formbuilder/lib/widget/I18NWidget'
+    js_type = 'rex-formbuilder', 'I18NWidget'
 
     content = Field(WidgetVal(),
         doc='Functional widget to be rendered'

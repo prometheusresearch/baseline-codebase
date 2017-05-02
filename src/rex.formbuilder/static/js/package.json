@@ -1,6 +1,6 @@
 {
   "name": "rex-formbuilder",
-  "version": "5.9.1",
+  "version": "5.9.2",
   "description": "JavaScript functionality for the rex.formbuilder application",
   "author": "Prometheus Research, LLC",
   "license": "AGPL-3.0",
@@ -22,7 +22,7 @@
   "dependencies": {
     "immutable": "^3.7.4",
     "flux": "^2.0.1",
-    "autobind-decorator": "^1.3.2",
+    "autobind-decorator": "^1.2.0",
     "object-path": "~0.8.1",
     "component-emitter": "1.1.2",
     "deep-equal": "0.0.0",
@@ -32,8 +32,7 @@
     "react-select": "^1.0.0-rc.2",
     "react-dnd": "^2.1.4",
     "react-dnd-html5-backend": "^2.1.2",
-    "react-forms": "1.0.0-rc5",
-    "autobind-decorator": "^1.2.0"
+    "react-forms": "1.0.0-rc5"
   },
   "devDependencies": {
     "react": "^0.14.0",

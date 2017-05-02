@@ -2,13 +2,11 @@
 # Copyright (c) 2014, Prometheus Research, LLC
 #
 
-
 from setuptools import setup, find_packages
-
 
 setup(
     name='rex.formbuilder',
-    version='5.9.1',
+    version='5.9.2',
     description='A tool for creating and managing the Instruments and Forms in'
     ' a RexDB application.',
     long_description=open('README.rst', 'r').read(),
@@ -36,6 +34,4 @@ setup(
         'rex.form_previewer>=0.2,<0.11',
     ],
     rex_init='rex.formbuilder',
-    rex_static='static'
-)
-
+    rex_static='static')

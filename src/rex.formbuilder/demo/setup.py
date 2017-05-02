@@ -2,12 +2,11 @@
 # Copyright (c) 2014, Prometheus Research, LLC
 #
 
-
 from setuptools import setup, find_packages
 
 setup(
     name='rex.formbuilder_demo',
-    version='5.9.1',
+    version='5.9.2',
     description='Demo package for testing rex.formbuilder',
     package_dir={'': 'src'},
     packages=find_packages('src'),
@@ -17,6 +16,4 @@ setup(
         'rex.forms_demo',
     ],
     rex_init='rex.formbuilder_demo',
-    rex_static='static',
-)
-
+    rex_static='static', )

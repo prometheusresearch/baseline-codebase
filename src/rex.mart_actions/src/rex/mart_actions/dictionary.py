@@ -126,7 +126,7 @@ class DictionaryPickTableMartAction(DictionaryPickMartAction):
     """
 
     name = 'mart-dictionary-tables'
-    js_type = 'rex-mart-actions/lib/DictionaryPickTable'
+    js_type = 'rex-mart-actions', 'DictionaryPickTable'
 
     def __init__(self, **values):
         super(DictionaryPickTableMartAction, self).__init__(**values)
@@ -156,7 +156,7 @@ class DictionaryPickTableColumnMartAction(DictionaryPickMartAction):
     """
 
     name = 'mart-dictionary-table-columns'
-    js_type = 'rex-mart-actions/lib/DictionaryPickTableColumn'
+    js_type = 'rex-mart-actions', 'DictionaryPickTableColumn'
 
     def __init__(self, **values):
         super(DictionaryPickTableColumnMartAction, self).__init__(**values)
@@ -208,7 +208,7 @@ class DictionaryPickColumnMartAction(DictionaryPickMartAction):
     """
 
     name = 'mart-dictionary-columns'
-    js_type = 'rex-mart-actions/lib/DictionaryPickColumn'
+    js_type = 'rex-mart-actions', 'DictionaryPickColumn'
 
     def __init__(self, **values):
         super(DictionaryPickColumnMartAction, self).__init__(**values)
@@ -249,7 +249,7 @@ class DictionaryViewTableMartAction(DictionaryPickTableMartAction):
     """
 
     name = 'mart-dictionary-table-details'
-    js_type = 'rex-mart-actions/lib/DictionaryViewTable'
+    js_type = 'rex-mart-actions', 'DictionaryViewTable'
 
     def __init__(self, **values):
         fields = values.get('fields', None)
@@ -283,7 +283,7 @@ class DictionaryViewColumnMartAction(DictionaryPickColumnMartAction):
     """
 
     name = 'mart-dictionary-column-details'
-    js_type = 'rex-mart-actions/lib/DictionaryViewColumn'
+    js_type = 'rex-mart-actions', 'DictionaryViewColumn'
 
     def __init__(self, **values):
         fields = values.get('fields', None)
@@ -328,7 +328,7 @@ class DictionaryPickEnumerationMartAction(DictionaryPickMartAction):
     """
 
     name = 'mart-dictionary-enumerations'
-    js_type = 'rex-mart-actions/lib/DictionaryPickEnumeration'
+    js_type = 'rex-mart-actions', 'DictionaryPickEnumeration'
 
     def __init__(self, **values):
         super(DictionaryPickEnumerationMartAction, self).__init__(**values)

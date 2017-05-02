@@ -29,6 +29,6 @@ class HtsqlConsoleMartAction(MartFilteredAction):
     """
 
     name = 'mart-htsql-console'
-    js_type = 'rex-mart-actions/lib/HtsqlConsole'
+    js_type = 'rex-mart-actions', 'HtsqlConsole'
     tool = 'htsql'
 

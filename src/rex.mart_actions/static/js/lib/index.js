@@ -21,3 +21,8 @@ export Guide from './guide';
 
 export Title from './Title';
 
+export FilterDataset from './guide/FilterDataset';
+export ChooseColumns from './guide/ChooseColumns';
+export ExportDataset from './guide/ExportDataset';
+
+export QueryBuilder from './QueryBuilder';

@@ -173,7 +173,7 @@ class GuideFilterAction(GuideAction):
     """
 
     name = 'mart-guide-filter'
-    js_type = 'rex-mart-actions/lib/guide/FilterDataset'
+    js_type = 'rex-mart-actions', 'FilterDataset'
 
     filters = Field(
         SeqVal(FilterVal()), default=None,
@@ -231,7 +231,7 @@ class GuideChooseColumnsAction(GuideAction):
     """
 
     name = 'mart-guide-columns'
-    js_type = 'rex-mart-actions/lib/guide/ChooseColumns'
+    js_type = 'rex-mart-actions', 'ChooseColumns'
 
     fields = Field(
         SeqVal(ColumnVal()), default=[],
@@ -255,7 +255,7 @@ class GuideExportAction(GuideAction):
     """
 
     name = 'mart-guide-export'
-    js_type = 'rex-mart-actions/lib/guide/ExportDataset'
+    js_type = 'rex-mart-actions', 'ExportDataset'
 
     fields = Field(
         SeqVal(ColumnVal()), default=[],

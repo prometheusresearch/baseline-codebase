@@ -29,7 +29,7 @@ class MartPickAction(MartAction):
     """
 
     name = 'mart-pick'
-    js_type = 'rex-mart-actions/lib/MartPick'
+    js_type = 'rex-mart-actions', 'MartPick'
 
     fields = Field(
         FormFieldsetVal(),
@@ -104,7 +104,7 @@ class MartViewAction(MartAction):
     """
 
     name = 'mart-details'
-    js_type = 'rex-mart-actions/lib/MartView'
+    js_type = 'rex-mart-actions', 'MartView'
 
     fields = Field(
         FormFieldsetVal(),
@@ -210,7 +210,7 @@ class DefinitionPickAction(MartAction):
     """
 
     name = 'mart-definition-pick'
-    js_type = 'rex-mart-actions/lib/DefinitionPick'
+    js_type = 'rex-mart-actions', 'DefinitionPick'
 
     fields = Field(
         FormFieldsetVal(),
@@ -262,7 +262,7 @@ class DefinitionViewAction(MartAction):
     """
 
     name = 'mart-definition-details'
-    js_type = 'rex-mart-actions/lib/DefinitionView'
+    js_type = 'rex-mart-actions', 'DefinitionView'
 
     fields = Field(
         FormFieldsetVal(),

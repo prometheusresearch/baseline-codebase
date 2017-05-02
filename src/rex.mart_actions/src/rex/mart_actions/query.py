@@ -10,7 +10,7 @@ from rex.query import Database
 class MartQueryBuilder(MartAction):
 
     name = 'mart-query-builder'
-    js_type = 'rex-mart-actions/lib/QueryBuilder'
+    js_type = 'rex-mart-actions', 'QueryBuilder'
 
     def context(self):
         return {'mart': typing.number}, {}

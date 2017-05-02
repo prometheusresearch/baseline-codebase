@@ -113,7 +113,7 @@ class MartIntroAction(MartFilteredAction):
     """
 
     name = 'mart-tool-intro'
-    js_type = 'rex-action/lib/actions/Page'
+    js_type = 'rex-action', 'Page'
 
     text = Field(
         RSTVal(),

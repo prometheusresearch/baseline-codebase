@@ -108,7 +108,7 @@ export default class ChartTitle extends React.Component {
           </div>
         </foreignObject>
         <recharts.Text
-          x={left}
+          x={parseInt(left, 10)}
           y={20}
           textAnchor="middle"
           style={{fontWeight: 200, fontSize: '13pt'}}>

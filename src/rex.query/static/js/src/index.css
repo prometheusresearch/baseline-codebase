@@ -8,6 +8,6 @@ body {
   font-family: sans-serif;
 }
 
-html, body, #root {
+html, body, #rex-query-root {
   height: 100%;
 }

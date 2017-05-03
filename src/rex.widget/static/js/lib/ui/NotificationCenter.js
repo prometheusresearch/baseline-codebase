@@ -15,17 +15,16 @@ let NotificationLayerStyle = {
     top: 0,
     right: 0,
     width: '25%',
-    padding: 15
-  }
+    padding: 15,
+  },
 };
 
 export let NotificationLayer = React.createClass({
-
   render() {
     let notifications = this.state.notifications.map(notification =>
       React.cloneElement(notification, {
         key: notification.props.id,
-        onClick: this.removeNotification.bind(null, notification.props.id)
+        onClick: this.removeNotification.bind(null, notification.props.id),
       }));
     return (
       <div style={NotificationLayerStyle.self}>
@@ -36,7 +35,7 @@ export let NotificationLayer = React.createClass({
 
   getInitialState() {
     return {
-      notifications: []
+      notifications: [],
     };
   },
 
@@ -56,23 +55,32 @@ export let NotificationLayer = React.createClass({
   showNotification(notification) {
     _notificationID = _notificationID + 1;
     let id = _notificationID;
-    let notifications = this.state.notifications.slice(0);
-    notifications.push(React.cloneElement(notification, {id}));
-    this.setState({notifications}, () => {
-      if (notification.props.ttl !== Infinity) {
-        this._scheduleRemove(id, notification.props.ttl);
-      }
-    });
+    this.setState(
+      state => {
+        let notifications = state.notifications.slice(0);
+        notifications.push(React.cloneElement(notification, {id}));
+        return {...state, notifications};
+      },
+      () => {
+        if (notification.props.ttl !== Infinity) {
+          this._scheduleRemove(id, notification.props.ttl);
+        }
+      },
+    );
     return _notificationID;
   },
 
   removeNotification(notificationId) {
-    let idx = this._indexOfNotification(notificationId);
-    if (idx > -1) {
-      let notifications = this.state.notifications.slice(0);
-      notifications.splice(idx, 1);
-      this.setState({notifications});
-    }
+    this.setState(state => {
+      let idx = this._indexOfNotification(notificationId, state.notifications);
+      if (idx > -1) {
+        let notifications = state.notifications.slice(0);
+        notifications.splice(idx, 1);
+        return {...state, notifications};
+      } else {
+        return state;
+      }
+    });
   },
 
   _scheduleRemove(notificationId, ttl) {
@@ -80,22 +88,23 @@ export let NotificationLayer = React.createClass({
       clearTimeout(this._timers[notificationId]);
       delete this._timers[notificationId];
     }
-    this._timers[notificationId] = setTimeout(() => {
-      this.removeNotification(notificationId);
-      delete this._timers[notificationId];
-    }, ttl || 2000);
+    this._timers[notificationId] = setTimeout(
+      () => {
+        this.removeNotification(notificationId);
+        delete this._timers[notificationId];
+      },
+      ttl || 2000,
+    );
   },
 
-  _indexOfNotification(notificationId) {
-    let {notifications} = this.state;
+  _indexOfNotification(notificationId, notifications) {
     for (let i = 0, len = notifications.length; i < len; i++) {
       if (notifications[i].props.id === notificationId) {
         return i;
       }
     }
     return -1;
-  }
-
+  },
 });
 
 let _layer = null;

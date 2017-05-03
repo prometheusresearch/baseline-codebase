@@ -15,7 +15,13 @@ import Action from '../Action';
 import Title from './Title';
 
 export default class Drop extends React.Component {
-  state: {confirmDelay: number} = {confirmDelay: this.props.confirmDelay};
+  state: {
+    confirmDelay: number,
+    isInProgress: boolean,
+  } = {
+    confirmDelay: this.props.confirmDelay,
+    isInProgress: false,
+  };
 
   _countdown: ?number = null;
 
@@ -28,7 +34,7 @@ export default class Drop extends React.Component {
 
   render() {
     let {entity, onClose, context} = this.props;
-    let {confirmDelay} = this.state;
+    let {confirmDelay, isInProgress} = this.state;
     let title = this.constructor.renderTitle(this.props, context);
     return (
       <Action title={title}>
@@ -71,7 +77,7 @@ export default class Drop extends React.Component {
             </Element>
             <ReactUI.DangerButton
               onClick={this.drop}
-              disabled={confirmDelay > 0}
+              disabled={isInProgress || confirmDelay > 0}
               icon={<ui.Icon name="remove" />}>
               Delete {entity.name}
             </ReactUI.DangerButton>
@@ -92,11 +98,33 @@ export default class Drop extends React.Component {
   }
 
   drop = () => {
-    let {entity: {name, type}, context} = this.props;
-    let entity = context[name];
+    const {entity: {name, type}, context} = this.props;
+    const entity = context[name];
+    const inProgressNotification = (
+      <ui.Notification
+        kind="info"
+        ttl={Infinity}
+        text={`Removing ${article(name)} ${name}`}
+      />
+    );
+    const successNotification = (
+      <ui.Notification
+        kind="success"
+        text={`Successfully removed ${article(name)} ${name}`}
+      />
+    );
+    this.setState(state => ({...state, isInProgress: true}));
+    const inProgressNotificationHandle = ui.showNotification(inProgressNotification);
     this.props.data.delete({[type.name]: {id: entity.id}}).then(() => {
-      this.props.onEntityUpdate(entity, null);
-      forceRefreshData();
+      this.setState(
+        state => ({...state, isInProgress: false}),
+        () => {
+          ui.removeNotification(inProgressNotificationHandle);
+          ui.showNotification(successNotification);
+          this.props.onEntityUpdate(entity, null);
+          forceRefreshData();
+        },
+      );
     });
   };
 

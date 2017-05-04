@@ -293,7 +293,8 @@ class RawWidget(object):
 
 @as_transitionable(RawWidget, tag='widget')
 def _format_RawWidget(widget, req, path): # pylint: disable=invalid-name
-    return widget.js_type, PropsContainer(widget.values)
+    pkg_name, symbol_name = widget.js_type
+    return pkg_name, symbol_name, PropsContainer(widget.values)
 
 
 def raw_widget(*args, **kwargs):

@@ -139,29 +139,29 @@ class GuideAction(MartAction):
 
 FILTERS = {
     domain.BooleanDomain: {
-        'widget': 'rex-mart-actions/lib/guide/filter/BooleanFilter',
+        'widget': ('rex-mart-actions', 'BooleanFilter'),
     },
     domain.TextDomain: {
-        'widget': 'rex-mart-actions/lib/guide/filter/TextFilter',
+        'widget': ('rex-mart-actions', 'TextFilter'),
     },
     domain.EnumDomain: {
-        'widget': 'rex-mart-actions/lib/guide/filter/EnumFilter',
+        'widget': ('rex-mart-actions', 'EnumFilter'),
         'props': lambda d: {'labels': d.labels},
     },
     domain.IntegerDomain: {
-        'widget': 'rex-mart-actions/lib/guide/filter/NumericFilter',
+        'widget': ('rex-mart-actions', 'NumericFilter'),
     },
     domain.FloatDomain: {
-        'widget': 'rex-mart-actions/lib/guide/filter/NumericFilter',
+        'widget': ('rex-mart-actions', 'NumericFilter'),
     },
     domain.DecimalDomain: {
-        'widget': 'rex-mart-actions/lib/guide/filter/NumericFilter',
+        'widget': ('rex-mart-actions', 'NumericFilter'),
     },
     domain.DateDomain: {
-        'widget': 'rex-mart-actions/lib/guide/filter/DateFilter',
+        'widget': ('rex-mart-actions', 'DateFilter'),
     },
     domain.DateTimeDomain: {
-        'widget': 'rex-mart-actions/lib/guide/filter/DateFilter',
+        'widget': ('rex-mart-actions', 'DateFilter'),
     },
 }
 

@@ -26,3 +26,9 @@ export ChooseColumns from './guide/ChooseColumns';
 export ExportDataset from './guide/ExportDataset';
 
 export QueryBuilder from './QueryBuilder';
+
+export BooleanFilter from './guide/filter/BooleanFilter'
+export TextFilter from './guide/filter/TextFilter'
+export EnumFilter from './guide/filter/EnumFilter'
+export NumericFilter from './guide/filter/NumericFilter'
+export DateFilter from './guide/filter/DateFilter'

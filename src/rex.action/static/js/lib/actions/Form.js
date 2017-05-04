@@ -50,7 +50,7 @@ export class Form extends React.Component {
     return readOnly
       ? null
       : <ReactUI.SuccessButton
-          icon={icon}
+          icon={<ui.Icon name={icon} />}
           onClick={this._onSubmit}
           disabled={this.state.submitInProgress}>
           {submitButton}
@@ -121,9 +121,12 @@ export class Form extends React.Component {
   }
 }
 
-export default data.Fetch(function fetchInitialValue(
-  {dataValue, value, contextTypes, context},
-) {
+export default data.Fetch(function fetchInitialValue({
+  dataValue,
+  value,
+  contextTypes,
+  context,
+}) {
   let spec = {};
   if (typeof value === 'string') {
     spec.value = dataValue.params(

@@ -27,7 +27,13 @@ export default class QueryBuilderApp extends React.Component {
 
   render() {
     let {domain} = this.state;
-    let {api, initialQuery, initialChartList, limitSelectQuery} = this.props;
+    let {
+      api,
+      initialQuery,
+      initialChartList,
+      initialActiveTab,
+      limitSelectQuery,
+    } = this.props;
     if (domain == null) {
       return (
         <Message height="100%">
@@ -41,6 +47,7 @@ export default class QueryBuilderApp extends React.Component {
           domain={domain}
           initialQuery={initialQuery}
           initialChartList={initialChartList}
+          initialActiveTab={initialActiveTab}
           limitSelectQuery={limitSelectQuery}
           onQuery={this.props.onQuery}
           onState={this.props.onState}

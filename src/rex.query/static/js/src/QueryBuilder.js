@@ -24,6 +24,7 @@ type QueryBuilderProps = {
   api: string,
   initialQuery: ?QueryPipeline,
   initialChartList?: Array<State.ChartSpec>,
+  initialActiveTab: ?string,
   limitSelectQuery: number,
   onQuery: (query?: ?Query) => *,
   onState?: (payload: {query: ?Query, chartList: Array<ChartSpec>}) => *,
@@ -51,7 +52,14 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
   constructor(props: QueryBuilderProps) {
     super(props);
 
-    let {domain, initialQuery, initialChartList, api, limitSelectQuery} = props;
+    let {
+      domain,
+      initialQuery,
+      initialChartList,
+      initialActiveTab,
+      api,
+      limitSelectQuery,
+    } = props;
 
     this.container = State.createContainer(
       {
@@ -59,6 +67,7 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
         api,
         initialQuery,
         initialChartList,
+        initialActiveTab,
         translateOptions: {limitSelect: limitSelectQuery},
       },
       (state, onStateUpdated) => {
@@ -69,7 +78,11 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
             this.props.onQuery(state.query);
           }
           if (this.props.onState) {
-            this.props.onState({query: state.query, chartList: state.chartList});
+            this.props.onState({
+              query: state.query,
+              chartList: state.chartList,
+              activeTab: state.activeTab,
+            });
           }
         });
       },

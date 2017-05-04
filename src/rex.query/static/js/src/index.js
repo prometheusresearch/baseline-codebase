@@ -14,16 +14,25 @@ let params = qs.parse(window.location.search.substr(1));
 function readQueryFromLocation() {
   let data;
   try {
-    data = q.deserializeQuery(window.location.hash.trim().slice(1));
+    const rawData = JSON.parse(window.location.hash.trim().slice(1));
+    data = {
+      query: q.deserializeQuery(rawData.query),
+      chartList: rawData.chartList,
+      activeTab: rawData.activeTab,
+    };
   } catch (_err) {
-    data = null;
+    data = {query: undefined, chartList: undefined, activeTab: undefined};
   }
   return data;
 }
 
-function onQuery(query) {
+function onState({query, chartList, activeTab}) {
   if (params.rememberQuery) {
-    window.location.hash = q.serializeQuery(query);
+    window.location.hash = JSON.stringify({
+      query: q.serializeQuery(query),
+      chartList,
+      activeTab,
+    });
   }
 }
 
@@ -59,19 +68,23 @@ function Toolbar() {
   );
 }
 
-let query = params.rememberQuery ? readQueryFromLocation() : null;
+let {query, chartList, activeTab} = params.rememberQuery
+  ? readQueryFromLocation()
+  : {query: undefined, chartList: undefined, activeTab: undefined};
 
 function render(element, props = {}) {
   ReactDOM.render(
     <QueryBuilderApp
       api={params.api}
       initialQuery={query}
-      onQuery={onQuery}
+      initialChartList={chartList}
+      initialActiveTab={activeTab}
+      onState={onState}
       onSearch={debounce(doSearch, 700)}
       toolbar={<Toolbar />}
       {...props}
     />,
-    element
+    element,
   );
 }
 
@@ -82,5 +95,3 @@ const root = document.getElementById('rex-query-root');
 if (root != null) {
   render(root);
 }
-
-

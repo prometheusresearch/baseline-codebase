@@ -6,35 +6,28 @@ import type {QueryPipeline} from '../model/types';
 
 import * as React from 'react';
 import * as recharts from 'recharts';
-import {VBox} from 'react-stylesheet';
+import {Element, VBox, HBox} from 'react-stylesheet';
+import ColorHash from 'color-hash';
+import {SwatchColorPicker} from '@prometheusresearch/react-ui';
 
+import {COLOR_LIST} from './ColorList';
 import * as model from './model';
 import {getPipelineContext} from '../model';
 import ChartTitle from './ChartTitle';
 import {getQuery} from './util';
 import SelectAttribute from './SelectAttribute';
-import SelectAttributeWithColor from './SelectAttributeWithColor';
 import ChartControlPanel from './ChartControlPanel';
+import ChartControl from './ChartControl';
 import NoNumericAttributeText from './NoNumericAttributeText';
 
 const RADIAN = Math.PI / 180;
 
-const PieChartLabel = ({cx, cy, midAngle, outerRadius, percent, name}) => {
-  const radius = outerRadius + 23;
-  const x = cx + radius * Math.cos(-midAngle * RADIAN);
-  const y = cy + radius * Math.sin(-midAngle * RADIAN);
-  return (
-    <text
-      style={{fontWeight: 200, fontSize: '9pt'}}
-      x={x}
-      y={y}
-      fill="#222222"
-      textAnchor={x > cx ? 'start' : 'end'}
-      dominantBaseline="central">
-      {`${name} (${(percent * 100).toFixed(0)}%)`}
-    </text>
-  );
-};
+const _colorHash = new ColorHash();
+
+const colorHash = value => _colorHash.hex(value);
+
+const getPieColor = (chart: model.PieChart, id: string) =>
+  chart.color[id] || colorHash(id);
 
 type PieChartProps = {
   chart: model.PieChart,
@@ -45,57 +38,184 @@ type PieChartProps = {
   query: QueryPipeline,
 };
 
-export default function PieChart(
-  {label, onLabel, chart, onChart, data: rawData, query: pipeline}: PieChartProps,
-) {
-  let {query, data} = getQuery(pipeline, rawData);
-  if (query == null) {
-    return null;
-  }
-  let rendered = null;
-  if (chart.labelColumn && chart.valueColumn) {
-    const width = 600;
-    const height = 400;
-    rendered = (
-      <recharts.PieChart width={width} height={height}>
-        <g>
-          <ChartTitle left="300" value={label} onChange={onLabel} />
-        </g>
-        <recharts.Pie
-          data={data}
-          nameKey={chart.labelColumn}
-          valueKey={chart.valueColumn}
-          outerRadius={130}
-          fill={chart.color}
-          label={PieChartLabel}
+export default class PieChart extends React.Component {
+  props: PieChartProps;
+  state: {activeIndex: ?number} = {activeIndex: null};
+
+  onSectorClick = (activeIndex: number) => {
+    this.setState(state => {
+      if (state.activeIndex === activeIndex) {
+        return {...state, activeIndex: null};
+      } else {
+        return {...state, activeIndex};
+      }
+    });
+  };
+
+  onSectorColor = (active: string, color: string) => {
+    const {chart} = this.props;
+    const nextChart = {...chart, color: {...chart.color, [active]: color}};
+    this.props.onChart(nextChart);
+  };
+
+  label = ({cx, cy, midAngle, outerRadius, percent, name, index}: any) => {
+    if (index === this.state.activeIndex) {
+      return null;
+    }
+    const radius = outerRadius + 23;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    return (
+      <text
+        style={{fontWeight: 200, fontSize: '9pt'}}
+        x={x}
+        y={y}
+        fill={getPieColor(this.props.chart, name)}
+        textAnchor={x > cx ? 'start' : 'end'}
+        dominantBaseline="central">
+        {`${name} (${(percent * 100).toFixed(0)}%)`}
+      </text>
+    );
+  };
+
+  activeShape = (props: any) => {
+    const RADIAN = Math.PI / 180;
+    const {
+      cx,
+      cy,
+      midAngle,
+      innerRadius,
+      outerRadius,
+      startAngle,
+      endAngle,
+      fill,
+      percent,
+      name,
+    } = props;
+    const sin = Math.sin(-RADIAN * midAngle);
+    const cos = Math.cos(-RADIAN * midAngle);
+    const sx = cx + (outerRadius + 10) * cos;
+    const sy = cy + (outerRadius + 10) * sin;
+    const mx = cx + (outerRadius + 30) * cos;
+    const my = cy + (outerRadius + 30) * sin;
+    const ex = mx + (cos >= 0 ? 1 : -1) * 22;
+    const ey = my;
+    const textAnchor = cos >= 0 ? 'start' : 'end';
+    return (
+      <g>
+        <recharts.Sector
+          cx={cx}
+          cy={cy}
+          innerRadius={innerRadius}
+          outerRadius={outerRadius}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          fill={fill}
         />
-      </recharts.PieChart>
+        <recharts.Sector
+          cx={cx}
+          cy={cy}
+          startAngle={startAngle}
+          endAngle={endAngle}
+          innerRadius={outerRadius + 6}
+          outerRadius={outerRadius + 10}
+          fill={fill}
+        />
+        <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
+        <text
+          x={ex + (cos >= 0 ? 1 : -1) * 12}
+          y={ey}
+          textAnchor={textAnchor}
+          fill={fill}>
+          {`${name} (${(percent * 100).toFixed(2)}%)`}
+        </text>
+      </g>
+    );
+  };
+
+  render() {
+    const {label, onLabel, chart, onChart, data: rawData, query: pipeline} = this.props;
+    let {activeIndex} = this.state;
+    const {query, data} = getQuery(pipeline, rawData);
+    const activeEntry = data[activeIndex];
+    if (query == null) {
+      return null;
+    }
+    let rendered = null;
+    if (chart.labelColumn && chart.valueColumn) {
+      const width = 600;
+      const height = 400;
+      rendered = (
+        <recharts.PieChart width={width} height={height}>
+          <g>
+            <ChartTitle left="300" value={label} onChange={onLabel} />
+          </g>
+          <recharts.Pie
+            isAnimationActive={false}
+            data={data}
+            nameKey={chart.labelColumn}
+            valueKey={chart.valueColumn}
+            outerRadius={130}
+            activeIndex={activeIndex}
+            activeShape={this.activeShape}
+            label={this.label}>
+            {data.map((entry, index) => {
+              const id = entry[chart.labelColumn];
+              return (
+                <recharts.Cell
+                  key={id}
+                  fill={getPieColor(chart, id)}
+                  onClick={this.onSectorClick.bind(null, index)}
+                />
+              );
+            })}
+          </recharts.Pie>
+        </recharts.PieChart>
+      );
+    }
+    return (
+      <VBox overflow="visible" flexGrow={1} fontWeight={200}>
+        <ChartControlPanel>
+          <SelectAttribute
+            label="Label"
+            value={chart.labelColumn}
+            context={getPipelineContext(query)}
+            onChange={labelColumn => onChart({type: 'pie', ...chart, labelColumn})}
+          />
+          <SelectAttribute
+            label="Value"
+            value={chart.valueColumn}
+            noResultsText={<NoNumericAttributeText />}
+            context={getPipelineContext(query)}
+            onChange={valueColumn => onChart({type: 'pie', ...chart, valueColumn})}
+            onlyNumerics={true}
+            addSumarizations={true}
+          />
+          <ChartControl
+            label="Currently selected sector"
+            hint="Click on a sector in a pie chart to select and customize the colour"
+            control={
+              activeEntry &&
+                <HBox overflow="visible">
+                  <SwatchColorPicker
+                    colorList={COLOR_LIST}
+                    value={getPieColor(chart, activeEntry[chart.labelColumn])}
+                    onChange={this.onSectorColor.bind(
+                      null,
+                      activeEntry[chart.labelColumn],
+                    )}
+                  />
+                  <Element fontSize="10pt" padding={4}>
+                    {activeEntry[chart.labelColumn]}
+                  </Element>
+                </HBox>
+            }
+          />
+        </ChartControlPanel>
+        <VBox flexGrow={1} alignItems="center">
+          {rendered}
+        </VBox>
+      </VBox>
     );
   }
-  return (
-    <VBox overflow="visible" flexGrow={1}>
-      <ChartControlPanel>
-        <SelectAttribute
-          label="Label"
-          value={chart.labelColumn}
-          context={getPipelineContext(query)}
-          onChange={labelColumn => onChart({type: 'pie', ...chart, labelColumn})}
-        />
-        <SelectAttributeWithColor
-          label="Value"
-          value={chart.valueColumn}
-          noResultsText={<NoNumericAttributeText />}
-          context={getPipelineContext(query)}
-          onChange={valueColumn => onChart({type: 'pie', ...chart, valueColumn})}
-          onlyNumerics={true}
-          addSumarizations={true}
-          color={chart.color}
-          onColorChange={color => onChart({type: 'pie', ...chart, color})}
-        />
-      </ChartControlPanel>
-      <VBox flexGrow={1} alignItems="center">
-        {rendered}
-      </VBox>
-    </VBox>
-  );
 }

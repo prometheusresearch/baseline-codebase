@@ -14,7 +14,7 @@ export type PieChart = {
   type: 'pie',
   labelColumn: ?string,
   valueColumn: ?string,
-  color: string,
+  color: {[label: string]: string},
 };
 
 export type Line = {

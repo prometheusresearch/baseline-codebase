@@ -12,6 +12,7 @@ import * as Entity from './model/Entity';
 
 import Actions from './actions';
 import Title from './actions/Title';
+import {TitleBase} from './actions/Title';
 
 import './TransitionableHandlers';
 
@@ -30,6 +31,7 @@ export Plotly from './actions/Plotly';
 export {
   Action,
   Title,
+  TitleBase,
   createEntity,
   isEntity,
   getEntityTitle,

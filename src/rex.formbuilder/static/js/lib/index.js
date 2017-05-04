@@ -2,18 +2,16 @@
  * Copyright (c) 2015, Prometheus Research, LLC
  */
 
-'use strict';
+import * as errors from './errors';
+import * as GUI from './gui';
+import * as widget from './widget';
+import PickDraft from './widget/action/PickDraft';
+import EditDraft from './widget/action/EditDraft';
+import DraftSetEditor from './gui/DraftSetEditor';
+import InstrumentMenu from './gui/InstrumentMenu';
+import I18NWidget from './widget/I18NWidget';
 
-var errors = require('./errors');
-var GUI = require('./gui');
-var widget = require('./widget');
-var PickDraft = require('./widget/action/PickDraft');
-var EditDraft = require('./widget/action/EditDraft');
-var DraftSetEditor = require('./gui/DraftSetEditor');
-var InstrumentMenu = require('./gui/InstrumentMenu');
-var I18NWidget = require('./widget/I18NWidget');
-
-module.exports = {
+export {
   GUI,
   widget,
   errors,

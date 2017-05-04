@@ -9,10 +9,10 @@ import objectPath from 'object-path';
 import {VBox} from 'rex-widget/layout';
 import {Preloader} from 'rex-widget/ui';
 import {Fetch} from 'rex-widget/data';
-import Title from 'rex-action/lib/actions/Title';
-import {command, Types} from 'rex-action/lib/execution/Command';
+import {TitleBase, Command} from 'rex-action';
 
-import {GUI, widget} from '../../index';
+import * as GUI from '../../gui';
+import * as widget from '../../widget';
 
 
 @Fetch(function (props) {
@@ -26,7 +26,7 @@ import {GUI, widget} from '../../index';
 })
 export default class PickDraft extends React.Component {
   static commands = {
-    @command(Types.Value())
+    @Command.command(Command.Types.Value())
     default(props, context, draft) {
       if (draft != null) {
         return {...context, draft: draft};
@@ -79,13 +79,7 @@ export default class PickDraft extends React.Component {
   }
 
   static renderTitle({title = `Pick Instrument Draft`}, context) {
-    let {Primary, Secondary} = Title.stylesheet;
-    return (
-      <VBox>
-        <Primary>{title}</Primary>
-        {context.draft && <Secondary>{context.draft}</Secondary>}
-      </VBox>
-    );
+    return <TitleBase title={title} subtitle={context.draft} />
   }
 }
 

@@ -10,9 +10,10 @@ import {ConfirmNavigation} from 'rex-action';
 import {Preloader} from 'rex-widget/ui';
 import {Fetch} from 'rex-widget/data';
 
-import {GUI, widget} from '../../index';
-
+import * as GUI from '../../gui';
+import * as widget from '../../widget';
 import i18n  from '../../i18n';
+
 let _ = i18n.gettext;
 
 

@@ -118,10 +118,10 @@ export default class Action extends React.Component {
 
 function ActionHelp({help, onClose}) {
   return (
-    <VBox borderLeft={css.border(1, '#ddd')} height="100%" width={300} padding="x-small">
+    <VBox borderLeft={css.border(1, '#ddd')} height="100%" width={300} padding={10}>
       <VBox fontSize="90%" height="100%">
         <HBox alignItems="center">
-          <VBox flexGrow={1} padding="x-small">
+          <VBox flexGrow={1}>
             <ReactUI.LabelText>
               Help
             </ReactUI.LabelText>
@@ -130,7 +130,7 @@ function ActionHelp({help, onClose}) {
             <ReactUI.QuietButton size="small" onClick={onClose} icon={<CloseIcon />} />
           </VBox>
         </HBox>
-        <VBox flexGrow={1} overflow="auto">
+        <VBox flexGrow={1} flexShrink={1} overflow="auto">
           <div dangerouslySetInnerHTML={{__html: help}} />
         </VBox>
       </VBox>

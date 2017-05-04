@@ -9,7 +9,7 @@ import {port, query, mutation, request} from './data';
 import resolveURL from './resolveURL';
 
 /* istanbul ignore next */
-Transitionable.register('undefined', function decode_widget() { // eslint-disable-line camelcase
+Transitionable.register('undefined', function decode_undefined() { // eslint-disable-line camelcase
   return undefined;
 });
 
@@ -25,7 +25,7 @@ Transitionable.register('widget', function decode_widget(payload) { // eslint-di
 });
 
 /* istanbul ignore next */
-Transitionable.register('formfield', function decode_widget(payload) { // eslint-disable-line camelcase
+Transitionable.register('formfield', function decode_formfield(payload) { // eslint-disable-line camelcase
   let formfield = {...payload};
   if (formfield.hideIf) {
     formfield.hideIf = _compileHideIf(formfield.hideIf);

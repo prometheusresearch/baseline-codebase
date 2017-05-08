@@ -83,7 +83,7 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
     log('use location', location);
     const graph = SP.fromPath(location.pathname, {
       instruction: this._instruction,
-      context: initialContext || {},
+      context: {...(initialContext || {}), USER: `'${__REX_USER__}'`}
     });
     this._refetch(graph);
   }

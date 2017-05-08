@@ -516,20 +516,23 @@ class GuideMartAction(MartFilteredAction):
             rex.mart_guide_cfg = LRUCache(
                 maxsize=get_settings().mart_htsql_cache_depth,
             )
-        rex.mart_guide_cfg[self.id] = {}
+        for key in rex.mart_guide_cfg.keys():
+            if key.startswith(self.id + '|'):
+                del rex.mart_guide_cfg[key]
 
     # TODO: locks?
     def get_config(self, mart):
         rex = get_rex()
-        if mart.name not in rex.mart_guide_cfg[self.id]:
-            rex.mart_guide_cfg[self.id][mart.name] = GuideConfiguration(
+        key = '%s|%s' % (self.id, mart.name)
+        if key not in rex.mart_guide_cfg:
+            rex.mart_guide_cfg[key] = GuideConfiguration(
                 mart.get_htsql(),
                 self.table,
                 field_config=self.fields,
                 filter_config=self.filters,
                 mask_config=self.masks,
             )
-        return rex.mart_guide_cfg[self.id][mart.name]
+        return rex.mart_guide_cfg[key]
 
     @responder(url_type=RequestURL)
     def guide_configuration(self, request):

@@ -10,4 +10,5 @@ user_profile_url: rex.mart_actions_demo:/
 application_logout_url: rex.mart_actions_demo:/
 
 db: pgsql:mart_actions_demo
+attach_dir: /tmp
 

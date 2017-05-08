@@ -49,6 +49,20 @@ class MartAction(Action):
             return None
         return access.get_mart(mart_id, user)
 
+    def get_mart_dictionary(self, mart):
+        """
+        Retrieves the Data Dictionary configuraiton for a Mart.
+
+        :param mart: the Mart to get the configuration for
+        :type mart: Mart
+        :rtype: dict
+        """
+
+        for proc in mart.definition['processors']:
+            if proc['id'] == 'datadictionary':
+                return proc['options']
+        return None
+
     def get_mart_db(self, mart):
         """
         Retrieves an HTSQL instance connected to the specified Mart.

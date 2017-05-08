@@ -1,15 +1,6 @@
-- table: school
-  with:
-  - data: school.csv
+# Adapted from the "world" database provided by the MySQL project
+# https://dev.mysql.com/doc/world-setup/en/
+- data: country.csv
+- data: country_language.csv
+- data: city.csv
 
-- table: department
-  with:
-  - data: department.csv
-
-- table: program
-  with:
-  - data: program.csv
-
-- table: course
-  with:
-  - data: course.csv

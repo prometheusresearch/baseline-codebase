@@ -30,7 +30,7 @@ setup(
         'rex.action>=1,<2',
         'rex.mart>=0.4,<0.8',
         'rex.query>=0.4,<0.5',
-        'htsql_excel>=0.1,<0.2',
+        'htsql_excel>=0.1.1,<0.2',
         'cachetools>=1,<2',
     ],
     rex_init='rex.mart_actions',

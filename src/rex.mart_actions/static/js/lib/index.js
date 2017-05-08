@@ -17,18 +17,7 @@ export DictionaryViewTable from './DictionaryViewTable';
 
 export HtsqlConsole from './HtsqlConsole';
 
-export Guide from './guide';
-
-export Title from './Title';
-
-export FilterDataset from './guide/FilterDataset';
-export ChooseColumns from './guide/ChooseColumns';
-export ExportDataset from './guide/ExportDataset';
+export {Guide} from './guide';
 
 export QueryBuilder from './QueryBuilder';
 
-export BooleanFilter from './guide/filter/BooleanFilter'
-export TextFilter from './guide/filter/TextFilter'
-export EnumFilter from './guide/filter/EnumFilter'
-export NumericFilter from './guide/filter/NumericFilter'
-export DateFilter from './guide/filter/DateFilter'

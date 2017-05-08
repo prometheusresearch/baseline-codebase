@@ -1,0 +1,18 @@
+/country{
+        *
+    }
+    /:rexdb
+    /:insert
+
+/country_language{
+        *
+    }
+    /:rexdb
+    /:insert
+
+/city{
+        *
+    }
+    /:rexdb
+    /:insert
+

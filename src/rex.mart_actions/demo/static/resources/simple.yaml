@@ -9,21 +9,11 @@ path:
   - choose-mart:
     - view-mart:
       - replace: ../../choose-mart
-    - guide-schools-intro:
-      - repeat:
-          - guide-schools-filter-by-campus:
-          - guide-schools-filter-by-name:
-          - guide-schools-columns:
-        then:
-          - guide-schools-export:
-    - guide-courses-intro:
-      - repeat:
-          - guide-courses-filter:
-          - guide-courses-columns:
-        then:
-          - guide-courses-export:
-          - console:
+    - guide-city:
+    - guide-country:
+    - guide-language:
     - console:
+    - query-builder:
     - dictionary:
       - dictionary-browse-by-table:
         - dictionary-browse-table-columns:
@@ -58,6 +48,14 @@ actions:
 
 
   #
+  # Visual Query Builder Tool
+  #
+  query-builder:
+    type: mart-query-builder
+    title: Query Builder
+
+
+  #
   # Data Dictionary Tool
   #
 
@@ -88,116 +86,93 @@ actions:
     type: mart-dictionary-enumerations
     title: Column Enumerations
 
-
   #
-  # Guide: Schools
+  # Guide: City
+  #
+  # Shows every type of filter
   #
 
-  guide-schools-intro:
+  guide-city:
     type: mart-guide
-    text: Explore schools and their campuses.
-    title: School Guide
-    definition: schools
+    title: Guided City Query
 
-  guide-schools-filter-by-campus:
-    type: mart-guide-filter
-    title: Filter by campus
+    definition: world
+    table: city
 
-    definition: schools
-    table: school
+    text: |
+      Hello
+      ======
+      This is some help text. It will be shown on the Help tab of the left
+      pane of the Guide.
 
-    filters:
-    - title: Name
-      expression: name
-    - title: South Campus
-      expression: campus='south'
-    - title: Old Campus
-      expression: campus='old'
-    - title: Degree
-      expression: degree
-    - title: Date Opened
-      expression: date_opened
-
-  guide-schools-filter-by-name:
-    type: mart-guide-filter
-    title: Filter by name
-
-    definition: schools
-    table: school
-
-    filters:
-    - title: Name
-      expression: name
-    - title: Code
-      expression: code
-
-  guide-schools-columns:
-    type: mart-guide-columns
-    title: Choose columns
-
-    definition: schools
-    table: school
-
-  guide-schools-export:
-    type: mart-guide-export
-
-    definition: schools
-    table: school
+      * One
+      * Two
+      * Three
 
     fields:
-      - title: Capital Name
-        expression: upper(name)
+      - include: '*'
+      - include: population
+        selected: false
 
+    filters:
+      - title: Some Date
+        expression: today()
+      - title: Some DateTime
+        expression: now()
+      - title: Some Time
+        expression: time(now())
+      - title: Population
+        expression: population
+      - title: Name
+        expression: name
+      - title: Continent
+        expression: country.continent
+      - title: Has District
+        expression: "!is_null(district)"
+
+    preview_record_limit: 100
 
   #
-  # Guide: Courses
+  # Guide: Country
+  #
+  # Shows the bare minium configuration necessary.
   #
 
-  guide-courses-intro:
+  guide-country:
     type: mart-guide
-    text: Explore the available courses.
-    title: Course Guide
-    definition: schools_with_dict
+    title: Guided Country Query
 
-  guide-courses-filter:
-    type: mart-guide-filter
-    title: Filter stuff
+    definition: world
+    table: country
 
-    definition: schools_with_dict
-    table: course
+  #
+  # Guide: Country
+  #
+  # Shows every type of column
+  #
 
-    filters:
-      - title: Title
-        expression: title
-      - title: Full Credit
-        expression: credits >= 3
-      - title: Course Number
-        expression: no
+  guide-language:
+    type: mart-guide
+    title: Guided Language Query
 
-  guide-courses-columns:
-    type: mart-guide-columns
-    title: Choose columns
-
-    definition: schools_with_dict
-    table: course
+    definition: world
+    table: country_language
 
     fields:
-      - title: Department Name
-        expression: department_code.name
-      - department_code.code
-      - title: Degree
-        expression: department_code.school_code.degree
+      - include: '*'
+      - include: country.continent
+      - expression: integer(percentage)
+        title: An Integer
+      - expression: "json({foo := 'abc', bar := true(), baz := 123, blah := json({a := 1})})"
+        title: A JSON Object
+      - expression: today()
+        title: A Date
+      - expression: time(now())
+        title: A Time
+      - expression: now()
+        title: A DateTime
 
-  guide-courses-export:
-    type: mart-guide-export
-
-    definition: schools_with_dict
-    table: course
-
-    fields:
-      - title: Campus
-        expression: department_code.school_code.campus
-      - title: Departments
-        expression: /department_code.school_code.department
-
+    allowed_exporters:
+      - csv
+      - xlsx
 

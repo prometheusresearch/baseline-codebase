@@ -28,7 +28,6 @@ Actions
 
 Mart Selection
 --------------
-
 There are a set of actions that are intended to be used as the means for the
 user to select the Mart database they wish to explore.
 
@@ -89,13 +88,8 @@ the user chooses to delete the Mart.
 
 HTSQL Console
 -------------
-
 ``mart-htsql-console``
     :Purpose: Provides a web-based HTSQL console connected to a Mart database.
-              This action, much like ``mart-guide-export``, can be used as an
-              endpoint for `Guided Queries`_. It will be pre-populated with the
-              query that is built from the user's filtering and column
-              selections.
     :Input: **mart**: The ID of the Mart to connect to.
 
             **mart_tool:htsql**: A flag that enables this tool so that it shows
@@ -105,7 +99,6 @@ HTSQL Console
 
 Data Dictionary
 ---------------
-
 There are a set of actions that allow a user to explore a Mart database's
 data dictionary. Note that these actions only work if the Mart was configured
 to use the ``datadictionary`` processor in ``rex.mart``.
@@ -170,92 +163,108 @@ Typically, these actions will be arranged as::
         - mart-dictionary-enumerations:
 
 
-Guided Queries
---------------
-
-There are a set of actions available that let the workflow author assemble
-small workflows that guide a user through customizing and executing simple
-queries on tables in Mart databases.
-
+RexGuide (aka, Guided Queries)
+------------------------------
 ``mart-guide``
-    :Purpose: Acts as the entry point for a Guided Query set of actions.
-    :Input: **mart_tool:guide**: A flag that enables this tool so that it shows
+    :Purpose: Provides a limited, simple interface for a user to query a flat
+              table and optionally export its data.
+    :Input: **mart**: The ID of the Mart to connect to.
+
+            **mart_tool:guide**: A flag that enables this tool so that it shows
             in the list of available Actions.
     :Output: N/A
-    :Properties: **text**: The Restructured text to display on this page. This
-                 property is optional.
+    :Properties: **definition**: The Mart Definition that this Guide can
+                 operate on. Required.
 
-                 **definition**: The Mart Definition that this guide should be
-                 enabled for.
+                 **table**: The table that the query is based upon. Required.
 
-``mart-guide-filter``
-    :Purpose: Allows the user to select from a list of configured filter
-              criteria to use in the query.
-    :Input: **mart**: The ID of the Mart to connect to.
-    :Output: N/A
-    :Properties: **table**: The table that the query is based on.
+                 **text**: Restructured text to display in the Help pane.
+                 Optional.
 
-                 **definition**: The Mart Definition that this guide action can
-                 operate on.
+                 **fields**: The fields that a user can choose from to retrieve
+                 in their query. This is a list of three kinds of mappings. If
+                 not fields are specified, this will default to showing all
+                 compatible fields on the base ``table``. Allowed mappings:
 
-                 **filters**: The list of filters to allow the user to choose
-                 from. This is a list of mappings that have two properties;
-                 ``title`` and ``expression``. If not specified, filters will
-                 be automatically displayed for all supported fields on the
-                 table.
+                 *Includes*
 
-``mart-guide-columns``
-    :Purpose: Allows the user to select which columns should be returned by the
-              query.
-    :Input: **mart**: The ID of the Mart to connect to.
-    :Output: N/A
-    :Properties: **table**: The table that the query is based on.
+                 These mappings add existing fields from the base ``table`` (or
+                 facets of the base table) to the list. They have three
+                 properties:
 
-                 **definition**: The Mart Definition that this guide action can
-                 operate on.
+                   ``include``: The name of the field include. Required. This
+                   can either be:
 
-                 **fields**: The list of additional, expression-based columns
-                 that the user can choose from (in addition to all the normal
-                 columns on the table). This is a list of mappings that two
-                 properties: ``title`` and ``expression``. The ``expression``
-                 must resolve to a scalar value -- nested record sets are not
-                 currently supported.
+                     * The name of a specific field on the table (e.g.,
+                       ``foo``)
+                     * The name of a specific field on a facet table (e.g.,
+                       ``my_facet.some_field``)
+                     * An asterisk (``*``), which will include all fields from
+                       the table
+                     * An asterisk on a facet table (e.g., ``my_facet.*``),
+                       which will include all fields from the facet table
 
-``mart-guide-export``
-    :Purpose: Allows the user to export the results of the query they've
-              configured as a CSV or TSV file.
-    :Input: **mart**: The ID of the Mart to connect to.
-    :Output: N/A
-    :Properties: **table**: The table that the query is based on.
+                   ``title``: The title of the field to display. Optional.
 
-                 **definition**: The Mart Definition that this guide action can
-                 operate on.
+                   ``selected``: Whether or not this field is displayed upon
+                   first accessing the guide. If not specified, defaults to
+                   ``true``.
 
-                 **fields**: The list of additional, expression-based columns
-                 that the user can choose from. If selected, these columns will
-                 be added to the exported file, but will not be added to the
-                 guided query itself (e.g., the query being displayed in the
-                 preview panes). This is a list of mappings that have two
-                 properties: ``title`` and ``expression``. Unlike the fields in
-                 the Column Chooser action, these expressions can resolve to
-                 either scalar or plural values.
+                 *Excludes*
 
-Typically, these actions will be arranged as::
+                 These mappings will exclude fields that were brought into
+                 scope by Includes. For example, you could use
+                 ``- include: '*'`` to include all columns from the base table,
+                 and then use ``- exclude: foo`` to prevent the ``foo`` field
+                 from being brought in via the asterisk. These mappings just
+                 have one property:
 
-    - mart-guide:
-      - repeat:
-          - mart-guide-filter:
-          - mart-guide-project:
-        then:
-          - mart-guide-export:
+                   ``exclude``: The name of the field to exclude. Required.
+
+                 *Expressions*
+
+                 These mappings allow you to add calculated fields to the
+                 query. They have three properties:
+
+                   ``expression``: The HTSQL expression that calculates the
+                   field value. Must result in a scalar value. Required.
+
+                   ``title``: The title of the expression to display. Required.
+
+                   ``selected``: Whether or not this field is displayed upon
+                   first accessing the guide. If not specified, defaults to
+                   ``true``.
+
+                 **filters**: The filters that a user can choose to apply to
+                 the query. This is a list of mappings that contain two keys;
+                 ``expression``, which specifies the HTSQL expression to filter
+                 on, and ``title``, which is the label of the filter to show
+                 in the Filter pane. If no filters are specified, this will
+                 default to filtering all compatible fields defined in the
+                 ``fields`` property.
+
+                 **masks**: The HTSQL filter conditions to always apply to the
+                 query. This is a list of HTSQL expressions that will be used
+                 in ``filter()`` calls. Optional.
+
+                 **allowed_exporters**: The data exporters to show on the
+                 Download pane. This is a list of strings (``csv``, ``tsv``,
+                 ``xls``, ``xlsx``). If not specified, defaults to all
+                 available exporters.
+
+                 **preview_record_limit**: The maximum number of records to
+                 show in the Preview pane. If not specified, no limit is
+                 applied.
 
 
-Query Builder
--------------
-
+Visual Query Builder
+--------------------
 ``mart-query-builder``
     :Purpose: Displays the QueryBuilder application connected to the specified
-              Mart..
+              Mart.
     :Input: **mart**: The ID of the Mart to connect to.
+
+            **mart_tool:vqb**: A flag that enables this tool so that it shows
+            in the list of available Actions.
     :Output: N/A
 

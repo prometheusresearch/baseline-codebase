@@ -13,7 +13,7 @@ menu:
             created in its environment. To do so, run commands like these a few
             times::
 
-              rex mart-create -o test -d schools -d schools_with_dict
+              rex mart-create -o test -d world -d world_with_dict
 
             (Assuming the user you're logging in with is ``test``)
 

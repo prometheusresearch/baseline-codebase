@@ -105,7 +105,7 @@ export default class Guide extends React.Component {
     }
 
     return (
-      <Action noContentWrapper onClose={onClose}>
+      <Action noContentWrapper noHeader onClose={onClose}>
         {content}
       </Action>
     );

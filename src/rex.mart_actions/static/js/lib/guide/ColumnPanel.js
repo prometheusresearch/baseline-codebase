@@ -17,6 +17,7 @@ class ColumnCheckbox extends ReactUI.Checkbox {
     LabelWrapper: style(ReactUI.Checkbox.stylesheet.LabelWrapper, {
       base: {
         cursor: 'pointer',
+        maxWidth: '90%',
       }
     })
   };

@@ -89,7 +89,10 @@ export default class AboutRexDB extends React.Component {
           </Tab>
           <Tab
             id="other"
-            title="Other Components">
+            title="Other Components"
+            style={{
+              width: '100%',
+            }}>
             <PackageList
               packages={this.props.environmentPackages.other_packages}
               />

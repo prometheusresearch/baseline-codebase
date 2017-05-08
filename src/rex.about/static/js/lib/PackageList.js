@@ -23,6 +23,7 @@ var PackageList = React.createClass({
       style: {
         paddingRight: 20,
         paddingTop: 5,
+        whiteSpace: 'nowrap',
       }
     };
 

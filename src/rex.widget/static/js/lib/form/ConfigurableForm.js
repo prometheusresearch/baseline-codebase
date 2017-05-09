@@ -112,7 +112,7 @@ export function validatorFromFields(fields, trace = []) {
   for (let field of fields) {
     if (field.type === 'fieldset') {
       validatorList = validatorList.concat(
-        validatorFromFields(field.fields, trace.concat(field.valueKey))
+        validatorFromFields(field.fields, trace.concat(field.valueKey)) || []
       );
     } else if (field.type === 'list') {
       let _validatorList = validatorFromFields(field.fields);

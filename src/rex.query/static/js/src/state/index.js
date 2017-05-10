@@ -142,7 +142,7 @@ export function getInitialState(
     domain,
     initialQuery,
     initialChartList = [],
-    initialActiveTab = '__dataset__',
+    initialActiveTab,
     translateOptions,
   }: Params,
 ): State {
@@ -161,7 +161,7 @@ export function getInitialState(
     queryLoading: false,
     selected: null,
     prevSelected: null,
-    activeTab: initialActiveTab,
+    activeTab: initialActiveTab || '__dataset__',
     activeQueryPipeline: null,
     data: null,
     showPanel: true,

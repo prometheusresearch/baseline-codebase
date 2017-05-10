@@ -164,7 +164,7 @@ export function getInitialChart(pipeline: QueryPipeline, {type}: {type: string})
         type: 'pie',
         labelColumn: getLabelColumn(pipeline),
         valueColumn: null,
-        color: '#8884d8',
+        color: {},
       };
     case 'line':
       return {type: 'line', labelColumn: getLabelColumn(pipeline), lineList: []};

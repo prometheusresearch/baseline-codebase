@@ -48,6 +48,17 @@ type WizardState = {
 
 const log = createLogger('rex-action:wizard');
 
+declare var __REX_USER__: ?string;
+
+function getInitialContext(initialContext = {}) {
+  initialContext = initialContext || {};
+  initialContext = {...initialContext};
+  if (__REX_USER__ != null) { // eslint-disable-line no-undef
+    initialContext.USER = `'${__REX_USER__}'`; // eslint-disable-line no-undef
+  }
+  return initialContext;
+}
+
 class Wizard extends React.Component<*, WizardProps, WizardState> {
   static defaultProps = {
     title: 'Wizard',
@@ -83,7 +94,7 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
     log('use location', location);
     const graph = SP.fromPath(location.pathname, {
       instruction: this._instruction,
-      context: {...(initialContext || {}), USER: `'${__REX_USER__}'`}
+      context: getInitialContext(initialContext),
     });
     this._refetch(graph);
   }

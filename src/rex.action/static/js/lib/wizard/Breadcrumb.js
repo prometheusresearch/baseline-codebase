@@ -13,29 +13,13 @@ import * as ui from 'rex-widget/ui';
 import type {Position, State} from '../model/types';
 import * as S from '../model/State';
 import ActionTitle from '../ActionTitle';
-import SingleChild from '../ui/SingleChild';
-import TransitionGroup from '../ui/TransitionGroup';
 import BreadcrumbButton from './BreadcrumbButton';
-
-import * as TransitionStyle from './BreadcrumbTransition.module.css';
 
 type BreadcrumbItem = {
   pos?: Position,
   page?: {url: string, title: string},
   collapsed?: boolean,
 };
-
-function BreadcrumbTransition({...props}) {
-  return (
-    <TransitionGroup
-      {...props}
-      name="appear"
-      style={TransitionStyle}
-      transitionEnterTimeout={300}
-      transitionLeaveTimeout={300}
-    />
-  );
-}
 
 function BreadcrumbButtonWrapper(props) {
   return (
@@ -128,9 +112,9 @@ export class Breadcrumb extends React.Component {
     let ghostButtons = allPosList.map(this.renderButton, this);
     return (
       <BreadcrumbRoot>
-        <BreadcrumbTransition component={HBox} transitionLeave={false}>
+        <HBox>
           {buttons}
-        </BreadcrumbTransition>
+        </HBox>
         <HBox ref={this._onGhost} height={0} style={{visibility: 'hidden'}}>
           {ghostButtons}
         </HBox>
@@ -176,9 +160,7 @@ export class Breadcrumb extends React.Component {
           <BreadcrumbButton
             variant={{current}}
             onClick={onClick.bind(null, pos.instruction.action.id)}>
-            <BreadcrumbTransition component={SingleChild} transitionLeave={false}>
-              <ActionTitle noWrap position={pos} />
-            </BreadcrumbTransition>
+            <ActionTitle noWrap position={pos} />
           </BreadcrumbButton>
           {!current && <BreadcrumbTriangle variant={{first: true}} />}
           {!current && <BreadcrumbTriangle variant={{second: true}} />}

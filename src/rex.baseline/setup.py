@@ -17,7 +17,7 @@ setup(
     url='https://bitbucket.org/rexdb/rex.baseline',
     include_package_data=True,
     install_requires=[
-        'rex.platform == 6.1.3',
+        'rex.platform == 6.1.4',
         'rex.query >= 0.3.1, < 2',
         'rex.asynctask >= 0.5.0, < 2',
     ],

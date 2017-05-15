@@ -33,7 +33,7 @@ setup(
         'rex.ctl>=2,<3',
         'rex.db>=3,<4',
         'rex.deploy>=2.3.3,<3',
-        'rex.asynctask>=0.5,<0.6',
+        'rex.asynctask>=0.5,<0.7',
         'rex.attach>=2.0.4,<3',
         'rex.file>=1.0.4,<2',
         'rex.widget>=2.11,<3',

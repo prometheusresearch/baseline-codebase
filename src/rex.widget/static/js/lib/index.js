@@ -16,7 +16,7 @@ export TextareaField from './form/TextareaField';
 export CheckboxGroupField from './form/CheckboxGroupField';
 export RadioGroupField from './form/RadioGroupField';
 export DateField from './form/DateField';
-export DatetimeField from './form/DateField';
+export DatetimeField from './form/DatetimeField';
 export SourceCodeField from './form/SourceCodeField';
 export JsonSourceCodeField from './form/JsonSourceCodeField';
 export ConfigurableEntityForm from './form/ConfigurableEntityForm';

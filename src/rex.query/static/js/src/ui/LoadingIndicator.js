@@ -17,7 +17,7 @@ export default class LoadingIndicator extends React.Component {
   render() {
     return (
       <Root>
-        <img src={src} role="presentation" />
+        <img src={src} alt="loading..." />
       </Root>
     );
   }

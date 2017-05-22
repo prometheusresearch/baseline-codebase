@@ -637,9 +637,20 @@ function onQuery(
     showPanel = true;
   }
   let focusedSeq = reconcileFocus(state.focusedSeq, query);
+
+  // clear chartList if we change the root navigate to another relationship
+  let chartList = state.chartList;
+  let activeTab = state.activeTab;
+  if (getRootEntity(state.query) !== getRootEntity(query)) {
+    chartList = [];
+    activeTab = '__dataset__';
+  }
+
   let nextState = {
     ...state,
     query,
+    chartList,
+    activeTab,
     selected,
     activeQueryPipeline,
     showPanel: showPanel,
@@ -707,4 +718,22 @@ function generateQueryID(scope, prefix = 'Query') {
 function reconcileFocus(focusedSeq: Focus.Focus, query) {
   let nextFocusedSeq = Focus.chooseFocus(query);
   return nextFocusedSeq;
+}
+
+function getRootEntity(query: QueryPipeline) {
+  const def = query.pipeline[1];
+  if (def == null) {
+    return null;
+  }
+  if (def.name !== 'define') {
+    return null;
+  }
+  const navigate = def.binding.query.pipeline[0];
+  if (navigate == null) {
+    return null;
+  }
+  if (navigate.name !== 'navigate') {
+    return null;
+  }
+  return navigate.path;
 }

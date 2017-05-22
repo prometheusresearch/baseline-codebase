@@ -39,7 +39,7 @@ class Editor<Q: QueryAtom> {
     return new Editor(nextLoc);
   }
 
-  transformWith<NQ: QueryAtom>(f: (Q) => NQ): Editor<NQ> {
+  transformWith<NQ: QueryAtom>(f: Q => NQ): Editor<NQ> {
     let nextQuery = edit(this.loc, f);
     invariant(nextQuery != null, 'Invalid query transform');
     let nextLoc: QueryLoc<NQ> = (QL.rebaseLoc(this.loc, nextQuery): any);
@@ -53,7 +53,7 @@ class Editor<Q: QueryAtom> {
     return new Editor(nextLoc);
   }
 
-  transformPipelineWith(f: (Array<QueryAtom>) => Array<QueryAtom>): Editor<Q> {
+  transformPipelineWith(f: Array<QueryAtom> => Array<QueryAtom>): Editor<Q> {
     let nextQuery = editPipeline(this.loc, f);
     invariant(nextQuery != null, 'Invalid query transform');
     let nextLoc = QL.rebaseLoc(this.loc, nextQuery);
@@ -104,12 +104,10 @@ class Editor<Q: QueryAtom> {
     return new Editor(nextLoc);
   }
 
-  growNavigation(
-    params: {
-      path: Array<string>,
-      editAtCompletion?: (Array<QueryAtom>) => Array<QueryAtom>,
-    },
-  ): Editor<Q> {
+  growNavigation(params: {
+    path: Array<string>,
+    editAtCompletion?: Array<QueryAtom> => Array<QueryAtom>,
+  }): Editor<Q> {
     let nextQuery = growNavigation({
       loc: this.loc,
       path: params.path,
@@ -211,7 +209,7 @@ function transformQueryByPath(
   return cur;
 }
 
-function edit<Q: QueryAtom>(loc: QueryLoc<Q>, edit: (Q) => ?QueryAtom): ?QueryPipeline {
+function edit<Q: QueryAtom>(loc: QueryLoc<Q>, edit: Q => ?QueryAtom): ?QueryPipeline {
   let found = QL.resolveLocWithPath(loc);
   invariant(found != null, 'Cannot find query by id: %s', loc.at);
   let [query, path] = found;
@@ -220,7 +218,7 @@ function edit<Q: QueryAtom>(loc: QueryLoc<Q>, edit: (Q) => ?QueryAtom): ?QueryPi
 
 function editPipeline<Q: QueryAtom>(
   loc: QueryLoc<Q>,
-  edit: (Array<QueryAtom>) => Array<QueryAtom>,
+  edit: Array<QueryAtom> => Array<QueryAtom>,
 ): ?QueryPipeline {
   let found = QL.resolveLocWithPath(loc);
   invariant(found != null, 'Cannot find query by id: %s', loc.at);
@@ -293,15 +291,13 @@ export function cut<Q: QueryAtom>({loc}: {loc: QueryLoc<Q>}): ?QueryPipeline {
   return query;
 }
 
-export function insertAfter<Q: QueryAtom>(
-  {
-    loc,
-    what,
-  }: {
-    loc: QueryLoc<Q>,
-    what: Array<QueryAtom>,
-  },
-): QueryPipeline {
+export function insertAfter<Q: QueryAtom>({
+  loc,
+  what,
+}: {
+  loc: QueryLoc<Q>,
+  what: Array<QueryAtom>,
+}): QueryPipeline {
   let query = editPipeline(loc, pipeline => {
     let idx = pipeline.findIndex(q => q.id === loc.at);
     invariant(idx > -1, 'Invalid query location');
@@ -322,28 +318,28 @@ export function insertAfter<Q: QueryAtom>(
   return query;
 }
 
-export function transform<Q: QueryAtom>(
-  {
-    loc,
-    transform,
-  }: {loc: QueryLoc<Q>, transform: (Q) => ?QueryAtom},
-): ?QueryPipeline {
+export function transform<Q: QueryAtom>({
+  loc,
+  transform,
+}: {
+  loc: QueryLoc<Q>,
+  transform: Q => ?QueryAtom,
+}): ?QueryPipeline {
   return edit(loc, transform);
 }
 
-export function growNavigation<Q: QueryAtom>(
-  {
-    loc,
-    path,
-    editAtCompletion,
-  }: {
-    loc: QueryLoc<Q>,
-    path: Array<string>,
-    editAtCompletion?: (Array<QueryAtom>) => Array<QueryAtom>,
-  },
-): QueryPipeline {
+export function growNavigation<Q: QueryAtom>({
+  loc,
+  path,
+  editAtCompletion,
+}: {
+  loc: QueryLoc<Q>,
+  path: Array<string>,
+  editAtCompletion?: Array<QueryAtom> => Array<QueryAtom>,
+}): QueryPipeline {
   let query = editPipeline(loc, pipeline => {
-    return growNavigationImpl(pipeline, path, editAtCompletion);
+    const nextPipeline = growNavigationImpl(pipeline, path, editAtCompletion);
+    return nextPipeline;
   });
   invariant(query != null, 'Invalid operation');
   return query;
@@ -352,7 +348,7 @@ export function growNavigation<Q: QueryAtom>(
 function growNavigationImpl(
   pipe: Array<QueryAtom>,
   path: Array<string>,
-  editAtCompletion?: (Array<QueryAtom>) => Array<QueryAtom>,
+  editAtCompletion?: Array<QueryAtom> => Array<QueryAtom>,
 ): Array<QueryAtom> {
   if (path.length === 0) {
     if (editAtCompletion != null) {

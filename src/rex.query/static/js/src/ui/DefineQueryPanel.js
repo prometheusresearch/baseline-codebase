@@ -42,15 +42,8 @@ export default class DefineQueryPanel
   static contextTypes = {actions: React.PropTypes.object};
 
   render() {
-    let {
-      onClose,
-      onSearch,
-      query,
-    } = this.props;
-    let {
-      renameOpen,
-      renameValue,
-    } = this.state;
+    let {onClose, onSearch, query} = this.props;
+    let {renameOpen, renameValue} = this.state;
 
     let type = query.binding.query.context.type;
 
@@ -117,7 +110,7 @@ export default class DefineQueryPanel
   onSelect = (payload: {path: string}) => {
     let {path} = payload;
     let {query} = this.props;
-    this.context.actions.navigate({
+    this.context.actions.select({
       at: query.binding.query,
       path: [path],
     });

@@ -64,9 +64,11 @@ export function addChart(params: {chartType: Chart.ChartType}): StateUpdater {
   };
 }
 
-export function updateChart(
-  params: {chartId: string, chart?: Chart.Chart, label?: string},
-): StateUpdater {
+export function updateChart(params: {
+  chartId: string,
+  chart?: Chart.Chart,
+  label?: string,
+}): StateUpdater {
   logAction('updateChart', params);
   return state => {
     const chartList = state.chartList.slice(0);
@@ -105,17 +107,20 @@ function ensurePipelineHasCount(pipe: QueryAtom[]): QueryAtom[] {
 }
 
 /**
- * Navigate.
+ * Select a path at a given query pipeline.
  */
-export function navigate({at, path}: {at: QueryPipeline, path: string[]}): StateUpdater {
-  logAction('navigate', {at, path});
+export function select({at, path}: {at: QueryPipeline, path: string[]}): StateUpdater {
+  logAction('select', {at, path});
   return state => {
+    const lastNonSelect = at.pipeline[at.pipeline.length - 2];
+    const type = q.inferTypeAtPath(q.regularizeContext(lastNonSelect.context), path);
+
     let editAtCompletion;
-    let type = q.inferTypeAtPath(at.context.prev, path);
     if (type.card === 'seq' && type.name === 'record' && type.entity != null) {
       editAtCompletion = ensurePipelineHasCount;
     }
-    let query = qo
+
+    const query = qo
       .editor(state.query, at)
       .growNavigation({path, editAtCompletion})
       .getQuery();
@@ -215,9 +220,11 @@ export function redo(): StateUpdater {
 /**
  * Initiate new query combinator insertion.
  */
-export function setActiveQueryPipeline(
-  {pipeline}: {pipeline: QueryPipeline},
-): StateUpdater {
+export function setActiveQueryPipeline({
+  pipeline,
+}: {
+  pipeline: QueryPipeline,
+}): StateUpdater {
   return state => {
     return {
       ...state,
@@ -233,7 +240,7 @@ export function setActiveQueryPipeline(
  * Select a combinator in a query vis panel.
  */
 export function setSelected({query}: {query: ?QueryAtom}): StateUpdater {
-  logAction('select', {query});
+  logAction('setSelected', {query});
   return state => {
     return {
       ...state,
@@ -276,17 +283,15 @@ export function remove({at}: {at: QueryPipeline | QueryAtom}): StateUpdater {
   };
 }
 
-export function setAggregate(
-  {
-    at,
-    aggregate,
-    path,
-  }: {
-    at: AggregateQuery,
-    aggregate: string,
-    path?: ?string,
-  },
-): StateUpdater {
+export function setAggregate({
+  at,
+  aggregate,
+  path,
+}: {
+  at: AggregateQuery,
+  aggregate: string,
+  path?: ?string,
+}): StateUpdater {
   logAction('setAggregate', {at});
   return state => {
     if (path == null) {
@@ -298,15 +303,7 @@ export function setAggregate(
   };
 }
 
-export function setNavigate(
-  {
-    at,
-    path,
-  }: {
-    at: NavigateQuery,
-    path: string,
-  },
-): StateUpdater {
+export function setNavigate({at, path}: {at: NavigateQuery, path: string}): StateUpdater {
   logAction('setNavigate', {at});
   return state => {
     let nextNavigate = q.navigate(path);
@@ -319,15 +316,13 @@ export function setNavigate(
   };
 }
 
-export function setFilter(
-  {
-    at,
-    expression,
-  }: {
-    at: FilterQuery,
-    expression: Expression,
-  },
-): StateUpdater {
+export function setFilter({
+  at,
+  expression,
+}: {
+  at: FilterQuery,
+  expression: Expression,
+}): StateUpdater {
   logAction('setFilter', {at});
   return state => {
     let nextFilter: FilterQuery = {...q.filter(expression), id: at.id};
@@ -387,15 +382,13 @@ export function setGroupByPath({at, byPath}: SetGroupByPathParams): StateUpdater
 /**
  * Append a new navigate combinator at pointer.
  */
-export function appendNavigate(
-  {
-    at,
-    path = [],
-  }: {
-    at: QueryPipeline,
-    path?: Array<string>,
-  },
-): StateUpdater {
+export function appendNavigate({
+  at,
+  path = [],
+}: {
+  at: QueryPipeline,
+  path?: Array<string>,
+}): StateUpdater {
   logAction('appendNavigate', {at, path});
   return state => {
     if (path.length === 0) {
@@ -412,17 +405,15 @@ export function appendNavigate(
 /**
  * Append a new define combinator at query.
  */
-export function appendDefine(
-  {
-    at,
-    path,
-    select,
-  }: {
-    at: QueryPipeline,
-    path?: Array<string>,
-    select?: boolean,
-  },
-): StateUpdater {
+export function appendDefine({
+  at,
+  path,
+  select,
+}: {
+  at: QueryPipeline,
+  path?: Array<string>,
+  select?: boolean,
+}): StateUpdater {
   logAction('appendDefine', {at, path, select});
   return state => {
     let name = generateQueryID(
@@ -453,13 +444,7 @@ export function appendDefine(
 /**
  * Append a new filter combinator at pointer.
  */
-export function appendFilter(
-  {
-    at,
-  }: {
-    at: QueryPipeline,
-  },
-): StateUpdater {
+export function appendFilter({at}: {at: QueryPipeline}): StateUpdater {
   logAction('appendFilter', {at});
   return state => {
     let filter = q.filter(q.or(q.value(true)));
@@ -471,13 +456,7 @@ export function appendFilter(
 /**
  * Append a new filter combinator to a pipeline.
  */
-export function appendGroup(
-  {
-    at,
-  }: {
-    at: QueryPipeline,
-  },
-): StateUpdater {
+export function appendGroup({at}: {at: QueryPipeline}): StateUpdater {
   return state => {
     let group = q.group([]);
     let query = qo.editor(state.query, at).insertAfter({what: [group]}).getQuery();
@@ -488,13 +467,7 @@ export function appendGroup(
 /**
  * Append a new aggregate combinator to a pipeline.
  */
-export function appendAggregate(
-  {
-    at,
-  }: {
-    at: QueryPipeline,
-  },
-): StateUpdater {
+export function appendAggregate({at}: {at: QueryPipeline}): StateUpdater {
   return state => {
     let aggregate = q.aggregate('count');
     let query = qo.editor(state.query, at).insertAfter({what: [aggregate]}).getQuery();
@@ -505,17 +478,15 @@ export function appendAggregate(
 /**
  * Append a new aggregate combinator at pointer.
  */
-export function appendDefineAndAggregate(
-  {
-    at,
-    path,
-    aggregate,
-  }: {
-    at: QueryPipeline,
-    path: Array<string>,
-    aggregate: DomainAggregate,
-  },
-): StateUpdater {
+export function appendDefineAndAggregate({
+  at,
+  path,
+  aggregate,
+}: {
+  at: QueryPipeline,
+  path: Array<string>,
+  aggregate: DomainAggregate,
+}): StateUpdater {
   return state => {
     let newQuery;
     let name = generateQueryID(at.context.scope, path.join(' ') + ' Query');
@@ -550,15 +521,13 @@ export function appendDefineAndAggregate(
 /**
  * Rename define combinator binding at pointer.
  */
-export function renameDefineBinding(
-  {
-    at,
-    name,
-  }: {
-    at: DefineQuery,
-    name: string,
-  },
-): StateUpdater {
+export function renameDefineBinding({
+  at,
+  name,
+}: {
+  at: DefineQuery,
+  name: string,
+}): StateUpdater {
   return state => {
     // TODO: implement it!
     return state;
@@ -622,7 +591,8 @@ function onQuery(
     activeQueryPipeline = state.activeQueryPipeline;
   }
 
-  let selectedDidChange = (!state.selected && selected) ||
+  let selectedDidChange =
+    (!state.selected && selected) ||
     (state.selected && selected && selected.id !== state.selected.id);
 
   let showPanel = state.showPanel;

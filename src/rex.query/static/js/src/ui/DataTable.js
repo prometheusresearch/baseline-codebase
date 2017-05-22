@@ -268,13 +268,11 @@ function cellDataGetter({rowData, dataKey, columnData: {type, focusedSeq}}) {
   return cellData;
 }
 
-function cellRenderer(
-  {
-    columnData: {query},
-    cellData,
-    dataKey,
-  },
-): ?string | React.Element<*> {
+function cellRenderer({
+  columnData: {query},
+  cellData,
+  dataKey,
+}): ?string | React.Element<*> {
   if (cellData === null) {
     return nullCell; // eslint-disable-line no-use-before-define
   } else if (cellData === undefined) {
@@ -284,21 +282,14 @@ function cellRenderer(
     if (type.name === 'record' && typeof cellData === 'object' && cellData != null) {
       if (type.card === 'seq') {
         if (Array.isArray(cellData)) {
-          cellData = cellData.map(entity => formatEntity(type.entity, entity)).join(', ');
+          return cellData.map(entity => formatEntity(type.entity, entity)).join(', ');
+        } else {
+          return String(cellData);
         }
       } else {
-        if ('code' in cellData) {
-          cellData = cellData.code;
-        } else if ('name' in cellData) {
-          cellData = cellData.name;
-        } else if ('title' in cellData) {
-          cellData = cellData.title;
-        } else {
-          formatEntity(type.entity, cellData);
-        }
+        return formatEntity(type.entity, cellData);
       }
-    }
-    if (type.name === 'boolean') {
+    } else if (type.name === 'boolean') {
       if (cellData === true) {
         return <BooleanTrueCell>✓</BooleanTrueCell>;
       } else if (cellData === false) {
@@ -329,7 +320,7 @@ function formatJSON(data) {
   return <JSONCell>— JSON data —</JSONCell>;
 }
 
-function formatEntity(entityName, entity) {
+function formatEntity(entityName, entity): ?string | React.Element<*> {
   if (typeof entity === 'string') {
     return entity;
   } else if (typeof entity === 'boolean') {
@@ -339,13 +330,15 @@ function formatEntity(entityName, entity) {
   } else if (entity == null) {
     return entity;
   } else if ('title' in entity) {
-    return entity.title;
+    return (entity.title: any);
   } else if ('name' in entity) {
-    return entity.name;
+    return (entity.name: any);
   } else if ('code' in entity) {
-    return entity.code;
+    return (entity.code: any);
+  } else if ('id' in entity) {
+    return (entity.id: any);
   } else {
-    return entityName;
+    return <JSONCell>{'{'}Record: {entityName}{'}'}</JSONCell>;
   }
 }
 

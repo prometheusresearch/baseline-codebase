@@ -66,15 +66,16 @@ export default class PieChart extends React.Component {
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
     return (
-      <text
+      <recharts.Text
         style={{fontWeight: 200, fontSize: '9pt'}}
+        width={80}
         x={x}
         y={y}
         fill={getPieColor(this.props.chart, name)}
         textAnchor={x > cx ? 'start' : 'end'}
         dominantBaseline="central">
         {`${name} (${(percent * 100).toFixed(0)}%)`}
-      </text>
+      </recharts.Text>
     );
   };
 
@@ -122,13 +123,14 @@ export default class PieChart extends React.Component {
           fill={fill}
         />
         <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none" />
-        <text
+        <recharts.Text
           x={ex + (cos >= 0 ? 1 : -1) * 12}
           y={ey}
+          width={90}
           textAnchor={textAnchor}
           fill={fill}>
           {`${name} (${(percent * 100).toFixed(2)}%)`}
-        </text>
+        </recharts.Text>
       </g>
     );
   };

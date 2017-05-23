@@ -120,7 +120,10 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
       onContext: this._onContext,
       onContextNoAdvance: this._onContextNoAdvance,
       onEntityUpdate: this._onEntityUpdate,
-      refetch: () => this._refetch(this.state.graph),
+      refetch: () => this.setState(state => {
+        this._refetch(state.graph)
+        return state;
+      }),
       toolbar: <Toolbar graph={graph} onClick={this._onNext} />,
     });
     let showBreadcrumb = this.props.settings.includePageBreadcrumbItem ||

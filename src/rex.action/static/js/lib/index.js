@@ -10,7 +10,7 @@ import * as Command from './model/Command';
 import * as Entity from './model/Entity';
 
 
-import Actions from './actions';
+import * as Actions from './actions';
 import Title from './actions/Title';
 import {TitleBase} from './actions/Title';
 

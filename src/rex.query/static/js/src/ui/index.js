@@ -2,6 +2,8 @@
  * @flow
  */
 
+import * as Icon from './Icon';
+
 export type {SearchCallback, SearchResult} from './Search';
 
 export {QueryVis} from './vis/QueryVis';
@@ -15,5 +17,4 @@ export {default as TabContainer} from './TabContainer';
 export {default as Header} from './Header';
 export {default as Select} from './Select';
 export type {SelectOption} from './Select';
-import * as Icon from './Icon';
 export {Icon};

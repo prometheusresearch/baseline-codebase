@@ -264,7 +264,7 @@ function InvalidQueryMessage({onUndo}) {
       <ReactUI.Button
         onClick={onUndo}
         style={{verticalAlign: 'middle', margin: 4, marginTop: 2}}
-        icon={<Icon.ArrowLeftIcon />}
+        icon={<Icon.IconArrowLeft />}
         size="small">
         return back
       </ReactUI.Button>

@@ -7,6 +7,7 @@
 *
 * version: 0.5.3
 **/
+/* eslint-disable */
 
 // Check `document` and `window` in case of server-side rendering
 var _window

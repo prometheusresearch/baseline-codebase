@@ -30,7 +30,7 @@ setup(
     rex_init='rex.query',
     rex_static='static',
     rex_bundle={
-        './www/bundle': ['js:'],
+        './www/bundle': ['webpack:'],
     }
 )
 

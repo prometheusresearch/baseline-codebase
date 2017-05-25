@@ -11,6 +11,7 @@ from rex.ctl import (
         env, RexTask, Global, Topic, argument, option, log, fail, exe)
 import sys
 import os
+import time
 import tempfile
 import shlex
 import hashlib
@@ -211,6 +212,23 @@ class UWSGIGlobal(Global):
     default = {}
 
 
+def run_watch(app, packages=None):
+    packages = packages or []
+    # Start watchers for generated files.
+    if packages:
+        with app:
+            to_watch = [package.name for package in get_packages()
+                        if isinstance(package, PythonPackage)]
+            for name in packages:
+                if name not in to_watch:
+                    raise fail(
+                            "cannot find package to watch: `{}`", name)
+            to_watch = packages
+        terminate = watch(*to_watch)
+        if terminate is not None:
+            atexit.register(terminate)
+
+
 class RexWatchTask(RexTask):
     # Provides automatic watch daemon for the application.
 
@@ -225,46 +243,34 @@ class RexWatchTask(RexTask):
                 default=[],
                 hint="rebuild generated files for a specific package")
 
-    def make_with_watch(self, attached=True, *args, **kwds):
-        app = self.make(*args, **kwds)
-        if self.watch and self.watch_package:
-            raise fail("both `--watch` and `--watch-package` are specified")
-        # Start watchers for generated files.
-        if self.watch or self.watch_package:
-            with app:
-                to_watch = [package.name for package in get_packages()
-                                         if isinstance(package, PythonPackage)]
-                if self.watch_package:
-                    for name in self.watch_package:
-                        if name not in to_watch:
-                            raise fail(
-                                    "cannot find package to watch: `{}`", name)
-                    to_watch = self.watch_package
-            if attached:
-                terminate = watch(*to_watch)
-                if terminate is not None:
-                    atexit.register(terminate)
-            else:
-                # Fork off a daemon.
-                readfd, writefd = os.pipe()
-                if os.fork() == 0:
-                    os.close(writefd)
-                    os.setsid()
-                    if os.fork() != 0:
-                        if hasattr(sys, 'exitfunc'):
-                            sys.exitfunc()
-                        os._exit(0)
-                    # Start the watchers.
-                    terminate = watch(*to_watch)
-                    if terminate is None:
-                        if hasattr(sys, 'exitfunc'):
-                            sys.exitfunc()
-                        os._exit(0)
-                    atexit.register(terminate)
-                    # Wait till the parent process terminates.
-                    os.read(readfd, 1)
-                    sys.exit(0)
-        return app
+    def make_with_watch(self, *args, **kwds):
+        if self.watch:
+            raise Error(
+                'Option "--watch" is deprecated',
+                'Use "rex watch" command instead')
+        if self.watch_package:
+            raise Error(
+                'Option "--watch-package PACKAGE" is deprecated',
+                'Use "rex watch PACKAGE" command instead')
+        return self.make(*args, **kwds)
+
+
+class WatchTask(RexTask):
+    """start watchers to rebuild generated files on source changes
+
+    The `watch` task starts watchers to rebuild generated files on source
+    changes
+    """
+
+    name = 'watch'
+
+    def __call__(self):
+        # making app will run all registered watchers
+        app = self.make(initialize=False)
+        run_watch(app, packages=[app.requirements[0]])
+        # Wait indefinitely but allow interruptions
+        while True:
+            time.sleep(0.1)
 
 
 class ServeTask(RexWatchTask):
@@ -421,7 +427,7 @@ class ServeUWSGITask(RexWatchTask):
 
     def __call__(self):
         # Build the application; validate requirements and configuration.
-        app = self.make_with_watch(initialize=False, attached=False)
+        app = self.make_with_watch(initialize=False)
         with app:
             services = get_settings().services
         # Make a temporary .wsgi file: /tmp/<project>-XXX.wsgi.
@@ -521,7 +527,7 @@ class StartTask(RexWatchTask):
 
     def __call__(self):
         # Build the application; validate requirements and configuration.
-        app = self.make_with_watch(attached=False)
+        app = self.make_with_watch()
         with app:
             services = get_settings().services
         form = DaemonAttributes(app)

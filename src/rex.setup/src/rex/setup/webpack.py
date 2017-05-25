@@ -1,62 +1,30 @@
 #
-# Copyright (c) 2012-2014, Prometheus Research, LLC
+# Copyright (c) 2012-2017, Prometheus Research, LLC
 #
 
 
 from .generate import Generate
 from . import commonjs
-import sys
-import os
-import tempfile
-import pkg_resources
-
-
-def webpack_config(package):
-    # get a webpack config for a package or use default config bundled with
-    # rex.setup
-    config = commonjs.package_filename(package, 'webpack.config.js')
-    if config is not None:
-        return ['--config', config]
-    else:
-        component_path = commonjs.package_filename(package)
-        # resolve webpack.config.js installed as a part of rex-setup package
-        config = commonjs.node([
-            '-p',
-            'require.resolve("rex-setup/webpack.config.js")'
-        ], quiet=True).strip()
-        return [
-            '--config', config,
-            '--context', component_path
-        ]
 
 
 def webpack(module, target):
     commonjs.bootstrap()
     cwd = commonjs.package_filename(module)
-    return commonjs.node([
-        commonjs.find_executable('webpack'),
-        '--bail',
-        '--optimize-minimize',
-        '--devtool', 'source-map',
-        '--display-origins',
-        '--display-reasons',
-        '--output-path', target
-    ] + webpack_config(module), cwd=cwd)
+    env = {'REACT_SCRIPTS_BUILD': target}
+    return commonjs.exe(
+        commonjs.find_executable('node'),
+        [commonjs.find_executable('react-scripts'), 'build'],
+        env=env, cwd=cwd)
 
 
 def webpack_watch(module, target):
-    env = {'REX_SETUP_DEV': '1'}
     commonjs.bootstrap()
     cwd = commonjs.package_filename(module)
-    return commonjs.node([
-        commonjs.find_executable('webpack'),
-        '--devtool', 'cheap-module-source-map',
-        '--display-origins',
-        '--display-reasons',
-        '--output-path', target,
-        '--hide-modules',
-        '--watch'
-    ] + webpack_config(module), cwd=cwd, daemon=True, env=env)
+    env = {'REACT_SCRIPTS_BUILD': target}
+    return commonjs.exe(
+        commonjs.find_executable('node'),
+        [commonjs.find_executable('react-scripts'), 'watch'],
+        env=env, cwd=cwd, daemon=True)
 
 
 class GenerateWebpack(Generate):
@@ -83,4 +51,3 @@ class GenerateWebpack(Generate):
                 # The server process must have died already.
                 pass
         return terminate
-

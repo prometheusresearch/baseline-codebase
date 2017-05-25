@@ -19,6 +19,7 @@ import pkg_resources
 
 # npm version used for CommonJS environment
 NPM_VERSION = '3.10.10'
+REACT_SCRIPTS_VERSION = '1.0.5000'
 
 
 class install_commonjs(setuptools.Command):
@@ -330,10 +331,9 @@ def bootstrap():
     installing bunlder with other utilities.
     """
     path = node(['-p',
-                 'try { require.resolve("rex-setup") } catch (e) {""}'],
+                 'try { require.resolve("@prometheusresearch/react-scripts/bin/react-scripts.js") } catch (e) {""}'],
                  quiet=True)
     if not path.strip():
-        cwd = pkg_resources.resource_filename('rex.setup', 'commonjs')
         # bootstrap
         npm_path = find_executable('npm', 'NPM')
         out, err = exe(npm_path, ['--version'])
@@ -342,35 +342,8 @@ def bootstrap():
             npm(['install', '--global', 'npm@2.x.x'])
         npm(['install', '--global', 'npm@' + NPM_VERSION])
         # install deps
-        deps = [
-            "webpack@1.12.x",
-            "chalk@1.1.x",
-            "babel-core@^6.9.1",
-            "babel-loader@^6.2.5",
-            "babel-preset-prometheusresearch@^0.1.0",
-            "css-loader@0.15.x",
-            "style-loader@0.12.x",
-            "less-loader@0.7.x",
-            "url-loader@0.5.x",
-            "json-loader@0.5.x",
-            "imports-loader@0.6.x",
-            "exports-loader@0.6.x",
-            "file-loader@0.8.x",
-            "source-map-loader@0.1.x",
-            "extract-text-webpack-plugin@0.8.x",
-            "webpack-package-loaders-plugin@2.1.x",
-            "core-js@0.9.18",
-            "node-libs-browser@0.5.x",
-            "whatwg-fetch@0.9.x",
-            "less@1.5.x"
-        ]
-        if platform.system() == 'Darwin':
-            deps = deps + [
-                "fsevents@1.0.17"
-            ]
-        npm(['install', '--global'] + deps, cwd=cwd)
-        # install itself
-        npm(['install', '--global', '.'], cwd=cwd)
+        deps = ['@prometheusresearch/react-scripts@%s' % (REACT_SCRIPTS_VERSION,)]
+        npm(['install', '--global'] + deps)
 
 
 class Sandbox(object):

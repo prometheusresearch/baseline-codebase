@@ -11,6 +11,9 @@
   means an arbitrary module cannot be queries by its module name at runtime.
   This makes bundle slimmer and build process faster.
 
+* [BREAKING] JS: New JS packager based on create-react-app's react-script
+  package.
+
 * [FEATURE] JS: Use more robust devtool for Webpack. Source maps and debugger
   now again work in newest Chrome browser.
 

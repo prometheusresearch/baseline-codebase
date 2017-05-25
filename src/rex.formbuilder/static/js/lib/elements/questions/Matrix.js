@@ -15,7 +15,7 @@ var Question = require('./Question');
 var properties = require('../../properties');
 var errors = require('../../errors');
 var {isEmptyLocalization, isEmpty} = require('../../util');
-import SubFieldContainer from '../../gui/SubFieldContainer';
+var SubFieldContainer = require('../../gui/SubFieldContainer').default;
 var _ = require('../../i18n').gettext;
 
 

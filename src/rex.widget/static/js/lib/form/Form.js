@@ -34,7 +34,7 @@ let FormStyle = {
  *
  * @public
  */
-class Form extends React.Component {
+export default class Form extends React.Component {
 
   static propTypes = {
 
@@ -438,5 +438,3 @@ let ErrorRenderer = React.createClass({
     };
   }
 });
-
-module.exports = Form;

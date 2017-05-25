@@ -2,7 +2,7 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import {decode} from './Transitionable';
+const {decode} = require('./Transitionable');
 
 let __THEME = null;
 

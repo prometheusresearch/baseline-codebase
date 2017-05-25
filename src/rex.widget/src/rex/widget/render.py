@@ -8,8 +8,9 @@
 """
 
 from collections import namedtuple
-from json import dumps
+import json
 import pkg_resources
+import os
 
 from webob import Response
 from webob.exc import HTTPBadRequest
@@ -46,37 +47,56 @@ class Bootstrap(Extension):
                                   % self.__class__.__name__)
 
 
+BUNDLE_ROOT_PATH = '/www/bundle'
+BUNDLE_JS_PATH = '/www/bundle/bundle.js'
+BUNDLE_CSS_PATH = '/www/bundle/bundle.css'
+BUNDLE_MANIFEST_PATH = '/www/bundle/asset-manifest.json'
+
+
 Bundle = namedtuple('Bundle', ['root', 'js', 'css'])
 
 
-BUNDLE_PATHS = Bundle(
-    root='/www/bundle/',
-    js='/www/bundle/bundle.js',
-    css='/www/bundle/bundle.css')
-
-
 def find_bundle():
+    """ Return either a bundle or None for currently running app."""
     packages = get_packages()
     root = css = js = None
     www = '/www'
     for package in packages:
-        root_exists = package.exists(BUNDLE_PATHS.root)
-        js_exists = package.exists(BUNDLE_PATHS.js)
-        css_exists = package.exists(BUNDLE_PATHS.css)
-        if root_exists and (js_exists or css_exists):
-            dist = pkg_resources.get_distribution(package.name)
-            root = '%s:%s' % (package.name, BUNDLE_PATHS.root[len(www):])
-            if css_exists:
-                css = '%s:%s?v=%s' % (
-                    package.name,
-                    BUNDLE_PATHS.css[len(www):],
-                    dist.version)
-            if js_exists:
-                js = '%s:%s?v=%s' % (
-                    package.name,
-                    BUNDLE_PATHS.js[len(www):],
-                    dist.version)
+        if not package.exists(BUNDLE_ROOT_PATH):
+            continue
+
+        root = '%s:%s' % (package.name, BUNDLE_ROOT_PATH[len(www):])
+
+        # try to read bundle info from manifest
+        if package.exists(BUNDLE_MANIFEST_PATH):
+            with open(package.abspath(BUNDLE_MANIFEST_PATH), 'r') as f:
+                manifest = json.load(f)
+            js = manifest.get('main.js')
+            css = manifest.get('main.css')
+            make_public_path = lambda p: os.path.join(BUNDLE_ROOT_PATH, p)[len(www):]
+            if js:
+                js = '%s:%s' % (package.name, make_public_path(js))
+            if css:
+                css = '%s:%s' % (package.name, make_public_path(css))
             return Bundle(root=root, js=js, css=css)
+
+        # fallback to hardcoded paths
+        else:
+            js_exists = package.exists(BUNDLE_JS_PATH)
+            css_exists = package.exists(BUNDLE_CSS_PATH)
+            if js_exists or css_exists:
+                dist = pkg_resources.get_distribution(package.name)
+                if css_exists:
+                    css = '%s:%s?v=%s' % (
+                        package.name,
+                        BUNDLE_CSS_PATH[len(www):],
+                        dist.version)
+                if js_exists:
+                    js = '%s:%s?v=%s' % (
+                        package.name,
+                        BUNDLE_JS_PATH[len(www):],
+                        dist.version)
+                return Bundle(root=root, js=js, css=css)
 
 
 validate_widget_path = KeyPathVal(allow_empty=True)
@@ -141,7 +161,7 @@ def render(widget, request,
             bootstrap = [item() for item in Bootstrap.all()]
             return render_to_response(
                 template, request,
-                user=dumps(dumps(user)),
+                user=json.dumps(json.dumps(user)),
                 bundle=find_bundle(),
                 theme=theme,
                 bootstrap=bootstrap,

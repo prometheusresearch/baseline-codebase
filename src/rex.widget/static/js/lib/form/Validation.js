@@ -76,3 +76,10 @@ export function array(value, node) {
   }
   return true;
 }
+
+export const bool = undefined;
+export const file = undefined;
+export const enumeration = undefined;
+export const entity = undefined;
+export const integer = undefined;
+export const number = undefined;

@@ -153,7 +153,7 @@ function _fieldToSchema(field) {
       return {
         ...defaultAttributes,
         type: 'string',
-        format: Validation.enum,
+        format: Validation.enumeration,
         isRequired: !!field.required
       };
     case 'entity':

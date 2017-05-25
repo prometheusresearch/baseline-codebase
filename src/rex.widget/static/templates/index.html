@@ -106,7 +106,9 @@
       }
 
       __REX_WIDGET__ = RexWidget.Transitionable.decode(JSON.stringify({{ payload }}));
-      __stylesheet__.media = 'all';
+      if (__stylesheet__ != null) {
+        __stylesheet__.media = 'all';
+      }
 
       RexWidget.render(
         __REX_WIDGET__,

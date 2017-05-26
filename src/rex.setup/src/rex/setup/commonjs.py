@@ -338,7 +338,7 @@ def bootstrap():
         npm_path = find_executable('npm', 'NPM')
         out, err = exe(npm_path, ['--version'])
         npm_version = out.strip()
-        if npm_version[0] not in ('3', '2'):
+        if npm_version[0] not in ('4', '3', '2'):
             npm(['install', '--global', 'npm@2.x.x'])
         npm(['install', '--global', 'npm@' + NPM_VERSION])
         # install deps

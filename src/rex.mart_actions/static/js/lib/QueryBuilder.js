@@ -25,6 +25,9 @@ function localSearch(searchTerm, navigation) {
 
 
 function sanitizeSearchResultList(items, resultList) {
+  if (resultList === null) {
+    return [];
+  }
   // We need to return original items so the titles aren't messed up.
   let found = new Set();
   resultList.forEach(item => {

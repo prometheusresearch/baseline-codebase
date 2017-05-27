@@ -74,7 +74,7 @@ class QueryBuilderMartAction(MartFilteredAction):
         database = mart.get_htsql()
 
         if not cfg:
-            query = '{resultList := {}}'
+            query = '{resultList := null()}'
 
         elif table is None:
             query = """

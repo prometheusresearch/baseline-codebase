@@ -9,6 +9,8 @@ from .route import url_for, make_sentry_script_tag
 from .auth import authenticate
 from .csrf import retain_csrf_token, make_csrf_meta_tag, make_csrf_input_tag
 from webob import Response
+import collections
+import pkg_resources
 import os.path
 import mimetypes
 import urllib
@@ -324,3 +326,60 @@ def render_to_response(package_path, req,
                     content_type=content_type, charset='UTF-8')
 
 
+
+ASSET_BUNDLE_ROOT_PATH = '/www/bundle'
+ASSET_BUNDLE_JS_PATH = '/www/bundle/bundle.js'
+ASSET_BUNDLE_CSS_PATH = '/www/bundle/bundle.css'
+ASSET_BUNDLE_MANIFEST_PATH = '/www/bundle/asset-manifest.json'
+
+
+AssetsBundle = collections.namedtuple('AssetsBundle', ['root', 'js', 'css'])
+
+
+def find_assets_bundle(package_name=None):
+    """ Return either a bundle description or ``None`` for the currently running app.
+
+    If ``package_name`` is provided then the bundle info from this package will be
+    returned (if found), otherwise the first found bundle info is returned.
+    """
+    packages = get_packages()
+    if package_name is not None:
+        packages = [pkg for pkg in packages if pkg.name == package_name]
+    root = css = js = None
+    www = '/www'
+    for package in packages:
+        if not package.exists(ASSET_BUNDLE_ROOT_PATH):
+            continue
+
+        root = '%s:%s' % (package.name, ASSET_BUNDLE_ROOT_PATH[len(www):])
+
+        # try to read bundle info from manifest
+        if package.exists(ASSET_BUNDLE_MANIFEST_PATH):
+            with open(package.abspath(ASSET_BUNDLE_MANIFEST_PATH), 'r') as f:
+                manifest = json.load(f)
+            js = manifest.get('main.js')
+            css = manifest.get('main.css')
+            make_public_path = lambda p: os.path.join(ASSET_BUNDLE_ROOT_PATH, p)[len(www):]
+            if js:
+                js = '%s:%s' % (package.name, make_public_path(js))
+            if css:
+                css = '%s:%s' % (package.name, make_public_path(css))
+            return AssetsBundle(root=root, js=js, css=css)
+
+        # fallback to hardcoded paths
+        else:
+            js_exists = package.exists(ASSET_BUNDLE_JS_PATH)
+            css_exists = package.exists(ASSET_BUNDLE_CSS_PATH)
+            if js_exists or css_exists:
+                dist = pkg_resources.get_distribution(package.name)
+                if css_exists:
+                    css = '%s:%s?v=%s' % (
+                        package.name,
+                        ASSET_BUNDLE_CSS_PATH[len(www):],
+                        dist.version)
+                if js_exists:
+                    js = '%s:%s?v=%s' % (
+                        package.name,
+                        ASSET_BUNDLE_JS_PATH[len(www):],
+                        dist.version)
+                return AssetsBundle(root=root, js=js, css=css)

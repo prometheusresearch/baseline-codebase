@@ -10,6 +10,9 @@
 
 * Use JSON for uWSGI configuration.
 * Added ``services`` setting.
+* Added ``rex watch`` command for running asset generators in watch mode.
+* Added ``rex.web.find_assets_bundle()`` funciton which discovers asset bundles
+  for an application.
 
 
 3.9.0 (2017-04-05)

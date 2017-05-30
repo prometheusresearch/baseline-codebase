@@ -91,7 +91,7 @@ class MartAction(Action):
         :rtype: str
         """
 
-        return 'mart_tool:%s' % (tool_id,)
+        return 'mart_tool__%s' % (tool_id,)
 
     def get_all_tool_context_types(self):
         """
@@ -118,7 +118,7 @@ class MartAction(Action):
         :rtype: str
         """
 
-        return 'mart_defn:%s' % (
+        return 'mart_defn__%s' % (
             definition['id'] if isinstance(definition, dict) else definition,
         )
 

@@ -39,9 +39,9 @@ user to select the Mart database they wish to explore.
             user has access to will be listed.
     :Output: **mart**: The ID of the Mart database that was selected.
 
-             **mart_tool:***: Set for each tool that is available for this Mart.
+             **mart_tool__***: Set for each tool that is available for this Mart.
 
-             **mart_defn:***: Set for the Definition of this Mart.
+             **mart_defn__***: Set for the Definition of this Mart.
 
 ``mart-details``
     :Purpose: Shows details about a Mart database. If the user has management
@@ -58,7 +58,7 @@ user to select the Mart database they wish to explore.
     :Output: **mart_definition**: The ID of the Mart Definition that was
              selected.
 
-             **mart_defn:***: Set for the Definition that was selected.
+             **mart_defn__***: Set for the Definition that was selected.
 
 ``mart-definition-details``
     :Purpose: Shows details about a Mart Definition. If the user has the
@@ -92,7 +92,7 @@ HTSQL Console
     :Purpose: Provides a web-based HTSQL console connected to a Mart database.
     :Input: **mart**: The ID of the Mart to connect to.
 
-            **mart_tool:htsql**: A flag that enables this tool so that it shows
+            **mart_tool__htsql**: A flag that enables this tool so that it shows
             in the list of available Actions.
     :Output: N/A
 
@@ -105,7 +105,7 @@ to use the ``datadictionary`` processor in ``rex.mart``.
 
 ``mart-dictionary``
     :Purpose: Acts as the entry point for the Data Dictionary set of actions.
-    :Input: **mart_tool:dictionary**: A flag that enables this tool so that it
+    :Input: **mart_tool__dictionary**: A flag that enables this tool so that it
             shows in the list of available Actions.
     :Output: N/A
     :Properties: **text**: The Restructured text to display on this page. This
@@ -170,7 +170,7 @@ RexGuide (aka, Guided Queries)
               table and optionally export its data.
     :Input: **mart**: The ID of the Mart to connect to.
 
-            **mart_tool:guide**: A flag that enables this tool so that it shows
+            **mart_tool__guide**: A flag that enables this tool so that it shows
             in the list of available Actions.
     :Output: N/A
     :Properties: **definition**: The Mart Definition that this Guide can
@@ -264,7 +264,7 @@ Visual Query Builder
               Mart.
     :Input: **mart**: The ID of the Mart to connect to.
 
-            **mart_tool:vqb**: A flag that enables this tool so that it shows
+            **mart_tool__vqb**: A flag that enables this tool so that it shows
             in the list of available Actions.
     :Output: N/A
 

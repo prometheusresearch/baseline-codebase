@@ -4,14 +4,14 @@
 
 
 export function getDefinitionContext(currentContext, definitionId) {
-  let defKey = 'mart_defn:' + definitionId;
+  let defKey = 'mart_defn__' + definitionId;
 
   let ctx = {
     [defKey]: 'yes'
   };
 
   Object.keys(currentContext).forEach((key) => {
-    if (key.startsWith('mart_defn:') && (key !== defKey)) {
+    if (key.startsWith('mart_defn__') && (key !== defKey)) {
       ctx[key] = null;
     }
   });
@@ -23,11 +23,11 @@ export function getDefinitionContext(currentContext, definitionId) {
 export function getToolContext(currentContext, tools = []) {
   let ctx = {};
   tools.forEach((tool) => {
-    ctx['mart_tool:' + tool] = 'yes';
+    ctx['mart_tool__' + tool] = 'yes';
   });
 
   Object.keys(currentContext).forEach((key) => {
-    if (key.startsWith('mart_tool:') && !(key in ctx)) {
+    if (key.startsWith('mart_tool__') && !(key in ctx)) {
       ctx[key] = null;
     }
   });

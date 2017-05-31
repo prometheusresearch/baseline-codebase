@@ -80,7 +80,7 @@
   </div>
   <script>
     {% if bundle.root %}
-    var __PUBLIC_PATH__ = "{{ bundle.root|url }}";
+    var __PUBLIC_PATH__ = "{{ bundle.root|url }}/";
     {% endif %}
     var __REX_USER__ = JSON.parse({{ user }});
     var __MOUNT_POINTS__ = {{ REQUEST.environ['rex.mount'] }};

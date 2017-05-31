@@ -3,32 +3,38 @@
  */
 
 import React from 'react';
-
-import {style} from '../../stylesheet';
-import {VBox} from '../../layout';
+import {style, VBox} from '@prometheusresearch/react-ui';
 
 export let Hint = style('div', {
-  fontSize: '75%',
-  textAlign: 'left',
-  marginTop: '5px',
+  base: {
+    fontSize: '75%',
+    textAlign: 'left',
+    marginTop: '5px',
+  },
 });
 
 export let FieldsetLabel = style('label', {
-  color: '#000',
-  fontSize: '100%',
-  fontWeight: 700,
+  base: {
+    color: '#000',
+    fontSize: '100%',
+    fontWeight: 700,
+  },
 });
 
 export let ErrorMessage = style('span', {
-  color: 'red',
-  marginLeft: 3,
-  marginRight: 3,
-  display: 'inline-block',
+  base: {
+    color: 'red',
+    marginLeft: 3,
+    marginRight: 3,
+    display: 'inline-block',
+  },
 });
 
 export let HeaderContainer = style(VBox, {
-  marginTop: 15,
-  marginBottom: 15,
+  base: {
+    marginTop: 15,
+    marginBottom: 15,
+  },
 });
 
 export let RequiredSign = function() {

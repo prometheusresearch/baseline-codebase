@@ -2,13 +2,13 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React, {PropTypes} from 'react';
+import * as React from 'react';
+import {PropTypes} from 'react';
+import * as ReactUI from '@prometheusresearch/react-ui';
+import {HBox, VBox} from '@prometheusresearch/react-ui';
 import {withFormValue} from 'react-forms';
-import CloseIcon from 'react-icons/lib/fa/close';
 
-import {HBox, VBox} from '../../layout';
-import {DangerButton, Button} from '../../ui';
-import * as Stylesheet from '../../stylesheet';
+import {Icon} from '../../ui';
 import Fieldset from './Fieldset';
 import {FieldsetHeader} from './ui';
 import ErrorList from './ErrorList';
@@ -21,7 +21,6 @@ import ErrorList from './ErrorList';
  * @public
  */
 export class RepeatingFieldset extends React.Component {
-
   static propTypes = {
     /**
      * The data to display.
@@ -56,101 +55,63 @@ export class RepeatingFieldset extends React.Component {
     /**
      * Default value for a new item.
      */
-    defaultValue: PropTypes.any
+    defaultValue: PropTypes.any,
   };
 
   static defaultProps = {
     addButtonText: 'Add',
   };
 
-  static stylesheet = Stylesheet.create({
-    Root: {
-      Component: VBox,
-      marginBottom: 15,
-      marginTop: 20,
-    },
-    Header: FieldsetHeader,
-    ErrorList: ErrorList,
-    Item: {
-      Component: VBox,
-      marginBottom: 9,
-    },
-    ItemToolbar: {
-      marginTop: 35,
-      marginRight: 21,
-      alignSelf: 'flex-start',
-    }
-  });
-
   render() {
     let {
-      children, formValue, label, hint, readOnly,
-      addButtonText, removeButtonText, layout , ...props
+      children,
+      formValue,
+      label,
+      hint,
+      readOnly,
+      addButtonText,
+      removeButtonText,
+      layout,
+      ...props
     } = this.props;
-    let {
-      Root, Header, ErrorList,
-      Item, ItemToolbar
-    } = this.constructor.stylesheet;
     let schema = formValue.schema || {};
     let items = formValue.value || [];
     let fieldsets = items.map((item, idx) => {
-      let content;
-      if (layout === 'vertical') {
-        content = (
-          <VBox>
-            {!readOnly &&
-              <ItemToolbar>
-                <DangerButton
-                  size="small"
-                  icon={<CloseIcon />}
-                  onClick={this.removeItem.bind(null, idx)}>
-                  {removeButtonText}
-                </DangerButton>
-              </ItemToolbar>}
-            {children}
-          </VBox>
-        );
-      } else {
-        content = (
-          <HBox>
-            {children}
-            {!readOnly &&
-              <ItemToolbar>
-                <DangerButton
-                  size="small"
-                  icon={<CloseIcon />}
-                  onClick={this.removeItem.bind(null, idx)}>
-                  {removeButtonText}
-                </DangerButton>
-              </ItemToolbar>}
-          </HBox>
-        );
-      }
+      const toolbar = (
+        <RepeatingFieldsetItemToolbar onRemove={this.removeItem.bind(null, idx)}>
+          {removeButtonText}
+        </RepeatingFieldsetItemToolbar>
+      );
+      const content = layout === 'vertical'
+        ? <VBox>{!readOnly && toolbar} {children}</VBox>
+        : <HBox>{children} {!readOnly && toolbar}</HBox>;
       return (
         <Fieldset formValue={formValue.select(idx)} key={idx}>
-          <Item>{content}</Item>
+          <VBox paddingBottom={10}>{content}</VBox>
         </Fieldset>
       );
     });
     return (
-      <Root>
-        <Header
+      <VBox marginBottom={15} marginTop={20} padding={20}>
+        <FieldsetHeader
           label={label}
           hint={hint}
           isRequired={schema && schema.isRequired}
-          />
+        />
         <VBox>
           {fieldsets}
         </VBox>
-        {formValue.errorList.length > 0 &&
-          <ErrorList errorList={formValue.errorList} />}
+        {formValue.errorList.length > 0 && <ErrorList errorList={formValue.errorList} />}
         {!readOnly &&
-          <div>
-            <Button icon="plus" size="normal" onClick={this.addItem} style={{marginTop: 20}}>
+          <ReactUI.Element paddingTop={10}>
+            <ReactUI.Button
+              icon={<Icon name="plus" />}
+              size="small"
+              onClick={this.addItem}>
               {addButtonText} {label}
-            </Button>
-          </div>}
-      </Root>
+            </ReactUI.Button>
+          </ReactUI.Element>}
+      </VBox>
     );
   }
 
@@ -169,12 +130,25 @@ export class RepeatingFieldset extends React.Component {
     formValue.update(value);
   };
 
-  removeItem = (idx) => {
+  removeItem = idx => {
     let {formValue} = this.props;
     let value = (formValue.value || []).slice(0);
     value.splice(idx, 1);
     formValue.update(value);
   };
+}
+
+function RepeatingFieldsetItemToolbar({onRemove, children}) {
+  return (
+    <VBox marginBottom={35} marginRight={20} alignSelf="flex-start">
+      <ReactUI.FlatDangerButton
+        size="small"
+        icon={<Icon name="remove" />}
+        onClick={onRemove}>
+        {children}
+      </ReactUI.FlatDangerButton>
+    </VBox>
+  );
 }
 
 export default withFormValue(RepeatingFieldset);

@@ -13,7 +13,7 @@ import {emptyFunction} from 'rex-widget/lang';
 import * as ui from 'rex-widget/ui';
 
 import {contextTypes} from './ActionContext';
-import {StickyFooterPanel, Theme} from './ui';
+import {Theme} from './ui';
 
 export default class Action extends React.Component {
   state: {showHelp: boolean} = {showHelp: false};
@@ -80,7 +80,7 @@ export default class Action extends React.Component {
 
     return (
       <HBox flexGrow={1} flexShrink={1} height="100%">
-        <VBox flexGrow={1} flexShrink={1} height="100%" overflow="auto">
+        <VBox flexGrow={1} flexShrink={1} height="100%">
           {!noHeader &&
             <VBox boxShadow={Theme.shadow.light()} padding={20}>
               <HBox>
@@ -103,17 +103,26 @@ export default class Action extends React.Component {
             </VBox>}
           {noContentWrapper
             ? children
-            : <StickyFooterPanel
-                contentWrapperStyle={{overflow: 'auto'}}
-                mode="sticky"
-                footer={footer}>
-                <VBox padding={20} style={contentStyle}>{children}</VBox>
-              </StickyFooterPanel>}
+            : <VBox flexGrow={1} flexShrink={1}>
+                <Element flexGrow={1} flexShrink={1} overflow="auto" style={contentStyle}>
+                  {children}
+                </Element>
+                {footer && <ActionFooter>{footer}</ActionFooter>}
+              </VBox>}
         </VBox>
         {help && showHelp && <ActionHelp help={help} onClose={this.toggleShowHelp} />}
       </HBox>
     );
   }
+}
+
+function ActionFooter({children}) {
+  const boxShadow = {y: -1, blur: 1, color: Theme.color.shadowLight};
+  return (
+    <Element zIndex={1} boxShadow={boxShadow}>
+      {children}
+    </Element>
+  );
 }
 
 function ActionHelp({help, onClose}) {

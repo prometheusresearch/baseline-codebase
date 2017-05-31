@@ -2,10 +2,9 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React from 'react';
+import * as React from 'react';
+import * as ReactUI from '@prometheusresearch/react-ui';
 import {withFormValue} from 'react-forms';
-import {VBox, HBox} from '../../layout';
-import * as Stylesheet from '../../stylesheet';
 import Input from './Input';
 import ErrorList from './ErrorList';
 import {RequiredSign, Hint} from './ui';
@@ -18,32 +17,6 @@ import {RequiredSign, Hint} from './ui';
  * @public
  */
 export class Field extends React.Component {
-
-  static stylesheet = Stylesheet.create({
-    Root: {
-      Component: VBox,
-      marginBottom: 10,
-      marginLeft: 20,
-      marginRight: 20,
-    },
-    Label: {
-      Component: HBox,
-      color: '#888',
-      fontSize: '14px',
-      fontWeight: 400,
-      textAlign: 'left',
-      padding: '0px 7px',
-      paddingTop: 10,
-      paddingBottom: 5,
-      marginLeft: -7,
-    },
-    Hint: Hint,
-    InputWrapper: {
-      Component: VBox,
-      justifyContent: 'center',
-    }
-  });
-
   static propTypes = {
     /**
      * The field label.
@@ -109,12 +82,12 @@ export class Field extends React.Component {
      *
      * See React Forms docs for more info.
      */
-    formValue: React.PropTypes.object
+    formValue: React.PropTypes.object,
   };
 
   static defaultProps = {
-    serialize: (value) => (value),
-    deserialize: (value) => (value),
+    serialize: value => value,
+    deserialize: value => value,
     labelSize: 2,
     inputSize: 5,
     layout: 'vertical',
@@ -123,43 +96,57 @@ export class Field extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      dirty: false
+      dirty: false,
     };
   }
 
   render() {
-    let {Root, Label, Hint, InputWrapper} = this.constructor.stylesheet;
     let {
-      label, hint, children, onChange, labelSize, inputSize,
-      serialize, layout, ...props
+      label,
+      hint,
+      children,
+      onChange,
+      labelSize,
+      inputSize,
+      serialize,
+      layout,
+      ...props
     } = this.props;
     let {dirty} = this.state;
     let {value, errorList, params, schema} = this.props.formValue;
     let showErrors = dirty || params.forceShowErrors;
-    children = React.cloneElement(
-      children ?  React.Children.only(children) : <Input />, {
-        error: showErrors && errorList.length > 0,
-        value: serialize(value),
-        onChange: this.onChange.bind(null, onChange),
-        onBlur: this.onBlur,
-      });
+    children = React.cloneElement(children ? React.Children.only(children) : <Input />, {
+      error: showErrors && errorList.length > 0,
+      value: serialize(value),
+      onChange: this.onChange.bind(null, onChange),
+      onBlur: this.onBlur,
+    });
     return (
-      <Root {...props}>
-        <VBox direction={layout === 'vertical' ? 'column' : 'row'}>
-          <VBox flex={labelSize}>
-            <Label>
+      <ReactUI.VBox marginBottom={10} marginLeft={20} marginRight={20} {...props}>
+        <ReactUI.VBox
+          padding={5}
+          flexDirection={layout === 'vertical' ? 'column' : 'row'}>
+          <ReactUI.VBox flexGrow={labelSize}>
+            <ReactUI.HBox
+              color="#888"
+              fontSize="14px"
+              fontWeight={400}
+              textAlign="left"
+              padding="0px 7px"
+              paddingTop={10}
+              paddingBottom={5}
+              marginLeft={-7}>
               {label}
               {schema && schema.isRequired && <RequiredSign />}
-              {showErrors && errorList.length > 0 &&
-                <ErrorList errorList={errorList} />}
-            </Label>
-          </VBox>
-          <InputWrapper flex={inputSize}>
+              {showErrors && errorList.length > 0 && <ErrorList errorList={errorList} />}
+            </ReactUI.HBox>
+          </ReactUI.VBox>
+          <ReactUI.VBox justifyContent="center" flexGrow={inputSize}>
             {children}
             {hint && <Hint>{hint}</Hint>}
-          </InputWrapper>
-        </VBox>
-      </Root>
+          </ReactUI.VBox>
+        </ReactUI.VBox>
+      </ReactUI.VBox>
     );
   }
 

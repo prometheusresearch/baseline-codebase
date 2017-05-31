@@ -216,15 +216,13 @@ class RexWatchTask(RexTask):
     # Provides automatic watch daemon for the application.
 
     class options:
-        watch = option(
-                'w', BoolVal(),
-                hint="rebuild generated files on the fly")
+        watch = option('w', BoolVal(), hint="deprecated")
         watch_package = option(
                 'W', StrVal(),
                 value_name="PACKAGE",
                 plural=True,
                 default=[],
-                hint="rebuild generated files for a specific package")
+                hint="deprecated")
 
     def make_with_watch(self, *args, **kwds):
         if self.watch:
@@ -248,9 +246,11 @@ class WatchTask(RexTask):
     name = 'watch'
 
     def __call__(self):
-        app = self.make(initialize=False)
-        with app:
-            terminate = watch(app.requirements[0])
+        with self.make(initialize=False):
+            package = get_packages()[0]
+        if not isinstance(package, PythonPackage):
+            raise fail("not a Python package: %s" % package.name)
+        terminate = watch(package.name)
         if terminate is None:
             raise fail("nothing to watch")
         atexit.register(terminate)
@@ -270,9 +270,6 @@ class ServeTask(RexWatchTask):
 
     Use option `--remote-user` to preset user credentials.  The value
     of this option is passed to the application as `REMOTE_USER` variable.
-
-    Toggle option `--watch` to automatically rebuild generated files
-    that belong to the application.
 
     By default, the server dumps HTTP logs in Apache Common Log Format
     to stdout.  Use option `--quiet` to suppress this output.  Unhandled
@@ -397,9 +394,6 @@ class ServeUWSGITask(RexWatchTask):
 
     Use option `--set-uwsgi` or setting `uwsgi` to specify configuration
     of the uWSGI server.
-
-    Toggle option `--watch` to automatically rebuild generated files
-    that belong to the application.
     """
 
     name = 'serve-uwsgi'
@@ -497,9 +491,6 @@ class StartTask(RexWatchTask):
 
     Use option `--set-uwsgi` or setting `uwsgi` to specify configuration
     of the uWSGI server.
-
-    Toggle option `--watch` to automatically rebuild generated files
-    that belong to the application.
     """
 
     name = 'start'

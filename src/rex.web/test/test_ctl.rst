@@ -133,6 +133,11 @@ The package specified with ``rex watch`` must have bundles to watch::
     >>> ctl("watch rex.web", expect=1)   # doctest: +NORMALIZE_WHITESPACE
     FATAL ERROR: nothing to watch
 
+It also must be a Python package::
+
+    >>> ctl("watch ./ --require rex.web", expect=1) # doctest: +NORMALIZE_WHITESPACE
+    FATAL ERROR: not a Python package: .
+
 
 ``rex wsgi``
 ============

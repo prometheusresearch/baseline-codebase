@@ -21,7 +21,7 @@ type SelectAttributeProps = {
 };
 
 function isNumericNav(nav: QueryNavigation): boolean {
-  return nav.card == null && nav.context.type.name === 'number';
+  return (nav.card == null || nav.card === 'opt') && nav.context.type.name === 'number';
 }
 
 function getSelectOptionsFromContext(

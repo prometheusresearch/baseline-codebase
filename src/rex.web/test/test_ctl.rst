@@ -114,29 +114,25 @@ variable::
     Serving rex.web_demo on 127.0.0.1:8...
     localhost - Bob [...] "GET / HTTP/1.0" 200 55
 
-Option ``--watch`` is deprecated::
+Options ``--watch`` and ``--watch-package`` are deprecated::
 
-    >>> serve_ctl = Ctl("serve rex.web_demo --port=%s --watch" % random_port)
-
-    >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> ctl("serve rex.web_demo --watch", expect=1)                 # doctest: +NORMALIZE_WHITESPACE
     FATAL ERROR: Option "--watch" is deprecated
         Use "rex watch" command instead
 
-Option ``--watch-package`` is deprecated::
-
-    >>> serve_ctl = Ctl("serve rex.web_demo --port=%s --watch-package rex.web" % random_port)
-
-    >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> ctl("serve rex.web_demo --watch-package rex.web", expect=1) # doctest: +NORMALIZE_WHITESPACE
     FATAL ERROR: Option "--watch-package PACKAGE" is deprecated
-        Use "rex watch" command instead
+        Use "rex watch PACKAGE" command instead
+
 
 ``rex watch``
 =============
 
-The package specified with ``rex watch`` must exist::
+The package specified with ``rex watch`` must have bundles to watch::
 
-    >>> ctl("watch rex.widget", expect=1)   # doctest: +NORMALIZE_WHITESPACE
-    FATAL ERROR: cannot find package to watch: rex.widget
+    >>> ctl("watch rex.web", expect=1)   # doctest: +NORMALIZE_WHITESPACE
+    FATAL ERROR: nothing to watch
+
 
 ``rex wsgi``
 ============

@@ -212,23 +212,6 @@ class UWSGIGlobal(Global):
     default = {}
 
 
-def run_watch(app, packages=None):
-    packages = packages or []
-    # Start watchers for generated files.
-    if packages:
-        with app:
-            to_watch = [package.name for package in get_packages()
-                        if isinstance(package, PythonPackage)]
-            for name in packages:
-                if name not in to_watch:
-                    raise fail(
-                            "cannot find package to watch: `{}`", name)
-            to_watch = packages
-        terminate = watch(*to_watch)
-        if terminate is not None:
-            atexit.register(terminate)
-
-
 class RexWatchTask(RexTask):
     # Provides automatic watch daemon for the application.
 
@@ -265,10 +248,13 @@ class WatchTask(RexTask):
     name = 'watch'
 
     def __call__(self):
-        # making app will run all registered watchers
         app = self.make(initialize=False)
-        run_watch(app, packages=[app.requirements[0]])
-        # Wait indefinitely but allow interruptions
+        with app:
+            terminate = watch(app.requirements[0])
+        if terminate is None:
+            raise fail("nothing to watch")
+        atexit.register(terminate)
+        # Wait indefinitely but allow interruptions.
         while True:
             time.sleep(0.1)
 

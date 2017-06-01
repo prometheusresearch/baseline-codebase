@@ -13,6 +13,8 @@ REX.ASYNCTASK Change Log
   connection to the database. It only gets one when it needs it.
 * Fixed an issue that prevented scheduled workers with zeros in their schedule
   config.
+* The table created by the ``pgsql`` transport now exists in its own schema to
+  avoid conflicting with tools like rex.deploy.
 
 
 0.5.0 (2017-04-05)

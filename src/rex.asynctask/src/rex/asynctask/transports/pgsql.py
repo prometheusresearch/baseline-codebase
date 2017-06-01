@@ -25,27 +25,81 @@ SQL_LOCK = 'SELECT pg_advisory_lock(%s, %s)'
 
 SQL_UNLOCK = 'SELECT pg_advisory_unlock(%s, %s)'
 
-SQL_CHECK_TABLE = '''
-SELECT
-    1
-FROM
-    information_schema.tables
-WHERE
-    table_name = 'asynctask_queue'
-'''
-
 SQL_CREATE_TABLE = '''
-CREATE TABLE asynctask_queue (
-    id BIGSERIAL,
-    queue_name TEXT NOT NULL,
-    payload JSON NOT NULL,
-    date_submitted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (id)
-)
+DO LANGUAGE plpgsql $$
+DECLARE
+    current_version text;
+    has_pre_versioned text;
+BEGIN
+    -- Figure out what version of the schema exists.
+    SELECT
+        obj_description(oid, 'pg_namespace')
+    INTO
+        current_version
+    FROM
+        pg_catalog.pg_namespace
+    WHERE
+        nspname = 'asynctask'
+    ;
+
+    IF current_version IS NULL THEN
+        -- Schema doesn't exist, make everything.
+        CREATE SCHEMA asynctask;
+
+        CREATE TABLE asynctask.asynctask_queue (
+            id BIGSERIAL,
+            queue_name TEXT NOT NULL,
+            payload JSON NOT NULL,
+            date_submitted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id)
+        );
+
+        CREATE INDEX idx_asynctask_queue_name
+        ON asynctask.asynctask_queue (queue_name);
+
+        -- Check to see if a pre-schema'ed table exists.
+        SELECT
+            'Y'
+        INTO
+            has_pre_versioned
+        FROM
+            information_schema.tables
+        WHERE
+            table_name = 'asynctask_queue'
+            AND table_schema = 'public'
+        ;
+        IF has_pre_versioned = 'Y' THEN
+            -- It does; move its records to the new table then get rid of it.
+            INSERT INTO asynctask.asynctask_queue (
+                queue_name,
+                payload,
+                date_submitted
+            ) SELECT
+                queue_name,
+                payload,
+                date_submitted
+            FROM
+                public.asynctask_queue
+            ORDER BY
+                id
+            ;
+
+            DROP TABLE public.asynctask_queue;
+        END IF;
+
+    ELSEIF current_version = 'version: 1' THEN
+        -- Exists and is current, do nothing.
+        NULL;
+
+    END IF;
+
+    COMMENT ON SCHEMA asynctask IS 'version: 1';
+END;
+$$;
 '''
 
 SQL_INSERT = '''
-INSERT INTO asynctask_queue (
+INSERT INTO asynctask.asynctask_queue (
     queue_name,
     payload
 ) VALUES (
@@ -60,7 +114,7 @@ SELECT
     payload,
     date_submitted
 FROM
-    asynctask_queue
+    asynctask.asynctask_queue
 WHERE
     queue_name = %s
 ORDER BY
@@ -71,7 +125,7 @@ LIMIT
 
 SQL_DELETE = '''
 DELETE FROM
-    asynctask_queue
+    asynctask.asynctask_queue
 WHERE
     id = %s
 '''
@@ -79,7 +133,7 @@ WHERE
 SQL_COUNT = '''
 SELECT COUNT(*)
 FROM
-    asynctask_queue
+    asynctask.asynctask_queue
 WHERE
     queue_name = %s
 '''
@@ -137,10 +191,7 @@ class PostgresAsyncTransport(AsyncTransport):
 
     def _ensure_queue_table(self):
         with self._lock('ENSURE QUEUE TABLE') as cur:
-            cur.execute(SQL_CHECK_TABLE)
-            recs = cur.fetchall()
-            if not recs:
-                cur.execute(SQL_CREATE_TABLE)
+            cur.execute(SQL_CREATE_TABLE)
 
     def submit_task(self, queue_name, payload):
         self.ensure_valid_name(queue_name)

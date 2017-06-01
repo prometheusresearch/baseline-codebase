@@ -35,7 +35,7 @@ export class ValueType extends Type {
     this.name = name;
   }
 
-  match() {
+  match(_val: mixed, _domain: Domain) {
     return true;
   }
 

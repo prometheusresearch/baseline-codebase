@@ -20,5 +20,5 @@ declare module 'history' {
 
 declare module 'history/createHashHistory' {
   import type {History} from 'history';
-  declare var exports: () => History;
+  declare var exports: (params) => History;
 }

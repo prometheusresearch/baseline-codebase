@@ -4,6 +4,7 @@
  */
 
 import * as React from 'react';
+import {Element} from 'react-stylesheet';
 import Action from '../Action';
 
 export default class Page extends React.Component {
@@ -24,7 +25,7 @@ export default class Page extends React.Component {
     let {width, title, text, onClose} = this.props;
     return (
       <Action title={title} onClose={onClose} width={width}>
-        <div dangerouslySetInnerHTML={{__html: text}} />
+        <Element padding={10} dangerouslySetInnerHTML={{__html: text}} />
       </Action>
     );
   }

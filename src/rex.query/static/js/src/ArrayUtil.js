@@ -30,7 +30,7 @@ export function traceEquals(a: Array<KeyPath>, b: Array<KeyPath>) {
 
 export function findIndexRight<T>(
   array: Array<T>,
-  predicate: (item: T) => boolean,
+  predicate: (item: T, index: number) => boolean,
 ): number {
   if (array.length === 0) {
     return -1;

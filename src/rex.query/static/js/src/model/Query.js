@@ -293,7 +293,8 @@ export function regularizeContext(context: Context): Context {
 export function inferExpressionType(context: Context, query: Expression): Expression {
   if (query.name === 'logicalBinary') {
     let expressions = query.expressions.map(expression =>
-      inferExpressionType(context, expression));
+      inferExpressionType(context, expression),
+    );
     if (expressions.some(expression => expression.context.hasInvalidType)) {
       context = withHasInvalidType(context);
     }
@@ -386,15 +387,12 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
       }
       let nextPipeline = [];
       let hasInvalidType = false;
-      let nextContext = query.pipeline.reduce(
-        (context, query) => {
-          let q = inferQueryType(context, query);
-          nextPipeline.push(q);
-          hasInvalidType = hasInvalidType || q.context.hasInvalidType;
-          return q.context;
-        },
-        context,
-      );
+      let nextContext = query.pipeline.reduce((context, query) => {
+        let q = inferQueryType(context, query);
+        nextPipeline.push(q);
+        hasInvalidType = hasInvalidType || q.context.hasInvalidType;
+        return q.context;
+      }, context);
       return {
         id: query.id,
         name: 'pipeline',
@@ -723,7 +721,7 @@ function regularizePipeline(query: QueryPipeline): QueryPipeline {
   return query;
 }
 
-type TransformQuery<A, B, C, R=Query> = {
+type TransformQuery<A, B, C, R = Query> = {
   pipeline?: (query: QueryPipeline, a: A, b: B, c: C) => R,
   aggregate?: (query: AggregateQuery, a: A, b: B, c: C) => R,
   group?: (query: GroupQuery, a: A, b: B, c: C) => R,
@@ -736,7 +734,7 @@ type TransformQuery<A, B, C, R=Query> = {
   otherwise?: (query: Query, a: A, b: B, c: C) => R,
 };
 
-type TransformExpression<A, B, C, R=Expression> = {
+type TransformExpression<A, B, C, R = Expression> = {
   binary?: (query: BinaryExpression, a: A, b: B, c: C) => R,
   unary?: (query: UnaryExpression, a: A, b: B, c: C) => R,
   logicalBinary?: (query: LogicalBinaryExpression, a: A, b: B, c: C) => R,
@@ -745,7 +743,7 @@ type TransformExpression<A, B, C, R=Expression> = {
   otherwise?: (query: Expression, a: A, b: B, c: C) => R,
 };
 
-function fail<R>(query: Query | Expression): R {
+function fail<R>(query: Query | Expression, _a, _b, _c): R {
   invariant(false, 'Do not know how to process: %s', query.name);
 }
 
@@ -913,7 +911,8 @@ export function mapExpression(
         name: 'logicalBinary',
         op: expression.op,
         expressions: expression.expressions.map(expression =>
-          mapExpression(expression, f)),
+          mapExpression(expression, f),
+        ),
         context: expression.context,
       });
     },
@@ -934,7 +933,8 @@ export function mapExpressionWithTransform<A, B, C>(
   c: C,
 ): Expression {
   return mapExpression(expression, expression =>
-    transformExpression(expression, transform, a, b, c));
+    transformExpression(expression, transform, a, b, c),
+  );
 }
 
 /**

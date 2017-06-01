@@ -6,7 +6,6 @@
 import React from 'react';
 import {style} from 'react-stylesheet';
 
-// $FlowFixMe: cannot resolve
 import loadingIndicatorImg from './loading-indicator.gif'; // eslint-disable-line
 
 export default class LoadingIndicator extends React.Component {

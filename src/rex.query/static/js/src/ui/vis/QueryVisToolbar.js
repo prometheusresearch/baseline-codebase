@@ -151,8 +151,23 @@ let QueryVisToolbarButtonRoot = style('button', {
   },
 });
 
-function QueryVisToolbarButton({children, selected, icon, disabled, emphasis, ...props}) {
-  let variant = {selected, disabled, emphasis};
+type QueryVisToolbarButtonProps = {
+  children: React$Element<mixed>,
+  selected?: boolean,
+  disabled?: boolean,
+  emphasis?: boolean,
+  icon?: React$Element<mixed>,
+};
+
+function QueryVisToolbarButton({
+  children,
+  selected,
+  icon,
+  disabled,
+  emphasis,
+  ...props
+}: QueryVisToolbarButtonProps) {
+  let variant = {selected, disabled};
   return (
     <QueryVisToolbarButtonRoot {...props} variant={variant}>
       {icon && <HBox paddingRight={5}>{icon}</HBox>}

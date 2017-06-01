@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {QueryPipeline} from '../model/types';
+import type {QueryNavigation, Context, QueryPipeline} from '../model/types';
 import type {Actions} from '../state';
 import type {SearchCallback} from './Search';
 
@@ -107,32 +107,42 @@ class AddQueryMenu extends React.Component<*, AddQueryMenuProps, *> {
   }
 }
 
-function AddQueryMenuSection(
-  {
-    context,
-    path,
-    onAdd,
-    onNavigate,
-    onAggregate,
-    noNavigate,
-    nonHierarchical,
-    navigation,
-  },
-) {
+type AddQueryMenuSectionProps = {
+  context: Context,
+  path: Array<string>,
+  onAdd: Function,
+  onNavigate: Function,
+  onAggregate: Function,
+  noNavigate?: boolean,
+  nonHierarchical?: boolean,
+  navigation?: Map<string, QueryNavigation>,
+};
+
+function AddQueryMenuSection({
+  context,
+  path,
+  onAdd,
+  onNavigate,
+  onAggregate,
+  noNavigate,
+  nonHierarchical,
+  navigation,
+}: AddQueryMenuSectionProps) {
   return (
     <MenuGroup>
-      {Array.from(navigation.values()).map(item => (
-        <AddQueryMenuButton
-          nonHierarchical={nonHierarchical}
-          noNavigate={noNavigate}
-          key={item.value}
-          item={item}
-          path={path.concat(item.value)}
-          onAdd={onAdd}
-          onNavigate={onNavigate}
-          onAggregate={onAggregate}
-        />
-      ))}
+      {navigation &&
+        Array.from(navigation.values()).map(item => (
+          <AddQueryMenuButton
+            nonHierarchical={nonHierarchical}
+            noNavigate={noNavigate}
+            key={item.value}
+            item={item}
+            path={path.concat(item.value)}
+            onAdd={onAdd}
+            onNavigate={onNavigate}
+            onAggregate={onAggregate}
+          />
+        ))}
     </MenuGroup>
   );
 }
@@ -236,9 +246,14 @@ class AddQueryMenuButton extends React.Component {
   }
 }
 
-function AddQueryMenuButtonMenu(
-  {onAdd, onNavigate, onAggregate, context, path, noNavigate},
-) {
+function AddQueryMenuButtonMenu({
+  onAdd,
+  onNavigate,
+  onAggregate,
+  context,
+  path,
+  noNavigate,
+}) {
   let navigation = qn.getNavigation(context, false);
   return (
     <VBox marginLeft={15} borderLeft={css.border(1, '#ddd')}>

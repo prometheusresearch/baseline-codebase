@@ -18,6 +18,9 @@ import {
   getByKey,
 } from './ui/datatable';
 
+/**
+ * Data associated with column.
+ */
 export type ColumnSpecData = {
   query: Query,
   pipeline: QueryPipeline,
@@ -28,11 +31,14 @@ export type ColumnSpecData = {
   focused: boolean,
 };
 
-type ColumnTraverseCtx = {
+/**
+ * Info needed during query traverse.
+ */
+type QueryTraverseContext = {
+  focusedSeq: Array<string>,
+  path: Array<string>,
   queryPipeline: QueryPipeline,
   selectQuery: ?SelectQuery,
-  path: Array<string>,
-  focusedSeq: Array<string>,
   bindingName: ?string,
   suppressPath: boolean,
   currentStack?: Array<ColumnConfig<ColumnSpecData>>,
@@ -45,7 +51,7 @@ export function getColumnConfig(
   query: QueryPipeline,
   focusedSeq: Array<string> = [],
 ): ColumnConfig<ColumnSpecData> {
-  const ctx: ColumnTraverseCtx = {
+  const ctx: QueryTraverseContext = {
     queryPipeline: query,
     selectQuery: null,
     path: [],
@@ -57,7 +63,7 @@ export function getColumnConfig(
   return getColumnConfigImpl(query, ctx);
 }
 
-function getColumnConfigImpl(query: Query, ctx: ColumnTraverseCtx) {
+function getColumnConfigImpl(query: Query, ctx: QueryTraverseContext) {
   let stack: Array<ColumnConfig<ColumnSpecData>> = [];
   switch (query.name) {
     case 'pipeline': {

@@ -103,7 +103,9 @@ tests:
     cd: ./sandbox/src/rex.setup_demo
   - sh: unzip -q ./src/rex.setup_demo/dist/rex.setup_demo-4.0.0.zip
     cd: sandbox
-  - sh: ls -R ./rex.setup_demo-4.0.0
+  - sh: find './rex.setup_demo-4.0.0'
+        -type d -not
+        -wholename './rex.setup_demo-4.0.0/static/www/bundle/*' -exec echo '=== {} ===' ';' -exec ls '{}' ';'
     environ: { LC_ALL: C }
     cd: sandbox
   # Cleanup.

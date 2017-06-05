@@ -9,9 +9,7 @@ import {style, css, VBox, HBox} from 'react-stylesheet';
 
 import findDOMNode from '../../findDOMNode';
 import stopPropagation from '../../stopPropagation';
-import DataTableHeaderCell, {
-  DataTableHeaderCellResizeHandle,
-} from './DataTableHeaderCell';
+import DataTableHeaderCell, {DataTableHeaderCellResizeHandle} from './DataTableHeaderCell';
 
 type DataTableHeaderProps = {
   columns: ColumnConfig<*>,
@@ -22,6 +20,10 @@ type DataTableHeaderProps = {
   onColumnResize?: (resize: {column: ColumnField<*>, width: number}) => *,
   onColumnClick?: (column: ColumnField<*>) => *,
   onColumnSort?: (column: ColumnField<*>) => *,
+  headerCellProps?: {
+    renderColumnMenu?: (column: ColumnField<*>) => *,
+    onColumnMenuSelect?: (column: ColumnField<*>, value: string) => *,
+  },
 };
 
 export default function DataTableHeader(props: DataTableHeaderProps) {
@@ -34,6 +36,7 @@ export default function DataTableHeader(props: DataTableHeaderProps) {
     onColumnResize,
     columns,
     columnWidth,
+    headerCellProps,
   } = props;
   return (
     <DataTableHeaderRoot
@@ -51,6 +54,7 @@ export default function DataTableHeader(props: DataTableHeaderProps) {
         onClick={onColumnClick}
         onSort={onColumnSort}
         onResize={onColumnResize}
+        headerCellProps={headerCellProps}
       />
     </DataTableHeaderRoot>
   );
@@ -68,6 +72,10 @@ type DataTableHeaderItemProps = {
   onClick?: (column: ColumnField<*>) => *,
   onSort?: (column: ColumnField<*>) => *,
   resizeable?: boolean,
+  headerCellProps?: {
+    renderColumnMenu?: (column: ColumnField<*>) => *,
+    onColumnMenuSelect?: (column: ColumnField<*>, value: string) => *,
+  },
 };
 
 function DataTableHeaderItem({
@@ -82,6 +90,7 @@ function DataTableHeaderItem({
   index,
   parentColumnSpec,
   resizeable,
+  headerCellProps,
 }: DataTableHeaderItemProps) {
   if (columnSpec.type === 'stack') {
     return (
@@ -96,6 +105,7 @@ function DataTableHeaderItem({
         width={width}
         flexGrow={flexGrow}
         columnWidth={columnWidth}
+        headerCellProps={headerCellProps}
       />
     );
   } else if (columnSpec.type === 'group') {
@@ -111,6 +121,7 @@ function DataTableHeaderItem({
         width={width}
         flexGrow={flexGrow}
         columnWidth={columnWidth}
+        headerCellProps={headerCellProps}
       />
     );
   } else if (columnSpec.type === 'field') {
@@ -135,6 +146,7 @@ function DataTableHeaderItem({
           onSort={onSort}
           onResize={onResize}
           index={index}
+          {...headerCellProps}
         />
       );
     }
@@ -161,6 +173,7 @@ class DataTableHeaderStack extends React.Component {
       flexGrow = 1,
       index,
       parentColumnSpec,
+      headerCellProps,
     } = this.props;
     const {resize} = this.state;
     const stack = columnSpec.columnList;
@@ -194,6 +207,7 @@ class DataTableHeaderStack extends React.Component {
                     resizeable={false}
                     columnWidth={columnWidth}
                     index={idx}
+                    headerCellProps={headerCellProps}
                   />
                 </DataTableHeaderGroupRoot>
               : <DataTableHeaderItem
@@ -206,6 +220,7 @@ class DataTableHeaderStack extends React.Component {
                   parentColumnSpec={columnSpec}
                   columnWidth={columnWidth}
                   index={idx}
+                  headerCellProps={headerCellProps}
                 />,
         )}
         {resizeable &&
@@ -296,6 +311,7 @@ class DataTableHeaderGroup extends React.Component {
       height,
       flexGrow,
       columnWidth,
+      headerCellProps,
     } = this.props;
     const {resize} = this.state;
     const group = columnSpec.columnList;
@@ -310,7 +326,7 @@ class DataTableHeaderGroup extends React.Component {
         flexGrow={width == null ? flexGrow : undefined}
         width={width}
         height={height * columnSpec.size.height}>
-        {group.map((c, idx) => (
+        {group.map((c, idx) =>
           <DataTableHeaderItem
             onClick={onClick}
             onSort={onSort}
@@ -322,8 +338,9 @@ class DataTableHeaderGroup extends React.Component {
             columnSpec={c}
             columnWidth={columnWidth}
             index={idx}
-          />
-        ))}
+            headerCellProps={headerCellProps}
+          />,
+        )}
         {resizeable &&
           <DataTableHeaderCellResizeHandle
             onMouseDown={this.onMouseDown}

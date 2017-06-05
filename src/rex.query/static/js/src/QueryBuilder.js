@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Query, SelectQuery, QueryPipeline, Domain} from './model/types';
+import type {Query, QueryPipeline, Domain} from './model/types';
 import type {SearchCallback} from './ui';
 import type {ChartSpec} from './state';
 
@@ -18,6 +18,7 @@ import Chart from './chart/Chart';
 import * as Icon from './ui/Icon';
 import * as ui from './ui';
 import * as State from './state';
+import DataTable from './DataTable';
 
 type QueryBuilderProps = {
   domain: Domain,
@@ -123,12 +124,11 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
         id: '__dataset__',
         label: 'Table',
         children: (
-          <ui.DataTable
+          <DataTable
             query={query}
             loading={queryLoading}
             data={data}
             focusedSeq={focusedSeq}
-            onSort={this.onSort}
             onFocusedSeq={this.onFocusedSeq}
           />
         ),
@@ -207,30 +207,29 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
                   />
                 </CenterPanelWrapper>
               : selected
-                  ? <CenterPanelWrapper>
-                      <ui.QueryPanel
-                        key={selected.id}
-                        onClose={this.actions.hidePanel}
-                        onSearch={this.props.onSearch}
-                        query={selected}
-                        disableClose={disablePanelClose}
-                      />
-                    </CenterPanelWrapper>
-                  : null)}
+                ? <CenterPanelWrapper>
+                    <ui.QueryPanel
+                      key={selected.id}
+                      onClose={this.actions.hidePanel}
+                      onSearch={this.props.onSearch}
+                      query={selected}
+                      disableClose={disablePanelClose}
+                    />
+                  </CenterPanelWrapper>
+                : null)}
           <RightPanelWrapper>
             {isEmptyQueryPipeline(query)
               ? null
               : queryInvalid
-                  ? <InvalidQueryMessage onUndo={this.actions.undo} />
-                  : data != null
-                      ? <ui.TabContainer
-                          activeTab={activeTab}
-                          onActiveTab={activeTab =>
-                            this.actions.setActiveTab({activeTab})}
-                          tabList={tabList}
-                          tabListAlt={tabListAlt}
-                        />
-                      : null}
+                ? <InvalidQueryMessage onUndo={this.actions.undo} />
+                : data != null
+                  ? <ui.TabContainer
+                      activeTab={activeTab}
+                      onActiveTab={activeTab => this.actions.setActiveTab({activeTab})}
+                      tabList={tabList}
+                      tabListAlt={tabListAlt}
+                    />
+                  : null}
           </RightPanelWrapper>
         </HBox>
       </VBox>
@@ -251,10 +250,6 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
 
   onFocusedSeq = (focusedSeq: Array<string>) => {
     this.actions.focusOnSeq({focusedSeq});
-  };
-
-  onSort = (query: SelectQuery, sort: {name: string, dir: 'asc' | 'desc'}) => {
-    this.actions.sortBy({at: query, sort});
   };
 }
 

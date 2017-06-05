@@ -2,22 +2,21 @@
  * @flow
  */
 
-import type {
-  Type,
-  Query,
-  SelectQuery,
-  QueryPipeline,
-  NavigateQuery,
-} from '../model/types';
-import type {ColumnConfig, ColumnField} from './datatable/DataTable';
+import type {Type, Query, SelectQuery, QueryPipeline, NavigateQuery} from './model/types';
+import type {ColumnConfig, ColumnField} from './ui/datatable/DataTable';
+import type {Actions} from './state';
 
-import React from 'react';
+import * as React from 'react';
 import {style, css, VBox} from 'react-stylesheet';
 import {AutoSizer} from 'react-virtualized';
 
-import {LoadingIndicator} from '../ui';
-import * as ArrayUtil from '../ArrayUtil';
-import {DataTable as DataTableBase, getByKey} from './datatable/index';
+import * as ArrayUtil from './ArrayUtil';
+import {LoadingIndicator} from './ui';
+import {
+  DataTable as DataTableBase,
+  DataTableColumnMenuItem,
+  getByKey,
+} from './ui/datatable';
 
 export type ColumnSpecData = {
   query: Query,
@@ -213,16 +212,20 @@ type DataTableProps = {
   data: Object,
   focusedSeq: Array<string>,
   onFocusedSeq: (focusedSeq: Array<string>) => *,
-  onSort: (query: SelectQuery, sort: {name: string, dir: 'asc' | 'desc'}) => *,
 };
 
-export class DataTable extends React.Component<*, DataTableProps, *> {
+export default class DataTable extends React.Component<*, DataTableProps, *> {
   columns: ColumnConfig<ColumnSpecData>;
   data: Array<Object>;
+  context: {
+    actions: Actions,
+  };
 
   static defaultProps = {
     focusedSeq: [],
   };
+
+  static contextTypes = {actions: React.PropTypes.object};
 
   constructor(props: DataTableProps) {
     super(props);
@@ -247,6 +250,8 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
               width={size.width}
               height={size.height}
               columns={this.columns}
+              onColumnMenuSelect={this.onColumnMenuSelect}
+              renderColumnMenu={this.renderColumnMenu}
             />}
         </AutoSizer>
         <LoadingPane variant={{visible: this.props.loading}}>
@@ -255,6 +260,57 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
       </VBox>
     );
   }
+
+  renderColumnMenu = (column: ColumnField<*>) => {
+    return [
+      <DataTableColumnMenuItem key="hide" value="hide">
+        Remove column
+      </DataTableColumnMenuItem>,
+      <DataTableColumnMenuItem key="goto" value="goto">
+        Follow column
+      </DataTableColumnMenuItem>,
+      <DataTableColumnMenuItem key="link" value="link">
+        Link as a query
+      </DataTableColumnMenuItem>,
+      column.field.sort !== false &&
+        <DataTableColumnMenuItem key="sort" value="sort">
+          {column.field.sort === 'asc' ? 'Sort desceding' : 'Sort asceding'}
+        </DataTableColumnMenuItem>,
+    ];
+  };
+
+  onColumnMenuSelect = (column: ColumnField<ColumnSpecData>, value: string) => {
+    const {pipeline, navigate} = column.field.data;
+    if (navigate == null) {
+      return;
+    }
+    switch (value) {
+      case 'hide': {
+        this.context.actions.cut({at: navigate});
+        break;
+      }
+      case 'link': {
+        this.context.actions.appendDefine({
+          at: pipeline,
+          path: [navigate.path],
+        });
+        break;
+      }
+      case 'sort': {
+        this.onColumnSort(column);
+        break;
+      }
+      case 'goto': {
+        this.context.actions.appendNavigate({
+          at: pipeline,
+          path: [navigate.path],
+        });
+        break;
+      }
+      default:
+        break;
+    }
+  };
 
   onColumnClick = (column: ColumnField<{type: Type}>) => {
     if (column.field.data.type.card === 'seq') {
@@ -267,7 +323,7 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
     if (select != null) {
       const dir = select.sort && select.sort.dir === 'asc' ? 'desc' : 'asc';
       const name = column.field.dataKey[column.field.dataKey.length - 1];
-      this.props.onSort(select, {name, dir});
+      this.context.actions.sortBy({at: select, sort: {name, dir}});
     }
   };
 

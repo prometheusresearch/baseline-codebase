@@ -22,6 +22,18 @@ type DataTableHeaderCellProps = {
   style: Object,
   minColumnWidth: number,
   resizeable?: boolean,
+
+  /**
+   * Render column menu.
+   *
+   * That should return a list of `<DataTableColumnMenuItem />` elements.
+   */
+  renderColumnMenu?: (column: ColumnField<*>) => *,
+
+  /**
+   * Handle column menu selection.
+   */
+  onColumnMenuSelect?: (column: ColumnField<*>, value: string) => *,
 };
 
 export default class DataTableHeaderCell extends React.Component {
@@ -40,7 +52,16 @@ export default class DataTableHeaderCell extends React.Component {
   rootRef: ?HTMLElement = null;
 
   render() {
-    let {column, onClick, style, index, parentColumn, resizeable} = this.props;
+    let {
+      column,
+      onClick,
+      style,
+      index,
+      parentColumn,
+      resizeable,
+      renderColumnMenu,
+      onColumnMenuSelect,
+    } = this.props;
     const {resize} = this.state;
     if (resizeable == null) {
       resizeable = index != null && parentColumn != null
@@ -61,7 +82,13 @@ export default class DataTableHeaderCell extends React.Component {
               ? <Icon.IconSortAsc />
               : column.field.sort === 'desc' ? <Icon.IconSortDesc /> : <Icon.IconBars />}
           </DataTableHeaderCellMenuRoot>}
-        <DataTableHeaderCellMenu column={column} onSort={this.onSort} />
+        {renderColumnMenu &&
+          <DataTableHeaderCellMenu
+            column={column}
+            onSort={this.onSort}
+            renderItems={renderColumnMenu}
+            onSelect={onColumnMenuSelect}
+          />}
         {resizeable &&
           <DataTableHeaderCellResizeHandle
             onMouseDown={this.onMouseDown}

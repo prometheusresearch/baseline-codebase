@@ -261,6 +261,18 @@ type DataTableProps = {
   minColumnWidth: number,
 
   initialColumnWidth: number,
+
+  /**
+   * Render column menu.
+   *
+   * That should return a list of `<DataTableColumnMenuItem />` elements.
+   */
+  renderColumnMenu?: (column: ColumnField<*>) => *,
+
+  /**
+   * Handle column menu selection.
+   */
+  onColumnMenuSelect?: (column: ColumnField<*>, value: string) => *,
 };
 
 type DataTableState = {
@@ -365,6 +377,8 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
       width,
       onColumnSort,
       onColumnClick,
+      renderColumnMenu,
+      onColumnMenuSelect,
     } = this.props;
 
     const {columnWidthByID} = this.state;
@@ -404,6 +418,7 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
             onColumnClick={onColumnClick}
             onColumnSort={onColumnSort}
             onColumnResize={this._onColumnResize}
+            headerCellProps={{renderColumnMenu, onColumnMenuSelect}}
           />}
         <Grid
           {...this.props}

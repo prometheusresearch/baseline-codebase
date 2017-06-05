@@ -11,3 +11,5 @@ export {
   DataTableHeaderCellRoot,
   DataTableHeaderCellLabel,
 } from './DataTableHeaderCell';
+
+export {DropdownMenuItem as DataTableColumnMenuItem} from './DataTableHeaderCellMenu';

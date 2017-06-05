@@ -3,8 +3,6 @@
  */
 
 import type {ColumnField} from './DataTable';
-import type {ColumnSpecData} from '../DataTable';
-import type {Actions} from '../../state';
 
 import * as React from 'react';
 import * as Icon from '../../ui/Icon';
@@ -61,7 +59,13 @@ function DropdownMenu({children}) {
   );
 }
 
-function DropdownMenuItem({value, children}) {
+export function DropdownMenuItem({
+  value,
+  children,
+}: {
+  value: string,
+  children: React.Element<*>,
+}) {
   return (
     <Element
       padding={{vertical: 7, horizontal: 12}}
@@ -79,64 +83,27 @@ function DropdownMenuItem({value, children}) {
 
 export default class DataTableHeaderCellMenu extends React.Component {
   props: {
-    column: ColumnField<ColumnSpecData>,
-    onSort: () => void,
-  };
+    column: ColumnField<*>,
 
-  context: {
-    actions: Actions,
+    renderItems: (column: ColumnField<*>) => *,
+    onSelect?: (column: ColumnField<*>, value: string) => *,
   };
-
-  static contextTypes = {actions: React.PropTypes.object};
 
   onMenuSelect = (value: string) => {
-    const {pipeline, navigate} = this.props.column.field.data;
-    if (navigate == null) {
-      return;
-    }
-    switch (value) {
-      case 'hide': {
-        this.context.actions.cut({at: navigate});
-        break;
-      }
-      case 'link': {
-        this.context.actions.appendDefine({
-          at: pipeline,
-          path: [navigate.path],
-        });
-        break;
-      }
-      case 'sort': {
-        this.props.onSort();
-        break;
-      }
-      case 'goto': {
-        this.context.actions.appendNavigate({
-          at: pipeline,
-          path: [navigate.path],
-        });
-        break;
-      }
-      default:
-        break;
+    if (this.props.onSelect) {
+      this.props.onSelect(this.props.column, value);
     }
   };
 
   render() {
-    const {column} = this.props;
+    const {column, renderItems} = this.props;
     return (
       <MenuButton.Wrapper
         tag={DataTableHeaderCellMenuRoot}
         onSelection={this.onMenuSelect}>
         <MenuButton.Button tag={Icon.IconEllipsis} />
         <DropdownMenu>
-          <DropdownMenuItem value="hide">Remove column</DropdownMenuItem>
-          <DropdownMenuItem value="goto">Follow column</DropdownMenuItem>
-          <DropdownMenuItem value="link">Link as a query</DropdownMenuItem>
-          {column.field.sort !== false &&
-            <DropdownMenuItem value="sort">
-              {column.field.sort === 'asc' ? 'Sort desceding' : 'Sort asceding'}
-            </DropdownMenuItem>}
+          {renderItems(column)}
         </DropdownMenu>
       </MenuButton.Wrapper>
     );

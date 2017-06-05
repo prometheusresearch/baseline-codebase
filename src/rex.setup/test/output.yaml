@@ -229,15 +229,28 @@ tests:
       bootstrap.min.js
 
       ./rex.setup_demo-4.0.0/static/www/bundle:
-      448c34a56d699c29117adc64c43affeb.woff2
-      89889688147bd7575d6327160d64e760.svg
-      bundle.css
-      bundle.css.map
-      bundle.js
-      bundle.js.map
-      e18bbf611f2a2e43afc071aa2f4e1512.ttf
-      f4769f9bdb7466be65088239c12046d1.eot
-      fa2772327f55d8198301fdb8bcfc8158.woff
+      asset-manifest.json
+      css
+      js
+      static
+
+      ./rex.setup_demo-4.0.0/static/www/bundle/css:
+      main.6e71d6ae.css
+      main.6e71d6ae.css.map
+
+      ./rex.setup_demo-4.0.0/static/www/bundle/js:
+      main.b580b4d5.js
+      main.b580b4d5.js.map
+
+      ./rex.setup_demo-4.0.0/static/www/bundle/static:
+      media
+
+      ./rex.setup_demo-4.0.0/static/www/bundle/static/media:
+      glyphicons-halflings-regular.448c34a5.woff2
+      glyphicons-halflings-regular.89889688.svg
+      glyphicons-halflings-regular.e18bbf61.ttf
+      glyphicons-halflings-regular.f4769f9b.eot
+      glyphicons-halflings-regular.fa277232.woff
 
       ./rex.setup_demo-4.0.0/static/www/doc:
       Makefile
@@ -377,8 +390,8 @@ tests:
     stdout: ''
   - sh: ls ./share/rex/pkg/www/bundle
     stdout: |
-      bundle.js
-      bundle.js.map
+      asset-manifest.json
+      js
   - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     stdout: |
       PASSED!
@@ -394,8 +407,8 @@ tests:
     stdout: ''
   - sh: ls ./share/rex/pkg/www/bundle
     stdout: |
-      bundle.js
-      bundle.js.map
+      asset-manifest.json
+      js
   - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     stdout: |
       2.2.0
@@ -426,8 +439,8 @@ tests:
     stdout: ''
   - sh: ls ./share/rex/pkg/www/bundle
     stdout: |
-      bundle.js
-      bundle.js.map
+      asset-manifest.json
+      js
   - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     stdout: |
       PASSED!
@@ -482,8 +495,8 @@ tests:
       package.json
   - sh: ls ./share/rex/pkg/www/bundle
     stdout: |
-      bundle.js
-      bundle.js.map
+      asset-manifest.json
+      js
   - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     stdout: ''
 - suite: js_react_no_bundle
@@ -530,10 +543,9 @@ tests:
     stdout: ''
   - sh: ls ./share/rex/pkg/www/bundle
     stdout: |
-      bundle.css
-      bundle.css.map
-      bundle.js
-      bundle.js.map
+      asset-manifest.json
+      css
+      js
   - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     stdout: |
       PASSED!
@@ -562,10 +574,9 @@ tests:
     stdout: ''
   - sh: ls ./share/rex/pkg/www/bundle
     stdout: |
-      bundle.css
-      bundle.css.map
-      bundle.js
-      bundle.js.map
+      asset-manifest.json
+      css
+      js
   - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     stdout: |
       PASSED!
@@ -594,10 +605,9 @@ tests:
     stdout: ''
   - sh: ls ./share/rex/pkg/www/bundle
     stdout: |
-      bundle.css
-      bundle.css.map
-      bundle.js
-      bundle.js.map
+      asset-manifest.json
+      css
+      js
   - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     stdout: |
       PASSED!

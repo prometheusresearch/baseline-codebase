@@ -159,8 +159,6 @@ tests:
   - sh: ls ./share/rex/pkg/www/bundle
     environ: { LC_ALL: C }
     cd: sandbox
-  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
-    cd: sandbox
   - rmdir: sandbox
 
 - title: Basic shrinkwrapped package
@@ -174,8 +172,6 @@ tests:
     cd: sandbox
   - sh: ls ./share/rex/pkg/www/bundle
     environ: { LC_ALL: C }
-    cd: sandbox
-  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     cd: sandbox
   - rmdir: sandbox
 
@@ -191,8 +187,6 @@ tests:
     cd: sandbox
   - sh: ls ./share/rex/pkg/www/bundle
     environ: { LC_ALL: C }
-    cd: sandbox
-  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     cd: sandbox
   - rmdir: sandbox
 
@@ -211,8 +205,6 @@ tests:
     cd: sandbox
   - sh: ls ./share/rex/pkg/www/bundle
     environ: { LC_ALL: C }
-    cd: sandbox
-  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
     cd: sandbox
   - rmdir: sandbox
 
@@ -244,10 +236,6 @@ tests:
   - sh: ls ./share/rex/pkg/www/bundle
     environ: { LC_ALL: C }
     cd: sandbox
-  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
-    cd: sandbox
-  - sh: cat ./share/rex/pkg/www/bundle/bundle.css
-    cd: sandbox
   - rmdir: sandbox
 
 - title: Package with style via implicit style discovery (style/index.less)
@@ -263,10 +251,6 @@ tests:
   - sh: ls ./share/rex/pkg/www/bundle
     environ: { LC_ALL: C }
     cd: sandbox
-  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
-    cd: sandbox
-  - sh: cat ./share/rex/pkg/www/bundle/bundle.css
-    cd: sandbox
   - rmdir: sandbox
 
 - title: Package with style via "rex.style" directive in bower.json
@@ -281,10 +265,6 @@ tests:
     cd: sandbox
   - sh: ls ./share/rex/pkg/www/bundle
     environ: { LC_ALL: C }
-    cd: sandbox
-  - sh: ./bin/node ./share/rex/pkg/www/bundle/bundle.js
-    cd: sandbox
-  - sh: cat ./share/rex/pkg/www/bundle/bundle.css
     cd: sandbox
   - rmdir: sandbox
 

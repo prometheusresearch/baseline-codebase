@@ -1,7 +1,7 @@
 {
   "name": "rex-setup-demo",
   "version": "4.0.0",
-  "main": "./lib/index",
+  "main": "./lib/index.js",
   "rex": {
     "style": "./lib/index.less"
   },

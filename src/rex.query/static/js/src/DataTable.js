@@ -28,6 +28,16 @@ export type ColumnSpecData = {
   focused: boolean,
 };
 
+type ColumnTraverseCtx = {
+  queryPipeline: QueryPipeline,
+  selectQuery: ?SelectQuery,
+  path: Array<string>,
+  focusedSeq: Array<string>,
+  bindingName: ?string,
+  suppressPath: boolean,
+  currentStack?: Array<ColumnConfig<ColumnSpecData>>,
+};
+
 /**
  * Produce column config for a query.
  */
@@ -35,61 +45,60 @@ export function getColumnConfig(
   query: QueryPipeline,
   focusedSeq: Array<string> = [],
 ): ColumnConfig<ColumnSpecData> {
-  return getColumnConfigImpl(query, query, null, focusedSeq, [], null, false);
+  const ctx: ColumnTraverseCtx = {
+    queryPipeline: query,
+    selectQuery: null,
+    path: [],
+    focusedSeq,
+    bindingName: null,
+    suppressPath: false,
+    currentStack: undefined,
+  };
+  return getColumnConfigImpl(query, ctx);
 }
 
-function getColumnConfigImpl(
-  query: Query,
-  queryPipeline: QueryPipeline,
-  selectQuery: ?SelectQuery,
-  focusedSeq,
-  path: Array<string>,
-  bindingName: ?string,
-  suppressPath: boolean,
-  currentStack?: Array<ColumnConfig<ColumnSpecData>>,
-) {
+function getColumnConfigImpl(query: Query, ctx: ColumnTraverseCtx) {
   let stack: Array<ColumnConfig<ColumnSpecData>> = [];
   switch (query.name) {
-    case 'pipeline':
+    case 'pipeline': {
+      let bindingName = ctx.bindingName;
       let pipeline = query.pipeline;
       let localPath = [];
       let skipAllowed = false;
       for (let i = 0; i < pipeline.length; i++) {
-        if (pipeline[i].name === 'navigate' && !suppressPath) {
+        if (pipeline[i].name === 'navigate' && !ctx.suppressPath) {
           localPath = pipeline[i].path;
         }
-        let nav = getColumnConfigImpl(
-          pipeline[i],
-          queryPipeline,
-          selectQuery,
-          focusedSeq,
-          path.concat(localPath),
+        let nav = getColumnConfigImpl(pipeline[i], {
+          ...ctx,
           bindingName,
-          false,
-          stack,
-        );
+          path: ctx.path.concat(localPath),
+          suppressPath: false,
+          currentStack: stack,
+        });
         bindingName = null;
         if (nav.type !== 'field' && skipAllowed) {
           break;
         }
         stack = stack.concat(nav.type === 'stack' ? nav.columnList : nav);
-        skipAllowed = !needDetailedColumn(nav, focusedSeq);
+        skipAllowed = !needDetailedColumn(nav, ctx.focusedSeq);
       }
       break;
+    }
     case 'aggregate': {
-      const prev = currentStack != null ? currentStack.pop() : null;
+      const prev = ctx.currentStack != null ? ctx.currentStack.pop() : null;
       let dataKey = prev && prev.type === 'field' ? prev.field.dataKey : ['0'];
       let label = prev && prev.type === 'field' && prev.field.label
         ? query.aggregate === 'count' ? '# ' + prev.field.label : prev.field.label
         : query.aggregate;
-      const sort = selectQuery != null &&
-        selectQuery.sort != null &&
-        selectQuery.sort.name === dataKey[dataKey.length - 1]
-        ? selectQuery.sort.dir
+      const sort = ctx.selectQuery != null &&
+        ctx.selectQuery.sort != null &&
+        ctx.selectQuery.sort.name === dataKey[dataKey.length - 1]
+        ? ctx.selectQuery.sort.dir
         : null;
       stack.push({
         type: 'field',
-        id: 'field:' + path.join('__'),
+        id: 'field:' + ctx.path.join('__'),
         field: {
           cellRenderer,
           cellDataGetter,
@@ -98,13 +107,13 @@ function getColumnConfigImpl(
           sort,
           data: {
             query,
-            pipeline: queryPipeline,
-            select: selectQuery,
+            pipeline: ctx.queryPipeline,
+            select: ctx.selectQuery,
             navigate: prev != null && prev.type === 'field'
               ? prev.field.data.navigate
               : null,
             type: query.context.type,
-            focusedSeq,
+            focusedSeq: ctx.focusedSeq,
             focused: false,
           },
         },
@@ -115,30 +124,29 @@ function getColumnConfigImpl(
     case 'navigate': {
       if (query.path in query.context.prev.scope) {
         let binding = query.context.prev.scope[query.path];
-        return getColumnConfigImpl(
-          binding.query,
-          binding.query,
-          selectQuery,
-          focusedSeq,
-          path,
-          binding.query.context.title || binding.name,
-          true,
-        );
+        return getColumnConfigImpl(binding.query, {
+          ...ctx,
+          queryPipeline: binding.query,
+          bindingName: binding.query.context.title || binding.name,
+          suppressPath: true,
+          currentStack: undefined,
+        });
       }
       let type = query.context.type;
-      let focused = path.join('.') === focusedSeq.join('.') && type.card === 'seq';
-      const dataKey = path.length === 0 ? [query.path] : path;
+      let focused =
+        ctx.path.join('.') === ctx.focusedSeq.join('.') && type.card === 'seq';
+      const dataKey = ctx.path.length === 0 ? [query.path] : ctx.path;
       let sort = false;
       if (type.name !== 'record') {
-        sort = selectQuery != null &&
-          selectQuery.sort != null &&
-          selectQuery.sort.name === dataKey[dataKey.length - 1]
-          ? selectQuery.sort.dir
+        sort = ctx.selectQuery != null &&
+          ctx.selectQuery.sort != null &&
+          ctx.selectQuery.sort.name === dataKey[dataKey.length - 1]
+          ? ctx.selectQuery.sort.dir
           : null;
       }
       stack.push({
         type: 'field',
-        id: 'field:' + (path.length === 0 ? [query.path] : path).join('__'),
+        id: 'field:' + (ctx.path.length === 0 ? [query.path] : ctx.path).join('__'),
         field: {
           cellRenderer,
           cellDataGetter,
@@ -147,11 +155,11 @@ function getColumnConfigImpl(
           sort,
           data: {
             query,
-            pipeline: queryPipeline,
-            select: selectQuery,
+            pipeline: ctx.queryPipeline,
+            select: ctx.selectQuery,
             navigate: query,
             type,
-            focusedSeq,
+            focusedSeq: ctx.focusedSeq,
             focused,
           },
         },
@@ -164,21 +172,20 @@ function getColumnConfigImpl(
       for (let k in query.select) {
         if (query.select.hasOwnProperty(k)) {
           group.push(
-            getColumnConfigImpl(
-              query.select[k],
-              queryPipeline,
-              query,
-              focusedSeq,
-              path.concat(k),
-              null,
-              true,
-            ),
+            getColumnConfigImpl(query.select[k], {
+              ...ctx,
+              selectQuery: query,
+              path: ctx.path.concat(k),
+              bindingName: null,
+              suppressPath: true,
+              currentStack: undefined,
+            }),
           );
         }
       }
       stack.push({
         type: 'group',
-        id: 'group:' + path.join('__'),
+        id: 'group:' + ctx.path.join('__'),
         columnList: group,
         size: {
           width: ArrayUtil.sum(group.map(c => c.size.width)),
@@ -189,11 +196,12 @@ function getColumnConfigImpl(
     default:
       break;
   }
+
   return stack.length === 1
     ? stack[0]
     : {
         type: 'stack',
-        id: 'stack:' + path.join('__'),
+        id: 'stack:' + ctx.path.join('__'),
         columnList: stack,
         size: {
           width: ArrayUtil.max(stack.map(c => c.size.width)),

@@ -11,6 +11,7 @@ import type {
   DefineQuery,
   QueryAtom,
   QueryPipeline,
+  SelectQuery,
   AggregateQuery,
   NavigateQuery,
   FilterQuery,
@@ -123,6 +124,29 @@ export function select({at, path}: {at: QueryPipeline, path: string[]}): StateUp
     const query = qo
       .editor(state.query, at)
       .growNavigation({path, editAtCompletion})
+      .getQuery();
+    return onQuery(state, {query, selected: state.selected});
+  };
+}
+
+/**
+ * Sort by.
+ */
+
+export function sortBy({
+  at,
+  sort,
+}: {
+  at: SelectQuery,
+  sort: {name: string, dir: 'asc' | 'desc'},
+}): StateUpdater {
+  logAction('sortBy', {at, sort});
+  return state => {
+    const query = qo
+      .editor(state.query, at)
+      .transformWith(_ => {
+        return ({...at, name: 'select', sort}: any);
+      })
       .getQuery();
     return onQuery(state, {query, selected: state.selected});
   };

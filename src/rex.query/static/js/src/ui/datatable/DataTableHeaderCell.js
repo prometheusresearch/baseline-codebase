@@ -140,6 +140,7 @@ type DataTableHeaderCellProps = {
   parentColumn: ?ColumnContainerConfig<*>,
   index: ?number,
   onClick?: (column: ColumnField<*>) => *,
+  onSort?: (column: ColumnField<*>) => *,
   onResize?: (resize: {column: ColumnField<*>, width: number}) => *,
   style: Object,
   minColumnWidth: number,
@@ -162,14 +163,7 @@ export default class DataTableHeaderCell extends React.Component {
   rootRef: ?HTMLElement = null;
 
   render() {
-    let {
-      column,
-      onClick,
-      style,
-      index,
-      parentColumn,
-      resizeable,
-    } = this.props;
+    let {column, onClick, style, index, parentColumn, resizeable} = this.props;
     const {resize} = this.state;
     if (resizeable == null) {
       resizeable = index != null && parentColumn != null
@@ -181,6 +175,15 @@ export default class DataTableHeaderCell extends React.Component {
         <DataTableHeaderCellLabel title={column.field.label}>
           {column.field.label}
         </DataTableHeaderCellLabel>
+        {column.field.sort !== false &&
+          <DataTableHeaderCellMenuRoot
+            style={{right: 15}}
+            onClick={this.onSort}
+            title="Click to sort the table by this column">
+            {column.field.sort === 'asc'
+              ? <Icon.IconSortAsc />
+              : column.field.sort === 'desc' ? <Icon.IconSortDesc /> : <Icon.IconBars />}
+          </DataTableHeaderCellMenuRoot>}
         <DataTableHeaderCellMenu column={column} />
         {resizeable &&
           <DataTableHeaderCellResizeHandle
@@ -197,6 +200,13 @@ export default class DataTableHeaderCell extends React.Component {
     window.removeEventListener('mousemove', this.onMouseMove);
     window.removeEventListener('mouseup', this.onMouseUp);
   }
+
+  onSort = (e: UIEvent) => {
+    e.stopPropagation();
+    if (this.props.onSort) {
+      this.props.onSort(this.props.column);
+    }
+  };
 
   onClick = () => {
     if (this.props.onClick) {

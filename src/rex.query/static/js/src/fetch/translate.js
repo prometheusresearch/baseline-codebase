@@ -93,7 +93,8 @@ function translateExpression(query: Expression, prev: SerializedQuery): Serializ
 
     case 'logicalBinary': {
       let expressions = query.expressions.map(expression =>
-        translateExpression(expression, HERE));
+        translateExpression(expression, HERE),
+      );
       return [LOGICAL_BINARY_OP_ENCODE[query.op], ...expressions];
     }
 
@@ -151,12 +152,9 @@ function translateQuery(
       return prev.translated;
 
     case 'pipeline': {
-      let res = query.pipeline.reduce(
-        (prev, q) => {
-          return {translated: translateQuery(q, prev, options), context: q.context};
-        },
-        prev,
-      );
+      let res = query.pipeline.reduce((prev, q) => {
+        return {translated: translateQuery(q, prev, options), context: q.context};
+      }, prev);
       return res.translated;
     }
 
@@ -181,7 +179,8 @@ function translateQuery(
     }
 
     case 'select': {
-      let fields = [];
+      const fields = [];
+      const fieldsByName = {};
       for (let k in query.select) {
         if (query.select.hasOwnProperty(k)) {
           let field = query.select[k];
@@ -194,9 +193,18 @@ function translateQuery(
             fieldTranslated = ['take', fieldTranslated, options.limitSelect];
           }
           fields.push(['=>', k, fieldTranslated]);
+          fieldsByName[k] = fieldTranslated;
         }
       }
-      return ['select', prev.translated].concat(fields);
+      let translated = ['select', prev.translated].concat(fields);
+      if (query.sort != null) {
+        translated = [
+          'sort',
+          translated,
+          [query.sort.dir, fieldsByName[query.sort.name]],
+        ];
+      }
+      return translated;
     }
 
     case 'aggregate': {

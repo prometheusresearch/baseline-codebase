@@ -63,78 +63,58 @@ export type InvalidType = {
   card: null,
 };
 
-export type VoidType =
-  & {
-    name: 'void',
-    domain: Domain,
-  }
-  & TypeCardinalityProp;
+export type VoidType = {
+  name: 'void',
+  domain: Domain,
+} & TypeCardinalityProp;
 
-export type TextType =
-  & {
-    name: 'text',
-    domain: Domain,
-  }
-  & TypeCardinalityProp;
+export type TextType = {
+  name: 'text',
+  domain: Domain,
+} & TypeCardinalityProp;
 
-export type JSONType =
-  & {
-    name: 'json',
-    domain: Domain,
-  }
-  & TypeCardinalityProp;
+export type JSONType = {
+  name: 'json',
+  domain: Domain,
+} & TypeCardinalityProp;
 
-export type NumberType =
-  & {
-    name: 'number',
-    domain: Domain,
-  }
-  & TypeCardinalityProp;
+export type NumberType = {
+  name: 'number',
+  domain: Domain,
+} & TypeCardinalityProp;
 
-export type BooleanType =
-  & {
-    name: 'boolean',
-    domain: Domain,
-  }
-  & TypeCardinalityProp;
+export type BooleanType = {
+  name: 'boolean',
+  domain: Domain,
+} & TypeCardinalityProp;
 
-export type EnumerationType =
-  & {
-    name: 'enumeration',
-    enumerations: Array<string>,
-    domain: Domain,
-  }
-  & TypeCardinalityProp;
+export type EnumerationType = {
+  name: 'enumeration',
+  enumerations: Array<string>,
+  domain: Domain,
+} & TypeCardinalityProp;
 
-export type DateType =
-  & {
-    name: 'date',
-    domain: Domain,
-  }
-  & TypeCardinalityProp;
+export type DateType = {
+  name: 'date',
+  domain: Domain,
+} & TypeCardinalityProp;
 
-export type TimeType =
-  & {
-    name: 'time',
-    domain: Domain,
-  }
-  & TypeCardinalityProp;
+export type TimeType = {
+  name: 'time',
+  domain: Domain,
+} & TypeCardinalityProp;
 
-export type DateTimeType =
-  & {
-    name: 'datetime',
-    domain: Domain,
-  }
-  & TypeCardinalityProp;
+export type DateTimeType = {
+  name: 'datetime',
+  domain: Domain,
+} & TypeCardinalityProp;
 
-export type RecordType =
-  & {
-    name: 'record',
-    entity: ?string,
-    attribute: ?DomainAttributeMap,
-    domain: Domain,
-  }
-  & TypeCardinalityProp;
+export type RecordType = {
+  name: 'record',
+  entity: ?string,
+  attribute: ?DomainAttributeMap,
+  domain: Domain,
+} & TypeCardinalityProp;
 
 export type HereQuery = {
   +id: string,
@@ -156,6 +136,7 @@ export type SelectQuery = {
   +id: string,
   +name: 'select',
   +select: {[name: string]: QueryPipeline},
+  +sort: ?{name: string, dir: 'asc' | 'desc'},
   +context: Context,
   +savedSelect: ?SelectQuery,
 };
@@ -369,7 +350,7 @@ export type QueryNavigation = {
   fromQuery?: boolean,
 };
 
-export type QueryLoc<Q: QueryAtom=QueryAtom> = {
+export type QueryLoc<Q: QueryAtom = QueryAtom> = {
   +rootQuery: QueryPipeline,
   +at: string,
   _query: ?Q,
@@ -383,6 +364,6 @@ export type QueryPathItem =
 
 export type QueryPath = Array<QueryPathItem>;
 
-export type ResolvedQueryLoc<Q: QueryAtom=QueryAtom> = [Q, QueryPath];
+export type ResolvedQueryLoc<Q: QueryAtom = QueryAtom> = [Q, QueryPath];
 
 /* eslint-enable no-use-before-define */

@@ -15,6 +15,9 @@ import IconCircleO from 'react-icons/lib/fa/circle-o';
 import IconCircle from 'react-icons/lib/fa/circle';
 import IconEllipsis from 'react-icons/lib/fa/ellipsis-v';
 import IconDownload from 'react-icons/lib/fa/cloud-download';
+import IconSortAsc from 'react-icons/lib/fa/sort-amount-asc';
+import IconSortDesc from 'react-icons/lib/fa/sort-amount-desc';
+import IconBars from 'react-icons/lib/fa/bars';
 
 export {
   IconFilter,
@@ -28,6 +31,9 @@ export {
   IconCircle,
   IconEllipsis,
   IconDownload,
+  IconSortAsc,
+  IconSortDesc,
+  IconBars,
 };
 
 function makeIconFromUnicodeSymbol({displayName = 'Icon', symbol}) {

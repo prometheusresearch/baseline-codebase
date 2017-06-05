@@ -12,17 +12,77 @@ import {findDOMNodeStrict as findDOMNode} from '../../findDOMNode';
 import DataTableHeader from './DataTableHeader';
 import getColumnSpecList from './getColumnSpecList';
 
+/**
+ * Data table column specifiction.
+ *
+ * This configured column data and appearance.
+ */
 export type ColumnSpec<T> = {
+  /**
+   * Column data key.
+   *
+   * This is a key path into a row data to project a needed piece of data from a
+   * row. Example:
+   *
+   * Row data:
+   *
+   *    {person: {name: 'John'}}
+   *
+   * dataKey:
+   *
+   *    ['person', 'name']
+   *
+   * results in the following data being used as a corresponding cell data:
+   *
+   *    'name'
+   */
   dataKey: Array<string>,
-  cellRenderer?: CellRenderer<T>,
-  cellDataGetter?: CellDataGetter<T>,
-  headerCellRenderer?: HeaderCellRenderer<T>,
-  width?: number,
+
+  /**
+   * Column label.
+   */
   label?: string,
-  flexGrow?: number,
-  flexShrink?: number,
+
+  /**
+   * Initial column width.
+   */
+  width?: number,
+
+  /**
+   * Min width of a column.
+   */
   minWidth?: number,
+
+  /**
+   * Max width of a column.
+   */
   maxWidth?: number,
+
+  flexGrow?: number,
+
+  flexShrink?: number,
+
+  /**
+   * Sort state of the column:
+   *
+   * - `false` — column isn't sortable at all
+   * - `null` — sort state does not include column
+   * - `asc` — sort state includes column and it is sorted in asceding order
+   * - `desc` — sort state includes column and it is sorted in desceding order
+   */
+  sort: false | null | 'asc' | 'desc',
+
+  cellRenderer?: CellRenderer<T>,
+
+  cellDataGetter?: CellDataGetter<T>,
+
+  headerCellRenderer?: HeaderCellRenderer<T>,
+
+  /**
+   * Arbitrary data attached to a column.
+   *
+   * This can be used by `headerCellRenderer` and `cellRenderer`.
+   */
   data: T,
 };
 
@@ -56,32 +116,26 @@ export type ColumnConfig<T> = ColumnStack<T> | ColumnGroup<T> | ColumnField<T>;
 
 export type ColumnContainerConfig<T> = ColumnStack<T> | ColumnGroup<T>;
 
-export type CellDataGetter<T> = (
-  props: {
-    rowData: mixed,
-    columnData: T,
-    dataKey: Array<string>,
-  },
-) => mixed;
+export type CellDataGetter<T> = (props: {
+  rowData: mixed,
+  columnData: T,
+  dataKey: Array<string>,
+}) => mixed;
 
-export type CellRenderer<T> = (
-  props: {
-    cellData: mixed,
-    rowData: mixed,
-    columnData: T,
-    dataKey: Array<string>,
-    isScrolling: boolean,
-    rowIndex: number,
-  },
-) => ?string | React.Element<any>;
+export type CellRenderer<T> = (props: {
+  cellData: mixed,
+  rowData: mixed,
+  columnData: T,
+  dataKey: Array<string>,
+  isScrolling: boolean,
+  rowIndex: number,
+}) => ?string | React.Element<any>;
 
-export type HeaderCellRenderer<T> = (
-  props: {
-    column: ColumnField<T>,
-    onClick?: (column: ColumnField<T>) => *,
-    style: Object,
-  },
-) => React.Element<any>;
+export type HeaderCellRenderer<T> = (props: {
+  column: ColumnField<T>,
+  onClick?: (column: ColumnField<T>) => *,
+  style: Object,
+}) => React.Element<any>;
 
 let DataTableRow = style('div', {
   displayName: 'DataTableRow',
@@ -202,6 +256,8 @@ type DataTableProps = {
 
   onColumnClick?: (column: ColumnField<*>) => *,
 
+  onColumnSort?: (column: ColumnField<*>) => *,
+
   minColumnWidth: number,
 
   initialColumnWidth: number,
@@ -307,12 +363,11 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
       style,
       height,
       width,
+      onColumnSort,
       onColumnClick,
     } = this.props;
 
-    const {
-      columnWidthByID,
-    } = this.state;
+    const {columnWidthByID} = this.state;
 
     const availableRowsHeight = height - headerHeight * columns.size.height;
 
@@ -347,6 +402,7 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
             columnWidth={this._columnWidth}
             columnWidthByID={columnWidthByID}
             onColumnClick={onColumnClick}
+            onColumnSort={onColumnSort}
             onColumnResize={this._onColumnResize}
           />}
         <Grid
@@ -369,21 +425,19 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     );
   }
 
-  _createColumn = (
-    {
-      column,
-      columnIndex,
-      isScrolling,
-      rowData,
-      rowIndex,
-    }: {
-      column: ColumnSpec<*>,
-      columnIndex: number,
-      isScrolling: boolean,
-      rowData: Object,
-      rowIndex: number,
-    },
-  ) => {
+  _createColumn = ({
+    column,
+    columnIndex,
+    isScrolling,
+    rowData,
+    rowIndex,
+  }: {
+    column: ColumnSpec<*>,
+    columnIndex: number,
+    isScrolling: boolean,
+    rowData: Object,
+    rowIndex: number,
+  }) => {
     const {
       cellDataGetter = defaultCellDataGetter,
       cellRenderer = defaultCellRenderer,
@@ -423,23 +477,18 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     );
   };
 
-  _cellRenderer = (
-    {
-      rowIndex: index,
-      isScrolling,
-      key,
-      style,
-    }: {
-      rowIndex: number,
-      isScrolling: boolean,
-      key: string,
-      style: Object,
-    },
-  ) => {
-    const {
-      rowGetter,
-      rowHeight,
-    } = this.props;
+  _cellRenderer = ({
+    rowIndex: index,
+    isScrolling,
+    key,
+    style,
+  }: {
+    rowIndex: number,
+    isScrolling: boolean,
+    key: string,
+    style: Object,
+  }) => {
+    const {rowGetter, rowHeight} = this.props;
 
     const {scrollbarWidth} = this.state;
 
@@ -453,7 +502,8 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
         rowData,
         rowIndex: index,
         scrollbarWidth,
-      }));
+      }),
+    );
 
     const flattenedStyle = {
       ...style,

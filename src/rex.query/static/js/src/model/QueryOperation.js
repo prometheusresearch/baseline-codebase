@@ -15,7 +15,7 @@ import type {
   QueryPath,
 } from './types';
 
-import {navigate, pipeline, select, here, inferType, inferQueryType} from './Query';
+import {navigate, select, pipeline, here, inferType, inferQueryType} from './Query';
 import * as QL from './QueryLoc';
 import * as t from './Type';
 
@@ -366,9 +366,12 @@ function growNavigationImpl(
       rest,
       editAtCompletion,
     );
-    return pipe
-      .slice(0, pipe.length - 1)
-      .concat(select({...tail.select, [key]: pipeline(...nextPipe)}));
+    const nextSelect = {
+      name: 'select',
+      ...tail,
+      select: {...tail.select, [key]: pipeline(...nextPipe)},
+    };
+    return pipe.slice(0, pipe.length - 1).concat(nextSelect);
   } else {
     let nextPipe = growNavigationImpl([navigate(key)], rest, editAtCompletion);
     return pipe.concat(select({[key]: pipeline(...nextPipe)}));
@@ -533,7 +536,10 @@ function reconcileSelect(context: Context, query: ?SelectQuery): SelectQuery {
     fields = nextFields;
   }
 
-  return inferQueryType(context, select({...fields}));
+  return inferQueryType(
+    context,
+    query != null ? {name: 'select', ...query, select: fields} : select({...fields}),
+  );
 }
 
 function maybeAddToSelect(select, context, key, attribute) {

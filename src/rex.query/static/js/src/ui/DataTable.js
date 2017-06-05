@@ -2,7 +2,13 @@
  * @flow
  */
 
-import type {Type, Query, QueryPipeline, NavigateQuery} from '../model/types';
+import type {
+  Type,
+  Query,
+  SelectQuery,
+  QueryPipeline,
+  NavigateQuery,
+} from '../model/types';
 import type {ColumnConfig, ColumnField} from './datatable/DataTable';
 
 import React from 'react';
@@ -16,6 +22,7 @@ import {DataTable as DataTableBase, getByKey} from './datatable/index';
 export type ColumnSpecData = {
   query: Query,
   pipeline: QueryPipeline,
+  select: ?SelectQuery,
   navigate: ?NavigateQuery,
   type: Type,
   focusedSeq: Array<string>,
@@ -29,12 +36,13 @@ export function getColumnConfig(
   query: QueryPipeline,
   focusedSeq: Array<string> = [],
 ): ColumnConfig<ColumnSpecData> {
-  return getColumnConfigImpl(query, query, focusedSeq, [], null, false);
+  return getColumnConfigImpl(query, query, null, focusedSeq, [], null, false);
 }
 
 function getColumnConfigImpl(
   query: Query,
   queryPipeline: QueryPipeline,
+  selectQuery: ?SelectQuery,
   focusedSeq,
   path: Array<string>,
   bindingName: ?string,
@@ -54,6 +62,7 @@ function getColumnConfigImpl(
         let nav = getColumnConfigImpl(
           pipeline[i],
           queryPipeline,
+          selectQuery,
           focusedSeq,
           path.concat(localPath),
           bindingName,
@@ -69,11 +78,16 @@ function getColumnConfigImpl(
       }
       break;
     case 'aggregate': {
-      let prev = currentStack != null ? currentStack.pop() : null;
+      const prev = currentStack != null ? currentStack.pop() : null;
       let dataKey = prev && prev.type === 'field' ? prev.field.dataKey : ['0'];
       let label = prev && prev.type === 'field' && prev.field.label
         ? query.aggregate === 'count' ? '# ' + prev.field.label : prev.field.label
         : query.aggregate;
+      const sort = selectQuery != null &&
+        selectQuery.sort != null &&
+        selectQuery.sort.name === dataKey[dataKey.length - 1]
+        ? selectQuery.sort.dir
+        : null;
       stack.push({
         type: 'field',
         id: 'field:' + path.join('__'),
@@ -82,9 +96,11 @@ function getColumnConfigImpl(
           cellDataGetter,
           dataKey,
           label,
+          sort,
           data: {
             query,
             pipeline: queryPipeline,
+            select: selectQuery,
             navigate: prev != null && prev.type === 'field'
               ? prev.field.data.navigate
               : null,
@@ -103,6 +119,7 @@ function getColumnConfigImpl(
         return getColumnConfigImpl(
           binding.query,
           binding.query,
+          selectQuery,
           focusedSeq,
           path,
           binding.query.context.title || binding.name,
@@ -111,17 +128,28 @@ function getColumnConfigImpl(
       }
       let type = query.context.type;
       let focused = path.join('.') === focusedSeq.join('.') && type.card === 'seq';
+      const dataKey = path.length === 0 ? [query.path] : path;
+      let sort = false;
+      if (type.name !== 'record') {
+        sort = selectQuery != null &&
+          selectQuery.sort != null &&
+          selectQuery.sort.name === dataKey[dataKey.length - 1]
+          ? selectQuery.sort.dir
+          : null;
+      }
       stack.push({
         type: 'field',
         id: 'field:' + (path.length === 0 ? [query.path] : path).join('__'),
         field: {
           cellRenderer,
           cellDataGetter,
-          dataKey: path.length === 0 ? [query.path] : path,
+          dataKey,
           label: query.context.title || query.path,
+          sort,
           data: {
             query,
             pipeline: queryPipeline,
+            select: selectQuery,
             navigate: query,
             type,
             focusedSeq,
@@ -140,6 +168,7 @@ function getColumnConfigImpl(
             getColumnConfigImpl(
               query.select[k],
               queryPipeline,
+              query,
               focusedSeq,
               path.concat(k),
               null,
@@ -184,6 +213,7 @@ type DataTableProps = {
   data: Object,
   focusedSeq: Array<string>,
   onFocusedSeq: (focusedSeq: Array<string>) => *,
+  onSort: (query: SelectQuery, sort: {name: string, dir: 'asc' | 'desc'}) => *,
 };
 
 export class DataTable extends React.Component<*, DataTableProps, *> {
@@ -204,9 +234,10 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
     return (
       <VBox flexGrow={1}>
         <AutoSizer>
-          {size => (
+          {size =>
             <DataTableBase
               onColumnClick={this.onColumnClick}
+              onColumnSort={this.onColumnSort}
               headerHeight={30}
               noRowsRenderer={this._noRowsRenderer}
               overscanRowCount={10}
@@ -216,8 +247,7 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
               width={size.width}
               height={size.height}
               columns={this.columns}
-            />
-          )}
+            />}
         </AutoSizer>
         <LoadingPane variant={{visible: this.props.loading}}>
           <LoadingIndicator />
@@ -229,6 +259,15 @@ export class DataTable extends React.Component<*, DataTableProps, *> {
   onColumnClick = (column: ColumnField<{type: Type}>) => {
     if (column.field.data.type.card === 'seq') {
       this.props.onFocusedSeq(column.field.dataKey);
+    }
+  };
+
+  onColumnSort = (column: ColumnField<ColumnSpecData>) => {
+    const {select} = column.field.data;
+    if (select != null) {
+      const dir = select.sort && select.sort.dir === 'asc' ? 'desc' : 'asc';
+      const name = column.field.dataKey[column.field.dataKey.length - 1];
+      this.props.onSort(select, {name, dir});
     }
   };
 

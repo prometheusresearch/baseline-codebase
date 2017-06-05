@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Query, QueryPipeline, Domain} from './model/types';
+import type {Query, SelectQuery, QueryPipeline, Domain} from './model/types';
 import type {SearchCallback} from './ui';
 import type {ChartSpec} from './state';
 
@@ -128,6 +128,7 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
             loading={queryLoading}
             data={data}
             focusedSeq={focusedSeq}
+            onSort={this.onSort}
             onFocusedSeq={this.onFocusedSeq}
           />
         ),
@@ -250,6 +251,10 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
 
   onFocusedSeq = (focusedSeq: Array<string>) => {
     this.actions.focusOnSeq({focusedSeq});
+  };
+
+  onSort = (query: SelectQuery, sort: {name: string, dir: 'asc' | 'desc'}) => {
+    this.actions.sortBy({at: query, sort});
   };
 }
 

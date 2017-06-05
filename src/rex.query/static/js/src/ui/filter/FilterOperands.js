@@ -87,7 +87,6 @@ export class NumberOperand extends React.Component<*, NumberOperandProps, *> {
 
 export class EnumerationOperand extends React.Component {
   render() {
-    console.log(this.props.value);
     return (
       <Select
         value={this.props.value}
@@ -128,7 +127,7 @@ class DateOperandBase extends React.Component {
     );
   }
 
-  renderField(props: {value: any, onChange: (string) => *}): ?React.Element<*> {
+  renderField(props: {value: any, onChange: string => *}): ?React.Element<*> {
     return null;
   }
 
@@ -140,9 +139,7 @@ class DateOperandBase extends React.Component {
 export class DateOperand extends DateOperandBase {
   static format = 'YYYY-MM-DD';
 
-  renderField(
-    {value, onChange}: {value: any, onChange: (string) => *},
-  ): ?React.Element<*> {
+  renderField({value, onChange}: {value: any, onChange: string => *}): ?React.Element<*> {
     return <DateTimeField mode="date" dateTime={value} onChange={onChange} />;
   }
 }
@@ -150,9 +147,7 @@ export class DateOperand extends DateOperandBase {
 export class TimeOperand extends DateOperandBase {
   static format = 'HH:mm:ss';
 
-  renderField(
-    {value, onChange}: {value: any, onChange: (string) => *},
-  ): ?React.Element<*> {
+  renderField({value, onChange}: {value: any, onChange: string => *}): ?React.Element<*> {
     return <DateTimeField mode="time" dateTime={value} onChange={onChange} />;
   }
 }
@@ -160,9 +155,7 @@ export class TimeOperand extends DateOperandBase {
 export class DateTimeOperand extends DateOperandBase {
   static format = 'YYYY-MM-DD HH:mm:ss';
 
-  renderField(
-    {value, onChange}: {value: any, onChange: (string) => *},
-  ): ?React.Element<*> {
+  renderField({value, onChange}: {value: any, onChange: string => *}): ?React.Element<*> {
     return <DateTimeField mode="time" dateTime={value} onChange={onChange} />;
   }
 }

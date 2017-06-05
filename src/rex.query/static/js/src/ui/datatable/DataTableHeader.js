@@ -21,6 +21,7 @@ type DataTableHeaderProps = {
   scrollbarWidth: number,
   onColumnResize?: (resize: {column: ColumnField<*>, width: number}) => *,
   onColumnClick?: (column: ColumnField<*>) => *,
+  onColumnSort?: (column: ColumnField<*>) => *,
 };
 
 export default function DataTableHeader(props: DataTableHeaderProps) {
@@ -29,6 +30,7 @@ export default function DataTableHeader(props: DataTableHeaderProps) {
     height,
     scrollbarWidth,
     onColumnClick,
+    onColumnSort,
     onColumnResize,
     columns,
     columnWidth,
@@ -47,6 +49,7 @@ export default function DataTableHeader(props: DataTableHeaderProps) {
         columnWidth={columnWidth}
         height={height}
         onClick={onColumnClick}
+        onSort={onColumnSort}
         onResize={onColumnResize}
       />
     </DataTableHeaderRoot>
@@ -63,23 +66,23 @@ type DataTableHeaderItemProps = {
   parentColumnSpec: ?ColumnContainerConfig<*>,
   onResize?: (resize: {column: ColumnField<*>, width: number}) => *,
   onClick?: (column: ColumnField<*>) => *,
+  onSort?: (column: ColumnField<*>) => *,
   resizeable?: boolean,
 };
 
-function DataTableHeaderItem(
-  {
-    columnSpec,
-    columnWidth,
-    onClick,
-    onResize,
-    height,
-    width,
-    flexGrow = 1,
-    index,
-    parentColumnSpec,
-    resizeable,
-  }: DataTableHeaderItemProps,
-) {
+function DataTableHeaderItem({
+  columnSpec,
+  columnWidth,
+  onClick,
+  onSort,
+  onResize,
+  height,
+  width,
+  flexGrow = 1,
+  index,
+  parentColumnSpec,
+  resizeable,
+}: DataTableHeaderItemProps) {
   if (columnSpec.type === 'stack') {
     return (
       <DataTableHeaderStack
@@ -87,6 +90,7 @@ function DataTableHeaderItem(
         parentColumnSpec={parentColumnSpec}
         index={index}
         onClick={onClick}
+        onSort={onSort}
         onResize={onResize}
         height={height}
         width={width}
@@ -101,6 +105,7 @@ function DataTableHeaderItem(
         parentColumnSpec={parentColumnSpec}
         index={index}
         onClick={onClick}
+        onSort={onSort}
         onResize={onResize}
         height={height}
         width={width}
@@ -115,6 +120,7 @@ function DataTableHeaderItem(
     if (columnSpec.field.headerCellRenderer) {
       return columnSpec.field.headerCellRenderer({
         column: columnSpec,
+        onSort: onSort,
         onClick: onClick ? onClick.bind(null, columnSpec) : onClick,
         style: {width},
       });
@@ -126,6 +132,7 @@ function DataTableHeaderItem(
           resizeable={resizeable}
           style={{width}}
           onClick={onClick}
+          onSort={onSort}
           onResize={onResize}
           index={index}
         />
@@ -148,15 +155,14 @@ class DataTableHeaderStack extends React.Component {
       columnSpec,
       columnWidth,
       onClick,
+      onSort,
       onResize,
       height,
       flexGrow = 1,
       index,
       parentColumnSpec,
     } = this.props;
-    const {
-      resize,
-    } = this.state;
+    const {resize} = this.state;
     const stack = columnSpec.columnList;
     const resizeable = index != null && parentColumnSpec != null
       ? parentColumnSpec.columnList.length - 1 !== index
@@ -178,6 +184,7 @@ class DataTableHeaderStack extends React.Component {
                   key={idx}>
                   <DataTableHeaderItem
                     onClick={onClick}
+                    onSort={onSort}
                     onResize={onResize}
                     height={height}
                     width="100%"
@@ -191,6 +198,7 @@ class DataTableHeaderStack extends React.Component {
                 </DataTableHeaderGroupRoot>
               : <DataTableHeaderItem
                   onClick={onClick}
+                  onSort={onSort}
                   onResize={onResize}
                   height={height}
                   key={idx}
@@ -283,14 +291,13 @@ class DataTableHeaderGroup extends React.Component {
       parentColumnSpec,
       index,
       onClick,
+      onSort,
       onResize,
       height,
       flexGrow,
       columnWidth,
     } = this.props;
-    const {
-      resize,
-    } = this.state;
+    const {resize} = this.state;
     const group = columnSpec.columnList;
     const resizeable = index != null && parentColumnSpec != null
       ? parentColumnSpec.columnList.length - 1 !== index
@@ -306,6 +313,7 @@ class DataTableHeaderGroup extends React.Component {
         {group.map((c, idx) => (
           <DataTableHeaderItem
             onClick={onClick}
+            onSort={onSort}
             onResize={onResize}
             key={idx}
             height={height}

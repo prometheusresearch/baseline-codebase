@@ -110,6 +110,7 @@ export function select(select: {[fieldName: string]: QueryPipeline}): SelectQuer
     select,
     context: emptyContext,
     savedSelect: null,
+    sort: null,
   };
 }
 
@@ -464,6 +465,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         name: 'select',
         select: nextSelect,
         savedSelect: query.savedSelect,
+        sort: query.sort,
         context: {
           prev: context,
           domain,

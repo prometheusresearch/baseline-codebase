@@ -227,6 +227,15 @@ Sorting::
     ...         ["navigate", "acctbal"]])   # doctest: +ELLIPSIS
     <Product ({'Customer#000000213', 9987.71}, {'Customer#000000045', 9983.38}, ...)>
 
+    >>> db.produce(
+    ...     ["select",
+    ...         ["sort",
+    ...             ["navigate", "customer"],
+    ...             ["desc", ["navigate", "nation"]]],
+    ...         ["navigate", "name"],
+    ...         ["navigate", "nation"]])   # doctest: +ELLIPSIS
+    <Product ({'Customer#000000036', [VIETNAM]}, ..., {'Customer#000001197', [ALGERIA]})>
+
 Pagination::
 
     >>> db.produce(

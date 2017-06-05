@@ -21,7 +21,7 @@ from htsql.core.tr.binding import (
         ColumnRecipe, KernelRecipe, ComplementRecipe, ClosedRecipe)
 from htsql.core.tr.bind import BindingState, Select, BindByRecipe
 from htsql.core.tr.lookup import (
-        lookup_attribute, unwrap, guess_tag, identify, expand)
+        lookup_attribute, unwrap, guess_tag, identify, expand, direct)
 from htsql.core.tr.decorate import decorate
 from htsql.core.tr.coerce import coerce
 from htsql.core.tr.signature import (
@@ -241,7 +241,28 @@ class RexBindingState(BindingState):
             output = self(arg)
             if output.plural:
                 raise Error("Expected a singular expression, got:", arg)
-            fields.append(output.binding)
+            recipe = identify(output.binding)
+            if recipe is not None:
+                binding = self.use(
+                        recipe,
+                        output.binding.syntax,
+                        scope=output.binding)
+            else:
+                binding = output.binding
+            if isinstance(binding, IdentityBinding):
+                stack = [binding]
+                order = direct(output.binding)
+                while stack:
+                    binding = stack.pop()
+                    if isinstance(binding, IdentityBinding):
+                        stack.extend(reversed(binding.elements))
+                    else:
+                        if order is not None:
+                            binding = DirectionBinding(
+                                    binding, order, binding.syntax)
+                        fields.append(binding)
+            else:
+                fields.append(output.binding)
         self.pop_scope()
         return Output(
                 SortBinding(base.binding, fields, None, None, self.scope.syntax),

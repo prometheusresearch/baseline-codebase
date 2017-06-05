@@ -19,7 +19,7 @@ import pkg_resources
 
 # npm version used for CommonJS environment
 NPM_VERSION = '3.10.10'
-REACT_SCRIPTS_VERSION = '0.9.5004'
+REACT_SCRIPTS_VERSION = '0.9.5005'
 
 
 class install_commonjs(setuptools.Command):

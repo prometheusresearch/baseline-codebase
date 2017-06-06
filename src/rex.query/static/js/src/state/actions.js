@@ -138,7 +138,7 @@ export function sortBy({
   sort,
 }: {
   at: SelectQuery,
-  sort: {name: string, dir: 'asc' | 'desc'},
+  sort: {navigatePath: Array<string>, dir: 'asc' | 'desc'},
 }): StateUpdater {
   logAction('sortBy', {at, sort});
   return state => {

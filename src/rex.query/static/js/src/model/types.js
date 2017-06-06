@@ -132,11 +132,26 @@ export type NavigateQuery = {
   +savedSelect: ?SelectQuery,
 };
 
+/**
+ * Select query combinator.
+ */
 export type SelectQuery = {
   +id: string,
   +name: 'select',
+
+  /**
+   * Select fields, each field maps to a pipeline.
+   */
   +select: {[name: string]: QueryPipeline},
-  +sort: ?{name: string, dir: 'asc' | 'desc'},
+
+  /**
+   * Current sorting state.
+   */
+  +sort: ?{
+    navigatePath: Array<string>,
+    dir: 'asc' | 'desc',
+  },
+
   +context: Context,
   +savedSelect: ?SelectQuery,
 };

@@ -22,6 +22,7 @@ import {
  * Data associated with column.
  */
 export type ColumnSpecData = {
+  navigatePath: Array<string>,
   query: Query,
   pipeline: QueryPipeline,
   select: ?SelectQuery,
@@ -36,6 +37,7 @@ export type ColumnSpecData = {
  */
 type QueryTraverseContext = {
   focusedSeq: Array<string>,
+  navigatePath: Array<string>,
   path: Array<string>,
   queryPipeline: QueryPipeline,
   selectQuery: ?SelectQuery,
@@ -54,6 +56,7 @@ export function getColumnConfig(
   const ctx: QueryTraverseContext = {
     queryPipeline: query,
     selectQuery: null,
+    navigatePath: [],
     path: [],
     focusedSeq,
     bindingName: null,
@@ -99,7 +102,7 @@ function getColumnConfigImpl(query: Query, ctx: QueryTraverseContext) {
         : query.aggregate;
       const sort = ctx.selectQuery != null &&
         ctx.selectQuery.sort != null &&
-        ctx.selectQuery.sort.name === dataKey[dataKey.length - 1]
+        ctx.selectQuery.sort.navigatePath.join('.') === ctx.navigatePath.join('.')
         ? ctx.selectQuery.sort.dir
         : null;
       stack.push({
@@ -113,6 +116,7 @@ function getColumnConfigImpl(query: Query, ctx: QueryTraverseContext) {
           sort,
           data: {
             query,
+            navigatePath: ctx.navigatePath,
             pipeline: ctx.queryPipeline,
             select: ctx.selectQuery,
             navigate: prev != null && prev.type === 'field'
@@ -146,7 +150,7 @@ function getColumnConfigImpl(query: Query, ctx: QueryTraverseContext) {
       if (type.name !== 'record') {
         sort = ctx.selectQuery != null &&
           ctx.selectQuery.sort != null &&
-          ctx.selectQuery.sort.name === dataKey[dataKey.length - 1]
+          ctx.selectQuery.sort.navigatePath.join('.') === ctx.navigatePath.join('.')
           ? ctx.selectQuery.sort.dir
           : null;
       }
@@ -161,6 +165,7 @@ function getColumnConfigImpl(query: Query, ctx: QueryTraverseContext) {
           sort,
           data: {
             query,
+            navigatePath: ctx.navigatePath,
             pipeline: ctx.queryPipeline,
             select: ctx.selectQuery,
             navigate: query,
@@ -180,7 +185,12 @@ function getColumnConfigImpl(query: Query, ctx: QueryTraverseContext) {
           group.push(
             getColumnConfigImpl(query.select[k], {
               ...ctx,
-              selectQuery: query,
+              selectQuery: ctx.queryPipeline.context.type.card === 'seq'
+                ? query
+                : ctx.selectQuery,
+              navigatePath: ctx.queryPipeline.context.type.card === 'seq'
+                ? [k]
+                : ctx.navigatePath.concat(k),
               path: ctx.path.concat(k),
               bindingName: null,
               suppressPath: true,
@@ -277,8 +287,8 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
 
   renderColumnMenu = (column: ColumnField<*>) => {
     return [
-      <DataTableColumnMenuItem key="hide" value="hide">
-        Remove column
+      <DataTableColumnMenuItem key="select" value="select">
+        Select associated query
       </DataTableColumnMenuItem>,
       <DataTableColumnMenuItem key="goto" value="goto">
         Follow column
@@ -290,6 +300,9 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
         <DataTableColumnMenuItem key="sort" value="sort">
           {column.field.sort === 'asc' ? 'Sort desceding' : 'Sort asceding'}
         </DataTableColumnMenuItem>,
+      <DataTableColumnMenuItem key="hide" value="hide">
+        Remove column
+      </DataTableColumnMenuItem>,
     ];
   };
 
@@ -336,8 +349,8 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     const {select} = column.field.data;
     if (select != null) {
       const dir = select.sort && select.sort.dir === 'asc' ? 'desc' : 'asc';
-      const name = column.field.dataKey[column.field.dataKey.length - 1];
-      this.context.actions.sortBy({at: select, sort: {name, dir}});
+      const {navigatePath} = column.field.data;
+      this.context.actions.sortBy({at: select, sort: {navigatePath, dir}});
     }
   };
 

@@ -6,7 +6,7 @@ import React from 'react';
 import moment from 'moment';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
-import Select from '../Select';
+import {Select} from '../../ui';
 import DateTimeField from '@prometheusresearch/react-datetimepicker';
 
 type TextOperandProps = {

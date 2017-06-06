@@ -2,13 +2,13 @@
  * @flow
  */
 
-import type {QueryPipeline, Type} from '../../model/types';
-import type {Actions} from '../../state';
+import type {QueryPipeline, Type} from '../model/types';
+import type {Actions} from '../state';
 
 import React from 'react';
 import {style, css, VBox, HBox} from 'react-stylesheet';
-import * as t from '../../model/Type';
-import * as qo from '../../model/QueryOperation';
+import * as t from '../model/Type';
+import * as qo from '../model/QueryOperation';
 
 type QueryVisToolbarProps = {
   /**

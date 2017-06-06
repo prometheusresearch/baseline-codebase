@@ -12,10 +12,8 @@ import {VBox, Element} from 'react-stylesheet';
 
 import * as q from '../model/Query';
 import * as t from '../model/Type';
-import * as theme from './Theme';
+import {Theme, Select, Menu} from '../ui';
 import QueryPanelBase from './QueryPanelBase';
-import Select from './Select';
-import {MenuButton, MenuGroup, MenuHelp} from './menu';
 
 type AggregateQueryPanelProps = {
   query: AggregateQuery,
@@ -72,7 +70,7 @@ export default class AggregateQueryPanel
       // TODO: allow to summarize by query in scope
 
       attributeSelect = (
-        <MenuGroup title="Select attribute to summarize by" overflow="visible">
+        <Menu.MenuGroup title="Select attribute to summarize by" overflow="visible">
           <VBox padding={10} overflow="visible">
             <Select
               clearable={false}
@@ -82,7 +80,7 @@ export default class AggregateQueryPanel
               placeholder="Relationship"
             />
           </VBox>
-        </MenuGroup>
+        </Menu.MenuGroup>
       );
     }
 
@@ -91,7 +89,7 @@ export default class AggregateQueryPanel
         {...rest}
         title={query.context.title}
         onClose={onClose}
-        theme={theme.aggregate}
+        theme={Theme.aggregate}
         query={query}>
         {attributeSelect}
         <AggregateMenu
@@ -99,22 +97,16 @@ export default class AggregateQueryPanel
           query={query}
           onSelect={this.onSelect}
         />
-        <MenuHelp>
+        <Menu.MenuHelp>
           Edit current query combinator by selecting another summarize function
           to apply to the current pipeline.
-        </MenuHelp>
+        </Menu.MenuHelp>
       </QueryPanelBase>
     );
   }
 }
 
-function AggregateMenu(
-  {
-    query: {aggregate, path, context},
-    title,
-    onSelect,
-  },
-) {
+function AggregateMenu({query: {aggregate, path, context}, title, onSelect}) {
   let type = path == null
     ? context.prev.type
     : q.inferQueryType(context.prev, q.navigate(path)).context.type;
@@ -140,9 +132,9 @@ function AggregateMenu(
     );
   }
   return (
-    <MenuGroup title={title}>
+    <Menu.MenuGroup title={title}>
       {items}
-    </MenuGroup>
+    </Menu.MenuGroup>
   );
 }
 
@@ -156,12 +148,12 @@ class AggregateButton extends React.Component {
     let {name, aggregate, selected} = this.props;
     let isSelected = name === selected;
     return (
-      <MenuButton
+      <Menu.MenuButton
         onClick={this.onClick}
         icon={isSelected ? '✓' : null}
         selected={isSelected}>
         {aggregate.title}
-      </MenuButton>
+      </Menu.MenuButton>
     );
   }
 }

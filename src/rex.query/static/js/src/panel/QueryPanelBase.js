@@ -2,14 +2,13 @@
  * @flow
  */
 
-import type {QueryVisTheme} from './Theme';
+import type {QueryVisTheme} from '../ui/Theme';
 
 import React from 'react';
-import * as Icon from './Icon';
 import {style, css, VBox, HBox} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
-import Label from './Label';
-import * as Theme from './Theme';
+
+import {Icon, Label, Theme} from '../ui';
 
 type QueryPanelBaseProps = {
   title: string,

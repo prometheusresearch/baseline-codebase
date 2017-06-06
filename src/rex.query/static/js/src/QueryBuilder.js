@@ -19,6 +19,9 @@ import * as Icon from './ui/Icon';
 import * as ui from './ui';
 import * as State from './state';
 import DataTable from './DataTable';
+import QueryVis from './vis/QueryVis';
+import AddQueryPanel from './panel/AddQueryPanel';
+import QueryPanel from './panel/QueryPanel';
 
 type QueryBuilderProps = {
   domain: Domain,
@@ -184,7 +187,7 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
         </QueryBuilderToolbar>
         <HBox flexGrow={1} overflow="hidden" height="calc(100% - 35px)" width="100%">
           <LeftPanelWrapper>
-            <ui.QueryVis
+            <QueryVis
               domain={domain}
               pipeline={query}
               selected={selected}
@@ -198,7 +201,7 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
             showPanel &&
             (activeQueryPipeline
               ? <CenterPanelWrapper>
-                  <ui.AddQueryPanel
+                  <AddQueryPanel
                     title="Pick a starting relationship"
                     onClose={this.actions.hidePanel}
                     pipeline={activeQueryPipeline}
@@ -207,29 +210,30 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
                   />
                 </CenterPanelWrapper>
               : selected
-                ? <CenterPanelWrapper>
-                    <ui.QueryPanel
-                      key={selected.id}
-                      onClose={this.actions.hidePanel}
-                      onSearch={this.props.onSearch}
-                      query={selected}
-                      disableClose={disablePanelClose}
-                    />
-                  </CenterPanelWrapper>
-                : null)}
+                  ? <CenterPanelWrapper>
+                      <QueryPanel
+                        key={selected.id}
+                        onClose={this.actions.hidePanel}
+                        onSearch={this.props.onSearch}
+                        query={selected}
+                        disableClose={disablePanelClose}
+                      />
+                    </CenterPanelWrapper>
+                  : null)}
           <RightPanelWrapper>
             {isEmptyQueryPipeline(query)
               ? null
               : queryInvalid
-                ? <InvalidQueryMessage onUndo={this.actions.undo} />
-                : data != null
-                  ? <ui.TabContainer
-                      activeTab={activeTab}
-                      onActiveTab={activeTab => this.actions.setActiveTab({activeTab})}
-                      tabList={tabList}
-                      tabListAlt={tabListAlt}
-                    />
-                  : null}
+                  ? <InvalidQueryMessage onUndo={this.actions.undo} />
+                  : data != null
+                      ? <ui.TabContainer
+                          activeTab={activeTab}
+                          onActiveTab={activeTab =>
+                            this.actions.setActiveTab({activeTab})}
+                          tabList={tabList}
+                          tabListAlt={tabListAlt}
+                        />
+                      : null}
           </RightPanelWrapper>
         </HBox>
       </VBox>

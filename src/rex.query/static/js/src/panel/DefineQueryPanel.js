@@ -4,18 +4,16 @@
 
 import type {QueryPipeline, DefineQuery} from '../model/types';
 import type {Actions} from '../state';
-import type {SearchCallback} from './Search';
+import type {SearchCallback} from '../ui/Search';
 
 import React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import {VBox, HBox} from 'react-stylesheet';
 
+import {Theme, Menu, Icon} from '../ui';
 import findDOMNode from '../findDOMNode';
-import * as theme from './Theme';
-import QueryPanelBase from './QueryPanelBase';
-import {MenuTitle, MenuGroup, MenuButton, MenuHelp} from './menu';
 import ColumnPicker from './ColumnPicker';
-import * as Icon from './Icon';
+import QueryPanelBase from './QueryPanelBase';
 
 type DefineQueryPanelProps = {
   query: DefineQuery,
@@ -53,22 +51,22 @@ export default class DefineQueryPanel
       <QueryPanelBase
         title="Configure columns"
         onClose={onClose}
-        theme={theme.def}
+        theme={Theme.def}
         query={query}>
         <VBox marginBottom={10}>
           {!renameOpen
             ? false &&
-                <MenuGroup>
-                  <MenuButton
+                <Menu.MenuGroup>
+                  <Menu.MenuButton
                     icon={<Icon.IconPencil />}
                     onClick={this.onBindingRenameBegin}>
                     Rename query
-                  </MenuButton>
-                </MenuGroup>
+                  </Menu.MenuButton>
+                </Menu.MenuGroup>
             : <VBox>
-                <MenuTitle size="large">
+                <Menu.MenuTitle size="large">
                   Rename query
-                </MenuTitle>
+                </Menu.MenuTitle>
                 <VBox padding={10}>
                   <ReactUI.Input
                     ref={this.onBindingRenameInputRef}
@@ -100,9 +98,9 @@ export default class DefineQueryPanel
               onSearch={onSearch}
               query={query.binding.query}
             />
-          : <MenuHelp>
+          : <Menu.MenuHelp>
               This query has no columns to configure.
-            </MenuHelp>}
+            </Menu.MenuHelp>}
       </QueryPanelBase>
     );
   }

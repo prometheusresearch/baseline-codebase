@@ -4,14 +4,13 @@
 
 import type {NavigateQuery, QueryNavigation} from '../model/types';
 import type {Actions} from '../state';
-import type {SearchCallback} from './Search';
+import type {SearchCallback} from '../ui/Search';
 
 import React from 'react';
 import {VBox} from 'react-stylesheet';
-import {MenuButton, MenuGroup, MenuHelp} from './menu';
+
+import {Menu, Theme, NavigationMenu} from '../ui';
 import QueryPanelBase from './QueryPanelBase';
-import * as theme from './Theme';
-import NavigationMenu from './NavigationMenu';
 
 type NavigateQueryPanelProps = {
   query: NavigateQuery,
@@ -41,7 +40,7 @@ export default class NavigateQueryPanel
         {...rest}
         onClose={onClose}
         title={query.path}
-        theme={theme.entity}
+        theme={Theme.entity}
         query={query}>
         <NavigationMenu onSearch={onSearch} context={query.context.prev}>
           <this.NavigationMenuContents {...this.props} />
@@ -56,24 +55,24 @@ export default class NavigateQueryPanel
     let {navigation, query} = props;
     return (
       <VBox>
-        <MenuGroup>
+        <Menu.MenuGroup>
           {Array.from(navigation.values()).map(nav => {
             let isSelected = nav.value === query.path;
             return (
-              <MenuButton
+              <Menu.MenuButton
                 key={nav.value}
                 onClick={this.onClick.bind(null, nav.value)}
                 icon={isSelected ? '✓' : null}
                 selected={isSelected}>
                 {nav.label}
-              </MenuButton>
+              </Menu.MenuButton>
             );
           })}
-        </MenuGroup>
-        <MenuHelp>
+        </Menu.MenuGroup>
+        <Menu.MenuHelp>
           Edit current query combinator by selecting another relationship to
           navigate to.
-        </MenuHelp>
+        </Menu.MenuHelp>
       </VBox>
     );
   };

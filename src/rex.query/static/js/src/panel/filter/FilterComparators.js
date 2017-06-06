@@ -339,16 +339,18 @@ class Empty {
   }
 
   applicable(field) {
-    return isOfType(field, [
-      'text',
-      'number',
-      'enumeration',
-      'boolean',
-      'date',
-      'time',
-      'datetime',
-      'record',
-    ]) && field.context.type.card != null;
+    return (
+      isOfType(field, [
+        'text',
+        'number',
+        'enumeration',
+        'boolean',
+        'date',
+        'time',
+        'datetime',
+        'record',
+      ]) && field.context.type.card != null
+    );
   }
 
   operand(field, value, onChange) {

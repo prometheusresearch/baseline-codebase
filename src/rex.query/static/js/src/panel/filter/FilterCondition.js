@@ -10,9 +10,7 @@ import * as ReactUI from '@prometheusresearch/react-ui';
 import {HBox, Element} from 'react-stylesheet';
 import debounce from 'lodash/debounce';
 
-import Select from '../Select';
-import TagLabel from '../TagLabel';
-import Label from '../Label';
+import {Select, TagLabel, Label} from '../../ui';
 import * as FilterComparators from './FilterComparators';
 
 type FilterConditionProps = {
@@ -163,12 +161,7 @@ export default class FilterCondition extends React.Component<*, FilterConditionP
   }
 
   onFieldChange = (newField: string) => {
-    let {
-      fieldName,
-      comparatorName,
-      operandName,
-      operandIsField,
-    } = this.state;
+    let {fieldName, comparatorName, operandName, operandIsField} = this.state;
 
     let prevField = fieldName;
     fieldName = newField;
@@ -253,37 +246,29 @@ export default class FilterCondition extends React.Component<*, FilterConditionP
     );
   };
 
-  updateQuery = debounce(
-    () => {
-      let {
-        fieldName,
-        comparatorName,
-        operandName,
-        operandIsField,
-      } = this.state;
+  updateQuery = debounce(() => {
+    let {fieldName, comparatorName, operandName, operandIsField} = this.state;
 
-      invariant(comparatorName != null, 'Comparator name is null');
+    invariant(comparatorName != null, 'Comparator name is null');
 
-      invariant(fieldName != null, 'Field is null');
+    invariant(fieldName != null, 'Field is null');
 
-      let field = getFieldDefinition(this.props.fields, fieldName);
+    let field = getFieldDefinition(this.props.fields, fieldName);
 
-      let comparatorDefinition = FilterComparators.getDefinition(comparatorName);
+    let comparatorDefinition = FilterComparators.getDefinition(comparatorName);
 
-      invariant(
-        comparatorDefinition != null,
-        'Cannot find comparator definition for: %s',
-        comparatorName,
-      );
+    invariant(
+      comparatorDefinition != null,
+      'Cannot find comparator definition for: %s',
+      comparatorName,
+    );
 
-      let query = comparatorDefinition.query(field, operandName, operandIsField);
+    let query = comparatorDefinition.query(field, operandName, operandIsField);
 
-      if (query) {
-        this.props.onUpdate(query);
-      }
-    },
-    750,
-  );
+    if (query) {
+      this.props.onUpdate(query);
+    }
+  }, 750);
 }
 
 function getCompatibleOperandFields(

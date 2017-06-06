@@ -4,18 +4,14 @@
 
 import type {QueryNavigation, QueryPipeline} from '../model/types';
 import type {Actions} from '../state';
-import type {SearchCallback} from './Search';
+import type {SearchCallback} from '../ui/Search';
 
 import React from 'react';
 import {VBox, HBox} from 'react-stylesheet';
 
-import {IconPlus} from './Icon';
-import TagLabel from './TagLabel';
-import Label from './Label';
+import {Icon, TagLabel, Label, Menu, NavigationMenu} from '../ui';
 import * as feature from '../feature';
 import {getInsertionPoint} from '../model/QueryOperation';
-import {MenuGroup, MenuButton, MenuButtonSecondary} from './menu';
-import NavigationMenu from './NavigationMenu';
 
 type ColumnPickerProps = {
   query: QueryPipeline,
@@ -48,12 +44,7 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
   NavigationMenuContents = (
     props: ColumnPickerProps & {navigation: Map<string, QueryNavigation>},
   ) => {
-    let {
-      query,
-      navigation,
-      onSelect,
-      onSelectRemove,
-    } = props;
+    let {query, navigation, onSelect, onSelectRemove} = props;
 
     let {type} = query.context;
     let active = getNavigationIndex(query);
@@ -91,26 +82,26 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
       <VBox paddingBottom={10}>
         {groupByAttributeList.length > 0 &&
           <VBox paddingBottom={10}>
-            <MenuGroup title="Group by columns">
+            <Menu.MenuGroup title="Group by columns">
               {groupByAttributeList}
-            </MenuGroup>
+            </Menu.MenuGroup>
           </VBox>}
         {queryList.length > 0 &&
           <VBox paddingBottom={10}>
-            <MenuGroup
+            <Menu.MenuGroup
               title={
                 type.name === 'invalid' || type.name === 'void'
                   ? 'Entities'
                   : 'Relationships'
               }>
               {queryList}
-            </MenuGroup>
+            </Menu.MenuGroup>
           </VBox>}
         {attributeList.length > 0 &&
           <VBox paddingBottom={10}>
-            <MenuGroup title="Attributes">
+            <Menu.MenuGroup title="Attributes">
               {attributeList}
-            </MenuGroup>
+            </Menu.MenuGroup>
           </VBox>}
       </VBox>
     );
@@ -202,7 +193,7 @@ class ColumnPickerButton extends React.Component {
       title = `Show "${column.label}" in the output.`;
     }
     return (
-      <MenuButton
+      <Menu.MenuButton
         disabled={disabled}
         title={title}
         selected={query != null}
@@ -211,28 +202,28 @@ class ColumnPickerButton extends React.Component {
           feature.ENABLE_ATTRIBUTE_CONTEXT_MENU &&
           !disabled && [
             column.type === 'record' &&
-              <MenuButtonSecondary
-                icon={<IconPlus />}
+              <Menu.MenuButtonSecondary
+                icon={<Icon.IconPlus />}
                 title={`Link "${column.label}" query`}
                 onClick={this.onAddQuery}
                 key="define">
                 Link {column.label}
-              </MenuButtonSecondary>,
-            <MenuButtonSecondary
+              </Menu.MenuButtonSecondary>,
+            <Menu.MenuButtonSecondary
               icon="⇩"
               title={`Follow "${column.label}" and discard all other attributes`}
               onClick={this.onNavigate}
               key="navigate">
               Follow {column.label}
-            </MenuButtonSecondary>,
+            </Menu.MenuButtonSecondary>,
             column.card === 'seq' &&
-              <MenuButtonSecondary
+              <Menu.MenuButtonSecondary
                 icon="∑"
                 title={`Compute summarizations for "${column.label}"`}
                 onClick={this.onAggregate}
                 key="summarize">
                 Summarize {column.label}
-              </MenuButtonSecondary>,
+              </Menu.MenuButtonSecondary>,
           ]
         }
         onClick={this.onSelect}>
@@ -249,7 +240,7 @@ class ColumnPickerButton extends React.Component {
               Query
             </TagLabel>}
         </HBox>
-      </MenuButton>
+      </Menu.MenuButton>
     );
   }
 }

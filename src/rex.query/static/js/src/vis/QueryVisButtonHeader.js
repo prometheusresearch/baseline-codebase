@@ -4,8 +4,8 @@
 
 import React from 'react';
 import {style, HBox, VBox} from 'react-stylesheet';
-import Label from '../../ui/Label';
-import * as Icon from '../../ui/Icon';
+import Label from '../ui/Label';
+import * as Icon from '../ui/Icon';
 
 type QueryVisButtonHeaderProps = {
   stylesheet: {
@@ -85,10 +85,7 @@ export default class QueryVisButtonHeader
       first,
       stylesheet: {Root, Button},
     } = this.props;
-    let {
-      active,
-      hover,
-    } = this.state;
+    let {active, hover} = this.state;
 
     let buttonLabel = (
       <QueryVisButtonLabel>

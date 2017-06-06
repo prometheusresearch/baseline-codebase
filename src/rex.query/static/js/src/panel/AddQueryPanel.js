@@ -4,21 +4,15 @@
 
 import type {QueryNavigation, Context, QueryPipeline} from '../model/types';
 import type {Actions} from '../state';
-import type {SearchCallback} from './Search';
+import type {SearchCallback} from '../ui/Search';
 
 import React from 'react';
 import {VBox, HBox} from 'react-stylesheet';
 import * as css from 'react-stylesheet/css';
 
 import * as qn from '../model/QueryNavigation';
-
-import * as theme from './Theme';
-import {MenuGroup, MenuButton, MenuButtonSecondary} from './menu';
+import {Theme, Menu, Icon, Label, TagLabel, NavigationMenu} from '../ui';
 import QueryPanelBase from './QueryPanelBase';
-import {IconPlus} from './Icon';
-import TagLabel from './TagLabel';
-import Label from './Label';
-import NavigationMenu from './NavigationMenu';
 
 type AddQueryPanelProps = {
   pipeline: QueryPipeline,
@@ -39,7 +33,7 @@ export default class AddQueryPanel extends React.Component<*, AddQueryPanelProps
   render() {
     let {pipeline, onSearch, title = 'Pick', ...props} = this.props;
     return (
-      <QueryPanelBase {...props} theme={theme.placeholder} title={title}>
+      <QueryPanelBase {...props} theme={Theme.placeholder} title={title}>
         <AddQueryMenu pipeline={pipeline} onSearch={onSearch} />
       </QueryPanelBase>
     );
@@ -129,7 +123,7 @@ function AddQueryMenuSection({
   navigation,
 }: AddQueryMenuSectionProps) {
   return (
-    <MenuGroup>
+    <Menu.MenuGroup>
       {navigation &&
         Array.from(navigation.values()).map(item => (
           <AddQueryMenuButton
@@ -143,7 +137,7 @@ function AddQueryMenuSection({
             onAggregate={onAggregate}
           />
         ))}
-    </MenuGroup>
+    </Menu.MenuGroup>
   );
 }
 
@@ -189,35 +183,35 @@ class AddQueryMenuButton extends React.Component {
     let menu = [];
     if (!noNavigate) {
       menu.push(
-        <MenuButtonSecondary
+        <Menu.MenuButtonSecondary
           icon="⇩"
           title={`Follow ${item.label} and discard all other attributes`}
           onClick={this.onNavigate}
           key="navigate">
           Follow {item.label}
-        </MenuButtonSecondary>,
+        </Menu.MenuButtonSecondary>,
         item.regularContext.type.card === 'seq' &&
-          <MenuButtonSecondary
+          <Menu.MenuButtonSecondary
             icon="∑"
             title={`Compute summarizations for ${item.label}`}
             onClick={this.onAggregate}
             key="summarize">
             Summarize {item.label}
-          </MenuButtonSecondary>,
+          </Menu.MenuButtonSecondary>,
       );
     }
 
     let icon = null;
 
     if (nonHierarchical) {
-      icon = <IconPlus />;
+      icon = <Icon.IconPlus />;
     } else if (item.context.type.name === 'record') {
       icon = open ? '▾' : '▸';
     }
 
     return (
       <VBox background="#f1f1f1" borderBottom={open ? '1px solid #ddd' : 'none'}>
-        <MenuButton
+        <Menu.MenuButton
           icon={icon}
           title={`Add ${item.label} query`}
           iconTitle={open ? 'Collapse' : 'Expand'}
@@ -230,7 +224,7 @@ class AddQueryMenuButton extends React.Component {
             </VBox>
             {item.fromQuery && <TagLabel marginLeft="auto">Query</TagLabel>}
           </HBox>
-        </MenuButton>
+        </Menu.MenuButton>
         {!nonHierarchical &&
           open &&
           <AddQueryMenuButtonMenu

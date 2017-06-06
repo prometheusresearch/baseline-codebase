@@ -3,7 +3,7 @@
  */
 
 import type {Query} from '../model/types';
-import type {SearchCallback} from './Search';
+import type {SearchCallback} from '../ui/Search';
 
 import React from 'react';
 
@@ -11,14 +11,14 @@ import * as q from '../model/Query';
 import DefineQueryPanel from './DefineQueryPanel';
 import AggregateQueryPanel from './AggregateQueryPanel';
 import GroupQueryPanel from './GroupQueryPanel';
-import FilterQueryPanel from './filter/FilterQueryPanel';
+import FilterQueryPanel from './FilterQueryPanel';
 import NavigateQueryPanel from './NavigateQueryPanel';
-import ErrorPanel from './ErrorPanel';
+import {ErrorPanel} from '../ui';
 
 type QueryPanelProps = {
   query: Query,
   onClose: () => *,
-  onSearch: SearchCallback,
+  onSearch?: SearchCallback,
 };
 
 export default function QueryPanel(props: QueryPanelProps) {

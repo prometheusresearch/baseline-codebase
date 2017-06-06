@@ -2,20 +2,18 @@
  * @flow
  */
 
-import type {Expression, FilterQuery} from '../../model/types';
-import type {Actions} from '../../state';
+import type {Expression, FilterQuery} from '../model/types';
+import type {Actions} from '../state';
 
 import React from 'react';
 import {Element} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
-import * as Icon from '../../ui/Icon';
-import * as q from '../../model/Query';
-import * as qn from '../../model/QueryNavigation';
-import * as Theme from '../Theme';
-import QueryPanelBase from '../QueryPanelBase';
-import {MenuGroup, MenuButton} from '../menu';
-import FilterCondition from './FilterCondition';
+import * as q from '../model/Query';
+import * as qn from '../model/QueryNavigation';
+import {Icon, Theme, Menu} from '../ui';
+import QueryPanelBase from './QueryPanelBase';
+import FilterCondition from './filter/FilterCondition';
 
 type FilterQueryPanelProps = {
   query: FilterQuery,
@@ -130,11 +128,11 @@ export default class FilterQueryPanel
           <ReactUI.VBox overflow="visible" padding={5}>
             {conditions}
           </ReactUI.VBox>
-          <MenuGroup padding={{vertical: 20}}>
-            <MenuButton icon="＋" onClick={this.onAddCondition}>
+          <Menu.MenuGroup padding={{vertical: 20}}>
+            <Menu.MenuButton icon="＋" onClick={this.onAddCondition}>
               Add Another Condition
-            </MenuButton>
-          </MenuGroup>
+            </Menu.MenuButton>
+          </Menu.MenuGroup>
         </ReactUI.VBox>
       </QueryPanelBase>
     );
@@ -168,7 +166,8 @@ export default class FilterQueryPanel
     let expression = expressions.length > 0
       ? q.or(
           ...expressions.map(expression =>
-            q.inferExpressionType(this.props.query.context, expression)),
+            q.inferExpressionType(this.props.query.context, expression),
+          ),
         )
       : q.or(q.value(true));
 

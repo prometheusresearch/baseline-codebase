@@ -8,9 +8,8 @@ import type {GroupQuery} from '../model/types';
 import React from 'react';
 
 import * as t from '../model/Type';
-import * as theme from './Theme';
+import {Theme, Menu} from '../ui';
 import QueryPanelBase from './QueryPanelBase';
-import {MenuButton, MenuGroup} from './menu';
 
 type GroupQueryPanelProps = {
   query: GroupQuery,
@@ -48,7 +47,7 @@ export default class GroupQueryPanel extends React.Component<*, GroupQueryPanelP
         {...rest}
         title="Group"
         onClose={onClose}
-        theme={theme.group}
+        theme={Theme.group}
         query={query}>
         <GroupMenu
           query={query}
@@ -64,13 +63,11 @@ function canGroupBy(type) {
   return !(type.name === 'invalid' || type.name === 'record' || type.card === 'seq');
 }
 
-function GroupMenu(
-  {
-    query: {byPath, context: {domain, scope, prev: {type, scope: prevScope}}},
-    onSelect,
-    onSelectRemove,
-  },
-) {
+function GroupMenu({
+  query: {byPath, context: {domain, scope, prev: {type, scope: prevScope}}},
+  onSelect,
+  onSelectRemove,
+}) {
   let items = [];
   if (byPath.length > 0) {
     scope = prevScope;
@@ -118,9 +115,9 @@ function GroupMenu(
     }
   }
   return (
-    <MenuGroup>
+    <Menu.MenuGroup>
       {items}
-    </MenuGroup>
+    </Menu.MenuGroup>
   );
 }
 
@@ -137,9 +134,12 @@ class GroupButton extends React.Component {
   render() {
     let {name, selected} = this.props;
     return (
-      <MenuButton onClick={this.onClick} icon={selected ? '✓' : null} selected={selected}>
+      <Menu.MenuButton
+        onClick={this.onClick}
+        icon={selected ? '✓' : null}
+        selected={selected}>
         {name}
-      </MenuButton>
+      </Menu.MenuButton>
     );
   }
 }

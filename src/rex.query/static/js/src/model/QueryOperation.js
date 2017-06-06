@@ -53,7 +53,7 @@ class Editor<Q: QueryAtom> {
     return new Editor(nextLoc);
   }
 
-  transformPipelineWith(f: Array<QueryAtom> => Array<QueryAtom>): Editor<Q> {
+  transformPipelineWith(f: (Array<QueryAtom>) => Array<QueryAtom>): Editor<Q> {
     let nextQuery = editPipeline(this.loc, f);
     invariant(nextQuery != null, 'Invalid query transform');
     let nextLoc = QL.rebaseLoc(this.loc, nextQuery);
@@ -106,7 +106,7 @@ class Editor<Q: QueryAtom> {
 
   growNavigation(params: {
     path: Array<string>,
-    editAtCompletion?: Array<QueryAtom> => Array<QueryAtom>,
+    editAtCompletion?: (Array<QueryAtom>) => Array<QueryAtom>,
   }): Editor<Q> {
     let nextQuery = growNavigation({
       loc: this.loc,
@@ -218,7 +218,7 @@ function edit<Q: QueryAtom>(loc: QueryLoc<Q>, edit: Q => ?QueryAtom): ?QueryPipe
 
 function editPipeline<Q: QueryAtom>(
   loc: QueryLoc<Q>,
-  edit: Array<QueryAtom> => Array<QueryAtom>,
+  edit: (Array<QueryAtom>) => Array<QueryAtom>,
 ): ?QueryPipeline {
   let found = QL.resolveLocWithPath(loc);
   invariant(found != null, 'Cannot find query by id: %s', loc.at);
@@ -335,7 +335,7 @@ export function growNavigation<Q: QueryAtom>({
 }: {
   loc: QueryLoc<Q>,
   path: Array<string>,
-  editAtCompletion?: Array<QueryAtom> => Array<QueryAtom>,
+  editAtCompletion?: (Array<QueryAtom>) => Array<QueryAtom>,
 }): QueryPipeline {
   let query = editPipeline(loc, pipeline => {
     const nextPipeline = growNavigationImpl(pipeline, path, editAtCompletion);
@@ -348,7 +348,7 @@ export function growNavigation<Q: QueryAtom>({
 function growNavigationImpl(
   pipe: Array<QueryAtom>,
   path: Array<string>,
-  editAtCompletion?: Array<QueryAtom> => Array<QueryAtom>,
+  editAtCompletion?: (Array<QueryAtom>) => Array<QueryAtom>,
 ): Array<QueryAtom> {
   if (path.length === 0) {
     if (editAtCompletion != null) {
@@ -383,8 +383,10 @@ export function getInsertionPoint(
   edge?: 'leading' | 'trailing' = 'trailing',
 ): QueryAtom {
   invariant(
-    !((query.pipeline.length === 1 && query.pipeline[0].name === 'select') ||
-      query.pipeline.length === 0),
+    !(
+      (query.pipeline.length === 1 && query.pipeline[0].name === 'select') ||
+      query.pipeline.length === 0
+    ),
     'Invalid query pipeline',
   );
 
@@ -536,9 +538,24 @@ function reconcileSelect(context: Context, query: ?SelectQuery): SelectQuery {
     fields = nextFields;
   }
 
+  // check if sort is valid
+  let sort = query != null ? query.sort : null;
+
+  if (sort != null) {
+    const {context: {type}} = inferQueryType(
+      context,
+      pipeline(...sort.navigatePath.map(p => navigate(p))),
+    );
+    if (type.name === 'invalid') {
+      sort = null;
+    }
+  }
+
   return inferQueryType(
     context,
-    query != null ? {name: 'select', ...query, select: fields} : select({...fields}),
+    query != null
+      ? {name: 'select', ...query, sort, select: fields}
+      : select({...fields}),
   );
 }
 

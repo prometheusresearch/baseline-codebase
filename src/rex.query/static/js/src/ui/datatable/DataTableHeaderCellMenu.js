@@ -5,10 +5,12 @@
 import type {ColumnField} from './DataTable';
 
 import * as React from 'react';
-import * as Icon from '../../ui/Icon';
 import {style, Element, HBox} from 'react-stylesheet';
 import * as MenuButton from 'react-aria-menubutton';
 import RelativePortal from 'react-relative-portal';
+
+import * as Icon from '../../ui/Icon';
+import stopPropagation from '../../stopPropagation';
 
 export let DataTableHeaderCellMenuRoot = style(HBox, {
   base: {
@@ -100,6 +102,7 @@ export default class DataTableHeaderCellMenu extends React.Component {
     return (
       <MenuButton.Wrapper
         tag={DataTableHeaderCellMenuRoot}
+        onClick={stopPropagation}
         onSelection={this.onMenuSelect}>
         <MenuButton.Button tag={Icon.IconEllipsis} />
         <DropdownMenu>

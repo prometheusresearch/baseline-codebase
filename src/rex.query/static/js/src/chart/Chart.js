@@ -131,7 +131,7 @@ export default class Chart extends React.Component {
             icon={<ui.Icon.IconRemove />}
           />
         </HBox>
-        <VBox flexGrow={1} ref={chart => this._chart = chart}>
+        <VBox flexGrow={1} ref={chart => (this._chart = chart)}>
           {children}
         </VBox>
       </VBox>

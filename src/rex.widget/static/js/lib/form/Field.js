@@ -121,30 +121,36 @@ export class Field extends React.Component {
       onChange: this.onChange.bind(null, onChange),
       onBlur: this.onBlur,
     });
+    const totalSize = labelSize + inputSize;
+    const labelSizePercent = `${labelSize / totalSize * 100}%`;
+    const inputSizePercent = `${inputSize / totalSize * 100}%`;
+    const labelSizeProps = layout === 'vertical'
+      ? {height: labelSizePercent}
+      : {width: labelSizePercent};
+    const inputSizeProps = layout === 'vertical'
+      ? {height: inputSizePercent}
+      : {width: inputSizePercent};
     return (
-      <ReactUI.VBox marginBottom={10} marginLeft={20} marginRight={20} {...props}>
+      <ReactUI.VBox
+        marginTop={10}
+        marginBottom={10}
+        marginLeft={20}
+        marginRight={20}
+        {...props}>
         <ReactUI.VBox
-          padding={5}
+          maxWidth={800}
           flexDirection={layout === 'vertical' ? 'column' : 'row'}>
-          <ReactUI.VBox flexGrow={labelSize}>
-            <ReactUI.HBox
-              color="#888"
-              fontSize="14px"
-              fontWeight={400}
-              textAlign="left"
-              padding="0px 7px"
-              paddingTop={10}
-              paddingBottom={5}
-              marginLeft={-7}>
+          <ReactUI.Element padding={5} {...labelSizeProps}>
+            <ReactUI.HBox color="#888" fontSize="14px" fontWeight={400} textAlign="left">
               {label}
               {schema && schema.isRequired && <RequiredSign />}
               {showErrors && errorList.length > 0 && <ErrorList errorList={errorList} />}
             </ReactUI.HBox>
-          </ReactUI.VBox>
-          <ReactUI.VBox justifyContent="center" flexGrow={inputSize}>
+          </ReactUI.Element>
+          <ReactUI.Element padding={5} {...inputSizeProps}>
             {children}
             {hint && <Hint>{hint}</Hint>}
-          </ReactUI.VBox>
+          </ReactUI.Element>
         </ReactUI.VBox>
       </ReactUI.VBox>
     );

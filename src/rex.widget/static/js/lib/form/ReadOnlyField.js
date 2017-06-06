@@ -2,18 +2,21 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import React, {PropTypes} from 'react';
-import {VBox, HBox}       from '../../layout';
-import {withFormValue}    from 'react-forms';
+import * as React from 'react';
+import * as ReactUI from '@prometheusresearch/react-ui';
+import {VBox, HBox} from '../../layout';
+import {withFormValue} from 'react-forms';
 import ErrorList from './ErrorList';
 
 let Style = {
   self: {
-    marginBottom: 15,
-    fontWeight: 400,
+    maxWidth: 800,
     marginTop: 10,
+    marginBottom: 10,
     marginLeft: 20,
-    fontSize: '14px'
+    marginRight: 20,
+    fontWeight: 400,
+    fontSize: '14px',
   },
   label: {
     textAlign: 'left',
@@ -22,8 +25,8 @@ let Style = {
     fontSize: '14px',
   },
   value: {
-    whiteSpace: 'pre-line'
-  }
+    whiteSpace: 'pre-line',
+  },
 };
 
 /**
@@ -36,17 +39,16 @@ let Style = {
  * @public
  */
 export class ReadOnlyField extends React.Component {
-
   static propTypes = {
     /**
      * The field label.
      */
-    label: PropTypes.string,
+    label: React.PropTypes.string,
 
     /**
      * css style object.
      */
-    style: PropTypes.object,
+    style: React.PropTypes.object,
 
     /**
      * func
@@ -59,7 +61,7 @@ export class ReadOnlyField extends React.Component {
      * otherwise the input is converted to a String.
      *
      */
-    renderValue: PropTypes.func,
+    renderValue: React.PropTypes.func,
 
     /**
      * Form value.
@@ -72,59 +74,66 @@ export class ReadOnlyField extends React.Component {
      *
      * See React Forms docs for more info.
      */
-    formValue: PropTypes.object,
+    formValue: React.PropTypes.object,
 
     /**
      * The input element to use.
      */
-    children: PropTypes.element,
+    children: React.PropTypes.element,
 
     /**
      * Unitless number representing the amount of space the
      * <VBox> with the <label> uses
      * relative to all its sibling widgets.
      */
-    labelSize: PropTypes.number,
+    labelSize: React.PropTypes.number,
 
     /**
      * Unitless number representing the amount of space the
      * <VBox> with the value uses
      * relative to all its sibling widgets.
      */
-    inputSize: PropTypes.number
+    inputSize: React.PropTypes.number,
   };
 
   static defaultProps = {
     renderValue: renderValue,
     labelSize: 2,
-    inputSize: 5
+    inputSize: 5,
   };
 
   render() {
     let {
-      label, style, renderValue,
-      formValue, children, labelSize, inputSize
+      label,
+      style,
+      renderValue,
+      formValue,
+      children,
+      labelSize,
+      inputSize,
     } = this.props;
     if (children === undefined) {
       children = renderValue(formValue.value);
     }
+    const totalSize = labelSize + inputSize;
+    const labelSizePercent = `${labelSize / totalSize * 100}%`;
+    const inputSizePercent = `${inputSize / totalSize * 100}%`;
     return (
       <HBox style={{...Style.self, ...(style && style.self)}}>
         {label &&
-          <VBox flex={labelSize} justifyContent="flex-start">
+          <ReactUI.Element padding={5} width={labelSizePercent}>
             <label style={{...Style.label, ...(style && style.label)}}>
               {label}
             </label>
-          </VBox>}
-        <VBox flex={inputSize} justifyContent="flex-start" style={Style.value}>
+          </ReactUI.Element>}
+        <ReactUI.Element padding={5} width={inputSizePercent} style={Style.value}>
           {children}
           {formValue.errorList.length > 0 &&
             <ErrorList errorList={formValue.errorList} />}
-        </VBox>
+        </ReactUI.Element>
       </HBox>
     );
   }
-
 }
 
 function renderValue(value) {

@@ -19,7 +19,8 @@ function loadPlotly() {
 
 function fetchPlotData({data, context, contextTypes}) {
   data = data.params(
-    ContextUtils.contextToParams(context, contextTypes.input, {query: true}));
+    ContextUtils.contextToParams(context, contextTypes.input, {query: true}),
+  );
   return {data};
 }
 
@@ -75,7 +76,6 @@ function buildTraceSpec(trace, plot, key) {
 @WithDOMSize({forceAsync: true})
 @Fetch(fetchPlotData)
 export default class Plot extends React.Component {
-
   static defaultProps = {icon: 'plot'};
 
   constructor(props) {
@@ -88,9 +88,9 @@ export default class Plot extends React.Component {
     let {fetched: {data}, DOMSize, ...props} = this.props;
     return (
       <Action {...props} flex={1}>
-        {data.updating || this.state.plotly === null ?
-          <Preloader /> :
-          <VBox flex={1} ref={this._onPlotElement} />}
+        {data.updating || this.state.plotly === null
+          ? <Preloader />
+          : <VBox flexGrow={1} padding={5} ref={this._onPlotElement} />}
       </Action>
     );
   }
@@ -106,8 +106,7 @@ export default class Plot extends React.Component {
     });
   }
 
-  @autobind
-  _onPlotElement(plotElement) {
+  @autobind _onPlotElement(plotElement) {
     this._plotElement = plotElement;
   }
 

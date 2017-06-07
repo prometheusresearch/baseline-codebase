@@ -41,13 +41,8 @@ class DefinitionRecipe(Recipe):
         return (self.base, self.definition, self.optional, self.plural)
 
 
-class SelectSyntaxRecipe(Recipe):
-
-    def __init__(self, syntax):
-        self.syntax = syntax
-
-    def __basis__(self):
-        return (self.syntax,)
+class SelectSyntaxRecipe(DefinitionRecipe):
+    pass
 
 
 class BindByDefinition(BindByRecipe):
@@ -70,7 +65,14 @@ class BindBySelectSyntax(BindByRecipe):
     adapt(SelectSyntaxRecipe)
 
     def __call__(self):
-        return self.state.collect(self.state(self.recipe.syntax))
+        scope = RerouteBinding(
+                self.state.scope,
+                self.recipe.base,
+                self.state.scope.syntax)
+        self.state.push_scope(scope)
+        binding = self.state.collect(self.state(self.recipe.definition))
+        self.state.pop_scope()
+        return binding
 
 
 class ExpandSelection(Lookup):

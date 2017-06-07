@@ -175,16 +175,33 @@ class RexBindingState(BindingState):
         output = self(args[0])
         recipes = []
         fields = []
-        self.push_scope(output.binding)
+        binding = output.binding
+        self.push_scope(binding)
         for arg in args[1:]:
-            recipes.append(SelectSyntaxRecipe(arg))
-            field = self.collect(self(arg))
+            selection = self(arg)
+            field = self.collect(selection)
             fields.append(field)
+            recipe = SelectSyntaxRecipe(
+                    binding, arg,
+                    optional=selection.optional,
+                    plural=selection.plural)
+            recipes.append(recipe)
+            tag = guess_tag(selection.binding)
+            if tag is not None:
+                recipe = DefinitionRecipe(
+                        binding, arg,
+                        optional=selection.optional,
+                        plural=selection.plural)
+                recipe = ClosedRecipe(recipe)
+                binding = DefineBinding(
+                        binding, tag, None, recipe, self.scope.syntax)
+                self.pop_scope()
+                self.push_scope(binding)
         self.pop_scope()
         domain = RecordDomain([decorate(field) for field in fields])
         return Output(
                 SelectionBinding(
-                    output.binding, recipes, fields, domain, self.scope.syntax),
+                    binding, recipes, fields, domain, self.scope.syntax),
                 optional=output.optional, plural=output.plural)
 
     def bind_filter_op(self, args):

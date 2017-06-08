@@ -11,12 +11,9 @@
  * Effect is an imperative piece of code which happens when some action is
  * handled.
  */
-export type Effect<S> = (
-  state: S,
-  setState: (tag: string, updater: (state: S) => S) => void,
-) => {
-  prepare: () => S,
-  perform: () => any,
+export type Effect<S> = {
+  prepare: (state: S) => S,
+  perform: (state: S, setState: (tag: string, updater: (state: S) => S) => void) => any,
 };
 
 /**
@@ -104,32 +101,17 @@ export function create<S: Object, H: {[name: string]: ActionHandler<*, S>}>(
         devtools.send({...params, type: actionName}, state);
       }
 
-      let effectInstanceList = null;
-
-      if (effect) {
-        if (!Array.isArray(effect)) {
-          effect = [effect];
-        }
-
-        const res = effect.reduce(
-          ({state, effectInstanceList}, effect) => {
-            const effectInstance = effect(state, makeUpdaterForEffect(actionName));
-            return {
-              state: effectInstance.prepare(),
-              effectInstanceList: effectInstanceList.concat(effectInstance),
-            };
-          },
-          {state, effectInstanceList: []},
-        );
-
-        state = res.state;
-        effectInstanceList = res.effectInstanceList;
-      }
+      const effectList = effect != null
+        ? Array.isArray(effect) ? effect : [effect]
+        : [];
+      state = effectList.reduce((state, effect) => effect.prepare(state), state);
 
       onChange(state, state => {
-        if (effectInstanceList) {
-          effectInstanceList.forEach(effect => {
-            Promise.resolve().then(_ => effect.perform());
+        if (effectList) {
+          effectList.forEach(effect => {
+            Promise.resolve().then(_ =>
+              effect.perform(state, makeUpdaterForEffect(actionName)),
+            );
           });
         }
       });

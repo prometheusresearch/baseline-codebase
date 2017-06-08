@@ -22,6 +22,8 @@ import type {
 
 import createLogger from 'debug';
 import invariant from 'invariant';
+import debounce from 'lodash/debounce';
+
 import * as q from '../model/Query';
 import * as qo from '../model/QueryOperation';
 import * as QL from '../model/QueryLoc';
@@ -30,6 +32,54 @@ import * as Chart from '../chart';
 import * as Focus from './Focus';
 
 let logAction = createLogger('rex-query:state:actions');
+
+let logFetch = createLogger('rex-query:state:fetch');
+
+// FIXME: we need better sync mechanism, this is just hacky.
+let refetchIndex = 0;
+
+const refetchQuery = {
+  prepare: state => {
+    const {query} = state;
+    if (query.context.hasInvalidType) {
+      return state;
+    }
+    if (query.context.type.name === 'invalid') {
+      return {
+        ...state,
+        queryLoading: false,
+        queryInvalid: true,
+      };
+    } else {
+      return {
+        ...state,
+        queryLoading: true,
+        queryInvalid: false,
+      };
+    }
+  },
+
+  perform: debounce((state, setState) => {
+    const {query, api} = state;
+    if (query.context.hasInvalidType) {
+      return;
+    }
+    logFetch('fetching', state.query);
+    refetchIndex += 1;
+    const currentRefetchIndex = refetchIndex;
+    return Promise.resolve().then(_ => {
+      const queryToFetch = state.chartList.reduce(
+        (q, c) => Chart.enrichQuery(q, c.chart),
+        query,
+      );
+      Fetch.fetch(api, queryToFetch, state.translateOptions).then(data => {
+        if (refetchIndex === currentRefetchIndex) {
+          setState('fetchFinish', state => ({...state, data, queryLoading: false}));
+        }
+      });
+    });
+  }, 1000),
+};
 
 /**
  * Initialize query buiulder.
@@ -667,56 +717,6 @@ function onQuery(
   };
   return [nextState, refetchQuery];
 }
-
-// FIXME: we need better sync mechanism, this is just hacky.
-let refetchIndex = 0;
-
-let fetchLog = createLogger('rex-query:state:fetch');
-
-function refetchQuery(state, setState) {
-  const {query, api} = state;
-  return {
-    prepare() {
-      if (query.context.hasInvalidType) {
-        return state;
-      }
-      if (query.context.type.name === 'invalid') {
-        return {
-          ...state,
-          queryLoading: false,
-          queryInvalid: true,
-        };
-      } else {
-        return {
-          ...state,
-          queryLoading: true,
-          queryInvalid: false,
-        };
-      }
-    },
-
-    perform() {
-      if (query.context.hasInvalidType) {
-        return;
-      }
-      fetchLog('fetching', state.query);
-      refetchIndex += 1;
-      const currentRefetchIndex = refetchIndex;
-      return Promise.resolve().then(_ => {
-        const queryToFetch = state.chartList.reduce(
-          (q, c) => Chart.enrichQuery(q, c.chart),
-          query,
-        );
-        Fetch.fetch(api, queryToFetch, state.translateOptions).then(data => {
-          if (refetchIndex === currentRefetchIndex) {
-            setState('fetchFinish', state => ({...state, data, queryLoading: false}));
-          }
-        });
-      });
-    },
-  };
-}
-
 function generateQueryID(scope, prefix = 'Query') {
   if (scope[prefix] == null) {
     return prefix;

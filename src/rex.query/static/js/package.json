@@ -79,7 +79,7 @@
     "react-icons": "^2.2.1",
     "react-relative-portal": "^1.2.0",
     "react-select": "^1.0.0-rc.2",
-    "react-stylesheet": "^2.0.2",
+    "react-stylesheet": "^2.0.3",
     "react-virtualized": "^8.7.1",
     "recharts": "^0.20.8",
     "tether": "^1.4.0"

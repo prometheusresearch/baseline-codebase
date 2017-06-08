@@ -210,30 +210,29 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
                   />
                 </CenterPanelWrapper>
               : selected
-                  ? <CenterPanelWrapper>
-                      <QueryPanel
-                        key={selected.id}
-                        onClose={this.actions.hidePanel}
-                        onSearch={this.props.onSearch}
-                        query={selected}
-                        disableClose={disablePanelClose}
-                      />
-                    </CenterPanelWrapper>
-                  : null)}
+                ? <CenterPanelWrapper>
+                    <QueryPanel
+                      key={selected.id}
+                      onClose={this.actions.hidePanel}
+                      onSearch={this.props.onSearch}
+                      query={selected}
+                      disableClose={disablePanelClose}
+                    />
+                  </CenterPanelWrapper>
+                : null)}
           <RightPanelWrapper>
             {isEmptyQueryPipeline(query)
               ? null
               : queryInvalid
-                  ? <InvalidQueryMessage onUndo={this.actions.undo} />
-                  : data != null
-                      ? <ui.TabContainer
-                          activeTab={activeTab}
-                          onActiveTab={activeTab =>
-                            this.actions.setActiveTab({activeTab})}
-                          tabList={tabList}
-                          tabListAlt={tabListAlt}
-                        />
-                      : null}
+                ? <InvalidQueryMessage onUndo={this.actions.undo} />
+                : data != null
+                  ? <ui.TabContainer
+                      activeTab={activeTab}
+                      onActiveTab={activeTab => this.actions.setActiveTab({activeTab})}
+                      tabList={tabList}
+                      tabListAlt={tabListAlt}
+                    />
+                  : null}
           </RightPanelWrapper>
         </HBox>
       </VBox>

@@ -10,6 +10,7 @@ import React from 'react';
 import {VBox, HBox} from 'react-stylesheet';
 import * as css from 'react-stylesheet/css';
 
+import * as t from '../model/Type';
 import * as qn from '../model/QueryNavigation';
 import {Theme, Menu, Icon, Label, TagLabel, NavigationMenu} from '../ui';
 import QueryPanelBase from './QueryPanelBase';
@@ -125,7 +126,7 @@ function AddQueryMenuSection({
   return (
     <Menu.MenuGroup>
       {navigation &&
-        Array.from(navigation.values()).map(item => (
+        Array.from(navigation.values()).map(item =>
           <AddQueryMenuButton
             nonHierarchical={nonHierarchical}
             noNavigate={noNavigate}
@@ -135,8 +136,8 @@ function AddQueryMenuSection({
             onAdd={onAdd}
             onNavigate={onNavigate}
             onAggregate={onAggregate}
-          />
-        ))}
+          />,
+        )}
     </Menu.MenuGroup>
   );
 }
@@ -150,13 +151,15 @@ class AddQueryMenuButton extends React.Component {
 
   toggleOpen = (e: UIEvent) => {
     e.stopPropagation();
-    if (this.props.item.context.type.name === 'record') {
+    if (t.isRecordLike(this.props.item.context.type)) {
       this.setState(state => ({...state, open: !state.open}));
     }
   };
 
-  onAddQuery = (e: UIEvent) => {
-    e.stopPropagation();
+  onAddQuery = (e?: UIEvent) => {
+    if (e != null) {
+      e.stopPropagation();
+    }
     this.props.onAdd({path: this.props.path});
   };
 
@@ -198,6 +201,13 @@ class AddQueryMenuButton extends React.Component {
             key="summarize">
             Summarize {item.label}
           </Menu.MenuButtonSecondary>,
+        <Menu.MenuButtonSecondary
+          icon={<Icon.IconPlus />}
+          title={`Link "${item.label}" query`}
+          onClick={this.onAddQuery}
+          key="define">
+          Link {item.label}
+        </Menu.MenuButtonSecondary>,
       );
     }
 
@@ -205,7 +215,7 @@ class AddQueryMenuButton extends React.Component {
 
     if (nonHierarchical) {
       icon = <Icon.IconPlus />;
-    } else if (item.context.type.name === 'record') {
+    } else if (t.isRecordLike(item.context.type)) {
       icon = open ? '▾' : '▸';
     }
 

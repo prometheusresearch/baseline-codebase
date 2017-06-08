@@ -496,9 +496,9 @@ function reconcileSelect(context: Context, query: ?SelectQuery): SelectQuery {
       return reconcileSelect(context, null);
     }
   } else {
-    if (type.name === 'record') {
+    if (t.isRecord(type)) {
       let length = 0;
-      let attribute = t.recordAttribute(type);
+      let attribute = t.recordLikeAttribute(type);
       // try to add common columns first
       for (let i = 0; i < INITIAL_COLUMN_PRIORITY_NAME_LIST.length; i++) {
         if (length >= INITIAL_COLUMN_NUM_LIMIT) {
@@ -572,11 +572,11 @@ function maybeAddToSelect(select, context, key, attribute) {
 }
 
 function getGroupByColumnList(type): Array<string> {
-  if (type.name !== 'record') {
+  if (!t.isRecord(type)) {
     return [];
   }
   let columnList = [];
-  let attribute = t.recordAttribute(type);
+  let attribute = t.recordLikeAttribute(type);
 
   for (let k in attribute) {
     if (!attribute.hasOwnProperty(k)) {

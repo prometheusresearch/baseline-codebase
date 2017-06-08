@@ -23,16 +23,14 @@ import type {
   DateTimeType,
 } from './types';
 
-export function createDomain(
-  spec: {
-    entity: {
-      [name: string]: (domain: Domain) => DomainEntity,
-    },
-    aggregate: {
-      [name: string]: DomainAggregate,
-    },
+export function createDomain(spec: {
+  entity: {
+    [name: string]: (domain: Domain) => DomainEntity,
   },
-): Domain {
+  aggregate: {
+    [name: string]: DomainAggregate,
+  },
+}): Domain {
   let domain: Domain = {entity: {}, aggregate: spec.aggregate};
   for (let k in spec.entity) {
     if (spec.entity.hasOwnProperty(k)) {
@@ -67,15 +65,45 @@ export function booleanType(domain: Domain): BooleanType {
 }
 
 export function dateType(domain: Domain): DateType {
-  return {name: 'date', card: null, domain};
+  return {
+    name: 'date',
+    card: null,
+    domain,
+    attribute: {
+      year: {title: 'Year', type: numberType(domain)},
+      month: {title: 'Month', type: numberType(domain)},
+      day: {title: 'Day', type: numberType(domain)},
+    },
+  };
 }
 
 export function timeType(domain: Domain): TimeType {
-  return {name: 'time', card: null, domain};
+  return {
+    name: 'time',
+    card: null,
+    domain,
+    attribute: {
+      hour: {title: 'Hour', type: numberType(domain)},
+      minute: {title: 'Minute', type: numberType(domain)},
+      second: {title: 'Second', type: numberType(domain)},
+    },
+  };
 }
 
 export function dateTimeType(domain: Domain): DateTimeType {
-  return {name: 'datetime', card: null, domain};
+  return {
+    name: 'datetime',
+    card: null,
+    domain,
+    attribute: {
+      year: {title: 'Year', type: numberType(domain)},
+      month: {title: 'Month', type: numberType(domain)},
+      day: {title: 'Day', type: numberType(domain)},
+      hour: {title: 'Hour', type: numberType(domain)},
+      minute: {title: 'Minute', type: numberType(domain)},
+      second: {title: 'Second', type: numberType(domain)},
+    },
+  };
 }
 
 export function enumerationType(
@@ -93,14 +121,30 @@ export function recordType(domain: Domain, attribute: DomainAttributeMap): Recor
   return {name: 'record', card: null, entity: null, attribute, domain};
 }
 
-export function recordAttribute(type: RecordType) {
+export function isRecordLike(type: Type): boolean {
+  return (
+    type.name === 'record' ||
+    type.name === 'date' ||
+    type.name === 'time' ||
+    type.name === 'datetime'
+  );
+}
+
+export function isRecord(type: Type): boolean {
+  return type.name === 'record';
+}
+
+export function recordLikeAttribute(type: Type): DomainAttributeMap {
+  // $FlowIssue: ...
   if (type.attribute != null) {
+    // $FlowIssue: ...
     return type.attribute;
-  } else if (type.entity != null) {
-    return type.domain.entity[type.entity].attribute;
-  } else {
-    return {};
+  } else if (type.name === 'record') {
+    if (type.entity != null) {
+      return type.domain.entity[type.entity].attribute;
+    }
   }
+  return {};
 }
 
 export function seqType<T: Type>(type: T): T {
@@ -167,7 +211,7 @@ export function toString(type: Type): string {
       return type.entity;
     } else {
       let fieldList = [];
-      let attribute = recordAttribute(type);
+      let attribute = recordLikeAttribute(type);
       for (let k in attribute) {
         if (attribute.hasOwnProperty(k)) {
           fieldList.push(`${k}: ${toString(attribute[k].type)}`);

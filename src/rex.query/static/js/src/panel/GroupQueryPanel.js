@@ -72,8 +72,8 @@ function GroupMenu({
   if (byPath.length > 0) {
     scope = prevScope;
   }
-  if (type.name === 'record') {
-    let attribute = t.recordAttribute(type);
+  if (t.isRecordLike(type)) {
+    let attribute = t.recordLikeAttribute(type);
     for (let name in attribute) {
       if (!attribute.hasOwnProperty(name)) {
         continue;

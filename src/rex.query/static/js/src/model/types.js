@@ -97,16 +97,19 @@ export type EnumerationType = {
 export type DateType = {
   name: 'date',
   domain: Domain,
+  attribute: DomainAttributeMap,
 } & TypeCardinalityProp;
 
 export type TimeType = {
   name: 'time',
   domain: Domain,
+  attribute: DomainAttributeMap,
 } & TypeCardinalityProp;
 
 export type DateTimeType = {
   name: 'datetime',
   domain: Domain,
+  attribute: DomainAttributeMap,
 } & TypeCardinalityProp;
 
 export type RecordType = {

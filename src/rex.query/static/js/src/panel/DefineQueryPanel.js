@@ -11,6 +11,7 @@ import * as ReactUI from '@prometheusresearch/react-ui';
 import {VBox, HBox} from 'react-stylesheet';
 
 import {Theme, Menu, Icon} from '../ui';
+import * as t from '../model/Type';
 import findDOMNode from '../findDOMNode';
 import ColumnPicker from './ColumnPicker';
 import QueryPanelBase from './QueryPanelBase';
@@ -21,8 +22,11 @@ type DefineQueryPanelProps = {
   onSearch: SearchCallback,
 };
 
-export default class DefineQueryPanel
-  extends React.Component<*, DefineQueryPanelProps, *> {
+export default class DefineQueryPanel extends React.Component<
+  *,
+  DefineQueryPanelProps,
+  *,
+> {
   context: {
     actions: Actions,
   };
@@ -45,7 +49,7 @@ export default class DefineQueryPanel
 
     let type = query.binding.query.context.type;
 
-    let hasConfigurableColumns = type && type.name === 'record';
+    let hasConfigurableColumns = type && t.isRecordLike(type);
 
     return (
       <QueryPanelBase

@@ -7,7 +7,6 @@ import type {QueryPipeline} from '../model/types';
 import * as React from 'react';
 import * as recharts from 'recharts';
 import {Element, VBox, HBox} from 'react-stylesheet';
-import ColorHash from 'color-hash';
 import {SwatchColorPicker} from '@prometheusresearch/react-ui';
 
 import {COLOR_LIST} from './ColorList';
@@ -19,21 +18,18 @@ import SelectAttribute from './SelectAttribute';
 import ChartControlPanel from './ChartControlPanel';
 import ChartControl from './ChartControl';
 import NoNumericAttributeText from './NoNumericAttributeText';
+import generateColorHash from '../generateColorHash';
 
 const RADIAN = Math.PI / 180;
 
-const _colorHash = new ColorHash();
-
-const colorHash = value => _colorHash.hex(value);
-
 const getPieColor = (chart: model.PieChart, id: string) =>
-  chart.color[id] || colorHash(id);
+  chart.color[id] || generateColorHash(id);
 
 type PieChartProps = {
   chart: model.PieChart,
-  onChart: (model.Chart) => *,
+  onChart: model.Chart => *,
   label: string,
-  onLabel: (string) => *,
+  onLabel: string => *,
   data: any,
   query: QueryPipeline,
 };
@@ -198,19 +194,16 @@ export default class PieChart extends React.Component {
             hint="Click on a sector in a pie chart to select and customize the colour"
             control={
               activeEntry &&
-                <HBox overflow="visible">
-                  <SwatchColorPicker
-                    colorList={COLOR_LIST}
-                    value={getPieColor(chart, activeEntry[chart.labelColumn])}
-                    onChange={this.onSectorColor.bind(
-                      null,
-                      activeEntry[chart.labelColumn],
-                    )}
-                  />
-                  <Element fontSize="10pt" padding={4}>
-                    {activeEntry[chart.labelColumn]}
-                  </Element>
-                </HBox>
+              <HBox overflow="visible">
+                <SwatchColorPicker
+                  colorList={COLOR_LIST}
+                  value={getPieColor(chart, activeEntry[chart.labelColumn])}
+                  onChange={this.onSectorColor.bind(null, activeEntry[chart.labelColumn])}
+                />
+                <Element fontSize="10pt" padding={4}>
+                  {activeEntry[chart.labelColumn]}
+                </Element>
+              </HBox>
             }
           />
         </ChartControlPanel>

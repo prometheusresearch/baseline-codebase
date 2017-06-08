@@ -11,6 +11,7 @@ import {style, css, VBox} from 'react-stylesheet';
 import {AutoSizer} from 'react-virtualized';
 
 import * as ArrayUtil from './ArrayUtil';
+import {generateColorHashMemoized} from './generateColorHash';
 import {LoadingIndicator} from './ui';
 import {
   DataTable as DataTableBase,
@@ -287,9 +288,6 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
 
   renderColumnMenu = (column: ColumnField<*>) => {
     return [
-      <DataTableColumnMenuItem key="select" value="select">
-        Select associated query
-      </DataTableColumnMenuItem>,
       <DataTableColumnMenuItem key="goto" value="goto">
         Follow column
       </DataTableColumnMenuItem>,
@@ -423,6 +421,8 @@ function cellRenderer({
       return <NumberCell>{String(cellData)}</NumberCell>;
     } else if (type.name === 'date') {
       return String(cellData);
+    } else if (type.name === 'enumeration') {
+      return <EnumerationCell value={String(cellData)} />;
     } else if (type.name === 'time') {
       return String(cellData);
     } else if (type.name === 'datetime') {
@@ -462,6 +462,35 @@ function formatEntity(entityName, entity): ?string | React.Element<*> {
   } else {
     return <JSONCell>{'{'}Record: {entityName}{'}'}</JSONCell>;
   }
+}
+
+const EnumerationCellRoot = style('div', {
+  displayName: 'EnumerationCellRoot',
+  base: {
+    userSelect: 'none',
+    textAlign: 'right',
+  },
+});
+
+const EnumerationCellInner = style('span', {
+  displayName: 'EnumerationCellInner',
+  base: {
+    color: 'white',
+    padding: 5,
+  },
+});
+
+function EnumerationCell({value}) {
+  // We can use memoized version here as all possible values of all enum are
+  // still "finite".
+  const backgroundColor = generateColorHashMemoized(value);
+  return (
+    <EnumerationCellRoot>
+      <EnumerationCellInner style={{backgroundColor}}>
+        {value}
+      </EnumerationCellInner>
+    </EnumerationCellRoot>
+  );
 }
 
 let NullCell = style('div', {

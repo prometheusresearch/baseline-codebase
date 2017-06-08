@@ -190,7 +190,7 @@ function canNavigateAt(type: Type) {
 
 function hasGroupByAt(type: Type) {
   if (type.name === 'record') {
-    let attribute = t.recordAttribute(type);
+    let attribute = t.recordLikeAttribute(type);
     let hasGroupBy = false;
     let entityName = null;
     for (let k in attribute) {

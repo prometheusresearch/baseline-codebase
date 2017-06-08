@@ -107,13 +107,22 @@ function ensurePipelineHasCount(pipe: QueryAtom[]): QueryAtom[] {
   }
 }
 
+function getLastNonSelectAtPipeline(pipeline: QueryPipeline) {
+  const last = pipeline.pipeline[pipeline.pipeline.length - 1];
+  if (last.name !== 'select') {
+    return last;
+  }
+  const prevLast = pipeline.pipeline[pipeline.pipeline.length - 2];
+  return prevLast;
+}
+
 /**
  * Select a path at a given query pipeline.
  */
 export function select({at, path}: {at: QueryPipeline, path: string[]}): StateUpdater {
   logAction('select', {at, path});
   return state => {
-    const lastNonSelect = at.pipeline[at.pipeline.length - 2];
+    const lastNonSelect = getLastNonSelectAtPipeline(at);
     const type = q.inferTypeAtPath(q.regularizeContext(lastNonSelect.context), path);
 
     let editAtCompletion;

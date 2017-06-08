@@ -214,6 +214,10 @@ void_t = AtomicDomain(u'Void')
 boolean_t = AtomicDomain(u'Boolean')
 text_t = AtomicDomain(u'Text')
 integer_t = AtomicDomain(u'Integer')
+float_t = AtomicDomain(u'Float')
+date_t = AtomicDomain(u'Date')
+datetime_t = AtomicDomain(u'DateTime')
+time_t = AtomicDomain(u'Time')
 
 
 class Input(Comparable):
@@ -743,6 +747,21 @@ int_mul_sig = Signature(u'*', (integer_t, integer_t), integer_t)
 int_div_sig = Signature(u'/', (integer_t, integer_t), integer_t)
 
 concat_sig = Signature(u'+', (text_t, text_t), text_t)
+
+date_year_sig = Signature(u'year', (date_t,), integer_t)
+date_month_sig = Signature(u'month', (date_t,), integer_t)
+date_day_sig = Signature(u'day', (date_t,), integer_t)
+
+datetime_year_sig = Signature(u'year', (datetime_t,), integer_t)
+datetime_month_sig = Signature(u'month', (datetime_t,), integer_t)
+datetime_day_sig = Signature(u'day', (datetime_t,), integer_t)
+datetime_hour_sig = Signature(u'hour', (datetime_t,), integer_t)
+datetime_minute_sig = Signature(u'minute', (datetime_t,), integer_t)
+datetime_second_sig = Signature(u'second', (datetime_t,), float_t)
+
+time_hour_sig = Signature(u'hour', (time_t,), integer_t)
+time_minute_sig = Signature(u'minute', (time_t,), integer_t)
+time_second_sig = Signature(u'second', (time_t,), float_t)
 
 not_sig = Signature(u'!', (boolean_t,), boolean_t)
 and_sig = Signature(u'&', (boolean_t, boolean_t), boolean_t)

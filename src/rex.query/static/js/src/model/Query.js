@@ -587,7 +587,7 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         };
       }
 
-      let baseTypeAttribute = t.recordAttribute(baseType);
+      let baseTypeAttribute = t.recordLikeAttribute(baseType);
 
       let attribute = {};
       let byPathTitleList = [];
@@ -628,8 +628,8 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
         return withContext(query, context);
       }
       let baseType = t.regType(type);
-      if (baseType.name === 'record') {
-        let field = t.recordAttribute(baseType)[query.path];
+      if (t.isRecordLike(baseType)) {
+        let field = t.recordLikeAttribute(baseType)[query.path];
         if (field != null) {
           return withContext(query, {
             prev: context,

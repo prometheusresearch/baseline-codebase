@@ -188,7 +188,7 @@ export let DataTableHeaderCellLabel = style('span', {
     overflow: css.overflow.hidden,
     position: css.position.absolute,
     bottom: 8,
-    paddingRight: 20,
+    paddingRight: 45,
   },
 });
 

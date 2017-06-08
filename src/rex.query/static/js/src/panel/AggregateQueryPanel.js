@@ -22,8 +22,11 @@ type AggregateQueryPanelProps = {
 
 const ENTITY_SENTINEL = '__entity_sentinel__';
 
-export default class AggregateQueryPanel
-  extends React.Component<*, AggregateQueryPanelProps, *> {
+export default class AggregateQueryPanel extends React.Component<
+  *,
+  AggregateQueryPanelProps,
+  *,
+> {
   context: {
     actions: Actions,
   };
@@ -52,7 +55,7 @@ export default class AggregateQueryPanel
 
     let attributeSelect = null;
 
-    if (prevType.name === 'record') {
+    if (t.isRecordLike(prevType)) {
       let options = [
         {
           label: <Element textTransform="capitalize">{query.context.prev.title}</Element>,
@@ -61,7 +64,7 @@ export default class AggregateQueryPanel
       ];
 
       options = options.concat(
-        map(t.recordAttribute(prevType), (f, k) => ({
+        map(t.recordLikeAttribute(prevType), (f, k) => ({
           label: <Element textTransform="capitalize">{f.title || k}</Element>,
           value: k,
         })),

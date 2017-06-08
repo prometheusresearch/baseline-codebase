@@ -72,7 +72,17 @@ function translateNavigateQuery(
   query: NavigateQuery,
   prev: SerializedQuery,
 ): SerializedQuery {
-  let path = query.regular ? regularize(query) : query.path;
+  // Special case to transform navigations from date/time/datetime to function
+  // calls.
+  const prevType = query.context.prev.type;
+  if (
+    prevType.name === 'date' ||
+    prevType.name === 'time' ||
+    prevType.name === 'datetime'
+  ) {
+    return [query.path, prev];
+  }
+  const path = query.regular ? regularize(query) : query.path;
   if (prev !== HERE) {
     return ['.', prev, ['navigate', path]];
   } else {

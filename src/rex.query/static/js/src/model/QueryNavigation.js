@@ -39,8 +39,8 @@ export function getNavigation(
         });
       }
     }
-  } else if (type.name === 'record') {
-    let attribute = t.recordAttribute(type);
+  } else if (t.isRecordLike(type)) {
+    let attribute = t.recordLikeAttribute(type);
     for (let k in attribute) {
       if (attribute.hasOwnProperty(k)) {
         let navQuery = q.inferQueryType(localContext, q.navigate(k));

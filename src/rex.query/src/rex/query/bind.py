@@ -17,8 +17,9 @@ from htsql.core.tr.binding import (
         CollectBinding, SieveBinding, DefineBinding, IdentityBinding,
         SortBinding, QuotientBinding, ComplementBinding, ClipBinding,
         TitleBinding, DirectionBinding, FormulaBinding, CastBinding,
-        ImplicitCastBinding, FreeTableRecipe, AttachedTableRecipe,
-        ColumnRecipe, KernelRecipe, ComplementRecipe, ClosedRecipe)
+        ImplicitCastBinding, RerouteBinding, FreeTableRecipe,
+        AttachedTableRecipe, ColumnRecipe, KernelRecipe, ComplementRecipe,
+        ClosedRecipe)
 from htsql.core.tr.bind import BindingState, Select, BindByRecipe
 from htsql.core.tr.lookup import (
         lookup_attribute, unwrap, guess_tag, identify, expand, direct)
@@ -30,7 +31,8 @@ from htsql.core.tr.fn.bind import Correlate, Comparable, BindAmong, BindNotAmong
 from htsql.core.tr.fn.signature import (
         AddSig, SubtractSig, MultiplySig, DivideSig, ContainsSig, CastSig,
         AggregateSig, QuantifySig, ExistsSig, CountSig, MinMaxSig, SumSig,
-        AvgSig)
+        AvgSig, ExtractYearSig, ExtractMonthSig, ExtractDaySig, ExtractHourSig,
+        ExtractMinuteSig, ExtractSecondSig)
 from htsql_rex_query import (
         SelectionBinding, BindingRecipe, DefinitionRecipe, SelectSyntaxRecipe)
 
@@ -114,7 +116,10 @@ class RexBindingState(BindingState):
         if not (len(args) == 0):
             raise Error("Expected no arguments,"
                         " got:", ", ".join(map(str, args)))
-        return Output(self.scope)
+        binding = self.scope
+        if isinstance(binding, RerouteBinding):
+            binding = binding.target
+        return Output(binding)
 
     def bind_navigate_op(self, args):
         if not (len(args) == 1 and
@@ -176,10 +181,11 @@ class RexBindingState(BindingState):
         recipes = []
         fields = []
         binding = output.binding
-        self.push_scope(binding)
         for arg in args[1:]:
+            self.push_scope(binding)
             selection = self(arg)
             field = self.collect(selection)
+            self.pop_scope()
             fields.append(field)
             recipe = SelectSyntaxRecipe(
                     binding, arg,
@@ -195,9 +201,6 @@ class RexBindingState(BindingState):
                 recipe = ClosedRecipe(recipe)
                 binding = DefineBinding(
                         binding, tag, None, recipe, self.scope.syntax)
-                self.pop_scope()
-                self.push_scope(binding)
-        self.pop_scope()
         domain = RecordDomain([decorate(field) for field in fields])
         return Output(
                 SelectionBinding(
@@ -454,6 +457,33 @@ class RexBindingState(BindingState):
                 FormulaBinding(
                     self.scope, NotSig(), BooleanDomain(),
                     self.scope.syntax, op=op),
+                optional=output.optional, plural=output.plural)
+
+    def bind_year_op(self, args):
+        return self.bind_date_extract(ExtractYearSig, IntegerDomain, args)
+
+    def bind_month_op(self, args):
+        return self.bind_date_extract(ExtractMonthSig, IntegerDomain, args)
+
+    def bind_day_op(self, args):
+        return self.bind_date_extract(ExtractDaySig, IntegerDomain, args)
+
+    def bind_hour_op(self, args):
+        return self.bind_date_extract(ExtractHourSig, IntegerDomain, args)
+
+    def bind_minute_op(self, args):
+        return self.bind_date_extract(ExtractMinuteSig, IntegerDomain, args)
+
+    def bind_second_op(self, args):
+        return self.bind_date_extract(ExtractSecondSig, FloatDomain, args)
+
+    def bind_date_extract(self, sig, img, args):
+        parameters = self.bind_parameters(sig, args)
+        output = parameters['op']
+        return Output(
+                FormulaBinding(
+                    self.scope, sig(), img(),
+                    self.scope.syntax, op=output.binding),
                 optional=output.optional, plural=output.plural)
 
     def bind_less_op(self, args):

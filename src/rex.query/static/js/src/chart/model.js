@@ -6,7 +6,7 @@ import type {QueryPipeline} from '../model/types';
 
 import invariant from 'invariant';
 
-import * as T from '../model/Type';
+import * as t from '../model/Type';
 import {getNavigation} from '../model/QueryNavigation';
 import {getQuery} from './util';
 
@@ -66,27 +66,32 @@ export function getChartTitle(chart: Chart, pipeline: QueryPipeline): string {
   switch (chart_.type) {
     case 'pie': {
       const desc = withRecordAttributesOrNull(pipeline, query =>
-        getPieChartDesc(query, chart_));
+        getPieChartDesc(query, chart_),
+      );
       return desc == null ? 'Pie Chart' : `${desc} — Pie Chart`;
     }
     case 'line': {
       const desc = withRecordAttributesOrNull(pipeline, query =>
-        getLineChartDesc(query, chart_));
+        getLineChartDesc(query, chart_),
+      );
       return desc == null ? 'Line Chart' : `${desc} — Line Chart`;
     }
     case 'bar': {
       const desc = withRecordAttributesOrNull(pipeline, query =>
-        getBarChartDesc(query, chart_));
+        getBarChartDesc(query, chart_),
+      );
       return desc == null ? 'Bar Chart' : `${desc} — Bar Chart`;
     }
     case 'area': {
       const desc = withRecordAttributesOrNull(pipeline, query =>
-        getAreaChartDesc(query, chart_));
+        getAreaChartDesc(query, chart_),
+      );
       return desc == null ? 'Area Chart' : `${desc} — Area Chart`;
     }
     case 'scatter': {
       const desc = withRecordAttributesOrNull(pipeline, query =>
-        getScatterChartDesc(query, chart_));
+        getScatterChartDesc(query, chart_),
+      );
       return desc == null ? 'Scatter Chart' : `${desc} — Scatter Chart`;
     }
     default:
@@ -99,10 +104,10 @@ function withRecordAttributesOrNull(pipeline, f) {
   if (query == null) {
     return null;
   }
-  if (query.context.type.name !== 'record') {
+  if (!t.isRecord(query.context.type)) {
     return null;
   }
-  const attrs = T.recordAttribute(query.context.type);
+  const attrs = t.recordLikeAttribute(query.context.type);
   return f(attrs);
 }
 

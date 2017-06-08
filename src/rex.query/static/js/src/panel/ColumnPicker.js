@@ -201,14 +201,13 @@ class ColumnPickerButton extends React.Component {
         menu={
           feature.ENABLE_ATTRIBUTE_CONTEXT_MENU &&
           !disabled && [
-            column.type === 'record' &&
-              <Menu.MenuButtonSecondary
-                icon={<Icon.IconPlus />}
-                title={`Link "${column.label}" query`}
-                onClick={this.onAddQuery}
-                key="define">
-                Link {column.label}
-              </Menu.MenuButtonSecondary>,
+            <Menu.MenuButtonSecondary
+              icon={<Icon.IconPlus />}
+              title={`Link "${column.label}" query`}
+              onClick={this.onAddQuery}
+              key="define">
+              Link {column.label}
+            </Menu.MenuButtonSecondary>,
             <Menu.MenuButtonSecondary
               icon="⇩"
               title={`Follow "${column.label}" and discard all other attributes`}

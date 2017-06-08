@@ -259,28 +259,29 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
   }
 
   render() {
+    const {loading} = this.props;
     return (
       <VBox flexGrow={1}>
-        {!this.props.loading &&
-          <AutoSizer>
-            {size =>
-              <DataTableBase
-                onColumnClick={this.onColumnClick}
-                onColumnSort={this.onColumnSort}
-                headerHeight={30}
-                noRowsRenderer={this._noRowsRenderer}
-                overscanRowCount={10}
-                rowHeight={35}
-                rowGetter={this._getRowData}
-                rowCount={this.data.length}
-                width={size.width}
-                height={size.height}
-                columns={this.columns}
-                onColumnMenuSelect={this.onColumnMenuSelect}
-                renderColumnMenu={this.renderColumnMenu}
-              />}
-          </AutoSizer>}
-        <LoadingPane variant={{visible: this.props.loading}}>
+        <AutoSizer>
+          {size =>
+            <DataTableBase
+              onColumnClick={this.onColumnClick}
+              onColumnSort={this.onColumnSort}
+              headerHeight={30}
+              noRowsRenderer={this._noRowsRenderer}
+              overscanRowCount={10}
+              rowHeight={35}
+              rowGetter={this._getRowData}
+              rowCount={this.data.length}
+              width={size.width}
+              height={size.height}
+              columns={this.columns}
+              onColumnMenuSelect={this.onColumnMenuSelect}
+              renderColumnMenu={this.renderColumnMenu}
+            />}
+        </AutoSizer>
+        <LoadingShim variant={{visible: loading}} />
+        <LoadingPane variant={{visible: loading}}>
           <LoadingIndicator />
         </LoadingPane>
       </VBox>
@@ -558,6 +559,27 @@ let LoadingPane = style(VBox, {
   visible: {
     bottom: 10,
     opacity: 100,
+  },
+});
+
+let LoadingShim = style(VBox, {
+  base: {
+    background: css.rgba(255, 0.5),
+    position: 'absolute',
+    zIndex: 900,
+    height: '100%',
+    width: '100%',
+    left: 0,
+    bottom: 0,
+    top: 0,
+    right: 0,
+    opacity: 0,
+    transition: 'opacity 0.3s',
+    display: 'none',
+  },
+  visible: {
+    opacity: 100,
+    display: 'block',
   },
 });
 

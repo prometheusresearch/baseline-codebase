@@ -422,7 +422,11 @@ function cellRenderer({
     } else if (type.name === 'number') {
       return <NumberCell>{String(cellData)}</NumberCell>;
     } else if (type.name === 'date') {
-      return String(cellData);
+      return <DateTimeCell>{cellData}</DateTimeCell>;
+    } else if (type.name === 'time') {
+      return <DateTimeCell>{cellData}</DateTimeCell>;
+    } else if (type.name === 'datetime') {
+      return <DateTimeCell>{cellData}</DateTimeCell>;
     } else if (type.name === 'enumeration') {
       return <EnumerationCell value={String(cellData)} />;
     } else if (type.name === 'time') {
@@ -506,6 +510,15 @@ let nullCell = <NullCell>—</NullCell>;
 
 let NumberCell = style('div', {
   displayName: 'NumberCell',
+  base: {
+    textAlign: 'right',
+    paddingRight: 5,
+    paddingLeft: 5,
+  },
+});
+
+let DateTimeCell = style('div', {
+  displayName: 'DateTimeCell',
   base: {
     textAlign: 'right',
     paddingRight: 5,

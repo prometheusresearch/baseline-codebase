@@ -14,7 +14,10 @@
 export type Effect<S> = (
   state: S,
   setState: (tag: string, updater: (state: S) => S) => void,
-) => *;
+) => {
+  prepare: () => S,
+  perform: () => any,
+};
 
 /**
  * A function which takes a state and produces an updated state and optionally a
@@ -100,15 +103,34 @@ export function create<S: Object, H: {[name: string]: ActionHandler<*, S>}>(
       if (devtools != null) {
         devtools.send({...params, type: actionName}, state);
       }
+
+      let effectInstanceList = null;
+
+      if (effect) {
+        if (!Array.isArray(effect)) {
+          effect = [effect];
+        }
+
+        const res = effect.reduce(
+          ({state, effectInstanceList}, effect) => {
+            const effectInstance = effect(state, makeUpdaterForEffect(actionName));
+            return {
+              state: effectInstance.prepare(),
+              effectInstanceList: effectInstanceList.concat(effectInstance),
+            };
+          },
+          {state, effectInstanceList: []},
+        );
+
+        state = res.state;
+        effectInstanceList = res.effectInstanceList;
+      }
+
       onChange(state, state => {
-        if (effect) {
-          if (Array.isArray(effect)) {
-            effect.forEach(effect => {
-              effect(state, makeUpdaterForEffect(actionName));
-            });
-          } else {
-            effect(state, makeUpdaterForEffect(actionName));
-          }
+        if (effectInstanceList) {
+          effectInstanceList.forEach(effect => {
+            Promise.resolve().then(_ => effect.perform());
+          });
         }
       });
     };

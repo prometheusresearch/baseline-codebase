@@ -675,36 +675,46 @@ let fetchLog = createLogger('rex-query:state:fetch');
 
 function refetchQuery(state, setState) {
   const {query, api} = state;
-  fetchLog('fetching', state.query);
-  if (query.context.hasInvalidType) {
-    return;
-  }
-  refetchIndex += 1;
-  const currentRefetchIndex = refetchIndex;
-  Promise.resolve().then(_ => {
-    if (query.context.type.name === 'invalid') {
-      setState('queryInvalid', state => ({
-        ...state,
-        queryLoading: false,
-        queryInvalid: true,
-      }));
-    } else {
-      setState('fetchStart', state => ({
-        ...state,
-        queryLoading: true,
-        queryInvalid: false,
-      }));
-      const queryToFetch = state.chartList.reduce(
-        (q, c) => Chart.enrichQuery(q, c.chart),
-        query,
-      );
-      Fetch.fetch(api, queryToFetch, state.translateOptions).then(data => {
-        if (refetchIndex === currentRefetchIndex) {
-          setState('fetchFinish', state => ({...state, data, queryLoading: false}));
-        }
+  return {
+    prepare() {
+      if (query.context.hasInvalidType) {
+        return state;
+      }
+      if (query.context.type.name === 'invalid') {
+        return {
+          ...state,
+          queryLoading: false,
+          queryInvalid: true,
+        };
+      } else {
+        return {
+          ...state,
+          queryLoading: true,
+          queryInvalid: false,
+        };
+      }
+    },
+
+    perform() {
+      if (query.context.hasInvalidType) {
+        return;
+      }
+      fetchLog('fetching', state.query);
+      refetchIndex += 1;
+      const currentRefetchIndex = refetchIndex;
+      return Promise.resolve().then(_ => {
+        const queryToFetch = state.chartList.reduce(
+          (q, c) => Chart.enrichQuery(q, c.chart),
+          query,
+        );
+        Fetch.fetch(api, queryToFetch, state.translateOptions).then(data => {
+          if (refetchIndex === currentRefetchIndex) {
+            setState('fetchFinish', state => ({...state, data, queryLoading: false}));
+          }
+        });
       });
-    }
-  });
+    },
+  };
 }
 
 function generateQueryID(scope, prefix = 'Query') {

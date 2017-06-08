@@ -261,24 +261,25 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
   render() {
     return (
       <VBox flexGrow={1}>
-        <AutoSizer>
-          {size =>
-            <DataTableBase
-              onColumnClick={this.onColumnClick}
-              onColumnSort={this.onColumnSort}
-              headerHeight={30}
-              noRowsRenderer={this._noRowsRenderer}
-              overscanRowCount={10}
-              rowHeight={35}
-              rowGetter={this._getRowData}
-              rowCount={this.data.length}
-              width={size.width}
-              height={size.height}
-              columns={this.columns}
-              onColumnMenuSelect={this.onColumnMenuSelect}
-              renderColumnMenu={this.renderColumnMenu}
-            />}
-        </AutoSizer>
+        {!this.props.loading &&
+          <AutoSizer>
+            {size =>
+              <DataTableBase
+                onColumnClick={this.onColumnClick}
+                onColumnSort={this.onColumnSort}
+                headerHeight={30}
+                noRowsRenderer={this._noRowsRenderer}
+                overscanRowCount={10}
+                rowHeight={35}
+                rowGetter={this._getRowData}
+                rowCount={this.data.length}
+                width={size.width}
+                height={size.height}
+                columns={this.columns}
+                onColumnMenuSelect={this.onColumnMenuSelect}
+                renderColumnMenu={this.renderColumnMenu}
+              />}
+          </AutoSizer>}
         <LoadingPane variant={{visible: this.props.loading}}>
           <LoadingIndicator />
         </LoadingPane>

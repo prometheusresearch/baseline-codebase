@@ -52,9 +52,13 @@ export type StateContainer<S: Object, H: {[name: string]: ActionHandler<*, S>}> 
 /**
  * Actions for a given state container.
  */
-export type StateContainerActions<SC: StateContainer<*, *>> = $PropertyType<SC, 'actions'>;
+export type StateContainerActions<SC: StateContainer<*, *>> = $PropertyType<
+  SC,
+  'actions',
+>;
 
-const REDUX_DEVTOOLS_ENABLED = process.env.NODE_ENV === 'development' &&
+const REDUX_DEVTOOLS_ENABLED =
+  process.env.NODE_ENV === 'development' &&
   typeof window !== 'undefined' &&
   window.__REDUX_DEVTOOLS_EXTENSION__ != null;
 

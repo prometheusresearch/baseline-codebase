@@ -9,7 +9,7 @@ import {isEntity, getEntityType} from '../model/Entity';
 import * as Instruction from './Instruction';
 import * as Command from '../model/Command';
 import Node from './Node';
-import type {Entity, PerActionState, Context} from '../types';
+import type {Entity, Context} from '../types';
 
 const INITIAL_CONTEXT = {
   USER: __REX_USER__ === null ? null : quote(__REX_USER__),

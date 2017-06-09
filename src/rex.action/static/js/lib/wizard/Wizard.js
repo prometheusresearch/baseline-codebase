@@ -53,7 +53,8 @@ declare var __REX_USER__: ?string;
 function getInitialContext(initialContext = {}) {
   initialContext = initialContext || {};
   initialContext = {...initialContext};
-  if (__REX_USER__ != null) { // eslint-disable-line no-undef
+  if (__REX_USER__ != null) {
+    // eslint-disable-line no-undef
     initialContext.USER = `'${__REX_USER__}'`; // eslint-disable-line no-undef
   }
   return initialContext;
@@ -120,10 +121,11 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
       onContext: this._onContext,
       onContextNoAdvance: this._onContextNoAdvance,
       onEntityUpdate: this._onEntityUpdate,
-      refetch: () => this.setState(state => {
-        this._refetch(state.graph)
-        return state;
-      }),
+      refetch: () =>
+        this.setState(state => {
+          this._refetch(state.graph);
+          return state;
+        }),
       toolbar: <Toolbar graph={graph} onClick={this._onNext} />,
     });
     let showBreadcrumb = this.props.settings.includePageBreadcrumbItem ||

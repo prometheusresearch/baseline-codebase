@@ -4,7 +4,6 @@
  */
 
 import invariant from 'invariant';
-import createLogger from 'debug';
 
 import type {
   Position,
@@ -18,8 +17,6 @@ import type {
   Domain,
 } from './types';
 import {onContextCommand} from './Command';
-
-const log = createLogger('rex-action:model:Position');
 
 type NextPositionOptions = {skipReplace?: boolean};
 

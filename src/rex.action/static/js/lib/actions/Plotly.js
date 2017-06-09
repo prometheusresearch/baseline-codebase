@@ -85,7 +85,7 @@ export default class Plot extends React.Component {
   }
 
   render() {
-    let {fetched: {data}, DOMSize, ...props} = this.props;
+    let {fetched: {data}, ...props} = this.props;
     return (
       <Action {...props} flex={1}>
         {data.updating || this.state.plotly === null

@@ -9,7 +9,7 @@ Test rex.widget.menu
 
   >>> class MenuWidget(Widget):
   ...     name = 'MenuWidget'
-  ...     js_type = 'mapped-widget'
+  ...     js_type = 'pkg', 'mapped-widget'
   ...
   ...     @responder()
   ...     def respond(self, req):
@@ -39,12 +39,12 @@ Test rex.widget.menu
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/lib/Chrome", {...}]]
+  ["~#widget", ["rex-widget", "Chrome", {...}]]
 
 ::
 
   >>> print Request.blank(
-  ...   '/w/@@/1.content.1.respond',
+  ...   '/w/@@/2.content.2.respond',
   ...   accept='application/json').get_response(rex) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/json; charset=UTF-8

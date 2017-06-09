@@ -10,7 +10,7 @@ Test rex.widget.render
 
   >>> class WidgetToRender(Widget):
   ...     name = 'WidgetToRender'
-  ...     js_type = 'widget-to-render'
+  ...     js_type = 'pkg', 'widget-to-render'
   ...
   ...     field = Field(StrVal())
   ...
@@ -38,16 +38,16 @@ Test rex.widget.render
   <html lang="en">
   <head>
   ...
-    <link id="__stylesheet__" media="not-applicable" rel="stylesheet" href="/widget_demo/bundle/bundle.css?v=...">
+    <link id="__stylesheet__" media="not-applicable" rel="stylesheet" href="/widget_demo/bundle/css/main...">
   ...
   </head>
   <body>
   ...
-    <script src="/widget_demo/bundle/bundle.js?v=..."></script>
+    <script src="/widget_demo/bundle/js/main..."></script>
   ...
     <script>
   ...
-        __REX_WIDGET__ = RexWidget.Transitionable.decode(JSON.stringify(["~#widget", ["rex-widget/lib/Chrome", {...}]]));
+        __REX_WIDGET__ = RexWidget.Transitionable.decode(JSON.stringify(["~#widget", ["rex-widget", "Chrome", {...}]]));
   ...
     </script>
   </body>
@@ -65,7 +65,7 @@ Test rex.widget.render
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/lib/Chrome", {...]]
+  ["~#widget", ["rex-widget", "Chrome", {...]]
 
 ::
 
@@ -81,14 +81,14 @@ Test rex.widget.render
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["widget-to-render", {...]]
+  ["~#widget", ["pkg", "widget-to-render", {...]]
 
 ::
 
   >>> req = Request.blank('/', accept='application/json')
   >>> print render_widget(
   ...   WidgetToRender(field='ok'), req,
-  ...   path='1.content.1.respond') # doctest: +ELLIPSIS
+  ...   path='2.content.2.respond') # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
@@ -100,10 +100,10 @@ Test rex.widget.render
   >>> req = Request.blank('/', accept='application/json')
   >>> print render_widget(
   ...   WidgetToRender(field='ok'), req,
-  ...   path='1.content.1.invalid_respond') # doctest: +ELLIPSIS
+  ...   path='2.content.2.invalid_respond') # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  HTTPBadRequest: invalid path "1.content.1.invalid_respond" at key "invalid_respond"
+  HTTPBadRequest: invalid path "2.content.2.invalid_respond" at key "invalid_respond"
 
   >>> req = Request.blank('/', accept='application/json')
   >>> print render_widget(

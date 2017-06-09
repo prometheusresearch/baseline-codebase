@@ -225,7 +225,7 @@ Failures
 
   >>> class WidgetWithRequiredFields(Widget):
   ...   name = 'WidgetWithRequiredFields'
-  ...   js_type = 'WidgetWithRequiredFields'
+  ...   js_type = 'pkg', 'WidgetWithRequiredFields'
   ...   a = Field(StrVal())
   ...   b = Field(StrVal())
 
@@ -249,7 +249,7 @@ Parsing shortcut forms
 
   >>> class WidgetWithSeq(Widget):
   ...   name = 'WidgetWithSeq'
-  ...   js_type = 'WidgetWithSeq'
+  ...   js_type = 'pkg', 'WidgetWithSeq'
   ...
   ...   seq = Field(SeqVal(StrVal()))
 

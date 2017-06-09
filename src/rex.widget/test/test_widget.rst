@@ -19,7 +19,7 @@ Init
   >>> class MyWidget(Widget):
   ...
   ...   name = 'MyWidget'
-  ...   js_type = 'rex-widget/MyWidget'
+  ...   js_type = 'rex-widget', 'MyWidget'
   ...
   ...   title = Field(StrVal())
   ...
@@ -82,7 +82,7 @@ Widget
 
   >>> req = Request.blank('/')
   >>> encode(w, req)
-  u'["~#widget", ["rex-widget/MyWidget", {"desc": "no desc", "title": "Ok", "computed": "computed!"}]]'
+  u'["~#widget", ["rex-widget", "MyWidget", {"desc": "no desc", "title": "Ok", "computed": "computed!"}]]'
 
   >>> w.__clone__(title='notok')
   MyWidget(desc='no desc', title='notok')
@@ -122,7 +122,7 @@ Widget with non-transitionable field
   >>> class WidgetWithNonTransitionableField(Widget):
   ...
   ...   name = 'WidgetWithNonTransitionableField'
-  ...   js_type = 'rex-widget/WidgetWithNonTransitionableField'
+  ...   js_type = 'rex-widget', 'WidgetWithNonTransitionableField'
   ...
   ...   title = Field(StrVal())
   ...
@@ -135,7 +135,7 @@ Widget with non-transitionable field
 
   >>> req = Request.blank('/')
   >>> encode(w, req)
-  u'["~#widget", ["rex-widget/WidgetWithNonTransitionableField", {"title": "Title"}]]'
+  u'["~#widget", ["rex-widget", "WidgetWithNonTransitionableField", {"title": "Title"}]]'
 
 Null widget
 -----------
@@ -175,7 +175,7 @@ Nested widget hierarchy
 
   >>> class ComplexWidget(Widget):
   ...   name = 'ComplexWidget'
-  ...   js_type = 'ComplexWidget'
+  ...   js_type = 'pkg', 'ComplexWidget'
   ...   children = Field(WidgetVal())
 
   >>> w = ComplexWidget(children=MyWidget(title='title'))
@@ -185,8 +185,8 @@ Nested widget hierarchy
 
   >>> req = Request.blank('/')
   >>> encode(w, req) # doctest: +NORMALIZE_WHITESPACE
-  u'["~#widget", ["ComplexWidget",
-                  {"children": ["^0", ["rex-widget/MyWidget",
+  u'["~#widget", ["pkg", "ComplexWidget",
+                  {"children": ["^0", ["rex-widget", "MyWidget",
                                        {"desc": "no desc", "title": "title", "computed": "computed!"}]]}]]'
 
   >>> w = ComplexWidget(children=[MyWidget(title='title')])
@@ -196,8 +196,8 @@ Nested widget hierarchy
 
   >>> req = Request.blank('/')
   >>> encode(w, req) # doctest: +NORMALIZE_WHITESPACE
-  u'["~#widget", ["ComplexWidget",
-                  {"children": [["^0", ["rex-widget/MyWidget",
+  u'["~#widget", ["pkg", "ComplexWidget",
+                  {"children": [["^0", ["rex-widget", "MyWidget",
                                         {"desc": "no desc", "title": "title", "computed": "computed!"}]]]}]]'
 
 Widget composition
@@ -231,7 +231,7 @@ Widget composition
 
   >>> req = Request.blank('/')
   >>> encode(w, req) # doctest: +NORMALIZE_WHITESPACE
-  u'["~#widget", ["rex-widget/MyWidget", {"desc": "no desc", "title": "ok!", "computed": "computed!"}]]'
+  u'["~#widget", ["rex-widget", "MyWidget", {"desc": "no desc", "title": "ok!", "computed": "computed!"}]]'
 
   >>> rex.cache.clear()
 
@@ -277,14 +277,14 @@ Raw widgets
 
   >>> from rex.widget import raw_widget
 
-  >>> encode(raw_widget('type', {'key': 'value'}), Request.blank('/'))
-  u'["~#widget", ["type", {"key": "value"}]]'
+  >>> encode(raw_widget(('pkg', 'type'), {'key': 'value'}), Request.blank('/'))
+  u'["~#widget", ["pkg", "type", {"key": "value"}]]'
 
-  >>> encode(raw_widget('type', key='value'), Request.blank('/'))
-  u'["~#widget", ["type", {"key": "value"}]]'
+  >>> encode(raw_widget(('pkg', 'type'), key='value'), Request.blank('/'))
+  u'["~#widget", ["pkg", "type", {"key": "value"}]]'
 
-  >>> encode(raw_widget('type', {'a': 'b'}, key='value'), Request.blank('/'))
-  u'["~#widget", ["type", {"a": "b", "key": "value"}]]'
+  >>> encode(raw_widget(('pkg', 'type'), {'a': 'b'}, key='value'), Request.blank('/'))
+  u'["~#widget", ["pkg", "type", {"a": "b", "key": "value"}]]'
 
 Widget pointer
 --------------
@@ -295,7 +295,7 @@ Widget pointer
 
   >>> class WidgetWithPointer(Widget):
   ...   name = 'WidgetWithPointer'
-  ...   js_type = 'WidgetWithPointer'
+  ...   js_type = 'pkg', 'WidgetWithPointer'
   ...
   ...   @computed_field
   ...   def pointer(self):
@@ -311,12 +311,12 @@ Widget pointer
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/lib/Chrome", {"content": ["^0", ["WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/@@/1.content"]]}]], "title": null}]]
+  ["~#widget", ["rex-widget", "Chrome", {"content": ["^0", ["pkg", "WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/@@/2.content"]]}]], "title": null}]]
 
   >>> print render_widget(
   ...   w,
-  ...   Request.blank('/@@/1.content', accept='application/json'),
-  ...   path='1.content',
+  ...   Request.blank('/@@/2.content', accept='application/json'),
+  ...   path='2.content',
   ... ) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
@@ -331,12 +331,12 @@ Widget pointer
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/lib/Chrome", {"content": ["^0", ["ComplexWidget", {"children": ["^0", ["WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/@@/1.content.1.children"]]}]]}]], "title": null}]]
+  ["~#widget", ["rex-widget", "Chrome", {"content": ["^0", ["pkg", "ComplexWidget", {"children": ["^0", ["pkg", "WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/@@/2.content.2.children"]]}]]}]], "title": null}]]
 
   >>> print render_widget(
   ...   w,
-  ...   Request.blank('/@@/1.content.1.children', accept='application/json'),
-  ...   path='1.content.1.children',
+  ...   Request.blank('/@@/2.content.2.children', accept='application/json'),
+  ...   path='2.content.2.children',
   ... ) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
@@ -351,12 +351,12 @@ Widget pointer
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/lib/Chrome", {"content": ["^0", ["ComplexWidget", {"children": [["^0", ["WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/@@/1.content.1.children.0"]]}]]]}]], "title": null}]]
+  ["~#widget", ["rex-widget", "Chrome", {"content": ["^0", ["pkg", "ComplexWidget", {"children": [["^0", ["pkg", "WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/@@/2.content.2.children.0"]]}]]]}]], "title": null}]]
 
   >>> print render_widget(
   ...   w,
-  ...   Request.blank('/@@/1.content.1.children.0', accept='application/json'),
-  ...   path='1.content.1.children.0',
+  ...   Request.blank('/@@/2.content.2.children.0', accept='application/json'),
+  ...   path='2.content.2.children.0',
   ... ) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
@@ -368,7 +368,7 @@ Pointer to field::
 
   >>> class WidgetWithFieldPointer(Widget):
   ...   name = 'WidgetWithFieldPointer'
-  ...   js_type = 'WidgetWithFieldPointer'
+  ...   js_type = 'pkg', 'WidgetWithFieldPointer'
   ...
   ...   @computed_field
   ...   def pointer(self):
@@ -381,13 +381,13 @@ Pointer to field::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/lib/Chrome", {"content": ["^0", ["WidgetWithFieldPointer", {"pointer": ["~#url", ["http://localhost/@@/1.content.1.pointer"]]}]], "title": null}]]
+  ["~#widget", ["rex-widget", "Chrome", {"content": ["^0", ["pkg", "WidgetWithFieldPointer", {"pointer": ["~#url", ["http://localhost/@@/2.content.2.pointer"]]}]], "title": null}]]
 
 Pointer with wrapper::
 
   >>> class WidgetWithWrappedPointer(Widget):
   ...   name = 'WidgetWithWrappedPointer'
-  ...   js_type = 'WidgetWithWrappedPointer'
+  ...   js_type = 'pkg', 'WidgetWithWrappedPointer'
   ...
   ...   @computed_field
   ...   def pointer(self):
@@ -403,7 +403,7 @@ Pointer with wrapper::
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/lib/Chrome", {"content": ["^0", ["WidgetWithWrappedPointer", {"pointer": [["~#url", ["http://localhost/@@/1.content.1.pointer"]]]}]], "title": null}]]
+  ["~#widget", ["rex-widget", "Chrome", {"content": ["^0", ["pkg", "WidgetWithWrappedPointer", {"pointer": [["~#url", ["http://localhost/@@/2.content.2.pointer"]]]}]], "title": null}]]
 
 
 Responder field
@@ -415,7 +415,7 @@ Responder field
 
   >>> class WidgetWithResponder(Widget):
   ...   name = 'WidgetWithResponder'
-  ...   js_type = 'WidgetWithResponder'
+  ...   js_type = 'pkg', 'WidgetWithResponder'
   ...
   ...   title = Field(StrVal())
   ...
@@ -433,16 +433,16 @@ Responder field
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/lib/Chrome",
+  ["~#widget", ["rex-widget", "Chrome",
                 {"content": ["^0",
-                             ["WidgetWithResponder",
+                             ["pkg", "WidgetWithResponder",
                               {"title": "Hi",
-                               "data": ["~#url", ["http://localhost/@@/1.content.1.data"]]}]], "^2": "Hi"}]]
+                               "data": ["~#url", ["http://localhost/@@/2.content.2.data"]]}]], "^2": "Hi"}]]
 
   >>> print render_widget(
   ...   w,
-  ...   Request.blank('/@@/1.content.1.data', accept='application/json'),
-  ...   path='1.content.1.data',
+  ...   Request.blank('/@@/2.content.2.data', accept='application/json'),
+  ...   path='2.content.2.data',
   ... ) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
@@ -456,7 +456,7 @@ Responder field
 
   >>> class WidgetWithPortResponder(Widget):
   ...   name = 'WidgetWithPortResponder'
-  ...   js_type = 'WidgetWithPortResponder'
+  ...   js_type = 'pkg', 'WidgetWithPortResponder'
   ...
   ...   title = Field(StrVal())
   ...
@@ -474,16 +474,16 @@ Responder field
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/lib/Chrome",
+  ["~#widget", ["rex-widget", "Chrome",
                 {"content": ["^0",
-                             ["WidgetWithPortResponder",
+                             ["pkg", "WidgetWithPortResponder",
                               {"title": "Hi",
-                               "data": ["~#port", ["http://localhost/@@/1.content.1.data"]]}]], "^2": "Hi"}]]
+                               "data": ["~#port", ["http://localhost/@@/2.content.2.data"]]}]], "^2": "Hi"}]]
 
   >>> print render_widget(
   ...   w,
-  ...   Request.blank('/@@/1.content.1.data', accept='application/json'),
-  ...   path='1.content.1.data',
+  ...   Request.blank('/@@/2.content.2.data', accept='application/json'),
+  ...   path='2.content.2.data',
   ... ) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: text/html; charset=UTF-8
@@ -493,7 +493,7 @@ Responder field
 
   >>> class CompositionWithResponder(WidgetComposition):
   ...   name = 'CompositionWithResponder'
-  ...   js_type = 'CompositionWithResponder'
+  ...   js_type = 'pkg', 'CompositionWithResponder'
   ...
   ...   title = WidgetWithPortResponder.title.__clone__()
   ...
@@ -507,16 +507,16 @@ Responder field
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/lib/Chrome",
+  ["~#widget", ["rex-widget", "Chrome",
                 {"content": ["^0",
-                            ["WidgetWithPortResponder",
+                            ["pkg", "WidgetWithPortResponder",
                             {"title": "ok",
-                             "data": ["~#port", ["http://localhost/@@/1.content.1.data"]]}]], "^2": "ok"}]]
+                             "data": ["~#port", ["http://localhost/@@/2.content.2.data"]]}]], "^2": "ok"}]]
 
   >>> print render_widget(
   ...   w,
-  ...   Request.blank('/@@/1.content.1.data', accept='application/json'),
-  ...   path='1.content.1.data',
+  ...   Request.blank('/@@/2.content.2.data', accept='application/json'),
+  ...   path='2.content.2.data',
   ... ) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: text/html; charset=UTF-8

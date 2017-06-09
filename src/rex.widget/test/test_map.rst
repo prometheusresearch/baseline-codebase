@@ -9,7 +9,7 @@ Test rex.widget.map
 
   >>> class MappedWidget(Widget):
   ...     name = 'MappedWidget'
-  ...     js_type = 'mapped-widget'
+  ...     js_type = 'pkg', 'mapped-widget'
   ...
   ...     @responder()
   ...     def respond(self, req):
@@ -39,10 +39,10 @@ Test rex.widget.map
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/lib/Chrome", {...}]]
+  ["~#widget", ["rex-widget", "Chrome", {...}]]
 
   >>> print Request.blank(
-  ...   '/w/@@/1.content.1.respond',
+  ...   '/w/@@/2.content.2.respond',
   ...   accept='application/json').get_response(rex) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/json; charset=UTF-8
@@ -77,7 +77,7 @@ Overrides
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["mapped-widget", {...}]]
+  ["~#widget", ["pkg", "mapped-widget", {...}]]
 
   >>> pkg.rewrite('/urlmap.yaml', '''
   ... include:
@@ -106,9 +106,9 @@ Overrides
   ...   accept='application/json').get_response(rex) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/json; charset=UTF-8
-  Content-Length: 171
+  Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget/lib/Chrome", {..., "title": "NEWTITLE"}]]
+  ["~#widget", ["rex-widget", "Chrome", {..., "title": "NEWTITLE"}]]
 
 ::
 

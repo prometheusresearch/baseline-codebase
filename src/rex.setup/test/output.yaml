@@ -158,8 +158,8 @@ tests:
     stdout: ''
   - sh: unzip -q ./src/rex.setup_demo/dist/rex.setup_demo-4.0.0.zip
     stdout: ''
-  - sh: find './rex.setup_demo-4.0.0' -type d -not -wholename './rex.setup_demo-4.0.0/static/www/bundle/*'
-      -exec echo '=== {} ===' ';' -exec ls '{}' ';'
+  - sh: sh -c "find './rex.setup_demo-4.0.0' -type d -not -wholename './rex.setup_demo-4.0.0/static/www/bundle/*'
+      | sort | while read dir; do echo === $dir ===; ls $dir | sort; done"
     stdout: |
       === ./rex.setup_demo-4.0.0 ===
       PKG-INFO
@@ -168,6 +168,21 @@ tests:
       setup.py
       src
       static
+      === ./rex.setup_demo-4.0.0/src ===
+      rex
+      rex.setup_demo.egg-info
+      === ./rex.setup_demo-4.0.0/src/rex ===
+      __init__.py
+      setup_demo.py
+      === ./rex.setup_demo-4.0.0/src/rex.setup_demo.egg-info ===
+      PKG-INFO
+      SOURCES.txt
+      dependency_links.txt
+      namespace_packages.txt
+      rex_bundle.txt
+      rex_init.txt
+      rex_static.txt
+      top_level.txt
       === ./rex.setup_demo-4.0.0/static ===
       js
       www
@@ -184,21 +199,16 @@ tests:
       doc
       index.html
       jquery
-      === ./rex.setup_demo-4.0.0/static/www/jquery ===
-      MIT-LICENSE.txt
-      jquery-1.10.2.js
-      jquery-1.10.2.min.js
-      jquery-1.10.2.min.map
-      === ./rex.setup_demo-4.0.0/static/www/bundle ===
-      asset-manifest.json
-      css
-      js
-      static
       === ./rex.setup_demo-4.0.0/static/www/bootstrap ===
       LICENSE
       css
       fonts
       js
+      === ./rex.setup_demo-4.0.0/static/www/bootstrap/css ===
+      bootstrap-theme.css
+      bootstrap-theme.min.css
+      bootstrap.css
+      bootstrap.min.css
       === ./rex.setup_demo-4.0.0/static/www/bootstrap/fonts ===
       glyphicons-halflings-regular.eot
       glyphicons-halflings-regular.svg
@@ -207,11 +217,11 @@ tests:
       === ./rex.setup_demo-4.0.0/static/www/bootstrap/js ===
       bootstrap.js
       bootstrap.min.js
-      === ./rex.setup_demo-4.0.0/static/www/bootstrap/css ===
-      bootstrap-theme.css
-      bootstrap-theme.min.css
-      bootstrap.css
-      bootstrap.min.css
+      === ./rex.setup_demo-4.0.0/static/www/bundle ===
+      asset-manifest.json
+      css
+      js
+      static
       === ./rex.setup_demo-4.0.0/static/www/doc ===
       Makefile
       _sources
@@ -268,21 +278,11 @@ tests:
       up-pressed.png
       up.png
       websupport.js
-      === ./rex.setup_demo-4.0.0/src ===
-      rex
-      rex.setup_demo.egg-info
-      === ./rex.setup_demo-4.0.0/src/rex ===
-      __init__.py
-      setup_demo.py
-      === ./rex.setup_demo-4.0.0/src/rex.setup_demo.egg-info ===
-      PKG-INFO
-      SOURCES.txt
-      dependency_links.txt
-      namespace_packages.txt
-      rex_bundle.txt
-      rex_init.txt
-      rex_static.txt
-      top_level.txt
+      === ./rex.setup_demo-4.0.0/static/www/jquery ===
+      MIT-LICENSE.txt
+      jquery-1.10.2.js
+      jquery-1.10.2.min.js
+      jquery-1.10.2.min.map
 - suite: sdist
   tests:
   - sh: virtualenv -q --system-site-packages --never-download ./sandbox

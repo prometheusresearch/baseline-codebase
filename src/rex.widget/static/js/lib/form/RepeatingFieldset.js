@@ -138,7 +138,7 @@ export class RepeatingFieldset extends React.Component {
   };
 }
 
-function RepeatingFieldsetItemToolbar({onRemove, children}) {
+export function RepeatingFieldsetItemToolbar({onRemove, children}) {
   return (
     <VBox marginBottom={35} marginRight={20} alignSelf="flex-start">
       <ReactUI.FlatDangerButton

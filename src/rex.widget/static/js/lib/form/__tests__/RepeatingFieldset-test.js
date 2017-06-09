@@ -3,17 +3,15 @@
  */
 
 import React from 'react';
+import * as ReactUI from '@prometheusresearch/react-ui';
 import {spy, createRenderer, assert} from '../../../testutils';
 
 import {createValue} from 'react-forms';
-import * as ui from '../../ui';
-import {RepeatingFieldset} from '../RepeatingFieldset';
+import {RepeatingFieldset, RepeatingFieldsetItemToolbar} from '../RepeatingFieldset';
 import Field from '../Field';
 
 describe('rex-widget/form', function() {
-
   describe('<RepeatingFieldset />', function() {
-
     let renderer;
 
     beforeEach(function() {
@@ -25,25 +23,25 @@ describe('rex-widget/form', function() {
       renderer.render(
         <RepeatingFieldset formValue={formValue}>
           <Field select="a" />
-        </RepeatingFieldset>
+        </RepeatingFieldset>,
       );
       let fields = renderer.findAllWithElement(<Field />);
       assert(fields.length === 2);
-      renderer.assertElement(<ui.Button />);
+      renderer.assertElement(<ReactUI.Button />);
     });
 
     it('adds a new item (default value via props)', function() {
       let onChange = spy();
       let formValue = createValue({
         value: [{a: 1}, {a: 2}],
-        onChange
+        onChange,
       });
       renderer.render(
         <RepeatingFieldset formValue={formValue} defaultValue={{a: 42}}>
           <Field select="a" />
-        </RepeatingFieldset>
+        </RepeatingFieldset>,
       );
-      let addButton = renderer.findWithElement(<ui.Button />);
+      let addButton = renderer.findWithElement(<ReactUI.Button />);
       assert(addButton.props.onClick);
       addButton.props.onClick();
       assert(onChange.calledOnce);
@@ -58,14 +56,14 @@ describe('rex-widget/form', function() {
       let formValue = createValue({
         value: [{a: 1}, {a: 2}],
         schema,
-        onChange
+        onChange,
       });
       renderer.render(
         <RepeatingFieldset formValue={formValue}>
           <Field select="a" />
-        </RepeatingFieldset>
+        </RepeatingFieldset>,
       );
-      let addButton = renderer.findWithElement(<ui.Button />);
+      let addButton = renderer.findWithElement(<ReactUI.Button />);
       assert(addButton.props.onClick);
       addButton.props.onClick();
       assert(onChange.calledOnce);
@@ -78,14 +76,14 @@ describe('rex-widget/form', function() {
       let onChange = spy();
       let formValue = createValue({
         value: [{a: 1}, {a: 2}],
-        onChange
+        onChange,
       });
       renderer.render(
         <RepeatingFieldset formValue={formValue}>
           <Field select="a" />
-        </RepeatingFieldset>
+        </RepeatingFieldset>,
       );
-      let addButton = renderer.findWithElement(<ui.Button />);
+      let addButton = renderer.findWithElement(<ReactUI.Button />);
       assert(addButton.props.onClick);
       addButton.props.onClick();
       assert(onChange.calledOnce);
@@ -98,23 +96,21 @@ describe('rex-widget/form', function() {
       let onChange = spy();
       let formValue = createValue({
         value: [{a: 1}, {a: 2}],
-        onChange
+        onChange,
       });
       renderer.render(
         <RepeatingFieldset formValue={formValue}>
           <Field select="a" />
-        </RepeatingFieldset>
+        </RepeatingFieldset>,
       );
 
-      let closeButtons = renderer.findAllWithElement(<ui.DangerButton />);
+      let closeButtons = renderer.findAllWithType(RepeatingFieldsetItemToolbar);
       assert(closeButtons.length === 2);
 
-      closeButtons[1].props.onClick();
+      closeButtons[1].props.onRemove();
       assert(onChange.callCount === 1);
       assert(onChange.firstCall.args[0].value.length === 1);
       assert.deepEqual(onChange.firstCall.args[0].value, [{a: 1}]);
     });
   });
-
 });
-

@@ -4,7 +4,7 @@
 
 import * as React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
-import {VBox, HBox} from '../../layout';
+import {HBox} from '../../layout';
 import {withFormValue} from 'react-forms';
 import ErrorList from './ErrorList';
 
@@ -30,9 +30,8 @@ let Style = {
 };
 
 /**
- * Renders a read-only field as an <HBox>
- * with a <VBox> containing the ``label``,
- * and another <VBox> containing the value.
+ * Renders a read-only field.
+ *
  * The value is ``children`` unless ``children === undefined``
  * in which case ``formValue.value`` is used.
  *
@@ -82,15 +81,13 @@ export class ReadOnlyField extends React.Component {
     children: React.PropTypes.element,
 
     /**
-     * Unitless number representing the amount of space the
-     * <VBox> with the <label> uses
+     * Unitless number representing the amount of space the <label> uses
      * relative to all its sibling widgets.
      */
     labelSize: React.PropTypes.number,
 
     /**
-     * Unitless number representing the amount of space the
-     * <VBox> with the value uses
+     * Unitless number representing the amount of space the value uses
      * relative to all its sibling widgets.
      */
     inputSize: React.PropTypes.number,

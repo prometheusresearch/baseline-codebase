@@ -137,8 +137,6 @@
 
     INSERT INTO t_datetime ("code", "timestamp", "timestamp_0", "timestamptz", "timestamptz_0") VALUES
         ('1-regular', '2010-04-15 20:13:04.5', '2010-04-15 20:13:04', '2010-04-15 20:13:04.5 EDT', '2010-04-15 20:13:04 EDT'),
-        ('2-min', '4714-12-31 00:00:00.0 BC', '4714-12-31 00:00:00 BC', '4714-11-24 00:00:00.0 BC UTC', '4714-11-24 00:00:00 BC UTC'),
-        ('3-max', '294277-01-09 04:00:54.7', '294277-01-09 04:00:54', '294277-01-09 04:00:54.7 UTC', '294277-01-09 04:00:54 UTC'),
         ('4-pinf', 'infinity', 'infinity', 'infinity', 'infinity'),
         ('5-ninf', '-infinity', '-infinity', '-infinity', '-infinity'),
         ('6-null', NULL, NULL, NULL, NULL);
@@ -154,8 +152,6 @@
 
     INSERT INTO t_date ("code", "date") VALUES
         ('1-regular', '2010-04-15'),
-        ('2-min', '4714-11-24 BC'),
-        ('3-max', '5874897-12-31'),
         ('4-pinf', 'infinity'),
         ('5-ninf', '-infinity'),
         ('6-null', NULL);

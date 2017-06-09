@@ -31,6 +31,7 @@ Wizard
   >>> class MyAction(Action):
   ...
   ...   name = 'wmy'
+  ...   js_type = 'pkg', 'MyAction'
   ...
   ...   def context(self):
   ...     return self.domain.record(), self.domain.record()
@@ -127,7 +128,7 @@ Wizard
 
   >>> from rex.widget import encode
   >>> encode(w, Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  u'["~#widget", ["rex-action/.../Wizard", ...]]'
+  u'["~#widget", ["rex-action", "Wizard", ...]]'
 
 ::
 
@@ -783,7 +784,7 @@ Replace
   Context:
       individual: individual
   While type checking action at path:
-      make-individual -> <replace ../pick-lab/view-lab> -> view-lab
+      make-individual -> <replace ../pick-lab/view-lab> -> pick-lab -> view-lab
   While parsing:
       "<...>", line 4
 

@@ -66,7 +66,7 @@ In case fields are not specified, they are generated from port::
   >>> print render_widget(
   ...   edit,
   ...   Request.blank('/', accept='application/json'),
-  ...   path='1.data',
+  ...   path='2.data',
   ...   no_chrome=True) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/javascript

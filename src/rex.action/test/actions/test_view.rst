@@ -75,7 +75,7 @@ In case fields are not specified, they are generated from port::
   ...   view,
   ...   Request.blank('/', accept='application/json'),
   ...   no_chrome=True,
-  ...   path='1.data') # doctest: +ELLIPSIS
+  ...   path='2.data') # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"

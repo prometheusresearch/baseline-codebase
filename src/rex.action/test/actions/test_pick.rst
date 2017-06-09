@@ -60,7 +60,7 @@ In case fields are not specified, they are generated from port::
   ...
 
   >>> req = Request.blank('/', accept='application/json')
-  >>> print render_widget(pick, req, no_chrome=True, path='1.data') # doctest: +ELLIPSIS
+  >>> print render_widget(pick, req, no_chrome=True, path='2.data') # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"
@@ -102,7 +102,7 @@ var to this filter::
   ''')
 
   >>> req = Request.blank('/', accept='application/json')
-  >>> print render_widget(pick, req, no_chrome=True, path='1.data') # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  >>> print render_widget(pick, req, no_chrome=True, path='2.data') # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"
@@ -167,7 +167,7 @@ to those input variables::
   ''')
 
   >>> req = Request.blank('/', accept='application/json')
-  >>> print render_widget(pick, req, no_chrome=True, path='1.data') # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  >>> print render_widget(pick, req, no_chrome=True, path='2.data') # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"

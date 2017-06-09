@@ -109,7 +109,7 @@ Parsing replace::
   >>> parse_instruction("""
   ... replace: ./other-action
   ... """)
-  Replace(replace='./other-action', instruction=None)
+  Replace(replace='./other-action', instruction=None, traverse_back=None, traverse=None)
 
   >>> parse_instruction("""
   ... home:
@@ -123,7 +123,9 @@ Parsing replace::
                         action_instance='pick-individual'),
                 Execute(id='...', action='make-individual',
                         then=[Replace(replace='../pick-individual',
-                                      instruction=None)],
+                                      instruction=None,
+                                      traverse_back=None,
+                                      traverse=None)],
                         action_instance='make-individual')],
           action_instance='home')
 
@@ -152,7 +154,9 @@ PathVal
                       then=[Replace(replace='../pick-individual',
                                     instruction=Execute(id='...', action='pick-individual',
                                                         then=[],
-                                                        action_instance='pick-individual'))],
+                                                        action_instance='pick-individual'),
+                                    traverse_back=1,
+                                    traverse=[('pick-individual', None)])],
                       action_instance='make-individual')],
                       action_instance='home')])
 

@@ -4,6 +4,7 @@
 
 from setuptools import setup, find_packages
 
+
 setup(
     name='rex.i18n',
     version='0.5.3',
@@ -35,4 +36,6 @@ setup(
         'pytz>=0a',
     ],
     rex_init='rex.i18n',
-    rex_static='static', )
+    rex_static='static',
+)
+

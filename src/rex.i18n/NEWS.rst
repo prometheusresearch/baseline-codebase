@@ -5,6 +5,12 @@ REX.I18N Change Log
 .. contents:: Table of Contents
 
 
+0.5.3 (2017-xx-xx)
+==================
+
+* Fixes to support ``rex.setup`` v4.
+
+
 0.5.2 (2017-01-19)
 ==================
 

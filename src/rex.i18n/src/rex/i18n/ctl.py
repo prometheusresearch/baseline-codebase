@@ -144,7 +144,13 @@ class I18NExtractTask(I18NTask):
     def extract_frontend(self):
         # Make sure the node environment is ready.
         commonjs.bootstrap()
-        commonjs.npm(['install', '--global', 'gettext-parser'])
+        commonjs.npm([
+            'install',
+            '--global',
+            'gettext-parser@1.2.x',
+            'babel-core@6.x',
+            'babel-preset-prometheusresearch',
+        ])
 
         with make_rex('rex.i18n'):
             args = [

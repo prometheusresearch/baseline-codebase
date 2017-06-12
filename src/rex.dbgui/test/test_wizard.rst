@@ -20,7 +20,7 @@ It can generate the root wizard consisting of just one action::
 
   >>> with app:
   ...     print root_wizard().wizard  # doctest: +ELLIPSIS
-  Wizard(actions={'dbgui': PickTable(doc=undefined, help=undefined, icon=undefined, id='dbgui', kind=undefined, title='Pick Table', width=undefined)}, doc=undefined, help=undefined, icon=undefined, id='dbgui', initial_context=None, kind=undefined, path=Start(then=[Execute(id='1073fbb5beef658458731538f9ecfaec', action='dbgui', then=[], action_instance=PickTable(doc=undefined, help=undefined, icon=undefined, id='dbgui', kind=undefined, title='Pick Table', width=undefined))]), states=<Domain default>, title='DBGUI', width=undefined)
+  Wizard(actions={'dbgui': PickTable(doc=undefined, help=undefined, icon=undefined, id='dbgui', kind=undefined, title='Pick Table', width=undefined)}, doc=undefined, help=undefined, icon=undefined, id='dbgui', initial_context=None, kind=undefined, path=Start(then=[Execute(id='dbgui--1073fbb5beef658458731538f9ecfaec', action='dbgui', then=[], action_instance=PickTable(doc=undefined, help=undefined, icon=undefined, id='dbgui', kind=undefined, title='Pick Table', width=undefined))]), states=<Domain default>, title='DBGUI', width=undefined)
 
 It can generate the wizard for the base trunk table::
 
@@ -34,27 +34,27 @@ It can generate the wizard for the base trunk table::
       - pick-trunk:
         - view-trunk:
           - edit-trunk:
-            - replace: ../../../pick-trunk/view-trunk
+            - replace: ../../../pick-trunk?trunk=$trunk/view-trunk
           - view-facet--trunk:
             - edit-facet--trunk:
-              - replace: ../../view-facet--trunk
+              - replace: ../../view-facet--trunk?trunk=$trunk
         - pick-branch--trunk:
           - view-branch--trunk:
             - edit-branch--trunk:
-              - replace: ../../../pick-branch--trunk/view-branch--trunk
+              - replace: ../../../pick-branch--trunk?branch=$branch/view-branch--trunk
           - drop-branch:
           - make-branch--trunk:
-            - replace: ../../pick-branch--trunk/view-branch--trunk
+            - replace: ../../pick-branch--trunk?branch=$branch/view-branch--trunk
         - pick-cross--trunk:
           - view-cross--trunk:
             - edit-cross--trunk:
-              - replace: ../../../pick-cross--trunk/view-cross--trunk
+              - replace: ../../../pick-cross--trunk?cross=$cross/view-cross--trunk
           - drop-cross:
           - make-cross--trunk:
-            - replace: ../../pick-cross--trunk/view-cross--trunk
+            - replace: ../../pick-cross--trunk?cross=$cross/view-cross--trunk
         - drop-trunk:
         - make-trunk:
-          - replace: ../../pick-trunk/view-trunk
+          - replace: ../../pick-trunk?trunk=$trunk/view-trunk
       - view-source:
       actions:
         pick-trunk:
@@ -242,20 +242,20 @@ It can handle the case when facet table is a parent of some other table::
       - pick-trunk-facet-parent-case:
         - view-trunk-facet-parent-case:
           - edit-trunk-facet-parent-case:
-            - replace: ../../../pick-trunk-facet-parent-case/view-trunk-facet-parent-case
+            - replace: ../../../pick-trunk-facet-parent-case?trunk_facet_parent_case=$trunk_facet_parent_case/view-trunk-facet-parent-case
           - view-facet-parent--trunk_facet_parent_case:
             - edit-facet-parent--trunk_facet_parent_case:
-              - replace: ../../view-facet-parent--trunk_facet_parent_case
+              - replace: ../../view-facet-parent--trunk_facet_parent_case?trunk_facet_parent_case=$trunk_facet_parent_case
             - pick-facet-branch--trunk_facet_parent_case:
               - view-facet-branch--trunk_facet_parent_case:
                 - edit-facet-branch--trunk_facet_parent_case:
-                  - replace: ../../../pick-facet-branch--trunk_facet_parent_case/view-facet-branch--trunk_facet_parent_case
+                  - replace: ../../../pick-facet-branch--trunk_facet_parent_case?facet_branch=$facet_branch/view-facet-branch--trunk_facet_parent_case
               - drop-facet-branch:
               - make-facet-branch--trunk_facet_parent_case:
-                - replace: ../../pick-facet-branch--trunk_facet_parent_case/view-facet-branch--trunk_facet_parent_case
+                - replace: ../../pick-facet-branch--trunk_facet_parent_case?facet_branch=$facet_branch/view-facet-branch--trunk_facet_parent_case
         - drop-trunk-facet-parent-case:
         - make-trunk-facet-parent-case:
-          - replace: ../../pick-trunk-facet-parent-case/view-trunk-facet-parent-case
+          - replace: ../../pick-trunk-facet-parent-case?trunk_facet_parent_case=$trunk_facet_parent_case/view-trunk-facet-parent-case
       - view-source:
       actions:
         pick-trunk-facet-parent-case:
@@ -393,24 +393,24 @@ the ``$USER`` variable)::
       - pick-user:
         - view-user:
           - edit-user:
-            - replace: ../../../pick-user/view-user
+            - replace: ../../../pick-user?_user=$_user/view-user
         - pick-cross-with-named-links--user:
           - view-cross-with-named-links--user:
             - edit-cross-with-named-links--user:
-              - replace: ../../../pick-cross-with-named-links--user/view-cross-with-named-links--user
+              - replace: ../../../pick-cross-with-named-links--user?cross_with_named_links=$cross_with_named_links/view-cross-with-named-links--user
           - drop-cross-with-named-links:
           - make-cross-with-named-links--user:
-            - replace: ../../pick-cross-with-named-links--user/view-cross-with-named-links--user
+            - replace: ../../pick-cross-with-named-links--user?cross_with_named_links=$cross_with_named_links/view-cross-with-named-links--user
         - pick-user-access--user:
           - view-user-access--user:
             - edit-user-access--user:
-              - replace: ../../../pick-user-access--user/view-user-access--user
+              - replace: ../../../pick-user-access--user?user_access=$user_access/view-user-access--user
           - drop-user-access:
           - make-user-access--user:
-            - replace: ../../pick-user-access--user/view-user-access--user
+            - replace: ../../pick-user-access--user?user_access=$user_access/view-user-access--user
         - drop-user:
         - make-user:
-          - replace: ../../pick-user/view-user
+          - replace: ../../pick-user?_user=$_user/view-user
       - view-source:
       actions:
         pick-user:
@@ -574,17 +574,17 @@ It handles the case when link names are not equal to target table names::
       - pick-trunk-with-named-links:
         - view-trunk-with-named-links:
           - edit-trunk-with-named-links:
-            - replace: ../../../pick-trunk-with-named-links/view-trunk-with-named-links
+            - replace: ../../../pick-trunk-with-named-links?trunk_with_named_links=$trunk_with_named_links/view-trunk-with-named-links
         - pick-cross-with-named-links--trunk_with_named_links:
           - view-cross-with-named-links--trunk_with_named_links:
             - edit-cross-with-named-links--trunk_with_named_links:
-              - replace: ../../../pick-cross-with-named-links--trunk_with_named_links/view-cross-with-named-links--trunk_with_named_links
+              - replace: ../../../pick-cross-with-named-links--trunk_with_named_links?cross_with_named_links=$cross_with_named_links/view-cross-with-named-links--trunk_with_named_links
           - drop-cross-with-named-links:
           - make-cross-with-named-links--trunk_with_named_links:
-            - replace: ../../pick-cross-with-named-links--trunk_with_named_links/view-cross-with-named-links--trunk_with_named_links
+            - replace: ../../pick-cross-with-named-links--trunk_with_named_links?cross_with_named_links=$cross_with_named_links/view-cross-with-named-links--trunk_with_named_links
         - drop-trunk-with-named-links:
         - make-trunk-with-named-links:
-          - replace: ../../pick-trunk-with-named-links/view-trunk-with-named-links
+          - replace: ../../pick-trunk-with-named-links?trunk_with_named_links=$trunk_with_named_links/view-trunk-with-named-links
       - view-source:
       actions:
         pick-trunk-with-named-links:

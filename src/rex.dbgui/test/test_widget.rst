@@ -17,17 +17,17 @@ used within the ``urlmap.yaml`` or ``menu.yaml``::
   ...         res = render_widget(widget, req, no_chrome=True, path=path)
   ...         print ''.join(res.body)
   >>> render(DBGUI(), '/') # doctest: +ELLIPSIS
-  ["~#widget", ["rex-dbgui/lib/DBGUI", {"tableWizard": ["~#request_url", ["http://localhost/@@/1.tableWizard"]], "rootWizard":...
+  ["~#widget", ["rex-dbgui", "DBGUI", {"tableWizard": ["~#request_url", ["http://localhost/@@/2.tableWizard"]], "rootWizard":...
 
 This widget has one piece of specific server-side functionality. First of all,
 it permits to download the table specific wizard::
 
-  >>> render(DBGUI(), '/@@/1.tableWizard/trunk') # doctest: +ELLIPSIS
-  ["~#widget", ["rex-action/lib/wizard/Wizard",...
+  >>> render(DBGUI(), '/@@/2.tableWizard/trunk') # doctest: +ELLIPSIS
+  ["~#widget", ["rex-action", "Wizard",...
 
 The important part here is that this downloaded wizard can also download internal data using the same entry point::
 
-  >>> render(DBGUI(), '/@@/1.tableWizard/trunk/@@/1.actions.2b96adec654127dd7fc05276f59405ff.1.data') # doctest: +ELLIPSIS
+  >>> render(DBGUI(), '/@@/2.tableWizard/trunk/@@/2.actions.pick-trunk--9d4903e8ba2eed283f822c4d7eaaa5c6.2.data') # doctest: +ELLIPSIS
   {
     "trunk": [
       {

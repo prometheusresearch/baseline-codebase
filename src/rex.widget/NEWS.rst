@@ -2,11 +2,43 @@
   Change Log
 **************
 
-2.12.0 (2017-XX-XX)
-===================
+3.0.0 (2017-XX-XX)
+==================
+
+* [BREAKING] Python widgets now bind to JS components differently (``js_type``
+  attribute).
+
+  Instead of ``js_type`` attribute being previously a string interpreted as
+  CommonJS module now it is changed to be a tuple of a CommonJS package name and a
+  symbol inside the package's entry (usually ``lib/index.js``).
+
+  For example, if previously widget was declared as::
+
+      class MyWidget(Widget):
+          js_type 'my-pkg/lib/MyWidget'
+
+  Now it shoild be changed to::
+
+      class MyWidget(Widget):
+          js_type = 'my-pkg', 'MyWidget'
+
+  and JS package's ``index.js`` should contain::
+
+      export const MyWidget = ...
+      // alternatively: export class MyWidget
+
+  Note that in case of the old ``js_type`` attribute format is being used the
+  application won't start and will report an error message with instructions on
+  how to update the ``js_type`` attribute format.
 
 * [FEAT] Form fields' ``validate`` now can access ``$root`` (form's root value),
   ``$parent`` (parent fieldset's value) to perform validations.
+
+* [FEAT] Read-only form fields now also render hints.
+
+* [FEAT] Add integration with Sentry
+
+* [FIX] Validation bug with ``validationList``
 
 2.11.2 (2017-02-07)
 ===================

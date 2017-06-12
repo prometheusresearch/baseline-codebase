@@ -16,7 +16,7 @@ setup(
         'rex.db >=3.5, <4',
         'rex.deploy >=2.6, <3',
         'rex.web >=3.7, <4',
-        'rex.widget >=2.6, <3',
+        'rex.widget >=3, <4',
         'rex.action >=1.1, <2',
     ],
     rex_init='rex.dbgui',

@@ -26,7 +26,7 @@ setup(
     install_requires=[
         'rex.core>=1.4,<2',
         'rex.web>=3,<4',
-        'rex.widget>=2.3,<3',
+        'rex.widget>=3,<4',
         'rex.action>=1,<2',
         'rex.mart>=0.4,<0.8',
         'rex.query>=0.4,<0.5',

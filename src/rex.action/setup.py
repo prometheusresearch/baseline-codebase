@@ -22,7 +22,7 @@ setup(
         'docutils               >= 0.12,   < 0.13',
         'rex.setup              >= 4,      < 5',
         'rex.core               >= 1.6,    < 2',
-        'rex.widget             >= 2.12,   < 3',
+        'rex.widget             >= 3,   < 34',
         'rex.menu               >= 1.0,    < 2',
         'rex.db                 >= 3.4,    < 4',
         'rex.deploy             >= 2.4,    < 3',

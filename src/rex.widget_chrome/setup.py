@@ -22,7 +22,7 @@ setup(
         'rex.urlmap >=2.7, <3',
         'rex.action >=1, <2',
         'rex.web >=3.6, <4',
-        'rex.widget >=1.5, <3',
+        'rex.widget >=3, <4',
     ],
     rex_init='rex.widget_chrome',
     rex_static='static', )

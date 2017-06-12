@@ -14,7 +14,7 @@ Let us implement ``<MyHeader>``, a widget which renders into ``<h1>``, ``<h2>``,
 elements depending on its ``header_level`` field.
 
 In JavaScript, widget is represented as a regular React_ component. The source
-file should be a valid `ES2015 module`_::
+file should be a valid `ES2015 module`_ (``static/js/lib/MyHeader.js``)::
 
   import React from 'react';
 
@@ -26,6 +26,14 @@ file should be a valid `ES2015 module`_::
       return <Component>{this.props.text}</Component>;
     }
   }
+
+Then the package's entry point (``static/js/lib/index.js``) should export the
+``MyHeader`` symbol::
+
+  export {default as MyHeader} from './MyHeader'
+
+Note that the package's entry point should be configured in ``package.json``
+(``"main": "./lib/index.js"`` for the setup above).
 
 Here is an excellent `React primer`_ and a source of further documentation for
 authoring React components. Consult Rex Setup documentation on more info on
@@ -45,7 +53,7 @@ configuration values::
       """ Render header text."""
 
       name = 'MyHeader'
-      js_type = 'my-package/lib/MyHeader'
+      js_type = 'my-package', 'MyHeader'
 
       text = Field(
           StrVal(),
@@ -64,8 +72,9 @@ across the entire application.  In the URL mapping, widget's are referenced by
 name.  If conflicts occur Rex Widget will raise an error which will point to the
 conflicting widget declarations.
 
-The ``js_type`` attribute specifies a ES2015 module which provides a Javascript
-implementation for the widget shown above.
+The ``js_type`` attribute specifies a pair of a JS package and a symbol inside the
+JS package's exports which implements the widget UI as a React component (see
+above).
 
 The ``text`` and ``header_level`` attributes are the widget's fields, defined as
 instances of the ``Field`` class.  The only required argument of ``Field`` is a

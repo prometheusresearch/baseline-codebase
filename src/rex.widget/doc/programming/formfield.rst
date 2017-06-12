@@ -16,7 +16,7 @@ use :class:`FormFieldsetVal` validator for form fields::
     class IndividualForm(Widget):
 
         name = 'IndividualForm'
-        js_type = 'my-package/IndividualForm'
+        js_type = 'my-package', 'IndividualForm'
 
         fields = Field(
             FormFieldsetVal(),
@@ -71,7 +71,7 @@ you need to use :class:`EntityFieldsetVal` validator::
     class IndividualForm(Widget):
 
         name = 'IndividualForm'
-        js_type = 'my-package/IndividualForm'
+        js_type = 'my-package', 'IndividualForm'
 
         fields = Field(
             EntityFieldsetVal(entity='individual'),
@@ -156,7 +156,7 @@ which represents our JavaScript component::
 
     class TextareaField(Widget):
 
-        js_type = 'package/TextareaField'
+        js_type = 'package', 'TextareaField'
         rows = Field(IntVal(), default=4)
 
 Then we can define a new form field type and set its `widget` attribute to

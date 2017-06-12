@@ -21,7 +21,7 @@ The module ``myapp.chrome`` then should export ``MyAppChrome`` widget class::
 
     class MyAppChrome(Chrome):
 
-        js_type = 'myapp/lib/MyAppChrome'
+        js_type = 'myapp', 'MyAppChrome'
 
 The example code above just updates ``js_type`` property which instructs Rex
 Widget to use a different React component for chrome. But implementors are free

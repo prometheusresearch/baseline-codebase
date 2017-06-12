@@ -22,7 +22,7 @@ class demo(Command):
 
 setup(
     name='rex.menu_demo',
-    version = "1.0.1",
+    version = "1.0.2",
     description="Demo package for testing rex.menu",
     package_dir={'': 'src'},
     packages=find_packages('src'),

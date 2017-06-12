@@ -1,0 +1,69 @@
+Rex Widget 2.0.0 Migration Guide
+================================
+
+Rex Widget 2.0.0 ships with the following breaking changes:
+
+* Rex Widget now exposes its functionality through ES2015 Modules::
+
+    import {Button} from 'rex-widget/ui'
+
+  instead of::
+
+    var RexWidget = require('rex-widget')
+    var Button = RexWidget.Button
+
+  previously.
+
+* ``<Button />`` component was re-made from scratch and feature different style
+  architecture. Button variants are different components::
+
+    <SuccessButton />
+
+  instead of::
+
+    <Button type="success" />
+
+  previously.
+
+* ``<Tabs />`` and ``<Tab />`` were reimplemented with the new API.
+
+  Use::
+
+    import {TabList, Tab} from 'rex-widget/ui'
+
+  or::
+
+    import {PillList, Pill} from 'rex-widget/ui'
+
+  instead. Interface is similar but there were few props renamed:
+
+  * ``active`` to ``selected``
+  * ``onActive`` to ``onSelected``
+  * ``buttonsPosition`` to ``position``
+  * ``buttonsStyle`` is removed, use either ``<TabList />`` or ``<PillList />``
+    to control tab list appearance.
+
+* ``RexWidget.Icon`` was removed.
+
+  Use::
+
+    import {Icon} from 'rex-widget/ui'
+
+  instead.
+
+* ``RexWidget.Layout.VBox`` and ``RexWidget.Layout.HBox`` were removed and
+  replaced with ``rex-widget/layout`` API::
+
+    import {HBox, VBox} from 'rex-widget/layout'
+
+* ``RexWidget.DataTable`` was removed, use::
+
+    import {DataTable} from 'rex-widget/datatable'
+
+  instead.
+
+* Data specification API was removed and replaced with the new data API residing
+  in ``rex-widget/data`` module.
+
+* Bootstrap CSS library was removed. Application which base their styles on
+  Bootstrap should include it in their dependencies.

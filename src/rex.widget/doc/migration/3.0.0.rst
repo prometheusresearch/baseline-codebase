@@ -1,0 +1,27 @@
+Rex Widget 3.0.0 Migration Guide
+================================
+
+Python widgets now bind to JS components differently (``js_type`` attribute).
+
+Instead of ``js_type`` attribute being previously a string interpreted as
+CommonJS module now it is changed to be a tuple of a CommonJS package name and a
+symbol inside the package's entry (usually ``lib/index.js``).
+
+For example, if previously widget was declared as::
+
+    class MyWidget(Widget):
+        js_type 'my-pkg/lib/MyWidget'
+
+Now it shoild be changed to::
+
+    class MyWidget(Widget):
+        js_type = 'my-pkg', 'MyWidget'
+
+and JS package's ``index.js`` should contain::
+
+    export const MyWidget = ...
+    // alternatively: export class MyWidget
+
+Note that in case of the old ``js_type`` attribute format is being used the
+application won't start and will report an error message with instructions on
+how to update the ``js_type`` attribute format.

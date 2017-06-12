@@ -28,7 +28,7 @@ setup(
         'rex.expression>=1.5,<2',
         'rex.forms>=2,<3',
         'rex.restful>=1,<2',
-        'rex.widget>=1,<3',
+        'rex.widget>=3,<4',
         'rex.action>=1,<2',
         'rex.i18n>=0.5,<0.6',
         'rex.form_previewer>=0.2,<0.11',

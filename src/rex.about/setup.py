@@ -25,7 +25,7 @@ setup(
     namespace_packages=['rex'],
     install_requires=[
         'rex.web>=3,<4',
-        'rex.widget>=1.5,<3',
+        'rex.widget>=3,<4',
         'rex.action>1,<2',
     ],
     rex_init='rex.about',

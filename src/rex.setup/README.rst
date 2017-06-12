@@ -368,65 +368,35 @@ The code above instructs :mod:`rex.setup` to generate a bundle from the
 corresponding npm package (residing in ``static/js``) and store it into
 directory ``static/www/bundle``.
 
-.. note:: Why bundle destination has to be a directory?
-
-  Webpack allows to bundle not only JavaScript code but also stylesheets and
-  other assets (images, fonts, ...).  Also it could generate chunked bundles
-  which could improve performance of large applications.
-
 When you work on client-side code, it's not very convenient to rebuild the
-bundles every time you change a line in JavaScript code.  If you run ``rex
-serve`` or ``rex serve-uwsgi`` command with ``--watch`` or ``-w`` flag, bundles
-are rebuilt every time any of the source files is modified::
+bundles every time you change a line in JavaScript code. This is when ``rex
+watch`` command comes handy::
 
-    $ rex serve -w rex.setup_demo
+    $ rex watch rex.setup_demo
 
-There's also ``--watch-package <package name>`` option which only rebuilds a
-bundle for a specified package. This can be useful when working on a large
-application which have multiple bundles but the work you make only affects a
-single bundle.
+It starts a bundler process in "watch" mode which continiously rebuilds the
+``rex.setup_demo`` bundle on source changes.
 
-From the application perspective, bundles are regular static resources.  To
-include a JavaScript bundle to an HTML page, use ``<script>`` tag::
+To generate links to bundle (for example, to include as ``<script>`` and ``<link>`` HTML
+elements) use ``rex.web.template.find_assets_bundle`` function::
 
-    <script src="{{ PACKAGE_URL }}/bundle/bundle.js"></script>
+    from rex.web import find_assets_bundle
 
-To include a CSS bundle, use::
+    bundle = find_assets_bundle() # bundle info for the current running app
+                                  # (returns the first found bundle)
 
-    <link rel="stylesheet" href="{{ PACKAGE_URL }}/bundle/bundle.css">
+    bundle = find_assets_bundle(package_name="somepackage") # bundle for the
+                                                            # specified package
 
-By default, :mod:`rex.setup` uses the following Webpack configuration for
-bundling npm packages:
+    bundle.js # link to JS bundle entry point
+    bundle.css # link to CSS bundle entry point
 
-* It generates ``bundle.js``.
-* It generates ``bundle.css`` if the component has ``rex.style`` attribute in
-  ``package.json`` pointing to a Less_ stylesheet.
-* It uses ``babel-loader`` to transform ES2015_/JSX_ syntax into standard ES5
-  JavaScript (JSX is a syntax extension to JavaScript used to develop React_
-  applications).
-* It copies referenced (both from Less and JavaScript code) assets such as
-  images, fonts to the bundle directory.
-
-You can override the standard Webpack configuration by placing
-``webpack.config.js`` file to the root of the npm package directory
-(``static/js``) with the following content::
-
-    var configureWebpack = require('rex-setup').configureWebpack;
-
-    module.exports = configureWebpack({
-      // custom webpack configuration goes here
-    });
-
-Using ``configureWebpack`` function from ``rex-setup`` Node.js package ensures
-that all dependencies installed with ``rex.setup`` will be resolved correctly.
-
-For a detailed explanation on possible Webpack configuration directives see
-`Webpack configuration`_.
+Those then can be passed to jinja2 templates to be used for generating
+corresponding ``<script>`` and ``<link>`` HTML elements.
 
 .. _ES2015: https://babeljs.io/docs/learn-es2015/
 .. _CommonJS: http://wiki.commonjs.org/wiki/Modules/1.1
 .. _Webpack: http://webpack.github.io
-.. _Webpack configuration: webpack.github.io/docs/configuration.html
 .. _JSX: http://facebook.github.io/react/docs/jsx-in-depth.html
 .. _Less: http://lesscss.org/
 .. _React: http://reactjs.org

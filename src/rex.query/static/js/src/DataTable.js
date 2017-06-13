@@ -23,8 +23,9 @@ import {
  * Data associated with column.
  */
 export type ColumnSpecData = {
-  navigatePath: Array<string>,
   query: Query,
+  navigatePath: Array<string>,
+  navigateFromPipeline: QueryPipeline,
   pipeline: QueryPipeline,
   select: ?SelectQuery,
   navigate: ?NavigateQuery,
@@ -39,6 +40,7 @@ export type ColumnSpecData = {
 type QueryTraverseContext = {
   focusedSeq: Array<string>,
   navigatePath: Array<string>,
+  navigateFromPipeline: QueryPipeline,
   path: Array<string>,
   queryPipeline: QueryPipeline,
   selectQuery: ?SelectQuery,
@@ -58,6 +60,7 @@ export function getColumnConfig(
     queryPipeline: query,
     selectQuery: null,
     navigatePath: [],
+    navigateFromPipeline: query,
     path: [],
     focusedSeq,
     bindingName: null,
@@ -118,6 +121,7 @@ function getColumnConfigImpl(query: Query, ctx: QueryTraverseContext) {
           data: {
             query,
             navigatePath: ctx.navigatePath,
+            navigateFromPipeline: ctx.navigateFromPipeline,
             pipeline: ctx.queryPipeline,
             select: ctx.selectQuery,
             navigate: prev != null && prev.type === 'field'
@@ -138,6 +142,9 @@ function getColumnConfigImpl(query: Query, ctx: QueryTraverseContext) {
         return getColumnConfigImpl(binding.query, {
           ...ctx,
           queryPipeline: binding.query,
+          navigateFromPipeline: binding.query.context.type.name === 'record'
+            ? binding.query
+            : ctx.navigateFromPipeline,
           bindingName: binding.query.context.title || binding.name,
           suppressPath: true,
           currentStack: undefined,
@@ -167,6 +174,7 @@ function getColumnConfigImpl(query: Query, ctx: QueryTraverseContext) {
           data: {
             query,
             navigatePath: ctx.navigatePath,
+            navigateFromPipeline: ctx.navigateFromPipeline,
             pipeline: ctx.queryPipeline,
             select: ctx.selectQuery,
             navigate: query,
@@ -307,7 +315,13 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
   };
 
   onColumnMenuSelect = (column: ColumnField<ColumnSpecData>, value: string) => {
-    const {pipeline, navigate} = column.field.data;
+    const {
+      query,
+      navigateFromPipeline,
+      navigatePath,
+      navigate,
+      pipeline,
+    } = column.field.data;
     if (navigate == null) {
       return;
     }
@@ -328,10 +342,17 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
         break;
       }
       case 'goto': {
-        this.context.actions.appendNavigate({
-          at: pipeline,
-          path: [navigate.path],
-        });
+        if (pipeline.context.type.name === 'record') {
+          this.context.actions.appendNavigate({
+            at: pipeline,
+            path: [navigate.path],
+          });
+        } else {
+          this.context.actions.appendNavigate({
+            at: navigateFromPipeline,
+            path: navigatePath,
+          });
+        }
         break;
       }
       default:

@@ -4,18 +4,12 @@
 
 import React from 'react';
 
-import {
-  assert,
-  stub,
-  spy,
-  createRenderer
-} from 'rex-widget/testutils';
+import {assert, spy, createRenderer} from 'rex-widget/testutils';
 
-import * as ui from 'rex-widget/ui';
+import * as ReactUI from '@prometheusresearch/react-ui';
 import Toolbar, {ToolbarButton} from '../Toolbar';
 
 describe('rex-action/wizard', function() {
-
   let renderer;
 
   beforeEach(function() {
@@ -23,24 +17,16 @@ describe('rex-action/wizard', function() {
   });
 
   describe('<Toolbar />', function() {
-
     it('renders', function() {
-      let graph = {
-        nextActions: stub().returns([
-          {keyPath: 'a', element: {props: {kind: 'success'}}},
-          {keyPath: 'b', element: {props: {kind: 'danger'}}},
-          {keyPath: 'b', element: {props: {kind: 'normal'}}},
-        ])
-      };
+      const positions = [
+        {instruction: {action: {id: 'a'}}},
+        {instruction: {action: {id: 'b'}}},
+        {instruction: {action: {id: 'c'}}},
+      ];
 
       let onClick = spy();
 
-      renderer.render(
-        <Toolbar
-          graph={graph}
-          onClick={onClick}
-          />
-      );
+      renderer.render(<Toolbar positions={positions} onClick={onClick} />);
 
       let buttons = renderer.findAllWithType(ToolbarButton);
       assert(buttons.length === 3);
@@ -48,75 +34,53 @@ describe('rex-action/wizard', function() {
       buttons[0].props.onClick();
       assert(onClick.calledOnce);
     });
-
   });
 
   describe('<ToolbarButton />', function() {
-
     it('renders', function() {
-      let onClick = spy();
+      const onClick = spy();
 
-      renderer.render(
-        <ToolbarButton
-          node={{
-            keyPath: 'a',
+      const successPosition = {
+        instruction: {
+          action: {
+            id: 'a',
             element: {
-              type: {
-                getIcon() { return 'icon'; }
-              },
-              props: {
-                kind: 'success'
-              }
-            }
-          }}
-          onClick={onClick}
-          />
-      );
+              type: {},
+              props: {kind: 'success'},
+            },
+          },
+        },
+      };
+      renderer.render(<ToolbarButton position={successPosition} onClick={onClick} />);
+      renderer.assertElementWithType(ReactUI.SuccessButton);
 
-      renderer.assertElementWithType(ui.SuccessButton);
-
-      renderer.render(
-        <ToolbarButton
-          node={{
-            keyPath: 'a',
+      const dangerPosition = {
+        instruction: {
+          action: {
+            id: 'a',
             element: {
-              type: {
-                getIcon() { return 'icon'; }
-              },
-              props: {
-                kind: 'danger'
-              }
-            }
-          }}
-          onClick={onClick}
-          />
-      );
+              type: {},
+              props: {kind: 'danger'},
+            },
+          },
+        },
+      };
+      renderer.render(<ToolbarButton position={dangerPosition} onClick={onClick} />);
+      renderer.assertElementWithType(ReactUI.DangerButton);
 
-      renderer.assertElementWithType(ui.DangerButton);
-
-      renderer.render(
-        <ToolbarButton
-          node={{
-            keyPath: 'a',
+      const normalPosition = {
+        instruction: {
+          action: {
+            id: 'a',
             element: {
-              type: {
-                getIcon() { return 'icon'; }
-              },
-              props: {
-                kind: 'normal'
-              }
-            }
-          }}
-          onClick={onClick}
-          />
-      );
-
-      renderer.assertElementWithType(ui.Button);
-
+              type: {},
+              props: {kind: 'normal'},
+            },
+          },
+        },
+      };
+      renderer.render(<ToolbarButton position={normalPosition} onClick={onClick} />);
+      renderer.assertElementWithType(ReactUI.Button);
     });
-
   });
-
 });
-
-

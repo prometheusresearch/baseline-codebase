@@ -13,8 +13,6 @@ import * as ui from 'rex-widget/ui';
 
 import ActionTitle, {getTitleAtPosition} from '../ActionTitle';
 import ActionIcon from '../ActionIcon';
-import * as S from '../model/State';
-import * as P from '../model/Position';
 import SidebarButton from './SidebarButton';
 
 const SIDEBAR_COLLAPSED_KEY = 'rex.action.sidebar.collapsed';
@@ -52,13 +50,13 @@ export default class Sidebar extends React.Component {
   };
 
   render() {
-    let {onClick, graph} = this.props;
+    let {onClick, currentPosition, positions} = this.props;
     let {collapsed} = this.state;
-    let buttons = S.sibling(graph).filter(P.isPositionAllowed).map(pos => (
+    let buttons = positions.map(pos => (
       <SidebarButton
         key={pos.instruction.action.id}
         title={getTitleAtPosition(pos)}
-        active={pos.instruction.action.id === graph.position.instruction.action.id}
+        active={pos.instruction.action.id === currentPosition.instruction.action.id}
         icon={<ActionIcon position={pos} />}
         onClick={onClick.bind(null, pos.instruction.action.id)}>
         {collapsed ? null : <ActionTitle noRichTitle position={pos} />}

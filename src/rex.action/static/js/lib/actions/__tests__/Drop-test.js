@@ -2,22 +2,20 @@
  * @copyright 2016, Prometheus Research, LLC
  */
 
-import React from 'react';
+import * as React from 'react';
+import * as ReactUI from '@prometheusresearch/react-ui';
 import {assert, createRenderer, stub, spy} from 'rex-widget/testutils';
 
 import * as d from 'rex-widget/data';
-import {DangerButton} from 'rex-widget/ui';
 import Drop from '../Drop';
 
 describe('rex-action/actions', function() {
-
   describe('<Drop />', function() {
-
     let renderer;
 
     beforeEach(function() {
       renderer = createRenderer();
-      stub(global, 'setInterval');
+      stub(global, 'setInterval').returns(1);
       stub(global, 'clearInterval');
       stub(d, 'forceRefreshData');
     });
@@ -30,10 +28,10 @@ describe('rex-action/actions', function() {
 
     it('renders', function() {
       let promise = {
-        then: spy()
+        then: spy(),
       };
       let data = {
-        delete: stub().returns(promise)
+        delete: stub().returns(promise),
       };
       let onEntityUpdate = spy();
       renderer.render(
@@ -42,20 +40,20 @@ describe('rex-action/actions', function() {
           context={{individual: {id: 'id'}}}
           entity={{name: 'individual', type: {name: 'individual'}}}
           onEntityUpdate={onEntityUpdate}
-          />
+        />,
       );
-      renderer.assertElementWithTypeProps(DangerButton, {disabled: true});
+      renderer.assertElementWithTypeProps(ReactUI.DangerButton, {disabled: true});
       renderer.instance.componentDidMount();
       assert(setInterval.calledOnce);
       let countdown = setInterval.lastCall.args[0];
       countdown();
-      renderer.assertElementWithTypeProps(DangerButton, {disabled: true});
+      renderer.assertElementWithTypeProps(ReactUI.DangerButton, {disabled: true});
       countdown();
-      renderer.assertElementWithTypeProps(DangerButton, {disabled: true});
+      renderer.assertElementWithTypeProps(ReactUI.DangerButton, {disabled: true});
       countdown();
-      renderer.assertElementWithTypeProps(DangerButton, {disabled: false});
+      renderer.assertElementWithTypeProps(ReactUI.DangerButton, {disabled: false});
       assert(clearInterval.calledOnce);
-      let button = renderer.findWithTypeProps(DangerButton);
+      let button = renderer.findWithTypeProps(ReactUI.DangerButton);
       button.props.onClick();
       assert(data.delete.calledOnce);
       assert.deepEqual(data.delete.lastCall.args, [{individual: {id: 'id'}}]);
@@ -68,4 +66,3 @@ describe('rex-action/actions', function() {
     });
   });
 });
-

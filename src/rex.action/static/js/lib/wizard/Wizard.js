@@ -111,6 +111,8 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
       );
     }
     const {position} = graph;
+    const nextPositions = S.next(graph).filter(P.isPositionAllowed);
+    const siblingPositions = S.sibling(graph).filter(P.isPositionAllowed);
     invariant(position.type === 'position', 'Invalid state');
     const action = React.cloneElement(position.instruction.action.element, {
       key: position.instruction.action.id,
@@ -126,18 +128,22 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
           this._refetch(state.graph);
           return state;
         }),
-      toolbar: <Toolbar graph={graph} onClick={this._onNext} />,
+      toolbar: <Toolbar positions={nextPositions} onClick={this._onNext} />,
     });
     let showBreadcrumb = this.props.settings.includePageBreadcrumbItem ||
       position.prev != null;
     return (
       <VBox height="100%" flexGrow={1} flexDirection="column-reverse">
         <HBox height="calc(100% - 50px)" flexGrow={1}>
-          <Sidebar graph={graph} onClick={this._onReplaceWithSibling} />
+          <Sidebar
+            positions={siblingPositions}
+            currentPosition={graph.position}
+            onClick={this._onReplaceWithSibling}
+          />
           <VBox flexGrow={1} flexShrink={1}>
             <ActionContext
               help={action.props.help}
-              toolbar={<Toolbar graph={graph} onClick={this._onNext} />}>
+              toolbar={<Toolbar positions={nextPositions} onClick={this._onNext} />}>
               {action}
             </ActionContext>
           </VBox>

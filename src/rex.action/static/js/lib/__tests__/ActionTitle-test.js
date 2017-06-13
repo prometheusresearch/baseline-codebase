@@ -7,50 +7,80 @@ import {createRenderer, assert, spy} from 'rex-widget/testutils';
 import ActionTitle from '../ActionTitle';
 
 describe('rex-action', function() {
-
   describe('<ActionTitle />', function() {
-
     let renderer;
 
     beforeEach(function() {
       renderer = createRenderer();
     });
 
-    function CustomTitle() {
-    }
+    function CustomTitle() {}
 
     it('renders', function() {
-      let node;
+      let position;
       let title;
 
-      node = {element: {type: {renderTitle() { return <CustomTitle />; }}}};
-      renderer.render(<ActionTitle node={node} />);
+      position = {
+        instruction: {
+          action: {
+            element: {
+              type: {
+                renderTitle() {
+                  return <CustomTitle />;
+                },
+              },
+            },
+          },
+        },
+      };
+
+      renderer.render(<ActionTitle position={position} />);
       renderer.assertElementWithTypeProps(CustomTitle);
 
-      node = {element: {type: {getTitle() { return 'TITLE'; }}}};
-      renderer.render(<ActionTitle node={node} />);
-      title = renderer.findWithTypeProps(ActionTitle.stylesheet.Primary);
-      assert(title.props.children === 'TITLE');
+      position = {
+        instruction: {
+          action: {
+            element: {
+              type: {
+                getTitle() {
+                  return 'TITLE';
+                },
+              },
+            },
+          },
+        },
+      };
+      renderer.render(<ActionTitle position={position} />);
+      assert(renderer.element.props.children === 'TITLE');
 
-      node = {element: {type: {}, props: {title: 'props'}}};
-      renderer.render(<ActionTitle node={node} />);
-      title = renderer.findWithTypeProps(ActionTitle.stylesheet.Primary);
-      assert(title.props.children === 'props');
+      position = {instruction: {action: {element: {type: {}, props: {title: 'props'}}}}};
+      renderer.render(<ActionTitle position={position} />);
+      assert(renderer.element.props.children === 'props');
 
-      node = {element: {type: {defaultProps: {title: 'defaultProps'}}, props: {}}};
-      renderer.render(<ActionTitle node={node} />);
-      title = renderer.findWithTypeProps(ActionTitle.stylesheet.Primary);
-      assert(title.props.children === 'defaultProps');
+      position = {
+        instruction: {
+          action: {element: {type: {defaultProps: {title: 'defaultProps'}}, props: {}}},
+        },
+      };
+      renderer.render(<ActionTitle position={position} />);
+      assert(renderer.element.props.children === 'defaultProps');
 
-      node = {element: {type: {getDefaultProps() { return {title: 'getDefaultProps'}; }}, props: {}}};
-      renderer.render(<ActionTitle node={node} />);
-      title = renderer.findWithTypeProps(ActionTitle.stylesheet.Primary);
-      assert(title.props.children === 'getDefaultProps');
-
+      position = {
+        instruction: {
+          action: {
+            element: {
+              type: {
+                getDefaultProps() {
+                  return {title: 'getDefaultProps'};
+                },
+              },
+              props: {},
+            },
+          },
+        },
+      };
+      renderer.render(<ActionTitle position={position} />);
+      assert(renderer.element.props.children === 'getDefaultProps');
     });
-
   });
-
 });
-
-

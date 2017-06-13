@@ -8,9 +8,7 @@ import {Icon} from 'rex-widget/ui';
 import ActionIcon from '../ActionIcon';
 
 describe('rex-action', function() {
-
   describe('<ActionIcon />', function() {
-
     let renderer;
 
     beforeEach(function() {
@@ -18,35 +16,60 @@ describe('rex-action', function() {
     });
 
     it('renders', function() {
-      let node;
+      let position;
 
-      node = {element: null};
-      renderer.render(<ActionIcon node={node} />);
+      position = {instruction: {action: {element: null}}};
+      renderer.render(<ActionIcon position={position} />);
       assert(renderer.element === null);
 
-      node = {element: {type: {getIcon() { return 'getIcon'; }}}};
-      renderer.render(<ActionIcon node={node} />);
+      position = {
+        instruction: {
+          action: {
+            element: {
+              type: {
+                getIcon() {
+                  return 'getIcon';
+                },
+              },
+            },
+          },
+        },
+      };
+      renderer.render(<ActionIcon position={position} />);
       renderer.assertElementWithTypeProps(Icon, {name: 'getIcon'});
 
-      node = {element: {type: {}, props: {icon: 'props'}}};
-      renderer.render(<ActionIcon node={node} />);
+      position = {instruction: {action: {element: {type: {}, props: {icon: 'props'}}}}};
+      renderer.render(<ActionIcon position={position} />);
       renderer.assertElementWithTypeProps(Icon, {name: 'props'});
 
-      node = {element: {type: {defaultProps: {icon: 'defaultProps'}}, props: {}}};
-      renderer.render(<ActionIcon node={node} />);
+      position = {
+        instruction: {
+          action: {element: {type: {defaultProps: {icon: 'defaultProps'}}, props: {}}},
+        },
+      };
+      renderer.render(<ActionIcon position={position} />);
       renderer.assertElementWithTypeProps(Icon, {name: 'defaultProps'});
 
-      node = {element: {type: {getDefaultProps() { return {icon: 'getDefaultProps'}; }}, props: {}}};
-      renderer.render(<ActionIcon node={node} />);
+      position = {
+        instruction: {
+          action: {
+            element: {
+              type: {
+                getDefaultProps() {
+                  return {icon: 'getDefaultProps'};
+                },
+              },
+              props: {},
+            },
+          },
+        },
+      };
+      renderer.render(<ActionIcon position={position} />);
       renderer.assertElementWithTypeProps(Icon, {name: 'getDefaultProps'});
 
-      node = {element: {type: {}, props: {}}};
-      renderer.render(<ActionIcon node={node} />);
+      position = {instruction: {action: {element: {type: {}, props: {}}}}};
+      renderer.render(<ActionIcon position={position} />);
       assert(renderer.element === null);
-
     });
-
   });
-
 });
-

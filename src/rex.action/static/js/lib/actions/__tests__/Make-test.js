@@ -2,24 +2,16 @@
  * @copyright 2016, Prometheus Research, LLC
  */
 
-import React from 'react';
-import {
-  assert,
-  createRenderer,
-  findWithTypeProps,
-  spy
-} from 'rex-widget/testutils';
+import * as React from 'react';
+import * as ReactUI from '@prometheusresearch/react-ui';
+import {assert, createRenderer, findWithTypeProps, spy} from 'rex-widget/testutils';
 
 import Make from '../Make';
-import Action from '../../Action';
-import * as Entity from '../../Entity';
-import SubmitButton from '../../ui/SubmitButton';
+import {Action, Entity} from '../../../';
 import * as form from 'rex-widget/form';
 
 describe('rex-action/actions', function() {
-
   describe('Make', function() {
-
     let renderer;
 
     beforeEach(function() {
@@ -39,11 +31,11 @@ describe('rex-action/actions', function() {
           refetch={refetch}
           onCommand={onCommand}
           dataMutation={dataMutation}
-          />
+        />,
       );
 
       let formStub = {
-        submit: spy()
+        submit: spy(),
       };
       let f = renderer.findWithTypeProps(form.ConfigurableEntityForm);
       assert(f.ref);
@@ -52,7 +44,7 @@ describe('rex-action/actions', function() {
       let action = renderer.findWithTypeProps(Action);
       assert(action.props.renderFooter);
       let footer = action.props.renderFooter();
-      let button = findWithTypeProps(footer, SubmitButton);
+      let button = findWithTypeProps(footer, ReactUI.SuccessButton);
       assert(button.props.onClick);
       let eventStub = {
         preventDefault: spy(),
@@ -67,8 +59,6 @@ describe('rex-action/actions', function() {
       f.props.onSubmitComplete({});
       assert(onCommand.calledOnce);
       assert(refetch.calledOnce);
-
     });
   });
 });
-

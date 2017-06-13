@@ -2,23 +2,16 @@
  * @copyright 2016, Prometheus Research, LLC
  */
 
-import React from 'react';
-import {
-  assert,
-  createRenderer,
-  spy,
-  findWithTypeProps
-} from 'rex-widget/testutils';
+import * as React from 'react';
+import * as ReactUI from '@prometheusresearch/react-ui';
+import {assert, createRenderer, spy, findWithTypeProps} from 'rex-widget/testutils';
 
 import {ConfigurableEntityForm as Form} from 'rex-widget/form';
-import SubmitButton from '../../ui/SubmitButton';
 import {Edit} from '../Edit';
-import Action from '../../Action';
-import * as Entity from '../../Entity';
+import {Action, Entity} from '../../../';
 
 describe('rex-action/actions', function() {
   describe('Edit', function() {
-
     let renderer;
     let dataMutation;
     let onEntityUpdate;
@@ -36,30 +29,27 @@ describe('rex-action/actions', function() {
           fetched={{entity: {data: {}}}}
           dataMutation={dataMutation}
           onEntityUpdate={onEntityUpdate}
-          />
+        />,
       );
     });
 
     it('renders', function() {
       let form = renderer.findWithTypeProps(Form);
-      assert.deepEqual(
-        form.props.value,
-        {individual: 1, a: 42, x: {y: 1}}
-      );
+      assert.deepEqual(form.props.value, {individual: 1, a: 42, x: {y: 1}});
       assert(form.ref);
       let formStub = {
-        submit: spy()
+        submit: spy(),
       };
       form.ref(formStub);
 
       let action = renderer.findWithTypeProps(Action);
       assert(action.props.renderFooter);
       let footer = action.props.renderFooter();
-      let button = findWithTypeProps(footer, SubmitButton);
+      let button = findWithTypeProps(footer, ReactUI.SuccessButton);
       assert(button.props.onClick);
       let event = {
         preventDefault: spy(),
-        stopPropagation: spy()
+        stopPropagation: spy(),
       };
       button.props.onClick(event);
       assert(event.preventDefault.calledOnce);

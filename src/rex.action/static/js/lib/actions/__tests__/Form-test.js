@@ -2,23 +2,16 @@
  * @copyright 2016, Prometheus Research, LLC
  */
 
-import React from 'react';
-import {
-  assert,
-  createRenderer,
-  spy,
-  findWithTypeProps
-} from 'rex-widget/testutils';
+import * as React from 'react';
+import * as ReactUI from '@prometheusresearch/react-ui';
+import {assert, createRenderer, spy, findWithTypeProps} from 'rex-widget/testutils';
 
 import {ConfigurableForm} from 'rex-widget/form';
-import SubmitButton from '../../ui/SubmitButton';
 import {Form} from '../Form';
 import Action from '../../Action';
 
 describe('rex-action/actions', function() {
-
   describe('Form', function() {
-
     let renderer;
 
     beforeEach(function() {
@@ -37,16 +30,16 @@ describe('rex-action/actions', function() {
           dataMutation={dataMutation}
           refetch={refetch}
           onContext={onContext}
-          />
+        />,
       );
       renderer.assertElementWithTypeProps(Action);
       let formInstanceStub = {
-        submit: spy()
+        submit: spy(),
       };
       let form = renderer.findWithTypeProps(ConfigurableForm);
       form.ref(formInstanceStub);
       let footer = renderer.instance.renderFooter();
-      let button = findWithTypeProps(footer, SubmitButton);
+      let button = findWithTypeProps(footer, ReactUI.SuccessButton);
       assert(button.props.onClick);
       let eventStub = {
         preventDefault: spy(),
@@ -62,4 +55,3 @@ describe('rex-action/actions', function() {
     });
   });
 });
-

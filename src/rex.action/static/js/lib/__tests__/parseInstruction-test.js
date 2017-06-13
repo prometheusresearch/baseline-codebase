@@ -9,6 +9,7 @@ describe('parseReplaceReference()', function() {
     let replace = parseReplaceReference('./');
     expect(replace).toEqual({
       type: 'replace',
+      parent: null,
       traverseBack: 0,
       traverse: [],
     });
@@ -18,6 +19,7 @@ describe('parseReplaceReference()', function() {
     let replace = parseReplaceReference('../');
     expect(replace).toEqual({
       type: 'replace',
+      parent: null,
       traverseBack: 1,
       traverse: [],
     });
@@ -27,6 +29,7 @@ describe('parseReplaceReference()', function() {
     let replace = parseReplaceReference('.././');
     expect(replace).toEqual({
       type: 'replace',
+      parent: null,
       traverseBack: 1,
       traverse: [],
     });
@@ -36,6 +39,7 @@ describe('parseReplaceReference()', function() {
     let replace = parseReplaceReference('../../');
     expect(replace).toEqual({
       type: 'replace',
+      parent: null,
       traverseBack: 2,
       traverse: [],
     });
@@ -45,8 +49,9 @@ describe('parseReplaceReference()', function() {
     let replace = parseReplaceReference('a');
     expect(replace).toEqual({
       type: 'replace',
+      parent: null,
       traverseBack: 0,
-      traverse: [{actionName: 'a', contextUpdate: {}}],
+      traverse: [{actionName: 'a', contextUpdate: null}],
     });
   });
 
@@ -54,8 +59,9 @@ describe('parseReplaceReference()', function() {
     let replace = parseReplaceReference('../a');
     expect(replace).toEqual({
       type: 'replace',
+      parent: null,
       traverseBack: 1,
-      traverse: [{actionName: 'a', contextUpdate: {}}],
+      traverse: [{actionName: 'a', contextUpdate: null}],
     });
   });
 
@@ -63,10 +69,11 @@ describe('parseReplaceReference()', function() {
     let replace = parseReplaceReference('../a/b');
     expect(replace).toEqual({
       type: 'replace',
+      parent: null,
       traverseBack: 1,
       traverse: [
-        {actionName: 'a', contextUpdate: {}},
-        {actionName: 'b', contextUpdate: {}},
+        {actionName: 'a', contextUpdate: null},
+        {actionName: 'b', contextUpdate: null},
       ],
     });
   });
@@ -75,6 +82,7 @@ describe('parseReplaceReference()', function() {
     let replace = parseReplaceReference('../a?a=b');
     expect(replace).toEqual({
       type: 'replace',
+      parent: null,
       traverseBack: 1,
       traverse: [{actionName: 'a', contextUpdate: {a: 'b'}}],
     });
@@ -84,10 +92,11 @@ describe('parseReplaceReference()', function() {
     let replace = parseReplaceReference('../a?a=b/x');
     expect(replace).toEqual({
       type: 'replace',
+      parent: null,
       traverseBack: 1,
       traverse: [
         {actionName: 'a', contextUpdate: {a: 'b'}},
-        {actionName: 'x', contextUpdate: {}},
+        {actionName: 'x', contextUpdate: null},
       ],
     });
   });
@@ -96,6 +105,7 @@ describe('parseReplaceReference()', function() {
     let replace = parseReplaceReference('../a?a=b/x?z=42');
     expect(replace).toEqual({
       type: 'replace',
+      parent: null,
       traverseBack: 1,
       traverse: [
         {actionName: 'a', contextUpdate: {a: 'b'}},

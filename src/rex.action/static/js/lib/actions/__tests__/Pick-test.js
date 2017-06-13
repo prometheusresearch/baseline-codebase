@@ -7,14 +7,12 @@ import {assert, createRenderer, spy} from 'rex-widget/testutils';
 
 import Pick from '../Pick';
 import Action from '../../Action';
-import * as Entity from '../../Entity';
+import {Entity} from '../../../';
 import {SearchInput} from 'rex-widget/form';
 import {DataTable} from 'rex-widget/datatable';
 
 describe('rex-action/actions', function() {
-
   describe('Pick', function() {
-
     let renderer;
 
     beforeEach(function() {
@@ -25,7 +23,7 @@ describe('rex-action/actions', function() {
       let data = {
         params() {
           return data;
-        }
+        },
       };
       spy(data, 'params');
       let setActionState = spy();
@@ -40,7 +38,7 @@ describe('rex-action/actions', function() {
           actionState={{search: 'x'}}
           setActionState={setActionState}
           onCommand={onCommand}
-          />
+        />,
       );
       renderer.assertElementWithTypeProps(Action);
       assert(data.params.callCount === 2);
@@ -60,20 +58,18 @@ describe('rex-action/actions', function() {
       assert.deepEqual(onCommand.firstCall.args, ['default', {id: 1}]);
 
       assert.deepEqual(
-        Pick.commands.default.execute({entity: {name: 'individual'}}, {a: 42}, {id: 1}),
+        Pick.commands.default.execute({entity: {name: 'individual'}}, {a: 42}, [{id: 1}]),
         {
           a: 42,
-          individual: {id: 1}
-        }
+          individual: {id: 1},
+        },
       );
       assert.deepEqual(
-        Pick.commands.default.execute({entity: {name: 'individual'}}, {a: 42}, null),
+        Pick.commands.default.execute({entity: {name: 'individual'}}, {a: 42}, [null]),
         {
           a: 42,
-        }
+        },
       );
     });
   });
 });
-
-

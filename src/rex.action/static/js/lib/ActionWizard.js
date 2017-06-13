@@ -9,7 +9,6 @@ import * as CSS from 'rex-widget/css';
 import {VBox} from 'rex-widget/layout';
 
 export class ChromeRoot extends React.Component {
-
   static stylesheet = Stylesheet.create({
     Wrapper: {
       Component: VBox,
@@ -40,15 +39,14 @@ export class ChromeRoot extends React.Component {
 }
 
 export default class ActionWizard extends React.Component {
-
   static propTypes = {
-    noChrome: PropTypes.bool
+    noChrome: PropTypes.bool,
   };
 
   static stylesheet = Stylesheet.create({
     Root: {
       Component: VBox,
-      flex: 1
+      flex: 1,
     },
     ChromeRoot,
   });
@@ -57,10 +55,8 @@ export default class ActionWizard extends React.Component {
     let {ChromeRoot, Root} = this.constructor.stylesheet;
     let {action, noChrome} = this.props;
     action = React.cloneElement(this.props.action, {
-      context: {}
+      context: {},
     });
-    return noChrome ?
-      <Root>{action}</Root> :
-      <ChromeRoot>{action}</ChromeRoot>;
+    return noChrome ? <Root>{action}</Root> : <ChromeRoot>{action}</ChromeRoot>;
   }
 }

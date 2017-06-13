@@ -11,7 +11,6 @@ import {forceRefreshData} from 'rex-widget/data';
 import * as ui from 'rex-widget/ui';
 
 import Action from '../Action';
-
 import Title from './Title';
 
 export default class Drop extends React.Component {

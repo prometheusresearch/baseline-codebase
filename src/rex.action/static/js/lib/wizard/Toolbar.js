@@ -3,26 +3,24 @@
  * @flow
  */
 
+import type {Position} from '../model/types';
+
 import * as React from 'react';
 import {HBox} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
 import * as ui from 'rex-widget/ui';
 
-import {type Position, type State} from '../model/types';
-import * as S from '../model/State';
-import * as P from '../model/Position';
 import {getTitleAtPosition} from '../ActionTitle';
 import {getIconAtPosition} from '../ActionIcon';
 
 type ToolbarProps = {
-  graph: State,
+  positions: Array<Position>,
   onClick: Function,
 };
 
-export default function Toolbar({graph, onClick}: ToolbarProps) {
-  let buttons = S.next(graph)
-    .filter(P.isPositionAllowed)
+export default function Toolbar({positions, onClick}: ToolbarProps) {
+  let buttons = positions
     .filter(pos => pos.from !== 'replace')
     .map(pos => (
       <ToolbarButton key={pos.instruction.action.id} position={pos} onClick={onClick} />

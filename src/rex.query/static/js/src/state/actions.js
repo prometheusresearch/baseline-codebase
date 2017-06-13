@@ -481,7 +481,11 @@ export function appendNavigate({
       .editor(state.query, at)
       .insertAfter({what: path.map(q.use)})
       .getQuery();
-    return onQuery(state, {query, selected: state.selected || state.prevSelected});
+    return onQuery(state, {
+      query,
+      selected: state.selected || state.prevSelected,
+      activeQueryPipeline: null,
+    });
   };
 }
 

@@ -650,7 +650,10 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
             prev: context,
             domain,
             scope: {},
-            type: inferQueryType(context, definitionQuery).context.type,
+            type: t.leastUpperBound(
+              type,
+              inferQueryType(context, definitionQuery).context.type,
+            ),
             hasInvalidType: false,
             title: definition.query.context.title,
           });
@@ -717,7 +720,7 @@ function regularizePipeline(query: QueryPipeline): QueryPipeline {
       id: query.id,
       name: 'pipeline',
       pipeline: query.pipeline.slice(0, query.pipeline.length - 1),
-      context: query.context,
+      context: last.context.prev,
     };
   }
   return query;

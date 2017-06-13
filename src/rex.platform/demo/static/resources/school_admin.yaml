@@ -1,0 +1,28 @@
+type: wizard
+title: School Admin
+path:
+  - pick-school:
+    - edit-school:
+    - drop-school:
+    - make-school: 
+actions:
+
+  pick-school:
+    type: pick
+    title: Pick School
+    entity: school
+
+  edit-school:
+    type: edit
+    title: Edit School
+    entity: school
+
+  drop-school:
+    type: drop
+    title: Drop School
+    entity: school
+
+  make-school:
+    type: make
+    title: Make School
+    entity: school

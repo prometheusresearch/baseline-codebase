@@ -12,17 +12,17 @@ Test rex.platform
 
     >>> platform = get_packages()['rex.platform']
 
-    >>> platform.exists('www/bundle/bundle.js')
+    >>> platform.exists('www/bundle/js')
     True
-    >>> platform.exists('www/bundle/bundle.css')
+    >>> platform.exists('www/bundle/css')
     True
 
     >>> import webob
 
-    >>> '/platform/bundle/bundle.js' in str(webob.Request.blank('/').get_response(app))
+    >>> '/platform/bundle/js/main' in str(webob.Request.blank('/').get_response(app))
     True
 
-    >>> '/platform/bundle/bundle.css' in str(webob.Request.blank('/').get_response(app))
+    >>> '/platform/bundle/css/main' in str(webob.Request.blank('/').get_response(app))
     True
 
     >>> app.off()

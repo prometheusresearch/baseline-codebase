@@ -20,17 +20,9 @@ access_masks:
   viewer:
   - school?!is_null(campus)
 
-menu:
-- title: Home
-  items:
-  - url: rex.platform_demo:/
-    access: anybody
-- title: Schools
-  items:
-  - url: rex.platform_demo:/school_admin
-    access: admin
-  - url: rex.platform_demo:/school_viewer
-    access: viewer
+access:
+  rex.platform_demo: anybody
+  rex.platform: anybody
 
 rex_widget:
-  chrome: rex.widget_chrome.Chrome
+  chrome: rex.widget_chrome.MenuChrome

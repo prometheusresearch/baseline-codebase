@@ -89,12 +89,17 @@
     var __REX_WIDGET__;
     var __REX_WIDGET_THEME__ = JSON.stringify({{ theme }});
   </script>
-  {% for render in bootstrap %}
+  {% for render in before_bundle %}
     {{ render(REQUEST) }}
   {% endfor %}
+
   {% if bundle.js %}
   <script src="{{ bundle.js|url }}"></script>
   {% endif %}
+
+  {% for render in after_bundle %}
+    {{ render(REQUEST) }}
+  {% endfor %}
   <script>
     (function() {
       var __main__ = document.getElementById('__main__');
@@ -110,7 +115,7 @@
         __stylesheet__.media = 'all';
       }
 
-      RexWidget.render(
+      RexWidget.ReactDOM.render(
         __REX_WIDGET__,
         __main__,
         function() {

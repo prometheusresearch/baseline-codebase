@@ -28,6 +28,7 @@ __all__ = ('render',)
 class Bootstrap(Extension):
 
     name = None
+    after_bundle = False
 
     @classmethod
     def sanitize(cls):
@@ -105,11 +106,15 @@ def render(widget, request,
             return Response(payload, content_type='application/json')
         else:
             user = get_db().produce('$USER').data
-            bootstrap = [item() for item in Bootstrap.all()]
+            before_bundle = [item() for item in Bootstrap.all()
+                                    if not getattr(item, 'after_bundle', False)]
+            after_bundle = [item() for item in Bootstrap.all()
+                                   if getattr(item, 'after_bundle', False)]
             return render_to_response(
                 template, request,
                 user=json.dumps(json.dumps(user)),
                 bundle=find_assets_bundle(),
                 theme=theme,
-                bootstrap=bootstrap,
+                before_bundle=before_bundle,
+                after_bundle=after_bundle,
                 payload=payload)

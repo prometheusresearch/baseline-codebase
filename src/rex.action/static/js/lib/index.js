@@ -16,6 +16,8 @@ import {TitleBase} from './actions/Title';
 
 import './TransitionableHandlers';
 
+import { Theme } from "./ui";
+
 export ConfirmNavigation from './ConfirmNavigation';
 export Wizard from './wizard/Wizard';
 export ActionWizard from './ActionWizard';
@@ -40,6 +42,7 @@ export {
   ArgTypes,
   Command,
   Entity,
+  Theme,
 };
 
 export default {
@@ -49,4 +52,19 @@ export default {
   Actions,
   command,
   ArgTypes,
+};
+
+window.RexAction = {
+  Action,
+  Title,
+  TitleBase,
+  createEntity,
+  isEntity,
+  getEntityTitle,
+  Actions,
+  command,
+  ArgTypes,
+  Command,
+  Entity,
+  Theme,
 };

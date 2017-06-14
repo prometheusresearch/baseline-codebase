@@ -29,31 +29,35 @@ import Link from './Link';
 import QueryString from './qs';
 import Select from './Select';
 
-import * as Form from "../form";
-import * as Stylesheet from "../stylesheet";
-import * as Data from "../data";
-import * as Layout from "../layout";
-import * as UI from "../ui";
-import * as CSS from "../css";
+import * as Form from '../form';
+import * as Stylesheet from '../stylesheet';
+import * as Data from '../data';
+import * as Layout from '../layout';
+import * as UI from '../ui';
+import * as CSS from '../css';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import * as React_ReactUpdates from 'react/lib/ReactUpdates';
-import * as React_CSSPropertyOperations from 'react/lib/CSSPropertyOperations';
-import * as React_dangerousStyleValue from 'react/lib/dangerousStyleValue';
-import * as React_shallowCompare from 'react/lib/shallowCompare';
+import ReactUpdates from 'react/lib/ReactUpdates';
+import CSSPropertyOperations from 'react/lib/CSSPropertyOperations';
+import dangerousStyleValue from 'react/lib/dangerousStyleValue';
+import shallowCompare from 'react/lib/shallowCompare';
 
 import * as Transitionable from './Transitionable';
 
+const render = ReactDOM.render;
 
 window.RexWidget = {
+  // render
+  render,
+
   // React
   React,
   ReactDOM,
-  React_ReactUpdates,
-  React_CSSPropertyOperations,
-  React_dangerousStyleValue,
-  React_shallowCompare,
+  React_ReactUpdates: ReactUpdates,
+  React_CSSPropertyOperations: CSSPropertyOperations,
+  React_dangerousStyleValue: dangerousStyleValue,
+  React_shallowCompare: shallowCompare,
 
   // Current names
   FormRow,
@@ -87,6 +91,8 @@ window.RexWidget = {
 };
 
 export {
+  render,
+  Chrome,
   FormRow,
   FormColumn,
   AutocompleteField,

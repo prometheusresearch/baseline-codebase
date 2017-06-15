@@ -9,14 +9,13 @@ import {command, Types as ArgTypes} from './model/Command';
 import * as Command from './model/Command';
 import * as Entity from './model/Entity';
 
-
 import * as Actions from './actions';
 import Title from './actions/Title';
 import {TitleBase} from './actions/Title';
 
 import './TransitionableHandlers';
 
-import { Theme } from "./ui";
+import {Theme} from './ui';
 
 export ConfirmNavigation from './ConfirmNavigation';
 export Wizard from './wizard/Wizard';

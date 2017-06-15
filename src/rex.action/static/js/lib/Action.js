@@ -104,7 +104,7 @@ export default class Action extends React.Component {
           {noContentWrapper
             ? children
             : <VBox flexGrow={1} flexShrink={1}>
-                <Element flexGrow={1} flexShrink={1} overflow="auto" style={contentStyle}>
+                <Element flexGrow={1} flexShrink={1} overflow="auto" padding={20} style={contentStyle}>
                   {children}
                 </Element>
                 {footer && <ActionFooter>{footer}</ActionFooter>}

@@ -3,20 +3,19 @@
  */
 
 import React from 'react';
+import assert from 'power-assert';
 
 import {
   findWithType as _findWithType,
   findAllWithType as _findAllWithType,
   getMountedInstance,
-  findAll
+  findAll,
 } from 'react-shallow-testutils';
 
-import {
-  createRenderer as _createRenderer
-} from 'react-addons-test-utils';
+import {createRenderer as _createRenderer} from 'react-addons-test-utils';
 
 import _inspectElement, {
-  inspectReactProp as _inspectReactProp
+  inspectReactProp as _inspectReactProp,
 } from 'inspect-react-element';
 
 import {isEqual} from 'lodash/lang';
@@ -28,7 +27,6 @@ export {stub, spy, mock} from 'sinon';
 export assert from 'power-assert';
 
 class FormDataMock {
-
   append = Sinon.spy();
 }
 
@@ -43,9 +41,9 @@ export function unmockFormData() {
 }
 
 function inspectReactProps(node) {
-  return '__originalConfig' in node.props ?
-    {...node.props.__originalConfig, children: node.props.children} :
-    node.props || {};
+  return '__originalConfig' in node.props
+    ? {...node.props.__originalConfig, children: node.props.children}
+    : node.props || {};
 }
 
 function inspectReactProp(propName, propValue) {
@@ -60,7 +58,6 @@ export function inspectElement(node) {
 }
 
 class ReactShallowRenderer {
-
   constructor() {
     this._renderer = _createRenderer();
   }
@@ -93,7 +90,6 @@ class ReactShallowRenderer {
     assert(this.findAllWithType(type).length === 0);
   }
 
-
   findWithTypeProps(type, props) {
     return findWithTypeProps(this.element, type, props);
   }
@@ -110,7 +106,6 @@ class ReactShallowRenderer {
     assert(this.findAllWithTypeProps(type, props).length === 0);
   }
 
-
   findWithElement(element) {
     return findWithElement(this.element, element);
   }
@@ -126,7 +121,6 @@ class ReactShallowRenderer {
   assertNoElement(element) {
     assert(this.findAllWithElement(element).length === 0);
   }
-
 }
 
 export function createRenderer() {
@@ -137,11 +131,13 @@ export function findWithType(root, type) {
   let elements = findAll(root, _makeMatchWithType(type));
   if (elements.length !== 1) {
     let displayName = type.displayName || type.name || type;
-    throw new Error(`Did not find exactly one partial match for element:
+    throw new Error(
+      `Did not find exactly one partial match for element:
 ${indent(inspectElement(React.createElement(type)), ' ', 7)}
 ${indent('In the rendered element tree:', ' ', 5)}
 ${indent(inspectElement(root), ' ', 7)}
-    `);
+    `,
+    );
   }
   return elements[0];
 }
@@ -152,10 +148,9 @@ export function findAllWithType(root, type) {
 
 function _makeMatchWithType(type) {
   return function _matchWithType(element) {
-    return element && element.type && (
-      element.type === type ||
-      element.type.Component === type
-    );
+    return element &&
+      element.type &&
+      (element.type === type || element.type.Component === type);
   };
 }
 
@@ -163,11 +158,13 @@ export function findWithTypeProps(root, type, props) {
   let elements = findAll(root, _makeMatchWithElement(type, props));
   if (elements.length !== 1) {
     let displayName = type.displayName || type.name || type;
-    throw new Error(`Did not find exactly one (${elements.length}) partial match for element:
+    throw new Error(
+      `Did not find exactly one (${elements.length}) partial match for element:
 ${indent(inspectElement(React.createElement(type, props)), ' ', 7)}
 ${indent('In the rendered element tree:', ' ', 5)}
 ${indent(inspectElement(root), ' ', 7)}
-    `);
+    `,
+    );
   }
   return elements[0];
 }
@@ -182,11 +179,13 @@ export function findWithElement(root, spec) {
   let elements = findAll(root, _makeMatchWithElement(spec.type, spec.props));
   if (elements.length !== 1) {
     let displayName = type.displayName || type.name || type;
-    throw new Error(`Did not find exactly one (${elements.length}) partial match for element:
+    throw new Error(
+      `Did not find exactly one (${elements.length}) partial match for element:
 ${indent(inspectElement(spec), ' ', 7)}
 ${indent('In the rendered element tree:', ' ', 5)}
 ${indent(inspectElement(root), ' ', 7)}
-    `);
+    `,
+    );
   }
   return elements[0];
 }
@@ -215,7 +214,7 @@ function _makeMatchWithElement(type, props) {
       }
     }
     return true;
-  }
+  };
   return function _matchWithElement(element) {
     return element && matchWithType(element) && matchWithProps(element);
   };

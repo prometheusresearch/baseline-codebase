@@ -4,8 +4,8 @@
   <head>
     <title>rex.forms_demo</title>
     {{ polyfill() }}
-    <link rel="stylesheet" href="{{ MOUNT['rex.forms_demo'] }}/bundle/bundle.css">
-    <script src="{{ MOUNT['rex.forms_demo'] }}/bundle/bundle.js"></script>
+    <link rel="stylesheet" href="{{ bundle.css|url }}">
+    <script src="{{ bundle.js|url }}"></script>
   </head>
   <body>
     <div id="main"></div>

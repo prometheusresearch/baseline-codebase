@@ -25,14 +25,16 @@ it permits to download the table specific wizard::
   >>> render(DBGUI(), '/@@/2.tableWizard/trunk') # doctest: +ELLIPSIS
   ["~#widget", ["rex-action", "Wizard",...
 
-The important part here is that this downloaded wizard can also download internal data using the same entry point::
+The important part here is that this downloaded wizard can also download
+internal data using the same entry point::
 
   >>> render(DBGUI(), '/@@/2.tableWizard/trunk/@@/2.actions.pick-trunk--9d4903e8ba2eed283f822c4d7eaaa5c6.2.data') # doctest: +ELLIPSIS
   {
     "trunk": [
       {
         "id": "1",
-        "t_data": "test",
+        "t_id": 1,
+        "2": "1",
         "meta:type": "trunk",
         "meta:title": "1"
       }

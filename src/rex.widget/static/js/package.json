@@ -30,7 +30,6 @@
     "@prometheusresearch/react-ui": "^0.24.4",
     "autobind-decorator": "^1.3.2",
     "bootstrap": "3.3.5",
-    "bootstrap-datepicker": "^1.3.0",
     "classnames": "^2.1.2",
     "codemirror": "^5.17.0",
     "color-js": "^1.0.3",

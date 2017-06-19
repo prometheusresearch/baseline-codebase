@@ -105,6 +105,8 @@ class DateOperandBase extends React.Component {
     value: any,
   };
 
+  field: any;
+
   constructor(props: any) {
     super(props);
     this.state = {
@@ -116,6 +118,11 @@ class DateOperandBase extends React.Component {
     this.setState({
       value: nextProps.value ? moment(nextProps.value) : null,
     });
+    // XXX: This is a workaround for <DateTimeField /> which doesn't not resets
+    // its state correctly
+    if (nextProps.value == null && this.field) {
+      this.field.setState({inputValue: ''});
+    }
   }
 
   render() {
@@ -131,8 +138,17 @@ class DateOperandBase extends React.Component {
     return null;
   }
 
+  onField = field => {
+    this.field = field;
+  };
+
   onChange = (value: string) => {
-    this.props.onChange(moment(new Date(Number(value))).format(this.constructor.format));
+    let seconds = Number(value);
+    if (Number.isNaN(seconds)) {
+      this.setState({value});
+    } else {
+      this.props.onChange(moment(new Date(seconds)).format(this.constructor.format));
+    }
   };
 }
 
@@ -140,7 +156,14 @@ export class DateOperand extends DateOperandBase {
   static format = 'YYYY-MM-DD';
 
   renderField({value, onChange}: {value: any, onChange: string => *}): ?React.Element<*> {
-    return <DateTimeField mode="date" dateTime={value} onChange={onChange} />;
+    return (
+      <DateTimeField
+        ref={this.onField}
+        mode="date"
+        dateTime={value}
+        onChange={onChange}
+      />
+    );
   }
 }
 
@@ -148,7 +171,14 @@ export class TimeOperand extends DateOperandBase {
   static format = 'HH:mm:ss';
 
   renderField({value, onChange}: {value: any, onChange: string => *}): ?React.Element<*> {
-    return <DateTimeField mode="time" dateTime={value} onChange={onChange} />;
+    return (
+      <DateTimeField
+        ref={this.onField}
+        mode="time"
+        dateTime={value}
+        onChange={onChange}
+      />
+    );
   }
 }
 
@@ -156,7 +186,14 @@ export class DateTimeOperand extends DateOperandBase {
   static format = 'YYYY-MM-DD HH:mm:ss';
 
   renderField({value, onChange}: {value: any, onChange: string => *}): ?React.Element<*> {
-    return <DateTimeField mode="time" dateTime={value} onChange={onChange} />;
+    return (
+      <DateTimeField
+        ref={this.onField}
+        mode="time"
+        dateTime={value}
+        onChange={onChange}
+      />
+    );
   }
 }
 

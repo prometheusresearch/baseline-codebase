@@ -103,6 +103,7 @@ class DateOperandBase extends React.Component {
 
   state: {
     value: any,
+    invalid: boolean,
   };
 
   field: any;
@@ -110,6 +111,7 @@ class DateOperandBase extends React.Component {
   constructor(props: any) {
     super(props);
     this.state = {
+      invalid: false,
       value: props.value ? moment(props.value) : null,
     };
   }
@@ -117,6 +119,7 @@ class DateOperandBase extends React.Component {
   componentWillReceiveProps(nextProps: any) {
     this.setState({
       value: nextProps.value ? moment(nextProps.value) : null,
+      invalid: false,
     });
     // XXX: This is a workaround for <DateTimeField /> which doesn't not resets
     // its state correctly
@@ -126,10 +129,11 @@ class DateOperandBase extends React.Component {
   }
 
   render() {
-    let {value} = this.state;
+    let {value, invalid} = this.state;
     return (
       <ReactUI.Block>
-        {this.renderField({value, onChange: this.onChange})}
+        {this.renderField({value, invalid, onChange: this.onChange})}
+        {invalid && <ReactUI.ErrorText>Value is invalid</ReactUI.ErrorText>}
       </ReactUI.Block>
     );
   }
@@ -145,7 +149,7 @@ class DateOperandBase extends React.Component {
   onChange = (value: string) => {
     let seconds = Number(value);
     if (Number.isNaN(seconds)) {
-      this.setState({value});
+      this.setState({value, invalid: true});
     } else {
       this.props.onChange(moment(new Date(seconds)).format(this.constructor.format));
     }

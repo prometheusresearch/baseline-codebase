@@ -17,7 +17,7 @@
   "jest": {
     "coverageThreshold": {
       "global": {
-        "lines": 80
+        "lines": 60
       }
     },
     "moduleNameMapper": {

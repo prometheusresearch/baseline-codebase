@@ -5,7 +5,7 @@ REX.SMS Change Log
 .. contents:: Table of Contents
 
 
-2.0.0 (2016-xx-xx)
+2.0.0 (2017-06-20)
 ==================
 
 * Changed the ``send_sms`` function to require the telephone number of the

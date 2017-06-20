@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-3.10.0 (2017-XX-XX)
+3.10.0 (2017-06-20)
 ===================
 
 * Use JSON for uWSGI configuration.

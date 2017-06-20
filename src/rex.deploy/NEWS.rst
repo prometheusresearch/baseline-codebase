@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-2.10.0 (2017-XX-XX)
+2.10.0 (2017-06-20)
 ===================
 
 * Fixed driver-catalog GC cycle.

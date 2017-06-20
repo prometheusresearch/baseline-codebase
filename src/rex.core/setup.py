@@ -21,4 +21,6 @@ setup(
         'raven >=6.0, <7',
         'pyyaml',
     ],
-    rex_init='rex.core', )
+    rex_init='rex.core',
+)
+

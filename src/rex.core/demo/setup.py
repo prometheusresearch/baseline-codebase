@@ -37,4 +37,6 @@ setup(
     ],
     cmdclass={'demo': demo},
     rex_init='rex.core_demo',
-    rex_static='static', )
+    rex_static='static',
+)
+

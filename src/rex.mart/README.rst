@@ -398,8 +398,8 @@ instructs ``rex.mart`` to retrieve assessment configurations via a Definer
 extension. This kind of entry accepts the following properties:
 
 dynamic
-    This property identifies which Definer to execute. This property is
-    required.
+    This property identifies which `Definer <Built-In Definers_>`_ to execute.
+    This property is required.
 
 options
     This property is a mapping that allows you to specify options to pass into
@@ -421,8 +421,8 @@ specify the Python Post-Processors to execute upon the Mart. Each processor
 definition in the list is a mapping that accepts the following properties:
 
 id
-    This property identifies which Post-Processor to execute. This property is
-    required.
+    This property identifies which `Post-Processor <Built-In Post-Processors_>`_
+    to execute. This property is required.
 
 options
     This property is a mapping that allows you to specify options to pass into
@@ -774,7 +774,8 @@ Built-In Definers
 rexdb
 -----
 The ``rexdb`` Definer retrieves its configuration from tables stored in the
-main RexDB application database.
+main RexDB application database (the ``rexmart_dynamic_assessment`` table and
+its children).
 
 
 Known Issues

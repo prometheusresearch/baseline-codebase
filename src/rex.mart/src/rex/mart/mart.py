@@ -201,8 +201,8 @@ class Mart(object):
         Retrieves an HTSQL connection to the Mart database.
 
         :param extensions:
-        the HTSQL extensions to enable/configure, in addition to those defined
-        by the ``mart_htsql_extension`` setting
+            the HTSQL extensions to enable/configure, in addition to those
+            defined by the ``mart_htsql_extension`` setting
         :type extensions: dict
         :rtype: rex.db.RexHTSQL
         """

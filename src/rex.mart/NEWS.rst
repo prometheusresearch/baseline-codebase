@@ -5,12 +5,15 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
-0.7.0 (2017-xx-xx)
+0.7.0 (2017-06-20)
 ==================
 
 * Fixed an issue that caused crashes when filtering identifiable fields from
   Marts that involved Instruments where fields changed their identifiable
   status between versions.
+* Added the ability for Mart Definitions to invoke custom extensions which
+  provide dynamic, creation-time definitions of Assessments to include in the
+  creation of a Mart.
 
 
 0.6.1 (2017-03-07)

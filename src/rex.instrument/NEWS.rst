@@ -5,7 +5,7 @@ REX.INSTRUMENT Change Log
 .. contents:: Table of Contents
 
 
-1.8.0 (2017-xx-xx)
+1.8.0 (2017-06-20)
 ==================
 
 * Enhanced discrepancy identification to flag when a record must have at least

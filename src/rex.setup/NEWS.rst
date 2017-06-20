@@ -4,7 +4,8 @@
 
 .. contents:: Table of Contents
 
-4.0.0 (2017-XX-XX)
+
+4.0.0 (2017-06-20)
 ==================
 
 * [BREAKING] JS: Make introspection plugin only register packages entry points. That
@@ -17,10 +18,12 @@
 * [FEATURE] JS: Use more robust devtool for Webpack. Source maps and debugger
   now again work in newest Chrome browser.
 
+
 3.4.2 (2017-03-27)
 ==================
 
 * Fix fsevents failure on macOS.
+
 
 3.4.1 (2016-01-19)
 ==================

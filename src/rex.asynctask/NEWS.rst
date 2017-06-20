@@ -5,7 +5,7 @@ REX.ASYNCTASK Change Log
 .. contents:: Table of Contents
 
 
-0.6.0 (2017-xx-xx)
+0.6.0 (2017-06-20)
 ==================
 
 * The ``asynctask_scheduled_workers`` setting is now merged.

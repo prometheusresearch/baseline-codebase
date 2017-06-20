@@ -23,7 +23,7 @@ setup(
     install_requires=[
         'rex.setup>=3.0,<5',
         'rex.core>=1.9,<2',
-        'rex.web>=2,<4',
+        'rex.web>=3.10,<4',
         'rex.i18n>=0.5,<0.6',
         'rex.instrument>=1,<2',
         'rex.forms>=2.1,<3',
@@ -34,4 +34,6 @@ setup(
         './www/bundle': [
             'webpack:rex-form-previewer',
         ],
-    }, )
+    },
+)
+

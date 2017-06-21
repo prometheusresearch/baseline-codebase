@@ -5,6 +5,12 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
+5.9.2 (2017-06-21)
+==================
+
+* Updated to work with the new ``rex.widget`` and bundling.
+
+
 5.9.1 (2017-02-07)
 ==================
 

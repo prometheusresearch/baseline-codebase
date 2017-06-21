@@ -5,10 +5,13 @@ REX.MART_ACTIONS Change Log
 .. contents:: Table of Contents
 
 
-0.7.0 (2017-xx-xx)
+0.7.0 (2017-06-21)
 ==================
 
 * Updated rex.query and rex.mart.
+* Completely revamped the RexGuide action to be more useful and easier to
+  configure.
+* Updated to support new ``rex.widget`` and bundling.
 
 
 0.6.1 (2017-02-07)

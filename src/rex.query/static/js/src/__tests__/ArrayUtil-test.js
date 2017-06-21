@@ -26,7 +26,7 @@ describe('transpose', function() {
         study: 1,
       },
       {
-        __index__: 1,
+        __index__: 0,
         study: 2,
       },
     ]);
@@ -57,9 +57,9 @@ describe('transpose', function() {
         },
       },
       {
-        __index__: 0,
+        __index__: 1,
         study: {
-          __index__: 1,
+          __index__: 0,
           id: 's1',
           protocol: {
             id: 's1.p2',
@@ -67,7 +67,7 @@ describe('transpose', function() {
         },
       },
       {
-        __index__: 1,
+        __index__: 0,
         study: {
           __index__: 0,
           id: 's2',
@@ -79,7 +79,7 @@ describe('transpose', function() {
       {
         __index__: 1,
         study: {
-          __index__: 1,
+          __index__: 0,
           id: 's2',
           protocol: {
             id: 's2.p2',

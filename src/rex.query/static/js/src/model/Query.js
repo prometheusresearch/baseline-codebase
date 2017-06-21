@@ -27,10 +27,10 @@ import type {
   UnaryExpression,
 } from './types';
 
-import uniqueId from 'lodash/uniqueId';
 import invariant from 'invariant';
 import * as d from './Domain';
 import * as t from './Type';
+import generateUniqueId from '../generateUniqueId';
 
 export const QueryNameSet = new Set([
   'here',
@@ -45,7 +45,7 @@ export const QueryNameSet = new Set([
 ]);
 
 function genQueryId() {
-  return uniqueId('query');
+  return generateUniqueId('query');
 }
 
 export const emptyScope: Scope = {};

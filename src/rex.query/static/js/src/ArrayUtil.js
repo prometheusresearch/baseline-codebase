@@ -66,24 +66,28 @@ export function max(array: Array<number>): number {
 }
 
 export function transpose(obj: Object, keyPath: Array<string>): Array<Object> {
+  return transposeImpl(obj, keyPath);
+}
+
+function transposeImpl(obj: Object, keyPath: Array<string>): Array<Object> {
   if (keyPath.length > 0) {
     let [key, ...nextKeyPath] = keyPath;
     if (obj[key] != null && obj[key].length > 0) {
       let result = [];
       for (let index = 0; index < obj[key].length; index++) {
         if (nextKeyPath.length > 0) {
-          let nextObj = transpose(obj[key][index], nextKeyPath);
+          let nextObj = transposeImpl(obj[key][index], nextKeyPath);
           for (let nextIndex = 0; nextIndex < nextObj.length; nextIndex++) {
             result.push({
               ...obj,
-              __index__: index,
+              __index__: nextIndex,
               [key]: nextObj[nextIndex],
             });
           }
         } else {
           result.push({
             ...obj,
-            __index__: index,
+            __index__: 0,
             [key]: obj[key][index],
           });
         }

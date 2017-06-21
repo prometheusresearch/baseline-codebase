@@ -11,6 +11,7 @@ import invariant from 'invariant';
 import {findDOMNodeStrict as findDOMNode} from '../../findDOMNode';
 import DataTableHeader from './DataTableHeader';
 import getColumnSpecList from './getColumnSpecList';
+import getDataByKey from './getDataByKey';
 
 /**
  * Data table column specifiction.
@@ -113,6 +114,29 @@ export type ColumnField<T> = {
 };
 
 export type ColumnConfig<T> = ColumnStack<T> | ColumnGroup<T> | ColumnField<T>;
+
+export function isColumnConfig(obj: any): boolean {
+  if (obj == null) {
+    return false;
+  }
+  switch (obj.type) {
+    case 'stack':
+    case 'group':
+      return (
+        obj.hasOwnProperty('id') &&
+        obj.hasOwnProperty('size') &&
+        obj.hasOwnProperty('columnList')
+      );
+    case 'field':
+      return (
+        obj.hasOwnProperty('id') &&
+        obj.hasOwnProperty('size') &&
+        obj.hasOwnProperty('field')
+      );
+    default:
+      return false;
+  }
+}
 
 export type ColumnContainerConfig<T> = ColumnStack<T> | ColumnGroup<T>;
 
@@ -558,7 +582,7 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
 
 function defaultCellDataGetter({rowData, dataKey}) {
   return dataKey.length > 0 && rowData != null && typeof rowData === 'object'
-    ? getByKey(rowData, dataKey)
+    ? getDataByKey(rowData, dataKey)
     : rowData;
 }
 
@@ -567,35 +591,5 @@ function defaultCellRenderer({cellData}) {
     return '';
   } else {
     return String(cellData);
-  }
-}
-
-export function getByKey(item: Object, dataKey: Array<string>, focus?: Array<string>) {
-  if (dataKey.length === 0) {
-    return item;
-  } else if (dataKey.length === 1) {
-    return item[dataKey[0]];
-  } else if (dataKey.length === 2) {
-    item = item[dataKey[0]];
-    if (item == null) {
-      return item;
-    }
-    if (
-      item.__index__ != null &&
-      item.__index__ !== 0 &&
-      (focus == null ||
-        (focus.length > 1 && !(focus[0] === dataKey[0] && focus[1] === dataKey[1])))
-    ) {
-      return undefined;
-    }
-    return item[dataKey[1]];
-  } else {
-    for (let i = 0; i < dataKey.length; i++) {
-      item = item[dataKey[i]];
-      if (item == null) {
-        return item;
-      }
-    }
-    return item;
   }
 }

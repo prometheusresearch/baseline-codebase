@@ -1,0 +1,143 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`nation 1`] = `Field { dataKey = "nation" }`;
+
+exports[`nation.name 1`] = `
+Stack {
+  Field { dataKey = "nation" },
+  Field { dataKey = "name" }
+}
+`;
+
+exports[`nation:select(name) 1`] = `
+Stack {
+  Field { dataKey = "nation" },
+  Group {
+    Field { dataKey = "nation.name" }
+  }
+}
+`;
+
+exports[`nation:select(region) 1`] = `
+Stack {
+  Field { dataKey = "nation" },
+  Group {
+    Field { dataKey = "nation.region" }
+  }
+}
+`;
+
+exports[`nation:select(region:select(name)) 1`] = `
+Stack {
+  Field { dataKey = "nation" },
+  Group {
+    Stack {
+      Field { dataKey = "nation.region" },
+      Group {
+        Field { dataKey = "nation.region.name" }
+      }
+    }
+  }
+}
+`;
+
+exports[`region:select(nation) @ region 1`] = `
+Stack {
+  Field { dataKey = "region" },
+  Group {
+    Field { dataKey = "region.nation" }
+  }
+}
+`;
+
+exports[`region:select(nation) @ region.nation 1`] = `
+Stack {
+  Field { dataKey = "region" },
+  Group {
+    Field { dataKey = "region.nation" }
+  }
+}
+`;
+
+exports[`region:select(nation:count()) @ region 1`] = `
+Stack {
+  Field { dataKey = "region" },
+  Group {
+    Field { dataKey = "region.nationCount" }
+  }
+}
+`;
+
+exports[`region:select(nation:count()) @ region.nationCount 1`] = `
+Stack {
+  Field { dataKey = "region" },
+  Group {
+    Field { dataKey = "region.nationCount" }
+  }
+}
+`;
+
+exports[`region:select(nation:select(customer:select(name))) @ region 1`] = `
+Stack {
+  Field { dataKey = "region" },
+  Group {
+    Field { dataKey = "region.nation" }
+  }
+}
+`;
+
+exports[`region:select(nation:select(customer:select(name))) @ region.nation 1`] = `
+Stack {
+  Field { dataKey = "region" },
+  Group {
+    Stack {
+      Field { dataKey = "region.nation" },
+      Group {
+        Field { dataKey = "region.nation.customer" }
+      }
+    }
+  }
+}
+`;
+
+exports[`region:select(nation:select(customer:select(name))) @ region.nation.customer 1`] = `
+Stack {
+  Field { dataKey = "region" },
+  Group {
+    Stack {
+      Field { dataKey = "region.nation" },
+      Group {
+        Stack {
+          Field { dataKey = "region.nation.customer" },
+          Group {
+            Field { dataKey = "region.nation.customer.name" }
+          }
+        }
+      }
+    }
+  }
+}
+`;
+
+exports[`region:select(nation:select(name)) @ region 1`] = `
+Stack {
+  Field { dataKey = "region" },
+  Group {
+    Field { dataKey = "region.nation" }
+  }
+}
+`;
+
+exports[`region:select(nation:select(name)) @ region.nation 1`] = `
+Stack {
+  Field { dataKey = "region" },
+  Group {
+    Stack {
+      Field { dataKey = "region.nation" },
+      Group {
+        Field { dataKey = "region.nation.name" }
+      }
+    }
+  }
+}
+`;

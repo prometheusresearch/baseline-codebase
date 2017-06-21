@@ -2,8 +2,8 @@
  * @flow
  */
 
-export {default as DataTable, getByKey} from './DataTable';
-
+export {default as DataTable, isColumnConfig} from './DataTable';
+export {default as getDataByKey} from './getDataByKey';
 export {default as DataTableHeader} from './DataTableHeader';
 
 export {

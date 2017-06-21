@@ -1,4 +1,6 @@
-exports[`test context: individual 1`] = `
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`context: individual 1`] = `
 Map {
   "name" => Object {
     "card": null,
@@ -69,9 +71,9 @@ Map {
 }
 `;
 
-exports[`test context: individual.name 1`] = `Map {}`;
+exports[`context: individual.name 1`] = `Map {}`;
 
-exports[`test context: individual.study_enrollment 1`] = `
+exports[`context: individual.study_enrollment 1`] = `
 Map {
   "individual" => Object {
     "card": null,
@@ -146,9 +148,9 @@ Map {
 }
 `;
 
-exports[`test context: individual.study_enrollment.study.name 1`] = `Map {}`;
+exports[`context: individual.study_enrollment.study.name 1`] = `Map {}`;
 
-exports[`test context: study 1`] = `
+exports[`context: study 1`] = `
 Map {
   "name" => Object {
     "card": null,
@@ -219,7 +221,7 @@ Map {
 }
 `;
 
-exports[`test context: study.study_enrollment 1`] = `
+exports[`context: study.study_enrollment 1`] = `
 Map {
   "individual" => Object {
     "card": null,
@@ -294,7 +296,7 @@ Map {
 }
 `;
 
-exports[`test context: void 1`] = `
+exports[`context: void 1`] = `
 Map {
   "individual" => Object {
     "card": "seq",
@@ -401,7 +403,7 @@ Map {
 }
 `;
 
-exports[`test with query in scope 1`] = `
+exports[`with query in scope 1`] = `
 Map {
   "individual" => Object {
     "card": "seq",

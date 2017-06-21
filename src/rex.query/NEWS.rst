@@ -4,7 +4,12 @@
 
 .. contents:: Table of Contents
 
-0.4.0 (2017-XX-XX)
+0.5.0 (2017-XX-XX)
+==================
+
+* [FIX] Correctly display multple nested sequences in output.
+
+0.4.0 (2017-06-20)
 ==================
 
 * [FEAT] Charts.

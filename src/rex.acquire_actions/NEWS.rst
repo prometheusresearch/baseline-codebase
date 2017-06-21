@@ -5,6 +5,12 @@ REX.ACQUIRE_ACTIONS Change Log
 .. contents:: Table of Contents
 
 
+0.2.1 (2017-06-21)
+==================
+
+* Updated to use new ``rex.widget``.
+
+
 0.2.0 (2016-09-14)
 ==================
 

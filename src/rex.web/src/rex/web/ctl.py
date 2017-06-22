@@ -215,6 +215,17 @@ class UWSGIGlobal(Global):
     default = {}
 
 
+class ReplayLogGlobal(Global):
+    """path to the replay log
+
+    The file containing the log of all incoming requests.
+    """
+    name = 'replay-log'
+    value_name = 'LOG'
+    validate = StrVal()
+    default = None
+
+
 class RexWatchTask(RexTask):
     # Provides automatic watch daemon for the application.
 
@@ -236,6 +247,9 @@ class RexWatchTask(RexTask):
             raise Error(
                 'Option "--watch-package PACKAGE" is deprecated',
                 'Use "rex watch PACKAGE" command instead')
+        if env.replay_log is not None:
+            kwds.setdefault('extra_parameters', {})
+            kwds['extra_parameters'].setdefault('replay_log', env.replay_log)
         return self.make(*args, **kwds)
 
 
@@ -428,6 +442,7 @@ class ServeUWSGITask(RexWatchTask):
         if not env.uwsgi and not self.set_uwsgi:
             raise fail("missing uWSGI configuration")
         uwsgi_parameters = {}
+        uwsgi_parameters['master'] = True
         uwsgi_parameters['need-app'] = True
         uwsgi_parameters['enable-threads'] = True
         uwsgi_parameters['plugin'] = 'python'
@@ -797,7 +812,7 @@ class ReplayTask(RexTask):
         # Open the replay log.
         app = self.make(initialize=False)
         with app:
-            replay_log = get_settings().replay_log
+            replay_log = get_settings().replay_log or env.replay_log
         if not replay_log:
             raise fail("replay log is not configured")
         if not os.path.exists(replay_log):

@@ -288,3 +288,36 @@ is silently ignored::
     Stopping rex.web_demo (http-socket: :8..., logto: /.../rex.web_demo-web_demo.log)
 
 
+``rex replay``
+==============
+
+Specify ``--replay-log`` parameter to make ``rex serve`` save a log of all
+incoming requests::
+
+    >>> serve_ctl = Ctl("serve rex.web_demo --replay-log=./build/sandbox/replay.log --port=%s" % random_port)
+
+    >>> print get('/ping')
+    PONG!
+    >>> print get('/error')         # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    The server encountered an unexpected condition which prevented it from fulfilling the request.
+
+    >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    Serving rex.web_demo on 127.0.0.1:8...
+    localhost - - [...] "GET /ping HTTP/1.0" 200 5
+    ----------------------------------------------------------------------
+    [...] localhost => http://localhost:8.../error
+    Traceback (most recent call last):
+      ...
+    RuntimeError: some unexpected problem occurred
+    localhost - - [...] "GET /error HTTP/1.0" 500 95
+
+Using ``rex replay`` command, we can replay this log::
+
+    >>> ctl("replay rex.web_demo --replay-log=./build/sandbox/replay.log") # doctest: +ELLIPSIS
+    localhost - - [...] "GET /ping HTTP/1.0" 200 5
+    localhost - - [...] "GET /error HTTP/1.0" 500 95
+    ---
+    TIME ELAPSED: ...
+    REQUESTS: 2
+    ERRORS: 1
+

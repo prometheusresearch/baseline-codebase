@@ -24,6 +24,9 @@ import subprocess
 import atexit
 import wsgiref.simple_server, wsgiref.handlers, wsgiref.util
 import json
+import math
+import marshal
+import cStringIO
 
 
 def wsgi_file(app):
@@ -688,6 +691,133 @@ class StatusTask(RexTask):
                 log("{}", pid)
             if self.log:
                 log("{}", form.log_path)
+
+
+class ReplayHandler(object):
+
+    def __init__(self, app):
+        self.app = app
+        self.status = None
+        self.headers = None
+        self.body = None
+        self.code = None
+        self.host = None
+        self.user = None
+        self.date = None
+        self.method = None
+        self.query = None
+        self.protocol = None
+        self.size = None
+        self.started = None
+        self.finished = None
+        self.elapsed = datetime.timedelta()
+        self.total = 0
+        self.errors = 0
+
+    def reset(self, environ):
+        self.status = None
+        self.headers = None
+        self.body = cStringIO.StringIO()
+        self.code = None
+        self.host = environ.get('REMOTE_HOST', environ.get('REMOTE_ADDR'))
+        self.user = environ.get('REMOTE_USER') or '-'
+        self.method = environ['REQUEST_METHOD']
+        self.query = environ.get('PATH_INFO', '')
+        if environ.get('QUERY_STRING'):
+            self.query += '?' + environ['QUERY_STRING']
+        self.protocol = environ.get('SERVER_PROTOCOL') or '-'
+        self.size = None
+        self.started = datetime.datetime.now()
+        self.finished = None
+
+    def start_response(self, status, headers, exc_info=None):
+        self.status = status
+        self.headers = headers
+        return self.body.write
+
+    def close(self):
+        if self.status:
+            self.code = self.status.split()[0]
+        self.size = len(self.body.getvalue())
+        self.finished = datetime.datetime.now()
+        self.elapsed += self.finished - self.started
+        self.total += 1
+        self.errors += self.code >= '400'
+
+    def __call__(self, environ):
+        self.reset(environ)
+        try:
+            chunks = self.app(environ, self.start_response)
+            for chunk in chunks:
+                self.body.write(chunk)
+        except:
+            self.status = "500 Internal Server Error"
+        self.close()
+
+    def log(self):
+        benchmark = (self.finished - self.started).total_seconds()
+        benchmark = int(1 + math.log(benchmark))
+        benchmark = min(max(benchmark, 0), 5)
+        from cogs.log import COLORS
+        COLORS.styles['benchmark'] = []
+        if benchmark > 0:
+            COLORS.styles['benchmark'] = [48, 5, 17 + 36*benchmark]
+        if self.code < '400':
+            line = "{} - {} [:benchmark:`{}`] \"`{} {} {}`\" {} {}"
+        else:
+            line = "{} - {} [:benchmark:`{}`] \"`{} {} {}`\" :warning:`{}` {}"
+        log(line,
+            self.host,
+            self.user,
+            self.finished - self.started,
+            self.method,
+            self.query,
+            self.protocol,
+            self.code,
+            self.size)
+        del COLORS.styles['benchmark']
+
+    def summary(self):
+        log("---")
+        log("TIME ELAPSED: {}", self.elapsed)
+        log("REQUESTS: {}", self.total)
+        if self.errors:
+            log("ERRORS: :warning:`{}`", self.errors)
+
+
+class ReplayTask(RexTask):
+    """replay WSGI requests from the log"""
+
+    name = 'replay'
+
+    class options:
+        quiet = option('q', bool, hint="suppress output")
+
+    def __call__(self):
+        # Open the replay log.
+        app = self.make(initialize=False)
+        with app:
+            replay_log = get_settings().replay_log
+        if not replay_log:
+            raise fail("replay log is not configured")
+        if not os.path.exists(replay_log):
+            raise fail("replay log does not exist: {}", replay_log)
+        replay_log = open(replay_log)
+        # Run the logs.
+        app = self.make(extra_parameters={'replay_log': None})
+        handler = ReplayHandler(app)
+        while True:
+            try:
+                environ = marshal.load(replay_log)
+            except EOFError:
+                break
+            wsgi_input = environ.get('wsgi.input')
+            if isinstance(wsgi_input, str):
+                environ['wsgi.input'] = cStringIO.StringIO(wsgi_input)
+            handler(environ)
+            if not self.quiet:
+                handler.log()
+        handler.summary()
 
 
 class DeploymentTopic(Topic):

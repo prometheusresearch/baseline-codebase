@@ -4,8 +4,8 @@
 
 
 from rex.core import (Setting, Extension, WSGI, get_packages, get_settings,
-        MapVal, OMapVal, ChoiceVal, StrVal, Error, cached, autoreload,
-        get_rex, get_sentry)
+        MaybeVal, MapVal, OMapVal, ChoiceVal, StrVal, Error, cached,
+        autoreload, get_rex, get_sentry)
 from .handle import HandleFile, HandleLocation, HandleError
 from .auth import authenticate, authorize, confine
 from .path import PathMap, PathMask
@@ -23,7 +23,27 @@ import datetime
 import wsgiref
 import cgitb
 import mimetypes
+import marshal
+import fcntl
+import cStringIO
 import raven.utils.wsgi
+
+
+class ReplayLogSetting(Setting):
+    """
+    File to log all incoming requests.
+
+    Example::
+
+        replay_log: replay.log
+
+    Use the ``rex replay`` task to replay the sequence of requests
+    from an existing replay log.
+    """
+
+    name = 'replay_log'
+    validate = MaybeVal(StrVal)
+    default = None
 
 
 class MountSetting(Setting):
@@ -441,6 +461,10 @@ class StandardWSGI(WSGI):
                 context={
                     'requirements': rex.requirements,
                     'parameters': rex.parameters })
+        settings = get_settings()
+        self.replay_log = None
+        if settings.replay_log:
+            self.replay_log = open(settings.replay_log, 'a')
 
     def __call__(self, environ, start_response):
         # Workaround for uWSGI leaving an extra `/` on SCRIPT_NAME.
@@ -453,6 +477,27 @@ class StandardWSGI(WSGI):
                 environ.get('PATH_INFO')[0] != '/'):
             environ['SCRIPT_NAME'] = environ['SCRIPT_NAME'] + environ['PATH_INFO']
             environ['PATH_INFO'] = ''
+        # Update replay log.
+        if self.replay_log is not None:
+            entry = {}
+            for key, value in environ.items():
+                if isinstance(value, (str, int, bool, tuple)):
+                    entry[key] = value
+                elif key == 'wsgi.input':
+                    try:
+                        content_length = int(environ.get('CONTENT_LENGTH', 0))
+                    except ValueError:
+                        content_length = 0
+                    if content_length > 0:
+                        data = value.read(content_length)
+                        entry[key] = data
+                        environ[key] = cStringIO.StringIO(data)
+            try:
+                fcntl.flock(self.replay_log, fcntl.LOCK_EX)
+                marshal.dump(entry, self.replay_log)
+                self.replay_log.flush()
+            finally:
+                fcntl.flock(self.replay_log, fcntl.LOCK_UN)
         # Sentry configuration.
         self.sentry.user_context({
             'id': environ.get('REMOTE_USER'),

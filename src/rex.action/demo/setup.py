@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.action_demo',
-    version='1.6.0',
+    version='1.6.1',
     description="Demo package for testing rex.action",
     package_dir={'': 'src'},
     packages=find_packages('src'),

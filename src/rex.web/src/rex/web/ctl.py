@@ -27,6 +27,7 @@ import json
 import math
 import marshal
 import cStringIO
+import cProfile
 
 
 def wsgi_file(app):
@@ -807,6 +808,9 @@ class ReplayTask(RexTask):
 
     class options:
         quiet = option('q', bool, hint="suppress output")
+        profile = option(None, str, default=None,
+                value_name="FILE",
+                hint="write profile information")
 
     def __call__(self):
         # Open the replay log.
@@ -819,6 +823,8 @@ class ReplayTask(RexTask):
             raise fail("replay log does not exist: {}", replay_log)
         replay_log = open(replay_log)
         # Run the logs.
+        if self.profile is not None:
+            profile = cProfile.Profile()
         app = self.make(extra_parameters={'replay_log': None})
         handler = ReplayHandler(app)
         while True:
@@ -829,9 +835,15 @@ class ReplayTask(RexTask):
             wsgi_input = environ.get('wsgi.input')
             if isinstance(wsgi_input, str):
                 environ['wsgi.input'] = cStringIO.StringIO(wsgi_input)
+            if self.profile is not None:
+                profile.enable()
             handler(environ)
+            if self.profile is not None:
+                profile.disable()
             if not self.quiet:
                 handler.log()
+        if self.profile is not None:
+            profile.dump_stats(self.profile)
         handler.summary()
 
 

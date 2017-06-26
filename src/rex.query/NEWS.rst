@@ -4,7 +4,7 @@
 
 .. contents:: Table of Contents
 
-0.5.0 (2017-XX-XX)
+0.4.1 (2017-XX-XX)
 ==================
 
 * [FIX] Correctly display multple nested sequences in output.

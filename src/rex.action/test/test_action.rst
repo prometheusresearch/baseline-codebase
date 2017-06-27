@@ -8,7 +8,9 @@ Test rex.action.action
   >>> rex = Rex('-', pkg)
 
   >>> from rex.action.typing import Domain
-  >>> from rex.action.action import Action, ActionVal, Field
+  >>> from rex.action.validate import ActionVal
+  >>> from rex.action.action import Action, Field
+
 
   >>> dom = Domain()
 

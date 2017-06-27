@@ -10,44 +10,36 @@
 
 """
 
-from collections import namedtuple, OrderedDict
-import hashlib
+from __future__ import absolute_import
 
-import yaml
+from collections import namedtuple
+
 from cached_property import cached_property
 
-from rex.core import (
-    get_settings,
-    Location, locate, set_location,
-    cached, guard,
-    Error, Validate,
-    autoreload, get_packages,
-    RecordVal, MaybeVal,
-    ChoiceVal, StrVal, IntVal, SeqVal, MapVal, OMapVal, OneOfVal, AnyVal)
+from rex.core import get_settings, Error, RecordVal, ChoiceVal, StrVal, IntVal
 from rex.widget import (
-    Widget, WidgetVal, Field, computed_field,
+    Widget, Field, computed_field,
     RSTVal,
     undefined, as_transitionable, TransitionableRecord)
 from rex.widget.widget import _format_Widget
-from rex.widget.util import add_mapping_key, pop_mapping_key, IconVal
-from rex.widget.validate import DeferredVal, Deferred
+from rex.widget.util import IconVal
+from rex.widget.validate import Deferred
 
 from . import typing
-from .validate import is_string_node
 
-__all__ = ('ActionBase', 'Action', 'ActionVal')
+__all__ = ('ActionBase', 'Action',)
 
 
 class ActionMeta(Widget.__metaclass__):
 
     def __new__(mcs, name, bases, attrs):
         if 'name' in attrs:
-            attrs['name'] = _action_sig(attrs['name'])
+            attrs['name'] = action_sig(attrs['name'])
         cls = Widget.__metaclass__.__new__(mcs, name, bases, attrs)
         return cls
 
 
-class _action_sig(namedtuple('Action', ['name'])):
+class action_sig(namedtuple('Action', ['name'])):
 
     def __hash__(self):
         return hash((self.__class__.__name__, self.name))
@@ -128,7 +120,7 @@ class ActionBase(Widget):
         return self._domain
 
     @computed_field
-    def settings(self, req):
+    def settings(self, _req):
         settings = get_settings().rex_action
         return {
             'includePageBreadcrumbItem': settings.include_page_breadcrumb_item,
@@ -160,6 +152,9 @@ class ActionBase(Widget):
     def with_domain(self, domain):
         """ Override typing domain."""
         return self.__validated_clone__(__domain=domain)
+
+    def __hash__(self):
+        return hash((self.__class__, self.uid))
 
     @cached_property
     def context_types(self):
@@ -196,6 +191,8 @@ class ActionBase(Widget):
 
     @classmethod
     def parse(cls, value):
+        # this is to prevent circular imports
+        from .validate import ActionVal
         validate = ActionVal(action_class=cls)
         if isinstance(value, basestring) or hasattr(value, 'read'):
             return validate.parse(value)
@@ -253,98 +250,6 @@ def _format_Action(action, req, path): # pylint: disable=invalid-name
         'output': action.context_types[1],
     }
     return package_name, symbol_name, props
-
-
-class ActionVal(Validate):
-    """ Validator for actions."""
-
-    _validate_pre = MapVal(StrVal(), AnyVal())
-    _validate_type = StrVal()
-    _validate_id = StrVal()
-
-    def __init__(self,
-            action_class=Action,
-            action_base=None,
-            package=None,
-            id=None):
-        self.action_base = action_base
-        self.action_class = action_class
-        self.package = package
-        self.id = id
-
-    def __hash__(self):
-        return hash((
-            self.action_base,
-            self.action_class,
-            self.package,
-            self.id
-        ))
-
-    def construct(self, loader, node):
-        if not isinstance(node, yaml.MappingNode):
-            value = super(ActionVal, self).construct(loader, node)
-            return self(value)
-
-        loc = Location.from_node(node)
-
-        with guard("While parsing:", loc):
-
-            type_node, node = pop_mapping_key(node, 'type')
-
-            if type_node and not is_string_node(type_node):
-                with loader.validating(ActionVal()):
-                    action_base = loader.construct_object(type_node, deep=True)
-                override_spec = DeferredVal().construct(loader, node)
-                return override(action_base, override_spec)
-
-            if not type_node and self.action_base:
-                override_spec = DeferredVal().construct(loader, node)
-                return override(self.action_base, override_spec)
-
-            if self.action_class is not Action:
-                action_class = self.action_class
-            elif not type_node:
-                raise Error('no action "type" specified')
-            elif is_string_node(type_node):
-                with guard("While parsing:", Location.from_node(type_node)):
-                    action_type = self._validate_type.construct(loader, type_node)
-                    action_sig = _action_sig(action_type)
-                    if action_sig not in ActionBase.mapped():
-                        raise Error('unknown action type specified:', action_type)
-                action_class = ActionBase.mapped()[action_sig]
-
-        widget_val = WidgetVal(package=self.package, widget_class=action_class)
-
-        if not any(k == 'id' for k, v in node.value):
-            if self.id:
-                node = add_mapping_key(node, 'id', self.id)
-            else:
-                id = '%s:%d' % (loc.filename, loc.line)
-                id = hashlib.md5(id).hexdigest()
-                node = add_mapping_key(node, 'id', id)
-
-        action = widget_val.construct(loader, node)
-        return action
-
-    def __call__(self, value):
-        if isinstance(value, self.action_class):
-            return value
-        value = dict(self._validate_pre(value))
-        action_type = value.pop('type', NotImplemented)
-        if action_type is NotImplemented:
-            raise Error('no action "type" specified')
-        action_type = self._validate_type(action_type)
-        action_sig = _action_sig(action_type)
-        if action_sig not in ActionBase.mapped():
-            raise Error('unknown action type specified:', action_type)
-        action_class = ActionBase.mapped()[action_sig]
-        if not issubclass(action_class, self.action_class):
-            raise Error('action must be an instance of:', self.action_class)
-        value = {k: v for (k, v) in value.items() if k != 'type'}
-        validate = WidgetVal(package=self.package, widget_class=action_class).validate_values
-        value = validate(action_class, value)
-        value['package'] = self.package
-        return action_class._configuration(action_class, value)
 
 
 def override(action, values):

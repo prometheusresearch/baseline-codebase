@@ -12,15 +12,16 @@
 
 """
 
+from __future__ import absolute_import
+
 import cgi
 
 from collections import namedtuple
 from cached_property import cached_property
 
 from rex.core import Location, locate, set_location, Validate, Error
-from rex.core import RecordVal, UnionVal, MapVal, StrVal, SeqVal, OnField, OneOfVal
+from rex.core import RecordVal, UnionVal, MapVal, StrVal, SeqVal, OnField
 from rex.widget import TransitionableRecord
-from .util import get_action_key
 
 __all__ = ('Start', 'Execute', 'IncludeWizard', 'Repeat', 'Replace',
            'InstructionVal', 'PathVal', 'visit', 'map', )
@@ -206,16 +207,15 @@ class ExecuteVal(BaseInstructionVal):
     def create_instruction(self, action=None, then=None):
         from .wizard import WizardBase as Wizard
         action_instance = self.resolve_action(action)
-        id = get_action_key(self.id, action)
         if isinstance(action_instance, Wizard):
             return IncludeWizard(
-                id=id,
+                id=action,
                 action=action,
                 then=then,
                 action_instance=action_instance)
         else:
             return Execute(
-                id=id,
+                id=action,
                 action=action,
                 then=then,
                 action_instance=action_instance)
@@ -307,16 +307,15 @@ class ExecuteShortcutVal(ValidateWithAction):
             raise Error('only mappings of a single key are allowed')
         action, then = value.iteritems().next()
         action_instance = self.resolve_action(action)
-        id = get_action_key(self.id, action)
         if isinstance(action_instance, Wizard):
             return IncludeWizard(
-                id=id,
+                id=action,
                 action=action,
                 then=then,
                 action_instance=action_instance)
         else:
             return Execute(
-                id=id,
+                id=action,
                 action=action,
                 then=then,
                 action_instance=action_instance)

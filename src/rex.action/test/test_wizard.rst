@@ -3,6 +3,8 @@ Wizard
 
 ::
 
+  >>> db = 'pgsql:action_demo'
+
   >>> import tempfile
   >>> attach_dir = tempfile.mkdtemp(suffix='rex-action-test')
 
@@ -14,6 +16,7 @@ Wizard
 ::
 
   >>> from rex.action import setting
+  >>> from rex.action.validate import ActionVal
   >>> from rex.action.action import Action, Field
   >>> from rex.action.typing import EntityType, RecordType, RecordTypeVal
 
@@ -57,7 +60,7 @@ Wizard
   ...   def context(self):
   ...     return self.domain.record(), self.domain.record(x='x')
 
-  >>> rex = Rex('-', 'rex.action_demo', attach_dir=attach_dir)
+  >>> rex = Rex('-', 'rex.action_demo', db=db, attach_dir=attach_dir)
   >>> rex.on()
 
 
@@ -65,7 +68,11 @@ Wizard
 
   >>> from rex.action.wizard import Wizard
 
-  >>> Wizard.parse("""
+  >>> def parse(yaml):
+  ...   return ActionVal().parse(yaml)
+
+  >>> parse("""
+  ... type: wizard
   ... path:
   ... - first:
   ...   - second:
@@ -94,7 +101,8 @@ Wizard
 
 ::
 
-  >>> Wizard.parse("""
+  >>> parse("""
+  ... type: wizard
   ... path:
   ... - first:
   ... actions:
@@ -118,7 +126,8 @@ Wizard
 
 ::
 
-  >>> w = Wizard.parse("""
+  >>> w = parse("""
+  ... type: wizard
   ... path:
   ... - first:
   ... actions:
@@ -132,7 +141,8 @@ Wizard
 
 ::
 
-  >>> Wizard.parse("""
+  >>> parse("""
+  ... type: wizard
   ... path:
   ... - first:
   ... initial_context:
@@ -155,7 +165,8 @@ Wizard
 
 ::
 
-  >>> w = Wizard.parse("""
+  >>> w = parse("""
+  ... type: wizard
   ... path:
   ... - first:
   ...   - second:
@@ -182,7 +193,8 @@ Wizard
 
 Context refetch::
 
-  >>> w = Wizard.parse("""
+  >>> w = parse("""
+  ... type: wizard
   ... path:
   ... - first:
   ...   - second:
@@ -797,7 +809,7 @@ Overrides
 
 ::
 
-  >>> rex = Rex('-', 'rex.action_demo', attach_dir=attach_dir)
+  >>> rex = Rex('-', 'rex.action_demo', db=db, attach_dir=attach_dir)
   >>> rex.on()
 
 ::

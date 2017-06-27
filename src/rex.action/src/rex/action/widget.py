@@ -12,7 +12,7 @@
 
 from rex.widget import Widget, Field
 
-from .action import ActionVal
+from .validate import ActionVal
 from .wizard import WizardWidgetBase
 
 __all__ = ('ActionWizard',)

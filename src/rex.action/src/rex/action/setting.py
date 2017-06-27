@@ -7,7 +7,9 @@
 
 """
 
-from rex.core import Setting, AnyVal, RecordVal, BoolVal
+from __future__ import absolute_import
+
+from rex.core import Setting, RecordVal, BoolVal
 
 
 class RexActionSetting(Setting):

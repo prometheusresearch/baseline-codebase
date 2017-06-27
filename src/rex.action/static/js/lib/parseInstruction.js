@@ -26,8 +26,18 @@ export function parseInstruction(
   actions: Object,
   instruction: PreInstruction,
 ): Instruction {
+  const ctx = {path: []};
+  return parseInstructionImpl(domain, actions, instruction, ctx);
+}
+
+export function parseInstructionImpl(
+  domain: Object,
+  actions: Object,
+  instruction: PreInstruction,
+  ctx: {path: Array<string>},
+): Instruction {
   if (instruction.type === 'start') {
-    const then = instruction.then.map(i => parseInstruction(domain, actions, i));
+    const then = instruction.then.map(i => parseInstructionImpl(domain, actions, i, ctx));
     const res: IStart = {
       type: 'start',
       then,
@@ -36,7 +46,7 @@ export function parseInstruction(
     assignParent(then, res);
     return res;
   } else if (instruction.type === 'execute') {
-    const element = actions[instruction.id];
+    const element = lookupAction(instruction, actions, ctx);
     const action = {
       id: instruction.id,
       name: instruction.name,
@@ -45,7 +55,7 @@ export function parseInstruction(
       commands: element.type.commands,
       element,
     };
-    const then = instruction.then.map(i => parseInstruction(domain, actions, i));
+    const then = instruction.then.map(i => parseInstructionImpl(domain, actions, i, ctx));
     const res: IExecute = {
       type: 'execute',
       action,
@@ -55,10 +65,13 @@ export function parseInstruction(
     assignParent(then, res);
     return res;
   } else if (instruction.type === 'include') {
-    const element = actions[instruction.id];
-    const include = parseInstruction(domain, actions, element.props.path);
+    const element = lookupAction(instruction, actions, ctx);
+    const include = parseInstructionImpl(domain, actions, element.props.path, {
+      ...ctx,
+      path: ctx.path.concat(instruction.id),
+    });
     invariant(include.type === 'start', 'Invalid include');
-    const then = instruction.then.map(i => parseInstruction(domain, actions, i));
+    const then = instruction.then.map(i => parseInstructionImpl(domain, actions, i, ctx));
     const res: IInclude = {
       type: 'include',
       name: instruction.name,
@@ -70,8 +83,9 @@ export function parseInstruction(
     assignParent(then, res);
     return res;
   } else if (instruction.type === 'repeat') {
-    const repeat = instruction.repeat.map(i => parseInstruction(domain, actions, i));
-    const then = instruction.then.map(i => parseInstruction(domain, actions, i));
+    const repeat = instruction.repeat.map(i =>
+      parseInstructionImpl(domain, actions, i, ctx));
+    const then = instruction.then.map(i => parseInstructionImpl(domain, actions, i, ctx));
     const res: IRepeat = {
       type: 'repeat',
       repeat,
@@ -85,6 +99,16 @@ export function parseInstruction(
     return parseReplaceReference(instruction.reference);
   } else {
     invariant(false, 'Unknown instruction found: %s', instruction.type);
+  }
+}
+
+function lookupAction(instruction, actions, ctx) {
+  const elementKey = ctx.path.concat(instruction.id).join('@');
+  const element = actions[elementKey];
+  if (element.$ref !== undefined) {
+    return actions[element.$ref];
+  } else {
+    return element;
   }
 }
 

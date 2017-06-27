@@ -1,4 +1,6 @@
 
+from __future__ import absolute_import
+
 from rex.widget import Widget
 from .action import ActionBase
 

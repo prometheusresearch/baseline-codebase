@@ -10,33 +10,24 @@
 
 """
 
-import urlparse
-import cgi
+from __future__ import absolute_import
 
 from webob import Response
 from webob.exc import HTTPMethodNotAllowed
 
-from cached_property import cached_property
-
-from rex.core import (get_packages, autoreload, Record, Validate, Error,
-                      locate, guard, OneOfVal, RecordVal, IntVal, MaybeVal,
-                      AnyVal, StrVal, MapVal, SeqVal, StrVal, RecordVal,
-                      ChoiceVal)
+from rex.core import Error, locate, guard, OneOfVal, RecordVal, AnyVal, MapVal, StrVal
 from rex.widget import Widget, Field, responder
 from rex.widget.transitionable import as_transitionable
 from rex.widget.validate import DeferredVal, Deferred
 from rex.widget.util import product_to_pojo
-from rex.web import route
 from rex.port import Port
 
-from .action import ActionBase, ActionVal, _format_Action
-from .validate import (DomainVal, ActionMapVal, ActionReferenceVal,
-                       LocalActionReference)
+from .action import ActionBase, _format_Action
+from .validate import DomainVal, ActionMapVal
 from . import typing
 from . import instruction
-from .util import get_action_key
 
-__all__ = ('WizardBase', 'WizardWidgetBase')
+__all__ = ('WizardBase', 'WizardWidgetBase', 'visit_wizards')
 
 validate_entity = RecordVal(('type', StrVal()), ('id', StrVal()))
 
@@ -88,7 +79,7 @@ class WizardWidgetBase(Widget):
             with self.domain:
                 self.actions = self.actions.resolve()
         if isinstance(self.path, Deferred):
-            validate_path = instruction.PathVal(self.uid, self._resolve_action)
+            validate_path = instruction.PathVal(self.id, self._resolve_action)
             self.path = self.path.resolve(validate_path)
 
         self._enrich_domain()
@@ -225,7 +216,7 @@ class WizardWidgetBase(Widget):
             action = self._resolve_action(inst.action)
             if action is None:
                 raise Error('Unknown action found:', inst.action)
-            input, output = action.context_types
+            _input, output = action.context_types
             try:
                 action.typecheck(context_type)
             except typing.KindsDoNotMatch as err:
@@ -460,33 +451,6 @@ class Wizard(WizardBase):
     js_type = 'rex-action', 'Wizard'
 
 
-def _collect_actions(wizard):
-    actions = {}
-
-    # Check if actions are constructed and if not then force them to be
-    # constructed by typechecking. This is needed to make sure things work after
-    # reloads.
-
-    if not wizard.included:
-        wizard.typecheck()
-
-    for orig_key, action in wizard.actions.items():
-        key = get_action_key(wizard.uid, orig_key)
-        actions[key] = action
-        if isinstance(action, WizardBase):
-            actions.update(_collect_actions(action))
-    return actions
-
-
-@as_transitionable(WizardBase, tag='widget')
-def _format_Wizard(wizard, req, path):  # pylint: disable=invalid-name
-    package_name, symbol_name, props = _format_Action(wizard, req, path)
-    if not wizard.included:
-        props['actions'] = _collect_actions(wizard)
-        props['domain'] = wizard.domain
-    return package_name, symbol_name, props
-
-
 def update_context_with_spec(context_type, spec, orig_context_type):
     context_type = typing.RecordType(context_type.rows.values())
     for k, v in spec.items():
@@ -498,3 +462,11 @@ def update_context_with_spec(context_type, spec, orig_context_type):
             # TODO: decide what to do here... any is weak
             context_type.rows[k] = typing.RowType(k, typing.AnyType())
     return context_type
+
+
+def visit_wizards(wizard, visitor, path=None):
+    path = path or ()
+    visitor(wizard, path)
+    for key, action in wizard.actions.items():
+        if isinstance(action, WizardBase):
+            visit_wizards(action, visitor, path=path + (key,))

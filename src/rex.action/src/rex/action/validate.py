@@ -7,12 +7,15 @@
 
 """
 
-import re
+from __future__ import absolute_import
+
+import hashlib
 import collections
 import urlparse
 import urllib
 import cgi
 import yaml
+import json
 
 from htsql.core.error import Error as HTSQLError
 from htsql.core.syn.syntax import Syntax
@@ -22,9 +25,11 @@ from rex.core import (
     Record, Validate, Error, guard, Location,
     AnyVal, UStrVal, StrVal, MapVal, OneOfVal, RecordVal, RecordField)
 from rex.db import get_db, Query, RexHTSQL
-from rex.widget import TransitionableRecord
-from rex.widget.validate import DeferredVal, Deferred
+from rex.widget.validate import WidgetVal, DeferredVal
+from rex.widget.util import add_mapping_key, pop_mapping_key
 
+
+from .action import Action, ActionBase, action_sig
 from . import typing
 
 __all__ = ('RexDBVal', 'QueryVal', 'SyntaxVal', 'DomainVal')
@@ -33,6 +38,7 @@ __all__ = ('RexDBVal', 'QueryVal', 'SyntaxVal', 'DomainVal')
 def is_string_node(node):
     return isinstance(node, yaml.ScalarNode) and \
            node.tag == u'tag:yaml.org,2002:str'
+
 
 class RexDBVal(Validate):
     """ Validator to reference a Rex DB instance.
@@ -210,10 +216,100 @@ class GlobalActionReference(
     __str__ = __repr__
 
 
+class ActionVal(Validate):
+    """ Validator for actions."""
+
+    _validate_pre = MapVal(StrVal(), AnyVal())
+    _validate_type = StrVal()
+    _validate_id = StrVal()
+
+    def __init__(self, action_class=Action, action_base=None, package=None):
+        self.action_base = action_base
+        self.action_class = action_class
+        self.package = package
+        self.id = id
+
+    def __hash__(self):
+        return hash((
+            self.action_base,
+            self.action_class,
+            self.package,
+            self.id
+        ))
+
+    def construct(self, loader, node):
+
+        uid = '%s:%s:%s' % (
+                node.start_mark.name,
+                node.start_mark.line,
+                node.start_mark.column)
+        uid = hashlib.md5(uid).hexdigest()
+
+        if not isinstance(node, yaml.MappingNode):
+            value = super(ActionVal, self).construct(loader, node)
+            return self(value)
+
+        loc = Location.from_node(node)
+
+        with guard("While parsing:", loc):
+
+            type_node, node = pop_mapping_key(node, 'type')
+
+            if type_node and not is_string_node(type_node):
+                with loader.validating(ActionVal()):
+                    action_base = loader.construct_object(type_node, deep=True)
+                override_spec = DeferredVal().construct(loader, node)
+                return override(action_base, override_spec)
+
+            if not type_node and self.action_base:
+                override_spec = DeferredVal().construct(loader, node)
+                return override(self.action_base, override_spec)
+
+            if self.action_class is not Action:
+                action_class = self.action_class
+            elif not type_node:
+                raise Error('no action "type" specified')
+            elif is_string_node(type_node):
+                with guard("While parsing:", Location.from_node(type_node)):
+                    action_type = self._validate_type.construct(loader, type_node)
+                    sig = action_sig(action_type)
+                    if sig not in ActionBase.mapped():
+                        raise Error('unknown action type specified:', action_type)
+                action_class = ActionBase.mapped()[sig]
+
+        widget_val = WidgetVal(package=self.package, widget_class=action_class)
+        action = widget_val.construct(loader, node)
+        action.id = uid
+        return action
+
+    def __call__(self, value):
+        if isinstance(value, self.action_class):
+            return value
+        value = dict(self._validate_pre(value))
+        action_type = value.pop('type', NotImplemented)
+        if action_type is NotImplemented:
+            raise Error('no action "type" specified')
+        action_type = self._validate_type(action_type)
+        sig = action_sig(action_type)
+        if sig not in ActionBase.mapped():
+            raise Error('unknown action type specified:', action_type)
+        action_class = ActionBase.mapped()[sig]
+        if not issubclass(action_class, self.action_class):
+            raise Error('action must be an instance of:', self.action_class)
+        value = {k: v for (k, v) in value.items() if k != 'type'}
+        validate = WidgetVal(package=self.package, widget_class=action_class).validate_values
+        value = validate(action_class, value)
+        value['package'] = self.package
+        return action_class._configuration(action_class, value)
+
+
+def override(action, values):
+    return action._configuration._apply_override(action, values)
+
+
 class ActionOrActionIncludeVal(Validate):
 
     def __init__(self, action_base=None):
-        from .action import ActionVal
         self._validate_action = ActionVal(action_base=action_base)
         self._validate_action_reference = ActionReferenceVal()
 

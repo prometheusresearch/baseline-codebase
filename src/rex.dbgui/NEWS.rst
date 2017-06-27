@@ -4,6 +4,11 @@
 
 .. contents:: Table of Contents
 
+4.1.6 (2017-XX-XX)
+==================
+
+* Fix rex.action API usage (remove internal ActionVal import)
+
 4.1.5 (2017-06-21)
 ==================
 

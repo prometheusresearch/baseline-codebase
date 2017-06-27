@@ -1,6 +1,6 @@
 
 from rex.core import cached, OMapVal
-from rex.action.action import ActionVal
+from rex.action import ActionVal
 from rex.action.wizard import Wizard as BaseWizard
 from rex.deploy import model
 from rex.widget import render_widget, computed_field

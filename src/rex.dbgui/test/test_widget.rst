@@ -28,7 +28,7 @@ it permits to download the table specific wizard::
 The important part here is that this downloaded wizard can also download
 internal data using the same entry point::
 
-  >>> render(DBGUI(), '/@@/2.tableWizard/trunk/@@/2.actions.pick-trunk--9d4903e8ba2eed283f822c4d7eaaa5c6.2.data') # doctest: +ELLIPSIS
+  >>> render(DBGUI(), '/@@/2.tableWizard/trunk/@@/2.actions.pick-trunk.2.data') # doctest: +ELLIPSIS
   {
     "trunk": [
       {

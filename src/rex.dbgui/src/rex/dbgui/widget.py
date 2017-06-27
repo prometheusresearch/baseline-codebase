@@ -1,3 +1,4 @@
+from rex.action import MountedActionVal
 from rex.widget import Widget, Field, computed_field, responder, RequestURL, \
                        render_widget
 from .wizard import table_wizard, root_wizard
@@ -8,9 +9,11 @@ class DBGUI(Widget):
     name = 'DBGUI'
     js_type = 'rex-dbgui', 'DBGUI'
 
+    mount = MountedActionVal()
+
     @computed_field
     def root_wizard(self, req):
-        return root_wizard().wizard
+        return self.mount(root_wizard().wizard)
 
     @responder(url_type=RequestURL)
     def table_wizard(self, req):
@@ -24,5 +27,5 @@ class DBGUI(Widget):
         path = None
         if copy.path_info.startswith('/@@/'):
             path = copy.path_info[4:]
-        return render_widget(table_wizard(table).wizard, copy, no_chrome=True,
+        return render_widget(self.mount(table_wizard(table).wizard), copy, no_chrome=True,
                              path=path)

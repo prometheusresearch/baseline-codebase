@@ -16,6 +16,7 @@ from rex.web import get_routes
 from .action import Action
 from .actions import View, Make, Page, Pick, Edit
 from .validate import RexDBVal, ActionVal, override
+from .mount import MountedActionVal
 from .wizard import Wizard
 from .doc import DocumentPlainWidget
 from .menu import ActionRenderer

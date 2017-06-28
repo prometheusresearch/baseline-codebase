@@ -227,14 +227,12 @@ class ActionVal(Validate):
         self.action_base = action_base
         self.action_class = action_class
         self.package = package
-        self.id = id
 
     def __hash__(self):
         return hash((
             self.action_base,
             self.action_class,
             self.package,
-            self.id
         ))
 
     def construct(self, loader, node):

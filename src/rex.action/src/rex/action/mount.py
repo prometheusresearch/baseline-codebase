@@ -15,7 +15,7 @@ from rex.core import Validate
 from rex.widget.transitionable import as_transitionable
 from rex.widget.widget import _format_Widget
 
-from .action import ActionBase, _format_Action
+from .action import Action, ActionBase, _format_Action
 from .validate import ActionVal
 from .wizard import WizardBase, visit_wizards
 from .widget import ActionWizard
@@ -50,7 +50,12 @@ def _format_MountedAction(action, req, path):  # pylint: disable=invalid-name
 
 class MountedActionVal(Validate):
 
-    delegate = ActionVal()
+    def __init__(self, action_class=Action, action_base=None, package=None):
+        super(MountedActionVal, self).__init__()
+        self.delegate = ActionVal(
+            action_class=action_class,
+            action_base=action_base,
+            package=package)
 
     def mount(self, action):
         action_map = {}

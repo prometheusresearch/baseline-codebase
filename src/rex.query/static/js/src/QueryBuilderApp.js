@@ -14,6 +14,8 @@ import {fetchCatalog} from './fetch';
 const API = (typeof __rex_root__ !== 'undefined' ? __rex_root__ : '') + '/query/';
 
 export default class QueryBuilderApp extends React.Component {
+  queryBuilder: ?any;
+
   state: {domain: ?Domain} = {
     domain: null,
   };
@@ -32,19 +34,18 @@ export default class QueryBuilderApp extends React.Component {
       initialQuery,
       initialChartList,
       initialActiveTab,
+      initialState,
       limitSelectQuery,
     } = this.props;
     if (domain == null) {
-      return (
-        <Message height="100%">
-          Initializing database catalog...
-        </Message>
-      );
+      return <Message height="100%">Initializing database catalog...</Message>;
     } else {
       return (
         <QueryBuilder
+          ref={this._onQueryBuidler}
           api={api}
           domain={domain}
+          initialState={initialState}
           initialQuery={initialQuery}
           initialChartList={initialChartList}
           initialActiveTab={initialActiveTab}
@@ -57,6 +58,10 @@ export default class QueryBuilderApp extends React.Component {
       );
     }
   }
+
+  _onQueryBuidler = (queryBuilder: ?any) => {
+    this.queryBuilder = queryBuilder;
+  };
 
   componentDidMount() {
     fetchCatalog(this.props.api).then(domain => {

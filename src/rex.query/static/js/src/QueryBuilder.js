@@ -26,6 +26,7 @@ import QueryPanel from './panel/QueryPanel';
 type QueryBuilderProps = {
   domain: Domain,
   api: string,
+  initialState?: State.State,
   initialQuery: ?QueryPipeline,
   initialChartList?: Array<State.ChartSpec>,
   initialActiveTab: ?string,
@@ -59,38 +60,45 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
     let {
       domain,
       initialQuery,
+      initialState,
       initialChartList,
       initialActiveTab,
       api,
       limitSelectQuery,
     } = props;
 
-    this.container = State.createContainer(
-      {
-        domain,
-        api,
-        initialQuery,
-        initialChartList,
-        initialActiveTab,
-        translateOptions: {limitSelect: limitSelectQuery},
-      },
-      (state, onStateUpdated) => {
-        this.setState(state, () => {
-          invariant(this.state != null, 'State is not ready');
-          onStateUpdated(this.state);
-          if (this.props.onQuery) {
-            this.props.onQuery(state.query);
-          }
-          if (this.props.onState) {
-            this.props.onState({
-              query: state.query,
-              chartList: state.chartList,
-              activeTab: state.activeTab,
-            });
-          }
-        });
-      },
-    );
+    const onStateChange = (state, onStateUpdated) => {
+      this.setState(state, () => {
+        invariant(this.state != null, 'State is not ready');
+        onStateUpdated(this.state);
+        if (this.props.onQuery) {
+          this.props.onQuery(state.query);
+        }
+        if (this.props.onState) {
+          this.props.onState({
+            query: state.query,
+            chartList: state.chartList,
+            activeTab: state.activeTab,
+          });
+        }
+      });
+    };
+
+    const translateOptions = {limitSelect: limitSelectQuery};
+
+    if (initialState != null) {
+      this.container = State.createContainerWithInitialState(
+        initialState,
+        {domain, api, translateOptions},
+        onStateChange,
+      );
+    } else {
+      this.container = State.createContainer(
+        {initialQuery, initialChartList, initialActiveTab},
+        {domain, api, translateOptions},
+        onStateChange,
+      );
+    }
 
     this.state = this.container.getState();
     this.actions = this.container.actions;
@@ -279,8 +287,7 @@ function InvalidQueryMessage({onUndo}) {
 function InvalidQueryNotice() {
   return (
     <ui.ErrorPanel borderTop>
-      The query is not valid, please either fix it or remove invalid query
-      combinators.
+      The query is not valid, please either fix it or remove invalid query combinators.
     </ui.ErrorPanel>
   );
 }

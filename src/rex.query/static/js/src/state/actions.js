@@ -60,7 +60,7 @@ const refetchQuery = {
   },
 
   perform: debounce((state, setState) => {
-    const {query, api} = state;
+    const {query, config: {api, translateOptions}} = state;
     if (query.context.hasInvalidType) {
       return;
     }
@@ -72,7 +72,7 @@ const refetchQuery = {
         (q, c) => Chart.enrichQuery(q, c.chart),
         query,
       );
-      Fetch.fetch(api, queryToFetch, state.translateOptions).then(data => {
+      Fetch.fetch(api, queryToFetch, translateOptions).then(data => {
         if (refetchIndex === currentRefetchIndex) {
           setState('fetchFinish', state => ({...state, data, queryLoading: false}));
         }
@@ -87,6 +87,18 @@ const refetchQuery = {
 export function init(): StateUpdater {
   return state => {
     return [state, refetchQuery];
+  };
+}
+
+/**
+ * Initialize query buiulder.
+ */
+export function setState(stateUpdate: Object): StateUpdater {
+  return state => {
+    state = {...state, ...stateUpdate};
+    let query = q.inferType(state.config.domain, state.query);
+    let res = onQuery(state, {query});
+    return res;
   };
 }
 
@@ -226,7 +238,7 @@ export function focusOnSeq(params: {focusedSeq: Focus.Focus}): StateUpdater {
  */
 export function exportDataset(): StateUpdater {
   return state => {
-    Fetch.initiateDownload(state.api, state.query, {}).catch(err => {
+    Fetch.initiateDownload(state.config.api, state.query, {}).catch(err => {
       console.error('Error while exporting dataset:', err);
     });
     return state;
@@ -508,9 +520,8 @@ export function appendDefine({
       path ? `${path.join(' ')} query` : 'query',
     );
 
-    let expression = path != null
-      ? q.pipeline(...path.map(q.use))
-      : q.pipeline(q.use(''));
+    let expression =
+      path != null ? q.pipeline(...path.map(q.use)) : q.pipeline(q.use(''));
 
     let def = q.def(name, expression);
 
@@ -519,7 +530,7 @@ export function appendDefine({
       .insertAfter({what: [def]})
       .growNavigation({path: [name]})
       .getQuery();
-    query = q.inferType(state.domain, query);
+    query = q.inferType(state.config.domain, query);
     return onQuery(state, {
       query,
       selected: select ? def : null,

@@ -35,7 +35,7 @@ export default class ChartTitle extends React.Component {
   _input: HTMLElement;
   _tether: any;
 
-  props: {left: number, value: string, onChange: (string) => *};
+  props: {left: number, value: string, onChange: string => *};
 
   state: {value: ?string} = {value: null};
 
@@ -98,7 +98,7 @@ export default class ChartTitle extends React.Component {
     const edit = this.state.value != null;
     return (
       <g>
-        <foreignObject>
+        <foreignObject x="0" y="0" width="60" height="60">
           <div style={{padding: 3}}>
             <ReactUI.QuietButton
               onClick={this.onEditStart}

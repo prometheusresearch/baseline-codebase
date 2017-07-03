@@ -27,22 +27,14 @@ export type ChartSpec = {
   chart: Chart,
 };
 
-export type State = {
-  /**
-   * Current database domain.
-   *
-   * TODO: This shouldn't be a part of the state as it doesn't change during
-   * QueryBuilder lifecycle.
-   */
-  domain: Domain,
-
-  /**
-   * API being used (an URL).
-   *
-   * TODO: This shouldn't be a part of the state as it doesn't change during
-   * QueryBuilder lifecycle.
-   */
+export type Config = {
   api: string,
+  domain: Domain,
+  translateOptions: TranslateOptions,
+};
+
+export type State = {
+  config: Config,
 
   /**
    * Current query.
@@ -111,14 +103,6 @@ export type State = {
    * Currently focused sequence which is expanded in the datatable.
    */
   focusedSeq: Focus.Focus,
-
-  /**
-   * Query translation options.
-   *
-   * We put it in state because we probably will make it configurable through
-   * the UI.
-   */
-  translateOptions: TranslateOptions,
 };
 
 export type StateUpdater = SC.StateUpdater<State>;
@@ -128,34 +112,24 @@ export type StateContainer = SC.StateContainer<State, typeof actions>;
 export type Actions = SC.StateContainerActions<StateContainer>;
 
 export type Params = {
-  api: string,
-  domain: Domain,
   initialQuery?: ?QueryPipeline,
   initialChartList?: Array<ChartSpec>,
   initialActiveTab?: ?string,
-  translateOptions: TranslateOptions,
 };
 
 export function getInitialState(
-  {
-    api,
-    domain,
-    initialQuery,
-    initialChartList = [],
-    initialActiveTab,
-    translateOptions,
-  }: Params,
+  {initialQuery, initialChartList = [], initialActiveTab}: Params,
+  config: Config,
 ): State {
   let query = initialQuery || q.pipeline(q.here);
-  query = q.inferType(domain, query);
+  query = q.inferType(config.domain, query);
   query = QueryOperation.reconcileNavigation(query);
-  query = q.inferType(domain, query);
+  query = q.inferType(config.domain, query);
 
   let focusedSeq = Focus.chooseFocus(query);
 
   let state: State = {
-    domain,
-    api,
+    config,
     query,
     queryInvalid: false,
     queryLoading: false,
@@ -169,18 +143,33 @@ export function getInitialState(
     redoStack: [],
     chartList: initialChartList,
     focusedSeq,
-    translateOptions,
   };
 
   return state;
 }
 
-export {actions};
+export function createContainerWithInitialState(
+  initialState: State,
+  config: Config,
+  onChange: (state: State, onStateUpdated: (state: State) => *) => *,
+) {
+  const defaultState = getInitialState({initialQuery: initialState.query}, config);
+  const state: State = {
+    ...defaultState,
+    ...initialState,
+    query: defaultState.query,
+  };
+  // $FlowIssue: ...
+  return SC.create(state, actions, onChange);
+}
 
 export function createContainer(
   params: Params,
+  config: Config,
   onChange: (state: State, onStateUpdated: (state: State) => *) => *,
 ): StateContainer {
-  let initialState = getInitialState(params);
+  let initialState = getInitialState(params, config);
   return SC.create(initialState, actions, onChange);
 }
+
+export {actions};

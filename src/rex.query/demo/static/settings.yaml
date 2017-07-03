@@ -5,4 +5,5 @@ access:
   rex.query: anybody
   rex.query_demo: anybody
 mount:
-  rex.query: /
+  rex.query_demo: /
+  rex.query: /query

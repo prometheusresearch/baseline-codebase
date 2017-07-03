@@ -8,5 +8,5 @@ var QueryBuilderApp = require('./src/QueryBuilderApp').default;
 module.exports = {
   QueryBuilderApp: QueryBuilderApp,
   serializeQuery: q.serializeQuery,
-  deserializeQuery: q.deserializeQuery
+  deserializeQuery: q.deserializeQuery,
 };

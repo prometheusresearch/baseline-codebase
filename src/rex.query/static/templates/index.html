@@ -23,16 +23,16 @@
 {%- endmacro %}
 
 {% macro entry() -%}
-  <div id="rex-query-root"></div>
+  <div id="rex-query-root" style="height: 100%"></div>
 {%- endmacro %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="height: 100%">
 <head>
   {{ meta() }}
   {{ css(bundle) }}
 </head>
-<body>
+<body style="height: 100%; margin: 0; padding: 0">
   {{ entry() }}
   {{ js(bundle) }}
 </body>

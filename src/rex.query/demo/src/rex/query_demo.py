@@ -1,13 +1,20 @@
-
-from rex.ctl import RexTask, option, log
-from rex.db import get_db
 import os
 import tempfile
 import urllib
 import csv
 
+from rex.ctl import RexTask, option, log
+from rex.db import get_db
+from rex.query import RenderApp
+
 BASE_URL = 'https://raw.githubusercontent.com/rbt-lang/rbt-proto/47f0b7148ad2f9c90626d0269e2fc67a52d2c7f0/data/tpch'
 BASE_DIR = os.path.join(tempfile.gettempdir(), 'rex.query_demo.%s' % os.geteuid())
+
+
+class RenderQueryDemo(RenderApp):
+    """render query as the main screen"""
+
+    path = '/'
 
 
 class PopulateTask(RexTask):

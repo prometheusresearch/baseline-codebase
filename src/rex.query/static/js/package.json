@@ -6,26 +6,18 @@
   "rex": {},
   "babel": {
     "presets": [
-      "react-app"
+      "prometheusresearch"
     ]
   },
   "jest": {
     "collectCoverageFrom": [
       "src/**/*.{js,jsx}"
     ],
-    "setupFiles": [
-      "<rootDir>/node_modules/react-scripts/config/polyfills.js"
-    ],
     "testPathIgnorePatterns": [
       "<rootDir>[/\\\\](build|docs|node_modules)[/\\\\]"
     ],
     "testEnvironment": "jsdom",
     "testURL": "http://localhost",
-    "transform": {
-      "^.+\\.(js|jsx)$": "<rootDir>/node_modules/babel-jest",
-      "^.+\\.css$": "<rootDir>/node_modules/react-scripts/config/jest/cssTransform.js",
-      "^(?!.*\\.(js|jsx|css|json)$)": "<rootDir>/node_modules/react-scripts/config/jest/fileTransform.js"
-    },
     "transformIgnorePatterns": [
       "[/\\\\]node_modules[/\\\\].+\\.(js|jsx)$"
     ],
@@ -39,14 +31,13 @@
   },
   "devDependencies": {
     "babel-jest": "^20.0.0",
+    "babel-preset-prometheusresearch": "^1.0.0",
     "flow-bin": "^0.47.0",
     "flow-coverage-report": "^0.2.0",
     "jest": "^20.0.0",
-    "jest-cli": "^20.0.0",
     "prettier": "^1.4.1",
     "react": "^15.0.0",
-    "react-dom": "^15.0.0",
-    "react-scripts": "^0.9.0"
+    "react-dom": "^15.0.0"
   },
   "peerDependencies": {
     "react": "^0.14.0",

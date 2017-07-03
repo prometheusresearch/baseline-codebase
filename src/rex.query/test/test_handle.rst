@@ -20,7 +20,7 @@ We can now submit HTTP requests to ``rex.query``::
 
     >>> from webob import Request
 
-    >>> req = Request.blank("/query/", remote_user='Alice',
+    >>> req = Request.blank("/query/query/", remote_user='Alice',
     ...                     POST='{"syntax": ["nation"], "format": "x-htsql/json"}')
     >>> print req.get_response(demo)    # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     200 OK

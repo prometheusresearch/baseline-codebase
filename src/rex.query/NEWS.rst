@@ -8,6 +8,7 @@
 ==================
 
 * [FIX] Correctly display multple nested sequences in output.
+* [FIX] Fix layout issues on chart screens in Firefox.
 
 0.4.0 (2017-06-20)
 ==================

@@ -4,6 +4,10 @@
 
 .. contents:: Table of Contents
 
+4.0.1 (2017-XX-XX)
+==================
+
+* [FIX] JS: Fix loading asset static assets in dev & prod bundles.
 
 4.0.0 (2017-06-20)
 ==================

@@ -4,8 +4,10 @@
 
 .. contents:: Table of Contents
 
-4.0.1 (2017-XX-XX)
+4.1.0 (2017-XX-XX)
 ==================
+
+* [FEATURE] JS: Use yarn for installation of npm packages.
 
 * [FIX] JS: Fix loading asset static assets in dev & prod bundles.
 

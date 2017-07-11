@@ -6,6 +6,7 @@
 import sys
 import platform
 import os, os.path
+import errno
 import shutil
 import stat
 import subprocess
@@ -16,9 +17,12 @@ import distutils.log, distutils.errors
 import setuptools
 import pkg_resources
 
+from . import download
+
 
 # npm version used for CommonJS environment
-NPM_VERSION = '3.10.10'
+NPM_VERSION = '5.x.x'
+YARN_URL = 'https://github.com/yarnpkg/yarn/releases/download/v0.27.5/yarn-0.27.5.js#md5=8d11d9b5186e27a2b93883b9dcde895a'
 REACT_SCRIPTS_VERSION = '0.9.5008'
 
 
@@ -200,17 +204,37 @@ def npm(args, cwd=None, env=None, quiet=False):
     args = ['--loglevel', 'warn', '--color', 'false'] + args
     out, err = exe('npm', args, cwd=cwd, env=env, quiet=quiet)
     if out:
-        distutils.log.info(out)
+        log_command_output(out, prefix='STDOUT: ')
     # Check if npm emitted warning such as EPEERINVALID, we consider these to be
     # errors
     if any(line.startswith('npm WARN EPEERINVALID') for line in err.split('\n')):
         if err:
-            distutils.log.info(err)
+            distutils.log.info(err, prefix='STDERR: ')
         raise distutils.errors.DistutilsSetupError(
                 "failed to execute npm %s" % " ".join(args))
 
 
-def static_filename(dist):
+YARN_DEFAULT_ARGS = ['--silent', '--no-progress', '--non-interactive']
+
+
+def yarn(command, args, cwd=None, env=None, quiet=False):
+    # Executes `yarn args...`.
+    if command:
+        args = command + YARN_DEFAULT_ARGS + args
+    else:
+        args = YARN_DEFAULT_ARGS + args
+    out, err = exe('yarn', args, cwd=cwd, env=env, quiet=quiet)
+    if out:
+        log_command_output(out, prefix='STDOUT: ')
+
+
+def log_command_output(output, prefix='> '):
+    lines = output.strip().split('\n')
+    for line in lines:
+        distutils.log.info('%s%s' % (prefix, line))
+
+
+def static_filename(dist, *path_segments):
     dist = to_dist(dist)
     # Skip packages without CommonJS components.
     if not dist.has_metadata('rex_static.txt'):
@@ -223,7 +247,7 @@ def static_filename(dist):
                 sys.prefix, 'share/rex', os.path.basename(static))
         if not os.path.exists(static):
             return
-    return static
+    return os.path.join(static, *path_segments)
 
 
 def package_filename(dist, *filename):
@@ -253,40 +277,28 @@ def package_filename(dist, *filename):
     return js_filename
 
 
-def package_metadata(dist):
-    """ Return contents of ``package.json`` metadata for a JS package.
-
-    Returns ``None`` if we package is not a commonjs package.
-
-    :param dist: Package distribution
-    :type dist: pkg_resources.Distribution
-    :return: Component metdata
-    :rtype: dict
-    """
-    return _read_package_metadata(dist, 'package.json')
-
-
-def package_shrinkwrap(dist):
-    return _read_package_metadata(dist, 'shrinkwrap.json')
-
-
-def _read_package_metadata(dist, filename):
+def read(dist, filename):
     filename = package_filename(dist, filename)
     if not filename:
-        return None, None
+        return None
+    with open(filename, 'r') as stream:
+        return stream.read()
+
+
+def read_json(dist, filename):
+    filename = package_filename(dist, filename)
+    if not filename:
+        return None
     with open(filename, 'r') as stream:
         try:
             meta = json.load(stream)
             if not isinstance(meta, dict):
                 raise ValueError("an object expected")
-            if not 'rex' in meta:
-                meta['rex'] = {}
         except ValueError, exc:
             raise distutils.errors.DistutilsSetupError(
                     "ill-formed JSON in %s: %s" % (filename, exc))
         else:
-            return filename, meta
-
+            return meta
 
 
 def validate_package_metadata(filename, meta, expected_name, expected_version):
@@ -324,7 +336,7 @@ def validate_package_metadata(filename, meta, expected_name, expected_version):
                     % filename)
 
 
-def bootstrap():
+def bootstrap(execute=dummy_execute):
     """ Bootstrap CommonJS environment.
 
     This includes installing/updating npm version within the environment,
@@ -334,43 +346,79 @@ def bootstrap():
                  'try { require.resolve("@prometheusresearch/react-scripts/bin/react-scripts.js") } catch (e) {""}'],
                  quiet=True)
     if not path.strip():
-        # bootstrap
-        npm_path = find_executable('npm', 'NPM')
-        out, err = exe(npm_path, ['--version'])
-        npm_version = out.strip()
-        if npm_version[0] not in ('4', '3', '2'):
-            npm(['install', '--global', 'npm@2.x.x'])
-        npm(['install', '--global', 'npm@' + NPM_VERSION])
-        # install deps
-        deps = ['@prometheusresearch/react-scripts@%s' % (REACT_SCRIPTS_VERSION,)]
-        npm(['install', '--global'] + deps)
+        def bootstrap_yarn():
+            url, md5_hash = download.parse_url(YARN_URL)
+            yarn_data = download.download(url, md5_hash=md5_hash)
+            yarn_path = os.path.join(sys.prefix, 'bin', 'yarn')
+            with open(yarn_path, 'w') as f:
+                f.write(yarn_data)
+            yarn_stat = os.stat(yarn_path)
+            os.chmod(yarn_path, yarn_stat.st_mode | stat.S_IEXEC)
+
+        def bootstrap_npm():
+            npm_path = find_executable('npm', 'npm')
+            out, err = exe(npm_path, ['--version'])
+            npm_version = out.strip()
+            if npm_version[0] not in ('4', '3', '2'):
+                npm(['install', '--global', 'npm@2.x.x'])
+            npm(['install', '--global', 'npm@' + NPM_VERSION])
+
+        def bootstrap_react_scripts():
+            deps = [
+                '@prometheusresearch/react-scripts@%s' % REACT_SCRIPTS_VERSION,
+                'nan@2.6.2', # this is required for yarn to function propely
+            ]
+            npm(['install', '--global'] + deps)
+
+        execute(bootstrap_yarn, (), 'Installing yarn')
+        execute(bootstrap_npm, (), 'Installing npm')
+        execute(bootstrap_react_scripts, (), 'Installing react-scripts')
 
 
 class Sandbox(object):
 
-    def __init__(self, directory, meta, execute=dummy_execute):
-        self.directory = os.path.join(directory, '.rex-setup')
-        self.meta = meta
+    def __init__(self, root, files=None, execute=dummy_execute, format_path=None):
+        self.root = root
+        self.files = files or {}
         self.execute = execute
+        self.format_path = format_path or (lambda p: p)
+
+    def path(self, *p):
+        return os.path.join(self.root, *p)
 
     def __enter__(self):
-        self.execute(self.create, (), 'Creating package sandbox at %s' % self.directory)
-        return self.directory
+        self.execute(
+                self._create, (),
+                'Sandbox (%s) creating' % self.format_path(self.root))
+        return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.execute(self.remove, (), 'Removing package sandbox at %s' % self.directory)
+        self.execute(
+                self._remove, (),
+                'Sandbox (%s) removing' % self.format_path(self.root))
 
-    def create(self):
-        rm(self.directory)
-        os.mkdir(self.directory)
-        for name, value in self.meta.items():
-            if value is None:
+    def _create(self):
+        rm(self.root)
+        mkdir(self.root)
+        for filename, content in sorted(self.files.items()):
+            if content is None:
                 continue
-            with open(os.path.join(self.directory, name), 'w') as f:
-                f.write(json.dumps(value))
+            filename = os.path.join(self.root, filename)
+            msg = 'Sandbox (%s) writing %s' % (
+                self.format_path(self.root),
+                os.path.relpath(filename, self.root))
+            self.execute(self._write_file, (filename, content), msg)
 
-    def remove(self):
-        rm(self.directory)
+    def _write_file(self, filename, content):
+        mkdir(os.path.dirname(filename))
+        with open(filename, 'w') as f:
+            if isinstance(content, basestring):
+                f.write(content)
+            else:
+                f.write(json.dumps(content, indent=2, sort_keys=True))
+
+    def _remove(self):
+        rm(self.root)
 
 
 def install_package(dist, skip_if_installed=False, execute=dummy_execute,
@@ -389,60 +437,93 @@ def install_package(dist, skip_if_installed=False, execute=dummy_execute,
     if skip_if_installed and os.path.exists(os.path.join(dest, 'node_modules')):
         return
 
+    def format_path(path):
+        return os.path.join('static', 'js', os.path.relpath(path, dest))
 
-    execute(bootstrap, (), 'Bootstrapping CommonJS environment')
-    python_dependencies = collect_dependencies(dist)
+    execute(bootstrap, (execute,), 'Initializing JavaScript build environment')
 
-    _, shrinkwrap = package_shrinkwrap(dist)
-    _, meta = package_metadata(dist)
+    package = read_json(dist, 'package.json')
+    yarn_lock = read(dist, 'yarn.lock')
 
-    dependencies = {}
-    dependencies.update(meta.get('dependencies', {}))
-    dependencies.update(meta.get('peerDependencies', {}))
+    if not 'dependencies' in package:
+        package['dependencies'] = {}
 
-    for _, jsname, jspath in python_dependencies:
-        dependencies[jsname] = jspath
-        # this is dependent on shrinkwrap format
-        if shrinkwrap and jsname in shrinkwrap['dependencies']:
-            shrinkwrap['dependencies'][jsname]['resolved'] = jspath
-
-    sandbox_meta = {
-        'package.json': {
-            'name': meta.get('name', 'rex-setup-synthetic-package'),
-            'version': meta.get('version', '1.0.0'),
-            'dependencies': dependencies,
-            'devDependencies': meta.get('devDependencies', {})
-        },
-        'npm-shrinkwrap.json': shrinkwrap,
+    files = {
+        'package.json': package,
+        'yarn.lock': yarn_lock,
     }
 
-    with Sandbox(dest, sandbox_meta, execute=execute) as sandbox:
+    python_dependencies = collect_dependencies(dist)
+    for pyname, jsname, jspath in python_dependencies:
+        # Read dep's meta and split all py dependencies from there, we do this
+        # as those py deps will be included transitively into root package.
+        jsmeta = read_json(pyname, 'package.json')
+        if 'dependencies' in jsmeta:
+            for dep, deprange in jsmeta['dependencies'].items():
+                if deprange.startswith('file:./rex_node_modules'):
+                    jsmeta['dependencies'].pop(dep)
+
+        package['dependencies'][jsname] = 'file:./rex_node_modules/%s' % jsname
+        files['rex_node_modules/%s/package.json' % jsname] = jsmeta
+
+    sandbox = Sandbox(
+        os.path.join(dest, '.sandbox'),
+        files=files,
+        execute=execute,
+        format_path=format_path)
+
+    with sandbox as sandbox:
+
+        # Install dependencies (and devDependencies if needed)
         if npm_install_production:
-            execute(npm,
-                    (['install', '--production', '.'], sandbox),
-                    'Executing npm install --production')
+            execute(yarn,
+                    (None, ['--production'], sandbox.root),
+                    'Installing npm dependencies')
         else:
-            execute(npm,
-                    (['install', '.'], sandbox),
-                    'Executing npm install')
+            execute(yarn,
+                    (None, [], sandbox.root),
+                    'Installing npm dependencies and devDependencies')
+
+        # Install peerDependencies
+        if package.get('peerDependencies'):
+            peer_dependencies = package['peerDependencies'].items()
+            peer_dependencies = ['%s@%s' % (k, v) for k, v in peer_dependencies]
+            execute(yarn,
+                    (['add'], ['--no-lockfile'] + peer_dependencies, sandbox.root),
+                    'Installing npm peerDependencies')
+
+        # Link and/or copy files for python dependencies
+        PATHS_TO_IGNORE = set(['node_modules', 'package-lock.json', 'yarn.lock'])
         for pyname, jsname, jspath in python_dependencies:
             is_dev_install = os.path.islink(static_filename(pyname))
-            if is_dev_install or force_npm_link:
-                for path in ('src', 'lib', 'style', 'package.json'):
-                    installed_path = os.path.join(sandbox, 'node_modules', jsname, path)
-                    src_path = os.path.join(jspath, path)
-                    if os.path.exists(src_path):
-                        execute(replace_with_link, (installed_path, src_path),
-                                'Linking %s/%s' % (jsname, path))
+            items = os.listdir(jspath)
 
-        dest_node_modules = os.path.join(dest, 'node_modules')
-        sandbox_node_modules = os.path.join(sandbox, 'node_modules')
-        execute(
-            rm, (dest_node_modules,),
-            'Removing %s' % dest_node_modules)
-        execute(
-            shutil.move, (sandbox_node_modules, dest_node_modules),
-            'Moving %s to %s' % (sandbox_node_modules, dest_node_modules))
+            for item in items:
+                installed_path = sandbox.path('node_modules', jsname, item)
+                src_path = os.path.join(jspath, item)
+                if item in PATHS_TO_IGNORE:
+                    continue
+                if is_dev_install or force_npm_link:
+                    execute(replace_with_link, (installed_path, src_path),
+                            'Linking %s/%s' % (jsname, item))
+                elif os.path.isdir(src_path):
+                    execute(shutil.copytree, (src_path, installed_path),
+                            'Copy tree %s/%s' % (jsname, item))
+                else:
+                    execute(shutil.copyfile, (src_path, installed_path),
+                            'Copy file %s/%s' % (jsname, item))
+
+        def transfer_from_sandbox(name):
+            orig = sandbox.path(name)
+            target = os.path.join(dest, name)
+            execute(rm, (target,),
+                    'Removing static/%s' % format_path(target))
+            if os.path.exists(orig):
+                execute(shutil.move, (orig, target),
+                        'Moving static/%s to static/%s' % (format_path(orig), format_path(target)))
+
+        transfer_from_sandbox('node_modules')
+        transfer_from_sandbox('yarn.lock')
 
 
 def collect_dependencies(dist):
@@ -452,9 +533,31 @@ def collect_dependencies(dist):
         if not jsname in seen:
             result.append((pyname, jsname, jspath))
         seen.setdefault(jsname, set()).add(to_requirement(dist).key)
-    for jsname, from_reqs in seen.items():
-        distutils.log.info('Requirement %s (via %s)', jsname, ', '.join(str(r) for r in list(from_reqs)))
     return result
+
+def _collect_dependencies(dist):
+    dist = to_dist(dist)
+    req = to_requirement(dist)
+    if package_filename(dist, 'bower.json'):
+        raise distutils.errors.DistutilsSetupError(
+            "Package %s has static/js/bower.json metadata which should be "
+            "replaced with package.json metadata starting with Rex Setup 3.0. "
+            "See %s for upgrade instructions." % (
+                dist, MIGRATION_DOCS))
+    filename = package_filename(dist, 'package.json')
+    meta = read_json(dist, 'package.json')
+    validate_package_metadata(filename, meta, to_js_name(req.key), dist.version)
+    if meta:
+        mask = meta.get('rex', {}).get('dependencies')
+        for pyname in dist.requires():
+            jsname = to_js_name(pyname)
+            if mask is not None and mask.get(jsname) is False:
+                continue
+            if not package_filename(pyname, 'package.json'):
+                continue
+            for _subdeps in _collect_dependencies(pyname):
+                yield _subdeps
+            yield req, pyname, jsname, package_filename(pyname)
 
 
 def to_requirement(req):
@@ -478,30 +581,6 @@ def to_dist(dist):
 MIGRATION_DOCS = "https://doc.rexdb.us/rex.setup/3.0.0/guide.html#migrating-from-bower-json-to-package-json"
 
 
-def _collect_dependencies(dist):
-    dist = to_dist(dist)
-    req = to_requirement(dist)
-    if package_filename(dist, 'bower.json'):
-        raise distutils.errors.DistutilsSetupError(
-            "Package %s has static/js/bower.json metadata which should be "
-            "replaced with package.json metadata starting with Rex Setup 3.0. "
-            "See %s for upgrade instructions." % (
-                dist, MIGRATION_DOCS))
-    filename, meta = package_metadata(dist)
-    validate_package_metadata(filename, meta, to_js_name(req.key), dist.version)
-    if meta:
-        mask = meta['rex'].get('dependencies')
-        for pyname in dist.requires():
-            jsname = to_js_name(pyname)
-            if mask is not None and mask.get(jsname) is False:
-                continue
-            if not package_filename(pyname, 'package.json'):
-                continue
-            for _subdeps in _collect_dependencies(pyname):
-                yield _subdeps
-            yield req, pyname, jsname, package_filename(pyname)
-
-
 def replace_with_link(src, dest):
     rm(src)
     os.symlink(dest, src)
@@ -515,6 +594,16 @@ def rm(path):
             shutil.rmtree(path)
         else:
             os.remove(path)
+
+
+def mkdir(path):
+    try:
+        os.makedirs(path)
+    except OSError as err:
+        if err.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            raise
 
 
 def get_distribution(req):

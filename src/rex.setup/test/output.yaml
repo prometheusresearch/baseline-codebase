@@ -19,11 +19,11 @@ tests:
     stdout: ''
   - sh: ./bin/pip install -q ./src/rex.setup_demo
     stdout: ''
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-4.0.0-py2.7.egg-info/rex_init.txt
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-4.0.1-py2.7.egg-info/rex_init.txt
     data: rex.setup_demo
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-4.0.0-py2.7.egg-info/rex_static.txt
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-4.0.1-py2.7.egg-info/rex_static.txt
     data: /home/andrey/rs/src/rex.setup/sandbox/share/rex/rex.setup_demo
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-4.0.0-py2.7.egg-info/rex_bundle.txt
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-4.0.1-py2.7.egg-info/rex_bundle.txt
     data: |
       {
         "./www/bootstrap": [
@@ -134,25 +134,25 @@ tests:
     stdout: ''
   - sh: ../../bin/python setup.py -q sdist --format=zip
     stdout: ''
-  - sh: unzip -q ./src/rex.setup_demo/dist/rex.setup_demo-4.0.0.zip
+  - sh: unzip -q ./src/rex.setup_demo/dist/rex.setup_demo-4.0.1.zip
     stdout: ''
-  - sh: sh -c "find './rex.setup_demo-4.0.0' -type d -not -wholename './rex.setup_demo-4.0.0/static/www/bundle/*'
+  - sh: sh -c "find './rex.setup_demo-4.0.1' -type d -not -wholename './rex.setup_demo-4.0.1/static/www/bundle/*'
       | sort | while read dir; do echo === $dir ===; ls $dir | sort; done"
     stdout: |
-      === ./rex.setup_demo-4.0.0 ===
+      === ./rex.setup_demo-4.0.1 ===
       PKG-INFO
       README
       setup.cfg
       setup.py
       src
       static
-      === ./rex.setup_demo-4.0.0/src ===
+      === ./rex.setup_demo-4.0.1/src ===
       rex
       rex.setup_demo.egg-info
-      === ./rex.setup_demo-4.0.0/src/rex ===
+      === ./rex.setup_demo-4.0.1/src/rex ===
       __init__.py
       setup_demo.py
-      === ./rex.setup_demo-4.0.0/src/rex.setup_demo.egg-info ===
+      === ./rex.setup_demo-4.0.1/src/rex.setup_demo.egg-info ===
       PKG-INFO
       SOURCES.txt
       dependency_links.txt
@@ -161,46 +161,46 @@ tests:
       rex_init.txt
       rex_static.txt
       top_level.txt
-      === ./rex.setup_demo-4.0.0/static ===
+      === ./rex.setup_demo-4.0.1/static ===
       js
       www
-      === ./rex.setup_demo-4.0.0/static/js ===
+      === ./rex.setup_demo-4.0.1/static/js ===
       lib
       package.json
-      === ./rex.setup_demo-4.0.0/static/js/lib ===
+      === ./rex.setup_demo-4.0.1/static/js/lib ===
       index.js
       index.less
-      === ./rex.setup_demo-4.0.0/static/www ===
+      === ./rex.setup_demo-4.0.1/static/www ===
       _access.yaml
       bootstrap
       bundle
       doc
       index.html
       jquery
-      === ./rex.setup_demo-4.0.0/static/www/bootstrap ===
+      === ./rex.setup_demo-4.0.1/static/www/bootstrap ===
       LICENSE
       css
       fonts
       js
-      === ./rex.setup_demo-4.0.0/static/www/bootstrap/css ===
+      === ./rex.setup_demo-4.0.1/static/www/bootstrap/css ===
       bootstrap-theme.css
       bootstrap-theme.min.css
       bootstrap.css
       bootstrap.min.css
-      === ./rex.setup_demo-4.0.0/static/www/bootstrap/fonts ===
+      === ./rex.setup_demo-4.0.1/static/www/bootstrap/fonts ===
       glyphicons-halflings-regular.eot
       glyphicons-halflings-regular.svg
       glyphicons-halflings-regular.ttf
       glyphicons-halflings-regular.woff
-      === ./rex.setup_demo-4.0.0/static/www/bootstrap/js ===
+      === ./rex.setup_demo-4.0.1/static/www/bootstrap/js ===
       bootstrap.js
       bootstrap.min.js
-      === ./rex.setup_demo-4.0.0/static/www/bundle ===
+      === ./rex.setup_demo-4.0.1/static/www/bundle ===
       asset-manifest.json
       css
       js
       static
-      === ./rex.setup_demo-4.0.0/static/www/doc ===
+      === ./rex.setup_demo-4.0.1/static/www/doc ===
       Makefile
       _sources
       _static
@@ -227,9 +227,9 @@ tests:
       sphinxhowto.cls
       sphinxmanual.cls
       tabulary.sty
-      === ./rex.setup_demo-4.0.0/static/www/doc/_sources ===
+      === ./rex.setup_demo-4.0.1/static/www/doc/_sources ===
       index.txt
-      === ./rex.setup_demo-4.0.0/static/www/doc/_static ===
+      === ./rex.setup_demo-4.0.1/static/www/doc/_static ===
       ajax-loader.gif
       basic.css
       comment-bright.png
@@ -252,7 +252,7 @@ tests:
       up-pressed.png
       up.png
       websupport.js
-      === ./rex.setup_demo-4.0.0/static/www/jquery ===
+      === ./rex.setup_demo-4.0.1/static/www/jquery ===
       MIT-LICENSE.txt
       jquery-1.10.2.js
       jquery-1.10.2.min.js
@@ -275,7 +275,7 @@ tests:
   - sh: ../../bin/python setup.py -q bdist_wheel
     stdout: |
       Skipping installation of build/bdist.linux-x86_64/wheel/rex/__init__.py (namespace package)
-  - sh: ./bin/pip install -q ./src/rex.setup_demo/dist/rex.setup_demo-4.0.0-py2-none-any.whl
+  - sh: ./bin/pip install -q ./src/rex.setup_demo/dist/rex.setup_demo-4.0.1-py2-none-any.whl
     stdout: ''
   - sh: ls ./lib/python2.7/site-packages/rex
     stdout: |

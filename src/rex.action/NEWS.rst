@@ -4,29 +4,23 @@
 
 .. contents:: Table of Contents
 
-2.0.0 (2017-XX-XX)
+1.6.1 (2017-XX-XX)
+==================
+
+* [FIX] Make URLs with action stable.
+
+  Before they were dependent on location inside configuration file but now they
+  reflect just the structure of the wizard.
+
+* [FIX] Do not fail on non-db entities when refetching data. That enables to use
+  synthetic (non-db) entity types.
+
+1.6.0 (2017-06-20)
 ==================
 
 * [BREAKING] Remove rex.urlmap bindings.
 
 * [BREAKING] Remove introspection API & UI.
-
-* [BREAKING] Replace directive now requires explicit annotations for context
-  updates. Previously this worked::
-
-    - pick-individual:
-    - make-individual:
-      - replace: ../../pick-individual
-
-  Now this is required instead::
-
-    - pick-individual:
-    - make-individual:
-      - replace: ../../pick-individual?individual=$individual
-
-  Note the ``?individual=$individual`` part which says "set ``individual`` key
-  to the ``individual`` key from the original context (the context the replace
-  is originating from).
 
 * [FEAT] Support arbitrary HTSQL expressions as sort keys in pick action config.
 

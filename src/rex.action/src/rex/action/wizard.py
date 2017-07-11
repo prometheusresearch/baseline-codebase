@@ -140,21 +140,33 @@ class WizardWidgetBase(Widget):
             if port_cache_key in self._port_cache:
                 port = self._port_cache[port_cache_key]
             else:
-                port = Port(params_defs + [{
-                    'entity': entity.type,
-                    'select': []
-                }])
-                port = typing.annotate_port(self.domain, port)
-                self._port_cache[port_cache_key] = port
+                try:
+                    port = Port(params_defs + [{
+                        'entity': entity.type,
+                        'select': []
+                    }])
+                    port = typing.annotate_port(self.domain, port)
+                    self._port_cache[port_cache_key] = port
+                # OK, port cannot be created, probably this was a synthetic
+                # entity. We should handle this another way but for now we just
+                # memoize a null value and return the same data we got.
+                # Synthetic entities can't have states so we are ok from the
+                # correctness point of view.
+                except Error:
+                    port = None
+                    self._port_cache[port_cache_key] = None
 
-            product = port.produce((u'*', entity.id), **params_bind)
+            if port is not None:
+                product = port.produce((u'*', entity.id), **params_bind)
 
-            data = product_to_pojo(product)[entity.type]
-            data = data[0] if data else None
+                data = product_to_pojo(product)[entity.type]
+                data = data[0] if data else None
 
-            entity_cache[entity_cache_key] = data
+                entity_cache[entity_cache_key] = data
 
-            return data
+                return data
+            else:
+                return {'id': entity.id, 'meta:type': entity.type}
 
         data = validate_req(req.json_body)
 

@@ -20,6 +20,9 @@ __all__ = (
 )
 
 
+MART_TYPE = 'mart'
+
+
 class MartAction(Action):
     """
     An abstract Action that serves as the base for all Mart-oriented Actions.

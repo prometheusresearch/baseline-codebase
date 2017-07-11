@@ -50,7 +50,7 @@ export default class MartPick extends React.Component {
       ...getDefinitionContext(this.props.context, mart.definition),
       ...getToolContext(this.props.context, mart.tools)
     };
-    newContext['mart'] = martId;
+    newContext['mart'] = mart;
     this.props.onContext(newContext);
   }
 
@@ -92,8 +92,9 @@ export default class MartPick extends React.Component {
     let subtitle = '';
     if (mart_definition) {
       subtitle = mart_definition;
+    } else if (mart) {
+      subtitle += '#' + mart.id;
     }
-    subtitle += '#' + mart;
 
     return (
       <Title

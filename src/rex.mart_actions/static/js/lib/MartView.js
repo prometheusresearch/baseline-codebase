@@ -56,7 +56,7 @@ let stylesheet = Stylesheet.create({
   if (entity) {
     martId = context[entity.name].id;
   } else {
-    martId = context.mart;
+    martId = context.mart.id;
   }
   data = data.params({mart: martId});
   return {data};
@@ -154,14 +154,17 @@ export default class MartView extends React.Component {
     );
   }
 
-  getMartId() {
-    let id;
+  getMart() {
     if (this.props.entity) {
-      id = this.props.context[this.props.entity.name].id;
+      return this.props.context[this.props.entity.name];
     } else {
-      id = this.props.context.mart;
+      return this.props.context.mart;
     }
-    return id;
+  }
+
+  getMartId() {
+    const mart = this.getMart();
+    return mart.id;
   }
 
   onSetPinned(pinned) {
@@ -202,7 +205,7 @@ export default class MartView extends React.Component {
     let url = 'rex.mart:/mart/' + this.getMartId() + '/_api';
     del(url).then(
       () => {
-        this.props.onContext({mart: null});
+        this.props.onEntityUpdate(this.getMart(), null);
       }
     );
   }
@@ -228,13 +231,13 @@ export default class MartView extends React.Component {
     let martId;
     if (entity) {
       martId = context[entity.name].id;
-    } else {
-      martId = context.mart;
+    } else if (context.mart) {
+      martId = context.mart.id;
     }
     return (
       <Title
         title={title}
-        subtitle={'#' + martId}
+        subtitle={martId ? ('#' + martId) : undefined}
         />
     );
   }

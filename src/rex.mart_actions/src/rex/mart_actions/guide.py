@@ -21,6 +21,7 @@ from rex.widget import Field, responder, RequestURL, as_transitionable, \
 
 from .filter import MartFilteredAction
 from .tool import MartTool
+from .base import MART_TYPE
 
 
 __all__ = (
@@ -579,7 +580,7 @@ class GuideMartAction(MartFilteredAction):
             return Response(headerlist=header_list, app_iter=app_iter)
 
     def context(self):
-        ictx = {'mart': typing.number}
+        ictx = {'mart': MART_TYPE}
         ictx.update({
             self.get_definition_context(self.definition): typing.anytype,
         })

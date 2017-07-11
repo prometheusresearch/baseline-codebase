@@ -13,6 +13,7 @@ from rex.db import Query
 from rex.widget import responder, RequestURL
 from rex.query import Database
 
+from .base import MART_TYPE
 from .filter import MartFilteredAction
 from .tool import MartTool
 
@@ -38,7 +39,7 @@ class QueryBuilderMartAction(MartFilteredAction):
     tool = 'vqb'
 
     def context(self):
-        return {'mart': typing.number}, {}
+        return {'mart': MART_TYPE}, {}
 
     @responder(url_type=RequestURL)
     def run_query(self, req):

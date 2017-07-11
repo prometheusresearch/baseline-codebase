@@ -8,7 +8,7 @@ from rex.core import StrVal, Error
 from rex.mart import get_all_definitions
 from rex.widget import Field, RSTVal
 
-from .base import MartAction
+from .base import MartAction, MART_TYPE
 from .tool import MartTool
 
 
@@ -73,7 +73,7 @@ class MartFilteredAction(MartAction):
 
         if not self.input or not self.input.rows:
             rows = [{
-                'mart': 'number',
+                'mart': MART_TYPE,
             }]
 
             if self.definition:

@@ -11,7 +11,7 @@ from rex.mart import MartAccessPermissions
 from rex.web import authenticate
 from rex.widget import responder, RequestURL, FormFieldsetVal, Field
 
-from .base import MartAction
+from .base import MartAction, MART_TYPE
 from .tool import MartTool
 
 
@@ -53,7 +53,7 @@ class MartPickAction(MartAction):
 
     def context(self):
         ictx = {}
-        octx = {'mart': typing.number}
+        octx = {'mart': MART_TYPE}
         octx.update(self.get_all_definition_context_types())
         octx.update(self.get_all_tool_context_types())
         return ictx, octx
@@ -84,6 +84,7 @@ class MartPickAction(MartAction):
                 mart,
             )
             mart_dict['tools'] = MartTool.get_tools_for_mart(mart)
+            mart_dict['meta:type'] = 'mart'
             marts.append(mart_dict)
 
         return marts
@@ -147,7 +148,7 @@ class MartViewAction(MartAction):
                 self.domain.record(),
             )
         else:
-            return {'mart': typing.number}, {}
+            return {'mart': MART_TYPE}, {}
 
     @responder(url_type=RequestURL)
     def data(self, request):  # pylint: disable=no-self-use
@@ -162,6 +163,7 @@ class MartViewAction(MartAction):
                 mart,
             )
             mart_dict['tools'] = MartTool.get_tools_for_mart(mart)
+            mart_dict['meta:type'] = 'mart'
         else:
             mart_dict = {}
 

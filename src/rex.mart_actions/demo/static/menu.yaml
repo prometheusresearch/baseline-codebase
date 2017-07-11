@@ -6,9 +6,8 @@ menu:
         title: Home
         action:
           type: page
+          title: Welcome to the RexMartAction Demo System!
           text: |
-            Welcome to the RexMartAction Demo System!
-
             This demo is a lot more useful if you have at least a handful of Marts
             created in its environment. To do so, run commands like these a few
             times::

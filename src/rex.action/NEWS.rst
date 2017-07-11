@@ -18,13 +18,13 @@
 1.6.0 (2017-06-20)
 ==================
 
-* [BREAKING] Remove rex.urlmap bindings.
-
-* [BREAKING] Remove introspection API & UI.
-
 * [FEAT] Support arbitrary HTSQL expressions as sort keys in pick action config.
 
 * [FIX] Do not store states in URLs.
+
+* [MISC] Remove (previously deprecated) rex.urlmap bindings.
+
+* [MISC] Remove (experimental) introspection API & UI.
 
 1.5.2 (2017-01-19)
 ==================

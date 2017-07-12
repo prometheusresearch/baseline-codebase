@@ -11,6 +11,7 @@ import shutil
 import stat
 import subprocess
 import tempfile
+import pwd
 import json
 import email
 import distutils.log, distutils.errors
@@ -25,6 +26,7 @@ NPM_VERSION = '5.x.x'
 YARN_URL = 'https://github.com/yarnpkg/yarn/releases/download/v0.27.5/yarn-0.27.5.js#md5=8d11d9b5186e27a2b93883b9dcde895a'
 REACT_SCRIPTS_VERSION = '0.9.5008'
 
+USER = pwd.getpwuid(os.getuid()).pw_name
 
 class install_commonjs(setuptools.Command):
 
@@ -214,7 +216,12 @@ def npm(args, cwd=None, env=None, quiet=False):
                 "failed to execute npm %s" % " ".join(args))
 
 
-YARN_DEFAULT_ARGS = ['--silent', '--no-progress', '--non-interactive']
+YARN_DEFAULT_ARGS = [
+    '--silent',
+    '--no-progress',
+    '--non-interactive',
+    '--mutex', 'file:/tmp/.yarn-%s-mutex' % (USER,)
+]
 
 
 def yarn(command, args, cwd=None, env=None, quiet=False):

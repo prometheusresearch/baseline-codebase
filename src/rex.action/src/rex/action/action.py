@@ -110,7 +110,7 @@ class ActionBase(Widget):
 
     def __init__(self, **values):
         self.source_location = None
-        self.uid = values.get('id') or id(self)
+        self.uid = id(self)
         self._domain = values.pop('__domain', typing.Domain.current())
         self._context_types = None
         super(ActionBase, self).__init__(**values)

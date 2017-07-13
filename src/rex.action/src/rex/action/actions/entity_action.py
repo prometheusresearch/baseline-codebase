@@ -55,7 +55,7 @@ class Configuration(Action.Configuration):
             db = values.get('db') or action.db
             fields = values['fields']
             values['fields'] = self._reflect_fields(db, entity, input, fields)
-        return action.__validated_clone__(**values)
+        return action.derive(**values)
 
     def __call__(self, action_class, values):
         entity = values['entity']

@@ -439,8 +439,7 @@ class WizardBase(WizardWidgetBase, ActionBase):
             for k, v in actions.items():
                 actions[k] = v.with_domain(domain)
             path = instruction.override(wizard.path, actions)
-            next_wizard = wizard.__validated_clone__(
-                path=path, actions=actions)
+            next_wizard = wizard.derive(path=path, actions=actions)
             next_wizard = next_wizard.with_domain(domain)
             return next_wizard
 

@@ -12,6 +12,7 @@
 
 from __future__ import absolute_import
 
+import uuid
 from collections import namedtuple
 
 from cached_property import cached_property
@@ -110,7 +111,7 @@ class ActionBase(Widget):
 
     def __init__(self, **values):
         self.source_location = None
-        self.uid = id(self)
+        self.uid = uuid.uuid4()
         self._domain = values.pop('__domain', typing.Domain.current())
         self._context_types = None
         super(ActionBase, self).__init__(**values)
@@ -147,6 +148,12 @@ class ActionBase(Widget):
     def __validated_clone__(self, **values):
         action = self.validated(**self._clone_values(values))
         action.uid = self.uid
+        return action
+
+    def derive(self, **values):
+        """ Derive a new action with the new configuration values."""
+        action = self.__validated_clone__(**values)
+        action.uid = uuid.uuid4()
         return action
 
     def with_domain(self, domain):
@@ -233,7 +240,7 @@ class Action(ActionBase):
             return self.override(action, override)
 
         def override(self, action, override):
-            return action.__validated_clone__(**override)
+            return action.derive(**override)
 
     def typecheck(self, context_type=None):
         if context_type is None:

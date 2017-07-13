@@ -76,7 +76,7 @@ class Form(Action):
                 fields = values['fields']
                 input = values.get('input') or action.input
                 values['fields'] = self._resolve_fields(input, fields)
-            return action.__validated_clone__(**values)
+            return action.derive(**values)
 
         def __call__(self, action_class, values):
             fields = values['fields']

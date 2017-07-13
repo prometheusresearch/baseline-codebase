@@ -15,7 +15,8 @@ from __future__ import absolute_import
 from webob import Response
 from webob.exc import HTTPMethodNotAllowed
 
-from rex.core import Error, locate, guard, OneOfVal, RecordVal, AnyVal, MapVal, StrVal
+from rex.core import (
+    Error, locate, guard, OneOfVal, RecordVal, AnyVal, MapVal, StrVal, IntVal)
 from rex.widget import Widget, Field, responder
 from rex.widget.transitionable import as_transitionable
 from rex.widget.validate import DeferredVal, Deferred
@@ -29,7 +30,7 @@ from . import instruction
 
 __all__ = ('WizardBase', 'WizardWidgetBase', 'visit_wizards')
 
-validate_entity = RecordVal(('type', StrVal()), ('id', StrVal()))
+validate_entity = RecordVal(('type', StrVal()), ('id', OneOfVal(StrVal(), IntVal())))
 
 validate_context = MapVal(StrVal(), OneOfVal(validate_entity, AnyVal()))
 

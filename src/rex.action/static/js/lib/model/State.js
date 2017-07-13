@@ -152,7 +152,7 @@ export function updateEntity(
 
   state = mapPosition(state, pos => {
     const nextContext = replaceEntityInContext(pos.context, prevEntity, nextEntity);
-    let nextPos = P.updatePositionContext(pos, nextContext);
+    let nextPos = {...pos, context: nextContext};
     if (!P.isPositionAllowed(nextPos)) {
       return null;
     }

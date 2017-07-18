@@ -4,7 +4,7 @@
 
 .. contents:: Table of Contents
 
-4.1.0 (2017-XX-XX)
+4.1.0 (2017-07-18)
 ==================
 
 * [FEATURE] JS: Use yarn for installation of npm packages.

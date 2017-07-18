@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-3.11.0 (2017-XX-XX)
+3.11.0 (2017-07-18)
 ===================
 
 * Support for replay logs.

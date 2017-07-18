@@ -4,7 +4,7 @@
 
 .. contents:: Table of Contents
 
-1.6.1 (2017-XX-XX)
+1.6.1 (2017-07-18)
 ==================
 
 * [FIX] Make URLs with action stable.

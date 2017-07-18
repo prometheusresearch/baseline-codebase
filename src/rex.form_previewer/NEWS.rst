@@ -5,6 +5,12 @@ REX.FORM_PREVIEWER Change Log
 .. contents:: Table of Contents
 
 
+0.10.4 (2017-07-18)
+===================
+
+* Updated to add a yarn.lock to play well with the new bundling.
+
+
 0.10.3 (2017-06-20)
 ===================
 

@@ -5,6 +5,14 @@ REX.ACQUIRE_ACTIONS Change Log
 .. contents:: Table of Contents
 
 
+0.3.0 (2017-xx-xx)
+==================
+
+* Added an ``autosave_interval`` property to the ``task-enter-data`` action
+  that allows you to specify how often the autosave triggers on the data entry
+  screen.
+
+
 0.2.1 (2017-06-21)
 ==================
 

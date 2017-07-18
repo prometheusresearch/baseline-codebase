@@ -6,7 +6,7 @@ import json
 
 from webob.exc import HTTPBadRequest, HTTPNotFound
 
-from rex.core import StrVal, BoolVal
+from rex.core import StrVal, BoolVal, IntVal
 from rex.instrument import Entry, ParameterSupplier, CalculationSet
 from rex.forms import Form
 from rex.forms.util import preview_calculation_results
@@ -47,6 +47,12 @@ class EnterDataAction(AcquireEntityAction):
         default=True,
         doc='Whether or not to allow the user to start a new Entry while a'
         ' previous entry is still in-progress.',
+    )
+
+    autosave_interval = Field(
+        IntVal(1000),
+        default=30 * 1000,  # 30sec
+        doc='How long (in milliseconds) between automatic saves of an Entry.',
     )
 
     def __init__(self, **values):

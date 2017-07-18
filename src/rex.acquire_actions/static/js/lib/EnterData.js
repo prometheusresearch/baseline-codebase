@@ -253,6 +253,7 @@ export default class EnterData extends React.Component {
             form={form}
             assessment={assessment}
             parameters={parameters}
+            autoSaveInterval={this.props.autosaveInterval}
             onSave={this.onFormSave}
             onComplete={this.onFormComplete}
             showCalculations={has_calculations && this.props.showCalculations}

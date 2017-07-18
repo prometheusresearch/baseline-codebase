@@ -5,6 +5,14 @@ REX.MART_ACTIONS Change Log
 .. contents:: Table of Contents
 
 
+0.7.1 (2017-07-18)
+==================
+
+* Fixed various actions so that they can accept entities indicating Marts for
+  their input, allowing standard actions that operate with the
+  rexmart_inventory table to interact with these actions.
+
+
 0.7.0 (2017-06-21)
 ==================
 

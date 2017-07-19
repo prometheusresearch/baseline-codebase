@@ -67,7 +67,7 @@ Copy an existing DB::
     >>> db_exists(mart.name)
     True
     >>> db_inventory(mart.name)
-    assessment: 25
+    assessment: 26
     channel: 5
     draftform: 2
     draftinstrumentversion: 2
@@ -94,7 +94,7 @@ Copy the application DB::
     >>> db_exists(mart.name)
     True
     >>> db_inventory(mart.name)
-    assessment: 25
+    assessment: 26
     channel: 5
     draftform: 2
     draftinstrumentversion: 2
@@ -255,7 +255,7 @@ Load data into an existing database::
     >>> db_exists(mart.name)
     True
     >>> db_inventory(mart.name)
-    assessment: 25
+    assessment: 26
     channel: 5
     draftform: 2
     draftinstrumentversion: 2

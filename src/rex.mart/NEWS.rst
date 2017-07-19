@@ -9,6 +9,8 @@ REX.MART Change Log
 ==================
 
 * Fixed an issue with including boolean fields in selector statements.
+* Fixed an issue that caused creation to crash if the selector statement
+  specified assessments that had no data.
 
 
 0.7.0 (2017-06-20)

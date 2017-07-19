@@ -28,6 +28,13 @@
       type: integer
       required: false
     - data: ./deploy/assessment.csv
+    - data:
+        uid: martassessment8b
+        subject: martsubject4
+        instrumentversion: mart11
+        status: completed
+        data: ''
+        age_at_evaluation: 19
 
 - data: ./deploy/rexmart_dynamic_assessment.csv
 - data: ./deploy/rexmart_dynamic_assessment_instrument.csv

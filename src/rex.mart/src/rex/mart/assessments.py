@@ -53,6 +53,9 @@ class AssessmentLoader(object):
             )
 
             for assessment in assessments:
+                if not assessment.data:
+                    continue
+
                 # Map the Assessment into a series of HTSQL statements
                 statements = self.mapping.get_statements_for_assessment(
                     assessment.data,

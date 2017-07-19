@@ -5,6 +5,12 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
+0.7.1 (2017-07-19)
+==================
+
+* Fixed an issue with including boolean fields in selector statements.
+
+
 0.7.0 (2017-06-20)
 ==================
 

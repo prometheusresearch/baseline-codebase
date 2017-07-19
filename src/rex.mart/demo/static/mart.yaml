@@ -177,7 +177,8 @@ definitions:
           /assessment{
             id() :as assessment_uid,
             subject.id() :as subject,
-            evaluation_date
+            evaluation_date,
+            is_null(evaluation_date) :as has_evaluation_date
           }.filter(
             instrumentversion.instrument='alltypes'
           )/:rexdb

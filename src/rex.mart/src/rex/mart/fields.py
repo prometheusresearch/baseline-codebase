@@ -433,7 +433,7 @@ def make_field(field, name=None, instrument_version=None):
 
 
 HTSQL_DOMAIN_TYPES = {
-    BooleanDomain: 'bool',
+    BooleanDomain: 'boolean',
     IntegerDomain: 'integer',
     FloatDomain: 'float',
     DecimalDomain: 'float',
@@ -447,6 +447,12 @@ HTSQL_DOMAIN_TYPES = {
     JSONDomain: 'json',
     UntypedDomain: 'text',
 }
+
+
+assert all([
+    type_ in FIELD_TYPE_MAPPINGS
+    for type_ in HTSQL_DOMAIN_TYPES.values()
+]), 'Inconsistencies in HTSQL Domain Type Mappings!'
 
 
 def make_field_from_htsql(htsql_field):

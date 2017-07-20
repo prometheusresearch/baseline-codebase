@@ -5,7 +5,7 @@ REX.ACQUIRE_ACTIONS Change Log
 .. contents:: Table of Contents
 
 
-0.3.0 (2017-xx-xx)
+0.3.0 (2017-07-20)
 ==================
 
 * Added an ``autosave_interval`` property to the ``task-enter-data`` action

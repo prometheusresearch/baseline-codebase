@@ -155,6 +155,9 @@ class RestfulJSONEncoder(json.JSONEncoder):
         elif isinstance(obj, Decimal):
             return float(obj)
 
+        elif isinstance(obj, set):
+            return list(obj)
+
         else:
             return super(RestfulJSONEncoder, self).default(obj)
 
@@ -270,6 +273,9 @@ class RestfulYamlDumper(yaml.SafeDumper):
     def time_representer(self, data):
         return self.represent_scalar('tag:yaml.org,2002:str', data.isoformat())
 
+    def set_representer(self, data):
+        return self.represent_sequence('tag:yaml.org,2002:seq', list(data))
+
 RestfulYamlDumper.add_representer(
     Decimal,
     RestfulYamlDumper.decimal_representer,
@@ -277,6 +283,10 @@ RestfulYamlDumper.add_representer(
 RestfulYamlDumper.add_representer(
     time,
     RestfulYamlDumper.time_representer,
+)
+RestfulYamlDumper.add_representer(
+    set,
+    RestfulYamlDumper.set_representer,
 )
 
 

@@ -5,6 +5,12 @@ REX.RESTFUL Change Log
 .. contents:: Table of Contents
 
 
+1.3.0 (2017-xx-xx)
+==================
+
+* Added support for automatic serialization of ``set`` values.
+
+
 1.2.0 (2017-01-19)
 ==================
 

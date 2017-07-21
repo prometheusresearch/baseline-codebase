@@ -86,6 +86,9 @@ This serializer will encode structures into their JSON equivalents::
     >>> serializer.serialize({'a_decimal': decimal.Decimal('1.23')})
     '{"a_decimal": 1.23}'
 
+    >>> serializer.serialize({'a_set': set([1, 2, 3])})
+    '{"a_set": [1, 2, 3]}'
+
 
 Given JSON objects or arrays, this serializer will decode them into their
 Python equivalents (dicts & lists)::
@@ -193,6 +196,9 @@ This serializer will encode structures into their YAML equivalents::
 
     >>> serializer.serialize({'a_decimal': decimal.Decimal('1.23')})
     '{a_decimal: 1.23}\n'
+
+    >>> serializer.serialize({'a_set': set([1, 2, 3])})
+    'a_set: [1, 2, 3]\n'
 
 
 Given YAML maps or arrays, this serializer will decode them into their

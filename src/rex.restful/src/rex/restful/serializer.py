@@ -19,6 +19,7 @@ __all__ = (
     'Serializer',
     'JsonSerializer',
     'YamlSerializer',
+    'marshall_htsql_result',
 )
 
 
@@ -298,4 +299,42 @@ StringedDatesYamlLoader.add_constructor(
     'tag:yaml.org,2002:timestamp',
     StringedDatesYamlLoader.timestamp_constructor,
 )
+
+
+def marshall_htsql_result(result):
+    """
+    Marshalls an HTSQL Product or Record into a simple Python list or
+    dictionary so that it can be more easily handled by the built-in
+    rex.restful serializers.
+
+    :param result: the HTSQL query result to marshall
+    :type result: htsql.core.domain.Product or htsql.core.domain.Record
+    :returns: list or dictionary
+    """
+
+    if result.__class__.__module__ == 'htsql.core.domain' \
+            and result.__class__.__name__ == 'Product':
+        return [
+            marshall_htsql_result(rec)
+            for rec in result.data
+        ]
+
+    if result.__class__.__base__.__module__ == 'htsql.core.domain' \
+            and result.__class__.__base__.__name__ == 'Record':
+        return dict(zip(
+            result.__fields__,
+            [marshall_htsql_result(col) for col in result],
+        ))
+
+    if result.__class__.__module__ == 'htsql.core.domain' \
+            and result.__class__.__name__ == 'ID':
+        return unicode(result)
+
+    if isinstance(result, list):
+        return [
+            marshall_htsql_result(rec)
+            for rec in result
+        ]
+
+    return result
 

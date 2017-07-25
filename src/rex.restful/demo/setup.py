@@ -15,6 +15,8 @@ setup(
     namespace_packages=['rex'],
     install_requires=[
         'rex.restful',
+        'rex.db',
+        'rex.deploy',
     ],
     rex_init='rex.restful_demo',
     rex_static='static',

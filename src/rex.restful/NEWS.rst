@@ -9,6 +9,9 @@ REX.RESTFUL Change Log
 ==================
 
 * Added support for automatic serialization of ``set`` values.
+* Added a ``marshall_htsql_result`` utility function to transform the results
+  of HTSQL queries into a form that can be automatically serialized by
+  ``rex.restful``.
 
 
 1.2.0 (2017-01-19)

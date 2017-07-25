@@ -1,0 +1,50 @@
+- table: parent
+  with:
+    - column: code
+      type: integer
+    - column: col_text
+      type: text
+    - column: col_float
+      type: float
+    - column: col_bool
+      type: boolean
+    - column: col_json
+      type: json
+      required: false
+    - identity:
+        - code
+    - data:
+        - code: 100
+          col_text: some text
+          col_float: 1.23
+          col_bool: false
+        - code: 200
+          col_text: blah blah
+          col_float: 4.2
+          col_bool: true
+          col_json:
+            foo: 1
+            bar: "happy"
+
+- table: child
+  with:
+    - link: parent
+    - column: code
+      type: integer
+    - column: col1
+      type: text
+    - column: col2
+      type: integer
+      required: false
+    - identity:
+        - parent
+        - code
+    - data:
+        - parent: '100'
+          code: 1
+          col1: foo
+          col2: 42
+        - parent: '100'
+          code: 2
+          col1: bar
+

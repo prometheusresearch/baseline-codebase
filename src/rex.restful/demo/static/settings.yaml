@@ -1,6 +1,11 @@
+htsql_extensions:
+  rex_deploy:
+
 restful_cors_policies:
   demo: {}
   locked:
     allow_origins:
       - http://blah.com
+
+db: pgsql:restful_demo
 

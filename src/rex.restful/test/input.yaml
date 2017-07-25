@@ -8,6 +8,9 @@ tests:
 
   - sh: pip install --quiet --editable ./demo
 
+  - sh: rex dropdb --quiet rex.restful_demo
+  - sh: rex deploy --quiet rex.restful_demo
+
   - doctest: README.rst
   - doctest: test/test_*.rst
 

@@ -10,7 +10,8 @@ Set up the environment::
     >>> from rex.restful.serializer import *
     >>> import datetime, decimal
     >>> from rex.core import Rex
-    >>> rex = Rex('rex.restful')
+    >>> from rex.db import get_db
+    >>> rex = Rex('rex.restful_demo')
     >>> rex.on()
 
 
@@ -86,8 +87,13 @@ This serializer will encode structures into their JSON equivalents::
     >>> serializer.serialize({'a_decimal': decimal.Decimal('1.23')})
     '{"a_decimal": 1.23}'
 
-    >>> serializer.serialize({'a_set': set([1, 2, 3])})
-    '{"a_set": [1, 2, 3]}'
+    >>> serializer.serialize({'a_set': set([1, 2, decimal.Decimal('1.23'), "foo"])})
+    '{"a_set": [1, 2, "foo", 1.23]}'
+
+    >>> serializer.serialize({'an_obj': object()})  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    TypeError: <object object at 0x...> is not JSON serializable
 
 
 Given JSON objects or arrays, this serializer will decode them into their
@@ -197,8 +203,13 @@ This serializer will encode structures into their YAML equivalents::
     >>> serializer.serialize({'a_decimal': decimal.Decimal('1.23')})
     '{a_decimal: 1.23}\n'
 
-    >>> serializer.serialize({'a_set': set([1, 2, 3])})
-    'a_set: [1, 2, 3]\n'
+    >>> serializer.serialize({'a_set': set([1, 2, decimal.Decimal('1.23'), "foo"])})
+    'a_set: [1, 2, foo, 1.23]\n'
+
+    >>> serializer.serialize({'an_obj': object()})  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    RepresenterError: cannot represent an object: <object object at 0x...>
 
 
 Given YAML maps or arrays, this serializer will decode them into their
@@ -257,4 +268,30 @@ will return date/time fields as the original strings they were received as::
 
     >>> serializer.deserialize("{a_date: !!timestamp '2014-05-22 12:34:56'}\n")
     {'a_date': u'2014-05-22 12:34:56'}
+
+
+marshall_htsql_result
+======================
+
+This function transforms HTSQL query results into structures that can be
+automatically serialized by the built-in rex.restful Serializers::
+
+    >>> from pprint import pprint
+    >>> pprint(marshall_htsql_result(get_db().produce('/parent')))
+    [{'code': 100L,
+      'col_bool': False,
+      'col_float': 1.23,
+      'col_json': None,
+      'col_text': u'some text'},
+     {'code': 200L,
+      'col_bool': True,
+      'col_float': 4.2,
+      'col_json': {u'bar': u'happy', u'foo': 1},
+      'col_text': u'blah blah'}]
+
+    >>> pprint(marshall_htsql_result(get_db().produce('/parent[100]{code, col_text, /child}')[0]))
+    {'child': [{'code': 1L, 'col1': u'foo', 'col2': 42L, 'parent': u'100'},
+               {'code': 2L, 'col1': u'bar', 'col2': None, 'parent': u'100'}],
+     'code': 100L,
+     'col_text': u'some text'}
 

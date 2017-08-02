@@ -7,6 +7,7 @@ import {emptyFunction} from '../../lang';
 import * as KeyPath from '../KeyPath';
 import * as Schema from './Schema';
 import Form from './Form';
+import {ERROR_SENTINEL} from './Form';
 import FormColumn from './FormColumn';
 import filterFormValue from './filterFormValue';
 
@@ -81,6 +82,9 @@ export default class ConfigurableForm extends React.Component {
   _validate = (root, errorList) => {
     const hasErrorByKeyPath = {};
     for (const error of errorList) {
+      if (error[ERROR_SENTINEL]) {
+        continue;
+      }
       hasErrorByKeyPath[error.field] = true;
     }
     const filter = item => {

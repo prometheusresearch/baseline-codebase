@@ -4,6 +4,7 @@
 
 import React, {PropTypes} from 'react';
 import {createValue} from 'react-forms';
+import debounce from 'lodash/function/debounce';
 
 import {emptyFunction} from '../../lang';
 import {
@@ -21,7 +22,7 @@ import {Request} from '../data/Request';
 
 import Fieldset from './Fieldset';
 
-const ERROR_SENTINEL = '__rex_widget_validate_form__';
+export const ERROR_SENTINEL = '__rex_widget_validate_form__';
 
 let FormStyle = {
   controls: {
@@ -290,7 +291,7 @@ export default class Form extends React.Component {
       this.props.onChange(value.value, this.state.value.value, value),
       true,
     );
-    this._validate(value);
+    this._validateDebounced(value);
     this.setState({value});
   };
 
@@ -298,12 +299,18 @@ export default class Form extends React.Component {
     if (this.props.validate != null) {
       this._promiseLastValidation = this.props
         .validate(formValue.value, formValue.completeErrorList)
-        .then(this._onValidateComplete, this._onValidateError);
+        .then(this._onValidateComplete.bind(null, formValue), this._onValidateError);
     }
     return this._promiseLastValidation;
   };
 
-  _onValidateComplete = result => {
+  _validateDebounced = debounce(this._validate, 700);
+
+  _onValidateComplete = (formValue, result) => {
+    // check if we are past the value we used to start validation
+    if (formValue !== this.state.value) {
+      return;
+    }
     if (result == null) {
       return;
     }

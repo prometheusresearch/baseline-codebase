@@ -11,6 +11,8 @@
 
 * [FIX] PLATFORM-1770: Do not run server validation on invalid values.
 
+* [FIX] PLATFORM-1768: Debounce server validation
+
 3.0.0 (2017-07-19)
 ==================
 

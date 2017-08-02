@@ -40,7 +40,7 @@ setup(
         'rex.widget==3.0.1',
         'rex.widget_chrome==1.2.4',
         'rex.file==1.0.4',
-        'rex.dbgui==4.1.6',
+        'rex.dbgui==4.1.7',
     ],
     rex_static='static',
     rex_bundle={'./www/bundle': ['webpack:']})

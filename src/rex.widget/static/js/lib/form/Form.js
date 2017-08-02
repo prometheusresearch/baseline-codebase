@@ -304,7 +304,6 @@ export default class Form extends React.Component {
   };
 
   _onValidateComplete = result => {
-    console.log('result', result);
     if (result == null) {
       return;
     }

@@ -6,6 +6,7 @@ import React from 'react';
 import {emptyFunction} from '../../lang';
 import * as Schema from './Schema';
 import EntityForm from './EntityForm';
+import {ERROR_SENTINEL} from './Form';
 import FormColumn from './FormColumn';
 import filterFormValue from './filterFormValue';
 import {validate, validatorFromFields} from './ConfigurableForm';
@@ -89,8 +90,19 @@ export default class ConfigurableEntityForm extends React.Component {
     }
   }
 
-  _validate = (root) => {
-    return validate(this._validator, root, this.props.context);
+  _validate = (root, errorList) => {
+    const hasErrorByKeyPath = {};
+    for (const error of errorList) {
+      if (error[ERROR_SENTINEL]) {
+        continue;
+      }
+      hasErrorByKeyPath[error.field] = true;
+    }
+    const filter = item => {
+      const keyPath = `data.${this.props.entity}.0.${item.valueKey.join('.')}`;
+      return !hasErrorByKeyPath[keyPath];
+    };
+    return validate(this._validator, root, this.props.context, {filter});
   };
 
   onChange = (value, prevValue) => {

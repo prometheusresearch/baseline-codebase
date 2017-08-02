@@ -100,14 +100,14 @@ export default class EntityForm extends React.Component {
     );
   }
 
-  validate = (value) => {
+  validate = (value, errorList) => {
     const {validate, entity} = this.props;
     if (!validate) {
       return Promise.resolve({});
     }
     value = value[entity] || [];
     value = value[0] || {};
-    return validate(value).then(result => {
+    return validate(value, errorList).then(result => {
       for (let idx in result) {
         let item = result[idx];
         result[idx] = {...item, field: `${entity}.0.${item.field}`};

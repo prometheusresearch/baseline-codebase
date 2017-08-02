@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.platform_demo',
-    version='6.2.1',
+    version='6.2.2',
     description="Demo package for testing rex.platform",
     include_package_data=True,
     install_requires=[

@@ -151,7 +151,7 @@ StringFormField::
   ... value_key: ok
   ... widget: !<TextareaField>
   ... """)
-  StringFormField(value_key=['ok'], widget=TextareaField())
+  StringFormField(value_key=['ok'], widget=TextareaField(...))
 
 
   >>> v.parse("""
@@ -161,7 +161,7 @@ StringFormField::
   ...   column: !<TextareaField>
   ... """) # doctest: +NORMALIZE_WHITESPACE
   StringFormField(value_key=['ok'],
-                  widget=Record(edit=undefined, show=undefined, column=TextareaField()))
+                  widget=Record(edit=undefined, show=undefined, column=TextareaField(...)))
 
   >>> f1 = v.parse("""
   ... type: string
@@ -179,7 +179,7 @@ StringFormField::
   >>> f1.__merge__(f2) # doctest: +NORMALIZE_WHITESPACE
   StringFormField(value_key=['ok'],
                   required=True,
-                  widget=Record(edit=undefined, show=undefined, column=TextareaField()))
+                  widget=Record(edit=undefined, show=undefined, column=TextareaField(...)))
 
 EnumFormField::
 
@@ -206,7 +206,7 @@ NoteFormField::
   ... """)
 
   >>> f
-  NoteFormField(value_key=['individual'], widget=TextareaField())
+  NoteFormField(value_key=['individual'], widget=TextareaField(...))
 
   >>> rex.off()
 
@@ -264,10 +264,10 @@ DatetimeFormField
 
   >>> from_port(Port('t_datetime')) # doctest: +NORMALIZE_WHITESPACE
   [StringFormField(value_key=['code'], required=True, label=u'Code'),
-   DatetimeFormField(value_key=['timestamp'], label=u'Timestamp', widget=DatetimeField(format='YYYY-MM-DD HH:mm:ss')),
-   DatetimeFormField(value_key=['timestamp_0'], label=u'Timestamp_0', widget=DatetimeField(format='YYYY-MM-DD HH:mm:ss')),
-   DatetimeFormField(value_key=['timestamptz'], label=u'Timestamptz', widget=DatetimeField(format='YYYY-MM-DD HH:mm:ss')),
-   DatetimeFormField(value_key=['timestamptz_0'], label=u'Timestamptz_0', widget=DatetimeField(format='YYYY-MM-DD HH:mm:ss'))]
+   DatetimeFormField(value_key=['timestamp'], label=u'Timestamp', widget=DatetimeField(...)),
+   DatetimeFormField(value_key=['timestamp_0'], label=u'Timestamp_0', widget=DatetimeField(...)),
+   DatetimeFormField(value_key=['timestamptz'], label=u'Timestamptz', widget=DatetimeField(...)),
+   DatetimeFormField(value_key=['timestamptz_0'], label=u'Timestamptz_0', widget=DatetimeField(...))]
 
 DateFormField
 `````````````
@@ -276,7 +276,7 @@ DateFormField
 
   >>> from_port(Port('t_date')) # doctest: +NORMALIZE_WHITESPACE
   [StringFormField(value_key=['code'], required=True, label=u'Code'),
-   DateFormField(value_key=['date'], label=u'Date', widget=DateField(format='YYYY-MM-DD', max_date=None, min_date=None))]
+   DateFormField(value_key=['date'], label=u'Date', widget=DateField(...))]
 
 Cleanup
 ```````
@@ -834,7 +834,7 @@ Working with YAML API::
   ...   value_key: code
   ...   widget: !<TextareaField>
   ... """)
-  [StringFormField(value_key=['code'], widget=TextareaField())]
+  [StringFormField(value_key=['code'], widget=TextareaField(...))]
 
   >>> fs = parse("""
   ... - row:
@@ -843,9 +843,7 @@ Working with YAML API::
   ... """)
 
   >>> fs # doctest: +NORMALIZE_WHITESPACE
-  [FormRow(fields=[StringFormField(value_key=['code'])],
-           select_form_value=True,
-           size=undefined)]
+  [FormRow(...)]
 
   >>> to_port('individual', fs)
   Port('''
@@ -854,9 +852,7 @@ Working with YAML API::
   ''')
 
   >>> enrich(fs, Port('individual')) # doctest: +NORMALIZE_WHITESPACE
-  [FormRow(fields=[StringFormField(value_key=['code'], label=u'Code')],
-           select_form_value=True,
-           size=undefined)]
+  [FormRow(...)]
 
   >>> fs = parse("""
   ... - column:
@@ -865,9 +861,7 @@ Working with YAML API::
   ... """)
 
   >>> fs # doctest: +NORMALIZE_WHITESPACE
-  [FormColumn(fields=[StringFormField(value_key=['code'])],
-              select_form_value=True,
-              size=undefined)]
+  [FormColumn(...)]
 
   >>> to_port('individual', fs)
   Port('''
@@ -876,9 +870,7 @@ Working with YAML API::
   ''')
 
   >>> enrich(fs, Port('individual')) # doctest: +NORMALIZE_WHITESPACE
-  [FormColumn(fields=[StringFormField(value_key=['code'], label=u'Code')],
-              select_form_value=True,
-              size=undefined)]
+  [FormColumn(...)]
 
   >>> fs = parse("""
   ... - column:
@@ -888,7 +880,7 @@ Working with YAML API::
   ... """)
 
   >> fs
-  [FormColumn(children=[FormRow(children=[StringFormField(value_key=['code'])])])]
+  [FormColumn(...)]
 
   >>> to_port('individual', fs)
   Port('''
@@ -897,12 +889,7 @@ Working with YAML API::
   ''')
 
   >>> enrich(fs, Port('individual')) # doctest: +NORMALIZE_WHITESPACE
-  [FormColumn(fields=[FormRow(fields=[StringFormField(value_key=['code'],
-                                      label=u'Code')],
-                              select_form_value=True,
-                              size=undefined)],
-              select_form_value=True,
-              size=undefined)]
+  [FormColumn(...)]
 
 Working with Python API::
 
@@ -918,14 +905,8 @@ Working with Python API::
   ...   StringFormField(value_key='id')
   ... ]},
   ... ]) # doctest: +NORMALIZE_WHITESPACE
-  [FormRow(fields=[StringFormField(value_key=['code']),
-                   StringFormField(value_key=['id'])],
-           select_form_value=True,
-           size=undefined),
-   FormRow(fields=[StringFormField(value_key=['code']),
-                   StringFormField(value_key=['id'])],
-           select_form_value=True,
-           size=undefined)]
+  [FormRow(...),
+   FormRow(...)]
 
 EntityFieldsetVal()
 -------------------
@@ -977,7 +958,7 @@ We can specify entity in when defining a validator::
     ... """) # doctest: +NORMALIZE_WHITESPACE
     [EnumFormField(value_key=['sex'],
                    label=u'Sex',
-                   widget=TextareaField(), 
+                   widget=TextareaField(...), 
                    options=[Record(value='not-known', label=u'Not Known'),
                             Record(value='male', label=u'Male'),
                             Record(value='female', label=u'Female'),

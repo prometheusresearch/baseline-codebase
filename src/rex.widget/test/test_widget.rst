@@ -75,7 +75,7 @@ Widget
 
   >>> w = MyWidget(title='Ok')
   >>> w
-  MyWidget(desc='no desc', title='Ok')
+  MyWidget(...)
 
   >>> w.title
   'Ok'
@@ -85,23 +85,23 @@ Widget
   u'["~#widget", ["rex-widget", "MyWidget", {"desc": "no desc", "title": "Ok", "computed": "computed!"}]]'
 
   >>> w.__clone__(title='notok')
-  MyWidget(desc='no desc', title='notok')
+  MyWidget(...)
 
   >>> MyWidget.parse("""
   ... title: OK
   ... """)
-  MyWidget(desc='no desc', title='OK')
+  MyWidget(...)
 
   >>> MyWidget.parse("""
   ... !<MyWidget>
   ... title: OK
   ... """)
-  MyWidget(desc='no desc', title='OK')
+  MyWidget(...)
 
   >>> MyWidget.parse("""
   ... !<MyWidget> OK
   ... """)
-  MyWidget(desc='no desc', title='OK')
+  MyWidget(...)
 
 Widget can only be parsed from stream or a string repr::
 
@@ -131,7 +131,7 @@ Widget with non-transitionable field
   >>> w = WidgetWithNonTransitionableField(title='Title', db='db!')
 
   >>> w
-  WidgetWithNonTransitionableField(db='db!', title='Title')
+  WidgetWithNonTransitionableField(...)
 
   >>> req = Request.blank('/')
   >>> encode(w, req)
@@ -145,7 +145,7 @@ Null widget
   >>> from rex.widget import NullWidget
   >>> w = NullWidget()
   >>> w
-  NullWidget()
+  NullWidget(...)
 
   >>> req = Request.blank('/')
   >>> encode(w, req)
@@ -159,7 +159,7 @@ Group widget
   >>> from rex.widget import GroupWidget
   >>> w = GroupWidget(children=[NullWidget()])
   >>> w
-  GroupWidget(children=[NullWidget()])
+  GroupWidget(...)
 
   >>> req = Request.blank('/')
   >>> encode(w, req)
@@ -181,7 +181,7 @@ Nested widget hierarchy
   >>> w = ComplexWidget(children=MyWidget(title='title'))
 
   >>> w
-  ComplexWidget(children=MyWidget(desc='no desc', title='title'))
+  ComplexWidget(...)
 
   >>> req = Request.blank('/')
   >>> encode(w, req) # doctest: +NORMALIZE_WHITESPACE
@@ -192,7 +192,7 @@ Nested widget hierarchy
   >>> w = ComplexWidget(children=[MyWidget(title='title')])
 
   >>> w
-  ComplexWidget(children=GroupWidget(children=[MyWidget(desc='no desc', title='title')]))
+  ComplexWidget(...)
 
   >>> req = Request.blank('/')
   >>> encode(w, req) # doctest: +NORMALIZE_WHITESPACE
@@ -219,7 +219,7 @@ Widget composition
   >>> w = MyWidgetComposition(title='ok')
 
   >>> w
-  MyWidgetComposition(title='ok')
+  MyWidgetComposition(...)
 
   >>> w = MyWidgetComposition.parse("""
   ... !<MyWidgetComposition>
@@ -227,7 +227,7 @@ Widget composition
   ... """)
 
   >>> w
-  MyWidgetComposition(title='ok')
+  MyWidgetComposition(...)
 
   >>> req = Request.blank('/')
   >>> encode(w, req) # doctest: +NORMALIZE_WHITESPACE
@@ -426,7 +426,7 @@ Responder field
   >>> w = WidgetWithResponder(title='Hi')
 
   >>> w
-  WidgetWithResponder(title='Hi')
+  WidgetWithResponder(...)
 
   >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
@@ -467,7 +467,7 @@ Responder field
   >>> w = WidgetWithPortResponder(title='Hi')
 
   >>> w
-  WidgetWithPortResponder(title='Hi')
+  WidgetWithPortResponder(...)
 
   >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK

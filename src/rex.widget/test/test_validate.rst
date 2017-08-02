@@ -116,19 +116,19 @@ WidgetVal
   ... !<Example>
   ... title: Title
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Example(desc='Desc', title='Title')
+  Example(...)
 
   >>> parse("""
   ... !<Another>
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Another()
+  Another(...)
 
   >>> parse("""
   ... !<Example>
   ... title: Title
   ... desc: Desc!
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Example(desc='Desc!', title='Title')
+  Example(...)
 
   >>> parse("""
   ... - !<Example>
@@ -137,8 +137,7 @@ WidgetVal
   ... - !<Example>
   ...   title: Title2
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  GroupWidget(children=[Example(desc='Desc!', title='Title'),
-                        Example(desc='Desc', title='Title2')])
+  GroupWidget(...)
 
 Specify widget class
 --------------------
@@ -172,12 +171,12 @@ Specify widget class
   >>> WidgetVal(widget_class=Example).parse("""
   ... title: Title
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Example(desc='Desc', title='Title')
+  Example(...)
 
   >>> WidgetVal(widget_class=Example).parse("""
   ... !<Example> Title
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Example(desc='Desc', title='Title')
+  Example(...)
 
 Parsing null
 ------------
@@ -187,7 +186,7 @@ Parsing null
   >>> parse("""
   ... null
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  NullWidget()
+  NullWidget(...)
 
 Failures
 --------
@@ -253,16 +252,27 @@ Parsing shortcut forms
   ...
   ...   seq = Field(SeqVal(StrVal()))
 
-  >>> parse("""
+  >>> w = parse("""
   ... !<WidgetWithSeq>
   ... seq: [a, b, c]
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  WidgetWithSeq(seq=['a', 'b', 'c'])
 
-  >>> parse("""
+  >>> w
+  WidgetWithSeq(...)
+
+  >>> w.seq
+  ['a', 'b', 'c']
+
+  >>> w = parse("""
   ... !<WidgetWithSeq> [a, b, c]
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  WidgetWithSeq(seq=['a', 'b', 'c'])
+
+  >>> w
+  WidgetWithSeq(...)
+
+  >>> w.seq
+  ['a', 'b', 'c']
+
 
 Validation
 ----------
@@ -272,19 +282,19 @@ Validation
   >>> v = WidgetVal()
 
   >>> v(None)
-  NullWidget()
+  NullWidget(...)
 
   >>> v([])
-  GroupWidget(children=[])
+  GroupWidget(...)
 
   >>> v([None])
-  GroupWidget(children=[NullWidget()])
+  GroupWidget(...)
 
   >>> v(Example(title='Title'))
-  Example(desc='Desc', title='Title')
+  Example(...)
 
   >>> v([Example(title='Title')])
-  GroupWidget(children=[Example(desc='Desc', title='Title')])
+  GroupWidget(...)
 
   >>> v('string') # doctest: +ELLIPSIS
   Traceback (most recent call last):
@@ -304,7 +314,7 @@ Validation
   Of widget:
       Example
   While validating:
-      Example(desc='Desc', title=42)
+      Example(...)
 
   >>> v = WidgetVal(widget_class=Example)
 
@@ -316,7 +326,7 @@ Validation
   But got widget of type:
       Another
   While validating:
-      Another()
+      Another(...)
 
   >>> v([Another()]) # doctest: +ELLIPSIS
   Traceback (most recent call last):
@@ -326,15 +336,17 @@ Validation
   But got widget of type:
       Another
   While validating:
-      Another()
+      Another(...)
   While validating:
-      [Another()]
+      [Another(...)]
 
-  >>> v(Example(title='Title'))
-  Example(desc='Desc', title='Title')
+  >>> w = v([Example(title='Title')])
 
-  >>> v([Example(title='Title')])
-  GroupWidget(children=[Example(desc='Desc', title='Title')])
+  >>> w
+  GroupWidget(...)
+
+  >>> w.children
+  [Example(...)]
 
 Cleanup
 -------

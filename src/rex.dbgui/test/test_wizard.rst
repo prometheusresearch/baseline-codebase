@@ -20,7 +20,7 @@ It can generate the root wizard consisting of just one action::
 
   >>> with app:
   ...     print root_wizard().wizard  # doctest: +ELLIPSIS
-  Wizard(actions={'dbgui': PickTable(doc=undefined, help=undefined, icon=undefined, id='dbgui', kind=undefined, title='Pick Table', width=undefined)}, doc=undefined, help=undefined, icon=undefined, id='dbgui', initial_context=None, kind=undefined, path=Start(then=[Execute(id='dbgui', action='dbgui', then=[], action_instance=PickTable(doc=undefined, help=undefined, icon=undefined, id='dbgui', kind=undefined, title='Pick Table', width=undefined))]), states=<Domain default>, title='DBGUI', width=undefined)
+  Wizard(...)
 
 It can generate the wizard for the base trunk table::
 

@@ -1,12 +1,13 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2015-present, Prometheus Research, LLC
+ * @flow
  */
 
 import valueOf from './valueOf';
 
 const isArray = Array.isArray;
 
-export function shallowEquals(a, b) {
+export function shallowEquals(a: mixed, b: mixed) {
   return shallowEqualsWith(a, b, referenceValueOfEquality);
 }
 
@@ -19,7 +20,7 @@ function referenceValueOfEquality(a, b) {
  *
  * This is useful for query params (which might have arrays as values).
  */
-export function shallowParamsEquals(a, b) {
+export function shallowParamsEquals(a: mixed, b: mixed) {
   return shallowEqualsWith(a, b, paramEquality);
 }
 
@@ -42,12 +43,12 @@ function paramEquality(a, b) {
   return referenceValueOfEquality(a, b);
 }
 
-function shallowEqualsWith(a, b, eq) {
+function shallowEqualsWith(a: any, b: any, eq) {
   if (a === b) {
     return true;
   }
 
-  if (a == null && b != null || a != null && b == null) {
+  if ((a == null && b != null) || (a != null && b == null)) {
     return false;
   }
 

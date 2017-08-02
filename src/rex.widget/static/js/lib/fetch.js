@@ -1,17 +1,49 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2015-present, Prometheus Research, LLC
+ * @flow
  */
 
 import {stringify} from 'qs';
 import resolveURL from './resolveURL';
 import * as Transitionable from './Transitionable';
 
-const OPTIONS = {
-  credentials: 'same-origin',
-  headers: {
-    'Accept': 'application/json'
-  }
+export type Headers = {[key: string]: string};
+
+const DEFAULT_HEADERS: Headers = {
+  Accept: 'application/json',
 };
+
+const FETCH_OPTIONS = {
+  credentials: 'same-origin',
+  headers: DEFAULT_HEADERS,
+};
+
+type FetchOptions = {|
+  method?: 'post' | 'get' | 'delete' | 'put',
+  jsonifyData?: boolean,
+  useTransit?: boolean,
+  headers?: Headers,
+  skipResponseParsing?: boolean,
+|};
+
+export type FetchParams = {
+  [key: string]: string,
+};
+
+export type FetchData = mixed;
+
+const noOptionsProvided: FetchOptions = ({}: any);
+
+function updateFetchOptions(
+  options: FetchOptions,
+  update: $Shape<FetchOptions>,
+): FetchOptions {
+  return ({
+    ...options,
+    ...update,
+    headers: {...options.headers, ...update.headers},
+  }: any);
+}
 
 /**
  * Fetch resource.
@@ -19,10 +51,20 @@ const OPTIONS = {
  * @param {String} url
  * @param {Object} query
  */
-export function fetch(url, query = null, options = {}) {
+export function fetch(
+  url: string,
+  query: ?FetchParams = null,
+  options: FetchOptions = noOptionsProvided,
+) {
   url = prepareURL(url, query);
-  let promise = global.fetch(url, OPTIONS)
-    .then(failOnHTTPError);
+  const fetchOptions = {
+    ...FETCH_OPTIONS,
+    headers: {
+      ...DEFAULT_HEADERS,
+      ...options.headers,
+    },
+  };
+  let promise = global.fetch(url, fetchOptions).then(failOnHTTPError);
   if (options.useTransit) {
     promise = promise.then(parseTransitResponse);
   } else {
@@ -31,35 +73,59 @@ export function fetch(url, query = null, options = {}) {
   return promise;
 }
 
-export function post(url, query = null, data = null, options = {}) {
-  let opts = {...options, method: 'post'};
+export function post(
+  url: string,
+  query: ?FetchParams = null,
+  data: ?FetchData = null,
+  options?: FetchOptions = noOptionsProvided,
+) {
+  let opts = updateFetchOptions(options, {method: 'post'});
   return fetchData(url, query, data, opts);
 }
 
-export function put(url, query = null, data = null, options = {}) {
-  let opts = {...options, method: 'put'};
+export function put(
+  url: string,
+  query: ?FetchParams = null,
+  data: ?FetchData = null,
+  options?: FetchOptions = noOptionsProvided,
+) {
+  const opts = updateFetchOptions(options, {method: 'put'});
   return fetchData(url, query, data, opts);
 }
 
-export function del(url, query = null, data = null, options = {}) {
-  let opts = {...options, method: 'delete'};
-  if (typeof(opts.skipResponseParsing) === 'undefined') {
-    opts.skipResponseParsing = true;
-  }
+export function del(
+  url: string,
+  query: ?FetchParams = null,
+  data: ?FetchData = null,
+  options?: FetchOptions = noOptionsProvided,
+) {
+  const opts = updateFetchOptions(options, {
+    method: 'delete',
+    skipResponseParsing:
+      options.skipResponseParsing === undefined ? true : options.skipResponseParsing,
+  });
   return fetchData(url, query, data, opts);
 }
 
-function fetchData(url, query = null, data = null, options = {}) {
+function fetchData(url, query = null, data = null, options: FetchOptions) {
   url = prepareURL(url, query);
 
-  let fetchParams = {...OPTIONS, body: data, method: options.method || 'post'};
+  let fetchParams = {
+    ...FETCH_OPTIONS,
+    body: data,
+    method: options.method || 'post',
+    headers: {
+      ...FETCH_OPTIONS.headers,
+      ...options.headers,
+    },
+  };
+
   if (data && options.jsonifyData) {
     fetchParams.body = JSON.stringify(data);
     fetchParams.headers['Content-Type'] = 'application/json';
   }
 
-  let promise = global.fetch(url, fetchParams)
-    .then(failOnHTTPError);
+  let promise = global.fetch(url, fetchParams).then(failOnHTTPError);
 
   if (!options.skipResponseParsing) {
     if (options.useTransit) {
@@ -100,6 +166,7 @@ function failOnHTTPError(response) {
     return response;
   } else {
     let error = new Error(response.statusText);
+    // $FlowFixMe: TODO: We need a custom `Error` subclass here.
     error.response = response;
     throw error;
   }

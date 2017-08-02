@@ -25,6 +25,7 @@ class FieldBase(object):
     _order = 0
 
     transitionable = True
+    as_transitionable = None
 
     def __init__(self, name=None, doc=None):
         self.name = name
@@ -83,7 +84,8 @@ class Field(FieldBase):
     """
 
     def __init__(self, validate=AnyVal(), default=NotImplemented, doc=None,
-                 name=None, transitionable=True, deprecated=None):
+                 name=None, transitionable=True, deprecated=None,
+                 as_transitionable=None):
         if default is None and not isinstance(validate, MaybeVal):
             validate = MaybeVal(validate)
         elif default is undefined and not isinstance(validate, MaybeUndefinedVal):
@@ -97,6 +99,7 @@ class Field(FieldBase):
         self.default = default
         self.transitionable = transitionable
         self.deprecated = deprecated
+        self.as_transitionable = as_transitionable
         super(Field, self).__init__(name=name, doc=doc)
 
     def __clone__(self, **params):
@@ -105,6 +108,7 @@ class Field(FieldBase):
             'default': self.default,
             'doc': self.doc,
             'transitionable': self.transitionable,
+            'as_transitionable': self.as_transitionable,
             'deprecated': self.deprecated,
             'name': self.name,
         }

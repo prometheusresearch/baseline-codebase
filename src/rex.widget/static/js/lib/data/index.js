@@ -1,13 +1,19 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2015-present, Prometheus Research, LLC
+ * @flow
  */
 
-export Fetch from './Fetch';
-export DataSet from './DataSet';
+import {withFetch, Fetch} from './Fetch';
+export {Fetch, withFetch};
 
-export port from './Port';
-export query from './Query';
-export mutation from './Mutation';
-export request from './Request';
+export {default as DataSet} from './DataSet';
 
-export forceRefreshData from './forceRefreshData';
+export {default as port} from './Port';
+export {default as query} from './Query';
+export {default as mutation} from './Mutation';
+export {default as request} from './Request';
+
+export {default as forceRefreshData} from './forceRefreshData';
+
+import type {Request} from './Request';
+export type {Request};

@@ -22,7 +22,7 @@ class demo(Command):
 
 setup(
     name='rex.widget_demo',
-    version='3.0.1',
+    version='3.1.0',
     description="Demo package for testing rex.widget",
     namespace_packages=['rex'],
     package_dir={'': 'src'},

@@ -1,10 +1,22 @@
 /**
- * @copyright 2015, Prometheus Research, LLC
+ * @copyright 2015-present, Prometheus Research, LLC
+ * @flow
  */
 
-export default class DataSet {
+export default class DataSet<T = Object> {
+  name: string;
+  data: ?T;
+  error: ?Error;
+  hasMore: boolean;
+  updating: boolean;
 
-  constructor(name, data, error, hasMore, updating) {
+  constructor(
+    name: string,
+    data: ?T,
+    error: ?Error,
+    hasMore: boolean,
+    updating: boolean,
+  ) {
     this.name = name;
     this.data = data;
     this.error = error;
@@ -12,21 +24,21 @@ export default class DataSet {
     this.updating = updating;
   }
 
-  get length() {
-    return this.data === null ? 0 : this.data.length;
+  get length(): number {
+    if (this.data == null) {
+      return 0;
+    }
+    if (Array.isArray(this.data)) {
+      return this.data.length;
+    }
+    return 1;
   }
 
-  setData(data) {
-    return new this.constructor(
-      this.name,
-      data,
-      this.error,
-      this.hasMore,
-      this.updating,
-    );
+  setData(data: ?T): DataSet<T> {
+    return new this.constructor(this.name, data, this.error, this.hasMore, this.updating);
   }
 
-  setUpdating(updating) {
+  setUpdating(updating: boolean): DataSet<T> {
     if (this.updating === updating) {
       return this;
     } else {
@@ -40,7 +52,7 @@ export default class DataSet {
     }
   }
 
-  setHasMore(hasMore) {
+  setHasMore(hasMore: boolean): DataSet<T> {
     if (this.hasMore === hasMore) {
       /* istanbul ignore next */
       return this;
@@ -59,4 +71,3 @@ export default class DataSet {
     return new DataSet('dataset', data, null, false, false);
   }
 }
-

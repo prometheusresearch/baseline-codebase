@@ -2,6 +2,14 @@
   Change Log
 **************
 
+3.1.0 (2017-XX-XX)
+==================
+
+* [FEAT] `withFetch` analog for `@Fetch` decorator which doesn't force to use
+  decorators.
+
+* [FEAT] Starting using flow types.
+
 3.0.1 (2017-XX-XX)
 ==================
 

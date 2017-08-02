@@ -229,7 +229,10 @@ def _format_Widget(widget, req, path): # pylint: disable=invalid-name
     values.update(widget.values)
     for name, field in widget._fields.items():
         if field.transitionable:
-            values[name] = field(widget)
+            if field.as_transitionable:
+                values[name] = field.as_transitionable(widget, field(widget))
+            else:
+                values[name] = field(widget)
         elif name in values:
             del values[name]
     pkg_name, symbol_name = widget.js_type

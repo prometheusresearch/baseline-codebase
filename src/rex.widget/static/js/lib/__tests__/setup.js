@@ -3,10 +3,11 @@
  */
 
 import assert from 'power-assert';
-import jsdom  from 'jsdom';
+import {JSDOM} from 'jsdom';
 
-let document = jsdom.jsdom('<!doctype html><html><body></body></html>');
-let window = document.defaultView;
+let jsdom = new JSDOM('<!doctype html><html><body></body></html>');
+let window = jsdom.window;
+let document = window.document;
 
 global.assert = assert;
 global.document = document;
@@ -15,7 +16,7 @@ global.__PUBLIC_PATH__ = '/';
 global.__webpack_public_path__ = '/';
 global.requestAnimationFrame = function(callback) {
   setTimeout(callback, 0);
-}
+};
 
 propagateToGlobal(window);
 

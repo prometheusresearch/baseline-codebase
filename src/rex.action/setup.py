@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.action',
-    version='1.6.1',
+    version='1.6.2',
     description="Foundation of the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -22,7 +22,7 @@ setup(
         'docutils               >= 0.12,   < 0.13',
         'rex.setup              >= 4,      < 5',
         'rex.core               >= 1.6,    < 2',
-        'rex.widget             >= 3,      < 4',
+        'rex.widget             >= 3.0.1,  < 4',
         'rex.menu               >= 1.0,    < 2',
         'rex.db                 >= 3.4,    < 4',
         'rex.deploy             >= 2.4,    < 3',

@@ -11,7 +11,7 @@ import {
   DangerButton,
   showNotification,
   removeNotification,
-  Notification
+  Notification,
 } from '../../ui';
 import {VBox} from '../../layout';
 import {Port} from '../data/Port';
@@ -25,8 +25,8 @@ const ERROR_SENTINEL = '__rex_widget_validate_form__';
 
 let FormStyle = {
   controls: {
-    marginTop: 10
-  }
+    marginTop: 10,
+  },
 };
 
 /**
@@ -35,9 +35,7 @@ let FormStyle = {
  * @public
  */
 export default class Form extends React.Component {
-
   static propTypes = {
-
     /**
      * If form should operate in "insert" mode (for creating new entities).
      */
@@ -137,9 +135,7 @@ export default class Form extends React.Component {
   };
 
   static defaultProps = {
-    submitButton: (
-      <SuccessButton>Submit</SuccessButton>
-    ),
+    submitButton: <SuccessButton>Submit</SuccessButton>,
     onChange: emptyFunction.thatReturnsArgument,
     onUpdate: emptyFunction.thatReturnsArgument,
     onBeforeSubmit: emptyFunction.thatReturnsArgument,
@@ -152,14 +148,10 @@ export default class Form extends React.Component {
         text="Data saving is in progress"
         icon="cog"
         ttl={Infinity}
-        />
+      />
     ),
     completeNotification: (
-      <Notification
-        kind="success"
-        text="Data saved successfully"
-        icon="ok"
-        />
+      <Notification kind="success" text="Data saved successfully" icon="ok" />
     ),
     errorNotification: (
       <Notification
@@ -167,8 +159,8 @@ export default class Form extends React.Component {
         text="There was an error while submitting data to server"
         icon="remove"
         ttl={Infinity}
-        />
-    )
+      />
+    ),
   };
 
   render() {
@@ -178,11 +170,9 @@ export default class Form extends React.Component {
       let submitButtonProps = {
         type: 'button',
         onClick: this.onSubmit,
-        disabled: (
-          value.params.forceShowErrors
-          && value.completeErrorList.length > 0
-          || submitInProgress
-        )
+        disabled:
+          (value.params.forceShowErrors && value.completeErrorList.length > 0) ||
+          submitInProgress,
       };
       if (submitButtonTitle) {
         submitButtonProps.children = submitButtonTitle;
@@ -213,7 +203,7 @@ export default class Form extends React.Component {
         value: this.props.value,
         onChange: this.onChange,
         params: {context: this.props.context},
-      })
+      }),
     };
     this._promiseLastValidation = Promise.resolve();
   }
@@ -221,8 +211,9 @@ export default class Form extends React.Component {
   componentDidUpdate() {
     let value = this.props.onUpdate(this.state.value.value);
     if (value !== this.state.value.value) {
-      this.setState({ // eslint-disable-line react/no-did-update-set-state
-        value: this.state.value.update(value, true)
+      this.setState({
+        // eslint-disable-line react/no-did-update-set-state
+        value: this.state.value.update(value, true),
       });
     }
   }
@@ -254,7 +245,7 @@ export default class Form extends React.Component {
         // Note that we use value from state, not the modified one.
         value: value.createRoot({
           params: {forceShowErrors: true},
-        })
+        }),
       });
 
       return;
@@ -262,35 +253,26 @@ export default class Form extends React.Component {
 
     onBeforeSubmit(value.value, value);
 
-    this._progressNotification = showNotification(
-      this.props.progressNotification);
+    this._progressNotification = showNotification(this.props.progressNotification);
 
     this.setState({submitInProgress: true});
 
     let dataValue = transformValueOnSubmit(value.value);
     if (submitTo instanceof Port) {
       if (insert) {
-        submitTo
-          .insert(dataValue)
-          .then(this.onSubmitComplete, this.onSubmitError);
+        submitTo.insert(dataValue).then(this.onSubmitComplete, this.onSubmitError);
       } else {
         submitTo
           .replace(this.props.initialValue || this.props.value, dataValue)
           .then(this.onSubmitComplete, this.onSubmitError);
       }
     } else if (submitTo instanceof Query) {
-      submitTo
-        .execute(dataValue)
-        .then(this.onSubmitComplete, this.onSubmitError);
+      submitTo.execute(dataValue).then(this.onSubmitComplete, this.onSubmitError);
     } else if (submitTo instanceof Request) {
-      submitTo
-        .produce(dataValue)
-        .then(this.onSubmitComplete, this.onSubmitError);
+      submitTo.produce(dataValue).then(this.onSubmitComplete, this.onSubmitError);
     } else if (submitTo instanceof Mutation) {
       if (insert) {
-        submitTo
-          .execute(dataValue)
-          .then(this.onSubmitComplete, this.onSubmitError);
+        submitTo.execute(dataValue).then(this.onSubmitComplete, this.onSubmitError);
       } else {
         let prevValue = this.props.initialValue || this.props.value;
         if (prevValue) {
@@ -303,23 +285,26 @@ export default class Form extends React.Component {
     }
   };
 
-  onChange = (value) => {
-    value = value.update(this.props.onChange(value.value, this.state.value.value, value), true);
+  onChange = value => {
+    value = value.update(
+      this.props.onChange(value.value, this.state.value.value, value),
+      true,
+    );
     this._validate(value);
     this.setState({value});
   };
 
   _validate = (formValue = this.state.value) => {
     if (this.props.validate != null) {
-      this._promiseLastValidation = this.props.validate(formValue.value).then(
-        this._onValidateComplete,
-        this._onValidateError
-      );
+      this._promiseLastValidation = this.props
+        .validate(formValue.value, formValue.completeErrorList)
+        .then(this._onValidateComplete, this._onValidateError);
     }
     return this._promiseLastValidation;
   };
 
-  _onValidateComplete = (result) => {
+  _onValidateComplete = result => {
+    console.log('result', result);
     if (result == null) {
       return;
     }
@@ -344,10 +329,13 @@ export default class Form extends React.Component {
           value = value.removeError(error, true);
         }
         for (let error of nextErrors) {
-          value = value.select(error.field).addError({
-            message: error.message,
-            [ERROR_SENTINEL]: true,
-          }, true).root;
+          value = value.select(error.field).addError(
+            {
+              message: error.message,
+              [ERROR_SENTINEL]: true,
+            },
+            true,
+          ).root;
         }
         value = value.updateParams({forceShowErrors: true}, true);
         return {...state, value};
@@ -355,24 +343,24 @@ export default class Form extends React.Component {
     });
   };
 
-  _onValidateError = (err) => {
+  _onValidateError = err => {
     console.error('Form validation error:', err); // eslint-disable-line no-console
   };
 
-  onSubmit = (e) => {
+  onSubmit = e => {
     e.stopPropagation();
     e.preventDefault();
     this.submit();
   };
 
-  onSubmitComplete = (data) => {
+  onSubmitComplete = data => {
     this.setState({submitInProgress: false});
     removeNotification(this._progressNotification);
     showNotification(this.props.completeNotification);
     this.props.onSubmitComplete(data);
   };
 
-  onSubmitError = (err) => {
+  onSubmitError = err => {
     this.setState({submitInProgress: false});
     removeNotification(this._progressNotification);
     let errorNotification = React.cloneElement(this.props.errorNotification, {
@@ -381,7 +369,7 @@ export default class Form extends React.Component {
           <p>Error submitting data on server:</p>
           <ErrorRenderer error={err} />
         </div>
-      )
+      ),
     });
     showNotification(errorNotification);
     this.props.onSubmitError({error: err});
@@ -392,15 +380,14 @@ let ErrorRendererStyle = {
   stack: {
     whiteSpace: 'pre',
     fontFamily: 'monospace',
-    overflow: 'auto'
+    overflow: 'auto',
   },
   controls: {
-    textAlign: 'right'
-  }
+    textAlign: 'right',
+  },
 };
 
 let ErrorRenderer = React.createClass({
-
   propTypes: {
     error: PropTypes.node,
   },
@@ -413,13 +400,15 @@ let ErrorRenderer = React.createClass({
         <div>
           {error.message ? error.message : error.toString()}
         </div>
-        {error.stack && !showDetails &&
+        {error.stack &&
+          !showDetails &&
           <div style={ErrorRendererStyle.controls}>
             <DangerButton size="small" onClick={this.onClick}>
               Show details
             </DangerButton>
           </div>}
-        {error.stack && showDetails &&
+        {error.stack &&
+          showDetails &&
           <div style={ErrorRendererStyle.stack}>
             {error.stack}
           </div>}
@@ -434,7 +423,7 @@ let ErrorRenderer = React.createClass({
 
   getInitialState() {
     return {
-      showDetails: false
+      showDetails: false,
     };
-  }
+  },
 });

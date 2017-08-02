@@ -16,7 +16,6 @@ import filterFormValue from './filterFormValue';
  * @public
  */
 export default class ConfigurableForm extends React.Component {
-
   static propTypes = {
     ...Form.PropTypes,
 
@@ -45,7 +44,7 @@ export default class ConfigurableForm extends React.Component {
     /**
      * The submit button element to use.
      */
-    submitButton: React.PropTypes.element
+    submitButton: React.PropTypes.element,
   };
 
   static defaultProps = {
@@ -74,16 +73,21 @@ export default class ConfigurableForm extends React.Component {
         schema={this._schema}
         onChange={this.onChange}
         submitButton={readOnly ? null : submitButton}>
-        <FormColumn
-          fields={fields}
-          fieldProps={{readOnly}}
-          />
+        <FormColumn fields={fields} fieldProps={{readOnly}} />
       </Form>
     );
   }
 
-  _validate = (root) => {
-    return validate(this._validator, root, this.props.context);
+  _validate = (root, errorList) => {
+    const hasErrorByKeyPath = {};
+    for (const error of errorList) {
+      hasErrorByKeyPath[error.field] = true;
+    }
+    const filter = item => {
+      const keyPath = `data.${item.valueKey.join('.')}`;
+      return !hasErrorByKeyPath[keyPath];
+    };
+    return validate(this._validator, root, this.props.context, {filter});
   };
 
   componentWillReceiveProps({fields}) {
@@ -93,7 +97,7 @@ export default class ConfigurableForm extends React.Component {
     }
   }
 
-  onForm = (form) => {
+  onForm = form => {
     this._form = form;
   };
 
@@ -107,19 +111,27 @@ export default class ConfigurableForm extends React.Component {
   };
 }
 
-export function validatorFromFields(fields, trace = []) {
+type FieldValidator = {
+  valueKey: string[],
+  validateList: FieldValidator[],
+};
+
+/**
+ * Collect a list of validators out of fields specification.
+ */
+export function validatorFromFields(fields, trace = []): FieldValidator[] {
   let validatorList = [];
   for (let field of fields) {
     if (field.type === 'fieldset') {
       validatorList = validatorList.concat(
-        validatorFromFields(field.fields, trace.concat(field.valueKey)) || []
+        validatorFromFields(field.fields, trace.concat(field.valueKey)) || [],
       );
     } else if (field.type === 'list') {
       let _validatorList = validatorFromFields(field.fields);
       if (_validatorList) {
         validatorList.push({
           valueKey: field.valueKey,
-          validateList: _validatorList
+          validateList: _validatorList,
         });
       }
     } else {
@@ -134,7 +146,15 @@ export function validatorFromFields(fields, trace = []) {
   return validatorList.length > 0 ? validatorList : null;
 }
 
-export function validate(validators, root, context = {}) {
+/**
+ * Run `validators` with a `root` value and a specified `context`.
+ */
+export function validate(
+  validators: FieldValidator[],
+  root: Object,
+  context: Object = {},
+  {filter} = {},
+) {
   let contextParams = {};
   for (let key in context) {
     if (context.hasOwnProperty(key)) {
@@ -146,31 +166,38 @@ export function validate(validators, root, context = {}) {
       }
     }
   }
-  let tasks = validators.map(item => {
+  const tasks = [];
+  validators.forEach(item => {
+    if (filter != null && !filter(item)) {
+      return;
+    }
     if (item.validate != null) {
-      return validateItem(item, root, contextParams);
+      tasks.push(validateItem(item, root, contextParams));
     } else if (item.validateList != null) {
-      return validateList(item, root, [], contextParams);
+      tasks.push(...validateList(item, root, contextParams, filter));
     }
   });
   return Promise.all(tasks);
 }
 
-function validateList(validator, root, contextParams) {
+function validateList(validator, root, contextParams, filter) {
   let items = KeyPath.get(validator.valueKey, root) || [];
   let tasks = [];
 
   for (let i = 0; i < items.length; i++) {
-    for (let j = 0; j < validator.validatorList.length; j++) {
+    for (let j = 0; j < validator.validateList.length; j++) {
       let origValidator = validator.validateList[j];
       let itemValidator = {
         ...origValidator,
-        valueKey: `${validator.valueKey.join('.')}.${i}.${origValidator.valueKey}`
+        valueKey: validator.valueKey.concat(i, origValidator.valueKey),
       };
+      if (filter != null && !filter(itemValidator)) {
+        continue;
+      }
       tasks.push(validateItem(itemValidator, root, contextParams));
     }
   }
-  return Promise.all(tasks);
+  return tasks;
 }
 
 function validateItem(validator, root, params) {

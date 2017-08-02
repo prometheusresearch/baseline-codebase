@@ -4,6 +4,11 @@
 
 .. contents:: Table of Contents
 
+1.6.2 (2017-08-02)
+==================
+
+* [FIX] Test suite fixes due to ``repr()`` chnages in ``rex.widget``.
+
 1.6.1 (2017-07-18)
 ==================
 

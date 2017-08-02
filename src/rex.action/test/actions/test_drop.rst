@@ -28,17 +28,7 @@ In case fields are not specified, they are generated from port::
   ... """)
 
   >>> drop # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Drop(confirm_delay=undefined,
-       db=None,
-       doc=undefined,
-       entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
-       help=undefined,
-       icon=undefined,
-       id='...',
-       kind=undefined,
-       message=RST(src=u'<p>You are about to drop an entity</p>', links={}),
-       title=undefined,
-       width=undefined)
+  Drop(...)
 
   >>> input, output = drop.context_types
 

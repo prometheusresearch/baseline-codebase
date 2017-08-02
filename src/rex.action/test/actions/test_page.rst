@@ -29,15 +29,7 @@ In case fields are not specified, they are generated from port::
   ... """)
 
   >>> page # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Page(doc=undefined,
-       help=undefined,
-       icon=undefined,
-       id='...',
-       input=RecordType(rows={}, open=True),
-       kind=undefined,
-       text=RST(src=u'<p>Welcome to Rex Action!</p>', links={}),
-       title=undefined,
-       width=undefined)
+  Page(...)
 
   >>> input, output = page.context_types
 

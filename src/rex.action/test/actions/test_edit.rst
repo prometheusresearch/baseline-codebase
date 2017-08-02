@@ -28,20 +28,7 @@ In case fields are not specified, they are generated from port::
   ... """)
 
   >>> edit # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Edit(db=None,
-       doc=undefined,
-       entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
-       fields=[...],
-       help=undefined,
-       icon=undefined,
-       id='...',
-       input=RecordType(rows={}, open=True),
-       kind=undefined,
-       query=None,
-       submit_button=undefined,
-       title=undefined,
-       value={},
-       width=undefined)
+  Edit(...)
 
   >>> input, output = edit.context_types
 
@@ -89,20 +76,7 @@ You can also specify fields and see port generated from them::
   ... """)
 
   >>> edit # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Edit(db=None,
-       doc=undefined,
-       entity=RowType(name='individual', type=EntityType(name='individual', state=None)),
-       fields=[StringFormField(value_key=['code'], label=u'Code')],
-       help=undefined,
-       icon=undefined,
-       id='...',
-       input=RecordType(rows={}, open=True),
-       kind=undefined,
-       query=None,
-       submit_button=undefined,
-       title=undefined,
-       value={},
-       width=undefined)
+  Edit(...)
 
   >>> edit.port
   Port('''

@@ -82,22 +82,7 @@ Wizard
   ...   second:
   ...     type: wanother
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Wizard(actions={'second': AnotherAction(...),
-                  'first': MyAction(...)},
-         doc=undefined,
-         help=undefined,
-         icon=undefined,
-         id='...',
-         initial_context=None,
-         kind=undefined,
-         path=Start(then=[Execute(id='...', action='first',
-                                  then=[Execute(id='...', action='second',
-                                                then=[],
-                                                action_instance=...)],
-                    action_instance=...)]),
-         states=<Domain default>,
-         title=undefined,
-         width=undefined)
+  Wizard(...)
 
 ::
 
@@ -111,18 +96,7 @@ Wizard
   ...   second:
   ...     type: wanother
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Wizard(actions={'second': AnotherAction(...),
-                  'first': MyAction(...)},
-         doc=undefined,
-         help=undefined,
-         icon=undefined,
-         id='...',
-         initial_context=None,
-         kind=undefined,
-         path=Start(then=[Execute(id='...', action='first', then=[], action_instance=...)]),
-         states=<Domain default>,
-         title=undefined,
-         width=undefined)
+  Wizard(...)
 
 ::
 
@@ -151,17 +125,7 @@ Wizard
   ...   first:
   ...     type: require-x
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Wizard(actions={'first': RequireX(...)},
-         doc=undefined,
-         help=undefined,
-         icon=undefined,
-         id='...',
-         initial_context={'x': 'value'},
-         kind=undefined,
-         path=Start(then=[Execute(id='...', action='first', then=[], action_instance=RequireX(...))]),
-         states=<Domain default>,
-         title=undefined,
-         width=undefined)
+  Wizard(...)
 
 ::
 
@@ -832,17 +796,8 @@ Overrides
 
 ::
 
-  >>> w.actions['pick-individual'] # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  MockAction(doc=undefined,
-             help=undefined,
-             icon=undefined,
-             id='...',
-             input=RecordType(rows={}, open=True),
-             kind=undefined,
-             output=RecordType(rows={}, open=True),
-             text='OK',
-             title=undefined,
-             width=undefined)
+  >>> w.actions['pick-individual'].text # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  'OK'
 
   >>> w = Action.parse("""
   ... type:
@@ -859,18 +814,8 @@ Overrides
   ...   text: OK
   ... """)
 
-  >>> w.actions['pick-individual'] # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  MockAction(doc=undefined,
-             help=undefined,
-             icon=undefined,
-             id='...',
-             input=RecordType(rows={}, open=True),
-             kind=undefined,
-             output=RecordType(rows={'individual': RowType(name='individual',
-             type=EntityType(name='individual', state=None))}, open=True),
-             text='OK',
-             title=undefined,
-             width=undefined)
+  >>> w.actions['pick-individual'].text
+  'OK'
 
 ::
 

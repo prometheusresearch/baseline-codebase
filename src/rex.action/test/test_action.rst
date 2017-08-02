@@ -73,7 +73,7 @@ Constructing from Python values::
   ...   'type': 'my',
   ...   'id': 'id',
   ... })
-  MyAction(doc=undefined, help=undefined, icon=undefined, id='id', kind=undefined, title=undefined, width=undefined)
+  MyAction(...)
 
   >>> validate({
   ...   'id': 'id'
@@ -97,7 +97,7 @@ Action is validated by ``ActionVal`` as is::
   ...   'type': 'my',
   ...   'id': 'id',
   ... }))
-  MyAction(doc=undefined, help=undefined, icon=undefined, id='id', kind=undefined, title=undefined, width=undefined)
+  MyAction(...)
 
 Subclass constraints
 --------------------
@@ -110,7 +110,7 @@ Subclass constraints
   ...   'type': 'another',
   ...   'id': 'id',
   ... })
-  AnotherAction(doc=undefined, help=undefined, icon=undefined, id='id', kind=undefined, title=undefined, width=undefined)
+  AnotherAction(...)
 
   >>> validate_another({
   ...   'type': 'my',
@@ -130,7 +130,7 @@ Constructing from YAML
   >>> validate.parse("""
   ... type: my
   ... """) # doctest: +ELLIPSIS
-  MyAction(doc=undefined, help=undefined, icon=undefined, id='...', kind=undefined, title=undefined, width=undefined)
+  MyAction(...)
 
   >>> validate.parse("""
   ... type: my
@@ -216,14 +216,7 @@ Overrides
   ... type: configurable-demo
   ... text: Hello
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  ConfigurableActionDemo(doc=undefined,
-                         help=undefined,
-                         icon=undefined,
-                         id='...',
-                         kind=undefined,
-                         text='Hello',
-                         title=undefined,
-                         width=undefined)
+  ConfigurableActionDemo(...)
 
 ::
 
@@ -233,14 +226,7 @@ Overrides
   ...   text: Hello
   ... text: Hello!!!
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  ConfigurableActionDemo(doc=undefined,
-                         help=undefined,
-                         icon=undefined,
-                         id='...',
-                         kind=undefined,
-                         text='Hello!!!',
-                         title=undefined,
-                         width=undefined)
+  ConfigurableActionDemo(...)
 
 ::
 
@@ -248,14 +234,7 @@ Overrides
   ... type: !include base:configurable-demo-base.yaml
   ... text: Hello!!!
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  ConfigurableActionDemo(doc=undefined,
-                         help=undefined,
-                         icon=undefined,
-                         id='...',
-                         kind=undefined,
-                         text='Hello!!!',
-                         title=undefined,
-                         width=undefined)
+  ConfigurableActionDemo(...)
 
 Cleanup
 -------

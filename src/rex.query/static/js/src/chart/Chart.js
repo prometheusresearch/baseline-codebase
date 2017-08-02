@@ -3,6 +3,7 @@
  */
 
 import type {ChartSpec} from '../state';
+import * as types from '../charting/types';
 import type {QueryPipeline} from '../model/types';
 
 import * as React from 'react';
@@ -10,16 +11,13 @@ import {VBox, HBox} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
 import {findDOMNodeStrict as findDOMNode} from '../findDOMNode';
+import {getPipelineContext} from '../model';
 import * as ui from '../ui';
 import * as State from '../state';
 import * as model from './model';
 import * as SVG from '../SVG';
 import * as Fetch from '../fetch';
-import AreaChart from './AreaChart';
-import LineChart from './LineChart';
-import PieChart from './PieChart';
-import BarChart from './BarChart';
-import ScatterChart from './ScatterChart';
+import * as Charting from '../charting';
 
 type ChartProps = {
   chartSpec: ChartSpec,
@@ -44,78 +42,96 @@ export default class Chart extends React.Component {
   _chart: ?Object;
 
   render() {
-    const {chartSpec, query, ...props} = this.props;
+    const {chartSpec, query: pipeline, data: rawData} = this.props;
     const {label: originalLabel, chart} = chartSpec;
-    const label = originalLabel || model.getChartTitle(chart, query);
+    const label = originalLabel || model.getChartTitle(chart, pipeline);
+
     let children;
-    switch (chart.type) {
-      case 'pie': {
-        children = (
-          <PieChart
-            {...props}
-            label={label}
-            onLabel={this.onUpdateLabel}
-            query={query}
-            chart={chart}
-            onChart={this.onUpdateChart}
-          />
-        );
-        break;
+
+    const {query, data} = model.getQuery(pipeline, rawData);
+    if (query == null) {
+      children = null;
+    } else {
+      const context = getPipelineContext(query);
+      const optionsForLabel = model.getSelectOptionsFromContext(context);
+      const optionsForMeasure = model.getSelectOptionsFromContext(context, {
+        onlyNumerics: true,
+        addSumarizations: true,
+      });
+      switch (chart.type) {
+        case 'pie': {
+          children = (
+            <Charting.PieChartEditor
+              data={data}
+              label={label}
+              onLabel={this.onUpdateLabel}
+              chart={chart}
+              onChart={this.onUpdateChart}
+              optionsForLabel={optionsForLabel}
+              optionsForValue={optionsForMeasure}
+            />
+          );
+          break;
+        }
+        case 'line': {
+          children = (
+            <Charting.LineChartEditor
+              data={data}
+              label={label}
+              onLabel={this.onUpdateLabel}
+              chart={chart}
+              onChart={this.onUpdateChart}
+              optionsForX={optionsForLabel}
+              optionsForLine={optionsForMeasure}
+            />
+          );
+          break;
+        }
+        case 'area': {
+          children = (
+            <Charting.AreaChartEditor
+              data={data}
+              label={label}
+              onLabel={this.onUpdateLabel}
+              chart={chart}
+              onChart={this.onUpdateChart}
+              optionsForX={optionsForLabel}
+              optionsForArea={optionsForMeasure}
+            />
+          );
+          break;
+        }
+        case 'bar': {
+          children = (
+            <Charting.BarChartEditor
+              data={data}
+              label={label}
+              onLabel={this.onUpdateLabel}
+              chart={chart}
+              onChart={this.onUpdateChart}
+              optionsForX={optionsForLabel}
+              optionsForBar={optionsForMeasure}
+            />
+          );
+          break;
+        }
+        case 'scatter': {
+          children = (
+            <Charting.ScatterChartEditor
+              data={data}
+              label={label}
+              onLabel={this.onUpdateLabel}
+              chart={chart}
+              onChart={this.onUpdateChart}
+              optionsForX={optionsForLabel}
+              optionsForY={optionsForLabel}
+            />
+          );
+          break;
+        }
+        default:
+          children = null;
       }
-      case 'line': {
-        children = (
-          <LineChart
-            {...props}
-            label={label}
-            onLabel={this.onUpdateLabel}
-            query={query}
-            chart={chart}
-            onChart={this.onUpdateChart}
-          />
-        );
-        break;
-      }
-      case 'area': {
-        children = (
-          <AreaChart
-            {...props}
-            label={label}
-            onLabel={this.onUpdateLabel}
-            query={query}
-            chart={chart}
-            onChart={this.onUpdateChart}
-          />
-        );
-        break;
-      }
-      case 'bar': {
-        children = (
-          <BarChart
-            {...props}
-            label={label}
-            onLabel={this.onUpdateLabel}
-            query={query}
-            chart={chart}
-            onChart={this.onUpdateChart}
-          />
-        );
-        break;
-      }
-      case 'scatter': {
-        children = (
-          <ScatterChart
-            {...props}
-            label={label}
-            onLabel={this.onUpdateLabel}
-            query={query}
-            chart={chart}
-            onChart={this.onUpdateChart}
-          />
-        );
-        break;
-      }
-      default:
-        children = null;
     }
     return (
       <VBox height={0} overflow="auto" flexGrow={1}>
@@ -160,7 +176,7 @@ export default class Chart extends React.Component {
     this.context.actions.updateChart({chartId: this.props.chartSpec.id, label});
   };
 
-  onUpdateChart = (chart: model.Chart) => {
+  onUpdateChart = (chart: types.Chart) => {
     this.context.actions.updateChart({chartId: this.props.chartSpec.id, chart});
   };
 }

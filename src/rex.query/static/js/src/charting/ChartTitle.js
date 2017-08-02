@@ -27,15 +27,13 @@ const TETHER_CONFIG = {
   ],
 };
 
-export default class ChartTitle extends React.Component {
-  static defaultProps = {
-    onChange: _value => {},
-  };
+type OnChange = string => *;
 
+export default class ChartTitle extends React.Component {
   _input: HTMLElement;
   _tether: any;
 
-  props: {left: number, value: string, onChange: string => *};
+  props: {left: string | number, value: string, onChange?: ?OnChange};
 
   state: {value: ?string} = {value: null};
 
@@ -46,7 +44,9 @@ export default class ChartTitle extends React.Component {
   onEditCommit = () => {
     const {value} = this.state;
     this.setState({value: null});
-    this.props.onChange(value || this.props.value);
+    if (this.props.onChange) {
+      this.props.onChange(value || this.props.value);
+    }
   };
 
   onEditCancel = () => {
@@ -94,19 +94,20 @@ export default class ChartTitle extends React.Component {
   };
 
   render() {
-    const {left, value} = this.props;
+    const {left, value, onChange} = this.props;
     const edit = this.state.value != null;
     return (
       <g>
-        <foreignObject x="0" y="0" width="60" height="60">
-          <div style={{padding: 3}}>
-            <ReactUI.QuietButton
-              onClick={this.onEditStart}
-              size="small"
-              icon={<ui.Icon.IconPencil />}
-            />
-          </div>
-        </foreignObject>
+        {onChange &&
+          <foreignObject x="0" y="0" width="60" height="60">
+            <div style={{padding: 3}}>
+              <ReactUI.QuietButton
+                onClick={this.onEditStart}
+                size="small"
+                icon={<ui.Icon.IconPencil />}
+              />
+            </div>
+          </foreignObject>}
         <recharts.Text
           x={parseInt(left, 10)}
           y={20}

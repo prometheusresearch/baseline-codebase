@@ -2,11 +2,12 @@
  * @flow
  */
 
+import type {ChartType} from './types';
+
 import React from 'react';
 import {Element} from 'react-stylesheet';
 
 import * as ui from '../ui';
-import * as Chart from '../chart';
 import PieChartIcon from './icon/PieChartIcon';
 import BarChartIcon from './icon/BarChartIcon';
 import ScatterChartIcon from './icon/ScatterChartIcon';
@@ -14,7 +15,7 @@ import LineChartIcon from './icon/LineChartIcon';
 import AreaChartIcon from './icon/AreaChartIcon';
 
 type AddChartDialogueProps = {
-  onAddChart: ({chartType: Chart.ChartType}) => void,
+  onAddChart: ({chartType: ChartType}) => void,
 };
 
 export default function AddChartDialogue({onAddChart}: AddChartDialogueProps) {

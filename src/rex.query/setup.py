@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.query',
-    version = "0.4.1",
+    version = "0.4.2",
     description="Compositional database query interface",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",

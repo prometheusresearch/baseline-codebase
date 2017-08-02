@@ -2,64 +2,20 @@
  * @flow
  */
 
-import type {QueryPipeline} from '../model/types';
+import type {Context, QueryAtom, QueryPipeline, QueryNavigation} from '../model/types';
+import type {
+  Chart,
+  LineChart,
+  PieChart,
+  BarChart,
+  AreaChart,
+  ScatterChart,
+} from '../charting/types';
 
 import invariant from 'invariant';
 
 import * as t from '../model/Type';
 import {getNavigation} from '../model/QueryNavigation';
-import {getQuery} from './util';
-
-export type PieChart = {
-  type: 'pie',
-  labelColumn: ?string,
-  valueColumn: ?string,
-  color: {[label: string]: string},
-};
-
-export type Line = {
-  valueColumn: ?string,
-  color: string,
-};
-
-export type LineChart = {
-  type: 'line',
-  labelColumn: ?string,
-  lineList: Array<Line>,
-};
-
-export type Area = {
-  valueColumn: ?string,
-  color: string,
-};
-
-export type AreaChart = {
-  type: 'area',
-  labelColumn: ?string,
-  areaList: Array<Area>,
-};
-
-export type Bar = {
-  valueColumn: ?string,
-  color: string,
-};
-
-export type BarChart = {
-  type: 'bar',
-  labelColumn: ?string,
-  stacked: 'horizontal' | 'vertical',
-  barList: Array<Bar>,
-};
-
-export type ScatterChart = {
-  type: 'scatter',
-  xColumn: ?string,
-  yColumn: ?string,
-};
-
-export type ChartType = 'pie' | 'line' | 'bar' | 'scatter' | 'area';
-
-export type Chart = PieChart | LineChart | BarChart | ScatterChart | AreaChart;
 
 export function getChartTitle(chart: Chart, pipeline: QueryPipeline): string {
   const chart_ = chart;
@@ -183,7 +139,7 @@ export function getInitialChart(pipeline: QueryPipeline, {type}: {type: string})
         barList: [],
       };
     case 'scatter':
-      return {type: 'scatter', xColumn: null, yColumn: null};
+      return {type: 'scatter', xColumn: null, xLabel: null, yColumn: null, yLabel: null};
     default:
       invariant(false, 'Unknown chart type: %s', type);
   }
@@ -229,6 +185,44 @@ export function getUsedAttributes(chart: Chart): Set<string> {
   return attributes;
 }
 
+export function getSelectOptionsFromContext(
+  context: Context,
+  params?: {
+    onlyNumerics?: boolean,
+    addSumarizations?: boolean,
+  } = {},
+): Array<{label: string, value: string}> {
+  const {onlyNumerics, addSumarizations} = params;
+  const navigation = Array.from(getNavigation(context).values());
+  const options = [];
+
+  for (let i = 0; i < navigation.length; i++) {
+    const nav = navigation[i];
+
+    if (addSumarizations && nav.card === 'seq') {
+      options.push({
+        label: '# ' + nav.label,
+        value: nav.value,
+      });
+    }
+
+    if (onlyNumerics && !isNumericNav(nav)) {
+      continue;
+    }
+
+    options.push({
+      label: nav.label,
+      value: nav.value,
+    });
+  }
+
+  return options;
+}
+
+function isNumericNav(nav: QueryNavigation): boolean {
+  return (nav.card == null || nav.card === 'opt') && nav.context.type.name === 'number';
+}
+
 const COLUMN_AS_LABEL_TO_CONSIDER = {
   title: true,
   name: true,
@@ -248,4 +242,61 @@ function getLabelColumn(pipeline: QueryPipeline): ?string {
     }
   }
   return null;
+}
+
+import {inferTypeAtPath, aggregate} from '../model/Query';
+import {editor} from '../model/QueryOperation';
+
+export function getColumnOptions(
+  context: Context,
+): Array<{label: string, value: string}> {
+  const nav = getNavigation(context);
+  return Array.from(nav.values()).map(nav => ({
+    label: nav.label,
+    value: nav.value,
+  }));
+}
+
+export function getQuery(
+  query: QueryPipeline,
+  data: any,
+): {query: ?QueryPipeline, data: any} {
+  if (query.pipeline.length === 1) {
+    return {query: null, data};
+  } else {
+    if (query.pipeline[1].name === 'define') {
+      if (data != null) {
+        data = data[Object.keys(data)[0]];
+      }
+      return {query: query.pipeline[1].binding.query, data};
+    } else {
+      return {query: null, data};
+    }
+  }
+}
+
+export function enrichQuery(query: QueryPipeline, chart: Chart): QueryPipeline {
+  const focus = getQuery(query, null).query;
+  if (focus == null) {
+    return query;
+  }
+  let e = editor(query, focus);
+  for (const attrName of getUsedAttributes(chart)) {
+    let editAtCompletion;
+    const type = inferTypeAtPath(focus.context.prev, [attrName]);
+    if (type.card === 'seq' && type.name === 'record' && type.entity != null) {
+      editAtCompletion = ensurePipelineHasCount;
+    }
+    e = e.growNavigation({path: [attrName], editAtCompletion});
+  }
+  return e.getQuery();
+}
+
+function ensurePipelineHasCount(pipe: QueryAtom[]): QueryAtom[] {
+  const last = pipe[pipe.length - 1];
+  if (last != null && last.name === 'aggregate') {
+    return pipe;
+  } else {
+    return pipe.concat(aggregate('count'));
+  }
 }

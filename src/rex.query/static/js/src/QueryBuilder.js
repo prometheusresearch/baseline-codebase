@@ -12,7 +12,7 @@ import React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import {css, style, VBox, HBox} from 'react-stylesheet';
 
-import AddChartDialogue from './chart/AddChartDialogue';
+import AddChartDialogue from './charting/AddChartDialogue';
 import * as ChartModel from './chart/model';
 import Chart from './chart/Chart';
 import * as Icon from './ui/Icon';
@@ -234,7 +234,7 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
               : queryInvalid
                 ? <InvalidQueryMessage onUndo={this.actions.undo} />
                 : data != null
-                  ? <ui.TabContainer
+                  ? <ReactUI.TabContainer
                       activeTab={activeTab}
                       onActiveTab={activeTab => this.actions.setActiveTab({activeTab})}
                       tabList={tabList}

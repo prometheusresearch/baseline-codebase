@@ -7,6 +7,11 @@
 0.4.1 (2017-07-18)
 ==================
 
+* [FIX] Various fixes to chart screens.
+
+0.4.1 (2017-07-19)
+==================
+
 * [FIX] Correctly display multple nested sequences in output.
 * [FIX] Fix layout issues on chart screens in Firefox.
 

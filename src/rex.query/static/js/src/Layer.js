@@ -29,7 +29,6 @@ export default class Layer extends React.Component {
     this._component = ReactDOM.render(
       React.Children.only(this.props.children),
       this._element,
-      // $FlowFixMe: hm... extra arg?
       this._didMount,
     );
   }
@@ -38,7 +37,6 @@ export default class Layer extends React.Component {
     this._component = ReactDOM.render(
       React.Children.only(this.props.children),
       this._element,
-      // $FlowFixMe: hm... extra arg?
       this._didUpdate,
     );
   }

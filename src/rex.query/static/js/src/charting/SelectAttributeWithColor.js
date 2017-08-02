@@ -2,43 +2,38 @@
  * @flow
  */
 
-import type {Context} from '../model/types';
-
 import * as React from 'react';
-import {HBox} from 'react-stylesheet';
+import {HBox, VBox} from 'react-stylesheet';
 import {SwatchColorPicker} from '@prometheusresearch/react-ui';
+import * as ui from '../ui';
 import SelectAttribute from './SelectAttribute';
 import {COLOR_LIST} from './ColorList';
 
 type SelectAttributeWithColorProps = {
-  context: Context,
+  options: Array<ui.SelectOption>,
   label: string,
   noValueLabel?: string,
   value: ?string,
   color: ?string,
-  onChange: (?string) => *,
-  onColorChange: (string) => *,
+  onChange: (?string, ?ui.SelectOption) => *,
+  onColorChange: string => *,
 };
 
-export default function SelectAttributeWithColor(
-  {
-    context,
-    label,
-    noValueLabel,
-    value,
-    color,
-    onChange,
-    onColorChange,
-    ...props
-  }: SelectAttributeWithColorProps,
-) {
+export default function SelectAttributeWithColor({
+  label,
+  noValueLabel,
+  value,
+  color,
+  onChange,
+  onColorChange,
+  ...props
+}: SelectAttributeWithColorProps) {
   return (
     <HBox flexGrow={1} alignItems="center" overflow="visible">
       <SelectAttribute
         {...props}
         label={value == null ? noValueLabel || label : label}
         value={value}
-        context={context}
         onChange={onChange}
       />
       {value != null &&

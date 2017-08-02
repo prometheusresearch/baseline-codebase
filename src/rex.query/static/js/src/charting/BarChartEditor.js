@@ -2,70 +2,35 @@
  * @flow
  */
 
-import type {QueryPipeline} from '../model/types';
+import * as types from './types';
 
 import * as React from 'react';
-import * as recharts from 'recharts';
 import {VBox} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
-import ChartTitle from './ChartTitle';
-import * as model from './model';
-import {getPipelineContext} from '../model';
-import {getQuery} from './util';
+import * as ui from '../ui';
 import SelectAttribute from './SelectAttribute';
 import SelectAttributeWithColor from './SelectAttributeWithColor';
 import ChartControlPanel from './ChartControlPanel';
 import ChartControl from './ChartControl';
 import NoNumericAttributeText from './NoNumericAttributeText';
+import BarChart from './BarChart';
 
-type BarChartProps = {
-  chart: model.BarChart,
-  onChart: (model.Chart) => *,
-  data: any,
-  query: QueryPipeline,
-  label: string,
-  onLabel: (string) => *,
+type BarChartEditorProps = types.ChartEditorBaseProps<types.BarChart> & {
+  optionsForX: Array<ui.SelectOption>,
+  optionsForBar: Array<ui.SelectOption>,
 };
 
-export default function BarChart(
-  {label, onLabel, chart, onChart, data: rawData, query: pipeline}: BarChartProps,
-) {
-  const {query, data} = getQuery(pipeline, rawData);
-  if (query == null) {
-    return null;
-  }
-  let rendered = null;
-  if (chart.labelColumn && chart.barList.length > 0) {
-    rendered = (
-      <recharts.BarChart
-        key={getBarChartKey(chart)}
-        data={data}
-        width={600}
-        height={400}
-        style={{fontWeight: 200, fontSize: '9pt'}}
-        margin={{top: 50}}>
-        <g>
-          <ChartTitle left={300} value={label} onChange={onLabel} />
-        </g>
-        <recharts.XAxis dataKey={chart.labelColumn} />
-        <recharts.YAxis />
-        <recharts.CartesianGrid strokeDasharray="3 3" />
-        <recharts.Tooltip />
-        <recharts.Legend />
-        {chart.barList.map(bar => {
-          return (
-            <recharts.Bar
-              stackId={chart.stacked === 'vertical' ? 'single' : undefined}
-              key={bar.valueColumn}
-              dataKey={bar.valueColumn}
-              fill={bar.color}
-            />
-          );
-        })}
-      </recharts.BarChart>
-    );
-  }
+export default function BarChartEditor({
+  label,
+  onLabel,
+  chart,
+  onChart,
+  data,
+  optionsForX,
+  optionsForBar,
+  dataIsUpdating,
+}: BarChartEditorProps) {
   const barList = chart.barList.concat({
     valueColumn: null,
     color: '#8884d8',
@@ -76,8 +41,14 @@ export default function BarChart(
         <SelectAttribute
           label="Label"
           value={chart.labelColumn}
-          context={getPipelineContext(query)}
-          onChange={labelColumn => onChart({type: 'bar', ...chart, labelColumn})}
+          options={optionsForX}
+          onChange={(labelColumn, option) =>
+            onChart({
+              type: 'bar',
+              ...chart,
+              labelColumn,
+              label: option ? option.label : null,
+            })}
         />
         {barList.map((bar, index) => {
           const updateBar = values => {
@@ -98,13 +69,12 @@ export default function BarChart(
               label="Bar"
               noValueLabel="Add new bar"
               noResultsText={<NoNumericAttributeText />}
-              context={getPipelineContext(query)}
+              options={optionsForBar}
               value={bar.valueColumn}
-              onChange={valueColumn => updateBar({...bar, valueColumn})}
+              onChange={(valueColumn, option) =>
+                updateBar({...bar, valueColumn, label: option ? option.label : null})}
               color={bar.color}
               onColorChange={color => updateBar({...bar, color})}
-              onlyNumerics={true}
-              addSumarizations={true}
             />
           );
         })}
@@ -125,14 +95,14 @@ export default function BarChart(
           />}
       </ChartControlPanel>
       <VBox flexGrow={1} alignItems="center">
-        {rendered}
+        <BarChart
+          chart={chart}
+          data={data}
+          dataIsUpdating={dataIsUpdating}
+          label={label}
+          onLabel={onLabel}
+        />
       </VBox>
     </VBox>
   );
-}
-
-function getBarChartKey(chart: BarChart): string {
-  return `${chart.stacked}:${chart.barList
-    .map(bar => `${bar.valueColumn}--${bar.color}`)
-    .join(':')}`;
 }

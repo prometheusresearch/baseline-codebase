@@ -2,60 +2,32 @@
  * @flow
  */
 
-import type {QueryPipeline} from '../model/types';
+import * as types from './types';
 
 import * as React from 'react';
 import * as recharts from 'recharts';
-import {Element, VBox, HBox} from 'react-stylesheet';
-import {SwatchColorPicker} from '@prometheusresearch/react-ui';
+import {VBox} from 'react-stylesheet';
 
-import {COLOR_LIST} from './ColorList';
-import * as model from './model';
-import {getPipelineContext} from '../model';
 import ChartTitle from './ChartTitle';
-import {getQuery} from './util';
-import SelectAttribute from './SelectAttribute';
-import ChartControlPanel from './ChartControlPanel';
-import ChartControl from './ChartControl';
-import NoNumericAttributeText from './NoNumericAttributeText';
+import Preloader from './Preloader';
+import NoDataMessage from './NoDataMessage';
 import generateColorHash from '../generateColorHash';
 
 const RADIAN = Math.PI / 180;
 
-const getPieColor = (chart: model.PieChart, id: string) =>
+const getPieColor = (chart: types.PieChart, id: string) =>
   chart.color[id] || generateColorHash(id);
 
-type PieChartProps = {
-  chart: model.PieChart,
-  onChart: model.Chart => *,
-  label: string,
-  onLabel: string => *,
-  data: any,
-  query: QueryPipeline,
+type PieChartProps = types.ChartBaseProps<types.PieChart> & {
+  onSectorClick?: number => *,
+  activeIndex: ?number,
 };
 
 export default class PieChart extends React.Component {
   props: PieChartProps;
-  state: {activeIndex: ?number} = {activeIndex: null};
-
-  onSectorClick = (activeIndex: number) => {
-    this.setState(state => {
-      if (state.activeIndex === activeIndex) {
-        return {...state, activeIndex: null};
-      } else {
-        return {...state, activeIndex};
-      }
-    });
-  };
-
-  onSectorColor = (active: string, color: string) => {
-    const {chart} = this.props;
-    const nextChart = {...chart, color: {...chart.color, [active]: color}};
-    this.props.onChart(nextChart);
-  };
 
   label = ({cx, cy, midAngle, outerRadius, percent, name, index}: any) => {
-    if (index === this.state.activeIndex) {
+    if (index === this.props.activeIndex) {
       return null;
     }
     const radius = outerRadius + 23;
@@ -132,15 +104,21 @@ export default class PieChart extends React.Component {
   };
 
   render() {
-    const {label, onLabel, chart, onChart, data: rawData, query: pipeline} = this.props;
-    let {activeIndex} = this.state;
-    const {query, data} = getQuery(pipeline, rawData);
-    const activeEntry = data[activeIndex];
-    if (query == null) {
-      return null;
-    }
+    const {
+      chart,
+      data,
+      dataIsUpdating,
+      label,
+      onLabel,
+      onSectorClick,
+      activeIndex,
+    } = this.props;
     let rendered = null;
-    if (chart.labelColumn && chart.valueColumn) {
+    if (dataIsUpdating) {
+      rendered = <Preloader />;
+    } else if (data == null) {
+      rendered = <NoDataMessage />;
+    } else if (chart.labelColumn != null && chart.valueColumn != null) {
       const width = 600;
       const height = 400;
       rendered = (
@@ -163,7 +141,7 @@ export default class PieChart extends React.Component {
                 <recharts.Cell
                   key={id}
                   fill={getPieColor(chart, id)}
-                  onClick={this.onSectorClick.bind(null, index)}
+                  onClick={onSectorClick ? onSectorClick.bind(null, index) : undefined}
                 />
               );
             })}
@@ -172,44 +150,8 @@ export default class PieChart extends React.Component {
       );
     }
     return (
-      <VBox overflow="visible" flexGrow={1} fontWeight={200}>
-        <ChartControlPanel>
-          <SelectAttribute
-            label="Label"
-            value={chart.labelColumn}
-            context={getPipelineContext(query)}
-            onChange={labelColumn => onChart({type: 'pie', ...chart, labelColumn})}
-          />
-          <SelectAttribute
-            label="Value"
-            value={chart.valueColumn}
-            noResultsText={<NoNumericAttributeText />}
-            context={getPipelineContext(query)}
-            onChange={valueColumn => onChart({type: 'pie', ...chart, valueColumn})}
-            onlyNumerics={true}
-            addSumarizations={true}
-          />
-          <ChartControl
-            label="Currently selected sector"
-            hint="Click on a sector in a pie chart to select and customize the colour"
-            control={
-              activeEntry &&
-              <HBox overflow="visible">
-                <SwatchColorPicker
-                  colorList={COLOR_LIST}
-                  value={getPieColor(chart, activeEntry[chart.labelColumn])}
-                  onChange={this.onSectorColor.bind(null, activeEntry[chart.labelColumn])}
-                />
-                <Element fontSize="10pt" padding={4}>
-                  {activeEntry[chart.labelColumn]}
-                </Element>
-              </HBox>
-            }
-          />
-        </ChartControlPanel>
-        <VBox flexGrow={1} alignItems="center">
-          {rendered}
-        </VBox>
+      <VBox flexGrow={1} alignItems="center">
+        {rendered}
       </VBox>
     );
   }

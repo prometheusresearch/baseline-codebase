@@ -4,7 +4,7 @@
 
 import type {QueryAtom, QueryPipeline, Domain} from '../model/types';
 import type {TranslateOptions} from '../fetch/translate';
-import type {Chart} from '../chart';
+import type {Chart} from '../charting/types';
 
 import * as q from '../model/Query';
 import * as QueryOperation from '../model/QueryOperation';

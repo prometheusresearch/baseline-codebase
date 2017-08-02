@@ -19,6 +19,7 @@ import type {
   Expression,
   QueryLoc,
 } from '../model/types';
+import type {Chart, ChartType} from '../charting/types';
 
 import createLogger from 'debug';
 import invariant from 'invariant';
@@ -28,7 +29,7 @@ import * as q from '../model/Query';
 import * as qo from '../model/QueryOperation';
 import * as QL from '../model/QueryLoc';
 import * as Fetch from '../fetch';
-import * as Chart from '../chart';
+import * as Ch from '../chart/model';
 import * as Focus from './Focus';
 
 let logAction = createLogger('rex-query:state:actions');
@@ -69,7 +70,7 @@ const refetchQuery = {
     const currentRefetchIndex = refetchIndex;
     return Promise.resolve().then(_ => {
       const queryToFetch = state.chartList.reduce(
-        (q, c) => Chart.enrichQuery(q, c.chart),
+        (q, c) => Ch.enrichQuery(q, c.chart),
         query,
       );
       Fetch.fetch(api, queryToFetch, translateOptions).then(data => {
@@ -109,14 +110,14 @@ export function setActiveTab(params: {activeTab: string}): StateUpdater {
   };
 }
 
-export function addChart(params: {chartType: Chart.ChartType}): StateUpdater {
+export function addChart(params: {chartType: ChartType}): StateUpdater {
   logAction('addChart', params);
   return state => {
     const {chartType} = params;
     const chartSpec = {
       id: `${chartType}-${state.chartList.length + 1}`,
       label: null,
-      chart: Chart.getInitialChart(state.query, {type: chartType}),
+      chart: Ch.getInitialChart(state.query, {type: chartType}),
     };
     const chartList = state.chartList.concat(chartSpec);
     return {
@@ -129,7 +130,7 @@ export function addChart(params: {chartType: Chart.ChartType}): StateUpdater {
 
 export function updateChart(params: {
   chartId: string,
-  chart?: Chart.Chart,
+  chart?: Chart,
   label?: string,
 }): StateUpdater {
   logAction('updateChart', params);

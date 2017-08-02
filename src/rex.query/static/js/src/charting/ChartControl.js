@@ -7,7 +7,7 @@ import {VBox, HBox, Element} from 'react-stylesheet';
 
 type ChartControlProps = {
   label: string,
-  control: React.Element<*>,
+  control?: null | React.Element<*>,
   hint?: string,
 };
 

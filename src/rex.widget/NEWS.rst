@@ -2,7 +2,16 @@
   Change Log
 **************
 
-3.0.0 (2017-XX-XX)
+3.0.1 (2017-XX-XX)
+==================
+
+* [FIX] PLATFORM-1769: Make ``Widget.__repr__()`` less verbose. Previously it
+  generated so much text during constructing error logs that it would pin CPU to
+  100% for a large amount of time.
+
+* [FIX] PLATFORM-1770: Do not run server validation on invalid values.
+
+3.0.0 (2017-07-19)
 ==================
 
 * [BREAKING] Python widgets now bind to JS components differently (``js_type``

@@ -1,6 +1,6 @@
 {
   "name": "rex-platform",
-  "version": "6.2.2",
+  "version": "6.3.0",
   "main": "./lib/index.js",
   "rex": {
     "bundleAll": true,

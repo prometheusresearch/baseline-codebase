@@ -294,16 +294,16 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
         if not os.path.isfile(filename):
             raise yaml.constructor.ConstructorError(None, None,
                     "unable to open file: %s" % filename, node.start_mark)
+        validate = self.validate
+        for key in reversed(pointer):
+            validate = IncludeKeyVal(key, validate)
         if get_rex:
             cache = get_rex().cache
-            cache_key = (filename, self.validate, self.master)
+            cache_key = (filename, validate, self.master)
             loader = cache.set_default_cb(
                     cache_key, lambda: IncludeLoader(self.__class__))
         else:
             loader = IncludeLoader(self.__class__)
-        validate = self.validate
-        for key in reversed(pointer):
-            validate = IncludeKeyVal(key, validate)
         with guard("While processing !include directive:", location):
             return loader(filename, validate, self.master, self.open)
 

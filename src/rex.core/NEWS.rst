@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.16.2 (2017-XX-XX)
+1.16.2 (2017-08-07)
 ===================
 
 * Fixed an issue with caching parsed YAML files.

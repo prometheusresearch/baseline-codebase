@@ -79,8 +79,8 @@ export default class Action extends React.Component {
     }
 
     return (
-      <HBox flexGrow={1} flexShrink={1} height="100%">
-        <VBox flexGrow={1} flexShrink={1} height="100%">
+      <HBox flexGrow={1} flexShrink={1}>
+        <VBox flexGrow={1} flexShrink={1}>
           {!noHeader &&
             <VBox boxShadow={Theme.shadow.light()} padding={20}>
               <HBox>

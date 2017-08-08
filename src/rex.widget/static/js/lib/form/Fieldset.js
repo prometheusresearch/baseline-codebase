@@ -4,7 +4,7 @@
 
 import React from 'react';
 import {Fieldset as FieldsetBase} from 'react-forms';
-import {VBox} from '../../layout';
+import {VBox} from '@prometheusresearch/react-ui';
 import {FieldsetHeader} from './ui';
 
 export default function Fieldset({label, hint, schema, ...props}) {
@@ -14,7 +14,7 @@ export default function Fieldset({label, hint, schema, ...props}) {
         label={label}
         hint={hint}
         isRequired={schema && schema.isRequired}
-        />
+      />
       <FieldsetBase {...props} schema={schema} />
     </VBox>
   );

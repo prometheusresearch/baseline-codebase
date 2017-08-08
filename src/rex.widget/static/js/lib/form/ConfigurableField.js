@@ -4,7 +4,7 @@
 
 import React from 'react';
 
-import {VBox} from '../../layout';
+import {VBox} from '@prometheusresearch/react-ui';
 import isReactElement from '../isReactElement';
 
 import Fieldset from './Fieldset';
@@ -18,9 +18,7 @@ import SelectField from './SelectField';
 import RepeatingFieldset from './RepeatingFieldset';
 import FileUploadField from './FileUploadField';
 
-
-const FIELDS_WITH_READONLY_MODE = ['entity', 'bool', 'enum', 'file', 'list',
-                                   'fieldset'];
+const FIELDS_WITH_READONLY_MODE = ['entity', 'bool', 'enum', 'file', 'list', 'fieldset'];
 
 /**
  * ConfigurableField component.
@@ -42,9 +40,7 @@ const FIELDS_WITH_READONLY_MODE = ['entity', 'bool', 'enum', 'file', 'list',
  * @public
  */
 let ConfigurableField = React.createClass({
-
   propTypes: {
-
     /**
      * Field structure from server. (Usually a result of
      * ``rex.widget.FormFieldVal()`` validator).
@@ -73,13 +69,13 @@ let ConfigurableField = React.createClass({
      * Unitless number representing the amount of space this widget uses
      * relative to all its sibling widgets.
      */
-    size: React.PropTypes.number
+    size: React.PropTypes.number,
   },
 
   render() {
     let {size} = this.props;
     return (
-      <VBox flex={size}>
+      <VBox flexGrow={size}>
         {this.renderField()}
       </VBox>
     );
@@ -135,7 +131,7 @@ let ConfigurableField = React.createClass({
           hint={field.hint}
           select={field.valueKey}
           formValue={formValue}
-          />
+        />
       );
     }
     switch (field.type) {
@@ -150,7 +146,7 @@ let ConfigurableField = React.createClass({
             minDate={field.minDate}
             maxDate={field.maxDate}
             validate={field.validate}
-            />
+          />
         );
       case 'bool':
         return (
@@ -162,7 +158,7 @@ let ConfigurableField = React.createClass({
             formValue={formValue}
             readOnly={readOnly}
             validate={field.validate}
-            />
+          />
         );
       case 'file':
         return (
@@ -176,7 +172,7 @@ let ConfigurableField = React.createClass({
             column={field.column}
             readOnly={readOnly}
             validate={field.validate}
-            />
+          />
         );
       case 'enum':
         return (
@@ -189,7 +185,7 @@ let ConfigurableField = React.createClass({
             options={field.options || field.values}
             readOnly={readOnly}
             validate={field.validate}
-            />
+          />
         );
       case 'integer':
         return (
@@ -200,7 +196,7 @@ let ConfigurableField = React.createClass({
             select={field.valueKey}
             formValue={formValue}
             validate={field.validate}
-            />
+          />
         );
       case 'number':
         return (
@@ -211,7 +207,7 @@ let ConfigurableField = React.createClass({
             select={field.valueKey}
             formValue={formValue}
             validate={field.validate}
-            />
+          />
         );
       case 'calculation':
         return (
@@ -222,7 +218,7 @@ let ConfigurableField = React.createClass({
             select={field.valueKey}
             formValue={formValue}
             validate={field.validate}
-            />
+          />
         );
       case 'fieldset':
         return (
@@ -233,11 +229,8 @@ let ConfigurableField = React.createClass({
             formValue={formValue}
             select={field.valueKey}>
             {field.fields.map(f =>
-              <ConfigurableField
-                key={f.valueKey}
-                field={f}
-                readOnly={readOnly}
-                />)}
+              <ConfigurableField key={f.valueKey} field={f} readOnly={readOnly} />,
+            )}
           </Fieldset>
         );
       case 'list':
@@ -251,12 +244,13 @@ let ConfigurableField = React.createClass({
             layout={field.layout}
             select={field.valueKey}>
             {field.fields.map(f =>
-                <ConfigurableField
-                  key={f.valueKey}
-                  field={f}
-                  select={f.valueKey}
-                  readOnly={readOnly}
-                  />)}
+              <ConfigurableField
+                key={f.valueKey}
+                field={f}
+                select={f.valueKey}
+                readOnly={readOnly}
+              />,
+            )}
           </RepeatingFieldset>
         );
       default:
@@ -268,16 +262,16 @@ let ConfigurableField = React.createClass({
             formValue={formValue}
             select={field.valueKey}
             validate={field.validate}
-            />
+          />
         );
     }
   },
 
   getDefaultProps() {
     return {
-      size: 1
+      size: 1,
     };
-  }
+  },
 });
 
 export default ConfigurableField;

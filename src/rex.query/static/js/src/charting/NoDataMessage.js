@@ -3,7 +3,8 @@
  */
 
 import React from 'react';
+import {Message} from '../ui';
 
 export default function NoDataMessage() {
-  return <div>No data to plot...</div>;
+  return <Message width={200}>No data to plot...</Message>;
 }

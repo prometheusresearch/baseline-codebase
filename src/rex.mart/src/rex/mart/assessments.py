@@ -3,6 +3,8 @@
 #
 
 
+from rex.port import Port
+from rex.port.replace import adapt, flatten, match, patch
 from rex.instrument import Assessment
 
 from .tables import PrimaryTable
@@ -34,6 +36,8 @@ class AssessmentLoader(object):
         return params
 
     def load(self, database):
+        tree = self.mapping.get_port_tree()
+        port = Port(tree, database)
         assessment_impl = Assessment.get_implementation()
 
         num_assessments = 0
@@ -52,45 +56,27 @@ class AssessmentLoader(object):
                 selected_value_map.keys()
             )
 
+            # Collect port data.
+            dataset = []
             for assessment in assessments:
                 if not assessment.data:
                     continue
 
-                # Map the Assessment into a series of HTSQL statements
-                statements = self.mapping.get_statements_for_assessment(
+                data = self.mapping.get_port_data(
                     assessment.data,
                     assessment.instrument_version_uid,
                     selected_value_map[assessment.uid],
                 )
-
-                primary_id = None
-                for idx, statement in enumerate(statements):
-                    if idx == 0:
-                        # The first statement is always the base of the
-                        # Assessment, and it requires the UIDs
-                        statement.parameters.update({
-                            'assessment_uid': assessment.uid,
-                            'instrument_version_uid':
-                                assessment.instrument_version_uid,
-                        })
-
-                    else:
-                        # The subsequent statements need the ID of the base
-                        # table
-                        statement.parameters.update({
-                            'PRIMARY_TABLE_ID': primary_id,
-                        })
-
-                    # Execute the statement
-                    result = database.produce(
-                        statement.htsql,
-                        **statement.parameters
-                    )
-                    if idx == 0:
-                        # Remember the ID of the record we just inserted
-                        primary_id = result[0]
+                data['assessment_uid'] = assessment.uid
+                data['instrument_version_uid'] = \
+                    assessment.instrument_version_uid
+                dataset.append(data)
 
                 num_assessments += 1
+
+            # Submit port data.
+            #port.insert(dataset)
+            _insert_into_port(port, dataset)
 
         return num_assessments
 
@@ -104,4 +90,14 @@ class AssessmentLoader(object):
 
         for statement in self.mapping.get_calculation_statements():
             database.produce(statement, **params)
+
+
+def _insert_into_port(port, dataset):
+    # Faster port.insert() without refetching and validation.
+    with port.db, port.db.transaction():
+        tree = port.tree
+        old_map = flatten(tree, adapt(tree, None))
+        new_map = flatten(tree, adapt(tree, dataset))
+        pair_map = match(old_map, new_map)
+        patch(pair_map, port._command_cache)
 

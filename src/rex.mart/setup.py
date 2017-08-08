@@ -32,6 +32,7 @@ setup(
         'rex.ctl>=2,<3',
         'rex.db>=3,<4',
         'rex.deploy>=2.8,<3',
+        'rex.port>=1.3,<2',
         'rex.instrument>=1.3,<2',
         'rex.forms>=2,<3',
         'rex.mobile>=0.7,<0.9',

@@ -110,41 +110,6 @@ class MappingTable(object):
     def get_deploy_facts(self):
         raise NotImplementedError()
 
-    @property
-    def statement_skeleton(self):  # pragma: no cover
-        # pylint: disable=no-self-use
-        return None
-
-    def get_statement(self, values):
-        return self.statement_skeleton % (
-            ', '.join([
-                '$%s :as %s' % (name, name)
-                for name in values.iterkeys()
-            ]),
-        )
-
-    def get_statements_for_assessment(
-            self,
-            assessment,
-            instrument_version_uid,
-            selection_record=None):
-
-        statements = []
-
-        value_mapping = self.get_value_mapping(
-            assessment,
-            instrument_version_uid,
-            selection_record=selection_record,
-        )
-
-        if value_mapping:
-            statements.append(Statement(
-                self.get_statement(value_mapping),
-                value_mapping,
-            ))
-
-        return statements
-
     def get_value_mapping(
             self,
             assessment,
@@ -182,6 +147,18 @@ class MappingTable(object):
 
         return value_map
 
+    def get_port_data(
+            self,
+            assessment,
+            instrument_version_uid,
+            selection_record=None):
+
+        return self.get_value_mapping(
+            assessment,
+            instrument_version_uid,
+            selection_record=selection_record,
+        )
+
 
 class ChildTable(MappingTable):  # pylint: disable=abstract-method
     def __init__(self, name, parent):
@@ -214,13 +191,6 @@ class ChildTable(MappingTable):  # pylint: disable=abstract-method
             self._table_name = name
 
         return self._table_name
-
-    @property
-    def statement_skeleton(self):
-        return '/{{$PRIMARY_TABLE_ID :as {1}, %s}} :as {0}/:insert'.format(
-            self.table_name,
-            self.parent.table_name,
-        )
 
 
 class FacetTable(ChildTable):  # pylint: disable=abstract-method
@@ -452,17 +422,17 @@ class RecordListTable(BranchTable):
             elif rule == 'only' and field not in subfields:
                 del self.fields[field]
 
-    def get_statements_for_assessment(
+    def get_port_data(
             self,
             assessment,
             instrument_version_uid,
             selection_record=None):
 
-        statements = []
+        dataset = []
 
         if self.name not in assessment['values'] \
                 or not assessment['values'][self.name]['value']:
-            return statements
+            return dataset
 
         for record in assessment['values'][self.name]['value']:
             value_mapping = self.get_value_mapping(
@@ -471,12 +441,9 @@ class RecordListTable(BranchTable):
                 selection_record=selection_record,
             )
             if value_mapping:
-                statements.append(Statement(
-                    self.get_statement(value_mapping),
-                    value_mapping,
-                ))
+                dataset.append(value_mapping)
 
-        return statements
+        return dataset
 
 
 class PrimaryTable(MappingTable):
@@ -1027,35 +994,6 @@ class PrimaryTable(MappingTable):
         for child in self.children.itervalues():
             child.ensure_unique_fieldnames()
 
-    @property
-    def statement_skeleton(self):
-        return '/{{$assessment_uid :as assessment_uid,' \
-            ' $instrument_version_uid :as instrument_version_uid, %s}}' \
-            ' :as {0}/:insert'.format(
-                self.table_name,
-            )
-
-    def get_statements_for_assessment(
-            self,
-            assessment,
-            instrument_version_uid,
-            selection_record=None):
-
-        statements = super(PrimaryTable, self).get_statements_for_assessment(
-            assessment,
-            instrument_version_uid,
-            selection_record=selection_record,
-        )
-
-        for child in self.children.itervalues():
-            statements.extend(child.get_statements_for_assessment(
-                assessment,
-                instrument_version_uid,
-                selection_record=selection_record,
-            ))
-
-        return statements
-
     def get_calculation_statements(self):
         if not self.definition['post_load_calculations']:
             return []
@@ -1079,4 +1017,33 @@ class PrimaryTable(MappingTable):
         )
 
         return [statement]
+
+    def get_port_tree(self):
+        return {
+            'entity': self.table_name,
+            'with': [child.table_name for child in self.children.itervalues()],
+        }
+
+    def get_port_data(
+            self,
+            assessment,
+            instrument_version_uid,
+            selection_record=None):
+
+        data = super(PrimaryTable, self).get_port_data(
+            assessment,
+            instrument_version_uid,
+            selection_record=selection_record,
+        )
+
+        for child in self.children.itervalues():
+            child_data = child.get_port_data(
+                assessment,
+                instrument_version_uid,
+                selection_record=selection_record,
+            )
+            if child_data:
+                data[child.table_name] = child_data
+
+        return data
 

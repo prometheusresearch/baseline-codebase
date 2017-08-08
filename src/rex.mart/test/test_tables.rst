@@ -12,10 +12,6 @@ Set up the environment::
     >>> from rex.mart.tables import PrimaryTable
     >>> from pprint import pprint
 
-    >>> def pprint_statements(statements):
-    ...     for statement in statements:
-    ...         pprint(dict(statement._asdict()))
-
 
 RexDeploy Fact Generation
 =========================
@@ -1550,12 +1546,12 @@ Selector missing parental links::
 Data Loading
 ============
 
-HTSQL Statements
------------------
+Port Data
+---------
 
-Given an Assessment, the table mapping can generate the statements and
-associated parameters necessary to insert the data from the assessment into
-the tables created by deploy facts::
+Given an Assessment, the table mapping can generate a port and an associated
+dataset necessary to insert the data from the assessment into the tables
+created by deploy facts::
 
     >>> assessment = {
     ...     "instrument": {"id": "urn:alltypes","version": "1.0"},
@@ -1575,30 +1571,31 @@ the tables created by deploy facts::
     ...     'selector': "/assessment{uid :as assessment_uid}.filter(instrumentversion.instrument='mart1')",
     ... })
     >>> table = PrimaryTable(definition, get_management_db())
-    >>> pprint_statements(table.get_statements_for_assessment(assessment, 'alltypes1'))
-    {'htsql': u'/{$assessment_uid :as assessment_uid, $instrument_version_uid :as instrument_version_uid, $float_field :as float_field, $integer_field :as integer_field, $time_field :as time_field, $calc1 :as calc1, $calc2 :as calc2, $enumerationset_field_foo :as enumerationset_field_foo, $boolean_field :as boolean_field, $datetime_field :as datetime_field, $enumerationset_field_bar :as enumerationset_field_bar, $date_field :as date_field, $enumeration_field :as enumeration_field, $text_field :as text_field, $nullable_field :as nullable_field} :as alltypes/:insert',
-     'parameters': {u'boolean_field': True,
-                    u'calc1': 46,
-                    u'calc2': u'foo!',
-                    u'date_field': datetime.date(2010, 1, 1),
-                    u'datetime_field': datetime.datetime(2010, 1, 1, 12, 34, 56),
-                    u'enumeration_field': u'foo',
-                    u'enumerationset_field_bar': True,
-                    u'enumerationset_field_foo': True,
-                    u'float_field': 42.1,
-                    u'integer_field': 23,
-                    u'nullable_field': None,
-                    u'text_field': u'foo',
-                    u'time_field': datetime.time(12, 34, 56)}}
-    {'htsql': u'/{$PRIMARY_TABLE_ID :as alltypes, $subfield2 :as subfield2, $subfield1 :as subfield1} :as alltypes_recordlist_field/:insert',
-     'parameters': {u'subfield1': u'foo1', u'subfield2': u'bar1'}}
-    {'htsql': u'/{$PRIMARY_TABLE_ID :as alltypes, $subfield2 :as subfield2, $subfield1 :as subfield1} :as alltypes_recordlist_field/:insert',
-     'parameters': {u'subfield1': u'foo2', u'subfield2': u'bar2'}}
-    {'htsql': u'/{$PRIMARY_TABLE_ID :as alltypes, $row1_col2 :as row1_col2, $row1_col1 :as row1_col1, $row2_col2 :as row2_col2, $row2_col1 :as row2_col1} :as alltypes_matrix_field/:insert',
-     'parameters': {u'row1_col1': u'foo1',
-                    u'row1_col2': u'bar1',
-                    u'row2_col1': u'foo2',
-                    u'row2_col2': u'bar2'}}
+    >>> pprint(table.get_port_tree())
+    {'entity': u'alltypes',
+     'with': [u'alltypes_recordlist_field', u'alltypes_matrix_field']}
+    >>> pprint(table.get_port_data(assessment, 'alltypes1'))
+    {u'alltypes_matrix_field': {u'row1_col1': u'foo1',
+                                u'row1_col2': u'bar1',
+                                u'row2_col1': u'foo2',
+                                u'row2_col2': u'bar2'},
+     u'alltypes_recordlist_field': [{u'subfield1': u'foo1',
+                                     u'subfield2': u'bar1'},
+                                    {u'subfield1': u'foo2',
+                                     u'subfield2': u'bar2'}],
+     u'boolean_field': True,
+     u'calc1': 46,
+     u'calc2': u'foo!',
+     u'date_field': datetime.date(2010, 1, 1),
+     u'datetime_field': datetime.datetime(2010, 1, 1, 12, 34, 56),
+     u'enumeration_field': u'foo',
+     u'enumerationset_field_bar': True,
+     u'enumerationset_field_foo': True,
+     u'float_field': 42.1,
+     u'integer_field': 23,
+     u'nullable_field': None,
+     u'text_field': u'foo',
+     u'time_field': datetime.time(12, 34, 56)}
     >>> pprint(table.get_calculation_statements())
     []
 
@@ -1610,12 +1607,13 @@ the tables created by deploy facts::
     ...     'meta': ['application', 'dateCompleted'],
     ... })
     >>> table = PrimaryTable(definition, get_management_db())
-    >>> pprint_statements(table.get_statements_for_assessment(assessment, 'alltypes1'))
-    {'htsql': u'/{$assessment_uid :as assessment_uid, $instrument_version_uid :as instrument_version_uid, $float_field :as float_field, $meta_application :as meta_application, $integer_field :as integer_field, $meta_datecompleted :as meta_datecompleted} :as alltypes/:insert',
-     'parameters': {u'float_field': 42.1,
-                    u'integer_field': 23,
-                    u'meta_application': u'SomeApp/0.1',
-                    u'meta_datecompleted': datetime.datetime(2015, 2, 3, 12, 34, 56)}}
+    >>> pprint(table.get_port_tree())
+    {'entity': u'alltypes', 'with': []}
+    >>> pprint(table.get_port_data(assessment, 'alltypes1'))
+    {u'float_field': 42.1,
+     u'integer_field': 23,
+     u'meta_application': u'SomeApp/0.1',
+     u'meta_datecompleted': datetime.datetime(2015, 2, 3, 12, 34, 56)}
     >>> pprint(table.get_calculation_statements())
     []
 
@@ -1626,9 +1624,8 @@ the tables created by deploy facts::
     ...     'calculations': ['calc1'],
     ... })
     >>> table = PrimaryTable(definition, get_management_db())
-    >>> pprint_statements(table.get_statements_for_assessment(assessment, 'alltypes1'))
-    {'htsql': u'/{$assessment_uid :as assessment_uid, $instrument_version_uid :as instrument_version_uid, $calc1 :as calc1} :as alltypes/:insert',
-     'parameters': {u'calc1': 46}}
+    >>> pprint(table.get_port_data(assessment, 'alltypes1'))
+    {u'calc1': 46}
     >>> pprint(table.get_calculation_statements())
     []
 
@@ -1642,12 +1639,8 @@ the tables created by deploy facts::
     ...     ],
     ... })
     >>> table = PrimaryTable(definition, get_management_db())
-    >>> pprint_statements(table.get_statements_for_assessment(assessment, 'alltypes1'))
-    {'htsql': u'/{$assessment_uid :as assessment_uid, $instrument_version_uid :as instrument_version_uid, $float_field :as float_field, $calc1 :as calc1, $calc2 :as calc2, $integer_field :as integer_field} :as alltypes/:insert',
-     'parameters': {u'calc1': 46,
-                    u'calc2': u'foo!',
-                    u'float_field': 42.1,
-                    u'integer_field': 23}}
+    >>> pprint(table.get_port_data(assessment, 'alltypes1'))
+    {u'calc1': 46, u'calc2': u'foo!', u'float_field': 42.1, u'integer_field': 23}
     >>> pprint(table.get_calculation_statements())
     [u'/alltypes.define($postcalc1 := upper(assessment_uid), $postcalc2 := upper(assessment_uid)){id(), $postcalc1 :as postcalc1, $postcalc2 :as postcalc2}/:update']
 

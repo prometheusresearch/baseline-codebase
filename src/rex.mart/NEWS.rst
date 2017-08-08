@@ -5,6 +5,12 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
+0.8.0 (2017-xx-xx)
+==================
+
+* Improved the speed of loading Assessment data into the tables.
+
+
 0.7.1 (2017-07-20)
 ==================
 

@@ -23,6 +23,7 @@ let SidebarRoot = style(VBox, {
     width: 250,
     boxShadow: '0px 0px 1px 2px #E2E2E2',
     padding: css.padding(10, 0),
+    overflow: 'auto',
   },
   collapsed: {
     width: 'auto',

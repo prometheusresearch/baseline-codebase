@@ -4,6 +4,13 @@
 
 .. contents:: Table of Contents
 
+1.6.3 (2017-08-XX)
+==================
+
+* [FIX] Action layout in Safari
+
+* [FIX] Scrollable actions sidebar
+
 1.6.2 (2017-08-02)
 ==================
 

@@ -1,6 +1,9 @@
 /**
  * @copyright 2017, Prometheus Research, LLC
+ * @flow
  */
+
+import * as Types from './types';
 
 import React from 'react';
 
@@ -8,31 +11,42 @@ import {LoadingIndicator} from 'rex-query/src/ui';
 
 import DataGrid from './DataGrid';
 
+type HtsqlDataGridProps = {
+  onHeaderClick: (number, boolean) => *,
+  rowGetter: (limit?: number, offset?: number) => Promise<Response>,
+  sortState: Types.SortState,
+};
+
+type HtsqlDataGridState = {
+  loading: boolean,
+  columns: Array<mixed>,
+  data: Array<mixed>,
+};
 
 export default class HtsqlDataGrid extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      loading: true,
-      columns: [],
-      data: [],
-    };
-  }
+  props: HtsqlDataGridProps;
 
-  onHeaderClick(columnIndex, event) {
+  state: HtsqlDataGridState = {
+    loading: true,
+    columns: [],
+    data: [],
+  };
+
+  onHeaderClick(columnIndex: number, event: MouseEvent) {
     if (this.props.onHeaderClick) {
       this.props.onHeaderClick(columnIndex, event.shiftKey);
     }
   }
 
   componentWillMount() {
-    this.props.rowGetter()
-      .then((response) => {
+    this.props
+      .rowGetter()
+      .then(response => {
         return response.json();
       })
-      .then((data) => {
+      .then(data => {
         let columns = data.meta.domain.item.domain.fields.map((field, idx) => {
-          let sort = this.props.sortState.filter((sort) => sort.id === idx);
+          let sort = this.props.sortState.filter(sort => sort.id === idx);
           return {
             title: field.header,
             type: field.domain.type,
@@ -62,13 +76,7 @@ export default class HtsqlDataGrid extends React.Component {
         </div>
       );
     } else {
-      return (
-        <DataGrid
-          columns={this.state.columns}
-          rows={this.state.data}
-          />
-      );
+      return <DataGrid columns={this.state.columns} rows={this.state.data} />;
     }
   }
 }
-

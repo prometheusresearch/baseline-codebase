@@ -11,7 +11,6 @@ import {HBox, VBox, css} from 'react-stylesheet';
 import Filter from './Filter';
 import DateInput from './DateInput';
 
-
 export default class DateTimeBasedFilter extends React.Component {
   constructor(props) {
     super(props);
@@ -21,7 +20,7 @@ export default class DateTimeBasedFilter extends React.Component {
       max: null,
       errors: [],
     };
-    props.filterState.forEach((flt) => {
+    props.filterState.forEach(flt => {
       if (flt.op === '>=') {
         this.state.min = moment(flt.value, this.props.paramsFormat).format('x');
       } else if (flt.op === '<=') {
@@ -29,7 +28,7 @@ export default class DateTimeBasedFilter extends React.Component {
       }
     });
 
-    this._onChange = debounce((value) => {
+    this._onChange = debounce(value => {
       let params = [];
 
       if (this.state.min != null) {
@@ -60,11 +59,11 @@ export default class DateTimeBasedFilter extends React.Component {
       this.setState(
         {
           [field]: value,
-          errors: this.state.errors.filter((err) => err !== field),
+          errors: this.state.errors.filter(err => err !== field),
         },
         () => {
           this._onChange();
-        }
+        },
       );
     }
   }
@@ -98,7 +97,7 @@ export default class DateTimeBasedFilter extends React.Component {
               mode={mode}
               dateTime={min}
               onChange={this.onChange.bind(this, 'min')}
-              />
+            />
           </div>
           <div style={maxStyle}>
             <DateInput
@@ -108,11 +107,10 @@ export default class DateTimeBasedFilter extends React.Component {
               mode={mode}
               dateTime={max}
               onChange={this.onChange.bind(this, 'max')}
-              />
+            />
           </div>
         </Container>
       </Filter>
     );
   }
 }
-

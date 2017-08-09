@@ -21,14 +21,13 @@ export {
 };
 
 export const FILTER_MAP = {
-  'text': TextFilter,
-  'enum': EnumFilter,
-  'integer': NumericFilter,
-  'float': NumericFilter,
-  'decimal': NumericFilter,
-  'boolean': BooleanFilter,
-  'date': DateFilter,
-  'time': TimeFilter,
-  'datetime': DateTimeFilter,
+  text: TextFilter,
+  enum: EnumFilter,
+  integer: NumericFilter,
+  float: NumericFilter,
+  decimal: NumericFilter,
+  boolean: BooleanFilter,
+  date: DateFilter,
+  time: TimeFilter,
+  datetime: DateTimeFilter,
 };
-

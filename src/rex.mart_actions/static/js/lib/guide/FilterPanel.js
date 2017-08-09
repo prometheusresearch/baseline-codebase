@@ -10,7 +10,6 @@ import {VBox} from 'react-stylesheet';
 import ScrollablePanel from './ScrollablePanel';
 import {FILTER_MAP} from './filters';
 
-
 export default class FilterPanel extends React.Component {
   constructor(props) {
     super(props);
@@ -19,26 +18,22 @@ export default class FilterPanel extends React.Component {
     props.filters.forEach((col, idx) => {
       this.state[idx] = [];
     });
-    props.filterState.forEach((flt) => {
+    props.filterState.forEach(flt => {
       this.state[flt.id].push(flt);
     });
   }
 
   onFilterUpdate(filter, params) {
-    this.setState(
-      {[filter]: params},
-      () => {
-        let filterState = [];
-        this.props.filters.forEach((filter, idx) => {
-          let param = this.state[idx];
-          if (param && (param.length >= 1)) {
-            Array.prototype.push.apply(filterState, param);
-          }
-        });
-        this.props.onUpdate(filterState);
-      }
-    );
-
+    this.setState({[filter]: params}, () => {
+      let filterState = [];
+      this.props.filters.forEach((filter, idx) => {
+        let param = this.state[idx];
+        if (param && param.length >= 1) {
+          Array.prototype.push.apply(filterState, param);
+        }
+      });
+      this.props.onUpdate(filterState);
+    });
   }
 
   render() {
@@ -57,9 +52,8 @@ export default class FilterPanel extends React.Component {
                 config={filter}
                 filterState={this.state[idx]}
                 onUpdate={this.onFilterUpdate.bind(this, idx)}
-                />
+              />
             );
-
           } else {
             return (
               <VBox
@@ -72,12 +66,9 @@ export default class FilterPanel extends React.Component {
                 </ReactUI.ErrorText>
               </VBox>
             );
-
           }
-
         })}
       </ScrollablePanel>
     );
   }
 }
-

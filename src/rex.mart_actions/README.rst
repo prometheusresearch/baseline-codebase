@@ -252,6 +252,42 @@ RexGuide (aka, Guided Queries)
                  ``xls``, ``xlsx``). If not specified, defaults to all
                  available exporters.
 
+                 **charts**: A list of preconfigued charts.
+
+                 The following types are supported:
+
+                 - ``pie`` chart with the following parameters:
+
+                   ``label``: An HTSQL expression for the chart label
+                   ``value``: An HTSQL expression for the chart value
+
+                 - ``line`` chart with the following parameters:
+
+                   ``label``: An HTSQL expression for the chart label
+                   ``lines``: A list of lines:
+                     ``value``: An HTSQL expression for the chart line
+
+                 - ``bar`` chart with the following parameters:
+
+                   ``label``: An HTSQL expression for the chart label
+                   ``bars``: A list of bars:
+                     ``value``: An HTSQL expression for the chart bar
+
+                 - ``area`` chart with the following parameters:
+
+                   ``label``: An HTSQL expression for the chart label
+                   ``areas``: A list of arreas:
+                     ``value``: An HTSQL expression for the chart area
+
+                 - ``scatter`` chart with the following parameters:
+
+                   ``x``: An HTSQL expression for the X axis
+                   ``y``: An HTSQL expression for the Y axis
+
+                 **allow_adhoc_charts**: If set to ``true`` then users of a
+                 guide could configure their own ad-hoc charts (note that charts
+                 are not being persisted)
+
                  **preview_record_limit**: The maximum number of records to
                  show in the Preview pane. If not specified, no limit is
                  applied.

@@ -10,7 +10,6 @@ import debounce from 'lodash/debounce';
 
 import ScrollablePanel from './ScrollablePanel';
 
-
 class ColumnCheckbox extends ReactUI.Checkbox {
   static stylesheet = {
     ...ReactUI.Checkbox.stylesheet,
@@ -18,11 +17,10 @@ class ColumnCheckbox extends ReactUI.Checkbox {
       base: {
         cursor: 'pointer',
         maxWidth: '90%',
-      }
-    })
+      },
+    }),
   };
 }
-
 
 export default class ColumnPanel extends React.Component {
   constructor(props) {
@@ -40,9 +38,11 @@ export default class ColumnPanel extends React.Component {
     }
 
     this._onUpdate = debounce(() => {
-      this.props.onUpdate(this.props.columns.map((col, idx) => {
-        return this.state[idx];
-      }));
+      this.props.onUpdate(
+        this.props.columns.map((col, idx) => {
+          return this.state[idx];
+        }),
+      );
     }, 750);
   }
 
@@ -51,7 +51,7 @@ export default class ColumnPanel extends React.Component {
 
     // Don't let them deselect everything.
     if (!newStatus) {
-      let cnt = Object.keys(this.state).filter((idx) => {
+      let cnt = Object.keys(this.state).filter(idx => {
         return this.state[idx];
       }).length;
       if (cnt <= 1) {
@@ -59,10 +59,7 @@ export default class ColumnPanel extends React.Component {
       }
     }
 
-    this.setState(
-      {[column]: newStatus},
-      this._onUpdate,
-    );
+    this.setState({[column]: newStatus}, this._onUpdate);
   }
 
   render() {
@@ -79,10 +76,7 @@ export default class ColumnPanel extends React.Component {
               }}
               onClick={this.onColumnToggle.bind(this, idx)}
               key={idx}>
-              <ColumnCheckbox
-                value={this.state[idx]}
-                label={col.title}
-                />
+              <ColumnCheckbox value={this.state[idx]} label={col.title} />
             </div>
           );
         })}
@@ -90,4 +84,3 @@ export default class ColumnPanel extends React.Component {
     );
   }
 }
-

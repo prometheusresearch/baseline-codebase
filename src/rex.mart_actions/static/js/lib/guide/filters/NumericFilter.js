@@ -12,7 +12,6 @@ import {HBox} from 'react-stylesheet';
 import Filter from './Filter';
 import Input from './Input';
 
-
 export default class NumericFilter extends React.Component {
   constructor(props) {
     super(props);
@@ -22,7 +21,7 @@ export default class NumericFilter extends React.Component {
       max: null,
       errors: [],
     };
-    props.filterState.forEach((flt) => {
+    props.filterState.forEach(flt => {
       if (flt.op === '>=') {
         this.state.min = flt.value;
       } else if (flt.op === '<=') {
@@ -69,11 +68,11 @@ export default class NumericFilter extends React.Component {
     this.setState(
       {
         [field]: value,
-        errors: this.state.errors.filter((err) => err !== field),
+        errors: this.state.errors.filter(err => err !== field),
       },
       () => {
         this._onChange();
-      }
+      },
     );
   }
 
@@ -95,7 +94,7 @@ export default class NumericFilter extends React.Component {
             style={{
               marginRight: 5,
             }}
-            />
+          />
           <Input
             placeholder="Max"
             value={max}
@@ -104,10 +103,9 @@ export default class NumericFilter extends React.Component {
             style={{
               marginLeft: 5,
             }}
-            />
+          />
         </HBox>
       </Filter>
     );
   }
 }
-

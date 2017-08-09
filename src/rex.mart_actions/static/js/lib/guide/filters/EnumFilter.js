@@ -9,7 +9,6 @@ import * as ReactUI from '@prometheusresearch/react-ui';
 
 import Filter from './Filter';
 
-
 export default class EnumFilter extends React.Component {
   constructor(props) {
     super(props);
@@ -21,11 +20,10 @@ export default class EnumFilter extends React.Component {
       this.state.value = props.filterState[0].value;
     }
 
-
-    this._onChange = debounce((value) => {
+    this._onChange = debounce(value => {
       let params = [];
 
-      if (value && (value.length >= 1)) {
+      if (value && value.length >= 1) {
         params.push({
           id: this.props.id,
           value: value,
@@ -45,7 +43,7 @@ export default class EnumFilter extends React.Component {
     let {config} = this.props;
     let {value} = this.state;
 
-    let options = config.enumerations.slice().sort().map((e) => {
+    let options = config.enumerations.slice().sort().map(e => {
       return {label: e, value: e};
     });
 
@@ -59,10 +57,9 @@ export default class EnumFilter extends React.Component {
             value={value}
             options={options}
             onChange={this.onChange.bind(this)}
-            />
+          />
         </div>
       </Filter>
     );
   }
 }
-

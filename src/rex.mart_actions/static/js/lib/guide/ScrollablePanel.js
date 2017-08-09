@@ -1,16 +1,18 @@
 /**
  * @copyright 2017, Prometheus Research, LLC
+ * @flow
  */
 
 import React from 'react';
 
 import {VBox} from 'react-stylesheet';
 
-
 export default class ScrollablePanel extends React.Component {
-  render() {
-    let {text} = this.props;
+  props: {
+    children: React.Element<*>,
+  };
 
+  render() {
     return (
       <VBox
         style={{
@@ -24,4 +26,3 @@ export default class ScrollablePanel extends React.Component {
     );
   }
 }
-

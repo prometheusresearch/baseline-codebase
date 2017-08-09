@@ -145,6 +145,28 @@ actions:
     definition: world
     table: country
 
+    charts:
+
+    - type: bar
+      title: Population chart
+      label: name
+      bars:
+      - value:
+          title: Population
+          expression: population
+        color: red
+
+    - type: scatter
+      title: Surface Area / Population
+      x:
+        title: Population
+        expression: population
+      y:
+        title: Surface Area
+        expression: surface_area
+
+    allow_adhoc_charts: true
+
   #
   # Guide: Country
   #
@@ -176,3 +198,4 @@ actions:
       - csv
       - xlsx
 
+    allow_adhoc_charts: true

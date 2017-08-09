@@ -1,6 +1,9 @@
 /**
  * @copyright 2017, Prometheus Research, LLC
+ * @flow
  */
+
+import * as Types from './types';
 
 import React from 'react';
 
@@ -10,37 +13,39 @@ import download from 'downloadjs';
 
 import ScrollablePanel from './ScrollablePanel';
 
+export type DownloadPanelProps = {
+  exporters: Array<Types.Exporter>,
+  retriever: (string, limit?: number, offset?: number) => Promise<Response>,
+};
+
+type DownloadPanelState = {
+  downloading: boolean,
+};
 
 export default class DownloadPanel extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      downloading: false,
-    };
-  }
+  state: DownloadPanelState = {downloading: false};
+  props: DownloadPanelProps;
 
-  onDownload(exporter) {
-    let exp = this.props.exporters.filter((e) => e.name === exporter)[0];
+  onDownload(exporter: string) {
+    let exp = this.props.exporters.filter(e => e.name === exporter)[0];
 
-    this.setState(
-      {downloading: true},
-      () => {
-        this.props.retriever(exp.mime_type)
-          .then((response) => {
-            return response.blob();
-          })
-          .then((blob) => {
-            download(blob, 'data.' + exp.name, exp.mime_type);
-          })
-          .then(() => {
-            this.setState({downloading: false});
-          })
-          .catch((err) => {
-            this.setState({downloading: false});
-            throw err;
-          });
-      },
-    );
+    this.setState({downloading: true}, () => {
+      this.props
+        .retriever(exp.mime_type)
+        .then(response => {
+          return response.blob();
+        })
+        .then(blob => {
+          download(blob, 'data.' + exp.name, exp.mime_type);
+        })
+        .then(() => {
+          this.setState({downloading: false});
+        })
+        .catch(err => {
+          this.setState({downloading: false});
+          throw err;
+        });
+    });
   }
 
   render() {
@@ -76,4 +81,3 @@ export default class DownloadPanel extends React.Component {
     );
   }
 }
-

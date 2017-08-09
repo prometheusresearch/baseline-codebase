@@ -6,7 +6,6 @@ import React from 'react';
 
 import ScrollablePanel from './ScrollablePanel';
 
-
 export default class HelpPanel extends React.Component {
   render() {
     let {text} = this.props;
@@ -18,4 +17,3 @@ export default class HelpPanel extends React.Component {
     );
   }
 }
-

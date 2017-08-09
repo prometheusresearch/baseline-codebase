@@ -3,14 +3,13 @@
  */
 
 import React from 'react';
+import * as ReactUI from '@prometheusresearch/react-ui';
 
 import {autobind} from 'rex-widget/lang';
-import {TabContainer} from 'rex-query/src/ui';
 
 import ColumnPanel from './ColumnPanel';
 import FilterPanel from './FilterPanel';
 import HelpPanel from './HelpPanel';
-
 
 export default class ControlPanel extends React.Component {
   constructor() {
@@ -24,28 +23,16 @@ export default class ControlPanel extends React.Component {
 
   @autobind
   onColumnUpdate(columnState) {
-    this.setState(
-      {columnState},
-      () => {
-        this.props.onUpdate(
-          this.state.columnState,
-          this.state.filterState,
-        );
-      }
-    );
+    this.setState({columnState}, () => {
+      this.props.onUpdate(this.state.columnState, this.state.filterState);
+    });
   }
 
   @autobind
   onFilterUpdate(filterState) {
-    this.setState(
-      {filterState},
-      () => {
-        this.props.onUpdate(
-          this.state.columnState,
-          this.state.filterState,
-        );
-      }
-    );
+    this.setState({filterState}, () => {
+      this.props.onUpdate(this.state.columnState, this.state.filterState);
+    });
   }
 
   render() {
@@ -61,12 +48,12 @@ export default class ControlPanel extends React.Component {
             columns={columns}
             columnState={columnState}
             onUpdate={this.onColumnUpdate}
-            />
+          />
         ),
       },
     ];
 
-    if (filters && (filters.length > 0)) {
+    if (filters && filters.length > 0) {
       tabs.push({
         id: 'filters',
         label: 'Filters',
@@ -75,7 +62,7 @@ export default class ControlPanel extends React.Component {
             filters={filters}
             filterState={filterState}
             onUpdate={this.onFilterUpdate}
-            />
+          />
         ),
       });
     }
@@ -84,22 +71,18 @@ export default class ControlPanel extends React.Component {
       tabs.push({
         id: 'help',
         label: 'Help',
-        children: (
-          <HelpPanel
-            text={help}
-            />
-        ),
+        children: <HelpPanel text={help} />,
       });
     }
 
     return (
-      <TabContainer
+      <ReactUI.TabContainer
         activeTab={activeTab}
-        onActiveTab={(activeTab) => {this.setState({activeTab})}}
+        onActiveTab={activeTab => {
+          this.setState({activeTab});
+        }}
         tabList={tabs}
-        tabListAlt={[]}
-        />
+      />
     );
   }
 }
-

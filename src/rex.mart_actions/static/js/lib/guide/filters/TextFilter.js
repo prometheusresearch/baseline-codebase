@@ -8,7 +8,6 @@ import debounce from 'lodash/debounce';
 import Filter from './Filter';
 import Input from './Input';
 
-
 export default class TextFilter extends React.Component {
   constructor(props) {
     super(props);
@@ -20,14 +19,16 @@ export default class TextFilter extends React.Component {
       this.state.value = props.filterState[0].value;
     }
 
-    this._onChange = debounce((value) => {
+    this._onChange = debounce(value => {
       let params = [];
 
       if (value) {
-        params = [{
-          id: this.props.id,
-          value: value,
-        }];
+        params = [
+          {
+            id: this.props.id,
+            value: value,
+          },
+        ];
       }
 
       this.props.onUpdate(params);
@@ -52,10 +53,9 @@ export default class TextFilter extends React.Component {
             placeholder="Matches"
             value={this.state.value}
             onChange={this.onChange.bind(this)}
-            />
+          />
         </div>
       </Filter>
     );
   }
 }
-

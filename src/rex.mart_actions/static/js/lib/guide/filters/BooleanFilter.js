@@ -9,7 +9,6 @@ import * as ReactUI from '@prometheusresearch/react-ui';
 
 import Filter from './Filter';
 
-
 export default class BooleanFilter extends React.Component {
   constructor(props) {
     super(props);
@@ -21,14 +20,16 @@ export default class BooleanFilter extends React.Component {
       this.state.value = String(props.filterState[0].value);
     }
 
-    this._onChange = debounce((value) => {
+    this._onChange = debounce(value => {
       let params = [];
 
       if (value != null) {
-        params = [{
-          id: this.props.id,
-          value: value === 'true',
-        }];
+        params = [
+          {
+            id: this.props.id,
+            value: value === 'true',
+          },
+        ];
       }
 
       this.props.onUpdate(params);
@@ -44,10 +45,7 @@ export default class BooleanFilter extends React.Component {
     let {config} = this.props;
     let {value} = this.state;
 
-    let options = [
-      {label: 'True', value: 'true'},
-      {label: 'False', value: 'false'},
-    ];
+    let options = [{label: 'True', value: 'true'}, {label: 'False', value: 'false'}];
 
     return (
       <Filter title={config.title}>
@@ -60,11 +58,9 @@ export default class BooleanFilter extends React.Component {
             options={options}
             allowNoValue
             onChange={this.onChange.bind(this)}
-            />
+          />
         </div>
       </Filter>
     );
   }
 }
-
-

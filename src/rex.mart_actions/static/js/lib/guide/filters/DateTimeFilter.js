@@ -6,7 +6,6 @@ import React from 'react';
 
 import DateTimeBasedFilter from './DateTimeBasedFilter';
 
-
 export default class DateTimeFilter extends React.Component {
   render() {
     return (
@@ -16,8 +15,7 @@ export default class DateTimeFilter extends React.Component {
         displayFormat="M/D/YYYY h:mm:ss a"
         mode="datetime"
         layout="vertical"
-        />
+      />
     );
   }
 }
-

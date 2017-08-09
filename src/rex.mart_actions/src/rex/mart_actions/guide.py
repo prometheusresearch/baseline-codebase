@@ -3,6 +3,9 @@
 #
 
 from collections import OrderedDict
+import json
+import yaml
+import threading
 
 from cachetools import LRUCache
 from webob import Response
@@ -13,16 +16,17 @@ from htsql.core.fmt.accept import accept
 from htsql.core.fmt.emit import emit, emit_headers
 from htsql.core.syn.syntax import Syntax
 from rex.action import typing
-from rex.core import RecordVal, UStrVal, BoolVal, UnionVal, SeqVal, AnyVal, \
-    Error, ChoiceVal, IntVal, Extension, get_rex, get_settings, MaybeVal
-from rex.db import SyntaxVal
+from rex.core import Extension, Validate, Error, get_rex, get_settings, \
+    MaybeVal, RecordVal, UStrVal, BoolVal, UnionVal, OneOfVal, SeqVal, AnyVal, ChoiceVal, IntVal
+from rex.db import SyntaxVal, Query
 from rex.widget import Field, responder, RequestURL, as_transitionable, \
     RSTVal
 
 from .filter import MartFilteredAction
 from .tool import MartTool
 from .base import MART_TYPE
-
+from .validate import RefinedVal, OnFieldValue
+from .charting import ChartVal
 
 __all__ = (
     'GuideMartTool',
@@ -186,9 +190,12 @@ class GuideConfiguration(object):
             table_name,
             field_config=None,
             filter_config=None,
-            mask_config=None):
+            mask_config=None,
+            charts=None):
+        self.database = database
         self.table_name = table_name
         self.mask_config = mask_config or []
+        self.charts = charts or []
 
         self.field_config = field_config
         if not self.field_config:
@@ -208,29 +215,58 @@ class GuideConfiguration(object):
             ]
         self._filter_specs = self._generate_filter_specs(database)
 
-    def get_field_specs(self, frontend=False):
-        if frontend:
-            return [
-                dict([
-                    (key, val)
-                    for key, val in spec.items()
-                    if key not in ('expression', '_type')
-                ])
-                for spec in self._field_specs
-            ]
-        return self._field_specs
+    def get_field_specs(self):
 
-    def get_filter_specs(self, frontend=False):
-        if frontend:
-            return [
-                dict([
-                    (key, val)
-                    for key, val in spec.items()
-                    if key != 'expression'
-                ])
-                for spec in self._filter_specs
-            ]
-        return self._filter_specs
+        with self.database:
+            # Select all fields
+            selected_fields = [idx for idx, _ in enumerate(self._field_specs)]
+            # We generate a query and ask only for meta, that way we can get the
+            # types of HTSQL expressions.
+            query = self.get_htsql(selected_fields=selected_fields) + '/:describe'
+            product = produce(query)
+            # The assumption is that query results in a list of records, we need
+            # those records.
+            fields = product.meta.domain.item_domain.fields
+
+        specs = []
+        for idx, spec in enumerate(self._field_specs):
+            field = fields[idx]
+            specs.append({
+                'title': spec['title'],
+                'selected': spec['selected'],
+                'type': unicode(field.domain.__class__),
+            })
+        return specs
+
+    def get_filter_specs(self):
+        return [
+            dict([
+                (key, val)
+                for key, val in spec.items()
+                if key != 'expression'
+            ])
+            for spec in self._filter_specs
+        ]
+
+    def get_chart_htsql(self, index):
+        chart = self.charts[index]
+
+        fields = []
+        for expr in chart.expressions():
+            fields.append('%s := %s' % (expr.key, expr.expression))
+
+        filters = []
+        for mask in self.mask_config:
+            filters.append(u'.filter(%s)' % (unicode(mask),))
+
+        query = '/%s{%s}%s' % (
+            self.table_name,
+            ', '.join(fields),
+            ''.join(filters),
+        )
+        print query
+
+        return Query(query, db=self.database)
 
     def get_htsql(
             self,
@@ -455,6 +491,7 @@ class GuideConfiguration(object):
 
 
 class GuideMartAction(MartFilteredAction):
+
     name = 'mart-guide'
     js_type = 'rex-mart-actions', 'Guide'
     tool = 'guide'
@@ -490,6 +527,23 @@ class GuideMartAction(MartFilteredAction):
         ' available.',
     )
 
+    charts = Field(
+        SeqVal(ChartVal),
+        default=[],
+        doc='Preconfigured charts',
+        as_transitionable=lambda self, charts: [{
+            'title': c.config.title,
+            'type': c.config.type,
+            'element': c.render(),
+        } for c in charts]
+    )
+
+    allow_adhoc_charts = Field(
+        BoolVal(),
+        default=False,
+        doc='Allow configuring ad-hoc charts',
+    )
+
     text = Field(
         RSTVal(),
         default=None,
@@ -518,13 +572,13 @@ class GuideMartAction(MartFilteredAction):
                 maxsize=get_settings().mart_htsql_cache_depth,
             )
         for key in rex.mart_guide_cfg.keys():
-            if key.startswith(self.id + '|'):
+            if key.startswith('%s|' % id(self)):
                 del rex.mart_guide_cfg[key]
 
     # TODO: locks?
     def get_config(self, mart):
         rex = get_rex()
-        key = '%s|%s' % (self.id, mart.name)
+        key = '%s|%s' % (id(self), mart.name)
         if key not in rex.mart_guide_cfg:
             rex.mart_guide_cfg[key] = GuideConfiguration(
                 mart.get_htsql(),
@@ -532,6 +586,7 @@ class GuideMartAction(MartFilteredAction):
                 field_config=self.fields,
                 filter_config=self.filters,
                 mask_config=self.masks,
+                charts=self.charts,
             )
         return rex.mart_guide_cfg[key]
 
@@ -540,9 +595,17 @@ class GuideMartAction(MartFilteredAction):
         mart = self.get_mart(request)
         cfg = self.get_config(mart)
         return Response(json={
-            'fields': cfg.get_field_specs(frontend=True),
-            'filters': cfg.get_filter_specs(frontend=True),
+            'fields': cfg.get_field_specs(),
+            'filters': cfg.get_filter_specs(),
         })
+
+    @responder(url_type=RequestURL)
+    def guide_chart_results(self, request):
+        index = IntVal()(request.GET.get('index'))
+        mart = self.get_mart(request)
+        cfg = self.get_config(mart)
+        query = cfg.get_chart_htsql(index)
+        return query(request)
 
     @responder(url_type=RequestURL)
     def guide_results(self, request):
@@ -637,4 +700,3 @@ class XlsxGuideExporter(GuideExporter):
     title = 'Microsoft Excel 2007+ (XLSX)'
     mime_type = \
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-

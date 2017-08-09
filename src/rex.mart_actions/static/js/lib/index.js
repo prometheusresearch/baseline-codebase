@@ -21,3 +21,10 @@ export {Guide} from './guide';
 
 export QueryBuilder from './QueryBuilder';
 
+export {
+  PieChart,
+  LineChart,
+  AreaChart,
+  BarChart,
+  ScatterChart,
+} from './guide/ConfiguredChart';

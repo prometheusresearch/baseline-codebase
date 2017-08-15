@@ -29,12 +29,10 @@ export default class DynamicPageContent extends React.Component {
   }
 
   componentWillReceiveProps({location}) {
-    if (location.href !== this.props.location.href) {
-      this.setState({updating: true});
-      fetch(location.href, {}, {useTransit: true}).then(
-        this.onPageFetched.bind(null, location.href),
-        this.onPageError);
-    }
+    this.setState({updating: true});
+    fetch(location.href, {}, {useTransit: true}).then(
+      this.onPageFetched.bind(null, location.href),
+      this.onPageError);
   }
 
   onPageFetched = (href, page) => {

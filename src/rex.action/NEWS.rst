@@ -4,7 +4,7 @@
 
 .. contents:: Table of Contents
 
-1.6.3 (2017-08-XX)
+1.6.3 (2017-08-17)
 ==================
 
 * [FIX] Action layout in Safari

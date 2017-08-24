@@ -1,5 +1,6 @@
 from rex.core import Error
 from rex.instrument.util import get_implementation
+from rex.instrument.interface import CalculationSet, ResultSet, Assessment
 
 from .import_package import ImportPackage, ImportChunk
 from .instrument import Instrument
@@ -19,7 +20,7 @@ def import_assessment(instrument_uid, version=None, input=None, verbose=False):
         raise Error("input is expected as an object of ImportPackage.")
     if not input.chunks:
         raise Error("No data to import.")
-    assessment_impl = get_implementation('assessment')
+    assessment_impl = Assessment.get_implementation()
     if verbose: print "Looking for instrument..."
     instrument = Instrument.find(instrument_uid, version)
     if verbose: print "Generating instrument template..."
@@ -30,7 +31,7 @@ def import_assessment(instrument_uid, version=None, input=None, verbose=False):
         if verbose: print "Processing chunk `%s`..." % chunk.id
         template = template_collection[chunk.id]
         if not template:
-            msg = ("Chunk `%s` not found in istrument `%s` template."
+            msg = ("Chunk `%s` not found in instrument `%s` template."
                    % (chunk.id, instrument.id))
             chunk.fail(msg)
             raise Error(msg)
@@ -56,6 +57,26 @@ def import_assessment(instrument_uid, version=None, input=None, verbose=False):
         for chunk in input.chunks:
             chunk.fail(exc)
         raise exc
+
+    calculationset_impl = CalculationSet.get_implementation()
+    resultset_impl = ResultSet.get_implementation()
+    calculationset = calculationset_impl.find(
+        instrument_version=instrument.id,
+        limit=1
+    )
+    if calculationset:
+        if verbose: print "Running calculations..."
+        for assessment in assessments:
+            proper_assessment = assessment_impl.create(
+                assessment.subject,
+                instrument_version=instrument.id,
+                data=assessment.data,
+                evaluation_date=assessment.date)
+            proper_assessment.status = 'completed'
+            results = calculationset[0].execute(assessment=proper_assessment)
+            proper_assessment.set_meta('calculations', results)
+            resultset_impl.create(proper_assessment, results)
+            proper_assessment.save()
 
 
 def export_template(instrument_uid, version=None, verbose=False, user=None):

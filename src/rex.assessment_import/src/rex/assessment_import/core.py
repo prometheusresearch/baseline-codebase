@@ -1,7 +1,6 @@
 from rex.core import Error
 from rex.instrument.util import get_implementation
-from rex.instrument.interface import CalculationSet, ResultSet, Assessment
-
+from rex.instrument.interface import CalculationSet, ResultSet, Assessment, InstrumentVersion, Subject
 from .import_package import ImportPackage, ImportChunk
 from .instrument import Instrument
 from .template import Template
@@ -58,6 +57,8 @@ def import_assessment(instrument_uid, version=None, input=None, verbose=False):
             chunk.fail(exc)
         raise exc
 
+    instrument_version_impl = InstrumentVersion.get_implementation()
+    subject_impl = Subject.get_implementation()
     calculationset_impl = CalculationSet.get_implementation()
     resultset_impl = ResultSet.get_implementation()
     calculationset = calculationset_impl.find(
@@ -66,10 +67,19 @@ def import_assessment(instrument_uid, version=None, input=None, verbose=False):
     )
     if calculationset:
         if verbose: print "Running calculations..."
+        if version is not None:
+            instrument_version = instrument_version_impl.find(
+                limit=1,
+                instrument=instrument_uid,
+                version=version
+            )[0]
+        else:
+            instrument_version = instrument.latest_version()
         for assessment in assessments:
+            subject = subject_impl.get_by_uid(assessment.subject)
             proper_assessment = assessment_impl.create(
-                assessment.subject,
-                instrument_version=instrument.id,
+                subject,
+                instrument_version=instrument_version,
                 data=assessment.data,
                 evaluation_date=assessment.date)
             proper_assessment.status = 'completed'

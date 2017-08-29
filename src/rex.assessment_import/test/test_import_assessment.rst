@@ -96,7 +96,7 @@ where <username> is user given as function parameter or 'unknown'.
 Import data contains extra file eeg-upload2.csv that does not match to
 instrument template::
 
-  >>> import_assessment(instrument_uid='eeg-upload', version=1, input=input)
+  >>> import_assessment(instrument_uid='eeg-upload', version=1, input=input) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
   Error: Chunk `eeg-upload2` not found in istrument `eeg-upload1` template.

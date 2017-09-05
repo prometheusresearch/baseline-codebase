@@ -1,13 +1,34 @@
 /**
  * @copyright 2015, Prometheus Research, LLC
+ * @flow
  */
 
 import * as React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import {withFormValue} from 'react-forms';
+
+import * as Theme from '../Theme';
+import choose from '../choose';
 import Input from './Input';
 import ErrorList from './ErrorList';
 import {RequiredSign, Hint} from './ui';
+
+type Props = {
+  label?: string,
+  hint?: string,
+  children: any,
+  layout: 'horizontal' | 'vertical',
+  onChange: Function,
+  labelSize: number,
+  inputSize: number,
+  serialize: Function,
+  deserialize: Function,
+  formValue: any,
+};
+
+type State = {
+  dirty: boolean,
+};
 
 /**
  * Field component.
@@ -17,6 +38,9 @@ import {RequiredSign, Hint} from './ui';
  * @public
  */
 export class Field extends React.Component {
+  props: Props;
+  state: State;
+
   static propTypes = {
     /**
      * The field label.
@@ -93,7 +117,7 @@ export class Field extends React.Component {
     layout: 'vertical',
   };
 
-  constructor(props) {
+  constructor(props: Props) {
     super(props);
     this.state = {
       dirty: false,
@@ -115,6 +139,7 @@ export class Field extends React.Component {
     let {dirty} = this.state;
     let {value, errorList, params, schema} = this.props.formValue;
     let showErrors = dirty || params.forceShowErrors;
+    // $FlowFixMe: ...
     children = React.cloneElement(children ? React.Children.only(children) : <Input />, {
       error: showErrors && errorList.length > 0,
       value: serialize(value),
@@ -124,18 +149,18 @@ export class Field extends React.Component {
     const totalSize = labelSize + inputSize;
     const labelSizePercent = `${labelSize / totalSize * 100}%`;
     const inputSizePercent = `${inputSize / totalSize * 100}%`;
-    const labelSizeProps = layout === 'vertical'
-      ? {height: labelSizePercent}
-      : {width: labelSizePercent};
-    const inputSizeProps = layout === 'vertical'
-      ? {height: inputSizePercent}
-      : {width: inputSizePercent};
+    const labelSizeProps =
+      layout === 'vertical' ? {height: labelSizePercent} : {width: labelSizePercent};
+    const inputSizeProps =
+      layout === 'vertical' ? {height: inputSizePercent} : {width: inputSizePercent};
+    const verticalFieldSpacing = choose(Theme.form.verticalFieldSpacing, 10);
+    const horizontalFieldSpacing = choose(Theme.form.horizontalFieldSpacing, 20);
     return (
       <ReactUI.VBox
-        marginTop={10}
-        marginBottom={10}
-        marginLeft={20}
-        marginRight={20}
+        marginTop={verticalFieldSpacing}
+        marginBottom={verticalFieldSpacing}
+        marginLeft={horizontalFieldSpacing}
+        marginRight={horizontalFieldSpacing}
         {...props}>
         <ReactUI.VBox
           maxWidth={800}
@@ -162,11 +187,11 @@ export class Field extends React.Component {
     }
   };
 
-  onChange = (onChange, e) => {
+  onChange = (onChange: Function, e: Event) => {
     let value;
     if (e && e.target && e.target.value !== undefined) {
       e.stopPropagation();
-      value = e.target.value;
+      value = (e.target: any).value;
       if (value === '') {
         value = null;
       }

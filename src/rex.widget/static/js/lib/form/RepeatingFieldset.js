@@ -8,6 +8,8 @@ import * as ReactUI from '@prometheusresearch/react-ui';
 import {HBox, VBox} from '@prometheusresearch/react-ui';
 import {withFormValue} from 'react-forms';
 
+import * as Theme from '../Theme';
+import choose from '../choose';
 import {Icon} from '../../ui';
 import Fieldset from './Fieldset';
 import {FieldsetHeader} from './ui';
@@ -82,27 +84,38 @@ export class RepeatingFieldset extends React.Component {
           {removeButtonText}
         </RepeatingFieldsetItemToolbar>
       );
-      const content = layout === 'vertical'
-        ? <VBox>{!readOnly && toolbar} {children}</VBox>
-        : <HBox>{children} {!readOnly && toolbar}</HBox>;
+      const content =
+        layout === 'vertical' ? (
+          <VBox>
+            {!readOnly && toolbar} {children}
+          </VBox>
+        ) : (
+          <HBox>
+            {children} {!readOnly && toolbar}
+          </HBox>
+        );
       return (
         <Fieldset formValue={formValue.select(idx)} key={idx}>
           <VBox paddingBottom={10}>{content}</VBox>
         </Fieldset>
       );
     });
+    const verticalFieldSpacing = choose(Theme.form.verticalFieldSpacing, 10);
+    const horizontalFieldSpacing = choose(Theme.form.horizontalFieldSpacing, 20);
     return (
-      <VBox marginBottom={15} marginTop={20} padding={20}>
+      <VBox
+        marginBottom={verticalFieldSpacing}
+        marginTop={verticalFieldSpacing}
+        paddingLeft={horizontalFieldSpacing}
+        paddingRight={horizontalFieldSpacing}>
         <FieldsetHeader
           label={label}
           hint={hint}
           isRequired={schema && schema.isRequired}
         />
-        <VBox>
-          {fieldsets}
-        </VBox>
+        <VBox>{fieldsets}</VBox>
         {formValue.errorList.length > 0 && <ErrorList errorList={formValue.errorList} />}
-        {!readOnly &&
+        {!readOnly && (
           <ReactUI.Element paddingTop={10}>
             <ReactUI.Button
               icon={<Icon name="plus" />}
@@ -110,7 +123,8 @@ export class RepeatingFieldset extends React.Component {
               onClick={this.addItem}>
               {addButtonText} {label}
             </ReactUI.Button>
-          </ReactUI.Element>}
+          </ReactUI.Element>
+        )}
       </VBox>
     );
   }

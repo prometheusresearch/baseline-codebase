@@ -4,8 +4,11 @@
 
 import * as React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
-import {HBox} from '../../layout';
 import {withFormValue} from 'react-forms';
+
+import {HBox} from '../../layout';
+import * as Theme from '../Theme';
+import choose from '../choose';
 import ErrorList from './ErrorList';
 
 let Style = {
@@ -115,18 +118,28 @@ export class ReadOnlyField extends React.Component {
     const totalSize = labelSize + inputSize;
     const labelSizePercent = `${labelSize / totalSize * 100}%`;
     const inputSizePercent = `${inputSize / totalSize * 100}%`;
+    const verticalFieldSpacing = choose(Theme.form.verticalFieldSpacing, 10);
+    const horizontalFieldSpacing = choose(Theme.form.horizontalFieldSpacing, 20);
     return (
-      <HBox style={{...Style.self, ...(style && style.self)}}>
-        {label &&
+      <HBox
+        style={{
+          ...Style.self,
+          ...(style && style.self),
+          marginTop: verticalFieldSpacing,
+          maginBottom: verticalFieldSpacing,
+          marginLeft: horizontalFieldSpacing,
+          marginRight: horizontalFieldSpacing,
+        }}>
+        {label && (
           <ReactUI.Element padding={5} width={labelSizePercent}>
-            <label style={{...Style.label, ...(style && style.label)}}>
-              {label}
-            </label>
-          </ReactUI.Element>}
+            <label style={{...Style.label, ...(style && style.label)}}>{label}</label>
+          </ReactUI.Element>
+        )}
         <ReactUI.Element padding={5} width={inputSizePercent} style={Style.value}>
           {children}
-          {formValue.errorList.length > 0 &&
-            <ErrorList errorList={formValue.errorList} />}
+          {formValue.errorList.length > 0 && (
+            <ErrorList errorList={formValue.errorList} />
+          )}
         </ReactUI.Element>
       </HBox>
     );

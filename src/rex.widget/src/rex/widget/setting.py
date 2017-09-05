@@ -7,7 +7,7 @@
 
 """
 
-from rex.core import (Setting, RecordVal, StrVal, RecordVal, Validate, Error,
+from rex.core import (Setting, RecordVal, StrVal, IntVal, RecordVal, Validate, Error,
                       BoolVal)
 
 from .transitionable import as_transitionable
@@ -59,6 +59,18 @@ element_color_default = element_color_val.record_type(
     disabled=_element_color_default,
 )
 
+form_val = RecordVal(
+    ('vertical_field_spacing', IntVal(), None),
+    ('horizontal_field_spacing', IntVal(), None),
+)
+
+make_record_type_transitionable(form_val.record_type)
+
+form_default = form_val.record_type(
+    vertical_field_spacing=None,
+    horizontal_field_spacing=None,
+)
+
 class RexWidgetSetting(Setting):
     """
     Rex Widget site wide configuration.
@@ -74,6 +86,7 @@ class RexWidgetSetting(Setting):
     name = 'rex_widget'
 
     _theme_val = RecordVal(
+        ('form', form_val, form_default),
         ('button', element_color_val, element_color_default),
         ('success_button', element_color_val, element_color_default),
         ('danger_button', element_color_val, element_color_default),
@@ -83,6 +96,7 @@ class RexWidgetSetting(Setting):
     make_record_type_transitionable(_theme_val.record_type)
 
     _theme_default = _theme_val.record_type(
+        form=form_default,
         button=element_color_default,
         success_button=element_color_default,
         danger_button=element_color_default,

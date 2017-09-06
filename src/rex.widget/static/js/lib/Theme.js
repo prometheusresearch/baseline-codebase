@@ -23,6 +23,7 @@ export type ButtonTheme = {
 export type FormTheme = {
   verticalFieldSpacing?: number,
   horizontalFieldSpacing?: number,
+  condensedLayout?: boolean,
 };
 
 export type Theme = {

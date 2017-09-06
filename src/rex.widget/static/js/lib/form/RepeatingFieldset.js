@@ -100,8 +100,16 @@ export class RepeatingFieldset extends React.Component {
         </Fieldset>
       );
     });
-    const verticalFieldSpacing = choose(Theme.form.verticalFieldSpacing, 10);
-    const horizontalFieldSpacing = choose(Theme.form.horizontalFieldSpacing, 20);
+    const verticalFieldSpacing = choose(
+      Theme.form.verticalFieldSpacing,
+      Theme.form.condensedLayout ? 0 : null,
+      10,
+    );
+    const horizontalFieldSpacing = choose(
+      Theme.form.horizontalFieldSpacing,
+      Theme.form.condensedLayout ? 0 : null,
+      20,
+    );
     return (
       <VBox
         marginBottom={verticalFieldSpacing}

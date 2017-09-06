@@ -118,8 +118,17 @@ export class ReadOnlyField extends React.Component {
     const totalSize = labelSize + inputSize;
     const labelSizePercent = `${labelSize / totalSize * 100}%`;
     const inputSizePercent = `${inputSize / totalSize * 100}%`;
-    const verticalFieldSpacing = choose(Theme.form.verticalFieldSpacing, 10);
-    const horizontalFieldSpacing = choose(Theme.form.horizontalFieldSpacing, 20);
+    const verticalFieldSpacing = choose(
+      Theme.form.verticalFieldSpacing,
+      Theme.form.condensedLayout ? 0 : null,
+      10,
+    );
+    const horizontalFieldSpacing = choose(
+      Theme.form.horizontalFieldSpacing,
+      Theme.form.condensedLayout ? 0 : null,
+      20,
+    );
+    const padding = Theme.form.condensedLayout ? 0 : 5;
     return (
       <HBox
         style={{
@@ -131,11 +140,11 @@ export class ReadOnlyField extends React.Component {
           marginRight: horizontalFieldSpacing,
         }}>
         {label && (
-          <ReactUI.Element padding={5} width={labelSizePercent}>
+          <ReactUI.Element padding={padding} width={labelSizePercent}>
             <label style={{...Style.label, ...(style && style.label)}}>{label}</label>
           </ReactUI.Element>
         )}
-        <ReactUI.Element padding={5} width={inputSizePercent} style={Style.value}>
+        <ReactUI.Element padding={padding} width={inputSizePercent} style={Style.value}>
           {children}
           {formValue.errorList.length > 0 && (
             <ErrorList errorList={formValue.errorList} />

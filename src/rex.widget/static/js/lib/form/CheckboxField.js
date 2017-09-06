@@ -5,6 +5,7 @@
 import React from 'react';
 import {withFormValue} from 'react-forms';
 
+import * as Theme from '../Theme';
 import Field from './Field';
 import ReadOnlyField from './ReadOnlyField';
 import Checkbox from './Checkbox';
@@ -45,7 +46,7 @@ export class CheckboxField extends React.Component {
           {...props}
           layout="horizontal"
           formValue={formValue}>
-          <Checkbox style={{marginTop: 5}} />
+          <Checkbox style={{marginTop: Theme.form.condensedLayout ? 0 : 5}} />
         </Field>
       );
     }

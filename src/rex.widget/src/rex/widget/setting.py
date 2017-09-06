@@ -62,6 +62,7 @@ element_color_default = element_color_val.record_type(
 form_val = RecordVal(
     ('vertical_field_spacing', IntVal(), None),
     ('horizontal_field_spacing', IntVal(), None),
+    ('condensed_layout', BoolVal(), None),
 )
 
 make_record_type_transitionable(form_val.record_type)
@@ -69,6 +70,7 @@ make_record_type_transitionable(form_val.record_type)
 form_default = form_val.record_type(
     vertical_field_spacing=None,
     horizontal_field_spacing=None,
+    condensed_layout=None,
 )
 
 class RexWidgetSetting(Setting):

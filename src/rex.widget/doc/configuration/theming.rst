@@ -13,6 +13,7 @@ Use ``rex_widget.theme`` setting key in ``settings.yaml`` to customize theming::
         form:
           horizontal_field_spacing: 5
           vertical_field_spacing: 5
+          condensed_layout: true
 
 The example configuration above will turn text color to ``red`` of all success
 button widgets.
@@ -21,8 +22,11 @@ The list of available theming keys is the following:
 
 * ``form``
 
-  - ``horizontal_field_spacing``
-  - ``vertical_field_spacing``
+  - ``condensed_layout`` — try to render forms taking as little space as
+    possible.
+  - ``horizontal_field_spacing`` — override vertical spacing between form
+    fields.
+  - ``vertical_field_spacing`` — override horizontal spacing between form fields.
 
 * ``button``
 

@@ -153,8 +153,17 @@ export class Field extends React.Component {
       layout === 'vertical' ? {height: labelSizePercent} : {width: labelSizePercent};
     const inputSizeProps =
       layout === 'vertical' ? {height: inputSizePercent} : {width: inputSizePercent};
-    const verticalFieldSpacing = choose(Theme.form.verticalFieldSpacing, 10);
-    const horizontalFieldSpacing = choose(Theme.form.horizontalFieldSpacing, 20);
+    const verticalFieldSpacing = choose(
+      Theme.form.verticalFieldSpacing,
+      Theme.form.condensedLayout ? 0 : null,
+      10,
+    );
+    const horizontalFieldSpacing = choose(
+      Theme.form.horizontalFieldSpacing,
+      Theme.form.condensedLayout ? 0 : null,
+      20,
+    );
+    const padding = Theme.form.condensedLayout ? 0 : 5;
     return (
       <ReactUI.VBox
         marginTop={verticalFieldSpacing}
@@ -165,14 +174,14 @@ export class Field extends React.Component {
         <ReactUI.VBox
           maxWidth={800}
           flexDirection={layout === 'vertical' ? 'column' : 'row'}>
-          <ReactUI.Element padding={5} {...labelSizeProps}>
+          <ReactUI.Element padding={padding} {...labelSizeProps}>
             <ReactUI.HBox color="#888" fontSize="14px" fontWeight={400} textAlign="left">
               {label}
               {schema && schema.isRequired && <RequiredSign />}
               {showErrors && errorList.length > 0 && <ErrorList errorList={errorList} />}
             </ReactUI.HBox>
           </ReactUI.Element>
-          <ReactUI.Element padding={5} {...inputSizeProps}>
+          <ReactUI.Element padding={padding} {...inputSizeProps}>
             {children}
             {hint && <Hint>{hint}</Hint>}
           </ReactUI.Element>

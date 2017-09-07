@@ -12,6 +12,8 @@ REX.RESTFUL Change Log
 * Added a ``marshall_htsql_result`` utility function to transform the results
   of HTSQL queries into a form that can be automatically serialized by
   ``rex.restful``.
+* Removed implementations of the ``DateVal``, ``TimeVal``, and ``DateTimeVal``
+  in favor of those provided by ``rex.core``.
 
 
 1.2.0 (2017-01-19)

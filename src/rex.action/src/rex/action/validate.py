@@ -22,11 +22,13 @@ from htsql.core.syn.syntax import Syntax
 from htsql.core.syn.parse import parse
 
 from rex.core import (
-    Record, Validate, Error, guard, Location,
+    Record, Validate, ValidatingLoader, Error, guard, Location,
     AnyVal, UStrVal, StrVal, MapVal, OneOfVal, RecordVal, RecordField)
 from rex.db import get_db, Query, RexHTSQL
+from rex.web import url_for
 from rex.widget.validate import WidgetVal, DeferredVal
 from rex.widget.util import add_mapping_key, pop_mapping_key
+from rex.widget import transitionable
 
 
 from .action import Action, ActionBase, action_sig
@@ -434,3 +436,26 @@ class ActionMapVal(Validate):
     def __call__(self, value):
         value = self._validate(value)
         return self._sanitize(value)
+
+
+class Resource(object):
+    """ An object which represents a resource from a package."""
+
+    def __init__(self, ref):
+        self.ref = ref
+
+    def __repr__(self):
+        return '%s(href=%r)' % (self.__class__.__name__, self.ref)
+
+
+@transitionable.as_transitionable(Resource)
+def _encode_Resource(value, req, _path):
+    return url_for(req, value.ref)
+
+
+def resource_constructor(loader, node):
+    value = loader.construct_scalar(node)
+    return Resource(value)
+
+
+ValidatingLoader.add_constructor(u'!resource', resource_constructor)

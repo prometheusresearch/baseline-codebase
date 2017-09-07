@@ -4,6 +4,12 @@
 
 .. contents:: Table of Contents
 
+1.7.0 (2017-XX-XX)
+==================
+
+* [FEAT] add ``!resource pkg:/path`` constructor to allow referencing package
+  specific resources in configuration.
+
 1.6.3 (2017-08-17)
 ==================
 

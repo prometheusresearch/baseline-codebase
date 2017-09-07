@@ -10,7 +10,11 @@ Init
   >>> import tempfile
   >>> attach_dir = tempfile.mkdtemp(suffix='rex-action-test')
 
-  >>> from rex.core import Rex
+  >>> from webob import Request
+
+  >>> from rex.core import Rex, AnyVal
+  >>> from rex.widget import encode
+
   >>> rex = Rex(
   ...   'rex.action_demo',
   ...   gateways={'gateway': 'pgsql:action_demo'},
@@ -108,6 +112,21 @@ QueryVal
 
   >>> validate({'query': '/individual'})
   Query('/individual')
+
+Creating resources
+------------------
+
+::
+
+  >>> res = AnyVal().parse('''
+  ... !resource pkg:/some/path
+  ... ''')
+
+  >>> res
+  Resource(href=u'pkg:/some/path')
+
+  >>> encode(res, Request.blank('/', environ={'rex.mount': {'pkg': '/PKG'}}))
+  u'"/PKG/some/path"'
 
 Cleanup
 -------

@@ -28,6 +28,16 @@ actions:
     layout:
       title: Individuals grouped by sex
       paper_bgcolor: '#0f8f0f'
+      images:
+        - source: !resource "rex.action_demo:/cat.png"
+          x: 1
+          y: 1.05
+          sizex: 0.2
+          sizey: 0.2
+          xanchor: right
+          xref: paper
+          yanchor: bottom
+          yref: paper
     query: |
       /individual^sex{label := sex, value := count(individual)}
   multiple-datasets:

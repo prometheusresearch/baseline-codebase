@@ -1238,6 +1238,221 @@ If the default validator is provided, ``UnionVal`` never raises an error::
         "<byte string>", line 1
 
 
+``DateVal``
+===========
+
+``DateVal`` validates ISO8601-formatted dates and compatible objects and
+returns them as ``datetime.date`` objects::
+
+    >>> from datetime import datetime, date, time
+    >>> from dateutil.tz import tzoffset
+    >>> TEST_TZ = tzoffset('TestTZ', 60 * 60)
+    >>> TEST_DATE = date(2017, 5, 22)
+    >>> TEST_TIME = time(12, 34, 56, 789)
+    >>> TEST_TIME_TZ = time(12, 34, 56, 789, TEST_TZ)
+    >>> TEST_DATETIME = datetime(2017, 5, 22, 12, 34, 56, 789)
+    >>> TEST_DATETIME_TZ = datetime(2017, 5, 22, 12, 34, 56, 789, TEST_TZ)
+
+    >>> from rex.core import DateVal
+    >>> date_val = DateVal()
+
+    >>> date_val(TEST_DATE)
+    datetime.date(2017, 5, 22)
+    >>> date_val(TEST_DATETIME)
+    datetime.date(2017, 5, 22)
+    >>> date_val(TEST_DATETIME_TZ)
+    datetime.date(2017, 5, 22)
+    >>> date_val('2017-05-22')
+    datetime.date(2017, 5, 22)
+
+Invalid formats, dates, or types are rejected::
+
+    >>> date_val('2017-02-30')
+    Traceback (most recent call last):
+        ...
+    Error: Expected a valid date in the format YYYY-MM-DD
+    Got:
+        '2017-02-30'
+
+    >>> date_val('foobar')
+    Traceback (most recent call last):
+        ...
+    Error: Expected a valid date in the format YYYY-MM-DD
+    Got:
+        'foobar'
+
+    >>> date_val(123)
+    Traceback (most recent call last):
+        ...
+    Error: Expected a valid date in the format YYYY-MM-DD
+    Got:
+        123
+
+    >>> date_val(True)
+    Traceback (most recent call last):
+        ...
+    Error: Expected a valid date in the format YYYY-MM-DD
+    Got:
+        True
+
+``DateVal`` can parse YAML documents::
+
+    >>> date_val.parse(""" 2017-05-22 """)
+    datetime.date(2017, 5, 22)
+    >>> date_val.parse(""" !!timestamp 2017-05-22 """)
+    datetime.date(2017, 5, 22)
+    >>> date_val.parse(""" !!timestamp 2017-05-22T12:34:56 """)
+    datetime.date(2017, 5, 22)
+
+
+``TimeVal``
+===========
+
+``TimeVal`` validates ISO8601-formatted times and compatible objects and
+returns them as ``datetime.time`` objects::
+
+    >>> from rex.core import TimeVal
+    >>> time_val = TimeVal()
+
+    >>> time_val(TEST_TIME)
+    datetime.time(12, 34, 56, 789)
+    >>> time_val(TEST_TIME_TZ)
+    datetime.time(12, 34, 56, 789)
+    >>> time_val(TEST_DATETIME)
+    datetime.time(12, 34, 56, 789)
+    >>> time_val(TEST_DATETIME_TZ)
+    datetime.time(11, 34, 56, 789)
+    >>> time_val('12:34:56')
+    datetime.time(12, 34, 56)
+    >>> time_val('12:34:56.000789')
+    datetime.time(12, 34, 56, 789)
+
+Invalid formats, times, or types are rejected::
+
+    >>> time_val('12:99:56')
+    Traceback (most recent call last):
+        ...
+    Error: Expected a valid time in the format HH:MM:SS[.FFFFFF]
+    Got:
+        '12:99:56'
+
+    >>> time_val('foobar')
+    Traceback (most recent call last):
+        ...
+    Error: Expected a valid time in the format HH:MM:SS[.FFFFFF]
+    Got:
+        'foobar'
+
+    >>> time_val(123)
+    Traceback (most recent call last):
+        ...
+    Error: Expected a valid time in the format HH:MM:SS[.FFFFFF]
+    Got:
+        123
+
+    >>> time_val(True)
+    Traceback (most recent call last):
+        ...
+    Error: Expected a valid time in the format HH:MM:SS[.FFFFFF]
+    Got:
+        True
+
+``TimeVal`` can parse YAML documents::
+
+    >>> time_val.parse(""" 12:34:56 """)
+    datetime.time(12, 34, 56)
+    >>> time_val.parse(""" 12:34:56.000789 """)
+    datetime.time(12, 34, 56, 789)
+
+
+``DateTimeVal``
+===============
+
+``DateTimeVal`` validates ISO8601-formatted datetimes and compatible objects
+and returns them as ``datetime.datetime`` objects::
+
+    >>> from rex.core import DateTimeVal
+    >>> dt_val = DateTimeVal()
+
+    >>> dt_val(TEST_DATETIME)
+    datetime.datetime(2017, 5, 22, 12, 34, 56, 789)
+    >>> dt_val(TEST_DATETIME_TZ)
+    datetime.datetime(2017, 5, 22, 11, 34, 56, 789)
+    >>> dt_val(TEST_DATE)
+    datetime.datetime(2017, 5, 22, 0, 0)
+    >>> dt_val('2017-05-22T12:34:56.000789')
+    datetime.datetime(2017, 5, 22, 12, 34, 56, 789)
+    >>> dt_val('2017-05-22T12:34:56')
+    datetime.datetime(2017, 5, 22, 12, 34, 56)
+    >>> dt_val('2017-05-22')
+    datetime.datetime(2017, 5, 22, 0, 0)
+    >>> dt_val('2017-05-22T12:34:56Z')
+    datetime.datetime(2017, 5, 22, 12, 34, 56)
+    >>> dt_val('2017-05-22T12:34:56+0230')
+    datetime.datetime(2017, 5, 22, 10, 4, 56)
+    >>> dt_val('2017-05-22T12:34:56.000789+0230')
+    datetime.datetime(2017, 5, 22, 10, 4, 56, 789)
+    >>> dt_val('2017-05-22T12:34:56.000789+02:30')
+    datetime.datetime(2017, 5, 22, 10, 4, 56, 789)
+
+Invalid formats, dates/times, or types are rejected::
+
+    >>> dt_val('2015-02-30T12:34:56')
+    Traceback (most recent call last):
+        ...
+    Error: Expected a valid date/time in the format YYYY-MM-DDTHH:MM:SS[.FFFFFF][+-HH:MM]
+    Got:
+        '2015-02-30T12:34:56'
+
+    >>> dt_val('2015-02-30')
+    Traceback (most recent call last):
+        ...
+    Error: Expected a valid date/time in the format YYYY-MM-DDTHH:MM:SS[.FFFFFF][+-HH:MM]
+    Got:
+        '2015-02-30'
+
+    >>> dt_val('2015-01-01T12:99:56')
+    Traceback (most recent call last):
+        ...
+    Error: Expected a valid date/time in the format YYYY-MM-DDTHH:MM:SS[.FFFFFF][+-HH:MM]
+    Got:
+        '2015-01-01T12:99:56'
+
+    >>> dt_val('foobar')
+    Traceback (most recent call last):
+        ...
+    Error: Expected a valid date/time in the format YYYY-MM-DDTHH:MM:SS[.FFFFFF][+-HH:MM]
+    Got:
+        'foobar'
+
+    >>> dt_val(123)
+    Traceback (most recent call last):
+        ...
+    Error: Expected a valid date/time in the format YYYY-MM-DDTHH:MM:SS[.FFFFFF][+-HH:MM]
+    Got:
+        123
+
+    >>> dt_val(True)
+    Traceback (most recent call last):
+        ...
+    Error: Expected a valid date/time in the format YYYY-MM-DDTHH:MM:SS[.FFFFFF][+-HH:MM]
+    Got:
+        True
+
+``DateTimeVal`` can parse YAML documents::
+
+    >>> dt_val.parse(""" 2017-05-22 """)
+    datetime.datetime(2017, 5, 22, 0, 0)
+    >>> dt_val.parse(""" !!timestamp 2017-05-22 """)
+    datetime.datetime(2017, 5, 22, 0, 0)
+    >>> dt_val.parse(""" 2017-05-22T12:34:56 """)
+    datetime.datetime(2017, 5, 22, 12, 34, 56)
+    >>> dt_val.parse(""" !!timestamp 2017-05-22T12:34:56 """)
+    datetime.datetime(2017, 5, 22, 12, 34, 56)
+    >>> dt_val.parse(""" !!timestamp 2017-05-22T12:34:56+01:00 """)
+    datetime.datetime(2017, 5, 22, 11, 34, 56)
+
+
 Records and locations
 =====================
 

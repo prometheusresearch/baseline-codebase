@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.core',
-    version="1.16.2",
+    version="1.17.0",
     description="Foundation of the RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -19,6 +19,7 @@ setup(
     install_requires=[
         'rex.setup >=1.0, <5',  # For use by `rex.core` descendants.
         'raven >=6.0, <7',
+        'python-dateutil >=2.5, <3',
         'pyyaml',
     ],
     rex_init='rex.core',

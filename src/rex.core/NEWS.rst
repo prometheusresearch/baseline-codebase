@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.17.0 (2017-XX-XX)
+===================
+
+* Added date/time validators.
+
+
 1.16.2 (2017-08-07)
 ===================
 

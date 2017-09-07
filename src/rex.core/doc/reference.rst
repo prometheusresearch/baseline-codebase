@@ -73,7 +73,6 @@ Errors
    :special-members: __call__
 .. autoclass:: guard
 .. autofunction:: get_sentry
-.. autofunction:: get_sentry_config
 
 
 Validators
@@ -95,6 +94,9 @@ Validators
 .. autoclass:: rex.core.UIntVal
 .. autoclass:: rex.core.PIntVal
 .. autoclass:: rex.core.FloatVal
+.. autoclass:: rex.core.DateVal
+.. autoclass:: rex.core.TimeVal
+.. autoclass:: rex.core.DateTimeVal
 .. autoclass:: rex.core.SeqVal
 .. autoclass:: rex.core.OneOrSeqVal
 .. autoclass:: rex.core.MapVal

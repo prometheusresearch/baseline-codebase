@@ -14,6 +14,9 @@ import keyword
 import weakref
 import json
 import yaml
+import datetime
+
+import dateutil.parser
 
 
 class IncludeLoader(object):
@@ -1595,4 +1598,113 @@ class IncludeKeyVal(Validate):
     def __ne__(self, other):
         return not (self == other)
 
+
+class DateVal(Validate):
+    """
+    Accepts ISO8601-formatted date strings and coerces them to
+    ``datetime.date`` objects.
+
+    Also accepts ``datetime.datetime`` and ``datetime.date`` objects.
+    """
+
+    ERROR_MSG = 'Expected a valid date in the format YYYY-MM-DD'
+
+    def __call__(self, data):
+        if isinstance(data, datetime.datetime):
+            return data.date()
+        if isinstance(data, datetime.date):
+            return data
+
+        with guard('Got:', repr(data)):
+            if isinstance(data, (str, unicode)):
+                try:
+                    return datetime.datetime.strptime(data, '%Y-%m-%d').date()
+                except ValueError:
+                    raise Error(self.ERROR_MSG)
+            else:
+                raise Error(self.ERROR_MSG)
+
+
+class TimeVal(Validate):
+    """
+    Accepts ISO8601-formatted time strings and coerces them to
+    ``datetime.time`` objects.
+
+    Also accepts ``datetime.datetime`` and ``datetime.time`` objects.
+
+    Note that the resulting ``datetime.time`` object is returned naive.
+    """
+
+    ERROR_MSG = 'Expected a valid time in the format HH:MM:SS[.FFFFFF]'
+
+    RE_TIME = re.compile(
+        r'^(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?$',
+    )
+
+    def __call__(self, data):
+        if isinstance(data, datetime.datetime):
+            if data.tzinfo:
+                data = data.astimezone(dateutil.tz.tzutc())
+            return data.replace(tzinfo=None).time()
+        if isinstance(data, datetime.time):
+            return data.replace(tzinfo=None)
+
+        with guard('Got:', repr(data)):
+            if isinstance(data, (str, unicode)) and \
+                    self.RE_TIME.match(data):
+                try:
+                    return dateutil.parser.parse(data).replace(tzinfo=None) \
+                            .time()
+                except ValueError:
+                    raise Error(self.ERROR_MSG)
+            else:
+                raise Error(self.ERROR_MSG)
+
+
+class DateTimeVal(Validate):
+    """
+    Accepts ISO8601-formatted date/time strings and coerces them to
+    ``datetime.datetime`` objects. The resulting object will always be coerced
+    to UTC and returned as naive.
+
+    Also accepts ``datetime.datetime`` and ``datetime.date`` objects.
+
+    Note that any specified timezone offset is normalized to UTC, and the
+    resulting ``datetime.datetime`` object is returned naive.
+    """
+
+    ERROR_MSG = 'Expected a valid date/time in the format YYYY-MM-DDTHH:MM:SS[.FFFFFF][+-HH:MM]'
+
+    RE_DATETIME = re.compile(
+        r'^([0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])'
+        r'(T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?'
+        r'(Z|[+-](?:2[0-3]|[01][0-9]):?[0-5][0-9])?)?$'
+    )
+
+    def __call__(self, data):
+        if isinstance(data, datetime.datetime):
+            return self._strip_tz(data)
+        if isinstance(data, datetime.date):
+            return datetime.datetime(
+                data.year,
+                data.month,
+                data.day,
+            )
+
+        with guard('Got:', repr(data)):
+            if isinstance(data, (str, unicode)) and \
+                    self.RE_DATETIME.match(data):
+                try:
+                    return self._strip_tz(dateutil.parser.parse(data))
+                except ValueError:
+                    raise Error(self.ERROR_MSG)
+            else:
+                raise Error(self.ERROR_MSG)
+
+    def _strip_tz(self, dt):
+        if dt.tzinfo:
+            dt = dt.astimezone(dateutil.tz.tzutc()).replace(
+                tzinfo=None,
+            )
+        return dt
 

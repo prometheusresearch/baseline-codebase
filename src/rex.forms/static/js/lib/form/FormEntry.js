@@ -145,9 +145,15 @@ export default class FormEntry extends React.Component {
     this.formStateEditable = null;
 
     this.state = {
-      pageNumber: 0,
+      pageNumber: this.getHiddenPageNumberList().indexOf(false),
       editable: null,
     };
+  }
+
+  getHiddenPageNumberList = () => {
+    return this.props.form.pages.map(
+      page => this.formState.event.isPageHidden(page.id)
+    );
   }
 
   render() {
@@ -181,7 +187,7 @@ export default class FormEntry extends React.Component {
       disabledPageNumberList = pages.map(page => isPageDisabled(page.id));
     }
 
-    let hiddenPageNumberList = pages.map(page => isPageHidden(page.id));
+    let hiddenPageNumberList = this.getHiddenPageNumberList();
     let page = find(
       pages.slice(pageNumber),
       (page, pageNumber) => !hiddenPageNumberList[pageNumber]

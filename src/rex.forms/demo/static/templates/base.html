@@ -4,7 +4,9 @@
   <head>
     <title>rex.forms_demo</title>
     {{ polyfill() }}
+    {% if bundle.css %}
     <link rel="stylesheet" href="{{ bundle.css|url }}">
+    {% endif %}
     <script src="{{ bundle.js|url }}"></script>
   </head>
   <body>

@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.tabular_import',
-    version='0.3.1',
+    version='0.4.0',
     description='A tool for importing flat datafiles into RexDB tables.',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',

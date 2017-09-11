@@ -135,7 +135,7 @@ export class ReadOnlyField extends React.Component {
           ...Style.self,
           ...(style && style.self),
           marginTop: verticalFieldSpacing,
-          maginBottom: verticalFieldSpacing,
+          marginBottom: verticalFieldSpacing,
           marginLeft: horizontalFieldSpacing,
           marginRight: horizontalFieldSpacing,
         }}>

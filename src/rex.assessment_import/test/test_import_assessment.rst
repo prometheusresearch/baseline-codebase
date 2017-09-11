@@ -99,7 +99,7 @@ instrument template::
   >>> import_assessment(instrument_uid='eeg-upload', version=1, input=input) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Chunk `eeg-upload2` not found in istrument `eeg-upload1` template.
+  Error: Chunk `eeg-upload2` not found in instrument `eeg-upload1` template.
 
 Extra chunk saved::
 

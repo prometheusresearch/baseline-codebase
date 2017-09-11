@@ -13,21 +13,37 @@ __all__ = (
 )
 
 def import_assessment(instrument_uid, version=None, input=None, verbose=False):
+
+    def log(msg, *args):
+        if verbose:
+            print msg % args
+
     if not input:
         raise Error("input is expected.")
     if not isinstance(input, ImportPackage):
         raise Error("input is expected as an object of ImportPackage.")
     if not input.chunks:
         raise Error("No data to import.")
+
     assessment_impl = Assessment.get_implementation()
-    if verbose: print "Looking for instrument..."
+    log("Looking for instrument...")
     instrument = Instrument.find(instrument_uid, version)
-    if verbose: print "Generating instrument template..."
+    log("Generating instrument template...")
     template_collection = Template(instrument)
-    if verbose: print "Generating assessments collection for given input..."
+
+    instrument_version_impl = InstrumentVersion.get_implementation()
+    subject_impl = Subject.get_implementation()
+    calculationset_impl = CalculationSet.get_implementation()
+    resultset_impl = ResultSet.get_implementation()
+    calculationset = calculationset_impl.find(
+        instrument_version=instrument.id,
+        limit=1
+    )
+
+    log("Generating assessments collection for given input...")
     assessments = AssessmentCollection()
     for chunk in input:
-        if verbose: print "Processing chunk `%s`..." % chunk.id
+        log("Processing chunk `%s`...", chunk.id)
         template = template_collection[chunk.id]
         if not template:
             msg = ("Chunk `%s` not found in instrument `%s` template."
@@ -39,34 +55,10 @@ def import_assessment(instrument_uid, version=None, input=None, verbose=False):
         except Exception, exc:
             chunk.fail(exc)
             raise exc
-    bulk_assessments = []
-    for assessment in assessments:
-        bulk_assessment = assessment_impl.BulkAssessment(
-                            subject_uid=assessment.subject,
-                            instrument_version_uid=instrument.id,
-                            evaluation_date=assessment.date,
-                            context=assessment.context,
-                            data=assessment.data
-                     )
-        bulk_assessments.append(bulk_assessment)
-    if verbose: print "Saving generated assessments to the data store..."
-    try:
-        assessment_impl.bulk_create(bulk_assessments)
-    except Exception, exc:
-        for chunk in input.chunks:
-            chunk.fail(exc)
-        raise exc
 
-    instrument_version_impl = InstrumentVersion.get_implementation()
-    subject_impl = Subject.get_implementation()
-    calculationset_impl = CalculationSet.get_implementation()
-    resultset_impl = ResultSet.get_implementation()
-    calculationset = calculationset_impl.find(
-        instrument_version=instrument.id,
-        limit=1
-    )
+    log("Saving generated assessments to the data store...")
+
     if calculationset:
-        if verbose: print "Running calculations..."
         if version is not None:
             instrument_version = instrument_version_impl.find(
                 limit=1,
@@ -81,12 +73,36 @@ def import_assessment(instrument_uid, version=None, input=None, verbose=False):
                 subject,
                 instrument_version=instrument_version,
                 data=assessment.data,
-                evaluation_date=assessment.date)
+                evaluation_date=assessment.date,
+                implementation_context=assessment.context)
             proper_assessment.status = 'completed'
             results = calculationset[0].execute(assessment=proper_assessment)
             proper_assessment.set_meta('calculations', results)
             resultset_impl.create(proper_assessment, results)
             proper_assessment.save()
+
+    else:
+        # In case we don't have calculations to compute we choose to go the
+        # fastpath via the BulkAssessment API. Sadly we can't use BulkAssessment
+        # API in case calculations are present b/c the API doesn't allow that in
+        # an efficient manner.
+
+        bulk_assessments = []
+        for assessment in assessments:
+            bulk_assessment = assessment_impl.BulkAssessment(
+                                subject_uid=assessment.subject,
+                                instrument_version_uid=instrument.id,
+                                evaluation_date=assessment.date,
+                                context=assessment.context,
+                                data=assessment.data
+                        )
+            bulk_assessments.append(bulk_assessment)
+        try:
+            assessment_impl.bulk_create(bulk_assessments)
+        except Exception, exc:
+            for chunk in input.chunks:
+                chunk.fail(exc)
+            raise exc
 
 
 def export_template(instrument_uid, version=None, verbose=False, user=None):

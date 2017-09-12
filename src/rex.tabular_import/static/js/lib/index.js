@@ -1,1 +1,0 @@
-export SelectImportTable from './SelectImportTable';

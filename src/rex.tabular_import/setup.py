@@ -30,11 +30,9 @@ setup(
         'rex.ctl >=2, <3',
         'rex.db >=3, <4',
         'rex.deploy >=2.3.3, <3',
-        'rex.job >=0.1, <0.2',
         'rex.attach >=2.0.4, <3',
         'rex.file >=1.0.4, <2',
         'rex.widget >=3, <4',
         'tablib >=0.10, <0.11',
     ],
-    rex_init='rex.tabular_import',
-    rex_static='static', )
+    rex_init='rex.tabular_import')

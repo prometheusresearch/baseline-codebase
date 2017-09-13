@@ -27,7 +27,7 @@ setup(
         'rex.widget>=3,<4',
         'rex.action>=1,<2',
         'rex.instrument>=1,<2',
-        'rex.forms>=2.1,<3',
+        'rex.forms>=2.4,<3',
     ],
     rex_init='rex.acquire_actions',
     rex_static='static', )

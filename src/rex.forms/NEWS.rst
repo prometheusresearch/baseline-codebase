@@ -5,11 +5,13 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
-2.3.3 (2017-xx-xx)
+2.4.0 (2017-xx-xx)
 ==================
 
 * Fixed an issue that caused weird behavior when the first page of a form is
   hidden immediately.
+* Added an ability to the JavaScript component API to allow the use of custom
+  widgets.
 
 
 2.3.2 (2017-06-20)

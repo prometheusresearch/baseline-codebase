@@ -21,10 +21,17 @@ from htsql.core.fmt.emit import emit, emit_headers
 from rex.db import get_db
 from rex.core import Error, Validate, AnyVal, StrVal, ChoiceVal
 
-from .transitionable import Transitionable, as_transitionable
+from .transitionable import Transitionable, TransitionableRecord, as_transitionable
 
 
-__all__ = ('undefined', 'MaybeUndefinedVal', 'PropsContainer')
+__all__ = ('undefined', 'MaybeUndefinedVal', 'PropsContainer', 'JSValue')
+
+
+class JSValue(TransitionableRecord):
+    """ A reference to some JS value exported from a package."""
+
+    __transit_tag__ = 'js-value'
+    fields = ('package', 'symbol')
 
 
 class Undefined(Transitionable):

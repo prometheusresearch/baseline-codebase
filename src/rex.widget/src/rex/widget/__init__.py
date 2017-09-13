@@ -30,7 +30,7 @@ from .rst import RSTVal
 from .mutation import Mutation
 from .port_support import PortSupport
 
-from .util import undefined, MaybeUndefinedVal
+from .util import undefined, MaybeUndefinedVal, JSValue
 
 import rex.widget.library
 import rex.widget.map

@@ -13,6 +13,16 @@ Transitionable.register('undefined', function decode_undefined() { // eslint-dis
   return undefined;
 });
 
+Transitionable.register('js-value', function decode_symbol(payload) { // eslint-disable-line camelcase
+  const [pkgName, symbolName] = payload;
+  const pkg = __require__(pkgName);
+  if (pkg[symbolName] === undefined) {
+    throw new Error(`Package "${pkgName}" doesn't have "${symbolName}" but application was configured to look for it.`);
+  }
+  const symbol = pkg[symbolName];
+  return symbol;
+});
+
 /* istanbul ignore next */
 Transitionable.register('widget', function decode_widget(payload) { // eslint-disable-line camelcase
   const [pkgName, symbolName, props] = payload;

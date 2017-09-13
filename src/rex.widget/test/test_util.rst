@@ -78,6 +78,16 @@ PropsContainer
   >>> 'someValue' in props
   False
 
+JSValue
+-------
+
+::
+
+  >>> from rex.widget import JSValue
+  >>> val = JSValue('pkg', 'symbol')
+  >>> encode(val, None)
+  u'["~#js-value", ["pkg", "symbol"]]'
+
 undefined
 ---------
 

@@ -5,6 +5,13 @@ REX.ACQUIRE_ACTIONS Change Log
 .. contents:: Table of Contents
 
 
+0.4.0 (2017-xx-xx)
+==================
+
+* Added the ability to define and configure custom widgets to use for
+  questions in forms.
+
+
 0.3.0 (2017-07-20)
 ==================
 

@@ -216,6 +216,11 @@ export function Fetch<
   S: {},
   D: $ObjMap<S, <V>(spec: V) => DataSet<>>,
 >(fetch: FetchSpec<P, S>): (ReactClass<P>) => ReactClass<P & {fetched: D}> {
+  // This is for b/c reasons, we allow Fetch(Component, fetcher) calls
+  if (arguments.length === 2) {
+    console.warn('Fetch(Component, fetch) is deprecated use withFetch(Component, fetch) instead');
+    return withFetch(...arguments);
+  }
   return Component => withFetch(Component, fetch);
 }
 

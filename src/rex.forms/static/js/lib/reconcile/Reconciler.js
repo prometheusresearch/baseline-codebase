@@ -86,6 +86,17 @@ export default class Reconciler extends React.Component {
      * functionality in the form.
      */
     apiUrls: React.PropTypes.object,
+
+    /**
+     * Widget configuration.
+     *
+     * {
+     *   edit: { [widgetType: string]: React.Component },
+     *   view: { [widgetType: string]: React.Component },
+     *   reconcile: { [widgetType: string]: React.Component },
+     * }
+     */
+    widgetConfig: React.PropTypes.object,
   };
 
   static defaultProps = {
@@ -113,12 +124,13 @@ export default class Reconciler extends React.Component {
   }
 
   render() {
-    let {form, parameters, discrepancies, entries, apiUrls} = this.props;
+    let {form, parameters, discrepancies, entries, apiUrls, widgetConfig} = this.props;
     let {formValue} = this.state;
     let showComplete = !this.state.isComplete;
     return (
       <FormContext
         self={this}
+        widgetConfig={widgetConfig}
         form={form}
         parameters={parameters}
         events={null}

@@ -1,0 +1,35 @@
+id: urn:date-fields
+version: '1.0'
+title: 'Custom Widget'
+types:
+  basic:
+    base: matrix
+    rows:
+      - id: row1
+      - id: row2
+    columns:
+      - id: col1
+        type: text
+      - id: col2
+        type: text
+record:
+
+# this is for focus management testing
+- id: first
+  type: text
+
+# this field is going to have a custom widget
+- id: plain
+  type: date
+
+# this is for focus management testing
+- id: middle
+  type: text
+
+# this field is going to have a custom widget
+- id: record
+  type: basic
+
+# this field is going to have a custom widget
+- id: plain_next_page
+  type: date

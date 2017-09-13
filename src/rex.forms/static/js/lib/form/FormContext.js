@@ -12,6 +12,7 @@ export let contextTypes = {
   event: PropTypes.object,
   parameters: PropTypes.object,
   apiUrls: PropTypes.object,
+  widgetConfig: PropTypes.object,
 };
 
 export default class FormContext extends React.Component {
@@ -23,9 +24,10 @@ export default class FormContext extends React.Component {
   }
 
   getChildContext() {
-    let {form, self, parameters, event, apiUrls} = this.props;
+    let {form, self, parameters, event, apiUrls, widgetConfig} = this.props;
     return {
       self,
+      widgetConfig,
       defaultLocalization: form.defaultLocalization,
       event,
       form,

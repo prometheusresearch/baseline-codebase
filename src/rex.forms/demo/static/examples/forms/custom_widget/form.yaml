@@ -1,0 +1,59 @@
+instrument:
+  id: urn:date-fields
+  version: '1.0'
+defaultLocalization: en
+pages:
+  - id: page1
+    elements:
+
+      - type: question
+        options:
+          fieldId: first
+          text:
+            en: First
+
+      - type: question
+        options:
+          fieldId: plain
+          text:
+            en: This should render some weird widget instead
+          widget:
+            type: customDateTime
+
+      - type: question
+        options:
+          fieldId: middle
+          text:
+            en: Middle
+
+      - type: question
+        options:
+          fieldId: record
+          text:
+            en: No constraints.
+          rows: &rows
+            - id: row2
+              text:
+                en: The "Second" Row
+            - id: row1
+              text:
+                en: Row1
+          questions: &questions
+            - fieldId: col1
+              text:
+                en: The first column
+            - fieldId: col2
+              text:
+                en: Another column
+          widget:
+            type: customMatrix
+
+  - id: page2
+    elements:
+      - type: question
+        options:
+          fieldId: plain_next_page
+          text:
+            en: This should render some weird widget instead (and be focused when you enter the page)
+          widget:
+            type: customDateTime

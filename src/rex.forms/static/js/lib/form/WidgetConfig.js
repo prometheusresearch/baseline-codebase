@@ -3,6 +3,10 @@
  * @flow
  */
 
+import React from 'react';
+import invariant from 'invariant';
+
+import * as types from '../types';
 import CheckGroup from './widget/CheckGroup';
 import DatePicker from './widget/DatePicker';
 import DateTimePicker from './widget/DateTimePicker';
@@ -20,7 +24,11 @@ import ViewValue from './widget/ViewValue';
 import ViewBooleanValue from './widget/ViewBooleanValue';
 import ViewEnumerationValue from './widget/ViewEnumerationValue';
 
-export const defaultWidgetComponentConfig = {
+export type WidgetConfig = {
+  [widgetType: string]: React.Component<*, *, *>
+};
+
+export const defaultWidgetComponentConfig: WidgetConfig = {
   inputText:      InputText,
   inputNumber:    InputNumber,
   textArea:       TextArea,
@@ -34,6 +42,21 @@ export const defaultWidgetComponentConfig = {
   matrix:         Matrix,
   lookupText:     LookupText,
 };
+
+const standardWidgets = [
+  InputText,
+  InputNumber,
+  TextArea,
+  RadioGroup,
+  CheckGroup,
+  DropDown,
+  DatePicker,
+  TimePicker,
+  DateTimePicker,
+  RecordList,
+  Matrix,
+  LookupText,
+];
 
 export const defaultWidgetConfig = {
   float:          defaultWidgetComponentConfig.inputNumber,
@@ -62,3 +85,33 @@ export const defaultViewWidgetConfig = {
   recordList:     RecordList,
   matrix:         Matrix,
 };
+
+export function resolveWidget(
+  widgetConfig: ?WidgetConfig,
+  field: types.RIOSField,
+  question: types.RIOSQuestion,
+  interactionType: 'view' | 'edit'
+) {
+  widgetConfig = {...defaultWidgetComponentConfig, ...widgetConfig};
+  if (question.widget && question.widget.type && widgetConfig[question.widget.type] != null) {
+    const Widget = widgetConfig[question.widget.type];
+    const options = question.widget.options || {};
+    // standard widgets don't handle readOnly mode so we map them to readonly
+    // eqivalents
+    if (interactionType === 'view' && standardWidgets.indexOf(Widget) > -1) {
+      return [defaultViewWidgetConfig[baseFieldType(field.type)], {}];
+    }
+
+    return [Widget, options];
+  }
+
+  if (interactionType === 'view') {
+    return [defaultViewWidgetConfig[baseFieldType(field.type)], {}];
+  } else {
+    return [defaultWidgetConfig[baseFieldType(field.type)], {}];
+  }
+}
+
+function baseFieldType(type: types.RIOSType): string {
+  return typeof type === 'string' ? type : baseFieldType(type.base);
+}

@@ -5,37 +5,21 @@
 import React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
+import * as FormContext from './FormContext';
 import QuestionLabel from './QuestionLabel';
 import Help from './Help';
 import AudioPlayer from './AudioPlayer';
 
-import {
-  defaultWidgetComponentConfig,
-  defaultWidgetConfig,
-  defaultViewWidgetConfig
-} from './WidgetConfig';
+import {resolveWidget} from './WidgetConfig';
 
 export default function QuestionValue({
   formValue, question, instrument, form, readOnly,
   editable, onCommitEdit, onCancelEdit,
   noLabel, noHelp, noAudio, disabled, widgetProps, ...props
-}) {
+}, context) {
 
-  let Widget;
-  if (readOnly) {
-    // Use the read-only widget for the given type.
-    Widget = defaultViewWidgetConfig[instrument.type.base];
-  } else {
-    if (question.widget && question.widget.type) {
-      // If a widget is specified, use it.
-      Widget = defaultWidgetComponentConfig[question.widget.type];
-    }
-    if (!Widget) {
-      // If the specified widget is not one we know, or they didn't specify
-      // one, then use the default.
-      Widget = defaultWidgetConfig[instrument.type.base];
-    }
-  }
+  const interactionType = readOnly ? 'view' : 'edit';
+  const [Widget, options] = resolveWidget(context.widgetConfig, instrument, question, interactionType);
 
   return (
     <ReactUI.Block {...props}>
@@ -54,7 +38,7 @@ export default function QuestionValue({
         onCancelEdit={onCancelEdit}
         disabled={disabled}
         question={question}
-        options={question.widget && question.widget.options || {}}
+        options={options}
         formValue={formValue}
         readOnly={readOnly}
         />
@@ -70,4 +54,4 @@ export default function QuestionValue({
   );
 }
 
-
+QuestionValue.contextTypes = FormContext.contextTypes;

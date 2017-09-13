@@ -1,0 +1,6 @@
+id: urn:simple
+version: '1.0'
+title: Custom Widget
+record:
+  - id: blah
+    type: date

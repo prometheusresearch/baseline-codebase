@@ -43,7 +43,6 @@ let Error = function ({error}) {
   );
 };
 
-
 export default class Workspace extends React.Component {
 
   static propTypes = {
@@ -85,6 +84,10 @@ export default class Workspace extends React.Component {
   render() {
     let Component = this.props.options.component === 'EDITOR' ? FormEditor : FormEntry;
 
+    if (this.props.demo.id === 'custom_widget') {
+      Component = require('../CustomWidgetDemo').default;
+    }
+
     return (
       <Provider
         locale={this.props.options.locale}
@@ -92,6 +95,7 @@ export default class Workspace extends React.Component {
         <WorkspaceContainer>
           <FormContainer>
             <Component
+              Form={this.props.options.component === 'EDITOR' ? FormEditor : FormEntry}
               mode={this.props.options.mode}
               instrument={this.props.demo.instrument}
               form={this.props.demo.form}

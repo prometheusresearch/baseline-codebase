@@ -118,6 +118,17 @@ export default class FormEntry extends React.Component {
      * functionality in the form.
      */
     apiUrls: React.PropTypes.object,
+
+    /**
+     * Widget configuration.
+     *
+     * {
+     *   edit: { [widgetType: string]: React.Component },
+     *   view: { [widgetType: string]: React.Component },
+     *   reconcile: { [widgetType: string]: React.Component },
+     * }
+     */
+    widgetConfig: React.PropTypes.object,
   };
 
   static defaultProps = {
@@ -157,7 +168,7 @@ export default class FormEntry extends React.Component {
   }
 
   render() {
-    let {form, instrument, parameters, mode, noPagination, apiUrls} = this.props;
+    let {form, instrument, parameters, mode, noPagination, apiUrls, widgetConfig} = this.props;
     let {editable, pageNumber} = this.state;
     let formState = editable ? this.formStateEditable : this.formState;
     let {isDisabled, isPageDisabled, isPageHidden, isHidden} = formState.event;
@@ -250,6 +261,7 @@ export default class FormEntry extends React.Component {
     return (
       <ReactUI.I18N.I18N dir={this.getI18N().isRightToLeft() ? 'rtl' : 'ltr'}>
         <FormContext
+          widgetConfig={widgetConfig}
           self={this}
           form={form}
           parameters={parameters || {}}

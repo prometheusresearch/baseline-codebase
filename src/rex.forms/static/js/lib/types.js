@@ -131,6 +131,12 @@ export type RIOSQuestion = {
   questions?: Array<RIOSQuestion>;
   rows?: Array<RIOSDescriptor>;
   events?: Array<RIOSEvent>;
+  widget?: RIOSWidgetConfig;
+};
+
+export type RIOSWidgetConfig = {
+  type: string,
+  options?: Object,
 };
 
 export type RIOSTextElement = {

@@ -8,25 +8,28 @@ import {style} from '@prometheusresearch/react-ui/stylesheet';
 
 import {InjectI18N} from 'rex-i18n';
 
+import * as FormContext from '../form/FormContext';
 import QuestionValue from '../form/QuestionValue';
-import {defaultViewWidgetConfig} from '../form/WidgetConfig';
+import {resolveWidget, defaultViewWidgetConfig} from '../form/WidgetConfig';
 import Header from './Header';
 
 
-function Value(props) {
-  let {instrumentType, ...otherProps} = props;
-  let Component = style(defaultViewWidgetConfig[instrumentType], {
-    Root: ReactUI.Block,
-    Text: style('p', {
-      whiteSpace: 'initial',
-      wordWrap: 'break-word',
-      textAlign: 'initial',
-      lineHeight: 1.3,
-    }),
-  });
-  return <Component {...otherProps} />;
+function Value(props, context) {
+  let {instrument, question} = props;
+  const [Widget, options] = resolveWidget(context.widgetConfig, instrument, question, 'view');
+  return (
+    <div style={{textAlign: 'initial', lineHeight: 'initial'}}>
+      <Widget
+        {...props}
+        readOnly={true}
+        asDiscrepancy={true}
+        options={options}
+        />
+    </div>
+  );
 }
 
+Value.contextTypes = FormContext.contextTypes;
 
 let ValueButton = style(ReactUI.QuietButton, {
   Caption: (props) => <div style={{maxWidth: '100%'}} {...props} />,
@@ -104,15 +107,23 @@ export default class DiscrepancyChoices extends React.Component {
     let {question, formValue, instrument} = this.props;
     let active = formValue.value === value;
 
+    let discrepancyFormValue = {
+      value,
+      schema: formValue.schema,
+      params: {},
+      errorList: [],
+      completeErrorList: []
+    };
+
     return (
       <ValueButton
         style={{maxWidth: '100%'}}
         variant={{active}}
         onClick={this.updateValue.bind(null, value)}>
         <Value
-          instrumentType={instrument.type.base}
+          instrument={instrument}
           question={question}
-          formValue={{value}}
+          formValue={discrepancyFormValue}
           noValueText="-"
           />
       </ValueButton>
@@ -145,7 +156,7 @@ export default class DiscrepancyChoices extends React.Component {
           key="_final_value">
           <ReactUI.Block paddingV="x-small" paddingH="small">
             <Value
-              instrumentType={instrument.type.base}
+              instrument={instrument}
               question={question}
               formValue={formValue}
               noValueText="-"

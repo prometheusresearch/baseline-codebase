@@ -25,11 +25,18 @@ export default class Workspace extends React.Component {
   }
 
   render() {
+    let Component = Reconciler;
+
+    if (this.props.recon.id === 'custom_widget') {
+      Component = require('../CustomWidgetDemo').default;
+    }
+
     return (
       <Provider
         locale={this.props.options.locale}
         baseUrl={this.props.i18nUrl}>
-        <Reconciler
+        <Component
+          Form={Reconciler}
           instrument={this.props.recon.instrument}
           form={this.props.recon.form}
           parameters={this.props.recon.parameters}

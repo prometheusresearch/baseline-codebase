@@ -1,0 +1,14 @@
+instrument:
+  id: urn:simple
+  version: '1.0'
+defaultLocalization: en
+pages:
+  - id: page1
+    elements:
+      - type: question
+        options:
+          fieldId: blah
+          text:
+            en: This should use a custom widget
+          widget:
+            type: customDateTime

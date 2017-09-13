@@ -93,3 +93,18 @@ Options:
 * ``resource_prefix_url``: The URL to prefix resources (e.g., audio files) with
   when displaying Forms. Defaults to no prefix.
 
+Adding new form widgets
+=======================
+
+You can add the new form widget implementation via
+:class:`rex.acquire_actions.FormQuestionWidget` extension::
+
+    from rex.acquire_actions import FormQuestionWidget
+
+    class MyFancyWidget(FormQuestionWidget):
+
+        # name of the widget, use it when defining a form
+        name = 'fancy-widget'
+
+        # a pair of package, exported symbol
+        js_type = 'my-pkg', 'MyFancyWidget'

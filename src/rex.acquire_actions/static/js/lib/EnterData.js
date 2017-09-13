@@ -178,7 +178,7 @@ export default class EnterData extends React.Component {
   }
 
   render() {
-    let {title, locale, i18nBaseUrl} = this.props;
+    let {title, locale, i18nBaseUrl, widgetConfig} = this.props;
     let {entrySelection} = this.props.fetched;
     let {mode} = this.state;
     let content, tools;
@@ -249,6 +249,7 @@ export default class EnterData extends React.Component {
       content = (
         <VBox padding={20} flex={1} overflow='auto'>
           <FormEditor
+            widgetConfig={widgetConfig}
             instrument={instrument}
             form={form}
             assessment={assessment}
@@ -280,6 +281,7 @@ export default class EnterData extends React.Component {
       content = (
         <VBox padding={20} flex={1} overflow='auto'>
           <FormEntry
+            widgetConfig={widgetConfig}
             mode='view'
             instrument={instrument}
             form={form}

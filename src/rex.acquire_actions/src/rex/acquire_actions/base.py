@@ -7,7 +7,7 @@ from webob.exc import HTTPForbidden, HTTPBadRequest, HTTPNotFound
 
 from rex.action import Action
 from rex.action.actions import EntityAction
-from rex.core import get_settings
+from rex.core import get_settings, Error, Extension
 from rex.db import get_db
 from rex.forms.implementation.lookup import REGISTRY
 from rex.i18n import get_locale_identifier
@@ -15,7 +15,7 @@ from rex.instrument import Channel, User
 from rex.instrument.util import to_json
 from rex.web import authenticate
 from rex.widget import Field, URLVal, computed_field, URL, responder, \
-    RequestURL
+    RequestURL, JSValue
 
 
 __all__ = (
@@ -25,7 +25,33 @@ __all__ = (
 )
 
 
+class FormQuestionWidget(Extension):
+    """ An interface to define custom widgets for rex.forms questions."""
+
+    name = None
+    js_type = None
+
+    @classmethod
+    def enabled(cls):
+        return cls.name is not None
+
+    @classmethod
+    def sanitize(cls):
+        if not cls.enabled():
+            return
+        if cls.js_type is None:
+            raise Error(
+                'Implementation %s does not conform to rex.forms.interface.FormQuestionWidget interface' % (cls.__name__,),
+                'Missing js_type class attribute')
+
+    @classmethod
+    def to_widget_config(cls):
+        return {w.name: JSValue(package=w.js_type[0], symbol=w.js_type[1]) for w
+                in cls.all()}
+
+
 class CommonAcquireMixin(object):
+
     def get_user(self, request):
         if not hasattr(request, '_acquire_user'):
             user_id = authenticate(request)
@@ -78,6 +104,10 @@ class AcquireAction(CommonAcquireMixin, Action):
     )
 
     @computed_field
+    def widget_config(self):
+        return FormQuestionWidget.to_widget_config()
+
+    @computed_field
     def locale(self, request):
         # pylint: disable=unused-argument
         return get_locale_identifier()
@@ -114,6 +144,10 @@ class AcquireEntityAction(CommonAcquireMixin, EntityAction):
         default=None,
         doc='The URL to prefix resources with when rendering Forms.',
     )
+
+    @computed_field
+    def widget_config(self):
+        return FormQuestionWidget.to_widget_config()
 
     @computed_field
     def locale(self, request):

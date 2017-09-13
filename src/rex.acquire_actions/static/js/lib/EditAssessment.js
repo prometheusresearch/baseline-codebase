@@ -87,7 +87,7 @@ export default class ViewAssessment extends React.Component {
   }
 
   render() {
-    let {title, locale, i18nBaseUrl} = this.props;
+    let {title, locale, i18nBaseUrl, widgetConfig} = this.props;
     let {displayData} = this.props.fetched;
     let {currentChannel} = this.state;
 
@@ -138,6 +138,7 @@ export default class ViewAssessment extends React.Component {
             />
         }
         <FormEditor
+          widgetConfig={widgetConfig}
           key={currentChannel}
           instrument={instrument}
           form={form}

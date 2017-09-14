@@ -199,10 +199,7 @@ export default class FormEntry extends React.Component {
     }
 
     let hiddenPageNumberList = this.getHiddenPageNumberList();
-    let page = find(
-      pages.slice(pageNumber),
-      (page, pageNumber) => !hiddenPageNumberList[pageNumber]
-    );
+    let page = pages[pageNumber];
     let hasPages = !noPagination && pages.length > 1;
 
     let totalFields = instrument.record.length;  // TODO count matrix cells individually?

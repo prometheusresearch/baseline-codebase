@@ -5,10 +5,12 @@ REX.ASYNCTASK Change Log
 .. contents:: Table of Contents
 
 
-0.6.1 (2017-xx-xx)
+0.7.0 (2017-xx-xx)
 ==================
 
 * Typo in dependency metadata.
+* Added an ``AmqpAsyncTransport`` for using AMQP servers to manage the task
+  queues.
 
 
 0.6.0 (2017-06-20)

@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.asynctask_demo',
-    version='0.6.1',
+    version='0.7.0',
     description='Demo package for testing rex.asynctask',
     package_dir={'': 'src'},
     packages=find_packages('src'),
@@ -16,6 +16,7 @@ setup(
     install_requires=[
         'rex.deploy',
         'rex.asynctask',
+        'pika',
     ],
     rex_init='rex.asynctask_demo',
     rex_static='static',

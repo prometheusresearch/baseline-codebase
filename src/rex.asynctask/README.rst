@@ -128,3 +128,53 @@ Settings
 .. autorex:: rex.core.Setting
    :package: rex.asynctask
 
+
+Transports
+==========
+There is an extensible variety of transports that can be used to transmit and
+persist task queues.
+
+``pgsql``
+---------
+Uses a PostgreSQL database to store the tasks. The tasks are stored in a table
+named ``asynctask_queue`` in the ``asynctask`` schema (``rex.asynctask`` will
+create the schema and table automatically if they don't already exist).
+
+Example configurations::
+
+    asynctask_transport: pgsql:database
+    asynctask_transport: pgsql://hostname/database
+    asynctask_transport: pgsql://user:password@hostname:port/database
+
+``filesystem``
+--------------
+Uses the local filesystem to store the tasks. The tasks are stored in files in
+the specified directory (``rex.asynctask`` create the directory if it does not
+already exist). This transport is not recommended for situations where the
+``asynctask-workers`` process is being run on a different machine from the
+application that is submitting the tasks.
+
+Example configurations::
+
+    asynctask_transport: filesys:/path/to/queue/directory
+
+``redis``
+---------
+Uses a Redis server to store the tasks. The tasks are stored in per-queue list
+keys.
+
+Example configurations::
+
+    asynctask_transport: redis://hostname
+    asynctask_transport: redis://hostname:port?db=2
+
+``amqp``
+--------
+Uses an AMQP server (e.g., RabbitMQ) to store the tasks. The tasks are stored
+in durable queues attached to simple exchanges sharing the same name (and
+routing key).
+
+Example configurations::
+
+    asynctask_transport: amqp://user:password@hostname:port/vhost
+

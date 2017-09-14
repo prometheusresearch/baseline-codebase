@@ -1,14 +1,25 @@
-*******************
-RedisAsyncTransport
-*******************
+******************
+AmqpAsyncTransport
+******************
 
 
 Set up the environment::
 
-    >>> import os
+    >>> import time, os
     >>> from rex.asynctask import get_transport
     >>> from rex.core import Rex
     >>> rex = Rex('rex.asynctask_demo')
+
+    >>> CONNECTION_URI = os.environ['RABBIT_URL']
+
+    >>> import pika
+    >>> conn = pika.BlockingConnection(pika.URLParameters(CONNECTION_URI))
+    >>> chan = conn.channel()
+    >>> for q in ('foo', 'doesntexist', 'bar'):
+    ...     _ = chan.queue_delete(q)
+    ...     _ = chan.exchange_delete(q)
+    >>> chan.close()
+    >>> conn.close()
 
 
 Basic Operations
@@ -18,15 +29,15 @@ The basic operations of submitting and retrieving tasks should work as
 expected::
 
     >>> rex.on()
-    >>> transport = get_transport(os.environ['REDIS_URL'])
+    >>> transport = get_transport(CONNECTION_URI)
     >>> transport  # doctest: +ELLIPSIS
-    RedisAsyncTransport(...)
+    AmqpAsyncTransport(...)
 
     >>> transport.poll_queue('foo')
     0
     >>> transport.submit_task('foo', {'foo': 1})
     >>> transport.submit_task('foo', {'foo': 2})
-    >>> transport.poll_queue('foo')
+    >>> time.sleep(1) ; transport.poll_queue('foo')
     2
     >>> transport.get_task('foo')
     {u'foo': 1}
@@ -74,11 +85,12 @@ It will immediately raise an error when you specify a database that cannot be
 connected to::
 
     >>> rex.on()
-    >>> transport = get_transport('redis://hostname_that_doesnt_exist')  # doctest: +ELLIPSIS
+    >>> transport = get_transport('amqp://doesntexist')  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    Error: Failed to connect to the Redis server:
-        Error ... connecting to hostname_that_doesnt_exist:6379. ... not known.
+    Error: Failed to connect to the AMQP server:
+        [Errno ...] nodename nor servname provided, or not known
 
     >>> rex.off()
+
 

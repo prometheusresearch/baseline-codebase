@@ -12,6 +12,7 @@ tests:
   # Monkeypatching multiprocessing to work with coverage.py
   # Adapted from: https://bitbucket.org/ned/coveragepy/src/f84263e515c2eecc6500c91eafd8aca62c96720f/coverage/monkey.py
   - py: |
+      # monkeypatch multiprocessing
       import multiprocessing
       import multiprocessing.process
       import sys
@@ -47,17 +48,46 @@ tests:
   - doctest: test/test_*.rst
 
   - py: |
-      from redis import StrictRedis, RedisError
-      client = StrictRedis(host='localhost')
-      try:
-        client.ping()
-      except RedisError:
+      # check for redis
+      import os
+      url = os.environ.get('REDIS_URL')
+      if not url:
         __pbbt__['HAS_REDIS'] = False
       else:
-        __pbbt__['HAS_REDIS'] = True
+        from redis import StrictRedis, RedisError
+        host = url.split('//', 1)[-1]
+        if ':' in host:
+          host, port = host.split(':')
+        else:
+          port = None
+        client = StrictRedis(host=host, port=port)
+        try:
+          client.ping()
+        except RedisError:
+          __pbbt__['HAS_REDIS'] = False
+        else:
+          __pbbt__['HAS_REDIS'] = True
 
   - doctest: test/redis/test_*.rst
     if: HAS_REDIS
+
+  - py: |
+      # check for rabbit
+      import os
+      url = os.environ.get('RABBIT_URL')
+      if not url:
+        __pbbt__['HAS_RABBIT'] = False
+      else:
+        import pika
+        try:
+          conn = pika.BlockingConnection(pika.URLParameters(url))
+        except:
+          __pbbt__['HAS_RABBIT'] = False
+        else:
+          __pbbt__['HAS_RABBIT'] = True
+
+  - doctest: test/amqp/test_*.rst
+    if: HAS_RABBIT
 
   - coverage-check: 90.0
   - coverage-report: ./build/coverage

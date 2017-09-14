@@ -17,3 +17,9 @@ logging_root:
 #    filename: test.log
 #    formatter: detailed
 
+logging_loggers:
+  amqp:
+    level: CRITICAL
+  pika:
+    level: CRITICAL
+

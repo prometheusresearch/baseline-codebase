@@ -4,7 +4,7 @@
 ---
 suite: rex.asynctask
 tests:
-- py: import-multiprocessing
+- py: monkeypatch-multiprocessing
   stdout: ''
 - sh: pip install --quiet --editable ./demo
   stdout: ''
@@ -12,5 +12,7 @@ tests:
   stdout: ''
 - sh: rex deploy --quiet rex.asynctask_demo
   stdout: ''
-- py: from-redis-import-strictredis-rediserror
+- py: check-for-redis
+  stdout: ''
+- py: check-for-rabbit
   stdout: ''

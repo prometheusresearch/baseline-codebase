@@ -24,7 +24,7 @@ from . import download
 # npm version used for CommonJS environment
 NPM_VERSION = '5.x.x'
 YARN_URL = 'https://github.com/yarnpkg/yarn/releases/download/v0.27.5/yarn-0.27.5.js#md5=8d11d9b5186e27a2b93883b9dcde895a'
-REACT_SCRIPTS_VERSION = '0.9.5008'
+REACT_SCRIPTS_VERSION = '0.9.5009'
 
 USER = pwd.getpwuid(os.getuid()).pw_name
 

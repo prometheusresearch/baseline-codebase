@@ -4,7 +4,7 @@
 
 .. contents:: Table of Contents
 
-4.1.1 (2017-09-XX)
+4.1.1 (2017-09-15)
 ==================
 
 * [FIX] JS: Fixes to react-scripts

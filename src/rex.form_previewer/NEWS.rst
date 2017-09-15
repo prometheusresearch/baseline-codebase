@@ -5,6 +5,12 @@ REX.FORM_PREVIEWER Change Log
 .. contents:: Table of Contents
 
 
+0.10.5 (2017-09-15)
+===================
+
+* Rebuilt package to include updates in rex.forms JS.
+
+
 0.10.4 (2017-07-18)
 ===================
 

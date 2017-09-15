@@ -5,7 +5,7 @@ REX.ACQUIRE_ACTIONS Change Log
 .. contents:: Table of Contents
 
 
-0.4.0 (2017-xx-xx)
+0.4.0 (2017-09-15)
 ==================
 
 * Added the ability to define and configure custom widgets to use for

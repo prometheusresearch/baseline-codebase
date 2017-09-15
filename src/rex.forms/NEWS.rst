@@ -5,7 +5,7 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
-2.4.0 (2017-xx-xx)
+2.4.0 (2017-09-15)
 ==================
 
 * Fixed an issue that caused weird behavior when the first page of a form is

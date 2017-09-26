@@ -1358,7 +1358,7 @@ to their name::
 
     >>> definition = AssessmentDefinitionVal()({
     ...     'instrument': 'mart1',
-    ...     'selector': "/assessment{uid :as assessment_uid, uid :as qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm, uid :as qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqqq, uid :as qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyui_}.filter(instrumentversion.instrument='mart1')",
+    ...     'selector': "/assessment{uid :as assessment_uid, uid :as id, uid :as qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm, uid :as qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqqq, uid :as qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyui_}.filter(instrumentversion.instrument='mart1')",
     ... })
     >>> table = PrimaryTable(definition, get_management_db())
     >>> pprint(table.get_deploy_facts())
@@ -1374,6 +1374,7 @@ to their name::
       'required': True,
       'title': 'InstrumentVersion UID',
       'type': 'text'},
+     {'column': u'id_', 'of': u'mart1', 'required': False, 'type': 'text'},
      {'column': u'qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyui_1',
       'of': u'mart1',
       'required': False,

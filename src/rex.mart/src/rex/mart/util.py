@@ -114,6 +114,11 @@ def make_safe_token(token, trim=True):
     """
 
     safe_token = unicode(token).lower().replace('-', '_')
+
+    if safe_token == 'id':
+        # This is a name that causes issues with lower level tools.
+        safe_token = u'id_'
+
     if not RE_SAFE_TOKEN.match(safe_token):
         safe_token = RE_CLEAN_TOKEN.sub(u'', safe_token)
         if not trim:

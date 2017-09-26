@@ -5,6 +5,12 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
+0.7.3 (2017-xx-xx)
+==================
+
+* Fixed an issue that allowed fields in Assessments named ``id``.
+
+
 0.7.2 (2017-09-15)
 ==================
 

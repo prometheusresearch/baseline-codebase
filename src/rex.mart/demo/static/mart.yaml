@@ -140,7 +140,8 @@ definitions:
         selector: |
           /assessment{
             id() :as assessment_uid,
-            age_at_evaluation
+            age_at_evaluation,
+            id() :as id_,
           }.filter(
             instrumentversion.instrument='mart1'
           )/:rexdb

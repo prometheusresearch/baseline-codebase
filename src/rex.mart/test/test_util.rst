@@ -92,7 +92,8 @@ payload::
 make_safe_token
 ===============
 
-::
+Massages the given string so that it is safe for use as the name of an object
+in the database::
 
     >>> from rex.core import Rex
     >>> rex = Rex('rex.mart_demo')
@@ -117,6 +118,9 @@ make_safe_token
 
     >>> make_safe_token('qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm')
     u'qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopa'
+
+    >>> make_safe_token('id')
+    u'id_'
 
     >>> make_safe_token('%^$#%&^%&*&')
     Traceback (most recent call last):

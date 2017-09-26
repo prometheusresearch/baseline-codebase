@@ -26,6 +26,8 @@ import mimetypes
 import marshal
 import fcntl
 import cStringIO
+import socket
+import urlparse
 import raven.utils.wsgi
 
 
@@ -622,6 +624,9 @@ def route(package_url):
     return routes.get(local_url)
 
 
+HOSTNAME = socket.gethostname()
+
+
 def make_sentry_script_tag(req):
     """
     Generates an HTML snippet to enable Sentry integration::
@@ -635,6 +640,15 @@ def make_sentry_script_tag(req):
     public_dsn = sentry.get_public_dsn()
     if not public_dsn:
         return ""
+    parts = urlparse.urlsplit(public_dsn)
+    if parts.hostname == HOSTNAME:
+        url = urlparse.urlsplit(req.host_url)
+        netloc = "".join((
+            parts.username+'@',
+            url.hostname,
+            ':'+str(url.port) if url.port else ''))
+        public_dsn = urlparse.urlunsplit(
+                (parts.scheme, netloc, parts.path, parts.query, parts.fragment))
     tags = sentry.tags
     user_context = sentry.context.get().get('user')
     raven = url_for(req, "rex.web:/ravenjs/raven.min.js")

@@ -344,7 +344,7 @@ Let's prevent ``HandleAnyError`` from messing with the rest of the tests::
 Sentry integration, you must provide the Sentry DSN and additional tags
 as environment variables::
 
-    >>> import os
+    >>> import os, socket
 
     >>> _environ = os.environ
 
@@ -366,6 +366,20 @@ with the front-end::
       <title>Testing Sentry integration</title>
       <script src="http://localhost/web/ravenjs/raven.min.js"></script><script>Raven.config("//pk@hostname:9000/1").setTagsContext({...}).setUserContext({...}).install(); ...</script>
     </head>
+
+When Sentry DSN refers to the local host, it is rewritten to match the host name
+of the request::
+
+    >>> os.environ['SENTRY_DSN'] = 'http://pk:sk@%s/1' % socket.gethostname()
+
+    >>> demo.reset()
+
+    >>> req = Request.blank('/sentry.html', remote_user='Alice')
+    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    200 OK
+    ...
+    <script src="http://localhost/web/ravenjs/raven.min.js"></script><script>Raven.config("//pk@localhost/1")...</script>
+    ...
 
 When Sentry integration is not configured, ``SENTRY_SCRIPT_TAG`` is empty::
 

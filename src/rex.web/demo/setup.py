@@ -25,7 +25,7 @@ class demo(Command):
 
 setup(
     name='rex.web_demo',
-    version="3.11.0",
+    version="3.11.1",
     description="Demo package for testing rex.web",
     package_dir={'': 'src'},
     packages=find_packages('src'),

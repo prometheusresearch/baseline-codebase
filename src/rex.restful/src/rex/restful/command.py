@@ -4,6 +4,7 @@
 
 
 import inspect
+import time
 
 from datetime import datetime
 
@@ -302,6 +303,9 @@ class RestfulLocation(Command):
         start = datetime.now()
         self.authorize(request)
         self._log_request(request)
+
+        if get_settings().restful_emulate_slowness:
+            time.sleep(get_settings().restful_emulate_slowness / 1000.0)
 
         cors_headers = {}
         if self.cors_handler:

@@ -14,6 +14,9 @@ REX.RESTFUL Change Log
   ``rex.restful``.
 * Removed implementations of the ``DateVal``, ``TimeVal``, and ``DateTimeVal``
   in favor of those provided by ``rex.core``.
+* Added a ``restful_emulate_slowness`` application setting to force endpoints
+  to stretch out their response time (only intended for use during development
+  and/or testing -- don't use this in production).
 
 
 1.2.0 (2017-01-19)

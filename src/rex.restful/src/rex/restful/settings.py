@@ -11,6 +11,7 @@ from rex.core import Setting, MapVal, StrVal, RecordVal, SeqVal, MaybeVal, \
 
 __all__ = (
     'CorsPoliciesSetting',
+    'EmulateSlownessSetting',
 )
 
 
@@ -67,4 +68,23 @@ class CorsPoliciesSetting(Setting):
                 else:
                     merged[key] = value
         return merged
+
+
+class EmulateSlownessSetting(Setting):
+    """
+    This is a development setting that will intentionally slow down the
+    execution of every endpoint by the number of milliseconds specified in this
+    setting.
+
+    This is particularly useful when developing a GUI that directly invokes
+    restful endpoints and you want to test the behavior of the GUI when the
+    server takes a long time to respond.
+
+    If not specified, defaults to ``0``.
+    """
+
+    #:
+    name = 'restful_emulate_slowness'
+    validate = IntVal(0)
+    default = 0
 

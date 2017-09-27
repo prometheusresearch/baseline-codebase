@@ -19,6 +19,7 @@ pylint:
     - abstract-class-not-used
     - abstract-class-little-used
     - no-init
+    - trailing-newlines
   enable:
     - fixme
 

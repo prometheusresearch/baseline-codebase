@@ -7,8 +7,11 @@
 1.7.0 (2017-XX-XX)
 ==================
 
-* [FEAT] add ``!resource pkg:/path`` constructor to allow referencing package
+* [FEAT] Add ``!resource pkg:/path`` constructor to allow referencing package
   specific resources in configuration.
+
+* [FEAT] Action fields ``actions``, ``path`` and ``states`` now allow sequences to make it
+  easier to splice multiple configuration values in there.
 
 1.6.3 (2017-08-17)
 ==================

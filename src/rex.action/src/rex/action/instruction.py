@@ -14,12 +14,13 @@
 
 from __future__ import absolute_import
 
+import yaml
 import cgi
 
 from collections import namedtuple
 from cached_property import cached_property
 
-from rex.core import Location, locate, set_location, Validate, Error
+from rex.core import Location, locate, set_location, Validate, Error, AnyVal
 from rex.core import RecordVal, UnionVal, MapVal, StrVal, SeqVal, OnField
 from rex.widget import TransitionableRecord
 
@@ -133,6 +134,42 @@ class ValidateWithAction(Validate):
         self.resolve_action = resolve_action
 
 
+def flatten(items):
+    res = []
+    for item in items:
+        if isinstance(item, list):
+            res = res + item
+        else:
+            res.append(item)
+    return res
+
+
+class NestedSeqVal(Validate):
+    """ Validate nested sequences."""
+
+    def __init__(self, validate_item=AnyVal()):
+        self.validate_item = validate_item
+        self.validate_seq = SeqVal(self)
+
+    def __call__(self, value):
+        if isinstance(value, list):
+            seq = self.validate_seq(value)
+            return flatten(seq)
+        else:
+            return self.validate_item(value)
+
+    def construct(self, loader, node):
+        if (isinstance(node, yaml.ScalarNode) and
+                node.tag == u'tag:yaml.org,2002:null' and
+                node.value == u''):
+            return []
+        if isinstance(node, yaml.SequenceNode):
+            seq = self.validate_seq.construct(loader, node)
+            return flatten(seq)
+        else:
+            return self.validate_item.construct(loader, node)
+
+
 class ThenVal(ValidateWithAction):
     """ Validator for "then" part of action."""
 
@@ -149,7 +186,7 @@ class ThenVal(ValidateWithAction):
 
     @cached_property
     def _validate(self):
-        return SeqVal(
+        return NestedSeqVal(
             UnionVal(
                 ExecuteVal(self.id, self.resolve_action).variant,
                 RepeatVal(self.id, self.resolve_action).variant,
@@ -304,6 +341,7 @@ class ExecuteShortcutVal(ValidateWithAction):
     def _check(self, value):
         from .wizard import WizardBase as Wizard
         if len(value) != 1:
+            return Execute(id='x', action='y', then=[], action_instance=None)
             raise Error('only mappings of a single key are allowed')
         action, then = value.iteritems().next()
         action_instance = self.resolve_action(action)

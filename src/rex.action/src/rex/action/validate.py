@@ -23,7 +23,7 @@ from htsql.core.syn.parse import parse
 
 from rex.core import (
     Record, Validate, ValidatingLoader, Error, guard, Location,
-    AnyVal, UStrVal, StrVal, MapVal, OneOfVal, RecordVal, RecordField)
+    OneOrSeqVal, AnyVal, UStrVal, StrVal, MapVal, OneOfVal, RecordVal, RecordField)
 from rex.db import get_db, Query, RexHTSQL
 from rex.web import url_for
 from rex.widget.validate import WidgetVal, DeferredVal
@@ -94,27 +94,15 @@ class QueryVal(Validate):
         return Query(query, db=value.db)
 
 
-class _StateVal(Validate):
-    """ Validator for data model state definition.
-    """
+class DomainVal(Validate):
+    """ Validator for data model domain with user-defined states."""
 
     _validate_state = RecordVal(
         ('title', StrVal()),
         ('expression', StrVal()),
     )
 
-    _validate = MapVal(StrVal(), _validate_state)
-
-    def __call__(self, value):
-        value = self._validate(value)
-        return [typing.EntityTypeState(name=k, title=v.title, expression=v.expression)
-                for k, v in value.items()]
-
-
-class DomainVal(Validate):
-    """ Validator for data model domain with user-defined states."""
-
-    _validate = MapVal(StrVal(), _StateVal())
+    _validate = OneOrSeqVal(MapVal(StrVal(), MapVal(StrVal(), _validate_state)))
 
     def __init__(self, name=None):
         self.name = name
@@ -122,10 +110,19 @@ class DomainVal(Validate):
     def __call__(self, value):
         if isinstance(value, typing.Domain):
             return value
-        value = self._validate(value)
-        entity_types = [typing.EntityType(name=typename, state=state)
-                        for typename, states in value.items()
-                        for state in states]
+        values = self._validate(value)
+        if isinstance(values, list):
+            value = {}
+            for v in values:
+                for entity_name, states in v.items():
+                    value.setdefault(entity_name, {}).update(states)
+        else:
+            value = values
+        entity_types = [typing.EntityType(
+            name=typename,
+            state=typing.EntityTypeState(name=statename, title=stateinfo.title, expression=stateinfo.expression))
+            for typename, states in value.items()
+            for statename, stateinfo in states.items()]
         return typing.Domain(name=self.name, entity_types=entity_types)
 
 
@@ -416,11 +413,19 @@ class ActionMapVal(Validate):
 
     def __init__(self, action_map=None):
         if action_map:
-            self._validate = ActionOverrideMapVal(action_map)
+            self._validate = OneOrSeqVal(ActionOverrideMapVal(action_map))
         else:
-            self._validate = MapVal(StrVal(), ActionOrActionIncludeVal())
+            self._validate = OneOrSeqVal(MapVal(StrVal(), ActionOrActionIncludeVal()))
 
-    def _sanitize(self, value):
+    def _sanitize(self, values):
+
+        if isinstance(values, list):
+            value = {}
+            for v in values:
+                value.update(v)
+        else:
+            value = values
+
         value = dict(value)
         for k, action in value.items():
             if not isinstance(action, ActionReference):

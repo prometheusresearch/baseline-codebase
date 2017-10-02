@@ -155,6 +155,88 @@ Wizard
                                    title='Recruited individuals',
                                    expression='exists(study_enrollment.individual = id())',                                    input=None))
 
+Multiple actions dicts::
+
+  >>> w = parse("""
+  ... type: wizard
+  ... path:
+  ... - first:
+  ...   - second:
+  ... actions:
+  ...   first:
+  ...     type: wmy
+  ...   second:
+  ...     type: wanother
+  ... """)
+
+  >>> w.path
+  Start(then=[Execute(id='first', action='first', then=[Execute(id='second', action='second', then=[], action_instance=AnotherAction(...))], action_instance=MyAction(...))])
+
+  >>> w.actions
+  {'second': AnotherAction(...), 'first': MyAction(...)}
+
+  >>> w = parse("""
+  ... type: wizard
+  ... path:
+  ... - first:
+  ...   - second:
+  ... actions:
+  ...   - first:
+  ...       type: wmy
+  ...   - second:
+  ...       type: wanother
+  ... """)
+
+  >>> w.path
+  Start(then=[Execute(id='first', action='first', then=[Execute(id='second', action='second', then=[], action_instance=AnotherAction(...))], action_instance=MyAction(...))])
+
+  >>> w.actions
+  {'second': AnotherAction(...), 'first': MyAction(...)}
+
+  >>> w = parse("""
+  ... type: wizard
+  ... path:
+  ... - first:
+  ...   - second:
+  ... actions:
+  ...   - first:
+  ...       type: wmy
+  ...   - second:
+  ...       type: wanother
+  ... states:
+  ...   individual:
+  ...     recruited:
+  ...       title: Recruited individuals
+  ...       expression: true()
+  ... """)
+
+  >>> w.states.entity_types
+  {'individual[recruited]': EntityType(name='individual', state=EntityTypeState(name='recruited', title='Recruited individuals', expression='true()', input=None))}
+
+  >>> w = parse("""
+  ... type: wizard
+  ... path:
+  ... - first:
+  ...   - second:
+  ... actions:
+  ...   - first:
+  ...       type: wmy
+  ...   - second:
+  ...       type: wanother
+  ... states:
+  ... - individual:
+  ...     recruited:
+  ...       title: Recruited individuals
+  ...       expression: true()
+  ... - individual:
+  ...     not-recruited:
+  ...       title: Not Recruited individuals
+  ...       expression: false()
+  ... """)
+
+  >>> w.states.entity_types
+  {'individual[recruited]': EntityType(name='individual', state=EntityTypeState(name='recruited', title='Recruited individuals', expression='true()', input=None)), 'individual[not-recruited]': EntityType(name='individual', state=EntityTypeState(name='not-recruited', title='Not Recruited individuals', expression='false()', input=None))}
+
 Context refetch::
 
   >>> w = parse("""

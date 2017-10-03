@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-3.11.1 (2017-XX-XX)
+3.11.1 (2017-10-03)
 ===================
 
 * Sentry: when Sentry DSN refers to the local host, rewrite the public DSN

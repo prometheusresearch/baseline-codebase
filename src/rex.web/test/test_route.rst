@@ -370,7 +370,7 @@ with the front-end::
 When Sentry DSN refers to the local host, it is rewritten to match the host name
 of the request::
 
-    >>> os.environ['SENTRY_DSN'] = 'http://pk:sk@%s/1' % socket.gethostname()
+    >>> os.environ['SENTRY_DSN'] = 'http://pk:sk@%s/1' % socket.getfqdn()
 
     >>> demo.reset()
 

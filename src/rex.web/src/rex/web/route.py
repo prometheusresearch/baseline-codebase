@@ -624,7 +624,7 @@ def route(package_url):
     return routes.get(local_url)
 
 
-HOSTNAME = socket.gethostname()
+HOSTNAME = socket.getfqdn()
 
 
 def make_sentry_script_tag(req):

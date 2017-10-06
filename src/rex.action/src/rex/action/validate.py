@@ -291,8 +291,6 @@ class ActionVal(Validate):
         if sig not in ActionBase.mapped():
             raise Error('unknown action type specified:', action_type)
         action_class = ActionBase.mapped()[sig]
-        if not issubclass(action_class, self.action_class):
-            raise Error('action must be an instance of:', self.action_class)
         value = {k: v for (k, v) in value.items() if k != 'type'}
         validate = WidgetVal(package=self.package, widget_class=action_class).validate_values
         value = validate(action_class, value)

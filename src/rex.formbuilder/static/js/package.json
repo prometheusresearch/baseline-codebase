@@ -1,6 +1,6 @@
 {
   "name": "rex-formbuilder",
-  "version": "5.9.2",
+  "version": "5.9.3",
   "description": "JavaScript functionality for the rex.formbuilder application",
   "author": "Prometheus Research, LLC",
   "license": "AGPL-3.0",
@@ -29,7 +29,7 @@
     "deep-copy": "*",
     "dot-qs": "0.2.0",
     "classnames": "^2.1.2",
-    "react-select": "^1.0.0-rc.2",
+    "react-select": "1.0.0-rc.5",
     "react-dnd": "^2.1.4",
     "react-dnd-html5-backend": "^2.1.2",
     "react-forms": "1.0.0-rc5"

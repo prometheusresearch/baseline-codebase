@@ -5,6 +5,12 @@ REX.FORMBUILDER Change Log
 .. contents:: Table of Contents
 
 
+5.9.3 (2017-xx-xx)
+==================
+
+* Pinning a JavaScript dependency to a known-compatible version.
+
+
 5.9.2 (2017-06-21)
 ==================
 

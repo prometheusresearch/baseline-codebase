@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.sms',
-    version='2.0.0',
+    version='2.0.1',
     description='A RexDB interface for sending SMS text messages.',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',

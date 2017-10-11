@@ -6,7 +6,7 @@ import re
 
 import phonenumbers
 
-from rex.core import StrVal, Error
+from rex.core import UStrVal, Error
 
 
 __all__ = (
@@ -15,7 +15,10 @@ __all__ = (
 )
 
 
-class TelephoneNumberVal(StrVal):
+RE_BOGUS_TN_CHARACTERS = re.compile(r'[^\W\d_]', re.UNICODE)
+
+
+class TelephoneNumberVal(UStrVal):
     """
     Accepts strings that resemble telephone numbers and formats them in the
     international E.164 format.
@@ -27,6 +30,7 @@ class TelephoneNumberVal(StrVal):
             raise Error(
                 'Region "%s" is not supported' % (self.default_region,)
             )
+        super(TelephoneNumberVal, self).__init__()
 
     def __call__(self, data):
         # pylint: disable=super-on-old-class
@@ -38,24 +42,30 @@ class TelephoneNumberVal(StrVal):
         else:
             region = self.default_region
 
+        if RE_BOGUS_TN_CHARACTERS.search(data):
+            self._fail(data)
+
         try:
             phone = phonenumbers.parse(data, region)
         except phonenumbers.NumberParseException:
-            raise Error('expected a phone number, got \'%s\'' % data)
+            self._fail(data)
         else:
             if not phonenumbers.is_possible_number(phone):
-                raise Error('expected a phone number, got \'%s\'' % data)
+                self._fail(data)
 
         return phonenumbers.format_number(
             phone,
             phonenumbers.PhoneNumberFormat.E164,
         )
 
+    def _fail(self, data):
+        raise Error('expected a phone number, got \'%s\'' % data)
+
 
 RE_NONDIGIT = re.compile(r'[^0-9]')
 
 
-class ShortCodeVal(StrVal):
+class ShortCodeVal(UStrVal):
     """
     Accepts strings that resemble short code numbers.
     """
@@ -66,6 +76,7 @@ class ShortCodeVal(StrVal):
             raise Error(
                 'Region "%s" is not supported' % (self.default_region,)
             )
+        super(ShortCodeVal, self).__init__()
 
     def __call__(self, data):
         value = super(ShortCodeVal, self).__call__(data)

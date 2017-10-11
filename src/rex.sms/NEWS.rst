@@ -5,6 +5,13 @@ REX.SMS Change Log
 .. contents:: Table of Contents
 
 
+2.0.1 (2017-xx-xx)
+==================
+
+* Fixed some issues with the TelephoneNumberVal allowing things that are
+  clearly not telephone numbers.
+
+
 2.0.0 (2017-06-20)
 ==================
 

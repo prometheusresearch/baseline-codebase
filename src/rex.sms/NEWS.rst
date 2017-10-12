@@ -5,7 +5,7 @@ REX.SMS Change Log
 .. contents:: Table of Contents
 
 
-2.0.1 (2017-xx-xx)
+2.0.1 (2017-10-12)
 ==================
 
 * Fixed some issues with the TelephoneNumberVal allowing things that are

@@ -10,14 +10,19 @@ from htsql.core.domain import (
         UntypedDomain, BooleanDomain, TextDomain, IntegerDomain, DecimalDomain,
         FloatDomain, DateDomain,TimeDomain, DateTimeDomain, ListDomain,
         RecordDomain, EntityDomain, IdentityDomain)
-from htsql.core.syn.syntax import VoidSyntax, IdentifierSyntax
+from htsql.core.syn.syntax import (
+        VoidSyntax, StringSyntax, IntegerSyntax, DecimalSyntax, FloatSyntax,
+        IdentifierSyntax, CollectSyntax, ComposeSyntax, SelectSyntax,
+        RecordSyntax, AssignSyntax, SpecifySyntax, FunctionSyntax,
+        FilterSyntax, OperatorSyntax, PrefixSyntax, DirectSyntax, GroupSyntax,
+        ProjectSyntax)
 from htsql.core.cmd.embed import Embed
 from htsql.core.tr.binding import (
         RootBinding, LiteralBinding, TableBinding, ChainBinding,
         CollectBinding, SieveBinding, DefineBinding, IdentityBinding,
         SortBinding, QuotientBinding, ComplementBinding, ClipBinding,
         TitleBinding, DirectionBinding, FormulaBinding, CastBinding,
-        ImplicitCastBinding, RerouteBinding, FreeTableRecipe,
+        ImplicitCastBinding, WrappingBinding, RerouteBinding, FreeTableRecipe,
         AttachedTableRecipe, ColumnRecipe, KernelRecipe, ComplementRecipe,
         ClosedRecipe)
 from htsql.core.tr.bind import BindingState, Select, BindByRecipe
@@ -35,6 +40,7 @@ from htsql.core.tr.fn.signature import (
         ExtractMinuteSig, ExtractSecondSig)
 from htsql_rex_query import (
         SelectionBinding, BindingRecipe, DefinitionRecipe, SelectSyntaxRecipe)
+import decimal
 
 
 class Output(object):
@@ -97,9 +103,10 @@ class RexBindingState(BindingState):
     def collect(self, output):
         binding = Select.__invoke__(output.binding, self)
         if output.plural:
+            syntax = CollectSyntax(binding.syntax)
             binding = CollectBinding(
                     self.scope, binding,
-                    ListDomain(binding.domain), self.scope.syntax)
+                    ListDomain(binding.domain), syntax)
         return binding
 
     def bind_literal(self, value):
@@ -107,9 +114,22 @@ class RexBindingState(BindingState):
             value = Embed.__invoke__(value)
         except TypeError:
             raise Error("Got invalid literal value:", value)
+        syntax = VoidSyntax()
+        if value.data is None:
+            syntax = IdentifierSyntax(u"null")
+        elif isinstance(value.data, unicode):
+            syntax = StringSyntax(value.data)
+        elif isinstance(value.data, bool):
+            syntax = IdentifierSyntax(unicode(value.data).lower())
+        elif isinstance(value.data, (int, long)):
+            syntax = IntegerSyntax(unicode(value))
+        elif isinstance(value.data, decimal.Decimal):
+            syntax = DecimalSyntax(unicode(value))
+        elif isinstance(value.data, float):
+            syntax = FloatSyntax(unicode(value))
         return Output(
                 LiteralBinding(
-                    self.scope, value.data, value.domain, self.scope.syntax),
+                    self.scope, value.data, value.domain, syntax),
                 optional=(value is None))
 
     def bind_here_op(self, args):
@@ -164,13 +184,16 @@ class RexBindingState(BindingState):
         binding = output.binding
         optional = output.optional
         plural = output.plural
+        syntax = binding.syntax
         for arg in args[1:]:
             self.push_scope(binding)
             output = self(arg)
             binding = output.binding
             optional = optional or output.optional
             plural = plural or output.plural
+            syntax = ComposeSyntax(syntax, binding.syntax)
             self.pop_scope()
+        binding = WrappingBinding(binding, syntax)
         return Output(binding, optional=optional, plural=plural)
 
     def bind_select_op(self, args):
@@ -181,6 +204,8 @@ class RexBindingState(BindingState):
         recipes = []
         fields = []
         binding = output.binding
+        larm = binding.syntax
+        rarms = []
         for arg in args[1:]:
             self.push_scope(binding)
             selection = self(arg)
@@ -200,11 +225,13 @@ class RexBindingState(BindingState):
                         plural=selection.plural)
                 recipe = ClosedRecipe(recipe)
                 binding = DefineBinding(
-                        binding, tag, None, recipe, self.scope.syntax)
+                        binding, tag, None, recipe, binding.syntax)
+            rarms.append(field.syntax)
         domain = RecordDomain([decorate(field) for field in fields])
+        syntax = SelectSyntax(larm, RecordSyntax(rarms))
         return Output(
                 SelectionBinding(
-                    binding, recipes, fields, domain, self.scope.syntax),
+                    binding, recipes, fields, domain, syntax),
                 optional=output.optional, plural=output.plural)
 
     def bind_filter_op(self, args):
@@ -221,9 +248,13 @@ class RexBindingState(BindingState):
         self.pop_scope()
         predicate = ImplicitCastBinding(
                 output.binding, BooleanDomain(), output.binding.syntax)
-        return Output(
-                SieveBinding(base.binding, predicate, self.scope.syntax),
-                optional=True, plural=True)
+        syntax = ComposeSyntax(
+                base.binding.syntax,
+                FunctionSyntax(
+                    IdentifierSyntax(u"filter"),
+                    [predicate.syntax]))
+        binding = SieveBinding(base.binding, predicate, syntax)
+        return Output(binding, optional=True, plural=True)
 
     def bind_define_op(self, args):
         if not (len(args) >= 1):
@@ -231,9 +262,11 @@ class RexBindingState(BindingState):
                         " got:", ", ".join(map(str, args)))
         base = self(args[0])
         binding = base.binding
+        arms = []
         for arg in args[1:]:
             self.push_scope(binding)
             definition = self(arg)
+            arms.append(definition.binding.syntax)
             self.pop_scope()
             tag = guess_tag(definition.binding)
             if tag is None:
@@ -244,8 +277,11 @@ class RexBindingState(BindingState):
                     optional=definition.optional,
                     plural=definition.plural)
             recipe = ClosedRecipe(recipe)
+            syntax = FunctionSyntax(IdentifierSyntax(u"define"), arms)
+            if not isinstance(base.binding.syntax, VoidSyntax):
+                syntax = ComposeSyntax(base.binding.syntax, syntax)
             binding = DefineBinding(
-                    binding, tag, None, recipe, self.scope.syntax)
+                    binding, tag, None, recipe, syntax)
         return Output(binding, optional=base.optional, plural=base.plural)
 
     def bind_sort_op(self, args):
@@ -284,8 +320,13 @@ class RexBindingState(BindingState):
             else:
                 fields.append(output.binding)
         self.pop_scope()
+        syntax = ComposeSyntax(
+                base.binding.syntax,
+                FunctionSyntax(
+                    IdentifierSyntax(u"sort"),
+                    [field.syntax for field in fields]))
         return Output(
-                SortBinding(base.binding, fields, None, None, self.scope.syntax),
+                SortBinding(base.binding, fields, None, None, syntax),
                 optional=base.optional,
                 plural=base.plural)
 
@@ -300,9 +341,14 @@ class RexBindingState(BindingState):
                 isinstance(args[1].val, int)):
             raise Error("Expected an integer literal, got:", args[1])
         limit = args[1].val
+        syntax = ComposeSyntax(
+                base.binding.syntax,
+                FunctionSyntax(
+                    IdentifierSyntax(u"limit"),
+                    [IntegerSyntax(unicode(limit))]))
         binding = ClipBinding(
                 self.scope, base.binding, [],
-                limit, None, self.scope.syntax)
+                limit, None, syntax)
         if isinstance(base.binding.domain, RecordDomain):
             syntax_recipes = expand(
                     base.binding,
@@ -335,8 +381,12 @@ class RexBindingState(BindingState):
                 raise Error("Expected a singular expression, got:", arg)
             fields.append(output.binding)
         self.pop_scope()
+        syntax = GroupSyntax(
+                ProjectSyntax(
+                    seed.binding.syntax,
+                    RecordSyntax([field.syntax for field in fields])))
         quotient = QuotientBinding(
-                self.scope, seed.binding, fields, self.scope.syntax)
+                self.scope, seed.binding, fields, syntax)
         binding = quotient
         name = guess_tag(seed.binding)
         if name is not None:
@@ -361,9 +411,12 @@ class RexBindingState(BindingState):
                         " got:", ", ".join(map(str, args)))
         name = args[0].val
         output = self(args[1])
-        syntax = IdentifierSyntax(name)
+        title = IdentifierSyntax(name)
+        syntax = AssignSyntax(
+                SpecifySyntax([title], None),
+                output.binding.syntax)
         return Output(
-                TitleBinding(output.binding, syntax, syntax),
+                TitleBinding(output.binding, title, syntax),
                 optional=output.optional,
                 plural=output.plural)
 
@@ -372,8 +425,9 @@ class RexBindingState(BindingState):
             raise Error("Expected one argument,"
                         " got:", ", ".join(map(str, args)))
         output = self(args[0])
+        syntax = DirectSyntax(u"+", output.binding.syntax)
         return Output(
-                DirectionBinding(output.binding, +1, self.scope.syntax),
+                DirectionBinding(output.binding, +1, syntax),
                 optional=output.optional, plural=output.plural)
 
     def bind_desc_op(self, args):
@@ -381,8 +435,9 @@ class RexBindingState(BindingState):
             raise Error("Expected one argument,"
                         " got:", ", ".join(map(str, args)))
         output = self(args[0])
+        syntax = DirectSyntax(u"-", output.binding.syntax)
         return Output(
-                DirectionBinding(output.binding, -1, self.scope.syntax),
+                DirectionBinding(output.binding, -1, syntax),
                 optional=output.optional, plural=output.plural)
 
     def bind_id_op(self, args):
@@ -392,22 +447,23 @@ class RexBindingState(BindingState):
         recipe = identify(self.scope)
         if recipe is None:
             raise Error("Cannot determine identity")
-        return Output(self.use(recipe, self.scope.syntax))
+        syntax = FunctionSyntax(IdentifierSyntax(u"id"), [])
+        return Output(self.use(recipe, syntax))
 
     def bind_add_op(self, args):
-        return self.bind_poly(AddSig, args)
+        return self.bind_poly(AddSig, args, op=u'+')
 
     def bind_subtract_op(self, args):
-        return self.bind_poly(SubtractSig, args)
+        return self.bind_poly(SubtractSig, args, op=u'-')
 
     def bind_multiply_op(self, args):
-        return self.bind_poly(MultiplySig, args)
+        return self.bind_poly(MultiplySig, args, op=u'*')
 
     def bind_divide_op(self, args):
-        return self.bind_poly(DivideSig, args)
+        return self.bind_poly(DivideSig, args, op=u'/')
 
     def bind_contains_op(self, args):
-        return self.bind_poly(ContainsSig(+1), args)
+        return self.bind_poly(ContainsSig(+1), args, op=u'~')
 
     def bind_equal_op(self, args):
         parameters = self.bind_parameters(IsAmongSig, args)
@@ -434,56 +490,72 @@ class RexBindingState(BindingState):
         optional = False
         plural = False
         ops = []
+        syntax = None
         for output in parameters['ops']:
             op = ImplicitCastBinding(
-                    output.binding, BooleanDomain(), self.scope.syntax)
+                    output.binding, BooleanDomain(), output.binding.syntax)
             optional = optional or output.optional
             plural = plural or output.plural
             ops.append(op)
+            if syntax is None:
+                syntax = op.syntax
+            else:
+                syntax = OperatorSyntax(
+                        u'&' if zero else u'|',
+                        syntax, op.syntax)
         if len(ops) == 1:
             binding = ops[0]
         else:
             binding = FormulaBinding(
-                    self.scope, signature(), BooleanDomain(),
-                    self.scope.syntax, ops=ops)
+                    self.scope, signature(), BooleanDomain(), syntax, ops=ops)
         return Output(binding, optional=optional, plural=plural)
 
     def bind_not_op(self, args):
         parameters = self.bind_parameters(ExistsSig, args)
         output = parameters['op']
         op = ImplicitCastBinding(
-                output.binding, BooleanDomain(), self.scope.syntax)
+                output.binding, BooleanDomain(), output.binding.syntax)
+        syntax = PrefixSyntax(u'!', op.syntax)
         return Output(
                 FormulaBinding(
-                    self.scope, NotSig(), BooleanDomain(),
-                    self.scope.syntax, op=op),
+                    self.scope, NotSig(), BooleanDomain(), syntax, op=op),
                 optional=output.optional, plural=output.plural)
 
     def bind_year_op(self, args):
-        return self.bind_date_extract(ExtractYearSig, IntegerDomain, args)
+        return self.bind_date_extract(
+                ExtractYearSig, IntegerDomain, args, fn=u"year")
 
     def bind_month_op(self, args):
-        return self.bind_date_extract(ExtractMonthSig, IntegerDomain, args)
+        return self.bind_date_extract(
+                ExtractMonthSig, IntegerDomain, args, fn=u"month")
 
     def bind_day_op(self, args):
-        return self.bind_date_extract(ExtractDaySig, IntegerDomain, args)
+        return self.bind_date_extract(
+                ExtractDaySig, IntegerDomain, args, fn=u"day")
 
     def bind_hour_op(self, args):
-        return self.bind_date_extract(ExtractHourSig, IntegerDomain, args)
+        return self.bind_date_extract(
+                ExtractHourSig, IntegerDomain, args, fn=u"hour")
 
     def bind_minute_op(self, args):
-        return self.bind_date_extract(ExtractMinuteSig, IntegerDomain, args)
+        return self.bind_date_extract(
+                ExtractMinuteSig, IntegerDomain, args, fn=u"minute")
 
     def bind_second_op(self, args):
-        return self.bind_date_extract(ExtractSecondSig, FloatDomain, args)
+        return self.bind_date_extract(
+                ExtractSecondSig, FloatDomain, args, fn=u"second")
 
-    def bind_date_extract(self, sig, img, args):
+    def bind_date_extract(self, sig, img, args, fn=None):
         parameters = self.bind_parameters(sig, args)
         output = parameters['op']
+        syntax = VoidSyntax()
+        if fn is not None:
+            syntax = FunctionSyntax(
+                    IdentifierSyntax(fn), [output.binding.syntax])
         return Output(
                 FormulaBinding(
                     self.scope, sig(), img(),
-                    self.scope.syntax, op=output.binding),
+                    syntax, op=output.binding),
                 optional=output.optional, plural=output.plural)
 
     def bind_less_op(self, args):
@@ -503,28 +575,28 @@ class RexBindingState(BindingState):
         return self.bind_compare(u'>=', **parameters)
 
     def bind_boolean_op(self, args):
-        return self.bind_cast(BooleanDomain(), args)
+        return self.bind_cast(BooleanDomain(), args, fn=u"boolean")
 
     def bind_text_op(self, args):
-        return self.bind_cast(TextDomain(), args)
+        return self.bind_cast(TextDomain(), args, fn=u"text")
 
     def bind_integer_op(self, args):
-        return self.bind_cast(IntegerDomain(), args)
+        return self.bind_cast(IntegerDomain(), args, fn=u"integer")
 
     def bind_decimal_op(self, args):
-        return self.bind_cast(DecimalDomain(), args)
+        return self.bind_cast(DecimalDomain(), args, fn=u"decimal")
 
     def bind_float_op(self, args):
-        return self.bind_cast(FloatDomain(), args)
+        return self.bind_cast(FloatDomain(), args, fn=u"float")
 
     def bind_date_op(self, args):
-        return self.bind_cast(DateDomain(), args)
+        return self.bind_cast(DateDomain(), args, fn=u"date")
 
     def bind_time_op(self, args):
-        return self.bind_cast(TimeDomain(), args)
+        return self.bind_cast(TimeDomain(), args, fn=u"time")
 
     def bind_datetime_op(self, args):
-        return self.bind_cast(DateTimeDomain(), args)
+        return self.bind_cast(DateTimeDomain(), args, fn=u"datetime")
 
     def bind_exists_op(self, args):
         parameters = self.bind_parameters(ExistsSig, args)
@@ -532,13 +604,14 @@ class RexBindingState(BindingState):
         if not output.optional:
             raise Error("Expected optional expression, got:", args[0])
         binding = ImplicitCastBinding(
-                output.binding, BooleanDomain(), self.scope.syntax)
+                output.binding, BooleanDomain(), output.binding.syntax)
         if not output.plural:
             return Output(binding)
+        syntax = FunctionSyntax(IdentifierSyntax(u"exists"), [binding.syntax])
         return Output(
                 FormulaBinding(
                     self.scope, QuantifySig(+1), binding.domain,
-                    self.scope.syntax, plural_base=None, op=binding))
+                    syntax, plural_base=None, op=binding))
 
     def bind_count_op(self, args):
         parameters = self.bind_parameters(CountSig, args)
@@ -546,38 +619,44 @@ class RexBindingState(BindingState):
         if not output.plural:
             raise Error("Expected plural expression, got:", args[0])
         binding = ImplicitCastBinding(
-                output.binding, BooleanDomain(), self.scope.syntax)
+                output.binding, BooleanDomain(), output.binding.syntax)
+        syntax = FunctionSyntax(IdentifierSyntax(u"count"), [binding.syntax])
         binding = FormulaBinding(
-                self.scope, CountSig(), IntegerDomain(),
-                self.scope.syntax, op=binding)
+                self.scope, CountSig(), IntegerDomain(), syntax, op=binding)
         return Output(
                 FormulaBinding(
-                    self.scope, AggregateSig(), binding.domain,
-                    self.scope.syntax, plural_base=None, op=binding))
+                    self.scope, AggregateSig(), binding.domain, syntax,
+                    plural_base=None, op=binding))
 
     def bind_min_op(self, args):
-        return self.bind_poly_aggregate(MinMaxSig(+1), args)
+        return self.bind_poly_aggregate(MinMaxSig(+1), args, fn=u"min")
 
     def bind_max_op(self, args):
-        return self.bind_poly_aggregate(MinMaxSig(-1), args)
+        return self.bind_poly_aggregate(MinMaxSig(-1), args, fn=u"max")
 
     def bind_sum_op(self, args):
-        return self.bind_poly_aggregate(SumSig, args)
+        return self.bind_poly_aggregate(SumSig, args, fn=u"sum")
 
     def bind_mean_op(self, args):
-        return self.bind_poly_aggregate(AvgSig, args)
+        return self.bind_poly_aggregate(AvgSig, args, fn=u"avg")
 
     def bind_among(self, polarity, lop, rops):
         if not rops:
             return self.bind_among(-polarity, lop, [lop])
         optional = lop.optional or any([rop.optional for rop in rops])
         plural = lop.plural or any([rop.plural for rop in rops])
+        syntax = OperatorSyntax(
+                u'=' if polarity > 0 else u'!=',
+                lop.binding.syntax,
+                RecordSyntax([rop.binding.syntax for rop in rops])
+                if len(rops) != 1 else rops[0].binding.syntax)
         if isinstance(lop.domain, (EntityDomain, IdentityDomain)):
             ops = []
             for rop in rops:
-                op = self.correlate_identity(polarity, lop.binding, rop.binding)
+                op = self.correlate_identity(
+                        polarity, lop.binding, rop.binding, syntax)
                 ops.append(op)
-            binding = self.merge_identities(polarity, ops)
+            binding = self.merge_identities(polarity, ops, syntax)
             return Output(binding, optional=optional, plural=plural)
         else:
             domains = [lop.domain] + [rop.domain for rop in rops]
@@ -590,29 +669,29 @@ class RexBindingState(BindingState):
         if len(rops) == 1:
             binding = FormulaBinding(
                     self.scope, IsEqualSig(polarity),
-                    BooleanDomain(), self.scope.syntax,
+                    BooleanDomain(), syntax,
                     lop=lop, rop=rops[0])
         else:
             binding = FormulaBinding(
                     self.scope, IsAmongSig(polarity),
-                    BooleanDomain(), self.scope.syntax,
+                    BooleanDomain(), syntax,
                     lop=lop, rops=rops)
         return Output(binding, optional=optional, plural=plural)
 
-    def correlate_identity(self, polarity, lop, rop):
-        ops = self.pair_identities(polarity, lop, rop)
-        return self.merge_identities(polarity, ops)
+    def correlate_identity(self, polarity, lop, rop, syntax):
+        ops = self.pair_identities(polarity, lop, rop, syntax)
+        return self.merge_identities(polarity, ops, syntax)
 
-    def merge_identities(self, polarity, ops):
+    def merge_identities(self, polarity, ops, syntax):
         if len(ops) == 1:
             return ops[0]
         else:
             return FormulaBinding(
                     self.scope,
                     AndSig() if polarity == +1 else OrSig(),
-                    BooleanDomain(), self.scope.syntax, ops=ops)
+                    BooleanDomain(), syntax, ops=ops)
 
-    def pair_identities(self, polarity, lop, rop):
+    def pair_identities(self, polarity, lop, rop, syntax):
         ops = self.coerce_identities(lop, rop)
         if ops is None:
             raise Error("Cannot coerce values of types (%s, %s)"
@@ -625,7 +704,7 @@ class RexBindingState(BindingState):
                             " to a common type" % (lop.domain, rop.domain))
             pairs = []
             for lel, rel in zip(lop.elements, rop.elements):
-                pairs.extend(self.pair_identities(polarity, lel, rel))
+                pairs.extend(self.pair_identities(polarity, lel, rel, syntax))
             return pairs
         elif isinstance(lop, IdentityBinding):
             if isinstance(rop.domain, UntypedDomain):
@@ -645,10 +724,10 @@ class RexBindingState(BindingState):
             for lel, rel, domain in zip(lop.elements, rop.value,
                                         lop.domain.labels):
                 rel = LiteralBinding(rop.base, rel, domain, rop.syntax)
-                pairs.extend(self.pair_identities(polarity, lel, rel))
+                pairs.extend(self.pair_identities(polarity, lel, rel, syntax))
             return pairs
         elif isinstance(rop, IdentityBinding):
-            return self.pair_identities(polarity, rop, lop)
+            return self.pair_identities(polarity, rop, lop, syntax)
         else:
             domain = coerce(lop.domain, rop.domain)
             if domain is None:
@@ -659,7 +738,7 @@ class RexBindingState(BindingState):
             op = FormulaBinding(self.scope,
                                 IsEqualSig(polarity),
                                 coerce(BooleanDomain()),
-                                self.scope.syntax, lop=lop, rop=rop)
+                                syntax, lop=lop, rop=rop)
             return [op]
 
     def coerce_identities(self, lop, rop):
@@ -685,6 +764,8 @@ class RexBindingState(BindingState):
         domain = coerce(lop.domain, rop.domain)
         if domain is None:
             raise Error("Detected arguments of unexpected types")
+        syntax = OperatorSyntax(
+                relation, lop.binding.syntax, rop.binding.syntax)
         optional = lop.optional or rop.optional
         plural = lop.plural or rop.plural
         lop = ImplicitCastBinding(lop.binding, domain, lop.syntax)
@@ -695,10 +776,10 @@ class RexBindingState(BindingState):
         return Output(
                 FormulaBinding(
                     self.scope, CompareSig(relation), BooleanDomain(),
-                    self.scope.syntax, lop=lop, rop=rop),
+                    syntax, lop=lop, rop=rop),
                 optional=optional, plural=plural)
 
-    def bind_poly(self, signature, args):
+    def bind_poly(self, signature, args, op=None):
         if isinstance(signature, type):
             signature = signature()
         parameters = self.bind_parameters(signature, args)
@@ -717,36 +798,48 @@ class RexBindingState(BindingState):
                     plural = plural or any([item.plural for item in value])
                     value = [item.binding for item in value]
                 parameters[slot.name] = value
+        syntax = VoidSyntax()
+        if op is not None:
+            syntax = OperatorSyntax(
+                    op,
+                    *[parameters[slot.name].syntax
+                      for slot in signature.slots])
         binding = FormulaBinding(
-                self.scope, signature, UntypedDomain(),
-                self.scope.syntax, **parameters)
+                self.scope, signature, UntypedDomain(), syntax, **parameters)
         return Output(
                 Correlate.__invoke__(binding, self),
                 optional=optional, plural=plural)
 
-    def bind_poly_aggregate(self, signature, args):
+    def bind_poly_aggregate(self, signature, args, fn=None):
         if isinstance(signature, type):
             signature = signature()
         parameters = self.bind_parameters(signature, args)
         output = parameters['op']
         if not output.plural:
             raise Error("Expected plural expression:", args[0])
+        syntax = VoidSyntax()
+        if fn is not None:
+            syntax = FunctionSyntax(
+                    IdentifierSyntax(fn), [output.binding.syntax])
         binding = FormulaBinding(
                 self.scope, signature, UntypedDomain(),
-                self.scope.syntax, op=output.binding)
+                syntax, op=output.binding)
         binding = Correlate.__invoke__(binding, self)
         return Output(
                 FormulaBinding(
                     self.scope, AggregateSig(), binding.domain,
-                    self.scope.syntax, plural_base=None, op=binding),
+                    syntax, plural_base=None, op=binding),
                 optional=True)
 
-    def bind_cast(self, domain, args):
+    def bind_cast(self, domain, args, fn=None):
         parameters = self.bind_parameters(CastSig, args)
         base = parameters['base']
+        syntax = VoidSyntax()
+        if fn is not None:
+            syntax = FunctionSyntax(IdentifierSyntax(fn), [base.binding.syntax])
         return Output(
                 CastBinding(
-                    domain=domain, syntax=self.scope.syntax, base=base.binding))
+                    domain=domain, syntax=syntax, base=base.binding))
 
     def bind_parameters(self, signature, args):
         stack = args[:]

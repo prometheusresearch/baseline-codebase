@@ -92,7 +92,7 @@ For complex expressions, we could define aliases with ``define``::
 
 Constants::
 
-    >>> db.produce(["select", "here", None, True, 64, 3.14, "htsql"])
+    >>> db.produce(["select", ["here"], None, True, 64, 3.14, "htsql"])
     <Product {null, true, 64, 3.14, 'htsql'}>
 
 Arithmetic operations::

@@ -6,6 +6,7 @@
 from rex.core import Error, guard
 from .query import Query, ApplySyntax, LiteralSyntax
 from htsql.core.adapter import adapt
+from htsql.core.util import to_name
 from htsql.core.domain import (
         UntypedDomain, BooleanDomain, TextDomain, IntegerDomain, DecimalDomain,
         FloatDomain, DateDomain,TimeDomain, DateTimeDomain, ListDomain,
@@ -59,6 +60,15 @@ class RexBindingState(BindingState):
 
     def __init__(self):
         super(RexBindingState, self).__init__(RootBinding(VoidSyntax()))
+        self.enable_let_syntax = False
+        self.enable_let_syntax_stack = []
+
+    def push_enable_let_syntax(self, enable):
+        self.enable_let_syntax_stack.append(self.enable_let_syntax)
+        self.enable_let_syntax = enable
+
+    def pop_enable_let_syntax(self):
+        self.enable_let_syntax = self.enable_let_syntax_stack.pop()
 
     symbol_ops = {
             u'.': u'compose',
@@ -153,7 +163,7 @@ class RexBindingState(BindingState):
         recipe = lookup_attribute(self.scope, name)
         if recipe is None:
             raise Error("Got unknown identifier:", name)
-        syntax = IdentifierSyntax(name)
+        syntax = IdentifierSyntax(to_name(name))
         binding = self.use(recipe, syntax)
         optional = False
         plural = False
@@ -276,10 +286,11 @@ class RexBindingState(BindingState):
                     binding, arg,
                     optional=definition.optional,
                     plural=definition.plural)
-            recipe = ClosedRecipe(recipe)
-            syntax = FunctionSyntax(IdentifierSyntax(u"define"), arms)
-            if not isinstance(base.binding.syntax, VoidSyntax):
-                syntax = ComposeSyntax(base.binding.syntax, syntax)
+            #recipe = ClosedRecipe(recipe)
+            #syntax = FunctionSyntax(IdentifierSyntax(u"define"), arms)
+            #if not isinstance(base.binding.syntax, VoidSyntax):
+            #    syntax = ComposeSyntax(base.binding.syntax, syntax)
+            syntax = base.binding.syntax
             binding = DefineBinding(
                     binding, tag, None, recipe, syntax)
         return Output(binding, optional=base.optional, plural=base.plural)
@@ -376,7 +387,9 @@ class RexBindingState(BindingState):
         fields = []
         self.push_scope(seed.binding)
         for arg in args[1:]:
+            self.push_enable_let_syntax(True)
             output = self(arg)
+            self.pop_enable_let_syntax()
             if output.plural:
                 raise Error("Expected a singular expression, got:", arg)
             fields.append(output.binding)
@@ -410,11 +423,15 @@ class RexBindingState(BindingState):
             raise Error("Expected an identifier and an argument,"
                         " got:", ", ".join(map(str, args)))
         name = args[0].val
+        self.push_enable_let_syntax(False)
         output = self(args[1])
+        self.pop_enable_let_syntax()
         title = IdentifierSyntax(name)
-        syntax = AssignSyntax(
-                SpecifySyntax([title], None),
-                output.binding.syntax)
+        syntax = output.binding.syntax
+        if self.enable_let_syntax and guess_tag(output.binding) != name:
+            syntax = AssignSyntax(
+                    SpecifySyntax([IdentifierSyntax(title.name)], None),
+                    syntax)
         return Output(
                 TitleBinding(output.binding, title, syntax),
                 optional=output.optional,

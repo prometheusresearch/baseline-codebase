@@ -11,6 +11,7 @@ from .query import QueryVal
 from .bind import RexBindingState
 from .catalog import produce_catalog
 from htsql import HTSQL
+from htsql.core.domain import Product
 from htsql.core.cmd.act import produce
 from htsql.core.fmt.accept import accept
 from htsql.core.fmt.emit import emit, emit_headers
@@ -44,7 +45,8 @@ class Database(object):
                     ignore_entities=self.ignore_catalog_entities,
                 )
             pipe = self.translate(query)
-            return pipe()(None)
+            product = pipe()(None)
+            return product
 
     def describe(self, query):
         query = self.parse(query)
@@ -74,7 +76,10 @@ class Database(object):
                 )
             else:
                 pipe = self.translate(query)
-                product = pipe()(None)
+                if 'dry-run' in req.GET:
+                    product = Product(pipe.meta, None)
+                else:
+                    product = pipe()(None)
             format = query.format or accept(req.environ)
             headerlist = emit_headers(format, product)
             app_iter = list(emit(format, product))

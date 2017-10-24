@@ -22,7 +22,10 @@ let CheckboxInput = style(ReactUI.Checkbox, {
     disabled: {
       color: '#aaa'
     }
-  }
+  },
+  LabelWrapper: {
+    maxWidth: '90%',
+  },
 });
 
 let CheckboxGroupInput = style(ReactUI.CheckboxGroup, {

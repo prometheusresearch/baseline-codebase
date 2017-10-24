@@ -10,6 +10,12 @@ import * as FormContext from './FormContext';
 import isReactElement from '../isReactElement';
 import getLocalizedString from '../getLocalizedString';
 
+const textStyle = {
+  width: '100%',
+  display: 'inline-block',
+  wordWrap: 'break-word',
+  whiteSpace: 'normal',
+};
 
 @InjectI18N
 export default class LocalizedString extends React.Component {
@@ -42,7 +48,7 @@ export default class LocalizedString extends React.Component {
     }
 
     return (
-      <Component {...props}>
+      <Component style={{...textStyle, ...props.style}} {...props}>
         {localizedText}
       </Component>
     );

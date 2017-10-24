@@ -27,6 +27,9 @@ let RadioInput = style(ReactUI.Radio, {
     disabled: {
       color: '#aaa'
     }
+  },
+  LabelWrapper: {
+    maxWidth: '90%'
   }
 });
 

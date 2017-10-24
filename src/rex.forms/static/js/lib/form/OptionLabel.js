@@ -13,7 +13,7 @@ export default function OptionLabel({text, audio}) {
     return <Label>{text}</Label>;
   } else {
     return (
-      <ReactUI.Block inline>
+      <ReactUI.Block inline maxWidth="100%">
         <ReactUI.Block inline marginRight="x-small">
           <AudioPlayer source={audio} />
         </ReactUI.Block>

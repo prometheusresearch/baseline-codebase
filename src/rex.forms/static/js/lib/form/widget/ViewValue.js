@@ -8,13 +8,19 @@ import toString from 'lodash/toString';
 
 import {InjectI18N} from 'rex-i18n';
 
+const textStyle = {
+  width: '100%',
+  display: 'inline-block',
+  wordWrap: 'break-word',
+  whiteSpace: 'normal',
+};
 
 @InjectI18N
 export default class ViewValue extends React.Component {
   static defaultProps = {
     stylesheet: {
       Root: (props) => <ReactUI.Block marginStart="small" {...props} />,
-      Text: (props) => <ReactUI.Text  {...props} />,
+      Text: (props) => <ReactUI.Text style={{...textStyle, ...props.style}} {...props} />,
     }
   }
 

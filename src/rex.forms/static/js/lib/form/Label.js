@@ -11,7 +11,7 @@ import isReactElement from '../isReactElement';
 export default function Label({text, children, hotkey, ...props}) {
   text = text || children;
   return (
-    <ReactUI.Block {...props} inline>
+    <ReactUI.Block {...props} maxWidth="100%" inline>
       {hotkey && <ReactUI.LabelText>[{hotkey}]</ReactUI.LabelText>}
       {hotkey && ' '}
       {isReactElement(text) ?

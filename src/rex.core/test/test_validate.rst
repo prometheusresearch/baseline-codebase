@@ -1052,6 +1052,18 @@ as a record with all default values::
     While validating field:
         age
 
+If we want to ignore unexpected fields instead of rejecting them, we can use
+`OpenRecordVal`::
+
+    >>> from rex.core import OpenRecordVal
+
+    >>> open_record_val = OpenRecordVal(('name', StrVal),
+    ...                                 ('age', MaybeVal(UIntVal), None))
+    >>> open_record_val({'name': "Eleonore", 'sex': 'f'})
+    Record(name='Eleonore', age=None)
+    >>> open_record_val.parse(""" { name: Eleonore, sex: f } """)
+    Record(name='Eleonore', age=None)
+
 
 ``SwitchVal``
 =============

@@ -102,6 +102,7 @@ Validators
 .. autoclass:: rex.core.MapVal
 .. autoclass:: rex.core.OMapVal
 .. autoclass:: rex.core.RecordVal
+.. autoclass:: rex.core.OpenRecordVal
 .. autoclass:: rex.core.SwitchVal
 .. autoclass:: rex.core.UnionVal
 .. autoclass:: rex.core.IncludeKeyVal

@@ -1194,6 +1194,8 @@ class RecordVal(Validate):
           for optional fields.
     """
 
+    is_open = False
+
     def __init__(self, *fields):
         if len(fields) == 1 and isinstance(fields[0], list):
             [fields] = fields
@@ -1229,6 +1231,8 @@ class RecordVal(Validate):
         for name in sorted(data):
             value = data[name]
             name = name.replace('-', '_').replace(' ', '_')
+            if self.is_open and name not in self.fields:
+                continue
             if name not in self.fields:
                 raise Error("Got unexpected field:", name)
             attribute = self.fields[name].attribute
@@ -1270,6 +1274,8 @@ class RecordVal(Validate):
             with loader.validating(StrVal()):
                 name = loader.construct_object(key_node, deep=True)
             name = name.replace('-', '_').replace(' ', '_')
+            if self.is_open and name not in self.fields:
+                continue
             with guard("While parsing:", Location.from_node(key_node)):
                 if name not in self.fields:
                     raise Error("Got unexpected field:", name)
@@ -1296,6 +1302,14 @@ class RecordVal(Validate):
         return "%s(%s)" % (self.__class__.__name__,
                            ", ".join(repr(field)
                                      for field in self.fields.values()))
+
+
+class OpenRecordVal(RecordVal):
+    """
+    Variant of :class:`RecordVal` that ignores unrecognized fields.
+    """
+
+    is_open = True
 
 
 class SwitchVal(Validate):

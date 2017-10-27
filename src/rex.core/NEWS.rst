@@ -9,6 +9,7 @@
 ===================
 
 * Added date/time validators.
+* Added ``OpenRecordVal``.
 
 
 1.16.2 (2017-08-07)

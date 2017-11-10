@@ -4,7 +4,7 @@ REX.FORMS Change Log
 
 .. contents:: Table of Contents
 
-2.4.1 (2017-XX-XX)
+2.4.1 (2017-11-10)
 ==================
 
 * Fixed an issue that caused long text being not wrapped on reconciliation

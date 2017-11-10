@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.17.0 (2017-XX-XX)
+1.17.0 (2017-11-10)
 ===================
 
 * Added date/time validators.

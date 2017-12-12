@@ -248,7 +248,7 @@ class GuideConfiguration(object):
             for spec in self._filter_specs
         ]
 
-    def get_chart_htsql(self, index):
+    def get_chart_htsql(self, index, selected_filters=None):
         chart = self.charts[index]
 
         fields = []
@@ -258,6 +258,16 @@ class GuideConfiguration(object):
         filters = []
         for mask in self.mask_config:
             filters.append(u'.filter(%s)' % (unicode(mask),))
+
+        for filt in selected_filters:
+            try:
+                spec = self._filter_specs[filt['id']]
+            except IndexError:
+                continue
+            generator = FILTER_GENERATORS[spec['type']]
+            filters.append(u'.filter(%s)' % (
+                generator(spec, filt),
+            ))
 
         query = '/%s{%s}%s' % (
             self.table_name,
@@ -604,7 +614,13 @@ class GuideMartAction(MartFilteredAction):
         index = IntVal()(request.GET.get('index'))
         mart = self.get_mart(request)
         cfg = self.get_config(mart)
-        query = cfg.get_chart_htsql(index)
+        selected_filters = SeqVal(FilterParamsVal)(
+            request.json.get('filters', [])
+        )
+        query = cfg.get_chart_htsql(
+            index,
+            selected_filters=selected_filters
+        )
         return query(request)
 
     @responder(url_type=RequestURL)

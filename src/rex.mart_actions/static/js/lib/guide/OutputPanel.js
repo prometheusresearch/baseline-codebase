@@ -163,6 +163,7 @@ export default class OutputPanel extends React.Component {
           label: chart.title || 'Chart',
           children: React.cloneElement(chart.element, {
             data: guideChartResults.params({index}),
+            filterState: this.props.filterState,
           }),
         })),
       )

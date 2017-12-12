@@ -11,8 +11,10 @@ import {VBox} from 'react-stylesheet';
 import {withFetch, request, type DataSet, type Request} from 'rex-widget/data';
 import * as Charting from 'rex-query/charting';
 
-function fetchData({data}) {
-  return {data};
+function fetchData({data, filterState = []}) {
+  return {
+    data: data.data(JSON.stringify({filters: filterState})),
+  };
 }
 
 function unwrapData(data) {

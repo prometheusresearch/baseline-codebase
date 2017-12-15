@@ -5,6 +5,14 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
+0.8.0 (2017-xx-xx)
+==================
+
+* The ``mart_etl_htsql_gateways`` setting now allows you to specify a ``rexdb``
+  gateway where you can configure whatever extensions you want, and
+  ``rex.mart`` will then merge in its defaults.
+
+
 0.7.3 (2017-10-02)
 ==================
 

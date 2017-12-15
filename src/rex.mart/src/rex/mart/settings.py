@@ -81,7 +81,8 @@ class MartEtlHtsqlGatewaysSetting(GatewaysSetting):
     use during the execution of HTSQL ETL scripts.
 
     One gateway named ``rexdb`` will always be made available, and it will
-    point to the management database.
+    point to the management database. If you define a ``rexdb`` gateway in this
+    setting, the default configuration will be merged into yours.
     """
 
     name = 'mart_etl_htsql_gateways'

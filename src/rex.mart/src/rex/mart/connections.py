@@ -89,15 +89,18 @@ def get_mart_etl_db(name, extensions=None):
 
     gateways = {}
     gateways.update(get_settings().mart_etl_htsql_gateways)
-    gateways.update({
-        'rexdb': {
-            'htsql': {
-                'db': get_management_db_uri(),
-                'query_cache_size': 0,
-            },
-            'rex_deploy': {},
-            'tweak.meta': {},
-        },
+
+    if not isinstance(gateways.get('rexdb', None), dict):
+        gateways['rexdb'] = {}
+    if 'rex_deploy' not in gateways['rexdb']:
+        gateways['rexdb']['rex_deploy'] = {}
+    if 'tweak.meta' not in gateways['rexdb']:
+        gateways['rexdb']['tweak.meta'] = {}
+    if not isinstance(gateways['rexdb'].get('htsql', None), dict):
+        gateways['rexdb']['htsql'] = {}
+    gateways['rexdb']['htsql'].update({
+        'db': get_management_db_uri(),
+        'query_cache_size': 0,
     })
 
     ext = {

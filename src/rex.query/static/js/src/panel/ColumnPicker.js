@@ -17,6 +17,7 @@ type ColumnPickerProps = {
   query: QueryPipeline,
   onSelect: (payload: {path: string}) => *,
   onSelectRemove: (payload: {path: string, query: QueryPipeline}) => *,
+  onSelectAll: () => void,
   onSearch?: SearchCallback,
 };
 
@@ -68,6 +69,7 @@ export default class ColumnPicker extends React.Component<ColumnPickerProps> {
           onNavigate={this.onNavigate}
           onAddQuery={this.onAddQuery}
           onAggregate={this.onAggregate}
+          onFocusSelection={this.onFocusSelection}
           actions={this.context.actions}
         />
       );
@@ -82,6 +84,11 @@ export default class ColumnPicker extends React.Component<ColumnPickerProps> {
     });
     return (
       <VBox paddingBottom={10}>
+        <VBox>
+          <Menu.MenuGroup>
+            <Menu.MenuButton onClick={this.props.onSelectAll}>Select all</Menu.MenuButton>
+          </Menu.MenuGroup>
+        </VBox>
         {groupByAttributeList.length > 0 &&
           <VBox paddingBottom={10}>
             <Menu.MenuGroup title="Group by columns">
@@ -126,6 +133,13 @@ export default class ColumnPicker extends React.Component<ColumnPickerProps> {
     });
   };
 
+  onFocusSelection = (payload: {path: string}) => {
+    this.context.actions.selectFocus({
+      at: this.props.query,
+      path: [payload.path],
+    });
+  };
+
   onFilter = () => {
     this.context.actions.appendFilter({at: this.props.query});
   };
@@ -153,6 +167,7 @@ type ColumnPickerButtonProps = {
   onNavigate: (payload: {path: string}) => *,
   onAggregate: (payload: {path: string}) => *,
   onAddQuery: (payload: {path: string}) => *,
+  onFocusSelection: (payload: {path: string}) => *,
   onSelectRemove: (payload: {path: string, query: QueryPipeline}) => *,
   disabled?: boolean,
   actions: Actions,
@@ -182,6 +197,11 @@ class ColumnPickerButton extends React.Component<ColumnPickerButtonProps> {
   onAggregate = () => {
     let {onAggregate, column} = this.props;
     onAggregate({path: column.value});
+  };
+
+  onFocusSelection = () => {
+    let {onFocusSelection, column} = this.props;
+    onFocusSelection({path: column.value});
   };
 
   render() {
@@ -225,6 +245,13 @@ class ColumnPickerButton extends React.Component<ColumnPickerButtonProps> {
                 key="summarize">
                 Summarize {column.label}
               </Menu.MenuButtonSecondary>,
+            <Menu.MenuButtonSecondary
+              icon="•"
+              title={`Deselect all columns but "${column.label}"`}
+              onClick={this.onFocusSelection}
+              key="focus-selection">
+              Focus selection on {column.label}
+            </Menu.MenuButtonSecondary>,
           ]
         }
         onClick={this.onSelect}>

@@ -98,6 +98,7 @@ export default class DefineQueryPanel extends React.Component<
           ? <ColumnPicker
               onSelect={this.onSelect}
               onSelectRemove={this.onSelectRemove}
+              onSelectAll={this.onSelectAll}
               onSearch={onSearch}
               query={query.binding.query}
             />
@@ -112,6 +113,13 @@ export default class DefineQueryPanel extends React.Component<
     this.context.actions.select({
       at: query.binding.query,
       path: [path],
+    });
+  };
+
+  onSelectAll = () => {
+    let {query} = this.props;
+    this.context.actions.selectAll({
+      at: query.binding.query,
     });
   };
 

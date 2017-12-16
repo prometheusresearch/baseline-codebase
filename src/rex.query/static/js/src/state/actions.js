@@ -26,6 +26,7 @@ import invariant from 'invariant';
 import debounce from 'lodash/debounce';
 
 import * as q from '../model/Query';
+import * as t from '../model/Type.js';
 import * as qo from '../model/QueryOperation';
 import * as QL from '../model/QueryLoc';
 import * as Fetch from '../fetch';
@@ -197,6 +198,69 @@ export function select({at, path}: {at: QueryPipeline, path: string[]}): StateUp
       .editor(state.query, at)
       .growNavigation({path, editAtCompletion})
       .getQuery();
+    return onQuery(state, {query, selected: state.selected});
+  };
+}
+
+/**
+ * Select a path at a given query pipeline and deselect all other paths.
+ */
+export function selectFocus({
+  at,
+  path,
+}: {
+  at: QueryPipeline,
+  path: string[],
+}): StateUpdater {
+  logAction('selectFocus', {at, path});
+  return state => {
+    const lastNonSelect = getLastNonSelectAtPipeline(at);
+    const type = q.inferTypeAtPath(q.regularizeContext(lastNonSelect.context), path);
+    if (type.name !== 'record') {
+      return state;
+    }
+
+    let editAtCompletion;
+    if (type.card === 'seq' && type.name === 'record' && type.entity != null) {
+      editAtCompletion = ensurePipelineHasCount;
+    }
+
+    const query = qo
+      .editor(state.query, at)
+      .removeSelect()
+      .growNavigation({path, editAtCompletion})
+      .getQuery();
+    return onQuery(state, {query, selected: state.selected});
+  };
+}
+
+/**
+ * Select all paths at a given query pipeline.
+ */
+export function selectAll({at}: {at: QueryPipeline}): StateUpdater {
+  logAction('selectAll', {at});
+  return state => {
+    const lastNonSelect = getLastNonSelectAtPipeline(at);
+    const type = lastNonSelect.context.type;
+    if (type.name !== 'record') {
+      return state;
+    }
+
+    const attrs = t.recordLikeAttribute(type);
+
+    let query = state.query;
+
+    for (const name in attrs) {
+      const path = [name];
+      const type = q.inferTypeAtPath(q.regularizeContext(lastNonSelect.context), path);
+
+      let editAtCompletion;
+      if (type.card === 'seq' && type.name === 'record' && type.entity != null) {
+        editAtCompletion = ensurePipelineHasCount;
+      }
+
+      query = qo.editor(query, at).growNavigation({path, editAtCompletion}).getQuery();
+    }
     return onQuery(state, {query, selected: state.selected});
   };
 }

@@ -8,7 +8,7 @@ import type {ChartSpec} from './state';
 
 import createLogger from 'debug';
 import invariant from 'invariant';
-import React from 'react';
+import * as React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import {css, style, VBox, HBox} from 'react-stylesheet';
 
@@ -39,9 +39,10 @@ type QueryBuilderProps = {
 
 let log = createLogger('rex-query:ui:main');
 
-export default class QueryBuilder extends React.Component<*, QueryBuilderProps, *> {
-  state: State.State;
-  props: QueryBuilderProps;
+export default class QueryBuilder extends React.Component<
+  QueryBuilderProps,
+  State.State,
+> {
   actions: State.Actions;
   container: State.StateContainer;
 
@@ -138,7 +139,7 @@ export default class QueryBuilder extends React.Component<*, QueryBuilderProps, 
           <DataTable
             query={query}
             loading={queryLoading}
-            data={data}
+            data={(data: any)}
             focusedSeq={focusedSeq}
             onFocusedSeq={this.onFocusedSeq}
           />

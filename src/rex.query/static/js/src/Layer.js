@@ -4,17 +4,17 @@
  */
 
 import invariant from 'invariant';
-import React from 'react';
+import * as React from 'react';
 import ReactDOM from 'react-dom';
 
 type Props = {
   didMount?: HTMLElement => void,
   didUpdate?: HTMLElement => void,
   willUnmount?: HTMLElement => void,
-  children?: React.Element<*>,
+  children?: React.Node,
 };
 
-export default class Layer extends React.Component {
+export default class Layer extends React.Component<Props> {
   props: Props;
 
   _element: ?HTMLElement = null;
@@ -25,18 +25,21 @@ export default class Layer extends React.Component {
   }
 
   componentDidMount() {
-    this._element = this._createElement();
+    const element = this._createElement();
+    this._element = element;
     this._component = ReactDOM.render(
       React.Children.only(this.props.children),
-      this._element,
+      element,
       this._didMount,
     );
   }
 
   componentDidUpdate() {
+    const element = this._element;
+    invariant(element, 'Expected DOM element');
     this._component = ReactDOM.render(
       React.Children.only(this.props.children),
-      this._element,
+      element,
       this._didUpdate,
     );
   }

@@ -17,12 +17,12 @@ import QueryPanelBase from './QueryPanelBase';
 
 type AddQueryPanelProps = {
   pipeline: QueryPipeline,
-  onSearch: SearchCallback,
+  onSearch?: SearchCallback,
   title?: string,
   onClose: () => *,
 };
 
-export default class AddQueryPanel extends React.Component<*, AddQueryPanelProps, *> {
+export default class AddQueryPanel extends React.Component<AddQueryPanelProps> {
   context: {
     actions: Actions,
   };
@@ -43,10 +43,10 @@ export default class AddQueryPanel extends React.Component<*, AddQueryPanelProps
 
 type AddQueryMenuProps = {
   pipeline: QueryPipeline,
-  onSearch: SearchCallback,
+  onSearch?: SearchCallback,
 };
 
-class AddQueryMenu extends React.Component<*, AddQueryMenuProps, *> {
+class AddQueryMenu extends React.Component<AddQueryMenuProps> {
   context: {
     actions: Actions,
   };
@@ -82,21 +82,24 @@ class AddQueryMenu extends React.Component<*, AddQueryMenuProps, *> {
 
   render() {
     let {pipeline: {pipeline}, onSearch} = this.props;
-    let context = pipeline[pipeline.length - 1].name === 'select'
-      ? pipeline[pipeline.length - 2].context
-      : pipeline[pipeline.length - 1].context;
+    let context =
+      pipeline[pipeline.length - 1].name === 'select'
+        ? pipeline[pipeline.length - 2].context
+        : pipeline[pipeline.length - 1].context;
     let isAtRoot = context.type.name === 'void';
     return (
       <NavigationMenu onSearch={onSearch} context={context}>
-        <AddQueryMenuSection
-          noNavigate={isAtRoot}
-          nonHierarchical={isAtRoot}
-          onAdd={this.onAdd}
-          onNavigate={this.onNavigate}
-          onAggregate={this.onAggregate}
-          context={context}
-          path={[]}
-        />
+        {navigation =>
+          <AddQueryMenuSection
+            navigation={navigation}
+            noNavigate={isAtRoot}
+            nonHierarchical={isAtRoot}
+            onAdd={this.onAdd}
+            onNavigate={this.onNavigate}
+            onAggregate={this.onAggregate}
+            context={context}
+            path={[]}
+          />}
       </NavigationMenu>
     );
   }
@@ -142,10 +145,12 @@ function AddQueryMenuSection({
   );
 }
 
-class AddQueryMenuButton extends React.Component {
-  state: {
-    open: boolean,
-  } = {
+type AddQueryMenuButtonState = {
+  open: boolean,
+};
+
+class AddQueryMenuButton extends React.Component<*, AddQueryMenuButtonState> {
+  state = {
     open: false,
   };
 
@@ -226,7 +231,7 @@ class AddQueryMenuButton extends React.Component {
           title={`Add ${item.label} query`}
           iconTitle={open ? 'Collapse' : 'Expand'}
           onClick={this.onAddQuery}
-          onIconClick={!nonHierarchical && this.toggleOpen}
+          onIconClick={!nonHierarchical ? this.toggleOpen : undefined}
           menu={menu.length > 0 ? menu : null}>
           <HBox flexGrow={1} alignItems="center">
             <VBox flexGrow={1} flexShrink={1}>

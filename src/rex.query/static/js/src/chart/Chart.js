@@ -31,7 +31,7 @@ function findChartElement(element: HTMLElement): ?HTMLElement {
   return element.querySelector('svg.recharts-surface');
 }
 
-export default class Chart extends React.Component {
+export default class Chart extends React.Component<ChartProps> {
   static contextTypes = {
     actions: React.PropTypes.object,
   };
@@ -63,6 +63,7 @@ export default class Chart extends React.Component {
           children = (
             <Charting.PieChartEditor
               data={data}
+              dataIsUpdating={false}
               label={label}
               onLabel={this.onUpdateLabel}
               chart={chart}
@@ -77,6 +78,7 @@ export default class Chart extends React.Component {
           children = (
             <Charting.LineChartEditor
               data={data}
+              dataIsUpdating={false}
               label={label}
               onLabel={this.onUpdateLabel}
               chart={chart}
@@ -91,6 +93,7 @@ export default class Chart extends React.Component {
           children = (
             <Charting.AreaChartEditor
               data={data}
+              dataIsUpdating={false}
               label={label}
               onLabel={this.onUpdateLabel}
               chart={chart}
@@ -105,6 +108,7 @@ export default class Chart extends React.Component {
           children = (
             <Charting.BarChartEditor
               data={data}
+              dataIsUpdating={false}
               label={label}
               onLabel={this.onUpdateLabel}
               chart={chart}
@@ -119,6 +123,7 @@ export default class Chart extends React.Component {
           children = (
             <Charting.ScatterChartEditor
               data={data}
+              dataIsUpdating={false}
               label={label}
               onLabel={this.onUpdateLabel}
               chart={chart}

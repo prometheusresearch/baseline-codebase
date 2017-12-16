@@ -2,11 +2,11 @@
  * @flow
  */
 
-import React from 'react';
+import * as React from 'react';
 import {style, VBox} from 'react-stylesheet';
 
 type MessageProps = {
-  children?: React.Element<any>,
+  children?: React.Node,
 };
 
 export default function Message({children, ...props}: MessageProps) {

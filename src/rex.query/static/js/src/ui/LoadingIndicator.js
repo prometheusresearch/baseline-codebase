@@ -3,12 +3,12 @@
  * @flow
  */
 
-import React from 'react';
+import * as React from 'react';
 import {style} from 'react-stylesheet';
 
 import loadingIndicatorImg from './loading-indicator.gif'; // eslint-disable-line
 
-export default class LoadingIndicator extends React.Component {
+export default class LoadingIndicator extends React.Component<{}> {
   render() {
     return (
       <Root>

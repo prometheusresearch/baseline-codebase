@@ -2,12 +2,12 @@
  * @flow
  */
 
-import React from 'react';
+import * as React from 'react';
 import {VBox, HBox, Element} from 'react-stylesheet';
 
 type ChartControlProps = {
   label: string,
-  control?: null | React.Element<*>,
+  control?: React.Node,
   hint?: string,
 };
 

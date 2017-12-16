@@ -5,7 +5,7 @@
 import type {QueryNavigation, Context} from '../model/types';
 import type {SearchCallback} from './Search';
 
-import React from 'react';
+import * as React from 'react';
 import {VBox, Element} from 'react-stylesheet';
 import {Input} from '@prometheusresearch/react-ui';
 
@@ -16,18 +16,21 @@ import LoadingIndicator from './LoadingIndicator';
 type NavigationMenuProps = {
   context: Context,
   onSearch: SearchCallback,
-  children?: React.Element<*>,
+  children?: (navigation: Map<string, QueryNavigation>) => React.Node,
 };
 
-export default class NavigationMenu extends React.Component<*, NavigationMenuProps, *> {
+type NavigationMenuState = {
+  searchTerm: ?string,
+  searchInProgress: boolean,
+  navigation: Map<string, QueryNavigation>,
+};
+
+export default class NavigationMenu extends React.Component<
+  NavigationMenuProps,
+  NavigationMenuState,
+> {
   static defaultProps = {
     onSearch: dummySearch,
-  };
-
-  state: {
-    searchTerm: ?string,
-    searchInProgress: boolean,
-    navigation: Map<string, QueryNavigation>,
   };
 
   mounted: boolean;
@@ -91,9 +94,6 @@ export default class NavigationMenu extends React.Component<*, NavigationMenuPro
   render() {
     let {children} = this.props;
     let {searchTerm, searchInProgress, navigation} = this.state;
-    if (children) {
-      children = React.cloneElement(children, {navigation});
-    }
     let loadingIndicator = null;
     if (searchInProgress) {
       loadingIndicator = (
@@ -121,7 +121,7 @@ export default class NavigationMenu extends React.Component<*, NavigationMenuPro
         </VBox>
         <VBox>
           {loadingIndicator}
-          {children}
+          {children != null ? children(navigation) : null}
         </VBox>
       </VBox>
     );

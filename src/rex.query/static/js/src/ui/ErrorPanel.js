@@ -2,28 +2,26 @@
  * @flow
  */
 
-import React from 'react';
+import * as React from 'react';
 import {css, VBox} from 'react-stylesheet';
 
 import * as Theme from './Theme';
 
 type ErrorPanelProps = {
-  children?: React.Element<*>,
+  children?: React.Node,
   borderTop?: boolean,
   borderBottom?: boolean,
   borderRight?: boolean,
   borderLeft?: boolean,
 };
 
-export default function ErrorPanel(
-  {
-    children,
-    borderTop,
-    borderLeft,
-    borderBottom,
-    borderRight,
-  }: ErrorPanelProps,
-) {
+export default function ErrorPanel({
+  children,
+  borderTop,
+  borderLeft,
+  borderBottom,
+  borderRight,
+}: ErrorPanelProps) {
   let borderStyle = css.border(2, Theme.invalid.borderColor);
   return (
     <VBox

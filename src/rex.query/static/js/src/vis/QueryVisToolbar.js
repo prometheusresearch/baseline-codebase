@@ -5,7 +5,7 @@
 import type {QueryPipeline, Type} from '../model/types';
 import type {Actions} from '../state';
 
-import React from 'react';
+import * as React from 'react';
 import {style, css, VBox, HBox} from 'react-stylesheet';
 import * as t from '../model/Type';
 import * as qo from '../model/QueryOperation';
@@ -19,7 +19,7 @@ type QueryVisToolbarProps = {
   disableAdd?: boolean,
 };
 
-export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarProps, *> {
+export default class QueryVisToolbar extends React.Component<QueryVisToolbarProps> {
   context: {
     actions: Actions,
   };
@@ -48,17 +48,13 @@ export default class QueryVisToolbar extends React.Component<*, QueryVisToolbarP
               Link complement
             </QueryVisToolbarButton>}
           {canFilter &&
-            <QueryVisToolbarButton onClick={this.onFilter}>
-              Filter
-            </QueryVisToolbarButton>}
+            <QueryVisToolbarButton onClick={this.onFilter}>Filter</QueryVisToolbarButton>}
           {canAggregate &&
             <QueryVisToolbarButton onClick={this.onAggregate}>
               Summarize
             </QueryVisToolbarButton>}
           {canAggregate &&
-            <QueryVisToolbarButton onClick={this.onGroup}>
-              Group
-            </QueryVisToolbarButton>}
+            <QueryVisToolbarButton onClick={this.onGroup}>Group</QueryVisToolbarButton>}
         </HBox>
       </VBox>
     );
@@ -152,11 +148,11 @@ let QueryVisToolbarButtonRoot = style('button', {
 });
 
 type QueryVisToolbarButtonProps = {
-  children: React$Element<mixed>,
+  children?: React.Node,
   selected?: boolean,
   disabled?: boolean,
   emphasis?: boolean,
-  icon?: React$Element<mixed>,
+  icon?: React.Node,
 };
 
 function QueryVisToolbarButton({
@@ -170,7 +166,10 @@ function QueryVisToolbarButton({
   let variant = {selected, disabled};
   return (
     <QueryVisToolbarButtonRoot {...props} variant={variant}>
-      {icon && <HBox paddingRight={5}>{icon}</HBox>}
+      {icon &&
+        <HBox paddingRight={5}>
+          {icon}
+        </HBox>}
       {children}
     </QueryVisToolbarButtonRoot>
   );

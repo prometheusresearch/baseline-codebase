@@ -19,22 +19,23 @@ import QueryPanelBase from './QueryPanelBase';
 type DefineQueryPanelProps = {
   query: DefineQuery,
   onClose: () => *,
-  onSearch: SearchCallback,
+  onSearch?: SearchCallback,
+};
+
+type DefineQueryPanelState = {
+  renameOpen: boolean,
+  renameValue: ?string,
 };
 
 export default class DefineQueryPanel extends React.Component<
-  *,
   DefineQueryPanelProps,
-  *,
+  DefineQueryPanelState,
 > {
   context: {
     actions: Actions,
   };
 
-  state: {
-    renameOpen: boolean,
-    renameValue: ?string,
-  } = {
+  state = {
     renameOpen: false,
     renameValue: null,
   };
@@ -60,17 +61,15 @@ export default class DefineQueryPanel extends React.Component<
         <VBox marginBottom={10}>
           {!renameOpen
             ? false &&
-                <Menu.MenuGroup>
-                  <Menu.MenuButton
-                    icon={<Icon.IconPencil />}
-                    onClick={this.onBindingRenameBegin}>
-                    Rename query
-                  </Menu.MenuButton>
-                </Menu.MenuGroup>
-            : <VBox>
-                <Menu.MenuTitle size="large">
+              <Menu.MenuGroup>
+                <Menu.MenuButton
+                  icon={<Icon.IconPencil />}
+                  onClick={this.onBindingRenameBegin}>
                   Rename query
-                </Menu.MenuTitle>
+                </Menu.MenuButton>
+              </Menu.MenuGroup>
+            : <VBox>
+                <Menu.MenuTitle size="large">Rename query</Menu.MenuTitle>
                 <VBox padding={10}>
                   <ReactUI.Input
                     ref={this.onBindingRenameInputRef}
@@ -102,9 +101,7 @@ export default class DefineQueryPanel extends React.Component<
               onSearch={onSearch}
               query={query.binding.query}
             />
-          : <Menu.MenuHelp>
-              This query has no columns to configure.
-            </Menu.MenuHelp>}
+          : <Menu.MenuHelp>This query has no columns to configure.</Menu.MenuHelp>}
       </QueryPanelBase>
     );
   }

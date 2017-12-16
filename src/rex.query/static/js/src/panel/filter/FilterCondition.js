@@ -26,9 +26,10 @@ type FilterConditionState = {|
   operandIsField: boolean,
 |};
 
-export default class FilterCondition extends React.Component<*, FilterConditionProps, *> {
-  state: FilterConditionState;
-
+export default class FilterCondition extends React.Component<
+  FilterConditionProps,
+  FilterConditionState,
+> {
   constructor(props: FilterConditionProps) {
     super(props);
     this.state = getCondition(props.expression);
@@ -160,7 +161,8 @@ export default class FilterCondition extends React.Component<*, FilterConditionP
     });
   }
 
-  onFieldChange = (newField: string) => {
+  onFieldChange = (newField: *) => {
+    invariant(!Array.isArray(newField), 'did not expect an array');
     let {fieldName, comparatorName, operandName, operandIsField} = this.state;
 
     let prevField = fieldName;
@@ -216,7 +218,8 @@ export default class FilterCondition extends React.Component<*, FilterConditionP
     );
   };
 
-  onComparatorChange = (comparatorName: string) => {
+  onComparatorChange = (comparatorName: *) => {
+    invariant(!Array.isArray(comparatorName), 'did not expect an array');
     this.setState(
       {
         comparatorName,
@@ -237,7 +240,8 @@ export default class FilterCondition extends React.Component<*, FilterConditionP
     );
   };
 
-  onOperandValueChange = (newOperand: ?string) => {
+  onOperandValueChange = (newOperand: *) => {
+    invariant(!Array.isArray(newOperand), 'did not expect an array');
     this.setState(
       {
         operandName: newOperand,

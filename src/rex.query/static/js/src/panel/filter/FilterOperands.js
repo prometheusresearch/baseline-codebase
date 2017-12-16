@@ -2,20 +2,20 @@
  * @flow
  */
 
-import React from 'react';
+import * as React from 'react';
 import moment from 'moment';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
-import {Select} from '../../ui';
+import {Select, type SelectProps, type SelectOption} from '../../ui';
 import DateTimeField from '@prometheusresearch/react-datetimepicker';
 
 type TextOperandProps = {
-  type: string,
-  value: string,
+  type?: string,
+  value: ?string,
   onChange: (value: ?string) => *,
 };
 
-export class TextOperand extends React.Component<*, TextOperandProps, *> {
+export class TextOperand extends React.Component<TextOperandProps> {
   render() {
     let {value, ...props} = this.props;
     return (
@@ -36,16 +36,19 @@ export class TextOperand extends React.Component<*, TextOperandProps, *> {
 }
 
 type NumberOperandProps = {
-  value: string,
+  value: ?string,
   onChange: (value: number) => *,
 };
 
-export class NumberOperand extends React.Component<*, NumberOperandProps, *> {
-  state: {
-    value: string,
-    error: boolean,
-  };
+type NumberOperandState = {
+  value: ?string,
+  error: boolean,
+};
 
+export class NumberOperand extends React.Component<
+  NumberOperandProps,
+  NumberOperandState,
+> {
   constructor(props: NumberOperandProps) {
     super(props);
     this.state = {
@@ -73,7 +76,7 @@ export class NumberOperand extends React.Component<*, NumberOperandProps, *> {
     );
   }
 
-  onChange = (value: string) => {
+  onChange = (value: ?string) => {
     let num = Number(value);
     if (value != null && !Number.isNaN(num)) {
       this.setState({value, error: false}, () => {
@@ -85,7 +88,9 @@ export class NumberOperand extends React.Component<*, NumberOperandProps, *> {
   };
 }
 
-export class EnumerationOperand extends React.Component {
+type EnumerationOperandProps = SelectProps<SelectOption> & {value: ?string};
+
+export class EnumerationOperand extends React.Component<EnumerationOperandProps> {
   render() {
     return (
       <Select
@@ -98,13 +103,13 @@ export class EnumerationOperand extends React.Component {
   }
 }
 
-class DateOperandBase extends React.Component {
-  static format = 'YYYY-MM-DD';
+type DateOperandBaseState = {
+  value: any,
+  invalid: boolean,
+};
 
-  state: {
-    value: any,
-    invalid: boolean,
-  };
+class DateOperandBase extends React.Component<*, DateOperandBaseState> {
+  static format = 'YYYY-MM-DD';
 
   field: any;
 
@@ -138,7 +143,7 @@ class DateOperandBase extends React.Component {
     );
   }
 
-  renderField(props: {value: any, onChange: string => *}): ?React.Element<*> {
+  renderField(props: {value: any, onChange: string => *}): React.Node {
     return null;
   }
 
@@ -159,7 +164,7 @@ class DateOperandBase extends React.Component {
 export class DateOperand extends DateOperandBase {
   static format = 'YYYY-MM-DD';
 
-  renderField({value, onChange}: {value: any, onChange: string => *}): ?React.Element<*> {
+  renderField({value, onChange}: {value: any, onChange: string => *}): React.Node {
     return (
       <DateTimeField
         ref={this.onField}
@@ -174,7 +179,7 @@ export class DateOperand extends DateOperandBase {
 export class TimeOperand extends DateOperandBase {
   static format = 'HH:mm:ss';
 
-  renderField({value, onChange}: {value: any, onChange: string => *}): ?React.Element<*> {
+  renderField({value, onChange}: {value: any, onChange: string => *}): React.Node {
     return (
       <DateTimeField
         ref={this.onField}
@@ -201,7 +206,7 @@ export class DateTimeOperand extends DateOperandBase {
   }
 }
 
-export class MultiEnumerationOperand extends React.Component {
+export class MultiEnumerationOperand extends React.Component<EnumerationOperandProps> {
   render() {
     return (
       <Select

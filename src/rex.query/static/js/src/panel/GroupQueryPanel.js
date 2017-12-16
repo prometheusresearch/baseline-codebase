@@ -16,7 +16,7 @@ type GroupQueryPanelProps = {
   onClose: () => *,
 };
 
-export default class GroupQueryPanel extends React.Component<*, GroupQueryPanelProps, *> {
+export default class GroupQueryPanel extends React.Component<GroupQueryPanelProps> {
   context: {
     actions: Actions,
   };
@@ -121,7 +121,7 @@ function GroupMenu({
   );
 }
 
-class GroupButton extends React.Component {
+class GroupButton extends React.Component<*> {
   onClick = (ev: UIEvent) => {
     ev.stopPropagation();
     if (this.props.selected) {

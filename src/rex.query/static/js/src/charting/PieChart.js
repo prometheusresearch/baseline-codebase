@@ -23,9 +23,7 @@ type PieChartProps = types.ChartBaseProps<types.PieChart> & {
   activeIndex: ?number,
 };
 
-export default class PieChart extends React.Component {
-  props: PieChartProps;
-
+export default class PieChart extends React.Component<PieChartProps> {
   label = ({cx, cy, midAngle, outerRadius, percent, name, index}: any) => {
     if (index === this.props.activeIndex) {
       return null;

@@ -2,34 +2,37 @@
  * @flow
  */
 
-import React from 'react';
+import * as React from 'react';
 import ReactDOM from 'react-dom';
 import {style, css, VBox, HBox} from 'react-stylesheet';
 import * as Icon from '../Icon';
 
 type MenuButtonProps = {
-  icon?: ?string | React$Element<*>,
+  icon?: React.Node,
   selected?: boolean,
   disabled?: boolean,
   onIconClick?: (ev: MouseEvent) => *,
   iconTitle?: string,
   tabIndex?: number,
-  menu?: React$Element<*>,
-  children?: React$Element<*>,
-  buttonGroup?: ?React$Element<*>,
+  menu?: React.Node,
+  children?: React.Node,
+  buttonGroup?: React.Node,
 };
 
 type MenuButtonState = {
   menuOpen: boolean,
 };
 
-export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
-  state: MenuButtonState = {
+export default class MenuButton extends React.Component<
+  MenuButtonProps,
+  MenuButtonState,
+> {
+  state = {
     menuOpen: false,
   };
 
-  menuButtonMenu: ?React.Component<*, *, *> = null;
-  menuButtonMenuToggle: ?React.Component<*, *, *> = null;
+  menuButtonMenu: ?React.Component<*, *> = null;
+  menuButtonMenuToggle: ?React.Component<*, *> = null;
   mounted: boolean = true;
 
   toggleMenuOpen = () => {
@@ -59,11 +62,11 @@ export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
     }
   };
 
-  onMenuButtonMenu = (menuButtonMenu: React.Component<*, *, *>) => {
+  onMenuButtonMenu = (menuButtonMenu: *) => {
     this.menuButtonMenu = menuButtonMenu;
   };
 
-  onMenuButtonMenuToggle = (menuButtonMenuToggle: React.Component<*, *, *>) => {
+  onMenuButtonMenuToggle = (menuButtonMenuToggle: *) => {
     this.menuButtonMenuToggle = menuButtonMenuToggle;
   };
 
@@ -80,9 +83,7 @@ export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
       tabIndex = 0,
       ...rest
     } = this.props;
-    let {
-      menuOpen,
-    } = this.state;
+    let {menuOpen} = this.state;
     let variant = {selected, disabled};
     let separateHover = icon && onIconClick;
     return (
@@ -138,11 +139,11 @@ export default class MenuButton extends React.Component<*, MenuButtonProps, *> {
   }
 }
 
-class MenuButtonMenuToggle extends React.Component {
-  props: {
-    onClick: () => *,
-  };
+type MenuButtonMenuToggleProps = {
+  onClick: () => *,
+};
 
+class MenuButtonMenuToggle extends React.Component<MenuButtonMenuToggleProps> {
   onClick = (ev: UIEvent) => {
     ev.stopPropagation();
     this.props.onClick();

@@ -24,13 +24,17 @@ const getPieColor = (chart: types.PieChart, id: string) =>
   chart.color[id] || generateColorHash(id);
 
 type PieChartEditorProps = types.ChartEditorBaseProps<types.PieChart> & {
-  optionsForLabel: Array<ui.SelectOption>,
-  optionsForValue: Array<ui.SelectOption>,
+  optionsForLabel: $ReadOnlyArray<ui.SelectOptionWithStringLabel>,
+  optionsForValue: $ReadOnlyArray<ui.SelectOptionWithStringLabel>,
 };
 
-export default class PieChartEditor extends React.Component {
-  props: PieChartEditorProps;
-  state: {activeIndex: ?number} = {activeIndex: null};
+type PieChartEditorState = {activeIndex: ?number};
+
+export default class PieChartEditor extends React.Component<
+  PieChartEditorProps,
+  PieChartEditorState,
+> {
+  state = {activeIndex: null};
 
   onSectorClick = (activeIndex: number) => {
     this.setState(state => {

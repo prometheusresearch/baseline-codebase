@@ -7,7 +7,8 @@ import type {AggregateQuery} from '../model/types';
 
 import map from 'lodash/map';
 
-import React from 'react';
+import * as React from 'react';
+import invariant from 'invariant';
 import {VBox, Element} from 'react-stylesheet';
 
 import * as q from '../model/Query';
@@ -23,9 +24,7 @@ type AggregateQueryPanelProps = {
 const ENTITY_SENTINEL = '__entity_sentinel__';
 
 export default class AggregateQueryPanel extends React.Component<
-  *,
   AggregateQueryPanelProps,
-  *,
 > {
   context: {
     actions: Actions,
@@ -41,7 +40,8 @@ export default class AggregateQueryPanel extends React.Component<
     });
   };
 
-  onAttribute = (path: string) => {
+  onAttribute = (path: *) => {
+    invariant(!Array.isArray(path), 'Impossible');
     this.context.actions.setAggregate({
       at: this.props.query,
       aggregate: 'count',
@@ -58,14 +58,22 @@ export default class AggregateQueryPanel extends React.Component<
     if (t.isRecordLike(prevType)) {
       let options = [
         {
-          label: <Element textTransform="capitalize">{query.context.prev.title}</Element>,
+          label: (
+            <Element textTransform="capitalize">
+              {query.context.prev.title}
+            </Element>
+          ),
           value: ENTITY_SENTINEL,
         },
       ];
 
       options = options.concat(
         map(t.recordLikeAttribute(prevType), (f, k) => ({
-          label: <Element textTransform="capitalize">{f.title || k}</Element>,
+          label: (
+            <Element textTransform="capitalize">
+              {f.title || k}
+            </Element>
+          ),
           value: k,
         })),
       );
@@ -101,8 +109,8 @@ export default class AggregateQueryPanel extends React.Component<
           onSelect={this.onSelect}
         />
         <Menu.MenuHelp>
-          Edit current query combinator by selecting another summarize function
-          to apply to the current pipeline.
+          Edit current query combinator by selecting another summarize function to apply
+          to the current pipeline.
         </Menu.MenuHelp>
       </QueryPanelBase>
     );
@@ -110,9 +118,10 @@ export default class AggregateQueryPanel extends React.Component<
 }
 
 function AggregateMenu({query: {aggregate, path, context}, title, onSelect}) {
-  let type = path == null
-    ? context.prev.type
-    : q.inferQueryType(context.prev, q.navigate(path)).context.type;
+  let type =
+    path == null
+      ? context.prev.type
+      : q.inferQueryType(context.prev, q.navigate(path)).context.type;
   let items = [];
   for (let name in context.domain.aggregate) {
     if (!context.domain.aggregate.hasOwnProperty(name)) {
@@ -141,7 +150,7 @@ function AggregateMenu({query: {aggregate, path, context}, title, onSelect}) {
   );
 }
 
-class AggregateButton extends React.Component {
+class AggregateButton extends React.Component<*> {
   onClick = (ev: UIEvent) => {
     ev.stopPropagation();
     this.props.onClick(this.props.name);

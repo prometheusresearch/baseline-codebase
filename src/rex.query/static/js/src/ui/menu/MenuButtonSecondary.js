@@ -2,18 +2,19 @@
  * @flow
  */
 
-import React from 'react';
+import * as React from 'react';
 import {style, css, Element, VBox, HBox} from 'react-stylesheet';
 
 type MenuButtonSecondaryProps = {
-  icon?: ?string | React$Element<*>,
+  icon?: React.Node,
   tabIndex?: number,
-  children?: React$Element<*>,
+  children?: React.Node,
   onClick?: () => *,
 };
 
-export default class MenuButtonSecondary
-  extends React.Component<*, MenuButtonSecondaryProps, *> {
+export default class MenuButtonSecondary extends React.Component<
+  MenuButtonSecondaryProps,
+> {
   onClick = (ev: UIEvent) => {
     ev.stopPropagation();
     if (this.props.onClick) {
@@ -22,12 +23,7 @@ export default class MenuButtonSecondary
   };
 
   render() {
-    let {
-      icon,
-      children,
-      tabIndex = 0,
-      ...rest
-    } = this.props;
+    let {icon, children, tabIndex = 0, ...rest} = this.props;
     return (
       <MenuButtonSecondaryRoot {...rest} onClick={this.onClick} tabIndex={tabIndex}>
         {icon &&

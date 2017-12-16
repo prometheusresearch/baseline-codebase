@@ -14,6 +14,7 @@ import type {
 
 import invariant from 'invariant';
 
+import type {SelectOptionWithStringLabel} from '../ui';
 import * as t from '../model/Type';
 import {getNavigation} from '../model/QueryNavigation';
 
@@ -191,7 +192,7 @@ export function getSelectOptionsFromContext(
     onlyNumerics?: boolean,
     addSumarizations?: boolean,
   } = {},
-): Array<{label: string, value: string}> {
+): $ReadOnlyArray<SelectOptionWithStringLabel> {
   const {onlyNumerics, addSumarizations} = params;
   const navigation = Array.from(getNavigation(context).values());
   const options = [];
@@ -249,7 +250,7 @@ import {editor} from '../model/QueryOperation';
 
 export function getColumnOptions(
   context: Context,
-): Array<{label: string, value: string}> {
+): $ReadOnlyArray<{label: string, value: string}> {
   const nav = getNavigation(context);
   return Array.from(nav.values()).map(nav => ({
     label: nav.label,

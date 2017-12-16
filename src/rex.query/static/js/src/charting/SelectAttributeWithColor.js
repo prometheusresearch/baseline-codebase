@@ -10,7 +10,7 @@ import SelectAttribute from './SelectAttribute';
 import {COLOR_LIST} from './ColorList';
 
 type SelectAttributeWithColorProps = {
-  options: Array<ui.SelectOption>,
+  options: $ReadOnlyArray<ui.SelectOption>,
   label: string,
   noValueLabel?: string,
   value: ?string,

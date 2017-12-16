@@ -4,7 +4,7 @@
 
 import type {QueryNavigation, Expression, BinaryExpression} from '../../model/types';
 
-import React from 'react';
+import * as React from 'react';
 import invariant from 'invariant';
 
 import * as q from '../../model/Query';
@@ -37,6 +37,8 @@ export type Comparator = {
   // The unique ID of the comparator
   value: string,
 
+  labelActive?: string,
+
   // A function that looks at a query to determine if it is one that this
   // comparator handles. If so, it returns an object containing basic info.
   identify(expression: Expression): ?Identification,
@@ -51,7 +53,7 @@ export type Comparator = {
     field: QueryNavigation,
     value: ?any,
     onChange: (operand: ?any) => void,
-  ): ?React.Element<*>,
+  ): ?React.Node,
 
   // A function that generates a Query for the given field and operand. If a
   // legal Query cannot be generated, return null.
@@ -227,21 +229,18 @@ class NotContains extends BasicBinaryComparator {
     if (query.name !== 'unary') {
       return null;
     }
-    const expression = query.expression;
-    let operandIsField = expression.name === 'binary'
-      ? expression.right.name === 'navigate'
-      : false;
-    if (
-      query.name === 'not' &&
-      expression.name === 'binary' &&
-      expression.left.name === 'navigate' &&
-      (expression.right.name === 'navigate' || expression.right.name === 'value')
-    ) {
-      let field = query.expression.left.path;
-      let operand = operandIsField
-        ? query.expression.right.path
-        : query.expression.right.value;
-      return {field, operand, operandIsField};
+    if (query.op === 'not') {
+      const expr = query.expression;
+      if (expr.name === 'binary') {
+        const {left, right} = expr;
+        if (
+          left.name === 'navigate' &&
+          (right.name === 'navigate' || right.name === 'value')
+        ) {
+          const operand = right.name === 'navigate' ? right.path : right.value;
+          return {field: left.path, operand, operandIsField: right.name === 'navigate'};
+        }
+      }
     }
   }
 

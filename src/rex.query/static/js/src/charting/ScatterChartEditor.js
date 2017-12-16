@@ -16,8 +16,8 @@ import SelectAttribute from './SelectAttribute';
 import ScatterChart from './ScatterChart';
 
 type ScatterChartEditorProps = types.ChartEditorBaseProps<types.ScatterChart> & {
-  optionsForX: Array<ui.SelectOption>,
-  optionsForY: Array<ui.SelectOption>,
+  optionsForX: $ReadOnlyArray<ui.SelectOptionWithStringLabel>,
+  optionsForY: $ReadOnlyArray<ui.SelectOptionWithStringLabel>,
 };
 
 export default function ScatterChartEditor({
@@ -30,6 +30,24 @@ export default function ScatterChartEditor({
   optionsForY,
   dataIsUpdating,
 }: ScatterChartEditorProps) {
+  const onXChange = (xColumn, option) => {
+    const label = option && typeof option.label === 'string' ? option.label : null;
+    onChart({
+      type: 'scatter',
+      ...chart,
+      xColumn,
+      xLabel: label,
+    });
+  };
+  const onYChange = (yColumn, option) => {
+    const label = option && typeof option.label === 'string' ? option.label : null;
+    onChart({
+      type: 'scatter',
+      ...chart,
+      yColumn,
+      yLabel: label,
+    });
+  };
   return (
     <VBox overflow="visible" flexGrow={1}>
       <VBox overflow="visible" marginBottom={10}>
@@ -37,25 +55,13 @@ export default function ScatterChartEditor({
           options={optionsForX}
           label="X axis"
           value={chart.xColumn}
-          onChange={(xColumn, option) =>
-            onChart({
-              type: 'scatter',
-              ...chart,
-              xColumn,
-              xLabel: option ? option.label : null,
-            })}
+          onChange={onXChange}
         />
         <SelectAttribute
           options={optionsForY}
           label="Y axis"
           value={chart.yColumn}
-          onChange={(yColumn, option) =>
-            onChart({
-              type: 'scatter',
-              ...chart,
-              yColumn,
-              yLabel: option ? option.label : null,
-            })}
+          onChange={onYChange}
         />
       </VBox>
       <VBox flexGrow={1}>

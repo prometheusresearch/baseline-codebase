@@ -2,43 +2,47 @@
  * @flow
  */
 
-import React from 'react';
+import * as React from 'react';
 import {style, HBox, VBox} from 'react-stylesheet';
 import Label from '../ui/Label';
 import * as Icon from '../ui/Icon';
 
+type QueryVisButtonHeaderStylesheet = {
+  Root: React.ComponentType<*>,
+  Button: React.ComponentType<*>,
+};
+
 type QueryVisButtonHeaderProps = {
-  stylesheet: {
-    Root: typeof VBox,
-    Button: typeof VBox,
-  },
-  closeIcon: React.Element<*>,
+  stylesheet: QueryVisButtonHeaderStylesheet,
+  closeIcon?: React.Node,
 
-  label: string,
+  label?: React.Node,
 
-  selected: boolean,
-  selectable: boolean,
+  selected?: boolean,
+  selectable?: boolean,
 
   invalid?: boolean,
 
-  toggleable: boolean,
-  closeable: boolean,
+  toggleable?: boolean,
+  closeable?: boolean,
 
   first?: boolean,
 
   closeTitle?: string,
 
-  onSelect: () => void,
-  onClose: () => void,
+  onSelect?: () => void,
+  onClose?: () => void,
 };
 
-export default class QueryVisButtonHeader
-  extends React.Component<*, QueryVisButtonHeaderProps, *> {
-  state: {
-    active: boolean,
-    hover: boolean,
-  };
+type QueryVisButtonHeaderState = {
+  active: boolean,
+  hover: boolean,
+};
 
+export default class QueryVisButtonHeader extends React.Component<
+  QueryVisButtonHeaderProps,
+  QueryVisButtonHeaderState,
+> {
   state = {
     active: true,
     hover: false,
@@ -64,12 +68,16 @@ export default class QueryVisButtonHeader
 
   onSelect = (e: UIEvent) => {
     e.stopPropagation();
-    this.props.onSelect();
+    if (this.props.onSelect != null) {
+      this.props.onSelect();
+    }
   };
 
   onClose = (e: UIEvent) => {
     e.stopPropagation();
-    this.props.onClose();
+    if (this.props.onClose != null) {
+      this.props.onClose();
+    }
   };
 
   render() {
@@ -93,9 +101,8 @@ export default class QueryVisButtonHeader
           <VBox
             paddingRight={5}
             style={{
-              visibility: toggleable && (!active || selected || hover)
-                ? 'visible'
-                : 'hidden',
+              visibility:
+                toggleable && (!active || selected || hover) ? 'visible' : 'hidden',
             }}>
             <Button disableActive onClick={toggleable && this.toggleActive}>
               {active ? <Icon.IconCircle /> : <Icon.IconCircleO />}

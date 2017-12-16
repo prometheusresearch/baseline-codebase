@@ -66,7 +66,7 @@ export function DropdownMenuItem({
   children,
 }: {
   value: string,
-  children: React.Element<*>,
+  children?: React.Node,
 }) {
   return (
     <Element
@@ -78,19 +78,22 @@ export function DropdownMenuItem({
       cursor="default"
       color="#666666"
       colorOnHover="#444444">
-      <MenuButton.MenuItem value={value}>{children}</MenuButton.MenuItem>
+      <MenuButton.MenuItem value={value}>
+        {children}
+      </MenuButton.MenuItem>
     </Element>
   );
 }
 
-export default class DataTableHeaderCellMenu extends React.Component {
-  props: {
-    column: ColumnField<*>,
+type DataTableHeaderCellMenuProps = {
+  column: ColumnField<*>,
 
-    renderItems: (column: ColumnField<*>) => *,
-    onSelect?: (column: ColumnField<*>, value: string) => *,
-  };
-
+  renderItems: (column: ColumnField<*>) => *,
+  onSelect?: (column: ColumnField<*>, value: string) => *,
+};
+export default class DataTableHeaderCellMenu extends React.Component<
+  DataTableHeaderCellMenuProps,
+> {
   onMenuSelect = (value: string) => {
     if (this.props.onSelect) {
       this.props.onSelect(this.props.column, value);

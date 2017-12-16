@@ -5,7 +5,7 @@
 import type {Expression, FilterQuery} from '../model/types';
 import type {Actions} from '../state';
 
-import React from 'react';
+import * as React from 'react';
 import {Element} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
@@ -14,11 +14,6 @@ import * as qn from '../model/QueryNavigation';
 import {Icon, Theme, Menu} from '../ui';
 import QueryPanelBase from './QueryPanelBase';
 import FilterCondition from './filter/FilterCondition';
-
-type FilterQueryPanelProps = {
-  query: FilterQuery,
-  onClose: () => *,
-};
 
 function ORSeparator() {
   return (
@@ -44,14 +39,21 @@ function ORSeparator() {
   );
 }
 
-export default class FilterQueryPanel
-  extends React.Component<*, FilterQueryPanelProps, *> {
+type FilterQueryPanelProps = {
+  query: FilterQuery,
+  onClose: () => *,
+};
+
+type FilterQueryPanelState = {
+  expressions: Array<Expression>,
+};
+
+export default class FilterQueryPanel extends React.Component<
+  FilterQueryPanelProps,
+  FilterQueryPanelState,
+> {
   context: {
     actions: Actions,
-  };
-
-  state: {
-    expressions: Array<Expression>,
   };
 
   static contextTypes = {actions: React.PropTypes.object};
@@ -75,12 +77,12 @@ export default class FilterQueryPanel
   }
 
   componentWillReceiveProps(nextProps: FilterQueryPanelProps) {
-    let {predicate} = nextProps.query;
-    this.setState({
-      expressions: predicate && predicate.expressions
-        ? predicate.expressions
-        : [q.value(true)],
-    });
+    const {predicate} = nextProps.query;
+    let expressions = [q.value(true)];
+    if (predicate && predicate.name === 'logicalBinary') {
+      expressions = predicate.expressions;
+    }
+    this.setState({expressions});
   }
 
   render() {
@@ -163,13 +165,14 @@ export default class FilterQueryPanel
       expression => !(expression.name === 'value' && expression.value === true),
     );
 
-    let expression = expressions.length > 0
-      ? q.or(
-          ...expressions.map(expression =>
-            q.inferExpressionType(this.props.query.context, expression),
-          ),
-        )
-      : q.or(q.value(true));
+    let expression =
+      expressions.length > 0
+        ? q.or(
+            ...expressions.map(expression =>
+              q.inferExpressionType(this.props.query.context, expression),
+            ),
+          )
+        : q.or(q.value(true));
 
     this.context.actions.setFilter({
       at: this.props.query,

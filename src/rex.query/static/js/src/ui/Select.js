@@ -1,21 +1,33 @@
+/**
+ * @flow
+ */
+
 import './Select.css';
 
-import React from 'react';
+import * as React from 'react';
 import SelectBase from 'react-select';
-import isArray from 'lodash/isArray';
 
 export type SelectOption = {
-  label: string,
-  labelActive?: string,
-  value: string,
+  +label: React.Node,
+  +value: string,
+  +labelActive?: string,
 };
 
-export default class Select extends React.Component {
-  props: {
-    options: Array<SelectOption>,
-    onChange: (string) => *,
-  };
+export type SelectOptionWithStringLabel = {
+  +label: string,
+  +value: string,
+  +labelActive?: string,
+};
 
+export type SelectProps<O: SelectOption> = {
+  options: $ReadOnlyArray<O>,
+  onChange: (Array<string> | string | null) => void,
+  style?: Object,
+};
+
+export default class Select<O: SelectOption = SelectOption> extends React.Component<
+  SelectProps<O>,
+> {
   render() {
     let {style, ...props} = this.props;
     return (
@@ -28,10 +40,10 @@ export default class Select extends React.Component {
     );
   }
 
-  onChange = option => {
+  onChange = (option: Array<SelectOption> | SelectOption) => {
     if (this.props.onChange) {
       let value = null;
-      if (isArray(option)) {
+      if (Array.isArray(option)) {
         value = option.map(opt => {
           return opt.value;
         });

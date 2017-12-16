@@ -22,12 +22,12 @@ import {Icon, ArrowDown, QueryButton, QueryPane} from '../ui';
 import QueryVisToolbar from './QueryVisToolbar';
 import QueryVisButtonBase from './QueryVisButton';
 
-class QueryVisButton extends React.Component {
-  props: {
-    query: QueryAtom,
-    selected: ?QueryAtom,
-  };
+type QueryVisButtonProps = {
+  query: QueryAtom,
+  selected: ?QueryAtom,
+};
 
+class QueryVisButton extends React.Component<QueryVisButtonProps> {
   context: {
     actions: Actions,
   };
@@ -61,16 +61,16 @@ class QueryVisButton extends React.Component {
   }
 }
 
-class QueryVisInsertAfterButton extends React.Component {
-  props: {
-    query: QueryPipeline,
-    first?: boolean,
-  };
+type QueryVisInsertAfterButtonProps = {
+  query: QueryPipeline,
+  first?: boolean,
+};
 
+class QueryVisInsertAfterButton extends React.Component<QueryVisInsertAfterButtonProps> {
   render() {
     let stylesheet = {
-      Root: QueryPane.DefaultPane,
-      Button: QueryButton.DefaultButton,
+      Root: (QueryPane.DefaultPane: any),
+      Button: (QueryButton.DefaultButton: any),
     };
     let {first} = this.props;
     return <QueryVisButtonBase first={first} selected stylesheet={stylesheet} label="" />;
@@ -83,12 +83,16 @@ export function QueryVisNavigateButton(props: {
   children?: React$Element<*>,
 }) {
   let {query, ...rest} = props;
+  let stylesheet = {
+    Root: (QueryPane.NavigatePane: any),
+    Button: (QueryButton.NavigateButton: any),
+  };
   return (
     <QueryVisButton
       {...rest}
       selectable
       closeable
-      stylesheet={{Root: QueryPane.NavigatePane, Button: QueryButton.NavigateButton}}
+      stylesheet={stylesheet}
       query={query}
       label={query.context.title || query.path}
     />
@@ -139,8 +143,8 @@ export function QueryVisDefineButton(props: {
 export function QueryVisFilterButton(props: {query: FilterQuery, selected: ?QueryAtom}) {
   let {query} = props;
   let stylesheet = {
-    Root: QueryPane.FilterPane,
-    Button: QueryButton.FilterButton,
+    Root: (QueryPane.FilterPane: any),
+    Button: (QueryButton.FilterButton: any),
   };
   return (
     <QueryVisButton
@@ -160,12 +164,16 @@ export function QueryVisGroupButton({
   query: GroupQuery,
   selected: ?QueryAtom,
 }) {
+  let stylesheet = {
+    Root: (QueryPane.GroupPane: any),
+    Button: (QueryButton.GroupButton: any),
+  };
   return (
     <QueryVisButton
       {...rest}
       selectable
       closeable
-      stylesheet={{Root: QueryPane.GroupPane, Button: QueryButton.GroupButton}}
+      stylesheet={stylesheet}
       query={query}
       label={query.context.title}
     />
@@ -179,34 +187,38 @@ export function QueryVisAggregateButton({
   query: AggregateQuery,
   selected: ?QueryAtom,
 }) {
+  let stylesheet = {
+    Root: (QueryPane.AggregatePane: any),
+    Button: (QueryButton.AggregateButton: any),
+  };
   return (
     <QueryVisButton
       {...rest}
       selectable
       closeable
-      stylesheet={{Root: QueryPane.AggregatePane, Button: QueryButton.AggregateButton}}
+      stylesheet={stylesheet}
       query={query}
       label={query.context.title}
     />
   );
 }
 
-class QueryVisDefineHeader extends React.Component {
+type QueryVisDefineHeaderProps = {
+  label: string,
+  query: DefineQuery,
+  closeable?: boolean,
+  closeTitle?: string,
+  selected?: ?boolean,
+  selectable?: boolean,
+};
+
+class QueryVisDefineHeader extends React.Component<QueryVisDefineHeaderProps> {
   context: {
     actions: Actions,
   };
 
   static contextTypes = {
     actions: React.PropTypes.object,
-  };
-
-  props: {
-    label: string,
-    query: DefineQuery,
-    closeable?: boolean,
-    closeTitle?: string,
-    selected?: ?boolean,
-    selectable?: boolean,
   };
 
   onRemove = (ev: UIEvent) => {
@@ -374,7 +386,7 @@ type QueryVisProps = {
 /**
  * Render graphical query representation.
  */
-export default class QueryVis extends React.Component<*, QueryVisProps, *> {
+export default class QueryVis extends React.Component<QueryVisProps> {
   render() {
     let {pipeline, selected, activeQueryPipeline} = this.props;
     return (

@@ -23,7 +23,7 @@ type DataTableProps = {
   onFocusedSeq: (focusedSeq: Array<string>) => *,
 };
 
-export default class DataTable extends React.Component<*, DataTableProps, *> {
+export default class DataTable extends React.Component<DataTableProps> {
   columns: ColumnConfig<DataTableColumnConfig.ColumnSpecData>;
   data: Array<Object>;
   context: {
@@ -172,11 +172,7 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
   };
 
   _noRowsRenderer = () => {
-    return (
-      <div>
-        No data
-      </div>
-    );
+    return <div>No data</div>;
   };
 }
 

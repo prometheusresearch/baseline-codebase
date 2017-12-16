@@ -32,7 +32,7 @@ import * as d from './Domain';
 import * as t from './Type';
 import generateUniqueId from '../generateUniqueId';
 
-export const QueryNameSet = new Set([
+export const QueryNameSet: Set<string> = new Set([
   'here',
   'navigate',
   'select',
@@ -420,9 +420,10 @@ export function inferQueryType<Q: Query>(context: Context, query: Q): Q {
           prev: context,
           scope: context.scope,
           domain: context.domain,
-          type: predicate.context.type.name === 'invalid'
-            ? t.invalidType(domain)
-            : context.type,
+          type:
+            predicate.context.type.name === 'invalid'
+              ? t.invalidType(domain)
+              : context.type,
           hasInvalidType: predicate.context.hasInvalidType,
           title: expressionTitle == null ? 'Filter' : `Filter by ${expressionTitle}`,
         },

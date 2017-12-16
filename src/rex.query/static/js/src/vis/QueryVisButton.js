@@ -2,24 +2,26 @@
  * @flow
  */
 
-import React from 'react';
+import * as React from 'react';
 import {VBox} from 'react-stylesheet';
 
 import QueryVisButtonHeader from './QueryVisButtonHeader';
 
-type QueryVisButtonProps = {
-  children?: React$Element<*>,
-  stylesheet: {
-    Root: React.Component<*, *, *>,
-    Button: React.Component<*, *, *>,
-  },
+type QueryVisButtonStylesheet = {
+  Root: React.ComponentType<*>,
+  Button: React.ComponentType<*>,
 };
 
-export default class QueryVisButton extends React.Component<*, QueryVisButtonProps, *> {
+type QueryVisButtonProps = {
+  children?: React.Node,
+  stylesheet: QueryVisButtonStylesheet,
+};
+
+export default class QueryVisButton extends React.Component<QueryVisButtonProps> {
   static defaultProps = {
     stylesheet: {
-      Root: VBox,
-      Button: VBox,
+      Root: (VBox: any),
+      Button: (VBox: any),
     },
   };
 

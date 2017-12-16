@@ -36,16 +36,15 @@ type DataTableHeaderCellProps = {
   onColumnMenuSelect?: (column: ColumnField<*>, value: string) => *,
 };
 
-export default class DataTableHeaderCell extends React.Component {
+export default class DataTableHeaderCell extends React.Component<
+  DataTableHeaderCellProps,
+  {resize: ?number},
+> {
   static defaultProps = {
     minColumnWidth: 70,
   };
 
-  props: DataTableHeaderCellProps;
-
-  state: {
-    resize: ?number,
-  } = {
+  state = {
     resize: null,
   };
 
@@ -64,9 +63,10 @@ export default class DataTableHeaderCell extends React.Component {
     } = this.props;
     const {resize} = this.state;
     if (resizeable == null) {
-      resizeable = index != null && parentColumn != null
-        ? parentColumn.columnList.length - 1 !== index
-        : true;
+      resizeable =
+        index != null && parentColumn != null
+          ? parentColumn.columnList.length - 1 !== index
+          : true;
     }
     return (
       <DataTableHeaderCellRoot ref={this.onRootRef} style={style} onClick={onClick}>
@@ -120,7 +120,7 @@ export default class DataTableHeaderCell extends React.Component {
     }
   };
 
-  onRootRef = (rootRef: React.Component<*, *, *>) => {
+  onRootRef = (rootRef: *) => {
     this.rootRef = findDOMNode(rootRef);
   };
 

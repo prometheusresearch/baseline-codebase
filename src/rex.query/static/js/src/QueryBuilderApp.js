@@ -13,10 +13,12 @@ import {fetchCatalog} from './fetch';
 // eslint-disable-next-line
 const API = (typeof __rex_root__ !== 'undefined' ? __rex_root__ : '') + '/query/';
 
-export default class QueryBuilderApp extends React.Component {
+type State = {domain: ?Domain};
+
+export default class QueryBuilderApp extends React.Component<*, State> {
   queryBuilder: ?any;
 
-  state: {domain: ?Domain} = {
+  state = {
     domain: null,
   };
 

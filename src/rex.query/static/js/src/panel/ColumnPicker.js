@@ -17,10 +17,10 @@ type ColumnPickerProps = {
   query: QueryPipeline,
   onSelect: (payload: {path: string}) => *,
   onSelectRemove: (payload: {path: string, query: QueryPipeline}) => *,
-  onSearch: SearchCallback,
+  onSearch?: SearchCallback,
 };
 
-export default class ColumnPicker extends React.Component<*, ColumnPickerProps, *> {
+export default class ColumnPicker extends React.Component<ColumnPickerProps> {
   context: {
     actions: Actions,
   };
@@ -31,12 +31,14 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
 
   render() {
     let {query, onSearch} = this.props;
-    let context = query.context.type.name === 'invalid'
-      ? query.context.prev
-      : getInsertionPoint(query).context;
+    let context =
+      query.context.type.name === 'invalid'
+        ? query.context.prev
+        : getInsertionPoint(query).context;
+    const NavigationMenuContents = this.NavigationMenuContents;
     return (
       <NavigationMenu onSearch={onSearch} context={context}>
-        <this.NavigationMenuContents {...this.props} />
+        {navigation => <NavigationMenuContents {...this.props} navigation={navigation} />}
       </NavigationMenu>
     );
   }
@@ -144,19 +146,19 @@ export default class ColumnPicker extends React.Component<*, ColumnPickerProps, 
   };
 }
 
-class ColumnPickerButton extends React.Component {
-  props: {
-    query?: QueryPipeline,
-    column: QueryNavigation,
-    onSelect: (payload: {path: string}) => *,
-    onNavigate: (payload: {path: string}) => *,
-    onAggregate: (payload: {path: string}) => *,
-    onAddQuery: (payload: {path: string}) => *,
-    onSelectRemove: (payload: {path: string, query: QueryPipeline}) => *,
-    disabled: boolean,
-    actions: Actions,
-  };
+type ColumnPickerButtonProps = {
+  query?: QueryPipeline,
+  column: QueryNavigation,
+  onSelect: (payload: {path: string}) => *,
+  onNavigate: (payload: {path: string}) => *,
+  onAggregate: (payload: {path: string}) => *,
+  onAddQuery: (payload: {path: string}) => *,
+  onSelectRemove: (payload: {path: string, query: QueryPipeline}) => *,
+  disabled?: boolean,
+  actions: Actions,
+};
 
+class ColumnPickerButton extends React.Component<ColumnPickerButtonProps> {
   onSelect = (e: UIEvent) => {
     e.stopPropagation();
     let {onSelect, onSelectRemove, column, query} = this.props;
@@ -234,10 +236,7 @@ class ColumnPickerButton extends React.Component {
                 : column.label
             }
           />
-          {column.fromQuery &&
-            <TagLabel marginLeft="auto">
-              Query
-            </TagLabel>}
+          {column.fromQuery && <TagLabel marginLeft="auto">Query</TagLabel>}
         </HBox>
       </Menu.MenuButton>
     );

@@ -2,7 +2,7 @@
  * @flow
  **/
 
-import React from 'react';
+import * as React from 'react';
 import {style} from 'react-stylesheet';
 import * as css from 'react-stylesheet/css';
 import {Grid} from 'react-virtualized';
@@ -153,7 +153,7 @@ export type CellRenderer<T> = (props: {
   dataKey: Array<string>,
   isScrolling: boolean,
   rowIndex: number,
-}) => ?string | React.Element<any>;
+}) => React.Node;
 
 export type HeaderCellRenderer<T> = (props: {
   column: ColumnField<T>,
@@ -304,7 +304,7 @@ type DataTableState = {
   columnWidthByID: {[id: string]: number},
 };
 
-export default class DataTable extends React.Component<*, DataTableProps, *> {
+export default class DataTable extends React.Component<DataTableProps, DataTableState> {
   static defaultProps = {
     minColumnWidth: 70,
     initialColumnWidth: 120,
@@ -321,7 +321,7 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
   _cachedColumnStyles: Array<any>;
   _cachedColumnSpecList: Array<ColumnField<*>>;
 
-  state: DataTableState = {
+  state = {
     scrollbarWidth: 0,
     columnWidthByID: {},
   };
@@ -376,9 +376,10 @@ export default class DataTable extends React.Component<*, DataTableProps, *> {
     } else if (column.type === 'stack') {
       if (columnWidthByID[column.id] == null) {
         let last = column.columnList[column.columnList.length - 1];
-        let width = last != null
-          ? this._columnWidth(column.columnList[column.columnList.length - 1])
-          : 0;
+        let width =
+          last != null
+            ? this._columnWidth(column.columnList[column.columnList.length - 1])
+            : 0;
         return width;
         // TODO: find a way to cache this
         //columnWidthByID[column.id] = width;

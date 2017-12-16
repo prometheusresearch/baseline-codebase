@@ -2,27 +2,25 @@
  * @flow
  */
 
-import React from 'react';
+import * as React from 'react';
 import {Element} from 'react-stylesheet';
 
 type HeaderProps = {
-  children: React.Element<*>,
+  children?: React.Node,
   paddingLeft?: number,
   paddingRight?: number,
   paddingTop?: number,
   paddingBottom?: number,
 };
 
-export default function Header(
-  {
-    paddingLeft = 20,
-    paddingRight = 20,
-    paddingTop = 20,
-    paddingBottom = 10,
-    children,
-    ...props
-  }: HeaderProps,
-) {
+export default function Header({
+  paddingLeft = 20,
+  paddingRight = 20,
+  paddingTop = 20,
+  paddingBottom = 10,
+  children,
+  ...props
+}: HeaderProps) {
   return (
     <Element
       margin={0}

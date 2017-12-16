@@ -316,7 +316,7 @@ export type ExpressionName =
   | 'logicalBinary'
   | 'query';
 
-export const ExpressionNameSet = new Set([
+export const ExpressionNameSet: Set<string> = new Set([
   'navigate',
   'value',
   'binary',

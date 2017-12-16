@@ -4,12 +4,14 @@
 
 import type {ColumnConfig, ColumnField, ColumnContainerConfig} from './DataTable';
 
-import React from 'react';
+import * as React from 'react';
 import {style, css, VBox, HBox} from 'react-stylesheet';
 
 import findDOMNode from '../../findDOMNode';
 import stopPropagation from '../../stopPropagation';
-import DataTableHeaderCell, {DataTableHeaderCellResizeHandle} from './DataTableHeaderCell';
+import DataTableHeaderCell, {
+  DataTableHeaderCellResizeHandle,
+} from './DataTableHeaderCell';
 
 type DataTableHeaderProps = {
   columns: ColumnConfig<*>,
@@ -153,12 +155,10 @@ function DataTableHeaderItem({
   }
 }
 
-class DataTableHeaderStack extends React.Component {
+class DataTableHeaderStack extends React.Component<*, {resize: ?number}> {
   rootRef: ?HTMLElement = null;
 
-  state: {
-    resize: ?number,
-  } = {
+  state = {
     resize: null,
   };
 
@@ -177,9 +177,10 @@ class DataTableHeaderStack extends React.Component {
     } = this.props;
     const {resize} = this.state;
     const stack = columnSpec.columnList;
-    const resizeable = index != null && parentColumnSpec != null
-      ? parentColumnSpec.columnList.length - 1 !== index
-      : true;
+    const resizeable =
+      index != null && parentColumnSpec != null
+        ? parentColumnSpec.columnList.length - 1 !== index
+        : true;
     const width = columnWidth(columnSpec);
     return (
       <DataTableHeaderStackRoot
@@ -239,7 +240,7 @@ class DataTableHeaderStack extends React.Component {
     window.removeEventListener('mouseup', this.onMouseUp);
   }
 
-  onRootRef = (rootRef: React.Component<*, *, *>) => {
+  onRootRef = (rootRef: *) => {
     this.rootRef = findDOMNode(rootRef);
   };
 
@@ -291,12 +292,10 @@ class DataTableHeaderStack extends React.Component {
   };
 }
 
-class DataTableHeaderGroup extends React.Component {
+class DataTableHeaderGroup extends React.Component<*, {resize: ?number}> {
   rootRef: ?HTMLElement = null;
 
-  state: {
-    resize: ?number,
-  } = {
+  state = {
     resize: null,
   };
 
@@ -315,9 +314,10 @@ class DataTableHeaderGroup extends React.Component {
     } = this.props;
     const {resize} = this.state;
     const group = columnSpec.columnList;
-    const resizeable = index != null && parentColumnSpec != null
-      ? parentColumnSpec.columnList.length - 1 !== index
-      : true;
+    const resizeable =
+      index != null && parentColumnSpec != null
+        ? parentColumnSpec.columnList.length - 1 !== index
+        : true;
     const width = columnWidth(columnSpec);
     return (
       <DataTableHeaderGroupRoot
@@ -357,7 +357,7 @@ class DataTableHeaderGroup extends React.Component {
     window.removeEventListener('mouseup', this.onMouseUp);
   }
 
-  onRootRef = (rootRef: React.Component<*, *, *>) => {
+  onRootRef = rootRef => {
     this.rootRef = findDOMNode(rootRef);
   };
 

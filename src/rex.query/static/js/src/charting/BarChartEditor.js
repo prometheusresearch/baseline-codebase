@@ -17,8 +17,8 @@ import NoNumericAttributeText from './NoNumericAttributeText';
 import BarChart from './BarChart';
 
 type BarChartEditorProps = types.ChartEditorBaseProps<types.BarChart> & {
-  optionsForX: Array<ui.SelectOption>,
-  optionsForBar: Array<ui.SelectOption>,
+  optionsForX: $ReadOnlyArray<ui.SelectOption>,
+  optionsForBar: $ReadOnlyArray<ui.SelectOption>,
 };
 
 export default function BarChartEditor({
@@ -35,6 +35,17 @@ export default function BarChartEditor({
     valueColumn: null,
     color: '#8884d8',
   });
+
+  const onLabelChange = (labelColumn, option) => {
+    const label = option && typeof option.label === 'string' ? option.label : null;
+    onChart({
+      type: 'bar',
+      ...chart,
+      labelColumn,
+      label,
+    });
+  };
+
   return (
     <VBox overflow="visible" flexGrow={1}>
       <ChartControlPanel>
@@ -42,13 +53,7 @@ export default function BarChartEditor({
           label="Label"
           value={chart.labelColumn}
           options={optionsForX}
-          onChange={(labelColumn, option) =>
-            onChart({
-              type: 'bar',
-              ...chart,
-              labelColumn,
-              label: option ? option.label : null,
-            })}
+          onChange={onLabelChange}
         />
         {barList.map((bar, index) => {
           const updateBar = values => {
@@ -63,6 +68,13 @@ export default function BarChartEditor({
             }
             onChart({type: 'bar', ...chart, barList});
           };
+
+          const onBarChange = (valueColumn, option) => {
+            const label =
+              option && typeof option.label === 'string' ? option.label : null;
+            updateBar({...bar, valueColumn, label});
+          };
+
           return (
             <SelectAttributeWithColor
               key={index}
@@ -71,8 +83,7 @@ export default function BarChartEditor({
               noResultsText={<NoNumericAttributeText />}
               options={optionsForBar}
               value={bar.valueColumn}
-              onChange={(valueColumn, option) =>
-                updateBar({...bar, valueColumn, label: option ? option.label : null})}
+              onChange={onBarChange}
               color={bar.color}
               onColorChange={color => updateBar({...bar, color})}
             />

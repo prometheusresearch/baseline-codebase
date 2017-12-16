@@ -2,13 +2,13 @@
  * @flow
  */
 
-import React from 'react';
+import * as React from 'react';
 import {style, css, VBox} from 'react-stylesheet';
 import MenuTitle from './MenuTitle';
 
 type MenuGroupProps = {
-  title?: string | React$Element<*>,
-  children?: React$Element<*>,
+  title?: React.Node,
+  children?: React.Node,
 };
 
 export default function MenuGroup({title, children, ...props}: MenuGroupProps) {

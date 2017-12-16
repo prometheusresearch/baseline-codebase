@@ -15,8 +15,8 @@ import NoNumericAttributeText from './NoNumericAttributeText';
 import LineChart from './LineChart';
 
 type LineChartEditorProps = types.ChartEditorBaseProps<types.LineChart> & {
-  optionsForX: Array<ui.SelectOption>,
-  optionsForLine: Array<ui.SelectOption>,
+  optionsForX: $ReadOnlyArray<ui.SelectOptionWithStringLabel>,
+  optionsForLine: $ReadOnlyArray<ui.SelectOptionWithStringLabel>,
 };
 
 export default function LineChartEditor({
@@ -33,6 +33,17 @@ export default function LineChartEditor({
     valueColumn: null,
     color: '#8884d8',
   });
+
+  const onXChange = (labelColumn, option) => {
+    const label = option && typeof option.label === 'string' ? option.label : null;
+    onChart({
+      type: 'line',
+      ...chart,
+      labelColumn,
+      label,
+    });
+  };
+
   return (
     <VBox overflow="visible" flexGrow={1}>
       <ChartControlPanel>
@@ -40,13 +51,7 @@ export default function LineChartEditor({
           options={optionsForX}
           label="X axis"
           value={chart.labelColumn}
-          onChange={(labelColumn, option) =>
-            onChart({
-              type: 'line',
-              ...chart,
-              labelColumn,
-              label: option ? option.label : null,
-            })}
+          onChange={onXChange}
         />
         {lineList.map((line, index) => {
           const updateChart = (values: types.Line) => {
@@ -61,6 +66,11 @@ export default function LineChartEditor({
             }
             onChart({type: 'line', ...chart, lineList});
           };
+          const onLineChange = (valueColumn, option) => {
+            const label =
+              option && typeof option.label === 'string' ? option.label : null;
+            updateChart({...line, valueColumn, label});
+          };
           return (
             <SelectAttributeWithColor
               key={index}
@@ -69,8 +79,7 @@ export default function LineChartEditor({
               noValueLabel="Add new line"
               noResultsText={<NoNumericAttributeText />}
               value={line.valueColumn}
-              onChange={(valueColumn, option) =>
-                updateChart({...line, valueColumn, label: option ? option.label : null})}
+              onChange={onLineChange}
               color={line.color}
               onColorChange={color => updateChart({...line, color})}
             />

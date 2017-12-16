@@ -15,8 +15,8 @@ import NoNumericAttributeText from './NoNumericAttributeText';
 import AreaChart from './AreaChart';
 
 type AreaChartEditorProps = types.ChartEditorBaseProps<types.AreaChart> & {
-  optionsForX: Array<ui.SelectOption>,
-  optionsForArea: Array<ui.SelectOption>,
+  optionsForX: $ReadOnlyArray<ui.SelectOption>,
+  optionsForArea: $ReadOnlyArray<ui.SelectOption>,
 };
 
 export default function AreaChartEditor({
@@ -33,6 +33,15 @@ export default function AreaChartEditor({
     valueColumn: null,
     color: '#8884d8',
   });
+  const onLabelChange = (labelColumn, option) => {
+    const label = option && typeof option.label === 'string' ? option.label : null;
+    onChart({
+      type: 'area',
+      ...chart,
+      labelColumn,
+      label,
+    });
+  };
   return (
     <VBox overflow="visible" flexGrow={1}>
       <ChartControlPanel>
@@ -40,13 +49,7 @@ export default function AreaChartEditor({
           options={optionsForX}
           label="X axis"
           value={chart.labelColumn}
-          onChange={(labelColumn, option) =>
-            onChart({
-              type: 'area',
-              ...chart,
-              labelColumn,
-              label: option ? option.label : null,
-            })}
+          onChange={onLabelChange}
         />
         {areaList.map((area, index) => {
           const updateChart = (values: types.Line) => {
@@ -61,6 +64,11 @@ export default function AreaChartEditor({
             }
             onChart({type: 'area', ...chart, areaList});
           };
+          const onAreaChange = (valueColumn, option) => {
+            const label =
+              option && typeof option.label === 'string' ? option.label : null;
+            updateChart({...area, valueColumn, label});
+          };
           return (
             <SelectAttributeWithColor
               key={index}
@@ -69,8 +77,7 @@ export default function AreaChartEditor({
               noResultsText={<NoNumericAttributeText />}
               options={optionsForArea}
               value={area.valueColumn}
-              onChange={(valueColumn, option) =>
-                updateChart({...area, valueColumn, label: option ? option.label : null})}
+              onChange={onAreaChange}
               color={area.color}
               onColorChange={color => updateChart({...area, color})}
             />

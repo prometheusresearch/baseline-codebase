@@ -18,8 +18,7 @@ type NavigateQueryPanelProps = {
   onSearch: SearchCallback,
 };
 
-export default class NavigateQueryPanel
-  extends React.Component<*, NavigateQueryPanelProps, *> {
+export default class NavigateQueryPanel extends React.Component<NavigateQueryPanelProps> {
   context: {
     actions: Actions,
   };
@@ -35,6 +34,7 @@ export default class NavigateQueryPanel
 
   render() {
     let {query, onClose, onSearch, ...rest} = this.props;
+    const {NavigationMenuContents} = this;
     return (
       <QueryPanelBase
         {...rest}
@@ -43,7 +43,8 @@ export default class NavigateQueryPanel
         theme={Theme.entity}
         query={query}>
         <NavigationMenu onSearch={onSearch} context={query.context.prev}>
-          <this.NavigationMenuContents {...this.props} />
+          {navigation =>
+            <NavigationMenuContents {...this.props} navigation={navigation} />}
         </NavigationMenu>
       </QueryPanelBase>
     );
@@ -70,8 +71,7 @@ export default class NavigateQueryPanel
           })}
         </Menu.MenuGroup>
         <Menu.MenuHelp>
-          Edit current query combinator by selecting another relationship to
-          navigate to.
+          Edit current query combinator by selecting another relationship to navigate to.
         </Menu.MenuHelp>
       </VBox>
     );

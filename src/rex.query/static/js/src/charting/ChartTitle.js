@@ -29,13 +29,17 @@ const TETHER_CONFIG = {
 
 type OnChange = string => *;
 
-export default class ChartTitle extends React.Component {
+type ChartTitleProps = {left: string | number, value: string, onChange?: ?OnChange};
+type ChartTitleState = {value: ?string};
+
+export default class ChartTitle extends React.Component<
+  ChartTitleProps,
+  ChartTitleState,
+> {
   _input: HTMLElement;
   _tether: any;
 
-  props: {left: string | number, value: string, onChange?: ?OnChange};
-
-  state: {value: ?string} = {value: null};
+  state = {value: null};
 
   onEditStart = () => {
     this.setState({value: this.props.value});

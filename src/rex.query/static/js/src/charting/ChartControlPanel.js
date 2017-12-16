@@ -5,7 +5,9 @@
 import * as React from 'react';
 import {VBox} from 'react-stylesheet';
 
-type ChartControlPanelProps = {children?: React.Element<*>};
+type ChartControlPanelProps = {
+  children?: React.Node,
+};
 
 export default function ChartControlPanel({children}: ChartControlPanelProps) {
   return (

@@ -4,24 +4,24 @@
 
 import type {QueryVisTheme} from '../ui/Theme';
 
-import React from 'react';
+import * as React from 'react';
 import {style, css, VBox, HBox} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
 import {Icon, Label, Theme} from '../ui';
 
 type QueryPanelBaseProps = {
-  title: string,
+  title: ?string,
   theme: QueryVisTheme,
-  children: React$Element<*>,
-  topBanner?: ?React$Element<*>,
+  children?: React.Node,
+  topBanner?: React.Node,
   noBorder?: boolean,
   disableClose?: boolean,
   onClose: () => *,
-  onBack: () => *,
+  onBack?: () => *,
 };
 
-export default class QueryPanelBase extends React.Component<*, QueryPanelBaseProps, *> {
+export default class QueryPanelBase extends React.Component<QueryPanelBaseProps> {
   static defaultProps = {
     theme: Theme.placeholder,
   };
@@ -45,15 +45,16 @@ export default class QueryPanelBase extends React.Component<*, QueryPanelBasePro
         {topBanner}
         <QueryPanelBaseWrapper>
           <HBox padding={10} alignItems="center">
-            {onBack != null &&
-              <HBox paddingRight={10}>
-                <ReactUI.QuietButton
-                  title="Back"
-                  size="small"
-                  icon={<Icon.IconArrowLeft />}
-                  onClick={onBack}
-                />
-              </HBox>}
+            {onBack != null
+              ? <HBox paddingRight={10}>
+                  <ReactUI.QuietButton
+                    title="Back"
+                    size="small"
+                    icon={<Icon.IconArrowLeft />}
+                    onClick={onBack}
+                  />
+                </HBox>
+              : null}
             <HBox
               flexGrow={1}
               flexShrink={1}

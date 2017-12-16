@@ -384,4 +384,9 @@ export type QueryPath = Array<QueryPathItem>;
 
 export type ResolvedQueryLoc<Q: QueryAtom = QueryAtom> = [Q, QueryPath];
 
+export type ExportFormat = {
+  label: string,
+  mimetype: string,
+  extension: string,
+};
 /* eslint-enable no-use-before-define */

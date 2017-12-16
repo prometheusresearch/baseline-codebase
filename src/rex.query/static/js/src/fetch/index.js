@@ -3,7 +3,7 @@
  */
 
 import type {TranslateOptions} from './translate';
-import type {Query, Domain} from '../model/types';
+import type {Query, Domain, ExportFormat} from '../model/types';
 import type {Catalog} from '../model/RexQueryCatalog';
 
 import download from 'downloadjs';
@@ -37,19 +37,20 @@ export function initiateDownload(
   api: string,
   query: Query,
   options: TranslateOptions,
+  format: ExportFormat,
 ): Promise<Blob> {
   return window
     .fetch(api, {
       method: 'POST',
       credentials: 'same-origin',
       headers: {
-        Accept: 'text/csv',
+        Accept: format.mimetype,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(translate(query, options)),
     })
     .then(response => response.blob())
-    .then(blob => download(blob, 'query.csv', 'text/csv'));
+    .then(blob => download(blob, `query.${format.extension}`, format.mimetype));
 }
 
 export function fetch(

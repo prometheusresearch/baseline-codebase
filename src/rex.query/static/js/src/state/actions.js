@@ -18,6 +18,7 @@ import type {
   GroupQuery,
   Expression,
   QueryLoc,
+  ExportFormat,
 } from '../model/types';
 import type {Chart, ChartType} from '../charting/types';
 
@@ -301,9 +302,9 @@ export function focusOnSeq(params: {focusedSeq: Focus.Focus}): StateUpdater {
 /**
  * Initiate export procedure.
  */
-export function exportDataset(): StateUpdater {
+export function exportDataset(format: ExportFormat): StateUpdater {
   return state => {
-    Fetch.initiateDownload(state.config.api, state.query, {}).catch(err => {
+    Fetch.initiateDownload(state.config.api, state.query, {}, format).catch(err => {
       console.error('Error while exporting dataset:', err);
     });
     return state;

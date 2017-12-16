@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {Query, QueryPipeline, Domain} from './model/types';
+import type {Query, QueryPipeline, Domain, ExportFormat} from './model/types';
 import type {SearchCallback} from './ui';
 import type {ChartSpec} from './state';
 
@@ -13,6 +13,7 @@ import * as ReactUI from '@prometheusresearch/react-ui';
 import {css, style, VBox, HBox} from 'react-stylesheet';
 
 import AddChartDialogue from './charting/AddChartDialogue';
+import ExportDialogue from './ExportDialogue.js';
 import * as ChartModel from './chart/model';
 import Chart from './chart/Chart';
 import * as Icon from './ui/Icon';
@@ -34,6 +35,7 @@ type QueryBuilderProps = {
   onQuery: (query?: ?Query) => *,
   onState?: (payload: {query: ?Query, chartList: Array<ChartSpec>}) => *,
   onSearch?: SearchCallback,
+  exportFormats: Array<ExportFormat>,
   toolbar?: ?React.Element<*>,
 };
 
@@ -49,6 +51,10 @@ export default class QueryBuilder extends React.Component<
   static defaultProps = {
     onQuery: (query?: ?Query) => {},
     limitSelectQuery: 10000,
+    exportFormats: [
+      {mimetype: 'text/csv', extension: 'csv', label: 'CSV'},
+      {mimetype: 'text/html', extension: 'html', label: 'HTML'},
+    ],
   };
 
   static childContextTypes = {
@@ -156,6 +162,13 @@ export default class QueryBuilder extends React.Component<
 
     const tabListAlt = [
       {
+        id: '__export__',
+        label: '⟰ Export',
+        children: (
+          <ExportDialogue formats={this.props.exportFormats} onExport={this.onExport} />
+        ),
+      },
+      {
         id: '__addplot__',
         label: '＋ Add Chart',
         children: <AddChartDialogue onAddChart={this.actions.addChart} />,
@@ -185,14 +198,6 @@ export default class QueryBuilder extends React.Component<
             <HBox flexGrow={1} padding={{horizontal: 10}}>
               {toolbar}
             </HBox>}
-          <HBox marginLeft="auto">
-            <ReactUI.QuietButton
-              onClick={this.actions.exportDataset}
-              icon={<Icon.IconDownload />}
-              size="small">
-              Export as .csv
-            </ReactUI.QuietButton>
-          </HBox>
         </QueryBuilderToolbar>
         <HBox flexGrow={1} overflow="hidden" height="calc(100% - 35px)" width="100%">
           <LeftPanelWrapper>
@@ -247,6 +252,11 @@ export default class QueryBuilder extends React.Component<
       </VBox>
     );
   }
+
+  onExport = (format: ExportFormat) => {
+    console.log(format);
+    this.actions.exportDataset(format);
+  };
 
   getChildContext() {
     return {actions: this.actions};

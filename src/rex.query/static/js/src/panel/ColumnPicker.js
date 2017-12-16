@@ -174,6 +174,8 @@ type ColumnPickerButtonProps = {
 };
 
 class ColumnPickerButton extends React.Component<ColumnPickerButtonProps> {
+  button: ?Menu.MenuButton = null;
+
   onSelect = (e: UIEvent) => {
     e.stopPropagation();
     let {onSelect, onSelectRemove, column, query} = this.props;
@@ -201,7 +203,14 @@ class ColumnPickerButton extends React.Component<ColumnPickerButtonProps> {
 
   onFocusSelection = () => {
     let {onFocusSelection, column} = this.props;
+    if (this.button != null) {
+      this.button.toggleMenuOpen();
+    }
     onFocusSelection({path: column.value});
+  };
+
+  onButton = button => {
+    this.button = button;
   };
 
   render() {
@@ -217,6 +226,7 @@ class ColumnPickerButton extends React.Component<ColumnPickerButtonProps> {
     return (
       <Menu.MenuButton
         disabled={disabled}
+        ref={this.onButton}
         title={title}
         selected={query != null}
         icon={query != null ? '✓' : null}

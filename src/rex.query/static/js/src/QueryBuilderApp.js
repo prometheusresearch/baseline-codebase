@@ -56,6 +56,7 @@ export default class QueryBuilderApp extends React.Component<*, State> {
           onState={this.props.onState}
           onSearch={this.props.onSearch}
           toolbar={this.props.toolbar}
+          exportFormats={this.props.exportFormats}
         />
       );
     }

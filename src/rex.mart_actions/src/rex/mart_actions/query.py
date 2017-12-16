@@ -10,7 +10,7 @@ from htsql.core.fmt.emit import emit, emit_headers
 from rex.action import typing
 from rex.core import RecordVal, StrVal, MaybeVal, SeqVal
 from rex.db import Query
-from rex.widget import responder, RequestURL
+from rex.widget import responder, RequestURL, undefined, Field
 from rex.query import Database
 
 from .base import MART_TYPE
@@ -33,10 +33,23 @@ class QueryBuilderTool(MartTool):
         return True
 
 
+export_format_val = RecordVal(
+    ('label', StrVal()),
+    ('mimetype', StrVal()),
+    ('extension', StrVal()),
+)
+
+
 class QueryBuilderMartAction(MartFilteredAction):
     name = 'mart-query-builder'
     js_type = 'rex-mart-actions', 'QueryBuilder'
     tool = 'vqb'
+
+    export_formats = Field(
+        SeqVal(export_format_val),
+        default=undefined,
+        doc='The RexMart definition ID that this Action is compatible with.',
+    )
 
     def context(self):
         return {'mart': MART_TYPE}, {}

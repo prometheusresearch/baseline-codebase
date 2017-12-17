@@ -6,9 +6,10 @@
 import * as Types from './types';
 
 import invariant from 'invariant';
-import React from 'react';
+import * as React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
+// $FlowFixMe: update rex.widget typings
 import type {Request} from 'rex-widget/data';
 import {AddChartDialogue} from 'rex-query/charting';
 
@@ -43,10 +44,11 @@ type OutputPanelState = {
 
 const MIMETYPE_APPLICATION_JSON = 'application/json';
 
-export default class OutputPanel extends React.Component {
-  props: OutputPanelProps;
-
-  state: OutputPanelState = {
+export default class OutputPanel extends React.Component<
+  OutputPanelProps,
+  OutputPanelState,
+> {
+  state = {
     activeTab: 'preview',
     sort: [],
     chartList: [],

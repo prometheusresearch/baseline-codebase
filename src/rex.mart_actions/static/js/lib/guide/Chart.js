@@ -10,8 +10,10 @@ import * as React from 'react';
 import {VBox, HBox} from 'react-stylesheet';
 import * as ReactUI from '@prometheusresearch/react-ui';
 
+// $FlowFixMe: update rex.widget typings
 import {withFetch, request, type DataSet} from 'rex-widget/data';
 import * as Charting from 'rex-query/charting';
+import * as ChartUtil from './ChartUtil.js';
 import * as RexQueryUI from 'rex-query/src/ui';
 
 import {prepareFetchParams} from './fetchResults';
@@ -57,9 +59,7 @@ type ChartProps = {
   fetched: {data: DataSet<Types.HTSQLProduct>},
 };
 
-export class Chart extends React.Component {
-  props: ChartProps;
-
+export class Chart extends React.Component<ChartProps> {
   render() {
     const {chartSpec: {label, chart}, columns, fetched: {data}} = this.props;
 
@@ -71,14 +71,16 @@ export class Chart extends React.Component {
     // TODO: now we allow all options in optionsForMeasure which is not correct
     // (not always produces the plot) as we don't have needed metadata for that.
     const optionsForLabel = columns.map((col, idx) => {
-      return {label: col.title, value: idx};
+      // $FlowFixMe: ...
+      return {label: col.title, value: String(idx)};
     });
+
     const optionsForMeasure = columns
       .map((col, idx) => {
         if (NUMERIC_DOMAINS.indexOf(col.type) === -1) {
-          return null;
+          return (null: any);
         } else {
-          return {label: col.title, value: idx};
+          return {label: col.title, value: String(idx)};
         }
       })
       .filter(col => col != null);
@@ -88,8 +90,9 @@ export class Chart extends React.Component {
         children = (
           <Charting.PieChartEditor
             dataIsLoading={dataIsLoading}
+            dataIsUpdating={dataIsLoading}
             data={dataToChart}
-            label={label}
+            label={label || 'Pie Chart'}
             onLabel={this.onUpdateLabel}
             chart={chart}
             onChart={this.onUpdateChart}
@@ -103,8 +106,9 @@ export class Chart extends React.Component {
         children = (
           <Charting.LineChartEditor
             dataIsLoading={dataIsLoading}
+            dataIsUpdating={dataIsLoading}
             data={dataToChart}
-            label={label}
+            label={label || 'Line Chart'}
             onLabel={this.onUpdateLabel}
             chart={chart}
             onChart={this.onUpdateChart}
@@ -118,8 +122,9 @@ export class Chart extends React.Component {
         children = (
           <Charting.AreaChartEditor
             dataIsLoading={dataIsLoading}
+            dataIsUpdating={dataIsLoading}
             data={dataToChart}
-            label={label}
+            label={label || 'Area Chart'}
             onLabel={this.onUpdateLabel}
             chart={chart}
             onChart={this.onUpdateChart}
@@ -133,8 +138,9 @@ export class Chart extends React.Component {
         children = (
           <Charting.BarChartEditor
             dataIsLoading={dataIsLoading}
+            dataIsUpdating={dataIsLoading}
             data={dataToChart}
-            label={label}
+            label={label || 'Bar Chart'}
             onLabel={this.onUpdateLabel}
             chart={chart}
             onChart={this.onUpdateChart}
@@ -148,8 +154,9 @@ export class Chart extends React.Component {
         children = (
           <Charting.ScatterChartEditor
             dataIsLoading={dataIsLoading}
+            dataIsUpdating={dataIsLoading}
             data={dataToChart}
-            label={label}
+            label={label || 'Scatter Chart'}
             onLabel={this.onUpdateLabel}
             chart={chart}
             onChart={this.onUpdateChart}
@@ -170,19 +177,31 @@ export class Chart extends React.Component {
             size="small"
             icon={<RexQueryUI.Icon.IconDownload />}
             onClick={this.onExportChart}>
-            Export as image
+            Export
           </ReactUI.QuietButton>
           <ReactUI.QuietButton
             onClick={this.onRemoveChart}
             icon={<RexQueryUI.Icon.IconRemove />}
           />
         </HBox>
-        <VBox flexGrow={1}>
+        <VBox flexGrow={1} ref={this.onChart}>
           {children}
         </VBox>
       </VBox>
     );
   }
+
+  chart: ?React.Component<*>;
+
+  onChart = (chart: *) => {
+    this.chart = chart;
+  };
+
+  onExportChart = () => {
+    if (this.chart != null) {
+      ChartUtil.exportChart(this.chart);
+    }
+  };
 
   onRemoveChart = () => {
     this.props.onRemoveChart(this.props.chartSpec);

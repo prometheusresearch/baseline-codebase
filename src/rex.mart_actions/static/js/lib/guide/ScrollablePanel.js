@@ -3,15 +3,14 @@
  * @flow
  */
 
-import React from 'react';
+import * as React from 'react';
 
 import {VBox} from 'react-stylesheet';
 
-export default class ScrollablePanel extends React.Component {
-  props: {
-    children: React.Element<*>,
-  };
-
+type Props = {
+  children?: React.Node,
+};
+export default class ScrollablePanel extends React.Component<Props> {
   render() {
     return (
       <VBox

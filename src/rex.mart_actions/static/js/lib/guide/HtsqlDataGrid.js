@@ -23,10 +23,11 @@ type HtsqlDataGridState = {
   data: Array<mixed>,
 };
 
-export default class HtsqlDataGrid extends React.Component {
-  props: HtsqlDataGridProps;
-
-  state: HtsqlDataGridState = {
+export default class HtsqlDataGrid extends React.Component<
+  HtsqlDataGridProps,
+  HtsqlDataGridState,
+> {
+  state = {
     loading: true,
     columns: [],
     data: [],

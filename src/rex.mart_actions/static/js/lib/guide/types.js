@@ -12,16 +12,16 @@ export type Config = {
 /**
  * A chart along with its title and unique id.
  */
-export type ChartSpec = {|
+export type ChartSpec = {
   id: string,
   label: ?string,
   chart: Charting.Chart,
-|};
+};
 
-export type SortSpec = {|
+export type SortSpec = {
   id: string,
   dir: 'asc' | 'desc',
-|};
+};
 
 export type SortState = Array<SortSpec>;
 

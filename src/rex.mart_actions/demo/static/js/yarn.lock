@@ -780,6 +780,16 @@ react-stylesheet@^2.1.1:
     murmurhash-js "^1.0.0"
     style-loader "^0.13.0"
 
+react-stylesheet@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/react-stylesheet/-/react-stylesheet-2.2.1.tgz#1f0bc339c864febe228a4bbeabf9d284ea943f95"
+  dependencies:
+    fbjs "^0.8.9"
+    inline-style-prefix-all "^2.0.2"
+    invariant "^2.2.1"
+    murmurhash-js "^1.0.0"
+    style-loader "^0.13.0"
+
 react-transition-group@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/react-transition-group/-/react-transition-group-1.2.0.tgz#b51fc921b0c3835a7ef7c571c79fc82c73e9204f"
@@ -853,7 +863,7 @@ rethemeable@^2.0.0, rethemeable@^2.0.1:
   resolved "https://registry.yarnpkg.com/rethemeable/-/rethemeable-2.0.4.tgz#32e7265d2e90d0a82e3921582d6f0e84800d9cfd"
 
 "rex-action@file:./rex_node_modules/rex-action":
-  version "1.6.3"
+  version "1.7.0"
   dependencies:
     "@prometheusresearch/react-ui" "^0.24.1"
     autobind-decorator "^1.2.0"
@@ -871,10 +881,10 @@ rethemeable@^2.0.0, rethemeable@^2.0.1:
     styling "^0.4.0"
 
 "rex-expression@file:./rex_node_modules/rex-expression":
-  version "1.5.2"
+  version "1.5.3"
 
 "rex-mart-actions@file:./rex_node_modules/rex-mart-actions":
-  version "0.7.1"
+  version "0.8.0"
   dependencies:
     "@prometheusresearch/react-datetimepicker" "^0.5.0"
     "@prometheusresearch/react-ui" "^0.25.0"
@@ -907,7 +917,7 @@ rethemeable@^2.0.0, rethemeable@^2.0.1:
     react-icons "^2.2.1"
     react-relative-portal "^1.2.0"
     react-select "^1.0.0-rc.2"
-    react-stylesheet "^2.1.1"
+    react-stylesheet "^2.2.1"
     react-virtualized "^8.7.1"
     recharts "^0.20.8"
     tether "^1.4.0"

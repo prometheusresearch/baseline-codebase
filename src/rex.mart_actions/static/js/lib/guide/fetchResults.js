@@ -4,6 +4,7 @@
  */
 
 import * as Types from './types';
+// $FlowFixMe: update rex.widget typings
 import {request} from 'rex-widget/data';
 
 export function fetchResults(

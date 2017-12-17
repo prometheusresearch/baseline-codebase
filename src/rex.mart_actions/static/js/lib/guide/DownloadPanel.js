@@ -22,9 +22,11 @@ type DownloadPanelState = {
   downloading: boolean,
 };
 
-export default class DownloadPanel extends React.Component {
-  state: DownloadPanelState = {downloading: false};
-  props: DownloadPanelProps;
+export default class DownloadPanel extends React.Component<
+  DownloadPanelProps,
+  DownloadPanelState,
+> {
+  state = {downloading: false};
 
   onDownload(exporter: string) {
     let exp = this.props.exporters.filter(e => e.name === exporter)[0];

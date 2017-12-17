@@ -5,11 +5,15 @@
 
 import * as Types from './types';
 
-import React from 'react';
-import {VBox} from 'react-stylesheet';
+import * as ReactUI from '@prometheusresearch/react-ui';
+import * as React from 'react';
+import {VBox, HBox} from 'react-stylesheet';
 
+// $FlowFixMe: update rex.widget typings
 import {withFetch, request, type DataSet, type Request} from 'rex-widget/data';
 import * as Charting from 'rex-query/charting';
+import * as RexQueryUI from 'rex-query/src/ui';
+import * as ChartUtil from './ChartUtil.js';
 
 function fetchData({data, filterState = []}) {
   return {
@@ -21,21 +25,41 @@ function unwrapData(data) {
   return data == null ? null : data[Object.keys(data)[0]];
 }
 
-class ChartBase extends React.Component {
-  props: {
-    data: Request,
-    chart: Types.Chart,
-    Chart: ReactClass<*>,
-    config: any,
-    fetched: {
-      data: DataSet<>,
-    },
+type Props = {
+  data: Request,
+  chart: Types.Chart,
+  Chart: React.ComponentType<*>,
+  config: any,
+  fetched: {
+    data: DataSet<>,
+  },
+};
+
+class ChartBase extends React.Component<Props> {
+  chart: ?React.Component<*>;
+
+  onExport = () => {
+    if (this.chart != null) {
+      ChartUtil.exportChart(this.chart);
+    }
+  };
+
+  onChart = chart => {
+    this.chart = chart;
   };
 
   render() {
     const {Chart, chart, config, fetched: {data}} = this.props;
     return (
-      <VBox padding={20}>
+      <VBox padding={20} ref={this.onChart}>
+        <HBox padding={5}>
+          <ReactUI.QuietButton
+            size="small"
+            onClick={this.onExport}
+            icon={<RexQueryUI.Icon.IconDownload />}>
+            Export
+          </ReactUI.QuietButton>
+        </HBox>
         <Chart
           dataIsUpdating={data.updating}
           data={unwrapData(data.data)}

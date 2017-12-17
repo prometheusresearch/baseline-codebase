@@ -13,8 +13,8 @@ type PreviewPanelState = {
   changeId: number,
 };
 
-export default class PreviewPanel extends React.Component {
-  state: PreviewPanelState = {changeId: 0};
+export default class PreviewPanel extends React.Component<*, PreviewPanelState> {
+  state = {changeId: 0};
 
   componentWillReceiveProps() {
     this.setState({changeId: this.state.changeId + 1});

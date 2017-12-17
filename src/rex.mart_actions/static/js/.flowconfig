@@ -2,11 +2,11 @@
 <PROJECT_ROOT>/node_modules/flow-coverage-report/.*
 .*/fbjs/lib/fetchWithRetries.js.flow
 .*/fbjs/lib/PromiseMap.js.flow
+.*/rex.action/static/js/.*
+.*/rex.widget/static/js/.*
 
 [include]
 ../../../rex.query/static/js
-../../../rex.action/static/js
-../../../rex.widget/static/js
 
 [libs]
 

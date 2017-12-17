@@ -5,41 +5,46 @@
 
 import * as Types from './types';
 
-import React from 'react';
+import * as React from 'react';
 
 import * as ReactUI from '@prometheusresearch/react-ui';
 import {css, VBox, HBox} from 'react-stylesheet';
 
+// $FlowFixMe: update rex.action typings
 import {Action} from 'rex-action';
+// $FlowFixMe: update rex.widget typings
 import {Preloader} from 'rex-widget/ui';
+// $FlowFixMe: update rex.widget typings
 import {withFetch, type Request, type DataSet} from 'rex-widget/data';
 
 import martFromContext from '../martFromContext';
 import ControlPanel from './ControlPanel';
 import OutputPanel from './OutputPanel';
 
-export class Guide extends React.Component {
-  props: {
-    context: Object,
-    onClose: Function,
-    text: string,
-    allowedExporters: Array<Types.Exporter>,
-    guideResults: Request,
-    guideChartResults: Request,
-    guideConfiguration: Request,
-    previewRecordLimit: ?number,
-    allowAdhocCharts?: boolean,
-    charts: Array<{title: string, element: React.Element<*>}>,
-    fetched: {
-      guideConfiguration: DataSet<Types.Config>,
-    },
-  };
+type Props = {
+  context: Object,
+  onClose: Function,
+  text: string,
+  allowedExporters: Array<Types.Exporter>,
+  guideResults: Request,
+  guideChartResults: Request,
+  guideConfiguration: Request,
+  previewRecordLimit: ?number,
+  allowAdhocCharts?: boolean,
+  charts: Array<{title: string, element: React.Element<*>}>,
+  fetched: {
+    guideConfiguration: DataSet<Types.Config>,
+  },
+};
 
-  state: {
-    columnState: Types.ColumnState,
-    filterState: Types.FilterState,
-    sortState: Types.SortState,
-  } = {
+type State = {
+  columnState: Types.ColumnState,
+  filterState: Types.FilterState,
+  sortState: Types.SortState,
+};
+
+export class Guide extends React.Component<Props, State> {
+  state = {
     columnState: [],
     filterState: [],
     sortState: [],

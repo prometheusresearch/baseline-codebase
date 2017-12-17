@@ -18,7 +18,7 @@ export type SelectAttributeProps = {
 
 export default class SelectAttribute extends React.Component<SelectAttributeProps> {
   onChange = (value: *) => {
-    invariant(!Array.isArray(value));
+    invariant(!Array.isArray(value), 'Impossible');
     const option = this.props.options.filter(o => o.value === value)[0];
     this.props.onChange(value, option);
   };

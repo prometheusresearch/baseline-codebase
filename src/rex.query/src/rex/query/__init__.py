@@ -25,3 +25,4 @@ from .pipe import (
         count_sig, exists_sig, any_sig, all_sig, min_sig, max_sig, sum_sig,
         FormulaPipe, AggregatePipe, OptionalAggregatePipe)
 from .app import RenderApp
+from .extension import Chart, ExportFormatter

@@ -2,7 +2,13 @@
  * @flow
  */
 
-import type {Query, QueryPipeline, Domain, ExportFormat} from './model/types';
+import type {
+  Query,
+  QueryPipeline,
+  Domain,
+  ExportFormat,
+  ChartConfig,
+} from './model/types';
 import type {SearchCallback} from './ui';
 import type {ChartSpec} from './state';
 
@@ -12,10 +18,17 @@ import * as React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import {css, style, VBox, HBox} from 'react-stylesheet';
 
-import AddChartDialogue from './charting/AddChartDialogue';
+import AddChartDialogue from './chart/AddChartDialogue';
 import ExportDialogue from './ExportDialogue.js';
 import * as ChartModel from './chart/model';
 import Chart from './chart/Chart';
+import {
+  lineChart,
+  barChart,
+  pieChart,
+  scatterChart,
+  areaChart,
+} from './chart/ChartConfigs.js';
 import * as Icon from './ui/Icon';
 import * as ui from './ui';
 import * as State from './state';
@@ -29,17 +42,31 @@ type QueryBuilderProps = {
   api: string,
   initialState?: State.State,
   initialQuery: ?QueryPipeline,
-  initialChartList?: Array<State.ChartSpec>,
+  initialChartList?: Array<State.ChartSpec<>>,
   initialActiveTab: ?string,
   limitSelectQuery: number,
   onQuery: (query?: ?Query) => *,
-  onState?: (payload: {query: ?Query, chartList: Array<ChartSpec>}) => *,
+  onState?: (payload: {query: ?Query, chartList: Array<ChartSpec<>>}) => *,
   onSearch?: SearchCallback,
   exportFormats: Array<ExportFormat>,
+  chartConfigs: Array<ChartConfig<>>,
   toolbar?: ?React.Element<*>,
 };
 
 let log = createLogger('rex-query:ui:main');
+
+const defaultExportFormats: Array<ExportFormat> = [
+  {mimetype: 'text/csv', extension: 'csv', label: 'CSV'},
+  {mimetype: 'text/html', extension: 'html', label: 'HTML'},
+];
+
+const defaultChartConfigs: Array<ChartConfig<any, any>> = [
+  pieChart,
+  lineChart,
+  barChart,
+  areaChart,
+  scatterChart,
+];
 
 export default class QueryBuilder extends React.Component<
   QueryBuilderProps,
@@ -51,10 +78,8 @@ export default class QueryBuilder extends React.Component<
   static defaultProps = {
     onQuery: (query?: ?Query) => {},
     limitSelectQuery: 10000,
-    exportFormats: [
-      {mimetype: 'text/csv', extension: 'csv', label: 'CSV'},
-      {mimetype: 'text/html', extension: 'html', label: 'HTML'},
-    ],
+    exportFormats: defaultExportFormats,
+    chartConfigs: defaultChartConfigs,
   };
 
   static childContextTypes = {
@@ -96,13 +121,13 @@ export default class QueryBuilder extends React.Component<
     if (initialState != null) {
       this.container = State.createContainerWithInitialState(
         initialState,
-        {domain, api, translateOptions},
+        {domain, api, translateOptions, chartConfigs: this.props.chartConfigs},
         onStateChange,
       );
     } else {
       this.container = State.createContainer(
         {initialQuery, initialChartList, initialActiveTab},
-        {domain, api, translateOptions},
+        {domain, api, translateOptions, chartConfigs: this.props.chartConfigs},
         onStateChange,
       );
     }
@@ -151,13 +176,30 @@ export default class QueryBuilder extends React.Component<
           />
         ),
       },
-      ...chartList.map(chart => ({
-        id: chart.id,
-        label: chart.label || ChartModel.getChartTitle(chart.chart, query),
-        children: (
-          <Chart query={query} loading={queryLoading} data={data} chartSpec={chart} />
-        ),
-      })),
+      ...chartList
+        .map(chart => {
+          const chartConfig: ChartConfig<any> = this.props.chartConfigs.filter(
+            c => c.type === chart.chart.type,
+          )[0];
+          if (chartConfig == null) {
+            return null;
+          } else {
+            return {
+              id: chart.id,
+              label: chart.label || chartConfig.getChartTitle(chart.chart, query),
+              children: (
+                <Chart
+                  query={query}
+                  loading={queryLoading}
+                  data={data}
+                  chartSpec={chart}
+                  chartConfig={chartConfig}
+                />
+              ),
+            };
+          }
+        })
+        .filter(Boolean),
     ];
 
     const tabListAlt = [
@@ -171,7 +213,12 @@ export default class QueryBuilder extends React.Component<
       {
         id: '__addplot__',
         label: '＋ Add Chart',
-        children: <AddChartDialogue onAddChart={this.actions.addChart} />,
+        children: (
+          <AddChartDialogue
+            chartConfigs={this.props.chartConfigs}
+            onAddChart={this.onAddChart}
+          />
+        ),
       },
     ];
 
@@ -254,8 +301,14 @@ export default class QueryBuilder extends React.Component<
   }
 
   onExport = (format: ExportFormat) => {
-    console.log(format);
     this.actions.exportDataset(format);
+  };
+
+  onAddChart = ({type}: {type: string}) => {
+    const chartConfig = this.props.chartConfigs.filter(c => c.type === type)[0];
+    if (chartConfig != null) {
+      this.actions.addChart({chartConfig});
+    }
   };
 
   getChildContext() {

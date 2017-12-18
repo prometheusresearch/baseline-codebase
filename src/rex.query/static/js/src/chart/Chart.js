@@ -4,7 +4,7 @@
 
 import type {ChartSpec} from '../state';
 import * as types from '../charting/types';
-import type {QueryPipeline} from '../model/types';
+import type {QueryPipeline, ChartConfig} from '../model/types';
 
 import * as React from 'react';
 import {VBox, HBox} from 'react-stylesheet';
@@ -20,8 +20,12 @@ import * as Fetch from '../fetch';
 import * as Charting from '../charting';
 
 type ChartProps = {
-  chartSpec: ChartSpec,
+  chartSpec: ChartSpec<>,
+
+  chartConfig: ChartConfig<>,
+
   query: QueryPipeline,
+
   data: any,
 };
 
@@ -42,11 +46,10 @@ export default class Chart extends React.Component<ChartProps> {
   _chart: ?Object;
 
   render() {
-    const {chartSpec, query: pipeline, data: rawData} = this.props;
-    const {label: originalLabel, chart} = chartSpec;
-    const label = originalLabel || model.getChartTitle(chart, pipeline);
-
     let children;
+    const {chartSpec, chartConfig, query: pipeline, data: rawData} = this.props;
+    const {label: originalLabel, chart} = chartSpec;
+    const label = originalLabel || chartConfig.getChartTitle(chart, pipeline);
 
     const {query, data} = model.getQuery(pipeline, rawData);
     if (query == null) {
@@ -58,84 +61,36 @@ export default class Chart extends React.Component<ChartProps> {
         onlyNumerics: true,
         addSumarizations: true,
       });
-      switch (chart.type) {
-        case 'pie': {
-          children = (
-            <Charting.PieChartEditor
-              data={data}
-              dataIsUpdating={false}
-              label={label}
-              onLabel={this.onUpdateLabel}
-              chart={chart}
-              onChart={this.onUpdateChart}
-              optionsForLabel={optionsForLabel}
-              optionsForValue={optionsForMeasure}
-            />
-          );
-          break;
-        }
-        case 'line': {
-          children = (
-            <Charting.LineChartEditor
-              data={data}
-              dataIsUpdating={false}
-              label={label}
-              onLabel={this.onUpdateLabel}
-              chart={chart}
-              onChart={this.onUpdateChart}
-              optionsForX={optionsForLabel}
-              optionsForLine={optionsForMeasure}
-            />
-          );
-          break;
-        }
-        case 'area': {
-          children = (
-            <Charting.AreaChartEditor
-              data={data}
-              dataIsUpdating={false}
-              label={label}
-              onLabel={this.onUpdateLabel}
-              chart={chart}
-              onChart={this.onUpdateChart}
-              optionsForX={optionsForLabel}
-              optionsForArea={optionsForMeasure}
-            />
-          );
-          break;
-        }
-        case 'bar': {
-          children = (
-            <Charting.BarChartEditor
-              data={data}
-              dataIsUpdating={false}
-              label={label}
-              onLabel={this.onUpdateLabel}
-              chart={chart}
-              onChart={this.onUpdateChart}
-              optionsForX={optionsForLabel}
-              optionsForBar={optionsForMeasure}
-            />
-          );
-          break;
-        }
-        case 'scatter': {
-          children = (
-            <Charting.ScatterChartEditor
-              data={data}
-              dataIsUpdating={false}
-              label={label}
-              onLabel={this.onUpdateLabel}
-              chart={chart}
-              onChart={this.onUpdateChart}
-              optionsForX={optionsForLabel}
-              optionsForY={optionsForLabel}
-            />
-          );
-          break;
-        }
-        default:
-          children = null;
+
+      if (chartConfig.chartEditor.type != null) {
+        // $FlowFixMe: ...
+        children = React.cloneElement(chartConfig.chartEditor, {
+          query,
+          chartSpec,
+          label: label,
+          data,
+          dataIsUpdating: false,
+          onUpdateLabel: this.onUpdateLabel,
+          onUpdateChart: this.onUpdateChart,
+          optionsForMeasure,
+          optionsForLabel,
+        });
+      } else {
+        const ChartEditor = chartConfig.chartEditor;
+        children = (
+          // $FlowFixMe: ...
+          <ChartEditor
+            query={query}
+            chartSpec={chartSpec}
+            label={label}
+            data={data}
+            dataIsUpdating={false}
+            onUpdateLabel={this.onUpdateLabel}
+            onUpdateChart={this.onUpdateChart}
+            optionsForLabel={optionsForLabel}
+            optionsForMeasure={optionsForMeasure}
+          />
+        );
       }
     }
     return (

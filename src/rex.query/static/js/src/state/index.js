@@ -2,7 +2,7 @@
  * @flow
  */
 
-import type {QueryAtom, QueryPipeline, Domain} from '../model/types';
+import type {ChartConfig, QueryAtom, QueryPipeline, Domain} from '../model/types';
 import type {TranslateOptions} from '../fetch/translate';
 import type {Chart} from '../charting/types';
 
@@ -21,15 +21,16 @@ type UndoRecord = {
   focusedSeq: Focus.Focus,
 };
 
-export type ChartSpec = {
-  id: string,
-  label: ?string,
-  chart: Chart,
+export type ChartSpec<+C: {+type: string} = {+type: string}> = {
+  +id: string,
+  +label: ?string,
+  +chart: C,
 };
 
 export type Config = {
   api: string,
   domain: Domain,
+  chartConfigs: Array<ChartConfig<>>,
   translateOptions: TranslateOptions,
 };
 
@@ -82,7 +83,7 @@ export type State = {
   /**
    * A list of active charts
    */
-  chartList: Array<ChartSpec>,
+  chartList: Array<ChartSpec<>>,
 
   /**
    * Show panel.
@@ -113,7 +114,7 @@ export type Actions = SC.StateContainerActions<StateContainer>;
 
 export type Params = {
   initialQuery?: ?QueryPipeline,
-  initialChartList?: Array<ChartSpec>,
+  initialChartList?: Array<ChartSpec<>>,
   initialActiveTab?: ?string,
 };
 

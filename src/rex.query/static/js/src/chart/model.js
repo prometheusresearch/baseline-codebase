@@ -2,7 +2,14 @@
  * @flow
  */
 
-import type {Context, QueryAtom, QueryPipeline, QueryNavigation} from '../model/types';
+import type {
+  Context,
+  QueryAtom,
+  QueryPipeline,
+  QueryNavigation,
+  DomainAttributeMap,
+  ChartConfig,
+} from '../model/types';
 import type {
   Chart,
   LineChart,
@@ -56,7 +63,10 @@ export function getChartTitle(chart: Chart, pipeline: QueryPipeline): string {
   }
 }
 
-function withRecordAttributesOrNull(pipeline, f) {
+export function withRecordAttributesOrNull(
+  pipeline: QueryPipeline,
+  f: DomainAttributeMap => ?string,
+): ?string {
   const {query} = getQuery(pipeline);
   if (query == null) {
     return null;
@@ -68,7 +78,10 @@ function withRecordAttributesOrNull(pipeline, f) {
   return f(attrs);
 }
 
-function getValueLabel<T: {valueColumn: ?string}>(attrs, list: T[]) {
+export function getValueLabel<T: {valueColumn: ?string}>(
+  attrs: DomainAttributeMap,
+  list: T[],
+) {
   const value = [];
   for (const {valueColumn} of list) {
     if (valueColumn == null) {
@@ -83,7 +96,11 @@ function getValueLabel<T: {valueColumn: ?string}>(attrs, list: T[]) {
   return value;
 }
 
-function getChartDesc(attrs, labelColumn, valueList): ?string {
+export function getChartDesc(
+  attrs: DomainAttributeMap,
+  labelColumn: ?string,
+  valueList: Array<string>,
+): ?string {
   if (labelColumn == null || !(labelColumn in attrs)) {
     return null;
   }
@@ -230,7 +247,7 @@ const COLUMN_AS_LABEL_TO_CONSIDER = {
   fullname: true,
 };
 
-function getLabelColumn(pipeline: QueryPipeline): ?string {
+export function getLabelColumn(pipeline: QueryPipeline): ?string {
   const {query} = getQuery(pipeline);
   if (query == null) {
     return null;
@@ -276,7 +293,11 @@ export function getQuery(
   }
 }
 
-export function enrichQuery(query: QueryPipeline, chart: Chart): QueryPipeline {
+export function enrichQuery(
+  query: QueryPipeline,
+  chart: Chart,
+  chartConfig: ChartConfig<>,
+): QueryPipeline {
   const focus = getQuery(query, null).query;
   if (focus == null) {
     return query;

@@ -2,6 +2,8 @@
  * @flow
  */
 
+import * as React from 'react';
+
 /* eslint-disable no-use-before-define */
 
 export type Domain = {
@@ -385,8 +387,63 @@ export type QueryPath = Array<QueryPathItem>;
 export type ResolvedQueryLoc<Q: QueryAtom = QueryAtom> = [Q, QueryPath];
 
 export type ExportFormat = {
+  /**
+   * Textual label which is used to represent export formatter in the UI.
+   */
   label: string,
+
+  /**
+   * MIME type of the HTSQL formatter which is used to format the exported
+   * dataset. The same formatter is passed to browser but it's mostly irrelevant
+   * in the current implementation as the code tries browser to make a download
+   * out of exported data.
+   */
   mimetype: string,
+
+  /**
+   * Extension for the filename which is generated for the query.
+   */
   extension: string,
+};
+
+export type ChartConfig<
+  ChartType: string = string,
+  Chart: {+type: ChartType} = {+type: string},
+> = {
+  /**
+   * Type of the chart this config manages.
+   */
+  +type: ChartType,
+
+  /**
+   * Textual label which is used to represent chart in the UI.
+   */
+  +label: string,
+
+  /**
+   * Optional icon which is used along the label to represent chart in the UI.
+   */
+  +icon?: React.Element<*>,
+
+  /**
+   * React element which renders into an editor for a chart.
+   */
+  +chartEditor: React.Element<React.ComponentType<*>> | React.ComponentType<*>,
+
+  /**
+   * Method which is used to get the initial configuration of the chart based on
+   * query.
+   */
+  getInitialChart(query: QueryPipeline): Chart,
+
+  /**
+   * Get chart title from the chart  and query.
+   */
+  getChartTitle(chart: Chart, query: QueryPipeline): string,
+
+  /**
+   * Get the name of the used attributes.
+   */
+  getUsedAttributes(chart: Chart): Set<string>,
 };
 /* eslint-enable no-use-before-define */

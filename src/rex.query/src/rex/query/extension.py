@@ -14,17 +14,12 @@ class Chart(Extension):
     # Declatation API
     #
 
-    # Chart name is used to differentiate between charts when validating
-    # configuration.
-    name = None
+    # Chart type.
+    type = None
 
     # js_type is used to specify the JavaScript code which will render the chart
     # UI
     js_type = None
-
-    # js_type is used to specify the JavaScript code which will render the chart
-    # editor UI
-    editor_js_type = None
 
     #
     # Implementation
@@ -32,22 +27,21 @@ class Chart(Extension):
 
     @classmethod
     def signature(cls):
-        return cls.name
+        return cls.type
 
     @classmethod
     def enabled(cls):
-        return cls.name is not None
+        return cls.type is not None
 
     @classmethod
     def sanitize(cls):
-        # consider chart as being "abstract" if name is none
-        if cls.name is None:
+        # consider chart as being "abstract" if type is none
+        if cls.type is None:
             return
         assert cls.js_type is not None, '%r.js_type is not defined' % cls
-        assert cls.editor_js_type is not None, '%r.editor_js_type is not defined' % cls
 
     def __repr__(self):
-        return '<%r %r>' % (self.__class__, self.name)
+        return '<%r %r>' % (self.__class__, self.type)
 
 
 class ExportFormatter(Extension):
@@ -57,8 +51,8 @@ class ExportFormatter(Extension):
     # Declatation API
     #
 
-    # Name of the HTSQL formatter to use.
-    name = None
+    # MIME type of the HTSQL formatter to use.
+    mimetype = None
 
     # Extension of the filename which is generated as an output of the export
     # procedure.
@@ -68,8 +62,6 @@ class ExportFormatter(Extension):
     # export formatter.
     label = None
 
-    # Optional mimetype.
-    mimetype = None
 
     #
     # Implementation
@@ -77,19 +69,19 @@ class ExportFormatter(Extension):
 
     @classmethod
     def signature(cls):
-        return cls.name
+        return cls.mimetype
 
     @classmethod
     def enabled(cls):
-        return cls.name is not None
+        return cls.mimetype is not None
 
     @classmethod
     def sanitize(cls):
-        # consider chart as being "abstract" if name is none
-        if cls.name is None:
+        # consider chart as being "abstract" if mimetype is none
+        if cls.mimetype is None:
             return
         assert cls.extension is not None, '%r.extension is not defined' % cls
         assert cls.label is not None, '%r.label is not defined' % cls
 
     def __repr__(self):
-        return '<%r %r>' % (self.__class__, self.name)
+        return '<%r %r>' % (self.__class__, self.mimetype)

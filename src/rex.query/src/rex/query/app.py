@@ -6,6 +6,7 @@
 from webob.exc import HTTPNotFound
 
 from rex.web import Command, render_to_response, find_assets_bundle
+from .extension import Chart
 
 __all__ = ('RenderApp',)
 

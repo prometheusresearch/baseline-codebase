@@ -3,10 +3,10 @@
  */
 
 export type PieChart = {
-  type: 'pie',
-  labelColumn: ?string,
-  valueColumn: ?string,
-  color: {[label: string]: string},
+  +type: 'pie',
+  +labelColumn: ?string,
+  +valueColumn: ?string,
+  +color: {[label: string]: string},
 };
 
 export type Line = {
@@ -16,10 +16,10 @@ export type Line = {
 };
 
 export type LineChart = {
-  type: 'line',
-  label?: ?string,
-  labelColumn: ?string,
-  lineList: Array<Line>,
+  +type: 'line',
+  +label?: ?string,
+  +labelColumn: ?string,
+  +lineList: Array<Line>,
 };
 
 export type Area = {
@@ -29,10 +29,10 @@ export type Area = {
 };
 
 export type AreaChart = {
-  type: 'area',
-  label?: ?string,
-  labelColumn: ?string,
-  areaList: Array<Area>,
+  +type: 'area',
+  +label?: ?string,
+  +labelColumn: ?string,
+  +areaList: Array<Area>,
 };
 
 export type Bar = {
@@ -42,19 +42,19 @@ export type Bar = {
 };
 
 export type BarChart = {
-  type: 'bar',
-  label?: ?string,
-  labelColumn: ?string,
-  stacked: 'horizontal' | 'vertical',
-  barList: Array<Bar>,
+  +type: 'bar',
+  +label?: ?string,
+  +labelColumn: ?string,
+  +stacked: 'horizontal' | 'vertical',
+  +barList: Array<Bar>,
 };
 
 export type ScatterChart = {
-  type: 'scatter',
-  xColumn: ?string,
-  xLabel: ?string,
-  yColumn: ?string,
-  yLabel: ?string,
+  +type: 'scatter',
+  +xColumn: ?string,
+  +xLabel: ?string,
+  +yColumn: ?string,
+  +yLabel: ?string,
 };
 
 export type ChartType = 'pie' | 'line' | 'bar' | 'scatter' | 'area';

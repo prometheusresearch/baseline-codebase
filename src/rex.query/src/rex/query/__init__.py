@@ -26,3 +26,4 @@ from .pipe import (
         FormulaPipe, AggregatePipe, OptionalAggregatePipe)
 from .app import RenderApp
 from .extension import Chart, ExportFormatter
+from .chart import PieChart, LineChart, BarChart, AreaChart, ScatterChart

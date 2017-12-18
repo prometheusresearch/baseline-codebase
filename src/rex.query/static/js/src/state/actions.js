@@ -19,6 +19,7 @@ import type {
   Expression,
   QueryLoc,
   ExportFormat,
+  ChartConfig,
 } from '../model/types';
 import type {Chart, ChartType} from '../charting/types';
 
@@ -71,10 +72,17 @@ const refetchQuery = {
     refetchIndex += 1;
     const currentRefetchIndex = refetchIndex;
     return Promise.resolve().then(_ => {
-      const queryToFetch = state.chartList.reduce(
-        (q, c) => Ch.enrichQuery(q, c.chart),
-        query,
-      );
+      const queryToFetch = state.chartList.reduce((q, cSpec) => {
+        const cConfig = state.config.chartConfigs.filter(
+          c => c.type === cSpec.chart.type,
+        )[0];
+        if (cConfig == null) {
+          console.warn('Unknown chart type:', cSpec.chart.type);
+          return q;
+        } else {
+          return Ch.enrichQuery(q, cSpec.chart, cConfig);
+        }
+      }, query);
       Fetch.fetch(api, queryToFetch, translateOptions).then(data => {
         if (refetchIndex === currentRefetchIndex) {
           setState('fetchFinish', state => ({...state, data, queryLoading: false}));
@@ -112,14 +120,14 @@ export function setActiveTab(params: {activeTab: string}): StateUpdater {
   };
 }
 
-export function addChart(params: {chartType: ChartType}): StateUpdater {
+export function addChart(params: {chartConfig: ChartConfig<any, any>}): StateUpdater {
   logAction('addChart', params);
   return state => {
-    const {chartType} = params;
+    const {chartConfig} = params;
     const chartSpec = {
-      id: `${chartType}-${state.chartList.length + 1}`,
+      id: `${chartConfig.type}-${state.chartList.length + 1}`,
       label: null,
-      chart: Ch.getInitialChart(state.query, {type: chartType}),
+      chart: chartConfig.getInitialChart(state.query),
     };
     const chartList = state.chartList.concat(chartSpec);
     return {

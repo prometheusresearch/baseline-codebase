@@ -10,18 +10,32 @@ from htsql.core.fmt.emit import emit, emit_headers
 from rex.action import typing
 from rex.core import RecordVal, StrVal, MaybeVal, SeqVal
 from rex.db import Query
-from rex.widget import responder, RequestURL, undefined, Field, computed_field
-from rex.query import Database, ExportFormatter
+from rex.widget import (
+    responder, RequestURL, undefined, Field, computed_field, JSValue)
+from rex.query import Database, ExportFormatter, Chart
 
 from .base import MART_TYPE
 from .filter import MartFilteredAction
 from .tool import MartTool
 
 
+
 __all__ = (
     'QueryBuilderTool',
     'QueryBuilderMartAction',
+    'get_export_formats',
+    'get_chart_configs',
 )
+
+
+def get_export_formats(widget):
+    return [
+        {'mimetype': f.mimetype, 'label': f.label, 'extension': f.extension}
+        for f in ExportFormatter.all()]
+
+
+def get_chart_configs(widget):
+    return [JSValue(*c.js_type) for c in Chart.all()]
 
 
 class QueryBuilderTool(MartTool):
@@ -32,17 +46,13 @@ class QueryBuilderTool(MartTool):
         # return 'datadictionary' in mart.definition['processors']
         return True
 
-def get_export_formats(widget):
-    return [
-        {'mimetype': f.mimetype, 'label': f.label, 'extension': f.extension}
-        for f in ExportFormatter.all()]
-
 class QueryBuilderMartAction(MartFilteredAction):
     name = 'mart-query-builder'
     js_type = 'rex-mart-actions', 'QueryBuilder'
     tool = 'vqb'
 
     export_formats = computed_field(get_export_formats)
+    chart_configs = computed_field(get_chart_configs)
 
     def context(self):
         return {'mart': MART_TYPE}, {}

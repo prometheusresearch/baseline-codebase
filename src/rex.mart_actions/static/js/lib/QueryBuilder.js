@@ -76,13 +76,14 @@ export default class QueryBuilder extends React.Component {
   );
 
   render() {
-    let {runQuery, exportFormats} = this.props;
+    let {runQuery, exportFormats, chartConfigs} = this.props;
     let mart = martFromContext(this.props.context);
     let api = `${runQuery.path}?mart=${mart}`;
 
     return (
       <QueryBuilderApp
         exportFormats={exportFormats}
+        chartConfigs={chartConfigs}
         api={api}
         onSearch={this.onSearch}
         />

@@ -10,8 +10,8 @@ from htsql.core.fmt.emit import emit, emit_headers
 from rex.action import typing
 from rex.core import RecordVal, StrVal, MaybeVal, SeqVal
 from rex.db import Query
-from rex.widget import responder, RequestURL, undefined, Field
-from rex.query import Database
+from rex.widget import responder, RequestURL, undefined, Field, computed_field
+from rex.query import Database, ExportFormatter
 
 from .base import MART_TYPE
 from .filter import MartFilteredAction
@@ -32,24 +32,17 @@ class QueryBuilderTool(MartTool):
         # return 'datadictionary' in mart.definition['processors']
         return True
 
-
-export_format_val = RecordVal(
-    ('label', StrVal()),
-    ('mimetype', StrVal()),
-    ('extension', StrVal()),
-)
-
+def get_export_formats(widget):
+    return [
+        {'mimetype': f.mimetype, 'label': f.label, 'extension': f.extension}
+        for f in ExportFormatter.all()]
 
 class QueryBuilderMartAction(MartFilteredAction):
     name = 'mart-query-builder'
     js_type = 'rex-mart-actions', 'QueryBuilder'
     tool = 'vqb'
 
-    export_formats = Field(
-        SeqVal(export_format_val),
-        default=undefined,
-        doc='The RexMart definition ID that this Action is compatible with.',
-    )
+    export_formats = computed_field(get_export_formats)
 
     def context(self):
         return {'mart': MART_TYPE}, {}

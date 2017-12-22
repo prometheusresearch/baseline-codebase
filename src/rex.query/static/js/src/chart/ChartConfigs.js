@@ -31,7 +31,7 @@ const addIfNotNull = (set, column) => {
   }
 };
 
-type ChartProps<C> = {
+export type ChartProps<C> = {
   chartSpec: ChartSpec<C>,
   label: string,
   query: QueryPipeline,

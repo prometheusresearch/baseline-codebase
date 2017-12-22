@@ -260,7 +260,7 @@ class ColumnPickerButton extends React.Component<ColumnPickerButtonProps> {
               title={`Deselect all columns but "${column.label}"`}
               onClick={this.onFocusSelection}
               key="focus-selection">
-              Focus selection on {column.label}
+              Select only {column.label}
             </Menu.MenuButtonSecondary>,
           ]
         }

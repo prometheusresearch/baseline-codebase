@@ -224,12 +224,11 @@ export function selectFocus({
   logAction('selectFocus', {at, path});
   return state => {
     const lastNonSelect = getLastNonSelectAtPipeline(at);
-    const type = q.inferTypeAtPath(q.regularizeContext(lastNonSelect.context), path);
-    if (type.name !== 'record') {
+    if (lastNonSelect.context.type.name !== 'record') {
       return state;
     }
-
     let editAtCompletion;
+    const type = q.inferTypeAtPath(q.regularizeContext(lastNonSelect.context), path);
     if (type.card === 'seq' && type.name === 'record' && type.entity != null) {
       editAtCompletion = ensurePipelineHasCount;
     }

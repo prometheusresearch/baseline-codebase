@@ -82,8 +82,8 @@ the currently active locale and currently active timezone::
     u'May 22, 2014'
     >>> filters.format_time(dt)
     u'1:46:00 PM'
-    >>> filters.format_timedelta(dt)
-    u'7 years'
+    >>> filters.format_timedelta(dt).endswith(' years')
+    True
     >>> filters.format_timedelta(td)
     u'2 hours'
     >>> ctx.reset()
@@ -102,8 +102,8 @@ the currently active locale and currently active timezone::
     u'22 mai 2014'
     >>> filters.format_time(dt)
     u'15:46:00'
-    >>> filters.format_timedelta(dt)
-    u'7 ans'
+    >>> filters.format_timedelta(dt).endswith(' ans')
+    True
     >>> filters.format_timedelta(td)
     u'2 heures'
     >>> ctx.reset()

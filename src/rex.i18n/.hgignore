@@ -8,4 +8,5 @@ static/js/coverage
 test/sandbox
 test/broken_sandbox
 demo/static/www/bundle
+demo/static/js/yarn.lock
 

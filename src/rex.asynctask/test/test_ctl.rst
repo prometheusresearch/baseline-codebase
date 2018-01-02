@@ -216,8 +216,8 @@ Tasks can be scheduled to execute at particular times::
     >>> time.sleep(10)  # give the task some time for the tasks to trigger
     >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching demo_bar_worker to work on queue scheduled_0_demo_bar_worker
+    INFO:AsyncTaskWorkerTask:Scheduling "demo_bar_worker" for {'second': ...}
     INFO:BarWorker:Starting; queue=scheduled_0_demo_bar_worker
-    INFO:AsyncTaskWorkerTask:Scheduled "demo_bar_worker" for {'second': ...}
     DEBUG:AsyncTaskWorkerTask:Triggering scheduled execution of demo_bar_worker
     DEBUG:BarWorker:Got payload: {}
     BAR processed: {}
@@ -253,12 +253,12 @@ rex.ctl Tasks can be executed on a schedule::
     INFO:AsyncTaskWorkerTask:Launching ctl_executor to work on queue scheduled_0_ctl_...
     INFO:AsyncTaskWorkerTask:Launching ctl_executor to work on queue scheduled_0_ctl_...
     INFO:AsyncTaskWorkerTask:Launching ctl_executor to work on queue scheduled_0_ctl_...
+    INFO:AsyncTaskWorkerTask:Scheduling "demo-noisy-task" for {'second': ...}
+    INFO:AsyncTaskWorkerTask:Scheduling "demo-quiet-task" for {'second': ...}
+    INFO:AsyncTaskWorkerTask:Scheduling "demo-crashy-task" for {'second': ...}
     INFO:CtlExecutorWorker:Starting; queue=scheduled_0_ctl_...
     INFO:CtlExecutorWorker:Starting; queue=scheduled_0_ctl_...
     INFO:CtlExecutorWorker:Starting; queue=scheduled_0_ctl_...
-    INFO:AsyncTaskWorkerTask:Scheduled "demo-noisy-task" for {'second': ...}
-    INFO:AsyncTaskWorkerTask:Scheduled "demo-quiet-task" for {'second': ...}
-    INFO:AsyncTaskWorkerTask:Scheduled "demo-crashy-task" for {'second': ...}
     DEBUG:AsyncTaskWorkerTask:Triggering scheduled execution of ctl_executor
     DEBUG:CtlExecutorWorker:Got payload: {u'command': u'demo-noisy-task'}
     INFO:CtlExecutorWorker:Executing Task: demo-noisy-task

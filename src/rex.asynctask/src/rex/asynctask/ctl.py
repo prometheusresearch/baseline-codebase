@@ -158,16 +158,16 @@ class AsyncTaskWorkerTask(RexTask):
                 worker = 'ctl_executor'
                 payload = {'command': schedule.ctl}
 
+            self.logger.info(
+                'Scheduling "%s" for %r',
+                schedule.worker or schedule.ctl,
+                sched,
+            )
             scheduler.add_job(
                 partial(self.enqueue_scheduled_task, rex, schedule),
                 trigger='cron',
                 args=[worker, payload],
                 **sched
-            )
-            self.logger.info(
-                'Scheduled "%s" for %r',
-                schedule.worker or schedule.ctl,
-                sched,
             )
 
         scheduler.start()

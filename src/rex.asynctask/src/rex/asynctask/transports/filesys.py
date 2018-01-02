@@ -100,8 +100,8 @@ class FileSysAsyncTransport(AsyncTransport):
 
         if index[1] == 0:
             return 0
-        else:
-            return (index[1] - index[0]) + 1
+
+        return (index[1] - index[0]) + 1
 
     def _queue_path(self, queue_name):
         return os.path.join(self.path, queue_name)

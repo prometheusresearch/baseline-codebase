@@ -38,12 +38,12 @@ class AsyncTransport(Extension):
                 '%s.get_task() method not implemented' % cls
 
     @classmethod
-    def signature(cls):
-        return cls.name
-
-    @classmethod
     def enabled(cls):
         return cls.name is not None
+
+    @classmethod
+    def signature(cls):
+        return cls.name
 
     def __init__(self, uri_parts):
         """

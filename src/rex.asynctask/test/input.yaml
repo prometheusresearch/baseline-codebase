@@ -10,7 +10,6 @@ tests:
     auto-data: true
 
   # Monkeypatching multiprocessing to work with coverage.py
-  # Adapted from: https://bitbucket.org/ned/coveragepy/src/f84263e515c2eecc6500c91eafd8aca62c96720f/coverage/monkey.py
   - py: |
       # monkeypatch multiprocessing
       import multiprocessing
@@ -24,7 +23,11 @@ tests:
       class ProcessWithCoverage(klass):
           def _bootstrap(self):
               from coverage import coverage
-              cov = coverage(data_suffix=True, auto_data=True, config_file='setup.cfg')
+              cov = coverage(
+                data_suffix=True,
+                auto_data=True,
+                config_file='setup.cfg',
+              )
               cov.start()
               try:
                   return original_bootstrap(self)

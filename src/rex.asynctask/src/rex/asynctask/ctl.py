@@ -35,7 +35,7 @@ class AsyncTaskWorkerTask(RexTask):
     will continually watch the queues and process tasks as they come across.
     """
 
-    # pylint: disable=attribute-defined-outside-init
+    # pylint: disable=attribute-defined-outside-init,no-member
 
     name = 'asynctask-workers'
 
@@ -76,7 +76,7 @@ class AsyncTaskWorkerTask(RexTask):
             scheduled_worker_config = \
                 get_settings().asynctask_scheduled_workers
             self.initialize_workers(worker_config, scheduled_worker_config)
-            if len(self._workers) == 0:
+            if not self._workers:
                 self.logger.info('No workers configured; terminating.')
                 return
 

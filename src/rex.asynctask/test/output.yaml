@@ -4,15 +4,15 @@
 ---
 suite: rex.asynctask
 tests:
-- py: monkeypatch-multiprocessing
-  stdout: ''
-- sh: pip install --quiet --editable ./demo
-  stdout: ''
-- sh: rex dropdb --quiet rex.asynctask_demo
-  stdout: ''
-- sh: rex deploy --quiet rex.asynctask_demo
-  stdout: ''
-- py: check-for-redis
-  stdout: ''
-- py: check-for-rabbit
-  stdout: ''
+  - py: monkeypatch-multiprocessing
+    stdout: ''
+  - sh: pip install --quiet --editable ./demo
+    stdout: ''
+  - sh: rex dropdb --quiet rex.asynctask_demo
+    stdout: ''
+  - sh: rex deploy --quiet rex.asynctask_demo
+    stdout: ''
+  - py: check-for-redis
+    stdout: ''
+  - py: check-for-rabbit
+    stdout: ''

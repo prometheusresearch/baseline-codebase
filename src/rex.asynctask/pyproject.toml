@@ -1,0 +1,67 @@
+[build-system]
+requires = [
+    'setuptools',
+    'wheel',
+    'rex.setup',
+]
+
+[tool.tidypy]
+2to3 = {use = false}
+pydocstyle = {use = false}
+vulture = {use = false}
+exclude = [
+    '^demo/.*',
+    '^test/.*',
+    '^build/.*',
+    '^dist/.*',
+]
+
+[tool.tidypy.pycodestyle]
+disabled = [
+    'W391',
+    'W503',
+]
+
+[tool.tidypy.pylint]
+disabled = [
+    'wildcard-import',
+    'missing-docstring',
+    'trailing-newlines',
+    'relative-import',  # pylint is confused by namespaces
+]
+[tool.tidypy.pylint.options]
+min-public-methods = 0
+max-args = 7
+
+[tool.tidypy.yamllint]
+disabled = [
+    'document-start',
+    'empty-lines',
+]
+
+[tool.tidypy.rstlint.options]
+sphinx-extensions = [
+    'sphinx.ext.autodoc',
+    'sphinxcontrib.autorex',
+]
+ignore-roles = [
+    'ref',
+]
+
+[tool.tidypy.pyroma]
+disabled = [
+    'Keywords',
+    'ZipSafe',
+]
+
+[tool.tidypy.pyflakes]
+disabled = [
+    'ImportStarUsed',
+    'UnusedImport',
+]
+
+[tool.tidypy.bandit]
+disabled = [
+    'B101',
+]
+

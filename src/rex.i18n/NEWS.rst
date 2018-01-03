@@ -5,6 +5,12 @@ REX.I18N Change Log
 .. contents:: Table of Contents
 
 
+0.5.4 (2018-01-03)
+==================
+
+* Test fixes.
+
+
 0.5.3 (2017-06-20)
 ==================
 

@@ -299,7 +299,7 @@ class RestfulLocation(Command):
         except Error as exc:
             raise HTTPBadRequest(unicode(exc))
 
-    def __call__(self, request, **kwargs):
+    def __call__(self, request, **kwargs):  # pylint: disable=arguments-differ
         start = datetime.now()
         self.authorize(request)
         self._log_request(request)
@@ -343,7 +343,6 @@ class RestfulLocation(Command):
                 response = implementation(request, **kwargs)
 
         except HTTPException, exc:
-            # pylint: disable=redefined-variable-type
             response = {
                 'error': unicode(exc),
             }

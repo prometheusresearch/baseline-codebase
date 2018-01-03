@@ -2,6 +2,8 @@
 # Copyright (c) 2014, Prometheus Research, LLC
 #
 
+# pylint: disable=invalid-name
+
 
 project = 'rex.restful'
 html_title = "REX.RESTFUL Documentation"

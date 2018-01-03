@@ -4,9 +4,9 @@
 ---
 suite: rex.restful
 tests:
-- sh: pip install --quiet --editable ./demo
-  stdout: ''
-- sh: rex dropdb --quiet rex.restful_demo
-  stdout: ''
-- sh: rex deploy --quiet rex.restful_demo
-  stdout: ''
+  - sh: pip install --quiet --editable ./demo
+    stdout: ''
+  - sh: rex dropdb --quiet rex.restful_demo
+    stdout: ''
+  - sh: rex deploy --quiet rex.restful_demo
+    stdout: ''

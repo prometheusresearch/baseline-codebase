@@ -136,7 +136,7 @@ class Serializer(Extension):
 
 
 class RestfulJSONEncoder(json.JSONEncoder):
-    # pylint: disable=method-hidden
+    # pylint: disable=method-hidden,arguments-differ
     def default(self, obj):
         if isinstance(obj, datetime):
             parts = obj.utctimetuple()
@@ -150,17 +150,16 @@ class RestfulJSONEncoder(json.JSONEncoder):
                 ('%06d' % obj.microsecond)[:-3],
             )
 
-        elif isinstance(obj, (date, time)):
+        if isinstance(obj, (date, time)):
             return obj.isoformat()
 
-        elif isinstance(obj, Decimal):
+        if isinstance(obj, Decimal):
             return float(obj)
 
-        elif isinstance(obj, set):
+        if isinstance(obj, set):
             return list(obj)
 
-        else:
-            return super(RestfulJSONEncoder, self).default(obj)
+        return super(RestfulJSONEncoder, self).default(obj)
 
 
 RE_DATE = re.compile(r'^\d{4}-\d{2}-\d{2}$')
@@ -199,8 +198,6 @@ def restful_json_decoder(value):
 
     results = []
     for key, val in pairs:
-        # pylint: disable=redefined-variable-type
-
         if isinstance(val, basestring):
             val = get_date_or_string(val)
 
@@ -264,7 +261,7 @@ class YamlSerializer(Serializer):
         loader = yaml.SafeLoader
         if not self.deserialize_datetimes:
             loader = StringedDatesYamlLoader
-        return yaml.load(value, Loader=loader)
+        return yaml.load(value, Loader=loader)  # noqa: B506
 
 
 class RestfulYamlDumper(yaml.SafeDumper):
@@ -276,6 +273,7 @@ class RestfulYamlDumper(yaml.SafeDumper):
 
     def set_representer(self, data):
         return self.represent_sequence('tag:yaml.org,2002:seq', list(data))
+
 
 RestfulYamlDumper.add_representer(
     Decimal,
@@ -294,6 +292,7 @@ RestfulYamlDumper.add_representer(
 class StringedDatesYamlLoader(yaml.SafeLoader):
     def timestamp_constructor(self, node):
         return self.construct_scalar(node)
+
 
 StringedDatesYamlLoader.add_constructor(
     'tag:yaml.org,2002:timestamp',

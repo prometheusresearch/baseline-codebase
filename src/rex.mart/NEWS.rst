@@ -5,7 +5,7 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
-0.8.0 (2017-xx-xx)
+0.8.0 (2018-01-03)
 ==================
 
 * The ``mart_etl_htsql_gateways`` setting now allows you to specify a ``rexdb``

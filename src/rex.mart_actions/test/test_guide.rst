@@ -96,22 +96,22 @@ Generate field specifications based on field configurations::
 
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city')
     >>> pprint(gc.get_field_specs())
-    [{'_type': u'integer', 'expression': u'id', 'selected': True, 'title': u'Id'},
-     {'_type': u'text', 'expression': u'name', 'selected': True, 'title': u'Name'},
-     {'_type': u'identity', 'expression': u'country', 'selected': True, 'title': u'Country'},
-     {'_type': u'text', 'expression': u'district', 'selected': True, 'title': u'District'},
-     {'_type': u'integer', 'expression': u'population', 'selected': True, 'title': u'Population'}]
+    [{'selected': True, 'title': u'Id', 'type': u'integer'},
+     {'selected': True, 'title': u'Name', 'type': u'text'},
+     {'selected': True, 'title': u'Country', 'type': u'identity'},
+     {'selected': True, 'title': u'District', 'type': u'text'},
+     {'selected': True, 'title': u'Population', 'type': u'integer'}]
 
     >>> field_cfg = [
     ...     FieldConfigVal({'include': '*'}),
     ... ]
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city', field_cfg)
     >>> pprint(gc.get_field_specs())
-    [{'_type': u'integer', 'expression': u'id', 'selected': True, 'title': u'Id'},
-     {'_type': u'text', 'expression': u'name', 'selected': True, 'title': u'Name'},
-     {'_type': u'identity', 'expression': u'country', 'selected': True, 'title': u'Country'},
-     {'_type': u'text', 'expression': u'district', 'selected': True, 'title': u'District'},
-     {'_type': u'integer', 'expression': u'population', 'selected': True, 'title': u'Population'}]
+    [{'selected': True, 'title': u'Id', 'type': u'integer'},
+     {'selected': True, 'title': u'Name', 'type': u'text'},
+     {'selected': True, 'title': u'Country', 'type': u'identity'},
+     {'selected': True, 'title': u'District', 'type': u'text'},
+     {'selected': True, 'title': u'Population', 'type': u'integer'}]
 
     >>> field_cfg = [
     ...     FieldConfigVal({'include': '*'}),
@@ -120,18 +120,18 @@ Generate field specifications based on field configurations::
     ... ]
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city', field_cfg)
     >>> pprint(gc.get_field_specs())
-    [{'_type': u'integer', 'expression': u'id', 'selected': True, 'title': u'Id'},
-     {'_type': u'text', 'expression': u'name', 'selected': True, 'title': u'Name'},
-     {'_type': u'identity', 'expression': u'country', 'selected': True, 'title': u'Country'},
-     {'_type': u'text', 'expression': u'district', 'selected': False, 'title': u'District'},
-     {'_type': u'integer', 'expression': u'population', 'selected': True, 'title': u'Population'}]
+    [{'selected': True, 'title': u'Id', 'type': u'integer'},
+     {'selected': True, 'title': u'Name', 'type': u'text'},
+     {'selected': True, 'title': u'Country', 'type': u'identity'},
+     {'selected': False, 'title': u'District', 'type': u'text'},
+     {'selected': True, 'title': u'Population', 'type': u'integer'}]
 
     >>> field_cfg = [
     ...     FieldConfigVal({'include': 'district', 'title': u'The District'}),
     ... ]
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city', field_cfg)
     >>> pprint(gc.get_field_specs())
-    [{'_type': u'text', 'expression': u'district', 'selected': True, 'title': u'The District'}]
+    [{'selected': True, 'title': u'The District', 'type': u'text'}]
 
     >>> field_cfg = [
     ...     FieldConfigVal({'include': '*'}),
@@ -142,9 +142,9 @@ Generate field specifications based on field configurations::
     ... ]
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city', field_cfg)
     >>> pprint(gc.get_field_specs())
-    [{'_type': u'text', 'expression': u'name', 'selected': True, 'title': u'Retitled Name!'},
-     {'_type': u'identity', 'expression': u'country', 'selected': True, 'title': u'Country'},
-     {'_type': u'text', 'expression': u'district', 'selected': False, 'title': u'District'}]
+    [{'selected': True, 'title': u'Retitled Name!', 'type': u'text'},
+     {'selected': True, 'title': u'Country', 'type': u'identity'},
+     {'selected': False, 'title': u'District', 'type': u'text'}]
 
     >>> field_cfg = [
     ...     FieldConfigVal({'include': '*'}),
@@ -152,12 +152,12 @@ Generate field specifications based on field configurations::
     ... ]
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city', field_cfg)
     >>> pprint(gc.get_field_specs())
-    [{'_type': u'integer', 'expression': u'id', 'selected': True, 'title': u'Id'},
-     {'_type': u'text', 'expression': u'name', 'selected': True, 'title': u'Name'},
-     {'_type': u'identity', 'expression': u'country', 'selected': True, 'title': u'Country'},
-     {'_type': u'text', 'expression': u'district', 'selected': True, 'title': u'District'},
-     {'_type': u'integer', 'expression': u'population', 'selected': True, 'title': u'Population'},
-     {'_type': u'enum', 'expression': u'country.continent', 'selected': True, 'title': u'Continent'}]
+    [{'selected': True, 'title': u'Id', 'type': u'integer'},
+     {'selected': True, 'title': u'Name', 'type': u'text'},
+     {'selected': True, 'title': u'Country', 'type': u'identity'},
+     {'selected': True, 'title': u'District', 'type': u'text'},
+     {'selected': True, 'title': u'Population', 'type': u'integer'},
+     {'selected': True, 'title': u'Continent', 'type': u'enum'}]
 
     >>> field_cfg = [
     ...     FieldConfigVal({'include': '*'}),
@@ -168,24 +168,24 @@ Generate field specifications based on field configurations::
     ... ]
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city', field_cfg)
     >>> pprint(gc.get_field_specs())
-    [{'_type': u'integer', 'expression': u'id', 'selected': True, 'title': u'Id'},
-     {'_type': u'text', 'expression': u'name', 'selected': True, 'title': u'Name'},
-     {'_type': u'identity', 'expression': u'country', 'selected': True, 'title': u'Country'},
-     {'_type': u'text', 'expression': u'district', 'selected': True, 'title': u'District'},
-     {'_type': u'integer', 'expression': u'population', 'selected': True, 'title': u'Population'},
-     {'_type': u'text', 'expression': u'country.code', 'selected': True, 'title': u'Code'},
-     {'_type': u'text', 'expression': u'country.name', 'selected': True, 'title': u'Name'},
-     {'_type': u'enum', 'expression': u'country.continent', 'selected': True, 'title': u'Continent'},
-     {'_type': u'text', 'expression': u'country.region', 'selected': True, 'title': u'Region'},
-     {'_type': u'integer', 'expression': u'country.population', 'selected': True, 'title': u'Population'},
-     {'_type': u'decimal', 'expression': u'country.life_expectancy', 'selected': True, 'title': u'Life Expectancy'},
-     {'_type': u'decimal', 'expression': u'country.gnp', 'selected': True, 'title': u'Gnp'},
-     {'_type': u'decimal', 'expression': u'country.gnp_old', 'selected': True, 'title': u'Gnp Old'},
-     {'_type': u'text', 'expression': u'country.local_name', 'selected': True, 'title': u'Local Name'},
-     {'_type': u'text', 'expression': u'country.government_form', 'selected': True, 'title': u'Government Form'},
-     {'_type': u'text', 'expression': u'country.head_of_state', 'selected': True, 'title': u'Head Of State'},
-     {'_type': u'integer', 'expression': u'country.capital_city', 'selected': True, 'title': u'Capital City'},
-     {'_type': u'text', 'expression': u'country.code2', 'selected': True, 'title': u'Code2'}]
+    [{'selected': True, 'title': u'Id', 'type': u'integer'},
+     {'selected': True, 'title': u'Name', 'type': u'text'},
+     {'selected': True, 'title': u'Country', 'type': u'identity'},
+     {'selected': True, 'title': u'District', 'type': u'text'},
+     {'selected': True, 'title': u'Population', 'type': u'integer'},
+     {'selected': True, 'title': u'Code', 'type': u'text'},
+     {'selected': True, 'title': u'Name', 'type': u'text'},
+     {'selected': True, 'title': u'Continent', 'type': u'enum'},
+     {'selected': True, 'title': u'Region', 'type': u'text'},
+     {'selected': True, 'title': u'Population', 'type': u'integer'},
+     {'selected': True, 'title': u'Life Expectancy', 'type': u'decimal'},
+     {'selected': True, 'title': u'Gnp', 'type': u'decimal'},
+     {'selected': True, 'title': u'Gnp Old', 'type': u'decimal'},
+     {'selected': True, 'title': u'Local Name', 'type': u'text'},
+     {'selected': True, 'title': u'Government Form', 'type': u'text'},
+     {'selected': True, 'title': u'Head Of State', 'type': u'text'},
+     {'selected': True, 'title': u'Capital City', 'type': u'integer'},
+     {'selected': True, 'title': u'Code2', 'type': u'text'}]
 
     >>> field_cfg = [
     ...     FieldConfigVal({'include': '*'}),
@@ -193,20 +193,12 @@ Generate field specifications based on field configurations::
     ... ]
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city', field_cfg)
     >>> pprint(gc.get_field_specs())
-    [{'_type': u'integer', 'expression': u'id', 'selected': True, 'title': u'Id'},
-     {'_type': u'text', 'expression': u'name', 'selected': True, 'title': u'Name'},
-     {'_type': u'identity', 'expression': u'country', 'selected': True, 'title': u'Country'},
-     {'_type': u'text', 'expression': u'district', 'selected': True, 'title': u'District'},
-     {'_type': u'integer', 'expression': u'population', 'selected': True, 'title': u'Population'},
-     {'_type': None, 'expression': u'count(country.country_language)', 'selected': True, 'title': u'# Languages in Country'}]
-
-    >>> pprint(gc.get_field_specs(frontend=True))
-    [{'selected': True, 'title': u'Id'},
-     {'selected': True, 'title': u'Name'},
-     {'selected': True, 'title': u'Country'},
-     {'selected': True, 'title': u'District'},
-     {'selected': True, 'title': u'Population'},
-     {'selected': True, 'title': u'# Languages in Country'}]
+    [{'selected': True, 'title': u'Id', 'type': u'integer'},
+     {'selected': True, 'title': u'Name', 'type': u'text'},
+     {'selected': True, 'title': u'Country', 'type': u'identity'},
+     {'selected': True, 'title': u'District', 'type': u'text'},
+     {'selected': True, 'title': u'Population', 'type': u'integer'},
+     {'selected': True, 'title': u'# Languages in Country', 'type': u'integer'}]
 
     >>> gc.get_htsql([], [])
     u"/city{id :as 'Id', name :as 'Name', country :as 'Country', district :as 'District', population :as 'Population', count(country.country_language) :as '# Languages in Country'}"
@@ -234,10 +226,10 @@ Generate filter specifications based on filter configurations::
 
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city')
     >>> pprint(gc.get_filter_specs())
-    [{'expression': u'id', 'title': u'Id', 'type': u'integer'},
-     {'expression': u'name', 'title': u'Name', 'type': u'text'},
-     {'expression': u'district', 'title': u'District', 'type': u'text'},
-     {'expression': u'population', 'title': u'Population', 'type': u'integer'}]
+    [{'title': u'Id', 'type': u'integer'},
+     {'title': u'Name', 'type': u'text'},
+     {'title': u'District', 'type': u'text'},
+     {'title': u'Population', 'type': u'integer'}]
 
     >>> field_cfg = [
     ...     FieldConfigVal({'include': 'name'}),
@@ -255,20 +247,6 @@ Generate filter specifications based on filter configurations::
     ... ]
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city', field_config=field_cfg, filter_config=filter_cfg)
     >>> pprint(gc.get_filter_specs())
-    [{'expression': u'name', 'title': u'Name (Text)', 'type': u'text'},
-     {'expression': u'!is_null(district)', 'title': u'Has a District (Bool)', 'type': u'boolean'},
-     {'expression': u'population', 'title': u'Population (Integer)', 'type': u'integer'},
-     {'expression': u'country.gnp', 'title': u'GNP (Decimal)', 'type': u'decimal'},
-     {'expression': u'float(country.gnp)', 'title': u'GNP (Float)', 'type': u'float'},
-     {'enumerations': [u'asia', u'europe', u'north_america', u'africa', u'oceania', u'antarctica', u'south_america'],
-      'expression': u'country.continent',
-      'title': u'Continent (Enum)',
-      'type': 'enum'},
-     {'expression': u'now()', 'title': u'Now (DateTime)', 'type': u'datetime'},
-     {'expression': u'time(now())', 'title': u'Now (Time)', 'type': u'time'},
-     {'expression': u'today()', 'title': u'Today (Date)', 'type': u'date'}]
-
-    >>> pprint(gc.get_filter_specs(frontend=True))
     [{'title': u'Name (Text)', 'type': u'text'},
      {'title': u'Has a District (Bool)', 'type': u'boolean'},
      {'title': u'Population (Integer)', 'type': u'integer'},

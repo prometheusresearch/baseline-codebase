@@ -8,7 +8,7 @@ REX.MART_ACTIONS Change Log
 0.8.0 (2017-xx-xx)
 ==================
 
-*
+* Added charting support to RexGuides.
 
 
 0.7.1 (2017-07-18)

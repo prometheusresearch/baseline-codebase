@@ -16,7 +16,8 @@ Charts can be queries using rex.core's Extension mechanism::
 
     >>> Chart.all() # doctest: +NORMALIZE_WHITESPACE
     [rex.mart_actions.charting.PieChart, rex.mart_actions.charting.LineChart,
-     rex.mart_actions.charting.AreaChart, rex.mart_actions.charting.BarChart]
+     rex.mart_actions.charting.AreaChart, rex.mart_actions.charting.BarChart,
+     rex.mart_actions.charting.ScatterChart]
 
 Pie chart
 ---------
@@ -58,7 +59,7 @@ Line chart
     Expression(title=u'Label', expression=u'label_expression')
 
     >>> line_chart.config.lines
-    [Record(value=Expression(title=None, expression=u'line_expression'))]
+    [Record(value=Expression(title=None, expression=u'line_expression'), color=undefined)]
 
     >>> line_chart.expressions()
     [Expression(title=u'Label', expression=u'label_expression'), Expression(title=None, expression=u'line_expression')]
@@ -81,7 +82,7 @@ Area chart
     Expression(title=u'Label', expression=u'label_expression')
 
     >>> area_chart.config.areas
-    [Record(value=Expression(title=None, expression=u'area_expression'))]
+    [Record(value=Expression(title=None, expression=u'area_expression'), color=undefined)]
 
     >>> area_chart.expressions()
     [Expression(title=u'Label', expression=u'label_expression'), Expression(title=None, expression=u'area_expression')]
@@ -104,7 +105,7 @@ Bar chart
     Expression(title=u'Label', expression=u'label_expression')
 
     >>> bar_chart.config.bars
-    [Record(value=Expression(title=None, expression=u'bar_expression'))]
+    [Record(value=Expression(title=None, expression=u'bar_expression'), color=undefined)]
 
     >>> bar_chart.expressions()
     [Expression(title=u'Label', expression=u'label_expression'), Expression(title=None, expression=u'bar_expression')]

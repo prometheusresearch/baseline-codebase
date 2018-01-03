@@ -49,15 +49,13 @@ def get_backlink_type(backlink):
     if total == 1:
         if links == 1:
             return 'facet'
-        else:
-            return 'link'
+        return 'link'
     else:
         if links == 1:
             return 'branch'
-        elif total == links:
+        if total == links:
             return 'cross'
-        else:
-            return 'ternary'
+        return 'ternary'
 
 
 class DataDictionaryProcessor(Processor):

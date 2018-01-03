@@ -55,7 +55,6 @@ class FullyValidatingRecordVal(RecordVal):
 
     def construct(self, loader, node):
         data = super(FullyValidatingRecordVal, self).construct(loader, node)
-        # pylint: disable=not-callable
         return self(data)
 
 
@@ -73,7 +72,6 @@ class NormalizedOneOrSeqVal(OneOrSeqVal):
 
     def construct(self, loader, node):
         data = super(NormalizedOneOrSeqVal, self).construct(loader, node)
-        # pylint: disable=not-callable
         return self(data)
 
 
@@ -254,7 +252,7 @@ class EtlScriptVal(FullyValidatingRecordVal):
 
         with guard('While validating field:', 'script'):
             with guard('Got:', repr(value.script)):
-                if len(value.script) == 0:
+                if not value.script:
                     raise Error('ETL Scripts cannot be empty')
 
         return value
@@ -310,7 +308,7 @@ class ParentalRelationshipVal(FullyValidatingRecordVal):
 
         with guard('While validating field:', 'parent'):
             with guard('Got:', repr(value.parent)):
-                if value.type == 'trunk' and len(value.parent) > 0:
+                if value.type == 'trunk' and value.parent:
                     raise Error(
                         'Relationship type "trunk" cannot have any parents',
                     )
@@ -441,7 +439,7 @@ class SelectorVal(FullyValidatingRecordVal):
 
         with guard('While validating field:', 'query'):
             with guard('Got:', repr(value.query)):
-                if len(value.query) == 0:
+                if not value.query:
                     raise Error('Selector querys cannot be empty')
 
         return value
@@ -497,8 +495,7 @@ class AllOrOneOrSeqVal(NormalizedOneOrSeqVal):
     def __call__(self, data):
         if data == '@ALL':
             return data
-        else:
-            return super(AllOrOneOrSeqVal, self).__call__(data)
+        return super(AllOrOneOrSeqVal, self).__call__(data)
 
 
 class AssessmentDefinitionVal(FullyValidatingRecordVal):

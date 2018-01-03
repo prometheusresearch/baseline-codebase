@@ -8,14 +8,10 @@ __all__ = (
 )
 
 
-# pylint: disable=wrong-import-position
-
-
 try:
     from rex.asynctask import AsyncTaskWorker
 except ImportError:  # pragma: no cover
     MartCreateWorker = None  # pylint: disable=invalid-name
-
 else:
     from .creation import MartCreator
     from .validators import RunListEntryVal
@@ -24,7 +20,7 @@ else:
         name = 'rexmart_create'
 
         def process(self, payload):
-            payload = RunListEntryVal()(payload)  # pylint:disable=not-callable
+            payload = RunListEntryVal()(payload)
 
             creator = MartCreator(payload.owner, payload.definition)
             creator(

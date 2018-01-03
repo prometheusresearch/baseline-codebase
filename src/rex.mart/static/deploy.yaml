@@ -24,13 +24,13 @@
     # The status of the Mart
     - column: status
       type:
-        - creation        # Initial database creation is occurring
-        - deployment      # Table structures are being created
-        - post_deployment # First phase of ETL scripts are being executed
-        - assessment      # Assessments are being loaded
-        - post_assessment # Second phase of ETL scripts are being executed
-        - processing      # Post-Processors are executing
-        - complete        # Mart is complete and ready for use
+        - creation         # Initial database creation is occurring
+        - deployment       # Table structures are being created
+        - post_deployment  # First phase of ETL scripts are being executed
+        - assessment       # Assessments are being loaded
+        - post_assessment  # Second phase of ETL scripts are being executed
+        - processing       # Post-Processors are executing
+        - complete         # Mart is complete and ready for use
       default: creation
 
     # The times measuring the creation of the Mart
@@ -111,8 +111,23 @@
       type: boolean
       default: true
 
-- sql: ALTER TABLE rexmart_dynamic_assessment ADD CONSTRAINT rexmart_dynamic_assessment_defname UNIQUE (definition, name);
-  unless: SELECT * FROM pg_catalog.pg_constraint WHERE conname = 'rexmart_dynamic_assessment_defname';
+- sql: |
+    ALTER TABLE
+      rexmart_dynamic_assessment
+    ADD CONSTRAINT
+      rexmart_dynamic_assessment_defname
+    UNIQUE (
+      definition,
+      name
+    );
+  unless: |
+    SELECT
+      *
+    FROM
+      pg_catalog.pg_constraint
+    WHERE
+      conname = 'rexmart_dynamic_assessment_defname'
+    ;
 
 
 # This table contains the Instruments referenced by the Assessment definitions

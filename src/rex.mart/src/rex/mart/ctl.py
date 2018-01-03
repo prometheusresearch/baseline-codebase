@@ -45,6 +45,8 @@ class MartCreateTask(RexTask):
     were specified.
     """
 
+    # pylint: disable=no-member
+
     name = 'mart-create'
 
     class options(object):  # noqa
@@ -146,7 +148,7 @@ class MartCreateTask(RexTask):
             if ':' in self.runlist:
                 open_func = get_packages().open
             else:
-                open_func = open  # pylint: disable=redefined-variable-type
+                open_func = open
 
             try:
                 runlist = open_func(self.runlist).read()
@@ -190,7 +192,7 @@ class MartCreateTask(RexTask):
                         entry['parameters'] = params
                     entries.append(entry)
 
-            runlist = validator(entries)  # pylint: disable=not-callable
+            runlist = validator(entries)
 
         definitions = [defn['id'] for defn in get_all_definitions()]
         for entry in runlist:
@@ -262,6 +264,8 @@ class MartShellTask(RexTask):
     If you use the --reference option, the first argument will be treated as
     the owner, and the reference will specify which of their Marts to open.
     """
+
+    # pylint: disable=no-member
 
     name = 'mart-shell'
 
@@ -363,6 +367,8 @@ class MartPurgeTask(RexTask):
     option more than once will act as a logical OR operation between all values
     specified for that option.
     """
+
+    # pylint: disable=no-member
 
     name = 'mart-purge'
 

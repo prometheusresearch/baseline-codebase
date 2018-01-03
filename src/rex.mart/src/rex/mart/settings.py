@@ -38,7 +38,6 @@ class MartHostingClusterSetting(Setting):
     name = 'mart_hosting_cluster'
     default = None
 
-    # pylint: disable=no-self-use
     def validate(self, value):
         if value is not None:
             value = DBVal()(value)

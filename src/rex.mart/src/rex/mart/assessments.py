@@ -75,7 +75,6 @@ class AssessmentLoader(object):
                 num_assessments += 1
 
             # Submit port data.
-            #port.insert(dataset)
             _insert_into_port(port, dataset)
 
         return num_assessments
@@ -99,5 +98,5 @@ def _insert_into_port(port, dataset):
         old_map = flatten(tree, adapt(tree, None))
         new_map = flatten(tree, adapt(tree, dataset))
         pair_map = match(old_map, new_map)
-        patch(pair_map, port._command_cache)
+        patch(pair_map, port._command_cache)  # noqa: protected-access
 

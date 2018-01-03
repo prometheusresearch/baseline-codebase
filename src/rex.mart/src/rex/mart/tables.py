@@ -71,7 +71,7 @@ class MappingTable(object):
 
         # Add some uniqueness to the duped names
         for field in self.fields.itervalues():
-            for base in dupe_bases.keys():
+            for base in dupe_bases:
                 if field.target_name.startswith(base):
                     dupe_bases[base] += 1
                     field.force_target_name('%s_%s' % (
@@ -89,7 +89,7 @@ class MappingTable(object):
             for name in field_names
             if field_names.count(name) > 1
         ])
-        assert len(duped) == 0, 'Duplicate field names on %s: %r' % (
+        assert not duped, 'Duplicate field names on %s: %r' % (
             self.name,
             duped,
         )
@@ -756,7 +756,7 @@ class PrimaryTable(MappingTable):
                 del self.children[child_name]
             else:
                 child.filter_identifiable(fields, rule)
-                if len(child.fields) == 0:
+                if not child.fields:
                     del self.children[child_name]
 
     def is_field_allowed(self, name):
@@ -766,11 +766,11 @@ class PrimaryTable(MappingTable):
 
         if isinstance(name, list):
             name = '.'.join(name)
-        if len(self.definition['fields']) > 0 \
+        if self.definition['fields'] \
                 and name not in self.definition['fields'] \
                 and name not in [
-                    field.split('.')[0]
-                    for field in self.definition['fields']]:
+                        field.split('.')[0]
+                        for field in self.definition['fields']]:  # noqa
             # Definition does not specify this field
             return False
 
@@ -781,7 +781,7 @@ class PrimaryTable(MappingTable):
             # Definition explicitly excludes all calculations
             return False
 
-        if len(self.definition['calculations']) > 0 \
+        if self.definition['calculations'] \
                 and name not in self.definition['calculations']:
             # Definition does not specify this field
             return False
@@ -882,7 +882,7 @@ class PrimaryTable(MappingTable):
                 self.is_field_allowed,
                 field_presentations,
             )
-            if len(table.fields) > 0:
+            if table.fields:
                 self.children[field['id']] = table
 
             if field_presentations:
@@ -919,7 +919,7 @@ class PrimaryTable(MappingTable):
                 self.is_field_allowed,
                 field_presentations,
             )
-            if len(table.fields) > 0:
+            if table.fields:
                 self.children[field['id']] = table
 
             if field_presentations:

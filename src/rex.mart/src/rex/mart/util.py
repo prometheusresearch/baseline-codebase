@@ -162,6 +162,7 @@ class RequiredType(object):
     def __repr__(self):
         return 'REQUIRED'
 
+
 #: A flag value that indicates a parameter/property is required.
 REQUIRED = RequiredType()
 

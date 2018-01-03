@@ -2,6 +2,8 @@
 # Copyright (c) 2016, Prometheus Research, LLC
 #
 
+# pylint: disable=invalid-name
+
 
 project = 'rex.mart'
 html_title = "REX.MART Documentation"

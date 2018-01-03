@@ -249,7 +249,7 @@ class DefinitionMartApiLocation(MartApiLocation):
         )
         if marts is False:
             raise HTTPUnauthorized()
-        elif len(marts) == 0:
+        elif not marts:
             raise HTTPNotFound()
 
         if latest_or_index == 'latest':
@@ -279,6 +279,8 @@ class DefinitionMartApiLocation(MartApiLocation):
 
 
 class MartLocation(HandleLocation):
+    # pylint: disable=no-member
+
     def __init__(self, *args, **kwargs):
         super(MartLocation, self).__init__(*args, **kwargs)
         self.mart_access = MartAccessPermissions.top()
@@ -375,7 +377,6 @@ class SpecificMartLocation(MartLocation):
         return mart
 
     def split_url(self, request):
-        # pylint: disable=no-self-use
         idx = 6 + request.path_info[6:].index('/')
         return request.path_info[:idx], request.path_info[idx:]
 
@@ -402,7 +403,7 @@ class DefinitionMartLocation(MartLocation):
         )
         if marts is False:
             raise HTTPUnauthorized()
-        elif len(marts) == 0:
+        elif not marts:
             raise HTTPNotFound()
 
         if args.latest_or_index == 'latest':
@@ -413,7 +414,6 @@ class DefinitionMartLocation(MartLocation):
             return marts[args.latest_or_index - 1]
 
     def split_url(self, request):
-        # pylint: disable=no-self-use
         idx = 0
         hits = 4
         while idx >= 0 and hits > 1:

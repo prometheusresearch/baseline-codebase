@@ -16,6 +16,7 @@ setup(
     license='AGPLv3',
     classifiers=[
         'Programming Language :: Python :: 2.7',
+        'License :: OSI Approved :: GNU Affero General Public License v3',
     ],
     url='https://bitbucket.org/rexdb/rex.mart-provisional',
     package_dir={'': 'src'},

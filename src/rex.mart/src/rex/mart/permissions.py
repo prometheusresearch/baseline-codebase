@@ -125,8 +125,7 @@ class MartAccessPermissions(Extension):
         mart = Mart.from_record(data[0])
         if cls.user_can_access_mart(user, mart):
             return mart
-        else:
-            return False
+        return False
 
     @classmethod
     def get_marts_for_user(cls, user, definition_id=None):

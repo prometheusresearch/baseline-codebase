@@ -29,10 +29,3 @@ tests:
 - sh: npm install .
   cd: static/js
   ignore: true
-- sh: make lint
-  cd: static/js
-  ignore: true
-- sh: make test-cov
-  cd: static/js
-  ignore: true
-

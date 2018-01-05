@@ -9,7 +9,7 @@ TESTS         = \
                 lib/ui/base/__tests__/*-test.js
 MOCHA_OPTS    = --compilers js:babel-core/register --require babel-polyfill --require ./lib/__tests__/setup.js
 MOCHA         = NODE_ENV=test $(BIN)/mocha $(MOCHA_OPTS)
-COV_OPTS      = --check-coverage --require babel-polyfill --require babel-core/register --all --root lib
+COV_OPTS      = --require babel-polyfill --require babel-core/register --all --root lib
 COV           = NODE_ENV=test $(BIN)/nyc $(COV_OPTS) $(BIN)/_mocha --require ./lib/__tests__/setup.js
 
 test::

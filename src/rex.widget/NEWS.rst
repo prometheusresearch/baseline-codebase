@@ -2,7 +2,7 @@
   Change Log
 **************
 
-3.1.0 (2017-XX-XX)
+3.1.0 (2018-01-05)
 ==================
 
 * [FEAT] `withFetch` analog for `@Fetch` decorator which doesn't force to use

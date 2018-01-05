@@ -4,10 +4,11 @@
 
 .. contents:: Table of Contents
 
-6.3.0 (2017-XX-XX)
+6.3.0 (2018-01-05)
 ==================
 
 * rex.widget==3.1.0
+* rex.action==1.7.0
 * rex.core==1.16.2
 * rex.web==3.11.1
 * HTSQL==2.3.3.20171027

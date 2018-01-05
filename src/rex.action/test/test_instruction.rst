@@ -163,7 +163,7 @@ PathVal
 Nested lists::
 
   >>> parse_path("""
-  ... - home: [{pick-individual:}, {make-individual:}]
+  ... - home: [{pick-individual: []}, {make-individual: []}]
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Start(then=[Execute(id='home', action='home',
         then=[Execute(id='pick-individual', action='pick-individual', then=[], action_instance='pick-individual'),
@@ -171,7 +171,7 @@ Nested lists::
         action_instance='home')])
 
   >>> parse_path("""
-  ... - home: [{pick-individual:}, [{make-individual:}]]
+  ... - home: [{pick-individual: []}, [{make-individual: []}]]
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Start(then=[Execute(id='home', action='home',
         then=[Execute(id='pick-individual', action='pick-individual', then=[], action_instance='pick-individual'),
@@ -179,7 +179,7 @@ Nested lists::
         action_instance='home')])
 
   >>> parse_path("""
-  ... - home: [{pick-individual:}, [[{make-individual:}]]]
+  ... - home: [{pick-individual: []}, [[{make-individual: []}]]]
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Start(then=[Execute(id='home', action='home',
         then=[Execute(id='pick-individual', action='pick-individual', then=[], action_instance='pick-individual'),
@@ -187,7 +187,7 @@ Nested lists::
         action_instance='home')])
 
   >>> parse_path("""
-  ... - home: [[{pick-individual:}], [[{make-individual:}]]]
+  ... - home: [[{pick-individual: []}], [[{make-individual: []}]]]
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Start(then=[Execute(id='home', action='home',
         then=[Execute(id='pick-individual', action='pick-individual', then=[], action_instance='pick-individual'),

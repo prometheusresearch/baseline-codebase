@@ -6,7 +6,6 @@ import * as React from 'react';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import {assert, createRenderer, stub, spy} from 'rex-widget/testutils';
 
-import * as d from 'rex-widget/data';
 import Drop from '../Drop';
 
 describe('rex-action/actions', function() {

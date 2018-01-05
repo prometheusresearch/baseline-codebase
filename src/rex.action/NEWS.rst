@@ -4,7 +4,7 @@
 
 .. contents:: Table of Contents
 
-1.7.0 (2017-XX-XX)
+1.7.0 (2018-01-05)
 ==================
 
 * [FEAT] Add ``!resource pkg:/path`` constructor to allow referencing package

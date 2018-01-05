@@ -99,29 +99,6 @@ Action is validated by ``ActionVal`` as is::
   ... }))
   MyAction(...)
 
-Subclass constraints
---------------------
-
-::
-
-  >>> validate_another = ActionVal(action_class=AnotherAction)
-
-  >>> validate_another({
-  ...   'type': 'another',
-  ...   'id': 'id',
-  ... })
-  AnotherAction(...)
-
-  >>> validate_another({
-  ...   'type': 'my',
-  ...   'id': 'id',
-  ... }) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  Traceback (most recent call last):
-  ...
-  Error: action must be an instance of:
-      __main__.AnotherAction
-
-
 Constructing from YAML
 ----------------------
 

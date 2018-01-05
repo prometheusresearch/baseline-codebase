@@ -17,13 +17,11 @@ describe('rex-action/actions', function() {
       renderer = createRenderer();
       stub(global, 'setInterval').returns(1);
       stub(global, 'clearInterval');
-      stub(d, 'forceRefreshData');
     });
 
     afterEach(function() {
       global.setInterval.restore();
       global.clearInterval.restore();
-      d.forceRefreshData.restore();
     });
 
     it('renders', function() {

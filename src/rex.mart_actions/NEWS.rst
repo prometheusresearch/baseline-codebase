@@ -5,7 +5,7 @@ REX.MART_ACTIONS Change Log
 .. contents:: Table of Contents
 
 
-0.8.0 (2017-xx-xx)
+0.8.0 (2018-01-05)
 ==================
 
 * Added charting support to RexGuides.

@@ -4,6 +4,11 @@ REX.TABULAR_IMPORT Change Log
 
 .. contents:: Table of Contents
 
+0.4.0 (2018-01-05)
+==================
+
+- Multiple bug fixes
+
 
 0.3.1 (2017-06-20)
 ==================

@@ -78,20 +78,20 @@ in the database::
 
 If you specify a non-existant table, it will cause an error::
 
-    >>> ctl('tabular-import --project=rex.tabular_import_demo doesntexist ./demo/static/data/all_column_types.csv', expect=1)
+    >>> ctl('tabular-import --project=rex.tabular_import_demo doesntexist ./demo/static/data/all_column_types.csv', expect=1) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
     FATAL ERROR: No table named "doesntexist" exists
     <BLANKLINE>
 
 If you specify a non-existant file, it will cause an error::
 
-    >>> ctl('tabular-import --project=rex.tabular_import_demo all_column_types ./demo/static/data/doesntexist.csv', expect=1)
+    >>> ctl('tabular-import --project=rex.tabular_import_demo all_column_types ./demo/static/data/doesntexist.csv', expect=1) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
     FATAL ERROR: Could not open "./demo/static/data/doesntexist.csv" for reading: [Errno 2] No such file or directory: './demo/static/data/doesntexist.csv'
     <BLANKLINE>
 
 If there are records with problems, messages are printed describing those
 problems::
 
-    >>> ctl('tabular-import --project=rex.tabular_import_demo all_column_types ./demo/static/data/all_column_types_badformats.csv', expect=1)
+    >>> ctl('tabular-import --project=rex.tabular_import_demo all_column_types ./demo/static/data/all_column_types_badformats.csv', expect=1) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
     FATAL ERROR: Errors occurred while importing the records
         2: Failed to adapt value of enum_field to enum('foo', 'bar', 'baz'): 'blah'
         3: Failed to adapt value of json_field to json: '{'

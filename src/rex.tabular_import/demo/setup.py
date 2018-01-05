@@ -13,6 +13,7 @@ setup(
     namespace_packages=['rex'],
     install_requires=[
         'rex.tabular_import',
+        'rex.asynctask',
     ],
     rex_init='rex.tabular_import_demo',
     rex_static='static', )

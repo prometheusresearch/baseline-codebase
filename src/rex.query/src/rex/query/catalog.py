@@ -4,11 +4,16 @@
 
 
 from rex.deploy import label_to_title
+from htsql.core.error import Error as HTSQLError
 from htsql.core.model import HomeNode, TableArc, ColumnArc, ChainArc, SyntaxArc
 from htsql.core.classify import classify, relabel, localize
 from htsql.core.domain import (
         BooleanDomain, TextDomain, EnumDomain, RecordDomain, ListDomain,
-        Profile, Product, Record)
+        NullDomain, ContainerDomain, Profile, Product, Record)
+from htsql.core.syn.syntax import VoidSyntax
+from htsql.core.tr.bind import BindingState
+from htsql.core.tr.binding import RootBinding, LiteralRecipe
+from htsql.core.tr.lookup import prescribe
 from htsql.core.tr.decorate import decorate_void
 from htsql_rex_deploy.classify import get_meta
 
@@ -20,6 +25,23 @@ def profile(tag, domain):
     attributes['header'] = tag
     attributes['domain'] = domain
     return Profile(**attributes)
+
+
+def get_domain(entity_arc, field_arc):
+    try:
+        state = BindingState(RootBinding(VoidSyntax()))
+        recipe = prescribe(entity_arc, state.scope)
+        binding = state.use(recipe, state.scope.syntax)
+        state.push_scope(binding)
+        recipe = prescribe(field_arc, state.scope)
+        binding = state.use(recipe, state.scope.syntax)
+        domain = binding.domain
+    except HTSQLError:
+        domain = None
+    if isinstance(domain, (ContainerDomain, NullDomain)):
+        domain = None
+    return domain
+
 
 def produce_catalog(ignore_entities=None):
     column_domain = RecordDomain([
@@ -39,7 +61,7 @@ def produce_catalog(ignore_entities=None):
             profile(u'partial', BooleanDomain()),
             profile(u'plural', BooleanDomain()),
             profile(u'kind', EnumDomain(
-                [u'column', u'direct-link', u'indirect-link', u'calculation'])),
+                [u'column', u'direct-link', u'indirect-link'])),
             profile(u'column', column_domain),
             profile(u'link', link_domain)])
     field_record = Record.make(
@@ -92,7 +114,7 @@ def produce_catalog(ignore_entities=None):
             field_partial = not (field_arc.is_expanding)
             field_plural = not (field_arc.is_contracting)
             field_title = label_to_title(field_label)
-            field_kind = u'calculation'
+            field_kind = None
             field_column = None
             field_link = None
             if isinstance(field_arc, ColumnArc):
@@ -107,7 +129,7 @@ def produce_catalog(ignore_entities=None):
                 if isinstance(field_domain, EnumDomain):
                     field_enum = field_domain.labels
                 field_column = column_record((field_type, field_enum))
-            if isinstance(field_arc, ChainArc):
+            elif isinstance(field_arc, ChainArc):
                 field_kind = u'indirect-link'
                 if len(field_arc.joins) == 1:
                     join = field_arc.joins[0]
@@ -125,6 +147,19 @@ def produce_catalog(ignore_entities=None):
                         or link_inverse in ignore_entities:
                     continue
                 field_link = link_record((link_target, link_inverse))
+            else:
+                field_domain = get_domain(entity_arc, field_arc)
+                if field_domain is None:
+                    continue
+                field_plural = False
+                field_kind = u'column'
+                field_type = unicode(field_domain.__class__.__name__.lower())
+                if field_type.endswith(u'domain'):
+                    field_type = field_type[:-6]
+                field_enum = []
+                if isinstance(field_domain, EnumDomain):
+                    field_enum = field_domain.labels
+                field_column = column_record((field_type, field_enum))
             field = field_record((
                     field_label, field_title, field_public, field_partial,
                     field_plural, field_kind, field_column, field_link))

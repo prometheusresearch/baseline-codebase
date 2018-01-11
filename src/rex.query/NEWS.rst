@@ -4,6 +4,11 @@
 
 .. contents:: Table of Contents
 
+0.4.3 (2018-XX-XX)
+==================
+
+* Treat calculated fields as columns, if possible.
+
 0.4.2 (2018-01-05)
 ==================
 

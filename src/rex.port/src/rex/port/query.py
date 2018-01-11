@@ -11,6 +11,7 @@ from .constraint import ConstraintSet
 from .produce import produce, describe
 from .replace import replace
 from htsql_rex_port import named_ports
+from htsql.core.context import context
 from htsql.core.connect import transaction
 from htsql.core.fmt.accept import accept
 from htsql.core.fmt.emit import emit, emit_headers
@@ -39,6 +40,8 @@ class Port(object):
                 tree = grow(RootArm([]))
         self.tree = tree
         self.db = db
+        # This command cache is no longer used by rex.port,
+        # but we keep it because it is used by rex.mart.
         self._command_cache = {}
 
     def __str__(self):
@@ -102,8 +105,12 @@ class Port(object):
         with self.db:
             constraints = ConstraintSet.parse(*args, **kwds)
             with transaction():
+                command_cache = {}
+                session_properties = context.env.session_properties
+                if session_properties is not None:
+                    command_cache = session_properties
                 return replace(
-                        self.tree, old, new, constraints, self._command_cache)
+                        self.tree, old, new, constraints, command_cache)
 
     def insert(self, new):
         """

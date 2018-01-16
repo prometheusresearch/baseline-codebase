@@ -54,7 +54,7 @@
   },
   "dependencies": {
     "@prometheusresearch/react-datetimepicker": "^0.5.0",
-    "@prometheusresearch/react-ui": "^0.25.0",
+    "@prometheusresearch/react-ui": "^0.25.1",
     "base64-js": "^1.2.0",
     "color-hash": "^1.0.3",
     "create-react-class": "^15.5.2",

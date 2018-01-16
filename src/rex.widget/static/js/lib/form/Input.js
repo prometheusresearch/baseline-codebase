@@ -14,9 +14,7 @@ import * as css from '../../css';
  * @public
  */
 export default class Input extends React.Component {
-
   static propTypes = {
-
     /**
      * Render in error state.
      */
@@ -25,11 +23,11 @@ export default class Input extends React.Component {
     /**
      * Input's DOM type.
      */
-    type: React.PropTypes.string
+    type: React.PropTypes.string,
   };
 
   static defaultProps = {
-    type: 'text'
+    type: 'text',
   };
 
   static stylesheet = stylesheet.create({
@@ -45,14 +43,14 @@ export default class Input extends React.Component {
       backgroundImage: css.none,
       border: css.border(1, '#ccc'),
       borderRadius: 2,
-      boxShadow: css.insetBoxShadow(0, 1, 1, css.rgba(0, 0,0 , 0.075)),
+      boxShadow: css.insetBoxShadow(0, 1, 1, css.rgba(0, 0, 0, 0.075)),
       transition: 'border-color ease-in-out .15s,box-shadow ease-in-out .15s',
       error: {
         border: css.border(1, 'red'),
       },
       focus: {
         border: css.border(1, '#888'),
-        boxShadow: css.insetBoxShadow(0, 1, 1, css.rgba(0, 0,0 , 0.075)),
+        boxShadow: css.insetBoxShadow(0, 1, 1, css.rgba(0, 0, 0, 0.075)),
         outline: css.none,
       },
       noBorder: {
@@ -62,24 +60,23 @@ export default class Input extends React.Component {
         },
         error: {
           border: css.none,
-        }
-      }
-    })
+        },
+      },
+    }),
   });
 
   render() {
     let {error, variant, ...props} = this.props;
     let {Root} = this.constructor.stylesheet;
     return (
-      <Root
-        {...this.props}
-        variant={{...variant, error}}
-        onChange={this.onChange}
-        />
+      <Root {...this.props} variant={{...variant, error}} onChange={this.onChange} />
     );
   }
 
-  onChange = (value) => {
+  onChange = value => {
+    if (value != null) {
+      value = value.trim();
+    }
     if (value === '' || value === undefined) {
       value = null;
     }

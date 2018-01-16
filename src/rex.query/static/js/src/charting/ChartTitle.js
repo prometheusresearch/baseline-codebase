@@ -104,7 +104,7 @@ export default class ChartTitle extends React.Component<
       <g>
         {onChange &&
           <foreignObject x="0" y="0" width="60" height="60">
-            <div style={{padding: 3}}>
+            <div style={{padding: 3}} className="hide-for-export">
               <ReactUI.QuietButton
                 onClick={this.onEditStart}
                 size="small"

@@ -118,8 +118,23 @@ export default class Chart extends React.Component<ChartProps> {
     if (this._chart != null) {
       const element = findDOMNode(this._chart);
       const svgElement = findChartElement(element);
+
       if (svgElement != null) {
+        const hideForExport = svgElement.querySelectorAll('.hide-for-export');
+
+        // hide elements tagged with .hide-for-export
+        const display = [];
+        hideForExport.forEach((node, idx) => {
+          display[idx] = node.style.display;
+          node.style.display = 'none';
+        });
+
         SVG.rasterizeElement(svgElement, {font: EXPORT_FONT}).then(data => {
+          // restore visibility of elements tagged with .hide-for-export
+          hideForExport.forEach((node, idx) => {
+            node.style.display = display[idx];
+          });
+
           if (data != null) {
             Fetch.initiateDownloadFromBlob(data, 'chart.png', 'image/png');
           }

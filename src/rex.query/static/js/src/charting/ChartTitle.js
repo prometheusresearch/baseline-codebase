@@ -4,7 +4,7 @@
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import {HBox} from 'react-stylesheet';
+import {HBox, Element} from 'react-stylesheet';
 import * as recharts from 'recharts';
 import * as ReactUI from '@prometheusresearch/react-ui';
 import Tether from 'tether';
@@ -29,7 +29,12 @@ const TETHER_CONFIG = {
 
 type OnChange = string => *;
 
-type ChartTitleProps = {left: string | number, value: string, onChange?: ?OnChange};
+type ChartTitleProps = {
+  width: number,
+  left: string | number,
+  value: string,
+  onChange?: ?OnChange,
+};
 type ChartTitleState = {value: ?string};
 
 export default class ChartTitle extends React.Component<
@@ -98,51 +103,46 @@ export default class ChartTitle extends React.Component<
   };
 
   render() {
-    const {left, value, onChange} = this.props;
+    const {left, width, value, onChange} = this.props;
     const edit = this.state.value != null;
     return (
       <g>
-        {onChange &&
-          <foreignObject x="0" y="0" width="60" height="60">
-            <div style={{padding: 3}} className="hide-for-export">
-              <ReactUI.QuietButton
-                onClick={this.onEditStart}
-                size="small"
-                icon={<ui.Icon.IconPencil />}
-              />
-            </div>
-          </foreignObject>}
-        <recharts.Text
-          x={parseInt(left, 10)}
-          y={20}
-          textAnchor="middle"
-          style={{fontWeight: 200, fontSize: '13pt'}}>
-          {value}
-        </recharts.Text>
-        {edit &&
-          <Layer
-            didUpdate={this._layerDidUpdate}
-            willUnmount={this._layerWillUnmount}
-            didMount={this._layerDidMount}>
-            <HBox width={600} padding={2} ref={this.onInput}>
-              <ReactUI.Input
-                style={{marginRight: 5}}
-                value={this.state.value}
-                onChange={this.onChange}
-                onKeyDown={this.onKeyDown}
-              />
-              <ReactUI.QuietButton
-                onClick={this.onEditCommit}
-                size="small"
-                icon={<ui.Icon.IconCheck />}
-              />
-              <ReactUI.QuietButton
-                onClick={this.onEditCancel}
-                size="small"
-                icon={<ui.Icon.IconClose />}
-              />
-            </HBox>
-          </Layer>}
+        <foreignObject x={100 / 2} y="0" width={width - 100} height="100">
+          <Element position="relative">
+            {!edit
+              ? <Element textAlign="center" fontWeight="200" fontSize="14pt">
+                  {value}
+                </Element>
+              : <HBox width={width - 100} padding={2} ref={this.onInput}>
+                  <ReactUI.Input
+                    style={{marginRight: 5}}
+                    value={this.state.value}
+                    onChange={this.onChange}
+                    onKeyDown={this.onKeyDown}
+                  />
+                  <ReactUI.QuietButton
+                    onClick={this.onEditCommit}
+                    size="small"
+                    icon={<ui.Icon.IconCheck />}
+                  />
+                  <ReactUI.QuietButton
+                    onClick={this.onEditCancel}
+                    size="small"
+                    icon={<ui.Icon.IconClose />}
+                  />
+                </HBox>}
+            {onChange &&
+              <div
+                style={{padding: 3, position: 'absolute', top: 0, left: -50}}
+                className="hide-for-export">
+                <ReactUI.QuietButton
+                  onClick={this.onEditStart}
+                  size="small"
+                  icon={<ui.Icon.IconPencil />}
+                />
+              </div>}
+          </Element>
+        </foreignObject>
       </g>
     );
   }

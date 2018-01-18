@@ -27,17 +27,17 @@ export default function LineChart({
   } else if (data == null) {
     rendered = <NoDataMessage />;
   } else if (chart.labelColumn != null && chart.lineList.length > 0) {
-    console.log(data, chart);
+    const width = 600;
     rendered = (
       <recharts.LineChart
         key={getLineChartKey(chart)}
         data={data}
-        width={600}
+        width={width}
         height={400}
         style={{fontWeight: 200, fontSize: '9pt'}}
-        margin={{top: 50, right: 30, left: 20, bottom: 5}}>
+        margin={{top: 100, right: 30, left: 20, bottom: 5}}>
         <g>
-          <ChartTitle left={300} value={label} onChange={onLabel} />
+          <ChartTitle width={width} left={300} value={label} onChange={onLabel} />
         </g>
         <recharts.XAxis dataKey={String(chart.labelColumn)} name={chart.label} />
         <recharts.YAxis />

@@ -120,9 +120,12 @@ export default class PieChart extends React.Component<PieChartProps> {
       const width = 600;
       const height = 400;
       rendered = (
-        <recharts.PieChart width={width} height={height}>
+        <recharts.PieChart
+          width={width}
+          height={height}
+          margin={{top: 100, left: 0, right: 0, bottom: 0}}>
           <g>
-            <ChartTitle left="300" value={label} onChange={onLabel} />
+            <ChartTitle width={width} left="300" value={label} onChange={onLabel} />
           </g>
           <recharts.Pie
             isAnimationActive={false}

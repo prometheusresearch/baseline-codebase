@@ -27,16 +27,17 @@ export default function BarChart({
   } else if (data == null) {
     rendered = <NoDataMessage />;
   } else if (chart.labelColumn != null && chart.barList.length > 0) {
+    const width = 600;
     rendered = (
       <recharts.BarChart
         key={getBarChartKey(chart)}
         data={data}
-        width={600}
+        width={width}
         height={400}
         style={{fontWeight: 200, fontSize: '9pt'}}
-        margin={{top: 50}}>
+        margin={{top: 100}}>
         <g>
-          <ChartTitle left={300} value={label} onChange={onLabel} />
+          <ChartTitle width={width} left={300} value={label} onChange={onLabel} />
         </g>
         <recharts.XAxis dataKey={String(chart.labelColumn)} name={chart.label} />
         <recharts.YAxis />

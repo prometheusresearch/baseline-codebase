@@ -107,40 +107,44 @@ export default class ChartTitle extends React.Component<
     const edit = this.state.value != null;
     return (
       <g>
-        <foreignObject x={100 / 2} y="0" width={width - 100} height="100">
-          <Element position="relative">
-            {!edit
-              ? <Element textAlign="center" fontWeight="200" fontSize="14pt">
-                  {value}
-                </Element>
-              : <HBox width={width - 100} padding={2} ref={this.onInput}>
-                  <ReactUI.Input
-                    style={{marginRight: 5}}
-                    value={this.state.value}
-                    onChange={this.onChange}
-                    onKeyDown={this.onKeyDown}
-                  />
-                  <ReactUI.QuietButton
-                    onClick={this.onEditCommit}
-                    size="small"
-                    icon={<ui.Icon.IconCheck />}
-                  />
-                  <ReactUI.QuietButton
-                    onClick={this.onEditCancel}
-                    size="small"
-                    icon={<ui.Icon.IconClose />}
-                  />
-                </HBox>}
-            {onChange &&
-              <div
-                style={{padding: 3, position: 'absolute', top: 0, left: -50}}
-                className="hide-for-export">
-                <ReactUI.QuietButton
-                  onClick={this.onEditStart}
-                  size="small"
-                  icon={<ui.Icon.IconPencil />}
-                />
-              </div>}
+        <foreignObject x="0" y="0" width={width} height="100">
+          <Element>
+            <Element marginLeft={50} width={width - 100}>
+              <Element position="relative">
+                {!edit
+                  ? <Element textAlign="center" fontWeight={200} fontSize="14pt">
+                      {value}
+                    </Element>
+                  : <HBox width={width - 100} padding={2} ref={this.onInput}>
+                      <ReactUI.Input
+                        style={{marginRight: 5}}
+                        value={this.state.value}
+                        onChange={this.onChange}
+                        onKeyDown={this.onKeyDown}
+                      />
+                      <ReactUI.QuietButton
+                        onClick={this.onEditCommit}
+                        size="small"
+                        icon={<ui.Icon.IconCheck />}
+                      />
+                      <ReactUI.QuietButton
+                        onClick={this.onEditCancel}
+                        size="small"
+                        icon={<ui.Icon.IconClose />}
+                      />
+                    </HBox>}
+                {onChange &&
+                  <div
+                    style={{padding: 3, position: 'absolute', top: 0, left: -50}}
+                    className="hide-for-export">
+                    <ReactUI.QuietButton
+                      onClick={this.onEditStart}
+                      size="small"
+                      icon={<ui.Icon.IconPencil />}
+                    />
+                  </div>}
+              </Element>
+            </Element>
           </Element>
         </foreignObject>
       </g>

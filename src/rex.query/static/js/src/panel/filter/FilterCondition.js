@@ -71,7 +71,7 @@ export default class FilterCondition extends React.Component<
       }));
       chooseOperandType = operandFields.length > 0;
 
-      if (chooseOperandType && operandIsField && operandName) {
+      if (chooseOperandType && operandIsField) {
         operandComponent = (
           <Select
             value={operandName}
@@ -241,9 +241,9 @@ export default class FilterCondition extends React.Component<
   };
 
   onOperandValueChange = (newOperand: *) => {
-    invariant(!Array.isArray(newOperand), 'did not expect an array');
     this.setState(
       {
+        // $FlowFixMe: this is ok, but should be fixed at typelevel
         operandName: newOperand,
       },
       () => this.updateQuery(),

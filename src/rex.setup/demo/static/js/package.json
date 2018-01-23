@@ -6,7 +6,7 @@
     "style": "./lib/index.less"
   },
   "peerDependencies": {
-    "jquery": "*",
-    "bootstrap": "*"
+    "jquery": "3.3.1",
+    "bootstrap": "3.3.7"
   }
 }

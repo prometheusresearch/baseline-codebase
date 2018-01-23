@@ -5,7 +5,7 @@
 .. contents:: Table of Contents
 
 
-1.3.2 (2018-01-XX)
+1.3.2 (2018-01-23)
 ==================
 
 * Disable global caching of prepared CRUD commands because it interferes with

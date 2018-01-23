@@ -4,6 +4,11 @@
 
 .. contents:: Table of Contents
 
+4.1.2 (2017-09-15)
+==================
+
+* [FIX] Test failure due to unconstrained deps.
+
 4.1.1 (2017-09-15)
 ==================
 

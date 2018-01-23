@@ -30,11 +30,11 @@ tests:
   # Install rex.setup_demo; verify layout and egg-info files.
   - sh: ./bin/pip install -q ./src/rex.setup_demo
     cd: sandbox
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-4.1.1-py2.7.egg-info/rex_init.txt
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-4.1.1-py2.7.egg-info/rex_static.txt
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-4.1.2-py2.7.egg-info/rex_init.txt
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-4.1.2-py2.7.egg-info/rex_static.txt
     ignore: &ignore-prefix |
       /(.*)/sandbox/
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-4.1.1-py2.7.egg-info/rex_bundle.txt
+  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-4.1.2-py2.7.egg-info/rex_bundle.txt
   - sh: ls -R ./lib/python2.7/site-packages/rex
     environ: { LC_ALL: C }
     cd: sandbox
@@ -101,11 +101,11 @@ tests:
   # Build source distribution for rex.setup_demo; verify content.
   - sh: ../../bin/python setup.py -q sdist --format=zip
     cd: ./sandbox/src/rex.setup_demo
-  - sh: unzip -q ./src/rex.setup_demo/dist/rex.setup_demo-4.1.1.zip
+  - sh: unzip -q ./src/rex.setup_demo/dist/rex.setup_demo-4.1.2.zip
     cd: sandbox
-  - sh: sh -c "find './rex.setup_demo-4.1.1'
+  - sh: sh -c "find './rex.setup_demo-4.1.2'
         -type d -not
-        -wholename './rex.setup_demo-4.1.1/static/www/bundle/*' | sort | while read dir; do
+        -wholename './rex.setup_demo-4.1.2/static/www/bundle/*' | sort | while read dir; do
           echo === $dir ===;
           ls $dir | sort;
         done"
@@ -128,7 +128,7 @@ tests:
   # Build a wheel package for rex.setup_demo; install it and verify content.
   - sh: ../../bin/python setup.py -q bdist_wheel
     cd: ./sandbox/src/rex.setup_demo
-  - sh: ./bin/pip install -q ./src/rex.setup_demo/dist/rex.setup_demo-4.1.1-py2-none-any.whl
+  - sh: ./bin/pip install -q ./src/rex.setup_demo/dist/rex.setup_demo-4.1.2-py2-none-any.whl
     cd: sandbox
   - sh: ls ./lib/python2.7/site-packages/rex
     environ: { LC_ALL: C }

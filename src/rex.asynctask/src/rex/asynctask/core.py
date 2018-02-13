@@ -70,8 +70,8 @@ def process_queue(queue_name, worker_name=None, quiet=False):
 
     if worker_name is None:
         for cfg_queue, cfg_worker in get_settings().asynctask_workers.items():
-            if queue_name == cfg_queue:
-                worker_name = cfg_worker
+            if queue_name == cfg_queue and cfg_worker:
+                worker_name = cfg_worker.worker
                 break
         else:
             raise Error(
@@ -100,7 +100,7 @@ def run_worker(worker_name, queue_name=None, quiet=False):
 
     if queue_name is None:
         for cfg_queue, cfg_worker in get_settings().asynctask_workers.items():
-            if worker_name == cfg_worker:
+            if cfg_worker and worker_name == cfg_worker.worker:
                 queue_name = cfg_queue
                 break
         else:

@@ -17,26 +17,31 @@ This setting configures the workers that watch queues for tasks to process::
     >>> rex = Rex('rex.asynctask_demo')
     >>> with rex:
     ...     print repr(get_settings().asynctask_workers)
-    {'foo': 'demo_foo_worker'}
+    {'foo': Record(worker='demo_foo_worker', rate_max_calls=None, rate_period=None)}
 
-    >>> rex = Rex('rex.asynctask_demo', asynctask_workers={'some_queue': 'demo_bar_worker'})
+    >>> rex = Rex('rex.asynctask_demo', asynctask_workers={'some_queue': {'worker': 'demo_bar_worker', 'rate_max_calls': 10}})
     >>> with rex:
     ...     print repr(get_settings().asynctask_workers)
-    {'some_queue': 'demo_bar_worker', 'foo': 'demo_foo_worker'}
+    {'some_queue': Record(worker='demo_bar_worker', rate_max_calls=10, rate_period=None), 'foo': Record(worker='demo_foo_worker', rate_max_calls=None, rate_period=None)}
 
     >>> rex = Rex('rex.asynctask_demo', asynctask_workers={'foo': None, 'some_queue': 'demo_bar_worker'})
     >>> with rex:
     ...     print repr(get_settings().asynctask_workers)
-    {'some_queue': 'demo_bar_worker', 'foo': None}
+    {'some_queue': Record(worker='demo_bar_worker', rate_max_calls=None, rate_period=None), 'foo': None}
 
 
     >>> rex = Rex('rex.asynctask_demo', asynctask_workers={'some_queue': 'doesntexist'})
     Traceback (most recent call last):
         ...
-    Error: Expected one of:
-        demo_fragile_worker, ctl_executor, demo_bar_worker, demo_foo_worker, demo_logging_worker, demo_error_worker, demo_quiet_worker, requeue_worker, demo_baz_worker
-    Got:
-        'doesntexist'
+    Error: Failed to match the value against any of the following:
+        Expected one of:
+            demo_fragile_worker, ctl_executor, demo_bar_worker, demo_foo_worker, demo_logging_worker, demo_error_worker, demo_quiet_worker, requeue_worker, demo_baz_worker
+        Got:
+            'doesntexist'
+    <BLANKLINE>
+        Expected a JSON object
+        Got:
+            'doesntexist'
     While validating mapping value for key:
         'some_queue'
     While validating setting:

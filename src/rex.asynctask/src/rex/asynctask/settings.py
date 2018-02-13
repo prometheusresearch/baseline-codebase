@@ -4,7 +4,7 @@
 
 
 from rex.core import Setting, MapVal, StrVal, ChoiceVal, IntVal, MaybeVal, \
-    RecordVal, SeqVal, OneOfVal, Error, guard
+    RecordVal, SeqVal, OneOfVal, Error, guard, DateTimeVal, FloatVal
 
 from .worker import AsyncTaskWorker
 
@@ -35,8 +35,23 @@ class AsyncTaskTransportSetting(Setting):
 class AsyncTaskWorkersSetting(Setting):
     """
     A mapping that dictates the operation of the ``asynctask-workers`` rex.ctl
-    task. This maps queue names to the names of implementations of
-    ``AsyncTaskWorker``.
+    task. This maps queue names to the worker that should process the tasks
+    found in the queue. The value of each of the mappings can either be a
+    string which is the name of an implementation of ``AsyncTaskWorker``, or a
+    mapping that includes the following properties:
+
+        worker
+            The name of an implementation of ``AsyncTaskWorker`` that should
+            process the tasks. Required.
+
+        rate_max_calls
+            An integer indicating the maximum number of tasks that can should
+            be processed over the time period specified by ``rate_period``.
+            Optional.
+
+        rate_period
+            A float indicating the number of seconds the rate limiter logic
+            should measure over. Optional.
 
     If not specified, defaults to ``{}``.
 
@@ -50,11 +65,23 @@ class AsyncTaskWorkersSetting(Setting):
     default = {}
 
     def validate(self, value):
+        worker_val = ChoiceVal(AsyncTaskWorker.mapped().keys())
+        config_val = RecordVal(
+            ('worker', worker_val),
+            ('rate_max_calls', IntVal(1), None),
+            ('rate_period', FloatVal(), None),
+        )
         validator = MapVal(
             StrVal(),
-            MaybeVal(ChoiceVal(AsyncTaskWorker.mapped().keys())),
+            MaybeVal(OneOfVal(worker_val, config_val)),
         )
-        return validator(value)
+
+        value = validator(value)
+        for key in value:
+            if isinstance(value[key], basestring):
+                value[key] = config_val({'worker': value[key]})
+
+        return value
 
     def merge(self, old_value, new_value):
         map_val = MapVal()
@@ -90,10 +117,6 @@ class AsyncWorkersCheckChildrenIntervalSetting(Setting):
     name = 'asynctask_workers_check_child_interval'
     validate = IntVal(min_bound=1)
     default = 1000
-
-
-RE_DATETIME = r'^([0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])' \
-    r'T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])'
 
 
 class AsyncTaskScheduledWorkersSetting(Setting):
@@ -148,8 +171,8 @@ class AsyncTaskScheduledWorkersSetting(Setting):
             ('hour', OneOfVal(IntVal(0, 23), StrVal()), None),
             ('minute', OneOfVal(IntVal(0, 59), StrVal()), None),
             ('second', OneOfVal(IntVal(0, 59), StrVal()), None),
-            ('start_date', StrVal(RE_DATETIME), None),
-            ('end_date', StrVal(RE_DATETIME), None),
+            ('start_date', DateTimeVal(), None),
+            ('end_date', DateTimeVal(), None),
         ))
         value = validator(value)
 

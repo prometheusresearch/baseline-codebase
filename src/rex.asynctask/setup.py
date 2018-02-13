@@ -37,6 +37,7 @@ setup(
         'HTSQL>=2.3.3,<3',
         'psycopg2',
         'apscheduler>=3.3,<4',
+        'ratelimiter>=1.2,<2',
         'filelock>=2.0.8,<2.1',
         'kombu>=4.1,<5',
     ],

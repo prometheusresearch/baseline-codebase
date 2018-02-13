@@ -102,7 +102,7 @@ class AsyncTaskWorkerTask(RexTask):
                             )
                             self.build_worker(
                                 queue_name,
-                                worker_config[queue_name],
+                                worker_config[queue_name].worker,
                             )
 
                     time.sleep(check_interval)
@@ -112,9 +112,9 @@ class AsyncTaskWorkerTask(RexTask):
         self.logger.info('Complete')
 
     def initialize_workers(self, worker_config, scheduled_worker_config):
-        for queue_name, worker_name in worker_config.items():
-            if worker_name:
-                self.build_worker(queue_name, worker_name)
+        for queue_name, worker_cfg in worker_config.items():
+            if worker_cfg:
+                self.build_worker(queue_name, worker_cfg.worker)
 
         for schedule in scheduled_worker_config:
             self.build_worker(

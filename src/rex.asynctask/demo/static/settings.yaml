@@ -3,19 +3,26 @@ db: pgsql:asynctask_demo
 asynctask_transport: pgsql:asynctask_demo
 
 asynctask_workers:
-  foo: demo_foo_worker
+  foo:
+    worker: demo_foo_worker
+    #rate_max_calls: 5
+    #rate_period: 5
 
 asynctask_scheduled_workers: []
 
 logging_root:
   level: DEBUG
-#  handlers: [console, file]
+  #handlers: [detailed_console, file]
 
-#logging_handlers:
-#  file:
-#    class: logging.FileHandler
-#    filename: test.log
-#    formatter: detailed
+logging_handlers:
+  file:
+    class: logging.FileHandler
+    filename: test.log
+    formatter: detailed
+  detailed_console:
+    class: logging.StreamHandler
+    formatter: detailed
+    stream: ext://sys.stdout
 
 logging_loggers:
   amqp:

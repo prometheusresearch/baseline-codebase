@@ -5,6 +5,8 @@
 
 import time
 
+from ratelimiter import RateLimiter
+
 from rex.core import Extension, get_settings
 from rex.logging import get_logger
 
@@ -14,6 +16,14 @@ from .core import get_transport
 __all__ = (
     'AsyncTaskWorker',
 )
+
+
+class NoOpLimiter(object):
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        pass
 
 
 class AsyncTaskWorker(Extension):
@@ -50,9 +60,11 @@ class AsyncTaskWorker(Extension):
         self._queue_name = queue_name
 
         sleep_duration = self.get_poll_interval() / 1000.0
+        limiter = self.get_limiter()
 
         while not check_for_termination(conn):
-            payload = self._transport.get_task(queue_name)
+            with limiter:
+                payload = self._transport.get_task(queue_name)
             if payload is not None:
                 self.logger.debug('Got payload: %r', payload)
                 try:
@@ -75,6 +87,33 @@ class AsyncTaskWorker(Extension):
         self._queue_name = None
         self._transport = None
         self.logger.info('Terminating')
+
+    def _throttled(self, until):
+        self.logger.debug(
+            'Rate limited on queue %s, sleeping for %f seconds',
+            self._queue_name,
+            until - time.time(),
+        )
+
+    def get_limiter(self):
+        """
+        Returns a ContextManager that is responsible for performing any
+        necessary rate limiting logic.
+
+        :rtype: ContextManager
+        """
+
+        cfg = get_settings().asynctask_workers.get(self._queue_name)
+        if not cfg \
+                or cfg.rate_max_calls is None \
+                or cfg.rate_period is None:
+            return NoOpLimiter()
+
+        return RateLimiter(
+            max_calls=cfg.rate_max_calls,
+            period=cfg.rate_period,
+            callback=self._throttled,
+        )
 
     def get_poll_interval(self):
         """

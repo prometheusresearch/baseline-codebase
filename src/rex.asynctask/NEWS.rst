@@ -11,6 +11,7 @@ REX.ASYNCTASK Change Log
 * Typo in dependency metadata.
 * Added an ``AmqpAsyncTransport`` for using AMQP servers to manage the task
   queues.
+* Added the ability to configure processing rate limits on a per-queue basis.
 
 
 0.6.0 (2017-06-20)

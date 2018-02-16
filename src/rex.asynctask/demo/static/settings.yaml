@@ -14,15 +14,15 @@ logging_root:
   level: DEBUG
   #handlers: [detailed_console, file]
 
-logging_handlers:
-  file:
-    class: logging.FileHandler
-    filename: test.log
-    formatter: detailed
-  detailed_console:
-    class: logging.StreamHandler
-    formatter: detailed
-    stream: ext://sys.stdout
+#logging_handlers:
+#  file:
+#    class: logging.FileHandler
+#    filename: test.log
+#    formatter: detailed
+#  detailed_console:
+#    class: logging.StreamHandler
+#    formatter: detailed
+#    stream: ext://sys.stdout
 
 logging_loggers:
   amqp:

@@ -1,0 +1,25 @@
+syntax: glob
+.*.sw?
+*.orig
+*.pyc
+*.pyo
+*.egg-info
+build
+dist
+node_modules
+static/js/.sandbox
+static/www/bundle
+static/www/doc
+static/www/handbook
+static/www/ravenjs
+syntax: regexp
+^[^/]+.yaml$
+^.env$
+^bin/
+^data/
+^include/
+^lib/
+^local/
+^pip-selfcheck.json$
+^run/
+^share/

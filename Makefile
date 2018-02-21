@@ -34,3 +34,5 @@ test-npm::
 
 test:: test-pbbt test-npm
 
+ci:: bootstrap-local test
+

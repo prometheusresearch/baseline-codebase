@@ -1,0 +1,51 @@
+version: "3.3"
+services:
+  postgres:
+    image: postgres:9
+    volumes:
+      - type: volume
+        source: pgdata
+        target: /var/lib/postgresql/data
+  develop:
+    image: rexdb/develop:latest
+    volumes:
+      - type: bind
+        source: .
+        target: /repo
+        read_only: true
+      - type: volume
+        source: appenv
+        target: /app
+      - type: volume
+        source: appdata
+        target: /app/data
+      - type: volume
+        source: apprun
+        target: /app/run
+    links:
+      - postgres
+    environment:
+      - PGHOST
+      - PGUSER
+  nginx:
+    image: nginx:stable-perl
+    command: [nginx, -g, 'daemon off; load_module /etc/nginx/modules/ngx_http_perl_module.so; env REMOTE_USER;']
+    ports:
+      - ${HTTP_PORT}:80
+    volumes:
+      - type: bind
+        source: ./etc/nginx.conf.d
+        target: /etc/nginx/conf.d
+        read_only: true
+      - type: volume
+        source: apprun
+        target: /run/app
+    links:
+      - develop
+    environment:
+      - REMOTE_USER
+volumes:
+  appenv:
+  appdata:
+  apprun:
+  pgdata:

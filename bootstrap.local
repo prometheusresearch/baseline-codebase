@@ -1,0 +1,8 @@
+virtualenv -q --system-site-packages .
+
+mkdir -p ./data/attach
+mkdir -p ./run
+ln -sf ./run/socket ./socket    # compatibility with dev.rexdb.us
+
+./bin/pip -q install -e src/rex.setup/
+./bin/pip -q install -r requirements.txt

@@ -25,7 +25,7 @@ setup(
         'rex.core>=1.14,<2',
         'rex.db>=3.4,<4',
         'rex.deploy>=2.7,<3',
-        'rex.asynctask>=0.6,<0.7',
+        'rex.asynctask>=0.6,<0.8',
         'rex.logging>=1,<2',
     ],
     rex_init='rex.job',

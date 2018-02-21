@@ -1,3 +1,4 @@
+-r dev_requirements.txt
 -e ./src/htsql
 -e ./src/rex.setup
 -e ./src/rex.core

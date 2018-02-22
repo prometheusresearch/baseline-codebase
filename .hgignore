@@ -7,8 +7,6 @@ syntax: glob
 build
 dist
 node_modules
-.Python
-socket
 
 syntax: regexp
 ^[^/]+.yaml$
@@ -21,6 +19,9 @@ syntax: regexp
 ^pip-selfcheck.json$
 ^run/
 ^share/
+^socket$
+^\.Python$
+demo/static/js/yarn.lock$
 
 subinclude:src/htsql/.hgignore
 subinclude:src/rex.setup/.hgignore

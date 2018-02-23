@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.job',
-    version='0.1.0',
+    version='0.2.0',
     description='A user-oriented background job management tool.',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',

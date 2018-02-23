@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.job_demo',
-    version='0.1.0',
+    version='0.2.0',
     description='Demo package for testing rex.job',
     package_dir={'': 'src'},
     packages=find_packages('src'),

@@ -26,6 +26,13 @@ HTSQL_GET_NEW = '''
     )
 '''
 
+HTSQL_CHECK_RUNNING = '''
+/count(job.filter(
+    type = $job_type
+    & status = {'started', 'queued'}
+))
+'''
+
 HTSQL_UPDATE_NEW = '''
 /job[$job]{
         id(),
@@ -50,12 +57,21 @@ class JobQueuerWorker(AsyncTaskWorker):
 
         queue_num = 0
         for job in database.produce(HTSQL_GET_NEW):
+            if job.type in get_settings().job_limits:
+                max_concurrency = get_settings() \
+                    .job_limits[job.type]['max_concurrency']
+                if max_concurrency is not None:
+                    num_type_running = database.produce(
+                        HTSQL_CHECK_RUNNING,
+                        job_type=job.type,
+                    )[0]
+                    if num_type_running >= max_concurrency:
+                        continue
+
             transport.submit_task(
                 'rex_job_%s' % queue_num,
                 {'code': job.code},
             )
-
             database.produce(HTSQL_UPDATE_NEW, job=job.code)
-
             queue_num = (queue_num + 1) % get_settings().job_queues
 

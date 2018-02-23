@@ -8,7 +8,7 @@ Set up the environment::
     >>> from rex.core import Rex
     >>> from rex.db import get_db
 
-    >>> rex = Rex('rex.job_demo', job_max_age=0)
+    >>> rex = Rex('rex.job_demo', job_max_age=0, job_limits={'demo_fast': {'max_concurrency': 1}, 'demo_slow': {}})
     >>> rex.on()
 
     >>> def add_job(job_type, payload):
@@ -49,6 +49,8 @@ Add some jobs to the table::
     Job #3: status=new, type=demo_fragile, dates=Submitted
     >>> add_job('doesntexist', {})
     Job #4: status=new, type=doesntexist, dates=Submitted
+    >>> add_job('demo_fast', {})
+    Job #5: status=new, type=demo_fast, dates=Submitted
 
 
 Run the Queuer so that the jobs are sent to ``rex.asynctask``::
@@ -56,12 +58,13 @@ Run the Queuer so that the jobs are sent to ``rex.asynctask``::
     >>> from rex.job import JobQueuerWorker
 
     >>> JobQueuerWorker().process({})
-    >>> for x in range(1,5):
+    >>> for x in range(1,6):
     ...     show_job(x)
     Job #1: status=queued, type=demo_fast, dates=Submitted
     Job #2: status=queued, type=demo_slow, dates=Submitted
     Job #3: status=queued, type=demo_fragile, dates=Submitted
     Job #4: status=queued, type=doesntexist, dates=Submitted
+    Job #5: status=new, type=demo_fast, dates=Submitted
 
 
 Process the tasks::
@@ -104,27 +107,39 @@ Process the tasks::
     Job #4: status=failed, detail="Unknown Job Type", type=doesntexist, dates=Submitted,Started,Completed
 
     >>> show_job(5)
-    Job #5 Not Found
-    >>> JobExecutorWorker().process({'code': 5})
-    INFO:JobExecutorWorker:Processing Job #5
-    WARNING:JobExecutorWorker:Job #5 not found; bailing
+    Job #5: status=new, type=demo_fast, dates=Submitted
+    >>> show_job(6)
+    Job #6 Not Found
+    >>> JobExecutorWorker().process({'code': 6})
+    INFO:JobExecutorWorker:Processing Job #6
+    WARNING:JobExecutorWorker:Job #6 not found; bailing
 
 
 Clean up::
 
     >>> from rex.job import JobCleanupWorker
 
-    >>> add_job('demo_fast', {'foo': 'bar'})
-    Job #5: status=new, type=demo_fast, dates=Submitted
-
-    >>> JobCleanupWorker().process({})
+    >>> JobQueuerWorker().process({})
     >>> for x in range(1,6):
     ...     show_job(x)
     Job #1: status=completed, type=demo_fast, dates=Submitted,Started,Completed
     Job #2: status=completed, type=demo_slow, dates=Submitted,Started,Completed
     Job #3: status=failed, detail="I crashed :(", type=demo_fragile, dates=Submitted,Started,Completed
     Job #4: status=failed, detail="Unknown Job Type", type=doesntexist, dates=Submitted,Started,Completed
-    Job #5: status=new, type=demo_fast, dates=Submitted
+    Job #5: status=queued, type=demo_fast, dates=Submitted
+
+    >>> add_job('demo_fast', {'foo': 'bar'})
+    Job #6: status=new, type=demo_fast, dates=Submitted
+
+    >>> JobCleanupWorker().process({})
+    >>> for x in range(1,7):
+    ...     show_job(x)
+    Job #1: status=completed, type=demo_fast, dates=Submitted,Started,Completed
+    Job #2: status=completed, type=demo_slow, dates=Submitted,Started,Completed
+    Job #3: status=failed, detail="I crashed :(", type=demo_fragile, dates=Submitted,Started,Completed
+    Job #4: status=failed, detail="Unknown Job Type", type=doesntexist, dates=Submitted,Started,Completed
+    Job #5: status=queued, type=demo_fast, dates=Submitted
+    Job #6: status=new, type=demo_fast, dates=Submitted
 
     >>> rex.off()
     >>> rex = Rex('rex.job_demo', job_max_age=5)
@@ -133,13 +148,14 @@ Clean up::
     >>> time.sleep(5)
     >>> JobCleanupWorker().process({})
 
-    >>> for x in range(1,6):
+    >>> for x in range(1,7):
     ...     show_job(x)
     Job #1 Not Found
     Job #2 Not Found
     Job #3 Not Found
     Job #4 Not Found
-    Job #5: status=new, type=demo_fast, dates=Submitted
+    Job #5: status=queued, type=demo_fast, dates=Submitted
+    Job #6: status=new, type=demo_fast, dates=Submitted
 
     >>> rex.off()
 

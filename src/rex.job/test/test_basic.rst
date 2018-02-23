@@ -5,7 +5,7 @@ Basic Functionality
 
 Set up the environment::
 
-    >>> from rex.core import Rex
+    >>> from rex.core import Rex, get_settings
     >>> from rex.db import get_db
 
     >>> rex = Rex('rex.job_demo', job_max_age=0, job_limits={'demo_fast': {'max_concurrency': 1}, 'demo_slow': {}})
@@ -37,6 +37,9 @@ Set up the environment::
     >>> def show_facet(code, name):
     ...     data = get_db().produce('/%s[$code]{*}' % (name,), code=code)
     ...     print data[0] if data else 'No Record Found'
+
+    >>> get_settings().asynctask_workers
+    {'rex_job_0': Record(worker='job_executor', rate_max_calls=None, rate_period=None)}
 
 
 Add some jobs to the table::

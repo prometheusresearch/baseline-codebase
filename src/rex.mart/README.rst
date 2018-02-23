@@ -574,12 +574,6 @@ mart-purge
         $ rex mart-purge --all
 
 
-Run-Time Mart Creation
-======================
-
-TBD
-
-
 Web APIs
 ========
 
@@ -680,6 +674,10 @@ MartAccessPermissions
 Processor
     By implementing this Extension, you can create a new Post-Processor that
     can be invoked by Mart Definitions.
+
+DefinitionProducer
+    By implementing this Extension, you can produce and/or retrieve Mart
+    Definitions from places other than the standard ``mart.yaml`` file.
 
 Read the API documentation for more information on the methods that can be
 overridden.

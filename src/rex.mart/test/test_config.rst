@@ -36,9 +36,10 @@ specific Mart definition if it is available::
     ...     pprint(get_definition('just_deploy'))  # doctest: +ELLIPSIS
     {'assessments': [],
      'base': {'fixed_name': None,
-              'name_token': 'just_deploy_',
+              'name_token': u'just_deploy_',
               'target': None,
               'type': 'fresh'},
+     'base_path': '.../rex.mart_demo',
      'deploy': [{'table': 'foo',
                  'title': 'Foo Bars',
                  'with': [{'column': 'col1',
@@ -55,8 +56,7 @@ specific Mart definition if it is available::
      'post_assessment_scripts': [],
      'post_deploy_scripts': [],
      'processors': [],
-     'quota': {'per_owner': 3},
-     'source_file': '.../rex.mart_demo/mart.yaml'}
+     'quota': {'per_owner': 3}}
 
     >>> with rex:
     ...     pprint(get_definition('doesntexist'))

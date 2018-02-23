@@ -243,3 +243,16 @@
     - column: expression
       type: text
 
+
+# This table is used by the rexmart_create JobExecutor to save the output of
+# the Mart creation process.
+- table: job_rexmart_create
+  with:
+  - link: job
+  - identity:
+      - job
+
+  - column: log
+    type: text
+    required: false
+

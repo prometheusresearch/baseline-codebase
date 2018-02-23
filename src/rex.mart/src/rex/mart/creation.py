@@ -4,7 +4,6 @@
 
 
 import gc
-import os
 import sys
 
 from copy import deepcopy
@@ -440,7 +439,7 @@ class MartCreator(object):
         with guarded('While Deploying structures'):
             self._do_deploy(
                 self.definition['deploy'],
-                working_dir=os.path.dirname(self.definition['source_file']),
+                working_dir=self.definition.get('base_path'),
             )
 
     def get_query_params(self, params=None):

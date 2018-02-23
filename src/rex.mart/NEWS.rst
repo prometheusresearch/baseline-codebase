@@ -5,6 +5,15 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
+0.9.0 (2018-xx-xx)
+==================
+
+* Added a ``DefinitionProducer`` extension to allow applications to extend
+  how ``rex.mart`` retrieves the Definitions it uses.
+* Added an implementation of a ``rex.job.JobExecutor`` named ``rexmart_create``
+  to facilitate the creation of Marts via a GUI.
+
+
 0.8.0 (2018-01-03)
 ==================
 

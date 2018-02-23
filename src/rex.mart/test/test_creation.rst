@@ -76,6 +76,7 @@ Copy an existing DB::
     instrument: 24
     instrumentversion: 27
     interaction: 6
+    job: 3
     people: 5
     subject: 7
     task: 8
@@ -103,6 +104,7 @@ Copy the application DB::
     instrument: 24
     instrumentversion: 27
     interaction: 6
+    job: 3
     people: 5
     subject: 7
     task: 8
@@ -265,6 +267,7 @@ Load data into an existing database::
     instrument: 24
     instrumentversion: 27
     interaction: 6
+    job: 3
     people: 5
     subject: 7
     task: 8

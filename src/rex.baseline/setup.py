@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name='rex.baseline',
-    version='1.2.0',
+    version='1.3.0',
     description='Baseline for RexDB applications',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',
@@ -17,9 +17,9 @@ setup(
     url='https://bitbucket.org/rexdb/rex.baseline',
     include_package_data=True,
     install_requires=[
-        'rex.platform >= 6.3, < 6.4',
-        'rex.query >= 0.3.1, < 2',
-        'rex.asynctask >= 0.5.0, < 2',
+        'rex.platform',
+        'rex.query',
+        'rex.asynctask',
     ],
     rex_static='static',
     rex_bundle={

@@ -190,7 +190,7 @@ Accessing the HTSQL endpoint for a specific Mart::
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Vary: Accept
-    X-Htsql-Shell-Root: http://localhost/mart/5
+    X-Htsql-Shell-Root: http://localhost/mart/...
     Set-Cookie: ...
     >>> rex2.off()
     >>> rex.on()

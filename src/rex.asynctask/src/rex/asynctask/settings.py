@@ -15,6 +15,7 @@ __all__ = (
     'AsyncTaskScheduledWorkersSetting',
     'AsyncWorkersPollIntervalSetting',
     'AsyncWorkersCheckChildrenIntervalSetting',
+    'WorkerConfigVal',
 )
 
 
@@ -30,6 +31,25 @@ class AsyncTaskTransportSetting(Setting):
     name = 'asynctask_transport'
     validate = MaybeVal(StrVal())
     default = None
+
+
+class WorkerConfigVal(OneOfVal):
+    def __init__(self, worker_names):
+        self._config_val = RecordVal(
+            ('worker', ChoiceVal(worker_names)),
+            ('rate_max_calls', IntVal(1), None),
+            ('rate_period', FloatVal(), None),
+        )
+        super(WorkerConfigVal, self).__init__(
+            ChoiceVal(worker_names),
+            self._config_val,
+        )
+
+    def __call__(self, value):
+        value = super(WorkerConfigVal, self).__call__(value)
+        if isinstance(value, basestring):
+            value = self._config_val({'worker': value})
+        return value
 
 
 class AsyncTaskWorkersSetting(Setting):
@@ -65,23 +85,11 @@ class AsyncTaskWorkersSetting(Setting):
     default = {}
 
     def validate(self, value):
-        worker_val = ChoiceVal(AsyncTaskWorker.mapped().keys())
-        config_val = RecordVal(
-            ('worker', worker_val),
-            ('rate_max_calls', IntVal(1), None),
-            ('rate_period', FloatVal(), None),
-        )
         validator = MapVal(
             StrVal(),
-            MaybeVal(OneOfVal(worker_val, config_val)),
+            MaybeVal(WorkerConfigVal(AsyncTaskWorker.mapped().keys())),
         )
-
-        value = validator(value)
-        for key in value:
-            if isinstance(value[key], basestring):
-                value[key] = config_val({'worker': value[key]})
-
-        return value
+        return validator(value)
 
     def merge(self, old_value, new_value):
         map_val = MapVal()

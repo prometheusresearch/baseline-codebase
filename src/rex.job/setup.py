@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.job',
-    version='0.1.0',
+    version='0.2.0',
     description='A user-oriented background job management tool.',
     long_description=open('README.rst', 'r').read(),
     author='Prometheus Research, LLC',
@@ -25,7 +25,7 @@ setup(
         'rex.core>=1.14,<2',
         'rex.db>=3.4,<4',
         'rex.deploy>=2.7,<3',
-        'rex.asynctask>=0.6,<0.8',
+        'rex.asynctask>=0.7,<0.8',
         'rex.logging>=1,<2',
     ],
     rex_init='rex.job',

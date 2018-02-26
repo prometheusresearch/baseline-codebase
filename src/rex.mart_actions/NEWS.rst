@@ -5,6 +5,12 @@ REX.MART_ACTIONS Change Log
 .. contents:: Table of Contents
 
 
+0.9.0 (2018-xx-xx)
+==================
+
+* Updated dependencies.
+
+
 0.8.0 (2018-01-05)
 ==================
 

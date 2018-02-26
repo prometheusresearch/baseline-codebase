@@ -721,6 +721,8 @@ class DefinitionVal(FullyValidatingRecordVal):
 
             # The Processors to execute after the final ETL phase.
             ('processors', SeqVal(ProcessorVal), []),
+
+            ('base_path', MaybeVal(StrVal()), None),
         )
 
     def __call__(self, data):

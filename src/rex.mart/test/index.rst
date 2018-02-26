@@ -20,6 +20,6 @@ REX.MART Examples/Tests
    test_tables
    test_util
    test_validators
-   test_workers
+   test_async
    test_definer_rexdb
 

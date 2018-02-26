@@ -15,7 +15,7 @@ __all__ = (
 
 class MartInitialize(Initialize):
     """
-    Initializes the rex.mart package and validates all configurations.
+    Initializes the rex.mart package and validates all current configurations.
     """
 
     @classmethod
@@ -23,6 +23,6 @@ class MartInitialize(Initialize):
         return 'mart'
 
     def __call__(self):
-        # Load all the definitions and cache them.
+        # Load the current definitions and validate them.
         get_all_definitions()
 

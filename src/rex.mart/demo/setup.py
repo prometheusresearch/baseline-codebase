@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.mart_demo',
-    version='0.8.0',
+    version='0.9.0',
     description='Demo package for testing rex.mart',
     package_dir={'': 'src'},
     packages=find_packages('src'),
@@ -16,7 +16,6 @@ setup(
     install_requires=[
         'rex.deploy',
         'rex.mart',
-        'rex.asynctask',
         'rex.instrument_demo',
         'rex.forms_demo',
         'rex.mobile_demo',

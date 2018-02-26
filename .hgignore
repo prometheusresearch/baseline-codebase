@@ -16,6 +16,7 @@ syntax: regexp
 ^include/
 ^lib/
 ^local/
+^man/
 ^pip-selfcheck.json$
 ^run/
 ^share/

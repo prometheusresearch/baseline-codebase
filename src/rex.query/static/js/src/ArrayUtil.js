@@ -98,7 +98,7 @@ function transposeImpl(obj: Object, keyPath: Array<string>): Array<Object> {
         {
           ...obj,
           __index__: 0,
-          [key]: {},
+          [key]: null,
         },
       ];
     }

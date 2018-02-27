@@ -116,10 +116,10 @@ Configuration
 
 The configuration of the ``rex.mart`` package is primarily driven by a YAML
 file named ``mart.yaml`` that is stored at the root of the static file
-directory of a RexDB Python package. Any number of packages within an
-application instance can contain ``mart.yaml`` files, and they will be
-automatically merged so that all definitions are available in the resulting
-application.
+directory of a RexDB Python package (though, this is extensible via the
+``DefinitionProducer`` extension). Any number of packages within an application
+instance can contain ``mart.yaml`` files, and they will be automatically merged
+so that all definitions are available in the resulting application.
 
 The contents of the ``mart.yaml`` file is a YAML mapping that currently
 supports one property: ``definitions``. This property accepts a list of Mart
@@ -430,82 +430,6 @@ options
     Processor to Processor.
 
 
-Application Settings
-====================
-
-The ``rex.mart`` package exposes a number of application settings that can be
-set to adjust various attributes of its execution.
-
-``mart_hosting_cluster``
-    This is an HTSQL connection string that points to the database system
-    where the Mart databases will be created. If not specified, then the Marts
-    will be created in the same database system as the main RexDB application
-    database. NOTE: For validation's sake, this connection string will require
-    that you specify a database name, but the database does not actually need
-    to exist.
-
-``mart_name_prefix``
-    This setting specifies the string to use as a prefix to the names of Mart
-    databases that are created. If not specified, it defaults to ``mart_``.
-
-``mart_htsql_extensions``
-    This setting is structured identically to the ``htsql_extensions`` setting
-    exposed by the ``rex.db`` package, but instead specifies the HTSQL
-    extensions that will be made available in the HTSQL endpoints for the Mart
-    databases. The ``rex_deploy`` and ``tweak.meta`` extensions will always
-    be enabled, regardless of what this setting specifies.
-
-``mart_etl_htsql_gateways``
-    This setting is structured identically to the ``gateways`` setting exposed
-    by the ``rex.db`` package, but instead specifies the HTSQL gateways that
-    are made available to the ETL scripts executed by the Mart creation
-    process. One gateway named ``rexdb`` will automatically be defined to point
-    at the main RexDB application database (you don't need to define it here).
-
-``mart_etl_htsql_extensions``
-    This setting is structured identically to the ``htsql_extensions`` setting
-    exposed by the ``rex.db`` package, but instead specifies the HTSQL
-    extensions that will be made available to the ETL scripts executed by the
-    Mart creation process. The ``rex_deploy`` and ``tweak.etl`` extensions will
-    always be enabled, regardless of what this setting specifies. If not
-    specified, this setting enables the ``tweak.meta`` extensions.
-
-``mart_max_columns``
-    This setting specifies the maximum number of columns the automatically-
-    created Assessment tables can have. If not specified, defaults to ``1000``.
-
-``mart_max_name_length``
-    This setting specifies the maximum number of characters a table or column
-    name can have. If not specified, defaults to ``63``.
-
-``mart_max_marts_per_owner``
-    This setting specifies the maximum number of Marts a single Owner can have
-    at one time in the system (as enforced by the Quota rules). If not
-    specified, defaults to ``10``.
-
-``mart_default_max_marts_per_owner_definition``
-    This setting specifies the maximum number of Marts a single Owner can have
-    per Mart Definition, if the Definition doesn't explicitly establish this
-    threshold on its own. If not specified, defaults to ``3``.
-
-``mart_allow_runtime_creation``
-    This setting specifies whether or not to enable the APIs that allow users
-    to request creation of new Marts via the front-end application. If not
-    specified, defaults to ``False``. NOTE: Simply enabling this setting does
-    not enable the functionality of runtime Mart creation. You will need to
-    make sure that a ``rex.asynctask`` worker is running to receive and process
-    these requests.
-
-``mart_runtime_creation_queue``
-    This setting specifies the ``rex.asynctask`` queue name to use to submit
-    the Mart creation tasks that result from the requests of the front-end
-    application.
-
-``mart_htsql_cache_depth``
-    This setting specifies how many HTSQL connections will be cached by the
-    web API. If not specified, defaults to ``20``.
-
-
 Command-Line Tools
 ==================
 
@@ -581,78 +505,20 @@ The ``rex.mart`` package exposes a collection of RESTful APIs as well as HTSQL
 endpoints that allow web-based applications to access and operate on Marts in
 the system.
 
-/definition
------------
+.. autorex:: rex.restful.RestfulLocation
+   :package: rex.mart
 
-A GET will retrieve a collection listing all Definitions the calling user has
-access to.
+``rex.mart:/definition/{definition_id}/{latest_or_index}``
+    An HTSQL endpoint that is connected to the specified Mart.
 
-/definition/{definition_id}
----------------------------
+    The ``latest_or_index`` parameter for this endpoint is either the literal
+    string ``latest`` which indicates that you want to access to most recent
+    Mart created with this Definition; or, a positive integer that serves as a
+    reverse index into the list of Marts created with this Definition, where 1
+    is the most recent Mart, 2 is the next most recent, and so on.
 
-A GET will retrieve details about the specified Definition, as well as a list
-of Marts that were created with that Definition that the user has access to.
-
-A POST will request that a Mart be created using the specified Definition. The
-POST body allows an object with two optional parameters:
-
-* purge_on_failure: Whether or not to purge the remnants of the Mart if
-  creation fails at any point. Defaults to ``true``.
-* leave_incomplete: Whether or not to leave the status of the Mart as not
-  "complete" when the creation has actually completed. Defaults to ``false``.
-
-/definition/{definition_id}/{latest_or_index}
----------------------------------------------
-
-An HTSQL endpoint that is connected to the Mart described by the path
-parameters:
-
-* definition_id: The ID of the Definition that was used to create the Mart
-* latest_or_index: Either the literal string "latest" which indicates that you
-  want to access to most recent Mart created with this Definition; or, a
-  positive integer that serves as a reverse index into the list of Marts
-  created with this Definition, where 1 is the most recent Mart, 2 is the next
-  most recent, and so on.
-
-/definition/{definition_id}/{latest_or_index}/_api
---------------------------------------------------
-
-A GET will retrieve details about the specified Mart.
-
-A PUT will allow you to update properties of the specified Mart. The PUT body
-allows an object with one parameter:
-
-* pinned: Indicates whether or not the specified Mart should be marked as
-  "pinned".
-
-A DELETE will purge the specified Mart from the system.
-
-The "specified Mart" is selected following the same rules as the
-``/definition/{definition_id}/{latest_or_index}`` endpoint.
-
-/mart
------
-
-A GET will retrieve a collection listing all Marts the calling user has access
-to.
-
-/mart/{mart_id}
----------------
-
-An HTSQL endpoint that is connected to the specified Mart.
-
-/mart/{mart_id}/_api
---------------------
-
-A GET will retrieve details about the specified Mart.
-
-A PUT will allow you to update properties of the specified Mart. The PUT body
-allows an object with one parameter:
-
-* pinned: Indicates whether or not the specified Mart should be marked as
-  "pinned".
-
-A DELETE will purge the specified Mart from the system.
+``rex.mart:/mart/{mart_id}``
+    An HTSQL endpoint that is connected to the specified Mart.
 
 
 Customization
@@ -674,6 +540,10 @@ MartAccessPermissions
 Processor
     By implementing this Extension, you can create a new Post-Processor that
     can be invoked by Mart Definitions.
+
+Definer
+    By implementing this Extension, you can enable Mart Definition authors to
+    invoke custom code to augment sections of their Definitions during runtime.
 
 DefinitionProducer
     By implementing this Extension, you can produce and/or retrieve Mart
@@ -774,6 +644,16 @@ rexdb
 The ``rexdb`` Definer retrieves its configuration from tables stored in the
 main RexDB application database (the ``rexmart_dynamic_assessment`` table and
 its children).
+
+
+Application Settings
+====================
+
+The ``rex.mart`` package exposes a number of application settings that can be
+set to adjust various attributes of its execution.
+
+.. autorex:: rex.core.Setting
+   :package: rex.mart
 
 
 Known Issues

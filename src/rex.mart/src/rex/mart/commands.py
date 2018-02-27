@@ -39,15 +39,13 @@ __all__ = (
 
 
 class MartResource(RestfulLocation):
-    """
-    An API endpoint that returns a list of all Marts the current user is
-    allowed to access.
-    """
-
-    #:
     path = '/mart'
 
     def retrieve(self, request, **param):
+        """
+        Retrieves a list of all the Marts the calling user has access to.
+        """
+
         user = authenticate(request)
         mart_access = MartAccessPermissions.top()
         marts = mart_access.get_marts_for_user(user)
@@ -69,15 +67,13 @@ def render_definition(definition):
 
 
 class DefinitionResource(RestfulLocation):
-    """
-    A Resource API endpoint that returns a list of all Definitions the current
-    user is allowed to access.
-    """
-
-    #:
     path = '/definition'
 
     def retrieve(self, request, **params):
+        """
+        Retrieves a listing of all Definitions the calling user has access to.
+        """
+
         user = authenticate(request)
         mart_access = MartAccessPermissions.top()
         definitions = mart_access.get_definitions_for_user(user)
@@ -91,12 +87,6 @@ class DefinitionResource(RestfulLocation):
 
 
 class DefinitionDetailResource(RestfulLocation):
-    """
-    A Resource API that returns a list of all Marts of the specified Definition
-    ID the user is allowed to access, or requests the creation of a new Mart.
-    """
-
-    #:
     path = '/definition/{definition_id}'
     parameters = (
         Parameter('definition_id', StrVal()),
@@ -109,6 +99,18 @@ class DefinitionDetailResource(RestfulLocation):
     )
 
     def create(self, request, definition_id, **params):
+        """
+        Initiates the creation of a Mart using the specified Mart Definition.
+        The body of this request allows two parameters:
+
+        * ``purge_on_failure``: Whether or not to purge the remnants of the
+          Mart if creation fails at any point. Optional. Defaults to ``true``.
+
+        * ``leave_incomplete``: Whether or not to leave the status of the Mart
+          as not "complete" when the creation has actually completed. Optional.
+          Defaults to ``false``.
+        """
+
         user = authenticate(request)
 
         if not MartAccessPermissions.top().user_can_access_definition(
@@ -147,6 +149,12 @@ class DefinitionDetailResource(RestfulLocation):
         return response
 
     def retrieve(self, request, definition_id, **params):
+        """
+        Retrieves details about the specified Mart Definition, as well as a
+        list of the Marts that were created using that Definition that the
+        user has access to.
+        """
+
         user = authenticate(request)
         mart_access = MartAccessPermissions.top()
         marts = mart_access.get_marts_for_user(
@@ -217,25 +225,40 @@ class SpecificMartApiLocation(MartApiLocation):
         return mart
 
     def retrieve(self, request, mart_id, **params):
+        """
+        Retrieves details about the specified Mart.
+        """
+
         return self._do_retrieve(request, partial(self.get_mart, mart_id))
 
     def update(self, request, mart_id, **params):
+        """
+        Updates the properties of the specified Mart. The body of the request
+        allows the following parameters:
+
+        * ``pinned``: Indicates whether or not the specified Mart should be
+          marked as "pinned". Optional.
+        """
+
         return self._do_update(request, partial(self.get_mart, mart_id))
 
     def delete(self, request, mart_id, **params):
+        """
+        Purges the specified Mart from the system.
+        """
+
         return self._do_delete(request, partial(self.get_mart, mart_id))
 
 
 class DefinitionMartApiLocation(MartApiLocation):
     """
-    An API endpoint that allows the following operations on the specified Mart:
-
-    * GET: Retrieves basic information about the Mart
-    * PUT: Updates the ``pinned`` status of the Mart
-    * DELETE: Purges the Mart from the system
+    The ``latest_or_index`` parameter for this endpoint is either the literal
+    string ``latest`` which indicates that you want to access to most recent
+    Mart created with this Definition; or, a positive integer that serves as a
+    reverse index into the list of Marts created with this Definition, where 1
+    is the most recent Mart, 2 is the next most recent, and so on.
     """
 
-    #:
     path = '/definition/{definition_id}/{latest_or_index}/_api'
     parameters = (
         Parameter('definition_id', StrVal()),
@@ -260,18 +283,34 @@ class DefinitionMartApiLocation(MartApiLocation):
             return marts[latest_or_index - 1]
 
     def retrieve(self, request, definition_id, latest_or_index, **params):
+        """
+        Retrieves details about the specified Mart.
+        """
+
         return self._do_retrieve(
             request,
             partial(self.get_mart, definition_id, latest_or_index),
         )
 
     def update(self, request, definition_id, latest_or_index, **params):
+        """
+        Updates the properties of the specified Mart. The body of the request
+        allows the following parameters:
+
+        * ``pinned``: Indicates whether or not the specified Mart should be
+          marked as "pinned". Optional.
+        """
+
         return self._do_update(
             request,
             partial(self.get_mart, definition_id, latest_or_index),
         )
 
     def delete(self, request, definition_id, latest_or_index, **params):
+        """
+        Purges the specified Mart from the system.
+        """
+
         return self._do_delete(
             request,
             partial(self.get_mart, definition_id, latest_or_index),
@@ -355,11 +394,6 @@ class MartLocation(HandleLocation):
 
 
 class SpecificMartLocation(MartLocation):
-    """
-    An HTSQL endpoint for the specified Mart.
-    """
-
-    #:
     path = '/mart/{mart_id}/**'
     path_args_validator = RecordVal(
         ('mart_id', IntVal()),
@@ -382,11 +416,6 @@ class SpecificMartLocation(MartLocation):
 
 
 class DefinitionMartLocation(MartLocation):
-    """
-    An HTSQL endpoint for the specified Mart.
-    """
-
-    #:
     path = '/definition/{definition_id}/{latest_or_index}/**'
     path_args_validator = RecordVal(
         ('definition_id', StrVal()),

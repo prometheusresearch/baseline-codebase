@@ -10,21 +10,24 @@ REX.MART API Reference
 Extensions
 ==========
 
-.. autoclass:: rex.mart.permissions.MartAccessPermissions
+.. autoclass:: rex.mart.MartAccessPermissions
    :members:
-   :inherited-members:
    :show-inheritance:
-   :special-members: __call__
 
-.. autoclass:: rex.mart.quota.MartQuota
+.. autoclass:: rex.mart.MartQuota
    :members:
-   :inherited-members:
    :show-inheritance:
-   :special-members: __call__
 
-.. autoclass:: rex.mart.processors.Processor
+.. autoclass:: rex.mart.Processor
    :members:
-   :inherited-members:
+   :show-inheritance:
+
+.. autoclass:: rex.mart.DefinitionProducer
+   :members:
+   :show-inheritance:
+
+.. autoclass:: rex.mart.Definer
+   :members:
    :show-inheritance:
 
 
@@ -35,19 +38,8 @@ Mart APIs
    :special-members: __call__
 .. automodule:: rex.mart.mart
 .. automodule:: rex.mart.purging
-
-
-Web APIs
-========
-
-.. automodule:: rex.mart.commands
-
-
-Configuration
-=============
-
-.. automodule:: rex.mart.settings
 .. automodule:: rex.mart.config
+   :exclude-members: DefinitionProducer
 
 
 Utilities

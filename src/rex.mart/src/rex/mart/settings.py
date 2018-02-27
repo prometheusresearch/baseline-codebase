@@ -134,7 +134,7 @@ class MartMaxNameLengthSetting(Setting):
 class MartAllowRuntimeCreationSetting(Setting):
     """
     Specifies whether or not to allow users to request the creation of Marts at
-    runtime.
+    runtime via the Web APIs.
 
     If not specified, defaults to ``False``.
     """
@@ -147,7 +147,7 @@ class MartAllowRuntimeCreationSetting(Setting):
 class MartRuntimeCreationQueueSetting(Setting):
     """
     Specifies the rex.asynctask queue to drop messages in when Mart creation
-    requests are received.
+    requests are received via the Web APIs.
 
     If not specified, defaults to ``rexmart_create``.
     """

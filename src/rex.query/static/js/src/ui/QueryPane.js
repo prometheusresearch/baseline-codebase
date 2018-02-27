@@ -14,20 +14,28 @@ type ShapeProps = {
   variant: {selected?: boolean, invalid?: boolean},
 };
 
-function createPane(
-  {
-    displayName,
-    theme,
-    noActiveBorder,
-  }: {
-    displayName: string,
-    theme: Theme.QueryVisTheme,
-    noActiveBorder?: boolean,
-  },
-) {
+function createPane({
+  displayName,
+  theme,
+  noActiveBorder,
+}: {
+  displayName: string,
+  theme: Theme.QueryVisTheme,
+  noActiveBorder?: boolean,
+}) {
   function Shape({children, first, variant, ...props}: ShapeProps) {
     let selected = variant && variant.selected;
     let invalid = variant && variant.invalid;
+    const border = {
+      width: !invalid ? 1 : 2,
+      style: 'solid',
+      color: !invalid ? theme.borderColor : Theme.invalid.borderColor,
+    };
+    const borderSelected = {
+      width: 5,
+      style: 'solid',
+      color: theme.borderColor,
+    };
     return (
       <VBox
         {...props}
@@ -38,11 +46,8 @@ function createPane(
         <Element
           color={theme.textColor}
           background={theme.backgroundColor}
-          border={{
-            width: !invalid ? 1 : 2,
-            style: 'solid',
-            color: !invalid ? theme.borderColor : Theme.invalid.borderColor,
-          }}>
+          borderLeft={selected ? borderSelected : border}
+          border={border}>
           {children}
         </Element>
         <ArrowDown left={5} bottom={0} color={theme.borderColor} />

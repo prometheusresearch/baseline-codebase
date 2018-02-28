@@ -6,9 +6,9 @@ import {TextEncoderLite as TextEncoder} from './vendor/TextEncoderLite';
 import {fromByteArray} from 'base64-js';
 
 type RasterizeConfig = {
-  width: number,
-  height: number,
   font?: string,
+  dx?: number,
+  dy?: number,
 };
 
 function utoa(string) {
@@ -17,17 +17,11 @@ function utoa(string) {
   return fromByteArray(bytes);
 }
 
-export function rasterize(svg: string, config: RasterizeConfig): Promise<?string> {
-  const canvas = document.createElement('canvas');
-  canvas.width = config.width;
-  canvas.height = config.height;
-
-  const canvasCtx = canvas.getContext('2d');
-
-  if (canvasCtx == null) {
-    return Promise.resolve(null);
-  }
-
+export function renderToCanvas(
+  svg: string,
+  canvasCtx: CanvasRenderingContext2D,
+  config: RasterizeConfig,
+): Promise<?string> {
   if (config.font != null) {
     canvasCtx.font = config.font;
   }
@@ -37,21 +31,8 @@ export function rasterize(svg: string, config: RasterizeConfig): Promise<?string
 
   return new Promise(resolve => {
     img.onload = () => {
-      canvasCtx.drawImage(img, 0, 0);
-      resolve(canvas.toDataURL('image/png'));
+      canvasCtx.drawImage(img, config.dx || 0, config.dy || 0);
+      resolve();
     };
   });
-}
-
-type RasterizeElementConfig = {
-  font?: string,
-};
-
-export function rasterizeElement(
-  element: HTMLElement,
-  config?: RasterizeElementConfig = {},
-): Promise<?string> {
-  const {width, height} = element.getBoundingClientRect();
-  const data = new XMLSerializer().serializeToString(element);
-  return rasterize(data, {...config, width, height});
 }

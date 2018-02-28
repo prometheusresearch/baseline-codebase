@@ -32,7 +32,7 @@ type ChartProps = {
 const EXPORT_FONT = '11px -apple-system, "Helvetica Neue", "Lucida Grande"';
 
 function findChartElement(element: HTMLElement): ?HTMLElement {
-  return element.querySelector('svg.recharts-surface');
+  return element.querySelector('div.recharts-wrapper');
 }
 
 export default class Chart extends React.Component<ChartProps> {
@@ -117,10 +117,12 @@ export default class Chart extends React.Component<ChartProps> {
   onExportChart = () => {
     if (this._chart != null) {
       const element = findDOMNode(this._chart);
-      const svgElement = findChartElement(element);
+      const chartElement = findChartElement(element);
 
-      if (svgElement != null) {
-        const hideForExport = svgElement.querySelectorAll('.hide-for-export');
+      if (chartElement != null) {
+        const hideForExport = Array.from(
+          chartElement.querySelectorAll('.hide-for-export'),
+        );
 
         // hide elements tagged with .hide-for-export
         const display = [];
@@ -129,7 +131,7 @@ export default class Chart extends React.Component<ChartProps> {
           node.style.display = 'none';
         });
 
-        SVG.rasterizeElement(svgElement, {font: EXPORT_FONT}).then(data => {
+        rasterizeChart(chartElement).then(data => {
           // restore visibility of elements tagged with .hide-for-export
           hideForExport.forEach((node, idx) => {
             node.style.display = display[idx];
@@ -154,4 +156,25 @@ export default class Chart extends React.Component<ChartProps> {
   onUpdateChart = (chart: types.Chart) => {
     this.context.actions.updateChart({chartId: this.props.chartSpec.id, chart});
   };
+}
+
+export async function rasterizeChart(element: HTMLElement): Promise<?string> {
+  const serializer = new XMLSerializer();
+  const data = serializer.serializeToString(element);
+  const {width, height} = element.getBoundingClientRect();
+
+  var svgData = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
+      <foreignObject width="100%" height="100%">
+        ${data}
+      </foreignObject>
+    </svg>
+  `;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const canvasCtx = canvas.getContext('2d');
+  await SVG.renderToCanvas(svgData, canvasCtx, {font: EXPORT_FONT});
+  return canvas.toDataURL('image/png');
 }

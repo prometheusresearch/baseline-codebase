@@ -603,10 +603,17 @@ export function appendDefine({
       .insertAfter({what: [def]})
       .growNavigation({path: [name]})
       .getQuery();
+    const lastNonSelect = getLastNonSelectAtPipeline(at);
+    const type = q.inferTypeAtPath(
+      q.regularizeContext(lastNonSelect.context),
+      path || [],
+    );
+    const isRecord = type.name === 'record';
     query = q.inferType(state.config.domain, query);
+    const selected = select && isRecord ? def : state.selected || state.prevSelected;
     return onQuery(state, {
       query,
-      selected: select ? def : null,
+      selected,
       activeQueryPipeline: null,
     });
   };

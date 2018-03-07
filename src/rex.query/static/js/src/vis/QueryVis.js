@@ -110,7 +110,7 @@ export function QueryVisDefineButton(props: {
   return (
     <VBox paddingBottom={5} left={1}>
       <VBox
-        borderLeft={css.border(1, '#bbb')}
+        borderLeft={css.border(isSelected ? 5 : 1, '#bbb')}
         borderTop={css.border(1, '#bbb')}
         borderBottom={css.border(1, '#bbb')}
         overflow="visible">

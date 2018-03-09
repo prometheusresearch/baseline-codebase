@@ -1,0 +1,18 @@
+
+
+title: REX.PORTAL_CLIENT
+tests:
+
+# Setup coverage with rex.
+- rmdir: ./build/coverage
+- mkdir: ./build/coverage
+- coverage: setup.cfg
+  auto-data: true
+
+- sh: pip install -q -e ./demo
+  ignore: true
+
+- doctest: test/test_*.rst
+
+- coverage-check: 85.0
+- coverage-report: ./build/coverage

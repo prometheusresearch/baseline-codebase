@@ -24,6 +24,7 @@
 -e ./src/rex.widget_chrome
 -e ./src/rex.dbgui
 -e ./src/rex.platform
+-e ./src/rex.portal_client
 -e ./src/rex.form_previewer
 -e ./src/rex.formbuilder
 -e ./src/rex.mobile

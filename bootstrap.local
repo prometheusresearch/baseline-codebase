@@ -4,6 +4,6 @@ mkdir -p ./data/attach
 mkdir -p ./run
 ln -sf ./run/socket ./socket    # compatibility with dev.rexdb.us
 
-./bin/pip install -e src/rex.setup/
-./bin/pip install -r requirements.txt
+./bin/pip --isolated install -e src/rex.setup/
+./bin/pip --isolated install -r requirements.txt
 

@@ -28,13 +28,13 @@
 -e ./src/rex.form_previewer
 -e ./src/rex.formbuilder
 -e ./src/rex.mobile
+-e ./src/rex.asynctask
+-e ./src/rex.job
 -e ./src/rex.mart
 -e ./src/rex.query
 -e ./src/rex.mart_actions
 -e ./src/rex.acquire_actions
 -e ./src/rex.assessment_import
--e ./src/rex.asynctask
--e ./src/rex.job
 -e ./src/rex.tabular_import
 -e ./src/rex.about
 -e ./src/rex.baseline

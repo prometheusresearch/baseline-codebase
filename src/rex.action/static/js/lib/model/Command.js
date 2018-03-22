@@ -12,11 +12,8 @@ import * as StringUtils from '../StringUtils';
 import * as E from './Entity';
 
 export function command(...argumentTypes: ArgumentType[]): Function {
-  return function command__decorate(target, key, desc) {
-    return {
-      ...desc,
-      value: new Command(desc.value, key, argumentTypes),
-    };
+  return function command__decorate(value) {
+    return new Command(value, "default", argumentTypes);
   };
 }
 

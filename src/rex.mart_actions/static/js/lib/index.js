@@ -2,24 +2,24 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-export DefinitionPick from './DefinitionPick';
-export DefinitionView from './DefinitionView';
-export MartPick from './MartPick';
-export MartView from './MartView';
+export {default as DefinitionPick} from './DefinitionPick';
+export {default as DefinitionView} from './DefinitionView';
+export {default as MartPick} from './MartPick';
+export {default as MartView} from './MartView';
 
-export DictionaryPick from './DictionaryPick';
-export DictionaryPickColumn from './DictionaryPickColumn';
-export DictionaryPickEnumeration from './DictionaryPickEnumeration';
-export DictionaryPickTable from './DictionaryPickTable';
-export DictionaryPickTableColumn from './DictionaryPickTableColumn';
-export DictionaryViewColumn from './DictionaryViewColumn';
-export DictionaryViewTable from './DictionaryViewTable';
+export {default as DictionaryPick} from './DictionaryPick';
+export {default as DictionaryPickColumn} from './DictionaryPickColumn';
+export {default as DictionaryPickEnumeration} from './DictionaryPickEnumeration';
+export {default as DictionaryPickTable} from './DictionaryPickTable';
+export {default as DictionaryPickTableColumn} from './DictionaryPickTableColumn';
+export {default as DictionaryViewColumn} from './DictionaryViewColumn';
+export {default as DictionaryViewTable} from './DictionaryViewTable';
 
-export HtsqlConsole from './HtsqlConsole';
+export {default as HtsqlConsole} from './HtsqlConsole';
 
 export {Guide} from './guide';
 
-export QueryBuilder from './QueryBuilder';
+export {default as QueryBuilder} from './QueryBuilder';
 
 export {
   PieChart,

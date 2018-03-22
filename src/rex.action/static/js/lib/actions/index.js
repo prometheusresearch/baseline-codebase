@@ -2,9 +2,9 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-export Page     from './Page';
-export Pick     from './Pick';
-export View     from './View';
-export Make     from './Make';
-export Drop     from './Drop';
+export {default as Page}     from './Page';
+export {default as Pick}     from './Pick';
+export {default as View}     from './View';
+export {default as Make}     from './Make';
+export {default as Drop}     from './Drop';
 

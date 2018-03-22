@@ -2,5 +2,5 @@
  * @copyright 2016, Prometheus Research, LLC
  */
 
-export DataTable from './DataTable';
-export DataTableBase from './DataTableBase';
+export {default as DataTable} from './DataTable';
+export {default as DataTableBase} from './DataTableBase';

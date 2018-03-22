@@ -3,8 +3,8 @@
  */
 
 import React from 'react';
-export Chrome from './Chrome';
-export DynamicPageContent from './DynamicPageContent';
+export {default as Chrome} from './Chrome';
+export {default as DynamicPageContent} from './DynamicPageContent';
 
 export {
   getLocation,

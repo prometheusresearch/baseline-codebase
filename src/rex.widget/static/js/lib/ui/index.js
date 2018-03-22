@@ -2,39 +2,39 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-export Hoverable from './Hoverable';
-export Focusable from './Focusable';
+export {default as Hoverable} from './Hoverable';
+export {default as Focusable} from './Focusable';
 
-export Icon from './Icon';
-export IconButton from './IconButton';
-export LoadingIndicator from './LoadingIndicator';
-export Preloader from './Preloader';
-export ProgressBar from './ProgressBar';
+export {default as Icon} from './Icon';
+export {default as IconButton} from './IconButton';
+export {default as LoadingIndicator} from './LoadingIndicator';
+export {default as Preloader} from './Preloader';
+export {default as ProgressBar} from './ProgressBar';
 
-export ButtonBase from './base/ButtonBase';
-export Button from './Button';
-export SuccessButton from './SuccessButton';
-export DangerButton from './DangerButton';
-export QuietButton from './QuietButton';
-export FlatButton from './FlatButton';
-export SecondaryButton from './SecondaryButton';
-export SecondaryQuietButton from './SecondaryQuietButton';
+export {default as ButtonBase} from './base/ButtonBase';
+export {default as Button} from './Button';
+export {default as SuccessButton} from './SuccessButton';
+export {default as DangerButton} from './DangerButton';
+export {default as QuietButton} from './QuietButton';
+export {default as FlatButton} from './FlatButton';
+export {default as SecondaryButton} from './SecondaryButton';
+export {default as SecondaryQuietButton} from './SecondaryQuietButton';
 
-export Label from './Label';
-export Divider from './Divider';
-export IFrame from './IFrame';
+export {default as Label} from './Label';
+export {default as Divider} from './Divider';
+export {default as IFrame} from './IFrame';
 
-export TabListBase from './base/TabListBase';
-export TabBase from './base/TabBase';
-export TabList from './TabList';
-export Tab from './base/TabBase';
-export PillList from './PillList';
-export Pill from './base/TabBase';
-export Panel from './Panel';
-export SecondaryPanel from './SecondaryPanel';
+export {default as TabListBase} from './base/TabListBase';
+export {default as TabBase} from './base/TabBase';
+export {default as TabList} from './TabList';
+export {default as Tab} from './base/TabBase';
+export {default as PillList} from './PillList';
+export {default as Pill} from './base/TabBase';
+export {default as Panel} from './Panel';
+export {default as SecondaryPanel} from './SecondaryPanel';
 
-export dispatchResizeEvent from './dispatchResizeEvent';
-export WithDOMSize from './WithDOMSize';
+export {default as dispatchResizeEvent} from './dispatchResizeEvent';
+export {default as WithDOMSize} from './WithDOMSize';
 
-export Notification from './Notification';
+export {default as Notification} from './Notification';
 export {showNotification, removeNotification} from './NotificationCenter';

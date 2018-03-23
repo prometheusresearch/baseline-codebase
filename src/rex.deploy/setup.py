@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.deploy',
-    version='2.10.0',
+    version='2.10.1',
     description="Database schema management for RexDB platform",
     long_description=open('README.rst', 'r').read(),
     maintainer="Prometheus Research, LLC",
@@ -23,7 +23,7 @@ setup(
         'rex.db >=3.5, <4',
         'rex.ctl >=2.2, <3',
         'HTSQL >2.3.3, <2.5',
-        'psycopg2 >=2.4.2, <3',
+        'psycopg2 >=2.4.2, <2.7',
         'jinja2 >=2.7, <2.9',
     ],
     dependency_links=[

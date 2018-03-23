@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.10.1 (2018-03-23)
+===================
+
+* Require ``psycopg2<2.7`` to avoid a warning about the psycopg2 wheel package.
+
+
 2.10.0 (2017-06-20)
 ===================
 

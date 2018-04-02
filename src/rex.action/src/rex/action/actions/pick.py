@@ -7,7 +7,7 @@
 
 """
 
-from rex.core import StrVal, SeqVal, MaybeVal, BoolVal, RecordVal, OneOfVal
+from rex.core import IntVal, StrVal, SeqVal, MaybeVal, BoolVal, RecordVal, OneOfVal
 from rex.port import Port
 from rex.widget import Field, ColumnVal, undefined, formfield
 
@@ -88,6 +88,10 @@ class Pick(EntityAction):
         Specifies that action ``pick-individual`` is only available when context
         has keys ``mother`` and ``father`` of type ``individual``.
         """)
+
+    refresh_interval = Field(
+        IntVal(), default=undefined,
+        doc="Refresh data periodically (interval is specified in seconds)")
 
     def create_port(self):
         filters = []

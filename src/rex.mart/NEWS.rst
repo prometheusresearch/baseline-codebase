@@ -14,6 +14,12 @@ REX.MART Change Log
   to facilitate the creation of Marts via a GUI.
 
 
+0.8.1 (2018-04-04)
+==================
+
+* Packaging tweak to satisfy new versions of pip.
+
+
 0.8.0 (2018-01-03)
 ==================
 

@@ -2,7 +2,6 @@
 requires = [
     'setuptools',
     'wheel',
-    'rex.setup',
 ]
 
 [tool.tidypy]

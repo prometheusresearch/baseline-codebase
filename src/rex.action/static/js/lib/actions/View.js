@@ -23,6 +23,8 @@ export class View extends React.Component {
     onClose: Function,
     width: number,
     fetched: Object,
+    refetch: Function,
+    refreshInterval?: ?number,
   };
 
   static defaultProps = {
@@ -51,6 +53,7 @@ export class View extends React.Component {
 
   refresh = () => {
     this.props.refetch();
+    this.props.forceRefreshData();
   };
 
   componentDidMount() {

@@ -16,6 +16,7 @@ import * as ContextUtils from '../ContextUtils';
 
 export default class Pick extends React.Component {
   _interval: ?number = null;
+  _datatable: ?Object;
 
   static propTypes = {
     context: React.PropTypes.object,
@@ -58,6 +59,7 @@ export default class Pick extends React.Component {
         title={title}
         onClose={onClose}>
         <DataTable
+          ref={datatable => this._datatable = datatable}
           allowReselect
           sort={sort}
           data={data}
@@ -78,6 +80,9 @@ export default class Pick extends React.Component {
   };
 
   refresh = () => {
+    if (this._datatable) {
+      this._datatable.forceRefreshData();
+    }
     this.props.refetch();
   };
 

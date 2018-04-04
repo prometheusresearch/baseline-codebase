@@ -83,7 +83,7 @@ export function withFetch<P: *, C: ReactClass<P>, S: *, F: FetchSpec<P, S>, D: $
           fetched={this.state.data}
           dataParams={this.state.params}
           setDataParams={this._onDataParams}
-          forceRefreshData={() => this.refresh(true)}
+          forceRefreshData={this.forceRefreshData}
         />
       );
     }
@@ -110,6 +110,8 @@ export function withFetch<P: *, C: ReactClass<P>, S: *, F: FetchSpec<P, S>, D: $
       let data = this._fetchAll(this._spec, force);
       this.setState({data});
     }
+
+    forceRefreshData = () => this.refresh(true);
 
     _fetchAll(spec = this._spec, force = false) {
       let data: D = ({}: any);

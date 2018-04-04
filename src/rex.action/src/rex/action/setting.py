@@ -24,3 +24,14 @@ class RexActionSetting(Setting):
     )
     default = validate.record_type(
         include_page_breadcrumb_item=False)
+
+
+class RexActionValidateOnStartup(Setting):
+    """
+    UNSAFE! For development use only.
+    Setting this to `false` permits to skip the wizards validation step on
+    server startup. Should not be used in production or testing.
+    """
+    name = 'rex_action_validate_on_startup'
+    validate = BoolVal()
+    default = True

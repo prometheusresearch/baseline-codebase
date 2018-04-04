@@ -11,7 +11,7 @@
 
 from __future__ import absolute_import
 
-from rex.core import Validate
+from rex.core import get_settings, Validate
 from rex.widget.transitionable import as_transitionable
 from rex.widget.widget import _format_Widget
 
@@ -91,5 +91,8 @@ class MountedActionVal(Validate):
         return self.mount(action)
 
     def construct(self, loader, node):
-        action = self.delegate.construct(loader, node)
-        return self.mount(action)
+        def wrapper():
+            action = self.delegate.construct(loader, node)
+            return self.mount(action)
+        immediate = get_settings().rex_action_validate_on_startup
+        return wrapper() if immediate else wrapper 

@@ -32,7 +32,7 @@ class ActionMenu(Menu):
     def render(self, req):
         if not isinstance(self.value, MountedAction):
             self.value = self.value()
-        if self.renderer == None:
+        if self.renderer is None:
             self.renderer = ActionRenderer(self.masks(), self.value, self.access, None)
         return self.renderer(req)
 

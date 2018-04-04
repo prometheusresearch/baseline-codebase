@@ -13,6 +13,8 @@ import {Fetch} from 'rex-widget/data';
 import * as form from 'rex-widget/form';
 
 export class View extends React.Component {
+  _interval: ?number = null;
+
   props: {
     title: string,
     context: Object,
@@ -45,6 +47,22 @@ export class View extends React.Component {
           : <ui.Preloader />}
       </Action>
     );
+  }
+
+  refresh = () => {
+    this.props.refetch();
+  };
+
+  componentDidMount() {
+    if (this.props.refreshInterval != null) {
+      this._interval = setInterval(this.refresh, this.props.refreshInterval * 1000);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this._interval != null) {
+      clearInterval(this._interval);
+    }
   }
 
   static renderTitle({entity, title = `View ${entity.name}`}, context) {

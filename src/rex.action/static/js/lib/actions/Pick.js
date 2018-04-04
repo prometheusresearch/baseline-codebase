@@ -15,6 +15,8 @@ import Title from './Title';
 import * as ContextUtils from '../ContextUtils';
 
 export default class Pick extends React.Component {
+  _interval: ?number = null;
+
   static propTypes = {
     context: React.PropTypes.object,
     onCommand: React.PropTypes.func,
@@ -74,6 +76,22 @@ export default class Pick extends React.Component {
   onSearch = (search: string) => {
     this.props.setActionState({search});
   };
+
+  refresh = () => {
+    this.props.refetch();
+  };
+
+  componentDidMount() {
+    if (this.props.refreshInterval != null) {
+      this._interval = setInterval(this.refresh, this.props.refreshInterval * 1000);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this._interval != null) {
+      clearInterval(this._interval);
+    }
+  }
 
   static renderTitle({entity, title = `Pick ${entity.name}`}, context) {
     return <Title title={title} entity={entity} context={context} />;

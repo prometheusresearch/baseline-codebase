@@ -8,7 +8,8 @@
 """
 
 from rex.port import Port
-from rex.widget import Field, responder, PortURL
+from rex.core import IntVal
+from rex.widget import Field, responder, PortURL, undefined
 
 from ..typing import RecordTypeVal, RecordType
 from .entity_action import EntityAction
@@ -57,6 +58,10 @@ class View(EntityAction):
 
     input = Field(
         RecordTypeVal(), default=RecordType.empty())
+
+    refresh_interval = Field(
+        IntVal(), default=undefined,
+        doc="Refresh data periodically (interval is specified in seconds)")
 
     def context(self):
         input = self.input

@@ -24,31 +24,22 @@ function update(params, data, _prevData, _key) {
   return data;
 }
 
-type FetchSpec<P, S> = (P => S) | {fetch: P => S, update: (P, any, any, any) => any};
+type FetchSpec<P, S> = ((P) => S) | {fetch: (P) => S, update: (P, any, any, any) => any};
 
-export function withFetch<
-  P: *,
-  C: ReactClass<P>,
-  S: *,
-  F: FetchSpec<P, S>,
-  D: $ObjMap<S, <V>() => DataSet<>>,
->(
+export function withFetch<P: *, C: ReactClass<P>, S: *, F: FetchSpec<P, S>, D: $ObjMap<S, <V>() => DataSet<>>>(
   Component: C,
   fetch: F,
-): ReactClass<
-  P & {
-    fetched: D,
-    dataParams: $Shape<P>,
-    setDataParams: ($Shape<P>) => void,
-  },
-> {
-  const fetchSpec =
-    typeof fetch === 'function'
-      ? {
-          fetch,
-          update,
-        }
-      : fetch;
+): ReactClass<P & {
+  fetched: D,
+  dataParams: $Shape<P>,
+  setDataParams: ($Shape<P>) => void,
+}> {
+  const fetchSpec = typeof fetch === 'function'
+    ? {
+        fetch,
+        update,
+      }
+    : fetch;
 
   let displayName = Component.displayName || Component.name;
 
@@ -92,6 +83,7 @@ export function withFetch<
           fetched={this.state.data}
           dataParams={this.state.params}
           setDataParams={this._onDataParams}
+          forceRefreshData={() => this.refresh(true)}
         />
       );
     }
@@ -210,15 +202,16 @@ export function withFetch<
   return FetchContainer;
 }
 
-export function Fetch<
-  P: Object,
-  C: ReactClass<P>,
-  S: {},
-  D: $ObjMap<S, <V>(spec: V) => DataSet<>>,
->(fetch: FetchSpec<P, S>): (ReactClass<P>) => ReactClass<P & {fetched: D}> {
+export function Fetch<P: Object, C: ReactClass<P>, S: {}, D: $ObjMap<S, <V>(
+  spec: V,
+) => DataSet<>>>(
+  fetch: FetchSpec<P, S>,
+): (ReactClass<P>) => ReactClass<P & {fetched: D}> {
   // This is for b/c reasons, we allow Fetch(Component, fetcher) calls
   if (arguments.length === 2) {
-    console.warn('Fetch(Component, fetch) is deprecated use withFetch(Component, fetch) instead');
+    console.warn(
+      'Fetch(Component, fetch) is deprecated use withFetch(Component, fetch) instead',
+    );
     return withFetch(...arguments);
   }
   return Component => withFetch(Component, fetch);

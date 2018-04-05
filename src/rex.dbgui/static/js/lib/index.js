@@ -1,4 +1,4 @@
-export DBGUI from './DBGUI';
-export DbguiEntityField from './DbguiEntityField';
-export PickTable from './PickTable';
-export ViewSource from './ViewSource';
+export {default as DBGUI} from './DBGUI';
+export {default as DbguiEntityField} from './DbguiEntityField';
+export {default as PickTable} from './PickTable';
+export {default as ViewSource} from './ViewSource';

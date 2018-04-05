@@ -3,16 +3,16 @@
  */
 
 
-export Provider from './Provider';
-export InjectI18N from './InjectI18N';
-export inject from './inject';
+export {default as Provider} from './Provider';
+export {default as InjectI18N} from './InjectI18N';
+export {default as inject} from './inject';
 
-export FormatNumber from './FormatNumber';
-export FormatDecimal from './FormatDecimal';
-export FormatPercent from './FormatPercent';
-export FormatCurrency from './FormatCurrency';
+export {default as FormatNumber} from './FormatNumber';
+export {default as FormatDecimal} from './FormatDecimal';
+export {default as FormatPercent} from './FormatPercent';
+export {default as FormatCurrency} from './FormatCurrency';
 
-export FormatDate from './FormatDate';
-export FormatTime from './FormatTime';
-export FormatDateTime from './FormatDateTime';
+export {default as FormatDate} from './FormatDate';
+export {default as FormatTime} from './FormatTime';
+export {default as FormatDateTime} from './FormatDateTime';
 

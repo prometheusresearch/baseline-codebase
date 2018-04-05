@@ -3,4 +3,4 @@
  */
 
 export * from 'react-dom-stylesheet/css';
-export createColor from 'color-js';
+export {default as createColor} from 'color-js';

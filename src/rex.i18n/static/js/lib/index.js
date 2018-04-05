@@ -3,7 +3,7 @@
  */
 
 
-export RexI18N from './i18n';
+export {default as RexI18N} from './i18n';
 export * from './instances';
 export * from './react';
 

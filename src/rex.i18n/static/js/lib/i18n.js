@@ -125,8 +125,7 @@ let DATETIME_FORMATS = {
 };
 
 
-@autobind
-export default class I18N {
+class I18N {
   constructor(options = {}) {
     this.isLoaded = false;
 
@@ -284,3 +283,4 @@ export default class I18N {
   }
 }
 
+export default autobind(I18N);

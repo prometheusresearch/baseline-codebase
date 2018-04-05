@@ -1,1 +1,1 @@
-export Chrome from './Chrome';
+export {default as Chrome} from './Chrome';

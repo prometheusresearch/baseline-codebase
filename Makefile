@@ -1,38 +1,122 @@
-# Environment references
-ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-PBBT := $(ROOT)/bin/pbbt
-NPM := $(ROOT)/bin/npm
+.PHONY: \
+	default \
+	init init-local init-dist init-cfg init-docker init-sync init-remote init-bin init-env init-dev \
+	up down \
+	build \
+	test \
+	clean
 
-# Default values
-TESTS_PBBT =
-TESTS_NPM =
-
-# Local overrides/additions
 include Makefile.local
+include Makefile.template
 
+default:
+	@echo "Available targets:"
+	@echo "make init           initialize the development environment in a docker container"
+	@echo "make init-local     initialize the development environment locally"
+	@echo "make up             start docker containers"
+	@echo "make down           stop docker containers"
+	@echo "make build          recompile source packages"
+	@echo "make test           test source packages"
+	@echo "make clean          remove installed docker containers and volumes"
 
-## Bootstrapping
+# Initialize the development environment in a docker container.
+init:
+	@if [ -e bin/activate ]; then echo "the development environment is already initialized"; false; fi
+	${MAKE} init-cfg init-docker init-sync init-remote init-bin
 
-bootstrap::
-	@$(ROOT)/bootstrap
+# Initialize the development environment locally.
+init-local:
+	@if [ -e bin/activate ]; then echo "the development environment is already initialized"; false; fi
+	${MAKE} init-cfg init-env init-dev build
 
-bootstrap-local::
-	@$(ROOT)/bootstrap --local
+# Initialize the production environment.
+init-dist:
+	@if [ -e bin/activate ]; then echo "the development environment is already initialized"; false; fi
+	${MAKE} init-env
 
+# Enable default configuration.
+init-cfg:
+	for src in default/.* default/*; do \
+		if [ ! -f $$src ]; then continue; fi; \
+		cp -a $$src $$(basename $$src); \
+	done
+	mkdir -p ./data/attach
+	mkdir -p ./run
+	ln -sf ./run/socket ./socket
 
-## Testing
+# Prepare and start containers.
+init-docker:
+	docker build -q -t rexdb/runtime ./docker/runtime
+	docker build -q -t rexdb/build ./docker/build
+	docker build -q -t rexdb/develop ./docker/develop
+	docker-compose up -d
 
-test-pbbt-module = cd $(ROOT)/src/$(module) && $(PBBT) &&
+# Synchronize the source tree.
+init-sync:
+	docker-compose exec develop \
+		rsync --delete --exclude /.hg/ --exclude /bin/ --exclude /data/ --exclude /run/ \
+		--ignore-errors --links --recursive --times \
+		/repo/ /app/
 
-test-pbbt::
-	@$(foreach module, $(TESTS_PBBT), $(test-pbbt-module)) true
+# Initialize the environment in the container.
+init-remote:
+	docker-compose exec develop make init-local
 
-test-npm-module = cd $(ROOT)/src/$(module) && $(NPM) test &&
+# Populate the local ./bin/ directory.
+init-bin:
+	mkdir -p bin
+	echo "$$ACTIVATE_TEMPLATE" >./bin/activate
+	echo "$$COMPOSE_TEMPLATE" >./bin/docker-compose
+	chmod a+x ./bin/docker-compose
+	echo "$$RSH_TEMPLATE" >./bin/rsh
+	chmod a+x ./bin/rsh
+	for exe in $$(docker-compose exec develop find bin '!' -type d -executable | tr -d '\r'); do \
+		ln -s rsh $$exe; \
+	done
 
-test-npm::
-	@$(foreach module, $(TESTS_NPM), $(test-npm-module)) true
+# Initialize Python virtual environment.
+init-env:
+	virtualenv --system-site-packages .
 
-test:: test-pbbt test-npm
+# Install development tools.
+init-dev:
+	./bin/pip install -q pbbt==0.1.5
+	./bin/pip install -q coverage==4.5.1
+	./bin/pip install -q pytest==3.5.0
+	echo "$$PBBT_TEMPLATE" >./bin/pbbt
+	chmod a+x ./bin/pbbt
 
-ci:: bootstrap-local test
+# Start Docker containers.
+up:
+	docker-compose up -d
+
+# Stop Docker containers.
+down:
+	docker-compose down
+
+# Check that the development environment is initialized.
+./bin/activate:
+	@echo "run \"make init\" or \"make init-local\" to initialize the development environment"; false
+
+# Compile source packages.
+build: ./bin/activate
+	set -ex; \
+	for src in ${SRC_PY}; do \
+		./bin/pip install -e $$src; \
+	done
+
+# Test source packages.
+test: ./bin/activate
+	FAILURES=; \
+	for src in ${SRC_PY}; do \
+		if [ -e $$src/test/input.yaml ]; then \
+			(cd $$src; ${CURDIR}/bin/pbbt -q -M 0); \
+			if [ $$? != 0 ]; then FAILURES="$$FAILURES $$src"; fi; \
+		fi; \
+	done; \
+	if [ -n "$$FAILURES" ]; then echo "Testing failed:" $$FAILURES; false; fi
+
+# Remove docker containers and volumes.
+clean:
+	docker-compose down -v --remove-orphans
 

@@ -1,3 +1,0 @@
-pbbt
-coverage
-pytest

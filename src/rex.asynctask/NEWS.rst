@@ -5,7 +5,7 @@ REX.ASYNCTASK Change Log
 .. contents:: Table of Contents
 
 
-0.7.0 (2017-xx-xx)
+0.7.0 (2018-04-24)
 ==================
 
 * Typo in dependency metadata.

@@ -5,6 +5,7 @@ build
 dist
 static/js/node_modules
 static/js/coverage
+static/js/package-lock.json
 test/sandbox
 test/broken_sandbox
 demo/static/www/bundle

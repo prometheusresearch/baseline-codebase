@@ -4,8 +4,10 @@
   <head>
     <title>rex.i18n_demo</title>
     {{ polyfill() }}
-    <link rel="stylesheet" href="{{ MOUNT['rex.i18n_demo'] }}/bundle/bundle.css">
-    <script src="{{ MOUNT['rex.i18n_demo'] }}/bundle/bundle.js"></script>
+    {% if bundle.css %}
+    <link rel="stylesheet" href="{{ bundle.css|url }}">
+    {% endif %}
+    <script src="{{ bundle.js|url }}"></script>
   </head>
   <body>
     <div id="main"></div>

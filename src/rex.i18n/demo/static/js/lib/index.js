@@ -58,7 +58,7 @@ class StringDemoOutput extends React.Component {
         <p>{agt}</p>
         <p>{ngt}</p>
         <p>{angt}</p>
-        <p>{_('You entered: %(param)s', {param: this.props.param})}</p>
+        <p>{_('You entered: %(param)s, %(numParam)n', {param: this.props.param, numParam: this.props.numParam})}</p>
       </div>
     );
   }
@@ -70,7 +70,7 @@ let FunctionalStringDemoOutput = inject(function(props) {
     <div>
       <p>{this._('Functional Inline gettext')}</p>
       <p>{this.getI18N().ngettext('Functional Inline ngettext Single', 'Functional Inline ngettext Plural', props.count)}</p>
-      <p>{this._('You entered: %(param)s', {param: props.param})}</p>
+      <p>{this._('You entered: %(param)s, %(numParam)n', {param: props.param, numParam: props.numParam})}</p>
     </div>
   );
 });
@@ -101,10 +101,12 @@ class StringDemo extends React.Component {
           <StringDemoOutput
             count={this.props.count}
             param={this.props.param}
+            numParam={this.props.numParam}
             />
           <FunctionalStringDemoOutput
             count={this.props.count}
             param={this.props.param}
+            numParam={this.props.numParam}
             />
         </div>
       </Provider>
@@ -195,7 +197,8 @@ class Demo extends React.Component {
       currency: 'USD',
       date: new Date(),
       count: 1,
-      param: 'foo'
+      param: 'foo',
+      numParam: '123456.789',
     };
   }
 
@@ -295,24 +298,32 @@ class Demo extends React.Component {
             value={this.state.param}
             onChange={this.onValueChange.bind(this, 'param')}
             />
+          <input
+            type='text'
+            value={this.state.numParam}
+            onChange={this.onValueChange.bind(this, 'numParam')}
+            />
         </div>
         <div className='rid-Demo__output'>
           <StringDemo
             locales={this.props.locales}
             count={this.state.count}
             param={this.state.param}
+            numParam={this.state.numParam}
             />
           <StringDemo
             locales={this.props.locales}
             initialIndex={1}
             count={this.state.count}
             param={this.state.param}
+            numParam={this.state.numParam}
             />
           <StringDemo
             locales={this.props.locales}
             initialIndex={2}
             count={this.state.count}
             param={this.state.param}
+            numParam={this.state.numParam}
             />
         </div>
       </div>

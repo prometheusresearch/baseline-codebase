@@ -5,6 +5,15 @@ REX.I18N Change Log
 .. contents:: Table of Contents
 
 
+0.5.5 (2018-05-04)
+==================
+
+* Enhanced the ``gettext`` and ``ngettext`` JavaScript functions to support
+  formatting codes for numbers, percentages, currencies, and dates/times in a
+  way that internationalizes those values when they are inserted into the
+  string.
+
+
 0.5.4 (2018-01-03)
 ==================
 

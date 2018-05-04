@@ -125,7 +125,8 @@ let DATETIME_FORMATS = {
 };
 
 
-class I18N {
+@autobind
+export default class I18N {
   constructor(options = {}) {
     this.isLoaded = false;
 
@@ -203,10 +204,56 @@ class I18N {
     return RTL_LOCALES.indexOf(this.config.locale.substring(0, 2)) > -1;
   }
 
+
+  sprintf(template, values) {
+    return template.replace(
+      /%\(([a-zA-Z0-9_]+)(?:\:([a-zA-Z0-9_]+))?\)(s|n|p|c|dt|d|t)/g,
+      (match, name, option, type) => {
+        let value = values[name];
+        if (value == undefined) {
+          return '';
+        }
+
+        try {
+          switch (type) {
+            case 'n':
+              return this.formatNumber(value, {
+                maximumFractionDigits: option == undefined ? 20 : option,
+              });
+
+            case 'p':
+              return this.formatPercent(value, {
+                maximumFractionDigits: option == undefined ? 20 : option,
+              });
+
+            case 'c':
+              return this.formatCurrency(value, option || 'USD');
+
+            case 'd':
+              return this.formatDate(value, option || 'medium');
+
+            case 't':
+              return this.formatTime(value, option || 'medium');
+
+            case 'dt':
+              return this.formatDateTime(value, option || 'medium');
+
+            case 's':
+            default:
+              return value;
+          }
+        } catch (exc) {
+          console.error(match, value, exc.message);
+          return value;
+        }
+      },
+    );
+  }
+
   gettext(key, variables = {}, translator) {
     translator = translator || this.jed || JedWrapper.DEFAULT;
     let value = translator.gettext(key);
-    value = translator.sprintf(value, variables);
+    value = this.sprintf(value, variables);
     return value;
   }
 
@@ -214,7 +261,7 @@ class I18N {
     translator = translator || this.jed || JedWrapper.DEFAULT;
     let value = translator.ngettext(key, pluralKey, num);
     variables = merge(variables, {num});
-    value = translator.sprintf(value, variables);
+    value = this.sprintf(value, variables);
     return value;
   }
 
@@ -283,4 +330,3 @@ class I18N {
   }
 }
 
-export default autobind(I18N);

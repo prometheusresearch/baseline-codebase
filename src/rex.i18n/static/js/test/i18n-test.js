@@ -150,6 +150,43 @@ describe('gettext', function () {
     expect(this.instances.fr.gettext('hello %(name)s', variables)).to.equal('bonjour Bob');
   });
 
+  it('should translate a formatted string with different types', function () {
+    var testDate = new Date(Date.UTC(2014, 3, 1, 9, 34, 43));
+    var variables = {
+      a_string: 'foobar',
+      a_number: 123.456789,
+      a_percent: 0.3,
+      a_currency: 1.23,
+      a_date: testDate,
+    };
+
+    expect(this.instances.en.gettext(
+      '%(a_string)s | %(a_number)n | %(a_percent)p | %(a_currency)c | %(a_date)d | %(a_date)t | %(a_date)dt',
+      variables
+    )).to.equal(
+      'foobar | 123.456789 | 30% | $1.23 | Apr 1, 2014 | 5:34:43 AM | Apr 1, 2014, 5:34:43 AM'
+    );
+    expect(this.instances.fr.gettext(
+      '%(a_string)s | %(a_number)n | %(a_percent)p | %(a_currency)c | %(a_date)d | %(a_date)t | %(a_date)dt',
+      variables
+    )).to.equal(
+      'foobar | 123,456789 | 30 % | 1,23 $US | 1 avr. 2014 | 5:34:43 AM | 1 avr. 2014 à 5:34:43 AM'
+    );
+
+    expect(this.instances.en.gettext(
+      '%(a_string)s | %(a_number:2)n | %(a_percent)p | %(a_currency:EUR)c | %(a_date:short)d | %(a_date:full)t | %(a_date:log)dt',
+      variables
+    )).to.equal(
+      'foobar | 123.46 | 30% | €1.23 | 4/1/2014 | 5:34:43 AM EDT | 4/1/2014'
+    );
+    expect(this.instances.fr.gettext(
+      '%(a_string)s | %(a_number:2)n | %(a_percent)p | %(a_currency:EUR)c | %(a_date:short)d | %(a_date:full)t | %(a_date:log)dt',
+      variables
+    )).to.equal(
+      'foobar | 123,46 | 30 % | 1,23 € | 01/04/2014 | 5:34:43 AM UTC−4 | 01/04/2014'
+    );
+  });
+
   it('should translate a formatted string with extra variables', function () {
     var variables = {
       name: 'Bob',
@@ -159,10 +196,24 @@ describe('gettext', function () {
     expect(this.instances.fr.gettext('hello %(name)s', variables)).to.equal('bonjour Bob');
   });
 
-  it('should die if not given all formatting variables', function () {
+  it('should not die if not given all formatting variables', function () {
     var variables = {};
-    expect(function () { this.instances.en.gettext('hello %(name)s', variables); }).to.throw(Error);
-    expect(function () { this.instances.fr.gettext('hello %(name)s', variables); }).to.throw(Error);
+    expect(this.instances.en.gettext('hello %(name)s', variables)).to.equal('hello ');
+    expect(this.instances.fr.gettext('hello %(name)s', variables)).to.equal('bonjour ');
+  });
+
+  it('should not die if it sees things that kinda-sorta look like formatting variables', function () {
+    expect(this.instances.en.gettext('%s, %()s, 100%, %%, %(foo)q')).to.equal('%s, %()s, 100%, %%, %(foo)q');
+    expect(this.instances.fr.gettext('%s, %()s, 100%, %%, %(foo)q')).to.equal('%s, %()s, 100%, %%, %(foo)q');
+  });
+
+  it('should not die if given bad formatting values', function () {
+    var variables = {
+      bad_number: 'foo',
+      bad_date: 'bar',
+    };
+    expect(this.instances.en.gettext('%(bad_number)n | %(bad_date)d', variables)).to.equal('NaN | bar');
+    expect(this.instances.fr.gettext('%(bad_number)n | %(bad_date)d', variables)).to.equal('NaN | bar');
   });
 });
 

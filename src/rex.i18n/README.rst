@@ -160,6 +160,33 @@ localization. Similar functionality exists for any Stateless Functional
 Components you write, simply wrap your function declaration with a call to the
 ``inject`` function from this library.
 
+The ``gettext`` and ``ngettext`` have the following signatures:
+
+* gettext(key, variables={})
+* ngettext(key, pluralKey, num, variables={})
+
+The ``key`` (and ``pluralKey``) arguments are strings that allow the following
+formatting codes:
+
+* ``%(name)s``: Inserts a string from ``variables``
+* ``%(name:decimals)n``: Formats a number from ``variables`` according to the
+  locale rules, and then inserts it into the string. The ``decimals`` is
+  optional (defaults to ``20``), but must be a number that limits the number of
+  decimal places to display.
+* ``%(name:decimals)p``: Formats a number from ``variables`` according to the
+  locale rules for percentages, and then inserts it into the string. The
+  ``decimals`` is optional (defaults to ``20``), but must be a number that
+  limits the number of decimal places to display.
+* ``%(name:currency)c``: Formats a number from ``variables`` according to the
+  locale rules for currencies, and then inserts it into the string. The
+  ``currency`` is optional (defaults to ``USD``), but must be the code for a
+  currency (e.g., USD, EUR, GBP).
+* ``%(name:format)d``, ``%(name:format)t``, ``%(name:format)dt``: Formats a
+  date from ``variables`` according to the locale rules for
+  dates/times/datetimes, and then inserts it into the string. The ``format`` is
+  optional (defaults to ``medium``), but must be one of: ``short``, ``medium``,
+  ``long``, ``full``
+
 All of the ``Format*`` components, as well as any component wrapped by the
 ``InjectI18N`` decorator or ``inject`` function, must be a descendent of the
 ``Provider`` component.  The ``Provider`` component will automatically

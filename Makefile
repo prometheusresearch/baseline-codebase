@@ -1,13 +1,17 @@
 .PHONY: \
 	default \
-	init init-local init-dist init-cfg init-docker init-sync init-remote init-bin init-env init-dev \
+	init init-local init-cfg init-docker init-sync init-remote init-bin init-env init-dev \
 	up down \
-	build \
+	build install \
 	test \
+	dist dist-local \
 	clean
 
 include Makefile.local
 include Makefile.template
+
+PRJ_NAME = ${shell hg identify -b | cut -d / -f 1}
+PRJ_VER = ${firstword ${shell hg identify -t | cut -d / -f 2 -s} ${shell hg identify -i | tr -d +}}
 
 default:
 	@echo "Available targets:"
@@ -17,22 +21,18 @@ default:
 	@echo "make down           stop docker containers"
 	@echo "make build          recompile source packages"
 	@echo "make test           test source packages"
+	@echo "make dist           build the docker image for distribution"
 	@echo "make clean          remove installed docker containers and volumes"
 
 # Initialize the development environment in a docker container.
 init:
 	@if [ -e bin/activate ]; then echo "the development environment is already initialized"; false; fi
-	${MAKE} init-cfg init-docker init-sync init-remote init-bin
+	${MAKE} init-cfg init-docker up init-sync init-remote init-bin
 
 # Initialize the development environment locally.
 init-local:
 	@if [ -e bin/activate ]; then echo "the development environment is already initialized"; false; fi
 	${MAKE} init-cfg init-env init-dev build
-
-# Initialize the production environment.
-init-dist:
-	@if [ -e bin/activate ]; then echo "the development environment is already initialized"; false; fi
-	${MAKE} init-env
 
 # Enable default configuration.
 init-cfg:
@@ -49,7 +49,6 @@ init-docker:
 	docker build -q -t rexdb/runtime ./docker/runtime
 	docker build -q -t rexdb/build ./docker/build
 	docker build -q -t rexdb/develop ./docker/develop
-	docker-compose up -d
 
 # Synchronize the source tree.
 init-sync:
@@ -105,16 +104,33 @@ build: ./bin/activate
 		./bin/pip install -e $$src; \
 	done
 
+# Compile and install source packages.
+install: ./bin/activate
+	set -ex; \
+	for src in ${SRC_PY}; do \
+		./bin/pip install $$src; \
+	done
+
 # Test source packages.
 test: ./bin/activate
 	FAILURES=; \
 	for src in ${SRC_PY}; do \
 		if [ -e $$src/test/input.yaml ]; then \
+			echo "Testing $$src..."; \
 			(cd $$src; ${CURDIR}/bin/pbbt -q -M 0); \
 			if [ $$? != 0 ]; then FAILURES="$$FAILURES $$src"; fi; \
 		fi; \
 	done; \
 	if [ -n "$$FAILURES" ]; then echo "Testing failed:" $$FAILURES; false; fi
+
+# Build the docker image for distribution.
+dist:
+	${MAKE} init-docker
+	docker build -t rexdb/${PRJ_NAME}:${PRJ_VER} -f ./docker/dist/Dockerfile .
+
+# Install the application.
+dist-local:
+	${MAKE} init-env install
 
 # Remove docker containers and volumes.
 clean:

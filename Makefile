@@ -10,26 +10,28 @@
 include Makefile.local
 include Makefile.template
 
-PRJ_NAME = ${shell hg identify -b | cut -d / -f 1}
-PRJ_VER = ${firstword ${shell hg identify -t | cut -d / -f 2 -s} ${shell hg identify -i | tr -d +}}
+REGISTRY ?=
+PRJ_NAME ?= ${shell hg identify -b | cut -d / -f 1}
+PRJ_VER ?= ${firstword ${shell hg identify -t | cut -d / -f 2 -s} ${shell hg identify -i | tr -d +}}
 
 default:
 	@echo "Available targets:"
-	@echo "make init           initialize the development environment in a docker container"
-	@echo "make init-local     initialize the development environment locally"
-	@echo "make up             start docker containers"
-	@echo "make down           stop docker containers"
-	@echo "make build          recompile source packages"
-	@echo "make test           test source packages"
-	@echo "make dist           build the docker image for distribution"
-	@echo "make clean          remove installed docker containers and volumes"
+	@echo "make init                    initialize the development environment in a docker container"
+	@echo "make init-local              initialize the development environment on this host"
+	@echo "make up                      start docker containers"
+	@echo "make down                    stop docker containers"
+	@echo "make remove                  remove installed docker containers and volumes"
+	@echo "make build                   recompile source packages"
+	@echo "make test                    test source packages"
+	@echo "make dist                    build the docker image for distribution"
+	@echo "make upload REGISTRY=<URL>   upload the distribution image to the registry"
 
 # Initialize the development environment in a docker container.
 init:
 	@if [ -e bin/activate ]; then echo "the development environment is already initialized"; false; fi
 	${MAKE} init-cfg init-docker up init-sync init-remote init-bin
 
-# Initialize the development environment locally.
+# Initialize the development environment on the local host.
 init-local:
 	@if [ -e bin/activate ]; then echo "the development environment is already initialized"; false; fi
 	${MAKE} init-cfg init-env init-dev build
@@ -93,11 +95,15 @@ up:
 down:
 	docker-compose down
 
+# Remove Docker containers and volumes.
+remove:
+	docker-compose down -v --remove-orphans
+
 # Check that the development environment is initialized.
 ./bin/activate:
 	@echo "run \"make init\" or \"make init-local\" to initialize the development environment"; false
 
-# Compile source packages.
+# Compile source packages in development mode.
 build: ./bin/activate
 	set -ex; \
 	for src in ${SRC_PY}; do \
@@ -132,7 +138,9 @@ dist:
 dist-local:
 	${MAKE} init-env install
 
-# Remove docker containers and volumes.
-clean:
-	docker-compose down -v --remove-orphans
+# Upload the distribution image.
+upload:
+	@if [ -z "${REGISTRY}" ]; then echo "REGISTRY is not set"; false; fi
+	docker tag rexdb/${PRJ_NAME}:${PRJ_VER} ${REGISTRY}/${PRJ_NAME}:${PRJ_VER}
+	docker push ${REGISTRY}/${PRJ_NAME}:${PRJ_VER}
 

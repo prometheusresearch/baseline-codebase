@@ -12,7 +12,8 @@ from htsql.core.domain import (
         NullDomain, ContainerDomain, Profile, Product, Record)
 from htsql.core.syn.syntax import VoidSyntax
 from htsql.core.tr.bind import BindingState
-from htsql.core.tr.binding import RootBinding, LiteralRecipe
+from htsql.core.tr.binding import (
+        RootBinding, LiteralRecipe, ClosedRecipe, SubstitutionRecipe)
 from htsql.core.tr.lookup import prescribe
 from htsql.core.tr.decorate import decorate_void
 from htsql_rex_deploy.classify import get_meta
@@ -34,6 +35,10 @@ def get_domain(entity_arc, field_arc):
         binding = state.use(recipe, state.scope.syntax)
         state.push_scope(binding)
         recipe = prescribe(field_arc, state.scope)
+        if isinstance(recipe, ClosedRecipe) and \
+                isinstance(recipe.recipe, SubstitutionRecipe) and \
+                recipe.recipe.parameters:
+            return None
         binding = state.use(recipe, state.scope.syntax)
         domain = binding.domain
     except HTSQLError:

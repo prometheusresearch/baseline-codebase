@@ -1,7 +1,7 @@
 
-# Python source packages.
+# Python packages.
 SRC_PY = \
-    src/htsql \
+	src/htsql \
 	src/rex.setup \
 	src/rex.core \
 	src/rex.ctl \

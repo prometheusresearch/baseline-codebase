@@ -100,9 +100,9 @@ init-env:
 
 # Install development tools.
 init-dev:
-	./bin/pip install -q pbbt==0.1.5
-	./bin/pip install -q coverage==4.5.1
-	./bin/pip install -q pytest==3.5.0
+	./bin/pip --isolated install -q pbbt==0.1.5
+	./bin/pip --isolated install -q coverage==4.5.1
+	./bin/pip --isolated install -q pytest==3.5.0
 	echo "$$PBBT_TEMPLATE" >./bin/pbbt
 	chmod a+x ./bin/pbbt
 	mkdir -p ./data/attach
@@ -139,7 +139,7 @@ purge:
 build: ./bin/activate
 	set -ex; \
 	for src in ${SRC_PY}; do \
-		./bin/pip install -e $$src; \
+		./bin/pip --isolated install -e $$src; \
 	done
 .PHONY: build
 
@@ -148,7 +148,7 @@ build: ./bin/activate
 install: ./bin/activate
 	set -ex; \
 	for src in ${SRC_PY}; do \
-		./bin/pip install $$src; \
+		./bin/pip --isolated install $$src; \
 	done
 .PHONY: install
 

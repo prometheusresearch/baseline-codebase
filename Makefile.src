@@ -1,0 +1,43 @@
+
+# Python packages.
+SRC_PY = \
+	src/htsql \
+	src/rex.setup \
+	src/rex.core \
+	src/rex.ctl \
+	src/rex.web \
+	src/rex.sendmail \
+	src/rex.expression \
+	src/rex.db \
+	src/rex.port \
+	src/rex.deploy \
+	src/rex.attach \
+	src/rex.urlmap \
+	src/rex.file \
+	src/rex.menu \
+	src/rex.widget \
+	src/rex.action \
+	src/rex.instrument \
+	src/rex.i18n \
+	src/rex.forms \
+	src/rex.logging \
+	src/rex.restful \
+	src/rex.sms \
+	src/rex.widget_chrome \
+	src/rex.dbgui \
+	src/rex.platform \
+	src/rex.portal_client \
+	src/rex.form_previewer \
+	src/rex.formbuilder \
+	src/rex.mobile \
+	src/rex.asynctask \
+	src/rex.job \
+	src/rex.mart \
+	src/rex.query \
+	src/rex.mart_actions \
+	src/rex.acquire_actions \
+	src/rex.assessment_import \
+	src/rex.tabular_import \
+	src/rex.about \
+	src/rex.baseline
+

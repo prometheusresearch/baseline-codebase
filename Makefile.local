@@ -1,3 +1,0 @@
-TESTS_PBBT = rex.setup rex.core rex.ctl rex.web rex.sendmail rex.expression rex.db rex.port rex.deploy rex.attach rex.urlmap rex.file rex.menu rex.widget rex.action rex.instrument rex.i18n rex.forms rex.logging rex.restful rex.sms rex.dbgui rex.form_previewer rex.formbuilder rex.mobile rex.mart rex.query rex.mart_actions rex.acquire_actions rex.assessment_import rex.asynctask rex.job rex.tabular_import rex.about
-# TODO: htsql rex.widget_chrome
-

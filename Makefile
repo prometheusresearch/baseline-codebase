@@ -95,6 +95,8 @@ init-bin:
 # Create the environment.
 init-env:
 	virtualenv --system-site-packages .
+	npm -g --prefix ${CURDIR} install yarn@1.6.0
+
 .PHONY: init-env
 
 
@@ -140,6 +142,10 @@ build: ./bin/activate
 	set -ex; \
 	for src in ${SRC_PY}; do \
 		./bin/pip --isolated install -e $$src; \
+	done; \
+	if [ -z "$$TMPDIR" ]; then export TMPDIR=/tmp; fi; \
+	for src in ${SRC_JS}; do \
+		./bin/yarn --cwd $$src && ./bin/yarn --cwd $$src run build; \
 	done
 .PHONY: build
 
@@ -149,6 +155,10 @@ install: ./bin/activate
 	set -ex; \
 	for src in ${SRC_PY}; do \
 		./bin/pip --isolated install $$src; \
+	done; \
+	if [ -z "$$TMPDIR" ]; then export TMPDIR=/tmp; fi; \
+	for src in ${SRC_JS}; do \
+		./bin/yarn --cwd $$src && ./bin/yarn --cwd $$src run build; \
 	done
 .PHONY: install
 

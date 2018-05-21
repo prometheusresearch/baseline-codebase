@@ -1,0 +1,35 @@
+htsql_extensions:
+    rex_deploy:
+
+application_title: Rex Baseline Demo
+
+header_primary_color: "#004E94"
+header_secondary_color: "#0094CD"
+
+user_query: user[$USER].(is_null(expires)|expires>now())
+auto_user_query: |
+  do(
+    if(is_null(user[$USER].remote_user),
+      insert(user := {remote_user := $USER, system_admin := false()}),
+      null()
+    ),
+    user[$USER].filter(is_null(expires)|expires>now()).remote_user
+  )
+
+access_queries:
+  system_admin: user[$USER].system_admin
+  regular_user: user[$USER].(!system_admin)
+
+access_masks:
+  system_admin: []
+  regular_user:
+  - user?!system_admin
+
+rex_widget:
+  chrome: rex.widget_chrome.MenuChrome
+
+rex_action:
+  include_page_breadcrumb_item: true
+
+mart_htsql_extensions:
+  tweak.shell:

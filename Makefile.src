@@ -39,5 +39,7 @@ SRC_PY = \
 	src/rex.assessment_import \
 	src/rex.tabular_import \
 	src/rex.about \
-	src/rex.baseline
+	src/rex.baseline \
+	src/rex.demo.baseline
 
+SRC_JS = src/rex.demo.baseline/static/js

@@ -1,0 +1,47 @@
+title: Users
+type: wizard
+
+states:
+  not-self:
+    user:
+      title: Not Self
+      expression: remote_user != $USER
+
+path:
+  - pick-user:
+    - view-user:
+    - edit-user:
+      - replace: ../../pick-user/view-user
+    - make-user:
+      - replace: ../../pick-user/view-user
+
+actions:
+  pick-user:
+    type: pick
+    title: Pick User
+    entity:
+      remote_user: user
+
+  view-user:
+    type: view
+    title: View User
+    entity:
+      remote_user: user
+
+  edit-user:
+    type: edit
+    title: Edit User
+    entity:
+      remote_user: user
+    fields:
+    - remote_user
+    - expires
+
+  make-user:
+    type: make
+    title: Make User
+    entity:
+      remote_user: user
+    fields:
+    - remote_user
+    - expires

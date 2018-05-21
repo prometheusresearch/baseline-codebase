@@ -1,0 +1,13 @@
+menu:
+- title: Home
+  access: authenticated
+  path: /
+  action: !include rex.demo.baseline:/resource/home.yaml
+- title: Users
+  access: regular_user
+  path: /user
+  action: !include rex.demo.baseline:/resource/user.yaml
+- title: Users
+  access: system_admin
+  path: /user-system-admin
+  action: !include rex.demo.baseline:/resource/user-system-admin.yaml

@@ -21,4 +21,4 @@ setup(
     ],
     rex_init='rex.dbgui',
     rex_static='static',
-    rex_bundle={'./www/bundle': ['webpack:rex-dbgui']})
+)

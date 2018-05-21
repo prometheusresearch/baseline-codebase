@@ -2,7 +2,9 @@
   "name": "rex-forms",
   "version": "2.4.1",
   "main": "lib/index.js",
-  "rex": {},
+  "rex": {
+    "bundleAll": true
+  },
   "babel": {
     "presets": [
       "prometheusresearch"

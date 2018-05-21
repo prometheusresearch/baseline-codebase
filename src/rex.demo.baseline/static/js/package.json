@@ -1,0 +1,40 @@
+{
+  "name": "rex-demo-baseline",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./lib/index.js",
+  "rex": {
+    "bundleAll": true
+  },
+  "devDependencies": {
+    "@prometheusresearch/react-scripts": "0.9.5009"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "dependencies": {
+    "react": "^0.14.0",
+    "react-addons-update": "^0.14.0",
+    "react-addons-shallow-compare": "^0.14.0",
+    "react-dom": "^0.14.0",
+    "to-snake-case": "^1.0.0",
+    "bootstrap": "^3.3.7",
+    "rex-acquire-actions": "*",
+    "rex-action": "*",
+    "rex-dbgui": "*",
+    "rex-expression": "*",
+    "rex-formbuilder": "*",
+    "rex-forms": "*",
+    "rex-i18n": "*",
+    "rex-mart-actions": "*",
+    "rex-query": "*",
+    "rex-widget": "*",
+    "rex-widget-chrome": "*"
+  },
+  "scripts": {
+    "watch": "react-scripts watch",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}

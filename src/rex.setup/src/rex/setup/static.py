@@ -80,7 +80,7 @@ class install_static(setuptools.Command):
         # Copy static files from `source` to `target`.
         def filter(src, dst):
             # Skip files starting from `.`.
-            if src.startswith('.') or '/.' in src:
+            if src.startswith('.') or '/.' in src or src.startswith('js/'):
                 return None
             self.outfiles.append(dst)
             distutils.log.info("copying %s to %s", src, dst)

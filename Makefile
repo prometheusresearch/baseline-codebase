@@ -140,12 +140,12 @@ purge:
 # Compile source packages in development mode.
 build: ./bin/activate
 	set -ex; \
-	for src in ${SRC_PY}; do \
-		./bin/pip --isolated install -e $$src; \
-	done; \
 	if [ -z "$$TMPDIR" ]; then export TMPDIR=/tmp; fi; \
 	for src in ${SRC_JS}; do \
 		./bin/yarn --cwd $$src && ./bin/yarn --cwd $$src run build; \
+	done; \
+	for src in ${SRC_PY}; do \
+		./bin/pip --isolated install -e $$src; \
 	done
 .PHONY: build
 
@@ -153,12 +153,12 @@ build: ./bin/activate
 # Compile and install source packages.
 install: ./bin/activate
 	set -ex; \
-	for src in ${SRC_PY}; do \
-		./bin/pip --isolated install $$src; \
-	done; \
 	if [ -z "$$TMPDIR" ]; then export TMPDIR=/tmp; fi; \
 	for src in ${SRC_JS}; do \
 		./bin/yarn --cwd $$src && ./bin/yarn --cwd $$src run build; \
+	done; \
+	for src in ${SRC_PY}; do \
+		./bin/pip --isolated install $$src; \
 	done
 .PHONY: install
 

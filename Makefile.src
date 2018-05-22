@@ -42,4 +42,11 @@ SRC_PY = \
 	src/rex.baseline \
 	src/rex.demo.baseline
 
-SRC_JS = src/rex.demo.baseline/static/js
+# Javascript packages.
+SRC_JS = \
+	src/rex.demo.baseline/static/js
+
+# Data files to copy or link (from:to).
+SRC_DATA = \
+	src/rex.demo.baseline/static/js/build:share/rex/rex.demo.baseline/www/bundle
+

@@ -20,7 +20,7 @@ default:
 	@echo "make up                      start containers"
 	@echo "make down                    stop containers"
 	@echo "make purge                   remove generated containers and volumes"
-	@echo "make build                   recompile source packages"
+	@echo "make develop                 recompile source packages"
 	@echo "make test                    test source packages"
 	@echo "make dist                    build the docker image for distribution"
 	@echo "make upload REGISTRY=<URL>   upload the distribution image to the registry"
@@ -38,7 +38,7 @@ init:
 # Initialize the development environment in-place.
 init-local:
 	@if [ -e bin/activate ]; then echo "${RED}The development environment is already initialized!${NORM}"; false; fi
-	${MAKE} init-cfg init-env init-dev build
+	${MAKE} init-cfg init-env init-dev develop
 	@echo "${GREEN}The development environment is ready!${NORM}"
 .PHONY: init-local
 
@@ -74,7 +74,7 @@ init-sync:
 
 # Initialize the environment in the container.
 init-remote:
-	docker-compose exec develop make init-env init-dev build
+	docker-compose exec develop make init-env init-dev develop
 .PHONY: init-remote
 
 
@@ -138,27 +138,52 @@ purge:
 
 
 # Compile source packages in development mode.
-build: ./bin/activate
+develop: ./bin/activate
+	@echo "Building Javascript packages..."
 	set -ex; \
 	if [ -z "$$TMPDIR" ]; then export TMPDIR=/tmp; fi; \
 	for src in ${SRC_JS}; do \
-		./bin/yarn --cwd $$src && ./bin/yarn --cwd $$src run build; \
-	done; \
+		./bin/yarn --cwd $$src; \
+		./bin/yarn --cwd $$src run build; \
+	done
+	@echo "Building Python packages..."
+	set -ex; \
 	for src in ${SRC_PY}; do \
 		./bin/pip --isolated install -e $$src; \
 	done
-.PHONY: build
+	@echo "Linking data files..."
+	set -ex; \
+	for src in ${SRC_DATA}; do \
+		from=$$(echo $$src | cut -d : -f 1); \
+		to=$$(echo $$src | cut -d : -f 2); \
+		mkdir -p $$(dirname $$to); \
+		rm -f $$to; \
+		ln -s ${CURDIR}/$$from $$to; \
+	done
+.PHONY: develop
 
 
 # Compile and install source packages.
 install: ./bin/activate
+	@echo "Building Javascript packages..."
 	set -ex; \
 	if [ -z "$$TMPDIR" ]; then export TMPDIR=/tmp; fi; \
 	for src in ${SRC_JS}; do \
-		./bin/yarn --cwd $$src && ./bin/yarn --cwd $$src run build; \
-	done; \
+		./bin/yarn --cwd $$src; \
+		./bin/yarn --cwd $$src run build; \
+	done
+	@echo "Building Python packages..."
+	set -ex; \
 	for src in ${SRC_PY}; do \
 		./bin/pip --isolated install $$src; \
+	done
+	@echo "Copying data files..."
+	set -ex; \
+	for src in ${SRC_DATA}; do \
+		from=$$(echo $$src | cut -d : -f 1); \
+		to=$$(echo $$src | cut -d : -f 2); \
+		mkdir -p $$(dirname $$to); \
+		cp -aT $$from $$to; \
 	done
 .PHONY: install
 

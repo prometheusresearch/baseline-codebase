@@ -62,4 +62,5 @@ subinclude:src/rex.job/.hgignore
 subinclude:src/rex.tabular_import/.hgignore
 subinclude:src/rex.about/.hgignore
 subinclude:src/rex.baseline/.hgignore
+subinclude:src/rex.demo.baseline/.hgignore
 

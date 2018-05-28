@@ -2,7 +2,9 @@
   "name": "rex-i18n",
   "version": "0.5.5",
   "main": "lib/index.js",
-  "rex": {},
+  "rex": {
+    "bundleAll": true
+  },
   "babel": {
     "presets": [
       "prometheusresearch"

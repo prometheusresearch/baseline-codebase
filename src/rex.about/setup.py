@@ -29,6 +29,5 @@ setup(
         'rex.action>1,<2',
     ],
     rex_init='rex.about',
-    rex_static='static',
 )
 

@@ -30,4 +30,4 @@ setup(
         'rex.forms>=2.4,<3',
     ],
     rex_init='rex.acquire_actions',
-    rex_static='static', )
+)

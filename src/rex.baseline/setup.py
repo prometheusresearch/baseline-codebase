@@ -21,11 +21,5 @@ setup(
         'rex.query',
         'rex.asynctask',
     ],
-    rex_static='static',
-    rex_bundle={
-        './www/bundle': [
-            'webpack:rex-baseline'
-        ]
-    }
+    rex_static='static'
 )
-

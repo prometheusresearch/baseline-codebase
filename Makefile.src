@@ -39,5 +39,14 @@ SRC_PY = \
 	src/rex.assessment_import \
 	src/rex.tabular_import \
 	src/rex.about \
-	src/rex.baseline
+	src/rex.baseline \
+	src/rex.demo.baseline
+
+# Javascript packages.
+SRC_JS = \
+	src/rex.demo.baseline/js
+
+# Data files to copy or link (from:to).
+SRC_DATA = \
+	src/rex.demo.baseline/js/build:share/rex/rex.demo.baseline/www/bundle
 

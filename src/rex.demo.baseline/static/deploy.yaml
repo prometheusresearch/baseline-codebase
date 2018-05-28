@@ -1,0 +1,14 @@
+- table: user
+  with:
+  - column: remote_user
+    type: text
+  - identity: [remote_user]
+  - column: expires
+    type: datetime
+    required: false
+  - column: system_admin
+    was: site_admin
+    type: boolean
+    required: true
+    default: false
+  - data: data.csv

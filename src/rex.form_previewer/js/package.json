@@ -1,5 +1,6 @@
 {
   "name": "rex-form-previewer",
+  "private": true,
   "version": "0.10.5",
   "description": "JavaScript and CSS for the Form Previewer application",
   "author": "Prometheus Research, LLC",
@@ -10,22 +11,39 @@
   },
   "main": "lib/index.js",
   "rex": {},
+  "workspaces": [
+    "../../rex.expression/js",
+    "../../rex.forms/js",
+    "../../rex.i18n/js"
+  ],
+  "resolutions": {
+    "**/react": "0.14.9",
+    "**/react-dom": "0.14.9"
+  },
   "peerDependencies": {
     "react": "^0.14.0",
     "react-dom": "^0.14.0"
   },
   "dependencies": {
     "@prometheusresearch/react-ui": "^0.21.1",
-    "react-forms": "2.0.0-beta35",
-    "derivable": "1.0.0-beta11"
+    "derivable": "1.0.0-beta11",
+    "prop-types": "^15.6.1",
+    "react-forms": "2.0.0-beta35"
   },
   "devDependencies": {
-    "react": "^0.14.0",
-    "react-dom": "^0.14.0",
+    "@prometheusresearch/react-scripts": "0.9.5009",
     "eslint": "^2.10.2",
-    "eslint-config-prometheusresearch": "^0.2.0"
+    "eslint-config-prometheusresearch": "^0.2.0",
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0"
   },
   "eslintConfig": {
     "extends": "prometheusresearch"
+  },
+  "scripts": {
+    "watch": "react-scripts watch",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
   }
 }

@@ -1,0 +1,300 @@
+********************************
+4.12 Migration Guide
+********************************
+
+The `rex.platform` of version 4.12 brings a new level of the application
+flexibility for the price of the total backward incompatibility and manual
+upgrade requirement. In this document we'll try to summarize the steps needed
+for the successful upgrade from pre-4.12 version.
+
+
+Upgrade to 4.11
+-----------------
+
+This is the step #0. If your application is using pre-4.11 version of the
+`rex.platform` execute the version-by-version upgrade until it's using 4.11.
+
+
+Pre-upgrade Actions
+-------------------
+
+While being on the 4.11 you can do several actions which will make the upgrade
+easier:
+
+* Remove the dead-code. I.e. unneeded imports, non-used JavaScript of Python
+  files, YAML configuration. In short everything which is not used anymore
+  should be removed from your application code entirely.
+
+* Swicth to use new `data fetching api`_ in your `rex.widget`-based code.
+
+.. _`data fetching api`: https://doc.rexdb.org/rex.widget/2.2.0/guide/data-api.html
+
+After doing all of this, upgrade the `rex.platform` version number in your
+`setup.py` and try to serve your application. It should fail miserably, but
+that's the expected behavior which we're going to fix.
+
+
+Removing rex.applet dependency
+------------------------------
+
+One of the biggest changes on the 4.12 removing the `rex.applet` dependency.
+This leads to less packages and more granular access control. The main goal of
+this chapter is to provide instructions how to merge all you Python, JavaScript
+and YAML code together.
+
+We assume that the target application consists of the main `client.pkg` package
+and several applets in its dependencies. Our goal here is to get rid of those
+applets entirely and make sure all the valuable code is transfered to the
+`client.pkg` package.
+
+
+settings.yaml & deploy.yaml
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This probably is the simplest part of the whole process. If your project
+happened to have settings and deploy facts spread accross multiple applets,
+merge them manually and put the content to the
+`client.pkg/static/settings.yaml` and `client.pkg/static/deploy.yaml`
+respectively. Of course, in case of deploy you may design more advanced and
+maintainable file structure with includes etc. This is up to your application
+design. The key success metric here is an absense of settings and deploy fact
+in applets and transferring them right to the `client.pkg` source code.
+
+
+Python code
+~~~~~~~~~~~~~
+
+Moving Python code is a little bit more complex. Presumably, you have several
+types of Python assets in the application: commands, control routines, widgets,
+actions  formfields & permissions. We recommend you the following file
+structure for keeping that::
+    
+    client.pkg/
+        src/
+            client/
+                __init__.py
+                pkg/
+                    __init__.py
+                    action/ # keep all actions here, one per file
+                        __init__.py
+                        my_action1.py
+                        ...
+                    widget/ # keep all widgets here, one per file
+                        __init__.py
+                        my_widget1.py
+                        ...
+                    formfield/ # keep all formfields here, one per file
+                        __init__.py
+                        my_formfield1.py
+                        ...
+                    ctl/ # keep all control routines here, one per file
+                        __init__.py
+                        my_ctl1.py
+                        ...
+                    commands/ # keep all commands here, one per file
+                        __init__.py
+                        my_command1.py
+                        ...
+                    auth.py # custom permissions python code as-is
+
+
+Don't forget to make sure all the assets are properly imported in the
+`client/pkg/__init__.py`.
+
+
+JavaScript Code
+~~~~~~~~~~~~~~~
+
+The process for the JavaScript code is much like the one for the Python code
+with just a different code structure::
+
+    client.pkg/
+        static/
+            js/
+                package.json
+                lib/
+                    action/
+                        MyAction1.js
+                        ...
+                    widget/
+                        MyWidget1.js
+                        ...
+                    formfield/
+                        MyFormField1.js
+                        ...
+
+The assumption here is that your main JavaScript assets are widgets, actions
+and formfields. If you have other JavaScript code, modify the file structure in
+order to fulfill your needs. Although the recommendation to separate 3 main
+types of assets onto 3 different folders remains.
+
+If your application happened to have additional JavaScript packages in its
+dependency list - specify those in the `client.pkg/static/js/package.json`.
+
+Once this step is completed - get back to your Python code and make sure the
+`js_type` attribute of all widgets, actions and formfields is specified
+properly (i.e. pointing to the JavaScript code in the `client.pkg` and not the
+applet).
+
+
+urlmap.yaml
+~~~~~~~~~~~
+
+This section is probably the most complex. So, let's imagine you've got
+`client.pkg` with 2 applets in it: `client.applet1` and `client.applet2`. Both
+applets have the `static/urlmap.yaml` file configured. And the
+`client.pkg/static/settings.yaml` says something like this::
+
+    access:
+        client.applet1: applet1_access
+        client.applet2: applet2_access
+
+For each URL entry in the `urlmap.yaml` and its include files do the following:
+
+* Prepend the key URL with the prefix based on applet name. For example, in
+  `client.applet1` the URL `/do-something` becomes `/applet1/do-something`.
+
+* Add the `access` field as configured on per-package basis. I.e. for all URLs
+  in the `client.applet2` add `access: applet2_access` (based on the example
+  above).
+
+* Remove the `!<AppletPage>`, `!<WizardPage>` and `<!IFramePage>` configuration
+  as shown in examples below
+
+`!<AppletPage>`::
+
+    # Before
+    /widget:
+        widget: !<AppletPage>
+            title: My Widget
+            chidlren: <!MyWidget>
+
+    #After
+    /applet1/widget:
+        title: My Widget
+        access: applet1_access
+        widget: <!MyWidget>
+
+`!<WizardPage>`::
+
+    #Before
+    /wizard:
+        widget: !<WizardPage>
+            title: My Wizard
+            path: ...
+            actions: ...
+
+    #After
+    /applet1/wizard:
+        access: applet1_access
+        action:
+            type: wizard
+            title: My Wizard
+            path: ...
+            actions: ...
+
+`!<IFramePage>`::
+
+    #Before
+    /iframe:
+        widget: !<IFramePage>
+            title: My IFrame
+            src: package:/url
+
+    #After
+    /applet1/iframe:
+        title: My IFrame
+        access: applet1_access
+        widget: !<IFrame>
+
+
+Once this is done, copy all applet's `urlmap.yaml` files to the main package.
+We recommend the following initial organization of these files::
+
+    client.pkg/
+        static/
+            urlmap.yaml #includes applet1/urmap.yaml and applet2/urlmap.yaml
+            applet1/
+                urlmap.yaml #includes url1.yaml, url2.yaml etc.
+                url1.yaml
+                url2.yaml
+                ...
+            applet2/
+                urlmap.yaml #includes url1.yaml, url2.yaml etc.
+                url1.yaml
+                url2.yaml
+                ...
+
+The other recommendation here is to use one yaml file per each puclicly
+accessible URL (widget or wizard). Whereas port URLs and other related URLs
+should be defined right in the same file with the public URL which uses them.
+Please do not re-use ports between different URLs.
+
+If everything done correctly so far, the application should be serve-able at
+this moment (`rex serve` call does not fail). Although it is unlikely that you
+can use it in your browser yet, since the JavaScript code needs to be fixed to
+reflect the latest `rex.widget` changes. The changelog can be found `here
+<https://doc.rexdb.org/rex.widget/latest/changes.html#id2>`_. After correcting
+the JavaScript code you should have your application up and running, JavaScript
+bundle should not have compilation errors and your configured URLs could be
+navigated in browser.
+
+
+Adding chrome
+~~~~~~~~~~~~~~~
+
+Once you open any of the URLs, you'll notice that it works, but looks weird,
+i.e. "headless": no menu, information about the current user or the "Logout"
+button. Previously, this functionality was delivered by the `AppletPage` widget
+or its derivatives if you used the custom chrome. Now as it is gone you need to
+use your own chrome:
+
+* add the `rex.widget_chrome <1` dependency to your setup.py file (make sure it
+  is installed in your environment first)
+
+* add the following `rex_widget` setting to the `settings.yaml`::
+
+    rex_widget:
+      chrome: rex.widget_chrome.Chrome
+
+* configure the main application menu as following in `settings.yaml`:: 
+
+    menu:
+        - title: Group1
+          items:
+          - title: Link1
+            url: client.pkg:/applet1/url
+            access: applet1_access
+          - title: Link2
+            url: client.pkg:/applet2/url
+            access: applet2_access
+          ...
+        - title: Group2
+        ...
+
+After the restarting your application you should see it up and running
+completely. Please note, that access setting specified in the `menu` takes the
+precedence over the access configured in the urlmap for the related URL.
+
+The method described above should work well for you in case you've used the
+default `AppletPage` before. If you had your own customized chrome you may want
+to port it over to a new platform. Take a look to `rex.widget_chrome` source
+code and documentation for more information. In either case using
+`rex.widget_chrome` as an intermediate step or as the base for your custom
+chrome should be sufficient.
+
+
+Permissions
+-------------
+
+So, even the application runs well at this point, we still may be able to
+improve it. If you didn't have custom permissions configured and only used
+`autheticated`, `anybody` or `nobody` so far, you may skip this part.
+Otherwise, if your permissions are based on some data from the database and the
+current `$USER` value, please refer to `rex.db`'s `Authentication and
+Authorization
+<https://doc.rexdb.org/rex.db/latest/guide.html#authentication-and-authorization>`_
+section.
+
+After you're done with this you may remove `auth.py` from the source code and
+the application migration could be considered complete. Congratulations!

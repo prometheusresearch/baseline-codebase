@@ -25,7 +25,6 @@ SRC_PY = \
 	src/rex.sms \
 	src/rex.widget_chrome \
 	src/rex.dbgui \
-	src/rex.platform \
 	src/rex.portal_client \
 	src/rex.form_previewer \
 	src/rex.formbuilder \

@@ -17,6 +17,7 @@ default:
 	@echo "Available targets:"
 	@echo "make init                    initialize the development environment in a container"
 	@echo "make init-local              initialize the development environment in-place"
+	@echo "make doc                     build repository documentation"
 	@echo "make up                      start containers"
 	@echo "make down                    stop containers"
 	@echo "make purge                   remove generated containers and volumes"
@@ -30,7 +31,7 @@ default:
 # Initialize the development environment in a docker container.
 init:
 	@if [ -e bin/activate ]; then echo "${RED}The development environment is already initialized!${NORM}"; false; fi
-	${MAKE} init-cfg init-docker up init-sync init-remote init-bin
+	${MAKE} init-cfg init-docker up init-sync init-remote init-bin doc
 	@echo "${GREEN}The development environment is ready!${NORM}"
 .PHONY: init
 
@@ -38,9 +39,14 @@ init:
 # Initialize the development environment in-place.
 init-local:
 	@if [ -e bin/activate ]; then echo "${RED}The development environment is already initialized!${NORM}"; false; fi
-	${MAKE} init-cfg init-env init-dev develop
+	${MAKE} init-cfg init-env init-dev develop doc
 	@echo "${GREEN}The development environment is ready!${NORM}"
 .PHONY: init-local
+
+# Build documentation
+doc:
+	bin/sphinx-build doc doc/build
+.PHONY: doc
 
 
 # Enable default configuration.

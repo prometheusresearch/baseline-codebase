@@ -10,8 +10,23 @@
     "@prometheusresearch/react-scripts": "0.9.5009"
   },
   "workspaces": [
-    "packages/*"
+    "../../rex.about/js",
+    "../../rex.acquire_actions/js",
+    "../../rex.action/js",
+    "../../rex.dbgui/js",
+    "../../rex.expression/js",
+    "../../rex.formbuilder/js",
+    "../../rex.forms/js",
+    "../../rex.i18n/js",
+    "../../rex.mart_actions/js",
+    "../../rex.query/js",
+    "../../rex.widget/js",
+    "../../rex.widget_chrome/js"
   ],
+  "resolutions": {
+    "**/react": "0.14.9",
+    "**/react-dom": "0.14.9"
+  },
   "dependencies": {
     "react": "^0.14.0",
     "react-addons-update": "^0.14.0",

@@ -8,7 +8,9 @@
     <title>{% block title %}Form Previewer{% endblock %}</title>
 
     <script type="text/javascript" src="{{ bundle.js|url }}"></script>
+    {% if bundle.css %}
     <link rel="stylesheet" href="{{ bundle.css|url }}" media="screen">
+    {% endif %}
 </head>
 <body>
 

@@ -17,6 +17,7 @@ default:
 	@echo "Available targets:"
 	@echo "make init                    initialize the development environment in a container"
 	@echo "make init-local              initialize the development environment in-place"
+	@echo "make doc                     build repository documentation"
 	@echo "make up                      start containers"
 	@echo "make down                    stop containers"
 	@echo "make purge                   remove generated containers and volumes"

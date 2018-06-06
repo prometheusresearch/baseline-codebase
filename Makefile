@@ -31,7 +31,7 @@ default:
 # Initialize the development environment in a docker container.
 init:
 	@if [ -e bin/activate ]; then echo "${RED}The development environment is already initialized!${NORM}"; false; fi
-	${MAKE} init-cfg init-docker up init-sync init-remote init-bin doc
+	${MAKE} init-cfg init-docker up init-sync init-remote init-bin
 	@echo "${GREEN}The development environment is ready!${NORM}"
 .PHONY: init
 
@@ -39,14 +39,9 @@ init:
 # Initialize the development environment in-place.
 init-local:
 	@if [ -e bin/activate ]; then echo "${RED}The development environment is already initialized!${NORM}"; false; fi
-	${MAKE} init-cfg init-env init-dev develop doc
+	${MAKE} init-cfg init-env init-dev develop
 	@echo "${GREEN}The development environment is ready!${NORM}"
 .PHONY: init-local
-
-# Build documentation
-doc:
-	bin/sphinx-build doc doc/build
-.PHONY: doc
 
 
 # Enable default configuration.

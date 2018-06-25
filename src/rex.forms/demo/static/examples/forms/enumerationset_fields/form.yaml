@@ -198,6 +198,40 @@ pages:
             - id: '4'
               text:
                 en: four
+      - type: question
+        options:
+          fieldId: q15
+          text:
+            en: Long choice descriptions
+          enumerations:
+            - id: bar
+              text:
+                en: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus fermentum finibus tortor. Praesent gravida odio ornare nunc vehicula congue. Duis ut leo quis nisl ullamcorper hendrerit non at libero. Aenean mollis bibendum condimentum. Phasellus interdum turpis sit amet risus pretium, eu commodo est ullamcorper. Pellentesque mattis, elit ac mollis molestie, purus magna dignissim justo, volutpat luctus mi justo eget nisl. Integer egestas mi risus, vel euismod magna egestas sed. Aliquam maximus sem eget magna viverra, non porta magna sodales. Sed egestas id lorem ut venenatis.
+            - id: foo
+              text:
+                en: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus fermentum finibus tortor. Praesent gravida odio ornare nunc vehicula congue. Duis ut leo quis nisl ullamcorper hendrerit non at libero. Aenean mollis bibendum condimentum. Phasellus interdum turpis sit amet risus pretium, eu commodo est ullamcorper.
+            - id: baz
+              text:
+                en: This is shorter.
+      - type: question
+        options:
+          fieldId: q16
+          text:
+            en: Long choice descriptions with hotkeys
+          enumerations:
+            - id: bar
+              text:
+                en: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus fermentum finibus tortor. Praesent gravida odio ornare nunc vehicula congue. Duis ut leo quis nisl ullamcorper hendrerit non at libero. Aenean mollis bibendum condimentum. Phasellus interdum turpis sit amet risus pretium, eu commodo est ullamcorper. Pellentesque mattis, elit ac mollis molestie, purus magna dignissim justo, volutpat luctus mi justo eget nisl. Integer egestas mi risus, vel euismod magna egestas sed. Aliquam maximus sem eget magna viverra, non porta magna sodales. Sed egestas id lorem ut venenatis.
+            - id: foo
+              text:
+                en: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus fermentum finibus tortor. Praesent gravida odio ornare nunc vehicula congue. Duis ut leo quis nisl ullamcorper hendrerit non at libero. Aenean mollis bibendum condimentum. Phasellus interdum turpis sit amet risus pretium, eu commodo est ullamcorper.
+            - id: baz
+              text:
+                en: This is shorter.
+          widget:
+            type: checkGroup
+            options:
+              autoHotkeys: true
 
   - id: page3
     elements:

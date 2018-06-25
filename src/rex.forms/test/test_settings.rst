@@ -66,6 +66,6 @@ When specified in more than one place, this setting's values will be merged::
     >>> test = Rex('__main__', 'rex.forms_demo', forms_presentation_adaptors={'chan135': ['lookup'], 'somethingelse': ['demo']})
     >>> test.on()
     >>> get_settings().forms_presentation_adaptors
-    {'demoapp': ['lookup'], 'chan135': ['demo', 'lookup'], 'somethingelse': ['demo'], 'lookupchannel': ['lookup']}
+    {'demoapp': ['lookup'], 'chan135': ['lookup'], 'somethingelse': ['demo'], 'lookupchannel': ['lookup']}
     >>> test.off()
 

@@ -93,6 +93,10 @@ record:
         eleven:
   - id: q13
     type: basic
+  - id: q14
+    type: basic
+  - id: q15
+    type: basic
 
   - id: q_text
     type: text

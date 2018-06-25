@@ -133,6 +133,10 @@ record:
     type: numeric_set
   - id: q14
     type: numeric_set
+  - id: q15
+    type: basic
+  - id: q16
+    type: basic
 
   - id: q_text
     type: text

@@ -4,6 +4,24 @@ REX.FORMS Change Log
 
 .. contents:: Table of Contents
 
+
+2.4.3 (2018-06-25)
+==================
+
+* Fixed an issue where the ``forms_presentation_adaptors`` setting wasn't
+  merging values in a useful way.
+* Fixed some rendering issues with respect to enumeration choices and hotkey
+  information.
+
+
+2.4.2 (2018-05-14)
+==================
+
+* Adjusted width of text widgets to be full-width on narrow screens (mobile
+  devices, etc).
+* Fixed issues with the behavior of date/time fields on Android.
+
+
 2.4.1 (2017-11-10)
 ==================
 

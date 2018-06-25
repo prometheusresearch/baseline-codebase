@@ -1,0 +1,4 @@
+demo: rex serve rex.i18n_demo
+
+demo_js: rex watch rex.i18n_demo
+

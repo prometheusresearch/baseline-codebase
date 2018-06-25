@@ -33,7 +33,7 @@ the currently active locale::
     >>> filters.format_percent(0.7823)
     u'78%'
     >>> filters.format_scientific(1234567)
-    u'1E6'
+    u'1.234567E6'
     >>> ctx.reset()
 
     >>> ctx.set_locale(fr)
@@ -48,7 +48,7 @@ the currently active locale::
     >>> filters.format_percent(0.7823)
     u'78\xa0%'
     >>> filters.format_scientific(1234567)
-    u'1E6'
+    u'1,234567E6'
     >>> ctx.reset()
 
 

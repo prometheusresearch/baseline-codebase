@@ -4,6 +4,7 @@ syntax: glob
 *.pyc
 *.pyo
 *.egg-info
+.eggs
 build
 dist
 node_modules

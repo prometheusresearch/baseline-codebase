@@ -1,4 +1,4 @@
-FROM rexdb/build:2018.06.29 AS build
+FROM rexdb/build:2018.07.03 AS build
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ RUN make dist-local && \
     rm -f Makefile* && \
     rm -rf src
 
-FROM rexdb/runtime:2018.06.29
+FROM rexdb/runtime:2018.07.03
 
 WORKDIR /app
 

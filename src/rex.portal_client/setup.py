@@ -16,8 +16,8 @@ setup(
         'requests >=2.12, <3',
         'rex.core >=1.17.0, <2',
 
-        'pyOpenSSL >=16.2, <17',
-        'cryptography >=1.7, <2',
+        'pyOpenSSL >=17.5, <18',
+        'cryptography >=2.1, <2.2',
     ],
     rex_init='rex.portal_client',
 )

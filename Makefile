@@ -31,7 +31,7 @@ default:
 # Initialize the development environment in a docker container.
 init:
 	@if [ -e bin/activate ]; then echo "${RED}The development environment is already initialized!${NORM}"; false; fi
-	${MAKE} init-cfg init-docker up init-sync init-remote init-bin
+	${MAKE} init-cfg up init-sync init-remote init-bin
 	@echo "${GREEN}The development environment is ready!${NORM}"
 .PHONY: init
 
@@ -54,14 +54,6 @@ init-cfg:
 		cp -a $$src $$dst; \
 	done
 .PHONY: init-cfg
-
-
-# Build docker containers.
-init-docker:
-	docker build -q -t rexdb/runtime ./docker/runtime
-	docker build -q -t rexdb/build ./docker/build
-	docker build -q -t rexdb/develop ./docker/develop
-.PHONY: init-docker
 
 
 # Synchronize the source tree.
@@ -97,7 +89,6 @@ init-bin:
 init-env:
 	virtualenv --system-site-packages .
 	npm -g --prefix ${CURDIR} install yarn@1.6.0
-
 .PHONY: init-env
 
 
@@ -205,8 +196,7 @@ test: ./bin/activate
 
 # Build the application docker image for distribution.
 dist:
-	${MAKE} init-docker
-	docker build -t rexdb/${PRJ_NAME}:${PRJ_VER} -f ./docker/dist/Dockerfile .
+	docker build --force-rm -t rexdb/${PRJ_NAME}:${PRJ_VER} .
 .PHONY: dist
 
 

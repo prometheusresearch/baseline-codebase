@@ -80,7 +80,7 @@ init-bin:
 	echo "$$RSH_TEMPLATE" >./bin/rsh
 	chmod a+x ./bin/rsh
 	for exe in $$(docker-compose exec develop find bin '!' -type d -executable | tr -d '\r'); do \
-		ln -s rsh $$exe; \
+		ln -s -f rsh $$exe; \
 	done
 .PHONY: init-bin
 
@@ -221,7 +221,7 @@ GREEN = ${shell tput setaf 2}
 
 
 # Templates for ./bin/activate and other generated scripts.
-define ACTIVATE_TEMPLATE =
+define ACTIVATE_TEMPLATE
 VIRTUAL_ENV="${CURDIR}"
 export VIRTUAL_ENV
 
@@ -261,12 +261,12 @@ if [ -n "$${BASH-}" ] || [ -n "$${ZSH_VERSION-}" ] ; then
 fi
 endef
 
-define COMPOSE_TEMPLATE =
+define COMPOSE_TEMPLATE
 #!/bin/sh
 cd "${CURDIR}" && PATH="${PATH}" exec "${shell which docker-compose}" "$$@"
 endef
 
-define PBBT_TEMPLATE =
+define PBBT_TEMPLATE
 #!${CURDIR}/bin/python2
 
 import os, re, sys
@@ -280,7 +280,7 @@ if __name__ == '__main__':
     sys.exit(main())
 endef
 
-define RSH_TEMPLATE =
+define RSH_TEMPLATE
 #!/bin/sh
 
 set -e

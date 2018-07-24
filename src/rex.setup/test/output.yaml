@@ -43,6 +43,7 @@ tests:
       }
   - sh: ls -R ./lib/python2.7/site-packages/rex
     stdout: |
+      ./lib/python2.7/site-packages/rex:
       setup_demo.py
       setup_demo.pyc
   - sh: ls ./share/rex

@@ -26,6 +26,6 @@ tests:
 - sh: pip uninstall -q -y rex.widget_demo
   ignore: true
 
-- sh: npm install .
-  cd: static/js
-  ignore: true
+#- sh: npm install .
+#  cd: static/js
+#  ignore: true

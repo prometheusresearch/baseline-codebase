@@ -32,26 +32,7 @@ Test rex.widget.render
   >>> print render_widget(WidgetToRender(field='ok'), req) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
-  Content-Length: ...
-  <BLANKLINE>
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
   ...
-    <link id="__stylesheet__" media="not-applicable" rel="stylesheet" href="/widget_demo/bundle/css/main...">
-  ...
-  </head>
-  <body>
-  ...
-    <script src="/widget_demo/bundle/js/main..."></script>
-  ...
-    <script>
-  ...
-        __REX_WIDGET__ = RexWidget.Transitionable.decode(JSON.stringify(["~#widget", ["rex-widget", "Chrome", {...}]]));
-  ...
-    </script>
-  </body>
-  </html>
 
 ::
 

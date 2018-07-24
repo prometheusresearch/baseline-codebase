@@ -20,10 +20,5 @@ setup(
     ],
     rex_init='rex.about_demo',
     rex_static='static',
-    rex_bundle={
-        './www/bundle': [
-            'webpack:'
-        ]
-    }
 )
 

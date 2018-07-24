@@ -309,15 +309,6 @@ Queries could be submitted in an HTTP request::
       ]
     }
 
-The query builder interface is available at the root of the package::
-
-    >>> req = Request.blank("/")
-    >>> print req.get_response(demo)    # doctest: +ELLIPSIS
-    200 OK
-    ...
-    <!DOCTYPE html>
-    ...
-
 
 Metadata
 ========

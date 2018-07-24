@@ -14,12 +14,4 @@ setup(
     ],
     rex_init='rex.action_demo',
     rex_static='static',
-    rex_bundle={
-        './www/bundle': [
-            'webpack:rex-action'
-        ],
-        './www/doc': [
-            'doc:html',
-        ],
-    }
 )

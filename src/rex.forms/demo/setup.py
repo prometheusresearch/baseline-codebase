@@ -26,10 +26,5 @@ setup(
     ],
     rex_init='rex.forms_demo',
     rex_static='static',
-    rex_bundle={
-        './www/bundle': [
-            'webpack:rex-forms-demo'
-        ],
-    },
 )
 

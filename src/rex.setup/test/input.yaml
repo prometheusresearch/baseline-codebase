@@ -47,12 +47,12 @@ tests:
   - sh: ls ./share/rex/rex.setup_demo/www
     environ: { LC_ALL: C }
     cd: sandbox
-  - sh: ls ./share/rex/rex.setup_demo/js
-    environ: { LC_ALL: C }
-    cd: sandbox
-  - sh: ls ./share/rex/rex.setup_demo/js/node_modules
-    environ: { LC_ALL: C }
-    cd: sandbox
+  #- sh: ls ./share/rex/rex.setup_demo/js
+  #  environ: { LC_ALL: C }
+  #  cd: sandbox
+  #- sh: ls ./share/rex/rex.setup_demo/js/node_modules
+  #  environ: { LC_ALL: C }
+  #  cd: sandbox
   # Cleanup.
   - rmdir: sandbox
 
@@ -81,12 +81,12 @@ tests:
   - sh: ls ./share/rex/rex.setup_demo/www
     environ: { LC_ALL: C }
     cd: sandbox
-  - sh: ls ./share/rex/rex.setup_demo/js
-    environ: { LC_ALL: C }
-    cd: sandbox
-  - sh: ls ./share/rex/rex.setup_demo/js/node_modules
-    environ: { LC_ALL: C }
-    cd: sandbox
+  #- sh: ls ./share/rex/rex.setup_demo/js
+  #  environ: { LC_ALL: C }
+  #  cd: sandbox
+  #- sh: ls ./share/rex/rex.setup_demo/js/node_modules
+  #  environ: { LC_ALL: C }
+  #  cd: sandbox
   # Cleanup.
   - rmdir: sandbox
 
@@ -142,134 +142,134 @@ tests:
   - sh: ls ./share/rex/rex.setup_demo/www
     environ: { LC_ALL: C }
     cd: sandbox
-  - sh: ls ./share/rex/rex.setup_demo/js
-    environ: { LC_ALL: C }
-    cd: sandbox
-  - sh: ls ./share/rex/rex.setup_demo/js/node_modules
-    environ: { LC_ALL: C }
-    cd: sandbox
+  #- sh: ls ./share/rex/rex.setup_demo/js
+  #  environ: { LC_ALL: C }
+  #  cd: sandbox
+  #- sh: ls ./share/rex/rex.setup_demo/js/node_modules
+  #  environ: { LC_ALL: C }
+  #  cd: sandbox
   # Cleanup.
   - rmdir: sandbox
 
-- title: Basic package (no webpack config, no rex config)
-  suite: js_basic
-  tests:
-  - *create-virtualenv
-  - *install-self
-  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/basic ./src/pkg'
-    cd: sandbox
-  - *cleanup
-  - sh: ./bin/pip install -q ./src/pkg
-    cd: sandbox
-  - sh: ls ./share/rex/pkg/www/bundle
-    environ: { LC_ALL: C }
-    cd: sandbox
-  - rmdir: sandbox
-
-- title: Basic shrinkwrapped package
-  suite: js_basic_shrinkwrap
-  tests:
-  - *create-virtualenv
-  - *install-self
-  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/basic_shrinkwrap ./src/pkg'
-    cd: sandbox
-  - sh: ./bin/pip install -q ./src/pkg
-    cd: sandbox
-  - sh: ls ./share/rex/pkg/www/bundle
-    environ: { LC_ALL: C }
-    cd: sandbox
-  - rmdir: sandbox
-
-- title: Package with "rex.bundleAll" directive in bower.json
-  suite: js_rex_bundle_all
-  tests:
-  - *create-virtualenv
-  - *install-self
-  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/rex_bundle_all ./src/pkg'
-    cd: sandbox
-  - *cleanup
-  - sh: ./bin/pip install -q ./src/pkg
-    cd: sandbox
-  - sh: ls ./share/rex/pkg/www/bundle
-    environ: { LC_ALL: C }
-    cd: sandbox
-  - rmdir: sandbox
-
-- title: Package with "react" from npm
-  suite: js_react_npm
-  tests:
-  - *create-virtualenv
-  - *install-self
-  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/react_npm ./src/pkg'
-    cd: sandbox
-  - *cleanup
-  - sh: ./bin/pip install -q ./src/pkg
-    cd: sandbox
-  - sh: ls ./share/rex/pkg/js
-    environ: { LC_ALL: C }
-    cd: sandbox
-  - sh: ls ./share/rex/pkg/www/bundle
-    environ: { LC_ALL: C }
-    cd: sandbox
-  - rmdir: sandbox
-
-- title: Package with "react" but without own bundle
-  suite: js_react_no_bundle
-  tests:
-  - *create-virtualenv
-  - *install-self
-  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/react_no_bundle ./src/pkg'
-    cd: sandbox
-  - *cleanup
-  - sh: ./bin/pip install -q ./src/pkg
-    cd: sandbox
-  - sh: ls ./share/rex/pkg/js
-    environ: { LC_ALL: C }
-    cd: sandbox
-  - rmdir: sandbox
-
-- title: Package with style via "styleEntry" directive in bower.json
-  suite: js_style_entry
-  tests:
-  - *create-virtualenv
-  - *install-self
-  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/style_entry ./src/pkg'
-    cd: sandbox
-  - *cleanup
-  - sh: ./bin/pip install -q ./src/pkg
-    cd: sandbox
-  - sh: ls ./share/rex/pkg/www/bundle
-    environ: { LC_ALL: C }
-    cd: sandbox
-  - rmdir: sandbox
-
-- title: Package with style via implicit style discovery (style/index.less)
-  suite: js_style_implicit
-  tests:
-  - *create-virtualenv
-  - *install-self
-  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/style_implicit ./src/pkg'
-    cd: sandbox
-  - *cleanup
-  - sh: ./bin/pip install -q ./src/pkg
-    cd: sandbox
-  - sh: ls ./share/rex/pkg/www/bundle
-    environ: { LC_ALL: C }
-    cd: sandbox
-  - rmdir: sandbox
-
-- title: Package with style via "rex.style" directive in bower.json
-  suite: js_rex_style
-  tests:
-  - *create-virtualenv
-  - *install-self
-  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/rex_style ./src/pkg'
-    cd: sandbox
-  - *cleanup
-  - sh: ./bin/pip install -q ./src/pkg
-    cd: sandbox
-  - sh: ls ./share/rex/pkg/www/bundle
-    environ: { LC_ALL: C }
-    cd: sandbox
-  - rmdir: sandbox
+#- title: Basic package (no webpack config, no rex config)
+#  suite: js_basic
+#  tests:
+#  - *create-virtualenv
+#  - *install-self
+#  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/basic ./src/pkg'
+#    cd: sandbox
+#  - *cleanup
+#  - sh: ./bin/pip install -q ./src/pkg
+#    cd: sandbox
+#  - sh: ls ./share/rex/pkg/www/bundle
+#    environ: { LC_ALL: C }
+#    cd: sandbox
+#  - rmdir: sandbox
+#
+#- title: Basic shrinkwrapped package
+#  suite: js_basic_shrinkwrap
+#  tests:
+#  - *create-virtualenv
+#  - *install-self
+#  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/basic_shrinkwrap ./src/pkg'
+#    cd: sandbox
+#  - sh: ./bin/pip install -q ./src/pkg
+#    cd: sandbox
+#  - sh: ls ./share/rex/pkg/www/bundle
+#    environ: { LC_ALL: C }
+#    cd: sandbox
+#  - rmdir: sandbox
+#
+#- title: Package with "rex.bundleAll" directive in bower.json
+#  suite: js_rex_bundle_all
+#  tests:
+#  - *create-virtualenv
+#  - *install-self
+#  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/rex_bundle_all ./src/pkg'
+#    cd: sandbox
+#  - *cleanup
+#  - sh: ./bin/pip install -q ./src/pkg
+#    cd: sandbox
+#  - sh: ls ./share/rex/pkg/www/bundle
+#    environ: { LC_ALL: C }
+#    cd: sandbox
+#  - rmdir: sandbox
+#
+#- title: Package with "react" from npm
+#  suite: js_react_npm
+#  tests:
+#  - *create-virtualenv
+#  - *install-self
+#  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/react_npm ./src/pkg'
+#    cd: sandbox
+#  - *cleanup
+#  - sh: ./bin/pip install -q ./src/pkg
+#    cd: sandbox
+#  - sh: ls ./share/rex/pkg/js
+#    environ: { LC_ALL: C }
+#    cd: sandbox
+#  - sh: ls ./share/rex/pkg/www/bundle
+#    environ: { LC_ALL: C }
+#    cd: sandbox
+#  - rmdir: sandbox
+#
+#- title: Package with "react" but without own bundle
+#  suite: js_react_no_bundle
+#  tests:
+#  - *create-virtualenv
+#  - *install-self
+#  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/react_no_bundle ./src/pkg'
+#    cd: sandbox
+#  - *cleanup
+#  - sh: ./bin/pip install -q ./src/pkg
+#    cd: sandbox
+#  - sh: ls ./share/rex/pkg/js
+#    environ: { LC_ALL: C }
+#    cd: sandbox
+#  - rmdir: sandbox
+#
+#- title: Package with style via "styleEntry" directive in bower.json
+#  suite: js_style_entry
+#  tests:
+#  - *create-virtualenv
+#  - *install-self
+#  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/style_entry ./src/pkg'
+#    cd: sandbox
+#  - *cleanup
+#  - sh: ./bin/pip install -q ./src/pkg
+#    cd: sandbox
+#  - sh: ls ./share/rex/pkg/www/bundle
+#    environ: { LC_ALL: C }
+#    cd: sandbox
+#  - rmdir: sandbox
+#
+#- title: Package with style via implicit style discovery (style/index.less)
+#  suite: js_style_implicit
+#  tests:
+#  - *create-virtualenv
+#  - *install-self
+#  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/style_implicit ./src/pkg'
+#    cd: sandbox
+#  - *cleanup
+#  - sh: ./bin/pip install -q ./src/pkg
+#    cd: sandbox
+#  - sh: ls ./share/rex/pkg/www/bundle
+#    environ: { LC_ALL: C }
+#    cd: sandbox
+#  - rmdir: sandbox
+#
+#- title: Package with style via "rex.style" directive in bower.json
+#  suite: js_rex_style
+#  tests:
+#  - *create-virtualenv
+#  - *install-self
+#  - sh: sh -c 'mkdir ./src && cp -a ../test/fixtures/rex_style ./src/pkg'
+#    cd: sandbox
+#  - *cleanup
+#  - sh: ./bin/pip install -q ./src/pkg
+#    cd: sandbox
+#  - sh: ls ./share/rex/pkg/www/bundle
+#    environ: { LC_ALL: C }
+#    cd: sandbox
+#  - rmdir: sandbox
 

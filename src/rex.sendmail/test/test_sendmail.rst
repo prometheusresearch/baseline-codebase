@@ -140,7 +140,7 @@ On startup, we check if we could connect to the SMTP server::
     Traceback (most recent call last):
       ...
     Error: Failed to connect to SMTP server at 127.0.0.1:22225:
-        [Errno 111] Connection refused
+        [Errno ...] Connection refused
     ...
 
 To test the server, we'll create a fake SMTP server::

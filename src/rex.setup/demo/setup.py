@@ -45,9 +45,9 @@ setup(
             'https://raw.github.com/twbs/bootstrap/v3.0.0/LICENSE#md5=e23fadd6ceef8c618fc1c65191d846fa',
             'https://github.com/twbs/bootstrap/releases/download/v3.0.0/bootstrap-3.0.0-dist.zip#md5=6b17c05bb1a1ddb123b7cadea187ff68',
         ],
-        './www/bundle': [
-            'webpack:',
-        ],
+        #'./www/bundle': [
+        #    'webpack:',
+        #],
         './www/doc': [
             'doc:html',
             'doc:latex',

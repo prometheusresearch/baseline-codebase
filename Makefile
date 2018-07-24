@@ -17,7 +17,6 @@ default:
 	@echo "Available targets:"
 	@echo "make init                    initialize the development environment in a container"
 	@echo "make init-local              initialize the development environment in-place"
-	@echo "make doc                     build repository documentation"
 	@echo "make up                      start containers"
 	@echo "make down                    stop containers"
 	@echo "make purge                   remove generated containers and volumes"
@@ -31,16 +30,18 @@ default:
 # Initialize the development environment in a docker container.
 init:
 	@if [ -e bin/activate ]; then echo "${RED}The development environment is already initialized!${NORM}"; false; fi
+	@echo "`date '+%Y-%m-%d %H:%M:%S%z'` Bootstrapping Docker-based environment..."
 	${MAKE} init-cfg up init-sync init-remote init-bin
-	@echo "${GREEN}The development environment is ready!${NORM}"
+	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
 .PHONY: init
 
 
 # Initialize the development environment in-place.
 init-local:
 	@if [ -e bin/activate ]; then echo "${RED}The development environment is already initialized!${NORM}"; false; fi
+	@echo "`date '+%Y-%m-%d %H:%M:%S%z'` Bootstrapping local environment..."
 	${MAKE} init-cfg init-env init-dev develop
-	@echo "${GREEN}The development environment is ready!${NORM}"
+	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
 .PHONY: init-local
 
 
@@ -131,19 +132,19 @@ purge:
 
 # Compile source packages in development mode.
 develop: ./bin/activate
-	@echo "Building Javascript packages..."
+	@echo "`date '+%Y-%m-%d %H:%M:%S%z'` Building Javascript packages..."
 	set -ex; \
 	if [ -z "$$TMPDIR" ]; then export TMPDIR=/tmp; fi; \
 	for src in ${SRC_JS}; do \
 		./bin/yarn --cwd $$src; \
 		./bin/yarn --cwd $$src run build; \
 	done
-	@echo "Building Python packages..."
+	@echo "`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages..."
 	set -ex; \
 	for src in ${SRC_PY}; do \
 		./bin/pip --isolated install -e $$src; \
 	done
-	@echo "Linking data files..."
+	@echo "`date '+%Y-%m-%d %H:%M:%S%z'` Linking data files..."
 	set -ex; \
 	for src in ${SRC_DATA}; do \
 		from=$$(echo $$src | cut -d : -f 1); \
@@ -157,19 +158,19 @@ develop: ./bin/activate
 
 # Compile and install source packages.
 install: ./bin/activate
-	@echo "Building Javascript packages..."
+	@echo "`date '+%Y-%m-%d %H:%M:%S%z'` Building Javascript packages..."
 	set -ex; \
 	if [ -z "$$TMPDIR" ]; then export TMPDIR=/tmp; fi; \
 	for src in ${SRC_JS}; do \
 		./bin/yarn --cwd $$src; \
 		./bin/yarn --cwd $$src run build; \
 	done
-	@echo "Building Python packages..."
+	@echo "`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages..."
 	set -ex; \
 	for src in ${SRC_PY}; do \
 		./bin/pip --isolated install $$src; \
 	done
-	@echo "Copying data files..."
+	@echo "`date '+%Y-%m-%d %H:%M:%S%z'` Copying data files..."
 	set -ex; \
 	for src in ${SRC_DATA}; do \
 		from=$$(echo $$src | cut -d : -f 1); \
@@ -185,12 +186,12 @@ test: ./bin/activate
 	@FAILURES=; \
 	for src in ${SRC_PY}; do \
 		if [ -e $$src/test/input.yaml ]; then \
-			echo "Testing $$src..."; \
+			echo "`date '+%Y-%m-%d %H:%M:%S%z'` Testing $$src..."; \
 			(cd $$src; ${CURDIR}/bin/pbbt -q -M 0); \
 			if [ $$? != 0 ]; then FAILURES="$$FAILURES $$src"; fi; \
 		fi; \
 	done; \
-	if [ -n "$$FAILURES" ]; then echo "${RED}Testing failed:" $$FAILURES "${NORM}"; false; fi
+	if [ -n "$$FAILURES" ]; then echo "${RED}`date '+%Y-%m-%d %H:%M:%S%z'` Testing failed:" $$FAILURES "${NORM}"; false; fi
 .PHONY: test
 
 

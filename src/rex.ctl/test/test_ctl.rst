@@ -233,7 +233,7 @@ To stop the server, use ``rex.ctl.Ctl.stop()``::
 
     >>> print serve_ctl.stop()                  # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     Serving rex.ctl_demo on 127.0.0.1:8...
-    localhost - - [...] "GET / HTTP/1.0" 200 55
+    ... - - [...] "GET / HTTP/1.0" 200 55
 
 
 Documentation

@@ -21,10 +21,5 @@ setup(
     ],
     rex_init='rex.mart_actions_demo',
     rex_static='static',
-    rex_bundle={
-        './www/bundle': [
-            'webpack:'
-        ]
-    }
 )
 

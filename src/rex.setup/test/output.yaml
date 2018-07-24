@@ -34,9 +34,6 @@ tests:
           "doc:html",
           "doc:latex"
         ],
-        "./www/bundle": [
-          "webpack:"
-        ],
         "./www/jquery": [
           "https://raw.github.com/jquery/jquery/1.10.2/MIT-LICENSE.txt#md5=e43aa437a6a1ba421653bd5034333bf9",
           "http://code.jquery.com/jquery-1.10.2.js#md5=91515770ce8c55de23b306444d8ea998",
@@ -46,7 +43,6 @@ tests:
       }
   - sh: ls -R ./lib/python2.7/site-packages/rex
     stdout: |
-      ./lib/python2.7/site-packages/rex:
       setup_demo.py
       setup_demo.pyc
   - sh: ls ./share/rex
@@ -54,22 +50,18 @@ tests:
       rex.setup_demo
   - sh: ls ./share/rex/rex.setup_demo
     stdout: |
-      js
       www
   - sh: ls ./share/rex/rex.setup_demo/www
     stdout: |
       _access.yaml
       bootstrap
-      bundle
       doc
       index.html
       jquery
   - sh: ls ./share/rex/rex.setup_demo/js
     stdout: |
       lib
-      node_modules
       package.json
-      yarn.lock
   - sh: ls ./share/rex/rex.setup_demo/js/node_modules
     stdout: |
       bootstrap
@@ -107,7 +99,6 @@ tests:
     stdout: |
       _access.yaml
       bootstrap
-      bundle
       doc
       index.html
       jquery
@@ -169,14 +160,12 @@ tests:
       === ./rex.setup_demo-4.1.2/static/js ===
       lib
       package.json
-      yarn.lock
       === ./rex.setup_demo-4.1.2/static/js/lib ===
       index.js
       index.less
       === ./rex.setup_demo-4.1.2/static/www ===
       _access.yaml
       bootstrap
-      bundle
       doc
       index.html
       jquery
@@ -198,26 +187,24 @@ tests:
       === ./rex.setup_demo-4.1.2/static/www/bootstrap/js ===
       bootstrap.js
       bootstrap.min.js
-      === ./rex.setup_demo-4.1.2/static/www/bundle ===
-      asset-manifest.json
-      css
-      js
-      static
       === ./rex.setup_demo-4.1.2/static/www/doc ===
       Makefile
       _sources
       _static
       environment.pickle
-      fncychap.sty
+      footnotehyper-sphinx.sty
       genindex.html
       index.doctree
       index.html
-      newfloat.sty
+      latexmkjarc
+      latexmkrc
       objects.inv
       python.ist
       search.html
       searchindex.js
       setup_demo.aux
+      setup_demo.fdb_latexmk
+      setup_demo.fls
       setup_demo.idx
       setup_demo.ilg
       setup_demo.ind
@@ -227,11 +214,12 @@ tests:
       setup_demo.tex
       setup_demo.toc
       sphinx.sty
+      sphinxhighlight.sty
       sphinxhowto.cls
       sphinxmanual.cls
-      tabulary.sty
+      sphinxmulticell.sty
       === ./rex.setup_demo-4.1.2/static/www/doc/_sources ===
-      index.txt
+      index.rst.txt
       === ./rex.setup_demo-4.1.2/static/www/doc/_static ===
       ajax-loader.gif
       basic.css
@@ -239,10 +227,11 @@ tests:
       comment-close.png
       comment.png
       doctools.js
+      documentation_options.js
       down-pressed.png
       down.png
       file.png
-      jquery-1.11.1.js
+      jquery-3.2.1.js
       jquery.js
       minus.png
       plus.png
@@ -289,13 +278,11 @@ tests:
       rex.setup_demo
   - sh: ls ./share/rex/rex.setup_demo
     stdout: |
-      js
       www
   - sh: ls ./share/rex/rex.setup_demo/www
     stdout: |
       _access.yaml
       bootstrap
-      bundle
       doc
       index.html
       jquery

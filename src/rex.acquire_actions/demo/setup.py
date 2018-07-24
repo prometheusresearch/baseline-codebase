@@ -21,4 +21,4 @@ setup(
     ],
     rex_init='rex.acquire_actions_demo',
     rex_static='static',
-    rex_bundle={'./www/bundle': ['webpack:']})
+)

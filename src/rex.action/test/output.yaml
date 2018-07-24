@@ -15,7 +15,7 @@ tests:
   stdout: <ignored>
 - sh: pip uninstall -q -y rex.action_demo
   stdout: <ignored>
-- sh: python setup.py develop_commonjs --package-location ./static/js
+- sh: python setup.py develop_commonjs --package-location ./js
   stdout: <ignored>
 - sh: make lint
   stdout: <ignored>

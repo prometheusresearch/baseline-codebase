@@ -1,2 +1,3 @@
 syntax: glob
 www/bundle
+www/docs

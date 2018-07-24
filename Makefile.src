@@ -46,8 +46,13 @@ SRC_JS = \
 	src/rex.form_previewer/js \
 	src/rex.demo.baseline/js
 
+# Generic, Make-based projects.
+SRC_MAKE = \
+	src/rex.demo.baseline/doc:html
+
 # Data files to copy or link (from:to).
 SRC_DATA = \
+	src/rex.demo.baseline/doc/build/html:share/rex/rex.demo.baseline/www/docs \
 	src/rex.form_previewer/js/build:share/rex/rex.form_previewer/www/bundle \
 	src/rex.demo.baseline/js/build:share/rex/rex.demo.baseline/www/bundle
 

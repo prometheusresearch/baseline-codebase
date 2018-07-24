@@ -30,7 +30,7 @@ default:
 # Initialize the development environment in a docker container.
 init:
 	@if [ -e bin/activate ]; then echo "${RED}The development environment is already initialized!${NORM}"; false; fi
-	@echo "`date '+%Y-%m-%d %H:%M:%S%z'` Bootstrapping Docker-based environment..."
+	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Bootstrapping Docker-based environment...${NORM}"
 	${MAKE} init-cfg up init-sync init-remote init-bin
 	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
 .PHONY: init
@@ -39,7 +39,7 @@ init:
 # Initialize the development environment in-place.
 init-local:
 	@if [ -e bin/activate ]; then echo "${RED}The development environment is already initialized!${NORM}"; false; fi
-	@echo "`date '+%Y-%m-%d %H:%M:%S%z'` Bootstrapping local environment..."
+	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Bootstrapping local environment...${NORM}"
 	${MAKE} init-cfg init-env init-dev develop
 	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
 .PHONY: init-local
@@ -88,8 +88,8 @@ init-bin:
 
 # Create the environment.
 init-env:
-	virtualenv --system-site-packages .
-	npm -g --prefix ${CURDIR} install yarn@1.6.0
+	if [ "$$CODEBASE_SYSTEMSITEPACKAGES" != "" ]; then virtualenv .; else virtualenv --system-site-packages .; fi;
+	npm -g --prefix ${CURDIR} install yarn@1.7.0
 .PHONY: init-env
 
 
@@ -130,21 +130,39 @@ purge:
 	@echo "${RED}Run \"make init\" or \"make init-local\" to initialize the development environment.${NORM}"; false
 
 
-# Compile source packages in development mode.
-develop: ./bin/activate
-	@echo "`date '+%Y-%m-%d %H:%M:%S%z'` Building Javascript packages..."
+# Compile JavaScript source packages.
+build-js: ./bin/activate
+	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building Javascript packages...${NORM}"
 	set -ex; \
 	if [ -z "$$TMPDIR" ]; then export TMPDIR=/tmp; fi; \
 	for src in ${SRC_JS}; do \
 		./bin/yarn --cwd $$src; \
 		./bin/yarn --cwd $$src run build; \
 	done
-	@echo "`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages..."
+.PHONY: build-js
+
+
+# Build generic, make-based projects.
+build-generic: ./bin/activate
+	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building generic projects...${NORM}"
+	for src in ${SRC_MAKE}; do \
+		base=$$(echo $$src | cut -d : -f 1); \
+		target=$$(echo $$src | cut -d : -f 2); \
+		${MAKE} -C $$base $$target; \
+	done
+.PHONY: build-generic
+
+
+# Compile source packages in development mode.
+develop: ./bin/activate
+	${MAKE} build-js
+	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages...${NORM}"
 	set -ex; \
 	for src in ${SRC_PY}; do \
 		./bin/pip --isolated install -e $$src; \
 	done
-	@echo "`date '+%Y-%m-%d %H:%M:%S%z'` Linking data files..."
+	${MAKE} build-generic
+	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Linking data files...${NORM}"
 	set -ex; \
 	for src in ${SRC_DATA}; do \
 		from=$$(echo $$src | cut -d : -f 1); \
@@ -157,20 +175,15 @@ develop: ./bin/activate
 
 
 # Compile and install source packages.
-install: ./bin/activate
-	@echo "`date '+%Y-%m-%d %H:%M:%S%z'` Building Javascript packages..."
-	set -ex; \
-	if [ -z "$$TMPDIR" ]; then export TMPDIR=/tmp; fi; \
-	for src in ${SRC_JS}; do \
-		./bin/yarn --cwd $$src; \
-		./bin/yarn --cwd $$src run build; \
-	done
-	@echo "`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages..."
+install: ./bin/activate build-js build-sphinx
+	${MAKE} build-js
+	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages...${NORM}"
 	set -ex; \
 	for src in ${SRC_PY}; do \
 		./bin/pip --isolated install $$src; \
 	done
-	@echo "`date '+%Y-%m-%d %H:%M:%S%z'` Copying data files..."
+	${MAKE} build-generic
+	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Copying data files...${NORM}"
 	set -ex; \
 	for src in ${SRC_DATA}; do \
 		from=$$(echo $$src | cut -d : -f 1); \
@@ -186,7 +199,7 @@ test: ./bin/activate
 	@FAILURES=; \
 	for src in ${SRC_PY}; do \
 		if [ -e $$src/test/input.yaml ]; then \
-			echo "`date '+%Y-%m-%d %H:%M:%S%z'` Testing $$src..."; \
+			echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Testing $$src...${NORM}"; \
 			(cd $$src; ${CURDIR}/bin/pbbt -q -M 0); \
 			if [ $$? != 0 ]; then FAILURES="$$FAILURES $$src"; fi; \
 		fi; \
@@ -219,6 +232,7 @@ upload:
 NORM = ${shell tput sgr0}
 RED = ${shell tput setaf 1}
 GREEN = ${shell tput setaf 2}
+BLUE = ${shell tput setaf 4}
 
 
 # Templates for ./bin/activate and other generated scripts.

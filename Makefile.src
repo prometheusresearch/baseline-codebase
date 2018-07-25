@@ -1,5 +1,8 @@
 
-# Python packages.
+### Python Projects
+# This variable contains a list of directories in this repository that will be
+# installed with pip during the "develop" and "install" targets, and will have
+# their tests executed with PBBT in the "test" target.
 SRC_PY = \
 	src/htsql \
 	src/rex.setup \
@@ -41,16 +44,29 @@ SRC_PY = \
 	src/rex.baseline \
 	src/rex.demo.baseline
 
-# Javascript packages.
+
+### JavaScript Projects
+# This variable contains a list of directories in this repository that will be
+# installed and built with yarn during the "develop" and "install" targets
+# (using "yarn run build").
 SRC_JS = \
 	src/rex.form_previewer/js \
 	src/rex.demo.baseline/js
 
-# Generic, Make-based projects.
+
+### Generic, Make-based Projects
+# This variable contains a list of directories in this repository that will be
+# installed/built with make during the "develop" and "install" targets. Each
+# entry in this variable must be formatted as:
+# 	<directory>:<make target to run>
 SRC_MAKE = \
 	src/rex.demo.baseline/doc:html
 
-# Data files to copy or link (from:to).
+### Data File Linking
+# This variable contains a list of directories that will be symlinked/copied
+# after all projects have been installed/built. Each entry in this variable
+# must be formatted as:
+# 	<source directory>:<target location>
 SRC_DATA = \
 	src/rex.demo.baseline/doc/build/html:share/rex/rex.demo.baseline/www/docs \
 	src/rex.form_previewer/js/build:share/rex/rex.form_previewer/www/bundle \

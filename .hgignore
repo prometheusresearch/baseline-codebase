@@ -24,8 +24,10 @@ syntax: regexp
 ^socket$
 ^\.Python$
 ^.cache/
+^.node-gyp/
 ^.npm/
 ^.config/
+^Library/
 demo/static/js/yarn.lock$
 
 subinclude:src/htsql/.hgignore

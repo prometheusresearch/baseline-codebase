@@ -15,13 +15,14 @@ PRJ_VER ?= ${firstword ${shell hg identify -t | cut -d / -f 2 -s} ${shell hg ide
 # Display available targets.
 default:
 	@echo "Available targets:"
-	@echo "make init                    initialize the development environment in a container"
-	@echo "make init-local              initialize the development environment in-place"
+	@echo "make init                    initialize the development environment (in container)"
+	@echo "make init-local              initialize the development environment (in place)"
 	@echo "make up                      start containers"
 	@echo "make down                    stop containers"
-	@echo "make purge                   remove generated containers and volumes"
+	@echo "make purge                   stop containers and remove generated containers and volumes"
 	@echo "make develop                 recompile source packages"
-	@echo "make test                    test source packages"
+	@echo "make test                    test source packages (in place)"
+	@echo "make test-remote             test source packages (in container)"
 	@echo "make dist                    build the docker image for distribution"
 	@echo "make upload REGISTRY=<URL>   upload the distribution image to the registry"
 .PHONY: default
@@ -95,9 +96,9 @@ init-env:
 
 # Install development tools.
 init-dev:
-	./bin/pip --isolated install -q pbbt==0.1.5
-	./bin/pip --isolated install -q coverage==4.5.1
-	./bin/pip --isolated install -q pytest==3.5.0
+	./bin/pip --isolated install pbbt==0.1.5
+	./bin/pip --isolated install coverage==4.5.1
+	./bin/pip --isolated install pytest==3.5.0
 	echo "$$PBBT_TEMPLATE" >./bin/pbbt
 	chmod a+x ./bin/pbbt
 	mkdir -p ./data/attach
@@ -206,6 +207,12 @@ test: ./bin/activate
 	done; \
 	if [ -n "$$FAILURES" ]; then echo "${RED}`date '+%Y-%m-%d %H:%M:%S%z'` Testing failed:" $$FAILURES "${NORM}"; false; fi
 .PHONY: test
+
+
+# Test source packages (in the container).
+test-remote:
+	docker-compose exec develop make test
+.PHONY: init-remote
 
 
 # Build the application docker image for distribution.

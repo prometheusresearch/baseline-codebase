@@ -9,6 +9,7 @@ tests:
   - coverage: setup.cfg
     auto-data: true
 
+  - sh: pip install --quiet --editable ../rex.instrument/demo
   - sh: pip install --quiet --editable ./demo
 
   - sh: rex dropdb --quiet rex.mobile_demo

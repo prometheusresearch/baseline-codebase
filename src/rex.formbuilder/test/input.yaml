@@ -6,6 +6,8 @@ title: REX.FORMBUILDER
 tests:
   - coverage: setup.cfg
 
+  - sh: pip install --quiet --editable ../rex.instrument/demo
+  - sh: pip install --quiet --editable ../rex.forms/demo
   - sh: pip install --quiet --editable ./demo
 
   - sh: rex dropdb --quiet rex.formbuilder_demo

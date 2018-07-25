@@ -4,6 +4,10 @@
 ---
 suite: rex.formbuilder
 tests:
+- sh: pip install --quiet --editable ../rex.instrument/demo
+  stdout: ''
+- sh: pip install --quiet --editable ../rex.forms/demo
+  stdout: ''
 - sh: pip install --quiet --editable ./demo
   stdout: ''
 - sh: rex dropdb --quiet rex.formbuilder_demo

@@ -74,6 +74,7 @@ You must be authenticated as the user who uploaded the file::
       ...
     EngineError: Got an error from the database driver:
         consent.consent_form_scan cannot be set to '/.../hello.txt'
+        ...
 
     >>> from rex.db import get_db
     >>> db = get_db()
@@ -90,6 +91,7 @@ You cannot attach the same file to a different record::
       ...
     EngineError: Got an error from the database driver:
         consent.consent_form_scan cannot be set to '/.../hello.txt'
+        ...
 
 
 Downloading files

@@ -22,6 +22,6 @@ tests:
   - doctest: README.rst
   - doctest: test/test_*.rst
 
-  - coverage-check: 95.0
+  - coverage-check: 90.0
   - coverage-report: ./build/coverage
 

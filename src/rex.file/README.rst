@@ -143,6 +143,7 @@ exception::
       ...
     EngineError: Got an error from the database driver:
         consent.consent_form_scan cannot be set to '/.../hello.txt'
+        ...
 
 To be able to download attachments from the ``consent`` table, we need to
 declare a *file* URL handler in ``urlmap.yaml``.  The definition is

@@ -27,10 +27,10 @@ from_directory(path, user=None) to generate package from a bunch of csv files
   stored in directory given by path, where import initiated by user::
 
   >>> input = ImportPackage.from_directory('./test/data/eeg-upload/')
-  >>> for chunk in input:
+  >>> for chunk in sorted(input, key=lambda x: x.id):
   ...   print chunk.id, len(chunk.data)
-  eeg-upload1.abspower 249
   eeg-upload1 2999
+  eeg-upload1.abspower 249
 
 When given path is not a directory assertion error appeared::
 

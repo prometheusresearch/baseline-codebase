@@ -29,16 +29,6 @@ application start fails::
   With parameters:
       assessment_import_dir: 'errors'
 
-  >>> app = Rex('rex.assessment_import_demo', assessment_import_dir='/etc')
-  Traceback (most recent call last):
-  ...
-  Error: Asessment import storage (assessment_import_dir) is not accessible:
-      /etc
-  While initializing RexDB application:
-      rex.assessment_import_demo
-  With parameters:
-      assessment_import_dir: '/etc'
-
 Application successfully started, when directory exists and accessable::
 
   >>> app = Rex('rex.assessment_import_demo',

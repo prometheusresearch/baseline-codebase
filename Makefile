@@ -88,8 +88,8 @@ init-bin:
 
 # Create the environment.
 init-env:
-	if [ "$$CODEBASE_SYSTEMSITEPACKAGES" != "" ]; then virtualenv .; else virtualenv --system-site-packages .; fi;
-	npm -g --prefix ${CURDIR} install yarn@1.7.0
+	virtualenv ${CURDIR}
+	npm -g --prefix ${CURDIR} install yarn@1.8.0
 .PHONY: init-env
 
 
@@ -159,7 +159,7 @@ develop: ./bin/activate
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages...${NORM}"
 	set -ex; \
 	for src in ${SRC_PY}; do \
-		./bin/pip --isolated install -e $$src; \
+		./bin/pip --isolated install --editable $$src; \
 	done
 	${MAKE} build-generic
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Linking data files...${NORM}"
@@ -200,7 +200,7 @@ test: ./bin/activate
 	for src in ${SRC_PY}; do \
 		if [ -e $$src/test/input.yaml ]; then \
 			echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Testing $$src...${NORM}"; \
-			(cd $$src; ${CURDIR}/bin/pbbt -q -M 0); \
+			(cd $$src; ${CURDIR}/bin/pbbt --quiet --max-errors=0); \
 			if [ $$? != 0 ]; then FAILURES="$$FAILURES $$src"; fi; \
 		fi; \
 	done; \

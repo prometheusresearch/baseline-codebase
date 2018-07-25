@@ -23,6 +23,9 @@ syntax: regexp
 ^share/
 ^socket$
 ^\.Python$
+^.cache/
+^.npm/
+^.config/
 demo/static/js/yarn.lock$
 
 subinclude:src/htsql/.hgignore

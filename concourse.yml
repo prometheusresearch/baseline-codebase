@@ -1,0 +1,20 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: rexdb/ci
+    tag: 2018.07.26
+
+inputs:
+- name: codebase
+
+run:
+  path: /bin/sh
+  args:
+  - -exc
+  - |
+    service postgresql start
+    make init-local
+    make test
+  dir: codebase

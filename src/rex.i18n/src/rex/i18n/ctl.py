@@ -142,8 +142,6 @@ class I18NExtractTask(I18NTask):
         return metadata
 
     def extract_frontend(self):
-        # Make sure the node environment is ready.
-        commonjs.bootstrap()
         commonjs.npm([
             'install',
             '--global',

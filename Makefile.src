@@ -1,8 +1,7 @@
 
-### Python Projects
+### Python Project Builds
 # This variable contains a list of directories in this repository that will be
-# installed with pip during the "develop" and "install" targets, and will have
-# their tests executed with PBBT in the "test" target.
+# installed with pip during the "develop" and "install" targets.
 SRC_PY = \
 	src/htsql \
 	src/rex.setup \
@@ -45,7 +44,13 @@ SRC_PY = \
 	src/rex.demo.baseline
 
 
-### JavaScript Projects
+### Python Project Tests
+# This variable contains a list of directories in this repository that will
+# have their test suites executed with PBBT during the "test" target.
+TEST_PY = ${SRC_PY}
+
+
+### JavaScript Project Builds
 # This variable contains a list of directories in this repository that will be
 # installed and built with yarn during the "develop" and "install" targets
 # (using "yarn run build").
@@ -54,13 +59,27 @@ SRC_JS = \
 	src/rex.demo.baseline/js
 
 
-### Generic, Make-based Projects
+### JavaScript Project Tests
+# This variable contains a list of directories in this repository that will
+# have their test suites executed with "yarn run test" during the "test"
+# target.
+TEST_JS = ${SRC_JS}
+
+
+### Generic, Make-based Project Builds
 # This variable contains a list of directories in this repository that will be
 # installed/built with make during the "develop" and "install" targets. Each
 # entry in this variable must be formatted as:
 # 	<directory>:<make target to run>
 SRC_MAKE = \
 	src/rex.demo.baseline/doc:html
+
+
+### Generic, Make-based Project Tests
+# This variable contains a list of directories in this repository that will
+# have their test suites executed with "make test" during the "test" target.
+TEST_MAKE =
+
 
 ### Data File Linking
 # This variable contains a list of directories that will be symlinked/copied

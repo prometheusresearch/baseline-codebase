@@ -21,8 +21,7 @@ default:
 	@echo "make down                    stop containers"
 	@echo "make purge                   stop containers and remove generated containers and volumes"
 	@echo "make develop                 recompile source packages"
-	@echo "make test                    test source packages (in place)"
-	@echo "make test-remote             test source packages (in container)"
+	@echo "make test                    test all source packages (specify PKG=<package> to test a single package)"
 	@echo "make dist                    build the docker image for distribution"
 	@echo "make upload REGISTRY=<URL>   upload the distribution image to the registry"
 .PHONY: default
@@ -198,21 +197,36 @@ install: ./bin/activate build-js build-sphinx
 # Test source packages.
 test: ./bin/activate
 	@FAILURES=; \
-	for src in ${SRC_PY}; do \
-		if [ -e $$src/test/input.yaml ]; then \
+	for src in ${TEST_PY}; do \
+		if [ -z "${PKG}" -o "$$src" == "${PKG}" ]; then \
+			if [ -e $$src/test/input.yaml ]; then \
+				echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Testing $$src...${NORM}"; \
+				(cd $$src; ${CURDIR}/bin/pbbt --quiet --max-errors=0); \
+				if [ $$? != 0 ]; then FAILURES="$$FAILURES $$src"; fi; \
+			fi; \
+		fi; \
+	done; \
+	for src in ${TEST_JS}; do \
+		if [ -z "${PKG}" -o "$$src" == "${PKG}" ]; then \
 			echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Testing $$src...${NORM}"; \
-			(cd $$src; ${CURDIR}/bin/pbbt --quiet --max-errors=0); \
+			(${CURDIR}/bin/yarn --cwd=$$src run test); \
 			if [ $$? != 0 ]; then FAILURES="$$FAILURES $$src"; fi; \
 		fi; \
 	done; \
-	if [ -n "$$FAILURES" ]; then echo "${RED}`date '+%Y-%m-%d %H:%M:%S%z'` Testing failed:" $$FAILURES "${NORM}"; false; fi
+	for src in ${TEST_MAKE}; do \
+		if [ -z "${PKG}" -o "$$src" == "${PKG}" ]; then \
+			echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Testing $$src...${NORM}"; \
+			(docker-compose exec develop make -C $$src test); \
+			if [ $$? != 0 ]; then FAILURES="$$FAILURES $$src"; fi; \
+		fi; \
+	done; \
+	if [ -n "$$FAILURES" ]; then \
+		echo "${RED}`date '+%Y-%m-%d %H:%M:%S%z'` Testing failed:" $$FAILURES "${NORM}"; \
+		false; \
+	else \
+		echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` Testing complete${NORM}"; \
+   	fi
 .PHONY: test
-
-
-# Test source packages (in the container).
-test-remote:
-	docker-compose exec develop make test
-.PHONY: init-remote
 
 
 # Build the application docker image for distribution.

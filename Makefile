@@ -175,7 +175,7 @@ develop: ./bin/activate
 
 
 # Compile and install source packages.
-install: ./bin/activate build-js build-sphinx
+install: ./bin/activate
 	${MAKE} build-js
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building Python packages...${NORM}"
 	set -ex; \

@@ -89,7 +89,7 @@ init-bin:
 # Create the environment.
 init-env:
 	virtualenv ${CURDIR}
-	npm -g --prefix ${CURDIR} install yarn@1.8.0
+	npm -g --prefix ${CURDIR} install yarn@1.9.2
 .PHONY: init-env
 
 

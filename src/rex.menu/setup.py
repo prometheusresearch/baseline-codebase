@@ -19,8 +19,8 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     install_requires=[
-        'rex.core >=1.13, <2',
-        'rex.web >=3.7, <4',
+        'rex.core',
+        'rex.web',
     ],
     rex_init='rex.menu',
 )

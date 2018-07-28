@@ -17,7 +17,7 @@ setup(
     url='https://bitbucket.org/rexdb/rex.expression-provisional',
     include_package_data=True,
     install_requires=[
-        'rex.web>0.9,<4',
+        'rex.web',
     ],
     rex_static='static',
 )

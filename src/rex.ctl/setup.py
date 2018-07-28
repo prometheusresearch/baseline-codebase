@@ -27,7 +27,7 @@ setup(
         ],
     },
     install_requires=[
-        'rex.core >=1.16, <2',
+        'rex.core',
         'cogs >=0.4.0',
     ],
     rex_init='rex.ctl',

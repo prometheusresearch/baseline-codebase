@@ -29,9 +29,9 @@ setup(
         ],
     },
     install_requires=[
-        'rex.core>=1.9,<2',
-        'rex.ctl>=2,<3',
-        'rex.instrument>=1,<2',
+        'rex.core',
+        'rex.ctl',
+        'rex.instrument',
         'rios.core>=0.7,<0.9',
     ],
     rex_init='rex.mobile',

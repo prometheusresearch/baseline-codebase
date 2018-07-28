@@ -19,12 +19,12 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     install_requires=[
-        'rex.core >=1.14, <2',
-        'rex.db >=3.5, <4',
-        'rex.ctl >=2.2, <3',
-        'HTSQL >2.3.3, <2.5',
-        'psycopg2 >=2.7, <2.8',
-        'jinja2 >=2.7, <2.9',
+        'rex.core',
+        'rex.db',
+        'rex.ctl',
+        'HTSQL',
+        'psycopg2>=2.7,<2.8',
+        'jinja2>=2.7,<2.9',
     ],
     dependency_links=[
         'https://dist.rexdb.org/packages/',

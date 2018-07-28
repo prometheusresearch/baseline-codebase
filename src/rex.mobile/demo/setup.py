@@ -17,7 +17,7 @@ setup(
         'rex.core',
         'rex.db',
         'rex.ctl',
-        'rex.deploy>=2.7,<3',
+        'rex.deploy',
         'rex.mobile',
         'rex.instrument',
         'rex.instrument_demo',

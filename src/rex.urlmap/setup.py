@@ -19,10 +19,10 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     install_requires=[
-        'rex.core >=1.9, <2',
-        'rex.web >=3.6, <4',
-        'rex.db >=3.0, <4',
-        'rex.port >=1.0, <2',
+        'rex.core',
+        'rex.web',
+        'rex.db',
+        'rex.port',
     ],
     rex_init='rex.urlmap',
 )

@@ -18,11 +18,11 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     install_requires=[
-        'rex.core >=1.11, <2',
-        'rex.urlmap >=2.7, <3',
-        'rex.action >=1, <2',
-        'rex.web >=3.6, <4',
-        'rex.widget >=3, <4',
+        'rex.core',
+        'rex.urlmap',
+        'rex.action',
+        'rex.web',
+        'rex.widget',
     ],
     rex_init='rex.widget_chrome',
     rex_static='static', )

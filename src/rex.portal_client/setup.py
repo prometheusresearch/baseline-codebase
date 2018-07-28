@@ -13,9 +13,8 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     install_requires=[
+        'rex.core',
         'requests >=2.12, <3',
-        'rex.core >=1.17.0, <2',
-
         'pyOpenSSL >=17.5, <18',
         'cryptography >=2.1, <2.2',
     ],

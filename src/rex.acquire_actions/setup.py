@@ -22,12 +22,12 @@ setup(
     include_package_data=True,
     namespace_packages=['rex'],
     install_requires=[
-        'rex.core>=1.4,<2',
-        'rex.web>=3,<4',
-        'rex.widget>=3,<4',
-        'rex.action>=1,<2',
-        'rex.instrument>=1,<2',
-        'rex.forms>=2.4,<3',
+        'rex.core',
+        'rex.web',
+        'rex.widget',
+        'rex.action',
+        'rex.instrument',
+        'rex.forms',
     ],
     rex_init='rex.acquire_actions',
 )

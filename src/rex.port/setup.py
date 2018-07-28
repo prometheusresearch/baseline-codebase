@@ -19,10 +19,10 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     install_requires=[
-        'rex.core >=1.6, <2',
-        'rex.ctl >=2.0, <3',
-        'rex.web >=2.1, <4',
-        'rex.db >=2.1, <4',
+        'rex.core',
+        'rex.ctl',
+        'rex.web',
+        'rex.db',
     ],
     entry_points = {
         'htsql.addons': ['rex_port = htsql_rex_port:PortAddon'],

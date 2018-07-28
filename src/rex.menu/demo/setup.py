@@ -36,10 +36,5 @@ setup(
     cmdclass={'demo': demo},
     rex_init='rex.menu_demo',
     rex_static='static',
-    rex_bundle={
-        './www/bundle': [
-            'webpack:'
-        ],
-    }
 )
 

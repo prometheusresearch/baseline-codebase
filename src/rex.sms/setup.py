@@ -23,9 +23,9 @@ setup(
     include_package_data=True,
     namespace_packages=['rex'],
     install_requires=[
-        'rex.core>=1.9,<2',
-        'rex.web>=1,<4',
-        'rex.logging>=1,<2',
+        'rex.core',
+        'rex.web',
+        'rex.logging',
         'phonenumberslite>=7,<9',
         'twilio>=4,<6',
     ],

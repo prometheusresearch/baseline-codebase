@@ -19,8 +19,8 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     install_requires=[
-        'rex.core >=1.16, <2',
-        'rex.ctl >=2.0, <3',
+        'rex.core',
+        'rex.ctl',
         'webob >=1.3.1, <1.4',
         'jinja2 >=2.7, <2.9',
         'pycrypto >=2.4',   # must use the version available on Ubuntu 12.04.

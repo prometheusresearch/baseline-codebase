@@ -27,10 +27,10 @@ setup(
         ],
     },
     install_requires=[
-        'rex.core >=1.14, <2',
-        'rex.ctl >=2.2, <3',
-        'rex.web >=3.8, <4',
-        'HTSQL >2.3.3, <2.5',
+        'rex.core',
+        'rex.ctl',
+        'rex.web',
+        'HTSQL',
     ],
     dependency_links=[
         'https://dist.rexdb.org/packages/',

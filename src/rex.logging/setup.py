@@ -24,7 +24,7 @@ setup(
     include_package_data=True,
     namespace_packages=['rex'],
     install_requires=[
-        'rex.core>=1.16,<2',
+        'rex.core',
     ],
     rex_init='rex.logging',
     rex_static='static',

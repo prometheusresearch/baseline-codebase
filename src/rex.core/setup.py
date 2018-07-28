@@ -17,9 +17,9 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex', 'sphinxcontrib'],
     install_requires=[
-        'rex.setup >=1.0, <5',  # For use by `rex.core` descendants.
-        'raven >=6.0, <7',
-        'python-dateutil >=2.5, <3',
+        'rex.setup',
+        'raven>=6.0,<7',
+        'python-dateutil>=2.5,<3',
         'pyyaml',
     ],
     rex_init='rex.core',

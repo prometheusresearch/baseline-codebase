@@ -10,7 +10,7 @@ setup(
     install_requires=[
         'rex.action',
         'rex.deploy',
-        'rex.widget_chrome >=1,<2',
+        'rex.widget_chrome',
     ],
     rex_init='rex.action_demo',
     rex_static='static',

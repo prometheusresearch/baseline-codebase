@@ -10,7 +10,7 @@ RUN make dist-local && \
     rm -f Makefile* && \
     rm -rf src
 
-FROM rexdb/runtime:2018.07.26
+FROM rexdb/runtime:2018.07.30
 
 WORKDIR /app
 

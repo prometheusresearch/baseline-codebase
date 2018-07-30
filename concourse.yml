@@ -4,7 +4,7 @@ image_resource:
   type: docker-image
   source:
     repository: rexdb/ci
-    tag: 2018.07.26
+    tag: 2018.07.30
 
 inputs:
 - name: codebase

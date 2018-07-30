@@ -204,7 +204,7 @@ install: ./bin/activate
 test: ./bin/activate
 	@FAILURES=; \
 	for src in ${TEST_PY}; do \
-		if [ -z "${PKG}" -o "$$src" == "${PKG}" ]; then \
+		if [ -z "${PKG}" -o "$$src" = "${PKG}" ]; then \
 			if [ -e $$src/test/input.yaml ]; then \
 				echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Testing $$src...${NORM}"; \
 				(cd $$src; ${CURDIR}/bin/pbbt --quiet --max-errors=0); \
@@ -213,14 +213,14 @@ test: ./bin/activate
 		fi; \
 	done; \
 	for src in ${TEST_JS}; do \
-		if [ -z "${PKG}" -o "$$src" == "${PKG}" ]; then \
+		if [ -z "${PKG}" -o "$$src" = "${PKG}" ]; then \
 			echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Testing $$src...${NORM}"; \
 			(${CURDIR}/bin/yarn --cwd=$$src run test); \
 			if [ $$? != 0 ]; then FAILURES="$$FAILURES $$src"; fi; \
 		fi; \
 	done; \
 	for src in ${TEST_MAKE}; do \
-		if [ -z "${PKG}" -o "$$src" == "${PKG}" ]; then \
+		if [ -z "${PKG}" -o "$$src" = "${PKG}" ]; then \
 			echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Testing $$src...${NORM}"; \
 			(docker-compose exec develop make -C $$src test); \
 			if [ $$? != 0 ]; then FAILURES="$$FAILURES $$src"; fi; \

@@ -50,6 +50,13 @@ SRC_PY = \
 TEST_PY = ${SRC_PY}
 
 
+### Python Development Tools
+# This variable contains a list of Python packages that will be installed in
+# the development environment.
+TOOL_PY = \
+	Sphinx==1.7.6
+
+
 ### JavaScript Project Builds
 # This variable contains a list of directories in this repository that will be
 # installed and built with yarn during the "develop" and "install" targets
@@ -64,6 +71,12 @@ SRC_JS = \
 # have their test suites executed with "yarn run test" during the "test"
 # target.
 TEST_JS = ${SRC_JS}
+
+
+### JavaScript Development Tools
+# This variable contains a list of JavaScript packages that will be installed
+# in the top-level development environment.
+TOOL_JS =
 
 
 ### Generic, Make-based Project Builds

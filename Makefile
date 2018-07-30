@@ -89,17 +89,23 @@ init-bin:
 # Create the environment.
 init-env:
 	virtualenv ${CURDIR}
-	npm -g --prefix ${CURDIR} install yarn@1.9.2
+	npm --global --prefix ${CURDIR} install yarn@1.9.2
 .PHONY: init-env
 
 
+REQUIRED_TOOL_PY = \
+	pbbt==0.1.5 \
+	coverage==4.5.1 \
+	pytest==3.6.4
+
 # Install development tools.
 init-dev:
-	./bin/pip --isolated install pbbt==0.1.5
-	./bin/pip --isolated install coverage==4.5.1
-	./bin/pip --isolated install pytest==3.5.0
+	./bin/pip --isolated install ${REQUIRED_TOOL_PY} ${TOOL_PY}
 	echo "$$PBBT_TEMPLATE" >./bin/pbbt
 	chmod a+x ./bin/pbbt
+	@if [ ! -z "${TOOL_JS}" ]; then \
+		npm --global --prefix ${CURDIR} install ${TOOL_JS} ; \
+	fi
 	mkdir -p ./data/attach
 	mkdir -p ./run
 	ln -sf ./run/socket ./socket

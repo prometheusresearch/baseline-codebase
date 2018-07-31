@@ -28,7 +28,7 @@ syntax: regexp
 ^.npm/
 ^.config/
 ^Library/
-demo/static/js/yarn.lock$
+www/bundle
 
 subinclude:src/htsql/.hgignore
 subinclude:src/rex.setup/.hgignore

@@ -57,7 +57,7 @@ We specify that by defining a wizard *path*::
 To make a wizard we define a special action of type ``wizard``. Yes, wizards are
 actions too.
 
-All actions and wizards are defined within the application's URL mapping:
+All actions and wizards are defined within the application's URL mapping::
 
   paths:
     /wizard/individual:

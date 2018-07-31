@@ -22,6 +22,9 @@ services:
       - type: volume
         source: apprun
         target: /app/run
+      - type: volume
+        source: appdocs
+        target: /app/doc/build
     links:
       - postgres
     environment:
@@ -40,6 +43,10 @@ services:
       - type: volume
         source: apprun
         target: /run/app
+      - type: volume
+        source: appdocs
+        target: /docs
+        read_only: true
     links:
       - develop
     environment:
@@ -48,4 +55,6 @@ volumes:
   appenv:
   appdata:
   apprun:
+  appdocs:
   pgdata:
+

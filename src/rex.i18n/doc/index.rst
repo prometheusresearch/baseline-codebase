@@ -24,7 +24,7 @@ Examples/Tests
 
 .. toctree::
 
-   ../test/index
+   test/index
 
 
 Release Notes

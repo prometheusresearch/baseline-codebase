@@ -54,6 +54,7 @@ TEST_PY = ${SRC_PY}
 # This variable contains a list of Python packages that will be installed in
 # the development environment.
 TOOL_PY = \
+	sphinx-rtd-theme==0.4.1 \
 	Sphinx==1.7.6
 
 
@@ -85,7 +86,8 @@ TOOL_JS =
 # entry in this variable must be formatted as:
 # 	<directory>:<make target to run>
 SRC_MAKE = \
-	src/rex.demo.baseline/doc:html
+	src/rex.demo.baseline/doc:html \
+	doc:html
 
 
 ### Generic, Make-based Project Tests

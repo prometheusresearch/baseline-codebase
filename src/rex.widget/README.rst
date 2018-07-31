@@ -1,17 +1,6 @@
-****************************
-  Rex Widget Documentation
-****************************
-
-Version |VERSION|, revision |REVISION|, |TIMESTAMP|
-
-.. shell:: python setup.py --version
-           VERSION
-
-.. shell:: hg parent --template {rev}
-           REVISION
-
-.. shell:: date "+built on %a %d %b %Y at %X %Z"
-           TIMESTAMP
+************************
+REX.WIDGET Documentation
+************************
 
 .. role:: mod(literal)
 
@@ -37,7 +26,6 @@ R43MH099826.
    cookbook
    migration/index
    py_reference
-   js_reference
    changes
    license
 

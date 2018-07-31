@@ -7,6 +7,8 @@ REX.ASYNCTASK Examples/Tests
    test_ctl
    test_localmem
    test_pgsql
+   test_filesys
+   amqp/test_amqp
    redis/test_redis
    test_core
    test_settings

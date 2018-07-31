@@ -1,6 +1,6 @@
-*****************
+******************
 LoggingSmsProvider
-*****************
+******************
 
 
 The StdoutSmsProvider is a stub provider that will always succeed and print SMS

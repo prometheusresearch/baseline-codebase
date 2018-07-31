@@ -37,7 +37,7 @@ class Plotly(Action):
     This plots a barchart using data from ``query`` field.
 
     The ``plot`` field is a Plotly configuration for a plot (you can find docs
-    about possible parameters at `,<https://plot.ly/javascript/reference>`_).
+    about possible parameters at `<https://plot.ly/javascript/reference>`_).
 
     The ``query`` field is an HTSQL query which returns data to plot. Note that
     ``x`` and ``y`` are required for ``barchar`` plot type as specified in

@@ -60,7 +60,7 @@ init-cfg:
 # Synchronize the source tree.
 init-sync:
 	docker-compose exec develop \
-		rsync --delete --exclude /.hg/ --exclude /bin/ --exclude /data/ --exclude /run/ \
+		rsync --delete --exclude /.hg/ --exclude /bin/ --exclude /data/ --exclude /run/ --exclude /doc/build/ \
 		--ignore-errors --links --recursive --times \
 		/repo/ /app/
 .PHONY: init-sync

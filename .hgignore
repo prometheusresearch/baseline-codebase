@@ -28,6 +28,7 @@ syntax: regexp
 ^.npm/
 ^.config/
 ^Library/
+^doc/build
 www/bundle
 
 subinclude:src/htsql/.hgignore

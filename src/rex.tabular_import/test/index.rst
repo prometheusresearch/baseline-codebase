@@ -8,5 +8,4 @@ REX.TABULAR_IMPORT Examples/Tests
    test_introspect
    test_load
    test_marshal
-   test_async
 

@@ -6,5 +6,5 @@
 
    test_handle
    test_load
-
+   test_map
 

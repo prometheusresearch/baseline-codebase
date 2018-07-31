@@ -265,19 +265,22 @@ RexGuide (aka, Guided Queries)
 
                    ``label``: An HTSQL expression for the chart label
                    ``lines``: A list of lines:
-                     ``value``: An HTSQL expression for the chart line
+
+                   ``value``: An HTSQL expression for the chart line
 
                  - ``bar`` chart with the following parameters:
 
                    ``label``: An HTSQL expression for the chart label
                    ``bars``: A list of bars:
-                     ``value``: An HTSQL expression for the chart bar
+
+                   ``value``: An HTSQL expression for the chart bar
 
                  - ``area`` chart with the following parameters:
 
                    ``label``: An HTSQL expression for the chart label
-                   ``areas``: A list of arreas:
-                     ``value``: An HTSQL expression for the chart area
+                   ``areas``: A list of areas:
+
+                   ``value``: An HTSQL expression for the chart area
 
                  - ``scatter`` chart with the following parameters:
 

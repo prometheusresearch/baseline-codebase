@@ -26,7 +26,7 @@ Examples/Tests
 .. toctree::
    :maxdepth: 2
 
-   ../test/index
+   test/index
 
 
 Release Notes

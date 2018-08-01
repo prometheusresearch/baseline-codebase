@@ -7,11 +7,3 @@ Welcome to this Project's Documentation
    baseline/index
    codebase/index
 
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-

@@ -21,43 +21,62 @@ Components
 ==========
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   rex.acquire_actions/index
-   rex.action/index
-   rex.asynctask/index
-   rex.attach/index
-   rex.core/index
-   rex.ctl/index
-   rex.db/index
-   rex.deploy/index
-   rex.file/index
-   rex.form_previewer/index
-   rex.formbuilder/index
-   rex.forms/index
-   rex.i18n/index
-   rex.instrument/index
-   rex.job/index
-   rex.logging/index
-   rex.mart/index
-   rex.mart_actions/index
-   rex.menu/index
-   rex.mobile/index
-   rex.port/index
-   rex.portal_client/index
-   rex.query/index
-   rex.restful/index
-   rex.sendmail/index
-   rex.setup/index
-   rex.sms/index
-   rex.tabular_import/index
-   rex.urlmap/index
-   rex.web/index
-   rex.widget/index
-   rex.widget_chrome/index
+   REX.ACQUIRE_ACTIONS <rex.acquire_actions/index>
+   REX.ACTION <rex.action/index>
+   REX.ASYNCTASK <rex.asynctask/index>
+   REX.ATTACH <rex.attach/index>
+   REX.CORE <rex.core/index>
+   REX.CTL <rex.ctl/index>
+   REX.DB <rex.db/index>
+   REX.DEPLOY <rex.deploy/index>
+   REX.FILE <rex.file/index>
+   REX.FORM_PREVIEWER <rex.form_previewer/index>
+   REX.FORMBUILDER <rex.formbuilder/index>
+   REX.FORMS <rex.forms/index>
+   REX.I18N <rex.i18n/index>
+   REX.INSTRUMENT <rex.instrument/index>
+   REX.JOB <rex.job/index>
+   REX.LOGGING <rex.logging/index>
+   REX.MART <rex.mart/index>
+   REX.MART_ACTIONS <rex.mart_actions/index>
+   REX.MENU <rex.menu/index>
+   REX.MOBILE <rex.mobile/index>
+   REX.PORT <rex.port/index>
+   REX.PORTAL_CLIENT <rex.portal_client/index>
+   REX.QUERY <rex.query/index>
+   REX.RESTFUL <rex.restful/index>
+   REX.SENDMAIL <rex.sendmail/index>
+   REX.SETUP <rex.setup/index>
+   REX.SMS <rex.sms/index>
+   REX.TABULAR_IMPORT <rex.tabular_import/index>
+   REX.URLMAP <rex.urlmap/index>
+   REX.WEB <rex.web/index>
+   REX.WIDGET <rex.widget/index>
+   REX.WIDGET_CHROME <rex.widget_chrome/index>
 
 
-Indices and tables
+Aggregated References
+=====================
+
+.. toctree::
+   :maxdepth: 1
+
+   settings
+   ctl
+
+
+Change Log
+==========
+
+.. toctree::
+   :maxdepth: 1
+
+   changes
+
+
+Indices and Tables
 ==================
 
 * :ref:`genindex`

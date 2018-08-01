@@ -155,3 +155,9 @@ texinfo_documents = [
      author, 'Project', 'One line description of project.',
      'Miscellaneous'),
 ]
+
+
+# Options for autodoc
+autodoc_default_flags = ['members']
+autodoc_member_order = 'bysource'
+

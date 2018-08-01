@@ -21,8 +21,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'rex.baseline',
-        'rex.mart',
-        'rex.mart_actions',
     ],
     rex_static='static',
 )
+

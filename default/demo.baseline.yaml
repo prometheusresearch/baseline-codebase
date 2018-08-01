@@ -2,8 +2,11 @@ project: rex.demo.baseline
 parameters:
   db: pgsql:demo.baseline
   attach_dir: ./data/attach
+  sendmail: "-"
 uwsgi:
   socket: ./run/socket
   chmod-socket: 777
   buffer-size: 65535
   processes: 2
+  threads: 2
+

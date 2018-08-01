@@ -94,6 +94,7 @@ class EntityAction(Action):
         I.e. work on **$todo** entity of type **todo**. This permits you to
         have several entities in the wizard with different names but of the
         same type, for example::
+
             ...
             entity:
               remote_user: user
@@ -148,6 +149,7 @@ class EntityAction(Action):
 
         Each entry in this list may be specified in short or complete form. See
         the following example::
+
             ...
             entity: study
             fields:

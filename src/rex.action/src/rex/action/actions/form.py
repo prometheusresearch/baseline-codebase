@@ -104,20 +104,20 @@ class Form(Action):
         You can use **$references** specified in the ``input`` field. As well
         as top-level field IDs. For example::
 
-        ...
-        type: form
-        fields:
-        - value_key: title
-          type: string
-          required: true
-        - value_key: code
-          type: string
-          required: true
-        query: |
-          do(
-            $id := insert(study := {code := $code, title := $title}),
-            {id := $id}
-          )
+            ...
+            type: form
+            fields:
+            - value_key: title
+              type: string
+              required: true
+            - value_key: code
+              type: string
+              required: true
+            query: |
+              do(
+                $id := insert(study := {code := $code, title := $title}),
+                {id := $id}
+              )
         """)
 
     entity = Field(

@@ -1,5 +1,5 @@
 
 
 from .setting import *
-from . import portal
+from shard import *
 from .error import PatientPortalClientError

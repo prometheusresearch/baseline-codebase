@@ -11,4 +11,5 @@ from .htsql_console import *
 from .navigation import *
 from .tool import *
 from .query import *
+from .saved_query import *
 

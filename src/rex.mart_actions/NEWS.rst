@@ -5,10 +5,10 @@ REX.MART_ACTIONS Change Log
 .. contents:: Table of Contents
 
 
-0.9.0 (2018-xx-xx)
+0.9.0 (2018-07-02)
 ==================
 
-* Updated dependencies.
+* Added support for saved queries, both console & VQB
 
 
 0.8.0 (2018-01-05)

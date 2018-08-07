@@ -31,7 +31,7 @@ TODO
 
       * Makefile-based tooling
 
-  * Development environment; "local" vs Docker
+  * :doc:`Development Environment <development_environment>`
   * Project responsibilities vs upstream responsibilities
   * How to contribute patches upstream
 

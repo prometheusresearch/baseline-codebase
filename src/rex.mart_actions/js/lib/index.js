@@ -28,3 +28,8 @@ export {
   BarChart,
   ScatterChart,
 } from './guide/ConfiguredChart';
+
+export {default as MartMakeQuery} from './MartMakeQuery';
+export {default as MartEditQuery} from './MartEditQuery';
+export {MartMakeConsoleQuery, MartEditConsoleQuery} from './MartConsoleQuery';
+

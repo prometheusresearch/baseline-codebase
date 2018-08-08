@@ -274,7 +274,6 @@ class GuideConfiguration(object):
             ', '.join(fields),
             ''.join(filters),
         )
-        print query
 
         return Query(query, db=self.database)
 

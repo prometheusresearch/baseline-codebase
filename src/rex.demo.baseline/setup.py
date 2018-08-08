@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.demo.baseline',
-    version='1.0.0',
+    version='0.0.0',
     description='Demo baseline app for RexDB applications',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',

@@ -131,6 +131,12 @@ purge:
 .PHONY: purge
 
 
+# Open up a shell in the develop container
+shell: ./bin/activate
+	docker-compose exec develop /bin/bash
+.PHONY: shell
+
+
 # Check that the development environment is initialized.
 ./bin/activate:
 	@echo "${RED}Run \"make init\" or \"make init-local\" to initialize the development environment.${NORM}"; false

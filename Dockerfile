@@ -1,4 +1,6 @@
-FROM rexdb/build:2018.07.26 AS build
+ARG REXDB_TAG=2018.07.30
+
+FROM rexdb/build:$REXDB_TAG AS build
 
 WORKDIR /app
 
@@ -10,7 +12,7 @@ RUN make dist-local && \
     rm -f Makefile* && \
     rm -rf src
 
-FROM rexdb/runtime:2018.07.30
+FROM rexdb/runtime:$REXDB_TAG
 
 WORKDIR /app
 

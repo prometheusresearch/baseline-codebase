@@ -86,8 +86,7 @@ TOOL_JS =
 # entry in this variable must be formatted as:
 # 	<directory>:<make target to run>
 SRC_MAKE = \
-	src/rex.demo.baseline/doc:html \
-	doc:html
+	src/rex.demo.baseline/doc:html
 
 
 ### Generic, Make-based Project Tests

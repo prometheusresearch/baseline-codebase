@@ -165,6 +165,15 @@ build-generic: ./bin/activate
 .PHONY: build-generic
 
 
+# Build the repository-level documentation
+build-docs: ./bin/activate
+	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building repository documentation...${NORM}"
+	if [ -e "doc/Makefile" ]; then \
+		${MAKE} -C doc html; \
+	fi
+.PHONY: build-docs
+
+
 # Compile source packages in development mode.
 develop: ./bin/activate
 	${MAKE} build-js
@@ -174,6 +183,7 @@ develop: ./bin/activate
 		./bin/pip --isolated install --editable $$src; \
 	done
 	${MAKE} build-generic
+	${MAKE} build-docs
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Linking data files...${NORM}"
 	set -ex; \
 	for src in ${SRC_DATA}; do \

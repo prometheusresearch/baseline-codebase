@@ -1,3 +1,9 @@
+1.5.0 (TBD)
+===========
+
+* Excluded repository documentation building from the ``dist`` image.
+
+
 1.4.0 (2018-08-15)
 ==================
 

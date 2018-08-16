@@ -5,13 +5,20 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
-0.9.0 (2018-xx-xx)
-==================
+0.9.0
+=====
 
 * Added a ``DefinitionProducer`` extension to allow applications to extend
   how ``rex.mart`` retrieves the Definitions it uses.
 * Added an implementation of a ``rex.job.JobExecutor`` named ``rexmart_create``
   to facilitate the creation of Marts via a GUI.
+
+
+0.8.2 (2018-08-16)
+==================
+
+* Fixed an issue where schema modifications performed by SQL scripts were not
+  seen by subsequent HTSQL scripts.
 
 
 0.8.1 (2018-04-04)

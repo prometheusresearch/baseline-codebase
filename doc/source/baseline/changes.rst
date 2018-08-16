@@ -2,6 +2,8 @@
 ===========
 
 * Excluded repository documentation building from the ``dist`` image.
+* Updated the ``rex.mart`` package with the latest patch release that occurred
+  in the legacy repository.
 
 
 1.4.0 (2018-08-15)

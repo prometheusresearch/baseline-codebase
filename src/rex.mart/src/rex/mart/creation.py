@@ -459,9 +459,9 @@ class MartCreator(object):
         if not scripts:
             return
 
-        self.connect_mart()
-
         for idx, script in enumerate(scripts):
+            self.reconnect_mart()
+
             idx_label = '#%s' % (idx + 1,)
             self.log('%s script %s...' % (
                 script['type'].upper(),

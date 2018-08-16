@@ -479,3 +479,30 @@ definitions:
     assessments:
       - dynamic: rexdb
 
+  - id: schema_modification
+    description: An example of modifying the database schema in a a script
+    assessments:
+      - instrument: mart1
+        selector: |
+          /assessment{
+            id() :as assessment_uid,
+            age_at_evaluation,
+          }.filter(
+            instrumentversion.instrument='mart1'
+          )/:rexdb
+    post_assessment_scripts:
+      - script: |
+          ALTER TABLE
+            mart1
+          ADD COLUMN
+            new_column TEXT
+          ;
+        type: sql
+      - script: |
+          /mart1{
+              id(),
+              'bar' :as new_column,
+            }
+            /:update
+        type: htsql
+

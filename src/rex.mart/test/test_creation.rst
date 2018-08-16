@@ -351,6 +351,30 @@ contents::
     Has Size: True
     Dates: True True
 
+You can load Assessments into the Mart and alter/update the tables created by
+them in the ``post_assessment_scripts``::
+
+    >>> mc = MartCreator('test', 'schema_modification')
+    >>> mart = mc()
+    >>> db_exists(mart.name)
+    True
+    >>> db_inventory(mart.name, detailed=['mart1'])
+    mart1: 8
+    (u'martassessment1', u'mart11', 12L, u'foo1', u'bar')
+    (u'martassessment2', u'mart11', 13L, u'foo2', u'bar')
+    (u'martassessment3', u'mart11', 14L, u'foo3', u'bar')
+    (u'martassessment4', u'mart11', 15L, u'foo4', u'bar')
+    (u'martassessment5', u'mart11', 16L, u'foo5', u'bar')
+    (u'martassessment6', u'mart11', 17L, u'foo6', u'bar')
+    (u'martassessment7', u'mart11', 18L, u'foo7', u'bar')
+    (u'martassessment8', u'mart11', 19L, u'foo8', u'bar')
+    >>> db_status(mart.name)
+    Definition: schema_modification
+    Status: complete
+    Owner: test
+    Has Size: True
+    Dates: True True
+
 Your Assessment selector can include JSON-ish fields::
 
     >>> mc = MartCreator('test', 'select_json')

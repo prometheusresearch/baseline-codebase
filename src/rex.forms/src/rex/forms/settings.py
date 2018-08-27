@@ -118,12 +118,12 @@ class FormsPresentationAdaptorsSetting(Setting):
     name = 'forms_presentation_adaptors'
     default = {}
 
-    def validate(self, data):  # pylint: disable=no-self-use
+    def validate(self, value):
         adaptors = PresentationAdaptor.mapped().keys()
         validator = MapVal(StrVal(), SeqVal(ChoiceVal(adaptors)))
-        return validator(data)
+        return validator(value)
 
-    def merge(self, old_value, new_value):  # pylint: disable=no-self-use
+    def merge(self, old_value, new_value):
         merged = dict()
         merged.update(old_value)
         merged.update(new_value)

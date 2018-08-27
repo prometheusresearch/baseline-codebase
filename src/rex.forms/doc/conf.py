@@ -2,6 +2,7 @@
 # Copyright (c) 2014, Prometheus Research, LLC
 #
 
+# pylint: disable=invalid-name
 
 project = 'rex.forms'
 html_title = "REX.FORMS Documentation"

@@ -54,6 +54,8 @@ TEST_PY = ${SRC_PY}
 # This variable contains a list of Python packages that will be installed in
 # the development environment.
 TOOL_PY = \
+	honcho \
+	tidypy \
 	sphinx-rtd-theme==0.4.1 \
 	Sphinx==1.7.6
 

@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = {
   MODE_ENTRY: 'entry',
   MODE_REVIEW: 'review',

@@ -10,7 +10,7 @@ from webob.exc import HTTPNotFound, HTTPBadRequest, HTTPUnauthorized
 
 from rex.core import StrVal
 from rex.db import get_db
-from rex.instrument import User, Assessment, InstrumentError, Subject
+from rex.instrument import User, InstrumentError
 from rex.web import Command, Parameter, authenticate
 
 from .implementation.lookup import REGISTRY

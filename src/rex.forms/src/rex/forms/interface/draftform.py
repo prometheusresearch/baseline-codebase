@@ -199,8 +199,7 @@ class DraftForm(
         if isinstance(self._channel, basestring):
             channel_impl = get_implementation('channel')
             return channel_impl.get_by_uid(self._channel)
-        else:
-            return self._channel
+        return self._channel
 
     @memoized_property
     def draft_instrument_version(self):
@@ -214,8 +213,7 @@ class DraftForm(
         if isinstance(self._draft_instrument_version, basestring):
             div_impl = get_implementation('draftinstrumentversion')
             return div_impl.get_by_uid(self._draft_instrument_version)
-        else:
-            return self._draft_instrument_version
+        return self._draft_instrument_version
 
     @property
     def configuration(self):
@@ -391,7 +389,7 @@ class DraftForm(
 
         return form
 
-    def get_display_name(self, locale=None):
+    def get_display_name(self, locale=None):  # noqa: arguments-differ
         """
         Returns a unicode string that represents this DraftForm, suitable for
         use in human-visible places.

@@ -7,6 +7,16 @@ import * as React from 'react';
 import get from 'lodash/get';
 import {Widget} from 'rex-forms';
 
+
+const parseValue = v => {
+  if (v == null) {
+    v = '';
+  }
+  const [y, m, d] = v.split('-');
+  return [y || '', m || '', d || ''];
+};
+
+
 /**
  * Define a custom input and a corresponding widget.
  */
@@ -117,14 +127,3 @@ export default function CustomWidgetDemo({Form, ...props}) {
   );
 }
 
-/**
- * Utilities.
- */
-
-const parseValue = v => {
-  if (v == null) {
-    v = '';
-  }
-  const [y, m, d] = v.split('-');
-  return [y || '', m || '', d || ''];
-};

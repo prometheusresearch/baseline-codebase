@@ -43,7 +43,7 @@ class Form(
     def _validate_custom_widgets(
             cls,
             configuration,
-            instrument_definition=None):
+            instrument_definition=None):  # noqa: unused-argument
         for page in configuration['pages']:
             for element in page['elements']:
                 if element['type'] != 'question':
@@ -305,8 +305,7 @@ class Form(
         if isinstance(self._channel, basestring):
             channel_impl = get_implementation('channel')
             return channel_impl.get_by_uid(self._channel)
-        else:
-            return self._channel
+        return self._channel
 
     @memoized_property
     def instrument_version(self):
@@ -320,8 +319,7 @@ class Form(
         if isinstance(self._instrument_version, basestring):
             iv_impl = get_implementation('instrumentversion')
             return iv_impl.get_by_uid(self._instrument_version)
-        else:
-            return self._instrument_version
+        return self._instrument_version
 
     @property
     def configuration(self):

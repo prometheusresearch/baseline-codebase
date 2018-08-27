@@ -12,7 +12,6 @@ import getLocalizedString from '../getLocalizedString';
 
 const textStyle = {
   width: '100%',
-  display: 'inline-block',
   wordWrap: 'break-word',
   whiteSpace: 'normal',
 };

@@ -17,7 +17,7 @@ export default function QuestionLabel({
     <ReactUI.Block marginBottom="small" {...props}>
       {required &&
         <ReactUI.Block inline marginRight="xx-small">
-          <ReactUI.ErrorText>*</ReactUI.ErrorText>
+          <ReactUI.ErrorText fontSize="medium">*</ReactUI.ErrorText>
         </ReactUI.Block>}
       <ReactUI.LabelText variant={{disabled}}>
         <LocalizedString

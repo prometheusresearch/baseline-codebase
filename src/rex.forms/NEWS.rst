@@ -5,6 +5,14 @@ REX.FORMS Change Log
 .. contents:: Table of Contents
 
 
+2.5.0 (TBD)
+===========
+
+* Added feedback to the bottom of the page that explains why the user cannot
+  currently progress to the next page (e.g., errors, missing required fields,
+  etc).
+
+
 2.4.3 (2018-06-25)
 ==================
 

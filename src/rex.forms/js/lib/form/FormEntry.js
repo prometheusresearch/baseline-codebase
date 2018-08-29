@@ -241,18 +241,43 @@ export default class FormEntry extends React.Component {
     // FYI: We modify the disabledPageNumberList /after/ we calculate form
     // completeness because we don't want to count the blocked pages as
     // complete.
+    let pageHasErrors = false;
+    let pageHasUnfinishedRequired = false;
     for (let p = pageNumber; p < pages.length; p++) {
-      let pageHasErrors = pages[p].elements.filter((element) => {
-        return element.type === 'question' &&
-          formState.value.select(element.options.fieldId).completeErrorList.length > 0
-        ;
-      }).length > 0;
-      if (pageHasErrors) {
+      let hasErrors = false;
+      pages[p].elements.forEach((element) => {
+        if (element.type === 'question') {
+          let fieldValue = formState.value.select(element.options.fieldId);
+          if (fieldValue.completeErrorList.length > 0) {
+            hasErrors = true;
+            if (p === pageNumber) {
+              pageHasErrors = true;
+            }
+          }
+          if (
+              p === pageNumber
+              && fieldValue.schema.required
+              && fieldValue.schema.required.length > 0
+              && !isFieldCompleted(fieldValue)
+            ) {
+            pageHasUnfinishedRequired = true;
+          }
+        }
+      });
+
+      if (hasErrors) {
         for (let i = p + 1; i < pages.length; i++) {
           disabledPageNumberList[i] = true;
         }
         break;
       }
+    }
+
+    let warning;
+    if (pageHasUnfinishedRequired) {
+      warning = this._('Please complete all required fields before proceeding.');
+    } else if (pageHasErrors) {
+      warning = this._('Please resolve the errors above before proceeding.');
     }
 
     return (
@@ -286,6 +311,14 @@ export default class FormEntry extends React.Component {
               page={page}
               formValue={formState.value}
               />
+            {warning &&
+              <div
+                style={{
+                  textAlign: 'center',
+                }}>
+                <ReactUI.ErrorText>{warning}</ReactUI.ErrorText>
+              </div>
+            }
             {hasPages &&
               <FormPaginator
                 currentPageNumber={pageNumber}

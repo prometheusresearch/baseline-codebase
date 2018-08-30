@@ -7,7 +7,7 @@ services:
         source: pgdata
         target: /var/lib/postgresql/data
   develop:
-    image: rexdb/develop:2018.07.30
+    image: rexdb/develop:2018.08.30
     volumes:
       - type: bind
         source: .

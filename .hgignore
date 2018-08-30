@@ -16,9 +16,11 @@ syntax: regexp
 ^data/
 ^include/
 ^lib/
+^lib64$
 ^local/
 ^man/
 ^pip-selfcheck.json$
+^pyvenv.cfg$
 ^run/
 ^share/
 ^socket$

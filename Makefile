@@ -183,7 +183,7 @@ develop: ./bin/activate
 		./bin/pip --isolated install --editable $$src; \
 	done
 	${MAKE} build-generic
-	${MAKE} build-docs
+	#${MAKE} build-docs
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Linking data files...${NORM}"
 	set -ex; \
 	for src in ${SRC_DATA}; do \

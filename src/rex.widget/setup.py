@@ -27,7 +27,7 @@ setup(
         'rex.urlmap',
         'rex.menu',
         'docutils>=0.12,<0.13',
-        'transit-python==0.8.250',
+        'transit-python==0.8.302',
         'cached-property>=1,<2',
         'docutils>=0.12,<0.13',
         'werkzeug>=0.10.4,<0.11',

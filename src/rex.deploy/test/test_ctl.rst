@@ -57,7 +57,7 @@ You can also save the output to a file::
 
     >>> ctl("dumpdb -o ./build/sandbox/deploy_demo_ctl.sql")
 
-    >>> print open('./build/sandbox/deploy_demo_ctl.sql').read()    # doctest: +ELLIPSIS
+    >>> print(open('./build/sandbox/deploy_demo_ctl.sql').read())    # doctest: +ELLIPSIS
     --
     -- PostgreSQL database dump
     --
@@ -95,5 +95,6 @@ Add ``--quiet`` to suppress the output::
     >>> ctl("deploy --quiet")
 
     >>> ctl("dropdb --quiet")
+
 
 

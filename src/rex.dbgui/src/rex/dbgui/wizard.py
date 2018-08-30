@@ -7,6 +7,7 @@ from rex.widget import render_widget, computed_field
 from cached_property import cached_property
 import yaml
 from functools import partial
+from functools import reduce
 
 @cached
 def get_schema():
@@ -73,7 +74,7 @@ class WizardProxy(object):
                                    if isinstance(b, (list, tuple))
                                    else a + [b], l, [])
         actions = [a for a in flatten(path)
-                     if a and not isinstance(a, (str, unicode))]
+                     if a and not isinstance(a, str)]
         return cls(id=id,
                    title=title,
                    path=cls.extract_path(path),
@@ -84,7 +85,7 @@ class WizardProxy(object):
         dict1 = lambda x,y: dict([(x, y)])
         if path is None:
             return None
-        elif isinstance(path, (str, unicode)):
+        elif isinstance(path, str):
             return [{'replace': path}]
         else:
             return [dict1(k.id, cls.extract_path(v)) for k, v in path]
@@ -124,8 +125,8 @@ class WizardProxy(object):
             if len(links) == 1 and links[0] not in context:
                 if view._is_facet:
                     mask = '%s.%s=$%s' % (links[0].label,
-                                          view.entity.values()[0],
-                                          view.entity.keys()[0])
+                                          list(view.entity.values())[0],
+                                          list(view.entity.keys())[0])
                     next.extend(cls.table_path(table.label,
                         mask=mask,
                         context=context
@@ -147,7 +148,7 @@ def to_complete_entity(entity):
         return dict([(entity, entity)])
 
 def to_ref(table):
-    return '$' + to_complete_entity(table).keys()[0]
+    return '$' + list(to_complete_entity(table).keys())[0]
 
 
 class ActionProxy(object):
@@ -162,7 +163,7 @@ class ActionProxy(object):
 
     def get_params(self):
         return dict([
-            (k, v) for k, v in vars(self).items()
+            (k, v) for k, v in list(vars(self).items())
                    if v is not None and not k.startswith('_')
         ])
 
@@ -191,7 +192,7 @@ class TableActionProxy(ActionProxy):
         if context:
             self.id = '%s--%s' % (self.id, '-'.join([c for c in context]))
         self.input = [to_complete_entity(item) for item in context]
-        for attr, value in kwds.items():
+        for attr, value in list(kwds.items()):
             setattr(self, attr, value)
 
     def get_base_entity(self, table_name, context):
@@ -245,7 +246,7 @@ class TableActionProxy(ActionProxy):
         return fields, value or None
 
     def replace(self):
-        table = self.entity.keys()[0]
+        table = list(self.entity.keys())[0]
         view = 'view' + self.id[len(self.type):]
         pick = 'pick' + self.id[len(self.type):]
         add_to_context = lambda name: '%s=$%s' % (name, name)
@@ -330,9 +331,9 @@ def sort_key(obj):
     return lambda i: obj.order.index(i[0]) if i[0] in obj.order else 1000
 
 def represent_wizard(dumper, wizard):
-    mapping = lambda l: yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', l)
+    mapping = lambda l: yaml.nodes.MappingNode('tag:yaml.org,2002:map', l)
     ret = []
-    for key, value in sorted(vars(wizard).items(), key=sort_key(wizard)):
+    for key, value in sorted(list(vars(wizard).items()), key=sort_key(wizard)):
         if key not in wizard.order:
             continue
         if value is not None:
@@ -359,7 +360,7 @@ def represent_wizard(dumper, wizard):
 
 def represent_action(dumper, action):
     ret = []
-    for key, value in sorted(vars(action).items(), key=sort_key(action)):
+    for key, value in sorted(list(vars(action).items()), key=sort_key(action)):
         if key not in action.order:
             continue
         if value not in (None, []):
@@ -371,11 +372,11 @@ def represent_action(dumper, action):
             node_key = dumper.represent_data(key)
             node_value = dumper.represent_data(value)
             ret.append((node_key, node_value))
-    return yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', ret)
+    return yaml.nodes.MappingNode('tag:yaml.org,2002:map', ret)
 
 yaml.SafeDumper.add_representer(WizardProxy, represent_wizard)
 yaml.SafeDumper.add_multi_representer(ActionProxy, represent_action)
 yaml.SafeDumper.add_representer(
     type(None),
-    lambda dumper, value: dumper.represent_scalar(u'tag:yaml.org,2002:null', '')
+    lambda dumper, value: dumper.represent_scalar('tag:yaml.org,2002:null', '')
 )

@@ -33,7 +33,7 @@ constructor and string-rendering methods::
     >>> iv = InstrumentVersion('notreal456', instrument, INSTRUMENT, 1, 'jay', datetime(2014, 5, 22))
     >>> iv.get_display_name()
     u'The InstrumentVersion Title'
-    >>> unicode(iv)
+    >>> str(iv)
     u'The InstrumentVersion Title'
     >>> str(iv)
     'The InstrumentVersion Title'
@@ -79,7 +79,7 @@ a dict equivalent::
     >>> iv.definition_yaml
     "id: urn:test-instrument\nversion: '1.1'\ntitle: The InstrumentVersion Title\nrecord:\n- {id: q_fake, type: text}"
 
-    >>> iv.definition_json = u'{"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "A Different Title"}'
+    >>> iv.definition_json = '{"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "A Different Title"}'
     >>> iv.definition
     {'record': [{'type': 'text', 'id': 'q_fake'}], 'version': '1.1', 'id': 'urn:test-instrument', 'title': 'A Different Title'}
 
@@ -235,4 +235,5 @@ defined as being the same class with the same UID::
     True
     >>> iv3 >= iv1
     True
+
 

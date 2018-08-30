@@ -80,7 +80,7 @@ class DeployCallColumn(DominateOverride, CallColumn):
 
     def __call__(self):
         column = self.arc.column
-        if not (column.name == u'id' or column.foreign_keys):
+        if not (column.name == 'id' or column.foreign_keys):
             meta = get_meta(column)
             label = meta.label or column.name
             yield label, 1
@@ -114,8 +114,8 @@ class DeployCallChain(DominateOverride, CallChain):
             link_meta = get_meta(link_column)
             if link_meta.label:
                 link_label = link_meta.label
-            elif link_column.name.endswith(u'_id'):
-                link_label = link_column.name[:-2].rstrip(u'_')
+            elif link_column.name.endswith('_id'):
+                link_label = link_column.name[:-2].rstrip('_')
 
         if is_direct and link_label:
             yield link_label, 4
@@ -124,7 +124,7 @@ class DeployCallChain(DominateOverride, CallChain):
         else:
             yield target_label, 2
         if not is_direct and link_label:
-            label = u"%s %s %s" % (target_label, self.path_word, link_label)
+            label = "%s %s %s" % (target_label, self.path_word, link_label)
             yield label, 1
 
 

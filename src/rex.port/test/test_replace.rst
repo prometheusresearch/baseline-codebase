@@ -28,7 +28,7 @@ particular, you can use it to add records to a table::
 You can also use it to update an existing record::
 
     >>> product = study_port.produce('study=is')
-    >>> print product
+    >>> print(product)
     {({[is], 'is', 'Intelligence Study', false},)}
 
     >>> study_port.replace(product, {'study': {'id': 'is', 'closed': True}})
@@ -59,7 +59,7 @@ and ``new`` records.  If ``old`` is empty, it could be omitted::
     ...     POST={
     ...         'new': '''{"study": {"code": "is", "title": "Intelligence Study", "closed": false}}''',
     ...     })
-    >>> print study_port(req)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(study_port(req))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -81,7 +81,7 @@ and the updated record as the ``new`` parameter::
     ...         'old': '''{"study": {"id": "is", "code": "is", "title": "Intelligence Study", "closed": false}}''',
     ...         'new': '''{"study": {"id": "is", "closed": true}}''',
     ...     })
-    >>> print study_port(req)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(study_port(req))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -102,7 +102,7 @@ value::
     ...     POST={
     ...         'new': '''{"study": {"id": "is", "closed": false}}''',
     ...     })
-    >>> print study_port(req)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(study_port(req))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -123,7 +123,7 @@ To delete a record, supply the current record as ``old``, but omit it in
     ...     POST={
     ...         'old': '''{"study": {"id": "is", "code": "is", "title": "Intelligence Study", "closed": false}}''',
     ...     })
-    >>> print study_port(req)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(study_port(req))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -323,5 +323,6 @@ port::
       ...
     Error: Failed to fetch:
         #/study/0
+
 
 

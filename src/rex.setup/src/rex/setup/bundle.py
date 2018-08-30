@@ -66,7 +66,7 @@ class bundle(setuptools.Command):
         if self.rex_static and self.rex_bundle:
             prefixes = [self.rex_static+'/', './'+self.rex_static+'/']
             items = []
-            for key, value in self.rex_bundle.items():
+            for key, value in list(self.rex_bundle.items()):
                 for prefix in prefixes:
                     if key.startswith(prefix):
                         key = key[len(prefix):]
@@ -156,7 +156,7 @@ class bundle(setuptools.Command):
                     if self.rex_bundle:
                         has_webpack = False
                         has_js = False
-                        for item in self.rex_bundle.values():
+                        for item in list(self.rex_bundle.values()):
                             for gen in item:
                                 has_webpack = has_webpack or gen.startswith('webpack:')
                                 has_js = has_js or gen.startswith('js:')

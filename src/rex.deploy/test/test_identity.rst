@@ -20,7 +20,7 @@ Identity fact is denoted by field ``identity``::
     >>> fact = driver.parse("""{ identity: [individual.code] }""")
     >>> fact
     IdentityFact(u'individual', [u'code'])
-    >>> print fact
+    >>> print(fact)
     identity: [code]
     of: individual
 
@@ -39,7 +39,7 @@ of identity label or as a separate ``of`` field::
     >>> fact = driver.parse("""{ identity: [code], of: individual }""")
     >>> fact
     IdentityFact(u'individual', [u'code'])
-    >>> print fact
+    >>> print(fact)
     identity: [code]
     of: individual
 
@@ -66,7 +66,7 @@ Identity label could be supplied with an associated generator::
     >>> fact = driver.parse("""{ identity: [code: random], of: individual }""")
     >>> fact
     IdentityFact(u'individual', [u'code'], [u'random'])
-    >>> print fact
+    >>> print(fact)
     identity:
     - {code: random}
     of: individual
@@ -78,7 +78,7 @@ column and the generator as a pair::
     ...                       'of': 'measure' })
     >>> fact
     IdentityFact(u'measure', [u'individual', u'measure_type', u'code'], [None, None, u'offset'])
-    >>> print fact
+    >>> print(fact)
     identity:
     - individual
     - measure_type
@@ -114,7 +114,7 @@ on a table::
     ALTER TABLE "individual" ADD CONSTRAINT "individual_pk" PRIMARY KEY ("code"), CLUSTER ON "individual_pk";
 
     >>> schema = driver.get_schema()
-    >>> individual_table = schema[u'individual']
+    >>> individual_table = schema['individual']
     >>> individual_table.primary_key is not None
     True
 
@@ -256,16 +256,16 @@ Generators could be applied to *text* or *integer* columns::
     ... - { table: individual }
     ... - { column: individual.code, type: text }
     ... - { identity: [individual.code: random] }
-    ...
+    ... 
     ... - { table: visit }
     ... - { link: visit.individual }
     ... - { column: visit.seq, type: integer }
     ... - { identity: [visit.individual, visit.seq: offset] }
-    ...
+    ... 
     ... - { table: measure_type }
     ... - { column: measure_type.uid, type: integer }
     ... - { identity: [measure_type.uid: random] }
-    ...
+    ... 
     ... - { table: measure }
     ... - { link: measure.individual }
     ... - { link: measure.measure_type }
@@ -328,25 +328,25 @@ starting from ``'001'`` and grouped by other identity fields::
     >>> measure_id111 = db.produce(
     ...         "insert(measure := {individual := $individual_id, measure_type := $measure_type_id})",
     ...         individual_id=individual_id1, measure_type_id=measure_type_id1).data
-    >>> measure_id111 == (individual_id1, measure_type_id1, u'001')
+    >>> measure_id111 == (individual_id1, measure_type_id1, '001')
     True
 
     >>> measure_id112 = db.produce(
     ...         "insert(measure := {individual := $individual_id, measure_type := $measure_type_id})",
     ...         individual_id=individual_id1, measure_type_id=measure_type_id1).data
-    >>> measure_id112 == (individual_id1, measure_type_id1, u'002')
+    >>> measure_id112 == (individual_id1, measure_type_id1, '002')
     True
 
     >>> measure_id12 = db.produce(
     ...         "insert(measure := {individual := $individual_id, measure_type := $measure_type_id})",
     ...         individual_id=individual_id1, measure_type_id=measure_type_id2).data
-    >>> measure_id12 == (individual_id1, measure_type_id2, u'001')
+    >>> measure_id12 == (individual_id1, measure_type_id2, '001')
     True
 
     >>> measure_id21 = db.produce(
     ...         "insert(measure := {individual := $individual_id, measure_type := $measure_type_id})",
     ...         individual_id=individual_id2, measure_type_id=measure_type_id1).data
-    >>> measure_id21 == (individual_id2, measure_type_id1, u'001')
+    >>> measure_id21 == (individual_id2, measure_type_id1, '001')
     True
 
     >>> db.produce("delete(/measure{id()})")
@@ -374,5 +374,6 @@ Finally, we drop the test database::
 
     >>> driver.close()
     >>> cluster.drop()
+
 
 

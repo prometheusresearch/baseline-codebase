@@ -148,7 +148,7 @@ class MartCreator(object):
                         'Parameters: %s' % (
                             ', '.join([
                                 '%s=%r' % (key, value)
-                                for key, value in self.parameters.items()
+                                for key, value in list(self.parameters.items())
                             ]),
                         )
                     )
@@ -216,7 +216,7 @@ class MartCreator(object):
                     except:  # noqa
                         # Be quiet so the original exception can raised
                         pass
-                raise exc_info[0], exc_info[1], exc_info[2]
+                raise exc_info[0](exc_info[1]).with_traceback(exc_info[2])
 
             finally:
                 self.start_date = None
@@ -256,9 +256,9 @@ class MartCreator(object):
                     param['name'],
                 ))
 
-        if parameters.keys():
+        if list(parameters.keys()):
             raise Error('Unknown parameters: %s' % (
-                ', '.join(parameters.keys()),
+                ', '.join(list(parameters.keys())),
             ))
 
         return validated

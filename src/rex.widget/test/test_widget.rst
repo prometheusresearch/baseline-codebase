@@ -17,14 +17,14 @@ Init
 ::
 
   >>> class MyWidget(Widget):
-  ...
+  ... 
   ...   name = 'MyWidget'
   ...   js_type = 'rex-widget', 'MyWidget'
-  ...
+  ... 
   ...   title = Field(StrVal())
-  ...
+  ... 
   ...   desc = Field(StrVal(), default='no desc')
-  ...
+  ... 
   ...   @computed_field
   ...   def computed(self, req):
   ...     return 'computed!'
@@ -120,12 +120,12 @@ Widget with non-transitionable field
   >>> rex.cache.clear()
 
   >>> class WidgetWithNonTransitionableField(Widget):
-  ...
+  ... 
   ...   name = 'WidgetWithNonTransitionableField'
   ...   js_type = 'rex-widget', 'WidgetWithNonTransitionableField'
-  ...
+  ... 
   ...   title = Field(StrVal())
-  ...
+  ... 
   ...   db = Field(StrVal(), transitionable=False)
 
   >>> w = WidgetWithNonTransitionableField(title='Title', db='db!')
@@ -210,9 +210,9 @@ Widget composition
   >>> rex.cache.clear()
 
   >>> class MyWidgetComposition(WidgetComposition):
-  ...
+  ... 
   ...   title = Field(StrVal())
-  ...
+  ... 
   ...   def render(self):
   ...     return MyWidget(title=self.title + '!')
 
@@ -296,28 +296,28 @@ Widget pointer
   >>> class WidgetWithPointer(Widget):
   ...   name = 'WidgetWithPointer'
   ...   js_type = 'pkg', 'WidgetWithPointer'
-  ...
+  ... 
   ...   @computed_field
   ...   def pointer(self):
   ...     return Pointer(self)
-  ...
+  ... 
   ...   def respond(self, req):
   ...     return Response('ok')
 
   >>> w = WidgetWithPointer()
 
-  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> print(render_widget(w, Request.blank('/', accept='application/json'))) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
   ["~#widget", ["rex-widget", "Chrome", {"content": ["^0", ["pkg", "WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/@@/2.content"]]}]], "title": null}]]
 
-  >>> print render_widget(
+  >>> print(render_widget(
   ...   w,
   ...   Request.blank('/@@/2.content', accept='application/json'),
   ...   path='2.content',
-  ... ) # doctest: +ELLIPSIS
+  ... )) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -326,18 +326,18 @@ Widget pointer
 
   >>> w = ComplexWidget(children=WidgetWithPointer())
 
-  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> print(render_widget(w, Request.blank('/', accept='application/json'))) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
   ["~#widget", ["rex-widget", "Chrome", {"content": ["^0", ["pkg", "ComplexWidget", {"children": ["^0", ["pkg", "WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/@@/2.content.2.children"]]}]]}]], "title": null}]]
 
-  >>> print render_widget(
+  >>> print(render_widget(
   ...   w,
   ...   Request.blank('/@@/2.content.2.children', accept='application/json'),
   ...   path='2.content.2.children',
-  ... ) # doctest: +ELLIPSIS
+  ... )) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -346,18 +346,18 @@ Widget pointer
 
   >>> w = ComplexWidget(children=[WidgetWithPointer()])
 
-  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> print(render_widget(w, Request.blank('/', accept='application/json'))) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
   ["~#widget", ["rex-widget", "Chrome", {"content": ["^0", ["pkg", "ComplexWidget", {"children": [["^0", ["pkg", "WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/@@/2.content.2.children.0"]]}]]]}]], "title": null}]]
 
-  >>> print render_widget(
+  >>> print(render_widget(
   ...   w,
   ...   Request.blank('/@@/2.content.2.children.0', accept='application/json'),
   ...   path='2.content.2.children.0',
-  ... ) # doctest: +ELLIPSIS
+  ... )) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -369,14 +369,14 @@ Pointer to field::
   >>> class WidgetWithFieldPointer(Widget):
   ...   name = 'WidgetWithFieldPointer'
   ...   js_type = 'pkg', 'WidgetWithFieldPointer'
-  ...
+  ... 
   ...   @computed_field
   ...   def pointer(self):
   ...     return Pointer(self, to_field=True)
 
   >>> w = WidgetWithFieldPointer()
 
-  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> print(render_widget(w, Request.blank('/', accept='application/json'))) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
@@ -388,17 +388,17 @@ Pointer with wrapper::
   >>> class WidgetWithWrappedPointer(Widget):
   ...   name = 'WidgetWithWrappedPointer'
   ...   js_type = 'pkg', 'WidgetWithWrappedPointer'
-  ...
+  ... 
   ...   @computed_field
   ...   def pointer(self):
   ...     return Pointer(self, to_field=True, wrap=self.wrap)
-  ...
+  ... 
   ...   def wrap(self, widget, url):
   ...     return [url]
 
   >>> w = WidgetWithWrappedPointer()
 
-  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> print(render_widget(w, Request.blank('/', accept='application/json'))) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
@@ -416,9 +416,9 @@ Responder field
   >>> class WidgetWithResponder(Widget):
   ...   name = 'WidgetWithResponder'
   ...   js_type = 'pkg', 'WidgetWithResponder'
-  ...
+  ... 
   ...   title = Field(StrVal())
-  ...
+  ... 
   ...   @responder
   ...   def data(self, req):
   ...     return Response('my title is: ' + self.title)
@@ -428,7 +428,7 @@ Responder field
   >>> w
   WidgetWithResponder(...)
 
-  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> print(render_widget(w, Request.blank('/', accept='application/json'))) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
@@ -439,11 +439,11 @@ Responder field
                               {"title": "Hi",
                                "data": ["~#url", ["http://localhost/@@/2.content.2.data"]]}]], "^2": "Hi"}]]
 
-  >>> print render_widget(
+  >>> print(render_widget(
   ...   w,
   ...   Request.blank('/@@/2.content.2.data', accept='application/json'),
   ...   path='2.content.2.data',
-  ... ) # doctest: +ELLIPSIS
+  ... )) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -457,9 +457,9 @@ Responder field
   >>> class WidgetWithPortResponder(Widget):
   ...   name = 'WidgetWithPortResponder'
   ...   js_type = 'pkg', 'WidgetWithPortResponder'
-  ...
+  ... 
   ...   title = Field(StrVal())
-  ...
+  ... 
   ...   @responder(url_type=PortURL)
   ...   def data(self, req):
   ...     return Response('my title is: ' + self.title)
@@ -469,7 +469,7 @@ Responder field
   >>> w
   WidgetWithPortResponder(...)
 
-  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> print(render_widget(w, Request.blank('/', accept='application/json'))) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
@@ -480,11 +480,11 @@ Responder field
                               {"title": "Hi",
                                "data": ["~#port", ["http://localhost/@@/2.content.2.data"]]}]], "^2": "Hi"}]]
 
-  >>> print render_widget(
+  >>> print(render_widget(
   ...   w,
   ...   Request.blank('/@@/2.content.2.data', accept='application/json'),
   ...   path='2.content.2.data',
-  ... ) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  ... )) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: 15
@@ -494,15 +494,15 @@ Responder field
   >>> class CompositionWithResponder(WidgetComposition):
   ...   name = 'CompositionWithResponder'
   ...   js_type = 'pkg', 'CompositionWithResponder'
-  ...
+  ... 
   ...   title = WidgetWithPortResponder.title.__clone__()
-  ...
+  ... 
   ...   def render(self):
   ...     return WidgetWithPortResponder(title=self.title)
 
   >>> w = CompositionWithResponder(title='ok')
 
-  >>> print render_widget(w, Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> print(render_widget(w, Request.blank('/', accept='application/json'))) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
@@ -513,11 +513,11 @@ Responder field
                             {"title": "ok",
                              "data": ["~#port", ["http://localhost/@@/2.content.2.data"]]}]], "^2": "ok"}]]
 
-  >>> print render_widget(
+  >>> print(render_widget(
   ...   w,
   ...   Request.blank('/@@/2.content.2.data', accept='application/json'),
   ...   path='2.content.2.data',
-  ... ) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  ... )) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: 15
@@ -530,3 +530,4 @@ Cleanup
 ::
 
   >>> rex.off()
+

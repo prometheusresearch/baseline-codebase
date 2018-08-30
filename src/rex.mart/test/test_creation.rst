@@ -21,29 +21,29 @@ Some tools for testing::
     ...     db = get_mart_db(name)
     ...     tables = db.produce("/meta(/table?name!='asynctask_queue'&name!~'rexmart')")
     ...     if not tables:
-    ...         print 'No tables found'
+    ...         print('No tables found')
     ...         return
     ...     for table in tables:
     ...         cnt = db.produce('count(%s)' % (table[0],))
-    ...         print '%s: %s' % (table[0], cnt.data)
+    ...         print('%s: %s' % (table[0], cnt.data))
     ...         if detailed and table[0] in detailed:
     ...             for rec in db.produce('/%s' % (table[0],)):
-    ...                 print tuple(rec)
+    ...                 print(tuple(rec))
     >>> def db_status(name):
     ...     db = get_management_db()
     ...     data = db.produce('/rexmart_inventory?name=$name', name=name)
     ...     if not data:
-    ...         print 'STATUS RECORD MISSING'
+    ...         print('STATUS RECORD MISSING')
     ...     if len(data) > 1:
-    ...         print 'MULTIPLE STATUS RECORDS FOUND'
-    ...     print 'Definition: %s' % data[0].definition
-    ...     print 'Status: %s' % data[0].status
-    ...     print 'Owner: %s' % data[0].owner
-    ...     print 'Has Size: %s' % (data[0].size > 0 if data[0].size is not None else False,)
-    ...     print 'Dates: %s %s' % (
+    ...         print('MULTIPLE STATUS RECORDS FOUND')
+    ...     print('Definition: %s' % data[0].definition)
+    ...     print('Status: %s' % data[0].status)
+    ...     print('Owner: %s' % data[0].owner)
+    ...     print('Has Size: %s' % (data[0].size > 0 if data[0].size is not None else False,))
+    ...     print('Dates: %s %s' % (
     ...         bool(data[0].date_creation_started),
     ...         bool(data[0].date_creation_completed),
-    ...     )
+    ...     ))
 
 A simple, empty Mart::
 
@@ -1025,4 +1025,5 @@ It complains if a SQL statement is bad::
 
 
     >>> rex.off()
+
 

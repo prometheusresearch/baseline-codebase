@@ -50,11 +50,11 @@ In case fields are not specified, they are generated from port::
       expression: id()
   ''')
 
-  >>> print render_widget(
+  >>> print(render_widget(
   ...   edit,
   ...   Request.blank('/', accept='application/json'),
   ...   path='2.data',
-  ...   no_chrome=True) # doctest: +ELLIPSIS
+  ...   no_chrome=True)) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"
@@ -128,3 +128,4 @@ Cleanup
 ::
 
   >>> rex.off()
+

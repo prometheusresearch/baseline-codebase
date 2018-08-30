@@ -175,9 +175,10 @@ product_to_pojo
   >>> from rex.widget.util import product_to_pojo
 
   >>> port = Port('individual')
-  >>> product = port.produce((u'*', 'NONSENSEID'))
+  >>> product = port.produce(('*', 'NONSENSEID'))
 
   >>> product_to_pojo(product)
   {u'individual': []}
 
   >>> rex.off()
+

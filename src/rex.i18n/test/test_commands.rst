@@ -15,9 +15,9 @@ Set up the environment::
 Make sure all the Commands are available::
 
     >>> from rex.web import Command
-    >>> for signature, impl in Command.mapped().items():
+    >>> for signature, impl in list(Command.mapped().items()):
     ...     if signature.startswith('i18n'):
-    ...         print '%s: %s' % (signature, impl)
+    ...         print('%s: %s' % (signature, impl))
     i18n_switch_locale: rex.i18n.commands.SwitchLocaleCommand
     i18n_locales: rex.i18n.commands.GetActiveLocalesCommand
     i18n_translations: rex.i18n.commands.GetTranslationsCommand
@@ -29,7 +29,7 @@ SwitchLocale
 This command requires that you provide a ``locale`` parameter::
 
     >>> req = Request.blank('/switch')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     400 Bad Request
     ...
 
@@ -38,7 +38,7 @@ of the current server::
 
     >>> req = Request.blank('/switch', method='POST')
     >>> req.POST['locale'] = 'fr'
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     302 Found
     X-RexI18N-Locale: fr
     ...
@@ -50,7 +50,7 @@ If you provide a locale that is not registered in the
 
     >>> req = Request.blank('/switch', method='POST')
     >>> req.POST['locale'] = 'es'
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     400 Bad Request
     ...
 
@@ -59,7 +59,7 @@ You can provide a ``redirect`` parameter to tell it where to redirect you to::
     >>> req = Request.blank('/switch', method='POST')
     >>> req.POST['locale'] = 'en-GB'
     >>> req.POST['redirect'] = 'http://google.com'
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     302 Found
     X-RexI18N-Locale: en-GB
     ...
@@ -71,7 +71,7 @@ noted in your Referer header::
 
     >>> req = Request.blank('/switch', method='POST', referer='http://yahoo.com')
     >>> req.POST['locale'] = 'fr'
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     302 Found
     X-RexI18N-Locale: fr
     ...
@@ -81,7 +81,7 @@ noted in your Referer header::
 In addition to POST, this Command can operate via GET::
 
     >>> req = Request.blank('/switch?locale=fr&redirect=http://google.com')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     302 Found
     X-RexI18N-Locale: fr
     ...
@@ -96,7 +96,7 @@ The GetTranslations command will return the JSON-ified gettext configuration
 for the "frontend" domain for the given locale::
 
     >>> req = Request.blank('/translations/en')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-type: application/json
     Content-Length: ...
@@ -108,7 +108,7 @@ If you specify a locale that is not configured in the system, you will receive
 a 400 error::
 
     >>> req = Request.blank('/translations/ar')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     400 Bad Request
     ...
 
@@ -120,7 +120,7 @@ The GetActiveLocales command will return a JSON object containing the
 locales supported by the application::
 
     >>> req = Request.blank('/locale/active')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-type: application/json
     Content-Length: ...
@@ -131,4 +131,5 @@ locales supported by the application::
 
 
     >>> rex.off()
+
 

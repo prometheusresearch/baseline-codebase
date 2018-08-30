@@ -27,7 +27,7 @@ Set up the environment::
     ...             continue
     ...         filtered_lines.append(stripped_lines[i])
     ...         i += 1
-    ...     print '\n'.join(filtered_lines)
+    ...     print('\n'.join(filtered_lines))
 
 
 mart-create
@@ -429,4 +429,5 @@ The ``mart-purge`` will delete the specified Mart(s) from the system::
 
     >>> del os.environ['REX_PROJECT']
     >>> del os.environ['REX_PARAMETERS']
+
 

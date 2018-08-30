@@ -3,7 +3,7 @@
 #
 
 
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 
 # Pattern that matches any segment.
@@ -112,7 +112,7 @@ class PathMask(object):
                 if value != pattern:
                     raise ValueError("path does not match the mask: %r" % path)
             if label:
-                assignments[label] = urllib.unquote(value)
+                assignments[label] = urllib.parse.unquote(value)
         if segments:
             raise ValueError("path does not match the mask: %r" % path)
         return assignments
@@ -142,7 +142,7 @@ class PathMap(object):
         #   None -> [(<guard>, <target>)]
         self.tree = {}
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self.tree)
 
     def add(self, mask, target):

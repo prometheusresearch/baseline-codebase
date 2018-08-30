@@ -27,7 +27,7 @@ def get_column_description(field):
         if isinstance(field.type, list):
             description['type']['name'] = 'enum'
             description['type']['enumerations'] = field.type
-        elif isinstance(field.type, basestring):
+        elif isinstance(field.type, str):
             description['type']['name'] = field.type
         else:  # pragma: no cover
             description['type']['name'] = 'UNKNOWN TYPE'

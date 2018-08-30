@@ -199,7 +199,7 @@ def get_accessible_definitions(user):
         definitions[mart.definition['id']]['num_marts'] += 1
 
     definitions = sorted(
-        definitions.values(),
+        list(definitions.values()),
         cmp=lambda x, y: cmp(x['label'].lower(), y['label'].lower()),
     )
 

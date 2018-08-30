@@ -9,7 +9,7 @@
 
 """
 
-from __future__ import absolute_import
+
 
 import ast
 import re
@@ -21,7 +21,7 @@ FIND_IDENTIFIER_RE = re.compile(r'[a-zA-Z0-9_\-]+')
 
 
 def is_state_expression(value):
-    return isinstance(value, basestring) and (
+    return isinstance(value, str) and (
         ' ' in value or
         '!' in value or
         '(' in value or

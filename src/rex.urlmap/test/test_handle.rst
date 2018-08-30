@@ -18,7 +18,7 @@ the segment tree::
 
     >>> req = Request.blank('/study')
     >>> req.remote_user = 'Alice'
-    >>> print req.get_response(demo)        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <title>Studies</title>
@@ -28,7 +28,7 @@ The segment tree may contain wildcard branches::
 
     >>> req = Request.blank('/study/asdl')
     >>> req.remote_user = 'Alice'
-    >>> print req.get_response(demo)        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <title>Study: asdl</title>
@@ -37,7 +37,7 @@ The segment tree may contain wildcard branches::
 Unrecognized URLs are rejected::
 
     >>> req = Request.blank('/enrollment')
-    >>> print req.get_response(demo)        # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))        # doctest: +ELLIPSIS
     404 Not Found
     ...
 
@@ -46,7 +46,7 @@ Or delegated to the next handler in the routing pipeline::
     >>> fallback = Rex('rex.urlmap_demo', './test/data/fallback/',
     ...                mount={'fallback': '/'})
     >>> req = Request.blank('/fallback.html')
-    >>> print req.get_response(fallback)    # doctest: +ELLIPSIS
+    >>> print(req.get_response(fallback))    # doctest: +ELLIPSIS
     200 OK
     ...
     <!DOCTYPE html>
@@ -83,7 +83,7 @@ URLs with ``access`` parameter set to ``anybody`` do not require
 authorization::
 
     >>> req = Request.blank('/public')
-    >>> print req.get_response(auth_demo)   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(auth_demo))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <title>Public access!</title>
@@ -92,12 +92,12 @@ authorization::
 By default, only authenticated users are accepted::
 
     >>> req = Request.blank('/private')
-    >>> print req.get_response(auth_demo)   # doctest: +ELLIPSIS
+    >>> print(req.get_response(auth_demo))   # doctest: +ELLIPSIS
     401 Unauthorized
     ...
 
     >>> req.remote_user = 'Alice'
-    >>> print req.get_response(auth_demo)   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(auth_demo))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <title>For authenticated users only!</title>
@@ -106,7 +106,7 @@ By default, only authenticated users are accepted::
 Pages marked as ``unsafe`` require a CSRF token::
 
     >>> req = Request.blank('/unsafe')
-    >>> print req.get_response(auth_demo)   # doctest: +ELLIPSIS
+    >>> print(req.get_response(auth_demo))   # doctest: +ELLIPSIS
     403 Forbidden
     ...
 
@@ -119,7 +119,7 @@ Pages marked as ``unsafe`` require a CSRF token::
     >>> req = Request.blank('/unsafe')
     >>> req.cookies['rex.session'] = session_cookie
     >>> req.headers['X-CSRF-Token'] = csrf_token
-    >>> print req.get_response(auth_demo)   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(auth_demo))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <title>Protected against CSRF attacks!</title>
@@ -132,7 +132,7 @@ Access control for queries and ports
 Queries and ports generate HTSQL output::
 
     >>> req = Request.blank('/data/total', accept='application/json')
-    >>> print req.get_response(demo)    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -141,7 +141,7 @@ Queries and ports generate HTSQL output::
     }
 
     >>> req = Request.blank('/data/study', accept='application/json', remote_user='Alice')
-    >>> print req.get_response(demo)    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -159,13 +159,13 @@ Queries and ports generate HTSQL output::
 Errors in query parameters are detected::
 
     >>> req = Request.blank('/data/total?sex=male')
-    >>> print req.get_response(demo)    # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))    # doctest: +ELLIPSIS
     400 Bad Request
     ...
 
     >>> req = Request.blank('/data/study?individual=1000', accept='application/json',
     ...                     remote_user='Alice')
-    >>> print req.get_response(demo)    # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))    # doctest: +ELLIPSIS
     400 Bad Request
     ...
 
@@ -208,7 +208,7 @@ Again, URLs with ``access`` parameter set to ``anybody`` do not require
 authorization::
 
     >>> req = Request.blank('/data/public-query', accept='application/json')
-    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(data_auth_demo))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -216,7 +216,7 @@ authorization::
     }
 
     >>> req = Request.blank('/data/public-port', accept='application/json')
-    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(data_auth_demo))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -226,12 +226,12 @@ authorization::
 By default, only authenticated users are accepted::
 
     >>> req = Request.blank('/data/private-query', accept='application/json')
-    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(data_auth_demo))  # doctest: +ELLIPSIS
     401 Unauthorized
     ...
 
     >>> req.remote_user = 'Alice'
-    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(data_auth_demo))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -246,12 +246,12 @@ By default, only authenticated users are accepted::
     }
 
     >>> req = Request.blank('/data/private-port', accept='application/json')
-    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(data_auth_demo))  # doctest: +ELLIPSIS
     401 Unauthorized
     ...
 
     >>> req.remote_user = 'Alice'
-    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(data_auth_demo))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -269,12 +269,12 @@ By default, only authenticated users are accepted::
 Ports marked as ``unsafe`` require a CSRF token::
 
     >>> req = Request.blank('/data/unsafe-query', accept='application/json')
-    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(data_auth_demo))  # doctest: +ELLIPSIS
     403 Forbidden
     ...
 
     >>> req = Request.blank('/data/unsafe-port', accept='application/json')
-    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(data_auth_demo))  # doctest: +ELLIPSIS
     403 Forbidden
     ...
 
@@ -287,7 +287,7 @@ Ports marked as ``unsafe`` require a CSRF token::
     >>> req = Request.blank('/data/unsafe-query', accept='application/json')
     >>> req.cookies['rex.session'] = session_cookie
     >>> req.headers['X-CSRF-Token'] = csrf_token
-    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(data_auth_demo))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -307,7 +307,7 @@ Ports marked as ``unsafe`` require a CSRF token::
     >>> req = Request.blank('/data/unsafe-port', accept='application/json')
     >>> req.cookies['rex.session'] = session_cookie
     >>> req.headers['X-CSRF-Token'] = csrf_token
-    >>> print req.get_response(data_auth_demo)  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(data_auth_demo))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: application/javascript
     Content-Disposition: inline; filename="_.js"
@@ -368,13 +368,13 @@ Ports marked as ``unsafe`` require a CSRF token::
 Ports could be marked as *read-only*, which forbids using CRUD operations::
 
     >>> req = Request.blank('/data/read-only-port', accept='application/json')
-    >>> print req.get_response(data_auth_demo)      # doctest: +ELLIPSIS
+    >>> print(req.get_response(data_auth_demo))      # doctest: +ELLIPSIS
     200 OK
     ...
 
     >>> req = Request.blank('/data/read-only-port', accept='application/json',
     ...                     POST={'new': {'code': 999, 'sex': 'male'}})
-    >>> print req.get_response(data_auth_demo)      # doctest: +ELLIPSIS
+    >>> print(req.get_response(data_auth_demo))      # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
@@ -399,14 +399,14 @@ URLs can possess segment and query parameters::
 Segment and parameter values are passed to the template::
 
     >>> req = Request.blank('/segment/test')
-    >>> print req.get_response(params_demo) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(params_demo)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <p>Segment label is <code>test</code></p>
     ...
 
     >>> req = Request.blank('/parameter?parameter=test')
-    >>> print req.get_response(params_demo) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(params_demo)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <p>Parameter value is <code>test</code></p>
@@ -415,14 +415,14 @@ Segment and parameter values are passed to the template::
 Unknown or duplicate parameters are rejected::
 
     >>> req = Request.blank('/parameter?argument=test')
-    >>> print req.get_response(params_demo) # doctest: +ELLIPSIS
+    >>> print(req.get_response(params_demo)) # doctest: +ELLIPSIS
     400 Bad Request
     ...
     Received unexpected parameter:
         argument
 
     >>> req = Request.blank('/parameter?parameter=test&parameter=test')
-    >>> print req.get_response(params_demo) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(params_demo)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     Got multiple values for parameter:
@@ -444,7 +444,7 @@ HTSQL queries can also accept segment and query parameters::
 The parameters are passed to the query::
 
     >>> req = Request.blank('/individual/1000', accept='application/json')
-    >>> print req.get_response(params_demo) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(params_demo)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -459,7 +459,7 @@ The parameters are passed to the query::
     }
 
     >>> req = Request.blank('/individual?sex=male', accept='application/json')
-    >>> print req.get_response(params_demo) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(params_demo)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -479,7 +479,7 @@ The parameters are passed to the query::
 Invalid, unknown or duplicate parameters are rejected::
 
     >>> req = Request.blank('/individual?sex=unknown', accept='application/json')
-    >>> print req.get_response(params_demo) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(params_demo)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     invalid enum literal: expected one of 'not-known', 'male', 'female'; got 'unknown'
@@ -488,17 +488,18 @@ Invalid, unknown or duplicate parameters are rejected::
                                            ^^^^
 
     >>> req = Request.blank('/individual?mother=1000')
-    >>> print req.get_response(params_demo) # doctest: +ELLIPSIS
+    >>> print(req.get_response(params_demo)) # doctest: +ELLIPSIS
     400 Bad Request
     ...
     Received unexpected parameter:
         mother
 
     >>> req = Request.blank('/individual?sex=male&sex=female')
-    >>> print req.get_response(params_demo) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(params_demo)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     Got multiple values for parameter:
         sex
+
 
 

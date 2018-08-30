@@ -23,7 +23,7 @@ class KeyPathVal(Validate):
 
     def __call__(self, value):
         value = self._validate_with_shortcut(value)
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             if '/' in value:
                 value = value[:value.find('/')]
             if '.' in value:

@@ -127,7 +127,7 @@ Generate field specifications based on field configurations::
      {'selected': True, 'title': u'Population', 'type': u'integer'}]
 
     >>> field_cfg = [
-    ...     FieldConfigVal({'include': 'district', 'title': u'The District'}),
+    ...     FieldConfigVal({'include': 'district', 'title': 'The District'}),
     ... ]
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city', field_cfg)
     >>> pprint(gc.get_field_specs())
@@ -330,4 +330,5 @@ Clean up::
 
     >>> from rex.mart import purge_mart
     >>> purge_mart(mart.code)
+
 

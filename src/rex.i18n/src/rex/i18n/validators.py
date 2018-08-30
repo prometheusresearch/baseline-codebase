@@ -24,8 +24,8 @@ class LocaleVal(StrVal):
     """
 
     def __call__(self, data):
-        if isinstance(data, basestring):
-            data = unicode(data.replace('-', '_'))
+        if isinstance(data, str):
+            data = str(data.replace('-', '_'))
         try:
             return Locale.parse(data)
         except (UnknownLocaleError, ValueError):

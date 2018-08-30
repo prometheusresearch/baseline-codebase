@@ -20,7 +20,7 @@ Link facts are denoted by field ``link``::
     >>> fact = driver.parse("""{ link: sample.individual }""")
     >>> fact
     LinkFact(u'sample', u'individual', u'individual')
-    >>> print fact
+    >>> print(fact)
     link: individual
     of: sample
 
@@ -30,7 +30,7 @@ or as a separate ``of`` field::
     >>> fact = driver.parse("""{ link: individual, of: sample }""")
     >>> fact
     LinkFact(u'sample', u'individual', u'individual')
-    >>> print fact
+    >>> print(fact)
     link: individual
     of: sample
 
@@ -58,7 +58,7 @@ the link name.  Otherwise, it could be set using ``to`` field::
     >>> fact = driver.parse("""{ link: individual.mother, to: individual }""")
     >>> fact
     LinkFact(u'individual', u'mother', u'individual')
-    >>> print fact
+    >>> print(fact)
     link: mother
     of: individual
     to: individual
@@ -68,7 +68,7 @@ You can indicate any old names of the link using ``was`` clause::
     >>> fact = driver.parse("""{ link: measure.individual, was: subject }""")
     >>> fact
     LinkFact(u'measure', u'individual', u'individual', former_labels=[u'subject'])
-    >>> print fact
+    >>> print(fact)
     link: individual
     of: measure
     was: [subject]
@@ -76,7 +76,7 @@ You can indicate any old names of the link using ``was`` clause::
     >>> fact = driver.parse("""{ link: individual.birth_mother, was: [parent, mother], to: individual }""")
     >>> fact
     LinkFact(u'individual', u'birth_mother', u'individual', former_labels=[u'parent', u'mother'])
-    >>> print fact
+    >>> print(fact)
     link: birth_mother
     of: individual
     to: individual
@@ -88,7 +88,7 @@ By default, a link does not permit ``NULL`` values.  Turn off flag
     >>> fact = driver.parse("""{ link: sample.individual, required: false }""")
     >>> fact
     LinkFact(u'sample', u'individual', u'individual', is_required=False)
-    >>> print fact
+    >>> print(fact)
     link: individual
     of: sample
     required: false
@@ -98,7 +98,7 @@ You can explicitly specify the link title::
     >>> fact = driver.parse("""{ link: sample.individual, title: Subject }""")
     >>> fact
     LinkFact(u'sample', u'individual', u'individual', title=u'Subject')
-    >>> print fact
+    >>> print(fact)
     link: individual
     of: sample
     title: Subject
@@ -108,7 +108,7 @@ Turn off flag ``present`` to indicate that the link should not exist::
     >>> fact = driver.parse("""{ link: individual.code, present: false }""")
     >>> fact
     LinkFact(u'individual', u'code', is_present=False)
-    >>> print fact
+    >>> print(fact)
     link: code
     of: individual
     present: false
@@ -144,8 +144,8 @@ Deploying a link fact creates a column and a foreign key::
     ...
 
     >>> schema = driver.get_schema()
-    >>> sample_table = schema[u'sample']
-    >>> u'individual_id' in sample_table
+    >>> sample_table = schema['sample']
+    >>> 'individual_id' in sample_table
     True
 
 Deploying the same fact the second time has no effect::
@@ -336,8 +336,8 @@ column::
     ALTER TABLE "sample" DROP COLUMN "subject_id";
 
     >>> schema = driver.get_schema()
-    >>> sample_table = schema[u'sample']
-    >>> u'individual_id' in sample_table
+    >>> sample_table = schema['sample']
+    >>> 'individual_id' in sample_table
     False
 
 Deploing the same fact again has no effect::
@@ -362,5 +362,6 @@ Finally, we drop the test database::
 
     >>> driver.close()
     >>> cluster.drop()
+
 
 

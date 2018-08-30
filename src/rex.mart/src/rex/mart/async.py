@@ -48,5 +48,5 @@ class MartCreateExecutor(JobExecutor):
                 parameters=payload.parameters,
             )
         finally:
-            self.update_facet('job_rexmart_create', id, log=u'\n'.join(output))
+            self.update_facet('job_rexmart_create', id, log='\n'.join(output))
 

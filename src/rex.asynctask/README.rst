@@ -64,7 +64,7 @@ extension::
     ...     name = 'my_worker'
     ...     def process(self, payload):
     ...         # Do whatever you want with the payload here.
-    ...         print 'Received payload with foo=' % (payload['foo'],)
+    ...         print(('Received payload with foo=' % (payload['foo'],)))
 
 This worker can then be launched using the ``asynctask-workers`` command-line
 task::
@@ -177,4 +177,6 @@ routing key).
 Example configurations::
 
     asynctask_transport: amqp://user:password@hostname:port/vhost
+
+
 

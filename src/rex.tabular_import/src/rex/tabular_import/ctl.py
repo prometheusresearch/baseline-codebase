@@ -133,7 +133,7 @@ class TabularImportTask(RexTask):
                     use_defaults=self.use_defaults,
                 )
             except Exception as exc:
-                raise Error(unicode(exc))
+                raise Error(str(exc))
             else:
                 log('%s records imported into %s' % (
                     num_imported,

@@ -9,7 +9,7 @@
 
 """
 
-from __future__ import absolute_import
+
 
 from rex.menu import Menu
 from rex.web import PathMask

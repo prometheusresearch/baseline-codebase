@@ -25,10 +25,10 @@ class Instrument(
     """
 
     #: The Instrument can be used for data collection.
-    STATUS_ACTIVE = u'active'
+    STATUS_ACTIVE = 'active'
 
     #: The Instrument is not allowed to be used for data collection.
-    STATUS_DISABLED = u'disabled'
+    STATUS_DISABLED = 'disabled'
 
     #: All valid values that the status property can be assigned.
     ALL_STATUSES = (

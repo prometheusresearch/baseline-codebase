@@ -128,7 +128,7 @@ class FileSysAsyncTransport(AsyncTransport):
         path = os.path.join(self.path, queue_name, FILE_INDEX)
         contents = open(path, 'r').read()
         return [
-            long(value)
+            int(value)
             for value in contents.split(',')
         ]
 

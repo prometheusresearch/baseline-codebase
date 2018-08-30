@@ -66,7 +66,7 @@ class Form(Action):
 
         def _resolve_fields(self, input, fields):
             if isinstance(fields, Deferred):
-                parameters = {k: None for k in input.rows.keys()}
+                parameters = {k: None for k in list(input.rows.keys())}
                 with PortSupport.parameters(parameters):
                     fields = fields.resolve()
             return fields
@@ -197,7 +197,7 @@ class Form(Action):
 
     @responder(url_type=QueryURL)
     def data_value(self, req):
-        if not isinstance(self.value, basestring):
+        if not isinstance(self.value, str):
             raise HTTPBadRequest('value is not provided via HTSQL query')
         return self._data_value(req)
 

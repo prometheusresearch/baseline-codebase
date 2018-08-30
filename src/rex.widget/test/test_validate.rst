@@ -52,7 +52,7 @@ WidgetVal
 
   >>> class Example(Widget):
   ...   name = 'Example'
-  ...
+  ... 
   ...   title = Field(StrVal())
   ...   desc = Field(StrVal(), default='Desc')
 
@@ -249,7 +249,7 @@ Parsing shortcut forms
   >>> class WidgetWithSeq(Widget):
   ...   name = 'WidgetWithSeq'
   ...   js_type = 'pkg', 'WidgetWithSeq'
-  ...
+  ... 
   ...   seq = Field(SeqVal(StrVal()))
 
   >>> w = parse("""
@@ -354,3 +354,4 @@ Cleanup
 ::
 
   >>> rex.off()
+

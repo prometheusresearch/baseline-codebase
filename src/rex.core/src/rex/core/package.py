@@ -304,7 +304,7 @@ class PackageCollection(object):
             try:
                 for package in cls._build_package_tree(req, seen):
                     yield package
-            except Error, error:
+            except Error as error:
                 error.wrap("Required for:", name)
                 raise
 

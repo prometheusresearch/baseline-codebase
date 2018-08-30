@@ -9,7 +9,7 @@
 
 """
 
-from __future__ import absolute_import
+
 
 from rex.core import get_settings, Validate
 from rex.widget.transitionable import as_transitionable
@@ -67,7 +67,7 @@ class MountedActionVal(Validate):
             actions_collected = []
 
             def _collect_action_map(wizard, path):
-                for key, action in wizard.actions.items():
+                for key, action in list(wizard.actions.items()):
                     key = '@'.join(path + (key,))
                     actions_collected.append((key, action))
             visit_wizards(action, _collect_action_map)

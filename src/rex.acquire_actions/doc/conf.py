@@ -12,6 +12,6 @@ autodoc_default_flags = ['members']
 autodoc_member_order = 'bysource'
 
 latex_documents = [
-    (master_doc, 'rexacquire_actions.tex', u'rex.acquire\\_actions', u'', 'manual'),
+    (master_doc, 'rexacquire_actions.tex', 'rex.acquire\\_actions', '', 'manual'),
 ]
 

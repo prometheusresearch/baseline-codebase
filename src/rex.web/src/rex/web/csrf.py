@@ -33,7 +33,7 @@ def trusted(req):
     if not session_csrf_token or not request_csrf_token:
         return False
     is_equal = True
-    for ch1, ch2 in itertools.izip_longest(session_csrf_token,
+    for ch1, ch2 in itertools.zip_longest(session_csrf_token,
                                            request_csrf_token):
         is_equal &= (ch1 == ch2)
     return is_equal

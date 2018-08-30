@@ -29,36 +29,36 @@ class ApplySyntax(Syntax):
     def __unicode__(self):
         if not self.args:
             return self.op
-        if self.op in [u'navigate'] and len(self.args) == 1 \
+        if self.op in ['navigate'] and len(self.args) == 1 \
                 and isinstance(self.args[0], LiteralSyntax) \
-                and isinstance(self.args[0].val, unicode):
+                and isinstance(self.args[0].val, str):
             return self.args[0].val
-        if self.op in [u'!', u'+', u'-'] and len(self.args) == 1:
-            return u"%s%s" % (self.op, self.args[0])
-        if self.op in [u'.'] and len(self.args) == 2:
-            return u"%s%s%s" % (self.args[0], self.op, self.args[1])
+        if self.op in ['!', '+', '-'] and len(self.args) == 1:
+            return "%s%s" % (self.op, self.args[0])
+        if self.op in ['.'] and len(self.args) == 2:
+            return "%s%s%s" % (self.args[0], self.op, self.args[1])
         if self.op in [
-                u'=>', u'+', u'-', u'*', u'/',
-                u'=', u'!=', u'>', u'>=', u'<', u'<=', u'~',
-                u'&', u'|'] and len(self.args) == 2:
-            return u"(%s%s%s)" % (self.args[0], self.op, self.args[1])
+                '=>', '+', '-', '*', '/',
+                '=', '!=', '>', '>=', '<', '<=', '~',
+                '&', '|'] and len(self.args) == 2:
+            return "(%s%s%s)" % (self.args[0], self.op, self.args[1])
         head = None
         tail = self.args
         if self.op in [
-                u'select', u'filter', u'group',
-                u'sort', u'take', u'skip'] and len(self.args) > 1:
+                'select', 'filter', 'group',
+                'sort', 'take', 'skip'] and len(self.args) > 1:
             head = tail[0]
             tail = tail[1:]
         chunks = []
         if head is not None:
-            chunks.append(u"%s:" % head)
+            chunks.append("%s:" % head)
         chunks.append(self.op)
         if tail:
-            chunks.append(u"(%s)" % u", ".join([unicode(arg) for arg in tail]))
-        return u"".join(chunks)
+            chunks.append("(%s)" % ", ".join([str(arg) for arg in tail]))
+        return "".join(chunks)
 
     def __str__(self):
-        return unicode(self).encode('utf-8', 'replace')
+        return str(self).encode('utf-8', 'replace')
 
     def __hash__(self):
         return hash((self.op, tuple(self.args)))
@@ -84,20 +84,20 @@ class LiteralSyntax(Syntax):
 
     def __unicode__(self):
         if self.val is None:
-            return u"null"
-        if isinstance(self.val, unicode):
-            return u"%r" % self.val.encode('utf-8', 'replace')
+            return "null"
+        if isinstance(self.val, str):
+            return "%r" % self.val.encode('utf-8', 'replace')
         elif isinstance(self.val, str):
-            return u"%r" % self.val
+            return "%r" % self.val
         elif isinstance(self.val, bool):
-            return unicode(self.val).lower()
+            return str(self.val).lower()
         elif isinstance(self.val, (int, float, decimal.Decimal)):
-            return unicode(self.val)
+            return str(self.val)
         else:
-            return u"%r" % str(self.val)
+            return "%r" % str(self.val)
 
     def __str__(self):
-        return unicode(self).encode('utf-8', 'replace')
+        return str(self).encode('utf-8', 'replace')
 
     def __hash__(self):
         return hash(self.val)
@@ -133,7 +133,7 @@ class Query(object):
         return "%s(%s)" % (self.__class__.__name__, ",".join(args))
 
     def __unicode__(self):
-        return unicode(self.syntax)
+        return str(self.syntax)
 
     def __str__(self):
         return str(self.syntax)
@@ -146,7 +146,7 @@ class LiteralVal(Validate):
             if isinstance(data, str):
                 data = data.decode('utf-8', 'replace')
             if not (data is None or isinstance(data, (
-                        unicode, bool, int, long, float,
+                        str, bool, int, float,
                         decimal.Decimal, datetime.date,
                         datetime.time, datetime.datetime))):
                 raise Error("Expected a literal value")
@@ -162,7 +162,7 @@ class ApplySeqVal(Validate):
             if not data:
                 raise Error("Expected a non-empty sequence")
         with guard("Got:", repr(data[0])):
-            if not isinstance(data[0], (str, unicode)):
+            if not isinstance(data[0], str):
                 raise Error("Expected operation name")
         op = data[0]
         if isinstance(op, str):
@@ -187,7 +187,7 @@ class ApplyMapVal(Validate):
         if isinstance(op, str):
             op = op.decode('utf-8', 'replace')
         with guard("Got:", repr(op)):
-            if not isinstance(op, unicode):
+            if not isinstance(op, str):
                 raise Error("Expected operation name")
         with guard("Got:", repr(args)):
             if not isinstance(args, list):

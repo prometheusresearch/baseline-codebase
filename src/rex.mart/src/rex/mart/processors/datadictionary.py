@@ -4,7 +4,7 @@
 
 
 from csv import DictReader
-from StringIO import StringIO
+from io import StringIO
 
 from rex.core import Error, StrVal, MaybeVal
 
@@ -124,7 +124,7 @@ class DataDictionaryProcessor(Processor):
         # Load the dictionary into the Mart
         facts = self.get_base_facts(options)
         column_facts = []
-        for table in tables.values():
+        for table in list(tables.values()):
             facts += table.get_table_deploy_facts(options)
             column_facts += table.get_column_deploy_facts(options)
         interface.deploy_facts(facts + column_facts)
@@ -172,7 +172,7 @@ class DataDictionaryProcessor(Processor):
             table.title = mapping.title
             table.description = mapping.description
 
-            for field in mapping.fields.values():
+            for field in list(mapping.fields.values()):
                 if isinstance(field, EnumerationSetField):
                     # A little hacky, but since this mapping "field" actually
                     # results in multiple physical columns, we need to handle
@@ -206,7 +206,7 @@ class DataDictionaryProcessor(Processor):
 
         for mapping in assessment_mappings:
             extract_mapping_info(mapping)
-            for child_mapping in mapping.children.itervalues():
+            for child_mapping in mapping.children.values():
                 extract_mapping_info(child_mapping)
 
     def do_table_overrides(self, tables, table_descriptions):
@@ -393,7 +393,7 @@ class Table(object):
     def get_column_deploy_facts(self, options):
         facts = []
 
-        for column in self.columns.values():
+        for column in list(self.columns.values()):
             facts += column.get_deploy_facts(self.name, options)
 
         return facts

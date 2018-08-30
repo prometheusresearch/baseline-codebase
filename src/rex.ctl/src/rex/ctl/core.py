@@ -172,7 +172,7 @@ class RexTask(Task):
         parameters = {}
         if env.debug:
             parameters['debug'] = True
-        for key, value in env.parameters.items():
+        for key, value in list(env.parameters.items()):
             parameters[key.replace('-', '_')] = value
         parameters.update(env.parameters)
         for value in self.set:

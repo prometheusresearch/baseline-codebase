@@ -59,7 +59,7 @@ class CorsPoliciesSetting(Setting):
 
     def merge(self, old_value, new_value):
         merged = deepcopy(old_value)
-        for key, value in new_value.items():
+        for key, value in list(new_value.items()):
             if key not in merged:
                 merged[key] = value
             else:

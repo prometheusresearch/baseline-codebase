@@ -17,7 +17,7 @@ Set up the environment::
 The ``/draftinstrumentversion`` URI will accept GETs for listing::
 
     >>> req = Request.blank('/api/draftinstrumentversion', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -31,7 +31,7 @@ instances::
     >>> req = Request.blank('/api/draftinstrumentversion', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{"instrument": "simple", "parent_instrument_version": "simple1", "definition": {"record": [{"type": "text", "id": "baz"}], "version": "1.0", "id": "urn:new-instrument", "title": "My New Instrument"}}'
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -41,7 +41,7 @@ instances::
     >>> req = Request.blank('/api/draftinstrumentversion', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{}'
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     400 Bad Request
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -51,7 +51,7 @@ instances::
     >>> req = Request.blank('/api/draftinstrumentversion', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{"instrument": "simple", "created_by": "someone", "parent_instrument_version": "doesntexist"}'
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     400 Bad Request
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -62,12 +62,12 @@ instances::
 The ``/draftinstrumentversion`` URI will not accept PUTs or DELETEs::
 
     >>> req = Request.blank('/api/draftinstrumentversion', method='PUT', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
     >>> req = Request.blank('/api/draftinstrumentversion', method='DELETE', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
@@ -76,7 +76,7 @@ The ``/draftinstrumentversion/{uid}`` URI will accept GETs to retrieve an
 individual DraftInstrumentVersion::
 
     >>> req = Request.blank('/api/draftinstrumentversion/draftiv1', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -84,7 +84,7 @@ individual DraftInstrumentVersion::
     {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "definition": {"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "The NEW InstrumentVersion Title"}, "modified_by": "someone", "uid": "draftiv1", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}
 
     >>> req = Request.blank('/api/draftinstrumentversion/doesntexist', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     404 Not Found
     ...
 
@@ -95,7 +95,7 @@ DraftInstrumentVersion::
     >>> req = Request.blank('/api/draftinstrumentversion/draftiv1', method='PUT', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{"definition": {"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "NEWER InstrumentVersion Title"}}'
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     ### SAVED DRAFTINSTRUMENTVERSION draftiv1
     202 Accepted
     Content-Type: application/json; charset=UTF-8
@@ -108,7 +108,7 @@ The ``/draftinstrumentversion/{uid}`` URI will accept DELETEs to delete a
 DraftInstrumentVersion::
 
     >>> req = Request.blank('/api/draftinstrumentversion/draftiv1', method='DELETE', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     ### DELETED DRAFTINSTRUMENTVERSION draftiv1
     204 No Content
     Content-Type: application/json; charset=UTF-8
@@ -119,7 +119,7 @@ DraftInstrumentVersion::
 The ``/draftinstrumentversion/{uid}`` URI will not accept POSTs::
 
     >>> req = Request.blank('/api/draftinstrumentversion/draftiv1', method='POST', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
@@ -128,7 +128,7 @@ The ``/draftinstrumentversion/{uid}/publish`` URI will accept POSTs to execute
 the publishing process on a DraftInstrumentVersion::
 
     >>> req = Request.blank('/api/draftinstrumentversion/draftiv1/publish', method='POST', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -136,7 +136,7 @@ the publishing process on a DraftInstrumentVersion::
     {"status": "SUCCESS", "instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "user1", "version": 1, "uid": "fake_published_draft_instrument_1", "date_published": "2014-05-22T00:00:00.000Z"}}
 
     >>> req = Request.blank('/api/draftinstrumentversion/doesntexist/publish', method='POST', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     404 Not Found
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -146,4 +146,5 @@ the publishing process on a DraftInstrumentVersion::
 
 
     >>> rex.off()
+
 

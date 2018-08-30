@@ -15,7 +15,7 @@ strings from and to their unicode representations::
 
     >>> to_unicode('foobar')
     u'foobar'
-    >>> to_unicode(u'foobar')
+    >>> to_unicode('foobar')
     u'foobar'
     >>> to_unicode(dict())
     u'{}'
@@ -23,7 +23,7 @@ strings from and to their unicode representations::
 
     >>> to_str('foobar')
     'foobar'
-    >>> to_str(u'foobar')
+    >>> to_str('foobar')
     'foobar'
     >>> to_str(dict())
     '{}'
@@ -33,7 +33,7 @@ strings from and to their unicode representations::
     >>> type(sfoo), repr(sfoo)
     (<type 'str'>, "'foo\\xe2\\x80\\x94bar'")
 
-    >>> ufoo = u'foo\u2014bar'
+    >>> ufoo = 'foo\u2014bar'
     >>> type(ufoo), repr(ufoo)
     (<type 'unicode'>, "u'foo\\u2014bar'")
 
@@ -130,4 +130,5 @@ The ``util`` module provides some convenience functions for retrieving
     >>> test = get_current_time()
     >>> test.tzinfo
     <UTC>
+
 

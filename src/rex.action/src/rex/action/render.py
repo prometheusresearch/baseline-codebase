@@ -7,7 +7,7 @@
 
 """
 
-from __future__ import absolute_import
+
 
 from cached_property import cached_property
 from webob.exc import HTTPUnauthorized, HTTPBadRequest
@@ -53,7 +53,7 @@ class ActionRenderer(object):
                     return render(self.action, request, path=params['path'])
                 raise HTTPBadRequest()
 
-        except Error, error:
+        except Error as error:
             return request.get_response(error)
 
 

@@ -20,7 +20,7 @@ Column facts are denoted by field ``column``::
     >>> fact = driver.parse("""{ column: individual.code, type: text }""")
     >>> fact
     ColumnFact(u'individual', u'code', u'text')
-    >>> print fact
+    >>> print(fact)
     column: code
     of: individual
     type: text
@@ -31,7 +31,7 @@ or as a separate ``of`` field::
     >>> fact = driver.parse("""{ column: code, of: individual, type: text }""")
     >>> fact
     ColumnFact(u'individual', u'code', u'text')
-    >>> print fact
+    >>> print(fact)
     column: code
     of: individual
     type: text
@@ -58,7 +58,7 @@ You could indicate possible old names of the column using ``was`` field::
     >>> fact = driver.parse("""{ column: identity.last_name, was: [surname], type: text }""")
     >>> fact
     ColumnFact(u'identity', u'last_name', u'text', former_labels=[u'surname'])
-    >>> print fact
+    >>> print(fact)
     column: last_name
     of: identity
     was: [surname]
@@ -67,7 +67,7 @@ You could indicate possible old names of the column using ``was`` field::
     >>> fact = driver.parse("""{ column: identity.date_of_birth, was: [dob, birth], type: date }""")
     >>> fact
     ColumnFact(u'identity', u'date_of_birth', u'date', former_labels=[u'dob', u'birth'])
-    >>> print fact
+    >>> print(fact)
     column: date_of_birth
     of: identity
     was: [dob, birth]
@@ -79,7 +79,7 @@ of ``ENUM`` type::
     >>> fact = driver.parse("""{ column: individual.sex, type: [male, female] }""")
     >>> fact
     ColumnFact(u'individual', u'sex', [u'male', u'female'])
-    >>> print fact
+    >>> print(fact)
     column: sex
     of: individual
     type: [male, female]
@@ -115,7 +115,7 @@ You can set the default value of the column::
     >>> fact = driver.parse("""{ column: study.closed, type: boolean, default: false }""")
     >>> fact
     ColumnFact(u'study', u'closed', u'boolean', default=False)
-    >>> print fact
+    >>> print(fact)
     column: closed
     of: study
     type: boolean
@@ -137,7 +137,7 @@ By default, a column does not permit ``NULL`` values.  Turn off flag
     >>> fact = driver.parse("""{ column: individual.code, type: text, required: false }""")
     >>> fact
     ColumnFact(u'individual', u'code', u'text', is_required=False)
-    >>> print fact
+    >>> print(fact)
     column: code
     of: individual
     type: text
@@ -149,7 +149,7 @@ the table::
     >>> fact = driver.parse("""{ column: user.email, type: text, unique: true }""")
     >>> fact
     ColumnFact(u'user', u'email', u'text', is_unique=True)
-    >>> print fact
+    >>> print(fact)
     column: email
     of: user
     type: text
@@ -160,7 +160,7 @@ Use field ``title`` to specify the column title::
     >>> fact = driver.parse("""{ column: individual.code, type: text, title: Individual ID }""")
     >>> fact
     ColumnFact(u'individual', u'code', u'text', title=u'Individual ID')
-    >>> print fact
+    >>> print(fact)
     column: code
     of: individual
     type: text
@@ -171,7 +171,7 @@ Turn off flag ``present`` to indicate that the column should not exist::
     >>> fact = driver.parse("""{ column: individual.code, present: false }""")
     >>> fact
     ColumnFact(u'individual', u'code', is_present=False)
-    >>> print fact
+    >>> print(fact)
     column: code
     of: individual
     present: false
@@ -200,8 +200,8 @@ Deploying a column fact creates the column::
     ALTER TABLE "individual" ADD COLUMN "code" "text" NOT NULL;
 
     >>> schema = driver.get_schema()
-    >>> individual_table = schema[u'individual']
-    >>> u'code' in individual_table
+    >>> individual_table = schema['individual']
+    >>> 'code' in individual_table
     True
 
 Deploying the same fact the second time has no effect::
@@ -232,7 +232,7 @@ type is created::
     >>> driver("""{ column: individual.sex, type: [not-known, male, female] }""")
     CREATE TYPE "individual_sex_enum" AS ENUM ('not-known', 'male', 'female');
     ALTER TABLE "individual" ADD COLUMN "sex" "individual_sex_enum" NOT NULL;
-    >>> u'individual_sex_enum' in schema.types
+    >>> 'individual_sex_enum' in schema.types
     True
 
 You can declare that column values must be unique across all rows in the table::
@@ -343,14 +343,14 @@ column::
     ... """)                # doctest: +ELLIPSIS
     CREATE TABLE "address" ...
 
-    >>> zip_table = schema[u'address']
+    >>> zip_table = schema['address']
     >>> zip_key = zip_table.primary_key
     >>> zip_table.select()
     SELECT "id", "code", "city", "zip", "state"
         FROM "address";
     <DataImage address>
 
-    >>> zip_table.data.get(zip_key, (u'chi',))
+    >>> zip_table.data.get(zip_key, ('chi',))
     (1, u'chi', u'Chicago', u'60614', u'IL')
 
 Then we could convert the ``zip`` column to integer::
@@ -363,7 +363,7 @@ Then we could convert the ``zip`` column to integer::
         FROM "address";
     <DataImage address>
 
-    >>> zip_table.data.get(zip_key, (u'chi',))
+    >>> zip_table.data.get(zip_key, ('chi',))
     (1, u'chi', u'Chicago', 60614L, u'IL')
 
 We can also convert a column to an ``ENUM`` type::
@@ -407,7 +407,7 @@ We can use column facts to drop a column::
     DROP TRIGGER "individual_pk" ON "individual";
     DROP FUNCTION "individual_pk"();
 
-    >>> u'ident' in individual_table
+    >>> 'ident' in individual_table
     False
 
 Deploing the same fact again has no effect::
@@ -423,7 +423,7 @@ When you delete a column of ``ENUM`` type, the type is dropped too::
     >>> driver("""{ column: individual.gender, present: false }""")
     ALTER TABLE "individual" DROP COLUMN "gender";
     DROP TYPE "individual_gender_enum";
-    >>> u'individual_gender_enum' in schema.types
+    >>> 'individual_gender_enum' in schema.types
     False
 
 You cannot delete a column if there is a link with the same name::
@@ -440,5 +440,6 @@ Finally, we drop the test database::
 
     >>> driver.close()
     >>> cluster.drop()
+
 
 

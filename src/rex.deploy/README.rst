@@ -1319,23 +1319,23 @@ The :class:`rex.deploy.CatalogImage` object contains database schemas, tables,
 columns, types and constraints::
 
     >>> for schema in catalog:
-    ...     print schema                        # doctest: +ELLIPSIS
+    ...     print(schema)                        # doctest: +ELLIPSIS
     audit
     information_schema
     pg_catalog
     ...
 
-    >>> public_schema = catalog[u'public']
+    >>> public_schema = catalog['public']
     >>> for table in public_schema:
-    ...     print table                         # doctest: +ELLIPSIS
+    ...     print(table)                         # doctest: +ELLIPSIS
     appointment
     appointment_type
     case
     ...
 
-    >>> individual_table = public_schema[u'individual']
+    >>> individual_table = public_schema['individual']
     >>> for column in individual_table:
-    ...     print column                        # doctest: +ELLIPSIS
+    ...     print(column)                        # doctest: +ELLIPSIS
     id
     code
     sex
@@ -1351,7 +1351,7 @@ Then you can use it to deploy database facts::
 
     >>> from rex.deploy import TableFact
 
-    >>> driver(TableFact(u'individual'))
+    >>> driver(TableFact('individual'))
 
     >>> driver.commit()
     >>> driver.close()
@@ -1361,7 +1361,7 @@ generating a valid SQL name from a list of fragments and an optional suffix::
 
     >>> from rex.deploy import mangle
 
-    >>> mangle([u'individual', u'mother'], u'fk')
+    >>> mangle(['individual', 'mother'], 'fk')
     u'individual_mother_fk'
 
 :mod:`rex.deploy` also provides high-level API for introspecting and
@@ -1373,7 +1373,7 @@ a schema object::
     >>> with demo:
     ...     schema = model()
 
-    >>> print schema            # doctest: +ELLIPSIS
+    >>> print(schema)            # doctest: +ELLIPSIS
     - table: appointment
     - table: appointment_type
     ...
@@ -1385,19 +1385,19 @@ a schema object::
 
 Using this schema object, we can find any table by name::
 
-    >>> individual_table = schema.table(u'individual')
-    >>> print individual_table
+    >>> individual_table = schema.table('individual')
+    >>> print(individual_table)
     table: individual
 
 Similarly, a table object allows you to find any field by name::
 
-    >>> print individual_table.column(u'sex')
+    >>> print((individual_table.column('sex')))
     column: sex
     of: individual
     type: [not-known, male, female, not-applicable]
     default: not-known
 
-    >>> print individual_table.link(u'mother')
+    >>> print((individual_table.link('mother')))
     link: mother
     of: individual
     to: individual
@@ -1457,4 +1457,6 @@ PostgreSQL functions:
     Random value in the range from 0 to 1.
 
 :mod:`rex.deploy` also provides an identity-to-text conversion operation.
+
+
 

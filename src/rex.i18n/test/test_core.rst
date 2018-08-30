@@ -158,7 +158,7 @@ use this class directly::
     >>> def dump_catalog(trans):
     ...     for key in sorted(trans._catalog.keys()):
     ...         if key:
-    ...             print '%s: %s' % (key, trans._catalog[key])
+    ...             print('%s: %s' % (key, trans._catalog[key]))
 
     >>> fr_translations = RexTranslations.load(translations_dir, 'fr', 'test')
     >>> dump_catalog(fr_translations)
@@ -183,4 +183,5 @@ use this class directly::
 
 
     >>> rex.off()
+
 

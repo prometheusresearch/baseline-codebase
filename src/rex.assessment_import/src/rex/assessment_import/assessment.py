@@ -28,12 +28,12 @@ class Assessment(object):
         self.date = self.make_date(data)
         self.context = self.make_context(instrument, data)
         record = self.make_record(field, data)
-        for field_id, value in record.items():
+        for field_id, value in list(record.items()):
             self.data['values'][field_id] = value
 
     def make_context(self, instrument, data):
         context = {}
-        for field_id, field in instrument.context.items():
+        for field_id, field in list(instrument.context.items()):
             value = data.get(field_id, None)
             if field['required'] and value in (None, ''):
                 raise Error("%s value is required in %s."
@@ -41,7 +41,7 @@ class Assessment(object):
             if value not in (None,''):
                 try:
                     field['validator'](value)
-                except Error, exc:
+                except Error as exc:
                     raise Error("Got unexpected %s value in %s"
                                 % (field_id, instrument.id), exc)
                 context[field_id] = value
@@ -49,14 +49,14 @@ class Assessment(object):
 
     def make_date(self, data):
         date = data.get('date')
-        if isinstance(date, unicode):
+        if isinstance(date, str):
             date = date.encode('utf-8', 'replace')
         if not date:
             date = datetime.datetime.today()
         elif isinstance(date, (int, float)):
             date = (datetime.datetime(1899, 12, 30) +
                     datetime.timedelta(days=date))
-        elif (isinstance(date, basestring)
+        elif (isinstance(date, str)
         and not re.match(r'^\d\d\d\d-\d\d-\d\d$', date)):
             raise Error("Unexpected value %s for date." % date)
         else:
@@ -65,7 +65,7 @@ class Assessment(object):
 
     def make_record(self, record_field, data):
         record_value = {}
-        for _, field in record_field.fields.items():
+        for _, field in list(record_field.fields.items()):
             field_value = self.make_value(field, data)
             record_value[field.id] = {'value': field_value}
         return record_value
@@ -107,9 +107,9 @@ class Assessment(object):
                 enum_value = enum_value.decode('utf-8', 'replace')
             if enum_value in (None, ''):
                 continue
-            if unicode(enum_value).lower() in ('1', 'true'):
+            if str(enum_value).lower() in ('1', 'true'):
                 enum_value = 'TRUE'
-            if unicode(enum_value).lower() in ('0', 'false'):
+            if str(enum_value).lower() in ('0', 'false'):
                 enum_value = 'FALSE'
             if enum_value not in ('TRUE', 'FALSE'):
                 raise Error("Got unexpected value %s for %s."
@@ -123,7 +123,7 @@ class Assessment(object):
 
     def make_simple_value(self, field, data):
         value = data.get(field.id)
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             value = value.strip()
         if isinstance(value, str):
             value = value.decode('utf-8', 'replace')
@@ -132,7 +132,7 @@ class Assessment(object):
                 raise Error("Got null for required field %s." % field.id)
             return None
         if field.base_type == 'integer':
-            if not re.match(r'^\-?\d+(\.0)?$', unicode(value), re.UNICODE):
+            if not re.match(r'^\-?\d+(\.0)?$', str(value), re.UNICODE):
                 raise Error(" Got unexpected value %(value)s for field %(id)s"
                             " of %(base_type)s type."
                             % {'value': value,
@@ -141,7 +141,7 @@ class Assessment(object):
                 )
             return int(value)
         if field.base_type == 'float':
-            if not re.match(r'^-?\d+(\.\d+)?$', unicode(value), re.UNICODE):
+            if not re.match(r'^-?\d+(\.\d+)?$', str(value), re.UNICODE):
                 raise Error(" Got unexpected value %(value)s for"
                             " %(base_type)s type field %(id)s."
                             % {'value': value,
@@ -150,9 +150,9 @@ class Assessment(object):
                 )
             return float(value)
         if field.base_type == 'boolean':
-            if unicode(value).lower() in ('true', '1'):
+            if str(value).lower() in ('true', '1'):
                 return True
-            elif unicode(value).lower() in ('false', '0'):
+            elif str(value).lower() in ('false', '0'):
                 return False
             else:
                 raise Error(" Got unexpected value %(value)s of"
@@ -164,7 +164,7 @@ class Assessment(object):
         if field.base_type == 'date':
             if isinstance(value, (datetime.datetime, datetime.date)):
                 return value.strftime('%Y-%m-%d')
-            if isinstance(value, basestring) \
+            if isinstance(value, str) \
             and re.match(r'^\d\d\d\d-\d\d-\d\d$', value, re.UNICODE):
                 return value
             if isinstance(value, (int, float)):
@@ -184,7 +184,7 @@ class Assessment(object):
             elif isinstance(value, (int, float)):
                 delta = datetime.timedelta(days=value)
                 return time.strftime("%H:%M:%S",time.gmtime(delta.seconds))
-            if isinstance(value, basestring) \
+            if isinstance(value, str) \
             and re.match(r'^\d?\d:\d\d:\d\d$', value, re.UNICODE):
                 value = datetime.datetime.strptime(value, '%H:%M:%S') \
                                          .strftime('%H:%M:%S')
@@ -198,13 +198,13 @@ class Assessment(object):
             )
         if field.base_type == 'dateTime':
             if isinstance(value, (int, float)):
-                value = (datetime.datetime(1900, 01, 01, 00, 00, 01) +
+                value = (datetime.datetime(1900, 0o1, 0o1, 00, 00, 0o1) +
                          datetime.timedelta(days=value)
                         ).strftime('%Y-%m-%dT%H:%M:%S')
                 return value
             if isinstance(value, datetime.datetime):
                 return value.strftime('%Y-%m-%dT%H:%M:%S')
-            if isinstance(value, basestring):
+            if isinstance(value, str):
                 if re.match(r'^\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d$',
                             value,
                             re.UNICODE):
@@ -222,7 +222,7 @@ class Assessment(object):
                                    'id': field.id}
                     )
         if field.base_type == 'enumeration':
-            if unicode(value) not in field.enumerations:
+            if str(value) not in field.enumerations:
                 raise Error("Got unexpected value %(value)s of"
                     " %(base_type)s type, one of %(enumeration)s is expected"
                     " for field %(id)s."
@@ -231,9 +231,9 @@ class Assessment(object):
                        'id': field.id
                     }
                 )
-            return unicode(value)
+            return str(value)
         if field.base_type == 'text':
-            return unicode(value)
+            return str(value)
         else:
             raise Error("Got a value %(value)s of unknown %(base_type)s type"
                        " for field %(id)s."
@@ -250,7 +250,7 @@ class AssessmentCollection(object):
         self.assessment_map = OrderedDict()
 
     def __iter__(self):
-        return iter(self.assessment_map.values())
+        return iter(list(self.assessment_map.values()))
 
     def add_chunk(self, instrument, template, chunk):
         field = instrument[chunk.id]
@@ -258,7 +258,7 @@ class AssessmentCollection(object):
         for (idx, row) in enumerate(chunk.data):
             try:
                 self.check_with_template(template, row)
-            except Error, exc:
+            except Error as exc:
                 raise Error("Check chunk `%s` row # %s does not"
                             " match template" % (chunk.id, idx+1), exc)
             assessment_id = row.get('assessment_id')            
@@ -273,7 +273,7 @@ class AssessmentCollection(object):
                     assessment.make_record_list(field, row)
                 elif field.base_type == 'matrix':
                     assessment.make_matrix(field, row)
-            except Exception, exc:
+            except Exception as exc:
                 raise Error("Check chunk `%s` row #%s" % (chunk.id, idx+1), exc)
 
     def check_assessment_id(self, instrument, chunk):

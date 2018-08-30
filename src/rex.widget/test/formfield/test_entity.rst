@@ -81,8 +81,8 @@ Field configured to use radio button group::
   >>> widget.options # doctest: +ELLIPSIS
   <rex.widget.field.Responder object at ...>
 
-  >>> print widget.options.respond(
-  ...   Request.blank('/', accept='application/json')) # doctest: +ELLIPSIS
+  >>> print(widget.options.respond(
+  ...   Request.blank('/', accept='application/json'))) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"
@@ -100,3 +100,4 @@ Cleanup
 ::
 
   >>> rex.off()
+

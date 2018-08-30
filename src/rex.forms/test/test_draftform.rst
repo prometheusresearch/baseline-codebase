@@ -39,7 +39,7 @@ and string-rendering methods::
     ...     'defaultLocalization': 'en',
     ...     'title': {
     ...         'en': 'Our Test Form',
-    ...         'fr': u'Ma grande forme'
+    ...         'fr': 'Ma grande forme'
     ...     },
     ...     'pages': [
     ...         {
@@ -51,7 +51,7 @@ and string-rendering methods::
     ...                         'fieldId': 'q_fake',
     ...                         'text': {
     ...                             'en': 'What is your favorite word?',
-    ...                             'fr': u'Quel est votre mot préféré?'
+    ...                             'fr': 'Quel est votre mot préféré?'
     ...                         },
     ...                     },
     ...                 },
@@ -62,7 +62,7 @@ and string-rendering methods::
     >>> df = DraftForm('foo789', channel, div, FORM)
     >>> df.get_display_name()
     u'Our Test Form'
-    >>> unicode(df)
+    >>> str(df)
     u'Our Test Form'
     >>> str(df)
     'Our Test Form'
@@ -130,14 +130,14 @@ or a dict equivalent::
 
     >>> df.configuration
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'Our Test Form'}}
-    >>> df.configuration = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'A Different Title'}}
+    >>> df.configuration = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': 'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'A Different Title'}}
 
     >>> df.configuration_json
     u'{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "title": {"en": "A Different Title", "fr": "Ma grande forme"}, "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "What is your favorite word?", "fr": "Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?"}}}]}]}'
     >>> df.configuration_yaml
     "instrument: {id: 'urn:test-instrument', version: '1.1'}\ndefaultLocalization: en\ntitle: {en: A Different Title, fr: Ma grande forme}\npages:\n- id: page1\n  elements:\n  - type: question\n    options:\n      fieldId: q_fake\n      text: {en: 'What is your favorite word?', fr: 'Quel est votre mot pr\xc3\x83\xc2\xa9f\xc3\x83\xc2\xa9r\xc3\x83\xc2\xa9?'}"
 
-    >>> df.configuration_json = u'{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"fr": "Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?", "en": "What is your favorite word?"}, "fieldId": "q_fake"}}], "id": "page1"}], "title": {"fr": "Ma grande forme", "en": "Not an Original Title"}}'
+    >>> df.configuration_json = '{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"fr": "Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?", "en": "What is your favorite word?"}, "fieldId": "q_fake"}}], "id": "page1"}], "title": {"fr": "Ma grande forme", "en": "Not an Original Title"}}'
     >>> df.configuration
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'Not an Original Title'}}
 
@@ -206,4 +206,5 @@ being the same class with the same UID::
     True
     >>> form3 >= form1
     True
+
 

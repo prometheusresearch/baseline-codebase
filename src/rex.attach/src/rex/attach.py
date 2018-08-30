@@ -31,24 +31,24 @@ def sanitize_filename(filename):
     Any non-alphanumeric characters are removed; the length is restricted
     to 128 bytes.
     """
-    assert isinstance(filename, (str, unicode))
+    assert isinstance(filename, str)
     # Work in unicode so that `\w` matches non-Latin characters.
-    if not isinstance(filename, unicode):
+    if not isinstance(filename, str):
         filename = filename.decode('utf-8', 'replace')
     # Strip whitespaces and non-alphanumeric characters.
     filename = os.path.basename(filename)
     filename = filename.strip()
-    filename = filename.replace(u' ', u'_')
-    filename = re.sub(r'[^\w.-]', u'', filename, flags=re.U)
+    filename = filename.replace(' ', '_')
+    filename = re.sub(r'[^\w.-]', '', filename, flags=re.U)
     # Deal with weird names.
-    if not filename or filename.startswith(u'.'):
-        filename = u'_'+filename
-    if u'.' not in filename or filename.endswith(u'.'):
-        filename = filename+u'.dat'
+    if not filename or filename.startswith('.'):
+        filename = '_'+filename
+    if '.' not in filename or filename.endswith('.'):
+        filename = filename+'.dat'
     # Limit the length.
     while len(filename.encode('utf-8')) > 128:
         l = len(filename)
-        filename = filename[:l/3]+u'...'+filename[-l/3:]
+        filename = filename[:l/3]+'...'+filename[-l/3:]
     return filename.encode('utf-8')
 
 
@@ -331,7 +331,7 @@ class AttachmentVal(Validate):
                 data.filename is not None and data.file is not None):
             return self.Attachment(data.filename, data.file)
         if (isinstance(data, tuple) and len(data) == 2 and
-                isinstance(data[0], (str, unicode)) and
+                isinstance(data[0], str) and
                 hasattr(data[1], 'read')):
             return self.Attachment(*data)
         error = Error("Expected an uploaded file")

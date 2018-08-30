@@ -72,7 +72,7 @@ class SyntaxVal(UStrVal):
         data = super(SyntaxVal, self).__call__(data)
         try:
             syntax = parse_htsql(data, self.start)
-        except HTSQLError, exc:
+        except HTSQLError as exc:
             raise Error("Failed to parse an HTSQL expression:", str(exc))
         return syntax
 

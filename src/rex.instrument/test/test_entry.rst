@@ -45,7 +45,7 @@ and string-rendering methods::
     >>> entry = Entry('entry333', assessment, Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), 1, memo='hi mom')
     >>> entry.get_display_name()
     u'entry333'
-    >>> unicode(entry)
+    >>> str(entry)
     u'entry333'
     >>> str(entry)
     'entry333'
@@ -93,11 +93,11 @@ equivalent::
 
     >>> entry.data
     {u'instrument': {u'version': u'1.1', u'id': u'urn:test-instrument'}, u'values': {u'q_fake': {u'value': u'my answer'}}}
-    >>> entry.data = {u'instrument': {u'version': u'1.1', u'id': u'urn:test-instrument'}, u'values': {u'q_fake': {u'value': u'my different answer'}}}
+    >>> entry.data = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'value': 'my different answer'}}}
 
     >>> entry.data_json
     u'{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "values": {"q_fake": {"value": "my different answer"}}}'
-    >>> entry.data_json = u'{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "values": {"q_fake": {"value": "something completely different"}}}'
+    >>> entry.data_json = '{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "values": {"q_fake": {"value": "something completely different"}}}'
 
 
 Entries have date_modified, modified_by, status, and memo properties which are
@@ -241,4 +241,5 @@ being the same class with the same UID::
     True
     >>> entry3 >= entry1
     True
+
 

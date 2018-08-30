@@ -12,7 +12,7 @@ RSTVal()
 
   >>> v("""
   ... Hello, *world*! Python_
-  ...
+  ... 
   ... .. _Python: http://www.python.org/
   ... """) # doctest: +NORMALIZE_WHITESPACE
   RST(src=u'<p>Hello, <em>world</em>! <a class="reference external" href="__$0__">Python</a></p>',
@@ -20,7 +20,7 @@ RSTVal()
 
   >>> v("""
   ... Works!
-  ...
+  ... 
   ... Works!
   ... """) # doctest: +NORMALIZE_WHITESPACE
   RST(src=u'<p>Works!</p>\n<p>Works!</p>', links={})
@@ -28,7 +28,7 @@ RSTVal()
   >>> v("""
   ... Hello
   ... =====
-  ...
+  ... 
   ... Works!
   ... """) # doctest: +NORMALIZE_WHITESPACE
   RST(src=u'<h1 class="title">Hello</h1>\n<p>Works!</p>', links={})
@@ -44,7 +44,7 @@ RSTVal()
 
   >>> rst = v("""
   ... Hello, *world*! Python_
-  ...
+  ... 
   ... .. _Python: http://www.python.org/
   ... """)
 
@@ -53,7 +53,7 @@ RSTVal()
 
   >>> rst = v("""
   ... Hello, *world*! Python_
-  ...
+  ... 
   ... .. _Python: rex.widget_demo:/
   ... """)
 
@@ -62,7 +62,7 @@ RSTVal()
 
   >>> rst = v("""
   ... Hello, *world*! MESSAGEME_
-  ...
+  ... 
   ... .. _MESSAGEME: mailto:me@example.com
   ... """)
 
@@ -70,3 +70,4 @@ RSTVal()
   u'"<p>Hello, <em>world</em>! <a class=\\"reference external\\" href=\\"mailto:me@example.com\\">MESSAGEME</a></p>"'
 
   >>> rex.off()
+

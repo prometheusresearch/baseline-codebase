@@ -68,7 +68,7 @@ You can also match mask objects against the collection::
 You can iterate over all masks in the map::
 
     >>> for mask in map:
-    ...     print mask
+    ...     print(mask)
     /
     /individual
     /individual/*
@@ -168,5 +168,6 @@ Ill-formed labels are rejected::
     Traceback (most recent call last):
       ...
     ValueError: invalid label: '{id'
+
 
 

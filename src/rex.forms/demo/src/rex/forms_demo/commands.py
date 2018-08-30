@@ -251,7 +251,7 @@ class CalculationCommand(BaseCommand):
         except InstrumentError as exc:
             return Response(json={
                 'results': {
-                    'ERR': unicode(exc),
+                    'ERR': str(exc),
                 },
             })
         finally:

@@ -47,7 +47,7 @@ class WorkerConfigVal(OneOfVal):
 
     def __call__(self, value):
         value = super(WorkerConfigVal, self).__call__(value)
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             value = self._config_val({'worker': value})
         return value
 
@@ -87,7 +87,7 @@ class AsyncTaskWorkersSetting(Setting):
     def validate(self, value):
         validator = MapVal(
             StrVal(),
-            MaybeVal(WorkerConfigVal(AsyncTaskWorker.mapped().keys())),
+            MaybeVal(WorkerConfigVal(list(AsyncTaskWorker.mapped().keys()))),
         )
         return validator(value)
 
@@ -169,7 +169,7 @@ class AsyncTaskScheduledWorkersSetting(Setting):
 
     def validate(self, value):
         validator = SeqVal(RecordVal(
-            ('worker', ChoiceVal(AsyncTaskWorker.mapped().keys()), None),
+            ('worker', ChoiceVal(list(AsyncTaskWorker.mapped().keys())), None),
             ('ctl', StrVal(), None),
             ('year', OneOfVal(IntVal(), StrVal()), None),
             ('month', OneOfVal(IntVal(1, 12), StrVal()), None),

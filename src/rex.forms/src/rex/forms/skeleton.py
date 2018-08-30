@@ -74,7 +74,7 @@ def _make_question_options(field, instrument, locale):
                         locale: defn.get('description', key) if defn else key
                     }
                 }
-                for key, defn in type_def['enumerations'].items()
+                for key, defn in list(type_def['enumerations'].items())
             ],
             key=lambda x: x['id'],
         )

@@ -7,7 +7,7 @@
 
 """
 
-from __future__ import absolute_import
+
 
 import sys
 import types
@@ -173,7 +173,7 @@ class WidgetVal(Validate):
 
     def validate_values(self, widget_class, data):
         record_fields = [(RecordField(f.name, f.validate, f.default), f)
-                         for f in widget_class._configuration.fields.values()
+                         for f in list(widget_class._configuration.fields.values())
                          if isinstance(f, Field)]
         field_by_name = {f.name: (v, f) for v, f in record_fields}
         values = {}
@@ -206,18 +206,18 @@ class WidgetVal(Validate):
         name = None
         pairs = []
         if isinstance(node, yaml.ScalarNode):
-            if node.tag == u'tag:yaml.org,2002:null':
+            if node.tag == 'tag:yaml.org,2002:null':
                 return NullWidget()
             if node.tag.isalnum():
                 name = node.tag
                 if node.value:
                     value = yaml.ScalarNode(
-                        u'tag:yaml.org,2002:str',
+                        'tag:yaml.org,2002:str',
                         node.value, node.start_mark, node.end_mark,
                         node.style)
                     pairs = [(None, value)]
         elif isinstance(node, yaml.SequenceNode):
-            if node.tag == u'tag:yaml.org,2002:seq':
+            if node.tag == 'tag:yaml.org,2002:seq':
                 if self.single:
                     raise Error('Only single widget is allowed in this context')
                 return GroupWidget.validated(
@@ -226,7 +226,7 @@ class WidgetVal(Validate):
             if node.tag.isalnum():
                 name = node.tag
                 value = yaml.SequenceNode(
-                    u'tag:yaml.org,2002:seq',
+                    'tag:yaml.org,2002:seq',
                     node.value, node.start_mark, node.end_mark,
                     node.flow_style)
                 pairs = [(None, value)]
@@ -259,7 +259,7 @@ class WidgetVal(Validate):
                 error.wrap("While parsing:", location)
                 raise error
         record_fields = [(RecordField(f.name, f.validate, f.default), f)
-                         for f in widget_class._configuration.fields.values()
+                         for f in list(widget_class._configuration.fields.values())
                          if isinstance(f, Field)]
         field_by_name = {f.name: (v, f) for v, f in record_fields}
         fields_with_no_defaults = [f for f, _ in record_fields
@@ -329,7 +329,7 @@ def print_deprecation_warning(widget_class, field, node=None):
         field.deprecated)
     if node:
         warning.wrap('Used at:', Location.from_node(node))
-    print >> sys.stderr, str(warning)
+    print(str(warning), file=sys.stderr)
 
 
 _validator = WidgetVal()

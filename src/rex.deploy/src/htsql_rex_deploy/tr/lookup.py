@@ -85,8 +85,8 @@ class GuessHeaderForChain(Lookup):
                 label = meta.label
                 if label is None:
                     label = column.name
-                    if label.endswith(u'_id'):
-                        label = label[:-2].rstrip(u'_')
+                    if label.endswith('_id'):
+                        label = label[:-2].rstrip('_')
                 if label != target_label:
                     return label_to_title(label)
         # FIXME: for reverse links, use the target title only when the

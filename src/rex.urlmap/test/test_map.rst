@@ -30,11 +30,11 @@ Users can define their own extensions for URL mapping entries::
   ...       return Response(self.word)
 
   >>> class MapWord(Map):
-  ...
+  ... 
   ...     fields = [
   ...         ('word', StrVal()),
   ...     ]
-  ...
+  ... 
   ...     def __call__(self, spec, path, context):
   ...         return WordRenderer(spec.word)
 
@@ -48,7 +48,7 @@ Users can define their own extensions for URL mapping entries::
 
   >>> rex = Rex(pkg, '-', 'rex.urlmap_demo')
 
-  >>> print Request.blank('/hello').get_response(rex) # doctest: +ELLIPSIS
+  >>> print(Request.blank('/hello').get_response(rex)) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -61,12 +61,12 @@ Extensions with multiple masks
 URL mapping extensions can define multiple masks::
 
   >>> class GreetingRenderer(object):
-  ...
+  ... 
   ...     def __init__(self, greeting, whom, is_regular):
   ...         self.greeting = greeting
   ...         self.whom = whom
   ...         self.is_regular = is_regular
-  ...
+  ... 
   ...     def __call__(self, req):
   ...         if self.is_regular(req):
   ...             return Response('%s, %s' % (self.greeting, self.whom))
@@ -74,15 +74,15 @@ URL mapping extensions can define multiple masks::
   ...             return Response('%s, %s!!!' % (self.greeting, self.whom))
 
   >>> class MapGreeting(Map):
-  ...
+  ... 
   ...     fields = [
   ...        ('greeting', StrVal()),
   ...        ('whom', StrVal()),
   ...     ]
-  ...
+  ... 
   ...     def mask(self, path):
   ...         return [PathMask(path), PathMask('%s/huge' % path)]
-  ...
+  ... 
   ...     def __call__(self, spec, path, context):
   ...         regular, huge = path
   ...         def is_regular(req):
@@ -103,14 +103,14 @@ URL mapping extensions can define multiple masks::
 
   >>> rex = Rex(pkg, '-', 'rex.urlmap_demo')
 
-  >>> print Request.blank('/hello').get_response(rex) # doctest: +ELLIPSIS
+  >>> print(Request.blank('/hello').get_response(rex)) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
   Hello, World
 
-  >>> print Request.blank('/hello/huge').get_response(rex) # doctest: +ELLIPSIS
+  >>> print(Request.blank('/hello/huge').get_response(rex)) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -138,14 +138,14 @@ original path in URL mapping)::
 
   >>> rex = Rex(pkg, base_pkg, '-', 'rex.urlmap_demo')
 
-  >>> print Request.blank('/hello').get_response(rex) # doctest: +ELLIPSIS
+  >>> print(Request.blank('/hello').get_response(rex)) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
   Hola, World
 
-  >>> print Request.blank('/hello/huge').get_response(rex) # doctest: +ELLIPSIS
+  >>> print(Request.blank('/hello/huge').get_response(rex)) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -181,15 +181,15 @@ Extensions with custom override validator
 Extensions can specify validator for overrides::
 
   >>> class Sentence(Map):
-  ...
+  ... 
   ...   fields = [
   ...       ('sentence', StrVal()),
   ...   ]
-  ...
+  ... 
   ...   validate_override = RecordVal(
   ...     ('important', BoolVal(), None)
   ...   )
-  ...
+  ... 
   ...   def override(self, spec, override_spec):
   ...       if override_spec.important is None:
   ...         return spec
@@ -197,7 +197,7 @@ Extensions can specify validator for overrides::
   ...           return spec.__clone__(sentence=spec.sentence + '!!!')
   ...       elif spec.sentence.endswith('!!!'):
   ...           return spec.__clone__(sentence=spec.sentence[:-3])
-  ...
+  ... 
   ...   def __call__(self, spec, path, context):
   ...       return WordRenderer(spec.sentence)
 
@@ -218,9 +218,10 @@ Extensions can specify validator for overrides::
 
   >>> rex = Rex(pkg, base_pkg, '-', 'rex.urlmap_demo')
 
-  >>> print Request.blank('/hello').get_response(rex) # doctest: +ELLIPSIS
+  >>> print(Request.blank('/hello').get_response(rex)) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
   Hello, World!!!
+

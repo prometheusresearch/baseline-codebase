@@ -6,7 +6,7 @@
 import hashlib
 
 from contextlib import contextmanager
-from urlparse import urlunparse
+from urllib.parse import urlunparse
 
 import psycopg2
 

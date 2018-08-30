@@ -336,7 +336,7 @@ class CompleteFormCommand(BaseViewFormCommand):
             except InstrumentError as exc:
                 response = {
                     'status': 'ERROR',
-                    'message': unicode(exc),
+                    'message': str(exc),
                 }
             else:
                 response['results'] = results

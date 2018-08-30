@@ -43,7 +43,7 @@ class Rex(object):
                     if initialize_type is not None:
                         initialize = initialize_type()
                         initialize()
-            except Error, error:
+            except Error as error:
                 if self.requirements:
                     error.wrap("While initializing RexDB application:",
                                "\n".join(str(requirement)

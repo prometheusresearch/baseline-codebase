@@ -27,7 +27,7 @@ class I18NDefaultLocaleSetting(Setting):
     """
 
     name = 'i18n_default_locale'
-    default = Locale.parse(u'en')
+    default = Locale.parse('en')
     validate = LocaleVal()
 
 
@@ -52,6 +52,6 @@ class I18NSupportedLocalesSetting(Setting):
     """
 
     name = 'i18n_supported_locales'
-    default = [Locale.parse(u'en')]
+    default = [Locale.parse('en')]
     validate = SeqVal(LocaleVal())
 

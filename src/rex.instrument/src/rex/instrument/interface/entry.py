@@ -35,10 +35,10 @@ class Entry(
     """
 
     #: The Entry is not yet complete.
-    STATUS_IN_PROGRESS = u'in-progress'
+    STATUS_IN_PROGRESS = 'in-progress'
 
     #: The Entry is complete.
-    STATUS_COMPLETE = u'complete'
+    STATUS_COMPLETE = 'complete'
 
     #: All valid values that the status property can be assigned.
     ALL_STATUSES = (
@@ -47,13 +47,13 @@ class Entry(
     )
 
     #: Represents a draft Entry.
-    TYPE_PRELIMINARY = u'preliminary'
+    TYPE_PRELIMINARY = 'preliminary'
 
     #: Represents the Reconciliation of one or more Preliminary Entries.
-    TYPE_RECONCILED = u'reconciled'
+    TYPE_RECONCILED = 'reconciled'
 
     #: Represents an edit to a previously Reconciled Entry.
-    TYPE_REVISION = u'revision'
+    TYPE_REVISION = 'revision'
 
     #: All valid values that the type property can be assigned.
     ALL_TYPES = (
@@ -244,13 +244,13 @@ class Entry(
             memo=None):
         self._uid = to_unicode(uid)
 
-        if not isinstance(assessment, (Assessment, basestring)):
+        if not isinstance(assessment, (Assessment, str)):
             raise ValueError(
                 'assessment must be an instance of Assessment or a UID of one'
             )
         self._assessment = assessment
 
-        if isinstance(data, basestring):
+        if isinstance(data, str):
             self._data = json.loads(data)
         else:
             self._data = deepcopy(data)
@@ -294,7 +294,7 @@ class Entry(
         :rtype: Assessment
         """
 
-        if isinstance(self._assessment, basestring):
+        if isinstance(self._assessment, str):
             assessment_impl = get_implementation('assessment')
             return assessment_impl.get_by_uid(self._assessment)
         else:

@@ -49,7 +49,7 @@ def to_unicode(value, encoding='utf-8'):
     elif value is None:
         return None
     else:
-        return unicode(value)
+        return str(value)
 
 
 def to_str(value, encoding='utf-8'):
@@ -64,7 +64,7 @@ def to_str(value, encoding='utf-8'):
     :rtype: str
     """
 
-    if isinstance(value, unicode):
+    if isinstance(value, str):
         return codecs.encode(value, encoding)
     elif value is None:
         return None
@@ -251,7 +251,7 @@ def global_scope(scope_additions=None):
     scope_additions = scope_additions or {}
 
     used_additional_scope = []
-    for name, value in scope_additions.items():
+    for name, value in list(scope_additions.items()):
         if name not in __builtins__:
             __builtins__[name] = value
             used_additional_scope.append(name)

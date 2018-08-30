@@ -219,7 +219,7 @@ in UTF-8 encoding.  The output is always an 8-bit string in UTF-8 encoding::
     StrVal()
     >>> str_val('Hello')
     'Hello'
-    >>> str_val(u'Hello')
+    >>> str_val('Hello')
     'Hello'
     >>> str_val(None)
     Traceback (most recent call last):
@@ -227,11 +227,11 @@ in UTF-8 encoding.  The output is always an 8-bit string in UTF-8 encoding::
     Error: Expected a string
     Got:
         None
-    >>> str_val(u'\N{CYRILLIC CAPITAL LETTER YA}')
+    >>> str_val('\N{CYRILLIC CAPITAL LETTER YA}')
     '\xd0\xaf'
-    >>> str_val(u'\N{CYRILLIC CAPITAL LETTER YA}'.encode('utf-8'))
+    >>> str_val('\N{CYRILLIC CAPITAL LETTER YA}'.encode('utf-8'))
     '\xd0\xaf'
-    >>> str_val(u'\N{CYRILLIC CAPITAL LETTER YA}'.encode('cp1251'))
+    >>> str_val('\N{CYRILLIC CAPITAL LETTER YA}'.encode('cp1251'))
     Traceback (most recent call last):
       ...
     Error: Expected a valid UTF-8 string
@@ -244,7 +244,7 @@ Use ``UStrVal`` if you want to get Unicode strings::
     >>> ustr_val = UStrVal()
     >>> ustr_val('Hello')
     u'Hello'
-    >>> ustr_val(u'Hello')
+    >>> ustr_val('Hello')
     u'Hello'
 
 ``StrVal`` can also parse YAML documents::
@@ -307,7 +307,7 @@ The whole input must match the pattern::
     ChoiceVal('one', 'two', 'three')
     >>> choice_val('two')
     'two'
-    >>> choice_val(u'two')
+    >>> choice_val('two')
     'two'
     >>> choice_val(2)
     Traceback (most recent call last):
@@ -331,10 +331,10 @@ The whole input must match the pattern::
 Use ``UChoiceVal`` if you want to get a Unicode string as a result::
 
     >>> from rex.core import UChoiceVal
-    >>> uchoice_val = UChoiceVal(u'one', u'two', u'three')
+    >>> uchoice_val = UChoiceVal('one', 'two', 'three')
     >>> uchoice_val('two')
     u'two'
-    >>> uchoice_val(u'two')
+    >>> uchoice_val('two')
     u'two'
 
 ``ChoiceVal`` can parse YAML documents::
@@ -411,7 +411,7 @@ to integer::
     IntVal()
     >>> int_val(10)
     10
-    >>> int_val(10L)
+    >>> int_val(10)
     10L
     >>> int_val('10')
     10
@@ -536,7 +536,7 @@ accepted and converted to float::
     0.5
     >>> float_val(5)
     5.0
-    >>> float_val(5L)
+    >>> float_val(5)
     5.0
     >>> float_val('5e-1')
     0.5
@@ -1550,7 +1550,7 @@ with a position in the YAML file::
     >>> location = locate(p3)
     >>> location
     Location('<byte string>', 0)
-    >>> print location
+    >>> print(location)
     "<byte string>", line 1
 
 Records that are generated manually has no associated location::
@@ -1830,3 +1830,4 @@ Be careful when specifying an object::
     Error: Cannot import 'FO' from 'rex.core_demo'
         rex.core_demo:FO
     ...
+

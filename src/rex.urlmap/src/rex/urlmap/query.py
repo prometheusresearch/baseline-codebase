@@ -39,7 +39,7 @@ class QueryRenderer(object):
             # Parse query parameters.
             try:
                 parameters = self.parse(req)
-            except Error, error:
+            except Error as error:
                 return req.get_response(error)
             # Execute the query and render the output.
             with self.db:
@@ -49,7 +49,7 @@ class QueryRenderer(object):
                     headerlist = htsql.core.fmt.emit.emit_headers(
                             format, product)
                     app_iter = list(htsql.core.fmt.emit.emit(format, product))
-                except htsql.core.error.HTTPError, error:
+                except htsql.core.error.HTTPError as error:
                     return req.get_response(error)
                 resp = Response(headerlist=headerlist, app_iter=app_iter)
             return resp

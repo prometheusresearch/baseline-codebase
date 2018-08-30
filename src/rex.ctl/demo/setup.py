@@ -16,10 +16,10 @@ class demo(Command):
     def run(self):
         import os
         cmd = "rex deploy rex.ctl_demo"
-        print "$", cmd
+        print("$", cmd)
         os.spawnvp(0, cmd.split()[0], cmd.split())
         cmd = "rex demo-user-list rex.ctl_demo"
-        print "$", cmd
+        print("$", cmd)
         os.spawnvp(0, cmd.split()[0], cmd.split())
 
 setup(

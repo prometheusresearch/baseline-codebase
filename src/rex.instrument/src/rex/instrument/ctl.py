@@ -209,7 +209,7 @@ class ImplementationContextReceiver(object):
         context = {}
         received = dict(self.context)
         spec = impl.get_implementation_context(action)
-        for name, _ in spec.items():
+        for name, _ in list(spec.items()):
             if name in received:
                 context[name] = received[name]
         return context

@@ -72,7 +72,7 @@ application::
 Or you could use ``with`` statement on the application object for the same effect::
 
     >>> with demo:
-    ...     print get_rex()
+    ...     print(get_rex())
     Rex('rex.core_demo')
 
 It is an error to call ``get_rex()`` when no application is active::
@@ -84,10 +84,10 @@ It is an error to call ``get_rex()`` when no application is active::
 
 ``get_rex`` could be used to determine if there is an active application::
 
-    >>> print bool(get_rex)
+    >>> print(bool(get_rex))
     False
     >>> with demo:
-    ...     print bool(get_rex)
+    ...     print(bool(get_rex))
     True
 
 Activation calls could be nested::
@@ -129,12 +129,13 @@ without ``rex.web`` package::
     >>> setup_testing_defaults(environ)
 
     >>> def start_response(status, headers, exc_info=None):
-    ...     print status
-    ...     print headers
+    ...     print(status)
+    ...     print(headers)
 
     >>> demo(environ, start_response)
     404 Not Found
     [('Content-Type', 'text/plain')]
     ['Application does not provide web access.\n']
+
 
 

@@ -78,13 +78,13 @@ class AliasFact(Fact):
 
     def __init__(self, table_label, label, parameters=None, body=None,
                  is_present=True):
-        assert isinstance(table_label, unicode) and len(table_label) > 0
-        assert isinstance(label, unicode) and len(label) > 0
+        assert isinstance(table_label, str) and len(table_label) > 0
+        assert isinstance(label, str) and len(label) > 0
         assert (parameters is None or (
                     isinstance(parameters, list) and
-                    all(isinstance(parameter, unicode)
+                    all(isinstance(parameter, str)
                         for parameter in parameters)))
-        if isinstance(body, (str, unicode)):
+        if isinstance(body, str):
             body = parse_htsql(body)
         if is_present:
             assert isinstance(body, Syntax)
@@ -103,7 +103,7 @@ class AliasFact(Fact):
         if self.parameters is not None:
             args.append(repr(self.parameters))
         if self.body is not None:
-            args.append("body=%r" % unicode(self.body))
+            args.append("body=%r" % str(self.body))
         if not self.is_present:
             args.append("is_present=%r" % self.is_present)
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
@@ -116,7 +116,7 @@ class AliasFact(Fact):
         if self.parameters is not None:
             mapping['parameters'] = self.parameters
         if self.body is not None:
-            mapping['expression'] = unicode(self.body)
+            mapping['expression'] = str(self.body)
         if self.is_present is False:
             mapping['present'] = self.is_present
         return mapping
@@ -137,7 +137,7 @@ class AliasFact(Fact):
                         state = BindingState(RootBinding(VoidSyntax()))
                         null_recipe = LiteralRecipe(None, UntypedDomain())
                         scope = DefineReferenceBinding(
-                                state.scope, u"USER", null_recipe,
+                                state.scope, "USER", null_recipe,
                                 state.scope.syntax)
                         if self.parameters:
                             for parameter in self.parameters:
@@ -149,7 +149,7 @@ class AliasFact(Fact):
                         binding = state.use(recipe, state.scope.syntax)
                         state.push_scope(binding)
                         binding = state.bind(self.body)
-                except HTSQLError, exc:
+                except HTSQLError as exc:
                     raise Error("Failed to compile HTSQL expression:", str(exc))
         else:
             table.disable_alias(self.label, self.parameters)

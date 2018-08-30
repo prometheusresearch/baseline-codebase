@@ -12,7 +12,7 @@ autodoc_default_flags = ['members']
 autodoc_member_order = 'bysource'
 
 latex_documents = [
-    (master_doc, 'rexwidget_chrome.tex', u'rex.widget\\_chrome', u'', 'manual'),
+    (master_doc, 'rexwidget_chrome.tex', 'rex.widget\\_chrome', '', 'manual'),
 ]
 
 

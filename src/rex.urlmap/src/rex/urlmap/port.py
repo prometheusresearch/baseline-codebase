@@ -31,7 +31,7 @@ class PortRenderer(object):
         with confine(req, self):
             try:
                 return self.port(req)
-            except Error, error:
+            except Error as error:
                 return req.get_response(error)
 
     def authorize(self, req):

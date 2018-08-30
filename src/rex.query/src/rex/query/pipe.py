@@ -110,12 +110,12 @@ class Domain(Comparable):
     def convert(cls, value):
         if isinstance(value, Domain):
             return value
-        if isinstance(value, unicode):
+        if isinstance(value, str):
             return AtomicDomain(value)
         if value == ():
-            return AtomicDomain(u"Void")
+            return AtomicDomain("Void")
         if isinstance(value, tuple):
-            if all([isinstance(item, unicode) for item in value]):
+            if all([isinstance(item, str) for item in value]):
                 return CategoricalDomain(value)
             if all([isinstance(item, Output) for item in value]):
                 return DataSetDomain(value)
@@ -210,14 +210,14 @@ class DataSetDomain(Domain):
 
 null_t = NullDomain()
 any_t = AnyDomain()
-void_t = AtomicDomain(u'Void')
-boolean_t = AtomicDomain(u'Boolean')
-text_t = AtomicDomain(u'Text')
-integer_t = AtomicDomain(u'Integer')
-float_t = AtomicDomain(u'Float')
-date_t = AtomicDomain(u'Date')
-datetime_t = AtomicDomain(u'DateTime')
-time_t = AtomicDomain(u'Time')
+void_t = AtomicDomain('Void')
+boolean_t = AtomicDomain('Boolean')
+text_t = AtomicDomain('Text')
+integer_t = AtomicDomain('Integer')
+float_t = AtomicDomain('Float')
+date_t = AtomicDomain('Date')
+datetime_t = AtomicDomain('DateTime')
+time_t = AtomicDomain('Time')
 
 
 class Input(Comparable):
@@ -385,7 +385,7 @@ class SQLTablePipe(SQLPipe):
         driver = env['driver']
         catalog = driver.get_catalog()
         table = catalog[self.table.schema.name][self.table.name]
-        sql = u"""SELECT %s FROM %s""" % (
+        sql = """SELECT %s FROM %s""" % (
                 sql_name([column.name for column in table]),
                 sql_qname((table.schema.name, table.name)))
         rows = driver.submit(sql)
@@ -526,7 +526,7 @@ class ConstPipe(Pipe):
 
     def evaluate(self, ivals, env):
         N = len(ivals)
-        return Column(range(0, N+1), [self.value]*N)
+        return Column(list(range(0, N+1)), [self.value]*N)
 
 
 class NullPipe(Pipe):
@@ -575,7 +575,7 @@ class VoidPipe(Pipe):
 
     def evaluate(self, ivals, env):
         N = len(ivals)
-        return Column(range(0, N+1), [()]*N)
+        return Column(list(range(0, N+1)), [()]*N)
 
 
 class HerePipe(Pipe):
@@ -598,7 +598,7 @@ class HerePipe(Pipe):
 
     def evaluate(self, ivals, env):
         N = len(ivals)
-        return Column(range(0, N+1), ivals)
+        return Column(list(range(0, N+1)), ivals)
 
 
 class DataSetPipe(Pipe):
@@ -633,7 +633,7 @@ class DataSetPipe(Pipe):
     def evaluate(self, ivals, env):
         cols = [generator.evaluate(ivals, env)
                 for generator in self.generators]
-        return Column(range(0, len(ivals)+1), DataSet(cols, len(ivals)))
+        return Column(list(range(0, len(ivals)+1)), DataSet(cols, len(ivals)))
 
 
 class FieldPipe(Pipe):
@@ -741,53 +741,53 @@ class GroupPipe(Pipe):
 
 Signature = collections.namedtuple('Signature', ['name', 'domains', 'range'])
 
-int_add_sig = Signature(u'+', (integer_t, integer_t), integer_t)
-int_sub_sig = Signature(u'-', (integer_t, integer_t), integer_t)
-int_mul_sig = Signature(u'*', (integer_t, integer_t), integer_t)
-int_div_sig = Signature(u'/', (integer_t, integer_t), integer_t)
+int_add_sig = Signature('+', (integer_t, integer_t), integer_t)
+int_sub_sig = Signature('-', (integer_t, integer_t), integer_t)
+int_mul_sig = Signature('*', (integer_t, integer_t), integer_t)
+int_div_sig = Signature('/', (integer_t, integer_t), integer_t)
 
-concat_sig = Signature(u'+', (text_t, text_t), text_t)
+concat_sig = Signature('+', (text_t, text_t), text_t)
 
-date_year_sig = Signature(u'year', (date_t,), integer_t)
-date_month_sig = Signature(u'month', (date_t,), integer_t)
-date_day_sig = Signature(u'day', (date_t,), integer_t)
+date_year_sig = Signature('year', (date_t,), integer_t)
+date_month_sig = Signature('month', (date_t,), integer_t)
+date_day_sig = Signature('day', (date_t,), integer_t)
 
-datetime_year_sig = Signature(u'year', (datetime_t,), integer_t)
-datetime_month_sig = Signature(u'month', (datetime_t,), integer_t)
-datetime_day_sig = Signature(u'day', (datetime_t,), integer_t)
-datetime_hour_sig = Signature(u'hour', (datetime_t,), integer_t)
-datetime_minute_sig = Signature(u'minute', (datetime_t,), integer_t)
-datetime_second_sig = Signature(u'second', (datetime_t,), float_t)
+datetime_year_sig = Signature('year', (datetime_t,), integer_t)
+datetime_month_sig = Signature('month', (datetime_t,), integer_t)
+datetime_day_sig = Signature('day', (datetime_t,), integer_t)
+datetime_hour_sig = Signature('hour', (datetime_t,), integer_t)
+datetime_minute_sig = Signature('minute', (datetime_t,), integer_t)
+datetime_second_sig = Signature('second', (datetime_t,), float_t)
 
-time_hour_sig = Signature(u'hour', (time_t,), integer_t)
-time_minute_sig = Signature(u'minute', (time_t,), integer_t)
-time_second_sig = Signature(u'second', (time_t,), float_t)
+time_hour_sig = Signature('hour', (time_t,), integer_t)
+time_minute_sig = Signature('minute', (time_t,), integer_t)
+time_second_sig = Signature('second', (time_t,), float_t)
 
-not_sig = Signature(u'!', (boolean_t,), boolean_t)
-and_sig = Signature(u'&', (boolean_t, boolean_t), boolean_t)
-or_sig = Signature(u'|', (boolean_t, boolean_t), boolean_t)
+not_sig = Signature('!', (boolean_t,), boolean_t)
+and_sig = Signature('&', (boolean_t, boolean_t), boolean_t)
+or_sig = Signature('|', (boolean_t, boolean_t), boolean_t)
 
-int_lt_sig = Signature(u'<', (integer_t, integer_t), boolean_t)
-int_le_sig = Signature(u'<=', (integer_t, integer_t), boolean_t)
-int_eq_sig = Signature(u'=', (integer_t, integer_t), boolean_t)
-int_ne_sig = Signature(u'!=', (integer_t, integer_t), boolean_t)
-int_ge_sig = Signature(u'>=', (integer_t, integer_t), boolean_t)
-int_gt_sig = Signature(u'>', (integer_t, integer_t), boolean_t)
+int_lt_sig = Signature('<', (integer_t, integer_t), boolean_t)
+int_le_sig = Signature('<=', (integer_t, integer_t), boolean_t)
+int_eq_sig = Signature('=', (integer_t, integer_t), boolean_t)
+int_ne_sig = Signature('!=', (integer_t, integer_t), boolean_t)
+int_ge_sig = Signature('>=', (integer_t, integer_t), boolean_t)
+int_gt_sig = Signature('>', (integer_t, integer_t), boolean_t)
 
-text_lt_sig = Signature(u'<', (text_t, text_t), boolean_t)
-text_le_sig = Signature(u'<=', (text_t, text_t), boolean_t)
-text_eq_sig = Signature(u'=', (text_t, text_t), boolean_t)
-text_ne_sig = Signature(u'!=', (text_t, text_t), boolean_t)
-text_ge_sig = Signature(u'>=', (text_t, text_t), boolean_t)
-text_gt_sig = Signature(u'>', (text_t, text_t), boolean_t)
+text_lt_sig = Signature('<', (text_t, text_t), boolean_t)
+text_le_sig = Signature('<=', (text_t, text_t), boolean_t)
+text_eq_sig = Signature('=', (text_t, text_t), boolean_t)
+text_ne_sig = Signature('!=', (text_t, text_t), boolean_t)
+text_ge_sig = Signature('>=', (text_t, text_t), boolean_t)
+text_gt_sig = Signature('>', (text_t, text_t), boolean_t)
 
-count_sig = Signature(u'count', (any_t,), integer_t)
-exists_sig = Signature(u'exists', (any_t,), boolean_t)
-any_sig = Signature(u'any', (boolean_t,), boolean_t)
-all_sig = Signature(u'all', (boolean_t,), boolean_t)
-min_sig = Signature(u'min', (integer_t,), integer_t)
-max_sig = Signature(u'max', (integer_t,), integer_t)
-sum_sig = Signature(u'sum', (integer_t,), integer_t)
+count_sig = Signature('count', (any_t,), integer_t)
+exists_sig = Signature('exists', (any_t,), boolean_t)
+any_sig = Signature('any', (boolean_t,), boolean_t)
+all_sig = Signature('all', (boolean_t,), boolean_t)
+min_sig = Signature('min', (integer_t,), integer_t)
+max_sig = Signature('max', (integer_t,), integer_t)
+sum_sig = Signature('sum', (integer_t,), integer_t)
 
 
 class FormulaPipe(Pipe):

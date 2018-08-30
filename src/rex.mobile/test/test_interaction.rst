@@ -46,7 +46,7 @@ and string-rendering methods::
     ...                 'fieldId': 'q_fake',
     ...                 'text': {
     ...                     'en': 'What is your favorite word?',
-    ...                     'fr': u'Quel est votre mot préféré?'
+    ...                     'fr': 'Quel est votre mot préféré?'
     ...                 },
     ...             },
     ...         },
@@ -55,7 +55,7 @@ and string-rendering methods::
     >>> interaction = Interaction('foo789', channel, iv, INTERACTION)
     >>> interaction.get_display_name()
     u'The InstrumentVersion Title'
-    >>> unicode(interaction)
+    >>> str(interaction)
     u'The InstrumentVersion Title'
     >>> str(interaction)
     'The InstrumentVersion Title'
@@ -102,7 +102,7 @@ or a dict equivalent::
 
     >>> interaction.configuration
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'steps': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}]}
-    >>> interaction.configuration = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'steps': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite NEW word?'}, 'fieldId': 'q_fake'}}]}
+    >>> interaction.configuration = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'steps': [{'type': 'question', 'options': {'text': {'fr': 'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite NEW word?'}, 'fieldId': 'q_fake'}}]}
 
     >>> interaction.configuration_json
     u'{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "steps": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "What is your favorite NEW word?", "fr": "Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?"}}}]}'
@@ -264,4 +264,5 @@ being the same class with the same UID::
 
 
     >>> rex.off()
+
 

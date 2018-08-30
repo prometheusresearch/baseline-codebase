@@ -93,9 +93,9 @@ def guarded(msg, payload=None):
         raise
 
     except Exception as exc:
-        new_exc = Error(unicode(exc))
+        new_exc = Error(str(exc))
         new_exc.wrap(msg, payload)
-        raise Error, new_exc, sys.exc_info()[2]  # noqa
+        raise Error(new_exc).with_traceback(sys.exc_info()[2])  # noqa
 
 
 RESTR_SAFE_TOKEN = r'^[a-z_][0-9a-z_]*$'
@@ -113,14 +113,14 @@ def make_safe_token(token, trim=True):
     :rtype: str
     """
 
-    safe_token = unicode(token).lower().replace('-', '_')
+    safe_token = str(token).lower().replace('-', '_')
 
     if safe_token == 'id':
         # This is a name that causes issues with lower level tools.
-        safe_token = u'id_'
+        safe_token = 'id_'
 
     if not RE_SAFE_TOKEN.match(safe_token):
-        safe_token = RE_CLEAN_TOKEN.sub(u'', safe_token)
+        safe_token = RE_CLEAN_TOKEN.sub('', safe_token)
         if not trim:
             return safe_token
         while not RE_SAFE_TOKEN.match(safe_token):
@@ -144,7 +144,7 @@ def record_to_dict(rec):
     if isinstance(rec, Record):
         all_fields = rec._fields
     elif isinstance(rec, dict):
-        all_fields = rec.keys()
+        all_fields = list(rec.keys())
 
     for field in all_fields:
         result[field] = rec[field]

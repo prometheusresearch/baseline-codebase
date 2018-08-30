@@ -55,7 +55,7 @@ and string-rendering methods::
     >>> calculationset.get_display_name()
     u'fake123'
 
-    >>> unicode(calculationset)
+    >>> str(calculationset)
     u'fake123'
 
     >>> str(calculationset)
@@ -104,7 +104,7 @@ a dict equivalent::
     >>> calculationset.definition_yaml
     "instrument: {id: 'urn:test-instrument', version: '1.1'}\ncalculations:\n- id: calc1\n  type: text\n  method: python\n  options: {expression: 'assessment[''q_fake''].upper()'}"
 
-    >>> calculationset.definition_json = u'{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "calculations": [{"id": "calc1", "type": "text", "method": "python", "options": {"expression": "assessment[\'q_fake\'].upper()"}}]}'
+    >>> calculationset.definition_json = '{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "calculations": [{"id": "calc1", "type": "text", "method": "python", "options": {"expression": "assessment[\'q_fake\'].upper()"}}]}'
     >>> calculationset.definition
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'calculations': [{'id': 'calc1', 'type': 'text', 'method': 'python', 'options': {'expression': "assessment['q_fake'].upper()"}}]}
 
@@ -920,3 +920,4 @@ by the setting instrument_calculationmethod_default_module_list::
 
 
     >>> rex.off()
+

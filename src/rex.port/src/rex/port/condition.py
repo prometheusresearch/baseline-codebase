@@ -27,7 +27,7 @@ def embed(values):
     # Converts raw values to `Value` instances.
     try:
         return [Embed.__invoke__(value) for value in values]
-    except TypeError, exc:
+    except TypeError as exc:
         raise Error("Cannot recognize value:", str(exc))
 
 
@@ -59,7 +59,7 @@ def clarify(domains, values):
                         value)
         try:
             return convert(value.data)
-        except ValueError, exc:
+        except ValueError as exc:
             raise Error("Failed to convert value to %s:" % domain, str(exc))
 
 
@@ -447,8 +447,8 @@ class SortCondition(Condition):
     kind = (ColumnArm, SyntaxArm)
 
     def __call__(self, binding, scope):
-        [argument] = clarify([EnumDomain([u'asc', u'desc'])], self.arguments)
-        direction = +1 if argument == u'asc' else -1
+        [argument] = clarify([EnumDomain(['asc', 'desc'])], self.arguments)
+        direction = +1 if argument == 'asc' else -1
         condition = DirectionBinding(scope, direction, scope.syntax)
         return SortBinding(binding, [condition], None, None, binding.syntax)
 

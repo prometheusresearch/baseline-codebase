@@ -13,7 +13,7 @@ import collections
 import pkg_resources
 import os.path
 import mimetypes
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import json
 import re
 import jinja2
@@ -115,11 +115,11 @@ def jinja_filter_json(value):
 
 def _quote(value):
     # Percent-encodes the given value.
-    if not isinstance(value, (str, unicode)):
-        value = unicode(value)
-    if isinstance(value, unicode):
+    if not isinstance(value, str):
+        value = str(value)
+    if isinstance(value, str):
         value = value.encode('utf-8')
-    return unicode(urllib.quote(value, safe=''))
+    return str(urllib.parse.quote(value, safe=''))
 
 
 def jinja_filter_urlencode(value):
@@ -131,17 +131,17 @@ def jinja_filter_urlencode(value):
     Works just like the standard ``urlencode`` filter, but also escapes
     the ``/`` character.
     """
-    if isinstance(value, (str, unicode)):
+    if isinstance(value, str):
         return _quote(value)
     else:
         if isinstance(value, dict):
-            items = value.iteritems()
+            items = iter(value.items())
         else:
             try:
                 items = iter(value)
             except TypeError:
                 return _quote(value)
-        return u'&'.join(_quote(k)+'='+_quote(v)
+        return '&'.join(_quote(k)+'='+_quote(v)
                          for k, v in items)
 
 
@@ -224,7 +224,7 @@ class lazy(object):
         return str(self())
 
     def __unicode__(self):
-        return unicode(self())
+        return str(self())
 
 
 def render_to_response(package_path, req,

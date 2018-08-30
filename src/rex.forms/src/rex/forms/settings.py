@@ -119,7 +119,7 @@ class FormsPresentationAdaptorsSetting(Setting):
     default = {}
 
     def validate(self, value):
-        adaptors = PresentationAdaptor.mapped().keys()
+        adaptors = list(PresentationAdaptor.mapped().keys())
         validator = MapVal(StrVal(), SeqVal(ChoiceVal(adaptors)))
         return validator(value)
 

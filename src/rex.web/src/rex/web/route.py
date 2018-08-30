@@ -25,9 +25,9 @@ import cgitb
 import mimetypes
 import marshal
 import fcntl
-import cStringIO
+import io
 import socket
-import urlparse
+import urllib.parse
 import raven.utils.wsgi
 
 
@@ -158,7 +158,7 @@ class PipeSession(Pipe):
         req.environ['rex.session'] = copy.deepcopy(session)
         # Build package mount table.
         mount = {}
-        for name, segment in get_settings().mount.items():
+        for name, segment in list(get_settings().mount.items()):
             if segment:
                 mount[name] = req.application_url+"/"+segment
             else:
@@ -199,7 +199,7 @@ class PipeError(Pipe):
     def __call__(self, req):
         try:
             return self.handle(req)
-        except WSGIHTTPException, error:
+        except WSGIHTTPException as error:
             if error.code in self.error_handler_map:
                 # Handler for a specific error code.
                 handler = self.error_handler_map[error.code](error)
@@ -482,7 +482,7 @@ class StandardWSGI(WSGI):
         # Update replay log.
         if self.replay_log is not None:
             entry = {}
-            for key, value in environ.items():
+            for key, value in list(environ.items()):
                 if isinstance(value, (str, int, bool, tuple)):
                     entry[key] = value
                 elif key == 'wsgi.input':
@@ -493,7 +493,7 @@ class StandardWSGI(WSGI):
                     if content_length > 0:
                         data = value.read(content_length)
                         entry[key] = data
-                        environ[key] = cStringIO.StringIO(data)
+                        environ[key] = io.StringIO(data)
             try:
                 fcntl.flock(self.replay_log, fcntl.LOCK_EX)
                 marshal.dump(entry, self.replay_log)
@@ -518,7 +518,7 @@ class StandardWSGI(WSGI):
         try:
             try:
                 resp = self.handler(req)
-            except WSGIHTTPException, exc:
+            except WSGIHTTPException as exc:
                 resp = exc
             except:
                 self.sentry.captureException()
@@ -640,14 +640,14 @@ def make_sentry_script_tag(req):
     public_dsn = sentry.get_public_dsn()
     if not public_dsn:
         return ""
-    parts = urlparse.urlsplit(public_dsn)
+    parts = urllib.parse.urlsplit(public_dsn)
     if parts.hostname == HOSTNAME:
-        url = urlparse.urlsplit(req.host_url)
+        url = urllib.parse.urlsplit(req.host_url)
         netloc = "".join((
             parts.username+'@',
             url.hostname,
             ':'+str(url.port) if url.port else ''))
-        public_dsn = urlparse.urlunsplit(
+        public_dsn = urllib.parse.urlunsplit(
                 (parts.scheme, netloc, parts.path, parts.query, parts.fragment))
     tags = sentry.tags
     user_context = sentry.context.get().get('user')

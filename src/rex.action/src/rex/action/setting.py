@@ -7,7 +7,7 @@
 
 """
 
-from __future__ import absolute_import
+
 
 from rex.core import Setting, RecordVal, BoolVal
 

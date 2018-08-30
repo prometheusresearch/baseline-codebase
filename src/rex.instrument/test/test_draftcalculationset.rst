@@ -48,7 +48,7 @@ constructor and string-rendering methods::
     >>> dcs = DraftCalculationSet('foo789', div, CALCULATIONSET)
     >>> dcs.get_display_name()
     u'foo789'
-    >>> unicode(dcs)
+    >>> str(dcs)
     u'foo789'
     >>> str(dcs)
     'foo789'
@@ -160,4 +160,5 @@ defined as being the same class with the same UID::
     True
     >>> calc3 >= calc1
     True
+
 

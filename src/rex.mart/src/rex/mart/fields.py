@@ -56,7 +56,7 @@ class SimpleField(object):
         return field
 
     def __init__(self, name, instrument_version=None):
-        self.name = unicode(name)
+        self.name = str(name)
         self._target_name = make_safe_token(name)
         self._forced_target_name = None
         self.version_mapping = {}
@@ -151,32 +151,32 @@ class JsonField(SimpleField):
 class TextField(SimpleField):
     target_type = 'text'
     type_mapping = {
-        'text': unicode,
-        'integer': unicode,
-        'float': unicode,
-        'boolean': lambda x: u'TRUE' if x else u'FALSE',
-        'date': unicode,
-        'time': unicode,
-        'dateTime': unicode,
-        'enumeration': unicode,
+        'text': str,
+        'integer': str,
+        'float': str,
+        'boolean': lambda x: 'TRUE' if x else 'FALSE',
+        'date': str,
+        'time': str,
+        'dateTime': str,
+        'enumeration': str,
     }
     default_coercers = {
         NoneType: lambda x: None,
-        str: unicode,
-        unicode: lambda x: x,
-        int: unicode,
-        long: unicode,
-        float: unicode,
-        Decimal: unicode,
-        bool: lambda x: u'TRUE' if x else u'FALSE',
-        date: lambda x: unicode(x.isoformat()),
-        time: lambda x: unicode(x.replace(microsecond=0).isoformat()),
-        datetime: lambda x: unicode(x.replace(microsecond=0).isoformat()),
+        str: str,
+        str: lambda x: x,
+        int: str,
+        int: str,
+        float: str,
+        Decimal: str,
+        bool: lambda x: 'TRUE' if x else 'FALSE',
+        date: lambda x: str(x.isoformat()),
+        time: lambda x: str(x.replace(microsecond=0).isoformat()),
+        datetime: lambda x: str(x.replace(microsecond=0).isoformat()),
     }
 
     def default_coercion(self, value):
         if isinstance(value, ID):
-            return unicode(value)
+            return str(value)
         return super(TextField, self).default_coercion(value)
 
 
@@ -190,9 +190,9 @@ class IntegerField(SimpleField):
     default_coercers = {
         NoneType: lambda x: None,
         str: int,
-        unicode: int,
+        str: int,
         int: lambda x: x,
-        long: lambda x: x,
+        int: lambda x: x,
         float: int,
         Decimal: int,
         bool: lambda x: 1 if x else 0,
@@ -209,9 +209,9 @@ class FloatField(SimpleField):
     default_coercers = {
         NoneType: lambda x: None,
         str: float,
-        unicode: float,
+        str: float,
         int: float,
-        long: float,
+        int: float,
         float: lambda x: x,
         Decimal: float,
         bool: lambda x: 1.0 if x else 0.0,
@@ -226,9 +226,9 @@ class BooleanField(SimpleField):
     default_coercers = {
         NoneType: lambda x: None,
         str: lambda x: True if x else False,
-        unicode: lambda x: True if x else False,
+        str: lambda x: True if x else False,
         int: lambda x: True if x else False,
-        long: lambda x: True if x else False,
+        int: lambda x: True if x else False,
         float: lambda x: True if x else False,
         Decimal: lambda x: True if x else False,
         bool: lambda x: x,
@@ -243,7 +243,7 @@ class DateField(SimpleField):
     default_coercers = {
         NoneType: lambda x: None,
         str: lambda x: datetime.strptime(x, '%Y-%m-%d').date(),
-        unicode: lambda x: datetime.strptime(x, '%Y-%m-%d').date(),
+        str: lambda x: datetime.strptime(x, '%Y-%m-%d').date(),
         date: lambda x: x,
         datetime: lambda x: x.date(),
     }
@@ -257,7 +257,7 @@ class TimeField(SimpleField):
     default_coercers = {
         NoneType: lambda x: None,
         str: lambda x: datetime.strptime(x, '%H:%M:%S').time(),
-        unicode: lambda x: datetime.strptime(x, '%H:%M:%S').time(),
+        str: lambda x: datetime.strptime(x, '%H:%M:%S').time(),
         time: lambda x: x,
         datetime: lambda x: x.time(),
     }
@@ -272,7 +272,7 @@ class DateTimeField(SimpleField):
     default_coercers = {
         NoneType: lambda x: None,
         str: lambda x: datetime.strptime(x, '%Y-%m-%dT%H:%M:%S'),
-        unicode: lambda x: datetime.strptime(x, '%Y-%m-%dT%H:%M:%S'),
+        str: lambda x: datetime.strptime(x, '%Y-%m-%dT%H:%M:%S'),
         date: lambda x: datetime(x.year, x.month, x.day),
         datetime: lambda x: x,
     }
@@ -344,15 +344,15 @@ class EnumerationSetField(EnumerationField):
     }
     default_coercers = {
         NoneType: lambda x: None,
-        str: lambda x: [unicode(x)],
-        unicode: lambda x: [x],
-        int: lambda x: [unicode(x)],
-        float: lambda x: [unicode(x)],
-        Decimal: lambda x: [unicode(x)],
-        bool: lambda x: [u'TRUE' if x else u'FALSE'],
-        date: lambda x: [unicode(x.isoformat())],
-        time: lambda x: [unicode(x.replace(microsecond=0).isoformat())],
-        datetime: lambda x: [unicode(x.replace(microsecond=0).isoformat())],
+        str: lambda x: [str(x)],
+        str: lambda x: [x],
+        int: lambda x: [str(x)],
+        float: lambda x: [str(x)],
+        Decimal: lambda x: [str(x)],
+        bool: lambda x: ['TRUE' if x else 'FALSE'],
+        date: lambda x: [str(x.isoformat())],
+        time: lambda x: [str(x.replace(microsecond=0).isoformat())],
+        datetime: lambda x: [str(x.replace(microsecond=0).isoformat())],
         list: lambda x: x,
         tuple: list,
     }
@@ -427,7 +427,7 @@ def make_field(field, name=None, instrument_version=None):
         instrument_version=instrument_version,
     )
     if isinstance(mapped_field, EnumerationField):
-        mapped_field.enumerations = field['type']['enumerations'].keys()
+        mapped_field.enumerations = list(field['type']['enumerations'].keys())
 
     return mapped_field
 
@@ -451,7 +451,7 @@ HTSQL_DOMAIN_TYPES = {
 
 assert all([
     type_ in FIELD_TYPE_MAPPINGS
-    for type_ in HTSQL_DOMAIN_TYPES.values()
+    for type_ in list(HTSQL_DOMAIN_TYPES.values())
 ]), 'Inconsistencies in HTSQL Domain Type Mappings!'
 
 
@@ -473,10 +473,10 @@ def make_field_from_htsql(htsql_field):
     }
 
     if field_def['type']['base'] == 'enumeration':
-        field_def['type']['enumerations'] = dict(zip(
+        field_def['type']['enumerations'] = dict(list(zip(
             htsql_field.domain.labels,
             [None] * len(htsql_field.domain.labels),
-        ))
+        )))
 
     field = make_field(field_def)
     if htsql_field.header and htsql_field.header != htsql_field.tag:

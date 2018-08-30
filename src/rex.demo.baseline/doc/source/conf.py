@@ -19,14 +19,14 @@
 
 # -- Project information -----------------------------------------------------
 
-project = u'Baseline Demo'
-copyright = u'2018, RexDB'
-author = u'RexDB'
+project = 'Baseline Demo'
+copyright = '2018, RexDB'
+author = 'RexDB'
 
 # The short X.Y version
-version = u''
+version = ''
 # The full version, including alpha/beta/rc tags
-release = u''
+release = ''
 
 
 # -- General configuration ---------------------------------------------------
@@ -128,8 +128,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'BaselineDemo.tex', u'Baseline Demo Documentation',
-     u'RexDB', 'manual'),
+    (master_doc, 'BaselineDemo.tex', 'Baseline Demo Documentation',
+     'RexDB', 'manual'),
 ]
 
 
@@ -138,7 +138,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'baselinedemo', u'Baseline Demo Documentation',
+    (master_doc, 'baselinedemo', 'Baseline Demo Documentation',
      [author], 1)
 ]
 
@@ -149,7 +149,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'BaselineDemo', u'Baseline Demo Documentation',
+    (master_doc, 'BaselineDemo', 'Baseline Demo Documentation',
      author, 'BaselineDemo', 'One line description of project.',
      'Miscellaneous'),
 ]

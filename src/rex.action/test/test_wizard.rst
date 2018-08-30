@@ -22,41 +22,41 @@ Wizard
 
   >>> class MockAction(Action):
   ...   name = 'mock'
-  ...
+  ... 
   ...   text = Field(StrVal(), default=undefined)
   ...   input = Field(RecordTypeVal(), default=RecordType.empty())
   ...   output = Field(RecordTypeVal(), default=RecordType.empty())
-  ...
+  ... 
   ...   def context(self):
   ...     return self.input, self.output
 
 
   >>> class MyAction(Action):
-  ...
+  ... 
   ...   name = 'wmy'
   ...   js_type = 'pkg', 'MyAction'
-  ...
+  ... 
   ...   def context(self):
   ...     return self.domain.record(), self.domain.record()
 
   >>> class AnotherAction(Action):
-  ...
+  ... 
   ...   name = 'wanother'
-  ...
+  ... 
   ...   def context(self):
   ...     return self.domain.record(), self.domain.record()
 
   >>> class RequireX(Action):
-  ...
+  ... 
   ...   name = 'require-x'
-  ...
+  ... 
   ...   def context(self):
   ...     return self.domain.record(x='x'), self.domain.record()
 
   >>> class ProvideX(Action):
-  ...
+  ... 
   ...   name = 'provide-x'
-  ...
+  ... 
   ...   def context(self):
   ...     return self.domain.record(), self.domain.record(x='x')
 
@@ -259,25 +259,25 @@ Context refetch::
   >>> refetch = lambda ctx: w.data.respond(
   ...   Request.blank('/', method='POST', body=json.dumps(ctx)))
 
-  >>> print refetch({}) # doctest: +ELLIPSIS
+  >>> print(refetch({})) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
   {}
 
-  >>> print refetch({'x': {'y': '34'}}) # doctest: +ELLIPSIS
+  >>> print(refetch({'x': {'y': '34'}})) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
   {"x":{"y":"34"}}
 
-  >>> print refetch({
+  >>> print(refetch({
   ...   'x': {
   ...     'y': {'type': 'individual', 'id': 'C49Z4843'}
   ...   }
-  ... }) # doctest: +ELLIPSIS
+  ... })) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
@@ -902,3 +902,4 @@ Overrides
 ::
 
   >>> rex.off()
+

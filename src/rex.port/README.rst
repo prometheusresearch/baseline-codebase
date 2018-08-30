@@ -136,11 +136,11 @@ query::
     >>> from rex.db import get_db
     >>> demo_db = get_db()
 
-    >>> print demo_db.produce('''
+    >>> print((demo_db.produce('''
     ...     {
     ...         /study{id(), code, title, closed}
     ...     }
-    ... ''')                        # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    ... ''')))                        # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[asdl], 'asdl', 'Autism Spectrum Disorder Lab', true},
       {[fos], 'fos', 'Family Obesity Study', false},
       ...)}
@@ -154,7 +154,7 @@ slice ``study``::
 
 It is easy to get the data from the port::
 
-    >>> print study_port.produce()                  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print((study_port.produce()))                  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     {({[asdl], ...}, ...)}
 
 Here is another schema diagram.  It represents a slice that consists of
@@ -180,7 +180,7 @@ Here is another schema diagram.  It represents a slice that consists of
 
 The data from this slice could be obtained with the following HTSQL query::
 
-    >>> print demo_db.produce('''
+    >>> print((demo_db.produce('''
     ...     {
     ...         /individual{
     ...             id(), code, sex, mother.id(), father.id(),
@@ -188,7 +188,7 @@ The data from this slice could be obtained with the following HTSQL query::
     ...             /participation{id(), protocol.id(), code}
     ...         }
     ...     }
-    ... ''')                        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    ... ''')))                        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     {({[1000], '1000', 'female', null, null,
        {[1000], 'May', 'Kanaris', '1961-01-01'},
        ({[1000.(fos.mother).1], [fos.mother], '1'},)},
@@ -212,7 +212,7 @@ through the port::
     >>> individual_port = Port(
     ...         ["individual", "individual.identity", "individual.participation"])
 
-    >>> print individual_port.produce()         # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print((individual_port.produce()))         # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     {({[1000], ...}, ...)}
 
 A slice may contain the whole database, as in this diagram::
@@ -237,7 +237,7 @@ A slice may contain the whole database, as in this diagram::
 
 The following query gets the data for this slice::
 
-    >>> print demo_db.produce('''
+    >>> print((demo_db.produce('''
     ...     {
     ...         /study{id(), code, title, closed},
     ...         /protocol{id(), study.id(), code, title},
@@ -245,7 +245,7 @@ The following query gets the data for this slice::
     ...         /individual{id(), code, sex, mother.id(), father.id()},
     ...         /identity{id(), individual.id(), givenname, surname, birthdate},
     ...     }
-    ... ''')                        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    ... ''')))                        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     {({[asdl], 'asdl', 'Autism Spectrum Disorder Lab', true}, ...),
      ({[asdl.aspergers-individual], [asdl], 'aspergers-individual', 'Aspergers Individual'}, ...),
      ({[1000.(fos.mother).1], [1000], [fos.mother], '1'}, ...),
@@ -257,7 +257,7 @@ A corresponding port query is as follows::
     >>> everything_port = Port(
     ...         ["study", "protocol", "participation", "individual", "identity"])
 
-    >>> print everything_port.produce()     # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print((everything_port.produce()))     # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     {({[asdl], ...}, ...),
      ({[asdl.aspergers-individual], ...}, ...),
      ({[1000.(fos.mother).1], ...}, ...),
@@ -276,7 +276,7 @@ It's easy to create a port object for a single table::
 
     >>> study_port = Port("study")
 
-    >>> print study_port
+    >>> print(study_port)
     entity: study
     select: [code, title, closed]
 
@@ -284,7 +284,7 @@ You can use the port to query data from the database slice::
 
     >>> product = study_port.produce()
 
-    >>> print product               # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print(product)               # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[asdl], 'asdl', 'Autism Spectrum Disorder Lab', true},
       {[fos], 'fos', 'Family Obesity Study', false},
       ...)}
@@ -294,7 +294,7 @@ Ports can also generate a response to an HTTP request::
     >>> from webob import Request
 
     >>> req = Request.blank('/', accept='application/json')
-    >>> print study_port(req)       # doctest: +ELLIPSIS
+    >>> print((study_port(req)))       # doctest: +ELLIPSIS
     200 OK
     ...
     {
@@ -327,7 +327,7 @@ example, to create a port from ``individual`` table with associated
     ...   - entity: participation
     ... """)
 
-    >>> print individual_port
+    >>> print(individual_port)
     entity: individual
     select: [code, sex, mother, father]
     with:
@@ -336,7 +336,7 @@ example, to create a port from ``individual`` table with associated
     - entity: participation
       select: [protocol, code]
 
-    >>> print individual_port.produce()         # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print((individual_port.produce()))         # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1000], '1000', 'female', null, null,
        {[1000], 'May', 'Kanaris', '1961-01-01'},
        ({[1000.(fos.mother).1], [fos.mother], '1'},)},
@@ -345,11 +345,11 @@ example, to create a port from ``individual`` table with associated
 ``rex.port`` provides multiple ways to define ports.  For example, all of the
 following expressions define the same port structure::
 
-    >>> print Port("""
+    >>> print((Port("""
     ... - individual
     ... - individual.identity
     ... - individual.participation
-    ... """)
+    ... """)))
     entity: individual
     select: [code, sex, mother, father]
     with:
@@ -358,9 +358,9 @@ following expressions define the same port structure::
     - entity: participation
       select: [protocol, code]
 
-    >>> print Port(["individual",
+    >>> print((Port(["individual",
     ...             "individual.identity",
-    ...             "individual.participation"])
+    ...             "individual.participation"])))
     entity: individual
     select: [code, sex, mother, father]
     with:
@@ -369,13 +369,13 @@ following expressions define the same port structure::
     - entity: participation
       select: [protocol, code]
 
-    >>> print Port("""
+    >>> print((Port("""
     ... - entity: individual
     ... - entity: identity
     ...   at: individual
     ... - entity: participation
     ...   at: individual
-    ... """)
+    ... """)))
     entity: individual
     select: [code, sex, mother, father]
     with:
@@ -396,12 +396,12 @@ For example, to limit the list of ``individual`` to ``proband`` from the
     ...   mask: exists(participation.protocol[fos.proband])
     ... """)
 
-    >>> print proband_port
+    >>> print(proband_port)
     entity: individual
     mask: exists(participation.protocol[fos.proband])
     select: [code, sex, mother, father]
 
-    >>> print proband_port.produce()            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print((proband_port.produce()))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     {({[1002], '1002', 'female', [1000], [1001]},
       {[1006], '1006', 'female', [1007], [1008]},
       {[1011], '1011', 'male', [1009], [1010]},
@@ -409,7 +409,7 @@ For example, to limit the list of ``individual`` to ``proband`` from the
 
 The same port could be defined using shortcut notation::
 
-    >>> print Port("individual?exists(participation.protocol[fos.proband])")
+    >>> print((Port("individual?exists(participation.protocol[fos.proband])")))
     entity: individual
     mask: exists(participation.protocol[fos.proband])
     select: [code, sex, mother, father]
@@ -423,19 +423,19 @@ can use ``deselect`` property to exclude particular columns::
     ... select: [title]
     ... """)
 
-    >>> print study_title_port
+    >>> print(study_title_port)
     entity: study
     select: [title]
 
-    >>> print study_title_port.produce()        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print((study_title_port.produce()))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     {({[asdl], 'Autism Spectrum Disorder Lab'},
       {[fos], 'Family Obesity Study'},
       ...)}
 
-    >>> print Port("""
+    >>> print((Port("""
     ... entity: study
     ... deselect: [code, closed]
-    ... """)
+    ... """)))
     entity: study
     select: [title]
 
@@ -444,11 +444,11 @@ calculated field could be a single scalar value attached to the root node::
 
     >>> num_study_port = Port("num_study := count(study)")
 
-    >>> print num_study_port
+    >>> print(num_study_port)
     calculation: num_study
     expression: count(study)
 
-    >>> print num_study_port.produce()
+    >>> print((num_study_port.produce()))
     {3}
 
 You can also define a calculated field for an entity::
@@ -460,14 +460,14 @@ You can also define a calculated field for an entity::
     ... - num_individual := count(protocol.participation) :as 'Number of Participants'
     ... """)
 
-    >>> print study_stats_port
+    >>> print(study_stats_port)
     entity: study
     select: [title]
     with:
     - calculation: num_individual
       expression: count(protocol.participation) :as 'Number of Participants'
 
-    >>> print study_stats_port.produce()            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print((study_stats_port.produce()))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     {({[asdl], 'Autism Spectrum Disorder Lab', 0},
       {[fos], 'Family Obesity Study', 97},
       ...)}
@@ -479,18 +479,18 @@ A port may contain free parameters::
     ... - individual?sex=$sex
     ... """)
 
-    >>> print individuals_by_sex_port
+    >>> print(individuals_by_sex_port)
     - parameter: sex
       default: male
     - entity: individual
       mask: sex=$sex
       select: [code, sex, mother, father]
 
-    >>> print individuals_by_sex_port.produce()                 # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print((individuals_by_sex_port.produce()))                 # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     {({[1001], '1001', 'male', null, null},
       {[1003], '1003', 'male', [1000], [1001]}, ...)}
 
-    >>> print individuals_by_sex_port.produce(sex='female')     # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print((individuals_by_sex_port.produce(sex='female')))     # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     {({[1000], '1000', 'female', null, null},
       {[1002], '1002', 'female', [1000], [1001]}, ...)}
 
@@ -511,7 +511,7 @@ You can query a port and produce an HTSQL ``Product`` object::
 A port object can also respond to HTTP requests::
 
     >>> req = Request.blank('/', accept='application/json')
-    >>> print study_port(req)       # doctest: +ELLIPSIS
+    >>> print((study_port(req)))       # doctest: +ELLIPSIS
     200 OK
     ...
     {
@@ -537,7 +537,7 @@ Sometimes you may wish to get a particular subset of all the records available
 through the port.  You can do it by using a query *constraint*.  For example,
 to get the first 5 ``individual`` records from ``individual_port``, write::
 
-    >>> print individual_port.produce("individual:top=5")   # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print((individual_port.produce("individual:top=5")))   # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1000], '1000', 'female', null, null,
        {[1000], 'May', 'Kanaris', '1961-01-01'},
        ({[1000.(fos.mother).1], [fos.mother], '1'},)},
@@ -550,7 +550,7 @@ Here, ``individual:top=5`` is a constraint expression, where ``individual`` is
 a path in the schema slice, ``top`` is a constraint operator and ``5`` is an
 argument.  You can also represent a constraint expression as a tuple::
 
-    >>> print individual_port.produce(("individual", "top", [5]))       # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print((individual_port.produce(("individual", "top", [5]))))       # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1000], ...},
       ...
       {[1004], ...})}
@@ -558,7 +558,7 @@ argument.  You can also represent a constraint expression as a tuple::
 To skip the first 10 records and then get the next 5, you need to add a
 constraint ``skip``::
 
-    >>> print individual_port.produce("individual:top=5&individual:skip=10")    # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print((individual_port.produce("individual:top=5&individual:skip=10")))    # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1010], '1010', 'male', null, null,
        {[1010], 'John', 'Porreca', '1975-02-02'},
        ({[1010.(fos.father).1], [fos.father], '1'},)},
@@ -569,12 +569,12 @@ constraint ``skip``::
 
 To select a specific individual, use the equality constraint::
 
-    >>> print individual_port.produce("individual=1050")    # doctest: +ELLIPSIS
+    >>> print((individual_port.produce("individual=1050")))    # doctest: +ELLIPSIS
     {({[1050], '1050', 'male', null, null, ...},)}
 
 You can also apply a constraint on an entity field::
 
-    >>> print individual_port.produce("individual.sex=male")        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print((individual_port.produce("individual.sex=male")))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     {({[1001], '1001', 'male', null, null, ...},
       {[1003], '1003', 'male', [1000], [1001], ...},
       ...)}
@@ -599,7 +599,7 @@ The following constraint operators are supported:
 
     For example, to sort studies by title, you can run the query::
 
-        >>> print study_port.produce("study.title:sort=asc")        # doctest: +NORMALIZE_WHITESPACE
+        >>> print((study_port.produce("study.title:sort=asc")))        # doctest: +NORMALIZE_WHITESPACE
         {({[lol], 'lol', null, true},
           {[asdl], 'asdl', 'Autism Spectrum Disorder Lab', true},
           {[fos], 'fos', 'Family Obesity Study', false})}
@@ -609,8 +609,8 @@ The following constraint operators are supported:
     operators with numeric, date and text values.  For example, the following
     query selects all individuals who were born in ``1975``::
 
-        >>> print individual_port.produce("individual.identity.birthdate:ge=1975-01-01"
-        ...                               "&individual.identity.birthdate:lt=1976-01-01")   # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+        >>> print((individual_port.produce("individual.identity.birthdate:ge=1975-01-01"
+        ...                               "&individual.identity.birthdate:lt=1976-01-01")))   # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
         {({[1007], '1007', 'female', null, null,
            {[1007], 'Niesha', 'Kirschke', '1975-01-01'},
            ({[1007.(fos.mother).1], [fos.mother], '1'},)},
@@ -623,7 +623,7 @@ The following constraint operators are supported:
     To search for a given substring in a text field, use operator
     ``:contains``.  For example::
 
-        >>> print individual_port.produce("individual.identity.surname:contains=ar")    # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+        >>> print((individual_port.produce("individual.identity.surname:contains=ar")))    # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
         {({[1000], '1000', 'female', null, null,
            {[1000], 'May', 'Kanaris', '1961-01-01'},
            ({[1000.(fos.mother).1], [fos.mother], '1'},)},
@@ -637,7 +637,7 @@ The following constraint operators are supported:
 
     For example, to list studies that have ``title`` field unset, run::
 
-        >>> print study_port.produce("study.title:null=true")
+        >>> print((study_port.produce("study.title:null=true")))
         {({[lol], 'lol', null, true},)}
 
 Finally, one could also define custom filter from an arbitrary HTSQL predicate.
@@ -655,7 +655,7 @@ Filter ``:search`` lets you search individuals by their first or last name.
 Filter ``birthrange`` allows you to select individual within a specified age
 range.  Now we could use these filters in constraint expressions::
 
-    >>> print filtered_port.produce("individual:search=ch")     # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print((filtered_port.produce("individual:search=ch")))     # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1006], '1006', 'female', [1007], [1008],
        {[1006], 'Josefine', 'Kirschke', '2000-01-02'},
        ({[1006.(fos.proband).1], [fos.proband], '1'},)},
@@ -667,7 +667,7 @@ range.  Now we could use these filters in constraint expressions::
 To use a constraint with more than one argument, you need to write a constraint
 expression with each argument::
 
-    >>> print filtered_port.produce("individual:birthrange=1979-01-01&individual:birthrange=1980-01-01")    # doctest: +NORMALIZE_WHITESPACE
+    >>> print((filtered_port.produce("individual:birthrange=1979-01-01&individual:birthrange=1980-01-01")))    # doctest: +NORMALIZE_WHITESPACE
     {({[1020], '1020', 'male', null, null,
        {[1020], 'David', 'Bedwell', '1979-05-06'},
        ({[1020.(fos.father).1], [fos.father], '1'},)},
@@ -677,7 +677,7 @@ expression with each argument::
 
 Alternatively, you can submit a constraint expression in a tuple form::
 
-    >>> print filtered_port.produce(("individual", "birthrange", ["1979-01-01", "1980-01-01"]))     # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print((filtered_port.produce(("individual", "birthrange", ["1979-01-01", "1980-01-01"]))))     # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     {({[1020], ...},
       {[1086], ...})}
 
@@ -716,7 +716,7 @@ contain two POST parameters: ``old`` and ``new``::
     ...         'old': '''{"study": {"id": "fos", "code": "fos", "title": "Family Obesity Study", "closed": true}}''',
     ...         'new': '''{"study": {"id": "fos", "code": "fos", "title": "Family Obesity Study", "closed": false}}''',
     ...     })
-    >>> print study_port(req)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print((study_port(req)))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -837,7 +837,7 @@ data, we can write::
     ...     data = demo_db.produce('''
     ...         individual_port($new)
     ...     ''', new={'individual': {'code': '4000', 'sex': 'male'}})
-    >>> print data
+    >>> print(data)
     {({[4000], '4000', 'male', null, null, null, ()},)}
 
 To update data, we can pass both old and new data slices::
@@ -847,7 +847,7 @@ To update data, we can pass both old and new data slices::
     ...         individual_port($old, $new)
     ...     ''', old={'individual': {'id': '4000', 'sex': 'male'}},
     ...          new={'individual': {'id': '4000', 'sex': 'female', 'identity': {'surname': 'Murdoch'}}})
-    >>> print data
+    >>> print(data)
     {({[4000], '4000', 'female', null, null, {[4000], null, 'Murdoch', null}, ()},)}
 
 To delete data, we need to pass an empty new data slice::
@@ -857,9 +857,11 @@ To delete data, we need to pass an empty new data slice::
     ...         individual_port($old, null)
     ...     ''', old={'individual': [{'id': '2000'}, {'id': '2001'}, {'id': '2002'}, {'id': '2003'},
     ...                              {'id': '3000'}, {'id': '3001'}, {'id': '3002'}, {'id': '3003'}, {'id': '4000'}]})
-    >>> print data
+    >>> print(data)
     {()}
 
 
 .. _JSON Pointer: http://tools.ietf.org/html/draft-ietf-appsawg-json-pointer-09
+
+
 

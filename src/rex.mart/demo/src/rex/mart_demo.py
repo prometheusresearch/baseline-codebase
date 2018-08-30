@@ -14,7 +14,7 @@ class DemoMartAccessPermissions(MartAccessPermissions):
         if user == 'test':
             return True
         allowed = ('some_data', 'some_more_data', 'empty', 'broken_sql', 'some_parameters')
-        if isinstance(definition_or_id, basestring):
+        if isinstance(definition_or_id, str):
             return definition_or_id in allowed
         else:
             return definition_or_id['id'] in allowed

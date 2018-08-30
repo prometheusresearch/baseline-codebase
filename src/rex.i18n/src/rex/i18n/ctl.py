@@ -84,7 +84,7 @@ class I18NExtractTask(I18NTask):
         args.append('--keyword=lazy_gettext')
         args.extend([
             '--%s=%s' % (key, val)
-            for key, val in self.get_package_metadata().items()
+            for key, val in list(self.get_package_metadata().items())
         ])
         with make_rex('rex.i18n'):
             args.append('--mapping=%s' % (
@@ -167,7 +167,7 @@ class I18NExtractTask(I18NTask):
             project = '%s %s' % (project, metadata['version'])
         args.append(project)
 
-        print commonjs.node(args)
+        print(commonjs.node(args))
 
 
 class I18NInitTask(I18NTask):

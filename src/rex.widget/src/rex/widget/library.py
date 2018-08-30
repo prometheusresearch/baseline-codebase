@@ -144,5 +144,5 @@ class IFrame(Widget):
 
     @computed_field
     def request_params(self, request):
-        return dict((pair for pair in request.params.items())) \
+        return dict((pair for pair in list(request.params.items()))) \
                if self.transfer_request_params else {}

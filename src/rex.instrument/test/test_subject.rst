@@ -10,7 +10,7 @@ string-rendering methods::
     >>> subject = Subject('fake123')
     >>> subject.get_display_name()
     u'fake123'
-    >>> unicode(subject)
+    >>> str(subject)
     u'fake123'
     >>> str(subject)
     'fake123'
@@ -60,4 +60,5 @@ being the same class with the same UID::
     True
     >>> subject3 >= subject1
     True
+
 

@@ -49,7 +49,7 @@ class TabularImportError(Error):
                 if paragraph.quote:
                     parts.append('%s: %s' % (
                         paragraph.message,
-                        unicode(paragraph.quote).strip(),
+                        str(paragraph.quote).strip(),
                     ))
                 else:
                     parts.append(paragraph.message)

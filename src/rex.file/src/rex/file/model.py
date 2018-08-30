@@ -35,7 +35,7 @@ class FileTableConstraintModel(ConstraintModel):
         __slots__ = ('name')
 
         def __init__(self):
-            self.name = mangle(u'file', u'chk')
+            self.name = mangle('file', 'chk')
 
     @classmethod
     def recognizes(cls, schema, image):
@@ -48,18 +48,18 @@ class FileTableConstraintModel(ConstraintModel):
 
     @classmethod
     def do_build(cls, table):
-        if table.label != u'file':
+        if table.label != 'file':
             raise Error("Discovered unexpected table:", table.label)
         schema = table.schema
         names = cls.names()
-        type_image = schema.system_image.types[u'trigger']
+        type_image = schema.system_image.types['trigger']
         source = plpgsql_file_table_check()
         procedure_image = schema.image.create_procedure(
                 names.name, [], type_image, source)
         image = table.image.create_trigger(
                 names.name, BEFORE, INSERT_UPDATE, procedure_image, [])
         meta = FileTableMeta.parse(image)
-        meta.update(file=u'-')
+        meta.update(file='-')
         image.alter_comment(meta.dump())
         return cls(schema, image)
 
@@ -96,7 +96,7 @@ class FileLinkConstraintModel(ConstraintModel):
         __slots__ = ('name')
 
         def __init__(self, table_label, label):
-            self.name = mangle([table_label, label, u'file'], u'chk')
+            self.name = mangle([table_label, label, 'file'], 'chk')
 
     @classmethod
     def recognizes(cls, schema, image):
@@ -109,14 +109,14 @@ class FileLinkConstraintModel(ConstraintModel):
 
     @classmethod
     def do_build(cls, link):
-        if link.target_table.label != u'file':
+        if link.target_table.label != 'file':
             raise Error("Discovered unexpected link:", link.label)
         schema = link.schema
         names = cls.names(link.table.label, link.label)
-        type_image = schema.system_image.types[u'trigger']
+        type_image = schema.system_image.types['trigger']
         source = plpgsql_file_link_check(
                 link.table.image.name, link.image.name,
-                u"%s.%s" % (link.table.label, link.label))
+                "%s.%s" % (link.table.label, link.label))
         procedure_image = schema.image.create_procedure(
                 names.name, [], type_image, source)
         image = link.table.image.create_trigger(
@@ -144,14 +144,14 @@ class FileLinkConstraintModel(ConstraintModel):
 
     def do_react(self, master, signal, old, new):
         if signal.after_modify and old.label != new.label:
-            if self.link.target_table.label != u'file':
+            if self.link.target_table.label != 'file':
                 return
             names = self.names(self.link.table.label, self.link.label)
             self.image.alter_name(names.name)
             self.procedure_image.alter_name(names.name)
             source = plpgsql_file_link_check(
                     self.link.table.image.name, self.link.image.name,
-                    u"%s.%s" % (self.link.table.label, self.link.label))
+                    "%s.%s" % (self.link.table.label, self.link.label))
             self.procedure_image.alter_source(source)
         if signal.after_erase and \
                 (master is self.link or master is self.link.table):

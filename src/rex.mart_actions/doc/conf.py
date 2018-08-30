@@ -12,6 +12,6 @@ autodoc_default_flags = ['members']
 autodoc_member_order = 'bysource'
 
 latex_documents = [
-    (master_doc, 'rexmart_actions.tex', u'rex.mart\\_actions', u'', 'manual'),
+    (master_doc, 'rexmart_actions.tex', 'rex.mart\\_actions', '', 'manual'),
 ]
 

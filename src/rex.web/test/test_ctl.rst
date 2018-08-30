@@ -19,23 +19,23 @@ To start a development HTTP server, you can use ``rex serve`` task::
 
 The server starts on localhost at the given port.  We can now make a request::
 
-    >>> import urllib, time
+    >>> import urllib.request, urllib.parse, urllib.error, time
 
     >>> def get(path, port=random_port):
     ...     tries = 0
     ...     while tries < 100:
     ...         try:
-    ...             return urllib.urlopen('http://localhost:%s%s' % (port, path)).read()
+    ...             return urllib.request.urlopen('http://localhost:%s%s' % (port, path)).read()
     ...         except IOError:
     ...             tries += 1
     ...             time.sleep(0.1)
 
-    >>> print get('/ping')
+    >>> print(get('/ping'))
     PONG!
 
 We can stop the server and display the accumulated output::
 
-    >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print(serve_ctl.stop())      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     Serving rex.web_demo on 127.0.0.1:8...
     localhost - - [...] "GET /ping HTTP/1.0" 200 5
 
@@ -43,10 +43,10 @@ To set the server address, use parameters ``--host`` and ``--port``::
 
     >>> serve_ctl = Ctl("serve rex.web_demo -h 127.0.0.1 -p %s" % random_port)
 
-    >>> print get('/ping')
+    >>> print(get('/ping'))
     PONG!
 
-    >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print(serve_ctl.stop())      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     Serving rex.web_demo on 127.0.0.1:8...
     localhost - - [...] "GET /ping HTTP/1.0" 200 5
 
@@ -54,10 +54,10 @@ The server reports unhandled exceptions::
 
     >>> serve_ctl = Ctl("serve rex.web_demo --port=%s" % random_port)
 
-    >>> print get('/error')         # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print(get('/error'))         # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     The server encountered an unexpected condition which prevented it from fulfilling the request.
 
-    >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print(serve_ctl.stop())      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     Serving rex.web_demo on 127.0.0.1:8...
     ----------------------------------------------------------------------
     [...] localhost => http://localhost:8.../error
@@ -71,7 +71,7 @@ in the response::
 
     >>> serve_ctl = Ctl("serve rex.web_demo --port=%s --debug" % random_port)
 
-    >>> print get('/error')         # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print(get('/error'))         # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     The server encountered an unexpected condition which prevented it from fulfilling the request.
     <BLANKLINE>
     [...] GET http://localhost:8.../error
@@ -80,7 +80,7 @@ in the response::
       ...
     RuntimeError: some unexpected problem occurred
 
-    >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print(serve_ctl.stop())      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     Serving rex.web_demo on 127.0.0.1:8...
     ----------------------------------------------------------------------
     [...] localhost => http://localhost:8.../error
@@ -93,11 +93,11 @@ Use option ``--remote-user`` to set user credentials for all HTTP queries::
 
     >>> serve_ctl = Ctl("serve rex.web_demo --port=%s --remote-user=Alice" % random_port)
 
-    >>> print get('/')              # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print(get('/'))              # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     <!DOCTYPE html>
     <title>Welcome to REX.WEB_DEMO!</title>
 
-    >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print(serve_ctl.stop())      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     Serving rex.web_demo on 127.0.0.1:8...
     localhost - Alice [...] "GET / HTTP/1.0" 200 55
 
@@ -106,11 +106,11 @@ variable::
 
     >>> serve_ctl = Ctl("serve rex.web_demo --port=%s --environ REMOTE_USER=Bob" % random_port)
 
-    >>> print get('/')              # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print(get('/'))              # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     <!DOCTYPE html>
     <title>Welcome to REX.WEB_DEMO!</title>
 
-    >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print(serve_ctl.stop())      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     Serving rex.web_demo on 127.0.0.1:8...
     localhost - Bob [...] "GET / HTTP/1.0" 200 55
 
@@ -164,7 +164,7 @@ You can use option ``--output`` to save the output to a file::
 
     >>> ctl("wsgi rex.web_demo -o ./build/sandbox/web_demo.wsgi")   # doctest: +NORMALIZE_WHITESPACE
 
-    >>> print open("./build/sandbox/web_demo.wsgi").read()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print(open("./build/sandbox/web_demo.wsgi").read())      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     # WSGI script for the `rex.web_demo` application.
     # Use it with `uwsgi`, `mod_wsgi` or any other WSGI container.
     ...
@@ -180,12 +180,12 @@ To run a RexDB application under uWSGI server, use ``rex serve-uwsgi`` command::
 
 Now you could make HTTP requests::
 
-    >>> print get('/ping')
+    >>> print(get('/ping'))
     PONG!
 
 You can stop the server by pressing Ctrl-C::
 
-    >>> print serve_uwsgi_ctl.stop()                # doctest: +ELLIPSIS
+    >>> print(serve_uwsgi_ctl.stop())                # doctest: +ELLIPSIS
     Starting uWSGI server for rex.web_demo
     [uWSGI] getting JSON configuration from /.../rex.web_demo-....json
     *** Starting uWSGI ... ***
@@ -209,7 +209,7 @@ You can use ``rex start`` command to run uWSGI in daemon mode::
 
 You can now query the server::
 
-    >>> print get('/ping')
+    >>> print(get('/ping'))
     PONG!
 
 ``rex start`` will complain if the server is already running::
@@ -230,7 +230,7 @@ path to the log file::
 
     >>> log_ctl = Ctl("status rex.web_demo --log")
     >>> log = open(log_ctl.wait().strip())
-    >>> print log.name                              # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print(log.name)                              # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     /.../rex.web_demo.log
 
 Use ``rex stop`` command to stop the server::
@@ -296,12 +296,12 @@ incoming requests::
 
     >>> serve_ctl = Ctl("serve rex.web_demo --replay-log=./build/sandbox/replay.log --port=%s" % random_port)
 
-    >>> print get('/ping')
+    >>> print(get('/ping'))
     PONG!
-    >>> print get('/error')         # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print(get('/error'))         # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     The server encountered an unexpected condition which prevented it from fulfilling the request.
 
-    >>> print serve_ctl.stop()      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print(serve_ctl.stop())      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     Serving rex.web_demo on 127.0.0.1:8...
     localhost - - [...] "GET /ping HTTP/1.0" 200 5
     ----------------------------------------------------------------------
@@ -320,4 +320,5 @@ Using ``rex replay`` command, we can replay this log::
     TIME ELAPSED: ...
     REQUESTS: 2
     ERRORS: 1
+
 

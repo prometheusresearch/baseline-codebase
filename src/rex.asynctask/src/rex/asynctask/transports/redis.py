@@ -2,7 +2,7 @@
 # Copyright (c) 2015, Prometheus Research, LLC
 #
 
-from __future__ import absolute_import
+
 
 from redis import StrictRedis, RedisError
 

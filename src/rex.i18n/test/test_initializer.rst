@@ -38,18 +38,18 @@ environment::
     True
     >>> supported[0][0] == 'en'
     True
-    >>> supported[0][1] == u'English'
+    >>> supported[0][1] == 'English'
     True
     >>> supported[2][0] == 'en-GB'
     True
-    >>> supported[2][1] == u'English (United Kingdom)'
+    >>> supported[2][1] == 'English (United Kingdom)'
     True
 
 
 The SUPPORTED_LOCALES global variable is a list wrapper that handles the lazy
 translation of locale names, as well as pseudo-dictionary-like access::
 
-    >>> supported['en'] == u'English'
+    >>> supported['en'] == 'English'
     True
     >>> supported['es']
     Traceback (most recent call last):
@@ -70,9 +70,9 @@ The initializer will inject a series of filters into the Jinja environment::
     >>> from rex.i18n import filters
     >>> for name in sorted(filters.__all__):
     ...     if name in jinja.filters and callable(jinja.filters[name]):
-    ...         print name
+    ...         print(name)
     ...     else:
-    ...         print '%s IS MISSING!' % name
+    ...         print('%s IS MISSING!' % name)
     format_currency
     format_date
     format_datetime
@@ -82,4 +82,5 @@ The initializer will inject a series of filters into the Jinja environment::
     format_scientific
     format_time
     format_timedelta
+
 

@@ -18,7 +18,7 @@ Set up the environment::
 The ``/instrument`` URI will accept GETs for listing::
 
     >>> req = Request.blank('/api/instrument', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: 576
@@ -32,7 +32,7 @@ The ``/instrument`` URI will accept POSTs for creating new instances::
     >>> req = Request.blank('/api/instrument', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{"code": "something", "title": "my new instrument", "status": "disabled"}'
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -42,7 +42,7 @@ The ``/instrument`` URI will accept POSTs for creating new instances::
     >>> req = Request.blank('/api/instrument', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{"title": "a broken instrument"}'
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     400 Bad Request
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -53,12 +53,12 @@ The ``/instrument`` URI will accept POSTs for creating new instances::
 The ``/instrument`` URI will not accept PUTs or DELETEs::
 
     >>> req = Request.blank('/api/instrument', method='PUT', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
     >>> req = Request.blank('/api/instrument', method='DELETE', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
@@ -67,7 +67,7 @@ The ``/instrument/{uid}`` URI will accept GETs to retrieve an individual
 Instrument::
 
     >>> req = Request.blank('/api/instrument/simple', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -75,7 +75,7 @@ Instrument::
     {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}
 
     >>> req = Request.blank('/api/instrument/doesntexist', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     404 Not Found
     ...
 
@@ -85,7 +85,7 @@ The ``/instrument/{uid}`` URI will accept PUTs to update an Instrument::
     >>> req = Request.blank('/api/instrument/simple', method='PUT', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{"title": "A New Title!"}'
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     ### SAVED INSTRUMENT simple
     202 Accepted
     Content-Type: application/json; charset=UTF-8
@@ -97,12 +97,12 @@ The ``/instrument/{uid}`` URI will accept PUTs to update an Instrument::
 The ``/instrument/{uid}`` URI will not accept POSTs or DELETEs::
 
     >>> req = Request.blank('/api/instrument/simple', method='POST', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
     >>> req = Request.blank('/api/instrument/simple', method='DELETE', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
@@ -111,7 +111,7 @@ The ``/instrument/{uid}/version/latest`` URI will accept GETs to retrieve the
 latest InstrumentVersion for the specified Instrument::
 
     >>> req = Request.blank('/api/instrument/simple/version/latest', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -119,7 +119,7 @@ latest InstrumentVersion for the specified Instrument::
     {"definition": {"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "The InstrumentVersion Title"}, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1}
 
     >>> req = Request.blank('/api/instrument/doesntexist/version/latest', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     404 Not Found
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -145,7 +145,7 @@ an Instrument Definition::
     >>> req = Request.blank('/api/instrument/validate', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = json.dumps({'instrument': INSTRUMENT})
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -153,7 +153,7 @@ an Instrument Definition::
     {"status": "SUCCESS"}
 
     >>> req = Request.blank('/api/instrument/validate', method='POST', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     400 Bad Request
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -164,7 +164,7 @@ an Instrument Definition::
     >>> req = Request.blank('/api/instrument/validate', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = json.dumps({'instrument': INSTRUMENT})
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -175,21 +175,22 @@ an Instrument Definition::
 The ``/instrument/validate`` URI will not accept GETSs, PUTs or DELETEs::
 
     >>> req = Request.blank('/api/instrument/validate', method='GET', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
     >>> req = Request.blank('/api/instrument/validate', method='PUT', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
     >>> req = Request.blank('/api/instrument/validate', method='DELETE', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
 
 
     >>> rex.off()
+
 

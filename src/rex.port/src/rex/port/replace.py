@@ -38,7 +38,7 @@ def scalars(node):
 class Missing(object):
     # The value was not provided.
 
-    def __nonzero__(self):
+    def __bool__(self):
         return False
 
     def __repr__(self):
@@ -120,10 +120,10 @@ class Cell(object):
 
 def load(data):
     # Parses JSON.
-    if isinstance(data, (str, unicode)):
+    if isinstance(data, str):
         try:
             data = json.loads(data)
-        except ValueError, exc:
+        except ValueError as exc:
             raise Error("Got ill-formed JSON:", exc)
     return data
 
@@ -146,7 +146,7 @@ def adapt(arm, data):
         else:
             return adapt_table(arm, data)
     elif (isinstance(arm, LinkArm) and
-            isinstance(data, (str, unicode)) and
+            isinstance(data, str) and
             data.startswith('#/')):
         # For link values of the form `#/path/to/node`, return
         # a `Reference` instance.
@@ -168,7 +168,7 @@ def adapt_root(arm, data):
 
     if data is None:
         # `None` is a shortcut for empty input.
-        return tuple(adapt(offshot, None) for offshot in arm.values())
+        return tuple(adapt(offshot, None) for offshot in list(arm.values()))
 
     if isinstance(data, Value):
         # Accept a `Product` instance.
@@ -177,7 +177,7 @@ def adapt_root(arm, data):
     if isinstance(data, list):
         # When the root contains a single trunk table, accept a list
         # records assuming they belong to the table.
-        trunks = [name for name, offshot in arm.items()
+        trunks = [name for name, offshot in list(arm.items())
                        if isinstance(offshot, TrunkArm)]
         if len(trunks) == 1:
             [name] = trunks
@@ -185,12 +185,12 @@ def adapt_root(arm, data):
     if isinstance(data, dict):
         # Accept a dictionary with field values.
         return tuple(adapt(offshot, data[name]) if name in data else MISSING
-                     for name, offshot in arm.items())
+                     for name, offshot in list(arm.items()))
 
     if isinstance(data, tuple) and len(data) == len(arm):
         # Accept a tuple with field values.
         return tuple(adapt(offshot, item)
-                     for offshot, item in zip(arm.values(), data))
+                     for offshot, item in zip(list(arm.values()), data))
 
     raise Error("Got ill-formed input:", repr(data))
 
@@ -211,12 +211,12 @@ def adapt_table(arm, data):
         if 'id' in data:
             [identity] = clarify(arm.domain, embed([data['id']]))
         fields = [adapt(offshot, data[name]) if name in data else MISSING
-                  for name, offshot in arm.items()]
+                  for name, offshot in list(arm.items())]
     elif isinstance(data, tuple) and len(data) == len(arm)+1:
         # Accept a tuple `(id, field1, field2, ...)`.
         [identity] = clarify(arm.domain, embed([data[0]]))
         fields = [adapt(offshot, item)
-                  for offshot, item in zip(arm.values(), data[1:])]
+                  for offshot, item in zip(list(arm.values()), data[1:])]
     else:
         raise Error("Got ill-formed input:", repr(data))
     return (identity,)+tuple(fields)
@@ -266,7 +266,7 @@ def flatten(arm, data, path=(), parent_identity=None):
 
     # Process nested arms.
     nested_maps = []
-    for (name, offshot), item in zip(arm.items(), data):
+    for (name, offshot), item in zip(list(arm.items()), data):
         if not isinstance(offshot, TableArm):
             continue
         if item and offshot.is_plural:

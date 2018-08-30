@@ -21,7 +21,7 @@ plugin disables this feature::
     >>> from webob import Request
 
     >>> req = Request.blank('/db/{field:=integer(null)}', accept='application/json')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -33,7 +33,7 @@ plugin disables this feature::
     }
 
     >>> req = Request.blank('/db/{field:=integer(null)}/:json')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -48,7 +48,7 @@ By default, HTSQL wraps JSON output in an extra mapping.  The ``rex``
 plugin prevents it in case the top-level object is a record::
 
     >>> req = Request.blank('/db/json({})')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {}
@@ -60,7 +60,7 @@ plugin prevents it in case the top-level object is a record::
 ``rex.db`` passes the name of the authenticated user as ``$USER`` constant::
 
     >>> req = Request.blank('/db/{$USER}')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
      | $USER |
@@ -68,7 +68,7 @@ plugin prevents it in case the top-level object is a record::
      |       |
 
     >>> req = Request.blank('/db/{$USER}', remote_user='Alice')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
      | $USER |
@@ -97,7 +97,7 @@ You could use the ``Mask`` extension to define a table mask applied to all queri
     >>> demo.reset()
 
     >>> req = Request.blank('/db/school')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
      | school                                  |
@@ -110,7 +110,7 @@ You could use the ``Mask`` extension to define a table mask applied to all queri
 The way we defined the mask, it is bypassed by authenticated users::
 
     >>> req.remote_user = 'Alice'
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
      | school                                        |
@@ -123,7 +123,7 @@ The way we defined the mask, it is bypassed by authenticated users::
 The mask is also applied to descendant tables of the mask table::
 
     >>> req = Request.blank('/db/program{school{name}, title}')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
      | program                                            |
@@ -139,7 +139,7 @@ The mask is also applied to descendant tables of the mask table::
 Masks are also applied to regular links::
 
     >>> req = Request.blank('/db/department{name, school{name, count(program)}}')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
      +------------------------+------------------------------------------+
@@ -153,7 +153,7 @@ Masks are also applied to regular links::
     ...
 
     >>> req = Request.blank('/db/program{id(), part_of{id()}}')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
      | program                |
@@ -169,7 +169,7 @@ Masks are also applied to regular links::
 Invalid masks are detected::
 
     >>> req = Request.blank('/db/school', remote_user='Bad Syntax')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS
     400 Bad Request
     ...
     Expected a mask expression:
@@ -177,7 +177,7 @@ Invalid masks are detected::
     ...
 
     >>> req = Request.blank('/db/school', remote_user='Bad Table')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS
     400 Bad Request
     ...
     Got unknown table:
@@ -191,7 +191,7 @@ Invalid masks are detected::
 To determine the shape of the output, you can use the ``describe()`` command::
 
     >>> req = Request.blank('/db/school/:describe', accept='x-htsql/raw')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -212,7 +212,7 @@ To determine the shape of the output, you can use the ``describe()`` command::
 The ``describe()`` command requires one argument::
 
     >>> req = Request.blank('/db/describe()')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     Expected one argument
@@ -227,7 +227,7 @@ The ``describe()`` command requires one argument::
 Use ``pivot()`` command to create a pivot table::
 
     >>> req = Request.blank('/db/school^campus{campus, count(^)}/:pivot', remote_user='Alice')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
      | school^campus       |
@@ -242,7 +242,7 @@ By default, ``pivot()`` command uses the last two fields as the column label and
 summary value respectively.  You can explicitly specify which fields to use::
 
     >>> req = Request.blank('/db/school^campus{campus, count(^)}/:pivot(1,2)', remote_user='Alice')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
      | school^campus       |
@@ -256,7 +256,7 @@ summary value respectively.  You can explicitly specify which fields to use::
 Out of range or non-numeric indexes are forbidden::
 
     >>> req = Request.blank('/db/school^campus{campus, count(^)}/:pivot(5)')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     'on' is out of range:
@@ -266,7 +266,7 @@ Out of range or non-numeric indexes are forbidden::
                                           ^^^^^
 
     >>> req = Request.blank('/db/school^campus{campus, count(^)}/:pivot(1,5)')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     'by' is out of range:
@@ -276,7 +276,7 @@ Out of range or non-numeric indexes are forbidden::
                                           ^^^^^
 
     >>> req = Request.blank('/db/school^campus{campus, count(^)}/:pivot(1,1)')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     'on' and 'by' should not coincide:
@@ -286,7 +286,7 @@ Out of range or non-numeric indexes are forbidden::
                                           ^^^^^
 
     >>> req = Request.blank('/db/school^campus{campus, count(^)}/:pivot(code)')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     Expected an integer:
@@ -296,7 +296,7 @@ Out of range or non-numeric indexes are forbidden::
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
     >>> req = Request.blank('/db/school^campus{campus, count(^)}/:pivot(1,code)')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     Expected an integer:
@@ -308,7 +308,7 @@ Out of range or non-numeric indexes are forbidden::
 From one to three arguments are expected::
 
     >>> req = Request.blank('/db/pivot()')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     Expected 1 to 3 arguments
@@ -320,7 +320,7 @@ The query must produce a list of records and the transformed fields must be
 scalar::
 
     >>> req = Request.blank('/db/pivot(count(school))')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     Expected a list of records; got:
@@ -330,7 +330,7 @@ scalar::
          ^^^^^
 
     >>> req = Request.blank('/db/school^campus{/school,campus,count(school)}/:pivot')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     Cannot use pivot with:
@@ -342,7 +342,7 @@ scalar::
 Unaffected fields must identify a row uniquely::
 
     >>> req = Request.blank('/db/school{campus,count(program)}/:pivot', remote_user='Alice')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     Got duplicate row:
@@ -377,7 +377,8 @@ done in a transaction context of the parent instance::
 
     >>> with db, db.transaction():
     ...     with db_connected:
-    ...         print db_connected.produce('count(program)')
+    ...         print(db_connected.produce('count(program)'))
     40
+
 
 

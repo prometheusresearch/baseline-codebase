@@ -23,8 +23,8 @@ class StdoutSmsProvider(SmsProvider):
     name = 'stdout'
 
     def __call__(self, recipient, sender, message):
-        sys.stdout.write(u'=== SMS MESSAGE SENT ===\n')
-        sys.stdout.write(u'TO: %s\n' % recipient)
-        sys.stdout.write(u'FROM: %s\n' % sender)
-        sys.stdout.write(u'MESSAGE: %s\n' % (message,))
+        sys.stdout.write('=== SMS MESSAGE SENT ===\n')
+        sys.stdout.write('TO: %s\n' % recipient)
+        sys.stdout.write('FROM: %s\n' % sender)
+        sys.stdout.write('MESSAGE: %s\n' % (message,))
 

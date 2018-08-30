@@ -1,6 +1,6 @@
 import os
 import tempfile
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import csv
 
 from rex.ctl import RexTask, option, log
@@ -43,7 +43,7 @@ class PopulateTask(RexTask):
         path = os.path.join(BASE_DIR, filename)
         if not os.path.exists(path):
             url = os.path.join(BASE_URL, filename)
-            urllib.urlretrieve(url, path)
+            urllib.request.urlretrieve(url, path)
         return csv.reader(open(path))
 
     def populate(self, cursor):

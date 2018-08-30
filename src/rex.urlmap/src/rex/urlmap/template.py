@@ -38,7 +38,7 @@ class TemplateRenderer(object):
             # Parse the URL and prepare template arguments.
             try:
                 context = self.parse(req)
-            except Error, error:
+            except Error as error:
                 return req.get_response(error)
             # Render the template.
             return render_to_response(self.template, req, **context)

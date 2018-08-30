@@ -40,7 +40,7 @@ def _translate_value_error(fn):
     def wrapper(*args, **kwds):
         try:
             return fn(*args, **kwds)
-        except Error, error:
+        except Error as error:
             if not env.debug:
                 raise ValueError('\n'+str(error))
             raise
@@ -68,12 +68,12 @@ def main():
                         sentry.captureException(exc_info)
                     except:
                         pass
-                    raise exc_info[0], exc_info[1], exc_info[2]
-            except (Error, IOError), exc:
+                    raise exc_info[0](exc_info[1]).with_traceback(exc_info[2])
+            except (Error, IOError) as exc:
                 if env.debug:
                     raise
                 raise fail(str(exc))
-        except (Failure, KeyboardInterrupt), exc:
+        except (Failure, KeyboardInterrupt) as exc:
             if env.debug:
                 raise
             return exc
@@ -220,7 +220,7 @@ class Task(object):
     def document_one(cls, spec):
         header = spec.name
         if spec.hint:
-            header = u"%s \u2014 %s" % (header, spec.hint)
+            header = "%s \u2014 %s" % (header, spec.hint)
         lines = []
         usage = spec.name
         optionals = 0

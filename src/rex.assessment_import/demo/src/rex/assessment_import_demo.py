@@ -50,9 +50,9 @@ class DemoAssessment(Assessment):
             )
         return [
             cls.BulkAssessment(
-                uid=unicode(d.uid),
+                uid=str(d.uid),
                 data=AnyVal().parse(d.data),
-                instrument_version_uid=unicode(d.iv),
+                instrument_version_uid=str(d.iv),
             )
             for d in data
         ]
@@ -68,14 +68,14 @@ class DemoAssessment(Assessment):
         )
 
     def save(self, implementation_context=None):
-        print '### SAVED ASSESSMENT ' + self.uid
+        print('### SAVED ASSESSMENT ' + self.uid)
 
     @classmethod
     def bulk_create(cls, assessments, validate=True):
         for assessment in assessments:
             if assessment.context['study1'] < 0:
                 raise Error('Bulk create failed with unexpected study1.')
-        print '### CREATED %s ASSESSMENTS' % len(assessments)
+        print('### CREATED %s ASSESSMENTS' % len(assessments))
 
     @classmethod
     def get_implementation_context(cls, action):

@@ -59,28 +59,28 @@ class FactDumper(yaml.Dumper):
         style = None
         if data.endswith('\n'):
             style = '|'
-        return self.represent_scalar(u'tag:yaml.org,2002:str', data, style=style)
+        return self.represent_scalar('tag:yaml.org,2002:str', data, style=style)
 
     def represent_unicode(self, data):
         style = None
-        if data.endswith(u'\n'):
+        if data.endswith('\n'):
             style = '|'
-        return self.represent_scalar(u'tag:yaml.org,2002:str', data, style=style)
+        return self.represent_scalar('tag:yaml.org,2002:str', data, style=style)
 
     def represent_decimal(self, data):
-        return self.represent_scalar(u'tag:yaml.org,2002:float', unicode(data))
+        return self.represent_scalar('tag:yaml.org,2002:float', str(data))
 
     def represent_ordered_dict(self, data):
-        return self.represent_mapping(u'tag:yaml.org,2002:map', data.items(),
+        return self.represent_mapping('tag:yaml.org,2002:map', list(data.items()),
                                       flow_style=False)
 
     def represent_alias(self, data):
-        return self.represent_unicode(unicode(data))
+        return self.represent_unicode(str(data))
 
 FactDumper.add_representer(
         str, FactDumper.represent_str)
 FactDumper.add_representer(
-        unicode, FactDumper.represent_unicode)
+        str, FactDumper.represent_unicode)
 FactDumper.add_representer(
         decimal.Decimal, FactDumper.represent_decimal)
 FactDumper.add_representer(
@@ -143,7 +143,7 @@ class PairVal(Validate):
             elif isinstance(data, dict):
                 if len(data) != 1:
                     raise Error("Expected a pair")
-                [(key, value)] = data.items()
+                [(key, value)] = list(data.items())
             else:
                 key = data
                 value = None
@@ -158,10 +158,10 @@ class PairVal(Validate):
     def construct(self, loader, node):
         if isinstance(node, yaml.ScalarNode):
             key_node = node
-            value_node = yaml.ScalarNode(u'tag:yaml.org,2002:null', u"",
-                                         node.start_mark, node.end_mark, u'')
+            value_node = yaml.ScalarNode('tag:yaml.org,2002:null', "",
+                                         node.start_mark, node.end_mark, '')
         elif (isinstance(node, yaml.MappingNode) and
-              node.tag == u'tag:yaml.org,2002:map' and
+              node.tag == 'tag:yaml.org,2002:map' and
               len(node.value) == 1):
             [(key_node, value_node)] = node.value
         else:
@@ -242,7 +242,7 @@ def label_to_title(label):
     """
     Makes a title out of an entity label.
     """
-    return label.replace(u'_', u' ').title()
+    return label.replace('_', ' ').title()
 
 
 class Driver(object):
@@ -328,7 +328,7 @@ class Driver(object):
         Parses the given YAML string or file and returns a fact or
         a list of facts.
         """
-        if isinstance(stream, (str, unicode)) or hasattr(stream, 'read'):
+        if isinstance(stream, str) or hasattr(stream, 'read'):
             spec = self.validate.parse(stream)
         else:
             spec = self.validate(stream)
@@ -361,7 +361,7 @@ class Driver(object):
         if self.logging is True:
             if args or kwds:
                 msg = msg.format(*args, **kwds)
-            print msg
+            print(msg)
         else:
             self.logging(level, msg, *args, **kwds)
 
@@ -395,13 +395,13 @@ class Driver(object):
         """
         Returns the image of the schema used for deployment.
         """
-        return self.get_catalog()[u"public"]
+        return self.get_catalog()["public"]
 
     def get_system_schema(self):
         """
         Returns the system PostgreSQL schema.
         """
-        return self.get_catalog()[u"pg_catalog"]
+        return self.get_catalog()["pg_catalog"]
 
     def analyze(self):
         """
@@ -422,7 +422,7 @@ class Driver(object):
             cursor.execute(sql)
             if cursor.description is not None:
                 return cursor.fetchall()
-        except psycopg2.Error, exc:
+        except psycopg2.Error as exc:
             error = Error("Got an error from the database driver:", exc)
             error.wrap("While executing SQL:", sql)
             raise error
@@ -486,7 +486,7 @@ class Driver(object):
             for fact in facts:
                 try:
                     fact(self)
-                except Error, error:
+                except Error as error:
                     if not self.is_locked:
                         message = "While deploying %s fact:" % fact.key
                     else:

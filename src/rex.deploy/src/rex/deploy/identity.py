@@ -34,9 +34,9 @@ class IdentityFact(Fact):
         if not spec.identity:
             raise Error("Got missing identity fields")
         for label, generator in spec.identity:
-            if u'.' in label:
+            if '.' in label:
                 current_table_label = table_label
-                table_label, label = label.split(u'.')
+                table_label, label = label.split('.')
                 if (current_table_label is not None and
                         table_label != current_table_label):
                     raise Error("Got mismatched table names:",
@@ -48,9 +48,9 @@ class IdentityFact(Fact):
         return cls(table_label, labels, generators)
 
     def __init__(self, table_label, labels, generators=None):
-        assert isinstance(table_label, unicode) and len(table_label) > 0
+        assert isinstance(table_label, str) and len(table_label) > 0
         assert (isinstance(labels, list) and len(labels) > 0 and
-                all(isinstance(label, unicode) for label in labels) and
+                all(isinstance(label, str) for label in labels) and
                 len(set(labels)) == len(labels))
         if generators is None:
             generators = [None]*len(labels)

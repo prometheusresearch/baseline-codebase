@@ -10,7 +10,7 @@ Test rex.widget.map
   >>> class MappedWidget(Widget):
   ...     name = 'MappedWidget'
   ...     js_type = 'pkg', 'mapped-widget'
-  ...
+  ... 
   ...     @responder()
   ...     def respond(self, req):
   ...         return Response(json='ok')
@@ -32,18 +32,18 @@ Test rex.widget.map
 
 ::
 
-  >>> print Request.blank(
+  >>> print(Request.blank(
   ...   '/w',
-  ...   accept='application/json').get_response(rex) # doctest: +ELLIPSIS
+  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
   ["~#widget", ["rex-widget", "Chrome", {...}]]
 
-  >>> print Request.blank(
+  >>> print(Request.blank(
   ...   '/w/@@/2.content.2.respond',
-  ...   accept='application/json').get_response(rex) # doctest: +ELLIPSIS
+  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
@@ -70,9 +70,9 @@ Overrides
   ...     no_chrome: true
   ... ''')
 
-  >>> print Request.blank(
+  >>> print(Request.blank(
   ...   '/w',
-  ...   accept='application/json').get_response(rex) # doctest: +ELLIPSIS
+  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
@@ -87,9 +87,9 @@ Overrides
   ...     access: nobody
   ... ''')
 
-  >>> print Request.blank(
+  >>> print(Request.blank(
   ...   '/w',
-  ...   accept='application/json').get_response(rex) # doctest: +ELLIPSIS
+  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS
   401 Unauthorized
   ...
 
@@ -101,9 +101,9 @@ Overrides
   ...     title: NEWTITLE
   ... ''')
 
-  >>> print Request.blank(
+  >>> print(Request.blank(
   ...   '/w',
-  ...   accept='application/json').get_response(rex) # doctest: +ELLIPSIS
+  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
@@ -113,3 +113,4 @@ Overrides
 ::
 
   >>> rex.off()
+

@@ -16,7 +16,7 @@ string-rendering methods::
     >>> user = User('fake123', 'username')
     >>> user.get_display_name()
     u'username'
-    >>> unicode(user)
+    >>> str(user)
     u'username'
     >>> str(user)
     'username'
@@ -82,4 +82,5 @@ being the same class with the same UID::
     True
     >>> user3 >= user1
     True
+
 

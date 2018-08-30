@@ -49,5 +49,5 @@ class PortSupport(object):
     def create_port(self, port):
         parameters = [{'parameter': parameter, 'default': default}
                       for parameter, default
-                      in self.port_parameters.items()]
+                      in list(self.port_parameters.items())]
         return Port(parameters + [port])

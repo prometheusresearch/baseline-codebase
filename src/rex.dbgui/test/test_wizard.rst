@@ -13,13 +13,13 @@ examples of the simple schema which includes trunk, branch, cross and facets::
   ...     with app:
   ...         wizard = table_wizard(table)
   ...         assert isinstance(wizard.wizard, object)
-  ...         print yaml.safe_dump(table_wizard(table), indent=2,
-  ...                              default_flow_style=False)
+  ...         print(yaml.safe_dump(table_wizard(table), indent=2,
+  ...                              default_flow_style=False))
 
 It can generate the root wizard consisting of just one action::
 
   >>> with app:
-  ...     print root_wizard().wizard  # doctest: +ELLIPSIS
+  ...     print(root_wizard().wizard)  # doctest: +ELLIPSIS
   Wizard(...)
 
 It can generate the wizard for the base trunk table::
@@ -682,3 +682,4 @@ It handles the case when link names are not equal to target table names::
           - t_id
           - t_data
   ...
+

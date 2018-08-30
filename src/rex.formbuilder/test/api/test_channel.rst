@@ -16,7 +16,7 @@ Set up the environment::
 The ``/api/channel`` URI will accept GETs for listing::
 
     >>> req = Request.blank('/api/channel', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -27,17 +27,17 @@ The ``/api/channel`` URI will accept GETs for listing::
 The ``/api/channel`` URI will not accept POSTs, PUTs, or DELETEs::
 
     >>> req = Request.blank('/api/channel', method='POST', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
     >>> req = Request.blank('/api/channel', method='PUT', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
     >>> req = Request.blank('/api/channel', method='DELETE', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
@@ -46,7 +46,7 @@ The ``/api/channel/{uid}`` URI will accept GETs to retrieve an individual
 Channel::
 
     >>> req = Request.blank('/api/channel/entry', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -54,7 +54,7 @@ Channel::
     {"uid": "entry", "presentation_type": "form", "title": "RexEntry"}
 
     >>> req = Request.blank('/api/channel/doesntexist', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     404 Not Found
     ...
 
@@ -62,21 +62,22 @@ Channel::
 The ``/api/channel/{uid}`` URI will not accept POSTs, PUTs, or DELETEs::
 
     >>> req = Request.blank('/api/channel/123', method='POST', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
     >>> req = Request.blank('/api/channel/123', method='PUT', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
     >>> req = Request.blank('/api/channel/123', method='DELETE', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
 
 
     >>> rex.off()
+
 

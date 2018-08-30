@@ -157,7 +157,7 @@ class DraftForm(
     def __init__(self, uid, channel, draft_instrument_version, configuration):
         self._uid = to_unicode(uid)
 
-        if not isinstance(channel, (Channel, basestring)):
+        if not isinstance(channel, (Channel, str)):
             raise ValueError(
                 'channel must be an instance of Channel or a UID of one'
             )
@@ -165,14 +165,14 @@ class DraftForm(
 
         if not isinstance(
                 draft_instrument_version,
-                (DraftInstrumentVersion, basestring)):
+                (DraftInstrumentVersion, str)):
             raise ValueError(
                 'draft_instrument_version must be an instance of'
                 ' DraftInstrumentVersion or a UID of one'
             )
         self._draft_instrument_version = draft_instrument_version
 
-        if isinstance(configuration, basestring):
+        if isinstance(configuration, str):
             self._configuration = AnyVal().parse(configuration)
         else:
             self._configuration = deepcopy(configuration)
@@ -196,7 +196,7 @@ class DraftForm(
         :rtype: Channel
         """
 
-        if isinstance(self._channel, basestring):
+        if isinstance(self._channel, str):
             channel_impl = get_implementation('channel')
             return channel_impl.get_by_uid(self._channel)
         return self._channel
@@ -210,7 +210,7 @@ class DraftForm(
         :rtype: DraftInstrumentVersion
         """
 
-        if isinstance(self._draft_instrument_version, basestring):
+        if isinstance(self._draft_instrument_version, str):
             div_impl = get_implementation('draftinstrumentversion')
             return div_impl.get_by_uid(self._draft_instrument_version)
         return self._draft_instrument_version
@@ -408,7 +408,7 @@ class DraftForm(
                 locale = self.configuration['defaultLocalization']
             return to_unicode(self.configuration['title'][locale])
         else:
-            return unicode(self.draft_instrument_version)
+            return str(self.draft_instrument_version)
 
     def __repr__(self):
         return '%s(%r, %r, %r)' % (

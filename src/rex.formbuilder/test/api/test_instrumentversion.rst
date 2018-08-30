@@ -17,7 +17,7 @@ Set up the environment::
 The ``/instrumentversion`` URI will accept GETs for listing::
 
     >>> req = Request.blank('/api/instrumentversion', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: 3672
@@ -31,7 +31,7 @@ The ``/instrumentversion`` URI will accept POSTs for creating new instances::
     >>> req = Request.blank('/api/instrumentversion', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{"instrument": "simple", "definition": {"record": [{"type": "text", "id": "baz"}], "version": "1.0", "id": "urn:new-instrument", "title": "My New Instrument"}, "published_by": "someone"}'
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -41,7 +41,7 @@ The ``/instrumentversion`` URI will accept POSTs for creating new instances::
     >>> req = Request.blank('/api/instrumentversion', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{"definition": {}, "published_by": "someone"}'
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     400 Bad Request
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -52,12 +52,12 @@ The ``/instrumentversion`` URI will accept POSTs for creating new instances::
 The ``/instrumentversion`` URI will not accept PUTs or DELETEs::
 
     >>> req = Request.blank('/api/instrumentversion', method='PUT', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
     >>> req = Request.blank('/api/instrumentversion', method='DELETE', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
@@ -66,7 +66,7 @@ The ``/instrumentversion/{uid}`` URI will accept GETs to retrieve an individual
 InstrumentVersion::
 
     >>> req = Request.blank('/api/instrumentversion/simple1', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -74,7 +74,7 @@ InstrumentVersion::
     {"definition": {"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "The InstrumentVersion Title"}, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1}
 
     >>> req = Request.blank('/api/instrumentversion/doesntexist', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     404 Not Found
     ...
 
@@ -85,7 +85,7 @@ InstrumentVersion::
     >>> req = Request.blank('/api/instrumentversion/simple1', method='PUT', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{"date_published": "2015-03-01T00:00:00.000Z"}'
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     ### SAVED INSTRUMENTVERSION simple1
     202 Accepted
     Content-Type: application/json; charset=UTF-8
@@ -97,12 +97,12 @@ InstrumentVersion::
 The ``/instrumentversion/{uid}`` URI will not accept POSTs or DELETEs::
 
     >>> req = Request.blank('/api/instrumentversion/123', method='POST', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
     >>> req = Request.blank('/api/instrumentversion/123', method='DELETE', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
@@ -112,7 +112,7 @@ DraftInstrumentVersion and associated DraftForms for the specified
 InstrumentVersion::
 
     >>> req = Request.blank('/api/instrumentversion/simple1/draft', method='POST', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -120,7 +120,7 @@ InstrumentVersion::
     {"instrument_version": {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "definition": {"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "The InstrumentVersion Title"}, "modified_by": "user1", "uid": "draftiv1", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "user1", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2014-05-22T00:00:00.000Z"}, "forms": {"entry": {"configuration": {"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "How does the subject feel today?"}, "fieldId": "q_fake"}}], "id": "page1"}]}, "draft_instrument_version": {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "modified_by": "someone", "uid": "draftiv1", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}, "uid": "fake_draftform_1", "channel": {"uid": "entry", "presentation_type": "form", "title": "RexEntry"}}, "survey": {"configuration": {"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "How do you feel today?"}, "fieldId": "q_fake"}}], "id": "page1"}]}, "draft_instrument_version": {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "modified_by": "someone", "uid": "draftiv1", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}, "uid": "fake_draftform_1", "channel": {"uid": "survey", "presentation_type": "form", "title": "RexSurvey"}}}, "calculations_set": null}
 
     >>> req = Request.blank('/api/instrumentversion/complex2/draft', method='POST', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: 2640
@@ -129,16 +129,17 @@ InstrumentVersion::
     {"instrument_version": {"parent_instrument_version": {"instrument": {"status": "active", "code": "complex", "uid": "complex", "title": "Complex Instrument"}, "published_by": "someone", "version": 2, "uid": "complex2", "date_published": "2015-01-03T00:00:00.000Z"}, "definition": {"record": [{"type": "text", "id": "q_foo"}, {"type": "integer", "id": "q_bar"}, {"type": "boolean", "id": "q_baz"}], "version": "1.2", "id": "urn:another-test-instrument", "title": "The Other Instrument"}, "modified_by": "user1", "uid": "draftiv1", "date_modified": "2014-05-22T00:00:00.000Z", "created_by": "user1", "instrument": {"status": "active", "code": "complex", "uid": "complex", "title": "Complex Instrument"}, "date_created": "2014-05-22T00:00:00.000Z"}, "forms": {"survey": {"configuration": {"instrument": {"version": "1.2", "id": "urn:another-test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "How do you feel today?"}, "fieldId": "q_foo"}}, {"type": "question", "options": {"text": {"en": "What is your favorite number?"}, "fieldId": "q_bar"}}, {"type": "question", "options": {"text": {"en": "Is water wet?"}, "fieldId": "q_baz"}}], "id": "page1"}]}, "draft_instrument_version": {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "modified_by": "someone", "uid": "draftiv1", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}, "uid": "fake_draftform_1", "channel": {"uid": "survey", "presentation_type": "form", "title": "RexSurvey"}}}, "calculations_set": {"definition": {"instrument": {"version": "1.2", "id": "urn:another-test-instrument"}, "calculations": [{"id": "calc1", "type": "integer", "method": "python", "options": {"expression": "1 + 2 + 3"}}]}, "uid": "fake_draftcalculationset_1", "draft_instrument_version": {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "modified_by": "someone", "uid": "draftiv1", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}}}
 
     >>> req = Request.blank('/api/instrumentversion/doesntexist/draft', method='POST', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     404 Not Found
     ...
 
     >>> req = Request.blank('/api/instrumentversion/draftiv2/draft', method='POST', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     404 Not Found
     ...
 
 
 
     >>> rex.off()
+
 

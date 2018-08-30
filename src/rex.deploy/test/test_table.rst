@@ -21,7 +21,7 @@ Field ``table`` denotes a table fact::
 
     >>> fact
     TableFact(u'individual')
-    >>> print fact
+    >>> print(fact)
     table: individual
 
 You could indicate possible old names of the table using ``was`` field::
@@ -29,14 +29,14 @@ You could indicate possible old names of the table using ``was`` field::
     >>> fact = driver.parse("""{ table: individual, was: subject }""")
     >>> fact
     TableFact(u'individual', former_labels=[u'subject'])
-    >>> print fact
+    >>> print(fact)
     table: individual
     was: [subject]
 
     >>> fact = driver.parse("""{ table: measure, was: [assessment, test] }""")
     >>> fact
     TableFact(u'measure', former_labels=[u'assessment', u'test'])
-    >>> print fact
+    >>> print(fact)
     table: measure
     was: [assessment, test]
 
@@ -45,7 +45,7 @@ Use field ``table`` to specify the table title::
     >>> fact = driver.parse("""{ table: individual, title: Test Subjects }""")
     >>> fact
     TableFact(u'individual', title=u'Test Subjects')
-    >>> print fact
+    >>> print(fact)
     table: individual
     title: Test Subjects
 
@@ -54,7 +54,7 @@ Turn off field ``reliable`` to create a fast, but not crash-safe table::
     >>> fact = driver.parse("""{ table: history, reliable: false }""")
     >>> fact
     TableFact(u'history', is_reliable=False)
-    >>> print fact
+    >>> print(fact)
     table: history
     reliable: false
 
@@ -64,7 +64,7 @@ Use field ``with`` to list facts to deployed together with the table fact::
     ...                          with: [{ column: code, type: text}] }""")
     >>> fact
     TableFact(u'individual', related=[ColumnFact(u'individual', u'code', u'text')])
-    >>> print fact
+    >>> print(fact)
     table: individual
     with:
     - column: code
@@ -95,7 +95,7 @@ Turn off flag ``present`` to indicate that the table is to be deleted::
     >>> fact = driver.parse("""{ table: individual, present: false }""")
     >>> fact
     TableFact(u'individual', is_present=False)
-    >>> print fact
+    >>> print(fact)
     table: individual
     present: false
 
@@ -135,7 +135,7 @@ Deploying a table fact creates the table::
     ALTER TABLE "individual" ADD CONSTRAINT "individual_uk" UNIQUE ("id");
 
     >>> schema = driver.get_schema()
-    >>> u'individual' in schema
+    >>> 'individual' in schema
     True
 
 Deploying the same fact second time has no effect::
@@ -250,9 +250,9 @@ Now let us rename ``measure`` to ``assessment``::
 Link ``visit.measure`` got renamed as well::
 
     >>> schema = driver.get_schema()
-    >>> u'measure_id' in schema[u'visit']
+    >>> 'measure_id' in schema['visit']
     False
-    >>> u'assessment_id' in schema[u'visit']
+    >>> 'assessment_id' in schema['visit']
     True
 
 Note that applying the same fact second time has no effect::
@@ -318,7 +318,7 @@ is deleted as well::
     DROP TYPE "assessment_status_enum";
     DROP FUNCTION "assessment_pk"();
 
-    >>> u'assessment_status_enum' in schema.types
+    >>> 'assessment_status_enum' in schema.types
     False
 
 If a table has links into it, the links are dropped first::
@@ -338,5 +338,6 @@ Let's destroy the test database::
 
     >>> driver.close()
     >>> cluster.drop()
+
 
 

@@ -102,7 +102,7 @@ class LazyConnection(object):
             self.connection.release()
             self.connection = None
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self.scope)
 
 
@@ -155,8 +155,8 @@ class LazySession(object):
             self.session = self.session()
         if isinstance(self.session, str):
             self.session = self.session.decode('utf-8', 'replace')
-        if self.session is not None and not isinstance(self.session, unicode):
-            self.session = unicode(self.session)
+        if self.session is not None and not isinstance(self.session, str):
+            self.session = str(self.session)
         return self.session
 
 
@@ -288,9 +288,9 @@ class EnumDomainToRaw(DomainToRaw):
 
     def __call__(self):
         yield JS_MAP
-        yield u"type"
-        yield unicode(self.domain.__class__)
-        yield u"labels"
+        yield "type"
+        yield str(self.domain.__class__)
+        yield "labels"
         yield JS_SEQ
         for label in self.domain.labels:
             yield label
@@ -303,13 +303,13 @@ class LookupReferenceInRoot(Lookup):
     adapt(RootBinding, ReferenceProbe)
 
     def __call__(self):
-        if self.probe.key == u'user':
+        if self.probe.key == 'user':
             session = (context.env.session()
                        if context.env.session is not None else None)
             if isinstance(session, str):
                 session = session.decode('utf-8', 'replace')
             if session is not None:
-                session = unicode(session)
+                session = str(session)
             return LiteralRecipe(session, TextDomain())
         elif self.probe.key in context.app.rex.properties and \
                 context.env.session_properties is not None:
@@ -342,7 +342,7 @@ class LookupReferenceSetInRoot(Lookup):
 
     def __call__(self):
         references = super(LookupReferenceSetInRoot, self).__call__()
-        references.add(u'user')
+        references.add('user')
         for key in context.app.rex.properties:
             references.add(key)
         return references
@@ -666,7 +666,7 @@ class ProducePivot(Act):
         for value in pivot_values:
             value_header = pivot_domain.dump(value)
             if value_header is None:
-                value_header = u""
+                value_header = ""
             value_field = decorate_void()
             value_field = value_field.clone(header=value_header,
                                             domain=value_domain)

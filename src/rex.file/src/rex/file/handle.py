@@ -27,7 +27,7 @@ class HandleUpload(HandleLocation):
             raise HTTPUnauthorized()
         with confine(req, self):
             inputs = {}
-            for key, value in req.params.items():
+            for key, value in list(req.params.items()):
                 if isinstance(value, cgi.FieldStorage):
                     if key in inputs:
                         error = Error("Received duplicate upload name:", key)
@@ -40,7 +40,7 @@ class HandleUpload(HandleLocation):
                 handle = storage.add(attachment.filename, attachment.file)
                 product = db.produce("insert(file:={handle:=$handle})",
                                      handle=handle)
-                outputs[key] = unicode(product.data)
+                outputs[key] = str(product.data)
             return Response(json=outputs)
 
 

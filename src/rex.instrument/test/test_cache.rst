@@ -98,8 +98,8 @@ will enable the context around the execution of the entire function::
     ...     with InterfaceCache() as cache:
     ...         cache.set('group1', 'key1', arg1)
     ...     with InterfaceCache() as cache:
-    ...         print cache.has('group1', 'key1')
-    ...         print cache.get('group1', 'key1')
+    ...         print(cache.has('group1', 'key1'))
+    ...         print(cache.get('group1', 'key1'))
     >>> my_func(15)
     True
     15
@@ -139,4 +139,5 @@ the shared cache::
     False
     True
     False
+
 

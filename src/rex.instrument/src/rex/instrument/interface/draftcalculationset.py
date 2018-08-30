@@ -156,14 +156,14 @@ class DraftCalculationSet(
 
         if not isinstance(
                 draft_instrument_version,
-                (DraftInstrumentVersion, basestring)):
+                (DraftInstrumentVersion, str)):
             raise ValueError(
                 'draft_instrument_version must be an instance of'
                 ' DraftInstrumentVersion or a UID of one'
             )
         self._draft_instrument_version = draft_instrument_version
 
-        if isinstance(definition, basestring):
+        if isinstance(definition, str):
             self._definition = AnyVal().parse(definition)
         else:
             self._definition = deepcopy(definition)
@@ -188,7 +188,7 @@ class DraftCalculationSet(
         :rtype: DraftInstrumentVersion
         """
 
-        if isinstance(self._draft_instrument_version, basestring):
+        if isinstance(self._draft_instrument_version, str):
             div_impl = get_implementation('draftinstrumentversion')
             return div_impl.get_by_uid(self._draft_instrument_version)
         else:

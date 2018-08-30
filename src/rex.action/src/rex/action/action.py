@@ -10,7 +10,7 @@
 
 """
 
-from __future__ import absolute_import
+
 
 import uuid
 from collections import namedtuple
@@ -52,9 +52,7 @@ class ContextTypes(TransitionableRecord):
     fields = ('input', 'output')
 
 
-class ActionBase(Widget):
-
-    __metaclass__ = ActionMeta
+class ActionBase(Widget, metaclass=ActionMeta):
 
     id = Field(
         StrVal(),
@@ -131,7 +129,7 @@ class ActionBase(Widget):
         next_values = {}
         next_values.update({
             k: v
-            for k, v in self.values.items()
+            for k, v in list(self.values.items())
             if k not in ('__domain',) or k in self._fields})
         next_values.update(values)
         if 'package' not in next_values:
@@ -201,7 +199,7 @@ class ActionBase(Widget):
         # this is to prevent circular imports
         from .validate import ActionVal
         validate = ActionVal(action_class=cls)
-        if isinstance(value, basestring) or hasattr(value, 'read'):
+        if isinstance(value, str) or hasattr(value, 'read'):
             return validate.parse(value)
         else:
             raise Error('Cannot parse an action from:', repr(value))
@@ -210,7 +208,7 @@ class ActionBase(Widget):
 
     @classmethod
     def document_header(cls):
-        return unicode(cls.name.name)
+        return str(cls.name.name)
 
 
 class Action(ActionBase):
@@ -223,19 +221,19 @@ class Action(ActionBase):
         def _override_validator(self):
             fields = [
                 (field.name, field.validate, self._no_override_sentinel)
-                for field in self.fields.values()
+                for field in list(self.fields.values())
                 if field.name not in ('id',)
             ]
             return RecordVal(fields)
 
         def _apply_override(self, action, override):
-            if isinstance(override, basestring):
+            if isinstance(override, str):
                 override = self._override_validator.parse(override)
             elif isinstance(override, Deferred):
                 override = override.resolve(self._override_validator)
             else:
                 override = self._override_validator(override)
-            override = {k: v for k, v in override._asdict().items()
+            override = {k: v for k, v in list(override._asdict().items())
                         if v is not self._no_override_sentinel}
             return self.override(action, override)
 

@@ -16,10 +16,10 @@ class demo(Command):
     def run(self):
         from rex.core import Rex, get_packages, get_settings
         demo = Rex('rex.core_demo')
-        print "demo:", demo
+        print("demo:", demo)
         with demo:
-            print "get_packages():", get_packages()
-            print "get_settings():", get_settings()
+            print("get_packages():", get_packages())
+            print("get_settings():", get_settings())
 
 
 setup(

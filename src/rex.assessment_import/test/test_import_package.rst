@@ -28,7 +28,7 @@ from_directory(path, user=None) to generate package from a bunch of csv files
 
   >>> input = ImportPackage.from_directory('./test/data/eeg-upload/')
   >>> for chunk in sorted(input, key=lambda x: x.id):
-  ...   print chunk.id, len(chunk.data)
+  ...   print(chunk.id, len(chunk.data))
   eeg-upload1 2999
   eeg-upload1.abspower 249
 
@@ -46,7 +46,7 @@ from_xls
 
   >>> input = ImportPackage.from_xls('./test/data/eeg-upload1.xls')
   >>> for chunk in input:
-  ...   print chunk.id, len(chunk.data)
+  ...   print(chunk.id, len(chunk.data))
   eeg-upload1 2999
   eeg-upload1.abspower 4980
 
@@ -77,7 +77,7 @@ from_csv
 
   >>> input = ImportPackage.from_csv('./test/data/qctest2.csv')
   >>> for chunk in input:
-  ...   print chunk.id, len(chunk.data)
+  ...   print(chunk.id, len(chunk.data))
   qctest2 1
 
 When given path parameter is not csv file assertion error appeared::
@@ -107,7 +107,7 @@ from_zip
 
   >>> input = ImportPackage.from_zip('./test/data/eeg-upload1.zip')
   >>> for chunk in input:
-  ...   print chunk.id, len(chunk.data)
+  ...   print(chunk.id, len(chunk.data))
   eeg-upload1.abspower 249
   eeg-upload1 2999
 
@@ -130,7 +130,7 @@ as_xls_file
 Use method as_xls_file to generate xls file content::
 
   >>> filename, filecontent = package.as_xls_file()
-  >>> print filename, len(filecontent)
+  >>> print(filename, len(filecontent))
   eeg-upload1.xls 888832
 
 as_zip_file
@@ -139,7 +139,7 @@ as_zip_file
 Use method as_zip_file to generate zip file content with a bunch of csv files::
 
   >>> filename, filecontent = package.as_zip_file()
-  >>> print filename, len(filecontent)
+  >>> print(filename, len(filecontent))
   eeg-upload1.zip 316686
 
 Saving failed data
@@ -175,6 +175,7 @@ exception to import.log file, copied failed input data to the path
   >>> os.path.exists('./build/sandbox/import.log')
   True
 
-  >>> print [filename for filename in os.listdir('./build/sandbox/unknown')
-  ...                 if filename.endswith('-qctest0.xls')] # doctest: +ELLIPSIS
+  >>> print([filename for filename in os.listdir('./build/sandbox/unknown')
+  ...                 if filename.endswith('-qctest0.xls')]) # doctest: +ELLIPSIS
   ['...-qctest0.xls']
+

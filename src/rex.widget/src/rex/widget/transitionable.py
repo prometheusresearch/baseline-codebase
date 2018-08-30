@@ -10,7 +10,7 @@
 
 """
 
-from StringIO import StringIO
+from io import StringIO
 
 from rex.core import Record
 
@@ -70,10 +70,10 @@ class JsonMarshaler(BaseJsonMarshaler):
 
     def emit_encoded(self, tag, rep, obj, as_map_key, cache):
         if len(tag) == 1:
-            if isinstance(rep, basestring):
+            if isinstance(rep, str):
                 self.emit_string(ESC, tag, rep, as_map_key, cache)
             elif as_map_key or self.opts["prefer_strings"]:
-                if isinstance(rep, basestring):
+                if isinstance(rep, str):
                     self.emit_string(ESC, tag, rep, as_map_key, cache)
                 else:
                     raise AssertionError("Cannot be encoded as string: " + str({"tag": tag,
@@ -94,14 +94,14 @@ class JsonMarshaler(BaseJsonMarshaler):
         else:
             last = self.is_key[-1]
             if last:
-                self.io.write(u": ")
+                self.io.write(": ")
                 self.is_key[-1] = False
             elif last is False:
-                self.io.write(u", ")
+                self.io.write(", ")
                 self.is_key[-1] = True
             else:
             #elif last is None:
-                self.io.write(u", ")
+                self.io.write(", ")
 
     def emit_array(self, a, _, cache):
         self.emit_array_start(len(a))
@@ -112,7 +112,7 @@ class JsonMarshaler(BaseJsonMarshaler):
 
     def emit_map(self, m, _, cache):# use map as object from above, have to overwrite default parser.
         self.emit_map_start(len(m))
-        for k, v in m.items():
+        for k, v in list(m.items()):
             self.marshal(k, True, cache)
             with self._PathContext(self, k):
                 self.marshal(v, False, cache)
@@ -231,14 +231,12 @@ class _TransitionableMeta(type):
     def __new__(mcs, name, bases, attrs):
         cls = type.__new__(mcs, name, bases, attrs)
         tag = getattr(cls, '__transit_tag__', NOOP_TAG)
-        register_transitionable(cls, cls.__transit_format__.im_func, tag=tag)
+        register_transitionable(cls, cls.__transit_format__.__func__, tag=tag)
         return cls
 
 
-class Transitionable(object):
+class Transitionable(object, metaclass=_TransitionableMeta):
     """ Base class for transitionable objects."""
-
-    __metaclass__ = _TransitionableMeta
 
     def __transit_format__(self, req, path):
         raise NotImplementedError(
@@ -265,9 +263,7 @@ class _TransitionableRecordMeta(_TransitionableMeta):
         return _TransitionableMeta.__new__(mcs, name, bases, attrs)
 
 
-class TransitionableRecord(Transitionable):
-
-    __metaclass__ = _TransitionableRecordMeta
+class TransitionableRecord(Transitionable, metaclass=_TransitionableRecordMeta):
 
     def __transit_format__(self, req, path):
         return [getattr(self, field) for field in self._fields] # pylint: disable=no-member

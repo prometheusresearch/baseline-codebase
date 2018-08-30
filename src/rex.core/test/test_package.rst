@@ -26,11 +26,11 @@ active application::
 Package collection provides container interface::
 
     >>> for package in packages:
-    ...     print package.name
+    ...     print(package.name)
     rex.core_demo
     rex.core
     >>> for package in reversed(packages):
-    ...     print package.name
+    ...     print(package.name)
     rex.core
     rex.core_demo
 
@@ -59,10 +59,10 @@ Package collection provides container interface::
 The order of packages in the collection respects package dependencies::
 
     >>> with Rex('rex.core_demo', 'rex.core'):
-    ...     print get_packages()        # doctest: +ELLIPSIS
+    ...     print(get_packages())        # doctest: +ELLIPSIS
     PackageCollection([PythonPackage('rex.core_demo', ...), PythonPackage('rex.core', ...)])
     >>> with Rex('rex.core', 'rex.core_demo'):
-    ...     print get_packages()        # doctest: +ELLIPSIS
+    ...     print(get_packages())        # doctest: +ELLIPSIS
     PackageCollection([PythonPackage('rex.core_demo', ...), PythonPackage('rex.core', ...)])
 
 Attribute ``PackageCollection.modules`` is a dictionary that maps modules where
@@ -88,25 +88,25 @@ A requirement could be one of the following:
 
     >>> with Rex('rex.core_demo>=1.0'):
     ...     for package in get_packages():
-    ...         print package       # doctest: +ELLIPSIS
+    ...         print(package)       # doctest: +ELLIPSIS
     PythonPackage('rex.core_demo', modules=set(['rex.core_demo']), static='/.../share/rex/rex.core_demo')
     PythonPackage('rex.core', modules=set([..., 'rex.core', ...]))
 
     >>> with Rex('__main__'):
     ...     for package in get_packages():
-    ...         print package       # doctest: +ELLIPSIS
+    ...         print(package)       # doctest: +ELLIPSIS
     ModulePackage('__main__', modules=set(['__main__']))
     PythonPackage('rex.core', modules=set([..., 'rex.core', ...]))
 
     >>> with Rex('./test/data/static/'):
     ...     for package in get_packages():
-    ...         print package       # doctest: +ELLIPSIS
+    ...         print(package)       # doctest: +ELLIPSIS
     StaticPackage('static', static='./test/data/static/')
     PythonPackage('rex.core', modules=set([..., 'rex.core', ...]))
 
     >>> with Rex('-'):
     ...     for package in get_packages():
-    ...         print package       # doctest: +ELLIPSIS
+    ...         print(package)       # doctest: +ELLIPSIS
     SandboxPackage()
     PythonPackage('rex.core', modules=set([..., 'rex.core', ...]))
 
@@ -114,7 +114,7 @@ A requirement could be one of the following:
     >>> with Rex(Package('rex.core_demo', modules=set(['rex.core_demo']),
     ...                                   static='./demo/rex.core_demo/static')):
     ...     for package in get_packages():
-    ...         print package       # doctest: +ELLIPSIS
+    ...         print(package)       # doctest: +ELLIPSIS
     Package('rex.core_demo', modules=set(['rex.core_demo']), static='./demo/rex.core_demo/static')
     PythonPackage('rex.core', modules=set([..., 'rex.core', ...]))
 
@@ -125,7 +125,7 @@ collection even if the package is a part of the dependency tree::
 
     >>> with Rex('__main__', 'rex.core_demo'):
     ...     for package in get_packages():
-    ...         print package       # doctest: +ELLIPSIS
+    ...         print(package)       # doctest: +ELLIPSIS
     ModulePackage('__main__', modules=set(['__main__']))
     PythonPackage('rex.core_demo', modules=set(['rex.core_demo']), static='/.../share/rex/rex.core_demo')
 
@@ -228,11 +228,11 @@ It is safe to attempt to remove a file which does not exist::
 ``Package.walk()`` iterates over a directory tree::
 
     >>> for root, directories, files in demo_package.walk('/'):
-    ...     print "%s:" % root
+    ...     print("%s:" % root)
     ...     for directory in directories:
-    ...         print "  %s/" % directory
+    ...         print("  %s/" % directory)
     ...     for file in files:
-    ...         print "  %s" % file                 # doctest: +ELLIPSIS
+    ...         print("  %s" % file)                 # doctest: +ELLIPSIS
     /.../share/rex/rex.core_demo:
       www/
     /.../share/rex/rex.core_demo/www:
@@ -281,14 +281,15 @@ with the path::
     AssertionError: ../README
 
     >>> for root, directories, files in packages.walk('rex.core_demo:'):
-    ...     print "%s:" % root
+    ...     print("%s:" % root)
     ...     for directory in directories:
-    ...         print "  %s/" % directory
+    ...         print("  %s/" % directory)
     ...     for file in files:
-    ...         print "  %s" % file                 # doctest: +ELLIPSIS
+    ...         print("  %s" % file)                 # doctest: +ELLIPSIS
     /.../share/rex/rex.core_demo:
       www/
     /.../share/rex/rex.core_demo/www:
       index.html
+
 
 

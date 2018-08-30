@@ -18,7 +18,7 @@ import hashlib
 import binascii
 import datetime
 import traceback
-import SocketServer
+import socketserver
 import json
 import subprocess
 import atexit
@@ -26,7 +26,7 @@ import wsgiref.simple_server, wsgiref.handlers, wsgiref.util
 import json
 import math
 import marshal
-import cStringIO
+import io
 import cProfile
 
 
@@ -55,7 +55,7 @@ def wsgi_file(app):
     yield "\n"
 
 
-class RexServer(SocketServer.ThreadingMixIn,
+class RexServer(socketserver.ThreadingMixIn,
                 wsgiref.simple_server.WSGIServer,
                 object):
     # HTTP server that spawns a thread for each request.
@@ -733,7 +733,7 @@ class ReplayHandler(object):
     def reset(self, environ):
         self.status = None
         self.headers = None
-        self.body = cStringIO.StringIO()
+        self.body = io.StringIO()
         self.code = None
         self.host = environ.get('REMOTE_HOST', environ.get('REMOTE_ADDR'))
         self.user = environ.get('REMOTE_USER') or '-'
@@ -834,7 +834,7 @@ class ReplayTask(RexTask):
                 break
             wsgi_input = environ.get('wsgi.input')
             if isinstance(wsgi_input, str):
-                environ['wsgi.input'] = cStringIO.StringIO(wsgi_input)
+                environ['wsgi.input'] = io.StringIO(wsgi_input)
             if self.profile is not None:
                 profile.enable()
             handler(environ)

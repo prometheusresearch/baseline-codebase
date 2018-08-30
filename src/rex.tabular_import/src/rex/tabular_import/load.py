@@ -31,7 +31,7 @@ def insert(
     row = []
     domains = []
     for value in values:
-        if isinstance(value, unicode):
+        if isinstance(value, str):
             row.append(value)
             domains.append(untyped)
         else:

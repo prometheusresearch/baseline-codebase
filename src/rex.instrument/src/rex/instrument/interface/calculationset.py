@@ -31,7 +31,7 @@ def coerce_instrument_type(result, instrument_type):
     result_type = type(result).__name__
 
     if instrument_type == 'text':
-        return unicode(result)
+        return str(result)
 
     elif instrument_type == 'integer':
         if result_type in ('float', 'int', 'Decimal'):
@@ -136,12 +136,12 @@ class CalculationSet(
             requirements
         """
 
-        if isinstance(definition, basestring):
+        if isinstance(definition, str):
             try:
                 definition = AnyVal().parse(definition)
             except Error as exc:
                 raise ValidationError(
-                    'Invalid JSON/YAML provided: %s' % unicode(exc)
+                    'Invalid JSON/YAML provided: %s' % str(exc)
                 )
         if not isinstance(definition, dict):
             raise ValidationError(
@@ -149,7 +149,7 @@ class CalculationSet(
             )
 
         if instrument_definition:
-            if isinstance(instrument_definition, basestring):
+            if isinstance(instrument_definition, str):
                 try:
                     instrument_definition = AnyVal().parse(
                         instrument_definition
@@ -157,7 +157,7 @@ class CalculationSet(
                 except Error as exc:
                     raise ValidationError(
                         'Invalid Instrument JSON/YAML provided: %s' % (
-                            unicode(exc),
+                            str(exc),
                         )
                     )
             if not isinstance(instrument_definition, dict):
@@ -175,7 +175,7 @@ class CalculationSet(
                 'The following problems were encountered when validating this'
                 ' CalculationSet:',
             ]
-            for key, details in exc.asdict().items():
+            for key, details in list(exc.asdict().items()):
                 msg.append('%s: %s' % (
                     key or '<root>',
                     details,
@@ -279,13 +279,13 @@ class CalculationSet(
             instrument_version,
             definition):
         self._uid = to_unicode(uid)
-        if not isinstance(instrument_version, (InstrumentVersion, basestring)):
+        if not isinstance(instrument_version, (InstrumentVersion, str)):
             raise ValueError(
                 'instrument_version must be an instance of InstrumentVersion'
                 ' or a UID of one'
             )
         self._instrument_version = instrument_version
-        if isinstance(definition, basestring):
+        if isinstance(definition, str):
             self._definition = AnyVal().parse(definition)
         else:
             self._definition = deepcopy(definition)
@@ -310,7 +310,7 @@ class CalculationSet(
         :rtype: InstrumentVersion
         """
 
-        if isinstance(self._instrument_version, basestring):
+        if isinstance(self._instrument_version, str):
             iv_impl = get_implementation('instrumentversion')
             return iv_impl.get_by_uid(self._instrument_version)
         else:

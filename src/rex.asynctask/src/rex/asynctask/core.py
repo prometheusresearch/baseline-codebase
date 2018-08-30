@@ -3,7 +3,7 @@
 #
 
 
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 from rex.core import cached, get_settings, Error
 from rex.logging import disable_logging, enable_logging
@@ -34,7 +34,7 @@ def get_transport(uri=None):
     uri = uri or get_settings().asynctask_transport
     if not uri:
         if hasattr(get_settings(), 'db'):
-            uri = unicode(get_settings().db['htsql']['db'])
+            uri = str(get_settings().db['htsql']['db'])
         else:
             raise Error('Asynctask transport not specified')
 
@@ -69,7 +69,7 @@ def process_queue(queue_name, worker_name=None, quiet=False):
     """
 
     if worker_name is None:
-        for cfg_queue, cfg_worker in get_settings().asynctask_workers.items():
+        for cfg_queue, cfg_worker in list(get_settings().asynctask_workers.items()):
             if queue_name == cfg_queue and cfg_worker:
                 worker_name = cfg_worker.worker
                 break
@@ -99,7 +99,7 @@ def run_worker(worker_name, queue_name=None, quiet=False):
     """
 
     if queue_name is None:
-        for cfg_queue, cfg_worker in get_settings().asynctask_workers.items():
+        for cfg_queue, cfg_worker in list(get_settings().asynctask_workers.items()):
             if cfg_worker and worker_name == cfg_worker.worker:
                 queue_name = cfg_queue
                 break

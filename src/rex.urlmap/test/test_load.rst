@@ -88,13 +88,13 @@ Parsing paths
     >>> from webob import Request
 
     >>> req = Request.blank('/full')
-    >>> print req.get_response(path_demo)   # doctest: +ELLIPSIS
+    >>> print(req.get_response(path_demo))   # doctest: +ELLIPSIS
     200 OK
     ...
     <title>sandbox:/template/full.html</title>
 
     >>> req = Request.blank('/local')
-    >>> print req.get_response(path_demo)   # doctest: +ELLIPSIS
+    >>> print(req.get_response(path_demo))   # doctest: +ELLIPSIS
     200 OK
     ...
     <title>/template/local.html</title>
@@ -127,7 +127,7 @@ files::
     >>> include_demo = Rex(sandbox, 'rex.urlmap_demo', './test/data/templates/')
 
     >>> req = Request.blank('/study')
-    >>> print req.get_response(include_demo)    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(include_demo))    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <title>Studies</title>
@@ -163,7 +163,7 @@ template handler defined in an included file::
     >>> override_demo = Rex(sandbox, 'rex.urlmap_demo', './test/data/templates/')
 
     >>> req = Request.blank('/')
-    >>> print req.get_response(override_demo)   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <title>Welcome, frield!</title>
@@ -181,7 +181,7 @@ When context variables are merged, nested dictionaries are merged too::
     ... """)
 
     >>> req = Request.blank('/')
-    >>> print req.get_response(override_demo)   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <p><a href="http://htsql.org/">HTSQL Query Language</a></p>
@@ -203,7 +203,7 @@ Any field could be overriden::
 
     >>> req = Request.blank('/?parameter=Bob')
     >>> req.remote_user = 'Alice'
-    >>> print req.get_response(override_demo)   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <title>Welcome, frield!</title>
@@ -220,7 +220,7 @@ Empty overrides are accepted::
     ... """)
 
     >>> req = Request.blank('/')
-    >>> print req.get_response(override_demo)   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <title>Welcome!</title>
@@ -274,7 +274,7 @@ you can only replace the whole query::
     ...     unsafe: false
     ... """)
     >>> req = Request.blank('/data/individual_info?sex=male', accept='application/json')
-    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -302,7 +302,7 @@ Overriding a port definition adds more arms to the port::
     ...     read-only: true
     ... """)
     >>> req = Request.blank('/data/individual_info', accept='application/json')
-    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -473,12 +473,12 @@ permission on another handler::
     ... """)
 
     >>> req = Request.blank('/study')
-    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
 
     >>> req = Request.blank('/individual')
-    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
 
@@ -502,12 +502,12 @@ permission on another handler::
     >>> override_demo.reset()
 
     >>> req = Request.blank('/study')
-    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     404 Not Found
     ...
 
     >>> req = Request.blank('/individual')
-    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     401 Unauthorized
     ...
 
@@ -528,12 +528,12 @@ duplicating the entire page configuration, use ``!copy`` handler::
     ... """)
 
     >>> req = Request.blank('/data/individual')
-    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
 
     >>> req = Request.blank('/data/individuals')
-    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
 
@@ -598,7 +598,7 @@ file::
     ...                     site_title="Settings Demo")
 
     >>> req = Request.blank('/')
-    >>> print req.get_response(settings_demo)   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(settings_demo))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <title>Settings Demo</title>
@@ -646,5 +646,6 @@ Unknown, invalid or ill-formed setting values are rejected::
     While validating field:
         include
     ...
+
 
 

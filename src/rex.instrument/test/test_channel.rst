@@ -10,7 +10,7 @@ string-rendering methods::
     >>> channel = Channel('fake123', 'My EDC Application', Channel.PRESENTATION_TYPE_FORM)
     >>> channel.get_display_name()
     u'My EDC Application'
-    >>> unicode(channel)
+    >>> str(channel)
     u'My EDC Application'
     >>> str(channel)
     'My EDC Application'
@@ -68,4 +68,5 @@ being the same class with the same UID::
     True
     >>> channel3 >= channel1
     True
+
 

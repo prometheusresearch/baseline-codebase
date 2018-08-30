@@ -483,7 +483,7 @@ class MartPurgeTask(RexTask):
         if self.force_accept:
             return True
 
-        response = raw_input('Are you sure you want to continue? (y/N): ')
+        response = input('Are you sure you want to continue? (y/N): ')
         if response and response.lower()[0] == 'y':
             return True
 

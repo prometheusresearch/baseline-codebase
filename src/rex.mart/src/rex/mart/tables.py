@@ -44,7 +44,7 @@ class MappingTable(object):
         # field names.
         if self.reserved_column_names:
             base_name_len = get_settings().mart_max_name_length - 4
-            for field in self.fields.itervalues():
+            for field in self.fields.values():
                 if field.target_name in self.reserved_column_names:
                     field.force_target_name('%s_src' % (
                         field.target_name[:base_name_len],
@@ -53,7 +53,7 @@ class MappingTable(object):
         # Find all the names that are duplicated
         field_names = [
             field.target_name
-            for field in self.fields.itervalues()
+            for field in self.fields.values()
         ]
         duped = set([
             name
@@ -70,7 +70,7 @@ class MappingTable(object):
             dupe_bases[dupe] = 0
 
         # Add some uniqueness to the duped names
-        for field in self.fields.itervalues():
+        for field in self.fields.values():
             for base in dupe_bases:
                 if field.target_name.startswith(base):
                     dupe_bases[base] += 1
@@ -82,7 +82,7 @@ class MappingTable(object):
         # Make absolutely sure we're unique
         field_names = [
             field.target_name
-            for field in self.fields.itervalues()
+            for field in self.fields.values()
         ]
         duped = set([
             name
@@ -100,7 +100,7 @@ class MappingTable(object):
     def get_field_facts(self, exclude_columns=None):
         facts = []
 
-        for field in self.fields.itervalues():
+        for field in self.fields.values():
             if exclude_columns and field.target_name in exclude_columns:
                 continue
             facts.extend(field.get_deploy_facts(self.table_name))
@@ -121,7 +121,7 @@ class MappingTable(object):
         meta = assessment.get('meta', {})
         calculations = meta.get('calculations', {})
 
-        for name, field in self.fields.iteritems():
+        for name, field in self.fields.items():
             if name in assessment['values']:
                 value_map.update(field.get_value_mapping(
                     assessment['values'][name],
@@ -281,7 +281,7 @@ class MatrixTable(FacetTable):
                 _, row, column = field.split('.')
                 subfields.append('%s_%s' % (row, column))
 
-        for field in self.fields.keys():
+        for field in list(self.fields.keys()):
             if rule == 'none' and field in subfields:
                 del self.fields[field]
 
@@ -301,8 +301,8 @@ class MatrixTable(FacetTable):
             return value_mapping
 
         value = assessment['values'][self.name]['value']
-        for row_id, columns in value.iteritems():
-            for col_id, cell in columns.iteritems():
+        for row_id, columns in value.items():
+            for col_id, cell in columns.items():
                 subfield_name = '%s_%s' % (row_id, col_id)
                 if subfield_name in self.fields:
                     value_mapping.update(
@@ -415,7 +415,7 @@ class RecordListTable(BranchTable):
             if field.startswith('%s.' % (self.original_name,)):
                 subfields.append(field.split('.')[1])
 
-        for field in self.fields.keys():
+        for field in list(self.fields.keys()):
             if rule == 'none' and field in subfields:
                 del self.fields[field]
 
@@ -522,7 +522,7 @@ class PrimaryTable(MappingTable):
         ))
 
         # Add the children
-        for child in self.children.itervalues():
+        for child in self.children.values():
             facts.extend(child.get_deploy_facts())
 
         return facts
@@ -745,13 +745,13 @@ class PrimaryTable(MappingTable):
         return fields
 
     def filter_identifiable(self, fields, rule):
-        for field in self.fields.keys():
+        for field in list(self.fields.keys()):
             if rule == 'none' and field in fields:
                 del self.fields[field]
             elif rule == 'only' and field not in fields:
                 del self.fields[field]
 
-        for child_name, child in self.children.items():
+        for child_name, child in list(self.children.items()):
             if rule == 'none' and child_name in fields:
                 del self.children[child_name]
             else:
@@ -948,7 +948,7 @@ class PrimaryTable(MappingTable):
             return
 
         for meta in meta_fields:
-            for name, type_ in meta.items():
+            for name, type_ in list(meta.items()):
                 field = {
                     'id': 'meta_%s' % (name,),
                     'type': {'base': type_},
@@ -959,7 +959,7 @@ class PrimaryTable(MappingTable):
     def _segment_fields(self):
         segments = []
 
-        field_ids = self.fields.keys()
+        field_ids = list(self.fields.keys())
         max_size = get_settings().mart_max_columns
 
         primary_data_fields = max_size - 2  # two UID fields
@@ -974,7 +974,7 @@ class PrimaryTable(MappingTable):
             start = primary_data_fields
         else:
             start = 0
-        for i in xrange(start, len(field_ids), additional_data_fields):
+        for i in range(start, len(field_ids), additional_data_fields):
             segments.append(field_ids[i:(i + additional_data_fields)])
 
         for segment in segments[1:]:
@@ -991,7 +991,7 @@ class PrimaryTable(MappingTable):
     def ensure_unique_fieldnames(self):
         super(PrimaryTable, self).ensure_unique_fieldnames()
 
-        for child in self.children.itervalues():
+        for child in self.children.values():
             child.ensure_unique_fieldnames()
 
     def get_calculation_statements(self):
@@ -1021,7 +1021,7 @@ class PrimaryTable(MappingTable):
     def get_port_tree(self):
         return {
             'entity': self.table_name,
-            'with': [child.table_name for child in self.children.itervalues()],
+            'with': [child.table_name for child in self.children.values()],
         }
 
     def get_port_data(
@@ -1036,7 +1036,7 @@ class PrimaryTable(MappingTable):
             selection_record=selection_record,
         )
 
-        for child in self.children.itervalues():
+        for child in self.children.values():
             child_data = child.get_port_data(
                 assessment,
                 instrument_version_uid,

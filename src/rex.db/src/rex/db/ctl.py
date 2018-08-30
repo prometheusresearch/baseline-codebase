@@ -101,7 +101,7 @@ class ShellTask(RexDBTask):
         routine = RexShellRoutine(script, db)
         try:
             routine.run()
-        except htsql.ctl.error.ScriptError, error:
+        except htsql.ctl.error.ScriptError as error:
             raise fail(str(error))
 
 
@@ -189,7 +189,7 @@ class QueryTask(RexDBTask):
                               else sys.stdout)
                     for chunk in db.emit(format, product):
                         stream.write(chunk)
-            except htsql.core.error.Error, error:
+            except htsql.core.error.Error as error:
                 raise fail(str(error))
 
 

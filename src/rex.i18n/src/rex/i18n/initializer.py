@@ -77,7 +77,7 @@ class SupportedLocaleList(object):
             if locale.language == get_locale().language:
                 description = locale.get_display_name(get_locale())
             else:
-                description = u'%s (%s)' % (
+                description = '%s (%s)' % (
                     locale.get_display_name(get_locale()),
                     locale.get_display_name(locale),
                 )

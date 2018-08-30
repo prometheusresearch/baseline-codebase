@@ -182,7 +182,7 @@ class ImplementationContextable(object):
         validated = {}
         context = deepcopy(context or {})
 
-        for name, cfg in spec.items():
+        for name, cfg in list(spec.items()):
             if name not in context:
                 if cfg['required']:
                     raise Error(
@@ -197,7 +197,7 @@ class ImplementationContextable(object):
         if context:
             raise Error(
                 'Unknown implementation context provided: %s' % (
-                    ', '.join(context.keys()),
+                    ', '.join(list(context.keys())),
                 )
             )
 

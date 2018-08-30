@@ -41,7 +41,7 @@ class IncludeLoader(object):
         with self.stats_lock:
             if self.stats_version > 0:
                 stats = {}
-                for path in self.stats.keys():
+                for path in list(self.stats.keys()):
                     try:
                         stat = os.stat(path)
                         stats[path] = (stat.st_mtime, stat.st_size)
@@ -50,7 +50,7 @@ class IncludeLoader(object):
                 if stats == self.stats:
                     # We return cached result but still need to call open so
                     # that loaders above could register paths as dependencies.
-                    for path in self.stats.keys():
+                    for path in list(self.stats.keys()):
                         open(path)
                     return self.result
                 else:
@@ -63,7 +63,7 @@ class IncludeLoader(object):
             if node is None:
                 mark = yaml.Mark(loader.stream_name, 0, 0, 0, None, None)
                 node = yaml.ScalarNode(
-                        u"tag:yaml.org,2002:null", u"", mark, mark, u'')
+                        "tag:yaml.org,2002:null", "", mark, mark, '')
             stream.close()
             self.result = loader.construct_document(node)
             return self.result
@@ -183,7 +183,7 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
         # Needed to generate a `Mark` object below.  We can't get it directly
         # from a `CLoader` instance.
         self.stream_name = (self.name if hasattr(self, 'name')
-                            else '<unicode string>' if isinstance(stream, unicode)
+                            else '<unicode string>' if isinstance(stream, str)
                             else '<byte string>' if isinstance(stream, str)
                             else getattr(stream, 'name', '<file>'))
 
@@ -206,8 +206,8 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
             # If the stream contain no documents, make a fake !!null document.
             if node is None:
                 mark = yaml.Mark(self.stream_name, 0, 0, 0, None, None)
-                node = yaml.ScalarNode(u"tag:yaml.org,2002:null", u"",
-                                       mark, mark, u'')
+                node = yaml.ScalarNode("tag:yaml.org,2002:null", "",
+                                       mark, mark, '')
             return self.construct_document(node)
         finally:
             self.dispose()
@@ -223,9 +223,9 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
             self.dispose()
 
     def construct_object(self, node, deep=False):
-        if node.tag == u'!include':
+        if node.tag == '!include':
             return self.cached_include(node)
-        if node.tag == u'!include/str':
+        if node.tag == '!include/str':
             filename, pointer = self.include_path(node)
             if pointer:
                 raise yaml.constructor.ConstructorError(None, None,
@@ -238,11 +238,11 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
                         "unable to open file: %s" % filename, node.start_mark)
             value = stream.read()
             stream.close()
-            node = yaml.ScalarNode(u"tag:yaml.org,2002:str", value,
-                                   node.start_mark, node.end_mark, u'')
-        if node.tag == u'!setting':
+            node = yaml.ScalarNode("tag:yaml.org,2002:str", value,
+                                   node.start_mark, node.end_mark, '')
+        if node.tag == '!setting':
             return self.setting(node)
-        if node.tag == u'!include/python':
+        if node.tag == '!include/python':
             return self.include_python(node)
         if self.validate is not None:
             return self.validate.construct(self, node)
@@ -360,36 +360,36 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
 
 # Set implicit tags based on YAML 1.2.
 ValidatingLoader.add_implicit_resolver(
-        u'tag:yaml.org,2002:bool',
-        re.compile(ur'''^(?:true|True|TRUE|false|False|FALSE)$''', re.X),
-        list(u'tTfF'))
+        'tag:yaml.org,2002:bool',
+        re.compile(r'''^(?:true|True|TRUE|false|False|FALSE)$''', re.X),
+        list('tTfF'))
 ValidatingLoader.add_implicit_resolver(
-        u'tag:yaml.org,2002:float',
-        re.compile(ur'''^(?:[-+]?(?:[0-9][0-9]*)\.[0-9]*(?:[eE][-+][0-9]+)?
+        'tag:yaml.org,2002:float',
+        re.compile(r'''^(?:[-+]?(?:[0-9][0-9]*)\.[0-9]*(?:[eE][-+][0-9]+)?
                     |\.[0-9]+(?:[eE][-+][0-9]+)?
                     |[-+]?\.(?:inf|Inf|INF)
                     |\.(?:nan|NaN|NAN))$''', re.X),
-        list(u'-+0123456789.'))
+        list('-+0123456789.'))
 ValidatingLoader.add_implicit_resolver(
-        u'tag:yaml.org,2002:int',
-        re.compile(ur'''^(?:[-+]?0b[0-1_]+
+        'tag:yaml.org,2002:int',
+        re.compile(r'''^(?:[-+]?0b[0-1_]+
                     |[-+]?(?:[0-9]+)
                     |[-+]?0x[0-9a-fA-F]+)$''', re.X),
-        list(u'-+0123456789'))
+        list('-+0123456789'))
 ValidatingLoader.add_implicit_resolver(
-        u'tag:yaml.org,2002:null',
-        re.compile(ur'''^(?: ~
+        'tag:yaml.org,2002:null',
+        re.compile(r'''^(?: ~
                     |null|Null|NULL
                     | )$''', re.X),
-        [u'~', u'n', u'N', u''])
+        ['~', 'n', 'N', ''])
 ValidatingLoader.add_implicit_resolver(
-        u'tag:yaml.org,2002:timestamp',
-        re.compile(ur'''^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]
+        'tag:yaml.org,2002:timestamp',
+        re.compile(r'''^(?:[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]
                     |[0-9][0-9][0-9][0-9] -[0-9][0-9]? -[0-9][0-9]?
                      (?:[Tt]|[ \t]+)[0-9][0-9]?
                      :[0-9][0-9] :[0-9][0-9] (?:\.[0-9]*)?
                      (?:[ \t]*(?:Z|[-+][0-9][0-9]?(?::[0-9][0-9])?))?)$''', re.X),
-        list(u'0123456789'))
+        list('0123456789'))
 
 
 class Validate(object):
@@ -433,7 +433,7 @@ class Validate(object):
         loader = Loader(stream, self, master, open)
         try:
             return loader()
-        except yaml.YAMLError, exc:
+        except yaml.YAMLError as exc:
             raise Error("Failed to parse a YAML document:", exc)
 
     def parse_all(self, stream, master=None, open=open,
@@ -454,7 +454,7 @@ class Validate(object):
         try:
             for data in loader:
                 yield data
-        except yaml.YAMLError, exc:
+        except yaml.YAMLError as exc:
             raise Error("Failed to parse a YAML document:", exc)
 
     def __repr__(self):
@@ -487,7 +487,7 @@ class ProxyVal(Validate):
         assert self.validate is None and validate is not None
         self.validate = validate
 
-    def __nonzero__(self):
+    def __bool__(self):
         """``True`` is the wrapped validator is set."""
         return (self.validate is not None)
 
@@ -524,7 +524,7 @@ class MaybeVal(Validate):
 
     def construct(self, loader, node):
         if (isinstance(node, yaml.ScalarNode) and
-                node.tag == u'tag:yaml.org,2002:null'):
+                node.tag == 'tag:yaml.org,2002:null'):
             return None
         return self.validate.construct(loader, node)
 
@@ -548,7 +548,7 @@ class OneOfVal(Validate):
         for validate in self.validates:
             try:
                 return validate(data)
-            except Error, error:
+            except Error as error:
                 errors.append(error)
         raise Error("Failed to match the value against any of the following:",
                     "\n\n".join(str(error) for error in errors))
@@ -574,14 +574,14 @@ class StrVal(Validate):
 
     def __call__(self, data):
         with guard("Got:", repr(data)):
-            if not isinstance(data, (str, unicode)):
+            if not isinstance(data, str):
                 raise Error("Expected a string")
             if isinstance(data, str):
                 try:
                     data.decode('utf-8')
                 except UnicodeDecodeError:
                     raise Error("Expected a valid UTF-8 string")
-            if isinstance(data, unicode):
+            if isinstance(data, str):
                 data = data.encode('utf-8')
             if self.pattern is not None and \
                     re.match(r'\A(?:%s)\Z' % self.pattern, data) is None:
@@ -592,7 +592,7 @@ class StrVal(Validate):
     def construct(self, loader, node):
         with guard("While parsing:", Location.from_node(node)):
             if not (isinstance(node, yaml.ScalarNode) and
-                    node.tag == u'tag:yaml.org,2002:str'):
+                    node.tag == 'tag:yaml.org,2002:str'):
                 error = Error("Expected a string")
                 error.wrap("Got:", node.value
                                    if isinstance(node, yaml.ScalarNode)
@@ -630,9 +630,9 @@ class ChoiceVal(Validate):
 
     def __call__(self, data):
         with guard("Got:", repr(data)):
-            if not isinstance(data, (str, unicode)):
+            if not isinstance(data, str):
                 raise Error("Expected a string")
-            if isinstance(data, unicode):
+            if isinstance(data, str):
                 data = data.encode('utf-8')
             if data not in self.choices:
                 raise Error("Expected one of:",
@@ -642,7 +642,7 @@ class ChoiceVal(Validate):
     def construct(self, loader, node):
         with guard("While parsing:", Location.from_node(node)):
             if not (isinstance(node, yaml.ScalarNode) and
-                    node.tag == u'tag:yaml.org,2002:str'):
+                    node.tag == 'tag:yaml.org,2002:str'):
                 error = Error("Expected a string")
                 error.wrap("Got:", node.value
                                    if isinstance(node, yaml.ScalarNode)
@@ -687,7 +687,7 @@ class BoolVal(Validate):
     def construct(self, loader, node):
         with guard("While parsing:", Location.from_node(node)):
             if not (isinstance(node, yaml.ScalarNode) and
-                    node.tag == u'tag:yaml.org,2002:bool'):
+                    node.tag == 'tag:yaml.org,2002:bool'):
                 error = Error("Expected a Boolean value")
                 error.wrap("Got:", node.value
                                    if isinstance(node, yaml.ScalarNode)
@@ -710,12 +710,12 @@ class IntVal(Validate):
 
     def __call__(self, data):
         with guard("Got:", repr(data)):
-            if isinstance(data, (str, unicode)):
+            if isinstance(data, str):
                 try:
                     data = int(data)
                 except ValueError:
                     raise Error("Expected an integer")
-            if not isinstance(data, (int, long)) or isinstance(data, bool):
+            if not isinstance(data, int) or isinstance(data, bool):
                 raise Error("Expected an integer")
             if not ((self.min_bound is None or self.min_bound <= data) and
                     (self.max_bound is None or self.max_bound >= data)):
@@ -730,7 +730,7 @@ class IntVal(Validate):
     def construct(self, loader, node):
         with guard("While parsing:", Location.from_node(node)):
             if not (isinstance(node, yaml.ScalarNode) and
-                    node.tag == u'tag:yaml.org,2002:int'):
+                    node.tag == 'tag:yaml.org,2002:int'):
                 error = Error("Expected an integer")
                 error.wrap("Got:", node.value
                                    if isinstance(node, yaml.ScalarNode)
@@ -783,7 +783,7 @@ class FloatVal(Validate):
 
     def __call__(self, data):
         with guard("Got:", repr(data)):
-            if isinstance(data, (str, unicode, int, long)):
+            if isinstance(data, (str, int)):
                 try:
                     data = float(data)
                 except ValueError:
@@ -795,8 +795,8 @@ class FloatVal(Validate):
     def construct(self, loader, node):
         with guard("While parsing:", Location.from_node(node)):
             if not (isinstance(node, yaml.ScalarNode) and
-                    (node.tag == u'tag:yaml.org,2002:int' or
-                     node.tag == u'tag:yaml.org,2002:float')):
+                    (node.tag == 'tag:yaml.org,2002:int' or
+                     node.tag == 'tag:yaml.org,2002:float')):
                 error = Error("Expected a float value")
                 error.wrap("Got:", node.value
                                    if isinstance(node, yaml.ScalarNode)
@@ -819,7 +819,7 @@ class SeqVal(Validate):
 
     def __call__(self, data):
         with guard("Got:", repr(data)):
-            if isinstance(data, (str, unicode)):
+            if isinstance(data, str):
                 try:
                     data = json.loads(data)
                 except ValueError:
@@ -836,11 +836,11 @@ class SeqVal(Validate):
 
     def construct(self, loader, node):
         if (isinstance(node, yaml.ScalarNode) and
-                node.tag == u'tag:yaml.org,2002:null' and
-                node.value == u''):
+                node.tag == 'tag:yaml.org,2002:null' and
+                node.value == ''):
             return []
         if not (isinstance(node, yaml.SequenceNode) and
-                node.tag == u'tag:yaml.org,2002:seq'):
+                node.tag == 'tag:yaml.org,2002:seq'):
             error = Error("Expected a sequence")
             error.wrap("Got:", node.value
                                if isinstance(node, yaml.ScalarNode)
@@ -896,7 +896,7 @@ class MapVal(Validate):
 
     def __call__(self, data):
         with guard("Got:", repr(data)):
-            if isinstance(data, (str, unicode)):
+            if isinstance(data, str):
                 try:
                     data = json.loads(data)
                 except ValueError:
@@ -918,11 +918,11 @@ class MapVal(Validate):
 
     def construct(self, loader, node):
         if (isinstance(node, yaml.ScalarNode) and
-                node.tag == u'tag:yaml.org,2002:null' and
-                node.value == u''):
+                node.tag == 'tag:yaml.org,2002:null' and
+                node.value == ''):
             return {}
         if not (isinstance(node, yaml.MappingNode) and
-                node.tag == u'tag:yaml.org,2002:map'):
+                node.tag == 'tag:yaml.org,2002:map'):
             error = Error("Expected a mapping")
             error.wrap("Got:", node.value
                                if isinstance(node, yaml.ScalarNode)
@@ -935,7 +935,7 @@ class MapVal(Validate):
                 key = loader.construct_object(key_node, deep=True)
             try:
                 hash(key)
-            except TypeError, exc:
+            except TypeError as exc:
                 raise yaml.constructor.ConstructorError(
                         "while constructing a mapping",
                         node.start_mark,
@@ -972,14 +972,14 @@ class OMapVal(MapVal):
 
     def __call__(self, data):
         with guard("Got:", repr(data)):
-            if isinstance(data, (str, unicode)):
+            if isinstance(data, str):
                 try:
                     data = json.loads(data,
                             object_pairs_hook=collections.OrderedDict)
                 except ValueError:
                     raise Error("Expected a JSON object")
             if isinstance(data, collections.OrderedDict):
-                data = data.items()
+                data = list(data.items())
             if not (isinstance(data, list) and
                     all(isinstance(item, (list, tuple)) and len(item) == 2 or
                         isinstance(item, dict) and len(item) == 1
@@ -988,7 +988,7 @@ class OMapVal(MapVal):
         pairs = []
         for entry in data:
             if isinstance(entry, dict):
-                key, value = entry.items()[0]
+                key, value = list(entry.items())[0]
             else:
                 key, value = entry
             if self.validate_key is not None:
@@ -1003,11 +1003,11 @@ class OMapVal(MapVal):
 
     def construct(self, loader, node):
         if (isinstance(node, yaml.ScalarNode) and
-                node.tag == u'tag:yaml.org,2002:null' and
-                node.value == u''):
+                node.tag == 'tag:yaml.org,2002:null' and
+                node.value == ''):
             return collections.OrderedDict()
         if not (isinstance(node, yaml.SequenceNode) and
-                node.tag == u'tag:yaml.org,2002:seq'):
+                node.tag == 'tag:yaml.org,2002:seq'):
             error = Error("Expected an ordered mapping")
             error.wrap("Got:", node.value
                                if isinstance(node, yaml.ScalarNode)
@@ -1017,7 +1017,7 @@ class OMapVal(MapVal):
         pairs = []
         for item_node in node.value:
             if not (isinstance(item_node, yaml.MappingNode) and
-                    item_node.tag == u'tag:yaml.org,2002:map' and
+                    item_node.tag == 'tag:yaml.org,2002:map' and
                     len(item_node.value) == 1):
                 error = Error("Expected an entry of an ordered mapping")
                 error.wrap("Got:", item_node.value
@@ -1030,7 +1030,7 @@ class OMapVal(MapVal):
                 key = loader.construct_object(key_node, deep=True)
             try:
                 hash(key)
-            except TypeError, exc:
+            except TypeError as exc:
                 raise yaml.constructor.ConstructorError(
                         "while constructing a mapping",
                         node.start_mark,
@@ -1207,11 +1207,11 @@ class RecordVal(Validate):
             assert field.name not in self.fields, field
             self.fields[field.name] = field
         self.record_type = Record.make(None,
-                [field.attribute for field in self.fields.values()])
+                [field.attribute for field in list(self.fields.values())])
 
     def __call__(self, data):
         with guard("Got:", repr(data)):
-            if isinstance(data, (str, unicode)):
+            if isinstance(data, str):
                 try:
                     data = json.loads(data)
                 except ValueError:
@@ -1221,9 +1221,9 @@ class RecordVal(Validate):
                 fields = self.record_type._fields
                 if getattr(data, '_fields', fields) != fields:
                     raise Error("Expected a record with fields:",
-                                ", ".join(self.fields.keys()))
+                                ", ".join(list(self.fields.keys())))
                 data = dict((field.name, value)
-                            for field, value in zip(self.fields.values(), data)
+                            for field, value in zip(list(self.fields.values()), data)
                             if not field.has_default or value != field.default)
             if not isinstance(data, dict):
                 raise Error("Expected a mapping")
@@ -1237,7 +1237,7 @@ class RecordVal(Validate):
                 raise Error("Got unexpected field:", name)
             attribute = self.fields[name].attribute
             values[attribute] = value
-        for field in self.fields.values():
+        for field in list(self.fields.values()):
             attribute = field.attribute
             if attribute in values:
                 validate = field.validate
@@ -1252,17 +1252,17 @@ class RecordVal(Validate):
     def construct(self, loader, node):
         location = Location.from_node(node)
         if (isinstance(node, yaml.ScalarNode) and
-                node.tag == u'tag:yaml.org,2002:null' and
-                node.value == u'' and
-                all(field.has_default for field in self.fields.values())):
+                node.tag == 'tag:yaml.org,2002:null' and
+                node.value == '' and
+                all(field.has_default for field in list(self.fields.values()))):
             values = {}
-            for field in self.fields.values():
+            for field in list(self.fields.values()):
                 values[field.attribute] = field.default
             data = self.record_type(**values)
             set_location(data, location)
             return data
         if not (isinstance(node, yaml.MappingNode) and
-                node.tag == u'tag:yaml.org,2002:map'):
+                node.tag == 'tag:yaml.org,2002:map'):
             error = Error("Expected a mapping")
             error.wrap("Got:", node.value
                                if isinstance(node, yaml.ScalarNode)
@@ -1286,7 +1286,7 @@ class RecordVal(Validate):
                  loader.validating(field.validate):
                 value = loader.construct_object(value_node, deep=True)
             values[field.attribute] = value
-        for field in self.fields.values():
+        for field in list(self.fields.values()):
             attribute = field.attribute
             if attribute not in values:
                 if field.has_default:
@@ -1301,7 +1301,7 @@ class RecordVal(Validate):
     def __repr__(self):
         return "%s(%s)" % (self.__class__.__name__,
                            ", ".join(repr(field)
-                                     for field in self.fields.values()))
+                                     for field in list(self.fields.values())))
 
 
 class OpenRecordVal(RecordVal):
@@ -1335,8 +1335,8 @@ class SwitchVal(Validate):
         if isinstance(data, dict):
             names = set([key.replace('-', '_').replace(' ', '_')
                          for key in data
-                         if isinstance(key, (str, unicode))])
-        elif isinstance(data, (str, unicode)):
+                         if isinstance(key, str)])
+        elif isinstance(data, str):
             try:
                 mapping = json.loads(data)
             except ValueError:
@@ -1359,7 +1359,7 @@ class SwitchVal(Validate):
     def construct(self, loader, node):
         location = Location.from_node(node)
         if not (isinstance(node, yaml.MappingNode) and
-                node.tag == u'tag:yaml.org,2002:map'):
+                node.tag == 'tag:yaml.org,2002:map'):
             if self.validate_default is not None:
                 return self.validate_default.construct(loader, node)
             error = Error("Expected a mapping")
@@ -1371,7 +1371,7 @@ class SwitchVal(Validate):
         for key in sorted(self.validate_map):
             for key_node, value_node in node.value:
                 if not (isinstance(key_node, yaml.ScalarNode) and
-                        key_node.tag == u'tag:yaml.org,2002:str'):
+                        key_node.tag == 'tag:yaml.org,2002:str'):
                     continue
                 name = key_node.value.replace('-', '_').replace(' ', '_')
                 if key == name:
@@ -1422,7 +1422,7 @@ class OnScalar(OnMatch):
 
     def __call__(self, data):
         return (data is None or
-                isinstance(data, (str, unicode, bool, int, long)) or
+                isinstance(data, (str, bool, int)) or
                 isinstance(data, yaml.ScalarNode))
 
     def __str__(self):
@@ -1465,7 +1465,7 @@ class OnField(OnMatch):
 
     def __call__(self, data):
         keys = []
-        if isinstance(data, (str, unicode)):
+        if isinstance(data, str):
             try:
                 mapping = json.loads(data)
             except ValueError:
@@ -1474,15 +1474,15 @@ class OnField(OnMatch):
                 if isinstance(mapping, dict):
                     data = mapping
         if isinstance(data, dict):
-            keys = [key for key in data if isinstance(key, (str, unicode))]
+            keys = [key for key in data if isinstance(key, str)]
         elif isinstance(data, (tuple, Record)):
             keys = getattr(data, '_fields', [])
         elif (isinstance(data, yaml.MappingNode) and
-                data.tag == u'tag:yaml.org,2002:map'):
+                data.tag == 'tag:yaml.org,2002:map'):
             keys = [key_node.value
                     for key_node, value_node in data.value
                     if isinstance(key_node, yaml.ScalarNode) and
-                        key_node.tag == u'tag:yaml.org,2002:str']
+                        key_node.tag == 'tag:yaml.org,2002:str']
         return any(key.replace('-', '_').replace(' ', '_') == self.name
                    for key in keys)
 
@@ -1515,7 +1515,7 @@ class UnionVal(Validate):
             else:
                 match = None
                 validate = variant
-            if isinstance(match, (str, unicode)):
+            if isinstance(match, str):
                 match = OnField(match)
             if isinstance(match, type):
                 match = match()
@@ -1578,7 +1578,7 @@ class IncludeKeyVal(Validate):
 
     def construct(self, loader, node):
         if not (isinstance(node, yaml.MappingNode) and
-                node.tag == u'tag:yaml.org,2002:map'):
+                node.tag == 'tag:yaml.org,2002:map'):
             error = Error("Expected a mapping")
             error.wrap("Got:", node.value
                                if isinstance(node, yaml.ScalarNode)
@@ -1587,7 +1587,7 @@ class IncludeKeyVal(Validate):
             raise error
         for key_node, value_node in node.value:
             if not (isinstance(key_node, yaml.ScalarNode) and
-                    key_node.tag == u'tag:yaml.org,2002:str' and
+                    key_node.tag == 'tag:yaml.org,2002:str' and
                     key_node.value == self.key):
                 continue
             with loader.validating(self.validate):
@@ -1630,7 +1630,7 @@ class DateVal(Validate):
             return data
 
         with guard('Got:', repr(data)):
-            if isinstance(data, (str, unicode)):
+            if isinstance(data, str):
                 try:
                     return datetime.datetime.strptime(data, '%Y-%m-%d').date()
                 except ValueError:
@@ -1664,7 +1664,7 @@ class TimeVal(Validate):
             return data.replace(tzinfo=None)
 
         with guard('Got:', repr(data)):
-            if isinstance(data, (str, unicode)) and \
+            if isinstance(data, str) and \
                     self.RE_TIME.match(data):
                 try:
                     return dateutil.parser.parse(data).replace(tzinfo=None) \
@@ -1706,7 +1706,7 @@ class DateTimeVal(Validate):
             )
 
         with guard('Got:', repr(data)):
-            if isinstance(data, (str, unicode)) and \
+            if isinstance(data, str) and \
                     self.RE_DATETIME.match(data):
                 try:
                     return self._strip_tz(dateutil.parser.parse(data))

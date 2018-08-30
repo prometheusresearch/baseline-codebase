@@ -102,7 +102,7 @@ class Setting(Extension):
             value = self.merge(value, new_value)
         try:
             return self.validate(value)
-        except Error, error:
+        except Error as error:
             error.wrap("While validating setting:", self.name)
             raise
 

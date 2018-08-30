@@ -17,7 +17,7 @@ class DBVal(Validate):
     def __call__(self, data):
         try:
             return DB.parse(data)
-        except ValueError, exc:
+        except ValueError as exc:
             raise Error(str(exc))
 
 
@@ -49,7 +49,7 @@ class HTSQLVal(Validate):
         # Unifies configuration value.
         if data is None:
             data = {}
-        if isinstance(data, (str, unicode)):
+        if isinstance(data, str):
             try:
                 data = DB.parse(data)
             except ValueError:
@@ -58,7 +58,7 @@ class HTSQLVal(Validate):
             data = {'htsql': {'db': data}}
         if isinstance(data, dict):
             data = dict((key, value if value is not None else {})
-                        for key, value in data.items())
+                        for key, value in list(data.items()))
         return data
 
     @classmethod

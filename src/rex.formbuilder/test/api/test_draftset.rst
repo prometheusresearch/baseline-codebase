@@ -79,7 +79,7 @@ DraftInstrumentVersion and its associated DraftForms::
     >>> req = Request.blank('/api/draftset', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = json.dumps(payload)
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -91,7 +91,7 @@ The ``/api/draftset/{uid}`` URI will accept GETs to retrieve the specified
 DraftInstrumentVersion and its associated DraftForms::
 
     >>> req = Request.blank('/api/draftset/draftiv1', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -99,7 +99,7 @@ DraftInstrumentVersion and its associated DraftForms::
     {"instrument_version": {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "definition": {"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "The NEW InstrumentVersion Title"}, "modified_by": "someone", "uid": "draftiv1", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}, "forms": {"entry": {"configuration": {"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "How does the Subject feel today?"}, "fieldId": "q_fake"}}], "id": "page1"}]}, "draft_instrument_version": {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "modified_by": "someone", "uid": "draftiv1", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}, "uid": "draftform2", "channel": {"uid": "entry", "presentation_type": "form", "title": "RexEntry"}}, "survey": {"configuration": {"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "How do you feel today?"}, "fieldId": "q_fake"}}], "id": "page1"}]}, "draft_instrument_version": {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "modified_by": "someone", "uid": "draftiv1", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}, "uid": "draftform1", "channel": {"uid": "survey", "presentation_type": "form", "title": "RexSurvey"}}}, "calculation_set": {"definition": {"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "calculations": [{"method": "python", "type": "text", "options": {"expression": "assessment['q_fake'].upper()"}, "id": "uppercased"}]}, "uid": "draftiv1", "draft_instrument_version": {"parent_instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "someone", "version": 1, "uid": "simple1", "date_published": "2015-01-01T00:00:00.000Z"}, "modified_by": "someone", "uid": "draftiv1", "date_modified": "2015-01-02T00:00:00.000Z", "created_by": "someone", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "date_created": "2015-01-01T00:00:00.000Z"}}}
 
     >>> req = Request.blank('/api/draftset/doesntexist', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     404 Not Found
     ...
 
@@ -125,7 +125,7 @@ DraftInstrumentVersion and its associated DraftForms::
     >>> req = Request.blank('/api/draftset/draftiv1', method='PUT', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = json.dumps(payload)
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     ### SAVED DRAFTINSTRUMENTVERSION draftiv1
     ### SAVED DRAFTCALCULATIONSET draftiv1
     ### SAVED DRAFTFORM draftform1
@@ -139,7 +139,7 @@ DraftInstrumentVersion and its associated DraftForms::
     >>> req = Request.blank('/api/draftset/draftiv2', method='PUT', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = json.dumps(payload)
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     ### SAVED DRAFTINSTRUMENTVERSION draftiv2
     202 Accepted
     Content-Type: application/json; charset=UTF-8
@@ -152,7 +152,7 @@ The ``/api/draftset/{uid}`` URI will accept DELETEs to delete the specified
 DraftInstrumentVersion and its associated DraftForms::
 
     >>> req = Request.blank('/api/draftset/draftiv1', method='DELETE', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     ### DELETED DRAFTFORM draftform1
     ### DELETED DRAFTFORM draftform2
     ### DELETED DRAFTCALCULATIONSET draftiv1
@@ -166,7 +166,7 @@ DraftInstrumentVersion and its associated DraftForms::
 The ``/api/draftset/{uid}`` URI will not accept POSTs::
 
     >>> req = Request.blank('/api/draftset/draftiv1', method='POST', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
@@ -176,7 +176,7 @@ the publishing process on a DraftInstrumentVersion and its associated
 DraftForms::
 
     >>> req = Request.blank('/api/draftset/draftiv1/publish', method='POST', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -184,7 +184,7 @@ DraftForms::
     {"status": "SUCCESS", "instrument_version": {"definition": {"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "The NEW InstrumentVersion Title"}, "uid": "fake_published_draft_instrument_1", "date_published": "2014-05-22T00:00:00.000Z", "instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "user1", "version": 1}, "calculation_set": {"instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "user1", "version": 1, "uid": "fake_published_draft_instrument_1", "date_published": "2014-05-22T00:00:00.000Z"}, "definition": {"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "calculations": [{"id": "uppercased", "type": "text", "method": "python", "options": {"expression": "assessment['q_fake'].upper()"}}]}, "uid": "fake_calculationset_1"}, "forms": {"entry": {"instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "user1", "version": 1, "uid": "fake_published_draft_instrument_1", "date_published": "2014-05-22T00:00:00.000Z"}, "configuration": {"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "How does the Subject feel today?"}, "fieldId": "q_fake"}}], "id": "page1"}]}, "uid": "fake_form_1", "channel": {"uid": "entry", "presentation_type": "form", "title": "RexEntry"}}, "survey": {"instrument_version": {"instrument": {"status": "active", "code": "simple", "uid": "simple", "title": "Simple Instrument"}, "published_by": "user1", "version": 1, "uid": "fake_published_draft_instrument_1", "date_published": "2014-05-22T00:00:00.000Z"}, "configuration": {"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"en": "How do you feel today?"}, "fieldId": "q_fake"}}], "id": "page1"}]}, "uid": "fake_form_1", "channel": {"uid": "survey", "presentation_type": "form", "title": "RexSurvey"}}}}
 
     >>> req = Request.blank('/api/draftset/doesntexist/publish', method='POST', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     404 Not Found
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -196,7 +196,7 @@ The ``/api/draftset/{uid}/clone`` URI will accept POSTs to make a copy of the
 specified DraftInstrumentVersion and its associated DraftForms::
 
     >>> req = Request.blank('/api/draftset/draftiv1/clone', method='POST', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -210,7 +210,7 @@ contains no definitions/configurations::
     >>> req = Request.blank('/api/draftset/skeleton', method='POST', remote_user='user1')
     >>> req.headers['Content-Type'] = 'application/json'
     >>> req.body = '{"instrument": "simple", "channels": ["entry", "fake"]}'
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     201 Created
     Content-Type: application/json; charset=UTF-8
     Content-Length: ...
@@ -220,4 +220,5 @@ contains no definitions/configurations::
 
 
     >>> rex.off()
+
 

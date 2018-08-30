@@ -29,7 +29,7 @@ __all__ = ('EntityAction',)
 class Configuration(Action.Configuration):
 
     def _reflect_fields(self, db, entity, input, fields):
-        parameters = {k: None for k in input.rows.keys()}
+        parameters = {k: None for k in list(input.rows.keys())}
         with PortSupport.parameters(parameters):
             if fields and isinstance(fields, Deferred):
                 fields = fields.resolve()

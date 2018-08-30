@@ -49,7 +49,7 @@ Now we can prepare and send an email message using
     ... Cc: Clothilde Coleman <clothilde@example.net>
     ... Bcc: Daniel Delacruz <daniel@nsa.gov>
     ... Subject: Hi there!
-    ...
+    ... 
     ... Hi Bob!
     ... """
 
@@ -155,5 +155,6 @@ You can disable email delivery completely by specifying ``null`` as a value of
     sendmail: null
 
 See the :mod:`rex.sendmail` reference for more configuration options.
+
 
 

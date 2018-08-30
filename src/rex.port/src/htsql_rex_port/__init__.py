@@ -16,7 +16,7 @@ class NamedPortsGuard(object):
 
     def __init__(self, ports):
         self.ports = {}
-        for key, port in ports.items():
+        for key, port in list(ports.items()):
             self.ports[to_name(key)] = port
 
     def __enter__(self):
@@ -46,7 +46,7 @@ class SummonPort(Summon):
         if not (1 <= len(self.arguments) <= 2):
             raise Error("Expected 1 or 2 arguments")
         port = context.env.named_ports[self.name]
-        arguments = map(recognize, self.arguments)
+        arguments = list(map(recognize, self.arguments))
         if len(arguments) == 1:
             arguments = [None]+arguments
         return PortCmd(port, *arguments)

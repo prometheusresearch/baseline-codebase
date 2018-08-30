@@ -32,21 +32,21 @@ returned by their ``get_parameters()`` method::
     ...         return True
     ...     def get_parameters(self, task):
     ...         return {'foo': 'bar'}
-    ...
+    ... 
     >>> class UnusedSupplier(ParameterSupplier):
     ...     priority = 25
     ...     def is_applicable(self, task):
     ...         return False
     ...     def get_parameters(self, task):
     ...         return {'baz': 42}
-    ...
+    ... 
     >>> class MyOtherSupplier(ParameterSupplier):
     ...     priority = 50
     ...     def is_applicable(self, task):
     ...         return task.subject.uid == 'fake123'
     ...     def get_parameters(self, task):
     ...         return {'something': 'or other'}
-    ...
+    ... 
 
     >>> from rex.instrument.interface import Subject, Instrument, InstrumentVersion, Task
     >>> from datetime import datetime
@@ -82,4 +82,5 @@ classes sorted in order of their ``priority``::
 
     >>> ParameterSupplier.all()
     [__main__.MySupplier, __main__.UnusedSupplier, __main__.MyOtherSupplier]
+
 

@@ -12,6 +12,6 @@ autodoc_default_flags = ['members']
 autodoc_member_order = 'bysource'
 
 latex_documents = [
-    (master_doc, 'rexform_previewer.tex', u'rex.form\\_previewer', u'', 'manual'),
+    (master_doc, 'rexform_previewer.tex', 'rex.form\\_previewer', '', 'manual'),
 ]
 

@@ -79,7 +79,7 @@ def find_discrepancies(instrument_version, entries):
 
 
 def _get_field_discrepancies(field, entries, known_types):
-    if isinstance(field['type'], basestring):
+    if isinstance(field['type'], str):
         field_type = known_types[field['type']]
     else:
         field_type = known_types[field['type']['base']]
@@ -114,7 +114,7 @@ def _get_simple_discrepancies(field, entries, accessor=None):
     unique_values = set([
         # lists aren't hashable, tuples are
         v if not isinstance(v, list) else tuple(sorted(v))
-        for v in values.values()
+        for v in list(values.values())
     ])
 
     if len(unique_values) > 1:
@@ -265,7 +265,7 @@ def merge_metadata(entries):
     properties = set([
         prop
         for source in sources
-        for prop in source.keys()
+        for prop in list(source.keys())
     ])
 
     for prop in properties:
@@ -314,7 +314,7 @@ def _solve_field_discrepancies(
         reconciled_discrepancy,
         known_types,
         has_override=False):
-    if isinstance(field['type'], basestring):
+    if isinstance(field['type'], str):
         field_type = known_types[field['type']]
     else:
         field_type = known_types[field['type']['base']]
@@ -380,7 +380,7 @@ def _solve_simple_discrepancy(
             return supported_entries[0]
 
         return '\n\n'.join([
-            u'%(date)s / %(user)s: %(text)s' % {
+            '%(date)s / %(user)s: %(text)s' % {
                 'user': entry.modified_by,
                 'date': entry.date_modified.strftime('%Y-%m-%d %H:%M:%S%z'),
                 'text': accessor(entry, field['id'])[name],

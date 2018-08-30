@@ -66,10 +66,10 @@ class Ctl(object):
                     try:
                         try:
                             run(sys.argv)
-                        except (Error, IOError), exc:
+                        except (Error, IOError) as exc:
                             raise fail(str(exc))
-                    except Failure, exc:
-                        print >>sys.stderr, exc
+                    except Failure as exc:
+                        print(exc, file=sys.stderr)
                         raise
                     except Exception:
                         traceback.print_exc()

@@ -68,7 +68,7 @@ Exceptions are not cached::
 Caching is specific to the active application::
 
     >>> with Rex():
-    ...     print factorial(10)
+    ...     print(factorial(10))
     3628800
     >>> COUNT
     24
@@ -177,5 +177,6 @@ Any errors when the function is evaluated invalidate the cache::
     IOError: [Errno 2] No such file or directory: '/.../load.txt'
 
     >>> demo.off()
+
 
 

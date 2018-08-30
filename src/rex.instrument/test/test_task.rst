@@ -45,7 +45,7 @@ and string-rendering methods::
     >>> task = Task('bar999', subject, instrument, 100, assessment)
     >>> task.get_display_name()
     u'bar999'
-    >>> unicode(task)
+    >>> str(task)
     u'bar999'
     >>> str(task)
     'bar999'
@@ -389,7 +389,7 @@ recordList field::
 Discrepancies of mismatching records should be spotted and solved::
 
     >>> del entry3.data['values']['q_rec']['value'][0]
-    >>> expected_discrepancies = {'q_rec': {'0': {'donk': {u'entry444': False, u'entry333': False, u'entry555': True}, 'dink': {u'entry444': 'hello', u'entry333': 'hello', u'entry555': 'goodbye'}, '_NEEDS_VALUE_': True}, '1': {'donk': {u'entry444': True, u'entry333': True, u'entry555': None}, 'dink': {u'entry444': 'goodbye', u'entry333': 'goodbye', u'entry555': None}, '_NEEDS_VALUE_': True}}}
+    >>> expected_discrepancies = {'q_rec': {'0': {'donk': {'entry444': False, 'entry333': False, 'entry555': True}, 'dink': {'entry444': 'hello', 'entry333': 'hello', 'entry555': 'goodbye'}, '_NEEDS_VALUE_': True}, '1': {'donk': {'entry444': True, 'entry333': True, 'entry555': None}, 'dink': {'entry444': 'goodbye', 'entry333': 'goodbye', 'entry555': None}, '_NEEDS_VALUE_': True}}}
     >>> task.get_discrepancies(entries=entries) == expected_discrepancies
     True
     >>> task.solve_discrepancies({}, entries=entries)
@@ -398,7 +398,7 @@ Discrepancies of mismatching records should be spotted and solved::
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': {'value': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hello'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'bye'}}]}}}
 
     >>> entry3.data['values']['q_rec']['value'] = None
-    >>> expected_discrepancies = {'q_rec': {'1': {'donk': {u'entry444': True, u'entry333': True, u'entry555': None}, 'dink': {u'entry444': 'goodbye', u'entry333': 'goodbye', u'entry555': None}, '_NEEDS_VALUE_': True}, '0': {'donk': {u'entry444': False, u'entry333': False, u'entry555': None}, 'dink': {u'entry444': 'hello', u'entry333': 'hello', u'entry555': None}, '_NEEDS_VALUE_': True}}}
+    >>> expected_discrepancies = {'q_rec': {'1': {'donk': {'entry444': True, 'entry333': True, 'entry555': None}, 'dink': {'entry444': 'goodbye', 'entry333': 'goodbye', 'entry555': None}, '_NEEDS_VALUE_': True}, '0': {'donk': {'entry444': False, 'entry333': False, 'entry555': None}, 'dink': {'entry444': 'hello', 'entry333': 'hello', 'entry555': None}, '_NEEDS_VALUE_': True}}}
     >>> task.get_discrepancies(entries=entries) == expected_discrepancies
     True
     >>> task.solve_discrepancies({}, entries=entries)
@@ -576,4 +576,5 @@ being the same class with the same UID::
     True
     >>> task3 >= task1
     True
+
 

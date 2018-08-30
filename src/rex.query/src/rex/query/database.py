@@ -63,11 +63,11 @@ class Database(object):
             raise HTTPMethodNotAllowed()
         try:
             data = json.loads(req.body)
-        except ValueError, exc:
+        except ValueError as exc:
             raise HTTPBadRequest(str(exc))
         try:
             query = self.parse(data)
-        except Error, exc:
+        except Error as exc:
             raise HTTPBadRequest(str(exc))
         with self.db:
             if query.is_catalog():

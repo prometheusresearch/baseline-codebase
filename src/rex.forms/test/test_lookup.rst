@@ -199,7 +199,7 @@ This package exposes a simple JSON API for invoking the lookup queries::
     >>> rex.on()
 
     >>> req = Request.blank('/lookup?lookup=%s' % (lookup_id,), remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: 325
@@ -208,7 +208,7 @@ This package exposes a simple JSON API for invoking the lookup queries::
     {"values":[{"value":"calculation","label":"Calculation Instrument"},{"value":"calculation-complex","label":"Calculation Instrument"},{"value":"complex","label":"Complex Instrument"},{"value":"disabled","label":"Disabled Instrument"},{"value":"simple","label":"Simple Instrument"},{"value":"texter","label":"SMS Instrument"}]}
 
     >>> req = Request.blank('/lookup?lookup=%s&query=calc' % (lookup_id,), remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: 134
@@ -217,7 +217,7 @@ This package exposes a simple JSON API for invoking the lookup queries::
     {"values":[{"value":"calculation","label":"Calculation Instrument"},{"value":"calculation-complex","label":"Calculation Instrument"}]}
 
     >>> req = Request.blank('/lookup?lookup=doesntexist', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
     404 Not Found
     Content-Length: 83
     Content-Type: text/plain; charset=UTF-8
@@ -231,4 +231,5 @@ This package exposes a simple JSON API for invoking the lookup queries::
 
 
     >>> rex.off()
+
 

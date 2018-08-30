@@ -13,7 +13,7 @@ Set up the environment::
 
     >>> def count_marts(owner):
     ...     data = get_management_db().produce('/rexmart_inventory.filter(owner=$owner)^definition{definition, count(^)}', owner=owner)
-    ...     print ', '.join(['%s: %s' % (rec[0], rec[1]) for rec in data])
+    ...     print(', '.join(['%s: %s' % (rec[0], rec[1]) for rec in data]))
 
 
     >>> mc1 = MartCreator('quotaguy', 'empty')
@@ -55,4 +55,5 @@ Set up the environment::
 
 
     >>> rex.off()
+
 

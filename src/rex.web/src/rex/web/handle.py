@@ -31,7 +31,7 @@ class HandleLocation(Extension):
 
     @classmethod
     def document_header(cls):
-        return u"%s:%s" % (cls.package().name, cls.path)
+        return "%s:%s" % (cls.package().name, cls.path)
 
     def __call__(self, req):
         """

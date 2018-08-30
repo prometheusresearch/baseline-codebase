@@ -20,7 +20,7 @@ Field ``data`` denotes a data fact::
     >>> fact = driver.parse("""{ data: ./deploy/individual.csv }""")
     >>> fact
     DataFact(u'individual', data_path='./deploy/individual.csv')
-    >>> print fact
+    >>> print(fact)
     data: ./deploy/individual.csv
     of: individual
 
@@ -34,7 +34,7 @@ You could either specify the path to a data file or embed input data::
     ... """)
     >>> fact
     DataFact(u'study', data='code,name\nasdl,Autism Spectrum Disorder Lab\n')
-    >>> print fact
+    >>> print(fact)
     data: |
       code,name
       asdl,Autism Spectrum Disorder Lab
@@ -375,7 +375,7 @@ You could also supply data directly from HTSQL query::
     ...   datetime('2013-12-19 13:22') :as timestamp, true :as current,
     ...   json('{}') :as other}
     ... """)
-    >>> driver({ 'data': list(data), 'of': u"sample" })
+    >>> driver({ 'data': list(data), 'of': "sample" })
     INSERT INTO "sample" ("individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current", "other")
         VALUES (3, '03', 33, 175.05, 130000, '1990-03-13', '23:45:00', '2013-12-19 13:22:00', TRUE, '{}')
         RETURNING "id", "individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current", "other";
@@ -586,5 +586,6 @@ Finally we destroy the test database::
 
     >>> driver.close()
     >>> cluster.drop()
+
 
 

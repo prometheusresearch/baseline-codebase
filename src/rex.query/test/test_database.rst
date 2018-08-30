@@ -296,7 +296,7 @@ Queries could be submitted in an HTTP request::
     >>> from webob import Request
 
     >>> req = Request.blank("/", POST='{"syntax": ["region"], "format": "x-htsql/json"}')
-    >>> print db(req)       # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print(db(req))       # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     200 OK
     ...
     {
@@ -316,7 +316,7 @@ Metadata
 To get the structure of the database, we use the ``catalog`` command::
 
     >>> req = Request.blank("/", POST='["catalog"]')
-    >>> print db(req)       # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print(db(req))       # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     200 OK
     ...
      | entity                                                                                                                                              |
@@ -333,5 +333,6 @@ To get the structure of the database, we use the ``catalog`` command::
      :          :          | phone         | Phone         | true   | false   | false  | column        | text    |      :          :          :            :
      :          :          | acctbal       | Acctbal       | true   | false   | false  | column        | decimal |      :          :          :            :
     ...
+
 
 

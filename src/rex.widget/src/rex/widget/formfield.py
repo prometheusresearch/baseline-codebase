@@ -335,7 +335,7 @@ class QueryValidator(object):
             db = self.query.get_db()
             with db:
                 product = produce(self.query.query, params)
-        except (Error, HTTPError), error:
+        except (Error, HTTPError) as error:
             return req.get_response(error)
 
         with db:
@@ -400,7 +400,7 @@ class FormField(Extension):
             _prevent_validation = False
         self.parameters = get_parameters()
         self.values = values
-        for k, v in self.values.items():
+        for k, v in list(self.values.items()):
             if not k in ('widget', 'validate'):
                 setattr(self, k, v)
         if not self.values.get('widget') and self.widget is not None:
@@ -424,7 +424,7 @@ class FormField(Extension):
     def validate(self, values):
         validator = self.validator()
         values = dict(values)
-        for f in validator.fields.values():
+        for f in list(validator.fields.values()):
             if not f.name in values and f.has_default:
                 values[f.name] = f.default
         values = validator(values)._asdict()
@@ -451,7 +451,7 @@ class FormField(Extension):
         next_values = {}
         next_values.update(self.values)
         next_values.update(other.values)
-        next_values = {k: v for k, v in next_values.items()
+        next_values = {k: v for k, v in list(next_values.items())
                             if k in allowed_keys}
         return self.__class__(**next_values)
 
@@ -461,7 +461,7 @@ class FormField(Extension):
         return PropsContainer(values)
 
     def __repr__(self):
-        fields = self.validator().fields.values()
+        fields = list(self.validator().fields.values())
         args = ['%s=%r' % (f.name, self.values.get(f.name))
                 for f in fields
                 if f.default != self.values.get(f.name)]
@@ -475,7 +475,7 @@ def _format_FormField(field, req, path): # pylint: disable=invalid-name
     if isinstance(values, FormField):
         return _format_FormField(values, req, path)
     else:
-        values = {k: v for k, v in values.items() if v is not undefined}
+        values = {k: v for k, v in list(values.items()) if v is not undefined}
         return values
 
 
@@ -539,14 +539,14 @@ def reflect(port, db=None):
 
 def from_port(port, field_val=FormFieldVal()):
     """ Generate fieldset for a port definition."""
-    trunk_arm = port.tree.arms.values()[0]
+    trunk_arm = list(port.tree.arms.values())[0]
     return _from_arm(port.tree, port.db, field_val).fields[0].fields
 
 
 def _from_arm(arm, db, field_val, value_key='__root__', label='Root'):
     if arm.kind in ('facet entity', 'trunk entity', 'branch entity', 'join entity', 'root'):
         fields = [_from_arm(v, db, field_val, value_key=k, label=_guess_label(k))
-                  for k, v in arm.items()
+                  for k, v in list(arm.items())
                   if not k.startswith('meta:')]
         if arm.is_plural:
             return List.validated(
@@ -668,7 +668,7 @@ def to_port(entity, fields, filters=None, mask=None, parameters=None, db=None):
     grow = [_to_port_query(entity, fields, filters=filters, mask=mask)]
     if parameters:
         grow = [{'parameter': parameter}
-                for parameter, default in parameters.items()] + grow
+                for parameter, default in list(parameters.items())] + grow
     return Port(grow, db=db)
 
 
@@ -733,7 +733,7 @@ def _nest(fields):
             else:
                 fields_by_key[key] = field.__validated_clone__()
     fields = [f.__validated_clone__(fields=_nest(f.fields)) if isinstance(f, Fieldset) else f
-              for f in fields_by_key.values()]
+              for f in list(fields_by_key.values())]
     return fields
 
 
@@ -1053,7 +1053,7 @@ class CompositeFormField(FormField):
         next_values.update(other.values)
         if isinstance(other, CompositeFormField):
             next_values['fields'] = list(self.fields) + list(other.fields)
-        next_values = {k: v for k, v in next_values.items()
+        next_values = {k: v for k, v in list(next_values.items())
                             if k in allowed_keys}
         return self.__class__(**next_values)
 

@@ -74,7 +74,7 @@ Field validates its default value::
 Define a new widget field implementation::
 
   >>> class CustomField(FieldBase):
-  ...
+  ... 
   ...   def __call__(self, widget):
   ...     return 'ok'
 
@@ -87,3 +87,4 @@ Define a new widget field implementation::
 
   >>> w.field
   'ok'
+

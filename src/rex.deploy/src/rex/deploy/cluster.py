@@ -60,7 +60,7 @@ class Cluster(object):
             connection.set_client_encoding('UTF8')
             if autocommit:
                 connection.autocommit = True
-        except psycopg2.Error, error:
+        except psycopg2.Error as error:
             raise Error("Failed to connect to the database server:", error)
         return connection
 
@@ -114,7 +114,7 @@ class Cluster(object):
             if cursor.description is not None:
                 result = cursor.fetchall()
             connection.close()
-        except psycopg2.Error, error:
+        except psycopg2.Error as error:
             raise Error("Got an error from the database server:", error)
         return result
 

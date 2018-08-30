@@ -16,7 +16,7 @@ Set up the environment::
     >>> db = get_db()
 
     >>> def print_query(query):
-    ...     print "".join(db.emit('text/plain', db.produce(query)))
+    ...     print("".join(db.emit('text/plain', db.produce(query))))
     >>> def purge_table(table):
     ...     db.produce('/%s{id()}/:delete' % table)
 
@@ -355,4 +355,5 @@ blah::
 
 
     >>> rex.off()
+
 

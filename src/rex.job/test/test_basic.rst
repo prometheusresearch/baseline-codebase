@@ -23,20 +23,20 @@ Set up the environment::
     >>> def show_job(code):
     ...     data = get_db().produce("/job.filter(code=$code)", code=code)
     ...     if not data:
-    ...         print 'Job #%s Not Found' % (code,)
+    ...         print('Job #%s Not Found' % (code,))
     ...     else:
     ...         job = data[0]
-    ...         print 'Job #%s: status=%s,%s type=%s, dates=%s' % (
+    ...         print('Job #%s: status=%s,%s type=%s, dates=%s' % (
     ...             job.code,
     ...             job.status,
     ...             (' detail="%s",' % (job.status_detail,)) if job.status_detail else '',
     ...             job.type,
     ...             ','.join([x for x in [job.date_submitted and 'Submitted', job.date_started and 'Started', job.date_completed and 'Completed'] if x]),
-    ...         )
+    ...         ))
 
     >>> def show_facet(code, name):
     ...     data = get_db().produce('/%s[$code]{*}' % (name,), code=code)
-    ...     print data[0] if data else 'No Record Found'
+    ...     print(data[0] if data else 'No Record Found')
 
     >>> get_settings().asynctask_workers
     {'rex_job_0': Record(worker='job_executor', rate_max_calls=None, rate_period=None)}
@@ -161,4 +161,5 @@ Clean up::
     Job #6: status=new, type=demo_fast, dates=Submitted
 
     >>> rex.off()
+
 

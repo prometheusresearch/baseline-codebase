@@ -25,7 +25,7 @@ HTSQL statements that are embedded within a larger HTSQL script::
     ... /foo{
     ...         col1
     ...     }
-    ...
+    ... 
     ... /bar
     ... """
     >>> extract_htsql_statements(script)
@@ -35,7 +35,7 @@ HTSQL statements that are embedded within a larger HTSQL script::
     ...     /foo{
     ...         col1
     ...     }
-    ...
+    ... 
     ... /bar
     ... """
     >>> extract_htsql_statements(script)
@@ -85,7 +85,7 @@ payload::
         some context
 
     >>> with guarded('Nothing happens'):
-    ...     print "All's well"
+    ...     print("All's well")
     All's well
 
 
@@ -130,4 +130,5 @@ in the database::
 
 
     >>> rex.off()
+
 

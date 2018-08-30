@@ -61,7 +61,7 @@ specified queues::
     >>> transport.submit_task('foo', {'foo': 1})
     >>> time.sleep(1)
 
-    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
+    >>> print(strip_coveragepy_warnings(worker_ctl.stop()))  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching demo_foo_worker to work on queue foo
     INFO:FooWorker:Starting; queue=foo
     DEBUG:FooWorker:Got payload: {u'foo': 1}
@@ -110,7 +110,7 @@ queue::
     >>> transport.submit_task('foo', {'foo': 1})
     >>> time.sleep(2)
 
-    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
+    >>> print(strip_coveragepy_warnings(worker_ctl.stop()))  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching requeue_worker to work on queue foo
     INFO:RequeueWorker:Starting; queue=foo
     DEBUG:RequeueWorker:Got payload: {u'foo': 1}
@@ -145,7 +145,7 @@ an exception, it won't cause the entire worker to die::
     >>> transport.submit_task('foo', {'error': False})
     >>> time.sleep(1)
 
-    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
+    >>> print(strip_coveragepy_warnings(worker_ctl.stop()))  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching demo_error_worker to work on queue foo
     INFO:ErrorWorker:Starting; queue=foo
     DEBUG:ErrorWorker:Got payload: {u'error': True}
@@ -180,7 +180,7 @@ If a worker dies, the master process will restart it::
     >>> transport.submit_task('foo', {'die': False})
     >>> time.sleep(1)
 
-    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
+    >>> print(strip_coveragepy_warnings(worker_ctl.stop()))  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching demo_fragile_worker to work on queue foo
     INFO:FragileWorker:Starting; queue=foo
     DEBUG:FragileWorker:Got payload: {u'die': True}
@@ -214,7 +214,7 @@ Tasks can be scheduled to execute at particular times::
 
     >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --scheduler --set=asynctask_workers='{\"foo\": null}' --set=asynctask_scheduled_workers='[{\"worker\": \"demo_bar_worker\", \"second\": \"%s\"}]'" % (get_next_second(2),))
     >>> time.sleep(10)  # give the task some time for the tasks to trigger
-    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
+    >>> print(strip_coveragepy_warnings(worker_ctl.stop()))  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching demo_bar_worker to work on queue scheduled_0_demo_bar_worker
     INFO:AsyncTaskWorkerTask:Scheduling "demo_bar_worker" for {'second': ...}
     INFO:BarWorker:Starting; queue=scheduled_0_demo_bar_worker
@@ -235,7 +235,7 @@ Tasks can be scheduled to execute at particular times::
 
     >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --scheduler")
     >>> time.sleep(3)  # give the task a little time to spin up
-    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
+    >>> print(strip_coveragepy_warnings(worker_ctl.stop()))  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching demo_foo_worker to work on queue foo
     INFO:AsyncTaskWorkerTask:No schedules configured -- not starting scheduler
     INFO:FooWorker:Starting; queue=foo
@@ -249,7 +249,7 @@ rex.ctl Tasks can be executed on a schedule::
 
     >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --scheduler --set=asynctask_workers='{\"foo\": null}' --set=asynctask_scheduled_workers='[{\"ctl\": \"demo-noisy-task\", \"second\": \"%s\"}, {\"ctl\": \"demo-quiet-task\", \"second\": \"%s\"}, {\"ctl\": \"demo-crashy-task\", \"second\": \"%s\"}]'" % tuple(get_next_second(3).split(',')))
     >>> time.sleep(12)  # give the task some time for the tasks to trigger
-    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
+    >>> print(strip_coveragepy_warnings(worker_ctl.stop()))  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching ctl_executor to work on queue scheduled_0_ctl_...
     INFO:AsyncTaskWorkerTask:Launching ctl_executor to work on queue scheduled_0_ctl_...
     INFO:AsyncTaskWorkerTask:Launching ctl_executor to work on queue scheduled_0_ctl_...
@@ -290,4 +290,5 @@ rex.ctl Tasks can be executed on a schedule::
     INFO:CtlExecutorWorker:Terminating
     DEBUG:AsyncTaskWorkerTask:Children dead
     INFO:AsyncTaskWorkerTask:Complete
+
 

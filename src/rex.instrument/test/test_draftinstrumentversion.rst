@@ -33,7 +33,7 @@ constructor and string-rendering methods::
     >>> div = DraftInstrumentVersion('notreal456', instrument, 'someguy', datetime(2014, 5, 22), definition=INSTRUMENT)
     >>> div.get_display_name()
     u'The DraftInstrumentVersion Title'
-    >>> unicode(div)
+    >>> str(div)
     u'The DraftInstrumentVersion Title'
     >>> str(div)
     'The DraftInstrumentVersion Title'
@@ -96,7 +96,7 @@ a dict equivalent::
     >>> div.definition_yaml
     "id: urn:test-instrument\nversion: '1.1'\ntitle: The DraftInstrumentVersion Title\nrecord:\n- {id: q_fake, type: text}"
 
-    >>> div.definition_json = u'{"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "A Different Title"}'
+    >>> div.definition_json = '{"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "A Different Title"}'
     >>> div.definition
     {'record': [{'type': 'text', 'id': 'q_fake'}], 'version': '1.1', 'id': 'urn:test-instrument', 'title': 'A Different Title'}
 
@@ -163,9 +163,9 @@ to the associated CalculationSet object, if there is one::
 DraftInstrumentVersions can be checked for equality. Note that equality is only
 defined as being the same class with the same UID::
 
-    >>> div1 = DraftInstrumentVersion('notreal456', instrument, 'someguy', datetime(2014, 05, 22))
-    >>> div2 = DraftInstrumentVersion('notreal789', instrument, 'someguy', datetime(2014, 05, 22))
-    >>> div3 = DraftInstrumentVersion('notreal456', instrument, 'someguy', datetime(2014, 05, 22))
+    >>> div1 = DraftInstrumentVersion('notreal456', instrument, 'someguy', datetime(2014, 0o5, 22))
+    >>> div2 = DraftInstrumentVersion('notreal789', instrument, 'someguy', datetime(2014, 0o5, 22))
+    >>> div3 = DraftInstrumentVersion('notreal456', instrument, 'someguy', datetime(2014, 0o5, 22))
     >>> div1 == div2
     False
     >>> div1 == div3
@@ -197,4 +197,5 @@ defined as being the same class with the same UID::
     True
     >>> div3 >= div1
     True
+
 

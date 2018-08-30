@@ -97,7 +97,7 @@ table::
 
     >>> from rex.port import Port
     >>> file_port = Port('file')
-    >>> print file_port.produce(('file', handle)).data.file     # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print((file_port.produce(('file', handle)).data.file))     # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     [file(id=ID(u'/.../hello.txt'),
           handle=u'/.../hello.txt',
           timestamp=datetime.datetime(...),
@@ -115,7 +115,7 @@ record::
     >>> req = Request.blank('/consent', accept='x-htsql/json', remote_user='Alice',
     ...     POST={'new': json.dumps({"consent": {"study": "asdl", "consent_form_scan": handle}})})
     >>> resp = req.get_response(demo)
-    >>> print resp                                              # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(resp)                                              # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -138,7 +138,7 @@ exception::
 
     >>> req = Request.blank('/consent', accept='x-htsql/json', remote_user='Alice',
     ...     POST={'new': json.dumps({"consent": {"study": "fos", "consent_form_scan": handle}})})
-    >>> print req.get_response(demo)                            # doctest: +ELLIPSIS
+    >>> print((req.get_response(demo)))                            # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
     EngineError: Got an error from the database driver:
@@ -157,7 +157,7 @@ that are stored in the ``consent_form_scan`` field.  To do it, we submit
 the record ID in the query string::
 
     >>> req = Request.blank('/consent-file?'+consent_id, remote_user='Bob')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS
+    >>> print((req.get_response(demo)))            # doctest: +ELLIPSIS
     200 OK
     ...
     Content-Disposition: attachment; filename=hello.txt
@@ -223,5 +223,7 @@ in ``urlmap.yaml`` file.  The download handler has the following fields:
 
 `unsafe`
     Enables CSRF protection.
+
+
 
 

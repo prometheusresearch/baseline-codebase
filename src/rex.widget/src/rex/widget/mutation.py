@@ -53,7 +53,7 @@ class Mutation(object):
                 'invalid request payload, "new" field should'
                 ' contain a valid JSON object with a single key')
         if isinstance(params, dict):
-            params = params.itervalues().next()
+            params = next(iter(params.values()))
             if not params:
                 raise HTTPBadRequest(
                     'invalid request payload, "new" field should'
@@ -61,11 +61,11 @@ class Mutation(object):
                     ' a non-empty list as a value')
         query_params = {}
         query_params.update({
-            k[1:]: v for k, v in req.GET.items()
+            k[1:]: v for k, v in list(req.GET.items())
             if k.startswith(':')
         })
         query_params.update({
-            k: v for k, v in params[0].items()
+            k: v for k, v in list(params[0].items())
             if not k.startswith('meta:') and k != 'id'
         })
         return self.query._merge(query_params)
@@ -82,7 +82,7 @@ class Mutation(object):
         try:
             with self.query.get_db():
                 result = produce(self.query.query, self._query_params(req))
-        except (Error, HTTPError), error:
+        except (Error, HTTPError) as error:
             return req.get_response(error)
 
         if not self.port:
@@ -93,7 +93,7 @@ class Mutation(object):
                 'query should return a record with an id field: { id := ...  }')
 
         # Fetch update entity assuming query returns id of the update entity.
-        params = {k[1:]: v for k, v in req.GET.items() if k.startswith(':')}
+        params = {k[1:]: v for k, v in list(req.GET.items()) if k.startswith(':')}
         # Coercion to str is neccessary, otherwise querying port fails
         product = self.port.produce('*=%s' % str(result.data.id), **params)
 

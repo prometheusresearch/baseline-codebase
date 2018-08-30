@@ -59,7 +59,7 @@ statement on the application object to activate it::
     >>> from rex.core import get_rex
 
     >>> with demo:
-    ...     print get_rex()
+    ...     print((get_rex()))
     Rex('rex.core_demo', demo_folder='./demo')
 
 The application is activated before the ``with`` block is executed and
@@ -111,7 +111,7 @@ included with the current active application::
 You can iterate over all the packages or find a package by name::
 
     >>> for package in packages:
-    ...     print package.name
+    ...     print((package.name))
     rex.core_demo
     rex.core
 
@@ -406,7 +406,7 @@ use :meth:`rex.core.Extension.all()` method::
     >>> from rex.core_demo import Command
 
     >>> with demo:
-    ...     print Command.all()
+    ...     print((Command.all()))
     [rex.core_demo.HelloCommand]
 
 To find a command by name, use::
@@ -514,5 +514,7 @@ tags: ``!include`` and ``!include/str``, which are used to include data from an
 external file.  The content of an ``!include`` and ``!include/str`` nodes must
 be a relative path to the file containing the data.  Use ``!include`` to
 include a YAML document, ``!include/str`` to include a literal string.
+
+
 
 

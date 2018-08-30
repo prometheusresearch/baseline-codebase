@@ -47,8 +47,8 @@ class FileFact(Fact):
             for field in ['was', 'after', 'required', 'title']:
                 if getattr(spec, field) is not None:
                     raise Error("Got unexpected clause:", field)
-        if u'.' in spec.file:
-            table_label, label = spec.file.split(u'.')
+        if '.' in spec.file:
+            table_label, label = spec.file.split('.')
             if spec.of is not None and spec.of != table_label:
                 raise Error("Got mismatched table names:",
                             ", ".join((table_label, spec.of)))
@@ -79,20 +79,20 @@ class FileFact(Fact):
     def __init__(self, table_label, label,
                  former_labels=[], is_required=None,
                  title=None, front_labels=[], is_present=True):
-        assert isinstance(table_label, unicode) and len(table_label) > 0
-        assert isinstance(label, unicode) and len(label) > 0
+        assert isinstance(table_label, str) and len(table_label) > 0
+        assert isinstance(label, str) and len(label) > 0
         assert isinstance(is_present, bool)
         if is_present:
             assert (isinstance(former_labels, list) and
-                    all(isinstance(former_label, unicode)
+                    all(isinstance(former_label, str)
                         for former_label in former_labels))
             if is_required is None:
                 is_required = True
             assert isinstance(is_required, bool)
             assert (title is None or
-                    (isinstance(title, unicode) and len(title) > 0))
+                    (isinstance(title, str) and len(title) > 0))
             assert (isinstance(front_labels, list) and
-                    all(isinstance(front_label, unicode)
+                    all(isinstance(front_label, str)
                         for front_label in front_labels))
         else:
             assert former_labels == []
@@ -127,20 +127,20 @@ class FileFact(Fact):
         if self.is_present:
             schema = model(driver)
             driver([
-                TableFact(u"file"),
-                ColumnFact(u"file", u"handle", type=u"text"),
-                IdentityFact(u"file", [u"handle"]),
+                TableFact("file"),
+                ColumnFact("file", "handle", type="text"),
+                IdentityFact("file", ["handle"]),
                 ColumnFact(
-                    u"file", u"timestamp", type=u"datetime", default=u"now()"),
-                ColumnFact(u"file", u"session", type=u"text"),
-                ColumnFact(u"file", u"fresh", type=u"boolean", default=True),
+                    "file", "timestamp", type="datetime", default="now()"),
+                ColumnFact("file", "session", type="text"),
+                ColumnFact("file", "fresh", type="boolean", default=True),
             ])
-            table = schema.table(u'file')
+            table = schema.table('file')
             constraint = table.constraint(FileTableConstraintModel)
             if not constraint:
                 FileTableConstraintModel.do_build(table)
             fact = LinkFact(
-                    self.table_label, self.label, u"file",
+                    self.table_label, self.label, "file",
                     former_labels=self.former_labels,
                     is_required=self.is_required,
                     title=self.title,

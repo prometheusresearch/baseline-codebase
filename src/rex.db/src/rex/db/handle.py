@@ -19,7 +19,7 @@ from htsql.core.cmd.act import produce
 from htsql.core.fmt.accept import accept
 from htsql.core.fmt.emit import emit, emit_headers
 import re
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 
 def jinja_global_htsql(path_or_query, content_type=None,
@@ -83,7 +83,7 @@ class HandleHTSQLLocation(HandleLocation):
             query_string = ''
             if '?' in path_info:
                 path_info, query_string = path_info.split('?', 1)
-            path_info = urllib.unquote(path_info)
+            path_info = urllib.parse.unquote(path_info)
             req = req.copy()
             req.method = 'GET'
             req.path_info = path_info
@@ -155,7 +155,7 @@ class Query(object):
         db = self.db
         if db is None:
             db = get_db()
-        elif isinstance(db, basestring):
+        elif isinstance(db, str):
             db = get_db(db)
         return db
 
@@ -174,7 +174,7 @@ class Query(object):
         # Parse input parameters.
         try:
             parameters = self._merge(req.params)
-        except Error, error:
+        except Error as error:
             return req.get_response(error)
         # Execute the query and render the output.
         with self.get_db():
@@ -185,7 +185,7 @@ class Query(object):
                 # Pull whole output to avoid random "HTSQL application is not
                 # activated" errors.  FIXME: how?
                 app_iter = list(emit(format, product))
-            except HTTPError, error:
+            except HTTPError as error:
                 return req.get_response(error)
             resp = Response(headerlist=headerlist, app_iter=app_iter)
         return resp
@@ -251,7 +251,7 @@ class InitializeDB(Initialize):
         # Check if we can connect to the database.
         try:
             get_db()
-        except ImportError, exc:
+        except ImportError as exc:
             raise Error(str(exc))
         # Add HTSQL-related globals to the Jinja environment.
         jinja = get_jinja()

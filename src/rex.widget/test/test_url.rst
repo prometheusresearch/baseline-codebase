@@ -38,21 +38,21 @@ resolved variant of the URL::
   ...   path = '/url'
   ...   access = 'anybody'
   ...   parameters = (Parameter('url', validate),)
-  ...
+  ... 
   ...   def render(self, req, url):
   ...     return Response(encode(url, req))
 
   >>> rex = Rex('-', 'rex.web')
   >>> rex.on()
 
-  >>> print Request.blank('/url?url=sandbox:/').get_response(rex) # doctest: +ELLIPSIS
+  >>> print(Request.blank('/url?url=sandbox:/').get_response(rex)) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
   ["~#url", ["http://localhost/"]]
 
-  >>> print Request.blank('/url?url=/').get_response(rex) # doctest: +ELLIPSIS
+  >>> print(Request.blank('/url?url=/').get_response(rex)) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -78,14 +78,14 @@ ports::
   >>> class RenderPort(Command):
   ...   path = '/port'
   ...   access = 'anybody'
-  ...
+  ... 
   ...   def render(self, req):
   ...     return Response(encode(port, req))
 
   >>> rex = Rex('-', 'rex.web')
   >>> rex.on()
 
-  >>> print Request.blank('/port').get_response(rex) # doctest: +ELLIPSIS
+  >>> print(Request.blank('/port').get_response(rex)) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -111,14 +111,14 @@ values::
   >>> class RenderQuery(Command):
   ...   path = '/query'
   ...   access = 'anybody'
-  ...
+  ... 
   ...   def render(self, req):
   ...     return Response(encode(query, req))
 
   >>> rex = Rex('-', 'rex.web')
   >>> rex.on()
 
-  >>> print Request.blank('/query').get_response(rex) # doctest: +ELLIPSIS
+  >>> print(Request.blank('/query').get_response(rex)) # doctest: +ELLIPSIS
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -126,3 +126,4 @@ values::
   ["~#query", ["http://localhost/"]]
 
   >>> rex.off()
+

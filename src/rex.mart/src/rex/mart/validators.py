@@ -396,13 +396,13 @@ class MetadataFieldVal(OneOfVal):
     def __call__(self, data):
         value = super(MetadataFieldVal, self).__call__(data)
 
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             value = {value: METADATA_TYPES.get(value, 'text')}
 
         if len(value) > 1:
             raise Error('Mapping can only contain one element')
 
-        name = value.keys()[0]
+        name = list(value.keys())[0]
         if name == 'calculations':
             raise Error(
                 'CalculationSet results are handled by the calculations'
@@ -410,7 +410,7 @@ class MetadataFieldVal(OneOfVal):
             )
 
         if name in METADATA_TYPES \
-                and value.values()[0] != METADATA_TYPES[name]:
+                and list(value.values())[0] != METADATA_TYPES[name]:
             raise Error(
                 'Cannot redefine the standard type for "%s"' % (
                     name,
@@ -459,7 +459,7 @@ class AlternateSelectorVal(OneOfVal):
     def __call__(self, data):
         value = super(AlternateSelectorVal, self).__call__(data)
 
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             value = SelectorVal()({
                 'query': value,
                 'parameters': {},
@@ -848,7 +848,7 @@ class MartConfigurationVal(FullyValidatingRecordVal):
         ])
         dupe_existings = [
             db_name
-            for db_name, count in existing_counts.items()
+            for db_name, count in list(existing_counts.items())
             if count > 1
         ]
         if dupe_existings:

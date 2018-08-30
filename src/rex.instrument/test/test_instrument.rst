@@ -10,7 +10,7 @@ and string-rendering methods::
     >>> instrument = Instrument('fake123', 'fake123', 'My Instrument Title')
     >>> instrument.get_display_name()
     u'My Instrument Title'
-    >>> unicode(instrument)
+    >>> str(instrument)
     u'My Instrument Title'
     >>> str(instrument)
     'My Instrument Title'
@@ -73,4 +73,5 @@ being the same class with the same UID::
     True
     >>> instrument3 >= instrument1
     True
+
 

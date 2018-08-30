@@ -12,18 +12,18 @@ class JSONDomain(Domain):
 
     @staticmethod
     def parse(text):
-        assert isinstance(text, maybe(unicode))
+        assert isinstance(text, maybe(str))
         if text is None:
             return None
         return json.loads(text)
 
     @staticmethod
     def dump(data):
-        assert isinstance(data, maybe(oneof(bool, str, unicode,
-                                            int, long, float, list, dict)))
+        assert isinstance(data, maybe(oneof(bool, str, str,
+                                            int, int, float, list, dict)))
         if data is None:
             return None
-        return unicode(json.dumps(
+        return str(json.dumps(
                     data, indent=2, separators=(',', ': '), sort_keys=True))
 
 

@@ -10,7 +10,7 @@ Test rex.widget.menu
   >>> class MenuWidget(Widget):
   ...     name = 'MenuWidget'
   ...     js_type = 'pkg', 'mapped-widget'
-  ...
+  ... 
   ...     @responder()
   ...     def respond(self, req):
   ...         return Response(json='ok')
@@ -32,9 +32,9 @@ Test rex.widget.menu
 
 ::
 
-  >>> print Request.blank(
+  >>> print(Request.blank(
   ...   '/w',
-  ...   accept='application/json').get_response(rex) # doctest: +ELLIPSIS
+  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
@@ -43,9 +43,9 @@ Test rex.widget.menu
 
 ::
 
-  >>> print Request.blank(
+  >>> print(Request.blank(
   ...   '/w/@@/2.content.2.respond',
-  ...   accept='application/json').get_response(rex) # doctest: +ELLIPSIS
+  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
@@ -55,3 +55,4 @@ Test rex.widget.menu
 ::
 
   >>> rex.off()
+

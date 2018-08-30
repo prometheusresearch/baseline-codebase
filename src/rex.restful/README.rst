@@ -53,13 +53,13 @@ following example::
     ...     parameters = (
     ...         Parameter('foo_id', StrVal()),
     ...     )
-    ...
+    ... 
     ...     def retrieve(self, request, foo_id, **params):
     ...         return {'foo': foo_id, 'action': 'retrieve'}
-    ...
+    ... 
     ...     def update(self, request, foo_id, **params):
     ...         return {'foo': foo_id, 'action': 'update', 'payload': request.payload}
-    ...
+    ... 
     ...     def delete(self, request, foo_id, **params):
     ...         pass
 
@@ -72,7 +72,7 @@ is automatically invoked on the class::
 
     >>> with rex:
     ...     req = Request.blank('/foo/42', method='GET')
-    ...     print req.get_response(rex)
+    ...     print((req.get_response(rex)))
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: 35
@@ -88,7 +88,7 @@ available on the ``payload`` property of the request::
     ...     req = Request.blank('/foo/42', method='PUT')
     ...     req.body = '{"happy": true, "bar": "baz"}'
     ...     req.headers['Content-Type'] = 'application/json'
-    ...     print req.get_response(rex)
+    ...     print((req.get_response(rex)))
     202 Accepted
     Content-Type: application/json; charset=UTF-8
     Content-Length: 75
@@ -100,7 +100,7 @@ suppports::
 
     >>> with rex:
     ...     req = Request.blank('/foo/42', method='OPTIONS')
-    ...     print req.get_response(rex)
+    ...     print((req.get_response(rex)))
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 0
@@ -130,19 +130,19 @@ the ``SimpleResource`` class similar to the following example::
     ...         Parameter('baz_id', StrVal()),
     ...     )
     ...     base_path = '/baz'
-    ...
+    ... 
     ...     def list(self, request, **params):
     ...         return [
     ...             {'baz': 1},
     ...             {'baz': 2},
     ...         ]
-    ...
+    ... 
     ...     def create(self, request, **params):
     ...         return {'baz': 'new', 'action': 'create'}
-    ...
+    ... 
     ...     def retrieve(self, request, baz_id, **params):
     ...         return {'baz': baz_id, 'action': 'retrieve'}
-    ...
+    ... 
     ...     def delete(self, request, baz_id, **params):
     ...         pass
 
@@ -153,7 +153,7 @@ automatically invoked on the class::
 
     >>> with rex:
     ...     req = Request.blank('/baz', method='GET')
-    ...     print req.get_response(rex)
+    ...     print((req.get_response(rex)))
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: 24
@@ -165,7 +165,7 @@ automatically invoked on the class::
 
     >>> with rex:
     ...     req = Request.blank('/baz/123', method='GET')
-    ...     print req.get_response(rex)
+    ...     print((req.get_response(rex)))
     200 OK
     Content-Type: application/json; charset=UTF-8
     Content-Length: 36
@@ -177,7 +177,7 @@ The ``/baz/123`` path can also handle a DELETE request, which invokes the
 
     >>> with rex:
     ...     req = Request.blank('/baz/123', method='DELETE')
-    ...     print req.get_response(rex)
+    ...     print((req.get_response(rex)))
     204 No Content
     Content-Type: application/json; charset=UTF-8
     Content-Length: 0
@@ -187,7 +187,7 @@ deletion is not a container-level action::
 
     >>> with rex:
     ...     req = Request.blank('/baz', method='DELETE')
-    ...     print req.get_response(rex)  # doctest: +ELLIPSIS
+    ...     print((req.get_response(rex)))  # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
@@ -196,7 +196,7 @@ suppport::
 
     >>> with rex:
     ...     req = Request.blank('/baz', method='OPTIONS')
-    ...     print req.get_response(rex)
+    ...     print((req.get_response(rex)))
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 0
@@ -204,7 +204,7 @@ suppport::
 
     >>> with rex:
     ...     req = Request.blank('/baz/42', method='OPTIONS')
-    ...     print req.get_response(rex)
+    ...     print((req.get_response(rex)))
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 0
@@ -229,4 +229,6 @@ For example, to see everything logged, add the following to your
         level: DEBUG
       rex.restful.wire.response:
         level: DEBUG
+
+
 

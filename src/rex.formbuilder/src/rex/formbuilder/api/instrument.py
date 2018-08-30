@@ -87,7 +87,7 @@ class InstrumentValidationResource(RestfulLocation):
         except ValidationError as exc:
             return {
                 'status': 'ERROR',
-                'error': unicode(exc),
+                'error': str(exc),
             }
 
         else:

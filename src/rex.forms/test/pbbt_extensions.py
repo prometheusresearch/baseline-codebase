@@ -59,7 +59,7 @@ class FormValidatorCase(MatchCase):
                 Form.validate_configuration(data, instrument)
             except ValidationError as exc:
                 results.append({
-                    filename: u'%s: %s' % (
+                    filename: '%s: %s' % (
                         exc.__class__.__name__,
                         exc,
                     ),
@@ -77,7 +77,7 @@ class FormValidatorCase(MatchCase):
     def render(self, output):
         results = []
         for validation in output.validations:
-            filename, output = validation.items()[0]
+            filename, output = list(validation.items())[0]
             results.append('%s --> %s' % (
                 filename,
                 output,

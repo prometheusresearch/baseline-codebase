@@ -12,10 +12,10 @@ Test rex.widget.port_support
 ::
 
   >>> class MyClass(PortSupport):
-  ...
+  ... 
   ...   def __init__(self):
   ...       super(MyClass, self).__init__()
-  ...
+  ... 
   ...   def get_port(self):
   ...       return self.create_port('individual')
 
@@ -33,3 +33,4 @@ Test rex.widget.port_support
 ::
 
   >>> rex.off()
+

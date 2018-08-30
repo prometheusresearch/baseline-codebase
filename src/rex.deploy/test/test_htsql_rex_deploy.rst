@@ -74,7 +74,7 @@ labels and headers::
     >>> q = Query('''
     ...     /family{id(), code, notes, /individual{id()}}
     ... ''')
-    >>> print q.format('txt')                           # doctest: +ELLIPSIS
+    >>> print(q.format('txt'))                           # doctest: +ELLIPSIS
      | Family                        |
      +------+------+-------+---------+
      |      |      |       | Subject |
@@ -89,7 +89,7 @@ labels and headers::
     ...                 /individual_via_mother{id()}, /individual_via_father{id()},
     ...                 /sample{id()}}
     ... ''')
-    >>> print q.format('txt')                           # doctest: +ELLIPSIS
+    >>> print(q.format('txt'))                           # doctest: +ELLIPSIS
      | Subject                                                                                                         |
      +------+--------+------------+-----+--------------+--------------+---------------+---------+---------+------------+
      |      | Family |            |     | Birth Mother | Birth Father | Individual Id | Subject | Subject | Assessment |
@@ -101,7 +101,7 @@ labels and headers::
     >>> q = Query('''
     ...     /individual_id{individual{id()}, unique_id, first_name, last_name}
     ... ''')
-    >>> print q.format('txt')                           # doctest: +NORMALIZE_WHITESPACE
+    >>> print(q.format('txt'))                           # doctest: +NORMALIZE_WHITESPACE
      | Individual Id                                |
      +---------+-----------+------------+-----------+
      | Subject |           |            |           |
@@ -113,7 +113,7 @@ labels and headers::
     ...     /sample{id(), individual{id()},
     ...             age, height, salary, birth, sleep, timestamp, current, other}
     ... ''')
-    >>> print q.format('txt')                           # doctest: +NORMALIZE_WHITESPACE
+    >>> print(q.format('txt'))                           # doctest: +NORMALIZE_WHITESPACE
      | Assessment                                                                           |
      +------+---------+-----+--------+--------+-------+-------+-----------+---------+-------+
      |      | Subject |     |        |        |       |       |           |         |       |
@@ -128,14 +128,14 @@ Links in HTSQL selector
 The default selector may now include links::
 
     >>> q = Query(''' /individual.sample ''')
-    >>> print q.format('txt')                           # doctest: +NORMALIZE_WHITESPACE
+    >>> print(q.format('txt'))                           # doctest: +NORMALIZE_WHITESPACE
      | Assessment                                                                           |
      +---------+------+-----+--------+--------+-------+-------+-----------+---------+-------+
      | Subject | Code | Age | Height | Salary | Birth | Sleep | Timestamp | Current | Other |
     -+---------+------+-----+--------+--------+-------+-------+-----------+---------+-------+-
 
     >>> q = Query(''' /sample.individual ''')
-    >>> print q.format('txt')                           # doctest: +NORMALIZE_WHITESPACE
+    >>> print(q.format('txt'))                           # doctest: +NORMALIZE_WHITESPACE
      | Subject |
     -+---------+-
 
@@ -156,7 +156,7 @@ to the database::
     ...                 code:='S',
     ...                 other:='{"type": "speed", "value": 5, "errors": [-0.3, 0.12], "notes": null, "set": false}'}),
     ...         sample[$sample_id]{id(), other}) ''')
-    >>> print q.format('txt')                                           # doctest: +NORMALIZE_WHITESPACE
+    >>> print(q.format('txt'))                                           # doctest: +NORMALIZE_WHITESPACE
      | Assessment                     |
      +-----------+--------------------+
      | id()      | Other              |
@@ -189,7 +189,7 @@ JSON values can also be constructed from HTSQL records::
     ...                         min:=-0.2,
     ...                         max:=0.03})})}),
     ...         sample[$sample_id]{id(), other}) ''')
-    >>> print q.format('txt')                                           # doctest: +NORMALIZE_WHITESPACE
+    >>> print(q.format('txt'))                                           # doctest: +NORMALIZE_WHITESPACE
      | Assessment                      |
      +-----------+---------------------+
      | id()      | Other               |
@@ -208,7 +208,7 @@ JSON values can also be constructed from HTSQL records::
 In JSON format, JSON data is serialized as a native JSON object::
 
     >>> q = Query(''' /sample{id(), other} ''')
-    >>> print q.format('json')                                          # doctest: +NORMALIZE_WHITESPACE
+    >>> print(q.format('json'))                                          # doctest: +NORMALIZE_WHITESPACE
     {
       "sample": [
         {
@@ -244,7 +244,7 @@ You can convert JSON values to text and vice versa.  You can also use
 untyped JSON literals::
 
     >>> q = Query(''' {json('{}'), text(json('{}')), json(text(json('{}')))} ''')
-    >>> print q.format('json')                                          # doctest: +NORMALIZE_WHITESPACE
+    >>> print(q.format('json'))                                          # doctest: +NORMALIZE_WHITESPACE
     {
       "0": {},
       "1": "{}",
@@ -258,7 +258,7 @@ HTSQL records are converted to JSON objects::
     ...         type := 'individual_num',
     ...         value := count(individual),
     ...         notes := '"autogenerated"' })} ''')
-    >>> print q.format('json')                                          # doctest: +NORMALIZE_WHITESPACE
+    >>> print(q.format('json'))                                          # doctest: +NORMALIZE_WHITESPACE
     {
       "0": {
         "notes": "\"autogenerated\"",
@@ -277,13 +277,13 @@ JSON objects can be passed to queries as parameters::
     ...                 code:='T',
     ...                 other:=$other}),
     ...         sample[$sample_id]{id(), other}) ''')
-    >>> print q.format('txt',
+    >>> print(q.format('txt',
     ...     other={
     ...         "type": "speed",
     ...         "value": 5,
     ...         "errors": [-0.3, 0.12],
     ...         "notes": None,
-    ...         "set": False})                  # doctest: +NORMALIZE_WHITESPACE
+    ...         "set": False}))                  # doctest: +NORMALIZE_WHITESPACE
      | Assessment                     |
      +-----------+--------------------+
      | id()      | Other              |
@@ -308,7 +308,7 @@ You can extract values from a JSON object using ``json_get()`` and
     ...     :json_get('victory')
     ...     :boolean
     ... ''')
-    >>> print q.format('json')                                          # doctest: +NORMALIZE_WHITESPACE
+    >>> print(q.format('json'))                                          # doctest: +NORMALIZE_WHITESPACE
     {
       "0": true
     }
@@ -326,11 +326,11 @@ commands::
     ...                         with($individual_data,
     ...                             insert(individual:={family:=$family, code:=$code, sex:=$sex}))),
     ...                     family[$family]{code, /individual})))) ''')
-    >>> print q.format('txt',
+    >>> print(q.format('txt',
     ...     input={ "families": [
     ...         { "code": "2000", "individuals": [{"code":"01", "sex":"male"}, {"code":"02", "sex":"female"}] },
     ...         { "code": "2001", "individuals": [{"code":"01", "sex":"male"}] },
-    ...         { "code": "2002", "individuals": [] }]})                # doctest: +NORMALIZE_WHITESPACE
+    ...         { "code": "2002", "individuals": [] }]}))                # doctest: +NORMALIZE_WHITESPACE
      | Family                                                            |
      +------+------------------------------------------------------------+
      |      | Subject                                                    |
@@ -354,7 +354,7 @@ You can access JSON data through ports::
     >>> sample = json_port.produce(('sample', '1000.01.S')).data.sample[0]
 
     >>> import json
-    >>> print json.dumps(sample.other, sort_keys=True)
+    >>> print(json.dumps(sample.other, sort_keys=True))
     {"errors": [-0.3, 0.12], "notes": null, "set": false, "type": "speed", "value": 5}
 
 You can also use port interface to add and modify JSON data::
@@ -363,7 +363,7 @@ You can also use port interface to add and modify JSON data::
     ...     { 'sample': sample },
     ...     { 'sample': { 'id': sample.id, 'other': {"type": "acceleration", "value": -3.5} } }).data.sample[0]
 
-    >>> print json.dumps(updated_sample.other, sort_keys=True)
+    >>> print(json.dumps(updated_sample.other, sort_keys=True))
     {"type": "acceleration", "value": -3.5}
 
 ``NULL`` values could also be stored::
@@ -372,7 +372,7 @@ You can also use port interface to add and modify JSON data::
     ...     { 'sample': updated_sample },
     ...     { 'sample': { 'id': updated_sample.id, 'other': None } }).data.sample[0]
 
-    >>> print removed_sample.other
+    >>> print(removed_sample.other)
     None
 
 
@@ -385,7 +385,7 @@ To search for a text field with a regular expression, use function
 ``re_matches``::
 
     >>> q = Query(''' {re_matches('42', '\\d+'), re_matches('ten', '\\d+')} ''')
-    >>> print q.format('txt')                                       # doctest: +NORMALIZE_WHITESPACE
+    >>> print(q.format('txt'))                                       # doctest: +NORMALIZE_WHITESPACE
      | re_matches('42','\d+') | re_matches('ten','\d+') |
     -+------------------------+-------------------------+-
      | true                   | false                   |
@@ -393,7 +393,7 @@ To search for a text field with a regular expression, use function
 ``rex.deploy`` also provides interface for full-text search::
 
     >>> q = Query(''' {ft_matches('queries', 'query'), ft_matches('requests', 'query')} ''')
-    >>> print q.format('txt')                                       # doctest: +NORMALIZE_WHITESPACE
+    >>> print(q.format('txt'))                                       # doctest: +NORMALIZE_WHITESPACE
      | ft_matches('queries','query') | ft_matches('requests','query') |
     -+-------------------------------+--------------------------------+-
      | true                          | false                          |
@@ -402,7 +402,7 @@ Functions ``ft_headline`` and ``ft_rank`` return text extracts and search rank
 respectively::
 
     >>> q = Query(''' {ft_headline('queries', 'query'), ft_rank('queries', 'query')} ''')
-    >>> print q.format('txt')                                       # doctest: +NORMALIZE_WHITESPACE
+    >>> print(q.format('txt'))                                       # doctest: +NORMALIZE_WHITESPACE
      | ft_headline('queries','query') | ft_rank('queries','query') |
     -+--------------------------------+----------------------------+-
      | <b>queries</b>                 |                  0.0607927 |
@@ -413,7 +413,7 @@ if you want to use query syntax for searching::
     >>> q = Query(''' {ft_query_matches('queries', 'q:*'),
     ...                ft_query_headline('queries', 'q:*'),
     ...                ft_query_rank('queries', 'q:*')} ''')
-    >>> print q.format('txt')                                       # doctest: +NORMALIZE_WHITESPACE
+    >>> print(q.format('txt'))                                       # doctest: +NORMALIZE_WHITESPACE
      | ft_query_matches('queries','q:*') | ft_query_headline('queries','q:*') | ft_query_rank('queries','q:*') |
     -+-----------------------------------+------------------------------------+--------------------------------+-
      | true                              | <b>queries</b>                     |                      0.0607927 |
@@ -421,7 +421,7 @@ if you want to use query syntax for searching::
 Use function ``join()`` to concatenate a set of strings::
 
     >>> q = Query(''' join(family.code, ', ') ''')
-    >>> print q.format('txt')                                       # doctest: +NORMALIZE_WHITESPACE
+    >>> print(q.format('txt'))                                       # doctest: +NORMALIZE_WHITESPACE
      | join(family.code,', ') |
     -+------------------------+-
      | 1000, 2000, 2001, 2002 |
@@ -430,7 +430,7 @@ As with other aggregate functions, the first argument could be wrapped
 in a selector::
 
     >>> q = Query(''' join(family{code}, ', ') ''')
-    >>> print q.format('txt')                                       # doctest: +NORMALIZE_WHITESPACE
+    >>> print(q.format('txt'))                                       # doctest: +NORMALIZE_WHITESPACE
      | join(family{code},', ') |
     -+-------------------------+-
      | 1000, 2000, 2001, 2002  |
@@ -438,7 +438,7 @@ in a selector::
 The selector must contain one element::
 
     >>> q = Query('''join(family{code, notes}, ', ')''')
-    >>> print q.format('txt')
+    >>> print(q.format('txt'))
     Traceback (most recent call last):
       ...
     Error: Function 'join' expects 1 field for its first argument; got 2
@@ -456,7 +456,7 @@ Some math functions provided by PostgreSQL are exposed to HTSQL.  They include
 
     >>> q = Query(''' {abs(-5), sign(-5), ceil(3.5), floor(3.5), div(5,2), mod(5,2),
     ...                exp(0), pow(2,4), ln(1), log10(100), log(27,3)} ''')
-    >>> print q.format('txt')                                       # doctest: +NORMALIZE_WHITESPACE
+    >>> print(q.format('txt'))                                       # doctest: +NORMALIZE_WHITESPACE
      | abs(-5) | sign(-5) | ceil(3.5) | floor(3.5) | div(5,2) | mod(5,2) | exp(0) | pow(2,4) | ln(1) | log10(100) | log(27,3) |
     -+---------+----------+-----------+------------+----------+----------+--------+----------+-------+------------+-----------+-
      |       5 |       -1 |         4 |          3 |        2 |        1 |      1 |       16 |     0 |          2 |         3 |
@@ -465,7 +465,7 @@ Regular trigonometric functions are also available::
 
     >>> q = Query(''' {pi(), acos(1), asin(0), atan(0), atan2(0,1),
     ...                cos(pi()), cot(0.5*pi()), sin(0), tan(0)} ''')
-    >>> print q.format('txt')                                       # doctest: +NORMALIZE_WHITESPACE
+    >>> print(q.format('txt'))                                       # doctest: +NORMALIZE_WHITESPACE
      | pi()          | acos(1) | asin(0) | atan(0) | atan2(0,1) | cos(pi()) | cot(0.5*pi())     | sin(0) | tan(0) |
     -+---------------+---------+---------+---------+------------+-----------+-------------------+--------+--------+-
      | 3.14159265359 |     0.0 |     0.0 |     0.0 |        0.0 |      -1.0 | 6.12323399574e-17 |    0.0 |    0.0 |
@@ -485,7 +485,7 @@ Identity Conversion
 find records by incomplete identifier::
 
     >>> q = Query(''' /sample{id(), age, height, salary, birth, sleep}?text(id())~'.T' ''')
-    >>> print q.format('txt')                                       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(q.format('txt'))                                       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
      | Assessment                                                |
      +-----------+-----+--------+--------+------------+----------+
      | id()      | Age | Height | Salary | Birth      | Sleep    |
@@ -495,24 +495,25 @@ find records by incomplete identifier::
 ``rex.deploy`` correctly wraps nested identifier with parentheses::
 
     >>> q = Query(''' text(id(1001, id(id('demographics-form'), 1), 1)) ''')
-    >>> print q.produce()
+    >>> print(q.produce())
     '1001.(demographics-form.1).1'
 
 It also correctly escapes text components::
 
     >>> q = Query(''' text(id('Patrick O''Brian')) ''')
-    >>> print q.produce()
+    >>> print(q.produce())
     '''Patrick O''''Brian'''
 
 Null components are converted to null strings::
 
     >>> q = Query(''' text(id(null, 1)) ''')
-    >>> print q.produce()
+    >>> print(q.produce())
     null
 
 Finally we delete the test database::
 
     >>> demo.off()
     >>> cluster.drop()
+
 
 

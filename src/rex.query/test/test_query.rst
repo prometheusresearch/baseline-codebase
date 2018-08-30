@@ -28,7 +28,8 @@ We get an object that represents a parsed syntax tree::
 
 We can also see the query in text notation::
 
-    >>> print q
+    >>> print(q)
     individual.code
+
 
 

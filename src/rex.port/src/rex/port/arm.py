@@ -20,16 +20,16 @@ import yaml
 class ArmDumper(yaml.Dumper):
 
     def represent_unicode(self, data):
-        return self.represent_scalar(u'tag:yaml.org,2002:str', data)
+        return self.represent_scalar('tag:yaml.org,2002:str', data)
 
     def represent_decimal(self, data):
-        return self.represent_scalar(u'tag:yaml.org,2002:float', unicode(data))
+        return self.represent_scalar('tag:yaml.org,2002:float', str(data))
 
     def represent_ordered_dict(self, data):
-        return self.represent_mapping(u'tag:yaml.org,2002:map', data.items(),
+        return self.represent_mapping('tag:yaml.org,2002:map', list(data.items()),
                                       flow_style=False)
 
-ArmDumper.add_representer(unicode,
+ArmDumper.add_representer(str,
                           ArmDumper.represent_unicode)
 ArmDumper.add_representer(decimal.Decimal,
                           ArmDumper.represent_decimal)
@@ -67,7 +67,7 @@ class Arm(object):
 
     def __init__(self, arc, arms):
         assert isinstance(arc, maybe(Arc))
-        assert isinstance(arms, listof(tupleof(unicode, Arm)))
+        assert isinstance(arms, listof(tupleof(str, Arm)))
         self.arc = arc
         if arc is None:
             self.node = HomeNode()
@@ -76,8 +76,8 @@ class Arm(object):
         self.arms = collections.OrderedDict(arms)
 
     def grow(self, arms=[]):
-        assert isinstance(arms, listof(tupleof(unicode, Arm)))
-        return self.__class__(self.arc, self.arms.items()+arms)
+        assert isinstance(arms, listof(tupleof(str, Arm)))
+        return self.__class__(self.arc, list(self.arms.items())+arms)
 
     def __iter__(self):
         return iter(self.arms)
@@ -95,18 +95,18 @@ class Arm(object):
         return self.arms.get(name, default)
 
     def keys(self):
-        return self.arms.keys()
+        return list(self.arms.keys())
 
     def values(self):
-        return self.arms.values()
+        return list(self.arms.values())
 
     def items(self):
-        return self.arms.items()
+        return list(self.arms.items())
 
     def walk(self, ArmType=object):
         if isinstance(self, ArmType):
             yield (), self
-        for name, offshot in self.arms.items():
+        for name, offshot in list(self.arms.items()):
             for path, arm in offshot.walk(ArmType):
                 yield (name,)+path, arm
 
@@ -133,10 +133,10 @@ class RootArm(Arm):
         self.parameters = parameters
 
     def grow(self, arms=[], parameters={}):
-        assert isinstance(arms, listof(tupleof(unicode, Arm)))
+        assert isinstance(arms, listof(tupleof(str, Arm)))
         new_parameters = self.parameters.copy()
         new_parameters.update(parameters)
-        return self.__class__(self.arms.items()+arms, new_parameters)
+        return self.__class__(list(self.arms.items())+arms, new_parameters)
 
     def to_yaml(self, name=None):
         assert name is None
@@ -149,7 +149,7 @@ class RootArm(Arm):
             if value is not None:
                 mapping['default'] = value
             sequence.append(mapping)
-        for name, arm in self.arms.items():
+        for name, arm in list(self.arms.items()):
             sequence.append(arm.to_yaml(name))
         if len(sequence) == 0:
             return None
@@ -166,7 +166,7 @@ class TableArm(Arm):
     def __init__(self, arc, arms, mask, filters, parameters={}):
         assert isinstance(arc, (TableArc, ChainArc))
         assert isinstance(mask, maybe(Mask))
-        assert isinstance(filters, listof(tupleof(unicode, Filter)))
+        assert isinstance(filters, listof(tupleof(str, Filter)))
         super(TableArm, self).__init__(arc, arms)
         self.table = arc.target.table
         self.mask = mask
@@ -175,12 +175,12 @@ class TableArm(Arm):
         self.parameters = parameters
 
     def grow(self, arms=[], mask=None, filters=[]):
-        assert isinstance(arms, listof(tupleof(unicode, Arm)))
+        assert isinstance(arms, listof(tupleof(str, Arm)))
         assert isinstance(mask, maybe(Mask))
-        assert isinstance(filters, listof(tupleof(unicode, Filter)))
-        arms = self.arms.items()+arms
+        assert isinstance(filters, listof(tupleof(str, Filter)))
+        arms = list(self.arms.items())+arms
         mask = self.mask.merge(mask) if self.mask is not None else mask
-        filters = self.filters.items()+filters
+        filters = list(self.filters.items())+filters
         parameters = self.parameters.copy()
         return self.__class__(self.arc, arms, mask, filters, parameters)
 
@@ -190,13 +190,13 @@ class TableArm(Arm):
         if self.mask:
             mapping['mask'] = self.mask.to_yaml()
         filters = []
-        for name, filter in self.filters.items():
+        for name, filter in list(self.filters.items()):
             filters.append(filter.to_yaml(name))
         if filters:
             mapping['filters'] = filters
         select = []
         with_ = []
-        for name, arm in self.arms.items():
+        for name, arm in list(self.arms.items()):
             if isinstance(arm, (ColumnArm, LinkArm)):
                 select.append(name)
             else:
@@ -311,7 +311,7 @@ class Mask(object):
         assert isinstance(syntax, maybe(Syntax))
         if syntax is None:
             return self
-        return Mask(OperatorSyntax(u'&', self.syntax, syntax))
+        return Mask(OperatorSyntax('&', self.syntax, syntax))
 
     def to_yaml(self):
         return str(self.syntax)
@@ -320,15 +320,15 @@ class Mask(object):
 class Filter(object):
 
     def __init__(self, parameters, syntax):
-        assert isinstance(parameters, listof(unicode))
+        assert isinstance(parameters, listof(str))
         assert isinstance(syntax, Syntax)
         self.parameters = parameters
         self.syntax = syntax
 
     def to_yaml(self, name):
-        return u"%s(%s) := %s" \
+        return "%s(%s) := %s" \
                 % (name,
-                   u", ".join(u'$'+parameter
+                   ", ".join('$'+parameter
                               for parameter in self.parameters),
                    self.syntax)
 

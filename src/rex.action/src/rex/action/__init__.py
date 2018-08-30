@@ -7,7 +7,7 @@
 
 """
 
-from __future__ import absolute_import
+
 
 from rex.widget import Field
 from rex.core import Initialize, get_packages

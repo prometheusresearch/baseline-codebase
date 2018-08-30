@@ -22,20 +22,20 @@ write::
     >>> from rex.port import Port
 
     >>> empty_port = Port()
-    >>> print empty_port
+    >>> print(empty_port)
     null
     ...
-    >>> print repr(empty_port)
+    >>> print(repr(empty_port))
     Port()
 
 To create a port for a single table, you can pass the table name as
 the argument::
 
     >>> study_port = Port("study")
-    >>> print study_port
+    >>> print(study_port)
     entity: study
     select: [code, title, closed]
-    >>> print repr(study_port)
+    >>> print(repr(study_port))
     Port('''
     entity: study
     select: [code, title, closed]
@@ -46,21 +46,21 @@ Alternatively, you can provide full YAML specification::
     >>> study_port = Port("""
     ... entity: study
     ... """)
-    >>> print study_port
+    >>> print(study_port)
     entity: study
     select: [code, title, closed]
 
 You can also generate a port object from a Python structure::
 
     >>> study_port = Port({"entity": "study"})
-    >>> print study_port
+    >>> print(study_port)
     entity: study
     select: [code, title, closed]
 
 You can also create a port from an existing port::
 
     >>> study_port = empty_port.grow("study")
-    >>> print study_port
+    >>> print(study_port)
     entity: study
     select: [code, title, closed]
 
@@ -73,7 +73,7 @@ A port may contain more than one entity::
     ... - entity: identity
     ... - entity: participation
     ... """)
-    >>> print all_port
+    >>> print(all_port)
     - entity: study
       select: [code, title, closed]
     - entity: protocol
@@ -92,7 +92,7 @@ A port may also contain calculated fields::
     ... - calculation: num_study
     ...   expression: count(study)
     ... """)
-    >>> print calc_port
+    >>> print(calc_port)
     - entity: study
       select: [code, title, closed]
     - calculation: num_study
@@ -104,7 +104,7 @@ Using shorthand notation, it could be written as::
     ... - study
     ... - num_study := count(study)
     ... """)
-    >>> print calc_port
+    >>> print(calc_port)
     - entity: study
       select: [code, title, closed]
     - calculation: num_study
@@ -117,7 +117,7 @@ If you want to select which columns to include, use ``select`` property::
     ... entity: study
     ... select: [title, closed]
     ... """)
-    >>> print study_select_port
+    >>> print(study_select_port)
     entity: study
     select: [title, closed]
 
@@ -127,7 +127,7 @@ Alternatively, you can choose which columns to omit::
     ... entity: study
     ... deselect: code
     ... """)
-    >>> print study_select_port
+    >>> print(study_select_port)
     entity: study
     select: [title, closed]
 
@@ -137,7 +137,7 @@ You may also include calculated fields defined through ``tweak.override``::
     ... entity: identity
     ... select: [givenname, surname, name]
     ... """)
-    >>> print identity_select_port
+    >>> print(identity_select_port)
     entity: identity
     select: [givenname, surname]
     with:
@@ -150,7 +150,7 @@ To indicate a subset of the table, use ``mask`` attribute::
     ... entity: study
     ... mask: '!closed'
     ... """)
-    >>> print study_mask_port
+    >>> print(study_mask_port)
     entity: study
     mask: '!closed'
     select: [code, title, closed]
@@ -158,7 +158,7 @@ To indicate a subset of the table, use ``mask`` attribute::
 You can also use a shorthand notation::
 
     >>> study_mask_port = Port("study?!closed")
-    >>> print study_mask_port
+    >>> print(study_mask_port)
     entity: study
     mask: '!closed'
     select: [code, title, closed]
@@ -172,7 +172,7 @@ An entity may include other entities and calculated fields::
     ... - participation
     ... - num_participation := count(participation)
     ... """)
-    >>> print individual_port
+    >>> print(individual_port)
     entity: individual
     select: [code, sex, mother, father]
     with:
@@ -192,7 +192,7 @@ Regular links can also be used as nested entities::
     ... - mother
     ... - father
     ... """)
-    >>> print individual_port
+    >>> print(individual_port)
     entity: individual
     select: [code, sex]
     with:
@@ -209,7 +209,7 @@ One can also use path notation::
     ... - individual.participation
     ... - individual.num_participation := count(participation)
     ... """)
-    >>> print individual_port
+    >>> print(individual_port)
     entity: individual
     select: [code, sex, mother, father]
     with:
@@ -232,7 +232,7 @@ Alternatively, one could also use ``at`` attribute::
     ...   expression: count(participation)
     ...   at: individual
     ... """)
-    >>> print individual_port
+    >>> print(individual_port)
     entity: individual
     select: [code, sex, mother, father]
     with:
@@ -251,7 +251,7 @@ One could define custom filters on entities::
     ...   - search($text) := identity.givenname~$text|identity.surname~$text
     ...   - birthrange($l,$h) := identity.birthdate>=$l&identity.birthdate<=$h
     ... """)
-    >>> print individual_filters_port           # doctest: +NORMALIZE_WHITESPACE
+    >>> print(individual_filters_port)           # doctest: +NORMALIZE_WHITESPACE
     entity: individual
     filters: ['search($text) := identity.givenname~$text|identity.surname~$text',
               'birthrange($l, $h) := identity.birthdate>=$l&identity.birthdate<=$h']
@@ -263,7 +263,7 @@ A port may configure free parameters::
     ... - $sex := 'male'
     ... - individual?sex=$sex
     ... """)
-    >>> print individuals_by_sex
+    >>> print(individuals_by_sex)
     - parameter: sex
       default: male
     - entity: individual
@@ -742,5 +742,6 @@ Parameter names must be unique::
         sex
     While applying:
         "<byte string>", line 3
+
 
 

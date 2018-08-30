@@ -20,7 +20,7 @@ We declare calculated fields with ``alias`` records::
     >>> fact = driver.parse("""{ alias: "family.size := count(individual)" }""")
     >>> fact
     AliasFact(u'family', u'size', body=u'count(individual)')
-    >>> print fact
+    >>> print(fact)
     alias: size
     of: family
     expression: count(individual)
@@ -43,7 +43,7 @@ A calculated field may require parameters, which can be specified as follows::
     ... """)
     >>> fact
     AliasFact(u'family', u'individual_by_sex', [u'sex'], body=u'individual?sex=$sex')
-    >>> print fact
+    >>> print(fact)
     alias: individual_by_sex
     of: family
     parameters: [sex]
@@ -245,5 +245,6 @@ Finally, we drop the test database::
 
     >>> driver.close()
     >>> cluster.drop()
+
 
 

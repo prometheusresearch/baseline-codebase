@@ -98,14 +98,14 @@ class TaggedCollectionVal(Validate):
 
     def construct(self, loader, node):
         if node.tag == self.tag:
-            if isinstance(node, yaml.ScalarNode) and node.value == u'':
-                node = yaml.ScalarNode(u'tag:yaml.org,2002:null', node.value,
+            if isinstance(node, yaml.ScalarNode) and node.value == '':
+                node = yaml.ScalarNode('tag:yaml.org,2002:null', node.value,
                         node.start_mark, node.end_mark, node.style)
             elif isinstance(node, yaml.MappingNode):
-                node = yaml.MappingNode(u'tag:yaml.org,2002:map', node.value,
+                node = yaml.MappingNode('tag:yaml.org,2002:map', node.value,
                         node.start_mark, node.end_mark, node.flow_style)
             elif isinstance(node, yaml.SequenceNode):
-                node = yaml.SequenceNode(u'tag:yaml.org,2002:seq', node.value,
+                node = yaml.SequenceNode('tag:yaml.org,2002:seq', node.value,
                         node.start_mark, node.end_mark, node.flow_style)
             return self.value.construct(loader, node)
         return super(TaggedCollectionVal, self).construct(loader, node)
@@ -130,7 +130,7 @@ class MapLoader(ValidatingLoader):
     # Add support for `!setting` tag.
 
     def construct_object(self, node, deep=False):
-        if node.tag != u'!setting':
+        if node.tag != '!setting':
             return super(MapLoader, self).construct_object(node, deep)
         if not isinstance(node, yaml.ScalarNode):
             raise yaml.constructor.ConstructorError(None, None,
@@ -159,15 +159,15 @@ class LoadMap(object):
         override_field_set = set()
         handle_pairs = []
         for map_type in Map.all():
-            for field in map_type.validate.fields.values():
+            for field in list(map_type.validate.fields.values()):
                 if field.name not in override_field_set:
                     override_fields.append((field.name, field.validate, None))
                     override_field_set.add(field.name)
             handle_pairs.append((map_type.key, map_type.validate))
             self.map_by_record_type[map_type.record_type] = map_type(package)
-        copy_val = TaggedStrVal(u'!copy', r'/[@${}/0-9A-Za-z:._-]*')
+        copy_val = TaggedStrVal('!copy', r'/[@${}/0-9A-Za-z:._-]*')
         self.copy_record_type = copy_val.record_type
-        override_val = TaggedCollectionVal(u'!override', DeferredVal())
+        override_val = TaggedCollectionVal('!override', DeferredVal())
         handle_val = UnionVal(
                 (OnTag(copy_val.tag), copy_val),
                 (OnTag(override_val.tag), override_val),
@@ -201,7 +201,7 @@ class LoadMap(object):
                 continue
             map = self.map_by_record_type[type(handle_spec)]
             mask = map.mask(path)
-            handler = map(handle_spec, mask, map_spec.context)
+            handler = list(map(handle_spec, mask, map_spec.context))
             add_handler(segment_map, mask, handler)
 
         return segment_map

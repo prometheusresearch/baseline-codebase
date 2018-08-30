@@ -6,7 +6,7 @@ import zipfile
 import datetime
 import shutil
 
-from StringIO import StringIO
+from io import StringIO
 from collections import OrderedDict
 
 from rex.core import get_settings, Error
@@ -36,7 +36,7 @@ class ImportChunk(object):
         when = str(datetime.datetime.now())
         output = os.path.join(output, when + '-' + self.id + '.csv')
         with open(output, 'w') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=self.data[0].keys())
+            writer = csv.DictWriter(csvfile, fieldnames=list(self.data[0].keys()))
             writer.writeheader()
             for row in self.data:
                 writer.writerow(row)
@@ -98,7 +98,7 @@ class ImportPackage(object):
         chunks = []
         try:
             workbook = xlrd.open_workbook(path)
-        except xlrd.XLRDError, exc:
+        except xlrd.XLRDError as exc:
             exc = Error("Bad xls file", exc)
             cls.fail(exc, path, user)
         data = OrderedDict()
@@ -127,7 +127,7 @@ class ImportPackage(object):
             with open(filepath, 'rU') as csvfile:
                 try:
                     data = cls.read_csv(csvfile, user)
-                except Exception, exc:
+                except Exception as exc:
                     exc = Error("Unable to read csv %s" % filepath, exc)
                     cls.fail(exc, path, user)
                 chunks.append(ImportChunk(name, data, user))
@@ -153,7 +153,7 @@ class ImportPackage(object):
                 with zf.open(filepath, 'rU') as csvfile:
                     try:
                         data = cls.read_csv(csvfile, user)
-                    except Exception, exc:
+                    except Exception as exc:
                         exc = Error("Unable to read csv %s" % filepath, exc)
                         cls.fail(exc, path, user)
                     chunks.append(ImportChunk(name, data, user))
@@ -172,7 +172,7 @@ class ImportPackage(object):
         with open(path, 'rU') as csvfile:
             try:
                 data = cls.read_csv(csvfile, user)
-            except Exception, exc:
+            except Exception as exc:
                 exc = Error("Unable to read csv %s." % path, exc)
                 cls.fail(exc, path, user)
             chunks.append(ImportChunk(name, data, user))
@@ -191,7 +191,7 @@ class ImportPackage(object):
             raise Error("Unable to generate csv file for more than one chunk")
         csvcontent = StringIO()
         writer = csv.DictWriter(csvcontent,
-                                fieldnames=self.chunks[0].data[0].keys())
+                                fieldnames=list(self.chunks[0].data[0].keys()))
         writer.writeheader()
         for row in self.chunks[0].data:
             writer.writerow(row)
@@ -205,7 +205,7 @@ class ImportPackage(object):
             for chunk in self.chunks:
                 csvcontent = StringIO()
                 writer = csv.DictWriter(csvcontent,
-                                        fieldnames=chunk.data[0].keys())
+                                        fieldnames=list(chunk.data[0].keys()))
                 writer.writeheader()
                 for row in chunk.data:
                     writer.writerow(row)
@@ -218,7 +218,7 @@ class ImportPackage(object):
             sheet = workbook.add_sheet(str(chunk_idx))
             sheet.write(0, 0, chunk.id)
             header = []
-            if chunk.data: header = chunk.data[0].keys()
+            if chunk.data: header = list(chunk.data[0].keys())
             for col_idx, key in enumerate(header):
                 sheet.write(1, col_idx, key)
                 for row_idx, row in enumerate(chunk.data):

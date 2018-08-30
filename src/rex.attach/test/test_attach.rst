@@ -13,7 +13,7 @@ name::
 
     >>> from rex.attach import sanitize_filename
 
-    >>> sanitize_filename(u"/etc/passwd")
+    >>> sanitize_filename("/etc/passwd")
     'passwd.dat'
 
     >>> sanitize_filename("The Fortunes and Misfortunes of the Famous Moll Flanders, &c."
@@ -70,7 +70,7 @@ contains the attachment::
 
     >>> handle_str = storage.add("str.txt", "attachment content")
 
-    >>> import StringIO
+    >>> import io
     >>> handle_file = storage.add("file.txt", StringIO.StringIO("attachment content"))
 
 You can open an attachment by handle::
@@ -111,7 +111,7 @@ Ill-formed handles are detected::
 Finally you could list all attachments in the storage::
 
     >>> for handle in storage:
-    ...     print handle                    # doctest: +ELLIPSIS
+    ...     print(handle)                    # doctest: +ELLIPSIS
     /.../.../.../...-...-4...-...-.../....txt
 
 
@@ -125,7 +125,7 @@ response with attachment content::
 
     >>> req = Request.blank('/download')
     >>> app = storage.route(handle_str)
-    >>> print app(req)                          # doctest: +ELLIPSIS
+    >>> print(app(req))                          # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 18
@@ -139,7 +139,7 @@ The ``rex.attach`` module also provides a service to download attachments
 directly.  By default, it is disabled::
 
     >>> req = Request.blank("/attach"+handle_str, remote_user='Alice')
-    >>> print req.get_response(demo)                    # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))                    # doctest: +ELLIPSIS
     401 Unauthorized
     ...
 
@@ -152,26 +152,26 @@ package using ``access`` setting::
 Requests must have the required permission::
 
     >>> anon_req = Request.blank("/attach"+handle_str)
-    >>> print anon_req.get_response(download_demo)      # doctest: +ELLIPSIS
+    >>> print(anon_req.get_response(download_demo))      # doctest: +ELLIPSIS
     401 Unauthorized
     ...
 
     >>> auth_req = Request.blank("/attach"+handle_str, remote_user='Alice')
-    >>> print auth_req.get_response(download_demo)      # doctest: +ELLIPSIS
+    >>> print(auth_req.get_response(download_demo))      # doctest: +ELLIPSIS
     200 OK
     ...
 
 Only ``GET`` and ``HEAD`` methods are allowed::
 
     >>> post_req = Request.blank("/attach"+handle_str, remote_user='Alice', method='POST')
-    >>> print post_req.get_response(download_demo)      # doctest: +ELLIPSIS
+    >>> print(post_req.get_response(download_demo))      # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
 Unknown or ill-formed requests are reported::
 
     >>> invalid_req = Request.blank("/attach"+handle_file, remote_user='Alice')
-    >>> print invalid_req.get_response(download_demo)   # doctest: +ELLIPSIS
+    >>> print(invalid_req.get_response(download_demo))   # doctest: +ELLIPSIS
     404 Not Found
     ...
 
@@ -228,7 +228,7 @@ an attachment::
     >>> from rex.attach import download
 
     >>> with demo:
-    ...     print download(handle1)(req)        # doctest: +ELLIPSIS
+    ...     print(download(handle1)(req))        # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 18
@@ -237,5 +237,6 @@ an attachment::
     Accept-Ranges: bytes
     <BLANKLINE>
     attachment content
+
 
 

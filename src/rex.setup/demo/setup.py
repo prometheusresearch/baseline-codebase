@@ -16,8 +16,8 @@ class demo(Command):
     def run(self):
         import pkg_resources
         dist = pkg_resources.get_distribution('rex.setup_demo')
-        print "rex_init.txt:", dist.get_metadata('rex_init.txt')
-        print "rex_static.txt:", dist.get_metadata('rex_static.txt')
+        print("rex_init.txt:", dist.get_metadata('rex_init.txt'))
+        print("rex_static.txt:", dist.get_metadata('rex_static.txt'))
 
 
 setup(

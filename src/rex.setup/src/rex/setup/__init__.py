@@ -41,7 +41,7 @@ def findall(dir = os.curdir):
             base = base[2:]
         if base:
             files = [os.path.join(base, f) for f in files]
-        all_files.extend(filter(os.path.isfile, files))
+        all_files.extend(list(filter(os.path.isfile, files)))
     return all_files
 
 import setuptools, distutils.filelist

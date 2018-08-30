@@ -65,7 +65,7 @@ class PathVal(StrVal):
         data = super(PathVal, self).__call__(data)
         try:
             PathMask.split(data)
-        except ValueError, exc:
+        except ValueError as exc:
             raise Error("Got ill-formed path:", exc)
         return data
 

@@ -88,17 +88,17 @@ class TableFact(Fact):
     def __init__(self, label, former_labels=[], is_reliable=None,
                  title=None, is_present=True, related=None):
         # Validate input constraints.
-        assert isinstance(label, unicode) and len(label) > 0
+        assert isinstance(label, str) and len(label) > 0
         assert isinstance(is_present, bool)
         if is_present:
             assert (isinstance(former_labels, list) and
-                    all(isinstance(former_label, unicode)
+                    all(isinstance(former_label, str)
                         for former_label in former_labels))
             if is_reliable is None:
                 is_reliable = True
             assert isinstance(is_reliable, bool)
             assert (title is None or
-                    (isinstance(title, unicode) and len(title) > 0))
+                    (isinstance(title, str) and len(title) > 0))
             assert (related is None or
                     (isinstance(related, list) and
                      all(isinstance(fact, Fact) for fact in related)))

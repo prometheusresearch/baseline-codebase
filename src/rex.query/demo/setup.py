@@ -16,19 +16,19 @@ class demo(Command):
     def run(self):
         import os
         cmd = "rex query-demo-populate rex.query_demo"
-        print "$", cmd
+        print("$", cmd)
         os.spawnvp(0, cmd.split()[0], cmd.split())
         from rex.core import Rex
         demo = Rex('rex.query_demo')
         demo.on()
         from rex.query import Query
-        print '-'*72
+        print('-'*72)
         study_query = Query({"op": "navigate", "params": ["study"]})
-        print study_query
+        print(study_query)
         from webob import Request
         req = Request.blank('/')
-        print '-'*72
-        print study_query(req)
+        print('-'*72)
+        print(study_query(req))
 
 setup(
     name='rex.query_demo',

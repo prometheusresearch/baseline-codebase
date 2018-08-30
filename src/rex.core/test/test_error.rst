@@ -53,12 +53,12 @@ Errors have WSGI interface and are rendered either in ``text/plain`` or
     >>> setup_testing_defaults(environ)
 
     >>> def start_response(status, headers, exc_info=None):
-    ...     print status
+    ...     print(status)
     ...     for key, value in headers:
-    ...         print "%s: %s" % (key, value)
-    ...     print
+    ...         print("%s: %s" % (key, value))
+    ...     print()
 
-    >>> print "".join(error(environ, start_response))
+    >>> print("".join(error(environ, start_response)))
     400 Bad Request
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 131
@@ -71,7 +71,7 @@ Errors have WSGI interface and are rendered either in ``text/plain`` or
         refrigerator #3
 
     >>> environ['HTTP_ACCEPT'] = 'text/html'
-    >>> print "".join(error(environ, start_response))
+    >>> print("".join(error(environ, start_response)))
     400 Bad Request
     Content-Type: text/html; charset=UTF-8
     Content-Length: 275
@@ -147,5 +147,6 @@ We can also get a list of tags::
     {'project': 'rex.core_demo', 'version': '1.0.0'}
 
     >>> os.environ = _environ
+
 
 

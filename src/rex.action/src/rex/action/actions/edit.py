@@ -33,7 +33,7 @@ class Edit(FormAction):
 
         def reconcile_input(self, entity, input):
             if not entity.name in input.rows:
-                input = RecordType(input.rows.values() + [entity])
+                input = RecordType(list(input.rows.values()) + [entity])
             return input
 
     submit_button = Field(
@@ -45,5 +45,5 @@ class Edit(FormAction):
     def context(self):
         input = self.input
         if not self.entity.name in input.rows:
-            input = RecordType(input.rows.values() + [self.entity])
+            input = RecordType(list(input.rows.values()) + [self.entity])
         return input, RecordType([self.entity])

@@ -24,7 +24,7 @@ accepts both strings and ``email.message.Message`` objects::
     ... From: Alice Anderson <alice@example.net>
     ... To: Bob Brown <bob@example.net>
     ... Subject: Hi there!
-    ...
+    ... 
     ... Hi Bob!
     ... """
 
@@ -115,7 +115,7 @@ function::
 
     >>> mailer
     StdoutMailer()
-    >>> print mailer
+    >>> print(mailer)
     -
 
 
@@ -130,7 +130,7 @@ The default mailer uses the local SMTP server to send outgoing mail::
     ...     mailer = get_mailer()
     >>> mailer
     SMTPMailer()
-    >>> print mailer
+    >>> print(mailer)
     smtp://127.0.0.1/
 
 On startup, we check if we could connect to the SMTP server::
@@ -164,7 +164,7 @@ Now we can test the client code::
     ... From: Alice Anderson <alice@example.net>
     ... To: Bob Brown <bob@example.net>
     ... Subject: Hi there!
-    ...
+    ... 
     ... Hi Bob!
     ... """
 
@@ -174,7 +174,7 @@ Now we can test the client code::
     ...     mailer = get_mailer()
     >>> mailer
     SMTPMailer('127.0.0.1', 22225)
-    >>> print mailer
+    >>> print(mailer)
     smtp://127.0.0.1:22225/
 
     >>> with smtp_demo:
@@ -198,7 +198,7 @@ specific address::
     ...     mailer = get_mailer()
     >>> mailer
     SMTPMailer('127.0.0.1', 22225, forward='xi@resolvent.net')
-    >>> print mailer
+    >>> print(mailer)
     smtp://127.0.0.1:22225/xi@resolvent.net
 
     >>> with forward_demo:
@@ -225,14 +225,14 @@ MBOX format::
     ...     mailer = get_mailer()
     >>> mailer
     MBoxMailer('./sandbox/mbox')
-    >>> print mailer
+    >>> print(mailer)
     mbox://./sandbox/mbox
 
     >>> with mbox_demo:
     ...     sendmail(msg)
 
     >>> mbox = open('./sandbox/mbox')
-    >>> print mbox.read()                   # doctest: +ELLIPSIS
+    >>> print(mbox.read())                   # doctest: +ELLIPSIS
     From alice@example.net ...
     From: Alice Anderson <alice@example.net>
     To: Bob Brown <bob@example.net>
@@ -247,10 +247,11 @@ messages::
     ...     mailer = get_mailer()
     >>> mailer
     NullMailer()
-    >>> print mailer
+    >>> print(mailer)
     null
 
     >>> with null_demo:
     ...     sendmail(msg)
+
 
 

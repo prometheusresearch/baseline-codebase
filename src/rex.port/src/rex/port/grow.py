@@ -129,13 +129,13 @@ def as_value(syntax):
     elif isinstance(syntax, StringSyntax):
         value = syntax.text
         domain = UntypedDomain()
-    elif isinstance(syntax, IdentifierSyntax) and syntax.name == u'null':
+    elif isinstance(syntax, IdentifierSyntax) and syntax.name == 'null':
         value = None
         domain = UntypedDomain()
-    elif isinstance(syntax, IdentifierSyntax) and syntax.name == u'true':
+    elif isinstance(syntax, IdentifierSyntax) and syntax.name == 'true':
         value = True
         domain = UntypedDomain()
-    elif isinstance(syntax, IdentifierSyntax) and syntax.name == u'false':
+    elif isinstance(syntax, IdentifierSyntax) and syntax.name == 'false':
         value = False
         domain = UntypedDomain()
     else:
@@ -178,7 +178,7 @@ class SyntaxVal(UStrVal):
         try:
             with get_db():
                 syntax = parse(data)
-        except HTSQLError, exc:
+        except HTSQLError as exc:
             raise Error("Failed to parse an HTSQL expression:", str(exc))
         return syntax
 
@@ -246,7 +246,7 @@ class Grow(object):
     def parse(cls, stream):
         # Parses a YAML stream or a Python structure, returns a port builder.
         validate = GrowVal()
-        if isinstance(stream, (str, unicode)) or hasattr(stream, 'read'):
+        if isinstance(stream, str) or hasattr(stream, 'read'):
             spec = validate.parse(stream)
         else:
             spec = validate(stream)
@@ -329,7 +329,7 @@ class Grow(object):
                               .wrap("While processing field:", 'filters')
                     filters.append(name_parameters_expression)
                 # Process `select: [<name>, ...]`.
-                select_patterns = [u'*']
+                select_patterns = ['*']
                 if spec.select is not None:
                     select_patterns = spec.select \
                             if isinstance(spec.select, list) \
@@ -398,7 +398,7 @@ class Grow(object):
                     if spec.default is not None:
                         try:
                             value = Embed.__invoke__(spec.default)
-                        except (TypeError, ValueError), exc:
+                        except (TypeError, ValueError) as exc:
                             raise Error("Got invalid default value:", exc) \
                                   .wrap("While processing field:", 'default')
                 elif name_value is not None:
@@ -441,7 +441,7 @@ class GrowEntity(Grow):
     # Grows an entity arm.
 
     def __init__(self, name, path, mask=None, filters=[],
-                 select_patterns=[u'*'], deselect_patterns=[], related=[]):
+                 select_patterns=['*'], deselect_patterns=[], related=[]):
         # The name of the entity (table or link).
         self.name = name
         # Path to the parent.
@@ -464,7 +464,7 @@ class GrowEntity(Grow):
             for name in self.path:
                 if name not in parent:
                     raise Error("Unable to find arm:", name) \
-                          .wrap("While following path:", u".".join(self.path))
+                          .wrap("While following path:", ".".join(self.path))
                 chain.append(parent)
                 parent = parent[name]
             # Find the attribute on the parent arm and verify if it is indeed
@@ -495,7 +495,7 @@ class GrowEntity(Grow):
             calculations = []
             for label in classify(arm_arc.target):
                 if not any(fnmatch.fnmatchcase(label.name, pattern) and
-                           (pattern != u'*' or label.is_public)
+                           (pattern != '*' or label.is_public)
                            for pattern in self.select_patterns):
                     continue
                 if any(fnmatch.fnmatchcase(label.name, pattern)
@@ -525,7 +525,7 @@ class GrowEntity(Grow):
                 raise Error("Got entity that has already been added:",
                             self.name)
             arm = arm_class(arm_arc, arms, mask, filters, parent.parameters)
-        except Error, error:
+        except Error as error:
             location = locate(self)
             if location is not None:
                 error.wrap("While applying:", location)
@@ -535,7 +535,7 @@ class GrowEntity(Grow):
             arm = grow(arm)
         # Rebuild the chain of parents.
         parent = parent.grow(arms=[(self.name, arm)])
-        for arm, name in reversed(zip(chain, self.path)):
+        for arm, name in reversed(list(zip(chain, self.path))):
             parent = arm.grow(arms=[(name, parent)])
         return parent
 
@@ -558,7 +558,7 @@ class GrowCalculation(Grow):
             for name in self.path:
                 if name not in parent:
                     raise Error("Unable to find arm:", name) \
-                          .wrap("While following path:", u".".join(self.path))
+                          .wrap("While following path:", ".".join(self.path))
                 chain.append(parent)
                 parent = parent[name]
             if not isinstance(parent, (RootArm, TableArm)):
@@ -569,7 +569,7 @@ class GrowCalculation(Grow):
                 state = BindingState(RootBinding(VoidSyntax()))
                 # We have to supply $USER and other variables.
                 recipe = LiteralRecipe(None, UntypedDomain())
-                scope = DefineReferenceBinding(state.scope, u"USER", recipe,
+                scope = DefineReferenceBinding(state.scope, "USER", recipe,
                         state.scope.syntax)
                 for name, value in sorted(parent.parameters.items()):
                     recipe = LiteralRecipe(value.data, value.domain)
@@ -582,21 +582,21 @@ class GrowCalculation(Grow):
                     state.push_scope(binding)
                 binding = state.bind(self.syntax)
                 domain = binding.domain
-            except HTSQLError, exc:
+            except HTSQLError as exc:
                 raise Error("Failed to compile an HTSQL expression:", str(exc))
             # Create the arm object.
             if self.name in parent:
                 raise Error("Got calculation that has already been added:",
                             self.name)
             arm = SyntaxArm(parent.node, self.syntax, domain)
-        except Error, error:
+        except Error as error:
             location = locate(self)
             if location is not None:
                 error.wrap("While applying:", location)
             raise
         # Rebuild the chain of parents.
         parent = parent.grow(arms=[(self.name, arm)])
-        for arm, name in reversed(zip(chain, self.path)):
+        for arm, name in reversed(list(zip(chain, self.path))):
             parent = arm.grow(arms=[(name, parent)])
         return parent
 
@@ -619,7 +619,7 @@ class GrowParameter(Grow):
                 raise Error("Unable to add parameter to a non-root arm")
             if self.name in parent.parameters:
                 raise Error("Got duplicate parameter:", self.name)
-        except Error, error:
+        except Error as error:
             location = locate(self)
             if location is not None:
                 error.wrap("While applying:", location)

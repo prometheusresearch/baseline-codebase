@@ -62,17 +62,17 @@ saved to the ``job_rexmart_create`` table::
     >>> def show_job(code):
     ...     data = get_db().produce("/job{*, job_rexmart_create{*} :as facet}.filter(code=$code)", code=code)
     ...     if not data:
-    ...         print 'Job #%s Not Found' % (code,)
+    ...         print('Job #%s Not Found' % (code,))
     ...     else:
     ...         job = data[0]
-    ...         print 'Job #%s: status=%s,%s type=%s, dates=%s, facet=%s' % (
+    ...         print('Job #%s: status=%s,%s type=%s, dates=%s, facet=%s' % (
     ...             job.code,
     ...             job.status,
     ...             (' detail="%s",' % (job.status_detail,)) if job.status_detail else '',
     ...             job.type,
     ...             ','.join([x for x in [job.date_submitted and 'Submitted', job.date_started and 'Started', job.date_completed and 'Completed'] if x]),
     ...             job.facet.log if job.facet else None,
-    ...         )
+    ...         ))
 
     >>> def run_job(job_type, payload):
     ...     code = int(str(get_db().produce(
@@ -167,4 +167,5 @@ saved to the ``job_rexmart_create`` table::
 
 
     >>> rex.off()
+
 

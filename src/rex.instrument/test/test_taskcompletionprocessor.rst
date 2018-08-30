@@ -30,22 +30,22 @@ whose ``is_applicable()`` method returns ``True``::
     ...     def is_applicable(self, task, user):
     ...         return True
     ...     def execute(self, task, user):
-    ...         print 'MyProcessor touched %s' % task.uid
-    ...
+    ...         print('MyProcessor touched %s' % task.uid)
+    ... 
     >>> class UnusedProcessor(TaskCompletionProcessor):
     ...     priority = 25
     ...     def is_applicable(self, task, user):
     ...         return False
     ...     def execute(self, task, user):
-    ...         print 'This shouldn\'t happen.'
-    ...
+    ...         print('This shouldn\'t happen.')
+    ... 
     >>> class MyOtherProcessor(TaskCompletionProcessor):
     ...     priority = 50
     ...     def is_applicable(self, task, user):
     ...         return task.subject.uid == 'fake123'
     ...     def execute(self, task, user):
-    ...         print 'MyOtherProcessor touched %s' % task.uid
-    ...
+    ...         print('MyOtherProcessor touched %s' % task.uid)
+    ... 
 
     >>> from rex.instrument.interface import Subject, Instrument, InstrumentVersion, User
     >>> from datetime import datetime
@@ -84,4 +84,5 @@ the classes sorted in order of their ``priority``::
 
     >>> TaskCompletionProcessor.all()
     [__main__.MyProcessor, __main__.UnusedProcessor, __main__.MyOtherProcessor]
+
 

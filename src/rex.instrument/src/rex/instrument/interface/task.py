@@ -37,19 +37,19 @@ class Task(
     """
 
     #: Work has not started on the task.
-    STATUS_NOT_STARTED = u'not-started'
+    STATUS_NOT_STARTED = 'not-started'
 
     #: Work has been started on the task.
-    STATUS_STARTED = u'started'
+    STATUS_STARTED = 'started'
 
     #: The Task has been satisfied.
-    STATUS_COMPLETE = u'complete'
+    STATUS_COMPLETE = 'complete'
 
     #: The Task is no longer necessary.
-    STATUS_SKIPPED = u'skipped'
+    STATUS_SKIPPED = 'skipped'
 
     #: There was a failure when trying to execute the task.
-    STATUS_FAILED = u'failed'
+    STATUS_FAILED = 'failed'
 
     #: All valid values that the status property can be assigned.
     ALL_STATUSES = (
@@ -195,23 +195,23 @@ class Task(
             due_date=None):
         self._uid = to_unicode(uid)
 
-        if not isinstance(subject, (Subject, basestring)):
+        if not isinstance(subject, (Subject, str)):
             raise ValueError(
                 'subject must be an instance of Subject or a UID of one'
             )
         self._subject = subject
 
-        if not isinstance(instrument, (Instrument, basestring)):
+        if not isinstance(instrument, (Instrument, str)):
             raise ValueError(
                 'instrument must be an instance of Instrument or a UID of one'
             )
         self._instrument = instrument
 
-        if not isinstance(priority, (int, long)):
+        if not isinstance(priority, int):
             raise ValueError('priority must be an integer')
         self._priority = priority
 
-        if not isinstance(assessment, (Assessment, basestring)) \
+        if not isinstance(assessment, (Assessment, str)) \
                 and assessment is not None:
             raise ValueError(
                 'assessment must be an instance of Assessment or a UID of one'
@@ -244,7 +244,7 @@ class Task(
         :rtype: Subject
         """
 
-        if isinstance(self._subject, basestring):
+        if isinstance(self._subject, str):
             subject_impl = get_implementation('subject')
             return subject_impl.get_by_uid(self._subject)
         else:
@@ -258,7 +258,7 @@ class Task(
         :rtype: Instrument
         """
 
-        if isinstance(self._instrument, basestring):
+        if isinstance(self._instrument, str):
             instrument_impl = get_implementation('instrument')
             return instrument_impl.get_by_uid(self._instrument)
         else:
@@ -295,7 +295,7 @@ class Task(
         :rtype: User
         """
 
-        if isinstance(self._facilitator, basestring):
+        if isinstance(self._facilitator, str):
             user_impl = get_implementation('user')
             return user_impl.get_by_uid(self._facilitator)
         else:
@@ -303,7 +303,7 @@ class Task(
 
     @facilitator.setter
     def facilitator(self, value):
-        if not isinstance(value, (basestring, User)) and value is not None:
+        if not isinstance(value, (str, User)) and value is not None:
             raise ValueError(
                 '"%s" is not a valid Facilitator' % (
                     value,
@@ -417,7 +417,7 @@ class Task(
         :rtype: Assessment
         """
 
-        if isinstance(self._assessment, basestring):
+        if isinstance(self._assessment, str):
             assessment_impl = get_implementation('assessment')
             return assessment_impl.get_by_uid(self._assessment)
         else:
@@ -425,7 +425,7 @@ class Task(
 
     @assessment.setter
     def assessment(self, value):
-        if not isinstance(value, (basestring, Assessment)) \
+        if not isinstance(value, (str, Assessment)) \
                 and value is not None:
             raise ValueError(
                 '"%s" is not a valid Assessment' % (

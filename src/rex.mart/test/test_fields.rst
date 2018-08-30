@@ -43,7 +43,7 @@ TextField
     {u'test': None}
     >>> field.get_value_mapping('foo')
     {u'test': u'foo'}
-    >>> field.get_value_mapping(u'foo')
+    >>> field.get_value_mapping('foo')
     {u'test': u'foo'}
     >>> field.get_value_mapping(1)
     {u'test': u'1'}
@@ -63,14 +63,14 @@ TextField
     {u'test': u'2015-05-22T12:34:56'}
 
     >>> TEXT_MERGE_VECTORS = (
-    ...     ({'base': 'text'}, 'foo', u'foo'),
-    ...     ({'base': 'integer'}, 123, u'123'),
-    ...     ({'base': 'float'}, 1.23, u'1.23'),
-    ...     ({'base': 'boolean'}, True, u'TRUE'),
-    ...     ({'base': 'date'}, '2015-05-22', u'2015-05-22'),
-    ...     ({'base': 'time'}, '12:34:56', u'12:34:56'),
-    ...     ({'base': 'dateTime'}, '2015-05-22T12:34:56', u'2015-05-22T12:34:56'),
-    ...     ({'base': 'enumeration', 'enumerations': {'foo':{},'bar':{}}}, 'foo', u'foo'),
+    ...     ({'base': 'text'}, 'foo', 'foo'),
+    ...     ({'base': 'integer'}, 123, '123'),
+    ...     ({'base': 'float'}, 1.23, '1.23'),
+    ...     ({'base': 'boolean'}, True, 'TRUE'),
+    ...     ({'base': 'date'}, '2015-05-22', '2015-05-22'),
+    ...     ({'base': 'time'}, '12:34:56', '12:34:56'),
+    ...     ({'base': 'dateTime'}, '2015-05-22T12:34:56', '2015-05-22T12:34:56'),
+    ...     ({'base': 'enumeration', 'enumerations': {'foo':{},'bar':{}}}, 'foo', 'foo'),
     ... )
     >>> run_merge_tests({'base': 'text'}, TEXT_MERGE_VECTORS)
 
@@ -183,7 +183,7 @@ BooleanField
     {u'test': None}
     >>> field.get_value_mapping('foo')
     {u'test': True}
-    >>> field.get_value_mapping(u'foo')
+    >>> field.get_value_mapping('foo')
     {u'test': True}
     >>> field.get_value_mapping('')
     {u'test': False}
@@ -236,7 +236,7 @@ DateField
     Traceback (most recent call last):
         ...
     Error: Cannot cast value to type "date": 'foo'
-    >>> field.get_value_mapping(u'foo')
+    >>> field.get_value_mapping('foo')
     Traceback (most recent call last):
         ...
     Error: Cannot cast value to type "date": u'foo'
@@ -290,7 +290,7 @@ TimeField
     Traceback (most recent call last):
         ...
     Error: Cannot cast value to type "time": 'foo'
-    >>> field.get_value_mapping(u'foo')
+    >>> field.get_value_mapping('foo')
     Traceback (most recent call last):
         ...
     Error: Cannot cast value to type "time": u'foo'
@@ -347,7 +347,7 @@ DateTimeField
     Traceback (most recent call last):
         ...
     Error: Cannot cast value to type "dateTime": 'foo'
-    >>> field.get_value_mapping(u'foo')
+    >>> field.get_value_mapping('foo')
     Traceback (most recent call last):
         ...
     Error: Cannot cast value to type "dateTime": u'foo'
@@ -403,7 +403,7 @@ EnumerationField
     {u'test': None}
     >>> field.get_value_mapping('foo')
     {u'test': u'foo'}
-    >>> field.get_value_mapping(u'foo')
+    >>> field.get_value_mapping('foo')
     {u'test': u'foo'}
     >>> field.get_value_mapping('blah')
     Traceback (most recent call last):
@@ -475,7 +475,7 @@ EnumerationSetField
     {}
     >>> field.get_value_mapping('foo')
     {u'test_foo': True}
-    >>> field.get_value_mapping(u'foo')
+    >>> field.get_value_mapping('foo')
     {u'test_foo': True}
     >>> field.get_value_mapping('blah')
     Traceback (most recent call last):
@@ -538,7 +538,7 @@ JsonField
     {u'test': 'null'}
     >>> field.get_value_mapping('foo')
     {u'test': '"foo"'}
-    >>> field.get_value_mapping(u'foo')
+    >>> field.get_value_mapping('foo')
     {u'test': '"foo"'}
     >>> field.get_value_mapping(1)
     {u'test': '1'}
@@ -571,7 +571,7 @@ Can't make fields of unknown types::
 Attempting to merge incompatible types::
 
     >>> field = make_field({'id': 'test', 'type': {'base': 'date'}})
-    >>> table = {u'test': field}
+    >>> table = {'test': field}
     >>> field2 = make_field({'id': 'test', 'type': {'base': 'enumerationSet', 'enumerations': {'foo':{},'bar':{}}}})
     >>> merge_field_into(table, field2)
     Traceback (most recent call last):
@@ -581,7 +581,7 @@ Attempting to merge incompatible types::
 Map an Assessment value from an unexpected InstrumentVersion::
 
     >>> field = make_field({'id': 'test', 'type': {'base': 'text'}}, instrument_version='1')
-    >>> table = {u'test': field}
+    >>> table = {'test': field}
     >>> field2 = make_field({'id': 'test', 'type': {'base': 'integer'}}, instrument_version='2')
     >>> merge_field_into(table, field2)
     >>> table['test'].map_assessment_value({'value': 'blah'}, instrument_version='nope')
@@ -593,4 +593,5 @@ Map an Assessment value from an unexpected InstrumentVersion::
 
 
     >>> rex.off()
+
 

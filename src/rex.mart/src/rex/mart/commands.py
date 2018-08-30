@@ -3,7 +3,7 @@
 #
 
 
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 from functools import partial
 
@@ -124,7 +124,7 @@ class DefinitionDetailResource(RestfulLocation):
         try:
             creator.validate_parameters(request.payload.parameters)
         except Error as exc:
-            raise HTTPBadRequest(unicode(exc))
+            raise HTTPBadRequest(str(exc))
 
         definition = get_definition(definition_id)
         if not MartQuota.top().can_create_mart(user, definition):
@@ -362,7 +362,7 @@ class MartLocation(HandleLocation):
             query_string = ''
             if '?' in path_info:
                 path_info, query_string = path_info.split('?', 1)
-            path_info = urllib.unquote(path_info)
+            path_info = urllib.parse.unquote(path_info)
             proxy.method = 'GET'
             proxy.path_info = path_info
             proxy.query_string = query_string

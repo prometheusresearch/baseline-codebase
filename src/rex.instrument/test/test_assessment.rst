@@ -45,7 +45,7 @@ and string-rendering methods::
     >>> assessment = Assessment('fake123', subject, iv, ASSESSMENT)
     >>> assessment.get_display_name()
     u'fake123'
-    >>> unicode(assessment)
+    >>> str(assessment)
     u'fake123'
     >>> str(assessment)
     'fake123'
@@ -105,11 +105,11 @@ equivalent::
 
     >>> assessment.data
     {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'value': 'my answer'}}}
-    >>> assessment.data = {u'instrument': {u'version': u'1.1', u'id': u'urn:test-instrument'}, u'values': {u'q_fake': {u'value': u'a different answer'}}}
+    >>> assessment.data = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'value': 'a different answer'}}}
 
     >>> assessment.data_json
     u'{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "values": {"q_fake": {"value": "a different answer"}}}'
-    >>> assessment.data_json = u'{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "values": {"q_fake": {"value": "something completely different"}}}'
+    >>> assessment.data_json = '{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "values": {"q_fake": {"value": "something completely different"}}}'
 
     >>> assessment.data = None
     >>> assessment.data is None
@@ -327,4 +327,5 @@ being the same class with the same UID::
     True
     >>> assessment3 >= assessment1
     True
+
 

@@ -122,7 +122,7 @@ def a2b(text):
         return None
     try:
         return base64.b64decode(str(text).replace('-', '='), '._')
-    except TypeError, exc:
+    except TypeError as exc:
         return None
 
 

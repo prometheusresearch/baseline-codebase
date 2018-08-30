@@ -368,7 +368,7 @@ class Extension(object):
             signature = cls.signature()
         except NotImplementedError:
             signature = None
-        return unicode(signature if signature else cls.__name__)
+        return str(signature if signature else cls.__name__)
 
     @classmethod
     def document_content(cls):

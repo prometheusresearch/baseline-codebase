@@ -39,10 +39,10 @@ In case fields are not specified, they are generated from port::
   >>> output
   RecordType(rows={}, open=True)
 
-  >>> print render_widget(
+  >>> print(render_widget(
   ...   page,
   ...   Request.blank('/', accept='application/json'),
-  ...   no_chrome=True) # doctest: +ELLIPSIS
+  ...   no_chrome=True)) # doctest: +ELLIPSIS
   200 OK
   Content-Type: application/json; charset=UTF-8
   Content-Length: ...
@@ -54,4 +54,5 @@ Cleanup
 ::
 
   >>> rex.off()
+
 

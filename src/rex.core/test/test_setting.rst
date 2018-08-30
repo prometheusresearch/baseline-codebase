@@ -36,15 +36,15 @@ through the constructor override values defined in ``settings.yaml`` files::
 
     >>> sandbox.rewrite('/settings.yaml', """debug: true""")
     >>> with Rex(sandbox):
-    ...     print get_settings().debug
+    ...     print(get_settings().debug)
     True
     >>> with Rex(sandbox, debug=False):
-    ...     print get_settings().debug
+    ...     print(get_settings().debug)
     False
 
     >>> sandbox.rewrite('/settings.yaml', """ """)
     >>> with Rex(sandbox):
-    ...     print get_settings()
+    ...     print(get_settings())
     SettingCollection(debug=False)
 
     >>> sandbox.rewrite('/settings.yaml', """***Invalid YAML***""")
@@ -112,10 +112,10 @@ attributes ``name``, ``validate`` and ``default``::
     ...     default = lambda self: 'random-value'
 
     >>> with Rex('-', optional=False, mandatory=True, integer='10', secret='123'):
-    ...     print get_settings()
+    ...     print(get_settings())
     SettingCollection(debug=False, integer=10, mandatory=True, optional=False, secret='123')
     >>> with Rex('-', mandatory=True):
-    ...     print get_settings()
+    ...     print(get_settings())
     SettingCollection(debug=False, integer=0, mandatory=True, optional=None, secret='random-value')
     >>> Rex('-')
     Traceback (most recent call last):
@@ -150,5 +150,6 @@ All settings must be documented::
     Traceback (most recent call last):
       ...
     AssertionError: undocumented setting: undocumented
+
 
 

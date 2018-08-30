@@ -54,7 +54,7 @@ Parameter ``secret`` is used for generating encryption and validation keys::
 Session is empty::
 
     >>> req = Request.blank('/get')
-    >>> print req.get_response(main)
+    >>> print(req.get_response(main))
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 12
@@ -65,7 +65,7 @@ Session is ``{"x":123}``::
 
     >>> req = Request.blank('/set?x=123')
     >>> resp = req.get_response(main)
-    >>> print resp                      # doctest: +ELLIPSIS
+    >>> print(resp)                      # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 15
@@ -78,7 +78,7 @@ Check that we could decode our session::
 
     >>> req = Request.blank('/get')
     >>> req.cookies['rex.session'] = session_cookie
-    >>> print req.get_response(main)
+    >>> print(req.get_response(main))
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 17
@@ -89,7 +89,7 @@ When session is updated, a new cookie is set::
 
     >>> req = Request.blank('/set?x=456')
     >>> resp = req.get_response(main)
-    >>> print resp                      # doctest: +ELLIPSIS
+    >>> print(resp)                      # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 15
@@ -100,7 +100,7 @@ When session is updated, a new cookie is set::
 
     >>> req = Request.blank('/get')
     >>> req.cookies['rex.session'] = session_cookie
-    >>> print req.get_response(main)
+    >>> print(req.get_response(main))
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 17
@@ -111,7 +111,7 @@ When the session becomes empty, the cookie is deleted::
 
     >>> req = Request.blank('/del')
     >>> req.cookies['rex.session'] = session_cookie
-    >>> print req.get_response(main)    # doctest: +ELLIPSIS
+    >>> print(req.get_response(main))    # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 10
@@ -122,7 +122,7 @@ When the session becomes empty, the cookie is deleted::
 Cookie size is limited to 4096 characters::
 
     >>> req = Request.blank('/set?x='+'9'*4096)
-    >>> print req.get_response(main)
+    >>> print(req.get_response(main))
     Traceback (most recent call last):
       ...
     AssertionError: session data is too large
@@ -131,7 +131,7 @@ Invalid session cookies are ignored::
 
     >>> req = Request.blank('/get')
     >>> req.cookies['rex.session'] = 'AAA'
-    >>> print req.get_response(main)
+    >>> print(req.get_response(main))
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 12
@@ -140,7 +140,7 @@ Invalid session cookies are ignored::
 
     >>> req = Request.blank('/get')
     >>> req.cookies['rex.session'] = 'PT0-' # b2a('==')
-    >>> print req.get_response(main)
+    >>> print(req.get_response(main))
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 12
@@ -149,7 +149,7 @@ Invalid session cookies are ignored::
 
     >>> req = Request.blank('/get')
     >>> req.cookies['rex.session'] = 'zUaECX_zxWTyQvcf.MHKCpDhPRRDGcyw26oq0g1P22o-' # b2a(sign(''))
-    >>> print req.get_response(main)
+    >>> print(req.get_response(main))
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 12
@@ -159,7 +159,7 @@ Invalid session cookies are ignored::
     >>> req = Request.blank('/get')
     >>> req.cookies['rex.session'] = 'zUaECX_zxWTyQvcf.MHKCpDhPRRDGcyw26oq0g1P22rm' \
     ...                              '3XJdKjKKwg6sj5sXcAUYb.cxR8AlFhibORPc2GAK6w--' # b2a(sign('')+encrypt(''))
-    >>> print req.get_response(main)
+    >>> print(req.get_response(main))
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 12
@@ -171,7 +171,7 @@ If a secret passphrase is not provided, random keys are generated::
     >>> main = Rex('__main__', 'rex.web')
     >>> req = Request.blank('/set?x=123')
     >>> resp = req.get_response(main)
-    >>> print resp                      # doctest: +ELLIPSIS
+    >>> print(resp)                      # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 15
@@ -192,7 +192,7 @@ URL segments are generated from package names::
     >>> with demo:
     ...     mount = get_settings().mount
     ...     for name, segment in sorted(mount.items()):
-    ...         print "%s -> /%s" % (name, segment)
+    ...         print("%s -> /%s" % (name, segment))
     rex.core -> /core
     rex.ctl -> /ctl
     rex.web -> /web
@@ -204,7 +204,7 @@ or as variable ``MOUNT`` in templates.  These tables contain absolute URLs and
 should be used for referencing::
 
     >>> req = Request.blank('/shared/index.html')
-    >>> print req.get_response(demo)
+    >>> print(req.get_response(demo))
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 160
@@ -220,7 +220,7 @@ Mount table could be overridden::
     ...              mount={'rex.web_demo': '/demo', 'shared': '/'})
 
     >>> req = Request.blank('/index.html')
-    >>> print req.get_response(shared)
+    >>> print(req.get_response(shared))
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 153
@@ -231,7 +231,7 @@ Mount table could be overridden::
     <body>Commonly used resources are stored here.</body>
 
     >>> req = Request.blank('/demo/hello')
-    >>> print req.get_response(shared)
+    >>> print(req.get_response(shared))
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 13
@@ -258,7 +258,7 @@ The root URL does not have to be mounted::
     >>> rootless = Rex('rex.web_demo', './test/data/shared/',
     ...                mount={'rex.web_demo': '/demo'})
     >>> req = Request.blank('/')
-    >>> print req.get_response(rootless)            # doctest: +ELLIPSIS
+    >>> print(req.get_response(rootless))            # doctest: +ELLIPSIS
     404 Not Found
     ...
 
@@ -269,21 +269,21 @@ URL::
     >>> union = Rex('rex.web_demo',
     ...             './test/data/union1/', './test/data/union2/')
     >>> req = Request.blank('/union/index.html')
-    >>> print req.get_response(union)               # doctest: +ELLIPSIS
+    >>> print(req.get_response(union))               # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/html; charset=UTF-8
     ...
     <title>This page is from the UNION1 package</title>
 
     >>> req = Request.blank('/union/unique1.html')
-    >>> print req.get_response(union)               # doctest: +ELLIPSIS
+    >>> print(req.get_response(union))               # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/html; charset=UTF-8
     ...
     <title>This page is from the UNION1 package</title>
 
     >>> req = Request.blank('/union/unique2.html')
-    >>> print req.get_response(union)               # doctest: +ELLIPSIS
+    >>> print(req.get_response(union))               # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/html; charset=UTF-8
     ...
@@ -306,7 +306,7 @@ by commands and other handlers::
 
     >>> main = Rex('__main__', 'rex.web')
     >>> req = Request.blank('/not-found')
-    >>> print req.get_response(main)
+    >>> print(req.get_response(main))
     404 Not Found
     Content-Type: text/html; charset=UTF-8
     Content-Length: 30
@@ -328,7 +328,7 @@ Set ``code`` to ``'*'`` to define a catch-all error handler::
 
     >>> main.reset()
     >>> req = Request.blank('/auth')
-    >>> print req.get_response(main)
+    >>> print(req.get_response(main))
     401 Unauthorized
     Content-Type: text/html; charset=UTF-8
     Content-Length: 21
@@ -359,7 +359,7 @@ You can use the template variable ``SENTRY_SCRIPT_TAG`` to integrate Sentry
 with the front-end::
 
     >>> req = Request.blank('/sentry.html', remote_user='Alice')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS
     200 OK
     ...
     <head>
@@ -375,7 +375,7 @@ of the request::
     >>> demo.reset()
 
     >>> req = Request.blank('/sentry.html', remote_user='Alice')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <script src="http://localhost/web/ravenjs/raven.min.js"></script><script>Raven.config("//pk@localhost/1")...</script>
@@ -388,7 +388,7 @@ When Sentry integration is not configured, ``SENTRY_SCRIPT_TAG`` is empty::
     >>> demo.reset()
 
     >>> req = Request.blank('/sentry.html', remote_user='Alice')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <head>
@@ -408,7 +408,7 @@ Static resources in directory ``www`` are available via HTTP::
 
     >>> req = Request.blank('/names.csv')
     >>> req.remote_user = 'Daniel'
-    >>> print req.get_response(static)      # doctest: +ELLIPSIS
+    >>> print(req.get_response(static))      # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/csv; charset=UTF-8
     Content-Length: 23
@@ -425,26 +425,26 @@ Static resources in directory ``www`` are available via HTTP::
 Static files accept only ``GET`` and ``HEAD`` methods::
 
     >>> req = Request.blank('/names.csv', remote_user='Daniel', method='HEAD')
-    >>> print req.get_response(static)      # doctest: +ELLIPSIS
+    >>> print(req.get_response(static))      # doctest: +ELLIPSIS
     200 OK
     ...
 
     >>> req = Request.blank('/names.csv', remote_user='Daniel', method='POST')
-    >>> print req.get_response(static)      # doctest: +ELLIPSIS
+    >>> print(req.get_response(static))      # doctest: +ELLIPSIS
     405 Method Not Allowed
     ...
 
 By default, only authenticated users can access static resources::
 
     >>> req = Request.blank('/names.csv')
-    >>> print req.get_response(static)      # doctest: +ELLIPSIS
+    >>> print(req.get_response(static))      # doctest: +ELLIPSIS
     401 Unauthorized
     ...
 
 Access is controlled by ``_access.yaml`` file::
 
     >>> req = Request.blank('/access/public.html')
-    >>> print req.get_response(static)
+    >>> print(req.get_response(static))
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 44
@@ -453,7 +453,7 @@ Access is controlled by ``_access.yaml`` file::
     <title>Public Access</title>
 
     >>> req = Request.blank('/access/public/')
-    >>> print req.get_response(static)
+    >>> print(req.get_response(static))
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 44
@@ -462,18 +462,18 @@ Access is controlled by ``_access.yaml`` file::
     <title>Public Access</title>
 
     >>> req = Request.blank('/access/protected.html')
-    >>> print req.get_response(static)      # doctest: +ELLIPSIS
+    >>> print(req.get_response(static))      # doctest: +ELLIPSIS
     401 Unauthorized
     ...
 
     >>> req = Request.blank('/access/protected/')
-    >>> print req.get_response(static)      # doctest: +ELLIPSIS
+    >>> print(req.get_response(static))      # doctest: +ELLIPSIS
     401 Unauthorized
     ...
 
     >>> req = Request.blank('/access/protected.html')
     >>> req.remote_user = 'Bob'
-    >>> print req.get_response(static)
+    >>> print(req.get_response(static))
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 52
@@ -483,7 +483,7 @@ Access is controlled by ``_access.yaml`` file::
 
     >>> req = Request.blank('/access/protected/')
     >>> req.remote_user = 'Bob'
-    >>> print req.get_response(static)
+    >>> print(req.get_response(static))
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 52
@@ -492,13 +492,13 @@ Access is controlled by ``_access.yaml`` file::
     <title>Authorized Users Only</title>
 
     >>> req = Request.blank('/access/default.csv')
-    >>> print req.get_response(static)      # doctest: +ELLIPSIS
+    >>> print(req.get_response(static))      # doctest: +ELLIPSIS
     401 Unauthorized
     ...
 
     >>> req = Request.blank('/access/default.csv')
     >>> req.remote_user = 'Bob'
-    >>> print req.get_response(static)      # doctest: +ELLIPSIS
+    >>> print(req.get_response(static))      # doctest: +ELLIPSIS
     200 OK
     Content-Type: text/csv; charset=UTF-8
     Content-Length: 24
@@ -516,7 +516,7 @@ If the URL refers to a directory, file ``index.html`` is served, if it exists::
 
     >>> req = Request.blank('/index/')
     >>> req.remote_user = 'Daniel'
-    >>> print req.get_response(static)
+    >>> print(req.get_response(static))
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 63
@@ -525,7 +525,7 @@ If the URL refers to a directory, file ``index.html`` is served, if it exists::
     <title>This directory has an index file</title>
 
     >>> req = Request.blank('/noindex/')
-    >>> print req.get_response(static)      # doctest: +ELLIPSIS
+    >>> print(req.get_response(static))      # doctest: +ELLIPSIS
     404 Not Found
     ...
 
@@ -534,30 +534,30 @@ slash is added using a redirect, but only if the directory contains
 ``index.html``::
 
     >>> req = Request.blank('/index?name=Alice')
-    >>> print req.get_response(static)      # doctest: +ELLIPSIS
+    >>> print(req.get_response(static))      # doctest: +ELLIPSIS
     301 Moved Permanently
     Location: http://localhost/index/?name=Alice
     ...
 
     >>> req = Request.blank('/noindex?name=Alice')
-    >>> print req.get_response(static)      # doctest: +ELLIPSIS
+    >>> print(req.get_response(static))      # doctest: +ELLIPSIS
     404 Not Found
     ...
 
 Files and directories that start with ``_`` or ``.`` are effectively hidden::
 
     >>> req = Request.blank('/.hidden.txt')
-    >>> print req.get_response(static)      # doctest: +ELLIPSIS
+    >>> print(req.get_response(static))      # doctest: +ELLIPSIS
     404 Not Found
     ...
 
     >>> req = Request.blank('/_hidden.txt')
-    >>> print req.get_response(static)      # doctest: +ELLIPSIS
+    >>> print(req.get_response(static))      # doctest: +ELLIPSIS
     404 Not Found
     ...
 
     >>> req = Request.blank('/_hidden/hidden.txt')
-    >>> print req.get_response(static)      # doctest: +ELLIPSIS
+    >>> print(req.get_response(static))      # doctest: +ELLIPSIS
     404 Not Found
     ...
 
@@ -587,7 +587,7 @@ certain types of files::
     >>> static.reset()
     >>> req = Request.blank('/names.csv')
     >>> req.remote_user = 'Daniel'
-    >>> print req.get_response(static)
+    >>> print(req.get_response(static))
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 179
@@ -618,7 +618,7 @@ Interface ``HandleLocation`` allows you to handle specific URLs in Python::
 
     >>> main.reset()
     >>> req = Request.blank('/ping')
-    >>> print req.get_response(main)
+    >>> print(req.get_response(main))
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 5
@@ -635,13 +635,13 @@ the slash is added with a redirect::
 
     >>> main.reset()
     >>> req = Request.blank('/slash')
-    >>> print req.get_response(main)        # doctest: +ELLIPSIS
+    >>> print(req.get_response(main))        # doctest: +ELLIPSIS
     301 Moved Permanently
     Location: http://localhost/slash/
     ...
 
     >>> req = Request.blank('/slash/')
-    >>> print req.get_response(main)        # doctest: +ELLIPSIS
+    >>> print(req.get_response(main))        # doctest: +ELLIPSIS
     200 OK
     ...
     Slash!
@@ -655,7 +655,7 @@ Set ``path`` to ``'*'`` to make a catch-all handler::
 
     >>> main.reset()
     >>> req = Request.blank('/help/me')
-    >>> print req.get_response(main)
+    >>> print(req.get_response(main))
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 19
@@ -671,8 +671,8 @@ You can get a URL handler using function ``route()``::
     >>> from rex.web import route
 
     >>> with demo:
-    ...     print route('rex.web_demo:/ping')
-    ...     print route('rex.web_demo:/index.html')     # doctest: +ELLIPSIS
+    ...     print(route('rex.web_demo:/ping'))
+    ...     print(route('rex.web_demo:/index.html'))     # doctest: +ELLIPSIS
     <rex.web.route.CommandDispatcher object at ...>
     <rex.web.route.StaticServer object at ...>
 
@@ -680,11 +680,12 @@ If the URL is invalid or has no associated handler, ``route()`` returns
 ``None``::
 
     >>> with demo:
-    ...     print route('index.html')
-    ...     print route('rex.web:/index.html')
-    ...     print route('rex.ctl:/index.html')
+    ...     print(route('index.html'))
+    ...     print(route('rex.web:/index.html'))
+    ...     print(route('rex.ctl:/index.html'))
     None
     None
     None
+
 
 

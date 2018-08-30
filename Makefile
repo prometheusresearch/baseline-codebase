@@ -94,7 +94,7 @@ init-env:
 
 
 REQUIRED_TOOL_PY = \
-	pbbt==0.1.5 \
+	pbbt==0.1.6 \
 	coverage==4.5.1 \
 	pytest==3.6.4
 

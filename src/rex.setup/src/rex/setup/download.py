@@ -25,7 +25,7 @@ class GenerateDownload(Generate):
         # If the URL is a ZIP archive, unpack it into
         # the target directory.
         if url.endswith('.zip'):
-            archive = zipfile.ZipFile(io.StringIO(data))
+            archive = zipfile.ZipFile(io.BytesIO(data))
             entries = archive.infolist()
             assert entries
             # Find the common prefix to strip from all filenames

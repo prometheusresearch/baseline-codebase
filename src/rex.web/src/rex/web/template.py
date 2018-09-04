@@ -93,7 +93,7 @@ class RexJinjaLoader(jinja2.BaseLoader):
         if real_path is None or not os.path.isfile(real_path):
             raise jinja2.TemplateNotFound(template)
         stream = open(real_path)
-        source = stream.read().decode('utf-8')
+        source = stream.read()
         stream.close()
         mtime = os.path.getmtime(real_path)
         uptodate = (lambda real_path=real_path, mtime=mtime:

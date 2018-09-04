@@ -653,9 +653,6 @@ class ColumnModel(Model):
                 self.name = self.TYPE_MAP[type]
                 self.enumerators = None
                 self.domain = self.DOMAIN_MAP[type]
-            # Normalize the default value as a string (or `None`).
-            if isinstance(default, str):
-                default = default.decode('utf-8', 'replace')
             if not isinstance(default, str):
                 default = self.domain.dump(default)
             self.default = default

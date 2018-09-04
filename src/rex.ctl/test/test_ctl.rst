@@ -139,7 +139,7 @@ Packages may include static directories and Python modules::
     >>> ctl("packages distutils --verbose")             # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     [distutils]
     Location:
-      /.../distutils/__init__.pyc
+      /.../distutils/__init__.py
     ...
 
 You can inspect the application object in Python shell using ``rex pyshell``
@@ -197,7 +197,7 @@ If the task fails, an exception is raised::
     >>> print(ctl("undefined"))                  # doctest: +NORMALIZE_WHITESPACE
     Traceback (most recent call last):
       ...
-    Error: Received unexpected exit code:
+    rex.core.Error: Received unexpected exit code:
         expected 0; got 1
     With output:
         FATAL ERROR: unknown task undefined
@@ -222,10 +222,12 @@ You can now make a query::
 
     >>> import urllib.request, urllib.parse, urllib.error
     >>> output = None
+    >>> import time
+    >>> time.sleep(10)
     >>> while not output:
     ...     try: output = urllib.request.urlopen('http://127.0.0.1:%s/' % random_port)
     ...     except IOError: pass
-    >>> print(output.read())
+    >>> print(output.read().decode('utf-8'))
     <!DOCTYPE html>
     <title>Welcome to REX.CTL_DEMO!</title>
 
@@ -233,7 +235,7 @@ To stop the server, use ``rex.ctl.Ctl.stop()``::
 
     >>> print(serve_ctl.stop())                  # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     Serving rex.ctl_demo on 127.0.0.1:8...
-    ... - - [...] "GET / HTTP/1.0" 200 55
+    ... - - [...] "GET / HTTP/1.1" 200 55
 
 
 Documentation

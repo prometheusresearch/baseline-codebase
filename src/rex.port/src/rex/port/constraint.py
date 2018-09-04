@@ -73,17 +73,7 @@ class Constraint(object):
         if not path:
             path = ()
         if isinstance(path, str):
-            path = path.decode('utf-8', 'replace')
-        if isinstance(path, str):
             path = tuple(path.split('.'))
-        if isinstance(path, tuple):
-            path = tuple(name.decode('utf-8', 'replace')
-                         if isinstance(name, str) else name
-                         for name in path)
-
-        # `<operator>` is a string or `None`.
-        if isinstance(operator, str):
-            operator = operator.decode('utf-8', 'replace')
 
         # `<arguments>` is a list of `Value` instances.
         if not isinstance(arguments, list):

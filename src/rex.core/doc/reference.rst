@@ -86,9 +86,7 @@ Validators
 .. autoclass:: rex.core.MaybeVal
 .. autoclass:: rex.core.OneOfVal
 .. autoclass:: rex.core.StrVal
-.. autoclass:: rex.core.UStrVal
 .. autoclass:: rex.core.ChoiceVal
-.. autoclass:: rex.core.UChoiceVal
 .. autoclass:: rex.core.BoolVal
 .. autoclass:: rex.core.IntVal
 .. autoclass:: rex.core.UIntVal

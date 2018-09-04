@@ -9,17 +9,13 @@ import textwrap
 import raven
 
 
-class Paragraph(object):
+class Paragraph:
     # Represents error context as a text message with an optional payload.
     # Rendered as:
     #   <message>
     #       <payload>
 
     def __init__(self, message, payload=None):
-        if isinstance(message, str):
-            message = message.encode('utf-8')
-        if isinstance(payload, str):
-            payload = payload.encode('utf-8')
         self.message = message
         self.payload = payload
 
@@ -74,6 +70,9 @@ class Error(Exception):
     Use :meth:`wrap()` to add more paragraphs.
     """
 
+    # Display `rex.core.Error: ...` in tracebacks.
+    __module__ = 'rex.core'
+
     # Template for rendering the error in plain text.
     text_template = textwrap.dedent("""\
         The server cannot understand the request due to malformed syntax.
@@ -118,6 +117,7 @@ class Error(Exception):
         else:
             content_type = 'text/plain; charset=UTF-8'
             output = self.text_template % self
+        output = output.encode('utf-8')
         start_response("400 Bad Request",
                        [('Content-Type', content_type),
                         ('Content-Length', str(len(output)))])
@@ -147,7 +147,7 @@ class Error(Exception):
                                for paragraph in self.paragraphs)
 
 
-class guard(object):
+class guard:
     """
     Adds a paragraph to exceptions leaving the wrapped ``with`` block.
     """

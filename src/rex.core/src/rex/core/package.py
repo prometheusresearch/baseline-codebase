@@ -14,7 +14,7 @@ import atexit
 import pkg_resources
 
 
-class Package(object):
+class Package:
     """
     Component of a RexDB application.
 
@@ -189,7 +189,7 @@ class SandboxPackage(Package):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
 
-class PackageCollection(object):
+class PackageCollection:
     """
     Collection of packages.
     """

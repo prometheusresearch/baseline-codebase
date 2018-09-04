@@ -19,7 +19,7 @@ import datetime
 import dateutil.parser
 
 
-class IncludeLoader(object):
+class IncludeLoader:
 
     def __init__(self, LoaderClass):
         self.LoaderClass = LoaderClass
@@ -69,7 +69,7 @@ class IncludeLoader(object):
             return self.result
 
 
-class Location(object):
+class Location:
     """
     Position of a node in a YAML document.
 
@@ -159,7 +159,7 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
     # Overrides YAML 1.1 implicit tags.
     yaml_implicit_resolvers = {}
 
-    class ValidatingContext(object):
+    class ValidatingContext:
         # Sets the parser validator on the `with` block.
 
         def __init__(self, loader, validate):
@@ -260,7 +260,7 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
                     "expected a file name, but found an empty node",
                     node.start_mark)
         basename = getattr(self.stream, 'name', None)
-        filename = node.value.encode('utf-8')
+        filename = node.value
         pointer = []
         if '#' in filename:
             filename, pointer = filename.rsplit('#', 1)
@@ -325,7 +325,7 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
         settings = get_settings()
         with guard("While parsing:", Location.from_node(node)):
             if not hasattr(settings, node.value):
-                raise Error("Got unknown setting:", node.value.encode('utf-8'))
+                raise Error("Got unknown setting:", node.value)
             value = getattr(settings, node.value)
             if self.validate is not None:
                 value = self.validate(value)
@@ -341,8 +341,8 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
             if len(parts) != 2 or not parts[0] or not parts[1]:
                 raise Error("Unknown python object format. "
                             "Expected 'module:object'",
-                            node.value.encode('utf-8'))
-            [module, item] = [p.encode('utf-8') for p in parts]
+                            node.value)
+            [module, item] = parts
             try:
                 m = __import__(module, fromlist=[item])
                 if not hasattr(m, item):
@@ -351,7 +351,7 @@ class ValidatingLoader(getattr(yaml, 'CSafeLoader', yaml.SafeLoader)):
                     obj = getattr(m, item)
             except ImportError:
                 raise Error("Cannot import '%s' from '%s'" % (item, module),
-                            node.value.encode('utf-8'))
+                            node.value)
             value = obj() if callable(obj) else obj
             if self.validate is not None:
                 value = self.validate(value)
@@ -392,7 +392,7 @@ ValidatingLoader.add_implicit_resolver(
         list('0123456789'))
 
 
-class Validate(object):
+class Validate:
     """
     Validates and normalizes input values.
     """
@@ -434,7 +434,7 @@ class Validate(object):
         try:
             return loader()
         except yaml.YAMLError as exc:
-            raise Error("Failed to parse a YAML document:", exc)
+            raise Error("Failed to parse a YAML document:", exc) from None
 
     def parse_all(self, stream, master=None, open=open,
                   Loader=ValidatingLoader):
@@ -455,7 +455,7 @@ class Validate(object):
             for data in loader:
                 yield data
         except yaml.YAMLError as exc:
-            raise Error("Failed to parse a YAML document:", exc)
+            raise Error("Failed to parse a YAML document:", exc) from None
 
     def __repr__(self):
         return "%s()" % self.__class__.__name__
@@ -561,7 +561,7 @@ class OneOfVal(Validate):
 
 class StrVal(Validate):
     """
-    Accepts Unicode and UTF-8 encoded 8-bit strings; returns an 8-bit string.
+    Accepts Unicode and UTF-8 encoded 8-bit strings; returns a Unicode string.
 
     If `pattern` is given, the whole input must match the pattern.
     """
@@ -574,15 +574,13 @@ class StrVal(Validate):
 
     def __call__(self, data):
         with guard("Got:", repr(data)):
+            if isinstance(data, bytes):
+                try:
+                    data = data.decode('utf-8')
+                except UnicodeDecodeError:
+                    raise Error("Expected a valid UTF-8 string") from None
             if not isinstance(data, str):
                 raise Error("Expected a string")
-            if isinstance(data, str):
-                try:
-                    data.decode('utf-8')
-                except UnicodeDecodeError:
-                    raise Error("Expected a valid UTF-8 string")
-            if isinstance(data, str):
-                data = data.encode('utf-8')
             if self.pattern is not None and \
                     re.match(r'\A(?:%s)\Z' % self.pattern, data) is None:
                 raise Error("Expected a string matching:", "/%s/"
@@ -609,13 +607,7 @@ class StrVal(Validate):
 
 
 class UStrVal(StrVal):
-    """
-    Accepts Unicode and UTF-8 encoded 8-bit strings; returns a Unicode string.
-    """
-
-    def __call__(self, data):
-        data = super(UStrVal, self).__call__(data)
-        return data.decode('utf-8')
+    pass
 
 
 class ChoiceVal(Validate):
@@ -632,8 +624,6 @@ class ChoiceVal(Validate):
         with guard("Got:", repr(data)):
             if not isinstance(data, str):
                 raise Error("Expected a string")
-            if isinstance(data, str):
-                data = data.encode('utf-8')
             if data not in self.choices:
                 raise Error("Expected one of:",
                             ", ".join(self.choices))
@@ -657,13 +647,7 @@ class ChoiceVal(Validate):
 
 
 class UChoiceVal(ChoiceVal):
-    """
-    Accepts strings from a fixed set of `choices`; returns a Unicode string.
-    """
-
-    def __call__(self, data):
-        data = super(UChoiceVal, self).__call__(data)
-        return data.decode('utf-8')
+    pass
 
 
 class BoolVal(Validate):
@@ -714,7 +698,7 @@ class IntVal(Validate):
                 try:
                     data = int(data)
                 except ValueError:
-                    raise Error("Expected an integer")
+                    raise Error("Expected an integer") from None
             if not isinstance(data, int) or isinstance(data, bool):
                 raise Error("Expected an integer")
             if not ((self.min_bound is None or self.min_bound <= data) and
@@ -787,7 +771,7 @@ class FloatVal(Validate):
                 try:
                     data = float(data)
                 except ValueError:
-                    raise Error("Expected a float value")
+                    raise Error("Expected a float value") from None
             if not isinstance(data, float):
                 raise Error("Expected a float value")
         return data
@@ -940,7 +924,7 @@ class MapVal(Validate):
                         "while constructing a mapping",
                         node.start_mark,
                         "found an unacceptable key (%s)" % exc,
-                        key_node.start_mark)
+                        key_node.start_mark) from None
             if key in data:
                 raise yaml.constructor.ConstructorError(
                         "while constructing a mapping",
@@ -1035,14 +1019,14 @@ class OMapVal(MapVal):
                         "while constructing a mapping",
                         node.start_mark,
                         "found an unacceptable key (%s)" % exc,
-                        key_node.start_mark)
+                        key_node.start_mark) from None
             with loader.validating(self.validate_value):
                 value = loader.construct_object(value_node, deep=True)
             pairs.append((key, value))
         return collections.OrderedDict(pairs)
 
 
-class Record(object):
+class Record:
     """
     Base class for records with a fixed set of fields.
     """
@@ -1144,7 +1128,7 @@ class Record(object):
                            for field, value in zip(self._fields, self))))
 
 
-class RecordField(object):
+class RecordField:
     """
     Describes a field of a record for use with :class:`RecordVal`.
 
@@ -1390,7 +1374,7 @@ class SwitchVal(Validate):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
 
-class OnMatch(object):
+class OnMatch:
     """
     Matches the input value against some condition.
     """
@@ -1634,7 +1618,7 @@ class DateVal(Validate):
                 try:
                     return datetime.datetime.strptime(data, '%Y-%m-%d').date()
                 except ValueError:
-                    raise Error(self.ERROR_MSG)
+                    raise Error(self.ERROR_MSG) from None
             else:
                 raise Error(self.ERROR_MSG)
 
@@ -1670,7 +1654,7 @@ class TimeVal(Validate):
                     return dateutil.parser.parse(data).replace(tzinfo=None) \
                             .time()
                 except ValueError:
-                    raise Error(self.ERROR_MSG)
+                    raise Error(self.ERROR_MSG) from None
             else:
                 raise Error(self.ERROR_MSG)
 
@@ -1711,7 +1695,7 @@ class DateTimeVal(Validate):
                 try:
                     return self._strip_tz(dateutil.parser.parse(data))
                 except ValueError:
-                    raise Error(self.ERROR_MSG)
+                    raise Error(self.ERROR_MSG) from None
             else:
                 raise Error(self.ERROR_MSG)
 

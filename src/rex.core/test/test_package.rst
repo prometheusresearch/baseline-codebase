@@ -18,10 +18,10 @@ active application::
     ...     packages = get_packages()
     >>> packages    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     PackageCollection([PythonPackage('rex.core_demo',
-                                     modules=set(['rex.core_demo']),
+                                     modules={'rex.core_demo'},
                                      static='/.../share/rex/rex.core_demo'),
                        PythonPackage('rex.core',
-                                     modules=set([...]))])
+                                     modules={...})])
 
 Package collection provides container interface::
 
@@ -69,7 +69,7 @@ Attribute ``PackageCollection.modules`` is a dictionary that maps modules where
 RexDB would look for extensions to the package which owns the module::
 
     >>> packages.modules    # doctest: +ELLIPSIS
-    {..., 'rex.core_demo': PythonPackage('rex.core_demo', ...), ...}
+    {'rex.core_demo': PythonPackage('rex.core_demo', ...), ...}
 
 
 Constructing package collection
@@ -89,34 +89,34 @@ A requirement could be one of the following:
     >>> with Rex('rex.core_demo>=1.0'):
     ...     for package in get_packages():
     ...         print(package)       # doctest: +ELLIPSIS
-    PythonPackage('rex.core_demo', modules=set(['rex.core_demo']), static='/.../share/rex/rex.core_demo')
-    PythonPackage('rex.core', modules=set([..., 'rex.core', ...]))
+    PythonPackage('rex.core_demo', modules={'rex.core_demo'}, static='/.../share/rex/rex.core_demo')
+    PythonPackage('rex.core', modules={...})
 
     >>> with Rex('__main__'):
     ...     for package in get_packages():
     ...         print(package)       # doctest: +ELLIPSIS
-    ModulePackage('__main__', modules=set(['__main__']))
-    PythonPackage('rex.core', modules=set([..., 'rex.core', ...]))
+    ModulePackage('__main__', modules={'__main__'})
+    PythonPackage('rex.core', modules={...})
 
     >>> with Rex('./test/data/static/'):
     ...     for package in get_packages():
     ...         print(package)       # doctest: +ELLIPSIS
     StaticPackage('static', static='./test/data/static/')
-    PythonPackage('rex.core', modules=set([..., 'rex.core', ...]))
+    PythonPackage('rex.core', modules={...})
 
     >>> with Rex('-'):
     ...     for package in get_packages():
     ...         print(package)       # doctest: +ELLIPSIS
     SandboxPackage()
-    PythonPackage('rex.core', modules=set([..., 'rex.core', ...]))
+    PythonPackage('rex.core', modules={...})
 
     >>> from rex.core import Package
-    >>> with Rex(Package('rex.core_demo', modules=set(['rex.core_demo']),
+    >>> with Rex(Package('rex.core_demo', modules={'rex.core_demo'},
     ...                                   static='./demo/rex.core_demo/static')):
     ...     for package in get_packages():
     ...         print(package)       # doctest: +ELLIPSIS
-    Package('rex.core_demo', modules=set(['rex.core_demo']), static='./demo/rex.core_demo/static')
-    PythonPackage('rex.core', modules=set([..., 'rex.core', ...]))
+    Package('rex.core_demo', modules={'rex.core_demo'}, static='./demo/rex.core_demo/static')
+    PythonPackage('rex.core', modules={...})
 
 It is possible to prevent a package from being included into the package
 collection even if the package is a part of the dependency tree::
@@ -126,8 +126,8 @@ collection even if the package is a part of the dependency tree::
     >>> with Rex('__main__', 'rex.core_demo'):
     ...     for package in get_packages():
     ...         print(package)       # doctest: +ELLIPSIS
-    ModulePackage('__main__', modules=set(['__main__']))
-    PythonPackage('rex.core_demo', modules=set(['rex.core_demo']), static='/.../share/rex/rex.core_demo')
+    ModulePackage('__main__', modules={'__main__'})
+    PythonPackage('rex.core_demo', modules={'rex.core_demo'}, static='/.../share/rex/rex.core_demo')
 
     >>> Package.disable_reset()
 
@@ -136,14 +136,14 @@ An exception is raised if the package name is ill-formed or unknown::
     >>> Rex('rex.bro ken')
     Traceback (most recent call last):
       ...
-    Error: Got ill-formed requirement:
+    rex.core.Error: Got ill-formed requirement:
         rex.bro ken
     While initializing RexDB application:
         rex.bro ken
     >>> Rex('rex.unknown')
     Traceback (most recent call last):
       ...
-    Error: Failed to satisfy requirement:
+    rex.core.Error: Failed to satisfy requirement:
         rex.unknown
     While initializing RexDB application:
         rex.unknown
@@ -188,11 +188,11 @@ directory::
 ``Package.open()`` opens a static resource::
 
     >>> demo_package.open('www/index.html')         # doctest: +ELLIPSIS
-    <open file '/.../share/rex/rex.core_demo/www/index.html', mode 'r' at ...>
+    <_io.TextIOWrapper name='/.../share/rex/rex.core_demo/www/index.html' mode='r' encoding='UTF-8'>
     >>> demo_package.open('missing.txt')            # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    IOError: [Errno 2] No such file or directory: '/.../share/rex/rex.core_demo/missing.txt'
+    FileNotFoundError: [Errno 2] No such file or directory: '/.../share/rex/rex.core_demo/missing.txt'
     >>> demo_package.open('../README')
     Traceback (most recent call last):
       ...
@@ -270,11 +270,11 @@ with the path::
     False
 
     >>> packages.open('rex.core_demo:/www/index.html')  # doctest: +ELLIPSIS
-    <open file '/.../share/rex/rex.core_demo/www/index.html', mode 'r' at ...>
+    <_io.TextIOWrapper name='/.../share/rex/rex.core_demo/www/index.html' mode='r' encoding='UTF-8'>
     >>> packages.open('rex.core_demo:missing.txt')      # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    IOError: [Errno 2] No such file or directory: '/.../share/rex/rex.core_demo/missing.txt'
+    FileNotFoundError: [Errno 2] No such file or directory: '/.../share/rex/rex.core_demo/missing.txt'
     >>> packages.open('rex.core_demo:../README')
     Traceback (most recent call last):
       ...

@@ -174,7 +174,7 @@ Any errors when the function is evaluated invalidate the cache::
     >>> load(sandbox.abspath('load.txt'))       # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    IOError: [Errno 2] No such file or directory: '/.../load.txt'
+    FileNotFoundError: [Errno 2] No such file or directory: '/.../load.txt'
 
     >>> demo.off()
 

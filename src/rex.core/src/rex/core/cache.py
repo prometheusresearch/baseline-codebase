@@ -29,7 +29,7 @@ class Cache(dict):
         return self[key]
 
 
-class OpenGate(object):
+class OpenGate:
     # An utility for loading data from a file and caching the result.  Rebuilds
     # the result whenever any of the source files changes.
     # NOTE: not resistant to race conditions -- use only to enable development
@@ -85,7 +85,7 @@ class OpenGate(object):
             return self.result
 
 
-class ExpireGate(object):
+class ExpireGate:
     # An utility that expires function result after a period of time.
 
     __slots__ = ('callback', 'args', 'expires', 'timestamp', 'result', 'lock')

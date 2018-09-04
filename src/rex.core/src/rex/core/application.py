@@ -12,7 +12,7 @@ from .wsgi import get_wsgi
 from .error import Error
 
 
-class Rex(object):
+class Rex:
     """
     Creates a RexDB application.
 

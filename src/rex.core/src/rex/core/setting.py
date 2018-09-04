@@ -117,7 +117,7 @@ class DebugSetting(Setting):
     validate = BoolVal()
 
 
-class SettingCollection(object):
+class SettingCollection:
     """
     Application configuration.
 

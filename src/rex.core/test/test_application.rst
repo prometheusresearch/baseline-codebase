@@ -25,10 +25,10 @@ or as ``Package`` object::
     >>> from rex.core import Package
 
     >>> demo_package = Package('rex.core_demo',
-    ...                        modules=set(['rex.core_demo']),
+    ...                        modules={'rex.core_demo'},
     ...                        static='./demo/rex.core_demo/static')
     >>> Rex(demo_package)
-    Rex(Package('rex.core_demo', modules=set(['rex.core_demo']), static='./demo/rex.core_demo/static'))
+    Rex(Package('rex.core_demo', modules={'rex.core_demo'}, static='./demo/rex.core_demo/static'))
 
 Pass application settings as keyword parameters to the constructor::
 
@@ -40,7 +40,7 @@ It is an error to specify unknown package name or configuration setting::
     >>> Rex('rex.unknown')
     Traceback (most recent call last):
       ...
-    Error: Failed to satisfy requirement:
+    rex.core.Error: Failed to satisfy requirement:
         rex.unknown
     While initializing RexDB application:
         rex.unknown
@@ -48,7 +48,7 @@ It is an error to specify unknown package name or configuration setting::
     >>> Rex(unknown=None)
     Traceback (most recent call last):
       ...
-    Error: Got unknown setting:
+    rex.core.Error: Got unknown setting:
         unknown
     While initializing RexDB application
     With parameters:

@@ -106,7 +106,7 @@ fly::
     ...         if cls.template is not None:
     ...             return
     ...         for template in cls.templates:
-    ...             name = template.title().translate(None, ' ,{}!')
+    ...             name = template.title().translate({ord(key): None for key in ' ,{}!'})
     ...             yield type(name, (cls,), {'__module__': __name__, 'template': template})
     ... 
     ...     def __call__(self, name):
@@ -309,7 +309,7 @@ entries for every implementation of the extension.  For example::
     ...     entries = Setting.document_all()
 
     >>> entries                 # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
-    [DocEntry(u'debug', 'Turn on the debug mode.', index=u'debug', package='rex.core',
+    [DocEntry('debug', 'Turn on the debug mode.', index='debug', package='rex.core',
               filename='/.../rex/core/setting.py', line=...)]
 
 

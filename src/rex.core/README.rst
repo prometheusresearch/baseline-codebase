@@ -438,7 +438,7 @@ data.  For example::
     >>> raise Error("Found no product:", "beer")
     Traceback (most recent call last):
       ...
-    Error: Found no product:
+    rex.core.Error: Found no product:
         beer
 
 To add an entry to the context trace, use :meth:`.Error.wrap()` method::
@@ -452,7 +452,7 @@ To add an entry to the context trace, use :meth:`.Error.wrap()` method::
     ...     raise
     Traceback (most recent call last):
       ...
-    Error: Found no product:
+    rex.core.Error: Found no product:
         beer
     While looking in:
         refrigerator #3
@@ -465,7 +465,7 @@ The same code could we written using :class:`rex.core.guard` context manager::
     ...     raise Error("Found no product:", product)
     Traceback (most recent call last):
       ...
-    Error: Found no product:
+    rex.core.Error: Found no product:
         beer
     While looking in:
         refrigerator #3
@@ -497,7 +497,7 @@ is raised::
     >>> int_val('NaN')
     Traceback (most recent call last):
         ...
-    Error: Expected an integer
+    rex.core.Error: Expected an integer
     Got:
         'NaN'
 

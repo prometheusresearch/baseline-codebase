@@ -75,7 +75,7 @@ def compose(package_path, **arguments):
     return message
 
 
-class Mailer(object):
+class Mailer:
     """
     Interface for sending email messages.
 

@@ -72,7 +72,7 @@ The message must contain a sender and at least one recipient::
     ...     sendmail(msg)
     Traceback (most recent call last):
       ...
-    Error: Email sender is not specified:
+    rex.core.Error: Email sender is not specified:
         Subject: Hi there!
 
     >>> msg = """\
@@ -83,7 +83,7 @@ The message must contain a sender and at least one recipient::
     ...     sendmail(msg)
     Traceback (most recent call last):
       ...
-    Error: Email recipients are not specified:
+    rex.core.Error: Email recipients are not specified:
         From: Alice Anderson <alice@example.net>
         Subject: Hi there!
 
@@ -139,7 +139,7 @@ On startup, we check if we could connect to the SMTP server::
     ...                 sendmail='smtp:127.0.0.1:22225')    # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Failed to connect to SMTP server at 127.0.0.1:22225:
+    rex.core.Error: Failed to connect to SMTP server at 127.0.0.1:22225:
         [Errno ...] Connection refused
     ...
 
@@ -148,7 +148,7 @@ To test the server, we'll create a fake SMTP server::
     >>> import smtpd, asyncore, threading, socket
 
     >>> def smtpd_target():
-    ...     server = smtpd.DebuggingServer(('127.0.0.1', 22225), None)
+    ...     server = smtpd.DebuggingServer(('127.0.0.1', 22225), None, decode_data=True)
     ...     asyncore.loop()
 
     >>> smtpd_thread = threading.Thread(target=smtpd_target)
@@ -215,7 +215,7 @@ MBOX format::
     ...                 sendmail='mbox:/path/does/not/exist')   # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Mailbox path is not valid:
+    rex.core.Error: Mailbox path is not valid:
         /path/does/not/exist
     ...
 

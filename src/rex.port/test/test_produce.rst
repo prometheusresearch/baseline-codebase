@@ -46,7 +46,7 @@ The port could also handle HTTP requests::
     >>> from webob import Request
 
     >>> req = Request.blank('/', accept='application/json')
-    >>> print(study_port(req))           # doctest: +ELLIPSIS
+    >>> print(study_port(req))           # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <BLANKLINE>
@@ -178,7 +178,7 @@ Or you may pass a prepared ``Constraint`` instance::
 
     >>> constraint = Constraint.parse("individual=1050")
     >>> constraint
-    Constraint((u'individual',), None, ['1050'])
+    Constraint(('individual',), None, ['1050'])
 
     >>> print(individual_port.produce(constraint))           # doctest: +ELLIPSIS
     {({[1050], '1050', 'male', null, null, ...},)}
@@ -237,7 +237,7 @@ Constraints are extracted from the query string of the HTTP request::
     >>> from webob import Request
 
     >>> req = Request.blank("/?individual=1050", accept="application/json")
-    >>> print(individual_port(req))          # doctest: +ELLIPSIS
+    >>> print(individual_port(req))          # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -301,7 +301,7 @@ Unknown constraints and paths are rejected::
     >>> individual_port.produce("individual:limit=5")
     Traceback (most recent call last):
       ...
-    Error: Got unknown constraint operator:
+    rex.core.Error: Got unknown constraint operator:
         limit
     While applying constraint:
         individual:limit=5
@@ -309,7 +309,7 @@ Unknown constraints and paths are rejected::
     >>> individual_port.produce("study:top=5")      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Got unknown arm:
+    rex.core.Error: Got unknown arm:
         study
     While applying constraint:
         study:top=5
@@ -344,7 +344,7 @@ require a single non-negative integer as an argument::
     >>> individual_port.produce("individual.identity:top=5")
     Traceback (most recent call last):
       ...
-    Error: Got unexpected arm type:
+    rex.core.Error: Got unexpected arm type:
         expected trunk entity or branch entity; got facet entity
     While applying constraint:
         individual.identity:top=5
@@ -352,15 +352,15 @@ require a single non-negative integer as an argument::
     >>> individual_port.produce(("individual", "top", Ellipsis))
     Traceback (most recent call last):
       ...
-    Error: Cannot recognize value:
-        unable to embed a value of type <type 'ellipsis'>
+    rex.core.Error: Cannot recognize value:
+        unable to embed a value of type <class 'ellipsis'>
     While applying constraint:
         individual:top=Ellipsis
 
     >>> individual_port.produce(("individual", "top", True))
     Traceback (most recent call last):
       ...
-    Error: Cannot convert value of type boolean to integer:
+    rex.core.Error: Cannot convert value of type boolean to integer:
         true
     While applying constraint:
         individual:top=True
@@ -368,7 +368,7 @@ require a single non-negative integer as an argument::
     >>> individual_port.produce("individual:top=true")
     Traceback (most recent call last):
       ...
-    Error: Failed to convert value to integer:
+    rex.core.Error: Failed to convert value to integer:
         invalid integer literal: expected an integer in a decimal format; got 'true'
     While applying constraint:
         individual:top=true
@@ -376,7 +376,7 @@ require a single non-negative integer as an argument::
     >>> individual_port.produce("individual:top=-1")
     Traceback (most recent call last):
       ...
-    Error: Expected non-negative integer; got:
+    rex.core.Error: Expected non-negative integer; got:
         -1
     While applying constraint:
         individual:top=-1
@@ -384,7 +384,7 @@ require a single non-negative integer as an argument::
     >>> individual_port.produce("individual:skip=-1")
     Traceback (most recent call last):
       ...
-    Error: Expected non-negative integer; got:
+    rex.core.Error: Expected non-negative integer; got:
         -1
     While applying constraint:
         individual:skip=-1
@@ -431,7 +431,7 @@ Ill-formed identity literals are rejected::
     >>> individual_port.produce("individual=10.1050")
     Traceback (most recent call last):
       ...
-    Error: Failed to convert value to identity(text):
+    rex.core.Error: Failed to convert value to identity(text):
         '10.1050'
     While applying constraint:
         individual=10.1050
@@ -439,7 +439,7 @@ Ill-formed identity literals are rejected::
     >>> individual_port.produce(("individual", True))
     Traceback (most recent call last):
       ...
-    Error: Failed to convert value of type boolean to identity(text):
+    rex.core.Error: Failed to convert value of type boolean to identity(text):
         true
     While applying constraint:
         individual=True
@@ -468,7 +468,7 @@ branch entities::
     >>> individual_port.produce("individual.participation:null")
     Traceback (most recent call last):
       ...
-    Error: Got unexpected arm type:
+    rex.core.Error: Got unexpected arm type:
         expected facet entity, join entity, column, link or calculation; got branch entity
     While applying constraint:
         individual.participation:null
@@ -498,7 +498,7 @@ type or with more than one argument::
     >>> study_port.produce("study.closed:ge=true")
     Traceback (most recent call last):
       ...
-    Error: Got unsupported column type:
+    rex.core.Error: Got unsupported column type:
         expected text, number, date, time or datetime; got boolean
     While applying constraint:
         study.closed:ge=true
@@ -506,7 +506,7 @@ type or with more than one argument::
     >>> study_port.produce("study.code:ge=a&study.code:ge=z")
     Traceback (most recent call last):
       ...
-    Error: Got unexpected number of values:
+    rex.core.Error: Got unexpected number of values:
         expected 1; got 2
     While applying constraint:
         study.code:ge=a&study.code:ge=z
@@ -519,7 +519,7 @@ You can use constraint ``:contains`` to search in text values:::
     >>> individual_port.produce("individual.sex:contains=f")
     Traceback (most recent call last):
       ...
-    Error: Got unsupported column type:
+    rex.core.Error: Got unsupported column type:
         expected text; got enum('not-known', 'male', 'female', 'not-applicable')
     While applying constraint:
         individual.sex:contains=f
@@ -598,7 +598,7 @@ A filter with incorrect number or type of arguments is rejected::
     >>> filtered_port.produce(("individual", "birthrange", "1979-01-01"))
     Traceback (most recent call last):
       ...
-    Error: Got unexpected number of arguments:
+    rex.core.Error: Got unexpected number of arguments:
         expected 2; got 1
     While applying constraint:
         individual:birthrange=1979-01-01
@@ -606,7 +606,7 @@ A filter with incorrect number or type of arguments is rejected::
     >>> filtered_port.produce(("individual", "birthrange", [1, 10]))
     Traceback (most recent call last):
       ...
-    Error: Failed to compile filter:
+    rex.core.Error: Failed to compile filter:
         birthrange
     While applying constraint:
         individual:birthrange=1&individual:birthrange=10
@@ -662,7 +662,7 @@ However you cannot pass ``$USER`` in a query string::
     >>> masked_port.produce(":USER=Dahl")
     Traceback (most recent call last):
       ...
-    Error: Got unknown parameter:
+    rex.core.Error: Got unknown parameter:
         USER_
     While applying constraint:
         :USER_=Dahl
@@ -672,7 +672,7 @@ Exactly one argument is expected::
     >>> masked_port.produce(((), "USER", []))
     Traceback (most recent call last):
       ...
-    Error: Got unexpected number of arguments:
+    rex.core.Error: Got unexpected number of arguments:
         expected 1; got 0
     While applying constraint:
         :USER

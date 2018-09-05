@@ -35,7 +35,7 @@ def scalars(node):
             yield arc
 
 
-class Missing(object):
+class Missing:
     # The value was not provided.
 
     def __bool__(self):
@@ -52,7 +52,7 @@ MISSING = Missing()
 Pair = collections.namedtuple('Pair', 'old new')
 
 
-class Reference(object):
+class Reference:
     # A path in the data tree.
 
     @staticmethod
@@ -86,7 +86,7 @@ class Reference(object):
         return not (self == other)
 
 
-class Cell(object):
+class Cell:
     # Encapsulates a record from a JSON data.
 
     def __init__(self, node, reference, identity, fields):
@@ -124,7 +124,7 @@ def load(data):
         try:
             data = json.loads(data)
         except ValueError as exc:
-            raise Error("Got ill-formed JSON:", exc)
+            raise Error("Got ill-formed JSON:", exc) from None
     return data
 
 

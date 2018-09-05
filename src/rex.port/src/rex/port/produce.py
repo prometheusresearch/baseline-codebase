@@ -19,7 +19,7 @@ from htsql.core.tr.translate import translate
 from htsql.core.fmt.accept import Accept
 
 
-class Bind(object):
+class Bind:
     # Translates a port arm to an HTSQL `Binding` object.
 
     def __init__(self, arm, state, constraints):

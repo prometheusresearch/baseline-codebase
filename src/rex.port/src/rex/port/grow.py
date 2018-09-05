@@ -239,7 +239,7 @@ class GrowVal(Validate):
         return self.validate.construct(loader, node)
 
 
-class Grow(object):
+class Grow:
     # Grows a port arm.
 
     @classmethod

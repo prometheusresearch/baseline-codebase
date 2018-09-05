@@ -60,7 +60,7 @@ def identify(node):
     return IdentityDomain(fields)
 
 
-class Arm(object):
+class Arm:
 
     is_plural = False
     kind = None
@@ -301,7 +301,7 @@ class SyntaxArm(Arm):
         return mapping
 
 
-class Mask(object):
+class Mask:
 
     def __init__(self, syntax):
         assert isinstance(syntax, Syntax)
@@ -317,7 +317,7 @@ class Mask(object):
         return str(self.syntax)
 
 
-class Filter(object):
+class Filter:
 
     def __init__(self, parameters, syntax):
         assert isinstance(parameters, listof(str))

@@ -10,7 +10,7 @@ import urllib.request, urllib.parse, urllib.error
 reserved_parameters = ['USER', 'FORMAT', 'FORMAT_']
 
 
-class Constraint(object):
+class Constraint:
     """
     Represents a constraint over a port arm.
 
@@ -105,15 +105,14 @@ class Constraint(object):
 
     def __str__(self):
         # Serialize into a URL-encoded string `<path>:<operator>=<argument>`.
-        path = urllib.parse.quote(".".join(name.encode('utf-8')
-                            for name in self.path))
+        path = urllib.parse.quote(".".join(self.path))
         if self.operator is not None:
-            operator = ":"+urllib.parse.quote(self.operator.encode('utf-8'))
+            operator = ":"+urllib.parse.quote(self.operator)
         else:
             operator = ""
         if not self.arguments:
             return "%s%s" % (path, operator)
-        arguments = [argument.encode('utf-8')
+        arguments = [argument
                      if isinstance(argument, str)
                      else "" if argument is None
                      else str(argument)
@@ -126,7 +125,7 @@ class Constraint(object):
                                    self.path, self.operator, self.arguments)
 
 
-class ConstraintSet(object):
+class ConstraintSet:
     # Represents a set of constraint at some arm.
 
     @classmethod

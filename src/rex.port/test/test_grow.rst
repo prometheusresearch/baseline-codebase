@@ -360,13 +360,13 @@ Invalid HTSQL expressions are rejected::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Failed to parse an HTSQL expression:
+    rex.core.Error: Failed to parse an HTSQL expression:
         Got unexpected input
         While parsing:
             syntax error
                    ^^^^^
     While parsing:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 Field ``entity`` must be a valid name with an optional mask::
 
@@ -375,14 +375,14 @@ Field ``entity`` must be a valid name with an optional mask::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Expected an HTSQL expression of the form:
+    rex.core.Error: Expected an HTSQL expression of the form:
         <name> OR <name>. ... .<name> OR <name>?<mask>
     Got:
         count(individual)
     While processing field:
         entity
     While parsing:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 Field ``at`` must be a valid path::
 
@@ -392,14 +392,14 @@ Field ``at`` must be a valid path::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Expected an HTSQL expression of the form:
+    rex.core.Error: Expected an HTSQL expression of the form:
         <name> OR <name>. ... .<name>
     Got:
         root()
     While processing field:
         at
     While parsing:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 Mask expression must be specified once::
 
@@ -409,12 +409,12 @@ Mask expression must be specified once::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Got entity mask specified twice:
+    rex.core.Error: Got entity mask specified twice:
         sex='female'
     And:
         sex='male'
     While parsing:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 Filter expressions must have the form ``<name>($<param>, ...) := <expr>``::
 
@@ -424,14 +424,14 @@ Filter expressions must have the form ``<name>($<param>, ...) := <expr>``::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Expected an HTSQL expression of the form:
+    rex.core.Error: Expected an HTSQL expression of the form:
         <name>($<param>, ...) := <expr>
     Got:
         sex
     While processing field:
         filters
     While parsing:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
     >>> Port("""
     ... entity: individual
@@ -439,14 +439,14 @@ Filter expressions must have the form ``<name>($<param>, ...) := <expr>``::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Expected an HTSQL expression of the form:
+    rex.core.Error: Expected an HTSQL expression of the form:
         <name>($<param>, ...) := <expr>
     Got:
         individual.by_sex($sex):=sex=$sex
     While processing field:
         filters
     While parsing:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
     >>> Port("""
     ... entity: individual
@@ -454,14 +454,14 @@ Filter expressions must have the form ``<name>($<param>, ...) := <expr>``::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Expected an HTSQL expression of the form:
+    rex.core.Error: Expected an HTSQL expression of the form:
         <name>($<param>, ...) := <expr>
     Got:
         by_sex(sex):=sex=$sex
     While processing field:
         filters
     While parsing:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 Calculated expressions in shorthand form must have the form
 ``<path>.<name> := <expr>``::
@@ -471,24 +471,24 @@ Calculated expressions in shorthand form must have the form
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Expected an HTSQL expression of the form:
+    rex.core.Error: Expected an HTSQL expression of the form:
         <name> OR <name>. ... .<name> OR <name> := <expr> OR $<name> OR $<name> := <val>
     Got:
         num_individual():=count(individual)
     While parsing:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
     >>> Port("""
     ... $num_individual := count(individual)
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Expected an HTSQL expression of the form:
+    rex.core.Error: Expected an HTSQL expression of the form:
         <name> OR <name>. ... .<name> OR <name> := <expr> OR $<name> OR $<name> := <val>
     Got:
         $num_individual:=count(individual)
     While parsing:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 In full form, field ``calculation`` must be either ``<name>`` or
 ``<name> := <expr>``::
@@ -498,14 +498,14 @@ In full form, field ``calculation`` must be either ``<name>`` or
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Expected an HTSQL expression of the form:
+    rex.core.Error: Expected an HTSQL expression of the form:
         <name> OR <name>. ... .<name> OR <name> := <expr>
     Got:
         num_individual($sex):=count(individual?sex=$sex)
     While processing field:
         calculation
     While parsing:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 The calculated expression must be set only once::
 
@@ -514,9 +514,9 @@ The calculated expression must be set only once::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Got missing calculation expression
+    rex.core.Error: Got missing calculation expression
     While parsing:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
     >>> Port("""
     ... calculation: num_individual := count(individual)
@@ -524,12 +524,12 @@ The calculated expression must be set only once::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Got calculation expression specified twice:
+    rex.core.Error: Got calculation expression specified twice:
         num_individual:=count(individual)
     And:
         count(participation)
     While parsing:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 Field ``at`` must be a valid path::
 
@@ -539,14 +539,14 @@ Field ``at`` must be a valid path::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Expected an HTSQL expression of the form:
+    rex.core.Error: Expected an HTSQL expression of the form:
         <name> OR <name>. ... .<name>
     Got:
         root()
     While processing field:
         at
     While parsing:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 Parameters must use references and literal values::
 
@@ -555,28 +555,28 @@ Parameters must use references and literal values::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Expected an HTSQL expression of the form:
+    rex.core.Error: Expected an HTSQL expression of the form:
         <name> OR $<name> OR $<name> := <val>
     Got:
         sex():='male'
     While processing field:
         parameter
     While parsing:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
     >>> Port("""
     ... parameter: sex := count(individual?sex='male')
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Expected an HTSQL expression of the form:
+    rex.core.Error: Expected an HTSQL expression of the form:
         <name> OR $<name> OR $<name> := <val>
     Got:
         sex:=count(individual?sex='male')
     While processing field:
         parameter
     While parsing:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
     >>> Port("""
     ... parameter: sex
@@ -584,26 +584,26 @@ Parameters must use references and literal values::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Got invalid default value:
+    rex.core.Error: Got invalid default value:
         invalid integer literal: expected an integer in a decimal format; got 'one'
     While processing field:
         default
     While parsing:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
     >>> Port("""
     ... parameter: individual.sex := 'male'
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Expected an HTSQL expression of the form:
+    rex.core.Error: Expected an HTSQL expression of the form:
         <name> OR $<name> OR $<name> := <val>
     Got:
         individual.sex:='male'
     While processing field:
         parameter
     While parsing:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
     >>> Port("""
     ... parameter: $sex := 'male'
@@ -611,12 +611,12 @@ Parameters must use references and literal values::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Got default value specified twice:
+    rex.core.Error: Got default value specified twice:
         $sex:='male'
     And:
         female
     While parsing:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 
 Errors while applying builders
@@ -627,22 +627,22 @@ The path to the entity being added must exist::
     >>> Port("""individual.identity""")
     Traceback (most recent call last):
       ...
-    Error: Unable to find arm:
+    rex.core.Error: Unable to find arm:
         individual
     While following path:
         individual
     While applying:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> Port("""individual.num_participation := count(participation)""")
     Traceback (most recent call last):
       ...
-    Error: Unable to find arm:
+    rex.core.Error: Unable to find arm:
         individual
     While following path:
         individual
     While applying:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 Duplicate entities are rejected::
 
@@ -652,10 +652,10 @@ Duplicate entities are rejected::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Got entity that has already been added:
+    rex.core.Error: Got entity that has already been added:
         individual
     While applying:
-        "<byte string>", line 3
+        "<unicode string>", line 3
 
     >>> Port("""
     ... - num_individual := count(individual)
@@ -663,10 +663,10 @@ Duplicate entities are rejected::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Got calculation that has already been added:
+    rex.core.Error: Got calculation that has already been added:
         num_individual
     While applying:
-        "<byte string>", line 3
+        "<unicode string>", line 3
 
 An attribute that is not a table or a reverse link is rejected::
 
@@ -675,10 +675,10 @@ An attribute that is not a table or a reverse link is rejected::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Got unknown entity:
+    rex.core.Error: Got unknown entity:
         person
     While applying:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
     >>> Port("""
     ... - entity: individual
@@ -686,10 +686,10 @@ An attribute that is not a table or a reverse link is rejected::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Got unknown entity:
+    rex.core.Error: Got unknown entity:
         sex
     While applying:
-        "<byte string>", line 3
+        "<unicode string>", line 3
 
 Calculation cannot be added to non-entities::
 
@@ -699,23 +699,23 @@ Calculation cannot be added to non-entities::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Unable to add calculation to a non-entity
+    rex.core.Error: Unable to add calculation to a non-entity
     While applying:
-        "<byte string>", line 3
+        "<unicode string>", line 3
 
 Calculations must be valid HTSQL expressions::
 
     >>> Port("""num_person := count(person)""")
     Traceback (most recent call last):
       ...
-    Error: Failed to compile an HTSQL expression:
+    rex.core.Error: Failed to compile an HTSQL expression:
         Found unknown attribute:
             person
         While translating:
             num_person := count(person)
                                 ^^^^^^
     While applying:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 Parameters cannot be applied to non-root nodes::
 
@@ -726,9 +726,9 @@ Parameters cannot be applied to non-root nodes::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Unable to add parameter to a non-root arm
+    rex.core.Error: Unable to add parameter to a non-root arm
     While applying:
-        "<byte string>", line 4
+        "<unicode string>", line 4
 
 Parameter names must be unique::
 
@@ -738,10 +738,10 @@ Parameter names must be unique::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Got duplicate parameter:
+    rex.core.Error: Got duplicate parameter:
         sex
     While applying:
-        "<byte string>", line 3
+        "<unicode string>", line 3
 
 
 

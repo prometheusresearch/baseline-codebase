@@ -75,7 +75,7 @@ class DataFact(Fact):
                 data_path = os.path.join(driver.cwd, data_path)
             if table_label is None:
                 basename = os.path.splitext(os.path.basename(data_path))[0]
-                table_label = basename.decode('utf-8')
+                table_label = basename
         else:
             data = spec.data
         if table_label is None:
@@ -376,8 +376,6 @@ class DataFact(Fact):
                         try:
                             # If it's a text value, let the domain parse it.
                             if isinstance(data, str):
-                                data = data.decode('utf-8')
-                            if isinstance(data, str):
                                 data = domain.parse(data)
                             # Otherwise, verify that the value is compatible
                             # with the domain.
@@ -432,7 +430,7 @@ class DataFact(Fact):
             type = type.base_type
         # Translate a `ENUM` type.
         if type.is_enum:
-            labels = [label.decode('utf-8') for label in type.labels]
+            labels = type.labels
             return htsql.core.domain.EnumDomain(labels)
         # Translate known scalar types.
         elif type.schema.name == 'pg_catalog':
@@ -462,8 +460,6 @@ class DataFact(Fact):
         # Adapts a raw value to the given HTSQL domain.
         if data is None:
             return None
-        if isinstance(data, str):
-            data = data.decode('utf-8')
         if isinstance(data, str):
             return domain.parse(data)
         if isinstance(domain, htsql.core.domain.BooleanDomain):

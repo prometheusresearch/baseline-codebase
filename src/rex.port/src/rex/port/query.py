@@ -19,7 +19,7 @@ from webob import Response
 import yaml
 
 
-class Port(object):
+class Port:
     """
     Represents a slice of the database content.
 

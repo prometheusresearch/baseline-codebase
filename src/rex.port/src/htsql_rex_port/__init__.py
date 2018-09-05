@@ -12,7 +12,7 @@ from htsql.core.cmd.act import Act, act, ProduceAction
 from htsql.core.cmd.summon import Summon, recognize
 
 
-class NamedPortsGuard(object):
+class NamedPortsGuard:
 
     def __init__(self, ports):
         self.ports = {}

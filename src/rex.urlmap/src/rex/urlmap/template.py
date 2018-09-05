@@ -11,7 +11,7 @@ from webob.exc import HTTPUnauthorized, HTTPForbidden
 import os.path
 
 
-class TemplateRenderer(object):
+class TemplateRenderer:
     # Renders a Jinja template.
 
     def __init__(self, path, template, access, unsafe,

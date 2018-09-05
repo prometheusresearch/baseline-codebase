@@ -26,7 +26,7 @@ def _merge(*contexts):
     return merged
 
 
-class Deferred(object):
+class Deferred:
     """ Object which defers either validation or construction."""
 
     def resolve(self, validate=None):
@@ -72,8 +72,7 @@ class TaggedStrVal(StrVal):
     def __init__(self, tag, pattern=None):
         super(TaggedStrVal, self).__init__(pattern)
         self.tag = tag
-        self.record_type = Record.make(
-                tag.encode('utf-8').replace('!', '').capitalize(), ['data'])
+        self.record_type = Record.make(tag.replace('!', '').capitalize(), ['data'])
 
     def construct(self, loader, node):
         location = Location.from_node(node)
@@ -139,14 +138,14 @@ class MapLoader(ValidatingLoader):
         settings = get_settings()
         with guard("While parsing:", Location.from_node(node)):
             if not hasattr(settings, node.value):
-                raise Error("Got unknown setting:", node.value.encode('utf-8'))
+                raise Error("Got unknown setting:", node.value)
             value = getattr(settings, node.value)
             if self.validate is not None:
                 value = self.validate(value)
         return value
 
 
-class LoadMap(object):
+class LoadMap:
     # Parses `urlmap.yaml` file.
 
     def __init__(self, package, open=open):
@@ -201,7 +200,7 @@ class LoadMap(object):
                 continue
             map = self.map_by_record_type[type(handle_spec)]
             mask = map.mask(path)
-            handler = list(map(handle_spec, mask, map_spec.context))
+            handler = map(handle_spec, mask, map_spec.context)
             add_handler(segment_map, mask, handler)
 
         return segment_map

@@ -37,7 +37,7 @@ The segment tree may contain wildcard branches::
 Unrecognized URLs are rejected::
 
     >>> req = Request.blank('/enrollment')
-    >>> print(req.get_response(demo))        # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     404 Not Found
     ...
 
@@ -46,7 +46,7 @@ Or delegated to the next handler in the routing pipeline::
     >>> fallback = Rex('rex.urlmap_demo', './test/data/fallback/',
     ...                mount={'fallback': '/'})
     >>> req = Request.blank('/fallback.html')
-    >>> print(req.get_response(fallback))    # doctest: +ELLIPSIS
+    >>> print(req.get_response(fallback))    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <!DOCTYPE html>
@@ -92,7 +92,7 @@ authorization::
 By default, only authenticated users are accepted::
 
     >>> req = Request.blank('/private')
-    >>> print(req.get_response(auth_demo))   # doctest: +ELLIPSIS
+    >>> print(req.get_response(auth_demo))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     401 Unauthorized
     ...
 
@@ -106,7 +106,7 @@ By default, only authenticated users are accepted::
 Pages marked as ``unsafe`` require a CSRF token::
 
     >>> req = Request.blank('/unsafe')
-    >>> print(req.get_response(auth_demo))   # doctest: +ELLIPSIS
+    >>> print(req.get_response(auth_demo))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     403 Forbidden
     ...
 
@@ -159,13 +159,13 @@ Queries and ports generate HTSQL output::
 Errors in query parameters are detected::
 
     >>> req = Request.blank('/data/total?sex=male')
-    >>> print(req.get_response(demo))    # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
 
     >>> req = Request.blank('/data/study?individual=1000', accept='application/json',
     ...                     remote_user='Alice')
-    >>> print(req.get_response(demo))    # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
 
@@ -226,7 +226,7 @@ authorization::
 By default, only authenticated users are accepted::
 
     >>> req = Request.blank('/data/private-query', accept='application/json')
-    >>> print(req.get_response(data_auth_demo))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(data_auth_demo))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     401 Unauthorized
     ...
 
@@ -246,7 +246,7 @@ By default, only authenticated users are accepted::
     }
 
     >>> req = Request.blank('/data/private-port', accept='application/json')
-    >>> print(req.get_response(data_auth_demo))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(data_auth_demo))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     401 Unauthorized
     ...
 
@@ -269,12 +269,12 @@ By default, only authenticated users are accepted::
 Ports marked as ``unsafe`` require a CSRF token::
 
     >>> req = Request.blank('/data/unsafe-query', accept='application/json')
-    >>> print(req.get_response(data_auth_demo))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(data_auth_demo))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     403 Forbidden
     ...
 
     >>> req = Request.blank('/data/unsafe-port', accept='application/json')
-    >>> print(req.get_response(data_auth_demo))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(data_auth_demo))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     403 Forbidden
     ...
 
@@ -368,13 +368,13 @@ Ports marked as ``unsafe`` require a CSRF token::
 Ports could be marked as *read-only*, which forbids using CRUD operations::
 
     >>> req = Request.blank('/data/read-only-port', accept='application/json')
-    >>> print(req.get_response(data_auth_demo))      # doctest: +ELLIPSIS
+    >>> print(req.get_response(data_auth_demo))      # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
 
     >>> req = Request.blank('/data/read-only-port', accept='application/json',
     ...                     POST={'new': {'code': 999, 'sex': 'male'}})
-    >>> print(req.get_response(data_auth_demo))      # doctest: +ELLIPSIS
+    >>> print(req.get_response(data_auth_demo))      # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     405 Method Not Allowed
     ...
 
@@ -415,7 +415,7 @@ Segment and parameter values are passed to the template::
 Unknown or duplicate parameters are rejected::
 
     >>> req = Request.blank('/parameter?argument=test')
-    >>> print(req.get_response(params_demo)) # doctest: +ELLIPSIS
+    >>> print(req.get_response(params_demo)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     Received unexpected parameter:
@@ -488,7 +488,7 @@ Invalid, unknown or duplicate parameters are rejected::
                                            ^^^^
 
     >>> req = Request.blank('/individual?mother=1000')
-    >>> print(req.get_response(params_demo)) # doctest: +ELLIPSIS
+    >>> print(req.get_response(params_demo)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     Received unexpected parameter:

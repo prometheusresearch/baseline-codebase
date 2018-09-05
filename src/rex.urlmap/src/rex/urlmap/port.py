@@ -11,7 +11,7 @@ from .map import Map
 from webob.exc import HTTPUnauthorized, HTTPForbidden, HTTPMethodNotAllowed
 
 
-class PortRenderer(object):
+class PortRenderer:
     # Renders a database port.
 
     def __init__(self, port, access, unsafe, read_only=False):

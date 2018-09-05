@@ -15,7 +15,7 @@ import htsql.core.fmt.accept
 import htsql.core.fmt.emit
 
 
-class QueryRenderer(object):
+class QueryRenderer:
     # Renders an HTSQL query.
 
     def __init__(self, db, path, query, parameters, access, unsafe):

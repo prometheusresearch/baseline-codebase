@@ -48,7 +48,7 @@ Users can define their own extensions for URL mapping entries::
 
   >>> rex = Rex(pkg, '-', 'rex.urlmap_demo')
 
-  >>> print(Request.blank('/hello').get_response(rex)) # doctest: +ELLIPSIS
+  >>> print(Request.blank('/hello').get_response(rex))      # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -103,14 +103,14 @@ URL mapping extensions can define multiple masks::
 
   >>> rex = Rex(pkg, '-', 'rex.urlmap_demo')
 
-  >>> print(Request.blank('/hello').get_response(rex)) # doctest: +ELLIPSIS
+  >>> print(Request.blank('/hello').get_response(rex))      # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
   Hello, World
 
-  >>> print(Request.blank('/hello/huge').get_response(rex)) # doctest: +ELLIPSIS
+  >>> print(Request.blank('/hello/huge').get_response(rex)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -138,14 +138,14 @@ original path in URL mapping)::
 
   >>> rex = Rex(pkg, base_pkg, '-', 'rex.urlmap_demo')
 
-  >>> print(Request.blank('/hello').get_response(rex)) # doctest: +ELLIPSIS
+  >>> print(Request.blank('/hello').get_response(rex))      # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
   Hola, World
 
-  >>> print(Request.blank('/hello/huge').get_response(rex)) # doctest: +ELLIPSIS
+  >>> print(Request.blank('/hello/huge').get_response(rex)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -165,7 +165,7 @@ Now if we try to override using the another URL::
   >>> rex = Rex(pkg, base_pkg, '-', 'rex.urlmap_demo') # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Detected invalid override of greeting:
+  rex.core.Error: Detected invalid override of greeting:
       /hello
   Defined in:
       "...", line 4
@@ -218,7 +218,7 @@ Extensions can specify validator for overrides::
 
   >>> rex = Rex(pkg, base_pkg, '-', 'rex.urlmap_demo')
 
-  >>> print(Request.blank('/hello').get_response(rex)) # doctest: +ELLIPSIS
+  >>> print(Request.blank('/hello').get_response(rex)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...

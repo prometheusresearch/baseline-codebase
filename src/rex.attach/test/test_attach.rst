@@ -25,7 +25,7 @@ name::
     'The_Fortunes_and_Misfortunes_of_the_Famous_Moll_Flande..._at_last_grew_Rich_livd_Honest_and_died_a_Penitent.epub'
 
     >>> sanitize_filename("Les Misérables.epub")
-    'Les_Mis\xc3\xa9rables.epub'
+    'Les_Misérables.epub'
 
     >>> sanitize_filename("")
     '_.dat'
@@ -43,13 +43,13 @@ should be writable::
     >>> Rex('rex.attach_demo')                                      # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Attachment storage (attach_dir) is not specified
+    rex.core.Error: Attachment storage (attach_dir) is not specified
     ...
 
     >>> Rex('rex.attach_demo', attach_dir="./sandbox/missing")      # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Attachment storage (attach_dir) does not exist:
+    rex.core.Error: Attachment storage (attach_dir) does not exist:
         ./sandbox/missing
     ...
 
@@ -71,18 +71,18 @@ contains the attachment::
     >>> handle_str = storage.add("str.txt", "attachment content")
 
     >>> import io
-    >>> handle_file = storage.add("file.txt", StringIO.StringIO("attachment content"))
+    >>> handle_file = storage.add("file.txt", io.BytesIO(b"attachment content"))
 
 You can open an attachment by handle::
 
     >>> stream = storage.open(handle_str)
     >>> stream.read()
-    'attachment content'
+    b'attachment content'
 
 You can also get information about the file which contains the attachment::
 
     >>> storage.stat(handle_file)           # doctest: +ELLIPSIS
-    posix.stat_result(..., st_size=18, ...)
+    os.stat_result(..., st_size=18, ...)
 
 You can remove the attachment::
 
@@ -91,13 +91,13 @@ You can remove the attachment::
     >>> storage.remove(handle_file)         # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Attachment does not exist:
+    rex.core.Error: Attachment does not exist:
         /.../.../.../.../....txt
 
     >>> storage.stat(handle_file)           # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Attachment does not exist:
+    rex.core.Error: Attachment does not exist:
         /.../.../.../.../....txt
 
 Ill-formed handles are detected::
@@ -105,7 +105,7 @@ Ill-formed handles are detected::
     >>> storage.open("/invalid/attachment/handle.txt")
     Traceback (most recent call last):
       ...
-    Error: Ill-formed attachment handle:
+    rex.core.Error: Ill-formed attachment handle:
         /invalid/attachment/handle.txt
 
 Finally you could list all attachments in the storage::
@@ -125,12 +125,12 @@ response with attachment content::
 
     >>> req = Request.blank('/download')
     >>> app = storage.route(handle_str)
-    >>> print(app(req))                          # doctest: +ELLIPSIS
+    >>> print(app(req))                                 # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/plain; charset=UTF-8
+    Last-Modified: ...
     Content-Length: 18
     Content-Disposition: attachment; filename=str.txt
-    Last-Modified: ...
     Accept-Ranges: bytes
     <BLANKLINE>
     attachment content
@@ -139,7 +139,7 @@ The ``rex.attach`` module also provides a service to download attachments
 directly.  By default, it is disabled::
 
     >>> req = Request.blank("/attach"+handle_str, remote_user='Alice')
-    >>> print(req.get_response(demo))                    # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))                   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     401 Unauthorized
     ...
 
@@ -152,26 +152,26 @@ package using ``access`` setting::
 Requests must have the required permission::
 
     >>> anon_req = Request.blank("/attach"+handle_str)
-    >>> print(anon_req.get_response(download_demo))      # doctest: +ELLIPSIS
+    >>> print(anon_req.get_response(download_demo))     # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     401 Unauthorized
     ...
 
     >>> auth_req = Request.blank("/attach"+handle_str, remote_user='Alice')
-    >>> print(auth_req.get_response(download_demo))      # doctest: +ELLIPSIS
+    >>> print(auth_req.get_response(download_demo))     # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
 
 Only ``GET`` and ``HEAD`` methods are allowed::
 
     >>> post_req = Request.blank("/attach"+handle_str, remote_user='Alice', method='POST')
-    >>> print(post_req.get_response(download_demo))      # doctest: +ELLIPSIS
+    >>> print(post_req.get_response(download_demo))     # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     405 Method Not Allowed
     ...
 
 Unknown or ill-formed requests are reported::
 
     >>> invalid_req = Request.blank("/attach"+handle_file, remote_user='Alice')
-    >>> print(invalid_req.get_response(download_demo))   # doctest: +ELLIPSIS
+    >>> print(invalid_req.get_response(download_demo))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     404 Not Found
     ...
 
@@ -195,21 +195,21 @@ itself::
     >>> attachment = post_req.params['attachment']
 
     >>> attachment
-    FieldStorage('attachment', u'attachment.txt')
+    FieldStorage('attachment', 'attachment.txt')
     >>> attach_val(attachment)                              # doctest: +ELLIPSIS
-    Attachment(name=u'attachment.txt', content=<cStringIO.StringO object at ...>)
+    Attachment(name='attachment.txt', content=<_io.BytesIO object at ...>)
 
 ``AttachmentVal`` also accepts tuples of the type it produces::
 
     >>> attach_val((attachment.filename, attachment.file))  # doctest: +ELLIPSIS
-    Attachment(name=u'attachment.txt', content=<cStringIO.StringO object at ...>)
+    Attachment(name='attachment.txt', content=<_io.BytesIO object at ...>)
 
 Other values are rejected::
 
     >>> attach_val(None)
     Traceback (most recent call last):
       ...
-    Error: Expected an uploaded file
+    rex.core.Error: Expected an uploaded file
     Got:
         None
 
@@ -228,12 +228,12 @@ an attachment::
     >>> from rex.attach import download
 
     >>> with demo:
-    ...     print(download(handle1)(req))        # doctest: +ELLIPSIS
+    ...     print(download(handle1)(req))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/plain; charset=UTF-8
+    Last-Modified: ...
     Content-Length: 18
     Content-Disposition: attachment; filename=attachment.txt
-    Last-Modified: ...
     Accept-Ranges: bytes
     <BLANKLINE>
     attachment content

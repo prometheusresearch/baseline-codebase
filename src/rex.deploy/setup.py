@@ -24,7 +24,7 @@ setup(
         'rex.ctl',
         'HTSQL',
         'psycopg2>=2.7,<2.8',
-        'jinja2>=2.7,<2.9',
+        'jinja2>=2.10,<2.11',
     ],
     dependency_links=[
         'https://dist.rexdb.org/packages/',

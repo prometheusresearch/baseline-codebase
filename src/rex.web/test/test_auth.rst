@@ -120,7 +120,7 @@ We can verify if the server name was actually overridden::
 
     >>> main = Rex('__main__', 'rex.web')
     >>> req = Request.blank('/url')
-    >>> print(req.get_response(main))        # doctest: +ELLIPSIS
+    >>> print(req.get_response(main))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     http://localhost:8088/url

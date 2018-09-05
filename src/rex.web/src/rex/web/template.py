@@ -108,17 +108,15 @@ def jinja_filter_json(value):
     Characters ``<``, ``>``, and ``&`` are escaped so the output is safe
     to use in the ``<script>`` block.
     """
-    return json.dumps(value).replace('<', '\\u003c') \
-                            .replace('>', '\\u003e') \
-                            .replace('&', '\\u0026')
+    return json.dumps(value, sort_keys=True).replace('<', '\\u003c') \
+                                            .replace('>', '\\u003e') \
+                                            .replace('&', '\\u0026')
 
 
 def _quote(value):
     # Percent-encodes the given value.
     if not isinstance(value, str):
         value = str(value)
-    if isinstance(value, str):
-        value = value.encode('utf-8')
     return str(urllib.parse.quote(value, safe=''))
 
 
@@ -152,7 +150,7 @@ def jinja_filter_url(context, value):
     ``package:/path/to/resource`` to URL
     ``http://mount-point/path/to/resource``.
     """
-    return url_for(context['REQUEST'], value).decode('utf-8')
+    return url_for(context['REQUEST'], value)
 
 
 @cached
@@ -209,7 +207,7 @@ def get_jinja():
     return jinja
 
 
-class lazy(object):
+class lazy:
     # Lazy object proxy.  Used to evaluate template variables on demand.
 
     def __init__(self, fn):
@@ -221,9 +219,6 @@ class lazy(object):
         return self._obj
 
     def __str__(self):
-        return str(self())
-
-    def __unicode__(self):
         return str(self())
 
 

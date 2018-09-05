@@ -14,7 +14,7 @@ DOUBLE_STAR = object()
 MISSING = object()
 
 
-class PathMask(object):
+class PathMask:
     """
     Pattern for matching URL segments.
 
@@ -131,7 +131,7 @@ class PathMask(object):
                                    self.text, self.guard)
 
 
-class PathMap(object):
+class PathMap:
     """
     Collection of URL patterns.
     """

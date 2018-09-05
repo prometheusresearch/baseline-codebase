@@ -11,7 +11,7 @@ from webob.exc import HTTPUnauthorized, HTTPForbidden
 import copy
 
 
-class Parameter(object):
+class Parameter:
     """
     Describes a form parameter.
 
@@ -27,7 +27,7 @@ class Parameter(object):
         are passed as a list.
     """
 
-    class _required_type(object):
+    class _required_type:
         # For the sake of `sphinx.ext.autodoc`.
         def __repr__(self):
             return "REQUIRED"

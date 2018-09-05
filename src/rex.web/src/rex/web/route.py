@@ -246,7 +246,7 @@ def not_found(req):
     raise HTTPNotFound()
 
 
-class RoutingTable(object):
+class RoutingTable:
     # Adds `rex.package` to the request environment and dispatches
     # the request to the command or some other handler.
 
@@ -272,7 +272,7 @@ class RoutingTable(object):
         return self.fallback(req)
 
 
-class StaticGuard(object):
+class StaticGuard:
     # Verifies if the path can be handled by `StaticServer`.
 
     def __init__(self, package):
@@ -298,7 +298,7 @@ class StaticGuard(object):
         return os.path.isfile(real_path)
 
 
-class StaticServer(object):
+class StaticServer:
     # Handles static resources.
 
     # Directory index.
@@ -376,7 +376,7 @@ class StaticServer(object):
                     conditional_response=True)
 
 
-class CommandDispatcher(object):
+class CommandDispatcher:
     # Routes the request to a `HandleLocation` implementation.
 
     def __init__(self, handler_type):
@@ -466,7 +466,7 @@ class StandardWSGI(WSGI):
         settings = get_settings()
         self.replay_log = None
         if settings.replay_log:
-            self.replay_log = open(settings.replay_log, 'a')
+            self.replay_log = open(settings.replay_log, 'ab')
 
     def __call__(self, environ, start_response):
         # Workaround for uWSGI leaving an extra `/` on SCRIPT_NAME.
@@ -526,15 +526,15 @@ class StandardWSGI(WSGI):
                         "500 Internal Server Error",
                         [("Content-Type", 'text/plain')])
                 if write:
-                    write("The server encountered an unexpected condition"
-                          " which prevented it from fulfilling the request.\n")
+                    write(b"The server encountered an unexpected condition"
+                          b" which prevented it from fulfilling the request.\n")
                     if get_settings().debug:
                         exc_info = sys.exc_info()
-                        write("\n[%s] %s %s\n"
-                             % (datetime.datetime.now(),
-                                environ['REQUEST_METHOD'],
-                                wsgiref.util.request_uri(environ)))
-                        write(cgitb.text(exc_info))
+                        write(("\n[%s] %s %s\n"
+                               % (datetime.datetime.now(),
+                                  environ['REQUEST_METHOD'],
+                                  wsgiref.util.request_uri(environ))).encode('utf-8'))
+                        write(cgitb.text(exc_info).encode('utf-8'))
                 raise
         finally:
             self.sentry.context.clear()

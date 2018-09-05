@@ -56,8 +56,7 @@ def wsgi_file(app):
 
 
 class RexServer(socketserver.ThreadingMixIn,
-                wsgiref.simple_server.WSGIServer,
-                object):
+                wsgiref.simple_server.WSGIServer):
     # HTTP server that spawns a thread for each request.
 
     # Preset WSGI `environ` dictionary.
@@ -75,7 +74,7 @@ class RexServer(socketserver.ThreadingMixIn,
         return type(cls.__name__, (cls,), context)
 
 
-class RexRequestHandler(wsgiref.simple_server.WSGIRequestHandler, object):
+class RexRequestHandler(wsgiref.simple_server.WSGIRequestHandler):
     # Provides customized logging.
 
     def handle(self):
@@ -150,7 +149,7 @@ class RexServerHandler(wsgiref.handlers.SimpleHandler):
             lines = []
             lines.append("[%s] %s => %s\n"
                          % (datetime.datetime.now(),
-                            self.environ['REMOTE_HOST'],
+                            self.environ['REMOTE_HOST'] or self.environ['REMOTE_ADDR'],
                             wsgiref.util.request_uri(self.environ)))
             lines.extend(traceback.format_exception(*exc_info))
             return lines
@@ -350,7 +349,7 @@ class ServeTask(RexWatchTask):
                         indent=2, separators=(',', ': '), sort_keys=True)
                 stream.close()
                 executable = 'rex'
-                if hasattr(sys, 'real_prefix'):
+                if sys.prefix != sys.base_prefix:
                     executable = os.path.join(sys.prefix, 'bin', executable)
                 executable += ' --config=' + json_path
                 for service in services:
@@ -403,6 +402,8 @@ class WSGITask(RexTask):
             stream = open(self.output, 'w')
         for line in wsgi_file(app):
             stream.write(line)
+        if self.output not in [None, '-']:
+            stream.close()
 
 
 class ServeUWSGITask(RexWatchTask):
@@ -446,8 +447,8 @@ class ServeUWSGITask(RexWatchTask):
         uwsgi_parameters['master'] = True
         uwsgi_parameters['need-app'] = True
         uwsgi_parameters['enable-threads'] = True
-        uwsgi_parameters['plugin'] = 'python'
-        if hasattr(sys, 'real_prefix'):
+        uwsgi_parameters['plugin'] = 'python3'
+        if sys.prefix != sys.base_prefix:
             uwsgi_parameters['virtualenv'] = sys.prefix
         uwsgi_parameters.update(env.uwsgi)
         for value in self.set_uwsgi:
@@ -459,7 +460,7 @@ class ServeUWSGITask(RexWatchTask):
         uwsgi_parameters['wsgi-file'] = wsgi_path
         if services:
             executable = 'rex'
-            if hasattr(sys, 'real_prefix'):
+            if sys.prefix != sys.base_prefix:
                 executable = os.path.join(sys.prefix, 'bin', executable)
             executable += ' --config=' + json_path
             uwsgi_parameters['attach-daemon'] = [
@@ -481,7 +482,7 @@ class ServeUWSGITask(RexWatchTask):
         exe(cmd)
 
 
-class DaemonAttributes(object):
+class DaemonAttributes:
     # Properties derived from application configuration.
 
     def __init__(self, app):
@@ -494,7 +495,7 @@ class DaemonAttributes(object):
             self.handle = "%s-%s" % (self.handle, suffix)
         # The directory to store `*.pid` and other files.
         self.run_dir = '/run/rex'
-        if hasattr(sys, 'real_prefix'):
+        if sys.prefix != sys.base_prefix:
             self.run_dir = sys.prefix+self.run_dir
         self.json_path = os.path.join(self.run_dir, self.handle+'.json')
         self.pid_path = os.path.join(self.run_dir, self.handle+'.pid')
@@ -542,9 +543,9 @@ class StartTask(RexWatchTask):
         # Prepare uWSGI configuration file.
         uwsgi_cfg = {}
         uwsgi_cfg['need-app'] = True
-        uwsgi_cfg['plugin'] = 'python'
+        uwsgi_cfg['plugin'] = 'python3'
         uwsgi_cfg['enable-threads'] = True
-        if hasattr(sys, 'real_prefix'):
+        if sys.prefix != sys.base_prefix:
             uwsgi_cfg['virtualenv'] = sys.prefix
         uwsgi_cfg.update(env.uwsgi)
         for value in self.set_uwsgi:
@@ -560,7 +561,7 @@ class StartTask(RexWatchTask):
         uwsgi_cfg['master'] = True
         if services:
             executable = 'rex'
-            if hasattr(sys, 'real_prefix'):
+            if sys.prefix != sys.base_prefix:
                 executable = os.path.join(sys.prefix, 'bin', executable)
             executable += ' --config=' + form.json_path
             uwsgi_cfg['attach-daemon'] = [
@@ -594,7 +595,7 @@ class StartTask(RexWatchTask):
                                 stderr=subprocess.STDOUT)
         out, err = proc.communicate()
         if proc.returncode != 0:
-            sys.stderr.write(out)
+            sys.stderr.write(out.decode('utf-8', 'replace'))
             if os.path.exists(form.log_path):
                 with open(form.log_path) as stream:
                     sys.stderr.write(stream.read())
@@ -709,7 +710,7 @@ class StatusTask(RexTask):
                 log("{}", form.log_path)
 
 
-class ReplayHandler(object):
+class ReplayHandler:
 
     def __init__(self, app):
         self.app = app
@@ -733,9 +734,9 @@ class ReplayHandler(object):
     def reset(self, environ):
         self.status = None
         self.headers = None
-        self.body = io.StringIO()
+        self.body = io.BytesIO()
         self.code = None
-        self.host = environ.get('REMOTE_HOST', environ.get('REMOTE_ADDR'))
+        self.host = environ.get('REMOTE_HOST') or environ.get('REMOTE_ADDR')
         self.user = environ.get('REMOTE_USER') or '-'
         self.method = environ['REQUEST_METHOD']
         self.query = environ.get('PATH_INFO', '')
@@ -821,7 +822,7 @@ class ReplayTask(RexTask):
             raise fail("replay log is not configured")
         if not os.path.exists(replay_log):
             raise fail("replay log does not exist: {}", replay_log)
-        replay_log = open(replay_log)
+        replay_log = open(replay_log, 'rb')
         # Run the logs.
         if self.profile is not None:
             profile = cProfile.Profile()

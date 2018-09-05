@@ -8,6 +8,7 @@ import os
 import hashlib
 import hmac
 import base64
+import binascii
 import pbkdf2
 import Crypto.Cipher.AES
 
@@ -62,11 +63,13 @@ def get_validation_key():
 
 def encrypt(plaintext):
     # Encrypts plaintext using AES128.
+    if isinstance(plaintext, str):
+        plaintext = plaintext.encode('utf-8')
     ckey = get_encryption_key()
     iv = os.urandom(CBLOCK_SIZE)
     cipher = Crypto.Cipher.AES.new(ckey, Crypto.Cipher.AES.MODE_CBC, iv)
     pad = CBLOCK_SIZE - len(plaintext) % CBLOCK_SIZE
-    plaintext += chr(pad)*pad
+    plaintext += bytes((pad,)*pad)
     ciphertext = iv + cipher.encrypt(plaintext)
     return ciphertext
 
@@ -82,7 +85,8 @@ def decrypt(ciphertext):
     iv = ciphertext[:CBLOCK_SIZE]
     cipher = Crypto.Cipher.AES.new(ckey, Crypto.Cipher.AES.MODE_CBC, iv)
     plaintext = cipher.decrypt(ciphertext[CBLOCK_SIZE:])
-    plaintext = plaintext[:-ord(plaintext[-1])]
+    plaintext = plaintext[:-plaintext[-1]]
+    plaintext = plaintext.decode('utf-8')
     return plaintext
 
 
@@ -113,16 +117,18 @@ def validate(tagged):
 
 def b2a(binary):
     # Converts binary string to a cookie-safe value (uses modified Base64).
-    return base64.b64encode(binary, '._').replace('=', '-')
+    return base64.b64encode(binary, b'._').replace(b'=', b'-').decode('latin1')
 
 
 def a2b(text):
     # Reverses `b2a()`.
     if text is None:
         return None
+    if isinstance(text, str):
+        text = text.encode('utf-8')
     try:
-        return base64.b64decode(str(text).replace('-', '='), '._')
-    except TypeError as exc:
+        return base64.b64decode(text.replace(b'-', b'='), b'._')
+    except binascii.Error:
         return None
 
 

@@ -25,8 +25,10 @@ The server starts on localhost at the given port.  We can now make a request::
     ...     tries = 0
     ...     while tries < 100:
     ...         try:
-    ...             return urllib.request.urlopen('http://localhost:%s%s' % (port, path)).read()
-    ...         except IOError:
+    ...             return urllib.request.urlopen('http://localhost:%s%s' % (port, path)).read().decode('utf-8')
+    ...         except IOError as exc:
+    ...             if isinstance(exc, urllib.error.HTTPError):
+    ...                 return exc.read().decode('utf-8')
     ...             tries += 1
     ...             time.sleep(0.1)
 
@@ -37,7 +39,7 @@ We can stop the server and display the accumulated output::
 
     >>> print(serve_ctl.stop())      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     Serving rex.web_demo on 127.0.0.1:8...
-    localhost - - [...] "GET /ping HTTP/1.0" 200 5
+    127.0.0.1 - - [...] "GET /ping HTTP/1.1" 200 5
 
 To set the server address, use parameters ``--host`` and ``--port``::
 
@@ -48,7 +50,7 @@ To set the server address, use parameters ``--host`` and ``--port``::
 
     >>> print(serve_ctl.stop())      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     Serving rex.web_demo on 127.0.0.1:8...
-    localhost - - [...] "GET /ping HTTP/1.0" 200 5
+    127.0.0.1 - - [...] "GET /ping HTTP/1.1" 200 5
 
 The server reports unhandled exceptions::
 
@@ -60,11 +62,11 @@ The server reports unhandled exceptions::
     >>> print(serve_ctl.stop())      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     Serving rex.web_demo on 127.0.0.1:8...
     ----------------------------------------------------------------------
-    [...] localhost => http://localhost:8.../error
+    [...] 127.0.0.1 => http://localhost:8.../error
     Traceback (most recent call last):
       ...
     RuntimeError: some unexpected problem occurred
-    localhost - - [...] "GET /error HTTP/1.0" 500 95
+    127.0.0.1 - - [...] "GET /error HTTP/1.1" 500 95
 
 If ``--debug`` is enabled, the exception traceback is displayed
 in the response::
@@ -83,11 +85,11 @@ in the response::
     >>> print(serve_ctl.stop())      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     Serving rex.web_demo on 127.0.0.1:8...
     ----------------------------------------------------------------------
-    [...] localhost => http://localhost:8.../error
+    [...] 127.0.0.1 => http://localhost:8.../error
     Traceback (most recent call last):
       ...
     RuntimeError: some unexpected problem occurred
-    localhost - - [...] "GET /error HTTP/1.0" 500 ...
+    127.0.0.1 - - [...] "GET /error HTTP/1.1" 500 ...
 
 Use option ``--remote-user`` to set user credentials for all HTTP queries::
 
@@ -99,7 +101,7 @@ Use option ``--remote-user`` to set user credentials for all HTTP queries::
 
     >>> print(serve_ctl.stop())      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     Serving rex.web_demo on 127.0.0.1:8...
-    localhost - Alice [...] "GET / HTTP/1.0" 200 55
+    127.0.0.1 - Alice [...] "GET / HTTP/1.1" 200 55
 
 You can also use option ``--environ`` to set a value of any WSGI environment
 variable::
@@ -112,7 +114,7 @@ variable::
 
     >>> print(serve_ctl.stop())      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     Serving rex.web_demo on 127.0.0.1:8...
-    localhost - Bob [...] "GET / HTTP/1.0" 200 55
+    127.0.0.1 - Bob [...] "GET / HTTP/1.1" 200 55
 
 Options ``--watch`` and ``--watch-package`` are deprecated::
 
@@ -269,6 +271,7 @@ for identifying the server::
     ... uwsgi:
     ...   http-socket: :%s
     ... ''' % (random_port+1))
+    51
 
     >>> ctl("start --config=./build/sandbox/web_demo.yaml")         # doctest: +ELLIPSIS
     Starting rex.web_demo (http-socket: :8..., logto: /.../rex.web_demo-web_demo.log)
@@ -279,6 +282,7 @@ is silently ignored::
     >>> status_ctl = Ctl("status --config=./build/sandbox/web_demo.yaml --log")
     >>> cfg = open(status_ctl.wait().strip().replace('.log', '.yaml'), 'w')
     >>> cfg.write("'")
+    1
     >>> cfg.close()
 
     >>> ctl("status --config=./build/sandbox/web_demo.yaml")        # doctest: +ELLIPSIS
@@ -303,19 +307,19 @@ incoming requests::
 
     >>> print(serve_ctl.stop())      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     Serving rex.web_demo on 127.0.0.1:8...
-    localhost - - [...] "GET /ping HTTP/1.0" 200 5
+    127.0.0.1 - - [...] "GET /ping HTTP/1.1" 200 5
     ----------------------------------------------------------------------
-    [...] localhost => http://localhost:8.../error
+    [...] 127.0.0.1 => http://localhost:8.../error
     Traceback (most recent call last):
       ...
     RuntimeError: some unexpected problem occurred
-    localhost - - [...] "GET /error HTTP/1.0" 500 95
+    127.0.0.1 - - [...] "GET /error HTTP/1.1" 500 95
 
 Using ``rex replay`` command, we can replay this log::
 
     >>> ctl("replay rex.web_demo --replay-log=./build/sandbox/replay.log") # doctest: +ELLIPSIS
-    localhost - - [...] "GET /ping HTTP/1.0" 200 5
-    localhost - - [...] "GET /error HTTP/1.0" 500 95
+    127.0.0.1 - - [...] "GET /ping HTTP/1.1" 200 5
+    127.0.0.1 - - [...] "GET /error HTTP/1.1" 500 95
     ---
     TIME ELAPSED: ...
     REQUESTS: 2

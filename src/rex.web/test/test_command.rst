@@ -29,7 +29,7 @@ support for authorization and parsing query parameters::
 
     >>> demo = Rex('-', 'rex.web')
     >>> req = Request.blank('/hello?name=Alice')
-    >>> print(req.get_response(demo))
+    >>> print(req.get_response(demo))       # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 13
@@ -50,7 +50,7 @@ The parameters are extracted, validated and passed to the ``render()`` method
 as keyword arguments::
 
     >>> req = Request.blank('/hello?greeting=Hi&name=Bob')
-    >>> print(req.get_response(demo))
+    >>> print(req.get_response(demo))       # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 8
@@ -60,7 +60,7 @@ as keyword arguments::
 Unknown parameters are rejected::
 
     >>> req = Request.blank('/hello?name=Carl&mood=somber')
-    >>> print(req.get_response(demo))
+    >>> print(req.get_response(demo))       # doctest: +NORMALIZE_WHITESPACE
     400 Bad Request
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 106
@@ -73,7 +73,7 @@ Unknown parameters are rejected::
 Missing mandatory parameters are reported::
 
     >>> req = Request.blank('/hello')
-    >>> print(req.get_response(demo))        # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     Cannot find parameter:
@@ -82,7 +82,7 @@ Missing mandatory parameters are reported::
 Multiple values for singular parameters are rejected too::
 
     >>> req = Request.blank('/hello?name=Alice&name=Bob&name=Carl')
-    >>> print(req.get_response(demo))        # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     Got multiple values for a parameter:
@@ -91,26 +91,26 @@ Multiple values for singular parameters are rejected too::
 Ill-formed parameters are detected::
 
     >>> req = Request.blank('/hello?greeting=Good%20morning&name=Daniel')
-    >>> print(req.get_response(demo))        # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     Expected one of:
         Hello, Hi, Howdy
     Got:
-        u'Good morning'
+        'Good morning'
     While parsing parameter:
         greeting
 
 Errors are rendered in ``text/plain`` or ``text/html``::
 
     >>> req.accept = 'text/html'
-    >>> print(req.get_response(demo))        # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     Expected one of:<br />
     <pre>Hello, Hi, Howdy</pre><br />
     Got:<br />
-    <pre>u'Good morning'</pre><br />
+    <pre>'Good morning'</pre><br />
     While parsing parameter:<br />
     <pre>greeting</pre>
     ...
@@ -130,7 +130,7 @@ parameters::
 
     >>> demo.reset()
     >>> req = Request.blank('/no-parsing?param=value')
-    >>> print(req.get_response(demo))
+    >>> print(req.get_response(demo))       # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 59
@@ -161,7 +161,7 @@ parameter.  In this case, the values are passed as a list::
 
     >>> demo.reset()
     >>> req = Request.blank('/hello_many?names=Alice&names=Bob&names=Carl')
-    >>> print(req.get_response(demo))        # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))        # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 27
@@ -187,12 +187,12 @@ assumed::
 
     >>> demo.reset()
     >>> req = Request.blank('/package')
-    >>> print(req.get_response(demo))        # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     401 Unauthorized
     ...
 
     >>> public_demo = Rex('-', 'rex.web', access={'sandbox': 'anybody'})
-    >>> print(req.get_response(public_demo))
+    >>> print(req.get_response(public_demo))        # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 16
@@ -228,7 +228,7 @@ form parameters::
 
     >>> csrf = Rex('rex.web_demo', './test/data/csrf/')
     >>> req = Request.blank('/unsafe')
-    >>> print(req.get_response(csrf))        # doctest: +ELLIPSIS
+    >>> print(req.get_response(csrf))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     403 Forbidden
     ...
 
@@ -247,7 +247,7 @@ request::
     >>> req = Request.blank('/unsafe')
     >>> req.cookies['rex.session'] = session_cookie
     >>> req.headers['X-CSRF-Token'] = csrf_token
-    >>> print(req.get_response(csrf))        # doctest: +ELLIPSIS
+    >>> print(req.get_response(csrf))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
 
@@ -256,8 +256,8 @@ We could also submit the token as a form parameter::
     >>> req = Request.blank('/unsafe')
     >>> req.cookies['rex.session'] = session_cookie
     >>> req.method = 'POST'
-    >>> req.body = '_csrf_token='+csrf_token
-    >>> print(req.get_response(csrf))        # doctest: +ELLIPSIS
+    >>> req.text = '_csrf_token='+csrf_token
+    >>> print(req.get_response(csrf))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
 
@@ -266,7 +266,7 @@ If the token values do not match, the request is rejected::
     >>> req = Request.blank('/unsafe')
     >>> req.cookies['rex.session'] = session_cookie
     >>> req.headers['X-CSRF-Token'] = csrf_token[::-1]
-    >>> print(req.get_response(csrf))        # doctest: +ELLIPSIS
+    >>> print(req.get_response(csrf))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     403 Forbidden
     ...
 

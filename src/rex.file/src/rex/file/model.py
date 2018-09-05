@@ -30,7 +30,7 @@ class FileTableConstraintModel(ConstraintModel):
 
     properties = []
 
-    class names(object):
+    class names:
 
         __slots__ = ('name')
 
@@ -91,7 +91,7 @@ class FileLinkConstraintModel(ConstraintModel):
 
     properties = []
 
-    class names(object):
+    class names:
 
         __slots__ = ('name')
 

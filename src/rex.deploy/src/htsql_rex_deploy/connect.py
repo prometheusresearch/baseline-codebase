@@ -104,11 +104,11 @@ class DeployErrorGuard(DBErrorGuard):
                 error.wrap(
                         "Which triggered an error from the database driver",
                         str(exception))
-                raise error
+                raise error from None
             else:
                 raise EngineError(
                         "Got an error from the database driver",
-                        exception)
+                        exception) from None
 
 
 class DeployConnect(Connect):

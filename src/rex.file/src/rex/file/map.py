@@ -48,7 +48,7 @@ class MapFile(Map):
         return spec
 
 
-class FileRenderer(object):
+class FileRenderer:
 
     def __init__(self, port, access, unsafe):
         self.port = port

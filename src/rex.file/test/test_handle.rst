@@ -21,7 +21,7 @@ To upload a file, submit the file to the root of the ``rex.file`` package::
     >>> req = Request.blank('/file/', POST={'file': ('hello.txt', 'Hello, World!')},
     ...                     remote_user='Alice')
     >>> resp = req.get_response(demo)
-    >>> print(resp)                                                      # doctest: +ELLIPSIS
+    >>> print(resp)                                                      # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {"file":"'/.../hello.txt'"}
@@ -32,7 +32,7 @@ The response is a JSON object that contains a file handle::
     >>> data = json.loads(resp.body)
     >>> handle = data["file"]
     >>> handle                                                          # doctest: +ELLIPSIS
-    u"'/.../hello.txt'"
+    "'/.../hello.txt'"
 
 The file is now in the ``file`` table::
 
@@ -45,7 +45,7 @@ The file is now in the ``file`` table::
 You need to be authorized to upload a file::
 
     >>> req = Request.blank('/file/')
-    >>> print(req.get_response(demo))                                    # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))                                    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     401 Unauthorized
     ...
 
@@ -55,7 +55,7 @@ You may upload multiple files, but they must have different names::
     >>> POST = MultiDict([('file', ('hello.txt', 'Hello, World!')),
     ...                   ('file', ('world.txt', 'Hello, World!'))])
     >>> req = Request.blank('/file/', remote_user='Alice', POST=POST)
-    >>> print(req.get_response(demo))                                    # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))                                    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     Received duplicate upload name:
@@ -72,9 +72,8 @@ You must be authenticated as the user who uploaded the file::
     >>> port.insert({'consent': {'study': 'asdl', 'consent_form_scan': handle}})        # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    EngineError: Got an error from the database driver:
+    htsql.core.error.EngineError: Got an error from the database driver:
         consent.consent_form_scan cannot be set to '/.../hello.txt'
-        ...
 
     >>> from rex.db import get_db
     >>> db = get_db()
@@ -89,9 +88,8 @@ You cannot attach the same file to a different record::
     ...     port.insert({'consent': {'study': 'fos', 'consent_form_scan': handle}})     # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    EngineError: Got an error from the database driver:
+    htsql.core.error.EngineError: Got an error from the database driver:
         consent.consent_form_scan cannot be set to '/.../hello.txt'
-        ...
 
 
 Downloading files
@@ -101,7 +99,7 @@ To download an attached file, you need to create a file handler in ``urlmap.yaml
 Then you could request a file associated with a record by record ID::
 
     >>> req = Request.blank('/consent-file?asdl.1', remote_user='Bob')
-    >>> print(req.get_response(demo))                                    # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))                                    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     Hello, World!
@@ -109,7 +107,7 @@ Then you could request a file associated with a record by record ID::
 You must be authorized to download the file::
 
     >>> req = Request.blank('/consent-file?asdl.1')
-    >>> print(req.get_response(demo))                                    # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))                                    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     401 Unauthorized
     ...
 
@@ -119,21 +117,21 @@ The record must exist, and a file must be attached to it::
     <Product {({[asdl.0], [asdl], 0, null},)}>
 
     >>> req = Request.blank('/consent-file?asdl.0', remote_user='Bob')
-    >>> print(req.get_response(demo))                                    # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))                                    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     404 Not Found
     ...
 
     >>> port.delete({'consent': {'id': 'asdl.0'}})                      # doctest: +ELLIPSIS
     <Product {()}>
 
-    >>> print(req.get_response(demo))                                    # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))                                    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     404 Not Found
     ...
 
 The record ID must be well formed::
 
     >>> req = Request.blank('/consent-file?0.asdl', remote_user='Bob')
-    >>> print(req.get_response(demo))                                    # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))                                    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
 

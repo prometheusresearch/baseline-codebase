@@ -31,12 +31,12 @@ from . import typing
 __all__ = ('ActionBase', 'Action',)
 
 
-class ActionMeta(Widget.__metaclass__):
+class ActionMeta(type(Widget)):
 
     def __new__(mcs, name, bases, attrs):
         if 'name' in attrs:
             attrs['name'] = action_sig(attrs['name'])
-        cls = Widget.__metaclass__.__new__(mcs, name, bases, attrs)
+        cls = type(Widget).__new__(mcs, name, bases, attrs)
         return cls
 
 

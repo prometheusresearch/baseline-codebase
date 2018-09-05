@@ -125,7 +125,7 @@ def override(instruction, actions):
                 action_instance=action_instance)
         return instruction
 
-    return list(map(instruction, _override))
+    return map(instruction, _override)
 
 
 class ValidateWithAction(Validate):
@@ -411,14 +411,14 @@ class PathVal(Validate):
         validate = ThenVal(self.id, self.resolve_action)
         path = validate(value)
         path = Start(then=path)
-        path = list(map(path, self._resolve_replace_reference))
+        path = map(path, self._resolve_replace_reference)
         return path
 
     def construct(self, loader, node):
         validate = ThenVal(self.id, self.resolve_action)
         path = validate.construct(loader, node)
         path = Start(then=path)
-        path = list(map(path, self._resolve_replace_reference))
+        path = map(path, self._resolve_replace_reference)
         return path
 
 

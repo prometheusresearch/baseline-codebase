@@ -64,7 +64,7 @@ class JsonMarshaler(BaseJsonMarshaler):
             rep = handler.rep(obj)
 
         if f:
-            f(self, rep, as_map_key, cache)
+            f(self, obj, rep, as_map_key, cache)
         else:
             self.emit_encoded(tag, rep, obj, as_map_key, cache)
 
@@ -103,7 +103,7 @@ class JsonMarshaler(BaseJsonMarshaler):
             #elif last is None:
                 self.io.write(", ")
 
-    def emit_array(self, a, _, cache):
+    def emit_array(self, obj, a, _, cache):
         self.emit_array_start(len(a))
         for i, x in enumerate(a):
             with self._PathContext(self, i):
@@ -121,7 +121,7 @@ class JsonMarshaler(BaseJsonMarshaler):
 
 marshal_dispatch = base_marshal_dispatch.copy()
 marshal_dispatch['array'] = JsonMarshaler.emit_array
-marshal_dispatch[NOOP_TAG] = lambda self, rep, as_map_key, cache: JsonMarshaler.marshal(self, rep, as_map_key, cache)
+marshal_dispatch[NOOP_TAG] = lambda self, obj, rep, as_map_key, cache: JsonMarshaler.marshal(self, rep, as_map_key, cache)
 
 
 class Writer(BaseWriter):
@@ -231,7 +231,7 @@ class _TransitionableMeta(type):
     def __new__(mcs, name, bases, attrs):
         cls = type.__new__(mcs, name, bases, attrs)
         tag = getattr(cls, '__transit_tag__', NOOP_TAG)
-        register_transitionable(cls, cls.__transit_format__.__func__, tag=tag)
+        register_transitionable(cls, cls.__transit_format__, tag=tag)
         return cls
 
 

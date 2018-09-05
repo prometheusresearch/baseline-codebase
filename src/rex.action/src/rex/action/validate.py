@@ -240,7 +240,7 @@ class ActionVal(Validate):
                 node.start_mark.name,
                 node.start_mark.line,
                 node.start_mark.column)
-        uid = hashlib.md5(uid).hexdigest()
+        uid = hashlib.md5(uid.encode('utf-8')).hexdigest()
 
         if not isinstance(node, yaml.MappingNode):
             value = super(ActionVal, self).construct(loader, node)

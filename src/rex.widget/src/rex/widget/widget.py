@@ -42,7 +42,7 @@ contain:
 
 """.strip()
 
-class WidgetMeta(Extension.__metaclass__): # pylint: disable=no-init
+class WidgetMeta(type(Extension)): # pylint: disable=no-init
 
     def __new__(mcs, name, bases, members): # pylint: disable=bad-classmethod-argument
         fields = [(n, field.__clone__(name=n) if field.name is None else field)
@@ -50,7 +50,7 @@ class WidgetMeta(Extension.__metaclass__): # pylint: disable=no-init
                   if isinstance(field, FieldBase)]
         fields.sort(key=lambda __field: -__field[1].order)
         members.update(fields)
-        cls = Extension.__metaclass__.__new__(mcs, name, bases, members)
+        cls = type(Extension).__new__(mcs, name, bases, members)
         # js_type validation
         if hasattr(cls, 'js_type') and cls.js_type is not None:
             if isinstance(cls.js_type, str):

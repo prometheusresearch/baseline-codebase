@@ -14,7 +14,7 @@ import collections
 import re
 
 
-class MenuItem(object):
+class MenuItem:
     """
     An entry in the hierarchical catalog of application pages.
 
@@ -66,11 +66,11 @@ class PathVal(StrVal):
         try:
             PathMask.split(data)
         except ValueError as exc:
-            raise Error("Got ill-formed path:", exc)
+            raise Error("Got ill-formed path:", exc) from None
         return data
 
 
-class LoadMenu(object):
+class LoadMenu:
     # Parses `menu.yaml` file.
 
     item_validate = RecordVal(

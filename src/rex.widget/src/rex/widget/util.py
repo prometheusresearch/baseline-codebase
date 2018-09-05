@@ -214,7 +214,7 @@ class WidgetClassReference(Validate):
 
 def product_to_pojo(product, db=None):
     with get_db(db):
-        data = ''.join(emit('application/json', product))
+        data = b''.join(emit('application/json', product)).decode('utf-8')
         return json.loads(data)
 
 

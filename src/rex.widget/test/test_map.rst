@@ -34,18 +34,18 @@ Test rex.widget.map
 
   >>> print(Request.blank(
   ...   '/w',
-  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS
+  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
-  Content-Type: application/json; charset=UTF-8
+  Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
   ["~#widget", ["rex-widget", "Chrome", {...}]]
 
   >>> print(Request.blank(
   ...   '/w/@@/2.content.2.respond',
-  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS
+  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
-  Content-Type: application/json; charset=UTF-8
+  Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
   "ok"
@@ -72,9 +72,9 @@ Overrides
 
   >>> print(Request.blank(
   ...   '/w',
-  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS
+  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
-  Content-Type: application/json; charset=UTF-8
+  Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
   ["~#widget", ["pkg", "mapped-widget", {...}]]
@@ -89,7 +89,7 @@ Overrides
 
   >>> print(Request.blank(
   ...   '/w',
-  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS
+  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   401 Unauthorized
   ...
 
@@ -103,9 +103,9 @@ Overrides
 
   >>> print(Request.blank(
   ...   '/w',
-  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS
+  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
-  Content-Type: application/json; charset=UTF-8
+  Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
   ["~#widget", ["rex-widget", "Chrome", {..., "title": "NEWTITLE"}]]

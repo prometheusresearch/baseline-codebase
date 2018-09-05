@@ -40,12 +40,12 @@ KeyPathVal()
   >>> v([]) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: cannot be empty
+  rex.core.Error: cannot be empty
 
   >>> v('') # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: cannot be empty
+  rex.core.Error: cannot be empty
 
 Allow empty
 -----------

@@ -60,7 +60,7 @@ Errors::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Missing mandatory field:
+  rex.core.Error: Missing mandatory field:
       prop
   While parsing:
       "<...>", line 2
@@ -71,10 +71,10 @@ Errors::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected one of:
+  rex.core.Error: Expected one of:
       my
   Got:
-      u'xmy'
+      'xmy'
   While parsing:
       "<...>", line 2
 
@@ -195,8 +195,8 @@ EnumFormField::
 
   >>> f # doctest: +NORMALIZE_WHITESPACE
   EnumFormField(value_key=['sex'],
-                options=[Record(value='male', label=u'Male'),
-                         Record(value='female', label=u'Female')])
+                options=[Record(value='male', label='Male'),
+                         Record(value='female', label='Female')])
 
 NoteFormField::
 
@@ -222,18 +222,18 @@ Generating a fieldset from port definition
   >>> rex.on()
 
   >>> from_port(Port("individual")) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  [StringFormField(value_key=['code'], label=u'Code'),
-   EnumFormField(value_key=['sex'], label=u'Sex', options=[Record(value='not-known', label=u'Not Known'), Record(value='male', label=u'Male'), Record(value='female', label=u'Female'), Record(value='not-applicable', label=u'Not Applicable')]),
-   EntityFormField(value_key=['mother'], label=u'Mother', widget=AutocompleteField(...), data=Record(entity='individual', title=u'id()', select=[], mask=None)),
-   EntityFormField(value_key=['father'], label=u'Father', widget=AutocompleteField(...), data=Record(entity='individual', title=u'id()', select=[], mask=None)),
-   EntityFormField(value_key=['adopted_mother'], label=u'Adopted Mother', widget=AutocompleteField(...), data=Record(entity='individual', title=u'id()', select=[], mask=None)),
-   EntityFormField(value_key=['adopted_father'], label=u'Adopted Father', widget=AutocompleteField(...), data=Record(entity='individual', title=u'id()', select=[], mask=None))]
+  [StringFormField(value_key=['code'], label='Code'),
+   EnumFormField(value_key=['sex'], label='Sex', options=[Record(value='not-known', label='Not Known'), Record(value='male', label='Male'), Record(value='female', label='Female'), Record(value='not-applicable', label='Not Applicable')]),
+   EntityFormField(value_key=['mother'], label='Mother', widget=AutocompleteField(...), data=Record(entity='individual', title='id()', select=[], mask=None)),
+   EntityFormField(value_key=['father'], label='Father', widget=AutocompleteField(...), data=Record(entity='individual', title='id()', select=[], mask=None)),
+   EntityFormField(value_key=['adopted_mother'], label='Adopted Mother', widget=AutocompleteField(...), data=Record(entity='individual', title='id()', select=[], mask=None)),
+   EntityFormField(value_key=['adopted_father'], label='Adopted Father', widget=AutocompleteField(...), data=Record(entity='individual', title='id()', select=[], mask=None))]
 
   >>> from_port(Port("""
   ... entity: individual
   ... select: [id, code]
   ... """)) # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], label=u'Code')]
+  [StringFormField(value_key=['code'], label='Code')]
 
   >>> from_port(Port("""
   ... entity: individual
@@ -242,10 +242,10 @@ Generating a fieldset from port definition
   ... - entity: identity
   ...   select: [id, givenname]
   ... """)) # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], label=u'Code'),
+  [StringFormField(value_key=['code'], label='Code'),
    Fieldset(value_key=['identity'],
-            label=u'Identity',
-            fields=[StringFormField(value_key=['givenname'], label=u'Givenname')])]
+            label='Identity',
+            fields=[StringFormField(value_key=['givenname'], label='Givenname')])]
 
   >>> from_port(Port("""
   ... entity: individual
@@ -254,8 +254,8 @@ Generating a fieldset from port definition
   ... - calculation: example
   ...   expression: code + code
   ... """)) # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], label=u'Code'),
-   CalculatedFormField(value_key=['example'], label=u'Example', expression=u'code+code')]
+  [StringFormField(value_key=['code'], label='Code'),
+   CalculatedFormField(value_key=['example'], label='Example', expression='code+code')]
 
 DatetimeFormField
 `````````````````
@@ -263,11 +263,11 @@ DatetimeFormField
 ::
 
   >>> from_port(Port('t_datetime')) # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], required=True, label=u'Code'),
-   DatetimeFormField(value_key=['timestamp'], label=u'Timestamp', widget=DatetimeField(...)),
-   DatetimeFormField(value_key=['timestamp_0'], label=u'Timestamp_0', widget=DatetimeField(...)),
-   DatetimeFormField(value_key=['timestamptz'], label=u'Timestamptz', widget=DatetimeField(...)),
-   DatetimeFormField(value_key=['timestamptz_0'], label=u'Timestamptz_0', widget=DatetimeField(...))]
+  [StringFormField(value_key=['code'], required=True, label='Code'),
+   DatetimeFormField(value_key=['timestamp'], label='Timestamp', widget=DatetimeField(...)),
+   DatetimeFormField(value_key=['timestamp_0'], label='Timestamp_0', widget=DatetimeField(...)),
+   DatetimeFormField(value_key=['timestamptz'], label='Timestamptz', widget=DatetimeField(...)),
+   DatetimeFormField(value_key=['timestamptz_0'], label='Timestamptz_0', widget=DatetimeField(...))]
 
 DateFormField
 `````````````
@@ -275,8 +275,8 @@ DateFormField
 ::
 
   >>> from_port(Port('t_date')) # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], required=True, label=u'Code'),
-   DateFormField(value_key=['date'], label=u'Date', widget=DateField(...))]
+  [StringFormField(value_key=['code'], required=True, label='Code'),
+   DateFormField(value_key=['date'], label='Date', widget=DateField(...))]
 
 Cleanup
 ```````
@@ -304,52 +304,52 @@ Enrich field from port
   ... - code
   ... - sex
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], label=u'Code'),
-   EnumFormField(value_key=['sex'], label=u'Sex',
-                 options=[Record(value='not-known', label=u'Not Known'),
-                          Record(value='male', label=u'Male'),
-                          Record(value='female', label=u'Female'),
-                          Record(value='not-applicable', label=u'Not Applicable')])]
+  [StringFormField(value_key=['code'], label='Code'),
+   EnumFormField(value_key=['sex'], label='Sex',
+                 options=[Record(value='not-known', label='Not Known'),
+                          Record(value='male', label='Male'),
+                          Record(value='female', label='Female'),
+                          Record(value='not-applicable', label='Not Applicable')])]
 
   >>> test_enrich('individual', """
   ... - code
   ... - value_key: sex
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], label=u'Code'),
-   EnumFormField(value_key=['sex'], label=u'Sex',
-                 options=[Record(value='not-known', label=u'Not Known'),
-                          Record(value='male', label=u'Male'),
-                          Record(value='female', label=u'Female'),
-                          Record(value='not-applicable', label=u'Not Applicable')])]
+  [StringFormField(value_key=['code'], label='Code'),
+   EnumFormField(value_key=['sex'], label='Sex',
+                 options=[Record(value='not-known', label='Not Known'),
+                          Record(value='male', label='Male'),
+                          Record(value='female', label='Female'),
+                          Record(value='not-applicable', label='Not Applicable')])]
 
   >>> test_enrich('individual', """
   ... - code
   ... - identity.sex
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], label=u'Code'),
-   EnumFormField(value_key=['identity', 'sex'], label=u'Sex',
-                 options=[Record(value='not-known', label=u'Not Known'),
-                          Record(value='male', label=u'Male'),
-                          Record(value='female', label=u'Female'),
-                          Record(value='not-applicable', label=u'Not Applicable')])]
+  [StringFormField(value_key=['code'], label='Code'),
+   EnumFormField(value_key=['identity', 'sex'], label='Sex',
+                 options=[Record(value='not-known', label='Not Known'),
+                          Record(value='male', label='Male'),
+                          Record(value='female', label='Female'),
+                          Record(value='not-applicable', label='Not Applicable')])]
 
   >>> test_enrich('individual', """
   ... - code
   ... - value_key: identity.sex
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], label=u'Code'),
-   EnumFormField(value_key=['identity', 'sex'], label=u'Sex',
-                 options=[Record(value='not-known', label=u'Not Known'),
-                          Record(value='male', label=u'Male'),
-                          Record(value='female', label=u'Female'),
-                          Record(value='not-applicable', label=u'Not Applicable')])]
+  [StringFormField(value_key=['code'], label='Code'),
+   EnumFormField(value_key=['identity', 'sex'], label='Sex',
+                 options=[Record(value='not-known', label='Not Known'),
+                          Record(value='male', label='Male'),
+                          Record(value='female', label='Female'),
+                          Record(value='not-applicable', label='Not Applicable')])]
 
   >>> test_enrich('individual', """
   ... - code
   ... - identity.givenname
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  [StringFormField(value_key=['code'], label=u'Code'),
-   StringFormField(value_key=['identity', 'givenname'], label=u'Givenname')]
+  [StringFormField(value_key=['code'], label='Code'),
+   StringFormField(value_key=['identity', 'givenname'], label='Givenname')]
 
   >>> fields = test_enrich('individual', """
   ... - code
@@ -357,10 +357,10 @@ Enrich field from port
   ... """)
 
   >>> fields # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  [StringFormField(value_key=['code'], label=u'Code'),
-   EntityFormField(value_key=['mother'], label=u'Mother',
+  [StringFormField(value_key=['code'], label='Code'),
+   EntityFormField(value_key=['mother'], label='Mother',
                    widget=AutocompleteField(...),
-                   data=Record(entity='individual', title=u'id()', select=[], mask=None))]
+                   data=Record(entity='individual', title='id()', select=[], mask=None))]
 
   >>> fields[1].widget().query_port
   Port('''
@@ -374,7 +374,7 @@ Enrich field from port
   >>> test_enrich('individual', """
   ... - todo.completed
   ... """) # doctest: +NORMALIZE_WHITESPACE
-  [BoolFormField(value_key=['todo', 'completed'], required=True, label=u'Completed')]
+  [BoolFormField(value_key=['todo', 'completed'], required=True, label='Completed')]
 
   >>> fields = test_enrich('table_with_link_to_table_with_title', """
   ... - table_with_title
@@ -382,7 +382,7 @@ Enrich field from port
 
   >>> fields # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   [EntityFormField(value_key=['table_with_title'], required=True,
-                   label=u'Table With Title',
+                   label='Table With Title',
                    widget=AutocompleteField(...),
                    data=Record(entity='table_with_title', title='title', select=[], mask=None))]
 
@@ -927,42 +927,42 @@ We can specify entity in when defining a validator::
     ... - identity.givenname
     ... - mother
     ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-    [EnumFormField(value_key=['sex'], label=u'Sex',
-                   options=[Record(value='not-known', label=u'Not Known'),
-                            Record(value='male', label=u'Male'),
-                            Record(value='female', label=u'Female'),
-                            Record(value='not-applicable', label=u'Not Applicable')]),
+    [EnumFormField(value_key=['sex'], label='Sex',
+                   options=[Record(value='not-known', label='Not Known'),
+                            Record(value='male', label='Male'),
+                            Record(value='female', label='Female'),
+                            Record(value='not-applicable', label='Not Applicable')]),
      StringFormField(value_key=['identity', 'givenname']),
-     EntityFormField(value_key=['mother'], label=u'Mother',
+     EntityFormField(value_key=['mother'], label='Mother',
                      widget=AutocompleteField(...),
-                     data=Record(entity='individual', title=u'id()', select=[], mask=None))]
+                     data=Record(entity='individual', title='id()', select=[], mask=None))]
 
     >>> EntityFieldsetVal('individual')([
     ...   'sex',
     ...   'identity.givenname',
     ...   'mother',
     ... ]) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-    [EnumFormField(value_key=['sex'], label=u'Sex',
-                   options=[Record(value='not-known', label=u'Not Known'),
-                            Record(value='male', label=u'Male'),
-                            Record(value='female', label=u'Female'),
-                            Record(value='not-applicable', label=u'Not Applicable')]),
+    [EnumFormField(value_key=['sex'], label='Sex',
+                   options=[Record(value='not-known', label='Not Known'),
+                            Record(value='male', label='Male'),
+                            Record(value='female', label='Female'),
+                            Record(value='not-applicable', label='Not Applicable')]),
      StringFormField(value_key=['identity', 'givenname']),
-     EntityFormField(value_key=['mother'], label=u'Mother',
+     EntityFormField(value_key=['mother'], label='Mother',
                      widget=AutocompleteField(...),
-                     data=Record(entity='individual', title=u'id()', select=[], mask=None))]
+                     data=Record(entity='individual', title='id()', select=[], mask=None))]
 
     >>> parse("""
     ... - value_key: sex
     ...   widget: !<TextareaField>
     ... """) # doctest: +NORMALIZE_WHITESPACE
     [EnumFormField(value_key=['sex'],
-                   label=u'Sex',
+                   label='Sex',
                    widget=TextareaField(...), 
-                   options=[Record(value='not-known', label=u'Not Known'),
-                            Record(value='male', label=u'Male'),
-                            Record(value='female', label=u'Female'),
-                            Record(value='not-applicable', label=u'Not Applicable')])]
+                   options=[Record(value='not-known', label='Not Known'),
+                            Record(value='male', label='Male'),
+                            Record(value='female', label='Female'),
+                            Record(value='not-applicable', label='Not Applicable')])]
 
 Alternatively we can supply entity name in YAML::
 
@@ -973,16 +973,16 @@ Alternatively we can supply entity name in YAML::
     ... - identity.givenname
     ... - mother
     ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-    [EnumFormField(value_key=['sex'], label=u'Sex',
-                   options=[Record(value='not-known', label=u'Not Known'),
-                            Record(value='male', label=u'Male'),
-                            Record(value='female', label=u'Female'),
-                            Record(value='not-applicable', label=u'Not Applicable')]),
+    [EnumFormField(value_key=['sex'], label='Sex',
+                   options=[Record(value='not-known', label='Not Known'),
+                            Record(value='male', label='Male'),
+                            Record(value='female', label='Female'),
+                            Record(value='not-applicable', label='Not Applicable')]),
      StringFormField(value_key=['identity', 'givenname']),
-     EntityFormField(value_key=['mother'], label=u'Mother',
+     EntityFormField(value_key=['mother'], label='Mother',
                      widget=AutocompleteField(...),
                      data=Record(entity='individual',
-                                title=u'id()',
+                                title='id()',
                                 select=[],
                                 mask=None))]
 
@@ -990,16 +990,16 @@ Alternatively we can supply entity name in YAML::
     ...   'entity': 'individual',
     ...   'fields': ['sex', 'identity.givenname', 'mother']
     ... }) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-    [EnumFormField(value_key=['sex'], label=u'Sex',
-                   options=[Record(value='not-known', label=u'Not Known'),
-                            Record(value='male', label=u'Male'),
-                            Record(value='female', label=u'Female'),
-                            Record(value='not-applicable', label=u'Not Applicable')]),
+    [EnumFormField(value_key=['sex'], label='Sex',
+                   options=[Record(value='not-known', label='Not Known'),
+                            Record(value='male', label='Male'),
+                            Record(value='female', label='Female'),
+                            Record(value='not-applicable', label='Not Applicable')]),
      StringFormField(value_key=['identity', 'givenname']),
-     EntityFormField(value_key=['mother'], label=u'Mother',
+     EntityFormField(value_key=['mother'], label='Mother',
                      widget=AutocompleteField(...),
                      data=Record(entity='individual',
-                                title=u'id()',
+                                title='id()',
                                 select=[],
                                 mask=None))]
 

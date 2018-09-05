@@ -22,29 +22,29 @@ Define transitionable value types
   ...     return self.route, self.params
 
   >>> transitionable.encode(URL('rex.widget:/doc'), None)
-  u'["~#URL", ["rex.widget:/doc", null]]'
+  '["~#URL", ["rex.widget:/doc", null]]'
 
   >>> transitionable.encode(URL('rex.widget:/doc', params={'a': 'b'}), None)
-  u'["~#URL", ["rex.widget:/doc", {"a": "b"}]]'
+  '["~#URL", ["rex.widget:/doc", {"a": "b"}]]'
 
   >>> class URLSubclass(URL):
   ...   pass
 
   >>> transitionable.encode(URLSubclass('rex.widget:/doc'), None)
-  u'["~#URL", ["rex.widget:/doc", null]]'
+  '["~#URL", ["rex.widget:/doc", null]]'
 
   >>> class URLSubclassCustomRepr(URL):
   ...   __transit_format__ = URL.__transit_format__
 
   >>> transitionable.encode(URLSubclassCustomRepr('rex.widget:/doc'), None)
-  u'["~#URL", ["rex.widget:/doc", null]]'
+  '["~#URL", ["rex.widget:/doc", null]]'
 
   >>> class URLSubclassCustomRepr(URL):
   ...   __transit_tag__ = 'URLC'
   ...   __transit_format__ = URL.__transit_format__
 
   >>> transitionable.encode(URLSubclassCustomRepr('rex.widget:/doc'), None)
-  u'["~#URLC", ["rex.widget:/doc", null]]'
+  '["~#URLC", ["rex.widget:/doc", null]]'
 
 Make predefined types transitionable
 ------------------------------------
@@ -67,16 +67,16 @@ Make predefined types transitionable
   <rex.widget.transitionable._Handler>
 
   >>> transitionable.encode(QuerySpec('rex.widget:/data'), None)
-  u'["~#QuerySpec", ["rex.widget:/data", null]]'
+  '["~#QuerySpec", ["rex.widget:/data", null]]'
 
   >>> transitionable.encode(QuerySpec('rex.widget:/data', params={'a': 'b'}), None)
-  u'["~#QuerySpec", ["rex.widget:/data", {"a": "b"}]]'
+  '["~#QuerySpec", ["rex.widget:/data", {"a": "b"}]]'
 
   >>> class QuerySpecSubclass(QuerySpec):
   ...   pass
 
   >>> transitionable.encode(QuerySpecSubclass('rex.widget:/data', params={'a': 'b'}), None)
-  u'["~#QuerySpec", ["rex.widget:/data", {"a": "b"}]]'
+  '["~#QuerySpec", ["rex.widget:/data", {"a": "b"}]]'
 
 Make predefined types transitionable via as_transitionable decorator
 --------------------------------------------------------------------
@@ -94,22 +94,22 @@ Make predefined types transitionable via as_transitionable decorator
   ...   return value.route, value.params
 
   >>> transitionable.encode(PortSpec('rex.widget:/data'), None)
-  u'["~#PortSpec", ["rex.widget:/data", null]]'
+  '["~#PortSpec", ["rex.widget:/data", null]]'
 
   >>> transitionable.encode(PortSpec('rex.widget:/data', params={'a': 'b'}), None)
-  u'["~#PortSpec", ["rex.widget:/data", {"a": "b"}]]'
+  '["~#PortSpec", ["rex.widget:/data", {"a": "b"}]]'
 
   >>> class PortSpecSubclass(PortSpec):
   ...   pass
 
   >>> transitionable.encode(PortSpecSubclass('rex.widget:/data', params={'a': 'b'}), None)
-  u'["~#PortSpec", ["rex.widget:/data", {"a": "b"}]]'
+  '["~#PortSpec", ["rex.widget:/data", {"a": "b"}]]'
 
   >>> class PortSpecSubclassSubclass(PortSpecSubclass):
   ...   pass
 
   >>> transitionable.encode(PortSpecSubclassSubclass('rex.widget:/data', params={'a': 'b'}), None)
-  u'["~#PortSpec", ["rex.widget:/data", {"a": "b"}]]'
+  '["~#PortSpec", ["rex.widget:/data", {"a": "b"}]]'
 
 TransitionableRecord
 --------------------
@@ -129,7 +129,7 @@ TransitionableRecord
   CollectionSpec(route='r', params={})
 
   >>> transitionable.encode(CollectionSpec('route', {}), None)
-  u'["~#CollectionSpec", ["route", {}]]'
+  '["~#CollectionSpec", ["route", {}]]'
 
 ::
 
@@ -140,7 +140,7 @@ TransitionableRecord
   EntitySpec(route='route', params={})
 
   >>> transitionable.encode(EntitySpec('route', {}), None)
-  u'["~#EntitySpec", ["route", {}]]'
+  '["~#EntitySpec", ["route", {}]]'
 
 Path propagation
 ----------------
@@ -153,25 +153,25 @@ Path propagation
   ...     return {'my-path': path}
 
   >>> transitionable.encode(PortResponder(), None)
-  u'["~#port_responder", {"my-path": []}]'
+  '["~#port_responder", {"my-path": []}]'
 
   >>> transitionable.encode([PortResponder()], None)
-  u'[["~#port_responder", {"my-path": [0]}]]'
+  '[["~#port_responder", {"my-path": [0]}]]'
 
   >>> transitionable.encode([[PortResponder()]], None)
-  u'[[["~#port_responder", {"my-path": [0, 0]}]]]'
+  '[[["~#port_responder", {"my-path": [0, 0]}]]]'
 
   >>> transitionable.encode({'key': PortResponder()}, None)
-  u'{"key": ["~#port_responder", {"my-path": ["key"]}]}'
+  '{"key": ["~#port_responder", {"my-path": ["key"]}]}'
 
   >>> transitionable.encode([{'key': PortResponder()}], None)
-  u'[{"key": ["~#port_responder", {"my-path": [0, "key"]}]}]'
+  '[{"key": ["~#port_responder", {"my-path": [0, "key"]}]}]'
 
   >>> transitionable.encode({'key': [PortResponder()]}, None)
-  u'{"key": [["~#port_responder", {"my-path": ["key", 0]}]]}'
+  '{"key": [["~#port_responder", {"my-path": ["key", 0]}]]}'
 
   >>> transitionable.encode({'key': {'other': PortResponder()}}, None)
-  u'{"key": {"other": ["~#port_responder", {"my-path": ["key", "other"]}]}}'
+  '{"key": {"other": ["~#port_responder", {"my-path": ["key", "other"]}]}}'
 
 Select
 ------
@@ -208,7 +208,7 @@ Accessing current request object in format function
   >>> header = RequestHeader('Accept')
   >>> req = Request.blank('/', accept='application/json')
   >>> transitionable.encode(header, req)
-  u'["~#request-header", "application/json"]'
+  '["~#request-header", "application/json"]'
 
 :class:`rex.core.Record` is transitionable by default
 -----------------------------------------------------
@@ -220,7 +220,7 @@ Accessing current request object in format function
   >>> Point = Record.make('Point', ['x', 'y'])
 
   >>> transitionable.encode(Point(10, 20), None)
-  u'{"x": 10, "y": 20}'
+  '{"x": 10, "y": 20}'
 
 Failures
 --------

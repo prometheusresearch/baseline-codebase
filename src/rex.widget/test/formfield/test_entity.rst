@@ -32,7 +32,7 @@ Field configured to use autocomplete::
   EntityFormField(value_key=['individual'],
                   widget=AutocompleteField(...),
                   data=Record(entity='individual',
-                              title=u'identity.givenname',
+                              title='identity.givenname',
                               select=[],
                               mask=None))
 
@@ -71,7 +71,7 @@ Field configured to use radio button group::
   EntityFormField(value_key=['individual'],
                   widget=RadioGroupField(...),
                   data=Record(entity='individual',
-                              title=u'identity.givenname',
+                              title='identity.givenname',
                               select=[],
                               mask=None),
                   using='radio-group')
@@ -82,7 +82,7 @@ Field configured to use radio button group::
   <rex.widget.field.Responder object at ...>
 
   >>> print(widget.options.respond(
-  ...   Request.blank('/', accept='application/json'))) # doctest: +ELLIPSIS
+  ...   Request.blank('/', accept='application/json'))) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"

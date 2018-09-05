@@ -45,14 +45,14 @@ resolved variant of the URL::
   >>> rex = Rex('-', 'rex.web')
   >>> rex.on()
 
-  >>> print(Request.blank('/url?url=sandbox:/').get_response(rex)) # doctest: +ELLIPSIS
+  >>> print(Request.blank('/url?url=sandbox:/').get_response(rex)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
   <BLANKLINE>
   ["~#url", ["http://localhost/"]]
 
-  >>> print(Request.blank('/url?url=/').get_response(rex)) # doctest: +ELLIPSIS
+  >>> print(Request.blank('/url?url=/').get_response(rex)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -85,7 +85,7 @@ ports::
   >>> rex = Rex('-', 'rex.web')
   >>> rex.on()
 
-  >>> print(Request.blank('/port').get_response(rex)) # doctest: +ELLIPSIS
+  >>> print(Request.blank('/port').get_response(rex)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...
@@ -118,7 +118,7 @@ values::
   >>> rex = Rex('-', 'rex.web')
   >>> rex.on()
 
-  >>> print(Request.blank('/query').get_response(rex)) # doctest: +ELLIPSIS
+  >>> print(Request.blank('/query').get_response(rex)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: text/html; charset=UTF-8
   Content-Length: ...

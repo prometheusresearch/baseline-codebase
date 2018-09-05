@@ -204,7 +204,7 @@ Errors:
   ... """) # doctest: +NORMALIZE_WHITESPACE
   Traceback (most recent call last):
   ...
-  Error: Invalid reference:
+  rex.core.Error: Invalid reference:
       ../x-pick-individual
 
   >>> parse_path("""
@@ -215,7 +215,7 @@ Errors:
   ... """) # doctest: +NORMALIZE_WHITESPACE
   Traceback (most recent call last):
   ...
-  Error: Invalid reference:
+  rex.core.Error: Invalid reference:
       ../../x-pick-individual
 
   >>> parse_path("""
@@ -226,5 +226,5 @@ Errors:
   ... """) # doctest: +NORMALIZE_WHITESPACE
   Traceback (most recent call last):
   ...
-  Error: Invalid reference:
+  rex.core.Error: Invalid reference:
       ../../../x-pick-individual

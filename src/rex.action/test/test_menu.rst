@@ -52,7 +52,7 @@ Menu integration
 
   >>> print(Request.blank('/page', accept='application/json').get_response(rex)) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   200 OK
-  Content-Type: application/json; charset=UTF-8
+  Content-Type: application/json
   ...
   <BLANKLINE>
   ["~#widget", ...]

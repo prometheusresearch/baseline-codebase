@@ -42,9 +42,9 @@ In case fields are not specified, they are generated from port::
   >>> print(render_widget(
   ...   page,
   ...   Request.blank('/', accept='application/json'),
-  ...   no_chrome=True)) # doctest: +ELLIPSIS
+  ...   no_chrome=True)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
-  Content-Type: application/json; charset=UTF-8
+  Content-Type: application/json
   Content-Length: ...
   ...
 

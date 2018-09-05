@@ -40,10 +40,12 @@ class ActionMeta(type(Widget)):
         return cls
 
 
-class action_sig(namedtuple('Action', ['name'])):
+class Action(namedtuple('Action', ['name'])):
 
     def __hash__(self):
         return hash((self.__class__.__name__, self.name))
+
+action_sig = Action
 
 
 class ContextTypes(TransitionableRecord):

@@ -54,7 +54,7 @@ In case fields are not specified, they are generated from port::
   ...   Request.blank('/', accept='application/json'),
   ...   no_chrome=True)) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
-  Content-Type: application/json; charset=UTF-8
+  Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
 
@@ -62,7 +62,7 @@ In case fields are not specified, they are generated from port::
   ...   drop,
   ...   Request.blank('/', accept='application/json'),
   ...   path='2.data',
-  ...   no_chrome=True)) # doctest: +ELLIPSIS
+  ...   no_chrome=True)) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"

@@ -69,7 +69,7 @@ ActionReference
   >>> validate_local('pkg:/action') # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected action reference of type:
+  rex.core.Error: Expected action reference of type:
       local action reference
   But got:
       global action reference
@@ -104,7 +104,7 @@ QueryVal
   >>> validate('(individual') # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Failed to match the value against any of the following:
+  rex.core.Error: Failed to match the value against any of the following:
   ...
 
   >>> validate(validate('/individual'))
@@ -123,10 +123,10 @@ Creating resources
   ... ''')
 
   >>> res
-  Resource(href=u'pkg:/some/path')
+  Resource(href='pkg:/some/path')
 
   >>> encode(res, Request.blank('/', environ={'rex.mount': {'pkg': '/PKG'}}))
-  u'"/PKG/some/path"'
+  '"/PKG/some/path"'
 
 Cleanup
 -------

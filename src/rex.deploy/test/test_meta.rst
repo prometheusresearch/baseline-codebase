@@ -41,7 +41,7 @@ Preserved text is stored in an extra document::
 
     >>> extra_meta = TableMeta.parse(garbage_meta.dump())
     >>> extra_meta
-    TableMeta(Record(label=None, title=u'Test Subject', aliases=[]), extra=['List of test subjects'])
+    TableMeta(Record(label=None, title='Test Subject', aliases=[]), extra=['List of test subjects'])
     >>> print(extra_meta.dump())
     ---
     title: Test Subject

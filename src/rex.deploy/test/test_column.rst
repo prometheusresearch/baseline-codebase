@@ -19,7 +19,7 @@ Column facts are denoted by field ``column``::
 
     >>> fact = driver.parse("""{ column: individual.code, type: text }""")
     >>> fact
-    ColumnFact(u'individual', u'code', u'text')
+    ColumnFact('individual', 'code', 'text')
     >>> print(fact)
     column: code
     of: individual
@@ -30,7 +30,7 @@ or as a separate ``of`` field::
 
     >>> fact = driver.parse("""{ column: code, of: individual, type: text }""")
     >>> fact
-    ColumnFact(u'individual', u'code', u'text')
+    ColumnFact('individual', 'code', 'text')
     >>> print(fact)
     column: code
     of: individual
@@ -41,23 +41,23 @@ If the table is not set or set twice, an error is raised::
     >>> driver.parse("""{ column: code, type: text }""")
     Traceback (most recent call last):
       ...
-    Error: Got missing table name
+    rex.core.Error: Got missing table name
     While parsing column fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> driver.parse("""{ column: individual.code, of: identity, type: text }""")
     Traceback (most recent call last):
       ...
-    Error: Got mismatched table names:
+    rex.core.Error: Got mismatched table names:
         individual, identity
     While parsing column fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 You could indicate possible old names of the column using ``was`` field::
 
     >>> fact = driver.parse("""{ column: identity.last_name, was: [surname], type: text }""")
     >>> fact
-    ColumnFact(u'identity', u'last_name', u'text', former_labels=[u'surname'])
+    ColumnFact('identity', 'last_name', 'text', former_labels=['surname'])
     >>> print(fact)
     column: last_name
     of: identity
@@ -66,7 +66,7 @@ You could indicate possible old names of the column using ``was`` field::
 
     >>> fact = driver.parse("""{ column: identity.date_of_birth, was: [dob, birth], type: date }""")
     >>> fact
-    ColumnFact(u'identity', u'date_of_birth', u'date', former_labels=[u'dob', u'birth'])
+    ColumnFact('identity', 'date_of_birth', 'date', former_labels=['dob', 'birth'])
     >>> print(fact)
     column: date_of_birth
     of: identity
@@ -78,7 +78,7 @@ of ``ENUM`` type::
 
     >>> fact = driver.parse("""{ column: individual.sex, type: [male, female] }""")
     >>> fact
-    ColumnFact(u'individual', u'sex', [u'male', u'female'])
+    ColumnFact('individual', 'sex', ['male', 'female'])
     >>> print(fact)
     column: sex
     of: individual
@@ -90,31 +90,31 @@ or ``ENUM`` labels are not specified correctly::
     >>> driver.parse("""{ column: individual.sex }""")
     Traceback (most recent call last):
       ...
-    Error: Got missing clause:
+    rex.core.Error: Got missing clause:
         type
     While parsing column fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> driver.parse("""{ column: individual.sex, type: [] }""")
     Traceback (most recent call last):
       ...
-    Error: Got missing enum labels
+    rex.core.Error: Got missing enum labels
     While parsing column fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> driver.parse("""{ column: individual.sex, type: [male, female, male] }""")
     Traceback (most recent call last):
       ...
-    Error: Got duplicate enum labels:
+    rex.core.Error: Got duplicate enum labels:
         male, female, male
     While parsing column fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 You can set the default value of the column::
 
     >>> fact = driver.parse("""{ column: study.closed, type: boolean, default: false }""")
     >>> fact
-    ColumnFact(u'study', u'closed', u'boolean', default=False)
+    ColumnFact('study', 'closed', 'boolean', default=False)
     >>> print(fact)
     column: closed
     of: study
@@ -126,17 +126,17 @@ The default value must be compatible with the column type::
     >>> driver.parse("""{ column: individual.sex, type: [male, female], default: not-known }""")
     Traceback (most recent call last):
       ...
-    Error: Got ill-typed default value:
+    rex.core.Error: Got ill-typed default value:
         not-known
     While parsing column fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 By default, a column does not permit ``NULL`` values.  Turn off flag
 ``required`` to allow ``NULL`` values::
 
     >>> fact = driver.parse("""{ column: individual.code, type: text, required: false }""")
     >>> fact
-    ColumnFact(u'individual', u'code', u'text', is_required=False)
+    ColumnFact('individual', 'code', 'text', is_required=False)
     >>> print(fact)
     column: code
     of: individual
@@ -148,7 +148,7 @@ the table::
 
     >>> fact = driver.parse("""{ column: user.email, type: text, unique: true }""")
     >>> fact
-    ColumnFact(u'user', u'email', u'text', is_unique=True)
+    ColumnFact('user', 'email', 'text', is_unique=True)
     >>> print(fact)
     column: email
     of: user
@@ -159,7 +159,7 @@ Use field ``title`` to specify the column title::
 
     >>> fact = driver.parse("""{ column: individual.code, type: text, title: Individual ID }""")
     >>> fact
-    ColumnFact(u'individual', u'code', u'text', title=u'Individual ID')
+    ColumnFact('individual', 'code', 'text', title='Individual ID')
     >>> print(fact)
     column: code
     of: individual
@@ -170,7 +170,7 @@ Turn off flag ``present`` to indicate that the column should not exist::
 
     >>> fact = driver.parse("""{ column: individual.code, present: false }""")
     >>> fact
-    ColumnFact(u'individual', u'code', is_present=False)
+    ColumnFact('individual', 'code', is_present=False)
     >>> print(fact)
     column: code
     of: individual
@@ -181,10 +181,10 @@ Field ``present: false`` cannot coexist with other column parameters::
     >>> driver.parse("""{ column: individual.code, type: text, present: false }""")
     Traceback (most recent call last):
       ...
-    Error: Got unexpected clause:
+    rex.core.Error: Got unexpected clause:
         type
     While parsing column fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 
 Creating the column
@@ -221,10 +221,10 @@ an error is raised::
     >>> driver("""{ column: identity.first_name, type: text }""")
     Traceback (most recent call last):
       ...
-    Error: Discovered missing table:
+    rex.core.Error: Discovered missing table:
         identity
     While deploying column fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 When the column type is a list of ``ENUM`` labels, a corresponding ``ENUM``
 type is created::
@@ -285,10 +285,10 @@ You cannot create a column if there is already a link with the same name::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Discovered link with the same name:
+    rex.core.Error: Discovered link with the same name:
         mother
     While deploying column fact:
-        "<byte string>", line 3
+        "<unicode string>", line 3
 
 
 Renaming the column
@@ -351,7 +351,7 @@ column::
     <DataImage address>
 
     >>> zip_table.data.get(zip_key, ('chi',))
-    (1, u'chi', u'Chicago', u'60614', u'IL')
+    (1, 'chi', 'Chicago', '60614', 'IL')
 
 Then we could convert the ``zip`` column to integer::
 
@@ -364,7 +364,7 @@ Then we could convert the ``zip`` column to integer::
     <DataImage address>
 
     >>> zip_table.data.get(zip_key, ('chi',))
-    (1, u'chi', u'Chicago', 60614L, u'IL')
+    (1, 'chi', 'Chicago', 60614, 'IL')
 
 We can also convert a column to an ``ENUM`` type::
 
@@ -391,10 +391,10 @@ Unsupported conversions are rejected::
     >>> driver("""{ column: address.zip, type: date }""")
     Traceback (most recent call last):
       ...
-    Error: Cannot convert column of type integer to date:
+    rex.core.Error: Cannot convert column of type integer to date:
         zip
     While deploying column fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 
 Dropping the column
@@ -431,10 +431,10 @@ You cannot delete a column if there is a link with the same name::
     >>> driver("""{ column: individual.mother, present: false }""")
     Traceback (most recent call last):
       ...
-    Error: Discovered link with the same name:
+    rex.core.Error: Discovered link with the same name:
         mother
     While deploying column fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 Finally, we drop the test database::
 

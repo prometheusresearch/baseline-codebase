@@ -25,7 +25,7 @@ from htsql_rex_deploy.domain import JSONDomain
 import yaml
 
 
-class Signal(object):
+class Signal:
     # Notifies a dependent about a change in the master.
 
     __slot__ = ('before', 'after', 'modify', 'erase',
@@ -182,7 +182,7 @@ class Model(Extension):
         return yaml.dump(self.to_yaml(), Dumper=FactDumper).rstrip()
 
 
-class ModelSchema(object):
+class ModelSchema:
     """
     Container for all model objects.
     """
@@ -297,7 +297,7 @@ class TableModel(Model):
 
     properties = ['label', 'is_reliable', 'title', 'aliases']
 
-    class names(object):
+    class names:
         # Derives names for database objects and the table title.
 
         __slots__ = ('label', 'title', 'name', 'uk_name', 'seq_name')
@@ -568,7 +568,7 @@ class ColumnModel(Model):
             'table', 'label', 'type', 'default',
             'is_required', 'is_unique', 'title']
 
-    class names(object):
+    class names:
         # Derives name for the column and auxiliary objects.
 
         __slots__ = (
@@ -583,7 +583,7 @@ class ColumnModel(Model):
             self.enum_name = mangle([table_label, label], 'enum')
             self.uk_name = mangle([table_label, label], 'uk')
 
-    class data(object):
+    class data:
         # Derives auxiliary objects associated with the type and default value.
 
         __slots__ = ('type', 'name', 'enumerators',
@@ -899,7 +899,7 @@ class LinkModel(Model):
             'table', 'label', 'target_table',
             'default', 'is_required', 'is_unique', 'title']
 
-    class names(object):
+    class names:
         # Derives name for the column and auxiliary objects.
 
         __slots__ = ('table_label', 'label', 'title',
@@ -913,7 +913,7 @@ class LinkModel(Model):
             self.fk_name = mangle([table_label, label], 'fk')
             self.uk_name = mangle([table_label, label], 'uk')
 
-    class data(object):
+    class data:
         # Converts HTSQL identity to FK value.
 
         __slots__ = ('default', 'value')
@@ -1166,7 +1166,7 @@ class IdentityModel(Model):
 
     properties = ['table', 'fields', 'generators']
 
-    class names(object):
+    class names:
         # Derives name for the constraint and auxiliary objects.
 
         __slots__ = ('label', 'name')

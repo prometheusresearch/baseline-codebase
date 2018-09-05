@@ -19,7 +19,7 @@ Identity fact is denoted by field ``identity``::
 
     >>> fact = driver.parse("""{ identity: [individual.code] }""")
     >>> fact
-    IdentityFact(u'individual', [u'code'])
+    IdentityFact('individual', ['code'])
     >>> print(fact)
     identity: [code]
     of: individual
@@ -29,16 +29,16 @@ The identity should have at least one label::
     >>> driver.parse("""{ identity: [] }""")
     Traceback (most recent call last):
       ...
-    Error: Got missing identity fields
+    rex.core.Error: Got missing identity fields
     While parsing identity fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 The table of the identity constraint could be set either as a prefix
 of identity label or as a separate ``of`` field::
 
     >>> fact = driver.parse("""{ identity: [code], of: individual }""")
     >>> fact
-    IdentityFact(u'individual', [u'code'])
+    IdentityFact('individual', ['code'])
     >>> print(fact)
     identity: [code]
     of: individual
@@ -49,23 +49,23 @@ multiple times::
     >>> driver.parse("""{ identity: [code] }""")
     Traceback (most recent call last):
       ...
-    Error: Got missing table name
+    rex.core.Error: Got missing table name
     While parsing identity fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> driver.parse("""{ identity: [individual.code], of: study }""")
     Traceback (most recent call last):
       ...
-    Error: Got mismatched table names:
+    rex.core.Error: Got mismatched table names:
         individual, study
     While parsing identity fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 Identity label could be supplied with an associated generator::
 
     >>> fact = driver.parse("""{ identity: [code: random], of: individual }""")
     >>> fact
-    IdentityFact(u'individual', [u'code'], [u'random'])
+    IdentityFact('individual', ['code'], ['random'])
     >>> print(fact)
     identity:
     - {code: random}
@@ -77,7 +77,7 @@ column and the generator as a pair::
     >>> fact = driver.parse({ 'identity': ['individual', {'measure_type': None}, ('code', 'offset')],
     ...                       'of': 'measure' })
     >>> fact
-    IdentityFact(u'measure', [u'individual', u'measure_type', u'code'], [None, None, u'offset'])
+    IdentityFact('measure', ['individual', 'measure_type', 'code'], [None, None, 'offset'])
     >>> print(fact)
     identity:
     - individual
@@ -90,11 +90,11 @@ Ill-formed generators are rejected::
     >>> driver.parse("""{ identity: [[code, random]], of: individual }""")
     Traceback (most recent call last):
       ...
-    Error: Expected a pair
+    rex.core.Error: Expected a pair
     Got:
         a sequence
     While parsing:
-        "<byte string>", line 1
+        "<unicode string>", line 1
     While validating field:
         identity
 
@@ -131,10 +131,10 @@ Notably, the identity columns must have ``NOT NULL`` constraint::
     >>> driver("""{ identity: [individual.code] }""")
     Traceback (most recent call last):
       ...
-    Error: Discovered nullable field:
+    rex.core.Error: Discovered nullable field:
         code
     While deploying identity fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> driver("""{ column: individual.code, type: text, required: true }""")
     ALTER TABLE "individual" ALTER COLUMN "code" SET NOT NULL;
@@ -160,10 +160,10 @@ The driver also prohibits identities with cycles::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Discovered identity loop:
+    rex.core.Error: Discovered identity loop:
         left.right
     While deploying identity fact:
-        "<byte string>", line 3
+        "<unicode string>", line 3
 
     >>> driver("""
     ... - { identity: [right.code] }
@@ -171,10 +171,10 @@ The driver also prohibits identities with cycles::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Discovered identity loop:
+    rex.core.Error: Discovered identity loop:
         left.right
     While deploying identity fact:
-        "<byte string>", line 3
+        "<unicode string>", line 3
 
 Table identity may include both columns and links.  Respective ``FOREIGN KEY``
 constraints are set to ``ON DELETE CASCADE``::
@@ -195,18 +195,18 @@ It is an error if identity refers to an unknown table or a column::
     >>> driver("""{ identity: [sample.code] }""")
     Traceback (most recent call last):
       ...
-    Error: Discovered missing table:
+    rex.core.Error: Discovered missing table:
         sample
     While deploying identity fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> driver("""{ identity: [individual.family, individual.code] }""")
     Traceback (most recent call last):
       ...
-    Error: Discovered missing field:
+    rex.core.Error: Discovered missing field:
         family
     While deploying identity fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 If ``PRIMARY KEY`` already exists and is different from the given ``identity``,
 the old ``PRIMARY KEY`` is deleted::
@@ -357,18 +357,18 @@ It is an error to set a generator on a link or a column of incompatible type::
     >>> driver("""{ identity: [visit.individual: random, visit.seq] }""")
     Traceback (most recent call last):
       ...
-    Error: Expected an integer or text column:
+    rex.core.Error: Expected an integer or text column:
         individual_id
     While deploying identity fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> driver("""{ identity: [measure.individual, measure.measure_type, measure.date_of_evaluation: offset] }""")
     Traceback (most recent call last):
       ...
-    Error: Expected an integer or text column:
+    rex.core.Error: Expected an integer or text column:
         date_of_evaluation
     While deploying identity fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 Finally, we drop the test database::
 

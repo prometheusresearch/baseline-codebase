@@ -20,7 +20,7 @@ Field ``table`` denotes a table fact::
     >>> fact = driver.parse("""{ table: individual }""")
 
     >>> fact
-    TableFact(u'individual')
+    TableFact('individual')
     >>> print(fact)
     table: individual
 
@@ -28,14 +28,14 @@ You could indicate possible old names of the table using ``was`` field::
 
     >>> fact = driver.parse("""{ table: individual, was: subject }""")
     >>> fact
-    TableFact(u'individual', former_labels=[u'subject'])
+    TableFact('individual', former_labels=['subject'])
     >>> print(fact)
     table: individual
     was: [subject]
 
     >>> fact = driver.parse("""{ table: measure, was: [assessment, test] }""")
     >>> fact
-    TableFact(u'measure', former_labels=[u'assessment', u'test'])
+    TableFact('measure', former_labels=['assessment', 'test'])
     >>> print(fact)
     table: measure
     was: [assessment, test]
@@ -44,7 +44,7 @@ Use field ``table`` to specify the table title::
 
     >>> fact = driver.parse("""{ table: individual, title: Test Subjects }""")
     >>> fact
-    TableFact(u'individual', title=u'Test Subjects')
+    TableFact('individual', title='Test Subjects')
     >>> print(fact)
     table: individual
     title: Test Subjects
@@ -53,7 +53,7 @@ Turn off field ``reliable`` to create a fast, but not crash-safe table::
 
     >>> fact = driver.parse("""{ table: history, reliable: false }""")
     >>> fact
-    TableFact(u'history', is_reliable=False)
+    TableFact('history', is_reliable=False)
     >>> print(fact)
     table: history
     reliable: false
@@ -63,7 +63,7 @@ Use field ``with`` to list facts to deployed together with the table fact::
     >>> fact = driver.parse("""{ table: individual,
     ...                          with: [{ column: code, type: text}] }""")
     >>> fact
-    TableFact(u'individual', related=[ColumnFact(u'individual', u'code', u'text')])
+    TableFact('individual', related=[ColumnFact('individual', 'code', 'text')])
     >>> print(fact)
     table: individual
     with:
@@ -76,25 +76,25 @@ Nested facts must deploy columns, links or data of the table being deployed::
     ...                   with: [{ table: sample }] }""")
     Traceback (most recent call last):
       ...
-    Error: Got unrelated fact:
-        "<byte string>", line 2
+    rex.core.Error: Got unrelated fact:
+        "<unicode string>", line 2
     While parsing table fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> driver.parse("""{ table: individual,
     ...                   with: [{ column: code, of: sample }] }""")
     Traceback (most recent call last):
       ...
-    Error: Got unrelated fact:
-        "<byte string>", line 2
+    rex.core.Error: Got unrelated fact:
+        "<unicode string>", line 2
     While parsing table fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 Turn off flag ``present`` to indicate that the table is to be deleted::
 
     >>> fact = driver.parse("""{ table: individual, present: false }""")
     >>> fact
-    TableFact(u'individual', is_present=False)
+    TableFact('individual', is_present=False)
     >>> print(fact)
     table: individual
     present: false
@@ -106,19 +106,19 @@ or ``with`` fields::
     ...                   title: Test Subjects }""")
     Traceback (most recent call last):
       ...
-    Error: Got unexpected clause:
+    rex.core.Error: Got unexpected clause:
         title
     While parsing table fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> driver.parse("""{ table: individual, present: false,
     ...                   with: [{ column: code, type: text }] }""")
     Traceback (most recent call last):
       ...
-    Error: Got unexpected clause:
+    rex.core.Error: Got unexpected clause:
         with
     While parsing table fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 
 Creating the table
@@ -165,10 +165,10 @@ It is impossible to change this characteristic after the table is created::
     >>> driver("""{ table: history, reliable: true }""")
     Traceback (most recent call last):
       ...
-    Error: Discovered table with mismatched reliability mode:
+    rex.core.Error: Discovered table with mismatched reliability mode:
         history
     While deploying table fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 When the driver is locked and the table does not exist, an error is raised::
 
@@ -176,12 +176,12 @@ When the driver is locked and the table does not exist, an error is raised::
     ...        is_locked=True)
     Traceback (most recent call last):
       ...
-    Error: Detected inconsistent data model:
+    rex.core.Error: Detected inconsistent data model:
         CREATE TABLE "sample" (
             "id" "int4" NOT NULL
         );
     While validating table fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 If the table already exists, the driver will verify that it has the ``id``
 column with ``UNIQUE`` constraint::
@@ -192,10 +192,10 @@ column with ``UNIQUE`` constraint::
     >>> driver("""{ table: sample }""")
     Traceback (most recent call last):
       ...
-    Error: Discovered table without surrogate key:
+    rex.core.Error: Discovered table without surrogate key:
         sample
     While deploying table fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> driver.submit("""ALTER TABLE sample ADD COLUMN id int4 NOT NULL;""")
     ALTER TABLE sample ADD COLUMN id int4 NOT NULL;
@@ -203,10 +203,10 @@ column with ``UNIQUE`` constraint::
     >>> driver("""{ table: sample }""")
     Traceback (most recent call last):
       ...
-    Error: Discovered table without surrogate key:
+    rex.core.Error: Discovered table without surrogate key:
         sample
     While deploying table fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 
 Renaming the table

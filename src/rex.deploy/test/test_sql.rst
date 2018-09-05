@@ -14,30 +14,30 @@ fragments::
     >>> from rex.deploy import mangle
 
     >>> mangle('individual')
-    u'individual'
+    'individual'
     >>> mangle(['individual', 'mother'])
-    u'individual_mother'
+    'individual_mother'
 
 You can specify a suffix::
 
     >>> mangle(['individual', 'mother'], 'fk')
-    u'individual_mother_fk'
+    'individual_mother_fk'
 
 The separator is always large enough so that it is not contained in any of the
 fragments::
 
     >>> mangle(['individual', 'adopted_father'])
-    u'individual__adopted_father'
+    'individual__adopted_father'
 
 Names which could collide with some other generated name are mangled::
 
     >>> mangle('remote_id')
-    u'remote_id__161172'
+    'remote_id__161172'
 
 Names that are too long are truncated and mangled as well::
 
     >>> mangle(['very']+['long']*100+['name'])
-    u'very_long_long___long_long_long_long_long_long_long_name_6c78ff'
+    'very_long_long___long_long_long_long_long_long_long_name_6c78ff'
     >>> len(_)
     63
 

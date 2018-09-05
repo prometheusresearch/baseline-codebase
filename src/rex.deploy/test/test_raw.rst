@@ -89,10 +89,10 @@ In the locked mode, the fact fails unless the postcondition is satisfied::
     ... is_locked=True)
     Traceback (most recent call last):
       ...
-    Error: Discovered failed assertion:
+    rex.core.Error: Discovered failed assertion:
         SELECT TRUE FROM pg_catalog.pg_class WHERE relname = 'study_description_idx';
     While validating sql fact:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 Finally we destroy the test database::
 

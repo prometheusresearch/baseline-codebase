@@ -22,7 +22,7 @@ import collections
 import weakref
 
 
-class Image(object):
+class Image:
     """Mirrors a database object."""
 
     __slots__ = ('owner', 'cursor', 'linkages', 'containers', '__weakref__')
@@ -125,7 +125,7 @@ class NamedImage(IndexedImage):
         self.name = name
 
     def __str__(self):
-        return self.name.encode('utf-8')
+        return self.name
 
     def set_name(self, name):
         """Renames the object."""
@@ -147,7 +147,7 @@ class ImageList(list):
         pass
 
 
-class ImageMap(object):
+class ImageMap:
     """Ordered collection of indexed database objects."""
 
     __slots__ = ('_images', '__weakref__')
@@ -593,8 +593,7 @@ class ProcedureSignature(
     __slots__ = ()
 
     def __str__(self):
-        return "%s(%s)" % (self.name.encode('utf-8'),
-                           ", ".join(str(type) for type in self.types))
+        return "%s(%s)" % (self.name, ", ".join(str(type) for type in self.types))
 
 
 class ProcedureImage(IndexedImage):

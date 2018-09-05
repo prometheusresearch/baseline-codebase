@@ -16,7 +16,7 @@ if hasattr(psycopg2.extras, 'register_default_json'):
     psycopg2.extras.register_default_json(loads=lambda x: x)
 
 
-class Cluster(object):
+class Cluster:
     """
     Represents a PostgreSQL cluster of databases.
 

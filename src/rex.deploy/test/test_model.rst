@@ -39,10 +39,10 @@ Finally, we can generate a list of fact objects that could be used to
 recreate the schema::
 
     >>> schema.facts()          # doctest: +NORMALIZE_WHITESPACE
-    [TableFact(u'individual'),
-     TableFact(u'measure'),
-     TableFact(u'individual', related=[]),
-     TableFact(u'measure', related=[])]
+    [TableFact('individual'),
+     TableFact('measure'),
+     TableFact('individual', related=[]),
+     TableFact('measure', related=[])]
 
 Displaying a schema object prints these facts in YAML format::
 

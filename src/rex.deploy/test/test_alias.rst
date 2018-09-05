@@ -19,7 +19,7 @@ We declare calculated fields with ``alias`` records::
 
     >>> fact = driver.parse("""{ alias: "family.size := count(individual)" }""")
     >>> fact
-    AliasFact(u'family', u'size', body=u'count(individual)')
+    AliasFact('family', 'size', body='count(individual)')
     >>> print(fact)
     alias: size
     of: family
@@ -29,12 +29,12 @@ This creates a calculated field ``size`` on the ``family`` table.  You can also
 specify the table name via ``of`` attribute::
 
     >>> driver.parse("""{ alias: "size := count(individual)", of: family }""")
-    AliasFact(u'family', u'size', body=u'count(individual)')
+    AliasFact('family', 'size', body='count(individual)')
 
 Similarly, the body of the calculated field could be provided separately::
 
     >>> driver.parse("""{ alias: family.size, expression: count(individual) }""")
-    AliasFact(u'family', u'size', body=u'count(individual)')
+    AliasFact('family', 'size', body='count(individual)')
 
 A calculated field may require parameters, which can be specified as follows::
 
@@ -42,7 +42,7 @@ A calculated field may require parameters, which can be specified as follows::
     ... { alias: "family.individual_by_sex($sex) := individual?sex=$sex" }
     ... """)
     >>> fact
-    AliasFact(u'family', u'individual_by_sex', [u'sex'], body=u'individual?sex=$sex')
+    AliasFact('family', 'individual_by_sex', ['sex'], body='individual?sex=$sex')
     >>> print(fact)
     alias: individual_by_sex
     of: family
@@ -54,7 +54,7 @@ Again, parameters, can be listed separately::
     >>> driver.parse("""
     ... { alias: individual_by_sex, of: family, parameters: [sex], expression: "individual?sex=$sex" }
     ... """)
-    AliasFact(u'family', u'individual_by_sex', [u'sex'], body=u'individual?sex=$sex')
+    AliasFact('family', 'individual_by_sex', ['sex'], body='individual?sex=$sex')
 
 It is also possible to list parameters by the alias name, but keep body of the
 expression separate::
@@ -62,30 +62,30 @@ expression separate::
     >>> driver.parse("""
     ... { alias: individual_by_sex($sex), of: family, expression: "individual?sex=$sex" }
     ... """)
-    AliasFact(u'family', u'individual_by_sex', [u'sex'], body=u'individual?sex=$sex')
+    AliasFact('family', 'individual_by_sex', ['sex'], body='individual?sex=$sex')
 
 Finally, you can also indicate that a particular calculated field does not
 exist::
 
     >>> driver.parse("""{ alias: family.size, present: false }""")
-    AliasFact(u'family', u'size', is_present=False)
+    AliasFact('family', 'size', is_present=False)
 
 It is an error if the table name is not specified or specified twice::
 
     >>> driver.parse("""{ alias: "size := count(individual)" }""")
     Traceback (most recent call last):
       ...
-    Error: Got missing table name
+    rex.core.Error: Got missing table name
     While parsing alias fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> driver.parse("""{ alias: "family.size := count(individual)", of: study }""")
     Traceback (most recent call last):
       ...
-    Error: Got mismatched table names:
+    rex.core.Error: Got mismatched table names:
         family, study
     While parsing alias fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 It is also an error to specify parameters twice::
 
@@ -94,10 +94,10 @@ It is also an error to specify parameters twice::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Got mismatched table parameters:
-        [u's'], [u'sex']
+    rex.core.Error: Got mismatched table parameters:
+        ['s'], ['sex']
     While parsing alias fact:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 The expression body should be specified just once, or, when parameter
 ``present`` is unset, should not be specified::
@@ -105,26 +105,26 @@ The expression body should be specified just once, or, when parameter
     >>> driver.parse("""{ alias: family, of: size }""")
     Traceback (most recent call last):
       ...
-    Error: Got missing clause:
+    rex.core.Error: Got missing clause:
         expression
     While parsing alias fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> driver.parse("""{ alias: "family.size := count(individual)", expression: count(individual) }""")
     Traceback (most recent call last):
       ...
-    Error: Got mismatched alias expression:
+    rex.core.Error: Got mismatched alias expression:
         count(individual), count(individual)
     While parsing alias fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> driver.parse("""{ alias: family.size, expression: count(individual), present: false }""")
     Traceback (most recent call last):
       ...
-    Error: Got unexpected clause:
+    rex.core.Error: Got unexpected clause:
         expression
     While parsing alias fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 
 Using aliases
@@ -220,7 +220,7 @@ validated::
     >>> driver("""{ alias: "family.individual_by_sex($sex) := individual?sex=$sexx" }""")
     Traceback (most recent call last):
       ...
-    Error: Failed to compile HTSQL expression:
+    rex.core.Error: Failed to compile HTSQL expression:
         Found unknown reference:
             $sexx
         Perhaps you had in mind:
@@ -229,7 +229,7 @@ validated::
             family.individual_by_sex($sex) := individual?sex=$sexx
                                                              ^^^^^
     While validating alias fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> driver.unlock()
 

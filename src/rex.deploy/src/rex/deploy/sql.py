@@ -49,10 +49,10 @@ def mangle(fragments, suffix=None,
     # Mangle the name if it's too long or collision-prone.
     if is_forbidden or len(text) > max_length:
         # Add 6 characters from the MD5 hash to prevent collisions.
-        digest = separator+str(hashlib.md5(stem).hexdigest()[:6])
+        digest = separator+str(hashlib.md5(stem.encode('utf-8')).hexdigest()[:6])
         # Cut some characters to reduce the name length if necessary.
         if len(text)+len(digest) > max_length:
-            cut_start = max_length/4
+            cut_start = max_length//4
             cut_end = cut_start+len(digest)+len(separator)+len(text)-max_length
             text = text[:cut_start]+separator+text[cut_end:]
         text += digest

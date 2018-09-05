@@ -19,7 +19,7 @@ Link facts are denoted by field ``link``::
 
     >>> fact = driver.parse("""{ link: sample.individual }""")
     >>> fact
-    LinkFact(u'sample', u'individual', u'individual')
+    LinkFact('sample', 'individual', 'individual')
     >>> print(fact)
     link: individual
     of: sample
@@ -29,7 +29,7 @@ or as a separate ``of`` field::
 
     >>> fact = driver.parse("""{ link: individual, of: sample }""")
     >>> fact
-    LinkFact(u'sample', u'individual', u'individual')
+    LinkFact('sample', 'individual', 'individual')
     >>> print(fact)
     link: individual
     of: sample
@@ -40,24 +40,24 @@ It is also an error if they are both specified::
     >>> driver.parse("""{ link: individual }""")
     Traceback (most recent call last):
       ...
-    Error: Got missing table name
+    rex.core.Error: Got missing table name
     While parsing link fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> driver.parse("""{ link: sample.individual, of: measure }""")
     Traceback (most recent call last):
       ...
-    Error: Got mismatched table names:
+    rex.core.Error: Got mismatched table names:
         sample, measure
     While parsing link fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 The target of the link could be omitted if its name coincides with
 the link name.  Otherwise, it could be set using ``to`` field::
 
     >>> fact = driver.parse("""{ link: individual.mother, to: individual }""")
     >>> fact
-    LinkFact(u'individual', u'mother', u'individual')
+    LinkFact('individual', 'mother', 'individual')
     >>> print(fact)
     link: mother
     of: individual
@@ -67,7 +67,7 @@ You can indicate any old names of the link using ``was`` clause::
 
     >>> fact = driver.parse("""{ link: measure.individual, was: subject }""")
     >>> fact
-    LinkFact(u'measure', u'individual', u'individual', former_labels=[u'subject'])
+    LinkFact('measure', 'individual', 'individual', former_labels=['subject'])
     >>> print(fact)
     link: individual
     of: measure
@@ -75,7 +75,7 @@ You can indicate any old names of the link using ``was`` clause::
 
     >>> fact = driver.parse("""{ link: individual.birth_mother, was: [parent, mother], to: individual }""")
     >>> fact
-    LinkFact(u'individual', u'birth_mother', u'individual', former_labels=[u'parent', u'mother'])
+    LinkFact('individual', 'birth_mother', 'individual', former_labels=['parent', 'mother'])
     >>> print(fact)
     link: birth_mother
     of: individual
@@ -87,7 +87,7 @@ By default, a link does not permit ``NULL`` values.  Turn off flag
 
     >>> fact = driver.parse("""{ link: sample.individual, required: false }""")
     >>> fact
-    LinkFact(u'sample', u'individual', u'individual', is_required=False)
+    LinkFact('sample', 'individual', 'individual', is_required=False)
     >>> print(fact)
     link: individual
     of: sample
@@ -97,7 +97,7 @@ You can explicitly specify the link title::
 
     >>> fact = driver.parse("""{ link: sample.individual, title: Subject }""")
     >>> fact
-    LinkFact(u'sample', u'individual', u'individual', title=u'Subject')
+    LinkFact('sample', 'individual', 'individual', title='Subject')
     >>> print(fact)
     link: individual
     of: sample
@@ -107,7 +107,7 @@ Turn off flag ``present`` to indicate that the link should not exist::
 
     >>> fact = driver.parse("""{ link: individual.code, present: false }""")
     >>> fact
-    LinkFact(u'individual', u'code', is_present=False)
+    LinkFact('individual', 'code', is_present=False)
     >>> print(fact)
     link: code
     of: individual
@@ -118,10 +118,10 @@ Field ``present: false`` cannot coexist with other link parameters::
     >>> driver.parse("""{ link: individual.mother, to: individual, present: false }""")
     Traceback (most recent call last):
       ...
-    Error: Got unexpected clause:
+    rex.core.Error: Got unexpected clause:
         to
     While parsing link fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 
 Creating the link
@@ -169,10 +169,10 @@ the target table must have an identity::
     ... """)                                            # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Got ill-formed link value:
+    rex.core.Error: Got ill-formed link value:
         site[main]
     While deploying link fact:
-        "<byte string>", line 4
+        "<unicode string>", line 4
 
 As well as the target row must exist::
 
@@ -182,10 +182,10 @@ As well as the target row must exist::
     ... """)                                            # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Cannot find link:
+    rex.core.Error: Cannot find link:
         site[main]
     While deploying link fact:
-        "<byte string>", line 3
+        "<unicode string>", line 3
 
 It is an error if the link value is malformed::
 
@@ -195,10 +195,10 @@ It is an error if the link value is malformed::
     ... """)                                            # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Got ill-formed link value:
+    rex.core.Error: Got ill-formed link value:
         site[main.1]
     While deploying link fact:
-        "<byte string>", line 3
+        "<unicode string>", line 3
 
 If the target row exists, the default value can be set::
 
@@ -223,28 +223,28 @@ table does not exist::
     >>> driver("""{ link: measure.individual }""")
     Traceback (most recent call last):
       ...
-    Error: Discovered missing table:
+    rex.core.Error: Discovered missing table:
         measure
     While deploying link fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> driver("""{ link: individual.family }""")
     Traceback (most recent call last):
       ...
-    Error: Discovered missing table:
+    rex.core.Error: Discovered missing table:
         family
     While deploying link fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 If the link is self-referential, it must be optional::
 
     >>> driver("""{ link: individual.mother, to: individual }""")
     Traceback (most recent call last):
       ...
-    Error: Detected self-referential mandatory link:
+    rex.core.Error: Detected self-referential mandatory link:
         mother
     While deploying link fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> driver("""{ link: individual.mother, to: individual, required: false }""")
     ALTER TABLE "individual" ADD COLUMN "mother_id" "int4";
@@ -254,10 +254,10 @@ If the link is self-referential, it must be optional::
     >>> driver("""{ link: individual.mother, to: individual }""")
     Traceback (most recent call last):
       ...
-    Error: Detected self-referential mandatory link:
+    rex.core.Error: Detected self-referential mandatory link:
         mother
     While deploying link fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 An error is raised if the target table has no ``id`` column::
 
@@ -267,10 +267,10 @@ An error is raised if the target table has no ``id`` column::
     >>> driver("""{ link: individual.family }""")
     Traceback (most recent call last):
       ...
-    Error: Discovered table without surrogate key:
+    rex.core.Error: Discovered table without surrogate key:
         family
     While deploying link fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 If the link column exists, the driver verifies that is has a correct type and
 ``NOT NULL`` constraint and, if necessary, changes them::
@@ -303,10 +303,10 @@ You cannot create a link if there is a regular column with the same name::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Discovered column with the same name:
+    rex.core.Error: Discovered column with the same name:
         individual
     While deploying link fact:
-        "<byte string>", line 4
+        "<unicode string>", line 4
 
 
 Renaming the link
@@ -353,10 +353,10 @@ You cannot delete a link if there is a regular column with the same name::
     >>> driver("""{ link: identity.individual, present: false }""")
     Traceback (most recent call last):
       ...
-    Error: Discovered column with the same name:
+    rex.core.Error: Discovered column with the same name:
         individual
     While deploying link fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 Finally, we drop the test database::
 

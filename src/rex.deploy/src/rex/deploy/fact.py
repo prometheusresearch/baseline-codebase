@@ -21,7 +21,7 @@ import psycopg2
 import yaml
 
 
-class AliasSpec(object):
+class AliasSpec:
 
     def __init__(self, table_label, label, parameters, body):
         self.table_label = table_label
@@ -37,25 +37,21 @@ class AliasSpec(object):
     def __str__(self):
         chunks = []
         if self.table_label is not None:
-            chunks.append(".%s" % self.table_label.encode('utf-8'))
-        chunks.append(self.label.encode('utf-8'))
+            chunks.append(".%s" % self.table_label)
+        chunks.append(self.label)
         if self.parameters is not None:
             chunks.append(
                     "(%s)" %
-                    ",".join(["$%s" % parameter.encode('utf-8')
+                    ",".join(["$%s" % parameter
                               for parameter in self.parameters]))
         if self.body is not None:
             chunks.append(" := %s" % self.body)
         return "".join(chunks)
 
-    def __unicode__(self):
-        return str(self).decode('utf-8')
-
 
 class FactDumper(yaml.Dumper):
 
     def represent_str(self, data):
-        data = data.decode('utf-8', 'replace')
         style = None
         if data.endswith('\n'):
             style = '|'
@@ -245,7 +241,7 @@ def label_to_title(label):
     return label.replace('_', ' ').title()
 
 
-class Driver(object):
+class Driver:
     """
     Deploys database facts.
 

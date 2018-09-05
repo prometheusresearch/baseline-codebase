@@ -128,7 +128,7 @@ class BindJoin(BindPolyFunction):
                 with translate_guard(op):
                     raise Error("Function '%s' expects 1 field"
                                 " for its first argument; got %s"
-                                % (self.name.encode('utf-8'), len(recipes)))
+                                % (self.name, len(recipes)))
             plural_base = op
             syntax, recipe = recipes[0]
             op = self.state.use(recipe, syntax)

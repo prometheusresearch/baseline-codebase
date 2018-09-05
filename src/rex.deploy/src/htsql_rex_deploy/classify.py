@@ -47,7 +47,7 @@ def get_syntax_arcs(node):
     return syntax_arcs
 
 
-class DominateOverride(object):
+class DominateOverride:
 
     @classmethod
     def __dominates__(component, other):

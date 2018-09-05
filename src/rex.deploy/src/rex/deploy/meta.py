@@ -27,7 +27,7 @@ class MetaMeta(type):
         return cls
 
 
-class Meta(object, metaclass=MetaMeta):
+class Meta(metaclass=MetaMeta):
     """
     Database entity metadata.
     """

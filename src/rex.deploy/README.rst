@@ -1362,7 +1362,7 @@ generating a valid SQL name from a list of fragments and an optional suffix::
     >>> from rex.deploy import mangle
 
     >>> mangle(['individual', 'mother'], 'fk')
-    u'individual_mother_fk'
+    'individual_mother_fk'
 
 :mod:`rex.deploy` also provides high-level API for introspecting and
 manipulating database schemas.  To start using it, one needs to create

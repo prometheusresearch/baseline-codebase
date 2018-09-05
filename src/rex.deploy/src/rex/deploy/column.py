@@ -16,7 +16,7 @@ import json
 import collections
 
 
-class EnumValue(object):
+class EnumValue:
 
     def __init__(self, value, former_values=[], title=None):
         self.value = value
@@ -111,8 +111,6 @@ class ColumnFact(Fact):
         elif type is not None:
             domain = cls.DOMAIN_MAP[type]
         default = spec.default
-        if isinstance(default, str):
-            default = default.decode('utf-8', 'replace')
         if isinstance(default, str):
             try:
                 default = domain.parse(default)

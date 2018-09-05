@@ -21,7 +21,7 @@ import json
 import collections
 
 
-class _skip_type(object):
+class _skip_type:
     # Set a `repr()` value for `sphinx.ext.autodoc`.
     def __repr__(self):
         return "SKIP"
@@ -252,7 +252,7 @@ class DataFact(Fact):
                     try:
                         data = json.load(stream)
                     except ValueError as exc:
-                        raise Error("Discovered ill-formed JSON:", exc)
+                        raise Error("Discovered ill-formed JSON:", exc) from None
                     data = self.data_validate(data)
             elif extension == '.yaml':
                 stream = open(self.data_path)
@@ -384,7 +384,7 @@ class DataFact(Fact):
                         except ValueError as exc:
                             error = Error("Discovered invalid input:", exc)
                             error.wrap("While converting field:", field.label)
-                            raise error
+                            raise error from None
                         # Serialize and validate JSON values.
                         if isinstance(
                                 domain, htsql_rex_deploy.domain.JSONDomain):
@@ -397,7 +397,7 @@ class DataFact(Fact):
                                         "Discovered invalid JSON input:", exc)
                                 error.wrap(
                                         "While converting field:", field.label)
-                                raise error
+                                raise error from None
                         # If the value is a TZ-aware datetime, we convert
                         # it to the local timezone and then strip the
                         # timezone.  This is compatible with PostgreSQL

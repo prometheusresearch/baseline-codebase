@@ -29,7 +29,7 @@ Ill-formed HTSQL expressions cause an error::
     >>> htsql_val("count(department")
     Traceback (most recent call last):
       ...
-    Error: Failed to parse an HTSQL expression:
+    rex.core.Error: Failed to parse an HTSQL expression:
         Got unexpected end of input
         While parsing:
             count(department
@@ -57,7 +57,7 @@ validator can::
     >>> expr_val("/employee/:truncate")
     Traceback (most recent call last):
       ...
-    Error: Failed to parse an HTSQL expression:
+    rex.core.Error: Failed to parse an HTSQL expression:
         Got unexpected input
         While parsing:
             /employee/:truncate
@@ -73,7 +73,7 @@ Several functions are available to parse HTSQL directly::
 ``decode_htsql`` decodes %-encoded HTSQL expressions::
 
     >>> decode_htsql("%2Femployee")
-    u'/employee'
+    '/employee'
 
 ``scan_htsql`` converts an HTSQL expression to a list of tokens::
 

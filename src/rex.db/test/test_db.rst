@@ -15,7 +15,7 @@ HTSQL connection URI is a mandatory setting::
     >>> demo = Rex('rex.db_demo')
     Traceback (most recent call last):
       ...
-    Error: Missing mandatory setting:
+    rex.core.Error: Missing mandatory setting:
         db
     While initializing RexDB application:
         rex.db_demo
@@ -27,7 +27,7 @@ Ill-formed and invalid connections URI are rejected immediately::
     >>> Rex('rex.db_demo', db='./sandbox/db_demo.sqlite')
     Traceback (most recent call last):
       ...
-    Error: expected a connection URI of the form 'engine://username:password@host:port/database?options'; got './sandbox/db_demo.sqlite'
+    rex.core.Error: expected a connection URI of the form 'engine://username:password@host:port/database?options'; got './sandbox/db_demo.sqlite'
     While validating setting:
         db
     While initializing RexDB application:
@@ -37,7 +37,7 @@ Ill-formed and invalid connections URI are rejected immediately::
     >>> Rex('rex.db_demo', db='sqlite:./sandbox/missing.sqlite')
     Traceback (most recent call last):
       ...
-    Error: failed to initialize 'htsql': failed to establish database connection: file does not exist: ./sandbox/missing.sqlite
+    rex.core.Error: failed to initialize 'htsql': failed to establish database connection: file does not exist: ./sandbox/missing.sqlite
     While initializing RexDB application:
         rex.db_demo
     With parameters:
@@ -165,7 +165,7 @@ Invalid indentation is reported::
     >>> db.produce(input)               # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Got unexpected indentation:
+    htsql.core.error.Error: Got unexpected indentation:
         <input>, line 1
 
 When an error occurs, the file name and the line of the query are reported::
@@ -174,7 +174,7 @@ When an error occurs, the file name and the line of the query are reported::
     >>> db.produce(input)               # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Found unknown attribute:
+    htsql.core.error.Error: Found unknown attribute:
         class
     While translating:
         /class
@@ -194,8 +194,8 @@ The result can be rendered in different formats::
     [('Content-Type', 'text/csv; charset=UTF-8'),
      ('Content-Disposition', 'attachment; filename="school.csv"')]
     >>> list(db.emit(format, product))      # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
-    ['code,name,campus\r\n',
-     'art,School of Art & Design,old\r\n',
+    [b'code,name,campus\r\n',
+     b'art,School of Art & Design,old\r\n',
      ...]
 
 If necessary, you can get a raw SQL connection to the database and execute SQL
@@ -220,13 +220,13 @@ the ``rex.db`` package permissions::
     ...                 access={'rex.db': 'authenticated'})
 
     >>> anon_req = Request.blank('/db/department')
-    >>> print(anon_req.get_response(auth_demo))  # doctest: +ELLIPSIS
+    >>> print(anon_req.get_response(auth_demo))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     401 Unauthorized
     ...
 
     >>> auth_req = Request.blank('/db/department')
     >>> auth_req.remote_user = 'Alice'
-    >>> print(auth_req.get_response(auth_demo))  # doctest: +ELLIPSIS
+    >>> print(auth_req.get_response(auth_demo))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/plain; charset=UTF-8
     ...
@@ -242,7 +242,7 @@ the ``rex.db`` package permissions::
 It is possible to tunnel HTSQL queries in a POST body::
 
     >>> req = Request.blank('/db/', POST="/department")
-    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/plain; charset=UTF-8
     ...
@@ -258,7 +258,7 @@ It is possible to tunnel HTSQL queries in a POST body::
 When the query is in a POST body, special characters must be properly escaped::
 
     >>> req = Request.blank('/db/', POST="/department%7Bcode,name%7D?school.code=%27ns%27")
-    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/plain; charset=UTF-8
     ...
@@ -276,14 +276,14 @@ the service, set the permission to ``nobody``::
 
     >>> noservice = Rex('rex.db_demo', db='sqlite:./sandbox/db_demo.sqlite',
     ...                 access={'rex.db': 'nobody'})
-    >>> print(auth_req.get_response(noservice))  # doctest: +ELLIPSIS
+    >>> print(auth_req.get_response(noservice))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     401 Unauthorized
     ...
 
 The HTSQL service also provides access to the gateway databases::
 
     >>> req = Request.blank('/db/@gateway/instructor')
-    >>> print(req.get_response(gateway))         # doctest: +ELLIPSIS
+    >>> print(req.get_response(gateway))         # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
      | instructor                                                                  |
@@ -298,7 +298,7 @@ The HTSQL service also provides access to the gateway databases::
 A gateway URL without trailing ``/`` causes redirection::
 
     >>> req = Request.blank('/db/@gateway')
-    >>> print(req.get_response(gateway))         # doctest: +ELLIPSIS
+    >>> print(req.get_response(gateway))         # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     301 Moved Permanently
     Location: http://localhost/db/@gateway/
     ...
@@ -306,7 +306,7 @@ A gateway URL without trailing ``/`` causes redirection::
 Unknown gateways are rejected::
 
     >>> req = Request.blank('/db/@unknown/')
-    >>> print(req.get_response(gateway))         # doctest: +ELLIPSIS
+    >>> print(req.get_response(gateway))         # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     404 Not Found
     ...
 
@@ -317,7 +317,7 @@ Unknown gateways are rejected::
 You can keep "prepared" HTSQL queries in ``*.htsql`` files::
 
     >>> req = Request.blank('/departments_by_avg_credits.htsql?credits=3.5')
-    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/plain; charset=UTF-8
     ...
@@ -333,7 +333,7 @@ You can keep "prepared" HTSQL queries in ``*.htsql`` files::
 If a parameter is not supplied, the default value is used::
 
     >>> req = Request.blank('/departments_by_avg_credits.htsql')
-    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
      | department                                             |
@@ -349,7 +349,7 @@ If a parameter is not supplied, the default value is used::
 Unexpected parameters are rejected::
 
     >>> req = Request.blank('/departments_by_avg_credits.htsql?credit=1')
-    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     Received unexpected parameter:
@@ -358,7 +358,7 @@ Unexpected parameters are rejected::
 HTSQL errors are reported back::
 
     >>> req = Request.blank('/departments_by_avg_credits.htsql?credits=2012-12-31')
-    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     invalid decimal literal: 2012-12-31
@@ -387,7 +387,7 @@ Use method ``format()`` to execute the query and render the result using HTSQL
 formatter::
 
     >>> with demo:
-    ...     print(query.format("application/json", school='ns'))     # doctest: +ELLIPSIS
+    ...     print(query.format("application/json", school='ns').decode('utf-8'))    # doctest: +ELLIPSIS
     {
       "department": [
         {
@@ -410,7 +410,7 @@ formatter::
     >>> req = Request.blank('/?school=ns')
     >>> req.accept = 'x-htsql/raw'
     >>> with demo:
-    ...     print(query(req))                        # doctest: +ELLIPSIS
+    ...     print(query(req))                        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: application/javascript
     ...
@@ -467,7 +467,7 @@ We can refer to gateway by its name::
 
     >>> req = Request.blank('/', accept='application/json')
     >>> with gateway:
-    ...     print(Query('count(instructor)', db='gateway')(req)) # doctest: +ELLIPSIS
+    ...     print(Query('count(instructor)', db='gateway')(req)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: application/javascript
     Content-Disposition: inline; filename="count(instructor).js"
@@ -480,7 +480,7 @@ We can refer to gateway by its name::
     <BLANKLINE>
 
     >>> with gateway:
-    ...     print(Query('count(instructor)', db='gateway').format('json'))
+    ...     print(Query('count(instructor)', db='gateway').format('json').decode('utf-8'))
     {
       "0": 123
     }
@@ -494,7 +494,7 @@ Or pass a HTSQL instance itself::
 
     >>> req = Request.blank('/', accept='application/json')
     >>> with gateway:
-    ...     print(Query('count(instructor)', db=get_db('gateway'))(req)) # doctest: +ELLIPSIS
+    ...     print(Query('count(instructor)', db=get_db('gateway'))(req)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: application/javascript
     Content-Disposition: inline; filename="count(instructor).js"
@@ -507,7 +507,7 @@ Or pass a HTSQL instance itself::
     <BLANKLINE>
 
     >>> with gateway:
-    ...     print(Query('count(instructor)', db=get_db('gateway')).format('json'))
+    ...     print(Query('count(instructor)', db=get_db('gateway')).format('json').decode('utf-8'))
     {
       "0": 123
     }

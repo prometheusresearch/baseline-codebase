@@ -42,7 +42,7 @@ def jinja_global_htsql(path_or_query, content_type=None,
         product = query.produce(environment, **arguments)
         return product.data
     else:
-        return query.format(content_type, environment, **arguments)
+        return query.format(content_type, environment, **arguments).decode('utf-8', 'replace')
 
 
 class HandleHTSQLLocation(HandleLocation):
@@ -79,7 +79,7 @@ class HandleHTSQLLocation(HandleLocation):
         # Unpack HTSQL queries tunneled in a POST body.
         if (req.method == 'POST' and
                 req.path_info == '/' and req.query_string == ''):
-            path_info = req.body
+            path_info = req.body.decode('utf-8', 'replace')
             query_string = ''
             if '?' in path_info:
                 path_info, query_string = path_info.split('?', 1)
@@ -108,7 +108,7 @@ class HandleHTSQLFile(HandleFile):
         return query(req)
 
 
-class Query(object):
+class Query:
     """
     Wraps ``.htsql`` files and HTSQL queries.
 
@@ -219,7 +219,7 @@ class Query(object):
         # Execute the query and render the output.
         with self.get_db():
             product = produce(self.query, parameters)
-            return "".join(emit(content_type, product))
+            return b"".join(emit(content_type, product))
 
     def _merge(self, environment, **arguments):
         # Validates the input parameters, merge them with default parameters.

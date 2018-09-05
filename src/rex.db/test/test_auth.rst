@@ -32,14 +32,14 @@ Now configure the application so that it knows some users, but not the others::
 Let us verify that authentication works as expected::
 
     >>> req = Request.blank('/protected', remote_user="Alice")
-    >>> print(req.get_response(nonobody))        # doctest: +ELLIPSIS
+    >>> print(req.get_response(nonobody))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     Hello, Alice!
 
 
     >>> req.remote_user = "Nobody"
-    >>> print(req.get_response(nonobody))        # doctest: +ELLIPSIS
+    >>> print(req.get_response(nonobody))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     401 Unauthorized
     ...
 
@@ -52,13 +52,13 @@ guest accounts::
     ...     auto_user_query="'Guest'")
 
     >>> req = Request.blank('/protected', remote_user="Alice")
-    >>> print(req.get_response(guest))           # doctest: +ELLIPSIS
+    >>> print(req.get_response(guest))           # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     Hello, Alice!
 
     >>> req.remote_user = "Nobody"
-    >>> print(req.get_response(guest))           # doctest: +ELLIPSIS
+    >>> print(req.get_response(guest))           # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     Hello, Guest!
@@ -87,13 +87,13 @@ Now let us configure ``access_queries``::
 We can verify that permission checking works::
 
     >>> req = Request.blank('/special', remote_user="Alice")
-    >>> print(req.get_response(special))         # doctest: +ELLIPSIS
+    >>> print(req.get_response(special))         # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     Hello, Alice!
 
     >>> req.remote_user = "Bob"
-    >>> print(req.get_response(special))         # doctest: +ELLIPSIS
+    >>> print(req.get_response(special))         # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     401 Unauthorized
     ...
 

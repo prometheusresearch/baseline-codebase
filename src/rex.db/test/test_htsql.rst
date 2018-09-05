@@ -169,7 +169,7 @@ Masks are also applied to regular links::
 Invalid masks are detected::
 
     >>> req = Request.blank('/db/school', remote_user='Bad Syntax')
-    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     Expected a mask expression:
@@ -177,7 +177,7 @@ Invalid masks are detected::
     ...
 
     >>> req = Request.blank('/db/school', remote_user='Bad Table')
-    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))            # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
     ...
     Got unknown table:

@@ -234,7 +234,7 @@ def get_locale_identifier(locale=None, sep='-'):
     identifier = locale.language
     if locale.territory:
         identifier = '%s%s%s' % (identifier, sep, locale.territory)
-    return identifier.encode('utf-8')
+    return identifier
 
 
 def get_timezone():

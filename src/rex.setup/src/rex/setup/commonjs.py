@@ -87,7 +87,7 @@ def find_executable(executables, title=None):
     # if Python is installed in virtualenv we add its bin/ directory to checked
     # paths
     for executable in executables:
-        if hasattr(sys, 'real_prefix'):
+        if sys.prefix != sys.base_prefix:
             paths.insert(0, os.path.join(sys.prefix, 'bin'))
         for path in paths:
             filename = os.path.join(path, executable)
@@ -95,7 +95,7 @@ def find_executable(executables, title=None):
                 # Skip `node` and `npm` shims created by `setup_commonjs()`.
                 with open(filename, 'rb') as stream:
                     stream.readline()
-                    if 'rex.setup' in stream.readline():
+                    if b'rex.setup' in stream.readline():
                         continue
                 return filename
     raise distutils.errors.DistutilsSetupError(
@@ -106,7 +106,7 @@ def find_executable(executables, title=None):
 def get_commonjs_environment():
     # Returns environment variables in which we execute `node` and `npm`.
     env = {}
-    if hasattr(sys, 'real_prefix'):
+    if sys.prefix != sys.base_prefix:
         # If Python is installed in a virtualenv, make sure NodeJS loads and
         # installs modules within the virtualenv tree.
         env['NODE_PATH'] = os.path.join(sys.prefix, 'lib', 'node_modules')
@@ -181,6 +181,8 @@ def exe(cmd, args,
     if daemon:
         return proc
     out, err = proc.communicate()
+    out = out.decode('utf-8', 'replace')
+    err = err.decode('utf-8', 'replace')
     if proc.wait() != 0:
         if out:
             distutils.log.info(out)

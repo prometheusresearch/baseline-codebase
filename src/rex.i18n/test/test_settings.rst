@@ -19,21 +19,21 @@ be set to any valid POSIX Locale identifier::
     >>> app = Rex('__main__', 'rex.i18n')
     >>> with app:
     ...     get_settings().i18n_default_locale
-    Locale(u'en')
+    Locale('en')
 
     >>> app = Rex('__main__', 'rex.i18n', i18n_default_locale='fr_CA')
     >>> with app:
     ...     get_settings().i18n_default_locale
-    Locale(u'fr', territory=u'CA')
+    Locale('fr', territory='CA')
     >>> app = Rex('__main__', 'rex.i18n', i18n_default_locale='fr-CA')
     >>> with app:
     ...     get_settings().i18n_default_locale
-    Locale(u'fr', territory=u'CA')
+    Locale('fr', territory='CA')
 
     >>> app = Rex('__main__', 'rex.i18n', i18n_default_locale='foobar')
     Traceback (most recent call last):
       ...
-    Error: expected a POSIX or RFC5646 locale identifier, got 'foobar'
+    rex.core.Error: expected a POSIX or RFC5646 locale identifier, got 'foobar'
     While validating setting:
         i18n_default_locale
     While initializing RexDB application:
@@ -62,7 +62,7 @@ can be set to any valid IANA timezone identifier::
     >>> app = Rex('__main__', 'rex.i18n', i18n_default_timezone='foobar')
     Traceback (most recent call last):
       ...
-    Error: expected an IANA TZ identifier, got 'foobar'
+    rex.core.Error: expected an IANA TZ identifier, got 'foobar'
     While validating setting:
         i18n_default_timezone
     While initializing RexDB application:
@@ -82,26 +82,26 @@ valid POSIX Locale identifiers::
     >>> app = Rex('__main__', 'rex.i18n')
     >>> with app:
     ...     get_settings().i18n_supported_locales
-    [Locale(u'en')]
+    [Locale('en')]
 
     >>> app = Rex('__main__', 'rex.i18n', i18n_supported_locales=['en', 'fr_CA'])
     >>> with app:
     ...     get_settings().i18n_supported_locales
-    [Locale(u'en'), Locale(u'fr', territory=u'CA')]
+    [Locale('en'), Locale('fr', territory='CA')]
     >>> app = Rex('__main__', 'rex.i18n', i18n_supported_locales=['en', 'fr-CA'])
     >>> with app:
     ...     get_settings().i18n_supported_locales
-    [Locale(u'en'), Locale(u'fr', territory=u'CA')]
+    [Locale('en'), Locale('fr', territory='CA')]
 
     >>> app = Rex('__main__', 'rex.i18n', i18n_supported_locales=['fr_CA', 'ar'])
     >>> with app:
     ...     get_settings().i18n_supported_locales
-    [Locale(u'fr', territory=u'CA'), Locale(u'ar')]
+    [Locale('fr', territory='CA'), Locale('ar')]
 
     >>> app = Rex('__main__', 'rex.i18n', i18n_supported_locales=['foobar'])
     Traceback (most recent call last):
       ...
-    Error: expected a POSIX or RFC5646 locale identifier, got 'foobar'
+    rex.core.Error: expected a POSIX or RFC5646 locale identifier, got 'foobar'
     While validating sequence item
         #1
     While validating setting:

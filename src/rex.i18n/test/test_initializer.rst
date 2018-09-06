@@ -60,9 +60,9 @@ translation of locale names, as well as pseudo-dictionary-like access::
         ...
     KeyError: 'foo'
     >>> list(supported)
-    [('en', u'English'), ('fr', u'French (fran\xe7ais)'), ('en-GB', u'English (United Kingdom)')]
+    [('en', 'English'), ('fr', 'French (fran\xe7ais)'), ('en-GB', 'English (United Kingdom)')]
     >>> supported
-    (('en', u'English'), ('fr', u'French (fran\xe7ais)'), ('en-GB', u'English (United Kingdom)'))
+    (('en', 'English'), ('fr', 'French (fran\xe7ais)'), ('en-GB', 'English (United Kingdom)'))
 
 
 The initializer will inject a series of filters into the Jinja environment::

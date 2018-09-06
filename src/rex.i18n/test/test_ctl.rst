@@ -75,7 +75,7 @@ It will fail if there's a Jinja template with broken syntax::
     extracting messages from test/broken_sandbox/static/template/broken.html (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
     Traceback (most recent call last):
         ...
-    TemplateSyntaxError: unexpected '}'
+    jinja2.exceptions.TemplateSyntaxError: unexpected '}'
 
 
 i18n-init

@@ -24,7 +24,7 @@ Included in this package are the following::
     >>> LocaleDetector.all()
     [rex.i18n.extensions.SessionLocaleDetector, rex.i18n.extensions.AcceptLanguageLocaleDetector, rex.i18n.extensions.DefaultLocaleDetector]
     >>> LocaleDetector.mapped()
-    {'default': rex.i18n.extensions.DefaultLocaleDetector, 'session': rex.i18n.extensions.SessionLocaleDetector, 'accept-language': rex.i18n.extensions.AcceptLanguageLocaleDetector}
+    {'session': rex.i18n.extensions.SessionLocaleDetector, 'accept-language': rex.i18n.extensions.AcceptLanguageLocaleDetector, 'default': rex.i18n.extensions.DefaultLocaleDetector}
 
 
 SessionLocaleDetector
@@ -36,7 +36,7 @@ session, if one exists::
     >>> req = Request.blank('/')
     >>> req.environ['rex.session'] = {'i18n_locale': 'es'}
     >>> SessionLocaleDetector.detect_locale(req)
-    Locale(u'es')
+    Locale('es')
 
     >>> req.environ['rex.session'] = {'i18n_locale': 'fake'}
     >>> SessionLocaleDetector.detect_locale(req) is None
@@ -59,11 +59,11 @@ Accept-Language header sent by the browser::
 
     >>> req.accept_language = 'fr,en;q=0.5,ar'
     >>> AcceptLanguageLocaleDetector.detect_locale(req)
-    Locale(u'fr')
+    Locale('fr')
 
     >>> req.accept_language = 'en-GB,en;q=0.5'
     >>> AcceptLanguageLocaleDetector.detect_locale(req)
-    Locale(u'en', territory=u'GB')
+    Locale('en', territory='GB')
 
 
 DefaultLocaleDetector
@@ -74,7 +74,7 @@ application's settings::
 
     >>> req = Request.blank('/')
     >>> DefaultLocaleDetector.detect_locale(req)
-    Locale(u'en')
+    Locale('en')
 
 
 TimezoneDetector
@@ -87,7 +87,7 @@ Included in this package are the following::
     >>> TimezoneDetector.all()
     [rex.i18n.extensions.SessionTimezoneDetector, rex.i18n.extensions.DefaultTimezoneDetector]
     >>> TimezoneDetector.mapped()
-    {'default': rex.i18n.extensions.DefaultTimezoneDetector, 'session': rex.i18n.extensions.SessionTimezoneDetector}
+    {'session': rex.i18n.extensions.SessionTimezoneDetector, 'default': rex.i18n.extensions.DefaultTimezoneDetector}
 
 
 SessionTimezoneDetector

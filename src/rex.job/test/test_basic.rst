@@ -84,13 +84,13 @@ Process the tasks::
 
     >>> JobExecutorWorker().process({'code': 2})
     INFO:JobExecutorWorker:Processing Job #2
-    DEBUG:JobExecutorWorker:Executing job #2 for owner "test" with payload: {u'foo': 123}
+    DEBUG:JobExecutorWorker:Executing job #2 for owner "test" with payload: {'foo': 123}
     INFO:SlowExecutor:SlowExecutor executed!
     INFO:JobExecutorWorker:Job #2 complete
     >>> show_job(2)
     Job #2: status=completed, type=demo_slow, dates=Submitted,Started,Completed
     >>> show_facet(2, 'slow')
-    slow(job=ID(2L), my_value=123L)
+    slow(job=ID(2), my_value=123)
 
     >>> JobExecutorWorker().process({'code': 3})  # doctest: +ELLIPSIS
     INFO:JobExecutorWorker:Processing Job #3
@@ -98,7 +98,7 @@ Process the tasks::
     ERROR:JobExecutorWorker:Job #3 failed
     Traceback (most recent call last):
     ...
-    Error: I crashed :(
+    rex.core.Error: I crashed :(
     INFO:JobExecutorWorker:Job #3 complete
     >>> show_job(3)
     Job #3: status=failed, detail="I crashed :(", type=demo_fragile, dates=Submitted,Started,Completed

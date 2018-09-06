@@ -22,10 +22,10 @@ The base class has methods to return lookup-dicts for the available
 serializers::
 
     >>> Serializer.mapped()
-    {'application/x-yaml': rex.restful.serializer.YamlSerializer, 'application/json': rex.restful.serializer.JsonSerializer}
+    {'application/json': rex.restful.serializer.JsonSerializer, 'application/x-yaml': rex.restful.serializer.YamlSerializer}
 
     >>> Serializer.mapped_format()
-    {'yaml': rex.restful.serializer.YamlSerializer, 'json': rex.restful.serializer.JsonSerializer}
+    {'json': rex.restful.serializer.JsonSerializer, 'yaml': rex.restful.serializer.YamlSerializer}
 
 
 The base class has methods to retrieve serializers for specified formats or
@@ -58,22 +58,22 @@ This serializer will encode structures into their JSON equivalents::
     '{"foo": ["a", "c"], "bar": "b"}'
 
     >>> serializer.serialize({'foo': ['a', 'c'], 'bar': 'b', 'baz': {'happy': 'a'}})
-    '{"baz": {"happy": "a"}, "foo": ["a", "c"], "bar": "b"}'
+    '{"foo": ["a", "c"], "bar": "b", "baz": {"happy": "a"}}'
 
     >>> serializer.serialize({'foo': ['a', 'c'], 'bar': 'b', 'baz': {'happy': 'a', 'sad': 'b'}})
-    '{"baz": {"sad": "b", "happy": "a"}, "foo": ["a", "c"], "bar": "b"}'
+    '{"foo": ["a", "c"], "bar": "b", "baz": {"happy": "a", "sad": "b"}}'
 
     >>> serializer.serialize({'foo': ['a', 'c'], 'bar': 'b', 'baz': {'happy': ['a', 'c'], 'sad': 'b'}})
-    '{"baz": {"sad": "b", "happy": ["a", "c"]}, "foo": ["a", "c"], "bar": "b"}'
+    '{"foo": ["a", "c"], "bar": "b", "baz": {"happy": ["a", "c"], "sad": "b"}}'
 
     >>> serializer.serialize({'foo': {'bar': 'a', 'baz': {'happy': 'c'}}})
-    '{"foo": {"baz": {"happy": "c"}, "bar": "a"}}'
+    '{"foo": {"bar": "a", "baz": {"happy": "c"}}}'
 
     >>> serializer.serialize({'foo': {'bar': 'a', 'baz': {'happy': 'c', 'sad': 'd'}}})
-    '{"foo": {"baz": {"sad": "d", "happy": "c"}, "bar": "a"}}'
+    '{"foo": {"bar": "a", "baz": {"happy": "c", "sad": "d"}}}'
 
     >>> serializer.serialize({'foo': {'bar': 'a', 'baz': {'happy': ['c', 'e'], 'sad': 'd'}}})
-    '{"foo": {"baz": {"sad": "d", "happy": ["c", "e"]}, "bar": "a"}}'
+    '{"foo": {"bar": "a", "baz": {"happy": ["c", "e"], "sad": "d"}}}'
 
     >>> serializer.serialize({'a_date': datetime.date(2014, 5, 22)})
     '{"a_date": "2014-05-22"}'
@@ -87,56 +87,56 @@ This serializer will encode structures into their JSON equivalents::
     >>> serializer.serialize({'a_decimal': decimal.Decimal('1.23')})
     '{"a_decimal": 1.23}'
 
-    >>> serializer.serialize({'a_set': set([1, 2, decimal.Decimal('1.23'), "foo"])})
-    '{"a_set": [1, 2, "foo", 1.23]}'
+    >>> serializer.serialize({'a_set': set(["foo"])})
+    '{"a_set": ["foo"]}'
 
     >>> serializer.serialize({'an_obj': object()})  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    TypeError: <object object at 0x...> is not JSON serializable
+    TypeError: Object of type 'object' is not JSON serializable
 
 
 Given JSON objects or arrays, this serializer will decode them into their
 Python equivalents (dicts & lists)::
 
     >>> serializer.deserialize('{"foo": "a"}')
-    {u'foo': u'a'}
+    {'foo': 'a'}
 
     >>> serializer.deserialize('[{"foo": "a"}, {"foo": "b"}]')
-    [{u'foo': u'a'}, {u'foo': u'b'}]
+    [{'foo': 'a'}, {'foo': 'b'}]
 
     >>> serializer.deserialize('{"foo": "a", "bar": "b"}')
-    {u'foo': u'a', u'bar': u'b'}
+    {'foo': 'a', 'bar': 'b'}
 
     >>> serializer.deserialize('{"foo": ["a", "c"], "bar": "b"}')
-    {u'foo': [u'a', u'c'], u'bar': u'b'}
+    {'foo': ['a', 'c'], 'bar': 'b'}
 
     >>> serializer.deserialize('{"baz": {"happy": "a"}, "foo": ["a", "c"], "bar": "b"}')
-    {u'baz': {u'happy': u'a'}, u'foo': [u'a', u'c'], u'bar': u'b'}
+    {'baz': {'happy': 'a'}, 'foo': ['a', 'c'], 'bar': 'b'}
 
     >>> serializer.deserialize('{"baz": {"sad": "b", "happy": "a"}, "foo": ["a", "c"], "bar": "b"}')
-    {u'baz': {u'happy': u'a', u'sad': u'b'}, u'foo': [u'a', u'c'], u'bar': u'b'}
+    {'baz': {'sad': 'b', 'happy': 'a'}, 'foo': ['a', 'c'], 'bar': 'b'}
 
     >>> serializer.deserialize('{"baz": {"sad": "b", "happy": ["a", "c"]}, "foo": ["a", "c"], "bar": "b"}')
-    {u'baz': {u'happy': [u'a', u'c'], u'sad': u'b'}, u'foo': [u'a', u'c'], u'bar': u'b'}
+    {'baz': {'sad': 'b', 'happy': ['a', 'c']}, 'foo': ['a', 'c'], 'bar': 'b'}
 
     >>> serializer.deserialize('{"foo": {"baz": {"happy": "c"}, "bar": "a"}}')
-    {u'foo': {u'bar': u'a', u'baz': {u'happy': u'c'}}}
+    {'foo': {'baz': {'happy': 'c'}, 'bar': 'a'}}
 
     >>> serializer.deserialize('{"foo": {"baz": {"sad": "d", "happy": "c"}, "bar": "a"}}')
-    {u'foo': {u'bar': u'a', u'baz': {u'sad': u'd', u'happy': u'c'}}}
+    {'foo': {'baz': {'sad': 'd', 'happy': 'c'}, 'bar': 'a'}}
 
     >>> serializer.deserialize('{"foo": {"baz": {"sad": "d", "happy": ["c", "e"]}, "bar": "a"}}')
-    {u'foo': {u'bar': u'a', u'baz': {u'sad': u'd', u'happy': [u'c', u'e']}}}
+    {'foo': {'baz': {'sad': 'd', 'happy': ['c', 'e']}, 'bar': 'a'}}
 
     >>> serializer.deserialize('{"a_date": "2014-05-22"}')
-    {u'a_date': datetime.date(2014, 5, 22)}
+    {'a_date': datetime.date(2014, 5, 22)}
 
     >>> serializer.deserialize('{"a_time": "12:34:56"}')
-    {u'a_time': datetime.time(12, 34, 56)}
+    {'a_time': datetime.time(12, 34, 56)}
 
     >>> serializer.deserialize('{"a_date": "2014-05-22T12:34:56.000Z"}')
-    {u'a_date': datetime.datetime(2014, 5, 22, 12, 34, 56)}
+    {'a_date': datetime.datetime(2014, 5, 22, 12, 34, 56)}
 
 
 If initialized with ``deserialize_datetimes=False``, then this deserializer
@@ -145,13 +145,13 @@ will return date/time fields as the original strings they were received as::
     >>> serializer = JsonSerializer(deserialize_datetimes=False)
 
     >>> serializer.deserialize('{"a_date": "2014-05-22"}')
-    {u'a_date': u'2014-05-22'}
+    {'a_date': '2014-05-22'}
 
     >>> serializer.deserialize('{"a_time": "12:34:56"}')
-    {u'a_time': u'12:34:56'}
+    {'a_time': '12:34:56'}
 
     >>> serializer.deserialize('{"a_date": "2014-05-22T12:34:56.000Z"}')
-    {u'a_date': u'2014-05-22T12:34:56.000Z'}
+    {'a_date': '2014-05-22T12:34:56.000Z'}
 
 
 YamlSerializer
@@ -203,13 +203,13 @@ This serializer will encode structures into their YAML equivalents::
     >>> serializer.serialize({'a_decimal': decimal.Decimal('1.23')})
     '{a_decimal: 1.23}\n'
 
-    >>> serializer.serialize({'a_set': set([1, 2, decimal.Decimal('1.23'), "foo"])})
-    'a_set: [1, 2, foo, 1.23]\n'
+    >>> serializer.serialize({'a_set': set(["foo"])})
+    'a_set: [foo]\n'
 
     >>> serializer.serialize({'an_obj': object()})  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    RepresenterError: cannot represent an object: <object object at 0x...>
+    yaml.representer.RepresenterError: cannot represent an object: <object object at 0x...>
 
 
 Given YAML maps or arrays, this serializer will decode them into their
@@ -222,19 +222,19 @@ Python equivalents (dicts & lists)::
     [{'foo': 'a'}, {'foo': 'b'}]
 
     >>> serializer.deserialize('{bar: b, foo: a}\n')
-    {'foo': 'a', 'bar': 'b'}
+    {'bar': 'b', 'foo': 'a'}
 
     >>> serializer.deserialize('bar: b\nfoo: [a, c]\n')
-    {'foo': ['a', 'c'], 'bar': 'b'}
+    {'bar': 'b', 'foo': ['a', 'c']}
 
     >>> serializer.deserialize('bar: b\nbaz: {happy: a}\nfoo: [a, c]\n')
-    {'bar': 'b', 'foo': ['a', 'c'], 'baz': {'happy': 'a'}}
+    {'bar': 'b', 'baz': {'happy': 'a'}, 'foo': ['a', 'c']}
 
     >>> serializer.deserialize('bar: b\nbaz: {happy: a, sad: b}\nfoo: [a, c]\n')
-    {'bar': 'b', 'foo': ['a', 'c'], 'baz': {'happy': 'a', 'sad': 'b'}}
+    {'bar': 'b', 'baz': {'happy': 'a', 'sad': 'b'}, 'foo': ['a', 'c']}
 
     >>> serializer.deserialize('bar: b\nbaz:\n  happy: [a, c]\n  sad: b\nfoo: [a, c]\n')
-    {'bar': 'b', 'foo': ['a', 'c'], 'baz': {'happy': ['a', 'c'], 'sad': 'b'}}
+    {'bar': 'b', 'baz': {'happy': ['a', 'c'], 'sad': 'b'}, 'foo': ['a', 'c']}
 
     >>> serializer.deserialize('foo:\n  bar: a\n  baz: {happy: c}\n')
     {'foo': {'bar': 'a', 'baz': {'happy': 'c'}}}
@@ -261,13 +261,13 @@ will return date/time fields as the original strings they were received as::
     >>> serializer = YamlSerializer(deserialize_datetimes=False)
 
     >>> serializer.deserialize('{a_date: 2014-05-22}\n')
-    {'a_date': u'2014-05-22'}
+    {'a_date': '2014-05-22'}
 
     >>> serializer.deserialize("{a_time: '12:34:56'}\n")
     {'a_time': '12:34:56'}
 
     >>> serializer.deserialize("{a_date: !!timestamp '2014-05-22 12:34:56'}\n")
-    {'a_date': u'2014-05-22 12:34:56'}
+    {'a_date': '2014-05-22 12:34:56'}
 
 
 marshall_htsql_result
@@ -278,20 +278,20 @@ automatically serialized by the built-in rex.restful Serializers::
 
     >>> from pprint import pprint
     >>> pprint(marshall_htsql_result(get_db().produce('/parent')))
-    [{'code': 100L,
+    [{'code': 100,
       'col_bool': False,
       'col_float': 1.23,
       'col_json': None,
-      'col_text': u'some text'},
-     {'code': 200L,
+      'col_text': 'some text'},
+     {'code': 200,
       'col_bool': True,
       'col_float': 4.2,
-      'col_json': {u'bar': u'happy', u'foo': 1},
-      'col_text': u'blah blah'}]
+      'col_json': {'bar': 'happy', 'foo': 1},
+      'col_text': 'blah blah'}]
 
     >>> pprint(marshall_htsql_result(get_db().produce('/parent[100]{code, col_text, /child}')[0]))
-    {'child': [{'code': 1L, 'col1': u'foo', 'col2': 42L, 'parent': u'100'},
-               {'code': 2L, 'col1': u'bar', 'col2': None, 'parent': u'100'}],
-     'code': 100L,
-     'col_text': u'some text'}
+    {'child': [{'code': 1, 'col1': 'foo', 'col2': 42, 'parent': '100'},
+               {'code': 2, 'col1': 'bar', 'col2': None, 'parent': '100'}],
+     'code': 100,
+     'col_text': 'some text'}
 

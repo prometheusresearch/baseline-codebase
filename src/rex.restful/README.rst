@@ -72,12 +72,12 @@ is automatically invoked on the class::
 
     >>> with rex:
     ...     req = Request.blank('/foo/42', method='GET')
-    ...     print((req.get_response(rex)))
+    ...     print(req.get_response(rex)) # doctest: +NORMALIZE_WHITESPACE
     200 OK
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: 35
     <BLANKLINE>
-    {"action": "retrieve", "foo": "42"}
+    {"foo": "42", "action": "retrieve"}
 
 Similarly, when the ``/foo/{foo_id}`` path receives a PUT request, the
 ``update`` method is automatically invoked on the class, and the data sent by
@@ -86,25 +86,25 @@ available on the ``payload`` property of the request::
 
     >>> with rex:
     ...     req = Request.blank('/foo/42', method='PUT')
-    ...     req.body = '{"happy": true, "bar": "baz"}'
+    ...     req.body = b'{"happy": true, "bar": "baz"}'
     ...     req.headers['Content-Type'] = 'application/json'
-    ...     print((req.get_response(rex)))
+    ...     print(req.get_response(rex)) # doctest: +NORMALIZE_WHITESPACE
     202 Accepted
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: 75
     <BLANKLINE>
-    {"action": "update", "foo": "42", "payload": {"bar": "baz", "happy": true}}
+    {"foo": "42", "action": "update", "payload": {"happy": true, "bar": "baz"}}
 
 When sent an OPTIONS request, the path will respond with all the methods it
 suppports::
 
     >>> with rex:
     ...     req = Request.blank('/foo/42', method='OPTIONS')
-    ...     print((req.get_response(rex)))
+    ...     print(req.get_response(rex)) # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 0
-    Allow: OPTIONS, PUT, DELETE, GET
+    Allow: OPTIONS, GET, PUT, DELETE
 
 
 SimpleResource
@@ -153,9 +153,9 @@ automatically invoked on the class::
 
     >>> with rex:
     ...     req = Request.blank('/baz', method='GET')
-    ...     print((req.get_response(rex)))
+    ...     print(req.get_response(rex)) # doctest: +NORMALIZE_WHITESPACE
     200 OK
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: 24
     <BLANKLINE>
     [{"baz": 1}, {"baz": 2}]
@@ -165,21 +165,21 @@ automatically invoked on the class::
 
     >>> with rex:
     ...     req = Request.blank('/baz/123', method='GET')
-    ...     print((req.get_response(rex)))
+    ...     print(req.get_response(rex)) # doctest: +NORMALIZE_WHITESPACE
     200 OK
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: 36
     <BLANKLINE>
-    {"action": "retrieve", "baz": "123"}
+    {"baz": "123", "action": "retrieve"}
 
 The ``/baz/123`` path can also handle a DELETE request, which invokes the
 ``delete`` method::
 
     >>> with rex:
     ...     req = Request.blank('/baz/123', method='DELETE')
-    ...     print((req.get_response(rex)))
+    ...     print(req.get_response(rex)) # doctest: +NORMALIZE_WHITESPACE
     204 No Content
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: 0
 
 But, if you try that on the ``/baz`` path, you'll get an error because
@@ -187,7 +187,7 @@ deletion is not a container-level action::
 
     >>> with rex:
     ...     req = Request.blank('/baz', method='DELETE')
-    ...     print((req.get_response(rex)))  # doctest: +ELLIPSIS
+    ...     print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     405 Method Not Allowed
     ...
 
@@ -196,7 +196,7 @@ suppport::
 
     >>> with rex:
     ...     req = Request.blank('/baz', method='OPTIONS')
-    ...     print((req.get_response(rex)))
+    ...     print(req.get_response(rex)) # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 0
@@ -204,11 +204,11 @@ suppport::
 
     >>> with rex:
     ...     req = Request.blank('/baz/42', method='OPTIONS')
-    ...     print((req.get_response(rex)))
+    ...     print(req.get_response(rex)) # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 0
-    Allow: OPTIONS, DELETE, GET
+    Allow: OPTIONS, GET, DELETE
 
 
 Logging

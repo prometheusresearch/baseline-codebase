@@ -378,6 +378,7 @@ class RestfulLocation(Command):
 
         return Response(
             response_payload,
+            charset='utf-8',
             content_type=serializer.mime_type,
         )
 
@@ -394,7 +395,7 @@ class RestfulLocation(Command):
                 value,
             )
         if request.body:
-            self._request_logger.info(request.body)
+            self._request_logger.info(request.body.decode('utf-8', 'replace'))
 
     def _log_response(self, response, start_time=None):
         self._response_logger.info(response.status)
@@ -405,7 +406,7 @@ class RestfulLocation(Command):
                 value,
             )
         if response.body:
-            self._response_logger.info(response.body)
+            self._response_logger.info(response.body.decode('utf-8', 'replace'))
         if start_time:
             self._response_logger.info(
                 'Request processed in: %s',

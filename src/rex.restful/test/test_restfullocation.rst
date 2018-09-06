@@ -57,7 +57,7 @@ docstrings on the class and class methods::
 
     >>> from rex.restful_demo import DocumentedResource
     >>> DocumentedResource.document()  # doctest: +ELLIPSIS
-    DocEntry(u'rex.restful_demo:/documentation', 'This is the general documentation for the endpoint.\n\n**GET**\n\n    This is the documentation specific to the GET method.', index=u'rex.restful_demo:/documentation', package='rex.restful_demo', filename='...', line=83)
+    DocEntry('rex.restful_demo:/documentation', 'This is the general documentation for the endpoint.\n\n**GET**\n\n    This is the documentation specific to the GET method.', index='rex.restful_demo:/documentation', package='rex.restful_demo', filename='...', line=83)
 
     >>> rex.off()
 
@@ -74,10 +74,10 @@ When the Resource receives a GET request, the ``retrieve`` method is invoked::
 
 
     >>> req = Request.blank('/foo/42')
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     ### RETRIEVING FOO 42
     200 OK
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: ...
     <BLANKLINE>
     {"foo": "42"}
@@ -85,11 +85,11 @@ When the Resource receives a GET request, the ``retrieve`` method is invoked::
 When the Resource receives a PUT request, the ``update`` method is invoked::
 
     >>> req = Request.blank('/foo/42', method='PUT')
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     ### UPDATING FOO 42
     ###   PAYLOAD: {}
     202 Accepted
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: ...
     <BLANKLINE>
     {"foo": "42"}
@@ -98,13 +98,13 @@ To send a dataset to the ``update`` method, put the data in the body of the
 request and make sure the HTTP Content-Type header is set correctly::
 
     >>> req = Request.blank('/foo/42', method='PUT')
-    >>> req.body = '{"happy": true, "bar": "baz"}'
+    >>> req.body = b'{"happy": true, "bar": "baz"}'
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     ### UPDATING FOO 42
-    ###   PAYLOAD: {u'bar': u'baz', u'happy': True}
+    ###   PAYLOAD: {'happy': True, 'bar': 'baz'}
     202 Accepted
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: ...
     <BLANKLINE>
     {"foo": "42"}
@@ -112,11 +112,11 @@ request and make sure the HTTP Content-Type header is set correctly::
 When the Resource receives a POST request, the ``create`` method is invoked::
 
     >>> req = Request.blank('/foo/42', method='POST')
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     ### CREATING FOO 42
     ###   PAYLOAD: {}
     201 Created
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: ...
     <BLANKLINE>
     {"foo": "42"}
@@ -125,13 +125,13 @@ To send a dataset to the ``create`` method, put the data in the body of the
 request and make sure the HTTP Content-Type header is set correctly::
 
     >>> req = Request.blank('/foo/42', method='POST')
-    >>> req.body = '{"happy": true, "bar": "baz"}'
+    >>> req.body = b'{"happy": true, "bar": "baz"}'
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     ### CREATING FOO 42
-    ###   PAYLOAD: {u'bar': u'baz', u'happy': True}
+    ###   PAYLOAD: {'happy': True, 'bar': 'baz'}
     201 Created
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: ...
     <BLANKLINE>
     {"foo": "42"}
@@ -139,10 +139,10 @@ request and make sure the HTTP Content-Type header is set correctly::
 When the Resource receives a DELETE request, the ``delete`` method is invoked::
 
     >>> req = Request.blank('/foo/42', method='DELETE')
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     ### DELETING FOO 42
     204 No Content
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: 0
 
 
@@ -150,14 +150,14 @@ When the Resource receives an OPTIONS request, it will return a list of the
 HTTP verbs it accepts::
 
     >>> req = Request.blank('/foo/42', method='OPTIONS')
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 0
-    Allow: OPTIONS, PUT, POST, DELETE, GET
+    Allow: OPTIONS, POST, GET, PUT, DELETE
 
     >>> req = Request.blank('/bar/123', method='OPTIONS')
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 0
@@ -168,7 +168,7 @@ header, or by adding a ``format`` querystring parameter::
 
     >>> req = Request.blank('/foo/42')
     >>> req.accept = 'application/x-yaml'
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     ### RETRIEVING FOO 42
     200 OK
     Content-Type: application/x-yaml
@@ -178,7 +178,7 @@ header, or by adding a ``format`` querystring parameter::
     <BLANKLINE>
 
     >>> req = Request.blank('/foo/42?format=yaml')
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     ### RETRIEVING FOO 42
     200 OK
     Content-Type: application/x-yaml
@@ -188,10 +188,10 @@ header, or by adding a ``format`` querystring parameter::
     <BLANKLINE>
 
     >>> req = Request.blank('/foo/42?format=somethingfake')
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     ### RETRIEVING FOO 42
     200 OK
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: ...
     <BLANKLINE>
     {"foo": "42"}
@@ -201,10 +201,10 @@ generating their own Response object with the ``make_response()`` method and
 altering the status (or headers, etc)::
 
     >>> req = Request.blank('/status/123')
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     ### RETRIEVING BAR 123
     203 Non-Authoritative Information
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: 14
     X-Test-Header: hello!
     <BLANKLINE>
@@ -214,22 +214,22 @@ Sending an empty body will be interpreted as an empty dictionary::
 
     >>> req = Request.blank('/foo/42', method='POST')
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     ### CREATING FOO 42
     ###   PAYLOAD: {}
     201 Created
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: 13
     <BLANKLINE>
     {"foo": "42"}
 
     >>> req = Request.blank('/foo/42', method='POST')
     >>> req.headers['Content-Type'] = 'application/x-yaml'
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     ### CREATING FOO 42
     ###   PAYLOAD: {}
     201 Created
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: 13
     <BLANKLINE>
     {"foo": "42"}
@@ -237,30 +237,30 @@ Sending an empty body will be interpreted as an empty dictionary::
 Sending an invalidly-formatted body will result in an HTTP 400::
 
     >>> req = Request.blank('/foo/42', method='POST')
-    >>> req.body = '[garbage}'
+    >>> req.body = b'[garbage}'
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: ...
     <BLANKLINE>
-    {"error": "The incoming payload could not be deserialized (No JSON object could be decoded)"}
+    {"error": "The incoming payload could not be deserialized (Expecting value: line 1 column 2 (char 1))"}
 
     >>> req = Request.blank('/foo/42', method='POST')
-    >>> req.body = '[garbage}'
+    >>> req.body = b'[garbage}'
     >>> req.headers['Content-Type'] = 'application/x-yaml'
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: ...
     <BLANKLINE>
-    {"error": "The incoming payload could not be deserialized (while parsing a flow sequence\n  in \"<string>\", line 1, column 1:\n    [garbage}\n    ^\nexpected ',' or ']', but got '}'\n  in \"<string>\", line 1, column 9:\n    [garbage}\n            ^)"}
+    {"error": "The incoming payload could not be deserialized (while parsing a flow sequence\n  in \"<byte string>\", line 1, column 1:\n    [garbage}\n    ^\nexpected ',' or ']', but got '}'\n  in \"<byte string>\", line 1, column 9:\n    [garbage}\n            ^)"}
 
 Calling a method that is not implemented on the resource will result in a HTTP
 405::
 
     >>> req = Request.blank('/bar/123', method='DELETE')
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     405 Method Not Allowed
     ...
 
@@ -279,57 +279,57 @@ processed through the validators designated by the ``create_payload_validator``
 and ``update_payload_validator`` properties::
 
     >>> req = Request.blank('/validate-me', method='POST')
-    >>> req.body = '{"foo": "red", "bar": "blue", "baz": 1}'
+    >>> req.body = b'{"foo": "red", "bar": "blue", "baz": 1}'
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     ### CREATING VID
     ###   PAYLOAD: Record(foo='red', bar='blue', baz=1)
     201 Created
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: 14
     <BLANKLINE>
     {"vid": "new"}
 
     >>> req = Request.blank('/validate-me', method='POST')
-    >>> req.body = '{"foo": "red", "baz": 1}'
+    >>> req.body = b'{"foo": "red", "baz": 1}'
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     ### CREATING VID
     ###   PAYLOAD: Record(foo='red', bar=None, baz=1)
     201 Created
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: 14
     <BLANKLINE>
     {"vid": "new"}
 
     >>> req = Request.blank('/validate-me', method='POST')
-    >>> req.body = '{"baz": 1}'
+    >>> req.body = b'{"baz": 1}'
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: 87
     <BLANKLINE>
     {"error": "The incoming payload failed validation (Missing mandatory field:\n    foo)"}
 
     >>> req = Request.blank('/validate-me', method='POST')
-    >>> req.body = '{"foo": "red", "baz": "purple"}'
+    >>> req.body = b'{"foo": "red", "baz": "purple"}'
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
-    Content-Type: application/json; charset=UTF-8
-    Content-Length: 128
+    Content-Type: application/json
+    Content-Length: 127
     <BLANKLINE>
-    {"error": "The incoming payload failed validation (Expected an integer\nGot:\n    u'purple'\nWhile validating field:\n    baz)"}
+    {"error": "The incoming payload failed validation (Expected an integer\nGot:\n    'purple'\nWhile validating field:\n    baz)"}
 
     >>> req = Request.blank('/validate-me/123', method='PUT')
-    >>> req.body = '{"foo": "red", "bar": "blue", "baz": 1}'
+    >>> req.body = b'{"foo": "red", "bar": "blue", "baz": 1}'
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     ### UPDATING VID 123
     ###   PAYLOAD: Record(foo='red', bar='blue', baz=1, blah=123)
     202 Accepted
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: 14
     <BLANKLINE>
     {"vid": "123"}
@@ -348,9 +348,9 @@ HTTP Exceptions raised by the methods will be encoded in the same manner as a
 normal response::
 
     >>> req = Request.blank('/fail', method='PUT')
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     402 Payment Required
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: ...
     <BLANKLINE>
     {"error": "Show me the money"}
@@ -366,9 +366,9 @@ Any other exceptions will result in a hard failure::
 Sending an unexpected querystring parameter will result in an HTTP 400::
 
     >>> req = Request.blank('/foo/42?hello=goodbye', method='POST')
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     400 Bad Request
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: ...
     <BLANKLINE>
     {"error": "Received unexpected parameter:\n    hello"}
@@ -388,16 +388,16 @@ are configured to either ``INFO`` or ``DEBUG``, the framework will log out the
 request and response headers and body for easier debugging::
 
     >>> req = Request.blank('/foo/42?format=yaml', method='PUT')
-    >>> req.body = '{"happy": true, "bar": "baz"}'
+    >>> req.body = b'{"happy": true, "bar": "baz"}'
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     INFO:rex.restful.wire.request:PUT /foo/42?format=yaml
-    DEBUG:rex.restful.wire.request:Content-Type: application/json
     DEBUG:rex.restful.wire.request:Host: localhost:80
     DEBUG:rex.restful.wire.request:Content-Length: 29
+    DEBUG:rex.restful.wire.request:Content-Type: application/json
     INFO:rex.restful.wire.request:{"happy": true, "bar": "baz"}
     ### UPDATING FOO 42
-    ###   PAYLOAD: {u'bar': u'baz', u'happy': True}
+    ###   PAYLOAD: {'happy': True, 'bar': 'baz'}
     INFO:rex.restful.wire.response:202 Accepted
     DEBUG:rex.restful.wire.response:Content-Type: application/x-yaml
     DEBUG:rex.restful.wire.response:Content-Length: 12
@@ -428,49 +428,50 @@ CORS protocol. Here, a preflight request is processed::
     >>> req = Request.blank('/cors/42', method='OPTIONS')
     >>> req.headers['Origin'] = 'http://example.com'
     >>> req.headers['Access-Control-Request-Method'] = 'GET'
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     INFO:rex.restful.wire.request:OPTIONS /cors/42
     DEBUG:rex.restful.wire.request:Host: localhost:80
     DEBUG:rex.restful.wire.request:Origin: http://example.com
-    DEBUG:rex.restful.wire.request:Content-Length: 0
     DEBUG:rex.restful.wire.request:Access-Control-Request-Method: GET
+    DEBUG:rex.restful.wire.request:Content-Length: 0
     INFO:rex.restful.wire.response:200 OK
-    DEBUG:rex.restful.wire.response:Content-Type: application/json; charset=UTF-8
+    DEBUG:rex.restful.wire.response:Content-Type: application/json
     DEBUG:rex.restful.wire.response:Content-Length: 0
-    DEBUG:rex.restful.wire.response:Access-Control-Allow-Origin: *
-    DEBUG:rex.restful.wire.response:Access-Control-Allow-Methods: PUT,GET
     DEBUG:rex.restful.wire.response:Vary: Origin
+    DEBUG:rex.restful.wire.response:Access-Control-Allow-Origin: *
+    DEBUG:rex.restful.wire.response:Access-Control-Allow-Methods: GET,PUT
     INFO:rex.restful.wire.response:Request processed in: ...
     200 OK
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: 0
-    Access-Control-Allow-Origin: *
-    Access-Control-Allow-Methods: PUT,GET
     Vary: Origin
+    Access-Control-Allow-Origin: *
+    Access-Control-Allow-Methods: GET,PUT
 
 Here's a simple request with an accepted Origin::
 
     >>> req = Request.blank('/cors/42')
     >>> req.headers['Origin'] = 'http://example.com'
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     INFO:rex.restful.wire.request:GET /cors/42
-    DEBUG:rex.restful.wire.request:Content-Type: application/json
     DEBUG:rex.restful.wire.request:Host: localhost:80
     DEBUG:rex.restful.wire.request:Origin: http://example.com
+    DEBUG:rex.restful.wire.request:Content-Type: application/json
+    DEBUG:rex.restful.wire.request:Content-Length: 0
     ### RETRIEVING BAR 42
     INFO:rex.restful.wire.response:200 OK
-    DEBUG:rex.restful.wire.response:Content-Type: application/json; charset=UTF-8
+    DEBUG:rex.restful.wire.response:Content-Type: application/json
     DEBUG:rex.restful.wire.response:Content-Length: 13
-    DEBUG:rex.restful.wire.response:Access-Control-Allow-Origin: *
     DEBUG:rex.restful.wire.response:Vary: Origin
+    DEBUG:rex.restful.wire.response:Access-Control-Allow-Origin: *
     INFO:rex.restful.wire.response:{"bar": "42"}
     INFO:rex.restful.wire.response:Request processed in: ...
     200 OK
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: 13
-    Access-Control-Allow-Origin: *
     Vary: Origin
+    Access-Control-Allow-Origin: *
     <BLANKLINE>
     {"bar": "42"}
 
@@ -479,20 +480,21 @@ Here's a simple request with a rejected Origin::
     >>> req = Request.blank('/lockedcors/42')
     >>> req.headers['Origin'] = 'http://example.com'
     >>> req.headers['Content-Type'] = 'application/json'
-    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     INFO:rex.restful.wire.request:GET /lockedcors/42
-    DEBUG:rex.restful.wire.request:Content-Type: application/json
     DEBUG:rex.restful.wire.request:Host: localhost:80
     DEBUG:rex.restful.wire.request:Origin: http://example.com
+    DEBUG:rex.restful.wire.request:Content-Type: application/json
+    DEBUG:rex.restful.wire.request:Content-Length: 0
     ERROR:root:Disallowed origin: http://example.com
     INFO:rex.restful.wire.response:403 Forbidden
-    DEBUG:rex.restful.wire.response:Content-Type: application/json; charset=UTF-8
+    DEBUG:rex.restful.wire.response:Content-Type: application/json
     DEBUG:rex.restful.wire.response:Content-Length: 50
     DEBUG:rex.restful.wire.response:Vary: Origin
     INFO:rex.restful.wire.response:{"error": "Disallowed origin: http://example.com"}
     INFO:rex.restful.wire.response:Request processed in: ...
     403 Forbidden
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: 50
     Vary: Origin
     <BLANKLINE>

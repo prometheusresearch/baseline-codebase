@@ -32,22 +32,13 @@ def get_logger(name=None):
     :rtype: logging.Logger
     """
 
-    if isinstance(name, (type, types.FunctionType)):
-        # Classes (old- or new-style) or Functions
-        name = name.__name__
+    if isinstance(name, (type, types.FunctionType, types.MethodType)):
+        # Classes or Functions
+        name = name.__qualname__
     elif hasattr(name, '__class__') \
             and ('__dict__' in dir(name) or hasattr(name, '__slots__')):
         # Instances of new-style classes
-        name = name.__class__.__name__
-    elif isinstance(name, types.InstanceType):
-        # Instances of old-style classes
-        name = name.__class__.__name__
-    elif isinstance(name, types.MethodType):
-        # Class methods
-        name = '%s.%s' % (
-            name.__self__.__class__.__name__,
-            name.__name__,
-        )
+        name = name.__class__.__qualname__
     elif name is not None:
         name = str(name)
 

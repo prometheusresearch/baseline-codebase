@@ -9,27 +9,27 @@ and string-rendering methods::
     >>> from rex.instrument.interface import Instrument
     >>> instrument = Instrument('fake123', 'fake123', 'My Instrument Title')
     >>> instrument.get_display_name()
-    u'My Instrument Title'
+    'My Instrument Title'
     >>> str(instrument)
-    u'My Instrument Title'
+    'My Instrument Title'
     >>> str(instrument)
     'My Instrument Title'
     >>> repr(instrument)
-    "Instrument(u'fake123', u'My Instrument Title')"
+    "Instrument('fake123', 'My Instrument Title')"
 
     >>> instrument.as_dict()
-    {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}
+    {'uid': 'fake123', 'title': 'My Instrument Title', 'code': 'fake123', 'status': 'active'}
     >>> instrument.as_json()
-    u'{"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}'
+    '{"uid": "fake123", "title": "My Instrument Title", "code": "fake123", "status": "active"}'
 
 
 Instruments have a status property which is readable and writable::
 
     >>> instrument.status
-    u'active'
+    'active'
     >>> instrument.status = Instrument.STATUS_DISABLED
     >>> instrument.status
-    u'disabled'
+    'disabled'
     >>> instrument.status = 'something else'
     Traceback (most recent call last):
       ...

@@ -9,18 +9,18 @@ string-rendering methods::
     >>> from rex.instrument.interface import Subject
     >>> subject = Subject('fake123')
     >>> subject.get_display_name()
-    u'fake123'
+    'fake123'
     >>> str(subject)
-    u'fake123'
+    'fake123'
     >>> str(subject)
     'fake123'
     >>> repr(subject)
-    "Subject(u'fake123')"
+    "Subject('fake123')"
 
     >>> subject.as_dict()
-    {'uid': u'fake123', 'mobile_tn': None}
+    {'uid': 'fake123', 'mobile_tn': None}
     >>> subject.as_json()
-    u'{"uid": "fake123", "mobile_tn": null}'
+    '{"uid": "fake123", "mobile_tn": null}'
 
 
 Subjects can be checked for equality. Note that equality is only defined as

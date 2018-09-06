@@ -11,45 +11,33 @@ String Conversions
 The ``util`` module provides a couple of convenience functions for converting
 strings from and to their unicode representations::
 
-    >>> from rex.instrument.util import to_str, to_unicode
+    >>> from rex.instrument.util import to_unicode
 
     >>> to_unicode('foobar')
-    u'foobar'
-    >>> to_unicode('foobar')
-    u'foobar'
+    'foobar'
+    >>> to_unicode(b'foobar')
+    'foobar'
     >>> to_unicode(dict())
-    u'{}'
+    '{}'
     >>> to_unicode(None)
 
-    >>> to_str('foobar')
-    'foobar'
-    >>> to_str('foobar')
-    'foobar'
-    >>> to_str(dict())
-    '{}'
-    >>> to_str(None)
-
-    >>> sfoo = 'foo\xe2\x80\x94bar'
+    >>> sfoo = b'foo\xe2\x80\x94bar'
     >>> type(sfoo), repr(sfoo)
-    (<type 'str'>, "'foo\\xe2\\x80\\x94bar'")
+    (<class 'bytes'>, "b'foo\\xe2\\x80\\x94bar'")
 
     >>> ufoo = 'foo\u2014bar'
     >>> type(ufoo), repr(ufoo)
-    (<type 'unicode'>, "u'foo\\u2014bar'")
+    (<class 'str'>, "'foo\u2014bar'")
 
     >>> sfoo
-    'foo\xe2\x80\x94bar'
-    >>> to_str(sfoo)
-    'foo\xe2\x80\x94bar'
+    b'foo\xe2\x80\x94bar'
     >>> to_unicode(sfoo)
-    u'foo\u2014bar'
+    'foo\u2014bar'
 
     >>> ufoo
-    u'foo\u2014bar'
-    >>> to_str(ufoo)
-    'foo\xe2\x80\x94bar'
+    'foo\u2014bar'
     >>> to_unicode(ufoo)
-    u'foo\u2014bar'
+    'foo\u2014bar'
 
 
 JSON Encoding
@@ -76,7 +64,7 @@ library's encoder with support for date, time, datetime, and Decimal objects::
     >>> to_json({'foo': 123, 'bar': complex(1, 2)})
     Traceback (most recent call last):
         ...
-    TypeError: (1+2j) is not JSON serializable
+    TypeError: Object of type 'complex' is not JSON serializable
 
     >>> from decimal import Decimal
     >>> to_json(Decimal('1.23'))

@@ -47,18 +47,18 @@ constructor and string-rendering methods::
 
     >>> dcs = DraftCalculationSet('foo789', div, CALCULATIONSET)
     >>> dcs.get_display_name()
-    u'foo789'
+    'foo789'
     >>> str(dcs)
-    u'foo789'
+    'foo789'
     >>> str(dcs)
     'foo789'
     >>> repr(dcs)
-    "DraftCalculationSet(u'foo789', DraftInstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title')))"
+    "DraftCalculationSet('foo789', DraftInstrumentVersion('notreal456', Instrument('fake123', 'My Instrument Title')))"
 
     >>> dcs.as_dict()
-    {'uid': u'foo789', 'draft_instrument_version': {'parent_instrument_version': None, 'modified_by': u'jay', 'uid': u'notreal456', 'date_modified': datetime.datetime(2014, 5, 22, 0, 0), 'created_by': u'jay', 'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'date_created': datetime.datetime(2014, 5, 22, 0, 0)}}
+    {'uid': 'foo789', 'draft_instrument_version': {'uid': 'notreal456', 'instrument': {'uid': 'fake123', 'title': 'My Instrument Title', 'code': 'fake123', 'status': 'active'}, 'parent_instrument_version': None, 'created_by': 'jay', 'date_created': datetime.datetime(2014, 5, 22, 0, 0), 'modified_by': 'jay', 'date_modified': datetime.datetime(2014, 5, 22, 0, 0)}}
     >>> dcs.as_json()
-    u'{"uid": "foo789", "draft_instrument_version": {"parent_instrument_version": null, "modified_by": "jay", "uid": "notreal456", "date_modified": "2014-05-22T00:00:00", "created_by": "jay", "instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "date_created": "2014-05-22T00:00:00"}}'
+    '{"uid": "foo789", "draft_instrument_version": {"uid": "notreal456", "instrument": {"uid": "fake123", "title": "My Instrument Title", "code": "fake123", "status": "active"}, "parent_instrument_version": null, "created_by": "jay", "date_created": "2014-05-22T00:00:00", "modified_by": "jay", "date_modified": "2014-05-22T00:00:00"}}'
 
 
 The DraftInstrumentVersions passed to the constructor must actually be
@@ -71,17 +71,17 @@ instances of those classes or strings containing UIDs::
 
     >>> dcs = DraftCalculationSet('foo789', 'draftiv1', CALCULATIONSET)
     >>> dcs.draft_instrument_version
-    DemoDraftInstrumentVersion(u'draftiv1', DemoInstrument(u'simple', u'Simple Instrument'))
+    DemoDraftInstrumentVersion('draftiv1', DemoInstrument('simple', 'Simple Instrument'))
 
     >>> iv = dcs.draft_instrument_version.instrument.latest_version
     >>> iv.definition['version'] = '1.3'
     >>> dcs.definition['instrument']
-    {'version': '1.1', 'id': 'urn:test-instrument'}
+    {'id': 'urn:test-instrument', 'version': '1.1'}
     >>> calc = dcs.publish(iv)
     >>> calc
-    DemoCalculationSet(u'fake_calculationset_1', DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
+    DemoCalculationSet('fake_calculationset_1', DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1))
     >>> calc.definition['instrument']
-    {'version': '1.3', 'id': 'urn:test-instrument'}
+    {'id': 'urn:test-instrument', 'version': '1.3'}
 
 
 The definition can be passed to the contructor as either a JSON/YAML-encoded
@@ -98,7 +98,7 @@ The definition can be set or retrieved as either a JSON/YAML-encoded string
 or a dict equivalent::
 
     >>> dcs.definition
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'calculations': [{'method': 'python', 'type': 'text', 'options': {'expression': "assessment['q_fake'].upper()"}, 'id': 'uppercased'}]}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'calculations': [{'id': 'uppercased', 'type': 'text', 'method': 'python', 'options': {'expression': "assessment['q_fake'].upper()"}}]}
     >>> dcs.definition = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'calculations': [{'method': 'python', 'type': 'text', 'options': {'expression': "assessment['q_fake'].upper()"}, 'id': 'uppercased_fake'}]}
 
     >>> dcs.definition_json
@@ -108,11 +108,11 @@ or a dict equivalent::
 
     >>> dcs.definition_json = '{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "calculations": [{"id": "lowercased", "type": "text", "method": "python", "options": {"expression": "assessment[\'q_fake\'].lower()"}}]}'
     >>> dcs.definition
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'calculations': [{'id': 'lowercased', 'type': 'text', 'method': 'python', 'options': {'expression': "assessment['q_fake'].lower()"}}]}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'calculations': [{'id': 'lowercased', 'type': 'text', 'method': 'python', 'options': {'expression': "assessment['q_fake'].lower()"}}]}
 
     >>> dcs.definition_yaml = "instrument: {id: 'urn:test-instrument', version: '1.1'}\ncalculations:\n- id: lowercased_fake\n  type: text\n  method: python\n  options: {expression: 'assessment[''q_fake''].lower()'}"
     >>> dcs.definition
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'calculations': [{'id': 'lowercased_fake', 'type': 'text', 'method': 'python', 'options': {'expression': "assessment['q_fake'].lower()"}}]}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'calculations': [{'id': 'lowercased_fake', 'type': 'text', 'method': 'python', 'options': {'expression': "assessment['q_fake'].lower()"}}]}
 
     >>> dcs.definition = None
     >>> dcs.definition is None

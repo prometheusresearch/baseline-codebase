@@ -262,11 +262,11 @@ def merge_metadata(entries):
         entry.data.get('meta', {})
         for entry in entries
     ]
-    properties = set([
+    properties = [
         prop
         for source in sources
-        for prop in list(source.keys())
-    ])
+        for prop in source.keys()
+    ]
 
     for prop in properties:
         values = []
@@ -281,7 +281,7 @@ def merge_metadata(entries):
                 tokens.extend(value.split())
             if tokens:
                 tokens = set(tokens)
-                meta[prop] = ' '.join(list(tokens))
+                meta[prop] = ' '.join(sorted(tokens))
 
         elif prop == 'dateCompleted':
             # Take the latest date.

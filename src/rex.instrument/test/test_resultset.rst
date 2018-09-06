@@ -64,7 +64,7 @@ and string-rendering methods::
 
 
     >>> resultset.get_display_name()
-    u'fake_result123'
+    'fake_result123'
 
     >>> assessment1 = Assessment('fake123', subject, iv, ASSESSMENT)
     >>> resultset1 = ResultSet('fake_result123', assessment1, json.dumps({'calc1': '1'}))
@@ -78,7 +78,7 @@ and string-rendering methods::
 ResultSet has read-only properties assessment and results::
 
     >>> resultset1.assessment
-    Assessment(u'fake123', Subject(u'subject1'), InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1))
+    Assessment('fake123', Subject('subject1'), InstrumentVersion('notreal456', Instrument('fake123', 'My Instrument Title'), 1))
 
     >>> resultset1.assessment = assessment2
     Traceback (most recent call last):

@@ -18,7 +18,6 @@ from rex.core import cached, get_settings
 
 __all__ = (
     'to_unicode',
-    'to_str',
     'to_json',
     'RexJSONEncoder',
     'package_version',
@@ -44,28 +43,8 @@ def to_unicode(value, encoding='utf-8'):
     :rtype: unicode
     """
 
-    if isinstance(value, str):
-        return codecs.decode(value, encoding)
-    elif value is None:
-        return None
-    else:
-        return str(value)
-
-
-def to_str(value, encoding='utf-8'):
-    """
-    Encodes a unicode object to its string equivalent.
-
-    :param value: the source string to encode
-    :type value: str or unicode
-    :param encoding:
-        the encoding method to use; if not specified, 'utf-8' is used
-    :type encoding: string
-    :rtype: str
-    """
-
-    if isinstance(value, str):
-        return codecs.encode(value, encoding)
+    if isinstance(value, bytes):
+        return value.decode(encoding)
     elif value is None:
         return None
     else:

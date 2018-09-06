@@ -32,21 +32,21 @@ constructor and string-rendering methods::
 
     >>> div = DraftInstrumentVersion('notreal456', instrument, 'someguy', datetime(2014, 5, 22), definition=INSTRUMENT)
     >>> div.get_display_name()
-    u'The DraftInstrumentVersion Title'
+    'The DraftInstrumentVersion Title'
     >>> str(div)
-    u'The DraftInstrumentVersion Title'
+    'The DraftInstrumentVersion Title'
     >>> str(div)
     'The DraftInstrumentVersion Title'
     >>> repr(div)
-    "DraftInstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'))"
+    "DraftInstrumentVersion('notreal456', Instrument('fake123', 'My Instrument Title'))"
     >>> div.definition = None
     >>> div.get_display_name()
-    u'notreal456'
+    'notreal456'
 
     >>> div.as_dict()
-    {'parent_instrument_version': None, 'modified_by': u'someguy', 'uid': u'notreal456', 'date_modified': datetime.datetime(2014, 5, 22, 0, 0), 'created_by': u'someguy', 'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'date_created': datetime.datetime(2014, 5, 22, 0, 0)}
+    {'uid': 'notreal456', 'instrument': {'uid': 'fake123', 'title': 'My Instrument Title', 'code': 'fake123', 'status': 'active'}, 'parent_instrument_version': None, 'created_by': 'someguy', 'date_created': datetime.datetime(2014, 5, 22, 0, 0), 'modified_by': 'someguy', 'date_modified': datetime.datetime(2014, 5, 22, 0, 0)}
     >>> div.as_json()
-    u'{"parent_instrument_version": null, "modified_by": "someguy", "uid": "notreal456", "date_modified": "2014-05-22T00:00:00", "created_by": "someguy", "instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "date_created": "2014-05-22T00:00:00"}'
+    '{"uid": "notreal456", "instrument": {"uid": "fake123", "title": "My Instrument Title", "code": "fake123", "status": "active"}, "parent_instrument_version": null, "created_by": "someguy", "date_created": "2014-05-22T00:00:00", "modified_by": "someguy", "date_modified": "2014-05-22T00:00:00"}'
 
 
 The Instruments and InstrumentVersions passed to the constructor must actually
@@ -64,16 +64,16 @@ be an instance or a string containing a UID::
 
     >>> div = DraftInstrumentVersion('notreal456', 'simple', 'someguy', datetime(2014, 5, 2), definition=INSTRUMENT, parent_instrument_version='simple1')
     >>> div.instrument
-    DemoInstrument(u'simple', u'Simple Instrument')
+    DemoInstrument('simple', 'Simple Instrument')
     >>> div.parent_instrument_version
-    DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L)
+    DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1)
 
     >>> from rex.instrument.util import get_implementation
     >>> div.definition['version']
     '1.1'
     >>> iv = div.publish(get_implementation('user').get_by_uid('user1'))
     >>> iv
-    DemoInstrumentVersion(u'fake_instrument_version_1', DemoInstrument(u'simple', u'Simple Instrument'), 2L)
+    DemoInstrumentVersion('fake_instrument_version_1', DemoInstrument('simple', 'Simple Instrument'), 2)
     >>> iv.definition['version']
     '1.2'
 
@@ -102,7 +102,7 @@ a dict equivalent::
 
     >>> div.definition_yaml = "id: urn:test-instrument\nversion: '1.1'\ntitle: A Third Title\nrecord:\n- {id: q_fake, type: text}"
     >>> div.definition
-    {'record': [{'type': 'text', 'id': 'q_fake'}], 'version': '1.1', 'id': 'urn:test-instrument', 'title': 'A Third Title'}
+    {'id': 'urn:test-instrument', 'version': '1.1', 'title': 'A Third Title', 'record': [{'id': 'q_fake', 'type': 'text'}]}
 
     >>> div.definition = {'record': [{'type': 'text', 'id': 'q_fake'}], 'version': '1.1', 'id': 'urn:test-instrument', 'title': 'A Different Title'}
     >>> div.definition
@@ -135,16 +135,16 @@ both readable and writable::
     datetime.datetime(2014, 6, 1, 0, 0)
 
     >>> div.modified_by
-    u'someguy'
+    'someguy'
     >>> div.modified_by = 'jay'
     >>> div.modified_by
-    u'jay'
+    'jay'
 
     >>> from rex.instrument.interface import User
     >>> user = User('fake123', 'someguy')
     >>> div.modify(user)
     >>> div.modified_by
-    u'someguy'
+    'someguy'
     >>> div.date_modified > datetime(2014, 6, 1, tzinfo=utc)
     True
 
@@ -157,7 +157,7 @@ to the associated CalculationSet object, if there is one::
 
     >>> div = DraftInstrumentVersion.get_implementation().get_by_uid('draftiv1')
     >>> div.calculation_set
-    DemoDraftCalculationSet(u'draftiv1', DemoDraftInstrumentVersion(u'draftiv1', DemoInstrument(u'simple', u'Simple Instrument')))
+    DemoDraftCalculationSet('draftiv1', DemoDraftInstrumentVersion('draftiv1', DemoInstrument('simple', 'Simple Instrument')))
 
 
 DraftInstrumentVersions can be checked for equality. Note that equality is only

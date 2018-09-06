@@ -4,6 +4,7 @@
 
 from copy import deepcopy
 from datetime import datetime
+from decimal import Decimal
 
 from rex.core import Extension, AnyVal
 
@@ -442,10 +443,10 @@ class DraftInstrumentVersion(
 
         latest = self.instrument.latest_version
         if latest:
-            latest_version = float(latest.definition['version'])
-            current_version = float(self.definition['version'])
+            latest_version = Decimal(latest.definition['version'])
+            current_version = Decimal(self.definition['version'])
             if current_version <= latest_version:
-                self.definition['version'] = str(latest_version + 0.1)
+                self.definition['version'] = str(latest_version + Decimal('0.1'))
 
         iv_impl = get_implementation('instrumentversion')
 

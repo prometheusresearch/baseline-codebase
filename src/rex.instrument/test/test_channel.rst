@@ -9,18 +9,18 @@ string-rendering methods::
     >>> from rex.instrument.interface import Channel
     >>> channel = Channel('fake123', 'My EDC Application', Channel.PRESENTATION_TYPE_FORM)
     >>> channel.get_display_name()
-    u'My EDC Application'
+    'My EDC Application'
     >>> str(channel)
-    u'My EDC Application'
+    'My EDC Application'
     >>> str(channel)
     'My EDC Application'
     >>> repr(channel)
-    "Channel(u'fake123', u'My EDC Application', u'form')"
+    "Channel('fake123', 'My EDC Application', 'form')"
 
     >>> channel.as_dict()
-    {'uid': u'fake123', 'presentation_type': u'form', 'title': u'My EDC Application'}
+    {'uid': 'fake123', 'title': 'My EDC Application', 'presentation_type': 'form'}
     >>> channel.as_json()
-    u'{"uid": "fake123", "presentation_type": "form", "title": "My EDC Application"}'
+    '{"uid": "fake123", "title": "My EDC Application", "presentation_type": "form"}'
 
 
 If you pass an invalid presentation_type, an error will be thrown::

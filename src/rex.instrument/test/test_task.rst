@@ -44,26 +44,26 @@ and string-rendering methods::
 
     >>> task = Task('bar999', subject, instrument, 100, assessment)
     >>> task.get_display_name()
-    u'bar999'
+    'bar999'
     >>> str(task)
-    u'bar999'
+    'bar999'
     >>> str(task)
     'bar999'
     >>> repr(task)
-    "Task(u'bar999', Subject(u'fake123'), Instrument(u'fake123', u'My Instrument Title'))"
+    "Task('bar999', Subject('fake123'), Instrument('fake123', 'My Instrument Title'))"
     >>> task.priority
     100
     >>> task.subject
-    Subject(u'fake123')
+    Subject('fake123')
     >>> task.assessment
-    Assessment(u'fake123', Subject(u'fake123'), InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1))
+    Assessment('fake123', Subject('fake123'), InstrumentVersion('notreal456', Instrument('fake123', 'My Instrument Title'), 1))
     >>> task.instrument
-    Instrument(u'fake123', u'My Instrument Title')
+    Instrument('fake123', 'My Instrument Title')
 
     >>> task.as_dict()
-    {'status': u'not-started', 'due_date': None, 'uid': u'bar999', 'facilitator': None, 'priority': 100, 'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'num_required_entries': 1, 'subject': {'uid': u'fake123', 'mobile_tn': None}}
+    {'uid': 'bar999', 'subject': {'uid': 'fake123', 'mobile_tn': None}, 'instrument': {'uid': 'fake123', 'title': 'My Instrument Title', 'code': 'fake123', 'status': 'active'}, 'priority': 100, 'status': 'not-started', 'num_required_entries': 1, 'facilitator': None, 'due_date': None}
     >>> task.as_json()
-    u'{"status": "not-started", "due_date": null, "uid": "bar999", "facilitator": null, "priority": 100, "instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "num_required_entries": 1, "subject": {"uid": "fake123", "mobile_tn": null}}'
+    '{"uid": "bar999", "subject": {"uid": "fake123", "mobile_tn": null}, "instrument": {"uid": "fake123", "title": "My Instrument Title", "code": "fake123", "status": "active"}, "priority": 100, "status": "not-started", "num_required_entries": 1, "facilitator": null, "due_date": null}'
 
 
 The Subjects, Instruments, and Assessments passed to the constructor must
@@ -84,11 +84,11 @@ actually be instances of those classes or strings containing UIDs::
 
     >>> task = Task('bar999', 'subject1', 'simple', 100, assessment='assessment1')
     >>> task.subject
-    DemoSubject(u'subject1')
+    DemoSubject('subject1')
     >>> task.instrument
-    DemoInstrument(u'simple', u'Simple Instrument')
+    DemoInstrument('simple', 'Simple Instrument')
     >>> task.assessment
-    DemoAssessment(u'assessment1', DemoSubject(u'subject1'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
+    DemoAssessment('assessment1', DemoSubject('subject1'), DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1))
 
 
 The priority passed to the constructor must be an integer::
@@ -103,17 +103,17 @@ Tasks have a property to retrieve the InstrumentVersion they're associated with:
 
     >>> task = Task('bar999', subject, instrument, 100, assessment)
     >>> task.instrument_version
-    InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1)
+    InstrumentVersion('notreal456', Instrument('fake123', 'My Instrument Title'), 1)
 
 
 Tasks have a property to set or retrieve the Assessment they're associated with::
 
     >>> task = Task('bar999', subject, instrument, 100, assessment)
     >>> task.assessment
-    Assessment(u'fake123', Subject(u'fake123'), InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1))
+    Assessment('fake123', Subject('fake123'), InstrumentVersion('notreal456', Instrument('fake123', 'My Instrument Title'), 1))
     >>> task.assessment = Assessment('NEW456', subject, iv, ASSESSMENT)
     >>> task.assessment
-    Assessment(u'NEW456', Subject(u'fake123'), InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1))
+    Assessment('NEW456', Subject('fake123'), InstrumentVersion('notreal456', Instrument('fake123', 'My Instrument Title'), 1))
     >>> task.assessment = 42
     Traceback (most recent call last):
         ...
@@ -125,7 +125,7 @@ readable and writable::
 
     >>> task = Task('bar999', subject, instrument, 100)
     >>> task.status
-    u'not-started'
+    'not-started'
     >>> task.is_done
     False
     >>> task.status = Task.STATUS_STARTED
@@ -133,7 +133,7 @@ readable and writable::
     False
     >>> task.status = Task.STATUS_COMPLETE
     >>> task.status
-    u'complete'
+    'complete'
     >>> task.is_done
     True
     >>> task.status = 'something else'
@@ -146,10 +146,10 @@ readable and writable::
     >>> user = User('rex.jay', 'jay')
     >>> task.facilitator = user
     >>> task.facilitator
-    User(u'rex.jay', u'jay')
+    User('rex.jay', 'jay')
     >>> task.facilitator = 'user1'
     >>> task.facilitator
-    DemoUser(u'user1', u'user1')
+    DemoUser('user1', 'user1')
     >>> task.facilitator = None
     >>> task.facilitator is None
     True
@@ -179,9 +179,9 @@ The start_entry() method will create an Entry for the associated Assessment
     >>> task.assessment is None
     True
     >>> task.start_entry(user)
-    DemoEntry(u'fake_entry_1', DemoAssessment(u'fake_assessment_1', Subject(u'fake123'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L)), u'preliminary')
+    DemoEntry('fake_entry_1', DemoAssessment('fake_assessment_1', Subject('fake123'), DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1)), 'preliminary')
     >>> task.assessment
-    DemoAssessment(u'fake_assessment_1', Subject(u'fake123'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
+    DemoAssessment('fake_assessment_1', Subject('fake123'), DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1))
 
 
 Tasks have a num_required_entries property which is readable only::
@@ -262,7 +262,7 @@ equivalent to the Entries' data::
     >>> task.get_discrepancies(entries=entries)
     {}
     >>> task.solve_discrepancies({}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'my answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'values': {'q_fake': {'value': 'my answer', 'explanation': None, 'annotation': None}, 'q_foo': {'value': 45, 'explanation': None, 'annotation': None}, 'q_blah': {'value': ['red', 'green'], 'explanation': None, 'annotation': None}}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar'}}
 
 Only given one Entry, it should yield no discrepancies and a solution that is
 equivalent to the one Entry's data::
@@ -270,35 +270,35 @@ equivalent to the one Entry's data::
     >>> task.get_discrepancies(entries=[entry1])
     {}
     >>> task.solve_discrepancies({}, entries=[entry1])
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar', 'calculations': {'calc1': 2}}, 'values': {'q_fake': {'value': 'my answer'}, 'q_foo': {'value': 45}, 'q_blah': {'value': ['red', 'green']}}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'values': {'q_fake': {'value': 'my answer'}, 'q_foo': {'value': 45}, 'q_blah': {'value': ['red', 'green']}}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar', 'calculations': {'calc1': 2}}}
 
 One entry with a different value should be spotted and solved appropriately::
 
     >>> entry3.data['values']['q_fake']['value'] = 'a different answer'
     >>> task.get_discrepancies(entries=entries)
-    {'q_fake': {u'entry444': 'my answer', u'entry333': 'my answer', u'entry555': 'a different answer'}}
+    {'q_fake': {'entry333': 'my answer', 'entry444': 'my answer', 'entry555': 'a different answer'}}
     >>> task.solve_discrepancies({}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'my answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'values': {'q_fake': {'value': 'my answer', 'explanation': None, 'annotation': None}, 'q_foo': {'value': 45, 'explanation': None, 'annotation': None}, 'q_blah': {'value': ['red', 'green'], 'explanation': None, 'annotation': None}}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar'}}
     >>> task.solve_discrepancies({'q_fake': 'the answer'}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': 'the answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'values': {'q_fake': {'value': 'the answer', 'explanation': None, 'annotation': None}, 'q_foo': {'value': 45, 'explanation': None, 'annotation': None}, 'q_blah': {'value': ['red', 'green'], 'explanation': None, 'annotation': None}}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar'}}
     >>> task.solve_discrepancies({'q_fake': None}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar'}, 'values': {'q_fake': {'explanation': None, 'annotation': None, 'value': None}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'values': {'q_fake': {'value': None, 'explanation': None, 'annotation': None}, 'q_foo': {'value': 45, 'explanation': None, 'annotation': None}, 'q_blah': {'value': ['red', 'green'], 'explanation': None, 'annotation': None}}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar'}}
 
     >>> entry2.data['values']['q_blah']['value'] = ['blue']
     >>> task.get_discrepancies(entries=entries)
-    {'q_fake': {u'entry444': 'my answer', u'entry333': 'my answer', u'entry555': 'a different answer'}, 'q_blah': {u'entry444': ['blue'], u'entry333': ['red', 'green'], u'entry555': ['red', 'green']}}
+    {'q_fake': {'entry333': 'my answer', 'entry444': 'my answer', 'entry555': 'a different answer'}, 'q_blah': {'entry333': ['red', 'green'], 'entry444': ['blue'], 'entry555': ['red', 'green']}}
 
 If a field only has one explanation in the group, use it in the solution::
 
     >>> entry2.data['values']['q_fake']['explanation'] = 'Because I said so.'
     >>> task.solve_discrepancies({}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar'}, 'values': {'q_fake': {'explanation': 'Because I said so.', 'annotation': None, 'value': 'my answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'values': {'q_fake': {'value': 'my answer', 'explanation': 'Because I said so.', 'annotation': None}, 'q_foo': {'value': 45, 'explanation': None, 'annotation': None}, 'q_blah': {'value': ['red', 'green'], 'explanation': None, 'annotation': None}}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar'}}
 
 If a field as more than one explanation in the group, merge them::
 
     >>> entry3.data['values']['q_fake']['explanation'] = 'Why not?'
     >>> task.solve_discrepancies({}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar'}, 'values': {'q_fake': {'explanation': u'2014-05-22 12:34:56 / joe: Because I said so.\n\n2014-05-22 12:34:56 / jim: Why not?', 'annotation': None, 'value': 'my answer'}, 'q_blah': {'explanation': None, 'annotation': None, 'value': ['red', 'green']}, 'q_foo': {'explanation': None, 'annotation': None, 'value': 45}}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'values': {'q_fake': {'value': 'my answer', 'explanation': '2014-05-22 12:34:56 / joe: Because I said so.\n\n2014-05-22 12:34:56 / jim: Why not?', 'annotation': None}, 'q_foo': {'value': 45, 'explanation': None, 'annotation': None}, 'q_blah': {'value': ['red', 'green'], 'explanation': None, 'annotation': None}}, 'meta': {'application': 'SomeApp/1.0', 'dateCompleted': '2010-01-01T12:34:56', 'foo': 'bar'}}
 
 If the metadata values are different, they'll be merged appropriately::
 
@@ -310,7 +310,7 @@ If the metadata values are different, they'll be merged appropriately::
     >>> entry3.data['meta']['happy'] = 'yup'
     >>> entry3.data['meta']['dateCompleted'] = '2015-05-05T11:34:55'
     >>> task.solve_discrepancies({}, entries=entries)['meta']
-    {'application': 'SomeApp/1.0 OtherApp/2.1', 'dateCompleted': '2015-05-05T11:34:55', 'foo': 'bar', 'happy': 'yup'}
+    {'application': 'OtherApp/2.1 SomeApp/1.0', 'dateCompleted': '2015-05-05T11:34:55', 'foo': 'bar', 'happy': 'yup'}
 
 If the arrays for enumerationSet values are the same, but in different orders,
 they should not trigger a discrepancy::
@@ -323,7 +323,7 @@ they should not trigger a discrepancy::
 
     >>> entry2.data['values']['q_blah']['value'] = ['green']
     >>> task.get_discrepancies(entries=entries)
-    {'q_blah': {u'entry444': ['green'], u'entry333': ['red', 'green'], u'entry555': ['red', 'green']}}
+    {'q_blah': {'entry333': ['red', 'green'], 'entry444': ['green'], 'entry555': ['red', 'green']}}
 
 Set up tests with recordList fields::
 
@@ -380,11 +380,11 @@ recordList field::
 
     >>> entry3.data['values']['q_rec']['value'][0]['dink']['value'] = 'bonjour'
     >>> task.get_discrepancies(entries=entries)
-    {'q_rec': {'0': {'dink': {u'entry444': 'hello', u'entry333': 'hello', u'entry555': 'bonjour'}}}}
+    {'q_rec': {'0': {'dink': {'entry333': 'hello', 'entry444': 'hello', 'entry555': 'bonjour'}}}}
     >>> task.solve_discrepancies({}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': {'value': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hello'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'goodbye'}}]}}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'values': {'q_rec': {'value': [{'dink': {'value': 'hello', 'explanation': None, 'annotation': None}, 'donk': {'value': False, 'explanation': None, 'annotation': None}}, {'dink': {'value': 'goodbye', 'explanation': None, 'annotation': None}, 'donk': {'value': True, 'explanation': None, 'annotation': None}}]}}}
     >>> task.solve_discrepancies({'q_rec': {'0': {'dink': 'hi'}}}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': {'value': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hi'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'goodbye'}}]}}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'values': {'q_rec': {'value': [{'dink': {'value': 'hi', 'explanation': None, 'annotation': None}, 'donk': {'value': False, 'explanation': None, 'annotation': None}}, {'dink': {'value': 'goodbye', 'explanation': None, 'annotation': None}, 'donk': {'value': True, 'explanation': None, 'annotation': None}}]}}}
 
 Discrepancies of mismatching records should be spotted and solved::
 
@@ -393,18 +393,18 @@ Discrepancies of mismatching records should be spotted and solved::
     >>> task.get_discrepancies(entries=entries) == expected_discrepancies
     True
     >>> task.solve_discrepancies({}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': {'value': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hello'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'goodbye'}}]}}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'values': {'q_rec': {'value': [{'dink': {'value': 'hello', 'explanation': None, 'annotation': None}, 'donk': {'value': False, 'explanation': None, 'annotation': None}}, {'dink': {'value': 'goodbye', 'explanation': None, 'annotation': None}, 'donk': {'value': True, 'explanation': None, 'annotation': None}}]}}}
     >>> task.solve_discrepancies({'q_rec': {'1': {'dink': 'bye'}}}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': {'value': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hello'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'bye'}}]}}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'values': {'q_rec': {'value': [{'dink': {'value': 'hello', 'explanation': None, 'annotation': None}, 'donk': {'value': False, 'explanation': None, 'annotation': None}}, {'dink': {'value': 'bye', 'explanation': None, 'annotation': None}, 'donk': {'value': True, 'explanation': None, 'annotation': None}}]}}}
 
     >>> entry3.data['values']['q_rec']['value'] = None
     >>> expected_discrepancies = {'q_rec': {'1': {'donk': {'entry444': True, 'entry333': True, 'entry555': None}, 'dink': {'entry444': 'goodbye', 'entry333': 'goodbye', 'entry555': None}, '_NEEDS_VALUE_': True}, '0': {'donk': {'entry444': False, 'entry333': False, 'entry555': None}, 'dink': {'entry444': 'hello', 'entry333': 'hello', 'entry555': None}, '_NEEDS_VALUE_': True}}}
     >>> task.get_discrepancies(entries=entries) == expected_discrepancies
     True
     >>> task.solve_discrepancies({}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': {'value': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hello'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'goodbye'}}]}}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'values': {'q_rec': {'value': [{'dink': {'value': 'hello', 'explanation': None, 'annotation': None}, 'donk': {'value': False, 'explanation': None, 'annotation': None}}, {'dink': {'value': 'goodbye', 'explanation': None, 'annotation': None}, 'donk': {'value': True, 'explanation': None, 'annotation': None}}]}}}
     >>> task.solve_discrepancies({'q_rec': {'1': {'dink': 'bye'}}}, entries=entries)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_rec': {'value': [{'donk': {'explanation': None, 'annotation': None, 'value': False}, 'dink': {'explanation': None, 'annotation': None, 'value': 'hello'}}, {'donk': {'explanation': None, 'annotation': None, 'value': True}, 'dink': {'explanation': None, 'annotation': None, 'value': 'bye'}}]}}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'values': {'q_rec': {'value': [{'dink': {'value': 'hello', 'explanation': None, 'annotation': None}, 'donk': {'value': False, 'explanation': None, 'annotation': None}}, {'dink': {'value': 'bye', 'explanation': None, 'annotation': None}, 'donk': {'value': True, 'explanation': None, 'annotation': None}}]}}}
 
 Set up tests with matrix fields::
 
@@ -464,7 +464,7 @@ and solved::
 
     >>> entry3.data['values']['q_matrix']['value']['row1']['dah']['value'] = 'hi'
     >>> task.get_discrepancies(entries=entries)
-    {'q_matrix': {'row1': {'dah': {u'entry444': 'hello', u'entry333': 'hello', u'entry555': 'hi'}}}}
+    {'q_matrix': {'row1': {'dah': {'entry333': 'hello', 'entry444': 'hello', 'entry555': 'hi'}}}}
     >>> expected_solution = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_matrix': {'value': {'row1': {'dah': {'explanation': None, 'annotation': None, 'value': 'hello'}, 'doo': {'explanation': None, 'annotation': None, 'value': 42.1}}, 'row2': {'dah': {'explanation': None, 'annotation': None, 'value': 'goodbye'}, 'doo': {'explanation': None, 'annotation': None, 'value': 63}}}}}}
     >>> task.solve_discrepancies({}, entries=entries) == expected_solution
     True
@@ -474,7 +474,7 @@ and solved::
 
     >>> entry3.data['values']['q_matrix']['value'] = None
     >>> task.get_discrepancies(entries=entries)
-    {'q_matrix': {'row1': {'dah': {u'entry444': 'hello', u'entry333': 'hello', u'entry555': None}, 'doo': {u'entry444': 42.1, u'entry333': 42.1, u'entry555': None}}, 'row2': {'dah': {u'entry444': 'goodbye', u'entry333': 'goodbye', u'entry555': None}, 'doo': {u'entry444': 63, u'entry333': 63, u'entry555': None}}}}
+    {'q_matrix': {'row1': {'doo': {'entry333': 42.1, 'entry444': 42.1, 'entry555': None}, 'dah': {'entry333': 'hello', 'entry444': 'hello', 'entry555': None}}, 'row2': {'doo': {'entry333': 63, 'entry444': 63, 'entry555': None}, 'dah': {'entry333': 'goodbye', 'entry444': 'goodbye', 'entry555': None}}}}
     >>> expected_solution = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_matrix': {'value': {'row1': {'dah': {'explanation': None, 'annotation': None, 'value': 'hello'}, 'doo': {'explanation': None, 'annotation': None, 'value': 42.1}}, 'row2': {'dah': {'explanation': None, 'annotation': None, 'value': 'goodbye'}, 'doo': {'explanation': None, 'annotation': None, 'value': 63}}}}}}
     >>> task.solve_discrepancies({}, entries=entries) == expected_solution
     True
@@ -514,11 +514,11 @@ by using the ``reconcile()`` method::
     >>> task.reconcile(user)
     Traceback (most recent call last):
         ...
-    InstrumentError: This Task cannot be reconciled in its current state.
+    rex.instrument.errors.InstrumentError: This Task cannot be reconciled in its current state.
     >>> task.start_entry(user)
     Traceback (most recent call last):
         ...
-    InstrumentError: This Task does not allow an additional Preliminary Entry.
+    rex.instrument.errors.InstrumentError: This Task does not allow an additional Preliminary Entry.
 
     >>> task = DemoTask.get_by_uid('task7')
     >>> task.assessment.status = Assessment.STATUS_IN_PROGRESS
@@ -526,7 +526,7 @@ by using the ``reconcile()`` method::
     ### SAVED ENTRY fake_entry_1
     ### SAVED ASSESSMENT assessment8
     ### SAVED ASSESSMENT assessment8
-    ### CREATED RECORDSET assessment8 {u'calc1': u'yo, goodbye, 1', u'calc2': u'yo, goodbye, 1', u'calc3': 2.23, u'calc4': True, u'calc5': True, u'calc6': u'42, Not Red, White, completed, myenum'}
+    ### CREATED RECORDSET assessment8 {'calc1': 'yo, goodbye, 1', 'calc2': 'yo, goodbye, 1', 'calc3': 2.23, 'calc4': True, 'calc5': True, 'calc6': '42, Not Red, White, completed, myenum'}
     ### SAVED TASK task7
     >>> task.assessment.status == Assessment.STATUS_COMPLETE
     True

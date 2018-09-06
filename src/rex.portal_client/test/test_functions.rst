@@ -140,7 +140,7 @@ HTTP 400 errors always get the json error::
   ...     shard.delete_task('1') # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   Traceback (most recent call last):
   ...
-  PatientPortalClientError: ERROR/Portal: No such task
+  rex.portal_client.error.PatientPortalClientError: ERROR/Portal: No such task
 
 
 All other errors could be anything so we consider the text::
@@ -150,4 +150,4 @@ All other errors could be anything so we consider the text::
   ...     shard.delete_task('1') # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   Traceback (most recent call last):
   ...
-  PatientPortalClientError: ERROR/Portal: Internal Server Error
+  rex.portal_client.error.PatientPortalClientError: ERROR/Portal: Internal Server Error

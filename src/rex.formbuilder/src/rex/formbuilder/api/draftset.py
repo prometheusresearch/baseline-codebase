@@ -188,7 +188,7 @@ class DraftSetResource(SimpleResource, BaseResource):
                 output_calc = None
 
             # Update the forms
-            submitted_forms = set(payload.get('forms', {}).keys())
+            submitted_forms = payload.get('forms', {}).keys()
             handler = DraftFormResource()
             for draft_form in draft_forms:
                 channel_uid = draft_form.channel.uid
@@ -205,7 +205,9 @@ class DraftSetResource(SimpleResource, BaseResource):
                     draft_form.delete()
 
             handler = DraftFormResource._SimpleResource__base_handler()
-            for channel_uid in (submitted_forms - presented_forms):
+            for channel_uid in submitted_forms:
+                if channel_uid in presented_forms:
+                    continue
                 config = payload.get('forms', {})[channel_uid]['configuration']
                 form_payload = {
                     'channel': channel_uid,

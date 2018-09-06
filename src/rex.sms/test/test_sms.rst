@@ -36,14 +36,14 @@ The recipient must be a valid phone number::
     >>> send_sms('123', '8605559999', 'hello world')
     Traceback (most recent call last):
         ...
-    Error: expected a phone number, got '123'
+    rex.core.Error: expected a phone number, got '123'
 
 The sender must be a valid phone number or short code::
 
     >>> send_sms('2035551234', '123', 'hello world')
     Traceback (most recent call last):
         ...
-    Error: Failed to match the value against any of the following:
+    rex.core.Error: Failed to match the value against any of the following:
         expected a phone number, got '123'
     <BLANKLINE>
         expected a short code, got '123'
@@ -56,10 +56,10 @@ The ``compose`` function is a convenience wrapper around the use of Jinja to
 generate text that can be sent as an SMS message::
 
     >>> compose('rex.sms_demo:/templates/simple.txt')
-    u'Hello World!'
+    'Hello World!'
 
     >>> compose('rex.sms_demo:/templates/context.txt', name='Jay')
-    u'Hello Jay!'
+    'Hello Jay!'
 
 
     >>> rex.off()

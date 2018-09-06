@@ -25,9 +25,9 @@ expected::
     >>> transport.poll_queue('foo')
     2
     >>> transport.get_task('foo')
-    {u'foo': 1}
+    {'foo': 1}
     >>> transport.get_task('foo')
-    {u'foo': 2}
+    {'foo': 2}
     >>> transport.get_task('foo') is None
     True
     >>> transport.poll_queue('foo')
@@ -38,7 +38,7 @@ expected::
 
     >>> transport.submit_task('foo', {'foo': 3})
     >>> transport.get_task('foo')
-    {u'foo': 3}
+    {'foo': 3}
     >>> transport.get_task('foo') is None
     True
 
@@ -46,7 +46,7 @@ expected::
     >>> transport.get_task('foo') is None
     True
     >>> transport.get_task('bar')
-    {u'bar': 1}
+    {'bar': 1}
     >>> transport.get_task('foo') is None
     True
 

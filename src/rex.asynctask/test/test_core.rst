@@ -46,7 +46,7 @@ It also complains if the transport URI is not defined::
     >>> get_transport()
     Traceback (most recent call last):
         ...
-    Error: Asynctask transport not specified
+    rex.core.Error: Asynctask transport not specified
 
     >>> rex.off()
     >>> rex = Rex('rex.asynctask', 'rex.db', db='pgsql:asynctask_demo')
@@ -71,13 +71,13 @@ This function will process all tasks in the given queue::
     >>> transport.submit_task('foo', {'bar': '1'})
     >>> transport.submit_task('foo', {'bar': '2'})
     >>> process_queue('foo')
-    FOO processed: {u'bar': u'1'}
-    FOO processed: {u'bar': u'2'}
+    FOO processed: {'bar': '1'}
+    FOO processed: {'bar': '2'}
     2
 
     >>> transport.submit_task('foo', {'bar': '1'})
     >>> process_queue('foo', worker_name='demo_bar_worker')
-    BAR processed: {u'bar': u'1'}
+    BAR processed: {'bar': '1'}
     1
 
     >>> transport.submit_task('foo', {'bar': '1'})
@@ -89,7 +89,7 @@ This function will process all tasks in the given queue::
     >>> process_queue('doesntexist')
     Traceback (most recent call last):
         ...
-    Error: Cannot identify worker for queue "doesntexist"
+    rex.core.Error: Cannot identify worker for queue "doesntexist"
 
     >>> rex.off()
 
@@ -107,13 +107,13 @@ This function will execute a worker until it runs out of tasks::
     >>> transport.submit_task('foo', {'bar': '1'})
     >>> transport.submit_task('foo', {'bar': '2'})
     >>> run_worker('demo_foo_worker')
-    FOO processed: {u'bar': u'1'}
-    FOO processed: {u'bar': u'2'}
+    FOO processed: {'bar': '1'}
+    FOO processed: {'bar': '2'}
     2
 
     >>> transport.submit_task('foo', {'bar': '1'})
     >>> run_worker('demo_bar_worker', queue_name='foo')
-    BAR processed: {u'bar': u'1'}
+    BAR processed: {'bar': '1'}
     1
 
     >>> transport.submit_task('foo', {'bar': '1'})
@@ -125,12 +125,12 @@ This function will execute a worker until it runs out of tasks::
     >>> run_worker('demo_baz_worker')
     Traceback (most recent call last):
         ...
-    Error: Cannot identify queue for worker "demo_baz_worker"
+    rex.core.Error: Cannot identify queue for worker "demo_baz_worker"
 
     >>> run_worker('doesntexist', queue_name='doesntmatter')
     Traceback (most recent call last):
         ...
-    Error: Worker "doesntexist" does not exist
+    rex.core.Error: Worker "doesntexist" does not exist
 
     >>> rex.off()
 

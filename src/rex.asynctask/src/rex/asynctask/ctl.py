@@ -190,7 +190,7 @@ class AsyncTaskWorkerTask(RexTask):
         name = schedule.worker
         if not name:
             hasher = sha256()
-            hasher.update(repr(schedule))
+            hasher.update(repr(schedule).encode('utf-8'))
             name = 'ctl_%s' % (hasher.hexdigest()[:8],)
 
         return 'scheduled_0_%s' % (name,)

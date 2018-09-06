@@ -61,29 +61,29 @@ and string-rendering methods::
     ... }
     >>> form = Form('foo789', channel, iv, FORM)
     >>> form.get_display_name()
-    u'Our Test Form'
+    'Our Test Form'
     >>> str(form)
-    u'Our Test Form'
+    'Our Test Form'
     >>> str(form)
     'Our Test Form'
     >>> repr(form)
-    "Form(u'foo789', Channel(u'chan135', u'My EDC Application', u'form'), InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1))"
+    "Form('foo789', Channel('chan135', 'My EDC Application', 'form'), InstrumentVersion('notreal456', Instrument('fake123', 'My Instrument Title'), 1))"
 
     >>> from copy import deepcopy
     >>> FORM_NOTITLE = deepcopy(FORM)
     >>> FORM_NOTITLE['defaultLocalization'] = 'fr'
     >>> form = Form('foo789', channel, iv, FORM_NOTITLE)
     >>> form.get_display_name()
-    u'Ma grande forme'
+    'Ma grande forme'
     >>> del FORM_NOTITLE['title']
     >>> form = Form('foo789', channel, iv, FORM_NOTITLE)
     >>> form.get_display_name()
-    u'The InstrumentVersion Title'
+    'The InstrumentVersion Title'
 
     >>> form.as_dict()
-    {'instrument_version': {'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'published_by': u'jay', 'version': 1, 'uid': u'notreal456', 'date_published': datetime.datetime(2014, 5, 22, 0, 0)}, 'uid': u'foo789', 'channel': {'uid': u'chan135', 'presentation_type': u'form', 'title': u'My EDC Application'}}
+    {'uid': 'foo789', 'channel': {'uid': 'chan135', 'title': 'My EDC Application', 'presentation_type': 'form'}, 'instrument_version': {'uid': 'notreal456', 'instrument': {'uid': 'fake123', 'title': 'My Instrument Title', 'code': 'fake123', 'status': 'active'}, 'version': 1, 'published_by': 'jay', 'date_published': datetime.datetime(2014, 5, 22, 0, 0)}}
     >>> form.as_json()
-    u'{"instrument_version": {"instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "published_by": "jay", "version": 1, "uid": "notreal456", "date_published": "2014-05-22T00:00:00"}, "uid": "foo789", "channel": {"uid": "chan135", "presentation_type": "form", "title": "My EDC Application"}}'
+    '{"uid": "foo789", "channel": {"uid": "chan135", "title": "My EDC Application", "presentation_type": "form"}, "instrument_version": {"uid": "notreal456", "instrument": {"uid": "fake123", "title": "My Instrument Title", "code": "fake123", "status": "active"}, "version": 1, "published_by": "jay", "date_published": "2014-05-22T00:00:00"}}'
 
 
 The Channels and InstrumentVersions passed to the constructor must actually be
@@ -100,9 +100,9 @@ instances of those classes or strings containing UIDs::
 
     >>> form = Form('foo789', 'survey', 'simple1', FORM)
     >>> form.channel
-    DemoChannel(u'survey', u'RexSurvey', u'form')
+    DemoChannel('survey', 'RexSurvey', 'form')
     >>> form.instrument_version
-    DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L)
+    DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1)
 
 
 The configuration can be passed to the contructor as either a JSON/YAML-encoded
@@ -119,21 +119,21 @@ The configuration can be set or retrieved as either a JSON/YAML-encoded string
 or a dict equivalent::
 
     >>> form.configuration
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'Our Test Form'}}
-    >>> form.configuration = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': 'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'A Different Title'}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'defaultLocalization': 'en', 'title': {'en': 'Our Test Form', 'fr': 'Ma grande forme'}, 'pages': [{'id': 'page1', 'elements': [{'type': 'question', 'options': {'fieldId': 'q_fake', 'text': {'en': 'What is your favorite word?', 'fr': 'Quel est votre mot préféré?'}}}]}]}
+    >>> form.configuration = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': 'Quel est votre mot préféré?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'A Different Title'}}
 
     >>> form.configuration_json
-    u'{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "title": {"en": "A Different Title", "fr": "Ma grande forme"}, "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "What is your favorite word?", "fr": "Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?"}}}]}]}'
+    '{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "title": {"en": "A Different Title", "fr": "Ma grande forme"}, "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "What is your favorite word?", "fr": "Quel est votre mot préféré?"}}}]}]}'
     >>> form.configuration_yaml
-    "instrument: {id: 'urn:test-instrument', version: '1.1'}\ndefaultLocalization: en\ntitle: {en: A Different Title, fr: Ma grande forme}\npages:\n- id: page1\n  elements:\n  - type: question\n    options:\n      fieldId: q_fake\n      text: {en: 'What is your favorite word?', fr: 'Quel est votre mot pr\xc3\x83\xc2\xa9f\xc3\x83\xc2\xa9r\xc3\x83\xc2\xa9?'}"
+    "instrument: {id: 'urn:test-instrument', version: '1.1'}\ndefaultLocalization: en\ntitle: {en: A Different Title, fr: Ma grande forme}\npages:\n- id: page1\n  elements:\n  - type: question\n    options:\n      fieldId: q_fake\n      text: {en: 'What is your favorite word?', fr: 'Quel est votre mot préféré?'}"
 
-    >>> form.configuration_json = '{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"fr": "Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?", "en": "What is your favorite word?"}, "fieldId": "q_fake"}}], "id": "page1"}], "title": {"fr": "Ma grande forme", "en": "Not an Original Title"}}'
+    >>> form.configuration_json = '{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"fr": "Quel est votre mot préféré?", "en": "What is your favorite word?"}, "fieldId": "q_fake"}}], "id": "page1"}], "title": {"fr": "Ma grande forme", "en": "Not an Original Title"}}'
     >>> form.configuration
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'Not an Original Title'}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': 'Quel est votre mot préféré?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'Not an Original Title'}}
 
-    >>> form.configuration_yaml = 'instrument: {id: \'urn:test-instrument\', version: \'1.1\'}\ndefaultLocalization: en\ntitle: {en: Some New Title, fr: Ma grande forme}\npages:\n- id: page1\n  elements:\n  - type: question\n    options:\n      fieldId: q_fake\n      text: {en: \'What is your favorite word?\', fr: "Quel est votre mot pr\\xC3\\xA9\\\n          f\\xC3\\xA9r\\xC3\\xA9?"}'
+    >>> form.configuration_yaml = 'instrument: {id: \'urn:test-instrument\', version: \'1.1\'}\ndefaultLocalization: en\ntitle: {en: Some New Title, fr: Ma grande forme}\npages:\n- id: page1\n  elements:\n  - type: question\n    options:\n      fieldId: q_fake\n      text: {en: \'What is your favorite word?\', fr: "Quel est votre mot pré\\\n          féré?"}'
     >>> form.configuration
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'Some New Title'}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'defaultLocalization': 'en', 'title': {'en': 'Some New Title', 'fr': 'Ma grande forme'}, 'pages': [{'id': 'page1', 'elements': [{'type': 'question', 'options': {'fieldId': 'q_fake', 'text': {'en': 'What is your favorite word?', 'fr': 'Quel est votre mot préféré?'}}}]}]}
 
 
 There is also a set of properties for retrieving the adapted version of the
@@ -141,13 +141,13 @@ configuration. (Adapted meaning processed by the configured
 PresentationAdaptor implementations)::
 
     >>> form.adapted_configuration
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'AN ADAPTED TITLE'}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'defaultLocalization': 'en', 'title': {'en': 'AN ADAPTED TITLE', 'fr': 'Ma grande forme'}, 'pages': [{'id': 'page1', 'elements': [{'type': 'question', 'options': {'fieldId': 'q_fake', 'text': {'en': 'What is your favorite word?', 'fr': 'Quel est votre mot préféré?'}}}]}]}
 
     >>> form.adapted_configuration_json
-    u'{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "title": {"en": "AN ADAPTED TITLE", "fr": "Ma grande forme"}, "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "What is your favorite word?", "fr": "Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?"}}}]}]}'
+    '{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "title": {"en": "AN ADAPTED TITLE", "fr": "Ma grande forme"}, "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "What is your favorite word?", "fr": "Quel est votre mot préféré?"}}}]}]}'
 
     >>> form.adapted_configuration_yaml
-    "instrument: {id: 'urn:test-instrument', version: '1.1'}\ndefaultLocalization: en\ntitle: {en: AN ADAPTED TITLE, fr: Ma grande forme}\npages:\n- id: page1\n  elements:\n  - type: question\n    options:\n      fieldId: q_fake\n      text: {en: 'What is your favorite word?', fr: 'Quel est votre mot pr\xc3\x83\xc2\xa9f\xc3\x83\xc2\xa9r\xc3\x83\xc2\xa9?'}"
+    "instrument: {id: 'urn:test-instrument', version: '1.1'}\ndefaultLocalization: en\ntitle: {en: AN ADAPTED TITLE, fr: Ma grande forme}\npages:\n- id: page1\n  elements:\n  - type: question\n    options:\n      fieldId: q_fake\n      text: {en: 'What is your favorite word?', fr: 'Quel est votre mot préféré?'}"
 
 
 There is a static method named ``get_for_task`` which will retrieve a Form
@@ -157,16 +157,16 @@ given a Task and Channel::
     >>> task = Task.get_implementation().get_by_uid('task1')
 
     >>> Form.get_implementation().get_for_task('task1', 'entry')
-    DemoForm(u'simple1entry', DemoChannel(u'entry', u'RexEntry', u'form'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
+    DemoForm('simple1entry', DemoChannel('entry', 'RexEntry', 'form'), DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1))
 
     >>> Form.get_implementation().get_for_task(task, 'entry')
-    DemoForm(u'simple1entry', DemoChannel(u'entry', u'RexEntry', u'form'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
+    DemoForm('simple1entry', DemoChannel('entry', 'RexEntry', 'form'), DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1))
 
     >>> Form.get_implementation().get_for_task('task1', channel)
-    DemoForm(u'simple1entry', DemoChannel(u'entry', u'RexEntry', u'form'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
+    DemoForm('simple1entry', DemoChannel('entry', 'RexEntry', 'form'), DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1))
 
     >>> Form.get_implementation().get_for_task(task, channel)
-    DemoForm(u'simple1entry', DemoChannel(u'entry', u'RexEntry', u'form'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
+    DemoForm('simple1entry', DemoChannel('entry', 'RexEntry', 'form'), DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1))
 
     >>> Form.get_implementation().get_for_task('task5', 'entry') is None
     True

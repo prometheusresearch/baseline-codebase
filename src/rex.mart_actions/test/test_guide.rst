@@ -21,39 +21,39 @@ Validate field configurations::
     >>> from rex.mart_actions.guide import FieldConfigVal
 
     >>> FieldConfigVal({'include': 'foo'})
-    Record(include=u'foo', title=None, selected=True, _type=None)
+    Record(include='foo', title=None, selected=True, _type=None)
 
     >>> FieldConfigVal({'include': 'foo', 'title': 'The Foo', 'selected': False})
-    Record(include=u'foo', title=u'The Foo', selected=False, _type=None)
+    Record(include='foo', title='The Foo', selected=False, _type=None)
 
     >>> FieldConfigVal({'include': 'foo.bar_baz'})
-    Record(include=u'foo.bar_baz', title=None, selected=True, _type=None)
+    Record(include='foo.bar_baz', title=None, selected=True, _type=None)
 
     >>> FieldConfigVal({'include': '*'})
-    Record(include=u'*', title=None, selected=True, _type=None)
+    Record(include='*', title=None, selected=True, _type=None)
 
     >>> FieldConfigVal({'exclude': 'foo'})
-    Record(exclude=u'foo')
+    Record(exclude='foo')
 
     >>> FieldConfigVal({'exclude': 'foo.bar_baz'})
-    Record(exclude=u'foo.bar_baz')
+    Record(exclude='foo.bar_baz')
 
     >>> FieldConfigVal({'expression': 'count(foo)', 'title': 'Number of Foos'})
-    Record(expression=<FunctionSyntax count(foo)>, title=u'Number of Foos', selected=True)
+    Record(expression=<FunctionSyntax count(foo)>, title='Number of Foos', selected=True)
 
     >>> FieldConfigVal({'expression': 'count(foo)', 'title': 'Number of Foos', 'selected': False})
-    Record(expression=<FunctionSyntax count(foo)>, title=u'Number of Foos', selected=False)
+    Record(expression=<FunctionSyntax count(foo)>, title='Number of Foos', selected=False)
 
     >>> FieldConfigVal({'expression': 'count(foo)'})
     Traceback (most recent call last):
         ...
-    Error: Missing mandatory field:
+    rex.core.Error: Missing mandatory field:
         title
 
     >>> FieldConfigVal({'title': 'What?'})
     Traceback (most recent call last):
         ...
-    Error: Expected one of:
+    rex.core.Error: Expected one of:
         include record
         exclude record
         expression record
@@ -63,7 +63,7 @@ Validate field configurations::
     >>> FieldConfigVal({'include': '/blah'})
     Traceback (most recent call last):
         ...
-    Error: Expected a string matching:
+    rex.core.Error: Expected a string matching:
         /^([\w]+|\*)(\.([\w]+|\*))*$/
     Got:
         '/blah'
@@ -73,7 +73,7 @@ Validate field configurations::
     >>> FieldConfigVal({'include': 'round(foo)'})
     Traceback (most recent call last):
         ...
-    Error: Expected a string matching:
+    rex.core.Error: Expected a string matching:
         /^([\w]+|\*)(\.([\w]+|\*))*$/
     Got:
         'round(foo)'
@@ -83,7 +83,7 @@ Validate field configurations::
     >>> FieldConfigVal({'exclude': '/blah'})
     Traceback (most recent call last):
         ...
-    Error: Expected a string matching:
+    rex.core.Error: Expected a string matching:
         /^[\w]+(\.[\w]+)*$/
     Got:
         '/blah'
@@ -96,22 +96,22 @@ Generate field specifications based on field configurations::
 
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city')
     >>> pprint(gc.get_field_specs())
-    [{'selected': True, 'title': u'Id', 'type': u'integer'},
-     {'selected': True, 'title': u'Name', 'type': u'text'},
-     {'selected': True, 'title': u'Country', 'type': u'identity'},
-     {'selected': True, 'title': u'District', 'type': u'text'},
-     {'selected': True, 'title': u'Population', 'type': u'integer'}]
+    [{'selected': True, 'title': 'Id', 'type': 'integer'},
+     {'selected': True, 'title': 'Name', 'type': 'text'},
+     {'selected': True, 'title': 'Country', 'type': 'identity'},
+     {'selected': True, 'title': 'District', 'type': 'text'},
+     {'selected': True, 'title': 'Population', 'type': 'integer'}]
 
     >>> field_cfg = [
     ...     FieldConfigVal({'include': '*'}),
     ... ]
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city', field_cfg)
     >>> pprint(gc.get_field_specs())
-    [{'selected': True, 'title': u'Id', 'type': u'integer'},
-     {'selected': True, 'title': u'Name', 'type': u'text'},
-     {'selected': True, 'title': u'Country', 'type': u'identity'},
-     {'selected': True, 'title': u'District', 'type': u'text'},
-     {'selected': True, 'title': u'Population', 'type': u'integer'}]
+    [{'selected': True, 'title': 'Id', 'type': 'integer'},
+     {'selected': True, 'title': 'Name', 'type': 'text'},
+     {'selected': True, 'title': 'Country', 'type': 'identity'},
+     {'selected': True, 'title': 'District', 'type': 'text'},
+     {'selected': True, 'title': 'Population', 'type': 'integer'}]
 
     >>> field_cfg = [
     ...     FieldConfigVal({'include': '*'}),
@@ -120,18 +120,18 @@ Generate field specifications based on field configurations::
     ... ]
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city', field_cfg)
     >>> pprint(gc.get_field_specs())
-    [{'selected': True, 'title': u'Id', 'type': u'integer'},
-     {'selected': True, 'title': u'Name', 'type': u'text'},
-     {'selected': True, 'title': u'Country', 'type': u'identity'},
-     {'selected': False, 'title': u'District', 'type': u'text'},
-     {'selected': True, 'title': u'Population', 'type': u'integer'}]
+    [{'selected': True, 'title': 'Id', 'type': 'integer'},
+     {'selected': True, 'title': 'Name', 'type': 'text'},
+     {'selected': True, 'title': 'Country', 'type': 'identity'},
+     {'selected': False, 'title': 'District', 'type': 'text'},
+     {'selected': True, 'title': 'Population', 'type': 'integer'}]
 
     >>> field_cfg = [
     ...     FieldConfigVal({'include': 'district', 'title': 'The District'}),
     ... ]
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city', field_cfg)
     >>> pprint(gc.get_field_specs())
-    [{'selected': True, 'title': u'The District', 'type': u'text'}]
+    [{'selected': True, 'title': 'The District', 'type': 'text'}]
 
     >>> field_cfg = [
     ...     FieldConfigVal({'include': '*'}),
@@ -142,9 +142,9 @@ Generate field specifications based on field configurations::
     ... ]
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city', field_cfg)
     >>> pprint(gc.get_field_specs())
-    [{'selected': True, 'title': u'Retitled Name!', 'type': u'text'},
-     {'selected': True, 'title': u'Country', 'type': u'identity'},
-     {'selected': False, 'title': u'District', 'type': u'text'}]
+    [{'selected': True, 'title': 'Retitled Name!', 'type': 'text'},
+     {'selected': True, 'title': 'Country', 'type': 'identity'},
+     {'selected': False, 'title': 'District', 'type': 'text'}]
 
     >>> field_cfg = [
     ...     FieldConfigVal({'include': '*'}),
@@ -152,12 +152,12 @@ Generate field specifications based on field configurations::
     ... ]
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city', field_cfg)
     >>> pprint(gc.get_field_specs())
-    [{'selected': True, 'title': u'Id', 'type': u'integer'},
-     {'selected': True, 'title': u'Name', 'type': u'text'},
-     {'selected': True, 'title': u'Country', 'type': u'identity'},
-     {'selected': True, 'title': u'District', 'type': u'text'},
-     {'selected': True, 'title': u'Population', 'type': u'integer'},
-     {'selected': True, 'title': u'Continent', 'type': u'enum'}]
+    [{'selected': True, 'title': 'Id', 'type': 'integer'},
+     {'selected': True, 'title': 'Name', 'type': 'text'},
+     {'selected': True, 'title': 'Country', 'type': 'identity'},
+     {'selected': True, 'title': 'District', 'type': 'text'},
+     {'selected': True, 'title': 'Population', 'type': 'integer'},
+     {'selected': True, 'title': 'Continent', 'type': 'enum'}]
 
     >>> field_cfg = [
     ...     FieldConfigVal({'include': '*'}),
@@ -168,24 +168,24 @@ Generate field specifications based on field configurations::
     ... ]
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city', field_cfg)
     >>> pprint(gc.get_field_specs())
-    [{'selected': True, 'title': u'Id', 'type': u'integer'},
-     {'selected': True, 'title': u'Name', 'type': u'text'},
-     {'selected': True, 'title': u'Country', 'type': u'identity'},
-     {'selected': True, 'title': u'District', 'type': u'text'},
-     {'selected': True, 'title': u'Population', 'type': u'integer'},
-     {'selected': True, 'title': u'Code', 'type': u'text'},
-     {'selected': True, 'title': u'Name', 'type': u'text'},
-     {'selected': True, 'title': u'Continent', 'type': u'enum'},
-     {'selected': True, 'title': u'Region', 'type': u'text'},
-     {'selected': True, 'title': u'Population', 'type': u'integer'},
-     {'selected': True, 'title': u'Life Expectancy', 'type': u'decimal'},
-     {'selected': True, 'title': u'Gnp', 'type': u'decimal'},
-     {'selected': True, 'title': u'Gnp Old', 'type': u'decimal'},
-     {'selected': True, 'title': u'Local Name', 'type': u'text'},
-     {'selected': True, 'title': u'Government Form', 'type': u'text'},
-     {'selected': True, 'title': u'Head Of State', 'type': u'text'},
-     {'selected': True, 'title': u'Capital City', 'type': u'integer'},
-     {'selected': True, 'title': u'Code2', 'type': u'text'}]
+    [{'selected': True, 'title': 'Id', 'type': 'integer'},
+     {'selected': True, 'title': 'Name', 'type': 'text'},
+     {'selected': True, 'title': 'Country', 'type': 'identity'},
+     {'selected': True, 'title': 'District', 'type': 'text'},
+     {'selected': True, 'title': 'Population', 'type': 'integer'},
+     {'selected': True, 'title': 'Code', 'type': 'text'},
+     {'selected': True, 'title': 'Name', 'type': 'text'},
+     {'selected': True, 'title': 'Continent', 'type': 'enum'},
+     {'selected': True, 'title': 'Region', 'type': 'text'},
+     {'selected': True, 'title': 'Population', 'type': 'integer'},
+     {'selected': True, 'title': 'Life Expectancy', 'type': 'decimal'},
+     {'selected': True, 'title': 'Gnp', 'type': 'decimal'},
+     {'selected': True, 'title': 'Gnp Old', 'type': 'decimal'},
+     {'selected': True, 'title': 'Local Name', 'type': 'text'},
+     {'selected': True, 'title': 'Government Form', 'type': 'text'},
+     {'selected': True, 'title': 'Head Of State', 'type': 'text'},
+     {'selected': True, 'title': 'Capital City', 'type': 'integer'},
+     {'selected': True, 'title': 'Code2', 'type': 'text'}]
 
     >>> field_cfg = [
     ...     FieldConfigVal({'include': '*'}),
@@ -193,43 +193,43 @@ Generate field specifications based on field configurations::
     ... ]
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city', field_cfg)
     >>> pprint(gc.get_field_specs())
-    [{'selected': True, 'title': u'Id', 'type': u'integer'},
-     {'selected': True, 'title': u'Name', 'type': u'text'},
-     {'selected': True, 'title': u'Country', 'type': u'identity'},
-     {'selected': True, 'title': u'District', 'type': u'text'},
-     {'selected': True, 'title': u'Population', 'type': u'integer'},
-     {'selected': True, 'title': u'# Languages in Country', 'type': u'integer'}]
+    [{'selected': True, 'title': 'Id', 'type': 'integer'},
+     {'selected': True, 'title': 'Name', 'type': 'text'},
+     {'selected': True, 'title': 'Country', 'type': 'identity'},
+     {'selected': True, 'title': 'District', 'type': 'text'},
+     {'selected': True, 'title': 'Population', 'type': 'integer'},
+     {'selected': True, 'title': '# Languages in Country', 'type': 'integer'}]
 
     >>> gc.get_htsql([], [])
-    u"/city{id :as 'Id', name :as 'Name', country :as 'Country', district :as 'District', population :as 'Population', count(country.country_language) :as '# Languages in Country'}"
+    "/city{id :as 'Id', name :as 'Name', country :as 'Country', district :as 'District', population :as 'Population', count(country.country_language) :as '# Languages in Country'}"
 
     >>> gc.get_htsql([0,3,5,999], [])
-    u"/city{id :as 'Id', district :as 'District', count(country.country_language) :as '# Languages in Country'}"
+    "/city{id :as 'Id', district :as 'District', count(country.country_language) :as '# Languages in Country'}"
 
 Validate filter configurations::
 
     >>> from rex.mart_actions.guide import FilterConfigVal
 
     >>> FilterConfigVal({'expression': 'foo', 'title': 'Some Foo'})
-    Record(expression=<IdentifierSyntax foo>, title=u'Some Foo')
+    Record(expression=<IdentifierSyntax foo>, title='Some Foo')
 
     >>> FilterConfigVal({'expression': 'foo', 'title': 'Some Foo'})
-    Record(expression=<IdentifierSyntax foo>, title=u'Some Foo')
+    Record(expression=<IdentifierSyntax foo>, title='Some Foo')
 
     >>> FilterConfigVal({'expression': 'foo'})
     Traceback (most recent call last):
         ...
-    Error: Missing mandatory field:
+    rex.core.Error: Missing mandatory field:
         title
 
 Generate filter specifications based on filter configurations::
 
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city')
     >>> pprint(gc.get_filter_specs())
-    [{'title': u'Id', 'type': u'integer'},
-     {'title': u'Name', 'type': u'text'},
-     {'title': u'District', 'type': u'text'},
-     {'title': u'Population', 'type': u'integer'}]
+    [{'title': 'Id', 'type': 'integer'},
+     {'title': 'Name', 'type': 'text'},
+     {'title': 'District', 'type': 'text'},
+     {'title': 'Population', 'type': 'integer'}]
 
     >>> field_cfg = [
     ...     FieldConfigVal({'include': 'name'}),
@@ -247,17 +247,17 @@ Generate filter specifications based on filter configurations::
     ... ]
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city', field_config=field_cfg, filter_config=filter_cfg)
     >>> pprint(gc.get_filter_specs())
-    [{'title': u'Name (Text)', 'type': u'text'},
-     {'title': u'Has a District (Bool)', 'type': u'boolean'},
-     {'title': u'Population (Integer)', 'type': u'integer'},
-     {'title': u'GNP (Decimal)', 'type': u'decimal'},
-     {'title': u'GNP (Float)', 'type': u'float'},
-     {'enumerations': [u'asia', u'europe', u'north_america', u'africa', u'oceania', u'antarctica', u'south_america'],
-      'title': u'Continent (Enum)',
+    [{'title': 'Name (Text)', 'type': 'text'},
+     {'title': 'Has a District (Bool)', 'type': 'boolean'},
+     {'title': 'Population (Integer)', 'type': 'integer'},
+     {'title': 'GNP (Decimal)', 'type': 'decimal'},
+     {'title': 'GNP (Float)', 'type': 'float'},
+     {'enumerations': ['asia', 'europe', 'north_america', 'africa', 'oceania', 'antarctica', 'south_america'],
+      'title': 'Continent (Enum)',
       'type': 'enum'},
-     {'title': u'Now (DateTime)', 'type': u'datetime'},
-     {'title': u'Now (Time)', 'type': u'time'},
-     {'title': u'Today (Date)', 'type': u'date'}]
+     {'title': 'Now (DateTime)', 'type': 'datetime'},
+     {'title': 'Now (Time)', 'type': 'time'},
+     {'title': 'Today (Date)', 'type': 'date'}]
 
     >>> gc.get_htsql([0], [
     ...     {'id': 0, 'value': 'foo'},
@@ -272,7 +272,7 @@ Generate filter specifications based on filter configurations::
     ...     {'id': 8, 'value': '2001-01-01', 'op': '!='},
     ...     {'id': 999, 'value': 'foo'},
     ... ])
-    u"/city{name :as 'Name'}.filter((name)~'foo').filter((!is_null(district))=true()).filter((population)>10).filter((population)<100).filter((country.gnp)>1.3).filter((float(country.gnp))<10.4).filter((country.continent)={'asia','africa'}).filter((now())>datetime('2001-01-01 20:12:23')).filter((time(now()))<=time('20:12:23')).filter((today())!=date('2001-01-01'))"
+    "/city{name :as 'Name'}.filter((name)~'foo').filter((!is_null(district))=true()).filter((population)>10).filter((population)<100).filter((country.gnp)>1.3).filter((float(country.gnp))<10.4).filter((country.continent)={'asia','africa'}).filter((now())>datetime('2001-01-01 20:12:23')).filter((time(now()))<=time('20:12:23')).filter((today())!=date('2001-01-01'))"
 
 Masks always come as part of the query::
 
@@ -282,33 +282,33 @@ Masks always come as part of the query::
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city', field_config=field_cfg, filter_config=filter_cfg, mask_config=mask_cfg)
 
     >>> gc.get_htsql([0], [])
-    u"/city{name :as 'Name'}.filter(population>12345)"
+    "/city{name :as 'Name'}.filter(population>12345)"
 
     >>> gc.get_htsql([0], [{'id': 0, 'value': 'foo'}])
-    u"/city{name :as 'Name'}.filter((name)~'foo').filter(population>12345)"
+    "/city{name :as 'Name'}.filter((name)~'foo').filter(population>12345)"
 
 Sorting and limiting::
 
     >>> gc = GuideConfiguration(mart.get_htsql(), 'city')
 
     >>> gc.get_htsql([1], limit=10)
-    u"/city{name :as 'Name'}.limit(10)"
+    "/city{name :as 'Name'}.limit(10)"
 
     >>> gc.get_htsql([1], limit=10, offset=4)
-    u"/city{name :as 'Name'}.limit(10, 4)"
+    "/city{name :as 'Name'}.limit(10, 4)"
 
     >>> sort_cfg = [
     ...     {'id': 4, 'dir': 'desc'},
     ...     {'id': 0, 'dir': 'asc'},
     ... ]
     >>> gc.get_htsql([1], sort_config=sort_cfg)
-    u"/city{name :as 'Name'}.sort(population-, id)"
+    "/city{name :as 'Name'}.sort(population-, id)"
 
     >>> sort_cfg = [
     ...     {'id': 999, 'dir': 'desc'},
     ... ]
     >>> gc.get_htsql([1], sort_config=sort_cfg)
-    u"/city{name :as 'Name'}"
+    "/city{name :as 'Name'}"
 
 Validate exporter configurations::
 
@@ -316,15 +316,15 @@ Validate exporter configurations::
     >>> validator = GuideExporterVal()
 
     >>> validator('xls')
-    {'name': 'xls', 'mime_type': 'application/vnd.ms-excel', 'title': 'Microsoft Excel (XLS)'}
+    {'name': 'xls', 'title': 'Microsoft Excel (XLS)', 'mime_type': 'application/vnd.ms-excel'}
 
     >>> validator('csv')
-    {'name': 'csv', 'mime_type': 'text/csv', 'title': 'Comma-Separated Values (CSV)'}
+    {'name': 'csv', 'title': 'Comma-Separated Values (CSV)', 'mime_type': 'text/csv'}
 
     >>> validator('doesntexist')
     Traceback (most recent call last):
         ...
-    Error: Unknown GuideExporter "doesntexist"
+    rex.core.Error: Unknown GuideExporter "doesntexist"
 
 Clean up::
 

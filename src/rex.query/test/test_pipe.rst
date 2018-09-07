@@ -30,16 +30,16 @@ Query ``region.name`` is constructed by the following combinator::
     >>> region_to_name_pipe = (region_pipe >> region_name_pipe)
 
     >>> print(region_to_name_pipe)    # doctest: +NORMALIZE_WHITESPACE
-    (SQLTablePipe(SQLTable(schema=SQLSchema(name=u'public'), name=u'region'))
+    (SQLTablePipe(SQLTable(schema=SQLSchema(name='public'), name='region'))
      >>
-     SQLColumnPipe(SQLColumn(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'region'), name=u'name'),
-                   AtomicDomain(u'Text')))
+     SQLColumnPipe(SQLColumn(table=SQLTable(schema=SQLSchema(name='public'), name='region'), name='name'),
+                   AtomicDomain('Text')))
     >>> print(region_to_name_pipe.input)
-    Input(AtomicDomain(u'Void'))
+    Input(AtomicDomain('Void'))
     >>> print(region_to_name_pipe.output)
-    Output(AtomicDomain(u'Text'), optional=True, plural=True)
+    Output(AtomicDomain('Text'), optional=True, plural=True)
     >>> print(region_to_name_pipe())
-    Column([0, 5], [u'AFRICA', u'AMERICA', u'ASIA', u'EUROPE', u'MIDDLE EAST'])
+    Column([0, 5], ['AFRICA', 'AMERICA', 'ASIA', 'EUROPE', 'MIDDLE EAST'])
 
 ``region:select(name, comment)``::
 
@@ -50,19 +50,19 @@ Query ``region.name`` is constructed by the following combinator::
     ...     region_pipe >> DataSetPipe((region_name_pipe, region_comment_pipe))
 
     >>> print(region_with_name_comment_pipe)                        # doctest: +NORMALIZE_WHITESPACE
-    (SQLTablePipe(SQLTable(schema=SQLSchema(name=u'public'), name=u'region'))
+    (SQLTablePipe(SQLTable(schema=SQLSchema(name='public'), name='region'))
      >>
-     DataSetPipe((SQLColumnPipe(SQLColumn(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'region'), name=u'name'), AtomicDomain(u'Text')),
-                  SQLColumnPipe(SQLColumn(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'region'), name=u'comment'), AtomicDomain(u'Text')))))
+     DataSetPipe((SQLColumnPipe(SQLColumn(table=SQLTable(schema=SQLSchema(name='public'), name='region'), name='name'), AtomicDomain('Text')),
+                  SQLColumnPipe(SQLColumn(table=SQLTable(schema=SQLSchema(name='public'), name='region'), name='comment'), AtomicDomain('Text')))))
 
     >>> print(region_with_name_comment_pipe.output)                 # doctest: +NORMALIZE_WHITESPACE
-    Output(DataSetDomain((Output(AtomicDomain(u'Text')),
-                          Output(AtomicDomain(u'Text')))),
+    Output(DataSetDomain((Output(AtomicDomain('Text')),
+                          Output(AtomicDomain('Text')))),
                          optional=True, plural=True)
 
     >>> print(region_with_name_comment_pipe())                      # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
-    Column([0, 5], DataSet([Column([0, 1, 2, 3, 4, 5], [u'AFRICA', u'AMERICA', ...]),
-                            Column([0, 1, 2, 3, 4, 5], [u'lar ...', u'hs ...', ...])], length=5))
+    Column([0, 5], DataSet([Column([0, 1, 2, 3, 4, 5], ['AFRICA', 'AMERICA', ...]),
+                            Column([0, 1, 2, 3, 4, 5], ['lar ...', 'hs ...', ...])], length=5))
 
 ``region:select(name, comment, count(nation))``::
 
@@ -76,18 +76,18 @@ Query ``region.name`` is constructed by the following combinator::
     ...     region_pipe >> DataSetPipe((region_name_pipe, region_comment_pipe, count_region_nation_pipe))
 
     >>> print(region_with_name_comment_count_nation_pipe)         # doctest: +NORMALIZE_WHITESPACE
-    (SQLTablePipe(SQLTable(schema=SQLSchema(name=u'public'), name=u'region'))
+    (SQLTablePipe(SQLTable(schema=SQLSchema(name='public'), name='region'))
      >>
-     DataSetPipe((SQLColumnPipe(SQLColumn(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'region'), name=u'name'), AtomicDomain(u'Text')),
-                  SQLColumnPipe(SQLColumn(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'region'), name=u'comment'), AtomicDomain(u'Text')),
-                  AggregatePipe(Signature(name=u'count', domains=(AnyDomain(),), range=AtomicDomain(u'Integer')),
-                                (SQLLinkPipe(SQLKey(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'region'), names=(u'id',)),
-                                             SQLKey(table=SQLTable(schema=SQLSchema(name=u'public'), name=u'participation'), names=(u'region_id',))),)))))
+     DataSetPipe((SQLColumnPipe(SQLColumn(table=SQLTable(schema=SQLSchema(name='public'), name='region'), name='name'), AtomicDomain('Text')),
+                  SQLColumnPipe(SQLColumn(table=SQLTable(schema=SQLSchema(name='public'), name='region'), name='comment'), AtomicDomain('Text')),
+                  AggregatePipe(Signature(name='count', domains=(AnyDomain(),), range=AtomicDomain('Integer')),
+                                (SQLLinkPipe(SQLKey(table=SQLTable(schema=SQLSchema(name='public'), name='region'), names=('id',)),
+                                             SQLKey(table=SQLTable(schema=SQLSchema(name='public'), name='participation'), names=('region_id',))),)))))
 
     >>> print(region_with_name_comment_count_nation_pipe.output)  # doctest: +NORMALIZE_WHITESPACE
-    Output(DataSetDomain((Output(AtomicDomain(u'Text')),
-                          Output(AtomicDomain(u'Text')),
-                          Output(AtomicDomain(u'Integer')))),
+    Output(DataSetDomain((Output(AtomicDomain('Text')),
+                          Output(AtomicDomain('Text')),
+                          Output(AtomicDomain('Integer')))),
                          optional=True, plural=True)
 
 

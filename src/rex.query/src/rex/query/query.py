@@ -26,7 +26,7 @@ class ApplySyntax(Syntax):
     def __repr__(self):
         return "%s(%r, %r)" % (self.__class__.__name__, self.op, self.args)
 
-    def __unicode__(self):
+    def __str__(self):
         if not self.args:
             return self.op
         if self.op in ['navigate'] and len(self.args) == 1 \
@@ -57,9 +57,6 @@ class ApplySyntax(Syntax):
             chunks.append("(%s)" % ", ".join([str(arg) for arg in tail]))
         return "".join(chunks)
 
-    def __str__(self):
-        return str(self).encode('utf-8', 'replace')
-
     def __hash__(self):
         return hash((self.op, tuple(self.args)))
 
@@ -82,11 +79,9 @@ class LiteralSyntax(Syntax):
     def __repr__(self):
         return "%s(%r)" % (self.__class__.__name__, self.val)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.val is None:
             return "null"
-        if isinstance(self.val, str):
-            return "%r" % self.val.encode('utf-8', 'replace')
         elif isinstance(self.val, str):
             return "%r" % self.val
         elif isinstance(self.val, bool):
@@ -95,9 +90,6 @@ class LiteralSyntax(Syntax):
             return str(self.val)
         else:
             return "%r" % str(self.val)
-
-    def __str__(self):
-        return str(self).encode('utf-8', 'replace')
 
     def __hash__(self):
         return hash(self.val)
@@ -132,9 +124,6 @@ class Query(object):
             args.append("format=%r" % self.format)
         return "%s(%s)" % (self.__class__.__name__, ",".join(args))
 
-    def __unicode__(self):
-        return str(self.syntax)
-
     def __str__(self):
         return str(self.syntax)
 
@@ -143,8 +132,6 @@ class LiteralVal(Validate):
 
     def __call__(self, data):
         with guard("Got:", repr(data)):
-            if isinstance(data, str):
-                data = data.decode('utf-8', 'replace')
             if not (data is None or isinstance(data, (
                         str, bool, int, float,
                         decimal.Decimal, datetime.date,
@@ -165,8 +152,6 @@ class ApplySeqVal(Validate):
             if not isinstance(data[0], str):
                 raise Error("Expected operation name")
         op = data[0]
-        if isinstance(op, str):
-            op = op.decode('utf-8', 'replace')
         args = [QueryVal.validate_syntax(arg) for arg in data[1:]]
         return ApplySyntax(op, args)
 
@@ -184,8 +169,6 @@ class ApplyMapVal(Validate):
                 raise Error("Expected a mapping with field:", "op")
         op = data['op']
         args = data.get('args', [])
-        if isinstance(op, str):
-            op = op.decode('utf-8', 'replace')
         with guard("Got:", repr(op)):
             if not isinstance(op, str):
                 raise Error("Expected operation name")

@@ -8,24 +8,25 @@ import weakref
 import collections
 
 
-class Comparable(object):
+class ComparableMeta(type):
+
+    def __call__(cls, *args, **kwds):
+        cache = cls._object_cache
+        basis = cls.__basis__(*args, **kwds)
+        try:
+            return cache[basis]
+        except KeyError:
+            return cache.setdefault(
+                    basis,
+                    type.__call__(cls, *args, **kwds))
+        pass
+
+
+class Comparable(object, metaclass=ComparableMeta):
 
     __slots__ = ('__weakref__',)
 
     _object_cache = weakref.WeakValueDictionary()
-
-    class __metaclass__(type):
-
-        def __call__(cls, *args, **kwds):
-            cache = cls._object_cache
-            basis = cls.__basis__(*args, **kwds)
-            try:
-                return cache[basis]
-            except KeyError:
-                return cache.setdefault(
-                        basis,
-                        type.__call__(cls, *args, **kwds))
-            pass
 
     @classmethod
     def __basis__(cls):

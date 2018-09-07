@@ -24,6 +24,8 @@ default:
 	@echo "make test                    test all source packages (specify PKG=<package> to test a single package)"
 	@echo "make dist                    build the docker image for distribution"
 	@echo "make upload REGISTRY=<URL>   upload the distribution image to the registry"
+	@echo "make shell                   opens a bash shell in the application container"
+	@echo "make capture-updated         copies updated files from the application container to the local filesystem"
 .PHONY: default
 
 
@@ -249,6 +251,31 @@ test: ./bin/activate
 		echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` Testing complete${NORM}"; \
    	fi
 .PHONY: test
+
+
+# Retrieve files updated in the container and copy them locally.
+capture-updated: ./bin/activate
+	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Searching for files updated in the container..."; \
+	UPDATED= ;\
+	CONTAINER=$$(docker-compose ps --quiet develop) ;\
+	for mask in ${CAPTURE_MASKS}; do \
+		for match in $$(docker-compose exec -T develop find . -type f -regex $$mask); do \
+			tmp=$$(mktemp) ;\
+			docker cp $$CONTAINER:/app/$$match $$tmp ;\
+			diff -N $$match $$tmp > /dev/null ;\
+			if [ $$? -ne 0 ]; then \
+				cat $$tmp > $$match ;\
+				UPDATED="$$UPDATED $$match" ;\
+			fi ;\
+			rm $$tmp ;\
+		done ;\
+	done ;\
+	if [ -z "$$UPDATED" ]; then \
+		echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` No updated files found." ;\
+	else \
+		echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` Found updated files:" $$UPDATED "${NORM}"; \
+   	fi
+.PHONY: capture-updated
 
 
 # Build the application docker image for distribution.

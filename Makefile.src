@@ -107,3 +107,12 @@ SRC_DATA = \
 	src/rex.form_previewer/js/build:share/rex/rex.form_previewer/www/bundle \
 	src/rex.demo.baseline/js/build:share/rex/rex.demo.baseline/www/bundle
 
+
+### Capturing Updated Files
+# This variable contains a list of regular expressions that are used to look
+# for files by the "catpure-updated" target.
+CAPTURE_MASKS = \
+	^\./src/.*/static/i18n/.* \
+	^\./src/.*/js/package.json$$ \
+	^\./src/.*/js/yarn.lock$$
+

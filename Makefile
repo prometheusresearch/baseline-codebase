@@ -89,6 +89,7 @@ init-bin:
 # Create the environment.
 init-env:
 	python3 -m venv ${CURDIR}
+	${CURDIR}/bin/pip install wheel==0.31.1
 	npm --global --prefix ${CURDIR} install yarn@1.9.2
 .PHONY: init-env
 

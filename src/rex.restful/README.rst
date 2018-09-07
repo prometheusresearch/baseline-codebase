@@ -22,6 +22,9 @@ R43MH099826.
 
 .. |R| unicode:: 0xAE .. registered trademark sign
 
+This package includes code originally from the `cors-python
+<https://github.com/monsur/cors-python>`_ project.
+
 
 RestfulLocations
 ================

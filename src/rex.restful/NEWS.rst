@@ -5,6 +5,13 @@ REX.RESTFUL Change Log
 .. contents:: Table of Contents
 
 
+1.4.0
+=====
+
+* Embedded the ``cors-python`` package so that we could patch it for Python3
+  support.
+
+
 1.3.1 (2018-04-04)
 ==================
 

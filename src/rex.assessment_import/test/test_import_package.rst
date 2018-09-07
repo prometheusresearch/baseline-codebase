@@ -67,7 +67,7 @@ When not readable xls file given::
   >>> input = ImportPackage.from_xls('./test/data/errors/qctest/qctest18.xls')
   Traceback (most recent call last):
   ...
-  Error: Bad xls file
+  rex.core.Error: Bad xls file
       File size is 0 bytes
 
 from_csv
@@ -97,8 +97,8 @@ When csv file is unreadable::
   >>> input = ImportPackage.from_csv('./test/data/errors/qctest/csv/qctest19.csv')
   Traceback (most recent call last):
   ...
-  Error: Unable to read csv ./test/data/errors/qctest/csv/qctest19.csv.
-      line contains NULL byte
+  rex.core.Error: Unable to read csv ./test/data/errors/qctest/csv/qctest19.csv.
+      'utf-8' codec can't decode byte 0xd0 in position 0: invalid continuation byte
 
 from_zip
 ++++++++
@@ -131,7 +131,7 @@ Use method as_xls_file to generate xls file content::
 
   >>> filename, filecontent = package.as_xls_file()
   >>> print(filename, len(filecontent))
-  eeg-upload1.xls 888832
+  eeg-upload1.xls 872448
 
 as_zip_file
 +++++++++++
@@ -155,7 +155,7 @@ method fail(...) just raised given exception::
   >>> input = ImportPackage.from_xls('./test/data/errors/qctest/qctest0.xls')
   Traceback (most recent call last):
   ...
-  Error: Unexpected xls file ./test/data/errors/qctest/qctest0.xls.
+  rex.core.Error: Unexpected xls file ./test/data/errors/qctest/qctest0.xls.
       Sheet 0 contains less than 2 rows.
 
 When application started with assessment_import_dir, method fail saved an
@@ -169,7 +169,7 @@ exception to import.log file, copied failed input data to the path
   >>> input = ImportPackage.from_xls('./test/data/errors/qctest/qctest0.xls')
   Traceback (most recent call last):
   ...
-  Error: Unexpected xls file ./test/data/errors/qctest/qctest0.xls.
+  rex.core.Error: Unexpected xls file ./test/data/errors/qctest/qctest0.xls.
       Sheet 0 contains less than 2 rows.
 
   >>> os.path.exists('./build/sandbox/import.log')

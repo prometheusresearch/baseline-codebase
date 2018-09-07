@@ -25,14 +25,14 @@ Instrument must exist in the data store::
   >>> export_template(instrument_uid='notexists')
   Traceback (most recent call last):
   ...
-  Error: Instrument "notexists" does not exist.
+  rex.core.Error: Instrument "notexists" does not exist.
 
 If version given, it must exist in the data store::
 
   >>> export_template(instrument_uid='complex', version=3)
   Traceback (most recent call last):
   ...
-  Error: The desired version of "Complex Instrument" does not exist.
+  rex.core.Error: The desired version of "Complex Instrument" does not exist.
 
 Successfull export returns ImportPackage object::
 
@@ -82,5 +82,5 @@ When package consists on more than one chunks, ImportPackage.as_csv_file fails::
   >>> csv_file_name, csv_file_content = output.as_csv_file()
   Traceback (most recent call last):
   ...
-  Error: Unable to generate csv file for more than one chunk
+  rex.core.Error: Unable to generate csv file for more than one chunk
 

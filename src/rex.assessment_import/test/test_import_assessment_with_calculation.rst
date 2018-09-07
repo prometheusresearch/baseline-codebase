@@ -26,9 +26,9 @@ Should run calculations::
   >>> input = ImportPackage.from_csv(path='./test/data/calculation1.csv')
 
   >>> import_assessment(instrument_uid='calculation', version=1, input=input)
-  ### CREATED RECORDSET fake_assessment_1 {u'calc1': 47, u'calc2': 149, u'calc3': True}
+  ### CREATED RECORDSET fake_assessment_1 {'calc1': 47, 'calc2': 149, 'calc3': True}
   ### SAVED ASSESSMENT fake_assessment_1
-  ### CREATED RECORDSET fake_assessment_1 {u'calc1': 50, u'calc2': 129, u'calc3': True}
+  ### CREATED RECORDSET fake_assessment_1 {'calc1': 50, 'calc2': 129, 'calc3': True}
   ### SAVED ASSESSMENT fake_assessment_1
 
   >>> app.off()

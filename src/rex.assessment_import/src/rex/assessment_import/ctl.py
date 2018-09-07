@@ -77,7 +77,7 @@ class AssessmentTemplateExportTask(RexTask):
             if not os.path.exists(output):
                 os.mkdir(output)
             filepath = os.path.join(output, filename)
-            with open(filepath, 'w') as f:
+            with open(filepath, 'wb') as f:
                 f.write(filecontent)
 
 

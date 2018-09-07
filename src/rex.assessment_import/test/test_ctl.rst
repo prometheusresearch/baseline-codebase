@@ -62,8 +62,8 @@ when --format option is csv::
 
   >>> with zipfile.ZipFile('./build/sandbox/simple1.zip', 'r') as zf:
   ...       for filepath in zf.namelist():
-  ...           print(zf.open(filepath, 'rU').readlines())
-  ['subject,date,assessment_id,study,study1,q_fake\n', 'Please provide the subject id here; (required),Please provide a date (YYYY-MM-DD),Please provide a unique id for this assessement; (required),,(required),text\n']
+  ...           print(zf.open(filepath, 'r').readlines())
+  [b'subject,date,assessment_id,study,study1,q_fake\r\n', b'Please provide the subject id here; (required),Please provide a date (YYYY-MM-DD),Please provide a unique id for this assessement; (required),,(required),text\r\n']
 
 
 

@@ -43,14 +43,12 @@ class Assessment(object):
                     field['validator'](value)
                 except Error as exc:
                     raise Error("Got unexpected %s value in %s"
-                                % (field_id, instrument.id), exc)
+                                % (field_id, instrument.id), exc) from None
                 context[field_id] = value
         return context
 
     def make_date(self, data):
         date = data.get('date')
-        if isinstance(date, str):
-            date = date.encode('utf-8', 'replace')
         if not date:
             date = datetime.datetime.today()
         elif isinstance(date, (int, float)):
@@ -103,8 +101,6 @@ class Assessment(object):
         for id in field.enumerations:
             enum_id = field.id + '_' + id
             enum_value = data[enum_id]
-            if isinstance(enum_value, str):
-                enum_value = enum_value.decode('utf-8', 'replace')
             if enum_value in (None, ''):
                 continue
             if str(enum_value).lower() in ('1', 'true'):
@@ -125,8 +121,6 @@ class Assessment(object):
         value = data.get(field.id)
         if isinstance(value, str):
             value = value.strip()
-        if isinstance(value, str):
-            value = value.decode('utf-8', 'replace')
         if value in (None, ''):
             if field.required:
                 raise Error("Got null for required field %s." % field.id)
@@ -260,7 +254,7 @@ class AssessmentCollection(object):
                 self.check_with_template(template, row)
             except Error as exc:
                 raise Error("Check chunk `%s` row # %s does not"
-                            " match template" % (chunk.id, idx+1), exc)
+                            " match template" % (chunk.id, idx+1), exc) from None
             assessment_id = row.get('assessment_id')            
             assessment = self.assessment_map.get(assessment_id)
             if not assessment:
@@ -274,7 +268,7 @@ class AssessmentCollection(object):
                 elif field.base_type == 'matrix':
                     assessment.make_matrix(field, row)
             except Exception as exc:
-                raise Error("Check chunk `%s` row #%s" % (chunk.id, idx+1), exc)
+                raise Error("Check chunk `%s` row #%s" % (chunk.id, idx+1), exc) from None
 
     def check_assessment_id(self, instrument, chunk):
         field = instrument[chunk.id]

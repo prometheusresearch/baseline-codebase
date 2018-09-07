@@ -22,7 +22,7 @@ application start fails::
   >>> app = Rex('rex.assessment_import_demo', assessment_import_dir='errors')
   Traceback (most recent call last):
   ...
-  Error: Asessment import storage (assessment_import_dir) does not exist:
+  rex.core.Error: Asessment import storage (assessment_import_dir) does not exist:
       errors
   While initializing RexDB application:
       rex.assessment_import_demo
@@ -57,7 +57,7 @@ context fields included into template, otherwise only listed fields included.
 
   >>> template = Template(instrument)
   >>> print(list(template['qctest1'].keys()))
-  [u'subject', u'date', u'assessment_id', 'study', 'study1', 'integer', 'float', 'text1', 'text5', 'enumeration3', 'boolean', 'date1', 'time', 'datetime', 'enumeration1', 'enumeration2', 'boolean_dropdown', 'another_text', 'enumerationset1_english', 'enumerationset1_russian', 'enumerationset1_hindi', 'enumerationset1_spanish', 'enumerationset1_mandarin', 'enumerationset1_arabic', 'boolean2', 'enumerationset2_dog', 'enumerationset2_hamster', 'enumerationset2_rabbit', 'enumerationset2_cat', 'breed', 'text4', 'text11', 'boolean_fail', 'lookup_text', 'enumeration5', 'enumeration6', 'boolean3', 'q_boolean1', 'q_boolean2', 'enumerationset5_switzerland', 'enumerationset5_other', 'enumerationset5_italy', 'enumerationset5_france', 'text12']
+  ['subject', 'date', 'assessment_id', 'study', 'study1', 'integer', 'float', 'text1', 'text5', 'enumeration3', 'boolean', 'date1', 'time', 'datetime', 'enumeration1', 'enumeration2', 'boolean_dropdown', 'another_text', 'enumerationset1_arabic', 'enumerationset1_english', 'enumerationset1_hindi', 'enumerationset1_mandarin', 'enumerationset1_russian', 'enumerationset1_spanish', 'boolean2', 'enumerationset2_cat', 'enumerationset2_dog', 'enumerationset2_hamster', 'enumerationset2_rabbit', 'breed', 'text4', 'text11', 'boolean_fail', 'lookup_text', 'enumeration5', 'enumeration6', 'boolean3', 'q_boolean1', 'q_boolean2', 'enumerationset5_france', 'enumerationset5_italy', 'enumerationset5_other', 'enumerationset5_switzerland', 'text12']
 
   >>> app = Rex('rex.assessment_import_demo',
   ...           assessment_context_fields=['study1'])
@@ -68,7 +68,7 @@ context fields included into template, otherwise only listed fields included.
 
   >>> template = Template(instrument)
   >>> print(list(template['qctest1'].keys()))
-  [u'subject', u'date', u'assessment_id', 'study1', 'integer', 'float', 'text1', 'text5', 'enumeration3', 'boolean', 'date1', 'time', 'datetime', 'enumeration1', 'enumeration2', 'boolean_dropdown', 'another_text', 'enumerationset1_english', 'enumerationset1_russian', 'enumerationset1_hindi', 'enumerationset1_spanish', 'enumerationset1_mandarin', 'enumerationset1_arabic', 'boolean2', 'enumerationset2_dog', 'enumerationset2_hamster', 'enumerationset2_rabbit', 'enumerationset2_cat', 'breed', 'text4', 'text11', 'boolean_fail', 'lookup_text', 'enumeration5', 'enumeration6', 'boolean3', 'q_boolean1', 'q_boolean2', 'enumerationset5_switzerland', 'enumerationset5_other', 'enumerationset5_italy', 'enumerationset5_france', 'text12']
+  ['subject', 'date', 'assessment_id', 'study1', 'integer', 'float', 'text1', 'text5', 'enumeration3', 'boolean', 'date1', 'time', 'datetime', 'enumeration1', 'enumeration2', 'boolean_dropdown', 'another_text', 'enumerationset1_arabic', 'enumerationset1_english', 'enumerationset1_hindi', 'enumerationset1_mandarin', 'enumerationset1_russian', 'enumerationset1_spanish', 'boolean2', 'enumerationset2_cat', 'enumerationset2_dog', 'enumerationset2_hamster', 'enumerationset2_rabbit', 'breed', 'text4', 'text11', 'boolean_fail', 'lookup_text', 'enumeration5', 'enumeration6', 'boolean3', 'q_boolean1', 'q_boolean2', 'enumerationset5_france', 'enumerationset5_italy', 'enumerationset5_other', 'enumerationset5_switzerland', 'text12']
 
 assessment data file contains context columns ``study`` and ``study1``::
 
@@ -76,7 +76,7 @@ assessment data file contains context columns ``study`` and ``study1``::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Check chunk `qctest1` row # 1 does not match template
+  rex.core.Error: Check chunk `qctest1` row # 1 does not match template
       data header contains extra columns study.
 
 assessment data file contains only context column ``study1``::

@@ -6,7 +6,7 @@ import zipfile
 import datetime
 import shutil
 
-from io import StringIO
+from io import StringIO, BytesIO, TextIOWrapper
 from collections import OrderedDict
 
 from rex.core import get_settings, Error
@@ -78,7 +78,7 @@ class ImportPackage(object):
                 shutil.copy(input, output)
                 with open(logfile, 'a') as f:
                     f.write('File saved as `%s`.\n\n' % output)
-        raise Error(str(msg))
+        raise Error(str(msg)) from None
 
     @classmethod
     def from_xls(cls, path, user=None):
@@ -124,7 +124,7 @@ class ImportPackage(object):
             (name, ext) = os.path.splitext(filename)
             if ext != '.csv': continue
             filepath = os.path.join(path, filename)
-            with open(filepath, 'rU') as csvfile:
+            with open(filepath, 'r') as csvfile:
                 try:
                     data = cls.read_csv(csvfile, user)
                 except Exception as exc:
@@ -150,7 +150,8 @@ class ImportPackage(object):
                 name, ext = os.path.splitext(os.path.basename(filepath))
                 if name.startswith('.'): continue
                 if ext != '.csv': continue
-                with zf.open(filepath, 'rU') as csvfile:
+                with zf.open(filepath, 'r') as csvfile:
+                    csvfile = TextIOWrapper(csvfile)
                     try:
                         data = cls.read_csv(csvfile, user)
                     except Exception as exc:
@@ -169,7 +170,7 @@ class ImportPackage(object):
         filename = os.path.basename(path)
         (name, ext) = os.path.splitext(filename)
         assert ext == '.csv'
-        with open(path, 'rU') as csvfile:
+        with open(path, 'r') as csvfile:
             try:
                 data = cls.read_csv(csvfile, user)
             except Exception as exc:
@@ -196,10 +197,10 @@ class ImportPackage(object):
         for row in self.chunks[0].data:
             writer.writerow(row)
         csvfilename = self.chunks[0].id + '.csv'
-        return (csvfilename, csvcontent.getvalue())
+        return (csvfilename, csvcontent.getvalue().encode('utf-8'))
 
     def as_zip_file(self):
-        zipcontent = StringIO()
+        zipcontent = BytesIO()
         zipname = min([chunk.id for chunk in self.chunks]) + '.zip'
         with zipfile.ZipFile(zipcontent, 'w') as _zip:
             for chunk in self.chunks:
@@ -209,7 +210,7 @@ class ImportPackage(object):
                 writer.writeheader()
                 for row in chunk.data:
                     writer.writerow(row)
-                _zip.writestr(chunk.id + '.csv', csvcontent.getvalue())
+                _zip.writestr(chunk.id + '.csv', csvcontent.getvalue().encode('utf-8'))
         return (zipname, zipcontent.getvalue())
 
     def as_xls_file(self):
@@ -224,7 +225,7 @@ class ImportPackage(object):
                 for row_idx, row in enumerate(chunk.data):
                     sheet.write(row_idx+2, col_idx, row.get(key))
         filename = min([chunk.id for chunk in self.chunks]) + '.xls'
-        s = StringIO()
+        s = BytesIO()
         workbook.save(s)
         return (filename, s.getvalue())
 

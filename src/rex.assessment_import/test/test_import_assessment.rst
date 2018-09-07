@@ -26,7 +26,7 @@ Parameter input is expected::
   >>> import_assessment(instrument_uid='notexists')
   Traceback (most recent call last):
   ...
-  Error: input is expected.
+  rex.core.Error: input is expected.
 
 Parameter input is expected as an object of ImportPackage::
 
@@ -34,7 +34,7 @@ Parameter input is expected as an object of ImportPackage::
   ...                   input='./test/data/eeg-upload1.xls')
   Traceback (most recent call last):
   ...
-  Error: input is expected as an object of ImportPackage.
+  rex.core.Error: input is expected as an object of ImportPackage.
 
 Generate ImportPackage object::
 
@@ -45,14 +45,14 @@ Instrument must exist in data storage::
   >>> import_assessment(instrument_uid='notexists', input=input)
   Traceback (most recent call last):
   ...
-  Error: Instrument "notexists" does not exist.
+  rex.core.Error: Instrument "notexists" does not exist.
 
 If version given it must exist in data storage::
 
   >>> import_assessment(instrument_uid='eeg-upload', version=3, input=input)
   Traceback (most recent call last):
   ...
-  Error: The desired version of "Test Instrument" does not exist.
+  rex.core.Error: The desired version of "Test Instrument" does not exist.
 
   >>> import_assessment(instrument_uid='eeg-upload', version=1, input=input)
   ### CREATED 2999 ASSESSMENTS
@@ -99,7 +99,7 @@ instrument template::
   >>> import_assessment(instrument_uid='eeg-upload', version=1, input=input) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Chunk `eeg-upload2` not found in instrument `eeg-upload1` template.
+  rex.core.Error: Chunk `eeg-upload2` not found in instrument `eeg-upload1` template.
 
 Extra chunk saved::
 
@@ -113,8 +113,8 @@ Import fails when it is unable to read one of csv files stored in directory::
   ...                                      user='demo')  # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Unable to read csv .../src/rex.assessment_import/test/data/errors/eeg-upload1/eeg-upload1.csv
-      line contains NULL byte
+  rex.core.Error: Unable to read csv .../src/rex.assessment_import/test/data/errors/eeg-upload1/eeg-upload1.csv
+      'utf-8' codec can't decode byte 0xd0 in position 0: invalid continuation byte
 
 Import fails when data header does not match instrument template header::
 
@@ -124,7 +124,7 @@ Import fails when data header does not match instrument template header::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Check chunk `qctest1` row # 1 does not match template
+  rex.core.Error: Check chunk `qctest1` row # 1 does not match template
       data header contains extra columns extra_column.
 
 Import fails when data header does not contain all columns listed in chunk
@@ -136,8 +136,8 @@ template::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Check chunk `qctest1` row # 1 does not match template
-      data header does not contain expected columns enumerationset5_france, text12.
+  rex.core.Error: Check chunk `qctest1` row # 1 does not match template
+      data header does not contain expected columns text12, enumerationset5_france.
 
 Import fails when header of csv files contains less columns than at least one
 of the csv rows::
@@ -148,7 +148,7 @@ of the csv rows::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Check chunk `qctest1` row # 1 does not match template
+  rex.core.Error: Check chunk `qctest1` row # 1 does not match template
       nulls is not expected in data header.
 
 Import fails when one of the data rows contain null in assessment_id::
@@ -159,7 +159,7 @@ Import fails when one of the data rows contain null in assessment_id::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Check chunk `qctest1` row # 1, assessment_id not found.
+  rex.core.Error: Check chunk `qctest1` row # 1, assessment_id not found.
 
 Import fails when record (instrument) chunk contains duplicated assessment_id::
 
@@ -169,7 +169,7 @@ Import fails when record (instrument) chunk contains duplicated assessment_id::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Duplicated assessment_id `1.0` chunk `qctest1` row # 2.
+  rex.core.Error: Duplicated assessment_id `1.0` chunk `qctest1` row # 2.
 
 Import fails when matrix chunk contains duplicated assessment_id::
 
@@ -179,7 +179,7 @@ Import fails when matrix chunk contains duplicated assessment_id::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Duplicated assessment_id `1.0` chunk `qctest1.matrix` row # 2.
+  rex.core.Error: Duplicated assessment_id `1.0` chunk `qctest1.matrix` row # 2.
 
 Import fails when one of the data rows contain null in subject::
 
@@ -189,7 +189,7 @@ Import fails when one of the data rows contain null in subject::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Check chunk `qctest1` row #2
+  rex.core.Error: Check chunk `qctest1` row #2
       subject is required.
 
 Import fails when field from instrument implementation context is required and
@@ -201,7 +201,7 @@ contains no value::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Check chunk `qctest1` row #1
+  rex.core.Error: Check chunk `qctest1` row #1
       study1 value is required in qctest1.
 
 Import fails when field from instrument implementation context contains value
@@ -213,11 +213,11 @@ can not be validated with its validator::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Check chunk `qctest1` row #1
+  rex.core.Error: Check chunk `qctest1` row #1
       Got unexpected study1 value in qctest1
           Expected a float value
           Got:
-              u'study1'
+              'study1'
 
 Import fails when assessment implementation method bulk_create failed::
 
@@ -227,7 +227,7 @@ Import fails when assessment implementation method bulk_create failed::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Bulk create failed with unexpected study1.
+  rex.core.Error: Bulk create failed with unexpected study1.
 
 When application started with the parameter assessment_import_dir, and method
 bulk_create failed all import data saved as cvs files
@@ -246,7 +246,7 @@ bad evaluation date::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Check chunk `qctest1` row #1
+  rex.core.Error: Check chunk `qctest1` row #1
       Unexpected value date for date.
 
 bad integer::
@@ -257,7 +257,7 @@ bad integer::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Check chunk `qctest1` row #1
+  rex.core.Error: Check chunk `qctest1` row #1
        Got unexpected value int for field integer of integer type.
 
 bad float::
@@ -268,7 +268,7 @@ bad float::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Check chunk `qctest1` row #1
+  rex.core.Error: Check chunk `qctest1` row #1
        Got unexpected value float for float type field float.
 
 bad enumeration::
@@ -279,8 +279,8 @@ bad enumeration::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Check chunk `qctest1` row #1
-      Got unexpected value 0.0 of enumeration type, one of ['blue', 'bright-yellow', 'purple', 'yellow', 'baby-pink', 'pink', 'black', 'red', 'white', 'royal-blue', 'dark-red', 'cream'] is expected for field enumeration3.
+  rex.core.Error: Check chunk `qctest1` row #1
+      Got unexpected value 0.0 of enumeration type, one of ['baby-pink', 'black', 'blue', 'bright-yellow', 'cream', 'dark-red', 'pink', 'purple', 'red', 'royal-blue', 'white', 'yellow'] is expected for field enumeration3.
 
 required field not given::
 
@@ -290,7 +290,7 @@ required field not given::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Check chunk `qctest1` row #1
+  rex.core.Error: Check chunk `qctest1` row #1
       Got null for required field boolean.
 
 bad boolean::
@@ -301,7 +301,7 @@ bad boolean::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Check chunk `qctest1` row #1
+  rex.core.Error: Check chunk `qctest1` row #1
        Got unexpected value boolean of boolean type field boolean.
 
 bad date::
@@ -312,7 +312,7 @@ bad date::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Check chunk `qctest1` row #1
+  rex.core.Error: Check chunk `qctest1` row #1
        Got unexpected value date1 of date type, YYYY-MM-DD is expected for field date1.
 
 bad time::
@@ -323,7 +323,7 @@ bad time::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Check chunk `qctest1` row #1
+  rex.core.Error: Check chunk `qctest1` row #1
        Got unexpected value time of time type, HH:MM:SS is expected for field time.
 
 bad datetime::
@@ -334,7 +334,7 @@ bad datetime::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Check chunk `qctest1` row #1
+  rex.core.Error: Check chunk `qctest1` row #1
       Got unexpected value datetime of dateTime type, YYYY-MM-DDTHH:MM:SS is expected for field datetime.
 
 required enumerationSet is not given::
@@ -345,7 +345,7 @@ required enumerationSet is not given::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Check chunk `qctest1` row #1
+  rex.core.Error: Check chunk `qctest1` row #1
       Not found value of required field enumerationset1
 
 bad enumerationSet::
@@ -356,7 +356,7 @@ bad enumerationSet::
   >>> import_assessment(instrument_uid='qctest', input=input)
   Traceback (most recent call last):
   ...
-  Error: Check chunk `qctest1` row #1
+  rex.core.Error: Check chunk `qctest1` row #1
       Got unexpected value english for enumerationset1_english.
           TRUE or FALSE is expected for enumerationSet field
 

@@ -94,13 +94,13 @@ class Package:
         real_path = self.abspath(local_path)
         return (real_path is not None and os.path.exists(real_path))
 
-    def open(self, local_path):
+    def open(self, local_path, mode='r'):
         """
         Opens and returns the file referred by `local_path`.
         """
         real_path = self.abspath(local_path)
         assert real_path is not None, local_path
-        return open(real_path)
+        return open(real_path, mode=mode)
 
     def walk(self, local_path):
         """
@@ -383,11 +383,11 @@ class PackageCollection:
         """
         return self._delegate(package_path, Package.exists)
 
-    def open(self, package_path):
+    def open(self, package_path, mode='r'):
         """
         Opens and returns the file referred by `package_path`.
         """
-        return self._delegate(package_path, Package.open)
+        return self._delegate(package_path, Package.open, mode=mode)
 
     def walk(self, package_path):
         """

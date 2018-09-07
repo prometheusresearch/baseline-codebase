@@ -73,7 +73,7 @@ class TabularImportTemplateTask(RexTask):
                 raise Error('Could not open "%s" for writing: %s' % (
                     self.output,
                     str(exc),
-                ))
+                )) from None
         else:
             output = sys.stdout
 
@@ -122,7 +122,7 @@ class TabularImportTask(RexTask):
             raise Error('Could not open "%s" for reading: %s' % (
                 self.data,
                 str(exc),
-            ))
+            )) from None
 
         with self.make():
             try:
@@ -133,7 +133,7 @@ class TabularImportTask(RexTask):
                     use_defaults=self.use_defaults,
                 )
             except Exception as exc:
-                raise Error(str(exc))
+                raise Error(str(exc)) from None
             else:
                 log('%s records imported into %s' % (
                     num_imported,

@@ -33,6 +33,6 @@ setup(
         'rex.attach',
         'rex.file',
         'rex.widget',
-        'tablib >=0.10, <0.11',
+        'tablib >=0.12, <0.13',
     ],
     rex_init='rex.tabular_import')

@@ -209,14 +209,13 @@ class MartCreator(object):
                 return mart
 
             except:  # noqa
-                exc_info = sys.exc_info()
                 if self.code and purge_on_failure:
                     try:
                         purge_mart(self.code)
                     except:  # noqa
                         # Be quiet so the original exception can raised
                         pass
-                raise exc_info[0](exc_info[1]).with_traceback(exc_info[2])
+                raise
 
             finally:
                 self.start_date = None

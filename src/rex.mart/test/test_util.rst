@@ -41,7 +41,7 @@ HTSQL statements that are embedded within a larger HTSQL script::
     >>> extract_htsql_statements(script)
     Traceback (most recent call last):
         ...
-    Error: Got unexpected indentation, line 2
+    rex.core.Error: Got unexpected indentation, line 2
 
 
 guarded
@@ -58,14 +58,14 @@ payload::
     ...     raise Error('oh no!')
     Traceback (most recent call last):
         ...
-    Error: oh no!
+    rex.core.Error: oh no!
     This is my message
 
     >>> with guarded('This is my message', 'some context'):
     ...     raise Error('oh no!')
     Traceback (most recent call last):
         ...
-    Error: oh no!
+    rex.core.Error: oh no!
     This is my message
         some context
 
@@ -73,14 +73,14 @@ payload::
     ...     raise Exception('Not a Rex Error!')
     Traceback (most recent call last):
         ...
-    Error: Not a Rex Error!
+    rex.core.Error: Not a Rex Error!
     This is my message
 
     >>> with guarded('This is my message', 'some context'):
     ...     raise Exception('Not a Rex Error!')
     Traceback (most recent call last):
         ...
-    Error: Not a Rex Error!
+    rex.core.Error: Not a Rex Error!
     This is my message
         some context
 
@@ -102,30 +102,30 @@ in the database::
     >>> from rex.mart import make_safe_token
 
     >>> make_safe_token('foo')
-    u'foo'
+    'foo'
 
     >>> make_safe_token('FOO')
-    u'foo'
+    'foo'
 
     >>> make_safe_token('foo-bar')
-    u'foo_bar'
+    'foo_bar'
 
     >>> make_safe_token('fOo-Bar#baZ')
-    u'foo_barbaz'
+    'foo_barbaz'
 
     >>> make_safe_token('fOo-B@r#baZ')
-    u'foo_brbaz'
+    'foo_brbaz'
 
     >>> make_safe_token('qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm')
-    u'qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopa'
+    'qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopa'
 
     >>> make_safe_token('id')
-    u'id_'
+    'id_'
 
     >>> make_safe_token('%^$#%&^%&*&')
     Traceback (most recent call last):
         ...
-    Error: Cannot make a safe token out of "%^$#%&^%&*&"
+    rex.core.Error: Cannot make a safe token out of "%^$#%&^%&*&"
 
 
 

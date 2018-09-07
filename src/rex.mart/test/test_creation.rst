@@ -121,7 +121,7 @@ Create a Mart that always ends up with the same database name::
     >>> mc = MartCreator('test', 'fixed_name')
     >>> mart1 = mc()
     >>> mart1.name
-    u'a_fixed_name_mart'
+    'a_fixed_name_mart'
     >>> db_exists(mart1.name)
     True
     >>> db_inventory(mart1.name)
@@ -135,7 +135,7 @@ Create a Mart that always ends up with the same database name::
 
     >>> mart2 = mc()
     >>> mart2.name
-    u'a_fixed_name_mart'
+    'a_fixed_name_mart'
     >>> db_exists(mart2.name)
     True
     >>> db_inventory(mart2.name)
@@ -235,12 +235,12 @@ Make a table and load it with data using script parameters::
     True
     >>> db_inventory(mart.name, detailed=['foo'])
     foo: 6
-    (u'bar', None)
-    (u'baz', None)
-    (u'blah', None)
-    (u'foo', None)
-    (u'some_data_with_params', None)
-    (u'test', None)
+    ('bar', None)
+    ('baz', None)
+    ('blah', None)
+    ('foo', None)
+    ('some_data_with_params', None)
+    ('test', None)
     >>> db_status(mart.name)
     Definition: some_data_with_params
     Status: complete
@@ -253,7 +253,7 @@ Load data into an existing database::
     >>> mc = MartCreator('test', 'existing')
     >>> mart = mc()
     >>> mart.name
-    u'mart_demo'
+    'mart_demo'
     >>> db_exists(mart.name)
     True
     >>> db_inventory(mart.name)
@@ -336,14 +336,14 @@ contents::
     True
     >>> db_inventory(mart.name, detailed=['mart1'])
     mart1: 8
-    (u'martassessment1', u'mart11', u'MARTASSESSMENT1-1', u'MARTASSESSMENT1-2', u'MARTASSESSMENT1-3', u'foo1')
-    (u'martassessment2', u'mart11', u'MARTASSESSMENT2-1', u'MARTASSESSMENT2-2', u'MARTASSESSMENT2-3', u'foo2')
-    (u'martassessment3', u'mart11', u'MARTASSESSMENT3-1', u'MARTASSESSMENT3-2', u'MARTASSESSMENT3-3', u'foo3')
-    (u'martassessment4', u'mart11', u'MARTASSESSMENT4-1', u'MARTASSESSMENT4-2', u'MARTASSESSMENT4-3', u'foo4')
-    (u'martassessment5', u'mart11', u'MARTASSESSMENT5-1', u'MARTASSESSMENT5-2', u'MARTASSESSMENT5-3', u'foo5')
-    (u'martassessment6', u'mart11', u'MARTASSESSMENT6-1', u'MARTASSESSMENT6-2', u'MARTASSESSMENT6-3', u'foo6')
-    (u'martassessment7', u'mart11', u'MARTASSESSMENT7-1', u'MARTASSESSMENT7-2', u'MARTASSESSMENT7-3', u'foo7')
-    (u'martassessment8', u'mart11', u'MARTASSESSMENT8-1', u'MARTASSESSMENT8-2', u'MARTASSESSMENT8-3', u'foo8')
+    ('martassessment1', 'mart11', 'MARTASSESSMENT1-1', 'MARTASSESSMENT1-2', 'MARTASSESSMENT1-3', 'foo1')
+    ('martassessment2', 'mart11', 'MARTASSESSMENT2-1', 'MARTASSESSMENT2-2', 'MARTASSESSMENT2-3', 'foo2')
+    ('martassessment3', 'mart11', 'MARTASSESSMENT3-1', 'MARTASSESSMENT3-2', 'MARTASSESSMENT3-3', 'foo3')
+    ('martassessment4', 'mart11', 'MARTASSESSMENT4-1', 'MARTASSESSMENT4-2', 'MARTASSESSMENT4-3', 'foo4')
+    ('martassessment5', 'mart11', 'MARTASSESSMENT5-1', 'MARTASSESSMENT5-2', 'MARTASSESSMENT5-3', 'foo5')
+    ('martassessment6', 'mart11', 'MARTASSESSMENT6-1', 'MARTASSESSMENT6-2', 'MARTASSESSMENT6-3', 'foo6')
+    ('martassessment7', 'mart11', 'MARTASSESSMENT7-1', 'MARTASSESSMENT7-2', 'MARTASSESSMENT7-3', 'foo7')
+    ('martassessment8', 'mart11', 'MARTASSESSMENT8-1', 'MARTASSESSMENT8-2', 'MARTASSESSMENT8-3', 'foo8')
     >>> db_status(mart.name)
     Definition: calculated_assessment
     Status: complete
@@ -360,14 +360,14 @@ them in the ``post_assessment_scripts``::
     True
     >>> db_inventory(mart.name, detailed=['mart1'])
     mart1: 8
-    (u'martassessment1', u'mart11', 12L, u'foo1', u'bar')
-    (u'martassessment2', u'mart11', 13L, u'foo2', u'bar')
-    (u'martassessment3', u'mart11', 14L, u'foo3', u'bar')
-    (u'martassessment4', u'mart11', 15L, u'foo4', u'bar')
-    (u'martassessment5', u'mart11', 16L, u'foo5', u'bar')
-    (u'martassessment6', u'mart11', 17L, u'foo6', u'bar')
-    (u'martassessment7', u'mart11', 18L, u'foo7', u'bar')
-    (u'martassessment8', u'mart11', 19L, u'foo8', u'bar')
+    ('martassessment1', 'mart11', 12, 'foo1', 'bar')
+    ('martassessment2', 'mart11', 13, 'foo2', 'bar')
+    ('martassessment3', 'mart11', 14, 'foo3', 'bar')
+    ('martassessment4', 'mart11', 15, 'foo4', 'bar')
+    ('martassessment5', 'mart11', 16, 'foo5', 'bar')
+    ('martassessment6', 'mart11', 17, 'foo6', 'bar')
+    ('martassessment7', 'mart11', 18, 'foo7', 'bar')
+    ('martassessment8', 'mart11', 19, 'foo8', 'bar')
     >>> db_status(mart.name)
     Definition: schema_modification
     Status: complete
@@ -425,14 +425,14 @@ Definitions can invoke post-processors::
     True
     >>> db_inventory(mart.name, detailed=['datadictionary_table', 'datadictionary_column', 'datadictionary_enumeration', 'foo'])
     datadictionary_column: 2
-    (ID(u'foo'), u'col1', u'The First Column', None, None, u'text', None)
-    (ID(u'foo'), u'col2', None, u'Test Description', None, u'enumeration', None)
+    (ID('foo'), 'col1', 'The First Column', None, None, 'text', None)
+    (ID('foo'), 'col2', None, 'Test Description', None, 'enumeration', None)
     datadictionary_enumeration: 3
-    (ID(ID(u'foo'), u'col2'), u'bar', None)
-    (ID(ID(u'foo'), u'col2'), u'baz', u'Bazzerific Description')
-    (ID(ID(u'foo'), u'col2'), u'foo', u'The FOO')
+    (ID(ID('foo'), 'col2'), 'bar', None)
+    (ID(ID('foo'), 'col2'), 'baz', 'Bazzerific Description')
+    (ID(ID('foo'), 'col2'), 'foo', 'The FOO')
     datadictionary_table: 1
-    (u'foo', u'Foo Bars', u'A Description')
+    ('foo', 'Foo Bars', 'A Description')
     foo: 0
     >>> db_status(mart.name)
     Definition: datadictionary_deployment
@@ -447,18 +447,18 @@ Definitions can invoke post-processors::
     True
     >>> db_inventory(mart.name, detailed=['datadictionary_table', 'datadictionary_column', 'datadictionary_enumeration', 'foo'])
     datadictionary_column: 8
-    (ID(u'mart1'), u'assessment_uid', u'Assessment UID', u'the UID of the Assessment', None, u'code', None)
-    (ID(u'mart1'), u'foo', None, u'The foo value', u'RIOS Instrument', u'text', None)
-    (ID(u'mart1'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text', None)
-    (ID(u'mart1'), u'mycoolfield', u'My Cool Field', None, u'RexMart Calculation', u'text', None)
-    (ID(u'mart1'), u'subject', None, None, u'RexMart Calculation', u'link', ID(u'subject'))
-    (ID(u'subject'), u'mart1', None, None, None, u'branch', ID(u'mart1'))
-    (ID(u'subject'), u'mobile_tn', u'Title Number 2', None, u'THE SOURCE', u'text', None)
-    (ID(u'subject'), u'uid', None, None, None, u'text', None)
+    (ID('mart1'), 'assessment_uid', 'Assessment UID', 'the UID of the Assessment', None, 'code', None)
+    (ID('mart1'), 'foo', None, 'The foo value', 'RIOS Instrument', 'text', None)
+    (ID('mart1'), 'instrument_version_uid', 'InstrumentVersion UID', None, None, 'text', None)
+    (ID('mart1'), 'mycoolfield', 'My Cool Field', None, 'RexMart Calculation', 'text', None)
+    (ID('mart1'), 'subject', None, None, 'RexMart Calculation', 'link', ID('subject'))
+    (ID('subject'), 'mart1', None, None, None, 'branch', ID('mart1'))
+    (ID('subject'), 'mobile_tn', 'Title Number 2', None, 'THE SOURCE', 'text', None)
+    (ID('subject'), 'uid', None, None, None, 'text', None)
     datadictionary_enumeration: 0
     datadictionary_table: 2
-    (u'mart1', u'RexMart Testcase #1', u'A description for the Instrument')
-    (u'subject', None, u'CUSTOM SUBJECT DESCRIPTION!')
+    ('mart1', 'RexMart Testcase #1', 'A description for the Instrument')
+    ('subject', None, 'CUSTOM SUBJECT DESCRIPTION!')
     mart1: 8
     subject: 7
     >>> db_status(mart.name)
@@ -477,41 +477,41 @@ Definitions can invoke post-processors::
     alltypes_matrix_field: 4
     alltypes_recordlist_field: 7
     datadictionary_column: 27
-    (ID(u'alltypes'), u'alltypes_matrix_field', None, None, None, u'facet', ID(u'alltypes_matrix_field'))
-    (ID(u'alltypes'), u'alltypes_recordlist_field', None, None, None, u'branch', ID(u'alltypes_recordlist_field'))
-    (ID(u'alltypes'), u'assessment_uid', u'Assessment UID', None, None, u'text', None)
-    (ID(u'alltypes'), u'boolean_field', None, None, u'RIOS Instrument', u'boolean', None)
-    (ID(u'alltypes'), u'calc1', None, u'A simple calculation', u'RIOS Calculation Set', u'integer', None)
-    (ID(u'alltypes'), u'calc2', None, None, u'RIOS Calculation Set', u'text', None)
-    (ID(u'alltypes'), u'date_field', None, None, u'RIOS Instrument', u'date', None)
-    (ID(u'alltypes'), u'datetime_field', None, None, u'RIOS Instrument', u'datetime', None)
-    (ID(u'alltypes'), u'enumeration_field', None, None, u'RIOS Instrument', u'enumeration', None)
-    (ID(u'alltypes'), u'enumerationset_field_bar', None, u'An enumerated set (bar)', u'RIOS Instrument', u'boolean', None)
-    (ID(u'alltypes'), u'enumerationset_field_baz', None, u'An enumerated set (baz)', u'RIOS Instrument', u'boolean', None)
-    (ID(u'alltypes'), u'enumerationset_field_foo', None, u'An enumerated set (foo)', u'RIOS Instrument', u'boolean', None)
-    (ID(u'alltypes'), u'float_field', None, None, u'RIOS Instrument', u'float', None)
-    (ID(u'alltypes'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text', None)
-    (ID(u'alltypes'), u'integer_field', None, None, u'RIOS Instrument', u'integer', None)
-    (ID(u'alltypes'), u'nullable_field', None, None, u'RIOS Instrument', u'text', None)
-    (ID(u'alltypes'), u'text_field', None, u'This is a text field!', u'RIOS Instrument', u'text', None)
-    (ID(u'alltypes'), u'time_field', None, None, u'RIOS Instrument', u'time', None)
-    (ID(u'alltypes_matrix_field'), u'alltypes', None, None, None, u'link', ID(u'alltypes'))
-    (ID(u'alltypes_matrix_field'), u'row1_col1', None, u'Just a col1 field', u'RIOS Instrument', u'text', None)
-    (ID(u'alltypes_matrix_field'), u'row1_col2', None, None, u'RIOS Instrument', u'text', None)
-    (ID(u'alltypes_matrix_field'), u'row2_col1', None, u'Just a col1 field', u'RIOS Instrument', u'text', None)
-    (ID(u'alltypes_matrix_field'), u'row2_col2', None, None, u'RIOS Instrument', u'text', None)
-    (ID(u'alltypes_recordlist_field'), u'alltypes', None, None, None, u'link', ID(u'alltypes'))
-    (ID(u'alltypes_recordlist_field'), u'record_seq', None, None, None, u'integer', None)
-    (ID(u'alltypes_recordlist_field'), u'subfield1', None, u'The sub field', u'RIOS Instrument', u'text', None)
-    (ID(u'alltypes_recordlist_field'), u'subfield2', None, None, u'RIOS Instrument', u'text', None)
+    (ID('alltypes'), 'alltypes_matrix_field', None, None, None, 'facet', ID('alltypes_matrix_field'))
+    (ID('alltypes'), 'alltypes_recordlist_field', None, None, None, 'branch', ID('alltypes_recordlist_field'))
+    (ID('alltypes'), 'assessment_uid', 'Assessment UID', None, None, 'text', None)
+    (ID('alltypes'), 'boolean_field', None, None, 'RIOS Instrument', 'boolean', None)
+    (ID('alltypes'), 'calc1', None, 'A simple calculation', 'RIOS Calculation Set', 'integer', None)
+    (ID('alltypes'), 'calc2', None, None, 'RIOS Calculation Set', 'text', None)
+    (ID('alltypes'), 'date_field', None, None, 'RIOS Instrument', 'date', None)
+    (ID('alltypes'), 'datetime_field', None, None, 'RIOS Instrument', 'datetime', None)
+    (ID('alltypes'), 'enumeration_field', None, None, 'RIOS Instrument', 'enumeration', None)
+    (ID('alltypes'), 'enumerationset_field_bar', None, 'An enumerated set (bar)', 'RIOS Instrument', 'boolean', None)
+    (ID('alltypes'), 'enumerationset_field_baz', None, 'An enumerated set (baz)', 'RIOS Instrument', 'boolean', None)
+    (ID('alltypes'), 'enumerationset_field_foo', None, 'An enumerated set (foo)', 'RIOS Instrument', 'boolean', None)
+    (ID('alltypes'), 'float_field', None, None, 'RIOS Instrument', 'float', None)
+    (ID('alltypes'), 'instrument_version_uid', 'InstrumentVersion UID', None, None, 'text', None)
+    (ID('alltypes'), 'integer_field', None, None, 'RIOS Instrument', 'integer', None)
+    (ID('alltypes'), 'nullable_field', None, None, 'RIOS Instrument', 'text', None)
+    (ID('alltypes'), 'text_field', None, 'This is a text field!', 'RIOS Instrument', 'text', None)
+    (ID('alltypes'), 'time_field', None, None, 'RIOS Instrument', 'time', None)
+    (ID('alltypes_matrix_field'), 'alltypes', None, None, None, 'link', ID('alltypes'))
+    (ID('alltypes_matrix_field'), 'row1_col1', None, 'Just a col1 field', 'RIOS Instrument', 'text', None)
+    (ID('alltypes_matrix_field'), 'row1_col2', None, None, 'RIOS Instrument', 'text', None)
+    (ID('alltypes_matrix_field'), 'row2_col1', None, 'Just a col1 field', 'RIOS Instrument', 'text', None)
+    (ID('alltypes_matrix_field'), 'row2_col2', None, None, 'RIOS Instrument', 'text', None)
+    (ID('alltypes_recordlist_field'), 'alltypes', None, None, None, 'link', ID('alltypes'))
+    (ID('alltypes_recordlist_field'), 'record_seq', None, None, None, 'integer', None)
+    (ID('alltypes_recordlist_field'), 'subfield1', None, 'The sub field', 'RIOS Instrument', 'text', None)
+    (ID('alltypes_recordlist_field'), 'subfield2', None, None, 'RIOS Instrument', 'text', None)
     datadictionary_enumeration: 3
-    (ID(ID(u'alltypes'), u'enumeration_field'), u'bar', None)
-    (ID(ID(u'alltypes'), u'enumeration_field'), u'baz', None)
-    (ID(ID(u'alltypes'), u'enumeration_field'), u'foo', None)
+    (ID(ID('alltypes'), 'enumeration_field'), 'bar', None)
+    (ID(ID('alltypes'), 'enumeration_field'), 'baz', None)
+    (ID(ID('alltypes'), 'enumeration_field'), 'foo', None)
     datadictionary_table: 3
-    (u'alltypes', u'An Instrument With All Types', None)
-    (u'alltypes_matrix_field', u'An Instrument With All Types (matrix_field fields)', None)
-    (u'alltypes_recordlist_field', u'An Instrument With All Types (recordlist_field fields)', u'A list of records')
+    ('alltypes', 'An Instrument With All Types', None)
+    ('alltypes_matrix_field', 'An Instrument With All Types (matrix_field fields)', None)
+    ('alltypes_recordlist_field', 'An Instrument With All Types (recordlist_field fields)', 'A list of records')
     >>> db_status(mart.name)
     Definition: datadictionary_alltypes
     Status: complete
@@ -529,28 +529,28 @@ Definitions can invoke post-processors::
     True
     >>> db_inventory(mart.name, detailed=['datadictionary_table', 'datadictionary_column', 'datadictionary_enumeration'])
     datadictionary_column: 14
-    (ID(u'mart14'), u'assessment_uid', u'Assessment UID', None, None, u'text', None)
-    (ID(u'mart14'), u'bar', None, u'Entry Text for Bar', u'RIOS Instrument', u'integer', None)
-    (ID(u'mart14'), u'baz', None, u'Entry Text for Baz', u'RIOS Instrument', u'enumeration', None)
-    (ID(u'mart14'), u'foo', None, u'Entry Text for Foo', u'RIOS Instrument', u'text', None)
-    (ID(u'mart14'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text', None)
-    (ID(u'mart15'), u'assessment_uid', u'Assessment UID', None, None, u'text', None)
-    (ID(u'mart15'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text', None)
-    (ID(u'mart15'), u'mart15_bar', None, None, None, u'facet', ID(u'mart15_bar'))
-    (ID(u'mart15'), u'mart15_foo', None, None, None, u'branch', ID(u'mart15_foo'))
-    (ID(u'mart15_bar'), u'mart15', None, None, None, u'link', ID(u'mart15'))
-    (ID(u'mart15_bar'), u'row1_col1', None, u'Entry Column1', u'RIOS Instrument', u'text', None)
-    (ID(u'mart15_foo'), u'mart15', None, None, None, u'link', ID(u'mart15'))
-    (ID(u'mart15_foo'), u'record_seq', None, None, None, u'integer', None)
-    (ID(u'mart15_foo'), u'sub1', None, u'Entry Subfield1', u'RIOS Instrument', u'text', None)
+    (ID('mart14'), 'assessment_uid', 'Assessment UID', None, None, 'text', None)
+    (ID('mart14'), 'bar', None, 'Entry Text for Bar', 'RIOS Instrument', 'integer', None)
+    (ID('mart14'), 'baz', None, 'Entry Text for Baz', 'RIOS Instrument', 'enumeration', None)
+    (ID('mart14'), 'foo', None, 'Entry Text for Foo', 'RIOS Instrument', 'text', None)
+    (ID('mart14'), 'instrument_version_uid', 'InstrumentVersion UID', None, None, 'text', None)
+    (ID('mart15'), 'assessment_uid', 'Assessment UID', None, None, 'text', None)
+    (ID('mart15'), 'instrument_version_uid', 'InstrumentVersion UID', None, None, 'text', None)
+    (ID('mart15'), 'mart15_bar', None, None, None, 'facet', ID('mart15_bar'))
+    (ID('mart15'), 'mart15_foo', None, None, None, 'branch', ID('mart15_foo'))
+    (ID('mart15_bar'), 'mart15', None, None, None, 'link', ID('mart15'))
+    (ID('mart15_bar'), 'row1_col1', None, 'Entry Column1', 'RIOS Instrument', 'text', None)
+    (ID('mart15_foo'), 'mart15', None, None, None, 'link', ID('mart15'))
+    (ID('mart15_foo'), 'record_seq', None, None, None, 'integer', None)
+    (ID('mart15_foo'), 'sub1', None, 'Entry Subfield1', 'RIOS Instrument', 'text', None)
     datadictionary_enumeration: 2
-    (ID(ID(u'mart14'), u'baz'), u'happy', u'Entry Happy')
-    (ID(ID(u'mart14'), u'baz'), u'sad', u'Entry Sad')
+    (ID(ID('mart14'), 'baz'), 'happy', 'Entry Happy')
+    (ID(ID('mart14'), 'baz'), 'sad', 'Entry Sad')
     datadictionary_table: 4
-    (u'mart14', u'Survey Title', None)
-    (u'mart15', u'RexMart Testcase #15', None)
-    (u'mart15_bar', u'RexMart Testcase #15 (bar fields)', u'Entry Text for Bar')
-    (u'mart15_foo', u'RexMart Testcase #15 (foo fields)', u'Entry Text for Foo')
+    ('mart14', 'Survey Title', None)
+    ('mart15', 'RexMart Testcase #15', None)
+    ('mart15_bar', 'RexMart Testcase #15 (bar fields)', 'Entry Text for Bar')
+    ('mart15_foo', 'RexMart Testcase #15 (foo fields)', 'Entry Text for Foo')
     mart14: 0
     mart15: 0
     mart15_bar: 0
@@ -571,28 +571,28 @@ Definitions can invoke post-processors::
     True
     >>> db_inventory(mart.name, detailed=['datadictionary_table', 'datadictionary_column', 'datadictionary_enumeration'])
     datadictionary_column: 14
-    (ID(u'mart14'), u'assessment_uid', u'Assessment UID', None, None, u'text', None)
-    (ID(u'mart14'), u'bar', None, u'Survey Text for Bar', u'RIOS Instrument', u'integer', None)
-    (ID(u'mart14'), u'baz', None, u'Survey Text for Baz', u'RIOS Instrument', u'enumeration', None)
-    (ID(u'mart14'), u'foo', None, u'Survey Text for Foo', u'RIOS Instrument', u'text', None)
-    (ID(u'mart14'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text', None)
-    (ID(u'mart15'), u'assessment_uid', u'Assessment UID', None, None, u'text', None)
-    (ID(u'mart15'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text', None)
-    (ID(u'mart15'), u'mart15_bar', None, None, None, u'facet', ID(u'mart15_bar'))
-    (ID(u'mart15'), u'mart15_foo', None, None, None, u'branch', ID(u'mart15_foo'))
-    (ID(u'mart15_bar'), u'mart15', None, None, None, u'link', ID(u'mart15'))
-    (ID(u'mart15_bar'), u'row1_col1', None, u'Survey Column1', u'RIOS Instrument', u'text', None)
-    (ID(u'mart15_foo'), u'mart15', None, None, None, u'link', ID(u'mart15'))
-    (ID(u'mart15_foo'), u'record_seq', None, None, None, u'integer', None)
-    (ID(u'mart15_foo'), u'sub1', None, u'Survey Subfield1', u'RIOS Instrument', u'text', None)
+    (ID('mart14'), 'assessment_uid', 'Assessment UID', None, None, 'text', None)
+    (ID('mart14'), 'bar', None, 'Survey Text for Bar', 'RIOS Instrument', 'integer', None)
+    (ID('mart14'), 'baz', None, 'Survey Text for Baz', 'RIOS Instrument', 'enumeration', None)
+    (ID('mart14'), 'foo', None, 'Survey Text for Foo', 'RIOS Instrument', 'text', None)
+    (ID('mart14'), 'instrument_version_uid', 'InstrumentVersion UID', None, None, 'text', None)
+    (ID('mart15'), 'assessment_uid', 'Assessment UID', None, None, 'text', None)
+    (ID('mart15'), 'instrument_version_uid', 'InstrumentVersion UID', None, None, 'text', None)
+    (ID('mart15'), 'mart15_bar', None, None, None, 'facet', ID('mart15_bar'))
+    (ID('mart15'), 'mart15_foo', None, None, None, 'branch', ID('mart15_foo'))
+    (ID('mart15_bar'), 'mart15', None, None, None, 'link', ID('mart15'))
+    (ID('mart15_bar'), 'row1_col1', None, 'Survey Column1', 'RIOS Instrument', 'text', None)
+    (ID('mart15_foo'), 'mart15', None, None, None, 'link', ID('mart15'))
+    (ID('mart15_foo'), 'record_seq', None, None, None, 'integer', None)
+    (ID('mart15_foo'), 'sub1', None, 'Survey Subfield1', 'RIOS Instrument', 'text', None)
     datadictionary_enumeration: 2
-    (ID(ID(u'mart14'), u'baz'), u'happy', u'Survey Happy')
-    (ID(ID(u'mart14'), u'baz'), u'sad', u'Survey Sad')
+    (ID(ID('mart14'), 'baz'), 'happy', 'Survey Happy')
+    (ID(ID('mart14'), 'baz'), 'sad', 'Survey Sad')
     datadictionary_table: 4
-    (u'mart14', u'Survey Title', None)
-    (u'mart15', u'RexMart Testcase #15', None)
-    (u'mart15_bar', u'RexMart Testcase #15 (bar fields)', u'Survey Text for Bar')
-    (u'mart15_foo', u'RexMart Testcase #15 (foo fields)', u'Survey Text for Foo')
+    ('mart14', 'Survey Title', None)
+    ('mart15', 'RexMart Testcase #15', None)
+    ('mart15_bar', 'RexMart Testcase #15 (bar fields)', 'Survey Text for Bar')
+    ('mart15_foo', 'RexMart Testcase #15 (foo fields)', 'Survey Text for Foo')
     mart14: 0
     mart15: 0
     mart15_bar: 0
@@ -613,28 +613,28 @@ Definitions can invoke post-processors::
     True
     >>> db_inventory(mart.name, detailed=['datadictionary_table', 'datadictionary_column', 'datadictionary_enumeration'])
     datadictionary_column: 14
-    (ID(u'mart14'), u'assessment_uid', u'Assessment UID', None, None, u'text', None)
-    (ID(u'mart14'), u'bar', None, u'Mobile Text for Bar', u'RIOS Instrument', u'integer', None)
-    (ID(u'mart14'), u'baz', None, u'Mobile Text for Baz', u'RIOS Instrument', u'enumeration', None)
-    (ID(u'mart14'), u'foo', None, u'Mobile Text for Foo', u'RIOS Instrument', u'text', None)
-    (ID(u'mart14'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text', None)
-    (ID(u'mart15'), u'assessment_uid', u'Assessment UID', None, None, u'text', None)
-    (ID(u'mart15'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text', None)
-    (ID(u'mart15'), u'mart15_bar', None, None, None, u'facet', ID(u'mart15_bar'))
-    (ID(u'mart15'), u'mart15_foo', None, None, None, u'branch', ID(u'mart15_foo'))
-    (ID(u'mart15_bar'), u'mart15', None, None, None, u'link', ID(u'mart15'))
-    (ID(u'mart15_bar'), u'row1_col1', None, u'Entry Column1', u'RIOS Instrument', u'text', None)
-    (ID(u'mart15_foo'), u'mart15', None, None, None, u'link', ID(u'mart15'))
-    (ID(u'mart15_foo'), u'record_seq', None, None, None, u'integer', None)
-    (ID(u'mart15_foo'), u'sub1', None, u'Entry Subfield1', u'RIOS Instrument', u'text', None)
+    (ID('mart14'), 'assessment_uid', 'Assessment UID', None, None, 'text', None)
+    (ID('mart14'), 'bar', None, 'Mobile Text for Bar', 'RIOS Instrument', 'integer', None)
+    (ID('mart14'), 'baz', None, 'Mobile Text for Baz', 'RIOS Instrument', 'enumeration', None)
+    (ID('mart14'), 'foo', None, 'Mobile Text for Foo', 'RIOS Instrument', 'text', None)
+    (ID('mart14'), 'instrument_version_uid', 'InstrumentVersion UID', None, None, 'text', None)
+    (ID('mart15'), 'assessment_uid', 'Assessment UID', None, None, 'text', None)
+    (ID('mart15'), 'instrument_version_uid', 'InstrumentVersion UID', None, None, 'text', None)
+    (ID('mart15'), 'mart15_bar', None, None, None, 'facet', ID('mart15_bar'))
+    (ID('mart15'), 'mart15_foo', None, None, None, 'branch', ID('mart15_foo'))
+    (ID('mart15_bar'), 'mart15', None, None, None, 'link', ID('mart15'))
+    (ID('mart15_bar'), 'row1_col1', None, 'Entry Column1', 'RIOS Instrument', 'text', None)
+    (ID('mart15_foo'), 'mart15', None, None, None, 'link', ID('mart15'))
+    (ID('mart15_foo'), 'record_seq', None, None, None, 'integer', None)
+    (ID('mart15_foo'), 'sub1', None, 'Entry Subfield1', 'RIOS Instrument', 'text', None)
     datadictionary_enumeration: 2
-    (ID(ID(u'mart14'), u'baz'), u'happy', u'Mobile Happy')
-    (ID(ID(u'mart14'), u'baz'), u'sad', u'Mobile Sad')
+    (ID(ID('mart14'), 'baz'), 'happy', 'Mobile Happy')
+    (ID(ID('mart14'), 'baz'), 'sad', 'Mobile Sad')
     datadictionary_table: 4
-    (u'mart14', u'Survey Title', None)
-    (u'mart15', u'RexMart Testcase #15', None)
-    (u'mart15_bar', u'RexMart Testcase #15 (bar fields)', u'Entry Text for Bar')
-    (u'mart15_foo', u'RexMart Testcase #15 (foo fields)', u'Entry Text for Foo')
+    ('mart14', 'Survey Title', None)
+    ('mart15', 'RexMart Testcase #15', None)
+    ('mart15_bar', 'RexMart Testcase #15 (bar fields)', 'Entry Text for Bar')
+    ('mart15_foo', 'RexMart Testcase #15 (foo fields)', 'Entry Text for Foo')
     mart14: 0
     mart15: 0
     mart15_bar: 0
@@ -655,28 +655,28 @@ Definitions can invoke post-processors::
     True
     >>> db_inventory(mart.name, detailed=['datadictionary_table', 'datadictionary_column', 'datadictionary_enumeration'])
     datadictionary_column: 14
-    (ID(u'mart14'), u'assessment_uid', u'Assessment UID', None, None, u'text', None)
-    (ID(u'mart14'), u'bar', None, u'FakeSMS Text for Bar', u'RIOS Instrument', u'integer', None)
-    (ID(u'mart14'), u'baz', None, u'FakeSMS Text for Baz', u'RIOS Instrument', u'enumeration', None)
-    (ID(u'mart14'), u'foo', None, u'FakeSMS Text for Foo', u'RIOS Instrument', u'text', None)
-    (ID(u'mart14'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text', None)
-    (ID(u'mart15'), u'assessment_uid', u'Assessment UID', None, None, u'text', None)
-    (ID(u'mart15'), u'instrument_version_uid', u'InstrumentVersion UID', None, None, u'text', None)
-    (ID(u'mart15'), u'mart15_bar', None, None, None, u'facet', ID(u'mart15_bar'))
-    (ID(u'mart15'), u'mart15_foo', None, None, None, u'branch', ID(u'mart15_foo'))
-    (ID(u'mart15_bar'), u'mart15', None, None, None, u'link', ID(u'mart15'))
-    (ID(u'mart15_bar'), u'row1_col1', None, u'Entry Column1', u'RIOS Instrument', u'text', None)
-    (ID(u'mart15_foo'), u'mart15', None, None, None, u'link', ID(u'mart15'))
-    (ID(u'mart15_foo'), u'record_seq', None, None, None, u'integer', None)
-    (ID(u'mart15_foo'), u'sub1', None, u'Entry Subfield1', u'RIOS Instrument', u'text', None)
+    (ID('mart14'), 'assessment_uid', 'Assessment UID', None, None, 'text', None)
+    (ID('mart14'), 'bar', None, 'FakeSMS Text for Bar', 'RIOS Instrument', 'integer', None)
+    (ID('mart14'), 'baz', None, 'FakeSMS Text for Baz', 'RIOS Instrument', 'enumeration', None)
+    (ID('mart14'), 'foo', None, 'FakeSMS Text for Foo', 'RIOS Instrument', 'text', None)
+    (ID('mart14'), 'instrument_version_uid', 'InstrumentVersion UID', None, None, 'text', None)
+    (ID('mart15'), 'assessment_uid', 'Assessment UID', None, None, 'text', None)
+    (ID('mart15'), 'instrument_version_uid', 'InstrumentVersion UID', None, None, 'text', None)
+    (ID('mart15'), 'mart15_bar', None, None, None, 'facet', ID('mart15_bar'))
+    (ID('mart15'), 'mart15_foo', None, None, None, 'branch', ID('mart15_foo'))
+    (ID('mart15_bar'), 'mart15', None, None, None, 'link', ID('mart15'))
+    (ID('mart15_bar'), 'row1_col1', None, 'Entry Column1', 'RIOS Instrument', 'text', None)
+    (ID('mart15_foo'), 'mart15', None, None, None, 'link', ID('mart15'))
+    (ID('mart15_foo'), 'record_seq', None, None, None, 'integer', None)
+    (ID('mart15_foo'), 'sub1', None, 'Entry Subfield1', 'RIOS Instrument', 'text', None)
     datadictionary_enumeration: 2
-    (ID(ID(u'mart14'), u'baz'), u'happy', u'FakeSMS Happy')
-    (ID(ID(u'mart14'), u'baz'), u'sad', u'FakeSMS Sad')
+    (ID(ID('mart14'), 'baz'), 'happy', 'FakeSMS Happy')
+    (ID(ID('mart14'), 'baz'), 'sad', 'FakeSMS Sad')
     datadictionary_table: 4
-    (u'mart14', u'Survey Title', None)
-    (u'mart15', u'RexMart Testcase #15', None)
-    (u'mart15_bar', u'RexMart Testcase #15 (bar fields)', u'Entry Text for Bar')
-    (u'mart15_foo', u'RexMart Testcase #15 (foo fields)', u'Entry Text for Foo')
+    ('mart14', 'Survey Title', None)
+    ('mart15', 'RexMart Testcase #15', None)
+    ('mart15_bar', 'RexMart Testcase #15 (bar fields)', 'Entry Text for Bar')
+    ('mart15_foo', 'RexMart Testcase #15 (foo fields)', 'Entry Text for Foo')
     mart14: 0
     mart15: 0
     mart15_bar: 0
@@ -732,27 +732,27 @@ Definitions can accept parameters that are passed to HTSQL/SQL statements::
     True
     >>> db_inventory(mart.name, detailed=['foo', 'mart1'])
     foo: 12
-    (u'h1123', None)
-    (u'h1blah', None)
-    (u'h1test', None)
-    (u'h2123', None)
-    (u'h2blah', None)
-    (u'h2test', None)
-    (u's1123', None)
-    (u's1blah', None)
-    (u's1some_parameters', None)
-    (u's2123', None)
-    (u's2blah', None)
-    (u's2some_parameters', None)
+    ('h1123', None)
+    ('h1blah', None)
+    ('h1test', None)
+    ('h2123', None)
+    ('h2blah', None)
+    ('h2test', None)
+    ('s1123', None)
+    ('s1blah', None)
+    ('s1some_parameters', None)
+    ('s2123', None)
+    ('s2blah', None)
+    ('s2some_parameters', None)
     mart1: 8
-    (u'martassessment1', u'mart11', u'blah', 123L, u'MARTASSESSMENT1-blah', u'foo1')
-    (u'martassessment2', u'mart11', u'blah', 123L, u'MARTASSESSMENT2-blah', u'foo2')
-    (u'martassessment3', u'mart11', u'blah', 123L, u'MARTASSESSMENT3-blah', u'foo3')
-    (u'martassessment4', u'mart11', u'blah', 123L, u'MARTASSESSMENT4-blah', u'foo4')
-    (u'martassessment5', u'mart11', u'blah', 123L, u'MARTASSESSMENT5-blah', u'foo5')
-    (u'martassessment6', u'mart11', u'blah', 123L, u'MARTASSESSMENT6-blah', u'foo6')
-    (u'martassessment7', u'mart11', u'blah', 123L, u'MARTASSESSMENT7-blah', u'foo7')
-    (u'martassessment8', u'mart11', u'blah', 123L, u'MARTASSESSMENT8-blah', u'foo8')
+    ('martassessment1', 'mart11', 'blah', 123, 'MARTASSESSMENT1-blah', 'foo1')
+    ('martassessment2', 'mart11', 'blah', 123, 'MARTASSESSMENT2-blah', 'foo2')
+    ('martassessment3', 'mart11', 'blah', 123, 'MARTASSESSMENT3-blah', 'foo3')
+    ('martassessment4', 'mart11', 'blah', 123, 'MARTASSESSMENT4-blah', 'foo4')
+    ('martassessment5', 'mart11', 'blah', 123, 'MARTASSESSMENT5-blah', 'foo5')
+    ('martassessment6', 'mart11', 'blah', 123, 'MARTASSESSMENT6-blah', 'foo6')
+    ('martassessment7', 'mart11', 'blah', 123, 'MARTASSESSMENT7-blah', 'foo7')
+    ('martassessment8', 'mart11', 'blah', 123, 'MARTASSESSMENT8-blah', 'foo8')
     >>> db_status(mart.name)
     Definition: some_parameters
     Status: complete
@@ -763,12 +763,12 @@ Definitions can accept parameters that are passed to HTSQL/SQL statements::
     >>> mart = mc(parameters={'foo': 'blah'})
     Traceback (most recent call last):
         ...
-    Error: Missing required parameter "bar"
+    rex.core.Error: Missing required parameter "bar"
 
     >>> mart = mc(parameters={'bar': 'blah'})
     Traceback (most recent call last):
         ...
-    Error: Expected an integer
+    rex.core.Error: Expected an integer
     Got:
         'blah'
     While validating parameter:
@@ -777,7 +777,7 @@ Definitions can accept parameters that are passed to HTSQL/SQL statements::
     >>> mart = mc(parameters={'bar': 123, 'baz': 'hello'})
     Traceback (most recent call last):
         ...
-    Error: Unknown parameters: baz
+    rex.core.Error: Unknown parameters: baz
 
 Your rex.deploy configuration can use include statements::
 
@@ -933,19 +933,19 @@ It complains if you don't specify an owner::
     >>> mc = MartCreator(None, 'some_data')
     Traceback (most recent call last):
         ...
-    Error: No owner specified
+    rex.core.Error: No owner specified
 
     >>> mc = MartCreator('', 'some_data')
     Traceback (most recent call last):
         ...
-    Error: No owner specified
+    rex.core.Error: No owner specified
 
 It complains if you specify a definition that doesn't exist::
 
     >>> mc = MartCreator('test', 'doesntexist')
     Traceback (most recent call last):
         ...
-    Error: Unknown definition "doesntexist"
+    rex.core.Error: Unknown definition "doesntexist"
 
 It complains if you try to copy a database that doesn't exist::
 
@@ -953,7 +953,7 @@ It complains if you try to copy a database that doesn't exist::
     >>> mart = mc()
     Traceback (most recent call last):
         ...
-    Error: Database "does_not_exist" does not exist
+    rex.core.Error: Database "does_not_exist" does not exist
     While creating Mart database:
         just_copy_missing
 
@@ -963,7 +963,7 @@ It complains if you try to load into an existing database that doesn't exist::
     >>> mart = mc()
     Traceback (most recent call last):
         ...
-    Error: Database "a_db_that_doesnt_exist" does not exist
+    rex.core.Error: Database "a_db_that_doesnt_exist" does not exist
     While creating Mart database:
         existing_missing
 
@@ -976,7 +976,7 @@ has a Mart with that name::
     >>> mart = mc()
     Traceback (most recent call last):
         ...
-    Error: Cannot set name of Mart to "a_fixed_name_mart" because a Mart with that name already exists owned by "test"
+    rex.core.Error: Cannot set name of Mart to "a_fixed_name_mart" because a Mart with that name already exists owned by "test"
     While purging previous fixed-name database
     While creating Mart database:
         fixed_name
@@ -987,7 +987,7 @@ It complains if an HTSQL statement is bad::
     >>> mart = mc()
     Traceback (most recent call last):
         ...
-    Error: Found unknown attribute:
+    rex.core.Error: Found unknown attribute:
         people.first_name
     Perhaps you had in mind:
         firstname
@@ -1012,7 +1012,7 @@ It complains if a SQL statement is bad::
     >>> mart = mc()
     Traceback (most recent call last):
         ...
-    Error: Got an error from the database driver:
+    rex.core.Error: Got an error from the database driver:
         relation "blah" does not exist
         LINE 1: insert into blah (col1) values('stuff');
                             ^

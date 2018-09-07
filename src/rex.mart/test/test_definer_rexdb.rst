@@ -20,28 +20,28 @@ Handles definitions with nothing configured::
 Handles bare essentials::
 
     >>> definer.assessments('dynamic_simple')
-    [{'post_load_calculations': [], 'name': u'mart1', 'identifiable': u'any', 'parental_relationship': {'type': u'trunk'}, 'selector': u'/assessment{id() :as assessment_uid}.filter(instrumentversion.instrument=$INSTRUMENT)/:rexdb', 'instrument': [u'mart1'], 'meta': []}]
+    [{'name': 'mart1', 'instrument': ['mart1'], 'selector': '/assessment{id() :as assessment_uid}.filter(instrumentversion.instrument=$INSTRUMENT)/:rexdb', 'parental_relationship': {'type': 'trunk'}, 'identifiable': 'any', 'meta': [], 'post_load_calculations': []}]
 
     >>> Definer.get_assessments('rexdb', 'dynamic_simple')
-    [{'post_load_calculations': [], 'name': 'mart1', 'identifiable': 'any', 'parental_relationship': {'type': 'trunk', 'parent': []}, 'selector': {'query': '/assessment{id() :as assessment_uid}.filter(instrumentversion.instrument=$INSTRUMENT)/:rexdb', 'parameters': {}}, 'instrument': ['mart1'], 'meta': [], 'calculations': [], 'fields': []}]
+    [{'instrument': ['mart1'], 'name': 'mart1', 'selector': {'query': '/assessment{id() :as assessment_uid}.filter(instrumentversion.instrument=$INSTRUMENT)/:rexdb', 'parameters': {}}, 'parental_relationship': {'type': 'trunk', 'parent': []}, 'identifiable': 'any', 'fields': [], 'calculations': [], 'meta': [], 'post_load_calculations': []}]
 
 Handles all the configuration options::
 
     >>> definer.assessments('dynamic_complex')
-    [{'post_load_calculations': [{'expression': u'(42)', 'type': u'integer', 'name': u'baz'}], 'name': u'mart1', 'identifiable': u'any', 'parental_relationship': {'type': u'branch', 'parent': [u'subject']}, 'selector': u'/assessment{id() :as assessment_uid, subject.id() :as subject}.filter(instrumentversion.instrument=$INSTRUMENT)/:rexdb', 'instrument': [u'mart1'], 'meta': [], 'calculations': [u'bar'], 'fields': [u'foo']}, {'post_load_calculations': [], 'name': u'mart2', 'identifiable': u'none', 'parental_relationship': {'type': u'trunk'}, 'selector': u'/assessment{id() :as assessment_uid}.filter(instrumentversion.instrument=$INSTRUMENT)/:rexdb', 'instrument': [u'mart2'], 'meta': [{u'dateCompleted': u'dateTime'}], 'calculations': None, 'fields': None}]
+    [{'name': 'mart1', 'instrument': ['mart1'], 'selector': '/assessment{id() :as assessment_uid, subject.id() :as subject}.filter(instrumentversion.instrument=$INSTRUMENT)/:rexdb', 'parental_relationship': {'type': 'branch', 'parent': ['subject']}, 'identifiable': 'any', 'meta': [], 'post_load_calculations': [{'name': 'baz', 'type': 'integer', 'expression': '(42)'}], 'fields': ['foo'], 'calculations': ['bar']}, {'name': 'mart2', 'instrument': ['mart2'], 'selector': '/assessment{id() :as assessment_uid}.filter(instrumentversion.instrument=$INSTRUMENT)/:rexdb', 'parental_relationship': {'type': 'trunk'}, 'identifiable': 'none', 'meta': [{'dateCompleted': 'dateTime'}], 'post_load_calculations': [], 'fields': None, 'calculations': None}]
 
     >>> Definer.get_assessments('rexdb', 'dynamic_complex')
-    [{'post_load_calculations': [{'expression': '(42)', 'type': 'integer', 'name': 'baz'}], 'name': 'mart1', 'identifiable': 'any', 'parental_relationship': {'type': 'branch', 'parent': ['subject']}, 'selector': {'query': '/assessment{id() :as assessment_uid, subject.id() :as subject}.filter(instrumentversion.instrument=$INSTRUMENT)/:rexdb', 'parameters': {}}, 'instrument': ['mart1'], 'meta': [], 'calculations': ['bar'], 'fields': ['foo']}, {'post_load_calculations': [], 'name': 'mart2', 'identifiable': 'none', 'parental_relationship': {'type': 'trunk', 'parent': []}, 'selector': {'query': '/assessment{id() :as assessment_uid}.filter(instrumentversion.instrument=$INSTRUMENT)/:rexdb', 'parameters': {}}, 'instrument': ['mart2'], 'meta': [{'dateCompleted': 'dateTime'}], 'calculations': None, 'fields': None}]
+    [{'instrument': ['mart1'], 'name': 'mart1', 'selector': {'query': '/assessment{id() :as assessment_uid, subject.id() :as subject}.filter(instrumentversion.instrument=$INSTRUMENT)/:rexdb', 'parameters': {}}, 'parental_relationship': {'type': 'branch', 'parent': ['subject']}, 'identifiable': 'any', 'fields': ['foo'], 'calculations': ['bar'], 'meta': [], 'post_load_calculations': [{'name': 'baz', 'type': 'integer', 'expression': '(42)'}]}, {'instrument': ['mart2'], 'name': 'mart2', 'selector': {'query': '/assessment{id() :as assessment_uid}.filter(instrumentversion.instrument=$INSTRUMENT)/:rexdb', 'parameters': {}}, 'parental_relationship': {'type': 'trunk', 'parent': []}, 'identifiable': 'none', 'fields': None, 'calculations': None, 'meta': [{'dateCompleted': 'dateTime'}], 'post_load_calculations': []}]
 
 Fails with invalid configuration::
 
     >>> definer.assessments('broken')
-    [{'post_load_calculations': [], 'name': u'mart1', 'identifiable': u'any', 'parental_relationship': {'type': u'trunk'}, 'selector': u'foo', 'instrument': [], 'meta': []}]
+    [{'name': 'mart1', 'instrument': [], 'selector': 'foo', 'parental_relationship': {'type': 'trunk'}, 'identifiable': 'any', 'meta': [], 'post_load_calculations': []}]
 
     >>> Definer.get_assessments('rexdb', 'broken')
     Traceback (most recent call last):
         ...
-    Error: Assessment does not specify any instruments
+    rex.core.Error: Assessment does not specify any instruments
     While validating field:
         instrument
 

@@ -37,14 +37,14 @@ and creates a Mart according to that input::
     >>> worker.process(payload)  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    Error: Missing mandatory field:
+    rex.core.Error: Missing mandatory field:
         definition
 
     >>> payload = {'definition': 'empty'}
     >>> worker.process(payload)  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    Error: Missing mandatory field:
+    rex.core.Error: Missing mandatory field:
         owner
 
 
@@ -109,7 +109,7 @@ saved to the ``job_rexmart_create`` table::
     ERROR:JobExecutorWorker:Job #2 failed
     Traceback (most recent call last):
     ...
-    Error: Got unexpected field:
+    rex.core.Error: Got unexpected field:
         bad
     INFO:JobExecutorWorker:Job #2 complete
     Job #2: status=failed, detail="Got unexpected field:
@@ -126,7 +126,7 @@ saved to the ``job_rexmart_create`` table::
     ERROR:JobExecutorWorker:Job #3 failed
     Traceback (most recent call last):
     ...
-    Error: Found unknown attribute:
+    rex.core.Error: Found unknown attribute:
         people.first_name
     Perhaps you had in mind:
         firstname

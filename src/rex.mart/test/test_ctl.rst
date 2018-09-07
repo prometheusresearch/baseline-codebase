@@ -149,7 +149,7 @@ command line::
     Starting Mart creation for owner=foo, definition=some_parameters
     Mart creation for Record(owner='foo', definition='some_parameters', halt_on_failure=False, purge_on_failure=True, leave_incomplete=False, parameters={}) failed:
     Traceback (most recent call last):
-    Error: Missing required parameter "bar"
+    rex.core.Error: Missing required parameter "bar"
 
     >>> no_timestamp_ctl('mart-create --runlist=./test/runlist1.yaml')  # doctest: +ELLIPSIS
     Starting Mart creation for owner=foo, definition=empty
@@ -170,7 +170,7 @@ command line::
     SQL script #1...
     Mart creation for Record(owner='foo', definition='broken_sql', halt_on_failure=False, purge_on_failure=True, leave_incomplete=False, parameters={}) failed:
     Traceback (most recent call last):
-    Error: Got an error from the database driver:
+    rex.core.Error: Got an error from the database driver:
         relation "blah" does not exist
         LINE 1: insert into blah (col1) values('stuff');
                             ^
@@ -211,7 +211,7 @@ command line::
     SQL script #1...
     Mart creation for Record(owner='foo', definition='broken_sql', halt_on_failure=True, purge_on_failure=True, leave_incomplete=False, parameters={}) failed:
     Traceback (most recent call last):
-    Error: Got an error from the database driver:
+    rex.core.Error: Got an error from the database driver:
         relation "blah" does not exist
         LINE 1: insert into blah (col1) values('stuff');
                             ^

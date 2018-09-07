@@ -40,7 +40,7 @@ Set up the environment::
     >>> mart = mc2()
     Traceback (most recent call last):
         ...
-    Error: Creating a "some_data" Mart for "quotaguy" would exceed their quota
+    rex.core.Error: Creating a "some_data" Mart for "quotaguy" would exceed their quota
 
     >>> count_marts('quotaguy')
     empty: 2, some_data: 3
@@ -50,7 +50,7 @@ Set up the environment::
     >>> mc3()
     Traceback (most recent call last):
         ...
-    Error: Creating a "some_more_data" Mart for "quotaguy" would exceed their quota
+    rex.core.Error: Creating a "some_more_data" Mart for "quotaguy" would exceed their quota
 
 
 

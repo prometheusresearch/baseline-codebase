@@ -6,7 +6,6 @@
 import json
 
 from copy import deepcopy
-from types import NoneType
 from decimal import Decimal
 from datetime import date, time, datetime
 
@@ -36,6 +35,9 @@ __all__ = (
     'make_field_from_htsql',
     'merge_field_into',
 )
+
+
+NoneType = type(None)
 
 
 class SimpleField(object):

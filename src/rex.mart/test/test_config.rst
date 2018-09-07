@@ -36,7 +36,7 @@ specific Mart definition if it is available::
     ...     pprint(get_definition('just_deploy'))  # doctest: +ELLIPSIS
     {'assessments': [],
      'base': {'fixed_name': None,
-              'name_token': u'just_deploy_',
+              'name_token': 'just_deploy_',
               'target': None,
               'type': 'fresh'},
      'base_path': '.../rex.mart_demo',
@@ -111,14 +111,14 @@ are stored::
     ...     get_hosting_db_uri()
     Traceback (most recent call last):
         ...
-    Error: Only PostgreSQL systems can host Marts
+    rex.core.Error: Only PostgreSQL systems can host Marts
 
     >>> rex = LatentRex('rex.mart_demo', mart_hosting_cluster='sqlite:some_db.sqlite')
     >>> with rex:
     ...     get_hosting_db_uri()
     Traceback (most recent call last):
         ...
-    Error: Only PostgreSQL systems can host Marts
+    rex.core.Error: Only PostgreSQL systems can host Marts
     While validating setting:
         mart_hosting_cluster
 

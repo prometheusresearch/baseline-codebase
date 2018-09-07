@@ -16,7 +16,7 @@ class Paragraph:
     #       <payload>
 
     def __init__(self, message, payload=None):
-        self.message = message
+        self.message = str(message)
         self.payload = payload
 
     def __str__(self):

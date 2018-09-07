@@ -358,7 +358,7 @@ class MartLocation(HandleLocation):
 
         # If it's a POST, transform it to an HTSQL-friendly GET
         if request.method == 'POST':
-            path_info = request.body
+            path_info = request.body.decode('utf-8', 'replace')
             query_string = ''
             if '?' in path_info:
                 path_info, query_string = path_info.split('?', 1)

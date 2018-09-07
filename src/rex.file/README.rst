@@ -142,7 +142,7 @@ exception::
     Traceback (most recent call last):
       ...
     htsql.core.error.EngineError: Got an error from the database driver:
-        consent.consent_form_scan cannot be set to '/.../hello.txt'
+        consent.consent_form_scan cannot be set to ...
 
 To be able to download attachments from the ``consent`` table, we need to
 declare a *file* URL handler in ``urlmap.yaml``.  The definition is

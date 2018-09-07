@@ -73,7 +73,7 @@ You must be authenticated as the user who uploaded the file::
     Traceback (most recent call last):
       ...
     htsql.core.error.EngineError: Got an error from the database driver:
-        consent.consent_form_scan cannot be set to '/.../hello.txt'
+        consent.consent_form_scan cannot be set to ...
 
     >>> from rex.db import get_db
     >>> db = get_db()
@@ -89,7 +89,7 @@ You cannot attach the same file to a different record::
     Traceback (most recent call last):
       ...
     htsql.core.error.EngineError: Got an error from the database driver:
-        consent.consent_form_scan cannot be set to '/.../hello.txt'
+        consent.consent_form_scan cannot be set to ...
 
 
 Downloading files

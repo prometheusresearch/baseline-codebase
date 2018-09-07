@@ -137,7 +137,7 @@ template::
   Traceback (most recent call last):
   ...
   rex.core.Error: Check chunk `qctest1` row # 1 does not match template
-      data header does not contain expected columns text12, enumerationset5_france.
+      data header does not contain expected columns enumerationset5_france, text12.
 
 Import fails when header of csv files contains less columns than at least one
 of the csv rows::

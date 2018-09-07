@@ -115,14 +115,14 @@ def import_tabular_data(
     if extra:
         raise TabularImportError(
             'Incoming dataset describes extra columns: %s' % (
-                ', '.join(extra),
+                ', '.join(sorted(extra)),
             )
         )
     missing = description_headers - file_headers
     if missing:
         raise TabularImportError(
             'Incoming dataset is missing columns: %s' % (
-                ', '.join(missing),
+                ', '.join(sorted(missing)),
             )
         )
 

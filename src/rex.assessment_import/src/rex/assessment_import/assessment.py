@@ -293,7 +293,7 @@ class AssessmentCollection(object):
         shortage = template_header - record_header
         if extra:
             raise Error("data header contains extra columns %s."
-                        % ', '.join(extra))
+                        % ', '.join(sorted(extra)))
         if shortage:
             raise Error("data header does not contain expected columns %s."
-                        % ', '.join(shortage))
+                        % ', '.join(sorted(shortage)))

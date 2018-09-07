@@ -54,7 +54,7 @@ def import_assessment(instrument_uid, version=None, input=None, verbose=False):
             assessments.add_chunk(instrument, template, chunk)
         except Exception as exc:
             chunk.fail(exc)
-            raise exc
+            raise
 
     log("Saving generated assessments to the data store...")
 

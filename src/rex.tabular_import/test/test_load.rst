@@ -71,7 +71,7 @@ If the input data is missing columns, it will complain::
     >>> import_tabular_data('all_column_types', TEST_MISSING_CSV, FILE_FORMAT_CSV)
     Traceback (most recent call last):
         ...
-    rex.tabular_import.error.TabularImportError: Incoming dataset is missing columns: json_field, enum_field
+    rex.tabular_import.error.TabularImportError: Incoming dataset is missing columns: enum_field, json_field
 
 If the input data has extra columns, it will complain::
 

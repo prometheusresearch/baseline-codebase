@@ -32,6 +32,7 @@ TODO
       * Makefile-based tooling
 
   * :doc:`Development Environment <development_environment>`
+  * :doc:`Continuous Integration <continuous_integration>`
   * Project responsibilities vs upstream responsibilities
   * How to contribute patches upstream
 

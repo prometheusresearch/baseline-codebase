@@ -4,6 +4,15 @@
 * Excluded repository documentation building from the ``dist`` image.
 * Updated the ``rex.mart`` package with the latest patch release that occurred
   in the legacy repository.
+* Updated rexdb Docker images to ``2018.08.30``.
+* Package updates:
+
+  * REX.FORMS: 2.5.0
+
+    * Added feedback to the bottom of the page that explains why the user cannot
+      currently progress to the next page (e.g., errors, missing required fields,
+      etc).
+    * Slight styling updates to required fields.
 
 
 1.4.0 (2018-08-15)

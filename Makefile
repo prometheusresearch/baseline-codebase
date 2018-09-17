@@ -225,7 +225,8 @@ test: ./bin/activate
 		if [ -z "${PKG}" -o "$$src" = "${PKG}" ]; then \
 			if [ -e $$src/test/input.yaml ]; then \
 				echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Testing $$src...${NORM}"; \
-				(cd $$src; ${CURDIR}/bin/pbbt --quiet --max-errors=0); \
+				if [ -z "${VERBOSE}" ]; then ARGS="--quiet" ; fi ;\
+				(cd $$src; ${CURDIR}/bin/pbbt $$ARGS --max-errors=0); \
 				if [ $$? != 0 ]; then FAILURES="$$FAILURES $$src"; fi; \
 			fi; \
 		fi; \

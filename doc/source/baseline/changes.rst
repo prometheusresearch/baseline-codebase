@@ -1,5 +1,5 @@
-1.5.0 (TBD)
-===========
+1.5.0 (2018-09-24)
+==================
 
 * Excluded repository documentation building from the ``dist`` image.
 * Updated the ``rex.mart`` package with the latest patch release that occurred

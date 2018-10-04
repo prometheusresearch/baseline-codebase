@@ -469,6 +469,10 @@ class StandardWSGI(WSGI):
             self.replay_log = open(settings.replay_log, 'ab')
 
     def __call__(self, environ, start_response):
+        # Fix for uWSGI not stripping SCRIPT_NAME from PATH_INFO.
+        if (environ.get('REQUEST_URI', '').startswith(environ.get('PATH_INFO', '')) and
+                environ.get('PATH_INFO', '').startswith(environ.get('SCRIPT_NAME', ''))):
+            environ['PATH_INFO'] = environ.get('PATH_INFO', '')[len(environ.get('SCRIPT_NAME', '')):]
         # Workaround for uWSGI leaving an extra `/` on SCRIPT_NAME.
         if (environ.get('SCRIPT_NAME', '').endswith('/') and
                 environ.get('PATH_INFO', '').startswith('/')):

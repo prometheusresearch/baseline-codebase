@@ -14,7 +14,7 @@ import atexit
 import pkg_resources
 
 
-class Package(object):
+class Package:
     """
     Component of a RexDB application.
 
@@ -94,13 +94,13 @@ class Package(object):
         real_path = self.abspath(local_path)
         return (real_path is not None and os.path.exists(real_path))
 
-    def open(self, local_path):
+    def open(self, local_path, mode='r'):
         """
         Opens and returns the file referred by `local_path`.
         """
         real_path = self.abspath(local_path)
         assert real_path is not None, local_path
-        return open(real_path)
+        return open(real_path, mode=mode)
 
     def walk(self, local_path):
         """
@@ -189,7 +189,7 @@ class SandboxPackage(Package):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
 
-class PackageCollection(object):
+class PackageCollection:
     """
     Collection of packages.
     """
@@ -304,7 +304,7 @@ class PackageCollection(object):
             try:
                 for package in cls._build_package_tree(req, seen):
                     yield package
-            except Error, error:
+            except Error as error:
                 error.wrap("Required for:", name)
                 raise
 
@@ -383,11 +383,11 @@ class PackageCollection(object):
         """
         return self._delegate(package_path, Package.exists)
 
-    def open(self, package_path):
+    def open(self, package_path, mode='r'):
         """
         Opens and returns the file referred by `package_path`.
         """
-        return self._delegate(package_path, Package.open)
+        return self._delegate(package_path, Package.open, mode=mode)
 
     def walk(self, package_path):
         """

@@ -46,7 +46,7 @@ and string-rendering methods::
     ...                 'fieldId': 'q_fake',
     ...                 'text': {
     ...                     'en': 'What is your favorite word?',
-    ...                     'fr': u'Quel est votre mot préféré?'
+    ...                     'fr': 'Quel est votre mot préféré?'
     ...                 },
     ...             },
     ...         },
@@ -54,18 +54,18 @@ and string-rendering methods::
     ... }
     >>> interaction = Interaction('foo789', channel, iv, INTERACTION)
     >>> interaction.get_display_name()
-    u'The InstrumentVersion Title'
-    >>> unicode(interaction)
-    u'The InstrumentVersion Title'
+    'The InstrumentVersion Title'
+    >>> str(interaction)
+    'The InstrumentVersion Title'
     >>> str(interaction)
     'The InstrumentVersion Title'
     >>> repr(interaction)
-    "Interaction(u'foo789', Channel(u'chan135', u'My EDC Application', u'sms'), InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1))"
+    "Interaction('foo789', Channel('chan135', 'My EDC Application', 'sms'), InstrumentVersion('notreal456', Instrument('fake123', 'My Instrument Title'), 1))"
 
     >>> interaction.as_dict()
-    {'instrument_version': {'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'published_by': u'jay', 'version': 1, 'uid': u'notreal456', 'date_published': datetime.datetime(2014, 5, 22, 0, 0)}, 'uid': u'foo789', 'channel': {'uid': u'chan135', 'presentation_type': u'sms', 'title': u'My EDC Application'}}
+    {'uid': 'foo789', 'channel': {'uid': 'chan135', 'title': 'My EDC Application', 'presentation_type': 'sms'}, 'instrument_version': {'uid': 'notreal456', 'instrument': {'uid': 'fake123', 'title': 'My Instrument Title', 'code': 'fake123', 'status': 'active'}, 'version': 1, 'published_by': 'jay', 'date_published': datetime.datetime(2014, 5, 22, 0, 0)}}
     >>> interaction.as_json()
-    u'{"instrument_version": {"instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "published_by": "jay", "version": 1, "uid": "notreal456", "date_published": "2014-05-22T00:00:00"}, "uid": "foo789", "channel": {"uid": "chan135", "presentation_type": "sms", "title": "My EDC Application"}}'
+    '{"uid": "foo789", "channel": {"uid": "chan135", "title": "My EDC Application", "presentation_type": "sms"}, "instrument_version": {"uid": "notreal456", "instrument": {"uid": "fake123", "title": "My Instrument Title", "code": "fake123", "status": "active"}, "version": 1, "published_by": "jay", "date_published": "2014-05-22T00:00:00"}}'
 
 
 The Channels and InstrumentVersions passed to the constructor must actually be
@@ -82,9 +82,9 @@ instances of those classes or strings containing UIDs::
 
     >>> interaction = Interaction('foo789', 'survey', 'simple1', INTERACTION)
     >>> interaction.channel
-    DemoChannel(u'survey', u'RexSurvey', u'form')
+    DemoChannel('survey', 'RexSurvey', 'form')
     >>> interaction.instrument_version
-    DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L)
+    DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1)
 
 
 The configuration can be passed to the contructor as either a JSON/YAML-encoded
@@ -101,21 +101,21 @@ The configuration can be set or retrieved as either a JSON/YAML-encoded string
 or a dict equivalent::
 
     >>> interaction.configuration
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'steps': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}]}
-    >>> interaction.configuration = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'steps': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite NEW word?'}, 'fieldId': 'q_fake'}}]}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'defaultLocalization': 'en', 'steps': [{'type': 'question', 'options': {'fieldId': 'q_fake', 'text': {'en': 'What is your favorite word?', 'fr': 'Quel est votre mot préféré?'}}}]}
+    >>> interaction.configuration = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'steps': [{'type': 'question', 'options': {'text': {'fr': 'Quel est votre mot préféré?', 'en': 'What is your favorite NEW word?'}, 'fieldId': 'q_fake'}}]}
 
     >>> interaction.configuration_json
-    u'{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "steps": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "What is your favorite NEW word?", "fr": "Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?"}}}]}'
+    '{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "steps": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "What is your favorite NEW word?", "fr": "Quel est votre mot préféré?"}}}]}'
     >>> interaction.configuration_yaml
-    "instrument: {id: 'urn:test-instrument', version: '1.1'}\ndefaultLocalization: en\nsteps:\n- type: question\n  options:\n    fieldId: q_fake\n    text: {en: 'What is your favorite NEW word?', fr: 'Quel est votre mot pr\xc3\x83\xc2\xa9f\xc3\x83\xc2\xa9r\xc3\x83\xc2\xa9?'}"
+    "instrument: {id: 'urn:test-instrument', version: '1.1'}\ndefaultLocalization: en\nsteps:\n- type: question\n  options:\n    fieldId: q_fake\n    text: {en: 'What is your favorite NEW word?', fr: 'Quel est votre mot préféré?'}"
 
-    >>> interaction.configuration_json ='{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "steps": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "What is your favorite REALLY NEW word?", "fr": "Quel est votre mot pr\xc3\x83\xc2\xa9f\xc3\x83\xc2\xa9r\xc3\x83\xc2\xa9?"}}}]}' 
+    >>> interaction.configuration_json ='{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "steps": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "What is your favorite REALLY NEW word?", "fr": "Quel est votre mot préféré?"}}}]}' 
     >>> interaction.configuration
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'steps': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite REALLY NEW word?'}, 'fieldId': 'q_fake'}}]}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'defaultLocalization': 'en', 'steps': [{'type': 'question', 'options': {'fieldId': 'q_fake', 'text': {'en': 'What is your favorite REALLY NEW word?', 'fr': 'Quel est votre mot préféré?'}}}]}
 
-    >>> interaction.configuration_yaml ="instrument: {id: 'urn:test-instrument', version: '1.1'}\ndefaultLocalization: en\nsteps:\n- type: question\n  options:\n    fieldId: q_fake\n    text: {en: 'What is your favorite SORTOFNEW word?', fr: 'Quel est votre mot pr\xc3\x83\xc2\xa9f\xc3\x83\xc2\xa9r\xc3\x83\xc2\xa9?'}" 
+    >>> interaction.configuration_yaml ="instrument: {id: 'urn:test-instrument', version: '1.1'}\ndefaultLocalization: en\nsteps:\n- type: question\n  options:\n    fieldId: q_fake\n    text: {en: 'What is your favorite SORTOFNEW word?', fr: 'Quel est votre mot préféré?'}" 
     >>> interaction.configuration
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'steps': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite SORTOFNEW word?'}, 'fieldId': 'q_fake'}}]}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'defaultLocalization': 'en', 'steps': [{'type': 'question', 'options': {'fieldId': 'q_fake', 'text': {'en': 'What is your favorite SORTOFNEW word?', 'fr': 'Quel est votre mot préféré?'}}}]}
 
 
 The configuration can also be retrieved as a Web Form Configuration equivalent,
@@ -123,7 +123,7 @@ which is useful for when you want to display Instruments that have Interaction
 configurations, but not Form configurations::
 
     >>> interaction.form_configuration
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite SORTOFNEW word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}]}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'defaultLocalization': 'en', 'pages': [{'id': 'page1', 'elements': [{'type': 'question', 'options': {'fieldId': 'q_fake', 'text': {'en': 'What is your favorite SORTOFNEW word?', 'fr': 'Quel est votre mot préféré?'}}}]}]}
 
 
 There is a static method on Interaction named ``validated_configuration()``
@@ -145,29 +145,29 @@ well-formed::
     >>> Interaction.validate_configuration(BAD_INTERACTION)
     Traceback (most recent call last):
         ...
-    ValidationError: The following problems were encountered when validating this Interaction:
+    rex.mobile.errors.ValidationError: The following problems were encountered when validating this Interaction:
     steps: Required
 
     >>> Interaction.validate_configuration('foo')
     Traceback (most recent call last):
         ...
-    ValidationError: Interaction Configurations must be mapped objects.
+    rex.mobile.errors.ValidationError: Interaction Configurations must be mapped objects.
 
     >>> Interaction.validate_configuration('{foo')  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    ValidationError: Invalid JSON/YAML provided: Failed to parse a YAML document:
+    rex.mobile.errors.ValidationError: Invalid JSON/YAML provided: Failed to parse a YAML document:
         ...
 
     >>> Interaction.validate_configuration(INTERACTION, instrument_definition='foo')
     Traceback (most recent call last):
         ...
-    ValidationError: Instrument Definitions must be mapped objects.
+    rex.mobile.errors.ValidationError: Instrument Definitions must be mapped objects.
 
     >>> Interaction.validate_configuration(INTERACTION, instrument_definition='{foo')  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    ValidationError: Invalid Instrument JSON/YAML provided: Failed to parse a YAML document:
+    rex.mobile.errors.ValidationError: Invalid Instrument JSON/YAML provided: Failed to parse a YAML document:
         ...
 
     >>> BAD_INSTRUMENT = deepcopy(INSTRUMENT)
@@ -181,21 +181,21 @@ well-formed::
     >>> Interaction.validate_configuration(INTERACTION, instrument_definition=BAD_INSTRUMENT)
     Traceback (most recent call last):
         ...
-    ValidationError: Fields of type enumerationSet are not currently supported.
+    rex.mobile.errors.ValidationError: Fields of type enumerationSet are not currently supported.
 
     >>> BAD_INSTRUMENT = deepcopy(INSTRUMENT)
     >>> BAD_INSTRUMENT['record'][0]['explanation'] = 'required'
     >>> Interaction.validate_configuration(INTERACTION, instrument_definition=BAD_INSTRUMENT)
     Traceback (most recent call last):
         ...
-    ValidationError: Fields that require explanations or annotations are not currently supported.
+    rex.mobile.errors.ValidationError: Fields that require explanations or annotations are not currently supported.
 
     >>> del BAD_INSTRUMENT['record'][0]['explanation']
     >>> BAD_INSTRUMENT['record'][0]['annotation'] = 'required'
     >>> Interaction.validate_configuration(INTERACTION, instrument_definition=BAD_INSTRUMENT)
     Traceback (most recent call last):
         ...
-    ValidationError: Fields that require explanations or annotations are not currently supported.
+    rex.mobile.errors.ValidationError: Fields that require explanations or annotations are not currently supported.
 
 
 There is a static method named ``get_for_task`` which will retrieve an
@@ -205,16 +205,16 @@ Interaction given a Task and Channel::
     >>> task = Task.get_implementation().get_by_uid('task1')
 
     >>> Interaction.get_implementation().get_for_task('task1', 'mobile')
-    DemoInteraction(u'simple1mobile', DemoChannel(u'mobile', u'RexMobile', u'sms'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
+    DemoInteraction('simple1mobile', DemoChannel('mobile', 'RexMobile', 'sms'), DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1))
 
     >>> Interaction.get_implementation().get_for_task(task, 'mobile')
-    DemoInteraction(u'simple1mobile', DemoChannel(u'mobile', u'RexMobile', u'sms'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
+    DemoInteraction('simple1mobile', DemoChannel('mobile', 'RexMobile', 'sms'), DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1))
 
     >>> Interaction.get_implementation().get_for_task('task1', channel)
-    DemoInteraction(u'simple1mobile', DemoChannel(u'mobile', u'RexMobile', u'sms'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
+    DemoInteraction('simple1mobile', DemoChannel('mobile', 'RexMobile', 'sms'), DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1))
 
     >>> Interaction.get_implementation().get_for_task(task, channel)
-    DemoInteraction(u'simple1mobile', DemoChannel(u'mobile', u'RexMobile', u'sms'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
+    DemoInteraction('simple1mobile', DemoChannel('mobile', 'RexMobile', 'sms'), DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1))
 
     >>> Interaction.get_implementation().get_for_task('task5', 'mobile') is None
     True
@@ -264,4 +264,5 @@ being the same class with the same UID::
 
 
     >>> rex.off()
+
 

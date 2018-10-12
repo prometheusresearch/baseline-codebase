@@ -17,9 +17,9 @@ from .format import HTMLFormat
 from .emit import EmitHeaders, Emit
 from ..error import Error, InternalServerError, Mark
 from ..domain import (Domain, BooleanDomain, NumberDomain, DecimalDomain,
-        TextDomain, EnumDomain, DateDomain, TimeDomain, DateTimeDomain,
-        ListDomain, RecordDomain, UntypedDomain, VoidDomain, OpaqueDomain,
-        Profile)
+        FloatDomain, TextDomain, EnumDomain, DateDomain, TimeDomain,
+        DateTimeDomain, ListDomain, RecordDomain, UntypedDomain, VoidDomain,
+        OpaqueDomain, Profile)
 import pkg_resources
 import cgi
 import re
@@ -36,7 +36,7 @@ class Block(Printable):
 class TextBlock(Block):
 
     def __init__(self, text, mark):
-        assert isinstance(text, unicode)
+        assert isinstance(text, str)
         super(TextBlock, self).__init__(mark)
         self.text = text
 
@@ -45,9 +45,9 @@ class TextBlock(Block):
         if len(lines) == 0:
             line = ""
         elif len(lines) == 1:
-            line = lines[0].rstrip().encode('utf-8')
+            line = lines[0].rstrip()
         else:
-            line = lines[0].rstrip().encode('utf-8')+'...'
+            line = lines[0].rstrip()+'...'
         return line
 
 
@@ -85,7 +85,7 @@ class Case(Printable):
 class TextCase(Case):
 
     def __init__(self, text):
-        assert isinstance(text, unicode)
+        assert isinstance(text, str)
         self.text = text
 
     def __str__(self):
@@ -93,9 +93,9 @@ class TextCase(Case):
         if len(lines) == 0:
             line = ""
         elif len(lines) == 1:
-            line = lines[0].rstrip().encode('utf-8')
+            line = lines[0].rstrip()
         else:
-            line = lines[0].rstrip().encode('utf-8')+'...'
+            line = lines[0].rstrip()+'...'
         return line
 
 
@@ -148,7 +148,7 @@ class TemplateError(InternalServerError, Error):
     pass
 
 
-class Template(object):
+class Template:
 
     text_pattern = r"""
         (?: [^{] | [{] [^{%#] )+
@@ -180,14 +180,14 @@ class Template(object):
         self.case = case
 
     def scan(self, stream):
-        if isinstance(stream, (str, unicode)):
+        if isinstance(stream, (str, bytes)):
             input = stream
         else:
             input = stream.read()
-        if isinstance(input, str):
+        if isinstance(input, bytes):
             try:
                 input = input.decode('utf-8')
-            except UnicodeDecodeError, exc:
+            except UnicodeDecodeError as exc:
                 mark = Mark(input.decode('utf-8', 'replace'),
                             exc.start, exc.end)
                 raise TemplateError("invalid UTF-8 character (%s)"
@@ -207,12 +207,12 @@ class Template(object):
                 mark = Mark(input, pos, pos)
                 raise TemplateError("invalid template expression", mark)
             if match.group('echo') is not None:
-                name = match.group('name').encode('utf-8')
+                name = match.group('name')
                 mark = Mark(input, match.start('echo'), match.end('echo'))
                 yield EchoBlock(name, mark)
             elif match.group('clause') is not None:
-                action = match.group('action').encode('utf-8')
-                names = match.group('names').encode('utf-8').split()
+                action = match.group('action')
+                names = match.group('names').split()
                 mark = Mark(input, match.start('clause'), match.end('clause'))
                 yield ClauseBlock(action, names, mark)
             pos = match.end()
@@ -291,8 +291,7 @@ class Template(object):
                 raise TemplateError("undefined context variable", case.mark)
             value = context[case.name]
             if value is not None:
-                assert not isinstance(value, str)
-                if isinstance(value, unicode):
+                if isinstance(value, str):
                     yield value
                 else:
                     for chunk in value:
@@ -303,7 +302,7 @@ class Template(object):
                     if name not in context:
                         raise TemplateError("undefined context variable", mark)
                     value = context[case.name]
-                    if value is None or value == u"":
+                    if value is None or value == "":
                         continue
                 for chunk in self.emit(case, context):
                     yield chunk
@@ -333,7 +332,7 @@ class EmitHTML(Emit):
         if self.meta.header:
             title = cgi.escape(self.meta.header, True)
         else:
-            title = u""
+            title = ""
         content = None
         if headers_height or cells_height:
             content = self.table(product_to_html,
@@ -344,50 +343,50 @@ class EmitHTML(Emit):
         return template(title=title, content=content)
 
     def table(self, product_to_html, headers_height, cells_height, title):
-        yield u"<table class=\"htsql-output\" summary=\"%s\">\n" % title
+        yield "<table class=\"htsql-output\" summary=\"%s\">\n" % title
         if headers_height > 0:
-            yield u"<thead>\n"
+            yield "<thead>\n"
             for row in product_to_html.headers(headers_height):
                 line = []
                 for content, colspan, rowspan, classes in row:
                     attributes = []
                     if colspan != 1:
-                        attributes.append(u" colspan=\"%s\"" % colspan)
+                        attributes.append(" colspan=\"%s\"" % colspan)
                     if rowspan != 1:
-                        attributes.append(u" rowspan=\"%s\"" % rowspan)
+                        attributes.append(" rowspan=\"%s\"" % rowspan)
                     if classes:
-                        attributes.append(u" class=\"%s\""
-                                          % u" ".join(classes))
-                    line.append(u"<th%s>%s</th>" % (u"".join(attributes),
+                        attributes.append(" class=\"%s\""
+                                          % " ".join(classes))
+                    line.append("<th%s>%s</th>" % ("".join(attributes),
                                                     cgi.escape(content)))
-                yield u"<tr>%s</tr>\n" % u"".join(line)
-            yield u"</thead>\n"
+                yield "<tr>%s</tr>\n" % "".join(line)
+            yield "</thead>\n"
         if cells_height > 0:
-            yield u"<tbody>\n"
+            yield "<tbody>\n"
             index = 0
             for row in product_to_html.cells(self.data, cells_height):
                 line = []
                 for content, colspan, rowspan, classes in row:
                     attributes = []
                     if colspan != 1:
-                        attributes.append(u" colspan=\"%s\"" % colspan)
+                        attributes.append(" colspan=\"%s\"" % colspan)
                     if rowspan != 1:
-                        attributes.append(u" rowspan=\"%s\"" % rowspan)
+                        attributes.append(" rowspan=\"%s\"" % rowspan)
                     if classes:
-                        attributes.append(u" class=\"%s\""
-                                          % u" ".join(classes))
-                    line.append(u"<td%s>%s</td>" % (u"".join(attributes),
+                        attributes.append(" class=\"%s\""
+                                          % " ".join(classes))
+                    line.append("<td%s>%s</td>" % ("".join(attributes),
                                                     cgi.escape(content)))
                 index += 1
                 attributes = []
                 if index % 2:
-                    attributes.append(u" class=\"htsql-odd-row\"")
+                    attributes.append(" class=\"htsql-odd-row\"")
                 else:
-                    attributes.append(u" class=\"htsql-even-row\"")
-                yield u"<tr%s>%s</tr>\n" % (u"".join(attributes),
-                                            u"".join(line))
-            yield u"</tbody>\n"
-        yield u"</table>\n"
+                    attributes.append(" class=\"htsql-even-row\"")
+                yield "<tr%s>%s</tr>\n" % ("".join(attributes),
+                                            "".join(line))
+            yield "</tbody>\n"
+        yield "</table>\n"
 
 
 class ToHTML(Adapter):
@@ -405,7 +404,7 @@ class ToHTML(Adapter):
 
     def headers(self, height):
         if height > 0:
-            yield [(u"", self.width, height, [u"htsql-empty-header"])]
+            yield [("", self.width, height, ["htsql-empty-header"])]
 
     def headers_height(self):
         return 0
@@ -413,13 +412,13 @@ class ToHTML(Adapter):
     def cells(self, value, height):
         assert height > 0
         classes = []
-        classes.append(u"htsql-%s-type" % self.domain.__class__)
+        classes.append("htsql-%s-type" % self.domain.__class__)
         content = self.dump(value)
         if content is None:
-            content = u""
-            classes.append(u"htsql-null-value")
+            content = ""
+            classes.append("htsql-null-value")
         elif not content:
-            classes.append(u"htsql-empty-value")
+            classes.append("htsql-empty-value")
         classes.extend(self.classes(value))
         yield [(content, self.width, height, classes)]
 
@@ -485,7 +484,7 @@ class RecordToHTML(ToHTML):
         if not self.width or not height:
             return
         if value is None:
-            yield [(u"", 1, height, [u"htsql-null-record-value"])]*self.width
+            yield [("", 1, height, ["htsql-null-record-value"])]*self.width
         else:
             streams = [field_to_html.cells(item, height)
                        for item, field_to_html in zip(value,
@@ -523,7 +522,7 @@ class ListToHTML(ToHTML):
         if height > 0:
             item_stream = self.item_to_html.headers(height)
             first_row = next(item_stream)
-            first_row.insert(0, (u"", 1, height, [u"htsql-empty-header"]))
+            first_row.insert(0, ("", 1, height, ["htsql-empty-header"]))
             yield first_row
             for row in item_stream:
                 yield row
@@ -536,10 +535,10 @@ class ListToHTML(ToHTML):
             return
         if not value:
             row = []
-            row.append((u"", 1, height,
-                        [u"htsql-index", u"htsql-null-record-value"]))
-            row.extend([(u"", 1, height,
-                         [u"htsql-null-record-value"])]*(self.width-1))
+            row.append(("", 1, height,
+                        ["htsql-index", "htsql-null-record-value"]))
+            row.extend([("", 1, height,
+                         ["htsql-null-record-value"])]*(self.width-1))
             yield row
             return
         items = iter(value)
@@ -559,13 +558,13 @@ class ListToHTML(ToHTML):
             total_height -= item_height
             item_stream = self.item_to_html.cells(item, item_height)
             first_row = next(item_stream, [])
-            first_row.insert(0, (unicode(index), 1, item_height,
-                                 [u"htsql-index"]))
+            first_row.insert(0, (str(index), 1, item_height,
+                                 ["htsql-index"]))
             if not self.item_to_html.is_bounded:
                 first_row = [
                         (content, colspan, rowspan,
-                         [u"htsql-section"]+classes
-                              if u"htsql-section" not in classes else classes)
+                         ["htsql-section"]+classes
+                              if "htsql-section" not in classes else classes)
                         for content, colspan, rowspan, classes in first_row]
             yield first_row
             for row in item_stream:
@@ -599,7 +598,7 @@ class NativeStringToHTML(ToHTML):
     def dump(self, value):
         if value is None:
             return None
-        return unicode(value)
+        return str(value)
 
 
 class DecimalToHTML(ToHTML):
@@ -611,13 +610,23 @@ class DecimalToHTML(ToHTML):
             return value
         sign, digits, exp = value.as_tuple()
         if not digits:
-            return unicode(value)
+            return str(value)
         if exp < -6 and value == value.normalize():
             value = value.normalize()
             sign, digits, exp = value.as_tuple()
         if exp > 0:
             value = value.quantize(decimal.Decimal(1))
-        return unicode(value)
+        return "{:.12}".format(value)
+
+
+class FloatToHTML(ToHTML):
+
+    adapt(FloatDomain)
+
+    def dump(self, value):
+        if value is None:
+            return value
+        return "{:.12}".format(value)
 
 
 class BooleanToHTML(ToHTML):
@@ -626,18 +635,18 @@ class BooleanToHTML(ToHTML):
 
     def classes(self, value):
         if value is True:
-            return [u"htsql-true-value"]
+            return ["htsql-true-value"]
         if value is False:
-            return [u"htsql-false-value"]
+            return ["htsql-false-value"]
         return []
 
     def dump(self, value):
         if value is None:
             return None
         elif value is True:
-            return u"true"
+            return "true"
         elif value is False:
-            return u"false"
+            return "false"
 
 
 class DateTimeToHTML(ToHTML):
@@ -648,9 +657,9 @@ class DateTimeToHTML(ToHTML):
         if value is None:
             return None
         elif not value.time():
-            return unicode(value.date())
+            return str(value.date())
         else:
-            return unicode(value)
+            return str(value)
 
 
 class OpaqueToHTML(ToHTML):
@@ -660,15 +669,10 @@ class OpaqueToHTML(ToHTML):
     def dump(self, value):
         if value is None:
             return None
-        if not isinstance(value, unicode):
-            try:
-                value = str(value).decode('utf-8')
-            except UnicodeDecodeError:
-                value = unicode(repr(value))
-        return value
+        return str(value)
 
 
-class MetaToHTML(object):
+class MetaToHTML:
 
     def __init__(self, profile):
         assert isinstance(profile, Profile)
@@ -688,7 +692,7 @@ class MetaToHTML(object):
         content = self.profile.header
         classes = []
         if not content:
-            classes.append(u"htsql-empty-header")
+            classes.append("htsql-empty-header")
         yield [(content, self.width, (height if self.header_level == 1 else 1),
                 classes)]
         if self.header_level > 1:

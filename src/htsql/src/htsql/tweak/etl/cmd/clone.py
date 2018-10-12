@@ -109,7 +109,7 @@ class BuildExecuteClone(Utility):
         return ExecuteClonePipe(table, output_columns, pipe, mapping)
 
 
-class ExecuteClonePipe(object):
+class ExecuteClonePipe:
 
     def __init__(self, table, columns, pipe, mapping):
         self.table = table
@@ -167,7 +167,7 @@ class ProduceClone(Act):
                     row = execute_clone(row, key)
                     key = execute_insert(row)
                     row = resolve_identity(key)
-                except Error, error:
+                except Error as error:
                     if extract_node.is_list:
                         message = "While cloning record #%s" % (idx+1)
                     else:

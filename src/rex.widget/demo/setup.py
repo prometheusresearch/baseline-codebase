@@ -17,7 +17,7 @@ class demo(Command):
         import os
         for cmd in ["rex deploy rex.widget_demo",
                     "rex serve rex.widget_demo"]:
-            print "$", cmd
+            print("$", cmd)
             os.spawnvp(0, cmd.split()[0], cmd.split())
 
 setup(

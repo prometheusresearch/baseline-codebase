@@ -75,7 +75,7 @@ It will fail if there's a Jinja template with broken syntax::
     extracting messages from test/broken_sandbox/static/template/broken.html (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
     Traceback (most recent call last):
         ...
-    TemplateSyntaxError: unexpected '}'
+    jinja2.exceptions.TemplateSyntaxError: unexpected '}'
 
 
 i18n-init
@@ -131,7 +131,7 @@ different strings found in the POT files::
 It takes one optional argument specifying the root path of the project::
 
     >>> output = Ctl('i18n-update ./test/sandbox').wait()
-    >>> print '\n'.join([o for o in sorted(output.split('\n')) if o])
+    >>> print('\n'.join([o for o in sorted(output.split('\n')) if o]))
     updating catalog ./test/sandbox/static/i18n/es/LC_MESSAGES/frontend.po based on ./test/sandbox/static/i18n/frontend.pot
     updating catalog ./test/sandbox/static/i18n/fr/LC_MESSAGES/backend.po based on ./test/sandbox/static/i18n/backend.pot
     updating catalog ./test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.po based on ./test/sandbox/static/i18n/frontend.pot
@@ -172,7 +172,7 @@ files used by the runtime application::
 It takes one optional argument specifying the root path of the project::
 
     >>> output = Ctl('i18n-compile ./test/sandbox').wait()
-    >>> print '\n'.join([o for o in sorted(output.split('\n')) if o])
+    >>> print('\n'.join([o for o in sorted(output.split('\n')) if o]))
     compiling catalog ./test/sandbox/static/i18n/es/LC_MESSAGES/frontend.po to ./test/sandbox/static/i18n/es/LC_MESSAGES/frontend.mo
     compiling catalog ./test/sandbox/static/i18n/fr/LC_MESSAGES/backend.po to ./test/sandbox/static/i18n/fr/LC_MESSAGES/backend.mo
     compiling catalog ./test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.po to ./test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.mo
@@ -193,4 +193,5 @@ It also accepts options indicating which locale and/or domain to update::
 
     >>> ctl('i18n-compile ./test/sandbox --locale=fr --domain=frontend')
     compiling catalog ./test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.po to ./test/sandbox/static/i18n/fr/LC_MESSAGES/frontend.mo
+
 

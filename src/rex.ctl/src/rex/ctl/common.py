@@ -35,7 +35,7 @@ def sequence(value):
         else:
             value = shlex.split(value)
     if not (isinstance(value, list) and
-            all(isinstance(item, basestring) for item in value)):
+            all(isinstance(item, str) for item in value)):
         raise ValueError("expected a sequence of parameters")
     return value
 
@@ -52,7 +52,7 @@ def collection(value):
             value = dict(pair(item)
                          for item in shlex.split(value))
     if not (isinstance(value, dict) and
-            all(isinstance(key, basestring) for key in value)):
+            all(isinstance(key, str) for key in value)):
         raise ValueError("expected a collection of parameters")
     return value
 
@@ -87,13 +87,13 @@ def make_rex(project=None, require_list=None, set_list=None,
         rex_type = LatentRex
     try:
         app = rex_type(*requirements, **parameters)
-    except Error, error:
+    except Error as error:
         raise fail(str(error))
     if ensure is not None:
         with app:
             try:
                 packages = get_packages()
-            except Error, error:
+            except Error as error:
                 raise fail(str(error))
         if ensure not in packages:
             if requirements:

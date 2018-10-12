@@ -58,8 +58,8 @@ class LinkFact(Fact):
                           'required', 'unique', 'title']:
                 if getattr(spec, field) is not None:
                     raise Error("Got unexpected clause:", field)
-        if u'.' in spec.link:
-            table_label, label = spec.link.split(u'.')
+        if '.' in spec.link:
+            table_label, label = spec.link.split('.')
             if spec.of is not None and spec.of != table_label:
                 raise Error("Got mismatched table names:",
                             ", ".join((table_label, spec.of)))
@@ -97,15 +97,15 @@ class LinkFact(Fact):
     def __init__(self, table_label, label, target_table_label=None,
                  default=None, former_labels=[], is_required=None,
                  is_unique=None, title=None, front_labels=[], is_present=True):
-        assert isinstance(table_label, unicode) and len(table_label) > 0
-        assert isinstance(label, unicode) and len(label) > 0
+        assert isinstance(table_label, str) and len(table_label) > 0
+        assert isinstance(label, str) and len(label) > 0
         assert isinstance(is_present, bool)
         if is_present:
-            assert (isinstance(target_table_label, unicode)
+            assert (isinstance(target_table_label, str)
                     and len(target_table_label) > 0)
-            assert default is None or isinstance(default, unicode)
+            assert default is None or isinstance(default, str)
             assert (isinstance(former_labels, list) and
-                    all(isinstance(former_label, unicode)
+                    all(isinstance(former_label, str)
                         for former_label in former_labels))
             if is_required is None:
                 is_required = True
@@ -114,9 +114,9 @@ class LinkFact(Fact):
                 is_unique = False
             assert isinstance(is_unique, bool)
             assert (title is None or
-                    (isinstance(title, unicode) and len(title) > 0))
+                    (isinstance(title, str) and len(title) > 0))
             assert (isinstance(front_labels, list) and
-                    all(isinstance(front_label, unicode)
+                    all(isinstance(front_label, str)
                         for front_label in front_labels))
         else:
             assert target_table_label is None

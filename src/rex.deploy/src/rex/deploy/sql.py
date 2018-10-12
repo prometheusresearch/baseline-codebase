@@ -13,9 +13,9 @@ import jinja2
 
 def mangle(fragments, suffix=None,
            max_length=63,
-           forbidden_prefixes=[u"pg"],
-           forbidden_suffixes=[u"id", u"pk", u"uk", u"fk", u"chk",
-                               u"seq", u"enum"]):
+           forbidden_prefixes=["pg"],
+           forbidden_suffixes=["id", "pk", "uk", "fk", "chk",
+                               "seq", "enum"]):
     """
     Generates a SQL name from fragments and a suffix.
 
@@ -32,27 +32,27 @@ def mangle(fragments, suffix=None,
     if not isinstance(fragments, (list, tuple)):
         fragments = [fragments]
     # Make a separator that is not contained in any fragments.
-    separator = u"_"
+    separator = "_"
     while any(separator in fragment for fragment in fragments):
-        separator += u"_"
+        separator += "_"
     # Generate the name
     stem = separator.join(fragments)
     text = stem
     if suffix is not None:
         text += separator+suffix
     # Find if the name is collision-prone.
-    is_forbidden = (any(stem == syllable or stem.startswith(syllable+u"_")
+    is_forbidden = (any(stem == syllable or stem.startswith(syllable+"_")
                         for syllable in forbidden_prefixes) or
                     (suffix is None and
-                     any(stem == syllable or stem.endswith(u"_"+syllable)
+                     any(stem == syllable or stem.endswith("_"+syllable)
                          for syllable in forbidden_suffixes)))
     # Mangle the name if it's too long or collision-prone.
     if is_forbidden or len(text) > max_length:
         # Add 6 characters from the MD5 hash to prevent collisions.
-        digest = separator+unicode(hashlib.md5(stem).hexdigest()[:6])
+        digest = separator+str(hashlib.md5(stem.encode('utf-8')).hexdigest()[:6])
         # Cut some characters to reduce the name length if necessary.
         if len(text)+len(digest) > max_length:
-            cut_start = max_length/4
+            cut_start = max_length//4
             cut_end = cut_start+len(digest)+len(separator)+len(text)-max_length
             text = text[:cut_start]+separator+text[cut_end:]
         text += digest
@@ -72,7 +72,7 @@ def sql_name(names):
     """
     if not isinstance(names, list):
         names = [names]
-    return u", ".join([u"\"%s\"" % name.replace(u"\"", u"\"\"")
+    return ", ".join(["\"%s\"" % name.replace("\"", "\"\"")
                        for name in names])
 
 
@@ -81,13 +81,13 @@ def sql_qname(qnames):
     Quotes a SQL name with its namespace.
     """
     if isinstance(qnames, list):
-        return u", ".join([sql_qname(qname) for qname in qnames])
+        return ", ".join([sql_qname(qname) for qname in qnames])
     else:
         namespace, name = qnames
-        if namespace in (u'public', u'pg_catalog'):
+        if namespace in ('public', 'pg_catalog'):
             return sql_name(name)
         else:
-            return u"%s.%s" % (sql_name(namespace), sql_name(name))
+            return "%s.%s" % (sql_name(namespace), sql_name(name))
 
 
 def sql_value(value):
@@ -103,30 +103,30 @@ def sql_value(value):
         are converted to the current date and timestamp respectively.
     """
     if value is None:
-        return u"NULL"
+        return "NULL"
     if isinstance(value, bool):
         if value is True:
-            return u"TRUE"
+            return "TRUE"
         if value is False:
-            return u"FALSE"
-    if isinstance(value, (int, long, float, decimal.Decimal)):
+            return "FALSE"
+    if isinstance(value, (int, float, decimal.Decimal)):
         # FIXME: accept finite numbers only.
-        return unicode(value)
+        return str(value)
     if isinstance(value, (datetime.date, datetime.time, datetime.datetime)):
-        return u"'%s'" % value
-    if isinstance(value, (str, unicode)):
-        value = value.replace(u"'", u"''")
-        if u"\\" in value:
-            value = value.replace(u"\\", u"\\\\")
-            return u"E'%s'" % value
+        return "'%s'" % value
+    if isinstance(value, str):
+        value = value.replace("'", "''")
+        if "\\" in value:
+            value = value.replace("\\", "\\\\")
+            return "E'%s'" % value
         else:
-            return u"'%s'" % value
+            return "'%s'" % value
     if isinstance(value, (list, tuple)):
-        return u", ".join(sql_value(item) for item in value)
+        return ", ".join(sql_value(item) for item in value)
     if value == datetime.date.today:
-        return u"'now'::text::date"
+        return "'now'::text::date"
     if value == datetime.datetime.now:
-        return u"'now'::text::timestamp"
+        return "'now'::text::timestamp"
     raise NotImplementedError("sql_value() is not implemented"
                               " for value %s of type %s"
                               % (value, type(value).__name__))
@@ -137,7 +137,7 @@ sql_jinja = jinja2.Environment(
         line_statement_prefix='#')
 sql_jinja.globals.update({
     'zip': zip,
-    'unicode': unicode,
+    'unicode': str,
 })
 sql_jinja.filters.update({
     'name': sql_name,
@@ -620,7 +620,7 @@ def sql_delete(table_qname, key_name, key_value):
 
 
 def plpgsql_primary_key_procedure(*parts):
-    return u"\n%s\n" % sql_render("""
+    return "\n%s\n" % sql_render("""
     BEGIN
     # for part in parts
     # for line in part.splitlines()

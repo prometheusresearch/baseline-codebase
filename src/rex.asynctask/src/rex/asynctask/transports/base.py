@@ -6,7 +6,7 @@
 import json
 import re
 
-from urlparse import parse_qs
+from urllib.parse import parse_qs
 
 from rex.core import Extension, MaybeVal, MapVal
 
@@ -58,7 +58,7 @@ class AsyncTransport(Extension):
         self.location = uri_parts.netloc
         self.path = uri_parts.path
         self.options = parse_qs(uri_parts.query)
-        for key, value in self.options.items():
+        for key, value in list(self.options.items()):
             self.options[key] = value[0]
         self.initialize()
 
@@ -133,7 +133,7 @@ class AsyncTransport(Extension):
 
         # pylint: disable=no-self-use
 
-        if isinstance(payload, basestring):
+        if isinstance(payload, str):
             payload = json.loads(payload)
         return payload
 

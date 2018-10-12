@@ -23,7 +23,7 @@ Create test marts::
 When a mart is created, its RC value is equal to 1::
 
     >>> mart_getref(cluster, mart1.name)
-    1L
+    1
 
 In this case, purging the mart removes the mart database::
 
@@ -35,15 +35,15 @@ In this case, purging the mart removes the mart database::
 Change the RC value to 2::
 
     >>> mart_incref(cluster, mart2.name)
-    2L
+    2
     >>> mart_getref(cluster, mart2.name)
-    2L
+    2
     >>> mart_incref(cluster, mart2.name)
-    3L
+    3
     >>> mart_decref(cluster, mart2.name)
-    2L
+    2
     >>> mart_getref(cluster, mart2.name)
-    2L
+    2
 
 Purging this mart decreases the RC value by 1::
 
@@ -52,12 +52,12 @@ Purging this mart decreases the RC value by 1::
     >>> cluster.exists(mart2.name)
     True
     >>> mart_getref(cluster, mart2.name)
-    1L
+    1
 
 When the RC value drops to 0, the mart database is removed::
 
     >>> mart_decref(cluster, mart2.name)
-    0L
+    0
     >>> cluster.exists(mart2.name)
     False
 

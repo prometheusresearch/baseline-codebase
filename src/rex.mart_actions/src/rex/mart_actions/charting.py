@@ -189,10 +189,10 @@ class ChartVal(RefinedVal):
             # check if need to inject 'type' and 'title' validator
             if isinstance(validate, RecordVal):
                 if 'type' not in validate.fields:
-                    fields = validate.fields.values() + [('type', UStrVal)]
+                    fields = list(validate.fields.values()) + [('type', UStrVal)]
                     validate = RecordVal(*fields)
                 if 'title' not in validate.fields:
-                    fields = validate.fields.values() + [('title', UStrVal, None)]
+                    fields = list(validate.fields.values()) + [('title', UStrVal, None)]
                     validate = RecordVal(*fields)
             variants.append((OnFieldValue('type', chart_type.name), validate))
         return UnionVal(*variants)

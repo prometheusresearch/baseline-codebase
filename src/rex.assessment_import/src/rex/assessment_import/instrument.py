@@ -34,7 +34,7 @@ class Field(object):
         required = field_definition.get('required', False)
         field = Field(field_id, base_type, description, required)
         if base_type in ('enumeration', 'enumerationSet'):
-            field.enumerations = field_type['enumerations'].keys()
+            field.enumerations = list(field_type['enumerations'].keys())
         if base_type == 'matrix':
             self.add_matrix(instrument_version, field_definition)
         elif base_type == 'recordList':
@@ -88,12 +88,12 @@ class Instrument(object):
             self.context = context
         else:
             self.context = dict([(name, value)
-                                 for (name, value) in context.items()
+                                 for (name, value) in list(context.items())
                                     if name in context_fields
                                 ])
 
     def __iter__(self):
-        return iter(self.chunks.items())
+        return iter(list(self.chunks.items()))
 
     def __getitem__(self, id):
         return self.chunks.get(id)

@@ -27,21 +27,21 @@ class FooWorker(AsyncTaskWorker):
     name = 'demo_foo_worker'
 
     def process(self, payload):
-        print 'FOO processed: %r' % (payload,)
+        print('FOO processed: %r' % (payload,))
 
 
 class BarWorker(AsyncTaskWorker):
     name = 'demo_bar_worker'
 
     def process(self, payload):
-        print 'BAR processed: %r' % (payload,)
+        print('BAR processed: %r' % (payload,))
 
 
 class BazWorker(AsyncTaskWorker):
     name = 'demo_baz_worker'
 
     def process(self, payload):
-        print 'BAZ processed: %r' % (payload,)
+        print('BAZ processed: %r' % (payload,))
 
 
 class LoggingWorker(AsyncTaskWorker):
@@ -64,7 +64,7 @@ class ErrorWorker(AsyncTaskWorker):
     def process(self, payload):
         if payload['error']:
             raise Exception('Oops!')
-        print 'ERROR processed: %r' % (payload,)
+        print('ERROR processed: %r' % (payload,))
 
 
 class FragileWorker(AsyncTaskWorker):
@@ -72,19 +72,19 @@ class FragileWorker(AsyncTaskWorker):
 
     def process(self, payload):
         if payload['die']:
-            print 'FRAGILE DYING!'
+            print('FRAGILE DYING!')
             sys.exit()
-        print 'FRAGILE processed: %r' % (payload,)
+        print('FRAGILE processed: %r' % (payload,))
 
 
 class RequeueWorker(AsyncTaskWorker):
     name = 'requeue_worker'
 
     def process(self, payload):
-        print 'REQUEUE processed: %r' % (payload,)
+        print('REQUEUE processed: %r' % (payload,))
         if payload['foo'] == 1:
             self.requeue({'foo': 2})
-            print 'REQUEUE requeued'
+            print('REQUEUE requeued')
 
 
 class NoisyTask(RexTask):

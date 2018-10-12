@@ -29,8 +29,8 @@ def translate_error(exception):
             column_title = column.title or label_to_title(column.label)
             table_title = column.table.title or \
                     label_to_title(column.table.label)
-            return (u"Got a blank field value",
-                    u"%s . %s" % (table_title, column_title))
+            return ("Got a blank field value",
+                    "%s . %s" % (table_title, column_title))
     if diag.sqlstate == '23505':
         catalog_image = get_image()
         schema_image = catalog_image[diag.schema_name]
@@ -44,13 +44,13 @@ def translate_error(exception):
             field_titles = [field.title or label_to_title(field.label)
                             for field in identity.fields]
             if len(field_titles) == 1:
-                return (u"Got a duplicate identity",
-                        u"%s . %s" % (table_title, field_titles[0]))
+                return ("Got a duplicate identity",
+                        "%s . %s" % (table_title, field_titles[0]))
             else:
-                return (u"Got a duplicate identity",
-                        u"%s . (%s)" % (
+                return ("Got a duplicate identity",
+                        "%s . (%s)" % (
                             table_title,
-                            u", ".join(field_titles)))
+                            ", ".join(field_titles)))
         else:
             column = schema(constraint_image.origin_columns[-1])
             if column is not None:
@@ -58,7 +58,7 @@ def translate_error(exception):
                 table_title = column.table.title or \
                         label_to_title(column.table.label)
                 return ("Got a duplicate field value",
-                        u"%s . %s" % (table_title, column_title))
+                        "%s . %s" % (table_title, column_title))
 
 
 class ScrambleJSON(Scramble):
@@ -79,7 +79,7 @@ class UnscrambleJSON(Unscramble):
 
     @staticmethod
     def convert(value):
-        if isinstance(value, (str, unicode)):
+        if isinstance(value, str):
             value = json.loads(value)
         return value
 
@@ -104,11 +104,11 @@ class DeployErrorGuard(DBErrorGuard):
                 error.wrap(
                         "Which triggered an error from the database driver",
                         str(exception))
-                raise error
+                raise error from None
             else:
                 raise EngineError(
                         "Got an error from the database driver",
-                        exception)
+                        exception) from None
 
 
 class DeployConnect(Connect):

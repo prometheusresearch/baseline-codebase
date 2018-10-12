@@ -34,7 +34,7 @@ def sendmail(message):
 
     The email is sent using the mailer returned by :func:`get_mailer()`.
     """
-    if isinstance(message, (str, unicode)):
+    if isinstance(message, str):
         message = email.message_from_string(message)
     from_ = message.get('from', '')
     tos = []
@@ -49,12 +49,12 @@ def sendmail(message):
     sender = email.utils.parseaddr(from_)[1]
     if not sender:
         raise Error("Email sender is not specified:",
-                    "".join("%s: %s\n" % item for item in message.items()))
+                    "".join("%s: %s\n" % item for item in list(message.items())))
     recipients = [address[1] for address in email.utils.getaddresses(tos)
                              if address[1]]
     if not recipients:
         raise Error("Email recipients are not specified:",
-                    "".join("%s: %s\n" % item for item in message.items()))
+                    "".join("%s: %s\n" % item for item in list(message.items())))
     mailer = get_mailer()
     mailer(sender, recipients, message.as_string())
 
@@ -75,7 +75,7 @@ def compose(package_path, **arguments):
     return message
 
 
-class Mailer(object):
+class Mailer:
     """
     Interface for sending email messages.
 
@@ -132,7 +132,7 @@ class SMTPMailer(Mailer):
         smtp = smtplib.SMTP()
         try:
             smtp.connect(self.host, self.port)
-        except Exception, exc:
+        except Exception as exc:
             raise Error("Failed to connect to SMTP server at %s:%s:"
                         % (self.host, self.port), exc)
 
@@ -201,15 +201,15 @@ class StdoutMailer(Mailer):
     """
 
     def __call__(self, sender, recipients, text):
-        print "MAIL FROM:<%s>" % sender
+        print("MAIL FROM:<%s>" % sender)
         for recipient in recipients:
-            print "RCPT TO:<%s>" % recipient
-        print "DATA"
+            print("RCPT TO:<%s>" % recipient)
+        print("DATA")
         for line in text.splitlines():
             if line.startswith('.'):
                 line = "."+line
-            print line
-        print "."
+            print(line)
+        print(".")
 
     def __str__(self):
         return "-"

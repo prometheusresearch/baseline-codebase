@@ -23,32 +23,32 @@ the currently active locale::
 
     >>> ctx.set_locale(en)
     >>> filters.format_number(123456)
-    u'123,456'
+    '123,456'
     >>> filters.format_decimal(123456.789)
-    u'123,456.789'
+    '123,456.789'
     >>> filters.format_currency(123456.789, 'USD')
-    u'$123,456.79'
+    '$123,456.79'
     >>> filters.format_currency(123456.789, 'EUR')
-    u'\u20ac123,456.79'
+    '\u20ac123,456.79'
     >>> filters.format_percent(0.7823)
-    u'78%'
+    '78%'
     >>> filters.format_scientific(1234567)
-    u'1.234567E6'
+    '1.234567E6'
     >>> ctx.reset()
 
     >>> ctx.set_locale(fr)
     >>> filters.format_number(123456)
-    u'123\xa0456'
+    '123\xa0456'
     >>> filters.format_decimal(123456.789)
-    u'123\xa0456,789'
+    '123\xa0456,789'
     >>> filters.format_currency(123456.789, 'USD')
-    u'123\xa0456,79\xa0$US'
+    '123\xa0456,79\xa0$US'
     >>> filters.format_currency(123456.789, 'EUR')
-    u'123\xa0456,79\xa0\u20ac'
+    '123\xa0456,79\xa0\u20ac'
     >>> filters.format_percent(0.7823)
-    u'78\xa0%'
+    '78\xa0%'
     >>> filters.format_scientific(1234567)
-    u'1,234567E6'
+    '1,234567E6'
     >>> ctx.reset()
 
 
@@ -71,40 +71,40 @@ the currently active locale and currently active timezone::
     >>> ctx.set_locale(en)
     >>> ctx.set_timezone(utc)
     >>> filters.format_datetime(dt)
-    u'Apr 12, 2010, 1:46:00 PM'
+    'Apr 12, 2010, 1:46:00 PM'
     >>> filters.format_datetime(dt2)
-    u'Apr 12, 2010, 12:41:00 PM'
+    'Apr 12, 2010, 12:41:00 PM'
     >>> filters.format_date(dt)
-    u'Apr 12, 2010'
+    'Apr 12, 2010'
     >>> filters.format_date(dt2)
-    u'Apr 12, 2010'
+    'Apr 12, 2010'
     >>> filters.format_date(d)
-    u'May 22, 2014'
+    'May 22, 2014'
     >>> filters.format_time(dt)
-    u'1:46:00 PM'
+    '1:46:00 PM'
     >>> filters.format_timedelta(dt).endswith(' years')
     True
     >>> filters.format_timedelta(td)
-    u'2 hours'
+    '2 hours'
     >>> ctx.reset()
 
     >>> ctx.set_locale(fr)
     >>> ctx.set_timezone(vienna)
     >>> filters.format_datetime(dt)
-    u'12 avr. 2010 \xe0 15:46:00'
+    '12 avr. 2010 \xe0 15:46:00'
     >>> filters.format_datetime(dt2)
-    u'12 avr. 2010 \xe0 14:41:00'
+    '12 avr. 2010 \xe0 14:41:00'
     >>> filters.format_date(dt)
-    u'12 avr. 2010'
+    '12 avr. 2010'
     >>> filters.format_date(dt2)
-    u'12 avr. 2010'
+    '12 avr. 2010'
     >>> filters.format_date(d)
-    u'22 mai 2014'
+    '22 mai 2014'
     >>> filters.format_time(dt)
-    u'15:46:00'
+    '15:46:00'
     >>> filters.format_timedelta(dt).endswith(' ans')
     True
     >>> filters.format_timedelta(td)
-    u'2 heures'
+    '2 heures'
     >>> ctx.reset()
 

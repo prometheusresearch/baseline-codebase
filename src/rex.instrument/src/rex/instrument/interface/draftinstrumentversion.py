@@ -4,6 +4,7 @@
 
 from copy import deepcopy
 from datetime import datetime
+from decimal import Decimal
 
 from rex.core import Extension, AnyVal
 
@@ -177,7 +178,7 @@ class DraftInstrumentVersion(
             date_modified=None):
         self._uid = to_unicode(uid)
 
-        if not isinstance(instrument, (Instrument, basestring)):
+        if not isinstance(instrument, (Instrument, str)):
             raise ValueError(
                 'instrument must be an instance of Instrument or a UID of one'
             )
@@ -186,14 +187,14 @@ class DraftInstrumentVersion(
         if parent_instrument_version:
             if not isinstance(
                     parent_instrument_version,
-                    (InstrumentVersion, basestring)):
+                    (InstrumentVersion, str)):
                 raise ValueError(
                     'parent_instrument_version must be an instance of'
                     ' InstrumentVersion or a UID of one'
                 )
         self._parent_instrument_version = parent_instrument_version
 
-        if isinstance(definition, basestring):
+        if isinstance(definition, str):
             self._definition = AnyVal().parse(definition)
         else:
             self._definition = deepcopy(definition)
@@ -222,7 +223,7 @@ class DraftInstrumentVersion(
         :rtype: Instrument
         """
 
-        if isinstance(self._instrument, basestring):
+        if isinstance(self._instrument, str):
             instrument_impl = get_implementation('instrument')
             return instrument_impl.get_by_uid(self._instrument)
         else:
@@ -236,7 +237,7 @@ class DraftInstrumentVersion(
         :rtype: InstrumentVersion
         """
 
-        if isinstance(self._parent_instrument_version, basestring):
+        if isinstance(self._parent_instrument_version, str):
             iv_impl = get_implementation('instrumentversion')
             return iv_impl.get_by_uid(self._parent_instrument_version)
         else:
@@ -442,10 +443,10 @@ class DraftInstrumentVersion(
 
         latest = self.instrument.latest_version
         if latest:
-            latest_version = float(latest.definition['version'])
-            current_version = float(self.definition['version'])
+            latest_version = Decimal(latest.definition['version'])
+            current_version = Decimal(self.definition['version'])
             if current_version <= latest_version:
-                self.definition['version'] = str(latest_version + 0.1)
+                self.definition['version'] = str(latest_version + Decimal('0.1'))
 
         iv_impl = get_implementation('instrumentversion')
 

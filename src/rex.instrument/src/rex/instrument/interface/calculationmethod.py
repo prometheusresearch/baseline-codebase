@@ -220,7 +220,7 @@ class PythonCalculationMethod(CalculationMethod):
             callable_opt.rsplit('.', 1)
         try:
             callable_module = import_module(callable_module_path)
-        except ImportError, exc:
+        except ImportError as exc:
             raise InstrumentError(
                 'Unexpected callable %(callable)s: unable to import module'
                 ' %(module)s: %(exc)s.' % {
@@ -231,7 +231,7 @@ class PythonCalculationMethod(CalculationMethod):
             )
         try:
             callable_obj = getattr(callable_module, callable_obj_name)
-        except AttributeError, exc:
+        except AttributeError as exc:
             raise InstrumentError(
                 'Unexpected callable %(callable)s: suitable callable object'
                 ' not found: %(exc)s' % {
@@ -251,7 +251,7 @@ class PythonCalculationMethod(CalculationMethod):
         with global_scope(scope_additions):
             try:
                 result = callable_obj(assessment, previous_results)
-            except Exception, exc:
+            except Exception as exc:
                 raise InstrumentError(
                     'Execution of %(callable)s failed: %(exc)s' % {
                         'callable': callable_opt,
@@ -279,7 +279,7 @@ class PythonCalculationMethod(CalculationMethod):
             try:
                 module = import_module(module_name)
                 method_locals[module_name] = module
-            except ImportError, exc:
+            except ImportError as exc:
                 raise InstrumentError(
                     'Got unexpected module %(module)s from setting'
                     " 'instrument_calculationmethod_default_module_list'" % {
@@ -290,7 +290,7 @@ class PythonCalculationMethod(CalculationMethod):
         try:
             # pylint: disable=eval-used
             return eval(expression_opt, {}, method_locals)
-        except Exception, exc:
+        except Exception as exc:
             raise InstrumentError(
                 'Unable to calculate expression %(expr)s: %(exc)s' % {
                     'expr': expression_opt,
@@ -343,8 +343,8 @@ class HtsqlCalculationMethod(CalculationMethod):
                 matrix = flat[field['id']]
                 del flat[field['id']]
 
-                for row in matrix.keys():
-                    for column in matrix[row].keys():
+                for row in list(matrix.keys()):
+                    for column in list(matrix[row].keys()):
                         new_id = field['id'] + '_' + row + '_' + column
                         flat[new_id] = matrix[row][column]
 
@@ -374,7 +374,7 @@ class HtsqlCalculationMethod(CalculationMethod):
                 return product.data[0][0]
             else:
                 return product.data
-        except Exception, exc:
+        except Exception as exc:
             raise InstrumentError("Unexpected htsql %(htsql)s: %(exc)s"
                                   % {'htsql': options['expression'],
                                      'exc': exc})

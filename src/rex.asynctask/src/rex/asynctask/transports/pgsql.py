@@ -6,7 +6,7 @@
 import hashlib
 
 from contextlib import contextmanager
-from urlparse import urlunparse
+from urllib.parse import urlunparse
 
 import psycopg2
 
@@ -279,7 +279,7 @@ class PostgresAsyncTransport(AsyncTransport):
 
     def _get_lock_id(self, name):
         if name not in self._lock_id_cache:
-            hashed = hashlib.sha1(name).hexdigest()
+            hashed = hashlib.sha1(name.encode('utf-8')).hexdigest()
             int_hash = int(hashed[:8], 16)
             if int_hash >= (1 << 31):
                 int_hash -= 1 << 32

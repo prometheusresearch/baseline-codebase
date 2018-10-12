@@ -24,10 +24,10 @@ Test rex.widget.mutation
 ::
 
   >>> mutation = Mutation(port)
-  >>> print mutation(Request.blank('/')) # doctest: +ELLIPSIS
+  >>> print(mutation(Request.blank('/'))) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  HTTPMethodNotAllowed: The server could not comply with the request since it is either malformed or otherwise incorrect.
+  webob.exc.HTTPMethodNotAllowed: The server could not comply with the request since it is either malformed or otherwise incorrect.
 
 ::
 
@@ -40,7 +40,7 @@ Test rex.widget.mutation
   ...       'new': json.dumps([{'id': 'ok', 'sex': 'male'}]),
   ...     }
   ... )
-  >>> print mutation(req) # doctest: +ELLIPSIS
+  >>> print(mutation(req)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"
@@ -83,10 +83,10 @@ Test rex.widget.mutation
   ...       'new': json.dumps([{'id': 'ok', 'sex': 'female'}]),
   ...     }
   ... )
-  >>> print mutation(req) # doctest: +ELLIPSIS
+  >>> print(mutation(req)) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  HTTPInternalServerError: query should return a record with an id field: { id := ...  }
+  webob.exc.HTTPInternalServerError: query should return a record with an id field: { id := ...  }
 
 ::
 
@@ -111,7 +111,7 @@ Test rex.widget.mutation
   ...       'new': json.dumps([{'id': 'ok', 'sex': 'female'}]),
   ...     }
   ... )
-  >>> print mutation(req) # doctest: +ELLIPSIS
+  >>> print(mutation(req)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"
@@ -174,9 +174,9 @@ Test rex.widget.mutation
   ...       'new': json.dumps([{'id': 'ok', 'sex': 'male'}]),
   ...     }
   ... )
-  >>> print mutation(req) # doctest: +ELLIPSIS
+  >>> print(mutation(req)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
-  Content-Type: application/json; charset=UTF-8
+  Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
   null
@@ -185,3 +185,4 @@ Test rex.widget.mutation
 
   >>> _ = port.delete([{'id': 'ok'}])
   >>> rex.off()
+

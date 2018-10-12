@@ -36,22 +36,22 @@ through the constructor override values defined in ``settings.yaml`` files::
 
     >>> sandbox.rewrite('/settings.yaml', """debug: true""")
     >>> with Rex(sandbox):
-    ...     print get_settings().debug
+    ...     print(get_settings().debug)
     True
     >>> with Rex(sandbox, debug=False):
-    ...     print get_settings().debug
+    ...     print(get_settings().debug)
     False
 
     >>> sandbox.rewrite('/settings.yaml', """ """)
     >>> with Rex(sandbox):
-    ...     print get_settings()
+    ...     print(get_settings())
     SettingCollection(debug=False)
 
     >>> sandbox.rewrite('/settings.yaml', """***Invalid YAML***""")
     >>> Rex(sandbox)                # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Failed to parse a YAML document:
+    rex.core.Error: Failed to parse a YAML document:
         while scanning an alias
           in "/.../settings.yaml", line 1, column 1
         did not find expected alphabetic or numeric character
@@ -63,7 +63,7 @@ through the constructor override values defined in ``settings.yaml`` files::
     >>> Rex(sandbox)                # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Expected a mapping
+    rex.core.Error: Expected a mapping
     Got:
         Ill-formed settings file
     While parsing:
@@ -75,7 +75,7 @@ through the constructor override values defined in ``settings.yaml`` files::
     >>> Rex(sandbox)                # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Got unknown setting:
+    rex.core.Error: Got unknown setting:
         unknown
     In
         /.../settings.yaml
@@ -112,22 +112,22 @@ attributes ``name``, ``validate`` and ``default``::
     ...     default = lambda self: 'random-value'
 
     >>> with Rex('-', optional=False, mandatory=True, integer='10', secret='123'):
-    ...     print get_settings()
+    ...     print(get_settings())
     SettingCollection(debug=False, integer=10, mandatory=True, optional=False, secret='123')
     >>> with Rex('-', mandatory=True):
-    ...     print get_settings()
+    ...     print(get_settings())
     SettingCollection(debug=False, integer=0, mandatory=True, optional=None, secret='random-value')
     >>> Rex('-')
     Traceback (most recent call last):
       ...
-    Error: Missing mandatory setting:
+    rex.core.Error: Missing mandatory setting:
         mandatory
     While initializing RexDB application:
         -
     >>> Rex('-', mandatory=True, integer='NaN')
     Traceback (most recent call last):
       ...
-    Error: Expected an integer
+    rex.core.Error: Expected an integer
     Got:
         'NaN'
     While validating setting:
@@ -150,5 +150,6 @@ All settings must be documented::
     Traceback (most recent call last):
       ...
     AssertionError: undocumented setting: undocumented
+
 
 

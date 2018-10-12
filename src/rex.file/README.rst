@@ -86,22 +86,22 @@ uniquely identifies the uploaded file::
     >>> import json
     >>> data = json.loads(resp.body)
     >>> data                        # doctest: +ELLIPSIS
-    {u'form_scan': u"'.../hello.txt'"}
+    {'form_scan': "'.../hello.txt'"}
 
     >>> handle = data['form_scan']
     >>> handle                      # doctest: +ELLIPSIS
-    u"'/.../hello.txt'"
+    "'/.../hello.txt'"
 
 The file is registered in the database, as we can see by querying the ``file``
 table::
 
     >>> from rex.port import Port
     >>> file_port = Port('file')
-    >>> print file_port.produce(('file', handle)).data.file     # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
-    [file(id=ID(u'/.../hello.txt'),
-          handle=u'/.../hello.txt',
+    >>> print(file_port.produce(('file', handle)).data.file)    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    [file(id=ID('/.../hello.txt'),
+          handle='/.../hello.txt',
           timestamp=datetime.datetime(...),
-          session=u'Alice',
+          session='Alice',
           fresh=True)]
 
 A newly uploaded file is not attached to any database record.  To attach the
@@ -115,7 +115,7 @@ record::
     >>> req = Request.blank('/consent', accept='x-htsql/json', remote_user='Alice',
     ...     POST={'new': json.dumps({"consent": {"study": "asdl", "consent_form_scan": handle}})})
     >>> resp = req.get_response(demo)
-    >>> print resp                                              # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(resp)                                              # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -138,12 +138,11 @@ exception::
 
     >>> req = Request.blank('/consent', accept='x-htsql/json', remote_user='Alice',
     ...     POST={'new': json.dumps({"consent": {"study": "fos", "consent_form_scan": handle}})})
-    >>> print req.get_response(demo)                            # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))                           # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    EngineError: Got an error from the database driver:
-        consent.consent_form_scan cannot be set to '/.../hello.txt'
-        ...
+    htsql.core.error.EngineError: Got an error from the database driver:
+        consent.consent_form_scan cannot be set to ...
 
 To be able to download attachments from the ``consent`` table, we need to
 declare a *file* URL handler in ``urlmap.yaml``.  The definition is
@@ -157,7 +156,7 @@ that are stored in the ``consent_form_scan`` field.  To do it, we submit
 the record ID in the query string::
 
     >>> req = Request.blank('/consent-file?'+consent_id, remote_user='Bob')
-    >>> print req.get_response(demo)            # doctest: +ELLIPSIS
+    >>> print(req.get_response(demo))           # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     Content-Disposition: attachment; filename=hello.txt
@@ -223,5 +222,7 @@ in ``urlmap.yaml`` file.  The download handler has the following fields:
 
 `unsafe`
     Enables CSRF protection.
+
+
 
 

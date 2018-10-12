@@ -32,20 +32,20 @@ constructor and string-rendering methods::
     ... }
     >>> iv = InstrumentVersion('notreal456', instrument, INSTRUMENT, 1, 'jay', datetime(2014, 5, 22))
     >>> iv.get_display_name()
-    u'The InstrumentVersion Title'
-    >>> unicode(iv)
-    u'The InstrumentVersion Title'
+    'The InstrumentVersion Title'
+    >>> str(iv)
+    'The InstrumentVersion Title'
     >>> str(iv)
     'The InstrumentVersion Title'
     >>> repr(iv)
-    "InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1)"
+    "InstrumentVersion('notreal456', Instrument('fake123', 'My Instrument Title'), 1)"
 
     >>> iv.as_dict()
-    {'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'published_by': u'jay', 'version': 1, 'uid': u'notreal456', 'date_published': datetime.datetime(2014, 5, 22, 0, 0)}
+    {'uid': 'notreal456', 'instrument': {'uid': 'fake123', 'title': 'My Instrument Title', 'code': 'fake123', 'status': 'active'}, 'version': 1, 'published_by': 'jay', 'date_published': datetime.datetime(2014, 5, 22, 0, 0)}
     >>> iv.as_dict(extra_properties=['definition'])
-    {'definition': {'record': [{'type': 'text', 'id': 'q_fake'}], 'version': '1.1', 'id': 'urn:test-instrument', 'title': 'The InstrumentVersion Title'}, 'uid': u'notreal456', 'date_published': datetime.datetime(2014, 5, 22, 0, 0), 'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'published_by': u'jay', 'version': 1}
+    {'uid': 'notreal456', 'instrument': {'uid': 'fake123', 'title': 'My Instrument Title', 'code': 'fake123', 'status': 'active'}, 'version': 1, 'published_by': 'jay', 'date_published': datetime.datetime(2014, 5, 22, 0, 0), 'definition': {'id': 'urn:test-instrument', 'version': '1.1', 'title': 'The InstrumentVersion Title', 'record': [{'id': 'q_fake', 'type': 'text'}]}}
     >>> iv.as_json()
-    u'{"instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "published_by": "jay", "version": 1, "uid": "notreal456", "date_published": "2014-05-22T00:00:00"}'
+    '{"uid": "notreal456", "instrument": {"uid": "fake123", "title": "My Instrument Title", "code": "fake123", "status": "active"}, "version": 1, "published_by": "jay", "date_published": "2014-05-22T00:00:00"}'
 
 
 The Instruments passed to the constructor must actually be an Instrument
@@ -58,7 +58,7 @@ instance or a string containing a UID::
 
     >>> iv = InstrumentVersion('notreal456', 'simple', {}, 1, 'jay', datetime(2014, 5, 22))
     >>> iv.instrument
-    DemoInstrument(u'simple', u'Simple Instrument')
+    DemoInstrument('simple', 'Simple Instrument')
 
 
 The definition can be passed to the contructor as either a JSON/YAML-encoded
@@ -79,13 +79,13 @@ a dict equivalent::
     >>> iv.definition_yaml
     "id: urn:test-instrument\nversion: '1.1'\ntitle: The InstrumentVersion Title\nrecord:\n- {id: q_fake, type: text}"
 
-    >>> iv.definition_json = u'{"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "A Different Title"}'
+    >>> iv.definition_json = '{"record": [{"type": "text", "id": "q_fake"}], "version": "1.1", "id": "urn:test-instrument", "title": "A Different Title"}'
     >>> iv.definition
     {'record': [{'type': 'text', 'id': 'q_fake'}], 'version': '1.1', 'id': 'urn:test-instrument', 'title': 'A Different Title'}
 
     >>> iv.definition_yaml = "id: urn:test-instrument\nversion: '1.1'\ntitle: A Third Title\nrecord:\n- {id: q_fake, type: text}"
     >>> iv.definition
-    {'record': [{'type': 'text', 'id': 'q_fake'}], 'version': '1.1', 'id': 'urn:test-instrument', 'title': 'A Third Title'}
+    {'id': 'urn:test-instrument', 'version': '1.1', 'title': 'A Third Title', 'record': [{'id': 'q_fake', 'type': 'text'}]}
 
     >>> iv.definition = {'record': [{'type': 'text', 'id': 'q_fake'}], 'version': '1.1', 'id': 'urn:test-instrument', 'title': 'A Different Title'}
     >>> iv.definition
@@ -110,10 +110,10 @@ which are both readable and writable::
     datetime.datetime(2014, 6, 1, 0, 0)
 
     >>> iv.published_by
-    u'bob'
+    'bob'
     >>> iv.published_by = 'jay'
     >>> iv.published_by
-    u'jay'
+    'jay'
 
 
 There's also a read-only property named ``calculation_set`` that is a reference
@@ -124,7 +124,7 @@ to the associated CalculationSet object, if there is one::
 
     >>> iv = InstrumentVersion.get_implementation().get_by_uid('calculation1')
     >>> iv.calculation_set
-    DemoCalculationSet(u'calculation1', DemoInstrumentVersion(u'calculation1', DemoInstrument(u'calculation', u'Calculation Instrument'), 1L))
+    DemoCalculationSet('calculation1', DemoInstrumentVersion('calculation1', DemoInstrument('calculation', 'Calculation Instrument'), 1))
 
 
 There's a static method on InstrumentVersion named ``validate_definition()``
@@ -141,18 +141,18 @@ well-formed::
     >>> InstrumentVersion.validate_definition(BAD_INSTRUMENT)
     Traceback (most recent call last):
         ...
-    ValidationError: The following problems were encountered when validating this Instrument:
+    rex.instrument.errors.ValidationError: The following problems were encountered when validating this Instrument:
     title: Required
 
     >>> InstrumentVersion.validate_definition('foo')
     Traceback (most recent call last):
         ...
-    ValidationError: Instrument Definitions must be mapped objects.
+    rex.instrument.errors.ValidationError: Instrument Definitions must be mapped objects.
 
     >>> InstrumentVersion.validate_definition('{foo')  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    ValidationError: Invalid JSON/YAML provided: Failed to parse a YAML document:
+    rex.instrument.errors.ValidationError: Invalid JSON/YAML provided: Failed to parse a YAML document:
         ...
 
 
@@ -161,9 +161,9 @@ There's a static method on InstrumentVersion named
 type names to their base Instrument Definition types::
 
     >>> InstrumentVersion.get_definition_type_catalog(INSTRUMENT)
-    {'matrix': 'matrix', 'enumerationSet': 'enumerationSet', 'float': 'float', 'enumeration': 'enumeration', 'dateTime': 'dateTime', 'recordList': 'recordList', 'boolean': 'boolean', 'time': 'time', 'text': 'text', 'date': 'date', 'integer': 'integer'}
+    {'boolean': 'boolean', 'date': 'date', 'dateTime': 'dateTime', 'enumeration': 'enumeration', 'enumerationSet': 'enumerationSet', 'float': 'float', 'integer': 'integer', 'matrix': 'matrix', 'recordList': 'recordList', 'text': 'text', 'time': 'time'}
     >>> InstrumentVersion.get_definition_type_catalog(INSTRUMENT_JSON)
-    {'matrix': 'matrix', 'enumerationSet': 'enumerationSet', 'float': 'float', 'enumeration': 'enumeration', 'dateTime': 'dateTime', 'recordList': 'recordList', 'boolean': 'boolean', 'time': 'time', 'text': 'text', 'date': 'date', 'integer': 'integer'}
+    {'boolean': 'boolean', 'date': 'date', 'dateTime': 'dateTime', 'enumeration': 'enumeration', 'enumerationSet': 'enumerationSet', 'float': 'float', 'integer': 'integer', 'matrix': 'matrix', 'recordList': 'recordList', 'text': 'text', 'time': 'time'}
 
     >>> InstrumentVersion.get_definition_type_catalog('foo')
     Traceback (most recent call last):
@@ -235,4 +235,5 @@ defined as being the same class with the same UID::
     True
     >>> iv3 >= iv1
     True
+
 

@@ -19,7 +19,7 @@ from htsql.core.tr.translate import translate
 from htsql.core.fmt.accept import Accept
 
 
-class Bind(object):
+class Bind:
     # Translates a port arm to an HTSQL `Binding` object.
 
     def __init__(self, arm, state, constraints):
@@ -91,7 +91,7 @@ class Bind(object):
 
         # Apply constraints for nested columns, links and facet tables.
         self.state.push_scope(scope)
-        for name, arm in self.arm.arms.items():
+        for name, arm in list(self.arm.arms.items()):
             if arm.is_plural:
                 continue
             bind = Bind(arm, self.state, self.constraints_by_name[name])
@@ -110,9 +110,9 @@ class Bind(object):
                 binding = FilterCondition.apply(self.arm, self.state,
                         constraint, binding, scope)
             # Store `:top` and `:skip` to be applied last.
-            elif constraint.operator == u'top':
+            elif constraint.operator == 'top':
                 top_constraint = constraint
-            elif constraint.operator == u'skip':
+            elif constraint.operator == 'skip':
                 skip_constraint = constraint
             # Handle regular constraints.
             else:
@@ -143,10 +143,10 @@ class Bind(object):
         # For tables, add `id := id()`.
         if recipe is not None:
             element = self.state.use(recipe, binding.syntax)
-            element = AliasBinding(element, IdentifierSyntax(u'id'))
+            element = AliasBinding(element, IdentifierSyntax('id'))
             elements.append(element)
         # Bind nested arms.
-        for name, arm in self.arm.items():
+        for name, arm in list(self.arm.items()):
             bind = Bind(arm, self.state, self.constraints_by_name[name])
             element = bind()
             header = guess_header(element)

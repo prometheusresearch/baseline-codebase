@@ -139,7 +139,7 @@ Packages may include static directories and Python modules::
     >>> ctl("packages distutils --verbose")             # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     [distutils]
     Location:
-      /.../distutils/__init__.pyc
+      /.../distutils/__init__.py
     ...
 
 You can inspect the application object in Python shell using ``rex pyshell``
@@ -178,7 +178,7 @@ task, you can write::
     Ctl('help')
 
     >>> output = help_ctl.wait()
-    >>> print output                # doctest: +ELLIPSIS
+    >>> print(output)                # doctest: +ELLIPSIS
     Rex - Command-line administration utility for the RexDB platform
     Usage: rex [<settings>...] <task> [<arguments>...]
     <BLANKLINE>
@@ -188,16 +188,16 @@ task, you can write::
 
 As a shortcut, you can write::
 
-    >>> print ctl("help")           # doctest: +ELLIPSIS
+    >>> print(ctl("help"))           # doctest: +ELLIPSIS
     Rex - Command-line administration utility for the RexDB platform
     ...
 
 If the task fails, an exception is raised::
 
-    >>> print ctl("undefined")                  # doctest: +NORMALIZE_WHITESPACE
+    >>> print(ctl("undefined"))                  # doctest: +NORMALIZE_WHITESPACE
     Traceback (most recent call last):
       ...
-    Error: Received unexpected exit code:
+    rex.core.Error: Received unexpected exit code:
         expected 0; got 1
     With output:
         FATAL ERROR: unknown task undefined
@@ -220,20 +220,22 @@ development HTTP server::
 
 You can now make a query::
 
-    >>> import urllib
+    >>> import urllib.request, urllib.parse, urllib.error
     >>> output = None
+    >>> import time
+    >>> time.sleep(10)
     >>> while not output:
-    ...     try: output = urllib.urlopen('http://127.0.0.1:%s/' % random_port)
+    ...     try: output = urllib.request.urlopen('http://127.0.0.1:%s/' % random_port)
     ...     except IOError: pass
-    >>> print output.read()
+    >>> print(output.read().decode('utf-8'))
     <!DOCTYPE html>
     <title>Welcome to REX.CTL_DEMO!</title>
 
 To stop the server, use ``rex.ctl.Ctl.stop()``::
 
-    >>> print serve_ctl.stop()                  # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print(serve_ctl.stop())                  # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     Serving rex.ctl_demo on 127.0.0.1:8...
-    ... - - [...] "GET / HTTP/1.0" 200 55
+    ... - - [...] "GET / HTTP/1.1" 200 55
 
 
 Documentation
@@ -247,9 +249,10 @@ a list of documentation entries, write::
     >>> entries = Task.document_all()
 
     >>> for entry in entries:
-    ...     print entry.index
+    ...     print(entry.index)
     packages
     pyshell
     settings
+
 
 

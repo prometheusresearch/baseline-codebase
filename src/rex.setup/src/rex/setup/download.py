@@ -5,8 +5,8 @@
 
 from .generate import Generate
 import os, os.path
-import urllib2
-import cStringIO
+import urllib.request, urllib.error, urllib.parse
+import io
 import zipfile
 import hashlib
 import time
@@ -25,7 +25,7 @@ class GenerateDownload(Generate):
         # If the URL is a ZIP archive, unpack it into
         # the target directory.
         if url.endswith('.zip'):
-            archive = zipfile.ZipFile(cStringIO.StringIO(data))
+            archive = zipfile.ZipFile(io.BytesIO(data))
             entries = archive.infolist()
             assert entries
             # Find the common prefix to strip from all filenames
@@ -75,10 +75,10 @@ def download(url, md5_hash=None):
     attempts = 3
     while True:
         try:
-            stream = urllib2.urlopen(url)
+            stream = urllib.request.urlopen(url)
             data = stream.read()
             stream.close()
-        except Exception, exc:
+        except Exception as exc:
             if attempts > 0:
                 attempts -= 1
                 time.sleep(1.0)

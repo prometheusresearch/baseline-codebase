@@ -12,7 +12,7 @@
 
 """
 
-from __future__ import absolute_import
+
 
 import yaml
 import cgi
@@ -160,8 +160,8 @@ class NestedSeqVal(Validate):
 
     def construct(self, loader, node):
         if (isinstance(node, yaml.ScalarNode) and
-                node.tag == u'tag:yaml.org,2002:null' and
-                node.value == u''):
+                node.tag == 'tag:yaml.org,2002:null' and
+                node.value == ''):
             return []
         if isinstance(node, yaml.SequenceNode):
             seq = self.validate_seq.construct(loader, node)
@@ -343,7 +343,7 @@ class ExecuteShortcutVal(ValidateWithAction):
         if len(value) != 1:
             return Execute(id='x', action='y', then=[], action_instance=None)
             raise Error('only mappings of a single key are allowed')
-        action, then = value.iteritems().next()
+        action, then = next(iter(value.items()))
         action_instance = self.resolve_action(action)
         if isinstance(action_instance, Wizard):
             return IncludeWizard(
@@ -461,7 +461,7 @@ def parse_reference_segment(segment):
     if '?' in segment:
         name, update = segment.split('?', 1)
         update = cgi.parse_qs(update)
-        for k, v in update.items():
+        for k, v in list(update.items()):
             if len(v) > 1:
                 raise Error('Multiple context updates for the same key:',
                             segment)

@@ -52,7 +52,7 @@ WidgetVal
 
   >>> class Example(Widget):
   ...   name = 'Example'
-  ...
+  ... 
   ...   title = Field(StrVal())
   ...   desc = Field(StrVal(), default='Desc')
 
@@ -68,7 +68,7 @@ WidgetVal
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Found unknown widget:
+  rex.core.Error: Found unknown widget:
       Widget
   While parsing:
       "<...>", line 2
@@ -79,7 +79,7 @@ WidgetVal
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Got unexpected field:
+  rex.core.Error: Got unexpected field:
       xtitle
   While parsing:
       "<...>", line 3
@@ -89,7 +89,7 @@ WidgetVal
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Missing mandatory field:
+  rex.core.Error: Missing mandatory field:
       title
   Of widget:
       Example
@@ -102,7 +102,7 @@ WidgetVal
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected a string
+  rex.core.Error: Expected a string
   Got:
       1
   While parsing:
@@ -149,7 +149,7 @@ Specify widget class
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected widget of type:
+  rex.core.Error: Expected widget of type:
       <Example>
   Instead got widget of type:
       <Another>
@@ -161,7 +161,7 @@ Specify widget class
   ... """) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected widget of type:
+  rex.core.Error: Expected widget of type:
       <Example>
   Instead got widget of type:
       <Another>
@@ -196,7 +196,7 @@ Failures
   >>> parse("1") # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected a widget
+  rex.core.Error: Expected a widget
   Got:
       1
   While parsing:
@@ -205,7 +205,7 @@ Failures
   >>> parse("'a'") # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected a widget
+  rex.core.Error: Expected a widget
   Got:
       a
   While parsing:
@@ -214,7 +214,7 @@ Failures
   >>> parse("{}") # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected a widget
+  rex.core.Error: Expected a widget
   Got:
       a mapping
   While parsing:
@@ -233,7 +233,7 @@ Failures
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected a mapping
+  rex.core.Error: Expected a mapping
   Got:
       a b
   While parsing:
@@ -249,7 +249,7 @@ Parsing shortcut forms
   >>> class WidgetWithSeq(Widget):
   ...   name = 'WidgetWithSeq'
   ...   js_type = 'pkg', 'WidgetWithSeq'
-  ...
+  ... 
   ...   seq = Field(SeqVal(StrVal()))
 
   >>> w = parse("""
@@ -299,14 +299,14 @@ Validation
   >>> v('string') # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected a widget
+  rex.core.Error: Expected a widget
   While validating:
       'string'
 
   >>> v(Example.validated(title=42)) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected a string
+  rex.core.Error: Expected a string
   Got:
       42
   While validating field:
@@ -321,7 +321,7 @@ Validation
   >>> v(Another()) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected a widget of type:
+  rex.core.Error: Expected a widget of type:
       Example
   But got widget of type:
       Another
@@ -331,7 +331,7 @@ Validation
   >>> v([Another()]) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected a widget of type:
+  rex.core.Error: Expected a widget of type:
       Example
   But got widget of type:
       Another
@@ -354,3 +354,4 @@ Cleanup
 ::
 
   >>> rex.off()
+

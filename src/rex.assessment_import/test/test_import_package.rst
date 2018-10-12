@@ -28,7 +28,7 @@ from_directory(path, user=None) to generate package from a bunch of csv files
 
   >>> input = ImportPackage.from_directory('./test/data/eeg-upload/')
   >>> for chunk in sorted(input, key=lambda x: x.id):
-  ...   print chunk.id, len(chunk.data)
+  ...   print(chunk.id, len(chunk.data))
   eeg-upload1 2999
   eeg-upload1.abspower 249
 
@@ -46,7 +46,7 @@ from_xls
 
   >>> input = ImportPackage.from_xls('./test/data/eeg-upload1.xls')
   >>> for chunk in input:
-  ...   print chunk.id, len(chunk.data)
+  ...   print(chunk.id, len(chunk.data))
   eeg-upload1 2999
   eeg-upload1.abspower 4980
 
@@ -67,7 +67,7 @@ When not readable xls file given::
   >>> input = ImportPackage.from_xls('./test/data/errors/qctest/qctest18.xls')
   Traceback (most recent call last):
   ...
-  Error: Bad xls file
+  rex.core.Error: Bad xls file
       File size is 0 bytes
 
 from_csv
@@ -77,7 +77,7 @@ from_csv
 
   >>> input = ImportPackage.from_csv('./test/data/qctest2.csv')
   >>> for chunk in input:
-  ...   print chunk.id, len(chunk.data)
+  ...   print(chunk.id, len(chunk.data))
   qctest2 1
 
 When given path parameter is not csv file assertion error appeared::
@@ -97,8 +97,8 @@ When csv file is unreadable::
   >>> input = ImportPackage.from_csv('./test/data/errors/qctest/csv/qctest19.csv')
   Traceback (most recent call last):
   ...
-  Error: Unable to read csv ./test/data/errors/qctest/csv/qctest19.csv.
-      line contains NULL byte
+  rex.core.Error: Unable to read csv ./test/data/errors/qctest/csv/qctest19.csv.
+      'utf-8' codec can't decode byte 0xd0 in position 0: invalid continuation byte
 
 from_zip
 ++++++++
@@ -107,7 +107,7 @@ from_zip
 
   >>> input = ImportPackage.from_zip('./test/data/eeg-upload1.zip')
   >>> for chunk in input:
-  ...   print chunk.id, len(chunk.data)
+  ...   print(chunk.id, len(chunk.data))
   eeg-upload1.abspower 249
   eeg-upload1 2999
 
@@ -130,8 +130,8 @@ as_xls_file
 Use method as_xls_file to generate xls file content::
 
   >>> filename, filecontent = package.as_xls_file()
-  >>> print filename, len(filecontent)
-  eeg-upload1.xls 888832
+  >>> print(filename, len(filecontent))
+  eeg-upload1.xls 872448
 
 as_zip_file
 +++++++++++
@@ -139,7 +139,7 @@ as_zip_file
 Use method as_zip_file to generate zip file content with a bunch of csv files::
 
   >>> filename, filecontent = package.as_zip_file()
-  >>> print filename, len(filecontent)
+  >>> print(filename, len(filecontent))
   eeg-upload1.zip 316686
 
 Saving failed data
@@ -155,7 +155,7 @@ method fail(...) just raised given exception::
   >>> input = ImportPackage.from_xls('./test/data/errors/qctest/qctest0.xls')
   Traceback (most recent call last):
   ...
-  Error: Unexpected xls file ./test/data/errors/qctest/qctest0.xls.
+  rex.core.Error: Unexpected xls file ./test/data/errors/qctest/qctest0.xls.
       Sheet 0 contains less than 2 rows.
 
 When application started with assessment_import_dir, method fail saved an
@@ -169,12 +169,13 @@ exception to import.log file, copied failed input data to the path
   >>> input = ImportPackage.from_xls('./test/data/errors/qctest/qctest0.xls')
   Traceback (most recent call last):
   ...
-  Error: Unexpected xls file ./test/data/errors/qctest/qctest0.xls.
+  rex.core.Error: Unexpected xls file ./test/data/errors/qctest/qctest0.xls.
       Sheet 0 contains less than 2 rows.
 
   >>> os.path.exists('./build/sandbox/import.log')
   True
 
-  >>> print [filename for filename in os.listdir('./build/sandbox/unknown')
-  ...                 if filename.endswith('-qctest0.xls')] # doctest: +ELLIPSIS
+  >>> print([filename for filename in os.listdir('./build/sandbox/unknown')
+  ...                 if filename.endswith('-qctest0.xls')]) # doctest: +ELLIPSIS
   ['...-qctest0.xls']
+

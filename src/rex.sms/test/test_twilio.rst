@@ -50,7 +50,7 @@ times before raising the exception::
     >>> send_sms('2035551234', '8002223333', 'hello world')  # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    TwilioRestException: ...
+    twilio.rest.exceptions.TwilioRestException: ...
 
     >>> mockTwilio.messages.create.call_count
     3
@@ -64,7 +64,7 @@ times before raising the exception::
     >>> send_sms('2035551234', '8002223333', 'hello world')  # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    TwilioRestException: ...
+    twilio.rest.exceptions.TwilioRestException: ...
 
     >>> mockTwilio.messages.create.call_count
     1
@@ -78,7 +78,7 @@ times before raising the exception::
     >>> send_sms('2035551234', '8002223333', 'hello world')  # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    BlockedSmsError: +12035551234
+    rex.sms.errors.BlockedSmsError: +12035551234
 
     >>> mockTwilio.messages.create.call_count
     1
@@ -93,7 +93,7 @@ communicate with the Twilio API::
     >>> rex = Rex('rex.sms', sms_provider='twilio', sms_twilio_token='def456')
     Traceback (most recent call last):
         ...
-    Error: Setting sms_twilio_account_sid must be specified.
+    rex.core.Error: Setting sms_twilio_account_sid must be specified.
     While initializing RexDB application:
         rex.sms
     With parameters:
@@ -103,7 +103,7 @@ communicate with the Twilio API::
     >>> rex = Rex('rex.sms', sms_provider='twilio', sms_twilio_account_sid='abc123')
     Traceback (most recent call last):
         ...
-    Error: Setting sms_twilio_token must be specified.
+    rex.core.Error: Setting sms_twilio_token must be specified.
     While initializing RexDB application:
         rex.sms
     With parameters:

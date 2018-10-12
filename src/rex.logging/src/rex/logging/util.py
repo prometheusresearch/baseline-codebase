@@ -13,7 +13,7 @@ __all__ = (
 def merge_dicts(first, second):
     merged = copy(first)
 
-    for key, value in second.items():
+    for key, value in list(second.items()):
         if key not in merged:
             merged[key] = value
         else:

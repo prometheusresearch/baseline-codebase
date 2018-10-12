@@ -22,7 +22,7 @@ We can now submit HTTP requests to ``rex.query``::
 
     >>> req = Request.blank("/query/query/", remote_user='Alice',
     ...                     POST='{"syntax": ["nation"], "format": "x-htsql/json"}')
-    >>> print req.get_response(demo)    # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print(req.get_response(demo))    # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     200 OK
     ...
     {
@@ -41,7 +41,7 @@ metadata::
 
     >>> req = Request.blank("/query/query/?dry-run", remote_user='Alice',
     ...                     POST='{"syntax": ["nation"], "format": "x-htsql/raw"}')
-    >>> print req.get_response(demo)    # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
+    >>> print(req.get_response(demo))    # doctest: +NORMALIZE_WHITESPACE, +ELLIPSIS
     200 OK
     ...
     {
@@ -55,4 +55,5 @@ metadata::
         "tag": "nation"
       }
     }
+
 

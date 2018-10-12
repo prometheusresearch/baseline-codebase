@@ -124,13 +124,13 @@ class ResultSet(
             assessment,
             results):
         self._uid = to_unicode(uid)
-        if not isinstance(assessment, (Assessment, basestring)):
+        if not isinstance(assessment, (Assessment, str)):
             raise ValueError(
                 'assessment must be an instance of Assessment'
                 ' or a UID of one'
             )
         self._assessment = assessment
-        if isinstance(results, basestring):
+        if isinstance(results, str):
             self._results = AnyVal().parse(results)
         else:
             self._results = deepcopy(results)
@@ -155,7 +155,7 @@ class ResultSet(
         :rtype: Assessment
         """
 
-        if isinstance(self._assessment, basestring):
+        if isinstance(self._assessment, str):
             a_impl = get_implementation('assessment')
             return a_impl.get_by_uid(self._assessment)
         else:

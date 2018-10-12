@@ -41,7 +41,7 @@ class IntrospectDeploy(IntrospectPGSQL):
 
     def __call__(self):
         catalog_image = get_image()
-        schema_image = catalog_image[u'public']
+        schema_image = catalog_image['public']
 
         catalog = make_catalog()
         schema = catalog.add_schema(schema_image.name)

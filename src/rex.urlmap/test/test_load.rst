@@ -21,7 +21,7 @@ Parsing paths
     >>> Rex(sandbox, 'rex.urlmap_demo')     # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Detected ill-formed path:
+    rex.core.Error: Detected ill-formed path:
         /individual/{id
     While parsing:
         "/.../urlmap.yaml", line 4
@@ -37,7 +37,7 @@ Parsing paths
     >>> Rex(sandbox, 'rex.urlmap_demo')     # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Expected one of:
+    rex.core.Error: Expected one of:
         !copy record
         !override record
         template record
@@ -59,7 +59,7 @@ Parsing paths
     >>> Rex(sandbox, 'rex.urlmap_demo')     # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Detected duplicate or ambiguous path:
+    rex.core.Error: Detected duplicate or ambiguous path:
         /$b
     Defined in:
         "/.../urlmap.yaml", line 4
@@ -88,13 +88,13 @@ Parsing paths
     >>> from webob import Request
 
     >>> req = Request.blank('/full')
-    >>> print req.get_response(path_demo)   # doctest: +ELLIPSIS
+    >>> print(req.get_response(path_demo))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <title>sandbox:/template/full.html</title>
 
     >>> req = Request.blank('/local')
-    >>> print req.get_response(path_demo)   # doctest: +ELLIPSIS
+    >>> print(req.get_response(path_demo))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <title>/template/local.html</title>
@@ -127,7 +127,7 @@ files::
     >>> include_demo = Rex(sandbox, 'rex.urlmap_demo', './test/data/templates/')
 
     >>> req = Request.blank('/study')
-    >>> print req.get_response(include_demo)    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(include_demo))    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <title>Studies</title>
@@ -163,7 +163,7 @@ template handler defined in an included file::
     >>> override_demo = Rex(sandbox, 'rex.urlmap_demo', './test/data/templates/')
 
     >>> req = Request.blank('/')
-    >>> print req.get_response(override_demo)   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <title>Welcome, frield!</title>
@@ -181,7 +181,7 @@ When context variables are merged, nested dictionaries are merged too::
     ... """)
 
     >>> req = Request.blank('/')
-    >>> print req.get_response(override_demo)   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <p><a href="http://htsql.org/">HTSQL Query Language</a></p>
@@ -203,7 +203,7 @@ Any field could be overriden::
 
     >>> req = Request.blank('/?parameter=Bob')
     >>> req.remote_user = 'Alice'
-    >>> print req.get_response(override_demo)   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <title>Welcome, frield!</title>
@@ -220,7 +220,7 @@ Empty overrides are accepted::
     ... """)
 
     >>> req = Request.blank('/')
-    >>> print req.get_response(override_demo)   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <title>Welcome!</title>
@@ -236,7 +236,7 @@ But ill-formed overrides are rejected::
     >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Expected a mapping
+    rex.core.Error: Expected a mapping
     Got:
         a sequence
     ...
@@ -249,7 +249,7 @@ But ill-formed overrides are rejected::
     >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Expected a mapping
+    rex.core.Error: Expected a mapping
     Got:
         scalar override
     ...
@@ -274,7 +274,7 @@ you can only replace the whole query::
     ...     unsafe: false
     ... """)
     >>> req = Request.blank('/data/individual_info?sex=male', accept='application/json')
-    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -302,7 +302,7 @@ Overriding a port definition adds more arms to the port::
     ...     read-only: true
     ... """)
     >>> req = Request.blank('/data/individual_info', accept='application/json')
-    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -335,7 +335,7 @@ or a port or a query with template data::
     >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Got unexpected field:
+    rex.core.Error: Got unexpected field:
         port
     While parsing:
         "/.../urlmap.yaml", line 5
@@ -355,7 +355,7 @@ or a port or a query with template data::
     >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Got unexpected field:
+    rex.core.Error: Got unexpected field:
         context
     While parsing:
         "/.../urlmap.yaml", line 5
@@ -375,7 +375,7 @@ or a port or a query with template data::
     >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Got unexpected field:
+    rex.core.Error: Got unexpected field:
         context
     While parsing:
         "/.../urlmap.yaml", line 5
@@ -397,7 +397,7 @@ specifying an unknown gateway will raise an error::
     >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Found undefined gateway:
+    rex.core.Error: Found undefined gateway:
         gateway
     While creating port:
         "/.../urlmap/base.yaml", line 8
@@ -412,7 +412,7 @@ specifying an unknown gateway will raise an error::
     >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Found undefined gateway:
+    rex.core.Error: Found undefined gateway:
         gateway
     While creating query:
         "/.../urlmap/base.yaml", line 10
@@ -427,7 +427,7 @@ Orphaned overrides are detected and reported::
     >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Detected orphaned override:
+    rex.core.Error: Detected orphaned override:
         /orphaned
     Defined in:
         "/.../urlmap.yaml", line 3
@@ -451,7 +451,7 @@ any handlers predefined by ``rex.urlmap``::
     >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Detected invalid override of port:
+    rex.core.Error: Detected invalid override of port:
         /data/individual/$id
     Defined in:
         "/.../urlmap.yaml", line 4
@@ -473,12 +473,12 @@ permission on another handler::
     ... """)
 
     >>> req = Request.blank('/study')
-    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
 
     >>> req = Request.blank('/individual')
-    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
 
@@ -502,12 +502,12 @@ permission on another handler::
     >>> override_demo.reset()
 
     >>> req = Request.blank('/study')
-    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     404 Not Found
     ...
 
     >>> req = Request.blank('/individual')
-    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     401 Unauthorized
     ...
 
@@ -528,12 +528,12 @@ duplicating the entire page configuration, use ``!copy`` handler::
     ... """)
 
     >>> req = Request.blank('/data/individual')
-    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
 
     >>> req = Request.blank('/data/individuals')
-    >>> print req.get_response(override_demo)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(override_demo))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
 
@@ -548,7 +548,7 @@ It is an error to copy a handler of an unknown URL::
     >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Detected orphaned copy:
+    rex.core.Error: Detected orphaned copy:
         /data/inidividuals
     Defined in:
         "/.../urlmap.yaml", line 4
@@ -565,7 +565,7 @@ It is also an error if the ``!copy`` configuration is malformed::
     >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Expected a tagged !copy string
+    rex.core.Error: Expected a tagged !copy string
     Got:
         a mapping
     While parsing:
@@ -598,7 +598,7 @@ file::
     ...                     site_title="Settings Demo")
 
     >>> req = Request.blank('/')
-    >>> print req.get_response(settings_demo)   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(settings_demo))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <title>Settings Demo</title>
@@ -612,7 +612,7 @@ Unknown, invalid or ill-formed setting values are rejected::
     >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Failed to parse a YAML document:
+    rex.core.Error: Failed to parse a YAML document:
         expected a setting name, but found sequence
           in "/.../urlmap.yaml", line 2, column 10
     ...
@@ -623,7 +623,7 @@ Unknown, invalid or ill-formed setting values are rejected::
     >>> Rex(sandbox, 'rex.urlmap_demo')         # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Got unknown setting:
+    rex.core.Error: Got unknown setting:
         extra_urlmap
     While parsing:
         "/.../urlmap.yaml", line 2
@@ -637,7 +637,7 @@ Unknown, invalid or ill-formed setting values are rejected::
     >>> Rex(sandbox, 'rex.urlmap_demo', site_title="Settings Demo")     # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Expected a string matching:
+    rex.core.Error: Expected a string matching:
         /[/0-9A-Za-z:._-]+/
     Got:
         'Settings Demo'
@@ -646,5 +646,6 @@ Unknown, invalid or ill-formed setting values are rejected::
     While validating field:
         include
     ...
+
 
 

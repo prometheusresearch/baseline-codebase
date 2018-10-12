@@ -61,12 +61,12 @@ to initialize the Python Logging framework::
     >>> rex = Rex('rex.logging')
     >>> with rex:
     ...     get_logging_config()
-    {'loggers': {'raven': {'level': 'ERROR'}}, 'version': 1, 'filters': {}, 'disable_existing_loggers': True, 'handlers': {'console': {'formatter': 'basic', 'class': 'logging.StreamHandler', 'stream': 'ext://sys.stdout'}}, 'root': {'level': 'INFO', 'handlers': ['console']}, 'incremental': False, 'formatters': {'detailed': {'format': '%(asctime)s|%(process)s|%(threadName)s|%(name)s|%(levelname)s|%(message)s'}, 'brief': {'format': '%(message)s'}, 'basic': {'format': '%(levelname)s:%(name)s:%(message)s'}}}
+    {'version': 1, 'incremental': False, 'disable_existing_loggers': True, 'formatters': {'brief': {'format': '%(message)s'}, 'basic': {'format': '%(levelname)s:%(name)s:%(message)s'}, 'detailed': {'format': '%(asctime)s|%(process)s|%(threadName)s|%(name)s|%(levelname)s|%(message)s'}}, 'filters': {}, 'handlers': {'console': {'class': 'logging.StreamHandler', 'formatter': 'basic', 'stream': 'ext://sys.stdout'}}, 'loggers': {'raven': {'level': 'ERROR'}}, 'root': {'level': 'INFO', 'handlers': ['console']}}
 
     >>> rex = Rex('rex.logging_demo')
     >>> with rex:
     ...     get_logging_config()
-    {'loggers': {'raven': {'level': 'ERROR'}}, 'version': 1, 'filters': {}, 'disable_existing_loggers': True, 'handlers': {'console_error': {'formatter': 'detailed', 'class': 'logging.StreamHandler', 'stream': 'ext://sys.stderr'}, 'console': {'formatter': 'basic', 'class': 'logging.StreamHandler', 'stream': 'ext://sys.stdout'}}, 'root': {'handlers': ['console'], 'level': 'DEBUG'}, 'incremental': False, 'formatters': {'detailed': {'format': '%(name)s:%(message)s'}, 'brief': {'format': '%(message)s'}, 'basic': {'format': '%(levelname)s:%(name)s:%(message)s'}}}
+    {'version': 1, 'incremental': False, 'disable_existing_loggers': True, 'formatters': {'brief': {'format': '%(message)s'}, 'basic': {'format': '%(levelname)s:%(name)s:%(message)s'}, 'detailed': {'format': '%(name)s:%(message)s'}}, 'filters': {}, 'handlers': {'console': {'class': 'logging.StreamHandler', 'formatter': 'basic', 'stream': 'ext://sys.stdout'}, 'console_error': {'class': 'logging.StreamHandler', 'formatter': 'detailed', 'stream': 'ext://sys.stderr'}}, 'loggers': {'raven': {'level': 'ERROR'}}, 'root': {'level': 'DEBUG', 'handlers': ['console']}}
 
 
 

@@ -28,8 +28,8 @@ In case fields are not specified, they are generated from port::
   ... """)
 
   >>> pick.fields # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  [StringFormField(value_key=['code'], label=u'Code'),
-   EnumFormField(value_key=['sex'], label=u'Sex', options=[...]),
+  [StringFormField(value_key=['code'], label='Code'),
+   EnumFormField(value_key=['sex'], label='Sex', options=[...]),
    EntityFormField(value_key=['mother'], ...),
    EntityFormField(value_key=['father'], ...)]
 
@@ -53,14 +53,14 @@ In case fields are not specified, they are generated from port::
   ''')
 
   >>> req = Request.blank('/', accept='application/json')
-  >>> print render_widget(pick, req, no_chrome=True) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> print(render_widget(pick, req, no_chrome=True)) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
-  Content-Type: application/json; charset=UTF-8
+  Content-Type: application/json
   Content-Length: ...
   ...
 
   >>> req = Request.blank('/', accept='application/json')
-  >>> print render_widget(pick, req, no_chrome=True, path='2.data') # doctest: +ELLIPSIS
+  >>> print(render_widget(pick, req, no_chrome=True, path='2.data')) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"
@@ -83,9 +83,9 @@ var to this filter::
   ... """)
 
   >>> req = Request.blank('/', accept='application/json')
-  >>> print render_widget(pick, req, no_chrome=True) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> print(render_widget(pick, req, no_chrome=True)) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
-  Content-Type: application/json; charset=UTF-8
+  Content-Type: application/json
   Content-Length: ...
   ...
 
@@ -102,7 +102,7 @@ var to this filter::
   ''')
 
   >>> req = Request.blank('/', accept='application/json')
-  >>> print render_widget(pick, req, no_chrome=True, path='2.data') # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  >>> print(render_widget(pick, req, no_chrome=True, path='2.data')) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"
@@ -147,9 +147,9 @@ to those input variables::
   ... """)
 
   >>> req = Request.blank('/', accept='application/json')
-  >>> print render_widget(pick, req, no_chrome=True) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+  >>> print(render_widget(pick, req, no_chrome=True)) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
-  Content-Type: application/json; charset=UTF-8
+  Content-Type: application/json
   Content-Length: ...
   ...
 
@@ -167,7 +167,7 @@ to those input variables::
   ''')
 
   >>> req = Request.blank('/', accept='application/json')
-  >>> print render_widget(pick, req, no_chrome=True, path='2.data') # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+  >>> print(render_widget(pick, req, no_chrome=True, path='2.data')) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"
@@ -213,4 +213,5 @@ Cleanup
 ::
 
   >>> rex.off()
+
 

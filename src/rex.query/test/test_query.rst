@@ -24,11 +24,12 @@ Next, we parse the query ``individual.code`` expressed in JSON form::
 We get an object that represents a parsed syntax tree::
 
     >>> q
-    Query(ApplySyntax(u'.', [ApplySyntax(u'navigate', [LiteralSyntax(u'individual')]), ApplySyntax(u'navigate', [LiteralSyntax(u'code')])]))
+    Query(ApplySyntax('.', [ApplySyntax('navigate', [LiteralSyntax('individual')]), ApplySyntax('navigate', [LiteralSyntax('code')])]))
 
 We can also see the query in text notation::
 
-    >>> print q
+    >>> print(q)
     individual.code
+
 
 

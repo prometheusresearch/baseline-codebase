@@ -87,12 +87,12 @@ class Form(
             requirements
         """
 
-        if isinstance(configuration, basestring):
+        if isinstance(configuration, str):
             try:
                 configuration = AnyVal().parse(configuration)
             except ValueError as exc:
                 raise ValidationError(
-                    'Invalid JSON provided: %s' % unicode(exc)
+                    'Invalid JSON provided: %s' % str(exc)
                 )
         if not isinstance(configuration, dict):
             raise ValidationError(
@@ -100,14 +100,14 @@ class Form(
             )
 
         if instrument_definition:
-            if isinstance(instrument_definition, basestring):
+            if isinstance(instrument_definition, str):
                 try:
                     instrument_definition = AnyVal().parse(
                         instrument_definition
                     )
                 except ValueError as exc:
                     raise ValidationError(
-                        'Invalid Instrument JSON provided: %s' % unicode(exc)
+                        'Invalid Instrument JSON provided: %s' % str(exc)
                     )
             if not isinstance(instrument_definition, dict):
                 raise ValidationError(
@@ -121,7 +121,7 @@ class Form(
                 'The following problems were encountered when validating this'
                 ' Form:',
             ]
-            for key, details in exc.asdict().items():
+            for key, details in list(exc.asdict().items()):
                 msg.append('%s: %s' % (
                     key or '<root>',
                     details,
@@ -265,20 +265,20 @@ class Form(
     def __init__(self, uid, channel, instrument_version, configuration):
         self._uid = to_unicode(uid)
 
-        if not isinstance(channel, (Channel, basestring)):
+        if not isinstance(channel, (Channel, str)):
             raise ValueError(
                 'channel must be an instance of Channel or a UID of one'
             )
         self._channel = channel
 
-        if not isinstance(instrument_version, (InstrumentVersion, basestring)):
+        if not isinstance(instrument_version, (InstrumentVersion, str)):
             raise ValueError(
                 'instrument_version must be an instance of InstrumentVersion'
                 ' or a UID of one'
             )
         self._instrument_version = instrument_version
 
-        if isinstance(configuration, basestring):
+        if isinstance(configuration, str):
             self._configuration = AnyVal().parse(configuration)
         else:
             self._configuration = deepcopy(configuration)
@@ -302,7 +302,7 @@ class Form(
         :rtype: Channel
         """
 
-        if isinstance(self._channel, basestring):
+        if isinstance(self._channel, str):
             channel_impl = get_implementation('channel')
             return channel_impl.get_by_uid(self._channel)
         return self._channel
@@ -316,7 +316,7 @@ class Form(
         :rtype: InstrumentVersion
         """
 
-        if isinstance(self._instrument_version, basestring):
+        if isinstance(self._instrument_version, str):
             iv_impl = get_implementation('instrumentversion')
             return iv_impl.get_by_uid(self._instrument_version)
         return self._instrument_version
@@ -462,7 +462,7 @@ class Form(
                 locale = self.configuration['defaultLocalization']
             return to_unicode(self.configuration['title'][locale])
         else:
-            return unicode(self.instrument_version)
+            return str(self.instrument_version)
 
     def __repr__(self):
         return '%s(%r, %r, %r)' % (

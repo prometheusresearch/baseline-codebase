@@ -28,7 +28,7 @@ PropsContainer
   <PropsContainer {'DefaultValue': 3, 'defaultValue': 1, 'someValue': 2}>
 
   >>> encode(props, None) # doctest: +NORMALIZE_WHITESPACE
-  u'{"defaultValue": 1,
+  '{"defaultValue": 1,
      "someValue": 2,
      "DefaultValue": 3}'
 
@@ -86,7 +86,7 @@ JSValue
   >>> from rex.widget import JSValue
   >>> val = JSValue('pkg', 'symbol')
   >>> encode(val, None)
-  u'["~#js-value", ["pkg", "symbol"]]'
+  '["~#js-value", ["pkg", "symbol"]]'
 
 undefined
 ---------
@@ -104,7 +104,7 @@ undefined
   >>> from rex.widget import encode
 
   >>> encode(undefined, None)
-  u'["~#undefined", []]'
+  '["~#undefined", []]'
 
 MaybeUndefinedVal
 -----------------
@@ -136,26 +136,26 @@ WidgetClassReference
   >>> validate(None) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected a string
+  rex.core.Error: Expected a string
   Got:
       None
 
   >>> validate('rexx.widget') # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Cannot import module:
+  rex.core.Error: Cannot import module:
       rexx
 
   >>> validate('rex.widget.X') # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Cannot get widget class in module:
+  rex.core.Error: Cannot get widget class in module:
       X class in rex.widget module
 
   >>> validate('rex.widget.formfield') # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: The value is not a widget class:
+  rex.core.Error: The value is not a widget class:
       <module 'rex.widget.formfield' from '...'>
 
   >>> validate('rex.widget.Chrome') # doctest: +ELLIPSIS
@@ -175,9 +175,10 @@ product_to_pojo
   >>> from rex.widget.util import product_to_pojo
 
   >>> port = Port('individual')
-  >>> product = port.produce((u'*', 'NONSENSEID'))
+  >>> product = port.produce(('*', 'NONSENSEID'))
 
   >>> product_to_pojo(product)
-  {u'individual': []}
+  {'individual': []}
 
   >>> rex.off()
+

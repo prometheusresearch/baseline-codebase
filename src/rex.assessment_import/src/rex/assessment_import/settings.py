@@ -39,15 +39,15 @@ class AssessmentTemplateDefaults(Setting):
                        ])
                )
     default = OrderedDict((
-                (u'subject', {'description': 'Please provide the subject id here',
+                ('subject', {'description': 'Please provide the subject id here',
                              'required': True
                             }
                 ),
-                (u'date', {'description': 'Please provide a date (YYYY-MM-DD)',
+                ('date', {'description': 'Please provide a date (YYYY-MM-DD)',
                           'required': False
                          }
                 ),
-                (u'assessment_id',
+                ('assessment_id',
                     {'description':
                         'Please provide a unique id for this assessement',
                      'required': True

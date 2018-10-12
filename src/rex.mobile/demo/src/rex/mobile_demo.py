@@ -69,7 +69,7 @@ class DemoInteraction(Interaction):
         )
 
     def save(self):
-        print '### SAVED INTERACTION ' + self.uid
+        print('### SAVED INTERACTION ' + self.uid)
 
 
 class OtherDemoInteraction(DemoInteraction):

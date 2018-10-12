@@ -62,7 +62,7 @@ class RexConnect(Connect):
         return super(RexConnect, self).open()
 
 
-class LazyConnection(object):
+class LazyConnection:
 
     def __init__(self):
         self.connection = None
@@ -102,11 +102,11 @@ class LazyConnection(object):
             self.connection.release()
             self.connection = None
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self.scope)
 
 
-class LazyTransactionGuard(object):
+class LazyTransactionGuard:
 
     def __init__(self, is_lazy):
         self.is_lazy = is_lazy
@@ -145,7 +145,7 @@ class RexTransact(Transact):
         return PassthroughTransactionGuard()
 
 
-class LazySession(object):
+class LazySession:
 
     def __init__(self, session):
         self.session = session
@@ -153,14 +153,12 @@ class LazySession(object):
     def __call__(self):
         if callable(self.session):
             self.session = self.session()
-        if isinstance(self.session, str):
-            self.session = self.session.decode('utf-8', 'replace')
-        if self.session is not None and not isinstance(self.session, unicode):
-            self.session = unicode(self.session)
+        if self.session is not None and not isinstance(self.session, str):
+            self.session = str(self.session)
         return self.session
 
 
-class SessionGuard(object):
+class SessionGuard:
 
     def __init__(self, session):
         self.session = session
@@ -174,7 +172,7 @@ class SessionGuard(object):
         context.env.pop()
 
 
-class Mask(object):
+class Mask:
 
     def __init__(self, path, node, syntax):
         self.path = path
@@ -182,7 +180,7 @@ class Mask(object):
         self.syntax = syntax
 
 
-class LazyMasks(object):
+class LazyMasks:
 
     def __init__(self, values):
         self.values = values
@@ -216,7 +214,7 @@ class LazyMasks(object):
         return self.values
 
 
-class MasksGuard(object):
+class MasksGuard:
 
     def __init__(self, masks):
         self.masks = masks
@@ -237,7 +235,7 @@ def mask(*masks):
     return MasksGuard(list(masks))
 
 
-class IsolateGuard(object):
+class IsolateGuard:
 
     def __init__(self, app):
         self.app = app
@@ -288,9 +286,9 @@ class EnumDomainToRaw(DomainToRaw):
 
     def __call__(self):
         yield JS_MAP
-        yield u"type"
-        yield unicode(self.domain.__class__)
-        yield u"labels"
+        yield "type"
+        yield str(self.domain.__class__)
+        yield "labels"
         yield JS_SEQ
         for label in self.domain.labels:
             yield label
@@ -303,13 +301,11 @@ class LookupReferenceInRoot(Lookup):
     adapt(RootBinding, ReferenceProbe)
 
     def __call__(self):
-        if self.probe.key == u'user':
+        if self.probe.key == 'user':
             session = (context.env.session()
                        if context.env.session is not None else None)
-            if isinstance(session, str):
-                session = session.decode('utf-8', 'replace')
             if session is not None:
-                session = unicode(session)
+                session = str(session)
             return LiteralRecipe(session, TextDomain())
         elif self.probe.key in context.app.rex.properties and \
                 context.env.session_properties is not None:
@@ -342,7 +338,7 @@ class LookupReferenceSetInRoot(Lookup):
 
     def __call__(self):
         references = super(LookupReferenceSetInRoot, self).__call__()
-        references.add(u'user')
+        references.add('user')
         for key in context.app.rex.properties:
             references.add(key)
         return references
@@ -660,13 +656,13 @@ class ProducePivot(Act):
                 pivot_values.add(row[on])
             except TypeError:
                 raise Error("Cannot pivot on type", pivot_domain)
-        pivot_values = sorted(pivot_values)
+        pivot_values = sorted(pivot_values, key=(lambda v: v or ''))
         value_domain = source_fields[by].domain
         value_fields = []
         for value in pivot_values:
             value_header = pivot_domain.dump(value)
             if value_header is None:
-                value_header = u""
+                value_header = ""
             value_field = decorate_void()
             value_field = value_field.clone(header=value_header,
                                             domain=value_domain)
@@ -748,9 +744,9 @@ class RexAddon(Addon):
         self.gateway_adapters = set()
         for name in sorted(self.gateways):
             instance = self.gateways[name]
-            class_name = "Summon%s" % name.title().replace('_', '').encode('utf-8')
+            class_name = "Summon%s" % name.title().replace('_', '')
             namespace = {
-                '__names__': [name.encode('utf-8')],
+                '__names__': [name],
                 'instance': instance,
             }
             summon_class = type(class_name, (RexSummonGateway,), namespace)

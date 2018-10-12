@@ -16,19 +16,19 @@ class demo(Command):
     def run(self):
         import os
         cmd = "rex deploy rex.port_demo"
-        print "$", cmd
+        print("$", cmd)
         os.spawnvp(0, cmd.split()[0], cmd.split())
         from rex.core import Rex
         demo = Rex('rex.port_demo')
         demo.on()
         from rex.port import Port
-        print '-'*72
+        print('-'*72)
         study_port = Port('study')
-        print study_port
+        print(study_port)
         from webob import Request
         req = Request.blank('/')
-        print '-'*72
-        print study_port(req)
+        print('-'*72)
+        print(study_port(req))
 
 setup(
     name='rex.port_demo',

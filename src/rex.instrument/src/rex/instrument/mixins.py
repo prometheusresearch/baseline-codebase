@@ -7,7 +7,7 @@ from copy import deepcopy
 
 from rex.core import Error, guard
 
-from .util import to_str, to_json
+from .util import to_json
 
 
 __all__ = (
@@ -64,9 +64,6 @@ class Displayable(object):
         return self.uid
 
     def __str__(self):
-        return to_str(self.__unicode__())
-
-    def __unicode__(self):
         return self.get_display_name()
 
     def __repr__(self):
@@ -96,9 +93,7 @@ class Dictable(object):
         """
 
         extra_properties = extra_properties or []
-        target_properties = set(
-            list(self.dict_properties) + list(extra_properties)
-        )
+        target_properties = list(self.dict_properties) + list(extra_properties)
 
         ret = {
             'uid': self.uid,
@@ -182,7 +177,7 @@ class ImplementationContextable(object):
         validated = {}
         context = deepcopy(context or {})
 
-        for name, cfg in spec.items():
+        for name, cfg in list(spec.items()):
             if name not in context:
                 if cfg['required']:
                     raise Error(
@@ -197,7 +192,7 @@ class ImplementationContextable(object):
         if context:
             raise Error(
                 'Unknown implementation context provided: %s' % (
-                    ', '.join(context.keys()),
+                    ', '.join(list(context.keys())),
                 )
             )
 

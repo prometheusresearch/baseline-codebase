@@ -39,7 +39,7 @@ MartBaseVal validates the ``base`` of Mart Definitions::
     >>> val({'type': 'fresh', 'target': 'baz'})
     Traceback (most recent call last):
         ...
-    Error: Bases type "fresh" cannot have target database names
+    rex.core.Error: Bases type "fresh" cannot have target database names
     Got:
         'baz'
     While validating field:
@@ -48,7 +48,7 @@ MartBaseVal validates the ``base`` of Mart Definitions::
     >>> val({'type': 'application', 'target': 'baz'})
     Traceback (most recent call last):
         ...
-    Error: Bases type "application" cannot have target database names
+    rex.core.Error: Bases type "application" cannot have target database names
     Got:
         'baz'
     While validating field:
@@ -57,7 +57,7 @@ MartBaseVal validates the ``base`` of Mart Definitions::
     >>> val({'type': 'copy'})
     Traceback (most recent call last):
         ...
-    Error: Base type of "copy" requires a target database name
+    rex.core.Error: Base type of "copy" requires a target database name
     Got:
         None
     While validating field:
@@ -66,7 +66,7 @@ MartBaseVal validates the ``base`` of Mart Definitions::
     >>> val({'type': 'existing'})
     Traceback (most recent call last):
         ...
-    Error: Base type of "existing" requires a target database name
+    rex.core.Error: Base type of "existing" requires a target database name
     Got:
         None
     While validating field:
@@ -75,7 +75,7 @@ MartBaseVal validates the ``base`` of Mart Definitions::
     >>> val({'type': 'something'})
     Traceback (most recent call last):
         ...
-    Error: Expected one of:
+    rex.core.Error: Expected one of:
         fresh, copy, existing, application
     Got:
         'something'
@@ -85,7 +85,7 @@ MartBaseVal validates the ``base`` of Mart Definitions::
     >>> val({'type': 'existing', 'target': 'bar', 'name_token': 'foo'})
     Traceback (most recent call last):
         ...
-    Error: Base type "existing" cannot have a name token
+    rex.core.Error: Base type "existing" cannot have a name token
     Got:
         'foo'
     While validating field:
@@ -94,7 +94,7 @@ MartBaseVal validates the ``base`` of Mart Definitions::
     >>> val({'type': 'existing', 'target': 'bar', 'fixed_name': 'foo'})
     Traceback (most recent call last):
         ...
-    Error: Base type "existing" cannot have a fixed name
+    rex.core.Error: Base type "existing" cannot have a fixed name
     Got:
         'foo'
     While validating field:
@@ -103,7 +103,7 @@ MartBaseVal validates the ``base`` of Mart Definitions::
     >>> val({'type': 'fresh', 'fixed_name': 'qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm'})
     Traceback (most recent call last):
         ...
-    Error: Fixed name cannot be longer than 63 characters
+    rex.core.Error: Fixed name cannot be longer than 63 characters
     Got:
         'qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm'
     While validating field:
@@ -129,7 +129,7 @@ ParameterVal validates parameter entries in Mart Definitions::
     >>> val({'name': '123', 'type': 'text'})
     Traceback (most recent call last):
         ...
-    Error: Expected a string matching:
+    rex.core.Error: Expected a string matching:
         /[a-zA-Z][a-zA-Z0-9_]*/
     Got:
         '123'
@@ -139,7 +139,7 @@ ParameterVal validates parameter entries in Mart Definitions::
     >>> val({'name': 'foo', 'type': 'enumeration'})
     Traceback (most recent call last):
         ...
-    Error: Expected one of:
+    rex.core.Error: Expected one of:
         text, integer, float, boolean, date, time, dateTime
     Got:
         'enumeration'
@@ -149,7 +149,7 @@ ParameterVal validates parameter entries in Mart Definitions::
     >>> val({'name': 'foo', 'type': 'integer', 'default': 'bar'})
     Traceback (most recent call last):
         ...
-    Error: Expected an integer
+    rex.core.Error: Expected an integer
     Got:
         'bar'
     While validating field:
@@ -173,13 +173,13 @@ EtlScriptVal validates script entries in Mart Definitions::
     >>> val({'type': 'htsql'})
     Traceback (most recent call last):
         ...
-    Error: Missing mandatory field:
+    rex.core.Error: Missing mandatory field:
         script
 
     >>> val({'script': '', 'type': 'htsql'})
     Traceback (most recent call last):
         ...
-    Error: ETL Scripts cannot be empty
+    rex.core.Error: ETL Scripts cannot be empty
     Got:
         ''
     While validating field:
@@ -188,7 +188,7 @@ EtlScriptVal validates script entries in Mart Definitions::
     >>> val({'script': None, 'type': 'htsql'})
     Traceback (most recent call last):
         ...
-    Error: Expected a string
+    rex.core.Error: Expected a string
     Got:
         None
     While validating field:
@@ -197,7 +197,7 @@ EtlScriptVal validates script entries in Mart Definitions::
     >>> val({'script': 'del foo', 'type': 'python'})
     Traceback (most recent call last):
         ...
-    Error: Expected one of:
+    rex.core.Error: Expected one of:
         htsql, sql
     Got:
         'python'
@@ -207,7 +207,7 @@ EtlScriptVal validates script entries in Mart Definitions::
     >>> val({'script': '/foo', 'type': ''})
     Traceback (most recent call last):
         ...
-    Error: Expected one of:
+    rex.core.Error: Expected one of:
         htsql, sql
     Got:
         ''
@@ -217,7 +217,7 @@ EtlScriptVal validates script entries in Mart Definitions::
     >>> val({'script': '/foo', 'type': None})
     Traceback (most recent call last):
         ...
-    Error: Expected a string
+    rex.core.Error: Expected a string
     Got:
         None
     While validating field:
@@ -226,19 +226,19 @@ EtlScriptVal validates script entries in Mart Definitions::
     >>> val({'script': '/foo'})
     Traceback (most recent call last):
         ...
-    Error: Missing mandatory field:
+    rex.core.Error: Missing mandatory field:
         type
 
     >>> val({'script': '/foo', 'type': 'htsql', 'parameters': {'foo': 'bar'}})
     Record(script='/foo', type='htsql', parameters={'foo': 'bar'})
 
     >>> val({'script': '/foo', 'type': 'htsql', 'parameters': {'foo': 'bar', 'baz': None}})
-    Record(script='/foo', type='htsql', parameters={'foo': 'bar', 'baz': None})
+    Record(script='/foo', type='htsql', parameters={'baz': None, 'foo': 'bar'})
 
     >>> val({'script': '/foo', 'type': 'htsql', 'parameters': 'foo'})
     Traceback (most recent call last):
         ...
-    Error: Expected a JSON object
+    rex.core.Error: Expected a JSON object
     Got:
         'foo'
     While validating field:
@@ -278,7 +278,7 @@ Definitions::
     >>> val({'type': 'trunk', 'parent': 'foo'})
     Traceback (most recent call last):
         ...
-    Error: Relationship type "trunk" cannot have any parents
+    rex.core.Error: Relationship type "trunk" cannot have any parents
     Got:
         ['foo']
     While validating field:
@@ -287,7 +287,7 @@ Definitions::
     >>> val({'type': 'facet'})
     Traceback (most recent call last):
         ...
-    Error: Relationship type "facet" must have exactly one parent
+    rex.core.Error: Relationship type "facet" must have exactly one parent
     Got:
         []
     While validating field:
@@ -296,7 +296,7 @@ Definitions::
     >>> val({'type': 'facet', 'parent': ['foo', 'bar']})
     Traceback (most recent call last):
         ...
-    Error: Relationship type "facet" must have exactly one parent
+    rex.core.Error: Relationship type "facet" must have exactly one parent
     Got:
         ['foo', 'bar']
     While validating field:
@@ -305,7 +305,7 @@ Definitions::
     >>> val({'type': 'branch'})
     Traceback (most recent call last):
         ...
-    Error: Relationship type "branch" must have exactly one parent
+    rex.core.Error: Relationship type "branch" must have exactly one parent
     Got:
         []
     While validating field:
@@ -314,7 +314,7 @@ Definitions::
     >>> val({'type': 'branch', 'parent': ['foo', 'bar']})
     Traceback (most recent call last):
         ...
-    Error: Relationship type "branch" must have exactly one parent
+    rex.core.Error: Relationship type "branch" must have exactly one parent
     Got:
         ['foo', 'bar']
     While validating field:
@@ -323,7 +323,7 @@ Definitions::
     >>> val({'type': 'cross'})
     Traceback (most recent call last):
         ...
-    Error: Relationship type "cross" must have at least two parents
+    rex.core.Error: Relationship type "cross" must have at least two parents
     Got:
         []
     While validating field:
@@ -332,7 +332,7 @@ Definitions::
     >>> val({'type': 'cross', 'parent': 'foo'})
     Traceback (most recent call last):
         ...
-    Error: Relationship type "cross" must have at least two parents
+    rex.core.Error: Relationship type "cross" must have at least two parents
     Got:
         ['foo']
     While validating field:
@@ -341,7 +341,7 @@ Definitions::
     >>> val({'type': 'ternary'})
     Traceback (most recent call last):
         ...
-    Error: Relationship type "ternary" must have at least two parents
+    rex.core.Error: Relationship type "ternary" must have at least two parents
     Got:
         []
     While validating field:
@@ -350,7 +350,7 @@ Definitions::
     >>> val({'type': 'ternary', 'parent': 'foo'})
     Traceback (most recent call last):
         ...
-    Error: Relationship type "ternary" must have at least two parents
+    rex.core.Error: Relationship type "ternary" must have at least two parents
     Got:
         ['foo']
     While validating field:
@@ -370,14 +370,14 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     'selector': '/measure{id() :as assessment_uid}',
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])
+    Record(instrument=['foo'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': ['foo', 'bar'],
     ...     'selector': '/measure{id() :as assessment_uid}',
     ... }
     >>> val(assessment)
-    Record(instrument=['foo', 'bar'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])
+    Record(instrument=['foo', 'bar'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': '@ALL',
@@ -399,7 +399,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     'selector': '/measure{id() :as assessment_uid}',
     ... }
     >>> val(assessment)
-    Record(instrument=['0FoO'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])
+    Record(instrument=['0FoO'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -408,7 +408,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     },
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])
+    Record(instrument=['foo'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -420,7 +420,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     },
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={'mood': 'happy'}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])
+    Record(instrument=['foo'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={'mood': 'happy'}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -431,7 +431,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     },
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='facet', parent=['footable']), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])
+    Record(instrument=['foo'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='facet', parent=['footable']), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -439,7 +439,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     'identifiable': 'none',
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='none', fields=[], calculations=[], meta=None, post_load_calculations=[])
+    Record(instrument=['foo'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='none', fields=[], calculations=[], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -447,7 +447,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     'fields': None,
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=None, calculations=[], meta=None, post_load_calculations=[])
+    Record(instrument=['foo'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=None, calculations=[], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -455,7 +455,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     'fields': 'bar',
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=['bar'], calculations=[], meta=None, post_load_calculations=[])
+    Record(instrument=['foo'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=['bar'], calculations=[], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -466,7 +466,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     ],
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=['bar', 'baz'], calculations=[], meta=None, post_load_calculations=[])
+    Record(instrument=['foo'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=['bar', 'baz'], calculations=[], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -474,7 +474,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     'calculations': None,
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=None, meta=None, post_load_calculations=[])
+    Record(instrument=['foo'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=None, meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -482,7 +482,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     'calculations': 'bar',
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=['bar'], meta=None, post_load_calculations=[])
+    Record(instrument=['foo'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=['bar'], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -493,7 +493,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     ],
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=['bar', 'baz'], meta=None, post_load_calculations=[])
+    Record(instrument=['foo'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=['bar', 'baz'], meta=None, post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -501,7 +501,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     'meta': 'bar',
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'bar': 'text'}], post_load_calculations=[])
+    Record(instrument=['foo'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'bar': 'text'}], post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -512,7 +512,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     ],
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'bar': 'text'}, {'baz': 'text'}], post_load_calculations=[])
+    Record(instrument=['foo'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'bar': 'text'}, {'baz': 'text'}], post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -523,7 +523,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     ],
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'bar': 'text'}, {'baz': 'boolean'}], post_load_calculations=[])
+    Record(instrument=['foo'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'bar': 'text'}, {'baz': 'boolean'}], post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -531,7 +531,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     'meta': {'bar': 'boolean'},
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'bar': 'boolean'}], post_load_calculations=[])
+    Record(instrument=['foo'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'bar': 'boolean'}], post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -539,7 +539,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     'meta': 'timeTaken',
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'timeTaken': 'integer'}], post_load_calculations=[])
+    Record(instrument=['foo'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=[{'timeTaken': 'integer'}], post_load_calculations=[])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -551,7 +551,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     },
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[Record(name='postcalc1', type='text', expression='upper(assessment_uid)')])
+    Record(instrument=['foo'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[Record(name='postcalc1', type='text', expression='upper(assessment_uid)')])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -562,7 +562,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     ...     ],
     ... }
     >>> val(assessment)
-    Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[Record(name='postcalc1', type='text', expression='upper(assessment_uid)'), Record(name='postcalc2', type='text', expression='upper(assessment_uid)')])
+    Record(instrument=['foo'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[Record(name='postcalc1', type='text', expression='upper(assessment_uid)'), Record(name='postcalc2', type='text', expression='upper(assessment_uid)')])
 
     >>> assessment = {
     ...     'instrument': 'foo',
@@ -576,7 +576,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     >>> val(assessment)
     Traceback (most recent call last):
         ...
-    Error: Expected one of:
+    rex.core.Error: Expected one of:
         text, integer, float, boolean, date, time, dateTime
     Got:
         'something'
@@ -596,7 +596,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     >>> val(assessment)
     Traceback (most recent call last):
         ...
-    Error: Calculation Names (postcalc1) cannot be duplicated within an Assessment
+    rex.core.Error: Calculation Names (postcalc1) cannot be duplicated within an Assessment
     While validating field:
         post_load_calculations
 
@@ -610,7 +610,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     >>> val(assessment)
     Traceback (most recent call last):
         ...
-    Error: CalculationSet results are handled by the calculations property
+    rex.core.Error: CalculationSet results are handled by the calculations property
     While validating sequence item
         #1
     While validating field:
@@ -626,7 +626,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     >>> val(assessment)
     Traceback (most recent call last):
         ...
-    Error: Cannot redefine the standard type for "application"
+    rex.core.Error: Cannot redefine the standard type for "application"
     While validating sequence item
         #1
     While validating field:
@@ -640,7 +640,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     >>> val(assessment)
     Traceback (most recent call last):
         ...
-    Error: Mapping can only contain one element
+    rex.core.Error: Mapping can only contain one element
     While validating field:
         meta
 
@@ -651,7 +651,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     >>> val(assessment)
     Traceback (most recent call last):
         ...
-    Error: Assessment does not specify any instruments
+    rex.core.Error: Assessment does not specify any instruments
     While validating field:
         instrument
 
@@ -661,7 +661,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     >>> val(assessment)
     Traceback (most recent call last):
         ...
-    Error: Missing mandatory field:
+    rex.core.Error: Missing mandatory field:
         selector
 
     >>> assessment = {
@@ -670,7 +670,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     >>> val(assessment)
     Traceback (most recent call last):
         ...
-    Error: Missing mandatory field:
+    rex.core.Error: Missing mandatory field:
         instrument
 
     >>> assessment = {
@@ -680,7 +680,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     >>> val(assessment)
     Traceback (most recent call last):
         ...
-    Error: Cannot make a safe token out of "1234567890"
+    rex.core.Error: Cannot make a safe token out of "1234567890"
     While validating field:
         name
 
@@ -691,7 +691,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     >>> val(assessment)
     Traceback (most recent call last):
         ...
-    Error: Selector querys cannot be empty
+    rex.core.Error: Selector querys cannot be empty
     Got:
         ''
     While validating field:
@@ -706,7 +706,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     >>> val(assessment)
     Traceback (most recent call last):
         ...
-    Error: Failed to match the value against any of the following:
+    rex.core.Error: Failed to match the value against any of the following:
         Expected a string
         Got:
             123
@@ -728,7 +728,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     >>> val(assessment)
     Traceback (most recent call last):
         ...
-    Error: Failed to match the value against any of the following:
+    rex.core.Error: Failed to match the value against any of the following:
         Expected a string
         Got:
             {'parameters': {'mood': 'happy'}}
@@ -746,7 +746,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     >>> val(assessment)
     Traceback (most recent call last):
         ...
-    Error: Name cannot be longer than 60 characters
+    rex.core.Error: Name cannot be longer than 60 characters
     Got:
         qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm
     While validating field:
@@ -760,7 +760,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     >>> val(assessment)
     Traceback (most recent call last):
         ...
-    Error: Expected a JSON object
+    rex.core.Error: Expected a JSON object
     Got:
         'trunk'
     While validating field:
@@ -775,7 +775,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     >>> val(assessment)
     Traceback (most recent call last):
         ...
-    Error: Assessment does not include any fields, calculations, or metadata
+    rex.core.Error: Assessment does not include any fields, calculations, or metadata
 
     >>> assessment = {
     ...     'instrument': '@ALL',
@@ -785,7 +785,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     >>> val(assessment)
     Traceback (most recent call last):
         ...
-    Error: The "name", "fields", "calculations", and "post_load_calculations" properties are not allowed when @ALL is specified for the instrument.
+    rex.core.Error: The "name", "fields", "calculations", and "post_load_calculations" properties are not allowed when @ALL is specified for the instrument.
 
     >>> assessment = {
     ...     'instrument': '@ALL',
@@ -795,7 +795,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     >>> val(assessment)
     Traceback (most recent call last):
         ...
-    Error: The "name", "fields", "calculations", and "post_load_calculations" properties are not allowed when @ALL is specified for the instrument.
+    rex.core.Error: The "name", "fields", "calculations", and "post_load_calculations" properties are not allowed when @ALL is specified for the instrument.
 
     >>> assessment = {
     ...     'instrument': '@ALL',
@@ -805,7 +805,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     >>> val(assessment)
     Traceback (most recent call last):
         ...
-    Error: The "name", "fields", "calculations", and "post_load_calculations" properties are not allowed when @ALL is specified for the instrument.
+    rex.core.Error: The "name", "fields", "calculations", and "post_load_calculations" properties are not allowed when @ALL is specified for the instrument.
 
     >>> assessment = {
     ...     'instrument': '@ALL',
@@ -817,7 +817,7 @@ AssessmentDefinitionVal validates a single Assessment Definition::
     >>> val(assessment)
     Traceback (most recent call last):
         ...
-    Error: The "name", "fields", "calculations", and "post_load_calculations" properties are not allowed when @ALL is specified for the instrument.
+    rex.core.Error: The "name", "fields", "calculations", and "post_load_calculations" properties are not allowed when @ALL is specified for the instrument.
 
 
 DynamicAssessmentVal
@@ -837,7 +837,7 @@ DynamicAssessmentVal validates a single Dynamic Assessment definition::
     >>> val({'dynamic': 'doesntexist'})
     Traceback (most recent call last):
         ...
-    Error: Unknown Definer ID
+    rex.core.Error: Unknown Definer ID
     Got:
         doesntexist
     While validating field:
@@ -883,7 +883,7 @@ ProessorVal validates a single Processor definition::
     >>> val(proc)
     Traceback (most recent call last):
         ...
-    Error: Unknown Processor ID
+    rex.core.Error: Unknown Processor ID
     Got:
         doesntexist
     While validating field:
@@ -897,7 +897,7 @@ ProessorVal validates a single Processor definition::
     >>> val(proc)
     Traceback (most recent call last):
         ...
-    Error: Missing mandatory field:
+    rex.core.Error: Missing mandatory field:
         id
 
     >>> proc = {
@@ -909,7 +909,7 @@ ProessorVal validates a single Processor definition::
     >>> val(proc)
     Traceback (most recent call last):
         ...
-    Error: Missing Processor Option
+    rex.core.Error: Missing Processor Option
         foo
     While validating field:
         options
@@ -923,7 +923,7 @@ ProessorVal validates a single Processor definition::
     >>> val(proc)
     Traceback (most recent call last):
         ...
-    Error: Expected a string
+    rex.core.Error: Expected a string
     Got:
         123
     While validating field:
@@ -941,7 +941,7 @@ ProessorVal validates a single Processor definition::
     >>> val(proc)
     Traceback (most recent call last):
         ...
-    Error: Unknown Processor Options
+    rex.core.Error: Unknown Processor Options
         fake
     While validating field:
         options
@@ -959,35 +959,35 @@ DefinitionVal validates a single Mart Definition::
     ...     'id': 'foo'
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)
 
     >>> definition = {
     ...     'id': 'foo',
     ...     'label': '',
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)
 
     >>> definition = {
     ...     'id': 'foo',
     ...     'label': 'My Label',
     ... }
     >>> val(definition)
-    Record(id='foo', label='My Label', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)
+    Record(id='foo', label='My Label', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)
 
     >>> definition = {
     ...     'id': 'foo',
     ...     'description': 'This is a database'
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description='This is a database', base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)
+    Record(id='foo', label='foo', description='This is a database', base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)
 
     >>> definition = {
     ...     'id': 'foo',
     ...     'quota': None
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)
 
     >>> definition = {
     ...     'id': 'foo',
@@ -996,7 +996,7 @@ DefinitionVal validates a single Mart Definition::
     ...     }
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=5), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), quota=Record(per_owner=5), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)
 
     >>> definition = {
     ...     'id': 'foo',
@@ -1005,7 +1005,7 @@ DefinitionVal validates a single Mart Definition::
     ...     },
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)
 
     >>> definition = {
     ...     'id': 'foo',
@@ -1036,11 +1036,11 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='copy', target='bar', name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=[{'table': 'my_table', 'with': [{'column': 'my_column', 'type': 'text'}]}], parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)
+    Record(id='foo', label='foo', description=None, base=Record(type='copy', target='bar', name_token='foo_', fixed_name=None), quota=Record(per_owner=3), deploy=[{'table': 'my_table', 'with': [{'column': 'my_column', 'type': 'text'}]}], parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)
 
     >>> definition = "{id: foo, base: {type: copy, target: bar}, deploy: [{table: my_table, with: [{column: my_column, type: text}]}]}"
     >>> val.parse(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='copy', target='bar', name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=[{'table': 'my_table', 'with': [{'column': 'my_column', 'type': 'text'}]}], parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)
+    Record(id='foo', label='foo', description=None, base=Record(type='copy', target='bar', name_token='foo_', fixed_name=None), quota=Record(per_owner=3), deploy=[{'table': 'my_table', 'with': [{'column': 'my_column', 'type': 'text'}]}], parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)
 
     >>> definition = {
     ...     'id': 'foo',
@@ -1058,7 +1058,7 @@ DefinitionVal validates a single Mart Definition::
     >>> val(definition)
     Traceback (most recent call last):
         ...
-    Error: Expected a JSON array
+    rex.core.Error: Expected a JSON array
     Got:
         'broken'
     While validating field:
@@ -1082,7 +1082,7 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[Record(script='/blah/:merge', type='htsql', parameters={}), Record(script='/foo/:insert', type='htsql', parameters={})], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[Record(script='/blah/:merge', type='htsql', parameters={}), Record(script='/foo/:insert', type='htsql', parameters={})], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)
 
     >>> definition = {
     ...     'id': 'foo',
@@ -1094,7 +1094,7 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[Record(script='/foo/:insert', type='htsql', parameters={})], processors=[], base_path=None)
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[Record(script='/foo/:insert', type='htsql', parameters={})], processors=[], base_path=None)
 
     >>> definition = {
     ...     'id': 'foo',
@@ -1106,7 +1106,7 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])], post_assessment_scripts=[], processors=[], base_path=None)
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[Record(instrument=['foo'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[])], post_assessment_scripts=[], processors=[], base_path=None)
 
     >>> definition = {
     ...     'id': 'foo',
@@ -1119,9 +1119,9 @@ DefinitionVal validates a single Mart Definition::
     ... }
     >>> validated = val(definition)
     >>> validated  # doctest: +ELLIPSIS
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[...], post_assessment_scripts=[], processors=[], base_path=None)
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[...], post_assessment_scripts=[], processors=[], base_path=None)
     >>> [a.name for a in validated.assessments]
-    [u'alltypes', u'calculation', u'calculation_complex', u'complex', u'disabled', u'mart1', u'mart10', u'mart11', u'mart12', u'mart13', u'mart14', u'mart15', u'mart2', u'mart3', u'mart4', u'mart5', u'mart6', u'mart7', u'mart8', u'mart9', u'mart9b', u'simple', u'texter']
+    ['alltypes', 'calculation', 'calculation_complex', 'complex', 'disabled', 'mart1', 'mart10', 'mart11', 'mart12', 'mart13', 'mart14', 'mart15', 'mart2', 'mart3', 'mart4', 'mart5', 'mart6', 'mart7', 'mart8', 'mart9', 'mart9b', 'simple', 'texter']
 
     >>> definition = {
     ...     'id': 'foo',
@@ -1132,7 +1132,7 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[Record(dynamic='rexdb', options={})], post_assessment_scripts=[], processors=[], base_path=None)
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[Record(dynamic='rexdb', options={})], post_assessment_scripts=[], processors=[], base_path=None)
 
     >>> definition = {
     ...     'id': 'foo',
@@ -1147,7 +1147,7 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[Record(instrument=['foo'], name=u'foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(dynamic='rexdb', options={})], post_assessment_scripts=[], processors=[], base_path=None)
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[Record(instrument=['foo'], name='foo', selector=Record(query='/measure{id() :as assessment_uid}', parameters={}), parental_relationship=Record(type='trunk', parent=[]), identifiable='any', fields=[], calculations=[], meta=None, post_load_calculations=[]), Record(dynamic='rexdb', options={})], post_assessment_scripts=[], processors=[], base_path=None)
 
     >>> definition = {
     ...     'id': 'foo',
@@ -1166,7 +1166,7 @@ DefinitionVal validates a single Mart Definition::
     >>> val(definition)
     Traceback (most recent call last):
         ...
-    Error: Assessment Names (foo) cannot be duplicated within a Definition
+    rex.core.Error: Assessment Names (foo) cannot be duplicated within a Definition
     While validating field:
         assessments
 
@@ -1180,7 +1180,7 @@ DefinitionVal validates a single Mart Definition::
     >>> val(definition)
     Traceback (most recent call last):
         ...
-    Error: Name Token cannot exceed 33 characters in length
+    rex.core.Error: Name Token cannot exceed 33 characters in length
     Got:
         qwertyuiopasdfghjklzxcvbnmqwertyuiopasdfghjklzxcvbnm
     While validating field:
@@ -1201,7 +1201,7 @@ DefinitionVal validates a single Mart Definition::
     ...     ],
     ... }
     >>> val(definition)
-    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[Record(id='myproc', options={}), Record(id='otherproc', options={'foo': 'bar', 'bar': None})], base_path=None)
+    Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[Record(id='myproc', options={}), Record(id='otherproc', options={'foo': 'bar', 'bar': None})], base_path=None)
 
     >>> definition = {
     ...     'id': 'foo',
@@ -1213,7 +1213,7 @@ DefinitionVal validates a single Mart Definition::
     >>> val(definition)
     Traceback (most recent call last):
         ...
-    Error: Parameter Names (foo) cannot be duplicated within a Definition
+    rex.core.Error: Parameter Names (foo) cannot be duplicated within a Definition
     While validating field:
         parameters
 
@@ -1233,17 +1233,17 @@ MartConfigurationVal will validate the contents of an entire ``mart.yaml``::
     Record(definitions=[])
 
     >>> val({'definitions': [{'id': 'foo'}, {'id': 'bar'}]})
-    Record(definitions=[Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token=u'foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None), Record(id='bar', label='bar', description=None, base=Record(type='fresh', target=None, name_token=u'bar_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)])
+    Record(definitions=[Record(id='foo', label='foo', description=None, base=Record(type='fresh', target=None, name_token='foo_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None), Record(id='bar', label='bar', description=None, base=Record(type='fresh', target=None, name_token='bar_', fixed_name=None), quota=Record(per_owner=3), deploy=None, parameters=[], post_deploy_scripts=[], assessments=[], post_assessment_scripts=[], processors=[], base_path=None)])
 
     >>> val({'definitions': [{'id': 'foo'}, {'id': 'foo'}]})
     Traceback (most recent call last):
         ...
-    Error: Definition IDs (foo) cannot be duplicated within a collection
+    rex.core.Error: Definition IDs (foo) cannot be duplicated within a collection
 
     >>> val({'definitions': [{'id': 'foo', 'base': {'type': 'existing', 'target': 'my_target'}}, {'id': 'bar', 'base': {'type': 'existing', 'target': 'my_target'}}]})
     Traceback (most recent call last):
         ...
-    Error: Multiple definitions attempt to write to the same existing database(s): my_target
+    rex.core.Error: Multiple definitions attempt to write to the same existing database(s): my_target
 
 
 RunListEntryVal
@@ -1272,13 +1272,13 @@ RunListEntryVal will validate a single RunList entry::
     >>> val({'owner': 'test'})
     Traceback (most recent call last):
         ...
-    Error: Missing mandatory field:
+    rex.core.Error: Missing mandatory field:
         definition
 
     >>> val({'definition': 'some_def'})
     Traceback (most recent call last):
         ...
-    Error: Missing mandatory field:
+    rex.core.Error: Missing mandatory field:
         owner
 
 

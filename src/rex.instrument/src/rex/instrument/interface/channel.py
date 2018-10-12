@@ -20,8 +20,8 @@ class Channel(Extension, Comparable, Displayable, Dictable):
     configuration can be defined.
     """
 
-    PRESENTATION_TYPE_FORM = u'form'
-    PRESENTATION_TYPE_SMS = u'sms'
+    PRESENTATION_TYPE_FORM = 'form'
+    PRESENTATION_TYPE_SMS = 'sms'
     ALL_PRESENTATION_TYPES = (
         PRESENTATION_TYPE_FORM,
         PRESENTATION_TYPE_SMS,

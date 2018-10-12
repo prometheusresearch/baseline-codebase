@@ -90,7 +90,8 @@ init-bin:
 
 # Create the environment.
 init-env:
-	virtualenv ${CURDIR}
+	python3 -m venv ${CURDIR}
+	${CURDIR}/bin/pip install wheel==0.31.1
 	npm --global --prefix ${CURDIR} install yarn@1.9.2
 .PHONY: init-env
 
@@ -353,7 +354,7 @@ cd "${CURDIR}" && PATH="${PATH}" exec "${shell which docker-compose}" "$$@"
 endef
 
 define PBBT_TEMPLATE
-#!${CURDIR}/bin/python2
+#!${CURDIR}/bin/python3
 
 import os, re, sys
 from pbbt import main

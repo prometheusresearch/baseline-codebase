@@ -53,12 +53,12 @@ class InstrumentVersion(
         :rtype: dict
         """
         # Make sure we're working with a dict.
-        if isinstance(definition, basestring):
+        if isinstance(definition, str):
             try:
                 definition = AnyVal().parse(definition)
             except Error as exc:
                 raise ValueError(
-                    'Invalid JSON/YAML provided: %s' % unicode(exc)
+                    'Invalid JSON/YAML provided: %s' % str(exc)
                 )
         if not isinstance(definition, dict):
             raise TypeError(
@@ -66,15 +66,15 @@ class InstrumentVersion(
             )
 
         base_types = sorted(TYPES_ALL)
-        known_types = dict(zip(base_types, base_types))
+        known_types = dict(list(zip(base_types, base_types)))
 
         known_types.update(dict([
             (tid, type_def['base'])
-            for tid, type_def in definition.get('types', {}).items()
+            for tid, type_def in list(definition.get('types', {}).items())
         ]))
 
         while set(known_types.values()) - set(TYPES_ALL):
-            for tid, base in known_types.items():
+            for tid, base in list(known_types.items()):
                 if base not in TYPES_ALL:
                     try:
                         known_types[tid] = known_types[base]
@@ -111,12 +111,12 @@ class InstrumentVersion(
         """
 
         # Make sure we're working with a dict.
-        if isinstance(definition, basestring):
+        if isinstance(definition, str):
             try:
                 definition = AnyVal().parse(definition)
             except Error as exc:
                 raise ValueError(
-                    'Invalid JSON/YAML provided: %s' % unicode(exc)
+                    'Invalid JSON/YAML provided: %s' % str(exc)
                 )
         if not isinstance(definition, dict):
             raise TypeError(
@@ -139,12 +139,12 @@ class InstrumentVersion(
         """
 
         # Make sure we're working with a dict.
-        if isinstance(definition, basestring):
+        if isinstance(definition, str):
             try:
                 definition = AnyVal().parse(definition)
             except Error as exc:
                 raise ValidationError(
-                    'Invalid JSON/YAML provided: %s' % unicode(exc)
+                    'Invalid JSON/YAML provided: %s' % str(exc)
                 )
         if not isinstance(definition, dict):
             raise ValidationError(
@@ -158,7 +158,7 @@ class InstrumentVersion(
                 'The following problems were encountered when validating this'
                 ' Instrument:',
             ]
-            for key, details in exc.asdict().items():
+            for key, details in list(exc.asdict().items()):
                 msg.append('%s: %s' % (
                     key or '<root>',
                     details,
@@ -280,7 +280,7 @@ class InstrumentVersion(
             date_published):
         self._uid = to_unicode(uid)
 
-        if not isinstance(instrument, (Instrument, basestring)):
+        if not isinstance(instrument, (Instrument, str)):
             raise ValueError(
                 'instrument must be an instance of Instrument or a UID of one'
             )
@@ -288,7 +288,7 @@ class InstrumentVersion(
 
         self._version = version
 
-        if isinstance(definition, basestring):
+        if isinstance(definition, str):
             self._definition = AnyVal().parse(definition)
         else:
             self._definition = deepcopy(definition)
@@ -315,7 +315,7 @@ class InstrumentVersion(
         :rtype: Instrument
         """
 
-        if isinstance(self._instrument, basestring):
+        if isinstance(self._instrument, str):
             instrument_impl = get_implementation('instrument')
             return instrument_impl.get_by_uid(self._instrument)
         else:

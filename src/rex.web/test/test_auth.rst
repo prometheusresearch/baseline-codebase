@@ -18,13 +18,13 @@ baseline implementation returns the value of CGI variable ``REMOTE_USER``::
     >>> from webob import Request
     >>> anon_req = Request.blank('/')
     >>> with demo:
-    ...     print authenticate(anon_req)
+    ...     print(authenticate(anon_req))
     None
 
     >>> auth_req = Request.blank('/')
     >>> auth_req.remote_user = 'Alice'
     >>> with demo:
-    ...     print authenticate(auth_req)
+    ...     print(authenticate(auth_req))
     Alice
 
 ``authenticate()`` invokes the ``Authenticate`` interface and caches the
@@ -35,7 +35,7 @@ will return the cached value::
     'Alice'
     >>> auth_req.remote_user = 'Bob'
     >>> with demo:
-    ...     print authenticate(auth_req)
+    ...     print(authenticate(auth_req))
     Alice
 
 
@@ -64,11 +64,11 @@ this case, permission of the package defined using ``access`` setting is
 assumed::
 
     >>> with Rex('rex.web_demo', access={'rex.web_demo': 'anybody'}):
-    ...     print authorize(anon_req, 'rex.web_demo')
+    ...     print(authorize(anon_req, 'rex.web_demo'))
     True
 
     >>> with Rex('rex.web_demo', access={'rex.web_demo': 'nobody'}):
-    ...     print authorize(auth_req, 'rex.web_demo')
+    ...     print(authorize(auth_req, 'rex.web_demo'))
     False
 
 ``authorize()`` invokes the ``Authorize`` interface and caches the result in
@@ -120,9 +120,10 @@ We can verify if the server name was actually overridden::
 
     >>> main = Rex('__main__', 'rex.web')
     >>> req = Request.blank('/url')
-    >>> print req.get_response(main)        # doctest: +ELLIPSIS
+    >>> print(req.get_response(main))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     http://localhost:8088/url
+
 
 

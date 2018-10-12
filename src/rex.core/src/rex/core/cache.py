@@ -29,7 +29,7 @@ class Cache(dict):
         return self[key]
 
 
-class OpenGate(object):
+class OpenGate:
     # An utility for loading data from a file and caching the result.  Rebuilds
     # the result whenever any of the source files changes.
     # NOTE: not resistant to race conditions -- use only to enable development
@@ -67,7 +67,7 @@ class OpenGate(object):
             # Check if we can use the cached result.
             if self.version > 0:
                 stats = {}
-                for path in OpenGate.stats.keys():
+                for path in list(OpenGate.stats.keys()):
                     try:
                         stat = os.stat(path)
                         stats[path] = (stat.st_mtime, stat.st_size)
@@ -85,7 +85,7 @@ class OpenGate(object):
             return self.result
 
 
-class ExpireGate(object):
+class ExpireGate:
     # An utility that expires function result after a period of time.
 
     __slots__ = ('callback', 'args', 'expires', 'timestamp', 'result', 'lock')
@@ -166,7 +166,7 @@ def _decorate(fn, Gate=None, prefix='cached_', spec=None):
             '_get_rex': get_rex,
             '_Gate': Gate,
     }
-    exec code in context
+    exec(code, context)
     wrapper = context.pop(name)
     functools.update_wrapper(wrapper, fn)
     return wrapper

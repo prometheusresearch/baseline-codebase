@@ -269,7 +269,7 @@ class CompleteFormCommand(BaseViewFormCommand):
         try:
             data = json.loads(data)
         except ValueError as exc:
-            raise HTTPBadRequest(exc.message)
+            raise HTTPBadRequest(exc.doc) from None
 
         instrument_version, form, all_forms = self.get_config(
             category,
@@ -316,7 +316,7 @@ class CompleteFormCommand(BaseViewFormCommand):
                 instrument_definition=instrument_version.definition,
             )
         except InstrumentError as exc:
-            raise HTTPBadRequest(exc.message)
+            raise HTTPBadRequest(exc.message) from None
 
         subject = Subject.get_implementation()('fake')
         assessment = assessment_impl(
@@ -336,13 +336,14 @@ class CompleteFormCommand(BaseViewFormCommand):
             except InstrumentError as exc:
                 response = {
                     'status': 'ERROR',
-                    'message': unicode(exc),
+                    'message': str(exc),
                 }
             else:
                 response['results'] = results
 
         return Response(
             to_json(response),
+            charset='utf-8',
             headerlist=[
                 ('Content-type', 'application/json'),
             ],
@@ -366,7 +367,7 @@ class PreviewCalculationCommand(Command):
         try:
             data = json.loads(data)
         except ValueError as exc:
-            raise HTTPBadRequest(exc.message)
+            raise HTTPBadRequest(exc.doc) from None
 
         # Get the InstrumentVersion
         instrument_version = calculation_set = None
@@ -409,7 +410,7 @@ class PreviewCalculationCommand(Command):
                 data,
             )
         except InstrumentError as exc:
-            raise HTTPBadRequest(exc.message)
+            raise HTTPBadRequest(exc.message) from None
         else:
             return Response(json={
                 'results': results,

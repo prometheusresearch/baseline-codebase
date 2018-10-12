@@ -39,7 +39,7 @@ and string-rendering methods::
     ...     'defaultLocalization': 'en',
     ...     'title': {
     ...         'en': 'Our Test Form',
-    ...         'fr': u'Ma grande forme'
+    ...         'fr': 'Ma grande forme'
     ...     },
     ...     'pages': [
     ...         {
@@ -51,7 +51,7 @@ and string-rendering methods::
     ...                         'fieldId': 'q_fake',
     ...                         'text': {
     ...                             'en': 'What is your favorite word?',
-    ...                             'fr': u'Quel est votre mot préféré?'
+    ...                             'fr': 'Quel est votre mot préféré?'
     ...                         },
     ...                     },
     ...                 },
@@ -61,29 +61,29 @@ and string-rendering methods::
     ... }
     >>> df = DraftForm('foo789', channel, div, FORM)
     >>> df.get_display_name()
-    u'Our Test Form'
-    >>> unicode(df)
-    u'Our Test Form'
+    'Our Test Form'
+    >>> str(df)
+    'Our Test Form'
     >>> str(df)
     'Our Test Form'
     >>> repr(df)
-    "DraftForm(u'foo789', Channel(u'chan135', u'My EDC Application', u'form'), DraftInstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title')))"
+    "DraftForm('foo789', Channel('chan135', 'My EDC Application', 'form'), DraftInstrumentVersion('notreal456', Instrument('fake123', 'My Instrument Title')))"
 
     >>> from copy import deepcopy
     >>> FORM_NOTITLE = deepcopy(FORM)
     >>> FORM_NOTITLE['defaultLocalization'] = 'fr'
     >>> df = DraftForm('foo789', channel, div, FORM_NOTITLE)
     >>> df.get_display_name()
-    u'Ma grande forme'
+    'Ma grande forme'
     >>> del FORM_NOTITLE['title']
     >>> df = DraftForm('foo789', channel, div, FORM_NOTITLE)
     >>> df.get_display_name()
-    u'The InstrumentVersion Title'
+    'The InstrumentVersion Title'
 
     >>> df.as_dict()
-    {'draft_instrument_version': {'parent_instrument_version': None, 'modified_by': u'jay', 'uid': u'notreal456', 'date_modified': datetime.datetime(2014, 5, 22, 0, 0), 'created_by': u'jay', 'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'date_created': datetime.datetime(2014, 5, 22, 0, 0)}, 'uid': u'foo789', 'channel': {'uid': u'chan135', 'presentation_type': u'form', 'title': u'My EDC Application'}}
+    {'uid': 'foo789', 'draft_instrument_version': {'uid': 'notreal456', 'instrument': {'uid': 'fake123', 'title': 'My Instrument Title', 'code': 'fake123', 'status': 'active'}, 'parent_instrument_version': None, 'created_by': 'jay', 'date_created': datetime.datetime(2014, 5, 22, 0, 0), 'modified_by': 'jay', 'date_modified': datetime.datetime(2014, 5, 22, 0, 0)}, 'channel': {'uid': 'chan135', 'title': 'My EDC Application', 'presentation_type': 'form'}}
     >>> df.as_json()
-    u'{"draft_instrument_version": {"parent_instrument_version": null, "modified_by": "jay", "uid": "notreal456", "date_modified": "2014-05-22T00:00:00", "created_by": "jay", "instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "date_created": "2014-05-22T00:00:00"}, "uid": "foo789", "channel": {"uid": "chan135", "presentation_type": "form", "title": "My EDC Application"}}'
+    '{"uid": "foo789", "draft_instrument_version": {"uid": "notreal456", "instrument": {"uid": "fake123", "title": "My Instrument Title", "code": "fake123", "status": "active"}, "parent_instrument_version": null, "created_by": "jay", "date_created": "2014-05-22T00:00:00", "modified_by": "jay", "date_modified": "2014-05-22T00:00:00"}, "channel": {"uid": "chan135", "title": "My EDC Application", "presentation_type": "form"}}'
 
 
 The Channels and DraftInstrumentVersions passed to the constructor must
@@ -100,19 +100,19 @@ actually be instances of those classes or strings containing UIDs::
 
     >>> df = DraftForm('foo789', 'survey', 'draftiv1', FORM)
     >>> df.channel
-    DemoChannel(u'survey', u'RexSurvey', u'form')
+    DemoChannel('survey', 'RexSurvey', 'form')
     >>> df.draft_instrument_version
-    DemoDraftInstrumentVersion(u'draftiv1', DemoInstrument(u'simple', u'Simple Instrument'))
+    DemoDraftInstrumentVersion('draftiv1', DemoInstrument('simple', 'Simple Instrument'))
 
     >>> iv = df.draft_instrument_version.instrument.latest_version
     >>> iv.definition['version'] = '1.3'
     >>> df.configuration['instrument']
-    {'version': '1.1', 'id': 'urn:test-instrument'}
+    {'id': 'urn:test-instrument', 'version': '1.1'}
     >>> form = df.publish(iv)
     >>> form
-    DemoForm(u'fake_form_1', DemoChannel(u'survey', u'RexSurvey', u'form'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
+    DemoForm('fake_form_1', DemoChannel('survey', 'RexSurvey', 'form'), DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1))
     >>> form.configuration['instrument']
-    {'version': '1.3', 'id': 'urn:test-instrument'}
+    {'id': 'urn:test-instrument', 'version': '1.3'}
 
 
 The configuration can be passed to the contructor as either a JSON/YAML-encoded
@@ -129,21 +129,21 @@ The configuration can be set or retrieved as either a JSON/YAML-encoded string
 or a dict equivalent::
 
     >>> df.configuration
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'Our Test Form'}}
-    >>> df.configuration = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'A Different Title'}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'defaultLocalization': 'en', 'title': {'en': 'Our Test Form', 'fr': 'Ma grande forme'}, 'pages': [{'id': 'page1', 'elements': [{'type': 'question', 'options': {'fieldId': 'q_fake', 'text': {'en': 'What is your favorite word?', 'fr': 'Quel est votre mot préféré?'}}}]}]}
+    >>> df.configuration = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': 'Quel est votre mot préféré?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'A Different Title'}}
 
     >>> df.configuration_json
-    u'{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "title": {"en": "A Different Title", "fr": "Ma grande forme"}, "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "What is your favorite word?", "fr": "Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?"}}}]}]}'
+    '{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "title": {"en": "A Different Title", "fr": "Ma grande forme"}, "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "What is your favorite word?", "fr": "Quel est votre mot préféré?"}}}]}]}'
     >>> df.configuration_yaml
-    "instrument: {id: 'urn:test-instrument', version: '1.1'}\ndefaultLocalization: en\ntitle: {en: A Different Title, fr: Ma grande forme}\npages:\n- id: page1\n  elements:\n  - type: question\n    options:\n      fieldId: q_fake\n      text: {en: 'What is your favorite word?', fr: 'Quel est votre mot pr\xc3\x83\xc2\xa9f\xc3\x83\xc2\xa9r\xc3\x83\xc2\xa9?'}"
+    "instrument: {id: 'urn:test-instrument', version: '1.1'}\ndefaultLocalization: en\ntitle: {en: A Different Title, fr: Ma grande forme}\npages:\n- id: page1\n  elements:\n  - type: question\n    options:\n      fieldId: q_fake\n      text: {en: 'What is your favorite word?', fr: 'Quel est votre mot préféré?'}"
 
-    >>> df.configuration_json = u'{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"fr": "Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?", "en": "What is your favorite word?"}, "fieldId": "q_fake"}}], "id": "page1"}], "title": {"fr": "Ma grande forme", "en": "Not an Original Title"}}'
+    >>> df.configuration_json = '{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "defaultLocalization": "en", "pages": [{"elements": [{"type": "question", "options": {"text": {"fr": "Quel est votre mot préféré?", "en": "What is your favorite word?"}, "fieldId": "q_fake"}}], "id": "page1"}], "title": {"fr": "Ma grande forme", "en": "Not an Original Title"}}'
     >>> df.configuration
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'Not an Original Title'}}
+    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': 'Quel est votre mot préféré?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'Not an Original Title'}}
 
-    >>> df.configuration_yaml = 'instrument: {id: \'urn:test-instrument\', version: \'1.1\'}\ndefaultLocalization: en\ntitle: {en: Changed Again, fr: Ma grande forme}\npages:\n- id: page1\n  elements:\n  - type: question\n    options:\n      fieldId: q_fake\n      text: {en: \'What is your favorite word?\', fr: "Quel est votre mot pr\\xC3\\xA9\\\n          f\\xC3\\xA9r\\xC3\\xA9?"}'
+    >>> df.configuration_yaml = 'instrument: {id: \'urn:test-instrument\', version: \'1.1\'}\ndefaultLocalization: en\ntitle: {en: Changed Again, fr: Ma grande forme}\npages:\n- id: page1\n  elements:\n  - type: question\n    options:\n      fieldId: q_fake\n      text: {en: \'What is your favorite word?\', fr: "Quel est votre mot pré\\\n          féré?"}'
     >>> df.configuration
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': 'Ma grande forme', 'en': 'Changed Again'}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'defaultLocalization': 'en', 'title': {'en': 'Changed Again', 'fr': 'Ma grande forme'}, 'pages': [{'id': 'page1', 'elements': [{'type': 'question', 'options': {'fieldId': 'q_fake', 'text': {'en': 'What is your favorite word?', 'fr': 'Quel est votre mot préféré?'}}}]}]}
 
     >>> df.configuration = None
     >>> df.configuration is None
@@ -160,13 +160,13 @@ PresentationAdaptor implementations)::
 
     >>> df.configuration = FORM
     >>> df.adapted_configuration
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'defaultLocalization': 'en', 'pages': [{'elements': [{'type': 'question', 'options': {'text': {'fr': u'Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?', 'en': 'What is your favorite word?'}, 'fieldId': 'q_fake'}}], 'id': 'page1'}], 'title': {'fr': u'Ma grande forme', 'en': 'AN ADAPTED TITLE'}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'defaultLocalization': 'en', 'title': {'en': 'AN ADAPTED TITLE', 'fr': 'Ma grande forme'}, 'pages': [{'id': 'page1', 'elements': [{'type': 'question', 'options': {'fieldId': 'q_fake', 'text': {'en': 'What is your favorite word?', 'fr': 'Quel est votre mot préféré?'}}}]}]}
 
     >>> df.adapted_configuration_json
-    u'{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "title": {"en": "AN ADAPTED TITLE", "fr": "Ma grande forme"}, "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "What is your favorite word?", "fr": "Quel est votre mot pr\xc3\xa9f\xc3\xa9r\xc3\xa9?"}}}]}]}'
+    '{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "defaultLocalization": "en", "title": {"en": "AN ADAPTED TITLE", "fr": "Ma grande forme"}, "pages": [{"id": "page1", "elements": [{"type": "question", "options": {"fieldId": "q_fake", "text": {"en": "What is your favorite word?", "fr": "Quel est votre mot préféré?"}}}]}]}'
 
     >>> df.adapted_configuration_yaml
-    "instrument: {id: 'urn:test-instrument', version: '1.1'}\ndefaultLocalization: en\ntitle: {en: AN ADAPTED TITLE, fr: Ma grande forme}\npages:\n- id: page1\n  elements:\n  - type: question\n    options:\n      fieldId: q_fake\n      text: {en: 'What is your favorite word?', fr: 'Quel est votre mot pr\xc3\x83\xc2\xa9f\xc3\x83\xc2\xa9r\xc3\x83\xc2\xa9?'}"
+    "instrument: {id: 'urn:test-instrument', version: '1.1'}\ndefaultLocalization: en\ntitle: {en: AN ADAPTED TITLE, fr: Ma grande forme}\npages:\n- id: page1\n  elements:\n  - type: question\n    options:\n      fieldId: q_fake\n      text: {en: 'What is your favorite word?', fr: 'Quel est votre mot préféré?'}"
 
 
 DraftForms can be checked for equality. Note that equality is only defined as
@@ -206,4 +206,5 @@ being the same class with the same UID::
     True
     >>> form3 >= form1
     True
+
 

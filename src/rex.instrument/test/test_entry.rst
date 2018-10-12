@@ -44,28 +44,28 @@ and string-rendering methods::
 
     >>> entry = Entry('entry333', assessment, Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), 1, memo='hi mom')
     >>> entry.get_display_name()
-    u'entry333'
-    >>> unicode(entry)
-    u'entry333'
+    'entry333'
+    >>> str(entry)
+    'entry333'
     >>> str(entry)
     'entry333'
     >>> repr(entry)
-    "Entry(u'entry333', Assessment(u'fake123', Subject(u'fake123'), InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1)), u'preliminary')"
+    "Entry('entry333', Assessment('fake123', Subject('fake123'), InstrumentVersion('notreal456', Instrument('fake123', 'My Instrument Title'), 1)), 'preliminary')"
     >>> entry.created_by
-    u'bob'
+    'bob'
     >>> entry.date_created
     datetime.datetime(2014, 5, 22, 12, 34, 56)
     >>> entry.modified_by
-    u'bob'
+    'bob'
     >>> entry.date_modified
     datetime.datetime(2014, 5, 22, 12, 34, 56)
     >>> entry.memo
-    u'hi mom'
+    'hi mom'
 
     >>> entry.as_dict()
-    {'ordinal': 1, 'status': u'in-progress', 'modified_by': u'bob', 'uid': u'entry333', 'date_modified': datetime.datetime(2014, 5, 22, 12, 34, 56), 'created_by': u'bob', 'date_created': datetime.datetime(2014, 5, 22, 12, 34, 56), 'type': u'preliminary'}
+    {'uid': 'entry333', 'ordinal': 1, 'status': 'in-progress', 'type': 'preliminary', 'created_by': 'bob', 'date_created': datetime.datetime(2014, 5, 22, 12, 34, 56), 'modified_by': 'bob', 'date_modified': datetime.datetime(2014, 5, 22, 12, 34, 56)}
     >>> entry.as_json()
-    u'{"ordinal": 1, "status": "in-progress", "modified_by": "bob", "uid": "entry333", "date_modified": "2014-05-22T12:34:56", "created_by": "bob", "date_created": "2014-05-22T12:34:56", "type": "preliminary"}'
+    '{"uid": "entry333", "ordinal": 1, "status": "in-progress", "type": "preliminary", "created_by": "bob", "date_created": "2014-05-22T12:34:56", "modified_by": "bob", "date_modified": "2014-05-22T12:34:56"}'
 
 
 The Assessments passed to the constructor must actually be an instance of that
@@ -78,7 +78,7 @@ class or a string containing a UID::
 
     >>> entry = Entry('entry333', 'assessment1', Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), 1, memo='hi mom')
     >>> entry.assessment
-    DemoAssessment(u'assessment1', DemoSubject(u'subject1'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L))
+    DemoAssessment('assessment1', DemoSubject('subject1'), DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1))
 
 
 The data can be passed to the contructor as either a JSON-encoded string
@@ -92,12 +92,12 @@ The data can be set or retrieved as either a JSON-encoded string or a dict
 equivalent::
 
     >>> entry.data
-    {u'instrument': {u'version': u'1.1', u'id': u'urn:test-instrument'}, u'values': {u'q_fake': {u'value': u'my answer'}}}
-    >>> entry.data = {u'instrument': {u'version': u'1.1', u'id': u'urn:test-instrument'}, u'values': {u'q_fake': {u'value': u'my different answer'}}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'values': {'q_fake': {'value': 'my answer'}}}
+    >>> entry.data = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'value': 'my different answer'}}}
 
     >>> entry.data_json
-    u'{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "values": {"q_fake": {"value": "my different answer"}}}'
-    >>> entry.data_json = u'{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "values": {"q_fake": {"value": "something completely different"}}}'
+    '{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "values": {"q_fake": {"value": "my different answer"}}}'
+    >>> entry.data_json = '{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "values": {"q_fake": {"value": "something completely different"}}}'
 
 
 Entries have date_modified, modified_by, status, and memo properties which are
@@ -118,18 +118,18 @@ both readable and writable::
     datetime.datetime(2014, 6, 1, 0, 0)
 
     >>> entry.modified_by
-    u'bob'
+    'bob'
     >>> entry.modified_by = 'jay'
     >>> entry.modified_by
-    u'jay'
+    'jay'
 
     >>> entry.status
-    u'in-progress'
+    'in-progress'
     >>> entry.is_done
     False
     >>> entry.status = Entry.STATUS_COMPLETE
     >>> entry.status
-    u'complete'
+    'complete'
     >>> entry.is_done
     True
     >>> entry.status = 'something else'
@@ -137,13 +137,13 @@ both readable and writable::
         ...
     ValueError: "something else" is not a valid Entry status
     >>> entry.status
-    u'complete'
+    'complete'
 
     >>> entry.memo
-    u'hi mom'
+    'hi mom'
     >>> entry.memo = 'A long time ago in a galaxy far, far away...'
     >>> entry.memo
-    u'A long time ago in a galaxy far, far away...'
+    'A long time ago in a galaxy far, far away...'
 
 
 Entries have a ``complete()`` method that performs some end-of-data-collection
@@ -153,14 +153,14 @@ tasks on the Entry and its Assessment Data::
     >>> entry = Entry('entry333', assessment, Entry.TYPE_PRELIMINARY, ASSESSMENT, 'bob', datetime(2014, 5, 22, 12, 34, 56), 1, memo='hi mom')
 
     >>> entry.status
-    u'in-progress'
+    'in-progress'
     >>> entry.get_meta('application') is None
     True
     >>> entry.get_meta('dateCompleted') is None
     True
     >>> entry.complete(user)
     >>> entry.status
-    u'complete'
+    'complete'
     >>> 'rex.instrument' in entry.get_meta('application')
     True
     >>> entry.get_meta('dateCompleted') is None
@@ -169,7 +169,7 @@ tasks on the Entry and its Assessment Data::
     >>> entry.complete(user)
     Traceback (most recent call last):
         ...
-    InstrumentError: Cannot complete an Entry that is already in a terminal state.
+    rex.instrument.errors.InstrumentError: Cannot complete an Entry that is already in a terminal state.
 
 
 Entries have some convenience methods for setting and retrieving metadata
@@ -186,13 +186,13 @@ properties on the Assessment Document::
     >>> entry.get_meta('application') is None
     True
     >>> entry.set_application_token('coolapp', '1.0')
-    u'coolapp/1.0'
+    'coolapp/1.0'
     >>> entry.set_application_token('helper')
-    u'coolapp/1.0 helper/?'
+    'coolapp/1.0 helper/?'
     >>> entry.set_application_token('coolapp', '2.0')
-    u'coolapp/2.0 helper/?'
+    'coolapp/2.0 helper/?'
     >>> entry.get_meta('application')
-    u'coolapp/2.0 helper/?'
+    'coolapp/2.0 helper/?'
 
 
 There's a static method on Entry named `generate_empty_data()` that will
@@ -200,7 +200,7 @@ create an Assessment Document that contains no response data, but is in the
 structure expected for the specified InstrumentVersion::
 
     >>> Entry.generate_empty_data(iv)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'value': None}}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'values': {'q_fake': {'value': None}}}
     >>> Entry.validate_data(Entry.generate_empty_data(iv))
 
 
@@ -241,4 +241,5 @@ being the same class with the same UID::
     True
     >>> entry3 >= entry1
     True
+
 

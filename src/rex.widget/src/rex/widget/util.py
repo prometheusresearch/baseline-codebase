@@ -50,7 +50,7 @@ class Undefined(Transitionable):
             cls._instance = object.__new__(cls)
         return cls._instance
 
-    def __nonzero__(self):
+    def __bool__(self):
         return False
 
     def __repr__(self):
@@ -96,7 +96,7 @@ class PropsContainer(MutableMapping):
     def __init__(self, mapping=None):
         self.__dict__['_storage'] = OrderedDict()
         if mapping:
-            for k, v in mapping.items():
+            for k, v in list(mapping.items()):
                 self[k] = v
 
     def __getattr__(self, name):
@@ -148,7 +148,7 @@ def _format_PropsContainer(value, req, path): # pylint: disable=invalid-name
     return value._storage
 
 
-YAML_STR_TAG = u'tag:yaml.org,2002:str'
+YAML_STR_TAG = 'tag:yaml.org,2002:str'
 
 
 def pop_mapping_key(node, key):
@@ -214,7 +214,7 @@ class WidgetClassReference(Validate):
 
 def product_to_pojo(product, db=None):
     with get_db(db):
-        data = ''.join(emit('application/json', product))
+        data = b''.join(emit('application/json', product)).decode('utf-8')
         return json.loads(data)
 
 

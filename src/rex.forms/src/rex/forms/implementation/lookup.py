@@ -23,7 +23,7 @@ class LookupRegistry(object):
 
     def register(self, query):
         hasher = hashlib.sha256()
-        hasher.update(query.strip())
+        hasher.update(query.strip().encode('utf-8'))
         lookup_id = hasher.hexdigest()
 
         self._queries[lookup_id] = query

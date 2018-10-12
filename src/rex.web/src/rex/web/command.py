@@ -11,7 +11,7 @@ from webob.exc import HTTPUnauthorized, HTTPForbidden
 import copy
 
 
-class Parameter(object):
+class Parameter:
     """
     Describes a form parameter.
 
@@ -27,7 +27,7 @@ class Parameter(object):
         are passed as a list.
     """
 
-    class _required_type(object):
+    class _required_type:
         # For the sake of `sphinx.ext.autodoc`.
         def __repr__(self):
             return "REQUIRED"
@@ -80,7 +80,7 @@ class Command(HandleLocation):
         with confine(req, self):
             try:
                 arguments = self.parse(req)
-            except Error, error:
+            except Error as error:
                 # Report the error in the response.
                 return req.get_response(error)
             return self.render(req, **arguments)
@@ -111,7 +111,7 @@ class Command(HandleLocation):
 
         # Reject unknown parameters unless the parameter name starts with `_`.
         valid_keys = set(parameter.name for parameter in self.parameters)
-        for key in req.params.keys():
+        for key in list(req.params.keys()):
             if key in self.path.labels or \
                     not (key in valid_keys or key.startswith('_')):
                 raise Error("Received unexpected parameter:", key)

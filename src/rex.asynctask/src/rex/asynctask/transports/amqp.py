@@ -2,7 +2,7 @@
 # Copyright (c) 2017, Prometheus Research, LLC
 #
 
-from urlparse import urlunparse
+from urllib.parse import urlunparse
 
 from rex.core import Error
 

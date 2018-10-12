@@ -22,59 +22,59 @@ Start with creating a test database, a driver and an application::
 We use ``file`` field to denote an attachment field::
 
     >>> driver.parse("""{ file: consent.consent_form_scan }""")
-    FileFact(u'consent', u'consent_form_scan')
+    FileFact('consent', 'consent_form_scan')
 
 The table name could also be specified using ``of`` field::
 
     >>> driver.parse("""{ file: consent_form_scan, of: consent }""")
-    FileFact(u'consent', u'consent_form_scan')
+    FileFact('consent', 'consent_form_scan')
 
 The table name must be specified once and only once::
 
     >>> driver.parse("""{ file: consent_form_scan }""")
     Traceback (most recent call last):
       ...
-    Error: Got missing table name
+    rex.core.Error: Got missing table name
     While parsing file fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> driver.parse("""{ file: consent.consent_form_scan, of: individual }""")
     Traceback (most recent call last):
       ...
-    Error: Got mismatched table names:
+    rex.core.Error: Got mismatched table names:
         consent, individual
     While parsing file fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 You can indicate any old names of the file using ``was`` clause::
 
     >>> driver.parse("""{ file: consent.file, was: consent_form_scan }""")
-    FileFact(u'consent', u'file', former_labels=[u'consent_form_scan'])
+    FileFact('consent', 'file', former_labels=['consent_form_scan'])
 
 Turn off ``required`` flag to make the field optional::
 
     >>> driver.parse("""{ file: consent.consent_form_scan, required: false }""")
-    FileFact(u'consent', u'consent_form_scan', is_required=False)
+    FileFact('consent', 'consent_form_scan', is_required=False)
 
 You can specify the field title::
 
     >>> driver.parse("""{ file: consent.consent_form_scan, title: Scan of the consent form }""")
-    FileFact(u'consent', u'consent_form_scan', title=u'Scan of the consent form')
+    FileFact('consent', 'consent_form_scan', title='Scan of the consent form')
 
 Turn off the ``present`` flag to remove the field::
 
     >>> driver.parse("""{ file: consent.consent_form_scan, present: false }""")
-    FileFact(u'consent', u'consent_form_scan', is_present=False)
+    FileFact('consent', 'consent_form_scan', is_present=False)
 
 When ``present`` is off, other properties cannot be specified::
 
     >>> driver.parse("""{ file: consent.consent_form_scan, present: false, required: false }""")
     Traceback (most recent call last):
       ...
-    Error: Got unexpected clause:
+    rex.core.Error: Got unexpected clause:
         required
     While parsing file fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 
 Using a file field
@@ -110,10 +110,10 @@ Notably you cannot rename the file table::
     >>> driver("""{ table: attachment, was: file }""")
     Traceback (most recent call last):
       ...
-    Error: Cannot rename table:
+    rex.core.Error: Cannot rename table:
         file
     While deploying table fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 However you can remove the file table, which will also remove the file field::
 

@@ -44,18 +44,18 @@ and string-rendering methods::
     ... }
     >>> assessment = Assessment('fake123', subject, iv, ASSESSMENT)
     >>> assessment.get_display_name()
-    u'fake123'
-    >>> unicode(assessment)
-    u'fake123'
+    'fake123'
+    >>> str(assessment)
+    'fake123'
     >>> str(assessment)
     'fake123'
     >>> repr(assessment)
-    "Assessment(u'fake123', Subject(u'subject1'), InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1))"
+    "Assessment('fake123', Subject('subject1'), InstrumentVersion('notreal456', Instrument('fake123', 'My Instrument Title'), 1))"
 
     >>> assessment.as_dict()
-    {'instrument_version': {'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'published_by': u'jay', 'version': 1, 'uid': u'notreal456', 'date_published': datetime.datetime(2014, 5, 22, 0, 0)}, 'status': u'in-progress', 'uid': u'fake123', 'evaluation_date': None, 'subject': {'uid': u'subject1', 'mobile_tn': None}}
+    {'uid': 'fake123', 'subject': {'uid': 'subject1', 'mobile_tn': None}, 'instrument_version': {'uid': 'notreal456', 'instrument': {'uid': 'fake123', 'title': 'My Instrument Title', 'code': 'fake123', 'status': 'active'}, 'version': 1, 'published_by': 'jay', 'date_published': datetime.datetime(2014, 5, 22, 0, 0)}, 'status': 'in-progress', 'evaluation_date': None}
     >>> assessment.as_json()
-    u'{"instrument_version": {"instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "published_by": "jay", "version": 1, "uid": "notreal456", "date_published": "2014-05-22T00:00:00"}, "status": "in-progress", "uid": "fake123", "evaluation_date": null, "subject": {"uid": "subject1", "mobile_tn": null}}'
+    '{"uid": "fake123", "subject": {"uid": "subject1", "mobile_tn": null}, "instrument_version": {"uid": "notreal456", "instrument": {"uid": "fake123", "title": "My Instrument Title", "code": "fake123", "status": "active"}, "version": 1, "published_by": "jay", "date_published": "2014-05-22T00:00:00"}, "status": "in-progress", "evaluation_date": null}'
 
 
 The Subjects and InstrumentVersions passed to the constructor must actually be
@@ -72,9 +72,9 @@ instances of those classes or strings containing UIDs::
 
     >>> assessment = Assessment('fake123', 'subject1', 'simple1', ASSESSMENT)
     >>> assessment.subject
-    DemoSubject(u'subject1')
+    DemoSubject('subject1')
     >>> assessment.instrument_version
-    DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L)
+    DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1)
 
 
 The Evaluation Date must actually be a date (or datetime)::
@@ -104,12 +104,12 @@ The data can be set or retrieved as either a JSON-encoded string or a dict
 equivalent::
 
     >>> assessment.data
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'value': 'my answer'}}}
-    >>> assessment.data = {u'instrument': {u'version': u'1.1', u'id': u'urn:test-instrument'}, u'values': {u'q_fake': {u'value': u'a different answer'}}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'values': {'q_fake': {'value': 'my answer'}}}
+    >>> assessment.data = {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'value': 'a different answer'}}}
 
     >>> assessment.data_json
-    u'{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "values": {"q_fake": {"value": "a different answer"}}}'
-    >>> assessment.data_json = u'{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "values": {"q_fake": {"value": "something completely different"}}}'
+    '{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "values": {"q_fake": {"value": "a different answer"}}}'
+    >>> assessment.data_json = '{"instrument": {"version": "1.1", "id": "urn:test-instrument"}, "values": {"q_fake": {"value": "something completely different"}}}'
 
     >>> assessment.data = None
     >>> assessment.data is None
@@ -121,12 +121,12 @@ equivalent::
 Assessments have a status property which is readable and writable::
 
     >>> assessment.status
-    u'in-progress'
+    'in-progress'
     >>> assessment.is_done
     False
     >>> assessment.status = Assessment.STATUS_COMPLETE
     >>> assessment.status
-    u'completed'
+    'completed'
     >>> assessment.is_done
     True
     >>> assessment.status = 'something else'
@@ -135,7 +135,7 @@ Assessments have a status property which is readable and writable::
     ValueError: "something else" is not a valid Assessment status
     >>> assessment.status = Assessment.STATUS_IN_PROGRESS
     >>> assessment.status
-    u'in-progress'
+    'in-progress'
 
 
 Assessments have a `complete()` method that performs some end-of-data-collection
@@ -145,14 +145,14 @@ tasks on the Assessment and its Document::
     >>> assessment = Assessment('fake123', subject, iv, '{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "values": {"q_fake": {"value": "my answer"}}}')
 
     >>> assessment.status
-    u'in-progress'
+    'in-progress'
     >>> assessment.get_meta('application') is None
     True
     >>> assessment.get_meta('dateCompleted') is None
     True
     >>> assessment.complete(user)
     >>> assessment.status
-    u'completed'
+    'completed'
     >>> 'rex.instrument' in assessment.get_meta('application')
     True
     >>> assessment.get_meta('dateCompleted') is None
@@ -161,7 +161,7 @@ tasks on the Assessment and its Document::
     >>> assessment.complete(user)
     Traceback (most recent call last):
         ...
-    InstrumentError: Cannot complete an Assessment that is already in a terminal state.
+    rex.instrument.errors.InstrumentError: Cannot complete an Assessment that is already in a terminal state.
 
 
 Assessments have some convenience methods for setting and retrieving metadata
@@ -178,13 +178,13 @@ properties on the Assessment Document::
     >>> assessment.get_meta('application') is None
     True
     >>> assessment.set_application_token('coolapp', '1.0')
-    u'coolapp/1.0'
+    'coolapp/1.0'
     >>> assessment.set_application_token('helper')
-    u'coolapp/1.0 helper/?'
+    'coolapp/1.0 helper/?'
     >>> assessment.set_application_token('coolapp', '2.0')
-    u'coolapp/2.0 helper/?'
+    'coolapp/2.0 helper/?'
     >>> assessment.get_meta('application')
-    u'coolapp/2.0 helper/?'
+    'coolapp/2.0 helper/?'
 
 
 There's a static method on Assessment named ``validate_data()`` that will
@@ -205,29 +205,29 @@ Documents. It will raise an exception if the data is not well-formed::
     >>> Assessment.validate_data(BAD_ASSESSMENT)
     Traceback (most recent call last):
         ...
-    ValidationError: The following problems were encountered when validating this Assessment:
+    rex.instrument.errors.ValidationError: The following problems were encountered when validating this Assessment:
     values: Required
 
     >>> Assessment.validate_data('foo')
     Traceback (most recent call last):
         ...
-    ValidationError: Assessment Documents must be mapped objects.
+    rex.instrument.errors.ValidationError: Assessment Documents must be mapped objects.
 
     >>> Assessment.validate_data('{foo')  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    ValidationError: Invalid JSON/YAML provided: Failed to parse a YAML document:
+    rex.instrument.errors.ValidationError: Invalid JSON/YAML provided: Failed to parse a YAML document:
         ...
 
     >>> Assessment.validate_data(ASSESSMENT, instrument_definition='foo')
     Traceback (most recent call last):
         ...
-    ValidationError: Instrument Definitions must be mapped objects.
+    rex.instrument.errors.ValidationError: Instrument Definitions must be mapped objects.
 
     >>> Assessment.validate_data(ASSESSMENT, instrument_definition='{foo')  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    ValidationError: Invalid Instrument JSON/YAML provided: Failed to parse a YAML document:
+    rex.instrument.errors.ValidationError: Invalid Instrument JSON/YAML provided: Failed to parse a YAML document:
         ...
 
 
@@ -236,15 +236,15 @@ create an Assessment Document that contains no response data, but is in the
 structure expected for the specified InstrumentVersion::
 
     >>> Assessment.generate_empty_data(iv)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'value': None}}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'values': {'q_fake': {'value': None}}}
     >>> Assessment.validate_data(Assessment.generate_empty_data(iv))
 
     >>> Assessment.generate_empty_data(INSTRUMENT)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'value': None}}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'values': {'q_fake': {'value': None}}}
     >>> Assessment.validate_data(Assessment.generate_empty_data(INSTRUMENT))
 
     >>> Assessment.generate_empty_data(INSTRUMENT_JSON)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'value': None}}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'values': {'q_fake': {'value': None}}}
     >>> Assessment.validate_data(Assessment.generate_empty_data(INSTRUMENT_JSON))
 
     >>> Assessment.generate_empty_data('foo')
@@ -285,7 +285,7 @@ structure expected for the specified InstrumentVersion::
     ... })
     >>> iv2 = InstrumentVersion('notreal456', instrument, MATRIX_INSTRUMENT, 1, 'jay', datetime(2014, 5, 22))
     >>> Assessment.generate_empty_data(iv2)
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'values': {'q_fake': {'value': None}, 'q_matrix': {'value': {'row1': {'col2': {'value': None}, 'col1': {'value': None}}, 'row2': {'col2': {'value': None}, 'col1': {'value': None}}}}}}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'values': {'q_fake': {'value': None}, 'q_matrix': {'value': {'row1': {'col1': {'value': None}, 'col2': {'value': None}}, 'row2': {'col1': {'value': None}, 'col2': {'value': None}}}}}}
     >>> Assessment.validate_data(Assessment.generate_empty_data(iv2))
 
 
@@ -327,4 +327,5 @@ being the same class with the same UID::
     True
     >>> assessment3 >= assessment1
     True
+
 

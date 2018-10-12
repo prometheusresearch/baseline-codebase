@@ -76,7 +76,7 @@ class RexHTSQL(HTSQL):
                     command = "\n".join(lines)
                     try:
                         product = produce(command, environment, **parameters)
-                    except HTSQLError, error:
+                    except HTSQLError as error:
                         error.wrap("While executing",
                                    "%s, line %s" % (name, idx+1))
                         raise
@@ -123,7 +123,7 @@ class RexHTSQL(HTSQL):
         `environ`
             WSGI ``environ`` object or ``Request`` object.
         """
-        if isinstance(environ, (str, unicode)):
+        if isinstance(environ, str):
             content_type = environ
             if '/' not in content_type:
                 content_type = "x-htsql/"+content_type

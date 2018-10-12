@@ -10,7 +10,7 @@
 
 """
 
-from __future__ import absolute_import
+
 
 from webob import Response
 from webob.exc import HTTPMethodNotAllowed
@@ -93,7 +93,7 @@ class WizardWidgetBase(Widget):
 
         domain = instruction.visit(self.path, _visit, self.domain)
         self.states = domain
-        for k, v in self.actions.items():
+        for k, v in list(self.actions.items()):
             self.actions[k] = v.with_domain(domain)
 
     def _resolve_action(self, ref):
@@ -126,7 +126,7 @@ class WizardWidgetBase(Widget):
             ]
             params_bind = {
                 k: v.id if is_entity(v) else v
-                for k, v in params.items() if not k.lower() == 'user'
+                for k, v in list(params.items()) if not k.lower() == 'user'
             }
 
             entity_cache_key = '%s__%s__%s' % (
@@ -158,7 +158,7 @@ class WizardWidgetBase(Widget):
                     self._port_cache[port_cache_key] = None
 
             if port is not None:
-                product = port.produce((u'*', entity.id), **params_bind)
+                product = port.produce(('*', entity.id), **params_bind)
 
                 data = product_to_pojo(product)[entity.type]
                 data = data[0] if data else None
@@ -172,9 +172,9 @@ class WizardWidgetBase(Widget):
         data = validate_req(req.json_body)
 
         update = {}
-        for id, context in data.items():
+        for id, context in list(data.items()):
             next_context = {}
-            for k, v in context.items():
+            for k, v in list(context.items()):
                 if is_entity(v):
                     next_context[k] = refetch(v, params=context)
                 else:
@@ -427,7 +427,7 @@ class WizardBase(WizardWidgetBase, ActionBase):
                     ActionMapVal(action_map=wizard.actions))
             actions = dict(wizard.actions)
             domain = wizard.domain
-            for k, v in override.items():
+            for k, v in list(override.items()):
                 if not k in actions:
                     raise Error('Unknown action override:', k)
                 if isinstance(v, ActionBase):
@@ -436,7 +436,7 @@ class WizardBase(WizardWidgetBase, ActionBase):
                     for v in v:
                         actions[k] = v(actions[k])
                 domain = domain.merge(actions[k].domain)
-            for k, v in actions.items():
+            for k, v in list(actions.items()):
                 actions[k] = v.with_domain(domain)
             path = instruction.override(wizard.path, actions)
             next_wizard = wizard.derive(path=path, actions=actions)
@@ -450,7 +450,7 @@ class WizardBase(WizardWidgetBase, ActionBase):
     def with_domain(self, domain):
         actions = {
             ref: action.with_domain(domain)
-            for ref, action in self.actions.items()
+            for ref, action in list(self.actions.items())
         }
         wizard = self.__validated_clone__(__domain=domain, actions=actions)
         return wizard
@@ -464,8 +464,8 @@ class Wizard(WizardBase):
 
 
 def update_context_with_spec(context_type, spec, orig_context_type):
-    context_type = typing.RecordType(context_type.rows.values())
-    for k, v in spec.items():
+    context_type = typing.RecordType(list(context_type.rows.values()))
+    for k, v in list(spec.items()):
         if v.startswith('$'):
             orig_k = v[1:]
             row = orig_context_type.rows[orig_k]
@@ -479,6 +479,6 @@ def update_context_with_spec(context_type, spec, orig_context_type):
 def visit_wizards(wizard, visitor, path=None):
     path = path or ()
     visitor(wizard, path)
-    for key, action in wizard.actions.items():
+    for key, action in list(wizard.actions.items()):
         if isinstance(action, WizardBase):
             visit_wizards(action, visitor, path=path + (key,))

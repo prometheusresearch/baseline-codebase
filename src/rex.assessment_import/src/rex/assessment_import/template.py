@@ -16,19 +16,19 @@ class Template(object):
         return self.chunks.get(id)
 
     def __iter__(self):
-        return iter(self.chunks.items())
+        return iter(list(self.chunks.items()))
 
     def make(self, instrument):
         for chunk_id, chunk_field in instrument:
             self.make_defaults(chunk_id, instrument.defaults)
             if chunk_field.base_type == 'record':
                 self.make_defaults(chunk_id, instrument.context)
-            for _, field in chunk_field.fields.items():
+            for _, field in list(chunk_field.fields.items()):
                 self.make_field(chunk_id, field)
 
     def make_defaults(self, chunk_id, fields):
         template = self.chunks.get(chunk_id) or OrderedDict()
-        for field_id, field in fields.items():
+        for field_id, field in list(fields.items()):
             required = field.get('required')
             type = field.get('type')
             description = field.get('description')

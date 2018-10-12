@@ -62,7 +62,7 @@ Parsing types::
   >>> validate('individual[unknown]') # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected a string matching:
+  rex.core.Error: Expected a string matching:
       /[a-zA-Z_][a-zA-Z_\-0-9]*/
   Got:
       'individual[unknown]'
@@ -121,7 +121,7 @@ Row type::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Row type expects a single definition
+  rex.core.Error: Row type expects a single definition
   While parsing:
       "<...>", line 2
 
@@ -150,7 +150,7 @@ Row type disallows some of row names::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Invalid name for a rowtype (you need to pick another one):
+  rex.core.Error: Invalid name for a rowtype (you need to pick another one):
       user
   While parsing:
       "<...>", line 2
@@ -160,7 +160,7 @@ Row type disallows some of row names::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Invalid name for a rowtype (you need to pick another one):
+  rex.core.Error: Invalid name for a rowtype (you need to pick another one):
       USER
   While parsing:
       "<...>", line 2
@@ -170,7 +170,7 @@ Row type disallows some of row names::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Invalid name for a rowtype (you need to pick another one):
+  rex.core.Error: Invalid name for a rowtype (you need to pick another one):
       UsEr
   While parsing:
       "<...>", line 2
@@ -180,7 +180,7 @@ Row type disallows some of row names::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Invalid name for a rowtype (you need to pick another one):
+  rex.core.Error: Invalid name for a rowtype (you need to pick another one):
       user
   While parsing:
       "<...>", line 2
@@ -241,7 +241,7 @@ Record type::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Duplicate row name in type:
+  rex.core.Error: Duplicate row name in type:
       individual
   While parsing:
       "<...>", line 2

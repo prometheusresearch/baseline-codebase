@@ -19,7 +19,7 @@ class Users(object):
 
     def add(self, code, name, enabled=True):
         """Adds a new user."""
-        user_id = self.user_domain.dump((unicode(code),))
+        user_id = self.user_domain.dump((str(code),))
         db = get_db()
         with db, db.transaction():
             data = self.port.produce(('user', 'eq', user_id)).data
@@ -31,7 +31,7 @@ class Users(object):
 
     def enable(self, code, enabled=True):
         """Enables or disables a user."""
-        user_id = self.user_domain.dump((unicode(code),))
+        user_id = self.user_domain.dump((str(code),))
         db = get_db()
         with db, db.transaction():
             data = self.port.produce(('user', 'eq', user_id)).data

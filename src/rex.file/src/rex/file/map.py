@@ -48,7 +48,7 @@ class MapFile(Map):
         return spec
 
 
-class FileRenderer(object):
+class FileRenderer:
 
     def __init__(self, port, access, unsafe):
         self.port = port
@@ -69,7 +69,7 @@ class FileRenderer(object):
                 handle = handle_id[0]
                 storage = get_storage()
                 return storage.route(handle)(req)
-            except Error, error:
+            except Error as error:
                 return req.get_response(error)
 
     def authorize(self, req):

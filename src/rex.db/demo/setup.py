@@ -24,7 +24,7 @@ class demo(Command):
         connection.executescript(sql)
         connection.commit()
         cmd = "rex shell rex.db_demo --set db=sqlite:../sandbox/db_demo.sqlite"
-        print "$", cmd
+        print("$", cmd)
         os.spawnvp(0, cmd.split()[0], cmd.split())
 
 setup(

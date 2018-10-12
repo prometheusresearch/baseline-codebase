@@ -35,17 +35,11 @@ class EmbedValue(Embed):
 
 class EmbedUntyped(Embed):
 
-    adapt_many(str, unicode)
+    adapt(str)
 
     def __call__(self):
         data = self.data
-        if isinstance(data, str):
-            try:
-                data = data.decode('utf-8')
-            except UnicodeDecodeError:
-                raise TypeError("a string is expected to be encoded in UTF-8:"
-                                " %s" % repr(data))
-        if u"\0" in data:
+        if "\0" in data:
             raise TypeError("a string should not contain a NIL character:"
                             " %s" % repr(data))
         return Value(UntypedDomain(), data)
@@ -53,7 +47,7 @@ class EmbedUntyped(Embed):
 
 class EmbedNull(Embed):
 
-    adapt(types.NoneType)
+    adapt(type(None))
 
     def __call__(self):
         return Value(UntypedDomain(), None)
@@ -69,7 +63,7 @@ class EmbedBoolean(Embed):
 
 class EmbedInteger(Embed):
 
-    adapt_many(int, long)
+    adapt_many(int, int)
 
     def __call__(self):
         return Value(IntegerDomain(), self.data)

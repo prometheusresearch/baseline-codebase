@@ -25,14 +25,14 @@ def create_fieldset_from_value(value, _key=None):
     if isinstance(value, dict):
         return formfield.Fieldset(
             value_key=_key,
-            fields=[create_fieldset_from_value(v, _key=[k]) for k, v in value.items()])
+            fields=[create_fieldset_from_value(v, _key=[k]) for k, v in list(value.items())])
     elif isinstance(value, list):
         merged = {}
         for item in value:
             merged.update(item)
         return formfield.List(
             value_key=_key,
-            fields=[create_fieldset_from_value(v, _key=[k]) for k, v in merged.items()])
+            fields=[create_fieldset_from_value(v, _key=[k]) for k, v in list(merged.items())])
     else:
         return formfield.StringFormField(value_key=_key)
 

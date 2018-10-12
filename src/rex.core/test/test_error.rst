@@ -16,12 +16,12 @@ The exception constructor takes the error message and optional payload::
     >>> raise Error("Got no money!")
     Traceback (most recent call last):
       ...
-    Error: Got no money!
+    rex.core.Error: Got no money!
 
     >>> raise Error("Found no product:", "beer")
     Traceback (most recent call last):
       ...
-    Error: Found no product:
+    rex.core.Error: Found no product:
         beer
 
 The error may contain multiple paragraphs::
@@ -30,12 +30,13 @@ The error may contain multiple paragraphs::
     >>> where = "refrigerator #%s" % 3
     >>> try:
     ...     raise Error("Found no product:", product)
-    ... except Error as error:
+    ... except Error as _error:
+    ...     error = _error
     ...     error.wrap("While looking in:", where)
     ...     raise
     Traceback (most recent call last):
       ...
-    Error: Found no product:
+    rex.core.Error: Found no product:
         beer
     While looking in:
         refrigerator #3
@@ -53,12 +54,12 @@ Errors have WSGI interface and are rendered either in ``text/plain`` or
     >>> setup_testing_defaults(environ)
 
     >>> def start_response(status, headers, exc_info=None):
-    ...     print status
+    ...     print(status)
     ...     for key, value in headers:
-    ...         print "%s: %s" % (key, value)
-    ...     print
+    ...         print("%s: %s" % (key, value))
+    ...     print()
 
-    >>> print "".join(error(environ, start_response))
+    >>> print(b"".join(error(environ, start_response)).decode('utf-8'))
     400 Bad Request
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 131
@@ -71,7 +72,7 @@ Errors have WSGI interface and are rendered either in ``text/plain`` or
         refrigerator #3
 
     >>> environ['HTTP_ACCEPT'] = 'text/html'
-    >>> print "".join(error(environ, start_response))
+    >>> print(b"".join(error(environ, start_response)).decode('utf-8'))
     400 Bad Request
     Content-Type: text/html; charset=UTF-8
     Content-Length: 275
@@ -102,7 +103,7 @@ Errors have WSGI interface and are rendered either in ``text/plain`` or
     ...     raise Error("Found no product:", product)
     Traceback (most recent call last):
       ...
-    Error: Found no product:
+    rex.core.Error: Found no product:
         beer
     While looking in:
         refrigerator #3
@@ -147,5 +148,6 @@ We can also get a list of tags::
     {'project': 'rex.core_demo', 'version': '1.0.0'}
 
     >>> os.environ = _environ
+
 
 

@@ -16,7 +16,7 @@ class demo(Command):
     def run(self):
         import os
         cmd = "rex deploy rex.file_demo"
-        print "$", cmd
+        print("$", cmd)
         os.spawnvp(0, cmd.split()[0], cmd.split())
 
 setup(

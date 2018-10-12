@@ -95,7 +95,7 @@ class DraftSetResource(SimpleResource, BaseResource):
             # Create the draft forms
             handler = DraftFormResource._SimpleResource__base_handler()
             forms = {}
-            for channel_uid, form in payload.get('forms', {}).items():
+            for channel_uid, form in list(payload.get('forms', {}).items()):
                 fake_request_payload = {
                     'channel': channel_uid,
                     'draft_instrument_version': div['uid'],
@@ -104,7 +104,7 @@ class DraftSetResource(SimpleResource, BaseResource):
                 fake_request = FakeRequest(fake_request_payload, user)
                 forms[channel_uid] = handler.create(fake_request)
         except (Error, InstrumentValidationError, FormValidationError) as exc:
-            raise HTTPBadRequest(unicode(exc))
+            raise HTTPBadRequest(str(exc))
         return {
             'instrument_version': div,
             'forms': forms,
@@ -188,7 +188,7 @@ class DraftSetResource(SimpleResource, BaseResource):
                 output_calc = None
 
             # Update the forms
-            submitted_forms = set(payload.get('forms', {}).keys())
+            submitted_forms = payload.get('forms', {}).keys()
             handler = DraftFormResource()
             for draft_form in draft_forms:
                 channel_uid = draft_form.channel.uid
@@ -205,7 +205,9 @@ class DraftSetResource(SimpleResource, BaseResource):
                     draft_form.delete()
 
             handler = DraftFormResource._SimpleResource__base_handler()
-            for channel_uid in (submitted_forms - presented_forms):
+            for channel_uid in submitted_forms:
+                if channel_uid in presented_forms:
+                    continue
                 config = payload.get('forms', {})[channel_uid]['configuration']
                 form_payload = {
                     'channel': channel_uid,
@@ -216,7 +218,7 @@ class DraftSetResource(SimpleResource, BaseResource):
                 output_forms[channel_uid] = handler.create(fake_request)
 
         except (Error, InstrumentValidationError, FormValidationError) as exc:
-            raise HTTPBadRequest(unicode(exc))
+            raise HTTPBadRequest(str(exc))
         result = {
             'instrument_version': output_div,
             'forms': output_forms,
@@ -266,21 +268,21 @@ class DraftSetPublishResource(RestfulLocation):
             for draft_form in draft_forms:
                 draft_form.validate()
         except (InstrumentValidationError, FormValidationError) as exc:
-            raise HTTPBadRequest(unicode(exc))
+            raise HTTPBadRequest(str(exc))
 
         try:
             instrument_version = div.publish(user)
         except InstrumentError as exc:
             return {
                 'status': 'ERROR',
-                'error': unicode(exc),
+                'error': str(exc),
             }
 
         if dcs:
             try:
                 calc = dcs.publish(instrument_version)
             except InstrumentError as exc:
-                raise HTTPBadRequest(unicode(exc))
+                raise HTTPBadRequest(str(exc))
         else:
             calc = None
 
@@ -295,7 +297,7 @@ class DraftSetPublishResource(RestfulLocation):
             except FormError as exc:
                 return {
                     'status': 'ERROR',
-                    'error': unicode(exc),
+                    'error': str(exc),
                 }
 
         result = {
@@ -403,7 +405,7 @@ class DraftSetSkeletonResource(RestfulLocation, BaseResource):
                 fake_request = FakeRequest(fake_request_payload, user)
                 forms[channel_uid] = handler.create(fake_request)
         except (Error, InstrumentValidationError, FormValidationError) as exc:
-            raise HTTPBadRequest(unicode(exc))
+            raise HTTPBadRequest(str(exc))
 
         return {
             'instrument_version': div,

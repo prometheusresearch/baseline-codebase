@@ -17,10 +17,10 @@ import fnmatch
 
 class IntrospectPGSQL(Introspect):
 
-    system_schema_names = [u'pg_*', u'information_schema']
+    system_schema_names = ['pg_*', 'information_schema']
     system_table_names = []
-    system_column_names = [u'tableoid', u'cmax', u'xmax',
-                           u'cmin', u'xmin', u'ctid']
+    system_column_names = ['tableoid', 'cmax', 'xmax',
+                           'cmin', 'xmin', 'ctid']
 
     def __call__(self):
         connection = connect()
@@ -176,7 +176,7 @@ class IntrospectPGSQLDomain(Protocol):
 
     @classmethod
     def __dispatch__(component, schema_name, name, *args, **kwds):
-        return (schema_name.encode('utf-8'), name.encode('utf-8'))
+        return (schema_name, name)
 
     @classmethod
     def __matches__(component, dispatch_key):

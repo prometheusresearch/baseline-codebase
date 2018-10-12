@@ -35,8 +35,8 @@ class Authorized(Command):
             # assuming we always resolve URLs to the same app instance
             if not access.startswith(req.host_url):
                 access = req.host_url + access
-            mounts = req.environ['rex.mount'].items()
-            mounts = sorted(mounts, key=lambda (k, v): -len(v))
+            mounts = list(req.environ['rex.mount'].items())
+            mounts = sorted(mounts, key=lambda k_v: -len(k_v[1]))
             for pkg, prefix in mounts:
                 if access.startswith(prefix):
                     access = pkg + ':' + access[len(prefix):]

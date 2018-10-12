@@ -8,14 +8,14 @@ from ..fmt.format import Format
 from ..syn.syntax import Syntax
 
 
-class Command(object):
+class Command:
     pass
 
 
 class UniversalCmd(Command):
 
     def __init__(self, query):
-        assert isinstance(query, (str, unicode))
+        assert isinstance(query, str)
         self.query = query
 
 

@@ -33,13 +33,13 @@ Pie chart
     ... """)
 
     >>> pie_chart.config.label
-    Expression(title=u'Label', expression=u'label_expression')
+    Expression(title='Label', expression='label_expression')
 
     >>> pie_chart.config.value
-    Expression(title=None, expression=u'value_expression')
+    Expression(title=None, expression='value_expression')
 
     >>> pie_chart.expressions()
-    [Expression(title=u'Label', expression=u'label_expression'), Expression(title=None, expression=u'value_expression')]
+    [Expression(title='Label', expression='label_expression'), Expression(title=None, expression='value_expression')]
 
 Line chart
 ----------
@@ -56,13 +56,13 @@ Line chart
     ... """)
 
     >>> line_chart.config.label
-    Expression(title=u'Label', expression=u'label_expression')
+    Expression(title='Label', expression='label_expression')
 
     >>> line_chart.config.lines
-    [Record(value=Expression(title=None, expression=u'line_expression'), color=undefined)]
+    [Record(value=Expression(title=None, expression='line_expression'), color=undefined)]
 
     >>> line_chart.expressions()
-    [Expression(title=u'Label', expression=u'label_expression'), Expression(title=None, expression=u'line_expression')]
+    [Expression(title='Label', expression='label_expression'), Expression(title=None, expression='line_expression')]
 
 Area chart
 ----------
@@ -79,13 +79,13 @@ Area chart
     ... """)
 
     >>> area_chart.config.label
-    Expression(title=u'Label', expression=u'label_expression')
+    Expression(title='Label', expression='label_expression')
 
     >>> area_chart.config.areas
-    [Record(value=Expression(title=None, expression=u'area_expression'), color=undefined)]
+    [Record(value=Expression(title=None, expression='area_expression'), color=undefined)]
 
     >>> area_chart.expressions()
-    [Expression(title=u'Label', expression=u'label_expression'), Expression(title=None, expression=u'area_expression')]
+    [Expression(title='Label', expression='label_expression'), Expression(title=None, expression='area_expression')]
 
 Bar chart
 ---------
@@ -102,13 +102,13 @@ Bar chart
     ... """)
 
     >>> bar_chart.config.label
-    Expression(title=u'Label', expression=u'label_expression')
+    Expression(title='Label', expression='label_expression')
 
     >>> bar_chart.config.bars
-    [Record(value=Expression(title=None, expression=u'bar_expression'), color=undefined)]
+    [Record(value=Expression(title=None, expression='bar_expression'), color=undefined)]
 
     >>> bar_chart.expressions()
-    [Expression(title=u'Label', expression=u'label_expression'), Expression(title=None, expression=u'bar_expression')]
+    [Expression(title='Label', expression='label_expression'), Expression(title=None, expression='bar_expression')]
 
 Tear down the environment::
 

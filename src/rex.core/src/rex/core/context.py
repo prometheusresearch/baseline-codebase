@@ -36,7 +36,7 @@ class RexContext(threading.local):
         assert self._active_app is not None, "no active RexDB application"
         return self._active_app
 
-    def __nonzero__(self):
+    def __bool__(self):
         return (self._active_app is not None)
 
 

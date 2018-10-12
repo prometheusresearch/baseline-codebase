@@ -15,25 +15,25 @@ The LocaleVal validator takes in a POSIX/RFC5646 locale identifier or a Babel
     >>> validator = LocaleVal()
 
     >>> validator('en')
-    Locale(u'en')
+    Locale('en')
     >>> validator('en_GB')
-    Locale(u'en', territory=u'GB')
+    Locale('en', territory='GB')
     >>> validator('en_GB.UTF-8')
-    Locale(u'en', territory=u'GB')
+    Locale('en', territory='GB')
     >>> validator('en-GB')
-    Locale(u'en', territory=u'GB')
+    Locale('en', territory='GB')
     >>> validator('zh-Hans')
-    Locale(u'zh', script=u'Hans')
+    Locale('zh', script='Hans')
 
     >>> validator('foobar')
     Traceback (most recent call last):
         ...
-    Error: expected a POSIX or RFC5646 locale identifier, got 'foobar'
+    rex.core.Error: expected a POSIX or RFC5646 locale identifier, got 'foobar'
 
     >>> validator('blah(blah')
     Traceback (most recent call last):
         ...
-    Error: expected a POSIX or RFC5646 locale identifier, got 'blah(blah'
+    rex.core.Error: expected a POSIX or RFC5646 locale identifier, got 'blah(blah'
 
     >>> from babel import Locale
     >>> validator(Locale.parse('en'))
@@ -55,7 +55,7 @@ The TimeoneVal validator takes in a Olsen Timzone name string or pytz
     >>> validator('foobar').zone
     Traceback (most recent call last):
         ...
-    Error: expected an IANA TZ identifier, got 'foobar'
+    rex.core.Error: expected an IANA TZ identifier, got 'foobar'
 
     >>> from pytz import timezone
     >>> validator(timezone('America/New_York')).zone

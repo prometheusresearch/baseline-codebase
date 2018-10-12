@@ -187,8 +187,8 @@ e.g.::
     LatentRex('rex.ctl_demo')
     >>> from rex.db import get_db
     >>> for user in get_db().produce('/user'):
-    ...     print user
-    ...
+    ...     print(user)
+    ... 
     user(code=u'alice@rexdb.com', name=u'Alice Amter', enabled=True)
     user(code=u'bob@rexdb.com', name=u'Bob Barker', enabled=False)
     user(code=u'carol@rexdb.com', name=u'Carol Costello', enabled=True)
@@ -592,5 +592,6 @@ Finally, let's look at ``rex demo-user-add``::
 This task has two arguments ``<code>`` and ``<name>`` and a toggle
 ``--disabled``.  Their values are stored as attributes ``self.code``,
 ``self.name`` and ``self.disabled`` on the task instance.
+
 
 

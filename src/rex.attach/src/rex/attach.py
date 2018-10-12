@@ -31,28 +31,25 @@ def sanitize_filename(filename):
     Any non-alphanumeric characters are removed; the length is restricted
     to 128 bytes.
     """
-    assert isinstance(filename, (str, unicode))
-    # Work in unicode so that `\w` matches non-Latin characters.
-    if not isinstance(filename, unicode):
-        filename = filename.decode('utf-8', 'replace')
+    assert isinstance(filename, str)
     # Strip whitespaces and non-alphanumeric characters.
     filename = os.path.basename(filename)
     filename = filename.strip()
-    filename = filename.replace(u' ', u'_')
-    filename = re.sub(r'[^\w.-]', u'', filename, flags=re.U)
+    filename = filename.replace(' ', '_')
+    filename = re.sub(r'[^\w.-]', '', filename, flags=re.U)
     # Deal with weird names.
-    if not filename or filename.startswith(u'.'):
-        filename = u'_'+filename
-    if u'.' not in filename or filename.endswith(u'.'):
-        filename = filename+u'.dat'
+    if not filename or filename.startswith('.'):
+        filename = '_'+filename
+    if '.' not in filename or filename.endswith('.'):
+        filename = filename+'.dat'
     # Limit the length.
     while len(filename.encode('utf-8')) > 128:
         l = len(filename)
-        filename = filename[:l/3]+u'...'+filename[-l/3:]
-    return filename.encode('utf-8')
+        filename = filename[:l//3]+'...'+filename[-l//3:]
+    return filename
 
 
-class OpenFileApp(object):
+class OpenFileApp:
     # Like `webob.static.FileApp`, but takes an open file object instead.
 
     def __init__(self, file):
@@ -82,7 +79,7 @@ class OpenFileApp(object):
                 conditional_response=True)
 
 
-class LocalStorage(object):
+class LocalStorage:
     """
     Stores attachments in the local file system.
 
@@ -120,6 +117,8 @@ class LocalStorage(object):
 
         Returns an opaque attachment handle.
         """
+        if isinstance(content, str):
+            content = content.encode('utf-8')
         # Sanitize the file name.
         name = sanitize_filename(name)
         # The directory where we save the file:
@@ -158,11 +157,9 @@ class LocalStorage(object):
     def abspath(self, handle):
         # Converts an attachment handle to a path.  Verifies that the handle
         # is well-formed, but does not check if the file exists.
-        if isinstance(handle, str):
-            handle = handle.decode('utf-8', 'replace')
         if not self.handle_re.match(handle):
-            raise Error("Ill-formed attachment handle:", handle.encode('utf-8'))
-        return os.path.join(self.attach_dir, handle.encode('utf-8')[1:])
+            raise Error("Ill-formed attachment handle:", handle)
+        return os.path.join(self.attach_dir, handle[1:])
 
     def open(self, handle):
         """
@@ -175,7 +172,7 @@ class LocalStorage(object):
             return open(path, 'rb')
         except IOError:
             if not os.path.exists(path):
-                raise Error("Attachment does not exist:", handle)
+                raise Error("Attachment does not exist:", handle) from None
             raise
 
     def remove(self, handle):
@@ -222,7 +219,7 @@ class LocalStorage(object):
         """
         # Emit all files that have a well-formed handle for a path.
         for handle in self._listdir(self.attach_dir):
-            if self.handle_re.match(handle.decode('utf-8', 'replace')):
+            if self.handle_re.match(handle):
                 yield handle
 
     def _listdir(self, base_dir):
@@ -331,7 +328,7 @@ class AttachmentVal(Validate):
                 data.filename is not None and data.file is not None):
             return self.Attachment(data.filename, data.file)
         if (isinstance(data, tuple) and len(data) == 2 and
-                isinstance(data[0], (str, unicode)) and
+                isinstance(data[0], str) and
                 hasattr(data[1], 'read')):
             return self.Attachment(*data)
         error = Error("Expected an uploaded file")

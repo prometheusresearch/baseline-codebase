@@ -19,8 +19,8 @@ response object::
     >>> req = Request.blank('/')
 
     >>> with templating:
-    ...     print render_to_response('templating:/templates/hello.html', req,
-    ...                              name='World')
+    ...     print(render_to_response('templating:/templates/hello.html', req,
+    ...                              name='World'))         # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 64
@@ -32,8 +32,8 @@ response object::
 You can override status code and content type of the response::
 
     >>> with templating:
-    ...     print render_to_response('templating:/templates/404.html_t', req,
-    ...                              status=404, content_type='text/html')
+    ...     print(render_to_response('templating:/templates/404.html_t', req,
+    ...                              status=404, content_type='text/html'))     # doctest: +NORMALIZE_WHITESPACE
     404 Not Found
     Content-Type: text/html; charset=UTF-8
     Content-Length: 40
@@ -45,9 +45,9 @@ If the content type is not set and cannot be guessed from the extension,
 the default is used::
 
     >>> with templating:
-    ...     print render_to_response('templating:/templates/data.tmpl', req)
+    ...     print(render_to_response('templating:/templates/data.tmpl', req))   # doctest: +NORMALIZE_WHITESPACE
     200 OK
-    Content-Type: application/octet-stream; charset=UTF-8
+    Content-Type: application/octet-stream
     Content-Length: 47
     <BLANKLINE>
     This template has an undetermined content type.
@@ -55,10 +55,10 @@ the default is used::
 Standard Jinja error is raised when a template cannot be found::
 
     >>> with templating:
-    ...     print render_to_response('templating:/templates/not-found.html', req)
+    ...     print(render_to_response('templating:/templates/not-found.html', req))
     Traceback (most recent call last):
       ...
-    TemplateNotFound: templating:/templates/not-found.html
+    jinja2.exceptions.TemplateNotFound: templating:/templates/not-found.html
 
 
 Path resolution
@@ -70,7 +70,7 @@ package paths::
     >>> req = Request.blank('/')
 
     >>> templating.on()
-    >>> print render_to_response('templating:/templates/relative.html', req)
+    >>> print(render_to_response('templating:/templates/relative.html', req))   # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 126
@@ -78,7 +78,7 @@ package paths::
     <!DOCTYPE html>
     <title>base.html</title>
     <body><p>This template uses a relative path to refer to the base template.</p></body>
-    >>> print render_to_response('templating:/templates/absolute.html', req)
+    >>> print(render_to_response('templating:/templates/absolute.html', req))   # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 138
@@ -86,7 +86,7 @@ package paths::
     <!DOCTYPE html>
     <title>/templates/base.html</title>
     <body><p>This template uses an absolute path to refer to the base template.</p></body>
-    >>> print render_to_response('templating:/templates/package.html', req)
+    >>> print(render_to_response('templating:/templates/package.html', req))    # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 152
@@ -106,7 +106,7 @@ directory are rendered as Jinja templates::
     >>> req = Request.blank('/templating/?name=Alice')
     >>> req.remote_user = 'Bob'
 
-    >>> print req.get_response(templating)
+    >>> print(req.get_response(templating))     # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 286
@@ -124,7 +124,7 @@ Each template gets a number of parameters::
     >>> req = Request.blank('/templating/parameters.html?dummy=1')
     >>> req.remote_user = 'Alice'
 
-    >>> print req.get_response(templating)      # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(templating))      # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/html; charset=UTF-8
     ...
@@ -135,11 +135,12 @@ Each template gets a number of parameters::
     <p><code>MOUNT:</code><code>{...}</code></p>
     <p><code>PACKAGE:</code><code>templating</code></p>
     <p><code>PACKAGE_URL:</code><code>http://localhost/templating</code></p>
-    <p><code>PARAMS:</code><code>NestedMultiDict([(u&#39;dummy&#39;, u&#39;1&#39;)])</code></p>
+    <p><code>PARAMS:</code><code>NestedMultiDict([(&#39;dummy&#39;, &#39;1&#39;)])</code></p>
     <p><code>PATH:</code><code>/templating/parameters.html</code></p>
     <p><code>PATH_QS:</code><code>/templating/parameters.html?dummy=1</code></p>
     <p><code>PATH_URL:</code><code>http://localhost/templating/parameters.html</code></p>
     <p><code>REQUEST:</code><code>GET /templating/parameters.html?dummy=1 HTTP/1.0
+    Content-Length: 0
     Host: localhost:80</code></p>
     <p><code>SETTINGS:</code><code>SettingCollection(...)</code></p>
     <p><code>URL:</code><code>http://localhost/templating/parameters.html?dummy=1</code></p>
@@ -154,11 +155,11 @@ Filter ``json`` serializes input to JSON::
 
     >>> req = Request.blank('/')
     >>> with templating:
-    ...     print render_to_response('templating:/templates/json.js_t', req,
+    ...     print(render_to_response('templating:/templates/json.js_t', req,
     ...                              content_type='application/javascript',
-    ...                              input={'name': "Alice", 'sex': "f"})
+    ...                              input={'name': "Alice", 'sex': "f"}))      # doctest: +NORMALIZE_WHITESPACE
     200 OK
-    Content-Type: application/javascript; charset=UTF-8
+    Content-Type: application/javascript
     Content-Length: 42
     <BLANKLINE>
     var input = {"name": "Alice", "sex": "f"};
@@ -167,10 +168,10 @@ The output of ``json`` is safe to use in a ``<script>`` block::
 
     >>> req = Request.blank('/')
     >>> with templating:
-    ...     print render_to_response('templating:/templates/json_in_script.html', req,
+    ...     print(render_to_response('templating:/templates/json_in_script.html', req,
     ...                              tag={'start': "<title>",
     ...                                   'end': "</title>",
-    ...                                   'content': "Alice, Bob & Carl"})
+    ...                                   'content': "Alice, Bob & Carl"}))     # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 196
@@ -178,14 +179,14 @@ The output of ``json`` is safe to use in a ``<script>`` block::
     <!DOCTYPE html>
     <title>Testing JSON in &lt;script&gt; block</title>
     <script>
-      var tag = {"content": "Alice, Bob \u0026 Carl", "start": "\u003ctitle\u003e", "end": "\u003c/title\u003e"};
+      var tag = {"content": "Alice, Bob \u0026 Carl", "end": "\u003c/title\u003e", "start": "\u003ctitle\u003e"};
     </script>
 
 Filter ``urlencode`` percent-encodes the value::
 
     >>> with templating:
-    ...     print render_to_response('templating:/templates/urlencode.html', req,
-    ...                              name=u"Alice, Bob & Carl")             # doctest: +ELLIPSIS
+    ...     print(render_to_response('templating:/templates/urlencode.html', req,
+    ...                              name="Alice, Bob & Carl"))             # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <a href="/hello?Alice%2C%20Bob%20%26%20Carl">Hello, Alice, Bob &amp; Carl!</a>
@@ -194,18 +195,18 @@ The ``urlencode`` filter accepts regular and Unicode strings, dictionaries and
 lists of pairs:
 
     >>> with templating:
-    ...     print render_to_response('templating:/templates/urlencode.html', req,
-    ...                              name={"name": "Alice, Bob & Carl"})    # doctest: +ELLIPSIS
+    ...     print(render_to_response('templating:/templates/urlencode.html', req,
+    ...                              name={"name": "Alice, Bob & Carl"}))   # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <a href="/hello?name=Alice%2C%20Bob%20%26%20Carl">Hello, {&#39;name&#39;: &#39;Alice, Bob &amp; Carl&#39;}!</a>
 
 
     >>> with templating:
-    ...     print render_to_response('templating:/templates/urlencode.html', req,
+    ...     print(render_to_response('templating:/templates/urlencode.html', req,
     ...                              name=[("name", "Alice"),
     ...                                    ("name", "Bob"),
-    ...                                    ("name", "Carl")])               # doctest: +ELLIPSIS
+    ...                                    ("name", "Carl")]))              # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <a href="/hello?name=Alice&name=Bob&name=Carl">Hello, [(&#39;name&#39;, &#39;Alice&#39;), (&#39;name&#39;, &#39;Bob&#39;), (&#39;name&#39;, &#39;Carl&#39;)]!</a>
@@ -213,8 +214,8 @@ lists of pairs:
 Non-string values are converted to a string before encoding::
 
     >>> with templating:
-    ...     print render_to_response('templating:/templates/urlencode.html', req,
-    ...                              name=None)                             # doctest: +ELLIPSIS
+    ...     print(render_to_response('templating:/templates/urlencode.html', req,
+    ...                              name=None))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <a href="/hello?None">Hello, None!</a>
@@ -222,7 +223,7 @@ Non-string values are converted to a string before encoding::
 Filter ``url`` converts a package URL to an absolute URL::
 
     >>> req = Request.blank('/templating/url.html')
-    >>> print req.get_response(templating)              # doctest: +ELLIPSIS
+    >>> print(req.get_response(templating))              # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     <p><a href="http://localhost/templating/index.html">Local link</a></p>
@@ -233,10 +234,11 @@ Filter ``url`` converts a package URL to an absolute URL::
 Filter ``url`` raises an error if the package URL refers to an unknown package::
 
     >>> req = Request.blank('/templating/bad_url.html')
-    >>> print req.get_response(templating)
+    >>> print(req.get_response(templating))
     Traceback (most recent call last):
       ...
-    Error: Could not find the mount point for:
+    rex.core.Error: Could not find the mount point for:
         bad_package:index.html
+
 
 

@@ -15,7 +15,7 @@ used within the ``urlmap.yaml`` or ``menu.yaml``::
   ...         path = req.path_info[4:] if req.path_info.startswith('/@@/') \
   ...                                  else None
   ...         res = render_widget(widget, req, no_chrome=True, path=path)
-  ...         print ''.join(res.body)
+  ...         print(res.body.decode('utf-8'))
   >>> render(DBGUI(), '/') # doctest: +ELLIPSIS
   ["~#widget", ["rex-dbgui", "DBGUI", {"tableWizard": ["~#request_url", ["http://localhost/@@/2.tableWizard"]], "rootWizard":...
 
@@ -41,3 +41,4 @@ internal data using the same entry point::
     ]
   }
   ...
+

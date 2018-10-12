@@ -38,10 +38,10 @@ class Assessment(
     """
 
     #: The Assessment is not yet complete.
-    STATUS_IN_PROGRESS = u'in-progress'
+    STATUS_IN_PROGRESS = 'in-progress'
 
     #: The Assessment is complete.
-    STATUS_COMPLETE = u'completed'
+    STATUS_COMPLETE = 'completed'
 
     #: All valid values that the status property can be assigned.
     ALL_STATUSES = (
@@ -74,12 +74,12 @@ class Assessment(
         """
 
         # Make sure we're working with a dict.
-        if isinstance(data, basestring):
+        if isinstance(data, str):
             try:
                 data = AnyVal().parse(data)
             except Error as exc:
                 raise ValidationError(
-                    'Invalid JSON/YAML provided: %s' % unicode(exc)
+                    'Invalid JSON/YAML provided: %s' % str(exc)
                 )
         if not isinstance(data, dict):
             raise ValidationError(
@@ -87,7 +87,7 @@ class Assessment(
             )
 
         if instrument_definition:
-            if isinstance(instrument_definition, basestring):
+            if isinstance(instrument_definition, str):
                 try:
                     instrument_definition = AnyVal().parse(
                         instrument_definition
@@ -95,7 +95,7 @@ class Assessment(
                 except Error as exc:
                     raise ValidationError(
                         'Invalid Instrument JSON/YAML provided: %s' % (
-                            unicode(exc),
+                            str(exc),
                         )
                     )
             if not isinstance(instrument_definition, dict):
@@ -110,7 +110,7 @@ class Assessment(
                 'The following problems were encountered when validating this'
                 ' Assessment:',
             ]
-            for key, details in exc.asdict().items():
+            for key, details in list(exc.asdict().items()):
                 msg.append('%s: %s' % (
                     key or '<root>',
                     details,
@@ -140,7 +140,7 @@ class Assessment(
                 definition = AnyVal().parse(instrument_version)
             except Error as exc:
                 raise ValueError(
-                    'Invalid JSON/YAML provided: %s' % unicode(exc)
+                    'Invalid JSON/YAML provided: %s' % str(exc)
                 )
         if not isinstance(definition, dict):
             raise TypeError(
@@ -367,13 +367,13 @@ class Assessment(
             status=None):
         self._uid = to_unicode(uid)
 
-        if not isinstance(subject, (Subject, basestring)):
+        if not isinstance(subject, (Subject, str)):
             raise ValueError(
                 'subject must be an instance of Subject or a UID of one'
             )
         self._subject = subject
 
-        if not isinstance(instrument_version, (InstrumentVersion, basestring)):
+        if not isinstance(instrument_version, (InstrumentVersion, str)):
             raise ValueError(
                 'instrument_version must be an instance of InstrumentVersion'
                 ' or a UID of one'
@@ -381,7 +381,7 @@ class Assessment(
         else:
             self._instrument_version = instrument_version
 
-        if isinstance(data, basestring):
+        if isinstance(data, str):
             self._data = AnyVal().parse(data)
         else:
             self._data = deepcopy(data)
@@ -409,7 +409,7 @@ class Assessment(
         :rtype: InstrumentVersion
         """
 
-        if isinstance(self._instrument_version, basestring):
+        if isinstance(self._instrument_version, str):
             iv_impl = get_implementation('instrumentversion')
             return iv_impl.get_by_uid(self._instrument_version)
         else:
@@ -423,7 +423,7 @@ class Assessment(
         :rtype: Subject
         """
 
-        if isinstance(self._subject, basestring):
+        if isinstance(self._subject, str):
             subject_impl = get_implementation('subject')
             return subject_impl.get_by_uid(self._subject)
         else:

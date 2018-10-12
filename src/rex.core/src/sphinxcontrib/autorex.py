@@ -36,7 +36,7 @@ class AutoRexDirective(Directive):
 
     def run(self):
         env = self.state.document.settings.env
-        extension_name = self.arguments[0].encode('utf-8')
+        extension_name = self.arguments[0]
         package_name = self.options.get('package')
         project_name = self.options.get('project', package_name)
         noindex = 'noindex' in self.options

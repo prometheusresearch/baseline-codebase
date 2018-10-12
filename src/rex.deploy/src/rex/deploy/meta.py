@@ -13,7 +13,21 @@ import collections
 import yaml
 
 
-class Meta(object):
+class MetaMeta(type):
+
+    def __new__(mcls, name, bases, members):
+        cls = type.__new__(mcls, name, bases, members)
+        if cls.__dict__.get('fields'):
+            if 'validate' not in cls.__dict__:
+                cls.validate = RecordVal(cls.fields)
+            for field in cls.fields:
+                name = field[0]
+                getter = operator.attrgetter("spec.%s" % name)
+                setattr(cls, name, property(getter, doc=""))
+        return cls
+
+
+class Meta(metaclass=MetaMeta):
     """
     Database entity metadata.
     """
@@ -22,19 +36,6 @@ class Meta(object):
 
     fields = []
     validate = None
-
-    class __metaclass__(type):
-
-        def __new__(mcls, name, bases, members):
-            cls = type.__new__(mcls, name, bases, members)
-            if cls.__dict__.get('fields'):
-                if 'validate' not in cls.__dict__:
-                    cls.validate = RecordVal(cls.fields)
-                for field in cls.fields:
-                    name = field[0]
-                    getter = operator.attrgetter("spec.%s" % name)
-                    setattr(cls, name, property(getter, doc=""))
-            return cls
 
     @classmethod
     def parse(cls, text):

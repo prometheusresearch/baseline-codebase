@@ -23,20 +23,20 @@ Set up the environment::
     >>> def show_job(code):
     ...     data = get_db().produce("/job.filter(code=$code)", code=code)
     ...     if not data:
-    ...         print 'Job #%s Not Found' % (code,)
+    ...         print('Job #%s Not Found' % (code,))
     ...     else:
     ...         job = data[0]
-    ...         print 'Job #%s: status=%s,%s type=%s, dates=%s' % (
+    ...         print('Job #%s: status=%s,%s type=%s, dates=%s' % (
     ...             job.code,
     ...             job.status,
     ...             (' detail="%s",' % (job.status_detail,)) if job.status_detail else '',
     ...             job.type,
     ...             ','.join([x for x in [job.date_submitted and 'Submitted', job.date_started and 'Started', job.date_completed and 'Completed'] if x]),
-    ...         )
+    ...         ))
 
     >>> def show_facet(code, name):
     ...     data = get_db().produce('/%s[$code]{*}' % (name,), code=code)
-    ...     print data[0] if data else 'No Record Found'
+    ...     print(data[0] if data else 'No Record Found')
 
     >>> get_settings().asynctask_workers
     {'rex_job_0': Record(worker='job_executor', rate_max_calls=None, rate_period=None)}
@@ -84,13 +84,13 @@ Process the tasks::
 
     >>> JobExecutorWorker().process({'code': 2})
     INFO:JobExecutorWorker:Processing Job #2
-    DEBUG:JobExecutorWorker:Executing job #2 for owner "test" with payload: {u'foo': 123}
+    DEBUG:JobExecutorWorker:Executing job #2 for owner "test" with payload: {'foo': 123}
     INFO:SlowExecutor:SlowExecutor executed!
     INFO:JobExecutorWorker:Job #2 complete
     >>> show_job(2)
     Job #2: status=completed, type=demo_slow, dates=Submitted,Started,Completed
     >>> show_facet(2, 'slow')
-    slow(job=ID(2L), my_value=123L)
+    slow(job=ID(2), my_value=123)
 
     >>> JobExecutorWorker().process({'code': 3})  # doctest: +ELLIPSIS
     INFO:JobExecutorWorker:Processing Job #3
@@ -98,7 +98,7 @@ Process the tasks::
     ERROR:JobExecutorWorker:Job #3 failed
     Traceback (most recent call last):
     ...
-    Error: I crashed :(
+    rex.core.Error: I crashed :(
     INFO:JobExecutorWorker:Job #3 complete
     >>> show_job(3)
     Job #3: status=failed, detail="I crashed :(", type=demo_fragile, dates=Submitted,Started,Completed
@@ -161,4 +161,5 @@ Clean up::
     Job #6: status=new, type=demo_fast, dates=Submitted
 
     >>> rex.off()
+
 

@@ -196,7 +196,7 @@ class RestfulLocation(Command):
             super(RestfulLocation, cls).sanitize()
 
             # Make sure there's at least one verb implemented.
-            for method in cls._METHOD_MAP.values():
+            for method in list(cls._METHOD_MAP.values()):
                 if hasattr(cls, method):
                     break
             else:
@@ -253,7 +253,7 @@ class RestfulLocation(Command):
         payload = {}
         method = request.method.upper()
 
-        if method in RestfulLocation._PAYLOAD_METHODS.keys():
+        if method in list(RestfulLocation._PAYLOAD_METHODS.keys()):
             content_type = request.headers.get('Content-Type')
             if content_type and request.body:
                 serializer = Serializer.get_for_mime_type(content_type)
@@ -266,7 +266,7 @@ class RestfulLocation(Command):
                         raise HTTPBadRequest(
                             'The incoming payload could not be deserialized'
                             ' (%s)' % (
-                                unicode(exc),
+                                str(exc),
                             )
                         )
 
@@ -279,7 +279,7 @@ class RestfulLocation(Command):
             except Error as exc:
                 raise HTTPBadRequest(
                     'The incoming payload failed validation (%s)' % (
-                        unicode(exc),
+                        str(exc),
                     )
                 )
 
@@ -297,7 +297,7 @@ class RestfulLocation(Command):
         try:
             return self.parse(RestfulLocation._FakeRequest(request))
         except Error as exc:
-            raise HTTPBadRequest(unicode(exc))
+            raise HTTPBadRequest(str(exc))
 
     def __call__(self, request, **kwargs):  # pylint: disable=arguments-differ
         start = datetime.now()
@@ -316,10 +316,10 @@ class RestfulLocation(Command):
             if cors_response.state == http_response.ResponseState.END:
                 err = None
                 if cors_response.error:
-                    err = {'error': unicode(cors_response.error)}
+                    err = {'error': str(cors_response.error)}
                 response = self.make_response(request, err)
                 response.status = cors_response.status
-                for key, value in cors_response.headers.items():
+                for key, value in list(cors_response.headers.items()):
                     response.headers[key] = value
                 self._log_response(response, start)
                 return response
@@ -342,16 +342,16 @@ class RestfulLocation(Command):
             with confine(request, self):
                 response = implementation(request, **kwargs)
 
-        except HTTPException, exc:
+        except HTTPException as exc:
             response = {
-                'error': unicode(exc),
+                'error': str(exc),
             }
             status = getattr(exc, 'status', 500)
 
         if not isinstance(response, Response):
             response = self.make_response(request, response)
             response.status = status
-        for key, value in cors_headers.items():
+        for key, value in list(cors_headers.items()):
             response.headers[key] = value
 
         self._log_response(response, start)
@@ -378,34 +378,35 @@ class RestfulLocation(Command):
 
         return Response(
             response_payload,
+            charset='utf-8',
             content_type=serializer.mime_type,
         )
 
     def _log_request(self, request):
         self._request_logger.info(
-            u'%s %s',
+            '%s %s',
             request.method,
             request.path_qs,
         )
-        for name, value in request.headers.items():
+        for name, value in list(request.headers.items()):
             self._request_logger.debug(
-                u'%s: %s',
+                '%s: %s',
                 name,
                 value,
             )
         if request.body:
-            self._request_logger.info(request.body)
+            self._request_logger.info(request.body.decode('utf-8', 'replace'))
 
     def _log_response(self, response, start_time=None):
         self._response_logger.info(response.status)
-        for name, value in response.headers.items():
+        for name, value in list(response.headers.items()):
             self._response_logger.debug(
-                u'%s: %s',
+                '%s: %s',
                 name,
                 value,
             )
         if response.body:
-            self._response_logger.info(response.body)
+            self._response_logger.info(response.body.decode('utf-8', 'replace'))
         if start_time:
             self._response_logger.info(
                 'Request processed in: %s',
@@ -433,7 +434,7 @@ class RestfulLocation(Command):
     def _get_supported_methods(self):
         return [
             meth
-            for meth, func_name in RestfulLocation._METHOD_MAP.items()
+            for meth, func_name in list(RestfulLocation._METHOD_MAP.items())
             if getattr(self, func_name, None)
         ]
 

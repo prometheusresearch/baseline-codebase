@@ -66,7 +66,7 @@ class FactorialCmd(Command):
         f = 1
         for k in range(1, n+1):
             f *= k
-        return Response(json={"n": n, "n!": f})
+        return Response(json={"n!": f})
 
 
 class FibonacciCmd(Command):
@@ -82,7 +82,7 @@ class FibonacciCmd(Command):
         q = 1
         for k in range(n):
             p, q = q, p+q
-        return Response(json={"n": n, "fib": p})
+        return Response(json={"fib": p})
 
 
 class UnsafeCmd(Command):

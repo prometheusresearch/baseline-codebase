@@ -27,8 +27,8 @@ def embed(values):
     # Converts raw values to `Value` instances.
     try:
         return [Embed.__invoke__(value) for value in values]
-    except TypeError, exc:
-        raise Error("Cannot recognize value:", str(exc))
+    except TypeError as exc:
+        raise Error("Cannot recognize value:", str(exc)) from None
 
 
 def clarify(domains, values):
@@ -59,8 +59,8 @@ def clarify(domains, values):
                         value)
         try:
             return convert(value.data)
-        except ValueError, exc:
-            raise Error("Failed to convert value to %s:" % domain, str(exc))
+        except ValueError as exc:
+            raise Error("Failed to convert value to %s:" % domain, str(exc)) from None
 
 
 def locate(state, scope, value):
@@ -80,7 +80,7 @@ def locate(state, scope, value):
         try:
             rops = domain.parse(value.data)
         except ValueError:
-            raise Error("Failed to convert value to %s:" % domain, value)
+            raise Error("Failed to convert value to %s:" % domain, value) from None
     else:
         raise Error("Failed to convert value of type %s to %s:"
                     % (value.domain, domain), value)
@@ -178,7 +178,7 @@ class Condition(Extension):
         raise NotImplementedError()
 
 
-class ReferenceCondition(object):
+class ReferenceCondition:
     # Implements a reference definition.
 
     @classmethod
@@ -220,7 +220,7 @@ class ReferenceCondition(object):
         return binding
 
 
-class FilterCondition(object):
+class FilterCondition:
     # Implements a conditional filter expression on an entity arm.
 
     @classmethod
@@ -263,7 +263,7 @@ class FilterCondition(object):
         return binding
 
 
-class TopSkipCondition(object):
+class TopSkipCondition:
     # Takes a slice of a plural entity.
 
     @classmethod
@@ -447,8 +447,8 @@ class SortCondition(Condition):
     kind = (ColumnArm, SyntaxArm)
 
     def __call__(self, binding, scope):
-        [argument] = clarify([EnumDomain([u'asc', u'desc'])], self.arguments)
-        direction = +1 if argument == u'asc' else -1
+        [argument] = clarify([EnumDomain(['asc', 'desc'])], self.arguments)
+        direction = +1 if argument == 'asc' else -1
         condition = DirectionBinding(scope, direction, scope.syntax)
         return SortBinding(binding, [condition], None, None, binding.syntax)
 

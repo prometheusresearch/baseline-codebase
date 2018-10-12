@@ -123,7 +123,7 @@ class DraftFormPublishResource(RestfulLocation):
         except FormError as exc:
             return {
                 'status': 'ERROR',
-                'error': unicode(exc),
+                'error': str(exc),
             }
 
         else:

@@ -16,7 +16,7 @@ Set up the environment::
     >>> db = get_db()
 
     >>> def print_query(query):
-    ...     print "".join(db.emit('text/plain', db.produce(query)))
+    ...     print(b"".join(db.emit('text/plain', db.produce(query))).decode('utf-8'))
     >>> def purge_table(table):
     ...     db.produce('/%s{id()}/:delete' % table)
 
@@ -27,7 +27,7 @@ import_tabular_data
 The import_tabular_data() function will load a data file into the specified
 table::
 
-    >>> TEST_CSV = get_packages().open('rex.tabular_import_demo:/data/all_column_types.csv').read()
+    >>> TEST_CSV = get_packages().open('rex.tabular_import_demo:/data/all_column_types.csv', 'rb').read()
     >>> purge_table('all_column_types')
     >>> print_query('/all_column_types')
      | All Column Types                                                                                                                              |
@@ -67,42 +67,42 @@ If you specify a bogus file format, it will complain::
 
 If the input data is missing columns, it will complain::
 
-    >>> TEST_MISSING_CSV = get_packages().open('rex.tabular_import_demo:/data/all_column_types_missing.csv').read()
+    >>> TEST_MISSING_CSV = get_packages().open('rex.tabular_import_demo:/data/all_column_types_missing.csv', 'rb').read()
     >>> import_tabular_data('all_column_types', TEST_MISSING_CSV, FILE_FORMAT_CSV)
     Traceback (most recent call last):
         ...
-    TabularImportError: Incoming dataset is missing columns: json_field, enum_field
+    rex.tabular_import.error.TabularImportError: Incoming dataset is missing columns: enum_field, json_field
 
 If the input data has extra columns, it will complain::
 
-    >>> TEST_EXTRA_CSV = get_packages().open('rex.tabular_import_demo:/data/all_column_types_extra.csv').read()
+    >>> TEST_EXTRA_CSV = get_packages().open('rex.tabular_import_demo:/data/all_column_types_extra.csv', 'rb').read()
     >>> import_tabular_data('all_column_types', TEST_EXTRA_CSV, FILE_FORMAT_CSV)
     Traceback (most recent call last):
         ...
-    TabularImportError: Incoming dataset describes extra columns: foo_bar
+    rex.tabular_import.error.TabularImportError: Incoming dataset describes extra columns: foo_bar
 
 If the input data has duplicated columns, it will complain::
 
-    >>> TEST_DUPE_CSV = get_packages().open('rex.tabular_import_demo:/data/all_column_types_duplicate.csv').read()
+    >>> TEST_DUPE_CSV = get_packages().open('rex.tabular_import_demo:/data/all_column_types_duplicate.csv', 'rb').read()
     >>> import_tabular_data('all_column_types', TEST_DUPE_CSV, FILE_FORMAT_CSV)
     Traceback (most recent call last):
         ...
-    TabularImportError: Incoming dataset has duplicate column headers
+    rex.tabular_import.error.TabularImportError: Incoming dataset has duplicate column headers
 
 If the input data has jagged record sizes (some/all records are missing or have
 extra columns, it will complain::
 
-    >>> TEST_JAGGED_CSV = get_packages().open('rex.tabular_import_demo:/data/all_column_types_jagged.csv').read()
+    >>> TEST_JAGGED_CSV = get_packages().open('rex.tabular_import_demo:/data/all_column_types_jagged.csv', 'rb').read()
     >>> import_tabular_data('all_column_types', TEST_JAGGED_CSV, FILE_FORMAT_CSV)
     Traceback (most recent call last):
         ...
-    TabularImportError: Errors occurred while importing the records
+    rex.tabular_import.error.TabularImportError: Errors occurred while importing the records
         1: Incorrect number of columns
 
 If the fields contain data that cannot be cast to the appropriate datatype,
 it will complain::
 
-    >>> TEST_BADFORMAT_CSV = get_packages().open('rex.tabular_import_demo:/data/all_column_types_badformats.csv').read()
+    >>> TEST_BADFORMAT_CSV = get_packages().open('rex.tabular_import_demo:/data/all_column_types_badformats.csv', 'rb').read()
 
     >>> purge_table('all_column_types')
     >>> print_query('/all_column_types')
@@ -116,7 +116,7 @@ it will complain::
     >>> import_tabular_data('all_column_types', TEST_BADFORMAT_CSV, FILE_FORMAT_CSV)
     Traceback (most recent call last):
         ...
-    TabularImportError: Errors occurred while importing the records
+    rex.tabular_import.error.TabularImportError: Errors occurred while importing the records
         2: Failed to adapt value of enum_field to enum('foo', 'bar', 'baz'): 'blah'
         3: Failed to adapt value of json_field to json: '{'
         4: Failed to adapt value of datetime_field to datetime: '1980-05-22 noon'
@@ -139,7 +139,7 @@ When inserting empty values into fields with default values, the default
 behavior is to follow the input file strictly and insert NULL values into the
 fields::
 
-    >>> TEST_REQUIRED_CSV = get_packages().open('rex.tabular_import_demo:/data/required_tests.csv').read()
+    >>> TEST_REQUIRED_CSV = get_packages().open('rex.tabular_import_demo:/data/required_tests.csv', 'rb').read()
     >>> purge_table('required_tests')
     >>> print_query('/required_tests')
      | Required Tests                                                                           |
@@ -192,7 +192,7 @@ be stored::
 
 When inserting empty values into required fields, it will complain::
 
-    >>> TEST_REQMISSING_CSV = get_packages().open('rex.tabular_import_demo:/data/required_tests_missing.csv').read()
+    >>> TEST_REQMISSING_CSV = get_packages().open('rex.tabular_import_demo:/data/required_tests_missing.csv', 'rb').read()
     >>> purge_table('required_tests')
     >>> print_query('/required_tests')
      | Required Tests                                                                           |
@@ -205,7 +205,7 @@ When inserting empty values into required fields, it will complain::
     >>> import_tabular_data('required_tests', TEST_REQMISSING_CSV, FILE_FORMAT_CSV)  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    TabularImportError: Errors occurred while importing the records
+    rex.tabular_import.error.TabularImportError: Errors occurred while importing the records
         1: Got ... from the database driver: null value in column "is_required" violates not-null constraint
     DETAIL:  Failing row contains (7, 1, null, null, bar, null).
         2: Got ... from the database driver: null value in column "is_required_with_default" violates not-null constraint
@@ -235,7 +235,7 @@ not have a default value::
     >>> import_tabular_data('required_tests', TEST_REQMISSING_CSV, FILE_FORMAT_CSV, use_defaults=True)  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    TabularImportError: Errors occurred while importing the records
+    rex.tabular_import.error.TabularImportError: Errors occurred while importing the records
         1: Got ... from the database driver: null value in column "is_required" violates not-null constraint
     DETAIL:  Failing row contains (9, 1, null, null, bar, foo).
 
@@ -250,7 +250,7 @@ not have a default value::
 When inserting non-unique values into unique-constrained fields, it will
 complain::
 
-    >>> TEST_UNIQUE_CSV = get_packages().open('rex.tabular_import_demo:/data/unique_tests.csv').read()
+    >>> TEST_UNIQUE_CSV = get_packages().open('rex.tabular_import_demo:/data/unique_tests.csv', 'rb').read()
     >>> purge_table('unique_tests')
     >>> import_tabular_data('unique_tests', TEST_UNIQUE_CSV, FILE_FORMAT_CSV)
     1
@@ -263,11 +263,11 @@ complain::
     <BLANKLINE>
     <BLANKLINE>
 
-    >>> TEST_UNIQUE_BAD_CSV = get_packages().open('rex.tabular_import_demo:/data/unique_tests_bad.csv').read()
+    >>> TEST_UNIQUE_BAD_CSV = get_packages().open('rex.tabular_import_demo:/data/unique_tests_bad.csv', 'rb').read()
     >>> import_tabular_data('unique_tests', TEST_UNIQUE_BAD_CSV, FILE_FORMAT_CSV)  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    TabularImportError: Errors occurred while importing the records
+    rex.tabular_import.error.TabularImportError: Errors occurred while importing the records
         1: Got ... from the database driver: duplicate key value violates unique constraint "unique_tests__pk"
     DETAIL:  Key (code)=(1) already exists.
         2: Got ... from the database driver: duplicate key value violates unique constraint "unique_tests__is_unique__uk"
@@ -285,7 +285,7 @@ complain::
 
 blah::
 
-    >>> TEST_TRUNK_CSV = get_packages().open('rex.tabular_import_demo:/data/trunk.csv').read()
+    >>> TEST_TRUNK_CSV = get_packages().open('rex.tabular_import_demo:/data/trunk.csv', 'rb').read()
     >>> purge_table('trunk')
     >>> import_tabular_data('trunk', TEST_TRUNK_CSV, FILE_FORMAT_CSV)
     2
@@ -299,7 +299,7 @@ blah::
     <BLANKLINE>
     <BLANKLINE>
 
-    >>> TEST_BRANCH_CSV = get_packages().open('rex.tabular_import_demo:/data/branch.csv').read()
+    >>> TEST_BRANCH_CSV = get_packages().open('rex.tabular_import_demo:/data/branch.csv', 'rb').read()
     >>> purge_table('branch')
     >>> import_tabular_data('branch', TEST_BRANCH_CSV, FILE_FORMAT_CSV)
     3
@@ -314,11 +314,11 @@ blah::
     <BLANKLINE>
     <BLANKLINE>
 
-    >>> TEST_BRANCHBAD_CSV = get_packages().open('rex.tabular_import_demo:/data/branch_badlink.csv').read()
+    >>> TEST_BRANCHBAD_CSV = get_packages().open('rex.tabular_import_demo:/data/branch_badlink.csv', 'rb').read()
     >>> import_tabular_data('branch', TEST_BRANCHBAD_CSV, FILE_FORMAT_CSV)
     Traceback (most recent call last):
         ...
-    TabularImportError: Errors occurred while importing the records
+    rex.tabular_import.error.TabularImportError: Errors occurred while importing the records
         1: Unable to resolve a link: trunk[3]
     >>> print_query('/branch')
      | Branch                    |
@@ -331,11 +331,11 @@ blah::
     <BLANKLINE>
     <BLANKLINE>
 
-    >>> TEST_BRANCHBADUNIQ_CSV = get_packages().open('rex.tabular_import_demo:/data/branch_nonunique.csv').read()
+    >>> TEST_BRANCHBADUNIQ_CSV = get_packages().open('rex.tabular_import_demo:/data/branch_nonunique.csv', 'rb').read()
     >>> import_tabular_data('branch', TEST_BRANCHBADUNIQ_CSV, FILE_FORMAT_CSV)  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    TabularImportError: Errors occurred while importing the records
+    rex.tabular_import.error.TabularImportError: Errors occurred while importing the records
         1: Got ... from the database driver: duplicate key value violates unique constraint "branch_pk"
     DETAIL:  Key (trunk_id, code)=(1, 1) already exists.
         2: Got ... from the database driver: duplicate key value violates unique constraint "branch_pk"
@@ -355,4 +355,5 @@ blah::
 
 
     >>> rex.off()
+
 

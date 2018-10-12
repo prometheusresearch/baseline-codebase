@@ -32,7 +32,7 @@ and returns the variables created by the CalculationScopeAddons::
     >>> assessment_impl = get_implementation('assessment')
     >>> assessment = assessment_impl.get_by_uid('assessment1')
     >>> CalculationScopeAddon.get_addon_scope('python', assessment)
-    {'subject_status': u'completed', 'test_variable': u'assessment1'}
+    {'subject_status': 'completed', 'test_variable': 'assessment1'}
 
 
 A utility context manager named ``global_calculation_scope`` can be used by
@@ -46,7 +46,7 @@ calculations::
 
     >>> with global_calculation_scope(assessment):
     ...     subject_status
-    u'completed'
+    'completed'
 
     >>> subject_status
     Traceback (most recent call last):

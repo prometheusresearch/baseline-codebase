@@ -71,7 +71,7 @@ class PreviewCalculationCommand(Command):
         try:
             data = json.loads(data)
         except ValueError as exc:
-            raise HTTPBadRequest(exc.message)
+            raise HTTPBadRequest(exc.doc)
 
         # Get the InstrumentVersion
         instrument_version = user.get_object_by_uid(
@@ -115,7 +115,7 @@ class PreviewCalculationAssessmentCommand(PreviewCalculationCommand):
         try:
             data = json.loads(data)
         except ValueError as exc:
-            raise HTTPBadRequest(exc.message)
+            raise HTTPBadRequest(exc.doc)
 
         # Get the Assessment
         assessment = user.get_object_by_uid(assessment_id, 'assessment')

@@ -89,7 +89,7 @@ class DemoForm(Form):
         )
 
     def save(self, implementation_context=None):
-        print '### SAVED FORM ' + self.uid
+        print('### SAVED FORM ' + self.uid)
 
 
 class OtherDemoForm(DemoForm):
@@ -156,10 +156,10 @@ class DemoDraftForm(DraftForm):
         )
 
     def save(self, implementation_context=None):
-        print '### SAVED DRAFTFORM ' + self.uid
+        print('### SAVED DRAFTFORM ' + self.uid)
 
     def delete(self):
-        print '### DELETED DRAFTFORM ' + self.uid
+        print('### DELETED DRAFTFORM ' + self.uid)
 
 
 class DemoPresentationAdaptor(PresentationAdaptor):

@@ -15,25 +15,25 @@ Test rex.action.action
   >>> dom = Domain()
 
   >>> class MyAction(Action):
-  ...
+  ... 
   ...   name = 'my'
-  ...
+  ... 
   ...   def context(self):
   ...     return {}, {}
 
   >>> class AnotherAction(Action):
-  ...
+  ... 
   ...   name = 'another'
-  ...
+  ... 
   ...   def context(self):
   ...     return {}, {}
 
   >>> class ConfigurableActionDemo(Action):
-  ...
+  ... 
   ...   name = 'configurable-demo'
-  ...
+  ... 
   ...   text = Field(StrVal())
-  ...
+  ... 
   ...   def context(self):
   ...     return {}, {}
 
@@ -80,7 +80,7 @@ Constructing from Python values::
   ... }) # doctest: +NORMALIZE_WHITESPACE
   Traceback (most recent call last):
   ...
-  Error: no action "type" specified
+  rex.core.Error: no action "type" specified
 
   >>> validate({
   ...   'type': 'xmy',
@@ -88,7 +88,7 @@ Constructing from Python values::
   ... }) # doctest: +NORMALIZE_WHITESPACE
   Traceback (most recent call last):
   ...
-  Error: unknown action type specified:
+  rex.core.Error: unknown action type specified:
         xmy
 
 Action is validated by ``ActionVal`` as is::
@@ -115,7 +115,7 @@ Constructing from YAML
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected a string
+  rex.core.Error: Expected a string
   Got:
       1
   While parsing:
@@ -131,7 +131,7 @@ Constructing from YAML
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: unknown action type specified:
+  rex.core.Error: unknown action type specified:
       unknown
   While parsing:
       "<...>", line 2
@@ -143,14 +143,14 @@ Constructing from YAML
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: no action "type" specified
+  rex.core.Error: no action "type" specified
   While parsing:
       "<...>", line 2
 
   >>> validate.parse("1") # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected a mapping
+  rex.core.Error: Expected a mapping
   Got:
       1
   While parsing:
@@ -163,25 +163,25 @@ Invalid actions
 
   >>> class InvalidAction(Action):
   ...   name = 'invalid'
-  ...
+  ... 
   ...   def context(self):
   ...     return 1, {}
 
   >>> InvalidAction(id='id').context_types # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Action "invalid" specified incorrect input type:
+  rex.core.Error: Action "invalid" specified incorrect input type:
       1
 
   >>> class InvalidAction(Action):
   ...   name = 'invalid'
-  ...
+  ... 
   ...   def context(self):
   ...     return {}, 1
   >>> InvalidAction(id='id').context_types # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Action "invalid" specified incorrect output type:
+  rex.core.Error: Action "invalid" specified incorrect output type:
       1
 
 Overrides
@@ -220,4 +220,5 @@ Cleanup
 
   >>> dom.off()
   >>> rex.off()
+
 

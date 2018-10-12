@@ -70,7 +70,7 @@ You can also save output to a file::
     >>> ctl("query -o ./sandbox/num_school.csv",
     ...     input="count(school)")                  # doctest: +NORMALIZE_WHITESPACE
 
-    >>> print open("./sandbox/num_school.csv").read()   # doctest: +NORMALIZE_WHITESPACE
+    >>> print(open("./sandbox/num_school.csv").read())   # doctest: +NORMALIZE_WHITESPACE
     count(school)
     9
 
@@ -152,5 +152,6 @@ ill-configured::
 
     >>> ctl("sqlshell --set db=csv:demo.csv", expect=1)     # doctest: +NORMALIZE_WHITESPACE
     FATAL ERROR: unknown database engine: csv:///demo.csv
+
 
 

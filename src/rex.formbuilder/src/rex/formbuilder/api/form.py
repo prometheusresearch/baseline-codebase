@@ -121,7 +121,7 @@ class FormValidationResource(RestfulLocation):
         except ValidationError as exc:
             return {
                 'status': 'ERROR',
-                'error': unicode(exc),
+                'error': str(exc),
             }
 
         else:

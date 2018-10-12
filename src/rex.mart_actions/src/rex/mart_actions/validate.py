@@ -96,7 +96,7 @@ class ExpressionVal(RefinedVal):
     validator = OneOfVal(_validate_expression, _validate_record)
 
     def refine(self, value):
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             value = self._validate_record.record_type(
                     title=None,
                     expression=value)
@@ -104,4 +104,4 @@ class ExpressionVal(RefinedVal):
 
 
 def is_yaml_string_scalar(node):
-    return isinstance(node, yaml.ScalarNode) and node.tag == u'tag:yaml.org,2002:str'
+    return isinstance(node, yaml.ScalarNode) and node.tag == 'tag:yaml.org,2002:str'

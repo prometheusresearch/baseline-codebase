@@ -40,7 +40,7 @@ def _translate_value_error(fn):
     def wrapper(*args, **kwds):
         try:
             return fn(*args, **kwds)
-        except Error, error:
+        except Error as error:
             if not env.debug:
                 raise ValueError('\n'+str(error))
             raise
@@ -68,18 +68,98 @@ def main():
                         sentry.captureException(exc_info)
                     except:
                         pass
-                    raise exc_info[0], exc_info[1], exc_info[2]
-            except (Error, IOError), exc:
+                    raise exc_info[0](exc_info[1]).with_traceback(exc_info[2])
+            except (Error, IOError) as exc:
                 if env.debug:
                     raise
                 raise fail(str(exc))
-        except (Failure, KeyboardInterrupt), exc:
+        except (Failure, KeyboardInterrupt) as exc:
             if env.debug:
                 raise
             return exc
 
 
-class Task(object):
+class TaskMeta(type):
+    # Registers the task with Cogs.
+
+    def __new__(mcls, name, bases, members):
+        cls = type.__new__(mcls, name, bases, members)
+        if cls.name is not None:
+            # Process arguments and options.
+            args = []
+            opts = []
+            attrs = {}
+            for C in reversed(cls.__mro__):
+                attrs.update(C.__dict__)
+                for container in ['arguments', 'options']:
+                    if container in C.__dict__:
+                        attrs.update(C.__dict__[container].__dict__)
+            arg_attrs = []
+            opt_attrs = []
+            for attr in sorted(attrs):
+                value = attrs[attr]
+                if isinstance(value, argument):
+                    arg_attrs.append((value.order, attr, value))
+                if isinstance(value, option):
+                    opt_attrs.append((value.order, attr, value))
+            arg_attrs.sort()
+            opt_attrs.sort()
+            names = set()
+            keys = set()
+            for order, attr, dsc in arg_attrs:
+                name = _to_name(attr)
+                assert name not in names, \
+                        "duplicate argument name: <%s>" % name
+                names.add(name)
+                check = _translate_value_error(dsc.check)
+                default = dsc.default
+                is_plural = dsc.plural
+                is_optional = True
+                if default is dsc.REQ:
+                    is_optional = False
+                    default = None
+                spec = ArgSpec(
+                        attr, name, check, default=default,
+                        is_optional=is_optional, is_plural=is_plural)
+                args.append(spec)
+            for order, attr, dsc in opt_attrs:
+                name = _to_name(attr)
+                assert name not in names, \
+                        "duplicate option name: --%s" % name
+                names.add(name)
+                key = dsc.key
+                if key is not None:
+                    assert key not in keys, \
+                            "duplicate option name: -%s" % key
+                    keys.add(key)
+                check = _translate_value_error(dsc.check)
+                default = dsc.default
+                is_plural = dsc.plural
+                has_value = True
+                value_name = (dsc.value_name or name).upper()
+                if default is dsc.NOVAL:
+                    has_value = False
+                    value_name = None
+                    default = False
+                hint = dsc.hint
+                spec = OptSpec(
+                        attr, name, key, check, default,
+                        is_plural=is_plural, has_value=has_value,
+                        value_name=value_name, hint=hint)
+                opts.append(spec)
+
+            # Extract the description.
+            hint, help = _describe(cls)
+
+            # Register the task.
+            spec = TaskSpec(
+                    cls.name, cls, args, opts, hint=hint, help=help)
+            env.task_map[cls.name] = spec
+
+        return cls
+
+
+class Task(metaclass=TaskMeta):
     """
     Represents a ``rex`` task.
 
@@ -91,85 +171,6 @@ class Task(object):
     - implement this task as the :meth:`__call__()` method;
     - write task description as the class docstring.
     """
-
-    class __metaclass__(type):
-        # Registers the task with Cogs.
-
-        def __new__(mcls, name, bases, members):
-            cls = type.__new__(mcls, name, bases, members)
-            if cls.name is not None:
-                # Process arguments and options.
-                args = []
-                opts = []
-                attrs = {}
-                for C in reversed(cls.__mro__):
-                    attrs.update(C.__dict__)
-                    for container in ['arguments', 'options']:
-                        if container in C.__dict__:
-                            attrs.update(C.__dict__[container].__dict__)
-                arg_attrs = []
-                opt_attrs = []
-                for attr in sorted(attrs):
-                    value = attrs[attr]
-                    if isinstance(value, argument):
-                        arg_attrs.append((value.order, attr, value))
-                    if isinstance(value, option):
-                        opt_attrs.append((value.order, attr, value))
-                arg_attrs.sort()
-                opt_attrs.sort()
-                names = set()
-                keys = set()
-                for order, attr, dsc in arg_attrs:
-                    name = _to_name(attr)
-                    assert name not in names, \
-                            "duplicate argument name: <%s>" % name
-                    names.add(name)
-                    check = _translate_value_error(dsc.check)
-                    default = dsc.default
-                    is_plural = dsc.plural
-                    is_optional = True
-                    if default is dsc.REQ:
-                        is_optional = False
-                        default = None
-                    spec = ArgSpec(
-                            attr, name, check, default=default,
-                            is_optional=is_optional, is_plural=is_plural)
-                    args.append(spec)
-                for order, attr, dsc in opt_attrs:
-                    name = _to_name(attr)
-                    assert name not in names, \
-                            "duplicate option name: --%s" % name
-                    names.add(name)
-                    key = dsc.key
-                    if key is not None:
-                        assert key not in keys, \
-                                "duplicate option name: -%s" % key
-                        keys.add(key)
-                    check = _translate_value_error(dsc.check)
-                    default = dsc.default
-                    is_plural = dsc.plural
-                    has_value = True
-                    value_name = (dsc.value_name or name).upper()
-                    if default is dsc.NOVAL:
-                        has_value = False
-                        value_name = None
-                        default = False
-                    hint = dsc.hint
-                    spec = OptSpec(
-                            attr, name, key, check, default,
-                            is_plural=is_plural, has_value=has_value,
-                            value_name=value_name, hint=hint)
-                    opts.append(spec)
-
-                # Extract the description.
-                hint, help = _describe(cls)
-
-                # Register the task.
-                spec = TaskSpec(
-                        cls.name, cls, args, opts, hint=hint, help=help)
-                env.task_map[cls.name] = spec
-
-            return cls
 
     #: Task name.
     name = None
@@ -220,7 +221,7 @@ class Task(object):
     def document_one(cls, spec):
         header = spec.name
         if spec.hint:
-            header = u"%s \u2014 %s" % (header, spec.hint)
+            header = "%s \u2014 %s" % (header, spec.hint)
         lines = []
         usage = spec.name
         optionals = 0
@@ -268,7 +269,31 @@ class Task(object):
         return DocEntry(header, content, index, filename=filename, line=line)
 
 
-class Global(object):
+class GlobalMeta(type):
+    # Registers the global setting with Cogs.
+
+    def __new__(mcls, name, bases, members):
+        cls = type.__new__(mcls, name, bases, members)
+        if cls.name is not None:
+            hint, help = _describe(cls)
+            DEFAULT = object()
+            def code(value=DEFAULT):
+                if value is DEFAULT:
+                    value = cls.default
+                elif cls.validate is not None:
+                    value = _translate_value_error(cls.validate)(value)
+                setattr(env, cls.name.replace('-', '_'), value)
+            functools.update_wrapper(code, cls)
+            spec = SettingSpec(
+                    cls.name, code,
+                    has_value=(cls.default is not False),
+                    value_name=cls.value_name or cls.name.upper(),
+                    hint=hint, help=help)
+            env.setting_map[cls.name] = spec
+        return cls
+
+
+class Global(metaclass=GlobalMeta):
     """
     Represents a global option.
 
@@ -281,29 +306,6 @@ class Global(object):
     - write option description as the class docstring.
     """
 
-    class __metaclass__(type):
-        # Registers the global setting with Cogs.
-
-        def __new__(mcls, name, bases, members):
-            cls = type.__new__(mcls, name, bases, members)
-            if cls.name is not None:
-                hint, help = _describe(cls)
-                DEFAULT = object()
-                def code(value=DEFAULT):
-                    if value is DEFAULT:
-                        value = cls.default
-                    elif cls.validate is not None:
-                        value = _translate_value_error(cls.validate)(value)
-                    setattr(env, cls.name.replace('-', '_'), value)
-                functools.update_wrapper(code, cls)
-                spec = SettingSpec(
-                        cls.name, code,
-                        has_value=(cls.default is not False),
-                        value_name=cls.value_name or cls.name.upper(),
-                        hint=hint, help=help)
-                env.setting_map[cls.name] = spec
-            return cls
-
     #: The option name.
     name = None
     #: The name of the option value (for ``rex help``).
@@ -315,7 +317,22 @@ class Global(object):
     validate = None
 
 
-class Topic(object):
+class TopicMeta(type):
+    # Registers the help topic with Cogs.
+
+    def __new__(mcls, name, bases, members):
+        cls = type.__new__(mcls, name, bases, members)
+        if cls.name is not None:
+            hint, help = _describe(cls)
+            def code():
+                pass
+            functools.update_wrapper(code, cls)
+            spec = TopicSpec(cls.name, code, hint=hint, help=help)
+            env.topic_map[cls.name] = spec
+        return cls
+
+
+class Topic(metaclass=TopicMeta):
     """
     Represents a help topic.
 
@@ -324,20 +341,6 @@ class Topic(object):
     - set the topic name as the ``name`` class attribute;
     - write the topic documentation as the class docstring.
     """
-
-    class __metaclass__(type):
-        # Registers the help topic with Cogs.
-
-        def __new__(mcls, name, bases, members):
-            cls = type.__new__(mcls, name, bases, members)
-            if cls.name is not None:
-                hint, help = _describe(cls)
-                def code():
-                    pass
-                functools.update_wrapper(code, cls)
-                spec = TopicSpec(cls.name, code, hint=hint, help=help)
-                env.topic_map[cls.name] = spec
-            return cls
 
     #: The topic name.
     name = None

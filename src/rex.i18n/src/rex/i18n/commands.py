@@ -100,8 +100,9 @@ class GetTranslationsCommand(Command):
 
         return Response(
             json.dumps(translations, ensure_ascii=False),
+            charset='utf-8',
             headerlist=[
-                ('Content-type', 'application/json'),
+                ('Content-Type', 'application/json'),
             ],
             last_modified=LAST_MODIFIED_DATE,
             conditional_response=True,
@@ -155,8 +156,9 @@ class GetActiveLocalesCommand(Command):
 
         return Response(
             json.dumps(payload, ensure_ascii=False),
+            charset='utf-8',
             headerlist=[
-                ('Content-type', 'application/json'),
+                ('Content-Type', 'application/json'),
             ],
         )
 

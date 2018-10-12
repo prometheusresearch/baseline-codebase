@@ -101,5 +101,5 @@ class WidgetRenderer(object):
                         self.widget, request,
                         path=params['path'])
                 raise HTTPBadRequest()
-        except Error, error:
+        except Error as error:
             return request.get_response(error)

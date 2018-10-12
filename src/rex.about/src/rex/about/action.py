@@ -96,11 +96,11 @@ class AboutAction(Action):
         else:
             pkg_info = message_from_string(pkg_info)
             if 'License' in pkg_info and pkg_info['License'] != 'UNKNOWN':
-                info['license'] = unicode(pkg_info['License'], errors='ignore')
+                info['license'] = str(pkg_info['License'], errors='ignore')
             if 'Author' in pkg_info and pkg_info['Author'] != 'UNKNOWN':
-                info['author'] = unicode(pkg_info['Author'], errors='ignore')
+                info['author'] = str(pkg_info['Author'], errors='ignore')
             if 'Home-page' in pkg_info and pkg_info['Home-page'] != 'UNKNOWN':
-                info['homepage'] = unicode(pkg_info['Home-page'], errors='ignore')
+                info['homepage'] = str(pkg_info['Home-page'], errors='ignore')
 
         return info
 

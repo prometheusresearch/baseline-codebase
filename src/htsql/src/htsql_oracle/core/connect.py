@@ -33,7 +33,7 @@ class ConnectOracle(Connect):
             return cursor.var(str, 100, cursor.arraysize,
                               outconverter=cls.outconverter)
         if defaultType in (cx_Oracle.STRING, cx_Oracle.FIXED_CHAR):
-            return cursor.var(unicode, size, cursor.arraysize)
+            return cursor.var(str, size, cursor.arraysize)
 
     def open(self):
         addon = context.app.htsql
@@ -102,11 +102,9 @@ class UnscrambleOracleText(Unscramble):
         if isinstance(value, cx_Oracle.LOB):
             try:
                 value = value.read()
-            except cx_Oracle.Error, exc:
+            except cx_Oracle.Error as exc:
                 message = str(exc)
                 raise Error(message, exc)
-        if isinstance(value, str):
-            value = value.decode('utf-8')
         return value
 
 

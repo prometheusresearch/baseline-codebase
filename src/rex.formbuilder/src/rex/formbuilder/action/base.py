@@ -62,7 +62,7 @@ class FormBuilderAction(Action):
             raise HTTPForbidden()
 
         filters = {}
-        for key, val in request.GET.items():
+        for key, val in list(request.GET.items()):
             filters[key] = val
 
         channels = user.find_objects(

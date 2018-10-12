@@ -80,7 +80,7 @@ use the ``user_can_access_mart`` method to make judgements about access::
     >>> permissions.get_mart(123456, 'permtest') is None
     True
     >>> permissions.get_mart(mart.code, 'permtest')  # doctest: +ELLIPSIS
-    Mart(code=..., definition=u'empty', owner=u'permtest')
+    Mart(code=..., definition='empty', owner='permtest')
     >>> permissions.get_mart(mart.code, 'someoneelse')
     False
 

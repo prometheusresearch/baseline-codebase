@@ -14,7 +14,7 @@ from .adapter import Utility
 from .error import HTTPError
 from .cmd.command import UniversalCmd
 from .cmd.act import render
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 
 class WSGI(Utility):
@@ -36,7 +36,7 @@ class WSGI(Utility):
         # Extract an HTSQL request from `environ`.
         path_info = self.environ['PATH_INFO']
         query_string = self.environ.get('QUERY_STRING')
-        uri = urllib.quote(path_info)
+        uri = urllib.parse.quote(path_info)
         if query_string:
             uri += '?'+query_string
         return uri
@@ -47,13 +47,13 @@ class WSGI(Utility):
         if method != 'GET':
             self.start_response('400 Bad Request',
                                 [('Content-Type', 'text/plain')])
-            return ["%s requests are not permitted.\n" % method]
+            return [("%s requests are not permitted.\n" % method).encode('utf-8')]
         # Process the query.
         uri = self.request()
         try:
             command = UniversalCmd(uri)
             status, headers, body = render(command, self.environ)
-        except HTTPError, exc:
+        except HTTPError as exc:
             return exc(self.environ, self.start_response)
         self.start_response(status, headers)
         return body

@@ -136,26 +136,26 @@ The Form validation routine will make sure you have query specified for
     >>> Form.validate_configuration(BROKEN, instrument_definition=INSTRUMENT)
     Traceback (most recent call last):
         ...
-    ValidationError: Widget configuration for field1 is missing query
+    rex.forms.errors.ValidationError: Widget configuration for field1 is missing query
 
     >>> del BROKEN['pages'][0]['elements'][1]['options']['widget']['options']
     >>> Form.validate_configuration(BROKEN, instrument_definition=INSTRUMENT)
     Traceback (most recent call last):
         ...
-    ValidationError: Widget configuration for field1 is missing query
+    rex.forms.errors.ValidationError: Widget configuration for field1 is missing query
 
     >>> BROKEN = deepcopy(FORM)
     >>> BROKEN['pages'][0]['elements'][3]['options']['questions'][0]['widget']['options']['query'] = ''
     >>> Form.validate_configuration(BROKEN, instrument_definition=INSTRUMENT)
     Traceback (most recent call last):
         ...
-    ValidationError: Widget configuration for subfield1 is missing query
+    rex.forms.errors.ValidationError: Widget configuration for subfield1 is missing query
 
     >>> del BROKEN['pages'][0]['elements'][3]['options']['questions'][0]['widget']['options']
     >>> Form.validate_configuration(BROKEN, instrument_definition=INSTRUMENT)
     Traceback (most recent call last):
         ...
-    ValidationError: Widget configuration for subfield1 is missing query
+    rex.forms.errors.ValidationError: Widget configuration for subfield1 is missing query
 
 
 PresentationAdaptor & Registry
@@ -166,11 +166,15 @@ PresentationAdaptor, the queries for the widgets are removed from the form and
 replaced with an identifier that can be used later to execute the query.::
 
     >>> pprint(FORM['pages'][0]['elements'][1]['options']['widget'])
-    {'options': {'query': '/instrument{uid :as value, title :as label}.guard($search, filter(uid~$search|title~$search))'},
+    {'options': {'query': '/instrument{uid :as value, title :as '
+                          'label}.guard($search, '
+                          'filter(uid~$search|title~$search))'},
      'type': 'lookupText'}
 
     >>> pprint(FORM['pages'][0]['elements'][3]['options']['questions'][0]['widget'])
-    {'options': {'query': '/instrument{uid :as value, upper(title) :as label}.guard($search, filter(uid~$search|title~$search))'},
+    {'options': {'query': '/instrument{uid :as value, upper(title) :as '
+                          'label}.guard($search, '
+                          'filter(uid~$search|title~$search))'},
      'type': 'lookupText'}
 
     >>> form = lookup.LookupPresentationAdaptor.adapt(INSTRUMENT, FORM)
@@ -199,25 +203,25 @@ This package exposes a simple JSON API for invoking the lookup queries::
     >>> rex.on()
 
     >>> req = Request.blank('/lookup?lookup=%s' % (lookup_id,), remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: 325
     Set-Cookie: ...
     <BLANKLINE>
     {"values":[{"value":"calculation","label":"Calculation Instrument"},{"value":"calculation-complex","label":"Calculation Instrument"},{"value":"complex","label":"Complex Instrument"},{"value":"disabled","label":"Disabled Instrument"},{"value":"simple","label":"Simple Instrument"},{"value":"texter","label":"SMS Instrument"}]}
 
     >>> req = Request.blank('/lookup?lookup=%s&query=calc' % (lookup_id,), remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
-    Content-Type: application/json; charset=UTF-8
+    Content-Type: application/json
     Content-Length: 134
     Set-Cookie: ...
     <BLANKLINE>
     {"values":[{"value":"calculation","label":"Calculation Instrument"},{"value":"calculation-complex","label":"Calculation Instrument"}]}
 
     >>> req = Request.blank('/lookup?lookup=doesntexist', remote_user='user1')
-    >>> print req.get_response(rex)  # doctest: +ELLIPSIS
+    >>> print(req.get_response(rex))  # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     404 Not Found
     Content-Length: 83
     Content-Type: text/plain; charset=UTF-8
@@ -231,4 +235,5 @@ This package exposes a simple JSON API for invoking the lookup queries::
 
 
     >>> rex.off()
+
 

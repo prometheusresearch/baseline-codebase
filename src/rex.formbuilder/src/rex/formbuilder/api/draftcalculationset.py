@@ -115,7 +115,7 @@ class DraftCalculationSetPublishResource(RestfulLocation):
         except InstrumentError as exc:
             return {
                 'status': 'ERROR',
-                'error': unicode(exc),
+                'error': str(exc),
             }
 
         else:

@@ -87,7 +87,7 @@ def find_executable(executables, title=None):
     # if Python is installed in virtualenv we add its bin/ directory to checked
     # paths
     for executable in executables:
-        if hasattr(sys, 'real_prefix'):
+        if sys.prefix != sys.base_prefix:
             paths.insert(0, os.path.join(sys.prefix, 'bin'))
         for path in paths:
             filename = os.path.join(path, executable)
@@ -95,7 +95,7 @@ def find_executable(executables, title=None):
                 # Skip `node` and `npm` shims created by `setup_commonjs()`.
                 with open(filename, 'rb') as stream:
                     stream.readline()
-                    if 'rex.setup' in stream.readline():
+                    if b'rex.setup' in stream.readline():
                         continue
                 return filename
     raise distutils.errors.DistutilsSetupError(
@@ -106,7 +106,7 @@ def find_executable(executables, title=None):
 def get_commonjs_environment():
     # Returns environment variables in which we execute `node` and `npm`.
     env = {}
-    if hasattr(sys, 'real_prefix'):
+    if sys.prefix != sys.base_prefix:
         # If Python is installed in a virtualenv, make sure NodeJS loads and
         # installs modules within the virtualenv tree.
         env['NODE_PATH'] = os.path.join(sys.prefix, 'lib', 'node_modules')
@@ -181,6 +181,8 @@ def exe(cmd, args,
     if daemon:
         return proc
     out, err = proc.communicate()
+    out = out.decode('utf-8', 'replace')
+    err = err.decode('utf-8', 'replace')
     if proc.wait() != 0:
         if out:
             distutils.log.info(out)
@@ -301,7 +303,7 @@ def read_json(dist, filename):
             meta = json.load(stream)
             if not isinstance(meta, dict):
                 raise ValueError("an object expected")
-        except ValueError, exc:
+        except ValueError as exc:
             raise distutils.errors.DistutilsSetupError(
                     "ill-formed JSON in %s: %s" % (filename, exc))
         else:
@@ -419,7 +421,7 @@ class Sandbox(object):
     def _write_file(self, filename, content):
         mkdir(os.path.dirname(filename))
         with open(filename, 'w') as f:
-            if isinstance(content, basestring):
+            if isinstance(content, str):
                 f.write(content)
             else:
                 f.write(json.dumps(content, indent=2, sort_keys=True))
@@ -466,7 +468,7 @@ def install_package(dist, skip_if_installed=False, execute=dummy_execute,
         # as those py deps will be included transitively into root package.
         jsmeta = read_json(pyname, 'package.json')
         if 'dependencies' in jsmeta:
-            for dep, deprange in jsmeta['dependencies'].items():
+            for dep, deprange in list(jsmeta['dependencies'].items()):
                 if deprange.startswith('file:./rex_node_modules'):
                     jsmeta['dependencies'].pop(dep)
 
@@ -493,7 +495,7 @@ def install_package(dist, skip_if_installed=False, execute=dummy_execute,
 
         # Install peerDependencies
         if package.get('peerDependencies'):
-            peer_dependencies = package['peerDependencies'].items()
+            peer_dependencies = list(package['peerDependencies'].items())
             peer_dependencies = ['%s@%s' % (k, v) for k, v in peer_dependencies]
             execute(yarn,
                     (['add'], ['--no-lockfile'] + peer_dependencies, sandbox.root),

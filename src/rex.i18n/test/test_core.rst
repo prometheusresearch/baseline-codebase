@@ -21,7 +21,7 @@ This function will retrieve the locale that is being used on the current
 thread::
 
     >>> get_locale()
-    Locale(u'fr')
+    Locale('fr')
 
 
 get_locale_direction
@@ -96,10 +96,10 @@ This function will return a JSON-encoded version of a Translations object
 suitable for use by client-side JavaScript libraries::
 
     >>> get_json_translations('fr', 'backend')
-    {'backend': {'': {'lang': 'fr', 'domain': 'backend', 'plural_forms': 'nplurals=2; plural=(n > 1)'}, u'apple': [u'pomme'], u'%(num)s banana': [u'%(num)s banane', u'%(num)s bananes']}}
+    {'backend': {'': {'domain': 'backend', 'lang': 'fr', 'plural_forms': 'nplurals=2; plural=(n > 1)'}, '%(num)s banana': ['%(num)s banane', '%(num)s bananes'], 'apple': ['pomme']}}
 
     >>> get_json_translations('es', 'backend')
-    {'backend': {'': {'lang': 'es', 'domain': 'backend', 'plural_forms': 'nplurals=2; plural=(n != 1)'}, u'apple': [''], u'%(num)s banana': [u'%(num)s banana', u'%(num)s bananas']}}
+    {'backend': {'': {'domain': 'backend', 'lang': 'es', 'plural_forms': 'nplurals=2; plural=(n != 1)'}, '%(num)s banana': ['%(num)s banana', '%(num)s bananas'], 'apple': ['']}}
 
 
 gettext
@@ -108,10 +108,10 @@ gettext
 This function performs a string translation based on the current locale::
 
     >>> gettext('apple')
-    u'pomme'
+    'pomme'
 
     >>> gettext("doesn't exist")
-    u"doesn't exist"
+    "doesn't exist"
 
 
 ngettext
@@ -122,13 +122,13 @@ locale::
 
 
     >>> ngettext('%(num)s banana', '%(num)s bananas', 1)
-    u'1 banane'
+    '1 banane'
 
     >>> ngettext('%(num)s banana', '%(num)s bananas', 5)
-    u'5 bananes'
+    '5 bananes'
 
     >>> ngettext('%(num)s cocounts', '%(num)s coconuts', 3)
-    u'3 coconuts'
+    '3 coconuts'
 
 
 lazy_gettext
@@ -139,7 +139,7 @@ perform the translation until the last moment::
 
     >>> lazy_string = lazy_gettext('apple')
     >>> repr(lazy_string)
-    "lu'pomme'"
+    "l'pomme'"
     >>> str(lazy_string)
     'pomme'
     >>> '%s' % lazy_string
@@ -158,7 +158,7 @@ use this class directly::
     >>> def dump_catalog(trans):
     ...     for key in sorted(trans._catalog.keys()):
     ...         if key:
-    ...             print '%s: %s' % (key, trans._catalog[key])
+    ...             print('%s: %s' % (key, trans._catalog[key]))
 
     >>> fr_translations = RexTranslations.load(translations_dir, 'fr', 'test')
     >>> dump_catalog(fr_translations)
@@ -183,4 +183,5 @@ use this class directly::
 
 
     >>> rex.off()
+
 

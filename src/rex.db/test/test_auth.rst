@@ -32,14 +32,14 @@ Now configure the application so that it knows some users, but not the others::
 Let us verify that authentication works as expected::
 
     >>> req = Request.blank('/protected', remote_user="Alice")
-    >>> print req.get_response(nonobody)        # doctest: +ELLIPSIS
+    >>> print(req.get_response(nonobody))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     Hello, Alice!
 
 
     >>> req.remote_user = "Nobody"
-    >>> print req.get_response(nonobody)        # doctest: +ELLIPSIS
+    >>> print(req.get_response(nonobody))        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     401 Unauthorized
     ...
 
@@ -52,13 +52,13 @@ guest accounts::
     ...     auto_user_query="'Guest'")
 
     >>> req = Request.blank('/protected', remote_user="Alice")
-    >>> print req.get_response(guest)           # doctest: +ELLIPSIS
+    >>> print(req.get_response(guest))           # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     Hello, Alice!
 
     >>> req.remote_user = "Nobody"
-    >>> print req.get_response(guest)           # doctest: +ELLIPSIS
+    >>> print(req.get_response(guest))           # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     Hello, Guest!
@@ -87,13 +87,13 @@ Now let us configure ``access_queries``::
 We can verify that permission checking works::
 
     >>> req = Request.blank('/special', remote_user="Alice")
-    >>> print req.get_response(special)         # doctest: +ELLIPSIS
+    >>> print(req.get_response(special))         # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     Hello, Alice!
 
     >>> req.remote_user = "Bob"
-    >>> print req.get_response(special)         # doctest: +ELLIPSIS
+    >>> print(req.get_response(special))         # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     401 Unauthorized
     ...
 
@@ -115,7 +115,7 @@ Let us configure a mask for the HTSQL entry point::
 Now let us verify that the mask is applied::
 
     >>> req = Request.blank('/db/school', remote_user="Alice")
-    >>> print req.get_response(north)           # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(north))           # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
      | school                                |
@@ -134,7 +134,7 @@ It is possible to configure more than one mask::
     ...         {'north': ["school?campus='north'", "department?school.campus='north'"]})
 
     >>> req = Request.blank('/db/department', remote_user="Alice")
-    >>> print req.get_response(north)           # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(north))           # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
      | department                                  |
@@ -160,7 +160,7 @@ with `htsql_environment` parameter::
     ...         {'user_schools': "/school.filter(campus='north').code"})
 
     >>> req = Request.blank('/db/department', remote_user="Alice")
-    >>> print req.get_response(north)           # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(north))           # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
      | department                                  |
@@ -180,10 +180,11 @@ function::
     ...     htsql_environment={'answer': "rex.db_demo:answer_query"})
 
     >>> req = Request.blank('/db/$answer', remote_user="Alice")
-    >>> print req.get_response(answer)          # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(answer))          # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
      | $answer |
     -+---------+-
      |       4 |
+
 

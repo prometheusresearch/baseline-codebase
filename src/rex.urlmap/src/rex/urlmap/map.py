@@ -61,7 +61,7 @@ class Map(Extension):
             if cls.validate_override is None:
                 cls.validate_override = RecordVal([
                     (field.name, field.validate, None)
-                    for field in cls.validate.fields.values()])
+                    for field in list(cls.validate.fields.values())])
 
     @classmethod
     def enabled(cls):
@@ -92,7 +92,7 @@ class Map(Extension):
         This method may be overriden by implementations.
         """
         replacements = dict((key, value)
-                            for key, value in vars(override_spec).items()
+                            for key, value in list(vars(override_spec).items())
                             if value is not None)
         return spec.__clone__(**replacements)
 

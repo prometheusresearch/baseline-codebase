@@ -29,14 +29,14 @@ for output::
     ...     ]
     ... }
 
-    >>> print dump_instrument_yaml(INSTRUMENT)
+    >>> print(dump_instrument_yaml(INSTRUMENT))
     id: urn:test-instrument
     version: '1.1'
     title: The InstrumentVersion Title
     record:
     - {id: q_fake, type: text}
 
-    >>> print dump_instrument_yaml(INSTRUMENT, pretty=True)
+    >>> print(dump_instrument_yaml(INSTRUMENT, pretty=True))
     id: urn:test-instrument
     version: '1.1'
     title: The InstrumentVersion Title
@@ -44,10 +44,10 @@ for output::
     - id: q_fake
       type: text
 
-    >>> print dump_instrument_json(INSTRUMENT)
+    >>> print(dump_instrument_json(INSTRUMENT))
     {"id": "urn:test-instrument", "version": "1.1", "title": "The InstrumentVersion Title", "record": [{"id": "q_fake", "type": "text"}]}
 
-    >>> print dump_instrument_json(INSTRUMENT, pretty=True)
+    >>> print(dump_instrument_json(INSTRUMENT, pretty=True))
     {
       "id": "urn:test-instrument",
       "version": "1.1",
@@ -59,4 +59,5 @@ for output::
         }
       ]
     }
+
 

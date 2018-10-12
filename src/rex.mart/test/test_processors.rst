@@ -18,7 +18,7 @@ optionally a default value::
     ...     )
     Traceback (most recent call last):
         ...
-    Error: Option must be a tuple/list
+    rex.core.Error: Option must be a tuple/list
         foo
 
     >>> class MyProcessor(Processor):
@@ -27,7 +27,7 @@ optionally a default value::
     ...     )
     Traceback (most recent call last):
         ...
-    Error: Invalid Processor Option
+    rex.core.Error: Invalid Processor Option
         ('foo',)
 
     >>> class MyProcessor(Processor):
@@ -36,7 +36,7 @@ optionally a default value::
     ...     )
     Traceback (most recent call last):
         ...
-    Error: Option name must be a string
+    rex.core.Error: Option name must be a string
         123
 
     >>> class MyProcessor(Processor):
@@ -45,7 +45,7 @@ optionally a default value::
     ...     )
     Traceback (most recent call last):
         ...
-    Error: Option validator must be callable
+    rex.core.Error: Option validator must be callable
         123
 
     >>> class MyProcessor(Processor):

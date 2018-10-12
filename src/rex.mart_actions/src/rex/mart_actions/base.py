@@ -106,7 +106,7 @@ class MartAction(Action):
 
         context = {}
 
-        for tool in MartTool.mapped().keys():
+        for tool in list(MartTool.mapped().keys()):
             context[self.get_tool_context(tool)] = typing.anytype
 
         return context

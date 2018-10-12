@@ -16,7 +16,7 @@ import fnmatch
 
 class IntrospectMSSQL(Introspect):
 
-    system_schema_names = [u'guest', u'INFORMATION_SCHEMA', u'sys', u'db_*']
+    system_schema_names = ['guest', 'INFORMATION_SCHEMA', 'sys', 'db_*']
 
     def __call__(self):
         connection = connect()
@@ -176,7 +176,7 @@ class IntrospectMSSQLDomain(Protocol):
 
     @classmethod
     def __dispatch__(component, schema_name, type_name, *args, **kwds):
-        return (schema_name.encode('utf-8'), type_name.encode('utf-8'))
+        return (schema_name, type_name)
 
     @classmethod
     def __matches__(component, dispatch_key):

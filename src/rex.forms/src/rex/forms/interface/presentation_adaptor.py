@@ -51,7 +51,7 @@ class PresentationAdaptor(Extension):
         :rtype: dict
         """
 
-        if not isinstance(channel, basestring):
+        if not isinstance(channel, str):
             channel = channel.uid
 
         if not isinstance(instrument, dict):

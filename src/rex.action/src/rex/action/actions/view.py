@@ -53,7 +53,7 @@ class View(EntityAction):
 
         def reconcile_input(self, entity, input):
             if not entity.name in input.rows:
-                input = RecordType(input.rows.values() + [entity])
+                input = RecordType(list(input.rows.values()) + [entity])
             return input
 
     input = Field(
@@ -66,5 +66,5 @@ class View(EntityAction):
     def context(self):
         input = self.input
         if not self.entity.name in input.rows:
-            input = RecordType(input.rows.values() + [self.entity])
+            input = RecordType(list(input.rows.values()) + [self.entity])
         return input, self.domain.record()

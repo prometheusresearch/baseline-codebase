@@ -25,7 +25,7 @@ def doc_url(req, url):
 def pkg_url(req):
     mount = req.environ['rex.mount']
     url = req.path_url
-    for package_name, prefix in mount.items():
+    for package_name, prefix in list(mount.items()):
         if url.startswith(prefix):
             return '%s:%s' % (package_name, url[len(prefix):])
     assert False, 'Package not found for URL: %s' % url
@@ -48,7 +48,7 @@ class DemoChrome(Chrome):
     def action_source(self, req):
         _, _, action_source = get_sources(req)
         return dict([
-            (id, doc_url(req, url)) for id, url in action_source.items()
+            (id, doc_url(req, url)) for id, url in list(action_source.items())
         ])
 
     @computed_field

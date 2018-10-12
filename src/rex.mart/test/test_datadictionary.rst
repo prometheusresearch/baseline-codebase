@@ -22,7 +22,7 @@ This processor accepts a variety of options::
     ...     'id': 'datadictionary',
     ... }
     >>> val(proc)
-    Record(id='datadictionary', options={'table_name_tables': 'datadictionary_table', 'table_name_enumerations': 'datadictionary_enumeration', 'enumeration_descriptions': None, 'column_descriptions': None, 'table_descriptions': None, 'table_name_columns': 'datadictionary_column'})
+    Record(id='datadictionary', options={'table_name_tables': 'datadictionary_table', 'table_name_columns': 'datadictionary_column', 'table_name_enumerations': 'datadictionary_enumeration', 'table_descriptions': None, 'column_descriptions': None, 'enumeration_descriptions': None})
 
     >>> proc = {
     ...     'id': 'datadictionary',
@@ -31,7 +31,7 @@ This processor accepts a variety of options::
     ...     },
     ... }
     >>> val(proc)
-    Record(id='datadictionary', options={'table_name_tables': 'foo', 'table_name_enumerations': 'datadictionary_enumeration', 'enumeration_descriptions': None, 'column_descriptions': None, 'table_descriptions': None, 'table_name_columns': 'datadictionary_column'})
+    Record(id='datadictionary', options={'table_name_tables': 'foo', 'table_name_columns': 'datadictionary_column', 'table_name_enumerations': 'datadictionary_enumeration', 'table_descriptions': None, 'column_descriptions': None, 'enumeration_descriptions': None})
 
     >>> proc = {
     ...     'id': 'datadictionary',
@@ -40,7 +40,7 @@ This processor accepts a variety of options::
     ...     },
     ... }
     >>> val(proc)
-    Record(id='datadictionary', options={'table_name_tables': 'datadictionary_table', 'table_name_enumerations': 'datadictionary_enumeration', 'enumeration_descriptions': None, 'column_descriptions': None, 'table_descriptions': 'name,title,description\ntable,Title,Description', 'table_name_columns': 'datadictionary_column'})
+    Record(id='datadictionary', options={'table_name_tables': 'datadictionary_table', 'table_name_columns': 'datadictionary_column', 'table_name_enumerations': 'datadictionary_enumeration', 'table_descriptions': 'name,title,description\ntable,Title,Description', 'column_descriptions': None, 'enumeration_descriptions': None})
 
     >>> proc = {
     ...     'id': 'datadictionary',
@@ -51,7 +51,7 @@ This processor accepts a variety of options::
     >>> val(proc)
     Traceback (most recent call last):
         ...
-    Error: Missing required field "name"
+    rex.core.Error: Missing required field "name"
     While validating field:
         table_descriptions
     While validating field:
@@ -66,7 +66,7 @@ This processor accepts a variety of options::
     >>> val(proc)
     Traceback (most recent call last):
         ...
-    Error: Expected a string
+    rex.core.Error: Expected a string
     Got:
         123
     While validating field:
@@ -83,7 +83,7 @@ This processor accepts a variety of options::
     >>> val(proc)
     Traceback (most recent call last):
         ...
-    Error: Invalid CSV input: new-line character seen in unquoted field - do you need to open the file in universal-newline mode?
+    rex.core.Error: Invalid CSV input: new-line character seen in unquoted field - do you need to open the file in universal-newline mode?
     While validating field:
         table_descriptions
     While validating field:
@@ -98,7 +98,7 @@ This processor accepts a variety of options::
     >>> val(proc)
     Traceback (most recent call last):
         ...
-    Error: Missing required field "table"
+    rex.core.Error: Missing required field "table"
     While validating field:
         column_descriptions
     While validating field:
@@ -113,7 +113,7 @@ This processor accepts a variety of options::
     >>> val(proc)
     Traceback (most recent call last):
         ...
-    Error: Missing required field "description"
+    rex.core.Error: Missing required field "description"
     While validating field:
         enumeration_descriptions
     While validating field:

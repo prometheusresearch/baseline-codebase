@@ -28,7 +28,7 @@ application database::
     ...     get_cluster()
     Traceback (most recent call last):
       ...
-    Error: Expected a PostgreSQL database; got:
+    rex.core.Error: Expected a PostgreSQL database; got:
         mysql:///deploy_demo
 
 You can use the ``Cluster`` object to test and create databases in the database
@@ -66,7 +66,7 @@ drop a database which does not exist::
     >>> cluster.drop('deploy_demo_cluster')
     Traceback (most recent call last):
       ...
-    Error: Got an error from the database server:
+    rex.core.Error: Got an error from the database server:
         database "deploy_demo_cluster" does not exist
 
 
@@ -93,7 +93,7 @@ It is an error to try to connect to a database which does not exist::
     >>> cluster.connect('deploy_demo_cluster')
     Traceback (most recent call last):
       ...
-    Error: Failed to connect to the database server:
+    rex.core.Error: Failed to connect to the database server:
         FATAL:  database "deploy_demo_cluster" does not exist
 
 ``Cluster`` uses connection parameters from the given connection URI::
@@ -103,7 +103,7 @@ It is an error to try to connect to a database which does not exist::
     >>> cluster_2345.connect()      # doctest: +NORMALIZE_WHITESPACE
     Traceback (most recent call last):
       ...
-    Error: Failed to connect to the database server:
+    rex.core.Error: Failed to connect to the database server:
         could not connect to server: Connection refused
         	Is the server running on host "127.0.0.1" and accepting
         	TCP/IP connections on port 2345?
@@ -122,13 +122,13 @@ Using the driver, you can deploy any database facts or raw SQL::
     >>> driver({ 'column': "individual.code", 'type': "text" })
 
     >>> from rex.deploy import LinkFact
-    >>> driver([LinkFact(u"individual", u"mother", u"individual", is_required=False),
-    ...         LinkFact(u"individual", u"father", u"individual", is_required=False)])
+    >>> driver([LinkFact("individual", "mother", "individual", is_required=False),
+    ...         LinkFact("individual", "father", "individual", is_required=False)])
 
     >>> driver.submit("""CREATE TABLE individual (id int4 NOT NULL);""")
     Traceback (most recent call last):
       ...
-    Error: Got an error from the database driver:
+    rex.core.Error: Got an error from the database driver:
         relation "individual" already exists
     While executing SQL:
         CREATE TABLE individual (id int4 NOT NULL);
@@ -193,5 +193,6 @@ Finally, we destroy the test database::
 
     >>> with deploy_demo:
     ...     get_cluster().drop()
+
 
 

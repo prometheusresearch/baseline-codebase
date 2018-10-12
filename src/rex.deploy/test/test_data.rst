@@ -19,8 +19,8 @@ Field ``data`` denotes a data fact::
 
     >>> fact = driver.parse("""{ data: ./deploy/individual.csv }""")
     >>> fact
-    DataFact(u'individual', data_path='./deploy/individual.csv')
-    >>> print fact
+    DataFact('individual', data_path='./deploy/individual.csv')
+    >>> print(fact)
     data: ./deploy/individual.csv
     of: individual
 
@@ -33,8 +33,8 @@ You could either specify the path to a data file or embed input data::
     ... of: study
     ... """)
     >>> fact
-    DataFact(u'study', data='code,name\nasdl,Autism Spectrum Disorder Lab\n')
-    >>> print fact
+    DataFact('study', data='code,name\nasdl,Autism Spectrum Disorder Lab\n')
+    >>> print(fact)
     data: |
       code,name
       asdl,Autism Spectrum Disorder Lab
@@ -51,9 +51,9 @@ you embed input data in ``data`` field, you must provide the table name via
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Got missing table name
+    rex.core.Error: Got missing table name
     While parsing data fact:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 
 Adding rows
@@ -149,20 +149,20 @@ It is an error if the data table does not exist or lacks identity::
     >>> driver("""{ data: measure.csv }""")
     Traceback (most recent call last):
       ...
-    Error: Discovered missing table:
+    rex.core.Error: Discovered missing table:
         measure
     While deploying data fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> driver("""{ table: measure }""")                # doctest: +ELLIPSIS
     CREATE TABLE "measure" ...
     >>> driver("""{ data: measure.csv }""")
     Traceback (most recent call last):
       ...
-    Error: Discovered table without identity:
+    rex.core.Error: Discovered table without identity:
         measure
     While deploying data fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 A row must contain the value of the ``PRIMARY KEY``::
 
@@ -174,12 +174,12 @@ A row must contain the value of the ``PRIMARY KEY``::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Discovered missing value for identity field:
+    rex.core.Error: Discovered missing value for identity field:
         code
     While parsing row #1:
         ,Dixons
     While deploying data fact:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 If the driver is locked, it cannot modify existing or add new records::
 
@@ -191,7 +191,7 @@ If the driver is locked, it cannot modify existing or add new records::
     ... """, is_locked=True)
     Traceback (most recent call last):
       ...
-    Error: Detected inconsistent data model:
+    rex.core.Error: Detected inconsistent data model:
         UPDATE "family"
             SET "notes" = 'Crawfords'
             WHERE "id" = 3
@@ -199,7 +199,7 @@ If the driver is locked, it cannot modify existing or add new records::
     While processing row #1:
         {'1003', 'Crawfords'}
     While validating data fact:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
     >>> driver("""
     ... data: |
@@ -209,14 +209,14 @@ If the driver is locked, it cannot modify existing or add new records::
     ... """, is_locked=True)
     Traceback (most recent call last):
       ...
-    Error: Detected inconsistent data model:
+    rex.core.Error: Detected inconsistent data model:
         INSERT INTO "family" ("code", "notes")
             VALUES ('1004', 'Dixons')
             RETURNING "id", "code", "notes";
     While processing row #1:
         {'1004', 'Dixons'}
     While validating data fact:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 
 Loading data
@@ -251,10 +251,10 @@ reported::
     >>> driver("""{ data: ./deploy/family.xsl }""")     # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Failed to recognize file format:
+    rex.core.Error: Failed to recognize file format:
         /.../deploy/family.xsl
     While deploying data fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 Ill-formed input data raises an exception::
 
@@ -262,25 +262,25 @@ Ill-formed input data raises an exception::
     >>> driver("""{ data: ./deploy/broken/family.json }""") # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Discovered ill-formed JSON:
-        Expecting property name: line 1 column 2 (char 1)
+    rex.core.Error: Discovered ill-formed JSON:
+        Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
     While parsing JSON data:
         /.../deploy/broken/family.json
     While deploying data fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
     >>> sandbox.rewrite('./deploy/broken/family.yaml', """{]""")
     >>> driver("""{ data: ./deploy/broken/family.yaml }""") # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    Error: Failed to parse a YAML document:
+    rex.core.Error: Failed to parse a YAML document:
         while parsing a flow node
         did not find expected node content
           in "/.../deploy/broken/family.yaml", line 1, column 2
     While parsing YAML data:
         /.../deploy/broken/family.yaml
     While deploying data fact:
-        "<byte string>", line 1
+        "<unicode string>", line 1
 
 
 Column and link values
@@ -318,12 +318,12 @@ Invalid links are rejected::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Discovered missing record:
+    rex.core.Error: Discovered missing record:
         individual[1001.01]
     While processing row #1:
         {'1001', '01', '1001.01', '1001.01'}
     While deploying data fact:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 Values of different types are accepted::
 
@@ -375,7 +375,7 @@ You could also supply data directly from HTSQL query::
     ...   datetime('2013-12-19 13:22') :as timestamp, true :as current,
     ...   json('{}') :as other}
     ... """)
-    >>> driver({ 'data': list(data), 'of': u"sample" })
+    >>> driver({ 'data': list(data), 'of': "sample" })
     INSERT INTO "sample" ("individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current", "other")
         VALUES (3, '03', 33, 175.05, 130000, '1990-03-13', '23:45:00', '2013-12-19 13:22:00', TRUE, '{}')
         RETURNING "id", "individual_id", "code", "age", "height", "salary", "birth", "sleep", "timestamp", "current", "other";
@@ -404,14 +404,14 @@ Invalid values are rejected::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Discovered invalid input:
+    rex.core.Error: Discovered invalid input:
         invalid enum literal: expected one of 'male', 'female'; got 'f'
     While converting field:
         sex
     While parsing row #1:
         1001,01,f
     While deploying data fact:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
     >>> driver("""
     ... data:
@@ -421,14 +421,14 @@ Invalid values are rejected::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Discovered invalid input:
+    rex.core.Error: Discovered invalid input:
         datetime.date(1990, 3, 13)
     While converting field:
         code
     While parsing row #1:
-        {u'code': datetime.date(1990, 3, 13), u'individual': '1003.03'}
+        {'individual': '1003.03', 'code': datetime.date(1990, 3, 13)}
     While deploying data fact:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
     >>> driver("""
     ... data:
@@ -439,14 +439,14 @@ Invalid values are rejected::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Discovered invalid JSON input:
-        datetime.date(1990, 3, 13) is not JSON serializable
+    rex.core.Error: Discovered invalid JSON input:
+        Object of type 'date' is not JSON serializable
     While converting field:
         other
     While parsing row #1:
-        {u'code': '02', u'individual': '1003.03', u'other': datetime.date(1990, 3, 13)}
+        {'individual': '1003.03', 'code': '02', 'other': datetime.date(1990, 3, 13)}
     While deploying data fact:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 
 Removing data
@@ -485,12 +485,12 @@ It is an error to specify non-identity fields when removing data::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Discovered unexpected field:
+    rex.core.Error: Discovered unexpected field:
         notes
     While parsing row #1:
         1003,Clarks
     While deploying data fact:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 
 Processing input data
@@ -511,12 +511,12 @@ Unknown and duplicate columns are detected::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Discovered missing field:
+    rex.core.Error: Discovered missing field:
         name
     While parsing row #1:
         1001,Johnsons
     While deploying data fact:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
     >>> driver("""
     ... data: |
@@ -526,12 +526,12 @@ Unknown and duplicate columns are detected::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Discovered duplicate field:
+    rex.core.Error: Discovered duplicate field:
         code
     While parsing row #1:
         1001,2002
     While deploying data fact:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 All columns from the ``PRIMARY KEY`` must be included::
 
@@ -543,12 +543,12 @@ All columns from the ``PRIMARY KEY`` must be included::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Discovered missing value for identity field:
+    rex.core.Error: Discovered missing value for identity field:
         family
     While parsing row #1:
         01,f,,
     While deploying data fact:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 Each CSV row must have correct number of entries::
 
@@ -560,12 +560,12 @@ Each CSV row must have correct number of entries::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Discovered too many entries:
+    rex.core.Error: Discovered too many entries:
         2 > 1
     While parsing row #1:
         1001,Andersons
     While deploying data fact:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
     >>> driver("""
     ... data: |
@@ -575,16 +575,17 @@ Each CSV row must have correct number of entries::
     ... """)
     Traceback (most recent call last):
       ...
-    Error: Discovered too few entries:
+    rex.core.Error: Discovered too few entries:
         2 < 3
     While parsing row #1:
         1001,01
     While deploying data fact:
-        "<byte string>", line 2
+        "<unicode string>", line 2
 
 Finally we destroy the test database::
 
     >>> driver.close()
     >>> cluster.drop()
+
 
 

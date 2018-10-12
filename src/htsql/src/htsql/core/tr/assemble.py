@@ -72,7 +72,7 @@ class Claim(Hashable, Printable):
         return "(%s)->%s->%s" % (self.unit, self.broker, self.target)
 
 
-class Gate(object):
+class Gate:
     """
     Encapsulates a dispatching context.
 
@@ -127,7 +127,7 @@ class Gate(object):
         self.routes = routes
 
 
-class AssemblingState(object):
+class AssemblingState:
     """
     Encapsulates the state of the assembling process.
 
@@ -1072,7 +1072,7 @@ class AssembleSegment(Assemble):
             dependent = self.state.assemble(subterm)
             index_by_term[subterm] = len(dependents)
             dependents.append(dependent)
-        for subterm in index_by_term.keys():
+        for subterm in list(index_by_term.keys()):
             index_by_term[subterm] -= len(dependents)
         return dependents, index_by_term
 

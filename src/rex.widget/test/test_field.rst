@@ -15,14 +15,14 @@ Automatically adjust validator if default is set to ``None``::
   >>> Field(StrVal()).validate(None) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected a string
+  rex.core.Error: Expected a string
   Got:
       None
 
   >>> Field(StrVal(), default='Title').validate(None) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected a string
+  rex.core.Error: Expected a string
   Got:
       None
 
@@ -42,14 +42,14 @@ Automatically adjust validator if default is set to ``undefined``::
   >>> Field(StrVal()).validate(undefined) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected a string
+  rex.core.Error: Expected a string
   Got:
       undefined
 
   >>> Field(StrVal(), default='Title').validate(undefined) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Expected a string
+  rex.core.Error: Expected a string
   Got:
       undefined
 
@@ -74,7 +74,7 @@ Field validates its default value::
 Define a new widget field implementation::
 
   >>> class CustomField(FieldBase):
-  ...
+  ... 
   ...   def __call__(self, widget):
   ...     return 'ok'
 
@@ -87,3 +87,4 @@ Define a new widget field implementation::
 
   >>> w.field
   'ok'
+

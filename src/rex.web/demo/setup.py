@@ -18,10 +18,10 @@ class demo(Command):
         from webob import Request
         demo = Rex('rex.web_demo')
         req = Request.blank('/hello')
-        print "-"*70
-        print req
-        print "-"*70
-        print req.get_response(demo)
+        print("-"*70)
+        print(req)
+        print("-"*70)
+        print(req.get_response(demo))
 
 setup(
     name='rex.web_demo',

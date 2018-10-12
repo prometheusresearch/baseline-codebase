@@ -52,7 +52,7 @@ class MartTool(Extension):
         """
 
         tools = []
-        for name, impl in cls.mapped().items():
+        for name, impl in list(cls.mapped().items()):
             if impl.is_enabled_for_mart(mart):
                 tools.append(name)
         return tools

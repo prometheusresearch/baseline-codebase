@@ -61,8 +61,8 @@ The :meth:`.LocalStorage.add()` method returns an opaque *handle* string,
 which you could use to retrieve the attachment::
 
     >>> stream = storage.open(handle)
-    >>> print stream.read()
-    Feed the cats!
+    >>> print(stream.read())
+    b'Feed the cats!'
 
 If you know the attachment handle, you can generate an HTTP response containing
 the attachment::
@@ -71,12 +71,12 @@ the attachment::
 
     >>> req = Request.blank('/download')
     >>> app = storage.route(handle)
-    >>> print app(req)              # doctest: +ELLIPSIS
+    >>> print(app(req))             # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/plain; charset=UTF-8
+    Last-Modified: ...
     Content-Length: 14
     Content-Disposition: attachment; filename=memo.txt
-    Last-Modified: ...
     Accept-Ranges: bytes
     <BLANKLINE>
     Feed the cats!
@@ -111,12 +111,12 @@ produces an HTTP response that contains the attachment::
     >>> req = Request.blank('/download')
 
     >>> with demo:
-    ...     print download(handle)(req)     # doctest: +ELLIPSIS
+    ...     print(download(handle)(req))    # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/plain; charset=UTF-8
+    Last-Modified: ...
     Content-Length: 14
     Content-Disposition: attachment; filename=memo.txt
-    Last-Modified: ...
     Accept-Ranges: bytes
     <BLANKLINE>
     Feed the cats!
@@ -160,5 +160,7 @@ attachments.  It is implemented as follows::
             db = get_db()
             handle = db.produce('file[$code].handle', code=code).data
             return download(handle)(req)
+
+
 
 

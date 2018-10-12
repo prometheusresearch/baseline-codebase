@@ -30,7 +30,7 @@ This processor accepts just one option, ``indexes``::
     ...     },
     ... }
     >>> val(proc)
-    Record(id='index', options={'indexes': [{'table': 'foo', 'unique': False, 'partial': None, 'columns': ['bar']}]})
+    Record(id='index', options={'indexes': [{'table': 'foo', 'columns': ['bar'], 'unique': False, 'partial': None}]})
 
     >>> proc = {
     ...     'id': 'index',
@@ -44,7 +44,7 @@ This processor accepts just one option, ``indexes``::
     ...     },
     ... }
     >>> val(proc)
-    Record(id='index', options={'indexes': [{'table': 'foo', 'unique': False, 'partial': None, 'columns': ['bar', 'baz']}]})
+    Record(id='index', options={'indexes': [{'table': 'foo', 'columns': ['bar', 'baz'], 'unique': False, 'partial': None}]})
 
     >>> proc = {
     ...     'id': 'index',
@@ -63,7 +63,7 @@ This processor accepts just one option, ``indexes``::
     ...     },
     ... }
     >>> val(proc)
-    Record(id='index', options={'indexes': [{'table': 'foo', 'unique': False, 'partial': None, 'columns': ['bar', 'baz']}, {'table': 'blah', 'unique': False, 'partial': 'col1 > 4', 'columns': ['col1']}]})
+    Record(id='index', options={'indexes': [{'table': 'foo', 'columns': ['bar', 'baz'], 'unique': False, 'partial': None}, {'table': 'blah', 'columns': ['col1'], 'unique': False, 'partial': 'col1 > 4'}]})
 
 
     >>> proc = {
@@ -72,7 +72,7 @@ This processor accepts just one option, ``indexes``::
     >>> val(proc)
     Traceback (most recent call last):
         ...
-    Error: Missing Processor Option
+    rex.core.Error: Missing Processor Option
         indexes
     While validating field:
         options
@@ -85,7 +85,7 @@ This processor accepts just one option, ``indexes``::
     >>> val(proc)
     Traceback (most recent call last):
         ...
-    Error: Missing Processor Option
+    rex.core.Error: Missing Processor Option
         indexes
     While validating field:
         options
@@ -99,7 +99,7 @@ This processor accepts just one option, ``indexes``::
     >>> val(proc)
     Traceback (most recent call last):
         ...
-    Error: Expected a sequence
+    rex.core.Error: Expected a sequence
     Got:
         None
     While validating field:
@@ -120,27 +120,27 @@ INDEX statements and executes them::
     ...     'table': 'foo',
     ...     'columns': ['bar'],
     ... })
-    u'CREATE INDEX ON "foo"\n("bar");'
+    'CREATE INDEX ON "foo"\n("bar");'
 
     >>> make_statement({
     ...     'table': 'foo',
     ...     'columns': ['bar', '"baz"'],
     ... })
-    u'CREATE INDEX ON "foo"\n("bar", "baz");'
+    'CREATE INDEX ON "foo"\n("bar", "baz");'
 
     >>> make_statement({
     ...     'table': 'foo',
     ...     'columns': ['bar'],
     ...     'unique': True,
     ... })
-    u'CREATE UNIQUE INDEX ON "foo"\n("bar");'
+    'CREATE UNIQUE INDEX ON "foo"\n("bar");'
 
     >>> make_statement({
     ...     'table': 'foo',
     ...     'columns': ['bar', 'baz'],
     ...     'partial': 'baz > 10',
     ... })
-    u'CREATE INDEX ON "foo"\n("bar", "baz") WHERE baz > 10;'
+    'CREATE INDEX ON "foo"\n("bar", "baz") WHERE baz > 10;'
 
     >>> make_statement({
     ...     'table': 'foo',
@@ -148,7 +148,7 @@ INDEX statements and executes them::
     ...     'unique': True,
     ...     'partial': 'baz > 10',
     ... })
-    u'CREATE UNIQUE INDEX ON "foo"\n("bar", "baz") WHERE baz > 10;'
+    'CREATE UNIQUE INDEX ON "foo"\n("bar", "baz") WHERE baz > 10;'
 
 
 

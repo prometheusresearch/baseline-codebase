@@ -7,12 +7,12 @@
 
 """
 
-from __future__ import absolute_import
+
 
 import hashlib
 import collections
-import urlparse
-import urllib
+import urllib.parse
+import urllib.request, urllib.parse, urllib.error
 import cgi
 import yaml
 import json
@@ -39,7 +39,7 @@ __all__ = ('RexDBVal', 'QueryVal', 'SyntaxVal', 'DomainVal')
 
 def is_string_node(node):
     return isinstance(node, yaml.ScalarNode) and \
-           node.tag == u'tag:yaml.org,2002:str'
+           node.tag == 'tag:yaml.org,2002:str'
 
 
 class RexDBVal(Validate):
@@ -68,7 +68,7 @@ class SyntaxVal(UStrVal):
         try:
             with get_db(self.db):
                 syntax = parse(data)
-        except HTSQLError, exc:
+        except HTSQLError as exc:
             raise Error("Failed to parse an HTSQL expression:", str(exc))
         return str(syntax)
 
@@ -88,7 +88,7 @@ class QueryVal(Validate):
         if isinstance(value, Query):
             return value
         value = self._validate(value)
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             value = self._validate_full({'query': value})
         query = SyntaxVal(value.db)(value.query)
         return Query(query, db=value.db)
@@ -114,15 +114,15 @@ class DomainVal(Validate):
         if isinstance(values, list):
             value = {}
             for v in values:
-                for entity_name, states in v.items():
+                for entity_name, states in list(v.items()):
                     value.setdefault(entity_name, {}).update(states)
         else:
             value = values
         entity_types = [typing.EntityType(
             name=typename,
             state=typing.EntityTypeState(name=statename, title=stateinfo.title, expression=stateinfo.expression))
-            for typename, states in value.items()
-            for statename, stateinfo in states.items()]
+            for typename, states in list(value.items())
+            for statename, stateinfo in list(states.items())]
         return typing.Domain(name=self.name, entity_types=entity_types)
 
 
@@ -139,7 +139,7 @@ class ActionReferenceVal(Validate):
         if isinstance(value, ActionReference):
             return value
         value = self._validate(value)
-        value = urlparse.urlparse(value)
+        value = urllib.parse.urlparse(value)
         package = value.scheme
         path = value.path
         query = value.query
@@ -147,7 +147,7 @@ class ActionReferenceVal(Validate):
             package, path = path.split(':', 1)
         if query:
             query = cgi.parse_qs(query)
-            query = {k: v[0] for k, v in query.items()}
+            query = {k: v[0] for k, v in list(query.items())}
         else:
             query = {}
         if not path.startswith('/') and not package:
@@ -183,7 +183,7 @@ class LocalActionReference(
     def __repr__(self):
         rep = self.id
         if self.query:
-            rep = '%s?%s' % (rep, urllib.urlencode(self.query))
+            rep = '%s?%s' % (rep, urllib.parse.urlencode(self.query))
         return rep
 
     __unicode__ = __repr__
@@ -203,7 +203,7 @@ class GlobalActionReference(
     def __repr__(self):
         rep = self.id
         if self.query:
-            rep = '%s?%s' % (rep, urllib.urlencode(self.query))
+            rep = '%s?%s' % (rep, urllib.parse.urlencode(self.query))
         if self.package:
             rep = '%s:%s' % (self.package, rep)
         return rep
@@ -240,7 +240,7 @@ class ActionVal(Validate):
                 node.start_mark.name,
                 node.start_mark.line,
                 node.start_mark.column)
-        uid = hashlib.md5(uid).hexdigest()
+        uid = hashlib.md5(uid.encode('utf-8')).hexdigest()
 
         if not isinstance(node, yaml.MappingNode):
             value = super(ActionVal, self).construct(loader, node)
@@ -291,7 +291,7 @@ class ActionVal(Validate):
         if sig not in ActionBase.mapped():
             raise Error('unknown action type specified:', action_type)
         action_class = ActionBase.mapped()[sig]
-        value = {k: v for (k, v) in value.items() if k != 'type'}
+        value = {k: v for (k, v) in list(value.items()) if k != 'type'}
         validate = WidgetVal(package=self.package, widget_class=action_class).validate_values
         value = validate(action_class, value)
         value['package'] = self.package
@@ -319,14 +319,14 @@ class ActionOrActionIncludeVal(Validate):
 
     def construct(self, loader, node):
         if isinstance(node, yaml.ScalarNode) and \
-           node.tag == u'tag:yaml.org,2002:str':
+           node.tag == 'tag:yaml.org,2002:str':
             if not ':' in node.value:
                 return self._validate_action_reference.construct(loader, node)
             else:
 				# Patch node to be !include.
 				# This is done for b/c reasons.
-                node = yaml.ScalarNode(u'!include', node.value,
-                                    node.start_mark, node.end_mark, u'')
+                node = yaml.ScalarNode('!include', node.value,
+                                    node.start_mark, node.end_mark, '')
                 with loader.validating(self):
                     action = loader.construct_object(node, deep=True)
                     return action
@@ -338,19 +338,19 @@ class ActionOverrideMapVal(Validate):
 
     def __init__(self, action_map):
         self.fields = collections.OrderedDict()
-        for k, action_base in action_map.items():
+        for k, action_base in list(action_map.items()):
             validate = ActionOrActionIncludeVal(action_base=action_base)
             self.fields[k] = RecordField(k, validate, None)
 
     def _sanitize(self, value):
         return {k: v
-                for k, v in value.items()
+                for k, v in list(value.items())
                 if v is not None}
 
     def construct(self, loader, node):
         location = Location.from_node(node)
         if not (isinstance(node, yaml.MappingNode) and
-                node.tag == u'tag:yaml.org,2002:map'):
+                node.tag == 'tag:yaml.org,2002:map'):
             error = Error("Expected a mapping")
             error.wrap("Got:", node.value
                                if isinstance(node, yaml.ScalarNode)
@@ -371,7 +371,7 @@ class ActionOverrideMapVal(Validate):
                  loader.validating(field.validate):
                 value = loader.construct_object(value_node, deep=True)
             values[field.attribute] = value
-        for field in self.fields.values():
+        for field in list(self.fields.values()):
             attribute = field.attribute
             if attribute not in values:
                 if field.has_default:
@@ -392,7 +392,7 @@ class ActionOverrideMapVal(Validate):
                 raise Error("Got unexpected field:", name)
             attribute = self.fields[name].attribute
             values[attribute] = value
-        for field in self.fields.values():
+        for field in list(self.fields.values()):
             attribute = field.attribute
             if attribute in values:
                 validate = field.validate
@@ -425,7 +425,7 @@ class ActionMapVal(Validate):
             value = values
 
         value = dict(value)
-        for k, action in value.items():
+        for k, action in list(value.items()):
             if not isinstance(action, ActionReference):
                 action = action.__validated_clone__()
                 action.included = True
@@ -461,4 +461,4 @@ def resource_constructor(loader, node):
     return Resource(value)
 
 
-ValidatingLoader.add_constructor(u'!resource', resource_constructor)
+ValidatingLoader.add_constructor('!resource', resource_constructor)

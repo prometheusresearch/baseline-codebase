@@ -40,13 +40,13 @@ class ConvertRecordToJSON(Convert):
         if not isinstance(self.flow.base, SelectionFlow):
             return super(ConvertRecordToJSON, self).__call__()
         chunks = []
-        chunks.append(LiteralCode(u'{', TextDomain(), self.flow))
+        chunks.append(LiteralCode('{', TextDomain(), self.flow))
         for idx, field in enumerate(self.flow.base.domain.fields):
             if idx > 0:
-                chunks.append(LiteralCode(u',', TextDomain(), self.flow))
+                chunks.append(LiteralCode(',', TextDomain(), self.flow))
             chunks.append(
                     LiteralCode(
-                        unicode(json.dumps(field.tag or '')) + u':',
+                        str(json.dumps(field.tag or '')) + ':',
                         TextDomain(), self.flow))
             element = self.state.encode(self.flow.base.elements[idx])
             if isinstance(element.domain, UntypedDomain):
@@ -59,9 +59,9 @@ class ConvertRecordToJSON(Convert):
             element = FormulaCode(
                     IfNullSig(), TextDomain(), element.flow,
                     lop=element,
-                    rop=LiteralCode(u'null', TextDomain(), element.flow))
+                    rop=LiteralCode('null', TextDomain(), element.flow))
             chunks.append(element)
-        chunks.append(LiteralCode(u'}', TextDomain(), self.flow))
+        chunks.append(LiteralCode('}', TextDomain(), self.flow))
         code = chunks[0]
         for chunk in chunks[1:]:
             code = FormulaCode(
@@ -79,9 +79,9 @@ class ConvertIdentityToText(Convert):
             return super(ConvertIdentityToText, self).__call__()
         is_simple = all([not isinstance(element.domain, IdentityDomain)
                          for element in self.flow.base.elements[1:]])
-        lparen = LiteralCode(u'(', TextDomain(), self.flow)
-        rparen = LiteralCode(u')', TextDomain(), self.flow)
-        period = LiteralCode(u'.', TextDomain(), self.flow)
+        lparen = LiteralCode('(', TextDomain(), self.flow)
+        rparen = LiteralCode(')', TextDomain(), self.flow)
+        period = LiteralCode('.', TextDomain(), self.flow)
         codes = []
         for element in self.flow.base.elements:
             flow = self.flow.clone(base=element)

@@ -21,7 +21,7 @@ class RestfulInitialize(Initialize):
     def __call__(self):
         # Make sure the CORS policies specified by all the RestfulLocations
         # are actually defined.
-        configured_policies = get_settings().restful_cors_policies.keys()
+        configured_policies = list(get_settings().restful_cors_policies.keys())
         for cls in RestfulLocation.all():
             if issubclass(cls, RestfulLocation) and cls.cors_policy:
                 if cls.cors_policy not in configured_policies:

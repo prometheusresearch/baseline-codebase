@@ -16,7 +16,7 @@ import itertools
 
 class IntrospectMySQL(Introspect):
 
-    system_schema_names = [u'mysql', u'information_schema']
+    system_schema_names = ['mysql', 'information_schema']
 
     def __call__(self):
         connection = connect()
@@ -71,15 +71,15 @@ class IntrospectMySQL(Introspect):
             data_type = row.data_type
             column_type = row.column_type
             length = row.character_maximum_length
-            if isinstance(length, long):
+            if isinstance(length, int):
                 length = int(length)
-                if isinstance(length, long): # LONGTEXT
+                if isinstance(length, int): # LONGTEXT
                     length = None
             precision = row.numeric_precision
-            if isinstance(precision, long):
+            if isinstance(precision, int):
                 precision = int(precision)
             scale = row.numeric_scale
-            if isinstance(scale, long):
+            if isinstance(scale, int):
                 scale = int(scale)
             domain = IntrospectMySQLDomain.__invoke__(data_type, column_type,
                                                       length, precision, scale)
@@ -155,7 +155,7 @@ class IntrospectMySQLDomain(Protocol):
 
     @classmethod
     def __dispatch__(component, data_type, *args, **kwds):
-        return data_type.encode('utf-8')
+        return data_type
 
     def __init__(self, data_type, column_type, length, precision, scale):
         self.data_type = data_type

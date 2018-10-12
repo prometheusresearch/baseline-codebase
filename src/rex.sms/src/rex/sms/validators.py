@@ -80,7 +80,7 @@ class ShortCodeVal(UStrVal):
 
     def __call__(self, data):
         value = super(ShortCodeVal, self).__call__(data)
-        value = unicode(RE_NONDIGIT.sub('', data))
+        value = str(RE_NONDIGIT.sub('', data))
 
         try:
             phone = phonenumbers.parse(data, self.default_region)

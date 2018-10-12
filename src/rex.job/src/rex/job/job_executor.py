@@ -78,7 +78,7 @@ class JobExecutor(Extension):
             'table_name': name,
             'fields': ', '.join([
                 '$%s :as %s' % (field_name, field_name)
-                for field_name in fields.keys()
+                for field_name in list(fields.keys())
             ]),
         }
 

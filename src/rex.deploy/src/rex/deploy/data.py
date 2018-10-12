@@ -21,7 +21,7 @@ import json
 import collections
 
 
-class _skip_type(object):
+class _skip_type:
     # Set a `repr()` value for `sphinx.ext.autodoc`.
     def __repr__(self):
         return "SKIP"
@@ -75,7 +75,7 @@ class DataFact(Fact):
                 data_path = os.path.join(driver.cwd, data_path)
             if table_label is None:
                 basename = os.path.splitext(os.path.basename(data_path))[0]
-                table_label = basename.decode('utf-8')
+                table_label = basename
         else:
             data = spec.data
         if table_label is None:
@@ -85,7 +85,7 @@ class DataFact(Fact):
                    is_present=is_present)
 
     def __init__(self, table_label, data_path=None, data=None, is_present=True):
-        assert isinstance(table_label, unicode) and len(table_label) > 0
+        assert isinstance(table_label, str) and len(table_label) > 0
         assert (data_path is None or
                 (isinstance(data_path, str) and len(data_path) > 0))
         assert (data is None or
@@ -215,20 +215,20 @@ class DataFact(Fact):
                         image.data.delete(old_row)
                         # Data might be invalid.
                         is_invalid = True
-            except Error, error:
+            except Error as error:
                 # Add the row being processed to the error trace.
                 items = []
                 for field, data in zip(fields, record):
                     if data is SKIP:
                         continue
                     if data is None:
-                        item = u'null'
+                        item = 'null'
                     else:
                         dumper = self._domain(field).dump
                         item = htsql.core.util.to_literal(dumper(data))
                     items.append(item)
                 error.wrap("While processing row #%s:" % (record_idx+1),
-                           u"{%s}" % u", ".join(items))
+                           "{%s}" % ", ".join(items))
                 raise
 
         # Invalidate cached data.
@@ -251,8 +251,8 @@ class DataFact(Fact):
                 with guard("While parsing JSON data:", self.data_path):
                     try:
                         data = json.load(stream)
-                    except ValueError, exc:
-                        raise Error("Discovered ill-formed JSON:", exc)
+                    except ValueError as exc:
+                        raise Error("Discovered ill-formed JSON:", exc) from None
                     data = self.data_validate(data)
             elif extension == '.yaml':
                 stream = open(self.data_path)
@@ -284,7 +284,7 @@ class DataFact(Fact):
             try:
                 for record in self._convert(table, labels, slices):
                     records.append(record)
-            except Error, error:
+            except Error as error:
                 idx = len(records)+1
                 if self.data_path is not None:
                     location = "\"%s\", line #%s" % (self.data_path, idx+1)
@@ -311,10 +311,10 @@ class DataFact(Fact):
                     # Unpack a dictionary.
                     items = sorted(record.items())
                 # Convert a record into a table row.
-                labels, slice = zip(*items)
+                labels, slice = list(zip(*items))
                 try:
                     records.extend(self._convert(table, labels, [slice]))
-                except Error, error:
+                except Error as error:
                     if self.data_path is not None:
                         location = "\"%s\"" % self.data_path
                     else:
@@ -376,17 +376,15 @@ class DataFact(Fact):
                         try:
                             # If it's a text value, let the domain parse it.
                             if isinstance(data, str):
-                                data = data.decode('utf-8')
-                            if isinstance(data, unicode):
                                 data = domain.parse(data)
                             # Otherwise, verify that the value is compatible
                             # with the domain.
                             else:
                                 data = self._adapt(data, domain)
-                        except ValueError, exc:
+                        except ValueError as exc:
                             error = Error("Discovered invalid input:", exc)
                             error.wrap("While converting field:", field.label)
-                            raise error
+                            raise error from None
                         # Serialize and validate JSON values.
                         if isinstance(
                                 domain, htsql_rex_deploy.domain.JSONDomain):
@@ -394,12 +392,12 @@ class DataFact(Fact):
                                 data = json.dumps(
                                         data, indent=2, separators=(',', ': '),
                                         sort_keys=True)
-                            except TypeError, exc:
+                            except TypeError as exc:
                                 error = Error(
                                         "Discovered invalid JSON input:", exc)
                                 error.wrap(
                                         "While converting field:", field.label)
-                                raise error
+                                raise error from None
                         # If the value is a TZ-aware datetime, we convert
                         # it to the local timezone and then strip the
                         # timezone.  This is compatible with PostgreSQL
@@ -432,7 +430,7 @@ class DataFact(Fact):
             type = type.base_type
         # Translate a `ENUM` type.
         if type.is_enum:
-            labels = [label.decode('utf-8') for label in type.labels]
+            labels = type.labels
             return htsql.core.domain.EnumDomain(labels)
         # Translate known scalar types.
         elif type.schema.name == 'pg_catalog':
@@ -463,24 +461,22 @@ class DataFact(Fact):
         if data is None:
             return None
         if isinstance(data, str):
-            data = data.decode('utf-8')
-        if isinstance(data, unicode):
             return domain.parse(data)
         if isinstance(domain, htsql.core.domain.BooleanDomain):
             if isinstance(data, bool):
                 return data
         elif isinstance(domain, htsql.core.domain.IntegerDomain):
-            if isinstance(data, (int, long)):
+            if isinstance(data, int):
                 return data
         elif isinstance(domain, htsql.core.domain.FloatDomain):
             if isinstance(data, float):
                 return data
-            elif isinstance(data, (int, long, decimal.Decimal)):
+            elif isinstance(data, (int, decimal.Decimal)):
                 return float(data)
         elif isinstance(domain, htsql.core.domain.DecimalDomain):
             if isinstance(data, decimal.Decimal):
                 return data
-            if isinstance(data, (int, long, float)):
+            if isinstance(data, (int, float)):
                 return decimal.Decimal(data)
         elif isinstance(domain, htsql.core.domain.DateDomain):
             if isinstance(data, datetime.date):

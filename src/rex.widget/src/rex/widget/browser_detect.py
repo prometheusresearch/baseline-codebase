@@ -17,7 +17,7 @@ class WarnIncompatibleBrowser(Bootstrap):
         if allowed(ua):
             return ''
         res = render_to_response('rex.widget:/templates/warn_browser.html', req)
-        return ''.join(res.body)
+        return res.body
 
 
 def allowed(ua):

@@ -79,8 +79,8 @@ class BuildFileDB(Utility):
                     VALUES (?, ?, ?, ?)
                 """, (table_name,)+meta)
             try:
-                stream = open(source_file, mode="rU")
-            except IOError, exc:
+                stream = open(source_file, mode="rU", encoding=encoding)
+            except IOError as exc:
                 raise Error("Failed to open file", source_file)
             reader = csv.reader(stream)
             try:
@@ -91,15 +91,10 @@ class BuildFileDB(Utility):
                 continue
             column_names = []
             for idx, name in enumerate(columns_row):
-                try:
-                    name = name.decode(encoding)
-                except UnicodeDecodeError:
-                    raise Error("Failed to decode file using %s encoding"
-                                % encoding, source_file)
                 if name:
                     name = to_name(name)
                 if not name or name in column_names or re.match(r"^_\d+$", name):
-                    name = u"_%s" % (idx+1)
+                    name = "_%s" % (idx+1)
                 column_names.append(name)
             records = []
             for row in reader:
@@ -111,12 +106,6 @@ class BuildFileDB(Utility):
                             value = None
                     else:
                         value = None
-                    if value is not None:
-                        try:
-                            value = value.decode(encoding)
-                        except UnicodeDecodeError:
-                            raise Error("Failed to decode file using %s encoding"
-                                    % encoding, source_file)
                     record.append(value)
                 records.append(record)
             chunks = []
@@ -145,7 +134,6 @@ def build_names():
         filenames = sorted(glob.glob(source.file)) or [source.file]
         for filename in filenames:
             table_name = os.path.splitext(os.path.basename(filename))[0]
-            table_name = table_name.decode('utf-8', 'replace')
             table_name = to_name(table_name)
             if (table_name in table_names or
                     re.match(r"^sqlite_", table_name) or

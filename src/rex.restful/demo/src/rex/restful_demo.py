@@ -14,21 +14,21 @@ class FooResource(RestfulLocation):
     )
 
     def create(self, request, foo_id, **kwargs):
-        print '### CREATING FOO %s' % foo_id
-        print '###   PAYLOAD: %s' % request.payload
+        print('### CREATING FOO %s' % foo_id)
+        print('###   PAYLOAD: %s' % request.payload)
         return {'foo': foo_id}
 
     def retrieve(self, request, foo_id, **kwargs):
-        print '### RETRIEVING FOO %s' % foo_id
+        print('### RETRIEVING FOO %s' % foo_id)
         return {'foo': foo_id}
 
     def update(self, request, foo_id, **kwargs):
-        print '### UPDATING FOO %s' % foo_id
-        print '###   PAYLOAD: %s' % request.payload
+        print('### UPDATING FOO %s' % foo_id)
+        print('###   PAYLOAD: %s' % request.payload)
         return {'foo': foo_id}
 
     def delete(self, request, foo_id, **kwargs):
-        print '### DELETING FOO %s' % foo_id
+        print('### DELETING FOO %s' % foo_id)
 
 
 class ReadOnlyResource(RestfulLocation):
@@ -40,7 +40,7 @@ class ReadOnlyResource(RestfulLocation):
     )
 
     def retrieve(self, request, bar_id, **kwargs):
-        print '### RETRIEVING BAR %s' % bar_id
+        print('### RETRIEVING BAR %s' % bar_id)
         return {'bar': bar_id}
 
 
@@ -53,7 +53,7 @@ class StatusResource(RestfulLocation):
     )
 
     def retrieve(self, request, bar_id, **kwargs):
-        print '### RETRIEVING BAR %s' % bar_id
+        print('### RETRIEVING BAR %s' % bar_id)
         response = self.make_response(request, {'bar': bar_id})
         response.status = 203
         response.headers['X-Test-Header'] = 'hello!'
@@ -70,12 +70,12 @@ class CorsResource(RestfulLocation):
     )
 
     def retrieve(self, request, bar_id, **kwargs):
-        print '### RETRIEVING BAR %s' % bar_id
+        print('### RETRIEVING BAR %s' % bar_id)
         return {'bar': bar_id}
 
     def update(self, request, bar_id, **kwargs):
-        print '### UPDATING BAR %s' % foo_id
-        print '###   PAYLOAD: %s' % request.payload
+        print('### UPDATING BAR %s' % foo_id)
+        print('###   PAYLOAD: %s' % request.payload)
         return {'bar': bar_id}
 
 
@@ -119,26 +119,26 @@ class BazResource(SimpleResource):
     )
 
     def list(self, request, **kwargs):
-        print '### RETRIEVING BAZ LIST'
+        print('### RETRIEVING BAZ LIST')
         return [
             {'baz': 1},
             {'baz': 2},
         ]
 
     def create(self, request, **kwargs):
-        print '### CREATING BAZ'
+        print('### CREATING BAZ')
         return {'baz': 'new'}
 
     def retrieve(self, request, baz_id, **kwarg):
-        print '### RETRIEVING BAZ %s' % baz_id
+        print('### RETRIEVING BAZ %s' % baz_id)
         return {'baz': baz_id}
 
     def update(self, request, baz_id, **kwarg):
-        print '### UPDATING BAZ %s' % baz_id
+        print('### UPDATING BAZ %s' % baz_id)
         return {'baz': baz_id}
 
     def delete(self, request, baz_id, **kwarg):
-        print '### DELETING BAZ %s' % baz_id
+        print('### DELETING BAZ %s' % baz_id)
 
 
 class ValidatedPayloadResource(SimpleResource):
@@ -163,12 +163,12 @@ class ValidatedPayloadResource(SimpleResource):
     )
 
     def create(self, request, **kwargs):
-        print '### CREATING VID'
-        print '###   PAYLOAD: %s' % request.payload
+        print('### CREATING VID')
+        print('###   PAYLOAD: %s' % request.payload)
         return {'vid': 'new'}
 
     def update(self, request, vid, **kwargs):
-        print '### UPDATING VID %s' % vid
-        print '###   PAYLOAD: %s' % request.payload
+        print('### UPDATING VID %s' % vid)
+        print('###   PAYLOAD: %s' % request.payload)
         return {'vid': vid}
 

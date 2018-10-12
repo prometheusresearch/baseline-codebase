@@ -25,16 +25,16 @@ The Mart object is an encapsulation of the information about a Mart database::
     >>> mc = MartCreator('marttest', 'empty')
     >>> mart = mc()
     >>> mart   # doctest: +ELLIPSIS
-    Mart(code=..., definition=u'empty', owner=u'marttest')
+    Mart(code=..., definition='empty', owner='marttest')
 
-    >>> isinstance(mart.code, long)
+    >>> isinstance(mart.code, int)
     True
     >>> mart.definition_id
-    u'empty'
+    'empty'
     >>> pprint(mart.definition)  # doctest: +ELLIPSIS
     {'assessments': [],
      'base': {'fixed_name': None,
-              'name_token': u'empty_',
+              'name_token': 'empty_',
               'target': None,
               'type': 'fresh'},
      'base_path': '.../rex.mart_demo',
@@ -48,8 +48,8 @@ The Mart object is an encapsulation of the information about a Mart database::
      'processors': [],
      'quota': {'per_owner': 3}}
     >>> mart.owner
-    u'marttest'
-    >>> isinstance(mart.name, basestring)
+    'marttest'
+    >>> isinstance(mart.name, str)
     True
     >>> isinstance(mart.date_creation_started, datetime)
     True
@@ -57,12 +57,12 @@ The Mart object is an encapsulation of the information about a Mart database::
     True
     >>> mart.pinned
     False
-    >>> isinstance(mart.size, long)
+    >>> isinstance(mart.size, int)
     True
     >>> mart.size > 0
     True
     >>> mart.status
-    u'complete'
+    'complete'
     >>> mart.usable
     True
 
@@ -94,9 +94,9 @@ The Mart object is an encapsulation of the information about a Mart database::
     {'code': ...,
      'date_creation_completed': ...,
      'date_creation_started': ...,
-     'definition': u'empty',
-     'name': u'mart_empty_...',
-     'owner': u'marttest',
+     'definition': 'empty',
+     'name': 'mart_empty_...',
+     'owner': 'marttest',
      'pinned': False,
      'size': ...}
     >>> isinstance(mart.as_dict(json_safe=True)['date_creation_started'], str)
@@ -117,4 +117,5 @@ The Mart object is an encapsulation of the information about a Mart database::
 
 
     >>> rex.off()
+
 

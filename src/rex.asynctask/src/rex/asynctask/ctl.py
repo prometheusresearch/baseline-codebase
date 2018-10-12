@@ -94,7 +94,7 @@ class AsyncTaskWorkerTask(RexTask):
                 get_settings().asynctask_workers_check_child_interval / 1000.0
             while not self._dying:
                 try:
-                    for queue_name, process in self._workers.items():
+                    for queue_name, process in list(self._workers.items()):
                         if not process.is_alive():
                             self.logger.error(
                                 'Worker for queue %s died; restarting...',
@@ -112,7 +112,7 @@ class AsyncTaskWorkerTask(RexTask):
         self.logger.info('Complete')
 
     def initialize_workers(self, worker_config, scheduled_worker_config):
-        for queue_name, worker_cfg in worker_config.items():
+        for queue_name, worker_cfg in list(worker_config.items()):
             if worker_cfg:
                 self.build_worker(queue_name, worker_cfg.worker)
 
@@ -190,7 +190,7 @@ class AsyncTaskWorkerTask(RexTask):
         name = schedule.worker
         if not name:
             hasher = sha256()
-            hasher.update(repr(schedule))
+            hasher.update(repr(schedule).encode('utf-8'))
             name = 'ctl_%s' % (hasher.hexdigest()[:8],)
 
         return 'scheduled_0_%s' % (name,)
@@ -219,9 +219,9 @@ class AsyncTaskWorkerTask(RexTask):
             self.logger.debug('Scheduler dead')
 
         self.logger.debug('Termination received; shutting down children')
-        for conn in self._connections.values():
+        for conn in list(self._connections.values()):
             conn.send('QUIT')
-        for process in self._workers.values():
+        for process in list(self._workers.values()):
             if process.is_alive():
                 process.join()
         self.logger.debug('Children dead')

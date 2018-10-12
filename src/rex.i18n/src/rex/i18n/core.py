@@ -234,7 +234,7 @@ def get_locale_identifier(locale=None, sep='-'):
     identifier = locale.language
     if locale.territory:
         identifier = '%s%s%s' % (identifier, sep, locale.territory)
-    return identifier.encode('utf-8')
+    return identifier
 
 
 def get_timezone():
@@ -286,7 +286,7 @@ class RexTranslations(Translations):
     # pylint: disable=R0904
 
     def _safe_catalog_update(self, incoming_catalog):
-        for key, value in incoming_catalog.items():
+        for key, value in list(incoming_catalog.items()):
             if (value != key) or (key not in self._catalog):
                 self._catalog[key] = value
 
@@ -355,7 +355,7 @@ def get_json_translations(locale, domain):
     }
 
     # pylint: disable=W0212
-    for key, val in translations._catalog.items():
+    for key, val in list(translations._catalog.items()):
         if not key:
             # We don't want to kill our '' key.
             continue
@@ -457,5 +457,5 @@ else:
 
     @as_transitionable(_LazyString, tag='s')
     def _format_LazyString(v, req, path):
-        return unicode(v)
+        return str(v)
 

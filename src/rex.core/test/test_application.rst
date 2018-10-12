@@ -25,10 +25,10 @@ or as ``Package`` object::
     >>> from rex.core import Package
 
     >>> demo_package = Package('rex.core_demo',
-    ...                        modules=set(['rex.core_demo']),
+    ...                        modules={'rex.core_demo'},
     ...                        static='./demo/rex.core_demo/static')
     >>> Rex(demo_package)
-    Rex(Package('rex.core_demo', modules=set(['rex.core_demo']), static='./demo/rex.core_demo/static'))
+    Rex(Package('rex.core_demo', modules={'rex.core_demo'}, static='./demo/rex.core_demo/static'))
 
 Pass application settings as keyword parameters to the constructor::
 
@@ -40,7 +40,7 @@ It is an error to specify unknown package name or configuration setting::
     >>> Rex('rex.unknown')
     Traceback (most recent call last):
       ...
-    Error: Failed to satisfy requirement:
+    rex.core.Error: Failed to satisfy requirement:
         rex.unknown
     While initializing RexDB application:
         rex.unknown
@@ -48,7 +48,7 @@ It is an error to specify unknown package name or configuration setting::
     >>> Rex(unknown=None)
     Traceback (most recent call last):
       ...
-    Error: Got unknown setting:
+    rex.core.Error: Got unknown setting:
         unknown
     While initializing RexDB application
     With parameters:
@@ -72,7 +72,7 @@ application::
 Or you could use ``with`` statement on the application object for the same effect::
 
     >>> with demo:
-    ...     print get_rex()
+    ...     print(get_rex())
     Rex('rex.core_demo')
 
 It is an error to call ``get_rex()`` when no application is active::
@@ -84,10 +84,10 @@ It is an error to call ``get_rex()`` when no application is active::
 
 ``get_rex`` could be used to determine if there is an active application::
 
-    >>> print bool(get_rex)
+    >>> print(bool(get_rex))
     False
     >>> with demo:
-    ...     print bool(get_rex)
+    ...     print(bool(get_rex))
     True
 
 Activation calls could be nested::
@@ -129,12 +129,13 @@ without ``rex.web`` package::
     >>> setup_testing_defaults(environ)
 
     >>> def start_response(status, headers, exc_info=None):
-    ...     print status
-    ...     print headers
+    ...     print(status)
+    ...     print(headers)
 
     >>> demo(environ, start_response)
     404 Not Found
     [('Content-Type', 'text/plain')]
     ['Application does not provide web access.\n']
+
 
 

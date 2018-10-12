@@ -28,7 +28,7 @@ particular, you can use it to add records to a table::
 You can also use it to update an existing record::
 
     >>> product = study_port.produce('study=is')
-    >>> print product
+    >>> print(product)
     {({[is], 'is', 'Intelligence Study', false},)}
 
     >>> study_port.replace(product, {'study': {'id': 'is', 'closed': True}})
@@ -59,7 +59,7 @@ and ``new`` records.  If ``old`` is empty, it could be omitted::
     ...     POST={
     ...         'new': '''{"study": {"code": "is", "title": "Intelligence Study", "closed": false}}''',
     ...     })
-    >>> print study_port(req)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(study_port(req))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -81,7 +81,7 @@ and the updated record as the ``new`` parameter::
     ...         'old': '''{"study": {"id": "is", "code": "is", "title": "Intelligence Study", "closed": false}}''',
     ...         'new': '''{"study": {"id": "is", "closed": true}}''',
     ...     })
-    >>> print study_port(req)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(study_port(req))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -102,7 +102,7 @@ value::
     ...     POST={
     ...         'new': '''{"study": {"id": "is", "closed": false}}''',
     ...     })
-    >>> print study_port(req)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(study_port(req))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -123,7 +123,7 @@ To delete a record, supply the current record as ``old``, but omit it in
     ...     POST={
     ...         'old': '''{"study": {"id": "is", "code": "is", "title": "Intelligence Study", "closed": false}}''',
     ...     })
-    >>> print study_port(req)       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(study_port(req))       # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     ...
     {
@@ -253,19 +253,19 @@ Ill-formed input data is rejected::
     >>> study_port.replace("{", "}")
     Traceback (most recent call last):
       ...
-    Error: Got ill-formed JSON:
-        Expecting object: line 1 column 1 (char 0)
+    rex.core.Error: Got ill-formed JSON:
+        Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
 
     >>> study_port.replace([], ())
     Traceback (most recent call last):
       ...
-    Error: Got ill-formed input:
+    rex.core.Error: Got ill-formed input:
         ()
 
     >>> study_port.replace([], [()])
     Traceback (most recent call last):
       ...
-    Error: Got ill-formed input:
+    rex.core.Error: Got ill-formed input:
         ()
 
 Records in ``old`` without identity as well as records with duplicate ``id``
@@ -274,13 +274,13 @@ are rejected::
     >>> study_port.replace([{'code': 'fos'}], None)
     Traceback (most recent call last):
       ...
-    Error: Got record without identity:
+    rex.core.Error: Got record without identity:
         #/study/0
 
     >>> study_port.update([{'id': 'fos'}, {'id': 'fos'}])
     Traceback (most recent call last):
       ...
-    Error: Got duplicate record:
+    rex.core.Error: Got duplicate record:
         #/study/0
     And:
         #/study/1
@@ -288,7 +288,7 @@ are rejected::
     >>> study_port.delete([{'id': 'fos'}, {'id': 'fos'}])
     Traceback (most recent call last):
       ...
-    Error: Got duplicate record:
+    rex.core.Error: Got duplicate record:
         #/study/0
     And:
         #/study/1
@@ -298,13 +298,13 @@ If an ``old`` record doesn't exist in the database, the request is failed::
     >>> study_port.delete([{'id': 'is'}])
     Traceback (most recent call last):
       ...
-    Error: Got a missing record:
+    rex.core.Error: Got a missing record:
         #/study/0
 
     >>> study_port.delete([{'id': 'fos', 'code': 'is'}])
     Traceback (most recent call last):
       ...
-    Error: Got a modified record:
+    rex.core.Error: Got a modified record:
         #/study/0
 
 Unknown references are detected::
@@ -312,7 +312,7 @@ Unknown references are detected::
     >>> individual_port.insert([{'code': '2000', 'mother': '#/individual/0', 'father': '#/individual/0'}])
     Traceback (most recent call last):
       ...
-    Error: Got unknown reference:
+    rex.core.Error: Got unknown reference:
         #/individual/0
 
 When a record is created or modified, it must not leave the boundaries of the
@@ -321,7 +321,8 @@ port::
     >>> study_port.replace(None, [{'id': 'fos', 'closed': True}], ('study.closed', False))
     Traceback (most recent call last):
       ...
-    Error: Failed to fetch:
+    rex.core.Error: Failed to fetch:
         #/study/0
+
 
 

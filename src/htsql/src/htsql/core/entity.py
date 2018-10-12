@@ -30,11 +30,8 @@ class Entity(Printable):
     def freeze(self):
         pass
 
-    def __unicode__(self):
-        return u"[%s]" % id(self)
-
     def __str__(self):
-        return unicode(self).encode('utf-8')
+        return "[%s]" % id(self)
 
 
 class MutableEntity(Entity):
@@ -56,15 +53,15 @@ class NamedEntity(Entity):
     __slots__ = ('name',)
 
     def __init__(self, owner, name):
-        assert isinstance(name, unicode)
+        assert isinstance(name, str)
         super(NamedEntity, self).__init__(owner)
         self.name = name
 
-    def __unicode__(self):
+    def __str__(self):
         if self.name:
             return self.name
         else:
-            return u"<default>"
+            return "<default>"
 
 
 class EntitySet(Printable):
@@ -105,11 +102,8 @@ class EntitySet(Printable):
     def items(self):
         return [(entity.name, entity) for entity in self.entities]
 
-    def __unicode__(self):
-        return u"[%s]" % u", ".join(entity.name for entity in self.entities)
-
     def __str__(self):
-        return unicode(self).encode('utf-8')
+        return "[%s]" % ", ".join(entity.name for entity in self.entities)
 
 
 class MutableEntitySet(EntitySet):
@@ -247,10 +241,10 @@ class TableEntity(NamedEntity):
     def schema(self):
         return self.owner()
 
-    def __unicode__(self):
+    def __str__(self):
         if not self.schema.name:
             return self.name
-        return u"%s.%s" % (self.schema, self.name)
+        return "%s.%s" % (self.schema, self.name)
 
     def __contains__(self, name):
         return (name in self.columns)
@@ -346,8 +340,8 @@ class ColumnEntity(NamedEntity, MutableEntity):
                 for foreign_key in self.table.referring_foreign_keys
                 if self in foreign_key.target_columns]
 
-    def __unicode__(self):
-        return u"%s.%s" % (self.table, self.name)
+    def __str__(self):
+        return "%s.%s" % (self.table, self.name)
 
 
 class MutableColumnEntity(ColumnEntity, MutableEntity):
@@ -406,9 +400,9 @@ class UniqueKeyEntity(Entity):
     def origin(self):
         return self.owner()
 
-    def __unicode__(self):
-        return u"%s(%s)" % (self.origin,
-                            u",".join(column.name
+    def __str__(self):
+        return "%s(%s)" % (self.origin,
+                            ",".join(column.name
                                       for column in self.origin_columns))
 
     def __contains__(self, column):
@@ -492,15 +486,15 @@ class ForeignKeyEntity(Entity):
     def target(self):
         return self.coowner()
 
-    def __unicode__(self):
-        return (u"%s(%s) -> %s(%s)"
+    def __str__(self):
+        return ("%s(%s) -> %s(%s)"
                 % (self.origin,
-                   u",".join(column.name for column in self.origin_columns),
+                   ",".join(column.name for column in self.origin_columns),
                    self.target,
-                   u",".join(column.name for column in self.target_columns)))
+                   ",".join(column.name for column in self.target_columns)))
 
     def __contains__(self, column_pair):
-        return (column_pair in zip(self.origin_columns, self.target_columns))
+        return (column_pair in list(zip(self.origin_columns, self.target_columns)))
 
     def __getitem__(self, index):
         return (self.origin_columns[index], self.target_columns[index])
@@ -613,20 +607,17 @@ class Join(Printable, Hashable):
     def reverse(self):
         raise NotImplementedError()
 
-    def __unicode__(self):
+    def __str__(self):
         # Generate a string of the form:
         #   schema.table(column,...) -> schema.table(column,...)
-        return u"%s(%s) -> %s(%s)" % \
+        return "%s(%s) -> %s(%s)" % \
                 (self.origin,
-                 u",".join(column.name for column in self.origin_columns),
+                 ",".join(column.name for column in self.origin_columns),
                  self.target,
-                 u",".join(column.name for column in self.target_columns))
-
-    def __str__(self):
-        return unicode(self).encode('utf-8')
+                 ",".join(column.name for column in self.target_columns))
 
     def __contains__(self, column_pair):
-        return (column_pair in zip(self.origin_columns, self.target_columns))
+        return (column_pair in list(zip(self.origin_columns, self.target_columns)))
 
     def __getitem__(self, index):
         return (self.origin_columns[index], self.target_columns[index])

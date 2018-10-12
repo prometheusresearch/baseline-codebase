@@ -16,7 +16,7 @@ def import_assessment(instrument_uid, version=None, input=None, verbose=False):
 
     def log(msg, *args):
         if verbose:
-            print msg % args
+            print(msg % args)
 
     if not input:
         raise Error("input is expected.")
@@ -52,9 +52,9 @@ def import_assessment(instrument_uid, version=None, input=None, verbose=False):
             raise Error(msg)
         try:
             assessments.add_chunk(instrument, template, chunk)
-        except Exception, exc:
+        except Exception as exc:
             chunk.fail(exc)
-            raise exc
+            raise
 
     log("Saving generated assessments to the data store...")
 
@@ -99,16 +99,16 @@ def import_assessment(instrument_uid, version=None, input=None, verbose=False):
             bulk_assessments.append(bulk_assessment)
         try:
             assessment_impl.bulk_create(bulk_assessments)
-        except Exception, exc:
+        except Exception as exc:
             for chunk in input.chunks:
                 chunk.fail(exc)
             raise exc
 
 
 def export_template(instrument_uid, version=None, verbose=False, user=None):
-    if verbose: print "Looking for instrument..."
+    if verbose: print("Looking for instrument...")
     instrument = Instrument.find(instrument_uid, version)
-    if verbose: print "Generating instrument template..."
+    if verbose: print("Generating instrument template...")
     template = Template(instrument)
     chunks = [ImportChunk(id, [data], user) for (id, data) in template]
     output = ImportPackage(chunks=chunks)

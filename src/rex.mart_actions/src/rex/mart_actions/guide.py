@@ -38,13 +38,13 @@ __all__ = (
 @as_transitionable(Syntax, tag='s')
 def _format_syntax(value, request, path):
     # pylint: disable=unused-argument
-    return unicode(value)
+    return str(value)
 
 
 def quote_or_null(value):
     if value is None:
-        return u'null()'
-    return u"'%s'" % (value.replace("'", "''"),)
+        return 'null()'
+    return "'%s'" % (value.replace("'", "''"),)
 
 
 class GuideMartTool(MartTool):
@@ -234,7 +234,7 @@ class GuideConfiguration(object):
             specs.append({
                 'title': spec['title'],
                 'selected': spec['selected'],
-                'type': unicode(field.domain.__class__),
+                'type': str(field.domain.__class__),
             })
         return specs
 
@@ -242,7 +242,7 @@ class GuideConfiguration(object):
         return [
             dict([
                 (key, val)
-                for key, val in spec.items()
+                for key, val in list(spec.items())
                 if key != 'expression'
             ])
             for spec in self._filter_specs
@@ -257,7 +257,7 @@ class GuideConfiguration(object):
 
         filters = []
         for mask in self.mask_config:
-            filters.append(u'.filter(%s)' % (unicode(mask),))
+            filters.append('.filter(%s)' % (str(mask),))
 
         for filt in selected_filters:
             try:
@@ -265,7 +265,7 @@ class GuideConfiguration(object):
             except IndexError:
                 continue
             generator = FILTER_GENERATORS[spec['type']]
-            filters.append(u'.filter(%s)' % (
+            filters.append('.filter(%s)' % (
                 generator(spec, filt),
             ))
 
@@ -311,12 +311,12 @@ class GuideConfiguration(object):
             except IndexError:
                 continue
             generator = FILTER_GENERATORS[spec['type']]
-            filters.append(u'.filter(%s)' % (
+            filters.append('.filter(%s)' % (
                 generator(spec, filt),
             ))
 
         for mask in self.mask_config:
-            filters.append(u'.filter(%s)' % (unicode(mask),))
+            filters.append('.filter(%s)' % (str(mask),))
 
         query = '/%s{%s}%s' % (
             self.table_name,
@@ -379,7 +379,7 @@ class GuideConfiguration(object):
             elif hasattr(cfg, 'expression'):
                 expressions.append(cfg)
 
-        for namespace, fields in includes.items():
+        for namespace, fields in list(includes.items()):
             name = self.table_name
             if namespace:
                 name += '.' + namespace
@@ -387,7 +387,7 @@ class GuideConfiguration(object):
 
             if '*' in fields:
                 new_fields = OrderedDict()
-                for name, cfg in fields.items():
+                for name, cfg in list(fields.items()):
                     if name in new_fields:
                         continue
 
@@ -399,14 +399,14 @@ class GuideConfiguration(object):
                         if field.tag in new_fields:
                             if not new_fields[field.tag].title:
                                 new_fields[field.tag].title = field.header
-                            new_fields[field.tag]._type = unicode(
+                            new_fields[field.tag]._type = str(
                                 field.domain.__class__,
                             )
                         elif field.tag in fields:
                             if not fields[field.tag].title:
                                 fields[field.tag].title = field.header
                             new_fields[field.tag] = fields[field.tag]
-                            new_fields[field.tag]._type = unicode(
+                            new_fields[field.tag]._type = str(
                                 field.domain.__class__,
                             )
                         else:
@@ -415,7 +415,7 @@ class GuideConfiguration(object):
                                 'include': prefix + field.tag,
                                 'title': field.header,
                                 'selected': cfg.selected,
-                                '_type': unicode(field.domain.__class__),
+                                '_type': str(field.domain.__class__),
                             })
                 includes[namespace] = new_fields
                 fields = new_fields
@@ -425,7 +425,7 @@ class GuideConfiguration(object):
                     if field.tag in fields:
                         if not fields[field.tag].title:
                             fields[field.tag].title = field.header
-                        fields[field.tag]._type = unicode(
+                        fields[field.tag]._type = str(
                             field.domain.__class__,
                         )
 
@@ -433,11 +433,11 @@ class GuideConfiguration(object):
                 field.tag
                 for field in product.meta.domain.item_domain.fields
             ]
-            for tag in fields.keys():
+            for tag in list(fields.keys()):
                 if tag not in all_fields:
                     fields.pop(tag)
 
-        for namespace, fields in excludes.items():
+        for namespace, fields in list(excludes.items()):
             if namespace not in includes:
                 continue
             for field in fields:
@@ -445,18 +445,18 @@ class GuideConfiguration(object):
 
         specs = []
 
-        for namespace, fields in includes.items():
-            for field in fields.values():
+        for namespace, fields in list(includes.items()):
+            for field in list(fields.values()):
                 specs.append({
-                    'expression': unicode(field.include),
-                    'title': unicode(field.title),
+                    'expression': str(field.include),
+                    'title': str(field.title),
                     'selected': field.selected,
                     '_type': field._type,
                 })
 
         for expression in expressions:
             specs.append({
-                'expression': unicode(expression.expression),
+                'expression': str(expression.expression),
                 'title': expression.title,
                 'selected': expression.selected,
                 '_type': None,
@@ -471,7 +471,7 @@ class GuideConfiguration(object):
         htsql = '/%s{%s}/:describe' % (
             self.table_name,
             ', '.join([
-                unicode(cfg.expression)
+                str(cfg.expression)
                 for cfg in self.filter_config
             ]),
         )
@@ -483,14 +483,14 @@ class GuideConfiguration(object):
                 product.meta.domain.item_domain.fields):
             spec = {
                 'title': cfg.title,
-                'expression': unicode(cfg.expression),
+                'expression': str(cfg.expression),
             }
 
             if isinstance(field.domain, EnumDomain):
                 spec['type'] = 'enum'
                 spec['enumerations'] = field.domain.labels
             else:
-                spec['type'] = unicode(field.domain)
+                spec['type'] = str(field.domain)
 
             if spec['type'] not in FILTER_GENERATORS:
                 continue
@@ -580,7 +580,7 @@ class GuideMartAction(MartFilteredAction):
             rex.mart_guide_cfg = LRUCache(
                 maxsize=get_settings().mart_htsql_cache_depth,
             )
-        for key in rex.mart_guide_cfg.keys():
+        for key in list(rex.mart_guide_cfg.keys()):
             if key.startswith('%s|' % id(self)):
                 del rex.mart_guide_cfg[key]
 

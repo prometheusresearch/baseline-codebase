@@ -48,7 +48,7 @@ class Classify(Adapter):
                 contenders_by_arity = {}
                 for arc in arcs_by_bid[name, weight]:
                     contenders_by_arity.setdefault(arc.arity, []).append(arc)
-                for arity in sorted(contenders_by_arity):
+                for arity in sorted(contenders_by_arity, key=(lambda a: a if a is not None else -1)):
                     signature = (name, arity)
                     contenders = contenders_by_arity[arity]
                     if signature in arc_by_signature:
@@ -72,7 +72,7 @@ class Classify(Adapter):
             name = name_by_arc[arc]
             label = Label(name, arc, False)
             labels.append(label)
-        for signature in sorted(rejections_by_signature):
+        for signature in sorted(rejections_by_signature, key=(lambda s: (s[0], s[1] if s[1] is not None else -1))):
             name, arity = signature
             alternatives = []
             seen = set()
@@ -197,7 +197,7 @@ class CallTable(Call):
         table = self.arc.table
         yield table.name, table.schema.priority
         if table.schema.name:
-            name = u"%s %s" % (table.schema.name, table.name)
+            name = "%s %s" % (table.schema.name, table.name)
             yield name, -1
 
 
@@ -213,7 +213,7 @@ class CallChain(Call):
 
     adapt(ChainArc)
 
-    path_word = u"via"
+    path_word = "via"
 
     def __call__(self):
         is_primary = True
@@ -238,7 +238,7 @@ class CallChain(Call):
             origin_name = foreign_key.origin_columns[-1].name
             target_name = foreign_key.target_columns[-1].name
             if origin_name.endswith(target_name):
-                prefix = origin_name[:-len(target_name)].rstrip(u' _-')
+                prefix = origin_name[:-len(target_name)].rstrip(' _-')
                 if not prefix:
                     prefix = target
             column = origin_name
@@ -250,10 +250,10 @@ class CallChain(Call):
         else:
             yield target, 3
         if not is_direct and prefix:
-            name = u"%s %s %s" % (target, self.path_word, prefix)
+            name = "%s %s %s" % (target, self.path_word, prefix)
             yield name, 2
         if not is_direct and column:
-            name = u"%s %s %s" % (target, self.path_word, column)
+            name = "%s %s %s" % (target, self.path_word, column)
             yield name, 1
 
 

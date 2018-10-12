@@ -48,8 +48,8 @@ class Binding(Clonable, Printable):
         # Inherit the error context from the syntax node.
         point(self, syntax)
 
-    def __unicode__(self):
-        return unicode(self.syntax)
+    def __str__(self):
+        return str(self.syntax)
 
 
 class Recipe(Hashable):
@@ -339,7 +339,7 @@ class DefineBinding(DecorateBinding):
     """
 
     def __init__(self, base, name, arity, recipe, syntax):
-        assert isinstance(name, unicode)
+        assert isinstance(name, str)
         assert isinstance(arity, maybe(int))
         assert isinstance(recipe, Recipe)
         super(DefineBinding, self).__init__(base, syntax)
@@ -360,7 +360,7 @@ class DefineReferenceBinding(DecorateBinding):
     """
 
     def __init__(self, base, name, recipe, syntax):
-        assert isinstance(name, unicode)
+        assert isinstance(name, str)
         assert isinstance(recipe, Recipe)
         super(DefineReferenceBinding, self).__init__(base, syntax)
         self.name = name
@@ -373,7 +373,7 @@ class DefineCollectionBinding(DecorateBinding):
     """
 
     def __init__(self, base, collection, is_reference, syntax):
-        assert isinstance(collection, dictof(unicode, Recipe))
+        assert isinstance(collection, dictof(str, Recipe))
         assert isinstance(is_reference, bool)
         super(DefineCollectionBinding, self).__init__(base, syntax)
         self.collection = collection
@@ -556,9 +556,9 @@ class AssignmentBinding(Binding):
     """
 
     def __init__(self, base, terms, parameters, body, syntax):
-        assert isinstance(terms, listof(tupleof(unicode, bool)))
+        assert isinstance(terms, listof(tupleof(str, bool)))
         assert len(terms) > 0
-        assert isinstance(parameters, maybe(listof(tupleof(unicode, bool))))
+        assert isinstance(parameters, maybe(listof(tupleof(str, bool))))
         assert isinstance(body, Syntax)
         super(AssignmentBinding, self).__init__(base, VoidDomain(), syntax)
         self.terms = terms
@@ -657,7 +657,7 @@ class FormatBinding(WrappingBinding):
     # FIXME: currently unused.
 
     def __init__(self, base, format, syntax):
-        assert isinstance(format, unicode)
+        assert isinstance(format, str)
         super(FormatBinding, self).__init__(base, syntax)
         self.format = format
 
@@ -910,8 +910,8 @@ class SubstitutionRecipe(Recipe):
 
     def __init__(self, base, terms, parameters, body):
         assert isinstance(base, Binding)
-        assert isinstance(terms, listof(tupleof(unicode, bool)))
-        assert isinstance(parameters, maybe(listof(tupleof(unicode, bool))))
+        assert isinstance(terms, listof(tupleof(str, bool)))
+        assert isinstance(parameters, maybe(listof(tupleof(str, bool))))
         assert isinstance(body, Syntax)
         self.base = base
         self.terms = terms
@@ -931,7 +931,7 @@ class SubstitutionRecipe(Recipe):
                 chunks.append(".")
             if is_reference:
                 chunks.append("$")
-            chunks.append(name.encode('utf-8'))
+            chunks.append(name)
         if self.parameters is not None:
             chunks.append("(")
             for index, (name, is_reference) in enumerate(self.parameters):
@@ -939,7 +939,7 @@ class SubstitutionRecipe(Recipe):
                     chunks.append(",")
                 if is_reference:
                     chunks.append("$")
-                chunks.append(name.encode('utf-8'))
+                chunks.append(name)
             chunks.append(")")
         if chunks:
             chunks.append(" := ")
@@ -1034,7 +1034,7 @@ class AmbiguousRecipe(InvalidRecipe):
     """
 
     def __init__(self, alternatives=None):
-        assert isinstance(alternatives, maybe(listof(unicode)))
+        assert isinstance(alternatives, maybe(listof(str)))
         super(AmbiguousRecipe, self).__init__()
         self.alternatives = alternatives
 

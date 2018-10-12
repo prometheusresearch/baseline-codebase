@@ -11,7 +11,7 @@ tests:
   # Create a virtual environment, install rex.setup, prepare rex.setup_demo.
   - rmdir: sandbox
   - &create-virtualenv
-    sh: virtualenv -q --system-site-packages --never-download ./sandbox
+    sh: python -m venv --system-site-packages ./sandbox
   - &install-self
     sh: ./bin/pip install -q -e ..
     cd: sandbox
@@ -30,12 +30,12 @@ tests:
   # Install rex.setup_demo; verify layout and egg-info files.
   - sh: ./bin/pip install -q ./src/rex.setup_demo
     cd: sandbox
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-4.1.2-py2.7.egg-info/rex_init.txt
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-4.1.2-py2.7.egg-info/rex_static.txt
+  - read: ./sandbox/lib/python3.6/site-packages/rex.setup_demo-4.1.2.egg-info/rex_init.txt
+  - read: ./sandbox/lib/python3.6/site-packages/rex.setup_demo-4.1.2.egg-info/rex_static.txt
     ignore: &ignore-prefix |
       /(.*)/sandbox/
-  - read: ./sandbox/lib/python2.7/site-packages/rex.setup_demo-4.1.2-py2.7.egg-info/rex_bundle.txt
-  - sh: ls -R ./lib/python2.7/site-packages/rex
+  - read: ./sandbox/lib/python3.6/site-packages/rex.setup_demo-4.1.2.egg-info/rex_bundle.txt
+  - sh: ls -R ./lib/python3.6/site-packages/rex
     environ: { LC_ALL: C }
     cd: sandbox
   - sh: ls ./share/rex
@@ -71,7 +71,7 @@ tests:
   - read: ./sandbox/src/rex.setup_demo/src/rex.setup_demo.egg-info/rex_static.txt
     ignore: *ignore-prefix
   # Verify fixup of namespace packages.
-  - read: ./sandbox/lib/python2.7/site-packages/rex/__init__.py
+  - read: ./sandbox/lib/python3.6/site-packages/rex/__init__.py
   - sh: ls ./share/rex
     environ: { LC_ALL: C }
     cd: sandbox
@@ -128,9 +128,9 @@ tests:
   # Build a wheel package for rex.setup_demo; install it and verify content.
   - sh: ../../bin/python setup.py -q bdist_wheel
     cd: ./sandbox/src/rex.setup_demo
-  - sh: ./bin/pip install -q ./src/rex.setup_demo/dist/rex.setup_demo-4.1.2-py2-none-any.whl
+  - sh: ./bin/pip install -q ./src/rex.setup_demo/dist/rex.setup_demo-4.1.2-py3-none-any.whl
     cd: sandbox
-  - sh: ls ./lib/python2.7/site-packages/rex
+  - sh: ls ./lib/python3.6/site-packages/rex
     environ: { LC_ALL: C }
     cd: sandbox
   - sh: ls ./share/rex

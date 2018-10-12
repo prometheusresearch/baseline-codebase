@@ -38,7 +38,7 @@ class Processor(Extension):
                 raise Error('Option must be a tuple/list', option)
             if len(option) not in (2, 3):
                 raise Error('Invalid Processor Option', option)
-            if not isinstance(option[0], basestring):
+            if not isinstance(option[0], str):
                 raise Error('Option name must be a string', option[0])
             if not callable(option[1]):
                 raise Error('Option validator must be callable', option[1])
@@ -73,10 +73,10 @@ class Processor(Extension):
 
             validated[name] = value
 
-        if options.keys():
+        if list(options.keys()):
             raise Error(
                 'Unknown Processor Options',
-                ', '.join(options.keys()),
+                ', '.join(list(options.keys())),
             )
 
         return validated

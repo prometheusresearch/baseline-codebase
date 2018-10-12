@@ -164,7 +164,7 @@ class ClarifyIdentity(Clarify):
                         id_class([c(v) for c in cs]) if v is not None else None)
 
 
-class ExtractValuePipe(object):
+class ExtractValuePipe:
 
     def __init__(self, name, from_domain, to_domain, convert, index):
         self.name = name
@@ -180,11 +180,11 @@ class ExtractValuePipe(object):
         except ValueError:
             message = "Failed to adapt value of %s to %s" \
                     % (self.name, self.to_domain)
-            quote = unicode(Value(self.from_domain, item))
+            quote = str(Value(self.from_domain, item))
             raise Error(message, quote)
 
 
-class ExtractNodePipe(object):
+class ExtractNodePipe:
 
     def __init__(self, node, arcs, id_convert, converts, is_list):
         assert isinstance(node, TableNode)
@@ -310,7 +310,7 @@ class BuildExtractNode(Utility):
                     if clarify is None:
                         raise Error("Invalid type for column %s:"
                                     " expected %s; got %s"
-                                    % (field.tag.encode('utf-8'),
+                                    % (field.tag,
                                        arc_domain, field.domain))
                     convert = ExtractValuePipe(label.name, field.domain,
                                                arc_domain, clarify, idx)
@@ -320,7 +320,7 @@ class BuildExtractNode(Utility):
         return ExtractNodePipe(node, arcs, id_convert, converts, is_list)
 
 
-class ExtractTablePipe(object):
+class ExtractTablePipe:
 
     def __init__(self, table, columns, resolves, extracts):
         assert isinstance(table, TableEntity)
@@ -354,7 +354,7 @@ class BuildExtractTable(Utility):
                 column = arc.column
                 if column in extract_by_column:
                     raise Error("Duplicate column assignment for %s"
-                                % column.name.encode('utf-8'))
+                                % column.name)
                 resolve = None
                 extract = operator.itemgetter(idx)
                 resolves.append(resolve)
@@ -368,7 +368,7 @@ class BuildExtractTable(Utility):
                 for column_idx, column in enumerate(resolve.columns):
                     if column in extract_by_column:
                         raise Error("Duplicate column assignment for %s"
-                                    % column.name.encode('utf-8'))
+                                    % column.name)
                     extract = (lambda r, i=idx, k=column_idx: r[i][k])
                     extract_by_column[column] = extract
         columns = []
@@ -380,13 +380,13 @@ class BuildExtractTable(Utility):
         return ExtractTablePipe(table, columns, resolves, extracts)
 
 
-class ExecuteInsertPipe(object):
+class ExecuteInsertPipe:
 
     def __init__(self, table, input_columns, output_columns, sql):
         assert isinstance(table, TableEntity)
         assert isinstance(input_columns, listof(ColumnEntity))
         assert isinstance(output_columns, listof(ColumnEntity))
-        assert isinstance(sql, unicode)
+        assert isinstance(sql, str)
         self.table = table
         self.input_columns = input_columns
         self.output_columns = output_columns
@@ -403,7 +403,7 @@ class ExecuteInsertPipe(object):
             raise PermissionError("No write permissions")
         with transaction() as connection:
             cursor = connection.cursor()
-            cursor.execute(self.sql.encode('utf-8'), row)
+            cursor.execute(self.sql, row)
             rows = cursor.fetchall()
             if len(rows) != 1:
                 raise Error("Failed to insert a record")
@@ -438,7 +438,7 @@ class BuildExecuteInsert(Utility):
         return ExecuteInsertPipe(table, self.columns, returning_columns, sql)
 
 
-class ResolveIdentityPipe(object):
+class ResolveIdentityPipe:
 
     def __init__(self, profile, pipe):
         self.profile = profile
@@ -512,7 +512,7 @@ class BuildResolveIdentity(Utility):
         return ResolveIdentityPipe(profile, pipe)
 
 
-class ResolveChainPipe(object):
+class ResolveChainPipe:
 
     def __init__(self, name, columns, domain, pipe):
         assert isinstance(columns, listof(ColumnEntity))
@@ -535,9 +535,9 @@ class ResolveChainPipe(object):
         if len(data) != 1:
             quote = None
             if self.name:
-                quote = u"%s[%s]" % (self.name, self.domain.dump(value))
+                quote = "%s[%s]" % (self.name, self.domain.dump(value))
             else:
-                quote = u"[%s]" % self.domain.dump(value)
+                quote = "[%s]" % self.domain.dump(value)
             raise Error("Unable to resolve a link", quote)
         return data[0]
 
@@ -597,7 +597,7 @@ class BuildResolveChain(Utility):
         return ResolveChainPipe(target_name, columns, domain, pipe)
 
 
-class CacheChainPipe(object):
+class CacheChainPipe:
 
     def __init__(self, name, columns, domain, pipe):
         assert isinstance(columns, listof(ColumnEntity))
@@ -620,9 +620,9 @@ class CacheChainPipe(object):
         except KeyError:
             quote = None
             if self.name:
-                quote = u"%s[%s]" % (self.name, self.domain.dump(value))
+                quote = "%s[%s]" % (self.name, self.domain.dump(value))
             else:
-                quote = u"[%s]" % self.domain.dump(value)
+                quote = "[%s]" % self.domain.dump(value)
             raise Error("Unable to resolve a link", quote)
 
 
@@ -692,7 +692,7 @@ class ProduceInsert(Act):
                             execute_insert(
                                 extract_table(
                                     extract_node(record))))
-                except Error, exc:
+                except Error as exc:
                     if extract_node.is_list:
                         message = "While inserting record #%s" % (idx+1)
                     else:

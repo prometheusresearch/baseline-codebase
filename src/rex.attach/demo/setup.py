@@ -18,14 +18,14 @@ class demo(Command):
         attach_dir = '../sandbox/attachments'
         if not os.path.exists(attach_dir):
             os.makedirs(attach_dir)
-            print "Created attachment storage:"
-            print "\t%s" % attach_dir
+            print("Created attachment storage:")
+            print("\t%s" % attach_dir)
         cmd = "rex deploy rex.attach_demo"
-        print "$", cmd
+        print("$", cmd)
         os.spawnvp(0, cmd.split()[0], cmd.split())
         cmd = "rex serve rex.attach_demo" \
                 " --set attach_dir=%s" % attach_dir
-        print "$", cmd
+        print("$", cmd)
         os.spawnvp(0, cmd.split()[0], cmd.split())
 
 setup(

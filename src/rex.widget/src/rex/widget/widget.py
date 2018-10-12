@@ -42,18 +42,18 @@ contain:
 
 """.strip()
 
-class WidgetMeta(Extension.__metaclass__): # pylint: disable=no-init
+class WidgetMeta(type(Extension)): # pylint: disable=no-init
 
     def __new__(mcs, name, bases, members): # pylint: disable=bad-classmethod-argument
         fields = [(n, field.__clone__(name=n) if field.name is None else field)
-                  for n, field in members.items()
+                  for n, field in list(members.items())
                   if isinstance(field, FieldBase)]
-        fields.sort(key=lambda (_, field): -field.order)
+        fields.sort(key=lambda __field: -__field[1].order)
         members.update(fields)
-        cls = Extension.__metaclass__.__new__(mcs, name, bases, members)
+        cls = type(Extension).__new__(mcs, name, bases, members)
         # js_type validation
         if hasattr(cls, 'js_type') and cls.js_type is not None:
-            if isinstance(cls.js_type, basestring):
+            if isinstance(cls.js_type, str):
                 raise Error(
                     'Error while defining %s.%s widget:' % (
                         cls.__module__, cls.__name__),
@@ -62,11 +62,11 @@ class WidgetMeta(Extension.__metaclass__): # pylint: disable=no-init
         if not (name == 'Widget' and members['__module__'] == __name__):
             cls._fields.update([f for base in bases
                                 if issubclass(base, Widget)
-                                for f in base._fields.items()])
+                                for f in list(base._fields.items())])
         cls._fields.update(fields)
         cls._configuration = cls.Configuration({
             field.name: field
-            for field in cls._fields.values()
+            for field in list(cls._fields.values())
             if isinstance(field, Field)})
         return cls
 
@@ -74,7 +74,7 @@ class WidgetMeta(Extension.__metaclass__): # pylint: disable=no-init
 _suppress_validation = False
 
 
-class Widget(Extension):
+class Widget(Extension, metaclass=WidgetMeta):
     """ Widget class is used to define configuration interface for React
     components.
 
@@ -117,8 +117,6 @@ class Widget(Extension):
 
     """
 
-    __metaclass__ = WidgetMeta
-
     name = None
     js_type = None
 
@@ -137,7 +135,7 @@ class Widget(Extension):
     @classmethod
     def parse(cls, value):
         validate = cls._validate.validate.__class__(widget_class=cls)
-        if isinstance(value, basestring) or hasattr(value, 'read'):
+        if isinstance(value, str) or hasattr(value, 'read'):
             return validate.parse(value)
         else:
             raise Error('Cannot parse a widget from:', repr(value))
@@ -163,8 +161,8 @@ class Widget(Extension):
 
     @classmethod
     def document_header(cls):
-        if isinstance(cls.name, (str, unicode)):
-            return unicode(cls.name)
+        if isinstance(cls.name, str):
+            return str(cls.name)
         return super(Widget, cls).document_header()
 
     @classmethod
@@ -178,7 +176,7 @@ class Widget(Extension):
     def document_fields(cls):
         fields = []
         template = '  * ``{name}``\n\n      {doc}'
-        for field in sorted(cls._fields.values(), key=(lambda f: f.name)):
+        for field in sorted(list(cls._fields.values()), key=(lambda f: f.name)):
             if isinstance(field, (ComputedField, ResponderField)):
                 continue
             fields.append(template.format(
@@ -227,7 +225,7 @@ class Widget(Extension):
 def _format_Widget(widget, req, path): # pylint: disable=invalid-name
     values = OrderedDict()
     values.update(widget.values)
-    for name, field in widget._fields.items():
+    for name, field in list(widget._fields.items()):
         if field.transitionable:
             if field.as_transitionable:
                 values[name] = field.as_transitionable(widget, field(widget))

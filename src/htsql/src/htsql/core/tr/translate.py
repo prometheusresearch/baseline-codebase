@@ -21,7 +21,7 @@ from .pack import pack
 from .pipe import SQLPipe, RecordPipe, ComposePipe, ProducePipe
 
 
-class CacheItem(object):
+class CacheItem:
 
     __slots__ = ('prev', 'next', 'key', 'value')
 
@@ -32,7 +32,7 @@ class CacheItem(object):
         self.value = value
 
 
-class LRUCache(object):
+class LRUCache:
 
     __slots__ = ('head', 'tail', 'items', 'size')
 
@@ -99,8 +99,8 @@ def get_cached_plan(key, cache_plan=cache_plan):
 
 
 def translate(syntax, environment=None, limit=None, offset=None, batch=None):
-    assert isinstance(syntax, (Syntax, Binding, unicode, str))
-    if isinstance(syntax, (str, unicode)):
+    assert isinstance(syntax, (Syntax, Binding, str))
+    if isinstance(syntax, str):
         syntax = parse(syntax)
     if not isinstance(syntax, Binding):
         binding = bind(syntax, environment=environment)
@@ -145,9 +145,9 @@ def get_sql(pipe):
         if sqls:
             merged_sqls = [sqls[0]]
             for sql in sqls[1:]:
-                merged_sqls.append(u"\n".join(u"  "+line if line else u""
+                merged_sqls.append("\n".join("  "+line if line else ""
                                               for line in sql.splitlines()))
-            return u"\n\n".join(merged_sqls)
+            return "\n\n".join(merged_sqls)
 
 
 def safe_patch(segment, limit, offset):

@@ -12,8 +12,8 @@ from ..core.validator import DBVal
 import sys
 import os.path
 import wsgiref.util
-import urllib
-import StringIO
+import urllib.request, urllib.parse, urllib.error
+import io
 import mimetypes
 import re
 import getpass
@@ -25,13 +25,13 @@ BaseYAMLLoader = getattr(yaml, 'CSafeLoader', yaml.SafeLoader)
 
 class ConfigYAMLLoader(BaseYAMLLoader):
 
-    name_pattern = ur"""
+    name_pattern = r"""
         ^
         [a-zA-Z_-][0-9a-zA-Z_-]*
         $
     """
     name_regexp = re.compile(name_pattern, re.X)
-    dotted_name_pattern = ur"""
+    dotted_name_pattern = r"""
         ^
         [a-zA-Z_-][0-9a-zA-Z_-]*
         (?: \. [a-zA-Z_-][0-9a-zA-Z_-]* )*
@@ -49,30 +49,30 @@ class ConfigYAMLLoader(BaseYAMLLoader):
     def construct_document(self, node):
         document_node = node
         if (not (isinstance(document_node, yaml.ScalarNode) and
-                document_node.tag == u'tag:yaml.org,2002:null') and
+                document_node.tag == 'tag:yaml.org,2002:null') and
             not (isinstance(document_node, yaml.MappingNode) and
-                 document_node.tag == u'tag:yaml.org,2002:map')):
+                 document_node.tag == 'tag:yaml.org,2002:map')):
             raise yaml.constructor.ConstructorError(None, None,
                     "invalid structure of configuration file",
                     document_node.start_mark)
         if isinstance(document_node, yaml.MappingNode):
             for name_node, addon_node in document_node.value:
                 if not (isinstance(name_node, yaml.ScalarNode) and
-                        name_node.tag == u'tag:yaml.org,2002:str' and
+                        name_node.tag == 'tag:yaml.org,2002:str' and
                         self.dotted_name_regexp.match(name_node.value)):
                     raise yaml.constructor.ConstructorError(None, None,
                             "invalid addon name", name_node.start_mark)
             if (not (isinstance(addon_node, yaml.ScalarNode) and
-                    addon_node.tag == u'tag:yaml.org,2002:null') and
+                    addon_node.tag == 'tag:yaml.org,2002:null') and
                 not (isinstance(addon_node, yaml.MappingNode) and
-                     addon_node.tag == u'tag:yaml.org,2002:map')):
+                     addon_node.tag == 'tag:yaml.org,2002:map')):
                 raise yaml.constructor.ConstructorError(None, None,
                         "invalid addon configuration", addon_node.start_mark)
                 if isinstance(addon_node, yaml.MappingNode):
                     for attribute_node, value_node in addon_node.value:
                         if not (isinstance(attribute_node, yaml.ScalarNode) and
                                 attribute_node.tag
-                                    == u'tag:yaml.org,2002:str' and
+                                    == 'tag:yaml.org,2002:str' and
                                 self.name_regexp.match(attribute_node.value)):
                             raise yaml.constructor.ConstructorError(None, None,
                                     "invalid parameter name",
@@ -89,7 +89,7 @@ class ConfigYAMLLoader(BaseYAMLLoader):
                     "expected a file name, but found an empty node",
                     node.start_mark)
         basename = getattr(self.stream, 'name', None)
-        filename = node.value.encode('utf-8')
+        filename = node.value
         if not os.path.isabs(filename):
             if not basename:
                 raise yaml.constructor.ConstructorError(None, None,
@@ -98,7 +98,7 @@ class ConfigYAMLLoader(BaseYAMLLoader):
             filename = os.path.join(os.path.dirname(basename), filename)
         try:
             stream = open(filename, 'rb')
-        except IOError, exc:
+        except IOError as exc:
             raise yaml.constructor.ConstructorError(None, None,
                     "unable to open a file: %s" % exc, node.start_mark)
         loader = self.__class__(stream)
@@ -107,11 +107,11 @@ class ConfigYAMLLoader(BaseYAMLLoader):
             return super(ConfigYAMLLoader, self).construct_object(node)
 
 
-ConfigYAMLLoader.add_constructor(u'!include',
+ConfigYAMLLoader.add_constructor('!include',
         ConfigYAMLLoader.construct_include)
 
 
-class Request(object):
+class Request:
     """
     Represents a WSGI request.
 
@@ -174,7 +174,7 @@ class Request(object):
         else:
             path_info = query
             query_string = ''
-        path_info = urllib.unquote(path_info)
+        path_info = urllib.parse.unquote(path_info)
         environ['PATH_INFO'] = path_info
         environ['QUERY_STRING'] = query_string
 
@@ -195,7 +195,7 @@ class Request(object):
                 content_body = content_body.read()
             environ['CONTENT_TYPE'] = content_type
             environ['CONTENT_LENGTH'] = str(len(content_body))
-            environ['wsgi.input'] = StringIO.StringIO(content_body)
+            environ['wsgi.input'] = io.StringIO(content_body)
 
         # Transfer HTTP headers to the WSGI `environ`.
         if extra_headers is not None:
@@ -230,7 +230,7 @@ class Request(object):
             response.set(status=status, headers=headers)
             # Note that we don't expect the application to use the returned
             # stream object, so we don't keep it.
-            return StringIO.StringIO()
+            return io.BytesIO()
 
         # Copy the `environ` dictionary in case the application modifies it.
         # TODO: that is not enough to make `execute()` truly re-entrant: for
@@ -243,7 +243,7 @@ class Request(object):
         try:
             iterator = app(environ, start_response)
             try:
-                response.set(body=''.join(iterator))
+                response.set(body=b''.join(iterator))
             finally:
                 if hasattr(iterator, 'close'):
                     iterator.close()
@@ -254,7 +254,7 @@ class Request(object):
         return response
 
 
-class Response(object):
+class Response:
     """
     Represents a response to a WSGI request.
 
@@ -297,7 +297,7 @@ class Response(object):
                 self.status[:3].isdigit() and
                 self.status[3:4] == ' ' and
                 isinstance(self.headers, listof(tupleof(str, str))) and
-                isinstance(self.body, str) and
+                isinstance(self.body, bytes) and
                 self.exc_info is None)
 
     def dump(self, stream, with_headers=False):
@@ -322,11 +322,11 @@ class Response(object):
             stream.write("\r\n")
 
         # Write the HTTP body.
-        stream.write(self.body)
+        stream.write(self.body.decode('utf-8', 'replace'))
 
         # Write CR if the body does not end with a new line and the
         # output stream is a console.
-        if self.body and self.body[-1] not in "\r\n":
+        if self.body and self.body[-1] not in b"\r\n":
             if hasattr(stream, 'isatty') and stream.isatty():
                 stream.write("\r\n")
 
@@ -364,7 +364,7 @@ class DBRoutine(Routine):
             loader = ConfigYAMLLoader(stream)
             try:
                 config_extension = loader.load()
-            except yaml.YAMLError, exc:
+            except yaml.YAMLError as exc:
                 raise ScriptError("failed to load application configuration:"
                                   " %s" % exc)
             if config_extension is not None:
@@ -377,7 +377,7 @@ class DBRoutine(Routine):
             loader = ConfigYAMLLoader(stream)
             try:
                 default_extension = loader.load()
-            except yaml.YAMLError, exc:
+            except yaml.YAMLError as exc:
                 raise ScriptError("failed to load default configuration: %s"
                                   % exc)
             if default_extension is not None:
@@ -387,7 +387,7 @@ class DBRoutine(Routine):
         from htsql import HTSQL
         try:
             app = HTSQL(*parameters)
-        except ImportError, exc:
+        except ImportError as exc:
             raise ScriptError("failed to construct application: %s" % exc)
 
         # Run the routine-specific code.

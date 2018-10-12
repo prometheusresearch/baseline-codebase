@@ -16,7 +16,7 @@ import traceback
 import atexit
 
 
-class Ctl(object):
+class Ctl:
     """
     Wraps a ``rex`` invocation.
 
@@ -53,11 +53,11 @@ class Ctl(object):
         if self.pid == 0:
             try:
                 stdin = open(self.tmpin, 'r')
-                stdout = open(self.tmpout, 'a', 0)
+                stdout = open(self.tmpout, 'a')
                 #stderr = open(self.tmpout, 'a', 0)
                 sys.stdin = os.fdopen(0, 'r')
-                sys.stdout = os.fdopen(1, 'a', 0)
-                sys.stderr = os.fdopen(2, 'a', 0)
+                sys.stdout = os.fdopen(1, 'w')
+                sys.stderr = os.fdopen(2, 'w')
                 os.dup2(stdin.fileno(), sys.stdin.fileno())
                 os.dup2(stdout.fileno(), sys.stdout.fileno())
                 os.dup2(stdout.fileno(), sys.stderr.fileno())
@@ -66,10 +66,10 @@ class Ctl(object):
                     try:
                         try:
                             run(sys.argv)
-                        except (Error, IOError), exc:
+                        except (Error, IOError) as exc:
                             raise fail(str(exc))
-                    except Failure, exc:
-                        print >>sys.stderr, exc
+                    except Failure as exc:
+                        print(exc, file=sys.stderr)
                         raise
                     except Exception:
                         traceback.print_exc()
@@ -77,8 +77,7 @@ class Ctl(object):
                     finally:
                         sys.stdout.flush()
                         sys.stderr.flush()
-                        if hasattr(sys, 'exitfunc'):
-                            sys.exitfunc()
+                        atexit._run_exitfuncs()
             except:
                 os._exit(1)
             else:

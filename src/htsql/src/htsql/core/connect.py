@@ -17,7 +17,7 @@ from .error import Error, EngineError
 from .context import context
 
 
-class DBErrorGuard(object):
+class DBErrorGuard:
     """
     Guards against DBAPI exception.
 
@@ -68,7 +68,7 @@ class DBErrorGuard(object):
             raise EngineError("Got an error from the database driver", error)
 
 
-class ConnectionProxy(object):
+class ConnectionProxy:
     """
     Wraps a DBAPI connection object.
 
@@ -133,7 +133,7 @@ class ConnectionProxy(object):
         self.is_busy = False
 
 
-class CursorProxy(object):
+class CursorProxy:
     """
     Wraps a DBAPI cursor object.
 
@@ -175,7 +175,7 @@ class CursorProxy(object):
             try:
                 with self.guard:
                     return self.cursor.execute(statement, *parameters)
-            except Error, exc:
+            except Error as exc:
                 exc.wrap("While executing SQL", statement)
                 if parameters:
                     parameters = parameters[0]
@@ -194,7 +194,7 @@ class CursorProxy(object):
             try:
                 with self.guard:
                     return self.cursor.executemany(statement, parameters_set)
-            except Error, exc:
+            except Error as exc:
                 exc.wrap("While executing SQL", statement)
                 if not parameters_set:
                     exc.wrap("With no parameters")
@@ -245,7 +245,7 @@ class CursorProxy(object):
         while True:
             with self.guard:
                 try:
-                    row = iterator.next()
+                    row = next(iterator)
                 except StopIteration:
                     row = None
             if row is None:
@@ -359,7 +359,7 @@ class Transact(Utility):
         return TransactionGuard()
 
 
-class TransactionGuard(object):
+class TransactionGuard:
 
     def __init__(self):
         self.connection = context.env.connection

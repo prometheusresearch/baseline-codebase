@@ -10,7 +10,7 @@ Test rex.widget.map
   >>> class MappedWidget(Widget):
   ...     name = 'MappedWidget'
   ...     js_type = 'pkg', 'mapped-widget'
-  ...
+  ... 
   ...     @responder()
   ...     def respond(self, req):
   ...         return Response(json='ok')
@@ -32,20 +32,20 @@ Test rex.widget.map
 
 ::
 
-  >>> print Request.blank(
+  >>> print(Request.blank(
   ...   '/w',
-  ...   accept='application/json').get_response(rex) # doctest: +ELLIPSIS
+  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
-  Content-Type: application/json; charset=UTF-8
+  Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
   ["~#widget", ["rex-widget", "Chrome", {...}]]
 
-  >>> print Request.blank(
+  >>> print(Request.blank(
   ...   '/w/@@/2.content.2.respond',
-  ...   accept='application/json').get_response(rex) # doctest: +ELLIPSIS
+  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
-  Content-Type: application/json; charset=UTF-8
+  Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
   "ok"
@@ -70,11 +70,11 @@ Overrides
   ...     no_chrome: true
   ... ''')
 
-  >>> print Request.blank(
+  >>> print(Request.blank(
   ...   '/w',
-  ...   accept='application/json').get_response(rex) # doctest: +ELLIPSIS
+  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
-  Content-Type: application/json; charset=UTF-8
+  Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
   ["~#widget", ["pkg", "mapped-widget", {...}]]
@@ -87,9 +87,9 @@ Overrides
   ...     access: nobody
   ... ''')
 
-  >>> print Request.blank(
+  >>> print(Request.blank(
   ...   '/w',
-  ...   accept='application/json').get_response(rex) # doctest: +ELLIPSIS
+  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   401 Unauthorized
   ...
 
@@ -101,11 +101,11 @@ Overrides
   ...     title: NEWTITLE
   ... ''')
 
-  >>> print Request.blank(
+  >>> print(Request.blank(
   ...   '/w',
-  ...   accept='application/json').get_response(rex) # doctest: +ELLIPSIS
+  ...   accept='application/json').get_response(rex)) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
-  Content-Type: application/json; charset=UTF-8
+  Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
   ["~#widget", ["rex-widget", "Chrome", {..., "title": "NEWTITLE"}]]
@@ -113,3 +113,4 @@ Overrides
 ::
 
   >>> rex.off()
+

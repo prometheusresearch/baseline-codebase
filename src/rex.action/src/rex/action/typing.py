@@ -9,7 +9,7 @@
 
 """
 
-from __future__ import absolute_import
+
 
 import re
 import ast
@@ -30,6 +30,7 @@ from rex.core import StrVal, OneOfVal, MapVal, SeqVal
 from rex.widget import TransitionableRecord, as_transitionable
 
 from .state_expression import StateExpressionVal, is_state_expression
+from functools import reduce
 
 __all__ = (
     'anytype',
@@ -219,7 +220,7 @@ class RowTypeVal(Validate):
             return RowType(name=self._validate_name(value.name), type=value)
         if len(value) != 1:
             raise Error('Row type expects a single definition')
-        name, typ = value.iteritems().next()
+        name, typ = next(iter(value.items()))
         return RowType(name=self._validate_name(name), type=typ)
 
 
@@ -238,7 +239,7 @@ class RecordType(Type):
         if isinstance(rows, self.__class__):
             rows = rows.rows
         next_rows = dict(self.rows)
-        for k, v in rows.items():
+        for k, v in list(rows.items()):
             if not k in next_rows:
                 continue
             if not isinstance(v, RowType):
@@ -326,10 +327,10 @@ class Domain(object):
             return self
         next_domain = Domain(
             name=self.name,
-            entity_types=self.entity_types.values())
+            entity_types=list(self.entity_types.values()))
         next_domain.entity_types.update({
             typ.key: typ for typ
-                         in domain.entity_types.values()
+                         in list(domain.entity_types.values())
         })
         for entity_name in self.syn_entity_state:
             (next_domain
@@ -358,14 +359,14 @@ class Domain(object):
 
     def get_states_for_type(self, type_name):
         return {typ.state.name: typ.state
-                for typ in self.entity_types.values()
+                for typ in list(self.entity_types.values())
                 if typ.name == type_name}
 
     def record(self, *rows_args, **rows_kwargs):
         rows = {}
         rows.update({v.name: v for v in rows_args})
         rows.update({k: RowType(k, self[v] if not isinstance(v, Type) else v)
-                     for k, v in rows_kwargs.items()})
+                     for k, v in list(rows_kwargs.items())})
         return RecordType(rows=rows, open=True)
 
     def on(self):
@@ -420,7 +421,7 @@ def annotate_port(domain, port):
                 typ = domain[arm.table.name]
                 tree = grow_type_info(tree, path, name)
                 tree = grow_title_info(tree, path, arm)
-                for state in domain.get_states_for_type(typ.name).values():
+                for state in list(domain.get_states_for_type(typ.name).values()):
                     tree = grow_state_info(tree, path, state)
 
 
@@ -438,21 +439,21 @@ def _get_title_column(table_node, columns_to_try=('__title__', 'title')):
 def grow_title_info(tree, path, arm):
     title_column = _get_title_column(arm.arc.target)
     expression = parse_htsql(title_column)
-    grow = GrowCalculation(u'meta:title', path, expression)
+    grow = GrowCalculation('meta:title', path, expression)
     tree = grow(tree)
     return tree
 
 
 def grow_type_info(tree, path, name):
     expression = parse_htsql("'%s'" % name)
-    grow = GrowCalculation(u'meta:type', path, expression)
+    grow = GrowCalculation('meta:type', path, expression)
     tree = grow(tree)
     return tree
 
 
 def grow_state_info(tree, path, state):
     expression = parse_htsql(state.expression)
-    grow = GrowCalculation(u'meta:state:%s' % state.name, path, expression)
+    grow = GrowCalculation('meta:state:%s' % state.name, path, expression)
     tree = grow(tree)
     return tree
 
@@ -523,7 +524,7 @@ def unify(type_a, type_b, label=None):
     elif kind_a is RowType:
         raise InvalidRowTypeUsage()
     elif kind_a is RecordType:
-        for label, typ in type_a.rows.items():
+        for label, typ in list(type_a.rows.items()):
             if label in GLOBAL_ROWS:
                 continue
             other_typ = type_b.rows.get(label, NotImplemented)

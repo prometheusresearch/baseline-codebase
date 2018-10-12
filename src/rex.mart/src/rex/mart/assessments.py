@@ -49,11 +49,11 @@ class AssessmentLoader(object):
         for i in range(0, len(selected), 100):
             # Retrieve a batch of Assessments from the datastore
             selected_value_map = dict([
-                (unicode(rec.assessment_uid), rec)
+                (str(rec.assessment_uid), rec)
                 for rec in selected[i:i + 100]
             ])
             assessments = assessment_impl.bulk_retrieve(
-                selected_value_map.keys()
+                list(selected_value_map.keys())
             )
 
             # Collect port data.

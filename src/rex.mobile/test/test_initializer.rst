@@ -28,7 +28,7 @@ instances in the system and ensure that they contain valid configurations::
     >>> rex.reset()
     Traceback (most recent call last):
         ...
-    Error: Interaction "broken1mobile" contains an invalid configuration: The following problems were encountered when validating this Interaction:
+    rex.core.Error: Interaction "broken1mobile" contains an invalid configuration: The following problems were encountered when validating this Interaction:
     <root>: Unrecognized keys in mapping: "{'foo': 'bar'}"
     While initializing RexDB application:
         __main__
@@ -39,7 +39,7 @@ instances in the system and ensure that they contain valid configurations::
     >>> rex.reset()  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    Error: Failed to parse a YAML document:
+    rex.core.Error: Failed to parse a YAML document:
         ...
     While validating system Interactions.
     While initializing RexDB application:

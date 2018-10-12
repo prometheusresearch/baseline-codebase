@@ -45,7 +45,7 @@ from .coerce import coerce
 from .decorate import decorate
 
 
-class BindingState(object):
+class BindingState:
 
     def __init__(self, root, environment=None):
         assert isinstance(root, RootBinding)
@@ -212,17 +212,17 @@ class Bind(Adapter):
 
 def hint_choices(choices):
     # Generate a hint from a list of choices.
-    assert isinstance(choices, listof(unicode))
+    assert isinstance(choices, listof(str))
     if not choices:
         return None
     chunks = ["did you mean:"]
     if len(choices) == 1:
-        chunks.append("'%s'" % choices[0].encode('utf-8'))
+        chunks.append("'%s'" % choices[0])
     else:
-        chunks.append(", ".join("'%s'" % choice.encode('utf-8')
+        chunks.append(", ".join("'%s'" % choice
                                 for choice in choices[:-1]))
         chunks.append("or")
-        chunks.append("'%s'" % choices[-1].encode('utf-8'))
+        chunks.append("'%s'" % choices[-1])
     return " ".join(chunks)
 
 
@@ -767,7 +767,7 @@ class BindDirect(Bind):
 
     def __call__(self):
         base = self.state.bind(self.syntax.arm)
-        direction = {u'+': +1, u'-': -1}[self.syntax.symbol]
+        direction = {'+': +1, '-': -1}[self.syntax.symbol]
         return DirectionBinding(base, direction, self.syntax)
 
 
@@ -782,7 +782,7 @@ class BindReference(Bind):
         if recipe is None:
             model = self.syntax.identifier.name.lower()
             names = lookup_reference_set(self.state.scope)
-            choices = [u"$"+name for name in sorted(names)
+            choices = ["$"+name for name in sorted(names)
                                  if similar(model, name)]
             with choices_guard(choices):
                 raise Error("Found unknown reference", self.syntax)
@@ -908,7 +908,7 @@ class BindByName(Protocol):
     def __matches__(component, dispatch_key):
         # Check if the component matches the given function name
         # and the number of arguments.
-        assert isinstance(dispatch_key, tupleof(unicode, maybe(int)))
+        assert isinstance(dispatch_key, tupleof(str, maybe(int)))
 
         # The name and the number of arguments of the call node.
         key_name, key_arity = dispatch_key
@@ -975,21 +975,20 @@ class BindByName(Protocol):
             component_arity = -1
             if isinstance(component_name, tuple):
                 component_name, component_arity = component_name
-            if isinstance(component_name, str):
-                component_name = component_name.decode('utf-8')
             component_name = component_name.lower()
             global_attributes.add((component_name, component_arity))
-        all_attributes = sorted(attributes|global_attributes)
+        all_attributes = sorted(attributes|global_attributes,
+                                key=(lambda a: (a[0], a[1] if a[1] is not None else -2)))
         choices = []
         if not choices and arity is None:
             names = lookup_reference_set(self.state.scope)
             if model in names:
-                choices = ["a reference '$%s'" % model.encode('utf-8')]
+                choices = ["a reference '$%s'" % model]
         if not choices and arity is None:
             if any(model == sample
                    for sample, sample_arity in all_attributes
                    if sample_arity is not None):
-                choices = ["a function '%s'" % model.encode('utf-8')]
+                choices = ["a function '%s'" % model]
         if not choices and arity is None:
             choices = [sample
                        for sample, sample_arity in all_attributes
@@ -1023,15 +1022,13 @@ class BindByName(Protocol):
             if any(model == sample
                    for sample, sample_arity in all_attributes
                    if sample_arity is None):
-                choices = ["an attribute '%s'" % model.encode('utf-8')]
+                choices = ["an attribute '%s'" % model]
         if not choices and arity is not None:
             choices = [sample
                        for sample, sample_arity in all_attributes
                        if sample_arity in [-1, arity] and sample != model
                             and similar(model, sample)]
         scope_name = guess_tag(self.state.scope)
-        if scope_name is not None:
-            scope_name = scope_name.encode('utf-8')
         with choices_guard(choices):
             if isinstance(self.syntax, (FunctionSyntax, PipeSyntax)):
                 raise Error("Found unknown function",

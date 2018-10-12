@@ -101,7 +101,7 @@ class ShellTask(RexDBTask):
         routine = RexShellRoutine(script, db)
         try:
             routine.run()
-        except htsql.ctl.error.ScriptError, error:
+        except htsql.ctl.error.ScriptError as error:
             raise fail(str(error))
 
 
@@ -188,8 +188,10 @@ class QueryTask(RexDBTask):
                               if self.output not in [None, '-']
                               else sys.stdout)
                     for chunk in db.emit(format, product):
-                        stream.write(chunk)
-            except htsql.core.error.Error, error:
+                        stream.write(chunk.decode('utf-8', 'replace'))
+                    if stream != sys.stdout:
+                        stream.close()
+            except htsql.core.error.Error as error:
                 raise fail(str(error))
 
 
@@ -247,9 +249,9 @@ class GraphDBTask(RexDBTask):
             proc = subprocess.Popen(
                     cmd, stdin=subprocess.PIPE,
                     stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            out, err = proc.communicate(graph)
+            out, err = proc.communicate(graph.encode('utf-8'))
             if proc.returncode != 0:
-                sys.stderr.write(out)
+                sys.stderr.write(out.decode('utf-8', 'replace'))
                 raise fail("non-zero exit code: `{}`",
                            subprocess.list2cmdline(cmd))
             # Display the image when the output file is not specified.
@@ -270,7 +272,7 @@ class GraphDBTask(RexDBTask):
                     table_node not in nodes):
                 continue
             labels = htsql.core.classify.relabel(table_arc)
-            name = labels[0].name.encode('utf-8')
+            name = labels[0].name
             nodes[table_node] = name
         # Extract links between tables.
         edges = collections.OrderedDict()
@@ -292,7 +294,7 @@ class GraphDBTask(RexDBTask):
                           htsql.core.classify.relabel(label.arc))
                 if not labels:
                     continue
-                name = labels[0].name.encode('utf-8')
+                name = labels[0].name
                 origin_name = nodes[origin_node]
                 target_name = nodes[target_node]
                 is_parental = (link_arc in parental_arcs)

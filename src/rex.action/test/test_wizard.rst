@@ -22,41 +22,41 @@ Wizard
 
   >>> class MockAction(Action):
   ...   name = 'mock'
-  ...
+  ... 
   ...   text = Field(StrVal(), default=undefined)
   ...   input = Field(RecordTypeVal(), default=RecordType.empty())
   ...   output = Field(RecordTypeVal(), default=RecordType.empty())
-  ...
+  ... 
   ...   def context(self):
   ...     return self.input, self.output
 
 
   >>> class MyAction(Action):
-  ...
+  ... 
   ...   name = 'wmy'
   ...   js_type = 'pkg', 'MyAction'
-  ...
+  ... 
   ...   def context(self):
   ...     return self.domain.record(), self.domain.record()
 
   >>> class AnotherAction(Action):
-  ...
+  ... 
   ...   name = 'wanother'
-  ...
+  ... 
   ...   def context(self):
   ...     return self.domain.record(), self.domain.record()
 
   >>> class RequireX(Action):
-  ...
+  ... 
   ...   name = 'require-x'
-  ...
+  ... 
   ...   def context(self):
   ...     return self.domain.record(x='x'), self.domain.record()
 
   >>> class ProvideX(Action):
-  ...
+  ... 
   ...   name = 'provide-x'
-  ...
+  ... 
   ...   def context(self):
   ...     return self.domain.record(), self.domain.record(x='x')
 
@@ -111,7 +111,7 @@ Wizard
 
   >>> from rex.widget import encode
   >>> encode(w, Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  u'["~#widget", ["rex-action", "Wizard", ...]]'
+  '["~#widget", ["rex-action", "Wizard", ...]]'
 
 ::
 
@@ -173,7 +173,7 @@ Multiple actions dicts::
   Start(then=[Execute(id='first', action='first', then=[Execute(id='second', action='second', then=[], action_instance=AnotherAction(...))], action_instance=MyAction(...))])
 
   >>> w.actions
-  {'second': AnotherAction(...), 'first': MyAction(...)}
+  {'first': MyAction(...), 'second': AnotherAction(...)}
 
   >>> w = parse("""
   ... type: wizard
@@ -191,7 +191,7 @@ Multiple actions dicts::
   Start(then=[Execute(id='first', action='first', then=[Execute(id='second', action='second', then=[], action_instance=AnotherAction(...))], action_instance=MyAction(...))])
 
   >>> w.actions
-  {'second': AnotherAction(...), 'first': MyAction(...)}
+  {'first': MyAction(...), 'second': AnotherAction(...)}
 
   >>> w = parse("""
   ... type: wizard
@@ -257,29 +257,29 @@ Context refetch::
   ... """)
 
   >>> refetch = lambda ctx: w.data.respond(
-  ...   Request.blank('/', method='POST', body=json.dumps(ctx)))
+  ...   Request.blank('/', method='POST', json=ctx))
 
-  >>> print refetch({}) # doctest: +ELLIPSIS
+  >>> print(refetch({})) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
-  Content-Type: application/json; charset=UTF-8
+  Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
   {}
 
-  >>> print refetch({'x': {'y': '34'}}) # doctest: +ELLIPSIS
+  >>> print(refetch({'x': {'y': '34'}})) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
-  Content-Type: application/json; charset=UTF-8
+  Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
   {"x":{"y":"34"}}
 
-  >>> print refetch({
+  >>> print(refetch({
   ...   'x': {
   ...     'y': {'type': 'individual', 'id': 'C49Z4843'}
   ...   }
-  ... }) # doctest: +ELLIPSIS
+  ... })) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
   200 OK
-  Content-Type: application/json; charset=UTF-8
+  Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
   {"x":{"y":null}}
@@ -327,7 +327,7 @@ Basic cases
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Action "view-individual" cannot be used here:
+  rex.core.Error: Action "view-individual" cannot be used here:
       Context is missing "individual: individual"
   Context:
       <empty context>
@@ -352,7 +352,7 @@ Basic cases
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Action "view-individual" cannot be used here:
+  rex.core.Error: Action "view-individual" cannot be used here:
       Context is missing "individual: individual"
   Context:
       <empty context>
@@ -401,7 +401,7 @@ Basic cases
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Action "view-individual" cannot be used here:
+  rex.core.Error: Action "view-individual" cannot be used here:
       Context is missing "individual: individual"
   Context:
       <empty context>
@@ -444,7 +444,7 @@ Keys and types are different, fail::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Action "view-individual" cannot be used here:
+  rex.core.Error: Action "view-individual" cannot be used here:
       Context is missing "individual: individual"
   Context:
       study: study
@@ -471,7 +471,7 @@ Keys aren't same as types, fail::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Action "view-individual" cannot be used here:
+  rex.core.Error: Action "view-individual" cannot be used here:
       Context is missing "individual: individual"
   Context:
       mother: individual
@@ -515,7 +515,7 @@ Same type, different key, fail::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Action "view-mother" cannot be used here:
+  rex.core.Error: Action "view-mother" cannot be used here:
       Context is missing "mother: individual"
   Context:
       individual: individual
@@ -540,7 +540,7 @@ Same type, different key, fail::
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Action "view-mother-study" cannot be used here:
+  rex.core.Error: Action "view-mother-study" cannot be used here:
       Context has "mother: individual" but expected to have "mother: study"
   Context:
       mother: individual
@@ -684,7 +684,7 @@ Repeat
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Action "view-mother" cannot be used here:
+  rex.core.Error: Action "view-mother" cannot be used here:
       Context is missing "mother: individual"
   Context:
       individual: individual
@@ -736,7 +736,7 @@ Repeat
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Action "view-mother" cannot be used here:
+  rex.core.Error: Action "view-mother" cannot be used here:
       Context is missing "mother: individual"
   Context:
       individual: individual
@@ -768,7 +768,7 @@ Repeat
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Repeat ends with a type which is incompatible with its beginning:
+  rex.core.Error: Repeat ends with a type which is incompatible with its beginning:
       Has "individual: study" but expected to have "individual: individual"
   While parsing:
       "<...>", line 6
@@ -837,7 +837,7 @@ Replace
   ... """) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Action "view-lab" cannot be used here:
+  rex.core.Error: Action "view-lab" cannot be used here:
       Context is missing "lab: lab"
   Context:
       individual: individual
@@ -902,3 +902,4 @@ Overrides
 ::
 
   >>> rex.off()
+

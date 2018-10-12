@@ -53,22 +53,22 @@ and string-rendering methods::
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
 
     >>> calculationset.get_display_name()
-    u'fake123'
+    'fake123'
 
-    >>> unicode(calculationset)
-    u'fake123'
+    >>> str(calculationset)
+    'fake123'
 
     >>> str(calculationset)
     'fake123'
 
     >>> repr(calculationset)
-    "CalculationSet(u'fake123', InstrumentVersion(u'notreal456', Instrument(u'fake123', u'My Instrument Title'), 1))"
+    "CalculationSet('fake123', InstrumentVersion('notreal456', Instrument('fake123', 'My Instrument Title'), 1))"
 
     >>> calculationset.as_dict()
-    {'instrument_version': {'instrument': {'status': u'active', 'code': u'fake123', 'uid': u'fake123', 'title': u'My Instrument Title'}, 'published_by': u'sirius', 'version': 1, 'uid': u'notreal456', 'date_published': datetime.datetime(2015, 6, 9, 0, 0)}, 'uid': u'fake123'}
+    {'uid': 'fake123', 'instrument_version': {'uid': 'notreal456', 'instrument': {'uid': 'fake123', 'title': 'My Instrument Title', 'code': 'fake123', 'status': 'active'}, 'version': 1, 'published_by': 'sirius', 'date_published': datetime.datetime(2015, 6, 9, 0, 0)}}
 
     >>> calculationset.as_json()
-    u'{"instrument_version": {"instrument": {"status": "active", "code": "fake123", "uid": "fake123", "title": "My Instrument Title"}, "published_by": "sirius", "version": 1, "uid": "notreal456", "date_published": "2015-06-09T00:00:00"}, "uid": "fake123"}'
+    '{"uid": "fake123", "instrument_version": {"uid": "notreal456", "instrument": {"uid": "fake123", "title": "My Instrument Title", "code": "fake123", "status": "active"}, "version": 1, "published_by": "sirius", "date_published": "2015-06-09T00:00:00"}}'
 
 
 The InstrumentVersions passed to the constructor must actually be
@@ -87,7 +87,7 @@ or the dict equivalent::
     >>> calculationset.validate()
     Traceback (most recent call last):
         ...
-    ValidationError: CalculationSet Definition must be mapped objects.
+    rex.instrument.errors.ValidationError: CalculationSet Definition must be mapped objects.
 
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.validate()
@@ -104,14 +104,14 @@ a dict equivalent::
     >>> calculationset.definition_yaml
     "instrument: {id: 'urn:test-instrument', version: '1.1'}\ncalculations:\n- id: calc1\n  type: text\n  method: python\n  options: {expression: 'assessment[''q_fake''].upper()'}"
 
-    >>> calculationset.definition_json = u'{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "calculations": [{"id": "calc1", "type": "text", "method": "python", "options": {"expression": "assessment[\'q_fake\'].upper()"}}]}'
+    >>> calculationset.definition_json = '{"instrument": {"id": "urn:test-instrument", "version": "1.1"}, "calculations": [{"id": "calc1", "type": "text", "method": "python", "options": {"expression": "assessment[\'q_fake\'].upper()"}}]}'
     >>> calculationset.definition
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'calculations': [{'id': 'calc1', 'type': 'text', 'method': 'python', 'options': {'expression': "assessment['q_fake'].upper()"}}]}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'calculations': [{'id': 'calc1', 'type': 'text', 'method': 'python', 'options': {'expression': "assessment['q_fake'].upper()"}}]}
 
     >>> calculationset.definition_yaml = "instrument: {id: 'urn:test-instrument', version: '1.1'}\ncalculations:\n- id: calc1\n  type: text\n  method: python\n  options: {expression: 'assessment[''q_fake''].upper()'}"
 
     >>> calculationset.definition
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'calculations': [{'id': 'calc1', 'type': 'text', 'method': 'python', 'options': {'expression': "assessment['q_fake'].upper()"}}]}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'calculations': [{'id': 'calc1', 'type': 'text', 'method': 'python', 'options': {'expression': "assessment['q_fake'].upper()"}}]}
 
 There's a static method on CalculationSet named ``validate_definition()``
 that will check the given CalculatioSet definistion against the RIOS
@@ -132,14 +132,14 @@ if the CalculationSet or InstrumentVersion definition is not well-formed::
     >>> CalculationSet.validate_definition(BAD_CALCULATIONSET, INSTRUMENT_VERSION)
     Traceback (most recent call last):
         ...
-    ValidationError: The following problems were encountered when validating this CalculationSet:
+    rex.instrument.errors.ValidationError: The following problems were encountered when validating this CalculationSet:
     instrument: Required
 
     >>> BAD_CALCULATIONSET_JSON = json.dumps(BAD_CALCULATIONSET)
     >>> CalculationSet.validate_definition(BAD_CALCULATIONSET_JSON, INSTRUMENT_VERSION)
     Traceback (most recent call last):
         ...
-    ValidationError: The following problems were encountered when validating this CalculationSet:
+    rex.instrument.errors.ValidationError: The following problems were encountered when validating this CalculationSet:
     instrument: Required
 
     >>> BAD_INSTRUMENT_VERSION = deepcopy(INSTRUMENT_VERSION)
@@ -147,36 +147,36 @@ if the CalculationSet or InstrumentVersion definition is not well-formed::
     >>> CalculationSet.validate_definition(CALCULATIONSET, BAD_INSTRUMENT_VERSION)
     Traceback (most recent call last):
         ...
-    ValidationError: The following problems were encountered when validating this CalculationSet:
+    rex.instrument.errors.ValidationError: The following problems were encountered when validating this CalculationSet:
     title: Required
 
     >>> BAD_INSTRUMENT_VERSION_JSON = json.dumps(BAD_INSTRUMENT_VERSION)
     >>> CalculationSet.validate_definition(CALCULATIONSET, BAD_INSTRUMENT_VERSION_JSON)
     Traceback (most recent call last):
         ...
-    ValidationError: The following problems were encountered when validating this CalculationSet:
+    rex.instrument.errors.ValidationError: The following problems were encountered when validating this CalculationSet:
     title: Required
 
     >>> CalculationSet.validate_definition(object(), INSTRUMENT_VERSION_JSON)
     Traceback (most recent call last):
         ...
-    ValidationError: CalculationSet Definition must be mapped objects.
+    rex.instrument.errors.ValidationError: CalculationSet Definition must be mapped objects.
 
     >>> CalculationSet.validate_definition(CALCULATIONSET, object())
     Traceback (most recent call last):
         ...
-    ValidationError: Instrument Definitions must be mapped objects.
+    rex.instrument.errors.ValidationError: Instrument Definitions must be mapped objects.
 
     >>> CalculationSet.validate_definition('{foo')  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    ValidationError: Invalid JSON/YAML provided: Failed to parse a YAML document:
+    rex.instrument.errors.ValidationError: Invalid JSON/YAML provided: Failed to parse a YAML document:
         ...
 
     >>> CalculationSet.validate_definition(CALCULATIONSET, '{foo')  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    ValidationError: Invalid Instrument JSON/YAML provided: Failed to parse a YAML document:
+    rex.instrument.errors.ValidationError: Invalid Instrument JSON/YAML provided: Failed to parse a YAML document:
         ...
 
 
@@ -198,10 +198,10 @@ current assessment.instrument_version::
     ... }
     >>> assessment = Assessment('fake123', subject, iv, ASSESSMENT, evaluation_date=datetime(2015, 6, 2), status=Assessment.STATUS_COMPLETE)
     >>> calculationset.definition
-    {'instrument': {'version': '1.1', 'id': 'urn:test-instrument'}, 'calculations': [{'id': 'calc1', 'type': 'text', 'method': 'python', 'options': {'expression': "assessment['q_fake'].upper()"}}]}
+    {'instrument': {'id': 'urn:test-instrument', 'version': '1.1'}, 'calculations': [{'id': 'calc1', 'type': 'text', 'method': 'python', 'options': {'expression': "assessment['q_fake'].upper()"}}]}
 
     >>> calculationset.execute(assessment)
-    {'calc1': u'MY ANSWER'}
+    {'calc1': 'MY ANSWER'}
 
 Execute calculations of htsql and python method::
 
@@ -231,7 +231,7 @@ Execute calculations of htsql and python method::
     ... }
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
-    {'calc1': u'MY ANSWER', 'calc2': u'MY ANSWER'}
+    {'calc1': 'MY ANSWER', 'calc2': 'MY ANSWER'}
 
 calculations contained previous results::
 
@@ -277,7 +277,7 @@ calculations contained previous results::
     ... }
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
-    {'calc1': u'MY ANSWER', 'calc2': u'MY ANSWER', 'calc3': 18, 'calc4': 18}
+    {'calc1': 'MY ANSWER', 'calc2': 'MY ANSWER', 'calc3': 18, 'calc4': 18}
 
 calculation expression can include variables, calculated by the rules defined
 with subclasses of CalculationScopeAddon::
@@ -316,7 +316,7 @@ with subclasses of CalculationScopeAddon::
     ... }
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
-    {'calc1': True, 'calc2': u'False', 'calc3': None}
+    {'calc1': True, 'calc2': 'False', 'calc3': None}
 
 HTSQL calculation expressions don't allow ETL statements::
 
@@ -340,7 +340,7 @@ HTSQL calculation expressions don't allow ETL statements::
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    InstrumentError: Unexpected htsql /{} :as individual/:insert: Found unknown function:
+    rex.instrument.errors.InstrumentError: Unexpected htsql /{} :as individual/:insert: Found unknown function:
         insert
     While translating:
         /{} :as individual/:insert
@@ -398,26 +398,26 @@ types returned as is::
 
 CalculationSet.execute(...) fails when computed unexpected result::
 
-    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(\'2001-02-03\')'
+    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = '\'2001-02-03\''
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
-    {'calc1': u'2001-02-03'}
+    {'calc1': '2001-02-03'}
 
     >>> CALCULATIONSET['calculations'][0]['options']['expression'] = '123'
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    ValidationError: Unexpected calculation result type -- Expected "date" got "int"
+    rex.instrument.errors.ValidationError: Unexpected calculation result type -- Expected "date" got "int"
     While executing calculation:
         calc1
 
-    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(\'Hello world!\')'
+    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = '\'Hello world!\''
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    ValidationError: Unexpected calculation result type -- Expected "date" got "unicode"
+    rex.instrument.errors.ValidationError: Unexpected calculation result type -- Expected "date" got "str"
     While executing calculation:
         calc1
 
@@ -427,17 +427,17 @@ CalculationSet.execute(...) fails when computed unexpected result::
     >>> calculationset.execute(assessment)
     {'calc1': '11:34:56'}
 
-    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(\'12:34:56\')'
+    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = '\'12:34:56\''
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
-    {'calc1': u'12:34:56'}
+    {'calc1': '12:34:56'}
 
-    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(\'Hello world!\')'
+    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = '\'Hello world!\''
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    ValidationError: Unexpected calculation result type -- Expected "time" got "unicode"
+    rex.instrument.errors.ValidationError: Unexpected calculation result type -- Expected "time" got "str"
     While executing calculation:
         calc1
 
@@ -446,7 +446,7 @@ CalculationSet.execute(...) fails when computed unexpected result::
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    ValidationError: Unexpected calculation result type -- Expected "time" got "int"
+    rex.instrument.errors.ValidationError: Unexpected calculation result type -- Expected "time" got "int"
     While executing calculation:
         calc1
 
@@ -461,17 +461,17 @@ CalculationSet.execute(...) fails when computed unexpected result::
     >>> calculationset.execute(assessment)
     {'calc1': '2015-05-01T00:00:00'}
 
-    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(\'2001-02-03T12:34:56\')'
+    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = '\'2001-02-03T12:34:56\''
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
-    {'calc1': u'2001-02-03T12:34:56'}
+    {'calc1': '2001-02-03T12:34:56'}
 
-    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(\'Hello world!\')'
+    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = '\'Hello world!\''
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    ValidationError: Unexpected calculation result type -- Expected "dateTime" got "unicode"
+    rex.instrument.errors.ValidationError: Unexpected calculation result type -- Expected "dateTime" got "str"
     While executing calculation:
         calc1
 
@@ -480,7 +480,7 @@ CalculationSet.execute(...) fails when computed unexpected result::
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    ValidationError: Unexpected calculation result type -- Expected "dateTime" got "bool"
+    rex.instrument.errors.ValidationError: Unexpected calculation result type -- Expected "dateTime" got "bool"
     While executing calculation:
         calc1
 
@@ -490,17 +490,17 @@ CalculationSet.execute(...) fails when computed unexpected result::
     >>> calculationset.execute(assessment)
     {'calc1': 25}
 
-    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(10+15)'
+    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'str(10+15)'
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
     {'calc1': 25}
 
-    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(\'Hi!\')'
+    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = '\'Hi!\''
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    ValidationError: Unexpected calculation result type -- Expected "integer" got "unicode"
+    rex.instrument.errors.ValidationError: Unexpected calculation result type -- Expected "integer" got "str"
     While executing calculation:
         calc1
 
@@ -510,17 +510,17 @@ CalculationSet.execute(...) fails when computed unexpected result::
     >>> calculationset.execute(assessment)
     {'calc1': 25.009999999999998}
 
-    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(10+15)'
+    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'str(10+15)'
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
     {'calc1': 25.0}
 
-    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(\'2015-01-01\')'
+    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = '\'2015-01-01\''
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    ValidationError: Unexpected calculation result type -- Expected "float" got "unicode"
+    rex.instrument.errors.ValidationError: Unexpected calculation result type -- Expected "float" got "str"
     While executing calculation:
         calc1
 
@@ -545,12 +545,12 @@ CalculationSet.execute(...) fails when computed unexpected result::
     >>> calculationset.execute(assessment)
     {'calc1': True}
 
-    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(\'Morning!\')'
+    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = '\'Morning!\''
     >>> calculationset = CalculationSet('fake123', iv, CALCULATIONSET)
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    ValidationError: Unexpected calculation result type -- Expected "boolean" got "unicode"
+    rex.instrument.errors.ValidationError: Unexpected calculation result type -- Expected "boolean" got "str"
     While executing calculation:
         calc1
 
@@ -592,7 +592,7 @@ execute calculation contained enumeration question::
     >>> calculationset = CalculationSet('fake123', 'calculation2', CALCULATIONSET)
     >>> assessment = get_implementation('assessment').get_by_uid('assessment8')
     >>> calculationset.execute(assessment)
-    {'calc1': u'myenum', 'calc2': u'myenum', 'calc3': True}
+    {'calc1': 'myenum', 'calc2': 'myenum', 'calc3': True}
 
 execute calculations of enumerationSet question::
 
@@ -699,7 +699,7 @@ execute calculations of recordSet question can be defined with python method onl
     ... }
     >>> calculationset = CalculationSet('fake123', 'calculation2', CALCULATIONSET)
     >>> calculationset.execute(assessment)
-    {'calc1': u'hi', 'calc2': u'hello, goodbye'}
+    {'calc1': 'hi', 'calc2': 'hello, goodbye'}
 
     >>> CALCULATIONSET = {
     ...     'instrument': {
@@ -721,7 +721,7 @@ execute calculations of recordSet question can be defined with python method onl
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    InstrumentError: Unexpected htsql $q_recordlist_0_hello: Found unknown reference:
+    rex.instrument.errors.InstrumentError: Unexpected htsql $q_recordlist_0_hello: Found unknown reference:
         $q_recordlist_0_hello
     While translating:
         $q_recordlist_0_hello
@@ -770,12 +770,12 @@ execute calculations of boolean question when assessment keeps null as a value::
 
 execute(..) fails if expression contains value that cannot be run correctly::
 
-    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'unicode(1+1'
+    >>> CALCULATIONSET['calculations'][0]['options']['expression'] = 'str(1+1'
     >>> calculationset = CalculationSet('fake123', 'calculation2', CALCULATIONSET)
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
     ...
-    InstrumentError: Unable to calculate expression unicode(1+1: unexpected EOF while parsing (<string>, line 1)
+    rex.instrument.errors.InstrumentError: Unable to calculate expression str(1+1: unexpected EOF while parsing (<string>, line 1)
     While executing calculation:
         calc1
 
@@ -845,7 +845,7 @@ There is calculation callable option, that can be used as follows::
     ... }
     >>> calculationset = CalculationSet('fake123', 'calculation2', CALCULATIONSET)
     >>> calculationset.execute(assessment)
-    {'calc1': u'2.23', 'calc2': u'2.23'}
+    {'calc1': '2.23', 'calc2': '2.23'}
 
 execute(...) fails if module undefined::
 
@@ -854,7 +854,7 @@ execute(...) fails if module undefined::
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    InstrumentError: Unexpected callable my_calculation2: module name is expected.
+    rex.instrument.errors.InstrumentError: Unexpected callable my_calculation2: module name is expected.
     While executing calculation:
         calc1
 
@@ -865,7 +865,7 @@ or module doesnot exist::
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    InstrumentError: Unexpected callable rex.instrument_demo1.my_calculation1: unable to import module rex.instrument_demo1: No module named instrument_demo1.
+    rex.instrument.errors.InstrumentError: Unexpected callable rex.instrument_demo1.my_calculation1: unable to import module rex.instrument_demo1: No module named 'rex.instrument_demo1'.
     While executing calculation:
         calc1
 
@@ -876,7 +876,7 @@ or module doesnot contain given object name::
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    InstrumentError: Unexpected callable rex.instrument_demo.my_calculation: suitable callable object not found: 'module' object has no attribute 'my_calculation'
+    rex.instrument.errors.InstrumentError: Unexpected callable rex.instrument_demo.my_calculation: suitable callable object not found: module 'rex.instrument_demo' has no attribute 'my_calculation'
     While executing calculation:
         calc1
 
@@ -887,7 +887,7 @@ or given object is not callable::
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    InstrumentError: Unexpected callable option rex.instrument_demo.my_calculation3: my_calculation3 is not callable.
+    rex.instrument.errors.InstrumentError: Unexpected callable option rex.instrument_demo.my_calculation3: my_calculation3 is not callable.
     While executing calculation:
         calc1
 
@@ -896,7 +896,7 @@ or given object is not callable::
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    InstrumentError: Execution of rex.instrument_demo.my_calculation4 failed: __call__() takes exactly 4 arguments (3 given)
+    rex.instrument.errors.InstrumentError: Execution of rex.instrument_demo.my_calculation4 failed: __call__() missing 1 required positional argument: 'calculations'
     While executing calculation:
         calc1
 
@@ -913,10 +913,11 @@ by the setting instrument_calculationmethod_default_module_list::
     >>> calculationset.execute(assessment)
     Traceback (most recent call last):
         ...
-    InstrumentError: Got unexpected module math1 from setting 'instrument_calculationmethod_default_module_list'
+    rex.instrument.errors.InstrumentError: Got unexpected module math1 from setting 'instrument_calculationmethod_default_module_list'
     While executing calculation:
         calc1
 
 
 
     >>> rex.off()
+

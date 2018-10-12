@@ -7,7 +7,7 @@ import re
 import sys
 import math
 import decimal
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import pkgutil
 import datetime, time
 import collections
@@ -21,7 +21,7 @@ import yaml
 #
 
 
-class maybe(object):
+class maybe:
     """
     Checks if a value is either ``None`` or an instance of the specified type.
 
@@ -37,7 +37,7 @@ class maybe(object):
         return (value is None or isinstance(value, self.value_type))
 
 
-class oneof(object):
+class oneof:
     """
     Checks if a value is an instance of one of the specified types.
 
@@ -56,7 +56,7 @@ class oneof(object):
         return False
 
 
-class listof(object):
+class listof:
     """
     Checks if a value is a list containing elements of the specified type.
 
@@ -78,7 +78,7 @@ class listof(object):
         return True
 
 
-class setof(object):
+class setof:
     """
     Checks if a value is a set containing elements of the specified type.
 
@@ -100,7 +100,7 @@ class setof(object):
         return True
 
 
-class tupleof(object):
+class tupleof:
     """
     Checks if a value is a tuple with the fixed number of elements
     of the specified types.
@@ -123,7 +123,7 @@ class tupleof(object):
         return True
 
 
-class dictof(object):
+class dictof:
     """
     Checks if a value is a dictionary with keys and elements of
     the specified types.
@@ -148,7 +148,7 @@ class dictof(object):
         return True
 
 
-class omapof(object):
+class omapof:
     """
     Checks if a value is an :class:`omap` object with elements of the specified
     type.
@@ -171,7 +171,7 @@ class omapof(object):
         return True
 
 
-class subclassof(object):
+class subclassof:
     """
     Checks if a value is a subclass of the specified class.
 
@@ -187,7 +187,7 @@ class subclassof(object):
         return (isinstance(value, type) and issubclass(value, self.class_type))
 
 
-class filelike(object):
+class filelike:
     """
     Checks if a value is a file or a file-like object.
 
@@ -226,7 +226,7 @@ def isfinite(value):
     """
     Verifies that the given value is a finite number.
     """
-    return (isinstance(value, (int, long)) or
+    return (isinstance(value, int) or
             (isinstance(value, float) and not math.isinf(value)
                                       and not math.isnan(value)) or
             (isinstance(value, decimal.Decimal) and value.is_finite()))
@@ -245,7 +245,7 @@ def trim_doc(doc):
     `doc`: ``str`` or ``None``
         A docstring.
     """
-    assert isinstance(doc, maybe(oneof(str, unicode)))
+    assert isinstance(doc, maybe(oneof(str, str)))
 
     # Pass `None` through.
     if doc is None:
@@ -285,13 +285,11 @@ def to_name(text):
     - preceded with an underscore if it starts with a digit;
     - an empty string is replaced with ``'_'``.
     """
-    assert isinstance(text, (str, unicode))
-    if isinstance(text, str):
-        text = text.decode('utf-8', 'replace')
+    assert isinstance(text, str)
     if not text:
-        text = u"_"
+        text = "_"
     text = unicodedata.normalize('NFC', text).lower()
-    text = re.sub(ur"(?u)^(?=\d)|\W", u"_", text)
+    text = re.sub(r"(?u)^(?=\d)|\W", "_", text)
     return text
 
 
@@ -299,9 +297,9 @@ def urlquote(text, reserved=";/?:@&=+$,"):
     """
     Replaces non-printable and reserved characters with ``%XX`` sequences.
     """
-    assert isinstance(text, unicode)
+    assert isinstance(text, str)
     text = re.sub(r"[\x00-\x1F%%\x7F%s]" % reserved,
-                  (lambda m: u"%%%02X" % ord(m.group())),
+                  (lambda m: "%%%02X" % ord(m.group())),
                   text)
     return text
 
@@ -313,8 +311,8 @@ def to_literal(text):
     This function escapes all non-printable characters and
     wraps the text value in single quotes.
     """
-    assert isinstance(text, unicode)
-    text = u"'%s'" % urlquote(text, "").replace(u"'", u"''")
+    assert isinstance(text, str)
+    text = "'%s'" % urlquote(text, "").replace("'", "''")
     return text
 
 
@@ -335,8 +333,8 @@ def similar(model, sample):
     Use for error reporting to suggest alternatives for an unknown `model`
     identifier.
     """
-    assert isinstance(model, unicode)
-    assert isinstance(sample, unicode)
+    assert isinstance(model, str)
+    assert isinstance(sample, str)
 
     # Skip empty strings.
     if not model or not sample:
@@ -351,7 +349,7 @@ def similar(model, sample):
     # if the distance is not greater than `1 + 1/5 * len(model)`.
     M = len(model)
     N = len(sample)
-    threshold = 1+M/5
+    threshold = 1+M//5
     INF = threshold+1
     # Bail out early if the threshold is impossible to reach.
     if abs(M-N) > threshold:
@@ -385,7 +383,7 @@ def similar(model, sample):
     return ((M, N) in distance)
 
 
-class TextBuffer(object):
+class TextBuffer:
     """
     Reads the input text in blocks matching some regular expressions.
 
@@ -397,7 +395,7 @@ class TextBuffer(object):
     skip_regexp = re.compile(r"(?: \s+ | [#] [^\r\n]* )+", re.X|re.U)
 
     def __init__(self, text):
-        assert isinstance(text, (str, unicode))
+        assert isinstance(text, str)
         # The input text.
         self.text = text
         # The head of the buffer.
@@ -405,7 +403,7 @@ class TextBuffer(object):
         # Advance over whitespace and comments.
         self.skip()
 
-    def __nonzero__(self):
+    def __bool__(self):
         return (self.index < len(self.text))
 
     def reset(self):
@@ -481,16 +479,12 @@ class TextBuffer(object):
         excerpt = self.text
         # The head position.
         index = self.index
-        # Convert the buffer to unicode and adjust the position.
-        if isinstance(excerpt, str):
-            excerpt = excerpt.decode('utf-8', 'replace')
-            index = len(excerpt[:index].decode('utf-8', 'replace'))
         # Extract the line around the head position.
-        start = excerpt.rfind(u"\n", 0, index)+1
-        end = excerpt.find(u"\n", start)
+        start = excerpt.rfind("\n", 0, index)+1
+        end = excerpt.find("\n", start)
         if end == -1:
             end = len(self.text)
-        excerpt = excerpt[start:end].encode('utf-8')
+        excerpt = excerpt[start:end]
         # Make a pointer to the buffer head.
         indent = index-start
         pointer = ' '*indent + '^'
@@ -595,7 +589,7 @@ def toposort(elements, order, is_total=False):
 #
 
 
-class cachedproperty(object):
+class cachedproperty:
     """
     Implements a cached property decorator.
 
@@ -654,7 +648,7 @@ class frozenomap(collections.Mapping):
         self._value_by_key = {}
         # Initialize the mapping with elements from `iterable`.
         if isinstance(iterable, collections.Mapping):
-            iterable = iterable.iteritems()
+            iterable = iter(iterable.items())
         if iterable is not None:
             for key, value in iterable:
                 if key not in self._value_by_key:
@@ -755,7 +749,7 @@ class omap(frozenomap, collections.MutableMapping):
 
     def update(self, iterable):
         if isinstance(iterable, collections.Mapping):
-            iterable = iterable.iteritems()
+            iterable = iter(iterable.items())
         for key, value in iterable:
             if key not in self._value_by_key:
                 self._keys.append(key)
@@ -767,7 +761,7 @@ class omap(frozenomap, collections.MutableMapping):
 #
 
 
-class Clonable(object):
+class Clonable:
     """
     A clonable object.
 
@@ -833,7 +827,7 @@ class Clonable(object):
         """
         # Get the list of constructor arguments.  We expect that for each
         # constructor argument, the object has an attribute with the same name.
-        init_code = self.__init__.im_func.func_code
+        init_code = self.__init__.__func__.__code__
         # Fetch the names of regular arguments, but skip `self`.
         names = list(init_code.co_varnames[1:init_code.co_argcount])
         # Check for * and ** arguments.  We cannot properly support
@@ -881,7 +875,7 @@ except ImportError:
     pass
 
 
-class Hashable(object):
+class Hashable:
     """
     An immutable object with by-value comparison semantics.
 
@@ -982,29 +976,25 @@ except ImportError:
     pass
 
 
-class Printable(object):
+class Printable:
     """
     An object with default string representation.
 
     A subclass of :class:`Printable` is expected to reimplement the
-    :meth:`__unicode__` method.
+    :meth:`__str__` method.
     """
 
     __slots__ = ()
 
-    def __unicode__(self):
-        # Override in subclasses.
-        return u"-"
-
     def __str__(self):
-        # Reuse implementation of `__unicode__`.
-        return unicode(self).encode('utf-8')
+        # Override in subclasses.
+        raise NotImplementedError("%s.__str__()" % self.__class__.__name__)
 
     def __repr__(self):
         return "<%s %s>" % (self.__class__.__name__, self)
 
 
-class YAMLable(object):
+class YAMLable:
     """
     An object with YAML representation.
 
@@ -1025,9 +1015,6 @@ class YAMLable(object):
     def __str__(self):
         return self.to_yaml()
 
-    def __unicode__(self):
-        return self.to_yaml().decode('utf-8')
-
     def __repr__(self):
         return "<%s>" % self.__class__.__name__
 
@@ -1038,28 +1025,20 @@ class YAMLableDumper(yaml.Dumper):
     def represent_str(self, data):
         # Represent both `str` and `unicode` objects as YAML strings.
         # Use block style for multiline strings.
-        if isinstance(data, unicode):
-            data = data.encode('utf-8')
         tag = None
         style = None
         if data.endswith('\n'):
             style = '|'
-        try:
-            data = data.decode('utf-8')
-            tag = u'tag:yaml.org,2002:str'
-        except UnicodeDecodeError:
-            data = data.encode('base64')
-            tag = u'tag:yaml.org,2002:binary'
-            style = '|'
+        tag = 'tag:yaml.org,2002:str'
         return self.represent_scalar(tag, data, style=style)
 
     def represent_yamlable(self, data):
         # Represent `YAMLable` objects.
-        tag = unicode('!'+data.__class__.__name__)
+        tag = str('!'+data.__class__.__name__)
         mapping = list(data.__yaml__())
         # Use block style if any field value is a multiline string.
         flow_style = None
-        if any(isinstance(item, (str, unicode)) and '\n' in item
+        if any(isinstance(item, str) and '\n' in item
                 for key, item in mapping):
             flow_style = False
         return self.represent_mapping(tag, mapping, flow_style=flow_style)
@@ -1067,23 +1046,23 @@ class YAMLableDumper(yaml.Dumper):
     def generate_anchor(self, node):
         # Use the class name for anchor names.
         if not isinstance(self.last_anchor_id, dict):
-            self.last_anchor_id = { u'': 1 }
-        if node.tag.startswith(u'!'):
+            self.last_anchor_id = { '': 1 }
+        if node.tag.startswith('!'):
             text = node.tag[1:]
         else:
-            text = u''
+            text = ''
         self.last_anchor_id.setdefault(text, 1)
         index = self.last_anchor_id[text]
         self.last_anchor_id[text] += 1
         if text:
-            text += u'-%s' % index
+            text += '-%s' % index
         else:
-            text = unicode(index)
+            text = str(index)
         return text
 
 
 YAMLableDumper.add_representer(str, YAMLableDumper.represent_str)
-YAMLableDumper.add_representer(unicode, YAMLableDumper.represent_str)
+YAMLableDumper.add_representer(str, YAMLableDumper.represent_str)
 YAMLableDumper.add_multi_representer(YAMLable,
         YAMLableDumper.represent_yamlable)
 
@@ -1213,17 +1192,12 @@ class DB(Clonable, Hashable, Printable):
         # - a dictionary with the keys:
         #   'engine', 'database', 'username', 'password', 'host', 'port',
         #   'database', 'options'.
-        if not isinstance(value, (cls, str, unicode, dict)):
+        if not isinstance(value, (cls, str, dict)):
             raise ValueError("a connection URI is expected; got %r" % value)
 
         # Instances of `DB` are returned as is.
         if isinstance(value, cls):
             return value
-
-        # We expect a connection URI to be a regular string, but we allow
-        # Unicode strings too.
-        if isinstance(value, unicode):
-            value = value.encode('utf-8')
 
         # If a string is given, assume it is a connection URI and parse it.
         if isinstance(value, str):
@@ -1242,23 +1216,23 @@ class DB(Clonable, Hashable, Printable):
 
             # We assume that values are URI-quoted; unquote them here.
             # Also perform necessary type conversion.
-            engine = urllib.unquote(engine)
+            engine = urllib.parse.unquote(engine)
             if username is not None:
-                username = urllib.unquote(username)
+                username = urllib.parse.unquote(username)
             if password is not None:
-                password = urllib.unquote(password)
+                password = urllib.parse.unquote(password)
             if host is not None:
-                host = urllib.unquote(host)
+                host = urllib.parse.unquote(host)
             if port is not None:
-                port = urllib.unquote(port)
+                port = urllib.parse.unquote(port)
                 try:
                     port = int(port)
                 except ValueError:
                     raise ValueError("expected port to be an integer;"
                                      " got %r" % port)
-            database = urllib.unquote(database)
+            database = urllib.parse.unquote(database)
             if options is not None:
-                options = dict(map(urllib.unquote, item.split('=', 1))
+                options = dict(list(map(urllib.parse.unquote, item.split('=', 1)))
                                for item in options.split('&'))
 
         # If a dictionary is given, assume it is a dictionary with
@@ -1281,28 +1255,18 @@ class DB(Clonable, Hashable, Printable):
             options = value.get('options')
 
             # Sanity check on the values.
-            if isinstance(engine, unicode):
-                engine = engine.encode('utf-8')
             if not isinstance(engine, str):
                 raise ValueError("engine must be a string; got %r" % engine)
-            if isinstance(database, unicode):
-                database = database.encode('utf-8')
             if not isinstance(database, str):
                 raise ValueError("database must be a string; got %r"
                                  % database)
-            if isinstance(username, unicode):
-                username = username.encode('utf-8')
             if not isinstance(username, maybe(str)):
                 raise ValueError("username must be a string; got %r" % username)
-            if isinstance(password, unicode):
-                password = password.encode('utf-8')
             if not isinstance(password, maybe(str)):
                 raise ValueError("password must be a string; got %r" % password)
-            if isinstance(host, unicode):
-                host = host.encode('utf-8')
             if not isinstance(host, maybe(str)):
                 raise ValueError("host must be a string; got %r" % host)
-            if isinstance(port, (str, unicode)):
+            if isinstance(port, str):
                 try:
                     port = int(port)
                 except ValueError:
@@ -1319,7 +1283,7 @@ class DB(Clonable, Hashable, Printable):
         # We are done, produce an instance.
         return cls(engine, database, username, password, host, port, options)
 
-    def __unicode__(self):
+    def __str__(self):
         """Generate a connection URI corresponding to the parameters."""
         # The generated URI should only contain ASCII characters because
         # we want it to translate to Unicode without decoding errors.
@@ -1329,18 +1293,18 @@ class DB(Clonable, Hashable, Printable):
         if ((self.username is not None or self.password is not None) or
             (self.host is None and self.port is not None)):
             if self.username is not None:
-                chunks.append(urllib.quote(self.username, safe=''))
+                chunks.append(urllib.parse.quote(self.username, safe=''))
             if self.password is not None:
                 chunks.append(':')
-                chunks.append(urllib.quote(self.password, safe=''))
+                chunks.append(urllib.parse.quote(self.password, safe=''))
             chunks.append('@')
         if self.host is not None:
-            chunks.append(urllib.quote(self.host, safe=''))
+            chunks.append(urllib.parse.quote(self.host, safe=''))
         if self.port is not None:
             chunks.append(':')
             chunks.append(str(self.port))
         chunks.append('/')
-        chunks.append(urllib.quote(self.database))
+        chunks.append(urllib.parse.quote(self.database))
         if self.options:
             chunks.append('?')
             is_first = True
@@ -1349,10 +1313,10 @@ class DB(Clonable, Hashable, Printable):
                     is_first = False
                 else:
                     chunks.append('&')
-                chunks.append(urllib.quote(key, safe=''))
+                chunks.append(urllib.parse.quote(key, safe=''))
                 chunks.append('=')
-                chunks.append(urllib.quote(self.options[key]))
-        return u''.join(chunks)
+                chunks.append(urllib.parse.quote(self.options[key]))
+        return ''.join(chunks)
 
 
 #

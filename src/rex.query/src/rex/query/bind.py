@@ -71,22 +71,22 @@ class RexBindingState(BindingState):
         self.enable_let_syntax = self.enable_let_syntax_stack.pop()
 
     symbol_ops = {
-            u'.': u'compose',
-            u'=>': u'let',
-            u'+': u'add',
-            u'-': u'subtract',
-            u'*': u'multiply',
-            u'/': u'divide',
-            u'!': u'not',
-            u'&': u'and',
-            u'|': u'or',
-            u'=': u'equal',
-            u'!=': u'not_equal',
-            u'<': u'less',
-            u'<=': u'less_or_equal',
-            u'>': u'greater',
-            u'>=': u'greater_or_equal',
-            u'~': u'contains',
+            '.': 'compose',
+            '=>': 'let',
+            '+': 'add',
+            '-': 'subtract',
+            '*': 'multiply',
+            '/': 'divide',
+            '!': 'not',
+            '&': 'and',
+            '|': 'or',
+            '=': 'equal',
+            '!=': 'not_equal',
+            '<': 'less',
+            '<=': 'less_or_equal',
+            '>': 'greater',
+            '>=': 'greater_or_equal',
+            '~': 'contains',
     }
 
     def __call__(self, syntax):
@@ -126,17 +126,17 @@ class RexBindingState(BindingState):
             raise Error("Got invalid literal value:", value)
         syntax = VoidSyntax()
         if value.data is None:
-            syntax = IdentifierSyntax(u"null")
-        elif isinstance(value.data, unicode):
+            syntax = IdentifierSyntax("null")
+        elif isinstance(value.data, str):
             syntax = StringSyntax(value.data)
         elif isinstance(value.data, bool):
-            syntax = IdentifierSyntax(unicode(value.data).lower())
-        elif isinstance(value.data, (int, long)):
-            syntax = IntegerSyntax(unicode(value))
+            syntax = IdentifierSyntax(str(value.data).lower())
+        elif isinstance(value.data, int):
+            syntax = IntegerSyntax(str(value))
         elif isinstance(value.data, decimal.Decimal):
-            syntax = DecimalSyntax(unicode(value))
+            syntax = DecimalSyntax(str(value))
         elif isinstance(value.data, float):
-            syntax = FloatSyntax(unicode(value))
+            syntax = FloatSyntax(str(value))
         return Output(
                 LiteralBinding(
                     self.scope, value.data, value.domain, syntax),
@@ -154,11 +154,11 @@ class RexBindingState(BindingState):
     def bind_navigate_op(self, args):
         if not (len(args) == 1 and
                 isinstance(args[0], LiteralSyntax) and
-                isinstance(args[0].val, unicode)):
+                isinstance(args[0].val, str)):
             raise Error("Expected an identifier,"
                         " got:", ", ".join(map(str, args)))
         name = args[0].val
-        if name == u'id':
+        if name == 'id':
             return self.bind_id_op([])
         recipe = lookup_attribute(self.scope, name)
         if recipe is None:
@@ -261,7 +261,7 @@ class RexBindingState(BindingState):
         syntax = ComposeSyntax(
                 base.binding.syntax,
                 FunctionSyntax(
-                    IdentifierSyntax(u"filter"),
+                    IdentifierSyntax("filter"),
                     [predicate.syntax]))
         binding = SieveBinding(base.binding, predicate, syntax)
         return Output(binding, optional=True, plural=True)
@@ -334,7 +334,7 @@ class RexBindingState(BindingState):
         syntax = ComposeSyntax(
                 base.binding.syntax,
                 FunctionSyntax(
-                    IdentifierSyntax(u"sort"),
+                    IdentifierSyntax("sort"),
                     [field.syntax for field in fields]))
         return Output(
                 SortBinding(base.binding, fields, None, None, syntax),
@@ -355,8 +355,8 @@ class RexBindingState(BindingState):
         syntax = ComposeSyntax(
                 base.binding.syntax,
                 FunctionSyntax(
-                    IdentifierSyntax(u"limit"),
-                    [IntegerSyntax(unicode(limit))]))
+                    IdentifierSyntax("limit"),
+                    [IntegerSyntax(str(limit))]))
         binding = ClipBinding(
                 self.scope, base.binding, [],
                 limit, None, syntax)
@@ -419,7 +419,7 @@ class RexBindingState(BindingState):
     def bind_let_op(self, args):
         if not (len(args) == 2 and
                 isinstance(args[0], LiteralSyntax) and
-                isinstance(args[0].val, unicode)):
+                isinstance(args[0].val, str)):
             raise Error("Expected an identifier and an argument,"
                         " got:", ", ".join(map(str, args)))
         name = args[0].val
@@ -442,7 +442,7 @@ class RexBindingState(BindingState):
             raise Error("Expected one argument,"
                         " got:", ", ".join(map(str, args)))
         output = self(args[0])
-        syntax = DirectSyntax(u"+", output.binding.syntax)
+        syntax = DirectSyntax("+", output.binding.syntax)
         return Output(
                 DirectionBinding(output.binding, +1, syntax),
                 optional=output.optional, plural=output.plural)
@@ -452,7 +452,7 @@ class RexBindingState(BindingState):
             raise Error("Expected one argument,"
                         " got:", ", ".join(map(str, args)))
         output = self(args[0])
-        syntax = DirectSyntax(u"-", output.binding.syntax)
+        syntax = DirectSyntax("-", output.binding.syntax)
         return Output(
                 DirectionBinding(output.binding, -1, syntax),
                 optional=output.optional, plural=output.plural)
@@ -464,23 +464,23 @@ class RexBindingState(BindingState):
         recipe = identify(self.scope)
         if recipe is None:
             raise Error("Cannot determine identity")
-        syntax = FunctionSyntax(IdentifierSyntax(u"id"), [])
+        syntax = FunctionSyntax(IdentifierSyntax("id"), [])
         return Output(self.use(recipe, syntax))
 
     def bind_add_op(self, args):
-        return self.bind_poly(AddSig, args, op=u'+')
+        return self.bind_poly(AddSig, args, op='+')
 
     def bind_subtract_op(self, args):
-        return self.bind_poly(SubtractSig, args, op=u'-')
+        return self.bind_poly(SubtractSig, args, op='-')
 
     def bind_multiply_op(self, args):
-        return self.bind_poly(MultiplySig, args, op=u'*')
+        return self.bind_poly(MultiplySig, args, op='*')
 
     def bind_divide_op(self, args):
-        return self.bind_poly(DivideSig, args, op=u'/')
+        return self.bind_poly(DivideSig, args, op='/')
 
     def bind_contains_op(self, args):
-        return self.bind_poly(ContainsSig(+1), args, op=u'~')
+        return self.bind_poly(ContainsSig(+1), args, op='~')
 
     def bind_equal_op(self, args):
         parameters = self.bind_parameters(IsAmongSig, args)
@@ -518,7 +518,7 @@ class RexBindingState(BindingState):
                 syntax = op.syntax
             else:
                 syntax = OperatorSyntax(
-                        u'&' if zero else u'|',
+                        '&' if zero else '|',
                         syntax, op.syntax)
         if len(ops) == 1:
             binding = ops[0]
@@ -532,7 +532,7 @@ class RexBindingState(BindingState):
         output = parameters['op']
         op = ImplicitCastBinding(
                 output.binding, BooleanDomain(), output.binding.syntax)
-        syntax = PrefixSyntax(u'!', op.syntax)
+        syntax = PrefixSyntax('!', op.syntax)
         return Output(
                 FormulaBinding(
                     self.scope, NotSig(), BooleanDomain(), syntax, op=op),
@@ -540,27 +540,27 @@ class RexBindingState(BindingState):
 
     def bind_year_op(self, args):
         return self.bind_date_extract(
-                ExtractYearSig, IntegerDomain, args, fn=u"year")
+                ExtractYearSig, IntegerDomain, args, fn="year")
 
     def bind_month_op(self, args):
         return self.bind_date_extract(
-                ExtractMonthSig, IntegerDomain, args, fn=u"month")
+                ExtractMonthSig, IntegerDomain, args, fn="month")
 
     def bind_day_op(self, args):
         return self.bind_date_extract(
-                ExtractDaySig, IntegerDomain, args, fn=u"day")
+                ExtractDaySig, IntegerDomain, args, fn="day")
 
     def bind_hour_op(self, args):
         return self.bind_date_extract(
-                ExtractHourSig, IntegerDomain, args, fn=u"hour")
+                ExtractHourSig, IntegerDomain, args, fn="hour")
 
     def bind_minute_op(self, args):
         return self.bind_date_extract(
-                ExtractMinuteSig, IntegerDomain, args, fn=u"minute")
+                ExtractMinuteSig, IntegerDomain, args, fn="minute")
 
     def bind_second_op(self, args):
         return self.bind_date_extract(
-                ExtractSecondSig, FloatDomain, args, fn=u"second")
+                ExtractSecondSig, FloatDomain, args, fn="second")
 
     def bind_date_extract(self, sig, img, args, fn=None):
         parameters = self.bind_parameters(sig, args)
@@ -577,43 +577,43 @@ class RexBindingState(BindingState):
 
     def bind_less_op(self, args):
         parameters = self.bind_parameters(CompareSig, args)
-        return self.bind_compare(u'<', **parameters)
+        return self.bind_compare('<', **parameters)
 
     def bind_less_or_equal_op(self, args):
         parameters = self.bind_parameters(CompareSig, args)
-        return self.bind_compare(u'<=', **parameters)
+        return self.bind_compare('<=', **parameters)
 
     def bind_greater_op(self, args):
         parameters = self.bind_parameters(CompareSig, args)
-        return self.bind_compare(u'>', **parameters)
+        return self.bind_compare('>', **parameters)
 
     def bind_greater_or_equal_op(self, args):
         parameters = self.bind_parameters(CompareSig, args)
-        return self.bind_compare(u'>=', **parameters)
+        return self.bind_compare('>=', **parameters)
 
     def bind_boolean_op(self, args):
-        return self.bind_cast(BooleanDomain(), args, fn=u"boolean")
+        return self.bind_cast(BooleanDomain(), args, fn="boolean")
 
     def bind_text_op(self, args):
-        return self.bind_cast(TextDomain(), args, fn=u"text")
+        return self.bind_cast(TextDomain(), args, fn="text")
 
     def bind_integer_op(self, args):
-        return self.bind_cast(IntegerDomain(), args, fn=u"integer")
+        return self.bind_cast(IntegerDomain(), args, fn="integer")
 
     def bind_decimal_op(self, args):
-        return self.bind_cast(DecimalDomain(), args, fn=u"decimal")
+        return self.bind_cast(DecimalDomain(), args, fn="decimal")
 
     def bind_float_op(self, args):
-        return self.bind_cast(FloatDomain(), args, fn=u"float")
+        return self.bind_cast(FloatDomain(), args, fn="float")
 
     def bind_date_op(self, args):
-        return self.bind_cast(DateDomain(), args, fn=u"date")
+        return self.bind_cast(DateDomain(), args, fn="date")
 
     def bind_time_op(self, args):
-        return self.bind_cast(TimeDomain(), args, fn=u"time")
+        return self.bind_cast(TimeDomain(), args, fn="time")
 
     def bind_datetime_op(self, args):
-        return self.bind_cast(DateTimeDomain(), args, fn=u"datetime")
+        return self.bind_cast(DateTimeDomain(), args, fn="datetime")
 
     def bind_exists_op(self, args):
         parameters = self.bind_parameters(ExistsSig, args)
@@ -624,7 +624,7 @@ class RexBindingState(BindingState):
                 output.binding, BooleanDomain(), output.binding.syntax)
         if not output.plural:
             return Output(binding)
-        syntax = FunctionSyntax(IdentifierSyntax(u"exists"), [binding.syntax])
+        syntax = FunctionSyntax(IdentifierSyntax("exists"), [binding.syntax])
         return Output(
                 FormulaBinding(
                     self.scope, QuantifySig(+1), binding.domain,
@@ -637,7 +637,7 @@ class RexBindingState(BindingState):
             raise Error("Expected plural expression, got:", args[0])
         binding = ImplicitCastBinding(
                 output.binding, BooleanDomain(), output.binding.syntax)
-        syntax = FunctionSyntax(IdentifierSyntax(u"count"), [binding.syntax])
+        syntax = FunctionSyntax(IdentifierSyntax("count"), [binding.syntax])
         binding = FormulaBinding(
                 self.scope, CountSig(), IntegerDomain(), syntax, op=binding)
         return Output(
@@ -646,16 +646,16 @@ class RexBindingState(BindingState):
                     plural_base=None, op=binding))
 
     def bind_min_op(self, args):
-        return self.bind_poly_aggregate(MinMaxSig(+1), args, fn=u"min")
+        return self.bind_poly_aggregate(MinMaxSig(+1), args, fn="min")
 
     def bind_max_op(self, args):
-        return self.bind_poly_aggregate(MinMaxSig(-1), args, fn=u"max")
+        return self.bind_poly_aggregate(MinMaxSig(-1), args, fn="max")
 
     def bind_sum_op(self, args):
-        return self.bind_poly_aggregate(SumSig, args, fn=u"sum")
+        return self.bind_poly_aggregate(SumSig, args, fn="sum")
 
     def bind_mean_op(self, args):
-        return self.bind_poly_aggregate(AvgSig, args, fn=u"avg")
+        return self.bind_poly_aggregate(AvgSig, args, fn="avg")
 
     def bind_among(self, polarity, lop, rops):
         if not rops:
@@ -663,7 +663,7 @@ class RexBindingState(BindingState):
         optional = lop.optional or any([rop.optional for rop in rops])
         plural = lop.plural or any([rop.plural for rop in rops])
         syntax = OperatorSyntax(
-                u'=' if polarity > 0 else u'!=',
+                '=' if polarity > 0 else '!=',
                 lop.binding.syntax,
                 RecordSyntax([rop.binding.syntax for rop in rops])
                 if len(rops) != 1 else rops[0].binding.syntax)
@@ -727,7 +727,7 @@ class RexBindingState(BindingState):
             if isinstance(rop.domain, UntypedDomain):
                 try:
                     value = lop.domain.parse(rop.value)
-                except ValueError, exc:
+                except ValueError as exc:
                     raise Error("Cannot coerce [%s] to %s:"
                                 % (rop.value, lop.domain), exc)
                 rop = LiteralBinding(rop.base, value, lop.domain, rop.syntax)

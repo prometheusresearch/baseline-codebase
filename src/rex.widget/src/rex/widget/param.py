@@ -39,7 +39,7 @@ class ParamVal(Validate):
         if isinstance(value, Param):
             return value
         value = self._validate(value)
-        if isinstance(value, basestring):
+        if isinstance(value, str):
             value = self._validate_full({'value': value, 'required': False})
         if value.value.startswith('$'):
             context_ref = value.value[1:].split('.')

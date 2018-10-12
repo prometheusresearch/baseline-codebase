@@ -32,7 +32,7 @@ class ToolVal(StrVal):
     def __call__(self, data):
         value = super(ToolVal, self).__call__(data)
 
-        if value not in MartTool.mapped().keys():
+        if value not in list(MartTool.mapped().keys()):
             raise Error('Not a valid MartTool')
 
         return value
@@ -85,7 +85,7 @@ class MartFilteredAction(MartAction):
                     self.get_tool_context(self.tool): 'any',
                 })
             if self.additional_input:
-                for key, value in self.additional_input.items():
+                for key, value in list(self.additional_input.items()):
                     rows.append({
                         key: value,
                     })
@@ -95,7 +95,7 @@ class MartFilteredAction(MartAction):
         if self.additional_output:
             self.output = RecordTypeVal()([
                 {key: value}
-                for key, value in self.output.items()
+                for key, value in list(self.output.items())
             ])
 
         else:

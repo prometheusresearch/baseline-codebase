@@ -47,13 +47,13 @@ Value can be specified as HTSQL query::
   RecordType(rows={}, open=True)
 
   >>> req = Request.blank('/', accept='application/json')
-  >>> print action.data_mutation.respond(req) # doctest: +ELLIPSIS
+  >>> print(action.data_mutation.respond(req)) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  HTTPBadRequest: form action is configured as read-only
+  webob.exc.HTTPBadRequest: form action is configured as read-only
 
   >>> req = Request.blank('/?ind=ok', accept='application/json')
-  >>> print action.data_value.respond(req) # doctest: +ELLIPSIS
+  >>> print(action.data_value.respond(req)) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="Individual.js"
@@ -86,10 +86,10 @@ Value can be specified as an object::
   ... ''') # doctest: +ELLIPSIS
 
   >>> req = Request.blank('/?ind=ok', accept='application/json')
-  >>> print action.data_value.respond(req) # doctest: +ELLIPSIS
+  >>> print(action.data_value.respond(req)) # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  HTTPBadRequest: value is not provided via HTSQL query
+  webob.exc.HTTPBadRequest: value is not provided via HTSQL query
 
 Writable configuration without entity
 -------------------------------------
@@ -118,7 +118,7 @@ Writable configuration without entity
   RecordType(rows={}, open=True)
 
   >>> req = Request.blank('/?ind=ok', accept='application/json')
-  >>> print action.data_value.respond(req) # doctest: +ELLIPSIS
+  >>> print(action.data_value.respond(req)) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="Individual.js"
@@ -141,15 +141,15 @@ Writable configuration without entity
   ...   '/?:ind=ok',
   ...   accept='application/json',
   ...   POST={'new': json.dumps([{'sex': 'male'}])})
-  >>> print action.data_mutation.respond(req) # doctest: +ELLIPSIS
+  >>> print(action.data_mutation.respond(req)) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
-  Content-Type: application/json; charset=UTF-8
+  Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
   null
 
-  >>> port.produce((u'*', 'ok')).data.individual[0].sex
-  u'male'
+  >>> port.produce(('*', 'ok')).data.individual[0].sex
+  'male'
 
 Writable configuration with entity
 ----------------------------------
@@ -179,7 +179,7 @@ Writable configuration with entity
   RecordType(rows={'individual': RowType(name='individual', type=EntityType(name='individual', state=None))}, open=True)
 
   >>> req = Request.blank('/?ind=ok', accept='application/json')
-  >>> print action.data_value.respond(req) # doctest: +ELLIPSIS
+  >>> print(action.data_value.respond(req)) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="Individual.js"
@@ -202,7 +202,7 @@ Writable configuration with entity
   ...   '/?:ind=ok',
   ...   accept='application/json',
   ...   POST={'new': json.dumps([{'sex': 'male'}])})
-  >>> print action.data_mutation.respond(req) # doctest: +ELLIPSIS
+  >>> print(action.data_mutation.respond(req)) # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
   200 OK
   Content-Type: application/javascript
   Content-Disposition: inline; filename="_.js"
@@ -220,8 +220,8 @@ Writable configuration with entity
   }
   <BLANKLINE>
 
-  >>> port.produce((u'*', 'ok')).data.individual[0].sex
-  u'male'
+  >>> port.produce(('*', 'ok')).data.individual[0].sex
+  'male'
 
   >>> _ = port.replace({'id': 'ok'}, {'sex': 'non-known'})
 
@@ -238,7 +238,7 @@ Invalid configuration
   ... ''') # doctest: +ELLIPSIS
   Traceback (most recent call last):
   ...
-  Error: Either value or query should be provided
+  rex.core.Error: Either value or query should be provided
   While parsing:
       "<...>", line 2
 
@@ -266,3 +266,4 @@ Teardown::
 
   >>> _ = port.delete([{'id': 'ok'}])
   >>> app.off()
+

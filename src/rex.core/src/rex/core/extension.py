@@ -9,7 +9,7 @@ import sys
 import inspect
 
 
-class DocEntry(object):
+class DocEntry:
     """
     Documentation entry.
 
@@ -50,7 +50,24 @@ class DocEntry(object):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
 
-class Extension(object):
+class ExtensionMeta(type):
+
+    def __new__(mcls, name, bases, members):
+        # Call `sanitize()` when a new implementation is defined.
+        cls = type.__new__(mcls, name, bases, members)
+        try:
+            cls.sanitize()
+        except:
+            # Make sure the implementation can never be used.
+            cls.__module__ = None
+            raise
+        return cls
+
+    def __repr__(cls):
+        return "%s.%s" % (cls.__module__, cls.__name__)
+
+
+class Extension(metaclass=ExtensionMeta):
     """
     Provides extension mechanism for RexDB applications.
 
@@ -63,22 +80,6 @@ class Extension(object):
     Use methods :meth:`all()`, :meth:`top()`, :meth:`mapped()`,
     :meth:`ordered()` to find implementations for the given interface.
     """
-
-    class __metaclass__(type):
-
-        def __new__(mcls, name, bases, members):
-            # Call `sanitize()` when a new implementation is defined.
-            cls = type.__new__(mcls, name, bases, members)
-            try:
-                cls.sanitize()
-            except:
-                # Make sure the implementation can never be used.
-                cls.__module__ = None
-                raise
-            return cls
-
-        def __repr__(cls):
-            return "%s.%s" % (cls.__module__, cls.__name__)
 
     # Maps a module name and an interface to a set of disabled implementations.
     disable_map = {}
@@ -368,7 +369,7 @@ class Extension(object):
             signature = cls.signature()
         except NotImplementedError:
             signature = None
-        return unicode(signature if signature else cls.__name__)
+        return str(signature if signature else cls.__name__)
 
     @classmethod
     def document_content(cls):

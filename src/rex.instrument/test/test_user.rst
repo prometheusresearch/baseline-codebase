@@ -15,18 +15,18 @@ string-rendering methods::
 
     >>> user = User('fake123', 'username')
     >>> user.get_display_name()
-    u'username'
-    >>> unicode(user)
-    u'username'
+    'username'
+    >>> str(user)
+    'username'
     >>> str(user)
     'username'
     >>> repr(user)
-    "User(u'fake123', u'username')"
+    "User('fake123', 'username')"
 
     >>> user.as_dict()
-    {'login': u'username', 'uid': u'fake123'}
+    {'uid': 'fake123', 'login': 'username'}
     >>> user.as_json()
-    u'{"login": "username", "uid": "fake123"}'
+    '{"uid": "fake123", "login": "username"}'
 
 
 Users have methods that allow you to retrieve other interface objects, but
@@ -37,10 +37,10 @@ filtered by what that User has access to see::
 
     >>> user = get_implementation('user').get_by_uid('user1')
     >>> user.get_object_by_uid('simple', 'instrument')
-    DemoInstrument(u'simple', u'Simple Instrument')
+    DemoInstrument('simple', 'Simple Instrument')
 
     >>> user.find_objects('assessment')
-    [DemoAssessment(u'assessment1', DemoSubject(u'subject1'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L)), DemoAssessment(u'assessment2', DemoSubject(u'subject1'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L)), DemoAssessment(u'assessment3', DemoSubject(u'subject1'), DemoInstrumentVersion(u'disabled1', DemoInstrument(u'disabled', u'Disabled Instrument'), 1L)), DemoAssessment(u'assessment4', DemoSubject(u'subject1'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L)), DemoAssessment(u'assessment5', DemoSubject(u'subject1'), DemoInstrumentVersion(u'simple1', DemoInstrument(u'simple', u'Simple Instrument'), 1L)), DemoAssessment(u'assessment6', DemoSubject(u'subject1'), DemoInstrumentVersion(u'disabled1', DemoInstrument(u'disabled', u'Disabled Instrument'), 1L)), DemoAssessment(u'assessment7', DemoSubject(u'subject1'), DemoInstrumentVersion(u'disabled1', DemoInstrument(u'disabled', u'Disabled Instrument'), 1L)), DemoAssessment(u'assessment8', DemoSubject(u'subject1'), DemoInstrumentVersion(u'calculation2', DemoInstrument(u'calculation-complex', u'Calculation Instrument'), 1L)), DemoAssessment(u'assessment9', DemoSubject(u'subject1'), DemoInstrumentVersion(u'calculation1', DemoInstrument(u'calculation', u'Calculation Instrument'), 1L))]
+    [DemoAssessment('assessment1', DemoSubject('subject1'), DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1)), DemoAssessment('assessment2', DemoSubject('subject1'), DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1)), DemoAssessment('assessment3', DemoSubject('subject1'), DemoInstrumentVersion('disabled1', DemoInstrument('disabled', 'Disabled Instrument'), 1)), DemoAssessment('assessment4', DemoSubject('subject1'), DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1)), DemoAssessment('assessment5', DemoSubject('subject1'), DemoInstrumentVersion('simple1', DemoInstrument('simple', 'Simple Instrument'), 1)), DemoAssessment('assessment6', DemoSubject('subject1'), DemoInstrumentVersion('disabled1', DemoInstrument('disabled', 'Disabled Instrument'), 1)), DemoAssessment('assessment7', DemoSubject('subject1'), DemoInstrumentVersion('disabled1', DemoInstrument('disabled', 'Disabled Instrument'), 1)), DemoAssessment('assessment8', DemoSubject('subject1'), DemoInstrumentVersion('calculation2', DemoInstrument('calculation-complex', 'Calculation Instrument'), 1)), DemoAssessment('assessment9', DemoSubject('subject1'), DemoInstrumentVersion('calculation1', DemoInstrument('calculation', 'Calculation Instrument'), 1))]
 
     >>> rex.off()
 
@@ -82,4 +82,5 @@ being the same class with the same UID::
     True
     >>> user3 >= user1
     True
+
 

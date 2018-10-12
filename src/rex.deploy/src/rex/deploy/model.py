@@ -25,7 +25,7 @@ from htsql_rex_deploy.domain import JSONDomain
 import yaml
 
 
-class Signal(object):
+class Signal:
     # Notifies a dependent about a change in the master.
 
     __slot__ = ('before', 'after', 'modify', 'erase',
@@ -82,7 +82,7 @@ class Model(Extension):
         self.image = image
         schema.attach(self)
 
-    def __nonzero__(self):
+    def __bool__(self):
         # Is the entity still alive?
         return hasattr(self, 'image')
 
@@ -118,7 +118,7 @@ class Model(Extension):
                 dependent.do_react(self, signal, old, new)
         # Update the object.
         self.do_modify(**vars(new))
-        for key, value in kwds.items():
+        for key, value in list(kwds.items()):
             setattr(self, key, value)
         # Notify the dependent entities after update.
         signal = Signal(after=True, modify=True)
@@ -182,7 +182,7 @@ class Model(Extension):
         return yaml.dump(self.to_yaml(), Dumper=FactDumper).rstrip()
 
 
-class ModelSchema(object):
+class ModelSchema:
     """
     Container for all model objects.
     """
@@ -238,7 +238,7 @@ class ModelSchema(object):
         """
         tables = []
         for table_image in self.image.tables:
-            if u'id' not in table_image:
+            if 'id' not in table_image:
                 continue
             table = self(table_image)
             if table:
@@ -297,7 +297,7 @@ class TableModel(Model):
 
     properties = ['label', 'is_reliable', 'title', 'aliases']
 
-    class names(object):
+    class names:
         # Derives names for database objects and the table title.
 
         __slots__ = ('label', 'title', 'name', 'uk_name', 'seq_name')
@@ -306,8 +306,8 @@ class TableModel(Model):
             self.label = label
             self.title = label_to_title(label)
             self.name = mangle(label)
-            self.uk_name = mangle(label, u'uk')
-            self.seq_name = mangle(label, u'seq')
+            self.uk_name = mangle(label, 'uk')
+            self.seq_name = mangle(label, 'seq')
 
     @classmethod
     def recognizes(cls, schema, image):
@@ -331,12 +331,12 @@ class TableModel(Model):
         # Builds a table.
         # Create a table with `id int4` column.
         names = cls.names(label)
-        int4_image = schema.system_image.types[u'int4']
-        definitions = [(u'id', int4_image, True, None)]
+        int4_image = schema.system_image.types['int4']
+        definitions = [('id', int4_image, True, None)]
         is_unlogged = (not is_reliable)
         image = schema.image.create_table(
                 names.name, definitions, is_unlogged=is_unlogged)
-        id_image = image[u'id']
+        id_image = image['id']
         # Create a sequence on the `id` column.
         schema.image.create_sequence(names.seq_name, id_image)
         # Create a surrogate key constraint.
@@ -358,10 +358,10 @@ class TableModel(Model):
         self.is_reliable = (not image.is_unlogged)
         self.title = meta.title
         self.aliases = meta.aliases
-        if not (u'id' in image and image[u'id'].unique_keys):
+        if not ('id' in image and image['id'].unique_keys):
             raise Error("Discovered table without surrogate key:", self.label)
         # Surrogate key column.
-        self.id_image = image[u'id']
+        self.id_image = image['id']
         # Surrogate key constraint.
         self.uk_image = next(iter(self.id_image.unique_keys))
         # Sequence on the `id` column.
@@ -568,7 +568,7 @@ class ColumnModel(Model):
             'table', 'label', 'type', 'default',
             'is_required', 'is_unique', 'title']
 
-    class names(object):
+    class names:
         # Derives name for the column and auxiliary objects.
 
         __slots__ = (
@@ -580,10 +580,10 @@ class ColumnModel(Model):
             self.label = label
             self.title = label_to_title(label)
             self.name = mangle(label)
-            self.enum_name = mangle([table_label, label], u'enum')
-            self.uk_name = mangle([table_label, label], u'uk')
+            self.enum_name = mangle([table_label, label], 'enum')
+            self.uk_name = mangle([table_label, label], 'uk')
 
-    class data(object):
+    class data:
         # Derives auxiliary objects associated with the type and default value.
 
         __slots__ = ('type', 'name', 'enumerators',
@@ -591,34 +591,34 @@ class ColumnModel(Model):
 
         # HTSQL name -> SQL name.
         TYPE_MAP = {
-                u"boolean": u"bool",
-                u"integer": u"int8",
-                u"integer-int4": u"int4",
-                u"decimal": u"numeric",
-                u"float": u"float8",
-                u"text": u"text",
-                u"date": u"date",
-                u"time": u"time",
-                u"datetime": u"timestamp",
-                u"json": u"json",
+                "boolean": "bool",
+                "integer": "int8",
+                "integer-int4": "int4",
+                "decimal": "numeric",
+                "float": "float8",
+                "text": "text",
+                "date": "date",
+                "time": "time",
+                "datetime": "timestamp",
+                "json": "json",
         }
 
         # SQL type name -> HTSQL name.
         REVERSE_TYPE_MAP = dict((sql_name, htsql_name)
-                                for htsql_name, sql_name in TYPE_MAP.items())
+                                for htsql_name, sql_name in list(TYPE_MAP.items()))
 
         # HTSQL name -> HTSQL domain.
         DOMAIN_MAP = {
-                u'boolean': BooleanDomain(),
-                u'integer': IntegerDomain(),
-                u'integer-int4': IntegerDomain(),
-                u'decimal': DecimalDomain(),
-                u'float': FloatDomain(),
-                u'text': TextDomain(),
-                u'date': DateDomain(),
-                u'time': TimeDomain(),
-                u'datetime': DateTimeDomain(),
-                u'json': JSONDomain(),
+                'boolean': BooleanDomain(),
+                'integer': IntegerDomain(),
+                'integer-int4': IntegerDomain(),
+                'decimal': DecimalDomain(),
+                'float': FloatDomain(),
+                'text': TextDomain(),
+                'date': DateDomain(),
+                'time': TimeDomain(),
+                'datetime': DateTimeDomain(),
+                'json': JSONDomain(),
         }
 
         # Special `default` values.
@@ -629,18 +629,18 @@ class ColumnModel(Model):
 
         # Valid type conversions.
         CAST_MAP = {
-            u'boolean': set([u'integer', u'text']),
-            u'integer': set([u'boolean', u'decimal', u'float', u'text']),
-            u'integer-int4': set([u'boolean', u'integer', u'decimal',
-                                  u'float', u'text']),
-            u'decimal': set([u'integer', u'float', u'text']),
-            u'float': set([u'integer', u'decimal', u'text']),
-            u'text': set([u'boolean', u'integer', u'decimal', u'float',
-                          u'date', u'time', u'datetime', u'json']),
-            u'date': set([u'text', u'datetime']),
-            u'time': set([u'text']),
-            u'datetime': set([u'text', u'date', u'time']),
-            u'json': set([u'text']),
+            'boolean': set(['integer', 'text']),
+            'integer': set(['boolean', 'decimal', 'float', 'text']),
+            'integer-int4': set(['boolean', 'integer', 'decimal',
+                                  'float', 'text']),
+            'decimal': set(['integer', 'float', 'text']),
+            'float': set(['integer', 'decimal', 'text']),
+            'text': set(['boolean', 'integer', 'decimal', 'float',
+                          'date', 'time', 'datetime', 'json']),
+            'date': set(['text', 'datetime']),
+            'time': set(['text']),
+            'datetime': set(['text', 'date', 'time']),
+            'json': set(['text']),
         }
 
         def __init__(self, type, default):
@@ -653,10 +653,7 @@ class ColumnModel(Model):
                 self.name = self.TYPE_MAP[type]
                 self.enumerators = None
                 self.domain = self.DOMAIN_MAP[type]
-            # Normalize the default value as a string (or `None`).
-            if isinstance(default, str):
-                default = default.decode('utf-8', 'replace')
-            if not isinstance(default, unicode):
+            if not isinstance(default, str):
                 default = self.domain.dump(default)
             self.default = default
             # Default value serialized in SQL.
@@ -665,9 +662,9 @@ class ColumnModel(Model):
                 value = self.domain.parse(default)
             except ValueError:
                 pass
-            if type != u'text' and isinstance(value, (str, unicode)):
+            if type != 'text' and isinstance(value, str):
                 value = self.VALUE_MAP.get(value, value)
-            if type == u'json' and value is not None:
+            if type == 'json' and value is not None:
                 value = json.dumps(value, sort_keys=True)
             if value is not None:
                 value = sql_value(value)
@@ -680,7 +677,7 @@ class ColumnModel(Model):
         if not isinstance(image, ColumnImage) or image.foreign_keys:
             return False
         # Skip the surrogate key.
-        if image.name == u'id':
+        if image.name == 'id':
             return False
         # The table must be valid too.
         if not TableModel.recognizes(schema, image.table):
@@ -798,9 +795,9 @@ class ColumnModel(Model):
         if old_data.enumerators is None and data.enumerators is None:
             has_cast = (data.type in old_data.CAST_MAP[old_data.type])
         elif old_data.enumerators is None:
-            has_cast = (old_data.type == u'text')
+            has_cast = (old_data.type == 'text')
         elif data.enumerators is None:
-            has_cast = (data.type == u'text')
+            has_cast = (data.type == 'text')
         else:
             has_cast = True
         if not has_cast:
@@ -823,9 +820,9 @@ class ColumnModel(Model):
             self.image.alter_type(type_image, expression)
             self.enum_image.drop()
         else:
-            type_image = schema.system_image.types[u"text"]
+            type_image = schema.system_image.types["text"]
             new_enum_image = schema.image.create_enum_type(
-                    u"?", data.enumerators)
+                    "?", data.enumerators)
             expression = sql_cast(
                     sql_cast(sql_name(self.image.name), type_image.qname),
                     new_enum_image.qname)
@@ -902,7 +899,7 @@ class LinkModel(Model):
             'table', 'label', 'target_table',
             'default', 'is_required', 'is_unique', 'title']
 
-    class names(object):
+    class names:
         # Derives name for the column and auxiliary objects.
 
         __slots__ = ('table_label', 'label', 'title',
@@ -912,11 +909,11 @@ class LinkModel(Model):
             self.table_label = table_label
             self.label = label
             self.title = label_to_title(label)
-            self.name = mangle(label, u'id')
-            self.fk_name = mangle([table_label, label], u'fk')
-            self.uk_name = mangle([table_label, label], u'uk')
+            self.name = mangle(label, 'id')
+            self.fk_name = mangle([table_label, label], 'fk')
+            self.uk_name = mangle([table_label, label], 'uk')
 
-    class data(object):
+    class data:
         # Converts HTSQL identity to FK value.
 
         __slots__ = ('default', 'value')
@@ -926,7 +923,7 @@ class LinkModel(Model):
                 self.default = None
                 self.value = None
             else:
-                text = u"%s[%s]" % (table.label, default)
+                text = "%s[%s]" % (table.label, default)
                 from .data import DataFact
                 identity = table.identity()
                 if identity is None:
@@ -946,8 +943,8 @@ class LinkModel(Model):
     @staticmethod
     def name_to_label(name):
         # Derives the link label from the column name.
-        if name.endswith(u'_id'):
-            name = name[:-2].rstrip(u'_')
+        if name.endswith('_id'):
+            name = name[:-2].rstrip('_')
         return name
 
     @classmethod
@@ -957,7 +954,7 @@ class LinkModel(Model):
         if not (isinstance(image, ColumnImage) and image.foreign_keys):
             return False
         # Skip the surrogate key.
-        if image.name == u'id':
+        if image.name == 'id':
             return False
         # The table must be valid too.
         if not TableModel.recognizes(schema, image.table):
@@ -1036,7 +1033,7 @@ class LinkModel(Model):
         # The first form is used unless it conflicts with any existing fields
         # or other backlinks.
         short_label = self.table.label
-        long_label = u"%s_via_%s" % (self.table.label, self.label)
+        long_label = "%s_via_%s" % (self.table.label, self.label)
         primary_key = self.image.table.primary_key or []
         for field in self.target_table.fields():
             if field.label == short_label:
@@ -1169,14 +1166,14 @@ class IdentityModel(Model):
 
     properties = ['table', 'fields', 'generators']
 
-    class names(object):
+    class names:
         # Derives name for the constraint and auxiliary objects.
 
         __slots__ = ('label', 'name')
 
         def __init__(self, label):
             self.label = label
-            self.name = mangle(label, u'pk')
+            self.name = mangle(label, 'pk')
 
     @classmethod
     def recognizes(cls, schema, image):
@@ -1202,7 +1199,7 @@ class IdentityModel(Model):
                 for loop in cls._identity_loops([field]):
                     raise Error(
                             "Discovered identity loop:",
-                            u".".join([entity.label for entity in loop]))
+                            ".".join([entity.label for entity in loop]))
         # Create the `PRIMARY KEY` constraint.
         schema = table.schema
         names = cls.names(table.label)
@@ -1215,7 +1212,7 @@ class IdentityModel(Model):
         # Build the generator trigger.
         source = cls._generate(table.image, generators)
         if source:
-            type_image = schema.system_image.types[u'trigger']
+            type_image = schema.system_image.types['trigger']
             procedure_image = schema.image.create_procedure(
                     names.name, [], type_image, source)
             trigger_image = table.image.create_trigger(
@@ -1279,7 +1276,7 @@ class IdentityModel(Model):
                     for loop in self._identity_loops([field]):
                         raise Error(
                                 "Discovered identity loop:",
-                                u".".join([entity.label for entity in loop]))
+                                ".".join([entity.label for entity in loop]))
             # Rebuild the constraint.
             self.image.drop()
             self.image = table.image.create_primary_key(
@@ -1292,7 +1289,7 @@ class IdentityModel(Model):
         source = self._generate(table.image, generators)
         if source:
             if not self.procedure_image:
-                type_image = schema.system_image.types[u'trigger']
+                type_image = schema.system_image.types['trigger']
                 self.procedure_image = schema.image.create_procedure(
                         names.name, [], type_image, source)
             else:
@@ -1370,10 +1367,10 @@ class IdentityModel(Model):
         basis_names = [basis_column.name for basis_column in basis_columns]
         is_link = len(column.foreign_keys) > 0
         type_qname = (column.type.schema.name, column.type.name)
-        if type_qname == (u'pg_catalog', u'int8') and not is_link:
+        if type_qname == ('pg_catalog', 'int8') and not is_link:
             return plpgsql_integer_offset_key(
                     table.qname, column.name, basis_names)
-        elif type_qname == (u'pg_catalog', u'text') and not is_link:
+        elif type_qname == ('pg_catalog', 'text') and not is_link:
             return plpgsql_text_offset_key(
                     table.qname, column.name, basis_names)
         else:
@@ -1384,9 +1381,9 @@ class IdentityModel(Model):
         # Builds code for autogenerated random primary key.
         is_link = len(column.foreign_keys) > 0
         type_qname = (column.type.schema.name, column.type.name)
-        if type_qname == (u'pg_catalog', u'int8') and not is_link:
+        if type_qname == ('pg_catalog', 'int8') and not is_link:
             return plpgsql_integer_random_key(table.qname, column.name)
-        elif type_qname == (u'pg_catalog', u'text') and not is_link:
+        elif type_qname == ('pg_catalog', 'text') and not is_link:
             return plpgsql_text_random_key(table.qname, column.name)
         else:
             raise Error("Expected an integer or text column:", column)
@@ -1396,9 +1393,9 @@ class IdentityModel(Model):
         # Builds stored procedure for autogenerated identity.
         source = []
         for column, generator in zip(table.primary_key, generators):
-            if generator == u'offset':
+            if generator == 'offset':
                 source.append(cls._make_offset_key(table, column))
-            elif generator == u'random':
+            elif generator == 'random':
                 source.append(cls._make_random_key(table, column))
         if not source:
             return None

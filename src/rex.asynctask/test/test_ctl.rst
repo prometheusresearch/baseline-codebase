@@ -61,11 +61,11 @@ specified queues::
     >>> transport.submit_task('foo', {'foo': 1})
     >>> time.sleep(1)
 
-    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
+    >>> print(strip_coveragepy_warnings(worker_ctl.stop()))  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching demo_foo_worker to work on queue foo
     INFO:FooWorker:Starting; queue=foo
-    DEBUG:FooWorker:Got payload: {u'foo': 1}
-    FOO processed: {u'foo': 1}
+    DEBUG:FooWorker:Got payload: {'foo': 1}
+    FOO processed: {'foo': 1}
     DEBUG:FooWorker:Processing complete
     DEBUG:AsyncTaskWorkerTask:Termination received; shutting down children
     INFO:FooWorker:Terminating
@@ -110,16 +110,16 @@ queue::
     >>> transport.submit_task('foo', {'foo': 1})
     >>> time.sleep(2)
 
-    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
+    >>> print(strip_coveragepy_warnings(worker_ctl.stop()))  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching requeue_worker to work on queue foo
     INFO:RequeueWorker:Starting; queue=foo
-    DEBUG:RequeueWorker:Got payload: {u'foo': 1}
-    REQUEUE processed: {u'foo': 1}
+    DEBUG:RequeueWorker:Got payload: {'foo': 1}
+    REQUEUE processed: {'foo': 1}
     DEBUG:RequeueWorker:Requeued payload: {'foo': 2}
     REQUEUE requeued
     DEBUG:RequeueWorker:Processing complete
-    DEBUG:RequeueWorker:Got payload: {u'foo': 2}
-    REQUEUE processed: {u'foo': 2}
+    DEBUG:RequeueWorker:Got payload: {'foo': 2}
+    REQUEUE processed: {'foo': 2}
     DEBUG:RequeueWorker:Processing complete
     DEBUG:AsyncTaskWorkerTask:Termination received; shutting down children
     INFO:RequeueWorker:Terminating
@@ -145,16 +145,16 @@ an exception, it won't cause the entire worker to die::
     >>> transport.submit_task('foo', {'error': False})
     >>> time.sleep(1)
 
-    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
+    >>> print(strip_coveragepy_warnings(worker_ctl.stop()))  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching demo_error_worker to work on queue foo
     INFO:ErrorWorker:Starting; queue=foo
-    DEBUG:ErrorWorker:Got payload: {u'error': True}
+    DEBUG:ErrorWorker:Got payload: {'error': True}
     ERROR:ErrorWorker:An unhandled exception occurred while processing the payload
     Traceback (most recent call last):
     ...
     Exception: Oops!
-    DEBUG:ErrorWorker:Got payload: {u'error': False}
-    ERROR processed: {u'error': False}
+    DEBUG:ErrorWorker:Got payload: {'error': False}
+    ERROR processed: {'error': False}
     DEBUG:ErrorWorker:Processing complete
     DEBUG:AsyncTaskWorkerTask:Termination received; shutting down children
     INFO:ErrorWorker:Terminating
@@ -180,16 +180,16 @@ If a worker dies, the master process will restart it::
     >>> transport.submit_task('foo', {'die': False})
     >>> time.sleep(1)
 
-    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
+    >>> print(strip_coveragepy_warnings(worker_ctl.stop()))  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching demo_fragile_worker to work on queue foo
     INFO:FragileWorker:Starting; queue=foo
-    DEBUG:FragileWorker:Got payload: {u'die': True}
+    DEBUG:FragileWorker:Got payload: {'die': True}
     FRAGILE DYING!
     ERROR:AsyncTaskWorkerTask:Worker for queue foo died; restarting...
     INFO:AsyncTaskWorkerTask:Launching demo_fragile_worker to work on queue foo
     INFO:FragileWorker:Starting; queue=foo
-    DEBUG:FragileWorker:Got payload: {u'die': False}
-    FRAGILE processed: {u'die': False}
+    DEBUG:FragileWorker:Got payload: {'die': False}
+    FRAGILE processed: {'die': False}
     DEBUG:FragileWorker:Processing complete
     DEBUG:AsyncTaskWorkerTask:Termination received; shutting down children
     INFO:FragileWorker:Terminating
@@ -214,7 +214,7 @@ Tasks can be scheduled to execute at particular times::
 
     >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --scheduler --set=asynctask_workers='{\"foo\": null}' --set=asynctask_scheduled_workers='[{\"worker\": \"demo_bar_worker\", \"second\": \"%s\"}]'" % (get_next_second(2),))
     >>> time.sleep(10)  # give the task some time for the tasks to trigger
-    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
+    >>> print(strip_coveragepy_warnings(worker_ctl.stop()))  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching demo_bar_worker to work on queue scheduled_0_demo_bar_worker
     INFO:AsyncTaskWorkerTask:Scheduling "demo_bar_worker" for {'second': ...}
     INFO:BarWorker:Starting; queue=scheduled_0_demo_bar_worker
@@ -235,7 +235,7 @@ Tasks can be scheduled to execute at particular times::
 
     >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --scheduler")
     >>> time.sleep(3)  # give the task a little time to spin up
-    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
+    >>> print(strip_coveragepy_warnings(worker_ctl.stop()))  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching demo_foo_worker to work on queue foo
     INFO:AsyncTaskWorkerTask:No schedules configured -- not starting scheduler
     INFO:FooWorker:Starting; queue=foo
@@ -249,7 +249,7 @@ rex.ctl Tasks can be executed on a schedule::
 
     >>> worker_ctl = Ctl("asynctask-workers rex.asynctask_demo --scheduler --set=asynctask_workers='{\"foo\": null}' --set=asynctask_scheduled_workers='[{\"ctl\": \"demo-noisy-task\", \"second\": \"%s\"}, {\"ctl\": \"demo-quiet-task\", \"second\": \"%s\"}, {\"ctl\": \"demo-crashy-task\", \"second\": \"%s\"}]'" % tuple(get_next_second(3).split(',')))
     >>> time.sleep(12)  # give the task some time for the tasks to trigger
-    >>> print strip_coveragepy_warnings(worker_ctl.stop())  # doctest: +ELLIPSIS
+    >>> print(strip_coveragepy_warnings(worker_ctl.stop()))  # doctest: +ELLIPSIS
     INFO:AsyncTaskWorkerTask:Launching ctl_executor to work on queue scheduled_0_ctl_...
     INFO:AsyncTaskWorkerTask:Launching ctl_executor to work on queue scheduled_0_ctl_...
     INFO:AsyncTaskWorkerTask:Launching ctl_executor to work on queue scheduled_0_ctl_...
@@ -260,21 +260,21 @@ rex.ctl Tasks can be executed on a schedule::
     INFO:CtlExecutorWorker:Starting; queue=scheduled_0_ctl_...
     INFO:CtlExecutorWorker:Starting; queue=scheduled_0_ctl_...
     DEBUG:AsyncTaskWorkerTask:Triggering scheduled execution of ctl_executor
-    DEBUG:CtlExecutorWorker:Got payload: {u'command': u'demo-noisy-task'}
+    DEBUG:CtlExecutorWorker:Got payload: {'command': 'demo-noisy-task'}
     INFO:CtlExecutorWorker:Executing Task: demo-noisy-task
     INFO:CtlExecutorWorker:Hello world!
     DEBUG:CtlExecutorWorker:Processing complete
     DEBUG:AsyncTaskWorkerTask:Triggering scheduled execution of ctl_executor
-    DEBUG:CtlExecutorWorker:Got payload: {u'command': u'demo-quiet-task'}
+    DEBUG:CtlExecutorWorker:Got payload: {'command': 'demo-quiet-task'}
     INFO:CtlExecutorWorker:Executing Task: demo-quiet-task
     DEBUG:CtlExecutorWorker:Processing complete
     DEBUG:AsyncTaskWorkerTask:Triggering scheduled execution of ctl_executor
-    DEBUG:CtlExecutorWorker:Got payload: {u'command': u'demo-crashy-task'}
+    DEBUG:CtlExecutorWorker:Got payload: {'command': 'demo-crashy-task'}
     INFO:CtlExecutorWorker:Executing Task: demo-crashy-task
     ERROR:CtlExecutorWorker:Failed execution
     Traceback (most recent call last):
     ...
-    Error: Received unexpected exit code:
+    rex.core.Error: Received unexpected exit code:
         expected 0; got 1
     With output:
         FATAL ERROR: Oops, I crashed
@@ -290,4 +290,5 @@ rex.ctl Tasks can be executed on a schedule::
     INFO:CtlExecutorWorker:Terminating
     DEBUG:AsyncTaskWorkerTask:Children dead
     INFO:AsyncTaskWorkerTask:Complete
+
 

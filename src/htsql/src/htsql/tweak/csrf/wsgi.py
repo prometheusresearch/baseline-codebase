@@ -7,7 +7,7 @@ from ...core.context import context
 from ...core.adapter import rank
 from ...core.wsgi import WSGI
 from ...core.fmt.html import Template
-import Cookie
+import http.cookies
 import os
 import binascii
 
@@ -21,7 +21,7 @@ class CSRFWSGI(WSGI):
     def __call__(self):
         token = None
         if 'HTTP_COOKIE' in self.environ:
-            cookie = Cookie.SimpleCookie(self.environ['HTTP_COOKIE'])
+            cookie = http.cookies.SimpleCookie(self.environ['HTTP_COOKIE'])
             if 'htsql-csrf-token' in cookie:
                 token = cookie['htsql-csrf-token'].value
                 secret = None
@@ -40,12 +40,12 @@ class CSRFWSGI(WSGI):
             can_read = can_read and addon.allow_cs_read
             can_write = can_write and addon.allow_cs_write
         if not token:
-            token = binascii.b2a_hex(os.urandom(self.csrf_secret_length))
+            token = binascii.b2a_hex(os.urandom(self.csrf_secret_length)).decode('ascii')
             path = self.environ.get('SCRIPT_NAME', '')
             if not path.endswith('/'):
                 path += '/'
-            morsel = Cookie.Morsel()
-            morsel.set('htsql-csrf-token', token, Cookie._quote(token))
+            morsel = http.cookies.Morsel()
+            morsel.set('htsql-csrf-token', token, http.cookies._quote(token))
             morsel['path'] = path
             cookie = morsel.OutputString()
             # FIXME: avoid state changes in the adapter.

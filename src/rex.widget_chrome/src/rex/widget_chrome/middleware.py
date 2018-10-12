@@ -3,7 +3,7 @@ from rex.core import get_settings, get_packages
 from rex.web import authenticate, Pipe, url_for
 from rex.db import get_db, Query
 from webob import Response
-from urllib import quote
+from urllib.parse import quote
 
 from .setting import UsernameQuery
 

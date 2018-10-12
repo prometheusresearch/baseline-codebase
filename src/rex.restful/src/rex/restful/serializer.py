@@ -194,11 +194,11 @@ def restful_json_decoder(value):
     if isinstance(value, list):
         pairs = enumerate(value)
     elif isinstance(value, dict):
-        pairs = value.items()
+        pairs = list(value.items())
 
     results = []
     for key, val in pairs:
-        if isinstance(val, basestring):
+        if isinstance(val, str):
             val = get_date_or_string(val)
 
         elif isinstance(val, (dict, list)):
@@ -320,14 +320,14 @@ def marshall_htsql_result(result):
 
     if result.__class__.__base__.__module__ == 'htsql.core.domain' \
             and result.__class__.__base__.__name__ == 'Record':
-        return dict(zip(
+        return dict(list(zip(
             result.__fields__,
             [marshall_htsql_result(col) for col in result],
-        ))
+        )))
 
     if result.__class__.__module__ == 'htsql.core.domain' \
             and result.__class__.__name__ == 'ID':
-        return unicode(result)
+        return str(result)
 
     if isinstance(result, list):
         return [

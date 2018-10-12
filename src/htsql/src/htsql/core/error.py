@@ -28,7 +28,7 @@ class HTTPError(Exception):
         # Implement a WSGI entry point.
         start_response(self.status,
                        [('Content-Type', 'text/plain; charset=UTF-8')])
-        return [str(self), "\n"]
+        return [str(self).encode('utf-8'), b"\n"]
 
 
 class BadRequestError(HTTPError):
@@ -87,20 +87,16 @@ class NotImplementedError(HTTPError):
 class Paragraph(Printable):
 
     def __init__(self, message, quote):
-        assert isinstance(message, (str, unicode))
-        if isinstance(message, str):
-            message = message.decode('utf-8', 'replace')
-        if isinstance(quote, str):
-            quote = quote.decode('utf-8', 'replace')
+        assert isinstance(message, str)
         self.message = message
         self.quote = quote
 
-    def __unicode__(self):
+    def __str__(self):
         if not self.quote:
             return self.message
-        lines = unicode(self.quote).splitlines()
-        block = "\n".join(u"    "+line for line in lines)
-        return u"%s:\n%s" % (self.message, block)
+        lines = str(self.quote).splitlines()
+        block = "\n".join("    "+line for line in lines)
+        return "%s:\n%s" % (self.message, block)
 
     def __repr__(self):
         return "<%s %r>" % (self.__class__.__name__, self.message)
@@ -122,15 +118,12 @@ class Error(BadRequestError):
             paragraph = Paragraph(message, quote)
         self.paragraphs.append(paragraph)
 
-    def __unicode__(self):
-        return u"\n".join(unicode(paragraph) for paragraph in self.paragraphs)
-
     def __str__(self):
-        return unicode(self).encode('utf-8')
+        return "\n".join(str(paragraph) for paragraph in self.paragraphs)
 
     def __repr__(self):
         return "<%s: %s>" % (self.__class__.__name__,
-                             self.paragraphs[0].message.encode('utf-8'))
+                             self.paragraphs[0].message)
 
 
 class EngineError(ConflictError, Error):
@@ -195,7 +188,7 @@ class Mark(Clonable, Printable):
 
     def __init__(self, text, start, end):
         # Sanity check on the arguments.
-        assert isinstance(text, unicode)
+        assert isinstance(text, str)
         assert isinstance(start, int)
         assert isinstance(end, int)
         assert 0 <= start <= end <= len(text)
@@ -212,8 +205,8 @@ class Mark(Clonable, Printable):
         if not self.text:
             return []
         # Find the line that contains the mark.
-        excerpt_start = self.text.rfind(u'\n', 0, self.start)+1
-        excerpt_end = self.text.find(u'\n', excerpt_start)
+        excerpt_start = self.text.rfind('\n', 0, self.start)+1
+        excerpt_end = self.text.find('\n', excerpt_start)
         if excerpt_end == -1:
             excerpt_end = len(self.text)
 
@@ -229,17 +222,17 @@ class Mark(Clonable, Printable):
         # Generate the exerpt and the pointer lines.
         lines = []
         lines.append(self.text[excerpt_start:excerpt_end])
-        lines.append(u' '*pointer_indent + u'^'*max(pointer_length, 1))
+        lines.append(' '*pointer_indent + '^'*max(pointer_length, 1))
         return lines
 
-    def __unicode__(self):
-        return u"\n".join(self.excerpt())
+    def __str__(self):
+        return "\n".join(self.excerpt())
 
     def __repr__(self):
         chunk = self.text[self.start:self.end]
-        return "<%s %r>" % (self.__class__.__name__, chunk.encode('utf-8'))
+        return "<%s %r>" % (self.__class__.__name__, chunk)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self.text)
 
 
@@ -294,7 +287,7 @@ point = MarkRef.point
 #
 
 
-class ErrorGuard(object):
+class ErrorGuard:
 
     __slots__ = ('message', 'quote')
 
@@ -312,7 +305,7 @@ class ErrorGuard(object):
             exc_value.wrap(self.message, self.quote)
 
 
-class MarkErrorGuard(object):
+class MarkErrorGuard:
 
     __slots__ = ('message', 'node')
 

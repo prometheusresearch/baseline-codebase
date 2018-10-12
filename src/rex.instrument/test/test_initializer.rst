@@ -26,7 +26,7 @@ instances in the system and ensure that they contain valid definitions::
     >>> rex.reset()
     Traceback (most recent call last):
         ...
-    Error: InstrumentVersion "broken1" contains an invalid definition: The following problems were encountered when validating this Instrument:
+    rex.core.Error: InstrumentVersion "broken1" contains an invalid definition: The following problems were encountered when validating this Instrument:
     <root>: Unrecognized keys in mapping: "{'foo': 'bar'}"
     While initializing RexDB application:
         __main__
@@ -36,7 +36,7 @@ instances in the system and ensure that they contain valid definitions::
     >>> rex.reset()  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    Error: Failed to parse a YAML document:
+    rex.core.Error: Failed to parse a YAML document:
         ...
     While validating system InstrumentVersions.
     While initializing RexDB application:
@@ -48,8 +48,8 @@ instances in the system and ensure that they contain valid definitions::
     >>> rex.reset()
     Traceback (most recent call last):
         ...
-    Error: CalculationSet "broken1" contains an invalid definition: The following problems were encountered when validating this CalculationSet:
-    <root>: Unrecognized keys in mapping: "{u'foo': u'bar'}"
+    rex.core.Error: CalculationSet "broken1" contains an invalid definition: The following problems were encountered when validating this CalculationSet:
+    <root>: Unrecognized keys in mapping: "{'foo': 'bar'}"
     While initializing RexDB application:
         __main__
         rex.instrument_demo

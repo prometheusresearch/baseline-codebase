@@ -83,7 +83,7 @@ def set_assessment_application(data, name, version=None):
     if not updated:
         new_tokens.append('%s/%s' % (name, version))
 
-    application = u' '.join(new_tokens)
+    application = ' '.join(new_tokens)
     set_assessment_meta(data, 'application', application)
 
     return application

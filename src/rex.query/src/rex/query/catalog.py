@@ -50,35 +50,35 @@ def get_domain(entity_arc, field_arc):
 
 def produce_catalog(ignore_entities=None):
     column_domain = RecordDomain([
-            profile(u'type', TextDomain()),
-            profile(u'enum', ListDomain(TextDomain()))])
+            profile('type', TextDomain()),
+            profile('enum', ListDomain(TextDomain()))])
     column_record = Record.make(
-            u'column', [field.tag for field in column_domain.fields])
+            'column', [field.tag for field in column_domain.fields])
     link_domain = RecordDomain([
-            profile(u'target', TextDomain()),
-            profile(u'inverse', TextDomain())])
+            profile('target', TextDomain()),
+            profile('inverse', TextDomain())])
     link_record = Record.make(
-            u'link', [field.tag for field in link_domain.fields])
+            'link', [field.tag for field in link_domain.fields])
     field_domain = RecordDomain([
-            profile(u'label', TextDomain()),
-            profile(u'title', TextDomain()),
-            profile(u'public', BooleanDomain()),
-            profile(u'partial', BooleanDomain()),
-            profile(u'plural', BooleanDomain()),
-            profile(u'kind', EnumDomain(
-                [u'column', u'direct-link', u'indirect-link'])),
-            profile(u'column', column_domain),
-            profile(u'link', link_domain)])
+            profile('label', TextDomain()),
+            profile('title', TextDomain()),
+            profile('public', BooleanDomain()),
+            profile('partial', BooleanDomain()),
+            profile('plural', BooleanDomain()),
+            profile('kind', EnumDomain(
+                ['column', 'direct-link', 'indirect-link'])),
+            profile('column', column_domain),
+            profile('link', link_domain)])
     field_record = Record.make(
-            u'field', [field.tag for field in field_domain.fields])
+            'field', [field.tag for field in field_domain.fields])
     entity_domain = RecordDomain([
-            profile(u'name', TextDomain()),
-            profile(u'label', TextDomain()),
-            profile(u'field', ListDomain(field_domain)),
-            profile(u'identity', ListDomain(TextDomain()))])
+            profile('name', TextDomain()),
+            profile('label', TextDomain()),
+            profile('field', ListDomain(field_domain)),
+            profile('identity', ListDomain(TextDomain()))])
     entity_record = Record.make(
-            u'entity', [field.tag for field in entity_domain.fields])
-    meta = profile(u'entity', ListDomain(entity_domain))
+            'entity', [field.tag for field in entity_domain.fields])
+    meta = profile('entity', ListDomain(entity_domain))
     arcs = {None: []}
     arc_labels = {}
     seen = set()
@@ -125,23 +125,23 @@ def produce_catalog(ignore_entities=None):
             if isinstance(field_arc, ColumnArc):
                 field_meta = get_meta(field_arc.column)
                 field_title = field_meta.title or field_title
-                field_kind = u'column'
+                field_kind = 'column'
                 field_domain = field_arc.column.domain
-                field_type = unicode(field_domain.__class__.__name__.lower())
-                if field_type.endswith(u'domain'):
+                field_type = str(field_domain.__class__.__name__.lower())
+                if field_type.endswith('domain'):
                     field_type = field_type[:-6]
                 field_enum = []
                 if isinstance(field_domain, EnumDomain):
                     field_enum = field_domain.labels
                 field_column = column_record((field_type, field_enum))
             elif isinstance(field_arc, ChainArc):
-                field_kind = u'indirect-link'
+                field_kind = 'indirect-link'
                 if len(field_arc.joins) == 1:
                     join = field_arc.joins[0]
                     if join.is_direct and len(join.origin_columns) == 1:
                         field_meta = get_meta(join.origin_columns[0])
                         field_title = field_meta.title or field_title
-                        field_kind = u'direct-link'
+                        field_kind = 'direct-link'
                 target_arc = TableArc(field_arc.target.table)
                 inverse_arc = field_arc.reverse()
                 link_target = arc_labels[target_arc].name
@@ -157,9 +157,9 @@ def produce_catalog(ignore_entities=None):
                 if field_domain is None:
                     continue
                 field_plural = False
-                field_kind = u'column'
-                field_type = unicode(field_domain.__class__.__name__.lower())
-                if field_type.endswith(u'domain'):
+                field_kind = 'column'
+                field_type = str(field_domain.__class__.__name__.lower())
+                if field_type.endswith('domain'):
                     field_type = field_type[:-6]
                 field_enum = []
                 if isinstance(field_domain, EnumDomain):

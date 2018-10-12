@@ -16,7 +16,7 @@ class IntrospectSQLite(Introspect):
 
     @staticmethod
     def escape_name(name):
-        return '"%s"' % name.encode('utf-8').replace('"', '""')
+        return '"%s"' % name.replace('"', '""')
 
     def __call__(self):
         connection = connect()
@@ -24,7 +24,7 @@ class IntrospectSQLite(Introspect):
 
         catalog = make_catalog()
 
-        schema = catalog.add_schema(u'')
+        schema = catalog.add_schema('')
 
         cursor.execute("""
             SELECT *
@@ -85,9 +85,9 @@ class IntrospectSQLite(Introspect):
                     # See `http://www.sqlite.org/cvstrac/tktview?tn=3800`
                     # and `http://www.sqlite.org/src/ci/600482d161`.
                     # The bug is fixed in SQLite 3.6.14.
-                    if (target_name.startswith(u'"') and
-                            target_name.endswith(u'"')):
-                        target_name = target_name[1:-1].replace(u'""', u'"')
+                    if (target_name.startswith('"') and
+                            target_name.endswith('"')):
+                        target_name = target_name[1:-1].replace('""', '"')
                     target_by_id[row.id] = schema[target_name]
                     target_columns_by_id[row.id] = []
                 target = target_by_id[row.id]
@@ -109,7 +109,7 @@ class IntrospectSQLiteDomain(Protocol):
 
     @classmethod
     def __dispatch__(interface, name, *args, **kwds):
-        return name.lower().encode('utf-8')
+        return name.lower()
 
     @classmethod
     def __matches__(component, dispatch_key):
@@ -168,7 +168,7 @@ class IntrospectSQLiteDateTimeDomain(IntrospectSQLiteDomain):
     call('date', 'time')
 
     def __call__(self):
-        key = self.name.encode('utf-8').lower()
+        key = self.name.lower()
         if 'datetime' in key or 'timestamp' in key:
             return DateTimeDomain()
         if 'date' in key:

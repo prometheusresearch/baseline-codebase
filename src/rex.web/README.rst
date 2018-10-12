@@ -76,7 +76,7 @@ Now we could request this file via HTTP::
     >>> from webob import Request
 
     >>> req = Request.blank('/index.html')
-    >>> print req.get_response(demo)
+    >>> print(req.get_response(demo))           # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 55
@@ -120,7 +120,7 @@ A command must override method :meth:`rex.web.Command.render()`, which takes a
 Now we could execute the command::
 
     >>> req = Request.blank('/hello?name=Alice')
-    >>> print req.get_response(demo)
+    >>> print(req.get_response(demo))                   # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 13
@@ -263,7 +263,7 @@ You can see how this handler works by submitting a non-existing URL to the
 application::
 
     >>> req = Request.blank('/not-found')
-    >>> print req.get_response(demo)
+    >>> print(req.get_response(demo))               # doctest: +NORMALIZE_WHITESPACE
     404 Not Found
     Content-Type: text/html; charset=UTF-8
     Content-Length: 145
@@ -324,7 +324,7 @@ Package :mod:`rex.web_demo` contains a static RST file
 When we request this file with URL ``/example.rst``, we see HTML output::
 
     >>> req = Request.blank('/example.rst')
-    >>> print req.get_response(demo)        # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    >>> print(req.get_response(demo))           # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/html; charset=UTF-8
     ...
@@ -358,7 +358,7 @@ Attribute :attr:`.HandleLocation.path` indicates the URL served by the handler.
 In this example, the handler returns a response ``PONG!``::
 
     >>> req = Request.blank('/ping')
-    >>> print req.get_response(demo)
+    >>> print(req.get_response(demo))               # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/plain; charset=UTF-8
     Content-Length: 5
@@ -383,12 +383,12 @@ query parameters.
 of the given positive integer ``n``::
 
     >>> req = Request.blank('/factorial?n=10')
-    >>> print req.get_response(demo)
+    >>> print(req.get_response(demo))               # doctest: +NORMALIZE_WHITESPACE
     200 OK
-    Content-Type: application/json; charset=UTF-8
-    Content-Length: 21
+    Content-Type: application/json
+    Content-Length: 14
     <BLANKLINE>
-    {"n!":3628800,"n":10}
+    {"n!":3628800}
 
 This service is implemented as a subclass of :class:`.Command`::
 
@@ -408,18 +408,18 @@ This service is implemented as a subclass of :class:`.Command`::
             f = 1
             for k in range(1, n+1):
                 f = f * k
-            return Response(json={"n": n, "n!": f})
+            return Response(json={"n!": f})
 
 One could also pass command parameters via URL.  For example, ``rex.web_demo``
 provides a JSON service for calculating the *n*-th *Fibonacci* number::
 
     >>> req = Request.blank('/fibonacci/10')
-    >>> print req.get_response(demo)
+    >>> print(req.get_response(demo))               # doctest: +NORMALIZE_WHITESPACE
     200 OK
-    Content-Type: application/json; charset=UTF-8
-    Content-Length: 17
+    Content-Type: application/json
+    Content-Length: 10
     <BLANKLINE>
-    {"fib":55,"n":10}
+    {"fib":55}
 
 This service is implemented as follows::
 
@@ -436,7 +436,7 @@ This service is implemented as follows::
             q = 1
             for k in range(n):
                 p, q = q, p+q
-            return Response(json={"n": n, "fib": p})
+            return Response(json={"fib": p})
 
 :attr:`.Command.path`
     URL handled by the command.
@@ -478,13 +478,13 @@ the user that performed the request or ``None``::
 
     >>> anon_req = Request.blank('/')
     >>> with demo:
-    ...     print authenticate(anon_req)
+    ...     print(authenticate(anon_req))
     None
 
     >>> auth_req = Request.blank('/')
     >>> auth_req.remote_user = 'Bob'
     >>> with demo:
-    ...     print authenticate(auth_req)
+    ...     print(authenticate(auth_req))
     Bob
 
 By default, :func:`.authenticate()` assumes that the user is stored in CGI
@@ -641,8 +641,8 @@ response::
 
     >>> req = Request.blank('/')
     >>> with demo:
-    ...     print render_to_response('rex.web_demo:/templates/hello.html', req,
-    ...                              name='World')
+    ...     print(render_to_response('rex.web_demo:/templates/hello.html', req,
+    ...                              name='World'))         # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 68
@@ -666,7 +666,7 @@ Static resources with extension ``.html`` are also rendered as templates.  For
 example, URL ``/page.html`` from :mod:`rex.web_demo` renders as follows::
 
     >>> req = Request.blank('/page.html')
-    >>> print req.get_response(demo)
+    >>> print(req.get_response(demo))           # doctest: +NORMALIZE_WHITESPACE
     200 OK
     Content-Type: text/html; charset=UTF-8
     Content-Length: 183
@@ -816,5 +816,7 @@ Then you can manage the uWSGI_ server using ``rex start``, ``rex stop`` and
 .. _mod_wsgi: http://code.google.com/p/modwsgi/
 .. _uWSGI: http://uwsgi-docs.readthedocs.org/
 .. _Gunicorn: http://gunicorn.org/
+
+
 
 

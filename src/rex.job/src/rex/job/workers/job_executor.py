@@ -108,7 +108,7 @@ class JobExecutorWorker(AsyncTaskWorker):
             database.produce(
                 HTSQL_FAIL_JOB,
                 job=job.code,
-                detail=unicode(exc),
+                detail=str(exc),
             )
         else:
             database.produce(HTSQL_COMPLETE_JOB, job=job.code)

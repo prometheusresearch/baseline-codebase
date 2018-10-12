@@ -16,7 +16,7 @@ import json
 import collections
 
 
-class EnumValue(object):
+class EnumValue:
 
     def __init__(self, value, former_values=[], title=None):
         self.value = value
@@ -87,8 +87,8 @@ class ColumnFact(Fact):
                           'required', 'unique', 'title']:
                 if getattr(spec, field) is not None:
                     raise Error("Got unexpected clause:", field)
-        if u'.' in spec.column:
-            table_label, label = spec.column.split(u'.')
+        if '.' in spec.column:
+            table_label, label = spec.column.split('.')
             if spec.of is not None and spec.of != table_label:
                 raise Error("Got mismatched table names:",
                             ", ".join((table_label, spec.of)))
@@ -112,8 +112,6 @@ class ColumnFact(Fact):
             domain = cls.DOMAIN_MAP[type]
         default = spec.default
         if isinstance(default, str):
-            default = default.decode('utf-8', 'replace')
-        if isinstance(default, unicode):
             try:
                 default = domain.parse(default)
             except ValueError:
@@ -129,35 +127,35 @@ class ColumnFact(Fact):
                     raise Error("Got duplicate enum labels:",
                                 ", ".join(type))
             if not (default is None or
-                    (type == u'boolean' and
+                    (type == 'boolean' and
                         isinstance(default, bool)) or
-                    (type == u'integer' and
-                        isinstance(default, (int, long))) or
-                    (type in (u'decimal', u'float') and
-                        isinstance(default, (int, long,
+                    (type == 'integer' and
+                        isinstance(default, int)) or
+                    (type in ('decimal', 'float') and
+                        isinstance(default, (int,
                                              decimal.Decimal, float))) or
-                    (type == u'text' and
-                        isinstance(default, unicode)) or
-                    (type == u'date' and
+                    (type == 'text' and
+                        isinstance(default, str)) or
+                    (type == 'date' and
                         isinstance(default, datetime.date)) or
-                    (type == u'date' and
-                        default == u'today()') or
-                    (type == u'time' and
+                    (type == 'date' and
+                        default == 'today()') or
+                    (type == 'time' and
                         isinstance(default, datetime.time)) or
-                    (type == u'datetime' and
+                    (type == 'datetime' and
                         isinstance(default, datetime.datetime)) or
-                    (type == u'datetime' and
-                        default == u'now()') or
-                    type == u'json' or
+                    (type == 'datetime' and
+                        default == 'now()') or
+                    type == 'json' or
                     (isinstance(type, list) and
-                        isinstance(default, unicode) and default in type)):
+                        isinstance(default, str) and default in type)):
                 raise Error("Got ill-typed default value:", default)
         if default is not None:
-            if type == u'decimal':
+            if type == 'decimal':
                 default = decimal.Decimal(default)
-            elif type == u'float':
+            elif type == 'float':
                 default = float(default)
-            elif type == u'json':
+            elif type == 'json':
                 try:
                     json.dumps(default)
                 except ValueError:
@@ -177,16 +175,16 @@ class ColumnFact(Fact):
     def __init__(self, table_label, label, type=None, default=None,
                  former_labels=[], is_required=None, is_unique=None,
                  title=None, front_labels=[], is_present=True):
-        assert isinstance(table_label, unicode) and len(table_label) > 0
-        assert isinstance(label, unicode) and len(label) > 0
+        assert isinstance(table_label, str) and len(table_label) > 0
+        assert isinstance(label, str) and len(label) > 0
         assert isinstance(is_present, bool)
         if is_present:
             assert (isinstance(former_labels, list) and
-                    all(isinstance(former_label, unicode)
+                    all(isinstance(former_label, str)
                         for former_label in former_labels))
-            assert (isinstance(type, unicode) and type in self.TYPE_MAP or
+            assert (isinstance(type, str) and type in self.TYPE_MAP or
                     isinstance(type, list) and len(type) > 0 and
-                    all(isinstance(label, unicode) and len(label) > 0
+                    all(isinstance(label, str) and len(label) > 0
                         for label in type) and
                     len(set(type)) == len(type))
             if is_required is None:
@@ -196,9 +194,9 @@ class ColumnFact(Fact):
                 is_unique = False
             assert isinstance(is_unique, bool)
             assert (title is None or
-                    (isinstance(title, unicode) and len(title) > 0))
+                    (isinstance(title, str) and len(title) > 0))
             assert (isinstance(front_labels, list) and
-                    all(isinstance(front_label, unicode)
+                    all(isinstance(front_label, str)
                         for front_label in front_labels))
         else:
             assert former_labels == []

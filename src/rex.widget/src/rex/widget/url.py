@@ -9,7 +9,7 @@
 
 """
 
-from urllib import urlencode
+from urllib.parse import urlencode
 
 from rex.core import Validate, StrVal
 from rex.web import url_for

@@ -13,7 +13,7 @@ Set up the environment::
 
     >>> def count_marts(owner):
     ...     data = get_management_db().produce('/rexmart_inventory.filter(owner=$owner)^definition{definition, count(^)}', owner=owner)
-    ...     print ', '.join(['%s: %s' % (rec[0], rec[1]) for rec in data])
+    ...     print(', '.join(['%s: %s' % (rec[0], rec[1]) for rec in data]))
 
 
     >>> mc1 = MartCreator('quotaguy', 'empty')
@@ -40,7 +40,7 @@ Set up the environment::
     >>> mart = mc2()
     Traceback (most recent call last):
         ...
-    Error: Creating a "some_data" Mart for "quotaguy" would exceed their quota
+    rex.core.Error: Creating a "some_data" Mart for "quotaguy" would exceed their quota
 
     >>> count_marts('quotaguy')
     empty: 2, some_data: 3
@@ -50,9 +50,10 @@ Set up the environment::
     >>> mc3()
     Traceback (most recent call last):
         ...
-    Error: Creating a "some_more_data" Mart for "quotaguy" would exceed their quota
+    rex.core.Error: Creating a "some_more_data" Mart for "quotaguy" would exceed their quota
 
 
 
     >>> rex.off()
+
 

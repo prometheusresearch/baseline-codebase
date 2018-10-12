@@ -4,13 +4,13 @@
 
 
 from rex.core import Error
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 
 reserved_parameters = ['USER', 'FORMAT', 'FORMAT_']
 
 
-class Constraint(object):
+class Constraint:
     """
     Represents a constraint over a port arm.
 
@@ -37,18 +37,18 @@ class Constraint(object):
         if isinstance(data, str):
             if '=' in data:
                 path, arguments = data.split('=', 1)
-                path = urllib.unquote(path)
+                path = urllib.parse.unquote(path)
                 if ':' in path:
                     path, operator = path.split(':', 1)
                 else:
                     operator = None
-                arguments = urllib.unquote_plus(arguments)
+                arguments = urllib.parse.unquote_plus(arguments)
                 if arguments:
                     arguments = [arguments]
                 else:
                     arguments = [None]
             else:
-                path = urllib.unquote(data)
+                path = urllib.parse.unquote(data)
                 if ':' in path:
                     path, operator = path.split(':', 1)
                 else:
@@ -73,17 +73,7 @@ class Constraint(object):
         if not path:
             path = ()
         if isinstance(path, str):
-            path = path.decode('utf-8', 'replace')
-        if isinstance(path, unicode):
-            path = tuple(path.split(u'.'))
-        if isinstance(path, tuple):
-            path = tuple(name.decode('utf-8', 'replace')
-                         if isinstance(name, str) else name
-                         for name in path)
-
-        # `<operator>` is a string or `None`.
-        if isinstance(operator, str):
-            operator = operator.decode('utf-8', 'replace')
+            path = tuple(path.split('.'))
 
         # `<arguments>` is a list of `Value` instances.
         if not isinstance(arguments, list):
@@ -115,20 +105,19 @@ class Constraint(object):
 
     def __str__(self):
         # Serialize into a URL-encoded string `<path>:<operator>=<argument>`.
-        path = urllib.quote(".".join(name.encode('utf-8')
-                            for name in self.path))
+        path = urllib.parse.quote(".".join(self.path))
         if self.operator is not None:
-            operator = ":"+urllib.quote(self.operator.encode('utf-8'))
+            operator = ":"+urllib.parse.quote(self.operator)
         else:
             operator = ""
         if not self.arguments:
             return "%s%s" % (path, operator)
-        arguments = [argument.encode('utf-8')
-                     if isinstance(argument, unicode)
+        arguments = [argument
+                     if isinstance(argument, str)
                      else "" if argument is None
                      else str(argument)
                      for argument in self.arguments]
-        return "&".join("%s%s=%s" % (path, operator, urllib.quote(argument))
+        return "&".join("%s%s=%s" % (path, operator, urllib.parse.quote(argument))
                         for argument in arguments)
 
     def __repr__(self):
@@ -136,7 +125,7 @@ class Constraint(object):
                                    self.path, self.operator, self.arguments)
 
 
-class ConstraintSet(object):
+class ConstraintSet:
     # Represents a set of constraint at some arm.
 
     @classmethod
@@ -174,7 +163,7 @@ class ConstraintSet(object):
         partition.update((part, []) for part in parts)
         for constraint in self.constraints:
             name = constraint.get(self.depth)
-            if name == u'*':
+            if name == '*':
                 for part in parts:
                     partition[part].append(constraint)
             else:

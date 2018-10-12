@@ -25,9 +25,9 @@ import cgitb
 import mimetypes
 import marshal
 import fcntl
-import cStringIO
+import io
 import socket
-import urlparse
+import urllib.parse
 import raven.utils.wsgi
 
 
@@ -158,7 +158,7 @@ class PipeSession(Pipe):
         req.environ['rex.session'] = copy.deepcopy(session)
         # Build package mount table.
         mount = {}
-        for name, segment in get_settings().mount.items():
+        for name, segment in list(get_settings().mount.items()):
             if segment:
                 mount[name] = req.application_url+"/"+segment
             else:
@@ -199,7 +199,7 @@ class PipeError(Pipe):
     def __call__(self, req):
         try:
             return self.handle(req)
-        except WSGIHTTPException, error:
+        except WSGIHTTPException as error:
             if error.code in self.error_handler_map:
                 # Handler for a specific error code.
                 handler = self.error_handler_map[error.code](error)
@@ -246,7 +246,7 @@ def not_found(req):
     raise HTTPNotFound()
 
 
-class RoutingTable(object):
+class RoutingTable:
     # Adds `rex.package` to the request environment and dispatches
     # the request to the command or some other handler.
 
@@ -272,7 +272,7 @@ class RoutingTable(object):
         return self.fallback(req)
 
 
-class StaticGuard(object):
+class StaticGuard:
     # Verifies if the path can be handled by `StaticServer`.
 
     def __init__(self, package):
@@ -298,7 +298,7 @@ class StaticGuard(object):
         return os.path.isfile(real_path)
 
 
-class StaticServer(object):
+class StaticServer:
     # Handles static resources.
 
     # Directory index.
@@ -376,7 +376,7 @@ class StaticServer(object):
                     conditional_response=True)
 
 
-class CommandDispatcher(object):
+class CommandDispatcher:
     # Routes the request to a `HandleLocation` implementation.
 
     def __init__(self, handler_type):
@@ -466,9 +466,13 @@ class StandardWSGI(WSGI):
         settings = get_settings()
         self.replay_log = None
         if settings.replay_log:
-            self.replay_log = open(settings.replay_log, 'a')
+            self.replay_log = open(settings.replay_log, 'ab')
 
     def __call__(self, environ, start_response):
+        # Fix for uWSGI not stripping SCRIPT_NAME from PATH_INFO.
+        if (environ.get('REQUEST_URI', '').startswith(environ.get('PATH_INFO', '')) and
+                environ.get('PATH_INFO', '').startswith(environ.get('SCRIPT_NAME', ''))):
+            environ['PATH_INFO'] = environ.get('PATH_INFO', '')[len(environ.get('SCRIPT_NAME', '')):]
         # Workaround for uWSGI leaving an extra `/` on SCRIPT_NAME.
         if (environ.get('SCRIPT_NAME', '').endswith('/') and
                 environ.get('PATH_INFO', '').startswith('/')):
@@ -482,7 +486,7 @@ class StandardWSGI(WSGI):
         # Update replay log.
         if self.replay_log is not None:
             entry = {}
-            for key, value in environ.items():
+            for key, value in list(environ.items()):
                 if isinstance(value, (str, int, bool, tuple)):
                     entry[key] = value
                 elif key == 'wsgi.input':
@@ -493,7 +497,7 @@ class StandardWSGI(WSGI):
                     if content_length > 0:
                         data = value.read(content_length)
                         entry[key] = data
-                        environ[key] = cStringIO.StringIO(data)
+                        environ[key] = io.StringIO(data)
             try:
                 fcntl.flock(self.replay_log, fcntl.LOCK_EX)
                 marshal.dump(entry, self.replay_log)
@@ -518,7 +522,7 @@ class StandardWSGI(WSGI):
         try:
             try:
                 resp = self.handler(req)
-            except WSGIHTTPException, exc:
+            except WSGIHTTPException as exc:
                 resp = exc
             except:
                 self.sentry.captureException()
@@ -526,15 +530,15 @@ class StandardWSGI(WSGI):
                         "500 Internal Server Error",
                         [("Content-Type", 'text/plain')])
                 if write:
-                    write("The server encountered an unexpected condition"
-                          " which prevented it from fulfilling the request.\n")
+                    write(b"The server encountered an unexpected condition"
+                          b" which prevented it from fulfilling the request.\n")
                     if get_settings().debug:
                         exc_info = sys.exc_info()
-                        write("\n[%s] %s %s\n"
-                             % (datetime.datetime.now(),
-                                environ['REQUEST_METHOD'],
-                                wsgiref.util.request_uri(environ)))
-                        write(cgitb.text(exc_info))
+                        write(("\n[%s] %s %s\n"
+                               % (datetime.datetime.now(),
+                                  environ['REQUEST_METHOD'],
+                                  wsgiref.util.request_uri(environ))).encode('utf-8'))
+                        write(cgitb.text(exc_info).encode('utf-8'))
                 raise
         finally:
             self.sentry.context.clear()
@@ -640,14 +644,14 @@ def make_sentry_script_tag(req):
     public_dsn = sentry.get_public_dsn()
     if not public_dsn:
         return ""
-    parts = urlparse.urlsplit(public_dsn)
+    parts = urllib.parse.urlsplit(public_dsn)
     if parts.hostname == HOSTNAME:
-        url = urlparse.urlsplit(req.host_url)
+        url = urllib.parse.urlsplit(req.host_url)
         netloc = "".join((
             parts.username+'@',
             url.hostname,
             ':'+str(url.port) if url.port else ''))
-        public_dsn = urlparse.urlunsplit(
+        public_dsn = urllib.parse.urlunsplit(
                 (parts.scheme, netloc, parts.path, parts.query, parts.fragment))
     tags = sentry.tags
     user_context = sentry.context.get().get('user')

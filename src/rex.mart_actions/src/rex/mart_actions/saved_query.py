@@ -227,7 +227,7 @@ class MartEditConsoleQuery(ConsoleQueryAction):
     def context(self):
         input = self.input
         if not self.entity.name in input.rows:
-            input = typing.RecordType(input.rows.values() + [self.entity])
+            input = typing.RecordType(list(input.rows.values()) + [self.entity])
         return input, typing.RecordType([self.entity])
 
     @responder(url_type=MutationURL)

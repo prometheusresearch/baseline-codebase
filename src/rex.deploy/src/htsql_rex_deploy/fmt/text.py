@@ -25,12 +25,12 @@ class JSONToText(ToText):
     def body(self, data, widths):
         [width] = widths
         if data is None:
-            yield [(u" "*width, False)]
+            yield [(" "*width, False)]
             return
         text = self.domain.dump(data)
         is_first = True
         for line in text.splitlines():
-            yield [(u"%*s" % (-width, line), is_first)]
+            yield [("%*s" % (-width, line), is_first)]
             is_first = False
 
 

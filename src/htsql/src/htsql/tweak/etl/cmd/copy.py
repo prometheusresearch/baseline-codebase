@@ -18,7 +18,7 @@ from .insert import BuildExtractNode, BuildExtractTable
 import tempfile
 
 
-class CollectCopyPipe(object):
+class CollectCopyPipe:
 
     def __init__(self, table, columns):
         assert isinstance(table, TableEntity)
@@ -28,10 +28,10 @@ class CollectCopyPipe(object):
         self.dumps = [column.domain.dump for column in columns]
         self.stream = tempfile.TemporaryFile()
 
-    def __call__(self, row, unicode=unicode):
+    def __call__(self, row, str=str):
         self.stream.write(
             "\t".join([
-                unicode(item).encode('utf-8')
+                str(item)
                         .replace('\\', '\\\\')
                         .replace('\n', '\\n')
                         .replace('\r', '\\r')
@@ -51,8 +51,8 @@ class CollectCopyPipe(object):
                 cursor = cursor.cursor
                 cursor.copy_from(
                         self.stream,
-                        table='"%s"' % self.table.name.encode('utf-8'),
-                        columns=['"%s"' % column.name.encode('utf-8')
+                        table='"%s"' % self.table.name,
+                        columns=['"%s"' % column.name
                                  for column in self.columns])
 
 
@@ -96,7 +96,7 @@ class ProduceCopy(Act):
                     collect_copy(
                         extract_table(
                             extract_node(record)))
-                except Error, exc:
+                except Error as exc:
                     if extract_node.is_list:
                         message = "While copying record #%s" % (idx+1)
                     else:
@@ -108,7 +108,7 @@ class ProduceCopy(Act):
             extract_table = None
             try:
                 collect_copy.copy()
-            except Error, exc:
+            except Error as exc:
                 exc.wrap("While copying a batch of records", None)
                 raise
         meta = decorate(VoidBinding())

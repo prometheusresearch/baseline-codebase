@@ -48,7 +48,7 @@ class Label(Clonable, Printable):
                  'is_expanding', 'is_contracting', 'is_public')
 
     def __init__(self, name, arc, is_public):
-        assert isinstance(name, unicode)
+        assert isinstance(name, str)
         assert isinstance(arc, Arc)
         assert isinstance(is_public, bool)
         assert arc.arity is None or not is_public
@@ -62,7 +62,7 @@ class Label(Clonable, Printable):
         self.is_public = is_public
 
     def __str__(self):
-        return "%s%s (%s): %s -> %s" % (self.name.encode('utf-8'),
+        return "%s%s (%s): %s -> %s" % (self.name,
                                         "(%s)" % ",".join(["_"]*self.arity)
                                         if self.arity is not None else "",
                                         self.arc, self.origin, self.target)
@@ -214,7 +214,7 @@ class SyntaxArc(Arc):
     __slots__ = ('parameters', 'syntax')
 
     def __init__(self, origin, parameters, syntax):
-        assert isinstance(parameters, maybe(listof(tupleof(unicode, bool))))
+        assert isinstance(parameters, maybe(listof(tupleof(str, bool))))
         assert isinstance(syntax, Syntax)
         super(SyntaxArc, self).__init__(
                 origin=origin,

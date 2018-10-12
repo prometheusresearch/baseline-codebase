@@ -19,7 +19,7 @@ describe all Mart definitions available in the current instance::
 
     >>> rex = LatentRex('rex.mart_demo')
     >>> with rex:
-    ...     print [defn['id'] for defn in get_all_definitions()]
+    ...     print([defn['id'] for defn in get_all_definitions()])
     ['empty', 'just_copy', 'just_copy_missing', 'just_copy_application', 'just_deploy', 'just_deploy_includes', 'some_data', 'some_more_data', 'some_sql_data', 'some_more_sql_data', 'both_etl_phases', 'some_data_with_params', 'existing', 'fixed_name', 'existing_missing', 'broken_htsql', 'broken_sql', 'simple_assessment', 'linked_assessment', 'linked_assessment_alltypes', 'calculated_assessment', 'overlap_names_assessment', 'select_json', 'broken_selector', 'datadictionary_deployment', 'datadictionary_assessment', 'datadictionary_alltypes', 'index_processor', 'analyze_processor', 'enum_values', 'some_parameters', 'form_metadata', 'all_assessments', 'all_assessments_linked', 'dynamic_simple', 'dynamic_complex', 'schema_modification']
 
 
@@ -36,7 +36,7 @@ specific Mart definition if it is available::
     ...     pprint(get_definition('just_deploy'))  # doctest: +ELLIPSIS
     {'assessments': [],
      'base': {'fixed_name': None,
-              'name_token': u'just_deploy_',
+              'name_token': 'just_deploy_',
               'target': None,
               'type': 'fresh'},
      'base_path': '.../rex.mart_demo',
@@ -111,14 +111,15 @@ are stored::
     ...     get_hosting_db_uri()
     Traceback (most recent call last):
         ...
-    Error: Only PostgreSQL systems can host Marts
+    rex.core.Error: Only PostgreSQL systems can host Marts
 
     >>> rex = LatentRex('rex.mart_demo', mart_hosting_cluster='sqlite:some_db.sqlite')
     >>> with rex:
     ...     get_hosting_db_uri()
     Traceback (most recent call last):
         ...
-    Error: Only PostgreSQL systems can host Marts
+    rex.core.Error: Only PostgreSQL systems can host Marts
     While validating setting:
         mart_hosting_cluster
+
 

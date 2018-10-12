@@ -13,7 +13,17 @@ import keyword
 import operator
 
 
-class Domain(Clonable, Hashable, Printable):
+class DomainMeta(type):
+    # Make sure `str(domain.__class__)` produces a usable domain family name.
+
+    def __str__(cls):
+        name = cls.__name__.lower()
+        if name != 'domain' and name.endswith('domain'):
+            name = name[:-len('domain')]
+        return name
+
+
+class Domain(Clonable, Hashable, Printable, metaclass=DomainMeta):
     """
     An HTSQL data type.
 
@@ -32,18 +42,6 @@ class Domain(Clonable, Hashable, Printable):
     """
 
     __slots__ = ()
-
-    # Make sure `str(domain.__class__)` produces a usable domain family name.
-    class __metaclass__(type):
-
-        def __str__(cls):
-            name = cls.__name__.lower()
-            if name != 'domain' and name.endswith('domain'):
-                name = name[:-len('domain')]
-            return name
-
-        def __unicode__(cls):
-            return str(cls).decode('utf-8')
 
     def __init__(self):
         # Required by `Clonable` interface.
@@ -65,7 +63,7 @@ class Domain(Clonable, Hashable, Printable):
         *Returns*
             A native Python object representing the same value.
         """
-        assert isinstance(text, maybe(unicode))
+        assert isinstance(text, maybe(str))
 
         # `None` values are passed through.
         if text is None:
@@ -90,9 +88,9 @@ class Domain(Clonable, Hashable, Printable):
         assert data is None
         return None
 
-    def __unicode__(self):
+    def __str__(self):
         # The class name with `Domain` suffix stripped, in lower case.
-        return unicode(self.__class__)
+        return str(self.__class__)
 
 
 #
@@ -122,7 +120,7 @@ class Value(Clonable, Printable):
         self.domain = domain
         self.data = data
 
-    def __unicode__(self):
+    def __str__(self):
         # Dump:
         #   'text': domain
 
@@ -147,7 +145,7 @@ class Value(Clonable, Printable):
             raise TypeError("not a list value")
         return self.data[key]
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self.data)
 
 
@@ -170,8 +168,8 @@ class Profile(Clonable, Printable):
             setattr(self, key, attributes[key])
         self.attributes = attributes
 
-    def __unicode__(self):
-        return unicode(self.domain)
+    def __str__(self):
+        return str(self.domain)
 
 
 class Product(Value):
@@ -253,14 +251,14 @@ class UntypedDomain(Domain):
     @staticmethod
     def parse(text):
         # Sanity check on the argument.
-        assert isinstance(text, maybe(unicode))
+        assert isinstance(text, maybe(str))
         # No conversion is required.
         return text
 
     @staticmethod
     def dump(data):
         # Sanity check on the argument.
-        assert isinstance(data, maybe(unicode))
+        assert isinstance(data, maybe(str))
         # No conversion is required.
         return data
 
@@ -278,17 +276,17 @@ class BooleanDomain(Domain):
 
     @staticmethod
     def parse(text):
-        assert isinstance(text, maybe(unicode))
+        assert isinstance(text, maybe(str))
 
         # `None` -> `None`, `'true'` -> `True`, `'false'` -> `False`.
         if text is None:
             return None
-        if text == u'true':
+        if text == 'true':
             return True
-        if text == u'false':
+        if text == 'false':
             return False
         raise ValueError("invalid Boolean literal: expected 'true' or 'false';"
-                         " got %r" % text.encode('utf-8'))
+                         " got %r" % text)
 
     @staticmethod
     def dump(data):
@@ -298,9 +296,9 @@ class BooleanDomain(Domain):
         if data is None:
             return None
         if data is True:
-            return u'true'
+            return 'true'
         if data is False:
-            return u'false'
+            return 'false'
 
 
 class NumberDomain(Domain):
@@ -350,7 +348,7 @@ class IntegerDomain(NumberDomain):
 
     @staticmethod
     def parse(text):
-        assert isinstance(text, maybe(unicode))
+        assert isinstance(text, maybe(str))
         # `null` is represented by `None` in both forms.
         if text is None:
             return None
@@ -360,16 +358,16 @@ class IntegerDomain(NumberDomain):
         except ValueError:
             raise ValueError("invalid integer literal: expected an integer"
                              " in a decimal format; got %r"
-                             % text.encode('utf-8'))
+                             % text)
         return data
 
     def dump(self, data):
-        assert isinstance(data, maybe(oneof(int, long)))
+        assert isinstance(data, maybe(oneof(int, int)))
         # `null` is represented by `None` in both forms.
         if data is None:
             return None
         # Represent the value as a decimal number.
-        return unicode(data)
+        return str(data)
 
 
 class FloatDomain(NumberDomain):
@@ -398,7 +396,7 @@ class FloatDomain(NumberDomain):
 
     @staticmethod
     def parse(text):
-        assert isinstance(text, maybe(unicode))
+        assert isinstance(text, maybe(str))
         # `None` represents `null` both in literal and native formats.
         if text is None:
             return None
@@ -407,7 +405,7 @@ class FloatDomain(NumberDomain):
             data = float(text)
         except ValueError:
             raise ValueError("invalid float literal: %s"
-                             % text.encode('utf-8'))
+                             % text)
         # Check if we got a finite number.
         if not isfinite(data):
             raise ValueError("invalid float literal: %s" % data)
@@ -421,7 +419,7 @@ class FloatDomain(NumberDomain):
         # Check that we got a real number.
         assert isfinite(data)
         # Use `repr` to avoid loss of precision.
-        return unicode(repr(data))
+        return str(repr(data))
 
 
 class DecimalDomain(NumberDomain):
@@ -456,7 +454,7 @@ class DecimalDomain(NumberDomain):
 
     @staticmethod
     def parse(text):
-        assert isinstance(text, maybe(unicode))
+        assert isinstance(text, maybe(str))
         # `None` represents `NULL` both in literal and native format.
         if text is None:
             return None
@@ -465,11 +463,11 @@ class DecimalDomain(NumberDomain):
             data = decimal.Decimal(text)
         except decimal.InvalidOperation:
             raise ValueError("invalid decimal literal: %s"
-                             % text.encode('utf-8'))
+                             % text)
         # Verify that we got a finite number.
         if not isfinite(data):
             raise ValueError("invalid decimal literal: %s"
-                             % text.encode('utf-8'))
+                             % text)
         return data
 
     @staticmethod
@@ -481,7 +479,7 @@ class DecimalDomain(NumberDomain):
         # Check that we got a real number.
         assert isfinite(data)
         # Produce a decimal representation of the number.
-        return unicode(data)
+        return str(data)
 
 
 class TextDomain(Domain):
@@ -512,7 +510,7 @@ class TextDomain(Domain):
 
     @staticmethod
     def parse(text):
-        assert isinstance(text, maybe(unicode))
+        assert isinstance(text, maybe(str))
         # `None` represents `null` both in literal and native format.
         if text is None:
             return None
@@ -521,9 +519,9 @@ class TextDomain(Domain):
 
     @staticmethod
     def dump(data):
-        assert isinstance(data, maybe(unicode))
+        assert isinstance(data, maybe(str))
         if data is not None:
-            assert u'\0' not in data
+            assert '\0' not in data
         # `None` represents `null` both in literal and native format.
         if data is None:
             return None
@@ -549,28 +547,28 @@ class EnumDomain(Domain):
     # would have the same set of labels.
 
     def __init__(self, labels):
-        assert isinstance(labels, listof(unicode))
+        assert isinstance(labels, listof(str))
         self.labels = labels
 
     def __basis__(self):
         return (tuple(self.labels),)
 
     def parse(self, text):
-        assert isinstance(text, maybe(unicode))
+        assert isinstance(text, maybe(str))
         # `None` represents `null` both in literal and native format.
         if text is None:
             return None
         # Check if the input belongs to the fixed list of valid values.
         if text not in self.labels:
             raise ValueError("invalid enum literal: expected one of %s; got %r"
-                             % (", ".join(repr(label.encode('utf-8'))
+                             % (", ".join(repr(label)
                                           for label in self.labels),
-                                text.encode('utf-8')))
+                                text))
         # No conversion is required.
         return text
 
     def dump(self, data):
-        assert isinstance(data, maybe(unicode))
+        assert isinstance(data, maybe(str))
         if data is not None:
             assert data in self.labels
         # `None` represents `NULL` both in literal and native format.
@@ -579,10 +577,10 @@ class EnumDomain(Domain):
         # No conversion is required.
         return data
 
-    def __unicode__(self):
+    def __str__(self):
         # enum('label', ...)
-        return u"%s(%s)" % (self.__class__,
-                            u", ".join(to_literal(label)
+        return "%s(%s)" % (self.__class__,
+                            ", ".join(to_literal(label)
                                        for label in self.labels))
 
 
@@ -650,7 +648,7 @@ class DateDomain(Domain):
 
     @staticmethod
     def parse(text, regexp=regexp):
-        assert isinstance(text, maybe(unicode))
+        assert isinstance(text, maybe(str))
         # `None` represents `null` both in literal and native format.
         if text is None:
             return None
@@ -659,14 +657,14 @@ class DateDomain(Domain):
         if match is None:
             raise ValueError("invalid date literal: expected a valid date"
                              " in a 'YYYY-MM-DD' format; got %r"
-                             % text.encode('utf-8'))
+                             % text)
         year = int(match.group('year'))
         month = int(match.group('month'))
         day = int(match.group('day'))
         # Generate a `datetime.date` value; may fail if the date is not valid.
         try:
             data = datetime.date(year, month, day)
-        except ValueError, exc:
+        except ValueError as exc:
             raise ValueError("invalid date literal: %s" % exc.args[0])
         return data
 
@@ -677,7 +675,7 @@ class DateDomain(Domain):
         if data is None:
             return None
         # `unicode` on `datetime.date` gives us the date in YYYY-MM-DD format.
-        return unicode(data)
+        return str(data)
 
 
 class TimeDomain(Domain):
@@ -703,7 +701,7 @@ class TimeDomain(Domain):
 
     @staticmethod
     def parse(text, regexp=regexp):
-        assert isinstance(text, maybe(unicode))
+        assert isinstance(text, maybe(str))
         # `None` represents `null` both in literal and native format.
         if text is None:
             return None
@@ -712,7 +710,7 @@ class TimeDomain(Domain):
         if match is None:
             raise ValueError("invalid time literal: expected a valid time"
                              " in a 'HH:SS:MM.SSSSSS' format; got %r"
-                             % text.encode('utf-8'))
+                             % text)
         hour = int(match.group('hour'))
         minute = int(match.group('minute'))
         second = match.group('second')
@@ -731,7 +729,7 @@ class TimeDomain(Domain):
         # Generate a `datetime.time` value; may fail if the time is not valid.
         try:
             data = datetime.time(hour, minute, second, microsecond)
-        except ValueError, exc:
+        except ValueError as exc:
             raise ValueError("invalid time literal: %s" % exc.args[0])
         return data
 
@@ -743,7 +741,7 @@ class TimeDomain(Domain):
             return None
         # `unicode` on `datetime.date` gives us the date in HH:MM:SS.SSSSSS
         # format.
-        return unicode(data)
+        return str(data)
 
 
 class DateTimeDomain(Domain):
@@ -785,7 +783,7 @@ class DateTimeDomain(Domain):
 
     @staticmethod
     def parse(text, regexp=regexp):
-        assert isinstance(text, maybe(unicode))
+        assert isinstance(text, maybe(str))
         # `None` represents `null` both in literal and native format.
         if text is None:
             return None
@@ -794,7 +792,7 @@ class DateTimeDomain(Domain):
         if match is None:
             raise ValueError("invalid datetime literal: expected a valid"
                              " date/time in a 'YYYY-MM-DD HH:SS:MM.SSSSSS'"
-                             " format; got %r" % text.encode('utf-8'))
+                             " format; got %r" % text)
         year = int(match.group('year'))
         month = int(match.group('month'))
         day = int(match.group('day'))
@@ -832,7 +830,7 @@ class DateTimeDomain(Domain):
         try:
             data = datetime.datetime(year, month, day, hour, minute, second,
                                       microsecond, tz)
-        except ValueError, exc:
+        except ValueError as exc:
             raise ValueError("invalid datetime literal: %s" % exc.args[0])
         return data
 
@@ -843,7 +841,7 @@ class DateTimeDomain(Domain):
         if data is None:
             return None
         # `unicode` on `datetime.datetime` gives us the value in ISO format.
-        return unicode(data)
+        return str(data)
 
 
 class OpaqueDomain(Domain):
@@ -861,7 +859,7 @@ class OpaqueDomain(Domain):
 
     @staticmethod
     def parse(text):
-        assert isinstance(text, maybe(unicode))
+        assert isinstance(text, maybe(str))
         # We do not know what to do with the input, so pass it through and
         # hope for the best.
         return text
@@ -873,15 +871,7 @@ class OpaqueDomain(Domain):
             return None
         # Try to produce a passable textual representation; no guarantee
         # it could be given back to the database.
-        if isinstance(data, str):
-            text = data.decode('utf-8', 'replace')
-        elif isinstance(data, unicode):
-            text = data
-        else:
-            try:
-                text = unicode(data)
-            except UnicodeDecodeError:
-                text = str(data).decode('utf-8', 'replace')
+        text = str(data)
         # Make sure the output is printable.
         if regexp.search(text) is not None:
             text = re.escape(text)
@@ -923,8 +913,8 @@ class Record(tuple):
         *Returns*: subclass of :class:`Record`
             The generated class.
         """
-        assert isinstance(name, maybe(oneof(str, unicode)))
-        assert isinstance(fields, listof(maybe(oneof(str, unicode))))
+        assert isinstance(name, maybe(oneof(str, str)))
+        assert isinstance(fields, listof(maybe(oneof(str, str))))
 
         # Check if the type has been generated already.
         cache_key = (name, tuple(fields))
@@ -932,9 +922,6 @@ class Record(tuple):
             return _cache[cache_key]
         except KeyError:
             pass
-        # Process the class name; must be a regular string.
-        if isinstance(name, unicode):
-            name = name.encode('utf-8')
         # Check if the name is a valid identifier.
         if name is not None and not re.match(r'\A(?!\d)\w+\Z', name):
             name = None
@@ -951,9 +938,6 @@ class Record(tuple):
         for idx, field in enumerate(fields):
             if field is None:
                 continue
-            # An attribute name must be a regular string.
-            if isinstance(field, unicode):
-                field = field.encode('utf-8')
             # Only permit valid identifiers.
             if not re.match(r'\A(?!\d)\w+\Z', field):
                 field = None
@@ -1040,7 +1024,7 @@ class EntryBuffer(TextBuffer):
                 else:
                     # Otherwise, must be a nested container.
                     chunks = self.pull_chunks()
-                    entries.append(u"".join(chunks))
+                    entries.append("".join(chunks))
                 # Skip whitespace.
                 self.pull(r"[\s]+")
         # Skip trailing whitespace.
@@ -1075,9 +1059,9 @@ class EntryBuffer(TextBuffer):
             elif self.peek(r"[({\["):
                 chunks.extend(self.pull_chunks())
         # Pull the right bracket.
-        if left == u"(":
+        if left == "(":
             right = self.pull(r"[)]")
-        elif left == u"{":
+        elif left == "{":
             right = self.pull(r"[}]")
         elif left == r"[":
             right = self.pull(r"[\]]")
@@ -1088,7 +1072,7 @@ class EntryBuffer(TextBuffer):
 
     def fail(self):
         raise ValueError("ill-formed container literal: %s"
-                         % self.text.encode('utf-8'))
+                         % self.text)
 
 
 class ContainerDomain(Domain):
@@ -1105,27 +1089,27 @@ class ContainerDomain(Domain):
         # Unquotes and parses a container entry.
 
         # Unquote a quoted literal.
-        if text[0] == text[-1] == u"'":
-            text = text[1:-1].replace(u"''", u"'")
+        if text[0] == text[-1] == "'":
+            text = text[1:-1].replace("''", "'")
         # Verify that nested container entries are indeed containers.
-        elif text[0] == u"(" and text[-1] == u")":
+        elif text[0] == "(" and text[-1] == ")":
             if not isinstance(domain, (ListDomain, UntypedDomain)):
                 raise ValueError("list entry for %s: %s"
                                  % (domain, text))
-        elif text[0] == u"{" and text[-1] == u"}":
+        elif text[0] == "{" and text[-1] == "}":
             if not isinstance(domain, (RecordDomain, UntypedDomain)):
                 raise ValueError("record entry for %s: %s"
                                  % (domain, text))
-        elif text[0] == u"[" and text[-1] == u"]":
+        elif text[0] == "[" and text[-1] == "]":
             if not isinstance(domain, (IdentityDomain, UntypedDomain)):
                 raise ValueError("identity entry for %s: %s"
                                  % (domain, text))
         # Validate unquoted values.
-        elif text == u"true" or text == u"false":
+        elif text == "true" or text == "false":
             if not isinstance(domain, (BooleanDomain, UntypedDomain)):
                 raise ValueError("boolean entry for %s: %s"
                                  % (domain, text))
-        elif text == u"null":
+        elif text == "null":
             text = None
         else:
             # Must be an unquoted number.
@@ -1144,7 +1128,7 @@ class ContainerDomain(Domain):
         if text is None:
             # Using unquoted `null` string is safe here because a regular text
             # value will be quoted.
-            return u"null"
+            return "null"
         elif isinstance(domain, (BooleanDomain, NumberDomain,
                                  ListDomain, RecordDomain)):
             # Boolean and numeric literals are safe because they
@@ -1154,10 +1138,10 @@ class ContainerDomain(Domain):
         elif isinstance(domain, IdentityDomain):
             # Identity values are wrapped with `[]`; the outer
             # brackets will be stripped by `IdentityDomain.parse()`.
-            return u"[%s]" % text
+            return "[%s]" % text
         else:
             # All the others are wrapped in single quotes.
-            return u"'%s'" % text.replace(u"'", u"''")
+            return "'%s'" % text.replace("'", "''")
 
 
 class ListDomain(ContainerDomain):
@@ -1182,12 +1166,12 @@ class ListDomain(ContainerDomain):
     def __basis__(self):
         return (self.item_domain,)
 
-    def __unicode__(self):
+    def __str__(self):
         # list(item)
-        return u"%s(%s)" % (self.__class__, self.item_domain)
+        return "%s(%s)" % (self.__class__, self.item_domain)
 
     def parse(self, text):
-        assert isinstance(text, maybe(unicode))
+        assert isinstance(text, maybe(str))
         # `None` means `null` both in literal and native forms.
         if text is None:
             return None
@@ -1204,8 +1188,8 @@ class ListDomain(ContainerDomain):
             return None
         # Serialize individual entries and wrap with `()`.
         if len(data) == 1:
-            return u"(%s,)" % self.dump_entry(data[0], self.item_domain)
-        return u"(%s)" % u", ".join(self.dump_entry(entry, self.item_domain)
+            return "(%s,)" % self.dump_entry(data[0], self.item_domain)
+        return "(%s)" % ", ".join(self.dump_entry(entry, self.item_domain)
                                     for entry in data)
 
 
@@ -1230,14 +1214,14 @@ class RecordDomain(ContainerDomain):
     def __basis__(self):
         return tuple([field.domain for field in self.fields])
 
-    def __unicode__(self):
+    def __str__(self):
         # record(field, ...)
-        return u"%s(%s)" % (self.__class__,
-                            ", ".join(unicode(field)
+        return "%s(%s)" % (self.__class__,
+                            ", ".join(str(field)
                                       for field in self.fields))
 
     def parse(self, text):
-        assert isinstance(text, maybe(unicode))
+        assert isinstance(text, maybe(str))
         # `None` means `null` both in literal and native forms.
         if text is None:
             return None
@@ -1265,7 +1249,7 @@ class RecordDomain(ContainerDomain):
         if data is None:
             return None
         # Serialize individual fields and wrap with `{}`.
-        return u"{%s}" % u", ".join(self.dump_entry(entry, field.domain)
+        return "{%s}" % ", ".join(self.dump_entry(entry, field.domain)
                                     for entry, field in zip(data, self.fields))
 
 
@@ -1306,9 +1290,7 @@ class ID(tuple):
         bases = (cls,)
         content = {}
         content['__slots__'] = ()
-        content['__unicode__'] = (lambda self, dump=dump: dump(self))
-        content['__str__'] = (lambda self, dump=dump:
-                                    dump(self).encode('utf-8'))
+        content['__str__'] = (lambda self, dump=dump: dump(self))
         id_class = type(name, bases, content)
         # Cache and return the result.
         _cache[dump] = id_class
@@ -1341,15 +1323,12 @@ class LabelGroup(list):
                 width += 1
         self.width = width
 
-    def __unicode__(self):
-        # Serialize back to the literal form.
-        return u".".join(u"(%s)" % item if isinstance(item, LabelGroup) else
-                         unicode(item) if re.match(r"(?u)\A[\w-]+\Z", item) else
-                         u"'%s'" % item.replace("'", "''")
-                         for item in self)
-
     def __str__(self):
-        return unicode(self).encode('utf-8')
+        # Serialize back to the literal form.
+        return ".".join("(%s)" % item if isinstance(item, LabelGroup) else
+                         str(item) if re.match(r"(?u)\A[\w-]+\Z", item) else
+                         "'%s'" % item.replace("'", "''")
+                         for item in self)
 
 
 class LabelBuffer(TextBuffer):
@@ -1382,17 +1361,17 @@ class LabelBuffer(TextBuffer):
         if block is None:
             raise self.fail()
         # Composite labels.
-        if block == u"[":
+        if block == "[":
             label = self.pull_label_group()
             if self.pull(r"\]") is None:
                 raise self.fail()
-        elif block == u"(":
+        elif block == "(":
             label = self.pull_label_group()
             if self.pull(r"\)") is None:
                 raise self.fail()
         # Quoted labels.
-        elif block[0] == block[-1] == u"'":
-            label = block[1:-1].replace(u"''", u"'")
+        elif block[0] == block[-1] == "'":
+            label = block[1:-1].replace("''", "'")
         # Unquoted labels.
         else:
             label = block
@@ -1400,7 +1379,7 @@ class LabelBuffer(TextBuffer):
 
     def fail(self):
         raise ValueError("ill-formed identity literal: %s"
-                         % self.text.encode('utf-8'))
+                         % self.text)
 
 
 class IdentityDomain(ContainerDomain):
@@ -1442,15 +1421,15 @@ class IdentityDomain(ContainerDomain):
     def __basis__(self):
         return (tuple(self.labels),)
 
-    def __unicode__(self):
+    def __str__(self):
         # identity(label, ...)
-        return u"%s(%s)" % (self.__class__,
-                            u", ".join(unicode(label)
+        return "%s(%s)" % (self.__class__,
+                            ", ".join(str(label)
                                        for label in self.labels))
 
     def parse(self, text):
         # Sanity check on the arguments.
-        assert isinstance(text, maybe(unicode))
+        assert isinstance(text, maybe(str))
         # `None` represents `NULL` both in literal and native format.
         if text is None:
             return None
@@ -1535,14 +1514,14 @@ class IdentityDomain(ContainerDomain):
                 is_flattened = (is_simple or len(label.labels) == 1)
                 chunk = label.dump(entry)
                 if not is_flattened:
-                    chunk = u"(%s)" % chunk
+                    chunk = "(%s)" % chunk
             else:
                 # Leaf labels are converted to literal form and quoted
                 # if the literal contains a non-alphanumeric character.
                 chunk = label.dump(entry)
                 if regexp.match(chunk) is None:
-                    chunk = u"'%s'" % chunk.replace("'", "''")
+                    chunk = "'%s'" % chunk.replace("'", "''")
             chunks.append(chunk)
-        return u".".join(chunks)
+        return ".".join(chunks)
 
 

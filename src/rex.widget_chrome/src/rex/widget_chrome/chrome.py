@@ -46,7 +46,7 @@ class Chrome(BaseChrome):
 
     def menu2_item(self, req, item2):
         Item = Record.make('Item', ('title', 'url'))
-        if isinstance(item2, (str, unicode)):
+        if isinstance(item2, str):
             item2 = Item(title=None, url=item2)
         if is_external(item2.url):
             title = item2.title or 'Untitled'

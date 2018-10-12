@@ -96,7 +96,7 @@ Now when you subclass `TransitionableRecord` and supply it the `fields` class
 attribute you get a new transitionable record type::
 
     >>> class Column(TransitionableRecord):
-    ...
+    ... 
     ...     fields = ('key', 'label')
 
 We can `encode` values of `Column` type::
@@ -131,3 +131,4 @@ start::
 
     >>> encode(Port('/port'), Request.blank('/'))
     u'["~#__main__.Port","/port"]'
+

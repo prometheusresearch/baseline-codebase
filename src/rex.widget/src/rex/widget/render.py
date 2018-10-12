@@ -103,7 +103,7 @@ def render(widget, request,
         payload = encode(widget, request)
         theme = encode(settings.rex_widget.theme, request)
         if accept == 'application/json':
-            return Response(payload, content_type='application/json')
+            return Response(payload, content_type='application/json', charset='utf-8')
         else:
             user = get_db().produce('$USER').data
             before_bundle = [item() for item in Bootstrap.all()

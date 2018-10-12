@@ -22,7 +22,7 @@ import collections
 import weakref
 
 
-class Image(object):
+class Image:
     """Mirrors a database object."""
 
     __slots__ = ('owner', 'cursor', 'linkages', 'containers', '__weakref__')
@@ -33,7 +33,7 @@ class Image(object):
         self.linkages = []
         self.containers = []
 
-    def __nonzero__(self):
+    def __bool__(self):
         # Is the image alive?
         return hasattr(self, 'owner')
 
@@ -118,14 +118,14 @@ class NamedImage(IndexedImage):
     max_name_length = 63
 
     def __init__(self, owner, name):
-        assert isinstance(name, unicode) and len(name) <= self.max_name_length, \
+        assert isinstance(name, str) and len(name) <= self.max_name_length, \
                 repr(name)
         super(NamedImage, self).__init__(owner, name)
         #: Object name.
         self.name = name
 
     def __str__(self):
-        return self.name.encode('utf-8')
+        return self.name
 
     def set_name(self, name):
         """Renames the object."""
@@ -147,7 +147,7 @@ class ImageList(list):
         pass
 
 
-class ImageMap(object):
+class ImageMap:
     """Ordered collection of indexed database objects."""
 
     __slots__ = ('_images', '__weakref__')
@@ -157,7 +157,7 @@ class ImageMap(object):
 
     def __str__(self):
         return "{%s}" % ", ".join(str(image)
-                                  for image in self._images.values())
+                                  for image in list(self._images.values()))
 
     def __repr__(self):
         return "<%s %s>" % (self.__class__.__name__, self)
@@ -172,13 +172,13 @@ class ImageMap(object):
 
     def __iter__(self):
         """Iterates over the elements of the collection."""
-        return self._images.itervalues()
+        return iter(self._images.values())
 
     def __len__(self):
         """Number of elements in the collection."""
         return len(self._images)
 
-    def __nonzero__(self):
+    def __bool__(self):
         """Is the collection empty?"""
         return bool(self._images)
 
@@ -188,11 +188,11 @@ class ImageMap(object):
 
     def keys(self):
         """Gets the list of handles."""
-        return self._images.keys()
+        return list(self._images.keys())
 
     def values(self):
         """Gets the list of images."""
-        return self._images.values()
+        return list(self._images.values())
 
     def add(self, image):
         """Adds an object to the collection."""
@@ -389,7 +389,7 @@ class SchemaImage(NamedImage):
         qname = (self.name, name)
         type_qnames = [type.qname for type in types]
         sql = sql_create_function(
-                qname, type_qnames, return_type.qname, u"plpgsql", source)
+                qname, type_qnames, return_type.qname, "plpgsql", source)
         self.cursor.execute(sql)
         return self.add_procedure(name, types, return_type, source)
 
@@ -593,8 +593,7 @@ class ProcedureSignature(
     __slots__ = ()
 
     def __str__(self):
-        return "%s(%s)" % (self.name.encode('utf-8'),
-                           ", ".join(str(type) for type in self.types))
+        return "%s(%s)" % (self.name, ", ".join(str(type) for type in self.types))
 
 
 class ProcedureImage(IndexedImage):
@@ -670,7 +669,7 @@ class ProcedureImage(IndexedImage):
         type_qnames = [type.qname for type in self.types]
         sql = sql_create_function(
                 self.qname, type_qnames, self.return_type.qname,
-                u"plpgsql", source)
+                "plpgsql", source)
         self.cursor.execute(sql)
         return self.set_source(source)
 
@@ -875,7 +874,7 @@ class ColumnImage(NamedImage):
     @property
     def position(self):
         """Column position."""
-        return self.table.columns.values().index(self)
+        return list(self.table.columns.values()).index(self)
 
     def __repr__(self):
         return "<%s %s.%s : %s%s>" % (self.__class__.__name__,
@@ -953,13 +952,13 @@ class ColumnImage(NamedImage):
     def alter_position(self, position):
         if position == self.position:
             return self
-        sql = sql_add_column(self.table.qname, u"?", self.type.qname, False)
+        sql = sql_add_column(self.table.qname, "?", self.type.qname, False)
         self.cursor.execute(sql)
-        sql = sql_copy_column(self.table.qname, u"?", self.name)
+        sql = sql_copy_column(self.table.qname, "?", self.name)
         self.cursor.execute(sql)
         sql = sql_drop_column(self.table.qname, self.name)
         self.cursor.execute(sql)
-        self.reset(u"?")
+        self.reset("?")
         return self.set_position(position)
 
     def alter_type(self, type, expression=None):
@@ -1177,11 +1176,11 @@ class UniqueKeyImage(ConstraintImage):
         return self
 
 
-NO_ACTION = u'NO ACTION'
-RESTRICT = u'RESTRICT'
-CASCADE = u'CASCADE'
-SET_NULL = u'SET NULL'
-SET_DEFAULT = u'SET DEFAULT'
+NO_ACTION = 'NO ACTION'
+RESTRICT = 'RESTRICT'
+CASCADE = 'CASCADE'
+SET_NULL = 'SET NULL'
+SET_DEFAULT = 'SET DEFAULT'
 
 
 class ForeignKeyImage(ConstraintImage):
@@ -1228,7 +1227,7 @@ class ForeignKeyImage(ConstraintImage):
 
     def __contains__(self, column_pair):
         """Does a pair of columns belong to the key?"""
-        return (column_pair in zip(self.origin_columns, self.target_columns))
+        return (column_pair in list(zip(self.origin_columns, self.target_columns)))
 
     def __getitem__(self, index):
         """Returns a column pair by index."""
@@ -1283,15 +1282,15 @@ class ForeignKeyImage(ConstraintImage):
         return self
 
 
-BEFORE = u'BEFORE'
-AFTER = u'AFTER'
-INSERT = u'INSERT'
-UPDATE = u'UPDATE'
-DELETE = u'DELETE'
-INSERT_UPDATE = u'INSERT OR UPDATE'
-INSERT_DELETE = u'INSERT OR DELETE'
-UPDATE_DELETE = u'UPDATE OR DELETE'
-INSERT_UPDATE_DELETE = u'INSERT OR UPDATE OR DELETE'
+BEFORE = 'BEFORE'
+AFTER = 'AFTER'
+INSERT = 'INSERT'
+UPDATE = 'UPDATE'
+DELETE = 'DELETE'
+INSERT_UPDATE = 'INSERT OR UPDATE'
+INSERT_DELETE = 'INSERT OR DELETE'
+UPDATE_DELETE = 'UPDATE OR DELETE'
+INSERT_UPDATE_DELETE = 'INSERT OR UPDATE OR DELETE'
 
 
 class TriggerImage(NamedImage):
@@ -1361,7 +1360,7 @@ class DataImage(Image):
         self.masks = {}
         self.indexes = {}
         for key in table.unique_keys:
-            names = table.columns.keys()
+            names = list(table.columns.keys())
             mask = tuple(names.index(column.name) for column in key)
             index = {}
             for row in rows:

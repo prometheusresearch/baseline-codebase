@@ -10,11 +10,11 @@ from rex.db import get_db
 
 from rex.instrument.interface import *
 
-from modules.mymodule1 import my_calculation as my_calculation1
-from modules.mymodule2 import my_calculation as my_calculation2
-from modules.bad_not_callable_module import my_calculation as my_calculation3
-from modules.unexpected_parameters import my_calculation as my_calculation4
-from modules.complex_calculation import complex_object_calc, complex_function_calc
+from .modules.mymodule1 import my_calculation as my_calculation1
+from .modules.mymodule2 import my_calculation as my_calculation2
+from .modules.bad_not_callable_module import my_calculation as my_calculation3
+from .modules.unexpected_parameters import my_calculation as my_calculation4
+from .modules.complex_calculation import complex_object_calc, complex_function_calc
 
 
 __all__ = (
@@ -103,7 +103,7 @@ class DemoSubject(Subject):
         )
 
     def save(cls, implementation_context=None):
-        print '### SAVED SUBJECT ' + self.uid
+        print('### SAVED SUBJECT ' + self.uid)
 
 
 class DemoInstrument(Instrument):
@@ -153,7 +153,7 @@ class DemoInstrument(Instrument):
         return None
 
     def save(self, implementation_context=None):
-        print '### SAVED INSTRUMENT ' + self.uid
+        print('### SAVED INSTRUMENT ' + self.uid)
 
 
 class DemoInstrumentVersion(InstrumentVersion):
@@ -219,7 +219,7 @@ class DemoInstrumentVersion(InstrumentVersion):
             implementation_context,
         )
         if context:
-            print '### INSTRUMENTVERSION CREATE CONTEXT: %r' % context
+            print('### INSTRUMENTVERSION CREATE CONTEXT: %r' % context)
 
         return cls(
             'fake_instrument_version_1',
@@ -231,7 +231,7 @@ class DemoInstrumentVersion(InstrumentVersion):
         )
 
     def save(self, implementation_context=None):
-        print '### SAVED INSTRUMENTVERSION ' + self.uid
+        print('### SAVED INSTRUMENTVERSION ' + self.uid)
 
 
 class DemoAssessment(Assessment):
@@ -278,9 +278,9 @@ class DemoAssessment(Assessment):
             )
         return [
             cls.BulkAssessment(
-                uid=unicode(d.uid),
+                uid=str(d.uid),
                 data=AnyVal().parse(d.data),
-                instrument_version_uid=unicode(d.iv),
+                instrument_version_uid=str(d.iv),
             )
             for d in data
         ]
@@ -296,7 +296,7 @@ class DemoAssessment(Assessment):
         )
 
     def save(self, implementation_context=None):
-        print '### SAVED ASSESSMENT ' + self.uid
+        print('### SAVED ASSESSMENT ' + self.uid)
 
 
 class DemoDraftInstrumentVersion(DraftInstrumentVersion):
@@ -360,10 +360,10 @@ class DemoDraftInstrumentVersion(DraftInstrumentVersion):
         self.date_modified = datetime(2014, 5, 22, 12, 34, 56)
 
     def save(self, implementation_context=None):
-        print '### SAVED DRAFTINSTRUMENTVERSION ' + self.uid
+        print('### SAVED DRAFTINSTRUMENTVERSION ' + self.uid)
 
     def delete(self):
-        print '### DELETED DRAFTINSTRUMENTVERSION ' + self.uid
+        print('### DELETED DRAFTINSTRUMENTVERSION ' + self.uid)
 
     def publish(self, user):
         return DemoInstrumentVersion(
@@ -488,7 +488,7 @@ class DemoTask(Task):
         )
 
     def save(self, implementation_context=None):
-        print '### SAVED TASK ' + self.uid
+        print('### SAVED TASK ' + self.uid)
 
 
 class DemoEntry(Entry):
@@ -569,7 +569,7 @@ class DemoEntry(Entry):
         )
 
     def save(self, implementation_context=None):
-        print '### SAVED ENTRY ' + self.uid
+        print('### SAVED ENTRY ' + self.uid)
 
 
 class DemoSubjectSatusScopeAddon(CalculationScopeAddon):
@@ -659,7 +659,7 @@ class DemoCalculationSet(CalculationSet):
             implementation_context,
         )
         if context:
-            print '### CALCULATIONSET CREATE CONTEXT: %r' % context
+            print('### CALCULATIONSET CREATE CONTEXT: %r' % context)
 
         return cls(
             'fake_calculationset_1',
@@ -668,7 +668,7 @@ class DemoCalculationSet(CalculationSet):
         )
 
     def save(self, implementation_context=None):
-        print '### SAVED CALCULATIONSET ' + self.uid
+        print('### SAVED CALCULATIONSET ' + self.uid)
 
 
 class DemoResultSet(ResultSet):
@@ -722,7 +722,7 @@ class DemoResultSet(ResultSet):
 
     @classmethod
     def create(cls, assessment, results, implementation_context=None):
-        print '### CREATED RECORDSET ' + assessment.uid, results
+        print('### CREATED RECORDSET ' + assessment.uid, results)
         return cls(
             assessment.uid,
             assessment,
@@ -773,8 +773,8 @@ class DemoDraftCalculationSet(DraftCalculationSet):
         )
 
     def save(self, implementation_context=None):
-        print '### SAVED DRAFTCALCULATIONSET ' + self.uid
+        print('### SAVED DRAFTCALCULATIONSET ' + self.uid)
 
     def delete(self):
-        print '### DELETED DRAFTCALCULATIONSET ' + self.uid
+        print('### DELETED DRAFTCALCULATIONSET ' + self.uid)
 

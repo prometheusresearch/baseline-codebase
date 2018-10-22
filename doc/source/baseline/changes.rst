@@ -1,3 +1,11 @@
+2.0.0 (TBD)
+===========
+
+* Upgraded entire platform to Python 3.
+* Rearranged Concourse CI configuration files to allow for automatic
+  documentation building.
+
+
 1.5.0 (2018-09-24)
 ==================
 

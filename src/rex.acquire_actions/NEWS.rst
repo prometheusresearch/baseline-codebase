@@ -5,6 +5,12 @@ REX.ACQUIRE_ACTIONS Change Log
 .. contents:: Table of Contents
 
 
+0.4.1
+=====
+
+* Fixed a PY3-related encoding issue that prevented the screens from working.
+
+
 0.4.0 (2017-09-15)
 ==================
 

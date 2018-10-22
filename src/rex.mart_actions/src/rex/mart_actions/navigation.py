@@ -200,7 +200,7 @@ def get_accessible_definitions(user):
 
     definitions = sorted(
         list(definitions.values()),
-        cmp=lambda x, y: cmp(x['label'].lower(), y['label'].lower()),
+        key=lambda x: x['label'].lower(),
     )
 
     return definitions

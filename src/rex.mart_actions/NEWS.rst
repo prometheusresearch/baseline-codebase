@@ -5,6 +5,13 @@ REX.MART_ACTIONS Change Log
 .. contents:: Table of Contents
 
 
+0.9.1
+=====
+
+* Fixed a PY3-related issue that prevented the Definition pick screen from
+  working.
+
+
 0.9.0 (2018-07-02)
 ==================
 

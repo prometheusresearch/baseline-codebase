@@ -64,6 +64,7 @@ class CommonAcquireMixin(object):
     def response_as_json(self, obj):
         return Response(
             to_json(obj),
+            charset='utf-8',
             headerlist=[
                 ('Content-type', 'application/json'),
             ]

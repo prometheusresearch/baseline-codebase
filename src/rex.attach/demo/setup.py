@@ -30,7 +30,7 @@ class demo(Command):
 
 setup(
     name='rex.attach_demo',
-    version="2.0.5",
+    version="2.1.0",
     description="Demo package for testing rex.attach",
     package_dir={'': 'src'},
     packages=find_packages('src'),

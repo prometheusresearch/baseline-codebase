@@ -164,3 +164,46 @@ attachments.  It is implemented as follows::
 
 
 
+S3 Support
+==========
+
+The :mod:`rex.attach` module supports storing attachments in `Amazon S3`_
+or an S3-compatible file server.  Among supported S3-compatible servers are
+`Google Cloud Storage`_ and Minio_.
+
+In order to use :mod:`rex.attach` with Amazon S3, replace the `attach_dir`
+parameter with the following setting:
+
+`attach_s3_bucket`
+    The name of the S3 bucket which should store the attachments.
+
+You could also specify additional S3 configuration parameters:
+
+`attach_s3_region`
+    The AWS region.
+
+`attach_s3_access_key`
+    The access key for the AWS account.
+
+`attach_s3_secret_key`
+    The secret key for the AWS account.
+
+If not set explicitly, these parameters are loaded from the AWS configuration
+file or from environment variables ``AWS_DEFAULT_REGION``,
+``AWS_ACCESS_KEY_ID``, and ``AWS_SECRET_ACCESS_KEY``.
+
+In order to use :mod:`rex.attach` with an S3-compatible server, you need to
+specify:
+
+`attach_s3_endpoint`
+    The URL of the S3 endpoint.
+
+For GCS, `attach_s3_endpoint` must be set to
+``"https://storage.googleapis.com"``.  Also, in the GCS settings, enable
+*interoperability access* and create the *developer keys*.
+
+
+.. _Amazon S3: https://aws.amazon.com/s3/
+.. _Google Cloud Storage: https://cloud.google.com/storage/
+.. _Minio: https://github.com/minio/minio
+

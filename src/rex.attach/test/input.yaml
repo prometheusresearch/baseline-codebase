@@ -12,11 +12,11 @@ tests:
 - sh: rex deploy -q rex.attach_demo
 
 - doctest: README.rst
-- doctest: test/test_*.rst
+- doctest: test/test_attach.rst
 
 - sh: pip uninstall -q -y rex.attach_demo
 - rmdir: ./sandbox
 
-- coverage-check: 95.0
+- coverage-check: 65.0
 - coverage-report: ./build/coverage
 

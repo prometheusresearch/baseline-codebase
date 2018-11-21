@@ -3,7 +3,7 @@
 #
 
 
-from .error import Error, guard
+from .error import Error, guard, guard_repr
 import re
 import os
 import os.path
@@ -573,7 +573,7 @@ class StrVal(Validate):
         self.pattern = pattern or self.__class__.pattern
 
     def __call__(self, data):
-        with guard("Got:", repr(data)):
+        with guard_repr("Got:", data):
             if isinstance(data, bytes):
                 try:
                     data = data.decode('utf-8')
@@ -621,7 +621,7 @@ class ChoiceVal(Validate):
         self.choices = choices
 
     def __call__(self, data):
-        with guard("Got:", repr(data)):
+        with guard_repr("Got:", data):
             if not isinstance(data, str):
                 raise Error("Expected a string")
             if data not in self.choices:
@@ -659,7 +659,7 @@ class BoolVal(Validate):
     """
 
     def __call__(self, data):
-        with guard("Got:", repr(data)):
+        with guard_repr("Got:", data):
             if data in [0, '', '0', 'false']:
                 data = False
             if data in [1, '1', 'true']:
@@ -693,7 +693,7 @@ class IntVal(Validate):
         self.max_bound = max_bound
 
     def __call__(self, data):
-        with guard("Got:", repr(data)):
+        with guard_repr("Got:", data):
             if isinstance(data, str):
                 try:
                     data = int(data)
@@ -766,7 +766,7 @@ class FloatVal(Validate):
     """
 
     def __call__(self, data):
-        with guard("Got:", repr(data)):
+        with guard_repr("Got:", data):
             if isinstance(data, (str, int)):
                 try:
                     data = float(data)
@@ -802,7 +802,7 @@ class SeqVal(Validate):
         self.validate_item = validate_item
 
     def __call__(self, data):
-        with guard("Got:", repr(data)):
+        with guard_repr("Got:", data):
             if isinstance(data, str):
                 try:
                     data = json.loads(data)
@@ -879,7 +879,7 @@ class MapVal(Validate):
         self.validate_value = validate_value
 
     def __call__(self, data):
-        with guard("Got:", repr(data)):
+        with guard_repr("Got:", data):
             if isinstance(data, str):
                 try:
                     data = json.loads(data)
@@ -891,11 +891,10 @@ class MapVal(Validate):
         for key in sorted(data):
             value = data[key]
             if self.validate_key is not None:
-                with guard("While validating mapping key:", repr(key)):
+                with guard_repr("While validating mapping key:", key):
                     key = self.validate_key(key)
             if self.validate_value is not None:
-                with guard("While validating mapping value for key:",
-                           repr(key)):
+                with guard_repr("While validating mapping value for key:", key):
                     value = self.validate_value(value)
             pairs.append((key, value))
         return dict(pairs)
@@ -955,7 +954,7 @@ class OMapVal(MapVal):
     """
 
     def __call__(self, data):
-        with guard("Got:", repr(data)):
+        with guard_repr("Got:", data):
             if isinstance(data, str):
                 try:
                     data = json.loads(data,
@@ -976,11 +975,10 @@ class OMapVal(MapVal):
             else:
                 key, value = entry
             if self.validate_key is not None:
-                with guard("While validating mapping key:", repr(key)):
+                with guard_repr("While validating mapping key:", key):
                     key = self.validate_key(key)
             if self.validate_value is not None:
-                with guard("While validating mapping value for key:",
-                           repr(key)):
+                with guard_repr("While validating mapping value for key:", key):
                     value = self.validate_value(value)
             pairs.append((key, value))
         return collections.OrderedDict(pairs)
@@ -1194,7 +1192,7 @@ class RecordVal(Validate):
                 [field.attribute for field in list(self.fields.values())])
 
     def __call__(self, data):
-        with guard("Got:", repr(data)):
+        with guard_repr("Got:", data):
             if isinstance(data, str):
                 try:
                     data = json.loads(data)
@@ -1444,11 +1442,11 @@ class OnField(OnMatch):
     Tests if the input has a field with the given name.
     """
 
-    def __init__(self, name):
+    def __init__(self, name, value=None):
         self.name = name
+        self.value = value
 
     def __call__(self, data):
-        keys = []
         if isinstance(data, str):
             try:
                 mapping = json.loads(data)
@@ -1457,24 +1455,34 @@ class OnField(OnMatch):
             else:
                 if isinstance(mapping, dict):
                     data = mapping
+        kvs = []
         if isinstance(data, dict):
-            keys = [key for key in data if isinstance(key, str)]
+            kvs = [(key, value) for (key, value) in data.items() if isinstance(key, str)]
         elif isinstance(data, (tuple, Record)):
-            keys = getattr(data, '_fields', [])
+            kvs = [(key, getattr(data, key)) for key in getattr(data, '_fields', [])]
         elif (isinstance(data, yaml.MappingNode) and
                 data.tag == 'tag:yaml.org,2002:map'):
-            keys = [key_node.value
-                    for key_node, value_node in data.value
-                    if isinstance(key_node, yaml.ScalarNode) and
-                        key_node.tag == 'tag:yaml.org,2002:str']
-        return any(key.replace('-', '_').replace(' ', '_') == self.name
-                   for key in keys)
+            for key_node, value_node in data.value:
+                if isinstance(key_node, yaml.ScalarNode) and key_node.tag == 'tag:yaml.org,2002:str':
+                    key = key_node.value
+                    value = None
+                    if isinstance(value_node, yaml.ScalarNode) and value_node.tag == 'tag:yaml.org,2002:str':
+                        value = value_node.value
+                    kvs.append((key, value))
+        for key, value in kvs:
+            if key.replace('-', '_').replace(' ', '_') == self.name:
+                if self.value is None or self.value == value:
+                    return True
+        return False
 
     def __str__(self):
-        return "%s record" % self.name
+        return "%s record" % (self.value or self.name)
 
     def __repr__(self):
-        return "%s(%r)" % (self.__class__.__name__, self.name)
+        if self.value is None:
+            return "%s(%r)" % (self.__class__.__name__, self.name)
+        else:
+            return "%s(%r, %r)" % (self.__class__.__name__, self.name, self.value)
 
 
 class UnionVal(Validate):
@@ -1493,6 +1501,8 @@ class UnionVal(Validate):
         if len(variants) == 1 and isinstance(variants[0], list):
             [variants] = variants
         self.variants = []
+        self.index_key = None
+        self.index_map = {}
         for variant in variants:
             if isinstance(variant, tuple) and len(variant) == 2:
                 match, validate = variant
@@ -1506,8 +1516,17 @@ class UnionVal(Validate):
             if isinstance(validate, type):
                 validate = validate()
             self.variants.append((match, validate))
+            if isinstance(match, OnField) and \
+                    (self.index_key is None or self.index_key == match.name) and \
+                    match.value is not None:
+                self.index_key = match.name
+                self.index_map[match.value] = validate
 
     def __call__(self, data):
+        if self.index_key is not None and isinstance(data, dict):
+            validate = self.index_map.get(data.get(self.index_key))
+            if validate is not None:
+                return validate(data)
         for match, validate in self.variants:
             if match is None or match(data):
                 return validate(data)
@@ -1613,7 +1632,7 @@ class DateVal(Validate):
         if isinstance(data, datetime.date):
             return data
 
-        with guard('Got:', repr(data)):
+        with guard_repr('Got:', data):
             if isinstance(data, str):
                 try:
                     return datetime.datetime.strptime(data, '%Y-%m-%d').date()
@@ -1647,7 +1666,7 @@ class TimeVal(Validate):
         if isinstance(data, datetime.time):
             return data.replace(tzinfo=None)
 
-        with guard('Got:', repr(data)):
+        with guard_repr('Got:', data):
             if isinstance(data, str) and \
                     self.RE_TIME.match(data):
                 try:
@@ -1689,7 +1708,7 @@ class DateTimeVal(Validate):
                 data.day,
             )
 
-        with guard('Got:', repr(data)):
+        with guard_repr('Got:', data):
             if isinstance(data, str) and \
                     self.RE_DATETIME.match(data):
                 try:

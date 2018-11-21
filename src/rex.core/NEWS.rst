@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+1.18.0 (2018-XX-XX)
+===================
+
+* ``UnionVal``: ``OnField`` can discriminate based on the field value.
+
+
 1.17.0 (2017-11-10)
 ===================
 

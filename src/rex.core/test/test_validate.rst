@@ -1170,6 +1170,25 @@ types::
     >>> record_union_val({'name': "Alice", 'age': '33'})
     Record(name='Alice', age=33)
 
+The record type could be specified with a scalar field::
+
+    >>> typed_record_val = UnionVal((OnField('type', 'Person'),
+    ...                              OpenRecordVal(('name', StrVal), ('age', MaybeVal(UIntVal), None))),
+    ...                             (OnField('type', 'Dog'),
+    ...                              OpenRecordVal(('name', StrVal), ('breed', StrVal, None))))
+    >>> typed_record_val({'name': 'Alice', 'type': 'Person'})
+    Record(name='Alice', age=None)
+    >>> typed_record_val({'name': 'Bob', 'type': 'Dog'})
+    Record(name='Bob', breed=None)
+    >>> typed_record_val({'name': 'Catherine'})
+    Traceback (most recent call last):
+      ...
+    rex.core.Error: Expected one of:
+        Person record
+        Dog record
+    Got:
+        {'name': 'Catherine'}
+
 ``UnionVal`` understands serialized JSON objects and named tuples::
 
     >>> record_union_val('{"name": "Alice", "age": 33}')

@@ -164,6 +164,14 @@ class guard:
             exc_value.wrap(self.message, self.payload)
 
 
+class guard_repr(guard):
+    # Equivalent to guard(message, repr(payload)).
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        if isinstance(exc_value, Error):
+            exc_value.wrap(self.message, repr(self.payload))
+
+
 def get_sentry(sync=False, context={}):
     """
     Returns a client for the Sentry error tracker.

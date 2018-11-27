@@ -5,6 +5,12 @@ REX.ABOUT Change Log
 .. contents:: Table of Contents
 
 
+0.4.1
+=====
+
+* Fixed an encoding issue resulting from the move to Python 3.
+
+
 0.4.0 (2017-06-21)
 ==================
 

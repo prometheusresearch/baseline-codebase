@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.about',
-    version='0.4.0',
+    version='0.4.1',
     description='A RexDB action for displaying application versions and'
     ' licensing information',
     long_description=open('README.rst', 'r').read(),

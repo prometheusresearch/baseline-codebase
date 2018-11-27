@@ -91,15 +91,15 @@ init-bin:
 # Create the environment.
 init-env:
 	python3 -m venv ${CURDIR}
-	${CURDIR}/bin/pip install wheel==0.31.1
-	npm --global --prefix ${CURDIR} install yarn@1.12.1
+	${CURDIR}/bin/pip install wheel==0.32.3
+	npm --global --prefix ${CURDIR} install yarn@1.12.3
 .PHONY: init-env
 
 
 REQUIRED_TOOL_PY = \
 	pbbt==0.1.6 \
-	coverage==4.5.1 \
-	pytest==3.6.4
+	coverage==4.5.2 \
+	pytest==4.0.1
 
 # Install development tools.
 init-dev:

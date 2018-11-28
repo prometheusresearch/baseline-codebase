@@ -264,10 +264,16 @@ capture-updated: ./bin/activate
 		for match in $$(docker-compose exec -T develop find . -type f -regex $$mask); do \
 			tmp=$$(mktemp) ;\
 			docker cp $$CONTAINER:/app/$$match $$tmp ;\
-			diff -N $$match $$tmp > /dev/null ;\
-			if [ $$? -ne 0 ]; then \
-				cat $$tmp > $$match ;\
+			if [ ! -e $$match ]; then \
+				mkdir -p `dirname $$match` ;\
+				cp $$tmp $$match ;\
 				UPDATED="$$UPDATED $$match" ;\
+			else \
+				diff -N $$match $$tmp > /dev/null ;\
+				if [ $$? -ne 0 ]; then \
+					cat $$tmp > $$match ;\
+					UPDATED="$$UPDATED $$match" ;\
+				fi ;\
 			fi ;\
 			rm $$tmp ;\
 		done ;\

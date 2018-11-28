@@ -5,6 +5,12 @@ REX.I18N Change Log
 .. contents:: Table of Contents
 
 
+0.5.6
+=====
+
+* Fixed JS string extraction for codebase layed-out projects.
+
+
 0.5.5 (2018-05-04)
 ==================
 

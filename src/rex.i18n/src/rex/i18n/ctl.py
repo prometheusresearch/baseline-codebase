@@ -74,10 +74,11 @@ class I18NExtractTask(I18NTask):
         project_path = argument(str, default=os.getcwd())
 
     def __call__(self):
-        if DOMAIN_BACKEND in self.domain:
-            self.extract_backend()
-        if DOMAIN_FRONTEND in self.domain:
-            self.extract_frontend()
+        with make_rex('rex.i18n'):
+            if DOMAIN_BACKEND in self.domain:
+                self.extract_backend()
+            if DOMAIN_FRONTEND in self.domain:
+                self.extract_frontend()
 
     def extract_backend(self):
         args = ['pybabel', 'extract', '--no-location']
@@ -86,10 +87,9 @@ class I18NExtractTask(I18NTask):
             '--%s=%s' % (key, val)
             for key, val in list(self.get_package_metadata().items())
         ])
-        with make_rex('rex.i18n'):
-            args.append('--mapping=%s' % (
-                get_packages().abspath('rex.i18n:/babel_extract.ini'),
-            ))
+        args.append('--mapping=%s' % (
+            get_packages().abspath('rex.i18n:/babel_extract.ini'),
+        ))
 
         pot_dir, pot_file = self.get_pot_location(DOMAIN_BACKEND)
         if not os.path.exists(pot_dir):
@@ -98,6 +98,7 @@ class I18NExtractTask(I18NTask):
 
         args.append(self.project_path)
 
+        log('\nExtracting backend strings from: %s' % (self.project_path,))
         CommandLineInterface().run(args)
 
     def get_package_metadata(self):
@@ -148,13 +149,18 @@ class I18NExtractTask(I18NTask):
             'gettext-parser@1.2.x',
             'babel-core@6.x',
             'babel-preset-prometheusresearch',
+            'babel-plugin-transform-flow-strip-types',
         ])
 
-        with make_rex('rex.i18n'):
-            args = [
-                get_packages().abspath('rex.i18n:/js_extractor/index.js'),
-                os.path.join(self.project_path, 'static/js'),
-            ]
+        js_path = os.path.join(self.project_path, 'js')  # the 'new' convention
+        if not os.path.exists(js_path):
+            js_path = os.path.join(self.project_path, 'static/js')  # the 'old'
+        log('\nExtracting frontend strings from: %s' % (js_path,))
+
+        args = [
+            get_packages().abspath('rex.i18n:/js_extractor/index.js'),
+            js_path,
+        ]
 
         pot_dir, pot_file = self.get_pot_location(DOMAIN_FRONTEND)
         if not os.path.exists(pot_dir):

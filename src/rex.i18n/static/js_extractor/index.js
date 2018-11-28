@@ -21,7 +21,8 @@ var excludedDirectories = [
   'vendor',
   'test',
   'tests',
-  '__tests__'
+  '__tests__',
+  'flow-typed'
 ];
 
 var sourceDirectory = process.argv[2];
@@ -35,6 +36,7 @@ var babelOptions = {
     'prometheusresearch'
   ],
   plugins: [
+    'transform-flow-strip-types',
     [__dirname + '/babel-gettext-extractor.js', {
       fileName: outputFile,
       baseDirectory: sourceDirectory,
@@ -56,6 +58,7 @@ var babelOptions = {
 
 
 function scanDirectory(dir) {
+  if (!fs.existsSync(dir)) { return; }
   fs.readdirSync(dir).forEach((file) => {
     let filePath = path.join(dir, file);
     let stat = fs.statSync(filePath);

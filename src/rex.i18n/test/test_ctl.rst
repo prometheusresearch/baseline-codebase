@@ -31,6 +31,8 @@ strings marked for translation and put them into POT files::
 It takes one optional argument specifying the root path of the project::
 
     >>> ctl('i18n-extract ./test/sandbox')
+    <BLANKLINE>
+    Extracting backend strings from: ./test/sandbox
     extracting messages from test/sandbox/src/rex/__init__.py
     extracting messages from test/sandbox/src/rex/i18n_demo.py
     extracting messages from test/sandbox/static/template/bar.txt (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
@@ -41,6 +43,8 @@ It takes one optional argument specifying the root path of the project::
     extracting messages from test/sandbox/static/www/foo.js_t (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
     extracting messages from test/sandbox/static/www/index.html (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
     writing PO template file to ./test/sandbox/static/i18n/backend.pot
+    <BLANKLINE>
+    Extracting frontend strings from: ./test/sandbox/static/js
     extracting messages from test/sandbox/static/js/lib/foo.jsx
     extracting messages from test/sandbox/static/js/lib/index.js
     writing PO template file to ./test/sandbox/static/i18n/frontend.pot
@@ -50,6 +54,8 @@ It takes one optional argument specifying the root path of the project::
 It also takes an option that specifies which gettext domain to operate on::
 
     >>> ctl('i18n-extract ./test/sandbox --domain=backend')
+    <BLANKLINE>
+    Extracting backend strings from: ./test/sandbox
     extracting messages from test/sandbox/src/rex/__init__.py
     extracting messages from test/sandbox/src/rex/i18n_demo.py
     extracting messages from test/sandbox/static/template/bar.txt (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")
@@ -69,6 +75,8 @@ It also takes an option that specifies which gettext domain to operate on::
 It will fail if there's a Jinja template with broken syntax::
 
     >>> ctl('i18n-extract ./test/broken_sandbox --domain=backend', expect=1) # doctest: +ELLIPSIS, +NORMALIZE_WHITESPACE
+    <BLANKLINE>
+    Extracting backend strings from: ./test/broken_sandbox
     extracting messages from test/broken_sandbox/src/rex/__init__.py
     extracting messages from test/broken_sandbox/src/rex/i18n_demo.py
     extracting messages from test/broken_sandbox/static/template/bar.txt (extensions="jinja2.ext.do,jinja2.ext.loopcontrols", silent="false")

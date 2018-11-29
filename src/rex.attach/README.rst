@@ -164,8 +164,8 @@ attachments.  It is implemented as follows::
 
 
 
-S3 Support
-==========
+S3 and GCS Support
+==================
 
 The :mod:`rex.attach` module supports storing attachments in `Amazon S3`_
 or an S3-compatible file server.  Among supported S3-compatible servers are
@@ -201,6 +201,15 @@ specify:
 For GCS, `attach_s3_endpoint` must be set to
 ``"https://storage.googleapis.com"``.  Also, in the GCS settings, enable
 *interoperability access* and create the *developer keys*.
+
+Alternatively, :mod:`rex.attach` supports the native GCS protocol.  In this
+case, the following configuration parameters should be specified:
+
+`attach_gcs_bucket`
+    The name of the GCS bucket where attachments should be uploaded.
+
+`attach_gcs_key`
+    Path to the JSON file containing GCS service account credentials.
 
 
 .. _Amazon S3: https://aws.amazon.com/s3/

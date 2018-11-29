@@ -17,6 +17,6 @@ tests:
 - sh: pip uninstall -q -y rex.attach_demo
 - rmdir: ./sandbox
 
-- coverage-check: 65.0
+- coverage-check: 55.0
 - coverage-report: ./build/coverage
 

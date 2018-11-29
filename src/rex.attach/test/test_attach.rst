@@ -44,13 +44,13 @@ should be writable::
     Traceback (most recent call last):
       ...
     rex.core.Error: At least of the parameters must be set:
-        attach_dir, attach_s3_bucket
+        attach_dir, attach_gcs_bucket, attach_s3_bucket
     ...
 
     >>> Rex('rex.attach_demo', attach_dir="./sandbox/missing")      # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
-    rex.core.Error: Parameter attach_dir must point to an existing directory:
+    rex.core.Error: Attachment storage must be an existing directory:
         ./sandbox/missing
     ...
 

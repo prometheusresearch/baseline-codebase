@@ -8,7 +8,7 @@
 2.1.0 (201X-XX-XX)
 ==================
 
-* Support for S3-compatible storage.
+* S3 and GCS storage backends.
 
 
 2.0.5 (2017-10-11)

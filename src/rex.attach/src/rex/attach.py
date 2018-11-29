@@ -50,6 +50,10 @@ def sanitize_filename(filename):
     return filename
 
 
+def guess_content_type(filename):
+    return mimetypes.guess_type(filename)[0] or 'application/octet-stream'
+
+
 class OpenFileApp:
     # Like `webob.static.FileApp`, but takes an open file object instead.
 
@@ -86,6 +90,32 @@ class Storage:
     Abstract interface for the attachment storage.
     """
 
+    # Attachment handles must match the pattern:
+    #   /YYYY/MM/DD/{uuid}/{filename}
+    handle_re = re.compile(r'''
+        \A
+        / [0-9]{4}
+        / [0-9]{2}
+        / [0-9]{2}
+        / [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
+        / [\w-][\w.-]*
+        \Z''', re.X|re.U)
+
+    def reserve(self, name):
+        """
+        Reserves an attachment handle without adding the attachment to the storage.
+
+        `name`
+            The name of the attachment (the filename).
+
+        Returns an opaque attachment handle.
+        """
+        name = sanitize_filename(name)
+        today = datetime.date.today()
+        random_uuid = str(uuid.uuid4())
+        handle = '/'+today.strftime('%Y/%m/%d')+'/'+random_uuid+'/'+name
+        return handle
+
     def add(self, name, content):
         """
         Adds an attachment to the storage.
@@ -99,18 +129,6 @@ class Storage:
         Returns an opaque attachment handle.
         """
         raise NotImplementedError
-
-    def reserve(self, name):
-        """
-        Reserves an attachment handle without adding the attachment to the storage.
-
-        `name`
-            The name of the attachment (the filename).
-
-        Returns an opaque attachment handle or ``None`` if the storage does not
-        support this feature.
-        """
-        return None
 
     def open(self, handle):
         """
@@ -204,44 +222,29 @@ class LocalStorage(Storage):
         Directory where attachments are stored.  Must exist and be writable.
     """
 
-    # Attachment handles must match the pattern:
-    #   /YYYY/MM/DD/{uuid}/{filename}
-    handle_re = re.compile(r'''
-        \A
-        / [0-9]{4}
-        / [0-9]{2}
-        / [0-9]{2}
-        / [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
-        / [\w-][\w.-]*
-        \Z''', re.X|re.U)
-
     def __init__(self, attach_dir):
         self.attach_dir = attach_dir
+
+    def verify(self):
+        if not os.path.isdir(self.attach_dir):
+            raise Error(
+                "Attachment storage must be an existing directory:",
+                self.attach_dir)
+        if not os.access(self.attach_dir, os.R_OK|os.W_OK|os.X_OK):
+            raise Error("Attachment storage must be writable:",
+                        self.attach_dir)
 
     def add(self, name, content):
         if isinstance(content, str):
             content = content.encode('utf-8')
-        # Sanitize the file name.
-        name = sanitize_filename(name)
-        # The directory where we save the file:
-        #   `{attach_dir}/YYYY/MM/DD/{uuid}/`.
-        target_dir = self.attach_dir
-        # Create `/YYYY/MM/DD` directories.
-        today = datetime.date.today()
-        for fmt in ('%Y', '%m', '%d'):
-            target_dir = os.path.join(target_dir, today.strftime(fmt))
-            try:
-                os.mkdir(target_dir)
-            except OSError:
-                if not os.path.isdir(target_dir):
-                    raise
-        # Create a temporary directory: `/YYYY/MM/DD/{uuid}.adding/`.
-        random_uuid = str(uuid.uuid4())
-        target_dir = os.path.join(target_dir, random_uuid)
-        tmp_dir = target_dir+'.adding'
-        os.mkdir(tmp_dir)
+        # Create the handle.
+        handle = self.reserve(name)
+        target_dir, target_name = os.path.split(self.abspath(handle))
+        # Create a temporary directory for uploading.
+        tmp_dir = target_dir + '.adding'
+        os.makedirs(tmp_dir)
         # Save the attachment to the temporary directory.
-        path = os.path.join(tmp_dir, name)
+        path = os.path.join(tmp_dir, target_name)
         with open(path, 'wb') as stream:
             if hasattr(content, 'read'):
                 shutil.copyfileobj(content, stream)
@@ -249,11 +252,8 @@ class LocalStorage(Storage):
                 stream.write(content)
             stream.flush()
             os.fsync(stream.fileno())
-        # Rename `/YYYY/MM/DD/{uuid}.adding/` to `/YYYY/MM/DD/{uuid}/`.
+        # Rename the temporary directory.
         os.rename(tmp_dir, target_dir)
-        # Generate and return the attachment handle (which coincides with
-        # the path to the attachment relative to `attach_dir`).
-        handle = '/'+today.strftime('%Y/%m/%d')+'/'+random_uuid+'/'+name
         return handle
 
     def abspath(self, handle):
@@ -278,8 +278,7 @@ class LocalStorage(Storage):
         if not os.path.exists(path):
             raise Error("Attachment does not exist:", handle)
         # Start with renaming the attachment directory.
-        target_dir = os.path.dirname(path)
-        name = os.path.basename(path)
+        target_dir, name = os.path.split(path)
         tmp_dir = target_dir+'.removing'
         tmp_path = os.path.join(tmp_dir, name)
         try:
@@ -354,33 +353,42 @@ class S3Storage(Storage):
     Stores attachments in a remote S3 server.
     """
 
-    handle_re = LocalStorage.handle_re
-
     def __init__(self, name, endpoint=None, region=None, access_key=None, secret_key=None):
         self.name = name
         self.endpoint = endpoint
         self.region = region
         self.access_key = access_key
         self.secret_key = secret_key
+        import boto3, botocore
+        session = boto3.session.Session(aws_access_key_id=self.access_key,
+                                        aws_secret_access_key=self.secret_key,
+                                        region_name=self.region)
+        signature_version = 's3v4'
+        if self.endpoint == 'https://storage.googleapis.com':
+            signature_version = 's3'
+            # Do not append 'encoding=url' to the query string.
+            session.events.unregister('before-parameter-build.s3.ListObjects',
+                                      botocore.handlers.set_list_objects_encoding_type_url)
+        self.s3 = session.resource('s3',
+                endpoint_url=self.endpoint,
+                config=botocore.config.Config(signature_version=signature_version))
+
+    def verify(self):
+        bucket = self.get_bucket()
+        if bucket.creation_date is None:
+            raise Error("S3 bucket does not exist:", self.name)
 
     def add(self, name, content):
-        name = sanitize_filename(name)
+        if isinstance(content, str):
+            content = content.encode('utf-8')
+        handle = self.reserve(name)
+        content_type = guess_content_type(handle)
         if isinstance(content, bytes):
             content = io.BytesIO(content)
         else:
             content = NoCloseFile(content)
-        today = datetime.date.today()
-        random_uuid = str(uuid.uuid4())
-        handle = '/'+today.strftime('%Y/%m/%d')+'/'+random_uuid+'/'+name
         obj = self.get_object(handle)
-        obj.upload_fileobj(content)
-        return handle
-
-    def reserve(self, name):
-        name = sanitize_filename(name)
-        today = datetime.date.today()
-        random_uuid = str(uuid.uuid4())
-        handle = '/'+today.strftime('%Y/%m/%d')+'/'+random_uuid+'/'+name
+        obj.upload_fileobj(content, ExtraArgs={'ContentType': content_type})
         return handle
 
     def open(self, handle):
@@ -409,9 +417,12 @@ class S3Storage(Storage):
 
     def upload_link(self, handle):
         obj = self.get_object(handle, load=False)
+        content_type = guess_content_type(handle)
         data = obj.meta.client.generate_presigned_post(
                 Bucket=obj.bucket_name,
-                Key=obj.key)
+                Key=obj.key,
+                Fields={'Content-Type': content_type},
+                Conditions=[{'Content-Type': content_type}])
         url = data['url']
         fields = data['fields']
         if self.endpoint == 'https://storage.googleapis.com':
@@ -429,11 +440,7 @@ class S3Storage(Storage):
         return PresignedLink(url)
 
     def get_bucket(self):
-        return get_bucket(self.name,
-                          endpoint=self.endpoint,
-                          region=self.region,
-                          access_key=self.access_key,
-                          secret_key=self.secret_key)
+        return self.s3.Bucket(self.name)
 
     def get_object(self, handle, load=False):
         if not self.handle_re.match(handle):
@@ -461,28 +468,99 @@ class S3Storage(Storage):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
 
-def get_bucket(name, endpoint=None, region=None, access_key=None, secret_key=None):
-    import boto3, botocore
-    session = boto3.session.Session(aws_access_key_id=access_key,
-                                    aws_secret_access_key=secret_key,
-                                    region_name=region)
-    signature_version = 's3v4'
-    if endpoint == 'https://storage.googleapis.com':
-        signature_version = 's3'
-        # Do not append 'encoding=url' to the query string.
-        session.events.unregister('before-parameter-build.s3.ListObjects',
-                                  botocore.handlers.set_list_objects_encoding_type_url)
-    s3 = session.resource('s3',
-                          endpoint_url=endpoint,
-                          config=botocore.config.Config(signature_version=signature_version))
-    return s3.Bucket(name)
+class GCSStorage(Storage):
+    """
+    Stores attachments in Google Cloud Storage.
+    """
+
+    def __init__(self, name, key=None):
+        self.name = name
+        self.key = key
+        from google.cloud import storage
+        if self.key is None:
+            self.client = storage.Client()
+        else:
+            self.client = storage.Client.from_service_account_json(self.key)
+
+    def verify(self):
+        bucket = self.get_bucket()
+        if not bucket.exists():
+            raise Error("GCS bucket does not exist:", self.name)
+
+    def add(self, name, content):
+        if isinstance(content, str):
+            content = content.encode('utf-8')
+        handle = self.reserve(name)
+        content_type = guess_content_type(handle)
+        blob = self.get_blob(handle)
+        if isinstance(content, bytes):
+            blob.upload_from_string(content, content_type=content_type)
+        else:
+            blob.upload_from_file(content, content_type=content_type)
+        return handle
+
+    def open(self, handle):
+        blob = self.get_blob(handle, load=True)
+        content = blob.download_as_string()
+        return io.BytesIO(content)
+
+    def remove(self, handle):
+        blob = self.get_blob(handle, load=True)
+        blob.delete()
+
+    def stat(self, handle):
+        blob = self.get_blob(handle, load=True)
+        size = blob.size
+        st_mtime = int((blob.updated.replace(tzinfo=None) - datetime.datetime(1970, 1, 1)).total_seconds())
+        return os.stat_result((0, 0, 0, 0, 0, 0, size, st_mtime, st_mtime, st_mtime))
+
+    def __iter__(self):
+        bucket = self.get_bucket()
+        for blob in bucket.list_blobs():
+            handle = '/'+blob.name
+            if self.handle_re.match(handle):
+                yield handle
+
+    def upload_link(self, handle):
+        key = handle[1:]
+        content_type = guess_content_type(handle)
+        bucket = self.get_bucket()
+        url = 'https://%s.storage.googleapis.com' % bucket.name
+        fields = [('key', key), ('Content-Type', content_type)]
+        policy = bucket.generate_upload_policy([{'key': key}, {'Content-Type': content_type}])
+        fields.extend(sorted(policy.items()))
+        return PresignedLink(url, fields)
+
+    def download_link(self, handle):
+        blob = self.get_blob(handle)
+        url = blob.generate_signed_url(datetime.timedelta(0, 3600))
+        return PresignedLink(url)
+
+    def get_bucket(self):
+        return self.client.bucket(self.name)
+
+    def get_blob(self, handle, load=False):
+        if not self.handle_re.match(handle):
+            raise Error("Ill-formed attachment handle:", handle)
+        bucket = self.get_bucket()
+        if load:
+            blob = bucket.get_blob(handle[1:])
+        else:
+            blob = bucket.blob(handle[1:])
+        if blob is None:
+            raise Error("Attachment does not exist:", handle)
+        return blob
+
+    def __repr__(self):
+        args = [repr(self.name)]
+        if self.key is not None:
+            args.append("key=%r" % self.key)
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(args))
 
 
 class AttachDirSetting(Setting):
     """
     Directory where to save uploaded files and other attachments.
-
-    Either `attach_dir` or `attach_s3_bucket` must be specified.
 
     Example::
 
@@ -497,8 +575,6 @@ class AttachDirSetting(Setting):
 class AttachS3BucketSetting(Setting):
     """
     The name of the S3 bucket holding the attachment storage.
-
-    Either `attach_dir` or `attach_s3_bucket` must be specified.
 
     Example::
 
@@ -552,11 +628,38 @@ class AttachS3SecretKeySetting(Setting):
     default = None
 
 
+class AttachGCSBucketSetting(Setting):
+    """
+    The name of the GCS bucket where attachments should be stored.
+
+    Example::
+
+        attach_gcs_bucket: attachments
+    """
+    name = 'attach_gcs_bucket'
+    validate = StrVal()
+    default = None
+
+
+class AttachGCSKeySetting(Setting):
+    """
+    The path to the service account key file.
+
+    Example::
+
+        attach_gcs_key: /path/to/keyfile.json
+    """
+    name = 'attach_gcs_key'
+    validate = MaybeVal(StrVal())
+    default = None
+
+
 class InitializeAttach(Initialize):
     # Verifies that the attachment storage is configured correctly.
 
     def __call__(self):
-        get_storage()
+        storage = get_storage()
+        storage.verify()
 
 
 class HandleAttachLocation(HandleLocation):
@@ -588,35 +691,27 @@ def get_storage():
     Returns an attachment storage object for the current Rex application.
     """
     settings = get_settings()
-    if settings.attach_dir is not None and settings.attach_s3_bucket is not None:
-        raise Error("Only one of the parameters must be set:",
-                    "attach_dir, attach_s3_bucket")
-    if settings.attach_dir is None and settings.attach_s3_bucket is None:
+    sources = sum([source is not None for source in (settings.attach_dir,
+                                                     settings.attach_s3_bucket,
+                                                     settings.attach_gcs_bucket)])
+    if sources < 1:
         raise Error("At least of the parameters must be set:",
-                    "attach_dir, attach_s3_bucket")
+                    "attach_dir, attach_gcs_bucket, attach_s3_bucket")
+    elif sources > 1:
+        raise Error("Only one of the parameters must be set:",
+                    "attach_dir, attach_gcs_bucket, attach_s3_bucket")
     if settings.attach_dir is not None:
-        attach_dir = settings.attach_dir
-        if not os.path.isdir(attach_dir):
-            raise Error(
-                "Parameter attach_dir must point to an existing directory:",
-                attach_dir)
-        if not os.access(attach_dir, os.R_OK|os.W_OK|os.X_OK):
-            raise Error("The attach_dir directory is not writable:", attach_dir)
-        return LocalStorage(settings.attach_dir)
-    else:
-        bucket = get_bucket(name=settings.attach_s3_bucket,
+        storage = LocalStorage(settings.attach_dir)
+    if settings.attach_s3_bucket is not None:
+        storage = S3Storage(name=settings.attach_s3_bucket,
                             endpoint=settings.attach_s3_endpoint,
                             region=settings.attach_s3_region,
                             access_key=settings.attach_s3_access_key,
                             secret_key=settings.attach_s3_secret_key)
-        if bucket.creation_date is None:
-            raise Error("Parameter attach_s3_bucket must refer to an existing S3 bucket:",
-                        settings.attach_s3_bucket)
-        return S3Storage(name=settings.attach_s3_bucket,
-                         endpoint=settings.attach_s3_endpoint,
-                         region=settings.attach_s3_region,
-                         access_key=settings.attach_s3_access_key,
-                         secret_key=settings.attach_s3_secret_key)
+    if settings.attach_gcs_bucket is not None:
+        storage = GCSStorage(name=settings.attach_gcs_bucket,
+                             key=settings.attach_gcs_key)
+    return storage
 
 
 class AttachmentVal(Validate):

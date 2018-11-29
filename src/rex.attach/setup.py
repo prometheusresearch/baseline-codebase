@@ -22,6 +22,7 @@ setup(
         'rex.core',
         'rex.web',
         'boto3>=1.9,<1.10',
+        'google-cloud-storage>=1.13,<1.14',
     ],
     rex_init='rex.attach',
     rex_static='static',

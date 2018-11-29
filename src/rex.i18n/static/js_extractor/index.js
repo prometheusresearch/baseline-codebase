@@ -22,7 +22,8 @@ var excludedDirectories = [
   'test',
   'tests',
   '__tests__',
-  'flow-typed'
+  'flow-typed',
+  'build'
 ];
 
 var sourceDirectory = process.argv[2];

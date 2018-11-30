@@ -5,6 +5,7 @@
 
 from contextlib import contextmanager
 
+from cachetools import LRUCache
 from htsql.core.connect import connect
 
 from rex.core import get_settings
@@ -20,6 +21,7 @@ __all__ = (
     'get_mart_db',
     'get_mart_etl_db',
     'get_sql_connection',
+    'MartCache',
 )
 
 
@@ -142,4 +144,19 @@ def get_sql_connection(htsql, autocommit=True):
             yield sql
         finally:
             sql.close()
+
+
+class MartCache(LRUCache):
+    """
+    A simple LRU-based Mart HTSQL connection cache.
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.mart_options = kwargs.pop('mart_options', {})
+        if 'maxsize' not in kwargs:
+            kwargs['maxsize'] = get_settings().mart_htsql_cache_depth
+        super(MartCache, self).__init__(*args, **kwargs)
+
+    def __missing__(self, key):
+        return get_mart_db(key, **self.mart_options)
 

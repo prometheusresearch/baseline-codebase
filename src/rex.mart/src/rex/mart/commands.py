@@ -7,8 +7,6 @@ import urllib.request, urllib.parse, urllib.error
 
 from functools import partial
 
-from cachetools import LRUCache
-
 from webob.exc import HTTPUnauthorized, HTTPNotFound, HTTPMethodNotAllowed, \
     HTTPForbidden, HTTPBadRequest
 
@@ -18,7 +16,7 @@ from rex.restful import RestfulLocation
 from rex.web import HandleLocation, authenticate, Parameter
 
 from .config import get_definition
-from .connections import get_mart_db
+from .connections import MartCache
 from .creation import MartCreator
 from .permissions import MartAccessPermissions
 from .quota import MartQuota
@@ -329,10 +327,7 @@ class MartLocation(HandleLocation):
 
         rex = get_rex()
         if not hasattr(rex, 'mart_databases'):
-            rex.mart_databases = LRUCache(
-                maxsize=get_settings().mart_htsql_cache_depth,
-                missing=get_mart_db,
-            )
+            rex.mart_databases = MartCache()
         htsql = rex.mart_databases[str(mart.name)]
 
         # If the tweak.shell extension is enabled for this HTSQL instance,

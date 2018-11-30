@@ -5,11 +5,9 @@
 
 from functools import partial
 
-from cachetools import LRUCache
-
 from rex.action import Action, typing
 from rex.core import get_rex, get_settings
-from rex.mart import get_mart_db, MartAccessPermissions, get_all_definitions
+from rex.mart import MartAccessPermissions, get_all_definitions, MartCache
 from rex.web import authenticate
 
 from .tool import MartTool
@@ -77,11 +75,9 @@ class MartAction(Action):
 
         rex = get_rex()
         if not hasattr(rex, 'mart_action_databases'):
-            rex.mart_action_databases = LRUCache(
-                maxsize=get_settings().mart_htsql_cache_depth,
-                missing=partial(get_mart_db, extensions={'tweak.etl': {}}),
+            rex.mart_action_databases = MartCache(
+                mart_options={'extensions': {'tweak.etl': {}}},
             )
-
         return rex.mart_action_databases[str(mart.name)]
 
     def get_tool_context(self, tool_id):

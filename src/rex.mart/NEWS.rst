@@ -5,6 +5,12 @@ REX.MART Change Log
 .. contents:: Table of Contents
 
 
+0.9.1
+=====
+
+* Updated ``cachetools`` dependency.
+
+
 0.9.0
 =====
 

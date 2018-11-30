@@ -10,6 +10,7 @@ REX.MART_ACTIONS Change Log
 
 * Fixed a PY3-related issue that prevented the Definition pick screen from
   working.
+* Updated ``cachetools`` dependency.
 
 
 0.9.0 (2018-07-02)

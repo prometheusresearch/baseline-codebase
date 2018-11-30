@@ -31,7 +31,7 @@ setup(
         'rex.mart',
         'rex.query',
         'htsql_excel>=0.1.1,<0.2',
-        'cachetools>=1,<2',
+        'cachetools>=1,<4',
         'slugify==0.0.1',
     ],
     rex_init='rex.mart_actions',

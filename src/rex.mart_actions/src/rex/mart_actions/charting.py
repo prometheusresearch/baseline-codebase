@@ -4,7 +4,6 @@
 
 import yaml
 
-from cachetools import LRUCache
 from webob import Response
 
 from htsql.core.domain import EnumDomain

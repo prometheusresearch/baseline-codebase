@@ -43,7 +43,7 @@ test
 ----
 Every 5 minutes, Concourse will check your project's repository for new
 commits. If it sees any, it will clone your repository, and execute the
-configuration found in the ``concourse.yml`` file at the root of your
+configuration found in the ``concourse-test.yml`` file at the root of your
 repository. In most situations, this is effectively the same as running ``make
 init-local`` then ``make test``.
 
@@ -53,4 +53,13 @@ Every 5 minutes, Concourse will check your project's repository for new tags.
 If it sees any, it will clone your repository and build a Docker image using
 the ``Dockerfile`` found in the root of your repository. The tag for that image
 will be the same as the Mercurial tag.
+
+doc
+---
+Every 5 minutes, Concourse will check your project's repository for new
+commits. If it sees any, it will clone your repository, and execute the
+configuration found in the ``concourse-doc.yml`` file at the root of your
+repository. In most situations, this is effectively the same as running ``make
+init-local`` and then copying the contents of the ``/doc/build/html``
+directory.
 

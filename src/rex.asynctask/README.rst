@@ -69,7 +69,7 @@ extension::
 This worker can then be launched using the ``asynctask-workers`` command-line
 task::
 
-    rex asynctask-workers --set=asynctask_workers='{"queue_foo": "my_worker"}'
+    rex asynctask-workers --set=asynctask_workers='{"some_queue": "my_worker"}'
 
 
 Command Line Tools

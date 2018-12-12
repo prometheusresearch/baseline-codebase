@@ -154,7 +154,9 @@ def get_dataset(file_content, file_format):
     if file_format in (FILE_FORMAT_CSV, FILE_FORMAT_TSV):
         # Strip blank lines at the end so we don't have to deal with
         # empty records.
-        file_content = file_content.rstrip(b'\r\n').decode('utf-8', 'replace')
+        if isinstance(file_content, bytes):
+            file_content = file_content.decode('utf-8', 'replace')
+        file_content = file_content.rstrip('\r\n' )
 
     data = Dataset()
     try:

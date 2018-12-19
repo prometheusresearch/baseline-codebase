@@ -1,9 +1,45 @@
-2.0.0 (TBD)
-===========
+2.0.0 (2018-12-19)
+==================
 
 * Upgraded entire platform to Python 3.
 * Rearranged Concourse CI configuration files to allow for automatic
   documentation building.
+* Package updates:
+
+  * REX.ABOUT: 0.4.1
+
+    * Fixed an encoding issue resulting from the move to Python 3.
+
+  * REX.ACQUIRE_ACTIONS: 0.4.1
+
+    * Fixed a PY3-related encoding issue that prevented the screens from working.
+
+  * REX.ATTACH: 2.1.0
+
+    * S3 and GCS storage backends.
+
+  * REX.CORE: 1.18.0
+
+    * ``UnionVal``: ``OnField`` can discriminate based on the field value.
+
+  * REX.I18N: 0.5.6
+
+    * Fixed JS string extraction for codebase layed-out projects.
+
+  * REX.MART: 0.9.1
+
+    * Updated ``cachetools`` dependency.
+
+  * REX.MART_ACTIONS: 0.9.1
+
+    * Fixed a PY3-related issue that prevented the Definition pick screen from
+      working.
+    * Updated ``cachetools`` dependency.
+
+  * REX.RESTFUL: 1.4.0
+
+    * Embedded the ``cors-python`` package so that we could patch it for Python3
+      support.
 
 
 1.5.0 (2018-09-24)

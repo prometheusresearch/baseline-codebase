@@ -25,7 +25,7 @@ default:
 	@echo "make dist                    build the docker image for distribution"
 	@echo "make upload REGISTRY=<URL>   upload the distribution image to the registry"
 	@echo "make shell                   opens a bash shell in the application container"
-	@echo "make capture-updated         copies updated files from the application container to the local filesystem"
+	@echo "make sync                    start synchronizing files with the container"
 .PHONY: default
 
 
@@ -35,6 +35,7 @@ init:
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Bootstrapping Docker-based environment...${NORM}"
 	${MAKE} init-cfg up init-sync init-remote init-bin
 	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
+	@echo "${GREEN}Run \"make sync\" to start synchronizing files with the container.${NORM}"
 .PHONY: init
 
 
@@ -59,12 +60,16 @@ init-cfg:
 .PHONY: init-cfg
 
 
+RSYNC = \
+	rsync \
+		--rsh "docker-compose exec -T" \
+		--blocking-io --delete --ignore-errors --links --recursive --times --compress
+
 # Synchronize the source tree.
 init-sync:
-	-docker-compose exec develop \
-		rsync --delete --exclude /.hg/ --exclude /bin/ --exclude /data/ --exclude /run/ --exclude /doc/build/ \
-		--ignore-errors --links --recursive --times \
-		/repo/ /app/
+	${RSYNC} \
+		--exclude /.hg/ --exclude '.*.sw?' --exclude /bin/ --exclude /data/ --exclude /run/ --exclude /doc/build/ \
+		./ develop:/app/
 .PHONY: init-sync
 
 
@@ -82,7 +87,7 @@ init-bin:
 	chmod a+x ./bin/docker-compose
 	echo "$$RSH_TEMPLATE" >./bin/rsh
 	chmod a+x ./bin/rsh
-	for exe in $$(docker-compose exec develop find bin '!' -type d -executable | tr -d '\r'); do \
+	for exe in $$(docker-compose exec -T develop find bin '!' -type d -executable); do \
 		ln -s -f rsh $$exe; \
 	done
 .PHONY: init-bin
@@ -255,37 +260,6 @@ test: ./bin/activate
 .PHONY: test
 
 
-# Retrieve files updated in the container and copy them locally.
-capture-updated: ./bin/activate
-	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Searching for files updated in the container..."; \
-	UPDATED= ;\
-	CONTAINER=$$(docker-compose ps --quiet develop) ;\
-	for mask in ${CAPTURE_MASKS}; do \
-		for match in $$(docker-compose exec -T develop find . -type f -regex $$mask); do \
-			tmp=$$(mktemp) ;\
-			docker cp $$CONTAINER:/app/$$match $$tmp ;\
-			if [ ! -e $$match ]; then \
-				mkdir -p `dirname $$match` ;\
-				cp $$tmp $$match ;\
-				UPDATED="$$UPDATED $$match" ;\
-			else \
-				diff -N $$match $$tmp > /dev/null ;\
-				if [ $$? -ne 0 ]; then \
-					cat $$tmp > $$match ;\
-					UPDATED="$$UPDATED $$match" ;\
-				fi ;\
-			fi ;\
-			rm $$tmp ;\
-		done ;\
-	done ;\
-	if [ -z "$$UPDATED" ]; then \
-		echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` No updated files found." ;\
-	else \
-		echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` Found updated files:" $$UPDATED "${NORM}"; \
-   	fi
-.PHONY: capture-updated
-
-
 # Build the application docker image for distribution.
 dist:
 	docker build --force-rm -t rexdb/${PRJ_NAME}:${PRJ_VER} .
@@ -304,6 +278,40 @@ upload:
 	docker tag rexdb/${PRJ_NAME}:${PRJ_VER} ${REGISTRY}/${PRJ_NAME}:${PRJ_VER}
 	docker push ${REGISTRY}/${PRJ_NAME}:${PRJ_VER}
 .PHONY: upload
+
+
+bin/syncthing:
+	set -e; \
+	ver=v1.0.0; \
+	case "`uname -s`" in Linux) os=linux;; Darwin) os=macos;; *) os=undefined;; esac; \
+	case "`uname -m`" in x86_64) arch=amd64;; *) arch=undefined;; esac; \
+	curl -sL https://github.com/syncthing/syncthing/releases/download/$$ver/syncthing-$$os-$$arch-$$ver.tar.gz | \
+	tar xz -C bin syncthing-$$os-$$arch-$$ver/syncthing; \
+	mv bin/syncthing-$$os-$$arch-$$ver/syncthing bin; \
+	rmdir bin/syncthing-$$os-$$arch-$$ver
+
+
+bin/sync: bin/syncthing
+	set -e; \
+	mkdir -p .st/remote; \
+	STNODEFAULTFOLDER=1 ./bin/syncthing -generate .st; \
+	STNODEFAULTFOLDER=1 ./bin/syncthing -generate .st/remote; \
+	LOCAL_ID=`./bin/syncthing -home=.st -device-id`; \
+	REMOTE_ID=`./bin/syncthing -home=.st/remote -device-id`; \
+	FOLDER_PATH="${CURDIR}" LISTEN_ADDRESS= GUI_ENABLED=false \
+		eval "echo \"$$SYNCTHING_CONFIG_TEMPLATE\"" > .st/config.xml; \
+	FOLDER_PATH=/app LISTEN_ADDRESS=tcp://0.0.0.0:22000 GUI_ENABLED=true \
+		eval "echo \"$$SYNCTHING_CONFIG_TEMPLATE\"" > .st/remote/config.xml; \
+	docker-compose exec develop make bin/syncthing; \
+	${RSYNC} ./.st/remote/ develop:/app/.st/; \
+	echo "$$SYNC_TEMPLATE" >./bin/sync; \
+	chmod a+x ./bin/sync
+
+
+# Start synchronizing files with the container.
+sync: bin/sync
+	@./bin/sync
+.PHONY: sync
 
 
 # Colors.
@@ -409,5 +417,154 @@ else
 fi
 endef
 
-export ACTIVATE_TEMPLATE COMPOSE_TEMPLATE PBBT_TEMPLATE RSH_TEMPLATE
+define SYNCTHING_CONFIG_TEMPLATE
+<configuration version=\"28\">
+    <folder id=\"codebase\" label=\"codebase\" path=\"$$FOLDER_PATH\" type=\"sendreceive\" rescanIntervalS=\"360\" fsWatcherEnabled=\"true\" fsWatcherDelayS=\"1\" ignorePerms=\"false\" autoNormalize=\"true\">
+        <filesystemType>basic</filesystemType>
+        <device id=\"$$LOCAL_ID\" introducedBy=\"\"></device>
+        <device id=\"$$REMOTE_ID\" introducedBy=\"\"></device>
+        <minDiskFree unit=\"%\">1</minDiskFree>
+        <versioning></versioning>
+        <copiers>0</copiers>
+        <pullerMaxPendingKiB>0</pullerMaxPendingKiB>
+        <hashers>0</hashers>
+        <order>random</order>
+        <ignoreDelete>false</ignoreDelete>
+        <scanProgressIntervalS>0</scanProgressIntervalS>
+        <pullerPauseS>0</pullerPauseS>
+        <maxConflicts>10</maxConflicts>
+        <disableSparseFiles>false</disableSparseFiles>
+        <disableTempIndexes>false</disableTempIndexes>
+        <paused>false</paused>
+        <weakHashThresholdPct>25</weakHashThresholdPct>
+        <markerName>.stfolder</markerName>
+        <useLargeBlocks>false</useLargeBlocks>
+    </folder>
+    <device id=\"$$LOCAL_ID\" name=\"local\" compression=\"metadata\" introducer=\"false\" skipIntroductionRemovals=\"false\" introducedBy=\"\">
+        <address>dynamic</address>
+        <paused>false</paused>
+        <autoAcceptFolders>false</autoAcceptFolders>
+        <maxSendKbps>0</maxSendKbps>
+        <maxRecvKbps>0</maxRecvKbps>
+        <maxRequestKiB>0</maxRequestKiB>
+    </device>
+    <device id=\"$$REMOTE_ID\" name=\"remote\" compression=\"metadata\" introducer=\"false\" skipIntroductionRemovals=\"false\" introducedBy=\"\">
+        <address>tcp://127.0.0.1:22000</address>
+        <paused>false</paused>
+        <autoAcceptFolders>false</autoAcceptFolders>
+        <maxSendKbps>0</maxSendKbps>
+        <maxRecvKbps>0</maxRecvKbps>
+        <maxRequestKiB>0</maxRequestKiB>
+    </device>
+    <gui enabled=\"$$GUI_ENABLED\" tls=\"false\" debugging=\"false\">
+        <address>0.0.0.0:8384</address>
+        <apikey>-</apikey>
+        <theme>default</theme>
+    </gui>
+    <ldap></ldap>
+    <options>
+        <listenAddress>$$LISTEN_ADDRESS</listenAddress>
+        <globalAnnounceServer>default</globalAnnounceServer>
+        <globalAnnounceEnabled>false</globalAnnounceEnabled>
+        <localAnnounceEnabled>false</localAnnounceEnabled>
+        <localAnnouncePort>21027</localAnnouncePort>
+        <localAnnounceMCAddr>[ff12::8384]:21027</localAnnounceMCAddr>
+        <maxSendKbps>0</maxSendKbps>
+        <maxRecvKbps>0</maxRecvKbps>
+        <reconnectionIntervalS>60</reconnectionIntervalS>
+        <relaysEnabled>false</relaysEnabled>
+        <relayReconnectIntervalM>10</relayReconnectIntervalM>
+        <startBrowser>false</startBrowser>
+        <natEnabled>false</natEnabled>
+        <natLeaseMinutes>60</natLeaseMinutes>
+        <natRenewalMinutes>30</natRenewalMinutes>
+        <natTimeoutSeconds>10</natTimeoutSeconds>
+        <urAccepted>-1</urAccepted>
+        <urSeen>3</urSeen>
+        <urUniqueID></urUniqueID>
+        <urURL>https://data.syncthing.net/newdata</urURL>
+        <urPostInsecurely>false</urPostInsecurely>
+        <urInitialDelayS>1800</urInitialDelayS>
+        <restartOnWakeup>true</restartOnWakeup>
+        <autoUpgradeIntervalH>0</autoUpgradeIntervalH>
+        <upgradeToPreReleases>false</upgradeToPreReleases>
+        <keepTemporariesH>24</keepTemporariesH>
+        <cacheIgnoredFiles>false</cacheIgnoredFiles>
+        <progressUpdateIntervalS>5</progressUpdateIntervalS>
+        <limitBandwidthInLan>false</limitBandwidthInLan>
+        <minHomeDiskFree unit=\"%\">1</minHomeDiskFree>
+        <releasesURL>https://upgrades.syncthing.net/meta.json</releasesURL>
+        <overwriteRemoteDeviceNamesOnConnect>false</overwriteRemoteDeviceNamesOnConnect>
+        <tempIndexMinBlocks>10</tempIndexMinBlocks>
+        <trafficClass>0</trafficClass>
+        <defaultFolderPath>~</defaultFolderPath>
+        <setLowPriority>true</setLowPriority>
+        <minHomeDiskFreePct>0</minHomeDiskFreePct>
+    </options>
+</configuration>
+endef
+
+define SYNC_TEMPLATE
+#!/bin/sh
+
+status () {
+    id=$$1
+    [ -e ${CURDIR}/.st/$$id.pid ] && kill -0 `cat ${CURDIR}/.st/$$id.pid` > /dev/null 2>&1
+}
+
+start() {
+    id=$$1
+    shift
+    "$$@" > ${CURDIR}/.st/$$id.log &
+    echo $$! > ${CURDIR}/.st/$$id.pid
+}
+
+stop () {
+    id=$$1
+    if status $$id; then
+        kill `cat ${CURDIR}/.st/$$id.pid`
+        rm ${CURDIR}/.st/$$id.pid
+    fi
+}
+
+remote_status () {
+    id=$$1
+    docker-compose exec -T develop sh -c '[ -e /app/.st/'$$id'.pid ] && kill -0 `cat /app/.st/'$$id'.pid` > /dev/null 2>&1'
+}
+
+remote_start() {
+    id=$$1
+    shift
+	docker-compose exec -T develop sh -c "$$*"' > /app/.st/'$$id'.log 2>&1 & echo $$! > /app/.st/'$$id'.pid && wait' &
+}
+
+remote_stop () {
+    id=$$1
+    if remote_status $$id; then
+		docker-compose exec -T develop sh -c 'kill `cat /app/.st/'$$id'.pid`; rm /app/.st/'$$id'.pid'
+    fi
+}
+
+if status syncthing; then
+    echo Already synchronizing...
+    exit 1
+fi
+
+set -e
+
+. ${CURDIR}/.env
+
+trap "stop syncthing && remote_stop syncthing && echo && exit 0" INT TERM EXIT
+
+remote_start syncthing /app/bin/syncthing -home=/app/.st -no-browser -no-restart
+
+sed -i.bak "s/<address>tcp:\\\\/\\\\/127.0.0.1:.*<\\\\/address>/<address>tcp:\\\\/\\\\/127.0.0.1:$$SYNC_PORT<\\\\/address>/" ${CURDIR}/.st/config.xml
+
+start syncthing ${CURDIR}/bin/syncthing -home=${CURDIR}/.st -no-browser -no-restart
+
+echo "Synchronizing..."
+wait
+endef
+
+export ACTIVATE_TEMPLATE COMPOSE_TEMPLATE PBBT_TEMPLATE RSH_TEMPLATE SYNCTHING_CONFIG_TEMPLATE SYNC_TEMPLATE
 

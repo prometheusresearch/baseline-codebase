@@ -8,8 +8,10 @@ syntax: glob
 build
 dist
 node_modules
+*.sync-conflict-*
 
 syntax: regexp
+^.st/
 ^[^/]+.yaml$
 ^.env$
 ^bin/

@@ -15,37 +15,50 @@ PRJ_VER ?= ${firstword ${shell hg identify -t | cut -d / -f 2 -s} ${shell hg ide
 # Display available targets.
 default:
 	@echo "Available targets:"
-	@echo "make init                    initialize the development environment (in container)"
-	@echo "make init-local              initialize the development environment (in place)"
-	@echo "make up                      start containers"
-	@echo "make down                    stop containers"
-	@echo "make purge                   stop containers and remove generated containers and volumes"
+	@echo "make init                    initialize the development environment"
+	@echo "make up                      restart the environment"
+	@echo "make down                    suspend the environment"
+	@echo "make purge                   delete the environment and free the associated resources"
 	@echo "make develop                 recompile source packages"
 	@echo "make test                    test all source packages (specify PKG=<package> to test a single package)"
-	@echo "make dist                    build the docker image for distribution"
-	@echo "make upload REGISTRY=<URL>   upload the distribution image to the registry"
-	@echo "make shell                   opens a bash shell in the application container"
-	@echo "make sync                    start synchronizing files with the container"
+	@echo "make dist                    build the application image"
+	@echo "make upload REGISTRY=<URL>   upload the application image to the Docker registry"
+	@echo "make shell                   opens a bash shell in the build container"
+	@echo "make sync                    start synchronizing files with the build container"
 .PHONY: default
 
 
-# Initialize the development environment in a docker container.
-init:
+# Initialize the development environment.
+init: .devmode
 	@if [ -e bin/activate ]; then echo "${RED}The development environment is already initialized!${NORM}"; false; fi
-	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Bootstrapping Docker-based environment...${NORM}"
-	${MAKE} init-cfg up init-sync init-remote init-bin
-	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
-	@echo "${GREEN}Run \"make sync\" to start synchronizing files with the container.${NORM}"
+	${MAKE} init-$$(cat .devmode)
 .PHONY: init
 
 
 # Initialize the development environment in-place.
 init-local:
-	@if [ -e bin/activate ]; then echo "${RED}The development environment is already initialized!${NORM}"; false; fi
-	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Bootstrapping local environment...${NORM}"
+	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Initializing the local development environment...${NORM}"
 	${MAKE} init-cfg init-env init-dev develop
+	@echo
 	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
+	@echo "Run \". ./bin/activate\" to activate the environment."
+	@echo
 .PHONY: init-local
+
+
+# Initialize the development environment in a docker container.
+init-docker:
+	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Initializing the development environment in a Docker container...${NORM}"
+	${MAKE} init-cfg up init-sync init-remote init-bin
+	@echo
+	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
+	@echo "Run \". ./bin/activate\" to activate the environment."
+	@echo "Run \"make shell\" to open a shell in the build container."
+	@echo "Run \"make sync\" to synchronize files between the local filesystem and the build container."
+	@echo "Run \"make up\" or \"make down\" to restart or suspend the containers."
+	@echo "Run \"make purge\" to delete the environment and release the associated resources."
+	@echo
+.PHONY: init-docker
 
 
 # Enable default configuration.
@@ -83,8 +96,6 @@ init-remote:
 init-bin:
 	mkdir -p bin
 	echo "$$ACTIVATE_TEMPLATE" >./bin/activate
-	echo "$$COMPOSE_TEMPLATE" >./bin/docker-compose
-	chmod a+x ./bin/docker-compose
 	echo "$$RSH_TEMPLATE" >./bin/rsh
 	chmod a+x ./bin/rsh
 	for exe in $$(docker-compose exec -T develop find bin '!' -type d -executable); do \
@@ -108,9 +119,9 @@ REQUIRED_TOOL_PY = \
 
 # Install development tools.
 init-dev:
+	echo "#!/bin/sh\n[ \$$# -eq 0 ] && exec \$$SHELL || exec \"\$$@\"" >./bin/rsh
+	chmod a+x ./bin/rsh
 	./bin/pip --isolated install ${REQUIRED_TOOL_PY} ${TOOL_PY}
-	echo "$$PBBT_TEMPLATE" >./bin/pbbt
-	chmod a+x ./bin/pbbt
 	@if [ ! -z "${TOOL_JS}" ]; then \
 		npm --global --prefix ${CURDIR} install ${TOOL_JS} ; \
 	fi
@@ -120,34 +131,62 @@ init-dev:
 .PHONY: init-dev
 
 
-# Start Docker containers.
+# Restart the development environment.
 up:
-	docker-compose up -d
+	${MAKE} up-$$(cat .devmode)
 .PHONY: up
 
 
-# Stop Docker containers.
+up-local:
+.PHONY: up-local
+
+
+up-docker:
+	docker-compose up -d
+.PHONY: up-docker
+
+
+# Suspend the development environment.
 down:
-	docker-compose down
+	${MAKE} down-$$(cat .devmode)
 .PHONY: down
 
 
-# Remove generated containers and volumes.
+down-local:
+.PHONY: down-local
+
+
+down-docker:
+	docker-compose down
+.PHONY: down-docker
+
+
+# Delete the development environment.
 purge:
+	${MAKE} purge-$$(cat .devmode)
+.PHONY: purge
+
+
+purge-local:
+	-rm -r bin data include lib lib64 run share pyvenv.cfg socket
+.PHONY: purge-local
+
+
+purge-docker:
 	docker-compose down -v --remove-orphans
 	rm -rf bin
-.PHONY: purge
+.PHONY: purge-docker
 
 
 # Open up a shell in the develop container
 shell: ./bin/activate
-	docker-compose exec develop /bin/bash
+	@./bin/rsh
 .PHONY: shell
 
 
 # Check that the development environment is initialized.
 ./bin/activate:
-	@echo "${RED}Run \"make init\" or \"make init-local\" to initialize the development environment.${NORM}"; false
+	@echo "${RED}Run \"make init\" to initialize the development environment.${NORM}"; false
 
 
 # Compile JavaScript source packages.
@@ -226,13 +265,14 @@ install: ./bin/activate
 
 # Test source packages.
 test: ./bin/activate
-	@FAILURES=; \
+	@. ./bin/activate; \
+	FAILURES=; \
 	for src in ${TEST_PY}; do \
 		if [ -z "${PKG}" -o "$$src" = "${PKG}" ]; then \
 			if [ -e $$src/test/input.yaml ]; then \
 				echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Testing $$src...${NORM}"; \
 				if [ -z "${VERBOSE}" ]; then ARGS="--quiet" ; fi ;\
-				(cd $$src; ${CURDIR}/bin/pbbt $$ARGS --max-errors=0); \
+				(cd $$src; pbbt $$ARGS --max-errors=0); \
 				if [ $$? != 0 ]; then FAILURES="$$FAILURES $$src"; fi; \
 			fi; \
 		fi; \
@@ -240,14 +280,14 @@ test: ./bin/activate
 	for src in ${TEST_JS}; do \
 		if [ -z "${PKG}" -o "$$src" = "${PKG}" ]; then \
 			echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Testing $$src...${NORM}"; \
-			(${CURDIR}/bin/yarn --cwd=$$src run test); \
+			(yarn --cwd=$$src run test); \
 			if [ $$? != 0 ]; then FAILURES="$$FAILURES $$src"; fi; \
 		fi; \
 	done; \
 	for src in ${TEST_MAKE}; do \
 		if [ -z "${PKG}" -o "$$src" = "${PKG}" ]; then \
 			echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Testing $$src...${NORM}"; \
-			(docker-compose exec develop make -C $$src test); \
+			(rsh make -C $$src test); \
 			if [ $$? != 0 ]; then FAILURES="$$FAILURES $$src"; fi; \
 		fi; \
 	done; \
@@ -280,6 +320,12 @@ upload:
 .PHONY: upload
 
 
+# Start synchronizing files with the container.
+sync: bin/sync
+	@./bin/sync
+.PHONY: sync
+
+
 bin/syncthing:
 	set -e; \
 	ver=v1.0.0; \
@@ -308,10 +354,44 @@ bin/sync: bin/syncthing
 	chmod a+x ./bin/sync
 
 
-# Start synchronizing files with the container.
-sync: bin/sync
-	@./bin/sync
-.PHONY: sync
+# Configure the development environment.
+configure:
+	@set -e; \
+	echo "${GREEN}Welcome to the ${PRJ_NAME} codebase!${NORM}"; \
+	echo; \
+	echo "We will now configure your development environment."; \
+	devmode=; \
+	while [ -z "$$devmode" ]; do \
+		echo; \
+		echo "Please choose the development mode:"; \
+		echo "1) local mode (requires python3, nodejs, and other development tools)"; \
+		echo "2) container mode (requires docker-compose)"; \
+		echo -n "> "; \
+	    read n; \
+		case $$n in \
+			1) devmode=local;; \
+			2) devmode=docker;; \
+			*) echo "${RED}Invalid choice!${NORM}";; \
+		esac; \
+	done; \
+	${MAKE} configure-$$devmode
+.PHONY: configure
+
+
+configure-local:
+	@command -v python3 >/dev/null 2>&1 && command -v nodejs >/dev/null 2>&1 || (echo "${RED}Cannot find development tools!${NORM}" && false)
+	@echo local > .devmode
+.PHONY: configure-local
+
+
+configure-docker:
+	@command -v docker-compose >/dev/null 2>&1 || (echo "${RED}Cannot find docker-compose!${NORM}" && false)
+	@echo docker > .devmode
+.PHONY: configure-docker
+
+
+.devmode:
+	@${MAKE} configure
 
 
 # Colors.
@@ -360,25 +440,6 @@ export PATH
 if [ -n "$${BASH-}" ] || [ -n "$${ZSH_VERSION-}" ] ; then
 	hash -r 2>/dev/null
 fi
-endef
-
-define COMPOSE_TEMPLATE
-#!/bin/sh
-cd "${CURDIR}" && PATH="${PATH}" exec "${shell which docker-compose}" "$$@"
-endef
-
-define PBBT_TEMPLATE
-#!${CURDIR}/bin/python3
-
-import os, re, sys
-from pbbt import main
-
-os.environ['HOME'] = '${CURDIR}'
-os.environ['PATH'] = '${CURDIR}/bin:' + os.environ.get('PATH', '')
-
-if __name__ == '__main__':
-    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$$', '', sys.argv[0])
-    sys.exit(main())
 endef
 
 define RSH_TEMPLATE
@@ -562,9 +623,9 @@ sed -i.bak "s/<address>tcp:\\\\/\\\\/127.0.0.1:.*<\\\\/address>/<address>tcp:\\\
 
 start syncthing ${CURDIR}/bin/syncthing -home=${CURDIR}/.st -no-browser -no-restart
 
-echo "Synchronizing..."
+echo "${GREEN}Synchronizing (Ctrl-C to stop)...${NORM}"
 wait
 endef
 
-export ACTIVATE_TEMPLATE COMPOSE_TEMPLATE PBBT_TEMPLATE RSH_TEMPLATE SYNCTHING_CONFIG_TEMPLATE SYNC_TEMPLATE
+export ACTIVATE_TEMPLATE RSH_TEMPLATE SYNCTHING_CONFIG_TEMPLATE SYNC_TEMPLATE
 

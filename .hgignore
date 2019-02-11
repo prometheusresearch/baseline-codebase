@@ -11,6 +11,7 @@ node_modules
 *.sync-conflict-*
 
 syntax: regexp
+^.devmode$
 ^.st/
 ^[^/]+.yaml$
 ^.env$

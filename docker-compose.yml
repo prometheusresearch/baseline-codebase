@@ -28,6 +28,7 @@ services:
     links:
       - postgres
     environment:
+      - PATH=/app/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       - PGHOST
       - PGUSER
   nginx:

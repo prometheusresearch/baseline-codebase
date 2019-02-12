@@ -38,6 +38,7 @@ init: .devmode
 # Initialize the development environment in-place.
 init-local:
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Initializing the local development environment...${NORM}"
+	[ -e .devmode ] || ${MAKE} configure-local
 	${MAKE} init-cfg init-env init-dev develop
 	@echo
 	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
@@ -49,6 +50,7 @@ init-local:
 # Initialize the development environment in a docker container.
 init-docker:
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Initializing the development environment in a Docker container...${NORM}"
+	[ -e .devmode ] || ${MAKE} configure-docker
 	${MAKE} init-cfg up init-sync init-remote init-bin
 	@echo
 	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
@@ -99,7 +101,7 @@ init-bin:
 	echo "$$RSH_TEMPLATE" >./bin/rsh
 	chmod a+x ./bin/rsh
 	for exe in $$(docker-compose exec -T develop find bin '!' -type d -executable); do \
-		ln -s -f rsh $$exe; \
+		[ -e $$exe ] || ln -s -f rsh $$exe; \
 	done
 .PHONY: init-bin
 

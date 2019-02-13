@@ -7,12 +7,12 @@ services:
         source: pgdata
         target: /var/lib/postgresql/data
   develop:
-    image: rexdb/develop:2019.02.04
+    image: rexdb/build:2019.02.04
+    command: [sleep, infinity]
+    working_dir: /app
+    ports:
+      - ${SYNC_PORT}:22000
     volumes:
-      - type: bind
-        source: .
-        target: /repo
-        read_only: true
       - type: volume
         source: appenv
         target: /app

@@ -3,6 +3,10 @@
 include Makefile.src
 
 
+# Development mode (local, docker, or kube).
+DEVMODE = ${shell cat .devmode 2>/dev/null}
+
+
 # The URL of the docker registry.
 REGISTRY ?=
 
@@ -16,6 +20,7 @@ PRJ_VER ?= ${firstword ${shell hg identify -t | cut -d / -f 2 -s} ${shell hg ide
 default:
 	@echo "Available targets:"
 	@echo "make init                    initialize the development environment"
+	@echo "make status                  show the configuration of the development environment"
 	@echo "make up                      restart the environment"
 	@echo "make down                    suspend the environment"
 	@echo "make purge                   delete the environment and free the associated resources"
@@ -31,7 +36,7 @@ default:
 # Initialize the development environment.
 init: .devmode
 	@if [ -e bin/activate ]; then echo "${RED}The development environment is already initialized!${NORM}"; false; fi
-	${MAKE} init-$$(cat .devmode)
+	${MAKE} init-${DEVMODE}
 .PHONY: init
 
 
@@ -47,7 +52,7 @@ init-local:
 .PHONY: init-local
 
 
-# Initialize the development environment in a docker container.
+# Initialize the development environment in a Docker container.
 init-docker:
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Initializing the development environment in a Docker container...${NORM}"
 	[ -e .devmode ] || ${MAKE} configure-docker
@@ -63,6 +68,21 @@ init-docker:
 .PHONY: init-docker
 
 
+# Initialize the development environment in a Kubernetes cluster.
+init-kube:
+	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Initializing the development environment in a Kubernetes cluster...${NORM}"
+	[ -e .devmode ] || ${MAKE} configure-kube
+	${MAKE} init-cfg up init-sync init-remote init-bin
+	@echo
+	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
+	@echo "Run \". ./bin/activate\" to activate the environment."
+	@echo "Run \"make shell\" to open a shell in the build container."
+	@echo "Run \"make sync\" to synchronize files between the local filesystem and the build container."
+	@echo "Run \"make purge\" to delete the environment and release the associated resources."
+	@echo
+.PHONY: init-kube
+
+
 # Enable default configuration.
 init-cfg:
 	@for src in default/.* default/*; do \
@@ -75,11 +95,6 @@ init-cfg:
 .PHONY: init-cfg
 
 
-RSYNC = \
-	rsync \
-		--rsh "docker-compose exec -T" \
-		--blocking-io --delete --ignore-errors --links --recursive --times --compress
-
 # Synchronize the source tree.
 init-sync:
 	${RSYNC} \
@@ -90,7 +105,7 @@ init-sync:
 
 # Initialize the environment in the container.
 init-remote:
-	docker-compose exec develop make init-env init-dev develop
+	${RSH} make init-env init-dev develop
 .PHONY: init-remote
 
 
@@ -100,9 +115,10 @@ init-bin:
 	echo "$$ACTIVATE_TEMPLATE" >./bin/activate
 	echo "$$RSH_TEMPLATE" >./bin/rsh
 	chmod a+x ./bin/rsh
-	for exe in $$(docker-compose exec -T develop find bin '!' -type d -executable); do \
+	for exe in $$(${NOTERM_RSH} find bin '!' -type d -executable); do \
 		[ -e $$exe ] || ln -s -f rsh $$exe; \
 	done
+	${MAKE} bin/sync
 .PHONY: init-bin
 
 
@@ -133,9 +149,27 @@ init-dev:
 .PHONY: init-dev
 
 
+# Show the configuration of the development environment.
+status:
+	@[ -e .devmode ] && ${MAKE} status-${DEVMODE} || @echo "${RED}Development environment is not initialized.${NORM}"
+.PHONY: status
+
+
+status-local:
+.PHONY: status-local
+
+
+status-docker:
+.PHONY: status-docker
+
+
+status-kube:
+.PHONY: status-kube
+
+
 # Restart the development environment.
 up:
-	${MAKE} up-$$(cat .devmode)
+	${MAKE} up-${DEVMODE}
 .PHONY: up
 
 
@@ -150,7 +184,7 @@ up-docker:
 
 # Suspend the development environment.
 down:
-	${MAKE} down-$$(cat .devmode)
+	${MAKE} down-${DEVMODE}
 .PHONY: down
 
 
@@ -165,7 +199,7 @@ down-docker:
 
 # Delete the development environment.
 purge:
-	${MAKE} purge-$$(cat .devmode)
+	${MAKE} purge-${DEVMODE}
 .PHONY: purge
 
 
@@ -182,7 +216,7 @@ purge-docker:
 
 # Open up a shell in the develop container
 shell: ./bin/activate
-	@./bin/rsh
+	${RSH} /bin/bash
 .PHONY: shell
 
 
@@ -289,7 +323,7 @@ test: ./bin/activate
 	for src in ${TEST_MAKE}; do \
 		if [ -z "${PKG}" -o "$$src" = "${PKG}" ]; then \
 			echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Testing $$src...${NORM}"; \
-			(rsh make -C $$src test); \
+			(${RSH} make -C $$src test); \
 			if [ $$? != 0 ]; then FAILURES="$$FAILURES $$src"; fi; \
 		fi; \
 	done; \
@@ -350,7 +384,7 @@ bin/sync: bin/syncthing
 		eval "echo \"$$SYNCTHING_CONFIG_TEMPLATE\"" > .st/config.xml; \
 	FOLDER_PATH=/app LISTEN_ADDRESS=tcp://0.0.0.0:22000 GUI_ENABLED=true \
 		eval "echo \"$$SYNCTHING_CONFIG_TEMPLATE\"" > .st/remote/config.xml; \
-	docker-compose exec develop make bin/syncthing; \
+	${RSH} make bin/syncthing; \
 	${RSYNC} ./.st/remote/ develop:/app/.st/; \
 	echo "$$SYNC_TEMPLATE" >./bin/sync; \
 	chmod a+x ./bin/sync
@@ -394,6 +428,19 @@ configure-docker:
 
 .devmode:
 	@${MAKE} configure
+
+
+# Remote shell.
+RSH = \
+	${if ${filter docker,${DEVMODE}},docker-compose exec develop}${if ${filter kube,${DEVMODE}},kubectl exec -it codebase -c develop --}
+NOTERM_RSH = \
+	${if ${filter docker,${DEVMODE}},docker-compose exec -T develop}${if ${filter kube,${DEVMODE}},kubectl exec codebase -c develop --}
+RSYNC_RSH = \
+	${if ${filter docker,${DEVMODE}},docker-compose exec -T}${if ${filter kube,${DEVMODE}},/bin/sh -c 'exec kubectl exec \"\$$0\" -c develop -i -- \"\$$@\"'}
+RSYNC = \
+	rsync \
+		--rsh "${RSYNC_RSH}" \
+		--blocking-io --delete --ignore-errors --links --recursive --times --compress
 
 
 # Colors.
@@ -473,10 +520,10 @@ REMOTEDIR="$${LOCALDIR#$$ROOTDIR}"
 
 if [ "$$REMOTEDIR" = "$$LOCALDIR" ]; then
 	set -x
-	exec docker-compose exec develop $$REMOTECMD
+	exec ${RSH} $$REMOTECMD
 else
 	set -x
-	exec docker-compose exec develop sh -ce "cd ./$$REMOTEDIR && exec $$REMOTECMD"
+	exec ${RSH} sh -ce "cd ./$$REMOTEDIR && exec $$REMOTECMD"
 fi
 endef
 
@@ -592,19 +639,19 @@ stop () {
 
 remote_status () {
     id=$$1
-    docker-compose exec -T develop sh -c '[ -e /app/.st/'$$id'.pid ] && kill -0 `cat /app/.st/'$$id'.pid` > /dev/null 2>&1'
+    ${NOTERM_RSH} sh -c '[ -e /app/.st/'$$id'.pid ] && kill -0 `cat /app/.st/'$$id'.pid` > /dev/null 2>&1'
 }
 
 remote_start() {
     id=$$1
     shift
-	docker-compose exec -T develop sh -c "$$*"' > /app/.st/'$$id'.log 2>&1 & echo $$! > /app/.st/'$$id'.pid && wait' &
+	${NOTERM_RSH} sh -c "$$*"' > /app/.st/'$$id'.log 2>&1 & echo $$! > /app/.st/'$$id'.pid && wait' &
 }
 
 remote_stop () {
     id=$$1
     if remote_status $$id; then
-		docker-compose exec -T develop sh -c 'kill `cat /app/.st/'$$id'.pid`; rm /app/.st/'$$id'.pid'
+		${NOTERM_RSH} sh -c 'kill `cat /app/.st/'$$id'.pid`; rm /app/.st/'$$id'.pid'
     fi
 }
 

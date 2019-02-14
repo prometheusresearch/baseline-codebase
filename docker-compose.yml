@@ -55,7 +55,6 @@ services:
 
       server {
           listen 80;
-          server_name localhost;
           location / {
               if ($$app_path = "") {
                   return 302 $$scheme://$$http_host$$uri/;

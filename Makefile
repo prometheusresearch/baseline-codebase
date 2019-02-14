@@ -182,6 +182,20 @@ up-docker:
 .PHONY: up-docker
 
 
+up-kube:
+	set -e; \
+	if ! kubectl get namespace ${NS} >/dev/null 2>&1; then \
+		if kubectl get namespace codebase-template >/dev/null 2>&1; then \
+			kubectl get namespace codebase-template -o yaml | sed s/codebase-template/${NS}/g | kubectl apply -f -; \
+			kubectl get secret configmap,secret,deployment,cronjob,service -n codebase-template -o yaml | sed s/codebase-template/${NS}/g | kubectl apply -f -; \
+		else \
+			kubectl create namespace ${NS}; \
+		fi; \
+	fi
+	kubectl apply -f kube.yml
+	kubectl wait --for=condition=Ready --timeout=5m pod/develop
+
+
 # Suspend the development environment.
 down:
 	${MAKE} down-${DEVMODE}
@@ -195,6 +209,10 @@ down-local:
 down-docker:
 	docker-compose down
 .PHONY: down-docker
+
+
+down-kube:
+.PHONY: down-kube
 
 
 # Delete the development environment.
@@ -212,6 +230,12 @@ purge-docker:
 	docker-compose down -v --remove-orphans
 	rm -rf bin
 .PHONY: purge-docker
+
+
+purge-kube:
+	kubectl delete namespace ${NS}
+	rm -rf bin
+.PHONY: purge-kube
 
 
 # Open up a shell in the develop container
@@ -402,11 +426,12 @@ configure:
 		echo "Please choose the development mode:"; \
 		echo "1) local mode (requires python3, nodejs, and other development tools)"; \
 		echo "2) container mode (requires docker-compose)"; \
-		echo -n "> "; \
-	    read n; \
+		echo "3) kubernetes mode (requires gcloud and kubectl)"; \
+		read -p "> " n; \
 		case $$n in \
 			1) devmode=local;; \
 			2) devmode=docker;; \
+			3) devmode=kube;; \
 			*) echo "${RED}Invalid choice!${NORM}";; \
 		esac; \
 	done; \
@@ -426,15 +451,94 @@ configure-docker:
 .PHONY: configure-docker
 
 
+configure-kube:
+	@command -v gcloud >/dev/null 2>&1 || (echo "${RED}Cannot find kubectl!${NORM}" && false)
+	${MAKE} .kubeconfig
+	@echo kube > .devmode
+.PHONY: configure-kube
+
+
+.kubeconfig:
+	@command -v gcloud >/dev/null 2>&1 || (echo "${RED}Cannot find gcloud!${NORM}" && false)
+	@set -e; \
+	echo; \
+	echo "We need to prepare the Kubernetes context."; \
+	project="${KUBE_PROJECT}"; \
+	while [ -z "$$project" ]; do \
+		all_projects=$$(gcloud projects list --format="value(projectId)" 2>/dev/null); \
+		default_project=$$(gcloud config get-value project 2>/dev/null); \
+		echo; \
+		echo "Choose the GCP project:"; \
+		[ -n "$$all_projects" ] || echo "  (no projects found)"; \
+		for p in $$all_projects; do echo "- $$p"; done; \
+		read -p "[$$default_project]> " p; \
+		p="$${p:-$$default_project}"; \
+		if gcloud projects describe "$$p" >/dev/null 2>&1; then \
+			project="$$p"; \
+		else \
+			echo "${RED}Invalid choice!${NORM}"; \
+		fi; \
+	done; \
+	cluster="${KUBE_CLUSTER}"; \
+	while [ -z "$$cluster" ]; do \
+		all_clusters=$$(gcloud --project="$$project" container clusters list --format="value(name)" 2>/dev/null); \
+		default_cluster=; \
+		if [ $$(echo "$$all_clusters" | wc -w) = 1 ]; then default_cluster="$$all_clusters"; fi; \
+		echo; \
+		echo "Choose the GKE cluster:"; \
+		[ -n "$$all_clusters" ] || echo "  (no clusters found)"; \
+		for c in $$all_clusters; do echo "- $$c"; done; \
+		read -p "[$$default_cluster]> " c; \
+		c="$${c:-$$default_cluster}"; \
+		if gcloud container clusters describe "$$c" >/dev/null 2>&1; then \
+			cluster="$$c"; \
+		else \
+			echo "${RED}Invalid choice!${NORM}"; \
+		fi; \
+	done; \
+	namespace="${KUBE_NAMESPACE}"; \
+	while [ -z "$$namespace" ]; do \
+		default_namespace="$$(id -u -n)-$$(basename "${CURDIR}")"; \
+		echo; \
+		echo "Choose the namespace:"; \
+		read -p "[$$default_namespace]> " n; \
+		n="$${n:-$$default_namespace}"; \
+		if echo "$$n" | grep -Eq '^[0-9a-zA-Z-]+$$'; then \
+			namespace="$$n"; \
+		else \
+			echo "${RED}Invalid choice!${NORM}"; \
+		fi; \
+	done; \
+	echo; \
+	gcloud --project="$$project" container clusters get-credentials "$$cluster"; \
+	kubectl config set-context --current --namespace="$$namespace"; \
+	echo; \
+	echo "The following Kubernetes context has been prepared:"; \
+	echo; \
+	echo "GCP project: $$project"; \
+	echo "GKE cluster: $$cluster"; \
+	echo "Namespace: $$namespace"; \
+	echo
+
+
 .devmode:
 	@${MAKE} configure
 
 
+# GCP/Kubernetes configuration.
+KUBE_PROJECT ?=
+KUBE_CLUSTER ?=
+KUBE_NAMESPACE ?=
+KUBECONFIG = ${CURDIR}/.kubeconfig
+export KUBECONFIG
+NS = ${shell kubectl config view -o jsonpath="{.contexts[?(@.name==\"`kubectl config current-context`\")].context.namespace}"}
+
+
 # Remote shell.
 RSH = \
-	${if ${filter docker,${DEVMODE}},docker-compose exec develop}${if ${filter kube,${DEVMODE}},kubectl exec -it codebase -c develop --}
+	${if ${filter docker,${DEVMODE}},docker-compose exec develop}${if ${filter kube,${DEVMODE}},kubectl exec -it develop -c develop --}
 NOTERM_RSH = \
-	${if ${filter docker,${DEVMODE}},docker-compose exec -T develop}${if ${filter kube,${DEVMODE}},kubectl exec codebase -c develop --}
+	${if ${filter docker,${DEVMODE}},docker-compose exec -T develop}${if ${filter kube,${DEVMODE}},kubectl exec develop -c develop --}
 RSYNC_RSH = \
 	${if ${filter docker,${DEVMODE}},docker-compose exec -T}${if ${filter kube,${DEVMODE}},/bin/sh -c 'exec kubectl exec \"\$$0\" -c develop -i -- \"\$$@\"'}
 RSYNC = \
@@ -470,6 +574,17 @@ deactivate () {
 		unset _OLD_VIRTUAL_PATH
 	fi
 
+	if ! [ -z "$${VIRTUAL_KUBE+_}" ] ; then
+		unset VIRTUAL_KUBE
+		if ! [ -z "$${_OLD_VIRTUAL_KUBECONFIG+_}" ] ; then
+			KUBECONFIG="$$_OLD_VIRTUAL_KUBECONFIG"
+			export KUBECONFIG
+			unset _OLD_VIRTUAL_KUBECONFIG
+		else
+			unset KUBECONFIG
+		fi
+	fi
+
 	if [ -n "$${BASH-}" ] || [ -n "$${ZSH_VERSION-}" ] ; then
 		hash -r 2>/dev/null
 	fi
@@ -486,6 +601,14 @@ _OLD_VIRTUAL_PATH="$$PATH"
 PATH="$$VIRTUAL_ENV/bin:$$PATH"
 export PATH
 
+if [ -e "${KUBECONFIG}" ] ; then
+	VIRTUAL_KUBE="${KUBECONFIG}"
+	export VIRTUAL_KUBE
+	_OLD_VIRTUAL_KUBECONFIG="$$KUBECONFIG"
+	KUBECONFIG="${KUBECONFIG}"
+	export KUBECONFIG
+fi
+
 if [ -n "$${BASH-}" ] || [ -n "$${ZSH_VERSION-}" ] ; then
 	hash -r 2>/dev/null
 fi
@@ -495,6 +618,11 @@ define RSH_TEMPLATE
 #!/bin/sh
 
 set -e
+
+if [ -e "${KUBECONFIG}" ]; then
+	KUBECONFIG="${KUBECONFIG}"
+	export KUBECONFIG
+fi
 
 if ! [ -z "$${_OLD_VIRTUAL_PATH+_}" ] ; then
 	PATH="$$_OLD_VIRTUAL_PATH"
@@ -662,12 +790,25 @@ fi
 
 set -e
 
-. ${CURDIR}/.env
+if [ -e "${KUBECONFIG}" ]; then
+	KUBECONFIG="${KUBECONFIG}"
+	export KUBECONFIG
+fi
 
-trap "stop syncthing && remote_stop syncthing && echo && exit 0" INT TERM EXIT
+trap "stop syncthing && stop port-forward && remote_stop syncthing && echo && exit 0" INT TERM EXIT
 
 remote_start syncthing /app/bin/syncthing -home=/app/.st -no-browser -no-restart
 
+if [ -e "${KUBECONFIG}" ]; then
+	start port-forward kubectl port-forward develop :22000
+	SYNC_PORT=
+	while [ -z "$$SYNC_PORT" ]; do
+		sleep 1
+		SYNC_PORT=`sed -n -e 's/Forwarding from 127.0.0.1:\\(.*\\) -> 22000/\\1/p' ${CURDIR}/.st/port-forward.log`
+	done
+else
+	. ${CURDIR}/.env
+fi
 sed -i.bak "s/<address>tcp:\\\\/\\\\/127.0.0.1:.*<\\\\/address>/<address>tcp:\\\\/\\\\/127.0.0.1:$$SYNC_PORT<\\\\/address>/" ${CURDIR}/.st/config.xml
 
 start syncthing ${CURDIR}/bin/syncthing -home=${CURDIR}/.st -no-browser -no-restart

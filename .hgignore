@@ -12,6 +12,7 @@ node_modules
 
 syntax: regexp
 ^.devmode$
+^.kubeconfig$
 ^.st/
 ^[^/]+.yaml$
 ^.env$

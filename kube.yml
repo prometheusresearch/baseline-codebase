@@ -1,0 +1,132 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: develop
+  labels:
+    app: develop
+data:
+  nginx.conf: |
+    map $uri $app_user {
+        "~^(/~(?<user>[^/]+))" $user;
+        default someone@example.com;
+    }
+
+    map $uri $app_socket {
+        "~^(/~[^/]+)?(/@(?<app>[^/]+))" /run/app/$app.socket;
+        default /run/app/socket;
+    }
+
+    map $uri $app_prefix {
+        "~^(?<prefix>(/~[^/]+)?(/@[^/]+)?)" $prefix;
+    }
+
+    map $uri $app_path {
+        "~^(/~[^/]+)?(/@[^/]+)?(?<path>.*)" $path;
+    }
+
+    server {
+        listen 80;
+
+        location = /healthz {
+            return 200 "ok";
+            access_log off;
+        }
+
+        location / {
+            if ($app_path = "") {
+                return 302 $scheme://$http_host$uri/;
+            }
+            uwsgi_pass unix://$app_socket;
+            uwsgi_modifier1 30;
+            include uwsgi_params;
+            uwsgi_param SCRIPT_NAME $app_prefix if_not_empty;
+            uwsgi_param REMOTE_USER $app_user if_not_empty;
+        }
+
+        location = /logout {
+            return 204;
+        }
+
+        location /doc {
+            alias /var/www/doc/html;
+            absolute_redirect off;
+        }
+    }
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: develop
+  labels:
+    app: develop
+spec:
+  volumes:
+  - name: appenv
+    emptyDir: {}
+  - name: pgdata
+    emptyDir: {}
+  - name: pgrun
+    emptyDir: {}
+  - name: ngconf
+    configMap:
+      name: develop
+      items:
+      - key: nginx.conf
+        path: default.conf
+  containers:
+  - name: develop
+    image: rexdb/build:2018.11.06
+    workingDir: /app
+    command: [sleep, infinity]
+    env:
+    - name: PATH
+      value: /app/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    - name: PGUSER
+      value: postgres
+    volumeMounts:
+    - name: appenv
+      mountPath: /app
+    - name: pgrun
+      mountPath: /var/run/postgresql
+  - name: postgres
+    image: postgres:9
+    volumeMounts:
+    - name: pgdata
+      mountPath: /var/lib/postgresql/data
+    - name: pgrun
+      mountPath: /var/run/postgresql
+  - name: nginx
+    image: nginx:1.15
+    ports:
+    - name: http
+      containerPort: 80
+    readinessProbe:
+      httpGet:
+        path: /healthz
+        port: 80
+    volumeMounts:
+    - name: ngconf
+      mountPath: /etc/nginx/conf.d
+    - name: appenv
+      subPath: run
+      mountPath: /run/app
+    - name: appenv
+      subPath: doc/build
+      mountPath: /var/www/doc
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: develop
+  labels:
+    app: develop
+spec:
+  type: LoadBalancer
+  selector:
+    app: develop
+  ports:
+  - port: 80
+

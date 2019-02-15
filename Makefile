@@ -36,7 +36,7 @@ default:
 # Initialize the development environment.
 init: .devmode
 	@if [ -e bin/activate ]; then echo "${RED}The development environment is already initialized!${NORM}"; false; fi
-	${MAKE} init-${DEVMODE}
+	${MAKE} --no-print-directory init-${DEVMODE}
 .PHONY: init
 
 
@@ -47,8 +47,8 @@ init-local:
 	${MAKE} init-cfg init-env init-dev develop
 	@echo
 	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
-	@echo "Run \". ./bin/activate\" to activate the environment."
 	@echo
+	@${MAKE} -s status
 .PHONY: init-local
 
 
@@ -59,12 +59,8 @@ init-docker:
 	${MAKE} init-cfg up init-sync init-remote init-bin
 	@echo
 	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
-	@echo "Run \". ./bin/activate\" to activate the environment."
-	@echo "Run \"make shell\" to open a shell in the build container."
-	@echo "Run \"make sync\" to synchronize files between the local filesystem and the build container."
-	@echo "Run \"make up\" or \"make down\" to restart or suspend the containers."
-	@echo "Run \"make purge\" to delete the environment and release the associated resources."
 	@echo
+	@${MAKE} -s status
 .PHONY: init-docker
 
 
@@ -75,11 +71,8 @@ init-kube:
 	${MAKE} init-cfg up init-sync init-remote init-bin
 	@echo
 	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
-	@echo "Run \". ./bin/activate\" to activate the environment."
-	@echo "Run \"make shell\" to open a shell in the build container."
-	@echo "Run \"make sync\" to synchronize files between the local filesystem and the build container."
-	@echo "Run \"make purge\" to delete the environment and release the associated resources."
 	@echo
+	@${MAKE} -s status
 .PHONY: init-kube
 
 
@@ -151,19 +144,51 @@ init-dev:
 
 # Show the configuration of the development environment.
 status:
-	@[ -e .devmode ] && ${MAKE} status-${DEVMODE} || @echo "${RED}Development environment is not initialized.${NORM}"
+	@[ -e .devmode -a -e ./bin/activate ] && \
+	${MAKE} -s status-${DEVMODE} || \
+	echo "${RED}Development environment is not initialized.${NORM}"
 .PHONY: status
 
 
 status-local:
+	@echo "Development environment is initialized in the ${BOLD}local${NORM} mode."
+	@[ "$$VIRTUAL_ENV" = "${CURDIR}" ] && \
+	echo "The environment is active." || \
+	echo "The environment is not active.  To activate, run \"${CYAN}. ./bin/activate${NORM}\"."
+	@echo
 .PHONY: status-local
 
 
 status-docker:
+	@echo "Development environment is initialized in the ${BOLD}docker${NORM} mode."
+	@[ "$$VIRTUAL_ENV" = "${CURDIR}" ] && \
+	echo "The environment is active." || \
+	echo "The environment is not active.  To activate, run \"${CYAN}. ./bin/activate${NORM}\"."
+	@PORT=$$(docker-compose port nginx 80 2>/dev/null | sed s/0.0.0.0://g) && \
+	echo "The application is exposed at \"${CYAN}localhost:$$PORT${NORM}\"." || \
+	echo "Application container is down.  To restart, run \"${CYAN}make up${NORM}\"."
+	@[ -e ${CURDIR}/.st/syncthing.pid ] && kill -0 `cat ${CURDIR}/.st/syncthing.pid` > /dev/null 2>&1 && \
+	echo "Source code is being synchronized with the application container." || \
+	echo "Source code is not synchronized with the application container.  To synchronize, run \"${CYAN}make sync${NORM}\"."
+	@echo "To delete the environment and free the associated resources, run \"${CYAN}make purge${NORM}\"."
+	@echo
 .PHONY: status-docker
 
 
 status-kube:
+	@echo "Development environment is initialized in the ${BOLD}kubernetes${NORM} mode."
+	@[ "$$VIRTUAL_ENV" = "${CURDIR}" ] && \
+	echo "The environment is active." || \
+	echo "The environment is not active.  To activate, run \"${CYAN}. ./bin/activate${NORM}\"."
+	@DOMAIN=$$(kubectl get ingress develop -n ${NS} -o jsonpath="{.spec.rules[0].host}" 2>/dev/null) && \
+	[ -n "$$DOMAIN" ] && \
+	echo "The application is exposed at \"${CYAN}$$DOMAIN${NORM}\"." || \
+	echo "Failed to determine how the application is exposed."
+	@[ -e ${CURDIR}/.st/syncthing.pid ] && kill -0 `cat ${CURDIR}/.st/syncthing.pid` > /dev/null 2>&1 && \
+	echo "Source code is being synchronized with the application container." || \
+	echo "Source code is not synchronized with the application container.  To synchronize, run \"${CYAN}make sync${NORM}\"."
+	@echo "To delete the environment and free the associated resources, run \"${CYAN}make purge${NORM}\"."
+	@echo
 .PHONY: status-kube
 
 
@@ -237,7 +262,7 @@ purge-docker:
 
 
 purge-kube:
-	kubectl delete namespace ${NS}
+	-kubectl delete namespace ${NS}
 	rm -rf bin
 .PHONY: purge-kube
 
@@ -519,9 +544,9 @@ configure-kube:
 	echo; \
 	echo "The following Kubernetes context has been prepared:"; \
 	echo; \
-	echo "GCP project: $$project"; \
-	echo "GKE cluster: $$cluster"; \
-	echo "Namespace: $$namespace"; \
+	echo "GCP project: ${CYAN}$$project${NORM}"; \
+	echo "GKE cluster: ${CYAN}$$cluster${NORM}"; \
+	echo "Namespace: ${CYAN}$$namespace${NORM}"; \
 	echo
 
 
@@ -556,6 +581,8 @@ NORM = ${shell tput sgr0}
 RED = ${shell tput setaf 1}
 GREEN = ${shell tput setaf 2}
 BLUE = ${shell tput setaf 4}
+CYAN = ${shell tput setaf 6}
+BOLD = ${shell tput bold}
 
 
 # Templates for ./bin/activate and other generated scripts.
@@ -750,46 +777,46 @@ define SYNC_TEMPLATE
 #!/bin/sh
 
 status () {
-    id=$$1
-    [ -e ${CURDIR}/.st/$$id.pid ] && kill -0 `cat ${CURDIR}/.st/$$id.pid` > /dev/null 2>&1
+	id=$$1
+	[ -e ${CURDIR}/.st/$$id.pid ] && kill -0 `cat ${CURDIR}/.st/$$id.pid` > /dev/null 2>&1
 }
 
 start() {
-    id=$$1
-    shift
-    "$$@" > ${CURDIR}/.st/$$id.log &
-    echo $$! > ${CURDIR}/.st/$$id.pid
+	id=$$1
+	shift
+	"$$@" > ${CURDIR}/.st/$$id.log &
+	echo $$! > ${CURDIR}/.st/$$id.pid
 }
 
 stop () {
-    id=$$1
-    if status $$id; then
-        kill `cat ${CURDIR}/.st/$$id.pid`
-        rm ${CURDIR}/.st/$$id.pid
-    fi
+	id=$$1
+	if status $$id; then
+		kill `cat ${CURDIR}/.st/$$id.pid`
+		rm ${CURDIR}/.st/$$id.pid
+	fi
 }
 
 remote_status () {
-    id=$$1
-    ${NOTERM_RSH} sh -c '[ -e /app/.st/'$$id'.pid ] && kill -0 `cat /app/.st/'$$id'.pid` > /dev/null 2>&1'
+	id=$$1
+	${NOTERM_RSH} sh -c '[ -e /app/.st/'$$id'.pid ] && kill -0 `cat /app/.st/'$$id'.pid` > /dev/null 2>&1'
 }
 
 remote_start() {
-    id=$$1
-    shift
+	id=$$1
+	shift
 	${NOTERM_RSH} sh -c "$$*"' > /app/.st/'$$id'.log 2>&1 & echo $$! > /app/.st/'$$id'.pid && wait' &
 }
 
 remote_stop () {
-    id=$$1
-    if remote_status $$id; then
+	id=$$1
+	if remote_status $$id; then
 		${NOTERM_RSH} sh -c 'kill `cat /app/.st/'$$id'.pid`; rm /app/.st/'$$id'.pid'
-    fi
+	fi
 }
 
 if status syncthing; then
-    echo Already synchronizing...
-    exit 1
+	echo Already synchronizing...
+	exit 1
 fi
 
 set -e

@@ -15,6 +15,7 @@ tweak/shell
 static/www/doc
 static/www/docs
 static/www/ravenjs
+/.kubeconfig
 /bin
 /data
 /include

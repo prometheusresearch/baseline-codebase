@@ -187,12 +187,16 @@ up-kube:
 	if ! kubectl get namespace ${NS} >/dev/null 2>&1; then \
 		if kubectl get namespace codebase-template >/dev/null 2>&1; then \
 			kubectl get namespace codebase-template -o yaml | sed s/codebase-template/${NS}/g | kubectl apply -f -; \
-			kubectl get secret configmap,secret,deployment,cronjob,service -n codebase-template -o yaml | sed s/codebase-template/${NS}/g | kubectl apply -f -; \
+			kubectl get configmap,secret,deployment,cronjob,service -n codebase-template -o yaml | sed s/codebase-template/${NS}/g | kubectl apply -f -; \
 		else \
 			kubectl create namespace ${NS}; \
 		fi; \
 	fi
-	kubectl apply -f kube.yml
+	ZONE=$$(kubectl get namespace ${NS} -o jsonpath="{.metadata.annotations.zone}") && \
+	ZONE=$${ZONE:-example.com} && \
+	cat kube.yml | \
+	sed s/develop.example.com/${NS}.$$ZONE/g | \
+	kubectl apply -f -
 	kubectl wait --for=condition=Ready --timeout=5m pod/develop
 
 

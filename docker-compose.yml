@@ -42,8 +42,9 @@ services:
           "~^(/~(?<user>[^/]+))" $$user;
           default someone@example.com;
       }
-      map $$uri $$app_socket {
-          "~^(/~[^/]+)?(/@(?<app>[^/]+))" /run/app/$$app.socket;
+      map $$host$$uri $$app_socket {
+          "~^(?<app>[^/]+)\.localhost/" /run/app/$$app.socket;
+          "~^localhost(/~[^/]+)?(/@(?<app>[^/]+))" /run/app/$$app.socket;
           default /run/app/socket;
       }
       map $$uri $$app_prefix {
@@ -55,6 +56,7 @@ services:
 
       server {
           listen 80;
+          server_name .localhost;
           location / {
               if ($$app_path = "") {
                   return 302 $$scheme://$$http_host$$uri/;

@@ -454,7 +454,7 @@ configure:
 		echo; \
 		echo "Please choose the development mode:"; \
 		echo "1) local mode (requires python3, nodejs, and other development tools)"; \
-		echo "2) container mode (requires docker-compose)"; \
+		echo "2) docker mode (requires docker-compose)"; \
 		echo "3) kubernetes mode (requires gcloud and kubectl)"; \
 		read -p "> " n; \
 		case $$n in \

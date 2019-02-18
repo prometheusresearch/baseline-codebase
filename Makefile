@@ -91,13 +91,21 @@ init-cfg:
 # Synchronize the source tree.
 init-sync:
 	${RSYNC} \
-		--exclude /.hg/ --exclude '.*.sw?' --exclude /bin/ --exclude /data/ --exclude /run/ --exclude /doc/build/ \
+		--exclude /.hg/ \
+		--exclude /.devmode \
+		--exclude /.kubeconfig \
+		--exclude '.*.sw?' \
+		--exclude /bin/ \
+		--exclude /data/ \
+		--exclude /run/ \
+		--exclude /doc/build/ \
 		./ develop:/app/
 .PHONY: init-sync
 
 
 # Initialize the environment in the container.
 init-remote:
+	${RSH} sh -ce "echo local > .devmode"
 	${RSH} make init-env init-dev develop
 .PHONY: init-remote
 

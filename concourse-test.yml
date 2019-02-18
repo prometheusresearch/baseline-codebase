@@ -3,7 +3,7 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: rexdb/ci
+    repository: rexdb/build
     tag: 2019.02.04
 
 inputs:
@@ -14,7 +14,10 @@ run:
   args:
   - -exc
   - |
+    apt-get update
+    apt-get install --yes postgresql
     service postgresql start
+    su - postgres -c 'createuser -s root'
     make init-local
     make test
   dir: codebase

@@ -461,7 +461,7 @@ configure:
 	while [ -z "$$devmode" ]; do \
 		echo; \
 		echo "Please choose the development mode:"; \
-		echo "1) local mode (requires python3, nodejs, and other development tools)"; \
+		echo "1) local mode (requires python3, node, and other development tools)"; \
 		echo "2) docker mode (requires docker-compose)"; \
 		echo "3) kubernetes mode (requires gcloud and kubectl)"; \
 		read -p "> " n; \
@@ -477,7 +477,7 @@ configure:
 
 
 configure-local:
-	@command -v python3 >/dev/null 2>&1 && command -v nodejs >/dev/null 2>&1 || (echo "${RED}Cannot find development tools!${NORM}" && false)
+	@command -v python3 >/dev/null 2>&1 && command -v node >/dev/null 2>&1 || (echo "${RED}Cannot find development tools!${NORM}" && false)
 	@echo local > .devmode
 .PHONY: configure-local
 

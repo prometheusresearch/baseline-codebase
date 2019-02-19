@@ -61,10 +61,10 @@ library's encoder with support for date, time, datetime, and Decimal objects::
     '"1980-05-22T12:34:56"'
     >>> to_json({'my_datetime': datetime(1980, 5, 22, 12, 34, 56)})
     '{"my_datetime": "1980-05-22T12:34:56"}'
-    >>> to_json({'foo': 123, 'bar': complex(1, 2)})
+    >>> to_json({'foo': 123, 'bar': complex(1, 2)})  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    TypeError: Object of type 'complex' is not JSON serializable
+    TypeError: Object of type ... is not JSON serializable
 
     >>> from decimal import Decimal
     >>> to_json(Decimal('1.23'))

@@ -2,6 +2,7 @@ X.X.X (2019-XX-XX)
 ==================
 
 * Updated rexdb Docker images to ``2019.02.04``.
+* Fixed several packages & tests to support Python 3.7.
 
 
 2.0.0 (2018-12-19)

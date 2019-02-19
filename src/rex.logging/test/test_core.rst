@@ -83,7 +83,7 @@ These functions allow you to turn on/off the entire logging system::
     ...     log = get_logger()
     ...     log.debug('Hello')
     ...     log.info('Hello')
-    ...     log.warn('Hello')
+    ...     log.warning('Hello')
     ...     log.error('Hello')
     ...     log.critical('Hello')
 

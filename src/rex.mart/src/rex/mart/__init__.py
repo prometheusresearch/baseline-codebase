@@ -19,5 +19,5 @@ from .rc import *
 from .settings import *
 from .util import *
 from .validators import *
-from .async import *
+from .asynctask import *
 

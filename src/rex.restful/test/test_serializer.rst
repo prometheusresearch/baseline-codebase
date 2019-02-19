@@ -93,7 +93,7 @@ This serializer will encode structures into their JSON equivalents::
     >>> serializer.serialize({'an_obj': object()})  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    TypeError: Object of type 'object' is not JSON serializable
+    TypeError: Object of type ... is not JSON serializable
 
 
 Given JSON objects or arrays, this serializer will decode them into their

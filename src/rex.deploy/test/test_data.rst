@@ -436,11 +436,11 @@ Invalid values are rejected::
     ...   code: '02'
     ...   other: 1990-03-13
     ... of: sample
-    ... """)
+    ... """)  # doctest: +ELLIPSIS
     Traceback (most recent call last):
       ...
     rex.core.Error: Discovered invalid JSON input:
-        Object of type 'date' is not JSON serializable
+        Object of type ... is not JSON serializable
     While converting field:
         other
     While parsing row #1:

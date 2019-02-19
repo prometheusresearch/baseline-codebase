@@ -43,7 +43,7 @@ function and use the returned `Logger object`_ to output your messages.
     ...     logger = get_logger()
     ...     logger.debug('debug message')
     ...     logger.info('info message')
-    ...     logger.warn('warn message')
+    ...     logger.warning('warn message')
     ...     logger.error('error message')
     ...     logger.critical('critical message')
     INFO:root:info message

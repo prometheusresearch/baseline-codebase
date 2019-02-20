@@ -9,7 +9,7 @@ data:
   nginx.conf: |
     map $uri $app_user {
         "~^(/~(?<user>[^/]+))" $user;
-        default someone@example.com;
+        default user@rexdb.com;
     }
 
     map $uri $app_socket {

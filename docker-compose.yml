@@ -40,7 +40,7 @@ services:
       cat > /etc/nginx/conf.d/default.conf <<'EOF'
       map $$uri $$app_user {
           "~^(/~(?<user>[^/]+))" $$user;
-          default someone@example.com;
+          default user@rexdb.com;
       }
       map $$host$$uri $$app_socket {
           "~^(?<app>[^/]+)\.localhost/" /run/app/$$app.socket;

@@ -44,7 +44,7 @@ init: .devmode
 init-local:
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Initializing the local development environment...${NORM}"
 	[ -e .devmode ] || ${MAKE} configure-local
-	${MAKE} init-cfg init-env init-dev develop
+	${MAKE} init-cfg init-env develop
 	@echo
 	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
 	@echo
@@ -56,7 +56,7 @@ init-local:
 init-docker:
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Initializing the development environment in a Docker container...${NORM}"
 	[ -e .devmode ] || ${MAKE} configure-docker
-	${MAKE} init-cfg up init-sync init-remote init-bin
+	${MAKE} init-cfg up init-remote
 	@echo
 	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
 	@echo
@@ -68,7 +68,7 @@ init-docker:
 init-kube:
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Initializing the development environment in a Kubernetes cluster...${NORM}"
 	[ -e .devmode ] || ${MAKE} configure-kube
-	${MAKE} init-cfg up init-sync init-remote init-bin
+	${MAKE} init-cfg up init-remote
 	@echo
 	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
 	@echo
@@ -88,66 +88,31 @@ init-cfg:
 .PHONY: init-cfg
 
 
-# Synchronize the source tree.
-init-sync:
-	${RSYNC} \
-		--exclude /.hg/ \
-		--exclude /.devmode \
-		--exclude /.kubeconfig \
-		--exclude '.*.sw?' \
-		--exclude /bin/ \
-		--exclude /data/ \
-		--exclude /run/ \
-		--exclude /doc/build/ \
-		./ develop:/app/
-.PHONY: init-sync
-
-
 # Initialize the environment in the container.
 init-remote:
-	${RSH} sh -ce "echo local > .devmode"
-	${RSH} make init-env init-dev develop
-.PHONY: init-remote
-
-
-# Populate the local ./bin/ directory.
-init-bin:
 	mkdir -p bin
 	echo "$$ACTIVATE_TEMPLATE" >./bin/activate
 	echo "$$RSH_TEMPLATE" >./bin/rsh
 	chmod a+x ./bin/rsh
-	for exe in $$(${NOTERM_RSH} find bin '!' -type d -executable); do \
-		[ -e $$exe ] || ln -s -f rsh $$exe; \
-	done
-	${MAKE} bin/sync
-.PHONY: init-bin
+	${MAKE} sync-once bin/sync
+	${RSH} sh -ce "echo local > .devmode"
+	${RSH} make init-env
+	${MAKE} sync-bin
+	${RSH} make develop
+	${MAKE} sync-bin
+.PHONY: init-remote
 
 
-# Create the environment.
+# Create the environment and install development tools.
 init-env:
 	python3 -m venv ${CURDIR}
-	${CURDIR}/bin/pip install wheel==0.32.3
-	npm --global --prefix ${CURDIR} install yarn@1.12.3
-.PHONY: init-env
-
-
-REQUIRED_TOOL_PY = \
-	pbbt==0.1.6 \
-	coverage==4.5.2 \
-	pytest==4.0.1
-
-# Install development tools.
-init-dev:
+	set -e; for tool in ${TOOL_PY}; do ./bin/pip --isolated install $$tool; done
+	set -e; for tool in ${TOOL_JS}; do npm --global --prefix ${CURDIR} install $$tool; done
 	echo "#!/bin/sh\n[ \$$# -eq 0 ] && exec \$$SHELL || exec \"\$$@\"" >./bin/rsh
 	chmod a+x ./bin/rsh
-	./bin/pip --isolated install ${REQUIRED_TOOL_PY} ${TOOL_PY}
-	@if [ ! -z "${TOOL_JS}" ]; then \
-		npm --global --prefix ${CURDIR} install ${TOOL_JS} ; \
-	fi
-	mkdir -p ./data/attach
-	mkdir -p ./run
+	mkdir -p ./data/attach ./run
 	ln -sf ./run/socket ./socket
-.PHONY: init-dev
+.PHONY: init-env
 
 
 # Show the configuration of the development environment.
@@ -265,13 +230,13 @@ purge-local:
 
 purge-docker:
 	docker-compose down -v --remove-orphans
-	rm -rf bin
+	rm -rf bin .st
 .PHONY: purge-docker
 
 
 purge-kube:
 	-kubectl delete namespace ${NS}
-	rm -rf bin
+	rm -rf bin .st
 .PHONY: purge-kube
 
 
@@ -418,13 +383,31 @@ upload:
 
 
 # Start synchronizing files with the container.
-sync: bin/sync
+sync: bin/sync sync-bin
 	@./bin/sync
 .PHONY: sync
 
 
+sync-once:
+	${RSYNC} \
+		--exclude /.hg/ \
+		--exclude /.st/ \
+		--exclude /.devmode \
+		--exclude /.kubeconfig \
+		--exclude '.*.sw?' \
+		--exclude /bin/ \
+		./ develop:/app/
+
+
+sync-bin:
+	@for exe in $$(${NOTERM_RSH} find bin '!' -type d -executable); do \
+		[ -e $$exe ] || ln -s -f rsh $$exe; \
+	done
+
+
 bin/syncthing:
 	set -e; \
+	mkdir -p bin; \
 	ver=v1.0.0; \
 	case "`uname -s`" in Linux) os=linux;; Darwin) os=macos;; *) os=undefined;; esac; \
 	case "`uname -m`" in x86_64) arch=amd64;; *) arch=undefined;; esac; \
@@ -581,7 +564,7 @@ RSYNC_RSH = \
 RSYNC = \
 	rsync \
 		--rsh "${RSYNC_RSH}" \
-		--blocking-io --delete --ignore-errors --links --recursive --times --compress
+		--blocking-io --ignore-errors --links --recursive --times --compress
 
 
 # Colors.

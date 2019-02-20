@@ -54,6 +54,10 @@ TEST_PY = ${SRC_PY}
 # This variable contains a list of Python packages that will be installed in
 # the development environment.
 TOOL_PY = \
+	wheel==0.32.3 \
+	pbbt==0.1.6 \
+	coverage==4.5.2 \
+	pytest==4.0.1 \
 	honcho \
 	tidypy \
 	sphinx-rtd-theme==0.4.1 \
@@ -79,7 +83,8 @@ TEST_JS = ${SRC_JS}
 ### JavaScript Development Tools
 # This variable contains a list of JavaScript packages that will be installed
 # in the top-level development environment.
-TOOL_JS =
+TOOL_JS = \
+	yarn@1.12.3
 
 
 ### Generic, Make-based Project Builds

@@ -3,58 +3,95 @@ services:
   postgres:
     image: postgres:9
     volumes:
-      - type: volume
-        source: pgdata
-        target: /var/lib/postgresql/data
+    - type: volume
+      source: pgdata
+      target: /var/lib/postgresql/data
   develop:
     image: rexdb/build:2019.02.04
     command: [sleep, infinity]
     working_dir: /app
     ports:
-      - ${SYNC_PORT}:22000
+    - ${SYNC_PORT}:22000
     volumes:
-      - type: volume
-        source: appenv
-        target: /app
-      - type: volume
-        source: appdata
-        target: /app/data
-      - type: volume
-        source: apprun
-        target: /app/run
-      - type: volume
-        source: appdocs
-        target: /app/doc/build
+    - type: volume
+      source: appenv
+      target: /app
+    - type: volume
+      source: appdata
+      target: /app/data
+    - type: volume
+      source: apprun
+      target: /app/run
+    - type: volume
+      source: appdocs
+      target: /app/doc/build
     links:
-      - postgres
+    - postgres
     environment:
-      - PGHOST
-      - PGUSER
+    - PATH=/app/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    - PGHOST=postgres
+    - PGUSER=postgres
   nginx:
-    image: nginx:stable-perl
-    command: [nginx, -g, 'daemon off; load_module /etc/nginx/modules/ngx_http_perl_module.so; env REMOTE_USER;']
+    image: nginx:1.15
+    command:
+    - /bin/sh
+    - -exc
+    - |
+      cat > /etc/nginx/conf.d/default.conf <<'EOF'
+      map $$uri $$app_user {
+          "~^(/~(?<user>[^/]+))" $$user;
+          default user@rexdb.com;
+      }
+      map $$host$$uri $$app_socket {
+          "~^(?<app>[^/]+)\.localhost/" /run/app/$$app.socket;
+          "~^localhost(/~[^/]+)?(/@(?<app>[^/]+))" /run/app/$$app.socket;
+          default /run/app/socket;
+      }
+      map $$uri $$app_prefix {
+          "~^(?<prefix>(/~[^/]+)?(/@[^/]+)?)" $$prefix;
+      }
+      map $$uri $$app_path {
+          "~^(/~[^/]+)?(/@[^/]+)?(?<path>.*)" $$path;
+      }
+
+      server {
+          listen 80;
+          server_name .localhost;
+          location / {
+              if ($$app_path = "") {
+                  return 302 $$scheme://$$http_host$$uri/;
+              }
+              uwsgi_pass unix://$$app_socket;
+              uwsgi_modifier1 30;
+              include uwsgi_params;
+              uwsgi_param SCRIPT_NAME $$app_prefix if_not_empty;
+              uwsgi_param REMOTE_USER $$app_user if_not_empty;
+          }
+          location = /logout {
+              return 204;
+          }
+          location /doc {
+              alias /var/www/doc/html;
+              absolute_redirect off;
+          }
+      }
+      EOF
+      exec nginx -g 'daemon off;'
     ports:
-      - ${HTTP_PORT}:80
+    - ${HTTP_PORT}:80
     volumes:
-      - type: bind
-        source: ./etc/nginx.conf.d
-        target: /etc/nginx/conf.d
-        read_only: true
-      - type: volume
-        source: apprun
-        target: /run/app
-      - type: volume
-        source: appdocs
-        target: /docs
-        read_only: true
+    - type: volume
+      source: apprun
+      target: /run/app
+    - type: volume
+      source: appdocs
+      target: /var/www/doc
+      read_only: true
     links:
-      - develop
-    environment:
-      - REMOTE_USER
+    - develop
 volumes:
   appenv:
   appdata:
   apprun:
   appdocs:
   pgdata:
-

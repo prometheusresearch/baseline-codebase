@@ -3,6 +3,10 @@
 include Makefile.src
 
 
+# Development mode (local, docker, or kube).
+DEVMODE = ${shell cat .devmode 2>/dev/null}
+
+
 # The URL of the docker registry.
 REGISTRY ?=
 
@@ -15,37 +19,61 @@ PRJ_VER ?= ${firstword ${shell hg identify -t | cut -d / -f 2 -s} ${shell hg ide
 # Display available targets.
 default:
 	@echo "Available targets:"
-	@echo "make init                    initialize the development environment (in container)"
-	@echo "make init-local              initialize the development environment (in place)"
-	@echo "make up                      start containers"
-	@echo "make down                    stop containers"
-	@echo "make purge                   stop containers and remove generated containers and volumes"
+	@echo "make init                    initialize the development environment"
+	@echo "make status                  show the configuration of the development environment"
+	@echo "make up                      restart the environment"
+	@echo "make down                    suspend the environment"
+	@echo "make purge                   delete the environment and free the associated resources"
 	@echo "make develop                 recompile source packages"
 	@echo "make test                    test all source packages (specify PKG=<package> to test a single package)"
-	@echo "make dist                    build the docker image for distribution"
-	@echo "make upload REGISTRY=<URL>   upload the distribution image to the registry"
-	@echo "make shell                   opens a bash shell in the application container"
-	@echo "make sync                    start synchronizing files with the container"
+	@echo "make dist                    build the application image"
+	@echo "make upload REGISTRY=<URL>   upload the application image to the Docker registry"
+	@echo "make shell                   opens a bash shell in the build container"
+	@echo "make sync                    start synchronizing files with the build container"
 .PHONY: default
 
 
-# Initialize the development environment in a docker container.
-init:
+# Initialize the development environment.
+init: .devmode
 	@if [ -e bin/activate ]; then echo "${RED}The development environment is already initialized!${NORM}"; false; fi
-	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Bootstrapping Docker-based environment...${NORM}"
-	${MAKE} init-cfg up init-sync init-remote init-bin
-	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
-	@echo "${GREEN}Run \"make sync\" to start synchronizing files with the container.${NORM}"
+	${MAKE} --no-print-directory init-${DEVMODE}
 .PHONY: init
 
 
 # Initialize the development environment in-place.
 init-local:
-	@if [ -e bin/activate ]; then echo "${RED}The development environment is already initialized!${NORM}"; false; fi
-	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Bootstrapping local environment...${NORM}"
-	${MAKE} init-cfg init-env init-dev develop
+	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Initializing the local development environment...${NORM}"
+	[ -e .devmode ] || ${MAKE} configure-local
+	${MAKE} init-cfg init-env develop
+	@echo
 	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
+	@echo
+	@${MAKE} -s status
 .PHONY: init-local
+
+
+# Initialize the development environment in a Docker container.
+init-docker:
+	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Initializing the development environment in a Docker container...${NORM}"
+	[ -e .devmode ] || ${MAKE} configure-docker
+	${MAKE} init-cfg up init-remote
+	@echo
+	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
+	@echo
+	@${MAKE} -s status
+.PHONY: init-docker
+
+
+# Initialize the development environment in a Kubernetes cluster.
+init-kube:
+	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Initializing the development environment in a Kubernetes cluster...${NORM}"
+	[ -e .devmode ] || ${MAKE} configure-kube
+	${MAKE} init-cfg up init-remote
+	@echo
+	@echo "${GREEN}`date '+%Y-%m-%d %H:%M:%S%z'` The development environment is ready!${NORM}"
+	@echo
+	@${MAKE} -s status
+.PHONY: init-kube
 
 
 # Enable default configuration.
@@ -60,94 +88,167 @@ init-cfg:
 .PHONY: init-cfg
 
 
-RSYNC = \
-	rsync \
-		--rsh "docker-compose exec -T" \
-		--blocking-io --delete --ignore-errors --links --recursive --times --compress
-
-# Synchronize the source tree.
-init-sync:
-	${RSYNC} \
-		--exclude /.hg/ --exclude '.*.sw?' --exclude /bin/ --exclude /data/ --exclude /run/ --exclude /doc/build/ \
-		./ develop:/app/
-.PHONY: init-sync
-
-
 # Initialize the environment in the container.
 init-remote:
-	docker-compose exec develop make init-env init-dev develop
+	mkdir -p bin
+	echo "$$ACTIVATE_TEMPLATE" >./bin/activate
+	echo "$$RSH_TEMPLATE" >./bin/rsh
+	chmod a+x ./bin/rsh
+	${MAKE} sync-once bin/sync
+	${RSH} sh -ce "echo local > .devmode"
+	${RSH} make init-env
+	${MAKE} sync-bin
+	${RSH} make develop
+	${MAKE} sync-bin
 .PHONY: init-remote
 
 
-# Populate the local ./bin/ directory.
-init-bin:
-	mkdir -p bin
-	echo "$$ACTIVATE_TEMPLATE" >./bin/activate
-	echo "$$COMPOSE_TEMPLATE" >./bin/docker-compose
-	chmod a+x ./bin/docker-compose
-	echo "$$RSH_TEMPLATE" >./bin/rsh
-	chmod a+x ./bin/rsh
-	for exe in $$(docker-compose exec -T develop find bin '!' -type d -executable); do \
-		ln -s -f rsh $$exe; \
-	done
-.PHONY: init-bin
-
-
-# Create the environment.
+# Create the environment and install development tools.
 init-env:
 	python3 -m venv ${CURDIR}
-	${CURDIR}/bin/pip install wheel==0.32.3
-	npm --global --prefix ${CURDIR} install yarn@1.12.3
+	set -e; for tool in ${TOOL_PY}; do ./bin/pip --isolated install $$tool; done
+	set -e; for tool in ${TOOL_JS}; do npm --global --prefix ${CURDIR} install $$tool; done
+	echo "#!/bin/sh\n[ \$$# -eq 0 ] && exec \$$SHELL || exec \"\$$@\"" >./bin/rsh
+	chmod a+x ./bin/rsh
+	mkdir -p ./data/attach ./run
+	ln -sf ./run/socket ./socket
 .PHONY: init-env
 
 
-REQUIRED_TOOL_PY = \
-	pbbt==0.1.6 \
-	coverage==4.5.2 \
-	pytest==4.0.1
-
-# Install development tools.
-init-dev:
-	./bin/pip --isolated install ${REQUIRED_TOOL_PY} ${TOOL_PY}
-	echo "$$PBBT_TEMPLATE" >./bin/pbbt
-	chmod a+x ./bin/pbbt
-	@if [ ! -z "${TOOL_JS}" ]; then \
-		npm --global --prefix ${CURDIR} install ${TOOL_JS} ; \
-	fi
-	mkdir -p ./data/attach
-	mkdir -p ./run
-	ln -sf ./run/socket ./socket
-.PHONY: init-dev
+# Show the configuration of the development environment.
+status:
+	@[ -e .devmode -a -e ./bin/activate ] && \
+	${MAKE} -s status-${DEVMODE} || \
+	echo "${RED}Development environment is not initialized.${NORM}"
+.PHONY: status
 
 
-# Start Docker containers.
+status-local:
+	@echo "Development environment is initialized in the ${BOLD}local${NORM} mode."
+	@[ "$$VIRTUAL_ENV" = "${CURDIR}" ] && \
+	echo "The environment is active." || \
+	echo "The environment is not active.  To activate, run \"${CYAN}. ./bin/activate${NORM}\"."
+	@echo
+.PHONY: status-local
+
+
+status-docker:
+	@echo "Development environment is initialized in the ${BOLD}docker${NORM} mode."
+	@[ "$$VIRTUAL_ENV" = "${CURDIR}" ] && \
+	echo "The environment is active." || \
+	echo "The environment is not active.  To activate, run \"${CYAN}. ./bin/activate${NORM}\"."
+	@PORT=$$(docker-compose port nginx 80 2>/dev/null | sed s/0.0.0.0://g) && \
+	echo "The application is exposed at \"${CYAN}localhost:$$PORT${NORM}\"." || \
+	echo "Application container is down.  To restart, run \"${CYAN}make up${NORM}\"."
+	@[ -e ${CURDIR}/.st/syncthing.pid ] && kill -0 `cat ${CURDIR}/.st/syncthing.pid` > /dev/null 2>&1 && \
+	echo "Source code is being synchronized with the application container." || \
+	echo "Source code is not synchronized with the application container.  To synchronize, run \"${CYAN}make sync${NORM}\"."
+	@echo "To delete the environment and free the associated resources, run \"${CYAN}make purge${NORM}\"."
+	@echo
+.PHONY: status-docker
+
+
+status-kube:
+	@echo "Development environment is initialized in the ${BOLD}kubernetes${NORM} mode."
+	@[ "$$VIRTUAL_ENV" = "${CURDIR}" ] && \
+	echo "The environment is active." || \
+	echo "The environment is not active.  To activate, run \"${CYAN}. ./bin/activate${NORM}\"."
+	@DOMAIN=$$(kubectl get ingress develop -n ${NS} -o jsonpath="{.spec.rules[0].host}" 2>/dev/null) && \
+	[ -n "$$DOMAIN" ] && \
+	echo "The application is exposed at \"${CYAN}$$DOMAIN${NORM}\"." || \
+	echo "Failed to determine how the application is exposed."
+	@[ -e ${CURDIR}/.st/syncthing.pid ] && kill -0 `cat ${CURDIR}/.st/syncthing.pid` > /dev/null 2>&1 && \
+	echo "Source code is being synchronized with the application container." || \
+	echo "Source code is not synchronized with the application container.  To synchronize, run \"${CYAN}make sync${NORM}\"."
+	@echo "To delete the environment and free the associated resources, run \"${CYAN}make purge${NORM}\"."
+	@echo
+.PHONY: status-kube
+
+
+# Restart the development environment.
 up:
-	docker-compose up -d
+	${MAKE} up-${DEVMODE}
 .PHONY: up
 
 
-# Stop Docker containers.
+up-local:
+.PHONY: up-local
+
+
+up-docker:
+	docker-compose up -d
+.PHONY: up-docker
+
+
+up-kube:
+	set -e; \
+	if ! kubectl get namespace ${NS} >/dev/null 2>&1; then \
+		if kubectl get namespace codebase-template >/dev/null 2>&1; then \
+			kubectl get namespace codebase-template -o yaml | sed s/codebase-template/${NS}/g | kubectl apply -f -; \
+			kubectl get configmap,secret,deployment,cronjob,service -n codebase-template -o yaml | sed s/codebase-template/${NS}/g | kubectl apply -f -; \
+		else \
+			kubectl create namespace ${NS}; \
+		fi; \
+	fi
+	ZONE=$$(kubectl get namespace ${NS} -o jsonpath="{.metadata.annotations.zone}") && \
+	ZONE=$${ZONE:-example.com} && \
+	cat kube.yml | \
+	sed s/develop.example.com/${NS}.$$ZONE/g | \
+	kubectl apply -f -
+	kubectl wait --for=condition=Ready --timeout=5m pod/develop
+
+
+# Suspend the development environment.
 down:
-	docker-compose down
+	${MAKE} down-${DEVMODE}
 .PHONY: down
 
 
-# Remove generated containers and volumes.
+down-local:
+.PHONY: down-local
+
+
+down-docker:
+	docker-compose down
+.PHONY: down-docker
+
+
+down-kube:
+.PHONY: down-kube
+
+
+# Delete the development environment.
 purge:
-	docker-compose down -v --remove-orphans
-	rm -rf bin
+	${MAKE} purge-${DEVMODE}
 .PHONY: purge
+
+
+purge-local:
+	-rm -r bin data include lib lib64 run share pyvenv.cfg socket
+.PHONY: purge-local
+
+
+purge-docker:
+	docker-compose down -v --remove-orphans
+	rm -rf bin .st
+.PHONY: purge-docker
+
+
+purge-kube:
+	-kubectl delete namespace ${NS}
+	rm -rf bin .st
+.PHONY: purge-kube
 
 
 # Open up a shell in the develop container
 shell: ./bin/activate
-	docker-compose exec develop /bin/bash
+	${RSH} /bin/bash
 .PHONY: shell
 
 
 # Check that the development environment is initialized.
 ./bin/activate:
-	@echo "${RED}Run \"make init\" or \"make init-local\" to initialize the development environment.${NORM}"; false
+	@echo "${RED}Run \"make init\" to initialize the development environment.${NORM}"; false
 
 
 # Compile JavaScript source packages.
@@ -226,13 +327,14 @@ install: ./bin/activate
 
 # Test source packages.
 test: ./bin/activate
-	@FAILURES=; \
+	@. ./bin/activate; \
+	FAILURES=; \
 	for src in ${TEST_PY}; do \
 		if [ -z "${PKG}" -o "$$src" = "${PKG}" ]; then \
 			if [ -e $$src/test/input.yaml ]; then \
 				echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Testing $$src...${NORM}"; \
 				if [ -z "${VERBOSE}" ]; then ARGS="--quiet" ; fi ;\
-				(cd $$src; ${CURDIR}/bin/pbbt $$ARGS --max-errors=0); \
+				(cd $$src; pbbt $$ARGS --max-errors=0); \
 				if [ $$? != 0 ]; then FAILURES="$$FAILURES $$src"; fi; \
 			fi; \
 		fi; \
@@ -240,14 +342,14 @@ test: ./bin/activate
 	for src in ${TEST_JS}; do \
 		if [ -z "${PKG}" -o "$$src" = "${PKG}" ]; then \
 			echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Testing $$src...${NORM}"; \
-			(${CURDIR}/bin/yarn --cwd=$$src run test); \
+			(yarn --cwd=$$src run test); \
 			if [ $$? != 0 ]; then FAILURES="$$FAILURES $$src"; fi; \
 		fi; \
 	done; \
 	for src in ${TEST_MAKE}; do \
 		if [ -z "${PKG}" -o "$$src" = "${PKG}" ]; then \
 			echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Testing $$src...${NORM}"; \
-			(docker-compose exec develop make -C $$src test); \
+			(${RSH} make -C $$src test); \
 			if [ $$? != 0 ]; then FAILURES="$$FAILURES $$src"; fi; \
 		fi; \
 	done; \
@@ -280,8 +382,32 @@ upload:
 .PHONY: upload
 
 
+# Start synchronizing files with the container.
+sync: bin/sync sync-bin
+	@./bin/sync
+.PHONY: sync
+
+
+sync-once:
+	${RSYNC} \
+		--exclude /.hg/ \
+		--exclude /.st/ \
+		--exclude /.devmode \
+		--exclude /.kubeconfig \
+		--exclude '.*.sw?' \
+		--exclude /bin/ \
+		./ develop:/app/
+
+
+sync-bin:
+	@for exe in $$(${NOTERM_RSH} find bin '!' -type d -executable); do \
+		[ -e $$exe ] || ln -s -f rsh $$exe; \
+	done
+
+
 bin/syncthing:
 	set -e; \
+	mkdir -p bin; \
 	ver=v1.0.0; \
 	case "`uname -s`" in Linux) os=linux;; Darwin) os=macos;; *) os=undefined;; esac; \
 	case "`uname -m`" in x86_64) arch=amd64;; *) arch=undefined;; esac; \
@@ -302,16 +428,143 @@ bin/sync: bin/syncthing
 		eval "echo \"$$SYNCTHING_CONFIG_TEMPLATE\"" > .st/config.xml; \
 	FOLDER_PATH=/app LISTEN_ADDRESS=tcp://0.0.0.0:22000 GUI_ENABLED=true \
 		eval "echo \"$$SYNCTHING_CONFIG_TEMPLATE\"" > .st/remote/config.xml; \
-	docker-compose exec develop make bin/syncthing; \
+	${RSH} make bin/syncthing; \
 	${RSYNC} ./.st/remote/ develop:/app/.st/; \
 	echo "$$SYNC_TEMPLATE" >./bin/sync; \
 	chmod a+x ./bin/sync
 
 
-# Start synchronizing files with the container.
-sync: bin/sync
-	@./bin/sync
-.PHONY: sync
+# Configure the development environment.
+configure:
+	@set -e; \
+	echo "${GREEN}Welcome to the ${PRJ_NAME} codebase!${NORM}"; \
+	echo; \
+	echo "We will now configure your development environment."; \
+	devmode=; \
+	while [ -z "$$devmode" ]; do \
+		echo; \
+		echo "Please choose the development mode:"; \
+		echo "1) local mode (requires python3, node, and other development tools)"; \
+		echo "2) docker mode (requires docker-compose)"; \
+		echo "3) kubernetes mode (requires gcloud and kubectl)"; \
+		read -p "> " n; \
+		case $$n in \
+			1) devmode=local;; \
+			2) devmode=docker;; \
+			3) devmode=kube;; \
+			*) echo "${RED}Invalid choice!${NORM}";; \
+		esac; \
+	done; \
+	${MAKE} configure-$$devmode
+.PHONY: configure
+
+
+configure-local:
+	@command -v python3 >/dev/null 2>&1 && command -v node >/dev/null 2>&1 || (echo "${RED}Cannot find development tools!${NORM}" && false)
+	@echo local > .devmode
+.PHONY: configure-local
+
+
+configure-docker:
+	@command -v docker-compose >/dev/null 2>&1 || (echo "${RED}Cannot find docker-compose!${NORM}" && false)
+	@echo docker > .devmode
+.PHONY: configure-docker
+
+
+configure-kube:
+	@command -v gcloud >/dev/null 2>&1 || (echo "${RED}Cannot find kubectl!${NORM}" && false)
+	${MAKE} .kubeconfig
+	@echo kube > .devmode
+.PHONY: configure-kube
+
+
+.kubeconfig:
+	@command -v gcloud >/dev/null 2>&1 || (echo "${RED}Cannot find gcloud!${NORM}" && false)
+	@set -e; \
+	echo; \
+	echo "We need to prepare the Kubernetes context."; \
+	project="${KUBE_PROJECT}"; \
+	while [ -z "$$project" ]; do \
+		all_projects=$$(gcloud projects list --format="value(projectId)" 2>/dev/null); \
+		default_project=$$(gcloud config get-value project 2>/dev/null); \
+		echo; \
+		echo "Choose the GCP project:"; \
+		[ -n "$$all_projects" ] || echo "  (no projects found)"; \
+		for p in $$all_projects; do echo "- $$p"; done; \
+		read -p "[$$default_project]> " p; \
+		p="$${p:-$$default_project}"; \
+		if gcloud projects describe "$$p" >/dev/null 2>&1; then \
+			project="$$p"; \
+		else \
+			echo "${RED}Invalid choice!${NORM}"; \
+		fi; \
+	done; \
+	cluster="${KUBE_CLUSTER}"; \
+	while [ -z "$$cluster" ]; do \
+		all_clusters=$$(gcloud --project="$$project" container clusters list --format="value(name)" 2>/dev/null); \
+		default_cluster=; \
+		if [ $$(echo "$$all_clusters" | wc -w) = 1 ]; then default_cluster="$$all_clusters"; fi; \
+		echo; \
+		echo "Choose the GKE cluster:"; \
+		[ -n "$$all_clusters" ] || echo "  (no clusters found)"; \
+		for c in $$all_clusters; do echo "- $$c"; done; \
+		read -p "[$$default_cluster]> " c; \
+		c="$${c:-$$default_cluster}"; \
+		if gcloud container clusters describe "$$c" >/dev/null 2>&1; then \
+			cluster="$$c"; \
+		else \
+			echo "${RED}Invalid choice!${NORM}"; \
+		fi; \
+	done; \
+	namespace="${KUBE_NAMESPACE}"; \
+	while [ -z "$$namespace" ]; do \
+		default_namespace="$$(id -u -n)-$$(basename "${CURDIR}")"; \
+		echo; \
+		echo "Choose the namespace:"; \
+		read -p "[$$default_namespace]> " n; \
+		n="$${n:-$$default_namespace}"; \
+		if echo "$$n" | grep -Eq '^[0-9a-zA-Z-]+$$'; then \
+			namespace="$$n"; \
+		else \
+			echo "${RED}Invalid choice!${NORM}"; \
+		fi; \
+	done; \
+	echo; \
+	gcloud --project="$$project" container clusters get-credentials "$$cluster"; \
+	kubectl config set-context --current --namespace="$$namespace"; \
+	echo; \
+	echo "The following Kubernetes context has been prepared:"; \
+	echo; \
+	echo "GCP project: ${CYAN}$$project${NORM}"; \
+	echo "GKE cluster: ${CYAN}$$cluster${NORM}"; \
+	echo "Namespace: ${CYAN}$$namespace${NORM}"; \
+	echo
+
+
+.devmode:
+	@${MAKE} configure
+
+
+# GCP/Kubernetes configuration.
+KUBE_PROJECT ?=
+KUBE_CLUSTER ?=
+KUBE_NAMESPACE ?=
+KUBECONFIG = ${CURDIR}/.kubeconfig
+export KUBECONFIG
+NS = ${shell kubectl config view -o jsonpath="{.contexts[?(@.name==\"`kubectl config current-context`\")].context.namespace}"}
+
+
+# Remote shell.
+RSH = \
+	${if ${filter docker,${DEVMODE}},docker-compose exec develop}${if ${filter kube,${DEVMODE}},kubectl exec -it develop -c develop --}
+NOTERM_RSH = \
+	${if ${filter docker,${DEVMODE}},docker-compose exec -T develop}${if ${filter kube,${DEVMODE}},kubectl exec develop -c develop --}
+RSYNC_RSH = \
+	${if ${filter docker,${DEVMODE}},docker-compose exec -T}${if ${filter kube,${DEVMODE}},/bin/sh -c 'exec kubectl exec \"\$$0\" -c develop -i -- \"\$$@\"'}
+RSYNC = \
+	rsync \
+		--rsh "${RSYNC_RSH}" \
+		--blocking-io --ignore-errors --links --recursive --times --compress
 
 
 # Colors.
@@ -319,6 +572,8 @@ NORM = ${shell tput sgr0}
 RED = ${shell tput setaf 1}
 GREEN = ${shell tput setaf 2}
 BLUE = ${shell tput setaf 4}
+CYAN = ${shell tput setaf 6}
+BOLD = ${shell tput bold}
 
 
 # Templates for ./bin/activate and other generated scripts.
@@ -341,6 +596,17 @@ deactivate () {
 		unset _OLD_VIRTUAL_PATH
 	fi
 
+	if ! [ -z "$${VIRTUAL_KUBE+_}" ] ; then
+		unset VIRTUAL_KUBE
+		if ! [ -z "$${_OLD_VIRTUAL_KUBECONFIG+_}" ] ; then
+			KUBECONFIG="$$_OLD_VIRTUAL_KUBECONFIG"
+			export KUBECONFIG
+			unset _OLD_VIRTUAL_KUBECONFIG
+		else
+			unset KUBECONFIG
+		fi
+	fi
+
 	if [ -n "$${BASH-}" ] || [ -n "$${ZSH_VERSION-}" ] ; then
 		hash -r 2>/dev/null
 	fi
@@ -357,34 +623,28 @@ _OLD_VIRTUAL_PATH="$$PATH"
 PATH="$$VIRTUAL_ENV/bin:$$PATH"
 export PATH
 
+if [ -e "${KUBECONFIG}" ] ; then
+	VIRTUAL_KUBE="${KUBECONFIG}"
+	export VIRTUAL_KUBE
+	_OLD_VIRTUAL_KUBECONFIG="$$KUBECONFIG"
+	KUBECONFIG="${KUBECONFIG}"
+	export KUBECONFIG
+fi
+
 if [ -n "$${BASH-}" ] || [ -n "$${ZSH_VERSION-}" ] ; then
 	hash -r 2>/dev/null
 fi
-endef
-
-define COMPOSE_TEMPLATE
-#!/bin/sh
-cd "${CURDIR}" && PATH="${PATH}" exec "${shell which docker-compose}" "$$@"
-endef
-
-define PBBT_TEMPLATE
-#!${CURDIR}/bin/python3
-
-import os, re, sys
-from pbbt import main
-
-os.environ['HOME'] = '${CURDIR}'
-os.environ['PATH'] = '${CURDIR}/bin:' + os.environ.get('PATH', '')
-
-if __name__ == '__main__':
-    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$$', '', sys.argv[0])
-    sys.exit(main())
 endef
 
 define RSH_TEMPLATE
 #!/bin/sh
 
 set -e
+
+if [ -e "${KUBECONFIG}" ]; then
+	KUBECONFIG="${KUBECONFIG}"
+	export KUBECONFIG
+fi
 
 if ! [ -z "$${_OLD_VIRTUAL_PATH+_}" ] ; then
 	PATH="$$_OLD_VIRTUAL_PATH"
@@ -410,10 +670,10 @@ REMOTEDIR="$${LOCALDIR#$$ROOTDIR}"
 
 if [ "$$REMOTEDIR" = "$$LOCALDIR" ]; then
 	set -x
-	exec docker-compose exec develop $$REMOTECMD
+	exec ${RSH} $$REMOTECMD
 else
 	set -x
-	exec docker-compose exec develop sh -ce "cd ./$$REMOTEDIR && exec $$REMOTECMD"
+	exec ${RSH} sh -ce "cd ./$$REMOTEDIR && exec $$REMOTECMD"
 fi
 endef
 
@@ -508,63 +768,76 @@ define SYNC_TEMPLATE
 #!/bin/sh
 
 status () {
-    id=$$1
-    [ -e ${CURDIR}/.st/$$id.pid ] && kill -0 `cat ${CURDIR}/.st/$$id.pid` > /dev/null 2>&1
+	id=$$1
+	[ -e ${CURDIR}/.st/$$id.pid ] && kill -0 `cat ${CURDIR}/.st/$$id.pid` > /dev/null 2>&1
 }
 
 start() {
-    id=$$1
-    shift
-    "$$@" > ${CURDIR}/.st/$$id.log &
-    echo $$! > ${CURDIR}/.st/$$id.pid
+	id=$$1
+	shift
+	"$$@" > ${CURDIR}/.st/$$id.log &
+	echo $$! > ${CURDIR}/.st/$$id.pid
 }
 
 stop () {
-    id=$$1
-    if status $$id; then
-        kill `cat ${CURDIR}/.st/$$id.pid`
-        rm ${CURDIR}/.st/$$id.pid
-    fi
+	id=$$1
+	if status $$id; then
+		kill `cat ${CURDIR}/.st/$$id.pid`
+		rm ${CURDIR}/.st/$$id.pid
+	fi
 }
 
 remote_status () {
-    id=$$1
-    docker-compose exec -T develop sh -c '[ -e /app/.st/'$$id'.pid ] && kill -0 `cat /app/.st/'$$id'.pid` > /dev/null 2>&1'
+	id=$$1
+	${NOTERM_RSH} sh -c '[ -e /app/.st/'$$id'.pid ] && kill -0 `cat /app/.st/'$$id'.pid` > /dev/null 2>&1'
 }
 
 remote_start() {
-    id=$$1
-    shift
-	docker-compose exec -T develop sh -c "$$*"' > /app/.st/'$$id'.log 2>&1 & echo $$! > /app/.st/'$$id'.pid && wait' &
+	id=$$1
+	shift
+	${NOTERM_RSH} sh -c "$$*"' > /app/.st/'$$id'.log 2>&1 & echo $$! > /app/.st/'$$id'.pid && wait' &
 }
 
 remote_stop () {
-    id=$$1
-    if remote_status $$id; then
-		docker-compose exec -T develop sh -c 'kill `cat /app/.st/'$$id'.pid`; rm /app/.st/'$$id'.pid'
-    fi
+	id=$$1
+	if remote_status $$id; then
+		${NOTERM_RSH} sh -c 'kill `cat /app/.st/'$$id'.pid`; rm /app/.st/'$$id'.pid'
+	fi
 }
 
 if status syncthing; then
-    echo Already synchronizing...
-    exit 1
+	echo Already synchronizing...
+	exit 1
 fi
 
 set -e
 
-. ${CURDIR}/.env
+if [ -e "${KUBECONFIG}" ]; then
+	KUBECONFIG="${KUBECONFIG}"
+	export KUBECONFIG
+fi
 
-trap "stop syncthing && remote_stop syncthing && echo && exit 0" INT TERM EXIT
+trap "stop syncthing && stop port-forward && remote_stop syncthing && echo && exit 0" INT TERM EXIT
 
 remote_start syncthing /app/bin/syncthing -home=/app/.st -no-browser -no-restart
 
+if [ -e "${KUBECONFIG}" ]; then
+	start port-forward kubectl port-forward develop :22000
+	SYNC_PORT=
+	while [ -z "$$SYNC_PORT" ]; do
+		sleep 1
+		SYNC_PORT=`sed -n -e 's/Forwarding from 127.0.0.1:\\(.*\\) -> 22000/\\1/p' ${CURDIR}/.st/port-forward.log`
+	done
+else
+	. ${CURDIR}/.env
+fi
 sed -i.bak "s/<address>tcp:\\\\/\\\\/127.0.0.1:.*<\\\\/address>/<address>tcp:\\\\/\\\\/127.0.0.1:$$SYNC_PORT<\\\\/address>/" ${CURDIR}/.st/config.xml
 
 start syncthing ${CURDIR}/bin/syncthing -home=${CURDIR}/.st -no-browser -no-restart
 
-echo "Synchronizing..."
+echo "${GREEN}Synchronizing (Ctrl-C to stop)...${NORM}"
 wait
 endef
 
-export ACTIVATE_TEMPLATE COMPOSE_TEMPLATE PBBT_TEMPLATE RSH_TEMPLATE SYNCTHING_CONFIG_TEMPLATE SYNC_TEMPLATE
+export ACTIVATE_TEMPLATE RSH_TEMPLATE SYNCTHING_CONFIG_TEMPLATE SYNC_TEMPLATE
 

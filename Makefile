@@ -235,6 +235,7 @@ purge-docker:
 
 
 purge-kube:
+	-kubectl delete --grace-period=1 --all pod -n ${NS}
 	-kubectl delete namespace ${NS}
 	rm -rf bin .st
 .PHONY: purge-kube

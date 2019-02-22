@@ -9,6 +9,10 @@ image_resource:
 inputs:
 - name: codebase
 
+params:
+  CI: "true"
+  CONTINUOUS_INTEGRATION: "true"
+
 run:
   path: /bin/sh
   args:

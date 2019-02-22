@@ -12,6 +12,10 @@ inputs:
 outputs:
 - name: doc
 
+params:
+  CI: "true"
+  CONTINUOUS_INTEGRATION: "true"
+
 run:
   path: /bin/sh
   args:

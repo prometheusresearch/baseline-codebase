@@ -12,8 +12,8 @@ import datetime
 import psycopg2, psycopg2.extensions, psycopg2.extras
 
 
-if hasattr(psycopg2.extras, 'register_default_json'):
-    psycopg2.extras.register_default_json(loads=lambda x: x)
+psycopg2.extras.register_default_json(loads=lambda x: x)
+psycopg2.extras.register_default_jsonb(loads=lambda x: x)
 
 
 class Cluster:

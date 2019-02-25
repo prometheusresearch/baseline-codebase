@@ -145,6 +145,8 @@ export default class FormPreviewer extends React.Component {
         case 'boolean':
           schema.properties[param] = {type: 'boolean'};
           break;
+        default:
+          break;
       }
     });
 

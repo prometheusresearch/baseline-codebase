@@ -5,7 +5,7 @@
 import React from 'react';
 
 import {InjectI18N} from 'rex-i18n';
-import {VBox, HBox} from '@prometheusresearch/react-ui';
+import {HBox} from '@prometheusresearch/react-ui';
 
 
 @InjectI18N

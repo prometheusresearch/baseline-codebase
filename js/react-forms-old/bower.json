@@ -1,0 +1,29 @@
+{
+  "name": "react-forms",
+  "main": "lib/index.js",
+  "homepage": "http://prometheusresearch.github.io/react-forms/",
+  "authors": [
+    "Prometheus Research"
+  ],
+  "rex": {},
+  "description": "Forms library for React (separate CommonJS modules)",
+  "moduleType": [
+    "node"
+  ],
+  "keywords": [
+    "react",
+    "forms"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "react": "*",
+    "immutable": "^3.3.0"
+  }
+}

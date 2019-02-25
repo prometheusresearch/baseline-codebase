@@ -33,6 +33,13 @@ class JSValue(TransitionableRecord):
     __transit_tag__ = 'js-value'
     fields = ('package', 'symbol')
 
+    def __init__(self, *args, **kwargs):
+        if len(args):
+            args = tuple(['@js-package::' + args[0], args[1]])
+        elif 'package' in kwargs:
+            kwargs['package'] = '@js-package::' + kwargs['package']
+        super(JSValue, self).__init__(*args, **kwargs)
+
 
 class Undefined(Transitionable):
     """ An undefined value.

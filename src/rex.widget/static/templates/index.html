@@ -110,13 +110,14 @@
         throw new Error('include rex-widget package in your application');
       }
 
-      __REX_WIDGET__ = RexWidget.Transitionable.decode(JSON.stringify({{ payload }}));
+      //__REX_WIDGET__ = RexWidget.Transitionable.decode(JSON.stringify({{ payload }}));
+      __REX_WIDGET_DATA__ = JSON.stringify({{ payload }});
       if (__stylesheet__ != null) {
         __stylesheet__.media = 'all';
       }
 
-      RexWidget.render(
-        __REX_WIDGET__,
+      RexWidget.renderAsync(
+        __REX_WIDGET_DATA__,
         __main__,
         function() {
           document.body.removeChild(__preloader__);

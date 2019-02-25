@@ -1,0 +1,15 @@
+{
+  "name": "rex-dbgui",
+  "version": "4.1.7",
+  "main": "./lib/index.js",
+  "rex": {
+    "bundleAll": true
+  },
+  "dependencies": {
+    "@prometheusresearch/react-ui": "*"
+  },
+  "peerDependencies": {
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0"
+  }
+}

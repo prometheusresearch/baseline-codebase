@@ -1,0 +1,190 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders with icon and caption 1`] = `
+<button
+  aria-pressed={undefined}
+  className={
+    CompiledCSSWithVariants {
+      "base": Object {
+        "display": "inline-block",
+        "overflow": "hidden",
+        "textAlign": "left",
+        "userSelect": "none",
+        "verticalAlign": "bottom",
+        "whiteSpace": "nowrap",
+      },
+    }
+  }
+  disabled={undefined}
+  href={undefined}
+  role="button"
+  style={
+    Object {
+      "height": undefined,
+      "textAlign": undefined,
+      "width": undefined,
+    }
+  }
+>
+  <div
+    className={
+      CompiledCSSWithVariants {
+        "base": Object {
+          "display": "inline-block",
+        },
+      }
+    }
+    style={
+      Object {
+        "marginLeft": 0,
+        "marginRight": 4,
+      }
+    }
+  >
+    plus
+  </div>
+  <div
+    className={
+      CompiledCSSWithVariants {
+        "base": Object {
+          "display": "inline-block",
+        },
+      }
+    }
+  >
+    Caption
+  </div>
+</button>
+`;
+
+exports[`renders with just caption 1`] = `
+<button
+  aria-pressed={undefined}
+  className={
+    CompiledCSSWithVariants {
+      "base": Object {
+        "display": "inline-block",
+        "overflow": "hidden",
+        "textAlign": "left",
+        "userSelect": "none",
+        "verticalAlign": "bottom",
+        "whiteSpace": "nowrap",
+      },
+    }
+  }
+  disabled={undefined}
+  href={undefined}
+  role="button"
+  style={
+    Object {
+      "height": undefined,
+      "textAlign": undefined,
+      "width": undefined,
+    }
+  }
+>
+  <div
+    className={
+      CompiledCSSWithVariants {
+        "base": Object {
+          "display": "inline-block",
+        },
+      }
+    }
+  >
+    OK
+  </div>
+</button>
+`;
+
+exports[`renders with just icon (element) 1`] = `
+<button
+  aria-pressed={undefined}
+  className={
+    CompiledCSSWithVariants {
+      "base": Object {
+        "display": "inline-block",
+        "overflow": "hidden",
+        "textAlign": "left",
+        "userSelect": "none",
+        "verticalAlign": "bottom",
+        "whiteSpace": "nowrap",
+      },
+    }
+  }
+  disabled={undefined}
+  href={undefined}
+  role="button"
+  style={
+    Object {
+      "height": undefined,
+      "textAlign": undefined,
+      "width": undefined,
+    }
+  }
+>
+  <div
+    className={
+      CompiledCSSWithVariants {
+        "base": Object {
+          "display": "inline-block",
+        },
+      }
+    }
+    style={
+      Object {
+        "marginLeft": 0,
+        "marginRight": 0,
+      }
+    }
+  >
+    <icon />
+  </div>
+</button>
+`;
+
+exports[`renders with just icon (text) 1`] = `
+<button
+  aria-pressed={undefined}
+  className={
+    CompiledCSSWithVariants {
+      "base": Object {
+        "display": "inline-block",
+        "overflow": "hidden",
+        "textAlign": "left",
+        "userSelect": "none",
+        "verticalAlign": "bottom",
+        "whiteSpace": "nowrap",
+      },
+    }
+  }
+  disabled={undefined}
+  href={undefined}
+  role="button"
+  style={
+    Object {
+      "height": undefined,
+      "textAlign": undefined,
+      "width": undefined,
+    }
+  }
+>
+  <div
+    className={
+      CompiledCSSWithVariants {
+        "base": Object {
+          "display": "inline-block",
+        },
+      }
+    }
+    style={
+      Object {
+        "marginLeft": 0,
+        "marginRight": 0,
+      }
+    }
+  >
+    plus
+  </div>
+</button>
+`;

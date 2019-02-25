@@ -1,0 +1,52 @@
+exports[`test renders 1`] = `
+<select
+  onChange={[Function anonymous]}
+  value="__NOVALUE__">
+  <option
+    value="__NOVALUE__">
+    
+  </option>
+  <option
+    value="a">
+    A
+  </option>
+  <option
+    value="b">
+    B
+  </option>
+</select>
+`;
+
+exports[`test renders 2`] = `
+<select
+  onChange={[Function anonymous]}
+  value="a">
+  <option
+    value="a">
+    A
+  </option>
+  <option
+    value="b">
+    B
+  </option>
+</select>
+`;
+
+exports[`test renders 3`] = `
+<select
+  onChange={[Function anonymous]}
+  value="a">
+  <option
+    value="__NOVALUE__">
+    
+  </option>
+  <option
+    value="a">
+    A
+  </option>
+  <option
+    value="b">
+    B
+  </option>
+</select>
+`;

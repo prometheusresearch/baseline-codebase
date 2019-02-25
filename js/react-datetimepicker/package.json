@@ -1,0 +1,48 @@
+{
+  "name": "@prometheusresearch/react-datetimepicker",
+  "version": "0.5.0",
+  "description": "DateTime Picker component for  React",
+  "homepage": "http://github.com/prometheusresearch/react-datetimepicker",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/prometheusresearch/react-datetimepicker"
+  },
+  "rex": {},
+  "main": "./src/index.js",
+  "keywords": [
+    "datetime",
+    "datetimepicker",
+    "datepicker",
+    "timepicker",
+    "date",
+    "react",
+    "react-component"
+  ],
+  "author": "Prometheus Research, LLC",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^0.14.0 || ^15.0.0",
+    "react-dom": "^0.14.0 || ^15.0.0"
+  },
+  "devDependencies": {
+    "babel": "^5.8.23",
+    "babel-eslint": "^4.1.1",
+    "bootstrap": "^3.3.5",
+    "eslint": "^1.3.1",
+    "eslint-plugin-react": "^3.3.1",
+    "normalize.css": "^3.0.3",
+    "react-heatpack": "github:andreypopp/react-heatpack",
+    "react": "^0.14.0",
+    "react-dom": "^0.14.0"
+  },
+  "dependencies": {
+    "@prometheusresearch/react-ui": "*",
+    "react-stylesheet": "*",
+    "empty": "^0.10.1",
+    "keymirror": "^0.1.1",
+    "lodash": "^4.0.0",
+    "moment": "^2.8.2",
+    "react-icons": "^2.2.3",
+    "tether": "^1.1.0"
+  }
+}

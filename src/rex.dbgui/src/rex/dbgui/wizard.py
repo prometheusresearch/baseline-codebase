@@ -6,36 +6,38 @@ from rex.deploy import model
 from rex.widget import render_widget, computed_field
 from cached_property import cached_property
 import yaml
-from functools import partial
-from functools import reduce
+from functools import partial, reduce
 
 @cached
 def get_schema():
     return model()
 
-@cached
-def pick_table():
-    return ActionProxy(
+def pick_table(skip_tables=[]):
+    return DBGUI(
         id='dbgui',
         type='dbgui',
-        title='Pick Table'
+        title='Pick Table',
+        skip_tables=skip_tables
     )
 
-@cached
-def view_source():
-    return ActionProxy(
+def view_source(skip_tables=[], read_only=False):
+    return ViewSource(
         id='view-source',
         type='view-source',
-        title='View Source'
+        title='View Source',
+        skip_tables=skip_tables,
+        read_only=read_only
     )
 
-@cached
-def root_wizard():
-    return WizardProxy.from_path('dbgui', 'DBGUI', [(pick_table(), None)])
+def root_wizard(skip_tables=[]):
+    return WizardProxy.from_path(
+                'dbgui',
+                'DBGUI',
+                [(pick_table(skip_tables), None)]
+            )
 
-@cached
-def table_wizard(table_name):
-    return WizardProxy.table_wizard(table_name)
+def table_wizard(table_name, skip_tables=[], read_only=False):
+    return WizardProxy.table_wizard(table_name, skip_tables, read_only)
 
 
 class WizardProxy(object):
@@ -62,11 +64,22 @@ class WizardProxy(object):
         return ret
 
     @classmethod
-    def table_wizard(cls, table):
-        return cls.from_path(table, 'DBGUI: %s' % table,
-                [(pick_table(),
-                  cls.table_path(table) + [(view_source(), None)])
-                ])
+    def table_wizard(cls, table, skip_tables=[], read_only=False):
+        schema = get_schema()
+        if schema.table(table) is None or table in skip_tables:
+            title = "Table %s not found" % table
+            text = "**%s**" % title
+            return cls.from_path(table, 'DBGUI: %s' % table,
+                    [(pick_table(skip_tables),
+                      [(Page(id='pick-' + table, title=title, text=text), None)])
+                    ])
+        else:
+            return cls.from_path(table, 'DBGUI: %s' % table,
+                    [(pick_table(skip_tables),
+                      cls.table_path(table, skip_tables=skip_tables,
+                                     read_only=read_only)
+                      + [(view_source(skip_tables, read_only), None)])
+                    ])
 
     @classmethod
     def from_path(cls, id, title, path):
@@ -91,20 +104,32 @@ class WizardProxy(object):
             return [dict1(k.id, cls.extract_path(v)) for k, v in path]
 
     @classmethod
-    def table_path(cls, table_name, context=[], mask=None):
+    def table_path(cls, table_name, context=[], mask=None, skip_tables=[],
+                   read_only=False):
         pick = Pick(table_name, context=context, mask=mask)
-        make = Make(table_name, context=context)
+        make = Make(table_name, context=context, skip_tables=skip_tables)
         drop = Drop(table_name)
-        return [(pick, cls.record_path(table_name, context=context) + [
-           (drop, None),
-           (make, make.replace())
-        ])]
+        if read_only:
+            make_drop_path = []
+        else:
+            make_drop_path = [
+                (drop, None),
+                (make, make.replace())
+            ]
+        return [(pick, cls.record_path(table_name, context=context,
+                                       skip_tables=skip_tables,
+                                       read_only=read_only)
+                       + make_drop_path
+               )]
 
     @classmethod
-    def record_path(cls, table_name, context=[]):
-        view = View(table_name, context)
-        edit = Edit(table_name, context)
-        next = [(edit, edit.replace())]
+    def record_path(cls, table_name, context=[], skip_tables=[], read_only=False):
+        view = View(table_name, context, skip_tables=skip_tables)
+        if read_only:
+            next = []
+        else:
+            edit = Edit(table_name, context, skip_tables=skip_tables)
+            next = [(edit, edit.replace())]
         ret = [(view, next)]
         schema = get_schema()
         for table in schema.tables():
@@ -114,29 +139,39 @@ class WizardProxy(object):
                 continue
             if len(identity) == 1 \
             and identity[0].is_link \
-            and identity[0].target_table.label == table_name:
+            and identity[0].target_table.label == table_name\
+            and table.label not in skip_tables:
                 next.extend(cls.record_path(
                     table.label,
-                    context=context + ([table_name] if not view._is_facet else [])
+                    context=context + ([table_name] if not view._is_facet else []),
+                    skip_tables=skip_tables,
+                    read_only=read_only
                 ))
                 continue
             links = [f for f in identity
                        if f.is_link and f.target_table.label == table_name]
-            if len(links) == 1 and links[0] not in context:
+            if len(links) == 1 and links[0] not in context \
+            and table.label not in skip_tables:
                 if view._is_facet:
                     mask = '%s.%s=$%s' % (links[0].label,
                                           list(view.entity.values())[0],
                                           list(view.entity.keys())[0])
                     next.extend(cls.table_path(table.label,
                         mask=mask,
-                        context=context
+                        context=context,
+                        skip_tables=skip_tables,
+                        read_only=read_only
                     ))
                 else:
                     mask='%s=%s' % (links[0].label, to_ref(table_name))
                     ret.extend(cls.table_path(table.label,
                         mask=mask,
-                        context=context + [table_name]
+                        context=context + [table_name],
+                        skip_tables=skip_tables,
+                        read_only=read_only
                     ))
+        if len(next) == 0:
+            ret[0] = (view, None)
         return ret
 
 def to_complete_entity(entity):
@@ -156,10 +191,11 @@ class ActionProxy(object):
     action_val = ActionVal()
     order = ['type', 'title']
 
-    def __init__(self, id, type, title):
+    def __init__(self, id, type, title, skip_tables=[]):
         self.id = id
         self.type = type
         self.title = title
+        self._skip_tables = skip_tables
 
     def get_params(self):
         return dict([
@@ -172,6 +208,28 @@ class ActionProxy(object):
         return self.action_val(self.get_params())
 
 
+class DBGUI(ActionProxy):
+
+    def __init__(self, **kwds):
+        super(DBGUI, self).__init__(**kwds)
+        self.skip_tables = self._skip_tables
+
+
+class ViewSource(ActionProxy):
+
+    def __init__(self, read_only, **kwds):
+        super(ViewSource, self).__init__(**kwds)
+        self.skip_tables = self._skip_tables
+        self.read_only = read_only
+
+
+class Page(ActionProxy):
+
+    def __init__(self, id, title, text):
+        super(Page, self).__init__(id=id, title=title, type='page')
+        self.text = text
+
+
 class TableActionProxy(ActionProxy):
 
     order = ActionProxy.order + ['entity', 'input', 'value',
@@ -182,7 +240,8 @@ class TableActionProxy(ActionProxy):
         super(TableActionProxy, self).__init__(
             id='%s-%s' % (type, table.replace('_', '-')),
             type=type,
-            title='%s %s' % (type.title(), table)
+            title='%s %s' % (type.title(), table),
+            skip_tables=kwds.get('skip_tables', [])
         )
         self.entity, field_prefix = self.get_base_entity(table, context)
         self._is_facet = table != self.entity
@@ -192,8 +251,9 @@ class TableActionProxy(ActionProxy):
         if context:
             self.id = '%s--%s' % (self.id, '-'.join([c for c in context]))
         self.input = [to_complete_entity(item) for item in context]
-        for attr, value in list(kwds.items()):
-            setattr(self, attr, value)
+        for attr, value in kwds.items():
+            if attr != 'skip_tables':
+                setattr(self, attr, value)
 
     def get_base_entity(self, table_name, context):
         schema = get_schema()
@@ -307,13 +367,19 @@ class View(TableActionProxy):
         for index, field in enumerate(fields):
             link = table.link(field[len(prefix):])
             if link is not None:
-                fields[index] = dict(
-                    value_key=field,
-                    type='dbgui_entity',
-                    data=dict(
-                        entity=link.target_table.label
+                if link.target_table.label in self._skip_tables:
+                    fields[index] = dict(
+                            value_key=field,
+                            type='string'
+                            )
+                else:
+                    fields[index] = dict(
+                        value_key=field,
+                        type='dbgui_entity',
+                        data=dict(
+                            entity=link.target_table.label
+                        )
                     )
-                )
         return fields, None
 
 

@@ -17,7 +17,7 @@ used within the ``urlmap.yaml`` or ``menu.yaml``::
   ...         res = render_widget(widget, req, no_chrome=True, path=path)
   ...         print(res.body.decode('utf-8'))
   >>> render(DBGUI(), '/') # doctest: +ELLIPSIS
-  ["~#widget", ["@js-package::rex-dbgui", "DBGUI", {"tableWizard": ["~#request_url", ["http://localhost/@@/2.tableWizard"]], "rootWizard":...
+  ["~#widget", ["@js-package::rex-dbgui", "DBGUI", {"readOnly": false, "skipTables": [], "tableWizard": ["~#request_url", ["http://localhost/@@/2.tableWizard"]]...
 
 This widget has one piece of specific server-side functionality. First of all,
 it permits to download the table specific wizard::

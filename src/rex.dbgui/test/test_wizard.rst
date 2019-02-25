@@ -5,6 +5,8 @@ DBGUI could generate wizards on a different database schemas. Here is a set of
 examples of the simple schema which includes trunk, branch, cross and facets::
 
 
+  >>> import warnings # TODO: remove it when psycopg2 warning is fixed
+  >>> warnings.filterwarnings("ignore")
   >>> from rex.core import Rex
   >>> from rex.dbgui import root_wizard, table_wizard
   >>> import yaml

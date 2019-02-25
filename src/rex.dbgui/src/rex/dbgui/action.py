@@ -1,7 +1,8 @@
 
 from .wizard import get_schema, table_wizard
+from rex.core import BoolVal, SeqVal, StrVal
 from rex.action import Action, typing
-from rex.widget import computed_field, responder, RequestURL
+from rex.widget import Field, computed_field, responder, RequestURL
 import yaml
 from webob import Response
 
@@ -13,6 +14,7 @@ class PickTable(Action):
 
     name = 'dbgui'
     js_type = 'rex-dbgui', 'PickTable'
+    skip_tables = Field(SeqVal(StrVal))
 
     def context(self):
         return (self.domain.record(),
@@ -23,7 +25,8 @@ class PickTable(Action):
         ret = []
         schema = get_schema()
         for table in schema.tables():
-            ret.append({'id': table.label, 'title': table.label})
+            if table.label not in self.skip_tables:
+                ret.append({'id': table.label, 'title': table.label})
         return ret
 
 
@@ -34,6 +37,8 @@ class ViewSource(Action):
 
     name = 'view-source'
     js_type = 'rex-dbgui', 'ViewSource'
+    skip_tables = Field(SeqVal(StrVal))
+    read_only = Field(BoolVal())
 
     def context(self):
         return (self.domain.record(table=typing.ValueType('text')),
@@ -44,7 +49,8 @@ class ViewSource(Action):
         table = req.GET.get('table')
         ret = {}
         if table:
-            ret['dump'] = yaml.safe_dump(table_wizard(table),
-                                         indent=2,
-                                         default_flow_style=False)
+            ret['dump'] = yaml.safe_dump(
+                    table_wizard(table, self.skip_tables, self.read_only),
+                    indent=2,
+                    default_flow_style=False)
         return Response(json=ret)

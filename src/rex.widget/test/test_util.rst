@@ -86,7 +86,7 @@ JSValue
   >>> from rex.widget import JSValue
   >>> val = JSValue('pkg', 'symbol')
   >>> encode(val, None)
-  '["~#js-value", ["pkg", "symbol"]]'
+  '["~#js-value", ["@js-package::pkg", "symbol"]]'
 
 undefined
 ---------

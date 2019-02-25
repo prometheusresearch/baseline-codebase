@@ -46,7 +46,7 @@ Test rex.widget.render
   Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget", "Chrome", {...]]
+  ["~#widget", ["@js-package::rex-widget", "Chrome", {...]]
 
 ::
 
@@ -62,7 +62,7 @@ Test rex.widget.render
   Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["pkg", "widget-to-render", {...]]
+  ["~#widget", ["@js-package::pkg", "widget-to-render", {...]]
 
 ::
 

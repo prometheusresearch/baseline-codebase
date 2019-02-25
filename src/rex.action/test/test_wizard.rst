@@ -111,7 +111,7 @@ Wizard
 
   >>> from rex.widget import encode
   >>> encode(w, Request.blank('/')) # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
-  '["~#widget", ["rex-action", "Wizard", ...]]'
+  '["~#widget", ["@js-package::rex-action", "Wizard", ...]]'
 
 ::
 

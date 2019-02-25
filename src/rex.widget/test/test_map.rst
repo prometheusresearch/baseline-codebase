@@ -39,7 +39,7 @@ Test rex.widget.map
   Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget", "Chrome", {...}]]
+  ["~#widget", ["@js-package::rex-widget", "Chrome", {...}]]
 
   >>> print(Request.blank(
   ...   '/w/@@/2.content.2.respond',
@@ -77,7 +77,7 @@ Overrides
   Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["pkg", "mapped-widget", {...}]]
+  ["~#widget", ["@js-package::pkg", "mapped-widget", {...}]]
 
   >>> pkg.rewrite('/urlmap.yaml', '''
   ... include:
@@ -108,7 +108,7 @@ Overrides
   Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget", "Chrome", {..., "title": "NEWTITLE"}]]
+  ["~#widget", ["@js-package::rex-widget", "Chrome", {..., "title": "NEWTITLE"}]]
 
 ::
 

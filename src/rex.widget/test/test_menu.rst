@@ -39,7 +39,7 @@ Test rex.widget.menu
   Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget", "Chrome", {...}]]
+  ["~#widget", ["@js-package::rex-widget", "Chrome", {...}]]
 
 ::
 

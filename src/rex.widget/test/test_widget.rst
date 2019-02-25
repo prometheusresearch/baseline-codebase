@@ -82,7 +82,7 @@ Widget
 
   >>> req = Request.blank('/')
   >>> encode(w, req)
-  '["~#widget", ["rex-widget", "MyWidget", {"title": "Ok", "desc": "no desc", "computed": "computed!"}]]'
+  '["~#widget", ["@js-package::rex-widget", "MyWidget", {"title": "Ok", "desc": "no desc", "computed": "computed!"}]]'
 
   >>> w.__clone__(title='notok')
   MyWidget(...)
@@ -135,7 +135,7 @@ Widget with non-transitionable field
 
   >>> req = Request.blank('/')
   >>> encode(w, req)
-  '["~#widget", ["rex-widget", "WidgetWithNonTransitionableField", {"title": "Title"}]]'
+  '["~#widget", ["@js-package::rex-widget", "WidgetWithNonTransitionableField", {"title": "Title"}]]'
 
 Null widget
 -----------
@@ -185,8 +185,8 @@ Nested widget hierarchy
 
   >>> req = Request.blank('/')
   >>> encode(w, req) # doctest: +NORMALIZE_WHITESPACE
-  '["~#widget", ["pkg", "ComplexWidget",
-                  {"children": ["^0", ["rex-widget", "MyWidget",
+  '["~#widget", ["@js-package::pkg", "ComplexWidget",
+                  {"children": ["^0", ["@js-package::rex-widget", "MyWidget",
                                        {"desc": "no desc", "title": "title", "computed": "computed!"}]]}]]'
 
   >>> w = ComplexWidget(children=[MyWidget(title='title')])
@@ -196,8 +196,8 @@ Nested widget hierarchy
 
   >>> req = Request.blank('/')
   >>> encode(w, req) # doctest: +NORMALIZE_WHITESPACE
-  '["~#widget", ["pkg", "ComplexWidget",
-                  {"children": [["^0", ["rex-widget", "MyWidget",
+  '["~#widget", ["@js-package::pkg", "ComplexWidget",
+                  {"children": [["^0", ["@js-package::rex-widget", "MyWidget",
                                         {"desc": "no desc", "title": "title", "computed": "computed!"}]]]}]]'
 
 Widget composition
@@ -231,7 +231,7 @@ Widget composition
 
   >>> req = Request.blank('/')
   >>> encode(w, req) # doctest: +NORMALIZE_WHITESPACE
-  '["~#widget", ["rex-widget", "MyWidget", {"title": "ok!", "desc": "no desc", "computed": "computed!"}]]'
+  '["~#widget", ["@js-package::rex-widget", "MyWidget", {"title": "ok!", "desc": "no desc", "computed": "computed!"}]]'
 
   >>> rex.cache.clear()
 
@@ -278,13 +278,13 @@ Raw widgets
   >>> from rex.widget import raw_widget
 
   >>> encode(raw_widget(('pkg', 'type'), {'key': 'value'}), Request.blank('/'))
-  '["~#widget", ["pkg", "type", {"key": "value"}]]'
+  '["~#widget", ["@js-package::pkg", "type", {"key": "value"}]]'
 
   >>> encode(raw_widget(('pkg', 'type'), key='value'), Request.blank('/'))
-  '["~#widget", ["pkg", "type", {"key": "value"}]]'
+  '["~#widget", ["@js-package::pkg", "type", {"key": "value"}]]'
 
   >>> encode(raw_widget(('pkg', 'type'), {'a': 'b'}, key='value'), Request.blank('/'))
-  '["~#widget", ["pkg", "type", {"a": "b", "key": "value"}]]'
+  '["~#widget", ["@js-package::pkg", "type", {"a": "b", "key": "value"}]]'
 
 Widget pointer
 --------------
@@ -311,7 +311,7 @@ Widget pointer
   Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget", "Chrome", {"content": ["^0", ["pkg", "WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/@@/2.content"]]}]], "title": null}]]
+  ["~#widget", ["@js-package::rex-widget", "Chrome", {"content": ["^0", ["@js-package::pkg", "WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/@@/2.content"]]}]], "title": null}]]
 
   >>> print(render_widget(
   ...   w,
@@ -331,7 +331,7 @@ Widget pointer
   Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget", "Chrome", {"content": ["^0", ["pkg", "ComplexWidget", {"children": ["^0", ["pkg", "WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/@@/2.content.2.children"]]}]]}]], "title": null}]]
+  ["~#widget", ["@js-package::rex-widget", "Chrome", {"content": ["^0", ["@js-package::pkg", "ComplexWidget", {"children": ["^0", ["@js-package::pkg", "WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/@@/2.content.2.children"]]}]]}]], "title": null}]]
 
   >>> print(render_widget(
   ...   w,
@@ -351,7 +351,7 @@ Widget pointer
   Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget", "Chrome", {"content": ["^0", ["pkg", "ComplexWidget", {"children": [["^0", ["pkg", "WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/@@/2.content.2.children.0"]]}]]]}]], "title": null}]]
+  ["~#widget", ["@js-package::rex-widget", "Chrome", {"content": ["^0", ["@js-package::pkg", "ComplexWidget", {"children": [["^0", ["@js-package::pkg", "WidgetWithPointer", {"pointer": ["~#url", ["http://localhost/@@/2.content.2.children.0"]]}]]]}]], "title": null}]]
 
   >>> print(render_widget(
   ...   w,
@@ -381,7 +381,7 @@ Pointer to field::
   Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget", "Chrome", {"content": ["^0", ["pkg", "WidgetWithFieldPointer", {"pointer": ["~#url", ["http://localhost/@@/2.content.2.pointer"]]}]], "title": null}]]
+  ["~#widget", ["@js-package::rex-widget", "Chrome", {"content": ["^0", ["@js-package::pkg", "WidgetWithFieldPointer", {"pointer": ["~#url", ["http://localhost/@@/2.content.2.pointer"]]}]], "title": null}]]
 
 Pointer with wrapper::
 
@@ -403,7 +403,7 @@ Pointer with wrapper::
   Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget", "Chrome", {"content": ["^0", ["pkg", "WidgetWithWrappedPointer", {"pointer": [["~#url", ["http://localhost/@@/2.content.2.pointer"]]]}]], "title": null}]]
+  ["~#widget", ["@js-package::rex-widget", "Chrome", {"content": ["^0", ["@js-package::pkg", "WidgetWithWrappedPointer", {"pointer": [["~#url", ["http://localhost/@@/2.content.2.pointer"]]]}]], "title": null}]]
 
 
 Responder field
@@ -433,9 +433,9 @@ Responder field
   Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget", "Chrome",
+  ["~#widget", ["@js-package::rex-widget", "Chrome",
                 {"content": ["^0",
-                             ["pkg", "WidgetWithResponder",
+                             ["@js-package::pkg", "WidgetWithResponder",
                               {"title": "Hi",
                                "data": ["~#url", ["http://localhost/@@/2.content.2.data"]]}]], "^2": "Hi"}]]
 
@@ -474,9 +474,9 @@ Responder field
   Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget", "Chrome",
+  ["~#widget", ["@js-package::rex-widget", "Chrome",
                 {"content": ["^0",
-                             ["pkg", "WidgetWithPortResponder",
+                             ["@js-package::pkg", "WidgetWithPortResponder",
                               {"title": "Hi",
                                "data": ["~#port", ["http://localhost/@@/2.content.2.data"]]}]], "^2": "Hi"}]]
 
@@ -507,9 +507,9 @@ Responder field
   Content-Type: application/json
   Content-Length: ...
   <BLANKLINE>
-  ["~#widget", ["rex-widget", "Chrome",
+  ["~#widget", ["@js-package::rex-widget", "Chrome",
                 {"content": ["^0",
-                            ["pkg", "WidgetWithPortResponder",
+                            ["@js-package::pkg", "WidgetWithPortResponder",
                             {"title": "ok",
                              "data": ["~#port", ["http://localhost/@@/2.content.2.data"]]}]], "^2": "ok"}]]
 

@@ -600,7 +600,8 @@ class ColumnModel(Model):
                 "date": "date",
                 "time": "time",
                 "datetime": "timestamp",
-                "json": "json",
+                "json": "jsonb",
+                "json-json": "json",
         }
 
         # SQL type name -> HTSQL name.
@@ -619,6 +620,7 @@ class ColumnModel(Model):
                 'time': TimeDomain(),
                 'datetime': DateTimeDomain(),
                 'json': JSONDomain(),
+                'json-json': JSONDomain(),
         }
 
         # Special `default` values.
@@ -641,6 +643,7 @@ class ColumnModel(Model):
             'time': set(['text']),
             'datetime': set(['text', 'date', 'time']),
             'json': set(['text']),
+            'json-json': set(['json', 'text']),
         }
 
         def __init__(self, type, default):

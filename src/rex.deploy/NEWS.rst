@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.11.0 (2019-XX-XX)
+===================
+
+* Use ``jsonb`` type for storing JSON values.
+
+
 2.10.1 (2018-03-23)
 ===================
 

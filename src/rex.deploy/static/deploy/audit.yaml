@@ -24,7 +24,7 @@
 
         -- Create the schema and update the version number.
         CREATE SCHEMA IF NOT EXISTS audit;
-        COMMENT ON SCHEMA audit IS 'version: 2.3.1';
+        COMMENT ON SCHEMA audit IS 'version: 2.11.0';
 
         IF current_version IS NULL THEN
             -- Creating the table from scratch.
@@ -40,8 +40,8 @@
                 session text NOT NULL,
                 action audit.audit_action_enum NOT NULL,
                 name text NOT NULL,
-                old json,
-                new json,
+                old jsonb,
+                new jsonb,
                 CONSTRAINT audit_uk UNIQUE (id)
             );
 
@@ -51,9 +51,10 @@
             CREATE INDEX audit_session_idx ON audit.audit (session);
             CREATE INDEX audit_name_idx ON audit.audit (name);
 
-        ELSIF current_version ~ '^version: 2[.]0[.]0$' THEN
-            -- Upgrading from version 2.0.0.
-            COMMENT ON SCHEMA audit IS 'version: 2.3.1';
+        ELSE
+            --- Convert columns to use the "jsonb" type.
+            ALTER TABLE audit.audit ALTER COLUMN old SET DATA TYPE jsonb USING old::jsonb;
+            ALTER TABLE audit.audit ALTER COLUMN new SET DATA TYPE jsonb USING new::jsonb;
         END IF;
 
         -- (Re)build trigger functions.
@@ -68,7 +69,7 @@
                     RETURN NULL;
                 END IF;
             EXCEPTION WHEN undefined_function THEN
-                -- Records are not comparable (contain JSON values).
+                -- Records are not comparable.
             END;
             BEGIN
                 SELECT current_setting('rex.session') INTO session;
@@ -81,8 +82,8 @@
             VALUES (session,
                     LOWER(TG_OP)::audit.audit_action_enum,
                     TG_TABLE_NAME::text,
-                    CASE WHEN TG_OP IN ('UPDATE', 'DELETE') THEN row_to_json(OLD.*) END,
-                    CASE WHEN TG_OP IN ('INSERT', 'UPDATE') THEN row_to_json(NEW.*) END);
+                    CASE WHEN TG_OP IN ('UPDATE', 'DELETE') THEN to_jsonb(OLD.*) END,
+                    CASE WHEN TG_OP IN ('INSERT', 'UPDATE') THEN to_jsonb(NEW.*) END);
             RETURN NULL;
         END;
         $$;
@@ -130,7 +131,7 @@
     $_$;
 
   unless: |
-    SELECT obj_description(n.oid, 'pg_namespace') ~ '^version: 2[.]3[.]1$'
+    SELECT obj_description(n.oid, 'pg_namespace') ~ '^version: 2[.]11[.]0$'
     FROM pg_catalog.pg_namespace n
     WHERE n.nspname = 'audit';
 

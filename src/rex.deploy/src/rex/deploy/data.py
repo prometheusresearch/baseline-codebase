@@ -191,6 +191,11 @@ class DataFact(Fact):
                         columns = []
                         values = []
                         for column, data, old_data in zip(image, row, old_row):
+                            # Normalize JSON values before comparing them.
+                            if column.type.qname in [('pg_catalog', 'json'),
+                                                     ('pg_catalog', 'jsonb')] and \
+                                    isinstance(old_data, str):
+                                old_data = json.dumps(json.loads(old_data), sort_keys=True)
                             if data is SKIP or data == old_data:
                                 continue
                             columns.append(column)
@@ -385,13 +390,11 @@ class DataFact(Fact):
                             error = Error("Discovered invalid input:", exc)
                             error.wrap("While converting field:", field.label)
                             raise error from None
-                        # Serialize and validate JSON values.
+                        # Validate JSON values.
                         if isinstance(
                                 domain, htsql_rex_deploy.domain.JSONDomain):
                             try:
-                                data = json.dumps(
-                                        data, indent=2, separators=(',', ': '),
-                                        sort_keys=True)
+                                data = json.dumps(data, sort_keys=True)
                             except TypeError as exc:
                                 error = Error(
                                         "Discovered invalid JSON input:", exc)

@@ -24,6 +24,8 @@ rexWidget.Transitionable.registerPackageResolver(function(pkgName) {
       return import("rex-widget-chrome");
     case "rex-demo-baseline":
       return import("rex-demo-baseline");
+    default:
+      throw Error(`${pkgName} not found in the bundle.`)
   }
 });
 

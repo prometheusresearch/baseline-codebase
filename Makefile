@@ -257,8 +257,8 @@ build-js: ./bin/activate
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building Javascript packages...${NORM}"
 	set -ex; \
 	if [ -z "$$TMPDIR" ]; then export TMPDIR=/tmp; fi; \
+	./bin/yarn --cwd ./js; \
 	for src in ${SRC_JS}; do \
-		./bin/yarn --cwd $$src; \
 		./bin/yarn --cwd $$src run build; \
 	done
 .PHONY: build-js

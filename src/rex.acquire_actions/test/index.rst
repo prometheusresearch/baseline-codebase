@@ -36,7 +36,7 @@ Define a custom widget for forms
     ... """)
 
     >>> enter_data.widget_config
-    {'naive-datetime': JSValue(package='rex-acquire-actions', symbol='NaiveDateTime')}
+    {'naive-datetime': JSValue(package='@js-package::rex-acquire-actions', symbol='NaiveDateTime')}
 
 ::
 

@@ -76,7 +76,7 @@ SRC_JS = \
 # This variable contains a list of directories in this repository that will
 # have their test suites executed with "yarn run test" during the "test"
 # target.
-TEST_JS = ${SRC_JS}
+TEST_JS =
 
 
 ### JavaScript Development Tools

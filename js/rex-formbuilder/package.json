@@ -1,0 +1,54 @@
+{
+  "name": "rex-formbuilder",
+  "version": "5.9.3",
+  "description": "JavaScript functionality for the rex.formbuilder application",
+  "author": "Prometheus Research, LLC",
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "hg",
+    "url": "https://bitbucket.org/rexdb/rex.formbuilder"
+  },
+  "main": "lib/index.js",
+  "peerDependencies": {
+    "react": "^0.14.0"
+  },
+  "dependencies": {
+    "react-forms-old": "*",
+    "classnames": "^2.1.2",
+    "component-emitter": "1.1.2",
+    "deep-copy": "*",
+    "deep-equal": "0.0.0",
+    "dot-qs": "0.2.0",
+    "flux": "^2.0.1",
+    "immutable": "^3.7.4",
+    "object-path": "~0.8.1",
+    "react-dnd": "^2.1.4",
+    "react-dnd-html5-backend": "^2.1.2",
+    "react-select": "1.0.0-rc.5"
+  },
+  "devDependencies": {
+    "babel-loader": "5.1.x",
+    "chai": "~3.2.0",
+    "eslint-plugin-react": "~3.11.1",
+    "grunt": "~0.4.5",
+    "grunt-contrib-watch": "~0.6.1",
+    "grunt-eslint": "~17.3.1",
+    "grunt-jsonlint": "~1.0.4",
+    "grunt-karma": "~0.11.2",
+    "istanbul-instrumenter-loader": "~0.1.3",
+    "json-loader": "~0.5.2",
+    "karma": "~0.12.37",
+    "karma-coverage": "~0.4.2",
+    "karma-mocha": "~0.2.0",
+    "karma-phantomjs-launcher": "~0.2.0",
+    "karma-phantomjs-shim": "~1.0.0",
+    "karma-sourcemap-loader": "~0.3.5",
+    "karma-webpack": "~1.5.1",
+    "less": "^3.9.0",
+    "mocha": "2.2.1",
+    "node-libs-browser": "0.5.x",
+    "phantomjs": "~1.9.17",
+    "react": "^0.14.0",
+    "webpack": "1.9.x"
+  }
+}

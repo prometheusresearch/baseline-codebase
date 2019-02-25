@@ -69,8 +69,7 @@ TOOL_PY = \
 # installed and built with yarn during the "develop" and "install" targets
 # (using "yarn run build").
 SRC_JS = \
-	src/rex.form_previewer/js \
-	src/rex.demo.baseline/js
+	js/rex-action-application
 
 
 ### JavaScript Project Tests
@@ -109,6 +108,5 @@ TEST_MAKE =
 # 	<source directory>:<target location>
 SRC_DATA = \
 	src/rex.demo.baseline/doc/build/html:share/rex/rex.demo.baseline/www/docs \
-	src/rex.form_previewer/js/build:share/rex/rex.form_previewer/www/bundle \
-	src/rex.demo.baseline/js/build:share/rex/rex.demo.baseline/www/bundle
+	js/rex-action-application/build:share/rex/rex.demo.baseline/www/bundle
 

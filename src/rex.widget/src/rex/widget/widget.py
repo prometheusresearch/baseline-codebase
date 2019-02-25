@@ -234,7 +234,7 @@ def _format_Widget(widget, req, path): # pylint: disable=invalid-name
         elif name in values:
             del values[name]
     pkg_name, symbol_name = widget.js_type
-    return pkg_name, symbol_name, PropsContainer(values)
+    return '@js-package::' + pkg_name, symbol_name, PropsContainer(values)
 
 
 class WidgetComposition(Widget):
@@ -290,7 +290,7 @@ class RawWidget(object):
 @as_transitionable(RawWidget, tag='widget')
 def _format_RawWidget(widget, req, path): # pylint: disable=invalid-name
     pkg_name, symbol_name = widget.js_type
-    return pkg_name, symbol_name, PropsContainer(widget.values)
+    return '@js-package::' + pkg_name, symbol_name, PropsContainer(widget.values)
 
 
 def raw_widget(*args, **kwargs):

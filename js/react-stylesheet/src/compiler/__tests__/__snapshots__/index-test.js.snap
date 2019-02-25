@@ -1,0 +1,112 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`compiles base 1`] = `".name-3453589912 { box-sizing:border-box;color:red;-moz-box-sizing:border-box; }"`;
+
+exports[`compiles base w/ hyphenated pseudo 1`] = `
+".name-835539425 { box-sizing:border-box;color:red;-moz-box-sizing:border-box; }
+.name-835539425:first-of-type { color:white; }"
+`;
+
+exports[`compiles base w/ pseudo 1`] = `
+".name-4152472924 { box-sizing:border-box;color:red;-moz-box-sizing:border-box; }
+.name-4152472924:hover { color:white; }"
+`;
+
+exports[`compiles base w/ variant 1`] = `
+".name-3787234260 { box-sizing:border-box;color:red;-moz-box-sizing:border-box; }
+.name-em-3787234260 { color:green; }"
+`;
+
+exports[`compiles border: {width: 1, color: "#aaa"} 1`] = `".name-2072691804 { box-sizing:border-box;border:1px none #aaa;-moz-box-sizing:border-box; }"`;
+
+exports[`compiles borderLeft: {width: 1, color: "#aaa"} 1`] = `".name-1310458222 { box-sizing:border-box;border-left:1px none #aaa;-moz-box-sizing:border-box; }"`;
+
+exports[`compiles boxShadow: [...] 1`] = `".name-2900070204 { box-sizing:border-box;box-shadow:inset 10px 10px 2px 0px #000, 10px 10px 2px 0px #000;-moz-box-sizing:border-box; }"`;
+
+exports[`compiles boxShadow: [string, syntax] 1`] = `".name-3601847877 { box-sizing:border-box;box-shadow:inset 10px 10px 2px 0px #000000, 10px 10px 2px 0px #000;-moz-box-sizing:border-box; }"`;
+
+exports[`compiles boxShadow: {inset: true, x: 10, y: 10, blur: 2} 1`] = `".name-3236153268 { box-sizing:border-box;box-shadow:inset 10px 10px 2px 0px #000;-moz-box-sizing:border-box; }"`;
+
+exports[`compiles boxShadow: {x: 10, y: 10, blur: 2} 1`] = `".name-4089814949 { box-sizing:border-box;box-shadow:10px 10px 2px 0px #000;-moz-box-sizing:border-box; }"`;
+
+exports[`compiles double pseudo (intermediate) 1`] = `
+".name-2140471804 { box-sizing:border-box;color:black;-moz-box-sizing:border-box; }
+.name-2140471804:hover { color:white; }
+.name-2140471804:hover:focus { color:red; }"
+`;
+
+exports[`compiles double pseudo 1`] = `
+".name-1964502581 { box-sizing:border-box;-moz-box-sizing:border-box; }
+.name-1964502581:hover:focus { color:red; }"
+`;
+
+exports[`compiles double variant 1`] = `
+".name-738622249 { box-sizing:border-box;-moz-box-sizing:border-box; }
+.name-em-it-738622249 { color:white; }"
+`;
+
+exports[`compiles double variant w/ pseudo 1`] = `
+".name-1503884393 { box-sizing:border-box;-moz-box-sizing:border-box; }
+.name-em-it-1503884393:hover { color:white; }"
+`;
+
+exports[`compiles double variant w/ separate variants 1`] = `
+".name-1493009270 { box-sizing:border-box;-moz-box-sizing:border-box; }
+.name-it-1493009270 { color:green; }
+.name-em-1493009270 { color:red; }
+.name-em-it-1493009270 { color:white; }"
+`;
+
+exports[`compiles margin: {top: 10, left: 20} 1`] = `".name-3529124678 { box-sizing:border-box;margin:10px 0  0 20px;-moz-box-sizing:border-box; }"`;
+
+exports[`compiles padding: {horizontal: 10} 1`] = `".name-1069691317 { box-sizing:border-box;padding:0 10px  0 10px;-moz-box-sizing:border-box; }"`;
+
+exports[`compiles padding: {top: 10, left: 20} 1`] = `".name-3373188341 { box-sizing:border-box;padding:10px 0  0 20px;-moz-box-sizing:border-box; }"`;
+
+exports[`compiles padding: {vertical: 10, top: 5} 1`] = `".name-3039752285 { box-sizing:border-box;padding:5px 0  10px 0;-moz-box-sizing:border-box; }"`;
+
+exports[`compiles padding: {vertical: 10} 1`] = `".name-1499766917 { box-sizing:border-box;padding:10px 0  10px 0;-moz-box-sizing:border-box; }"`;
+
+exports[`compiles pseudo 1`] = `
+".name-3401997047 { box-sizing:border-box;-moz-box-sizing:border-box; }
+.name-3401997047:hover { color:white; }"
+`;
+
+exports[`compiles textShadow: {x: 10, y: 10} 1`] = `".name-2508243037 { box-sizing:border-box;text-shadow:10px 10px 0px #000;-moz-box-sizing:border-box; }"`;
+
+exports[`compiles to hyphenated name 1`] = `".name-2485039551 { box-sizing:border-box;text-overflow:ellipsis;-moz-box-sizing:border-box; }"`;
+
+exports[`compiles to numbers to px 1`] = `".name-3303449114 { box-sizing:border-box;width:10px;-moz-box-sizing:border-box; }"`;
+
+exports[`compiles transition: [...] 1`] = `".name-74592062 { box-sizing:border-box;transition:margin 10s ease 0s, top 2s ease 0s;-moz-box-sizing:border-box;-webkit-transition:margin 10s ease 0s, top 2s ease 0s; }"`;
+
+exports[`compiles transition: {property: "margin", duration: 10} 1`] = `".name-103602807 { box-sizing:border-box;transition:margin 10s ease 0s;-moz-box-sizing:border-box;-webkit-transition:margin 10s ease 0s; }"`;
+
+exports[`compiles variant 1`] = `
+".name-3731669368 { box-sizing:border-box;-moz-box-sizing:border-box; }
+.name-em-3731669368 { color:red; }"
+`;
+
+exports[`compiles variant pseudo 1`] = `
+".name-176078336 { box-sizing:border-box;-moz-box-sizing:border-box; }
+.name-em-176078336:hover { color:white; }"
+`;
+
+exports[`compiles variant w/ double pseudo (intermediate) 1`] = `
+".name-528473674 { box-sizing:border-box;-moz-box-sizing:border-box; }
+.name-em-528473674 { color:black; }
+.name-em-528473674:hover { color:white; }
+.name-em-528473674:hover:focus { color:red; }"
+`;
+
+exports[`compiles variant w/ variant pseudo 1`] = `
+".name-1493225839 { box-sizing:border-box;-moz-box-sizing:border-box; }
+.name-em-1493225839 { color:red; }
+.name-em-1493225839:hover { color:white; }"
+`;
+
+exports[`handles arrays 1`] = `".name-2507791098 { box-sizing:border-box;color:red;color:white;-moz-box-sizing:border-box; }"`;
+
+exports[`keeps numbers for unitless properties 1`] = `".name-3183045173 { box-sizing:border-box;order:10;-moz-box-sizing:border-box;-webkit-order:10;-ms-flex-order:10; }"`;
+
+exports[`skips empty values 1`] = `".name-1219157076 { box-sizing:border-box;color:red;-moz-box-sizing:border-box; }"`;

@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "workspaces": ["*"],
+  "resolutions": {
+    "**/react": "0.14.9",
+    "**/react-dom": "0.14.9"
+  }
+}

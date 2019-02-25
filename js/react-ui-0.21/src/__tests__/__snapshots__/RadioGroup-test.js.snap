@@ -1,0 +1,138 @@
+exports[`test renders 1`] = `
+<div
+  className="div--213234647"
+  onBlur={[Function anonymous]}
+  onFocus={[Function anonymous]}
+  onKeyDown={[Function anonymous]}
+  role="radiogroup"
+  tabIndex={0}>
+  <div
+    className="div--2161302543 div--vertical--2161302543">
+    <div
+      title={undefined}
+      variant={
+        Object {
+          "disabled": undefined,
+          "ltr": true,
+          "rtl": false
+        }
+      }>
+      <input
+        aria-labelledby="aria1"
+        checked={true}
+        className="input--125707658"
+        disabled={undefined}
+        idx={0}
+        inputRef={[Function anonymous]}
+        onBlur={[Function noop]}
+        onChange={[Function anonymous]}
+        onFocus={[Function noop]}
+        tabIndex={-1}
+        type="radio" />
+      <div
+        className="Block--671161322 Block--ltr--671161322"
+        onClick={[Function anonymous]}
+        style={
+          Object {
+            "bottom": undefined,
+            "display": undefined,
+            "float": undefined,
+            "height": undefined,
+            "left": undefined,
+            "marginBottom": undefined,
+            "marginLeft": undefined,
+            "marginRight": undefined,
+            "marginTop": undefined,
+            "maxHeight": undefined,
+            "maxWidth": undefined,
+            "minHeight": undefined,
+            "minWidth": undefined,
+            "paddingBottom": undefined,
+            "paddingLeft": undefined,
+            "paddingRight": undefined,
+            "paddingTop": undefined,
+            "position": "relative",
+            "right": undefined,
+            "textAlign": undefined,
+            "top": undefined,
+            "verticalAlign": undefined,
+            "whiteSpace": undefined,
+            "width": undefined
+          }
+        }>
+        <div
+          className="div--1068038228"
+          id="aria1">
+          A
+        </div>
+        <div
+          className="div--3582280542" />
+      </div>
+    </div>
+  </div>
+  <div
+    className="div--2161302543 div--vertical--2161302543">
+    <div
+      title={undefined}
+      variant={
+        Object {
+          "disabled": undefined,
+          "ltr": true,
+          "rtl": false
+        }
+      }>
+      <input
+        aria-labelledby="aria2"
+        checked={false}
+        className="input--125707658"
+        disabled={undefined}
+        idx={1}
+        inputRef={[Function anonymous]}
+        onBlur={[Function noop]}
+        onChange={[Function anonymous]}
+        onFocus={[Function noop]}
+        tabIndex={-1}
+        type="radio" />
+      <div
+        className="Block--671161322 Block--ltr--671161322"
+        onClick={[Function anonymous]}
+        style={
+          Object {
+            "bottom": undefined,
+            "display": undefined,
+            "float": undefined,
+            "height": undefined,
+            "left": undefined,
+            "marginBottom": undefined,
+            "marginLeft": undefined,
+            "marginRight": undefined,
+            "marginTop": undefined,
+            "maxHeight": undefined,
+            "maxWidth": undefined,
+            "minHeight": undefined,
+            "minWidth": undefined,
+            "paddingBottom": undefined,
+            "paddingLeft": undefined,
+            "paddingRight": undefined,
+            "paddingTop": undefined,
+            "position": "relative",
+            "right": undefined,
+            "textAlign": undefined,
+            "top": undefined,
+            "verticalAlign": undefined,
+            "whiteSpace": undefined,
+            "width": undefined
+          }
+        }>
+        <div
+          className="div--1068038228"
+          id="aria2">
+          B
+        </div>
+        <div
+          className="div--3582280542" />
+      </div>
+    </div>
+  </div>
+</div>
+`;

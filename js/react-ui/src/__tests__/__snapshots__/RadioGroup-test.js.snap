@@ -1,0 +1,217 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<div
+  className={CompiledCSSWithVariants {}}
+  onBlur={[Function]}
+  onFocus={[Function]}
+  onKeyDown={[Function]}
+  role="radiogroup"
+  tabIndex={0}
+>
+  <div
+    className={
+      CompiledCSSWithVariants {
+        "vertical": Object {
+          "lastChild": Object {
+            "marginBottom": 0,
+          },
+          "marginBottom": 4,
+        },
+      }
+    }
+  >
+    <div
+      title={undefined}
+    >
+      <input
+        aria-labelledby="aria1"
+        checked={true}
+        className={
+          CompiledCSSWithVariants {
+            "base": Object {
+              "verticalAlign": "middle",
+            },
+          }
+        }
+        disabled={undefined}
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        tabIndex={-1}
+        type="radio"
+      />
+      <div
+        className={
+          CompiledCSSWithVariants {
+            "base": Object {
+              "cursor": "default",
+              "display": "inline-block",
+              "userSelect": "none",
+              "verticalAlign": "middle",
+            },
+            "ltr": Object {
+              "marginLeft": 8,
+            },
+          }
+        }
+        onClick={[Function]}
+        style={
+          Object {
+            "bottom": undefined,
+            "display": undefined,
+            "float": undefined,
+            "height": undefined,
+            "left": undefined,
+            "marginBottom": undefined,
+            "marginLeft": undefined,
+            "marginRight": undefined,
+            "marginTop": undefined,
+            "maxHeight": undefined,
+            "maxWidth": undefined,
+            "minHeight": undefined,
+            "minWidth": undefined,
+            "paddingBottom": undefined,
+            "paddingLeft": undefined,
+            "paddingRight": undefined,
+            "paddingTop": undefined,
+            "position": "relative",
+            "right": undefined,
+            "textAlign": undefined,
+            "top": undefined,
+            "verticalAlign": undefined,
+            "whiteSpace": undefined,
+            "width": undefined,
+          }
+        }
+      >
+        <div
+          className={
+            CompiledCSSWithVariants {
+              "base": Object {
+                "color": "#444",
+                "fontSize": "0.875rem",
+                "fontWeight": 200,
+              },
+            }
+          }
+          id="aria1"
+        >
+          A
+        </div>
+        <div
+          className={
+            CompiledCSSWithVariants {
+              "base": Object {
+                "fontSize": "0.6rem",
+              },
+            }
+          }
+        />
+      </div>
+    </div>
+  </div>
+  <div
+    className={
+      CompiledCSSWithVariants {
+        "vertical": Object {
+          "lastChild": Object {
+            "marginBottom": 0,
+          },
+          "marginBottom": 4,
+        },
+      }
+    }
+  >
+    <div
+      title={undefined}
+    >
+      <input
+        aria-labelledby="aria2"
+        checked={false}
+        className={
+          CompiledCSSWithVariants {
+            "base": Object {
+              "verticalAlign": "middle",
+            },
+          }
+        }
+        disabled={undefined}
+        onBlur={[Function]}
+        onChange={[Function]}
+        onFocus={[Function]}
+        tabIndex={-1}
+        type="radio"
+      />
+      <div
+        className={
+          CompiledCSSWithVariants {
+            "base": Object {
+              "cursor": "default",
+              "display": "inline-block",
+              "userSelect": "none",
+              "verticalAlign": "middle",
+            },
+            "ltr": Object {
+              "marginLeft": 8,
+            },
+          }
+        }
+        onClick={[Function]}
+        style={
+          Object {
+            "bottom": undefined,
+            "display": undefined,
+            "float": undefined,
+            "height": undefined,
+            "left": undefined,
+            "marginBottom": undefined,
+            "marginLeft": undefined,
+            "marginRight": undefined,
+            "marginTop": undefined,
+            "maxHeight": undefined,
+            "maxWidth": undefined,
+            "minHeight": undefined,
+            "minWidth": undefined,
+            "paddingBottom": undefined,
+            "paddingLeft": undefined,
+            "paddingRight": undefined,
+            "paddingTop": undefined,
+            "position": "relative",
+            "right": undefined,
+            "textAlign": undefined,
+            "top": undefined,
+            "verticalAlign": undefined,
+            "whiteSpace": undefined,
+            "width": undefined,
+          }
+        }
+      >
+        <div
+          className={
+            CompiledCSSWithVariants {
+              "base": Object {
+                "color": "#444",
+                "fontSize": "0.875rem",
+                "fontWeight": 200,
+              },
+            }
+          }
+          id="aria2"
+        >
+          B
+        </div>
+        <div
+          className={
+            CompiledCSSWithVariants {
+              "base": Object {
+                "fontSize": "0.6rem",
+              },
+            }
+          }
+        />
+      </div>
+    </div>
+  </div>
+</div>
+`;

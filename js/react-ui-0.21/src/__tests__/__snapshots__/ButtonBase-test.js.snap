@@ -1,0 +1,89 @@
+exports[`test renders with icon and caption 1`] = `
+<button
+  aria-pressed={undefined}
+  className="button--2864346000"
+  disabled={undefined}
+  href={undefined}
+  role="button"
+  style={
+    Object {
+      "height": undefined,
+      "textAlign": undefined,
+      "width": undefined
+    }
+  }>
+  <div
+    className="div--457433472">
+    <span
+      name="plus" />
+  </div>
+  <div
+    className="div--457433472">
+    Caption
+  </div>
+</button>
+`;
+
+exports[`test renders with just caption 1`] = `
+<button
+  aria-pressed={undefined}
+  className="button--2864346000"
+  disabled={undefined}
+  href={undefined}
+  role="button"
+  style={
+    Object {
+      "height": undefined,
+      "textAlign": undefined,
+      "width": undefined
+    }
+  }>
+  <div
+    className="div--457433472">
+    OK
+  </div>
+</button>
+`;
+
+exports[`test renders with just icon (element) 1`] = `
+<button
+  aria-pressed={undefined}
+  className="button--2864346000"
+  disabled={undefined}
+  href={undefined}
+  role="button"
+  style={
+    Object {
+      "height": undefined,
+      "textAlign": undefined,
+      "width": undefined
+    }
+  }>
+  <div
+    className="div--457433472">
+    <icon />
+  </div>
+</button>
+`;
+
+exports[`test renders with just icon (text) 1`] = `
+<button
+  aria-pressed={undefined}
+  className="button--2864346000"
+  disabled={undefined}
+  href={undefined}
+  role="button"
+  style={
+    Object {
+      "height": undefined,
+      "textAlign": undefined,
+      "width": undefined
+    }
+  }>
+  <div
+    className="div--457433472">
+    <span
+      name="plus" />
+  </div>
+</button>
+`;

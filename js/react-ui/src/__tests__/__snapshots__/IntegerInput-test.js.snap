@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders 1`] = `
+<input
+  className={
+    CompiledCSSWithVariants {
+      "base": Object {
+        "backgroundColor": "#fff",
+        "backgroundImage": "none",
+        "border": Object {
+          "color": "#ccc",
+          "style": "solid",
+          "width": 1,
+        },
+        "borderRadius": 2,
+        "boxShadow": Object {
+          "blur": 1,
+          "color": "rgba(0, 0, 0, 0.075)",
+          "x": 0,
+          "y": 1,
+        },
+        "color": "#000",
+        "display": "block",
+        "focus": Object {
+          "border": Object {
+            "color": "#708698",
+            "style": "solid",
+            "width": 1,
+          },
+          "boxShadow": Array [
+            Object {
+              "blur": 1,
+              "color": "rgba(0, 0, 0, 0.075)",
+              "inset": true,
+              "x": 0,
+              "y": 1,
+            },
+            Object {
+              "color": "rgba(0, 126, 229, 0.5)",
+              "spread": 2,
+              "x": 0,
+              "y": 0,
+            },
+          ],
+          "outline": "none",
+        },
+        "fontSize": "14px",
+        "lineHeight": 1.42857143,
+        "padding": Object {
+          "horizontal": 12,
+          "vertical": 6,
+        },
+        "transition": Array [
+          Object {
+            "duration": 0.15,
+            "property": "border-coolor",
+            "timingFunction": "ease-in-out",
+          },
+          Object {
+            "duration": 0.15,
+            "property": "box-shadow",
+            "timingFunction": "ease-in-out",
+          },
+        ],
+        "width": "100%",
+      },
+    }
+  }
+  disabled={undefined}
+  onChange={[Function]}
+  value=""
+/>
+`;

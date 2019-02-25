@@ -1,0 +1,9 @@
+{
+  "name": "rex-demo-baseline",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.js",
+  "dependencies": {
+    "react": "^0.14.9"
+  }
+}

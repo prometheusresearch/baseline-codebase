@@ -1,0 +1,73 @@
+{
+  "name": "react-forms",
+  "version": "2.0.0",
+  "description": "Forms library for React",
+  "homepage": "http://prometheusresearch.github.io/react-forms/",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "make test-cov"
+  },
+  "nyc": {
+    "exclude": [
+      "*.js",
+      "lib/*.js",
+      "lib/**/*.js",
+      "coverage/*.js",
+      "examples/**/*.js",
+      "**/__tests__/*.js",
+      "**/__tests__/fixtures/*.js"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "prometheusresearch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/prometheusresearch/react-forms.git"
+  },
+  "keywords": [
+    "forms",
+    "react",
+    "react-component"
+  ],
+  "author": "Prometheus Research",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/prometheusresearch/react-forms/issues"
+  },
+  "peerDependencies": {
+    "react": "^0.14.0 || ^15.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.8.0",
+    "babel-core": "^6.7.2",
+    "babel-loader": "^6.2.4",
+    "babel-preset-prometheusresearch": "^0.1.0",
+    "coveralls": "^2.11.8",
+    "doctoc": "^1.0.0",
+    "eslint": "^2.4.0",
+    "eslint-config-prometheusresearch": "^0.2.0",
+    "jsdom": "^6.3.0",
+    "mocha": "^2.3.2",
+    "node-libs-browser": "^1.0.0",
+    "nyc": "^6.1.1",
+    "power-assert": "^1.3.1",
+    "prettier": "^1.7.0",
+    "react": "^0.14.0 || ^15.0.0",
+    "react-addons-test-utils": "^15.4.1",
+    "react-dom": "^0.14.0 || ^15.0.0",
+    "sinon": "^1.16.1",
+    "tape": "^2.13.4"
+  },
+  "dependencies": {
+    "derivable": "1.0.0-beta11",
+    "generate-function": "^2.0.0",
+    "generate-object-property": "^1.1.0",
+    "invariant": "^2.2.1",
+    "jsonpointer": "^3.0.0",
+    "lodash": "^4.0.0",
+    "memoize-decorator": "^1.0.2",
+    "react-derivable": "^0.2.0",
+    "react-stylesheet-old": "*"
+  }
+}

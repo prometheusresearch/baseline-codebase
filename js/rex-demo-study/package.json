@@ -1,8 +1,0 @@
-{
-  "name": "rex-demo-study",
-  "version": "1.0.0",
-  "description": "Demo widgets/actions/extensions for RexStudy",
-  "main": "./lib/index",
-  "author": "Prometheus Research LLC",
-  "license": "Proprietary"
-}

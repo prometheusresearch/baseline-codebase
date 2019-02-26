@@ -6,7 +6,6 @@ TODO
 
 * How repositories/projects are organized
 * Branching, naming conventions
-* props.codebase
 * Typical workflow; feature branching, etc
 * Makefile targets and config; what they do, how to use
 * Python vs JavaScript vs Generic
@@ -35,6 +34,7 @@ TODO
 .. toctree::
    :maxdepth: 1
 
+   props_codebase
    development_environment
    continuous_integration
 

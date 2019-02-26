@@ -1,6 +1,16 @@
-X.X.X (2019-XX-XX)
+3.0.0 (2019-XX-XX)
 ==================
 
+* Rearranged JS packages and build conventions around the use of a common Yarn
+  workspace.
+* Enhanced the ``init`` target of the Makefile to prompt the user for type of
+  installation to perform. In addition to the "local" and "docker" types of
+  installations, support for a "kube" mode has been added to deploy images to
+  a Kubernetes cluster instead of using docker-compose.
+* Added a ``sync`` target to the Makefile to run a bi-directional filesystem
+  synchronization between the local source code and the development container.
+* Added a ``status`` target to the Makefile to give basic information about the
+  current development mode of the project.
 * Updated rexdb Docker images to ``2019.02.04``.
 * Fixed several packages & tests to support Python 3.7.
 

@@ -473,7 +473,7 @@ configure-docker:
 
 
 configure-kube:
-	@command -v gcloud >/dev/null 2>&1 || (echo "${RED}Cannot find kubectl!${NORM}" && false)
+	@command -v kubectl >/dev/null 2>&1 || (echo "${RED}Cannot find kubectl!${NORM}" && false)
 	${MAKE} .kubeconfig
 	@echo kube > .devmode
 .PHONY: configure-kube

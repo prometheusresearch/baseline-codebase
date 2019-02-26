@@ -127,7 +127,7 @@ status-local:
 	@echo "Development environment is initialized in the ${BOLD}local${NORM} mode."
 	@[ "$$VIRTUAL_ENV" = "${CURDIR}" ] && \
 	echo "The environment is active." || \
-	echo "The environment is not active.  To activate, run \"${CYAN}. ./bin/activate${NORM}\"."
+	echo "The environment is ${BOLD}${RED}not active${NORM}. To activate, run: ${CYAN}. ./bin/activate${NORM}"
 	@echo
 .PHONY: status-local
 
@@ -136,14 +136,14 @@ status-docker:
 	@echo "Development environment is initialized in the ${BOLD}docker${NORM} mode."
 	@[ "$$VIRTUAL_ENV" = "${CURDIR}" ] && \
 	echo "The environment is active." || \
-	echo "The environment is not active.  To activate, run \"${CYAN}. ./bin/activate${NORM}\"."
-	@PORT=$$(docker-compose port nginx 80 2>/dev/null | sed s/0.0.0.0://g) && \
-	echo "The application is exposed at \"${CYAN}localhost:$$PORT${NORM}\"." || \
-	echo "Application container is down.  To restart, run \"${CYAN}make up${NORM}\"."
+	echo "The environment is ${BOLD}${RED}not active${NORM}. To activate, run: ${CYAN}. ./bin/activate${NORM}"
+	@PORT=$$(docker-compose port nginx 80 2>/dev/null | sed s/0.0.0.0://g) && [ -z "$$PORT" ] && \
+	echo "Application container ${BOLD}${RED}is down${NORM}. To restart, run: ${CYAN}make up${NORM}" || \
+	echo "The application is exposed at: ${CYAN}http://localhost:$$PORT${NORM}"
 	@[ -e ${CURDIR}/.st/syncthing.pid ] && kill -0 `cat ${CURDIR}/.st/syncthing.pid` > /dev/null 2>&1 && \
 	echo "Source code is being synchronized with the application container." || \
-	echo "Source code is not synchronized with the application container.  To synchronize, run \"${CYAN}make sync${NORM}\"."
-	@echo "To delete the environment and free the associated resources, run \"${CYAN}make purge${NORM}\"."
+	echo "Source code is ${BOLD}${RED}not synchronized${NORM} with the application container. To synchronize, run: ${CYAN}make sync${NORM}"
+	@echo "To delete the environment and free the associated resources, run: ${CYAN}make purge${NORM}"
 	@echo
 .PHONY: status-docker
 
@@ -152,15 +152,15 @@ status-kube:
 	@echo "Development environment is initialized in the ${BOLD}kubernetes${NORM} mode."
 	@[ "$$VIRTUAL_ENV" = "${CURDIR}" ] && \
 	echo "The environment is active." || \
-	echo "The environment is not active.  To activate, run \"${CYAN}. ./bin/activate${NORM}\"."
+	echo "The environment is ${BOLD}${RED}not active${NORM}. To activate, run: ${CYAN}. ./bin/activate${NORM}"
 	@DOMAIN=$$(kubectl get ingress develop -n ${NS} -o jsonpath="{.spec.rules[0].host}" 2>/dev/null) && \
 	[ -n "$$DOMAIN" ] && \
 	echo "The application is exposed at \"${CYAN}$$DOMAIN${NORM}\"." || \
 	echo "Failed to determine how the application is exposed."
 	@[ -e ${CURDIR}/.st/syncthing.pid ] && kill -0 `cat ${CURDIR}/.st/syncthing.pid` > /dev/null 2>&1 && \
 	echo "Source code is being synchronized with the application container." || \
-	echo "Source code is not synchronized with the application container.  To synchronize, run \"${CYAN}make sync${NORM}\"."
-	@echo "To delete the environment and free the associated resources, run \"${CYAN}make purge${NORM}\"."
+	echo "Source code is ${BOLD}${RED}not synchronized${NORM} with the application container. To synchronize, run: ${CYAN}make sync${NORM}"
+	@echo "To delete the environment and free the associated resources, run: ${CYAN}make purge${NORM}"
 	@echo
 .PHONY: status-kube
 

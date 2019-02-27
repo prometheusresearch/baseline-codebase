@@ -4,7 +4,7 @@ image_resource:
   type: docker-image
   source:
     repository: rexdb/build
-    tag: 2019.02.04
+    tag: 2019.02.27
 
 inputs:
 - name: codebase

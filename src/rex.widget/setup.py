@@ -17,7 +17,6 @@ setup(
     packages=find_packages('src'),
     namespace_packages=['rex'],
     install_requires=[
-        'rex.expression',
         'rex.setup',
         'rex.core',
         'rex.port',

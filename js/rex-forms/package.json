@@ -24,6 +24,7 @@
     "react-dom": "^0.14.0 || ^15.0.0"
   },
   "dependencies": {
+    "rex-expression": "*",
     "@prometheusresearch/react-ui-0.21": "*",
     "react-forms": "*",
     "derivable": "1.0.0-beta11",

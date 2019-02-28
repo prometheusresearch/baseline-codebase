@@ -35,7 +35,6 @@ setup(
         'rex.db',
         'rex.web',
         'rex.instrument',
-        'rex.expression',
         'rex.i18n',
         'rios.core>=0.7,<0.9',
     ],

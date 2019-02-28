@@ -28,7 +28,6 @@ setup(
         'rex.db',
         'rex.dbgui',
         'rex.deploy',
-        'rex.expression',
         'rex.file',
         'rex.form_previewer',
         'rex.formbuilder',

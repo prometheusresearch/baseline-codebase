@@ -13,6 +13,7 @@
     "react": "^0.14.0"
   },
   "dependencies": {
+    "rex-expression": "*",
     "react-forms-old": "*",
     "classnames": "^2.1.2",
     "component-emitter": "1.1.2",

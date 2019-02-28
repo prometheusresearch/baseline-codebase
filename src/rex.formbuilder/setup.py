@@ -25,7 +25,6 @@ setup(
         'rex.core',
         'rex.web',
         'rex.instrument',
-        'rex.expression',
         'rex.forms',
         'rex.restful',
         'rex.widget',

@@ -9,7 +9,6 @@ SRC_PY = \
 	src/rex.ctl \
 	src/rex.web \
 	src/rex.sendmail \
-	src/rex.expression \
 	src/rex.db \
 	src/rex.port \
 	src/rex.deploy \

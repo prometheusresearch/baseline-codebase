@@ -13,7 +13,7 @@ from .sql import (mangle, sql_value, sql_name, sql_cast,
         plpgsql_text_random_key, plpgsql_integer_offset_key,
         plpgsql_text_offset_key)
 from .image import (TableImage, ColumnImage, UniqueKeyImage, CASCADE,
-        SET_DEFAULT, BEFORE, INSERT)
+        SET_DEFAULT, BEFORE, AFTER, INSERT, INSERT_UPDATE_DELETE)
 from .cluster import Cluster, get_cluster
 import datetime
 import weakref
@@ -347,7 +347,23 @@ class TableModel(Model):
         meta = uncomment(image)
         if meta.update(label=saved_label, title=saved_title):
             image.alter_comment(meta.dump())
+        # Create the audit trigger.
+        cls._audit(schema, image)
         return cls(schema, image)
+
+    @classmethod
+    def _audit(cls, schema, image):
+        # Create the audit trigger.
+        catalog = schema.driver.get_catalog()
+        if 'audit' not in catalog:
+            return
+        audit_image = catalog['audit']
+        if audit_image.comment != 'version: 2.11.0':
+            return
+        if ('audit', ()) not in audit_image.procedures:
+            return
+        audit_procedure_image = audit_image.procedures['audit', ()]
+        image.create_trigger('audit', AFTER, INSERT_UPDATE_DELETE, audit_procedure_image, ());
 
     def __init__(self, schema, image):
         super(TableModel, self).__init__(schema, image)

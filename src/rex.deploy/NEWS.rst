@@ -5,10 +5,12 @@
 .. contents:: Table of Contents
 
 
-2.11.0 (2019-XX-XX)
+2.11.0 (2019-03-05)
 ===================
 
 * Use ``jsonb`` type for storing JSON values.
+* Do not use ``CREATE TABLE`` trigger to create the audit trigger
+  (compatibility with Google Cloud SQL).
 
 
 2.10.1 (2018-03-23)

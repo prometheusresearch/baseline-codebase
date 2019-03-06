@@ -111,22 +111,13 @@
         END;
         $$;
 
-        -- Event trigger that installs the audit trigger on new tables.
-        CREATE OR REPLACE FUNCTION audit.deploy_audit() RETURNS event_trigger LANGUAGE plpgsql AS $$
-        BEGIN
-            PERFORM audit.deploy_audit(NULL);
-        END;
-        $$;
-
-        IF current_version IS NULL THEN
-            -- Install the trigger on `CREATE TABLE`.
-            CREATE EVENT TRIGGER deploy_audit ON ddl_command_end
-            WHEN TAG IN ('CREATE TABLE', 'CREATE TABLE AS', 'SELECT INTO')
-            EXECUTE PROCEDURE audit.deploy_audit();
-        END IF;
+        -- Delete the `CREATE TABLE` trigger (not supported by Google Cloud SQL).
+        DROP FUNCTION IF EXISTS audit.deploy_audit() CASCADE;
 
         -- Install the audit trigger.
-        PERFORM audit.deploy_audit(NULL);
+        IF current_version IS NULL THEN
+            PERFORM audit.deploy_audit(NULL);
+        END IF;
     END;
     $_$;
 

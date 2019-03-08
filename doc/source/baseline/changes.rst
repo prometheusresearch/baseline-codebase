@@ -11,7 +11,7 @@
   synchronization between the local source code and the development container.
 * Added a ``status`` target to the Makefile to give basic information about the
   current development mode of the project.
-* Updated rexdb Docker images to ``2019.02.27``.
+* Updated rexdb Docker images to ``2019.03.08``.
 * Fixed several packages & tests to support Python 3.7.
 * Removed the ``rex.expression`` Python package, as it is no longer needed (the
   JS code it provides still lives with the rest of the JS packages).

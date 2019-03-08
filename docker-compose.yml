@@ -7,7 +7,7 @@ services:
       source: pgdata
       target: /var/lib/postgresql/data
   develop:
-    image: rexdb/build:2019.02.27
+    image: rexdb/build:2019.03.08
     command: [sleep, infinity]
     working_dir: /app
     ports:

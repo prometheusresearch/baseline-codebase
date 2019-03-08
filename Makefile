@@ -480,8 +480,36 @@ configure-kube:
 
 
 .kubeconfig:
-	@command -v gcloud >/dev/null 2>&1 || (echo "${RED}Cannot find gcloud!${NORM}" && false)
+	@[ -e /var/run/secrets/kubernetes.io/serviceaccount ] || command -v gcloud >/dev/null 2>&1 || (echo "${RED}Cannot find gcloud!${NORM}" && false)
 	@set -e; \
+	[ -e /var/run/secrets/kubernetes.io/serviceaccount ] || exit 0; \
+	echo; \
+	echo "We need to prepare the Kubernetes context."; \
+	echo; \
+	echo "Already running in a Kubernetes cluster."; \
+	namespace="${KUBE_NAMESPACE}"; \
+	while [ -z "$$namespace" ]; do \
+		default_namespace="$$(id -u -n)-$$(basename "${CURDIR}")"; \
+		echo; \
+		echo "Choose the namespace:"; \
+		read -p "[$$default_namespace]> " n; \
+		n="$${n:-$$default_namespace}"; \
+		if echo "$$n" | grep -Eq '^[0-9a-zA-Z-]+$$'; then \
+			namespace="$$n"; \
+		else \
+			echo "${RED}Invalid choice!${NORM}"; \
+		fi; \
+	done; \
+	echo; \
+	kubectl config set-context default --namespace="$$namespace"; \
+	kubectl config use-context default; \
+	echo; \
+	echo "The following Kubernetes context has been prepared:"; \
+	echo; \
+	echo "Namespace: ${CYAN}$$namespace${NORM}"; \
+	echo
+	@set -e; \
+	[ ! -e /var/run/secrets/kubernetes.io/serviceaccount ] || exit 0; \
 	echo; \
 	echo "We need to prepare the Kubernetes context."; \
 	project="${KUBE_PROJECT}"; \

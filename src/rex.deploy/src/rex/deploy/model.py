@@ -683,7 +683,7 @@ class ColumnModel(Model):
                 pass
             if type != 'text' and isinstance(value, str):
                 value = self.VALUE_MAP.get(value, value)
-            if type == 'json' and value is not None:
+            if type in ('json', 'json-json') and value is not None:
                 value = json.dumps(value, sort_keys=True)
             if value is not None:
                 value = sql_value(value)

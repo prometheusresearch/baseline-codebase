@@ -70,6 +70,8 @@ below. For type specific parameters consult the form fiel type reference.
   If HTSQL expression returns ``null()`` then validation succeeds; otherwise
   return a string which is treated as error message.
 
+  Note that query specified in ``validate`` is affected by configured masks.
+
 
 Form field types
 ----------------

@@ -77,6 +77,9 @@ class FormAction(EntityAction):
             ...
             {id := ...}
 
+
+        Note that query specified in ``query`` is affected by configured masks.
+
         """)
 
     @cached_property

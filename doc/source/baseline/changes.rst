@@ -1,4 +1,4 @@
-3.0.0 (2019-XX-XX)
+3.0.0 (2019-03-21)
 ==================
 
 * Rearranged JS packages and build conventions around the use of a common Yarn
@@ -16,6 +16,13 @@
 * Removed the ``rex.expression`` Python package, as it is no longer needed (the
   JS code it provides still lives with the rest of the JS packages).
 * HTSQL shell: fixed export when the last line of the query is commented out.
+* Package updates:
+
+  * REX.DEPLOY: 2.11.0
+
+    * Use ``jsonb`` type for storing JSON values.
+    * Do not use ``CREATE TABLE`` trigger to create the audit trigger
+      (compatibility with Google Cloud SQL).
 
 
 2.0.0 (2018-12-19)

@@ -48,7 +48,8 @@ MacOS
     $ brew link --overwrite kubernetes-cli
 
 3. Install the Google Cloud SDK. Download links and instructions can be found
-   on `Google's website <https://cloud.google.com/sdk/docs/quickstart-macos>`_.
+   on the `MacOS Quickstart
+   <https://cloud.google.com/sdk/docs/quickstart-macos>`_ page.
 
 
 Ubuntu
@@ -59,8 +60,9 @@ Ubuntu
 
     $ sudo apt-get install make kubectl
 
-2. Install the Google Cloud SDK. Instructions can be found on `Google's website
-   <https://cloud.google.com/sdk/docs/quickstart-debian-ubuntu>`_.
+2. Install the Google Cloud SDK. Instructions can be found on the `Linux
+   Quickstart <https://cloud.google.com/sdk/docs/quickstart-debian-ubuntu>`_
+   page.
 
 
 Docker

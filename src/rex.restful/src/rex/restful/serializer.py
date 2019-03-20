@@ -254,7 +254,7 @@ class YamlSerializer(Serializer):
         self.deserialize_datetimes = deserialize_datetimes
 
     def serialize(self, value):
-        return yaml.dump(value, Dumper=RestfulYamlDumper, allow_unicode=True)
+        return yaml.dump(value, Dumper=RestfulYamlDumper, allow_unicode=True, default_flow_style=None)
 
     def deserialize(self, value):
         # TODO: deserialize '12:34:56' into datetime.time()

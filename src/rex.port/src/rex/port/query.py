@@ -46,7 +46,11 @@ class Port:
 
     def __str__(self):
         # Renders YAML representation of the schema tree.
-        return yaml.dump(self.tree.to_yaml(), Dumper=ArmDumper).rstrip()
+        return yaml.dump(
+            self.tree.to_yaml(),
+            Dumper=ArmDumper,
+            default_flow_style=None,
+        ).rstrip()
 
     def __repr__(self):
         args = []

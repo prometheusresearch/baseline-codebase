@@ -179,7 +179,11 @@ class Model(Extension):
         return self.fact().to_yaml()
 
     def __str__(self):
-        return yaml.dump(self.to_yaml(), Dumper=FactDumper).rstrip()
+        return yaml.dump(
+            self.to_yaml(),
+            Dumper=FactDumper,
+            default_flow_style=None,
+        ).rstrip()
 
 
 class ModelSchema:
@@ -273,7 +277,11 @@ class ModelSchema:
         return [fact.to_yaml() for fact in self.facts()]
 
     def __str__(self):
-        return yaml.dump(self.to_yaml(), Dumper=FactDumper).rstrip()
+        return yaml.dump(
+            self.to_yaml(),
+            Dumper=FactDumper,
+            default_flow_style=None,
+        ).rstrip()
 
 
 class ConstraintModel(Model):

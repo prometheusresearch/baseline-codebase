@@ -209,7 +209,7 @@ This serializer will encode structures into their YAML equivalents::
     >>> serializer.serialize({'an_obj': object()})  # doctest: +ELLIPSIS
     Traceback (most recent call last):
         ...
-    yaml.representer.RepresenterError: cannot represent an object: <object object at 0x...>
+    yaml.representer.RepresenterError: ...
 
 
 Given YAML maps or arrays, this serializer will decode them into their

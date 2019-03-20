@@ -568,7 +568,11 @@ class Fact(Extension):
         return "%s()" % self.__class__.__name__
 
     def __str__(self):
-        return yaml.dump(self.to_yaml(), Dumper=FactDumper).rstrip()
+        return yaml.dump(
+            self.to_yaml(),
+            Dumper=FactDumper,
+            default_flow_style=None,
+        ).rstrip()
 
     def to_yaml(self, full=True):
         raise NotImplementedError("%s.to_yaml()" % self.__class__.__name__)

@@ -18,10 +18,13 @@ export default class StyleableDOMComponent extends React.Component {
   };
 
   static style(spec) {
+    let displayName = getComponentDisplayName(this);
+    let Component = this.Component;
+    let stylesheet = this.stylesheet.override(spec);
     return class extends StyleableDOMComponent {
-      static displayName = getComponentDisplayName(this);
-      static Component = this.Component;
-      static stylesheet = this.stylesheet.override(spec);
+      static displayName = displayName;
+      static Component = Component;
+      static stylesheet = stylesheet;
     };
   }
 

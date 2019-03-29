@@ -5,6 +5,12 @@
 .. contents:: Table of Contents
 
 
+2.11.1 (2019-03-28)
+===================
+
+* HTSQL JSON conversion should use ``jsonb``.
+
+
 2.11.0 (2019-03-05)
 ===================
 

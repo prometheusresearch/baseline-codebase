@@ -1,3 +1,9 @@
+3.0.1 (TBD)
+===========
+
+* Fixes to JSON conversions in rex.deploy/HTSQL.
+
+
 3.0.0 (2019-03-21)
 ==================
 

@@ -53,14 +53,22 @@ TEST_PY = ${SRC_PY}
 # This variable contains a list of Python packages that will be installed in
 # the development environment.
 TOOL_PY = \
-	wheel==0.32.3 \
+	wheel==0.33.1 \
 	pbbt==0.1.6 \
-	coverage==4.5.2 \
-	pytest==4.0.1 \
-	honcho \
-	tidypy \
-	sphinx-rtd-theme==0.4.1 \
-	Sphinx==1.7.6
+	coverage==4.5.3 \
+	pytest==4.4.0 \
+	Sphinx==1.7.6 \
+	sphinx-rtd-theme==0.4.3 \
+	honcho==1.0.1 \
+	tidypy
+
+
+### JavaScript Workspaces
+# This variable contains a list of directories in this repository that will be
+# treated as Yarn Workspaces, and will be initialized as such during the
+# "develop" and "install" targets.
+WORKSPACE_JS = \
+	js
 
 
 ### JavaScript Project Builds
@@ -75,14 +83,14 @@ SRC_JS = \
 # This variable contains a list of directories in this repository that will
 # have their test suites executed with "yarn run test" during the "test"
 # target.
-TEST_JS =
+TEST_JS = ${SRC_JS}
 
 
 ### JavaScript Development Tools
 # This variable contains a list of JavaScript packages that will be installed
 # in the top-level development environment.
 TOOL_JS = \
-	yarn@1.12.3
+	yarn@1.15.2
 
 
 ### Generic, Make-based Project Builds

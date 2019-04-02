@@ -257,7 +257,9 @@ build-js: ./bin/activate
 	@echo "${BLUE}`date '+%Y-%m-%d %H:%M:%S%z'` Building Javascript packages...${NORM}"
 	set -ex; \
 	if [ -z "$$TMPDIR" ]; then export TMPDIR=/tmp; fi; \
-	./bin/yarn --cwd ./js; \
+	for ws in ${WORKSPACE_JS}; do \
+		./bin/yarn --cwd $$ws; \
+	done; \
 	for src in ${SRC_JS}; do \
 		./bin/yarn --cwd $$src run build; \
 	done

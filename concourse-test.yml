@@ -19,9 +19,11 @@ run:
   - -exc
   - |
     apt-get update
-    apt-get install --yes postgresql
+    apt-get install --yes postgresql redis
     service postgresql start
     su - postgres -c 'createuser -s root'
+    sed -i 's/bind 127.0.0.1 ::1/bind 127.0.0.1/' /etc/redis/redis.conf
+    service redis-server start
     make init-local
     make test
   dir: codebase

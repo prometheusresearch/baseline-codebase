@@ -2,6 +2,7 @@
 ===========
 
 * Fixes to JSON conversions in rex.deploy/HTSQL.
+* Fixes to Redis support in rex.asynctask.
 
 
 3.0.0 (2019-03-21)

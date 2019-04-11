@@ -133,7 +133,7 @@ class AsyncTransport(Extension):
 
         # pylint: disable=no-self-use
 
-        if isinstance(payload, str):
+        if isinstance(payload, (str, bytes)):
             payload = json.loads(payload)
         return payload
 

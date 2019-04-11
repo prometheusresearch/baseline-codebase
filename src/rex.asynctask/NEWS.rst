@@ -5,6 +5,12 @@ REX.ASYNCTASK Change Log
 .. contents:: Table of Contents
 
 
+0.7.1
+=====
+
+* Fixed ``redis`` transport to work on Python 3.
+
+
 0.7.0 (2018-04-24)
 ==================
 

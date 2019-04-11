@@ -32,3 +32,4 @@ static/www/ravenjs
 /socket
 /nohup.out
 /pyvenv.cfg
+.pytest_cache

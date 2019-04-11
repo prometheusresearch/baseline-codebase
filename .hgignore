@@ -9,6 +9,8 @@ build
 dist
 node_modules
 *.sync-conflict-*
+__pycache__
+.pytest_cache
 
 syntax: regexp
 ^.devmode$

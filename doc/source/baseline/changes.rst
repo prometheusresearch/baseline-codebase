@@ -1,5 +1,5 @@
-3.0.1 (TBD)
-===========
+3.0.1 (2019-04-12)
+==================
 
 * Fixes to JSON conversions in rex.deploy/HTSQL.
 * Fixes to Redis support in rex.asynctask.

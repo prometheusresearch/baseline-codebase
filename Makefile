@@ -17,7 +17,7 @@ PRJ_VER ?= ${firstword ${shell hg identify -t | cut -d / -f 2 -s} ${shell hg ide
 
 
 # Display available targets.
-default:
+help:
 	@echo "Available targets:"
 	@echo "make init                    initialize the development environment"
 	@echo "make status                  show the configuration of the development environment"
@@ -30,7 +30,7 @@ default:
 	@echo "make upload REGISTRY=<URL>   upload the application image to the Docker registry"
 	@echo "make shell                   opens a bash shell in the build container"
 	@echo "make sync                    start synchronizing files with the build container"
-.PHONY: default
+.PHONY: help
 
 
 # Initialize the development environment.
@@ -219,12 +219,15 @@ down-kube:
 
 # Delete the development environment.
 purge:
-	${MAKE} purge-${DEVMODE}
+	${MAKE} --no-print-directory purge-${DEVMODE}
 .PHONY: purge
 
 
 purge-local:
-	-rm -r bin data include lib lib64 run share pyvenv.cfg socket
+	rm -rf bin data include lib lib64 run share pyvenv.cfg socket
+	for ws in ${WORKSPACE_JS}; do \
+		find $$ws -depth -name node_modules -type d -exec rm -rf "{}" \; ;\
+	done
 .PHONY: purge-local
 
 
@@ -243,7 +246,11 @@ purge-kube:
 
 # Open up a shell in the develop container
 shell: ./bin/activate
-	${RSH} /bin/bash
+	@if [ "${DEVMODE}" = "docker" -o "${DEVMODE}" = "kube" ]; then \
+		./bin/rsh ;\
+	else \
+		echo "You're in ${BOLD}local${NORM} mode -- this does nothing." ;\
+	fi;
 .PHONY: shell
 
 

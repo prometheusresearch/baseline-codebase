@@ -11,6 +11,7 @@ node_modules
 *.sync-conflict-*
 __pycache__
 .pytest_cache
+pip-wheel-metadata
 
 syntax: regexp
 ^.devmode$

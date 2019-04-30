@@ -67,7 +67,7 @@ export function NavMenuItems(props: Props) {
           item: itemFirst,
           key: itemKey(itemFirst),
           selected: selectedFirst,
-          submenu: submenu
+          submenu: submenu.length > 0 ? submenu : null
         })
       );
     }

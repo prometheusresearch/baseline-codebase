@@ -58,21 +58,23 @@ let HorizontalMavMenuItem = React.forwardRef((props, ref) => {
       onMouseLeave={handlePopoverClose}
     >
       {props.title}
-      <mui.Popper
-        open={open}
-        placement="bottom-start"
-        anchorEl={anchorEl}
-        style={{ zIndex: 1000 }}
-      >
-        <ThemeProvider>
-          <mui.Paper
-            elevation={2}
-            classes={{ root: classes.HorizontalMavMenuItemMenu }}
-          >
-            <mui.MenuList>{props.menu}</mui.MenuList>
-          </mui.Paper>
-        </ThemeProvider>
-      </mui.Popper>
+      {props.menu != null ? (
+        <mui.Popper
+          open={open}
+          placement="bottom-start"
+          anchorEl={anchorEl}
+          style={{ zIndex: 1000 }}
+        >
+          <ThemeProvider>
+            <mui.Paper
+              elevation={2}
+              classes={{ root: classes.HorizontalMavMenuItemMenu }}
+            >
+              <mui.MenuList>{props.menu}</mui.MenuList>
+            </mui.Paper>
+          </ThemeProvider>
+        </mui.Popper>
+      ) : null}
     </mui.MenuItem>
   );
 });

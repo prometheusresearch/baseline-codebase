@@ -5,9 +5,9 @@
 import React from 'react';
 
 import {emptyFunction} from 'rex-widget/lang';
-import {VBox, HBox} from 'rex-widget/layout';
-import * as stylesheet from 'rex-widget/stylesheet';
-import * as css from 'rex-widget/css';
+import {VBox, HBox} from '@prometheusresearch/react-box';
+import * as stylesheet from 'rex-widget/Stylesheet';
+import * as css from 'rex-widget/CSS';
 
 let style = stylesheet.create({
   Root: {

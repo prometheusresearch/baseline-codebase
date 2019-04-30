@@ -2,22 +2,22 @@
  * @flow
  */
 
-import * as types from './types';
+import * as types from "./types";
 
-import * as React from 'react';
-import * as recharts from 'recharts';
-import {VBox} from 'react-stylesheet';
+import * as React from "react";
+import * as recharts from "recharts";
+import { VBox } from "react-stylesheet";
 
-import * as ui from '../ui';
-import ChartTitle from './ChartTitle';
-import Preloader from './Preloader';
-import NoDataMessage from './NoDataMessage';
-import SelectAttribute from './SelectAttribute';
-import ScatterChart from './ScatterChart';
+import * as ui from "../ui";
+import ChartTitle from "./ChartTitle";
+import Preloader from "./Preloader";
+import NoDataMessage from "./NoDataMessage";
+import SelectAttribute from "./SelectAttribute";
+import ScatterChart from "./ScatterChart";
 
 type ScatterChartEditorProps = types.ChartEditorBaseProps<types.ScatterChart> & {
   optionsForX: $ReadOnlyArray<ui.SelectOptionWithStringLabel>,
-  optionsForY: $ReadOnlyArray<ui.SelectOptionWithStringLabel>,
+  optionsForY: $ReadOnlyArray<ui.SelectOptionWithStringLabel>
 };
 
 export default function ScatterChartEditor({
@@ -28,24 +28,26 @@ export default function ScatterChartEditor({
   data,
   optionsForX,
   optionsForY,
-  dataIsUpdating,
+  dataIsUpdating
 }: ScatterChartEditorProps) {
   const onXChange = (xColumn, option) => {
-    const label = option && typeof option.label === 'string' ? option.label : null;
+    const label =
+      option && typeof option.label === "string" ? option.label : null;
     onChart({
-      type: 'scatter',
+      type: "scatter",
       ...chart,
       xColumn,
-      xLabel: label,
+      xLabel: label
     });
   };
   const onYChange = (yColumn, option) => {
-    const label = option && typeof option.label === 'string' ? option.label : null;
+    const label =
+      option && typeof option.label === "string" ? option.label : null;
     onChart({
-      type: 'scatter',
+      type: "scatter",
       ...chart,
       yColumn,
-      yLabel: label,
+      yLabel: label
     });
   };
   return (

@@ -2,15 +2,15 @@
  * @flow
  */
 
-import * as React from 'react';
-import {Element} from 'react-stylesheet';
+import * as React from "react";
+import { Element } from "react-stylesheet";
 
 type HeaderProps = {
   children?: React.Node,
   paddingLeft?: number,
   paddingRight?: number,
   paddingTop?: number,
-  paddingBottom?: number,
+  paddingBottom?: number
 };
 
 export default function Header({
@@ -31,7 +31,8 @@ export default function Header({
       Component="h4"
       fontSize="11pt"
       fontWeight={300}
-      {...props}>
+      {...props}
+    >
       {children}
     </Element>
   );

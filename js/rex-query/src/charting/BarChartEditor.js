@@ -2,23 +2,24 @@
  * @flow
  */
 
-import * as types from './types';
+import * as types from "./types";
 
-import * as React from 'react';
-import {VBox} from 'react-stylesheet';
-import * as ReactUI from '@prometheusresearch/react-ui';
+import * as React from "react";
+import { VBox } from "react-stylesheet";
+// $FlowFixMe: ...
+import * as ReactUI from "@prometheusresearch/react-ui";
 
-import * as ui from '../ui';
-import SelectAttribute from './SelectAttribute';
-import SelectAttributeWithColor from './SelectAttributeWithColor';
-import ChartControlPanel from './ChartControlPanel';
-import ChartControl from './ChartControl';
-import NoNumericAttributeText from './NoNumericAttributeText';
-import BarChart from './BarChart';
+import * as ui from "../ui";
+import SelectAttribute from "./SelectAttribute";
+import SelectAttributeWithColor from "./SelectAttributeWithColor";
+import ChartControlPanel from "./ChartControlPanel";
+import ChartControl from "./ChartControl";
+import NoNumericAttributeText from "./NoNumericAttributeText";
+import BarChart from "./BarChart";
 
 type BarChartEditorProps = types.ChartEditorBaseProps<types.BarChart> & {
   optionsForX: $ReadOnlyArray<ui.SelectOption>,
-  optionsForBar: $ReadOnlyArray<ui.SelectOption>,
+  optionsForBar: $ReadOnlyArray<ui.SelectOption>
 };
 
 export default function BarChartEditor({
@@ -29,20 +30,21 @@ export default function BarChartEditor({
   data,
   optionsForX,
   optionsForBar,
-  dataIsUpdating,
+  dataIsUpdating
 }: BarChartEditorProps) {
   const barList = chart.barList.concat({
     valueColumn: null,
-    color: '#8884d8',
+    color: "#8884d8"
   });
 
   const onLabelChange = (labelColumn, option) => {
-    const label = option && typeof option.label === 'string' ? option.label : null;
+    const label =
+      option && typeof option.label === "string" ? option.label : null;
     onChart({
-      type: 'bar',
+      type: "bar",
       ...chart,
       labelColumn,
-      label,
+      label
     });
   };
 
@@ -63,16 +65,16 @@ export default function BarChartEditor({
             } else {
               barList.splice(index, 1, {
                 ...barList[index],
-                ...values,
+                ...values
               });
             }
-            onChart({type: 'bar', ...chart, barList});
+            onChart({ type: "bar", ...chart, barList });
           };
 
           const onBarChange = (valueColumn, option) => {
             const label =
-              option && typeof option.label === 'string' ? option.label : null;
-            updateBar({...bar, valueColumn, label});
+              option && typeof option.label === "string" ? option.label : null;
+            updateBar({ ...bar, valueColumn, label });
           };
 
           return (
@@ -85,25 +87,27 @@ export default function BarChartEditor({
               value={bar.valueColumn}
               onChange={onBarChange}
               color={bar.color}
-              onColorChange={color => updateBar({...bar, color})}
+              onColorChange={color => updateBar({ ...bar, color })}
             />
           );
         })}
-        {chart.barList.length > 1 &&
+        {chart.barList.length > 1 && (
           <ChartControl
             label="Stack vertically"
             control={
               <ReactUI.Checkbox
-                value={chart.stacked === 'vertical'}
+                value={chart.stacked === "vertical"}
                 onChange={vertical =>
                   onChart({
-                    type: 'bar',
+                    type: "bar",
                     ...chart,
-                    stacked: vertical ? 'vertical' : 'horizontal',
-                  })}
+                    stacked: vertical ? "vertical" : "horizontal"
+                  })
+                }
               />
             }
-          />}
+          />
+        )}
       </ChartControlPanel>
       <VBox flexGrow={1} alignItems="center">
         <BarChart

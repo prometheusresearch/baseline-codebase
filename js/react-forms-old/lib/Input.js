@@ -4,16 +4,18 @@
  */
 'use strict';
 
-var React           = require('react/addons');
-var cloneWithProps  = React.addons.cloneWithProps;
+var React           = require('react');
+var PropTypes       = require('prop-types');
+var ReactCreateClass = require('create-react-class');
+var ReactDOM        = require('react-dom');
 var FormPropTypes   = require('./PropTypes');
 
-var Input = React.createClass({
+var Input = ReactCreateClass({
 
   propTypes: {
     value: FormPropTypes.Value.isRequired,
-    input: React.PropTypes.any,
-    markDirty: React.PropTypes.bool
+    input: PropTypes.any,
+    markDirty: PropTypes.bool
   },
 
   render(): ?ReactElement {
@@ -31,7 +33,7 @@ var Input = React.createClass({
     Component = Component || value.node.props.get('input');
     if (Component) {
       return React.isValidElement(Component) ?
-        cloneWithProps(Component, props) :
+        React.cloneElement(Component, props) :
         <Component {...props} />;
     } else {
       return <input {...props} type="text" />;
@@ -50,7 +52,10 @@ var Input = React.createClass({
     if (input.focus) {
       input.focus();
     } else {
-      input.getDOMNode().focus();
+      let node = ReactDOM.findDOMNode(input)
+      if (node != null) {
+        node.focus();
+      }
     }
   },
 

@@ -2,37 +2,38 @@
  * @flow
  */
 
-import type {QueryNavigation, Context, QueryPipeline} from '../model/types';
-import type {Actions} from '../state';
-import type {SearchCallback} from '../ui/Search';
+import type { QueryNavigation, Context, QueryPipeline } from "../model/types";
+import type { Actions } from "../state";
+import type { SearchCallback } from "../ui/Search";
 
-import React from 'react';
-import {VBox, HBox} from 'react-stylesheet';
-import * as css from 'react-stylesheet/css';
+import React from "react";
+import PropTypes from "prop-types";
+import { VBox, HBox } from "react-stylesheet";
+import * as css from "react-stylesheet/css";
 
-import * as t from '../model/Type';
-import * as qn from '../model/QueryNavigation';
-import {Theme, Menu, Icon, Label, TagLabel, NavigationMenu} from '../ui';
-import QueryPanelBase from './QueryPanelBase';
+import * as t from "../model/Type";
+import * as qn from "../model/QueryNavigation";
+import { Theme, Menu, Icon, Label, TagLabel, NavigationMenu } from "../ui";
+import QueryPanelBase from "./QueryPanelBase";
 
 type AddQueryPanelProps = {
   pipeline: QueryPipeline,
   onSearch?: SearchCallback,
   title?: string,
-  onClose: () => *,
+  onClose: () => *
 };
 
 export default class AddQueryPanel extends React.Component<AddQueryPanelProps> {
   context: {
-    actions: Actions,
+    actions: Actions
   };
 
   static contextTypes = {
-    actions: React.PropTypes.object,
+    actions: PropTypes.object
   };
 
   render() {
-    let {pipeline, onSearch, title = 'Pick', ...props} = this.props;
+    let { pipeline, onSearch, title = "Pick", ...props } = this.props;
     return (
       <QueryPanelBase {...props} theme={Theme.placeholder} title={title}>
         <AddQueryMenu pipeline={pipeline} onSearch={onSearch} />
@@ -43,53 +44,56 @@ export default class AddQueryPanel extends React.Component<AddQueryPanelProps> {
 
 type AddQueryMenuProps = {
   pipeline: QueryPipeline,
-  onSearch?: SearchCallback,
+  onSearch?: SearchCallback
 };
 
 class AddQueryMenu extends React.Component<AddQueryMenuProps> {
   context: {
-    actions: Actions,
+    actions: Actions
   };
 
   static contextTypes = {
-    actions: React.PropTypes.object,
+    actions: PropTypes.object
   };
 
-  onAdd = ({path}) => {
+  onAdd = ({ path }) => {
     this.context.actions.appendDefine({
       at: this.props.pipeline,
       path,
-      select: true,
+      select: true
     });
   };
 
-  onNavigate = ({path}) => {
+  onNavigate = ({ path }) => {
     this.context.actions.appendNavigate({
       at: this.props.pipeline,
-      path,
+      path
     });
   };
 
-  onAggregate = ({path}) => {
-    let {pipeline} = this.props;
-    let {aggregate} = pipeline.context.domain;
+  onAggregate = ({ path }) => {
+    let { pipeline } = this.props;
+    let { aggregate } = pipeline.context.domain;
     this.context.actions.appendDefineAndAggregate({
       at: pipeline,
       path,
-      aggregate: aggregate.count,
+      aggregate: aggregate.count
     });
   };
 
   render() {
-    let {pipeline: {pipeline}, onSearch} = this.props;
+    let {
+      pipeline: { pipeline },
+      onSearch
+    } = this.props;
     let context =
-      pipeline[pipeline.length - 1].name === 'select'
+      pipeline[pipeline.length - 1].name === "select"
         ? pipeline[pipeline.length - 2].context
         : pipeline[pipeline.length - 1].context;
-    let isAtRoot = context.type.name === 'void';
+    let isAtRoot = context.type.name === "void";
     return (
       <NavigationMenu onSearch={onSearch} context={context}>
-        {navigation =>
+        {navigation => (
           <AddQueryMenuSection
             navigation={navigation}
             noNavigate={isAtRoot}
@@ -99,7 +103,8 @@ class AddQueryMenu extends React.Component<AddQueryMenuProps> {
             onAggregate={this.onAggregate}
             context={context}
             path={[]}
-          />}
+          />
+        )}
       </NavigationMenu>
     );
   }
@@ -113,7 +118,7 @@ type AddQueryMenuSectionProps = {
   onAggregate: Function,
   noNavigate?: boolean,
   nonHierarchical?: boolean,
-  navigation?: Map<string, QueryNavigation>,
+  navigation?: Map<string, QueryNavigation>
 };
 
 function AddQueryMenuSection({
@@ -124,12 +129,12 @@ function AddQueryMenuSection({
   onAggregate,
   noNavigate,
   nonHierarchical,
-  navigation,
+  navigation
 }: AddQueryMenuSectionProps) {
   return (
     <Menu.MenuGroup>
       {navigation &&
-        Array.from(navigation.values()).map(item =>
+        Array.from(navigation.values()).map(item => (
           <AddQueryMenuButton
             nonHierarchical={nonHierarchical}
             noNavigate={noNavigate}
@@ -139,25 +144,25 @@ function AddQueryMenuSection({
             onAdd={onAdd}
             onNavigate={onNavigate}
             onAggregate={onAggregate}
-          />,
-        )}
+          />
+        ))}
     </Menu.MenuGroup>
   );
 }
 
 type AddQueryMenuButtonState = {
-  open: boolean,
+  open: boolean
 };
 
 class AddQueryMenuButton extends React.Component<*, AddQueryMenuButtonState> {
   state = {
-    open: false,
+    open: false
   };
 
   toggleOpen = (e: UIEvent) => {
     e.stopPropagation();
     if (t.isRecordLike(this.props.item.context.type)) {
-      this.setState(state => ({...state, open: !state.open}));
+      this.setState(state => ({ ...state, open: !state.open }));
     }
   };
 
@@ -165,15 +170,15 @@ class AddQueryMenuButton extends React.Component<*, AddQueryMenuButtonState> {
     if (e != null) {
       e.stopPropagation();
     }
-    this.props.onAdd({path: this.props.path});
+    this.props.onAdd({ path: this.props.path });
   };
 
   onNavigate = () => {
-    this.props.onNavigate({path: this.props.path});
+    this.props.onNavigate({ path: this.props.path });
   };
 
   onAggregate = () => {
-    this.props.onAggregate({path: this.props.path});
+    this.props.onAggregate({ path: this.props.path });
   };
 
   render() {
@@ -184,9 +189,9 @@ class AddQueryMenuButton extends React.Component<*, AddQueryMenuButtonState> {
       onNavigate,
       onAggregate,
       noNavigate,
-      nonHierarchical,
+      nonHierarchical
     } = this.props;
-    let {open} = this.state;
+    let { open } = this.state;
 
     let menu = [];
     if (!noNavigate) {
@@ -195,24 +200,28 @@ class AddQueryMenuButton extends React.Component<*, AddQueryMenuButtonState> {
           icon="⇩"
           title={`Follow ${item.label} and discard all other attributes`}
           onClick={this.onNavigate}
-          key="navigate">
+          key="navigate"
+        >
           Follow {item.label}
         </Menu.MenuButtonSecondary>,
-        item.regularContext.type.card === 'seq' &&
+        item.regularContext.type.card === "seq" && (
           <Menu.MenuButtonSecondary
             icon="∑"
             title={`Compute summarizations for ${item.label}`}
             onClick={this.onAggregate}
-            key="summarize">
+            key="summarize"
+          >
             Summarize {item.label}
-          </Menu.MenuButtonSecondary>,
+          </Menu.MenuButtonSecondary>
+        ),
         <Menu.MenuButtonSecondary
           icon={<Icon.IconPlus />}
           title={`Link "${item.label}" query`}
           onClick={this.onAddQuery}
-          key="define">
+          key="define"
+        >
           Link {item.label}
-        </Menu.MenuButtonSecondary>,
+        </Menu.MenuButtonSecondary>
       );
     }
 
@@ -221,18 +230,22 @@ class AddQueryMenuButton extends React.Component<*, AddQueryMenuButtonState> {
     if (nonHierarchical) {
       icon = <Icon.IconPlus />;
     } else if (t.isRecordLike(item.context.type)) {
-      icon = open ? '▾' : '▸';
+      icon = open ? "▾" : "▸";
     }
 
     return (
-      <VBox background="#f1f1f1" borderBottom={open ? '1px solid #ddd' : 'none'}>
+      <VBox
+        background="#f1f1f1"
+        borderBottom={open ? "1px solid #ddd" : "none"}
+      >
         <Menu.MenuButton
           icon={icon}
           title={`Add ${item.label} query`}
-          iconTitle={open ? 'Collapse' : 'Expand'}
+          iconTitle={open ? "Collapse" : "Expand"}
           onClick={this.onAddQuery}
           onIconClick={!nonHierarchical ? this.toggleOpen : undefined}
-          menu={menu.length > 0 ? menu : null}>
+          menu={menu.length > 0 ? menu : null}
+        >
           <HBox flexGrow={1} alignItems="center">
             <VBox flexGrow={1} flexShrink={1}>
               <Label label={item.label} />
@@ -240,8 +253,7 @@ class AddQueryMenuButton extends React.Component<*, AddQueryMenuButtonState> {
             {item.fromQuery && <TagLabel marginLeft="auto">Query</TagLabel>}
           </HBox>
         </Menu.MenuButton>
-        {!nonHierarchical &&
-          open &&
+        {!nonHierarchical && open && (
           <AddQueryMenuButtonMenu
             onAdd={onAdd}
             onNavigate={onNavigate}
@@ -249,7 +261,8 @@ class AddQueryMenuButton extends React.Component<*, AddQueryMenuButtonState> {
             context={item.context}
             path={path}
             noNavigate={noNavigate}
-          />}
+          />
+        )}
       </VBox>
     );
   }
@@ -261,11 +274,11 @@ function AddQueryMenuButtonMenu({
   onAggregate,
   context,
   path,
-  noNavigate,
+  noNavigate
 }) {
   let navigation = qn.getNavigation(context, false);
   return (
-    <VBox marginLeft={15} borderLeft={css.border(1, '#ddd')}>
+    <VBox marginLeft={15} borderLeft={css.border(1, "#ddd")}>
       <AddQueryMenuSection
         navigation={navigation}
         onAdd={onAdd}

@@ -2,40 +2,38 @@
  * @flow
  */
 
-import * as React from 'react';
-import {style, VBox} from 'react-stylesheet';
+import * as React from "react";
+import { style, VBox } from "react-stylesheet";
 
 type MessageProps = {
-  children?: React.Node,
+  children?: React.Node
 };
 
-export default function Message({children, ...props}: MessageProps) {
+export default function Message({ children, ...props }: MessageProps) {
   return (
     <MessageRoot {...props}>
-      <MessageChildrenWrapper>
-        {children}
-      </MessageChildrenWrapper>
+      <MessageChildrenWrapper>{children}</MessageChildrenWrapper>
     </MessageRoot>
   );
 }
 
 let MessageRoot = style(VBox, {
-  displayName: 'MessageRoot',
+  displayName: "MessageRoot",
   base: {
     flexGrow: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
 
     fontWeight: 200,
-    fontSize: '10pt',
-    color: '#aaa',
-  },
+    fontSize: "10pt",
+    color: "#aaa"
+  }
 });
 
-let MessageChildrenWrapper = style('p', {
-  displayName: 'MessageChildrenWrapper',
+let MessageChildrenWrapper = style("p", {
+  displayName: "MessageChildrenWrapper",
   base: {
-    width: '80%',
-    textAlign: 'center',
-  },
+    width: "80%",
+    textAlign: "center"
+  }
 });

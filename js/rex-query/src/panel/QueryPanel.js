@@ -2,30 +2,30 @@
  * @flow
  */
 
-import type {Query} from '../model/types';
-import type {SearchCallback} from '../ui/Search';
+import type { Query } from "../model/types";
+import type { SearchCallback } from "../ui/Search";
 
-import React from 'react';
+import React from "react";
 
-import * as q from '../model/Query';
-import DefineQueryPanel from './DefineQueryPanel';
-import AggregateQueryPanel from './AggregateQueryPanel';
-import GroupQueryPanel from './GroupQueryPanel';
-import FilterQueryPanel from './FilterQueryPanel';
-import NavigateQueryPanel from './NavigateQueryPanel';
-import {ErrorPanel} from '../ui';
+import * as q from "../model/Query";
+import DefineQueryPanel from "./DefineQueryPanel";
+import AggregateQueryPanel from "./AggregateQueryPanel";
+import GroupQueryPanel from "./GroupQueryPanel";
+import FilterQueryPanel from "./FilterQueryPanel";
+import NavigateQueryPanel from "./NavigateQueryPanel";
+import { ErrorPanel } from "../ui";
 
 type QueryPanelProps = {
   query: Query,
   onClose: () => *,
-  onSearch?: SearchCallback,
+  onSearch?: SearchCallback
 };
 
 export default function QueryPanel(props: QueryPanelProps) {
-  const {query, onClose, onSearch, ...rest} = props;
+  const { query, onClose, onSearch, ...rest } = props;
 
   let topBanner = null;
-  if (query.context.type.name === 'invalid') {
+  if (query.context.type.name === "invalid") {
     topBanner = (
       <ErrorPanel borderBottom>
         This query combinator is invalid, either fix it or remove it.
@@ -76,6 +76,6 @@ export default function QueryPanel(props: QueryPanelProps) {
         onSearch={onSearch}
       />
     ),
-    otherwise: _query => <noscript />,
+    otherwise: _query => <noscript />
   });
 }

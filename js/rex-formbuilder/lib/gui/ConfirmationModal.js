@@ -5,19 +5,21 @@
 'use strict';
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
+var PropTypes = require('prop-types');
 
 var ModalMixin = require('./Modal');
 var _ = require('../i18n').gettext;
 
 
-var ConfirmationModalInner = React.createClass({
+var ConfirmationModalInner = ReactCreateClass({
   mixins: [
     ModalMixin
   ],
 
   propTypes: {
-    onAccept: React.PropTypes.func.isRequired,
-    onReject: React.PropTypes.func.isRequired
+    onAccept: PropTypes.func.isRequired,
+    onReject: PropTypes.func.isRequired
   },
 
   renderModalContent: function () {
@@ -44,7 +46,7 @@ var ConfirmationModalInner = React.createClass({
 });
 
 
-var ConfirmationModal = React.createClass({
+var ConfirmationModal = ReactCreateClass({
   render: function () {
     return (
       <ConfirmationModalInner

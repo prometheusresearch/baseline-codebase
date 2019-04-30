@@ -3,6 +3,7 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import {getHistory} from './History';
 
@@ -38,7 +39,7 @@ const BEFOREUNLOAD_EVENT = 'beforeunload';
 export default class ConfirmNavigation extends React.Component {
 
   static propTypes = {
-    message: React.PropTypes.string.isRequired
+    message: PropTypes.string.isRequired
   };
 
   constructor(props) {
@@ -95,7 +96,7 @@ function prevent(message) {
   if (MESSAGES.length === 1) {
     let history = getHistory();
     window.addEventListener(BEFOREUNLOAD_EVENT, onBeforeUnload);
-    onBeforeLocation.cancel = history.listenBefore(onBeforeLocation);
+    onBeforeLocation.cancel = history.listen(onBeforeLocation);
   }
 }
 

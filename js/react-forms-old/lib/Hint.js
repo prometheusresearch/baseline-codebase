@@ -5,10 +5,11 @@
 'use strict';
 
 var React     = require('react');
-var PropTypes = React.PropTypes;
+var PropTypes       = require('prop-types');
+var ReactCreateClass = require('create-react-class');
 var cx        = require('classnames');
 
-var Hint = React.createClass({
+var Hint = ReactCreateClass({
 
   propTypes: {
     hint: PropTypes.string.isRequired,

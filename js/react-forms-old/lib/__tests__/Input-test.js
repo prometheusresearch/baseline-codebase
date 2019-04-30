@@ -2,6 +2,7 @@
 
 var assert                  = require('assert');
 var React                   = require('react');
+var ReactDOM                = require('react-dom');
 var TestUtils               = require('react/lib/ReactTestUtils');
 var Value                   = require('../Value');
 var {Scalar, Mapping, List} = require('../schema');
@@ -17,8 +18,8 @@ describe('<Input />:', function() {
     var inputs = TestUtils.scryRenderedDOMComponentsWithTag(component, 'input');
     assert.equal(inputs.length, 1);
     var input = inputs[0];
-    assert.equal(input.getDOMNode().type, 'text');
-    assert.equal(input.getDOMNode().className, 'someClass');
+    assert.equal(ReactDOM.findDOMNode(input).type, 'text');
+    assert.equal(ReactDOM.findDOMNode(input).className, 'someClass');
   });
 
   it('renders into component provided via props', function() {
@@ -35,9 +36,9 @@ describe('<Input />:', function() {
     var inputs = TestUtils.scryRenderedDOMComponentsWithTag(component, 'input');
     assert.equal(inputs.length, 1);
     var input = inputs[0];
-    assert.equal(input.getDOMNode().type, 'password');
-    assert.equal(input.getDOMNode().className, 'someClass');
-    assert.equal(input.getDOMNode().name, 'a');
+    assert.equal(ReactDOM.findDOMNode(input).type, 'password');
+    assert.equal(ReactDOM.findDOMNode(input).className, 'someClass');
+    assert.equal(ReactDOM.findDOMNode(input).name, 'a');
   });
 
   it('renders into component provided via schema node', function() {
@@ -48,9 +49,9 @@ describe('<Input />:', function() {
     var inputs = TestUtils.scryRenderedDOMComponentsWithTag(component, 'input');
     assert.equal(inputs.length, 1);
     var input = inputs[0];
-    assert.equal(input.getDOMNode().type, 'password');
-    assert.equal(input.getDOMNode().className, 'someClass');
-    assert.equal(input.getDOMNode().name, 'a');
+    assert.equal(ReactDOM.findDOMNode(input).type, 'password');
+    assert.equal(ReactDOM.findDOMNode(input).className, 'someClass');
+    assert.equal(ReactDOM.findDOMNode(input).name, 'a');
   });
 
   it('renders "name" attribute to the <input />', function() {
@@ -68,19 +69,19 @@ describe('<Input />:', function() {
 
     component = TestUtils.renderIntoDocument(<Input value={value.get('a')} />);
     input = TestUtils.findRenderedDOMComponentWithTag(component, 'input');
-    assert.equal(input.getDOMNode().name, 'a');
+    assert.equal(ReactDOM.findDOMNode(input).name, 'a');
 
     component = TestUtils.renderIntoDocument(<Input value={value.get('b').get('c')} />);
     input = TestUtils.findRenderedDOMComponentWithTag(component, 'input');
-    assert.equal(input.getDOMNode().name, 'b__c');
+    assert.equal(ReactDOM.findDOMNode(input).name, 'b__c');
 
     component = TestUtils.renderIntoDocument(<Input value={value.get('d').get(1)} />);
     input = TestUtils.findRenderedDOMComponentWithTag(component, 'input');
-    assert.equal(input.getDOMNode().name, 'd__1');
+    assert.equal(ReactDOM.findDOMNode(input).name, 'd__1');
 
     component = TestUtils.renderIntoDocument(<Input value={value.get('e')} />);
     input = TestUtils.findRenderedDOMComponentWithTag(component, 'input');
-    assert.equal(input.getDOMNode().name, 'note');
+    assert.equal(ReactDOM.findDOMNode(input).name, 'note');
   });
 
 });

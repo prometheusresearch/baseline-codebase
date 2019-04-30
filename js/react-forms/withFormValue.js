@@ -1,0 +1,37 @@
+/**
+ * @copyright 2015, Prometheus Research, LLC
+ * @flow strict
+ */
+
+import * as React from "react";
+import FormComponent from "./Component";
+import type {select, value} from "./types";
+
+type Props = {
+  select?: select,
+  formValue?: value,
+};
+
+function getComponentDisplayName<T>(ComponentType: React.AbstractComponent<T>) {
+  let displayName = "Component";
+  if (ComponentType.displayName != null) {
+    displayName = ComponentType.displayName;
+  } else if (ComponentType.name != null) {
+    displayName = ComponentType.name;
+  }
+  return displayName;
+}
+
+export default function withFormValue<T: Props>(Component: React.AbstractComponent<T>) {
+  let displayName = getComponentDisplayName(Component);
+
+  return class extends React.Component<T> {
+    static displayName = `withFormValue(${displayName})`;
+
+    render() {
+      let {select, formValue, ...props} = this.props;
+      let render = ({formValue}) => <Component {...props} formValue={formValue} />;
+      return <FormComponent formValue={formValue} children={render} />;
+    }
+  };
+}

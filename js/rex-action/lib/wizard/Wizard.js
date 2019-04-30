@@ -1,34 +1,34 @@
 /**
  * @copyright 2015-present, Prometheus Research, LLC
- * @flow
+ * @noflow
  */
 
-import emptyFunction from 'empty/function';
-import invariant from 'invariant';
-import * as React from 'react';
-import {VBox, HBox} from 'react-stylesheet';
+import emptyFunction from "empty/function";
+import invariant from "invariant";
+import * as React from "react";
+import { VBox, HBox } from "react-stylesheet";
 
-import {post} from 'rex-widget/lib/fetch';
-import {Preloader} from 'rex-widget/ui';
+import { post } from "rex-widget/fetch";
+import * as rexui from "rex-ui";
 
-import createLogger from 'debug';
-import type {State, Entity, IStart} from '../model/types';
-import * as E from '../model/Entity';
-import * as C from '../model/Command';
-import * as S from '../model/State';
-import * as P from '../model/Position';
-import * as SP from '../model/StatePath';
-import * as History from '../History';
-import * as Environment from '../Environment';
-import injectLocation from '../injectLocation';
+import createLogger from "debug";
+import type { State, Entity, IStart } from "../model/types";
+import * as E from "../model/Entity";
+import * as C from "../model/Command";
+import * as S from "../model/State";
+import * as P from "../model/Position";
+import * as SP from "../model/StatePath";
+import * as History from "../History";
+import * as Environment from "../Environment";
+import injectLocation from "../injectLocation";
 
-import {type PreInstruction, parseInstruction} from '../parseInstruction';
-import ActionContext from '../ActionContext';
-import {confirmNavigation} from '../ConfirmNavigation';
+import { type PreInstruction, parseInstruction } from "../parseInstruction";
+import ActionContext from "../ActionContext";
+import { confirmNavigation } from "../ConfirmNavigation";
 
-import Breadcrumb from './Breadcrumb';
-import Sidebar from './Sidebar';
-import Toolbar from './Toolbar';
+import Breadcrumb from "./Breadcrumb";
+import Sidebar from "./Sidebar";
+import Toolbar from "./Toolbar";
 
 type WizardProps = {
   data: Object,
@@ -36,23 +36,23 @@ type WizardProps = {
   domain: Object,
   actions: Object,
   initialContext: ?Object,
-  settings: {includePageBreadcrumbItem?: boolean},
+  settings: { includePageBreadcrumbItem?: boolean },
   pathPrefix: string,
   history: History.History,
-  location: History.Location,
+  location: History.Location
 };
 
 type WizardState = {
-  graph: ?State,
+  graph: ?State
 };
 
-const log = createLogger('rex-action:wizard');
+const log = createLogger("rex-action:wizard");
 
 declare var __REX_USER__: ?string;
 
 function getInitialContext(initialContext = {}) {
   initialContext = initialContext || {};
-  initialContext = {...initialContext};
+  initialContext = { ...initialContext };
   if (__REX_USER__ != null) {
     // eslint-disable-line no-undef
     initialContext.USER = `'${__REX_USER__}'`; // eslint-disable-line no-undef
@@ -62,14 +62,14 @@ function getInitialContext(initialContext = {}) {
 
 class Wizard extends React.Component<*, WizardProps, WizardState> {
   static defaultProps = {
-    title: 'Wizard',
-    icon: 'asterisk',
+    title: "Wizard",
+    icon: "asterisk",
     renderTopSidebarItem: emptyFunction,
     settings: {},
-    pathPrefix: '',
+    pathPrefix: ""
   };
 
-  static renderTitle({title}) {
+  static renderTitle({ title }) {
     return title;
   }
 
@@ -80,40 +80,36 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
   _instruction: IStart;
 
   props: WizardProps;
-  state: WizardState = {graph: null};
+  state: WizardState = { graph: null };
 
   constructor(props: WizardProps) {
     super(props);
-    const {location, domain, path, actions, initialContext} = props;
+    const { location, domain, path, actions, initialContext } = props;
     const instruction = parseInstruction(domain, actions, path);
     invariant(
-      instruction.type === 'start',
+      instruction.type === "start",
       'Wizard should start with "start" instruction but got: "%s"',
-      instruction.type,
+      instruction.type
     );
     this._instruction = instruction;
-    log('use location', location);
+    log("use location", location);
     const graph = SP.fromPath(location.pathname, {
       instruction: this._instruction,
-      context: getInitialContext(initialContext),
+      context: getInitialContext(initialContext)
     });
     this._refetch(graph);
   }
 
   render() {
-    const {graph} = this.state;
-    log('render with state:', graph);
+    const { graph } = this.state;
+    log("render with state:", graph);
     if (graph == null) {
-      return (
-        <VBox height="100%" flexGrow={1} justifyContent="center">
-          <Preloader style={{height: 'auto'}} />
-        </VBox>
-      );
+      return <rexui.PreloaderScreen />;
     }
-    const {position} = graph;
+    const { position } = graph;
     const nextPositions = S.next(graph).filter(P.isPositionAllowed);
     const siblingPositions = S.sibling(graph).filter(P.isPositionAllowed);
-    invariant(position.type === 'position', 'Invalid state');
+    invariant(position.type === "position", "Invalid state");
     const action = React.cloneElement(position.instruction.action.element, {
       key: position.instruction.action.id,
       context: position.context,
@@ -128,38 +124,51 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
           this._refetch(state.graph);
           return state;
         }),
-      toolbar: <Toolbar positions={nextPositions} onClick={this._onNext} />,
+      toolbar: <Toolbar positions={nextPositions} onClick={this._onNext} />
     });
     let showBreadcrumb = this.props.settings.includePageBreadcrumbItem ||
       position.prev != null;
     return (
       <VBox height="100%" flexGrow={1} flexDirection="column-reverse">
-        <HBox height="calc(100% - 50px)" flexGrow={1}>
-          <Sidebar
-            positions={siblingPositions}
-            currentPosition={graph.position}
-            onClick={this._onReplaceWithSibling}
-          />
+        <HBox flexBasis={0} flexGrow={1}>
+          <div style={{ zIndex: 100, display: 'flex' }}>
+            <Sidebar
+              positions={siblingPositions}
+              currentPosition={graph.position}
+              onClick={this._onReplaceWithSibling}
+            />
+          </div>
           <VBox flexGrow={1} flexShrink={1}>
             <ActionContext
               help={action.props.help}
-              toolbar={<Toolbar positions={nextPositions} onClick={this._onNext} />}>
+              toolbar={
+                <Toolbar positions={nextPositions} onClick={this._onNext} />
+              }
+            >
               {action}
             </ActionContext>
           </VBox>
         </HBox>
         {showBreadcrumb &&
-          <Breadcrumb
-            includePageBreadcrumbItem={this.props.settings.includePageBreadcrumbItem}
-            graph={graph}
-            onClick={this._onReturn}
-          />}
+          <div style={{ zIndex: 100 }}>
+            <Breadcrumb
+              height={50}
+              includePageBreadcrumbItem={
+                this.props.settings.includePageBreadcrumbItem
+              }
+              graph={graph}
+              onClick={this._onReturn}
+            />
+          </div>}
       </VBox>
     );
   }
 
-  componentDidUpdate(_prevProps: WizardProps, {graph: prevGraph}: WizardState) {
-    const {graph} = this.state;
+  componentDidUpdate(
+    _prevProps: WizardProps,
+    { graph: prevGraph }: WizardState
+  ) {
+    const { graph } = this.state;
     if (prevGraph != null && graph != null && prevGraph !== graph) {
       let path = SP.toPath(graph);
       if (path === SP.toPath(prevGraph)) {
@@ -170,7 +179,7 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
     }
   }
 
-  componentWillReceiveProps({location}: WizardProps) {
+  componentWillReceiveProps({ location }: WizardProps) {
     if (location === this.props.location) {
       return;
     }
@@ -191,7 +200,7 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
           const entity: Entity = (value: any);
           data[pos.instruction.action.id][key] = {
             id: entity.id,
-            type: E.getEntityType(entity),
+            type: E.getEntityType(entity)
           };
         } else {
           data[pos.instruction.action.id][key] = value;
@@ -200,18 +209,18 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
     });
     post(this.props.data, null, JSON.stringify(data)).then(
       this._onRefetchComplete.bind(null, graph),
-      this._onRefetchError,
+      this._onRefetchError
     );
   };
 
   _onRefetchComplete = (graph: State, data: Object) => {
     const nextGraph = S.mapPosition(graph, pos => {
       const contextUpdate = data[pos.instruction.action.id];
-      const nextContext = {...pos.context, ...contextUpdate};
-      const nextPos = {...pos, context: nextContext};
+      const nextContext = { ...pos.context, ...contextUpdate };
+      const nextPos = { ...pos, context: nextContext };
       return P.isPositionAllowed(nextPos) ? nextPos : null;
     });
-    this.setState({graph: nextGraph});
+    this.setState({ graph: nextGraph });
   };
 
   _onRefetchError = (err: Error) => {
@@ -239,7 +248,7 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
 
     let graph = SP.fromPath(pathname, {
       instruction: this._instruction,
-      context: this.props.initialContext || {},
+      context: this.props.initialContext || {}
     });
 
     this._refetch(graph);
@@ -247,37 +256,37 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
 
   _onNext = (actionId: string) => {
     this.setStateConfirmed(state => ({
-      graph: S.advanceTo(state.graph, actionId),
+      graph: S.advanceTo(state.graph, actionId)
     }));
   };
 
   _onReturn = (actionId: string) => {
     this.setStateConfirmed(state => ({
-      graph: S.returnTo(state.graph, actionId),
+      graph: S.returnTo(state.graph, actionId)
     }));
   };
 
   _onReplaceWithSibling = (siblingActionId: string) => {
     this.setStateConfirmed(state => ({
-      graph: S.replaceCurrentPositionWithSibling(state.graph, siblingActionId),
+      graph: S.replaceCurrentPositionWithSibling(state.graph, siblingActionId)
     }));
   };
 
   _onState = (stateUpdate: Object) => {
     this.setState(state => {
       const graph = S.setStateAtCurrentPosition(state.graph, stateUpdate);
-      return {...state, graph};
+      return { ...state, graph };
     });
   };
 
   _onCommand = (advance: boolean, commandName: string, ...args: any[]) => {
     this.setStateConfirmed(state => {
-      let {graph} = state;
+      let { graph } = state;
       graph = S.applyCommandAtCurrentPosition(graph, commandName, args);
       if (advance) {
         graph = S.advanceToFirst(graph);
       }
-      return {...state, graph};
+      return { ...state, graph };
     });
   };
 
@@ -295,11 +304,13 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
     this.setState(state => {
       let graph = S.updateEntity(state.graph, prevEntity, nextEntity);
       this._refetch(graph);
-      return {...state, graph};
+      return { ...state, graph };
     });
   };
 
-  setStateConfirmed = (updater: (WizardState & {graph: State}) => WizardState) => {
+  setStateConfirmed = (
+    updater: (WizardState & { graph: State }) => WizardState
+  ) => {
     if (confirmNavigation()) {
       this.setState(state => {
         if (state.graph == null) {
@@ -312,7 +323,7 @@ class Wizard extends React.Component<*, WizardProps, WizardState> {
   };
 }
 
-function normalizePathname(pathname, prefix = '') {
+function normalizePathname(pathname, prefix = "") {
   if (prefix && prefix === pathname.slice(0, prefix.length)) {
     pathname = pathname.slice(prefix.length);
   }

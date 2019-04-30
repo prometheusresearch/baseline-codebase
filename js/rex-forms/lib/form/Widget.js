@@ -3,6 +3,7 @@
  */
 
 import * as React from "react";
+import PropTypes from 'prop-types';
 import * as ReactForms from "react-forms/reactive";
 import throttle from "lodash/throttle";
 import some from "lodash/some";
@@ -23,9 +24,9 @@ let WidgetRoot = style(Block, {
 export default ReactForms.reactive(
   class Widget extends React.Component {
     static propTypes = {
-      formValue: React.PropTypes.object.isRequired,
-      disabled: React.PropTypes.bool.isRequired,
-      question: React.PropTypes.object.isRequired
+      formValue: PropTypes.object.isRequired,
+      disabled: PropTypes.bool.isRequired,
+      question: PropTypes.object.isRequired
     };
 
     static defaultProps = {
@@ -39,7 +40,15 @@ export default ReactForms.reactive(
     }
 
     render() {
-      let { formValue, children, disabled, question, ...props } = this.props;
+      let {
+        formValue, children, disabled, question,
+        instrument: _instrument,
+        coerce: _coerce,
+        editable: _editable,
+        onCommitEdit: _onCommitEdit,
+        onCancelEdit: _onCancelEdit,
+        ...props
+      } = this.props;
       let { showErrorList } = this.state;
       showErrorList =
         showErrorList ||

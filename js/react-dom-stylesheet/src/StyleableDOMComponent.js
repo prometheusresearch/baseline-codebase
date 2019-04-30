@@ -2,7 +2,8 @@
  * @copyright 2015 Prometheus Research, LLC
  */
 
-import React, {PropTypes} from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 import getComponentDisplayName from './getComponentDisplayName';
 
 export default class StyleableDOMComponent extends React.Component {
@@ -18,13 +19,10 @@ export default class StyleableDOMComponent extends React.Component {
   };
 
   static style(spec) {
-    let displayName = getComponentDisplayName(this);
-    let Component = this.Component;
-    let stylesheet = this.stylesheet.override(spec);
     return class extends StyleableDOMComponent {
-      static displayName = displayName;
-      static Component = Component;
-      static stylesheet = stylesheet;
+      static displayName = getComponentDisplayName(this);
+      static Component = this.Component;
+      static stylesheet = this.stylesheet.override(spec);
     };
   }
 

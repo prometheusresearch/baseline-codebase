@@ -23,7 +23,11 @@ export default class NumberInput extends React.Component {
 
   render() {
     let {Input} = this.constructor.stylesheet;
-    return <Input {...this.props} value={this.state.value} onChange={this.onChange} />;
+    let {value} = this.state;
+    if (value == null) {
+      value = '';
+    }
+    return <Input {...this.props} value={value} onChange={this.onChange} />;
   }
 
   componentWillReceiveProps(nextProps) {

@@ -5,11 +5,12 @@
 'use strict';
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
 
 var ModalMixin = require('./Modal');
 
 
-var TotalFailureModalInner = React.createClass({
+var TotalFailureModalInner = ReactCreateClass({
   mixins: [
     ModalMixin
   ],
@@ -26,7 +27,7 @@ var TotalFailureModalInner = React.createClass({
 });
 
 
-var TotalFailureModal = React.createClass({
+var TotalFailureModal = ReactCreateClass({
   render: function () {
     return (
       <TotalFailureModalInner

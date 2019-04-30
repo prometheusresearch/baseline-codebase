@@ -1,6 +1,6 @@
 import React from 'react';
 import {Action} from 'rex-action';
-import {VBox} from 'rex-widget/layout';
+import {VBox} from '@prometheusresearch/react-box';
 import {DataSet} from 'rex-widget/data';
 import {DataTableBase} from 'rex-widget/datatable';
 import {SearchInput} from 'rex-widget/form';

@@ -16,7 +16,7 @@ export type ComponentSpec = {
   [name: string]: CSSPropertySet,
 };
 
-export default function style<P: Object, T: string | React.ComponentType<P>>(
+export default function style<P: {}, T: string | React.ComponentType<P>>(
   Component: T,
   spec: ComponentSpec,
 ): T {
@@ -28,6 +28,7 @@ export default function style<P: Object, T: string | React.ComponentType<P>>(
 
   if (
     typeof Component !== 'string' &&
+    // $FlowFixMe: ...
     Component.defaultProps &&
     Component.defaultProps.stylesheet instanceof Stylesheet
   ) {

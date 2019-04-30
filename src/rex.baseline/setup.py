@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name='rex.baseline',
-    version='3.0.1',
+    version='3.0.0',
     description='Baseline for RexDB applications',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',

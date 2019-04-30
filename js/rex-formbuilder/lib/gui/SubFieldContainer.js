@@ -5,6 +5,7 @@
 "use strict";
 
 import React from "react";
+var PropTypes = require('prop-types');
 import { DraftSetActions } from "../actions";
 import { ELEMENT_TYPE, WORKSPACE_ELEMENT } from "./DraggableTypes";
 import WorkspaceElement from "./WorkspaceElement";
@@ -43,9 +44,9 @@ export default DropTarget(
 )(
   class SubFieldContainer extends React.Component {
     static propTypes = {
-      subFields: React.PropTypes.arrayOf(React.PropTypes.object),
-      locale: React.PropTypes.string,
-      toggleDrop: React.PropTypes.func
+      subFields: PropTypes.arrayOf(PropTypes.object),
+      locale: PropTypes.string,
+      toggleDrop: PropTypes.func
     };
 
     static getDefaultProps = {

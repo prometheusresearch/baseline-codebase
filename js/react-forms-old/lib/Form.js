@@ -26,7 +26,8 @@
 
 var {is}          = require('immutable');
 var React         = require('react');
-var PropTypes     = React.PropTypes;
+var PropTypes       = require('prop-types');
+var ReactCreateClass = require('create-react-class');
 var cx            = require('classnames');
 var FormPropTypes = require('./PropTypes');
 var Element       = require('./Element');
@@ -34,12 +35,11 @@ var Value         = require('./Value');
 var emptyFunction = require('./emptyFunction');
 var FocusStore    = require('./FocusStore');
 
-var Form = React.createClass({
+var Form = ReactCreateClass({
 
   mixins: [FocusStore.ScopeMixin],
 
   propTypes: {
-    component: PropTypes.constructor,
     defaultValue: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
     externalValidation: PropTypes.object,
     schema: FormPropTypes.Schema,

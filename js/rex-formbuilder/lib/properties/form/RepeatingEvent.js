@@ -5,6 +5,8 @@
 'use strict';
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
+var PropTypes = require('prop-types');
 var {
   Label,
   defaultValue,
@@ -16,11 +18,11 @@ var EventFieldset = require('./EventFieldset');
 var _ = require('../../i18n').gettext;
 
 
-var RepeatingEvent = React.createClass({
+var RepeatingEvent = ReactCreateClass({
   propTypes: {
     value: FormPropTypes.Value,
-    label: React.PropTypes.string,
-    hint: React.PropTypes.string
+    label: PropTypes.string,
+    hint: PropTypes.string
   },
 
   buildEvents: function () {

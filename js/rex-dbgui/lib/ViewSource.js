@@ -1,8 +1,8 @@
 import React from "react";
 import { Action } from "rex-action";
-import { Preloader } from "rex-widget/ui";
-import { VBox } from "rex-widget/layout";
+import { VBox } from "@prometheusresearch/react-box";
 import { withFetch } from "rex-widget/data";
+import * as rexui from 'rex-ui';
 
 export default withFetch(
   class ViewSource extends React.Component {
@@ -17,7 +17,7 @@ export default withFetch(
         <Action title={`${title}: ${context.table}`} noContentWrapper>
           <VBox flex={1}>
             {dump.updating ? (
-              <Preloader />
+              <rexui.PreloaderScreen />
             ) : (
               <VBox flex={1} style={{ padding: "15px" }}>
                 <textarea

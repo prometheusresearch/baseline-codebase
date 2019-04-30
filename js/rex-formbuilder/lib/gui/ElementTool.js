@@ -5,6 +5,7 @@
 "use strict";
 
 import React from "react";
+var PropTypes = require('prop-types');
 import { DraftSetActions } from "../actions";
 import { ELEMENT_TYPE } from "./DraggableTypes";
 import { DragDropContext } from "react-dnd";
@@ -47,7 +48,7 @@ function collect(connect, monitor) {
 export default DragSource(ELEMENT_TYPE, elementToolSource, collect)(
   class ElementTool extends React.Component {
     static propTypes = {
-      tool: React.PropTypes.func.isRequired
+      tool: PropTypes.func.isRequired
     };
 
     constructor(props) {

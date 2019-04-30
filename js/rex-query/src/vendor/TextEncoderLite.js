@@ -1,7 +1,10 @@
 /* eslint-disable */
-'use strict';
+"use strict";
 
-module.exports = {TextEncoderLite: TextEncoderLite, TextDecoderLite: TextDecoderLite};
+module.exports = {
+  TextEncoderLite: TextEncoderLite,
+  TextDecoderLite: TextDecoderLite
+};
 
 function TextEncoderLite() {}
 
@@ -32,7 +35,8 @@ function utf8ToBytes(string, units) {
           continue;
         } else {
           // valid surrogate pair
-          codePoint = leadSurrogate - 0xd800 << 10 | codePoint - 0xdc00 | 0x10000;
+          codePoint =
+            ((leadSurrogate - 0xd800) << 10) | (codePoint - 0xdc00) | 0x10000;
           leadSurrogate = null;
         }
       } else {
@@ -64,20 +68,20 @@ function utf8ToBytes(string, units) {
       bytes.push(codePoint);
     } else if (codePoint < 0x800) {
       if ((units -= 2) < 0) break;
-      bytes.push(codePoint >> 0x6 | 0xc0, codePoint & 0x3f | 0x80);
+      bytes.push((codePoint >> 0x6) | 0xc0, (codePoint & 0x3f) | 0x80);
     } else if (codePoint < 0x10000) {
       if ((units -= 3) < 0) break;
-      bytes.push(codePoint >> 0xc | 0xe0);
-      bytes.push(codePoint >> 0x6 & 0x3f | 0x80);
-      bytes.push(codePoint & 0x3f | 0x80);
+      bytes.push((codePoint >> 0xc) | 0xe0);
+      bytes.push(((codePoint >> 0x6) & 0x3f) | 0x80);
+      bytes.push((codePoint & 0x3f) | 0x80);
     } else if (codePoint < 0x200000) {
       if ((units -= 4) < 0) break;
-      bytes.push(codePoint >> 0x12 | 0xf0);
-      bytes.push(codePoint >> 0xc & 0x3f | 0x80);
-      bytes.push(codePoint >> 0x6 & 0x3f | 0x80);
-      bytes.push(codePoint & 0x3f | 0x80);
+      bytes.push((codePoint >> 0x12) | 0xf0);
+      bytes.push(((codePoint >> 0xc) & 0x3f) | 0x80);
+      bytes.push(((codePoint >> 0x6) & 0x3f) | 0x80);
+      bytes.push((codePoint & 0x3f) | 0x80);
     } else {
-      throw new Error('Invalid code point');
+      throw new Error("Invalid code point");
     }
   }
 
@@ -85,17 +89,17 @@ function utf8ToBytes(string, units) {
 }
 
 function utf8Slice(buf, start, end) {
-  var res = '';
-  var tmp = '';
+  var res = "";
+  var tmp = "";
   end = Math.min(buf.length, end || Infinity);
   start = start || 0;
 
   for (var i = start; i < end; i++) {
     if (buf[i] <= 0x7f) {
       res += decodeUtf8Char(tmp) + String.fromCharCode(buf[i]);
-      tmp = '';
+      tmp = "";
     } else {
-      tmp += '%' + buf[i].toString(16);
+      tmp += "%" + buf[i].toString(16);
     }
   }
 
@@ -113,7 +117,7 @@ function decodeUtf8Char(str) {
 TextEncoderLite.prototype.encode = function(str) {
   var result;
 
-  if ('undefined' === typeof Uint8Array) {
+  if ("undefined" === typeof Uint8Array) {
     result = utf8ToBytes(str);
   } else {
     result = new Uint8Array(utf8ToBytes(str));

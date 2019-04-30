@@ -2,6 +2,7 @@
 
 var assert            = require('assert');
 var React             = require('react');
+var ReactDOM          = require('react-dom');
 var ReactTestUtils    = require('react/lib/ReactTestUtils');
 var sinon             = require('sinon');
 var ReactForms        = require('../');
@@ -43,23 +44,23 @@ describe('React Forms', () => {
 
     it('sets .rf-Field className to DOM element', function() {
       var field = renderComponent();
-      assert.ok(field.getDOMNode().classList.contains('rf-Field'));
+      assert.ok(ReactDOM.findDOMNode(field).classList.contains('rf-Field'));
     });
 
     it('sets --requied modifier to className for required fields', function() {
       var field = renderComponent({schema: Scalar({required: true})});
-      assert.ok(field.getDOMNode().classList.contains('rf-Field--required'));
+      assert.ok(ReactDOM.findDOMNode(field).classList.contains('rf-Field--required'));
     });
 
     it('transfers className prop to DOM element', function() {
       var field = renderComponent({className: 'className'});
-      assert.ok(field.getDOMNode().classList.contains('className'));
+      assert.ok(ReactDOM.findDOMNode(field).classList.contains('className'));
     });
 
     it('reacts on onChange event', () => {
       renderComponent();
       var input = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
-      input.getDOMNode().value = 'newvalue';
+      ReactDOM.findDOMNode(input).value = 'newvalue';
       ReactTestUtils.Simulate.change(input);
       assert.strictEqual(onUpdate.callCount, 1);
       var updated = onUpdate.firstCall.args[0];
@@ -83,7 +84,7 @@ describe('React Forms', () => {
           value: 42
         });
         var input = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'input');
-        assert.strictEqual(input.getDOMNode().value, '42');
+        assert.strictEqual(ReactDOM.findDOMNode(input).value, '42');
       });
 
       it('renders into component injected via schema', () => {
@@ -92,7 +93,7 @@ describe('React Forms', () => {
           value: 42
         });
         var input = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'textarea');
-        assert.strictEqual(input.getDOMNode().value, '42');
+        assert.strictEqual(ReactDOM.findDOMNode(input).value, '42');
       });
 
       it('renders into component injected via props', () => {
@@ -101,7 +102,7 @@ describe('React Forms', () => {
           value: 42
         });
         var input = ReactTestUtils.findRenderedDOMComponentWithTag(component, 'textarea');
-        assert.strictEqual(input.getDOMNode().value, '42');
+        assert.strictEqual(ReactDOM.findDOMNode(input).value, '42');
       });
     });
 
@@ -109,7 +110,7 @@ describe('React Forms', () => {
 
       function assertLabel(value) {
         var label = ReactTestUtils.findRenderedDOMComponentWithClass(component, 'rf-Label');
-        var node = label.getDOMNode();
+        var node = ReactDOM.findDOMNode(label);
         assert.strictEqual((node.textContent || node.innerText).trim(), value);
       }
 
@@ -146,7 +147,7 @@ describe('React Forms', () => {
         var messages = ReactTestUtils.scryRenderedDOMComponentsWithClass(component, 'rf-Message');
         assert.equal(messages.length, values.length);
         values.forEach((value, idx) => {
-          var node = messages[idx].getDOMNode();
+          var node = ReactDOM.findDOMNode(messages[idx]);
           assert.strictEqual((node.textContent || node.innerText).trim(), value);
         });
       }
@@ -230,7 +231,7 @@ describe('React Forms', () => {
 
       function assertHint(form, value) {
         var hint = ReactTestUtils.findRenderedDOMComponentWithClass(form, 'rf-Hint');
-        var node = hint.getDOMNode();
+        var node = ReactDOM.findDOMNode(hint);
         assert.strictEqual((node.textContent || node.innerText).trim(), value);
       }
 

@@ -7,6 +7,7 @@ var sinon   = require('sinon');
 var assert  = require('assert');
 
 var ReactForms  = require('../');
+var ReactCreateClass = require('create-react-class');
 var React       = require('react');
 var TestUtils   = require('react/lib/ReactTestUtils');
 
@@ -93,7 +94,7 @@ describe('form with dynamic schema', function() {
       name: Scalar({type: 'string'})
     });
 
-    var FormWithDynamicSchema = React.createClass({
+    var FormWithDynamicSchema = ReactCreateClass({
 
       render: function() {
         return (

@@ -5,14 +5,16 @@
 'use strict';
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
+var PropTypes = require('prop-types');
 
 
-var Select = React.createClass({
+var Select = ReactCreateClass({
   propTypes: {
-    choices: React.PropTypes.arrayOf(
-      React.PropTypes.shape({
-        value: React.PropTypes.any.isRequired,
-        label: React.PropTypes.string.isRequired
+    choices: PropTypes.arrayOf(
+      PropTypes.shape({
+        value: PropTypes.any,
+        label: PropTypes.string.isRequired
       })
     ).isRequired
   },

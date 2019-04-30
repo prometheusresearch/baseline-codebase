@@ -3,6 +3,7 @@
  */
 
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import createManager from './createManager';
 import specialAssign from './specialAssign';
 
@@ -20,7 +21,7 @@ export default class Wrapper extends React.Component {
   manager: any;
 
   static childContextTypes = {
-    ambManager: React.PropTypes.object,
+    ambManager: PropTypes.object,
   };
 
   getChildContext() {

@@ -6,6 +6,7 @@
 var sinon                                     = require('sinon');
 var assert                                    = require('assert');
 var React                                     = require('react');
+var ReactDOM                                  = require('react-dom');
 var TestUtils                                 = require('react/lib/ReactTestUtils');
 var {schema: {Scalar, Mapping}, Form, Field}  = require('../');
 var CheckboxGroup                             = require('../lib/CheckboxGroup');
@@ -51,25 +52,25 @@ describe('form with CheckboxGroup', function() {
   it('renders', function() {
     render();
     assert.equal(boxes.length, 2);
-    assert.ok(boxes.every((box) => !box.getDOMNode().checked));
+    assert.ok(boxes.every((box) => !ReactDOM.findDOMNode(box).checked));
   });
 
   it('renders with default value', function() {
     render({defaultValue: {check: ['yes']}});
     assert.equal(boxes.length, 2);
-    assert.ok(boxes[0].getDOMNode().checked);
-    assert.ok(!boxes[1].getDOMNode().checked);
+    assert.ok(ReactDOM.findDOMNode(boxes[0]).checked);
+    assert.ok(!ReactDOM.findDOMNode(boxes[1]).checked);
   });
 
   it('reacts on onChange', function() {
     render();
     assert.equal(boxes.length, 2);
-    assert.ok(boxes.every((box) => !box.getDOMNode().checked));
-    TestUtils.Simulate.change(boxes[1].getDOMNode(), {target: {checked: true, value: 'no'}});
-    assert.ok(!boxes[0].getDOMNode().checked);
-    assert.ok(boxes[1].getDOMNode().checked);
-    TestUtils.Simulate.change(boxes[0].getDOMNode(), {target: {checked: true, value: 'yes'}});
-    assert.ok(boxes.every((box) => box.getDOMNode().checked));
+    assert.ok(boxes.every((box) => !ReactDOM.findDOMNode(box).checked));
+    TestUtils.Simulate.change(ReactDOM.findDOMNode(boxes[1]), {target: {checked: true, value: 'no'}});
+    assert.ok(!ReactDOM.findDOMNode(boxes[0]).checked);
+    assert.ok(ReactDOM.findDOMNode(boxes[1]).checked);
+    TestUtils.Simulate.change(ReactDOM.findDOMNode(boxes[0]), {target: {checked: true, value: 'yes'}});
+    assert.ok(boxes.every((box) => ReactDOM.findDOMNode(box).checked));
   });
 });
 

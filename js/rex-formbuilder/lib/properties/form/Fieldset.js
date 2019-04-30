@@ -6,17 +6,19 @@
 
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
+var PropTypes = require('prop-types');
 var classNames = require('classnames');
 var ReactForms = require('react-forms-old');
 var {Message, Label, Element} = ReactForms;
 
 
-var Fieldset = React.createClass({
+var Fieldset = ReactCreateClass({
   propTypes: {
     value: ReactForms.PropTypes.Value,
-    label: React.PropTypes.string,
-    noLabel: React.PropTypes.bool,
-    hint: React.PropTypes.string
+    label: PropTypes.string,
+    noLabel: PropTypes.bool,
+    hint: PropTypes.string
   },
 
   render: function () {

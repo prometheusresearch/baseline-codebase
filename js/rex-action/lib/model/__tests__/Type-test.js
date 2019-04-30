@@ -1,6 +1,6 @@
 /**
  * @copyright 2016-present, Prometheus Research, LLC
- * @flow
+ * @noflow
  */
 
 import * as T from '../Type';

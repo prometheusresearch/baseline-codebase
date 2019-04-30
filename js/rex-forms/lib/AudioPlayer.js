@@ -4,6 +4,7 @@
 
 import * as React from "react";
 import * as ReactUI from "@prometheusresearch/react-ui-0.21";
+import PropTypes from 'prop-types';
 
 import PlayIcon from "react-icons/lib/fa/play";
 import PauseIcon from "react-icons/lib/fa/pause";
@@ -39,10 +40,10 @@ const MIME_TYPES = [
 export default InjectI18N(
   class AudioPlayer extends React.Component {
     static propTypes = {
-      source: React.PropTypes.array.isRequired,
-      showDuration: React.PropTypes.bool,
-      showRestart: React.PropTypes.bool,
-      durationUpdateInterval: React.PropTypes.number
+      source: PropTypes.array.isRequired,
+      showDuration: PropTypes.bool,
+      showRestart: PropTypes.bool,
+      durationUpdateInterval: PropTypes.number
     };
 
     static defaultProps = {

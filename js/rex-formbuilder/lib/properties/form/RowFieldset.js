@@ -5,14 +5,16 @@
 'use strict';
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
+var PropTypes = require('prop-types');
 var classNames = require('classnames');
 var ReactForms = require('react-forms-old');
 
 
-var RowFieldset = React.createClass({
+var RowFieldset = ReactCreateClass({
   propTypes: {
     value: ReactForms.PropTypes.Value,
-    onRemove: React.PropTypes.func
+    onRemove: PropTypes.func
   },
 
   render: function () {

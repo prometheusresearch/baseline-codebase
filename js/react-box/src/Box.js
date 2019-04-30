@@ -371,7 +371,7 @@ export default class Box extends Component {
       justifyContent,
       order,
       overflow,
-      style,
+      style: userStyle,
       variant,
       Component = 'div',
       position,
@@ -387,46 +387,124 @@ export default class Box extends Component {
       paddingRight, paddingLeft, paddingTop, paddingBottom,
       ...props
     } = this.props;
-    style = {
 
-      alignContent,
-      alignItems,
-      alignSelf,
-      flexBasis: flexBasis == null && flex != null ? '0%' : flexBasis,
-      flexDirection,
-      flexFlow,
-      flexGrow: choose(flexGrow, flex),
-      flexShrink: flexShrink == null && flex != null ? 0 : flexShrink,
-      flexWrap,
-      justifyContent,
-      order,
+    let style = {};
+    if (alignContent !== undefined) {
+      style.alignContent = alignContent;
+    }
+    if (alignContent !== undefined) {
+      style.alignContent = alignContent;
+    }
+    if (alignItems !== undefined) {
+      style.alignItems = alignItems;
+    }
+    if (alignSelf !== undefined) {
+      style.alignSelf = alignSelf;
+    }
+    flexBasis = flexBasis == null && flex != null ? '0%' : flexBasis;
+    if (flexBasis !== undefined) {
+      style.flexBasis = flexBasis;
+    }
+    if (flexDirection !== undefined) {
+      style.flexDirection = flexDirection;
+    }
+    if (flexFlow !== undefined) {
+      style.flexFlow = flexFlow;
+    }
+    flexGrow = choose(flexGrow, flex);
+    if (flexGrow !== undefined) {
+      style.flexGrow = flexGrow;
+    }
+    flexShrink = flexShrink == null && flex != null ? 0 : flexShrink;
+    if (flexShrink !== undefined) {
+      style.flexShrink = flexShrink;
+    }
+    if (flexWrap !== undefined) {
+      style.flexWrap = flexWrap;
+    }
+    if (justifyContent !== undefined) {
+      style.justifyContent = justifyContent;
+    }
+    if (order !== undefined) {
+      style.order = order;
+    }
+    if (overflow !== undefined) {
+      style.overflow = overflow;
+    }
+    if (position !== undefined) {
+      style.position = position;
+    }
+    if (top !== undefined) {
+      style.top = top;
+    }
+    if (left !== undefined) {
+      style.left = left;
+    }
+    if (bottom !== undefined) {
+      style.bottom = bottom;
+    }
+    if (right !== undefined) {
+      style.right = right;
+    }
+    if (height !== undefined) {
+      style.height = height;
+    }
+    if (width !== undefined) {
+      style.width = width;
+    }
+    if (minWidth !== undefined) {
+      style.minWidth = minWidth;
+    }
+    if (minHeight !== undefined) {
+      style.minHeight = minHeight;
+    }
+    if (maxWidth !== undefined) {
+      style.maxWidth = maxWidth;
+    }
+    if (maxHeight !== undefined) {
+      style.maxHeight = maxHeight;
+    }
 
-      overflow,
+    // margin
+    marginLeft = choose(marginLeft, marginH, margin);
+    if (marginLeft !== undefined) {
+      style.marginLeft = marginLeft;
+    }
+    marginRight = choose(marginRight, marginH, margin);
+    if (marginRight !== undefined) {
+      style.marginRight = marginRight;
+    }
+    marginTop = choose(marginTop, marginV, margin);
+    if (marginTop !== undefined) {
+      style.marginTop = marginTop;
+    }
+    marginBottom = choose(marginBottom, marginV, margin);
+    if (marginBottom !== undefined) {
+      style.marginBottom = marginBottom;
+    }
 
-      position,
+    // padding
+    paddingLeft = choose(paddingLeft, paddingH, padding);
+    if (paddingLeft !== undefined) {
+      style.paddingLeft = paddingLeft;
+    }
+    paddingRight = choose(paddingRight, paddingH, padding);
+    if (paddingRight !== undefined) {
+      style.paddingRight = paddingRight;
+    }
+    paddingTop = choose(paddingTop, paddingV, padding);
+    if (paddingTop !== undefined) {
+      style.paddingTop = paddingTop;
+    }
+    paddingBottom = choose(paddingBottom, paddingV, padding);
+    if (paddingBottom !== undefined) {
+      style.paddingBottom = paddingBottom;
+    }
 
-      top,
-      left,
-      bottom,
-      right,
+    if (userStyle != null) {
+      style = {...style, ...userStyle};
+    }
 
-      height, width,
-
-      minWidth, minHeight,
-      maxWidth, maxHeight,
-
-      marginLeft: choose(marginLeft, marginH, margin),
-      marginRight: choose(marginRight, marginH, margin),
-      marginTop: choose(marginTop, marginV, margin),
-      marginBottom: choose(marginBottom, marginV, margin),
-
-      paddingLeft: choose(paddingLeft, paddingH, padding),
-      paddingRight: choose(paddingRight, paddingH, padding),
-      paddingTop: choose(paddingTop, paddingV, padding),
-      paddingBottom: choose(paddingBottom, paddingV, padding),
-
-      ...style,
-    };
     let className = this.constructor.stylesheet.asClassName(variant);
     return <Component className={className} {...props} style={style} />;
   }

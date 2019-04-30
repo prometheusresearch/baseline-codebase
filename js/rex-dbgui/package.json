@@ -6,10 +6,8 @@
     "bundleAll": true
   },
   "dependencies": {
+    "react": "*",
+    "react-dom": "*",
     "@prometheusresearch/react-ui": "*"
-  },
-  "peerDependencies": {
-    "react": "^0.14.0",
-    "react-dom": "^0.14.0"
   }
 }

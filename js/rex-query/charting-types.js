@@ -1,2 +1,2 @@
 // @flow
-module.exports = require('./src/charting/types');
+module.exports = require("./src/charting/types");

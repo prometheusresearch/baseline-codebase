@@ -2,22 +2,24 @@
  * @flow
  */
 
-import type {ChartSpec} from '../state';
-import * as types from '../charting/types';
-import type {QueryPipeline, ChartConfig} from '../model/types';
+import type { ChartSpec } from "../state";
+import * as types from "../charting/types";
+import type { QueryPipeline, ChartConfig } from "../model/types";
 
-import * as React from 'react';
-import {VBox, HBox} from 'react-stylesheet';
-import * as ReactUI from '@prometheusresearch/react-ui';
+import * as React from "react";
+import PropTypes from "prop-types";
+import { VBox, HBox } from "react-stylesheet";
+// $FlowFixMe: ...
+import * as ReactUI from "@prometheusresearch/react-ui";
 
-import {findDOMNodeStrict as findDOMNode} from '../findDOMNode';
-import {getPipelineContext} from '../model';
-import * as ui from '../ui';
-import * as State from '../state';
-import * as model from './model';
-import * as SVG from '../SVG';
-import * as Fetch from '../fetch';
-import * as Charting from '../charting';
+import { findDOMNodeStrict as findDOMNode } from "../findDOMNode";
+import { getPipelineContext } from "../model";
+import * as ui from "../ui";
+import * as State from "../state";
+import * as model from "./model";
+import * as SVG from "../SVG";
+import * as Fetch from "../fetch";
+import * as Charting from "../charting";
 
 type ChartProps = {
   chartSpec: ChartSpec<>,
@@ -26,32 +28,37 @@ type ChartProps = {
 
   query: QueryPipeline,
 
-  data: any,
+  data: any
 };
 
 const EXPORT_FONT = '11px -apple-system, "Helvetica Neue", "Lucida Grande"';
 
 function findChartElement(element: HTMLElement): ?HTMLElement {
-  return element.querySelector('div.recharts-wrapper');
+  return element.querySelector("div.recharts-wrapper");
 }
 
 export default class Chart extends React.Component<ChartProps> {
   static contextTypes = {
-    actions: React.PropTypes.object,
+    actions: PropTypes.object
   };
 
-  context: {actions: State.Actions};
+  context: { actions: State.Actions };
   props: ChartProps;
 
   _chart: ?Object;
 
   render() {
     let children;
-    const {chartSpec, chartConfig, query: pipeline, data: rawData} = this.props;
-    const {label: originalLabel, chart} = chartSpec;
+    const {
+      chartSpec,
+      chartConfig,
+      query: pipeline,
+      data: rawData
+    } = this.props;
+    const { label: originalLabel, chart } = chartSpec;
     const label = originalLabel || chartConfig.getChartTitle(chart, pipeline);
 
-    const {query, data} = model.getQuery(pipeline, rawData);
+    const { query, data } = model.getQuery(pipeline, rawData);
     if (query == null) {
       children = null;
     } else {
@@ -59,7 +66,7 @@ export default class Chart extends React.Component<ChartProps> {
       const optionsForLabel = model.getSelectOptionsFromContext(context);
       const optionsForMeasure = model.getSelectOptionsFromContext(context, {
         onlyNumerics: true,
-        addSumarizations: true,
+        addSumarizations: true
       });
 
       if (chartConfig.chartEditor.type != null) {
@@ -73,7 +80,7 @@ export default class Chart extends React.Component<ChartProps> {
           onUpdateLabel: this.onUpdateLabel,
           onUpdateChart: this.onUpdateChart,
           optionsForMeasure,
-          optionsForLabel,
+          optionsForLabel
         });
       } else {
         const ChartEditor = chartConfig.chartEditor;
@@ -99,7 +106,8 @@ export default class Chart extends React.Component<ChartProps> {
           <ReactUI.QuietButton
             size="small"
             icon={<ui.Icon.IconDownload />}
-            onClick={this.onExportChart}>
+            onClick={this.onExportChart}
+          >
             Export as image
           </ReactUI.QuietButton>
           <ReactUI.QuietButton
@@ -121,14 +129,14 @@ export default class Chart extends React.Component<ChartProps> {
 
       if (chartElement != null) {
         const hideForExport = Array.from(
-          chartElement.querySelectorAll('.hide-for-export'),
+          chartElement.querySelectorAll(".hide-for-export")
         );
 
         // hide elements tagged with .hide-for-export
         const display = [];
         hideForExport.forEach((node, idx) => {
           display[idx] = node.style.display;
-          node.style.display = 'none';
+          node.style.display = "none";
         });
 
         rasterizeChart(chartElement).then(data => {
@@ -138,7 +146,7 @@ export default class Chart extends React.Component<ChartProps> {
           });
 
           if (data != null) {
-            Fetch.initiateDownloadFromBlob(data, 'chart.png', 'image/png');
+            Fetch.initiateDownloadFromBlob(data, "chart.png", "image/png");
           }
         });
       }
@@ -146,22 +154,28 @@ export default class Chart extends React.Component<ChartProps> {
   };
 
   onRemoveChart = () => {
-    this.context.actions.removeChart({chartId: this.props.chartSpec.id});
+    this.context.actions.removeChart({ chartId: this.props.chartSpec.id });
   };
 
   onUpdateLabel = (label: string) => {
-    this.context.actions.updateChart({chartId: this.props.chartSpec.id, label});
+    this.context.actions.updateChart({
+      chartId: this.props.chartSpec.id,
+      label
+    });
   };
 
   onUpdateChart = (chart: types.Chart) => {
-    this.context.actions.updateChart({chartId: this.props.chartSpec.id, chart});
+    this.context.actions.updateChart({
+      chartId: this.props.chartSpec.id,
+      chart
+    });
   };
 }
 
 export async function rasterizeChart(element: HTMLElement): Promise<?string> {
   const serializer = new XMLSerializer();
   const data = serializer.serializeToString(element);
-  const {width, height} = element.getBoundingClientRect();
+  const { width, height } = element.getBoundingClientRect();
 
   var svgData = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">
@@ -171,10 +185,10 @@ export async function rasterizeChart(element: HTMLElement): Promise<?string> {
     </svg>
   `;
 
-  const canvas = document.createElement('canvas');
+  const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
-  const canvasCtx = canvas.getContext('2d');
-  await SVG.renderToCanvas(svgData, canvasCtx, {font: EXPORT_FONT});
-  return canvas.toDataURL('image/png');
+  const canvasCtx = canvas.getContext("2d");
+  await SVG.renderToCanvas(svgData, canvasCtx, { font: EXPORT_FONT });
+  return canvas.toDataURL("image/png");
 }

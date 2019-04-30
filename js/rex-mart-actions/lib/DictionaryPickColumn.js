@@ -2,23 +2,15 @@
  * @copyright 2016, Prometheus Research, LLC
  */
 
+import React from "react";
 
-import React from 'react';
-
-import DictionaryPick from './DictionaryPick';
-import Title from './Title';
-
+import { TitleBase as Title } from "rex-action";
+import DictionaryPick from "./DictionaryPick";
 
 export default class DictionaryPickColumn extends DictionaryPick {
-  static targetContext = 'mart_column';
+  static targetContext = "mart_column";
 
-  static renderTitle({title}, {mart_column}) {
-    return (
-      <Title
-        title={title}
-        subtitle={mart_column}
-        />
-    );
+  static renderTitle({ title }, { mart_column }) {
+    return <Title title={title} subtitle={mart_column} />;
   }
 }
-

@@ -5,15 +5,16 @@
 'use strict';
 
 var React = require('react');
+var ReactDOM = require('react-dom');
 var RexI18N = require('rex-i18n');
 
 var InstrumentMenu = require('./InstrumentMenu');
 var DraftSetEditor = require('./DraftSetEditor');
 
 
-function render(component, node, options) {
-  var comp = React.render(
-    React.createFactory(component)(options),
+function render(Component, node, options) {
+  var comp = ReactDOM.render(
+    <Component {...options} />,
     node
   );
 

@@ -2,21 +2,25 @@
  * @flow
  */
 
-import React from 'react';
-import {Element} from 'react-stylesheet';
+import React from "react";
+import { Element } from "react-stylesheet";
 
-type ArrowDownProps = {color?: string, size?: number};
+type ArrowDownProps = { color?: string, size?: number };
 
-export default function ArrowDown({color = 'red', size = 5, ...props}: ArrowDownProps) {
+export default function ArrowDown({
+  color = "red",
+  size = 5,
+  ...props
+}: ArrowDownProps) {
   return (
     <Element
       position="absolute"
       {...props}
       width={0}
       height={0}
-      borderLeft={{width: size, style: 'solid', color: 'transparent'}}
-      borderRight={{width: size, style: 'solid', color: 'transparent'}}
-      borderTop={{width: size, style: 'solid', color: color}}
+      borderLeft={{ width: size, style: "solid", color: "transparent" }}
+      borderRight={{ width: size, style: "solid", color: "transparent" }}
+      borderTop={{ width: size, style: "solid", color: color }}
     />
   );
 }

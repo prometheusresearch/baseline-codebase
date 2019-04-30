@@ -2,7 +2,7 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
-import * as css from 'rex-widget/css';
+import * as css from 'rex-widget/CSS';
 
 export let color = {
   shadowLight: css.rgb(150),

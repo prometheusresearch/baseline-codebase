@@ -4,11 +4,12 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 import findHTMLElement from './findHTMLElement';
 import {debounce} from './Utils';
 
 export let contextTypes = {
-  focusable: React.PropTypes.object,
+  focusable: PropTypes.object,
 };
 
 type FocusableProps = {
@@ -40,7 +41,6 @@ export class Focusable extends React.Component<*, FocusableProps, *> {
   render() {
     return React.cloneElement(React.Children.only(this.props.children), {
       ref: this.onRef,
-      inputRef: this.onInputRef,
     });
   }
 

@@ -237,7 +237,7 @@ class BaseViewFormCommand(BaseCommand):
         )
         context['channels'] = [f.channel.as_dict() for f in all_forms]
         context['initial_channel'] = form.channel.uid
-        context['bundle'] = find_assets_bundle(package_name='rex.form_previewer')
+        context['bundle'] = find_assets_bundle()
 
         return self.template_response(request, context, name='viewform')
 

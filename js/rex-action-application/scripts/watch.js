@@ -6,7 +6,7 @@ console.log(`Bundle will be saved to: ${buildPath}`);
 process.env.BABEL_ENV = "development";
 process.env.NODE_ENV = "development";
 
-const configFactory = require("../config/webpack.config");
+const configFactory = require("rex-webpack-config/webpack.config");
 const webpack = require("webpack");
 const clearConsole = require("react-dev-utils/clearConsole");
 const formatWebpackMessages = require("react-dev-utils/formatWebpackMessages");

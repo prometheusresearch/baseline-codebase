@@ -2,12 +2,13 @@
  * @flow
  */
 
-import * as React from 'react';
-import {HBox, VBox} from 'react-stylesheet';
-import {SwatchColorPicker} from '@prometheusresearch/react-ui';
-import * as ui from '../ui';
-import SelectAttribute from './SelectAttribute';
-import {COLOR_LIST} from './ColorList';
+import * as React from "react";
+import { HBox, VBox } from "react-stylesheet";
+// $FlowFixMe: ...
+import { SwatchColorPicker } from "@prometheusresearch/react-ui";
+import * as ui from "../ui";
+import SelectAttribute from "./SelectAttribute";
+import { COLOR_LIST } from "./ColorList";
 
 type SelectAttributeWithColorProps = {
   options: $ReadOnlyArray<ui.SelectOption>,
@@ -16,7 +17,7 @@ type SelectAttributeWithColorProps = {
   value: ?string,
   color: ?string,
   onChange: (?string, ?ui.SelectOption) => *,
-  onColorChange: string => *,
+  onColorChange: string => *
 };
 
 export default function SelectAttributeWithColor({
@@ -36,13 +37,14 @@ export default function SelectAttributeWithColor({
         value={value}
         onChange={onChange}
       />
-      {value != null &&
+      {value != null && (
         <SwatchColorPicker
           value={color}
           onChange={onColorChange}
           colorList={COLOR_LIST}
           menuPosition="right"
-        />}
+        />
+      )}
     </HBox>
   );
 }

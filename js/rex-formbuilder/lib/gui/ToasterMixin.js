@@ -5,6 +5,7 @@
 'use strict';
 
 var React = require('react');
+var PropTypes = require('prop-types');
 
 var Toaster = require('./Toaster');
 var {ErrorStore, SuccessStore} = require('../stores');
@@ -16,7 +17,7 @@ var ToasterMixin = {
   TOAST_TYPE_SUCCESS: Toaster.TYPE_SUCCESS,
 
   propTypes: {
-    toastTimeout: React.PropTypes.number
+    toastTimeout: PropTypes.number
   },
 
   getDefaultProps: function () {

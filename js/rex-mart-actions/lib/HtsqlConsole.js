@@ -8,9 +8,9 @@ import ReactDOM from 'react-dom';
 
 import {Action} from 'rex-action';
 import {IFrame} from 'rex-widget/ui';
-import {Preloader} from 'rex-widget/ui';
-import resolveURL from 'rex-widget/lib/resolveURL';
+import resolveURL from 'rex-widget/resolveURL';
 import martFromContext from './martFromContext';
+import * as rexui from 'rex-ui';
 
 
 export default class HtsqlConsole extends React.Component {
@@ -44,7 +44,7 @@ export default class HtsqlConsole extends React.Component {
     return (
       <div>
         {this.state.loading &&
-          <Preloader />
+          <rexui.PreloaderScreen />
         }
         <IFrame
           ref={(component) => {

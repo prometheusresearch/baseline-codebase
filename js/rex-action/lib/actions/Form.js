@@ -1,68 +1,71 @@
 /**
  * @copyright 2016-present, Prometheus Research, LLC
- * @flow
+ * @noflow
  */
 
-import * as React from 'react';
-import * as ReactUI from '@prometheusresearch/react-ui';
+import * as React from "react";
 
-import * as form from 'rex-widget/form';
-import * as ui from 'rex-widget/ui';
-import * as data from 'rex-widget/data';
+import * as form from "rex-widget/conf-form";
+import * as ui from "rex-widget/ui";
+import * as data from "rex-widget/data";
+import * as rexui from "rex-ui";
 
-import Action from '../Action';
-import * as ObjectTemplate from '../ObjectTemplate';
-import * as ContextUtils from '../ContextUtils';
+import Action from "../Action";
+import * as ObjectTemplate from "../ObjectTemplate";
+import * as ContextUtils from "../ContextUtils";
 
 type FormComponent = {
-  submit: Function,
+  submit: Function
 };
 
 export class Form extends React.Component {
   static defaultProps = {
-    icon: 'pencil',
-    submitButton: 'Submit',
+    icon: "pencil",
+    submitButton: "Submit"
   };
 
   _form: ?FormComponent = null;
-  state: {submitInProgress: boolean} = {submitInProgress: false};
+  state: { submitInProgress: boolean } = { submitInProgress: false };
 
   render() {
-    let {onClose, fetched, context} = this.props;
+    let { onClose, fetched, context } = this.props;
     let title = this.constructor.renderTitle(this.props, context);
     return (
       <Action onClose={onClose} title={title} renderFooter={this.renderFooter}>
-        {fetched.value && fetched.value.updating ? <ui.Preloader /> : this.renderForm()}
+        {fetched.value && fetched.value.updating
+          ? <rexui.PreloaderScreen />
+          : this.renderForm()}
       </Action>
     );
   }
 
   get initialValue(): Object {
-    let {fetched, value, context} = this.props;
+    let { fetched, value, context } = this.props;
     return fetched.value
       ? fetched.value.data
       : ObjectTemplate.render(value || {}, context);
   }
 
   renderFooter = () => {
-    let {readOnly, submitButton, icon} = this.props;
+    let { readOnly, submitButton, icon } = this.props;
     return readOnly
       ? null
-      : <ReactUI.SuccessButton
+      : <rexui.SuccessButton
           icon={<ui.Icon name={icon} />}
           onClick={this._onSubmit}
-          disabled={this.state.submitInProgress}>
+          disabled={this.state.submitInProgress}
+        >
           {submitButton}
-        </ReactUI.SuccessButton>;
-  }
+        </rexui.SuccessButton>;
+  };
 
   renderForm = () => {
-    let {dataMutation, fields, context, contextTypes, readOnly} = this.props;
+    let { dataMutation, fields, context, contextTypes, readOnly } = this.props;
     let submitTo = dataMutation.params(
-      ContextUtils.contextToParams(context, contextTypes.input),
+      ContextUtils.contextToParams(context, contextTypes.input)
     );
     return (
-      <form.ConfigurableForm
+      <form.ConfForm
         ref={this._onForm}
         readOnly={readOnly}
         disableValidation={readOnly}
@@ -76,7 +79,7 @@ export class Form extends React.Component {
         fields={fields}
       />
     );
-  }
+  };
 
   _onForm = (form: ?FormComponent) => {
     this._form = form;
@@ -91,16 +94,16 @@ export class Form extends React.Component {
   };
 
   onBeforeSubmit = () => {
-    this.setState({submitInProgress: true});
+    this.setState({ submitInProgress: true });
   };
 
   onSubmitComplete = (value: Object) => {
-    this.setState({submitInProgress: false}, () => {
-      let {entity, refetch, onContext} = this.props;
+    this.setState({ submitInProgress: false }, () => {
+      let { entity, refetch, onContext } = this.props;
       if (value !== null && entity) {
         value = value[entity.type.name][0];
         onContext({
-          [entity.name]: value,
+          [entity.name]: value
         });
       }
       refetch();
@@ -108,15 +111,15 @@ export class Form extends React.Component {
   };
 
   onSubmitError = () => {
-    this.setState({submitInProgress: false});
+    this.setState({ submitInProgress: false });
   };
 
-  static renderTitle({title = 'Form'}, _context) {
+  static renderTitle({ title = "Form" }, _context) {
     return <span>{title}</span>;
   }
 
-  static getTitle({title}) {
-    return title || 'Form';
+  static getTitle({ title }) {
+    return title || "Form";
   }
 }
 
@@ -124,12 +127,12 @@ export default data.Fetch(function fetchInitialValue({
   dataValue,
   value,
   contextTypes,
-  context,
+  context
 }) {
   let spec = {};
-  if (typeof value === 'string') {
+  if (typeof value === "string") {
     spec.value = dataValue.params(
-      ContextUtils.contextToParams(context, contextTypes.input, {query: true}),
+      ContextUtils.contextToParams(context, contextTypes.input, { query: true })
     );
   }
   return spec;

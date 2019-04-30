@@ -5,12 +5,14 @@
 'use strict';
 
 var React = require('react');
+var PropTypes = require('prop-types');
+var ReactCreateClass = require('create-react-class');
 
 
-var MenuHeader = React.createClass({
+var MenuHeader = ReactCreateClass({
   propTypes: {
-    title: React.PropTypes.string,
-    onClick: React.PropTypes.func
+    title: PropTypes.string,
+    onClick: PropTypes.func
   },
 
   getDefaultProps: function () {

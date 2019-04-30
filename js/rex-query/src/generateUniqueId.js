@@ -9,6 +9,6 @@
  * @flow
  */
 
-import generateUniqueId from 'lodash/uniqueId';
+import generateUniqueId from "lodash/uniqueId";
 
 export default (generateUniqueId: (prefix: string) => string);

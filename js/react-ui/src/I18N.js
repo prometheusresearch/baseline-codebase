@@ -4,13 +4,14 @@
  */
 
 import * as React from 'react';
+import PropTypes from 'prop-types';
 
 export type I18NContext = {
   dir: 'ltr' | 'rtl',
 };
 
 export const contextTypes = {
-  i18n: React.PropTypes.object,
+  i18n: PropTypes.object,
 };
 
 export const defaultContext: I18NContext = {

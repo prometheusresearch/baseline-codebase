@@ -2,34 +2,34 @@
  * @flow
  */
 
-import './Select.css';
+import "./Select.css";
 
-import * as React from 'react';
-import SelectBase from 'react-select';
+import * as React from "react";
+import SelectBase from "react-select";
 
 export type SelectOption = {
   +label: React.Node,
   +value: string,
-  +labelActive?: string,
+  +labelActive?: string
 };
 
 export type SelectOptionWithStringLabel = {
   +label: string,
   +value: string,
-  +labelActive?: string,
+  +labelActive?: string
 };
 
 export type SelectProps<O: SelectOption> = {
   options: $ReadOnlyArray<O>,
   onChange: (Array<string> | string | null) => void,
-  style?: Object,
+  style?: Object
 };
 
-export default class Select<O: SelectOption = SelectOption> extends React.Component<
-  SelectProps<O>,
-> {
+export default class Select<
+  O: SelectOption = SelectOption
+> extends React.Component<SelectProps<O>> {
   render() {
-    let {style, ...props} = this.props;
+    let { style, ...props } = this.props;
     return (
       <SelectBase
         {...props}

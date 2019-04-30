@@ -2,26 +2,28 @@
  * @flow
  */
 
-import Element from './Element';
-import stylesheet from './Stylesheet';
+import Element from "./Element";
+import stylesheet from "./Stylesheet";
 
-let boxStylesheet = stylesheet('Box', {
-  base: {
-    position: 'relative',
+export let baseStyle = {
+  position: "relative",
 
-    overflow: 'hidden',
+  overflow: "visible",
 
-    margin: 0,
-    padding: 0,
+  margin: 0,
+  padding: 0,
 
-    display: 'flex',
-    alignItems: 'stretch',
-    flexBasis: 'auto',
-    flexShrink: 0,
+  display: "flex",
+  alignItems: "stretch",
+  flexBasis: "auto",
+  flexShrink: 0,
 
-    minHeight: 0,
-    minWidth: 0,
-  },
+  minHeight: 0,
+  minWidth: 0
+};
+
+let boxStylesheet = stylesheet("Box", {
+  base: baseStyle
 });
 
 boxStylesheet.inject();
@@ -33,13 +35,13 @@ class Box extends Element {
 export class VBox extends Box {
   static defaultProps = {
     ...Box.defaultProps,
-    flexDirection: 'column',
+    flexDirection: "column"
   };
 }
 
 export class HBox extends Box {
   static defaultProps = {
     ...Box.defaultProps,
-    flexDirection: 'row',
+    flexDirection: "row"
   };
 }

@@ -1,0 +1,38 @@
+@import '~fixed-data-table-2/dist/fixed-data-table.css';
+
+.public_fixedDataTable_main {
+  border-top: 1px solid #d3d3d3;
+  border-left: none;
+  border-right: none;
+}
+
+/**
+Note: the right border of datatables sometimes appears misaligned, due to the width of the column.
+Is there a way to have the right column border always align properly?
+*/
+
+.public_fixedDataTableCell_main {
+  font-size: 90%;
+  border-left: 1px solid #d3d3d3;
+}
+.public_fixedDataTableCell_wrap3 {
+  white-space: nowrap;
+}
+
+.public_fixedDataTable_header .public_fixedDataTableCell_main,
+.public_fixedDataTable_scrollbarSpacer .public_fixedDataTableCell_main {
+  font-weight: 700;
+  font-size: 90%;
+  background: #FFFFFF;
+}
+.public_fixedDataTable_header,
+.public_fixedDataTable_scrollbarSpacer,
+.public_fixedDataTable_header .public_fixedDataTableCell_main {
+  background: #FFFFFF;
+  background-image: none;
+}
+
+
+:local(.rowSelected) .public_fixedDataTableCell_main {
+  background-color: #FFFCA3;
+}

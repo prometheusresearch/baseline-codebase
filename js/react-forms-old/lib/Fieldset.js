@@ -4,7 +4,8 @@
 'use strict';
 
 var React         = require('react');
-var PropTypes     = React.PropTypes;
+var PropTypes       = require('prop-types');
+var ReactCreateClass = require('create-react-class');
 var cx            = require('classnames');
 var FormPropTypes = require('./PropTypes');
 var Label         = require('./Label');
@@ -15,14 +16,7 @@ var Element       = require('./Element');
  *
  * It is used by <Form /> component at top level to render its fields.
  */
-var Fieldset = React.createClass({
-
-  propTypes: {
-    value: FormPropTypes.Value,
-    label: PropTypes.string,
-    noLabel: PropTypes.bool,
-    hint: PropTypes.string
-  },
+var Fieldset = ReactCreateClass({
 
   render() {
     var {value, className, label, noLabel, hint, ...props} = this.props;

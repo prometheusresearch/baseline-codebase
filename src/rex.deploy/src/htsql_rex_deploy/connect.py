@@ -35,9 +35,7 @@ def translate_error(exception):
         catalog_image = get_image()
         schema_image = catalog_image[diag.schema_name]
         table_image = schema_image[diag.table_name]
-        constraint_image = table_image.constraints.get(diag.constraint_name)
-        if constraint_image is None:
-            return
+        constraint_image = table_image.constraints[diag.constraint_name]
         schema = get_model()
         identity = schema(constraint_image)
         if identity is not None:

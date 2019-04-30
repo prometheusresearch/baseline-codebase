@@ -2,10 +2,10 @@
  * @flow
  */
 
-import type {Query, SelectQuery, QueryPipeline} from '../model/types';
+import type { Query, SelectQuery, QueryPipeline } from "../model/types";
 
-import * as ArrayUtil from '../ArrayUtil';
-import * as q from '../model/Query';
+import * as ArrayUtil from "../ArrayUtil";
+import * as q from "../model/Query";
 
 export type Focus = Array<string>;
 
@@ -25,15 +25,15 @@ function getFocuses(query: QueryPipeline): Array<Focus> {
 function getPipelineFocusList(query: QueryPipeline, path: Array<string>) {
   let result: Array<Array<string>> = [];
   let type = query.context.type;
-  if (type.name !== 'invalid') {
+  if (type.name !== "invalid") {
     let pipeline = query.pipeline;
     let localPath = [];
     for (let i = 0; i < pipeline.length; i++) {
       let item = pipeline[i];
 
-      if (item.name === 'navigate') {
+      if (item.name === "navigate") {
         let nextItem = pipeline[i + 1];
-        if (nextItem && nextItem.name === 'navigate') {
+        if (nextItem && nextItem.name === "navigate") {
           continue;
         }
       }
@@ -56,7 +56,7 @@ function getSelectFocusList(query: SelectQuery, path: Array<string>) {
     if (query.context.scope[k] != null) {
       item = query.context.scope[k].query;
     }
-    if (item.context.type.card === 'seq') {
+    if (item.context.type.card === "seq") {
       result = result.concat(getPipelineFocusList(item, path.concat(k)));
     }
   }
@@ -69,8 +69,8 @@ function getQueryFocusList(query: Query, path: Array<string>) {
     select: _ => getSelectFocusList(...arguments),
     navigate: query => {
       let type = query.context.type;
-      return type && type.card === 'seq' ? [path] : [];
+      return type && type.card === "seq" ? [path] : [];
     },
-    otherwise: _query => [],
+    otherwise: _query => []
   });
 }

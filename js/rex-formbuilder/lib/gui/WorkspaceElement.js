@@ -5,6 +5,7 @@
 "use strict";
 
 import React from "react";
+var PropTypes = require('prop-types');
 var classNames = require("classnames");
 
 import ConfirmationModal from "./ConfirmationModal";
@@ -107,10 +108,10 @@ export default DropTarget(
   }))(
     class WorkspaceElement extends React.Component {
       static propTypes = {
-        element: React.PropTypes.object.isRequired,
-        fixed: React.PropTypes.bool,
-        isSubField: React.PropTypes.bool,
-        locale: React.PropTypes.string.isRequired
+        element: PropTypes.object.isRequired,
+        fixed: PropTypes.bool,
+        isSubField: PropTypes.bool,
+        locale: PropTypes.string.isRequired
       };
 
       static getDefaultProps = {

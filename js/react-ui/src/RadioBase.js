@@ -17,7 +17,6 @@ type Props = {
   idx: number,
   disabled?: boolean,
   focusIndex?: number,
-  inputRef: (HTMLElement) => *,
   variant?: Object,
 };
 
@@ -35,13 +34,9 @@ function Root({variant: _variant, ...props}) {
   return <div {...props} />;
 }
 
-function Input({inputRef: _inputRef, ...props}) {
-  return <input {...props} />;
-}
-
 export let stylesheet: Stylesheet = {
   Root,
-  Input,
+  Input: 'input',
   LabelWrapper: 'div',
   Hint: 'div',
   Label: 'div',
@@ -69,7 +64,6 @@ export default class RadioBase extends React.Component<*, Props, *> {
       label,
       title,
       hint,
-      inputRef,
       variant,
       disabled,
       focusIndex,
@@ -98,8 +92,6 @@ export default class RadioBase extends React.Component<*, Props, *> {
             aria-labelledby={this.ariaId}
             disabled={disabled}
             variant={variant}
-            ref={inputRef}
-            inputRef={inputRef}
             type="radio"
             checked={value}
             onChange={this.onChange}

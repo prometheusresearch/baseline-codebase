@@ -1,4 +1,4 @@
 /**
  * @flow
  */
-module.exports = require('./src/QueryBuilderApp').default;
+module.exports = require("./src/QueryBuilderApp").default;

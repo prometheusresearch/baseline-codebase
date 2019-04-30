@@ -1,6 +1,6 @@
 /**
  * @copyright 2015-present, Prometheus Research, LLC
- * @flow
+ * @noflow
  */
 
 import type {Entity, Context} from './types';

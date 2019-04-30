@@ -2,12 +2,13 @@
  * @copyright 2016-present, Prometheus Research, LLC
  */
 
+import PropTypes from 'prop-types';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import debounce from 'lodash/debounce';
 
 export let contextTypes = {
-  focusable: React.PropTypes.object,
+  focusable: PropTypes.object,
 };
 
 export class Focusable extends React.Component {

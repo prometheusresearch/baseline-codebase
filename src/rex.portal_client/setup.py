@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rex.portal_client',
-    version='0.6.0',
+    version='0.7.0',
     description='Study configuration utilities',
     long_description=open('README.rst', 'r').read(),
     maintainer='Prometheus Research, LLC',

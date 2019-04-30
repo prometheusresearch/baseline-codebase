@@ -5,6 +5,8 @@
 'use strict';
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
+var PropTypes = require('prop-types');
 var ReactForms = require('react-forms-old');
 var {Message, Label, Input, Element, RepeatingFieldset} = ReactForms;
 var classNames = require('classnames');
@@ -13,12 +15,12 @@ var {isEmpty, isEmptyLocalization} = require('../util');
 var _ = require('../i18n').gettext;
 
 
-var AudioSourceField = React.createClass({
+var AudioSourceField = ReactCreateClass({
   propTypes: {
     value: ReactForms.PropTypes.Value,
-    label: React.PropTypes.string,
-    hint: React.PropTypes.string,
-    noLabel: React.PropTypes.bool
+    label: PropTypes.string,
+    hint: PropTypes.string,
+    noLabel: PropTypes.bool
   },
 
   getInitialState: function () {
@@ -62,7 +64,7 @@ var AudioSourceField = React.createClass({
         <button
           onClick={this.onEditAll}>
           <span className='rfb-icon icon-locale' />
-          {translateLabel}
+          <span>{translateLabel}</span>
         </button>
         {!this.state.showAll &&
         <RepeatingFieldset

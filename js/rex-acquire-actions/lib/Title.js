@@ -4,8 +4,8 @@
 
 import React from 'react';
 
-import * as Stylesheet from 'rex-widget/stylesheet';
-import {VBox} from 'rex-widget/layout';
+import * as Stylesheet from 'rex-widget/Stylesheet';
+import {VBox} from '@prometheusresearch/react-box';
 
 
 export default class Title extends React.Component {

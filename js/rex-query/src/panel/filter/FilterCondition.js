@@ -2,45 +2,38 @@
  * @flow
  */
 
-import type {QueryNavigation, Expression} from '../../model/types';
+import type { QueryNavigation, Expression } from "../../model/types";
 
-import invariant from 'invariant';
-import React from 'react';
-import * as ReactUI from '@prometheusresearch/react-ui';
-import {HBox, Element} from 'react-stylesheet';
-import debounce from 'lodash/debounce';
+import invariant from "invariant";
+import React from "react";
+// $FlowFixMe: ...
+import * as ReactUI from "@prometheusresearch/react-ui";
+import { HBox, Element } from "react-stylesheet";
+import debounce from "lodash/debounce";
 
-import {Select, TagLabel, Label} from '../../ui';
-import * as FilterComparators from './FilterComparators';
+import { Select, TagLabel, Label } from "../../ui";
+import * as FilterComparators from "./FilterComparators";
+import type { Condition, Draft as State } from "../FilterQueryPanel";
 
 type FilterConditionProps = {
-  expression: Expression,
+  condition: Condition,
   fields: Array<QueryNavigation>,
-  onUpdate: (expression: Expression) => *,
+  onConditionUpdate: (?Condition) => void
 };
 
-type FilterConditionState = {|
-  fieldName: ?string,
-  operandName: ?string,
-  comparatorName: ?string,
-  operandIsField: boolean,
-|};
-
-export default class FilterCondition extends React.Component<
-  FilterConditionProps,
-  FilterConditionState,
-> {
-  constructor(props: FilterConditionProps) {
-    super(props);
-    this.state = getCondition(props.expression);
-  }
-
+export default class FilterCondition extends React.Component<FilterConditionProps> {
   render() {
-    let {fields, expression} = this.props;
-    let {fieldName, comparatorName, operandName, operandIsField} = this.state;
+    let { fields, condition } = this.props;
+
+    let state = getState(condition);
+    let { fieldName, comparatorName, operandName, operandIsField } = state;
+
     let field = null;
 
-    if (expression.context.hasInvalidType) {
+    if (
+      condition.type === "expression" &&
+      condition.expression.context.hasInvalidType
+    ) {
       return (
         <Element fontSize="10pt" fontWeight={300} textAlign="center">
           <Element display="inline-block" marginRight={5}>
@@ -49,9 +42,7 @@ export default class FilterCondition extends React.Component<
           <Element display="inline-block" marginRight={5}>
             {comparatorName}
           </Element>
-          <Element display="inline-block">
-            {operandName}
-          </Element>
+          <Element display="inline-block">{operandName}</Element>
         </Element>
       );
     }
@@ -65,10 +56,12 @@ export default class FilterCondition extends React.Component<
     let operandComponent = null;
     let chooseOperandType = true;
     if (field != null && comparatorName != null) {
-      let operandFields = getCompatibleOperandFields(fields, field).map(field => ({
-        label: field.label,
-        value: field.value,
-      }));
+      let operandFields = getCompatibleOperandFields(fields, field).map(
+        field => ({
+          label: field.label,
+          value: field.value
+        })
+      );
       chooseOperandType = operandFields.length > 0;
 
       if (chooseOperandType && operandIsField) {
@@ -76,45 +69,47 @@ export default class FilterCondition extends React.Component<
           <Select
             value={operandName}
             options={operandFields}
-            onChange={this.onOperandValueChange}
+            onChange={v => this.onOperandValueChange(state, v)}
             placeholder="Select an Attribute..."
           />
         );
       } else {
-        let comparatorDefinition = FilterComparators.getDefinition(comparatorName);
+        let comparatorDefinition = FilterComparators.getDefinition(
+          comparatorName
+        );
         invariant(
           comparatorDefinition != null,
-          'Cannot find comparator definition for: %s',
-          comparatorName,
+          "Cannot find comparator definition for: %s",
+          comparatorName
         );
-        operandComponent = comparatorDefinition.operand(
-          field,
-          operandName,
-          this.onOperandValueChange,
+        operandComponent = comparatorDefinition.operand(field, operandName, v =>
+          this.onOperandValueChange(state, v)
         );
       }
 
-      if (field.context.type.name === 'record') {
+      if (field.context.type.name === "record") {
         chooseOperandType = false;
       }
     }
 
     let operandTypeOptions = [
-      {label: 'Constant Value', value: 'value'},
-      {label: 'Attribute', value: 'field'},
+      { label: "Constant Value", value: "value" },
+      { label: "Attribute", value: "field" }
     ];
 
     let fieldOptions = fields.map(field => ({
       labelActive: field.label,
-      label: field.fromQuery
-        ? <HBox>
-            <HBox flexGrow={1} flexShrink={1}>
-              <Label label={field.label} />
-            </HBox>
-            <TagLabel>query</TagLabel>
+      label: field.fromQuery ? (
+        <HBox>
+          <HBox flexGrow={1} flexShrink={1}>
+            <Label label={field.label} />
           </HBox>
-        : field.label,
-      value: field.value,
+          <TagLabel>query</TagLabel>
+        </HBox>
+      ) : (
+        field.label
+      ),
+      value: field.value
     }));
 
     return (
@@ -124,51 +119,52 @@ export default class FilterCondition extends React.Component<
             <Select
               value={fieldName}
               options={fieldOptions}
-              onChange={this.onFieldChange}
+              onChange={v => this.onFieldChange(state, v)}
             />
           </ReactUI.Block>
-          {fieldName != null &&
+          {fieldName != null && (
             <ReactUI.Block marginBottom={5}>
               <Select
                 clearable={false}
                 value={comparatorName}
                 options={comparators}
-                onChange={this.onComparatorChange}
+                onChange={v => this.onComparatorChange(state, v)}
               />
-            </ReactUI.Block>}
+            </ReactUI.Block>
+          )}
         </ReactUI.Block>
-        {operandComponent &&
+        {operandComponent && (
           <ReactUI.Block>
-            {chooseOperandType &&
+            {chooseOperandType && (
               <ReactUI.Block marginBottom={5}>
                 <ReactUI.RadioGroup
                   layout="horizontal"
                   options={operandTypeOptions}
-                  value={operandIsField ? 'field' : 'value'}
-                  onChange={this.onOperandTypeChange}
+                  value={operandIsField ? "field" : "value"}
+                  onChange={v => this.onOperandTypeChange(state, v)}
                 />
-              </ReactUI.Block>}
+              </ReactUI.Block>
+            )}
             {operandComponent}
-          </ReactUI.Block>}
+          </ReactUI.Block>
+        )}
       </ReactUI.Block>
     );
   }
 
-  componentWillReceiveProps(nextProps: FilterConditionProps) {
-    this.setState({
-      ...getCondition(nextProps.expression),
-      comparatorName: this.state.comparatorName,
-    });
-  }
+  onFieldChange = (state: State, newField: null | string | string[]) => {
+    invariant(!Array.isArray(newField), "did not expect an array");
 
-  onFieldChange = (newField: *) => {
-    invariant(!Array.isArray(newField), 'did not expect an array');
-    let {fieldName, comparatorName, operandName, operandIsField} = this.state;
+    let { fieldName, comparatorName, operandName, operandIsField } = getState(
+      this.props.condition
+    );
 
     let prevField = fieldName;
     fieldName = newField;
 
-    let newFieldDef = newField ? getFieldDefinition(this.props.fields, newField) : null;
+    let newFieldDef = newField
+      ? getFieldDefinition(this.props.fields, newField)
+      : null;
 
     if (newFieldDef) {
       let newComp = null;
@@ -207,93 +203,96 @@ export default class FilterCondition extends React.Component<
       }
     }
 
-    this.setState(
-      {
-        fieldName,
-        comparatorName,
-        operandName,
-        operandIsField,
-      },
-      () => this.updateQuery(),
-    );
-  };
-
-  onComparatorChange = (comparatorName: *) => {
-    invariant(!Array.isArray(comparatorName), 'did not expect an array');
-    this.setState(
-      {
-        comparatorName,
-        operandName: null,
-        operandIsField: false,
-      },
-      () => this.updateQuery(),
-    );
-  };
-
-  onOperandTypeChange = (newType: string) => {
-    this.setState(
-      {
-        operandIsField: newType === 'field',
-        operandName: null,
-      },
-      () => this.updateQuery(),
-    );
-  };
-
-  onOperandValueChange = (newOperand: *) => {
-    this.setState(
-      {
-        // $FlowFixMe: this is ok, but should be fixed at typelevel
-        operandName: newOperand,
-      },
-      () => this.updateQuery(),
-    );
-  };
-
-  updateQuery = debounce(() => {
-    let {fieldName, comparatorName, operandName, operandIsField} = this.state;
-
-    invariant(comparatorName != null, 'Comparator name is null');
-
-    invariant(fieldName != null, 'Field is null');
-
-    let field = getFieldDefinition(this.props.fields, fieldName);
-
-    let comparatorDefinition = FilterComparators.getDefinition(comparatorName);
-
-    invariant(
-      comparatorDefinition != null,
-      'Cannot find comparator definition for: %s',
+    this.updateState({
+      ...state,
+      fieldName,
       comparatorName,
-    );
+      operandName,
+      operandIsField
+    });
+  };
 
-    let query = comparatorDefinition.query(field, operandName, operandIsField);
+  onComparatorChange = (state: State, comparatorName: *) => {
+    invariant(!Array.isArray(comparatorName), "did not expect an array");
+    this.updateState({
+      ...state,
+      comparatorName,
+      operandName: null,
+      operandIsField: false
+    });
+  };
 
-    if (query) {
-      this.props.onUpdate(query);
+  onOperandTypeChange = (state: State, newType: string) => {
+    this.updateState({
+      ...state,
+      operandIsField: newType === "field",
+      operandName: null
+    });
+  };
+
+  onOperandValueChange = (state: State, newOperand: *) => {
+    this.updateState({
+      ...state,
+      // $FlowFixMe: this is ok, but should be fixed at typelevel
+      operandName: newOperand
+    });
+  };
+
+  updateState = (state: State) => {
+    let expression = maybePromoteStateToQuery(this.props.fields, state);
+    if (expression != null) {
+      this.props.onConditionUpdate({ type: "expression", expression });
+    } else {
+      this.props.onConditionUpdate({ type: "expression-draft", draft: state });
     }
-  }, 750);
+  };
+}
+
+function maybePromoteStateToQuery(
+  fields: QueryNavigation[],
+  state: State
+): ?Expression {
+  let { fieldName, comparatorName, operandName, operandIsField } = state;
+
+  if (comparatorName == null) {
+    return null;
+  }
+
+  if (fieldName == null) {
+    return null;
+  }
+
+  let field = getFieldDefinition(fields, fieldName);
+  let comparatorDefinition = FilterComparators.getDefinition(comparatorName);
+
+  invariant(
+    comparatorDefinition != null,
+    "Cannot find comparator definition for: %s",
+    comparatorName
+  );
+
+  return comparatorDefinition.query(field, operandName, operandIsField);
 }
 
 function getCompatibleOperandFields(
   fieldList: Array<QueryNavigation>,
-  field: QueryNavigation,
+  field: QueryNavigation
 ) {
-  if (field.context.type.name === 'invalid') {
+  if (field.context.type.name === "invalid") {
     return [];
   } else {
     return fieldList.filter(
       f =>
-        f.context.type.name !== 'invalid' &&
+        f.context.type.name !== "invalid" &&
         f.value !== field.value &&
-        f.context.type.name === field.context.type.name,
+        f.context.type.name === field.context.type.name
     );
   }
 }
 
 function getFieldDefinition(
   fieldList: Array<QueryNavigation>,
-  fieldName: string,
+  fieldName: string
 ): QueryNavigation {
   for (let i = 0; i < fieldList.length; i++) {
     let field = fieldList[i];
@@ -305,24 +304,34 @@ function getFieldDefinition(
   invariant(false, 'No field named "%s" found in current scope.', fieldName);
 }
 
-function getCondition(expression: Expression): FilterConditionState {
-  if (expression.name === 'value' && expression.value === true) {
+function getState(condition: Condition): State {
+  if (condition.type === "expression") {
+    return getStateOfExpression(condition.expression);
+  } else if (condition.type === "expression-draft") {
+    return condition.draft;
+  } else {
+    throw new Error(`unknown condition: ${condition.type}`);
+  }
+}
+
+function getStateOfExpression(expression: Expression): State {
+  if (expression.name === "value" && expression.value === true) {
     return {
       fieldName: null,
       comparatorName: null,
       operandName: null,
-      operandIsField: false,
+      operandIsField: false
     };
   }
 
   let condition = FilterComparators.identify(expression);
 
-  invariant(condition, 'Cannot identify expression type.');
+  invariant(condition, "Cannot identify expression type.");
 
   return {
     fieldName: condition.field,
     operandName: condition.operand,
     comparatorName: condition.comparator,
-    operandIsField: condition.operandIsField,
+    operandIsField: condition.operandIsField
   };
 }

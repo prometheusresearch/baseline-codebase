@@ -3,6 +3,7 @@
 var assert = require('assert');
 var sinon = require('sinon');
 var React = require('react');
+var ReactDOM = require('react-dom');
 var Immutable = require('immutable');
 var TestUtils = require('react/lib/ReactTestUtils');
 var CheckboxGroup = require('../CheckboxGroup');
@@ -24,7 +25,7 @@ describe('forms', () => {
     function getCheckboxesDOM(component) {
       return TestUtils.scryRenderedDOMComponentsWithClass(
         component,
-        "rf-CheckboxGroup__checkbox").map((c) => c.getDOMNode());
+        "rf-CheckboxGroup__checkbox").map((c) => ReactDOM.findDOMNode(c));
     }
 
     function assertChecked(boxes, values) {

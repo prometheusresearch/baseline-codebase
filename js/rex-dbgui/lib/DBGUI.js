@@ -1,6 +1,6 @@
 import React from 'react';
-import {Preloader} from 'rex-widget/ui';
 import {fromHash, toHash} from './History';
+import * as rexui from 'rex-ui';
 
 let cache = {};
 
@@ -17,7 +17,7 @@ export default class DBGUI extends React.Component {
 
   render() {
     let {loading, wizard} = this.state;
-    return loading ? <Preloader/> : wizard;
+    return loading ? <rexui.PreloaderScreen /> : wizard;
   }
 
   componentWillMount() {

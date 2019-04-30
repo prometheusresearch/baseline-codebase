@@ -5,6 +5,9 @@
 'use strict';
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
+var PropTypes = require('prop-types');
+
 var {
   Label,
   defaultValue,
@@ -16,11 +19,11 @@ var ParameterFieldset = require('./ParameterFieldset');
 var _ = require('../../i18n').gettext;
 
 
-var RepeatingParameter = React.createClass({
+var RepeatingParameter = ReactCreateClass({
   propTypes: {
     value: FormPropTypes.Value,
-    label: React.PropTypes.string,
-    hint: React.PropTypes.string
+    label: PropTypes.string,
+    hint: PropTypes.string
   },
 
   buildParameters: function () {

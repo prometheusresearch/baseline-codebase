@@ -3,6 +3,7 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import {InjectI18N} from 'rex-i18n';
 import {VBox, HBox} from '@prometheusresearch/react-ui';
@@ -11,9 +12,9 @@ import {VBox, HBox} from '@prometheusresearch/react-ui';
 export default InjectI18N(class LocaleChooser extends React.Component {
 
   static propTypes = {
-    locales: React.PropTypes.arrayOf(React.PropTypes.arrayOf(React.PropTypes.string)),
-    currentLocale: React.PropTypes.string.isRequired,
-    onChange: React.PropTypes.func
+    locales: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)),
+    currentLocale: PropTypes.string.isRequired,
+    onChange: PropTypes.func
   };
 
   static defaultProps = {

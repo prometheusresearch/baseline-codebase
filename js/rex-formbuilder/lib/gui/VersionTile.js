@@ -5,6 +5,8 @@
 'use strict';
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
+var PropTypes = require('prop-types');
 
 var ConfirmationModal = require('./ConfirmationModal');
 var {InstrumentVersionActions} = require('../actions');
@@ -12,10 +14,10 @@ var {formatDateTime, gettext} = require('../i18n');
 var _ = gettext;
 
 
-var VersionTile = React.createClass({
+var VersionTile = ReactCreateClass({
   propTypes: {
-    version: React.PropTypes.object.isRequired,
-    onPreview: React.PropTypes.func
+    version: PropTypes.object.isRequired,
+    onPreview: PropTypes.func
   },
 
   getInitialState: function () {

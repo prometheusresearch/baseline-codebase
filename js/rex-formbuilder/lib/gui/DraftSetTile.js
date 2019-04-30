@@ -5,6 +5,8 @@
 'use strict';
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
+var PropTypes = require('prop-types');
 
 var {DraftInstrumentVersionActions} = require('../actions');
 var ConfirmationModal = require('./ConfirmationModal');
@@ -12,10 +14,10 @@ var {formatDateTime, gettext} = require('../i18n');
 var _ = gettext;
 
 
-var DraftSetTile = React.createClass({
+var DraftSetTile = ReactCreateClass({
   propTypes: {
-    draft: React.PropTypes.object.isRequired,
-    onPreview: React.PropTypes.func
+    draft: PropTypes.object.isRequired,
+    onPreview: PropTypes.func
   },
 
   getInitialState: function () {

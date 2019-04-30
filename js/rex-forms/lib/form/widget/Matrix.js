@@ -71,7 +71,6 @@ const MatrixRow = ReactForms.reactive(
                     padding="small"
                     noLabel
                     noAudio
-                    plain
                     disabled={this.event.isDisabled(eventKey)}
                     question={questionOptions}
                     instrument={columnFormValue.schema.instrument}

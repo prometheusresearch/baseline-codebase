@@ -5,10 +5,12 @@
 'use strict';
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
+var PropTypes = require('prop-types');
 var classNames = require('classnames');
 
 
-var Toaster = React.createClass({
+var Toaster = ReactCreateClass({
   statics: {
     TYPE_ERROR: 'error',
     TYPE_INFO: 'info',
@@ -16,7 +18,7 @@ var Toaster = React.createClass({
   },
 
   propTypes: {
-    toasts: React.PropTypes.arrayOf(React.PropTypes.object)
+    toasts: PropTypes.arrayOf(PropTypes.object)
   },
 
   getDefaultProps: function () {

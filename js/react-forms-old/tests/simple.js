@@ -6,6 +6,7 @@ var assert  = require('assert');
 var {fromJS, is}  = require('immutable');
 var ReactForms    = require('../');
 var React         = require('react');
+var ReactDOM      = require('react-dom');
 var TestUtils     = require('react/lib/ReactTestUtils');
 
 var {Form, Field, Fieldset} = ReactForms;
@@ -51,8 +52,8 @@ describe('simple form integration test', function() {
     assert.ok(inputs.text);
     assert.ok(inputs.num);
 
-    assert.equal(inputs.text.getDOMNode().value, '');
-    assert.equal(inputs.num.getDOMNode().value, '');
+    assert.equal(ReactDOM.findDOMNode(inputs.text).value, '');
+    assert.equal(ReactDOM.findDOMNode(inputs.num).value, '');
   });
 
   it('has empty value initially', function() {

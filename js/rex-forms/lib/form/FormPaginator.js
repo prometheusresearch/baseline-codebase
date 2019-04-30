@@ -129,7 +129,7 @@ export default InjectI18N(
   }
 );
 
-function PageButton({
+let PageButton = React.forwardRef(({
   onPage,
   pageNumber,
   active,
@@ -137,11 +137,12 @@ function PageButton({
   style,
   children,
   ...props
-}) {
+}, ref) => {
   let display = hidden ? "none" : "inline-block";
   return (
     <ReactUI.Button
       {...props}
+      ref={ref}
       variant={{ active }}
       style={{ ...style, display }}
       onClick={onPage && onPage.bind(null, { pageNumber })}
@@ -149,7 +150,7 @@ function PageButton({
       {children}
     </ReactUI.Button>
   );
-}
+})
 
 function EllipsisButton(props) {
   return (

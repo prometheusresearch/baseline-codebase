@@ -4,6 +4,8 @@
 'use strict';
 
 var React     = require('react');
+var ReactDOM  = require('react-dom');
+var PropTypes       = require('prop-types');
 var Immutable = require('immutable');
 var invariant = require('./invariant');
 
@@ -14,7 +16,7 @@ function getComponentFingerprint(component) {
 }
 
 var ContextTypes = {
-  focusScope: React.PropTypes.object
+  focusScope: PropTypes.object
 };
 
 var ScopeMixin = {
@@ -117,7 +119,7 @@ var FocusStore = {
     if (typeof component.focus === 'function') {
       component.focus();
     } else {
-      var node = component.getDOMNode();
+      var node = React.findDOMNode(component);
       if (node) {
         node.focus();
       }

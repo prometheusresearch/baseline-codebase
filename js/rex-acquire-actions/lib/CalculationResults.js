@@ -3,13 +3,14 @@
  */
 
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import {InjectI18N} from 'rex-i18n';
 
 
 export default InjectI18N(class CalculationResults extends React.Component {
   static propTypes = {
-    results: React.PropTypes.object.isRequired
+    results: PropTypes.object.isRequired
   };
 
   render() {

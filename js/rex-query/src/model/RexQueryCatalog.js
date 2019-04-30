@@ -4,31 +4,31 @@
  * @flow
  */
 
-import type {Domain, Type} from './types';
+import type { Domain, Type } from "./types";
 
-import invariant from 'invariant';
+import invariant from "invariant";
 
-import * as t from './Type';
+import * as t from "./Type";
 
 export type CatalogEntityField = {
   label: string,
   title: string,
-  column: ?{type: string, enum: Array<string>},
+  column: ?{ type: string, enum: Array<string> },
   public: boolean,
   partial: boolean,
   plural: boolean,
   kind: string,
-  link: ?{target: string, inverse: string},
+  link: ?{ target: string, inverse: string }
 };
 
 export type CatalogEntity = {
   name: string,
   label: string,
-  field: Array<CatalogEntityField>,
+  field: Array<CatalogEntityField>
 };
 
 export type Catalog = {
-  entity: Array<CatalogEntity>,
+  entity: Array<CatalogEntity>
 };
 
 /**
@@ -36,68 +36,72 @@ export type Catalog = {
  */
 const aggregate = {
   count: {
-    name: 'count',
-    title: 'Count',
+    name: "count",
+    title: "Count",
     makeType: typ => t.numberType(typ.domain),
-    isAllowed: typ => typ.card === 'seq',
+    isAllowed: typ => typ.card === "seq"
   },
   exists: {
-    name: 'exists',
-    title: 'Exists',
+    name: "exists",
+    title: "Exists",
     makeType: typ => t.booleanType(typ.domain),
-    isAllowed: typ => typ.card === 'seq',
+    isAllowed: typ => typ.card === "seq"
   },
   sum: {
-    name: 'sum',
-    title: 'Sum',
+    name: "sum",
+    title: "Sum",
     makeType: typ => t.numberType(typ.domain),
-    isAllowed: typ => typ.card === 'seq' && isNumeric(typ) && isAdditionDefined(typ),
+    isAllowed: typ =>
+      typ.card === "seq" && isNumeric(typ) && isAdditionDefined(typ)
   },
   min: {
-    name: 'min',
-    title: 'Min',
+    name: "min",
+    title: "Min",
     makeType: typ => t.numberType(typ.domain),
-    isAllowed: typ => typ.card === 'seq' && isNumeric(typ),
+    isAllowed: typ => typ.card === "seq" && isNumeric(typ)
   },
   max: {
-    name: 'max',
-    title: 'Max',
+    name: "max",
+    title: "Max",
     makeType: typ => t.numberType(typ.domain),
-    isAllowed: typ => typ.card === 'seq' && isNumeric(typ),
+    isAllowed: typ => typ.card === "seq" && isNumeric(typ)
   },
   mean: {
-    name: 'mean',
-    title: 'Average',
+    name: "mean",
+    title: "Average",
     makeType: typ => t.numberType(typ.domain),
-    isAllowed: typ => typ.card === 'seq' && isNumeric(typ) && isAdditionDefined(typ),
-  },
+    isAllowed: typ =>
+      typ.card === "seq" && isNumeric(typ) && isAdditionDefined(typ)
+  }
 };
 
 function isAdditionDefined(type: Type) {
-  return type.name === 'number';
+  return type.name === "number";
 }
 
 function isNumeric(type: Type) {
-  return type.name === 'number' ||
-    type.name === 'date' ||
-    type.name === 'time' ||
-    type.name === 'datetime';
+  return (
+    type.name === "number" ||
+    type.name === "date" ||
+    type.name === "time" ||
+    type.name === "datetime"
+  );
 }
 
 export function toDomain(data: Catalog): Domain {
-  let domain: Domain = {entity: {}, aggregate};
+  let domain: Domain = { entity: {}, aggregate };
   let catalog: Catalog = data;
   catalog.entity.forEach(e => {
     let attribute = {};
     e.field.forEach(f => {
       attribute[f.label] = {
         title: f.title,
-        type: getFieldType(domain, f),
+        type: getFieldType(domain, f)
       };
     });
     domain.entity[e.name] = {
       title: e.label,
-      attribute,
+      attribute
     };
   });
   return domain;
@@ -116,32 +120,32 @@ function getFieldType(domain: Domain, field: CatalogEntityField): Type {
 function getBaseFieldType(domain: Domain, field: CatalogEntityField): Type {
   if (field.column != null) {
     switch (field.column.type) {
-      case 'text':
+      case "text":
         return t.textType(domain);
-      case 'json':
+      case "json":
         return t.jsonType(domain);
-      case 'enum':
+      case "enum":
         return t.enumerationType(domain, field.column.enum);
-      case 'boolean':
+      case "boolean":
         return t.booleanType(domain);
-      case 'integer':
-      case 'decimal':
-      case 'float':
+      case "integer":
+      case "decimal":
+      case "float":
         return t.numberType(domain);
-      case 'date':
+      case "date":
         return t.dateType(domain);
-      case 'time':
+      case "time":
         return t.timeType(domain);
-      case 'datetime':
+      case "datetime":
         return t.dateTimeType(domain);
       default:
-        invariant(false, 'Unknown column type: %s', field.column.type);
+        invariant(false, "Unknown column type: %s", field.column.type);
     }
   } else if (field.link != null) {
     return t.entityType(domain, field.link.target);
-  } else if (field.kind === 'calculation') {
+  } else if (field.kind === "calculation") {
     return t.textType(domain);
   } else {
-    invariant(false, 'Impossible');
+    invariant(false, "Impossible");
   }
 }

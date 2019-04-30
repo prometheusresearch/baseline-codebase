@@ -3,7 +3,7 @@
  * @flow
  */
 
-import * as Transitionable from 'rex-widget/lib/Transitionable';
+import * as Transitionable from 'rex-widget/Transitionable';
 import * as T from './model/Type';
 import compileExpression from './compileExpression';
 import type {PreInstruction} from './parseInstruction';

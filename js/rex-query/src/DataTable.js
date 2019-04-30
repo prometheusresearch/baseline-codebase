@@ -2,52 +2,59 @@
  * @flow
  */
 
-import type {Type, QueryPipeline} from './model/types';
-import type {ColumnConfig, ColumnField} from './ui/datatable/DataTable';
-import type {Actions} from './state';
+import type { Type, QueryPipeline } from "./model/types";
+import type { ColumnConfig, ColumnField } from "./ui/datatable/DataTable";
+import type { Actions } from "./state";
 
-import * as React from 'react';
-import {style, css, VBox} from 'react-stylesheet';
-import {AutoSizer} from 'react-virtualized';
+import * as React from "react";
+import PropTypes from "prop-types";
+import { style, css, VBox } from "react-stylesheet";
+import AutoSizer from "react-virtualized-auto-sizer";
 
-import * as ArrayUtil from './ArrayUtil';
-import {LoadingIndicator} from './ui';
-import {DataTable as DataTableBase, DataTableColumnMenuItem} from './ui/datatable';
-import * as DataTableColumnConfig from './DataTableColumnConfig';
+import * as ArrayUtil from "./ArrayUtil";
+import { LoadingIndicator } from "./ui";
+import {
+  DataTable as DataTableBase,
+  DataTableColumnMenuItem
+} from "./ui/datatable";
+import * as DataTableColumnConfig from "./DataTableColumnConfig";
 
 type DataTableProps = {
   query: QueryPipeline,
   loading?: boolean,
   data: Object,
   focusedSeq: Array<string>,
-  onFocusedSeq: (focusedSeq: Array<string>) => *,
+  onFocusedSeq: (focusedSeq: Array<string>) => *
 };
 
 export default class DataTable extends React.Component<DataTableProps> {
   columns: ColumnConfig<DataTableColumnConfig.ColumnSpecData>;
   data: Array<Object>;
   context: {
-    actions: Actions,
+    actions: Actions
   };
 
   static defaultProps = {
-    focusedSeq: [],
+    focusedSeq: []
   };
 
-  static contextTypes = {actions: React.PropTypes.object};
+  static contextTypes = { actions: PropTypes.object };
 
   constructor(props: DataTableProps) {
     super(props);
-    this.columns = DataTableColumnConfig.fromQuery(props.query, props.focusedSeq);
+    this.columns = DataTableColumnConfig.fromQuery(
+      props.query,
+      props.focusedSeq
+    );
     this.data = getData(props.data, props.focusedSeq);
   }
 
   render() {
-    const {loading} = this.props;
+    const { loading } = this.props;
     return (
       <VBox flexGrow={1}>
         <AutoSizer>
-          {size =>
+          {size => (
             <DataTableBase
               onColumnClick={this.onColumnClick}
               onColumnSort={this.onColumnSort}
@@ -62,10 +69,11 @@ export default class DataTable extends React.Component<DataTableProps> {
               columns={this.columns}
               onColumnMenuSelect={this.onColumnMenuSelect}
               renderColumnMenu={this.renderColumnMenu}
-            />}
+            />
+          )}
         </AutoSizer>
-        <LoadingShim variant={{visible: loading}} />
-        <LoadingPane variant={{visible: loading}}>
+        <LoadingShim variant={{ visible: loading }} />
+        <LoadingPane variant={{ visible: loading }}>
           <LoadingIndicator />
         </LoadingPane>
       </VBox>
@@ -80,50 +88,56 @@ export default class DataTable extends React.Component<DataTableProps> {
       <DataTableColumnMenuItem key="link" value="link">
         Link as a query
       </DataTableColumnMenuItem>,
-      column.field.sort !== false &&
+      column.field.sort !== false && (
         <DataTableColumnMenuItem key="sort" value="sort">
-          {column.field.sort === 'asc' ? 'Sort desceding' : 'Sort asceding'}
-        </DataTableColumnMenuItem>,
+          {column.field.sort === "asc" ? "Sort desceding" : "Sort asceding"}
+        </DataTableColumnMenuItem>
+      ),
       <DataTableColumnMenuItem key="hide" value="hide">
         Remove column
-      </DataTableColumnMenuItem>,
+      </DataTableColumnMenuItem>
     ];
   };
 
   onColumnMenuSelect = (
     column: ColumnField<DataTableColumnConfig.ColumnSpecData>,
-    value: string,
+    value: string
   ) => {
-    const {navigateFromPipeline, navigatePath, navigate, pipeline} = column.field.data;
+    const {
+      navigateFromPipeline,
+      navigatePath,
+      navigate,
+      pipeline
+    } = column.field.data;
     if (navigate == null) {
       return;
     }
     switch (value) {
-      case 'hide': {
-        this.context.actions.cut({at: navigate});
+      case "hide": {
+        this.context.actions.cut({ at: navigate });
         break;
       }
-      case 'link': {
+      case "link": {
         this.context.actions.appendDefine({
           at: pipeline,
-          path: [navigate.path],
+          path: [navigate.path]
         });
         break;
       }
-      case 'sort': {
+      case "sort": {
         this.onColumnSort(column);
         break;
       }
-      case 'goto': {
-        if (pipeline.context.type.name === 'record') {
+      case "goto": {
+        if (pipeline.context.type.name === "record") {
           this.context.actions.appendNavigate({
             at: pipeline,
-            path: [navigate.path],
+            path: [navigate.path]
           });
         } else {
           this.context.actions.appendNavigate({
             at: navigateFromPipeline,
-            path: navigatePath,
+            path: navigatePath
           });
         }
         break;
@@ -133,18 +147,20 @@ export default class DataTable extends React.Component<DataTableProps> {
     }
   };
 
-  onColumnClick = (column: ColumnField<{type: Type}>) => {
-    if (column.field.data.type.card === 'seq') {
+  onColumnClick = (column: ColumnField<{ type: Type }>) => {
+    if (column.field.data.type.card === "seq") {
       this.props.onFocusedSeq(column.field.dataKey);
     }
   };
 
-  onColumnSort = (column: ColumnField<DataTableColumnConfig.ColumnSpecData>) => {
-    const {select} = column.field.data;
+  onColumnSort = (
+    column: ColumnField<DataTableColumnConfig.ColumnSpecData>
+  ) => {
+    const { select } = column.field.data;
     if (select != null) {
-      const dir = select.sort && select.sort.dir === 'asc' ? 'desc' : 'asc';
-      const {navigatePath} = column.field.data;
-      this.context.actions.sortBy({at: select, sort: {navigatePath, dir}});
+      const dir = select.sort && select.sort.dir === "asc" ? "desc" : "asc";
+      const { navigatePath } = column.field.data;
+      this.context.actions.sortBy({ at: select, sort: { navigatePath, dir } });
     }
   };
 
@@ -155,7 +171,7 @@ export default class DataTable extends React.Component<DataTableProps> {
     ) {
       this.columns = DataTableColumnConfig.fromQuery(
         nextProps.query,
-        nextProps.focusedSeq,
+        nextProps.focusedSeq
       );
     }
     if (
@@ -167,7 +183,7 @@ export default class DataTable extends React.Component<DataTableProps> {
     }
   }
 
-  _getRowData = ({index}: {index: number}) => {
+  _getRowData = ({ index }: { index: number }) => {
     return this.data[index];
   };
 
@@ -179,42 +195,42 @@ export default class DataTable extends React.Component<DataTableProps> {
 let LoadingPane = style(VBox, {
   base: {
     background: css.rgba(230, 0.9),
-    position: 'absolute',
+    position: "absolute",
     zIndex: 1000,
     height: 30,
     width: 100,
-    left: 'calc(50% - 50px)',
-    justifyContent: 'center',
+    left: "calc(50% - 50px)",
+    justifyContent: "center",
     bottom: 0,
     opacity: 0,
-    transition: 'opacity 0.3s, bottom 0.3s',
-    borderRadius: 13,
+    transition: "opacity 0.3s, bottom 0.3s",
+    borderRadius: 13
   },
   visible: {
     bottom: 10,
-    opacity: 100,
-  },
+    opacity: 100
+  }
 });
 
 let LoadingShim = style(VBox, {
   base: {
     background: css.rgba(255, 0.5),
-    position: 'absolute',
+    position: "absolute",
     zIndex: 900,
-    height: '100%',
-    width: '100%',
+    height: "100%",
+    width: "100%",
     left: 0,
     bottom: 0,
     top: 0,
     right: 0,
     opacity: 0,
-    transition: 'opacity 0.3s',
-    display: 'none',
+    transition: "opacity 0.3s",
+    display: "none"
   },
   visible: {
     opacity: 100,
-    display: 'block',
-  },
+    display: "block"
+  }
 });
 
 function getData(data: Object, focusedSeq: Array<string>): Array<Object> {

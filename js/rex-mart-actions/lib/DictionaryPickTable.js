@@ -4,9 +4,8 @@
 
 import React from 'react';
 
+import {TitleBase as Title} from 'rex-action';
 import DictionaryPick from './DictionaryPick';
-import Title from './Title';
-
 
 export default class DictionaryPickTable extends DictionaryPick {
   static targetContext = 'mart_table';

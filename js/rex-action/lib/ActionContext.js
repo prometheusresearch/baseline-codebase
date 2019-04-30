@@ -1,13 +1,14 @@
 /**
  * @copyright 2015-present, Prometheus Research, LLC
- * @flow
+ * @noflow
  */
 
 import * as React from 'react';
+import PropTypes from 'prop-types';
 
 export const contextTypes = {
-  toolbar: React.PropTypes.any,
-  help: React.PropTypes.string,
+  toolbar: PropTypes.any,
+  help: PropTypes.string,
 };
 
 export default class ActionContext extends React.Component {

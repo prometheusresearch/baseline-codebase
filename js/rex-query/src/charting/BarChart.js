@@ -2,15 +2,15 @@
  * @flow
  */
 
-import * as types from './types';
+import * as types from "./types";
 
-import * as React from 'react';
-import * as recharts from 'recharts';
-import {VBox} from 'react-stylesheet';
+import * as React from "react";
+import * as recharts from "recharts";
+import { VBox } from "react-stylesheet";
 
-import ChartTitle from './ChartTitle';
-import Preloader from './Preloader';
-import NoDataMessage from './NoDataMessage';
+import ChartTitle from "./ChartTitle";
+import Preloader from "./Preloader";
+import NoDataMessage from "./NoDataMessage";
 
 type BarChartProps = types.ChartBaseProps<types.BarChart>;
 
@@ -19,7 +19,7 @@ export default function BarChart({
   onLabel,
   chart,
   data,
-  dataIsUpdating,
+  dataIsUpdating
 }: BarChartProps) {
   let rendered = null;
   if (dataIsUpdating) {
@@ -34,12 +34,21 @@ export default function BarChart({
         data={data}
         width={width}
         height={400}
-        style={{fontWeight: 200, fontSize: '9pt'}}
-        margin={{top: 100}}>
+        style={{ fontWeight: 200, fontSize: "9pt" }}
+        margin={{ top: 100 }}
+      >
         <g>
-          <ChartTitle width={width} left={300} value={label} onChange={onLabel} />
+          <ChartTitle
+            width={width}
+            left={300}
+            value={label}
+            onChange={onLabel}
+          />
         </g>
-        <recharts.XAxis dataKey={String(chart.labelColumn)} name={chart.label} />
+        <recharts.XAxis
+          dataKey={String(chart.labelColumn)}
+          name={chart.label}
+        />
         <recharts.YAxis />
         <recharts.CartesianGrid strokeDasharray="3 3" />
         <recharts.Tooltip />
@@ -47,7 +56,7 @@ export default function BarChart({
         {chart.barList.map(bar => {
           return (
             <recharts.Bar
-              stackId={chart.stacked === 'vertical' ? 'single' : undefined}
+              stackId={chart.stacked === "vertical" ? "single" : undefined}
               key={bar.valueColumn}
               dataKey={bar.valueColumn}
               name={bar.label}
@@ -65,8 +74,8 @@ export default function BarChart({
   );
 }
 
-function getBarChartKey(chart: BarChart): string {
+function getBarChartKey(chart: types.BarChart): string {
   return `${chart.stacked}:${chart.barList
-    .map(bar => `${bar.valueColumn}--${bar.color}`)
-    .join(':')}`;
+    .map(bar => `${String(bar.valueColumn)}--${bar.color}`)
+    .join(":")}`;
 }

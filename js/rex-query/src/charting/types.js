@@ -3,61 +3,61 @@
  */
 
 export type PieChart = {
-  +type: 'pie',
+  +type: "pie",
   +labelColumn: ?string,
   +valueColumn: ?string,
-  +color: {[label: string]: string},
+  +color: { [label: string]: string }
 };
 
 export type Line = {
   label?: ?string,
   valueColumn: ?string,
-  color: string,
+  color: string
 };
 
 export type LineChart = {
-  +type: 'line',
+  +type: "line",
   +label?: ?string,
   +labelColumn: ?string,
-  +lineList: Array<Line>,
+  +lineList: Array<Line>
 };
 
 export type Area = {
   label?: ?string,
   valueColumn: ?string,
-  color: string,
+  color: string
 };
 
 export type AreaChart = {
-  +type: 'area',
+  +type: "area",
   +label?: ?string,
   +labelColumn: ?string,
-  +areaList: Array<Area>,
+  +areaList: Array<Area>
 };
 
 export type Bar = {
   label?: ?string,
   valueColumn: ?string,
-  color: string,
+  color: string
 };
 
 export type BarChart = {
-  +type: 'bar',
+  +type: "bar",
   +label?: ?string,
   +labelColumn: ?string,
-  +stacked: 'horizontal' | 'vertical',
-  +barList: Array<Bar>,
+  +stacked: "horizontal" | "vertical",
+  +barList: Array<Bar>
 };
 
 export type ScatterChart = {
-  +type: 'scatter',
+  +type: "scatter",
   +xColumn: ?string,
   +xLabel: ?string,
   +yColumn: ?string,
-  +yLabel: ?string,
+  +yLabel: ?string
 };
 
-export type ChartType = 'pie' | 'line' | 'bar' | 'scatter' | 'area';
+export type ChartType = "pie" | "line" | "bar" | "scatter" | "area";
 
 export type Chart = PieChart | LineChart | BarChart | ScatterChart | AreaChart;
 
@@ -86,7 +86,7 @@ export type ChartBaseProps<C: Chart> = {
    * Indicates if data is updating. In case it is set to `true` chart should
    * render a preloader of some sort.
    */
-  dataIsUpdating: boolean,
+  dataIsUpdating: boolean
 };
 
 export type ChartEditorBaseProps<C: Chart> = {
@@ -119,5 +119,5 @@ export type ChartEditorBaseProps<C: Chart> = {
    * Indicates if data is updating. In case it is set to `true` chart should
    * render a preloader of some sort.
    */
-  dataIsUpdating: boolean,
+  dataIsUpdating: boolean
 };

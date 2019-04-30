@@ -3,6 +3,7 @@
  */
 
 import * as React from "react";
+import PropTypes from 'prop-types';
 import * as ReactUI from "@prometheusresearch/react-ui-0.21";
 import { style } from "@prometheusresearch/react-ui-0.21/stylesheet";
 
@@ -42,10 +43,10 @@ let ValueButton = style(ReactUI.QuietButton, {
 export default InjectI18N(
   class DiscrepancyChoices extends React.Component {
     static propTypes = {
-      discrepancy: React.PropTypes.object.isRequired,
-      question: React.PropTypes.object.isRequired,
-      instrument: React.PropTypes.object.isRequired,
-      formValue: React.PropTypes.object.isRequired
+      discrepancy: PropTypes.object.isRequired,
+      question: PropTypes.object.isRequired,
+      instrument: PropTypes.object.isRequired,
+      formValue: PropTypes.object.isRequired
     };
 
     constructor(props) {

@@ -5,18 +5,19 @@
 'use strict';
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
+var PropTypes = require('prop-types');
 
 
-var ToolGroup = React.createClass({
+var ToolGroup = ReactCreateClass({
   propTypes: {
-    label: React.PropTypes.string.isRequired,
-    tools: React.PropTypes.arrayOf(React.PropTypes.func).isRequired,
-    toolComponent: React.PropTypes.func.isRequired
+    label: PropTypes.string.isRequired,
+    tools: PropTypes.arrayOf(PropTypes.func).isRequired,
+    toolComponent: PropTypes.func.isRequired
   },
 
   buildTools: function () {
-    //TODO something wrong with the toolComponent
-    var Component = this.props.toolComponent.default;
+    var Component = this.props.toolComponent;
     return this.props.tools.map((tool, idx) => {
       return (
         <Component

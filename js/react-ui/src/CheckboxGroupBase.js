@@ -5,6 +5,7 @@
 
 import invariant from 'invariant';
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import {noop} from './Utils';
 import * as I18N from './I18N';
@@ -74,7 +75,7 @@ type Props = {
 
 export default class CheckboxGroupBase extends React.Component<*, Props, *> {
   static propTypes = {
-    valueStrategy: React.PropTypes.object,
+    valueStrategy: PropTypes.object,
   };
 
   static stylesheet = stylesheet;

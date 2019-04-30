@@ -5,14 +5,16 @@
 'use strict';
 
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
+var PropTypes = require('prop-types');
 var RexI18N = require('rex-i18n');
 var {Page} = require('rex-widget');
 
 
-var I18NPage = React.createClass({
+var I18NPage = ReactCreateClass({
   propTypes: {
-    locale: React.PropTypes.string.isRequired,
-    i18nBaseUrl: React.PropTypes.string.isRequired
+    locale: PropTypes.string.isRequired,
+    i18nBaseUrl: PropTypes.string.isRequired
   },
 
   onI18NLoad: function () {

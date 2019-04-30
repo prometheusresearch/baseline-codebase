@@ -2,7 +2,7 @@
  * @flow
  */
 
-import * as React from 'react';
+import * as React from "react";
 
 export default function PieChartIcon() {
   return (
@@ -10,7 +10,8 @@ export default function PieChartIcon() {
       x="0px"
       y="0px"
       viewBox="0 0 371.041 371.041"
-      style={{width: 40, height: 40, enableBackground: 'new 0 0 376 376'}}>
+      style={{ width: 40, height: 40, enableBackground: "new 0 0 376 376" }}
+    >
       <g>
         <path
           d="M190.032,170.196c1.067,1.065,2.514,1.666,4.023,1.666H364.83c1.614,0,3.152-0.686,4.231-1.885

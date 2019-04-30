@@ -5,15 +5,17 @@
 'use strict';
 
 var React     = require('react');
+var PropTypes       = require('prop-types');
+var ReactCreateClass = require('create-react-class');
 var Hint      = require('./Hint');
 var cx        = require('classnames');
 
-var Label = React.createClass({
+var Label = ReactCreateClass({
 
   propTypes: {
-    label: React.PropTypes.string,
-    hint: React.PropTypes.string,
-    className: React.PropTypes.string
+    label: PropTypes.string,
+    hint: PropTypes.string,
+    className: PropTypes.string
   },
 
   render(): ?ReactElement {

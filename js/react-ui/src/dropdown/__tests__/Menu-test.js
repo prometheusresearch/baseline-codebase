@@ -1,4 +1,5 @@
 var React = require('react');
+var ReactCreateClass = require('create-react-class');
 var ReactDOMServer = require('react-dom/server');
 var shallow = require('enzyme').shallow;
 var mount = require('enzyme').mount;
@@ -79,7 +80,7 @@ describe('<Menu>', function() {
     ambManager.menuItems = [1, 2];
     var childFunction = jest.fn();
 
-    var LittleApp = React.createClass({
+    var LittleApp = ReactCreateClass({
       getInitialState: function() {
         return {open: false};
       },

@@ -2,28 +2,29 @@
  * @flow
  */
 
-import type {ChartSpec} from '../state';
-import * as types from '../charting/types';
-import type {QueryPipeline, ChartConfig} from '../model/types';
+import type { ChartSpec } from "../state";
+import * as types from "../charting/types";
+import type { QueryPipeline, ChartConfig } from "../model/types";
 
-import * as React from 'react';
-import {VBox, HBox} from 'react-stylesheet';
-import * as ReactUI from '@prometheusresearch/react-ui';
+import * as React from "react";
+import { VBox, HBox } from "react-stylesheet";
+// $FlowFixMe: ...
+import * as ReactUI from "@prometheusresearch/react-ui";
 
-import PieChartIcon from '../charting/icon/PieChartIcon';
-import BarChartIcon from '../charting/icon/BarChartIcon';
-import ScatterChartIcon from '../charting/icon/ScatterChartIcon';
-import LineChartIcon from '../charting/icon/LineChartIcon';
-import AreaChartIcon from '../charting/icon/AreaChartIcon';
+import PieChartIcon from "../charting/icon/PieChartIcon";
+import BarChartIcon from "../charting/icon/BarChartIcon";
+import ScatterChartIcon from "../charting/icon/ScatterChartIcon";
+import LineChartIcon from "../charting/icon/LineChartIcon";
+import AreaChartIcon from "../charting/icon/AreaChartIcon";
 
-import {findDOMNodeStrict as findDOMNode} from '../findDOMNode';
-import {getPipelineContext} from '../model';
-import * as ui from '../ui';
-import * as State from '../state';
-import * as model from './model';
-import * as SVG from '../SVG';
-import * as Fetch from '../fetch';
-import * as Charting from '../charting';
+import { findDOMNodeStrict as findDOMNode } from "../findDOMNode";
+import { getPipelineContext } from "../model";
+import * as ui from "../ui";
+import * as State from "../state";
+import * as model from "./model";
+import * as SVG from "../SVG";
+import * as Fetch from "../fetch";
+import * as Charting from "../charting";
 
 const addIfNotNull = (set, column) => {
   if (column != null) {
@@ -42,7 +43,7 @@ export type ChartProps<C> = {
 
   onUpdateLabel: (label: string) => void,
 
-  onUpdateChart: (chart: types.Chart) => void,
+  onUpdateChart: (chart: types.Chart) => void
 };
 
 export class PieChart extends React.Component<ChartProps<types.PieChart>> {
@@ -53,7 +54,7 @@ export class PieChart extends React.Component<ChartProps<types.PieChart>> {
       query,
       data,
       optionsForLabel,
-      optionsForMeasure,
+      optionsForMeasure
     } = this.props;
     return (
       <Charting.PieChartEditor
@@ -70,19 +71,19 @@ export class PieChart extends React.Component<ChartProps<types.PieChart>> {
   }
 }
 
-export const pieChart: ChartConfig<'pie', types.PieChart> = {
-  type: 'pie',
-  label: 'Pie Chart',
+export const pieChart: ChartConfig<"pie", types.PieChart> = {
+  type: "pie",
+  label: "Pie Chart",
   icon: <PieChartIcon />,
 
   chartEditor: PieChart,
 
   getInitialChart(query: QueryPipeline): types.PieChart {
     return {
-      type: 'pie',
+      type: "pie",
       labelColumn: model.getLabelColumn(query),
       valueColumn: null,
-      color: {},
+      color: {}
     };
   },
 
@@ -91,10 +92,10 @@ export const pieChart: ChartConfig<'pie', types.PieChart> = {
       model.getChartDesc(
         attrs,
         chart.labelColumn,
-        model.getValueLabel(attrs, [{valueColumn: chart.valueColumn}]),
-      ),
+        model.getValueLabel(attrs, [{ valueColumn: chart.valueColumn }])
+      )
     );
-    return desc == null ? 'Pie Chart' : `${desc} — Pie Chart`;
+    return desc == null ? "Pie Chart" : `${desc} — Pie Chart`;
   },
 
   getUsedAttributes(chart: types.PieChart): Set<string> {
@@ -102,7 +103,7 @@ export const pieChart: ChartConfig<'pie', types.PieChart> = {
     addIfNotNull(attributes, chart.labelColumn);
     addIfNotNull(attributes, chart.valueColumn);
     return attributes;
-  },
+  }
 };
 
 export class LineChart extends React.Component<ChartProps<types.LineChart>> {
@@ -113,7 +114,7 @@ export class LineChart extends React.Component<ChartProps<types.LineChart>> {
       query,
       data,
       optionsForLabel,
-      optionsForMeasure,
+      optionsForMeasure
     } = this.props;
     return (
       <Charting.LineChartEditor
@@ -130,15 +131,19 @@ export class LineChart extends React.Component<ChartProps<types.LineChart>> {
   }
 }
 
-export const lineChart: ChartConfig<'line', types.LineChart> = {
-  type: 'line',
-  label: 'Line Chart',
+export const lineChart: ChartConfig<"line", types.LineChart> = {
+  type: "line",
+  label: "Line Chart",
   icon: <LineChartIcon />,
 
   chartEditor: LineChart,
 
   getInitialChart(query: QueryPipeline): types.LineChart {
-    return {type: 'line', labelColumn: model.getLabelColumn(query), lineList: []};
+    return {
+      type: "line",
+      labelColumn: model.getLabelColumn(query),
+      lineList: []
+    };
   },
 
   getChartTitle(chart: types.LineChart, query: QueryPipeline): string {
@@ -146,20 +151,20 @@ export const lineChart: ChartConfig<'line', types.LineChart> = {
       model.getChartDesc(
         attrs,
         chart.labelColumn,
-        model.getValueLabel(attrs, chart.lineList),
-      ),
+        model.getValueLabel(attrs, chart.lineList)
+      )
     );
-    return desc == null ? 'Line Chart' : `${desc} — Line Chart`;
+    return desc == null ? "Line Chart" : `${desc} — Line Chart`;
   },
 
   getUsedAttributes(chart: types.LineChart): Set<string> {
     const attributes = new Set();
     addIfNotNull(attributes, chart.labelColumn);
-    for (const {valueColumn} of chart.lineList) {
+    for (const { valueColumn } of chart.lineList) {
       addIfNotNull(attributes, valueColumn);
     }
     return attributes;
-  },
+  }
 };
 
 export class AreaChart extends React.Component<ChartProps<types.AreaChart>> {
@@ -170,7 +175,7 @@ export class AreaChart extends React.Component<ChartProps<types.AreaChart>> {
       query,
       data,
       optionsForLabel,
-      optionsForMeasure,
+      optionsForMeasure
     } = this.props;
     return (
       <Charting.AreaChartEditor
@@ -187,15 +192,19 @@ export class AreaChart extends React.Component<ChartProps<types.AreaChart>> {
   }
 }
 
-export const areaChart: ChartConfig<'area', types.AreaChart> = {
-  type: 'area',
-  label: 'Area Chart',
+export const areaChart: ChartConfig<"area", types.AreaChart> = {
+  type: "area",
+  label: "Area Chart",
   icon: <AreaChartIcon />,
 
   chartEditor: AreaChart,
 
   getInitialChart(query: QueryPipeline): types.AreaChart {
-    return {type: 'area', labelColumn: model.getLabelColumn(query), areaList: []};
+    return {
+      type: "area",
+      labelColumn: model.getLabelColumn(query),
+      areaList: []
+    };
   },
 
   getChartTitle(chart: types.AreaChart, query: QueryPipeline): string {
@@ -203,20 +212,20 @@ export const areaChart: ChartConfig<'area', types.AreaChart> = {
       model.getChartDesc(
         attrs,
         chart.labelColumn,
-        model.getValueLabel(attrs, chart.areaList),
-      ),
+        model.getValueLabel(attrs, chart.areaList)
+      )
     );
-    return desc == null ? 'Area Chart' : `${desc} — Area Chart`;
+    return desc == null ? "Area Chart" : `${desc} — Area Chart`;
   },
 
   getUsedAttributes(chart: types.AreaChart): Set<string> {
     const attributes = new Set();
     addIfNotNull(attributes, chart.labelColumn);
-    for (const {valueColumn} of chart.areaList) {
+    for (const { valueColumn } of chart.areaList) {
       addIfNotNull(attributes, valueColumn);
     }
     return attributes;
-  },
+  }
 };
 
 export class BarChart extends React.Component<ChartProps<types.BarChart>> {
@@ -227,7 +236,7 @@ export class BarChart extends React.Component<ChartProps<types.BarChart>> {
       query,
       data,
       optionsForLabel,
-      optionsForMeasure,
+      optionsForMeasure
     } = this.props;
     return (
       <Charting.BarChartEditor
@@ -244,19 +253,19 @@ export class BarChart extends React.Component<ChartProps<types.BarChart>> {
   }
 }
 
-export const barChart: ChartConfig<'bar', types.BarChart> = {
-  type: 'bar',
-  label: 'Bar Chart',
+export const barChart: ChartConfig<"bar", types.BarChart> = {
+  type: "bar",
+  label: "Bar Chart",
   icon: <BarChartIcon />,
 
   chartEditor: BarChart,
 
   getInitialChart(query: QueryPipeline): types.BarChart {
     return {
-      type: 'bar',
+      type: "bar",
       labelColumn: model.getLabelColumn(query),
-      stacked: 'horizontal',
-      barList: [],
+      stacked: "horizontal",
+      barList: []
     };
   },
 
@@ -265,23 +274,25 @@ export const barChart: ChartConfig<'bar', types.BarChart> = {
       model.getChartDesc(
         attrs,
         chart.labelColumn,
-        model.getValueLabel(attrs, chart.barList),
-      ),
+        model.getValueLabel(attrs, chart.barList)
+      )
     );
-    return desc == null ? 'Bar Chart' : `${desc} — Bar Chart`;
+    return desc == null ? "Bar Chart" : `${desc} — Bar Chart`;
   },
 
   getUsedAttributes(chart: types.BarChart): Set<string> {
     const attributes = new Set();
     addIfNotNull(attributes, chart.labelColumn);
-    for (const {valueColumn} of chart.barList) {
+    for (const { valueColumn } of chart.barList) {
       addIfNotNull(attributes, valueColumn);
     }
     return attributes;
-  },
+  }
 };
 
-export class ScatterChart extends React.Component<ChartProps<types.ScatterChart>> {
+export class ScatterChart extends React.Component<
+  ChartProps<types.ScatterChart>
+> {
   render() {
     const {
       label,
@@ -289,7 +300,7 @@ export class ScatterChart extends React.Component<ChartProps<types.ScatterChart>
       query,
       data,
       optionsForLabel,
-      optionsForMeasure,
+      optionsForMeasure
     } = this.props;
     return (
       <Charting.ScatterChartEditor
@@ -306,15 +317,21 @@ export class ScatterChart extends React.Component<ChartProps<types.ScatterChart>
   }
 }
 
-export const scatterChart: ChartConfig<'scatter', types.ScatterChart> = {
-  type: 'scatter',
-  label: 'Scatter Chart',
+export const scatterChart: ChartConfig<"scatter", types.ScatterChart> = {
+  type: "scatter",
+  label: "Scatter Chart",
   icon: <ScatterChartIcon />,
 
   chartEditor: ScatterChart,
 
   getInitialChart(query: QueryPipeline): types.ScatterChart {
-    return {type: 'scatter', xColumn: null, xLabel: null, yColumn: null, yLabel: null};
+    return {
+      type: "scatter",
+      xColumn: null,
+      xLabel: null,
+      yColumn: null,
+      yLabel: null
+    };
   },
 
   getChartTitle(chart: types.ScatterChart, query: QueryPipeline): string {
@@ -331,7 +348,7 @@ export const scatterChart: ChartConfig<'scatter', types.ScatterChart> = {
       const xLabel = attrs[chart.xColumn].title;
       return `${yLabel}, ${xLabel}`;
     });
-    return desc == null ? 'Scatter Chart' : `${desc} — Scatter Chart`;
+    return desc == null ? "Scatter Chart" : `${desc} — Scatter Chart`;
   },
 
   getUsedAttributes(chart: types.ScatterChart): Set<string> {
@@ -339,5 +356,5 @@ export const scatterChart: ChartConfig<'scatter', types.ScatterChart> = {
     addIfNotNull(attributes, chart.xColumn);
     addIfNotNull(attributes, chart.yColumn);
     return attributes;
-  },
+  }
 };

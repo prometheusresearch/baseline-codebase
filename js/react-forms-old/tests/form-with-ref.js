@@ -7,6 +7,7 @@ var sinon   = require('sinon');
 var assert  = require('assert');
 
 var ReactForms  = require('../');
+var ReactCreateClass = require('create-react-class');
 var React       = require('react');
 var TestUtils   = require('react/lib/ReactTestUtils');
 
@@ -25,7 +26,7 @@ describe('simple form integration test', function() {
   var fields;
   var inputs;
 
-  var App = React.createClass({
+  var App = ReactCreateClass({
 
     render: function() {
       return (

@@ -1,5 +1,0 @@
-node_modules
-example/bundle.js
-lib/
-coverage/
-.nyc_output/

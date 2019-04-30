@@ -128,7 +128,7 @@ class Calculation {
     return (
       <div className={classes}>
         <span className="rfb-icon" />
-        {this.getName()}
+        <span>{this.getName()}</span>
       </div>
     );
   }

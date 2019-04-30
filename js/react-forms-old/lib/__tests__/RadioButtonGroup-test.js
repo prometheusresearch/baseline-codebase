@@ -1,6 +1,7 @@
 'use strict';
 
 var React               = require('react');
+var ReactDOM            = require('react-dom');
 var assert              = require('assert');
 var sinon               = require('sinon');
 var TestUtils           = require('react/lib/ReactTestUtils');
@@ -19,7 +20,7 @@ describe('forms', () => {
           return TestUtils.scryRenderedDOMComponentsWithClass(
               component,
               "rf-RadioButtonGroup__radio")
-              .map((c) => c.getDOMNode());
+              .map((c) => ReactDOM.findDOMNode(c));
       }
 
       function assertSelected(buttons, value) {

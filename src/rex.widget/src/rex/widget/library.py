@@ -95,7 +95,7 @@ class JsonSourceCodeField(Widget):
 class DatetimeField(Widget):
 
     name = 'DatetimeField'
-    js_type = 'rex-widget', 'DatetimeField'
+    js_type = 'rex-widget', 'DateTimeField'
 
     format = Field(
         StrVal(), default='YYYY-MM-DD HH:MM:SS',

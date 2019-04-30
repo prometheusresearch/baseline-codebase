@@ -8,66 +8,66 @@ import type {
   QueryPipeline,
   QueryNavigation,
   DomainAttributeMap,
-  ChartConfig,
-} from '../model/types';
+  ChartConfig
+} from "../model/types";
 import type {
   Chart,
   LineChart,
   PieChart,
   BarChart,
   AreaChart,
-  ScatterChart,
-} from '../charting/types';
+  ScatterChart
+} from "../charting/types";
 
-import invariant from 'invariant';
+import invariant from "invariant";
 
-import type {SelectOptionWithStringLabel} from '../ui';
-import * as t from '../model/Type';
-import {getNavigation} from '../model/QueryNavigation';
+import type { SelectOptionWithStringLabel } from "../ui";
+import * as t from "../model/Type";
+import { getNavigation } from "../model/QueryNavigation";
 
 export function getChartTitle(chart: Chart, pipeline: QueryPipeline): string {
   const chart_ = chart;
   switch (chart_.type) {
-    case 'pie': {
+    case "pie": {
       const desc = withRecordAttributesOrNull(pipeline, query =>
-        getPieChartDesc(query, chart_),
+        getPieChartDesc(query, chart_)
       );
-      return desc == null ? 'Pie Chart' : `${desc} — Pie Chart`;
+      return desc == null ? "Pie Chart" : `${desc} — Pie Chart`;
     }
-    case 'line': {
+    case "line": {
       const desc = withRecordAttributesOrNull(pipeline, query =>
-        getLineChartDesc(query, chart_),
+        getLineChartDesc(query, chart_)
       );
-      return desc == null ? 'Line Chart' : `${desc} — Line Chart`;
+      return desc == null ? "Line Chart" : `${desc} — Line Chart`;
     }
-    case 'bar': {
+    case "bar": {
       const desc = withRecordAttributesOrNull(pipeline, query =>
-        getBarChartDesc(query, chart_),
+        getBarChartDesc(query, chart_)
       );
-      return desc == null ? 'Bar Chart' : `${desc} — Bar Chart`;
+      return desc == null ? "Bar Chart" : `${desc} — Bar Chart`;
     }
-    case 'area': {
+    case "area": {
       const desc = withRecordAttributesOrNull(pipeline, query =>
-        getAreaChartDesc(query, chart_),
+        getAreaChartDesc(query, chart_)
       );
-      return desc == null ? 'Area Chart' : `${desc} — Area Chart`;
+      return desc == null ? "Area Chart" : `${desc} — Area Chart`;
     }
-    case 'scatter': {
+    case "scatter": {
       const desc = withRecordAttributesOrNull(pipeline, query =>
-        getScatterChartDesc(query, chart_),
+        getScatterChartDesc(query, chart_)
       );
-      return desc == null ? 'Scatter Chart' : `${desc} — Scatter Chart`;
+      return desc == null ? "Scatter Chart" : `${desc} — Scatter Chart`;
     }
     default:
-      invariant(false, 'Unknown chart type: %s', chart_.type);
+      invariant(false, "Unknown chart type: %s", chart_.type);
   }
 }
 
 export function withRecordAttributesOrNull(
   pipeline: QueryPipeline,
-  f: DomainAttributeMap => ?string,
+  f: DomainAttributeMap => ?string
 ): ?string {
-  const {query} = getQuery(pipeline);
+  const { query } = getQuery(pipeline);
   if (query == null) {
     return null;
   }
@@ -78,12 +78,12 @@ export function withRecordAttributesOrNull(
   return f(attrs);
 }
 
-export function getValueLabel<T: {valueColumn: ?string}>(
+export function getValueLabel<T: { valueColumn: ?string }>(
   attrs: DomainAttributeMap,
-  list: T[],
+  list: T[]
 ) {
   const value = [];
-  for (const {valueColumn} of list) {
+  for (const { valueColumn } of list) {
     if (valueColumn == null) {
       continue;
     }
@@ -99,7 +99,7 @@ export function getValueLabel<T: {valueColumn: ?string}>(
 export function getChartDesc(
   attrs: DomainAttributeMap,
   labelColumn: ?string,
-  valueList: Array<string>,
+  valueList: Array<string>
 ): ?string {
   if (labelColumn == null || !(labelColumn in attrs)) {
     return null;
@@ -108,27 +108,48 @@ export function getChartDesc(
   if (valueList.length === 0) {
     return null;
   }
-  return `${valueList.join(', ')} by ${label}`;
+  return `${valueList.join(", ")} by ${label}`;
 }
 
-function getLineChartDesc(attrs, {labelColumn, lineList}: LineChart): ?string {
+function getLineChartDesc(
+  attrs,
+  { labelColumn, lineList }: LineChart
+): ?string {
   return getChartDesc(attrs, labelColumn, getValueLabel(attrs, lineList));
 }
 
-function getBarChartDesc(attrs, {labelColumn, barList}: BarChart): ?string {
+function getBarChartDesc(attrs, { labelColumn, barList }: BarChart): ?string {
   return getChartDesc(attrs, labelColumn, getValueLabel(attrs, barList));
 }
 
-function getAreaChartDesc(attrs, {labelColumn, areaList}: AreaChart): ?string {
+function getAreaChartDesc(
+  attrs,
+  { labelColumn, areaList }: AreaChart
+): ?string {
   return getChartDesc(attrs, labelColumn, getValueLabel(attrs, areaList));
 }
 
-function getPieChartDesc(attrs, {labelColumn, valueColumn}: PieChart): ?string {
-  return getChartDesc(attrs, labelColumn, getValueLabel(attrs, [{valueColumn}]));
+function getPieChartDesc(
+  attrs,
+  { labelColumn, valueColumn }: PieChart
+): ?string {
+  return getChartDesc(
+    attrs,
+    labelColumn,
+    getValueLabel(attrs, [{ valueColumn }])
+  );
 }
 
-function getScatterChartDesc(attrs, {xColumn, yColumn}: ScatterChart): ?string {
-  if (xColumn == null || yColumn == null || !(xColumn in attrs) || !(yColumn in attrs)) {
+function getScatterChartDesc(
+  attrs,
+  { xColumn, yColumn }: ScatterChart
+): ?string {
+  if (
+    xColumn == null ||
+    yColumn == null ||
+    !(xColumn in attrs) ||
+    !(yColumn in attrs)
+  ) {
     return null;
   }
   const yLabel = attrs[yColumn].title;
@@ -136,30 +157,47 @@ function getScatterChartDesc(attrs, {xColumn, yColumn}: ScatterChart): ?string {
   return `${yLabel}, ${xLabel}`;
 }
 
-export function getInitialChart(pipeline: QueryPipeline, {type}: {type: string}): Chart {
+export function getInitialChart(
+  pipeline: QueryPipeline,
+  { type }: { type: string }
+): Chart {
   switch (type) {
-    case 'pie':
+    case "pie":
       return {
-        type: 'pie',
+        type: "pie",
         labelColumn: getLabelColumn(pipeline),
         valueColumn: null,
-        color: {},
+        color: {}
       };
-    case 'line':
-      return {type: 'line', labelColumn: getLabelColumn(pipeline), lineList: []};
-    case 'area':
-      return {type: 'area', labelColumn: getLabelColumn(pipeline), areaList: []};
-    case 'bar':
+    case "line":
       return {
-        type: 'bar',
+        type: "line",
         labelColumn: getLabelColumn(pipeline),
-        stacked: 'horizontal',
-        barList: [],
+        lineList: []
       };
-    case 'scatter':
-      return {type: 'scatter', xColumn: null, xLabel: null, yColumn: null, yLabel: null};
+    case "area":
+      return {
+        type: "area",
+        labelColumn: getLabelColumn(pipeline),
+        areaList: []
+      };
+    case "bar":
+      return {
+        type: "bar",
+        labelColumn: getLabelColumn(pipeline),
+        stacked: "horizontal",
+        barList: []
+      };
+    case "scatter":
+      return {
+        type: "scatter",
+        xColumn: null,
+        xLabel: null,
+        yColumn: null,
+        yLabel: null
+      };
     default:
-      invariant(false, 'Unknown chart type: %s', type);
+      invariant(false, "Unknown chart type: %s", type);
   }
 }
 
@@ -167,20 +205,20 @@ export function getSelectOptionsFromContext(
   context: Context,
   params?: {
     onlyNumerics?: boolean,
-    addSumarizations?: boolean,
-  } = {},
+    addSumarizations?: boolean
+  } = {}
 ): $ReadOnlyArray<SelectOptionWithStringLabel> {
-  const {onlyNumerics, addSumarizations} = params;
+  const { onlyNumerics, addSumarizations } = params;
   const navigation = Array.from(getNavigation(context).values());
   const options = [];
 
   for (let i = 0; i < navigation.length; i++) {
     const nav = navigation[i];
 
-    if (addSumarizations && nav.card === 'seq') {
+    if (addSumarizations && nav.card === "seq") {
       options.push({
-        label: '# ' + nav.label,
-        value: nav.value,
+        label: "# " + nav.label,
+        value: nav.value
       });
     }
 
@@ -190,7 +228,7 @@ export function getSelectOptionsFromContext(
 
     options.push({
       label: nav.label,
-      value: nav.value,
+      value: nav.value
     });
   }
 
@@ -198,17 +236,20 @@ export function getSelectOptionsFromContext(
 }
 
 function isNumericNav(nav: QueryNavigation): boolean {
-  return (nav.card == null || nav.card === 'opt') && nav.context.type.name === 'number';
+  return (
+    (nav.card == null || nav.card === "opt") &&
+    nav.context.type.name === "number"
+  );
 }
 
 const COLUMN_AS_LABEL_TO_CONSIDER = {
   title: true,
   name: true,
-  fullname: true,
+  fullname: true
 };
 
 export function getLabelColumn(pipeline: QueryPipeline): ?string {
-  const {query} = getQuery(pipeline);
+  const { query } = getQuery(pipeline);
   if (query == null) {
     return null;
   }
@@ -222,33 +263,33 @@ export function getLabelColumn(pipeline: QueryPipeline): ?string {
   return null;
 }
 
-import {inferTypeAtPath, aggregate} from '../model/Query';
-import {editor} from '../model/QueryOperation';
+import { inferTypeAtPath, aggregate } from "../model/Query";
+import { editor } from "../model/QueryOperation";
 
 export function getColumnOptions(
-  context: Context,
-): $ReadOnlyArray<{label: string, value: string}> {
+  context: Context
+): $ReadOnlyArray<{ label: string, value: string }> {
   const nav = getNavigation(context);
   return Array.from(nav.values()).map(nav => ({
     label: nav.label,
-    value: nav.value,
+    value: nav.value
   }));
 }
 
 export function getQuery(
   query: QueryPipeline,
-  data: any,
-): {query: ?QueryPipeline, data: any} {
+  data: any
+): { query: ?QueryPipeline, data: any } {
   if (query.pipeline.length === 1) {
-    return {query: null, data};
+    return { query: null, data };
   } else {
-    if (query.pipeline[1].name === 'define') {
+    if (query.pipeline[1].name === "define") {
       if (data != null) {
         data = data[Object.keys(data)[0]];
       }
-      return {query: query.pipeline[1].binding.query, data};
+      return { query: query.pipeline[1].binding.query, data };
     } else {
-      return {query: null, data};
+      return { query: null, data };
     }
   }
 }
@@ -256,7 +297,7 @@ export function getQuery(
 export function enrichQuery(
   query: QueryPipeline,
   chart: Chart,
-  chartConfig: ChartConfig<>,
+  chartConfig: ChartConfig<>
 ): QueryPipeline {
   const focus = getQuery(query, null).query;
   if (focus == null) {
@@ -266,19 +307,19 @@ export function enrichQuery(
   for (const attrName of chartConfig.getUsedAttributes(chart)) {
     let editAtCompletion;
     const type = inferTypeAtPath(focus.context.prev, [attrName]);
-    if (type.card === 'seq' && type.name === 'record' && type.entity != null) {
+    if (type.card === "seq" && type.name === "record" && type.entity != null) {
       editAtCompletion = ensurePipelineHasCount;
     }
-    e = e.growNavigation({path: [attrName], editAtCompletion});
+    e = e.growNavigation({ path: [attrName], editAtCompletion });
   }
   return e.getQuery();
 }
 
 function ensurePipelineHasCount(pipe: QueryAtom[]): QueryAtom[] {
   const last = pipe[pipe.length - 1];
-  if (last != null && last.name === 'aggregate') {
+  if (last != null && last.name === "aggregate") {
     return pipe;
   } else {
-    return pipe.concat(aggregate('count'));
+    return pipe.concat(aggregate("count"));
   }
 }

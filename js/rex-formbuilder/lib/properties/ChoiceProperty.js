@@ -2,24 +2,23 @@
  * Copyright (c) 2015, Prometheus Research, LLC
  */
 
-'use strict';
+"use strict";
 
-var React = require('react');
-var ReactForms = require('react-forms-old');
-var {Map} = require('immutable');
+var React = require("react");
+var ReactForms = require("react-forms-old");
+var { Map } = require("immutable");
 
-var Select = require('./form/Select');
-var _ = require('../i18n').gettext;
+var Select = require("./form/Select");
+var _ = require("../i18n").gettext;
 
+let Input = React.forwardRef((props, ref) => {
+  return <Select ref={ref} {...props} />;
+});
 
 class ChoiceProperty extends ReactForms.schema.ScalarNode {
   static create(props) {
     props = props || {};
-    props.input = (
-      <Select
-        choices={props.choices}
-        />
-    );
+    props.input = <Input choices={props.choices} />;
 
     /*eslint new-cap:0 */
     return new this(Map(props));
@@ -32,16 +31,14 @@ class ChoiceProperty extends ReactForms.schema.ScalarNode {
     }
 
     if (value) {
-      var allowedChoices = this.props.get('choices').map((choice) => {
+      var allowedChoices = this.props.get("choices").map(choice => {
         return choice.value;
       });
       if (allowedChoices.indexOf(value) < 0) {
-        return new Error(_('Not a valid choice.'));
+        return new Error(_("Not a valid choice."));
       }
     }
   }
 }
 
-
 module.exports = ChoiceProperty;
-

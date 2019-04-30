@@ -6,7 +6,8 @@
 
 var React       = require('react');
 var cx          = require('classnames');
-var PropTypes   = require('./PropTypes');
+var PropTypes       = require('prop-types');
+var ReactCreateClass = require('create-react-class');
 var Message     = require('./Message');
 var Label       = require('./Label');
 var Input       = require('./Input');
@@ -19,17 +20,9 @@ var FocusStore  = require('./FocusStore');
  * It provides basic markup which include <input /> component (can be customized
  * via schema) and <label /> (label text and hint text).
  */
-var Field = React.createClass({
+var Field = ReactCreateClass({
 
   mixins: [FocusStore.FocusableMixin],
-
-  propTypes: {
-    label: React.PropTypes.string,
-    hint: React.PropTypes.string,
-    value: PropTypes.Value,
-    input: React.PropTypes.oneOfType,
-    noLabel: React.PropTypes.bool
-  },
 
   render(): ?ReactElement {
     var {value, hint, label, noLabel, input, className, ...props} = this.props;

@@ -3,6 +3,7 @@
  */
 
 import * as React from 'react';
+import PropTypes from 'prop-types';
 import * as ReactUI from '@prometheusresearch/react-ui-0.21';
 import {style} from '@prometheusresearch/react-ui-0.21/stylesheet';
 import noop from 'lodash/noop';
@@ -40,23 +41,23 @@ export default InjectI18N(class FormEditor extends React.Component {
      * The title to display over the form. If not specified, defaults to the
      * title found in the Form or Instrument configuration.
      */
-    title: React.PropTypes.string,
+    title: PropTypes.string,
 
     /**
      * The subtitle to display over the form.
      */
-    subtitle: React.PropTypes.string,
+    subtitle: PropTypes.string,
 
     /**
      * Whether or not to enable the calculation preview functionality. Defaults
      * to false.
      */
-    showCalculations: React.PropTypes.bool,
+    showCalculations: PropTypes.bool,
 
     /**
      * The minimum interval in ms between autosave events. Defaults to 5000.
      */
-    autoSaveInterval: React.PropTypes.number,
+    autoSaveInterval: PropTypes.number,
 
     /**
      * The function to call in order to save the current state of the
@@ -67,7 +68,7 @@ export default InjectI18N(class FormEditor extends React.Component {
      * This callback can (and probably should) return a Promise when performing
      * any long running and/or asynchronous tasks.
      */
-    onSave: React.PropTypes.func,
+    onSave: PropTypes.func,
 
     /**
      * The function to call when the user moves from entry mode into review
@@ -76,7 +77,7 @@ export default InjectI18N(class FormEditor extends React.Component {
      * * isValid(): Whether or not the current state of the Assessment is valid.
      * * getErrors(): An array of the current validation errors in the form.
      */
-    onReview: React.PropTypes.func,
+    onReview: PropTypes.func,
 
     /**
      * The function to call when the user finalizes the form (post-review). The
@@ -85,7 +86,7 @@ export default InjectI18N(class FormEditor extends React.Component {
      * * isValid(): Whether or not the current state of the Assessment is valid.
      * * getErrors(): An array of the current validation errors in the form.
      */
-    onComplete: React.PropTypes.func,
+    onComplete: PropTypes.func,
   };
 
   static defaultProps = {

@@ -2,21 +2,21 @@
  * @flow
  */
 
-import * as types from './types';
+import * as types from "./types";
 
-import * as React from 'react';
-import {VBox} from 'react-stylesheet';
+import * as React from "react";
+import { VBox } from "react-stylesheet";
 
-import * as ui from '../ui';
-import SelectAttribute from './SelectAttribute';
-import SelectAttributeWithColor from './SelectAttributeWithColor';
-import ChartControlPanel from './ChartControlPanel';
-import NoNumericAttributeText from './NoNumericAttributeText';
-import AreaChart from './AreaChart';
+import * as ui from "../ui";
+import SelectAttribute from "./SelectAttribute";
+import SelectAttributeWithColor from "./SelectAttributeWithColor";
+import ChartControlPanel from "./ChartControlPanel";
+import NoNumericAttributeText from "./NoNumericAttributeText";
+import AreaChart from "./AreaChart";
 
 type AreaChartEditorProps = types.ChartEditorBaseProps<types.AreaChart> & {
   optionsForX: $ReadOnlyArray<ui.SelectOption>,
-  optionsForArea: $ReadOnlyArray<ui.SelectOption>,
+  optionsForArea: $ReadOnlyArray<ui.SelectOption>
 };
 
 export default function AreaChartEditor({
@@ -27,19 +27,20 @@ export default function AreaChartEditor({
   data,
   optionsForX,
   optionsForArea,
-  dataIsUpdating,
+  dataIsUpdating
 }: AreaChartEditorProps) {
   const areaList = chart.areaList.concat({
     valueColumn: null,
-    color: '#8884d8',
+    color: "#8884d8"
   });
   const onLabelChange = (labelColumn, option) => {
-    const label = option && typeof option.label === 'string' ? option.label : null;
+    const label =
+      option && typeof option.label === "string" ? option.label : null;
     onChart({
-      type: 'area',
+      type: "area",
       ...chart,
       labelColumn,
-      label,
+      label
     });
   };
   return (
@@ -59,15 +60,15 @@ export default function AreaChartEditor({
             } else {
               areaList.splice(index, 1, {
                 ...areaList[index],
-                ...values,
+                ...values
               });
             }
-            onChart({type: 'area', ...chart, areaList});
+            onChart({ type: "area", ...chart, areaList });
           };
           const onAreaChange = (valueColumn, option) => {
             const label =
-              option && typeof option.label === 'string' ? option.label : null;
-            updateChart({...area, valueColumn, label});
+              option && typeof option.label === "string" ? option.label : null;
+            updateChart({ ...area, valueColumn, label });
           };
           return (
             <SelectAttributeWithColor
@@ -79,7 +80,7 @@ export default function AreaChartEditor({
               value={area.valueColumn}
               onChange={onAreaChange}
               color={area.color}
-              onColorChange={color => updateChart({...area, color})}
+              onColorChange={color => updateChart({ ...area, color })}
             />
           );
         })}

@@ -11,7 +11,7 @@ function referenceEquals(a, b) {
 export function equals<A, B>(
   a: Array<A>,
   b: Array<B>,
-  equals: (a: A, b: B) => boolean = referenceEquals,
+  equals: (a: A, b: B) => boolean = referenceEquals
 ): boolean {
   if (a.length !== b.length) {
     return false;
@@ -30,7 +30,7 @@ export function traceEquals(a: Array<KeyPath>, b: Array<KeyPath>) {
 
 export function findIndexRight<T>(
   array: Array<T>,
-  predicate: (item: T, index: number) => boolean,
+  predicate: (item: T, index: number) => boolean
 ): number {
   if (array.length === 0) {
     return -1;
@@ -81,14 +81,14 @@ function transposeImpl(obj: Object, keyPath: Array<string>): Array<Object> {
             result.push({
               ...obj,
               __index__: nextIndex,
-              [key]: nextObj[nextIndex],
+              [key]: nextObj[nextIndex]
             });
           }
         } else {
           result.push({
             ...obj,
             __index__: 0,
-            [key]: obj[key][index],
+            [key]: obj[key][index]
           });
         }
       }
@@ -98,8 +98,8 @@ function transposeImpl(obj: Object, keyPath: Array<string>): Array<Object> {
         {
           ...obj,
           __index__: 0,
-          [key]: null,
-        },
+          [key]: null
+        }
       ];
     }
   } else {

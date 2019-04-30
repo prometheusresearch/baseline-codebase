@@ -28,7 +28,7 @@ import type {
   Locator
 } from './TargetIndex';
 
-import {select as selectSchema} from 'react-forms/src/Schema';
+import {select as selectSchema} from 'react-forms/Schema';
 import * as REXL from 'rex-expression';
 import invariant from 'invariant';
 import get from 'lodash/get';

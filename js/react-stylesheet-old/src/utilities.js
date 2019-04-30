@@ -2,12 +2,18 @@
  * @copyright 2015, Prometheus Research, LLC
  */
 
+import React from "react";
+
+let forwardRef = React.forwardRef(() => null).$$typeof;
+
 /**
  * Loose check if the argument is a valid React component.
  */
 export function isComponent(obj) {
   let typeofObj = typeof obj;
-  return typeofObj === 'string' || typeofObj === 'function';
+  return typeofObj === "string" ||
+    typeofObj === "function" ||
+    (obj != null && obj.$$typeof === forwardRef);
 }
 
 /**
@@ -15,30 +21,24 @@ export function isComponent(obj) {
  */
 export function isHostComponent(obj) {
   let typeofObj = typeof obj;
-  return typeofObj === 'string';
+  return typeofObj === "string";
 }
 
 export function isClassComponent(obj) {
-  return (
-    isComponent(obj) &&
-    obj.prototype &&
-    obj.prototype.isReactComponent
-  );
+  return isComponent(obj) && obj.prototype && obj.prototype.isReactComponent;
 }
 
 export function isFunctionComponent(obj) {
-  return (
-    isComponent(obj) &&
+  return isComponent(obj) &&
     !isClassComponent(obj) &&
-    typeof obj === 'function'
-  );
+    typeof obj === "function";
 }
 
 /**
  * Get component display name.
  */
 export function getComponentDisplayName(Component) {
-  if (typeof Component === 'string') {
+  if (typeof Component === "string") {
     return Component;
   } else if (Component) {
     return Component.displayName || Component.name || null;
@@ -46,4 +46,3 @@ export function getComponentDisplayName(Component) {
     return null;
   }
 }
-

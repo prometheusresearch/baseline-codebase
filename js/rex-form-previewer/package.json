@@ -10,11 +10,9 @@
     "url": "https://bitbucket.org/rexdb/rex.form_previewer"
   },
   "main": "lib/index.js",
-  "peerDependencies": {
-    "react": "^0.14.0",
-    "react-dom": "^0.14.0"
-  },
   "dependencies": {
+    "react": "*",
+    "react-dom": "*",
     "@prometheusresearch/react-ui": "*",
     "react-forms": "*",
     "derivable": "1.0.0-beta11",
@@ -22,9 +20,7 @@
     "rex-i18n": "*",
     "rex-forms": "*",
     "bfj": "6.1.1",
-    "react": "^0.14.9",
-    "react-dom": "^0.14.9",
     "react-addons-update": "^0.14.0",
-    "react-addons-shallow-compare": "^0.14.0"
+    "react-addons-shallow-compare": "^15.0.0"
   }
 }

@@ -1,23 +1,32 @@
 /**
- * @flow
+ * @noflow
  */
 
-import {strip} from './util';
+import { strip } from "./util";
 
-import * as t from '../Type';
-import {here, pipeline, select, navigate, def, filter, value, inferType} from '../Query';
-import {loc} from '../QueryLoc';
+import * as t from "../Type";
+import {
+  here,
+  pipeline,
+  select,
+  navigate,
+  def,
+  filter,
+  value,
+  inferType
+} from "../Query";
+import { loc } from "../QueryLoc";
 import {
   growNavigation,
   reconcileNavigation,
   insertAfter,
-  remove,
-} from '../QueryOperation';
+  remove
+} from "../QueryOperation";
 
-describe('insertAfter()', function() {
-  let individual = navigate('individual');
-  let name = navigate('name');
-  let sample = navigate('sample');
+describe("insertAfter()", function() {
+  let individual = navigate("individual");
+  let name = navigate("name");
+  let sample = navigate("sample");
 
   it('inserts "name" after "individual"', function() {
     let focusQuery = individual;
@@ -28,9 +37,9 @@ describe('insertAfter()', function() {
       strip(
         insertAfter({
           loc: loc(query, focusQuery),
-          what,
-        }),
-      ),
+          what
+        })
+      )
     ).toEqual(strip(expectedQuery));
   });
 
@@ -43,9 +52,9 @@ describe('insertAfter()', function() {
       strip(
         insertAfter({
           loc: loc(query, focusQuery),
-          what,
-        }),
-      ),
+          what
+        })
+      )
     ).toEqual(strip(expectedQuery));
   });
 
@@ -58,132 +67,144 @@ describe('insertAfter()', function() {
       strip(
         insertAfter({
           loc: loc(query, focusQuery),
-          what,
-        }),
-      ),
+          what
+        })
+      )
     ).toEqual(strip(expectedQuery));
   });
 
   it('inserts "name" after "individual:define(a = sample.[ ])', function() {
     let focusQuery = sample;
-    let query = pipeline(individual, def('a', pipeline(sample)));
+    let query = pipeline(individual, def("a", pipeline(sample)));
     let what = [name];
-    let expectedQuery = pipeline(individual, def('a', pipeline(sample, name)));
+    let expectedQuery = pipeline(individual, def("a", pipeline(sample, name)));
     expect(
       strip(
         insertAfter({
           loc: loc(query, focusQuery),
-          what,
-        }),
-      ),
+          what
+        })
+      )
     ).toEqual(strip(expectedQuery));
   });
 });
 
-describe('remove()', function() {
-  let individual = navigate('individual');
-  let name = navigate('name');
-  let sample = navigate('sample');
+describe("remove()", function() {
+  let individual = navigate("individual");
+  let name = navigate("name");
+  let sample = navigate("sample");
 
-  it('individual.name!', function() {
+  it("individual.name!", function() {
     let focusQuery = name;
     let query = pipeline(individual, name);
     let expectedQuery = pipeline(individual);
-    expect(strip(remove({loc: loc(query, focusQuery)}))).toEqual(strip(expectedQuery));
+    expect(strip(remove({ loc: loc(query, focusQuery) }))).toEqual(
+      strip(expectedQuery)
+    );
   });
 
-  it('individual!.name', function() {
+  it("individual!.name", function() {
     let focusQuery = individual;
     let query = pipeline(individual, name);
     let expectedQuery = pipeline(name);
-    expect(strip(remove({loc: loc(query, focusQuery)}))).toEqual(strip(expectedQuery));
+    expect(strip(remove({ loc: loc(query, focusQuery) }))).toEqual(
+      strip(expectedQuery)
+    );
   });
 
-  it('individual:select(a = sample.name!)', function() {
+  it("individual:select(a = sample.name!)", function() {
+    let focusQuery = name;
+    let query = pipeline(
+      individual,
+      select({
+        a: pipeline(sample, name)
+      })
+    );
+    let expectedQuery = pipeline(
+      individual,
+      select({
+        a: pipeline(sample)
+      })
+    );
+    expect(strip(remove({ loc: loc(query, focusQuery) }))).toEqual(
+      strip(expectedQuery)
+    );
+  });
+
+  it("individual:select(a = [sample!])", function() {
+    let focusQuery = sample;
+    let query = pipeline(
+      individual,
+      select({
+        a: pipeline(sample)
+      })
+    );
+    let expectedQuery = pipeline(individual);
+    expect(strip(remove({ loc: loc(query, focusQuery) }))).toEqual(
+      strip(expectedQuery)
+    );
+  });
+
+  it("individual:select(a = sample.name!, b = sample)", function() {
     let focusQuery = name;
     let query = pipeline(
       individual,
       select({
         a: pipeline(sample, name),
-      }),
+        b: pipeline(sample)
+      })
     );
     let expectedQuery = pipeline(
       individual,
       select({
         a: pipeline(sample),
-      }),
+        b: pipeline(sample)
+      })
     );
-    expect(strip(remove({loc: loc(query, focusQuery)}))).toEqual(strip(expectedQuery));
+    expect(strip(remove({ loc: loc(query, focusQuery) }))).toEqual(
+      strip(expectedQuery)
+    );
   });
 
-  it('individual:select(a = [sample!])', function() {
+  it("individual:define(a := sample!)", function() {
     let focusQuery = sample;
-    let query = pipeline(
-      individual,
-      select({
-        a: pipeline(sample),
-      }),
-    );
+    let query = pipeline(individual, def("a", pipeline(sample)));
     let expectedQuery = pipeline(individual);
-    expect(strip(remove({loc: loc(query, focusQuery)}))).toEqual(strip(expectedQuery));
-  });
-
-  it('individual:select(a = sample.name!, b = sample)', function() {
-    let focusQuery = name;
-    let query = pipeline(
-      individual,
-      select({
-        a: pipeline(sample, name),
-        b: pipeline(sample),
-      }),
+    expect(strip(remove({ loc: loc(query, focusQuery) }))).toEqual(
+      strip(expectedQuery)
     );
-    let expectedQuery = pipeline(
-      individual,
-      select({
-        a: pipeline(sample),
-        b: pipeline(sample),
-      }),
-    );
-    expect(strip(remove({loc: loc(query, focusQuery)}))).toEqual(strip(expectedQuery));
-  });
-
-  it('individual:define(a := sample!)', function() {
-    let focusQuery = sample;
-    let query = pipeline(individual, def('a', pipeline(sample)));
-    let expectedQuery = pipeline(individual);
-    expect(strip(remove({loc: loc(query, focusQuery)}))).toEqual(strip(expectedQuery));
   });
 });
 
-describe('growNavigation()', function() {
-  let a = navigate('a');
-  let b = navigate('b');
-  let c = navigate('c');
+describe("growNavigation()", function() {
+  let a = navigate("a");
+  let b = navigate("b");
+  let c = navigate("c");
 
-  it('grows a on here', function() {
+  it("grows a on here", function() {
     let query = pipeline(here);
-    let expectedQuery = pipeline(here, select({a: pipeline(a)}));
-    let path = ['a'];
-    expect(strip(growNavigation({loc: loc(query, here), path}))).toEqual(
-      strip(expectedQuery),
+    let expectedQuery = pipeline(here, select({ a: pipeline(a) }));
+    let path = ["a"];
+    expect(strip(growNavigation({ loc: loc(query, here), path }))).toEqual(
+      strip(expectedQuery)
     );
   });
 
-  it('grows a.b on here', function() {
+  it("grows a.b on here", function() {
     let query = pipeline(here);
     let expectedQuery = pipeline(
       here,
       select({
-        a: pipeline(a, select({b: pipeline(b)})),
-      }),
+        a: pipeline(a, select({ b: pipeline(b) }))
+      })
     );
-    let path = ['a', 'b'];
-    expect(strip(growNavigation({loc: loc(query, here), path}))).toEqual(
-      strip(expectedQuery),
+    let path = ["a", "b"];
+    expect(strip(growNavigation({ loc: loc(query, here), path }))).toEqual(
+      strip(expectedQuery)
     );
   });
 
-  it('grows a.b.c on here', function() {
+  it("grows a.b.c on here", function() {
     let query = pipeline(here);
     let expectedQuery = pipeline(
       here,
@@ -194,137 +215,140 @@ describe('growNavigation()', function() {
             b: pipeline(
               b,
               select({
-                c: pipeline(c),
-              }),
-            ),
-          }),
-        ),
-      }),
+                c: pipeline(c)
+              })
+            )
+          })
+        )
+      })
     );
-    let path = ['a', 'b', 'c'];
-    expect(strip(growNavigation({loc: loc(query, here), path}))).toEqual(
-      strip(expectedQuery),
+    let path = ["a", "b", "c"];
+    expect(strip(growNavigation({ loc: loc(query, here), path }))).toEqual(
+      strip(expectedQuery)
     );
   });
 
-  it('grows a.b on here:select(a := a)', function() {
-    let query = pipeline(here, select({a: pipeline(a)}));
+  it("grows a.b on here:select(a := a)", function() {
+    let query = pipeline(here, select({ a: pipeline(a) }));
     let expectedQuery = pipeline(
       here,
       select({
-        a: pipeline(a, select({b: pipeline(b)})),
-      }),
+        a: pipeline(a, select({ b: pipeline(b) }))
+      })
     );
-    let path = ['a', 'b'];
-    expect(strip(growNavigation({loc: loc(query, here), path}))).toEqual(
-      strip(expectedQuery),
+    let path = ["a", "b"];
+    expect(strip(growNavigation({ loc: loc(query, here), path }))).toEqual(
+      strip(expectedQuery)
     );
   });
 
-  it('grows a.b on here:filter():select(a := a)', function() {
-    let query = pipeline(here, filter(value(true)), select({a: pipeline(a)}));
+  it("grows a.b on here:filter():select(a := a)", function() {
+    let query = pipeline(here, filter(value(true)), select({ a: pipeline(a) }));
     let expectedQuery = pipeline(
       here,
       filter(value(true)),
       select({
-        a: pipeline(a, select({b: pipeline(b)})),
-      }),
+        a: pipeline(a, select({ b: pipeline(b) }))
+      })
     );
-    let path = ['a', 'b'];
-    expect(strip(growNavigation({loc: loc(query, here), path}))).toEqual(
-      strip(expectedQuery),
+    let path = ["a", "b"];
+    expect(strip(growNavigation({ loc: loc(query, here), path }))).toEqual(
+      strip(expectedQuery)
     );
   });
 
-  it('grows a.b.c on here:select(a := a)', function() {
-    let query = pipeline(here, select({a: pipeline(a)}));
+  it("grows a.b.c on here:select(a := a)", function() {
+    let query = pipeline(here, select({ a: pipeline(a) }));
     let expectedQuery = pipeline(
       here,
       select({
         a: pipeline(
           a,
           select({
-            b: pipeline(b, select({c: pipeline(c)})),
-          }),
-        ),
-      }),
+            b: pipeline(b, select({ c: pipeline(c) }))
+          })
+        )
+      })
     );
-    let path = ['a', 'b', 'c'];
-    expect(strip(growNavigation({loc: loc(query, here), path}))).toEqual(
-      strip(expectedQuery),
+    let path = ["a", "b", "c"];
+    expect(strip(growNavigation({ loc: loc(query, here), path }))).toEqual(
+      strip(expectedQuery)
     );
   });
 
-  it('grows b.c on here:select(a := [a])', function() {
+  it("grows b.c on here:select(a := [a])", function() {
     let focusQuery = a;
-    let query = pipeline(here, select({a: pipeline(focusQuery)}));
+    let query = pipeline(here, select({ a: pipeline(focusQuery) }));
     let expectedQuery = pipeline(
       here,
       select({
         a: pipeline(
           a,
           select({
-            b: pipeline(b, select({c: pipeline(c)})),
-          }),
-        ),
-      }),
+            b: pipeline(b, select({ c: pipeline(c) }))
+          })
+        )
+      })
     );
-    let path = ['b', 'c'];
-    expect(strip(growNavigation({loc: loc(query, focusQuery), path}))).toEqual(
-      strip(expectedQuery),
-    );
+    let path = ["b", "c"];
+    expect(
+      strip(growNavigation({ loc: loc(query, focusQuery), path }))
+    ).toEqual(strip(expectedQuery));
   });
 
-  it('grows b on here:define(a := [a])', function() {
+  it("grows b on here:define(a := [a])", function() {
     let focusQuery = a;
-    let query = pipeline(here, def('a', pipeline(focusQuery)));
-    let expectedQuery = pipeline(here, def('a', pipeline(a, select({b: pipeline(b)}))));
-    let path = ['b'];
-    expect(strip(growNavigation({loc: loc(query, focusQuery), path}))).toEqual(
-      strip(expectedQuery),
+    let query = pipeline(here, def("a", pipeline(focusQuery)));
+    let expectedQuery = pipeline(
+      here,
+      def("a", pipeline(a, select({ b: pipeline(b) })))
     );
+    let path = ["b"];
+    expect(
+      strip(growNavigation({ loc: loc(query, focusQuery), path }))
+    ).toEqual(strip(expectedQuery));
   });
 });
 
-describe('reconcileNavigation()', function() {
+describe("reconcileNavigation()", function() {
   const domain = t.createDomain({
     entity: {
       individual: domain => ({
-        title: 'individual',
+        title: "individual",
         attribute: {
           name: {
-            title: 'name',
-            type: t.textType(domain),
+            title: "name",
+            type: t.textType(domain)
           },
           age: {
-            title: 'age',
-            type: t.numberType(domain),
+            title: "age",
+            type: t.numberType(domain)
           },
           study: {
-            title: 'study',
-            type: t.entityType(domain, 'study'),
-          },
-        },
+            title: "study",
+            type: t.entityType(domain, "study")
+          }
+        }
       }),
       study: domain => ({
-        title: 'study',
+        title: "study",
         attribute: {
           name: {
-            title: 'name',
-            type: t.textType(domain),
-          },
-        },
-      }),
+            title: "name",
+            type: t.textType(domain)
+          }
+        }
+      })
     },
-    aggregate: {},
+    aggregate: {}
   });
 
-  const individual = navigate('individual');
-  const study = navigate('study');
-  const name = navigate('name');
-  const age = navigate('age');
+  const individual = navigate("individual");
+  const study = navigate("study");
+  const name = navigate("name");
+  const age = navigate("age");
 
-  it('individual', function() {
+  it("individual", function() {
     let query = pipeline(here, individual);
     let expectedQuery = pipeline(
       here,
@@ -332,15 +356,15 @@ describe('reconcileNavigation()', function() {
       select({
         name: pipeline(name),
         age: pipeline(age),
-        study: pipeline(study),
-      }),
+        study: pipeline(study)
+      })
     );
     expect(strip(reconcileNavigation(inferType(domain, query)))).toEqual(
-      strip(expectedQuery),
+      strip(expectedQuery)
     );
   });
 
-  it('here:individual', function() {
+  it("here:individual", function() {
     let query = pipeline(here, individual);
     let expectedQuery = pipeline(
       here,
@@ -348,186 +372,186 @@ describe('reconcileNavigation()', function() {
       select({
         name: pipeline(name),
         age: pipeline(age),
-        study: pipeline(study),
-      }),
+        study: pipeline(study)
+      })
     );
     expect(strip(reconcileNavigation(inferType(domain, query)))).toEqual(
-      strip(expectedQuery),
+      strip(expectedQuery)
     );
   });
 
-  it('here:define(q := name)', function() {
-    let query = pipeline(here, def('q', pipeline(individual)));
+  it("here:define(q := name)", function() {
+    let query = pipeline(here, def("q", pipeline(individual)));
     let expectedQuery = pipeline(
       here,
       def(
-        'q',
+        "q",
         pipeline(
           individual,
           select({
             age: pipeline(age),
             name: pipeline(name),
-            study: pipeline(study),
-          }),
-        ),
-      ),
+            study: pipeline(study)
+          })
+        )
+      )
     );
     expect(strip(reconcileNavigation(inferType(domain, query)))).toEqual(
-      strip(expectedQuery),
+      strip(expectedQuery)
     );
   });
 
-  it('here:define(q := name) pipeline.1', function() {
-    let query = pipeline(here, def('q', pipeline(individual)));
+  it("here:define(q := name) pipeline.1", function() {
+    let query = pipeline(here, def("q", pipeline(individual)));
     let expectedQuery = pipeline(
       here,
       def(
-        'q',
+        "q",
         pipeline(
           individual,
           select({
             age: pipeline(age),
             name: pipeline(name),
-            study: pipeline(study),
-          }),
-        ),
-      ),
+            study: pipeline(study)
+          })
+        )
+      )
     );
     expect(strip(reconcileNavigation(inferType(domain, query)))).toEqual(
-      strip(expectedQuery),
+      strip(expectedQuery)
     );
   });
 
-  it('here:individual:define()', function() {
-    let query = pipeline(here, individual, def('q', pipeline(name)));
+  it("here:individual:define()", function() {
+    let query = pipeline(here, individual, def("q", pipeline(name)));
     let expectedQuery = pipeline(
       here,
       individual,
-      def('q', pipeline(name)),
+      def("q", pipeline(name)),
       select({
         name: pipeline(name),
         age: pipeline(age),
-        study: pipeline(study),
-      }),
+        study: pipeline(study)
+      })
     );
     expect(strip(reconcileNavigation(inferType(domain, query)))).toEqual(
-      strip(expectedQuery),
+      strip(expectedQuery)
     );
   });
 
-  it('here:individual:define() pipeline.2:binding.query', function() {
-    let query = pipeline(here, individual, def('q', pipeline(name)));
+  it("here:individual:define() pipeline.2:binding.query", function() {
+    let query = pipeline(here, individual, def("q", pipeline(name)));
     let expectedQuery = pipeline(
       here,
       individual,
-      def('q', pipeline(name)),
+      def("q", pipeline(name)),
       select({
         name: pipeline(name),
         age: pipeline(age),
-        study: pipeline(study),
-      }),
+        study: pipeline(study)
+      })
     );
     expect(strip(reconcileNavigation(inferType(domain, query)))).toEqual(
-      strip(expectedQuery),
+      strip(expectedQuery)
     );
   });
 
-  it('here:individual:define() pipeline.1', function() {
-    let query = pipeline(here, individual, def('q', pipeline(name)));
+  it("here:individual:define() pipeline.1", function() {
+    let query = pipeline(here, individual, def("q", pipeline(name)));
     let expectedQuery = pipeline(
       here,
       individual,
-      def('q', pipeline(name)),
+      def("q", pipeline(name)),
       select({
         name: pipeline(name),
         age: pipeline(age),
-        study: pipeline(study),
-      }),
+        study: pipeline(study)
+      })
     );
     expect(strip(reconcileNavigation(inferType(domain, query)))).toEqual(
-      strip(expectedQuery),
+      strip(expectedQuery)
     );
   });
 
-  it('here:individual:select(name:define()) pipeline.1', function() {
+  it("here:individual:select(name:define()) pipeline.1", function() {
     let query = pipeline(
       here,
       individual,
       select({
-        name: pipeline(name, def('q', pipeline(name))),
-      }),
+        name: pipeline(name, def("q", pipeline(name)))
+      })
     );
     let expectedQuery = pipeline(
       here,
       individual,
       select({
-        name: pipeline(name, def('q', pipeline(name))),
-      }),
+        name: pipeline(name, def("q", pipeline(name)))
+      })
     );
     expect(strip(reconcileNavigation(inferType(domain, query)))).toEqual(
-      strip(expectedQuery),
+      strip(expectedQuery)
     );
   });
 
-  it('here:individual:select(name:define()) pipeline.2 select.name pipeline.0', function() {
+  it("here:individual:select(name:define()) pipeline.2 select.name pipeline.0", function() {
     let query = pipeline(
       here,
       individual,
       select({
-        name: pipeline(name, def('q', pipeline(name))),
-      }),
+        name: pipeline(name, def("q", pipeline(name)))
+      })
     );
     let expectedQuery = pipeline(
       here,
       individual,
       select({
-        name: pipeline(name, def('q', pipeline(name))),
-      }),
+        name: pipeline(name, def("q", pipeline(name)))
+      })
     );
     expect(strip(reconcileNavigation(inferType(domain, query)))).toEqual(
-      strip(expectedQuery),
+      strip(expectedQuery)
     );
   });
 
-  it('here:individual:select(name:define()) pipeline.2 select.name pipeline.1', function() {
+  it("here:individual:select(name:define()) pipeline.2 select.name pipeline.1", function() {
     let query = pipeline(
       here,
       individual,
       select({
-        name: pipeline(name, def('q', pipeline(name))),
-      }),
+        name: pipeline(name, def("q", pipeline(name)))
+      })
     );
     let expectedQuery = pipeline(
       here,
       individual,
       select({
-        name: pipeline(name, def('q', pipeline(name))),
-      }),
+        name: pipeline(name, def("q", pipeline(name)))
+      })
     );
     expect(strip(reconcileNavigation(inferType(domain, query)))).toEqual(
-      strip(expectedQuery),
+      strip(expectedQuery)
     );
   });
 
-  it('here:individual:select(name:define()) pipeline.2 select.name pipeline.1 binding.query', function() {
+  it("here:individual:select(name:define()) pipeline.2 select.name pipeline.1 binding.query", function() {
     let query = pipeline(
       here,
       individual,
-      select({name: pipeline(name, def('q', pipeline(name)))}),
+      select({ name: pipeline(name, def("q", pipeline(name))) })
     );
     let expectedQuery = pipeline(
       here,
       individual,
       select({
-        name: pipeline(name, def('q', pipeline(name))),
-      }),
+        name: pipeline(name, def("q", pipeline(name)))
+      })
     );
     expect(strip(reconcileNavigation(inferType(domain, query)))).toEqual(
-      strip(expectedQuery),
+      strip(expectedQuery)
     );
   });
 
-  it('here:individual pipeline.1', function() {
+  it("here:individual pipeline.1", function() {
     let query = pipeline(here, individual);
     let expectedQuery = pipeline(
       here,
@@ -535,37 +559,37 @@ describe('reconcileNavigation()', function() {
       select({
         name: pipeline(name),
         age: pipeline(age),
-        study: pipeline(study),
-      }),
+        study: pipeline(study)
+      })
     );
     expect(strip(reconcileNavigation(inferType(domain, query)))).toEqual(
-      strip(expectedQuery),
+      strip(expectedQuery)
     );
   });
 
-  it('individual:select(name)', function() {
-    let query = pipeline(here, select({individual: pipeline(individual)}));
+  it("individual:select(name)", function() {
+    let query = pipeline(here, select({ individual: pipeline(individual) }));
     let expectedQuery = pipeline(
       here,
       select({
-        individual: pipeline(individual),
-      }),
+        individual: pipeline(individual)
+      })
     );
     expect(strip(reconcileNavigation(inferType(domain, query)))).toEqual(
-      strip(expectedQuery),
+      strip(expectedQuery)
     );
   });
 
-  it('here:select(individual)', function() {
-    let query = pipeline(here, select({individual: pipeline(individual)}));
+  it("here:select(individual)", function() {
+    let query = pipeline(here, select({ individual: pipeline(individual) }));
     let expectedQuery = pipeline(
       here,
       select({
-        individual: pipeline(individual),
-      }),
+        individual: pipeline(individual)
+      })
     );
     expect(strip(reconcileNavigation(inferType(domain, query)))).toEqual(
-      strip(expectedQuery),
+      strip(expectedQuery)
     );
   });
 });

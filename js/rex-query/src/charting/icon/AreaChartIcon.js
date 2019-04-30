@@ -2,7 +2,7 @@
  * @flow
  */
 
-import * as React from 'react';
+import * as React from "react";
 
 export default function AreaChartIcon() {
   return (
@@ -10,7 +10,8 @@ export default function AreaChartIcon() {
       x="0px"
       y="0px"
       viewBox="0 0 376 376"
-      style={{width: 40, height: 40, enableBackground: 'new 0 0 376 376'}}>
+      style={{ width: 40, height: 40, enableBackground: "new 0 0 376 376" }}
+    >
       <g>
         <path
           d="M366,341H20V25c0-5.523-4.477-10-10-10S0,19.477,0,25v326c0,5.523,4.477,10,10,10h356c5.523,0,10-4.477,10-10
